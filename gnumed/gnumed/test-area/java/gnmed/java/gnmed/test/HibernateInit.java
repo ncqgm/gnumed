@@ -7,12 +7,17 @@
 package gnmed.test;
 import net.sf.hibernate.*;
 import net.sf.hibernate.cfg.*;
+import java.util.WeakHashMap;
+import java.util.*;
+import java.util.logging.*;
 
 import org.gnumed.gmIdentity.*;
 import org.gnumed.gmGIS.*;
 import org.gnumed.gmClinical.*;
-import java.util.WeakHashMap;
-import java.util.*;
+import org.drugref.*;
+
+
+
 /**
  *
  * @author  sjtan
@@ -24,6 +29,14 @@ public class HibernateInit {
     public static SessionFactory getSessions() {
         return sessions;
     }
+    
+    static {
+        try {
+      initLogger();  
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    };
     
     public static Session openSession() throws Exception {
         Session s =  sessions.openSession();
@@ -71,11 +84,21 @@ public class HibernateInit {
         addClass(urb.class).
         addClass(country.class).
         addClass(address_type.class);
+     
+       
     }
     
-    //        ds.
-    //        addClass(clin_health_issue.class).
-    //        addClass(clin_issue_component.class).
+    public static void initGmClinical() throws Exception {
+         ds.
+        addClass(clin_health_issue.class).
+        addClass(enum_coding_systems.class).
+        addClass(code_ref.class).
+        addClass(coding_systems.class).
+        addClass(clin_issue_component.class) 
+        ;
+         
+         ds.addClass( disease_code.class);
+    }
     //
     //        addClass(clin_encounter.class).
     //        addClass(clin_root_item.class).
@@ -84,11 +107,10 @@ public class HibernateInit {
     //        addClass(enum_allergy_type.class).
     //        addClass(enum_hx_source.class).
     //        addClass(enum_hx_type.class).
-    //        addClass(enum_coding_systems.class).
+   
     //        addClass(curr_encounter.class).
     //        addClass(script.class).
-    //        addClass(code_ref.class).
-    //        addClass(coding_systems.class)
+   
     //        ;
     
     
@@ -96,6 +118,14 @@ public class HibernateInit {
     
     public static void finalizeInit() throws Exception {
         sessions = ds.buildSessionFactory();
+    }
+    
+    public static void initAll() throws Exception {
+         HibernateInit.init();
+        HibernateInit.initGmIdentity();
+        HibernateInit.initGmClinical();
+        HibernateInit.finalizeInit();
+        HibernateInit.exportDatabase();
     }
     
     public static void exportDatabase() throws Exception {
@@ -136,6 +166,14 @@ public class HibernateInit {
         
         
     }
+    
+    public static void initLogger() throws Exception {
+        if (TestProperties.properties.getProperty("logger").equals("on"))
+            Logger.global.setLevel(Level.ALL);
+        else 
+            Logger.global.setLevel(Level.OFF);
+    }
+        
     
     /**
      * @param args the command line arguments

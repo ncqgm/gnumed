@@ -18,7 +18,7 @@ import java.util.logging.*;
  * @author  sjtan
  */
 public class TestGmGIS extends TestCase {
-    
+    static  Random r  = new Random();
     /** Creates a new instance of TestGmGIS */
     public TestGmGIS() {
     }
@@ -38,7 +38,7 @@ public class TestGmGIS extends TestCase {
        
     
     public static urb getRandomUrb() throws Exception {
-            Random r  = new Random();
+           
             List urbs = getUrbs();
             if (urbs.size() == 0) {
                 urb u = new urb();
@@ -86,7 +86,7 @@ public class TestGmGIS extends TestCase {
     }
     
     public static void main(String[] args) throws Exception {
-            HibernateInit.initGmIdentityOnly();
+            HibernateInit.initAll();
 //            HibernateInit.exportDatabase();
             TestSuite suite = new TestSuite();
             suite.addTestSuite(TestGmGIS.class);

@@ -59,8 +59,8 @@ public class TestGmIdentity  extends TestCase {
     }
     
     public static void main(String[] args) throws Exception {
-            HibernateInit.initGmIdentityOnly();
-            HibernateInit.exportDatabase();
+            HibernateInit.initAll();
+           
             TestSuite suite = new TestSuite();
             suite.addTestSuite(TestGmIdentity.class);
             junit.textui.TestRunner.run(suite);

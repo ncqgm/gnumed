@@ -32,5 +32,8 @@ all generated hbm.xml files, if can't find from reading the files. Fixed with pe
 10. trying to access sessions via HibernateInit which keeps tracks of created sessions, and only
 keeps one session active . This avoids conflicting sessions within the same thread.
 
+11.TestClinHealthIssue not cascading through the cascade="delete" tag in identity.clin_health_issues,
+made it cascade="all" so now saving operation cascades to clin_health_issues. Made sure clin_diagnosis cascades to code_ref as well. Cascade is one of the main reasons for using O-R mapping.
+
 
 

@@ -54,8 +54,8 @@ public class TestCSVLoader extends TestCase  {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
-        HibernateInit.initGmIdentityOnly();
-        HibernateInit.exportDatabase();
+        HibernateInit.initAll();
+       
         TestSuite suite = new TestSuite();
         suite.addTestSuite(TestCSVLoader.class);
         junit.textui.TestRunner.run(suite);

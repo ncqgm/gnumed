@@ -130,38 +130,35 @@ public class identity {
     
     /**
      *@hibernate.set
-     *  lazy="true"
-     *  cascade="delete"
-     *
+     *      lazy="true"
+     *      cascade="all"
      *@hibernate.collection-key
-     *  column="identity"
-//     *@hibernate.collection-index
-  //   *  column="health_issue"
+     *      column="identity"
      *@hibernate.collection-one-to-many
-     *  class="org.gnumed.gmClinical.clin_health_issue"
+     *      class="org.gnumed.gmClinical.clin_health_issue"
      */
-//    public Collection getClin_health_issues() {
-//        return clin_health_issue;
-//    }
-//    
-//    /** Setter for property clin_health_issues.
-//     * @param clin_health_issues New value of property clin_health_issues.
-//     *
-//     */
-//    public void setClin_health_issues(Collection clin_health_issues) {
-//        clin_health_issue = clin_health_issues;
-//    }
-//    
-//    public void addClin_health_issue(clin_health_issue _clin_health_issue) {
-//        if (! this.clin_health_issue.contains(_clin_health_issue)) {
-//            this.clin_health_issue.add(_clin_health_issue);
-//            _clin_health_issue.setIdentity(this);
-//        }
-//    }
-//    public void removeClin_health_issue(clin_health_issue _clin_health_issue) {
-//        boolean removed = this.clin_health_issue.remove(_clin_health_issue);
-//        if (removed) _clin_health_issue.setIdentity((identity)null);
-//    }
+    public Collection getClin_health_issues() {
+        return clin_health_issue;
+    }
+    
+    /** Setter for property clin_health_issues.
+     * @param clin_health_issues New value of property clin_health_issues.
+     *
+     */
+    public void setClin_health_issues(Collection clin_health_issues) {
+        clin_health_issue = clin_health_issues;
+    }
+    
+    public void addClin_health_issue(clin_health_issue _clin_health_issue) {
+        if (! this.clin_health_issue.contains(_clin_health_issue)) {
+            this.clin_health_issue.add(_clin_health_issue);
+            _clin_health_issue.setIdentity(this);
+        }
+    }
+    public void removeClin_health_issue(clin_health_issue _clin_health_issue) {
+        boolean removed = this.clin_health_issue.remove(_clin_health_issue);
+        if (removed) _clin_health_issue.setIdentity((identity)null);
+    }
 //    
 //    /**
 //     *@hibernate.set

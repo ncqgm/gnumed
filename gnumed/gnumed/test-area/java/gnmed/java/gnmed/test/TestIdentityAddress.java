@@ -103,8 +103,7 @@ public class TestIdentityAddress extends TestCase {
     }
     
     public static void main(String[] args) throws Exception {
-        HibernateInit.initGmIdentityOnly();
-        HibernateInit.exportDatabase();
+        HibernateInit.initAll();
         TestSuite suite = new TestSuite();
         suite.addTestSuite(TestIdentityAddress.class);
         junit.textui.TestRunner.run(suite);

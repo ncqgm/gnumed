@@ -8,6 +8,9 @@ package gnmed.test;
 import org.gnumed.gmGIS.*;
 import org.gnumed.gmIdentity.*;
 import java.util.*;
+import org.gnumed.gmClinical.*;
+import org.drugref.*;
+
 /**
  *
  * @author  sjtan
@@ -16,10 +19,10 @@ public class DomainPrinter {
     static SortedSet males;
     static DomainPrinter instance;
     static {
-       males = new TreeSet(Arrays.asList( new String[] { "XXY", "XY", "XYY" }));
-       instance = new DomainPrinter();
+        males = new TreeSet(Arrays.asList( new String[] { "XXY", "XY", "XYY" }));
+        instance = new DomainPrinter();
     };
-       
+    
     /** Creates a new instance of DomainPrinter */
     public DomainPrinter() {
     }
@@ -41,7 +44,7 @@ public class DomainPrinter {
         printAddress(ps, idAddr.getAddress());
     }
     
- 
+    
     public  void printIdentity( java.io.PrintStream ps, identity id) {
         Iterator ni = id.getNamess().iterator();
         for (int i = 0; ni.hasNext(); ++i) {
@@ -56,14 +59,24 @@ public class DomainPrinter {
         ps.print(", ");
         ps.print("sex: ");
         ps.print( males.contains(id.getKaryotype().toUpperCase()) ? "male": "female");
-        ps.print("\nAddresses:");
+        ps.print("\nAddresses:\n");
         Iterator ai = id.getIdentities_addressess().iterator();
         while (ai.hasNext()) {
+            ps.print("\t");
             printIdentityAddresses(ps,  (identities_addresses) ai.next());
-            ps.println();
+            
         }
         ps.println();
-     }
+        if (id.getClin_health_issues().size() > 0) {
+            ps.println("**** Health Issues *****");
+            Iterator ci = id.getClin_health_issues().iterator();
+            while (ci.hasNext()) {
+                printClinHealthIssue(ps, (clin_health_issue) ci.next());
+            }
+            ps.println();
+            ps.println();
+        }
+    }
     
     public  void printAddress(java.io.PrintStream ps, address a) {
         urb u = a.getStreet().getUrb();
@@ -71,7 +84,7 @@ public class DomainPrinter {
         u.getName();
         s.getName();
         a.getNumber();
-        System.out.println("urb = " + u.getName() + " state = " + u.getState());
+   //     System.out.println("urb = " + u.getName() + " state = " + u.getState());
         state sta = u.getState();
         sta.getName();
         ps.println("Address = " +  a.getNumber() + ", "+s.getName() + ", "+u.getName()+", "+sta.getName() + " "+u.getPostcode());
@@ -86,6 +99,26 @@ public class DomainPrinter {
     
     public  void printAddrType( java.io.PrintStream ps, address_type type) {
         ps.print(type.getName());
+    }
+    
+    public void printClinHealthIssue(  java.io.PrintStream ps,  clin_health_issue issue) {
+        ps.println(issue.getDescription());
+        
+        Iterator i = issue.getClin_issue_components().iterator();
+        while (i.hasNext()) {
+            clin_issue_component comp = (clin_issue_component) i.next();
+            if (comp instanceof clin_diagnosis) {
+                ps.print("\t");
+                printClinDiagnosis(ps, (clin_diagnosis)comp);
+                ps.println();
+            }
+        }
+    }
+    
+    public void printClinDiagnosis(java.io.PrintStream ps, clin_diagnosis diagnosis) {
+        ps.print(diagnosis.getApprox_start());
+        ps.print("  ");
+        ps.print(diagnosis.getCode_ref().getDisease_code().getDescription());
     }
     
     public static  String getStringList(String[] list) {
