@@ -140,11 +140,12 @@ class LoginPanel(wxPanel):
 	def __init__(self, parent, id,
                   pos = wxPyDefaultPosition, size = wxPyDefaultSize,
                   style = wxTAB_TRAVERSAL,
-		  loginparams=None,
-		  isDialog=0,
+		  loginparams = None,
+		  isDialog = 0,
 		  configroot = '/login' ,
-		  configfilename='gnumed',
-		  maxitems=8):
+		  configfilename = 'gnumed',
+		  bitmap = None,
+		  maxitems = 8):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		self.parent=parent
@@ -171,6 +172,16 @@ class LoginPanel(wxPanel):
 			self.LoadSettings()
 
 		self.topsizer = wxBoxSizer(wxVERTICAL)
+
+		if bitmap is not None:
+			try:
+				wxImage_AddHandler(wxPNGHandler())
+				png = wxImage(bitmap, wxBITMAP_TYPE_PNG).ConvertToBitmap()
+    				bmp = wxStaticBitmap(self, -1, png, wxPoint(10, 10), wxSize(png.GetWidth(), png.GetHeight()))
+				self.topsizer.Add(bmp, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
+			except:
+				wxMessageBox(_("Could not load bitmap [%s]") % bitmap, "ERROR:")
+
 		self.paramsbox = wxStaticBox( self, -1, _("Login Parameters"))
 		self.paramsboxsizer = wxStaticBoxSizer( self.paramsbox, wxVERTICAL )
 
@@ -371,9 +382,9 @@ class LoginPanel(wxPanel):
 
 
 class LoginDialog(wxDialog):
-	def __init__(self, parent, id, title=_("Login")):
+	def __init__(self, parent, id, title=_("Login"), png_bitmap=None):
 		wxDialog.__init__(self, parent, id, title)
-		self.panel = LoginPanel(self, -1, isDialog=1)
+		self.panel = LoginPanel(self, -1, isDialog=1, bitmap=png_bitmap)
 
 
 
@@ -382,18 +393,18 @@ class LoginDialog(wxDialog):
 #############################################################################
 
 if __name__ == '__main__':
-	app = wxPyWidgetTester(size = (400, 400))
+	app = wxPyWidgetTester(size = (400, 500))
 	#show the login panel in a main window
 	app.SetWidget(LoginPanel, -1)
 	#and pop the login dialog up modally
-	dlg = LoginDialog(NULL, -1)
+	dlg = LoginDialog(NULL, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
 	dlg.ShowModal()
 	#demonstration how to access the login dialog values
 	lp = dlg.panel.GetLoginParams()
 	if lp is None:
 		wxMessageBox("Dialog was cancelled by user")
 	else:
-		wxMessageBox("You tried to log in as %s with password %s" % (lp.userlist[0], lp.password))
+		wxMessageBox("You tried to log in as [%s] with password [%s]" % (lp.userlist[0], lp.password))
 	dlg.Destroy()
 	app.MainLoop()
 
