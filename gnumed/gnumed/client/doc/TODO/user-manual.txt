@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 ---------------------------------------------------
 Rules:
 ------
@@ -150,4 +150,13 @@ createdb gnumed
 
 Instructions on initialising the gnumed databases will follow - when 
 they are ready.
+--------------------------------------------------
+Son 20 Okt 2002 12:04:35 CEST gouchi@altern.org
+
+which wxWindows to use on Debian:
+
+try this ;-)
+http://packages.debian.org/cgi-bin/search_packages.pl?keywords=libwx&searchon=names&subword=1&version=unstable&release=all
+
+If I remember, I used  libwxgtk2.3-python 2.3.3.2 
 --------------------------------------------------
