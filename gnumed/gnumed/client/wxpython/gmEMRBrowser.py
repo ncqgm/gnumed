@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.13 2005-03-09 19:43:21 cfmoro Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmEMRBrowser.py,v 1.14 2005-03-09 20:00:13 cfmoro Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -357,8 +357,9 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		On new edit encounter notes menu item selection: edit encounter's soap notes
 		"""
 		emr = gmPerson.gmCurrentPatient().get_clinical_record()
-		encounter = self.__sel_item_obj		
+		encounter = self.__sel_item_obj
 		narrative = self.__get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = 1)
+		# FIXME: retrieve problem form cClinicalRecord filtered by pk_issue and pk_episode
 		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})
 		self.__browser.SetCustomRightWidget(gmSOAPWidgets.cResizingSoapPanel(self.__browser, problem = problem,
 		input_defs = narrative))
@@ -538,7 +539,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.13  2005-03-09 19:43:21  cfmoro
+# Revision 1.14  2005-03-09 20:00:13  cfmoro
+# Added fixme comment in problem retrieval
+#
+# Revision 1.13  2005/03/09 19:43:21  cfmoro
 # EMR browser edit problem-episodes notes responsible for providing the narrative definitions to cSoapResizingPanel
 #
 # Revision 1.12  2005/03/09 18:31:57  cfmoro
