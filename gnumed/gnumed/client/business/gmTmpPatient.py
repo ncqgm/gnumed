@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.18 2003-04-28 21:36:33 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmTmpPatient.py,v 1.19 2003-04-29 15:24:05 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -23,7 +23,7 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmExceptions, gmPG, gmSignals, gmDispatcher
+import gmExceptions, gmPG, gmSignals, gmDispatcher, gmClinicalRecord
 
 # 3rd party
 import mx.DateTime as mxDateTime
@@ -60,6 +60,7 @@ class gmPerson:
 			raise gmExceptions.ConstructorError, "No patient with ID [%s] in database." % aPKey
 
 		self.PUPIC = ""
+		self.__db_cache = {}
 
 		# register backend notification interests ...
 		#if not self._register_interests():
@@ -270,6 +271,31 @@ class gmPerson:
 			return "%sm" % (age.minutes)
 		return "%sm%ss" % (age.minutes, age.seconds)
 	#--------------------------------------------------------
+	def _get_clinical_record(self):
+		if self.__db_cache.has_key('clinical record'):
+			return self.__db_cache['clinical record']
+		try:
+			self.__db_cache['clinical record'] = gmClinicalRecord.gmClinicalRecord(aPKey = self.ID)
+		except StandardError:
+			_log.LogException('cannot instantiate clinical record for patient [%s]', sys.exc_info())
+			return None
+		return self.__db_cache['clinical record']
+	#--------------------------------------------------------
+	#--------------------------------------------------------
+	def _get_API(self):
+		API = []
+		for handler in gmPerson._get_handler.keys():
+			data = {}
+			# FIXME: how do I get an unbound method object ?
+			func = self._get_handler[handler]
+			data['API call name'] = handler
+			data['internal name'] = func.__name__
+#			data['reported by'] = method.im_self
+#			data['defined by'] = method.im_class
+			data['description'] = func.__doc__
+			API.append(data)
+		return API
+	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['document id list'] = _getMedDocsList
 	_get_handler['active name'] = _getActiveName
@@ -278,6 +304,8 @@ class gmPerson:
 	_get_handler['ID'] = _getID
 	_get_handler['dob'] = _getDOB
 	_get_handler['medical age'] = _get_medical_age
+	_get_handler['clinical record'] = _get_clinical_record
+	_get_handler['API'] = _get_API
 #============================================================
 from gmBorg import cBorg
 
@@ -592,10 +620,21 @@ if __name__ == "__main__":
 		print "title  ", myPatient['title']
 		print "dob    ", myPatient['dob']
 		print "med age", myPatient['medical age']
+		record = myPatient['clinical record']
+		print "EPR    ", record
+		print "allergy IDs", record['allergy IDs']
 		print "fails  ", myPatient['missing handler']
+		api = myPatient['API']
+		for call in api:
+			print "API call: %s (interally %s)" % (call['API call name'], call['internal name'])
+			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.18  2003-04-28 21:36:33  ncq
+# Revision 1.19  2003-04-29 15:24:05  ncq
+# - add _get_clinical_record handler
+# - add _get_API API discovery handler
+#
+# Revision 1.18  2003/04/28 21:36:33  ncq
 # - compactify medical age
 #
 # Revision 1.17  2003/04/25 12:58:58  ncq
