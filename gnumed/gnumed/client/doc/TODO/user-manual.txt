@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.35 $
+# $Revision: 1.36 $
 ---------------------------------------------------
 Rules:
 ------
@@ -10,11 +10,3 @@ Rules:
 - please date it.
 Thanks
 ---------------------------------------------------
-language configuration:
-
-If the user chooses "No" when asked whether the database locale
-should be changed to match the system locale this decision will
-be remembered in the config file (usually ~/.gnumed/gnumed.conf)
-until either the system locale is changed or the option
-removed from the config file. This option can also be edited
-from within GnuMed courtesy of the ConfigRegistry plugin.
