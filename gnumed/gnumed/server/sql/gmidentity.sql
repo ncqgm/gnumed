@@ -23,7 +23,7 @@
 --                BREAKS BACKWARDS COMPATIBILITY!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmidentity.sql,v $
--- $Id: gmidentity.sql,v 1.32 2003-03-27 17:51:58 ncq Exp $
+-- $Id: gmidentity.sql,v 1.33 2003-03-30 23:16:07 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -110,7 +110,9 @@ COMMENT ON COLUMN names.lastnames IS
 COMMENT ON COLUMN names.preferred IS
 	'the preferred first name, the name a person is usually called (nickname)';
 
-create index idx_names_lastnames on names(lastnames);
+-- useful for queries on "last and first" or "last"
+create index idx_names_last_first on names(lastnames, firstnames);
+-- need this for queries on "first" only
 create index idx_names_firstnames on names(firstnames);
 
 -- ----------------------------------------------------------
@@ -276,11 +278,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.32 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.33 $');
 
 -- =============================================
 -- $Log: gmidentity.sql,v $
--- Revision 1.32  2003-03-27 17:51:58  ncq
+-- Revision 1.33  2003-03-30 23:16:07  ncq
+-- - make proper index on firstnames/lastnames
+--
+-- Revision 1.32  2003/03/27 17:51:58  ncq
 -- - add a few indices
 --
 -- Revision 1.31  2003/02/24 23:08:21  ncq
