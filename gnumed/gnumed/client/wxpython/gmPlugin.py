@@ -40,6 +40,8 @@ class gmPlugin:
 
 	def name(self):
 		return self.__name
+		
+
 
 	def register(self, parentwidget=None):
 		raise gmExceptions.PureVirtualFunction()
@@ -56,6 +58,9 @@ class wxBasePlugin (gmPlugin):
 		self.__gb = guibroker
 		self.__cb = callbackbroker
 		self.__db = dbbroker
+
+	def register(self):
+		raise gmExceptions.PureVirtualFunction()
 
 
 "Layout manager creating base windows and placing other plugins"
@@ -117,13 +122,13 @@ class wxPluginConfiguration (wxPanel):
 class gmCrypto (gmPlugin):
 	def __init__ (self, name):
 		gmPlugin.__init__(self, name)
-	
+
 	def encrypt (self, plaintext, key):
 		gmExceptions.PureVirtualFunction ()
 
 	def decrypt (self, cyphertext, key):
 		gmExceptions.PureVirtualFunction ()
-		
+
 "A plugin which uses crypto algorithms"
 class gmCryptoUser:
 	def LoadAlgorithms ():
@@ -137,11 +142,11 @@ class gmCryptoUser:
 					for plugin_class in inspect.getmembers (aPlugin, inspect.isclass):
 						if issubclass (plugin_class, gmCrypto):
 							self.algorithm[crypto_name] = plugin_class (crypto_name)
-			
+
 				except:
 					gmDefLog (lErr, "can't load file: %s" % file)
-				
-			
+
+
 
 if __name__ == "__main__":
 

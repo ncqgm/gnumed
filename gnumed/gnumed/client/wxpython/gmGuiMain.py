@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-04-09 09:03:17 $
-# @version $Revision: 1.18 $ $Date: 2002-04-09 09:03:17 $ $Author: ncq $
+# @Date: $Date: 2002-06-02 05:18:52 $
+# @version $Revision: 1.19 $ $Date: 2002-06-02 05:18:52 $ $Author: hherb $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -29,7 +29,7 @@
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # text translation function for localization purposes
@@ -196,6 +196,10 @@ class MainFrame(wxFrame):
 		self.guibroker['main.notebook'] = nb
 		#allow self-sizing according to page sizes
 		nbs = wxNotebookSizer(nb)
+		
+		import gmScheduleAllDoctorsPnl
+		self.Schedules = gmScheduleAllDoctorsPnl.ScheduleAllDoctorsPnl(nb)
+		nb.AddPage(self.Schedules, _("Appointments"))
 
 		#Search Patient dialog
 		import gmPersonNotebook

@@ -64,7 +64,7 @@ class LoginInfo:
 
 	def GetPGDB_DSN(self):
 
-	    dsn = "%s:%s:%s:%s:%s:%s" % (self.GetHost(), 
+	    dsn = "%s:%s:%s:%s:%s:%s" % (self.GetHost(),
 	                                 self.GetDatabase(),
 					 self.GetUser(),
 					 self.GetPassword(),
@@ -72,6 +72,19 @@ class LoginInfo:
 					 self.GetTTY())
 	    host = "%s:%s" % (self.GetHost(), str(self.GetPort()))
 	    return dsn, host
+
+
+	def GetDBAPI_DSN(self):
+
+		dsn = "%s:%d:%s:%s:%s:%s:%s" % (self.GetHost(),
+					self.GetPort(),
+	                                 self.GetDatabase(),
+					 self.GetUser(),
+					 self.GetPassword(),
+					 self.GetOptions(),
+					 self.GetTTY())
+
+		return dsn
 
 
     	def SetUser(self, user):

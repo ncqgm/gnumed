@@ -26,7 +26,7 @@
 
 """gmConnectionPool - Broker for Postgres distributed backend connections
 """
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <@>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -167,11 +167,17 @@ class ConnectionPool:
 	### private method
 	def __pgconnect(self, login):
 		"connect to a postgres backend as specified by login object; return a connection object"
-		
-		dsn, hostport = login.GetPGDB_DSN()
+
 		try:
-		    db = pgdb.connect(dsn, host=hostport)
-		    return db
+			if dbapi is pgdb:
+				dsn, hostport = login.GetPGDB_DSN()
+				print "api is pgdb"
+				db = dbapi.connect(dsn, host=hostport)
+			else:
+				print "other api"
+				dsn = login.GetDBAPI_DSN()
+				db = dbapi.connect(dsn)
+			return db
 		except: 
 		    exc = sys.exc_info()
 		    gmLog.gmDefLog.LogException("Exception: Connection to database failed. DSN was [" + dsn + "], host:port was [" + hostport + "]", exc)
