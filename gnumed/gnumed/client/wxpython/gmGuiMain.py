@@ -1,24 +1,18 @@
 #!/usr/bin/python
 #############################################################################
-#
 # gmGuiMain - The application framework and main window of the
 #             all signing all dancing GNUMed reference client.
 #             (WORK IN PROGRESS)
 # ---------------------------------------------------------------------------
-#
-# @author: Dr. Horst Herb
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-02-07 05:13:59 $
-# @version $Revision: 1.70 $ $Date: 2003-02-07 05:13:59 $ $Author: sjtan $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
 #                  make no mistake: this module is still completely useless!
 #
 # @TODO: all testing, most of the implementation
-#
 ############################################################################
 # This source code is protected by the GPL licensing scheme.
 # Details regarding the GPL are available at http://www.gnu.org
@@ -26,12 +20,14 @@
 # to anybody else.
 
 """GNUMed GUI client
+
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmGuiMain.py,v 1.71 2003-02-07 08:37:13 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -482,7 +478,6 @@ class gmApp(wxApp):
 		import gmLogin
 		self.__backend = gmLogin.Login()
 		if self.__backend is None:
-			# _("Login attempt unsuccesful\nCan't run GNUmed without database connetcion")
 			_log.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GnuMed without database connection")
 			return false
 		# set up language in database
@@ -508,6 +503,7 @@ class gmApp(wxApp):
 		curs = conn.cursor()
 
 		# check if system and db language are different
+		db_lang = '??_??@??'
 		cmd = "select lang from i18n_curr_lang where owner = CURRENT_USER limit 1;"
 		try:
 			curs.execute(cmd)
@@ -519,7 +515,9 @@ class gmApp(wxApp):
 			curs.close()
 			conn.close()
 			return None
-		db_lang = curs.fetchone()[0]
+		result = curs.fetchone()
+		if result is not None:
+			db_lang = [0]
 		_log.Log(gmLog.lData, "current database locale: [%s]" % db_lang)
 
 		# identical ?
@@ -591,12 +589,12 @@ class gmApp(wxApp):
 
 		conn.commit()
 
-		cmd = "select * from i18n_curr_lang;"
-		try:
-			curs.execute(cmd)
-			_log.Log(gmLog.lData, curs.fetchall())
-		except:
-			_log.LogException('>>>%s<<< failed' % cmd, sys.exc_info(), fatal=0)
+#		cmd = "select * from i18n_curr_lang;"
+#		try:
+#			curs.execute(cmd)
+#			_log.Log(gmLog.lData, curs.fetchall())
+#		except:
+#			_log.LogException('>>>%s<<< failed' % cmd, sys.exc_info(), fatal=0)
 
 		curs.close()
 		conn.close()
@@ -618,22 +616,21 @@ def main():
 if __name__ == '__main__':
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
-#<<<<<<< gmGuiMain.py
-#	myLog.AddTarget(aLogTarget)
-#	myLog.Log(gmLog.lInfo, 'Starting up as main module.')
-	gb = gmGuiBroker.GuiBroker()
-	gb['gnumed_dir']= os.curdir+"/.."
-#=======
 	_log.AddTarget(aLogTarget)
 	_log.Log(gmLog.lInfo, 'Starting up as main module.')
-#>>>>>>> 1.69
+	gb = gmGuiBroker.GuiBroker()
+	gb['gnumed_dir'] = os.curdir + "/.."
 	main()
 
 _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.70  2003-02-07 05:13:59  sjtan
+# Revision 1.71  2003-02-07 08:37:13  ncq
+# - fixed some fallout from SJT's work
+# - don't die if select lang from i18n_curr_lang returns None
+#
+# Revision 1.70  2003/02/07 05:13:59  sjtan
 #
 # took out the myLog temporary so not broken when I'm running to see if hooks work.
 #
