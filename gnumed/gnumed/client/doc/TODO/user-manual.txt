@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 ---------------------------------------------------
 Rules:
 ------
@@ -60,4 +60,42 @@ Karsten.Hilbert@gmx.net    Mit 08 Jan 2003 12:06:34 CET
 pyPgSQL v2.3 is needed for db config string list support.
 
 Note: 2.3beta does NOT work yet
+---------------------------------------------------
+Karsten.Hilbert@gmx.net		Son 12 Jan 2003 20:25:27 CET
+
+GnuMed database user structure
+
+PostgreSQL does not support read-write versus read-only connections.
+To protect us from unwanted writes we emulate this separation by
+setting up two accounts per user. The normal account name "user" is
+used for read-only connections. This is ensured by only granting
+SELECT rights to those accounts. The read-write account name is
+formed by prepending a "_" to the normal account such that "user"
+has a companian account named "_user". Those accounts are granted
+appropriate INSERT, DELETE and UPDATE rights in the database.
+
+As it is very tedious to grant rights to each and every single
+account the concept of user groups is used. A group "group" is
+actually granted SELECT rights only, while "_group" receives
+INSERT, UPDATE, and DELETE rights on database objects. Users
+are simply added to those groups, name "user" to group "group" and
+"_user" to group "_group" thereby acquiring the respective database
+rights.
+
+Default groups that always exist in a properly configured GnuMed
+database are:
+
+gm-doctors			_gm-doctors
+gm-staff_medical	_gm-staff_medical
+gm-staff_office		_gm-staff_office
+gm-trainees_medical
+gm-trainees_office
+gm-public
+
+Notice how there are no write rights for trainees and the public.
+
+gmPG will return read-only connections by default. If a read-write
+connection is requested  by means of setting read_only = 0 a new
+connection to the service is instantiated for the user "_CURRENT_USER".
+Read-only connections are cached and shared, read-write ones are not.
 ---------------------------------------------------
