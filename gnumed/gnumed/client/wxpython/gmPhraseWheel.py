@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.11 2003-09-21 07:52:57 ihaywood Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmPhraseWheel.py,v 1.12 2003-09-21 10:55:04 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -315,8 +315,6 @@ class cMatchProvider_SQL(cMatchProvider):
 			self.srcs.append(tmp)
 			_log.Log(gmLog.lData, 'valid match source: %s' % tmp)
 
-#		self._find_matchable_fields(cursor, searchable_fields)
-
 		cMatchProvider.__init__(self)
 	#--------------------------------------------------------
 	# internal matching algorithms
@@ -441,11 +439,13 @@ class cPhraseWheel (wxTextCtrl):
 
 		# set event handlers
 		# 1) entered text changed
-		EVT_TEXT	(self, self.GetId(), self.__on_text_update)
+		EVT_TEXT (self, self.GetId(), self.__on_text_update)
+		# - user pressed <enter>
+		EVT_TEXT_ENTER	(self, self.GetId(), self.__on_enter)
 		# 2) a key was pressed
-		EVT_KEY_DOWN	(self, self.__on_key_pressed)
+		EVT_KEY_DOWN (self, self.__on_key_pressed)
 		# 3) evil user wants to resize widget
-		EVT_SIZE	(self, self.on_resize)
+		EVT_SIZE (self, self.on_resize)
 
 		self.id_callback = id_callback
 
@@ -505,6 +505,12 @@ class cPhraseWheel (wxTextCtrl):
 	def __show_picklist(self):
 		"""Display the pick list."""
 
+		# if only one match and text == match
+#		if (len(self.__currMatches) == 1) and (self.__currMatches[0]['label'] == self.GetValue()):
+			# don't display drop down list
+#			self.__hide_picklist()
+#			return 1
+
 		# recalculate position
 		# FiXME: check for number of entries - shrink list windows
 		#pos = self.ClientToScreen ((0,0))
@@ -548,7 +554,6 @@ class cPhraseWheel (wxTextCtrl):
 
 		FIXME: this might be exploitable for some nice statistics ...
 		"""
-
 		# if we have a pick list
 		if self.__picklist_visible:
 			# tell the input field about it
@@ -649,14 +654,15 @@ class cPhraseWheel (wxTextCtrl):
 		# - an empty match list if no matches were found
 		# also, our picklist is refilled and sorted according to weight
 
-		# display list - but only if we have any matches
+		# display list - but only if we have more than one match
 		if len(self.__currMatches) > 0:
 			# show it
 			self.on_resize (None)
 			self.__show_picklist()
 		else:
-			# we may have had a pick list window so we need to
-			# dismiss that since we don't have input anymore
+			# we may have had a pick list window so we
+			# need to dismiss that since we don't have
+			# more than one item anymore
 			self.__hide_picklist()
 #--------------------------------------------------------
 # MAIN
@@ -669,23 +675,6 @@ if __name__ == '__main__':
 	#----------------------------------------------------
 	class TestApp (wxApp):
 		def OnInit (self):
-			items = [	{'ID':1, 'label':"Bloggs", 	'weight':5},
-						{'ID':2, 'label':"Baker",  	'weight':4},
-						{'ID':3, 'label':"Jones",  	'weight':3},
-						{'ID':4, 'label':"Judson", 	'weight':2},
-						{'ID':5, 'label':"Jacobs", 	'weight':1},
-						{'ID':6, 'label':"Judson-Jacobs",'weight':5},
-					
-					]
-			mp1 = cMatchProvider_FixedList(items)
-
-			src = {
-				'service': 'default',
-				'table': 'gmpw_sql_test',
-				'column': 'phrase',
-				'limit': 25
-			}
-			#mp2 = cMatchProvider_SQL([src])
 
 			frame = wxFrame (
 				None,
@@ -695,11 +684,29 @@ if __name__ == '__main__':
 				style=wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE
 			)
 
+			items = [	{'ID':1, 'label':"Bloggs", 	'weight':5},
+						{'ID':2, 'label':"Baker",  	'weight':4},
+						{'ID':3, 'label':"Jones",  	'weight':3},
+						{'ID':4, 'label':"Judson", 	'weight':2},
+						{'ID':5, 'label':"Jacobs", 	'weight':1},
+						{'ID':6, 'label':"Judson-Jacobs",'weight':5}
+					]
+			mp1 = cMatchProvider_FixedList(items)
 			ww1 = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp1)
 			ww1.on_resize (None)
-			
-			#ww2 = cPhraseWheel(frame, clicked, pos = (50, 150), size = (180, 30), aMatchProvider=mp2)
-			#ww2.on_resize (None)
+
+			print "Do you want to test the database connected phrase wheel ?"
+			yes_no = raw_input('y/n: ')
+			if yes_no == 'y':
+				src = {
+					'service': 'default',
+					'table': 'gmpw_sql_test',
+					'column': 'phrase',
+					'limit': 25
+				}
+				mp2 = cMatchProvider_SQL([src])
+				ww2 = cPhraseWheel(frame, clicked, pos = (50, 150), size = (180, 30), aMatchProvider=mp2)
+				ww2.on_resize (None)
 
 			frame.Show (1)
 			return 1
@@ -709,7 +716,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.11  2003-09-21 07:52:57  ihaywood
+# Revision 1.12  2003-09-21 10:55:04  ncq
+# - coalesce merge conflicts due to optional SQL phrase wheel testing
+#
+# Revision 1.11  2003/09/21 07:52:57  ihaywood
 # those bloody umlauts killed by python interpreter!
 #
 # Revision 1.10  2003/09/17 05:54:32  ihaywood
@@ -767,7 +777,6 @@ if __name__ == '__main__':
 # - wxEditableListBox ?
 
 # - press down only once to get into list
-# - auto repeat on down arrow key
 # - moving between list members is too slow
 
 # - if non-learning (i.e. fast select only): autocomplete with match
@@ -794,3 +803,20 @@ if __name__ == '__main__':
 #----
 #TODO:
 # - see spincontrol for list box handling
+# stop list (list of negatives): "an" -> "animal" but not "and"
+
+# maybe store fixed list matches as balanced tree if otherwise to slow
+#-----
+#> > remember, you should be searching on  either weighted data, or in some
+#> > situations a start string search on indexed data
+#>
+#> Can you be a bit more specific on this ?
+
+#seaching ones own previous text entered  would usually be instring but
+#weighted (ie the phrases you use the most auto filter to the top)
+
+#Searching a drug database for a   drug brand name is usually more
+#functional if it does a start string search, not an instring search which is
+#much slower and usually unecesary.  There are many other examples but trust
+#me one needs both
+#-----
