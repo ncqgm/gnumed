@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.34 $
+-- $Revision: 1.35 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -157,6 +157,34 @@ comment on column lnk_tst2norm.id_test is
 	'which test does the linked norm apply to';
 comment on column lnk_tst2norm.id_norm is
 	'the norm to apply to the linked test';
+
+-- ====================================
+create table unmatched_test_result (
+	pk serial primary key,
+	fk_patient_candidates integer[],
+	firstnames text,
+	lastnames text,
+	dob date,
+	postcode text,
+	data text		-- bytea, perhaps ?
+) inherits (audit_fields);
+
+select add_table_for_audit('test_result');
+
+comment on table unmatched_test_result is
+	'use "modified_when" for import time';
+comment on column unmatched_test_result.fk_patient_candidates is
+	'the matching algorithm''s list of top candidates';
+comment on column unmatched_test_result.firstnames is
+	'first names in data';
+comment on column unmatched_test_result.lastnames is
+	'last names in data';
+comment on column unmatched_test_result.dob is
+	'date of birth in data';
+comment on column unmatched_test_result.postcode is
+	'postcode in data';
+comment on column unmatched_test_result.data is
+	'the raw data';
 
 -- ====================================
 create table test_result (
@@ -381,11 +409,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.34 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.35 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.34  2005-02-07 13:09:48  ncq
+-- Revision 1.35  2005-02-07 21:42:17  ncq
+-- - added unmatched test results staging table
+--
+-- Revision 1.34  2005/02/07 13:09:48  ncq
 -- - test_type_local -> test_type_unified as discussed on list
 -- - lnk_ttype2local_type -> lnk_ttype2unified_type
 --
