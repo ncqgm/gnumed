@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.163 2005-03-10 19:49:34 cfmoro Exp $
-__version__ = "$Revision: 1.163 $"
+# $Id: gmClinicalRecord.py,v 1.164 2005-03-14 14:27:21 ncq Exp $
+__version__ = "$Revision: 1.164 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -345,7 +345,7 @@ class cClinicalRecord:
 			'pk_health_issue',
 			'src_table'
 		]
-		cmd = "select %s from v_patient_items where id_patient=%%s order by src_table, age" % string.join(fields, ', ')
+		cmd = "select %s from v_patient_items where pk_patient=%%s order by src_table, age" % string.join(fields, ', ')
 		ro_conn = self._conn_pool.GetConnection('historica')
 		curs = ro_conn.cursor()
 		if not gmPG.run_query(curs, None, cmd, self.pk_patient):
@@ -722,7 +722,7 @@ class cClinicalRecord:
 		except KeyError:
 			self.__db_cache['episodes'] = []
 
-			cmd = "select pk_episode from v_pat_episodes where id_patient=%s"
+			cmd = "select pk_episode from v_pat_episodes where pk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'error loading episodes for patient [%s]' % self.pk_patient)
@@ -747,7 +747,7 @@ class cClinicalRecord:
 			filtered_episodes = filter(lambda epi: epi['pk_episode'] in id_list, filtered_episodes)
 		return filtered_episodes
 	#------------------------------------------------------------------
-	def add_episode(self, episode_name=None, pk_health_issue=None, soap_cat=None):
+	def add_episode(self, episode_name=None, pk_health_issue=None):
 		"""Add episode 'episode_name' for a patient's health issue.
 
 		- silently returns if episode already exists
@@ -755,11 +755,10 @@ class cClinicalRecord:
 		success, episode = gmEMRStructItems.create_episode (
 			pk_health_issue = pk_health_issue,
 			episode_name = episode_name,
-			soap_cat = soap_cat,
-			encounter_id = self.__encounter['pk_encounter']
+			patient_id = self.pk_patient
 		)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot create episode [%s::%s] for patient [%s] and health issue [%s]' % (soap_cat, episode_name, self.pk_patient, pk_health_issue))
+			_log.Log(gmLog.lErr, 'cannot create episode [%s] for patient [%s] and health issue [%s]' % (episode_name, self.pk_patient, pk_health_issue))
 			return None
 		return episode
 	#--------------------------------------------------------
@@ -787,12 +786,12 @@ where pk=(
 	select distinct on(pk_episode) pk_episode
 	from v_patient_items
 	where
-		id_patient=%s
+		pk_patient=%s
 			and
 		modified_when=(
 			select max(vpi.modified_when)
 			from v_patient_items vpi
-			where vpi.id_patient=%s
+			where vpi.pk_patient=%s
 		)
 	)"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient, self.pk_patient)
@@ -815,7 +814,7 @@ select vpe0.pk_episode
 from
 	v_pat_episodes vpe0
 where
-	vpe0.id_patient = %s
+	vpe0.pk_patient = %s
 		and
 	vpe0.episode_modified_when = (
 		select max(vpe1.episode_modified_when)
@@ -840,8 +839,7 @@ where
 			# FIXME: really create default episode ???
 			success, result = gmEMRStructItems.create_episode (
 				episode_name = 'xxxDEFAULTxxx',
-				soap_cat = 's',
-				encounter_id = self.__encounter['pk_encounter']
+				patient_id = self.pk_patient
 			)
 			if not success:
 				_log.Log(gmLog.lErr, 'cannot even activate default episode for patient [%s], aborting' %  self.pk_patient)
@@ -1412,7 +1410,7 @@ where
 			cmd = """
 select distinct pk_encounter
 from v_patient_items
-where pk_health_issue in %s and id_patient = %s"""
+where pk_health_issue in %s and pk_patient = %s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(issues), self.pk_patient))
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load encounters for issues [%s] (patient [%s])' % (str(issues), self.pk_patient))
@@ -1425,7 +1423,7 @@ where pk_health_issue in %s and id_patient = %s"""
 			cmd = """
 select distinct pk_encounter
 from v_patient_items
-where pk_episode in %s and id_patient = %s"""
+where pk_episode in %s and pk_patient = %s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(episodes), self.pk_patient))
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load encounters for episodes [%s] (patient [%s])' % (str(episodes), self.pk_patient))
@@ -1689,7 +1687,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.163  2005-03-10 19:49:34  cfmoro
+# Revision 1.164  2005-03-14 14:27:21  ncq
+# - id_patient -> pk_patient
+# - rewrite add_episode() work with simplified episode naming
+#
+# Revision 1.163  2005/03/10 19:49:34  cfmoro
 # Added episodes and issues constraints to get_problem
 #
 # Revision 1.162  2005/03/01 20:48:46  ncq
