@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.1 2004-04-11 12:04:55 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPathLab.py,v 1.2 2004-04-11 12:07:54 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmLog
@@ -58,6 +58,7 @@ if __name__ == '__main__':
 	fields = lab_result.get_fields()
 	for field in fields:
 		print field, ':', lab_result[field]
+	print "updatable:", lab_result.get_updatable_fields()
 	print lab_result['wrong attribute']
 	try:
 		lab_result['wrong attribute'] = 'hallo'
@@ -65,6 +66,9 @@ if __name__ == '__main__':
 		_log.LogException('programming error', sys.exc_info())
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.1  2004-04-11 12:04:55  ncq
+# Revision 1.2  2004-04-11 12:07:54  ncq
+# - better unit testing
+#
+# Revision 1.1  2004/04/11 12:04:55  ncq
 # - first version
 #

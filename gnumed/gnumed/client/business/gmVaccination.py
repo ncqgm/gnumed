@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.1 2004-04-11 10:16:53 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmVaccination.py,v 1.2 2004-04-11 12:07:54 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmLog
@@ -57,6 +57,7 @@ if __name__ == '__main__':
 	fields = vacc.get_fields()
 	for field in fields:
 		print field, ':', vacc[field]
+	print "updatable:", vacc.get_updatable_fields()
 	print vacc['wrong attribute']
 	try:
 		vacc['wrong attribute'] = 'hallo'
@@ -64,6 +65,9 @@ if __name__ == '__main__':
 		_log.LogException('programming error', sys.exc_info())
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.1  2004-04-11 10:16:53  ncq
+# Revision 1.2  2004-04-11 12:07:54  ncq
+# - better unit testing
+#
+# Revision 1.1  2004/04/11 10:16:53  ncq
 # - first version
 #
