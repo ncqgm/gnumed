@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -204,7 +204,9 @@ create table identity (
 	dob timestamp with time zone not null,
 	cob char(2),
 	-- FIXME: constraint: deceased > dob
-	deceased timestamp with time zone default null
+	deceased timestamp with time zone default null,
+	-- yes, there are some incredible rants of titles ...
+	title text
 ) inherits (audit_fields);
 
 select add_table_for_audit('identity');
@@ -227,6 +229,8 @@ comment on column identity.cob IS
 	'country of birth as per date of birth, coded as 2 character ISO code';
 comment on column identity.deceased IS
 	'date when a person has died (if so), format yyyymmdd';
+comment on column identity.title IS
+	'yes, a title is an attribute of an identity, not of a name !';
 
 -- ==========================================================
 create table lnk_person2id (
@@ -261,8 +265,7 @@ create table names (
 	lastnames text not null,
 	firstnames text not null,
 	preferred text,
-	-- yes, there are some incredible rants of titles ...
-	title text
+	unique(id_identity, lastnames, firstnames)
 );
 
 comment on table names IS
@@ -504,11 +507,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.16 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.15  2003-11-22 14:55:15  ncq
+-- Revision 1.16  2003-11-23 23:34:49  ncq
+-- - names.title -> identity.title
+--
+-- Revision 1.15  2003/11/22 14:55:15  ncq
 -- - default names.active to false, thereby fixing various side effects
 --
 -- Revision 1.14  2003/11/20 02:08:20  ncq

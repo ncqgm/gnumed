@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -20,8 +20,8 @@ delete from identity where
 		and
 	id in (select i_id from v_basic_person where firstnames='James T.' and lastnames='Kirk' and dob='1931-3-22');
 
-insert into identity (gender, dob, cob)
-values ('m', '1931-3-22', 'CA');
+insert into identity (gender, dob, cob, title)
+values ('m', '1931-3-22', 'CA', 'Capt.');
 
 -- name
 delete from names where
@@ -29,8 +29,8 @@ delete from names where
 		and
 	lastnames = 'Kirk';
 
-insert into names (id_identity, active, lastnames, firstnames, title)
-values (currval('identity_id_seq'), true, 'Kirk', 'James T.', 'Captain');
+insert into names (id_identity, active, lastnames, firstnames)
+values (currval('identity_id_seq'), true, 'Kirk', 'James T.');
 
 -- health issue
 delete from clin_health_issue where
@@ -141,7 +141,10 @@ insert into allergy_state (
 commit;
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.4  2003-11-16 19:32:17  ncq
+-- Revision 1.5  2003-11-23 23:35:11  ncq
+-- - names.title -> identity.title
+--
+-- Revision 1.4  2003/11/16 19:32:17  ncq
 -- - clin_when in clin_root_item
 --
 -- Revision 1.3  2003/11/13 09:47:29  ncq

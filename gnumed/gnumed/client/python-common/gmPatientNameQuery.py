@@ -58,7 +58,7 @@ def MakeQuery (name):
     lastnames = lastnames + "%"
     firstnames = firstnames + "%"
     query = """
-select identity.id, names.title, names.firstnames as %s, names.lastnames as %s, to_char (identity.dob, 'DD/MM/YY') as %s
+select identity.id, identity.title, names.firstnames as %s, names.lastnames as %s, to_char (identity.dob, 'DD/MM/YY') as %s
 from
  identity, names
 where names.firstnames ilike '%s' and names.lastnames ilike '%s'
