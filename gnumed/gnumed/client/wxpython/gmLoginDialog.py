@@ -1,21 +1,16 @@
-"""gmLoginDialog - This module provides a login dialog to GNUMed
+"""gmLoginDialog - This module provides a login dialog to GNUMed.
 
-It features combo boxes which "remember" any number of previously entered settings
+It features combo boxes which "remember" any number of
+previously entered settings.
+
+copyright: authors
 """
-#############################################################################
-#
-# gmLoginDialog - This module provides a login dialog to GNUMed
-# ---------------------------------------------------------------------------
-# It features combo boxes which "remember" any number of previously entered settings
-#
-# @copyright: author
-# @license: GPL (details at http://www.gnu.org)
-# @dependencies: wxPython (>= version 2.3.1)
-############################################################################
+#============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.55 2005-01-20 21:37:40 hinnef Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmLoginDialog.py,v 1.56 2005-01-22 22:26:06 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
+__license__ = 'GPL (details at http://www.gnu.org)'
 
 import os.path, time, cPickle, zlib, types
 
@@ -36,8 +31,10 @@ class cLoginParamChoices:
 		"""init parmeters with reasonable defaults"""
 		self.userlist = ['any-doc']
 		self.password = ''
-		self.profilelist = ['local']
-		self.profiles={'local':{'host':'localhost','port':5432,'database':'gnumed'}}
+		self.profilelist = ['local - default fallback']
+		self.profiles = {
+			'local - default fallback': {'host': 'localhost', 'port': 5432, 'database': 'gnumed'}
+		}
 
 #====================================================
 class LoginPanel(wx.wxPanel):
@@ -92,7 +89,7 @@ class LoginPanel(wx.wxPanel):
 		else:
 			paramsbox_caption = _("Login - %s" % _whoami.get_workplace())
 
-		#why doesn't this align in the centre ?
+		# FIXME: why doesn't this align in the centre ?
 		self.paramsbox = wx.wxStaticBox( self, -1, paramsbox_caption, style = wx.wxALIGN_CENTRE_HORIZONTAL)
 		self.paramsboxsizer = wx.wxStaticBoxSizer( self.paramsbox, wx.wxVERTICAL )
 		self.paramsbox.SetForegroundColour(wx.wxColour(35, 35, 142))
@@ -118,7 +115,7 @@ class LoginPanel(wx.wxPanel):
 		self.pboxgrid = wx.wxFlexGridSizer( 4, 2, 5, 5 )
 		self.pboxgrid.AddGrowableCol( 1 )
 
-		#PROFILE COMBO
+		# PROFILE COMBO
 		label = wx.wxStaticText( self, -1, _("Profile"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
 		label.SetForegroundColour(wx.wxColour(35, 35, 142))
 		self.pboxgrid.AddWindow( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
@@ -133,8 +130,7 @@ class LoginPanel(wx.wxPanel):
 		)
 		self.pboxgrid.AddWindow( self.profilecombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
 
-
-		#USER NAME COMBO
+		# USER NAME COMBO
 		label = wx.wxStaticText( self, -1, _("Username"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
 		label.SetForegroundColour(wx.wxColour(35, 35, 142))
 		self.pboxgrid.AddWindow( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
@@ -164,7 +160,7 @@ class LoginPanel(wx.wxPanel):
 		#button order re-arraged to make it consistant with usual dialog format
 		#in most operating systems ie  btns ok and cancel are standard and 
 		#in that order
-		#ie Order is now Options, help, ok and cancel
+		#ie Order is now help, ok and cancel
 		#The order of creation is the tab order
 		#login-ok button automatically is the default when tabbing (or <enter>)
 		#from password
@@ -220,101 +216,89 @@ class LoginPanel(wx.wxPanel):
 		"""Load parameter settings from standard configuration file"""
 		# initialize login parameters
 		self.loginparams = cLoginParamChoices()
+
 		# check if there is a non-empty config file
-		
 		if str(_cfg.getCfg()) == "Null":
-			# this we probably never happen, as gmCfg creates an default config-file when no one was found
+			# this will probably never happen, as gmCfg creates a default config-file when none was found
 			_log.Log(gmLog.lErr, _("No config file specified or config file empty. Falling back to local default profile."))
 			return self.loginparams
 
-		# try to read login options from gnumed config file
-		try:
-			# login (user) names
-			tmp = _cfg.get('backend', 'logins')
-			if type(tmp) is types.ListType and len(tmp) > 0:
-				self.loginparams.userlist = tmp
-			else:
-				_log.Log(gmLog.lErr, _("No logins specified in config file or option is not a list"))
-				# we don't stop if no logins are specified as we can still enter them in the dialog
+		# read login options from config file
+		# - database account names
+		tmp = _cfg.get('backend', 'logins')
+		if type(tmp) is types.ListType and len(tmp) > 0:
+			self.loginparams.userlist = tmp
+		else:
+			_log.Log(gmLog.lWarn, 'malformed/missing "logins" list in config file, using defaults')
 
-			# profile names
-			tmp = _cfg.get('backend', 'profiles')
-			if type(tmp) is types.ListType and len(tmp) > 0:
-				self.loginparams.profilelist = tmp
-			else:
-				_log.Log(gmLog.lErr, _("No profiles specified in config file or option is not a list"))
-				raise TypeError 
-				
-			# for every profile, read profile details
-			for profile in self.loginparams.profilelist:
-				# profile sections are denoted by leading "profile "
-				profile_label = "profile %s" % profile
-				database = None
-				host = None
-				port = None
-			
-				if not profile_label in _cfg.getGroups():
-					_log.Log(gmLog.lErr, _("Section [%s] not found in config file") % profile_label)
-					del self.loginparams.profilelist[self.loginparams.profilelist.index(profile)]
-					continue
-				
-				# read database name; go to next profile if missing
-				tmp = _cfg.get(profile_label, 'database')
-				if type(tmp) is types.StringType and not tmp == "" and not tmp=="Null":
-					database = tmp
-				else:
-					# ignore this profile
-					_log.Log(gmLog.lErr, _("No database specified in profile %s in config file or option is not a string") % profile)
-					del self.loginparams.profilelist[self.loginparams.profilelist.index(profile)]
-					continue
+		# - profile names
+		tmp = _cfg.get('backend', 'profiles')
+		if type(tmp) is types.ListType and len(tmp) > 0:
+			self.loginparams.profilelist = tmp
+		else:
+			_log.Log(gmLog.lErr, 'malformed/missing "profiles" list in config file, using defaults')
+			# fall back to default values
+			msg = _(
+				"Cannot find server profiles in the configuration file.\n"
+				"Your setup procedure may not have completed or your\n"
+				"configuration file may be damaged.\n\n"
+				"You can find an example configuration file in\n"
+				"[<gnumed installation dir>/client/etc/] which you may\n"
+				"use to repair [<your homedir>/.gnumed/gnumed.conf].\n\n"
+				"Falling back to default profile using local server."
+			)
+			gmGuiHelpers.gm_show_error(msg, _('Configuration Error'), gmLog.lErr)
+			_log.Log(gmLog.lErr, str(tmp))
+			return self.loginparams
 
-				# read host name; go to next profile if missing
-				tmp = _cfg.get(profile_label, 'host')
-				if type(tmp) is types.StringType and not tmp == "" and not tmp=="Null":
-					host = tmp
-				else:
-					# ignore this profile
-					_log.Log(gmLog.lErr, _("No host specified in profile %s in config file or option is not a string") % profile)
-					del self.loginparams.profilelist[self.loginparams.profilelist.index(profile)]
-					continue
+		# - details for each profile
+		for profile in self.loginparams.profilelist:
+			database = None
+			host = None
+			port = None
 
-				# read port number, assume default postgres port if missing
-				tmp = _cfg.get(profile_label, 'port')
-				try:
-					p = int(tmp)
-				except:
-					# set port to default postgres port if missing
-					p = 5432
-				if not p is None and p > 0:
-					port = p
+			# profile sections are denoted by leading "profile "
+			profile_label = "profile %s" % profile
+			if profile_label not in _cfg.getGroups():
+				_log.Log(gmLog.lWarn, _("section [%s] not found in config file") % profile_label)
+				del self.loginparams.profilelist[self.loginparams.profilelist.index(profile)]
+				continue
+			# database name, errors will show up visually and in failing connections
+			database = str(_cfg.get(profile_label, 'database'))
+			# host
+			host = str(_cfg.get(profile_label, 'host'))
+			# port
+			tmp = _cfg.get(profile_label, 'port')
+			try:
+				port = int(tmp)
+				if port < 1024:
+					raise ValueError
+			except TypeError, ValueError:
+				_log.Log(gmLog.lWarn, _("port definition [%s] invalid in profile [%s]") % (str(tmp), profile_label))
+				del self.loginparams.profilelist[self.loginparams.profilelist.index(profile)]
+				continue
+			# set profile details
+			self.loginparams.profiles[profile] = {
+				'host': host,
+				'database': database,
+				'port': port
+			}
 
-				# set profile details
-				self.loginparams.profiles[profile]={
-					'host':host,
-					'database':database,
-					'port':port}
-		except:
-			# fall back to default values if any error ocurred
-			self.loginparams = cLoginParamChoices()
-			gmGuiHelpers.gm_show_error("""
-			No config file specified or config file did not contain profile information. 
-			This means that either your setup procedure is not complete or your config 
-			file is damaged. You might want to copy the example config file from 
-			<gnumed installation dir>/client/etc to <your homedir>/~.gnumed/.
-			Falling back now to local default profile.""",'No config file found')
-
-		# check if all profiles were deleted because of missing section or parameters
+		# any profiles left ?
 		if self.loginparams.profilelist == []:
-			# fallback to default values. This will ignore login information specified in the config file.
+			_log.Log(gmLog.lErr, 'no valid profile information in config file, using builtin defaults')
+			# fallback to default, ignores all login information in the config file
 			self.loginparams = cLoginParamChoices()
-			gmGuiHelpers.gm_show_error("""
-			No valid profile information was found in your config file. Please refer
-			to the example config file at <gnumed installation dir>/client/etc for 
-			information how profiles should be specified.
-			Falling back now to local default profile.""",'No config file found',)
+			msg = _(
+				"No valid profile information found in configuration file.\n"
+				"Please refer to the example configuration file at\n"
+				"[<gnumed installation dir>/client/etc/] for information\n"
+				"on how profiles should be specified.\n\n"
+				"Falling back to default profile using local server."
+			)
+			gmGuiHelpers.gm_show_error(msg, _('Configuration Error'), gmLog.lErr)
 
 		return self.loginparams
-
 	#----------------------------
 	def save_settings(self):
 		"""Save parameter settings to standard configuration file"""
@@ -371,24 +355,12 @@ class LoginPanel(wx.wxPanel):
 	def GetDatabase(self):
 		return self.loginparams.profiles[self.GetProfile()]['database']
 
-	def SetDatabase(self, db):
-		# setting a database name is only possible through config file
-		pass
-
 	def GetHost(self):
 		return self.loginparams.profiles[self.GetProfile()]['host']
-
-	def SetHost(self, host):
-		# setting a host name is only possible through config file
-		pass
 
 	def GetPort(self):
 		return self.loginparams.profiles[self.GetProfile()]['port']
 
-	def SetPort(self, port):
-		# setting a port name is only possible through config file
-		pass
-		
 	def GetProfile(self):
 		return self.loginparams.profilelist[0]
 		
@@ -484,7 +456,11 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.55  2005-01-20 21:37:40  hinnef
+# Revision 1.56  2005-01-22 22:26:06  ncq
+# - a bunch of cleanups
+# - i18n
+#
+# Revision 1.55  2005/01/20 21:37:40  hinnef
 # - added error dialog when no profiles specified
 #
 # Revision 1.54  2004/11/24 21:16:33  hinnef
