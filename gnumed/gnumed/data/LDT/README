@@ -1,12 +1,15 @@
 ldt-Kirk-EML.dat
 ----------------
-An example LDT file as used in Germany pseudonymized
-to James Tiberius Kirk.
+An example LDT file as used in Germany to transmit lab data.
+It is pseudonymized to James Tiberius Kirk.
 
 
 ========================================
 > $Log: README,v $
-> Revision 1.1  2005-03-20 15:31:54  ncq
+> Revision 1.2  2005-03-20 15:43:45  ncq
+> - improved wording
+>
+> Revision 1.1  2005/03/20 15:31:54  ncq
 > - LDT samples
 >
 >
