@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -71,27 +71,46 @@ class cDocTree(wxTreeCtrl):
 		# sanity checks
 		if aPatient is None:
 			_log.Log(gmLog.lErr, "Cannot retrieve documents without knowing the patient !")
-			return None
+			raise AssertionError
 
 		if aConn is None:
 			_log.Log(gmLog.lErr, "Cannot retrieve documents without database connection !")
-			return None
+			raise AssertionError
 
 		self.__conn = aConn
 
 		# make sure aPatient knows its ID
 		result = aPatient.getIDfromGNUmed(self.__conn)
-		if result[0]:
-			_log.Log(gmLog.lInfo, "Making document tree for patient with ID %s" % result[1])
+		if not result[0]:
+			if result[1] is None:
+				dlg = wxMessageDialog(
+					parent,
+					_('This patient does not exist in the document database.\n"%s %s"') % (aPatient.firstnames, aPatient.lastnames),
+					_('searching patient documents'),
+					wxOK | wxICON_ERROR
+				)
+				dlg.ShowModal()
+				dlg.Destroy()
+				raise AssertionError
+			else:
+				_log.Log(gmLog.lErr, "Patient data is ambigous. Aborting. (IDs: %s)" % str(result[1]))
+				raise AssertionError
 		else:
-			_log.Log(gmLog.lErr, "Patient data is ambigous. Aborting. %s" % str(result))
-			return None
+			_log.Log(gmLog.lInfo, "Making document tree for patient with ID %s" % result[1])
 
 		# read documents from database
 		self.doc_list = aPatient.getDocsFromGNUmed(self.__conn)
 		if self.doc_list is None:
 			_log.Log(gmLog.lErr, "Cannot find any documents.")
-			return None
+			dlg = wxMessageDialog(
+				parent,
+				_('Cannot find any documents for this patient.\n"%s %s"') % (aPatient.firstnames, aPatient.lastnames),
+				_('searching patient documents'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			raise AssertionError
 
 		wxTreeCtrl.__init__(self, parent, id, style=wxTR_NO_BUTTONS)
 
@@ -274,7 +293,6 @@ else:
 
 			# set up widgets
 			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
-			#self.SetTitle(_("stored medical documents"))
 
 			# make document tree
 			self.tree = cDocTree(self, -1, aPat, aConn)
@@ -307,7 +325,7 @@ if __name__ == '__main__':
 		application.SetWidget(cStandalonePanel,-1)
 		application.MainLoop()
 	except:
-		_log.Log("unhandled exception caught !", sys.exc_info(), fatal=1)
+		_log.LogException("unhandled exception caught !", sys.exc_info(), fatal=1)
 		# but re-raise them
 		raise
 
@@ -327,7 +345,10 @@ else:
 			return ('tools', _('&Show Documents'))
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.1  2002-12-25 13:17:45  ncq
+# Revision 1.2  2002-12-25 14:29:29  ncq
+# - inform user if patient not in database or no documents available
+#
+# Revision 1.1  2002/12/25 13:17:45  ncq
 # - renamed to gmShowMedDocs
 #
 # Revision 1.14  2002/12/24 14:18:40  ncq
