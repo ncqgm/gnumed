@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.52 2004-01-18 21:51:36 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmEditArea.py,v 1.53 2004-01-21 14:00:09 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -120,7 +120,6 @@ PHX_PROGRESSNOTES=wxNewId()
 
 wxID_BTN_Save = wxNewId()
 wxID_BTN_New = wxNewId()
-wxID_BTN_Delete = wxNewId()
 wxID_BTN_Handout = wxNewId()
 
 richards_blue = wxColour(0,0,131)
@@ -475,8 +474,6 @@ class gmEditArea(wxPanel):
 	def _make_standard_buttons(self, parent):
 		self.btn_Save = wxButton(parent, wxID_BTN_Save, _("Save"))
 		self.btn_Save.SetToolTipString(_('save entry in medical record'))
-		self.btn_Delete = wxButton(parent, wxID_BTN_Delete, _("Delete"))
-		self.btn_Delete.SetToolTipString(_('delete entry from medical record'))
 		self.btn_New = wxButton(parent, wxID_BTN_New, _("New"))
 		self.btn_New.SetToolTipString(_('initialize input fields for new entry'))
 		self.btn_Handout = wxButton(parent, wxID_BTN_Handout, _("Handout"))
@@ -484,8 +481,6 @@ class gmEditArea(wxPanel):
 
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
 		szr_buttons.Add(self.btn_Save, 1, wxEXPAND | wxALL, 1)
-		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.btn_Delete, 1, wxEXPAND | wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
 		szr_buttons.Add(self.btn_New, 1, wxEXPAND | wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
@@ -594,7 +589,6 @@ class gmEditArea(wxPanel):
 		# connect standard buttons
 		EVT_BUTTON(self.btn_Save, wxID_BTN_Save, self._on_save_btn_pressed)
 		EVT_BUTTON(self.btn_New, wxID_BTN_New, self._on_new_btn_pressed)
-		EVT_BUTTON(self.btn_Delete, wxID_BTN_Delete, self._on_delete_btn_pressed)
 		#self._register_dirty_editarea_listener()
 
 		# client internal signals
@@ -622,10 +616,6 @@ class gmEditArea(wxPanel):
 		print "initializing input fields"
 		self.set_data()
 		event.Skip()
-	#--------------------------------------------------------
-	def _on_delete_btn_pressed(self, event):
-		event.Skip()
-		self._pre_delete_data()
 	#--------------------------------------------------------
 	def on_patient_selected( self, **kwds):
 		# - check if patient is connected
@@ -699,17 +689,6 @@ class gmEditArea(wxPanel):
 				break
 		return dirty	
 
-
-
-	def _pre_delete_data(self):
-
-		if self.is_dirty():
-			# maybe add confirm delete dialog here.
-			pass
-
-		self._delete_data()
-		self._init_fields()
-		
 	def _default_init_fields(self):
 		#self.dirty = 0  #this flag is for patient_activating event to save any unsaved entries
 		self.setInputFieldValues( self._get_init_values())
@@ -735,12 +714,6 @@ class gmEditArea(wxPanel):
 		_log.Log(gmLog.lErr, 'programmer forgot to define _save_data() for [%s] (%s)' % (self._type, self.__class__.__name__))
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
-	#--------------------------------------------------------
-	def _delete_data(self):	
-		_log.Log(gmLog.lErr, 'programmer forgot to define _delete_fields() for [%s] (%s)' % (self._type, self.__class__.__name__))
-		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
-		raise AttributeError
-
 #-------------------------------------------------------------------------------------------------------------
 	def _updateUI(self):
 		_log.Log(gmLog.lWarn, "you may want to override _updateUI for [%s]" % self.__class__.__name__)
@@ -1136,13 +1109,6 @@ class gmPastHistoryEditArea(gmEditArea):
 
 		clinical.update_history( self.get_fields_formatting_values(), self.getDataId() )
 
-	def _delete_data(self):
-		if self.getDataId() == None:
-			return
-		
-		clinical = self.patient.get_clinical_record().get_past_history()
-		clinical.delete_history( self.getDataId())
-		self.setDataId(None)
 #========================================================
 class gmAllergyEditArea(gmEditArea):
 
@@ -2373,7 +2339,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.52  2004-01-18 21:51:36  ncq
+# Revision 1.53  2004-01-21 14:00:09  ncq
+# - no delete button as per Richards order :-)
+#
+# Revision 1.52  2004/01/18 21:51:36  ncq
 # - better tooltips on standard buttons
 # - simplify vaccination edit area
 # - vaccination - _save_modified_entry()
