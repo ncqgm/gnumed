@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.5 2003-11-23 12:53:20 sjtan Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.6 2003-11-23 14:05:38 sjtan Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -64,36 +64,40 @@ CREATE TRIGGER TR_delete_names
 	FOR EACH ROW EXECUTE PROCEDURE F_delete_names();
 
 -- business functions
+
 \unset ON_ERROR_STOP
 drop function add_name(integer, text, text, bool);
 \set ON_ERROR_STOP 1
 
 create function add_name(integer, text, text, bool) returns integer as '
 DECLARE
-	identity_id alias for $1;
-	first alias for $2;
-	last alias for $3;
-	activated alias for $4;
+        identity_id alias for $1;
+        first alias for $2;
+        last alias for $3;
+        activated alias for $4;
 
-	n_rec record;
+        n_rec record;
 BEGIN
-	select into n_rec * from names where id_identity = identity_id and firstnames = first and lastnames = last;
-	-- exists already
-	if FOUND then
-		-- set the desired activation state
-		update names set active = activated where id = n_rec.id;
-		if FOUND then
-			return n_rec.id;
-		end if;
-		return NULL;
-	end if;
-	-- new name
-	insert into names (id_identity, firstnames, lastnames, active) values (identity_id, first, last, activated);
-	if FOUND then
-		select into n_rec id from names where id_identity = identity_id and firstnames = first and lastnames = last;
-		return n_rec.id;
-	end if;
-	return NULL;
+        select into n_rec * from names where id_identity = identity_id and firstnames = first and lastnames = last;
+        -- exists already
+        if FOUND then
+                -- set the desired activation state, but first inactivate triggers by setting active=false
+                update names set active = false where id = n_rec.id;
+                update names set active = activated where id = n_rec.id;
+                if FOUND then
+                        return n_rec.id;
+                end if;
+                return NULL;
+        end if;
+        -- new name, in an inactivated state so triggers are not fired.
+        insert into names (id_identity, firstnames, lastnames, active) values (identity_id, first, last, false);
+        if FOUND then
+                select into n_rec id from names where id_identity = identity_id and firstnames = first and lastnames = last;
+		-- now set the desired activation state on the inactivated name, so triggers are not fired.
+                update names set active = activated where id = n_rec.id;
+                return n_rec.id;
+        end if;
+        return NULL;
 END;' language 'plpgsql';
 
 -- ==========================================================
@@ -166,11 +170,16 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.5  2003-11-23 12:53:20  sjtan
+-- Revision 1.6  2003-11-23 14:05:38  sjtan
+--
+-- slight debugging of add_names: start off with active=false, and then other attributes won't be affected
+-- by trigger side effects.
+--
+-- Revision 1.5  2003/11/23 12:53:20  sjtan
 -- *** empty log message ***
 --
 -- Revision 1.4  2003/11/23 00:02:47  sjtan
