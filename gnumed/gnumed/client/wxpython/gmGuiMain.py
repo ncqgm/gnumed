@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-24 16:01:37 $
-# @version $Revision: 1.30 $ $Date: 2002-07-24 16:01:37 $ $Author: ncq $
+# @Date: $Date: 2002-07-25 09:17:09 $
+# @version $Revision: 1.31 $ $Date: 2002-07-25 09:17:09 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -312,7 +312,7 @@ class MainFrame(wxFrame):
 
 
 ###########################################################################
-class feedbackFrame(wxFrame):
+class talkbackFrame(wxFrame):
 	def __init__(self):
 		# set up frame
 		wxFrame.__init__(self, NULL, -1, _("GNUmed error reporting"), wxDefaultPosition, wxSize(300,300))
@@ -403,14 +403,14 @@ def main():
 	app.MainLoop()
 
 #=================================================
-def main_with_feedback():
+def main_with_talkback():
 	"""Alternative main() method to run talkback logger.
 	"""
 	#---------------------------------------------
-	class feedbackApp(wxApp):
+	class talkbackApp(wxApp):
 		def OnInit(self):
 			# main frame
-			frame = feedbackFrame()
+			frame = talkbackFrame()
 			self.SetTopWindow(frame)
 			frame.Maximize(true)
 			frame.CentreOnScreen(wxBOTH)
@@ -430,7 +430,7 @@ def main_with_feedback():
 		myLog.LogException("Unhandled Exception caught !", exc)
 
 	# run email logger window
-	app = feedbackApp(0)
+	app = talkbackApp(0)
 	app.MainLoop()
 #==================================================
 # Main
