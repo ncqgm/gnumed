@@ -233,6 +233,7 @@ where
 
 -- This function returns the id of street, BUT if the street does not
 -- exist, it is created.
+drop function find_street(text, integer);
 CREATE FUNCTION find_street (text, integer) RETURNS integer AS '
 DECLARE
         s_name ALIAS FOR $1;
@@ -252,6 +253,7 @@ END;' LANGUAGE 'plpgsql';
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+drop rule insert_address;
 
 CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
         INSERT INTO address (id, addrtype, street, number, addendum)
@@ -355,7 +357,7 @@ CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
                    state.code = NEW.state AND
                    state.country = NEW.country))
         WHERE
-               id=OLD.id;
+               NEW.id=OLD.id;
 
 -- =============================================
 
@@ -385,8 +387,6 @@ create table coordinate (
       -- kilometres.
       -- theoretically this may be problematic with some systems due to the
       -- ellipsoid nature of the Earth, but in reality it is unlikely to matter
-      -- Interestingly the Debian Postgres package includes an extension to 
-      -- calculate distances for latitude-longitude
 );
 
 

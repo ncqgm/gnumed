@@ -42,7 +42,7 @@ create table identity (
 	pupic char(24),
 	gender character(2) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
 	karyotype character(10) DEFAULT NULL,
-	dob char(8),
+	dob char(10),  -- consider changeing this to a date type, otherwise let it take dd/mm/yyyy 10 chars
 	cob char(2),
 	deceased date default NULL
 ) inherits (audit_identity);
