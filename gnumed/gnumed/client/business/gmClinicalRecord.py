@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.63 2004-01-21 15:53:05 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmClinicalRecord.py,v 1.64 2004-01-21 16:52:02 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -742,22 +742,6 @@ class gmClinicalRecord:
 			self.__db_cache['idx vaccinations']
 		except KeyError:
 			self.__db_cache['vaccinations'] = []
-#			cmd = """
-#				select
-#					pk_vaccination,
-#					date,
-#					vaccine,
-#					vaccine_short,
-#					batch_no,
-#					regime,
-#					indication,
-#					is_booster,
-#					seq_no,
-#					site,
-#					pk_provider,
-#					narrative
-#				from  v_patient_vaccinations
-#				where pk_patient = %s"""
 			cmd = """
 				select
 					pk_vaccination,
@@ -772,7 +756,8 @@ class gmClinicalRecord:
 					pk_provider,
 					pk_vaccine
 				from  v_patient_vacc4ind
-				where pk_patient = %s"""
+				where pk_patient = %s
+				order by date desc"""
 			rows, self.__db_cache['idx vaccinations'] = gmPG.run_ro_query('historica', cmd, 1, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load vaccinations for patient [%s]' % self.id_patient)
@@ -782,24 +767,20 @@ class gmClinicalRecord:
 		# apply filters
 		# 1) do we have an ID ?
 		if ID is not None:
-			print "filtering for ID:", ID
 			for shot in self.__db_cache['vaccinations']:
 				if shot[self.__db_cache['idx vaccinations']['pk_vaccination']] == ID:
-					print "found:", shot
 					return shot, self.__db_cache['idx vaccinations']
 			_log.Log(gmLog.lErr, 'no vaccination [%s] found for patient [%s]' % (ID, self.id_patient))
 			return (None, None)
-		filtered_shots = copy.deepcopy(self.__db_cache['vaccinations'])
+		filtered_shots = []
 		# 2) only certain indications ?
 		if indication_list is not None:
 			if len(indication_list) != 0:
-				for shot in filtered_shots:
-					if shot[self.__db_cache['idx vaccinations']['indication']] not in indication_list:
-						filtered_shots.remove(shot)
-		# return what we got so far
-		print "after filtering for indication list:", filtered_shots
-		print "filtered from:", self.__db_cache['vaccinations']
-		return (filtered_shots, self.__db_cache['idx vaccinations'])
+				for shot in self.__db_cache['vaccinations']:
+					if shot[self.__db_cache['idx vaccinations']['indication']] in indication_list:
+						filtered_shots.append(shot)
+				return (filtered_shots, self.__db_cache['idx vaccinations'])
+		return (self.__db_cache['vaccinations'], self.__db_cache['idx vaccinations'])
 	#--------------------------------------------------------
 	def get_due_vaccinations(self):
 		# FIXME: be smarter about boosters !
@@ -1236,7 +1217,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.63  2004-01-21 15:53:05  ncq
+# Revision 1.64  2004-01-21 16:52:02  ncq
+# - eventually do the right thing in get_vaccinations()
+#
+# Revision 1.63  2004/01/21 15:53:05  ncq
 # - use deepcopy when copying dict as to leave original intact in get_vaccinations()
 #
 # Revision 1.62  2004/01/19 13:41:15  ncq
