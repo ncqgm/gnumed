@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -40,8 +40,7 @@ import docDocument
 _twain = None
 _sane = None
 #==================================================
-[	wxID_SCANFRAME,
-	wxID_LBOX_doc_pages,
+[	wxID_LBOX_doc_pages,
 	wxID_BTN_del_page,
 	wxID_BTN_show_page,
 	wxID_BTN_move_page,
@@ -50,7 +49,7 @@ _sane = None
 	wxID_PNL_main
 ] = map(lambda _init_ctrls: wxNewId(), range(8))
 #==================================================
-class scanFrame(wxPanel):
+class ScanPanel(wxPanel):
 	# a list holding our objects
 	acquired_pages = []
 	#----------------------------------------------
@@ -177,24 +176,31 @@ class scanFrame(wxPanel):
 	def __do_layout(self):
 		sizer_2 = wxBoxSizer(wxHORIZONTAL)
 		grid_sizer_2 = wxGridSizer(2, 2, 0, 0)
-		sizer_3 = wxBoxSizer(wxVERTICAL)
-		sizer_4 = wxBoxSizer(wxHORIZONTAL)
-		sizer_5 = wxBoxSizer(wxVERTICAL)
-		sizer_6 = wxBoxSizer(wxVERTICAL)
-		sizer_3.Add(self.staticText2, 0, wxBOTTOM, 10)
-		sizer_3.Add(self.BTN_acquire_page, 0, wxEXPAND|wxRIGHT, 20)
-		sizer_3.Add(self.staticText1, 0, wxTOP|wxBOTTOM, 5)
-		sizer_3.Add(self.LBOX_doc_pages, 1, wxEXPAND|wxRIGHT|wxBOTTOM, 20)
-		sizer_4.Add(self.BTN_show_page, 0, wxALL, 5)
-		sizer_4.Add(self.BTN_del_page, 0, wxALL, 5)
-		sizer_6.Add(sizer_4, 0, wxALIGN_CENTER_HORIZONTAL|wxRIGHT, 20) 
-		sizer_6.Add(self.BTN_move_page, 0, wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL|wxTOP, 10)
-		sizer_3.Add(sizer_6, 1, wxALIGN_CENTER_HORIZONTAL, 0)
-		grid_sizer_2.Add(sizer_3, 1, wxEXPAND|wxLEFT, 20)
-		#grid_sizer_2.Add(self.BTN_save_doc, 0, wxALIGN_CENTER_HORIZONTAL|wxLEFT|wxRIGHT|wxEXPAND, 20)
-		sizer_5.Add(self.staticText3, 0, wxBOTTOM, 10)
-		sizer_5.Add(self.BTN_save_doc, 1, wxEXPAND, 0)
-		grid_sizer_2.Add(sizer_5, 1, wxEXPAND|wxLEFT|wxRIGHT|wxBOTTOM, 40)
+
+		szr_left_col = wxBoxSizer(wxVERTICAL)
+		szr_left_btns = wxBoxSizer(wxVERTICAL)
+		szr_left_btns_top = wxBoxSizer(wxHORIZONTAL)
+		
+		szr_left_col.Add(self.staticText2, 0, wxBOTTOM, 10)
+		szr_left_col.Add(self.BTN_acquire_page, 0, wxEXPAND|wxRIGHT, 20)
+		szr_left_col.Add(self.staticText1, 0, wxTOP|wxBOTTOM, 5)
+		szr_left_col.Add(self.LBOX_doc_pages, 1, wxEXPAND|wxRIGHT|wxBOTTOM, 20)
+
+		szr_left_btns_top.Add(self.BTN_show_page, 0, wxALL, 5)
+		szr_left_btns_top.Add(self.BTN_del_page, 0, wxALL, 5)
+
+		szr_left_btns.Add(szr_left_btns_top, 0, wxALIGN_CENTER_HORIZONTAL|wxRIGHT, 20) 
+		szr_left_btns.Add(self.BTN_move_page, 0, wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL|wxTOP, 10)
+
+		szr_left_col.Add(szr_left_btns, 1, wxALIGN_CENTER_HORIZONTAL, 0)
+
+		szr_right_col = wxBoxSizer(wxVERTICAL)
+		szr_right_col.Add(self.staticText3, 0, wxBOTTOM, 10)
+		szr_right_col.Add(self.BTN_save_doc, 1, wxEXPAND, 0)
+
+		grid_sizer_2.Add(szr_left_col, 1, wxEXPAND|wxLEFT, 20)
+		grid_sizer_2.Add(szr_right_col, 1, wxEXPAND|wxLEFT|wxRIGHT|wxBOTTOM, 40)
+
 		self.PNL_main.SetAutoLayout(1)
 		self.PNL_main.SetSizer(grid_sizer_2)
 		grid_sizer_2.Fit(self.PNL_main)
@@ -203,7 +209,7 @@ class scanFrame(wxPanel):
 		self.SetSizer(sizer_2)
 		sizer_2.Fit(self)
 		self.Layout()
-		
+
 	#-----------------------------------
 	# event handlers
 	#-----------------------------------
@@ -935,7 +941,7 @@ class scanFrame(wxPanel):
 if __name__ == '__main__':
 	try:
 		application = wxPyWidgetTester(size=(800,600))
-		application.SetWidget(scanFrame)
+		application.SetWidget(ScanPanel)
 		application.MainLoop()
 	except:
 		exc = sys.exc_info()
@@ -949,13 +955,16 @@ else:
 			return _("Scan")
 
 		def GetWidget (self, parent):
-			return scanFrame (parent)
+			return ScanPanel (parent)
 
 		def MenuInfo (self):
 			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.12  2002-11-18 16:59:08  ncq
+# Revision 1.13  2002-12-05 15:19:25  ncq
+# - based on sizers now
+#
+# Revision 1.12  2002/11/18 16:59:08  ncq
 # - further fixes by Basti (sane, barcode)
 #
 # Revision 1.11  2002/11/17 19:36:37  ncq
