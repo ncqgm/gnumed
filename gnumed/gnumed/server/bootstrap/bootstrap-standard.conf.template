@@ -6,10 +6,19 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.21 $
+version = $Revision: 1.22 $
 
 #----------------------------------
 [installation]
+
+# this lists a number of config files that are processed
+# one after another instead of processing *this* file,
+# if this option exists all other options in *this* file
+# are ignored
+config files = $config files$
+a-file.conf
+another-file.conf
+$config files$
 
 # set this to no if you want to run this script without
 # any user interaction, in this case you must provide passwords
@@ -272,7 +281,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.21  2005-03-03 21:34:56  ncq
+# Revision 1.22  2005-04-02 22:12:53  ncq
+# - document option [installation] -> "config files"
+#
+# Revision 1.21  2005/03/03 21:34:56  ncq
 # - add $libdir and comment
 #
 # Revision 1.20  2005/01/12 14:47:48  ncq
