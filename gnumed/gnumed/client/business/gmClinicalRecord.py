@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.61 2004-01-19 13:30:46 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmClinicalRecord.py,v 1.62 2004-01-19 13:41:15 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -569,14 +569,14 @@ class gmClinicalRecord:
 		# the youngest episode for this patient
 		if id_episode is None:
 			cmd = """
-				select id
+				select cle.id
 				from clin_episode cle, clin_health_issue chi
 				where
 					chi.id_patient = %s
 						and
 					chi.id = cle.id_health_issue
 						and
-					cle.modfied_when = (
+					cle.modified_when = (
 						select max(cle.modified_when)
 					)"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
@@ -1236,7 +1236,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.61  2004-01-19 13:30:46  ncq
+# Revision 1.62  2004-01-19 13:41:15  ncq
+# - fix typos in SQL
+#
+# Revision 1.61  2004/01/19 13:30:46  ncq
 # - substantially smarten up __load_last_active_episode() after cleaning it up
 #
 # Revision 1.60  2004/01/18 21:41:49  ncq
