@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -501,6 +501,8 @@ class indexFrame(wxFrame):
 		else:
 			full_dir = os.path.join(self.repository, self.doc_id_wheel.GetLineText(0))
 			self.__dump_metadata_to_xml(full_dir)
+			if not self.__keep_patient_file(full_dir):
+				return None
 			self.__unlock_for_import(full_dir)
 			self.__clear_doc_fields()
 			self.doc_id_wheel.Clear()
@@ -718,6 +720,26 @@ class indexFrame(wxFrame):
 		map(xml_file.write, content)
 		xml_file.close()
 	#----------------------------------------
+	def __keep_patient_file(self, aDir):
+		# keep patient file for import
+		tmp = os.path.abspath(os.path.expanduser(_cfg.get("metadata", "patient_file")))
+		old_name = os.path.split(tmp)[0]
+		new_name = os.path.join(aDir, old_name)
+		try:
+			shutils.copyfile(old_name, new_name)
+		except:
+			exc = sys.exc_info()
+			_log.LogException("Cannot copy patient data file.", exc, fatal=1)
+			dlg = wxMessageDialog(self, 
+				_('Cannot copy patient file\n[%s]\nto data directory\n[%s]\n\nPlease see error log for details.') % (old_name, aDir),
+				_('Error'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+		return 1
+	#----------------------------------------
 	def __valid_input(self):
 		# check whether values for date of record, record type, short comment and extended comment
 		# have been filled in
@@ -890,7 +912,10 @@ if __name__ == '__main__':
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.15  2002-09-22 18:37:58  ncq
+# Revision 1.16  2002-09-28 15:59:33  ncq
+# - keep patient file for import
+#
+# Revision 1.15  2002/09/22 18:37:58  ncq
 # - minor cleanups
 #
 # Revision 1.14  2002/09/17 01:44:06  ncq
