@@ -1,7 +1,13 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 
 # python script to hand-generate conversion table for the field
 # pbsimport.formandstrength
+
+#==============================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/pbsconvert.py,v $
+# $Id: pbsconvert.py,v 1.4 2003-01-16 14:26:28 ncq Exp $
+__version__ = "$Revision: 1.4 $"
+__author__ = "H.Herb"
 
 import pg
 
