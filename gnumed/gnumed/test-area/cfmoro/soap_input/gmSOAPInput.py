@@ -13,7 +13,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -23,49 +23,70 @@ from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals, gmWhoAmI
 from Gnumed.business import gmEMRStructItems, gmPatient, gmSOAPimporter
-from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmRegetMixin, gmResizingWidgets
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
-
-sys.path.append ('../../ian') 
-import SOAP2
 
 import SOAPMultiSash
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-#============================================================
 
 # FIXME attribute encapsulation and private methods
 # FIXME i18n
 
-# Auto-completion test words
-# FIXME currently copied form SOAP2.py
-AOElist = [{'label':'otitis media', 'data':1, 'weight':1},
-	{'label':'otitis externa', 'data':2, 'weight':1},
-	{'label':'cellulitis', 'data':3, 'weight':1},
-	{'label':'gingivitis', 'data':4, 'weight':1},
-	{'label':'ganglion', 'data':5, 'weight':1}]
+	
+def create_widget_on_test_kwd1(*args, **kwargs):
+	print "test keyword must have been typed..."
+	print "actually this would have to return a suitable wxWindow subclass instance"
+	print "args:", args
+	print "kwd args:"
+	for key in kwargs.keys():
+		print key, "->", kwargs[key]
+#================================================================
+def create_widget_on_test_kwd2(*args, **kwargs):
+	msg = (
+		"test keyword must have been typed...\n"
+		"actually this would have to return a suitable wxWindow subclass instance\n"
+	)
+	for arg in args:
+		msg = msg + "\narg ==> %s" % arg
+	for key in kwargs.keys():
+		msg = msg + "\n%s ==> %s" % (key, kwargs[key])
+	gmGuiHelpers.gm_show_info (
+		aMessage = msg,
+		aTitle = 'msg box on create_widget from test_keyword'
+	)
+#================================================================
+class cSoapWin (gmResizingWidgets.cResizingWindow):
+	def DoLayout(self):
+		self.input1 = gmResizingWidgets.cResizingSTC(self, -1)
+		self.input2 = gmResizingWidgets.cResizingSTC(self, -1)
+		self.input3 = gmResizingWidgets.cResizingSTC(self, -1)
 
-Subjlist = [{'label':'earache', 'data':1, 'weight':1},
-	{'label':'earache', 'data':1, 'weight':1},
-	{'label':'ear discahrge', 'data':2, 'weight':1},
-	{'label':'eardrum bulging', 'data':3, 'weight':1},
-	{'label':'sore arm', 'data':4, 'weight':1},
-	{'label':'sore tooth', 'data':5, 'weight':1}]
+		self.input1.prev_in_tab_order = None
+		self.input1.next_in_tab_order = self.input2
+		self.input2.prev_in_tab_order = self.input1
+		self.input2.next_in_tab_order = self.input3
+		self.input3.prev_in_tab_order = self.input2
+		self.input3.next_in_tab_order = None
 
-Planlist = [{'label':'pencillin V', 'data':1, 'weight':1},
-	{'label':'penicillin X', 'data':2, 'weight':1},
-	{'label':'penicillinamine', 'data':3, 'weight':1},
-	{'label':'penthrane', 'data':4, 'weight':1},
-	{'label':'penthidine', 'data':5, 'weight':1}]
-		
+		self.AddWidget (widget=self.input1, label="S")
+		self.Newline()
+		self.AddWidget (widget=self.input2, label="O")
+		self.Newline()
+		self.AddWidget (widget=self.input3, label="A+P")
+
+		kwds = {}
+		kwds['$test_keyword'] = {'widget_factory': create_widget_on_test_kwd2}
+		self.input2.set_keywords(popup_keywords=kwds)		
+			
 #============================================================
 class cSOAPControl(wx.wxPanel):
 	"""
-	Basic SOAP input widget. It provides Ian's SOAP editor and a staticText
-	that displays the which issue is current SOAP related to.
+	Basic SOAP input widget. It provides gmResizingWindows based SOAP editor
+	and a staticText that displays the which issue is current SOAP related to.
 	"""
 	
 	#--------------------------------------------------------
@@ -92,42 +113,18 @@ class cSOAPControl(wx.wxPanel):
 		print "...creating new soap input widget"
 		# flag indicating saved state
 		self.is_saved = False
-		
+				
 		# soap rich and smart text editor
 		# FIXME currently copied form SOAP2.py
-		self.__soap_text_editor = SOAP2.ResizingWindow (self, -1, size = wx.wxSize (300, 150))
-		self.__S = SOAP2.ResizingSTC (self.__soap_text_editor, -1)
-		self.__S.AttachMatcher (cMatchProvider_FixedList (Subjlist))
-		self.__O = SOAP2.ResizingSTC (self.__soap_text_editor, -1)
-		self.__A = SOAP2.ResizingSTC (self.__soap_text_editor, -1)
-		self.__A.AttachMatcher (cMatchProvider_FixedList (AOElist))
-		self.__P = SOAP2.ResizingSTC (self.__soap_text_editor, -1)
-		self.__P.AttachMatcher (cMatchProvider_FixedList (Planlist))
-		self.__S.prev = None
-		self.__S.next = self.__O
-		self.__O.prev = self.__S
-		self.__O.next = self.__A
-		self.__A.prev = self.__O
-		self.__A.next = self.__P
-		self.__P.prev = self.__A
-		self.__P.next = None
-		self.__soap_text_editor.AddWidget (self.__S, gmSOAPimporter.soap_bundle_SOAP_CATS[0])
-		self.__soap_text_editor.Newline ()
-		self.__soap_text_editor.AddWidget (self.__O, gmSOAPimporter.soap_bundle_SOAP_CATS[1])
-		self.__soap_text_editor.Newline ()
-		self.__soap_text_editor.AddWidget (self.__A, gmSOAPimporter.soap_bundle_SOAP_CATS[2])
-		self.__soap_text_editor.Newline ()
-		self.__soap_text_editor.AddWidget (self.__P, gmSOAPimporter.soap_bundle_SOAP_CATS[3])
-		self.__soap_text_editor.SetValues ({gmSOAPimporter.soap_bundle_SOAP_CATS[0]:"sore ear", gmSOAPimporter.soap_bundle_SOAP_CATS[3]:"Amoxycillin"})
-		self.__soap_text_editor.ReSize ()
-		
+		self.__soap_text_editor = cSoapWin (self, -1, size = wx.wxSize (300, 150))
+
 		# sizers for widgets
 		self.__soap_control_sizer = wx.wxBoxSizer(wx.wxVERTICAL)
 		self.__soap_control_sizer.Add(self.__soap_label)		   
 		self.__soap_control_sizer.Add(self.__soap_text_editor)
 		
 		# do layout
-		self.SetSizerAndFit(self.__soap_control_sizer)		
+		self.SetSizerAndFit(self.__soap_control_sizer)				
 		
 	#--------------------------------------------------------
 	def SetHealthIssue(self, selected_issue):
@@ -166,8 +163,7 @@ class cSOAPControl(wx.wxPanel):
 		"""
 		Clear any entries in widget's SOAP text editor
 		"""
-		self.__soap_text_editor.SetValues ({"Subjective":" ", "Objective":" ",
-			"Assessment":" ", "Plan":" "})
+		self.__soap_text_editor.Clear()
 
 	#--------------------------------------------------------
 	def HideContents(self):
@@ -385,13 +381,13 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		}
 		bundle = []
 		# iterate over input keys
-		for input_key in self.__selected_soap.GetSOAP().GetValues().keys():
+		for input_key in self.__selected_soap.GetSOAP().GetValue().keys():
 			print "*** KEY: %s" % input_key
 			bundle.append(
 			{
 				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY:input_key,
 				gmSOAPimporter.soap_bundle_TYPES_KEY:['Hx'],
-				gmSOAPimporter.soap_bundle_TEXT_KEY:self.__selected_soap.GetSOAP().GetValues()[input_key],
+				gmSOAPimporter.soap_bundle_TEXT_KEY:self.__selected_soap.GetSOAP().GetValue()[input_key],
 				gmSOAPimporter.soap_bundle_CLIN_CTX_KEY:clin_ctx,
 				gmSOAPimporter.soap_bundle_STRUCT_DATA_KEY:{}
 			}
