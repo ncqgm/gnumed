@@ -46,7 +46,7 @@ activated in which case the module will always use file access.
 """
 #---------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>, Ian Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -54,7 +54,7 @@ import os.path, sys, ConfigParser, types, os, string
 #, cPickle
 
 # GNUmed modules
-import gmLog, gmPG, gmExceptions, gmCLI
+import gmLog, gmExceptions, gmCLI
 #---------------------------------------------------------------
 __log__ = gmLog.gmDefLog
 
@@ -92,7 +92,11 @@ class cCfg:
 			__log__.Log(gmLog.lErr, "Cannot open/parse config file. Aborting.")
 			raise _CantParseFileExc
 
-		self.deactivateDatabase()		# we don't have db connectivity yet
+		# we don't have db connectivity yet
+		self.__db_active = 0
+		self.__curr_src = srcFile
+		self.__db_conn = None
+
 		self.setContext()				# default context "default"
 
 		# let's do it this way just in case we end up attaching even more sources
@@ -130,10 +134,13 @@ class cCfg:
 		if self.__db_active:
 			return
 
+		import gmPG as tmp
+		self._gmPG = tmp
+
 		# actually get connection to db
 		# at this point in time we assume general database connectivity to exist
 		# so this is more like setting up a hardlink with little overhead
-		pool = gmPG.ConnectionPool()
+		pool = self._gmPG.ConnectionPool()
 		self.__db_conn = pool.GetConnection('gmconfiguration')
 
 		self.__db_active = 1
@@ -148,7 +155,7 @@ class cCfg:
 		self.__db_conn = None
 
 		# actually release connection to db
-		pool = gmPG.ConnectionPool()
+		pool = self._gmPG.ConnectionPool()
 		pool.ReleaseConnection('gmconfiguration')
 	#-------------------------------------
 	def setSource(self, aSource = None):
@@ -334,31 +341,31 @@ class cCfg:
 # HACK FOR NOW
 config = {'main.use_notebook':1, 'main.shadow':1, 'main.shadow.colour':(131, 129, 131), 'main.shadow.width':4}
 
-def GetAllConfigs ():
-    pool = gmPG.ConnectionPool ()
-    conn = pool.GetConnection ('gmconfiguration')
-    cur = conn.cursor ()
-    cur.execute ("SELECT name, value, string FROM v_my_config")
-    result = cur.fetchall ()
-    pool.ReleaseConnection ('gmconfiguration')
-    for row in result:
-        if row[2] is None:
-            config[row[0]] = row[1]
-        else:
-            config[row[0]] = row[2]
+#def GetAllConfigs ():
+#    pool = gmPG.ConnectionPool ()
+#     conn = pool.GetConnection ('gmconfiguration')
+#    cur = conn.cursor ()
+#    cur.execute ("SELECT name, value, string FROM v_my_config")
+#    result = cur.fetchall ()
+#    pool.ReleaseConnection ('gmconfiguration')
+#    for row in result:
+#        if row[2] is None:
+#            config[row[0]] = row[1]
+#        else:
+#            config[row[0]] = row[2]
 
-def SetConfig (key, value):
-    pool = gmPG.ConnectionPool ()
-    config[key] = value
-    conn = pool.GetConnection ('gmconfiguration')
-    cur = conn.cursor ()
-    if type (value) == types.IntType:
-        cur.execute ("UPDATE v_my_config SET value=%d WHERE name='%s'" % (value, key))
-    elif type (value) == types.StringType:
-        cur.execute ("UPDATE v_my_config SET string='%s' WHERE name='%s'" % (value, key))
-    else:
-        raise gmExceptions.ConfigError ('type not supported')
-    pool.ReleaseConnection ('gmconfiguration')
+#def SetConfig (key, value):
+#    pool = gmPG.ConnectionPool ()
+#    config[key] = value
+#    conn = pool.GetConnection ('gmconfiguration')
+#    cur = conn.cursor ()
+#    if type (value) == types.IntType:
+#        cur.execute ("UPDATE v_my_config SET value=%d WHERE name='%s'" % (value, key))
+#    elif type (value) == types.StringType:
+#        cur.execute ("UPDATE v_my_config SET string='%s' WHERE name='%s'" % (value, key))
+#    else:
+#        raise gmExceptions.ConfigError ('type not supported')
+#    pool.ReleaseConnection ('gmconfiguration')
 #---------------------------------------------------------------
 # MAIN
 #---------------------------------------------------------------
