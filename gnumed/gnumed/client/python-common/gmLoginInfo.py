@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.15 2003-09-17 03:00:59 ihaywood Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmLoginInfo.py,v 1.16 2003-09-17 11:15:39 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -106,7 +106,7 @@ class LoginInfo:
 		host = self.GetHost()
 		port = str(self.GetPort())
 		# for local UNIX domain sockets connections: leave host/port empty
-		if host in ['', 'localhost', '127.0.0.1']:
+		if host in ['', 'localhost']:
 			host = ""
 			port = ""
 		dsn = "%s:%s:%s:%s:%s:%s:%s" % (
@@ -221,7 +221,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.15  2003-09-17 03:00:59  ihaywood
+# Revision 1.16  2003-09-17 11:15:39  ncq
+# - make local TCP/IP available for all DBA types
+#
+# Revision 1.15  2003/09/17 03:00:59  ihaywood
 # support for local inet connections
 #
 # Revision 1.14  2003/08/17 17:58:09  ncq
