@@ -14,8 +14,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.20 2004-05-19 11:16:09 sjtan Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmDemographics.py,v 1.21 2004-05-23 11:13:59 sjtan Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -536,7 +536,8 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		m = self.input_fields
 		m['address_type'].SetValue(data['type'])
 		for k,v in data.items():
-			m[k].SetValue(v)
+			if not k in ['dirty', 'type', 'ID']:
+				m[k].SetValue(v)
 
 	def _save_addresses(self):
 		myPatient = self.patient.get_demographic_record()
@@ -823,7 +824,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.20  2004-05-19 11:16:09  sjtan
+# Revision 1.21  2004-05-23 11:13:59  sjtan
+#
+# some data fields not in self.input_fields , so exclude them
+#
+# Revision 1.20  2004/05/19 11:16:09  sjtan
 #
 # allow selecting the postcode for restricting the urb's picklist, and resetting
 # the postcode for unrestricting the urb picklist.
