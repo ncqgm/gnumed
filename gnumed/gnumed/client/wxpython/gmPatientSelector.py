@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.16 2003-09-21 07:52:57 ihaywood Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmPatientSelector.py,v 1.17 2003-10-19 12:17:57 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -737,7 +737,7 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 	# event handlers
 	#--------------------------------------------------------
 	def _on_get_focus(self, evt):
-		"""uponn tabbing in
+		"""upon tabbing in
 
 		- select all text in the field so that the next
 		  character typed will delete it
@@ -988,7 +988,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.16  2003-09-21 07:52:57  ihaywood
+# Revision 1.17  2003-10-19 12:17:57  ncq
+# - typo fix
+#
+# Revision 1.16  2003/09/21 07:52:57  ihaywood
 # those bloody umlauts killed by python interpreter!
 #
 # Revision 1.15  2003/07/07 08:34:31  ihaywood
