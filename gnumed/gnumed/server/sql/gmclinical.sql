@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.41 $
+-- $Revision: 1.42 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -27,7 +27,7 @@ comment on table clin_audit is
 -- clinical narrative aggregation, this is a generic table for SOAP
 -- -------------------------------------------------------------------
 create table clin_narrative (
-	pkey_narrative serial primary key,
+	pk_narr serial primary key,
 	narrative text
 );
 
@@ -113,7 +113,7 @@ comment on COLUMN clin_encounter.id_type is
 -- specific EMR content tables: SOAP++
 -- --------------------------------------------
 create table clin_item (
-	pkey_item serial primary key,
+	pk_item serial primary key,
 	id_encounter integer not null references clin_encounter(id),
 	id_episode integer not null references clin_episode(id),
 	commit_when timestamp with time zone not null default CURRENT_TIMESTAMP,
@@ -123,7 +123,7 @@ create table clin_item (
 comment on TABLE clin_item is
 	'ancestor table for clinical items of any kind, can be used
 	 directly for generic EMR entries';
-comment on COLUMN clin_item.pkey_item is
+comment on COLUMN clin_item.pk_item is
 	'the primary key, not named "id" as usual since child tables
 	 will have "id" primary keys already';
 comment on COLUMN clin_item.id_encounter is
@@ -429,7 +429,7 @@ TO GROUP "gm-doctors";
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"clin_audit_id_audit_seq",
 	"clin_narrative",
-	"clin_narrativ_pkey_narrativ_seq",
+	"clin_narrative_pk_narr_seq",
 	"clin_health_issue",
 	"clin_health_issue_id_seq",
 	"clin_episode",
@@ -439,7 +439,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"clin_encounter",
 	"clin_encounter_id_seq",
 	"clin_item",
-	"clin_item_pkey_item_seq",
+	"clin_item_pk_item_seq",
 	"_enum_hx_type",
 	"_enum_hx_type_id_seq",
 	"_enum_hx_source",
@@ -457,11 +457,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.41 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.42 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.41  2003-05-05 12:40:03  ncq
+-- Revision 1.42  2003-05-06 13:06:25  ncq
+-- - pkey_ -> pk_
+--
+-- Revision 1.41  2003/05/05 12:40:03  ncq
 -- - name is not a field of constituents anymore
 --
 -- Revision 1.40  2003/05/05 12:26:31  ncq

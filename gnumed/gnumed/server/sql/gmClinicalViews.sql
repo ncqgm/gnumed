@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.12 2003-05-05 11:59:50 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.13 2003-05-06 13:06:25 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -68,7 +68,7 @@ drop view v_patient_items;
 
 create view v_patient_items as
 select
-	ci.pkey_item as id_item,
+	ci.pk_item as id_item,
 	ci.id_encounter as id_encounter,
 	ci.id_episode as id_episode,
 	vpep.id_patient as id_patient,
@@ -130,7 +130,7 @@ drop view v_i18n_patient_allergies;
 create view v_i18n_patient_allergies as
 select
 	a.id as id,
-	a.pkey_item as id_item,
+	a.pk_item as id_item,
 	vpep.id_patient as id_patient,
 	vpep.id_health_issue as id_health_issue,
 	a.id_episode as id_episode,
@@ -181,11 +181,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.12  2003-05-05 11:59:50  ncq
+-- Revision 1.13  2003-05-06 13:06:25  ncq
+-- - pkey_ -> pk_
+--
+-- Revision 1.12  2003/05/05 11:59:50  ncq
 -- - adapt to clin_narrative being an ancestor table
 --
 -- Revision 1.11  2003/05/05 00:31:28  ncq
