@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-doc_types.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 
 -- part of GnuMed
 -- GPL
@@ -26,14 +26,19 @@ INSERT INTO doc_type(id, name) values(110, 'Arztbrief Radiologie');
 INSERT INTO doc_type(id, name) values(111, 'Arztbrief Umweltmedizin');
 INSERT INTO doc_type(id, name) values(112, 'Arztbrief Mikrobiologie');
 INSERT INTO doc_type(id, name) values(113, 'Labor');
+INSERT INTO doc_type(id, name) values(114, 'Befund Röntgen');
+INSERT INTO doc_type(id, name) values(115, 'Arztbrief Kardiologie');
 
 -- do simple revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.3 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: german-doc_types.sql,v $
--- Revision 1.3  2002-12-01 13:53:09  ncq
+-- Revision 1.4  2002-12-26 15:52:28  ncq
+-- - add two types
+--
+-- Revision 1.3  2002/12/01 13:53:09  ncq
 -- - missing ; at end of schema tracking line
 --
 -- Revision 1.2  2002/11/16 00:21:44  ncq
