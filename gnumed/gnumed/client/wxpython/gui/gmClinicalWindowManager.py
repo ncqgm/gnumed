@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.14 2004-03-10 14:00:00 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.15 2004-04-16 00:33:14 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -215,7 +215,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 			try:
 				p.register()
 			except:
-				_log.LogException("file [%s] doesn't seem to be a plugin" % (plugin), sys.exc_info(), verbose = 1)
+				_log.LogException("file [%s] doesn't seem to be a plugin" % (plugin), sys.exc_info(), verbose = 0)
 		#self.panel.Show (0)
 		self.panel.DisplayDefault()
 		self.gb['toolbar.%s' % self.internal_name()].Realize()
@@ -240,7 +240,10 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.14  2004-03-10 14:00:00  ncq
+# Revision 1.15  2004-04-16 00:33:14  ncq
+# - less verbosity on failure to *.register
+#
+# Revision 1.14  2004/03/10 14:00:00  ncq
 # - cleanup
 #
 # Revision 1.13  2004/03/10 12:56:01  ihaywood
