@@ -1,22 +1,20 @@
 """GnuMed allergy related business object.
 
-license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.13 2004-06-28 12:18:41 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmAllergy.py,v 1.14 2004-10-11 19:42:32 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
+__license__ = "GPL"
 
 import types, sys
 
-from Gnumed.pycommon import gmLog, gmPG, gmExceptions
+from Gnumed.pycommon import gmLog, gmPG, gmExceptions, gmI18N
 from Gnumed.business import gmClinItem
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lInfo, __version__)
 #============================================================
 class cAllergy(gmClinItem.cClinItem):
@@ -24,30 +22,32 @@ class cAllergy(gmClinItem.cClinItem):
 	"""
 	_cmd_fetch_payload = """
 		select * from v_pat_allergies
-		where id=%s"""
+		where pk_allergy=%s"""
 
 	_cmds_store_payload = [
 		"""select 1 from allergy where id=%(id)s for update""",
 		"""update allergy set
+				clin_when=%(date)s,
 				substance=%(substance)s,
 				substance_code=%(substance_code)s,
 				generics=%(generics)s,
 				allergene=%(allergene)s,
 				atc_code=%(atc_code)s,
-				id_type=%(id_type)s,
+				id_type=%(pk_type)s,
 				generic_specific=%(generic_specific)s::boolean,
 				definite=%(definite)s::boolean,
 				narrative=%(reaction)s
-			where id=%(id)s"""
+			where id=%(pk_allergy)s"""
 		]
 
 	_updatable_fields = [
+		'date',
 		'substance',
 		'substance_code',	
 		'generics',
 		'allergene',
 		'atc_code',
-		'id_type',
+		'pk_type',
 		'generic_specific',
 		'definite',
 		'reaction'
@@ -59,7 +59,7 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	"""Creates a new allergy clinical item.
 
 	substance - allergic substance
-	allg_type - allergy or sensitivity
+	allg_type - allergy or sensitivity, pk or string
 	encounter_id - encounter's primary key
 	episode_id - episode's primary key
 	"""
@@ -111,11 +111,8 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
-	import sys
-	from Gnumed.pycommon import gmPG, gmI18N
-
-	_log = gmLog.gmDefLog
 	_log.SetAllLogLevels(gmLog.lData)
+
 	gmPG.set_default_client_encoding('latin1')
 	allg = cAllergy(aPK_obj=1)
 	print allg
@@ -137,7 +134,12 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.13  2004-06-28 12:18:41  ncq
+# Revision 1.14  2004-10-11 19:42:32  ncq
+# - add license
+# - adapt field names
+# - some cleanup
+#
+# Revision 1.13  2004/06/28 12:18:41  ncq
 # - more id_* -> fk_*
 #
 # Revision 1.12  2004/06/26 07:33:54  ncq
