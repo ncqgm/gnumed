@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #############################################################################
 #
-# gmPatients
+# gmDemographics
 # ----------------------------------
 #
 # This panel will hold all the patients details
@@ -14,6 +14,7 @@
 # @dependencies: wxPython (>= version 2.3.1)
 # @change log:
 #	    10.06.2002 rterry initial implementation, untested
+#           30.07.2002 rterry images put in file
 #
 # @TODO:
 #	
@@ -21,14 +22,13 @@
 ############################################################################
 
 from wxPython.wx import *
-import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
-import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
-import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-import gmEditArea            #panel class holding editing prompts and text boxes
-#import gmPlugin
-import images_gnuMedGP_Toolbar
+import gmPlugin
 import gmLog
 import gmSQLListControl
+from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
+import cPickle, zlib
+from string import *
+import gmGP_PatientPicture
 
 ID_PATIENT = wxNewId()
 ID_PATIENTSLIST = wxNewId()
@@ -67,7 +67,6 @@ ID_BUTTONPHOTOIMPORT = wxNewId()
 ID_CHKBOXRESIDENCE = wxNewId()
 ID_CHKBOXPOSTAL = wxNewId()
 ID_CHKBOXPREFERREDALIAS = wxNewId()
-
 ID_BUTTONFINDPATIENT = wxNewId()
 ID_TXTPATIENTFIND = wxNewId()
 ID_TXTPATIENTAGE = wxNewId()
@@ -148,11 +147,8 @@ class PatientsPanel(wxPanel):
 		self.lbl_web = BlueLabel(self,-1,"Web")
 		self.lbl_mobile = BlueLabel(self,-1,"Mobile")
 		self.lbl_line6gap = BlueLabel(self,-1,"")
-		#create the textboxes
 		self.titlelist = ['Mr', 'Mrs', 'Miss', 'Mst', 'Ms', 'Dr', 'Prof']
-          
-	  
-		self.combo_relationship = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize, ['Father','Mother'], wxCB_DROPDOWN)
+          	self.combo_relationship = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize, ['Father','Mother'], wxCB_DROPDOWN)
 		self.txt_surname = TextBox_RedBold(self,-1)
 		self.combo_title = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,self.titlelist, wxCB_DROPDOWN)
 		self.txt_firstname = TextBox_RedBold(self,-1)
@@ -162,7 +158,6 @@ class PatientsPanel(wxPanel):
 		self.aliaslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,['Peter Smith','Mickey Smith'],wxLB_SINGLE)
 		self.aliaslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
 		self.aliaslist.SetForegroundColour(wxColor(180,182,180))
-		
 		self.txt_address = wxTextCtrl(self, 30,
 					      "29 Alfred Street \n"
 					      "WARNERS BAY 2280",
@@ -190,28 +185,22 @@ class PatientsPanel(wxPanel):
 
 		self.txt_email = TextBox_BlackNormal(self,-1)
 		self.txt_web = TextBox_BlackNormal(self,-1)
-		self.txt_mobile = TextBox_BlackNormal(self,-1)#----------------------
+		self.txt_mobile = TextBox_BlackNormal(self,-1)
+                #----------------------
 		#create the check boxes
 		#----------------------
-		
 		self.cb_addressresidence = wxCheckBox(self, -1, " Residence ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 		self.cb_addresspostal = wxCheckBox(self, -1, " Postal ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 		#--------------------
 		# create the buttons
 		#--------------------
-		#self.btn_addname = wxButton(self,-1,"Add")
-		#self.btn_addaddress = wxButton(self,-1,"Add")
-		
 		self.btn_photo_import= wxButton(self,-1,"Import")
 		self.btn_photo_export = wxButton(self,-1,"Export")
 		self.btn_photo_aquire = wxButton(self,-1,"Aquire")
-		#self.btn_title = wxButton(self,-1,":")
-		#self.btn_sex = wxButton(self,-1,":")
 		#-------------------------------------------------------
 		#Add the each line of controls to a horizontal box sizer
 		#-------------------------------------------------------
 		self.sizer_line0_left = wxBoxSizer(wxHORIZONTAL)
-		#self.sizer_line0_left.Add(self.lbl_heading_names,1,wxEXPAND)
 		#line one:surname, title
 		self.sizer_line1_left = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_line1_left.Add(self.lbl_surname,3, wxGROW|wxALIGN_CENTER_VERTICAL,5)
@@ -290,7 +279,6 @@ class PatientsPanel(wxPanel):
 		#now add all the left hand line sizers to the one left hand vertical sizer
 		#-------------------------------------------------------------------------
 		self.leftside = wxBoxSizer(wxVERTICAL)
-		#self.leftside.Add(self.sizer_line0_left,0,0)
 		self.leftside.Add(self.sizer_line1_left,0,wxEXPAND|wxALL,1)
 		self.leftside.Add(self.sizer_line2_left,0,wxEXPAND|wxALL,1)
 		self.leftside.Add(self.sizer_line3_left,0,wxEXPAND|wxALL,1)
@@ -315,7 +303,6 @@ class PatientsPanel(wxPanel):
 		self.sizer_line9_right = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_line10_right = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_line11_right = wxBoxSizer(wxHORIZONTAL)
-		#self.sizer_line0_right.Add(self.lbl_heading_Personal,1,wxEXPAND)
 		#line1 _ birthdate, maritial status
 		self.sizer_line1_right.Add(self.lbl_birthdate,2,wxALIGN_CENTER_VERTICAL,0)
 		self.sizer_line1_right.Add(self.txt_birthdate,2,wxALIGN_LEFT)
@@ -368,8 +355,6 @@ class PatientsPanel(wxPanel):
 		self.sizer_line11_right.Add(self.txt_mobile, 5,wxEXPAND)
 		self.sizer_line11_right.Add(0,0,1)
 		self.sizer_contacts.Add(self.sizer_line11_right,0,wxEXPAND)
-		import gmGP_PatientPicture
-		
 		self.sizer_photo = wxBoxSizer(wxVERTICAL)
 		self.patientpicture = gmGP_PatientPicture.PatientPicture(self,-1)
 		self.sizer_photo.Add(self.patientpicture,3,wxALIGN_CENTER_HORIZONTAL,0)
@@ -379,32 +364,6 @@ class PatientsPanel(wxPanel):
 		self.sizer_contactsandphoto  = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_contactsandphoto.AddSizer(self.sizer_contacts,6,wxALIGN_CENTER_VERTICAL,0)
 		self.sizer_contactsandphoto.AddSizer(self.sizer_photo,2,wxALIGN_CENTER_VERTICAL,0)
-		
-		#####-----------------------------------------------
-		#####line seven: user1
-		#####-----------------------------------------------
-		####self.sizer_line7_user1 = wxBoxSizer(wxHORIZONTAL)
-		####self.sizer_line7_user1.Add(self.lbl_org_user1,4,wxGROW|wxALIGN_CENTER_VERTICAL,5)
-		####self.sizer_line7_user1.Add(self.txt_org_user1,18,wxEXPAND)
-		####self.sizer_line7_user2 = wxBoxSizer(wxHORIZONTAL)
-		####self.sizer_line7_user2.Add(self.lbl_org_user2,4,wxGROW|wxALIGN_CENTER_VERTICAL,5)
-		####self.sizer_line7_user2.Add(self.txt_org_user2,18,wxEXPAND)
-		####self.sizer_line7_user3 = wxBoxSizer(wxHORIZONTAL)
-		####self.sizer_line7_user3.Add(self.lbl_org_user3,4,wxGROW|wxALIGN_CENTER_VERTICAL,5)
-		####self.sizer_line7_user3.Add(self.txt_org_user3,18,wxEXPAND)
-		####self.sizer_line7_right = wxBoxSizer(wxVERTICAL)
-		####self.sizer_line7_right.AddSizer(self.sizer_line7_user1,0,wxEXPAND) 
-		####self.sizer_line7_right.AddSizer(self.sizer_line7_user2,0,wxEXPAND) 
-		####self.sizer_line7_right.AddSizer(self.sizer_line7_user3,0,wxEXPAND) 
-		
-		
-		####self.sizer_line7.Add(self.lbl_org_memo,4,wxEXPAND|wxALIGN_CENTER_VERTICAL,5)
-		####self.sizer_line7.Add(self.txt_org_memo,40,wxEXPAND)
-		####self.sizer_line7.Add(0,0,4)
-		####self.sizer_line7.AddSizer(self.sizer_line7_right,44,wxEXPAND)
-		
-		
-		
 		self.rightside = wxBoxSizer(wxVERTICAL)
 		self.rightside.Add(self.sizer_line1_right,0,wxEXPAND|wxALL,1)
 		self.rightside.Add(self.sizer_line2_right,0,wxEXPAND|wxALL,1)
@@ -453,32 +412,6 @@ class PatientsPanel(wxPanel):
 	def OnSelected (self, event):
 		gmLog.gmDefLog.Log (gmLog.lInfo, "selected patient ID %s" % event.GetData ())          
           
-      
-#class gmGP_PastHistory(gmPlugin.wxBasePlugin):
-    #"""
-    #Plugin to encapsulate the past history window
-    #"""
-    #def name (self):
-        #return 'PastHistoryPlugin'
-
-    #def register (self):
-        #self.mwm = self.gb['main.manager']
-        #self.mwm.RegisterLeftSide ('pasthistory', PatientsPanel
-        #(self.mwm, -1))
-        #tb2 = self.gb['main.bottom_toolbar']
-        ##tb2.AddSeparator()
-	#tool1 = tb2.AddTool(ID_PASTHISTORY, images_gnuMedGP_Toolbar.getToolbar_PastHistoryBitmap(), shortHelpString="Past History")
-        #EVT_TOOL (tb2, ID_PASTHISTORY, self.OnPastHistoryTool)
-        #menu = self.gb['main.viewmenu']
-        #menu.Append (ID_ALL_MENU, "&Past History","Past History")
-        #EVT_MENU (self.gb['main.frame'], ID_ALL_MENU, self.OnPastHistoryTool)
-
-
-    #def OnPastHistoryTool (self, event):
-        #self.mwm.Display ('pasthistory')
-          
-          
-
 if __name__ == "__main__":
 	import gmGuiBroker
 	app = wxPyWidgetTester(size = (800, 600))
@@ -486,16 +419,11 @@ if __name__ == "__main__":
 	app.SetWidget(PatientsPanel, -1)
 	app.MainLoop()
 
-import gmPlugin
-
 """
 A plugin for searching the patient database by name.
 Required the gmPatientWindowPlgin to be loaded.
 CANNOT BE UNLOADED
 """
-import gmPlugin
-import images_gnuMedGP_Toolbar
-from string import *
 
 class gmDemographics (gmPlugin.wxBasePlugin):
 
@@ -506,10 +434,8 @@ class gmDemographics (gmPlugin.wxBasePlugin):
 		# first, set up the widgets on the top line of the toolbar
 		tb = self.gb['main.toolbar']
 		self.tb_patient_search = wxToolBar(tb,-1,wxDefaultPosition,wxDefaultSize,wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
-	        self.tool_patient_search = self.tb_patient_search.AddTool(ID_BUTTONFINDPATIENT, images_gnuMedGP_Toolbar.getToolbar_FindPatientBitmap(),shortHelpString="Find Patient")
-		#self.pt_search_button = wxBitmapButton (tb, ID_BUTTONFINDPATIENT, bitmap= images_gnuMedGP_Toolbar.getToolbar_FindPatientBitmap())
-		#self.pt_search_button.SetToolTip (wxToolTip ('Find Patient'))
-	      	self.txt_findpatient = wxComboBox(tb, ID_TXTPATIENTFIND, "", wxDefaultPosition,wxDefaultSize,[], wxCB_DROPDOWN)
+	        self.tool_patient_search = self.tb_patient_search.AddTool(ID_BUTTONFINDPATIENT, getToolbar_FindPatientBitmap(),shortHelpString="Find Patient")
+		self.txt_findpatient = wxComboBox(tb, ID_TXTPATIENTFIND, "", wxDefaultPosition,wxDefaultSize,[], wxCB_DROPDOWN)
 	    	self.txt_findpatient.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
 	      	self.lbl_age =wxStaticText(tb,-1," Age ",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL) 
 	      	self.lbl_age.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
@@ -523,7 +449,6 @@ class gmDemographics (gmPlugin.wxBasePlugin):
 	      	self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
 	      	self.txt_allergies.SetForegroundColour(wxColour(255,0,0))
 	      	self.combo_consultation_type = wxComboBox(tb, ID_COMBOCONSULTTYPE, "Surgery Consultation", wxDefaultPosition,wxDefaultSize,consulttypelist, wxCB_DROPDOWN)
-		#rem ians line tb.toplinesizer.Add(self.pt_search_button,0,wxEXPAND)
 		tb.toplinesizer.Add(self.tb_patient_search,0,wxEXPAND)
 	      	tb.toplinesizer.Add(self.txt_findpatient,5,wxEXPAND|wxALL,3)
 	      	tb.toplinesizer.Add(self.lbl_age,1,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
@@ -537,5 +462,22 @@ class gmDemographics (gmPlugin.wxBasePlugin):
 		self.widget = PatientsPanel (self.mwm, -1, self)
 		self.mwm.RegisterWholeScreen ('Patient Search', self.widget)
 
+#----------------------------------------------------------------------
+def getToolbar_FindPatientData():
+    return cPickle.loads(zlib.decompress(
+'x\xdam\x8e\xb1\n\xc4 \x0c\x86\xf7>\x85p\x83\x07\x01\xb9.\xa7\xb3\x16W\x87.]\
+K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
+\xaaA\x1d\xca\x9f\xfb\xf1!RH\x8f\x17\x96u\xc4\xa9\xb0u6\x08\x9b\xc2\x8b[\xc2\
+\xc2\x9c\x0bG\x17Cd\xde\n{\xe7\x83wr\xef*\x83\xc5\xe1\xa6Z_\xe1_3\xb7\xea\
+\xc3\x94\xa4\x07\x13\x00h\xdcL\xc8\x90\x12\x8e\xd1\xa4\xeaM\xa0\x94\xf7\x9bI\
+\x92\xa8\xf5\x9f$\x19\xd69\xc43rp\x08\xb3\xac\xe7!4\xf5\xed\xd7M}kx+\x0c\xcd\
+\x0fE\x94aS' ))
 
+def getToolbar_FindPatientBitmap():
+    return wxBitmapFromXPMData(getToolbar_FindPatientData())
+
+def getToolbar_FindPatientImage():
+    return wxImageFromBitmap(getToolbar_FindPatientBitmap())
+
+#----------------------------------------------------------------------
 
