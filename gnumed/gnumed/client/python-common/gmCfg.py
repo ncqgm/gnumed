@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.70 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -57,9 +57,10 @@ import os.path, fileinput, string, sys, shutil
 from types import *
 
 # gnumed modules
-import gmLog, gmCLI, gmPG
-
+import gmLog, gmCLI
 _log = gmLog.gmDefLog
+
+_gmPG = None
 
 # flags for __get_conf_name
 cfg_SEARCH_STD_DIRS = 1
@@ -123,7 +124,7 @@ class cCfgSQL:
 		curs = self.conn.cursor()
 
 		# retrieve option definition
-		if gmPG.run_query(curs, """
+		if _gmPG.run_query(curs, """
 select cfg_item.id, cfg_template.type
 from cfg_item, cfg_template
 where
@@ -146,7 +147,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 
 		# retrieve values from appropriate table
 		cmd = "select value from cfg_%s where id_item=%%s limit 1;" % value_type
-		if gmPG.run_query(curs, cmd, item_id) is None:
+		if _gmPG.run_query(curs, cmd, item_id) is None:
 			curs.close()
 			return None
 		result = curs.fetchone()
@@ -170,7 +171,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 
 		curs = self.conn.cursor()
 		# retrieve option definition
-		if gmPG.run_query(curs, """
+		if _gmPG.run_query(curs, """
 select cfg_item.id, cfg_template.type
 from cfg_item, cfg_template
 where
@@ -273,7 +274,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		# get id of option template
 		curs = aRWConn.cursor()
 		cmd = "select id from cfg_template where name like %s and type like %s limit 1;"
-		if gmPG.run_query(curs, cmd, option, data_type) is None:
+		if _gmPG.run_query(curs, cmd, option, data_type) is None:
 			curs.close()
 			return None
 		# if not in database insert new option template
@@ -281,11 +282,11 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		if result is None:
 			# insert new template
 			cmd = "insert into cfg_template (name, type) values ( %s , %s );"
-			if gmPG.run_query(curs, cmd, option, data_type) is None:
+			if _gmPG.run_query(curs, cmd, option, data_type) is None:
 				curs.close()
 				return None
 			cmd = "select id from cfg_template where name like %s and type like %s limit 1;"
-			if gmPG.run_query(curs, cmd, option, data_type) is None:
+			if _gmPG.run_query(curs, cmd, option, data_type) is None:
 				curs.close()
 				return None
 			result = curs.fetchone()
@@ -297,12 +298,12 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		if self.get(machine, user, cookie, option) is None:
 			# insert new option
 			# insert option instance
-			if gmPG.run_query(curs, "insert into cfg_item (id_template %s%s%s) values (%s%s%s%s)" % (owner_field, machine_field, cookie_field, template_id, owner_value, machine_value, cookie_value), where_args) is None:
+			if _gmPG.run_query(curs, "insert into cfg_item (id_template %s%s%s) values (%s%s%s%s)" % (owner_field, machine_field, cookie_field, template_id, owner_value, machine_value, cookie_value), where_args) is None:
 				curs.close()
 				return None
 			# insert option value
 			cmd = "insert into cfg_%s (id_item, value)" % data_type + " values (currval('cfg_item_id_seq'), %s);"
-			if gmPG.run_query(curs, cmd, data_value) is None:
+			if _gmPG.run_query(curs, cmd, data_value) is None:
 				curs.close()
 				return None
 		else:
@@ -314,7 +315,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 				return None
 			# update option instance
 			cmd = "update cfg_%s" % data_type + " set value=%s" + " where id_item='%s';" % (item_id)
-			if gmPG.run_query(curs, cmd, data_value ) is None:
+			if _gmPG.run_query(curs, cmd, data_value ) is None:
 				curs.close()
 				return None
 
@@ -354,7 +355,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		curs = self.conn.cursor()
 
 		# retrieve option definition
-		if gmPG.run_query(curs, cmd, where_args) is None:
+		if _gmPG.run_query(curs, cmd, where_args) is None:
 			curs.close()
 			return None
 
@@ -394,7 +395,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 
 		# get template id, template type
 		cmd = "select id_template, type from cfg_item, cfg_template where cfg_item.id like %s and cfg_item.id_template = cfg_template.id limit 1;"
-		if gmPG.run_query(curs, cmd, item_id) is None:
+		if _gmPG.run_query(curs, cmd, item_id) is None:
 			curs.close()
 			return None
 		result = curs.fetchone()		
@@ -404,7 +405,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		# if yes, delete template, too
 		# here we assume that only 
 		cmd = "select id from cfg_item where id_template like %s;"
-		if gmPG.run_query(curs, cmd, template_id) is None:
+		if _gmPG.run_query(curs, cmd, template_id) is None:
 			curs.close()
 			return None
 		result = curs.fetchall()		
@@ -414,14 +415,14 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		cmd = """
 		delete from cfg_%s where id_item=%s; 
 		delete from cfg_item where id='%s';""" % (template_type, item_id, item_id)
-		if gmPG.run_query(curs, cmd) is None:
+		if _gmPG.run_query(curs, cmd) is None:
 			curs.close()
 			return None
 
 		# delete template if last reference
 		if template_ref_count == 1:
 			cmd = "delete from cfg_template where id like %s;"
-			if gmPG.run_query(curs, cmd, template_id) is None:
+			if _gmPG.run_query(curs, cmd, template_id) is None:
 				curs.close()
 				return None
 		
@@ -993,6 +994,11 @@ def getFirstMatchingDBSet(machine = cfg_DEFAULT, cookie = cfg_DEFAULT, option = 
 
 	Returns value and position of first match.
 	"""
+	# import gmPG if need be
+	global _gmPG
+	if _gmPG is None:
+		import gmPG
+		_gmPG = gmPG
 
 	# first create list of sets to search
 	setList=[]
@@ -1006,11 +1012,11 @@ def getFirstMatchingDBSet(machine = cfg_DEFAULT, cookie = cfg_DEFAULT, option = 
 	setList.append(['DEFAULT_USER_DEFAULT_MACHINE',cfg_DEFAULT,cfg_DEFAULT])
 
 	# connect to database
-	db = gmPG.ConnectionPool()
+	db = _gmPG.ConnectionPool()
 	conn = db.GetConnection(service = "default")
 	dbcfg = cCfgSQL(
 		aConn = conn,
-		aDBAPI = gmPG.dbapi
+		aDBAPI = _gmPG.dbapi
 	)
 
 	matchingSet = None
@@ -1046,12 +1052,19 @@ def setDBParam(machine = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT, 
 	if option is None or value is None:
 		_log.Log(gmLog.lWarn, 'no option name or value specified')
 		return 0
+
+	# import gmPG if need be
+	global _gmPG
+	if _gmPG is None:
+		import gmPG
+		_gmPG = gmPG
+
 	# connect to database
-	db = gmPG.ConnectionPool()
+	db = _gmPG.ConnectionPool()
 	conn = db.GetConnection(service = "default")
 	dbcfg = cCfgSQL(
 		aConn = conn,
-		aDBAPI = gmPG.dbapi
+		aDBAPI = _gmPG.dbapi
 	)
 	rwconn = db.GetConnection(service = "default", readonly = 0)
 	if rwconn is None:
@@ -1129,6 +1142,7 @@ if __name__ == "__main__":
 
 		print "testing database config"
 		print "======================="
+		# FIXME: BROKEN
 		from pyPgSQL import PgSQL
 		dsn = "%s:%s:%s:%s:%s:%s:%s" % ('localhost', '5432', 'gnumed', 'postgres', '', '', '')
 		conn = PgSQL.connect(dsn)
@@ -1193,7 +1207,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.69  2004-01-06 23:44:40  ncq
+# Revision 1.70  2004-02-25 08:39:04  ncq
+# - I think I removed the dependancy on gmPG as long as cCfgSQL isn't used
+#
+# Revision 1.69  2004/01/06 23:44:40  ncq
 # - __default__ -> xxxDEFAULTxxx
 #
 # Revision 1.68  2003/11/22 02:03:48  ihaywood
