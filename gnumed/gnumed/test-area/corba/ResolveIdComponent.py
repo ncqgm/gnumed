@@ -28,8 +28,14 @@ class IDComponentResolver :
 	def getInitialContext(self):
 		orb = self.getORB()
 		o = orb.resolve_initial_references(self.initContextName)
-		return  o._narrow(CosNaming.NamingContextExt)
-
+		try:
+			return  o._narrow(CosNaming.NamingContextExt)
+		except:
+			print sys.exc_info()[0], sys.exc_info()[1]
+			traceback.print_tb(sys.exc_info()[2])
+			print "\n",'*'* 30, "\nIS the NameService Running ? "
+			print "\nIs the NameService running on port 5002? ( 'omniNames -start 5002 -logdir <mylogpath>'  )"
+			sys.exit(1)
 
 	def getIdentificationComponent(self, path = None):
 		if self.local:

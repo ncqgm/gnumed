@@ -25,6 +25,7 @@ class IdMgr_i (PersonIdService__POA.IdMgr, StartIdentificationComponent):
 
 	def _optimize_calltime_by_sql_prepare(self):
 		con = self.connector.getConnection()
+
 		self.prep_insert_blank_id ="prepare insert_blank_id as insert into identity( id, gender, dob) values( nextval('identity_id_seq'),'?', now() )"
 		self.execute_insert_blank_id = "execute insert_blank_id"
 		self.prep_get_last_id = "prepare get_last_id as select currval('identity_id_seq')"
@@ -75,6 +76,18 @@ class IdMgr_i (PersonIdService__POA.IdMgr, StartIdentificationComponent):
 
 		return self._do_register_new_ids(new_profiles)
 
+	def _get_and_ensure_max_identity_id(self, cursor):
+		cursor.execute("select max(id) from identity")
+		[id] = cursor.fetchone()
+		statement = "select nextval('identity_id_seq')";
+		cursor.execute(statement)
+		[nextid] = cursor.fetchone()
+		while nextid < id:
+			cursor.execute(statement)
+			[nextid] = cursor.fetchone()
+
+		return id
+
 	def _do_register_new_ids(self, new_profiles):
 		con = self.connector.getConnection()
 		con.commit()
@@ -84,9 +97,8 @@ class IdMgr_i (PersonIdService__POA.IdMgr, StartIdentificationComponent):
 		for profile in new_profiles:
 			# the strategy (aka hack) is to re-use doProfileUpdate method
 			# create a id first.
-			cursor.execute("select max(id) from identity")
-			[id] = cursor.fetchone()
-			id += 1
+			id = self._get_and_ensure_max_identity_id(cursor) + 1
+
 			cursor.execute("insert into identity(id, dob) values ( %s, now() )" % id)
 			id = str(id)
 
