@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.75 $"
+__version__ = "$Revision: 1.76 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -549,7 +549,7 @@ def run_commit (service, queries):
 	cur = con.cursor ()
 	for query, args in queries:
 		try:
-			cur.execute (query, args)
+			cur.execute (query, *args)
 		except:
 			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), sys.exc_info(), verbose = _query_logging_verbosity)
 			return 0
@@ -603,14 +603,14 @@ def run_ro_query(aService = None, aQuery = None, get_col_idx = None, *args):
 
 	# and return the data, possibly including the column index
 	data = curs.fetchall()
-	if get_col_idx is not None:
+	pool.ReleaseConnection (aService)
+	if get_col_idx:
 		col_idx = get_col_indices(curs)
-	curs.close
-	pool.ReleaseConnection(aService)
-	if get_col_idx is None:
-		return data
-	else:
+		curs.close ()
 		return data, col_idx
+	else:
+		curs.close ()
+		return data
 #---------------------------------------------------
 def get_col_indices(aCursor = None):
 	# sanity checks
@@ -863,7 +863,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.75  2003-09-23 11:30:32  ncq
+# Revision 1.76  2003-09-23 12:09:27  ihaywood
+# Karsten, we've been tripping over each other again
+#
+# Revision 1.75  2003/09/23 11:30:32  ncq
 # - make run_ro_query return either a tuple or just the data depending on
 #   the value of get_col_idx as per Ian's suggestion
 #

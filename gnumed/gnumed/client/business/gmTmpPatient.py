@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.36 2003-09-23 11:31:12 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmTmpPatient.py,v 1.37 2003-09-23 12:09:26 ihaywood Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -191,7 +191,7 @@ class gmPerson:
 	def _getTitle(self):
 		cmd = "select title from v_basic_person where i_id = %s"
 		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
-		if data is None:
+		if not data:
 			return ''
 		if data[0][0] is None:
 			return ''
@@ -204,7 +204,7 @@ class gmPerson:
 		# FIXME: invent a mechanism to set the desired format
 		cmd = "select to_char(dob, 'DD.MM.YYYY') from v_basic_person where i_id = %s"
 		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
-		if data is None:
+		if not data:
 			return ''
 		if data[0] is None:
 			return ''
@@ -244,7 +244,7 @@ where
 			'postcode':r[idx['postcode']]
 		} for r in rows]
 	#--------------------------------------------------------
-	def GuessPostcode (self, urb, street = None):
+	def GuessPostcode (urb, street = None):
 		"""
 		Returns a list of valid postcodes given a urb and street
 		"""
@@ -272,7 +272,7 @@ where
 		curs.close ()
 		return data
 	#--------------------------------------------------------
-	def GuessStreetFromZip(self, postcode):
+	def GuessStreetFromZip(postcode):
 		"""Guess the street name based on the postcode.
 		"""
 		if postcode is None or len (postcode) == 0:
@@ -294,11 +294,42 @@ where
 		rwconn.close()
 		return 1
 	#--------------------------------------------------------
+	def NewAddress (self, type, number, street, urb, postcode, state, country):
+		"""
+		Adds a new address yto this persons list of addresses
+		"""
+		data = gmPG.run_ro_query ('personalia', """
+		select addr_id from v_basic_address where number = %s and street = %s and city = %s and postcode = %s
+		and state = %s and country = %s""", None, number, street, urb, postcode, state, country)
+		if data:
+			# we have a matching address, just add the link
+			addr_id = data[0][0]
+			gmPG.run_commit ("personalia", [("""
+			insert into lnk_person2address (id_identity, id_address, id_type)
+			values (%d, %d, (select id from address_type where name = %s))
+			""", (self.ID, addr_id, type))])
+		else:
+			# insert a new address
+			gmPG.run_commit ("personalia", [("""
+			insert into v_basic_address (number, street, city, postcode, state, country)
+			values (%s, %s, %s, %s, %s, %s)
+			""", (number, street, urb, postcode, state, country)),
+							("""
+			insert into lnk_person2address (id_identity, id_address, id_type)
+			values (%d, curr_val (address_id_seq), (select id from address_type where name = %s))""",
+						 (self.ID, type))]) 
+	#----------------------------------------------------------
+	def GetAddressTypes (self):
+		"""
+		Gets a simple list of address types
+		"""
+		return [i[0] for i in gmPG.run_ro_query ('personalia', "select name from address_type")]
+	#------------------------------------------------------------
 	def _get_medical_age(self):
 		cmd = "select dob from identity where id = %s"
 		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 
-		if data is None:
+		if not data:
 			return '??'
 		if data[0] is None:
 			return '??'
@@ -702,6 +733,7 @@ if __name__ == "__main__":
 		print "addresses", myPatient['addresses']
 		record = myPatient['clinical record']
 		print "EPR    ", record
+		print myPatient.patient.GetAddressTypes ()
 #		print "allergy IDs", record['allergy IDs']
 #		print "fails  ", myPatient['missing handler']
 		print "--------------------------------------"
@@ -711,7 +743,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.36  2003-09-23 11:31:12  ncq
+# Revision 1.37  2003-09-23 12:09:26  ihaywood
+# Karsten, we've been tripping over each other again
+#
+# Revision 1.36  2003/09/23 11:31:12  ncq
 # - properly use ro_run_query()s returns
 #
 # Revision 1.35  2003/09/22 23:29:30  ncq
