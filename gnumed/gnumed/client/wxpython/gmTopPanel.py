@@ -2,14 +2,14 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
 
 from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
 from Gnumed.business import gmPatient
-from Gnumed.wxpython import gmGP_PatientPicture, gmPatientSelector, gmGuiHelpers
+from Gnumed.wxpython import gmGP_PatientPicture, gmPatientSelector, gmGuiHelpers, gmBMIWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
 from wxPython.wx import *
@@ -19,6 +19,8 @@ _log = gmLog.gmDefLog
 ID_BTN_pat_demographics = wxNewId()
 ID_CBOX_consult_type = wxNewId()
 ID_CBOX_episode = wxNewId()
+ID_BMITOOL = wxNewId()
+ID_BMIMENU = wxNewId()
 
 # FIXME: need a better name here !
 bg_col = wxColour(214,214,214)
@@ -40,6 +42,8 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	def __init__(self, parent, id):
 
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+
+		self.__gb = gmGuiBroker.GuiBroker()
 
 		self.__load_consultation_types()
 		self.__do_layout()
@@ -114,7 +118,28 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		# (holds most of the buttons)
 		self.szr_bottom_row = wxBoxSizer (wxHORIZONTAL)
 		self.pnl_bottom_row = wxPanel(self, -1)
-		self.szr_bottom_row.Add (self.pnl_bottom_row, 6, wxGROW, 0)
+		self.szr_bottom_row.Add(self.pnl_bottom_row, 6, wxGROW, 0)
+
+		# BMI calculator button
+		png_fname = os.path.join(self.__gb['gnumed_dir'], 'icons', 'bmi.png')
+		bmp = wxBitmap(png_fname, wxBITMAP_TYPE_PNG)
+		self.btn_bmi = wxBitmapButton (
+			parent = self,
+			id = ID_BMITOOL,
+			bitmap = bmp,
+			style = wxBU_EXACTFIT | wxNO_BORDER
+		)
+		self.btn_bmi.SetToolTip(wxToolTip(_("BMI Calculator")))
+		self.szr_bottom_row.Add(self.btn_bmi, 0, wxEXPAND | wxBOTTOM, 3)
+
+#		tb = wxToolBar(self, -1, style=wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT)
+#		tb.AddTool (
+#			ID_BMITOOL,
+#			gmImgTools.xpm2bmp(bmicalculator.get_xpm()),
+#			shortHelpString = _("BMI Calculator")
+#		)
+#		self.szr_bottom_row.Add(tb, 0, wxRIGHT, 0)
+
 		# episode selector
 		# FIXME: handle input -> new episode
 		# FIXME: should be cEpisodeSelector class
@@ -156,8 +181,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 
 		# create patient picture
 		self.patient_picture = gmGP_PatientPicture.cPatientPicture(self, -1)
-		gb = gmGuiBroker.GuiBroker()
-		gb['main.patient_picture'] = self.patient_picture
+		self.__gb['main.patient_picture'] = self.patient_picture
 
 		# create main sizer
 		self.szr_main = wxBoxSizer(wxHORIZONTAL)
@@ -199,10 +223,24 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	def __register_interests(self):
 		# events
 		EVT_BUTTON(self, ID_BTN_pat_demographics, self.__on_display_demographics)
+
+		# - BMI calculator
+		EVT_BUTTON(self, ID_BMITOOL, self._on_show_BMI)
+		self.__gb['main.toolsmenu'].Append(ID_BMIMENU, _("BMI"), _("Body Mass Index Calculator"))
+		EVT_MENU(self.__gb['main.frame'], ID_BMIMENU, self._on_show_BMI)
+
+		# - episode selector
 		EVT_COMBOBOX(self, ID_CBOX_episode, self._on_episode_selected)
+
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		gmDispatcher.connect(signal=gmSignals.allergy_updated(), receiver=self._update_allergies)
+	#----------------------------------------------
+	def _on_show_BMI(self, evt):
+		# FIXME: update patient ID ?
+		bmi = gmBMIWidgets.BMI_Frame(self)
+		bmi.Centre(wxBOTH)
+		bmi.Show(1)
 	#----------------------------------------------
 	def _on_episode_selected(self, evt):
 		epr = self.curr_pat.get_clinical_record()
@@ -343,14 +381,18 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 
 #===========================================================	
 if __name__ == "__main__":
-	gb = gmGuiBroker.GuiBroker ()
+	wxInitAllImageHandlers()
+	gb = gmGuiBroker.GuiBroker()
 	gb['gnumed_dir'] = '..'
 	app = wxPyWidgetTester(size = (400, 200))
 	app.SetWidget(cMainTopPanel, -1)
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.46  2004-07-18 20:30:54  ncq
+# Revision 1.47  2004-08-06 09:25:36  ncq
+# - always load BMI calculator
+#
+# Revision 1.46  2004/07/18 20:30:54  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.45  2004/07/15 20:39:51  ncq
