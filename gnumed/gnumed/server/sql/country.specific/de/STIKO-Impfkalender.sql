@@ -9,10 +9,30 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- FIXME: we currently assume that the services [reference]
+-- and [historica] reside in the same database (see fk_recommended_by)
+
+-- STIKO
+delete from ref_source where name_short = 'STIKO';
+insert into ref_source (
+	name_short,
+	name_long,
+	version,
+	description,
+	source
+) values (
+	'STIKO',
+	'Ständige Impfkommission, Robert-Koch-Institut',
+	'Juli 2002',
+	'Standardimpfungen für Säuglinge, Kinder, Jugendliche und Erwachsene',
+	'"Kinderärztliche Praxis" (2002), Sonderheft "Impfen 2002", Kirchheim-Verlag Mainz'
+);
+
 delete from vacc_def;
 delete from vacc_regime where name like '%STIKO%';
 
@@ -23,9 +43,9 @@ delete from vacc_regime where name like '%STIKO%';
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, name)
 values (
-	1,
+	currval('ref_source_pk_seq'),
 	(select id from vacc_indication where description='measles'),
-	'MMR (Masern, STIKO)'
+	'Masern (STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -56,9 +76,9 @@ values (
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, name)
 values (
-	1,
+	currval('ref_source_pk_seq'),
 	(select id from vacc_indication where description='mumps'),
-	'MMR (Mumps, STIKO)'
+	'Mumps (STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -89,9 +109,9 @@ values (
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, name)
 values (
-	1,
+	currval('ref_source_pk_seq'),
 	(select id from vacc_indication where description='rubella'),
-	'MMR (Röteln, STIKO)'
+	'Röteln (STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -122,9 +142,9 @@ values (
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, name)
 values (
-	1,
+	currval('ref_source_pk_seq'),
 	(select id from vacc_indication where description='tetanus'),
-	'DTaP DT/Td (Tetanus, STIKO)'
+	'Tetanus (STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -187,9 +207,9 @@ values (
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, name)
 values (
-	1,
+	currval('ref_source_pk_seq'),
 	(select id from vacc_indication where description='diphtheria'),
-	'DTaP DT/Td (Diphtherie, STIKO)'
+	'Diphtherie (STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -242,65 +262,15 @@ values (
 );
 
 ---------------
--- Influenza --
----------------
--- Impfplan definieren
-insert into vacc_regime
-	(fk_recommended_by, fk_indication, name)
-values (
-	1,
-	(select id from vacc_indication where description='influenza'),
-	'Influenza (STIKO)'
-);
-
--- Impfzeitpunkte festlegen
-insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
-values (
-	currval('vacc_regime_id_seq'),
-	-1,
-	'18 years'::interval,
-	'-1'::interval,
-	true,
-	'1 year'::interval,
-	'jährlich neu von WHO empfohlener Impfstoff'
-);
-
-------------------
--- Pneumokokken --
-------------------
--- Impfplan definieren (STIKO)
-insert into vacc_regime
-	(fk_recommended_by, fk_indication, name)
-values (
-	1,
-	(select id from vacc_indication where description='pneumococcus'),
-	'Pneumokokken (ab 18, STIKO)'
-);
-
--- Impfzeitpunkte (STIKO) festlegen
-insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
-values (
-	currval('vacc_regime_id_seq'),
-	-1,
-	'18 years'::interval,
-	'-1'::interval,
-	true,
-	'6 years'::interval,
-	'Polysaccharid-Impfstoff'
-);
-
----------------
 -- Pertussis --
 ---------------
 -- Impfplan definieren
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, name)
 values (
-	1,
+	currval('ref_source_pk_seq'),
 	(select id from vacc_indication where description='pertussis'),
-	'DTaP (Pertussis, STIKO)'
+	'Pertussis (STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -326,8 +296,207 @@ values
 
 insert into vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
-values
-	(currval('vacc_regime_id_seq'),	5, '9 years'::interval,	'17 years'::interval, '4 weeks'::interval);
+values (
+	currval('vacc_regime_id_seq'),
+	5,
+	'9 years'::interval,
+	'17 years'::interval,
+	'5 years'::interval
+);
+
+---------
+-- HiB --
+---------
+-- Impfplan definieren
+insert into vacc_regime
+	(fk_recommended_by, fk_indication, name, comment)
+values (
+	currval('ref_source_pk_seq'),
+	(select id from vacc_indication where description='haemophilus influenzae b'),
+	'HiB (STIKO)',
+	'falls Mehrfachimpfstoff mit Pertussis (aP), dann Schema wie DTaP/Dt/Td anwenden'
+);
+
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	1,
+	'2 months'::interval,
+	'2 months'::interval,
+	'4 weeks'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	2,
+	'4 months'::interval,
+	'4 months'::interval,
+	'4 weeks'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	3,
+	'11 months'::interval,
+	'14 months'::interval,
+	'4 weeks'::interval
+);
+
+----------
+-- HepB --
+----------
+-- Impfplan definieren
+insert into vacc_regime
+	(fk_recommended_by, fk_indication, name, comment)
+values (
+	currval('ref_source_pk_seq'),
+	(select id from vacc_indication where description='hepatitis B'),
+	'HepB (STIKO)',
+	'falls Mehrfachimpfstoff mit Pertussis (aP), dann Schema wie DTaP/Dt/Td anwenden,
+	 fehlende Grundimmunisierung/Komplettierung zwischen 9 und 17 Jahren'
+);
+
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	1,
+	'2 months'::interval,
+	'2 months'::interval,
+	'4 weeks'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	2,
+	'4 months'::interval,
+	'4 months'::interval,
+	'4 weeks'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	3,
+	'11 months'::interval,
+	'14 months'::interval,
+	'4 weeks'::interval
+);
+
+-----------
+-- Polio --
+-----------
+-- Impfplan definieren
+insert into vacc_regime
+	(fk_recommended_by, fk_indication, name, comment)
+values (
+	currval('ref_source_pk_seq'),
+	(select id from vacc_indication where description='hepatitis B'),
+	'Polio (STIKO)',
+	'falls Mehrfachimpfstoff mit Pertussis (aP), dann Schema wie DTaP/Dt/Td anwenden'
+);
+
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	1,
+	'2 months'::interval,
+	'2 months'::interval,
+	'4 weeks'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	2,
+	'4 months'::interval,
+	'4 months'::interval,
+	'4 weeks'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	3,
+	'11 months'::interval,
+	'14 months'::interval,
+	'4 weeks'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	4,
+	'9 years'::interval,
+	'17 years'::interval,
+	'5 years'::interval
+);
+
+---------------
+-- Influenza --
+---------------
+-- Impfplan definieren
+insert into vacc_regime
+	(fk_recommended_by, fk_indication, name)
+values (
+	currval('ref_source_pk_seq'),
+	(select id from vacc_indication where description='influenza'),
+	'Influenza (STIKO)'
+);
+
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+values (
+	currval('vacc_regime_id_seq'),
+	-1,
+	'18 years'::interval,
+	'-1'::interval,
+	true,
+	'1 year'::interval,
+	'jährlich neu von WHO empfohlener Impfstoff'
+);
+
+------------------
+-- Pneumokokken --
+------------------
+-- Impfplan definieren (STIKO)
+insert into vacc_regime
+	(fk_recommended_by, fk_indication, name, comment)
+values (
+	currval('ref_source_pk_seq'),
+	(select id from vacc_indication where description='pneumococcus'),
+	'Pneumokokken (STIKO)',
+	'ab 18 Jahre'
+);
+
+-- Impfzeitpunkte (STIKO) festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+values (
+	currval('vacc_regime_id_seq'),
+	-1,
+	'18 years'::interval,
+	'-1'::interval,
+	true,
+	'6 years'::interval,
+	'Polysaccharid-Impfstoff'
+);
 
 ---------------------
 -- Meningokokken C --
@@ -336,9 +505,9 @@ values
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, name, comment)
 values (
-	1,
+	currval('ref_source_pk_seq'),
 	(select id from vacc_indication where description='meningococcus C'),
-	'MenC-Säuglinge (STIKO)',
+	'MenC-Infant (STIKO)',
 	'2-12 Monate, Meningokokken C'
 );
 
@@ -367,7 +536,7 @@ values (
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, name, comment)
 values (
-	1,
+	currval('ref_source_pk_seq'),
 	(select id from vacc_indication where description='meningococcus C'),
 	'MenC (STIKO)',
 	'ab 12 Monaten, Meningokokken C'
@@ -385,12 +554,18 @@ values (
 
 -- =============================================
 -- do simple revision tracking
-delete from gm_schema_revision where filename like '%STIKO-Impfkalender%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.9 $');
+delete from gm_schema_revision where filename='$RCSfile: STIKO-Impfkalender.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.9  2003-12-03 19:09:46  ncq
+-- Revision 1.10  2003-12-29 16:01:21  uid66147
+-- - use lnk_vacc2vacc_def
+-- - add STIKO gmReference entry
+-- - more appropriate vacc_regime.name values
+-- - add HiB/HepB
+--
+-- Revision 1.9  2003/12/03 19:09:46  ncq
 -- - NeisVac-C
 --
 -- Revision 1.8  2003/12/01 23:53:18  ncq
