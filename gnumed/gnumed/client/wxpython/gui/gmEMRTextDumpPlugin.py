@@ -1,0 +1,54 @@
+"""GnuMed simple EMR text dump plugin
+"""
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmEMRTextDumpPlugin.py,v $
+__version__ = "$Revision: 1.1 $"
+__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+#================================================================
+import gmLog, gmPlugin
+from gmEMRTextDump import gmScrolledEMRTextDump
+
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lData, __version__)
+
+from wxPython.wx import *
+#================================================================
+class gmEMRTextDumpPlugin(gmPlugin.wxNotebookPlugin):
+	tab_name = _("EMR dump")
+
+	def name (self):
+		return gmEMRTextDumpPlugin.tab_name
+
+	def GetWidget (self, parent):
+		self.panel = gmScrolledEMRTextDump(parent)
+		return self.panel
+
+	def MenuInfo (self):
+		return ('tools', _("simple EMR text viewer"))
+
+	def ReceiveFocus(self):
+		pass
+
+	def can_receive_focus(self):
+		# need patient
+		if not self._verify_patient_avail():
+			return None
+		return 1
+#================================================================
+# MAIN
+#----------------------------------------------------------------
+if __name__ == '__main__':
+	# catch all remaining exceptions
+	try:
+		application = wxPyWidgetTester(size=(640,480))
+		application.SetWidget(cStandalonePanel,-1)
+		application.MainLoop()
+	except StandardError:
+		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
+		# but re-raise them
+		raise
+
+#================================================================
+# $Log: gmEMRTextDumpPlugin.py,v $
+# Revision 1.1  2003-07-03 15:26:26  ncq
+# - first checkin
+#
