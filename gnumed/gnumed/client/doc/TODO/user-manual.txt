@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.31 $
+# $Revision: 1.32 $
 ---------------------------------------------------
 Rules:
 ------
@@ -10,5 +10,16 @@ Rules:
 - please date it.
 Thanks
 ---------------------------------------------------
+Sam 05 Jul 2003 16:50:49 CEST  Karsten.Hilbert@gmx.net
 
+Section "Logging in" (2.2.4.1):
+(doesn't this belong into the user guide anyways ?)
 
+Explicitely write:
+
+login    = test-doc
+password = test-doc
+
+and a note pointing to gnumed/server/sql/gmTestAccounts.sql.
+
+---------------------------------------------------
