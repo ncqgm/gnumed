@@ -13,7 +13,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -111,14 +111,14 @@ class cSOAPControl(wx.wxPanel):
 		self.__A.next = self.__P
 		self.__P.prev = self.__A
 		self.__P.next = None
-		self.__soap_text_editor.AddWidget (self.__S, gmSOAPimporter.soap_importer_SOAP_CATS[0])
+		self.__soap_text_editor.AddWidget (self.__S, gmSOAPimporter.soap_bundle_SOAP_CATS[0])
 		self.__soap_text_editor.Newline ()
-		self.__soap_text_editor.AddWidget (self.__O, gmSOAPimporter.soap_importer_SOAP_CATS[1])
+		self.__soap_text_editor.AddWidget (self.__O, gmSOAPimporter.soap_bundle_SOAP_CATS[1])
 		self.__soap_text_editor.Newline ()
-		self.__soap_text_editor.AddWidget (self.__A, gmSOAPimporter.soap_importer_SOAP_CATS[2])
+		self.__soap_text_editor.AddWidget (self.__A, gmSOAPimporter.soap_bundle_SOAP_CATS[2])
 		self.__soap_text_editor.Newline ()
-		self.__soap_text_editor.AddWidget (self.__P, gmSOAPimporter.soap_importer_SOAP_CATS[3])
-		self.__soap_text_editor.SetValues ({gmSOAPimporter.soap_importer_SOAP_CATS[0]:"sore ear", gmSOAPimporter.soap_importer_SOAP_CATS[3]:"Amoxycillin"})
+		self.__soap_text_editor.AddWidget (self.__P, gmSOAPimporter.soap_bundle_SOAP_CATS[3])
+		self.__soap_text_editor.SetValues ({gmSOAPimporter.soap_bundle_SOAP_CATS[0]:"sore ear", gmSOAPimporter.soap_bundle_SOAP_CATS[3]:"Amoxycillin"})
 		self.__soap_text_editor.ReSize ()
 		
 		# sizers for widgets
@@ -379,9 +379,9 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		vstaff_id = gmWhoAmI.cWhoAmI().get_staff_ID()
 		# compose soap bundle
 		clin_ctx = {
-			gmSOAPimporter.soap_importer_EPISODE_ID_KEY:vepisode_id,
-			gmSOAPimporter.soap_importer_ENCOUNTER_ID_KEY: vencounter_id,
-			gmSOAPimporter.soap_importer_STAFF_ID_KEY: vstaff_id
+			gmSOAPimporter.soap_bundle_EPISODE_ID_KEY:vepisode_id,
+			gmSOAPimporter.soap_bundle_ENCOUNTER_ID_KEY: vencounter_id,
+			gmSOAPimporter.soap_bundle_STAFF_ID_KEY: vstaff_id
 		}
 		bundle = []
 		# iterate over input keys
@@ -389,11 +389,11 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			print "*** KEY: %s" % input_key
 			bundle.append(
 			{
-				gmSOAPimporter.soap_importer_SOAP_CAT_KEY:input_key,
-				gmSOAPimporter.soap_importer_TYPES_KEY:['Hx'],
-				gmSOAPimporter.soap_importer_TEXT_KEY:self.__selected_soap.GetSOAP().GetValues()[input_key],
-				gmSOAPimporter.soap_importer_CLIN_CTX_KEY:clin_ctx,
-				gmSOAPimporter.soap_importer_STRUCT_DATA_KEY:{}
+				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY:input_key,
+				gmSOAPimporter.soap_bundle_TYPES_KEY:['Hx'],
+				gmSOAPimporter.soap_bundle_TEXT_KEY:self.__selected_soap.GetSOAP().GetValues()[input_key],
+				gmSOAPimporter.soap_bundle_CLIN_CTX_KEY:clin_ctx,
+				gmSOAPimporter.soap_bundle_STRUCT_DATA_KEY:{}
 			}
 			)
 
