@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.5 2003-02-11 13:03:44 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmTmpPatient.py,v 1.6 2003-02-11 18:21:36 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -33,6 +33,10 @@ class gmPatient:
 
 	- searching and creation is done OUTSIDE this object
 	"""
+
+	# handlers for __getitem__()
+	__get_handler = {}
+
 	def __init__(self, aPKey = None):
 		"""Fails if
 
@@ -46,8 +50,7 @@ class gmPatient:
 		if not self.__pkey_exists():
 			raise gmExceptions.ConstructorError, "No patient with ID [%s] in database." % aPKey
 
-		self.__cache = {}
-		self.__query_trees = {}
+
 		self.PUPIC = ""
 		self.OID = None
 		# if true the managed patient can't be changed, this
@@ -55,16 +58,33 @@ class gmPatient:
 		# specific patient pre-selected
 		self.locked = (1==0)
 
+		# to be used whenever a format string is needed since
+		# we cannot pass parameters to __getitem__()
+		self.format = None
+
 		# register backend notification interests ...
 		#if not self.__register_interests():
-		#	raise gmExceptions.ConstructorError, "Cannot register patient modification interests."
+			#raise gmExceptions.ConstructorError, "Cannot register patient modification interests."
+
+#		self.__cache = {}
+#		self.__query_trees = {}
 
 		_log.Log(gmLog.lData, 'Instantiated patient [%s].' % self.ID)
+	#--------------------------------------------------------
+	def commit(self):
+		"""Do cleanups before dying.
+
+		- note that this may be called in a thread
+		"""
+		# unlisten to signals
+		print "committing patient data"
 	#--------------------------------------------------------
 	def setQueryTree(self, aCol, aQueryTree = None):
 		if aQueryTree is None:
 			return None
 		self.__query_trees[aCol] = aQueryTree
+	#--------------------------------------------------------
+	# internal helper
 	#--------------------------------------------------------
 	def __pkey_exists(self):
 		"""Does this primary key exist ?
@@ -83,6 +103,24 @@ class gmPatient:
 		curs.close()
 		return res
 	#--------------------------------------------------------
+	# messaging
+	#--------------------------------------------------------
+	def __register_interests(self):
+		# backend
+		self.__backend.Listen(
+			service = 'personalia',
+			signal = '"%s.%s"' % (gmSignals.patient_modified(), self.ID),
+			callback = self.__patient_modified
+		)
+	#--------------------------------------------------------
+	def __patient_modified(self):
+		# uh, oh, cache may have been modified ...
+		# <DEBUG>
+		_log.Log(gmLog.lData, "patient_modified signal received from backend")
+		# </DEBUG>
+	#--------------------------------------------------------
+	# object behaviour
+	#--------------------------------------------------------
 	def __getitem__(self, aVar = None):
 		"""Return any attribute if known how to retrieve it.
 
@@ -95,46 +133,38 @@ class gmPatient:
 
 		We may hand off regetting data after a change notification to a thread.
 		"""
-		if aVar is None:
-			_log.Log(gmLog.lErr, 'Anonymous attributes not supported. Need to supply a name.')
-			return None
 		try:
-			return self.__cache[aVar]
-		except KeyError:
-			# not cached yet
-			try:
-				query_tree = self.__query_trees[aVar]
-			except StandardError:
-				_log.LogException ("No query tree available for [%s]." % aVar, sys.exc_info(), fatal=0)
-				return None
-			val = self.__run_queries(query_tree)
-			if val is None:
-				_log.Log(gmLog.lErr, "Cannot retrieve data for attribute [%s] (primary key [%s])." % (aVar, self.ID))
+			return gmPatient.__get_handler[aVar](self)
+		except:
+			_log.LogException('Missing handler for [%s]' % aVar, sys.exc_info())
+			return None
+
+#		if aVar is None:
+#			_log.Log(gmLog.lErr, 'Anonymous attributes not supported. Need to supply a name.')
+#			return None
+#		try:
+#			return self.__cache[aVar]
+#		except KeyError:
+#			# not cached yet
+#			try:
+#				query_tree = self.__query_trees[aVar]
+#			except StandardError:
+#				_log.LogException ("No query tree available for [%s]." % aVar, sys.exc_info(), fatal=0)
+#				return None
+#			val = self.__run_queries(query_tree)
+#			if val is None:
+#				_log.Log(gmLog.lErr, "Cannot retrieve data for attribute [%s] (primary key [%s])." % (aVar, self.ID))
 	#--------------------------------------------------------
-	# messaging
+	# attribute handlers
 	#--------------------------------------------------------
-	def __register_interests(self):
-		# backend
-		self.__backend.Listen(
-			service = 'personalia',
-			signal = "%s.%s" % (gmSignals.patient_modified(), self.ID),
-			callback = self.__patient_modified
-		)
-	#--------------------------------------------------------
-	def __patient_modified(self):
-		# uh, oh, cache may have been modified ...
-		# <DEBUG>
-		_log.Log(gmLog.lData, "patient_modified signal received from backend")
-		# </DEBUG>
-	#--------------------------------------------------------
-	def getMedDocsList(self):
+	def __getMedDocsList(self):
 		"""Build a complete list of metadata for all documents of our patient.
 
 		"""
 		blobs_conn = self.__backend.GetConnection('blobs')
 
 		curs = blobs_conn.cursor()
-		cmd = "SELECT id from doc_med WHERE patient_id=%s"
+		cmd = "SELECT id from doc_med WHERE patient_id=%s;"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -158,9 +188,7 @@ class gmPatient:
 
 		return docs
 	#--------------------------------------------------------
-	def getActiveName(self, format = None):
-		if format is None:
-			format = '$first$ $last$'
+	def __getActiveName(self):
 		curs = self.__defconn.cursor()
 		cmd = "select firstnames, lastnames from v_basic_person where id = %s;"
 		try:
@@ -174,16 +202,16 @@ class gmPatient:
 		if data is None:
 			return None
 		else:
-			result = format.replace('$first$', data[0])
-			result = result.replace('$last$', data[1])
+			result = {
+				'first': data[0],
+				'last': data[1]
+			}
 			return result
 	#--------------------------------------------------------
-	def commit(self):
-		"""Do cleanups before dying.
+	__get_handler['document list'] = __getMedDocsList
+	__get_handler['active name'] = __getActiveName
+	#__get_handler['all names'] = __getNamesList
 
-		- note that this may be called in a thread
-		"""
-		print "committing patient data"
 #============================================================
 def get_patient():
 	"""Get a patient object.
@@ -214,15 +242,20 @@ if __name__ == "__main__":
 			myPatient = gmPatient(aPKey = pID)
 		except:
 			_log.LogException('Unable to set up patient with ID [%s]' % pID, sys.exc_info())
-			print "patient", pID, "does not exist"
+			print "patient", pID, "can not be set up"
 			continue
-		print "patient", pID, "exists"
-		print myPatient.getMedDocsList()
+		print myPatient.ID, myPatient['active name']
+		print myPatient['document list']
+		print myPatient['missing handler']
 else:
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.5  2003-02-11 13:03:44  ncq
+# Revision 1.6  2003-02-11 18:21:36  ncq
+# - move over to __getitem__ invoking handlers
+# - self.format to be used as an arbitrary format string
+#
+# Revision 1.5  2003/02/11 13:03:44  ncq
 # - don't change patient on patient not found ...
 #
 # Revision 1.4  2003/02/09 23:38:21  ncq
