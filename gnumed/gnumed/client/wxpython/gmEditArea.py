@@ -3,9 +3,9 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.29 2003-05-27 14:08:51 sjtan Exp $
-__version__ = "$Revision: 1.29 $"
-__author__ = "R.Terry, K.HIlbert"
+# $Id: gmEditArea.py,v 1.30 2003-05-27 16:02:03 ncq Exp $
+__version__ = "$Revision: 1.30 $"
+__author__ = "R.Terry, K.Hilbert"
 #====================================================================
 import sys, traceback
 
@@ -188,7 +188,7 @@ class gmEditArea( wxPanel):
 			style = wxNO_BORDER | wxTAB_TRAVERSAL
 		)
 		# for Owning Use Case identification
-		self.SetName(aType)
+		self.SetName(self._type)
 #		self.SetBackgroundColour(wxColor(222,222,222))
 
 		# set up links between edit fields and business objects
@@ -209,15 +209,16 @@ class gmEditArea( wxPanel):
 		# make editing area
 		self.szr_editing_area = self.__make_editing_area()
 
-		#add the handler
+		# add the handler
 		self.test_handler = TestEvents.TestEvents()
 		self.test_handler.test_checkbox(self)
 
+		# FIXME: Sian, do we still need this ?
 		# added this so PropertySupport can notify Listeners of  the component map
 		# temporary hack for testing purposes
-		x = self.input_fields
-		self.input_fields = None
-		self.input_fields = x 
+#		x = self.input_fields
+#		self.input_fields = None
+#		self.input_fields = x 
 		
 		# stack prompts and fields horizontally
 		self.szr_main_panels = wxBoxSizer(wxHORIZONTAL)
@@ -295,6 +296,8 @@ class gmEditArea( wxPanel):
 		self.btn_Clear = wxButton(parent, -1, _("Clear"))
 
 		# back pointers for panel type identification
+		# FIXME: you mean, like, for finding out what type of edit area ?
+		# why can't we use self._type for that ?
 		self.btn_OK.owner = self
 		self.btn_Clear.owner = self
 		
@@ -543,29 +546,41 @@ class gmPastHistoryEditArea(gmEditArea):
 		szr8.Add(self._make_standard_buttons(parent), 0, wxEXPAND)
 		lines.append(szr8)
 
-		fields = [ self.txt_condition, self.txt_notes1, self.txt_notes2, self.txt_agenoted, self.txt_yearnoted, self.txt_progressnotes, self.cb_active, self.cb_operation, self.cb_confidential, self.cb_significant ]
+#		fields = [ self.txt_condition, self.txt_notes1, self.txt_notes2, self.txt_agenoted, self.txt_yearnoted, self.txt_progressnotes, self.cb_active, self.cb_operation, self.cb_confidential, self.cb_significant ]
 
-		past_history_input_field_keys = [ "condition", "notes1", "notes2", "age", "year",  "progress", "active", "operation", "confidential", "significant" ]
-		i = 0
-		self.input_fields = {}
-		for k in past_history_input_field_keys:
-			self.input_fields[k] = fields[i]
-			i = i + 1
+#		past_history_input_field_keys = [ "condition", "notes1", "notes2", "age", "year",  "progress", "active", "operation", "confidential", "significant" ]
+#		i = 0
 
+		self.input_fields = {
+			"condition": self.txt_condition,
+			"notes1": self.txt_notes1,
+			"notes2": self.txt_notes2,
+			"age": self.txt_agenoted,
+			"year": self.txt_yearnoted,
+			"progress": self.txt_progressnotes,
+			"active": self.cb_active,
+			"operation": self.cb_operation,
+			"confidential": self.cb_confidential,
+			"significant": self.cb_significant
+		}
+#		for k in past_history_input_field_keys:
+#			self.input_fields[k] = fields[i]
+#			i = i + 1
 
 		return lines
-		self.gszr.Add(szr1,0,wxEXPAND)
-		self.gszr.Add(self.txt_notes1,0,wxEXPAND)
-		self.gszr.Add(self.txt_notes2,0,wxEXPAND)
-		self.gszr.Add(szr4,0,wxEXPAND)
-		self.gszr.Add(szr5,0,wxEXPAND)
-		self.gszr.Add(szr6,0,wxEXPAND)
-		self.gszr.Add(self.txt_progressnotes,0,wxEXPAND)
-		self.gszr.Add(szr8,0,wxEXPAND)
+#		self.gszr.Add(szr1,0,wxEXPAND)
+#		self.gszr.Add(self.txt_notes1,0,wxEXPAND)
+#		self.gszr.Add(self.txt_notes2,0,wxEXPAND)
+#		self.gszr.Add(szr4,0,wxEXPAND)
+#		self.gszr.Add(szr5,0,wxEXPAND)
+#		self.gszr.Add(szr6,0,wxEXPAND)
+#		self.gszr.Add(self.txt_progressnotes,0,wxEXPAND)
+#		self.gszr.Add(szr8,0,wxEXPAND)
 		#self.anylist = wxListCtrl(self, -1,  wxDefaultPosition,wxDefaultSize,wxLC_REPORT|wxLC_LIST|wxSUNKEN_BORDER)
 
-
 #====================================================================
+#====================================================================
+# old style stuff below
 #====================================================================
 #Class which shows a blue bold label left justified
 #--------------------------------------------------------------------
@@ -1110,7 +1125,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.29  2003-05-27 14:08:51  sjtan
+# Revision 1.30  2003-05-27 16:02:03  ncq
+# - some comments, some cleanup; I like the direction we are heading
+#
+# Revision 1.29  2003/05/27 14:08:51  sjtan
 #
 # read the gmLog now.
 #
