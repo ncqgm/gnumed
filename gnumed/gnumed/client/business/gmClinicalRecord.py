@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.80 2004-03-23 17:32:59 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmClinicalRecord.py,v 1.81 2004-03-25 11:00:19 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -423,7 +423,7 @@ class cClinicalRecord:
 		order_by = 'order by src_table, age'
 		cmd = "%s where %s %s" % (select_from, where_clause, order_by)
 
-		print "QUERY: " + cmd
+#		print "QUERY: " + cmd
 		rows, view_col_idx = gmPG.run_ro_query('historica', cmd, 1, params)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load item links for patient [%s]' % self.id_patient)
@@ -1618,10 +1618,17 @@ if __name__ == "__main__":
 	gmPG.set_default_client_encoding('latin1')
 	record = cClinicalRecord(aPKey = 12)
 	lab = record.get_lab_data()
+	idx = lab['idx']
+	by_date = {}
+	i = 1
+	lab_file = open('lab-data.txt', 'wb')
 	for lab_result in lab['data']:
-		print lab_result
-	emr = record.export_emr()
-	print emr
+		lab_file.write(str(lab_result))
+		lab_file.write('\n')
+		i+= 1
+	lab_file.close()
+#	emr = record.get_text_dump()
+#	print emr
 #	vaccs = record.get_due_vaccs()
 #	print vaccs['overdue']
 #	print vaccs['boosters']
@@ -1650,7 +1657,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.80  2004-03-23 17:32:59  ncq
+# Revision 1.81  2004-03-25 11:00:19  ncq
+# test get_lab_data()
+#
+# Revision 1.80  2004/03/23 17:32:59  ncq
 # - support "unified" test code/name on get_lab_data()
 #
 # Revision 1.79  2004/03/23 15:04:59  ncq
