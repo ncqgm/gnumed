@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.26 $
+# $Revision: 1.27 $
 ---------------------------------------------------
 Rules:
 ------
@@ -78,7 +78,7 @@ http://mail.gnu.org/mailman/listinfo/gnumed-devel
 
 
 ---------------------------------------------------
-michael.bonert@utoronto.ca	Wed Apr  2 22:05:41 EST 2003
+michael.bonert@utoronto.ca	Wed Apr  2 23:21:21 EST 2003
 ICQ ID: 97418709
 
 GnuMed Install Instructions for Mandrake Linux 9.1
@@ -101,15 +101,20 @@ by Michael Bonert
 	'remove software packages' (in 'mcc') they are all
 	installed.
 
-3. Install wxPython -- (version used: wxPythonGTK-py2.2-2.4.0.1-1.i386.rpm)
+3. Install wxPython -- (version used: wxPythonGTK-py2.2-2.4.0.7-1.i386.rpm)
+	http://prdownloads.sourceforge.net/wxpython/wxPythonGTK-py2.2-2.4.0.7-1.i386.rpm
+
 	NOTE: You should already have installed python from the Mandrake CDs.
 		python-2.2.2-6mdk
 		python-base-2.2.2-6mdk
 		python-docs-2.2.2-6mdk		# nice to have
 
 4. Install mx extenstion libraries -- (egenix-mx-base-2.0.4-py2.2_1.i386.rpm)
+	http://www.egenix.com/files/python/egenix-mx-base-2.0.4-py2.2_1.i386.rpm
 
-5. Install pyPgSQL
+5. Install pyPgSQL (pyPgSQL-2.3.tar.gz)
+	http://sourceforge.net/project/showfiles.php?group_id=16528
+
 Before building and installing pyPgSQL make sure you have the following
 (from the Mandrake CDs):
 	libpython2.2-devel-2.2.2-6mdk
