@@ -1,5 +1,0 @@
-
-<set role="codings"  readonly="true" lazy="true">
-	<key column="codingScheme"/>
-	<one-to-many class="xgmed.domain.observation.Coding"/>
-</set>

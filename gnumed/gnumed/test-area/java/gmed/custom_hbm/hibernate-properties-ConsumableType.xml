@@ -1,5 +1,0 @@
-
-<set role="holdings"  readonly="true" lazy="true">
-	<key column="consumableType"/>
-	<one-to-many class="xgmed.domain.planning.resource.Holding"/>
-</set>
