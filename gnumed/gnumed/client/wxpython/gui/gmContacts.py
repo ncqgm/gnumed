@@ -6,7 +6,7 @@
 #
 # If you don't like it - change this code see @TODO!
 #  $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -105,12 +105,12 @@ class ContactsPanel(wxPanel):
 	  #-----------------------------------------------------------------
 	  self.list_organisations = wxListCtrl(self, ID_ORGANISATIONSLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
           self.list_organisations.SetForegroundColour(wxColor(74,76,74))
-	  self.list_organisations.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, 'xselfont'))
+	  self.list_organisations.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
           #----------------------------------------	  
           # add some dummy data to the allergy list
 	  self.list_organisations.InsertColumn(0,_( "Organisation"))
 	  self.list_organisations.InsertColumn(1,_( "Employees"))
-	  self.list_organisations.InsertColumn(2,_( ""))
+#	  self.list_organisations.InsertColumn(2,_( "xxxxxxxxxxxxxxxxxxxx"))
 	  self.list_organisations.InsertColumn(3,_( "Category/Email"))
 	  self.list_organisations.InsertColumn(4,_( "Phone"))
      
@@ -404,6 +404,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.8  2003-11-07 22:29:46  shilbert
+# Revision 1.9  2003-11-30 23:42:05  ncq
+# - never _('') !!
+# - don't use 'xsel' in font defs
+#
+# Revision 1.8  2003/11/07 22:29:46  shilbert
 # - added _() for i18n where necessary
 #
