@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/README,v $
-$Revision: 1.7 $
+$Revision: 1.8 $
 
 Welcome to the GnuMed CVS tree !
 
@@ -9,7 +9,7 @@ necessary to run GnuMed use:
 
 
 Documentation is in:
-	gnumed/client/doc/
+	gnumed/client/doc/		Note: The User Manual is outdated. Read the Wiki !
 
 Also (and probably up to date):
 	http://salaam.homeunix.com/twiki/bin/view/Gnumed/WebHome
@@ -25,6 +25,10 @@ SQL schema files can be found in:
 
 If you want to set up your own database see:
 	gnumed/server/bootstrap/*
+
+
+Mailing list:
+	http://lists.gnu.org/mailman/listinfo/gnumed-devel
 
 
 Enjoy, join the mailing list, ask questions, develop and use !
