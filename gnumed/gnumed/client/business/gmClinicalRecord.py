@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.90 2004-05-08 17:41:34 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmClinicalRecord.py,v 1.91 2004-05-12 14:33:42 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -160,7 +160,7 @@ class cClinicalRecord:
 		except KeyError:
 			pass
 		try:
-			del self.__db_cache['due vaccinations']
+			del self.__db_cache['missing vaccinations']
 		except KeyError:
 			pass
 
@@ -533,7 +533,7 @@ class cClinicalRecord:
 			had_errors = False
 			for allg_id in id_list:
 				try:
-					self.__db_cache['allergies'].append(gmAllergy.cAllergy(aPKey=allg_id))
+					self.__db_cache['allergies'].append(gmAllergy.cAllergy(aPK_obj=allg_id))
 				except gmExceptions.ConstructorError:
 					_log.LogException('allergy error', sys.exc_info(), verbose=0)
 					had_errors = True
@@ -873,6 +873,8 @@ class cClinicalRecord:
 		return (1, v_indications)
 	#--------------------------------------------------------
 	def get_vaccinated_regimes(self):
+		"""Retrieves regimes for which patient has received any vaccinations.
+		"""
 		cmd = """
 			select distinct on (regime)
 				regime,
@@ -888,11 +890,12 @@ class cClinicalRecord:
 		return rows
 	#--------------------------------------------------------
 	def get_vaccinations(self, ID = None, indication_list = None):
-		"""Retrieves list of vaccinated indication items.
+		"""Retrieves list of vaccinations the patient has received.
 
-			ID - PK of the vaccinated indication
-			indication_list - indications we want to retrieve vaccination
-			                  items for, must be primary language, not l10n_indication
+		optionally:
+		* ID - PK of the vaccinated indication
+		* indication_list - indications we want to retrieve vaccination
+			items for, must be primary language, not l10n_indication
 		"""
 		try:
 			self.__db_cache['vaccinations']
@@ -909,7 +912,7 @@ class cClinicalRecord:
 			# Instantiate vaccination items and keep cache
 			for row in rows:
 				try:
-					self.__db_cache['vaccinations'].append(gmVaccination.cVaccination(aPKey=row[0]))
+					self.__db_cache['vaccinations'].append(gmVaccination.cVaccination(aPK_obj=row[0]))
 				except gmExceptions.ConstructorError:
 					_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
 		# apply filters
@@ -920,8 +923,8 @@ class cClinicalRecord:
 					return shot
 			_log.Log(gmLog.lErr, 'no vaccination [%s] found for patient [%s]' % (ID, self.id_patient))
 			return None
-		filtered_shots = []
 		# 2) only certain indications ?
+		filtered_shots = []
 		if indication_list is not None:
 			if len(indication_list) != 0:
 				for shot in self.__db_cache['vaccinations']:
@@ -930,114 +933,95 @@ class cClinicalRecord:
 				return (filtered_shots)
 		return (self.__db_cache['vaccinations'])
 	#--------------------------------------------------------		
-	def get_due_vaccinations(self):
-		# FIXME: this *should* be working on get_vaccinations data, too ...
+	def get_missing_vaccinations(self, indication_list = None):
 		try:
-			return self.__db_cache['due vaccinations']
+			self.__db_cache['missing vaccinations']
 		except KeyError:
-			pass
-		self.__db_cache['due vaccinations'] = {}
-		args = {'pat_id': self.id_patient}
-		# due, non-booster
-		self.__db_cache['due vaccinations']['due'] = []
-		cmd = """
-			select
-				indication,
-				regime,
-				reg_comment,
-				seq_no,
---				case when age_due_max is null
---					then (now() + '2 years'::interval)
---					else ((select dob from identity where id=%(pat_id)s) + age_due_max)
---				end as latest_due,
+			self.__db_cache['missing vaccinations'] = {}
+			# 1) non-booster
+			self.__db_cache['missing vaccinations']['due'] = []
+			# get list of (indication, seq_no) tuples
+			cmd = "select indication, seq_no from v_pat_missing_vaccs where pk_patient=%s"
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'error loading (indication, seq_no) for due/overdue vaccinations for patient [%s]' % self.id_patient)
+				return False
+			pk_args = {'pat_id': self.id_patient}
+			if rows is not None:
+				for row in rows:
+					pk_args['indication'] = row[0]
+					pk_args['seq_no'] = row[1]
+					try:
+						self.__db_cache['missing vaccinations']['due'].append(gmVaccination.cMissingVaccination(aPK_obj=pk_args))
+					except gmExceptions.ConstructorError:
+						_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
+			# 2) boosters
+			self.__db_cache['missing vaccinations']['boosters'] = []
+			# get list of indications
+			cmd = "select indication, seq_no from v_pat_missing_boosters where pk_patient=%s"
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'error loading indications for missing boosters for patient [%s]' % self.id_patient)
+				return False
+			pk_args = {'pat_id': self.id_patient}
+			if rows is not None:
+				for row in rows:
+					pk_args['indication'] = row[0]
+					try:
+						self.__db_cache['missing vaccinations']['boosters'].append(gmVaccination.cMissingBooster(aPK_obj=pk_args))
+					except gmExceptions.ConstructorError:
+						_log.LogException('booster error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
+		# if any filters ...
+		if indication_list is None:
+			return self.__db_cache['missing vaccinations']
+		if len(indication_list) == 0:
+			return self.__db_cache['missing vaccinations']
+		# ... apply them
+		filtered_shots = {
+			'due': [],
+			'boosters': []
+		}
+		for due_shot in self.__db_cache['missing vaccinations']['due']:
+			if due_shot['indication'] in indication_list: #and due_shot not in filtered_shots['due']:
+				filtered_shots['due'].append(due_shot)
+		for due_shot in self.__db_cache['missing vaccinations']['boosters']:
+			if due_shot['indication'] in indication_list: #and due_shot not in filtered_shots['boosters']:
+				filtered_shots['boosters'].append(due_shot)
+		return filtered_shots
+	#--------------------------------------------------------
+	# Carlos: putting this into gmClinicalRecord only makes sense
+	# if it operates on the vaccinations tied to a patient, hence
+	# I will let this operate on self.__db_cache['missing vaccinations'],
+	# if you want a generic method make it module-level, or better
+	# yet put it into gmVaccination.py
+	def get_indications_from_vaccinations(self, vaccinations=None):
+		"""Retrieves vaccination bundle indications list.
 
---				case when age_due_max is null
---					then '2 years'::interval
---					else (((select dob from identity where id=%(pat_id)s) + age_due_max) - now())
---				end as time_left,
-
-				latest_due,
-				amount_overdue,
-				vacc_comment,
-				age_due_min,
-				age_due_max,
-				min_interval,
-				pk_indication,
-				pk_recommended_by
-			from
-				v_pat_missing_vaccs vpmv
-			where
-				pk_patient=%(pat_id)s
-					and
-				age((select dob from identity where id=%(pat_id)s)) between age_due_min and coalesce(age_due_max, '115 years'::interval)
-			order by time_left
+		* vaccinations = list of any type of vaccination
+			- indicated
+			- due vacc
+			- overdue vaccs
+			- due boosters
+			- arbitrary
 		"""
-		vaccs = gmPG.run_ro_query('historica', cmd, None, args)
-		if vaccs is None:
-			_log.Log(gmLog.lErr, 'error loading due vaccinations for patient [%s]' % self.id_patient)
-			vaccs = [
-				[_('error loading due vaccinations'), '', '', -1, -1, -1, '', -1, -1, -1, -1, -1]
-			]
-		self.__db_cache['due vaccinations']['due'].extend(vaccs)
-		# overdue, non-booster
-		self.__db_cache['due vaccinations']['overdue'] = []
-		cmd = """
-			select
-				indication,
-				regime,
-				reg_comment,
-				seq_no,
-				latest_due,
-				amount_overdue,
-				vacc_comment,
-				age_due_min,
-				age_due_max,
-				min_interval,
-				pk_indication,
-				pk_recommended_by
-			from
-				v_pat_missing_vaccs vpmv
-			where
-				pk_patient=%(pat_id)s
-					and
-				age((select dob from identity where id=%(pat_id)s)) > coalesce(age_due_max, '115 years'::interval)
-			order by amount_overdue
-		"""
-		vaccs = gmPG.run_ro_query('historica', cmd, None, args)
-		if vaccs is None:
-			_log.Log(gmLog.lErr, 'error loading overdue vaccinations for patient [%s]' % self.id_patient)
-			vaccs = [
-				[_('error loading overdue vaccinations'), '', '', -1, -1, '', -1, -1, -1, -1, -1]
-			]
-		self.__db_cache['due vaccinations']['overdue'].extend(vaccs)
-		# due boosters
-		self.__db_cache['due vaccinations']['boosters'] = []
-		cmd = """
-			select
-				indication,
-				regime,
-				reg_comment,
-				vacc_comment,
-				age_due_min,
-				age_due_max,
-				min_interval,
-				pk_indication,
-				pk_recommended_by
-			from
-				v_pat_missing_boosters vpmb
-			where
-				pk_patient=%(pat_id)s
-		"""
-		vaccs = gmPG.run_ro_query('historica', cmd, None, args)
-		if vaccs is None:
-			_log.Log(gmLog.lErr, 'error loading due boosters for patient [%s]' % self.id_patient)
-			vaccs = [
-				[_('error loading due boosters'), '', '', -1, '', -1, -1, -1, -1, -1]
-			]
-		self.__db_cache['due vaccinations']['boosters'].extend(vaccs)
-		return self.__db_cache['due vaccinations']
+		if vaccinations is None:
+			_log.Log(gmLog.lErr, 'list of vaccinations must be supplied')
+			return (None, [['ERROR: list of vaccinations not supplied', _('ERROR: list of vaccinations not supplied')]])
+		if len(vaccinations) == 0:
+			return (1, [['empty list of vaccinations', _('empty list of vaccinations')]])
+		inds = []
+		for vacc in vaccinations:
+			try:
+				inds.append([vacc['indication'], vacc['l10n_indication']])
+			except KeyError:
+				try:
+					inds.append([vacc['indication'], vacc['indication']])
+				except KeyError:
+					inds.append(['vacc -> ind error: %s' % str(vacc), _('vacc -> ind error: %s') % str(vacc)])
+		return (1, inds)
 	#--------------------------------------------------------
 	def add_vaccination(self, vaccine):
+		"""Creates a new vaccination entry in backend."""
 		return gmVaccination.create_vaccination(
 			patient_id = self.id_patient,
 			episode_id = self.id_episode,
@@ -1138,44 +1122,43 @@ class cClinicalRecord:
 		if len(enc_rows) == 0:
 			return 0
 		# ask user whether to attach or not
-		if _func_ask_user is None:
-			_log.Log(gmLog.lErr, 'cannot ask user for guidance, missing _func_ask_user')
-			return 0
-		# FIXME: this is ugly because it accesses personalia directly
-		cmd = """
-			select
-				title, firstnames, lastnames, gender, dob
-			from v_basic_person
-			where i_id=%s"""
-		pat = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
-		if (pat is None) or (len(pat) == 0):
-			_log.Log(gmLog.lErr, 'cannot access patient [%s]' % self.id_patient)
-			return None
-		pat_str = '%s %s %s (%s), %s, #%s' % (
-			pat[0][0][:5],
-			pat[0][1][:12],
-			pat[0][2][:12],
-			pat[0][3],
-			pat[0][4].Format('%Y-%m-%d'),
-			self.id_patient
-		)
-		msg = _(
-			'A fairly recent encounter exists for patient:\n'
-			' %s\n'
-			'started    : %s\n'
-			'affirmed   : %s\n'
-			'type       : %s\n'
-			'description: %s\n\n'
-			'Do you want to reactivate this encounter ?\n'
-			'Hitting "No" will start a new one.'
-		) % (pat_str, enc_rows[0][1], enc_rows[0][2], enc_rows[0][4], enc_rows[0][3])
-		title = _('recording patient encounter')
-		try:
-			# FIXME: better widget -> activate/new buttons
-			attach = _func_ask_user(msg, title)
-		except:
-			_log.LogException('cannot ask user for guidance', sys.exc_info(), verbose=0)
-			return 0
+		attach = 0
+		if _func_ask_user is not None:
+			# FIXME: this is ugly because it accesses personalia directly
+			cmd = """
+				select
+					title, firstnames, lastnames, gender, dob
+				from v_basic_person
+				where i_id=%s"""
+			pat = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
+			if (pat is None) or (len(pat) == 0):
+				_log.Log(gmLog.lErr, 'cannot access patient [%s]' % self.id_patient)
+				return None
+			pat_str = '%s %s %s (%s), %s, #%s' % (
+				pat[0][0][:5],
+				pat[0][1][:12],
+				pat[0][2][:12],
+				pat[0][3],
+				pat[0][4].Format('%Y-%m-%d'),
+				self.id_patient
+			)
+			msg = _(
+				'A fairly recent encounter exists for patient:\n'
+				' %s\n'
+				'started    : %s\n'
+				'affirmed   : %s\n'
+				'type       : %s\n'
+				'description: %s\n\n'
+				'Do you want to reactivate this encounter ?\n'
+				'Hitting "No" will start a new one.'
+			) % (pat_str, enc_rows[0][1], enc_rows[0][2], enc_rows[0][4], enc_rows[0][3])
+			title = _('recording patient encounter')
+			try:
+				# FIXME: better widget -> activate/new buttons
+				attach = _func_ask_user(msg, title)
+			except:
+				_log.LogException('cannot ask user for guidance', sys.exc_info(), verbose=0)
+				return 0
 		if not attach:
 			return 0
 		# attach to existing
@@ -1247,7 +1230,7 @@ class cClinicalRecord:
 			return False
 		for row in rows:
 			try:
-				self.__db_cache['lab results'].append(gmPathLab.cLabResult(aPKey=row[0]))
+				self.__db_cache['lab results'].append(gmPathLab.cLabResult(aPK_obj=row[0]))
 			except gmExceptions.ConstructorError:
 				_log.Log('lab result error', sys.exc_info())
 
@@ -1256,7 +1239,7 @@ class cClinicalRecord:
 	def get_lab_request(self, pk=None, req_id=None, lab=None):
 		# FIXME: verify that it is our patient ? ...
 		try:
-			req = gmPathLab.cLabRequest(aPKey=pk, req_id=req_id, lab=lab)
+			req = gmPathLab.cLabRequest(aPK_obj=pk, req_id=req_id, lab=lab)
 		except gmExceptions.ConstructorError:
 			_log.LogException('cannot get lab request', sys.exc_info())
 			return None
@@ -1386,7 +1369,7 @@ if __name__ == "__main__":
 	lab_file.close()
 #	emr = record.get_text_dump()
 #	print emr
-#	vaccs = record.get_due_vaccinations()
+#	vaccs = record.get_missing_vaccinations()
 #	print vaccs['overdue']
 #	print vaccs['boosters']
 #	dump = record.get_text_dump()
@@ -1396,7 +1379,7 @@ if __name__ == "__main__":
 #		for aged_line in keys:
 #			for line in dump[aged_line]:
 #				print line
-#	dump = record.get_due_vaccinations()
+#	dump = record.get_missing_vaccinations()
 #	f = open('vaccs.lst', 'wb')
 #	if dump is not None:
 #		print "=== due ==="
@@ -1417,7 +1400,13 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.90  2004-05-08 17:41:34  ncq
+# Revision 1.91  2004-05-12 14:33:42  ncq
+# - get_due_vaccinations -> get_missing_vaccinations + rewrite
+#   thereof for value object use
+# - __activate_fairly_recent_encounter now fails right away if it
+#   cannot talk to the user anyways
+#
+# Revision 1.90  2004/05/08 17:41:34  ncq
 # - due vaccs views are better now, so simplify get_due_vaccinations()
 #
 # Revision 1.89  2004/05/02 19:27:30  ncq
