@@ -11,10 +11,10 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
-import os.path, sys, os
+import os.path, sys, os, re
 
 # location of our modules
 if __name__ == '__main__':
@@ -381,7 +381,6 @@ class cDocTree(wxTreeCtrl):
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
-	import re
 	import gmLoginInfo
 	import gmXdtObjects
 	from gmXdtMappings import xdt_gmgender_map
@@ -600,7 +599,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.20  2003-04-18 22:34:44  ncq
+# Revision 1.21  2003-04-19 15:01:33  ncq
+# - we need import re both standalone and plugin
+#
+# Revision 1.20  2003/04/18 22:34:44  ncq
 # - document context menu, mainly for descriptions, currently
 #
 # Revision 1.19  2003/04/18 17:45:05  ncq
