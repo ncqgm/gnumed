@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -101,7 +101,7 @@ def get_base_dir():
 
 	print 'Standard path "%s" does not exist.' % tmp
 	print 'Desperately trying to fall back to last resort measures.'
-	print 'This may be an indicator we are running Windows or something.'
+	print 'This may be an indicator we are running on Windows, from CVS or something similar.'
 
 	# one level below path to binary
 	tmp = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -135,10 +135,12 @@ if __name__ == "__main__":
 				  Please check whether your PYTHONPATH and/or GNUMED_DIR environment\n \
 				  variables are set correctly.")
 
+	_log = gmLog.gmDefLog
+
 	if gmCLI.has_arg('--talkback'):
 		# email logger as a loop device
 		email_logger = gmLog.cLogTargetEMail(gmLog.lInfo, aFrom = "GNUmed client", aTo = ("fixme@gnumed.net",), anSMTPServer = "mail.best1-host.com")
-		gmLog.gmDefLog.AddTarget (email_logger)
+		_log.AddTarget (email_logger)
 
 	if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
 		print "help requested"
@@ -148,21 +150,52 @@ if __name__ == "__main__":
 
 	if gmCLI.has_arg("--debug"):
 		print "Activating verbose output for debugging."
-		gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+		_log.SetAllLogLevels(gmLog.lData)
 	elif gmCLI.has_arg ("--quiet"):
-		gmLog.gmDefLog.SetAllLogLevels(gmLog.lErr)
+		_log.SetAllLogLevels(gmLog.lErr)
 	else:
-		gmLog.gmDefLog.SetAllLogLevels(gmLog.lInfo)
+		_log.SetAllLogLevels(gmLog.lInfo)
 
 	# console is Good(tm)
 	# but only for Panics and important messages
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lPanic)
-	gmLog.gmDefLog.AddTarget(aLogTarget)
+	_log.AddTarget(aLogTarget)
 
+	_log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
+	_log.Log(gmLog.lData, "resource path: " + appPath)
+	_log.Log(gmLog.lData, "module search path: " + str(sys.path))
 
-	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
-	gmLog.gmDefLog.Log(gmLog.lData, "resource path: " + appPath)
-	gmLog.gmDefLog.Log(gmLog.lData, "module search path: " + str(sys.path))
+	# force import of gmCfg so we can check if we need to create a config file
+	import gmCfg
+	_cfg = gmCfg.gmDefCfgFile
+	if _cfg is None:
+		# make sure standard directory is there (~/.gnumed/)
+		# FIXME: this isn't portable very well
+		# - should we rather use the current dir ?
+		# - but no, this may not be writeable
+		tmp = os.path.expanduser(os.path.join('~', '.gnumed'))
+		if not os.path.exists(tmp):
+			os.mkdir(tmp)
+
+		# now the path exists but we still need to make sure
+		# the file itself exists
+		tmp = os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed.conf'))
+		if not os.path.exists(tmp):
+			_log.Log(gmLog.lErr, 'Creating empty config file [%s].' % tmp)
+			print "Creating default config file [%s]." % tmp
+			f = open(tmp, "wb")
+			f.close
+
+		# now that we got the file we can reopen it as a config file :-)
+		try:
+			f = gmCfg.cCfgFile(aFile = tmp)
+		except:
+			print "Cannot even create default config file.\nThis ain't gonna work !"
+			_log.LogException('unhandled exception', sys.exc_info(), fatal=0)
+			raise
+
+		gmCfg.gmDefCfgFile = f
+		_cfg = gmCfg.gmDefCfgFile
 
 	try:
 		import gmI18N
@@ -170,7 +203,7 @@ if __name__ == "__main__":
 		import gmGuiMain
 	except ImportError:
 		exc = sys.exc_info()
-		gmLog.gmDefLog.LogException ("Exception: Cannot load modules.", exc)
+		_log.LogException ("Exception: Cannot load modules.", exc)
 		sys.exit("CRITICAL ERROR: Can't load gmI18N, gmGuiBroker or gmGuiMain ! - Program halted.\n \
 				  Please check whether your PYTHONPATH and/or GNUMED_DIR environment\n \
 				  variables are set correctly.")
@@ -184,7 +217,7 @@ if __name__ == "__main__":
 		os.chdir(appPath)
 	except:
 		exc = sys.exc_info()
-		gmLog.gmDefLog.LogException('Exception: cannot change into resource directory ' + appPath, exc, fatal=0)
+		_log.LogException('Exception: cannot change into resource directory ' + appPath, exc, fatal=0)
 		# let's try going on anyways
 
 	# run gnumed and intercept _all_ exceptions (but reraise them ...)
@@ -192,14 +225,14 @@ if __name__ == "__main__":
 		gmGuiMain.main()
 	except:
 		exc = sys.exc_info()
-		gmLog.gmDefLog.LogException ("Exception: Unhandled exception encountered.", exc, fatal=0)
+		_log.LogException ("Exception: Unhandled exception encountered.", exc, fatal=0)
 		if gmCLI.has_arg('--talkback'):
 			import gmTalkback
 			gmTalkback.run(email_logger)
 		raise
 
 	#<DEBUG>
-	gmLog.gmDefLog.Log(gmLog.lInfo, 'Normally shutting down as main module.')
+	_log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 	#</DEBUG>
 
 	if gmCLI.has_arg('--talkback'):
@@ -213,7 +246,11 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.41  2002-11-03 13:22:20  ncq
+# Revision 1.42  2002-11-03 14:10:15  ncq
+# - autocreate empty config file on failing to find one
+# - might fail on Windows - untested so far
+#
+# Revision 1.41  2002/11/03 13:22:20  ncq
 # - phase 1: raise log level of console logger to lPanic only
 # - gives a lot less confusing output
 #
