@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.8 2003-02-04 12:22:52 ncq Exp $
+-- $Id: gmI18N.sql,v 1.9 2003-02-04 13:22:01 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -27,26 +27,6 @@ create table i18n_curr_lang (
 
 comment on table i18n_curr_lang is
 	'holds the currently selected language per user for fixed strings in the database';
-
--- ---------------------------------------------
-create function set_curr_lang(text) returns unknown as '
-	delete from i18n_curr_lang where owner = CURRENT_USER;
-	insert into i18n_curr_lang (lang) values ($1);
-	select NULL;
-' language 'sql';
-
-comment on function set_curr_lang(text) is
-	'set language to first argument for the current user';
-
--- ---------------------------------------------
-create function set_curr_lang(text, name) returns unknown as '
-	delete from i18n_curr_lang where owner = \'$2\';
-	insert into i18n_curr_lang (owner, lang) values ($2, $1);
-	select NULL;
-' language 'sql';
-
-comment on function set_curr_lang(text, name) is
-	'set language to first argument for the user named in the second argument';
 
 -- =============================================
 create table i18n_keys (
@@ -124,13 +104,56 @@ comment on function _(text) is
 	 to be used as an after-select trigger function on your tables';
 
 -- =============================================
---create function set_lang (text) returns unknown as '
---	delete from lang;
---	insert into lang (code) values ($1);
---	select NULL;
---' language 'sql';
+create function set_curr_lang(text) returns unknown as '
+DECLARE
+	language ALIAS FOR $1;
+BEGIN
+	if exists(select id from i18n_translations where lang = language) then
+		delete from i18n_curr_lang where owner = CURRENT_USER;
+		insert into i18n_curr_lang (lang) values (language);
 
+		delete from i18n_curr_lang where owner = (select trim(leading ''_'' from CURRENT_USER));
+		insert into i18n_curr_lang (lang, owner) values (language, (select trim(leading ''_'' from CURRENT_USER)));
+
+		return 1;
+	else
+		raise exception ''Cannot set current language to [%]. No translations available.'', language;
+		return NULL;
+	end if;
+	return NULL;
+END;
+' language 'plpgsql';
+
+comment on function set_curr_lang(text) is
+	'set preferred language:
+	 - for "current user" and "_current_user"
+	 - only if translations for this language are available';
+
+-- =============================================
+create function set_curr_lang(text, name) returns unknown as '
+DECLARE
+	language ALIAS FOR $1;
+	username ALIAS FOR $2;
+BEGIN
+	if exists(select id from i18n_translations where lang = language) then
+		delete from i18n_curr_lang where owner = username;
+		insert into i18n_curr_lang (owner, lang) values (username, language);
+		return 1;
+	else
+		raise exception ''Cannot set current language to [%]. No translations available.'', language;
+		return NULL;
+	end if;
+	return NULL;
+END;
+' language 'plpgsql';
+
+comment on function set_curr_lang(text, name) is
+	'set language to first argument for the user named in
+	 the second argument if translations are available';
+
+-- =============================================
 \set ON_ERROR_STOP 1
+
 -- =============================================
 -- there's most likely no harm in granting select to all
 GRANT SELECT on
@@ -142,17 +165,22 @@ TO group "gm-public";
 -- users need to be able to change this
 -- FIXME: more groups need to have access here
 GRANT SELECT, INSERT, UPDATE, DELETE on
-	i18n_curr_lang
+	i18n_curr_lang,
+	i18n_curr_lang_id_seq
 TO group "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.8  2003-02-04 12:22:52  ncq
+-- Revision 1.9  2003-02-04 13:22:01  ncq
+-- - refined set_curr_lang to only work if translations available
+-- - also auto-set for both "user" and "_user"
+--
+-- Revision 1.8  2003/02/04 12:22:52  ncq
 -- - valid until in create user cannot do a sub-query :-(
 -- - columns "owner" should really be of type "name" if defaulting to "CURRENT_USER"
 -- - new functions set_curr_lang(*)
