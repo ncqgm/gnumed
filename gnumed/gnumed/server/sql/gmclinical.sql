@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.53 $
+-- $Revision: 1.54 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -17,7 +17,7 @@ create table clin_health_issue (
 	id_patient integer not null,
 	description varchar(128) default '__default__',
 	unique (id_patient, description)
-) inherits (audit_mark);
+) inherits (audit_fields, audit_mark);
 
 comment on table clin_health_issue is
 	'long-ranging, underlying health issue such as "mild immunodeficiency", "diabetes type 2"';
@@ -42,7 +42,7 @@ create table clin_episode (
 	id_health_issue integer not null references clin_health_issue(id),
 	description varchar(128) default '__default__',
 	unique (id_health_issue, description)
-) inherits (audit_mark);
+) inherits (audit_fields, audit_mark);
 
 comment on table clin_episode is
 	'clinical episodes such as "recurrent Otitis media", "traffic accident 7/99", "Hepatitis B"';
@@ -116,7 +116,7 @@ comment on column clin_encounter.description is
 	 plus some marker for "default"';
 
 -- about the only reason for this table to exist is the id_type
--- field, otherwiese one could just store the data in clin_root_item
+-- field, otherwise one could just store the data in clin_root_item
 
 create table curr_encounter (
 	id serial primary key,
@@ -147,7 +147,7 @@ create table clin_root_item (
 	id_encounter integer not null references clin_encounter(id),
 	id_episode integer not null references clin_episode(id),
 	narrative text
-);
+) inherits (audit_fields);
 
 comment on TABLE clin_root_item is
 	'ancestor table for clinical items of any kind, basic
@@ -560,11 +560,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.53 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.54 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.53  2003-06-23 21:56:52  ncq
+-- Revision 1.54  2003-06-29 15:25:30  ncq
+-- - adapt to audit_fields split-off
+-- - make clin_root_item inherit audit_fields but NOT audit_mark, hehe
+--
+-- Revision 1.53  2003/06/23 21:56:52  ncq
 -- - grants on curr_encounter
 --
 -- Revision 1.52  2003/06/22 16:22:37  ncq
