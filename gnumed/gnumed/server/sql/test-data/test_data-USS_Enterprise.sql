@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -57,7 +57,7 @@ insert into ref_source (
 	'Starfleet Central Medical Facilities, Earth'
 );
 
-delete from vacc_regime where fk_recommended_by = currval('ref_source_id_seq');
+delete from vacc_regime where fk_recommended_by = currval('ref_source_pk_seq');
 
 -------------
 -- Tetanus --
@@ -300,11 +300,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.12  2004-12-18 09:57:17  ncq
+-- Revision 1.13  2004-12-18 10:05:36  ncq
+-- - id -> pk
+--
+-- Revision 1.12  2004/12/18 09:57:17  ncq
 -- - add vaccination related data
 --
 -- Revision 1.11  2004/09/29 19:16:28  ncq
