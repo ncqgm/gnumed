@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.4 2003-02-19 12:42:38 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmXdtViewer.py,v 1.5 2003-02-19 15:56:33 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys,os,fileinput,string,linecache
@@ -131,9 +131,16 @@ class gmXdtViewerPanel(wxPanel):
 			length ,ID, content = line[:3], line[3:7], line[7:]
 
 			try:
-				items[i] = (xdt_id_map[ID], xdt_map_of_content_maps[ID][content])
+				left = xdt_id_map[ID]
 			except KeyError:
-				items[i] = (xdt_id_map[ID], content)
+				left = ID
+
+			try:
+				right = xdt_map_of_content_maps[ID][content]
+			except KeyError:
+				right = content
+
+			items[i] = (left, right)
 			i = i + 1
 
 		fileinput.close()
@@ -316,7 +323,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.4  2003-02-19 12:42:38  ncq
+# Revision 1.5  2003-02-19 15:56:33  ncq
+# - don't fail on malformed lines
+#
+# Revision 1.4  2003/02/19 12:42:38  ncq
 # - further dict()ified __decode_xdt()
 #
 # Revision 1.3  2003/02/16 13:54:47  ncq
