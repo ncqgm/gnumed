@@ -67,9 +67,10 @@ def create_audit_table(tablename):
 #=================================================================
 
 def create_trigfunc(db, child_table, audit_prefix="audit_"):
-    funcname = audit_prefix + child_table[0]
+    tablename = child_table[0]
+    funcname = audit_prefix + tablename
     trigname = 'tr_' + funcname
-    auditname = child_table[0] + '_hx'
+    auditname = tablename + '_hx'
 
     #check first whether the audit table exists, and create it if not
     if db.query("SELECT oid FROM pg_class where relname = '%s'" % auditname).ntuples() == 0:
@@ -80,8 +81,8 @@ def create_trigfunc(db, child_table, audit_prefix="audit_"):
     o("CREATE FUNCTION %s() RETURNS OPAQUE AS '" % funcname)
     o("BEGIN")
     o("NEW.updated := OLD.updated+1;")
-    o("INSERT INTO %s_hx VALUES (" % child_table[0])
-    attributes = get_attributes(db, child_table[0])
+    o("INSERT INTO %s VALUES (" % auditname)
+    attributes = get_attributes(db, tablename)
     for attr in attributes:
         o("OLD." + attr[0])
     o(");")
@@ -89,7 +90,7 @@ def create_trigfunc(db, child_table, audit_prefix="audit_"):
     o("END' LANGUAGE 'plpgsql';\n")
 
     o("DROP TRIGGER %s ON %s:\n" % (trigname, funcname))
-    o(trigger_statement % (trigname, child_table[0], funcname)+'\n')
+    o(trigger_statement % (trigname, tablename, funcname)+'\n')
 
 
 #=================================================================
