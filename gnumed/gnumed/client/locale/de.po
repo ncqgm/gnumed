@@ -2,11 +2,11 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.20 $
+# $Revision: 1.21 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GnuMed 0.1\n"
-"POT-Creation-Date: Sat Feb 15 16:59:30 2003\n"
+"POT-Creation-Date: Wed Feb 19 16:42:06 2003\n"
 "PO-Revision-Date: 2002-09-17 15:18+0200\n"
 "Last-Translator: Sebastian Hilbert <sebastian.hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -139,7 +139,7 @@ msgstr "&Drucken"
 msgid " OK "
 msgstr " OK "
 
-#: ../wxpython/gui/gmXdtViewer.py:267
+#: ../wxpython/gui/gmXdtViewer.py:264
 msgid "XDT Viewer"
 msgstr "XDT-Betrachter"
 
@@ -154,10 +154,6 @@ msgstr "Teil %s (%s in %s)"
 #: ../wxpython/gmCryptoText.py:108
 msgid "Set pass phrase"
 msgstr "Passwort setzen"
-
-#: ../wxpython/gui/gmShowMedDocs.py:414
-msgid "&Show documents in archive"
-msgstr ""
 
 #: ../wxpython/gmUserAdmin.py:94
 msgid "Read"
@@ -185,7 +181,7 @@ msgstr "Stärke"
 msgid "I hit the big red button and ..."
 msgstr "Ich habe das und das gemacht ..."
 
-#: ../wxpython/gui/gmXdtViewer.py:303
+#: ../wxpython/gui/gmXdtViewer.py:300
 msgid "Choose an xDT file"
 msgstr "Wählen Sie eine xDT-Datei:"
 
@@ -211,9 +207,9 @@ msgstr ""
 msgid "at"
 msgstr ""
 
-#: ../business/gmMedDoc.py:323
+#: ../business/gmMedDoc.py:324
 msgid "Cannot import gmMimeLib.py !"
-msgstr ""
+msgstr "Kann gmMimeLib.py nicht importieren !"
 
 #: ../wxpython/patient/gmGP_TabbedLists.py:192
 msgid "First Date"
@@ -230,6 +226,10 @@ msgstr "BildschirmhÃ¶he (cm): "
 #: ../wxpython/gmFormPrinter.py:275
 msgid "Calibration"
 msgstr "Kalibrierung"
+
+#: ../wxpython/gui/gmShowMedDocs.py:425
+msgid "Show &archived documents"
+msgstr "archivierte &Dokumente zeigen"
 
 #: ../wxpython/gmCryptoText.py:106
 msgid "Encrypt"
@@ -354,9 +354,9 @@ msgstr "Datum"
 msgid "device"
 msgstr "GerÃ¤t"
 
-#: ../wxpython/gui/gmShowMedDocs.py:114
+#: ../wxpython/gui/gmShowMedDocs.py:117
 msgid "available documents (most recent on top)"
-msgstr ""
+msgstr "archivierte Dokumente (neueste zuoberst)"
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:216
 msgid "Save Item no print"
@@ -507,11 +507,13 @@ msgstr "Löschen"
 msgid "delete page"
 msgstr "Objekt löschen"
 
-#: ../wxpython/gui/gmShowMedDocs.py:124
+#: ../wxpython/gui/gmShowMedDocs.py:127
 msgid ""
 "Cannot find any documents for the patient\n"
 "[%s %s]."
 msgstr ""
+"Kann für diesen Patienten keine Dokumente finden:\n"
+"[%s %s]."
 
 #: ../wxpython/gui/gmDrugDisplay.py:235
 msgid "&Prescribe"
@@ -549,9 +551,9 @@ msgid "icon_two_people"
 msgstr ""
 
 #: ../wxpython/gui/gmScanMedDocs.py:263 ../wxpython/gui/gmScanMedDocs.py:278
-#: ../wxpython/gui/gmShowMedDocs.py:278
+#: ../wxpython/gui/gmShowMedDocs.py:290
 msgid "displaying page"
-msgstr ""
+msgstr "zeige Seite"
 
 #: ../wxpython/patient/gmGP_Allergies.py:109
 msgid "Class"
@@ -561,9 +563,9 @@ msgstr ""
 msgid "Prof."
 msgstr "Prof."
 
-#: ../business/docModules/docDocument.py:744 ../business/gmMedDoc.py:364
+#: ../business/docModules/docDocument.py:744 ../business/gmMedDoc.py:365
 msgid "Unable to start viewer on file [%s]."
-msgstr ""
+msgstr "Kann Anzeiger für Datei [%s] nicht starten."
 
 #: ../wxpython/patient/gmGP_Referrals.py:149
 #: ../wxpython/patient/gmGP_Referrals.py:154
@@ -575,11 +577,13 @@ msgstr ""
 msgid "Print Page"
 msgstr "Seite drucken"
 
-#: ../wxpython/gui/gmShowMedDocs.py:309
+#: ../wxpython/gui/gmShowMedDocs.py:325
 msgid ""
 "This patient does not exist in the document database.\n"
 "\"%s %s\""
 msgstr ""
+"Diesen Patienten gibt es in der Datenbank nicht.\n"
+"\"%s %s\""
 
 #: ../wxpython/patient/gmCalcPreg.py:99
 msgid "Future LNMP"
@@ -589,9 +593,9 @@ msgstr ""
 msgid "63 - Normal - 79"
 msgstr ""
 
-#: ../business/gmMedDoc.py:280
+#: ../business/gmMedDoc.py:281
 msgid "unknown doc type"
-msgstr ""
+msgstr "unbekannter Dokumententyp"
 
 #: ../wxpython/patient/gmGP_Allergies.py:90
 msgid "Allergy and Sensitivity - Summary"
@@ -617,7 +621,7 @@ msgstr ""
 msgid "Four Es"
 msgstr "Vier Es"
 
-#: ../wxpython/gui/gmXdtViewer.py:294
+#: ../wxpython/gui/gmXdtViewer.py:291
 msgid "&show XDT"
 msgstr "xDT anzeigen"
 
@@ -665,6 +669,10 @@ msgstr ""
 #: ../wxpython/patient/gmGP_Prescriptions.py:202
 msgid "Delete Item"
 msgstr "Löschen"
+
+#: ../wxpython/gui/gmShowMedDocs.py:418
+msgid "Documents"
+msgstr "Dokumente"
 
 #: ../wxpython/gui/gmScanMedDocs.py:111 ../wxpython/gui/gmScanMedDocs.py:172
 msgid "display selected part of the document"
@@ -734,7 +742,7 @@ msgstr "Bea&rbeiten"
 msgid "Gnumed STIKO Contents"
 msgstr ""
 
-#: ../wxpython/gui/gmXdtViewer.py:299
+#: ../wxpython/gui/gmXdtViewer.py:296
 msgid "all files"
 msgstr "alle Dateien"
 
@@ -916,7 +924,7 @@ msgstr "Impfplan"
 msgid "<no workplace name set in config file>"
 msgstr "<kein Arbeitsplatzname in der Konfigurationsdatei eingetragen>"
 
-#: ../business/docModules/docPatient.py:39
+#: ../business/docModules/docPatient.py:39 ../business/gmTmpPatient.py:32
 msgid "female"
 msgstr "weiblich"
 
@@ -1005,7 +1013,7 @@ msgstr "Datenbank"
 msgid "Cannot import docMime.py !"
 msgstr ""
 
-#: ../wxpython/gui/gmShowMedDocs.py:277
+#: ../wxpython/gui/gmShowMedDocs.py:289
 msgid ""
 "Cannot display object.\n"
 "%s."
@@ -1075,9 +1083,9 @@ msgstr "Impfstoff"
 msgid "&Delete"
 msgstr "&Löschen"
 
-#: ../wxpython/gui/gmShowMedDocs.py:151
+#: ../wxpython/gui/gmShowMedDocs.py:154
 msgid "%s %s: %s (%s pages, %s)"
-msgstr ""
+msgstr "%s %s: %s (%s Seite(n), %s)"
 
 #: ../wxpython/patient/gmGP_ScratchPadRecalls.py:59
 msgid "Recall or Review"
@@ -1107,7 +1115,7 @@ msgstr ""
 msgid "&Clear query"
 msgstr "Abfage &lÃ¶schen"
 
-#: ../wxpython/gui/gmXdtViewer.py:299
+#: ../wxpython/gui/gmXdtViewer.py:296
 msgid "xDT file"
 msgstr "xDT-Datei"
 
@@ -1115,7 +1123,7 @@ msgstr "xDT-Datei"
 msgid "Help for login screen"
 msgstr "Hilfe zur Anmeldemaske"
 
-#: ../wxpython/gui/gmShowMedDocs.py:323
+#: ../wxpython/gui/gmShowMedDocs.py:347
 msgid "stored medical documents"
 msgstr "vorhandene medizinische Dokumente"
 
@@ -1135,9 +1143,9 @@ msgstr "Ã„nderungen ausführen"
 msgid "Composition"
 msgstr "Zusammensetzung"
 
-#: ../business/docModules/docDocument.py:694 ../business/gmMedDoc.py:315
+#: ../business/docModules/docDocument.py:694 ../business/gmMedDoc.py:316
 msgid "File [%s] does not exist !"
-msgstr ""
+msgstr "Datei [%s] existiert nicht !"
 
 #: ../wxpython/patient/gmGP_Recalls.py:72
 msgid "Recalls entered this consultation"
@@ -1193,7 +1201,7 @@ msgstr "Übersetzen"
 msgid "Miss"
 msgstr "Frau"
 
-#: ../business/docModules/docPatient.py:38
+#: ../business/docModules/docPatient.py:38 ../business/gmTmpPatient.py:31
 msgid "male"
 msgstr "männlich"
 
@@ -1303,9 +1311,9 @@ msgid ""
 "you can save them as a document !"
 msgstr ""
 
-#: ../wxpython/gui/gmShowMedDocs.py:407
-msgid "Archive"
-msgstr ""
+#: ../wxpython/patient/gmBMICalc.py:143
+msgid "Height (cm)"
+msgstr "Größe (cm): "
 
 #: ../wxpython/gmLabels.py:42
 msgid "Timestamp"
@@ -1416,7 +1424,7 @@ msgstr "Geburtstermin"
 msgid "Search"
 msgstr "Suche"
 
-#: ../wxpython/gui/gmShowMedDocs.py:125 ../wxpython/gui/gmShowMedDocs.py:310
+#: ../wxpython/gui/gmShowMedDocs.py:128 ../wxpython/gui/gmShowMedDocs.py:326
 msgid "searching patient documents"
 msgstr "suche Befunde"
 
@@ -1431,10 +1439,6 @@ msgstr ""
 #: ../wxpython/patient/gmDemographics.py:156
 msgid "Preferred Name"
 msgstr "Rufname"
-
-#: ../wxpython/patient/gmBMICalc.py:143
-msgid "Height (cm)"
-msgstr "Größe (cm): "
 
 #: ../wxpython/gmPersonDetails.py:172
 msgid "address"
@@ -1481,11 +1485,11 @@ msgstr "Personalien"
 msgid "Delete all Items"
 msgstr "Alle Einträge löschen"
 
-#: ../wxpython/gui/gmShowMedDocs.py:174
+#: ../wxpython/gui/gmShowMedDocs.py:177
 msgid "no comment available"
-msgstr ""
+msgstr "kein Kommentar verfügbar"
 
-#: ../wxpython/gui/gmShowMedDocs.py:175
+#: ../wxpython/gui/gmShowMedDocs.py:178
 msgid "page %s: \"%s\" (%s bytes)"
 msgstr "Teil %s: \"%s\" (%s Byte)"
 
@@ -1636,7 +1640,7 @@ msgstr "Ihre E-mail-Adresse"
 msgid "Mrs."
 msgstr "Frau"
 
-#: ../business/docModules/docDocument.py:719 ../business/gmMedDoc.py:339
+#: ../business/docModules/docDocument.py:719 ../business/gmMedDoc.py:340
 msgid ""
 "Unable to start viewer on file\\[%s]\n"
 "You need to update your mailcap file."
