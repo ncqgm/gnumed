@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -228,6 +228,7 @@ create view v_zip2street as
 	select
 		coalesce (str.postcode, urb.postcode) as postcode,
 		str.name as street,
+		str.suburb as suburb,
 		stt.name as state,
 		stt.code as code_state,
 		urb.name as urb,
@@ -301,7 +302,7 @@ create view v_uniq_zipped_urbs as
 		-- have a zip code
 		urb.postcode is not null
 			and
-		-- are not found in street with this zip code
+		-- are not found in "street" with this zip code
 		not exists(
 			select 1 from
 				v_zip2street vz2str,
@@ -317,9 +318,9 @@ create view v_uniq_zipped_urbs as
 ;
 
 comment on view v_uniq_zipped_urbs is
-	'convenience view that selects those urbs which
+	'convenience view that selects urbs which:
 	 - have a zip code
-	 - are not referenced in street with that zip code';
+	 - are not referenced in table "street" with that zip code';
 
 -- ===================================================================
 \unset ON_ERROR_STOP
@@ -330,6 +331,7 @@ create view v_zip2data as
 	select
 		vz2s.postcode as zip,
 		vz2s.street,
+		vz2s.suburb,
 		vz2s.urb,
 		vz2s.state,
 		vz2s.code_state,
@@ -340,6 +342,7 @@ create view v_zip2data as
 	select
 		vuzu.postcode as zip,
 		null as street,
+		null as suburb,
 		vuzu.name as urb,
 		vuzu.state,
 		vuzu.code_state,
@@ -350,7 +353,7 @@ create view v_zip2data as
 ;
 
 comment on view v_zip2data is
-	'aggregates all known data per zip code';
+	'aggregates nearly all known data per zip code';
 
 GRANT select ON
 	v_basic_address,
@@ -367,11 +370,15 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.10 $');
+delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.11 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.10  2004-07-17 20:57:53  ncq
+-- Revision 1.11  2004-09-19 17:13:48  ncq
+-- - propagate suburb into all the right places
+--
+-- Revision 1.10  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --
