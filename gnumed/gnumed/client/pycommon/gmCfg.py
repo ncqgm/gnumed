@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -292,8 +292,8 @@ limit 1""", option, workplace, cookie, user) is None:
 			ins_fields_str = ', '.join(ins_fields)
 			ins_val_templates_str = ', '.join(ins_val_templates)
 			ins_where_args['templ_id'] = template_id
-			cmd = "insert into cfg_item (%s) values (%s%s%s%s)" % (ins_fields_str, ins_val_templates_str)
-			if _gmPG.run_query(curs, None, cmd, where_args) is None:
+			cmd = "insert into cfg_item (%s) values (%s)" % (ins_fields_str, ins_val_templates_str)
+			if _gmPG.run_query(curs, None, cmd, ins_where_args) is None:
 				curs.close()
 				return False
 			# insert option value
@@ -1223,7 +1223,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.20  2004-08-23 10:24:10  ncq
+# Revision 1.21  2004-08-24 13:40:43  ncq
+# - when cleaning up cfgSQL.set() I screwed up, fixed
+#
+# Revision 1.20  2004/08/23 10:24:10  ncq
 # - made setdbparam saner re default params, eg. param=None will set to
 #   database default, eg if anything else wanted user needs to explicitely
 #   set
