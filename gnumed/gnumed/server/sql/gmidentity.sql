@@ -81,31 +81,26 @@ create table names (
 	id serial primary key,
 	id_identity integer references identity,
 	active boolean default 't',
-	lastnames varchar (80),
-	firstnames varchar(255),
-	--aka varchar (80),
-	--IMHO, AKAs should be multiple "name" entries
+	lastnames varchar (80) not null,
+	firstnames varchar(255) not null,
 	preferred varchar(80),
 	title varchar(80) --yes, there are some incredible rants of titles ...
 ) inherits (audit_identity);
 
 COMMENT ON TABLE names IS
-'all the names an identity is known under';
+	'all the names an identity is known under';
 
 COMMENT ON COLUMN names.active IS
-'true if the name is still in use';
+	'true if the name is still in use';
 
 COMMENT ON COLUMN names.firstnames IS
-'all first names of an identity in legal order';
+	'all first names of an identity in legal order';
 
 COMMENT ON COLUMN names.lastnames IS
-'all last names of an identity in legal order';
-
---COMMENT ON COLUMN names.aka IS
---'also known as ...';
+	'all last names of an identity in legal order';
 
 COMMENT ON COLUMN names.preferred IS
-'the preferred first name, the name a person is usually called (nickname)';
+	'the preferred first name, the name a person is usually called (nickname)';
 
 -- IH: 9/3/02
 -- trigger function to ensure one name is active.
@@ -291,4 +286,4 @@ insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) valu
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.27 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.28 $');
