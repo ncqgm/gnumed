@@ -21,16 +21,18 @@ if __name__ == "__main__":
 	"""Launch the gnumed wx GUI client."""
 	appPath = os.path.split(sys.argv[0])[0]
 
-	# log file
-	aFile = gmLog.LogTargetFile (os.path.basename(sys.argv[0]) + ".log", "a", gmLog.lInfo)
-	gmLog.gmDefLog.AddTarget(aFile)
-
 	# console is Good(tm)
 	aLogTarget = gmLog.LogTargetConsole(gmLog.lInfo)
 	gmLog.gmDefLog.AddTarget(aLogTarget)
 
+#<DEBUG>
+	# log file
+	aFile = gmLog.LogTargetFile (os.path.basename(sys.argv[0]) + ".log", "a", gmLog.lInfo)
+	gmLog.gmDefLog.AddTarget(aFile)
+
 	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module.')
 	gmLog.gmDefLog.Log(gmLog.lInfo, "appPath = " + appPath)
+#</DEBUG>
 
 	try:
 		#change into our working directory
@@ -42,10 +44,18 @@ if __name__ == "__main__":
 	try:
 		import gmGuiMain
 	except ImportError:
-		gmLog.gmDefLog.Log(gmLog.lPanic, "Cannot load gmGuiMain")
 		exc = sys.exc_info()
-		gmLog.gmDefLog.LogException ("Exception caught !", exc)
+		gmLog.gmDefLog.LogException ("Exception: Cannot load gmGuiMain", exc)
 		sys.exit("CRITICAL ERROR: Can't find module gmGuiMain! - Program halted")
 
-	#run gnumed!
-	gmGuiMain.main()
+	#run gnumed and intercept _all_ exceptions (but reraise them ...)
+	try:
+	    gmGuiMain.main()
+	except:
+	    exc = sys.exc_info()
+	    gmLog.gmDefLog.LogException ("Exception: Unhandled exception encountered.", exc)
+	    raise
+
+#<DEBUG>
+	gmLog.gmDefLog.Log(gmLog.lInfo, 'Shutting down as main module.')
+#</DEBUG>
