@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -25,7 +25,6 @@ from Gnumed.pycommon import gmPG, gmCfg, gmExceptions, gmWhoAmI, gmMatchProvider
 from Gnumed.business import gmPatient, gmClinicalRecord, gmPathLab
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.artwork import checkboxOn, checkboxOff
 
 # 3rd party
 from wxPython.wx import *
@@ -182,7 +181,7 @@ class cLabJournalNB(wxNotebook):
 		hbszr.AddWindow(self.lab_label, 0, wxALIGN_CENTER | wxALL, 5)
 		hbszr.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
 
-		vbszr.Add(hbszr, 0, wxALIGN_LEFT | wxALL, 5)
+		#vbszr.Add(hbszr, 0, wxALIGN_LEFT | wxALL, 5)
 
 		self.req_id_label = wxStaticText(
 			name = 'req_id_label',
@@ -200,13 +199,9 @@ class cLabJournalNB(wxNotebook):
 			wxSize(80,-1),
 			0
 			)
-
-		hbszr2 = wxBoxSizer( wxHORIZONTAL )
 		
-		hbszr2.AddWindow(self.req_id_label, 0, wxALIGN_CENTER | wxALL, 5)
-		hbszr2.AddWindow(self.fld_request_id, 0, wxALIGN_CENTER| wxALL, 5 )
-		
-		vbszr.Add(hbszr2,0, wxALIGN_LEFT | wxALL, 5)
+		hbszr.AddWindow(self.req_id_label, 0, wxALIGN_CENTER | wxALL, 5)
+		hbszr.AddWindow(self.fld_request_id, 0, wxALIGN_CENTER| wxALL, 5 )
 
 		# -- "save request id" button -----------
 		self.BTN_save_request_ID = wxButton(
@@ -218,8 +213,9 @@ class cLabJournalNB(wxNotebook):
 		self.BTN_save_request_ID.SetToolTipString(_('associate chosen lab and ID with current patient'))
 		EVT_BUTTON(self.BTN_save_request_ID, wxID_BTN_save_request_ID, self.on_save_request_ID)
 
-		vbszr.Add( self.BTN_save_request_ID, 0, wxALIGN_CENTER|wxALL, 5 )
-
+		hbszr.Add( self.BTN_save_request_ID, 0, wxALIGN_CENTER|wxALL, 5 )
+		vbszr.Add(hbszr,0, wxALIGN_LEFT | wxALL, 5)
+		
 		# our actual list
 		tID = wxNewId()
 		self.lbox_pending = gmLabIDListCtrl(
@@ -267,8 +263,13 @@ class cLabJournalNB(wxNotebook):
 				self.PNL_review_tab,
 				tID
 				)
+				
+		EVT_GRID_CELL_LEFT_CLICK(self.DataGrid, self.OnLeftSClick)
+		EVT_GRID_CELL_LEFT_DCLICK(self.DataGrid, self.OnLeftDClick)
+		#EVT_GRID_SELECT_CELL(self.DataGrid, self.OnSelectCell)
+		EVT_KEY_UP(self.DataGrid, self.OnKeyPressed)
 		
-		self.DataGrid.CreateGrid(0, 9, wxGrid.wxGridSelectCells )
+		self.DataGrid.CreateGrid(0, 8, wxGrid.wxGridSelectCells )
 		self.DataGrid.SetDefaultCellAlignment(wxALIGN_LEFT,wxALIGN_CENTRE)
 		renderer = apply(MyCustomRenderer, ())
 		self.DataGrid.SetDefaultRenderer(renderer)
@@ -279,30 +280,29 @@ class cLabJournalNB(wxNotebook):
 		# attribute objects let you keep a set of formatting values
 		# in one spot, and reuse them if needed
 		font = self.GetFont()
-		#font.SetWeight(wxBOLD)
+		font.SetWeight(wxNORMAL)
 		attr = wxGridCellAttr()
 		attr.SetFont(font)
+		
 		#attr.SetBackgroundColour(wxLIGHT_GREY)
 		attr.SetReadOnly(True)
 		#attr.SetAlignment(wxRIGHT, -1)
-		#attr.IncRef()
-		#self.SetLabelFont(font)
+		self.DataGrid.SetLabelFont(font)
 
 		# layout review grid
 		self.DataGrid.SetColLabelValue(0, _('reviewed'))
 		self.DataGrid.SetColLabelValue(1, _('relevant'))
-		self.DataGrid.SetColLabelValue(2, _('patient name'))
-		self.DataGrid.SetColLabelValue(3, _('dob'))
-		self.DataGrid.SetColLabelValue(4, _('date'))
-		self.DataGrid.SetColLabelValue(5, _('analysis'))
-		self.DataGrid.SetColLabelValue(6, _('result'))
-		self.DataGrid.SetColLabelValue(7, _('range'))
-		self.DataGrid.SetColLabelValue(8, _('info provided by lab'))
+		self.DataGrid.SetColLabelValue(2, _('patient'))
+		self.DataGrid.SetColLabelValue(3, _('result from'))
+		self.DataGrid.SetColLabelValue(4, _('analysis'))
+		self.DataGrid.SetColLabelValue(5, _('result'))
+		self.DataGrid.SetColLabelValue(6, _('range'))
+		self.DataGrid.SetColLabelValue(7, _('info provided by lab'))
+		
+		# turn row labels off
+		self.DataGrid.SetRowLabelSize(0)
 		
 		self.DataGrid.AutoSize()
-		#EVT_GRID_CELL_LEFT_CLICK(self, self.OnLeftDClick)
-		EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
-		EVT_GRID_SELECT_CELL(self, self.OnSelectCell)
 		vbszr.AddWindow(self.DataGrid, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 		
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
@@ -410,12 +410,18 @@ class cLabJournalNB(wxNotebook):
 			renderer = apply(wxGridCellBoolRenderer, ())
 			self.DataGrid.SetCellRenderer(item_idx, 0 , renderer)
 			self.DataGrid.SetCellRenderer(item_idx, 1 , renderer)
+			# set all cells read only
 			self.DataGrid.SetReadOnly(item_idx, 0, 1)
 			self.DataGrid.SetReadOnly(item_idx, 1, 1)
-
+			#self.DataGrid.SetReadOnly(item_idx, 2, True)
+			# turn off grid
+			self.DataGrid.EnableGridLines(0)
+	
 			# -- put reviewed status checkbox in first column
+			self.DataGrid.SetColSize(0,self.DataGrid.GetColMinimalAcceptableWidth())
 			self.DataGrid.SetCellValue(item_idx, 0, '1')
 			# -- put relevant status checkbox in second column
+			self.DataGrid.SetColSize(1,self.DataGrid.GetColMinimalAcceptableWidth())
 			self.DataGrid.SetCellValue(item_idx, 0, '0')
 			# -- abnormal ? -> display in red
 			if (result['abnormal'] is not None) and (result['abnormal'].strip() != ''):
@@ -425,7 +431,6 @@ class cLabJournalNB(wxNotebook):
 				self.DataGrid.SetCellTextColour(item_idx,5,wxRED)
 				self.DataGrid.SetCellTextColour(item_idx,6,wxRED)
 				self.DataGrid.SetCellTextColour(item_idx,7,wxRED)
-				self.DataGrid.SetCellTextColour(item_idx,8,wxRED)
 				# abnormal status from lab
 				info = '(%s)' % result['abnormal']
 				# technically abnormal -> defaults to relevant = true
@@ -436,25 +441,29 @@ class cLabJournalNB(wxNotebook):
 				self.DataGrid.SetCellValue(item_idx, 1, '0')
 			# -- patient
 			pat = result.get_patient()
-			self.DataGrid.SetCellValue(item_idx, 2, "%s %s" % (pat[2], pat[3]))
-			self.DataGrid.SetCellValue(item_idx, 3, pat[4].date)
+			self.DataGrid.SetCellValue(item_idx, 2, "%s %s (%s)" % (pat[2], pat[3] ,pat[4].date ))
+			self.DataGrid.SetColSize(2,200)
 			# -- rxd when
-			self.DataGrid.SetCellValue(item_idx, 4, result['lab_rxd_when'].date)
+			self.DataGrid.SetCellValue(item_idx, 3, result['lab_rxd_when'].date)
+			self.DataGrid.SetColSize(3,80)
 			# -- test name
-			self.DataGrid.SetCellValue(item_idx, 5, result['unified_name'])
+			self.DataGrid.SetCellValue(item_idx, 4, result['unified_name'])
+			self.DataGrid.SetColSize(4,100)
 			# -- result including unit
 			# FIXME: what about val_unit empty ?
-			self.DataGrid.SetCellValue(item_idx, 6, '%s %s %s' % (result['unified_val'], result['val_unit'], info))
+			self.DataGrid.SetCellValue(item_idx, 5, '%s %s' % (result['unified_val'], info))
+			self.DataGrid.SetColSize(5,80)
 			# -- normal range
 			if result['val_normal_range'] is None:
-				self.DataGrid.SetCellValue(item_idx, 7, '')
+				self.DataGrid.SetCellValue(item_idx, 6, '')
 			else:
-				self.DataGrid.SetCellValue(item_idx, 7, result['val_normal_range'])
+				self.DataGrid.SetCellValue(item_idx, 6, '%s %s' % (result['val_normal_range'], result['val_unit']))
+			self.DataGrid.SetColSize(6,80)
 			# -- notes from provider 
 			if result['note_provider'] is None:
-				self.DataGrid.SetCellValue(item_idx, 8, '')
+				self.DataGrid.SetCellValue(item_idx, 7, '')
 			else:
-				self.DataGrid.SetCellValue(item_idx, 8, result['note_provider'])
+				self.DataGrid.SetCellValue(item_idx, 7, result['note_provider'])
 			# we need to track the request to be able to identify the request later
 			self.dict_req_unreviewed[item_idx] = result
 
@@ -476,17 +485,12 @@ class cLabJournalNB(wxNotebook):
 	#-----------------------------------
 	# event handlers
 	#------------------------------------------------------------------------
+	def OnLeftSClick(self, event):
+		self.OnSelectCell(event, selector='LSClick')
+		event.Skip()	
+	#------------------------------------------------------------------------
 	def OnLeftDClick(self, event):
-		col = self.DataGrid.GetGridCursorCol()
-		row = self.DataGrid.GetGridCursorRow()
-		if col == 0 or 1:
-			if self.DataGrid.GetCellValue(row,col) == '1':
-				self.DataGrid.SetCellValue(row,col,'0')
-			else:
-				self.DataGrid.SetCellValue(row,col,'1')
-				self.CrosscheckRelevant()
-		else:
-			event.Skip()
+		self.OnSelectCell(event, selector='LDClick')
 		event.Skip()
 	#------------------------------------------------------------------------
 	def CrosscheckRelevant(self):
@@ -495,9 +499,52 @@ class cLabJournalNB(wxNotebook):
 		#	self.DataGrid.SetCellValue(row, col, '1')
 		print "only stub for Crosscheck - please fix"
 	#------------------------------------------------------------------------
-	def OnSelectCell(self,event):
-		print event
-		event.Skip()
+	def OnSelectCell(self,event,selector=None):
+		if selector is None:
+			event.Skip()
+			return None
+		if selector in ['SelKEY','LDClick']: 
+			#print 'key pressed %s' %selector
+			col = self.DataGrid.GetGridCursorCol()
+			row = self.DataGrid.GetGridCursorRow()
+			sel = True
+		if selector in ['LSClick']:
+			#print 'key pressed %s' %selector
+			col = event.GetCol()
+			row = event.GetRow()
+			sel = True
+		if sel:
+			if col == 0 or 1:
+				if self.DataGrid.GetCellValue(row,col) == '1':
+					self.DataGrid.SetCellValue(row,col,'0')
+				else:
+					self.DataGrid.SetCellValue(row,col,'1')
+					self.CrosscheckRelevant()
+			else:
+				event.Skip()
+		pass
+	#-------------------------------------------------------
+	def OnKeyPressed (self, key):
+		"""Is called when a key is pressed."""
+		#key.Skip()
+
+		# user moved down
+		if key.GetKeyCode() == WXK_DOWN:
+			key.Skip()
+			#self.__on_down_arrow(key)
+			return
+		# user moved up
+		if key.GetKeyCode() == WXK_UP:
+			key.Skip()
+			#self.__on_up_arrow(key)
+			return
+
+		# FIXME: need PAGE UP/DOWN//POS1/END here
+			
+		#user pressed <SPACE>
+		if key.GetKeyCode() == WXK_SPACE:
+			self.OnSelectCell(key,selector='SelKEY')
+			return
 	# -------------------------------------------------
 	def on_save_request_ID(self, event):
 		req_id = self.fld_request_id.GetValue()
@@ -570,28 +617,6 @@ class cLabJournalNB(wxNotebook):
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
 		event.Skip()
-	#-------------------------------------------------------
-	def __on_key_pressed (self, key):
-		"""Is called when a key is pressed."""
-		#key.Skip()
-
-		# user moved down
-		if key.GetKeyCode() == WXK_DOWN:
-			key.Skip()
-			#self.__on_down_arrow(key)
-			return
-		# user moved up
-		if key.GetKeyCode() == WXK_UP:
-			key.Skip()
-			#self.__on_up_arrow(key)
-			return
-
-		# FIXME: need PAGE UP/DOWN//POS1/END here
-			
-		#user pressed <SPACE>
-		if key.GetKeyCode() == WXK_SPACE:
-			self.OnItemSelected(key)
-			return
 	#-------------------------------------------------------
 	def on_lab_selected(self,data):
 		if data is None:
@@ -704,7 +729,11 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.24  2004-06-02 00:02:32  ncq
+# Revision 1.25  2004-06-05 11:31:54  shilbert
+# - GUI cleanup as per ncq's request
+# - request reviewed via single-click, double-click, <SPACE> implemented
+#
+# Revision 1.24  2004/06/02 00:02:32  ncq
 # - cleanup, indentation fixes
 #
 # Revision 1.23  2004/05/30 21:19:01  shilbert
