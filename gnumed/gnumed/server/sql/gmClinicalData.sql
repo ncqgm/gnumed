@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.4 2003-04-12 15:43:17 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.5 2003-04-25 13:05:49 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -16,7 +16,7 @@
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
-INSERT INTO _enum_encounter_type (description) values (i18n('surgery consultation'));
+INSERT INTO _enum_encounter_type (description) values (i18n('in surgery'));
 INSERT INTO _enum_encounter_type (description) values (i18n('phone consultation'));
 INSERT INTO _enum_encounter_type (description) values (i18n('fax consultation'));
 INSERT INTO _enum_encounter_type (description) values (i18n('home visit'));
@@ -121,11 +121,14 @@ insert into enum_immunities (name) values ('tetanus');
 -- ===================================================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.4  2003-04-12 15:43:17  ncq
+-- Revision 1.5  2003-04-25 13:05:49  ncq
+-- - adapt to frontend hookup for encounter types
+--
+-- Revision 1.4  2003/04/12 15:43:17  ncq
 -- - adapted to new gmclinical.sql
 --
 -- Revision 1.3  2003/04/09 13:50:29  ncq
