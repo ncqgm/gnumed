@@ -30,11 +30,11 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
-import string, copy, os, sys, select, threading
+import string, copy, os, sys, select, threading, time
 #gnumed specific modules
 import gmI18N, gmLog, gmLoginInfo, gmExceptions, gmBackendListener
 _log = gmLog.gmDefLog
@@ -87,9 +87,6 @@ class ConnectionPool:
 	
 	#variable used to check whether a first connection has been initialized yet or not  yet
 	__connected = None
-	
-	#a dictionary mapping notification requests to physical databases
-	__listeners = {}
 	
 	#a dictionary mapping all backend listening threads to database id
 	__threads = {}
@@ -156,15 +153,8 @@ class ConnectionPool:
 		### since we need only one listening thread per database
 		if id not in ConnectionPool.__threads.keys():
 			ConnectionPool.__threads[id] = self._StartListeningThread(service);
-		try:
-			signals = ConnectionPool.__listeners[id]
-		except KeyError:
-			signals = []
-		### no point in listening more than once per signal
-		### (backend would rejecy the request anyway)
-		if signal not in signals:
-			self._ListenTo(service, signal, callback)
-			ConnectionPool.__listeners[id].append(signal)
+		self._ListenTo(service, signal, callback)
+	
 	
 	#-----------------------------
 	
@@ -185,12 +175,15 @@ class ConnectionPool:
 			backend=0
 		l = self.GetLoginInfoFor(service)
 		if backend not in self.__threads.keys():
-			self.__threads[backend] = gmBackendListener.BackendListener(l.GetDatabase(), \
-			l.GetUser(), l.GetPassword(), l.GetHost(), l.GetPort())
+			backend = gmBackendListener.BackendListener(service, l.GetDatabase(), l.GetUser(), l.GetPassword(), l.GetHost(), l.GetPort())
+			return backend
 	
 		
 	def StopListeningThread(self, service):
-		backend = self.__service_mapping[service]	
+		try:
+			backend = self.__service_mapping[service]	
+		except KeyError:
+			backend = 0
 		try:
 			self.__threads[backend].Stop()
 		except:
@@ -601,9 +594,12 @@ if __name__ == "__main__":
 		print "Backend notification received!"
 		
 	print "\n-------------------------------------"
-	print "Testing asynchronous notification"
-	print "start psql, and type 'notify test;'"
+	print "Testing asynchronous notification for approx. 20 seconds"
+	print "start psql in another window connect to gnumed"
+	print "and type 'notify test'; if everything works,"
+	print "a message [Backend notification received!] should appear\n"
 	dbpool.Listen('config', 'test', TestCallback)
-	sleep(10)	
+	time.sleep(20)	
+	dbpool.StopListeningThread('config')	
 	print "Requesting write access connection:"
 	con = dbpool.GetConnection('config', readonly=0)

@@ -5,7 +5,6 @@ import gmDispatcher
 
 class BackendListener:
 	def __init__(self, service, database, user, password, host='localhost', port=5432, poll_interval = 3):
-		self._cnx = self.Connect(database, user, password, host, port)
 		#when self._quit is true, the thread is stopped
 		self._quit=0
 		#remeber what signals we are listening for; no need to listen twice to the same signal
@@ -16,13 +15,14 @@ class BackendListener:
 		self._poll_interval = poll_interval
 		#is the thread runnning already?
 		self._thread_running=0
-		#start the listening thread
-		#self.ListeningThread()
+		#connect to the backend
+		self._cnx = self.Connect(database, user, password, host, port)
 		
-	def __del__(self):
-		self.__quit=1
+		
+	#def __del__(self):
+	#	self.__quit=1
 		#give the thread time to terminate
-		time.sleep(self._poll_interval+2)
+	#	time.sleep(self._poll_interval+2)
 
 				
 	def Stop(self):
@@ -32,7 +32,9 @@ class BackendListener:
 	def Connect(self, database, user, password, host='localhost', port=5432):
 		cnx=None
 		try:
-			cnx = libpq.PQconnectdb('dbname=%s user=%s password=%s host=%s port=%d' % (database, user, password, host, port))
+			constr="dbname='%s' user='%s' password='%s' host='%s' port=%d" % (database, user, password, host, port)
+			#print constr
+			cnx = libpq.PQconnectdb(constr)
 		except libpq.Error, msg:
 			print "Connection to database '%s' failed" % database
 			print msg
