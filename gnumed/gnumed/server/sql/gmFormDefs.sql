@@ -5,24 +5,24 @@
 -- author: Ian Haywood <>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmFormDefs.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 
 -- Note: this is office related while gmFormData.sql is clinical content
-
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- ===================================================
 create table papersizes (
-	id serial primary key,
-	name varchar (10),
-	size point
+	pk serial primary key,
+	name text unique not null,
+	size point not null
 );
 
 comment on column papersizes.size is '(cm, cm)';
 
 -- paper sizes taken from the GhostScript man pages
+-- FIXME: move to some *-data.sql script
 insert into papersizes (name, size) values ('A0', '(83.9611, 118.816)');
 insert into papersizes (name, size) values ('A1', '(59.4078, 83.9611)');
 insert into papersizes (name, size) values ('A2', '(41.9806, 59.4078)');
@@ -57,53 +57,79 @@ insert into papersizes (name, size) values ('ledger', '(43.18, 27.94)');
 -- ===================================================
 -- form templates
 -- ===================================================
-create table form_types (
-	id serial primary key,
+create table form_defs (
+	pk serial primary key,
 	name_short text not null,
 	name_long text not null,
-	version text not null,
-	in_use bool not null default true,
-	deprecated date,
+	revision text not null,
 	template text,
-	electronic bool not null default false,
 	engine char default 'T' not null check (engine in ('T', 'L')),
+	in_use boolean not null default true,
+	electronic boolean not null default false,
 	flags varchar (100) [],
-	unique(name_short, name_long, version)
+	unique (name_short, name_long),
+	unique (name_long, revision)
 ) inherits (audit_fields);
 
-select add_table_for_audit('form_types');
+select add_table_for_audit('form_defs');
 
-comment on table form_types is
-	'metadata on forms';
-
-comment on column form_types.engine is
-'the business layer forms engine class to use for this form.
-Currently only T=plain text, and L=LaTeX are defined';
+comment on table form_defs is
+	'form definitions';
+comment on column form_defs.name_short is
+	'a short name for use in a GUI or some such';
+comment on column form_defs.name_long is
+	'a long name unambigously describing the form';
+comment on column form_defs.revision is
+	'GnuMed internal form def version, may
+	 occur if we rolled out a faulty form def';
+comment on column form_defs.template is
+	'the template complete with placeholders in
+	 the format accepted by the engine defined in
+	 form_defs.engine';
+comment on column form_defs.engine is
+	'the business layer forms engine used
+	 to process this form, currently:
+	 - T: plain text
+	 - L: LaTeX';
+comment on column form_defs.in_use is
+	'whether this template is currently actively
+	 used in a given practice';
+comment on column form_defs.electronic is
+	'?: Ian';
+comment on column form_defs.flags is
+	'?: Ian';
 
 -- ===================================================
-create lnk_form2discipline (
-	id_form integer references form_types (id),
+create table lnk_form2discipline (
+	pk serial primary key,
+	fk_form integer references form_defs(pk),
 	discipline text
 );
 
 comment on table lnk_form2discipline is
-'the discipline which uses this form. This maps to
-gmDemographics.occupation for indivuduals, gmDemographics.category for organisations';
+	'the discipline which uses this form. This maps to
+	 gmDemographics.occupation for individuals,
+	 gmDemographics.category for organisations';
 
 -- ===================================================
 create table form_print_defs (
-	id serial primary key,
-	id_papersize integer references papersizes (id),
-
-	offset_top integer,
-	offset_left integer,
-	pages integer,
-	printer varchar(20),
-	tray varchar(10),
-	manual_feed bool,
-	papertype varchar(30),
-	eject_direction character(1),
-	orientation character(1)
+	pk serial primary key,
+	fk_form integer
+		unique
+		not null
+		references form_defs(pk),
+	fk_papersize integer
+		not null
+		references papersizes (pk),
+	offset_top integer not null default 0,
+	offset_left integer not null default 0,
+	pages integer not null default 1,
+	printer text not null,
+	tray text not null,
+	manual_feed bool not null default false,
+	papertype text not null,
+	eject_direction character(1) not null,
+	orientation character(1) not null
 );
 
 comment on column form_print_defs.offset_top is
@@ -112,76 +138,21 @@ comment on column form_print_defs.offset_top is
 comment on column form_print_defs.papertype is
 	'type of paper such as "watermarked rose", mainly for user interaction on manual_feed==true';
 
--- ===================================================
-create table form_field_queries (
-	id serial primary key,
-	name varchar (50),
-	service varchar (25),
-	query varchar (300)
-);
-
-comment on table form_field_queries is
-	'SQL queries used to fill form fields';
-comment on column form_field_queries.name is
-	'name of query to identify to user';
-comment on column form_field_queries.service is
-	'the service on which to execute the query';
-comment on column form_field_queries.query is
-	'The SQL SELECT statement to execute. Variables to be substituted take
-	the form of named string formatters such as ''%(identity.id)s'' (table.field).';
-
-insert into form_field_queries (name, service, query) values (
-	'patient_full_name', 'gmidentity', 'select firstnames || '' '' || lastnames from names where active and id_identity = ''%(identity.id)s'' limit 1;');
-insert into form_field_queries (name, service, query) values (
-	'patient_dob', 'gmidentity', 'select dob from identity where id = ''%(identity.id)s'';');
-insert into form_field_queries (name, service, query) values (
-	'patient_age', 'gmidentity', 'select age (dob) from identity where id = ''%(identity.id)s'';');
-insert into form_field_queries (name, service, query) values (
-	'patient_address', 'gmgis', 'select from v_home_address where id = ''%(identity.id)s'';');
-
--- ===================================================
-create table form_fields (
-	id serial primary key,
-	id_form integer references form_types (id),
-	id_query integer references form_field_queries (id),
-
-	font varchar(10),
-	pitch integer check (pitch > 7 and pitch < 50),
-	page integer,
-	dimensions box,
-	lines integer,
-	is_used bool,
-	is_visible bool,
-	is_stored bool,
-	is_editable bool
-);
-
-comment on column form_fields.lines is
-	'the number of lines that will fit into this field';
-comment on column form_fields.is_used is
-	'whether this field is printed/transmitted on/with the form';
-comment on column form_fields.is_visible is
-	'whether this field is visible on screen when filling in this form';
-comment on column form_fields.is_stored is
-	'whether values in this field will get stored when creating a form instance';
-comment on column form_fields.is_editable is
-	'whether values in this field can be edited before use of the form;
-	if not they probably do not need to be stored either';
-
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
--- * do we need "form_types.iso_countrycode" ?
+-- * do we need "form_defs.iso_countrycode" ?
 -- * good/bad decision to use point/box PG data type ?
--- * do we need "form_types.in_use_since date" ?
--- * "form_types.in_use/deprecated" are sort of redundant
 
 -- =============================================
 -- $Log: gmFormDefs.sql,v $
--- Revision 1.6  2004-03-07 22:42:08  ncq
+-- Revision 1.7  2004-03-08 17:04:23  ncq
+-- - rewritten after discussion with Ian
+--
+-- Revision 1.6  2004/03/07 22:42:08  ncq
 -- - just some cleanup
 --
 -- Revision 1.5  2004/03/07 13:19:18  ihaywood
