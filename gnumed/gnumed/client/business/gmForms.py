@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.18 2004-05-28 13:13:15 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmForms.py,v 1.19 2004-06-05 12:41:39 ihaywood Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -39,7 +39,7 @@ class gmFormEngine:
 		self.flags = flags
 		self.pk_def = pk_def
 
-	def process (self, params):
+	def process (self, params, escape='@'):
 		"""Merge values into the form template.
 
 		Accept a template [format specific to the engine] and
@@ -121,10 +121,14 @@ class TextForm (gmFormEngine):
 	which are marked using an escape character.
 
 	The fields are a dictionary of strings or string lists
-	If lists, the lines containing these list fields are repeated until one
+	If lists, the lines containing these fields are repeated until one
 	of the lists is exhausted.
 	"""
 	def __subst (self, match):
+		"""
+		Perform a substitution on the string using a parameters dictionary,
+		returns the subsitution
+		"""
 		try:
 			is_list = (type(self.params[match]) is types.ListType)
 		except KeyError:
@@ -180,7 +184,9 @@ class LaTeXForm (TextForm):
 	"""
 	def __texify (self, item):
 		"""
-		Convience function to escape strings for TeX output
+		Convience function to escape ISO-Latin-1 strings for TeX output
+		WARNING: not all ISO-Latin-1 characters are expressible in TeX
+		FIXME: nevertheless, there are a few more we could support
 		"""
 
 		if type (item) is types.StringType or type (item) is types.UnicodeType:
@@ -230,11 +236,12 @@ class LaTeXForm (TextForm):
 		except EnvironmentError, e:
 			_log.Log (gmLog.lErr, '' % e.strerror)
 			raise gmExceptions.InvalidInputError ('Form printing failed because [%s]' % e.strerror)
-		return 1
+		return file ("texput.ps")
 
 	def xdvi (self):
 		"""
-		For testing purposes
+		For testing purposes, runs Xdvi on the intermediate TeX output
+		WARNING: don't try this on Windows
 		"""
 		os.system ("xdvi texput.dvi")
 		
@@ -249,6 +256,9 @@ class LaTeXForm (TextForm):
 		return True
 
 	def cleanup (self):
+		"""
+		Delete all the LaTeX output iles
+		"""
 		for i in os.listdir ('.'):
 			os.unlink (i)
 		os.chdir (self.oldcwd)
@@ -260,6 +270,7 @@ class LaTeXForm (TextForm):
 def search_form (discipline = None, electronic=0):
 	"""
 	Searches for available forms given the discipline and electronicity
+	(i.e whether the output is  for printing or direct electronic transmission by whatever secure protocol)
 	"""
 
 	cmd = "select name_short, name_long, version, id from form_types, lnk_form2discipline where id_form = id and discipline like %%s and %s electronic" % (electronic or 'not') and ''
@@ -348,7 +359,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.18  2004-05-28 13:13:15  ncq
+# Revision 1.19  2004-06-05 12:41:39  ihaywood
+# some more comments for gmForms.py
+# minor change to gmReferral.py: print last so bugs don't waste toner ;-)
+#
+# Revision 1.18  2004/05/28 13:13:15  ncq
 # - move currval() inside transaction in gmForm.store()
 #
 # Revision 1.17  2004/05/27 13:40:21  ihaywood

@@ -76,9 +76,6 @@ def create_referral (patient, recipient, channel, addr, text, flags = {}):
         command.replace ("%S", params['SENDERADDRESS']) # substitute senders email address
     form = gmForms.get_form (form_name)
     form.process (params)
-    if not form.exe (command):
-        return False
-    form.cleanup ()
     pool = gmPG.ConnectionPool ()
     conn = pool.GetConnection ('historica', readonly = 0)
     curs = conn.cursor ()
@@ -88,7 +85,6 @@ def create_referral (patient, recipient, channel, addr, text, flags = {}):
             curs.close ()
             conn.commit ()
             conn.close ()
-            return True
         else:
             conn.rollback ()
             conn.close ()
@@ -97,5 +93,9 @@ def create_referral (patient, recipient, channel, addr, text, flags = {}):
         conn.rollback ()
         conn.close ()
         return False
+    if not form.exe (command):
+        return False
+    form.cleanup ()
+    return True
 
                 
