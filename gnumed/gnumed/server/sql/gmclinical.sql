@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.32 $
+-- $Revision: 1.33 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -261,7 +261,7 @@ comment on column allergy.id_comment is
 
 create rule r_announce_new_allergy as
 	on insert to allergy do
-		notify "new_allergy";
+		notify "allergy_new";
 
 -- ===================================================================
 -- -------------------------------------------------------------------
@@ -499,11 +499,15 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.32 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.33 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.32  2003-04-29 12:38:32  ncq
+-- Revision 1.33  2003-04-30 23:30:29  ncq
+-- - v_i18n_patient_allergies
+-- - new_allergy -> allergy_new
+--
+-- Revision 1.32  2003/04/29 12:38:32  ncq
 -- - add not null to referencing constraints in episode/transactions
 --
 -- Revision 1.31  2003/04/28 21:40:40  ncq

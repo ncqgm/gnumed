@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.3 2003-04-29 12:34:54 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.4 2003-04-30 23:30:29 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -13,37 +13,6 @@
 
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
-
--- ==========================================================
-\unset ON_ERROR_STOP
-drop view v_i18n_allergy;
-\set ON_ERROR_STOP 1
-
-create view v_i18n_allergy as
-select
-	a.id as id,
-	cn.id_patient as id_patient,
-	a.id_clin_transaction as id_clin_transaction,
-	a.substance as substance,
-	a.id_substance as id_substance,
-	a.generics as generics,
-	a.allergene as allergene,
-	a.atc_code as atc_code,
-	a.reaction as reaction,
-	a.generic_specific as generic_specific,
-	a.definate as definate,
-	a.had_hypo as had_hypo,
-	_(at.value) as type,
-	cn.value as "comment"
-from
-	allergy a, _enum_allergy_type at, clin_narrative cn
-where
-	cn.src_table='allergy'
-		and
-	cn.id=a.id_comment
---		and
---	a.id_type=at.id
-;
 
 -- =============================================
 \unset ON_ERROR_STOP
@@ -75,27 +44,62 @@ where
 	vpep.id_episode = tx.id_episode
 ;
 
+-- ==========================================================
+\unset ON_ERROR_STOP
+drop view v_i18n_patient_allergies;
+\set ON_ERROR_STOP 1
+
+create view v_i18n_patient_allergies as
+select
+	a.id as id,
+	vpt.id_patient as id_patient,
+	a.id_clin_transaction as id_clin_transaction,
+	a.substance as substance,
+	a.id_substance as id_substance,
+	a.generics as generics,
+	a.allergene as allergene,
+	a.atc_code as atc_code,
+	a.reaction as reaction,
+	a.generic_specific as generic_specific,
+	a.definate as definate,
+	a.had_hypo as had_hypo,
+	_(at.value) as type,
+	cn.value as "comment"
+from
+	allergy a, _enum_allergy_type at, clin_narrative cn, v_patient_transactions vpt
+where
+	cn.src_table='allergy'
+		and
+	cn.id=a.id_comment
+		and
+	vpt.id_transaction=a.id_clin_transaction
+;
+
 -- =============================================
 GRANT SELECT ON
-	"v_i18n_allergy",
 	"v_patient_episodes",
-	"v_patient_transactions"
+	"v_patient_transactions",
+	"v_i18n_patient_allergies"
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
-	"v_i18n_allergy",
 	"v_patient_episodes",
-	"v_patient_transactions"
+	"v_patient_transactions",
+	"v_i18n_patient_allergies"
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.3  2003-04-29 12:34:54  ncq
+-- Revision 1.4  2003-04-30 23:30:29  ncq
+-- - v_i18n_patient_allergies
+-- - new_allergy -> allergy_new
+--
+-- Revision 1.3  2003/04/29 12:34:54  ncq
 -- - added more views + grants
 --
 -- Revision 1.2  2003/04/28 21:39:49  ncq
