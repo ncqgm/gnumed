@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.119 2004-06-15 19:08:15 ncq Exp $
-__version__ = "$Revision: 1.119 $"
+# $Id: gmClinicalRecord.py,v 1.120 2004-06-17 21:30:53 ncq Exp $
+__version__ = "$Revision: 1.120 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -546,7 +546,6 @@ class cClinicalRecord:
 		try:
 			self.__db_cache['allergies']
 		except KeyError:
-			# FIXME: date range, test filter
 			# FIXME: check allergy_state first, then cross-check with select exists(... from allergy)
 			self.__db_cache['allergies'] = []
 			cmd = "select id from v_pat_allergies where id_patient=%s"
@@ -565,13 +564,22 @@ class cClinicalRecord:
 					del self.__db_cache['allergies']
 					return None
 
-		if remove_sensitivities is None and issues is None and episodes is None and encounters is None:
+		if remove_sensitivities is None \
+				and since is None \
+				and until is None \
+				and issues is None \
+				and episodes is None \
+				and encounters is None:
 			return self.__db_cache['allergies']
 		# ok, lets's constrain our list
 		filtered_allergies = []
 		filtered_allergies.extend(self.__db_cache['allergies'])
 		if remove_sensitivities is not None:
 			filtered_allergies = filter(lambda allg: allg['type'] == 'allergy', filtered_allergies)
+		if since is not None:
+			filtered_allergies = filter(lambda allg: allg['date'] >= since, filtered_allergies)
+		if until is not None:
+			filtered_allergies = filter(lambda allg: allg['date'] < until, filtered_allergies)
 		if issues is not None:
 			filtered_allergies = filter(lambda allg: allg['id_health_issue'] in issues, filtered_allergies)
 		if episodes is not None:
@@ -875,7 +883,6 @@ class cClinicalRecord:
 			self.__db_cache['vaccinations'] = []
 			# FIXME: bulk loader
 			# get list of IDs
-			# FIXME: date range, test filter
 			cmd = "select id from vaccination where fk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
@@ -899,13 +906,17 @@ class cClinicalRecord:
 				return None
 			else:
 				return filtered_shots[0]
+		if since is not None:
+			filtered_shots = filter(lambda shot: shot['date'] >= since, filtered_shots)
+		if until is not None:
+			filtered_shots = filter(lambda shot: shot['date'] < until, filtered_shots)
 		if issues is not None:
 			filtered_shots = filter(lambda shot: shot['id_health_issue'] in issues, filtered_shots)
 		if episodes is not None:
 			filtered_shots = filter(lambda shot: shot['id_episode'] in episodes, filtered_shots)
  		if encounters is not None:
 			filtered_shots = filter(lambda shot: shot['id_encounter'] in encounters, filtered_shots)
-		if indications is not None and len(indications) > 0:
+		if indications is not None:
 			filtered_shots = filter(lambda shot: shot['indication'] in indications, filtered_shots)
 		return (filtered_shots)
 	#--------------------------------------------------------
@@ -1141,7 +1152,6 @@ class cClinicalRecord:
 		except KeyError:
 			pass
 		self.__db_cache['lab results'] = []
-		# FIXME: date range, test filter
 		if limit is None:
 			lim = ''
 		else:
@@ -1165,12 +1175,16 @@ class cClinicalRecord:
 		# ok, lets's constrain our list
 		filtered_lab_results = []
 		filtered_lab_results.extend(self.__db_cache['lab results'])
+		if since is not None:
+			filtered_lab_results = filter(lambda lres: lres['req_when'] >= since, filtered_lab_results)
+		if until is not None:
+			filtered_lab_results = filter(lambda lres: lres['req_when'] < until, filtered_lab_results)
  		if issues is not None:
-			filtered_lab_results = filter(lambda lres: lres['id_health_issue'] in issues, filtered_lab_results)
+			filtered_lab_results = filter(lambda lres: lres['pk_health_issue'] in issues, filtered_lab_results)
 		if episodes is not None:
-			filtered_lab_results = filter(lambda lres: lres['id_episode'] in episodes, filtered_lab_results)
+			filtered_lab_results = filter(lambda lres: lres['pk_episode'] in episodes, filtered_lab_results)
 		if encounters is not None:
-			filtered_lab_results = filter(lambda lres: lres['id_encounter'] in encounters, filtered_lab_results)
+			filtered_lab_results = filter(lambda lres: lres['pk_encounter'] in encounters, filtered_lab_results)
 		return filtered_lab_results
 	#------------------------------------------------------------------
 	def get_lab_request(self, pk=None, req_id=None, lab=None):
@@ -1276,7 +1290,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.119  2004-06-15 19:08:15  ncq
+# Revision 1.120  2004-06-17 21:30:53  ncq
+# - time range constraints in get()ters, by Carlos
+#
+# Revision 1.119  2004/06/15 19:08:15  ncq
 # - self._backend -> self._conn_pool
 # - remove instance level self._ro_conn_clin
 # - cleanup
