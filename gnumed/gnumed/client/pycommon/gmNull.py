@@ -42,7 +42,7 @@ July 2004
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmNull.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Dinu C. Gherman"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -61,8 +61,7 @@ class cNull:
 	on the environment and, hence, these special methods are not
 	provided here.
 	"""
-
-	_warn = False
+	_warn = 0
 
 	# object constructing
 	
@@ -129,7 +128,7 @@ def test():
 
 	n = cNull()
 	n = cNull('value')
-	n = cNull('value', param='value', warn=True)
+	n = cNull('value', param='value', warn=1)
 
 	n()
 	n('value')
@@ -169,7 +168,10 @@ if __name__ == '__main__':
 
 #==============================================================
 # $Log: gmNull.py,v $
-# Revision 1.3  2004-08-20 08:38:47  ncq
+# Revision 1.4  2004-11-24 15:49:11  ncq
+# - use 0/1 not False/True so we can run on older pythons
+#
+# Revision 1.3  2004/08/20 08:38:47  ncq
 # - robustify while working on allowing inactive patient after search
 #
 # Revision 1.2  2004/07/21 07:51:47  ncq
