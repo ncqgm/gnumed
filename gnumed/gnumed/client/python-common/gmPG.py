@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.74 $"
+__version__ = "$Revision: 1.75 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -497,25 +497,21 @@ def fieldNames(cursor):
 def listDatabases(service='default'):
 	"""list all accessible databases on the database backend of the specified service"""
 	assert(__backend == 'Postgres')
-	data, = run_ro_query(service, "select * from pg_database", None)
-	return data
+	return run_ro_query(service, "select * from pg_database")
 #---------------------------------------------------
 def listUserTables(service='default'):
 	"""list the tables except all system tables of the specified service"""
 	assert(__backend == 'Postgres')
-	data, = run_ro_query(service, "select * from pg_tables where tablename not like 'pg_%'", None)
-	return data
+	return run_ro_query(service, "select * from pg_tables where tablename not like 'pg_%'")
 #---------------------------------------------------
 def listSystemTables(service='default'):
 	"""list the system tables of the specified service"""
 	assert(__backend == 'Postgres')
-	data, = run_ro_query(service, "select * from pg_tables where tablename like 'pg_%'", None)
-	return data
+	return run_ro_query(service, "select * from pg_tables where tablename like 'pg_%'")
 #---------------------------------------------------
 def listTables(service='default'):
 	"""list all tables available in the specified service"""
-	data, = run_ro_query(service, "select * from pg_tables", None)
-	return data
+	return run_ro_query(service, "select * from pg_tables")
 #---------------------------------------------------
 def _import_listener_engine():
 	try:
@@ -571,17 +567,26 @@ def run_ro_query(aService = None, aQuery = None, get_col_idx = None, *args):
 	# sanity checks
 	if aService is None:
 		_log.Log(gmLog.lErr, 'need service name to run query')
-		return None, None
+		if get_col_idx is None:
+			return None
+		else:
+			return None, None
 	if aQuery is None:
 		_log.Log(gmLog.lErr, 'need query to run it')
-		return None, None
+		if get_col_idx is None:
+			return None
+		else:
+			return None, None
 
 	# connect read only
 	pool = ConnectionPool()
 	conn = pool.GetConnection(aService, readonly = 1)
 	if conn is None:
 		_log.Log(gmLog.lErr, 'cannot get connection to service [%s]' % aService)
-		return None, None
+		if get_col_idx is None:
+			return None
+		else:
+			return None, None
 	curs = conn.cursor()
 
 	# run the query
@@ -591,19 +596,22 @@ def run_ro_query(aService = None, aQuery = None, get_col_idx = None, *args):
 		curs.close()
 		pool.ReleaseConnection(aService)
 		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on service [%s]" % (aQuery, args, aService), sys.exc_info(), verbose = _query_logging_verbosity)
-		return None
+		if get_col_idx is None:
+			return None
+		else:
+			return None, None
 
 	# and return the data, possibly including the column index
 	data = curs.fetchall()
-	if get_col_idx is None:
+	if get_col_idx is not None:
 		col_idx = get_col_indices(curs)
-	else:
-		col_idx = None
 	curs.close
 	pool.ReleaseConnection(aService)
-	return data, col_idx
+	if get_col_idx is None:
+		return data
+	else:
+		return data, col_idx
 #---------------------------------------------------
->>>>>>> 1.72
 def get_col_indices(aCursor = None):
 	# sanity checks
 	if aCursor is None:
@@ -855,7 +863,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.74  2003-09-23 06:43:45  ihaywood
+# Revision 1.75  2003-09-23 11:30:32  ncq
+# - make run_ro_query return either a tuple or just the data depending on
+#   the value of get_col_idx as per Ian's suggestion
+#
+# Revision 1.74  2003/09/23 06:43:45  ihaywood
 # merging changes
 #
 # Revision 1.73  2003/09/23 06:41:27  ihaywood
