@@ -171,16 +171,17 @@
 		<actions>
 			<create auto="true">true</create>
 		</actions>
+	</view>	
 	<view>
-		<style>tabbed<style>
+		<style>tabbed</style>
 		<defaultView>
 			<style>formAndList</style>
 			<orientation>horizontal</orientation>
-			<formColumns="1"/>
+			<formColumns>1</formColumns>
 			<actions basic="true"/>
 		</defaultView>	
 			
-		<views>
+		<tabs>
 			<view>
 				<data>MedicalRecord.Demographic</data>
 				<style>form</style>
@@ -200,7 +201,7 @@
 					<style>Panel</style>
 					<data>MedicalRecord.Examination</data>
 					<actions>
-						<create auto="true">true</edit>
+						<create auto="true">true</create>
 					</actions>
 				</view>
 			</view>	
@@ -208,10 +209,12 @@
 				<style>default</style>
 				<data>MedicalRecord.Clinical.Problem</data>
 			</view>	
+
 			<view>
 				<style>default</style>
 				<data>MedicalRecord.Clinical.PastHistory</data>
 			</view>	
+
 			<view>
 				<style>default</style>
 				<data>MedicalRecord.Clinical.Medication</data>
@@ -225,8 +228,9 @@
 				<style>default</style>
 				<data>MedicalRecord.Clinical.Immunization</data>
 			</view>
-		</views>	
+		</tabs>
 	</view>	
+
 			
 </view>
 
