@@ -402,9 +402,9 @@ class gmConfigEditorPanel(wxPanel):
 		if not (self.currUser is None) :
 			self.mConfSources['DB:CURRENT_USER_DEFAULT_MACHINE'] = ConfigSourceDB('DB:CURRENT_USER_DEFAULT_MACHINE')
 		if not (self.currMachine is None) :
-			self.mConfSources['DB:DEFAULT_USER_CURRENT_MACHINE'] = ConfigSourceDB('DB:DEFAULT_USER_CURRENT_MACHINE',aUser='__default__',aMachine=self.currMachine)
+			self.mConfSources['DB:DEFAULT_USER_CURRENT_MACHINE'] = ConfigSourceDB('DB:DEFAULT_USER_CURRENT_MACHINE',aUser='xxxDEFAULTxxx',aMachine=self.currMachine)
 		# this should always work
-		self.mConfSources['DB:DEFAULT_USER_DEFAULT_MACHINE'] = ConfigSourceDB('DB:DEFAULT_USER_DEFAULT_MACHINE',aUser='__default__')
+		self.mConfSources['DB:DEFAULT_USER_DEFAULT_MACHINE'] = ConfigSourceDB('DB:DEFAULT_USER_DEFAULT_MACHINE',aUser='xxxDEFAULTxxx')
 		
 # main sizers
 		self.mainSizer = wxBoxSizer(wxHORIZONTAL)
@@ -538,7 +538,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.11  2003-12-29 16:59:42  uid66147
+# Revision 1.12  2004-01-06 23:44:40  ncq
+# - __default__ -> xxxDEFAULTxxx
+#
+# Revision 1.11  2003/12/29 16:59:42  uid66147
 # - whoami adjustment
 #
 # Revision 1.10  2003/11/17 10:56:39  sjtan

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.79 $
+-- $Revision: 1.80 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -15,7 +15,7 @@
 create table clin_health_issue (
 	id serial primary key,
 	id_patient integer not null,
-	description varchar(128) default '__default__',
+	description varchar(128) default 'xxxDEFAULTxxx',
 	unique (id_patient, description)
 ) inherits (audit_fields);
 
@@ -35,7 +35,7 @@ comment on column clin_health_issue.description is
 create table clin_episode (
 	id serial primary key,
 	id_health_issue integer not null references clin_health_issue(id),
-	description varchar(128) default '__default__',
+	description varchar(128) default 'xxxDEFAULTxxx',
 	unique (id_health_issue, description)
 ) inherits (audit_fields);
 
@@ -47,7 +47,7 @@ comment on column clin_episode.id_health_issue is
 	'health issue this episode is part of';
 comment on column clin_episode.description is
 	'descriptive name of this episode, may change over time; if
-	 "__default__" applications should display the most recently
+	 "xxxDEFAULTxxx" applications should display the most recently
 	 associated diagnosis/month/year plus some marker for "default"';
 
 -- unique names (descriptions) for episodes per health issue (e.g. per patient),
@@ -110,7 +110,7 @@ comment on COLUMN clin_encounter.fk_type is
 	'ID of type of this encounter';
 comment on column clin_encounter.description is
 	'descriptive name of this encounter, may change over time; if
-	 "__default__" applications should display "<date> (<provider>)"
+	 "xxxDEFAULTxxx" applications should display "<date> (<provider>)"
 	 plus some marker for "default"';
 
 -- about the only reason for this table to exist is the id_type
@@ -788,11 +788,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.79 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.80 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.79  2004-01-05 00:48:02  ncq
+-- Revision 1.80  2004-01-06 23:44:40  ncq
+-- - __default__ -> xxxDEFAULTxxx
+--
+-- Revision 1.79  2004/01/05 00:48:02  ncq
 -- - clin_encounter.comment now text instead of varchar
 --
 -- Revision 1.78  2003/12/29 15:48:27  uid66147

@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1045,8 +1045,8 @@ class gmService:
 			# bootstrapping, however, is done by gm-dbowner,
 			# so, actually, this should not be done here but rather moved
 			# over to the generic configuration tables and be done for the
-			# __default__ user, upon client startup if not "user" config exists
-			# the __default__ config will be read, confirmed by the current user
+			# xxxDEFAULTxxx user, upon client startup if not "user" config exists
+			# the xxxDEFAULTxxx config will be read, confirmed by the current user
 			# and stored for her ...
 			cmd = "INSERT INTO config (username,db,ddb) VALUES ('%s',%s,'%s')" % ('',dbID,ddbID)
 			try:
@@ -1305,7 +1305,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.43  2004-01-05 01:36:42  ncq
+# Revision 1.44  2004-01-06 23:44:40  ncq
+# - __default__ -> xxxDEFAULTxxx
+#
+# Revision 1.43  2004/01/05 01:36:42  ncq
 # - "commit, create db, begin" is the correct sequence, don't start with an extra begin
 #
 # Revision 1.42  2004/01/05 00:56:12  ncq

@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.27 $
+-- $Revision: 1.28 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -156,7 +156,7 @@ create table cfg_template (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(80) NOT NULL DEFAULT 'must set this !',
 	type VARCHAR (20) references cfg_type_enum (name),
-	cfg_group VARCHAR (20) not null default '__default__',
+	cfg_group VARCHAR (20) not null default 'xxxDEFAULTxxx',
 	description TEXT NOT NULL DEFAULT 'programmer is an avid Camel Book Reader'
 );
 
@@ -176,8 +176,8 @@ create table cfg_item (
 	id SERIAL PRIMARY KEY,
 	id_template INTEGER REFERENCES cfg_template (id),
 	owner name not null default CURRENT_USER,
-	machine VARCHAR (40) not null default '__default__',
-	cookie VARCHAR (40) not null default '__default__'
+	machine VARCHAR (40) not null default 'xxxDEFAULTxxx',
+	cookie VARCHAR (40) not null default 'xxxDEFAULTxxx'
 );
 
 comment on table cfg_item is
@@ -234,11 +234,14 @@ GRANT select, insert, update, delete on
 to group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.27 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.28 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.27  2003-10-27 13:54:05  ncq
+-- Revision 1.28  2004-01-06 23:44:40  ncq
+-- - __default__ -> xxxDEFAULTxxx
+--
+-- Revision 1.27  2003/10/27 13:54:05  ncq
 -- - cleanup
 --
 -- Revision 1.26  2003/10/26 23:02:22  hinnef

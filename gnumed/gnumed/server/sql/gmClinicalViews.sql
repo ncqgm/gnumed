@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.38 2003-12-29 15:31:53 uid66147 Exp $
+-- $Id: gmClinicalViews.sql,v 1.39 2004-01-06 23:44:40 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -68,7 +68,7 @@ drop index idx_uniq_def_encounter;
 -- seems to fail on 7.1 so make it optional
 create unique index idx_uniq_def_encounter
                  on clin_encounter(fk_patient)
-              where description = '__default__';
+              where description = 'xxxDEFAULTxxx';
 \set ON_ERROR_STOP 1
 
 -- =============================================
@@ -571,11 +571,14 @@ TO GROUP "gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.38 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.39 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.38  2003-12-29 15:31:53  uid66147
+-- Revision 1.39  2004-01-06 23:44:40  ncq
+-- - __default__ -> xxxDEFAULTxxx
+--
+-- Revision 1.38  2003/12/29 15:31:53  uid66147
 -- - rebuild v_vacc_regimes/v_patient_vaccinations/v_pat_due|overdue_vaccs due
 --   to vaccination/vacc_def link normalization
 -- - grants

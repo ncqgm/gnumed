@@ -1,5 +1,5 @@
 #===================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 
@@ -55,7 +55,7 @@ class cWhoAmI(gmBorg.cBorg):
 		except AttributeError:
 			pass
 
-		self._workplace = '__default__'
+		self._workplace = 'xxxDEFAULTxxx'
 		if _cfg is None:
 			print _('No config file to read workplace name from !')
 		else:
@@ -105,7 +105,10 @@ if __name__ == '__main__':
 	print "staff name:", whoami.get_staff_name()
 #===================================================
 # $Log: gmWhoAmI.py,v $
-# Revision 1.3  2003-12-29 16:37:03  uid66147
+# Revision 1.4  2004-01-06 23:44:40  ncq
+# - __default__ -> xxxDEFAULTxxx
+#
+# Revision 1.3  2003/12/29 16:37:03  uid66147
 # - whoami class is now a borg which automatically handles shared state
 # - more precise naming of API
 # - remove setUser/Machine

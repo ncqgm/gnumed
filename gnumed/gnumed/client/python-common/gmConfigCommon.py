@@ -15,7 +15,7 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types, pickle
@@ -204,7 +204,7 @@ class ConfigSourceDB(ConfigSource):
 	"""Interface to access config data and definitions in a single 
 	   configuration user/machine specific backend data collection.
 	"""
-	def __init__(self, aSourceName=None,aUser = None, aMachine = '__default__'):
+	def __init__(self, aSourceName=None,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 		try:
 			mConfigDataSource = ConfigDataDB(aUser,aMachine)
 		except:	
@@ -472,7 +472,7 @@ class ConfigDataDB(ConfigData):
 	_backend = None
 	_dbcfg = None
 
-	def __init__(self, aUser = None, aMachine = '__default__'):
+	def __init__(self, aUser = None, aMachine = 'xxxDEFAULTxxx'):
 		""" Init DB connection"""
 		ConfigData.__init__(self,"DB")
 		
@@ -596,7 +596,7 @@ class ConfigDataDB(ConfigData):
 		else:
 			# gmCfg.getAllParams returns name,cookie, owner, type and description 
 			# of a parameter. 
-			# We combine name + cookie to one single name. If cookie == '__default__'
+			# We combine name + cookie to one single name. If cookie == 'xxxDEFAULTxxx'
 			# we set the last part of the name to "" (an empty part). This
 			# must processed by the ConfigTree so that the empty part is not 
 			# displayed. If the cookie is something else, we mark the cookie part
@@ -606,7 +606,7 @@ class ConfigDataDB(ConfigData):
 			for param in result:
 				name = param[0]
 				cookie = param[1]
-				if cookie == '__default__':
+				if cookie == 'xxxDEFAULTxxx':
 					cookie_part = ""
 				else:
 					cookie_part = "._%s" % cookie
@@ -779,7 +779,7 @@ class ConfigDataFile(ConfigData):
 
 
 #=========================================================================
-def exportDBSet(filename,aUser = None, aMachine = '__default__'):
+def exportDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 	"""
 	Fetches a backend stored set of config options (defined by user and machine)
 	and returns it as a plain text file.
@@ -819,7 +819,7 @@ def exportDBSet(filename,aUser = None, aMachine = '__default__'):
 			(param,cType,description,value))
 	return len(paramList)
 #-------------------------------------------------------------------------
-def importDBSet(filename,aUser = None, aMachine = '__default__'):
+def importDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 	"""get config definitions from a file exported with 
 	   exportDBSet()."""
 
@@ -898,7 +898,10 @@ def importDBSet(filename,aUser = None, aMachine = '__default__'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.12  2003-11-18 18:54:06  hinnef
+# Revision 1.13  2004-01-06 23:44:40  ncq
+# - __default__ -> xxxDEFAULTxxx
+#
+# Revision 1.12  2003/11/18 18:54:06  hinnef
 # rollback of errorneous commit
 #
 # Revision 1.10  2003/11/07 07:48:27  hinnef

@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.56 2004-01-06 09:56:41 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmClinicalRecord.py,v 1.57 2004-01-06 23:44:40 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -52,7 +52,7 @@ class gmClinicalRecord:
 
 		self.__db_cache = {}
 
-		# make sure we have a __default__ health issue
+		# make sure we have a xxxDEFAULTxxx health issue
 		self.id_default_health_issue = None
 		if not self.__load_default_health_issue():
 			raise gmExceptions.ConstructorError, "cannot activate default health issue for patient [%s]" % aPKey
@@ -425,7 +425,7 @@ class gmClinicalRecord:
 			self.__db_cache['episodes'][row[idx_id]] = row[idx_name]
 		return self.__db_cache['episodes']
 	#------------------------------------------------------------------
-	def set_active_episode(self, episode_name = '__default__'):
+	def set_active_episode(self, episode_name = 'xxxDEFAULTxxx'):
 		# does this episode exist at all ?
 		# (else we can't activate it in the first place)
 		cmd = "select id_episode from v_patient_episodes where id_patient=%s and episode=%s limit 1"
@@ -436,8 +436,8 @@ class gmClinicalRecord:
 			return None
 		# none found
 		if len(rows) == 0:
-			# if __default__ then create it
-			if episode_name == '__default__':
+			# if xxxDEFAULTxxx then create it
+			if episode_name == 'xxxDEFAULTxxx':
 				id_episode = self.add_episode()
 				if id_episode is None:
 					return None
@@ -480,7 +480,7 @@ class gmClinicalRecord:
 		self.id_episode = id_episode
 		return 1
 	#------------------------------------------------------------------
-	def add_episode(self, episode_name = '__default__', id_health_issue = None):
+	def add_episode(self, episode_name = 'xxxDEFAULTxxx', id_health_issue = None):
 		"""Add episode 'episode_name'.
 
 		- returns ID of episode
@@ -523,7 +523,7 @@ class gmClinicalRecord:
 			_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
 			return None
 		# no last_active_episode recorded so far
-		episode_name = '__default__'
+		episode_name = 'xxxDEFAULTxxx'
 		if len(rows) == 0:
 			# find episode with the most recently modified clinical item
 			# FIXME: optimize query
@@ -623,7 +623,7 @@ class gmClinicalRecord:
 			return None
 		return 1
 	#------------------------------------------------------------------
-	def add_health_issue(self, health_issue_name = '__default__'):
+	def add_health_issue(self, health_issue_name = 'xxxDEFAULTxxx'):
 		curs = self._ro_conn_clin.cursor()
 		cmd = "select id from clin_health_issue where id_patient=%s and description=%s"
 		if not gmPG.run_query(curs, cmd, self.id_patient, health_issue_name):
@@ -976,7 +976,7 @@ values (currval('vaccination_id_seq'), %s)""" % vals_clause
 		# insert new encounter
 		# FIXME: we don't deal with location yet
 		if encounter_name is None:
-			encounter_name = _('auto-created %s') % mxDT.today().Format('%A %Y-%m-%d %H:%M')
+			encounter_name = 'auto-created %s' % mxDT.today().Format('%A %Y-%m-%d %H:%M')
 		cmd2 = "insert into clin_encounter(fk_patient, fk_location, fk_provider, description) values(%s, -1, %s, %s)"
 		# and record as currently active encounter
 		cmd3 = "insert into curr_encounter (id_encounter, \"comment\") values (currval('clin_encounter_id_seq'), %s)"
@@ -1117,7 +1117,10 @@ if __name__ == "__main__":
 	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.56  2004-01-06 09:56:41  ncq
+# Revision 1.57  2004-01-06 23:44:40  ncq
+# - __default__ -> xxxDEFAULTxxx
+#
+# Revision 1.56  2004/01/06 09:56:41  ncq
 # - default encounter name __default__ is nonsense, of course,
 #   use mxDateTime.today().Format() instead
 # - consolidate API:

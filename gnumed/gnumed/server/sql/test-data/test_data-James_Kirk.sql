@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -51,7 +51,7 @@ values (
 	 where
 	 	id_patient=currval('identity_id_seq')
 			and
-		description = '__default__'),
+		description = 'xxxDEFAULTxxx'),
 	'knive cut left forearm 9/2000'
 );
 
@@ -224,11 +224,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.7  2003-12-29 16:06:10  uid66147
+-- Revision 1.8  2004-01-06 23:44:40  ncq
+-- - __default__ -> xxxDEFAULTxxx
+--
+-- Revision 1.7  2003/12/29 16:06:10  uid66147
 -- - adjust to new tables: use fk_provider, lnk_vacc2vacc_def
 -- - add document BLOBs (data needs to be imported separately)
 --

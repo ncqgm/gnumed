@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.64 2003-12-29 16:33:23 uid66147 Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmPlugin.py,v 1.65 2004-01-06 23:44:40 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -463,7 +463,7 @@ def GetPluginLoadList(set):
 		rwconn = db.GetConnection(service = "default", readonly = 0)
 		dbcfg.set(
 			machine = currentMachine,
-			user = '__default__',
+			user = 'xxxDEFAULTxxx',
 			option = 'plugin load order',
 			value = p_list,
 			cookie = str(set),
@@ -492,7 +492,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.64  2003-12-29 16:33:23  uid66147
+# Revision 1.65  2004-01-06 23:44:40  ncq
+# - __default__ -> xxxDEFAULTxxx
+#
+# Revision 1.64  2003/12/29 16:33:23  uid66147
 # - use whoami.get_workplace()/gmPG.run_commit()
 #
 # Revision 1.63  2003/11/18 23:29:57  ncq

@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.68 $"
+__version__ = "$Revision: 1.69 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -67,7 +67,7 @@ cfg_IGNORE_CMD_LINE = 2
 
 # don't change this without knowing what you do as
 # it will already be in many databases
-cfg_DEFAULT = "__default__"
+cfg_DEFAULT = "xxxDEFAULTxxx"
 #================================
 class cCfgBase:
 	def __init__(self):
@@ -1193,7 +1193,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.68  2003-11-22 02:03:48  ihaywood
+# Revision 1.69  2004-01-06 23:44:40  ncq
+# - __default__ -> xxxDEFAULTxxx
+#
+# Revision 1.68  2003/11/22 02:03:48  ihaywood
 # reverted to version 1.66
 #
 # Revision 1.66  2003/10/22 22:05:18  ncq
