@@ -38,7 +38,7 @@ set up a config source from the database.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -666,7 +666,11 @@ class cCfgFile:
 			#----------
 			# [group] ?
 			if line.startswith('['):
-				tmp, comment = line.split(']', 1)
+				try:
+					tmp, comment = line.split(']', 1)
+				except:
+					_log.Log(gmLog.lErr, 'parse error in line #%s of config file [%s]' % (fileinput.filelineno(), fileinput.filename()))
+					raise
 				if tmp == "[":
 					_log.Log(gmLog.lErr, 'empty group definition "[]" not allowed')
 					continue
@@ -868,7 +872,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.27  2002-11-28 11:40:12  ncq
+# Revision 1.28  2002-12-01 01:11:42  ncq
+# - log config file line number on parse errors
+#
+# Revision 1.27  2002/11/28 11:40:12  ncq
 # - added database config
 # - reorganized self test
 #
