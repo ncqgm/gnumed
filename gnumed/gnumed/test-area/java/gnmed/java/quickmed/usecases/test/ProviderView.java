@@ -109,4 +109,16 @@ public interface ProviderView {
      */
     public void setIdentity_role_info(Collection identity_role_info);
     
+    /** Getter for property sex.
+     * @return Value of property sex.
+     *
+     */
+    public String getSex();
+    
+    /** Setter for property sex.
+     * @param sex New value of property sex.
+     *
+     */
+    public void setSex(String sex);
+    
 }

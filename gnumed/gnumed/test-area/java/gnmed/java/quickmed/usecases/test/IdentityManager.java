@@ -287,4 +287,28 @@ public class IdentityManager {
         
         return Arrays.asList(set.toArray());
     }
+    
+    public void removeRoles( identity id, Collection role_infos) {
+        try {
+            FlushMode mode = getSession().getFlushMode();
+            getSession().setFlushMode(FlushMode.AUTO);
+            for (Iterator j = role_infos.iterator(); j.hasNext() ; ) {
+                identity_role_info info  = ( identity_role_info ) j.next();
+//                info.setIdentity_role(null);
+                getSession().delete(info);
+//                getSession().evict(info);
+            }
+            
+            getSession().connection().commit();
+            
+            getSession().refresh(id);
+            getSession().connection().commit();
+            getSession().setFlushMode(mode);
+            getSession().disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+          
+        
+    }
 }

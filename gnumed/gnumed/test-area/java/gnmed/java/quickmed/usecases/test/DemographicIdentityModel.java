@@ -368,7 +368,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getSex() {
-        return getIdentity().getKaryotype().equals("XY") ? "male":"female";
+        return getIdentity().getKaryotype().equals("XY") ? Globals.bundle.getString("male"): Globals.bundle.getString("female");
     }
     
     public String getWorkTelephone() {

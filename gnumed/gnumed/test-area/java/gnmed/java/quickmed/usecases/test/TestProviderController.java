@@ -94,7 +94,7 @@ public class TestProviderController implements ProviderController , ProviderView
     }
     
     public String getTelephone() {
-        return model.getWorkTelephone();
+        return model.getTelephone(TestGISManager.work );
     }
     
     public void setAddress(String address) {
@@ -127,7 +127,7 @@ public class TestProviderController implements ProviderController , ProviderView
     }
     
     public void setTelephone(String telephone) {
-        model.setHomeTelephone(telephone);
+        model.setTelephone(telephone, TestGISManager.work);
     }
     
     /** Getter for property identity.
@@ -163,6 +163,14 @@ public class TestProviderController implements ProviderController , ProviderView
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    public String getSex() {
+        return model.getSex();
+    }
+    
+    public void setSex(String sex) {
+        model.setSex(sex);
     }
     
 }

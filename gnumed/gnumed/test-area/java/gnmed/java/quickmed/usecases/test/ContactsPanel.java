@@ -21,11 +21,15 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     
     private ProviderController controller;
     
+    private Collection removed = new HashSet();
+    
+    
+    
     /** Creates new form JPanel */
     public ContactsPanel() {
         initComponents();
         setTabLabels();
-        
+        setSexComboLabels();
         jList2.setModel(new DefaultListModel());
         
         ToolTipManager.sharedInstance().setEnabled(true);
@@ -38,6 +42,12 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jTabbedPane1.setTitleAt(1, getResourceName("create_provider"));
         jTabbedPane1.setTitleAt(0, getResourceName("find_provider"));
         
+        
+    }
+    
+    void setSexComboLabels() {
+        DefaultComboBoxModel model = new DefaultComboBoxModel( new String[] { Globals.bundle.getString("male"), Globals.bundle.getString("female") } );
+       jComboBox1.setModel(model);
         
     }
     
@@ -170,6 +180,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
 
         jPopupMenu1 = new javax.swing.JPopupMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -188,6 +199,9 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         lastNamesjTextField3 = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         firstNamesjTextField4 = new javax.swing.JTextField();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox();
         jLabel9 = new javax.swing.JLabel();
         addressjTextField5 = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
@@ -227,7 +241,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        jLabel2.setText("Lastname, Firstname");
+        jLabel2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("lastname_firstname"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel2.add(jLabel2, gridBagConstraints);
@@ -256,7 +270,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel2.add(locationjComboBox1, gridBagConstraints);
 
-        editButton.setText("edit selected");
+        editButton.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("edit_selected"));
         editButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editButtonActionPerformed(evt);
@@ -278,7 +292,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints.weighty = 1.0;
         jPanel2.add(jScrollPane2, gridBagConstraints);
 
-        jButton5.setText("search");
+        jButton5.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("search"));
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchProviderActionPerformed(evt);
@@ -300,24 +314,36 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
 
         jPanel5.setLayout(new java.awt.GridBagLayout());
 
-        jLabel5.setText("Last names");
+        jLabel5.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("last_names"));
         jPanel5.add(jLabel5, new java.awt.GridBagConstraints());
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanel5.add(lastNamesjTextField3, gridBagConstraints);
-
-        jLabel6.setText("Firstnames");
-        jPanel5.add(jLabel6, new java.awt.GridBagConstraints());
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        jPanel5.add(lastNamesjTextField3, gridBagConstraints);
+
+        jLabel6.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("firstnames"));
+        jPanel5.add(jLabel6, new java.awt.GridBagConstraints());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.RELATIVE;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
         jPanel5.add(firstNamesjTextField4, gridBagConstraints);
 
-        jLabel9.setText("address");
+        jPanel6.setLayout(new java.awt.GridLayout());
+
+        jLabel4.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("sex"));
+        jPanel6.add(jLabel4);
+
+        jPanel6.add(jComboBox1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        jPanel5.add(jPanel6, gridBagConstraints);
+
+        jLabel9.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("address"));
         jPanel5.add(jLabel9, new java.awt.GridBagConstraints());
 
         addressjTextField5.addActionListener(new java.awt.event.ActionListener() {
@@ -329,18 +355,16 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
         jPanel5.add(addressjTextField5, gridBagConstraints);
 
-        jLabel10.setText("telephone");
+        jLabel10.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("telephone"));
         jPanel5.add(jLabel10, new java.awt.GridBagConstraints());
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
         jPanel5.add(telephonejTextField6, gridBagConstraints);
 
-        jLabel11.setText("fax");
+        jLabel11.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("fax"));
         jPanel5.add(jLabel11, new java.awt.GridBagConstraints());
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -349,7 +373,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints.weightx = 1.0;
         jPanel5.add(faxjTextField7, gridBagConstraints);
 
-        jLabel13.setText("mobile");
+        jLabel13.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("mobile"));
         jPanel5.add(jLabel13, new java.awt.GridBagConstraints());
 
         mobilejTextField3.setText(" ");
@@ -358,7 +382,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints.weightx = 1.0;
         jPanel5.add(mobilejTextField3, gridBagConstraints);
 
-        jLabel14.setText("pager");
+        jLabel14.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("pager"));
         jPanel5.add(jLabel14, new java.awt.GridBagConstraints());
 
         pagerjTextField4.addActionListener(new java.awt.event.ActionListener() {
@@ -370,9 +394,10 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
         jPanel5.add(pagerjTextField4, gridBagConstraints);
 
-        jLabel7.setText("comments");
+        jLabel7.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("comments"));
         jPanel5.add(jLabel7, new java.awt.GridBagConstraints());
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -388,6 +413,12 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jPanel4.setLayout(new java.awt.GridLayout(1, 0));
 
         jPanel4.setToolTipText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("provider_tree_command"));
+        jList2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                deleteFromListHandler(evt);
+            }
+        });
+
         jScrollPane3.setViewportView(jList2);
 
         jPanel4.add(jScrollPane3);
@@ -427,7 +458,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         jPanel3.add(jButton4, gridBagConstraints);
 
-        jLabel8.setText("occupied roles");
+        jLabel8.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("occupied_roles"));
         jPanel3.add(jLabel8, new java.awt.GridBagConstraints());
 
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
@@ -448,7 +479,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
-        jLabel1.setText("category");
+        jLabel1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("role_name"));
         jPanel1.add(jLabel1, new java.awt.GridBagConstraints());
 
         jTextField1.setColumns(20);
@@ -459,7 +490,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints.weightx = 1.0;
         jPanel1.add(jTextField1, gridBagConstraints);
 
-        jCheckBox1.setText("is subcategory of");
+        jCheckBox1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("is_sub_role_of"));
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jCheckBox1ActionPerformed(evt);
@@ -482,10 +513,11 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints.weighty = 2.0;
         jPanel1.add(jScrollPane1, gridBagConstraints);
 
-        jButton1.setText("add category");
+        jButton1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("add_role_category"));
         jPanel1.add(jButton1, new java.awt.GridBagConstraints());
 
-        jButton2.setText("remove category");
+        jButton2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("remove_category"));
+        jButton2.setToolTipText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("remove_role_hint"));
         jPanel1.add(jButton2, new java.awt.GridBagConstraints());
 
         jTabbedPane1.addTab("tab1", jPanel1);
@@ -493,7 +525,17 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
     }//GEN-END:initComponents
-    
+
+    private void deleteFromListHandler(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_deleteFromListHandler
+        // Add your handling code here:
+          if (evt.getKeyCode() == evt.VK_DELETE) {
+            Object[] oo = jList2.getSelectedValues();
+            for (int i = 0; i < oo.length; ++i) {
+                addRemoved(oo[i]);
+            }
+        }
+    }//GEN-LAST:event_deleteFromListHandler
+        
     private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editButtonActionPerformed
         // Add your handling code here:
         Object o = resultjList1.getSelectedValue();
@@ -510,8 +552,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         // Add your handling code here:
         String[] names = searchNamesjTextField2.getText().trim().split(",");
         String lastName = names[0].trim();
-        if (lastName.length() == 0)
-            return;
+        
         String firstName = names.length > 1 ? names[1].trim() : "";
         TreePath [] paths = findjTree2.getSelectionPaths();
         List roles = new ArrayList();
@@ -540,6 +581,10 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         // Add your handling code here:
         getController().uiToModel();
         getController().save();
+        
+        getController().getManagerReference().getIdentityManager()
+        .removeRoles(getController().getProvider(), getRemoved());
+        clearRemoved();
         
     }//GEN-LAST:event_createProviderActionPerformed
     
@@ -577,6 +622,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField addressjTextField5;
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JTextArea commentText;
     private javax.swing.JButton editButton;
     private javax.swing.JTextField faxjTextField7;
@@ -587,6 +633,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -595,6 +642,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -607,6 +655,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -629,6 +678,21 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     
     static Class[] roleFilter = { identity_role.class };
     
+    
+    public Collection getRemoved() {
+        return removed;
+    }
+    
+    public void  clearRemoved() {
+        removed.clear();
+    }
+    
+    public void addRemoved(Object o) {
+        removed.add(o);
+        getController().getProvider().getRoles().remove(o);
+        ((DefaultListModel)jList2.getModel()).removeElement(o);
+    }
+    
     static interface DefaultListModelOperation {
         public void doOperation( DefaultListModel model, Object arg);
     }
@@ -644,7 +708,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         }
     }
     
-    static class RemoveRoleInfoFromListOperation implements DefaultListModelOperation {
+    class RemoveRoleInfoFromListOperation implements DefaultListModelOperation {
         
         public void doOperation(DefaultListModel model, Object arg) {
             for ( int i =0; i < model.getSize(); ++i) {
@@ -654,12 +718,14 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
                 identity_role_info info = (identity_role_info) model.getElementAt(i);
                 if ( !info.getIdentity_role().equals( arg) )
                     continue;
+                addRemoved(info);
                 
-                model.remove(i);
                 return;
             }
         }
     }
+    
+    
     
     void addSelectedRoleInTreeToList() {
         Logger.global.info("  ** ");
@@ -774,6 +840,16 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         this.controller = controller;
         controller.setView(this);
         postSetViewInit();
+    }
+    
+    public String getSex() {
+        return (String) jComboBox1.getSelectedItem();
+    }
+    
+    public void setSex(String sex) {
+        jComboBox1.setEditable(true);
+        jComboBox1.setSelectedItem(sex);
+        jComboBox1.setEditable(false);
     }
     
 }
