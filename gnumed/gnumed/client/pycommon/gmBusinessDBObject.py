@@ -77,14 +77,27 @@ to have the same primary key might have been created ! This
 row might relate to a totally different context (eg. patient,
 episode, encounter).
 
+One can offer all the data to the user:
+
+self.original_payload
+- contains the data at the last successful refetch
+
+self.modified_payload
+- contains the modified payload just before the last
+  failure of save_payload()
+
+self._payload
+- contains the currently active payload which may or
+  may not contain changes
+
 For discussion on this see the thread starting at:
 
 http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.17 2005-03-14 14:31:17 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmBusinessDBObject.py,v 1.18 2005-03-20 16:49:56 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -492,7 +505,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.17  2005-03-14 14:31:17  ncq
+# Revision 1.18  2005-03-20 16:49:56  ncq
+# - improve concurrency error handling docs
+#
+# Revision 1.17  2005/03/14 14:31:17  ncq
 # - add support for self.original_payload such that we can make
 #   available all the information to the user when concurrency
 #   conflicts are detected
