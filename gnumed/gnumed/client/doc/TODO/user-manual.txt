@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 ---------------------------------------------------
 Rules:
 ------
@@ -9,4 +9,7 @@ Rules:
 - delete things if you incorporated them into the manual
 - please date it. Thanks
 ---------------------------------------------------
+David Guest:
 
+For the record I am on Mandrake 8.2, (2.4.18-6mdk kernel)
+---------------------------------------------------
