@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/indexFrame.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -45,6 +45,10 @@ class indexFrame(wxFrame):
 	docid = None
 	#---------------------------------------------------------------------------
 	def __init__(self, parent):
+
+		# get valid document types from ini-file
+		self.valid_doc_types = string.split(__cfg__.get("metadata", "doctypes"),',')
+
 		# init ctrls
 		self._init_ctrls(parent)
 
@@ -52,7 +56,7 @@ class indexFrame(wxFrame):
 		# this is a design decision
 		if not self.__load_patient():
 			raise ValueError
-		self._init_pat_fields()
+		self.__fill_pat_fields()
 
 		# repository base
 		self.repository = os.path.expanduser(__cfg__.get("repositories", "to_index"))
@@ -60,11 +64,12 @@ class indexFrame(wxFrame):
 		self.desc_file_name = __cfg__.get("metadata", "description")
 		# checkpoint file whether indexing can start
 		self.can_index_file = __cfg__.get("metadata", "can_index")
-		# get valid document types from ini-file
-		self.valid_doc_types = string.split(__cfg__.get("metadata", "doctypes"),',')
 
+		print "__init__() before phrase wheel"
 		# items for phraseWheel
-		self._init_phrase_wheel()
+#		if not self._init_phrase_wheel():
+#			raise ValueError
+		print "__init__() done"
 	#---------------------------------------------------------------------------
 	def _init_utils(self):
 		pass
@@ -285,50 +290,68 @@ class indexFrame(wxFrame):
 		phrase_wheel_choices = []
 		for i in range(len(doc_dirs)):
 			full_dir = os.path.join(self.repository, doc_dirs[i])
+
+			# don't add stray files
+			if not os.path.isdir(full_dir):
+				_log.Log(gmLog.lData, "ignoring stray file [%s]" % doc_dirs[i])
+				continue
+
 			# DON'T fail on missing checkpoint files here yet
 			# in order to facilitate maximum parallelity
 			if not os.path.exists(os.path.join(full_dir, self.can_index_file)):
-				_log.Log(gmLog.lInfo, "Document directory [%s] not yet checkpointed (%s) for indexing. Let's see who wins the race." % (full_dir, self.can_index_file))
+				_log.Log(gmLog.lInfo, "Document directory [%s] not yet checkpointed with [%s] for indexing. Skipping." % (full_dir, self.can_index_file))
+				continue
 
-			# only add if dir and not stray file
-			if os.path.isdir(full_dir):
-				# same weight for all of them
-				phrase_wheel_choices.append({'ID': i, 'label': doc_dirs[i], 'weight': 1})
-			else:
-				_log.Log(gmLog.lData, "stray file: %s" % doc_dirs[i])
+			# same weight for all of them
+			phrase_wheel_choices.append({'ID': i, 'label': doc_dirs[i], 'weight': 1})
 
 		#<DEBUG>
 		_log.Log(gmLog.lData, "document dirs: %s" % str(phrase_wheel_choices))
 		#</DEBUG>
 
+		if len(phrase_wheel_choices) == 0:
+			_log.Log(gmLog.lWarn, "No document directories in repository. Nothing to do !.")
+			dlg = wxMessageDialog(
+				self,
+				_("There are no documents in the repository.\n(%s)\n\nSeems like there's nothing to do today." % self.repository),
+				_('Information'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
 		# FIXME: we need to set this to non-learning mode
 		mp = cMatchProvider_FixedList(phrase_wheel_choices)
-		self.doc_id_wheel = cPhraseWheel(self.PNL_main, self.wheel_callback, pos = (48, 112), size = (176, 22), aMatchProvider=mp, aDelay = 400)
+		self.doc_id_wheel = cPhraseWheel(
+			self.PNL_main,
+			self.wheel_callback,
+			pos = (48, 112),
+			size = (176, 22),
+			aMatchProvider=mp,
+			aDelay = 400
+		)
 		self.doc_id_wheel.SetToolTipString(_('physical document ID'))
-
 		self.doc_id_wheel.on_resize (None)
-	#--------------------------------
-	def _init_pat_fields(self):
-		self.TBOX_first_name.SetValue(self.myPatient.firstnames)
-		self.TBOX_last_name.SetValue(self.myPatient.lastnames)
-		self.TBOX_dob.SetValue(self.myPatient.dob)
 
-		#if not self.Obj_Datum_value == _('please fill in'):
-#		self.TBOX_doc_date.AppendText(self.Obj_Datum_value)
-		#if not self.Obj_Name_value == _('please fill in'):
-#		self.TBOX_desc_short.AppendText(self.Obj_Name_value)
-		#if not self.Obj_Typ_value =='':
-#		index = self.SelBOX_doc_type.FindString(self.Obj_Typ_value)
-#		self.SelBOX_doc_type.SetSelection(index)
-		#if not self.Obj_Beschreibung_value =='':
-#		self.additionCommentBox.AppendText(self.Obj_Beschreibung_value)
+		return 1
 	#----------------------------------------
 	# event handlers
 	#----------------------------------------
 	def on_get_pages(self, event):
-		self.__clear_doc_data()
-		self.__load_pages()
-		self.updateGUIonLoadRecords()
+		if not self.__load_doc():
+			_log.Log(gmLog.lPanic, "Cannot load document object file list.")
+			dlg = wxMessageDialog(
+				self,
+				_('Cannot load document object file list from xDT file.\n\nPlease consult the error log for details.'),
+				_('Attention'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		self.__fill_doc_fields()
 	#----------------------------------------
 
 	#---------------------------------------------------------------------------
@@ -354,15 +377,18 @@ class indexFrame(wxFrame):
 		# to other methods of getting the patient
 
 		# get patient data from BDT/XDT file
-		pat_file = os.path.expanduser(__cfg__.get("metadata", "patient_file"))
+		pat_file = os.path.expanduser(__cfg__.get("metadata", "patient_file"))
 		self.myPatient = cPatient()
 		if not self.myPatient.loadFromFile("xdt", pat_file):
 			_log.Log(gmLog.lPanic, "Cannot read patient from xDT file [%s]" % pat_file)
-
-			dlg = wxMessageDialog(self, _('Cannot load patient from xDT file.\n\nPlease consult the error log for details.'), _('Attention'), wxOK | wxICON_INFORMATION)
+			dlg = wxMessageDialog(
+				self,
+				_('Cannot load patient from xDT file.\n\nPlease consult the error log for details.'),
+				_('Attention'),
+				wxOK | wxICON_INFORMATION
+			)
 			dlg.ShowModal()
 			dlg.Destroy()
-
 			return None
 
 
@@ -370,22 +396,27 @@ class indexFrame(wxFrame):
 #		self.queryGeburtsdatum = self.rawGeburtsdatum
 		return 1
 	#----------------------------------------
-	def __clear_doc_data(self):
+	def __fill_pat_fields(self):
+		self.TBOX_first_name.SetValue(self.myPatient.firstnames)
+		self.TBOX_last_name.SetValue(self.myPatient.lastnames)
+		self.TBOX_dob.SetValue(self.myPatient.dob)
+	#----------------------------------------
+	#----------------------------------------
+	def __clear_doc_fields(self):
 		# clear fields
-		self.TBOX_doc_date.Clear()
-		self.TBOX_desc_short.Clear()
+		self.TBOX_doc_date.SetValue(_('please fill in'))
+		self.TBOX_desc_short.SetValue(_('please fill in'))
+		self.additionCommentBox.SetValue(_('please fill in'))
 		self.SelBOX_doc_type.SetSelection(-1)
-		self.additionCommentBox.Clear()
 		self.LBOX_doc_pages.Clear()
-		# forget all pages
-		self.doc_pages = []
-	#--------------------------------------------------------------------------
-	def __load_pages(self):
+	#----------------------------------------
+	def __load_doc(self):
 		# make sure to get the first line only :-)
 		curr_doc_id = self.doc_id_wheel.GetLineText(0)
 
 		# has the user supplied anything ?
 		if curr_doc_id == '':
+			_log.Log(gmLog.lErr, 'No document ID typed in yet !')
 			dlg = wxMessageDialog(
 				self,
 				_('You must type in a document ID !\nUsually you will find the document ID written on the physical sheet of paper. There should be only one per document even if there are multiple pages.'),
@@ -396,14 +427,14 @@ class indexFrame(wxFrame):
 			dlg.Destroy()
 			return None
 
+		# well, so load the document from that directory
 		work_dir = os.path.join(self.repository, curr_doc_id)
 		_log.Log(gmLog.lData, 'working in [%s]' % work_dir)
 
-		# open XML metadata file
+		# check for metadata file
 		fname = os.path.join(work_dir, self.desc_file_name)
-		try:
-			desc_file = open(fname, "r")
-		except IOError:
+		if not os.path.exists (fname):
+			_log.Log(gmLog.lErr, 'Cannot access metadata file [%s].' % fname)
 			dlg = wxMessageDialog(self, 
 				_('Cannot access metadata file [%s].\nPlease see error log for details.' % fname),
 				_('Attention'),
@@ -411,136 +442,28 @@ class indexFrame(wxFrame):
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
-			exc = sys.exc_info()
-			_log.LogException ('Cannot access metadata file [%s].\nPlease see error log for details.' % fname, exc)
 			return None
 
+		# actually get pages
+		self.myDoc = cDocument()
+		if not self.myDoc.LoadImgListFromXML(fname , work_dir):
+			_log.Log(gmLog.lErr, 'Cannot load image list from metadata file [%s].' % fname)
+			dlg = wxMessageDialog(self, 
+				_('Cannot load image list from metadata file [%s].\nPlease see error log for details.' % fname),
+				_('Attention'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
 
-
-
-				try:
-					#read self.desc_file_name
-					desc_filee = 
-					xml_content = desc_filee.read()
-					desc_filee.close()
-
-					xml_contentlist = string.split(xml_content,'\n')
-					runs=len(xml_contentlist)
-					x=0
-					while x < runs:
-						value = xml_contentlist[x]
-						_log.Log (gmLog.lInfo, "teste " + value)
-						try :
-							# find all occurences of <image>
-							string.index(value,'<image>')
-							stripped_value = value[7:-8]
-							# append occurence to list in gui
-							if os.name == 'posix':
-								self.LBOX_doc_pages.Append(string.replace(stripped_value,'.jpg',''))
-							else:
-								self.LBOX_doc_pages.Append(string.replace(stripped_value,'.bmp',''))
-							self.doc_pages.append(stripped_value)
-							_log.Log (gmLog.lInfo, "added" + stripped_value + "to GUI-list")
-							# increase and start over with next line
-							x=x+1
-						except ValueError:
-							x=x+1
-					x=0
-					while x < runs:
-						value = xml_contentlist[x]
-						_log.Log (gmLog.lInfo, "once again" + value)
-						try :
-							# find all occurences of <ref_tag>
-							string.index(value,'<'+__cfg__.get("metadata", "ref_tag")+'>')
-							_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "ref_tag"))
-							self.Obj_Referenz_value = value[int(len(__cfg__.get("metadata", "ref_tag")))+2:-(int(len(__cfg__.get("metadata", "ref_tag")))+3)]
-							x=x+1
-						except ValueError:
-							x=x+1
-
-					# has there been a prior index session with this data ?
-					if os.path.isfile(__cfg__.get("source", "repositories") + curr_doc_id + '/' + self.can_index_file):
-						x=0
-						while x < runs:
-							value = xml_contentlist[x]
-							_log.Log (gmLog.lInfo, "once again" + value)
-							try :
-								# find all occurences of <date_tag>
-								string.index(value,'<'+__cfg__.get("metadata", "date_tag")+'>')
-								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "date_tag"))
-								self.Obj_Datum_value = value[int(len(__cfg__.get("metadata", "date_tag")))+2:-(int(len(__cfg__.get("metadata", "date_tag")))+3)]
-								x=x+1
-							except ValueError:
-								x=x+1
-						x=0
-						while x < runs:
-							value = xml_contentlist[x]
-							_log.Log (gmLog.lInfo, "test again" + value)
-							try :
-								# find all occurences of <type_tag>
-								string.index(value,'<'+__cfg__.get("metadata", "type_tag")+'>')
-								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "type_tag"))
-								self.Obj_Typ_value = value[int(len(__cfg__.get("metadata", "type_tag")))+2:-(int(len(__cfg__.get("metadata", "type_tag")))+3)]
-								x=x+1
-							except ValueError:
-								x=x+1
-						x=0
-						while x < runs:
-							value = xml_contentlist[x]
-							_log.Log (gmLog.lInfo, "test again" + value)
-							try :
-								# find all occurences of <comment_tag>
-								string.index(value,'<'+__cfg__.get("metadata", "comment_tag")+'>')
-								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "comment_tag"))
-								self.Obj_Name_value = value[int(len(__cfg__.get("metadata", "comment_tag")))+2:-(int(len(__cfg__.get("metadata", "comment_tag")))+3)]
-								x=x+1
-							except ValueError:
-								x=x+1
-						x=0
-						while x < runs:
-							value = xml_contentlist[x]
-							_log.Log (gmLog.lInfo, "test again" + value)
-							try :
-							   # find all occurences of <add_comment_tag>
-								string.index(value,'<'+__cfg__.get("metadata", "add_comment_tag")+'>')
-								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "add_comment_tag"))
-								self.Obj_Beschreibung_value = value[int(len(__cfg__.get("metadata", "add_comment_tag")))+2:-(int(len(__cfg__.get("metadata", "add_comment_tag")))+3)]
-								x=x+1
-							except ValueError:
-								x=x+1
-					else :
-						return
-					
-#			else:
-#				dlg = wxMessageDialog(self, _('Could not fine any documents relating to this document#'),_('Attention'), wxOK | wxICON_INFORMATION)
-#				try:
-#					dlg.ShowModal()
-#				finally:
-#					dlg.Destroy()
-	#--------------------------------------------------------------------------
-	def UpdatePicList(self):
-		if len(self.doc_pages) == 0:
-			self.LBOX_doc_pages.Append(_('page')+'1')
-			self.doc_pages.append(_('page')+'1')
-		else:
-			lastPageInList=self.doc_pages[len(self.doc_pages)-1]
-			biggest_number_strg=lastPageInList.replace(_('page'),'')
-			biggest_number= int(biggest_number_strg) + 1
-			self.LBOX_doc_pages.Append(_('page') + `biggest_number`)
-			self.doc_pages.append(_('page') + `biggest_number`)
-	#--------------------------------
-	def updateGUIonLoadRecords(self):
-		self.TBOX_dob.AppendText(self.Geburtsdatum)
-		#if not self.Obj_Datum_value == _('please fill in'):
-		self.TBOX_doc_date.AppendText(self.Obj_Datum_value)
-		#if not self.Obj_Name_value == _('please fill in'):
-		self.TBOX_desc_short.AppendText(self.Obj_Name_value)
-		#if not self.Obj_Typ_value =='':
-		index = self.SelBOX_doc_type.FindString(self.Obj_Typ_value)
-		self.SelBOX_doc_type.SetSelection(index)
-		#if not self.Obj_Beschreibung_value =='':
-		self.additionCommentBox.AppendText(self.Obj_Beschreibung_value)
-
+		return 1
+	#----------------------------------------
+	def __fill_doc_fields():
+		self.__clear_doc_fields()
+		pageLst = self.myDoc.getMetaData()['objects']
+		for page_num, fname in pageLst.items():
+			self.LBOX_doc_pages.Append(_('page %s') % page_num, {'number': page_num, 'file': fname})
 	#----------------------------------------
 	def OnShowpicbuttonButton(self, event):
 		self.BefValue=self.doc_id_wheel.GetLineText(0)
@@ -792,3 +715,128 @@ class indexFrame(wxFrame):
 			
 # this line is a replacement for gmPhraseWhell just in case it doesn't work 
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
+
+#				try:
+#					#read self.desc_file_name
+#					desc_filee = 
+#					xml_content = desc_filee.read()
+#					desc_filee.close()
+#
+#					xml_contentlist = string.split(xml_content,'\n')
+#					runs=len(xml_contentlist)
+#					x=0
+#					while x < runs:
+#						value = xml_contentlist[x]
+#						_log.Log (gmLog.lInfo, "teste " + value)
+#						try :
+#							# find all occurences of <image>
+#							string.index(value,'<image>')
+#							stripped_value = value[7:-8]
+#							# append occurence to list in gui
+#							if os.name == 'posix':
+#								self.LBOX_doc_pages.Append(string.replace(stripped_value,'.jpg',''))
+#							else:
+#								self.LBOX_doc_pages.Append(string.replace(stripped_value,'.bmp',''))
+#							self.doc_pages.append(stripped_value)
+#							_log.Log (gmLog.lInfo, "added" + stripped_value + "to GUI-list")
+#							# increase and start over with next line
+#							x=x+1
+#						except ValueError:
+#							x=x+1
+#					x=0
+#					while x < runs:
+#						value = xml_contentlist[x]
+#						_log.Log (gmLog.lInfo, "once again" + value)
+#						try :
+#							# find all occurences of <ref_tag>
+#							string.index(value,'<'+__cfg__.get("metadata", "ref_tag")+'>')
+#							_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "ref_tag"))
+#							self.Obj_Referenz_value = value[int(len(__cfg__.get("metadata", "ref_tag")))+2:-(int(len(__cfg__.get("metadata", "ref_tag")))+3)]
+#							x=x+1
+#						except ValueError:
+#							x=x+1
+#
+#					# has there been a prior index session with this data ?
+#					if os.path.isfile(__cfg__.get("source", "repositories") + curr_doc_id + '/' + self.can_index_file):
+#						x=0
+#						while x < runs:
+#							value = xml_contentlist[x]
+#							_log.Log (gmLog.lInfo, "once again" + value)
+#							try :
+#								# find all occurences of <date_tag>
+#								string.index(value,'<'+__cfg__.get("metadata", "date_tag")+'>')
+#								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "date_tag"))
+#								self.Obj_Datum_value = value[int(len(__cfg__.get("metadata", "date_tag")))+2:-(int(len(__cfg__.get("metadata", "date_tag")))+3)]
+#								x=x+1
+#							except ValueError:
+#								x=x+1
+#						x=0
+#						while x < runs:
+#							value = xml_contentlist[x]
+#							_log.Log (gmLog.lInfo, "test again" + value)
+#							try :
+#								# find all occurences of <type_tag>
+#								string.index(value,'<'+__cfg__.get("metadata", "type_tag")+'>')
+#								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "type_tag"))
+#								self.Obj_Typ_value = value[int(len(__cfg__.get("metadata", "type_tag")))+2:-(int(len(__cfg__.get("metadata", "type_tag")))+3)]
+#								x=x+1
+#							except ValueError:
+#								x=x+1
+#						x=0
+#						while x < runs:
+#							value = xml_contentlist[x]
+#							_log.Log (gmLog.lInfo, "test again" + value)
+#							try :
+#								# find all occurences of <comment_tag>
+#								string.index(value,'<'+__cfg__.get("metadata", "comment_tag")+'>')
+#								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "comment_tag"))
+#								self.Obj_Name_value = value[int(len(__cfg__.get("metadata", "comment_tag")))+2:-(int(len(__cfg__.get("metadata", "comment_tag")))+3)]
+#								x=x+1
+#							except ValueError:
+#								x=x+1
+#						x=0
+#						while x < runs:
+#							value = xml_contentlist[x]
+#							_log.Log (gmLog.lInfo, "test again" + value)
+#							try :
+#							   # find all occurences of <add_comment_tag>
+#								string.index(value,'<'+__cfg__.get("metadata", "add_comment_tag")+'>')
+#								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "add_comment_tag"))
+#								self.Obj_Beschreibung_value = value[int(len(__cfg__.get("metadata", "add_comment_tag")))+2:-(int(len(__cfg__.get("metadata", "add_comment_tag")))+3)]
+#								x=x+1
+#							except ValueError:
+#								x=x+1
+#					else :
+#						return
+#					
+#			else:
+#				dlg = wxMessageDialog(self, _('Could not fine any documents relating to this document#'),_('Attention'), wxOK | wxICON_INFORMATION)
+#				try:
+#					dlg.ShowModal()
+#				finally:
+#					dlg.Destroy()
+
+
+	#----------------------------------------
+#	def UpdatePicList(self):
+#		if len(self.doc_pages) == 0:
+#			self.LBOX_doc_pages.Append(_('page')+'1')
+#			self.doc_pages.append(_('page')+'1')
+#		else:
+#			lastPageInList=self.doc_pages[len(self.doc_pages)-1]
+#			biggest_number_strg=lastPageInList.replace(_('page'),'')
+#			biggest_number= int(biggest_number_strg) + 1
+#			self.LBOX_doc_pages.Append(_('page') + `biggest_number`)
+#			self.doc_pages.append(_('page') + `biggest_number`)
+	#--------------------------------
+#	def updateGUIonLoadRecords(self):
+#		self.TBOX_dob.AppendText(self.Geburtsdatum)
+#		#if not self.Obj_Datum_value == _('please fill in'):
+#		self.TBOX_doc_date.AppendText(self.Obj_Datum_value)
+#		#if not self.Obj_Name_value == _('please fill in'):
+#		self.TBOX_desc_short.AppendText(self.Obj_Name_value)
+#		#if not self.Obj_Typ_value =='':
+#		index = self.SelBOX_doc_type.FindString(self.Obj_Typ_value)
+#		self.SelBOX_doc_type.SetSelection(index)
+#		#if not self.Obj_Beschreibung_value =='':
+#		self.additionCommentBox.AppendText(self.Obj_Beschreibung_value)
