@@ -89,4 +89,104 @@ Protocol 1</screen>
     </sect1>
   </chapter>
 
+  <chapter>
+    <title>Coding Guidelines</title>
+    <sect1>
+      <title>strings and translation</title>
+      <para>hardcoded error strings meant for developers / debugging are in English.All other strings MUST be translateable, that is called as a gettext 
+function. To achieve this, you do the following:
+      </para>
+      <para>If your modules can be called as a standalone script you
+should add this to your main part:
+	<screen>
+if name == '__main__':
+	import gettext
+	_ = gettext.gettext()
+    # ... now on to other stuff
+	</screen>
+If your module is invoked from within the GNUmed framework the
+translation function _() is automatically defined for you.
+      </para>
+      <para>
+Now, whenever you use a string, do it like
+	<screen>
+print _("this will be automatically translated")
+instead of
+ print "this can't be translated and should thus not be written this way"
+	</screen>
+      </para>
+    </sect1>
+
+    <sect1>
+      <title>Database Guidelines</title>
+      <para>hen doing database work, NEVER rely on a table being present in the "default" database. Lookup the appropriate service 
+(as listed in http://gnumed.net/whitepapers/serviceslist.html) and use it 
+accordingly - for example ALL person and address related details are 
+available via the service "personalia" now.</para>
+      <para>
+Whether "personalia" is actually implemented in "default" or on some other 
+server in a completely different database should not matter to client 
+programmers. Just request the right service from the database broker 
+object, and that's it - should work.</para>
+      <para>
+In order to make this testable, you must set up your configuration tables 
+in the default database accordingly
+(database name in "db", service in "distributed_db", reference to db and 
+distributed_db in "config" attributes "db" and "ddb")
+      </para>
+    </sect1>
+
+    <sect1>
+      <title>Widegets</title>
+      <para>When trying to map database results to widgets, remember that not all 
+widgets can use the same functions (like SetValue()) under all 
+circumstances to set their properties. Notable examples for exceptions are 
+"choice boxes" and "combo boxes". It might be preferrable to have a 
+function SetData(), UpdateData(), ClearData() for each dialog instead - 
+far more control over what is actually happening to the widgets, though 
+unfortunately a little bit more typing.</para>
+
+    </sect1>
+
+<sect1>
+      <title>Comments. Documenting Code</title>
+      <sect2>
+	<title>Docstring documention</title>
+      <para>try to always insert at least one line of docstring 
+unless the function is no more than a couple of lines long and perfectly 
+self-explanatory</para>
+      </sect2>
+
+      <sect2>
+	<title>COMMENTS</title>
+	<para>mark places that need fixing with a comment like this:
+	  <screen>
+# FIXME: a comment on what should be fixed how
+... your code ...</screen>
+	</para>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>CVS Guidelines</title>
+      <para>Always test before you check in (yes, I have been guilty of not
+  heeding my own advice, sorry)</para>
+    </sect1>
+
+    <sect1>
+      <title>DEBUGGING/LOGGING</title>
+      <para>Place markers before/after logging statements
+  that can be commented out once things work like this:
+	<screen>
+#&lt;DEBUG&gt;
+gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log message")
+#&lt;/DEBUG&gt;</screen>
+
+
+
+
+
+
+
+
 </book>
