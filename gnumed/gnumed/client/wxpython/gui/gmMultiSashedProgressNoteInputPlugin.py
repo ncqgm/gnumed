@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -96,3 +96,7 @@ if __name__ == "__main__":
     _log.Log (gmLog.lInfo, "closing multisashed progress notes input plugin...")
 
 #======================================================================
+# $Log: gmMultiSashedProgressNoteInputPlugin.py,v $
+# Revision 1.2  2005-03-16 18:37:57  cfmoro
+# Log cvs history
+#
