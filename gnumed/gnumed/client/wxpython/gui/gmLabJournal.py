@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -30,6 +30,7 @@ from Gnumed.artwork import checkboxOn, checkboxOff
 # 3rd party
 from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
+from wxPython.grid import *
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
@@ -43,6 +44,48 @@ _whoami = gmWhoAmI.cWhoAmI()
 	wxID_BTN_select_all,
 	wxID_BTN_mark_reviewed
 ] = map(lambda _init_ctrls: wxNewId(), range(8))
+
+#====================================
+class MyCustomRenderer(wxPyGridCellRenderer):
+    def __init__(self):
+        wxPyGridCellRenderer.__init__(self)
+
+    def Draw(self, grid, attr, dc, rect, row, col, isSelected):
+        dc.SetBackgroundMode(wxSOLID)
+        dc.SetBrush(wxBrush(wxBLACK, wxSOLID))
+        dc.SetPen(wxTRANSPARENT_PEN)
+        dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
+
+        dc.SetBackgroundMode(wxTRANSPARENT)
+        dc.SetFont(attr.GetFont())
+
+        text = grid.GetCellValue(row, col)
+        colors = [wxRED, wxWHITE, wxCYAN]
+        x = rect.x + 1
+        y = rect.y + 1
+        for ch in text:
+            dc.SetTextForeground(random.choice(colors))
+            dc.DrawText(ch, x, y)
+            w, h = dc.GetTextExtent(ch)
+            x = x + w
+            if x > rect.right - 5:
+                break
+
+#=======================================
+class cLabReviewGrid(wxGrid):
+	"""This wxGrid derivative displays lab data that has not yet been reviewed by a clinician.
+	"""
+	def __init__(self, parent, id):
+		"""Set up our specialised grid.
+		"""
+		wxGrid.__init__(
+			self,
+			parent,
+			id,
+			pos = wxDefaultPosition,
+			size = wxDefaultSize,
+			style= wxWANTS_CHARS
+			)
 
 #====================================
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
@@ -68,18 +111,8 @@ class gmLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
 	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
 		wxListCtrl.__init__(self, parent, ID, pos, size, style)
 		wxListCtrlAutoWidthMixin.__init__(self)
-		
-	def AppendColouredItem(self, sLabel = None): 
-		NewItem = wxListItem()
-		NewItem.SetMask(wxLIST_MASK_TEXT);
-		NewItem.SetId(self.GetItemCount());
-		NewItem.SetText(sLabel);
-		NewItem.SetFont(wxITALIC_FONT);
-		NewItem.SetTextColour(wxRED);
-		NewItem.SetBackgroundColour(wxColour(235, 235, 235));
 
-		#self.InsertItem(NewItem)
-		#return NewItem
+		
 #====================================
 class cLabJournalNB(wxNotebook):
 	"""This wxNotebook derivative displays 'records still due' and lab-import related errors.
@@ -228,41 +261,50 @@ class cLabJournalNB(wxNotebook):
 	def __init_SZR_review_status (self):
 	
 		tID = wxNewId()
-		
-		# image list for panel
-		self.il = wxImageList(16, 16)
-		self.images = {
-			#"smiley"	: self.il.Add(imagestest.getSmilesBitmap()),
-			#"up_arrow"	: self.il.Add(imagestest.getSmallUpArrowBitmap()),
-			"checkbox_off": self.il.Add(checkboxOff.getCheckboxOffBitmap()),
-			"checkbox_on": self.il.Add(checkboxOn.getCheckboxOnBitmap())
-			}
-		
-		# set up review list
-		self.LstCtrl_unreviewed = gmLabIDListCtrl(
-			self.PNL_review_tab,
-			tID,
-			size=wxDefaultSize,
-			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
-		)
-		EVT_LIST_KEY_DOWN(self, tID, self.__on_key_pressed)
-		EVT_LIST_ITEM_ACTIVATED(self, tID, self.OnItemSelected)
-		
-		self.LstCtrl_unreviewed.SetImageList(self.il, wxIMAGE_LIST_SMALL)
-		
 		vbszr = wxBoxSizer( wxVERTICAL )
-		vbszr.AddWindow(self.LstCtrl_unreviewed, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+		
+		# create new grid		
+		self.DataGrid = cLabReviewGrid(
+				self.PNL_review_tab,
+				tID
+				)
+		
+		self.DataGrid.CreateGrid(0, 9, wxGrid.wxGridSelectCells )
+		self.DataGrid.SetDefaultCellAlignment(wxALIGN_LEFT,wxALIGN_CENTRE)
+		renderer = apply(MyCustomRenderer, ())
+		self.DataGrid.SetDefaultRenderer(renderer)
+		
+		# There is a bug in wxGTK for this method...
+		self.DataGrid.AutoSizeColumns(True)
+		self.DataGrid.AutoSizeRows(True)
+		# attribute objects let you keep a set of formatting values
+		# in one spot, and reuse them if needed
+		font = self.GetFont()
+		#font.SetWeight(wxBOLD)
+		attr = wxGridCellAttr()
+		attr.SetFont(font)
+		#attr.SetBackgroundColour(wxLIGHT_GREY)
+		attr.SetReadOnly(True)
+		#attr.SetAlignment(wxRIGHT, -1)
+		#attr.IncRef()
+		#self.SetLabelFont(font)
 
-		# layout review list 
-		self.LstCtrl_unreviewed.InsertColumn(0, _('reviewed'))
-		self.LstCtrl_unreviewed.InsertColumn(1, _("patient name"))
-		self.LstCtrl_unreviewed.InsertColumn(2, _("dob"))
-		self.LstCtrl_unreviewed.InsertColumn(3, _("date"))
-		self.LstCtrl_unreviewed.InsertColumn(4, _("analysis"))
-		self.LstCtrl_unreviewed.InsertColumn(5, _("result"))
-		self.LstCtrl_unreviewed.InsertColumn(6, _("range"))
-		self.LstCtrl_unreviewed.InsertColumn(7, _("info provided by lab"))
-		self.LstCtrl_unreviewed.InsertColumn(8, _("request id"))
+		# layout review grid
+		self.DataGrid.SetColLabelValue(0, _('reviewed'))
+		self.DataGrid.SetColLabelValue(1, _('relevant'))
+		self.DataGrid.SetColLabelValue(2, _('patient name'))
+		self.DataGrid.SetColLabelValue(3, _('dob'))
+		self.DataGrid.SetColLabelValue(4, _('date'))
+		self.DataGrid.SetColLabelValue(5, _('analysis'))
+		self.DataGrid.SetColLabelValue(6, _('result'))
+		self.DataGrid.SetColLabelValue(7, _('range'))
+		self.DataGrid.SetColLabelValue(8, _('info provided by lab'))
+		
+		self.DataGrid.AutoSize()
+		#EVT_GRID_CELL_LEFT_CLICK(self, self.OnLeftDClick)
+		EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
+		EVT_GRID_SELECT_CELL(self, self.OnSelectCell)
+		vbszr.AddWindow(self.DataGrid, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 		
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
 		
@@ -334,7 +376,6 @@ class cLabJournalNB(wxNotebook):
 			
 		#----- import errors PNL -----------------------
 		lab_errors = self.__get_import_errors()
-		
 		# clear list
 		self.lbox_errors.DeleteAllItems()
 		# populate list
@@ -357,47 +398,67 @@ class cLabJournalNB(wxNotebook):
 		#print t2-t1
 		
 		self.dict_req_unreviewed = {}
-		# clear list
-		self.LstCtrl_unreviewed.DeleteAllItems()
-		# populate list
+		# clear grid
+		self.DataGrid.ClearGrid()
+		# add rows
+		if self.DataGrid.GetNumberRows() == 0:
+			self.DataGrid.AppendRows(len(data))
+		# populate grid
 		for item_idx in range(len(data)):
 			result = data[item_idx]
-			# -- put checkbox in first column
-			self.LstCtrl_unreviewed.InsertImageItem(index = item_idx, imageIndex=self.images["checkbox_off"])
-			self.LstCtrl_unreviewed.SetColumnWidth(0, wxLIST_AUTOSIZE)
-
-			# abnormal ? -> display in red
+			
+			# -- chose boolean renderer for first and second column
+			renderer = apply(wxGridCellBoolRenderer, ())
+			self.DataGrid.SetCellRenderer(item_idx, 0 , renderer)
+			self.DataGrid.SetCellRenderer(item_idx, 1 , renderer)
+			self.DataGrid.SetReadOnly(item_idx, 0, 1)
+			self.DataGrid.SetReadOnly(item_idx, 1, 1)
+			
+			# -- put reviewed status checkbox in first column
+			self.DataGrid.SetCellValue(item_idx, 0, '1')
+			# -- put relevant status checkbox in second column
+			self.DataGrid.SetCellValue(item_idx, 0, '0')
+			# -- abnormal ? -> display in red
 			if (result['abnormal'] is not None) and (result['abnormal'].strip() != ''):
-				item = self.LstCtrl_unreviewed.GetItem(item_idx)
-				item.SetTextColour(wxRED)
-				self.LstCtrl_unreviewed.SetItem(item)
-			# patient
+				self.DataGrid.SetCellTextColour(item_idx,2,wxRED)
+				self.DataGrid.SetCellTextColour(item_idx,3,wxRED)
+				self.DataGrid.SetCellTextColour(item_idx,4,wxRED)
+				self.DataGrid.SetCellTextColour(item_idx,5,wxRED)
+				self.DataGrid.SetCellTextColour(item_idx,6,wxRED)
+				self.DataGrid.SetCellTextColour(item_idx,7,wxRED)
+				self.DataGrid.SetCellTextColour(item_idx,8,wxRED)
+				# abnormal status from lab
+				info = '(%s)' % result['abnormal']
+				
+				# technically abnormal -> defaults to relevant = true
+				self.DataGrid.SetCellValue(item_idx, 1, '1')
+			else:
+				info = ''
+				# technically normal -> defaults to relevant = false
+				self.DataGrid.SetCellValue(item_idx, 1, '0')
+			# -- patient
 			pat = result.get_patient()
-			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=1, label="%s %s" % (pat[2], pat[3]))
-			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=2, label=pat[4].date)
-			# rxd when
-			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=3, label=result['lab_rxd_when'].date)
-			# test name
-			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=4, label=result['unified_name'])
-			# result including unit
+			self.DataGrid.SetCellValue(item_idx, 2, "%s %s" % (pat[2], pat[3]))
+			self.DataGrid.SetCellValue(item_idx, 3, pat[4].date)
+			# -- rxd when
+			self.DataGrid.SetCellValue(item_idx, 4, result['lab_rxd_when'].date)
+			# -- test name
+			self.DataGrid.SetCellValue(item_idx, 5, result['unified_name'])
+			# -- result including unit
 			# FIXME: what about val_unit empty ?
-			self.LstCtrl_unreviewed.SetStringItem(item_idx, 5, '%s %s' % (result['unified_val'], result['val_unit']))
-			# normal range
+			self.DataGrid.SetCellValue(item_idx, 6, '%s %s %s' % (result['unified_val'], result['val_unit'], info))
+			# -- normal range
 			if result['val_normal_range'] is None:
-				self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=6, label='')
+				self.DataGrid.SetCellValue(item_idx, 7, '')
 			else:
-				self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=6, label=result['val_normal_range'])
-			# notes from provider 
+				self.DataGrid.SetCellValue(item_idx, 7, result['val_normal_range'])
+			# -- notes from provider 
 			if result['note_provider'] is None:
-				self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=7, label='')
+				self.DataGrid.SetCellValue(item_idx, 8, '')
 			else:
-				self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=7, label=result['note_provider'])
-			# req id
-			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=8, label=result['lab_request_id'])
+				self.DataGrid.SetCellValue(item_idx, 8, result['note_provider'])
 			# we need to track the request to be able to identify the request later
 			self.dict_req_unreviewed[item_idx] = result
-			self.LstCtrl_unreviewed.SetItemData(item_idx, item_idx)	
-			#print req_dict
 			
 		# we show 50 items at once , notify user if there are more
 		if more_avail:
@@ -417,37 +478,28 @@ class cLabJournalNB(wxNotebook):
 	#-----------------------------------
 	# event handlers
 	#------------------------------------------------------------------------
-	#def getColumnText(self, index, col):
-	#	item = self.LstCtrl_unreviewed.GetItem(index, col)
-	#	return item.GetText()
-	#------------------------------------------------------------------------
-	#def OnLeftDClick(self, evt):
-	#	pass
-	#------------------------------------------------------------------------
-	def OnItemSelected(self, event):
-		self.currentItem = event.m_itemIndex
-		
-		"""print ("OnItemSelected: %s, %s, %s, %s\n" %
-							(self.currentItem,
-							self.LstCtrl_unreviewed.GetItem(self.currentItem),
-							self.getColumnText(self.currentItem, 1),
-							self.getColumnText(self.currentItem, 2)))
-		"""					
-		# toggle between checked / unchecked
-		image = event.GetImage()
-		if image == 0:
-			item = self.LstCtrl_unreviewed.GetItem(self.currentItem, 0)
-			item.SetMask(wxLIST_MASK_IMAGE)
-			item.SetImage(self.images["checkbox_on"])
-			self.LstCtrl_unreviewed.SetItem(item)
-		if image == 1:
-			item = self.LstCtrl_unreviewed.GetItem(self.currentItem, 0)
-			item.SetMask(wxLIST_MASK_IMAGE)
-			item.SetImage(self.images["checkbox_off"])
-			self.LstCtrl_unreviewed.SetItem(item)
-		
+	def OnLeftDClick(self, event):
+		col = self.DataGrid.GetGridCursorCol()
+		row = self.DataGrid.GetGridCursorRow()
+		if col == 0 or 1:
+			if self.DataGrid.GetCellValue(row,col) == '1':
+				self.DataGrid.SetCellValue(row,col,'0')
+			else:
+				self.DataGrid.SetCellValue(row,col,'1')
+				self.CrosscheckRelevant()
+		else:
+			event.Skip()
 		event.Skip()
-		
+	#------------------------------------------------------------------------
+	def CrosscheckRelevant(self):
+		# reviewed checked -> check relevant if result is abnormal
+		#if (result['abnormal'] is not None) and (result['abnormal'].strip() != ''):
+		#	self.DataGrid.SetCellValue(row, col, '1')
+		print "only stub for Crosscheck - please fix"
+	#------------------------------------------------------------------------
+	def OnSelectCell(self,event):
+		print event
+		event.Skip()
 	# -------------------------------------------------
 	def on_save_request_ID(self, event):
 		req_id = self.fld_request_id.GetValue()
@@ -479,23 +531,32 @@ class cLabJournalNB(wxNotebook):
 		self.__populate_notebook()
 	#------------------------------------------------
 	def on_select_all(self, event):
-		for item_idx in range(self.LstCtrl_unreviewed.GetItemCount()):
-			item = self.LstCtrl_unreviewed.GetItem(item_idx)
-			item.SetImage(self.images["checkbox_on"])
-			self.LstCtrl_unreviewed.SetItem(item)
+		for item_idx in range(self.DataGrid.GetNumberRows()):
+			self.DataGrid.SetCellValue(item_idx,0,'1')
 	
 	#------------------------------------------------
 	def on_mark_reviewed(self, event):
 		# look for checkmark
 		reviewed_req = []
-		for item_idx in range(self.LstCtrl_unreviewed.GetItemCount()):
-			item = self.LstCtrl_unreviewed.GetItem(item_idx, 0)
-			if item.GetImage() == 1:
+		for row in range(self.DataGrid.GetNumberRows()):
+			if self.DataGrid.GetCellValue(row,0) == '1':
 				# look up associated request
-				reviewed_req.append(self.dict_req_unreviewed[self.LstCtrl_unreviewed.GetItemData(item_idx)])
+				req=self.dict_req_unreviewed[row]
+				# check relevant status
+				relevant = self.DataGrid.GetCellValue(row,1)
+				if relevant =='1':
+					req['relevant'] = 'true'
+				else:
+					req['relevant'] = 'false'
+					
+				reviewed_req.append(req)
+		
 		for req in reviewed_req:
-			req['reviewed'] = 't'
-			#print type(req), req
+			req['reviewed'] = 'true'
+			req['pk_reviewer'] = _whoami.get_staff_ID()
+			
+			if not req['abnormal']:
+				req['abnormal'] =''
 			status, error = req.save_payload()
 			# repopulate
 			if status:
@@ -646,7 +707,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.22  2004-05-29 20:20:30  shilbert
+# Revision 1.23  2004-05-30 21:19:01  shilbert
+# - completely redone review panel
+#
+# Revision 1.22  2004/05/29 20:20:30  shilbert
 # - review stuff finally works
 #
 # Revision 1.21  2004/05/29 10:22:10  ncq
