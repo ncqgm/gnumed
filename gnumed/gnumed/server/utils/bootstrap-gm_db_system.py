@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -129,6 +129,8 @@ class db_server:
 			_log.Log(gmLog.lErr, "Cannot connect to template database.")
 			return None
 
+		# FIXME: test for features (eg. dblink/schema/...)
+
 		# add users/groups
 		if not self.__bootstrap_db_users():
 			_log.Log(gmLog.lErr, "Cannot bootstrap database users.")
@@ -138,8 +140,6 @@ class db_server:
 		if not self.__bootstrap_proc_langs():
 			_log.Log(gmLog.lErr, "Cannot bootstrap procedural languages.")
 			return None
-
-		# FIXME: test for features (eg. dblink)
 
 		self.conn.close()
 		return 1
@@ -296,6 +296,11 @@ class db_server:
 		# insert standard groups
 		if self.__create_groups() is None:
 			_log.Log(gmLog.lErr, "Cannot create GnuMed standard groups.")
+			return None
+
+		# insert some users if so desired
+		if not _import_schema(aSection = self.section, anAlias = self.alias, aDB = self.template_db):
+			_log.Log(gmLog.lErr, "Cannot import schema definition for server [%s] into database [%s]." % (self.name, self.template_db.name))
 			return None
 
 		return 1
@@ -611,7 +616,7 @@ class gmService:
 			return None
 
 		# import schema
-		if not self.__import_schema():
+		if not _import_schema(aSection = self.section, anAlias = self.alias, aDB = self.db):
 			_log.Log(gmLog.lErr, "Cannot import schema definition for service [%s] into database [%s]." % (self.alias, database_alias))
 			return None
 
@@ -686,64 +691,6 @@ class gmService:
 		curs.close()
 		return -1
 	#--------------------------------------------------------------
-	def __import_schema(self):
-		# load schema
-		schema_files = _cfg.get(self.section, "schema")
-		if schema_files is None:
-			_log.Log(gmLog.lErr, "Need to know schema definition to install service [%s]." % self.alias)
-			return None
-		# and import them
-		for file in schema_files:
-			if not self.__import_schema_file(file):
-				_log.Log(gmLog.lErr, "cannot import SQL schema file [%s]" % file)
-				return None
-		return 1
-	#--------------------------------------------------------------
-	def __import_schema_file(self, anSQL_file = None):
-		# sanity checks
-		if anSQL_file is None:
-			_log.Log(gmLog.lErr, "Cannot import schema without schema file.")
-			return None
-		SQL_file = os.path.abspath(anSQL_file)
-		if not os.path.exists(SQL_file):
-			_log.Log(gmLog.lErr, "Schema file [%s] does not exist." % SQL_file)
-			return None
-
-		# -W = force password prompt
-		# -q = quiet
-		#cmd = 'psql -a -E -h "%s" -d "%s" -U "%s" -f "%s" >> /tmp/psql-import.log 2>&1' % (aHost, aDB, aUser, SQL_file)
-		#cmd = 'psql -q -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
-		#cmd = 'psql -a -E -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
-
-		old_path = os.getcwd()
-		path = os.path.dirname(SQL_file)
-		os.chdir(path)
-
-		cmd = 'psql -q -h "%s" -d "%s" -U "%s" -f "%s"' % (self.db.server.name, self.db.name, _dbowner.name, SQL_file)
-		_log.Log(gmLog.lInfo, "running [%s]" % cmd)
-		result = os.system(cmd)
-		_log.Log(gmLog.lInfo, "raw result: %s" % result)
-
-		os.chdir(old_path)
-
-		if os.WIFEXITED(result):
-			exitcode = os.WEXITSTATUS(result)
-			_log.Log(gmLog.lInfo, "shell level exit code: %s" % exitcode)
-			if exitcode == 0:
-				_log.Log(gmLog.lInfo, "success")
-				return 1
-
-			if exitcode == 1:
-				_log.Log(gmLog.lErr, "failed: psql internal error")
-			elif exitcode == 2:
-				_log.Log(gmLog.lErr, "failed: database connection error")
-			elif exitcode == 3:
-				_log.Log(gmLog.lErr, "failed: psql script error")
-		else:
-			_log.Log(gmLog.lWarn, "aborted by signal")
-
-		return None
-	#--------------------------------------------------------------
 	def __verify_pg_version(self):
 		"""Verify database version information."""
 
@@ -779,6 +726,64 @@ def bootstrap_services():
 		if not service.register():
 			return None
 	return 1
+#--------------------------------------------------------------
+def _import_schema(self, aSection, anAlias, aDB):
+	# load schema
+	schema_files = _cfg.get(aSection, "schema")
+	if schema_files is None:
+		_log.Log(gmLog.lErr, "Need to know schema definition to install service [%s]." % anAlias)
+		return None
+	# and import them
+	for file in schema_files:
+		if not _import_schema_file(file, aDB):
+			_log.Log(gmLog.lErr, "cannot import SQL schema file [%s]" % file)
+			return None
+	return 1
+#--------------------------------------------------------------
+def _import_schema_file(self, anSQL_file = None, aDB = None):
+	# sanity checks
+	if anSQL_file is None:
+		_log.Log(gmLog.lErr, "Cannot import schema without schema file.")
+		return None
+	SQL_file = os.path.abspath(anSQL_file)
+	if not os.path.exists(SQL_file):
+		_log.Log(gmLog.lErr, "Schema file [%s] does not exist." % SQL_file)
+		return None
+
+	# -W = force password prompt
+	# -q = quiet
+	#cmd = 'psql -a -E -h "%s" -d "%s" -U "%s" -f "%s" >> /tmp/psql-import.log 2>&1' % (aHost, aDB, aUser, SQL_file)
+	#cmd = 'psql -q -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
+	#cmd = 'psql -a -E -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
+
+	old_path = os.getcwd()
+	path = os.path.dirname(SQL_file)
+	os.chdir(path)
+
+	cmd = 'psql -q -h "%s" -d "%s" -U "%s" -f "%s"' % (aDB.server.name, aDB.name, _dbowner.name, SQL_file)
+	_log.Log(gmLog.lInfo, "running [%s]" % cmd)
+	result = os.system(cmd)
+	_log.Log(gmLog.lInfo, "raw result: %s" % result)
+
+	os.chdir(old_path)
+
+	if os.WIFEXITED(result):
+		exitcode = os.WEXITSTATUS(result)
+		_log.Log(gmLog.lInfo, "shell level exit code: %s" % exitcode)
+		if exitcode == 0:
+			_log.Log(gmLog.lInfo, "success")
+			return 1
+
+		if exitcode == 1:
+			_log.Log(gmLog.lErr, "failed: psql internal error")
+		elif exitcode == 2:
+			_log.Log(gmLog.lErr, "failed: database connection error")
+		elif exitcode == 3:
+			_log.Log(gmLog.lErr, "failed: psql script error")
+	else:
+		_log.Log(gmLog.lWarn, "aborted by signal")
+
+	return None
 #------------------------------------------------------------------
 def ask_for_confirmation():
 	services = _cfg.get("installation", "services")
@@ -873,7 +878,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.12  2003-01-26 13:14:36  ncq
+# Revision 1.13  2003-01-28 13:39:14  ncq
+# - implemented schema import at the server level (= template database)
+# - this is mainly useful for importing users
+#
+# Revision 1.12  2003/01/26 13:14:36  ncq
 # - show a description before installing
 # - ask user for confirmation if interactive
 #

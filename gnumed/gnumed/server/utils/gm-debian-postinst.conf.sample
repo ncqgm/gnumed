@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/gm-debian-postinst.conf.sample,v $
-version = $Revision: 1.2 $
+version = $Revision: 1.3 $
 
 #----------------------------------
 [installation]
@@ -20,11 +20,11 @@ clinical tables, german translations and some sample data and
 is intended for the Debian postinst script. Therefore it is
 non-interactive and contains passwords.
 
-There's also some test accounts for access to the database.
+It will also have some test accounts for access to the database.
 Please refer to server/sql/gmTestAccounts.sql to learn more
-about those. If you import them YOU MUST make sure to remove
-them prior to going life on a production system because they
-currently apply to ALL databases.
+about those. YOU MUST make sure to remove them prior to going
+life on a production system because they currently apply to
+ALL databases.
 
 The database name will be "gnumed-test" which is expected
 to not exist prior to running this script.
@@ -90,6 +90,9 @@ name = localhost
 port = 5432
 template database = template1
 super user alias = postgres
+schema = $schema$
+sql/gmTestAccounts.sql
+$schema$
 
 #----------------------------------
 # users
@@ -154,7 +157,11 @@ $language activation$
 
 #----------------------------------
 # $Log: gm-debian-postinst.conf.sample,v $
-# Revision 1.2  2003-01-28 09:37:22  ncq
+# Revision 1.3  2003-01-28 13:39:14  ncq
+# - implemented schema import at the server level (= template database)
+# - this is mainly useful for importing users
+#
+# Revision 1.2  2003/01/28 09:37:22  ncq
 # - moved unchanging defaults to bottom of file
 #
 # Revision 1.1  2003/01/28 09:34:11  ncq
