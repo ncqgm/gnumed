@@ -20,6 +20,11 @@ host = anubis.homeunix.com
 port = 5432
 database = gnumed
 
+[profile GnuMed - Public DB at salaam.homeunix.com]
+host = salaam.homeunix.com
+port = 5432
+database = gnumed
+
 [backend]
 logins = $logins$
 any-doc
@@ -28,6 +33,7 @@ $logins$
 profiles = $profiles$
 gnumed at localhost
 GnuMed - Public DB at anubis.homeunix.com
+GnuMed - Public DB at salaam.homeunix.com
 GnuMed - Public DB at hherb.com
 $profiles$
 
