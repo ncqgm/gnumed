@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -322,7 +322,7 @@ class BMICalc_Panel(wxPanel):
 		if(self.focus==2):
 			self.CalcBMI()
 	#-----------------------------------------
-	def EvtText_goal(self, event):	# TODO -- rounding of self.txtgoal and self.txtloss
+	def EvtText_goal(self, event):
 		if(self.focus==4):
 			if(self.txtgoal.GetValue()!=''):
 				try:
@@ -388,9 +388,8 @@ class BMICalc_Panel(wxPanel):
 	def SLIDER_EVT(self, event):
 		self.NEWBMI=self.slider.GetValue()
 		try:
-			self.txtgoal.SetValue(str(  round(self.NEWBMI*(eval(self.txtheight.GetValue())/100.)**2,1)  ))
+			self.txtgoal.SetValue(str(round(self.NEWBMI*(eval(self.txtheight.GetValue())/100.)**2,1)))
 			self.txtloss.SetValue(str(eval(self.txtmass.GetValue())-eval(self.txtgoal.GetValue())))
-			#self.txtloss.SetValue(str(  round(eval(self.txtmass.GetValue())-self.NEWBMI*(eval(self.txtheight.GetValue())/100.)**2,1)  ))
 		except:
 			pass 	# error handling
 	#-----------------------------------------
@@ -617,8 +616,8 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.22  2003-04-28 04:22:25  michaelb
-# centred BMICalc on main window, rounding of 'goal' & 'loss' values to 1 decimal place on BMI-slider movement
+# Revision 1.23  2003-04-28 04:32:44  michaelb
+# some minor clean-up (removal of note and spaces)
 #
 # Revision 1.21  2003/04/26 08:45:56  ncq
 # - removed some left-over cruft, i18n()ed buttons, added comments on BMI reference charts
