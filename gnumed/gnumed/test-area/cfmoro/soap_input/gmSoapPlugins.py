@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -340,30 +340,44 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Obtain SOAP data from selected editor and dump to backend
 		"""
-
-		selected_soap = self.__soap_multisash.get_focussed_leaf().get_content()
-		#FIXME initial development implementation. Refactor and update
-		vepisode_id = self.__emr.get_active_episode()['pk_episode']
-		vencounter_id = self.__emr.get_active_episode()['pk_episode']
-		vstaff_id = gmWhoAmI.cWhoAmI().get_staff_ID()
-		# compose soap bundle
+		focussed_leaf = self.__soap_multisash.get_focussed_leaf()
+		soap_widget = focussed_leaf.get_content()
+		soap_editor = soap_widget.get_editor()
+		# set up clinical context in soap bundle
+		problem = soap_widget.GetProblem()
+		encounter = self.__emr.get_active_encounter()
+		staff_id = gmWhoAmI.cWhoAmI().get_staff_ID()
 		clin_ctx = {
-			gmSOAPimporter.soap_bundle_EPISODE_ID_KEY:vepisode_id,
-			gmSOAPimporter.soap_bundle_ENCOUNTER_ID_KEY: vencounter_id,
-			gmSOAPimporter.soap_bundle_STAFF_ID_KEY: vstaff_id
+			gmSOAPimporter.soap_bundle_EPISODE_ID_KEY: problem['pk_episode'],
+			gmSOAPimporter.soap_bundle_ENCOUNTER_ID_KEY: encounter['pk_encounter'],
+			gmSOAPimporter.soap_bundle_STAFF_ID_KEY: staff_id
 		}
+		# fill bundle for import
 		bundle = []
-		# iterate over input keys
-		for input_key in selected_soap.GetSOAP().GetValue().keys():
-			bundle.append (
-			{
-				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY:input_key,
-				gmSOAPimporter.soap_bundle_TYPES_KEY:['Hx'],
-				gmSOAPimporter.soap_bundle_TEXT_KEY:selected_soap.GetSOAP().GetValue()[input_key],
-				gmSOAPimporter.soap_bundle_CLIN_CTX_KEY:clin_ctx,
-				gmSOAPimporter.soap_bundle_STRUCT_DATA_KEY:{}
-			}
-			)
+		editor_content = soap_editor.GetValue()
+		for input_label in editor_content.keys():
+			narr = editor_content[input_label]['data']
+			if isinstance(narr, gmClinNarrative.cNarrative):
+				# double-check staff_id vs. narr['who owns it']
+				print "updating existing narrative"
+				narr['narrative'] = editor_content['text']
+#				narr['soap_cat'] = editor_content['soap_cat']
+#				successful, data = narr.save_payload()
+#				if not successful:
+					# FIXME: pop up error dialog etc.
+#					print "cannot update narrative"
+#					print data
+#					continue
+				# FIXME: update associated types list
+				# FIXME: handle embedded structural data list
+				continue
+			bundle.append ({
+				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: input_label,
+				gmSOAPimporter.soap_bundle_TYPES_KEY: [],		# these types need to come from the editor
+				gmSOAPimporter.soap_bundle_TEXT_KEY: editor_content[input_label],
+				gmSOAPimporter.soap_bundle_CLIN_CTX_KEY: clin_ctx,
+				gmSOAPimporter.soap_bundle_STRUCT_DATA_KEY: {}	# this data needs to come from the editor
+			})
 
 		# let's dump soap contents		   
 		print 'Saving: %s' % bundle
@@ -371,7 +385,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		#importer.import_soap(bundle)		
 				
 		# update buttons
-		selected_soap.SetSaved(True)
+		soap_widget.SetSaved(True)
 		self.__update_button_state()
 	#--------------------------------------------------------
 	def __on_clear(self, event):
@@ -526,7 +540,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.24  2005-02-24 20:03:02  cfmoro
+# Revision 1.25  2005-03-03 21:34:23  ncq
+# - cleanup
+# - start implementing saving existing narratives
+#
+# Revision 1.24  2005/02/24 20:03:02  cfmoro
 # Fixed bug when focusing and any of the content is None
 #
 # Revision 1.23  2005/02/23 19:41:26  ncq
