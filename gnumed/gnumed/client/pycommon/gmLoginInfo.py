@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.3 2004-07-17 20:54:50 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmLoginInfo.py,v 1.4 2004-09-13 09:32:21 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -31,24 +31,18 @@ class LoginInfo:
 	__host = None
 	__port = 5432
 	__dbname = 'gnumed'
-	__opt = ''
-	__tty = ''
 	__profile = 'default'
 	#------------------------------------------
-	def __init__(self, user, passwd, host, port=5432, database='gnumed', options='', tty='', profile='default'):
-		self.SetInfo(user, passwd, host, port, database, options, tty, profile)
+	def __init__(self, user, passwd, host, port=5432, database='gnumed', profile='default'):
+		self.SetInfo(user, passwd, host, port, database, profile)
 	#------------------------------------------
-	def SetInfo(self, user, passwd, host='localhost', port=5432, dbname='gnumed', opt='', tty='', profile='default'):
+	def SetInfo(self, user, passwd, host='localhost', port=5432, dbname='gnumed', profile='default'):
 		self.SetUser(user)
 		self.SetPassword(passwd)
 		self.SetHost(host)
 		self.SetPort(port)
 		self.SetDatabase(dbname)
-		#options are passed through unparsed to the backend
-		self.SetOptions(opt)
-		#debug terminal redirection, not used at present
-		self.SetTTY(tty)
-		#user profile toallow for different connection configurations
+		# user profile to allow for different connection configurations
 		self.SetProfile(profile)
 	#------------------------------------------
 	def GetInfo(self):
@@ -58,20 +52,16 @@ class LoginInfo:
 			self.GetHost(),
 			self.GetPort(),
 			self.GetDatabase(),
-			self.GetOptions(),
-			self.GetTTY(),
 			self.GetProfile()
 		)
 	#------------------------------------------
 	def GetInfoStr(self):
 		# don't hand out passwords just like that
-		info = "host:port=%s:%s, db=%s, user=%s, pw=??, opts=%s, tty=%s" % (
+		info = "host:port=%s:%s, db=%s, user=%s, pw=??" % (
 					self.GetHost(),
 					str(self.GetPort()),
 					self.GetDatabase(),
-					self.GetUser(),
-					self.GetOptions(),
-					self.GetTTY()
+					self.GetUser()
 				)
 		return info
 	#------------------------------------------
@@ -83,13 +73,11 @@ class LoginInfo:
 		if host in ['', 'localhost']:
 			host = ""
 			port = ""
-		dsn = "%s:%s:%s:%s:%s:%s" % (
+		dsn = "%s:%s:%s:%s" % (
 			host,
 			self.GetDatabase(),
 			self.GetUser(),
-			self.GetPassword(),
-			self.GetOptions(),
-			self.GetTTY()
+			self.GetPassword()
 		)
 		host_port = "%s:%s" % (host, port)
 		return dsn, host_port
@@ -101,14 +89,13 @@ class LoginInfo:
 		if host in ['', 'localhost']:
 			host = ""
 			port = ""
-		dsn = "%s:%s:%s:%s:%s:%s:%s" % (
+		dsn = "%s:%s:%s:%s:%s" % (
 			host,
 			port,
 			self.GetDatabase(),
 			self.GetUser(),
-			self.GetPassword(),
-			self.GetOptions(),
-			self.GetTTY())
+			self.GetPassword()
+		)
 		return dsn
 	#------------------------------------------
 	def SetUser(self, user):
@@ -149,18 +136,6 @@ class LoginInfo:
 	def GetPort(self):
 		return self.__port
 	#------------------------------------------
-	def SetOptions(self, opt):
-		self.__opt = opt
-	#------------------------------------------
-	def GetOptions(self):
-		return self.__opt
-	#------------------------------------------
-	def SetTTY(self, tty):
-		self.__tty = tty
-	#------------------------------------------
-	def GetTTY(self):
-		return self.__tty
-	#------------------------------------------
 	def SetProfile(self, profile):
 		self.__profile = profile
 	#------------------------------------------
@@ -175,10 +150,7 @@ class LoginInfo:
 		self.__host = "localhost"
 		self.__port = 5432
 		self.__dbname = "gnumed"
-		self.__opt= ""
-		self.__tty = ""
 		self.__profile = 'default'
-		
 
 #====================================================================
 if __name__ == "__main__" :
@@ -186,7 +158,11 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.3  2004-07-17 20:54:50  ncq
+# Revision 1.4  2004-09-13 09:32:21  ncq
+# - remove support for tty/backend opts, we never used them, they
+#   are only documented for old PostgreSQL versions, so axe them
+#
+# Revision 1.3  2004/07/17 20:54:50  ncq
 # - remove user/_user workaround
 #
 # Revision 1.2  2004/04/21 14:27:15  ihaywood
