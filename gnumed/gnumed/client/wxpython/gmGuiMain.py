@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.160 2004-07-15 18:41:22 ncq Exp $
-__version__ = "$Revision: 1.160 $"
+# $Id: gmGuiMain.py,v 1.161 2004-07-18 19:49:07 ncq Exp $
+__version__ = "$Revision: 1.161 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -211,7 +211,7 @@ class gmTopLevelFrame(wxFrame):
 		self.dont_touch_accels = 0
 		# size, position and show ourselves
 		self.top_panel.ReFit()
-		self.SetAutoLayout(true)
+		self.SetAutoLayout(True)
 		self.SetSizer(self.vbox)
 		self.vbox.Fit(self)
 
@@ -223,7 +223,7 @@ class gmTopLevelFrame(wxFrame):
 		self.__set_GUI_size()
 
 		self.Centre(wxBOTH)
-		self.Show(true)
+		self.Show(True)
 	#----------------------------------------------
 	def __set_GUI_size(self):
 		# try to get previous window size from the backend
@@ -261,8 +261,6 @@ class gmTopLevelFrame(wxFrame):
 				option = 'main.window.height',
 				value = desired_height
 			)
-
- 		_log.Log(gmLog.lInfo, 'desired GUI size: [%s:%s]' % (desired_width, desired_height))
 
  		self.SetClientSize(wxSize(desired_width, desired_height))
 	#----------------------------------------------
@@ -387,12 +385,14 @@ class gmTopLevelFrame(wxFrame):
 
 		# intra-client signals
 		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
+		# ?
 		gmDispatcher.connect(self.on_user_error, gmSignals.user_error ())
 		gmDispatcher.connect(self.on_new_notebook, gmSignals.new_notebook ())
 		gmDispatcher.connect(self.on_unload_plugin, gmSignals.unload_plugin ())
 		gmDispatcher.connect(self.SetNotebook, gmSignals.wish_display_plugin ())
 		if self.layout_style == 'terry':
 			gmDispatcher.connect (self.on_new_sidebar, gmSignals.new_sidebar ())
+		# ?
 	#----------------------------------------------
 	def OnNotebookPageChanging(self, event):
 		"""Called before notebook page change is processed.
@@ -404,12 +404,14 @@ class gmTopLevelFrame(wxFrame):
 		# old page here
 		self.__id_prev_page = event.GetOldSelection()
 		id_new_page = event.GetSelection()
+		_log.Log(gmLog.lInfo, 'about to switch notebook tabs: %s -> %s' % (self.__id_prev_page, id_new_page))
 		if id_new_page == self.__id_prev_page:
-			# we don't have any way of knowing which page is going to be it,
-			# the docs say that on Windows GetSelection() returns the old page
-			# ID, eg. the same value that GetOldSelection() returns
+			# the docs say that on Windows GetSelection() returns the
+			# old page ID, eg. the same value that GetOldSelection()
+			# returns, hence we don't have any way of knowing which
+			# page is going to be it
 			_log.Log(gmLog.lData, 'cannot check whether page change needs to be veto()ed')
-			event.Skip() # required for MSW
+			event.Skip()
 			return
 		# check new page
 		new_page = self.guibroker['main.notebook.plugins'][id_new_page]
@@ -425,7 +427,7 @@ class gmTopLevelFrame(wxFrame):
 #				event.Veto()
 #				return
 		self.__new_page_is_checked = True
-		event.Skip() # required for MSW
+		event.Skip()
 	#----------------------------------------------
 	def OnNotebookPageChanged(self, event):
 		"""Called when notebook changes.
@@ -434,6 +436,7 @@ class gmTopLevelFrame(wxFrame):
 		"""
 		id_new_page = event.GetSelection()
 		id_old_page = event.GetOldSelection()
+		_log.Log(gmLog.lInfo, 'switching notebook tabs: %s (%s) -> %s' % (id_old_page, self.__id_prev_page, id_new_page))
 		# get access to selected page
 		new_page = self.guibroker['main.notebook.plugins'][id_new_page]
 		# do we need to check the new page ?
@@ -441,7 +444,7 @@ class gmTopLevelFrame(wxFrame):
 			new_page.ReceiveFocus()
 			# activate toolbar of new page
 			self.top_panel.ShowBar(new_page.__class__.__name__)
-			event.Skip() # required for MSW
+			event.Skip()
 			return
 
 		_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows and Mac OSX)")
@@ -459,7 +462,8 @@ class gmTopLevelFrame(wxFrame):
 		return
 	#----------------------------------------------
 	def SetNotebook (self, id_new_page=-1, name=""):
-		"""Programmatic version of the above
+		"""Programmatic version of the above.
+
 		Is also the handler for wish_display_plugin
 		"""
 		id_old_page = self.nb.GetSelection ()
@@ -552,7 +556,7 @@ class gmTopLevelFrame(wxFrame):
 		gmAbout = gmAbout.AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wxMAXIMIZE_BOX)
 		gmAbout.Centre(wxBOTH)
 		gmTopLevelFrame.otherWin = gmAbout
-		gmAbout.Show(true)
+		gmAbout.Show(True)
 		del gmAbout
 	#----------------------------------------------
 	def _on_right_click(self, evt):
@@ -739,7 +743,7 @@ class gmTopLevelFrame(wxFrame):
 		"""Lock GNUmed client against unauthorized access"""
 		# FIXME
 		for i in range(1, self.nb.GetPageCount()):
-			self.nb.GetPage(i).Enable(false)
+			self.nb.GetPage(i).Enable(False)
 	#----------------------------------------------
 	def Unlock(self):
 		"""Unlock the main notebook widgets
@@ -749,7 +753,7 @@ class gmTopLevelFrame(wxFrame):
 		"""
 		#unlock notebook pages
 		for i in range(1, self.nb.GetPageCount()):
-			self.nb.GetPage(i).Enable(true)
+			self.nb.GetPage(i).Enable(True)
 		# go straight to patient selection
 		self.nb.AdvanceSelection()
 	#-----------------------------------------------
@@ -785,7 +789,7 @@ class gmApp(wxApp):
 					' --slave <cookie>'
 				)
 				gmGuiHelpers.gm_show_error(msg, _('Starting slave mode'), gmLog.lErr)
-				return false
+				return False
 
 		# create a static GUI element dictionary that
 		# will be static and alive as long as app runs
@@ -796,7 +800,7 @@ class gmApp(wxApp):
 		self.__backend = gmLogin.Login()
 		if self.__backend is None:
 			_log.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GnuMed without database connection")
-			return false
+			return False
 
 		try:
 			tmp = _whoami.get_staff_ID()
@@ -809,7 +813,7 @@ class gmApp(wxApp):
 				'Please ask your administrator for help.\n'
 			) % _whoami.get_db_account()
 			gmGuiHelpers.gm_show_error(msg, _('Checking access permissions'))
-			return false
+			return False
 
 		EVT_QUERY_END_SESSION(self, self._on_query_end_session)
 		EVT_END_SESSION(self, self._on_end_session)
@@ -824,9 +828,9 @@ class gmApp(wxApp):
 		#frame.Unlock()
 		# NOTE: the following only works under Windows according
 		# to the docs and bombs under wxPython-2.4 on GTK/Linux
-		#frame.Maximize(true)
+		#frame.Maximize(True)
 		frame.CentreOnScreen(wxBOTH)
-		frame.Show(true)
+		frame.Show(True)
 
 		# last but not least: start macro listener if so desired
 		if gmCLI.has_arg('--slave'):
@@ -842,7 +846,7 @@ class gmApp(wxApp):
 			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
 			_log.Log(gmLog.lInfo, 'listening for macros on port [%s] with cookie [%s]' % (port, cookie))
 
-		return true
+		return True
 	#----------------------------------------------
 	def OnExit(self):
 		"""Called:
@@ -982,7 +986,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.160  2004-07-15 18:41:22  ncq
+# Revision 1.161  2004-07-18 19:49:07  ncq
+# - cleanup, commenting, better logging
+# - preparation for inner-frame notebook layout manager arrival
+# - use Python True, not wxWidgets true, as Python tells us to do
+#
+# Revision 1.160  2004/07/15 18:41:22  ncq
 # - cautiously go back to previous notebook plugin handling
 #   avoiding to remove too much of Ian's new work
 # - store window size across sessions
