@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.72 $
+-- $Revision: 1.73 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -334,9 +334,34 @@ comment on table lnk_vaccine2inds is
 	'links vaccines to their indications';
 
 -- --------------------------------------------
+-- FIXME: do we need lnk_vaccine2vacc_reg ?
+create table vacc_regime (
+	id serial primary key,
+	fk_recommended_by integer,
+	fk_indication integer not null references vacc_indication(id),
+	description text unique not null
+) inherits (audit_fields);
+
+select add_table_for_audit('vacc_regime');
+select add_table_for_scoring('vacc_regime');
+
+-- remote foreign keys:
+select add_x_db_fk_def('vacc_regime', 'fk_recommended_by', 'reference', 'ref_source', 'id');
+
+comment on table vacc_regime is
+	'holds vaccination schedules/regimes/target diseases';
+comment on column vacc_regime.fk_recommended_by is
+	'organization recommending this vaccination';
+comment on column vacc_regime.fk_indication is
+	'vaccination indication this regime is targeted at';
+comment on column vacc_regime.description is
+	'regime name: schedule/disease/target bacterium...';
+
+-- --------------------------------------------
 create table vacc_def (
 	id serial primary key,
-	fk_indication integer not null references vacc_indication(id),
+--	fk_indication integer not null references vacc_indication(id),
+	fk_regime integer not null references vacc_regime(id),
 	-- FIXME: specific constraint: null if (is_booster == true) else > 0
 	is_booster boolean not null default false,
 	seq_no integer not null,
@@ -344,16 +369,15 @@ create table vacc_def (
 	max_age_due interval not null,
 	min_interval interval not null,
 	comment text,
-	unique(fk_indication, seq_no)
+	unique(fk_regime, seq_no)
 ) inherits (audit_fields);
 
 select add_table_for_audit('vacc_def');
 
 comment on table vacc_def is
 	'defines a given vaccination event';
-comment on column vacc_def.fk_indication is
-	'indication for which this vaccination
-	 event is scheduled';
+comment on column vacc_def.fk_regime is
+	'regime to which this event belongs';
 comment on column vacc_def.is_booster is
 	'does this definition represent a booster';
 comment on column vacc_def.seq_no is
@@ -400,34 +424,6 @@ comment on column vaccination.fk_vacc_def is
 	'the vaccination event this particular
 	 vaccination is supposed to cover, allows to
 	 link out-of-band vaccinations into regimes';
-
--- --------------------------------------------
-create table vacc_regime (
-	id serial primary key,
-	fk_recommended_by integer,
-	fk_indication integer not null references vacc_indication(id),
-	description text unique not null
-) inherits (audit_fields);
-
-select add_table_for_audit('vacc_regime');
-select add_table_for_scoring('vacc_regime');
-
--- remote foreign keys:
-select add_x_db_fk_def('vacc_regime', 'fk_recommended_by', 'reference', 'ref_source', 'id');
-
-comment on table vacc_regime is
-	'holds vaccination schedules/regimes/target diseases';
-comment on column vacc_regime.fk_recommended_by is
-	'organization recommending this vaccination';
-comment on column vacc_regime.fk_indication is
-	'vaccination indication this regime is targeted at';
-
--- ============================================
-create table lnk_vacc_def2regime (
-	id serial primary key,
-	fk_vacc_def integer unique not null references vacc_def(id),
-	fk_regime integer not null references vacc_regime(id)
-);
 
 -- ============================================
 -- allergies tables
@@ -753,11 +749,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.72 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.73 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.72  2003-11-22 16:52:01  ncq
+-- Revision 1.73  2003-11-26 23:20:43  ncq
+-- - no need for lnk_vacc_def2regime anymore
+--
+-- Revision 1.72  2003/11/22 16:52:01  ncq
 -- - missing ON in grants
 --
 -- Revision 1.71  2003/11/22 15:36:47  ncq
