@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.39 2005-02-03 20:19:16 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmPatientExporter.py,v 1.40 2005-02-20 08:32:51 sjtan Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -512,6 +512,7 @@ class cEmrExport:
         # fetch first and last encounters for the issue
         emr = self.__patient.get_clinical_record()
         first_encounter = emr.get_first_encounter(issue_id = issue['id'])
+
         last_encounter = emr.get_last_encounter(issue_id = issue['id'])
         # dump info
         txt = ''
@@ -837,7 +838,7 @@ def run():
     # App execution loop
     while patient_term != 'bye':
         patient = gmPerson.ask_for_patient()
-		if patient is None:
+	if patient is None:
 			break
         export_tool.set_patient(patient)
         # Dump patient EMR sections
@@ -882,7 +883,11 @@ if __name__ == "__main__":
         
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.39  2005-02-03 20:19:16  ncq
+# Revision 1.40  2005-02-20 08:32:51  sjtan
+#
+# indentation syntax error.
+#
+# Revision 1.39  2005/02/03 20:19:16  ncq
 # - get_demographic_record() -> get_identity()
 #
 # Revision 1.38  2005/01/31 13:01:23  ncq
