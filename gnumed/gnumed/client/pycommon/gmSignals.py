@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -35,7 +35,7 @@ def allergy_updated():
 	"""Announce allergy cache update to interested parties."""
 	return 'allergy_updated'
 
-
+#------------------------------------------
 # vaccinations
 def vacc_mod_db():
 	"""table vaccination"""
@@ -45,7 +45,7 @@ def vaccinations_updated():
 	"""Announce vaccination cache update to interested parties."""
 	return 'vaccinations_updated'
 
-
+#------------------------------------------
 def health_issue_change_db():
 	"""Announce health issue row insert/update/delete in backend.
 
@@ -59,7 +59,7 @@ def health_issue_updated():
 	"""Announce health issue cache update within frontend."""
 	return 'health_issue_updated'
 
-
+#------------------------------------------
 def episode_change_db():
 	"""Announce episode row insert/update/delete in backend.
 
@@ -69,12 +69,11 @@ def episode_change_db():
 	"""
 	return 'episode_change_db'
 
-def episode_updated():
+def episodes_modified():
 	"""Announce episode cache update within frontend."""
-	return 'episode_updated'
+	return 'episodes_modified'
 
-
-
+#------------------------------------------
 def item_change_db():
 	"""Backend modification to clin_root_item.
 
@@ -202,7 +201,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.7  2005-02-01 10:16:07  ihaywood
+# Revision 1.8  2005-02-23 19:39:37  ncq
+# - episodes_updated -> episodes_modified
+#
+# Revision 1.7  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace
