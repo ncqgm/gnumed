@@ -4,22 +4,16 @@ This lib provides functions for working with XDT-files.
 
 MERGE INTO business/gmXdtObjects.py !!
 """
-#==============================================================
-__version__ = "$Revision: 1.5 $"
+#=====================================================================
+__version__ = "$Revision: 1.6 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
-import fileinput,string,tempfile,time,os,sys,linecache
-import gmLog, gmCfg
+import fileinput,string,tempfile,time,os,sys,linecache,md5
+import gmLog
 _log = gmLog.gmDefLog
-_cfg = gmCfg.gmDefCfgFile
 
-# get export-dir
-pat_dir = _cfg.get("xdt-viewer", "export-dir")
-pat_lst_fname = _cfg.get("xdt-viewer", "patient-list")
-# is there a patient list already ?
-_patlst = gmCfg.cCfgFile(aPath = pat_dir ,aFile = pat_lst_fname, flags = 2)
-#==============================================================
+#=====================================================================
 def xdt_get_pats(aFile):
 	pat_ids = []
 	pat_names = []
@@ -49,15 +43,17 @@ def xdt_get_pats(aFile):
 
 	_log.Log(gmLog.lData, "patients found: %s" % len(pat_ids))
 	return pats
-#=================================================================
-def get_pat_data(aFile,ID,name):
+#=====================================================================
+def get_pat_data(aFile,ID,name,patdir = None ,patlst = None ):
+	pat_dir = patdir
+	_patlst = patlst
 	_log.Log(gmLog.lData, "looking for patient: %s" % ID+':'+name)
 	# return list of filenames for selected patient
 	data = [pat_dir,_patlst.get(aGroup=ID+':'+name,anOption="files")]
 	_log.Log(gmLog.lData, "data: %s" % data)
 	return data
-#=================================================================
-def split_xdt_file(aFile):
+#=====================================================================
+def split_xdt_file(aFile,patlst,cfg):
 	content=[]
 	lineno = []
 	aline = '0'
@@ -100,16 +96,16 @@ def split_xdt_file(aFile):
 			for tmp in range(startline,endline):							
 				content.append(linecache.getline(aFile,tmp))
 				_log.Log(gmLog.lData, "reading %s"%tmp )
-			aRecord = dump2individualFile(content)
-			check_for_previous_records(ID,name,aRecord) 
+			file_lst = dump2individualFile(content,cfg)
+			check_for_previous_records(ID,name,file_lst,patlst) 
 			content = []
 		else:
 			continue
 	# cleanup
 	fileinput.close()
-	_patlst.store()
+	patlst.store()
 	return 1
-#====================================================================
+#=====================================================================
 def get_random_ID(aDir):
 	# set up temp file environment for creating unique random directory
 	tempfile.tempdir = aDir
@@ -119,8 +115,9 @@ def get_random_ID(aDir):
 	# extract name for dir
 	path, doc_ID = os.path.split(tmpname)
 	return doc_ID
-#====================================================================
-def dump2individualFile(content):
+#=====================================================================
+def dump2individualFile(content,cfg):
+	_cfg = cfg
 	fname = []
 	# write record for this patient to new file
 	pat_dir=_cfg.get("xdt-viewer", "export-dir")
@@ -134,27 +131,48 @@ def dump2individualFile(content):
 	pat_file.close()
 	return fname
 #=====================================================================
-def check_for_previous_records(ID,name,aRecord):
+def check_for_previous_records(ID,name,file_lst,patlst):
+	_patlst = patlst
 	anIdentity = str(ID)+':'+str(name)
 	# patient already in list ?
 	if anIdentity in _patlst.getGroups():
 		_log.Log(gmLog.lData, "identity already in list" )
 		files = _patlst.get(aGroup=anIdentity,anOption="files")
-		_log.Log(gmLog.lData, "files already there : %s" %files )
-		files.append(aRecord[0])
-		_log.Log(gmLog.lData, "files now there : %s" %files )
-		_patlst.set(aGroup=anIdentity,anOption="files",aValue = files, aComment="")	
+		#file already in list ?
+		for file in file_lst:
+			if file in files:
+				continue
+		else: 
+			add_file_to_patlst(anIdentity,patlst,file_lst)
 	else:
 		# no, we will add him/her then 
 		_log.Log(gmLog.lData, "identity not yet in list" )
-		#_patlst.set(aGroup=anIdentity,aComment="list of filenames for patient's records")
-		files = aRecord
-		# update list of records for this patient
-		_patlst.set(aGroup=anIdentity,anOption="files",aValue = files, aComment="")
+		add_pat_to_patlst(anIdentity,patlst)
+		add_file_to_patlst(anIdentity,patlst,file_lst)
 	return 1
-#==============================================================
+#=====================================================================
+def add_pat_to_patlst(anIdentity,patlst):
+	_patlst = patlst
+	_patlst.set(aGroup=anIdentity,anOption="files",aValue = [], aComment="")
+	
+#=====================================================================
+def add_file_to_patlst(anIdentity,patlst,file_lst):
+	_patlst = patlst
+	files = _patlst.get(aGroup=anIdentity,anOption="files")
+	#_log.Log(gmLog.lData, "files already there : %s" %files )
+	for file in file_lst:
+		files.append(file)
+		_log.Log(gmLog.lData, "files now there : %s" %files )
+	_patlst.set(aGroup=anIdentity,anOption="files",aValue = files, aComment="")
+#=====================================================================
+def hash_split_file():
+	md5.new()
+#=====================================================================
 # $Log: gmXdtToolsLib.py,v $
-# Revision 1.5  2003-08-21 21:38:11  shilbert
+# Revision 1.6  2003-08-23 13:20:34  shilbert
+# - freed the lib from gmCfg dependency as proposed by ncq
+#
+# Revision 1.5  2003/08/21 21:38:11  shilbert
 # - make it work again after heavy refactoring by ncq
 #
 # Revision 1.4  2003/08/20 22:57:11  shilbert
