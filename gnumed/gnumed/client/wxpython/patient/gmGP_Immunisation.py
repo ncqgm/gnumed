@@ -1,25 +1,17 @@
 #======================================================================
 # GnuMed immunisation/vaccination patient plugin
-# ----------------------------------------------
 #
 # this plugin holds the immunisation details
 #
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.34 2004-07-15 23:16:21 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmGP_Immunisation.py,v 1.35 2004-07-17 11:00:31 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
+__license__ = 'GPL (details at http://www.gnu.org)'
 
-from wxPython.wx import *
-
-# panel class holding editing prompts and text boxes
 from Gnumed.wxpython import gmPlugin_Patient, gmVaccWidgets
-from Gnumed.pycommon import gmLog
-
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
 
 #======================================================================
 class gmGP_Immunisation(gmPlugin_Patient.wxPatientPlugin):
@@ -55,13 +47,16 @@ Mc4\x85\x9f%\xfc\xae\x93!\xd5K_\xd4\x86\xf8\xa1?\x88\x12\xf9\x00 =F\x87'
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 	print "there isn't really any unit test for this"
-#	_log.SetAllLogLevels(gmLog.lData)
+#	from wxPython.wx import *
 #	app = wxPyWidgetTester(size = (600, 600))
 #	app.SetWidget(gmVaccWidgets.ImmunisationPanel, -1)
 #	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.34  2004-07-15 23:16:21  ncq
+# Revision 1.35  2004-07-17 11:00:31  ncq
+# - cleanup
+#
+# Revision 1.34  2004/07/15 23:16:21  ncq
 # - refactor vaccinations GUI code into
 #   - gmVaccWidgets.py: layout manager independant widgets
 #   - gui/gmVaccinationsPlugins.py: Horst space notebook plugin
