@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.6 2003-11-20 01:52:03 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmDemographicRecord.py,v 1.7 2003-11-20 02:10:50 sjtan Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -414,7 +414,7 @@ def getCommChannelTypes():
 		return None
 	return [row[0] for row in row_list]
 #----------------------------------------------------------------
-def guess_state_country(self, urb, postcode):
+def guess_state_country( urb, postcode):
 	"""parameters are urb.name, urb.postcode;
 	   outputs are urb.id_state,  country.code"""
 
@@ -422,8 +422,8 @@ def guess_state_country(self, urb, postcode):
 select state.code, state.country
 from urb, state
 where
-	lower(urb.name) = lower('%s') and
-	upper(urb.postcode) = upper('%s') and
+	lower(urb.name) = lower(%s) and
+	upper(urb.postcode) = upper(%s) and
 	urb.id_state = state.id
 """
 	data = gmPG.run_ro_query ('personalia', cmd, None,  urb, postcode)
@@ -433,7 +433,7 @@ where
 		return '', ''
 	return data[0]
 #----------------------------------------------------------------
-def getPostcodeForUrbId(self, urb_id):
+def getPostcodeForUrbId( urb_id):
 	cmd = "select postcode from urb where id = %s"
 	data = gmPG.run_ro_query ('personalia', cmd, None, urb_id)
 	if data is None:
@@ -545,7 +545,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.6  2003-11-20 01:52:03  ncq
+# Revision 1.7  2003-11-20 02:10:50  sjtan
+#
+# remove 'self' parameter from functions moved into global module namespace.
+#
+# Revision 1.6  2003/11/20 01:52:03  ncq
 # - actually, make that **?** for good measure
 #
 # Revision 1.5  2003/11/20 01:50:52  ncq
