@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/indexFrame.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -25,20 +25,14 @@ __cfg__ = gmCfg.gmDefCfg
 def create(parent):
 	return indexFrame(parent)
 
-[wxID_INDEXFRAME, wxID_INDEXFRAMEADDITIONCOMMENTBOX, wxID_INDEXFRAMEBEFNRBOX, wxID_INDEXFRAMEBEFUNDDATE, wxID_INDEXFRAMEDATEOFBIRTHBOX, wxID_INDEXFRAMEDELPICBUTTON, wxID_INDEXFRAMEDESCRIPTIONCHOICEBOX, wxID_INDEXFRAMEFIRSTNAMEBOX, wxID_INDEXFRAMEGETPICSBUTTON, wxID_INDEXFRAMELASTNAMEBOX, wxID_INDEXFRAMELISTBOX1, wxID_INDEXFRAMEMAINPANEL, wxID_INDEXFRAMEREADFAXBUTTON, wxID_INDEXFRAMESAVEBUTTON, wxID_INDEXFRAMESHORTDECRIPTIONBOX, wxID_INDEXFRAMESHOWPICBUTTON, wxID_INDEXFRAMESTATICTEXT1, wxID_INDEXFRAMESTATICTEXT10, wxID_INDEXFRAMESTATICTEXT11, wxID_INDEXFRAMESTATICTEXT12, wxID_INDEXFRAMESTATICTEXT13, wxID_INDEXFRAMESTATICTEXT2, wxID_INDEXFRAMESTATICTEXT3, wxID_INDEXFRAMESTATICTEXT4, wxID_INDEXFRAMESTATICTEXT5, wxID_INDEXFRAMESTATICTEXT6, wxID_INDEXFRAMESTATICTEXT7, wxID_INDEXFRAMESTATICTEXT8, wxID_INDEXFRAMESTATICTEXT9] = map(lambda _init_ctrls: wxNewId(), range(29))
+[wxID_INDEXFRAME, wxID_INDEXFRAMEADDITIONCOMMENTBOX, wxID_INDEXFRAMEBEFNRBOX, wxID_INDEXFRAMEBEFUNDDATE, wxID_INDEXFRAMEDATEOFBIRTHBOX, wxID_INDEXFRAMEDELPICBUTTON, wxID_INDEXFRAMEDESCRIPTIONCHOICEBOX, wxID_INDEXFRAMEFIRSTNAMEBOX, wxID_INDEXFRAMEGETPAGESBUTTON, wxID_INDEXFRAMELASTNAMEBOX, wxID_INDEXFRAMELBOXPAGES, wxID_INDEXFRAMEMAINPANEL, wxID_INDEXFRAMEREADFAXBUTTON, wxID_INDEXFRAMESAVEBUTTON, wxID_INDEXFRAMESHORTDECRIPTIONBOX, wxID_INDEXFRAMESHOWPICBUTTON, wxID_INDEXFRAMESTATICTEXT1, wxID_INDEXFRAMESTATICTEXT10, wxID_INDEXFRAMESTATICTEXT11, wxID_INDEXFRAMESTATICTEXT12, wxID_INDEXFRAMESTATICTEXT13, wxID_INDEXFRAMESTATICTEXT2, wxID_INDEXFRAMESTATICTEXT3, wxID_INDEXFRAMESTATICTEXT4, wxID_INDEXFRAMESTATICTEXT5, wxID_INDEXFRAMESTATICTEXT6, wxID_INDEXFRAMESTATICTEXT7, wxID_INDEXFRAMESTATICTEXT8, wxID_INDEXFRAMESTATICTEXT9] = map(lambda _init_ctrls: wxNewId(), range(29))
 
 #-------------------------------------
 class indexFrame(wxFrame):
-#-------------------------------------    
-	picList = []
-	validTypeList = []
+#-------------------------------------
+	doc_pages = []
 	page = 0
 	selected_pic = ''
-	BefValue = ''
-	Vorname = ''
-	Nachname = ''
-	Geburtsdatum = ''
-	rawGeburtsdatum = ''
 	queryGeburtsdatum = ''
 	Obj_Name_value = ''
 	Obj_Typ_value = ''
@@ -53,8 +47,14 @@ class indexFrame(wxFrame):
 		# init ctrls
 		self._init_ctrls(parent)
 
+		# we are indexing data from one particular patient
+		# this is a design decision
+		if not self.__load_patient():
+			raise ValueError
+		self._init_pat_fields()
+
 		# name of document description XML file
-		self.desc_file = __cfg__.get("metadata", "description")
+		self.desc_file_name = __cfg__.get("metadata", "description")
 		# checkpoint file whether indexing can start
 		self.can_index_file = __cfg__.get("metadata", "can_index")
 		# get valid document types from ini-file
@@ -68,59 +68,109 @@ class indexFrame(wxFrame):
 	#---------------------------------------------------------------------------
 	def _init_ctrls(self, prnt):
 		# create our basic frame
-		wxFrame.__init__(self, id = wxID_INDEXFRAME, name = 'indexFrame', parent = prnt, pos = wxPoint(361, 150), size = wxSize(763, 616), style = wxDEFAULT_FRAME_STYLE, title = _('assign documents'))
+		wxFrame.__init__(
+			self,
+			id = wxID_INDEXFRAME,
+			name = 'indexFrame',
+			parent = prnt,
+			pos = wxPoint(361, 150),
+			size = wxSize(763, 616),
+			style = wxDEFAULT_FRAME_STYLE,
+			title = _('Associating documents with patients.')
+		)
 		self._init_utils()
-
 		self.SetClientSize(wxSize(763, 616))
 
-		self.main_panel = wxPanel(id = wxID_INDEXFRAMEMAINPANEL, name = 'main panel', parent = self, pos = wxPoint(0, 0), size = wxSize(763, 616), style = wxTAB_TRAVERSAL)
-		self.main_panel.SetBackgroundColour(wxColour(225, 225, 225))
+		self.PNL_main = wxPanel(
+			id = wxID_INDEXFRAMEMAINPANEL,
+			name = 'main panel',
+			parent = self,
+			pos = wxPoint(0, 0),
+			size = wxSize(763, 616),
+			style = wxTAB_TRAVERSAL
+		)
+		self.PNL_main.SetBackgroundColour(wxColour(225, 225, 225))
 
 		self.BTN_get_pages = wxButton(
-			id = wxID_INDEXFRAMEGETPICSBUTTON,
+			id = wxID_INDEXFRAMEGETPAGESBUTTON,
 			label = _('load pages'),
 			name = 'BTN_get_pages',
-			parent = self.main_panel,
+			parent = self.PNL_main,
 			pos = wxPoint(48, 160),
 			size = wxSize(176, 22),
 			style = 0
 		)
 		self.BTN_get_pages.SetToolTipString(_('retrieve all pages for this document'))
-		EVT_BUTTON(self.BTN_get_pages, wxID_INDEXFRAMEGETPICSBUTTON, self.on_get_objects)
+		EVT_BUTTON(self.BTN_get_pages, wxID_INDEXFRAMEGETPAGESBUTTON, self.on_get_pages)
 
-		self.readFaxButton = wxButton(id = wxID_INDEXFRAMEREADFAXBUTTON, label = _('load fax-document'), name = 'readFaxButton', parent = self.main_panel, pos = wxPoint(48, 232), size = wxSize(176, 22), style = 0)
+		self.readFaxButton = wxButton(id = wxID_INDEXFRAMEREADFAXBUTTON, label = _('load fax-document'), name = 'readFaxButton', parent = self.PNL_main, pos = wxPoint(48, 232), size = wxSize(176, 22), style = 0)
 
-		self.showPicButton = wxButton(id = wxID_INDEXFRAMESHOWPICBUTTON, label = _('show page'), name = 'showPicButton', parent = self.main_panel, pos = wxPoint(48, 400), size = wxSize(95, 22), style = 0)
+		self.showPicButton = wxButton(id = wxID_INDEXFRAMESHOWPICBUTTON, label = _('show page'), name = 'showPicButton', parent = self.PNL_main, pos = wxPoint(48, 400), size = wxSize(95, 22), style = 0)
 		self.showPicButton.SetToolTipString(_('show page'))
 		EVT_BUTTON(self.showPicButton, wxID_INDEXFRAMESHOWPICBUTTON, self.OnShowpicbuttonButton)
 
-		self.delPicButton = wxButton(id = wxID_INDEXFRAMEDELPICBUTTON, label = _('delete page'), name = 'delPicButton', parent = self.main_panel, pos = wxPoint(143, 400), size = wxSize(90, 22), style = 0)
+		self.delPicButton = wxButton(id = wxID_INDEXFRAMEDELPICBUTTON, label = _('delete page'), name = 'delPicButton', parent = self.PNL_main, pos = wxPoint(143, 400), size = wxSize(90, 22), style = 0)
 		EVT_BUTTON(self.delPicButton, wxID_INDEXFRAMEDELPICBUTTON, self.OnDelpicbuttonButton)
 
-		self.listBox1 = wxListBox(choices = [], id = wxID_INDEXFRAMELISTBOX1, name = 'listBox1', parent = self.main_panel, pos = wxPoint(48, 288), size = wxSize(182, 94), style = 0, validator = wxDefaultValidator)
+		self.LBOX_doc_pages = wxListBox(
+			choices = [],
+			id = wxID_INDEXFRAMELBOXPAGES,
+			name = 'LBOX_doc_pages',
+			parent = self.PNL_main,
+			pos = wxPoint(48, 288),
+			size = wxSize(182, 94),
+			style = 0,
+			validator = wxDefaultValidator
+		)
 
-		self.FirstnameBox = wxTextCtrl(id = wxID_INDEXFRAMEFIRSTNAMEBOX, name = 'FirstnameBox', parent = self.main_panel, pos = wxPoint(304, 112), size = wxSize(152, 22), style = 0, value = self.Vorname)
-		self.FirstnameBox.SetToolTipString(_('firstname'))
-		self.FirstnameBox.Enable(false)
-		self.FirstnameBox.SetBackgroundColour(wxColour(255, 255, 255))
+		self.TBOX_first_name = wxTextCtrl(
+			id = wxID_INDEXFRAMEFIRSTNAMEBOX,
+			name = 'TBOX_first_name',
+			parent = self.PNL_main,
+			pos = wxPoint(304, 112),
+			size = wxSize(152, 22),
+			style = wxTE_READONLY,
+			value = 'loading ...'
+		)
+		self.TBOX_first_name.SetToolTipString(_('first name of patient'))
+		self.TBOX_first_name.SetBackgroundColour(wxColour(255, 255, 255))
+		#self.TBOX_first_name.Enable(false)
 
-		self.LastnameBox = wxTextCtrl(id = wxID_INDEXFRAMELASTNAMEBOX, name = 'LastnameBox', parent = self.main_panel, pos = wxPoint(304, 160), size = wxSize(152, 22), style = 0, value = self.Nachname)
-		self.LastnameBox.SetBackgroundColour(wxColour(255, 255, 255))
-		self.LastnameBox.Enable(false)
+		self.TBOX_last_name = wxTextCtrl(
+			id = wxID_INDEXFRAMELASTNAMEBOX,
+			name = 'TBOX_last_name',
+			parent = self.PNL_main,
+			pos = wxPoint(304, 160),
+			size = wxSize(152, 22),
+			style = wxTE_READONLY,
+			value = 'loading ...'
+		)
+		self.TBOX_first_name.SetToolTipString(_('last name of patient'))
+		self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
+		#self.TBOX_last_name.Enable(false)
 
-		self.DateOfBirthBox = wxTextCtrl(id = wxID_INDEXFRAMEDATEOFBIRTHBOX, name = 'DateOfBirthBox', parent = self.main_panel, pos = wxPoint(304, 232), size = wxSize(152, 22), style = 0, value = self.Geburtsdatum)
-		self.DateOfBirthBox.SetToolTipString(_('date of birth'))
-		self.DateOfBirthBox.Enable(false)
+		self.TBOX_dob = wxTextCtrl(
+			id = wxID_INDEXFRAMEDATEOFBIRTHBOX,
+			name = 'TBOX_dob',
+			parent = self.PNL_main,
+			pos = wxPoint(304, 232),
+			size = wxSize(152, 22),
+			style = wxTE_READONLY,
+			value = 'loading ...'
+		)
+		self.TBOX_dob.SetToolTipString(_('date of birth'))
+		#self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
+		#self.TBOX_dob.Enable(false)
 
-		self.BefundDate = wxTextCtrl(id = wxID_INDEXFRAMEBEFUNDDATE, name = 'BefundDate', parent = self.main_panel, pos = wxPoint(304, 312), size = wxSize(152, 22), style = 0, value = _('please fill in'))
+		self.BefundDate = wxTextCtrl(id = wxID_INDEXFRAMEBEFUNDDATE, name = 'BefundDate', parent = self.PNL_main, pos = wxPoint(304, 312), size = wxSize(152, 22), style = 0, value = _('please fill in'))
 
-		self.shortDecriptionBox = wxTextCtrl(id = wxID_INDEXFRAMESHORTDECRIPTIONBOX, name = 'shortDecriptionBox', parent = self.main_panel, pos = wxPoint(304, 368), size = wxSize(152, 22), style = 0, value = _('please fill in'))
+		self.shortDecriptionBox = wxTextCtrl(id = wxID_INDEXFRAMESHORTDECRIPTIONBOX, name = 'shortDecriptionBox', parent = self.PNL_main, pos = wxPoint(304, 368), size = wxSize(152, 22), style = 0, value = _('please fill in'))
 
 		self.DescriptionChoiceBox = wxComboBox(
 			choices = self.valid_doc_types,
 			id = wxID_INDEXFRAMEDESCRIPTIONCHOICEBOX,
 			name = 'DescriptionChoiceBox',
-			parent = self.main_panel,
+			parent = self.PNL_main,
 			pos = wxPoint(304, 416),
 			size = wxSize(152, 22),
 			style = 0,
@@ -129,43 +179,43 @@ class indexFrame(wxFrame):
 		)
 		self.DescriptionChoiceBox.SetLabel('')
 
-		self.saveButton = wxButton(id = wxID_INDEXFRAMESAVEBUTTON, label = _('save document'), name = 'saveButton', parent = self.main_panel, pos = wxPoint(544, 112), size = wxSize(144, 328), style = 0)
+		self.saveButton = wxButton(id = wxID_INDEXFRAMESAVEBUTTON, label = _('save document'), name = 'saveButton', parent = self.PNL_main, pos = wxPoint(544, 112), size = wxSize(144, 328), style = 0)
 		self.saveButton.SetToolTipString(_('save'))
 		EVT_BUTTON(self.saveButton, wxID_INDEXFRAMESAVEBUTTON, self.OnSavebuttonButton)
 
-		self.additionCommentBox = wxTextCtrl(id = wxID_INDEXFRAMEADDITIONCOMMENTBOX, name = 'additionCommentBox', parent = self.main_panel, pos = wxPoint(48, 488), size = wxSize(640, 88), style = wxTE_MULTILINE, value = ' ')
+		self.additionCommentBox = wxTextCtrl(id = wxID_INDEXFRAMEADDITIONCOMMENTBOX, name = 'additionCommentBox', parent = self.PNL_main, pos = wxPoint(48, 488), size = wxSize(640, 88), style = wxTE_MULTILINE, value = ' ')
 
-		self.staticText1 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT1, label = '1.', name = 'staticText1', parent = self.main_panel, pos = wxPoint(48, 56), size = wxSize(19, 29), style = 0)
+		self.staticText1 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT1, label = '1.', name = 'staticText1', parent = self.PNL_main, pos = wxPoint(48, 56), size = wxSize(19, 29), style = 0)
 		self.staticText1.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.staticText2 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT2, label = '2.', name = 'staticText2', parent = self.main_panel, pos = wxPoint(312, 56), size = wxSize(19, 29), style = 0)
+		self.staticText2 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT2, label = '2.', name = 'staticText2', parent = self.PNL_main, pos = wxPoint(312, 56), size = wxSize(19, 29), style = 0)
 		self.staticText2.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.staticText3 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT3, label = '3.', name = 'staticText3', parent = self.main_panel, pos = wxPoint(560, 56), size = wxSize(19, 29), style = 0)
+		self.staticText3 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT3, label = '3.', name = 'staticText3', parent = self.PNL_main, pos = wxPoint(560, 56), size = wxSize(19, 29), style = 0)
 		self.staticText3.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.staticText4 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT4, label = _('or'), name = 'staticText4', parent = self.main_panel, pos = wxPoint(48, 192), size = wxSize(49, 29), style = 0)
+		self.staticText4 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT4, label = _('or'), name = 'staticText4', parent = self.PNL_main, pos = wxPoint(48, 192), size = wxSize(49, 29), style = 0)
 		self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.staticText5 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT5, label = _('document date (YYYY-MM-DD)'), name = 'staticText5', parent = self.main_panel, pos = wxPoint(304, 288), size = wxSize(158, 16), style = 0)
+		self.staticText5 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT5, label = _('document date (YYYY-MM-DD)'), name = 'staticText5', parent = self.PNL_main, pos = wxPoint(304, 288), size = wxSize(158, 16), style = 0)
 
-		self.staticText6 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT6, label = _('date of birth'), name = 'staticText6', parent = self.main_panel, pos = wxPoint(304, 208), size = wxSize(152, 16), style = 0)
+		self.staticText6 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT6, label = _('date of birth'), name = 'staticText6', parent = self.PNL_main, pos = wxPoint(304, 208), size = wxSize(152, 16), style = 0)
 
-		self.staticText7 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT7, label = _('string on document '), name = 'staticText7', parent = self.main_panel, pos = wxPoint(48, 96), size = wxSize(176, 16), style = 0)
+		self.staticText7 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT7, label = _('string on document '), name = 'staticText7', parent = self.PNL_main, pos = wxPoint(48, 96), size = wxSize(176, 16), style = 0)
 
-		self.staticText8 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT8, label = _('pages'), name = 'staticText8', parent = self.main_panel, pos = wxPoint(48, 264), size = wxSize(152, 16), style = 0)
+		self.staticText8 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT8, label = _('pages'), name = 'staticText8', parent = self.PNL_main, pos = wxPoint(48, 264), size = wxSize(152, 16), style = 0)
 
-		self.staticText9 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT9, label = _('firstname'), name = 'staticText9', parent = self.main_panel, pos = wxPoint(304, 96), size = wxSize(152, 16), style = 0)
+		self.staticText9 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT9, label = _('firstname'), name = 'staticText9', parent = self.PNL_main, pos = wxPoint(304, 96), size = wxSize(152, 16), style = 0)
 
-		self.staticText10 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT10, label = _('lastname'), name = 'staticText10', parent = self.main_panel, pos = wxPoint(304, 144), size = wxSize(152, 16), style = 0)
+		self.staticText10 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT10, label = _('lastname'), name = 'staticText10', parent = self.PNL_main, pos = wxPoint(304, 144), size = wxSize(152, 16), style = 0)
 
-		self.staticText11 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT11, label = _('short comment'), name = 'staticText11', parent = self.main_panel, pos = wxPoint(304, 352), size = wxSize(152, 16), style = 0)
+		self.staticText11 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT11, label = _('short comment'), name = 'staticText11', parent = self.PNL_main, pos = wxPoint(304, 352), size = wxSize(152, 16), style = 0)
 
 		self.staticText12 = wxStaticText(
 			id = wxID_INDEXFRAMESTATICTEXT12,
 			label = _('document type'),
 			name = 'staticText12',
-			parent = self.main_panel,
+			parent = self.PNL_main,
 			pos = wxPoint(304, 400),
 			size = wxSize(152, 16),
 			style = 0
@@ -175,12 +225,12 @@ class indexFrame(wxFrame):
 			id = wxID_INDEXFRAMESTATICTEXT13,
 			label = _('additional comment'),
 			name = 'staticText13',
-			parent = self.main_panel,
+			parent = self.PNL_main,
 			pos=wxPoint(48, 464),
 			size = wxSize(143, 16),
 			style = 0
 		)
-	#--------------------------------------------------------------------------
+	#--------------------------------
 	def _init_phrase_wheel(self):
 		"""Set up phrase wheel.
 
@@ -191,30 +241,61 @@ class indexFrame(wxFrame):
 		"""
 
 		# get document directories
-		repository = __cfg__.get("repositories", "to_index")
+		repository = os.path.expanduser(__cfg__.get("repositories", "to_index"))
 		doc_dirs = os.listdir(repository)
 
 		# generate list of choices
 		phrase_wheel_choices = []
 		for i in range(len(doc_dirs)):
+			full_dir = os.path.join(repository, doc_dirs[i])
 			# DON'T fail on missing checkpoint files here yet
 			# in order to facilitate maximum parallelity
-			if not os.path.exists(os.path.join(doc_dirs[i], self.can_index_file)):
-				_log.Log(gmLog.lInfo, "Document directory [%s] not yet checkpointed (%s) for indexing. Let's see who wins the race." % (doc_dirs[i], self.can_index_file))
-			# same weight for all of them
-			phrase_wheel_choices.append({'ID': i, 'label': doc_dirs[i], 'weight': 1})
+			if not os.path.exists(os.path.join(full_dir, self.can_index_file)):
+				_log.Log(gmLog.lInfo, "Document directory [%s] not yet checkpointed (%s) for indexing. Let's see who wins the race." % (full_dir, self.can_index_file))
+
+			# only add if dir and not stray file
+			if os.path.isdir(full_dir):
+				# same weight for all of them
+				phrase_wheel_choices.append({'ID': i, 'label': doc_dirs[i], 'weight': 1})
+			else:
+				_log.Log(gmLog.lData, "stray file: %s" % doc_dirs[i])
 
 		#<DEBUG>
 		_log.Log(gmLog.lData, "document dirs: %s" % str(phrase_wheel_choices))
 		#</DEBUG>
 
+		# FIXME: we need to set this to non-learning mode
 		mp = cMatchProvider_FixedList(phrase_wheel_choices)
-		self.doc_id_wheel = cPhraseWheel(self.main_panel, self.clicked, pos = (48, 112), size = (176, 22), aMatchProvider=mp, aDelay = 400)
+		self.doc_id_wheel = cPhraseWheel(self.PNL_main, self.wheel_callback, pos = (48, 112), size = (176, 22), aMatchProvider=mp, aDelay = 400)
 		self.doc_id_wheel.SetToolTipString(_('physical document ID'))
 
 		self.doc_id_wheel.on_resize (None)
+	#--------------------------------
+	def _init_patient_fields(self):
+		self.TBOX_first_name.SetValue(self.myPatient.firstnames)
+		self.TBOX_last_name.SetValue(self.myPatient.lastnames)
+		self.TBOX_dob.SetValue(self.myPatient.dob)
+
+		#if not self.Obj_Datum_value == _('please fill in'):
+#		self.BefundDate.AppendText(self.Obj_Datum_value)
+		#if not self.Obj_Name_value == _('please fill in'):
+#		self.shortDecriptionBox.AppendText(self.Obj_Name_value)
+		#if not self.Obj_Typ_value =='':
+#		index = self.DescriptionChoiceBox.FindString(self.Obj_Typ_value)
+#		self.DescriptionChoiceBox.SetSelection(index)
+		#if not self.Obj_Beschreibung_value =='':
+#		self.additionCommentBox.AppendText(self.Obj_Beschreibung_value)
+	#----------------------------------------
+	# event handlers
+	#----------------------------------------
+	def on_get_pages(self, event):
+		self.__clear_doc_data()
+		self.__load_pages()
+		self.updateGUIonLoadRecords()
+	#----------------------------------------
+
 	#---------------------------------------------------------------------------
-	def clicked (data):
+	def wheel_callback (data):
 		print "Selected :%s" % data
 	#---------------------------------------------------------------------------
 	def show_pic(self,bild):
@@ -228,62 +309,75 @@ class indexFrame(wxFrame):
 				dlg.ShowModal()
 			finally:
 				dlg.Destroy()
-	#--------------------------------------------------------------------------
-	def readPatientDat(self):
+	#----------------------------------------
+	# internal methods
+	#----------------------------------------
+	def __load_patient(self):
+		# later on we might want to provide access
+		# to other methods of getting the patient
+
 		# get patient data from BDT/XDT file
-		pat_file = __cfg__.get("metadata", "patient")
-		aPatient = cPatient()
-		try:
-			aPatient.loadFromFile("xdt",os.path.expanduser(os.path.join(__cfg__.get("metadata", "location"), pat_file)))
-			self.Vorname = aPatient.firstnames
-			self.Nachname =  aPatient.lastnames
-			self.rawGeburtsdatum = aPatient.dob
-		except:
-			dlg = wxMessageDialog(self, _('unable to find XDT-file '),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-			exc = sys.exc_info()
-			_log.LogException ("Exception: problem with reading patient data from xDT file " + pat_file, exc)
-			_log.LogException ("Exception: xDT file. I tried" + os.path.expanduser(os.path.join(__cfg__.get("metadata", "location"), pat_file)), exc)
+		pat_file = os.path.expanduser(__cfg__.get("metadata", "patient_file"))
+		self.myPatient = cPatient()
+		if not self.myPatient.loadFromFile("xdt", pat_file):
+			_log.Log(gmLog.lPanic, "Cannot read patient from xDT file [%s]" % pat_file)
+
+			dlg = wxMessageDialog(self, _('Cannot load patient from xDT file.\n\nPlease consult the error log for details.'), _('Attention'), wxOK | wxICON_INFORMATION)
+			dlg.ShowModal()
+			dlg.Destroy()
+
 			return None
-		self.Geburtsdatum = self.rawGeburtsdatum[:4]  + '-' + self.rawGeburtsdatum[4:6] + '-' + self.rawGeburtsdatum[-2:]
-		self.queryGeburtsdatum = self.rawGeburtsdatum
-	#--------------------------------------------------------------------------
-	def CompleteRefresh(self):
-		self.FirstnameBox.Clear()
-		self.LastnameBox.Clear()
-		self.DateOfBirthBox.Clear()
+
+
+#		self.Geburtsdatum = self.rawGeburtsdatum[:4]  + '-' + self.rawGeburtsdatum[4:6] + '-' + self.rawGeburtsdatum[-2:]
+#		self.queryGeburtsdatum = self.rawGeburtsdatum
+		return 1
+	#----------------------------------------
+	def __clear_doc_data(self):
+		# clear fields
 		self.BefundDate.Clear()
 		self.shortDecriptionBox.Clear()
 		self.DescriptionChoiceBox.SetSelection(-1)
 		self.additionCommentBox.Clear()
-		self.picList = []
-		self.listBox1.Clear()
+		self.LBOX_doc_pages.Clear()
+		# forget all pages
+		self.doc_pages = []
 	#--------------------------------------------------------------------------
 	def UpdatePicList(self):
-		if len(self.picList) == 0:
-			self.listBox1.Append(_('page')+'1')
-			self.picList.append(_('page')+'1')
+		if len(self.doc_pages) == 0:
+			self.LBOX_doc_pages.Append(_('page')+'1')
+			self.doc_pages.append(_('page')+'1')
 		else:
-			lastPageInList=self.picList[len(self.picList)-1]
+			lastPageInList=self.doc_pages[len(self.doc_pages)-1]
 			biggest_number_strg=lastPageInList.replace(_('page'),'')
 			biggest_number= int(biggest_number_strg) + 1
-			self.listBox1.Append(_('page') + `biggest_number`)
-			self.picList.append(_('page') + `biggest_number`)
+			self.LBOX_doc_pages.Append(_('page') + `biggest_number`)
+			self.doc_pages.append(_('page') + `biggest_number`)
 	#--------------------------------------------------------------------------
-	def loadrecords(self):
-		self.readPatientDat()
-		self.BefValue=self.doc_id_wheel.GetLineText(0)
+	def __load_pages(self):
+		# make sure to get the first line only :-)
+		curr_doc_id = self.doc_id_wheel.GetLineText(0)
+
 		# has the user supplied anything ?
-		if not self.BefValue == '':
-			if os.path.isdir(__cfg__.get("source", "repositories") + self.BefValue):
-				working_dir = __cfg__.get("source", "repositories") + self.BefValue
-				#print "U filled in:" + self.BefValue 
+		if curr_doc_id == '':
+			dlg = wxMessageDialog(
+				self,
+				_('You must type in a document ID !\nUsually you will find the document ID written on the physical sheet of paper. There should be only one per document even if there are multiple pages.'),
+				_('Attention'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		repository = __cfg__.get("repositories", "to_index")
+		work_dir = os.path.join(repository, curr_doc_id)
+		_log.Log(gmLog.lData, 'working on [%s]' % work_dir)
+
+
 				try:
-					#read self.desc_file
-					in_file = open(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.desc_file,"r")
+					#read self.desc_file_name
+					in_file = open(__cfg__.get("source", "repositories") + curr_doc_id + '/' + self.desc_file_name,"r")
 					xml_content = in_file.read()
 					in_file.close()
 					xml_contentlist = string.split(xml_content,'\n')
@@ -298,10 +392,10 @@ class indexFrame(wxFrame):
 							stripped_value = value[7:-8]
 							# append occurence to list in gui
 							if os.name == 'posix':
-								self.listBox1.Append(string.replace(stripped_value,'.jpg',''))
+								self.LBOX_doc_pages.Append(string.replace(stripped_value,'.jpg',''))
 							else:
-								self.listBox1.Append(string.replace(stripped_value,'.bmp',''))
-							self.picList.append(stripped_value)
+								self.LBOX_doc_pages.Append(string.replace(stripped_value,'.bmp',''))
+							self.doc_pages.append(stripped_value)
 							_log.Log (gmLog.lInfo, "added" + stripped_value + "to GUI-list")
 							# increase and start over with next line
 							x=x+1
@@ -320,7 +414,7 @@ class indexFrame(wxFrame):
 						except ValueError:
 							x=x+1
 					# has there been a prior index session with this data ?
-					if os.path.isfile(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.can_index_file):
+					if os.path.isfile(__cfg__.get("source", "repositories") + curr_doc_id + '/' + self.can_index_file):
 						x=0
 						while x < runs:
 							value = xml_contentlist[x]
@@ -378,23 +472,18 @@ class indexFrame(wxFrame):
 						dlg.ShowModal()
 					finally:
 						dlg.Destroy()
-			else:
-				dlg = wxMessageDialog(self, _('Could not fine any documents relating to this document#'),_('Attention'), wxOK | wxICON_INFORMATION)
-				try:
-					dlg.ShowModal()
-				finally:
-					dlg.Destroy()
-		else:
-			dlg = wxMessageDialog(self, _('You did not fill in any document#'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
+
+
+#			else:
+#				dlg = wxMessageDialog(self, _('Could not fine any documents relating to this document#'),_('Attention'), wxOK | wxICON_INFORMATION)
+#				try:
+#					dlg.ShowModal()
+#				finally:
+#					dlg.Destroy()
+
 	#--------------------------------
 	def updateGUIonLoadRecords(self):
-		self.FirstnameBox.AppendText(self.Vorname)
-		self.LastnameBox.AppendText(self.Nachname)
-		self.DateOfBirthBox.AppendText(self.Geburtsdatum)
+		self.TBOX_dob.AppendText(self.Geburtsdatum)
 		#if not self.Obj_Datum_value == _('please fill in'):
 		self.BefundDate.AppendText(self.Obj_Datum_value)
 		#if not self.Obj_Name_value == _('please fill in'):
@@ -404,20 +493,14 @@ class indexFrame(wxFrame):
 		self.DescriptionChoiceBox.SetSelection(index)
 		#if not self.Obj_Beschreibung_value =='':
 		self.additionCommentBox.AppendText(self.Obj_Beschreibung_value)
-	#----------------------------------------
-	# event handlers
-	#----------------------------------------
-	def on__get_pages(self, event):
-		self.CompleteRefresh()
-		self.loadrecords()
-		self.updateGUIonLoadRecords()
+
 	#----------------------------------------
 	def OnShowpicbuttonButton(self, event):
 		self.BefValue=self.doc_id_wheel.GetLineText(0)
-		current_selection=self.listBox1.GetSelection()
+		current_selection=self.LBOX_doc_pages.GetSelection()
 		if not current_selection == -1:
 			pic_selection=current_selection+1
-			self.selected_pic=self.listBox1.GetString(current_selection)
+			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
 			#for debugging only
 			print "I show u:" + self.selected_pic
 			if os.name == 'posix':
@@ -432,7 +515,7 @@ class indexFrame(wxFrame):
 				dlg.Destroy()
 
 	def OnDelpicbuttonButton(self, event):
-		current_selection=self.listBox1.GetSelection()
+		current_selection=self.LBOX_doc_pages.GetSelection()
 		self.BefValue=self.doc_id_wheel.GetLineText(0)
 		if current_selection == -1:
 			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
@@ -442,8 +525,8 @@ class indexFrame(wxFrame):
 				dlg.Destroy()
 			
 		else:
-			self.selected_pic=self.listBox1.GetString(current_selection)
-			#print self.picList
+			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
+			#print self.doc_pages
 			#del page from hdd
 			try:
 				os.remove(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.jpg')
@@ -456,23 +539,23 @@ class indexFrame(wxFrame):
 					dlg.Destroy()
 			#now rename (decrease index by 1) all pages above the deleted one
 			i = current_selection
-			#print self.picList
-			for i in range(i,len(self.picList)-1):
+			#print self.doc_pages
+			for i in range(i,len(self.doc_pages)-1):
 				try:
-					os.rename(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.listBox1.GetString(i+1) + '.jpg',__cfg__.get("source", "repositories") + self.BefValue + '/' + self.listBox1.GetString(i) + '.jpg')
+					os.rename(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg',__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i) + '.jpg')
 				except OSError:
-					_log.Log (gmLog.lErr, "I was unable to rename the file " + __cfg__.get("source", "repositories") + self.BefValue + '/' + self.listBox1.GetString(i+1) + '.jpg' + " from disk because it simply was not there ")
-				print "I renamed" +str(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.listBox1.GetString(i+1) + '.jpg') + "into" + str(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.listBox1.GetString(i) + '.jpg')
+					_log.Log (gmLog.lErr, "I was unable to rename the file " + __cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg' + " from disk because it simply was not there ")
+				print "I renamed" +str(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg') + "into" + str(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i) + '.jpg')
 			
 			#print "u want to del:" + self.selected_pic
-			self.listBox1.Delete(current_selection)
-			self.picList.remove(self.selected_pic + '.jpg')
+			self.LBOX_doc_pages.Delete(current_selection)
+			self.doc_pages.remove(self.selected_pic + '.jpg')
 			#rebuild list to clean the gap
 			i = 0
-			for i in range(len(self.picList)):
+			for i in range(len(self.doc_pages)):
 				if i == 0:
-					self.picList = []
-					self.listBox1 = wxListBox(choices = [], id = wxID_INDEXFRAMELISTBOX1, name = 'listBox1', parent = self.main_panel, pos = wxPoint(48, 288), size = wxSize(182, 94), style = 0, validator = wxDefaultValidator)
+					self.doc_pages = []
+					self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_INDEXFRAMELBOXPAGES, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(48, 288), size = wxSize(182, 94), style = 0, validator = wxDefaultValidator)
 				self.UpdatePicList()        
 
 	def OnSavebuttonButton(self, event):
@@ -621,14 +704,14 @@ class indexFrame(wxFrame):
 				dlg.Destroy()
 		
 		else:
-			in_file = open(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.desc_file,"r")
+			in_file = open(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.desc_file_name,"r")
 			xml_content = in_file.read()
 			in_file.close()
-			#del old self.desc_file
-			os.remove(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.desc_file)
+			#del old self.desc_file_name
+			os.remove(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.desc_file_name)
 			# create xml file
-			out_file = open(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.desc_file,"w")
-			tmpdir_content = self.picList
+			out_file = open(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.desc_file_name,"w")
+			tmpdir_content = self.doc_pages
 			runs = len(tmpdir_content)
 			x=0
 			out_file.write ("<" + __cfg__.get("metadata", "document_tag")    + ">\n")
@@ -651,15 +734,14 @@ class indexFrame(wxFrame):
 			# generate a file to tell import script that we are done here
 			out_file = open(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.can_index_file,"w")
 			#refresh everything
-			self.picList = []
 			self.Vorname = ''
 			self.Nachname = ''
 			self.Geburtsdatum = ''
-			self.CompleteRefresh()
+			self.__clear_doc_data()
 			# empty doc_id_wheel as well
 			self.doc_id_wheel.Clear()
 			# items for phraseWheel
 			self.initgmPhraseWheel()
 			
 # this line is a replacement for gmPhraseWhell just in case it doesn't work 
-#self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.main_panel, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
+#self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
