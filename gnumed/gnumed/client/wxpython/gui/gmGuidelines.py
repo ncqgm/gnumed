@@ -17,10 +17,8 @@ import sys, os
 from   wxPython.wx         import *
 from   wxPython.html       import *
 import wxPython.lib.wxpTag
-import gmGuiBroker
-import gmPlugin
-import gmLog
-import gmI18N
+from Gnumed.wxpython import gmPlugin
+from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker
 
 #----------------------------------------------------------------------
 
