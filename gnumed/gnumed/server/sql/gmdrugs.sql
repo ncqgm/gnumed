@@ -1,408 +1,388 @@
-v-- structure of drug database for gnumed
--- Copyright 2000, 2001 by Dr. Horst Herb
+-- DDL structure of drug database for the gnumed project
+-- Copyright 2000, 2001, 2002 by Dr. Horst Herb
 -- This is free software in the sense of the General Public License (GPL)
 -- For details regarding GPL licensing see http://gnu.org
+--
+-- This is a complete redesign/rewrite since the October 2001 version 
 --
 -- usage:
 --	log into psql (database gnumed OR drugs)  as administrator
 --	run the script from the prompt with "\i drugs.sql"
---
--- changelog:
--- 7.6.02: extensions for complex packages (i.e Losec HP7) 
--- 25.3.02: simplified to some tables for new
--- attempt at PBS import
--- changelog: 20.10.01 (suggestions by Ian Haywood)
---		+ hierarchy of substance categories
---		+ drug-drug interactions removed 
--- (already have substance interactions)
---		+ therapeutic categories replaced by clinical guidelines
--- changelog: 13.10.2001
---		+ stripped down from original database
---		+ all references to gnumed_object removed
---		+ prepared for distributed servers & read-only database
---		+ prescription module separated from drug module
---		+ all permissions, triggers and rules removed
---		+ stripped all use of inheritance in favour of portability
---
--- TODO:
---	* testing
---	* debugging
--- 	* further normalization
---	* trigger maintained denormalized table(s) for fast read access of most common attributes
-
-
 --=====================================================================
 
---CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS
---    '/usr/lib/pgsql/plpgsql.so' LANGUAGE 'C';
+-- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
+-- $Revision: 1.13 $ $Date: 2002-09-29 08:16:05 $ $Author: hherb $
+-- ============================================================
+-- $Log: gmdrugs.sql,v $
+-- Revision 1.13  2002-09-29 08:16:05  hherb
+-- Complete rewrite: clean separation of drug reference and clinical data
+-- such as prescriptions. Most issues now country/regulation independend with
+-- facilities for internationalization.
+--
 
---CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
---    HANDLER plpgsql_call_handler
---    LANCOMPILER 'PL/pgSQL';
 
 
-CREATE TABLE class (
-       id SERIAL PRIMARY KEY,
-       name varchar (60),
-       pharmacology TEXT,
-       superclass INTEGER REFERENCES class (id)
-);
-
-CREATE TABLE substance (
-	id SERIAL PRIMARY KEY,
-	name  varchar(60),
-	pharmacology TEXT,
-	class INTEGER REFERENCES class (id)
-);
-
---========================================
-
-CREATE TABLE pregnancy_cat (
-	id SERIAL PRIMARY KEY,
-	code char(3),
+create table drug_class(
+	id serial primary key,
+	category char check (category in ('t', 's')), 
 	description text,
 	comment text
 );
+comment on table drug_class is
+'drug classes of specified categories';
+comment on column drug_class.category is
+'category of this class (t = therapeutic class, s = substance class)';
+comment on column drug_class.description is
+'name of this drug class (depending on category: beta blocker, antihistamine ...)';
 
 
-CREATE TABLE breastfeeding_cat (
-	id SERIAL PRIMARY KEY,
-	code char(3),
+create table drug_warning_categories(
+	id serial primary key,
 	description text,
 	comment text
 );
+comment on table drug_warning_categories is
+'enumeration of categories of warnings associated with a specific drug (as in product information)';
+comment on column drug_warning_categories.description is
+'the warning category such as "pregnancy", "lactation", "renal" ...';
 
-CREATE TABLE obstetric_codes (
-       drug_id INTEGER REFERENCES substance (id),
-       preg_code INTEGER REFERENCES pregnancy_cat (id),
-       brst_code INTEGER REFERENCES breastfeeding_cat (id)
+-- I18N!
+insert into drug_warning_categories(description) values('general');
+insert into drug_warning_categories(description) values('pregnancy');
+insert into drug_warning_categories(description) values('lactation');	
+insert into drug_warning_categories(description) values('children');
+insert into drug_warning_categories(description) values('elderly');
+insert into drug_warning_categories(description) values('renal');
+insert into drug_warning_categories(description) values('hepatic');
+
+
+create table drug_warning(
+	id serial primary key,
+	id_warning integer references drug_warning_categories(id),
+	code char(4),
+	details text
+);
+comment on table drug_warning is
+'any warning associated with a specific drug';
+comment on column drug_warning.code is
+'severity of the warning (like the the A,B,C,D scheme for pregnancy related warnings)';
+comment on column drug_warning.code is
+'could have been implemented as foreign key to a table of severity codes, but was considered uneccessary';
+
+create table drug_information(
+	id serial primary key,
+	provider_code char check (provider_code in ('g', 'm', 'o')),
+	target char check (target in ('h', 'p')),
+	info text,
+	comment text
 );
 
--- =============================================
+comment on table drug_information is
+'any product information about a specific drug in HTML format';
+comment on column drug_information.provider_code is
+'who provided this information: g=generic, m=manufacturer, o=other. If "other", references provided in the "info" text';
+comment on column drug_information.target is
+'the target of this information: h=health professional, p=patient';
+comment on column drug_information.info is
+'the drug product information in HTML format';
 
-CREATE TABLE amount_unit (
-        id SERIAL PRIMARY KEY,
-        description varchar(20)
+
+create table generic_drug(
+	id serial primary key,
+	is_compound boolean default 'n',
+	name varchar(60),
+	indication text,
+	considerations text,
+	dosage text,
+	practice_points text,
+	comment text
 );
-
-COMMENT ON TABLE amount_unit IS
-'Unit to measure the preparation';
-
-insert into amount_unit values (1, 'each'); -- for discrete objects:
--- tablets, capsules, etc.
-insert into amount_unit values (2, 'gram'); -- for solid but
--- indiscrete: powders, pastes
-insert into amount_unit values (3, 'millilitre'); -- for liquid
--- preparations: syrups, solutions
- 
+comment on table generic_drug is 
+'A generic drug, either single substance or compound';
+comment on column generic_drug.is_compound is
+'false if this drug is based on a single substance (like Trimethoprim), true if based on a compound (like Cotrimoxazole)';
+comment on column generic_drug.name is
+'the generic name of this drug';
 
 
--- =============================================
-
-CREATE TABLE drug_unit (
-	id SERIAL PRIMARY KEY,
-	is_SI boolean default 'y',
-	description varchar(20)
+create table link_drug_class(
+	drug integer references generic_drug(id),
+	class integer references drug_class(id)
 );
-
-COMMENT ON COLUMN drug_unit.is_SI IS
-'Example: mg, mcg, ml, U, IU, ...';
-
-COMMENT ON TABLE drug_unit IS
-'true if it is a System International (SI) compliant unit';
-
-insert into drug_unit values (1, 'y', 'mg');
-insert into drug_unit values (2, 'y', 'g');
-insert into drug_unit values (3, 'y', 'ml');
-insert into drug_unit values (4, 'n', 'unit');
-insert into drug_unit values (5, 'n', 'international unit');
+create index idx_link_drug_class on link_drug_class(drug, class);
+comment on table link_drug_class is 
+'A many-to-many pivot table linking classes to drugs';
 
 
-
--- =============================================
-
-CREATE TABLE drug_route (
-	id SERIAL PRIMARY KEY,
-	description varchar(60)
-); 
-
-COMMENT ON table drug_route IS
-'Examples: oral, i.m., i.v., s.c.';
-
-
--- =============================================
--- each 'type' of drug, like 'tablet', or 'capsule'
-
-
-CREATE TABLE drug_presentation (
-	id SERIAL PRIMARY KEY,
-	name varchar (30)
+create table link_drug_warning(
+	drug integer references generic_drug(id),
+	warning integer references drug_warning(id)
 );
+create index idx_link_drug_warning on link_drug_warning(drug, warning);
+comment on table link_drug_warning is 
+'A many-to-many pivot table linking warnings to drugs';
 
 
--- ================================================
--- This table corresponds to each line in the PBS Yellow Book.
--- The manufacturer is linked to the strengths and pack sizes that they offer.
-
-CREATE TABLE drug_package (
-	id SERIAL PRIMARY KEY,
-	max_rpts INTEGER, -- maximum repeats
-	name VARCHAR (100), -- generic name(s) 
-	description VARCHAR (100), -- extra presentation description
-	course INTEGER -- in days, if prescription has a fixed course
-	-- (e.g. 28 for Pill, 14 for Losec HP7)
+create table link_drug_information(
+	drug integer references generic_drug(id),
+	info integer references drug_information(id)
 );
+create index idx_link_drug_information on link_drug_information(drug, info);
+comment on table link_drug_information is 
+'A many-to-many pivot table linking product information to drugs';
 
 
--- most packages are homogenous: all tablets are of the same type, so
--- this table has one-to-one link with the previous.
--- some drug 'packs', notably Losec HP7, and triphasic contraceptives,
--- have several tablet types within the one packet, so several entries
--- in this table for one in drug_package.
-CREATE TABLE drug_series
-(
-	id SERIAL,
-	package INTEGER REFERENCES drug_package (id),	
-	presentation INTEGER REFERENCES drug_presentation (id),
-	route INTEGER REFERENCES drug_route (id),
-	amount_unit INTEGER REFERENCES amount_unit (id),
-	amount FLOAT, -- actual 'amount' of drug, so 100 for 100mL
-	-- bottle, 28 for 28 tabs
+
+create table drug_formulations(
+	id serial primary key,
+	description varchar(60),
+	comment text
 );
+comment on table drug_formulations is
+'presentations or formulations of drugs like "tablet", "capsule" ...';
+comment on column drug_formulations.description is
+'the formulation of the drug, such as "tablet", "cream", "suspension"';
 
--- Here's the money. Links substances to drugs. Obviously a drug can
--- have several substances (hence compounds)
-CREATE TABLE link_subst_drug (
-       series INTEGER REFERENCES drug_series (id),
-       substance INTEGER REFERENCES substance (id),
-       unit INTEGER REFERENCES drug_unit (id),
-       amount FLOAT -- amount of drug
+--I18N!	
+insert into drug_formulations(description) values ('tablet');
+insert into drug_formulations(description) values ('capsule');
+insert into drug_formulations(description) values ('syrup');
+insert into drug_formulations(description) values ('suspension');
+insert into drug_formulations(description) values ('powder');
+insert into drug_formulations(description) values ('cream');
+insert into drug_formulations(description) values ('ointment');
+insert into drug_formulations(description) values ('lotion');
+insert into drug_formulations(description) values ('suppository');
+insert into drug_formulations(description) values ('solution');
+insert into drug_formulations(description) values ('dermal patch');
+
+
+create table drug_routes (
+	id serial primary key,
+	description varchar(60),
+	abbreviation varchar(10),
+	comment text
 );
+comment on table drug_routes is
+'administration routes of drugs';
+comment on column drug_routes.description is
+'administration route of a drug like "oral", "sublingual", "intravenous" ...';
 
--- =============================================
--- Commercial data. Ugh!
+--I18N!
+insert into drug_routes(description, abbreviation) values('oral', 'o.');
+insert into drug_routes(description, abbreviation) values('sublingual', 's.l.');
+insert into drug_routes(description, abbreviation) values('nasal', 'nas.');
+insert into drug_routes(description, abbreviation) values('topical', 'top.');
+insert into drug_routes(description, abbreviation) values('rectal', 'rect.');
+insert into drug_routes(description, abbreviation) values('intravenous', 'i.v.');
+insert into drug_routes(description, abbreviation) values('intramuscular', 'i.m.');
+insert into drug_routes(description, abbreviation) values('subcutaneous', 's.c.');
+insert into drug_routes(description, abbreviation) values('intraarterial', 'art.');
+insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.');
 
-CREATE TABLE drug_manufacturer (
-	id SERIAL PRIMARY KEY,
-	name varchar(60)
+
+create table drug_units (
+	id serial primary key,
+	unit varchar(30)
 );
+comment on table drug_units is
+'(SI) units used to quantify/measure drugs';
+comment on column drug_units.unit is
+'(SI) units used to quantify/measure drugs like "mg", "ml"';
+insert into drug_units(unit) values('ml');
+insert into drug_units(unit) values('mg');
+insert into drug_units(unit) values('mg/ml');
+insert into drug_units(unit) values('U');
+insert into drug_units(unit) values('IU');
+insert into drug_units(unit) values('each');
 
-COMMENT ON TABLE drug_manufacturer IS
-'Name of a drug company. Details like address etc. in separate table';
 
-CREATE TABLE brand (
-	id SERIAL PRIMARY KEY,
-	drug_manufacturer_id INTEGER NOT NULL references drug_manufacturer(id),
-        brand_name varchar(60)
+create table adverse_effects(
+	id serial primary key,
+	severity integer,
+	description text
 );
+comment on table adverse_effects is
+'listing of possible adverse effects to drugs';
+comment on column adverse_effects.severity is
+'the severity of a reaction. The scale has yet to be aggreed upon.';
+comment on column adverse_effects.description is
+'the type of adverse effect like "pruritus", "hypotension", ...';
 
-CREATE TABLE link_brand_package (
-       brand_id INTEGER REFERENCES brand (id),
-       drug_id INTEGER REFERENCES drug_package (id),
-       price MONEY	       
+
+create table link_generic_drug_adverse_effects(
+	id_drug integer references generic_drug(id),
+	id_adverse_effect integer references adverse_effects(id),
+	frequency char check(frequency in ('c', 'i', 'r'))
 );
+comment on table link_generic_drug_adverse_effects is
+'many to many pivot table linking drugs to adverse effects';
+comment on column link_generic_drug_adverse_effects.frequency is
+'The likelihood this adverse effect happens: c=common, i=infrequent, r=rare';
 
--- Note here that several brands may link to a single drug_package
--- entry.
--- This may be taken to imply that the drugs are clinically
--- interchangable.
--- If they are not, because of adjuvant, solute or other reason, a
--- seperate entry should exist in drug_package, and the difference
--- noted by drug_flags below.
 
--- =============================================
-CREATE TABLE drug_flags (
-	id SERIAL PRIMARY KEY,
-	package INTEGER REFERENCES drug_package (id),
-        description varchar(60),
-        comment text
+create table interactions(
+	id serial primary key,
+	severity integer,
+	description text,
+	comment text
 );
+comment on table interactions is
+'possible interactions between drugs';
+comment on column interactions.severity is
+'severity/significance of a potential interaction: the scale has yet to be agreed upon';
+comment on column interactions.description is
+'the type of interaction (like: "increases half life")';
 
-COMMENT ON TABLE drug_flags IS
-'important searchable information relating to a drug such as sugar
-free, gluten free, orange-flavoured, ...';
 
--- ==============================================
--- This is for formulary restriction imposed on the prescriber by a payor.
-
---- The payor, i.e PBS, NHS, private insurance collective, etc.
-CREATE TABLE payor (
-       id SERIAL,
-       country CHAR (2), -- Internet two-letter code
-       name VARCHAR (50),
+create table link_drug_interactions(
+	id serial primary key,
+	id_drug integer references generic_drug(id),
+	id_interacts_with integer references generic_drug(id),
+	id_interaction integer references interactions(id),
+	comment text
 );
+comment on table link_drug_interactions is
+'many to many pivot table linking drugs and their interactions';
 
--- restriction on a substance imposed by a payor
-CREATE TABLE restriction (
-       drug_id INTEGER REFERENCES substance (id),
-       payor_id INTEGER REFERENCES payor (id),
-       indication text,
-       authority BOOL -- must contact for permission to prescribe
+
+create table product(
+	id serial primary key,
+	id_generic_drug integer references generic_drug(id),
+	id_formulation integer references drug_formulations(id),
+	brandname varchar(60) default 'GENERIC',
+	id_unit integer references drug_units(id),
+	strength float,
+	packing_unit integer references drug_units(id),
+	package_size float,
+	comment text
 );
+comment on table product is
+'dispensable form of a generic drug including strength, package size etc';
+comment on column product.brandname is
+'the brand name as printed on the package';
+comment on column product.strength is
+'the strength of this formulation (units in column id_unit!)';
+comment on column product.packing_unit is
+'unit of drug "entities" as packed: for tablets and similar discrete formulations it should be the id of "each"';
+comment on column product.package_size is
+'the number of packing_units of this drug in this package';
 
--- =============================================
 
-CREATE TABLE severity_code (
-	id SERIAL PRIMARY KEY,
-	code CHAR(3),
-        description text,
-	block BOOL default 'f'
+create table available(
+	id_product integer references product,
+	iso_countrycode char(2),
+	available_from date default null,
+	banned date default null,
+	comment text
 );
+comment on table available is
+'availability of products in specific countries - this allows multinational drug databases without redundancy';
+comment on column available.iso_countrycode is
+'ISO country code of the country where this drug product is available';
+comment on column available.available_from is
+'date from which on the product is available in this country (if known)';
+comment on column available.banned is
+'date from which on this product is/was banned in the specified country, if applicable';
 
-COMMENT ON TABLE severity_code IS
-'e.g. (contraindicated) (potentially life threatening) (not advisable) (caution) ...';
-
-COMMENT ON COLUMN severity_code.block IS
-'true indicates client should interrupt user if attempts to prescribe.';
-
--- =============================================
-
--- interaction between any substance or class of substances, or disease
--- ideally, this refers to the physicological site of interaction,
--- such as a cytochrome P450 enzyme, etc. Obviously for many
--- interactions, the comment has to be 'interaction between X and Y'.
-CREATE TABLE interaction (
-       id SERIAL PRIMARY KEY,
-       comment text,
-       severity INTEGER REFERENCES severity_code (id)
+create table manufacturer(
+	id serial primary key,
+	name varchar(60),
+	iso_countrycode char(2),
+	address text,
+	phone text,
+	fax text,
+	comment text
 );
+comment on table manufacturer is
+'list of pharmaceutical manufacturers';
+comment on column manufacturer.name is
+'company name';
+comment on column manufacturer.iso_countrycode is
+'ISO country code of the location of this company';
+comment on column manufacturer.address is
+'complete printable address with embeded newline characters as "\n"';
+comment on column manufacturer.phone is
+'phone number of company';
+comment on column manufacturer.fax is
+'fax number of company';
 
 
--- =====================================================
--- interactions involving drugs or classes of drugs
--- if the interaction is only known for a compound, link both substances in
-
-CREATE TABLE link_subst_interaction (
-	subst_id INTEGER NOT NULL REFERENCES substance (id),
-	interaction_id INTEGER NOT NULL REFERENCES interaction (id),
-	action CHAR DEFAULT NULL check (action in (NULL, 'S', 'I',
-	'D')),
-	-- this is for interactions mediated by enzymes or the like
-	-- S = Substrate of the enzyme 
-	-- I = Inhibits the enzyme
-	-- D = inDuces the enzyme
-	-- how useful is this? 
-        comment text
+create table link_product_manufacturer(
+	id_product integer references product(id),
+	id_manufacturer integer references manufacturer(id)
 );
+create index idx_link_product_manufacturer on link_product_manufacturer(id_product, id_manufacturer);
+comment on table link_product_manufacturer is
+'many to many pivot table linking drug products and manufacturers';
 
-COMMENT ON COLUMN link_subst_interaction.subst_id IS 'Index of substance table';
 
-
-CREATE TABLE link_class_interaction (
-	class_id INTEGER NOT NULL REFERENCES class (id),
-	interaction_id INTEGER NOT NULL REFERENCES interaction (id),
-	action CHAR DEFAULT NULL check (action in (NULL, 'S', 'I',
-	'D')),
-        comment text
+create table subsidies(
+	id serial primary key,
+	iso_countrycode char(2),
+	name varchar(30),
+	comment text
 );
+comment on table subsidies is
+'listing of possible subsidies for drug products';
+comment on column subsidies.iso_countrycode is
+'ISO country code of the country where this subsidy applies';
+comment on column subsidies.name is
+'description of the subsidy (like PBS or RPBS in Australia)';
 
-COMMENT ON COLUMN link_class_interaction.class_id IS 'Index of class table';
--- this allows a class of drugs to 'inherit' the property of
--- the interaction
 
-
---=================================================
--- Diseases.
--- A number of false "diseases" can be linked in here, such 
--- as "childhood", "old age", "pregnancy", to add the appropriate
--- caution data
-CREATE TABLE disease (
-       id SERIAL,
-       name varchar (100),
-       ICD10 char[8]
+create table subsidized_products(
+	id_product integer references product(id),
+	id_subsidy integer references subsidies(id),
+	max_qty integer default 1,
+	max_rpt integer default 0,
+	copayment float default 0.0,
+	condition text,
+	comment text
 );
+comment on table subsidized_products is
+'listing of drug products that may attract a subsidy';
+comment on column subsidized_products.max_qty is
+'maximum quantiy of packaged units dispensed under subsidy for any one prescription';
+comment on column subsidized_products.max_rpt is
+'maximum number of repeat (refill) authorizations allowed on any one subsidised prescription (series)';
+comment on column subsidized_products.copayment is 
+'patient co-payment under subsidy regulation; if this is absolute or percentage is regulation dependend and not specified here';
+comment on column subsidized_products.condition is
+'condition that must be fulfilled so that this subsidy applies';
 
-COMMENT ON COLUMN disease.ICD10 IS 'ICD-10 code, if applicable';
 
-
--- =============================================
--- Proposed mechanism for therapeutic guidelines.
-
-
-
--- therapeutic option: such as 'SSRI antidepressant', for which
--- several entries may exist in prescription.
-CREATE TABLE therapy (
-       id SERIAL,
-       indication INTEGER REFERENCES disease (id),
-       line INTEGER, -- 1=first line, 2=second line, etc.
-       comment TEXT, -- short text to decide which therapy amongst several
-       handout TEXT, -- longer explanation for non-pharmacological
-       -- therapies, such as the Hallpike manoeuvre.
-       referral_specialty VARCHAR (10), -- the specialty, mainly if a
-       -- procedural therapy
+create table code_systems(
+	id serial primary key,
+	iso_country_code char(2) default '**',
+	name varchar(30),
+	version varchar(30)
 );
-       
+comment on table code_systems is
+'listing of disease coding systems used for drug indication listing';
+comment on column code_systems.iso_country_code is
+'ISO country code of country where this code system applies. Use "**" for wildcard';
+comment on column code_systems.name is
+'name of the code systme like ICD, ICPC';
+comment on column code_systems.version is
+'version of the code system, like "10" for ICD-10';
 
-CREATE TABLE prescription (
-       id SERIAL,
-       therapy_id INTEGER REFERENCES therapy (id),
-       adjunct INTEGER REFERENCES prescription (id),
-       -- adjunct to another drug (compound drugs, e.g. co-amoxyclav) 
-       -- NULL for the 'main' drug 
-       drug INTEGER REFERENCES substance (id), -- use multiple entries
-       course INTEGER, -- in days, 1 for stat dose, 0 if continuing
-       frequency VARCHAR(5) DEFAULT 'mane' check (frequency in ('mane', 'nocte', 'bd', 'tds', 'qid')),
-	-- Latin expressions for prescribing
-	-- mane='morning', nocte='night', bd=twice daily, tds=three times daily
-	-- qid=four times day. Are other times needed?
-       dose FLOAT,
-       unit INTEGER REFERENCES drug_unit (id),
-       route INTEGER REFERENCES drug_route (id),
-       dose_denominator CHAR DEFAULT 'A' check (dose_denominator in
-       ('A', 'W', 'S')),
-       -- A=absolute 
-       -- W=by weight (kg)
-       -- S=by computed surface area (m^2)
-       max_dose FLOAT, -- absolute maximum. For many drugs the
-       -- 'paediatric' dose may be encoded above as 'by weight', 
-       -- and the adult dose can be placed here. Smaller adults may
-       -- get the calculated paediatric dose: probably a good thing.    
-       elderly_dose FLOAT, -- some drugs (like tricyclics) reduced
-       -- dose recommended in elderly 
+insert into code_systems(name, version) values ('ICD', '10');
+insert into code_systems(name, version) values ('ICPC', '2');
+
+
+create table link_drug_indication(
+	id serial primary key,
+	id_drug integer references generic_drug,
+	id_code_system integer references code_systems,
+	indication_code char(8),
+	comment text
 );
+create index idx_drug_indication on link_drug_indication(id_drug);
+create index idx_indication_drug on link_drug_indication(indication_code);
 
--- with this table, a list of indicated drugs would appear in a sidebox
--- when a diagnosis was entered, with interacting/contraindicated/allergic
--- drugs removed first. The prescriber could click on one to these to
--- bring up the prescription dialogue, pre-loaded with the drug.
--- paediatric dosing can be automatically calculated.
-
--- For drugs such as gentamicin and warfarin, client-side modules can 
--- adjust dosing dsing further
-
-
---=============================================
--- link diseases to interactions -- i.e contraindications
--- if the complication is only known for a compounds, link both substances 
-CREATE TABLE link_disease_interaction (
-	disease_id INTEGER NOT NULL REFERENCES disease (id),
-	interaction_id INTEGER NOT NULL REFERENCES interaction (id),
-        comment text
-);
-
-
-COMMENT ON TABLE link_disease_interaction IS
-'allows any number of drug-disease interactions for any given drug';
-
-
---===============================================
--- side-effects
--- obviously, the word 'disease' is used flexibly: 'nausea', 'diarrhoea'
--- are symptoms, but will be listed in the table above. 
-
-CREATE TABLE side_effect (
-       id SERIAL,
-       drug_id INTEGER NOT NULL,
-       class BOOL,
-       disease INTEGER REFERENCES disease (id),
-       comment TEXT,
-       frequency INTEGER, -- rough % of patients
-       severity INTEGER REFERENCES severity_code (id)
-);
-
-
-
-
-
+comment on table link_drug_indication is
+'many to many pivot table linking drugs and indications';
+comment on column link_drug_indication.indication_code is
+'code of the disease/indication in the specified code system';
 
