@@ -21,7 +21,7 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -114,7 +114,7 @@ def call_main():
 	# run gnumed and intercept _all_ exceptions (but reraise them ...)
 	try:
 		if with_email_log:
-			gmGuiMain.main_with_feedback()
+			gmGuiMain.main_with_talkback()
 		else:
 			gmGuiMain.main()
 	except:
@@ -140,9 +140,27 @@ if __name__ == "__main__":
 				  Please check whether your PYTHONPATH and/or GNUMED_DIR environment\n \
 				  variables are set correctly.")
 
+	# long options only !
+	cmd_line = []
+	try:
+		cmd_line = getopt.getopt(sys.argv[1:], '', ['debug',])
+	except getopt.GetoptError:
+		pass
+
+	# 1) tuple(cmd_line) -> (known options, junk)
+	known_opts = []
+	if len(cmd_line) > 0:
+		known_opts = cmd_line[0]
+
+	if len(known_opts) > 0:
+		# know everything in debugging versions
+		gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+		print "debug"
+	else:
+		gmLog.gmDefLog.SetAllLogLevels(gmLog.lInfo)
+		print "no debug"
+
 	#<DEBUG>
-	# know everything in debugging versions
-	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	gmLog.gmDefLog.AddTarget(aLogTarget)
