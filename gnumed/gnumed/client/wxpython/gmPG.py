@@ -26,7 +26,7 @@ class ConnectionPool:
 	__connected = None
 
 
-	def __init__(self, login=None, profile='default'):
+	def __init__(self, login=None):
 		if login is not None:
 			self.__disconnect()
 		if ConnectionPool.__connected is None:
@@ -36,7 +36,7 @@ class ConnectionPool:
 	def __connect(self, login):
 		"initialize connection to all neccessary servers"
 
-		if login=None:
+		if login==None and ConnectionPool.__connected is None:
 			self.LogError(_("FATAL ERROR: can't connect to configuration database"))
 			return 0
 
@@ -53,7 +53,7 @@ class ConnectionPool:
 		#try to establish connections to all servers we need
 		#according to configuration database
 		databases = cdb.query("select * from config where username='%s' and profile='%s'"
-		                      % (login.GetUser(), login.GetProfile()).dictresult()
+		                      % (login.GetUser(), login.GetProfile())).dictresult()
 
 		#for all configuration entries that mach given user and profile
 		for db in databases:
@@ -71,7 +71,7 @@ class ConnectionPool:
 			else:
 				dblogin.SetUser(login.GetUser())
 			if database.has_key('crypt_pwd') and database['crypt_pwd'] != '':
-				dblogin.SetUser(self.__decrypt(database['crypt_pwd'], database['crypt_algo'], login.GetPassord())
+				dblogin.SetUser(self.__decrypt(database['crypt_pwd']), database['crypt_algo'], login.GetPassord())
 			else:
 				dblogin.SetUser(login.GetPassword())
 
@@ -91,7 +91,7 @@ class ConnectionPool:
 					port = login.GetPort(),
 					opt = login.GetOptions(),
 					tty = login.GetTTY(),
-					user = login.GetUser()
+					user = login.GetUser(),
 					passwd = login.GetPassword())
 			return db
 		except TypeError:
@@ -119,27 +119,27 @@ class ConnectionPool:
 		return result
 
 
-	def disconnect(self):
-		if gmdbConnectionPool.__connected is None:
+	def __disconnect(self):
+		if ConnectionPool.__connected is None:
 			return
 		#disconnect from all databases
 		for key in ConnectionPool.__databases.keys():
 			ConnectionPool.__databases[key].close()
 		#clear the dictionary
 		ConnectionPool.__databases.clear()
-		gmdbConnectionPool.__connected = 0
+		ConnectionPool.__connected = 0
 
 
 	def getConnection(self, service):
-		"if a distributed service exists, return it - otherwise return the default server
-		if gmdbConnectionPool.__databases.has_key(service):
-			return gmdbConnectionPool.__databases[service]
+		"if a distributed service exists, return it - otherwise return the default server"
+		if ConnectionPool.__databases.has_key(service):
+			return ConnectionPool.__databases[service]
 		else:
-			return gmdbConnectionPool.__databases['default']
+			return ConnectionPool.__databases['default']
 
 
 	def GetAvailableServices(self):
-		return gmdbConnectionPool.__databases.items()
+		return ConnectionPool.__databases.keys()
 
 
 	def LogError(msg):
