@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.12 2003-09-21 10:55:04 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmPhraseWheel.py,v 1.13 2003-09-29 00:16:55 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -20,10 +20,11 @@ if __name__ == "__main__":
 
 import gmLog
 _log = gmLog.gmDefLog
-
 import gmExceptions, gmPG
 
 from wxPython.wx import *
+
+import mx.DateTime as mxDT
 
 _true = (1==1)
 _false = (1==0)
@@ -376,6 +377,102 @@ class cMatchProvider_SQL(cMatchProvider):
 			return 0
 		return 1
 #============================================================
+class cMatchProvider_Date(cMatchProvider):
+	def __init__(self, allow_past = None):
+		self.__def_text = _('enter date here')
+		self.__expanders = []
+		self.__display_format = _('%d.%b %Y (%a)')
+		self.__allow_past = allow_past
+		self.__expanders.append(self.__single_number)
+		cMatchProvider.__init__(self)
+	#--------------------------------------------------------
+	# internal matching algorithms
+	#
+	# if we end up here:
+	#	- aFragment will not be "None"
+	#   - aFragment will be lower case
+	#	- we _do_ deliver matches (whether we find any is a different story)
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, aFragment):
+		"""Return matches for aFragment at start of phrases."""
+		self.__now = mxDT.now()
+		print "now:", self.__now
+		matches = []
+		for expander in self.__expanders:
+			items = expander(aFragment)
+			if items is not None:
+				matches.extend(items)
+		if len(matches) > 0:
+			return (_true, matches)
+		else:
+			return (_false, [])
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+		return self.getMatchesByPhrase(aFragment)
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+		return self.getMatchesByPhrase(aFragment)
+	#--------------------------------------------------------
+	def getAllMatches(self):
+		"""Return all items."""
+		return None
+	#--------------------------------------------------------
+	# date fragment expanders
+	#--------------------------------------------------------
+	def __single_number(self, aFragment):
+		if not re.match("^(\s|\t)*\d+(\s|\t)*$", aFragment):
+			return None
+		val = aFragment.replace(' ', '')
+		val = int(val.replace('\t', ''))
+
+		matches = []
+		# nth day of this month (if larger than today or past explicitely allowed)
+		if (self.__now.day <= val) or (self.__allow_past):
+			target_date = self.__now + mxDT.RelativeDateTime(day = val)
+			print "target:", target_date, '(that day, this month)'
+			tmp = {
+				'value': target_date,
+				'label': target_date.strftime(self.__display_format),
+				'ID': 0
+			}
+			matches.append(tmp)
+		# day of next month
+		target_date = self.__now + mxDT.RelativeDateTime(months = 1, day = val)
+		print "target:", target_date, '(that day, next month)'
+		tmp = {
+			'value': target_date,
+			'label': target_date.strftime(self.__display_format),
+			'ID': 1
+		}
+		matches.append(tmp)
+		# X days from now (if <32)
+		if val < 32:
+			target_date = self.__now + mxDT.RelativeDateTime(days = val)
+			print "target:", target_date, '(that many days from today)'
+			tmp = {
+				'value': target_date,
+				'label': target_date.strftime(self.__display_format),
+				'ID': 2
+			}
+			matches.append(tmp)
+		# X weeks from now (if <5)
+		if val < 7:
+			target_date = self.__now + mxDT.RelativeDateTime(weeks = val)
+			print "target:", target_date, '(that many weeks from today)'
+			tmp = {
+				'value': target_date,
+				'label': target_date.strftime(self.__display_format),
+				'ID': 3
+			}
+			matches.append(tmp)
+		# day of this week
+		# day of next week
+		return matches
+	#--------------------------------------------------------
+	#--------------------------------------------------------
+#============================================================
 class cWheelTimer(wxTimer):
 	"""Timer for delayed fetching of matches.
 
@@ -560,8 +657,8 @@ class cPhraseWheel (wxTextCtrl):
 			self.OnSelected()
 	#--------------------------------------------------------
 	def __on_down_arrow(self, key):
-		import pdb
-		pdb.set_trace ()
+#		import pdb
+#		pdb.set_trace ()
 		# if we already have a pick list go to next item
 		if self.__picklist_visible:
 			self.__picklist.ProcessEvent (key)
@@ -695,6 +792,10 @@ if __name__ == '__main__':
 			ww1 = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp1)
 			ww1.on_resize (None)
 
+			mp3 = cMatchProvider_Date(allow_past = 0)
+			ww3 = cPhraseWheel(frame, clicked, pos = (50, 150), size = (180, 30), aMatchProvider=mp3)
+			ww3.on_resize(None)
+
 			print "Do you want to test the database connected phrase wheel ?"
 			yes_no = raw_input('y/n: ')
 			if yes_no == 'y':
@@ -705,7 +806,7 @@ if __name__ == '__main__':
 					'limit': 25
 				}
 				mp2 = cMatchProvider_SQL([src])
-				ww2 = cPhraseWheel(frame, clicked, pos = (50, 150), size = (180, 30), aMatchProvider=mp2)
+				ww2 = cPhraseWheel(frame, clicked, pos = (50, 250), size = (180, 30), aMatchProvider=mp2)
 				ww2.on_resize (None)
 
 			frame.Show (1)
@@ -716,7 +817,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.12  2003-09-21 10:55:04  ncq
+# Revision 1.13  2003-09-29 00:16:55  ncq
+# - added date match provider
+#
+# Revision 1.12  2003/09/21 10:55:04  ncq
 # - coalesce merge conflicts due to optional SQL phrase wheel testing
 #
 # Revision 1.11  2003/09/21 07:52:57  ihaywood
