@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -75,9 +75,11 @@ _default_client_encoding = None
 # default time zone for connections
 # OR: mxDT.now().gmtoffset()
 if time.daylight:
-	_default_time_zone = time.altzone * -1
+	tz = time.altzone
 else:
-	_default_time_zone = time.timezone * -1
+	tz = time.timezone
+# do some magic to convert Python's timezone to Postgres's desired format
+_default_time_zone = "%+.1f" % (-tz / 3600.0)
 
 #======================================================================
 # a bunch of useful queries
@@ -475,6 +477,8 @@ class ConnectionPool:
 		if not run_query(curs, cmd):
 			_log.Log(gmLog.lErr, 'cannot set client time zone to [%s]' % _default_time_zone)
 			_log.Log(gmLog.lWarn, 'not setting this will lead to incorrect dates/times')
+		else:
+			_log.Log (gmLog.lData, 'time zone set to [%s]' % _default_time_zone)
 		# - datestyle
 		# FIXME: add DMY/YMD handling
 		cmd = "set datestyle to 'ISO'"
@@ -943,7 +947,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.16 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.17 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1171,7 +1175,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.16  2004-04-27 22:43:28  ncq
+# Revision 1.17  2004-04-28 03:25:01  ihaywood
+# ensure sane timezone
+#
+# Revision 1.16  2004/04/27 22:43:28  ncq
 # - with PG versions that support it failing queries now log the PG settings if --debug
 #
 # Revision 1.15  2004/04/27 22:03:27  ncq
@@ -1191,7 +1198,7 @@ if __name__ == "__main__":
 #
 # Revision 1.10  2004/04/19 12:46:24  ncq
 # - much improved docs on run_commit()
-# - use noop() in run_commit()
+ # - use noop() in run_commit()
 # - fix rollback/commit behaviour in run_commit() - I wonder why it ever worked !?!
 #
 # Revision 1.9  2004/04/16 16:18:37  ncq
