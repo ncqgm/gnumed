@@ -134,9 +134,12 @@ create table days_off(
 
 
 CREATE VIEW v_doctors_only AS
-	select * from staff where id =
-	(select id_staff from m2m_staff_type where id_enum_stafftype=
-	(select id from enum_stafftype where description='doctor'));
+	select t0."id", t0."surnames", t0."givennames", t0."title",
+	t2."description", t0."qualifications" from "staff" t0,"m2m_staff_type" t1,
+	"enum_stafftype" t2
+	where  (t0."id"=t1."id_staff")
+	and  (t2."id"=t1."id_enum_stafftype")
+	and  (t2."description" ='doctor');
 
 CREATE VIEW v_duration_standard AS
 	select duration, id_staff  from preferred_app_length

@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -30,6 +30,7 @@ class DoctorsSchedulePnl(wxPanel):
 		cur = self.db.cursor()
 		cur.execute(doctorquery);
 		self.doctors=gmPG.dictResult(cur);
+		#print self.doctors
 		self.doctor=doctor
 		self.doctorindex = {}
 		#to look up a doctor's id depending on the index in the combo box
@@ -42,7 +43,7 @@ class DoctorsSchedulePnl(wxPanel):
 		session_interval = 15
 
 		self.schedule = gmScheduleGrid.ScheduleGrid(self, session_interval=session_interval)
-		
+
 		self.szrButtons = wxBoxSizer(wxHORIZONTAL)
 		self.szrMain.AddSizer(self.szrTopRow, 0, wxGROW|wxALIGN_TOP|wxLEFT|wxRIGHT, 5 )
 		self.szrMain.AddWindow(self.schedule, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 3 )
@@ -57,9 +58,9 @@ class DoctorsSchedulePnl(wxPanel):
 
 		self.FillComboStaff(self.doctors)
 		if self.doctor is not None:
-			print "Setting Doctor", self.doctor
+			#print "Setting Doctor", self.doctor
 			self.SetDoctor(self.doctor)
-			print "Blocking days for ", self.doctor
+			#print "Blocking days for ", self.doctor
 			self.BlockDays(self.doctor)
 
 		self.SetSizer(self.szrMain)
@@ -120,7 +121,7 @@ class DoctorsSchedulePnl(wxPanel):
 		idx = evt.GetSelection()
 		id = self.doctorindex[idx]
 		if id is not None:
-			print "Selecting doctor", id
+			#print "Selecting doctor", id
 			self.SelectDoctor(id)
 
 

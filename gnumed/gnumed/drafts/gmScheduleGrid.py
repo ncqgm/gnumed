@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -9,7 +9,7 @@ import time
 
 from wxPython.wx import *
 from wxPython.grid import *
-#from wxPython.lib.mixins.grid import wxGridAutoEditMixin
+from wxPython.lib.mixins.grid import wxGridAutoEditMixin
 from wxPython.lib import colourdb
 
 import gettext
@@ -98,9 +98,9 @@ def TimeLabels(start=9, end=18, interval=15, exclude=None):
 		excludelist = GenerateExcludedTimes(exclude, interval)
 	else:
 		excludelist = []
-	print excludelist
+	#print excludelist
 	labels = []
-	print start, end
+	#print start, end
 	for hour in range(start, end):
 		for minute in range(0,60, interval):
 			str="%02d:%02d" % (hour, minute)
@@ -248,8 +248,8 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 	def OnKeyDown(self,evt):
 		code = evt.KeyCode()
 		if code == WXK_TAB:
-			print "tab!"
-
+			#print "tab!"
+			pass
 		elif code == WXK_RETURN:
 			evt.Skip()
 		else:
@@ -257,7 +257,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 
 	def OnChar(self, evt):
-		print "OnCHar"
+		#print "OnCHar"
 		evt.Skip()
 
 	def SetDoctor(self, id):
@@ -381,7 +381,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		datestr = time.strftime("%Y-%m-%d", self.GetCellDate(column))
 		timestr = self.GetCellTime(row)
 		tds = "%s %s" % (datestr, timestr)
-		print "tds", tds
+		#print "tds", tds
 		return time.strptime(tds, "%Y-%m-%d %H:%M")
 
 
@@ -389,7 +389,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		datetime=self.GetCellDateTime(row, col)
 		value = self.GetCellValue(row, col)
 		dts = time.strftime("%Y-%m-%d %H:%M", datetime)
-		print "Appointment on %s for %s" % (dts, value)
+		#print "Appointment on %s for %s" % (dts, value)
 
 	def OnCellLeftClick(self, evt):
 		self.AppointmentSelected(evt.GetRow(), evt.GetCol())
@@ -535,7 +535,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 
 	def OnItemSelected(self, evt):
-		print "Item was selected", self.li.GetClientData(self.li.GetSelection())
+		#print "Item was selected", self.li.GetClientData(self.li.GetSelection())
 		self.SetCellValue(self.GetGridCursorRow(), self.GetGridCursorCol(), self.li.GetString(self.li.GetSelection()))
 		self.li.Destroy()
 
@@ -544,11 +544,11 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		cur = self.db.cursor()
 		if firstname is not None:
 			qstr = pat_by_names_query % (surname, firstname)
-			print qstr
+			#print qstr
 			cur.execute(qstr)
 		else:
 			qstr = pat_by_surnames_query % surname
-			print qstr
+			#print qstr
 			cur.execute(qstr)
 		result = gmPG.dictResult(cur)
 		n = len(result)
@@ -561,7 +561,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		row = self.idx_time2row[time[:-3]]
 		col = self.idx_date2column[date]
 		pstr = "%s, %s" % (patient["lastnames"], patient["firstnames"])
-		print "Updating date [%s] time [%s] row %d, col %d, patient [%s]" % (date, time, row, col, pstr)
+		#print "Updating date [%s] time [%s] row %d, col %d, patient [%s]" % (date, time, row, col, pstr)
 		self.SetCellBackgroundColour(row, col, self.clr_appointed)
 		self.SetCellValue(row, col, pstr)
 		#long appointment?
@@ -584,7 +584,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 			% ( int(self.doctor_id), \
 			   IsoDate(self.Date), \
 			   IsoDate(self.AddDays(self.days, self.Date)) )
-		print query
+		#print query
 		patquery = "select * from v_basic_person where id = %d"
 		cur = self.db.cursor() #for the appointment
 		pc = self.db.cursor() #for the patient
@@ -593,9 +593,13 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		index = gmPG.cursorIndex(cur)
 		for date in dates:
 			pc.execute(patquery % int(date[index["id_patient"]]))
-			(patient, ) = gmPG.dictResult(pc)
-			print "Attempting to update: ", date[index["date"]], date[index["time"]], date[index["booked_duration"]]
-			self.UpdateCell(date[index["date"]], date[index["time"]], date[index["booked_duration"]], patient)
+			patients = gmPG.dictResult(pc)
+			if len(patients):
+				patient = patients[0]
+			else:
+				print "Failed to update cell! ID was %s: " % date[index["id_patient"]]
+				return
+			self.UpdateCell(date[index["date"]].date, date[index["time"]].strftime("%H:%M:%S"), date[index["booked_duration"]], patient)
 
 
 	def AppointmentMade(self, row, col, value):
@@ -634,7 +638,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 			 time.strftime("%Y-%m-%d", datetime),
 			 time.strftime("%H:%M", datetime),
 			 duration)
-		print query
+		#print query
 		cur.execute(query)
 		cur.execute("COMMIT")
 
