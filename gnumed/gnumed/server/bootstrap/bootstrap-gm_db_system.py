@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -199,7 +199,7 @@ class db_server:
 			# Under Debian this also works with password == None
 			self.conn = dbapi.connect(dsn)
 		except:
-			_log.LogException("cannot connect with DSN = [%s]" % dsn, sys.exc_info(), fatal=1)
+			_log.LogException("cannot connect with DSN = [%s]" % dsn, sys.exc_info(), verbose=1)
 			return None
 
 		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % self.template_db)
@@ -244,7 +244,7 @@ class db_server:
 			_log.Log(gmLog.lErr, "Need dir list to search for language library !")
 			return None
 
-		# FIXME: this logically fails in remote installs !!!
+		# FIXME: make this optional (for remote installation)
 		lib_path = None
 		for lib_dir in aDirList:
 			tmp = os.path.join(lib_dir, lib_name)
@@ -271,11 +271,11 @@ class db_server:
 		cursor = self.conn.cursor()
 		if not _run_query(cursor, call_handler_cmd):
 			cursor.close()
-			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), fatal=1)
+			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), verbose=1)
 			return None
 		if not _run_query(cursor, activate_lang_cmd):
 			cursor.close()
-			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), fatal=1)
+			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), verbose=1)
 			return None
 
 		self.conn.commit()
@@ -335,7 +335,7 @@ class db_server:
 		try:
 			aCursor.execute(cmd)
 		except:
-			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
+			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), verbose=1)
 			return None
 		res = aCursor.fetchone()
 		if aCursor.rowcount == 1:
@@ -375,7 +375,7 @@ class db_server:
 			cursor.execute(cmd)
 		except:
 			_log.Log(gmLog.lErr, ">>>[%s]<<< failed." % cmd)
-			_log.LogException("Cannot create GnuMed database owner [%s]." % _dbowner.name, sys.exc_info(), fatal=1)
+			_log.LogException("Cannot create GnuMed database owner [%s]." % _dbowner.name, sys.exc_info(), verbose=1)
 			cursor.close()
 			return None
 
@@ -393,7 +393,7 @@ class db_server:
 		try:
 			aCursor.execute(cmd)
 		except:
-			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
+			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), verbose=1)
 			return None
 		res = aCursor.fetchone()
 		if aCursor.rowcount == 1:
@@ -411,7 +411,7 @@ class db_server:
 		try:
 			aCursor.execute(cmd)
 		except:
-			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
+			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), verbose=1)
 			return None
 
 		# paranoia is good
@@ -533,7 +533,7 @@ class database:
 				self.owner.password
 			)
 		except:
-			_log.LogException("Cannot construct DSN !", sys.exc_info(), fatal=1)
+			_log.LogException("Cannot construct DSN !", sys.exc_info(), verbose=1)
 			return None
 
 		if self.conn is not None:
@@ -542,7 +542,7 @@ class database:
 		try:
 			self.conn = dbapi.connect(dsn)
 		except:
-			_log.LogException("Cannot connect with DSN = [%s]." % dsn, sys.exc_info(), fatal=1)
+			_log.LogException("Cannot connect with DSN = [%s]." % dsn, sys.exc_info(), verbose=1)
 			return None
 		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % srv.template_db)
 		return 1
@@ -558,7 +558,7 @@ class database:
 				self.owner.password
 			)
 		except:
-			_log.LogException("Cannot construct DSN !", sys.exc_info(), fatal=1)
+			_log.LogException("Cannot construct DSN !", sys.exc_info(), verbose=1)
 			return None
 
 		if self.conn is not None:
@@ -567,7 +567,7 @@ class database:
 		try:
 			self.conn = dbapi.connect(dsn)
 		except:
-			_log.LogException("Cannot connect with DSN = [%s]." % dsn, sys.exc_info(), fatal=1)
+			_log.LogException("Cannot connect with DSN = [%s]." % dsn, sys.exc_info(), verbose=1)
 			return None
 		_log.Log(gmLog.lInfo, "successfully connected to database [%s]" % self.name)
 		return 1
@@ -579,7 +579,7 @@ class database:
 		try:
 			aCursor.execute(cmd)
 		except:
-			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
+			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), verbose=1)
 			return None
 
 		res = aCursor.fetchone()
@@ -605,8 +605,10 @@ class database:
 		cursor = self.conn.cursor()
 		try:
 			cursor.execute(cmd)
-		except:
-			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
+		except libpq.Warning, warning:
+			_log.LogException(">>>[%s]<<< warning: %s" % (cmd, warning), sys.exc_info(), verbose=0)
+		except StandardError:
+			_log.LogException(">>>[%s]<<< failed" % cmd, sys.exc_info(), verbose=1)
 			return None
 		self.conn.commit()
 		cursor.close()
@@ -667,7 +669,7 @@ class gmService:
 		try:
 			database(aDB_alias = database_alias, aCfg = _cfg)
 		except:
-			_log.LogException("Cannot bootstrap service [%s]." % self.alias, sys.exc_info(), fatal = 1)
+			_log.LogException("Cannot bootstrap service [%s]." % self.alias, sys.exc_info(), verbose = 1)
 			return None
 		self.db = _bootstrapped_dbs[database_alias]
 
@@ -709,7 +711,7 @@ class gmService:
 		try:
 			curs.execute(cmd)
 		except:
-			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
+			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
 			curs.close()
 			return -1
 		result = curs.fetchone()
@@ -732,7 +734,7 @@ class gmService:
 		try:
 			curs.execute(cmd)
 		except:
-			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
+			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
 		result = curs.fetchone()
 		if not result[0]:
 			_log.Log(gmLog.lInfo, "service [%s] not installed here yet" % self.name)
@@ -749,7 +751,7 @@ class gmService:
 		try:
 			curs.execute(cmd)
 		except:
-			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
+			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
 		result = curs.fetchone()
 		existing_version = result[0][0]
 		created = result[0][1]
@@ -801,7 +803,7 @@ class gmService:
 		try:
 			curs.execute(cmd)
 		except:
-			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
+			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
 			curs.close()
 			return None
 		# fetch distributed database ID
@@ -834,7 +836,7 @@ class gmService:
 			try:
 				curs.execute(cmd)
 			except:
-				_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
+				_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
 				curs.close()
 				return None
 
@@ -849,7 +851,7 @@ class gmService:
 				try:
 					curs.execute(cmd)
 				except:
-					_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
+					_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
 					curs.close()
 					return None
 
@@ -860,7 +862,7 @@ class gmService:
 				try:
 					curs.execute(cmd)
 				except:
-					_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
+					_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
 					curs.close()
 					return None
 				# this should not return None anymore
@@ -884,7 +886,7 @@ class gmService:
 			try:
 				curs.execute(cmd)
 			except:
-				_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
+				_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
 				curs.close()
 				return None
 			curs.close()
@@ -949,6 +951,9 @@ def _import_schema_file(anSQL_file = None, aSrv = None, aDB = None, aUser = None
 	os.chdir(path)
 
 	cmd = 'psql -q -h "%s" -d "%s" -U "%s" -f "%s"' % (aSrv, aDB, aUser, SQL_file)
+	# Debian sort of works better with this:
+	#cmd = 'psql -q -h "%s" -d "%s" -f "%s"' % (aSrv, aDB, SQL_file)
+	# but we need to find a better solution
 	_log.Log(gmLog.lInfo, "running [%s]" % cmd)
 	result = os.system(cmd)
 	_log.Log(gmLog.lInfo, "raw result: %s" % result)
@@ -977,7 +982,7 @@ def _run_query(aCurs, aQuery):
 	try:
 		aCurs.execute(aQuery)
 	except:
-		_log.LogException(">>>%s<<< failed" % aQuery, sys.exc_info(), fatal=1)
+		_log.LogException(">>>%s<<< failed" % aQuery, sys.exc_info(), verbose=1)
 		return None
 	return 1
 #------------------------------------------------------------------
@@ -1082,7 +1087,12 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.14  2003-06-03 13:47:38  ncq
+# Revision 1.15  2003-06-10 10:00:09  ncq
+# - fatal= -> verbose=
+# - some more comments re Debian/auth/FIXMEs
+# - don't fail on libpq.Warning as suggested by Andreas Tille
+#
+# Revision 1.14  2003/06/03 13:47:38  ncq
 # - fix grammar
 #
 # Revision 1.13  2003/05/26 13:53:28  ncq
