@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.114 2004-06-08 00:43:26 ncq Exp $
-__version__ = "$Revision: 1.114 $"
+# $Id: gmClinicalRecord.py,v 1.115 2004-06-09 14:33:31 ncq Exp $
+__version__ = "$Revision: 1.115 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -166,7 +166,7 @@ class cClinicalRecord:
 	# messaging
 	#--------------------------------------------------------
 	def _register_interests(self):
-		# backend
+		# backend notifications
 		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.id_patient)
 		if not self._backend.Listen('historica', sig, self.db_callback_vaccs_modified):
 			return None
@@ -187,40 +187,18 @@ class cClinicalRecord:
 			del self.__db_cache['missing vaccinations']
 		except KeyError:
 			pass
-		# frontend notify
 		gmDispatcher.send(signal = gmSignals.vaccinations_updated(), sender = self.__class__.__name__)
 		return 1
 	#--------------------------------------------------------
 	def _db_callback_allg_modified(self):
-		curs = self._ro_conn_clin.cursor()
-		# did number of allergies change for our patient ?
-		cmd = "select count(*) from v_pat_allergies where id_patient=%s"
-		if not gmPG.run_query(curs, cmd, self.id_patient):
-			curs.close()
-			_log.Log(gmLog.lData, 'cannot check for added/deleted allergies, assuming addition/deletion did occurr')
-			# error: invalidate cache
-			del self.__db_cache['allergies']
-			# and tell others
-			gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
-			return 1
-		result = curs.fetchone()
-		curs.close()
-		# not cached yet
 		try:
-			nr_cached_allergies = len(self.__db_cache['allergies'])
+			del self.__db_cache['allergies']
 		except KeyError:
-			gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
-			return 1
-		# no change for our patient ...
-		if result == nr_cached_allergies:
-			return 1
-		# else invalidate cache
-		del self.__db_cache['allergies']
+			pass
 		gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
 		return 1
 	#--------------------------------------------------------
 	def _health_issues_modified(self):
-		_log.Log(gmLog.lData, 'DB: clin_health_issue modification')
 		try:
 			del self.__db_cache['health issues']
 		except KeyError:
@@ -1313,7 +1291,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.114  2004-06-08 00:43:26  ncq
+# Revision 1.115  2004-06-09 14:33:31  ncq
+# - cleanup
+# - rewrite _db_callback_allg_modified()
+#
+# Revision 1.114  2004/06/08 00:43:26  ncq
 # - add staff_id to add_allergy, unearthed by unittest
 #
 # Revision 1.113  2004/06/02 22:18:14  ncq
