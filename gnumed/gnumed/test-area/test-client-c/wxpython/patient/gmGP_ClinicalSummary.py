@@ -4,6 +4,8 @@ try:
 	import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 	import gmGuiElement_AlertCaptionPanel          #panel to hold flashing
 	import gmPlugin
+	from gmPatientHolder import PatientHolder
+
 except:
 	print  "import error"
 	sys.path.append('../')
@@ -23,9 +25,10 @@ except:
 ID_OVERVIEW = wxNewId ()
 ID_OVERVIEWMENU = wxNewId ()
 
-class ClinicalSummary(wxPanel):
+class ClinicalSummary(wxPanel, PatientHolder):
 	def __init__(self, parent,id):
 		wxPanel.__init__(self,parent,id,wxDefaultPosition,wxDefaultSize,style = wxRAISED_BORDER)
+		PatientHolder.__init__(self)
 		#------------------------------------------------------------------------
 		#import social history if available this will be the top item on the page
 		#------------------------------------------------------------------------

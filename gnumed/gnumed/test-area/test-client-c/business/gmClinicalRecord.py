@@ -7,13 +7,15 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.1 2003-10-23 06:02:38 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmClinicalRecord.py,v 1.2 2003-10-25 08:29:40 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, string
 import time
+import yaml
+
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
@@ -328,6 +330,7 @@ class gmClinicalRecord:
 		return self.__db_cache['allergies']
 	#--------------------------------------------------------
 	def _get_allergy_names(self):
+		data = []
 		try:
 			self.__db_cache['allergies']
 		except KeyError:
@@ -526,6 +529,7 @@ where
 			rw_curs.close()
 			rw_conn.close()
 			_log.Log(gmLog.lErr, 'cannot insert health issue [%s] for patient [%s]' % (health_issue_name, self.id_patient))
+			print "insert"
 			return None
 		# get ID of insertion
 		cmd = "select currval('clin_health_issue_id_seq')"
@@ -533,6 +537,7 @@ where
 			rw_curs.close()
 			rw_conn.close()
 			_log.Log(gmLog.lErr, 'cannot obtain id of last health issue insertion')
+			print "find currval"
 			return None
 		id_issue = rw_curs.fetchone()[0]
 		# and commit our work
@@ -540,6 +545,7 @@ where
 		rw_curs.close()
 		rw_conn.close()
 		_log.Log(gmLog.lData, 'inserted [%s] issue with ID [%s] for patient [%s]' % (health_issue_name, id_issue, self.id_patient))
+		
 		return id_issue
 	#------------------------------------------------------------------
 	# episode related helpers
@@ -803,6 +809,215 @@ values (%s, %s, %s, %s, %s, %s)
 		rw_conn.close()
 
 		return 1
+
+	#-----------------------------------------------------------------------
+	#This is basic Observer pattern, or  model-view pattern
+	#----------------------------------------------------------------------
+	def getObservers(self):
+		if not self.__dict__.has_key('observers'):
+			self.observers = []
+		list = []
+		list.extend(self.observers)
+		return list
+	
+	def addObserver(self, observer):
+		if observer not in self.getObservers():
+			self.observers.append(observer)
+		
+	def notifyObservers(self):
+		for observer in self.getObservers():
+			observer.modelChanged(self)
+			
+	#------------------------------------------------------------------
+	# yaml input and output conversions
+	#------------------------------------------------------------------
+
+	def get_yaml_string(self, keys, map):
+		l = ["---"]
+		for k in keys:
+			l.append( ''.join("  ", k ,":",  map[k]) )
+		return 	"\n".join(l) 
+	
+	def load_yaml_collection(self, cmd, params):
+		"""loads  a yaml serialized field for a patient into a list, a map, and a storage ordered map.items()"""
+		(curs, conn) = self._runQuery( cmd, params = self.id_patient)
+		l = curs.fetchall()
+		curs.close()
+		maps = []
+		indexed_maps = {}
+		seq_with_id = []
+		for x in l:
+			id = x[0]
+			yaml_text = x[1]
+			result = list(yaml.load( yaml_text))
+			maps.append( result[0])
+			indexed_maps[id] = result[0]
+			seq_with_id.append( id, result[0])
+			
+		return maps , indexed_maps, seq_with_id
+	
+
+	
+	def template_update_root_item(self, converter, keys, map, cmd , id = None):
+		self.converter(map)
+		description = self.get_yaml_string(keys, map) 
+		params =[ description, self.id_episode, self.id_encounter ]
+		if id <> None:
+			params.append(id)
+		conn = self._backend.GetConnection('historica', readonly = 0)
+		curs = conn.cursor()
+		curs.execute( cmd % params)
+		conn.commit()
+		curs.close()
+	#-----------------------------------------------------------------
+	# trial past history, use yaml serialization to store ui dependent info in text field
+	#----------------------------------------------------------------
+	
+	def _getLaterality(self, map):
+		if map.get('both', 0) == 1:
+			return 'both'
+		if map.get('right', 0) == 1:
+			return 'right'
+		if map.get('left', 0) == 1:
+			return 'left'
+	
+	def _putLaterality(self,laterality, map):
+		if laterality == 'both':
+			map.update( {'both' : 1, 'left': 0, 'right': 0 })
+		if laterality == 'left':
+			map.update( {'both' : 0, 'left': 1, 'right': 0 })
+		if laterality == 'right':
+			map.update( {'both' : 0, 'left': 0, 'right': 1 })
+			
+	def _getNotes( self, map):
+		return  "|".join(map['notes1'], map['notes2'] )
+
+	def _putNotes( self, map):
+		( map['notes1'], map['notes2']  )=  map['notes'].split('|')
+		
+
+	def _putAge( self, map):
+		map['age'] = map['year'] - self._getBirthYear()
+		
+	def _getBirthDate(self):
+		if not self.__attr__.has_key['birthdate'] :
+			(curs, conn) = self._runQuery(cmd='select dob from v_basic_person where id = %d', params = self.id_patient)
+			self.birthdate = curs.fetchone()[0]
+			curs.close()
+		return self.birthdate	
+
+	def _getBirthYear(self):
+		"""need patient info for birth year"""
+		return time.localtime(self._getBirthDate())[0]
+
+	def _getCurrentAge(self):
+		"""need patient info and current for current age"""
+		return time.localtime()[0] - self._getBirthYear()
+
+	def _runQuery(self,schema = 'personalia'  , readonly = 1,  cmd = 'select %d', params = 1):
+		conn = self._backend.GetConnection(schema, readonly )
+		ro_curs = conn.cursor()
+		ro_curs.execute(cmd % params)
+		return (ro_curs, conn)
+		
+
+	def _getYear( self, map):
+		y =  map.get( 'year',0)
+	
+		if type(y) == type(1) and y > 0:
+			return y
+
+		if  type( map['age'] ) == type(1) and map['age'] > 0:
+			return self._getBirthYear() + map['age']
+
+		return time.localtime()[0]
+
+	def _convertHistoryInputMap(self, map):
+		map['laterality'] = self._getLaterality( map)
+		map['notes'] = self._getNotes(map)
+		map['year'] = self._getYear( map)
+
+	
+	def create_history(self, map):
+		# last output 23/10/2003
+		#{ past history : ['active', 'age', 'both', 'condition', 'confidential', 'left', 'notes1', 'notes2', 'operation', 'progress', 'right', 'significant', 'year'] }
+		cmd="insert into clin_history ( narrative, id_type, id_episode, id_encounter) values('%s', 0, %d, %d )"
+		self._update_history_cmd( map, cmd)
+
+
+	def _update_history( self, ix) :
+		if ix < len(self.past['list']):
+			id = self.past['items'][0]
+			cmd = "update clin_history set  narrative='%s', id_type= 0, id_episode=%d, id_encounter=%d where id = %d"
+			self._update_history_cmd( map, cmd, id)
+			
+			
+	def _update_history_cmd( self, map, cmd, id = None):	
+		keys = [ 'condition', 'active', 'year' , 'laterality', 'operation', 'confidential', 'notes' ]
+		converter = self.convertHistoryInputMap
+		self.template_update_root_item( converter, keys, map, cmd, id)
+
+	
+	def get_all_history(self):
+		"""gets the history from the local store , else fetches it with load_past_history"""
+		if not self.__dict__.has_key('past_histories'):
+			self.load_all_history()
+			
+		return self.past['items']
+	
+	def load_all_history(self):
+		"""loads the past history for the patient"""
+		self.past = {}
+		( self.past['list'], self.past['map'], self.past['items'] )= self.load_yaml_collection( cmd="""select id, narrative from clin_history h, 
+									clin_episode e , 
+									clin_health_issue hi 
+									where  h.id_episode = e.id and 
+									e.id_clin_issue = hi.id and 
+									hi.id_patient = %d
+									""",
+									params = self.id_patient)
+		self.notifyObservers()
+
+	def get_accepted_history(self):
+		l = []
+		for  (id, map) in self.get_all_history():
+			if map.get('rejected', 0) == 1:
+				continue
+			l.append((id, map) )
+		return l
+	
+	def get_active_history(self):
+		l = []
+		for id, map in self.get_accepted_history():
+			if map.get('active', 0) == 1:
+				l.append( (id,map) )
+		return l
+	
+	def get_inactive_history(self):
+		l = []
+		for id, map in self.get_accepted_history():
+			if map.get('active', 0) == 0:
+				l .append( (id,map) )
+		return l		
+
+	def set_rejected_history(self, index, rejected = 1):
+		list = self.get_accepted_history()
+		if index >= len( list):
+			return
+		(id, map ) = list[index]
+		map['reject'] = rejected
+		
+
+	def get_history_fields(self, index):
+		"""converts to fields for display"""
+		map = self.get_accepted_history()[index]
+		self._putLaterality(map)
+		self._putAge(map)
+		self._putNotes(map)
+		return map
+	
+		
+	
 #============================================================
 # main
 #------------------------------------------------------------
@@ -820,7 +1035,13 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.1  2003-10-23 06:02:38  sjtan
+# Revision 1.2  2003-10-25 08:29:40  sjtan
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.1  2003/10/23 06:02:38  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #

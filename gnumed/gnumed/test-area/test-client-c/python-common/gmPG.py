@@ -5,12 +5,12 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
 import string, copy, os, sys, time
-
+import traceback
 #gnumed specific modules
 import gmLog
 _log = gmLog.gmDefLog
@@ -585,6 +585,8 @@ def run_query(aCursor = None, aQuery = None, *args):
 		aCursor.execute(aQuery, *args)
 	except:
 		_log.LogException("query >>>%s<<< with args >>>%s<<< failed" % (aQuery, args), sys.exc_info(), verbose = _query_logging_verbosity)
+		print sys.exc_info()[0], sys.exc_info()[1]
+		traceback.print_tb(sys.exc_info()[2])
 		return None
 	return 1
 #---------------------------------------------------
@@ -1004,7 +1006,13 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.1  2003-10-23 06:02:39  sjtan
+# Revision 1.2  2003-10-25 08:29:40  sjtan
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #

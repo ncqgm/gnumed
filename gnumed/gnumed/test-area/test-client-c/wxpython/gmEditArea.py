@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.3 2003-10-24 04:20:17 sjtan Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmEditArea.py,v 1.4 2003-10-25 08:29:40 sjtan Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -540,6 +540,7 @@ class gmEditArea( wxPanel):
 		# client internal signals
 		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_data)
 		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._save_data)
+		#gmDispatcher.connect(signal = gmSignals.patient_object_changed(), receiver = self._setPatientModel)
 
 		return 1
 	#--------------------------------------------------------
@@ -578,6 +579,14 @@ class gmEditArea( wxPanel):
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
 
+	#def _setPatientModel(self, patient):
+	#	print self, "received", patient
+	#	self.patient = patient
+	#	self._updateUI()
+	
+	#def _updateUI(self):
+	#	print "subclasses must override"
+		
 
 	def _postInit(self):
 		"""override for further control setup"""
@@ -1224,9 +1233,9 @@ class gmRequestEditArea(gmEditArea):
 		lines.append(progress)
 		#lines.append(billings)
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(billings, 4, wxEXPAND)
+		szr.Add(billings, 2, wxEXPAND)
 		
-		szr.Add(self._make_standard_buttons(parent))
+		szr.Add(self._make_standard_buttons(parent), 1, wxEXPAND)
 		lines.append(szr)
 		#lines.append(self._make_standard_buttons(parent))
 		self.input_fields = {
@@ -1788,7 +1797,13 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.3  2003-10-24 04:20:17  sjtan
+# Revision 1.4  2003-10-25 08:29:40  sjtan
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.3  2003/10/24 04:20:17  sjtan
 #
 # yaml side-effect code; remove later if not useful.
 #

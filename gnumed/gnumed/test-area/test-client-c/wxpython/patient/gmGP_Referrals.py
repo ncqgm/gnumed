@@ -19,8 +19,8 @@
 #      
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/patient/Attic/gmGP_Referrals.py,v $
-# $Id: gmGP_Referrals.py,v 1.1 2003-10-23 06:02:40 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmGP_Referrals.py,v 1.2 2003-10-25 08:29:40 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "R.Terry"
 
 from wxPython.wx import *
@@ -29,6 +29,7 @@ import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea             				#panel class holding editing prompts and text boxes
 import gmPlugin, gmLog
+from gmPatientHolder import PatientHolder
 
 
 ID_REFERRALDATE = wxNewId ()
@@ -51,9 +52,10 @@ requestprompts = {
 13:("")
 }
 
-class ReferralsPanel (wxPanel):
+class ReferralsPanel (wxPanel, PatientHolder):
      def __init__(self,parent, id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
+		PatientHolder.__init__(self)
 		self.SetBackgroundColour(wxColor(222,222,222))
 		#--------------------
 		#add the main heading
@@ -164,7 +166,13 @@ if __name__ == "__main__":
 	app.MainLoop()
 #==============================================================
 # $Log: gmGP_Referrals.py,v $
-# Revision 1.1  2003-10-23 06:02:40  sjtan
+# Revision 1.2  2003-10-25 08:29:40  sjtan
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #

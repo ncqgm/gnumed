@@ -30,7 +30,7 @@ import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea             			#panel class holding editing prompts and text boxes
 import gmPlugin, gmLog
-
+from gmPatientHolder import PatientHolder
 
 ID_REQUESTSLIST = wxNewId()
 gmSECTION_REQUESTS = 9
@@ -56,9 +56,10 @@ requestprompts = {
 	}
 
 
-class RequestsPanel (wxPanel):
+class RequestsPanel (wxPanel, PatientHolder):
      def __init__(self,parent, id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
+		PatientHolder.__init__(self)
 		#--------------------
 		#add the main heading
 		#--------------------
@@ -124,7 +125,7 @@ class RequestsPanel (wxPanel):
 		self.mainsizer.Add(self.requestspanelheading,0,wxEXPAND)
 		self.mainsizer.Add(0,5,0)
 		self.mainsizer.Add(self.sizer_top,0,wxEXPAND)
-		self.mainsizer.Add(self.editarea,8,wxEXPAND)
+		self.mainsizer.Add(self.editarea,9,wxEXPAND)
 		self.mainsizer.Add(self.requestsgenerated_subheading,0,wxEXPAND)
 		self.mainsizer.Add(self.list_requests,7,wxEXPAND)
 		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)

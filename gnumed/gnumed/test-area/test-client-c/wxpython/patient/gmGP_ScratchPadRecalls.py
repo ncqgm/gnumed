@@ -3,12 +3,12 @@
 
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/patient/Attic/gmGP_ScratchPadRecalls.py,v $
-# $Id: gmGP_ScratchPadRecalls.py,v 1.1 2003-10-23 06:02:40 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmGP_ScratchPadRecalls.py,v 1.2 2003-10-25 08:29:40 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 
 from wxPython.wx import *
 import gmPlugin, gmShadow, gmLog, gmDispatcher, gmSignals, gmPG
-
+from  gmPatientHolder import PatientHolder
 scratchpaddata = {}
 recalldata = {}
 
@@ -16,10 +16,11 @@ query_scratchpad = "select id, timestamp, text, author from scratchpad where id_
 query_recalls = "select id, timestamp, reason from recalls where id_identity=%s"
 
 #===============================================================
-class ScratchPadRecalls(wxPanel):
+class ScratchPadRecalls(wxPanel, PatientHolder):
 	def __init__(self, parent,id=-1):
 		self.patientID=None
 		wxPanel.__init__(self,parent,id,wxDefaultPosition,wxDefaultSize,style = wxRAISED_BORDER)
+		PatientHolder.__init__(self)
 		self.parent=parent
 		self.create_widgets()
 		self.layout_widgets()
@@ -158,7 +159,13 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===============================================================
 # $Log: gmGP_ScratchPadRecalls.py,v $
-# Revision 1.1  2003-10-23 06:02:40  sjtan
+# Revision 1.2  2003-10-25 08:29:40  sjtan
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #

@@ -18,7 +18,7 @@
 #      
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/patient/Attic/gmGP_FamilyHistory.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, S.Tan"
 
 from wxPython.wx import *
@@ -27,6 +27,8 @@ import gmEditArea, gmPlugin, gmLog
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
+from gmPatientHolder import PatientHolder
+
 
 ID_MEMBERCONDITIONSLIST = wxNewId()
 ID_FAMILYMEMBERSLIST = wxNewId()
@@ -47,10 +49,11 @@ membersconditionsdata = {
 }
 
 #----------------------------------------------------------------------
-class FamilyHistoryPanel(wxPanel):
+class FamilyHistoryPanel(wxPanel, PatientHolder):
 
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
+		PatientHolder.__init__(self)
 		# main heading
 		self.FamilyHistoryPanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,"  FAMILY AND SOCIAL HISTORY  ")
 		# editarea
@@ -196,7 +199,13 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================# 
 # $Log: gmGP_FamilyHistory.py,v $
-# Revision 1.1  2003-10-23 06:02:40  sjtan
+# Revision 1.2  2003-10-25 08:29:40  sjtan
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #

@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.1 2003-10-23 06:02:39 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPatientSelector.py,v 1.2 2003-10-25 08:29:40 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -670,7 +670,15 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 			return None
 
 		old_ID = self.curr_pat['ID']
+		
+		
 		self.curr_pat = gmTmpPatient.gmCurrentPatient(aPKey = anID)
+		
+		#TODO - remove if not needed
+		
+		gmDispatcher.send( gmSignals.patient_object_changed(), patient=self.curr_pat)	
+		
+		
 		if old_ID == self.curr_pat['ID']:
 			_log.LogException('cannot change active patient', sys.exc_info())
 			# error message ?
@@ -988,7 +996,13 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.1  2003-10-23 06:02:39  sjtan
+# Revision 1.2  2003-10-25 08:29:40  sjtan
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #

@@ -32,6 +32,8 @@ import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea             				#panel class holding editing prompts and text boxes
 import gmPlugin, gmLog
 
+from gmPatientHolder import PatientHolder
+
 from gmListCtrlMapper import gmListCtrlMapper
 
 ID_SIGNIFICANTPASTHISTORYLIST = wxNewId()
@@ -64,9 +66,13 @@ pasthistoryprompts = {
 7:("Progress Notes"), 
 8:(""),
 	}
-class PastHistoryPanel(wxPanel):
+
+
+		
+class PastHistoryPanel(wxPanel, PatientHolder):
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
+		PatientHolder.__init__(self)
 
 		#--------------------
 		#add the main heading
@@ -160,9 +166,9 @@ class PastHistoryPanel(wxPanel):
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
 		self.mainsizer.Add(self.pasthistorypanelheading,0,wxEXPAND)
-		self.mainsizer.Add(self.dummypanel1,1,wxEXPAND)
+		#self.mainsizer.Add(self.dummypanel1,0,wxEXPAND)
 		self.mainsizer.Add(self.editarea,6,wxEXPAND)
-		self.mainsizer.Add(self.dummypanel2,1,wxEXPAND)
+		#self.mainsizer.Add(self.dummypanel2,0,wxEXPAND)
 		self.mainsizer.Add(self.significant_history_heading,0,wxEXPAND)
 		self.mainsizer.Add(self.significant_problem_list,4,wxEXPAND)
 		self.mainsizer.Add(self.active_problems_heading,0,wxEXPAND)

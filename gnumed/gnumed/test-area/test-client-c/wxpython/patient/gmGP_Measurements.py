@@ -37,6 +37,8 @@ import gmLog
 import gmI18N
 from gmListCtrlMapper import gmListCtrlMapper
 
+import gmPatientHolder
+
 ID_MEASUREMENTVALUESLIST = wxNewId()
 gmSECTION_MEASUREMENTS = 10
 ID_MEASURMENTTYPESLIST = wxNewId()
@@ -86,9 +88,10 @@ measurement_prompts = {
 6:(""),
 	}
 
-class MeasurementPanel (wxPanel):
+class MeasurementPanel (wxPanel, gmPatientHolder.PatientHolder):
 	def __init__(self,parent, id):
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+		gmPatientHolder.PatientHolder.__init__(self)
 		#--------------------
 		#add the main heading
 		#--------------------

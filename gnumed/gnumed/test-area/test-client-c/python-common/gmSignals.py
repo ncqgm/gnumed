@@ -23,7 +23,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -75,6 +75,10 @@ def clin_item_updated():
 def patient_selected():
 	"the currently active patient displayed by the client has been selected"
 	return 'patient_selected'
+
+def patient_object_changed():
+	"the current patient object has been constructed and is the parameter to this signal"
+	return 'patient_object_changed'
 
 def activating_patient():
 	"""the currently active patient is about to be changed"""
@@ -134,7 +138,13 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.1  2003-10-23 06:02:39  sjtan
+# Revision 1.2  2003-10-25 08:29:40  sjtan
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #
