@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -113,19 +113,109 @@ comment on column test_norm.data is
 	 say, XML or like in a *.conf file';
 
 -- =============================================
+create table papersizes (
+	pk serial primary key,
+	name text unique not null,
+	size point not null
+);
+
+comment on column papersizes.size is '(cm, cm)';
+
+-- =============================================
+-- form templates
+create table form_defs (
+	pk serial primary key,
+	name_short text not null,
+	name_long text not null,
+	revision text not null,
+	template text,
+	engine char default 'T' not null check (engine in ('T', 'L')),
+	in_use boolean not null default true,
+	electronic boolean not null default false,
+	flags varchar (100) [],
+	unique (name_short, name_long),
+	unique (name_long, revision)
+) inherits (audit_fields);
+
+select add_table_for_audit('form_defs');
+
+comment on table form_defs is
+	'form definitions';
+comment on column form_defs.name_short is
+	'a short name for use in a GUI or some such';
+comment on column form_defs.name_long is
+	'a long name unambigously describing the form';
+comment on column form_defs.revision is
+	'GnuMed internal form def version, may
+	 occur if we rolled out a faulty form def';
+comment on column form_defs.template is
+	'the template complete with placeholders in
+	 the format accepted by the engine defined in
+	 form_defs.engine';
+comment on column form_defs.engine is
+	'the business layer forms engine used
+	 to process this form, currently:
+	 - T: plain text
+	 - L: LaTeX';
+comment on column form_defs.in_use is
+	'whether this template is currently actively
+	 used in a given practice';
+comment on column form_defs.electronic is
+	'?: Ian';
+comment on column form_defs.flags is
+	'?: Ian';
+
+-- ===================================================
+create table form_print_defs (
+	pk serial primary key,
+	fk_form integer
+		unique
+		not null
+		references form_defs(pk),
+	fk_papersize integer
+		not null
+		references papersizes(pk),
+	offset_top integer not null default 0,
+	offset_left integer not null default 0,
+	pages integer not null default 1,
+	printer text not null,
+	tray text not null,
+	manual_feed bool not null default false,
+	papertype text not null,
+	eject_direction character(1) not null,
+	orientation character(1) not null
+);
+
+comment on column form_print_defs.offset_top is
+	'in mm - and yes, they do change even within one
+	 type of form, but we do not want to change the
+	 offset for all the fields in that case';
+comment on column form_print_defs.papertype is
+	'type of paper such as "watermarked rose",
+	 mainly for user interaction on manual_feed==true';
+
+-- =============================================
 GRANT SELECT ON
-	basic_unit,
-	unit,
 	ref_source
+	, lnk_tbl2src
+	, unit
+	, basic_unit
+	, test_norm
+	, papersizes
+	, form_defs
+	, form_print_defs
 TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.6  2003-12-29 15:41:59  uid66147
+-- Revision 1.7  2004-03-09 09:31:41  ncq
+-- - merged most form def tables into reference service schema
+--
+-- Revision 1.6  2003/12/29 15:41:59  uid66147
 -- - fk/pk naming cleanup
 --
 -- Revision 1.5  2003/10/01 15:45:20  ncq
