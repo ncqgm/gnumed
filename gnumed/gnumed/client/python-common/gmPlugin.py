@@ -5,10 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.62 2003-11-18 19:06:26 hinnef Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.62 2003-11-18 19:06:26 hinnef Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmPlugin.py,v 1.63 2003-11-18 23:29:57 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -399,7 +397,7 @@ def GetPluginLoadList(set):
 	)
 
 	# get connection for possible later use
-	gb=gmGuiBroker.GuiBroker()
+	gb = gmGuiBroker.GuiBroker()
 	db = gmPG.ConnectionPool()
 	conn = db.GetConnection(service = "default")
 	dbcfg = gmCfg.cCfgSQL(
@@ -428,7 +426,6 @@ def GetPluginLoadList(set):
 			)
 			rwconn.close()
 			db.ReleaseConnection(service = "default")
-			print "THE p_list is ", p_list
 			return p_list
 
 	_log.Log(gmLog.lWarn, "No plugin load order stored in database. Trying local config file.")
@@ -436,11 +433,11 @@ def GetPluginLoadList(set):
 	# search in plugin directory
 	# FIXME: in the future we might ask the backend where plugins are
 	plugin_conf_name = os.path.join(gb['gnumed_dir'], 'wxpython', set, 'plugins.conf')
-	fCfg = None
 	try:
 		fCfg = gmCfg.cCfgFile(aFile = plugin_conf_name)
 	except:
 		_log.LogException("Can't load plugin load order config file.", sys.exc_info(), verbose=0)
+		fCfg = None
 
 	# load from file
 	if fCfg is not None:
@@ -479,7 +476,7 @@ def GetPluginLoadList(set):
 
 	_log.Log(gmLog.lData, "*** THESE ARE THE PLUGINS FROM gmPlugin.GetPluginList")
 	_log.Log(gmLog.lData, "%s" % "\n *** ".join(p_list))
-        db.ReleaseConnection(service = "default")
+	db.ReleaseConnection(service = "default")
 	return p_list
 #------------------------------------------------------------------
 def UnloadPlugin (set, name):
@@ -496,7 +493,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.62  2003-11-18 19:06:26  hinnef
+# Revision 1.63  2003-11-18 23:29:57  ncq
+# - remove duplicate Version line
+#
+# Revision 1.62  2003/11/18 19:06:26  hinnef
 # gmTmpPatient->gmPatient, again
 #
 # Revision 1.61  2003/11/17 10:56:37  sjtan
