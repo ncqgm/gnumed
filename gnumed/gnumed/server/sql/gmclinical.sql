@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.73 $
+-- $Revision: 1.74 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -360,13 +360,12 @@ comment on column vacc_regime.description is
 -- --------------------------------------------
 create table vacc_def (
 	id serial primary key,
---	fk_indication integer not null references vacc_indication(id),
 	fk_regime integer not null references vacc_regime(id),
 	-- FIXME: specific constraint: null if (is_booster == true) else > 0
 	is_booster boolean not null default false,
 	seq_no integer not null,
 	min_age_due interval not null,
-	max_age_due interval not null,
+	max_age_due interval,
 	min_interval interval not null,
 	comment text,
 	unique(fk_regime, seq_no)
@@ -388,7 +387,7 @@ comment on column vacc_def.min_age_due is
 	'minimum age at which this shot is due';
 comment on column vacc_def.max_age_due is
 	'maximum age at which this shot is due,
-	 if max_age_due = -1: no maximum age';
+	 if max_age_due = NULL: no maximum age';
 comment on column vacc_def.min_interval is
 	'if (is_booster == true):
 		recommended interval for boostering
@@ -749,11 +748,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.73 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.74 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.73  2003-11-26 23:20:43  ncq
+-- Revision 1.74  2003-11-28 01:03:21  ncq
+-- - allow null in vacc_def.max_age_due so we can coalesce() in views
+--
+-- Revision 1.73  2003/11/26 23:20:43  ncq
 -- - no need for lnk_vacc_def2regime anymore
 --
 -- Revision 1.72  2003/11/22 16:52:01  ncq
