@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -138,7 +138,6 @@ class AllergyPanel(wxPanel , PatientHolder ):
 		allergy_map = self.get_allergies().get_allergy_items()
 		for id, values in allergy_map.items():
 			if ix == 0:
-				gmPatientHolder._print( values)
 				self.editarea.setInputFieldValues( values, id)
 			ix -= 1
 			
@@ -228,7 +227,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.17  2003-11-17 10:56:41  sjtan
+# Revision 1.18  2003-11-23 13:59:10  sjtan
+#
+# _print removed from base class, so remove debugging calls to it.
+#
+# Revision 1.17  2003/11/17 10:56:41  sjtan
 #
 # synced and commiting.
 #
