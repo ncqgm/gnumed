@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.6 2003-02-17 23:31:02 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmXdtMappings.py,v 1.7 2003-02-19 12:26:47 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -545,6 +545,7 @@ xdt_id_map = {
 		 '8990':'Signatur',
 	    }
 #--------------------------------------------------------------
+
 xdt_packet_type_map = {
 	'0020': "========<< Anfang Datenträger >>========",
 	'0021': "========<< Ende Datenträger >>========",
@@ -583,9 +584,212 @@ xdt_gmgender_map = {
 	'm': 'm',
 	'f': 'f'
 }
+
+# xDT character code mapping : 9106
+xdt_character_code_map = {
+	'1':'7-bit-Code ASCII',
+	'2':'8-bit-Code ASCII'
+}
+# Archivierungsart : 9600
+xdt_Archivierungsart_map = {
+	'1':'Speicherung Gesamtbestand',
+	'2':'Speicherung beliebiger Zeitraum',
+	'3':'Speicherung eines Quartals'
+}
+# Praxistyp : 0202
+xdt_Praxistyp_map = {
+	'1':'Einzelpraxis',
+	'2':'Gemeinschaftspraxis',
+	'3':'Fachuebergreifende GP',
+	'4':'Praxisgemeinschaft',
+	'5':'Fachuebergreifende GP ohne Kennzeichen Leistung'
+}
+# Versichertenart MFR : 3108
+xdt_Versichertenart_map = {
+	'1':'Mitglied',
+	'3':'Familienversicherter',
+	'5':'Rentner',
+}
+# Kostentraegeruntergruppe : 4106
+xdt_Kostentraegeruntergruppe_map = {
+	'00':'default',
+	'01':'SVA(Sozialversicherungsabkommen)',
+	'02':'BVG(Bundesversorgungsgesetz)',
+	'03':'BEG(Bundesentschaedigungsgesetz)',
+	'04':'Grenzgaenger',
+	'05':'Rheinschiffer',
+	'06':'Sozialaemter',
+	'07':'BVFG(Bundesvertriebenengesetz)'
+}
+# Abrechnungsart : 4107
+xdt_Abrechnungsart_map = {
+	'1':'PKA(Primaerkassen)',
+	'2':'EKK(Ersatzkassen)',
+	'3':'SKT(Sonstige Kostentraeger)',
+}
+# Ost/West-Status VK : 4113
+xdt_Ost_West_Status_map = {
+	'1':'West',
+	'9':'Ost'
+}
+# Gebuehrenordnung : 4121
+xdt_Gebuehrenordung_map = {
+	'1':'BMA',
+	'2':'E-GO',
+	'3':'GOA'
+}
+# Abrechnungsgebiet : 4122
+xdt_Abrechnungsgebiet_map = {
+	'00':'default',
+	'01':'Dialyse-Arztkosten',
+	'02':'Dialyse-Sachkosten',
+	'03':'Methadon-Substitutionsbehandlung',
+	'04':'Grosse Psychotherapie',
+	'05':'Verhaltenstherapie',
+	'06':'Fremde Zytologie'
+}
+# Ursache des Leidens : 4201
+xdt_Ursache_des_Leidens_map = {
+	'2':'Unfall, Unfallfolgen',
+	'3':'Versorgungsleiden'
+}
+# Ankreuzfeld LSR, HAH, ABO.RH, AK
+xdt_Ankreuzfeld_map = {
+	'1':'angekreuzt'
+}
+# Scheinuntergruppe
+xdt_Scheinuntergruppe_map = {
+	'20':'Selbstaustellung',
+	'21':'Zielauftrag (Defaultwert bei Einsendepraxen)',
+	'22':'Rahmenauftrag',
+	'23':'Konsillaruntersuchung',
+	'24':'Mit/Weiterbehandlung (Defaultwert ausser bei Einsendepraxen)',
+	'25':'Ueberweisung aus anderen Gruenden',
+	'26':'Stat. Mitbehandlung, Verguetung nach amb. Grundsaetzen',
+	'30':'Belegaerztliche Behandlung (Default bei SA 0103)',
+	'31':'Belegaerztliche Mitbehandlung',
+	'41':'aerztlicher Notfalldienst',
+	'42':'Urlaubs-bzw. Krankheitsvertretung',
+	'43':'Notfall',
+	'44':'Notfalldienst bei Taxi',
+	'45':'Notarzt-/Rettungswagen (Rettungsdienst)',
+	'90':'default bei SA 0190',
+	'91':'Konsillaruntersuchung',
+	'92':'stat. Mitbehandlung Verguetung nach stat. Grundsaetzen',
+	'93':'stat. Mitbehandlung Verguetung nach ambul. Grundsaetzen',
+	'94':'belegaerztliche Behandlung im Krankenhaus'
+}
+# Gesetzlicher Abzug zur stationaeren Behandlung gemaess Paragraph 6a GOA
+xdt_gesetzlicher_Abzug_map = {
+	'1':'nein',
+	'2':'ja'
+}
+# Klasse bei stationaerer Behandlung
+xdt_Klasse_stationaere_Behandlung_map = {
+	'1':'Einbettzimmer',
+	'2':'Zweibettzimmer',
+	'3':'Mehrbettzimmmer'
+}
+# Rechnungsart
+xdt_Rechnungsart_map = {
+	'01':'Privat',
+	'20':'KVB',
+	'21':'Bahn-Unfall',
+	'30':'Post',
+	'31':'Post-Unfall',
+	'40':'Allgemeines Heilverfahren',
+	'41':'Berufsgenossenschaft Heilverfahren',
+	'50':'Bundesknappschaft',
+	'70':'Justizvollzugsanstalt',
+	'71':'Jugendarbeitsschutz',
+	'72':'Landesversicherungsanstalt',
+	'73':'Bundesversicherungsanstalt fuer Angestellte',
+	'74':'Sozialamt',
+	'75':'Sozialgericht',
+	'80':'Studenten-Deutsche',
+	'81':'Studenten-Auslaender'
+}
+# Abdingungserklaerung vorhanden
+xdt_Abdingungserklaerung_map = {
+	'1':'nein',
+	'2':'ja'
+}
+# Anlage erforderlich
+xdt_Anlage_erforderlich_map = {
+	'1':'nein',
+	'2':'ja'
+}
+#Alkoholeinfluss
+xdt_Alkoholeinfluss_map = {
+	'1':'nein',
+	'2':'ja'
+}
+# Blutentnahme
+xdt_Blutentnahme_map = {
+	'1':'nein',
+	'2':'ja'
+}
+# Bedenken gegen das Vorliegen eines Arbeitsunfalls
+xdt_Arbeitsunfall_map = {
+	'1':'nein',
+	'2':'ja'
+}
+# arbeitsfaehig
+xdt_arbeitsfaehig_map = {
+	'1':'angekreuzt'
+}
+# Besondere Heilbehandlung erforderlich
+xdt_Heilbehandlung_erforderlich_map = {
+	'1':'ambulant',
+	'2':'stationaer'
+}
+# Besondere Heilbehandlung durch
+xdt_Besondere_Heilbehandlung_durch_map = {
+	'1':'selbst',
+	'2':'anderer Durchgangsarzt'
+}
+# Allgemeine Heilbehandlung durch
+xdt_Allgemeine_Heilbehandlung_durch_map = {
+	'1':'selbst',
+	'2':'anderer Arzt'
+}
+# AU ueber 3 Tage
+xdt_AU_3Tage_map = {
+	'1':'angekreuzt'
+}
+# Befundart 
+xdt_Befundart_map = {
+	'E':'(kompletter) Endbefund',
+	'T':'Teilbefund',
+	'V':'(kompletter) Vorbefund',
+	'A':'Archivbefund'
+}
+# Resistenzmethode
+xdt_Resistenzmethode_map = {
+	'1':'Agardiffusion',
+	'2':'Agardilution',
+	'3':'MHK-Bestimmung',
+	'4':'Breakpoint-Bestimmung'
+}
+# Resistenz-Interpretation
+xdt_Resistenzinterpretation_map = {
+	'0':'nicht getestet',
+	'1':'sensibel/wirksam',
+	'2':'maessig sensibel/schwach wirksam',
+	'3':'resistent/unwirksam',
+	'4':'wirksam in hohen Konzentrationen'
+}
+#--------------------------------------------------------------
+xdt_map_of_maps = {
+	'8000': xdt_packet_type_map,
+	'9106': xdt_character_code_map
+}
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.6  2003-02-17 23:31:02  ncq
+# Revision 1.7  2003-02-19 12:26:47  ncq
+# - map of maps
+#
+# Revision 1.6  2003/02/17 23:31:02  ncq
 # - added some patient related mappings
 #
 # Revision 1.5  2003/02/14 01:49:17  ncq
