@@ -149,7 +149,7 @@ select
 	a.number as number,
 	str.name as street,
 	a.addendum as street2,
-	t.address_type as address_type
+	t.name as address_type
 
 from
 	address a,
