@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.94 2004-05-16 15:47:27 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmClinicalRecord.py,v 1.95 2004-05-17 19:01:40 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -65,12 +65,12 @@ class cClinicalRecord:
 		self.health_issue = self.default_health_issue
 
 		# what episode did we work on last time we saw this patient ?
+		# also load corresponding health issue
 		if not self.__load_last_active_episode():
 			raise gmExceptions.ConstructorError, "cannot activate an episode for patient [%s]" % aPKey
 
 		# load current or create new encounter
 		# FIXME: this should be configurable (for explanation see the method source)
-		self.id_encounter = None
 		if not self.__initiate_active_encounter():
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
 
@@ -209,7 +209,7 @@ class cClinicalRecord:
 			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
 			return 1
 		cmd = "insert into clin_note(id_encounter, id_episode, narrative) values (%s, %s, %s)"
-		return gmPG.run_commit('historica', [(cmd, [self.id_encounter, self.episode['id'], note])])
+		return gmPG.run_commit('historica', [(cmd, [self.encounter['id'], self.episode['id'], note])])
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -590,60 +590,6 @@ class cClinicalRecord:
 				filtered_episodes.append(episode)
 		return filtered_episodes
 	#------------------------------------------------------------------
-#	def set_active_episode(self, episode_name = None, episode_id = None):
-#		# 1) verify that episode exists
-#		# - either map id to name
-#		if episode_id is None:
-#			# if name not given assume default episode
-#			if episode_name is None:
-#				episode_name = 'xxxDEFAULTxxx'
-#			cmd = "select id_episode from v_pat_episodes where id_patient=%s and episode=%s limit 1"
-#			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, episode_name)
-#			if rows is None:
-#				_log.Log(gmLog.lErr, 'cannot check for episode [%s] existence' % episode_name)
-#				return None
-#			elif len(rows) == 0:
-#				_log.Log(gmLog.lErr, 'patient [%s] has no episode [%s]' % (self.id_patient, episode_name))
-#				return None
-#			else:
-#				episode_id = rows[0][0]
-#		# - or check if id exists
-#		else:
-#			cmd = "select exists(select episode from v_pat_episodes where id_patient=%s and id_episode=%s)"
-#			result = gmPG.run_ro_query('historica', cmd, None, self.id_patient, episode_id)
-#			if result is None:
-#				_log.Log(gmLog.lErr, 'cannot check for episode [%s] existence' % episode_id)
-#				return None
-#			if not result[0][0]:
-#				_log.Log(gmLog.lErr, 'patient [%s] has no episode [%s]' % (self.id_patient, episode_id))
-#				return None
-
-#		self.id_episode = episode_id
-
-#		# 2) load corresponding health issue
-#		cmd = "select id_health_issue from v_pat_episodes where id_episode=%s"
-#		rows = gmPG.run_ro_query('historica', cmd, None, self.id_episode)
-#		if rows is None:
-#			_log.Log(gmLog.lErr, 'cannot find health issue linked from episode [%s] (%s), using default' % (episode_name, self.id_episode))
-#			self.health_issue = self.default_health_issue
-#		elif len(rows) == 0:
-#			_log.Log(gmLog.lErr, 'cannot find health issue linked from episode [%s] (%s), using default' % (episode_name, self.id_episode))
-#			self.health_issue = self.default_health_issue
-#		else:
-#			self.health_issue = self.get_health_issues(id_list=rows[0])[0]
-
-#		# 3) try to record episode as most recently used one
-#		cmd1 = "delete from last_act_episode where id_patient=%s"
-#		cmd2 = "insert into last_act_episode(id_episode, id_patient) values (%s, %s)"
-#		result = gmPG.run_commit('historica', [
-#			(cmd1, [self.id_patient]),
-#			(cmd2, [self.id_episode, self.id_patient])
-#		])
-#		if result != 1:
-#			_log.Log(gmLog.lWarn, 'cannot record episode [%s] as most recently used for patient [%s]' % (self.id_episode, self.id_patient))
-
-#		return 1
-	#------------------------------------------------------------------
 	def add_episode(self, episode_name = 'xxxDEFAULTxxx', id_health_issue = None):
 		"""Add episode 'episode_name'.
 
@@ -853,7 +799,7 @@ class cClinicalRecord:
 	def get_vaccinations(self, ID = None, indication_list = None):
 		"""Retrieves list of vaccinations the patient has received.
 
-		optionally:
+		optional:
 		* ID - PK of the vaccinated indication
 		* indication_list - indications we want to retrieve vaccination
 			items for, must be primary language, not l10n_indication
@@ -986,38 +932,37 @@ class cClinicalRecord:
 		return gmVaccination.create_vaccination(
 			patient_id = self.id_patient,
 			episode_id = self.episode['id'],
-			encounter_id = self.id_encounter,
+			encounter_id = self.encounter['id'],
 			vaccine = vaccine
 		)
 	#------------------------------------------------------------------
 	# encounter API
 	#------------------------------------------------------------------
 	def __initiate_active_encounter(self):
-		self.id_encounter = None
-
 		# 1) "very recent" encounter recorded ?
-		status = self.__activate_very_recent_encounter()
-		if status in [None, 1]:
-			return status
-
+		if self.__activate_very_recent_encounter():
+			return True
 		# 2) "fairly recent" encounter recorded ?
-		status = self.__activate_fairly_recent_encounter()
-		if status in [None, 1]:
-			return status
-
+		if self.__activate_fairly_recent_encounter():
+			return True
 		# 3) no encounter yet or too old, create new one
-		self.id_encounter = self.__add_encounter()
-		if self.id_encounter is None:
-			return None
-		return 1
+		result = gmEMRStructItems.create_encounter(
+			fk_patient = self.id_patient,
+			fk_provider = _whoami.get_staff_ID(),
+			description = encounter_name,
+			enc_type = encounter_type
+		)
+		if result is False:
+			return False
+		self.encounter = result
+		return True
 	#------------------------------------------------------------------
 	def __activate_very_recent_encounter(self):
 		"""Try to attach to a "very recent" encounter if there is one.
 
 		returns:
-		 None: stop trying, error out
-		 0: no "very recent" encounter, create new one
-	     1: success
+			False: no "very recent" encounter, create new one
+	    	True: success
 		"""
 		days, seconds = _encounter_soft_ttl.absvalues()
 		sttl = '%s days %s seconds' % (days, seconds)
@@ -1032,138 +977,99 @@ class cClinicalRecord:
 		enc_rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, sttl)
 		# error
 		if enc_rows is None:
-			_log.Log(gmLog.lErr, 'cannot access encounter tables')
-			return None
+			_log.Log(gmLog.lErr, 'error accessing encounter tables')
+			return False
 		# none found
 		if len(enc_rows) == 0:
-			return 0
+			return False
 		# attach to existing
-		cmd = """
-			update clin_encounter
-			set
-				fk_provider=%s,
-				last_affirmed=now()
-			where id=%s"""
-		if not gmPG.run_commit('historica', [(cmd, [_whoami.get_staff_ID(), enc_rows[0][0]])]):
-			_log.Log(gmLog.lWarn, 'cannot reaffirm encounter')
-		self.id_encounter = enc_rows[0][0]
-		return 1
+		try:
+			self.encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
+		except gmExceptions.ConstructorError, msg:
+			_log.LogException(str(msg), sys.exc_info(), verbose=0)
+			return False
+		self.encounter.set_active(staff_id = _whoami.get_staff_ID())
+		return True
 	#------------------------------------------------------------------
 	def __activate_fairly_recent_encounter(self):
 		"""Try to attach to a "fairly recent" encounter if there is one.
 
 		returns:
-		 None: stop trying, error out
-		 0: no "fairly recent" encounter, create new one
-	     1: success
+			False: no "fairly recent" encounter, create new one
+	    	True: success
 		"""
+		# if we find one will we even be able to ask the user ?
+		if _func_ask_user is None:
+			return False
+		days, seconds = _encounter_soft_ttl.absvalues()
+		sttl = '%s days %s seconds' % (days, seconds)
+		days, seconds = _encounter_hard_ttl.absvalues()
+		httl = '%s days %s seconds' % (days, seconds)
 		cmd = """
-			select
-				pk_encounter,
-				started,
-				last_affirmed,
-				description,
-				l10n_type
+			select	pk_encounter
 			from v_most_recent_encounters
 			where
 				pk_patient=%s
 					and
 				age(last_affirmed) between %s::interval and %s::interval
 			"""
-		days, seconds = _encounter_soft_ttl.absvalues()
-		sttl = '%s days %s seconds' % (days, seconds)
-		days, seconds = _encounter_hard_ttl.absvalues()
-		httl = '%s days %s seconds' % (days, seconds)
 		enc_rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, sttl, httl)
 		# error
 		if enc_rows is None:
-			_log.Log(gmLog.lErr, 'cannot access encounter tables')
-			return None
+			_log.Log(gmLog.lErr, 'error accessing encounter tables')
+			return False
 		# none found
 		if len(enc_rows) == 0:
-			return 0
+			return False
+		try:
+			encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
+		except gmExceptions.ConstructorError:
+			return False
 		# ask user whether to attach or not
-		attach = 0
-		if _func_ask_user is not None:
-			# FIXME: this is ugly because it accesses personalia directly
-			cmd = """
-				select
-					title, firstnames, lastnames, gender, dob
-				from v_basic_person
-				where i_id=%s"""
-			pat = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
-			if (pat is None) or (len(pat) == 0):
-				_log.Log(gmLog.lErr, 'cannot access patient [%s]' % self.id_patient)
-				return None
-			pat_str = '%s %s %s (%s), %s, #%s' % (
-				pat[0][0][:5],
-				pat[0][1][:12],
-				pat[0][2][:12],
-				pat[0][3],
-				pat[0][4].Format('%Y-%m-%d'),
-				self.id_patient
-			)
-			msg = _(
-				'A fairly recent encounter exists for patient:\n'
-				' %s\n'
-				'started    : %s\n'
-				'affirmed   : %s\n'
-				'type       : %s\n'
-				'description: %s\n\n'
-				'Do you want to reactivate this encounter ?\n'
-				'Hitting "No" will start a new one.'
-			) % (pat_str, enc_rows[0][1], enc_rows[0][2], enc_rows[0][4], enc_rows[0][3])
-			title = _('recording patient encounter')
-			try:
-				# FIXME: better widget -> activate/new buttons
-				attach = _func_ask_user(msg, title)
-			except:
-				_log.LogException('cannot ask user for guidance', sys.exc_info(), verbose=0)
-				return 0
-		if not attach:
-			return 0
-		# attach to existing
 		cmd = """
-			update clin_encounter
-			set
-				fk_provider=%s,
-				last_affirmed=now()
-			where id=%s"""
-		if not gmPG.run_commit('historica', [(cmd, [_whoami.get_staff_ID(), enc_rows[0][0]])]):
-			_log.Log(gmLog.lWarn, 'cannot reaffirm encounter')
-		self.id_encounter = enc_rows[0][0]
-		return 1
-	#------------------------------------------------------------------
-	def __add_encounter(self, encounter_name = None, encounter_type = None):
-		"""Insert a new encounter."""
-		# insert new encounter
-		if encounter_name is None:
-			encounter_name = 'auto-created %s' % mxDT.today().Format('%A %Y-%m-%d %H:%M')
-		if encounter_type is None:
-			# FIXME: look for MRU/MCU encounter type here
-			encounter_type = 'chart review'
-		# FIXME: we don't deal with location yet
-		cmd1 = """
-			insert into clin_encounter (
-				fk_patient, fk_location, fk_provider, description, fk_type
-			) values (
-				%s, -1, %s, %s,
-				(select id from encounter_type where description=%s)
-			)"""
-		cmd2 = "select currval('clin_encounter_id_seq')"
-		result = gmPG.run_commit('historica', [
-			(cmd1, [self.id_patient, _whoami.get_staff_ID(), encounter_name, encounter_type]),
-			(cmd2, [])
-		])
-		if result is None:
-			return None
-		if len(result) == 0:
-			return None
-		return result[0][0]
+			select title, firstnames, lastnames, gender, dob
+			from v_basic_person	where i_id=%s"""
+		pat = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
+		if (pat is None) or (len(pat) == 0):
+			_log.Log(gmLog.lErr, 'cannot access patient [%s]' % self.id_patient)
+			return False
+		pat_str = '%s %s %s (%s), %s, #%s' % (
+			pat[0][0][:5],
+			pat[0][1][:12],
+			pat[0][2][:12],
+			pat[0][3],
+			pat[0][4].Format('%Y-%m-%d'),
+			self.id_patient
+		)
+		msg = _(
+			'A fairly recent encounter exists for patient:\n'
+			' %s\n'
+			'started    : %s\n'
+			'affirmed   : %s\n'
+			'type       : %s\n'
+			'description: %s\n\n'
+			'Do you want to reactivate this encounter ?\n'
+			'Hitting "No" will start a new one.'
+		) % (pat_str, encounter['started'], encounter['last_affirmed'], encounter['l10n_type'], encounter['description'])
+		title = _('recording patient encounter')
+		attach = False
+		try:
+			attach = _func_ask_user(msg, title)
+		except:
+			_log.LogException('cannot ask user for guidance', sys.exc_info(), verbose=0)
+			return False
+		if not attach:
+			return False
+		# attach to existing
+		self.encounter = encounter
+		self.encounter.set_active(staff_id = _whoami.get_staff_ID())
+		return True
 	#------------------------------------------------------------------
 	def attach_to_encounter(self, anID = None):
 		"""Attach to an encounter but do not activate it.
 		"""
+		print "attach_to_encounter: FIXME"
+		return None
 		if anID is None:
 			_log.Log(gmLog.lErr, 'need encounter ID to attach to it')
 			return None
@@ -1227,7 +1133,7 @@ insert into allergy (
 	%s, %s, %s, %s, %s, %s
 )
 """
-		gmPG.run_query (rw_curs, cmd, 1, self.id_encounter, self.episode['id'], allergy["substance"], allergy["reaction"], allergy["definite"])
+		gmPG.run_query (rw_curs, cmd, 1, self.encounter['id'], self.episode['id'], allergy["substance"], allergy["reaction"], allergy["definite"])
 		rw_curs.close()
 		rw_conn.commit()
 		rw_conn.close()
@@ -1307,7 +1213,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.94  2004-05-16 15:47:27  ncq
+# Revision 1.95  2004-05-17 19:01:40  ncq
+# - convert encounter API to use encounter class
+#
+# Revision 1.94  2004/05/16 15:47:27  ncq
 # - switch to use of episode class
 #
 # Revision 1.93  2004/05/16 14:34:45  ncq
