@@ -7,7 +7,7 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Ian Haywood"
 
 from wxPython.wx import *
@@ -51,14 +51,15 @@ class PregnancyDialogue (wxFrame):
 		icon.CopyFromBitmap(self.getBitmap())
 		self.SetIcon(icon)
 
+		self.dyntxt=wxStaticText (self, -1, _('LNMP'),(5,5))
 		vbox = wxBoxSizer (wxVERTICAL)
-		vbox.Add (wxStaticText (self, -1, _('LNMP')), 0, wxALL, 5)
+		vbox.Add (wxStaticText (self, -1,' '), 0, wxALL, 5)
 		self.LNMPcal = wxCalendarCtrl (self, ID_LNMP)
 		vbox.Add (self.LNMPcal, 0, wxALL, 10)
 
 		hbox = wxBoxSizer (wxHORIZONTAL)
 		hbox.Add (wxStaticText (self, -1, _('Weeks:')), 0, wxALIGN_CENTRE)
-		self.gest_week_ctrl = wxSpinCtrl (self, ID_WEEK, value = "0", min = 0, max = 42)
+		self.gest_week_ctrl = wxSpinCtrl (self, ID_WEEK, value = "0", min = -999, max = 42)
 		hbox.Add (self.gest_week_ctrl, 1, wxALIGN_CENTRE)
 		hbox.Add (wxStaticText (self, -1, _('Days:')), 0, wxALIGN_CENTRE)
 		self.gest_day_ctrl = wxSpinCtrl (self, ID_DAY, value = "0", min = 0, max = 6)
@@ -92,17 +93,29 @@ class PregnancyDialogue (wxFrame):
 	def OnCalcByLNMP (self, event):
 		# we do this the "UNIX Way" -- all dates are converted into seconds
 		# since midnight 1 Jan, 1970.
-		LNMP = self.LNMPcal.GetDate ().GetTicks ()
+		# .GetDate().GetTicks() returns time at 5AM.  The -18000 second correction adjusts LNMP to 12AM
+		LNMP = self.LNMPcal.GetDate ().GetTicks () - 18000
 		today = wxGetCurrentTime ()
 		due = LNMP + GESTATION
 		gest = today - LNMP
 		if gest < 0:
-			wxMessageDialog (
-				self,
-				_('LNMP is into the future!'),
-				style = wxICON_ERROR | wxOK
-			).ShowModal()
+			self.dyntxt.SetLabel(_('Future LNMP'))
+			
+			day=-round(1.*((LNMP  - today) % WEEK ) / DAY)
+			if(day==-7):
+				self.gest_week_ctrl.SetValue( -((LNMP  - today)/ WEEK) - 1 )
+				self.gest_day_ctrl.SetValue(0)
+			else:
+				self.gest_week_ctrl.SetValue( -((LNMP  - today)/ WEEK) )
+				self.gest_day_ctrl.SetValue(day)
+
+			duedate = wxDateTime()
+			duedate.SetTimeT(due)
+			self.due_cal.SetDate(duedate)
+
 		else:
+			self.dyntxt.SetLabel(_('LNMP'))
+
 			self.gest_week_ctrl.SetValue(gest / WEEK)
 			self.gest_day_ctrl.SetValue((gest % WEEK) / DAY)
 			duedate = wxDateTime()
@@ -164,7 +177,10 @@ else:
 
 #=====================================================================
 # $Log: gmCalcPreg.py,v $
-# Revision 1.8  2003-01-06 13:47:47  ncq
+# Revision 1.9  2003-01-23 07:34:47  michaelb
+# fixed calculation, removed pop-up about future LNMP
+#
+# Revision 1.8  2003/01/06 13:47:47  ncq
 # - a bit of code cleanup
 #
 # Revision 1.7  2003/01/04 19:42:22  michaelb
