@@ -26,7 +26,7 @@
 
 """gmConnectionPool - Broker for Postgres distributed backend connections
 """
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.1 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <@>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules

@@ -76,8 +76,8 @@ class LoginInfo:
 
 	def GetDBAPI_DSN(self):
 
-		dsn = "%s:%d:%s:%s:%s:%s:%s" % (self.GetHost(),
-					self.GetPort(),
+		dsn = "%s:%s:%s:%s:%s:%s:%s" % (self.GetHost(),
+					str (self.GetPort()),
 	                                 self.GetDatabase(),
 					 self.GetUser(),
 					 self.GetPassword(),

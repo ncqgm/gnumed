@@ -26,11 +26,11 @@ It features combo boxes which "remember" any number of previously entered settin
 
 from wxPython.wx import *
 
-import gmI18N, gmLoginInfo
+import gmI18N, gmLoginInfo, gmGuiMain, gmGuiBroker
 
 import gettext
 _ = gettext.gettext
-
+import os.path
 
 #############################################################################
 #
@@ -148,7 +148,6 @@ class LoginPanel(wxPanel):
 		  isDialog = 0,
 		  configroot = '/login' ,
 		  configfilename = 'gnumed',
-		  bitmap = None,
 		  maxitems = 8):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
@@ -156,7 +155,7 @@ class LoginPanel(wxPanel):
 
 		#file name of configuration file - wxConfig takes care of path, extension etc.
 		self.confname=configfilename
-
+		self.gb = gmGuiBroker.GuiBroker ()
 		#root of setings in the configuration file for this particular dialog
 		self.configroot = configroot
 
@@ -177,14 +176,14 @@ class LoginPanel(wxPanel):
 
 		self.topsizer = wxBoxSizer(wxVERTICAL)
 
-		if bitmap is not None:
-			try:
-				wxImage_AddHandler(wxPNGHandler())
-				png = wxImage(bitmap, wxBITMAP_TYPE_PNG).ConvertToBitmap()
-    				bmp = wxStaticBitmap(self, -1, png, wxPoint(10, 10), wxSize(png.GetWidth(), png.GetHeight()))
-				self.topsizer.Add(bmp, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
-			except:
-				wxMessageBox(_("Could not load bitmap [%s]") % bitmap, "ERROR:")
+		bitmap = os.path.join (self.gb['gnumed_dir'], 'bitmaps', 'gnumedlogo.png')
+		try:
+			wxImage_AddHandler(wxPNGHandler())
+			png = wxImage(bitmap, wxBITMAP_TYPE_PNG).ConvertToBitmap()
+			bmp = wxStaticBitmap(self, -1, png, wxPoint(10, 10), wxSize(png.GetWidth(), png.GetHeight()))
+			self.topsizer.Add(bmp, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
+		except:
+			self.topsizer.Add(wxStaticText (self, -1, "Cannot find image" + bitmap, style=wxALIGN_CENTRE), 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
 
 		self.paramsbox = wxStaticBox( self, -1, _("Login Parameters"))
 		self.paramsboxsizer = wxStaticBoxSizer( self.paramsbox, wxVERTICAL )
@@ -404,9 +403,10 @@ class LoginPanel(wxPanel):
 
 
 class LoginDialog(wxDialog):
-	def __init__(self, parent, id, title=_("Login"), png_bitmap=None):
+	def __init__(self, parent, id, title=_("Login")):
 		wxDialog.__init__(self, parent, id, title)
-		self.panel = LoginPanel(self, -1, isDialog=1, bitmap=png_bitmap)
+		self.panel = LoginPanel(self, -1, isDialog=1)
+		self.Fit () # needed for Windoze.
 		self.Centre()
 
 

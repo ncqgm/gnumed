@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-03-28 13:59:07 $
-# @version $Revision: 1.5 $ $Date: 2002-03-28 13:59:07 $ $Author: hherb $
+# @Date: $Date: 2002-07-01 12:18:28 $
+# @version $Revision: 1.6 $ $Date: 2002-07-01 12:18:28 $ $Author: ihaywood $
 # @change log:
 #	14.03.02 ihaywood inital version.
 #      
@@ -32,7 +32,7 @@ from wxPython.calendar import *
 from wxPython.grid import *
 from gmI18N import *
 import sys, time, os
-import gmGuiBroker, gmPG, gmmanual, gmSQLSimpleSearch
+import gmGuiBroker, gmPG, gmSQLSimpleSearch
 
 
 ID_ABOUT=101  

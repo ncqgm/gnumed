@@ -1,4 +1,5 @@
-#! /usr/bin/python
+# a simple wrapper for the Manual class
+
 """GNUMed manuals in a HTML browser window
 
 A very basic HTML browser with back/forward history buttons
@@ -22,9 +23,11 @@ from   wxPython.wx         import *
 from   wxPython.html       import *
 import wxPython.lib.wxpTag
 import gmGuiBroker
+import gmPlugin
+import images_gnuMedGP_Toolbar
 import gmLog
 
-manual_path = 'manual/gnumed/book1.html'
+manual_path = 'doc/gnumed/book1.html'
 
 #----------------------------------------------------------------------
 
@@ -45,7 +48,6 @@ class ManualHtmlPanel(wxPanel):
         # CHANGED CODE Haywood 26/2/02
         # get base directory for manuals from broker
         # Ideally this should be something like "/usr/doc/gnumed/"
-        # for now just use the scripts directory
         self.docdir = gmGuiBroker.GuiBroker ()['gnumed_dir']
         self.printer = wxHtmlEasyPrinting()
 
@@ -110,7 +112,10 @@ class ManualHtmlPanel(wxPanel):
 
     def OnShowDefault(self, event):
         name = os.path.join(self.docdir, manual_path)
-        self.html.LoadPage(name)
+        if os.access (name, os.F_OK):
+            self.html.LoadPage(name)
+        else:
+            gmLog.gmDefLog.Log (gmLog.lErr, "cannot load document %s" % name)
 
 
     def OnLoadFile(self, event):
@@ -146,4 +151,23 @@ class ManualHtmlPanel(wxPanel):
 
 
 
+
+
+
+
+class gmManual (gmPlugin.wxBigPagePlugin):
+    """
+    Plugin to encapsulate the manual window
+    """
+    def name (self):
+        return 'GNUMed online manual'
+
+    def MenuInfo (self):
+        return ('help', '&Manual')
+
+    def GetIcon (self):
+        return images_gnuMedGP_Toolbar.getToolbar_ManualBitmap()
+
+    def GetWidget (self, parent):
+        return ManualHtmlPanel (parent, self.gb['main.frame'])
 

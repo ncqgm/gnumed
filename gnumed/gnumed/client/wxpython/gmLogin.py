@@ -17,7 +17,7 @@
 from wxPython.wx import *
 import os.path
 import gmLoginDialog, gmPG, gmGuiBroker
-import gmLog
+import gmLog, gmExceptions
 
 # text translation function for localization purposes
 import gettext
@@ -34,7 +34,7 @@ def Login(max_attempts=3):
 	broker = gmGuiBroker.GuiBroker ()
 	# CHANGED CODE Haywood 26/2/02
 	#: use global variable to find image file  
-	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = os.path.join (broker['gnumed_dir'], 'bitmaps/gnumedlogo.png'))
+	dlg = gmLoginDialog.LoginDialog(None, -1)
 	dlg.Centre(wxBOTH)
 	while not logged_in and attempts < max_attempts:
 		dlg.ShowModal()
@@ -49,16 +49,16 @@ def Login(max_attempts=3):
 		myLog.Log(gmLog.lData, _("login parameters: ") + str(login))
 		myLog.Log(gmLog.lInfo, _("login attempt #") + str(attempts) + _(" of ") + str(max_attempts))
 		#now try to connect to the backend
-		backend = gmPG.ConnectionPool(login)
-		if backend.Connected() is not None:
+		try:
+			backend = gmPG.ConnectionPool(login)
 			logged_in = true
 			myLog.Log(gmLog.lInfo, _("backend connection successfully established"))
-		else:
+		except gmExceptions.ConnectionError, e:
 			attempts+=1
 			myLog.Log(gmLog.lWarn, _("backend connection failed"))
 			if attempts < max_attempts:
-				wxMessageBox(_("Login failed - please retry or cancel"))
-		dlg.Close()
+				wxMessageBox(_("Login failed because: %s\nPlease retry or cancel" % e))
+	dlg.Close()
 	dlg.Destroy()
 	return backend
 

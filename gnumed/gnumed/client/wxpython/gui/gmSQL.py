@@ -1,4 +1,4 @@
-#!/usr/bin/python
+# a simple wrapper for the SQL window
 #############################################################################
 #
 # gmSQLWindow: convenience widget for quick "free style" SQL queries
@@ -52,7 +52,7 @@ the tuples returned are all selected rows
 
 to get the attribute labels, call gmSQLWindow.GetLabels()"""
 
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.1 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -61,7 +61,8 @@ __copyright__ = __author__
 from wxPython.wx import *
 import sys
 import gmPG, gmLabels, gmGuiBroker, gmSQLListControl
-
+import gmPlugin
+import images_gnuMedGP_Toolbar
 import gettext
 _=gettext.gettext
 
@@ -211,3 +212,20 @@ class SQLWindow(wxPanel):
 		return self.labels
 
 
+
+class gmSQL (gmPlugin.wxBigPagePlugin):
+    """
+    Plugin to encapsulate the cryptowidget
+    """
+    def name (self):
+        return 'SQL Plugin'
+
+
+    def MenuInfo (self):
+        return ('view', '&SQL')
+
+    def GetIcon (self):
+        return images_gnuMedGP_Toolbar.getToolbar_SQLBitmap()
+
+    def GetWidget (self, parent):
+        return SQLWindow (parent, -1)

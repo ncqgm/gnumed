@@ -22,8 +22,8 @@
 # @author: Karsten Hilbert
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
-# @Date: $Date: 2002-06-16 19:34:43 $
-# @version $Revision: 1.3 $ $Date: 2002-06-16 19:34:43 $ $Author: ncq $
+# @Date: $Date: 2002-07-01 12:18:28 $
+# @version $Revision: 1.1 $ $Date: 2002-07-01 12:18:28 $ $Author: ihaywood $
 ###############################################################
 
 import string, sys, fileinput
