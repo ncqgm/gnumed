@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.19 2003-06-03 13:17:32 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmClinicalRecord.py,v 1.20 2003-06-03 14:05:05 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -55,10 +55,6 @@ class gmClinicalRecord:
 
 		self.__db_cache = {}
 
-		# register backend notification interests ...
-		if not self._register_interests():
-			raise gmExceptions.ConstructorError, "cannot register signal interests"
-
 		# make sure we have a __default__ health issue
 		self.id_default_health_issue = None
 		if not self.__load_default_health_issue():
@@ -70,7 +66,14 @@ class gmClinicalRecord:
 		if not self.__load_most_recent_episode():
 			raise gmExceptions.ConstructorError, "cannot activate an episode for patient [%s]" % aPKey
 
+		# reactivate once the code in there is reasonably smart
 #		self.ensure_current_clinical_encounter()
+
+		# register backend notification interests
+		# (keep this last so we won't hang on threads when
+		#  failing this constructor for other reasons ...)
+		if not self._register_interests():
+			raise gmExceptions.ConstructorError, "cannot register signal interests"
 
 		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.id_patient)
 	#--------------------------------------------------------
@@ -81,7 +84,7 @@ class gmClinicalRecord:
 	#--------------------------------------------------------
 	# FIXME: temporary hack for dropping connections (?)
 	def getConnection(self):
-		return gmPG.ConnectionPool().GetConnection("historica")
+		return self._backend().GetConnection("historica")
 	#--------------------------------------------------------
 	def getCursor(self):
 		return self.getConnection().cursor()
@@ -119,6 +122,7 @@ class gmClinicalRecord:
 		curs.close()
 		return result
 
+		# I cannot verify the existence of that bug
 #		cmd = "select id from identity where id = %s" % self.id_patient
 #		rows = None
 #		try:
@@ -586,7 +590,11 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.19  2003-06-03 13:17:32  ncq
+# Revision 1.20  2003-06-03 14:05:05  ncq
+# - start listening threads last in __init__ so we won't hang
+#   if anything else fails in the constructor
+#
+# Revision 1.19  2003/06/03 13:17:32  ncq
 # - finish default clinical episode/health issue handling, simple tests work
 # - clinical encounter handling still insufficient
 # - add some more comments to Syan's code
