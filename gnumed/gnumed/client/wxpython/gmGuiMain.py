@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-09-10 09:08:49 $
-# @version $Revision: 1.42 $ $Date: 2002-09-10 09:08:49 $ $Author: ncq $
+# @Date: $Date: 2002-09-10 10:26:03 $
+# @version $Revision: 1.43 $ $Date: 2002-09-10 10:26:03 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -97,7 +97,7 @@ class MainFrame(wxFrame):
 		self.guibroker['main.SetWindowTitle'] = self.SetTitle
 		# FIXME: should show selected patient and current activity
 		# FIXME: we should make a method set_title(activity, patient)
-		self.SetTitle(_("GnuMed: idle - no patient (%s@%s) " % (user, self.guibroker['workplace_name'])))
+		self.SetTitle(_("GnuMed: idle - no patient (%s@%s)") % (user, self.guibroker['workplace_name']))
 		#self.SetTitle(_("You are logged in as [%s]") % user)
 
 		self.SetupPlatformDependent()
@@ -163,7 +163,7 @@ class MainFrame(wxFrame):
 		result = ""
 		for idx in range(len(plugin_list)):
 			curr_plugin = plugin_list[idx]
-			progress_bar.Update(idx, _("previous: %s - %s\ncurrent : %s" % (last_plugin, result, curr_plugin)))
+			progress_bar.Update(idx, _("previous: %s - %s\ncurrent : %s") % (last_plugin, result, curr_plugin))
 			if gmPlugin.LoadPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend):
 				result = _("success")
 			else:
@@ -389,7 +389,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.42  2002-09-10 09:08:49  ncq
+# Revision 1.43  2002-09-10 10:26:03  ncq
+# - properly i18n() strings
+#
+# Revision 1.42  2002/09/10 09:08:49  ncq
 # - set a useful window title and add a comment regarding this item
 #
 # Revision 1.41  2002/09/09 10:07:48  ncq
