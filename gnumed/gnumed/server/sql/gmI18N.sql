@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.7 2003-01-24 14:16:18 ncq Exp $
+-- $Id: gmI18N.sql,v 1.8 2003-02-04 12:22:52 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -21,12 +21,32 @@
 
 create table i18n_curr_lang (
 	id serial primary key,
-	owner varchar(20) default CURRENT_USER unique not null,
+	owner name default CURRENT_USER unique not null,
 	lang varchar(10) not null
 );
 
 comment on table i18n_curr_lang is
 	'holds the currently selected language per user for fixed strings in the database';
+
+-- ---------------------------------------------
+create function set_curr_lang(text) returns unknown as '
+	delete from i18n_curr_lang where owner = CURRENT_USER;
+	insert into i18n_curr_lang (lang) values ($1);
+	select NULL;
+' language 'sql';
+
+comment on function set_curr_lang(text) is
+	'set language to first argument for the current user';
+
+-- ---------------------------------------------
+create function set_curr_lang(text, name) returns unknown as '
+	delete from i18n_curr_lang where owner = \'$2\';
+	insert into i18n_curr_lang (owner, lang) values ($2, $1);
+	select NULL;
+' language 'sql';
+
+comment on function set_curr_lang(text, name) is
+	'set language to first argument for the user named in the second argument';
 
 -- =============================================
 create table i18n_keys (
@@ -80,7 +100,7 @@ BEGIN
 	select into my_lang lang
 		from i18n_curr_lang
 	where
-		owner = CURRENT_USER::varchar;
+		owner = CURRENT_USER;
 	if not found then
 		return orig_str;
 	end if;
@@ -128,11 +148,16 @@ TO group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.7  2003-01-24 14:16:18  ncq
+-- Revision 1.8  2003-02-04 12:22:52  ncq
+-- - valid until in create user cannot do a sub-query :-(
+-- - columns "owner" should really be of type "name" if defaulting to "CURRENT_USER"
+-- - new functions set_curr_lang(*)
+--
+-- Revision 1.7  2003/01/24 14:16:18  ncq
 -- - don't drop functions repeatedly since that will kill views created earlier
 --
 -- Revision 1.6  2003/01/20 20:21:53  ncq

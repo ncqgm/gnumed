@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -173,7 +173,7 @@ comment on column cfg_template.description is
 create table cfg_item (
 	id SERIAL PRIMARY KEY,
 	id_template INTEGER REFERENCES cfg_template (id),
-	owner varchar (30) not null default CURRENT_USER,
+	owner name not null default CURRENT_USER,
 	machine VARCHAR (40) not null default '__default__',
 	cookie VARCHAR (40) not null default '__default__'
 );
@@ -233,11 +233,16 @@ to group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.22 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.23 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.22  2003-01-05 13:05:51  ncq
+-- Revision 1.23  2003-02-04 12:22:53  ncq
+-- - valid until in create user cannot do a sub-query :-(
+-- - columns "owner" should really be of type "name" if defaulting to "CURRENT_USER"
+-- - new functions set_curr_lang(*)
+--
+-- Revision 1.22  2003/01/05 13:05:51  ncq
 -- - schema_revision -> gm_schema_revision
 --
 -- Revision 1.21  2003/01/05 10:07:15  ncq
