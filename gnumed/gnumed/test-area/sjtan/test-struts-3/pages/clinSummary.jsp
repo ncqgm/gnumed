@@ -28,51 +28,6 @@
     </logic:iterate>
     </table>
      
-    <h3>Clinical Episode</h3>
-    
-    <bean:define id="identityId" name="healthRecord" property="healthSummary.identityId" />
-    <%String contextPath=org.apache.struts.util.RequestUtils.serverURL(request)+"/"
-        +request.getContextPath()+"/"+"ClinicalEdit.do?id="+identityId.toString();
-        request.setAttribute("contextPath", contextPath); %>
-  
-    <a   href="<%=request.getAttribute("contextPath")%>#pastNotes"> past notes </a>
-         
-    <table>
-     <logic:iterate   id="episode" 
-            name="healthRecord" 
-            property="healthSummary.clinEpisodes"
-            indexId="index"
-            >
-            <tr>
-            <td>
-             
-            <bean:write name="episode" property="modified_when" format="dd/MM/yyyy hh:mm" />
-            
-            </td>
-            <td><b>
-            <bean:write name="episode" property="description" />
-            </b>
-            : issue is 
-            <bean:write name="episode" property="healthIssue.description"/>
-            </td>
-            <td>
-            <a name='#episodeSummary<%=index%>'/>
-            items :
-            <nested:iterate id="item" name="episode"
-                property="rootItems"
-                        
-                        indexId="itemIndex"  >
-                   <bean:define    id="itemId"
-                        name="item" property="id"/> 
-                         
-                     <a href="<%=contextPath%>#itemDetail<%=itemId%>">
-                    <%=(itemIndex.intValue()+1)%> 
-                </a> |
-            </nested:iterate>
-            </td>
-            </tr>
-    </logic:iterate>
-    </table>
     
     <h3>Allergies </h3>
      <table cellpadding='4' border='1'>
@@ -124,6 +79,54 @@
     </table>
     
      </logic:present>
+    
+
+    <h3>Clinical Episode</h3>
+    
+    <bean:define id="identityId" name="healthRecord" property="healthSummary.identityId" />
+    <%String contextPath=org.apache.struts.util.RequestUtils.serverURL(request)+"/"
+        +request.getContextPath()+"/"+"ClinicalEdit.do?id="+identityId.toString();
+        request.setAttribute("contextPath", contextPath); %>
+  
+    <a   href="<%=request.getAttribute("contextPath")%>#pastNotes"> past notes </a>
+         
+    <table>
+     <logic:iterate   id="episode" 
+            name="healthRecord" 
+            property="healthSummary.clinEpisodes"
+            indexId="index"
+            >
+            <tr>
+            <td>
+             
+            <bean:write name="episode" property="modified_when" format="dd/MM/yyyy hh:mm" />
+            
+            </td>
+            <td><b>
+            <bean:write name="episode" property="description" />
+            </b>
+            : issue is 
+            <bean:write name="episode" property="healthIssue.description"/>
+            </td>
+            <td>
+            <a name='#episodeSummary<%=index%>'/>
+            items :
+            <nested:iterate id="item" name="episode"
+                property="rootItems"
+                        
+                        indexId="itemIndex"  >
+                   <bean:define    id="itemId"
+                        name="item" property="id"/> 
+                         
+                     <a href="<%=contextPath%>#itemDetail<%=itemId%>">
+                    <%=(itemIndex.intValue()+1)%> 
+                </a> |
+            </nested:iterate>
+            </td>
+            </tr>
+    </logic:iterate>
+    </table>
+    
      
 </body>
 </html>
