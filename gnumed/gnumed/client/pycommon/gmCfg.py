@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -63,8 +63,9 @@ import os.path, fileinput, string, sys, shutil, types
 import gmLog, gmNull
 
 _log = gmLog.gmDefLog
-_gmPG = None
-_gmCLI = None
+gmPG_ = None
+gmCLI_ = None
+cPickle_ = None
 
 # flags for __get_conf_name
 cfg_SEARCH_STD_DIRS = 1
@@ -96,6 +97,15 @@ class cCfgSQL:
 
 		self.dbapi = aDBAPI
 		self.conn = aConn
+
+		global gmPG_
+		if gmPG_ is None:
+			from Gnumed.pycommon import gmPG
+			gmPG_ = gmPG
+		global cPickle_
+		if cPickle_ is None:
+			import cPickle
+			cPickle_ = cPickle
 	#----------------------------
 	# external API
 	#----------------------------
@@ -146,7 +156,7 @@ where %s
 limit 1""" % where_clause
 
 		curs = self.conn.cursor()
-		rows = _gmPG.run_ro_query (curs, cmd, None, where_args)
+		rows = gmPG_.run_ro_query(curs, cmd, None, where_args)
 		if rows is None:
 			curs.close()
 			_log.Log(gmLog.lErr, 'unable to get option definition for [%s]' % cache_key)
@@ -160,7 +170,7 @@ limit 1""" % where_clause
 
 		# retrieve value from appropriate table
 		cmd = "select value from cfg_%s where id_item=%%s limit 1" % value_type
-		rows = _gmPG.run_ro_query(curs, cmd, None, item_id)
+		rows = gmPG_.run_ro_query(curs, cmd, None, item_id)
 		curs.close()
 		if rows is None:
 			_log.Log(gmLog.lErr, 'unable to get option value for [%s]' % cache_key)
@@ -168,7 +178,16 @@ limit 1""" % where_clause
 		if len(rows) == 0:
 			_log.Log(gmLog.lWarn, 'option value for [%s] not in config database' % cache_key)
 			return None
-		return rows[0][0]
+		val = rows[0][0]
+		if value_type == 'data':
+			val = str(val)
+			try:
+				val = cPickle_.loads(val)
+			except cPickle_.UnpickleError:
+				_log.Log(gmLog.lErr, 'cannot unpickle [%s] (type [%s])' % (val, type(val)))
+			except:
+				_log.LogException("don't know how to cast [%s] (type [%s])" % (val, type(val)), sys.exc_info(), verbose=0)
+		return val
 	#----------------------------
 	def getID(self, workplace = None, user = None, cookie = None, option = None):
 		"""Get config value from database.
@@ -209,7 +228,7 @@ where %s
 limit 1""" % where_clause
 
 		curs = self.conn.cursor()
-		rows = _gmPG.run_ro_query (curs, cmd, None, where_args)
+		rows = gmPG_.run_ro_query (curs, cmd, None, where_args)
 		if rows is None:
 			curs.close()
 			_log.Log(gmLog.lErr, 'unable to get option definition for [%s]' % cache_key)
@@ -254,15 +273,28 @@ limit 1""" % where_clause
 			opt_type = 'str_array'
 		# FIXME: UnicodeType ?
 		else:
-			_log.Log(gmLog.lErr, "Don't know how to store option of type [%s] (key: %s, value: %s)." % (type(value), cache_key, opt_value))
-			return False
+			opt_type = 'data'
+			try:
+				# the DB-API 2.0 says, Binary() is a function at the module
+				# level, however, pyPgSQL prides itself to define this at
+				# the connection level, arghh !! also, it does not work
+				# so this needs to be pgByteA with pyPgSQL while it should
+				# be Binary
+				opt_value = self.dbapi.PgBytea(cPickle_.dumps(value))
+			except cPickle_.PicklingError:
+				_log.Log(gmLog.lErr, "cannot pickle option of type [%s] (key: %s, value: %s)" % (type(value), cache_key, str(value)))
+				return False
+			except:
+				msg = "don't know how to store option of type [%s] (key: %s, value: %s)" % (type(value), cache_key, str(value))
+				_log.LogException(msg, sys.exc_info(), verbose=0)
+				return False
 
 		# FIXME: we must check if template with same name and 
-		# different type exists -> error (wont find double entry on get())
+		# different type exists -> error (won't find double entry on get())
 		# get id of option template
 		curs = aRWConn.cursor()
 		cmd = "select id from cfg_template where name=%s and type=%s limit 1"
-		rows = _gmPG.run_ro_query(curs, cmd, None, option, opt_type)
+		rows = gmPG_.run_ro_query(curs, cmd, None, option, opt_type)
 		if rows is None:
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot find cfg item template for [%s->%s]' % (opt_type, option))
@@ -275,7 +307,7 @@ limit 1""" % where_clause
 			queries.append((cmd, [option, opt_type]))
 			cmd = "select currval('cfg_template_id_seq')"
 			queries.append((cmd, []))
-			rows = _gmPG.run_commit(curs, queries)
+			rows = gmPG_.run_commit(curs, queries)
 			if rows is None:
 				curs.close()
 				_log.Log(gmLog.lErr, 'cannot insert cfg item template for [%s->%s]' % (opt_type, option))
@@ -316,7 +348,7 @@ limit 1""" % where_clause
 			queries.append((cmd, [ins_where_args]))
 			cmd = "insert into cfg_%s (id_item, value)" % opt_type + " values (currval('cfg_item_id_seq'), %s)"
 			queries.append((cmd, [opt_value]))
-			success = _gmPG.run_commit(curs, queries)
+			success = gmPG_.run_commit(curs, queries)
 			if success is None:
 				curs.close()
 				_log.Log(gmLog.lErr, 'cannot insert option [%s]' % cache_key)
@@ -330,7 +362,7 @@ limit 1""" % where_clause
 			# update option instance
 			args = {'val': opt_value, 'item_id': item_id}
 			cmd = "update cfg_%s" % opt_type + " set value=%(val)s where id_item=%(item_id)s"
-			if _gmPG.run_query(curs, None, cmd, args) is None:
+			if gmPG_.run_query(curs, None, cmd, args) is None:
 				curs.close()
 				return False
 
@@ -342,11 +374,6 @@ limit 1""" % where_clause
 		"""Get names of all stored parameters for a given workplace/(user)/cookie-key.
 		This will be used by the ConfigEditor object to create a parameter tree.
 		"""
-		global _gmPG
-		if _gmPG is None:
-			from Gnumed.pycommon import gmPG
-			_gmPG = gmPG
-
 		# if no workplace given: any workplace (= cfg_DEFAULT)
 		where_snippets = [
 			'cfg_template.id=cfg_item.id_template',
@@ -371,7 +398,7 @@ where %s""" % where_clause
 		curs = self.conn.cursor()
 
 		# retrieve option definition
-		if _gmPG.run_query(curs, None, cmd, where_args) is None:
+		if gmPG_.run_query(curs, None, cmd, where_args) is None:
 			curs.close()
 			return None
 
@@ -411,7 +438,7 @@ where %s""" % where_clause
 
 		# get template id, template type
 		cmd = "select id_template, type from cfg_item, cfg_template where cfg_item.id like %s and cfg_item.id_template = cfg_template.id limit 1;"
-		if _gmPG.run_query(curs, None, cmd, item_id) is None:
+		if gmPG_.run_query(curs, None, cmd, item_id) is None:
 			curs.close()
 			return None
 		result = curs.fetchone()		
@@ -421,7 +448,7 @@ where %s""" % where_clause
 		# if yes, delete template, too
 		# here we assume that only 
 		cmd = "select id from cfg_item where id_template like %s"
-		if _gmPG.run_query(curs, None, cmd, template_id) is None:
+		if gmPG_.run_query(curs, None, cmd, template_id) is None:
 			curs.close()
 			return None
 		result = curs.fetchall()		
@@ -431,14 +458,14 @@ where %s""" % where_clause
 		cmd = """
 		delete from cfg_%s where id_item=%s; 
 		delete from cfg_item where id='%s';""" % (template_type, item_id, item_id)
-		if _gmPG.run_query(curs, None, cmd) is None:
+		if gmPG_.run_query(curs, None, cmd) is None:
 			curs.close()
 			return None
 
 		# delete template if last reference
 		if template_ref_count == 1:
 			cmd = "delete from cfg_template where id like %s"
-			if _gmPG.run_query(curs, None, cmd, template_id) is None:
+			if gmPG_.run_query(curs, None, cmd, template_id) is None:
 				curs.close()
 				return None
 		
@@ -494,6 +521,11 @@ class cCfgFile:
 		no config file could be found. 
 		"""
 		self._cfg_data = {}
+		# lazy import gmCLI
+		global gmCLI_
+		if gmCLI_ is None:
+			from Gnumed.pycommon import gmCLI
+			gmCLI_ = gmCLI
 		if aContents:
 			if not self.__parse_conf (aContents.split ("\n")):
 				raise SyntaxError, "cannot parse config file"
@@ -724,14 +756,9 @@ class cCfgFile:
 
 		# did the user manually supply a config file on the command line ?
 		if not (flags & cfg_IGNORE_CMD_LINE):
-			# lazy import gmCLI
-			global _gmCLI
-			if _gmCLI is None:
-				import gmCLI
-				_gmCLI = gmCLI
 			# and check command line options
-			if _gmCLI.has_arg('--conf-file'):
-				self.cfgName = _gmCLI.arg['--conf-file']
+			if gmCLI_.has_arg('--conf-file'):
+				self.cfgName = gmCLI_.arg['--conf-file']
 				# file valid ?
 				if os.path.isfile(self.cfgName):
 					_log.Log(gmLog.lData, 'found config file [--conf-file=%s]' % self.cfgName)
@@ -1026,17 +1053,17 @@ def getDBParam(workplace = None, cookie = None, option = None):
 	if option is None:
 		return (None, None)
 
-	global _gmPG
-	if _gmPG is None:
+	global gmPG_
+	if gmPG_ is None:
 		from Gnumed.pycommon import gmPG
-		_gmPG = gmPG
+		gmPG_ = gmPG
 
 	# connect to database (imports gmPG if need be)
-	db = _gmPG.ConnectionPool()
+	db = gmPG_.ConnectionPool()
 	conn = db.GetConnection(service = "default", extra_verbose=0)
 	dbcfg = cCfgSQL (
 		aConn = conn,
-		aDBAPI = _gmPG.dbapi
+		aDBAPI = gmPG_.dbapi
 	)
 
 	# (set_name, user, workplace)
@@ -1077,15 +1104,15 @@ def setDBParam(workplace = None, user = None, cookie = None, option = None, valu
 	- returns True/False
 	"""
 	# import gmPG if need be
-	global _gmPG
-	if _gmPG is None:
+	global gmPG_
+	if gmPG_ is None:
 		from Gnumed.pycommon import gmPG
-		_gmPG = gmPG
+		gmPG_ = gmPG
 
 	# connect to database
-	db = _gmPG.ConnectionPool()
+	db = gmPG_.ConnectionPool()
 	conn = db.GetConnection(service = "default")
-	dbcfg = cCfgSQL(aConn = conn, aDBAPI = _gmPG.dbapi)
+	dbcfg = cCfgSQL(aConn = conn, aDBAPI = gmPG_.dbapi)
 	rwconn = db.GetConnection(service = "default", readonly = 0)
 	if rwconn is None:
 		_log.Log(gmLog.lWarn, 'unable to get a rw connection')
@@ -1110,7 +1137,11 @@ def setDBParam(workplace = None, user = None, cookie = None, option = None, valu
 #=============================================================
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+	# if there's an argument assume it to be a config
+	# file and test that
 	if len(sys.argv) > 1:
+		print "testing config file handling"
+		print "============================"
 		try:
 			myCfg = cCfgFile(aFile = sys.argv[1])
 #			myCfg = cCfgFile(aFile = sys.argv[1],flags=cfg_SEARCH_STD_DIRS)
@@ -1152,62 +1183,64 @@ if __name__ == "__main__":
 		myCfg.set("date", "modified", "right now", ["should always be rather current"])
 		myCfg.store()
 
-	else:
-		print "======================================================================"
-		print __doc__
-		print "======================================================================"
-		raw_input()
+		sys.exit(0)
 
-		print "testing database config"
-		print "======================="
-		# FIXME: BROKEN
-		from pyPgSQL import PgSQL
-		dsn = "%s:%s:%s:%s:%s:%s:%s" % ('localhost', '5432', 'gnumed', 'postgres', '', '', '')
-		conn = PgSQL.connect(dsn)
-		myDBCfg = cCfgSQL(aConn = conn, aDBAPI=PgSQL)
+	# else test database config
+	print "testing database config"
+	print "======================="
+	# FIXME: BROKEN
+	from pyPgSQL import PgSQL
+	dsn = "%s:%s:%s:%s:%s:%s:%s" % ('localhost', '5432', 'gnumed', 'any-doc', '', '', '')
+	conn = PgSQL.connect(dsn)
+	myDBCfg = cCfgSQL(aConn = conn, aDBAPI=PgSQL)
 
-		font = myDBCfg.get(option = 'font name')
-		print "font is currently:", font
+	font = myDBCfg.get(option = 'font name')
+	print "font is currently:", font
 
-		new_font = "huh ?"
-		if font == "Times New Roman":
-			new_font = "Courier"
-		if font == "Courier":
-			new_font = "Times New Roman"
-		myDBCfg.set(option='font name', value=new_font, aRWConn=conn)
+	new_font = "huh ?"
+	if font == "Times New Roman":
+		new_font = "Courier"
+	if font == "Courier":
+		new_font = "Times New Roman"
+	myDBCfg.set(option='font name', value=new_font, aRWConn=conn)
 
-		font = myDBCfg.get(option = 'font name')
-		print "font is now:", font
+	font = myDBCfg.get(option = 'font name')
+	print "font is now:", font
 
-		import random
-		random.seed()
-		new_opt = str(random.random())
-		print "setting new option", new_opt
-		myDBCfg.set(option=new_opt, value = "I do not know.", aRWConn=conn)
-		print "new option is now:", myDBCfg.get(option = new_opt)
+	import random
+	random.seed()
+	new_opt = str(random.random())
+	print "setting new option", new_opt
+	myDBCfg.set(option=new_opt, value = "I do not know.", aRWConn=conn)
+	print "new option is now:", myDBCfg.get(option = new_opt)
 
-		print "setting array option"
-		aList = []
-		aList.append("val 1")
-		aList.append("val 2")
-		new_opt = str(random.random())
-		myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
-		aList = []
-		aList.append("val 2")
-		aList.append("val 1")
-		myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
+	print "setting array option"
+	aList = []
+	aList.append("val 1")
+	aList.append("val 2")
+	new_opt = str(random.random())
+	myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
+	aList = []
+	aList.append("val 2")
+	aList.append("val 1")
+	myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
 
-		myDBCfg.set(user = cfg_DEFAULT, option = "blatest", value = "xxx", aRWConn = conn)
-		print "blatest set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT,option = "blatest")
+	myDBCfg.set(user = cfg_DEFAULT, option = "blatest", value = "xxx", aRWConn = conn)
+	print "blatest set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT, option = "blatest")
 		
-		myDBCfg.delete( user= cfg_DEFAULT, option = "blatest", aRWConn = conn)
-		print "after deletion blatest set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT,option = "blatest")
-		
-		conn.close()
-		
-		val,set = getDBParam(workplace = "test", cookie = "gui", 
-			option = "plugin load order")
-		print "found set for [plugin load order.gui] for %s: \n%s" % (set,str(val))
+	myDBCfg.delete(user = cfg_DEFAULT, option = "blatest", aRWConn = conn)
+	print "after deletion blatest set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT, option = "blatest")
+
+	print "setting complex option"
+	data = {1: 'line 1', 2: 'line2', 3: {1: 'line3.1', 2: 'line3.2'}}
+	myDBCfg.set(user = cfg_DEFAULT, option = "complex option test", value = data, aRWConn = conn)
+	print "complex option set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT, option = "complex option test")
+	myDBCfg.delete(user=cfg_DEFAULT, option = "complex option test", aRWConn = conn)
+
+	conn.close()
+
+#	val, set = getDBParam(workplace = "test", cookie = "gui", option = "plugin load order")
+#	print "found set for [plugin load order.gui] for %s: \n%s" % (set,str(val))
 
 else:
 	# - we are being imported
@@ -1221,7 +1254,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.23  2004-09-06 22:18:12  ncq
+# Revision 1.24  2005-01-10 11:46:51  ncq
+# - make cCfgSQL also support arbitrary option values in cfg_data
+#
+# Revision 1.23  2004/09/06 22:18:12  ncq
 # - eventually fix the get/setDBParam(), at least it appears to work
 #
 # Revision 1.22  2004/09/02 00:39:27  ncq
