@@ -43,7 +43,7 @@ related environment variables (in this order):
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -54,11 +54,6 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-
-# semaphore to make sure __install_domain() is
-# only called once regardless of how many times
-# we are imported
-__domain_installed = 0
 
 system_locale = ''
 system_locale_level = {}
@@ -211,9 +206,7 @@ def __install_domain():
 # Main
 #---------------------------------------------------------------------------
 __get_system_locale()
-if not __domain_installed:
-	__install_domain()
-	__domain_installed = 1
+__install_domain()
 
 # gmTimeFormat is used to define a standard way of
 # displaying a date as a string,
@@ -233,7 +226,13 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.3  2004-06-25 12:29:13  ncq
+# Revision 1.4  2004-06-26 23:06:00  ncq
+# - cleanup
+# - I checked it, no matter where we import (function-/class-/method-
+#   local or globally) it will always only be done once so we can
+#   get rid of the semaphore
+#
+# Revision 1.3  2004/06/25 12:29:13  ncq
 # - cleanup
 #
 # Revision 1.2  2004/06/25 07:11:15  ncq

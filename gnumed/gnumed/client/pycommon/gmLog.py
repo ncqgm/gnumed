@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -772,7 +772,7 @@ else:
 		raise ImportError, "Cannot open any log target. Falling back to dummy log target."
 	else:
 		gmDefLog = cLogger(target)
-		
+
 	# this needs Python 2.x
 	#atexit.register(myExitFunc)
 #---------------------------------------------------------------
@@ -818,7 +818,13 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.3  2004-06-09 14:52:56  ncq
+# Revision 1.4  2004-06-26 23:06:00  ncq
+# - cleanup
+# - I checked it, no matter where we import (function-/class-/method-
+#   local or globally) it will always only be done once so we can
+#   get rid of the semaphore
+#
+# Revision 1.3  2004/06/09 14:52:56  ncq
 # - implement flush() method at cLogger level
 #
 # Revision 1.2  2004/03/02 10:19:53  ihaywood
