@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.63 2005-02-20 09:46:08 ihaywood Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmDemographicRecord.py,v 1.64 2005-02-20 21:00:20 ihaywood Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -99,7 +99,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				and lpoa.id_type = at.id
 				and lpoa.id_%s = %%s 
 				""" % self._table     # this operator, then passed to SQL layer
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['pk_identity'])
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getId ())
 		if rows is None:
 			return []
 		elif len(rows) == 0:
@@ -144,7 +144,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				and lpoa.id_org = %%s
 				"""
 
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['pk_identity'])
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getId ())
 		if rows is None:
 			return []
 		elif len(rows) == 0:
@@ -172,7 +172,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	#------------------------------------------------------------
 	def unlink_address (self, address):
 		cmd = "delete from lnk_person_org_address where id_address = %s and id_%s = %%s" % self._table
-		return gmPG.run_commit2 ('personalia', [(cmd, [address['id'], self['pk_identity']])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [address['id'], self.getId ()])])
 
 	#------------------------------------------------------------
 	def get_ext_ids (self):
@@ -186,7 +186,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		cmd = """select
 		fk_origin, comment, external_id
 		from lnk_%s2ext_id where id_%s = %%s """ % (self._table, self._table)
-		rows = gmPG.run_ro_query ('personalia', cmd, None, self['pk_identity'])
+		rows = gmPG.run_ro_query ('personalia', cmd, None, self.getId ())
 		if rows is None:
 			return {}
 		return [{'fk_origin':row[0], 'comment':row[1], 'external_id':row[2]} for row in rows]
@@ -234,7 +234,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 			where
 				l2c.id_%s = %%s
 				""" % (self._table, self._table)
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['pk_identity'])
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getId ())
 		if rows is None:
 			return []
 		elif len(rows) == 0:
@@ -251,13 +251,19 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		cmd2 = """insert into lnk_%s2ext_id (id_%s, id_type, url, is_confidential)
 		values (%%s, %%s, %%s, %%s)""" % (self._table, self._table)
 		del self._ext_cache['comms']
-		return gmPG.run_commit2 ('personalia', [(cm1, [self['pk_identity'], url]), (cm2, [self['pk_identity'], id_type, url, is_confidential])])
+		return gmPG.run_commit2 ('personalia', [(cm1, [self.getId (), url]), (cm2, [self.getId (), id_type, url, is_confidential])])
 	#-------------------------------------------------------
 	def delete_comm (self, url):
 		cmd = """delete from lnk_%s2comm_channel where
 		id_%s = %%s and url = %%s""" % (self._table, self._table)
 		del self._ext_cache['comms']
-		return gmPG.run_commit2 ('personalia', [(cmd, [self['pk_identity'], url])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId (), url])])
+	#----------------------------------------------------------------------
+	def getId (self):
+		"""
+		Hide the difference between org.id and v_basic_person.pk_identity
+		"""
+		return self['id']
 #==============================================================================
 class cIdentity (cOrg):
 	_table = "identity"
@@ -321,12 +327,12 @@ class cIdentity (cOrg):
 		Binds an address to this person
 		"""
 		cmd = "insert into lnk_person_org_address (id_type, id_address, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(urb)s, %(postcode)s), %(pk_identity)s)"
-		address["pk_identity"] = self['pk_identity']
+		address["pk_identity"] = self.getId ()
 		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
 	#---------------------------------------------------------------------
 	def get_occupation (self):
 		cmd = "select o.name from occupation o, lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s"
-		data = gmPG.run_ro_query ('personalia', cmd, None, self['pk_identity'])
+		data = gmPG.run_ro_query ('personalia', cmd, None, self.getId ())
 		return data and [i[0] for i in data] 
 	#--------------------------------------------------------------------
 	def add_occupation (self, occupation):
@@ -334,7 +340,7 @@ class cIdentity (cOrg):
 		cmd = "insert into lnk_job2person (id_identity, id_occupation) values (%s, create_occupation (%s))"
 		if self._ext_cache.has_key ('occupation'):
 			self._ext_cache['occupation'].append (occupation)
-		return gmPG.run_commit2 ('personalia', [(cmd, [self['pk_identity'], occupation])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId (), occupation])])
 	#----------------------------------------------------------------------
 	def delete_occupation (self, occupation):
 		if self._ext_cache.has_key ('occupation'):
@@ -344,7 +350,7 @@ class cIdentity (cOrg):
 		lnk_job2person
 		where
 		id_identity = %s and id_occupation = (select id from occupation where name = %s)"""
-		return gmPG.run_commit2 ('personalia', [(cmd, [self['pk_identity'], occupation])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId (), occupation])])
 	#----------------------------------------------------------------------
 	def get_relatives(self):
 		cmd = """
@@ -403,7 +409,7 @@ where
 		if dob is None:
 			return '??'
 		return dob2medical_age(dob)
-	#----------------------------------------------------------------------
+
 #================================================================
 # convenience functions
 #================================================================
@@ -678,7 +684,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.63  2005-02-20 09:46:08  ihaywood
+# Revision 1.64  2005-02-20 21:00:20  ihaywood
+# getId () is back
+#
+# Revision 1.63  2005/02/20 09:46:08  ihaywood
 # demographics module with load a patient with no exceptions
 #
 # Revision 1.61  2005/02/19 15:04:55  sjtan
