@@ -5,6 +5,7 @@
 package org.gnumed.testweb1.data;
 import java.util.HashMap;
 import org.gnumed.testweb1.global.Constants;
+import org.gnumed.testweb1.global.Util;
 /**
  * @author sjtan
  *
@@ -36,7 +37,15 @@ public class EntryMedicationImpl1 extends MedicationImpl1 implements
 	 * @see org.gnumed.testweb1.data.EntryClinRootItem#isEntered()
 	 */
 	public boolean isEntered() {
-		return item.isEntered();
+		return hasDrugName() && getQty() != 0 && getRepeats() >= 0 ; 
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean hasDrugName() {
+		return !"".equals(Util.nullIsBlank(getBrandName()) )
+				|| ! "".equals(Util.nullIsBlank(getGenericName()));
 	}
 
 	/* (non-Javadoc)

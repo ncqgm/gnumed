@@ -10,12 +10,13 @@ import java.util.*;
 import org.gnumed.testweb1.data.DrugRefConstructed;
 import org.gnumed.testweb1.data.DrugRef;
 import org.apache.commons.logging.*;
-import org.gnumed.testweb1.global.GrantSetupDialog;
+//import org.gnumed.testweb1.global.GrantSetupDialog;
+
 /**
  *
  * @author  sjtan
  */
-public class DrugRefAccessImpl1 implements DrugRefAccess, GrantSetupDialog.Login {
+public class DrugRefAccessImpl1 implements DrugRefAccess {
     javax.sql.DataSource dataSource;
     org.gnumed.testweb1.data.DataObjectFactory factory;
     java.sql.Connection superConn=null;
@@ -146,7 +147,7 @@ public class DrugRefAccessImpl1 implements DrugRefAccess, GrantSetupDialog.Login
     public void setDataSource(javax.sql.DataSource ds) {
         this.dataSource = ds;
     }
-    
+/*    
     public void doLogin(String userName, char[] password) {
         synchronized(this) {
         StringBuffer sb  = new StringBuffer(password.length);
@@ -163,5 +164,5 @@ public class DrugRefAccessImpl1 implements DrugRefAccess, GrantSetupDialog.Login
         }
         }
     }
-    
+ */  
 }

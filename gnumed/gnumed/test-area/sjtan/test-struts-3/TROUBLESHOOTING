@@ -45,9 +45,29 @@ to tomcat/commons/lib/  directory, and restart tomcat/catalina.
 		? typed a small criteria  and too many records being retrieved?
 
 
-   
+
+DRUGREF access errors.
+
+- When selecting find Drugs, error ' can't find drugRefCandidates in any scope ' occurs.
+This is due probably to a permission denied to v_drugref1 for the particular user set up on the connection.
+grant access to this user from the owner of the database.   
 
 
+SEVERE:  ********** UNABLE TO SET 'DRUG REF ACCESS' ***************  of servlet context
+org.apache.commons.dbcp.SQLNestedException: Cannot create PoolableConnectionFactory, cause:
+A connection error has occurred: FATAL:  No pg_hba.conf entry for host 127.0.0.1, user _test-doc, database drugref
 
+This is another error about drugref access, pg_hba.conf needs to be set.
+On Mandrake, the postgresql default data directory is in /var/psql/data
+
+
+ERROR:  Relation 'v_drugref1' already exists
+ERROR:  link_product_manufacturer: permission denied
+15-Oct-2004 09:24:50 org.gnumed.testweb1.persist.scripted.gnumed1.DrugRefAccessImpl1 load
+INFO: got java.sql.SQLException: ERROR:  link_product_manufacturer: permission denied
+ when SELECT FROMv_drugref1
+
+This could be a table granularity access error. The view may be accessible but the user
+is not allowed to reference the underlying tables.
 
 
