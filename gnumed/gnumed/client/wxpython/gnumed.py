@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -146,7 +146,7 @@ if __name__ == "__main__":
 		import gmCLI
 	except:
 		if _log is not None:
-			_log.LogException("Cannot import gmCLI.", sys.exc_info(), fatal=1)
+			_log.LogException("Cannot import gmCLI.", sys.exc_info(), verbose=1)
 		sys.exit("""
 CRITICAL ERROR: Can't load gmLog or gmCLI ! - Program halted.
 
@@ -199,7 +199,7 @@ can increase its log level with '--debug'.
 				f = gmCfg.cCfgFile()
 			except:
 				print "Cannot open or create config file by any means.\nPlease see the log for details."
-				_log.LogException('unhandled exception', sys.exc_info(), fatal=0)
+				_log.LogException('unhandled exception', sys.exc_info(), verbose=0)
 				raise
 
 			gmCfg.gmDefCfgFile = f
@@ -210,7 +210,7 @@ can increase its log level with '--debug'.
 		import gmGuiBroker
 		import gmGuiMain
 	except:
-		_log.LogException ("Exception: Cannot load modules.", sys.exc_info(), 4)
+		_log.LogException ("Exception: Cannot load modules.", sys.exc_info(), verbose=1)
 		sys.exit("""
 CRITICAL ERROR: Can't load gmI18N, gmGuiBroker or gmGuiMain !
                 Program halted.
@@ -236,7 +236,7 @@ can increase its log level with '--debug'.
 		os.chdir(appPath)
 	except:
 		exc = sys.exc_info()
-		_log.LogException('Exception: cannot change into resource directory ' + appPath, exc, fatal=0)
+		_log.LogException('Exception: cannot change into resource directory ' + appPath, exc, verbose=0)
 		# let's try going on anyways
 
 	# run gnumed
@@ -245,7 +245,7 @@ can increase its log level with '--debug'.
 	# and intercept _almost_ all exceptions (but reraise them ...)
 	except StandardError:
 		exc = sys.exc_info()
-		_log.LogException ("Exception: Unhandled exception encountered.", exc, fatal=1)
+		_log.LogException ("Exception: Unhandled exception encountered.", exc, verbose=1)
 		if gmCLI.has_arg('--talkback'):
 			import gmTalkback
 			gmTalkback.run(email_logger)
@@ -266,7 +266,10 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.53  2003-06-01 01:47:33  sjtan
+# Revision 1.54  2003-06-01 12:28:23  ncq
+# - fatal now "verbose" in LogException, use it
+#
+# Revision 1.53  2003/06/01 01:47:33  sjtan
 #
 # starting allergy connections.
 #
