@@ -6,15 +6,29 @@
 
 package quickmed.usecases.test;
 import java.util.*;
+import java.awt.*;
+import javax.swing.*;
+import org.gnumed.gmIdentity.identity;
+
 /**
  *
  * @author  sjtan
  */
-public class Testgnmed1 extends javax.swing.JFrame {
+public class Testgnmed1 extends javax.swing.JFrame  implements IdentitiesHolder {
     
     /** Creates new form Testgnmed1 */
     public Testgnmed1() {
         initComponents();
+        new Thread( new Runnable()  {
+            public void run() {
+                try {
+                gnmed.test.HibernateInit.initAll();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.exit(-3);
+                }
+            }
+        } ).start();
     }
     
     /** This method is called from within the constructor to
@@ -40,6 +54,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
         contentMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
 
+        setTitle("test gnumed java client");
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 exitForm(evt);
@@ -47,6 +62,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
         });
 
         desktopPane.setPreferredSize(new java.awt.Dimension(1000, 800));
+        desktopPane.setAutoscrolls(true);
         getContentPane().add(desktopPane, java.awt.BorderLayout.CENTER);
 
         fileMenu.setText("File");
@@ -127,6 +143,20 @@ public class Testgnmed1 extends javax.swing.JFrame {
     
     private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuItemActionPerformed
         // Add your handling code here:
+//        if (idFinder == null)
+            idFinder= new FindIdentity((Frame)SwingUtilities.getAncestorOfClass(Frame.class,  this), true);
+      idFinder.setLocationRelativeTo(desktopPane);
+      idFinder.setLocation(desktopPane.getWidth()/3, desktopPane.getHeight()/3);
+            idFinder.show();
+        
+        Object[] selected = idFinder.getSelectedValues();
+        for (int i = 0; i < selected.length; ++i) {
+            PatientInnerFrame frame = new PatientInnerFrame();
+            frame.setIdentity((identity) selected[i]);
+            desktopPane.add(frame);
+            frame.setVisible(true);
+        }
+        
     }//GEN-LAST:event_openMenuItemActionPerformed
     
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
@@ -143,6 +173,14 @@ public class Testgnmed1 extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         new Testgnmed1().show();
+    }
+    
+    public void addIdentity(org.gnumed.gmIdentity.identity identity) {
+        PatientInnerFrame frame = new PatientInnerFrame();
+    }
+    
+    public org.gnumed.gmIdentity.identity[] getIdentities() {
+        return null;
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -166,5 +204,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
     /**
      * list of patient frames.
      */
-    List frameList = new ArrayList();
+    java.util.List frameList = new ArrayList();
+    
+    FindIdentity idFinder;
 }

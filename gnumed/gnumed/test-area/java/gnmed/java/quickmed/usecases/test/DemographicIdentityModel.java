@@ -18,9 +18,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.regex.*;
 
 import net.sf.hibernate.*;
 import net.sf.hibernate.type.Type;
+import java.io.*;
 /**
  *
  * @author  sjtan
@@ -32,7 +34,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     
     
-   
+    
     
     /** Holds value of property identity. */
     private identity identity;
@@ -43,14 +45,14 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     static Logger logger;
     static ResourceBundle bundle = ResourceBundle.getBundle("SummaryTerms");
-   
+    
     
     private static Method[] socialIdSetters = null;
     private static Method[] addrTypeSetter =null;
     static {
         logger = Logger.getLogger("DemographicIdentityModel");
         logger.setLevel(Level.ALL);
-//        logger.addHandler(new ConsoleHandler());
+        //        logger.addHandler(new ConsoleHandler());
         try {
             socialIdSetters = new Method[] { enum_social_id.class.getMethod("setName", new Class[] { String.class}),
             enum_social_id.class.getMethod("setId", new Class[]{ Integer.class}) };
@@ -65,7 +67,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         }
     }
     static DateFormat shortestformat = new SimpleDateFormat("MM/yy");
-   
+    
     
     
     static enum_telephone_role home = createOrFindEnumTelephone( bundle.getString("home"));
@@ -76,19 +78,25 @@ public class DemographicIdentityModel implements  DemographicModel {
     static enum_social_id medicare =createOrFindEnumSocialId(bundle.getString("medicare"), 1);
     static enum_social_id recordNo = createOrFindEnumSocialId(bundle.getString("record_no"), 3);
     static address_type homeAddress = createOrFindAddressType(bundle.getString("home"));
-  
-     static Map mapMarital ;
+    
+    static Map mapMarital ;
     static category_type maritalStatus = createOrFindCategoryType( bundle.getString("marital_status") );
     static category married = createOrFindCategory( bundle.getString("married"), maritalStatus);
     static  category unmarried = createOrFindCategory( bundle.getString("unmarried"), maritalStatus);
     static    category divorced = createOrFindCategory( bundle.getString("divorced"), maritalStatus);
     static   category widowed = createOrFindCategory( bundle.getString("widowed"), maritalStatus);
-    
+    static category unknown = createOrFindCategory( bundle.getString("unknown"), maritalStatus);
     static category [] maritalList = new category[] { married, unmarried, divorced, widowed };
+    
+    /** Holds value of property byteStream. */
+    private ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+    
+    /** Holds value of property printStream. */
+    private PrintStream printStream = new PrintStream(byteStream, true);
     
     static {
         
-         try {
+        try {
             mapMarital=  createMap(
             category.class.getMethod("getName", new Class[0]),
             Arrays.asList(new Object[] {widowed, unmarried, married, divorced })
@@ -112,7 +120,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     
-     
+    
     /**
      * creates a map out of a list of attributes given a getter method for a particular attribute.
      *  Precondition: objects must be the same class or inherit from the same class as the class from
@@ -162,7 +170,7 @@ public class DemographicIdentityModel implements  DemographicModel {
             }
         } finally {
             logger.info("DISCONNECTING AND CLOSING " + s.toString());
-          //  s.disconnect();
+            //  s.disconnect();
             s.close();
             
         }
@@ -295,19 +303,40 @@ public class DemographicIdentityModel implements  DemographicModel {
         logger.info("urb name ="+ st.getUrb().getName());
         return st;
     }
+    //
+    //    urb findUrb( String urb, String state) throws Exception {
+    //        urb u = null;
+    //        Session sess = HibernateInit.openSession();
+    //        u = (urb) sess.iterate("from org.gnumed.gmGIS.urb as urb"+
+    //        " where urb.name like ? and "+
+    //        " (urb.state.code = ? or urb.state.name like ?)",
+    //        new Object[] { urb.toUpperCase() + "%" , state.toUpperCase() , state.toUpperCase() + "%" },
+    //        new Type[] { Hibernate.STRING, Hibernate.STRING ,Hibernate.STRING }).next();
+    //        return u;
+    //
+    //    }
     
-    urb findUrb( String urb, String state) throws Exception {
-        urb u = null;
-        Session sess = HibernateInit.openSession();
-        u = (urb) sess.iterate("from org.gnumed.gmGIS.urb as urb"+
-        " where urb.name like ? and "+
-        " (urb.state.code = ? or urb.state.name like ?)",
-        new Object[] { urb.toUpperCase() + "%" , state.toUpperCase() , state.toUpperCase() + "%" },
-        new Type[] { Hibernate.STRING, Hibernate.STRING ,Hibernate.STRING }).next();
-        return u;
-        
+    
+    public static boolean isStateString(String state) {
+        try {
+            Session s = HibernateInit.openSession();
+            String v = state.toUpperCase().trim() ;
+            logger.info("SEEING IF " + v + " is a STATE STRING .");
+            List l = s.find("select s from state s where upper(s.name) like ? or s.code like ?",
+            new Object[] {v ,v } , new Type[] { Hibernate.STRING , Hibernate.STRING });
+            s.connection().commit();
+            s.disconnect();
+            
+            if (l.size() == 1) {
+                logger.info(v + " is a state string");
+                return true;
+            }
+            logger.info(v + " isn't a state string");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
-    
     
     /**
      * this function will need to search for a match street
@@ -419,6 +448,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         getIdentity().addSocial_identity(si2);
     }
     
+    
     /** Getter for property identity.
      * @return Value of property identity.
      *
@@ -435,13 +465,24 @@ public class DemographicIdentityModel implements  DemographicModel {
         this.identity = identity;
     }
     
-    public String getAddress() {
-        String s = "test address";
-        return s;
+    
+    
+    public String getAddress()  {
+        identities_addresses ia = getIdentity().findIdentityAddressByAddressType(homeAddress);
+        if (ia != null && ia.getAddress() != null) {
+            getByteStream().reset();
+            gnmed.test.DomainPrinter.getInstance().printAddress( getPrintStream(),  ia.getAddress());
+            setLastAddressString( getByteStream().toString());
+            setLastAddress(ia.getAddress());
+            return  getByteStream().toString();
+        }
+        setLastAddress(null);
+        return  "";
     }
     
     public Object getBirthdate() {
-        return new Date();
+        logger.info("****** identity ****** birthdate = " + getIdentity().getDob());
+        return getIdentity().getDob();
     }
     
     public Object getCommenced() {
@@ -453,15 +494,15 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getFirstNames() {
-        return "dummy first";
+        return getIdentity().findNames(0).getFirstnames();
     }
     
     public String getHomeTelephone() {
-        return "1111";
+        return getIdentity().findTelephoneByRole(home).getNumber();
     }
     
     public String getLastNames() {
-        return "last";
+        return getIdentity().findNames(0).getLastnames();
     }
     
     public String getMedicare() {
@@ -473,7 +514,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getMobilePhone() {
-        return "mobile";
+        return  getIdentity().findTelephoneByRole(mobile).getNumber();
     }
     
     public String getNokPhone() {
@@ -498,40 +539,184 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getSex() {
-        return "sex";
+        return getIdentity().getKaryotype().equals("XY") ? "male":"female";
     }
     
     public String getWorkTelephone() {
-        return "work";
+        return  getIdentity().findTelephoneByRole(work).getNumber();
     }
     
+    static Pattern addressPattern =
+    Pattern.compile("\\s*(\\d+|\\d+\\w?|\\d+\\W+\\d+)[,|\\s]+([\\w|\\s]+)[,|\\s]+(\\D+)[,|\\s]*(\\d+)?");
+    
+    /** Holds value of property lastAddressString. */
+    private String lastAddressString;
+    
+    /** Holds value of property lastAddress. */
+    private address lastAddress;
+    
+    String[] getTwoParts( String s) {
+        String[] parts = s.split("[,|\\s]+");
+        StringBuffer partOneBuffer = new StringBuffer();
+        for (int i = 0; i < parts.length -1; ++i) {
+            partOneBuffer.append(parts[i]).append(" ");
+        }
+        return new String[] { partOneBuffer.toString(), parts[parts.length -1] };
+    }
+    
+    boolean isValidPostcode(String code) {
+        try {
+            return TestGISManager.instance().isPostcode(code);
+        } catch (Exception e) {
+            logger.info(e.toString());
+        }
+        return false;
+    }
+    
+    boolean streetContainsUrb( String street) {
+        try {
+            urb u = TestGISManager.instance().findUrbByName(getTwoParts(street)[1]);
+            return u != null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    String getStreetPartOnly( String street) {
+        return getTwoParts(street)[0];
+    }
+    
+    String getUrbPartOnly( String street) {
+        return getTwoParts(street)[1];
+    }
+    
+    address findIdentityAddress( address_type type) {
+        identities_addresses  ia = getIdentity().findIdentityAddressByAddressType(type);
+        if (ia == null)
+            return null;
+        return ia.getAddress();
+    }
+    
+    street findStreet( String street, String postcode) {
+        try {
+            street s = TestGISManager.instance().findStreetByNameAndUrb(street,
+            findUrb(postcode) );
+            return s;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    urb findUrb( String postcode) {
+        try {
+            return  TestGISManager.instance().findByPostcode(postcode);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    urb findUrb( String name, String state) {
+        if (state == null)
+            state = "%";
+        logger.info("urb name = " + name + " : state name = " + state);
+        try {
+            return  TestGISManager.instance().findUrbByNameAndState(name, state);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    address getAddressWithNumber( String number) {
+        address a = findIdentityAddress( homeAddress);
+        if (a == null)
+            a = new address();
+        a.setNumber(number);
+        return a;
+    }
+    
+    street getStreetByName( String street, urb urb) {
+        try {
+            street s = TestGISManager.instance().findStreetByNameAndUrb(street, urb );
+            if ( s == null) {
+                s = new street();
+            }
+            s.setUrb( urb );
+            s.setName(street);
+            logger.info("new street created = " + s.getUrb().getName() + " : " + s.getName());
+            return s;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    void setAddressObject( String number, String street, String postcode) {
+        logger.info("Setting by number, street, postcode ");
+        setAddressObject(number, getStreetByName( street, findUrb(postcode) ));
+    }
+    
+    void setAddressObject( String number, String street, String urb, String state ) {
+        setAddressObject( number, getStreetByName( street, findUrb(urb, state)));
+    }
+    
+    void setAddressObject( String number, street street) {
+        
+        address a = getAddressWithNumber(number);
+        a.setStreet(street);
+        getIdentity().setIdentityAddress(homeAddress, a);
+        
+        //    getUiModel().setAddress(getAddress());
+    }
+    
+    
+    
     public void setAddress(String address) {
-        String[] parts = address.split(",",4);
-        logger.info("process " + Integer.toString(parts.length) + " address parts");
-        if (parts.length < 4) {
-            logger.info("NEED 4 PARTS TO ADDRESS : NO , STREET, SUBURB, STATE");
+        logger.info("trying to parse " + address);
+        Matcher m = addressPattern.matcher(new StringBuffer( address.trim()));
+        if(!m.find()) {
+            logger.info("not parseable = " + address);
             return;
         }
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < parts.length; ++i)
-            sb.append("examining ").append(i).append(" : ").append(parts[i]).append("\t");
-        logger.info(sb.toString());
+        String number = m.group(1);
+        String streetS = m.group(2);
+        String urbOrState = m.group(3);
+        String postcode = m.group(4);
+        logger.info( " number = " + number + " street = " + streetS + " urbOrState = " + urbOrState + " postcode = " + postcode);
+        String urbS = null;
+        String stateS = null;
+        String[]  parts ;
         
-        address a = new address();
-        a.setNumber(parts[0]);
-        street s = findStreet(parts[1].trim(), parts[2].trim(),   parts[3].trim() );
-        a.setStreet(s);
-        setAddressAttr(a , homeAddress);
-        if (getUiModel() != null && s != null && s.getUrb() != null)
-            getUiModel().setPostcode(a.getStreet().getUrb().getPostcode());
+        if ( number != null && postcode!=null && isValidPostcode(postcode) ) {
+            setAddressObject( number, isStateString(urbOrState) ? getStreetPartOnly(streetS) : streetS , postcode);
+            return;
+        }
+        if ( number != null && urbOrState != null && streetContainsUrb(streetS) &&
+        isStateString(urbOrState) ) {
+            setAddressObject( number,  getStreetPartOnly(streetS), getUrbPartOnly(streetS), urbOrState);
+            return;
+        }
+        if ( number != null && streetContainsUrb( streetS) && urbOrState == null) {
+            setAddressObject( number, getStreetPartOnly(streetS), getUrbPartOnly(streetS), null);
+            return;
+        }
+        if ( isStateString(getTwoParts(urbOrState)[1]) ) {
+            setAddressObject( number, streetS, getTwoParts(urbOrState)[0], getTwoParts(urbOrState)[1]);
+            return;
+        }
+        
     }
     
     public void setBirthdate(Object birthdate) {
         Date d = (Date) birthdate;
-        identity.setDob(d);
+        getIdentity().setDob(d);
     }
     
     public void setCommenced(Object commenced) {
+        
     }
     
     public void setCountryOfBirth(String countryOfBirth) {
@@ -546,15 +731,17 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     public Object getMaritalStatus() {
         category_attribute a = getIdentity().findCategoryAttribute(maritalStatus);
-        if ( a == null) 
+        if ( a == null)
             return bundle.getString("unknown");
         return a.getCategory().getName();
     }
     
     public void setMaritalStatus(Object maritalStatus) {
         category c = (category ) maritalStatus;
+        if (c == null)
+            c = unmarried;
         logger.info(" category  returned " + c);
-        if (getIdentity() == null) 
+        if (getIdentity() == null)
             throw new RuntimeException("IDENTITY SHOULD EXIST");
         if (getIdentity().findCategoryAttribute(c.getCategory_type() ) == null) {
             category_attribute a = new category_attribute();
@@ -655,6 +842,68 @@ public class DemographicIdentityModel implements  DemographicModel {
      */
     public Object[] getMaritalList() {
         return maritalList;
+    }
+    
+    /** Getter for property byteStream.
+     * @return Value of property byteStream.
+     *
+     */
+    public ByteArrayOutputStream getByteStream() {
+        return this.byteStream;
+    }
+    
+    /** Getter for property printStream.
+     * @return Value of property printStream.
+     *
+     */
+    public PrintStream getPrintStream() {
+        return this.printStream;
+    }
+    
+    /** Setter for property printStream.
+     * @param printStream New value of property printStream.
+     *
+     */
+    public void setPrintStream(PrintStream printStream) {
+        this.printStream = printStream;
+    }
+    
+    /** Setter for property byteStream.
+     * @param byteStream New value of property byteStream.
+     *
+     */
+    public void setByteStream(ByteArrayOutputStream byteStream) {
+    }
+    
+    /** Getter for property lastAddressString.
+     * @return Value of property lastAddressString.
+     *
+     */
+    public String getLastAddressString() {
+        return this.lastAddressString;
+    }
+    
+    /** Setter for property lastAddressString.
+     * @param lastAddressString New value of property lastAddressString.
+     *
+     */
+    public void setLastAddressString(String lastAddressString) {
+    }
+    
+    /** Getter for property lastAddress.
+     * @return Value of property lastAddress.
+     *
+     */
+    public address getLastAddress() {
+        return this.lastAddress;
+    }
+    
+    /** Setter for property lastAddress.
+     * @param lastAddress New value of property lastAddress.
+     *
+     */
+    public void setLastAddress(address lastAddress) {
+        this.lastAddress = lastAddress;
     }
     
 }

@@ -252,33 +252,34 @@ public class product {
         if (removed) _subsidized_products.setProduct((product)null);
     }
     
-    
-    /**
-     *
-     */
-    public Collection getScript_drugs() {
-        return script_drug;
-    }
-    public void addScript_drug(script_drug _script_drug) {
-        if (! this.script_drug.contains(_script_drug)) {
-            this.script_drug.add(_script_drug);
-            _script_drug.setProduct(this);
-        }
-    }
-    public void removeScript_drug(script_drug _script_drug) {
-        boolean removed = this.script_drug.remove(_script_drug);
-        if (removed) _script_drug.setProduct((product)null);
-    }
-
-      
-    /** Setter for property script_drugs.
-     * @param script_drugs New value of property script_drugs.
-     *
-     */
-    public void setScript_drugs(Collection script_drugs) {
-    script_drug =script_drugs;
-    }
-    
+//    
+//    /**
+//     *
+//     */
+//    public Collection getScript_drugs() {
+//        return script_drug;
+//    }
+//    
+//    public void addScript_drug(script_drug _script_drug) {
+//        if (! this.script_drug.contains(_script_drug)) {
+//            this.script_drug.add(_script_drug);
+//            _script_drug.setProduct(this);
+//        }
+//    }
+//    public void removeScript_drug(script_drug _script_drug) {
+//        boolean removed = this.script_drug.remove(_script_drug);
+//        if (removed) _script_drug.setProduct((product)null);
+//    }
+//
+//      
+//    /** Setter for property script_drugs.
+//     * @param script_drugs New value of property script_drugs.
+//     *
+//     */
+//    public void setScript_drugs(Collection script_drugs) {
+//    script_drug =script_drugs;
+//    }
+//    
 
   ///////////////////////////////////////
   // operations

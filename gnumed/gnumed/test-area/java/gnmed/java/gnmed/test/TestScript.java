@@ -95,7 +95,13 @@ public class TestScript extends TestCase {
     public script_drug createRandomScriptDrug(Session s) throws Exception {
         script_drug sd = new script_drug();
         product p = getRandomProduct(s);
-        sd.setProduct(p);
+        package_size pz = null;
+	if (p.getPackage_sizes().size() > 0) {
+         int    n = r.nextInt( (int)p.getPackage_sizes().size() );
+            pz =  ( package_size)p.getPackage_sizes().iterator().next();
+        }
+            
+        sd.setPackage_size(pz);
         sd.setDose_amount(new Double( (double)(r.nextInt(4) + 1) /(double)2.0));
         sd.setCurrent(new Boolean(true));
         sd.setDirections("times a specified time period");
@@ -111,7 +117,7 @@ public class TestScript extends TestCase {
         script_drug sd = (script_drug) i.next();
         lsd.setScript_drug(sd);
         lsd.setScript(sc);
-        lsd.setRepeats( r.nextInt(6) + 1);
+        lsd.setRepeats( new Integer(r.nextInt(6) + 1));
         }
         
         return sc;

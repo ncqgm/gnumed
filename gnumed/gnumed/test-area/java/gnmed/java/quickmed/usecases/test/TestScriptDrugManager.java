@@ -53,19 +53,19 @@ public class TestScriptDrugManager {
         return l;
     }
     
-    public void createIdentityScriptDrug(identity id, product p, Double qty,
+    public void createIdentityScriptDrug(identity id,package_size p, Double qty,
     String instructions, Integer repeats, script script) throws Exception {
         script_drug sd = new script_drug();
         sd.setDirections(instructions);
         sd.setQty(qty);
-        sd.setProduct(p);
+        sd.setPackage_size(p);
         id.addScript_drug(sd);
         
-//        use this later, otherwise may cause transient object error 
-//        link_script_drug lsd = new link_script_drug();
-//        lsd.setScript_drug(sd);
-//        lsd.setRepeats(repeats);
-//        lsd.setScript(script);
+        //        use this later, otherwise may cause transient object error
+        //        link_script_drug lsd = new link_script_drug();
+        //        lsd.setScript_drug(sd);
+        //        lsd.setRepeats(repeats);
+        //        lsd.setScript(script);
     }
     
     public boolean updateIdentityScriptDrugs( identity id, product p, Double qty,
@@ -80,11 +80,21 @@ public class TestScriptDrugManager {
         return false;
     }
     public List findByDrugName( String name) throws Exception {
-        Session s = HibernateInit.openSession();
-        List l = s.find("select p from product p inner join p.drug_element.generic_name n"
-        + " where n.name like ? ",  name + "%" ,   Hibernate.STRING  );
-        
-        s.close();
+        List l = null;
+        Session s = null;
+        try {
+            s = HibernateInit.openSession();
+            l = s.find("select p from product p inner join p.drug_element.generic_name n"
+            + " where n.name like ? ",  name + "%" ,   Hibernate.STRING  );
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                s.close();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
         return l;
     }
     public List findPackagedProductByDrugName( String name) throws Exception {

@@ -16,6 +16,9 @@ import org.gnumed.gmClinical.category_type;
 import org.drugref.product;
 // for the find function.
 import org.gnumed.gmGIS.address_type;
+import org.gnumed.gmGIS.address;
+import org.gnumed.gmGIS.enum_telephone_role;
+import org.gnumed.gmGIS.telephone;
 /**
  * <p>
  *
@@ -24,6 +27,7 @@ import org.gnumed.gmGIS.address_type;
  *  proxy="org.gnumed.gmIdentity.identity"
  */
 public class identity {
+    
     
     ///////////////////////////////////////
     // attributes
@@ -146,7 +150,7 @@ public class identity {
     
     /**
      *@hibernate.set
-     *  lazy="true"
+     *  lazy="false"
      *  inverse="true"
      *  cascade="save-update"
      * @hibernate.collection-key
@@ -246,7 +250,8 @@ public class identity {
      *
      * @hibernate.set
      *      cascade="all"
-     * //     *      inverse="true"
+     *      inverse="true"
+     *      lazy="false"
      * @hibernate.collection-key
      *  column="identity"
      * @hibernate.collection-one-to-many
@@ -487,6 +492,18 @@ public class identity {
         return null;
     }
     
+     public  void setIdentityAddress( address_type  type, address a) {
+        identities_addresses ia = findIdentityAddressByAddressType(type);
+        if (ia == null) {
+            ia = new identities_addresses();
+            ia.setAddress_type(type);
+            ia.setAddress(a);
+            addIdentities_addresses(ia);
+            return;
+        }
+        ia.setAddress(a);
+    }
+    
     public identities_addresses findIdentityAddressByAddressType(final address_type a) {
         Iterator i = getIdentities_addressess().iterator();
         while (i.hasNext()) {
@@ -497,6 +514,36 @@ public class identity {
         return null;
     }
     
+    public Names findNames(int n) {
+        if (getNamess().size() < n)
+            return new Names();
+        
+        Names names = null;
+        Iterator j = getNamess().iterator();
+        for (int i = 0; i < n + 1; ++i)
+            names = (Names) j.next();
+        return names;
+    }
+    
+    /** find the first telephone by role
+     */
+    public telephone findTelephoneByRole( enum_telephone_role role) {
+        // temporary hack
+        if ( role.getRole().equals( ResourceBundle.getBundle("SummaryTerms").getString("mobile")))
+            return getMobile();
+        Iterator i = getIdentities_addressess().iterator();
+        while (i.hasNext()) {
+            identities_addresses ia = (identities_addresses)i.next();
+            if (ia.getAddress() == null)
+                continue;
+            if (ia.getAddress().findTelephone(role) != null )
+                return ia.getAddress().findTelephone(role);
+        }
+        return telephone.NULL;
+    }
+    
+    
+    
     public script_drug findDrugScriptWithProduct(final product product, Double qty) throws Exception {
         Iterator i = getScript_drugs().iterator();
         long smallest = Long.MAX_VALUE;
@@ -504,21 +551,56 @@ public class identity {
         while (i.hasNext()) {
             script_drug sd = (script_drug) i.next();
             
-            // if points to same product 
-            if (sd.getProduct() == product)
+            // if points to same product
+            if (sd.getPackage_size().getProduct() == product)
                 return sd;
             // if pretty close
             long diff = Math.abs(Double.doubleToLongBits(qty.doubleValue()) - Double.doubleToLongBits(sd.getQty().doubleValue()));
-            if (sd.getProduct().equals(product) &&  diff < smallest) {
+            if (sd.getPackage_size().getProduct().equals(product) &&  diff < smallest) {
                 smallest = diff;
                 chosen = sd;
             }
         }
         return chosen;
     }
- 
-// end setId
-
+    
+    
+    
+    
+    StringBuffer sb = new StringBuffer();
+    static java.text.Format dateFormat= java.text.DateFormat.getDateInstance( java.text.DateFormat.SHORT);
+    
+    public String toString() {
+        sb.delete(0, sb.length());
+        Names n =(Names) getNamess().iterator().next();
+        Iterator i =  getIdentities_addressess().iterator();
+        
+        identities_addresses ia = null;
+        if (i.hasNext())
+            ia =(identities_addresses )i.next();
+        
+        if (n != null) {
+            sb.append(n.getLastnames()).append(", ").append(n.getFirstnames()).
+            append(", ").
+            append(getKaryotype().equals("XY") ? "male ": "female ").
+            append( getDob() != null ?  dateFormat.format(getDob()) : "");
+            if (ia != null && ia.getAddress() != null)
+                sb.append(" : ").append(ia.getAddress().getNumber()).
+                append(",").append(ia.getAddress().getStreet().getName()).
+                append(",").append(ia.getAddress().getStreet().getUrb().getName()).
+                append(",").append(ia.getAddress().getStreet().getUrb().getState().getName()).
+                append(",").
+                append(ia.getAddress().getStreet().getUrb().getPostcode()).
+                append(".");
+            
+            return sb.toString();
+        }
+        
+        return super.toString();
+    }
+    
+    // end setId
+    
 } // end identity
 
 

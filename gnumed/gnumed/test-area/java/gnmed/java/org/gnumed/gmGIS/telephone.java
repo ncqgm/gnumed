@@ -17,6 +17,7 @@ import org.gnumed.gmIdentity.identity;
  */
 public class telephone {
 
+  
   ///////////////////////////////////////
   // attributes
 
@@ -166,7 +167,13 @@ public class telephone {
         id = _id;
     }
     
-    
+      
+    public final static telephone NULL ;
+    static {
+        NULL = new telephone();
+        NULL.setId( new Integer(0));
+        NULL.setNumber("");
+    }
  // end setId        
 
 } // end telephone

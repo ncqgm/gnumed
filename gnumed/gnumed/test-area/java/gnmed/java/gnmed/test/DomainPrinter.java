@@ -101,7 +101,7 @@ public class DomainPrinter {
     }
     
     public static void printScriptDrug( java.io.PrintStream ps, script_drug sd) {
-        product p = sd.getProduct();
+        product  p = sd.getPackage_size().getProduct();
         drug_element de = p.getDrug_element();
         generic_drug_name name = (de.getGeneric_name().size() > 0) ?(generic_drug_name) de.getGeneric_name().iterator().next(): null;
         if (name != null )
@@ -120,22 +120,22 @@ public class DomainPrinter {
         if ( units != null && !units.getUnit().equals("each"))
             ps.print(p.getDrug_units().getUnit());
         ps.print(" ");
-        ps.print(sd.getProduct().getDrug_formulations().getDescription());
+        ps.print(sd.getPackage_size().getProduct().getDrug_formulations().getDescription());
         if (p.getDrug_routes() != null) {
             ps.print(" taken ");
-            ps.print(sd.getProduct().getDrug_routes().getDescription());
+            ps.print(sd.getPackage_size().getProduct().getDrug_routes().getDescription());
         }
         ps.print(" ");
         ps.print(sd.getFrequency());
         ps.print(" ");
         ps.print(sd.getDirections());
         ps.print("\t");
-        if ( sd.getProduct().getPackage_sizes().size() > 0) {
-            package_size sz = (package_size)sd.getProduct().getPackage_sizes().iterator().next();
-            ps.print(  sz.getSize().intValue() );
-            ps.print(" x ");
-        }
-        ps.print(sd.getProduct().getComment());
+//        if ( sd.getProduct().getPackage_sizes().size() > 0) {
+//            package_size sz = (package_size)sd.getProduct().getPackage_sizes().iterator().next();
+//            ps.print(  sz.getSize().intValue() );
+//            ps.print(" x ");
+//        }
+        ps.print(sd.getPackage_size().getProduct().getComment());
     }
     
     static class ClinRootItemComparator implements  Comparator {
@@ -193,15 +193,16 @@ public class DomainPrinter {
     }
     
     public  void printAddress(java.io.PrintStream ps, address a) {
-        urb u = a.getStreet().getUrb();
+   
         street s = a.getStreet();
+        urb u = s.getUrb();
         u.getName();
         s.getName();
         a.getNumber();
         //     System.out.println("urb = " + u.getName() + " state = " + u.getState());
         state sta = u.getState();
         sta.getName();
-        ps.println("Address = " +  a.getNumber() + ", "+s.getName() + ", "+u.getName()+", "+sta.getName() + " "+u.getPostcode());
+        ps.println(a.getNumber() + ", "+s.getName() + ", "+u.getName()+", "+sta.getName() + ", "+u.getPostcode());
         
         
         Iterator i = a.getTelephones().iterator();

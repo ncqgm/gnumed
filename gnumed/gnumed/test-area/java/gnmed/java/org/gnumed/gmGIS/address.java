@@ -57,6 +57,7 @@ public class address {
 /** 
  *@hibernate.many-to-one
  *  cascade="save-update"
+ *  lazy="false"
  */
     public street getStreet() {
         return street;
@@ -151,6 +152,20 @@ public class address {
     public void setTelephones(Collection telephones) {
     telephone = telephones;
     }    
+    
+    
+    /**
+     *finds the telephone by role
+     */
+    public telephone findTelephone( enum_telephone_role role) {
+        Iterator i = getTelephones().iterator();
+        while (i.hasNext()) {
+            telephone t = (telephone) i.next();
+            if (t.getEnum_telephone_role().equals(role))
+                return t;
+        }
+        return null;
+    }
     
 } // end address
 

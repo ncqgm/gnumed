@@ -5,7 +5,7 @@
  */
 
 package quickmed.usecases.test;
-
+import java.util.List;
 /**
  *
  * @author  sjtan
@@ -14,4 +14,6 @@ public interface Factory {
     
   Object newInstance();
     
+  public List getConvertedList(Object arg);
+  
 }

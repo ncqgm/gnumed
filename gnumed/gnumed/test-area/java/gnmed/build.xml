@@ -45,7 +45,7 @@
         
         <hibernateTask destdir="${build.class.dir}" mergedir="${build.class.dir}" validating="false" verbose="true">
             <fileset dir="${src.home}">
-                <include name="org/**/*.java"/>
+                <include name="**/*.java"/>
              </fileset>
 	     <hibernate validateXML="true" version="2.0"/>
         </hibernateTask>
@@ -151,4 +151,14 @@
     	    <jvmarg line="-server"/>
         </java>
     </target>
+
+    <target depends="init, xdocletToHibernate, compile" name="testUI1">
+        <java classname="quickmed.usecases.test.Testgnmed1" failonerror="true" fork="true">
+            <classpath path="./lib">
+                <pathelement location="."/>
+                <fileset dir="${lib.dir}"> <include name="**/*.jar"/> </fileset>
+            </classpath>
+        </java>
+    </target>
+
 </project>

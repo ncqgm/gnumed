@@ -22,6 +22,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     public static final int NO_WIDTH=30;
     public static final int MAX_DIFF=100;
     
+    ListObjectTableModel drugModel;
     PrescribeDialog dialog ;
     /** Creates new form OtherSummaryPanel */
     public OtherSummaryPanel() {
@@ -34,16 +35,17 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     void setDrugTableModel() {
         ListObjectTableModel model = new ListObjectTableModel();
         DummyDrugViewFactory factory = new DummyDrugViewFactory();
-        factory.setIdentityFactory( new Factory () {
-                    public Object newInstance() {
+        factory.setIdentityRef( new Ref() {
+                    public Object getRef() {
                          return getIdentity();
                     }
         }     );
         
         model.setFactory(factory);
         model.setList(new java.util.ArrayList());
-        model.newObject();
         
+        model.newObject();
+        drugModel = model;
         
         tableWithPopup1.setModel(model);
         //DefaultRenderer DOESN'T SEEM TO WORK THE WAY I THINK IT SHOOULD
@@ -136,7 +138,8 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         setMaximumSize(new java.awt.Dimension(1300, 800));
         setPreferredSize(new java.awt.Dimension(940, 426));
         jSplitPane3.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-        jPanel6.setLayout(new java.awt.GridLayout());
+        jSplitPane3.setResizeWeight(0.2);
+        jPanel6.setLayout(new java.awt.GridLayout(1, 0));
 
         jPanel1.setLayout(new java.awt.BorderLayout());
 
@@ -213,6 +216,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         jSplitPane3.setLeftComponent(jPanel6);
 
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jSplitPane1.setResizeWeight(0.4);
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
         jScrollPane1.setBorder(new javax.swing.border.TitledBorder(null, "Significant problems - past and present", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
@@ -297,6 +301,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
 
         jPanel5.setLayout(new java.awt.BorderLayout());
 
+        jSplitPane2.setResizeWeight(0.4);
         jSplitPane2.setOneTouchExpandable(true);
         jScrollPane4.setBorder(new javax.swing.border.TitledBorder("Management"));
         jTable4.setFont(new java.awt.Font("Dialog", 0, 10));
@@ -474,6 +479,13 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
      */
     public void setIdentity(identity identity) {
         this.identity = identity;
+        updateDrugView();
+    }
+    
+    void updateDrugView() {
+       drugModel.setList( drugModel.getFactory().getConvertedList( getIdentity().getScript_drugs()));
+       drugModel.newObject();
+//       drugModel.fireTableDataChanged();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

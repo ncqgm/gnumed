@@ -21,9 +21,9 @@ public class DummyDrugListView implements DrugListView, LimitedViewable {
     final static String[] VIEWABLE = new String [] { "last","drug","directions", "qty","repeats" };
     private Date last = new Date();
     
-    private String directions = "1 as directed";
+    private String directions = "";
     
-    private Object drug = "no drug";
+    private Object drug = "";
     
     private Integer repeats = new Integer(0);
     
@@ -33,7 +33,10 @@ public class DummyDrugListView implements DrugListView, LimitedViewable {
     private identity identity;
     
     /** Holds value of property identityRef. */
-    private Factory identityRef;
+    private Ref identityRef;
+    
+    /** Holds value of property updating. */
+    private boolean updating = true;
     
     /** Creates a new instance of DummyDrugListVIew */
     public DummyDrugListView() {
@@ -95,7 +98,7 @@ public class DummyDrugListView implements DrugListView, LimitedViewable {
     public identity getIdentity() {
         if (getIdentityRef() != null) {
             Logger.global.info("USING IDENTITY REF TO RETURN IDENTITY");
-            return (identity) getIdentityRef().newInstance();
+            return (identity) getIdentityRef().getRef();
         }
         return this.identity;
     }
@@ -116,7 +119,7 @@ public class DummyDrugListView implements DrugListView, LimitedViewable {
      * @return Value of property identityRef.
      *  this property is used to obtain an identity which is set after the ref is set.
      */
-    public Factory getIdentityRef() {
+    public Ref getIdentityRef() {
         return this.identityRef;
     }
     
@@ -124,7 +127,7 @@ public class DummyDrugListView implements DrugListView, LimitedViewable {
      * @param identityRef New value of property identityRef.
      *
      */
-    public void setIdentityRef(Factory identityRef) {
+    public void setIdentityRef(Ref identityRef) {
         this.identityRef = identityRef;
     }
     
@@ -138,6 +141,9 @@ public class DummyDrugListView implements DrugListView, LimitedViewable {
             Logger.global.severe("IDENTITY IS NULL *********************");
             return;
         }
+        
+        if (!isUpdating())
+            return;
         TestScriptDrugManager manager = TestScriptDrugManager.instance();
         
         /*       ||||||||||||||||||||||||||||||||||
@@ -155,12 +161,12 @@ public class DummyDrugListView implements DrugListView, LimitedViewable {
                                                   getDirections(), getRepeats(), script)
                                                   )
             {
-                showIdentity();
+//                showIdentity();
                 return;
             }
             
             //else create
-            manager.createIdentityScriptDrug( getIdentity(), pz.getProduct(), qty,
+            manager.createIdentityScriptDrug( getIdentity(), pz, qty,
                                                                  getDirections(), getRepeats(), script);
             
             showIdentity();
@@ -173,6 +179,37 @@ public class DummyDrugListView implements DrugListView, LimitedViewable {
     void showIdentity() {
         
         gnmed.test.DomainPrinter.getInstance().printIdentity(System.out, getIdentity());
+    }
+    
+    public void setScriptDrug(script_drug sd) {
+        Logger.global.info("Setting " + this + " with product = " +
+            ((generic_drug_name)sd.getPackage_size().getProduct().getDrug_element().getGeneric_name().iterator().next()).getName() +
+            "  directions = " + sd.getDirections() );
+        
+        setDrug(sd.getPackage_size());
+        setQty(new Integer(sd.getQty().intValue() ));
+        setDirections(sd.getDirections());
+        try {
+            setRepeats(  ( (link_script_drug)sd.getLink_script_drugs().iterator().next()).getRepeats());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /** Getter for property isUpdating.
+     * @return Value of property isUpdating.
+     *
+     */
+    public boolean isUpdating() {
+        return this.updating;
+    }
+    
+    /** Setter for property isUpdating.
+     * @param isUpdating New value of property isUpdating.
+     *
+     */
+    public void setUpdating(boolean updating) {
+        this.updating = updating;
     }
     
 }

@@ -34,24 +34,22 @@ public class IdentityManager {
      IdentityManager() {
     }
     
-    public void save(identity identity) {
-        try {
+    public void save(identity identity) throws Exception  {
+      
            Session sess =  gnmed.test.HibernateInit.openSession();
            if (identity.getId() == null)
              sess.save(identity);
            else
-               sess.saveOrUpdate(identity);
+               sess.update(identity);
            sess.flush();
            sess.connection().commit();
            sess.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+      
     }
     
     public List findIdentityByNames( String lastnames, String firstnames) throws Exception {
          Session sess =  gnmed.test.HibernateInit.openSession();
-         List l = sess.find("select i from identity i inner join identity.Namess n " +
+         List l = sess.find("select i from identity i inner join i.namess n " +
                             "where lower(n.lastnames) like ? and lower(n.firstnames) like ?" , 
             new Object[] { lastnames.toLowerCase()+"%", firstnames.toLowerCase() +"%" },
             new Type[] { Hibernate.STRING , Hibernate.STRING } );

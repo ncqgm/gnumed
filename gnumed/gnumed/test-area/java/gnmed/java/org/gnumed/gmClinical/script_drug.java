@@ -6,7 +6,7 @@
 package  org.gnumed.gmClinical;
 
 import java.util.*;
-import org.drugref.product;
+import org.drugref.package_size;
 import org.gnumed.gmIdentity.identity;
 
 /**
@@ -65,7 +65,7 @@ public class script_drug {
  * 
  * </p>
  */
-    public product product; 
+    package_size package_size;
 /**
  * <p>
  * 
@@ -88,19 +88,7 @@ public class script_drug {
    ///////////////////////////////////////
    // access methods for associations
 
-    /**
-     *
-     *@hibernate.many-to-one
-     */
-    public product getProduct() {
-        return product;
-    }
-    public void setProduct(product _product) {
-        if (this.product != _product) {
-            this.product = _product;
-//            if (_product != null) _product.setScript_drug(this);
-        }
-    }
+  
     
     /**
      *
@@ -151,7 +139,17 @@ public class script_drug {
 
   ///////////////////////////////////////
   // operations
-
+    
+     /**
+     *
+     *@hibernate.many-to-one
+     */
+    public package_size getPackage_size() {
+        return package_size;
+    }
+    public void setPackage_size(package_size _package_size) {
+        this.package_size = _package_size;
+    }
 
 /**
  * <p>

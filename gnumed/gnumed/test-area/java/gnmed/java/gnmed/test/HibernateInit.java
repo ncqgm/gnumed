@@ -23,6 +23,7 @@ import org.drugref.*;
  * @author  sjtan
  */
 public class HibernateInit {
+    static Object lock = new Object();
     static final String SCHEMA_FLAG = "schema.has.been.exported";
     private static SessionFactory sessions;
     private static Configuration ds;
@@ -52,8 +53,9 @@ public class HibernateInit {
         Iterator i = oldSessions.keySet().iterator();
         while (i.hasNext()) {
             Session s = (Session) i.next();
-            if (s.isConnected()) {
+            try {
                 s.close();
+            } catch (Exception e) {
             }
         }
         oldSessions.clear();
@@ -159,14 +161,16 @@ public class HibernateInit {
     }
     
     public static void initAll() throws Exception {
-        if (sessions != null)
-            return;
-        HibernateInit.init();
-        HibernateInit.initGmIdentity();
-        HibernateInit.initGmClinical();
-        HibernateInit.finalizeInit();
-        
-        HibernateInit.exportDatabase();
+        synchronized (lock) {
+            if (sessions != null)
+                return;
+            HibernateInit.init();
+            HibernateInit.initGmIdentity();
+            HibernateInit.initGmClinical();
+            HibernateInit.finalizeInit();
+            
+            HibernateInit.exportDatabase();
+        }
     }
     
     static int checkCount = 0;

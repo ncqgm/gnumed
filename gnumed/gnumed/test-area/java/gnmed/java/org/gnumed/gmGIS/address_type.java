@@ -80,6 +80,9 @@ public class address_type {
     
     public boolean equals(Object obj) {
         if ( obj instanceof address_type) {
+            address_type type = (address_type) obj;
+            if (type.getId() != null && getId() != null)
+                return getId().equals(type.getId());
             return  getName().equals(((address_type)obj).getName());
         }
         return super.equals(obj);
