@@ -1,0 +1,51 @@
+# GnuMed default config file
+# -------------------------------------------------------------
+# created by gmCfg because no other config file could be found,
+# please check the docs that came with the software
+# to find out what options you can set in here
+# -------------------------------------------------------------
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed.conf.example,v $
+# $Revision: 1.1 $
+
+[backend]
+
+# gnumed-public is the publically accessible
+# GnuMed database on anubis.homeunix.com
+databases = $databases$
+gnumed-public
+gnumed
+$databases$
+
+ports = $ports$
+5432
+$ports$
+
+hosts = $hosts$
+anubis.homeunix.com
+localhost
+127.0.0.1
+$hosts$
+
+options = $options$
+$options$
+
+# read the docs or ask the admin what
+# the passwords are for those accounts
+logins = $logins$
+any-doc
+test-doc
+$logins$
+
+
+[workplace]
+help desk = add contact data here
+
+# this name is used to describe the workstation at the
+# business logic level, eg. "ultrasound room machine 1"
+name = default workplace
+
+# -------------------------------------------------------------
+# $Log: gnumed.conf.example,v $
+# Revision 1.1  2003-06-14 23:01:08  ncq
+# - as per Debian's request
+#
