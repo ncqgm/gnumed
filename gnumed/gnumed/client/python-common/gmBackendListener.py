@@ -1,8 +1,23 @@
-import sys, time, threading
-import select
-from pyPgSQL import libpq
-import gmDispatcher
+#!/usr/bin/env python
 
+"""GnuMed database backend listener.
+
+This module implements listening for asynchroneous
+notifications from the database backend.
+
+NOTE !  This is specific to the DB adapter pyPgSQL and
+        not DB-API compliant !
+"""
+#=====================================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
+__version__ = "$Revision: 1.3 $"
+__author__ = "H. Herb <hherb@gnumed.net>"
+
+import sys, time, threading, select
+from pyPgSQL import libpq
+import gmDispatcher, gmLog
+_log = gmLog.gmDefLog
+#=====================================================================
 class BackendListener:
 	def __init__(self, service, database, user, password, host='localhost', port=5432, poll_interval = 3):
 		#when self._quit is true, the thread is stopped
@@ -17,18 +32,18 @@ class BackendListener:
 		self._thread_running=0
 		#connect to the backend
 		self._cnx = self.Connect(database, user, password, host, port)
-		
-		
+
+	#-------------------------------
 	#def __del__(self):
 	#	self.__quit=1
 		#give the thread time to terminate
 	#	time.sleep(self._poll_interval+2)
 
-				
+	#-------------------------------
 	def Stop(self):
 		self._quit=1				
 
-				
+	#-------------------------------
 	def Connect(self, database, user, password, host='localhost', port=5432):
 		cnx=None
 		try:
@@ -36,21 +51,21 @@ class BackendListener:
 			#print constr
 			cnx = libpq.PQconnectdb(constr)
 		except libpq.Error, msg:
-			print "Connection to database '%s' failed" % database
-			print msg
+			exc = sys.exc_info()
+			_log.LogException("Connection to database '%s' failed: %s" % (database, msg), exc, fatal=0)
 		return cnx
 
-		
+	#-------------------------------
 	def ListeningThread(self):
 		if self._cnx is None:
-			print "Can't start thread - connection to backend failed!"
-			return
+			_log.Log(gmLog.lErr, "Can't start thread. No connection to backend available.")
+			return None
 		sys.stdout.flush()
 		t = threading.Thread(target=self.Listen)
 		self._thread_running=1
 		t.start()
 
-
+	#-------------------------------
 	def Listen(self):
 		while 1:
 			ready_sockets = select.select([self._cnx.socket], [], [], 1.0)[0]
@@ -69,8 +84,8 @@ class BackendListener:
 			if self._quit:
 				self._thread_running=0
 				break
-				
-				
+
+	#-------------------------------
 	def RegisterCallback(self, callback, signal):
 		#start the listener thread if not already started
 		if not self._thread_running:
@@ -87,20 +102,30 @@ class BackendListener:
 		#connect the signal with the callback function
 		gmDispatcher.connect(callback, signal)
 
-									
-			
+#=====================================================================
+# main
+#=====================================================================
+notifies = 0
 if __name__ == "__main__":
-	
+	_log.SetAllLogLevels(gmLog.lData)
 	import time
-	
+	#-------------------------------
 	def dummy(n):
 		return float(n)*n/float(1+n)
-	
+	#-------------------------------
+	def OnPatientModified():
+		global notifies
+		notifies += 1
+		sys.stdout.flush()
+		print "\nBackend says: patient data has been modified (%s. notification)" % notifies
+	#-------------------------------
 	try:
 		n = int(sys.argv[1])
 	except:
+		print "You can set the number of iterations\nwith the first command line argument"
 		n= 100000
-		
+
+	# try loop without backend listener
 	print "Looping",n,"times through dummy function"
 	i=0
 	t1 = time.time()
@@ -111,16 +136,19 @@ if __name__ == "__main__":
 	t_nothreads=t2-t1
 	print "Without backend thread, it took", t_nothreads, "seconds"
 
-	def OnPatientSelected():
-		sys.stdout.flush()
-		print "\nBackend says: patient data has been modified"
+	# now try with listener to measure impact
+	print "Now fire up psql in a new shell, return\nhere and hit <enter> to continue."
+	try:
+		raw_input('hit <enter> when done starting psql: ')
+	except:
+		pass
+	print "You now have about 30 seconds to go to the psql shell"
+	print "and type 'notify patient_changed'<enter> several times."
+	print "This should trigger our backend listening callback."
+	print "You can also try to stop the demo with Ctrl-C!"
+	listener = BackendListener(service='default', database='gnumed', user='gnumed', password='')
+	listener.RegisterCallback(OnPatientModified, 'patient_changed')
 
-		
-	print "this demo will self-terminate in approx. 30 secs."
-	print "or you can try to stop it with Ctrl-C!"		
-	listener = BackendListener(service='default', database='gnumed', user='hherb', password='')
-	listener.RegisterCallback(OnPatientSelected, 'patient_changed')
-	print "Now fire up psql in a new shell, and type 'notify patient_changed'"
 	try:
 		counter = 0
 		while counter<20:
@@ -141,4 +169,12 @@ if __name__ == "__main__":
 
 		listener.Stop()
 	except KeyboardInterrupt:
+		print "cancelled by user"
 		listener.Stop()
+
+#=====================================================================
+# $Log: gmBackendListener.py,v $
+# Revision 1.3  2002-09-08 20:58:46  ncq
+# - made comments more useful
+# - added some more metadata to get in line with GnuMed coding standards
+#
