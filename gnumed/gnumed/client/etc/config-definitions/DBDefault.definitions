@@ -15,3 +15,23 @@ description = Height of the GnuMed main window in pixels. Please note that you s
 [main.window.width]
 type = numeric
 description = Width of the GnuMed main window in pixels. Please note that you still have to add the window border size to get the final size.
+
+[main.comms.print]
+type = string
+description = system command for printing to the local printer. %F is the filename of the file to be printed
+
+[main.comms.fax]
+type = string
+description = system command for sending faxes via faxmodem. %F is the filename, %N is the fax number
+
+[main.comms.email]
+type = string
+description = system command for sending e-mails. %F is the file, %S the sending e-mail address, %R the recipient e-mail address
+
+[main.comms.paper_referral]
+type = string
+description = backend form template for paper-based referrals
+
+[main.comms.email_referral]
+type = string
+description = backend form template for email-based referrals
