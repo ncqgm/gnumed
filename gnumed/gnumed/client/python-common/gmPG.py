@@ -26,7 +26,7 @@
 
 """gmConnectionPool - Broker for Postgres distributed backend connections
 """
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <@>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -425,8 +425,7 @@ def inputLoginParams():
 ### test function for this module: simple start as "main" module
 if __name__ == "__main__":
 
-	import gettext
-	_ = gettext.gettext
+	_ = lambda x:x
 
 	dbpool = ConnectionPool()
 	### Let's see what services are distributed in this system:
