@@ -25,10 +25,12 @@ Please consult the User Manual in the GnuMed CVS for
 further details.
 """
 #==================================================================
-# TODO: warn if empty password
+# TODO
+# - warn if empty password
+# - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1007,7 +1009,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.2  2003-02-25 08:29:25  ncq
+# Revision 1.3  2003-02-27 09:20:58  ncq
+# - added TODO
+#
+# Revision 1.2  2003/02/25 08:29:25  ncq
 # - added one more line so people are urged to check the log on failures
 #
 # Revision 1.1  2003/02/25 08:26:49  ncq

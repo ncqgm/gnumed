@@ -19,10 +19,13 @@ Acknowledgements: This module has been pulled from the web. Thanks to
 Jason Petrone for providing it to the community. It is based on his
 __version__ = '0.1'
 """
+# TODO
+# - load alternative data on platforms (win: image/x-xbitmap)
+
 #=================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMimeMagic.py,v $
-# $Id: gmMimeMagic.py,v 1.1 2003-02-14 00:32:21 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmMimeMagic.py,v 1.2 2003-02-27 09:18:48 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Jason Petrone <jp@demonseed.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1125,6 +1128,9 @@ if __name__ == '__main__':
 			print arg + ': unknown'
 #=================================================================
 # $Log: gmMimeMagic.py,v $
-# Revision 1.1  2003-02-14 00:32:21  ncq
+# Revision 1.2  2003-02-27 09:18:48  ncq
+# - added TODO
+#
+# Revision 1.1  2003/02/14 00:32:21  ncq
 # - Mime magic data
 #
