@@ -2,8 +2,8 @@
 # -------------------------------------------------------------
 
 [workplace]
-help desk = one-line contact information here
-name = <name for this workplace>
+help desk = GnuMed developers <gnumed-devel@gnu.org>
+name = <config file example workplace>
 
 [profile GnuMed - Public DB at hherb.com]
 host = hherb.com
@@ -15,7 +15,7 @@ host = localhost
 port = 5432
 database = gnumed
 
-[profile GnuMed - Public DB at anubis]
+[profile GnuMed - Public DB at anubis.homeunix.com]
 host = anubis.homeunix.com
 port = 5432
 database = gnumed
@@ -27,7 +27,7 @@ $logins$
 
 profiles = $profiles$
 gnumed at localhost
-GnuMed - Public DB at anubis
+GnuMed - Public DB at anubis.homeunix.com
 GnuMed - Public DB at hherb.com
 $profiles$
 
