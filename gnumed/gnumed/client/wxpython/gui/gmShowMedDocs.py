@@ -11,13 +11,20 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
 
 # location of our modules
 if __name__ == '__main__':
+	# CVS
+	sys.path.append(os.path.join('..', '..', 'python-common'))
+	sys.path.append(os.path.join('..', '..', 'business'))
+	# UNIX installation
+	sys.path.append('/usr/share/gnumed/python-common')
+	sys.path.append('/usr/share/gnumed/business')
+	# Windows
 	sys.path.append(os.path.join('.', 'modules'))
 
 import gmLog
@@ -373,14 +380,14 @@ if __name__ == '__main__':
 				raise ConstructorError, "Problem getting patient ID from database. Aborting."
 
 			try:
-				self.__gm_pat = gmTmpPatient.gmPatient(aPKey = patient_ids[0])
+				gm_pat = gmTmpPatient.gmCurrentPatient(aPKey = patient_ids[0])
 			except:
 				# this is an emergency
 				self.__show_error(
 					aMessage = _('Cannot load patient from database !\nAborting.'),
 					aTitle = _('searching patient')
 				)
-				_log.Log(gmLog.lPanic, 'Cannot access patient [%s] in database.' % patient_ids[0][0])
+				_log.Log(gmLog.lPanic, 'Cannot access patient [%s] in database.' % patient_ids[0])
 				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
 				raise
 
@@ -400,7 +407,7 @@ if __name__ == '__main__':
 
 			# make document tree
 			self.tree = cDocTree(self, -1)
-			self.tree.update(self.__gm_pat)
+			self.tree.update()
 			self.tree.SelectItem(self.tree.root)
 
 			szr_main = wxBoxSizer(wxVERTICAL)
@@ -523,7 +530,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.17  2003-04-04 20:49:22  ncq
+# Revision 1.18  2003-04-18 16:40:04  ncq
+# - works again as standalone
+#
+# Revision 1.17  2003/04/04 20:49:22  ncq
 # - make plugin work with gmCurrentPatient
 #
 # Revision 1.16  2003/04/01 12:31:53  ncq
