@@ -1,0 +1,3 @@
+DB=gnumed8
+pg_dump -R  -D $DB > $DB.sql
+
