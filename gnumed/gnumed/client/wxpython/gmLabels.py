@@ -29,8 +29,9 @@
 
 """gmLabels: labelling GNUMed's list box controls"""
 
-import gettext
-_ = gettext.gettext
+if __name__ == '__main__':
+	_ = lambda x:x
+
 from wxPython.wx import *
 
 Patients = (_("lastname"), _("firstnames"), _("called"), _("d.o.b"), _("street"), _("city"), _("urid"))
@@ -60,5 +61,4 @@ def LabelListControl(listctrl, labellist):
 
 
 if __name__ == "__main__":
-	_ = lambda x:x
 	print "This module has no test function yet. Please write it"

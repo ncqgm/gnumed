@@ -6,15 +6,17 @@ includes dialogues for printer calibration, etc.
 and new form wizard.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormPrinter.py,v $
-# $Id: gmFormPrinter.py,v 1.4 2004-06-20 06:49:21 ihaywood Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmFormPrinter.py,v 1.5 2004-06-20 16:01:05 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Ian Haywood"
 
 
 from wxPython.wx import *
 import string, gettext
-from Gnumed.pycommon import gmPG, gmCfg, gmLog, gmI18N
-_ = lambda x: x
+from Gnumed.pycommon import gmPG, gmCfg, gmLog
+
+if __name__ == '__main__':
+	_ = lambda x:x
 
 cache_form = 0 # cached variables to allow repeat of last form
 cache_params = {}
@@ -336,5 +338,8 @@ Measure the position of the boxes and enter""")
 fp = FormPrinter ()
 psd = gmPrinterSetupDialog (fp)
 
-
-
+#=================================================
+# $Log: gmFormPrinter.py,v $
+# Revision 1.5  2004-06-20 16:01:05  ncq
+# - please epydoc more carefully
+#

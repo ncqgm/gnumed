@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmSQLSimpleSearch - a widget for simple database search & selection interaction
@@ -19,11 +18,12 @@
 gmSQLSimpleSearch - a widget for simple database search & selection interaction
 """
 
-import gettext
-_ = gettext.gettext
-
 from wxPython.wx import *
+
 from Gnumed.wxpython import gmSQLListControl
+
+if __name__ == '__main__':
+	_ = lambda x:x
 
 ID_COMBO_SEARCHEXPR = wxNewId()
 ID_BUTTON_SEARCH = wxNewId()

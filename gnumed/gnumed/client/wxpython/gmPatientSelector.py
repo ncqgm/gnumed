@@ -10,13 +10,12 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.39 2004-06-20 06:49:21 ihaywood Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmPatientSelector.py,v 1.40 2004-06-20 16:01:05 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
-import sys, os.path, time, string, re, gettext
-_ = gettext.gettext
+import sys, os.path, time, string, re
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N
 from Gnumed.business import gmPatient, gmKVK
@@ -25,6 +24,7 @@ from Gnumed.wxpython import gmGuiHelpers
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+	_ = lambda x:x
 
 from wxPython.wx import *
 
@@ -616,7 +616,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.39  2004-06-20 06:49:21  ihaywood
+# Revision 1.40  2004-06-20 16:01:05  ncq
+# - please epydoc more carefully
+#
+# Revision 1.39  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.38  2004/06/04 16:27:12  shilbert

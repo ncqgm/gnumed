@@ -6,16 +6,19 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.19 2004-06-20 06:49:21 ihaywood Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmLogin.py,v 1.20 2004-06-20 16:01:05 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "H.Herb"
 
-import os.path, gettext
-_ = gettext.gettext
+import os.path
 
 from wxPython.wx import *
+
 from Gnumed.pycommon import gmPG, gmGuiBroker, gmLog, gmExceptions
 from Gnumed.wxpython import gmLoginDialog
+
+if __name__ == '__main__':
+	_ = lambda x:x
 
 _log = gmLog.gmDefLog
 #==============================================================
@@ -70,7 +73,10 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.19  2004-06-20 06:49:21  ihaywood
+# Revision 1.20  2004-06-20 16:01:05  ncq
+# - please epydoc more carefully
+#
+# Revision 1.19  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.18  2004/03/04 19:47:06  ncq

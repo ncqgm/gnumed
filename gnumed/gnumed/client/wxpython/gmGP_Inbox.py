@@ -1,11 +1,12 @@
 from wxPython.wx import *
+
 from gmListCtrlMapper import *
 try:
 	from Gnumed.pycommon import gmLog
 except:
 	sys.path.append('../pycommon')
 	import gmLog
-	
+
 Inboxdata = {
 1 : ("Pathology", "5 unread results (Douglas Pathology)"),
 2 : ("Radiology", "1 Xray of femur (Newcastle radiology)"),
@@ -13,6 +14,7 @@ Inboxdata = {
 4 : ("Internal Mail ", "from practice nurse - non urgent"),
 }
 ID_INBOX = wxNewId()
+
 class Inbox(wxPanel):
     def __init__(self, parent,id):
 	wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, 0 )
@@ -48,3 +50,9 @@ if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 200))
 	app.SetWidget(Inbox, -1)
 	app.MainLoop()
+
+#===========================================================
+# $Log: gmGP_Inbox.py,v $
+# Revision 1.6  2004-06-20 16:01:05  ncq
+# - please epydoc more carefully
+#

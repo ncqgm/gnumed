@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.148 2004-06-20 06:49:21 ihaywood Exp $
-__version__ = "$Revision: 1.148 $"
+# $Id: gmGuiMain.py,v 1.149 2004-06-20 16:01:05 ncq Exp $
+__version__ = "$Revision: 1.149 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -29,7 +29,7 @@ from wxPython.wx import *
 
 import sys, time, os, cPickle, zlib
 
-from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
+from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker
 from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmTopPanel, gmPlugin
 from Gnumed.business import gmPatient
 
@@ -757,6 +757,8 @@ def main():
 # Main
 #==================================================
 if __name__ == '__main__':
+	_ = lambda x:x	# fool epydoc
+	from Gnumed.pycommon import gmI18N
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	_log.AddTarget(aLogTarget)
@@ -767,7 +769,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.148  2004-06-20 06:49:21  ihaywood
+# Revision 1.149  2004-06-20 16:01:05  ncq
+# - please epydoc more carefully
+#
+# Revision 1.148  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.147  2004/06/13 22:31:48  ncq
