@@ -3,30 +3,23 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.61 2004-02-25 09:46:22 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmEditArea.py,v 1.62 2004-03-05 11:22:35 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
 #====================================================================
 import sys, traceback, time
 
-if __name__ == "__main__":
-	sys.path.append('.')
-	sys.path.append ("../pycommon/")
-	sys.path.append ("../business/")
-
-import gmLog
-_log = gmLog.gmDefLog
-
-if __name__ == "__main__":
-	import gmI18N
-
-import gmExceptions, gmDateTimeInput, gmDispatcher, gmSignals, gmPatient, gmGuiBroker, gmMatchProvider, gmPhraseWheel
-
-_gb = gmGuiBroker.GuiBroker()
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions
+from Gnumed.business import gmPatient
+from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel
 
 from wxPython.wx import *
+
+_log = gmLog.gmDefLog
+_gb = gmGuiBroker.GuiBroker()
+
 
 ID_PROGRESSNOTES = wxNewId()
 gmSECTION_SUMMARY = 1
@@ -2327,7 +2320,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.61  2004-02-25 09:46:22  ncq
+# Revision 1.62  2004-03-05 11:22:35  ncq
+# - import from Gnumed.<pkg>
+#
+# Revision 1.61  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.60  2004/02/05 23:49:52  ncq

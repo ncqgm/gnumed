@@ -9,21 +9,17 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.33 2004-03-02 10:21:10 ihaywood Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmPhraseWheel.py,v 1.34 2004-03-05 11:22:35 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
 
-if __name__ == "__main__":
-	sys.path.append ("../pycommon/")
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmMatchProvider
 
-import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-
-import gmExceptions, gmPG, gmMatchProvider
 
 from wxPython.wx import *
 
@@ -458,7 +454,7 @@ class cPhraseWheel (wxTextCtrl):
 # MAIN
 #--------------------------------------------------------
 if __name__ == '__main__':
-	import gmI18N
+	from Gnumed.pycommon import gmI18N
 	#----------------------------------------------------
 	def clicked (data):
 		print "Selected :%s" % data
@@ -526,7 +522,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.33  2004-03-02 10:21:10  ihaywood
+# Revision 1.34  2004-03-05 11:22:35  ncq
+# - import from Gnumed.<pkg>
+#
+# Revision 1.33  2004/03/02 10:21:10  ihaywood
 # gmDemographics now supports comm channels, occupation,
 # country of birth and martial status
 #

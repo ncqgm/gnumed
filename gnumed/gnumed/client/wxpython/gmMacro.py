@@ -4,22 +4,18 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random
-if __name__ == "__main__":
-	sys.path.append('.')
-	sys.path.append ("../pycommon/")
-	sys.path.append ("../business/")
 
-import gmLog
+from Gnumed.pycommon import gmLog, gmI18N, gmPlugin, gmGuiBroker, gmExceptions
+from Gnumed.business import gmPatient
+from Gnumed.wxpython import gmGuiHelpers
+
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-	import gmI18N
-
-import gmPatient, gmExceptions, gmGuiHelpers, gmPlugin, gmGuiBroker
 
 import wxPython.wx as wx
 #=====================================================================
@@ -78,7 +74,7 @@ class cMacroPrimitives:
 		return 0
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.7 $" % self.__class__.__name__
+		return "%s $Revision: 1.8 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -166,7 +162,7 @@ class cMacroPrimitives:
 # main
 #=====================================================================
 if __name__ == '__main__':
-	import gmScriptingListener
+	from Gnumed.pycommon import gmScriptingListener
 	import xmlrpclib
 	listener = gmScriptingListener.cScriptingListener(macro_executor = cMacroPrimitives('unit test cookie'), port=9999)
 
@@ -194,7 +190,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.7  2004-02-25 09:46:22  ncq
+# Revision 1.8  2004-03-05 11:22:35  ncq
+# - import from Gnumed.<pkg>
+#
+# Revision 1.7  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.6  2004/02/17 10:45:30  ncq

@@ -6,14 +6,10 @@
 # Changelog:
 # 21/6/02: inital version
 
-
-
-
+import math, random
 from wxPython.wx import *
-import gmPlugin
-import math
-import random
-import gmLog
+from Gnumed.pycommon import gmLog
+from Gnumed.wxpython import gmPlugin
 
 ID_SNELLENMENU = wxNewId ()
 ID_SNELLENBUTTON= wxNewId ()

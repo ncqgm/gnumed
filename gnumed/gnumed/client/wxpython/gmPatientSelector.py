@@ -10,15 +10,12 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.31 2004-03-04 19:47:06 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmPatientSelector.py,v 1.32 2004-03-05 11:22:35 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, time, string, re
-if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'pycommon'))
-	sys.path.append(os.path.join('..', 'business'))
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N
 from Gnumed.business import gmPatient, gmKVK
@@ -579,7 +576,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.31  2004-03-04 19:47:06  ncq
+# Revision 1.32  2004-03-05 11:22:35  ncq
+# - import from Gnumed.<pkg>
+#
+# Revision 1.31  2004/03/04 19:47:06  ncq
 # - switch to package based import: from Gnumed.foo import bar
 #
 # Revision 1.30  2004/02/25 09:46:22  ncq
