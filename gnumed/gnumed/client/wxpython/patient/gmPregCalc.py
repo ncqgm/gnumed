@@ -6,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.2 2003-07-07 03:35:43 michaelb Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPregCalc.py,v 1.3 2003-07-07 22:20:48 michaelb Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -62,6 +62,8 @@ class PregnancyFrame (wxFrame):
 	#
 	# clean-up the names of the variables (some could be named more descriptively)
 	#
+	# add ability to type in LMP and Scan Date with keyboard (as opposed to only clicking on calendar)
+	#	make movement between fields possible with 'tab' & 'enter'
 
 	def __init__ (self, parent):
 		myStyle = wxMINIMIZE_BOX | wxSYSTEM_MENU | wxCAPTION | wxALIGN_CENTER | \
@@ -352,6 +354,10 @@ class PregnancyFrame (wxFrame):
 			usdatetxt.SetTimeT(self.usdate)
 			self.txtdate.SetValue(self.PurgeTime(usdatetxt))
 
+			# recalculate 'Rev EDC' if Ultrasound Scan Date is changed
+			if( self.txtnewedc.GetValue() !=""):
+				self.EvtText_calcnewedc(self)
+
 	#-----------------------------------------
 	def EvtText_calcnewedc (self, event):
 		try:
@@ -468,7 +474,10 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.2  2003-07-07 03:35:43  michaelb
+# Revision 1.3  2003-07-07 22:20:48  michaelb
+# recalculate 'Rev EDC' if Ultrasound Scan Date is changed
+#
+# Revision 1.2  2003/07/07 03:35:43  michaelb
 # making changes Richard made (Made labels for revised EDC more explanatory)
 #
 # Revision 1.1  2003/07/07 02:59:57  michaelb
