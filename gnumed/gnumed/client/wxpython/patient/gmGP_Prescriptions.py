@@ -272,7 +272,8 @@ class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
 				return self.__icons[_("""icon_Rx_symbol""")]
 
 	def GetWidget (self, parent):
-		return  PrescriptionPanel (parent, -1)
+		panel =   PrescriptionPanel (parent, -1)
+		return panel
 #--------------------------------------------------------------------
 if __name__ == '__main__':
 	app = wxPyWidgetTester(size = (600, 600))

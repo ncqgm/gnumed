@@ -36,7 +36,7 @@ class gmplNbPatientSelector(gmPlugin.wxNotebookPlugin):
 		try:
 			pnl = gmSelectPerson.DlgSelectPerson(parent)
 		except:
-			print "Failed to load patient selection panel"
+			print "********** \n\n   Failed to load patient selection panel ( H**E**L***L***O ) \n\n*********************"
 			return None
 		return pnl
 

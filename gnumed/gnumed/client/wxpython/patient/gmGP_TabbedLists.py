@@ -27,12 +27,12 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.11 2003-02-02 06:36:26 michaelb Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmGP_TabbedLists.py,v 1.12 2003-02-07 21:01:21 sjtan Exp $
+__version__ = "$Revision: 1.12 $"
 
 from wxPython.wx import *
 #from wxPython.gizmos import *
-from wxPython.stc import *
+#from wxPython.stc import *
 import keyword
 import time
 import images #bitmaps for column headers of lists
@@ -258,7 +258,11 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.11  2003-02-02 06:36:26  michaelb
+# Revision 1.12  2003-02-07 21:01:21  sjtan
+#
+# refactored to re-use handler_generator.generator. Handler for gmSelectPerson as test.
+#
+# Revision 1.11  2003/02/02 06:36:26  michaelb
 # split '__icons' into multiple dictionaries
 # added 'icon_outgoing_letter' to '__icons_referrals' so it similar to 'gmGP_Referrals.py'
 #
