@@ -4,9 +4,10 @@
  */
 package org.gnumed.gmIdentity;
 
-import integer;
 import java.util.*;
 import java.util.Date;
+import org.gnumed.gmClinical.clin_encouonter;
+import org.gnumed.gmClinical.clin_health_issue;
 
 /**
  * <p>
@@ -24,7 +25,7 @@ public class identity {
  * Represents ...
  * </p>
  */
-    private integer id; 
+    private Integer id; 
 
 /**
  * <p>
@@ -68,29 +69,57 @@ public class identity {
  */
     private Date deceased; 
 
+   ///////////////////////////////////////
+   // associations
+
+/**
+ * <p>
+ * 
+ * </p>
+ */
+    public Collection clin_health_issue = new java.util.HashSet(); // of type clin_health_issue
+/**
+ * <p>
+ * 
+ * </p>
+ */
+    public Collection clin_encouonter = new java.util.HashSet(); // of type clin_encouonter
+
+
+   ///////////////////////////////////////
+   // access methods for associations
+
+    public Collection getClin_health_issues() {
+        return clin_health_issue;
+    }
+    public void addClin_health_issue(clin_health_issue _clin_health_issue) {
+        if (! this.clin_health_issue.contains(_clin_health_issue)) {
+            this.clin_health_issue.add(_clin_health_issue);
+            _clin_health_issue.setIdentity(this);
+        }
+    }
+    public void removeClin_health_issue(clin_health_issue _clin_health_issue) {
+        boolean removed = this.clin_health_issue.remove(_clin_health_issue);
+        if (removed) _clin_health_issue.setIdentity((identity)null);
+    }
+    public Collection getClin_encouonters() {
+        return clin_encouonter;
+    }
+    public void addClin_encouonter(clin_encouonter _clin_encouonter) {
+        if (! this.clin_encouonter.contains(_clin_encouonter)) {
+            this.clin_encouonter.add(_clin_encouonter);
+            _clin_encouonter.setProvider(this);
+        }
+    }
+    public void removeClin_encouonter(clin_encouonter _clin_encouonter) {
+        boolean removed = this.clin_encouonter.remove(_clin_encouonter);
+        if (removed) _clin_encouonter.setProvider((identity)null);
+    }
 
 
   ///////////////////////////////////////
   // operations
 
-
-/**
- * <p>
- * Represents ...
- * </p>
- */
-    public integer getId() {        
-        return id;
-    } // end getId        
-
-/**
- * <p>
- * Represents ...
- * </p>
- */
-    public void setId(integer _id) {        
-        id = _id;
-    } // end setId        
 
 /**
  * <p>
@@ -181,6 +210,24 @@ public class identity {
     public void setDeceased(Date _deceased) {        
         deceased = _deceased;
     } // end setDeceased        
+
+/**
+ * <p>
+ * Represents ...
+ * </p>
+ */
+    public Integer getId() {        
+        return id;
+    } // end getId        
+
+/**
+ * <p>
+ * Represents ...
+ * </p>
+ */
+    public void setId(Integer _id) {        
+        id = _id;
+    } // end setId        
 
 } // end identity
 

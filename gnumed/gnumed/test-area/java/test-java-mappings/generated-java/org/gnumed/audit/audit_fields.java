@@ -6,6 +6,7 @@ package org.gnumed.audit;
 
 import java.util.*;
 import java.util.Date;
+import org.gnumed.gmClinical.clin_root_item;
 
 /**
  * <p>
@@ -45,6 +46,35 @@ public class audit_fields {
  * </p>
  */
     private String modified_by; 
+
+   ///////////////////////////////////////
+   // associations
+
+/**
+ * <p>
+ * 
+ * </p>
+ */
+    public Collection clin_root_item = new java.util.HashSet(); // of type clin_root_item
+
+
+   ///////////////////////////////////////
+   // access methods for associations
+
+    public Collection getClin_root_items() {
+        return clin_root_item;
+    }
+    public void addClin_root_item(clin_root_item _clin_root_item) {
+        if (! this.clin_root_item.contains(_clin_root_item)) {
+            this.clin_root_item.add(_clin_root_item);
+            _clin_root_item.setAudit_fields(this);
+        }
+    }
+    public void removeClin_root_item(clin_root_item _clin_root_item) {
+        boolean removed = this.clin_root_item.remove(_clin_root_item);
+        if (removed) _clin_root_item.setAudit_fields((audit_fields)null);
+    }
+
 
   ///////////////////////////////////////
   // operations

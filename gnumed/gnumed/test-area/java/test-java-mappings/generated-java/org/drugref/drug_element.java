@@ -46,61 +46,61 @@ public class drug_element {
  * 
  * </p>
  */
-    public Collection atc = new TreeSet(); // of type atc
+    public Collection atc = new java.util.HashSet(); // of type atc
 /**
  * <p>
  * 
  * </p>
  */
-    public Collection drug = new TreeSet(); // of type drug_element
+    public Collection drug = new java.util.HashSet(); // of type drug_element
 /**
  * <p>
  * 
  * </p>
  */
-    public Collection class = new TreeSet(); // of type drug_element
+    public Collection class = new java.util.HashSet(); // of type drug_element
 /**
  * <p>
  * 
  * </p>
  */
-    public Collection drug_warning = new TreeSet(); // of type drug_warning
+    public Collection drug_warning = new java.util.HashSet(); // of type drug_warning
 /**
  * <p>
  * 
  * </p>
  */
-    public Collection drug_information = new TreeSet(); // of type drug_information
+    public Collection drug_information = new java.util.HashSet(); // of type drug_information
 /**
  * <p>
  * 
  * </p>
  */
-    public Collection link_drug_interactions = new TreeSet(); // of type link_drug_interactions
+    public Collection link_drug_interactions = new java.util.HashSet(); // of type link_drug_interactions
 /**
  * <p>
  * 
  * </p>
  */
-    public Collection link_drug_interactions_1 = new TreeSet(); // of type link_drug_interactions
+    public Collection link_drug_interactions_1 = new java.util.HashSet(); // of type link_drug_interactions
 /**
  * <p>
  * 
  * </p>
  */
-    public Collection link_drug_indication = new TreeSet(); // of type link_drug_indication
+    public Collection link_drug_indication = new java.util.HashSet(); // of type link_drug_indication
 /**
  * <p>
  * 
  * </p>
  */
-    public Collection product = new TreeSet(); // of type product
+    public Collection product = new java.util.HashSet(); // of type product
 /**
  * <p>
  * 
  * </p>
  */
-    public Collection link_drug_disease_interactions = new TreeSet(); // of type link_drug_disease_interactions
+    public Collection link_drug_disease_interactions = new java.util.HashSet(); // of type link_drug_disease_interactions
 
 
    ///////////////////////////////////////

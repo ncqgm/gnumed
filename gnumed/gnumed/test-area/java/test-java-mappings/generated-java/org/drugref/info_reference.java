@@ -39,7 +39,7 @@ public class info_reference {
  * 
  * </p>
  */
-    public Collection comments = new TreeSet(); // of type comments
+    public Collection comments = new java.util.HashSet(); // of type comments
 
 
    ///////////////////////////////////////

@@ -46,7 +46,7 @@ public class drug_formulations {
  * 
  * </p>
  */
-    public Collection product = new TreeSet(); // of type product
+    public Collection product = new java.util.HashSet(); // of type product
 
 
    ///////////////////////////////////////

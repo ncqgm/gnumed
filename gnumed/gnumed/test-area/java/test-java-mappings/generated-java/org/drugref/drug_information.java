@@ -58,7 +58,7 @@ public class drug_information {
  * 
  * </p>
  */
-    public Collection drug_element = new TreeSet(); // of type drug_element
+    public Collection drug_element = new java.util.HashSet(); // of type drug_element
 
 
    ///////////////////////////////////////

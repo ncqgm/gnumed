@@ -1,4 +1,4 @@
-/** Java class "names.java" generated from Poseidon for UML.
+/** Java class "Names.java" generated from Poseidon for UML.
  *  Poseidon for UML is developed by <A HREF="http://www.gentleware.com">Gentleware</A>.
  *  Generated with <A HREF="http://jakarta.apache.org/velocity/">velocity</A> template engine.
  */
@@ -11,7 +11,7 @@ import java.util.*;
  * 
  * </p>
  */
-public class names {
+public class Names {
 
   ///////////////////////////////////////
   // attributes
@@ -193,7 +193,7 @@ public class names {
         title = _title;
     } // end setTitle        
 
-} // end names
+} // end Names
 
 
 

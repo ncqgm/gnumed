@@ -53,7 +53,7 @@ public class subsidies {
  * 
  * </p>
  */
-    public Collection subsidized_products = new TreeSet(); // of type subsidized_products
+    public Collection subsidized_products = new java.util.HashSet(); // of type subsidized_products
 
 
    ///////////////////////////////////////

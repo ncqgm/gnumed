@@ -5,6 +5,7 @@
 package org.drugref;
 
 import java.util.*;
+import org.gnumed.gmClinical.script_drug;
 
 /**
  * <p>
@@ -70,7 +71,7 @@ public class product {
  * 
  * </p>
  */
-    public Collection package_size = new TreeSet(); // of type package_size
+    public Collection package_size = new java.util.HashSet(); // of type package_size
 /**
  * <p>
  * 
@@ -82,19 +83,25 @@ public class product {
  * 
  * </p>
  */
-    public Collection drug_flags = new TreeSet(); // of type drug_flags
+    public Collection drug_flags = new java.util.HashSet(); // of type drug_flags
 /**
  * <p>
  * 
  * </p>
  */
-    public Collection available = new TreeSet(); // of type available
+    public Collection available = new java.util.HashSet(); // of type available
 /**
  * <p>
  * 
  * </p>
  */
-    public Collection subsidized_products = new TreeSet(); // of type subsidized_products
+    public Collection subsidized_products = new java.util.HashSet(); // of type subsidized_products
+/**
+ * <p>
+ * 
+ * </p>
+ */
+    public script_drug script_drug; 
 
 
    ///////////////////////////////////////
@@ -193,6 +200,15 @@ public class product {
     public void removeSubsidized_products(subsidized_products _subsidized_products) {
         boolean removed = this.subsidized_products.remove(_subsidized_products);
         if (removed) _subsidized_products.setProduct((product)null);
+    }
+    public script_drug getScript_drug() {
+        return script_drug;
+    }
+    public void setScript_drug(script_drug _script_drug) {
+        if (this.script_drug != _script_drug) {
+            this.script_drug = _script_drug;
+            if (_script_drug != null) _script_drug.setProduct(this);
+        }
     }
 
 

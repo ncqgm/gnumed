@@ -5,6 +5,7 @@
 package org.drugref;
 
 import java.util.*;
+import org.gnumed.gmClinical.code_ref;
 
 /**
  * <p>
@@ -40,6 +41,12 @@ public class disease_code {
  * </p>
  */
     public code_systems code_systems; 
+/**
+ * <p>
+ * 
+ * </p>
+ */
+    public code_ref code_ref; 
 
 
    ///////////////////////////////////////
@@ -50,6 +57,15 @@ public class disease_code {
     }
     public void setCode_systems(code_systems _code_systems) {
         this.code_systems = _code_systems;
+    }
+    public code_ref getCode_ref() {
+        return code_ref;
+    }
+    public void setCode_ref(code_ref _code_ref) {
+        if (this.code_ref != _code_ref) {
+            this.code_ref = _code_ref;
+            if (_code_ref != null) _code_ref.setDisease_code(this);
+        }
     }
 
 

@@ -32,7 +32,7 @@ public class link_product_component {
  * 
  * </p>
  */
-    public Collection product = new TreeSet(); // of type product
+    public Collection product = new java.util.HashSet(); // of type product
 /**
  * <p>
  * 

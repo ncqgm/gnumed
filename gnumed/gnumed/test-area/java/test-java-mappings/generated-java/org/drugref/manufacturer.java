@@ -74,7 +74,7 @@ public class manufacturer {
  * 
  * </p>
  */
-    public Collection link_product_manufacturer = new TreeSet(); // of type link_product_manufacturer
+    public Collection link_product_manufacturer = new java.util.HashSet(); // of type link_product_manufacturer
 
 
    ///////////////////////////////////////

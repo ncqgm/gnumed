@@ -39,7 +39,7 @@ public class drug_flags {
  * 
  * </p>
  */
-    public Collection product = new TreeSet(); // of type product
+    public Collection product = new java.util.HashSet(); // of type product
 
 
    ///////////////////////////////////////

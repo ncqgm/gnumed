@@ -5,6 +5,7 @@
 package org.drugref;
 
 import java.util.*;
+import org.gnumed.gmClinical.coding_systems;
 
 /**
  * <p>
@@ -52,6 +53,29 @@ public class code_systems {
  */
     private Integer id; 
 
+   ///////////////////////////////////////
+   // associations
+
+/**
+ * <p>
+ * 
+ * </p>
+ */
+    public coding_systems coding_systems; 
+
+
+   ///////////////////////////////////////
+   // access methods for associations
+
+    public coding_systems getCoding_systems() {
+        return coding_systems;
+    }
+    public void setCoding_systems(coding_systems _coding_systems) {
+        if (this.coding_systems != _coding_systems) {
+            this.coding_systems = _coding_systems;
+            if (_coding_systems != null) _coding_systems.setCode_systems(this);
+        }
+    }
 
 
   ///////////////////////////////////////

@@ -5,6 +5,7 @@
 package org.gnumed.gmGIS;
 
 import java.util.*;
+import org.gnumed.gmClinical.clin_encouonter;
 
 /**
  * <p>
@@ -47,6 +48,12 @@ public class address {
  * </p>
  */
     public street street; 
+/**
+ * <p>
+ * 
+ * </p>
+ */
+    public Collection clin_encouonter = new java.util.HashSet(); // of type clin_encouonter
 
 
    ///////////////////////////////////////
@@ -57,6 +64,19 @@ public class address {
     }
     public void setStreet(street _street) {
         this.street = _street;
+    }
+    public Collection getClin_encouonters() {
+        return clin_encouonter;
+    }
+    public void addClin_encouonter(clin_encouonter _clin_encouonter) {
+        if (! this.clin_encouonter.contains(_clin_encouonter)) {
+            this.clin_encouonter.add(_clin_encouonter);
+            _clin_encouonter.setLocation(this);
+        }
+    }
+    public void removeClin_encouonter(clin_encouonter _clin_encouonter) {
+        boolean removed = this.clin_encouonter.remove(_clin_encouonter);
+        if (removed) _clin_encouonter.setLocation((address)null);
     }
 
 
