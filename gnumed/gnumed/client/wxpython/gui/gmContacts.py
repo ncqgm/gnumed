@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -273,8 +273,10 @@ class ContactsPanel(wxPanel):
 		self.sizer_line1a.Add(self.lbl_Type,4, wxALIGN_LEFT,5)
 		self.sizer_line1a.Add(self.combo_type,20,wxEXPAND)
 		self.sizer_line1a.Add(self.txt_org_type,20,wxEXPAND)
-	
-		self.sizer_line1a.Add(0,0,4)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line1a.Add((0,0),4)
+		else:
+			self.sizer_line1a.Add(0,0,4)
 		if DISPLAYPERSON == 1:
 			self.sizer_line1a.Add(self.lbl_pers_occupation,8,wxALIGN_CENTER_VERTICAL, 5)
 			self.sizer_line1a.Add(self.txt_pers_occupation,36,wxEXPAND)
@@ -308,14 +310,20 @@ class ContactsPanel(wxPanel):
 		self.sizer_line2_rightside.AddSizer(self.sizer_line2_forfax,2,wxEXPAND)
 		self.sizer_line2.Add(self.lbl_org_street,4,wxGROW|wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line2.Add(self.txt_org_street,40,wxEXPAND)
-		self.sizer_line2.Add(0,0,4)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line2.Add((0,0),4)
+		else:
+			self.sizer_line2.Add(0,0,4)
 		self.sizer_line2.AddSizer(self.sizer_line2_rightside,44,wxEXPAND)
 		#----------------------------------------------------
 		#line three:suburb, state, zip code, organisation fax
 		#----------------------------------------------------
 		self.sizer_line3.Add(self.lbl_org_suburb,4,wxEXPAND|wxALIGN_CENTER_VERTICAL)
 		self.sizer_line3.Add(self.txt_org_suburb,40,wxEXPAND)
-		self.sizer_line3.Add(0,0,4)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line3.Add((0,0),4)
+		else:
+			self.sizer_line3.Add(0,0,4)
 		self.sizer_line3.Add(self.lbl_org_email,8,wxGROW|wxALIGN_CENTER_VERTICAL)
 		self.sizer_line3.Add(self.txt_org_email,36,wxEXPAND)
 		#-----------------------------------------------
@@ -325,21 +333,33 @@ class ContactsPanel(wxPanel):
 		self.sizer_line4.Add(self.txt_org_state,20,wxEXPAND)
 		self.sizer_line4.Add(self.lbl_org_zip,10,wxGROW|wxTOP,5)
 		self.sizer_line4.Add(self.txt_org_zip,10,wxEXPAND)
-		self.sizer_line4.Add(0,0,4)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line4.Add((0,0),4)
+		else:
+			self.sizer_line4.Add(0,0,4)
 		self.sizer_line4.Add(self.lbl_org_internet,8,wxGROW|wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line4.Add(self.txt_org_internet,36,wxEXPAND)
 		#-----------------------------------------------
 		#line five: postal address checkbox, internet
 		#-----------------------------------------------
-		self.sizer_line5.Add(0,0,4)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line5.Add((0,0),4)
+		else:
+			self.sizer_line5.Add(0,0,4)
 		self.sizer_line5.Add(self.chbx_postaladdress,40,wxEXPAND)
-		self.sizer_line5.Add(0,0,4)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line5.Add((0,0),4)
+		else:
+			self.sizer_line5.Add(0,0,4)
 		self.sizer_line5.Add(self.lbl_org_mobile,8,wxGROW|wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line5.Add(self.txt_org_mobile,36,wxEXPAND)
 		#-----------------------------------------------
 		#line six: checkbox branch mobile phone number
 		#-----------------------------------------------
-		self.sizer_line6.Add(0,20,96)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line6.Add((0,20),96)
+		else:
+			self.sizer_line6.Add(0,20,96)
 		#-----------------------------------------------
 		#line seven: user1
 		#-----------------------------------------------
@@ -360,11 +380,17 @@ class ContactsPanel(wxPanel):
 	
 		self.sizer_line7.Add(self.lbl_org_memo,4,wxEXPAND|wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line7.Add(self.txt_org_memo,40,wxEXPAND)
-		self.sizer_line7.Add(0,0,4)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line7.Add((0,0),4)
+		else:
+			self.sizer_line7.Add(0,0,4)
 		self.sizer_line7.AddSizer(self.sizer_line7_right,44,wxEXPAND)
 		self.nextsizer=  wxBoxSizer(wxVERTICAL)
 		self.nextsizer.Add(self.list_organisations,3,wxEXPAND)
-		self.nextsizer.Add(0,10,0)
+		if wxPlatform == '__WXMAC__':
+			self.nextsizer.Add((0,10),0)
+		else:
+			self.nextsizer.Add(0,10,0)
 		self.nextsizer.Add(self.sizer_line0,0,wxEXPAND)
 		self.nextsizer.Add(self.sizer_line1,0,wxEXPAND)
 		self.nextsizer.Add(self.sizer_line1a,0,wxEXPAND)
@@ -1011,7 +1037,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.35  2004-06-29 22:41:53  shilbert
+# Revision 1.36  2004-06-30 16:06:43  shilbert
+# - u guessed it - more wxMAC fixes
+#
+# Revision 1.35  2004/06/29 22:41:53  shilbert
 # - indentation fixes that hopefully didn't break everything
 # - wxMAC fixes all over the place
 #
