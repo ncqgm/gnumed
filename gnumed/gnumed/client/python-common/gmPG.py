@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -110,7 +110,7 @@ class ConnectionPool:
 			self.SetFetchReturnsList()
 			ConnectionPool.__connected = self.__connect(login)
 	#-----------------------------
-	def GetConnection(self, service, readonly=1):
+	def GetConnection(self, service = "default", readonly = 1):
 		"""if a distributed service exists, return it - otherwise return the default server"""
 
 		if not readonly:
@@ -629,7 +629,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.28  2002-10-29 23:12:25  ncq
+# Revision 1.29  2003-01-05 09:58:19  ncq
+# - explicitely use service=default on empty Get/ReleaseConnection()
+#
+# Revision 1.28  2002/10/29 23:12:25  ncq
 # - a bit of cleanup
 #
 # Revision 1.27  2002/10/26 16:17:13  ncq
