@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.38 $
+-- $Revision: 1.39 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -47,7 +47,7 @@ values (currval('identity_id_seq'), currval('identity_id_seq'));
 -- document of type "patient picture"
 insert into doc_med (patient_id, type, comment) values (
 	currval('identity_id_seq'),
-	(select id from doc_type where name='patient photograph'),
+	(select pk from doc_type where name='patient photograph'),
 	'Captain Kirk pictures'
 );
 
@@ -558,7 +558,7 @@ insert into doc_med (
 	ext_ref
 ) values (
 	currval('identity_id_seq'),
-	(select id from doc_type where name='referral report other'),
+	(select pk from doc_type where name='referral report other'),
 	'Vietnam 2003: The Peoples Republic',
 	'vietnam-2003-3::1'
 );
@@ -600,7 +600,7 @@ insert into doc_med (
 	ext_ref
 ) values (
 	currval('identity_id_seq'),
-	(select id from doc_type where name='referral report other'),
+	(select pk from doc_type where name='referral report other'),
 	'Vietnam 2003: Tagwerk',
 	'vietnam-2003-3::2'
 );
@@ -627,11 +627,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.38 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.39 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.38  2004-09-29 10:31:11  ncq
+-- Revision 1.39  2004-10-11 19:36:32  ncq
+-- - id -> pk
+--
+-- Revision 1.38  2004/09/29 10:31:11  ncq
 -- - test_type.id -> pk
 -- - basic_unit -> conversion_unit
 --
