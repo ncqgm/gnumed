@@ -71,14 +71,19 @@ from wxPython.wx import * """
 		print """
 
 class %s_handler:
+
+	def create_handler(self, panel):
+		return %s_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
-""" % name
+""" % (name, name)
 		
 		for i in self.ids:
 			print i
@@ -184,7 +189,15 @@ for l in lines:
 if section_map.has_key('name'):
 	process_section(gen, section_map)
 
-print "section_num_map = ", section_num_map	
+print "section_num_map = ", section_num_map
+
+print """
+import gmGuiBroker
+gb = gmGuiBroker.GuiBroker()
+for k,v in section_num_map.items():
+	exec("prototype = %s_handler(None)" % v)
+	gb[v] = prototype
+"""
 
 
 	

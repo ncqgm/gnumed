@@ -7,10 +7,15 @@ from wxPython.wx import *
 
 
 class gmSECTION_SUMMARY_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_SUMMARY_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -52,10 +57,15 @@ class gmSECTION_SUMMARY_handler:
 
 
 class gmSECTION_DEMOGRAPHICS_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_DEMOGRAPHICS_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -97,10 +107,15 @@ class gmSECTION_DEMOGRAPHICS_handler:
 
 
 class gmSECTION_CLINICALNOTES_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_CLINICALNOTES_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -142,10 +157,15 @@ class gmSECTION_CLINICALNOTES_handler:
 
 
 class gmSECTION_FAMILYHISTORY_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_FAMILYHISTORY_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -352,10 +372,15 @@ class gmSECTION_FAMILYHISTORY_handler:
 
 
 class gmSECTION_PASTHISTORY_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_PASTHISTORY_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -592,10 +617,15 @@ class gmSECTION_PASTHISTORY_handler:
 
 
 class gmSECTION_VACCINATION_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_VACCINATION_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -727,10 +757,15 @@ class gmSECTION_VACCINATION_handler:
 
 
 class gmSECTION_ALLERGIES_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_ALLERGIES_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -907,10 +942,15 @@ class gmSECTION_ALLERGIES_handler:
 
 
 class gmSECTION_SCRIPT_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_SCRIPT_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -1177,10 +1217,15 @@ class gmSECTION_SCRIPT_handler:
 
 
 class gmSECTION_REQUESTS_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_REQUESTS_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -1447,10 +1492,15 @@ class gmSECTION_REQUESTS_handler:
 
 
 class gmSECTION_MEASUREMENTS_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_MEASUREMENTS_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -1597,10 +1647,15 @@ class gmSECTION_MEASUREMENTS_handler:
 
 
 class gmSECTION_REFERRALS_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_REFERRALS_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -1987,10 +2042,15 @@ class gmSECTION_REFERRALS_handler:
 
 
 class gmSECTION_RECALLS_handler:
+
+	def create_handler(self, panel):
+		return gmSECTION_RECALLS_handler(panel)
+
 	def __init__(self, panel):
 		self.panel = panel
-		self.__set_id()
-		self.__set_evt()
+		if panel <> None:
+			self.__set_id()
+			self.__set_evt()
 
 	def __set_id(self):
 		self.id_map = {}
@@ -2150,3 +2210,10 @@ class gmSECTION_RECALLS_handler:
 		print "text_entered_txt_recall_progressnotes received ", event
 			
 section_num_map =  {1: 'gmSECTION_SUMMARY', 2: 'gmSECTION_DEMOGRAPHICS', 3: 'gmSECTION_CLINICALNOTES', 4: 'gmSECTION_FAMILYHISTORY', 5: 'gmSECTION_PASTHISTORY', 6: 'gmSECTION_VACCINATION', 7: 'gmSECTION_ALLERGIES', 8: 'gmSECTION_SCRIPT', 9: 'gmSECTION_REQUESTS', 10: 'gmSECTION_MEASUREMENTS', 11: 'gmSECTION_REFERRALS', 12: 'gmSECTION_RECALLS'}
+
+import gmGuiBroker
+gb = gmGuiBroker.GuiBroker()
+for k,v in section_num_map.items():
+	exec("prototype = %s_handler(None)" % v)
+	gb[v] = prototype
+
