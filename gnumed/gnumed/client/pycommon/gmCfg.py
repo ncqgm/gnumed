@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -126,7 +126,6 @@ class cCfgSQL:
 			return None
 
 		# if no user given: current db user
-		# but check for "_user", too, due to ro/rw conn interaction
 		if user is None:
 			user = "NONE"
 
@@ -143,7 +142,7 @@ where
 	cfg_item.workplace like %s and
 	cfg_item.cookie like %s and
 	cfg_template.id = cfg_item.id_template and
-	(cfg_item.owner like CURRENT_USER or cfg_item.owner like %s)
+	(cfg_item.owner = CURRENT_USER or cfg_item.owner like %s)
 limit 1""", option, workplace, cookie, user) is None:
 			curs.close()
 			return None
@@ -1016,10 +1015,10 @@ def create_default_cfg_file():
 	print "Had to create empty (default) config file [%s].\nPlease check the docs for possible settings." % tmp
 	return 1
 #-------------------------------------------------------------
-def getFirstMatchingDBSet(workplace = cfg_DEFAULT, cookie = cfg_DEFAULT, option = None):
+def getDBParam(workplace = None, cookie = cfg_DEFAULT, option = None, personalize = True):
 	"""Convenience function to get config value from database.
 
-	will search in descending order:
+	will search for context dependant match in this order:
 		- CURRENT_USER_CURRENT_WORKPLACE
 		- CURRENT_USER_DEFAULT_WORKPLACE
 		- DEFAULT_USER_CURRENT_WORKPLACE
@@ -1028,8 +1027,11 @@ def getFirstMatchingDBSet(workplace = cfg_DEFAULT, cookie = cfg_DEFAULT, option 
 	We assume that the config tables are found on service "default".
 	That way we can handle the db connection inside this function.
 
-	Returns value and position of first match.
+	Returns (value, set) of first match.
 	"""
+
+	# FIXME: depending on set store for user ...
+
 	if option is None:
 		return (None, None)
 
@@ -1041,10 +1043,10 @@ def getFirstMatchingDBSet(workplace = cfg_DEFAULT, cookie = cfg_DEFAULT, option 
 
 	# (set_name, user, workplace)
 	sets2search = []
-	if workplace != cfg_DEFAULT:
+	if workplace is not None:
 		sets2search.append(['CURRENT_USER_CURRENT_WORKPLACE', None, workplace])
 	sets2search.append(['CURRENT_USER_DEFAULT_WORKPLACE', None, cfg_DEFAULT])
-	if workplace != cfg_DEFAULT:
+	if workplace is not None:
 		sets2search.append(['DEFAULT_USER_CURRENT_WORKPLACE', cfg_DEFAULT, workplace])
 	sets2search.append(['DEFAULT_USER_DEFAULT_WORKPLACE', cfg_DEFAULT, cfg_DEFAULT])
 	# connect to database
@@ -1068,6 +1070,16 @@ def getFirstMatchingDBSet(workplace = cfg_DEFAULT, cookie = cfg_DEFAULT, option 
 			break
 
 		_log.Log(gmLog.lData, '[%s] not found for [%s@%s]' % (option, set[1], set[2]))
+
+	if matchingSet != 'CURRENT_USER_CURRENT_WORKPLACE' \
+			and personalize and workplace is not None and matchingSet is not None:
+		setDBParam (
+			workplace = workplace,
+			user = None,
+			option = option,
+			value = result
+		)
+
 	# cleanup
 	db.ReleaseConnection(service = "default")
 	return (result,matchingSet)
@@ -1216,7 +1228,7 @@ if __name__ == "__main__":
 		
 		conn.close()
 		
-		val,set = getFirstMatchingDBSet(workplace = "test", cookie = "gui", 
+		val,set = getDBParam(workplace = "test", cookie = "gui", 
 			option = "plugin load order")
 		print "found set for [plugin load order.gui] for %s: \n%s" % (set,str(val))
 
@@ -1232,7 +1244,13 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.18  2004-08-16 12:15:20  ncq
+# Revision 1.19  2004-08-20 13:22:13  ncq
+# - cleanup
+# - getFirstMatchingDBSet() -> getDBParam()
+# - argument personalize default true in getDBParam() stores
+#   option value if found for other that current user/current workspace
+#
+# Revision 1.18  2004/08/16 12:15:20  ncq
 # - don't hide module global gmDefCfgFile inside "if __name__ == '__main__'" so
 #   that epydoc picks it up properly for documentation
 #
