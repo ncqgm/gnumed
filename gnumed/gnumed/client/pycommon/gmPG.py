@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -554,20 +554,6 @@ def listDatabases(service='default'):
 	assert(__backend == 'PostgreSQL')
 	return run_ro_query(service, "select * from pg_database")
 #---------------------------------------------------
-def listUserTables(service='default'):
-	"""list the tables except all system tables of the specified service"""
-	assert(__backend == 'PostgreSQL')
-	return run_ro_query(service, "select * from pg_tables where tablename not like 'pg_%'")
-#---------------------------------------------------
-def listSystemTables(service='default'):
-	"""list the system tables of the specified service"""
-	assert(__backend == 'PostgreSQL')
-	return run_ro_query(service, "select * from pg_tables where tablename like 'pg_%'")
-#---------------------------------------------------
-def listTables(service='default'):
-	"""list all tables available in the specified service"""
-	return run_ro_query(service, "select * from pg_tables")
-#---------------------------------------------------
 def _import_listener_engine():
 	try:
 		import gmBackendListener
@@ -619,6 +605,57 @@ def run_query(aCursor=None, verbosity=None, aQuery=None, *args):
 #	t2 = time.time()
 #	print t2-t1, aQuery
 	return 1
+#---------------------------------------------------
+def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1):
+	"""Convenience function for running a transaction
+	   that is supposed to get committed.
+
+	<link_obj>
+		can be either:
+		- a cursor
+		- a connection
+		- a service name
+
+	<queries>
+		is a list of (query, [args]) tuples to be
+		executed as a single transaction, the last
+		query may usefully return rows (such as a
+		"select currval('some_sequence')" statement)
+
+	<end_tx>
+		- controls whether the transaction is finalized (eg.
+		  committed/rolled back) or not, this allows the
+		  call to run_commit2() to be part of a framing
+		  transaction
+		- if <link_obj> is a service name the transaction is
+		  always finalized regardless of what <end_tx> says
+		- if link_obj is a connection or a cursor then
+		  <end_tx> will default to False unless it is
+		  explicitely set to True which is taken to mean
+		  "yes, you do have full control over the transaction"
+		  in which case the transaction is properly finalized
+
+	<max_tries>
+		- controls the number of times a transaction is retried
+		  after a concurrency error
+		- note that *all* <queries> are rerun if a concurrency
+		  error occurrs
+		- max_tries is honored if and only if link_obj is a service
+		  name such that we have full control over the transaction
+
+	method result:
+		- returns a tuple (status, data)
+		- <status>:
+			* True - if all queries succeeded (also if there were 0 queries)
+			* False - if *any* error occurred
+		- <data> if <status> is True:
+			* fetchall() result (if any) of last query else None
+		- <data> if <status> is False:
+			* a tuple (error, message)
+			* <error> = 1: unspecified error
+			* <error> = 2: concurrency error
+	"""
+	pass
 #---------------------------------------------------
 def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	"""Convenience function for running a transaction
@@ -940,7 +977,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.30 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.31 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1121,11 +1158,6 @@ if __name__ == "__main__":
 	for service in dbpool.GetAvailableServices():
 		print service
 		dummy = dbpool.GetConnection(service)
-		print "Available tables within service: ", service
-		tables, cd = listUserTables(service)
-		idx = descriptionIndex(cd)
-		for table in tables:
-			print "%s (owned by user %s)" % (table[idx['tablename']], table[idx['tableowner']])
 		print "\n.......................................\n"
 
 	### We have probably not distributed the services in full:
@@ -1138,12 +1170,7 @@ if __name__ == "__main__":
 		print service[0]
 
 	print "\nTesting convenience funtions:\n============================\n"
-	print "Databases:\n============\n"
-	res, descr = listDatabases()
-	for r in res: print r
-	print "\nTables:\n========\n"
-	res, descr = listTables()
-	for r in res: print r
+
 	print "\nResult as dictionary\n==================\n"
 	cur = db.cursor()
 	cursor.execute("select * from db")
@@ -1168,7 +1195,13 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.30  2004-10-29 22:34:37  ncq
+# Revision 1.31  2004-11-01 23:21:30  ncq
+# - remove some cruft
+# - add stub for run_commit() so people can comment
+#   (run_commit() started to smell rotten so let's try to
+#    get it right this time and design a sane API for it)
+#
+# Revision 1.30  2004/10/29 22:34:37  ncq
 # - cleanup
 #
 # Revision 1.29  2004/09/20 21:09:10  ncq
