@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -130,7 +130,7 @@ class DoctorsSchedulePnl(wxPanel):
 	def SetDate(self, date):
 		self.date = date
 		self.schedule.SetDate(date)
-		self.BlockDays(self.doctor)
+		#self.BlockDays(self.doctor)
 
 
 

@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -164,13 +164,17 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		self.idx_column2date={}
 		self.idx_time2row={}
 		self.idx_row2time={}
+		#list of day-of-week indices, starting with Monday=0
+		self.blocked_days=[]
+		#list of tuples: (day (Y-m-d),time_from (H:M), time_to (H:M)); if day=None, then blocked on all days
+		self.blocked_time=[]
 		if date is None:
 			self.Date = time.localtime()
 		else:
 			self.Date = date
 
 		self.clr_appointed = wxColour(240,220,140)
-		self.clr_not_available = wxLIGHT_GREY
+		self.clr_blocked = wxLIGHT_GREY
 		self.clr_today = wxColour(255,255,125)
 		self.clr_selected_day = wxColour(190,225,255)
 
@@ -327,15 +331,19 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		#mark today in special colours
 		today_attr = wxGridCellAttr()
 		today_attr.SetBackgroundColour(self.clr_today)
+		blocked_attr = wxGridCellAttr()
+		blocked_attr.SetBackgroundColour(self.clr_blocked)
 		now = time.time()
 		start = time.mktime(self.Date)
 		delta = (now-start)/86400
-		is_current=0
 		if delta > 0 and delta < self.days:
+			if DayOfWeek() in self.blocked_days:
+				self.SetColAttr(0, blocked_attr)
+				return
 			#we are displaying the current week,
 			#so today must be the first day displayed
 			self.SetColAttr(0, today_attr)
-			is_current=1
+
 
 
 
@@ -346,12 +354,14 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		delta = (blocked-start)/86400
 		if delta>0 and delta <self.days:
 			attr = wxGridCellAttr()
-			attr.SetBackgroundColour(wxLIGHT_GREY)
+			attr.SetBackgroundColour(self.clr_blocked)
 			self.SetColAttr(delta, attr)
 
 
 
 	def BlockDay(self, weekday):
+		if weekday not in self.blocked_days:
+			self.blocked_days.append(weekday)
 		start = DayOfWeek(self.Date)
 		dow = start
 		for index in range(self.days):
@@ -590,7 +600,17 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		col = self.idx_date2column[date]
 		pstr = "%s, %s" % (patient["lastnames"], patient["firstnames"])
 		print "Updating date [%s] time [%s] row %d, col %d, patient [%s]" % (date, time, row, col, pstr)
+		self.SetCellBackgroundColour(row, col, self.clr_appointed)
 		self.SetCellValue(row, col, pstr)
+		#long appointment?
+		timeslots = int(duration)/int(self.session_interval)
+		if timeslots>0:
+			val = '+ ' + pstr
+			for increment in range(timeslots):
+				self.SetCellBackgroundColour(row+increment, col, self.clr_appointed)
+				self.SetCellValue(row+increment, col, pstr)
+
+
 
 
 
