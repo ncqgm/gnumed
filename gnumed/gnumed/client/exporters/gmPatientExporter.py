@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.23 2004-07-26 00:02:30 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmPatientExporter.py,v 1.24 2004-08-09 18:41:08 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -256,7 +256,7 @@ class cEmrExport:
         """
         txt = ''
         for a_field in field_list:
-            txt += offset*' ' + a_field + (20-len(a_field))*' ' + ':\t' + str(item[a_field]) + '\n'
+            txt += offset*' ' + a_field + ': ' + str(item[a_field]) + '\n'
         return txt
     #--------------------------------------------------------
     def get_allergy_output(self, allergy, left_margin = 0):
@@ -266,7 +266,7 @@ class cEmrExport:
             left_margin - Number of spaces on the left margin
         """
         txt = ''
-        txt += left_margin*' ' + _('Allergy') + ': \n'
+        txt += left_margin*' ' + _('Allergy')  + ': \n'
         txt += self.dump_item_fields((left_margin+3), allergy, ['allergene', 'substance', 'generic_specific','l10n_type', 'definite', 'reaction'])
         return txt
     #--------------------------------------------------------
@@ -289,8 +289,8 @@ class cEmrExport:
         """
         txt = ''
         if self.lab_new_encounter:
-            txt += (left_margin+3)*' ' + _('Lab result') + ': \n'
-        txt += (left_margin+3)*' ' + lab_result['unified_name'] + (20-len(lab_result['unified_name']))*' ' + ':\t' + lab_result['unified_val']+ ' ' + lab_result['val_unit'] + '(' + lab_result['material'] + ')' + '\n'
+            txt += (left_margin)*' ' + _('Lab result') + ': \n'
+        txt += (left_margin+3)*' ' + lab_result['unified_name']  + ': ' + lab_result['unified_val']+ ' ' + lab_result['val_unit'] + '(' + lab_result['material'] + ')' + '\n'
         return txt
     #--------------------------------------------------------
     def get_item_output(self, item, left_margin = 0):
@@ -335,6 +335,56 @@ class cEmrExport:
             issues=self.__constraints['issues']))
         return filtered_items
     #--------------------------------------------------------
+    def get_allergy_summary(self, allergy, left_margin = 0):
+        """
+            Dumps allergy item data summary
+            allergy - Allergy item to dump
+            left_margin - Number of spaces on the left margin
+        """
+        txt = left_margin*' ' + _('Allergy') + ': ' + allergy['allergene'] + ', ' + \
+            allergy['reaction'] + '\n'
+        return txt
+    #--------------------------------------------------------
+    def get_vaccination_summary(self, vaccination, left_margin = 0):
+        """
+            Dumps vaccination item data summary
+            vaccination - Vaccination item to dump
+            left_margin - Number of spaces on the left margin
+        """
+        txt = left_margin*' ' + _('Vaccination') + ': ' + vaccination['l10n_indication'] + ', ' + \
+            vaccination['narrative'] + '\n'
+        return txt
+    #--------------------------------------------------------
+    def get_lab_result_summary(self, lab_result, left_margin = 0):
+        """
+            Dumps lab result item data summary
+            lab_request - Lab request item to dump
+            left_margin - Number of spaces on the left margin            
+        """
+        txt = ''
+        if self.lab_new_encounter:
+            txt += (left_margin+3)*' ' + _('Lab') + ': '  + \
+                lab_result['unified_name'] + '-> ' + lab_result['unified_val'] + \
+                ' ' + lab_result['val_unit']+ '\n'
+        return txt
+    #--------------------------------------------------------
+    def get_item_summary(self, item, left_margin = 0):
+        """
+            Obtains formatted clinical item summary dump
+            item - The clinical item to dump
+            left_margin - Number of spaces on the left margin            
+        """
+        txt = ''
+        if isinstance(item, gmAllergy.cAllergy):
+            txt += self.get_allergy_summary(item, left_margin)
+        elif isinstance(item, gmVaccination.cVaccination):
+            txt += self.get_vaccination_summary(item, left_margin)
+        elif isinstance(item, gmPathLab.cLabResult) and \
+            (item['relevant'] == True or item['abnormal'] == True):
+            txt += self.get_lab_result_summary(item, left_margin)
+            self.lab_new_encounter = False
+        return txt
+    #--------------------------------------------------------
     def __get_set_for_field(self, field):
         """
             Extract set of unique values of a desired field from filtered items list
@@ -373,7 +423,7 @@ class cEmrExport:
         self.__get_filtered_emr_data()
         emr = self.__patient.get_clinical_record()
         h_issues = emr.get_health_issues(id_list = self.__filtered_issues)
-        
+                
         # build the tree
         root_node = emr_tree.GetRootItem()
         for h_issue in h_issues:
@@ -398,7 +448,18 @@ class cEmrExport:
         rfes = encounter.get_rfes()
         for rfe in rfes:
             txt += left_margin *' ' + 'RFE: ' + rfe['clin_when'].Format('%Y-%m-%d %H:%M') + ', ' +  rfe['rfe'] + '\n'
-        # FIXME: SOAP
+#        soap = encounter.get_soap()
+#        # soap
+#        soap_cats = ['s', 'o', 'a', 'p']
+#        for soap_cat in soap_cats:
+#            txt += left_margin *' ' +  string.upper(soap_cat) +':\n'
+#            if soap[soap_cat] is None:
+#                txt +='\n'
+#            else:
+#                for soap_entry in soap[soap_cat]:
+#                    soap_entry['narrative'] = string.replace(soap_entry['narrative'], '\n',
+#                        '\n'+(left_margin+3)*' ')
+#                    txt += (left_margin+3)*' ' + soap_entry['narrative'] + '\n'
         # aoe
         aoes = encounter.get_aoes()            
         for aoe in aoes:
@@ -420,10 +481,18 @@ class cEmrExport:
                                                               -> clinical items
                                                               
         """
-    
-        # All values fetched and filtered, we can begin with the tree
+
+        # fecth all values
         self.__get_filtered_emr_data()
         emr = self.__patient.get_clinical_record()
+
+        # dump clinically relevant items summary
+        for an_item in self.__filtered_items:
+            self.__target.write(self.get_item_summary(an_item, 3))
+            
+    
+        # begin with the tree
+
         h_issues = emr.get_health_issues(id_list = self.__filtered_issues)
         for h_issue in h_issues:
             self.__target.write('\n' + 3*' ' + 'Health Issue: ' + h_issue['description'] + '\n')
@@ -695,7 +764,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.23  2004-07-26 00:02:30  ncq
+# Revision 1.24  2004-08-09 18:41:08  ncq
+# - improved ASCII dump
+#
+# Revision 1.23  2004/07/26 00:02:30  ncq
 # - Carlos introduces export of RFE/AOE and dynamic layouting (left margin)
 #
 # Revision 1.22  2004/07/18 10:46:30  ncq
