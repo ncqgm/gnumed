@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.23 2003-06-23 22:28:22 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmClinicalRecord.py,v 1.24 2003-06-24 12:55:08 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -207,17 +207,17 @@ class gmClinicalRecord:
 		_log.Log(gmLog.lWarn, "don't know how to set item [%s]" % item)
 		raise KeyError, "don't know how to set item [%s]" % item
 	#--------------------------------------------------------
-	def create_clinical_note(self, value=None):
-		if value is None:
+	def create_clinical_note(self, note = None):
+		if note is None:
 			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
 			return 1
-		rwconn = self.__backend.GetConnection('historica', readonly=0)
+		rwconn = self._backend.GetConnection('historica', readonly=0)
 		rwcurs = rwconn.cursor()
 		cmd = "insert into clin_note(id_encounter, id_episode, narrative) values (%s, %s, %s);"
-		if not gmPG.run_query(rwcurs, cmd, self.id_encounter, self.id_episode, value):
+		if not gmPG.run_query(rwcurs, cmd, self.id_encounter, self.id_episode, note):
 			rwcurs.close()
 			rwconn.close()
-			_log.Log(gmLog.lErr, 'cannot create clinical note [%s] (episode %d, encounter %d)' % (value, self.id_episode, self,id_encounter))
+			_log.Log(gmLog.lErr, 'cannot create clinical note (episode %d, encounter %d)' % (self.id_episode, self,id_encounter))
 			return None
 		rwconn.commit()
 		rwcurs.close()
@@ -718,7 +718,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.23  2003-06-23 22:28:22  ncq
+# Revision 1.24  2003-06-24 12:55:08  ncq
+# - eventually make create_clinical_note() functional
+#
+# Revision 1.23  2003/06/23 22:28:22  ncq
 # - finish encounter handling for now, somewhat tested
 # - use gmPG.run_query changes where appropriate
 # - insert_clin_note() finished but untested
