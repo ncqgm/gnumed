@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -211,6 +211,26 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 					parent = self)
 				return False
 		return True
+		
+	#--------------------------------------------------------
+	def __get_problem(self, emr_struct_element):
+		"""
+		Retrieve the problem in the list that corresponds with a
+		issue or episode selected via dialog.
+		"""
+		result_problem = None
+		
+		if isinstance(emr_struct_element, gmEMRStructItems.cHealthIssue):
+			for problem in self.__emr.get_problems():
+				if problem['pk_health_issue'] == emr_struct_element['id']:
+					result_problem = problem
+		else:
+			for problem in self.__emr.get_problems():
+				if problem['pk_episode'] == emr_struct_element['pk_episode']:
+					result_problem = problem			
+				
+		return result_problem
+		
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -245,19 +265,20 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# FIXME constant in gmEMRStructIssues 
 		if problem['type'] == 'issue':
 			# health issue selected, show episode selector dialog
-			pk_issue = problem['id']
+			pk_issue = problem['pk_health_issue']
 			episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg(None, -1,
 			'Episode selector', _('Add episode and start progress note'),
 			pk_health_issue = pk_issue)
 			retval = episode_selector.ShowModal() # Shows it
 				
-			if retval == dialog_OK:
+			if retval == gmEMRStructWidgets.dialog_OK:
 				# FIXME refresh only if episode selector action button was performed
 				self.__refresh_problem_list()
-				self.__selected_episode = episode_selector.get_selected_episode()
-				print 'Creating progress note for episode: %s' % selected_episode
-			elif retval == dialog_CANCELLED:
+				self.__selected_episode = self.__get_problem(episode_selector.get_selected_episode())
+				print 'Creating progress note for episode: %s' % self.__selected_episode
+			elif retval == gmEMRStructWidgets.dialog_CANCELLED:
 				print 'User canceled'
+				return False
 			else:
 				raise Exception('Invalid dialog return code [%s]' % retval)
 			episode_selector.Destroy() # finally destroy it when finished.	
@@ -282,9 +303,11 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		#	self.__BTN_new.Enable(True)
 
 		self.__update_button_state()
-	#--------------------------------------------------------
+				
+	#--------------------------------------------------------	
 	def __on_patient_selected(self):
 		self._schedule_data_reget()
+		
 	#--------------------------------------------------------
 	def __on_save(self, event):
 		"""
