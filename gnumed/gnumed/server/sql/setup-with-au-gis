@@ -4,7 +4,7 @@ DB=gnumed
 #dropdb $DB
 createdb $DB
 cd /usr/share/gnumed/server/sql/ 
-psql -f gnumed.sql $DB 
+#psql -f gnumed.sql $DB 
 psql -f gmconfiguration.sql $DB 
 psql -f gmidentity.sql $DB 
 psql -f gmgis.sql $DB 
