@@ -16,7 +16,7 @@
 ############################################################################
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmDbObject.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 import sys
@@ -94,7 +94,7 @@ class DBObject:
 				con = self._db.GetConnection(self.__service)
 			except:
 				exc = sys.exc_info()
-				_log.LogException("Failed to connect to backend.", exc, verbose=1)
+				_log.LogException("Failed to connect to backend.", exc, verbose=0)
 				return None
 			cursor = con.cursor()
 			try:
@@ -104,7 +104,7 @@ class DBObject:
 					cursor.execute(self._qSelect)
 			except:
 				exc = sys.exc_info()
-				_log.LogException("Query failed: >>>%s<<<" % map, exc, verbose=1)
+				_log.LogException("Query failed: >>>%s<<<" % map, exc, verbose=0)
 				return None
 			if maxfetch>0:
 				result =  cursor.fetchmany(maxfetch)
@@ -131,14 +131,14 @@ class DBObject:
 			con = self._db.GetConnection(self.__service, readonly=0)
 		except:
 			exc = sys.exc_info()
-			_log.LogException("Failed to connect to backend.", exc, verbose=1)
+			_log.LogException("Failed to connect to backend.", exc, verbose=0)
 			return None
 		cursor = con.cursor()
 		try:
 			cursor.execute(self._qInsert, map)
 		except:
 			exc = sys.exc_info()
-			_log.LogException("Query failed: >>>%s<<<" % map, exc, verbose=1)
+			_log.LogException("Query failed: >>>%s<<<" % map, exc, verbose=0)
 			return None
 		oid = cursor.oidValue
 		con.commit()
@@ -160,14 +160,14 @@ class DBObject:
 			con = self._db.GetConnection(self.__service, readonly=0)
 		except:
 			exc = sys.exc_info()
-			_log.LogException("Failed to connect to backend.", exc, verbose=1)
+			_log.LogException("Failed to connect to backend.", exc, verbose=0)
 			return None
 		cursor = con.cursor()
 		try:
 			cursor.execute(self._qUpdate,map)
 		except:
 			exc = sys.exc_info()
-			_log.LogException("Query failed: >>>%s<<<" % map, exc, verbose=1)
+			_log.LogException("Query failed: >>>%s<<<" % map, exc, verbose=0)
 			return None
 		con.commit()
 		return primarykey
@@ -187,14 +187,14 @@ class DBObject:
 			con = self._db.GetConnection(self.__service, readonly=0)
 		except:
 			exc = sys.exc_info()
-			_log.LogException("Failed to connect to backend.", exc, verbose=1)
+			_log.LogException("Failed to connect to backend.", exc, verbose=0)
 			return None
 		cursor = con.cursor()
 		try:
 			cursor.execute(self._qDelete, map)
 		except:
 			exc = sys.exc_info()
-			_log.LogException("Failed to connect to backend.", exc, verbose=1)
+			_log.LogException("Failed to connect to backend.", exc, verbose=0)
 			return None
 		con.commit()
 		return primarykey
@@ -218,7 +218,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDbObject.py,v $
-# Revision 1.7  2003-06-26 21:33:29  ncq
+# Revision 1.8  2003-08-24 13:42:13  hinnef
+# changed verbose to 0 in exception logging to decrease log file size
+#
+# Revision 1.7  2003/06/26 21:33:29  ncq
 # - fatal->verbose
 #
 # Revision 1.6  2003/01/16 14:45:03  ncq
