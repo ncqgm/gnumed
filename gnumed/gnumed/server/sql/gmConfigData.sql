@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -115,6 +115,23 @@ values (
 	'{"gmOffice","gmShowMedDocs","gmShowLab","gmLabJournal","gmVaccinationsPlugin","gmAllergiesPlugin","gmConfigRegistry","gmEMRBrowserPlugin","gmEMRTextDumpPlugin","gmSingleBoxSoapPlugin","gmStikoBrowser","gmXdtViewer","gmManual","gmDemographicsEditor"}'
 );
 
+-- Arbeitsplatz Impfbrowser
+insert into cfg_item
+	(id_template, owner, workplace)
+values (
+	currval('cfg_template_id_seq'),
+	'xxxDEFAULTxxx',
+	'Impfungen'
+);
+
+insert into cfg_str_array
+	(id_item, value)
+values (
+	currval('cfg_item_id_seq'),
+	'{"gmVaccinationsPlugin","gmConfigRegistry"}'
+);
+
+
 -- ---------------------------------------------
 -- search behaviour options
 
@@ -148,11 +165,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.5  2004-10-19 22:18:34  sjtan
+-- Revision 1.6  2005-01-09 19:49:39  ncq
+-- - add vaccination browser workplace definition
+--
+-- Revision 1.5  2004/10/19 22:18:34  sjtan
 -- fix syntax error end bracket.
 --
 -- Revision 1.4  2004/10/01 13:26:15  ncq
