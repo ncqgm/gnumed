@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -102,11 +102,20 @@ class ConnectionPool:
 			ConnectionPool.__connected = self.__connect(login)
 	#-----------------------------
 	def GetConnection(self, service, readonly=1):
-		"if a distributed service exists, return it - otherwise return the default server"
+		"""if a distributed service exists, return it - otherwise return the default server"""
+
 		if not readonly:
+			user = "_%s" % logininfo.GetUser()
+			#<DEBUG>
+			_log.Log(gmLog.lData, "requesting RW connection to [%s] for %s" % (service, user))
+			#</DEBUG>
 			logininfo = self.GetLoginInfoFor(service)
-			logininfo.SetUser("_%s" % logininfo.GetUser())
+			logininfo.SetUser(user)
 			return self.__pgconnect(logininfo)
+
+		#<DEBUG>
+		_log.Log(gmLog.lData, "requesting RO connection to [%s]" % service)
+		#</DEBUG>
 
 		if ConnectionPool.__databases.has_key(service):
 			try:
@@ -590,7 +599,7 @@ if __name__ == "__main__":
 	n = fieldNames(cursor)
 
 	def TestCallback():
-		print "Backend notification received!"
+		print "[Backend notification received!]"
 		
 	print "\n-------------------------------------"
 	print "Testing asynchronous notification for approx. 20 seconds"
@@ -605,7 +614,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.20  2002-09-29 14:39:44  ncq
+# Revision 1.21  2002-09-30 08:26:57  ncq
+# - a bit saner logging
+#
+# Revision 1.20  2002/09/29 14:39:44  ncq
 # - cleanup, clarification
 #
 # Revision 1.19  2002/09/26 13:14:59  ncq
