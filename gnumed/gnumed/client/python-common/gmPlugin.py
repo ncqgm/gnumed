@@ -13,7 +13,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -280,8 +280,20 @@ class wxPatientPlugin (wxBasePlugin):
 		if widget.__dict__.has_key('editarea'):
 			#all set to put in hooks
 			section = widget.editarea.rightside.section
-			print "section = %d, or section name=%s\n" % (section, EditAreaHandler.section_num_map[section]) 
-			exec("self.%s_handler = EditAreaHandler.%s_handler(widget.editarea.rightside)"% ( EditAreaHandler.section_num_map[section],EditAreaHandler.section_num_map[section]) )
+			section_name =  EditAreaHandler.section_num_map[section]
+			print "section = %d, or section name=%s\n" % (section, section_name) 
+
+			if not self.__dict__.has_key('handlers'):
+				self.handlers = []
+
+			# get a registered handler, and use it's cloning method create_handler to clone another handler for this editarea.rightside
+			gb = gmGuiBroker.GuiBroker()
+			self.handlers.append( gb[ section_name].create_handler(widget.editarea.rightside) )	
+
+			# took this out because it wasn't fancy enough
+			# actually , so different handlers can be registered e.g. a subclass implementation instance
+
+			#exec("self.%s_handler = EditAreaHandler.%s_handler(widget.editarea.rightside)"% ( EditAreaHandler.section_num_map[section],EditAreaHandler.section_num_map[section]) )
 			print "**** HANDLER IS IN ! (but it does nothing)"
 
 #------------------------------------------------------------------
@@ -489,7 +501,12 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.38  2003-02-07 08:16:16  ncq
+# Revision 1.39  2003-02-07 12:47:15  sjtan
+#
+# using gmGuiBroker for more dynamic handler loading. (e.g. can use subclassed instances of EditAreaHandler classes).
+# ~
+#
+# Revision 1.38  2003/02/07 08:16:16  ncq
 # - some cosmetics
 #
 # Revision 1.37  2003/02/07 05:08:08  sjtan
