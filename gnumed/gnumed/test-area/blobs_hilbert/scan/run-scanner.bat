@@ -1,3 +1,4 @@
+@echo off
 REM set your preferred language here
 set LANG=de_DE@euro
 
