@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.17 2004-03-03 05:24:01 ihaywood Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmMedDoc.py,v 1.18 2004-03-03 14:41:49 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path
@@ -299,7 +299,7 @@ class gmMedObj:
 #============================================================
 class gmMedDoc:
 
-	def __init__(self, aPKey, presume_exists =0):
+	def __init__(self, aPKey, presume_exists=0):
 		"""Fails if
 
 		- no connection to database possible
@@ -445,33 +445,37 @@ def create_document(patient_id=None):
 	# and init new document object
 	doc = gmMedDoc(aPKey = doc_id)
 	return doc
-#============================================================
-def search_for_document (patient_id, type_id=None):
+#------------------------------------------------------------
+def search_for_document (patient_id=None, type_id=None):
+	"""Searches for documents with the given patient and type ID.
+
+	No type ID returns all documents for the patient.
 	"""
-	Searches for documents with the given patient and type ID
-	No type ID returns all documents for the patient
-	"""
+	# sanity checks
+	if patient_id is None:
+		_log.Log(gmLog.lErr, 'need patient id to create document')
+		return None
+
 	if type_id is None:
 		cmd = "SELECT id from doc_med WHERE patient_id=%s"
-		tmp = gmPG.run_ro_query('blobs', cmd, None, patient_id)
+		doc_ids = gmPG.run_ro_query('blobs', cmd, None, patient_id)
 	else:
 		cmd = "SELECT id from doc_med WHERE patient_id=%s and type=%s"
-		tmp = gmPG.run_ro_query ('blobs', cmd, None, patient_id, type_id)
+		doc_ids = gmPG.run_ro_query ('blobs', cmd, None, patient_id, type_id)
 		
-	if tmp is None:
+	if doc_ids is None:
 		return []
-	docs = []
-	for doc_id in tmp:
-		if doc_id is not None:
-			docs.append(gmMedDoc (doc_id, presume_exists=1)) # suppress pointless checking of primary key
-	if len(docs) == 0:
+	if len(doc_ids) == 0:
 		_log.Log(gmLog.lInfo, "No documents found for person (ID [%s])." % patient_id)
 		return []
-	return docs
+	docs = []
+	for doc_id in doc_ids:
+		docs.append(gmMedDoc(doc_id, presume_exists=1)) # suppress pointless checking of primary key
 
+	return docs
+#------------------------------------------------------------
 # define some document types that are programmatically useful
 MUGSHOT=26
-
 #============================================================
 def create_object(doc_id):
 	"""
@@ -500,7 +504,11 @@ def create_object(doc_id):
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.17  2004-03-03 05:24:01  ihaywood
+# Revision 1.18  2004-03-03 14:41:49  ncq
+# - cleanup
+# - FIXME: write gmDocumentRecord_SQL
+#
+# Revision 1.17  2004/03/03 05:24:01  ihaywood
 # patient photograph support
 #
 # Revision 1.16  2004/02/25 09:46:20  ncq
