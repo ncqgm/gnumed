@@ -23,18 +23,42 @@
 #	 just about evrything
 #        this module is for GUI development/demonstration
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
+__version__ = "$Revision: 1.9 $"
+__author__  =  "Richard Terry <rterry@gnumed.net>,\
+				Michael Bonert <bonerti@mie.utoronto.ca>"
+
+#---------------------------------------------------------------------------
+if __name__ == '__main__':
+	import sys
+	sys.path.append('modules')
+	sys.path.append('..')
 
 from wxPython.wx import *
-import gmPlugin, zlib, cPickle
-#import images_gnuMedGP_Toolbar
 #from wxPython.lib.wxPlotCanvas import *
 #from wxPython.lib              import wxPlotCanvas  #insert these modules once graph active
 
+#===========================================================================
+# we need the icon data for standalone and plugin use, so we might
+# just as well define it at the module level
+
+_icons = {"""icon_BMI_calc""": \
+'x\xda]\x90\xbd\n\x83P\x0c\x85\xf7>E ^,\x08\xe1\xbaT\xc7P\xc55\x83\xcb]\xc5\
+\xb1\x82}\xff\xa9\x89\xf7Gm\x0c\xc2\xf9r\x92\x18\x9f\xdb\xb7}\xccu\xfb\x02K\
+\x0fm\xfdX\xe6\x9a`\x85\xf7\xb6\xac\x9fC\x05U\xd8\xf5\xdd\xe0\xfd\xa1%\xeb\
+\xae?4\x98\x1e\xfbq\x18\xa3nb\xdd\xfb\xe4\xdfMO\xfd\x94\xfb+\xd3\xde\x17\xcd\
+Q\x97\xf9.\xd7\xa78\x0fs=\xef\xa3[@\x84a\xbfD(0h\xe6W\x82r\x8b\x04\xa9\x11\
+\xb8D\x82A\x84\x99\xad\x82X\x16\x05\xe1\x8a\xb9\x12 w\x85BL"\xe8\xf49!\x08\
+\x93\xf6*\xa4+\xac\x88\x9cC\xf9w:D\x10\xbc9\xd9\xc6\xc1\xddi\xbd`\xf0\xbc\
+\xdd\xf6\xb2\x9dC\xc5\xa9\x1f\xaf\x8bc\x94\x99\x12\xf4\xef\xe9-1\r\xd2\x0fX\
+\x95oP'}
+#===========================================================================
 class BMI_Colour_Scale(wxWindow):
 
 	def __init__(self, parent, color=wxRED_BRUSH):
 		wxWindow.__init__(self, parent, -1, wxDefaultPosition,size =(324,25))
 		EVT_PAINT(self, self.OnPaint)
+
 	def OnPaint(self, event):
 		self.Draw(wxPaintDC(self))
 
@@ -97,7 +121,7 @@ class BMI_Colour_Scale(wxWindow):
 	def SetColor(self, color):
 		self.color = color
 		self.Draw(wxClientDC(self))
-		
+#===========================================================================		
 class BMICalc_Panel(wxPanel):
 	def __init__(self, parent, id):
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER )	
@@ -105,8 +129,15 @@ class BMICalc_Panel(wxPanel):
 		#------------------------------
 		#sizer with heading label
 		#------------------------------
-		lblheading = wxStaticText(self,-1,_("Current Values"),wxDefaultPosition,wxDefaultSize,style = wxALIGN_CENTRE)
-		lblheading.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		lblheading = wxStaticText(
+			self,
+			-1,
+			_("Current height/weight"),
+			wxDefaultPosition,
+			wxDefaultSize,
+			style = wxALIGN_CENTRE
+		)
+		lblheading.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
 		lblheading.SetForegroundColour(wxColour(0,0,131))
 		szr_left1 = wxBoxSizer(wxHORIZONTAL)
 		szr_left1.Add(lblheading,1,0)
@@ -115,10 +146,10 @@ class BMICalc_Panel(wxPanel):
 		#------------------------------
 		szr_left2 = wxBoxSizer(wxHORIZONTAL)
 		label1 = wxStaticText(self,-1,_("Height (cm)"),size = (1,20))
-		label1.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		label1.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label1.SetForegroundColour(wxColour(0,0,131))
 		self.txtHeight = wxTextCtrl(self,-1,"",size=(100,20))
-		self.txtHeight.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		self.txtHeight.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		szr_left2.Add(10,1,0,0)
 		szr_left2.Add(label1,1,wxALIGN_CENTRE_VERTICAL|0)
 		szr_left2.Add(self.txtHeight,1,wxALIGN_CENTRE_VERTICAL|0)
@@ -189,7 +220,7 @@ class BMICalc_Panel(wxPanel):
 		#-----------------------------
 		#and the amount to loose in Kg
 		#-----------------------------
-		lblloss = wxStaticText(self,-1,_("Kg to loose"),size = (30,20))
+		lblloss = wxStaticText(self,-1,_("kg to loose"),size = (30,20))
 		lblloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
 		lblloss.SetForegroundColour(wxColour(0,0,131))
 		txtloss= wxTextCtrl(self,-1,"",size=(100,20))
@@ -229,27 +260,12 @@ class BMICalc_Panel(wxPanel):
 #Creates all the sizers necessary to hold the top two menu's, picture
 #from for patients picture, the main two left and right panels, with shadows
 #---------------------------------------------------------------------------
-class TestFrame(wxFrame): 	# inherited by 'gmBMICalc'
-	
-	__icons = {
-"""icon_BMI_calc""":'x\xda]\x90\xbd\n\x83P\x0c\x85\xf7>E ^,\x08\xe1\xbaT\xc7P\xc55\x83\xcb]\xc5\
-\xb1\x82}\xff\xa9\x89\xf7Gm\x0c\xc2\xf9r\x92\x18\x9f\xdb\xb7}\xccu\xfb\x02K\
-\x0fm\xfdX\xe6\x9a`\x85\xf7\xb6\xac\x9fC\x05U\xd8\xf5\xdd\xe0\xfd\xa1%\xeb\
-\xae?4\x98\x1e\xfbq\x18\xa3nb\xdd\xfb\xe4\xdfMO\xfd\x94\xfb+\xd3\xde\x17\xcd\
-Q\x97\xf9.\xd7\xa78\x0fs=\xef\xa3[@\x84a\xbfD(0h\xe6W\x82r\x8b\x04\xa9\x11\
-\xb8D\x82A\x84\x99\xad\x82X\x16\x05\xe1\x8a\xb9\x12 w\x85BL"\xe8\xf49!\x08\
-\x93\xf6*\xa4+\xac\x88\x9cC\xf9w:D\x10\xbc9\xd9\xc6\xc1\xddi\xbd`\xf0\xbc\
-\xdd\xf6\xb2\x9dC\xc5\xa9\x1f\xaf\x8bc\x94\x99\x12\xf4\xef\xe9-1\r\xd2\x0fX\
-\x95oP'}
+class BMI_Frame(wxFrame):
 
-	def __init__(self, parent, title, style):
-		wxFrame.__init__(self,parent, -1,title)
+	def __init__(self, parent):
+		wxFrame.__init__(self, parent, -1, _("BMI Calculator"))
 
-		icon=wxEmptyIcon()
-		icon.CopyFromBitmap(self.getBitmap())
-        	self.SetIcon(icon)
-
-                EVT_CLOSE(self, self.OnCloseWindow)
+		EVT_CLOSE(self, self.OnCloseWindow)
 		#-----------------------------------------------------
 		#create an instance of the BMICalc_Panel and add it to
 		#the left hand sizer - a vertical box sizer
@@ -264,24 +280,28 @@ Q\x97\xf9.\xd7\xa78\x0fs=\xef\xa3[@\x84a\xbfD(0h\xe6W\x82r\x8b\x04\xa9\x11\
 		#the space that will be occupied by the graph
 		#-----------------------------------------------------
                 #pretendgraph =wxButton(self,-1,"The graph goes here")
-		t3 = wxTextCtrl(self, -1,
-                        "Hi Guys, this is a prototype BMI Calculator + graph.\n\n"
-                        "Comments please to rterry@gnumed.net..\n\n"
-		        "The text boxes are set not to resize at the moment..\n\n"
-                	  "Can someone tell me how to remove the maximizing button...\n\n"
-		          "Can someone tell me how to centre this frame on the screen...\n\n"
-		          "This text box needs to be replaced by a graph class....\n"
-     		  "which amongst other things could show this patients weight trends!!!!\n\n"
-		   "The weight range on the green epilpse would be calculated for each patient...\n\n"
-		  "Bye for now...\n\n",
-
-                       size=(200, 100), style=wxTE_MULTILINE)
+		t3 = wxTextCtrl(
+			self,
+			-1,
+			"Hi Guys, this is a prototype BMI Calculator + graph.\n\n"
+			"Comments please to rterry@gnumed.net..\n\n"
+			"The text boxes are set not to resize at the moment..\n\n"
+			"Can someone tell me how to remove the maximizing button...\n\n"
+			"Can someone tell me how to centre this frame on the screen...\n\n"
+			"This text box needs to be replaced by a graph class....\n"
+			"which amongst other things could show this patients weight trends!!!!\n\n"
+			"The weight range on the green epilpse would be calculated for each patient...\n\n"
+		 	"Bye for now...\n\n",
+			size=(200, 100),
+			style=wxTE_MULTILINE
+		)
 		gs = wxGridSizer(1, 4, 1, 4)  # rows, cols, hgap, vgap
-		gs.AddMany([ (wxButton(self, 1010, '&Reset'),   0, wxEXPAND),
-					(wxButton(self, 1010, '&Print'),   0, wxEXPAND),
-					(wxButton(self, 1010, '&Save'), 0, wxEXPAND),
-					(wxButton(self, 1010, '&Handout'),  0, wxEXPAND),
-					])
+		gs.AddMany([
+			(wxButton(self, 1010, '&Reset'), 0, wxEXPAND),
+			(wxButton(self, 1010, '&Print'), 0, wxEXPAND),
+			(wxButton(self, 1010, '&Save'),	0, wxEXPAND),
+			(wxButton(self, 1010, '&Handout'), 0, wxEXPAND),
+		])
 		#-----------------------------------------------------------------
 		#Now create the right hand vertical box sizer and stack the graph,
 		#gap, and gridsizer containing the horizontal buttons onto it
@@ -289,7 +309,7 @@ Q\x97\xf9.\xd7\xa78\x0fs=\xef\xa3[@\x84a\xbfD(0h\xe6W\x82r\x8b\x04\xa9\x11\
 		szr_vbs_right = wxBoxSizer(wxVERTICAL)                           #create vertical box sizer
 		szr_vbs_right.Add(t3,8,wxEXPAND)                       #add a pretend graph
 		szr_vbs_right.Add(1,5,0,wxEXPAND)                                #gap under graph, above buttons
-	        szr_vbs_right.Add(gs,1,wxEXPAND)                                 #Add the row of buttons
+		szr_vbs_right.Add(gs,1,wxEXPAND)                                 #Add the row of buttons
 		#-------------------------------------------------------------------
 		#Now create a sizer which will contain the left hand sizer + BMICalc
 		#and the right hand sizer (graph + buttons). This is a horizontal
@@ -308,50 +328,87 @@ Q\x97\xf9.\xd7\xa78\x0fs=\xef\xa3[@\x84a\xbfD(0h\xe6W\x82r\x8b\x04\xa9\x11\
 		szr_main_container.Fit(self)             #set to minimum size as calculated by sizer
 		self.SetAutoLayout(true)                 #tell frame to use the sizer
 		self.Show(true)                          #show the frame
-
 	
-	def getBitmap (self):
-		return wxBitmapFromXPMData (cPickle.loads(zlib.decompress( self.__icons[_("""icon_BMI_calc""")] )))
+#	def getBitmap (self):
+#		return wxBitmapFromXPMData (cPickle.loads(zlib.decompress(_icons[_("""icon_BMI_calc""")] )))
 
 	def OnCloseWindow(self, event):
 		self.Destroy()
+#== if run as standalone =======================================================
+if __name__ == '__main__':
+	import gmI18N
+	import cPickle, zlib
 
-ID_BMIMENU = wxNewId ()
-ID_BMITOOL = wxNewId ()
+	try:
+		icon_xpm_data = cPickle.loads(zlib.decompress(_icons[_("""icon_BMI_calc""")]))
+	except KeyError:
+		icon_xpm_data = cPickle.loads(zlib.decompress(_icons["""icon_BMI_calc"""]))
 
-class gmBMICalc (gmPlugin.wxBasePlugin, TestFrame): 	# inherits 'TestFrame' for access to 'getBitmap'
-    def name (self):
-        return 'BMICalcPlugin'
+	icon = wxEmptyIcon()
+	icon.CopyFromBitmap(wxBitmapFromXPMData(icon_xpm_data))
 
-    def register (self):
-        menu = self.gb['main.toolsmenu']
-        menu.Append (ID_BMIMENU, _("BMI"), _("Body Mass Index Calculator"))
-        EVT_MENU (self.gb['main.frame'], ID_BMIMENU, self.OnBMITool)
-	self.tb = self.gb['main.toolbar']
-	self.tool = wxToolBar (self.tb, -1, style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
-	self.tool.AddTool (ID_BMITOOL, self.getBitmap (), shortHelpString = _("BMI Calculator"))
-	self.tb.AddWidgetRightBottom (self.tool)
-	EVT_TOOL (self.tool, ID_BMITOOL, self.OnBMITool)
-
-    def unregister (self):
-        #tb2 = self.gb['toolbar.Patient']
-        #tb2.DeleteTool (ID_BMITOOL)
-        menu = self.gb['main.toolsmenu']
-        menu.Delete (ID_BMIMENU)
-
-    def OnBMITool (self, event):
-	    frame = TestFrame(NULL, _("BMI Calculator"), wxDEFAULT_FRAME_STYLE)
-	    wxGetApp ().SetTopWindow(frame)
-
-class App(wxApp):
-	def OnInit(self):
-		frame = TestFrame(NULL, -1, "gnuMEdGP_PreAlphaGUI__gmBMICalc_V0.0.1",
-		                           wxDefaultPosition, size = wxSize(800,600),
-		                           style= wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
-
-		self.SetTopWindow(frame)
-		return true
-
-if __name__ == "__main__":
-	app = App(0)
+	# set up dummy app
+	class TestApp (wxApp):
+		def OnInit (self):
+			frame = BMI_Frame(None)
+			frame.SetIcon(icon)
+			frame.Show(1)
+			return true
+	#---------------------
+	app = TestApp()
 	app.MainLoop()
+#== if run as plugin ===========================================================
+else:
+	import gmPlugin
+
+	ID_BMIMENU = wxNewId ()
+	ID_BMITOOL = wxNewId ()
+
+	#---------------------
+	class gmBMICalc (gmPlugin.wxBasePlugin):
+		def name (self):
+			return 'BMICalcPlugin'
+		#---------------------
+		def register (self):
+			menu = self.gb['main.toolsmenu']
+			menu.Append (ID_BMIMENU, _("BMI"), _("Body Mass Index Calculator"))
+			EVT_MENU (self.gb['main.frame'], ID_BMIMENU, self.OnBMITool)
+
+			self.tb = self.gb['main.toolbar']
+			self.tool = wxToolBar (self.tb, -1, style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
+			self.tool.AddTool(
+				ID_BMITOOL,
+				self.GetIcon(),
+				shortHelpString = _("BMI Calculator")
+			)
+			self.tb.AddWidgetRightBottom (self.tool)
+			EVT_TOOL (self.tool, ID_BMITOOL, self.OnBMITool)
+			# kind = wxITEM_NORMAL,
+		#---------------------
+		def unregister (self):
+			#tb2 = self.gb['toolbar.Patient']
+			#tb2.DeleteTool (ID_BMITOOL)
+			menu = self.gb['main.toolsmenu']
+			menu.Delete (ID_BMIMENU)
+		#---------------------
+		def OnBMITool (self, event):
+			# FIXME: update patient ID
+			frame = BMI_Frame(self.gb['main.frame'])
+			icon = wxEmptyIcon().CopyFromBitmap(self.GetIcon())
+			frame.SetIcon(icon)
+			frame.Show (1)
+		#---------------------
+		def GetIconData(self, anIconID = None):
+			try:
+				return _icons[anIconID]
+			except KeyError:
+				try:
+					return _icons[_("""icon_BMI_calc""")]
+				except KeyError:
+					return _icons["""icon_BMI_calc"""]
+#=====================================================================
+# $Log: gmBMICalc.py,v $
+# Revision 1.9  2003-01-12 02:14:06  ncq
+# - CVS keywords
+# - clean separation in standalone and plugin
+#
