@@ -130,6 +130,8 @@ public class HibernateInit {
         
         ds.addClass(identity_role.class);
          ds.addClass(identity_role_info.class);
+         
+         ds.addClass(search_identity.class);
         
         
     }
