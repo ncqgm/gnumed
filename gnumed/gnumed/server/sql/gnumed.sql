@@ -1,3 +1,6 @@
+-- DO NOT USE ANYMORE !
+-- use server/utils/bootstrap-gm_db_system.py instead
+
 -- project: GNUMed
 -- database: (global)
 -- purpose:  see comment below
@@ -19,6 +22,11 @@
 
 -- maybe the script should search automatically for the
 -- correct library path? Or prompt the user?
+
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
+-- =============================================
 
 -- create the neccessary procedural languages
 -- you may have to modify the path to the shared library according to your postgresql installation
