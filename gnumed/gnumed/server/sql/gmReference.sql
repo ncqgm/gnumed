@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -161,9 +161,11 @@ comment on column form_defs.in_use is
 	'whether this template is currently actively
 	 used in a given practice';
 comment on column form_defs.electronic is
-	'?: Ian';
+	'True if the form is designed for electronic transmission, such as e-mail. 
+Currently always false as we need appropriate middleware engines to do this (viz. HL7)';
 comment on column form_defs.flags is
-	'?: Ian';
+	'an array of flags (boolean options) for this form, which the GUI should display to the user
+Currently not implemented';
 
 -- ===================================================
 create table form_print_defs (
@@ -208,11 +210,14 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.7  2004-03-09 09:31:41  ncq
+-- Revision 1.8  2004-04-06 04:19:04  ihaywood
+-- form templates for australia
+--
+-- Revision 1.7  2004/03/09 09:31:41  ncq
 -- - merged most form def tables into reference service schema
 --
 -- Revision 1.6  2003/12/29 15:41:59  uid66147
