@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -281,6 +281,23 @@ class indexFrame(wxPanel):
 	#--------------------------------
 	def _init_phrase_wheel(self):
 		"""Set up phrase wheel.
+		"""
+		phrase_wheel_choices = self.__get_phrasewheel_choices()
+
+		# FIXME: we need to set this to non-learning mode
+		self.mp = cMatchProvider_FixedList(phrase_wheel_choices)
+		self.doc_id_wheel = cPhraseWheel(
+			self.PNL_main,
+			self.wheel_callback,
+			aMatchProvider = self.mp,
+			aDelay = 400
+		)
+		self.doc_id_wheel.on_resize (None)
+
+		return 1
+	#--------------------------------
+	def __get_phrasewheel_choices(self):
+		"""Return a list of dirs that can be indexed.
 
 		- directory names in self.repository correspond to identification
 		  strings on paper documents
@@ -289,7 +306,7 @@ class indexFrame(wxPanel):
 		"""
 
 		# get document directories
-		doc_dirs = os.listdir(self.repository)
+		doc_dirs = os.listdir(self.repository)		
 
 		# generate list of choices
 		phrase_wheel_choices = []
@@ -324,17 +341,7 @@ class indexFrame(wxPanel):
 			dlg.Destroy()
 			return None
 
-		# FIXME: we need to set this to non-learning mode
-		mp = cMatchProvider_FixedList(phrase_wheel_choices)
-		self.doc_id_wheel = cPhraseWheel(
-			self.PNL_main,
-			self.wheel_callback,
-			aMatchProvider = mp,
-			aDelay = 400
-		)
-		self.doc_id_wheel.on_resize (None)
-
-		return 1
+		return phrase_wheel_choices
 	#--------------------------------
 	def __set_properties(self):
 		self.SetTitle(_("GnuMed/Archiv: Associating documents with patients."))
@@ -502,8 +509,8 @@ class indexFrame(wxPanel):
 			self.__unlock_for_import(full_dir)
 			self.__clear_doc_fields()
 			self.doc_id_wheel.Clear()
-			# FIXME: this needs to be reloaded !
-			#self.initgmPhraseWheel()
+			doc_dirs = self.__get_phrasewheel_choices()
+			self.mp.setItems(doc_dirs)
 	#----------------------------------------
 	def on_show_page(self, event):
 		# did user select a page ?
@@ -938,7 +945,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.25  2002-12-29 00:54:02  ncq
+# Revision 1.26  2003-01-14 22:11:27  ncq
+# - reloads phrase wheel after save
+#
+# Revision 1.25  2002/12/29 00:54:02  ncq
 # - started support for loading of external files
 # - fixed gmI18N import position
 #
