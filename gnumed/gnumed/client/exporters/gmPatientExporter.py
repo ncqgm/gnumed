@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.1 2004-03-25 23:10:02 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPatientExporter.py,v 1.2 2004-04-20 13:00:22 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -41,29 +41,31 @@ class gmEmrExport:
 				'Please check the log file for details.'
 			))
 			return None
-		dump = emr.get_text_dump(
-			since=since_val,
-			until=until_val,
-			encounters=encounters_val,
-			episodes=episodes_val,
-			issues=issues_val)
-		if dump is None:
-			_log.Log(gmLog.lErr, 'cannot get EMR text dump')
-			print(_(
-				'An error occurred while retrieving a text\n'
-				'dump of the EMR for the active patient.\n\n'
-				'Please check the log file for details.'
-			))
-			return None
-		#print dump
-		keys = dump.keys()
-		_log.Log(gmLog.lErr, keys)
-		keys.sort()
-		txt = ''
-		for age in keys:
-			for line in dump[age]:
-				txt = txt + "%s\n" % line
-		print(txt)        
+		txt =''
+		txt += "Overview:\n"
+		txt += "--------\n"
+		txt += "1) Allergy status (*for details, see below):\n"
+		for allergy in 	emr.get_allergies():
+			txt += "   -" + allergy['descriptor'] + "\n"
+		txt += "\n"
+		txt += "2)Vaccination status:\n"
+		txt += "   .Vaccination indications:\n"
+		vaccinations, idx = emr.get_vaccinations()
+		for a_vacc in vaccinations:
+			txt += "      "
+			txt += str(a_vacc[idx['date']]) + ", "
+			txt += a_vacc[idx['indication']] + ", "
+			txt += a_vacc[idx['vaccine']] + "\n"
+			due_vaccinations = emr.get_due_vaccinations()
+			txt += "   .Due vaccinations:\n"
+			for a_vacc in due_vaccinations['due']:
+				if a_vacc is not None:
+					txt += str(a_vacc) + "\n"
+			txt += "   .Overdue vaccinations:\n"
+			for a_vacc in due_vaccinations['overdue']:
+				if a_vacc is not None:
+					txt += str(a_vacc) + "\n"
+		print(txt)
 	#--------------------------------------------------------
 	def dump_demographic_record(self, all = False):
 		demo = patient.get_demographic_record()
@@ -129,7 +131,10 @@ if __name__ == "__main__":
 		print(patient.get_document_folder())
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.1  2004-03-25 23:10:02  ncq
+# Revision 1.2  2004-04-20 13:00:22  ncq
+# - recent changes by Carlos to use VO API
+#
+# Revision 1.1  2004/03/25 23:10:02  ncq
 # - gmEmrExport -> gmPatientExporter by Carlos' suggestion
 #
 # Revision 1.2  2004/03/25 09:53:30  ncq
