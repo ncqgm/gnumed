@@ -200,9 +200,7 @@ class cConfTree(wxTreeCtrl):
 		# set object
 		eval(tmpFunc)[0]=object
 		return aSubTree
-
 	#------------------------------------------------------------------------
-
 	def OnActivate (self, event):
 		item = event.GetItem()
 		data = self.GetPyData(item)
@@ -239,7 +237,7 @@ class cConfTree(wxTreeCtrl):
 				self.Expand(item)
 		return 1
 
-		#--------------------------------------------------------
+	#--------------------------------------------------------
 	def OnRightDown(self,event):
 		position = event.GetPosition()
 #DEBUG
@@ -272,13 +270,19 @@ class cConfTree(wxTreeCtrl):
 
 ###############################################################################
 class ParameterDefinition:
-	"""
-	describes a gnumed configuration parameter.
+	"""Describes a gnumed configuration parameter.
 	"""
 	def __init__(self,aParamName = None,aParamType = None,aValidValsList = None,aParamDescription = None):
 		self.mName = aParamName
 		self.mType = aParamType
 		self.mDescription = aParamDescription
+		# perhaps make this a class <validator>, too ?
+		# - one method: bool isValid()
+		# - derived classes for:
+		#   validator -> string -> font
+		#   validator -> string -> color
+		#   validator -> numeric -> range
+		#   ...
 		self.mValidVals = aValidValsList
 
 ###############################################################################
@@ -308,8 +312,7 @@ class ConfigDefinition:
 				raise IOError, "cannot load definitions"
 		
 		self.__mParmeterDefinitions = {}
-
-
+	#------------------------------------------------------------------------
 	def __getDefinitions(self):
 		"""get config definitions"""
 
@@ -362,7 +365,6 @@ class ConfigDefinition:
 
 			# add new entry to parameter definition dictionary
 			self.__mParameterDefinitions[paramName] = ParameterDefinition(paramName,paramType,validVals,paramDescription)
-    
 
 ###############################################################################
 # TODO: 
@@ -501,7 +503,7 @@ class ConfigDataFile(ConfigData):
 		# this is a little bit ugly, but we need to get the full name of the
 		# file because this depends on the installation/system settings
 		# if no absolute path was specified, we get the config file gnumed
-		# would find first which is what we want usually 
+		# would find first which is what we want usually
 		self.fullPath = self.__cfgfile.cfgName
 
 	def GetFullPath(self):
@@ -543,11 +545,11 @@ class ConfigDataFile(ConfigData):
 			else:
 				for option in (options):			
 					currType=type(self.__cfgfile.get(group,option))
-					if currType == types.IntType or currType == types.FloatType or currType == types.LongType:
+					if currType in (types.IntType, types.FloatType, types.LongType):
 						myType = 'numeric'
-					elif currType == types.StringType:
+					elif currType is types.StringType:
 						myType = 'string'
-					elif currType == types.ListType:
+					elif currType is types.ListType:
 						myType = 'str_array'
 					else:
 					# FIXME: we should raise an exception here or make the entry
@@ -736,7 +738,7 @@ if __name__ == '__main__':
 	import gmPlugin, gmGuiBroker
 	_log.Log (gmLog.lInfo, "starting display handler")
 
-	if _cfg == None:
+	if _cfg is None:
 		_log.Log(gmLog.lErr, "Cannot run without config file.")
 		sys.exit("Cannot run without config file.")
 	
@@ -779,7 +781,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.6  2003-05-22 16:28:37  hinnef
+# Revision 1.7  2003-05-22 21:19:21  ncq
+# - some comments and cleanup
+#
+# Revision 1.6  2003/05/22 16:28:37  hinnef
 # - selecting an item now expands/collapses its subtrees
 #
 # Revision 1.5  2003/05/16 10:51:45  hinnef
