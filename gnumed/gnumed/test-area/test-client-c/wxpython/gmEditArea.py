@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.5 2003-10-25 16:13:26 sjtan Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmEditArea.py,v 1.6 2003-10-26 00:58:53 sjtan Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -544,7 +544,7 @@ class gmEditArea( wxPanel):
 		# client internal signals
 		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_data)
 		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._save_data)
-		gmDispatcher.connect(signal = gmSignals.patient_object_changed(), receiver = self._changePatient)
+		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self._changePatient)
 
 		return 1
 	#--------------------------------------------------------
@@ -583,8 +583,9 @@ class gmEditArea( wxPanel):
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
 
-	def _changePatient( self, patient):
-		self._setPatientModel(patient)
+	def _changePatient( self, kwds):
+		from gmTmpPatient import gmCurrentPatient
+		self._setPatientModel(gmCurrentPatient(kwds['ID']))
 		try:
 			self._updateUI()
 			self._init_fields()
@@ -1865,7 +1866,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.5  2003-10-25 16:13:26  sjtan
+# Revision 1.6  2003-10-26 00:58:53  sjtan
+#
+# use pre-existing signalling
+#
+# Revision 1.5  2003/10/25 16:13:26  sjtan
 #
 # past history , can add  after selecting patient.
 #

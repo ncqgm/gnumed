@@ -1,13 +1,16 @@
 
 
 import gmDispatcher, gmSignals
+from gmTmpPatient import gmCurrentPatient
 
 
 class PatientHolder:
 	def __init__(self):
-		gmDispatcher.connect( self._setPatientModel, gmSignals.patient_object_changed() )
+		gmDispatcher.connect( self._setPatientModel, gmSignals.patient_selected() )
 
-	def _setPatientModel( self, patient):
+	def _setPatientModel( self, kwds):
+		print kwds
+		patient = gmCurrentPatient(kwds['ID'])
 		self.patient = patient
 		self._updateUI()
 	
