@@ -34,8 +34,6 @@ It is helpful to have a solid log target set up before importing this
 module in your code. This way you will be able to see even those log
 messages generated during module import.
 
-For sample code see bottom of file.
-
 Once your software has established database connectivity it can call
  activateDatabase()
 to switch on database access for configuration options.
@@ -52,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
