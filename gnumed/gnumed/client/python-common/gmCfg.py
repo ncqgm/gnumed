@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -224,7 +224,7 @@ class cCfgFile:
 		new_name = "%s.new" % self.cfgName
 
 		# open new file for writing
-		new_file = open(new_name, "w")
+		new_file = open(new_name, "wb")
 
 		# file level comment
 		if self._cfg_data.has_key('comment'):
@@ -258,7 +258,7 @@ class cCfgFile:
 		new_file.close
 		# rename new file to old file
 		shutil.copyfile(new_name, self.cfgName)
-		os.remove(new_name)
+		#os.remove(new_name)
 		return 1
 	#----------------------------
 	# internal methods
@@ -536,7 +536,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.9  2002-09-10 18:31:45  ncq
+# Revision 1.10  2002-09-10 18:43:02  ncq
+# - windows sucks !
+#
+# Revision 1.9  2002/09/10 18:31:45  ncq
 # - windows is strange: os.rename -> shutil.copyfile + os.remove
 #
 # Revision 1.8  2002/09/10 18:15:28  ncq
