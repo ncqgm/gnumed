@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.5 2003-02-19 15:56:33 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmXdtViewer.py,v 1.6 2003-04-25 13:04:39 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys,os,fileinput,string,linecache
@@ -312,8 +312,8 @@ else:
 			)
 			if dlg.ShowModal() == wxID_OK:
 				fname = dlg.GetPath()
+				_log.Log(gmLog.lData, 'selected [%s]' % fname)
 			dlg.Destroy()
-			_log.Log(gmLog.lData, 'selected [%s]' % fname)
 
 			# - via currently selected patient -> XDT files
 			# ...
@@ -323,7 +323,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.5  2003-02-19 15:56:33  ncq
+# Revision 1.6  2003-04-25 13:04:39  ncq
+# - reorder variable use so fname is defined when logging
+#
+# Revision 1.5  2003/02/19 15:56:33  ncq
 # - don't fail on malformed lines
 #
 # Revision 1.4  2003/02/19 12:42:38  ncq
