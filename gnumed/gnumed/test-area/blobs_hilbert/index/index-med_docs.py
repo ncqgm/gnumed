@@ -1,8 +1,9 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.1 $"
-__author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
+__version__ = "$Revision: 1.2 $"
+__author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
+			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
 from wxPython.lib.anchors import LayoutAnchors
@@ -12,37 +13,27 @@ import Image, os, time, shutil, os.path
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
 
+import gmLog
+gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+
 from docPatient import *
 from docDocument import cDocument
 from gmPhraseWheel import *
-import gmLog
-gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 import gmCfg, gmI18N
 import docXML
 
 _log = gmLog.gmDefLog
 __cfg__ = gmCfg.gmDefCfg
 
-def create(parent):
-	return indexFrame(parent)
-
 [wxID_INDEXFRAME, wxID_INDEXFRAMEADDITIONCOMMENTBOX, wxID_INDEXFRAMEBEFNRBOX, wxID_INDEXFRAMEBEFUNDDATE, wxID_INDEXFRAMEDATEOFBIRTHBOX, wxID_INDEXFRAMEDELPICBUTTON, wxID_INDEXFRAMEDESCRIPTIONCHOICEBOX, wxID_INDEXFRAMEFIRSTNAMEBOX, wxID_INDEXFRAMEGETPAGESBUTTON, wxID_INDEXFRAMELASTNAMEBOX, wxID_INDEXFRAMELBOXPAGES, wxID_INDEXFRAMEMAINPANEL, wxID_INDEXFRAMEREADFAXBUTTON, wxID_INDEXFRAMESAVEBUTTON, wxID_INDEXFRAMESHORTDECRIPTIONBOX, wxID_INDEXFRAMESHOWPICBUTTON, wxID_INDEXFRAMESTATICTEXT1, wxID_INDEXFRAMESTATICTEXT10, wxID_INDEXFRAMESTATICTEXT11, wxID_INDEXFRAMESTATICTEXT12, wxID_INDEXFRAMESTATICTEXT13, wxID_INDEXFRAMESTATICTEXT2, wxID_INDEXFRAMESTATICTEXT3, wxID_INDEXFRAMESTATICTEXT4, wxID_INDEXFRAMESTATICTEXT5, wxID_INDEXFRAMESTATICTEXT6, wxID_INDEXFRAMESTATICTEXT7, wxID_INDEXFRAMESTATICTEXT8, wxID_INDEXFRAMESTATICTEXT9] = map(lambda _init_ctrls: wxNewId(), range(29))
 
-#-------------------------------------
+#====================================
 class indexFrame(wxFrame):
-#-------------------------------------
+
 	doc_pages = []
 	page = 0
 	selected_pic = ''
 	queryGeburtsdatum = ''
-	Obj_Name_value = ''
-	Obj_Typ_value = ''
-	Obj_Datum_value = ''
-	Obj_Referenz_value = ''
-	Obj_Beschreibung_value = ''
-	
-	patid = None
-	docid = None
 	#---------------------------------------------------------------------------
 	def __init__(self, parent):
 
@@ -109,26 +100,20 @@ class indexFrame(wxFrame):
 			size = wxSize(176, 22),
 			style = 0
 		)
-		self.BTN_get_pages.SetToolTipString(_('load all pages for this document'))
+		self.BTN_get_pages.SetToolTipString(_('load the pages of this document'))
 		EVT_BUTTON(self.BTN_get_pages, wxID_INDEXFRAMEGETPAGESBUTTON, self.on_get_pages)
 
 		#-- load fax button -------------
 		self.BTN_read_fax = wxButton(
 			id = wxID_INDEXFRAMEREADFAXBUTTON,
-			label = _('load fax-document'),
+			label = _('load fax document'),
 			name = 'BTN_read_fax',
 			parent = self.PNL_main,
 			pos = wxPoint(48, 232),
 			size = wxSize(176, 22),
 			style = 0
 		)
-
-		self.showPicButton = wxButton(id = wxID_INDEXFRAMESHOWPICBUTTON, label = _('show page'), name = 'showPicButton', parent = self.PNL_main, pos = wxPoint(48, 400), size = wxSize(95, 22), style = 0)
-		self.showPicButton.SetToolTipString(_('show page'))
-		EVT_BUTTON(self.showPicButton, wxID_INDEXFRAMESHOWPICBUTTON, self.OnShowpicbuttonButton)
-
-		self.delPicButton = wxButton(id = wxID_INDEXFRAMEDELPICBUTTON, label = _('delete page'), name = 'delPicButton', parent = self.PNL_main, pos = wxPoint(143, 400), size = wxSize(90, 22), style = 0)
-		EVT_BUTTON(self.delPicButton, wxID_INDEXFRAMEDELPICBUTTON, self.OnDelpicbuttonButton)
+		self.BTN_read_fax.SetToolTipString(_('currently non-functional: load a fax document'))
 
 		#-- list box with pages -------------
 		self.LBOX_doc_pages = wxListBox(
@@ -141,6 +126,14 @@ class indexFrame(wxFrame):
 			style = 0,
 			validator = wxDefaultValidator
 		)
+		self.LBOX_doc_pages.SetToolTipString(_('these pages make up the current document'))
+
+		self.showPicButton = wxButton(id = wxID_INDEXFRAMESHOWPICBUTTON, label = _('show page'), name = 'showPicButton', parent = self.PNL_main, pos = wxPoint(48, 400), size = wxSize(95, 22), style = 0)
+		self.showPicButton.SetToolTipString(_('show page'))
+		#EVT_BUTTON(self.showPicButton, wxID_INDEXFRAMESHOWPICBUTTON, self.OnShowpicbuttonButton)
+
+		self.delPicButton = wxButton(id = wxID_INDEXFRAMEDELPICBUTTON, label = _('delete page'), name = 'delPicButton', parent = self.PNL_main, pos = wxPoint(143, 400), size = wxSize(90, 22), style = 0)
+		#EVT_BUTTON(self.delPicButton, wxID_INDEXFRAMEDELPICBUTTON, self.OnDelpicbuttonButton)
 
 		#-- first name text box -------------
 		self.TBOX_first_name = wxTextCtrl(
@@ -152,9 +145,8 @@ class indexFrame(wxFrame):
 			style = wxTE_READONLY,
 			value = 'loading ...'
 		)
-		self.TBOX_first_name.SetToolTipString(_('first name of patient'))
+		self.TBOX_first_name.SetToolTipString(_('not editable, loaded from file'))
 		self.TBOX_first_name.SetBackgroundColour(wxColour(255, 255, 255))
-		#self.TBOX_first_name.Enable(false)
 
 		#-- last name text box -------------
 		self.TBOX_last_name = wxTextCtrl(
@@ -166,9 +158,8 @@ class indexFrame(wxFrame):
 			style = wxTE_READONLY,
 			value = 'loading ...'
 		)
-		self.TBOX_first_name.SetToolTipString(_('last name of patient'))
+		self.TBOX_first_name.SetToolTipString(_('not editable, loaded from file'))
 		self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
-		#self.TBOX_last_name.Enable(false)
 
 		#-- dob text box -------------
 		self.TBOX_dob = wxTextCtrl(
@@ -180,9 +171,8 @@ class indexFrame(wxFrame):
 			style = wxTE_READONLY,
 			value = 'loading ...'
 		)
-		self.TBOX_dob.SetToolTipString(_('date of birth'))
+		self.TBOX_dob.SetToolTipString(_('not editable, loaded from file'))
 		#self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
-		#self.TBOX_dob.Enable(false)
 
 		#-- document date text box -------------
 		self.TBOX_doc_date = wxTextCtrl(
@@ -195,7 +185,7 @@ class indexFrame(wxFrame):
 			value = _('please fill in')
 		)
 
-		#-- document comment text box -------------
+		#-- short document comment text box -------------
 		self.TBOX_desc_short = wxTextCtrl(
 			id = wxID_INDEXFRAMESHORTDECRIPTIONBOX,
 			name = 'TBOX_desc_short',
@@ -220,11 +210,29 @@ class indexFrame(wxFrame):
 		)
 		self.SelBOX_doc_type.SetLabel('')
 
-		self.saveButton = wxButton(id = wxID_INDEXFRAMESAVEBUTTON, label = _('save document'), name = 'saveButton', parent = self.PNL_main, pos = wxPoint(544, 112), size = wxSize(144, 328), style = 0)
-		self.saveButton.SetToolTipString(_('save'))
-		EVT_BUTTON(self.saveButton, wxID_INDEXFRAMESAVEBUTTON, self.OnSavebuttonButton)
+		#-- save data button -------------
+		self.BTN_save_data = wxButton(
+			id = wxID_INDEXFRAMESAVEBUTTON,
+			label = _('save data'),
+			name = 'BTN_save_data',
+			parent = self.PNL_main,
+			pos = wxPoint(544, 112),
+			size = wxSize(144, 328),
+			style = 0
+		)
+		self.BTN_save_data.SetToolTipString(_('save entered metadata with document'))
+		EVT_BUTTON(self.BTN_save_data, wxID_INDEXFRAMESAVEBUTTON, self.on_save_data)
 
-		self.additionCommentBox = wxTextCtrl(id = wxID_INDEXFRAMEADDITIONCOMMENTBOX, name = 'additionCommentBox', parent = self.PNL_main, pos = wxPoint(48, 488), size = wxSize(640, 88), style = wxTE_MULTILINE, value = ' ')
+		#-- long document comment text box -------------
+		self.TBOX_desc_long = wxTextCtrl(
+			id = wxID_INDEXFRAMEADDITIONCOMMENTBOX,
+			name = 'TBOX_desc_long',
+			parent = self.PNL_main,
+			pos = wxPoint(48, 488),
+			size = wxSize(640, 88),
+			style = wxTE_MULTILINE,
+			value = '')
+		self.TBOX_desc_long.SetToolTipString(_('a summary or longer comment for this document'))
 
 		self.staticText1 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT1, label = '1.', name = 'staticText1', parent = self.PNL_main, pos = wxPoint(48, 56), size = wxSize(19, 29), style = 0)
 		self.staticText1.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
@@ -242,9 +250,25 @@ class indexFrame(wxFrame):
 
 		self.staticText6 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT6, label = _('date of birth'), name = 'staticText6', parent = self.PNL_main, pos = wxPoint(304, 208), size = wxSize(152, 16), style = 0)
 
-		self.staticText7 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT7, label = _('string on document '), name = 'staticText7', parent = self.PNL_main, pos = wxPoint(48, 96), size = wxSize(176, 16), style = 0)
+		self.staticText7 = wxStaticText(
+			id = wxID_INDEXFRAMESTATICTEXT7,
+			label = _('document identifier'),
+			name = 'staticText7',
+			parent = self.PNL_main,
+			pos = wxPoint(48, 96),
+			size = wxSize(176, 16),
+			style = 0
+		)
 
-		self.staticText8 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT8, label = _('pages'), name = 'staticText8', parent = self.PNL_main, pos = wxPoint(48, 264), size = wxSize(152, 16), style = 0)
+		self.staticText8 = wxStaticText(
+			id = wxID_INDEXFRAMESTATICTEXT8,
+			label = _('document pages'),
+			name = 'staticText8',
+			parent = self.PNL_main,
+			pos = wxPoint(48, 264),
+			size = wxSize(152, 16),
+			style = 0
+		)
 
 		self.staticText9 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT9, label = _('firstname'), name = 'staticText9', parent = self.PNL_main, pos = wxPoint(304, 96), size = wxSize(152, 16), style = 0)
 
@@ -326,10 +350,10 @@ class indexFrame(wxFrame):
 			self.wheel_callback,
 			pos = (48, 112),
 			size = (176, 22),
-			aMatchProvider=mp,
+			aMatchProvider = mp,
 			aDelay = 400
 		)
-		self.doc_id_wheel.SetToolTipString(_('physical document ID'))
+		self.doc_id_wheel.SetToolTipString(_('the document identifier is usually written or stamped onto the physical pages of the document'))
 		self.doc_id_wheel.on_resize (None)
 
 		return 1
@@ -352,6 +376,38 @@ class indexFrame(wxFrame):
 
 		self.__fill_doc_fields()
 	#----------------------------------------
+	def on_save_data(self, event):
+		"""Save collected metadata into XML file."""
+
+		event.Skip()
+
+		if not self.__valid_input():
+			_log.Log(gmLog.lErr, 'Cannot save collected metadata. It is not fully valid.')
+			dlg = wxMessageDialog(
+				self,
+				_('The data you entered about the current document\nis not complete. Please enter the missing information.'),
+			 	_('Error'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+		else:
+			self.__dump_metadata_to_xml()
+
+
+			# copy XDT-file ( not the XML-file ) into self.repository directory
+			pat_file = __cfg__.get("metadata", "patient")
+			shutil.copy(os.path.expanduser(os.path.join(__cfg__.get("metadata", "location"), pat_file)),__cfg__.get("source", "repositories") + self.BefValue + '/')
+			# generate a file to tell import script that we are done here
+			out_file = open(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.can_index_file,"w")
+
+			#refresh everything
+			self.__clear_doc_fields()
+			# empty doc_id_wheel as well
+			self.doc_id_wheel.Clear()
+			# items for phraseWheel
+			self.initgmPhraseWheel()
 
 	#---------------------------------------------------------------------------
 	def wheel_callback (self, data):
@@ -390,7 +446,6 @@ class indexFrame(wxFrame):
 			dlg.Destroy()
 			return None
 
-
 #		self.Geburtsdatum = self.rawGeburtsdatum[:4]  + '-' + self.rawGeburtsdatum[4:6] + '-' + self.rawGeburtsdatum[-2:]
 #		self.queryGeburtsdatum = self.rawGeburtsdatum
 		return 1
@@ -400,12 +455,11 @@ class indexFrame(wxFrame):
 		self.TBOX_last_name.SetValue(self.myPatient.lastnames)
 		self.TBOX_dob.SetValue(self.myPatient.dob)
 	#----------------------------------------
-	#----------------------------------------
 	def __clear_doc_fields(self):
 		# clear fields
 		self.TBOX_doc_date.SetValue(_('please fill in'))
 		self.TBOX_desc_short.SetValue(_('please fill in'))
-		self.additionCommentBox.SetValue(_('please fill in'))
+		self.TBOX_desc_long.SetValue(_('please fill in'))
 		self.SelBOX_doc_type.SetSelection(-1)
 		self.LBOX_doc_pages.Clear()
 	#----------------------------------------
@@ -445,10 +499,10 @@ class indexFrame(wxFrame):
 
 		# actually get pages
 		self.myDoc = cDocument()
-		if not self.myDoc.LoadImgListFromXML(fname , work_dir):
-			_log.Log(gmLog.lErr, 'Cannot load image list from metadata file [%s].' % fname)
+		if not self.myDoc.loadImgListFromXML(fname , work_dir):
+			_log.Log(gmLog.lErr, 'Cannot load image list from metadata file[%s].' % fname)
 			dlg = wxMessageDialog(self, 
-				_('Cannot load image list from metadata file [%s].\nPlease see error log for details.' % fname),
+				_('Cannot load image list from metadata file\n[%s].\n\nPlease see error log for details.' % fname),
 				_('Error'),
 				wxOK | wxICON_ERROR
 			)
@@ -458,84 +512,79 @@ class indexFrame(wxFrame):
 
 		return 1
 	#----------------------------------------
-	def __fill_doc_fields():
+	def __fill_doc_fields(self):
 		self.__clear_doc_fields()
 		pageLst = self.myDoc.getMetaData()['objects']
 		for page_num, fname in pageLst.items():
-			self.LBOX_doc_pages.Append(_('page %s') % page_num, {'number': page_num, 'file': fname})
+			self.LBOX_doc_pages.Append(_('page %s (%s)') % (page_num, fname['file name']), {'number': page_num, 'file': fname})
 	#----------------------------------------
-	def OnShowpicbuttonButton(self, event):
-		self.BefValue=self.doc_id_wheel.GetLineText(0)
-		current_selection=self.LBOX_doc_pages.GetSelection()
-		if not current_selection == -1:
-			pic_selection=current_selection+1
-			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
-			#for debugging only
-			print "I show u:" + self.selected_pic
-			if os.name == 'posix':
-				self.show_pic(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.jpg')
-			else:
-				self.show_pic(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.bmp')
-		else:
-			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
+	def __dump_metadata_to_xml():
 
-	def OnDelpicbuttonButton(self, event):
-		current_selection=self.LBOX_doc_pages.GetSelection()
-		self.BefValue=self.doc_id_wheel.GetLineText(0)
-		if current_selection == -1:
-			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-			
-		else:
-			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
-			#print self.doc_pages
-			#del page from hdd
-			try:
-				os.remove(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.jpg')
-			except OSError:
-				_log.Log (gmLog.lErr, "I was unable to wipe the file " + __cfg__.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.jpg' + " from disk because it simply was not there ")
-				dlg = wxMessageDialog(self, _('I am afraid I was not able to delete the page from disk because it was not there'),_('Attention'), wxOK | wxICON_INFORMATION)
-				try:
-					dlg.ShowModal()
-				finally:
-					dlg.Destroy()
-			#now rename (decrease index by 1) all pages above the deleted one
-			i = current_selection
-			#print self.doc_pages
-			for i in range(i,len(self.doc_pages)-1):
-				try:
-					os.rename(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg',__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i) + '.jpg')
-				except OSError:
-					_log.Log (gmLog.lErr, "I was unable to rename the file " + __cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg' + " from disk because it simply was not there ")
-				print "I renamed" +str(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg') + "into" + str(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i) + '.jpg')
-			
-			#print "u want to del:" + self.selected_pic
-			self.LBOX_doc_pages.Delete(current_selection)
-			self.doc_pages.remove(self.selected_pic + '.jpg')
-			#rebuild list to clean the gap
-			i = 0
-			for i in range(len(self.doc_pages)):
-				if i == 0:
-					self.doc_pages = []
-					self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_INDEXFRAMELBOXPAGES, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(48, 288), size = wxSize(182, 94), style = 0, validator = wxDefaultValidator)
-				self.UpdatePicList()        
+		# make sure to get the first line only :-)
+		curr_doc_dir = self.doc_id_wheel.GetLineText(0)
+		xml_fname = os.path.join(self.repository, curr_doc_dir, self.desc_file_name)
 
-	def OnSavebuttonButton(self, event):
-		event.Skip()
+		# read content of xml file
+		# FIXME: error checking, but shouldn't fail, really
+#		xml_file = open(xml_fname, "r")
+#		xml_content = xml_file.read()
+#		xml_file.close()
+
+		content = []
+
+		tag = __cfg__.get("metadata", "document_tag")
+		content.append('<%s>\n' % tag)
+
+		tag = __cfg__.get("metadata", "name_tag")
+		content.append('<%s>%s</%s>\n' (tag, self.myPatient.lastnames, tag))
+
+		tag = __cfg__.get("metadata", "firstname_tag")
+		content.append('<%s>%s</%s>\n' (tag, self.myPatient.firstnames, tag))
+
+		tag = __cfg__.get("metadata", "birth_tag")
+		content.append('<%s>%s</%s>\n' (tag, self.myPatient.dob, tag))
+
+		tag = __cfg__.get("metadata", "date_tag")
+		content.append('<%s>%s</%s>\n' (tag, self.TBOX_doc_date.GetLineText(0), tag))
+
+		tag = __cfg__.get("metadata", "type_tag")
+		content.append('<%s>%s</%s>\n' (tag, self.SelBOX_doc_type.GetStringSelection(), tag))
+
+		tag = __cfg__.get("metadata", "comment_tag")
+		content.append('<%s>%s</%s>\n' (tag, self.TBOX_desc_short.GetLineText(0), tag))
+
+		tag = __cfg__.get("metadata", "aux_comment_tag")
+		content.append('<%s>%s</%s>\n' (tag, self.TBOX_desc_long.GetValue(), tag))
+
+		tag = __cfg__.get("metadata", "ref_tag")
+		content.append('<%s>%s</%s>\n' (tag, curr_doc_dir, tag))
+
+		# FIXME: take reordering into account
+		tag = __cfg__.get("metadata", "obj_tag")
+		pageLst = self.myDoc.getMetaData()['objects']
+		for page_num, fname in pageLst.items():
+			content.append('<%s>%s</%s>\n' (tag, fname, tag))
+
+		content.append('</%s>\n' % __cfg__.get("metadata", "document_tag"))
+
+		# delete old XML metadata file
+		os.remove(xml_fname)
+		# create new XML metadata file
+		xml_file = open(xml_fname, "w")
+		# write content to it
+		map(xml_file.write, content)
+		xml_file.close()
+	#----------------------------------------
+	def __valid_input(self):
+		# FIXME: this is utter crap !!!
+
 		# check whether values for date of record, record type, short comment and extended comment
 		# have been filled in
-		date=self.TBOX_doc_date.GetLineText(0)
+		date = self.TBOX_doc_date.GetLineText(0)
 		datechecklist = string.split(date,'-')
 		shortDescription=self.TBOX_desc_short.GetLineText(0)
 		DescriptionChoice=self.SelBOX_doc_type.GetSelection()
-		additionalComment=self.additionCommentBox.GetLineText(0)
+		additionalComment=self.TBOX_desc_long.GetLineText(0)
 		# do some checking on the date
 		if date == _('please fill in'):
 			dlg = wxMessageDialog(self, _('You did not fill in a document date'),
@@ -659,65 +708,87 @@ class indexFrame(wxFrame):
 		elif DescriptionChoice == 'please choose':
 			dlg = wxMessageDialog(self, _('You did not select a document type'),
 			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
+			dlg.ShowModal()
+			dlg.Destroy()
 		
 		elif additionalComment == '':
 			dlg = wxMessageDialog(self, _('please fill the box "additional comment"'),
 			  _('Attention'), wxOK | wxICON_INFORMATION)
+			dlg.ShowModal()
+			dlg.Destroy()
+
+		else:
+			return 1
+
+		return 0
+	#----------------------------------------
+	def OnShowpicbuttonButton(self, event):
+		self.BefValue=self.doc_id_wheel.GetLineText(0)
+		current_selection=self.LBOX_doc_pages.GetSelection()
+		if not current_selection == -1:
+			pic_selection=current_selection+1
+			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
+			#for debugging only
+			print "I show u:" + self.selected_pic
+			if os.name == 'posix':
+				self.show_pic(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.jpg')
+			else:
+				self.show_pic(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.bmp')
+		else:
+			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
 			try:
 				dlg.ShowModal()
 			finally:
 				dlg.Destroy()
-		
+
+	def OnDelpicbuttonButton(self, event):
+		current_selection=self.LBOX_doc_pages.GetSelection()
+		self.BefValue=self.doc_id_wheel.GetLineText(0)
+		if current_selection == -1:
+			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
+			try:
+				dlg.ShowModal()
+			finally:
+				dlg.Destroy()
+			
 		else:
-			in_file = open(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.desc_file_name,"r")
-			xml_content = in_file.read()
-			in_file.close()
-			#del old self.desc_file_name
-			os.remove(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.desc_file_name)
-			# create xml file
-			out_file = open(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.desc_file_name,"w")
-			tmpdir_content = self.doc_pages
-			runs = len(tmpdir_content)
-			x=0
-			out_file.write ("<" + __cfg__.get("metadata", "document_tag")    + ">\n")
-			out_file.write ("<" + __cfg__.get("metadata", "name_tag")        + ">" + self.Nachname           + "</" + __cfg__.get("metadata", "name_tag")      + ">\n")
-			out_file.write ("<" + __cfg__.get("metadata", "firstname_tag")   + ">" + self.Vorname            + "</" + __cfg__.get("metadata", "firstname_tag") + ">\n")
-			out_file.write ("<" + __cfg__.get("metadata", "birth_tag")       + ">" + self.queryGeburtsdatum  + "</" + __cfg__.get("metadata", "birth_tag")     + ">\n" )
-			out_file.write ("<" + __cfg__.get("metadata", "date_tag")        + ">" + self.TBOX_doc_date.GetLineText(0) + "</" + __cfg__.get("metadata", "date_tag") + ">\n" )
-			out_file.write ("<" + __cfg__.get("metadata", "type_tag")        + ">" + self.SelBOX_doc_type.GetStringSelection() + "</" + __cfg__.get("metadata", "type_tag") + ">\n")
-			out_file.write ("<" + __cfg__.get("metadata", "comment_tag")     + ">" + self.TBOX_desc_short.GetLineText(0) + "</" + __cfg__.get("metadata", "comment_tag") + ">\n")
-			out_file.write ("<" + __cfg__.get("metadata", "add_comment_tag") + ">" + self.additionCommentBox.GetValue() + "</" + __cfg__.get("metadata", "add_comment_tag") + ">\n")
-			out_file.write ("<" + __cfg__.get("metadata", "ref_tag")         + ">" + self.Obj_Referenz_value + "</" + __cfg__.get("metadata", "ref_tag") + ">\n")
-			while x < runs:
-				out_file.write ("<image>" + tmpdir_content[x] + "</image>\n")
-				x=x+1
-			out_file.write ("</" + __cfg__.get("metadata", "document_tag") + ">")
-			out_file.close()
-			# copy XDT-file ( not the XML-file ) into self.repository directory
-			pat_file = __cfg__.get("metadata", "patient")
-			shutil.copy(os.path.expanduser(os.path.join(__cfg__.get("metadata", "location"), pat_file)),__cfg__.get("source", "repositories") + self.BefValue + '/')
-			# generate a file to tell import script that we are done here
-			out_file = open(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.can_index_file,"w")
-			#refresh everything
-			self.Vorname = ''
-			self.Nachname = ''
-			self.Geburtsdatum = ''
-			self.__clear_doc_data()
-			# empty doc_id_wheel as well
-			self.doc_id_wheel.Clear()
-			# items for phraseWheel
-			self.initgmPhraseWheel()
+			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
+			#del page from hdd
+			try:
+				os.remove(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.jpg')
+			except OSError:
+				_log.Log (gmLog.lErr, "I was unable to wipe the file " + __cfg__.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.jpg' + " from disk because it simply was not there ")
+				dlg = wxMessageDialog(self, _('I am afraid I was not able to delete the page from disk because it was not there'),_('Attention'), wxOK | wxICON_INFORMATION)
+				try:
+					dlg.ShowModal()
+				finally:
+					dlg.Destroy()
+			#now rename (decrease index by 1) all pages above the deleted one
+			i = current_selection
+			for i in range(i,len(self.doc_pages)-1):
+				try:
+					os.rename(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg',__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i) + '.jpg')
+				except OSError:
+					_log.Log (gmLog.lErr, "I was unable to rename the file " + __cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg' + " from disk because it simply was not there ")
+				print "I renamed" +str(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg') + "into" + str(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i) + '.jpg')
+			
+			#print "u want to del:" + self.selected_pic
+			self.LBOX_doc_pages.Delete(current_selection)
+			self.doc_pages.remove(self.selected_pic + '.jpg')
+			#rebuild list to clean the gap
+			i = 0
+			for i in range(len(self.doc_pages)):
+				if i == 0:
+					self.doc_pages = []
+					self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_INDEXFRAMELBOXPAGES, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(48, 288), size = wxSize(182, 94), style = 0, validator = wxDefaultValidator)
+				self.UpdatePicList()
+
+
 #======================================================
 class IndexerApp(wxApp):
 	def OnInit(self):
 		wxInitAllImageHandlers()
-		self.main = create(None)
-		#workaround for running in wxProcess
-		#self.main.Show();self.main.Hide();self.main.Show()
+		self.main = indexFrame(None)
 		self.main.Centre(wxBOTH)
 		self.main.Show(true)
 		self.SetTopWindow(self.main)
@@ -858,4 +929,4 @@ if __name__ == '__main__':
 #		index = self.SelBOX_doc_type.FindString(self.Obj_Typ_value)
 #		self.SelBOX_doc_type.SetSelection(index)
 #		#if not self.Obj_Beschreibung_value =='':
-#		self.additionCommentBox.AppendText(self.Obj_Beschreibung_value)
+#		self.TBOX_desc_long.AppendText(self.Obj_Beschreibung_value)
