@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.134 2004-08-11 09:44:15 ncq Exp $
-__version__ = "$Revision: 1.134 $"
+# $Id: gmClinicalRecord.py,v 1.135 2004-08-23 09:07:58 ncq Exp $
+__version__ = "$Revision: 1.135 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -930,23 +930,6 @@ class cClinicalRecord:
 			v_indications.append([vacc['indication'], vacc['l10n_indication']])
 		return (1, v_indications)
 	#--------------------------------------------------------
-	def get_vaccinated_regimes(self):
-		"""Retrieves regimes for which patient has received any vaccinations.
-		"""
-		cmd = """
-			select distinct on (regime)
-				regime,
-				_(indication)
-			from v_patient_vaccinations
-			where pk_patient = %s"""
-		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot load vaccinations for patient [%s]' % self.id_patient)
-			return None
-		if len(rows) == 0:
-			return [[_('no vaccinations recorded'), '']]
-		return rows
-	#--------------------------------------------------------
 	def get_vaccinations(self, ID = None, indications = None, since=None, until=None, encounters=None, episodes=None, issues=None):
 		"""Retrieves list of vaccinations the patient has received.
 
@@ -1414,7 +1397,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.134  2004-08-11 09:44:15  ncq
+# Revision 1.135  2004-08-23 09:07:58  ncq
+# - removed unneeded get_vaccinated_regimes() - was faulty anyways
+#
+# Revision 1.134  2004/08/11 09:44:15  ncq
 # - gracefully continue loading clin_narrative items if one fails
 # - map soap_cats filter to lowercase in get_clin_narrative()
 #
