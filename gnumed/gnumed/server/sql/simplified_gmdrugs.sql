@@ -12,7 +12,7 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/simplified_gmdrugs.sql,v $
--- $Revision: 1.1 $ $Date: 2003-01-01 13:53:01 $ $Author: hherb $
+-- $Revision: 1.2 $ $Date: 2003-01-01 14:10:00 $ $Author: hherb $
 -- ============================================================
 
 \set ON_ERROR_STOP 1
@@ -56,7 +56,7 @@ insert into code_systems(name, version) values ('ICPC', '2');
 
 create table problem (
 	id serial primary key,
-	id_code_system integer references code_system(id),
+	id_code_system integer references code_systems(id),
 	code varchar(20),
 	description text
 );
@@ -104,7 +104,7 @@ create table drug_components (
 	id_component integer references drug(id)
 );
 
-comment on table compound_drug is
+comment on table drug_components is
 'many-2-many pivot table linking components of a compound drug.';
 
 comment on column drug_components.id_drug is
@@ -128,6 +128,10 @@ comment on column names_drug.country is
 'Two character ISO country code';
 
 
+create table drug_units (
+	id serial primary key,
+	unit varchar(30)
+);
 
 comment on table drug_units is
 '(SI) units used to quantify/measure drugs';
@@ -276,7 +280,7 @@ comment on column drug_information.info is
 
 create table dosage_suggestion(
 	id serial primary key,
-	id_drug integer refereces drug(id),
+	id_drug integer references drug(id),
 	id_route integer references drug_routes (id),
 	id_unit integer references drug_units (id),
 	id_reference integer references info_reference(id),
@@ -285,8 +289,9 @@ create table dosage_suggestion(
 	dosage_max float,
 	hints text
 );
+
 comment on table dosage_suggestion is
-'Dosage suggestion for a particular /substance/ (not compound). This the old dosage.';
+'Dosage suggestion for a particular drug';
 comment on column dosage_suggestion.dosage_type is
 '*=absolute, w=weight based (per kg body weight), s=surface based (per m2 body surface), a=age based (in months)';
 comment on column dosage_suggestion.dosage_start is
@@ -347,11 +352,11 @@ create table drug_adverse_effects(
 	important boolean,
 	comment text
 );
-comment on table link_drug_adverse_effects is
+comment on table drug_adverse_effects is
 'many to many pivot table linking drugs to adverse effects';
-comment on column link_drug_adverse_effects.frequency is
+comment on column drug_adverse_effects.frequency is
 'The likelihood this adverse effect happens: c=common, i=infrequent, r=rare';
-comment on column link_drug_adverse_effects.important is
+comment on column drug_adverse_effects.important is
 'modifier for attribute "frequency" allowing to weigh rare adverse effects too important to miss';
 
 
