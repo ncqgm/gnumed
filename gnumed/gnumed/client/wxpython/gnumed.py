@@ -40,6 +40,9 @@ Command line arguments:
 --conf-file=<file>
  Use configuration file <file> instead of searching for it in
  standard locations.
+--unicode-gettext=<0 | 1>
+ Use unicode (1) or non-unicode (0) gettext. This is needed for older
+ (< 2.5) and non-unicode compiled wxWidgets/wxPython libraries.
 --help, -h, or -?
  Well, show this help.
 
@@ -47,7 +50,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.71 $"
+__version__ = "$Revision: 1.72 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -121,6 +124,44 @@ def setup_logging():
 	_log.AddTarget(aLogTarget)
 
 	return 1
+#==========================================================
+def setup_locale():
+	import locale
+	# logging state of affairs
+	_log.Log(gmLog.lData, 'startup locale settings (should be C locale): %s' % locale.setlocale(locale.LC_ALL))
+
+	# setting locale to user default
+	try:
+		locale.setlocale(locale.LC_ALL, '')
+	except locale.Error:
+		_log.Log(gmLog.lErr, 'cannot set application locale to user default')
+		return False
+
+	_log.Log(gmLog.lInfo, 'user default locale settings: %s' % locale.setlocale(locale.LC_ALL))
+	_log.Log(gmLog.lData, 'local conventions: %s' % locale.localeconv())
+	info_codes = {
+		locale.CODESET: 'codeset',
+		locale.D_T_FMT : 'date/time format',
+		locale.D_FMT : 'date format',
+		locale.T_FMT : 'time format',
+		locale.T_FMT_AMPM : 'time format am/pm',
+		locale.RADIXCHAR : 'radix character',
+		locale.THOUSEP : 'thousand separator',
+		locale.YESEXPR : 'regex for "yes"',
+		locale.NOEXPR : 'regex for "no"',
+		locale.CRNCYSTR : 'currency symbol',
+		locale.ERA : 'era',
+		locale.ERA_D_T_FMT : 'date/time format for era',
+		locale.ERA_D_FMT : 'date format for era',
+		locale.ALT_DIGITS : 'alternative digit representation'
+	}
+	for code in info_codes.keys():
+		try:
+			_log.Log(gmLog.lData, '%s: %s' % (info_codes[code], locale.nl_langinfo(code)))
+		except ValueError:
+			_log.Log(gmLog.lData, 'locale does not support [%s] info' % info_codes[code])
+
+	return True
 #==========================================================
 def setup_cfg_file():
 	from Gnumed.pycommon import gmCfg, gmNull
@@ -269,6 +310,7 @@ def get_base_dir():
 # main - launch the GnuMed wxPython GUI client
 #----------------------------------------------------------
 setup_logging()
+setup_locale()
 
 # help requested ?
 if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
@@ -276,6 +318,7 @@ if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
 	print "--------------"
 	print __doc__
 	sys.exit(0)
+
 _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 _log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.name))
 setup_cfg_file()
@@ -350,7 +393,11 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.71  2005-02-03 20:35:41  ncq
+# Revision 1.72  2005-03-29 07:32:36  ncq
+# - add --unicode-gettext
+# - add setup_locale()
+#
+# Revision 1.71  2005/02/03 20:35:41  ncq
 # - slightly silence the console
 #
 # Revision 1.70  2005/02/01 10:16:07  ihaywood
