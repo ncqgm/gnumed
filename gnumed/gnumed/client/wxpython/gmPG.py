@@ -173,7 +173,7 @@ class ConnectionPool:
 				if force_it == 0:
 					#let the end user know that shit is happening
 					raise gmExceptions.ConnectionError, \
-					    _("Attempting to close a database connectiuon that is still in use")
+					    _("Attempting to close a database connection that is still in use")
 			else:
 				###close the connection
 				ConnectionPool.__databases[key].close()
@@ -240,7 +240,7 @@ def cursorIndex(cursor):
 	dict[d[0]] = i
 	i+=1
     return dict
-    
+
 
 def descriptionIndex(cursordescription):
     "returns a dictionary of row atribute names and their row indices"
@@ -249,65 +249,72 @@ def descriptionIndex(cursordescription):
     for d in cursordescription:
 	dict[d[0]] = i
 	i+=1
-    return dict    
+    return dict
 
 
 
 def dictResult(cursor, fetched=None):
-    if fetched is None:
-	fetched = cursor.fetchall()
-    attr = fieldNames(cursor)
-    dictres = []
-    for f in fetched:
-	dict = {}
-	i=0
-	for a in attr:
-    	    dict[a]=f[i]
-	dictres.append(dict)
-	i+=1
-    return dictres
-	
-	
-	
+	"returns the all rows fetchable by the cursor as dictionary (attribute:value)"
+	if fetched is None:
+		fetched = cursor.fetchall()
+	attr = fieldNames(cursor)
+	dictres = []
+	for f in fetched:
+		dict = {}
+		i=0
+		for a in attr:
+    	    		dict[a]=f[i]
+		dictres.append(dict)
+		i+=1
+	return dictres
+
+
+
 
 def fieldNames(cursor):
-    "returns the attribute names of the fetched rows in natural sequence as a list"
-    names=[]    
-    for d in cursor.description:
-	names.append(d[0])
-    return names
-	
+	"returns the attribute names of the fetched rows in natural sequence as a list"
+	names=[]
+	for d in cursor.description:
+		names.append(d[0])
+	return names
+
 
 def listDatabases(service='default'):
-    assert(__backend == 'Postgres')
-    return quickROQuery("select * from pg_database")
+	"list all accessible databases on the database backend of the specified service"
+	assert(__backend == 'Postgres')
+	return quickROQuery("select * from pg_database")
 
 def listUserTables(service='default'):
-    assert(__backend == 'Postgres')
-    return quickROQuery("select * from pg_tables where tablename not like 'pg_%'", service)
+	"list the tables except all system tables of the specified service"
+	assert(__backend == 'Postgres')
+	return quickROQuery("select * from pg_tables where tablename not like 'pg_%'", service)
 
 
 def listSystemTables(service='default'):
-    assert(__backend == 'Postgres')
-    return quickROQuery("select * from pg_tables where tablename like 'pg_%'", service)
+	"list the system tables of the specified service"
+	assert(__backend == 'Postgres')
+	return quickROQuery("select * from pg_tables where tablename like 'pg_%'", service)
 
 
 def listTables(service='default'):
-    return quickROQuery("select * from pg_tables", service)
+	"list all tables available in the specified service"
+	return quickROQuery("select * from pg_tables", service)
 
 
 def quickROQuery(query, service='default'):
-    "a quick read-only query that fetches all possible results at once"
-    dbp = ConnectionPool()
-    con = dbp.GetConnection(service)
-    cur=con.cursor()
-    cur.execute(query)
-    return cur.fetchall(), cur.description
+	"""a quick read-only query that fetches all possible results at once
+	returns the tuple containing the fetched rows and the cursor 'description' object"""
+
+	dbp = ConnectionPool()
+	con = dbp.GetConnection(service)
+	cur=con.cursor()
+	cur.execute(query)
+	return cur.fetchall(), cur.description
 
 
 
 def getBackendName():
-    return __backend
+	return __backend
 
 
 
@@ -335,17 +342,22 @@ def inputTMLoginParams():
 
 
 def inputWXLoginParams():
-	"GUI (wx) mode input request of database login parameters"
+	"""GUI (wx) mode input request of database login parameters.
+	Returns gmLoginINfo.LoginInfo object"""
+
 	import sys
 	#the next statement will raise an exception if wxPython is not loaded yet
 	sys.modules['wxPython']
-
+	#OK, wxPython was already loaded. Let's launch the login dialog
+	#if wx was not initialized /no main App loop, an exception should be raised anyway
 	import gmLoginDialog
 	dlg = gmLoginDialog.LoginDialog(NULL, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
 	dlg.ShowModal()
 	login = dlg.panel.GetLoginParams()
+	#if user cancelled or something else went wrong, raise an exception
 	if login is None:
 		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
+	#memory cleanup, shouldn't really be neccessary
 	dlg.Destroy()
 	return login
 
@@ -392,3 +404,8 @@ if __name__ == "__main__":
 	print "\nTables:\n========\n"
 	res, descr = listTables()
 	for r in res: print r
+	print "\nResult as dictionary\n==================\n"
+	cur = db.cursor()
+	cursor.execute("select * from db")
+	d = dictResult(cursor)
+	print d
