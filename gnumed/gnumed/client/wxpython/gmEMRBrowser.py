@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.15 2005-03-10 19:51:29 cfmoro Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmEMRBrowser.py,v 1.16 2005-03-11 22:52:54 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -50,6 +50,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__register_interests()
 		self.__reset_ui_content()
 
+#		self.popup.SetPopupContext(self.__emr_tree.GetSelection())
 	#--------------------------------------------------------
 	def __do_layout(self):
 		"""
@@ -65,14 +66,13 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			style=wx.wxTR_HAS_BUTTONS | wx.wxNO_BORDER
 		)
 		# popup menu
-		self.popup=gmPopupMenuEMRBrowser(self)		
-		self.popup.SetPopupContext(self.__emr_tree.GetSelection())
+		self.popup = gmPopupMenuEMRBrowser(self)
 		
 		# narrative details text control
 		self.__narr_TextCtrl = wx.wxTextCtrl (
 			self.__tree_narr_splitter,
 			-1,
-			style=wx.wxTE_MULTILINE | wx.wxTE_READONLY | wx.wxTE_DONTWRAP
+			style = wx.wxTE_MULTILINE | wx.wxTE_READONLY | wx.wxTE_DONTWRAP
 		)
 		# set up splitter
 		# FIXME: read/save value from/into backend
@@ -86,7 +86,24 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.SetSizer(self.__szr_main)
 		self.__szr_main.Fit(self)
 		self.__szr_main.SetSizeHints(self)
-		
+
+		# make popup menus for later use
+		self.__epi_context_popup = wx.wxMenu()
+		menu_id = wx.wxNewId()
+		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('rename episode')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__rename_episode)
+		menu_id = wx.wxNewId()
+		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('close episode')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__close_episode)
+		menu_id = wx.wxNewId()
+		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('delete episode')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__delete_episode)
+		menu_id = wx.wxNewId()
+		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('attach episode to another health issue')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode)
+		menu_id = wx.wxNewId()
+		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('attach all encounters to another episode')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode_encounters)
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -96,7 +113,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		# wx.wxPython events
 		wx.EVT_TREE_SEL_CHANGED(self.__emr_tree, self.__emr_tree.GetId(), self._on_tree_item_selected)
-		wx.EVT_RIGHT_DOWN(self.__emr_tree, self.__on_right_down)
+		wx.EVT_TREE_ITEM_RIGHT_CLICK(self.__emr_tree, self.__emr_tree.GetId(), self.__on_tree_item_right_clicked)
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self.__on_episodes_modified)
@@ -105,60 +122,76 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""Patient changed."""
 		self.__exporter.set_patient(self.__pat)
 		self._schedule_data_reget()
-		
 	#--------------------------------------------------------
 	def __on_episodes_modified(self):
 		"""Episode changed."""
+		# FIXME: should *actually* be self._schedule_data_reget() but does not work properly yet
 		self.refresh_tree()
-				
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
 		"""
 		Displays information for a selected tree node
 		"""
-		
 		# retrieve the selected EMR element
 		sel_item = event.GetItem()
 		sel_item_obj = self.get_EMR_item(sel_item)
 		self.__selected_node = sel_item
-		
-		# restore editor perspective
-		print "%s : %s" % (id(self.__tree_narr_splitter.GetWindow2()), id(self.__narr_TextCtrl))
-		if id(self.__tree_narr_splitter.GetWindow2()) != id(self.__narr_TextCtrl):
-			self.RestoreStdRightViewer()
+
+		self.__display_narrative_on_right_pane()
 
 		# update displayed text
-		if(isinstance(sel_item_obj, gmEMRStructItems.cEncounter)):
-			header = _('Encounter\n=========\n\n')
+		if isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue):
+			label = _('Health Issue')
+			txt = self.__exporter.dump_issue_info(issue=sel_item_obj)
+
+		elif isinstance(sel_item_obj, gmEMRStructItems.cEpisode):
+			label = _('Episode')
+			txt = self.__exporter.dump_episode_info(episode=sel_item_obj)
+
+		elif isinstance(sel_item_obj, gmEMRStructItems.cEncounter):
+			label = _('Encounter')
 			epi = self.__emr_tree.GetPyData(self.__emr_tree.GetItemParent(sel_item))
 			txt = self.__exporter.dump_encounter_info(episode=epi, encounter=sel_item_obj)
 
-		elif (isinstance(sel_item_obj, gmEMRStructItems.cEpisode)):
-			header = _('Episode\n=======\n\n')
-			txt = self.__exporter.dump_episode_info(episode=sel_item_obj)
-
-		elif (isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue)):
-			header = _('Health Issue\n============\n\n')
-			txt = self.__exporter.dump_issue_info(issue=sel_item_obj)
-
 		else:
-			header = _('Summary\n=======\n\n')
+			label = _('Progress Notes')
 			txt = self.__exporter.dump_summary_info()
 
+		header = header = '%s\n%s\n\n' % (label, ('=' * len(label)))
 		self.__narr_TextCtrl.Clear()
 		self.__narr_TextCtrl.WriteText(header)
 		self.__narr_TextCtrl.WriteText(txt)
-		
+
 		# update popup menu
-		self.popup.SetPopupContext(sel_item)
-		
+#		self.popup.SetPopupContext(sel_item)
 	#--------------------------------------------------------
-	def __on_right_down(self, event):
+	def __on_tree_item_right_clicked(self, event):
 		"""
 		Right button clicked: display the popup for the tree
 		"""
-		self.PopupMenu(self.popup, (event.GetX(), event.GetY() ))		
-		
+		# FIXME: should get the list item at the current position
+		# FIXME: should then update the context
+#		sel_item = event.GetItem()
+#		self.popup.SetPopupContext(sel_item)
+#		self.PopupMenu(self.popup, (event.GetX(), event.GetY()))
+
+		node = event.GetItem()
+		node_data = self.__emr_tree.GetPyData(node)
+
+		self.__emr_tree.SelectItem(node)
+
+		# FIXME: get position from tree item
+#		pos = (event.GetX(), event.GetY())
+		pos = wx.wxPyDefaultPosition
+		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
+			self.__handle_issue_context(issue=node_data, pos=pos)
+		elif isinstance(node_data, gmEMRStructItems.cEpisode):
+			self.__handle_episode_context(episode=node_data, pos=pos)
+		elif isinstance(node_data, gmEMRStructItems.cEncounter):
+			self.__handle_encounter_context(encounter=node_data, pos=pos)
+		else:
+			print "error: unknown node type, no popup menu"
+		event.Skip()
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -170,7 +203,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		if self.refresh_tree():
 			return True
 		return False
-		
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------		
@@ -201,7 +233,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# FIXME: error handling
 		return True
-		
 	#--------------------------------------------------------
 	def get_EMR_item(self, selected_tree_item):
 		"""
@@ -211,38 +242,26 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		@param selected_tree_item The tree node to retrieve its data model for.
 		@type selected_tree_item A wxTreeItemId instance
 		"""
-		return self.__emr_tree.GetPyData(selected_tree_item)				 
-		
+		return self.__emr_tree.GetPyData(selected_tree_item)
 	#--------------------------------------------------------
 	def get_selection(self):
 		"""
-		"""		
+		"""
 		return self.__selected_node
-
 	#--------------------------------------------------------
 	def get_item_parent(self, tree_item):
 		"""
 		"""		
 		return self.__emr_tree.GetItemParent(tree_item)
-		
 	#--------------------------------------------------------
 	def SetCustomRightWidget(self, widget):
-		"""		
+		"""
 		@param widget: 
 		@type widget: 
 		"""
 		widget.Reparent(self.__tree_narr_splitter)
 		self.__custom_right_widget = widget
 		self.__tree_narr_splitter.ReplaceWindow(self.__narr_TextCtrl, self.__custom_right_widget)
-
-	#--------------------------------------------------------
-	def RestoreStdRightViewer(self):
-		"""		
-		"""
-		# FIXME: confirmation dialog to avoid loosing the edited notes
-		self.__tree_narr_splitter.ReplaceWindow(self.__custom_right_widget, self.__narr_TextCtrl)
-		self.__custom_right_widget.Destroy()
-		
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -252,6 +271,61 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		self.__emr_tree.DeleteAllItems()
 		self.__narr_TextCtrl.Clear()
+	#--------------------------------------------------------
+	def __display_narrative_on_right_pane(self):
+		"""
+		"""
+		# FIXME: confirmation dialog to avoid loosing edits
+
+		# FIXME: really needed ?
+		if id(self.__tree_narr_splitter.GetWindow2()) == id(self.__narr_TextCtrl):
+			return True
+		self.__tree_narr_splitter.ReplaceWindow(self.__custom_right_widget, self.__narr_TextCtrl)
+#		self.__custom_right_widget.Destroy()
+		self.__custom_right_widget = None
+	#--------------------------------------------------------
+	def __handle_issue_context(self, issue = None):
+		print "handling issue context menu"
+		print issue
+		print "actions:"
+		print " rename issue"
+		print " add new episode to issue"
+		print " attach issue to another patient"
+		print " move all episodes to another issue"
+	#--------------------------------------------------------
+	def __handle_episode_context(self, episode = None, pos = wx.wxPyDefaultPosition):
+		print "handling episode context"
+		self.__selected_episode = episode
+		self.__epi_context_popup.SetTitle(_('Episode %s') % episode['description'])
+		self.PopupMenu(self.__epi_context_popup, pos)
+	#--------------------------------------------------------
+	def __rename_episode(self, event):
+		print "renaming episode"
+		print self.__selected_episode
+	#--------------------------------------------------------
+	def __close_episode(self, event):
+		print "closing episode"
+		print self.__selected_episode
+	#--------------------------------------------------------
+	def __delete_episode(self, event):
+		print "deleting episode"
+		print self.__selected_episode
+	#--------------------------------------------------------
+	def __relink_episode(self, event):
+		print "relinking episode"
+		print self.__selected_episode
+	#--------------------------------------------------------
+	def __relink_episode_encounters(self, event):
+		print "relinking encounters of episode"
+		print self.__selected_episode
+	#--------------------------------------------------------
+	def __handle_encounter_context(self, encounter = None):
+		print "handling encounter context menu"
+		print encounter
+		print "actions:"
+		print " delete encounter"
+		print " attach encounter to another patient"
+		print " attach all progress notes to another encounter"
 	#--------------------------------------------------------
 #	def set_patient(self, patient):
 #		"""
@@ -295,7 +369,8 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		"""
 		# wx.wxPython events
 		wx.EVT_MENU(self.__browser, self.ID_NEW_HEALTH_ISSUE , self.__on_new_health_issue)
-		wx.EVT_MENU(self.__browser, self.ID_EPISODE_EDITOR , self.__on_episode_editor)
+#		wx.EVT_MENU(self.__browser, self.ID_EPISODE_EDITOR, self.__on_episode_editor)
+#		wx.EVT_MENU(self.__browser, self.ID_EPISODE_EDITOR, self.__browser.edit_episode)
 		wx.EVT_MENU(self.__browser, self.ID_NEW_ENCOUNTER , self.__on_new_encounter)
 		wx.EVT_MENU(self.__browser, self.ID_EDIT_ENCOUNTER_NOTES , self.__on_edit_encounter_notes)
 
@@ -316,10 +391,10 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		pk_issue = None
 		if (isinstance(self.__sel_item_obj, gmEMRStructItems.cEpisode)):
 			pk_issue = self.__sel_item_obj['pk_health_issue']
-			
+
 		elif (isinstance(self.__sel_item_obj, gmEMRStructItems.cHealthIssue)):
-			pk_issue = self.__sel_item_obj['id']			
-			
+			pk_issue = self.__sel_item_obj['id']
+
 		self.__browser.SetCustomRightWidget(gmEMRStructWidgets.cEpisodeEditor(self.__browser, -1, pk_issue))
 		
 		#episode_selector = gmEMRStructWidgets.cEpisodeEditorDlg (
@@ -539,7 +614,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.15  2005-03-10 19:51:29  cfmoro
+# Revision 1.16  2005-03-11 22:52:54  ncq
+# - simplify popup menu use
+#
+# Revision 1.15  2005/03/10 19:51:29  cfmoro
 # Obtained problem from cClinicalRecord on progress notes edition
 #
 # Revision 1.14  2005/03/09 20:00:13  cfmoro
