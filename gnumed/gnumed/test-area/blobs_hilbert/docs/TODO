@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -16,6 +16,7 @@ scan
 ----
 - test consecutive IDs
 - cancel-quit button
+- dumb-nurse-barrier option
 
 index
 -----
