@@ -1,21 +1,37 @@
+#!/usr/bin/python
+#############################################################################
+#
+# gmCryptoText - implements a "crypto" aware text widget
+# ---------------------------------------------------------------------------
+# This text widget allows arbitrary text to be entered via keyboard,
+# cut'n paste via clipboard, or text files via drag'n drop
+# Right clicking pops up a menu that allows to encrypt or decrypt
+# the selected text segment.
+#
+# @author: Dr. Horst Herb
+# @copyright: author
+# @license: GPL (details at http://www.gnu.org)
+# @dependencies: wxPython (>= version 2.3.1)
+# @change log:
+#	30.06.2001 hherb initial implementation, untested
+#	25.10.2001 commenting of source, module test enabled, debug log inserts removed
+#
+# @TODO:
+#	- all runtime error checking / exception handling
+#	- plug in structure for ciphers, rich popup menu selection of crypto methods
+#	- use Python OpenSSL wrappers or GnuPG wrapper!
+#	- tagging of the used cipher and the user within the encrypted text
+#	- timer that expires pas phrase after arbitrary time intervals
+#	- implement a "rich text" widget
+############################################################################
+
+
 """This module implements a "crypto" aware text widget
 
 This text widget allows arbitrary text to be entered via keyboard,
 cut'n paste via clipboard, or text files via drag'n drop
-
 Right clicking pops up a menu that allows to encrypt or decrypt
 the selected text segment.
-
-@author: Dr. Horst Herb
-@copyright: GPL
-
-TODO:
-- all runtime error checking / exception handling
-- plug in ciphers, rich popup menu selection of crypto methods
-    - use Python OpenSSL wrappers or GnuPG wrapper!
-- tagging of the used cipher and the user within the encrypted text
-- timer that expires pas phrase after arbitrary time intervals
-- implement a "rich text" widget
 """
 
 from wxPython.wx import *
@@ -24,6 +40,8 @@ import string, rotor, binascii
 #function to allow easy text translation
 import gettext
 _ = gettext.gettext
+
+
 
 class gmTextctrlFileDropTarget(wxFileDropTarget):
     """ a generic text control widget that accepts dropped files """
@@ -48,7 +66,7 @@ class gmCryptoText(wxTextCtrl):
     position
     """
 
-    def __init__(self, parent, id):
+    def __init__(self, parent, id, defaulttext='Write something, select it with your mouse, and right click it'):
         #initialize parent class
         wxTextCtrl.__init__(self, parent, id, style=wxTE_MULTILINE)
 
@@ -61,6 +79,9 @@ class gmCryptoText(wxTextCtrl):
         self.textselection = None
         self. selectionStart = 0
         self.selectionEnd = 0
+
+	if defaulttext is not None:
+		self.WriteText(defaulttext)
 
         #a reserved ID for events related to this widget
         self.aID = wxNewId()
@@ -105,7 +126,7 @@ class gmCryptoText(wxTextCtrl):
 
 
     def OnContextMenu(self, event):
-        wxLogMessage("ContextMenu event!")
+	pass
 
 
     def OnEncrypt(self, event):
@@ -120,7 +141,6 @@ class gmCryptoText(wxTextCtrl):
         #we can't crypt without passphrase, so ask for it if needed!
         if self.passphrase is None:
             self.passphrase = self.AskForPassphrase()
-            wxLogMessage(self.passphrase)
             if self.passphrase == None:
                 return
         #In order to be displayed, binary crypt output has to be 'hexlified'
@@ -139,7 +159,6 @@ class gmCryptoText(wxTextCtrl):
 
         textselection, self.selectionStart, self.selectionEnd = \
             self.FuzzyScanSelection(self.selectionStart, self.selectionEnd, self.fuzzymargin)
-        wxLogMessage(textselection)
         #is the selection tagged as encrypted ?
         if textselection[:2] != '<!' or textselection[-2:] != '!>':
             wxMessageBox(_("This is not correctly encrypted text!"))
@@ -148,7 +167,6 @@ class gmCryptoText(wxTextCtrl):
         textselection = textselection[2:-2]
         identtag, textselection = self.StripIdentTag(textselection)
         #self.textselection = self.textselection[len(identtag):]
-        wxLogMessage("identtag = %s" % identtag)
         #and don't forget to unhexlify the ciphertext before you feed it to the crypt
         decoded = self.Decrypt(binascii.unhexlify(textselection), self.passphrase, identtag)
         self.Replace(self.selectionStart, self.selectionEnd, decoded)
@@ -190,14 +208,11 @@ class gmCryptoText(wxTextCtrl):
         """Remove the 'ident tag' from text and return both tag and test"""
         if text[0] != '[':
             "No ident tag ?"
-            wxLogMessage("ident: %s ..." % text[:20])
             return '', text
         try:
             endtag = string.index(text, ']')+1
         except ValueError:
             return '', text
-        wxLogMessage("endtag: %d ..." % endtag)
-        wxLogMessage("identtag = (%s)" % text[:endtag])
         return text[:endtag], text[endtag:]
 
 
@@ -221,11 +236,15 @@ class gmCryptoText(wxTextCtrl):
         if finish > len(fulltext): finish = len(fulltext)
         try:
             left = string.rindex(fulltext, '<', start, frompos)
-            wxLogMessage("left = %d" % left)
             right = string.index(fulltext, '>', topos, finish)+1
-            wxLogMessage("right = %d" % right)
         except ValueError:
             wxLogMessage("FuzzyScan went wrong")
             return ''
         return fulltext[left:right], left,right
 
+
+if __name__ == '__main__':
+	app = wxPyWidgetTester(size = (400, 400))
+	#show the login panel in a main window
+	app.SetWidget(gmCryptoText, -1)
+	app.MainLoop()
