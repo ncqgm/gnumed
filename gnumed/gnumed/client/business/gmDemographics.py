@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.3 2003-10-26 16:35:03 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmDemographics.py,v 1.4 2003-10-26 17:35:04 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -128,12 +128,7 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 		- note that this may be called in a thread
 		"""
 		_log.Log(gmLog.lData, 'cleaning up after patient [%s]' % self.ID)
-		if self.__db_cache.has_key('clinical record'):
-			emr = self.__db_cache['clinical record']
-			emr.cleanup()
-		self._backend.ReleaseConnection('personalia')
-	#--------------------------------------------------------
-	
+		# FIXME: unlisten from signals etc.
 	#--------------------------------------------------------
 	# internal helper
 	#--------------------------------------------------------
@@ -398,7 +393,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.3  2003-10-26 16:35:03  ncq
+# Revision 1.4  2003-10-26 17:35:04  ncq
+# - conceptual cleanup
+# - IMHO, patient searching and database stub creation is OUTSIDE
+#   THE SCOPE OF gmPerson and gmDemographicRecord
+#
+# Revision 1.3  2003/10/26 16:35:03  ncq
 # - clean up as discussed with Ian, merge conflict resolution
 #
 # Revision 1.2  2003/10/26 11:27:10  ihaywood

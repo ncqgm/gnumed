@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.3 2003-10-26 11:27:10 ihaywood Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPatient.py,v 1.4 2003-10-26 17:35:04 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -28,37 +28,59 @@ import gmExceptions, gmPG, gmSignals, gmDispatcher, gmClinicalRecord, gmI18N
 
 #============================================================
 # may get preloaded by the waiting list
-class gmPatient:
-	"""Represents a patient that DOES EXIST in the database.
+class gmPerson:
+	"""Represents a person that DOES EXIST in the database.
+
+	Accepting this as a hard and fast rule WILL simplify
+	internal logic and remove some corner cases, I believe.
 
 	- searching and creation is done OUTSIDE this object
 	"""
-
 	# handlers for __getitem__
 	_get_handler = {}
 
-	def __init__(self, demo):
-		"""Initisation.
-		Must instantiate a gmDemographics object to create patient object
-		"""
-		self.__db_cache = {'demographics':demo}
-		self.__ID = demo.getID ()
-		_log.Log(gmLog.lData, 'Instantiated patient [%s].' % self.__ID)
+	def __init__(self, aPKey = None):
+		self.__ID = aPKey			# == identity.id == primary key
+		if not self._pkey_exists():
+			raise gmExceptions.ConstructorError, "No person with ID [%s] in database." % aPKey
+
+		self.__db_cache = {}
+
+		# register backend notification interests ...
+		if not self._register_interests():
+			raise gmExceptions.ConstructorError, "Cannot register person modification interests."
+
+		_log.Log(gmLog.lData, 'Instantiated person [%s].' % self.__ID)
 	#--------------------------------------------------------
 	def cleanup(self):
 		"""Do cleanups before dying.
 
 		- note that this may be called in a thread
 		"""
-		_log.Log(gmLog.lData, 'cleaning up after patient [%s]' % self.__ID)
+		_log.Log(gmLog.lData, 'cleaning up after person [%s]' % self.__ID)
 		if self.__db_cache.has_key('clinical record'):
 			emr = self.__db_cache['clinical record']
 			emr.cleanup()
-			
-	def _patient_modified(self):
-		# <DEBUG>
-		_log.Log(gmLog.lData, "patient_modified signal received from backend")
-		# </DEBUG>
+		if self.__db_cache.has_key('demographic record'):
+			demos = self.__db_cache['demographic record']
+			demos.cleanup()
+	#--------------------------------------------------------
+	# internal helper
+	#--------------------------------------------------------
+	def _pkey_exists(self):
+		"""Does this primary key exist ?
+
+		- true/false/None
+		"""
+		cmd = "select exists(select id from identity where id = %s)"
+		res = gmPG.run_ro_query('personalia', cmd, None, self.__ID)
+		if res is None:
+			_log.Log(gmLog.lErr, 'check for person ID [%s] existence failed' % self.__ID)
+			return None
+		return res[0][0]
+	#--------------------------------------------------------
+	def _register_interests(self):
+		return 1
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -66,29 +88,30 @@ class gmPatient:
 		"""Return any attribute if known how to retrieve it.
 		"""
 		try:
-			return gmPatient._get_handler[aVar](self)
+			return gmPerson._get_handler[aVar](self)
 		except KeyError:
 			_log.LogException('Missing get handler for [%s]' % aVar, sys.exc_info())
 			return None
 	#--------------------------------------------------------
+	def getID(self):
+		return self.__ID
+	#--------------------------------------------------------
 	def _getMedDocsList(self):
-		"""Build a complete list of metadata for all documents of our patient.
+		"""Build a complete list of metadata for all documents of this person.
 
 		"""
-
 		cmd = "SELECT id from doc_med WHERE patient_id=%s"
-		tmp = gmPG.run_ro_query (cmd, self.__ID)
+		tmp = gmPG.run_ro_query('blobs', cmd, None, self.__ID)
+		_log.Log(gmLog.lData, "document IDs: %s" % tmp)
 		if tmp is None:
 			return []
 		docs = []
 		for doc_id in tmp:
-			docs.extend(doc_id)
-		_log.Log(gmLog.lData, "document IDs: %s" % docs)
-
-		if curs.rowcount == 0:
-			_log.Log(gmLog.lInfo, "No documents found for patient (ID [%s])." % self.__ID)
+			if doc_id is not None:
+				docs.extend(doc_id)
+		if len(docs) == 0:
+			_log.Log(gmLog.lInfo, "No documents found for person (ID [%s])." % self.__ID)
 			return None
-
 		return docs
 	#----------------------------------------------------------
 	def _get_clinical_record(self):
@@ -97,9 +120,21 @@ class gmPatient:
 		try:
 			self.__db_cache['clinical record'] = gmClinicalRecord.gmClinicalRecord(aPKey = self.__ID)
 		except StandardError:
-			_log.LogException('cannot instantiate clinical record for patient [%s]', sys.exc_info())
+			_log.LogException('cannot instantiate clinical record for person [%s]', sys.exc_info())
 			return None
 		return self.__db_cache['clinical record']
+	#--------------------------------------------------------
+	def get_demographic_record(self):
+		if self.__db_cache.has_key('demographic record'):
+			return self.__db_cache['demographic record']
+		try:
+			# FIXME: we need some way of setting the type of backend such that
+			# to instantiate the correct type of demographic record class
+			self.__db_cache['demographic record'] = gmDemographics.gmDemographicRecord_SQL(aPKey = self.__ID)
+		except StandardError:
+			_log.LogException('cannot instantiate demographic record for person [%s]' % self.__ID, sys.exc_info())
+			return None
+		return self.__db_cache['demographic record']
 	#--------------------------------------------------------
 	def _get_API(self):
 		API = []
@@ -117,10 +152,10 @@ class gmPatient:
 	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['document id list'] = _getMedDocsList
-	_get_handler['demographics'] = lambda x: x.__db_cache['demographics']
+	_get_handler['demographics'] = get_demographic_record
 	_get_handler['clinical record'] = _get_clinical_record
 	_get_handler['API'] = _get_API
-	_get_handler['ID'] = lambda x: x.__ID
+	_get_handler['ID'] = getID
 #============================================================
 from gmBorg import cBorg
 
@@ -129,9 +164,8 @@ class gmCurrentPatient(cBorg):
 
 	There may be many instances of this but they all share state.
 	"""
-	def __init__(self,demo = None):
-		if demo is not None:
-			_log.Log(gmLog.lData, 'selection of patient [%s] requested' % demo.getID ())
+	def __init__(self, aPKey = None):
+		_log.Log(gmLog.lData, 'selection of patient [%s] requested' % aPKey)
 		# share state among all instances ...
 		cBorg.__init__(self)
 
@@ -147,27 +181,27 @@ class gmCurrentPatient(cBorg):
 
 		# user wants to init or change us
 		# possibly change us, depending on PKey
-		if demo is not None:
+		if aPKey is not None:
 			_log.Log(gmLog.lData, 'patient ID explicitely specified, trying to connect')
 			# init, no previous patient
 			if self.patient is None:
 				_log.Log(gmLog.lData, 'no previous patient')
 				try:
-					self.patient = gmPatient(demo)
+					self.patient = gmPerson(aPKey)
 					# remote app must lock explicitly
 					self.unlock()
 					self.__send_selection_notification()
 				except:
-					_log.LogException('cannot connect with patient [%s]' % demo.getID (), sys.exc_info())
+					_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
 			# change to another patient
 			else:
-				_log.Log(gmLog.lData, 'patient change: [%s] -> [%s]' % (self.patient['ID'], demo.getID ()))
+				_log.Log(gmLog.lData, 'patient change: [%s] -> [%s]' % (self.patient['ID'], aPKey))
 				# are we really supposed to become someone else ?
-				if self.patient['ID'] != demo.getID ():
+				if self.patient['ID'] != aPKey:
 					# yes, but CAN we ?
 					if self.locked is None:
 						try:
-							tmp = gmPatient(demo)
+							tmp = gmPerson(aPKey)
 							# clean up after ourselves
 							self.__send_pre_selection_notification()
 							self.patient.cleanup()
@@ -176,10 +210,10 @@ class gmCurrentPatient(cBorg):
 							self.unlock()
 							self.__send_selection_notification()
 						except:
-							_log.LogException('cannot connect with patient [%s]' % demo.getID (), sys.exc_info())
+							_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
 							# FIXME: maybe raise exception here ?
 					else:
-						_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['demographics'].getID (), demo.getID ()))
+						_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['ID'], aPKey))
 				# no, same patient, so do nothing
 				else:
 					_log.Log(gmLog.lData, 'same ID, no change needed')
@@ -250,7 +284,15 @@ class gmCurrentPatient(cBorg):
 		else:
 			return None
 #============================================================
-
+def create_dummy_identity():
+	cmd1 = "insert into identity(gender, dob) values('N/A', CURRENT_TIMESTAMP)"
+	cmd2 = "select currval ('identity_id_seq')"
+	data = gmPG.run_commit ('personalia', [(cmd1, []), (cmd2, [])])
+	if data is None:
+		return None
+	return data[0][0]
+#============================================================
+# main/testing
 #============================================================
 if __name__ == "__main__":
 	#gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
@@ -259,17 +301,18 @@ if __name__ == "__main__":
 		if pID == '-1':
 			break
 		try:
-			myPatient = gmCurrentPatient(gmDemographics.gmSQLPerson (pID))
+			myPatient = gmCurrentPatient(pID)
 		except:
 			_log.LogException('Unable to set up patient with ID [%s]' % pID, sys.exc_info())
 			print "patient", pID, "can not be set up"
 			continue
 		print "ID       ", myPatient['ID']
-		print "name     ", myPatient['demographics'].getActiveName ()
+		demos = myPatient['demographics']
+		print "demogr.  ", demos
+		print "name     ", demos.getActiveName()
 		print "doc ids  ", myPatient['document id list']
-		record = myPatient['clinical record']
-		print "EPR      ", record
-#		print "allergy IDs", record['allergy IDs']
+		emr = myPatient['clinical record']
+		print "EMR      ", emr
 #		print "fails  ", myPatient['missing handler']
 		print "--------------------------------------"
 #		api = myPatient['API']
@@ -278,7 +321,12 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.3  2003-10-26 11:27:10  ihaywood
+# Revision 1.4  2003-10-26 17:35:04  ncq
+# - conceptual cleanup
+# - IMHO, patient searching and database stub creation is OUTSIDE
+#   THE SCOPE OF gmPerson and gmDemographicRecord
+#
+# Revision 1.3  2003/10/26 11:27:10  ihaywood
 # gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
 #
 # Ergregious breakages are fixed, but needs more work
