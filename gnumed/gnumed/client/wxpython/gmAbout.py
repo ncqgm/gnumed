@@ -7,7 +7,7 @@
 # 30/01/03: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
@@ -88,12 +88,17 @@ class AboutFrame (wxFrame):
 		self.SetIcon(icon)
 
 		box = wxBoxSizer(wxVERTICAL)
-		box.Add(0,0, 2)
+		if wxPlatform == '__WXMAC__':
+			box.Add((0,0), 2)
+		else:
+			box.Add(0,0, 2)
 		intro_txt=wxStaticText(self, -1, _("Monty the Serpent && the FSF Present"))
 		intro_txt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		box.Add(intro_txt, 0, wxALIGN_CENTRE)
-
-		box.Add(0,0, 3)
+		if wxPlatform == '__WXMAC__':
+			box.Add((0,0), 3)
+		else:
+			box.Add(0,0, 3)
 		gm_txt=wxStaticText(self, -1, _("GnuMed"))
 		gm_txt.SetFont(wxFont(30, wxSWISS, wxNORMAL, wxNORMAL))
 		box.Add(gm_txt, 0, wxALIGN_CENTRE)
@@ -101,8 +106,10 @@ class AboutFrame (wxFrame):
 		motto_txt=wxStaticText(self, -1, _("Free eMedicine"))
 		motto_txt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		box.Add(motto_txt, 0, wxALIGN_CENTRE)
-
-		box.Add(0,0, 4)
+		if wxPlatform == '__WXMAC__':
+			box.Add((0,0), 4)
+		else:
+			box.Add(0,0, 4)
 		ver_txt=wxStaticText(self, -1, _("Version X.X.X brought to you by"))
 		ver_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
 		box.Add(ver_txt, 0, wxALIGN_CENTRE)
@@ -113,15 +120,23 @@ class AboutFrame (wxFrame):
 
 		self.win=ScrollTxtWin(self)
 		box.Add(self.win, 0, wxALIGN_CENTRE)
-		box.Add(0,0, 1)
+		if wxPlatform == '__WXMAC__':
+			box.Add((0,0), 1)
+		else:
+			box.Add(0,0, 1)
 		info_txt=wxStaticText(self, -1, _("Please visit http://www.gnumed.org/ for more info"))
 		info_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
 		box.Add(info_txt, 0, wxALIGN_CENTRE)
-		box.Add(0,0, 1)
-
+		if wxPlatform == '__WXMAC__':
+			box.Add((0,0), 1)
+		else:
+			box.Add(0,0, 1)
 		btn = wxButton(self, ID_MENU , _("Close"))
 		box.Add(btn,0, wxALIGN_CENTRE)
-		box.Add(0,0, 1)
+		if wxPlatform == '__WXMAC__':
+			box.Add((0,0), 1)
+		else:
+			box.Add(0,0, 1)
 		EVT_BUTTON(btn, ID_MENU, self.OnClose)
 
 		self.SetAutoLayout(true)
@@ -152,7 +167,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.7  2003-11-17 10:56:37  sjtan
+# Revision 1.8  2004-06-30 15:56:14  shilbert
+# - more wxMAC fixes -they don't stop surfacing :-)
+#
+# Revision 1.7  2003/11/17 10:56:37  sjtan
 #
 # synced and commiting.
 #
