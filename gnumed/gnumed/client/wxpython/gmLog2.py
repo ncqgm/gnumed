@@ -1,5 +1,5 @@
 #! /usr/bin/python
-"""GNUMed client log handling
+"""alternative GNUMed client log handling
 
 All error logging, user notification and otherwise unhandled 
 exception handling should go through classes or functions of 
@@ -10,13 +10,12 @@ Usage:
 2.) if neccessary, redirect your output to your output device/widget
 3.) call the Logger.Log() function
 
-@author: Dr. Horst Herb
-@version: 0.1
+@author: Karsten Hilbert
 @copyright: GPL
 """
 
 import sys, time, traceback, os.path, syslog
-#---------------------------
+#-------------------------------------------
 
 # log levels:
 # lPanic - try to log this before we die
@@ -24,6 +23,10 @@ import sys, time, traceback, os.path, syslog
 # lWarn  - something should be done about this though it's not fatal
 # lInfo  - user info like program flow
 # lData  - raw data processed by program
+
+# injudicious use of lData may lead to copious amounts of log output
+# and has inherent security risks (may dump raw data including passwords,
+# sensitive records, etc)
 
 lPanic, lErr, lWarn, lInfo, lData = range(5)
 
@@ -67,23 +70,38 @@ AsciiName = ['<#0-0x00-nul>',
 
 class Logger:
     # file(s), stdout/stderr, pipes, email, syslog, widget, you-name-it
-    # can be any arbitrary object derived from LogTarget
+    # can be any arbitrary object derived from LogTarget (see below)
     __targets = {}
 
     def __init__(self, aTarget):
-	"""Standard screen output will be redirected to 'stdout' if not None
-	Standard error output will be redirected to 'stderr' if not None
-	These arguments can be any class instance having a method 'write(string)'"""
+	"""
+	open an instance of Logger and initialize a target
+	"""
 	self.AddTarget (aTarget)
 	
     def close(self):
+	"""
+	close this logger and cleanly shutdown any open targets
+	"""
 	for key in self.__targets.keys():
+	    self.__targets[key].flush()
 	    self.__targets[key].close()
 
     def AddTarget (self, aTarget):
-	# log warning if any targets defined yet
-	if self.__targets is not None:
-	    self.Log(lInfo, 'SECURITY: adding log target "' + str(aTarget.getID()) + '"')
+	"""
+	add another log target
+
+	- targets must be objects derived from LogTarget
+	- ignores identical targets
+	- the number of concurrent targets is potentially unlimited
+	"""
+
+	# log security warning
+	# (additional log targets are potential sourced of inadvertant disclosure)
+	self.Log(lInfo, 'SECURITY: adding log target "' + str(aTarget.getID()) + '"')
+
+	# FIXME - we need some assertions about the new target here !
+
 	# no duplicate targets
 	if not self.__targets.has_key(aTarget.getID()):
 	    self.__targets[aTarget.getID()] = aTarget
@@ -93,12 +111,22 @@ class Logger:
 	remove a log target by it's ID,
 	clients have to track target ID's themselves if they want to remove targets
 	"""
+
 	if self.__targets.has_key(anID):
 	    self.Log(lWarn, 'SECURITY: removing log target "' + str(anID) + '"')
 	    self.__targets[anID].close()
 	    del self.__targets[anID]
 
     def Log(self, aLogLevel, aMsg, aRawnessFlag = lUncooked):
+	"""
+	log a message
+
+	- for a list of log levels see top of file
+	- messages above the currently active level of logging/verbosity are dropped silently
+	- if Rawness == lCooked non-printables < 32 (space) will be mapped to their name in ASCII
+	- FIXME: this should be a Unicode mapping
+	"""
+
 	# are we in for work ?
 	if self.__targets is not None:
 	    # shall we cook it ?
@@ -109,30 +137,31 @@ class Logger:
 
 	    # now dump it
 	    for key in self.__targets.keys():
-		self.__targets[key].write(aLogLevel, msg)
+		self.__targets[key].writeMsg(aLogLevel, msg)
 
     def LogDelimiter (self):
+	"""
+	write a horizontal line or something similar to the log target
+	"""
+
 	for key in self.__targets.keys():
 	    self.__targets[key].writeDelimiter()
 
     def LogException(self, aMsg, exception):
-    	"""logs the exception with a timestamp.
+    	"""Log an exception.
+
 	'exception' is a tuple as returned by sys.exc_info()
-	If 'promptfunc' is not None, the result of promptfunc is returned
-	else Error() returns None.
-	prototype: promptfunc(message, timestamp)"""
+	"""
 
-	for key in self.__targets.keys():
-	    self.__targets[key].write(lPanic, aMsg)
-
-	t, v, tb = exception
-	tbs = traceback.format_exception(t, v, tb)
-
-	for line in tbs:
+	# avoid one level of indirection by not calling self.__Log such
+	# that the chances of succeeding shall be increased
+	if self.__targets is not None:
+	    t, v, tb = exception
+	    tbs = traceback.format_exception(t, v, tb)
 	    for key in self.__targets.keys():
-		self.__targets[key].write(lPanic, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
-
-	return None
+		self.__targets[key].writeMsg(lPanic, aMsg)
+		for line in tbs:
+		    self.__targets[key].writeMsg(lPanic, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
 
     def __char2AsciiName(self, aChar):
 	if ord(aChar) in range(0,32):
@@ -141,20 +170,28 @@ class Logger:
 	    return aChar
 #---------------------------------------------------------------
 class LogTarget:
-    # used to add/remove target in logger
+    """Base class for actual log target implementations.
+
+    - derive your targets from this class
+    - offers lots of generic functionality
+    """
+
+    # used to add/remove a target in logger
     ID = None
-    # default
+
+    # default log level
     __activeLogLevel = lErr
+
     # any security related items should be tagged with "SECURITY" by the programmer
     __LogLevelPrefix = {lPanic: '[PANIC] ', lErr: '[ERROR] ', lWarn: '[WARN]  ', lInfo: '[INFO]  ', lData: '[DATA]  '}
 
     def __init__(self, aLogLevel = lErr):
 	self.__activeLogLevel = aLogLevel
 	self.writeDelimiter()
-	self.write (lPanic, "SECURITY: log level on __init__() is " + self.__LogLevelPrefix[self.__activeLogLevel])
+	self.writeMsg (lPanic, "SECURITY: initial log level is " + self.__LogLevelPrefix[self.__activeLogLevel])
 
     def close(self):
-	self.write (lPanic, "SECURITY: closing log target (ID = " + str(self.ID) + ")")
+	self.writeMsg (lPanic, "SECURITY: closing log target (ID = " + str(self.ID) + ")")
 
     def getID (self):
 	return self.ID
@@ -162,14 +199,14 @@ class LogTarget:
     def SetLogLevel(self, aLogLevel):
 	# are we sane ?
 	if aLogLevel not in range(lData+1):
-	    self.write (lPanic, "SECURITY: trying to set invalid log level (" + str(aLogLevel) + ") - keeping current log level (" + str(self.__activeLogLevel) + ")")
+	    self.writeMsg (lPanic, "SECURITY: trying to set invalid log level (" + str(aLogLevel) + ") - keeping current log level (" + str(self.__activeLogLevel) + ")")
 	    return None
 	# log the change
-	self.write (lPanic, "SECURITY: log level change from " + self.__LogLevelPrefix[self.__activeLogLevel] + " to " + self.__LogLevelPrefix[aLogLevel])
+	self.writeMsg (lPanic, "SECURITY: log level change from " + self.__LogLevelPrefix[self.__activeLogLevel] + " to " + self.__LogLevelPrefix[aLogLevel])
 	self.__activeLogLevel = aLogLevel
 	return self.__activeLogLevel
 
-    def write (self, aLogLevel, aMsg):
+    def writeMsg (self, aLogLevel, aMsg):
 	if aLogLevel <= self.__activeLogLevel:
 	    timestamp = self.__timestamp()
 	    severity = self.__LogLevelPrefix[aLogLevel]
@@ -198,9 +235,17 @@ class LogTarget:
 	print "LogTarget: You forgot to override dump2stderr() !\n"
 
     def __timestamp(self):
+	"""return a nicely formatted time stamp
+
+	FIXME: allow for non-hardwired format string
+	"""
 	return time.strftime("%Y-%m-%d %H:%M:%S ", time.localtime(time.time()))
 
     def __tracestack(self):
+	"""extract data from the current execution stack
+
+	this is rather fragile, I guess
+	"""
         stack = traceback.extract_stack()
 	self.__modulename = stack[-4][0]
         self.__linenumber = stack[-4][1]
@@ -223,7 +268,7 @@ class LogTargetFile(LogTarget):
 	    LogTarget.__init__(self, aLogLevel)
 	    self.ID = os.path.abspath (aFileName) # the file name canonicalized
 
-	self.write (lData, "instantiated log file " + aFileName + " with ID " + str(self.ID))
+	self.writeMsg (lData, "instantiated log file " + aFileName + " with ID " + str(self.ID))
 
     def close(self):
 	LogTarget.close(self)
@@ -239,7 +284,7 @@ class LogTargetConsole(LogTarget):
 	LogTarget.__init__(self, aLogLevel)
 	# do our extra work
 	self.ID = "stdout/stderr"
-	self.write (lData, "instantiated console logging with ID " + str(self.ID))
+	self.writeMsg (lData, "instantiated console logging with ID " + str(self.ID))
 
     def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
 	sys.stdout.write(aTimeStamp + aPrefix + aLocation + aMsg)
@@ -256,7 +301,7 @@ class LogTargetSyslog(LogTarget):
 	syslog.openlog(os.path.basename(sys.argv[0]))
 	syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
 	self.ID = "syslog"
-	self.write (lData, "instantiated syslog logging with ID " + str(self.ID))
+	self.writeMsg (lData, "instantiated syslog logging with ID " + str(self.ID))
 
     def close(self):
 	LogTarget.close(self)
@@ -267,7 +312,15 @@ class LogTargetSyslog(LogTarget):
 
     def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
 	syslog.syslog ((syslog.LOG_USER | syslog.LOG_ERR), aPrefix + aLocation + aMsg)
+#---------------------------------------------------------------
+class LogTargetDummy(LogTarget):
+    def __init__ (self):
+	# call inherited
+	LogTarget.__init__(self, lPanic)
+	self.ID = "dummy"
 
+    def dump2stderr (self, aTimestamp, aSeverity, aCaller, aMsg):
+	pass
 #------- MAIN -------------------------------------------------------
 if __name__ == "__main__":
     print "\nTesting module gmLog\n=========================="
@@ -294,8 +347,6 @@ if __name__ == "__main__":
     # now do something
     log.Log (lInfo, "starting whatever we were about to do")
 
-    print "Hello world !"
-
     print "Let's add a console logging handle."
     # let's add a console log target - it can have it's own log level
     consolehandle = LogTargetConsole (lInfo)
@@ -314,14 +365,16 @@ if __name__ == "__main__":
     log.Log (lData, str(log) + "\001\002\003\004\005\012\013\015", lCooked)
     log.Log (lErr, "an error occurred ...")
 
-    print "Now, try an exception (divison / zero)"
+    print "Now, try an exception (divison by zero)"
     try:
 	n = 1/0
     except:
-	e = sys.exc_info()
-	log.LogException("Exception caught !", e)
+	exc = sys.exc_info()
+	log.LogException("Exception caught !", exc)
 
     log.Log (lInfo, "done with whatever we were about to do")
     log.close()
 
     print "Done."
+else:
+    gmDefLog = Logger(LogTargetDummy())
