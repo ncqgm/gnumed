@@ -12,7 +12,7 @@
 #                     
 # ---------------------------------------------------------------------------
 #
-# @author: Dr. Richard TEry
+# @author: Dr. Richard Terry
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies:
@@ -85,9 +85,9 @@ class TabbedLists(wxPanel): #, wxColumnSorterMixin):
 	self.List_Referrals = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
 	self.List_Recalls = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
 	self.List_Inbox = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
-	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Inbox, pPage = self.List_Script, strText = '')
+	
+	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Script, pPage = self.List_Script, strText = '')
 	#self.notebook1.AddPage(bSelect = true, imageId = tabimage_Inbox, pPage = szr_script_page, strText = '')
-
 	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Requests, pPage = self.List_Requests, strText = '')
 	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Measurements, pPage = self.List_Measurements, strText = '')
 	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Referrals, pPage = self.List_Referrals, strText = '')
