@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.17 2005-03-14 14:39:18 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmSOAPWidgets.py,v 1.18 2005-03-14 17:36:51 cfmoro Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -478,7 +478,8 @@ if __name__ == "__main__":
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
-
+	
+		# soap widget displaying all narratives for an issue along an encounter
 		episode = gmEMRStructItems.cEpisode(aPK_obj=1)
 		encounter = gmEMRStructItems.cEncounter(aPK_obj=1)
 		narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
@@ -486,16 +487,25 @@ if __name__ == "__main__":
 		app = wx.wxPyWidgetTester(size=(300,500))		
 		app.SetWidget(cResizingSoapPanel, episode, narrative)
 		app.MainLoop()
-		del app		
+		del app				
 		
+		# soap progress note for episode
 		app = wx.wxPyWidgetTester(size=(300,300))
 		app.SetWidget(cResizingSoapPanel, episode)
 		app.MainLoop()
 		del app
-
+		
+		# unassociated soap progress note
+		app = wx.wxPyWidgetTester(size=(300,300))
+		app.SetWidget(cResizingSoapPanel, None)
+		app.MainLoop()
+		del app		
+		
+		# unstructured progress note
 		app = wx.wxPyWidgetTester(size=(600,600))
 		app.SetWidget(cSingleBoxSOAPPanel, -1)
 		app.MainLoop()
+		
 	except StandardError:
 		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
 		# but re-raise them
@@ -503,7 +513,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.17  2005-03-14 14:39:18  ncq
+# Revision 1.18  2005-03-14 17:36:51  cfmoro
+# Added unit test for unassociated progress note
+#
+# Revision 1.17  2005/03/14 14:39:18  ncq
 # - somewhat improve Carlos' support for unassociated progress notes
 #
 # Revision 1.16  2005/03/13 09:05:06  cfmoro
