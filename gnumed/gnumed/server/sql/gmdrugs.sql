@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.19 $ $Date: 2002-10-28 10:02:52 $ $Author: ihaywood $
+-- $Revision: 1.20 $ $Date: 2002-11-03 12:12:13 $ $Author: hherb $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.19  2002-10-28 10:02:52  ihaywood
+-- Revision 1.20  2002-11-03 12:12:13  hherb
+-- typo causing error fixed
+--
+-- Revision 1.19  2002/10/28 10:02:52  ihaywood
 -- new column in conditions
 --
 -- Revision 1.18  2002/10/28 04:39:07  ihaywood
@@ -23,7 +26,7 @@
 -- Revision 1.17  2002/10/26 12:38:20  ihaywood
 -- Changes to gmdrugs.sql please review
 --
--- Revision 1.17 2002/10/20 ihaywood 
+-- Revision 1.17 2002/10/20 ihaywood
 -- additions for versioning and attribution of data
 -- Revision 1.16  2002/10/07 07:23:43  hherb
 -- generic_drug further normalized (drug names no separate entities to allow for synonyms and translations)
@@ -38,6 +41,8 @@
 -- facilities for internationalization.
 --
 
+\set ON_ERROR_STOP 1
+
 create table info_reference(
 	id serial primary key,
 	source_category char check (source_category in ('p', 'a', 'i', 'm', 'o', 's')),
@@ -51,7 +56,7 @@ comment on column info_reference.description is
 'URL or address or similar informtion allowing to reproduce the source of information';
 
 -- couple to examples
-insert into info_reference (source_category, description) values ('i', 'Rang, Dale, and Ritter <i>Pharmacology</i>, 1999'); 
+insert into info_reference (source_category, description) values ('i', 'Rang, Dale, and Ritter <i>Pharmacology</i>, 1999');
 
 create table audited_table
 (
@@ -253,7 +258,9 @@ comment on table generic_drug_name is
 comment on column generic_drug_name.name is
 'the generic name of this drug';
 
+\unset ON_ERROR_STOP
 drop function get_drug_name (integer);
+\set ON_ERROR_STOP 1
 
 create function get_drug_name (integer) returns text as '
 r = plpy.execute ("select category = ''p'' or category = ''t'' as is_drug, description from drug_element where id = %s" % args[0])
@@ -557,7 +564,7 @@ create table conditions (
 	id serial,
 	comment text,
 	title varchar (60),
-	id_subsidy ineger references subsidies (id),
+	id_subsidy integer references subsidies (id),
 	authority boolean
 );
 
