@@ -2,11 +2,11 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <gouchi@altern.org>, 2003.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/fr.po,v $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
-"POT-Creation-Date: Sat Oct 19 18:18:07 2002\n"
+"POT-Creation-Date: Mon Jan  6 10:50:22 2003\n"
 "PO-Revision-Date: Sat Sep 21 20:21:38 2002\n"
 "Last-Translator: FULL NAM <MAIL@ADDRESS>\n"
 "Language-Team: LANGUAG <LL@li.org>\n"
@@ -23,8 +23,8 @@ msgstr "Envoyer à"
 msgid "opening scanner"
 msgstr "Scanner activé"
 
-#: ../wxpython/gui/gmScanMedDocs.py:949
-msgid "Tools"
+#: ../wxpython/gmGuiMain.py:99
+msgid "no patient"
 msgstr ""
 
 #: ../wxpython/patient/gmGP_ClinicalSummary.py:63
@@ -55,17 +55,12 @@ msgstr "Actions"
 msgid "Results"
 msgstr "Résultats"
 
-#: ../wxpython/gmLabels.py:34
-msgid "called"
-msgstr "appelé"
-
 #: ../wxpython/gui/gmScanMedDocs.py:758 ../wxpython/gui/gmScanMedDocs.py:804
 msgid "document ID"
 msgstr "document ID"
 
-#: ../wxpython/patient/gmGP_Allergies.py:161
-#: ../wxpython/patient/gmGP_Allergies.py:166
-msgid "icon_letter_A"
+#: ../wxpython/gmLoginDialog.py:435
+msgid "database"
 msgstr ""
 
 #: ../wxpython/patient/gmGP_Immunisation.py:188
@@ -73,15 +68,16 @@ msgstr ""
 msgid "icon_syringe"
 msgstr ""
 
-#: ../wxpython/patient/gmDemographics.py:408
-msgid "Family name"
-msgstr "Nom de Famille"
+#: ../wxpython/patient/gmDemographics.py:419
+msgid "Allergies"
+msgstr ""
 
 #: ../wxpython/gmCryptoText.py:161
 msgid "This is not correctly encrypted text!"
 msgstr "Ce texte n'est pas correctement  encrypté!"
 
 #: ../python-common/docDocument.py:639
+#: ../wxpython/patient/modules/docDocument.py:639
 msgid "Cannot import docMime.py !"
 msgstr "Impossible d'importer docMime.py !"
 
@@ -89,11 +85,15 @@ msgstr "Impossible d'importer docMime.py !"
 msgid "First Name: "
 msgstr "Prénom: "
 
+#: ../wxpython/patient/gmCalcPreg.py:102
+msgid "LNMP is into the future!"
+msgstr ""
+
 #: ../wxpython/gmUserAdmin.py:41
 msgid "User's Info"
 msgstr "Informations utilisateur"
 
-#: ../wxpython/gmSelectPerson.py:42
+#: ../wxpython/gmSelectPerson.py:50
 msgid "&Select"
 msgstr "&Selectionner"
 
@@ -101,7 +101,8 @@ msgstr "&Selectionner"
 msgid "Cannot find image"
 msgstr "Impossible de trouver l'image"
 
-#: ../wxpython/patient/gmCalcPreg.py:38
+#: ../wxpython/patient/gmCalcPreg.py:48 ../wxpython/patient/gmCalcPreg.py:149
+#: ../wxpython/patient/gmCalcPreg.py:153
 msgid "Pregnancy Calculator"
 msgstr ""
 
@@ -122,8 +123,8 @@ msgstr ""
 msgid "User Administration"
 msgstr ""
 
-#: ../wxpython/gmPersonDetails.py:79
-msgid "Prof."
+#: ../wxpython/gui/gmStikoBrowser.py:183
+msgid "Reload"
 msgstr ""
 
 #: ../wxpython/gui/gmScanMedDocs.py:546
@@ -134,8 +135,9 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:157
-msgid "loading list of plugins                    "
+#: ../wxpython/patient/gmGP_Allergies.py:161
+#: ../wxpython/patient/gmGP_Allergies.py:166
+msgid "icon_letter_A"
 msgstr ""
 
 #: ../wxpython/gui/gmDrugDisplay.py:225
@@ -159,16 +161,13 @@ msgstr ""
 msgid "User's Permissions"
 msgstr ""
 
-#: ../wxpython/patient/gmGP_Prescriptions.py:214
-msgid "Reprint All Items"
+#: ../wxpython/gmFormPrinter.py:137
+msgid "Printer Setup"
 msgstr ""
 
-#: ../wxpython/gui/gmGuidelines.py:135 ../wxpython/gui/gmManual.py:119
+#: ../wxpython/gui/gmGuidelines.py:136 ../wxpython/gui/gmManual.py:119
+#: ../wxpython/gui/gmStikoBrowser.py:125
 msgid "HTML Source"
-msgstr ""
-
-#: ../wxpython/gmTalkback.py:38
-msgid "Your email address"
 msgstr ""
 
 #: ../wxpython/gmPersonDetails.py:258 ../wxpython/gmPersonDetails.py:283
@@ -201,8 +200,12 @@ msgstr ""
 msgid "  IMMUNISATIONS  "
 msgstr ""
 
-#: ../wxpython/gmLabels.py:38
-msgid "valid"
+#: ../wxpython/gmGuiMain.py:326
+msgid "E&xit\tAlt-X"
+msgstr ""
+
+#: ../wxpython/gui/gmStikoBrowser.py:159
+msgid "Open File"
 msgstr ""
 
 #: ../wxpython/gui/gmScanMedDocs.py:472
@@ -211,6 +214,10 @@ msgstr ""
 
 #: ../wxpython/gmCryptoText.py:108
 msgid "Set pass phrase"
+msgstr ""
+
+#: ../wxpython/patient/gmGP_TabbedLists.py:113
+msgid "Dose"
 msgstr ""
 
 #: ../wxpython/gmLoginDialog.py:183
@@ -241,10 +248,6 @@ msgstr ""
 msgid "I hit the big red button and ..."
 msgstr ""
 
-#: ../python-common/gmPG.py:531
-msgid "The wx GUI framework hasn't been initialized yet!"
-msgstr ""
-
 #: ../wxpython/gui/gmScanMedDocs.py:88
 msgid "acquire image"
 msgstr ""
@@ -267,6 +270,10 @@ msgid ""
 "(%s -> %s)."
 msgstr ""
 
+#: ../wxpython/gmPersonDetails.py:270
+msgid "private"
+msgstr ""
+
 #: ../wxpython/gmLabels.py:37
 msgid "at"
 msgstr ""
@@ -276,12 +283,12 @@ msgstr ""
 msgid "Mr."
 msgstr ""
 
-#: ../wxpython/patient/gmDemographics.py:408
-msgid "Date of birth"
-msgstr ""
-
 #: ../wxpython/patient/gmGP_TabbedLists.py:135
 msgid "First Date"
+msgstr ""
+
+#: ../wxpython/gmGuiMain.py:197
+msgid "Load New"
 msgstr ""
 
 #: ../wxpython/gmPersonDetails.py:205
@@ -292,12 +299,16 @@ msgstr ""
 msgid "move page"
 msgstr ""
 
+#: ../wxpython/patient/gmGP_ScratchPadRecalls.py:42
+msgid "Logged"
+msgstr ""
+
 #: ../wxpython/gui/gmDrugDisplay.py:166
 msgid "   Find   "
 msgstr ""
 
-#: ../wxpython/gmPersonDetails.py:102
-msgid "preferred"
+#: ../wxpython/gmFormPrinter.py:272
+msgid "Calibration"
 msgstr ""
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:198
@@ -322,15 +333,15 @@ msgstr ""
 msgid "You must select a page before you can move it around."
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:230
+#: ../wxpython/gmGuiMain.py:294
 msgid ""
 "Message from GnuMed:\n"
 "Please write a nice About box!"
 msgstr ""
 
-#: ../wxpython/gui/gmDrugDisplay.py:200
-msgid "Any"
-msgstr ""
+#: ../wxpython/gmLabels.py:34
+msgid "called"
+msgstr "appelé"
 
 #: ../wxpython/gmPersonDetails.py:79 ../wxpython/gmPersonDetailsDlg.py:72
 #: ../wxpython/gmPersonDetailsDlg.py:172
@@ -343,10 +354,6 @@ msgstr ""
 msgid "problem"
 msgstr ""
 
-#: ../python-common/gmPG.py:516 ../python-common/gmPG.py:541
-msgid "Can't connect to database without login information!"
-msgstr ""
-
 #: ../wxpython/patient/gmGP_Requests.py:84
 msgid "Requests generated this consultation"
 msgstr ""
@@ -356,9 +363,25 @@ msgstr ""
 msgid "icon_talking_head"
 msgstr ""
 
+#: ../wxpython/gmGuiMain.py:99
+msgid "idle"
+msgstr ""
+
+#: ../wxpython/gmUserAdmin.py:96
+msgid "Change"
+msgstr ""
+
+#: ../wxpython/gmLabels.py:38
+msgid "valid"
+msgstr ""
+
 #: ../wxpython/patient/gmGP_Prescriptions.py:267
 #: ../wxpython/patient/gmGP_Prescriptions.py:272
 msgid "icon_Rx_symbol"
+msgstr ""
+
+#: ../wxpython/patient/gmCalcPreg.py:68
+msgid "Due date"
 msgstr ""
 
 #: ../wxpython/gmPersonDetails.py:138
@@ -385,7 +408,7 @@ msgstr ""
 msgid "Precautions"
 msgstr ""
 
-#: ../wxpython/patient/gmGP_ScratchPadRecalls.py:16
+#: ../wxpython/patient/gmGP_ScratchPadRecalls.py:27
 msgid "Scratch Pad"
 msgstr ""
 
@@ -401,20 +424,18 @@ msgstr ""
 msgid "Quantity"
 msgstr ""
 
-#: ../wxpython/gui/gmGuidelines.py:62
+#: ../wxpython/gui/gmGuidelines.py:63
 msgid "?button?"
-msgstr ""
-
-#: ../wxpython/gmLoginDialog.py:435
-msgid "database"
 msgstr ""
 
 #: ../wxpython/gmPersonDetailsDlg.py:56
 msgid "&Undo"
 msgstr ""
 
-#: ../wxpython/patient/gmDemographics.py:408
-msgid "Gender"
+#: ../wxpython/gmTalkback.py:42
+msgid ""
+"Description/  \n"
+"Comment  "
 msgstr ""
 
 #: ../wxpython/gmTalkback.py:31
@@ -427,6 +448,10 @@ msgstr ""
 
 #: ../wxpython/gmLabels.py:34
 msgid "firstnames"
+msgstr ""
+
+#: ../wxpython/gmUserAdmin.py:120
+msgid "Commit Changes"
 msgstr ""
 
 #: ../wxpython/gmLoginDialog.py:182 ../wxpython/gmLoginDialog.py:500
@@ -450,26 +475,8 @@ msgstr ""
 msgid "address"
 msgstr ""
 
-#: ../wxpython/gmLoginDialog.py:336
-msgid ""
-"GnuMed main login screen\n"
-"\n"
-"USER:\n"
-" name of the GnuMed user\n"
-"PASSWORD\n"
-" password for this user\n"
-"\n"
-"button OK:\n"
-" proceed with login\n"
-"button OPTIONS:\n"
-" set advanced options\n"
-"button CANCEL:\n"
-" abort login and quit GnuMed client\n"
-"button HELP:\n"
-" this help screen\n"
-"\n"
-"For assistance on using GnuMed please contact:\n"
-" %s"
+#: ../wxpython/gui/gmStikoBrowser.py:220
+msgid "Add Bookmark"
 msgstr ""
 
 #: ../wxpython/patient/gmGP_Recalls.py:89
@@ -488,6 +495,10 @@ msgstr ""
 msgid "Proceed with login."
 msgstr ""
 
+#: ../wxpython/gmPersonDetails.py:102
+msgid "preferred"
+msgstr ""
+
 #: ../wxpython/gui/gmScanMedDocs.py:660
 msgid "Cannot find any SANE connected devices."
 msgstr ""
@@ -497,9 +508,8 @@ msgstr ""
 msgid "Condition"
 msgstr ""
 
-#: ../wxpython/patient/gmGP_ClinicalSummary.py:123
-#: ../wxpython/patient/gmGP_ClinicalSummary.py:128
-msgid "icon_clinical_summary"
+#: ../wxpython/gui/gmScanMedDocs.py:121 ../wxpython/gui/gmScanMedDocs.py:173
+msgid "delete selected page from document"
 msgstr ""
 
 #: ../wxpython/gui/gmDrugDisplay.py:169
@@ -523,6 +533,10 @@ msgstr ""
 msgid "c.o.b"
 msgstr ""
 
+#: ../wxpython/gmPersonDetailsDlg.py:38
+msgid "PersonDetails"
+msgstr ""
+
 #: ../wxpython/patient/gmGP_Prescriptions.py:216
 msgid "Save Item no print"
 msgstr ""
@@ -531,7 +545,7 @@ msgstr ""
 msgid "invalid configuration"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:230 ../wxpython/gmGuiMain.py:270
+#: ../wxpython/gmGuiMain.py:294 ../wxpython/gmGuiMain.py:334
 msgid "About GnuMed"
 msgstr ""
 
@@ -550,9 +564,8 @@ msgstr ""
 msgid "acquiring page"
 msgstr ""
 
-#: ../wxpython/gmTalkback.py:48
-msgid ""
-"An error occured in GnuMed. You can send a bug report from the window below."
+#: ../wxpython/gui/gmStikoBrowser.py:202
+msgid "Translate text"
 msgstr ""
 
 #: ../wxpython/gmLabels.py:34
@@ -569,10 +582,8 @@ msgid ""
 "%s"
 msgstr ""
 
-#: ../wxpython/gmTalkback.py:42
-msgid ""
-"Description/  \n"
-"Comment  "
+#: ../wxpython/patient/gmCalcPreg.py:63
+msgid "Days:"
 msgstr ""
 
 #: ../wxpython/gui/gmScanMedDocs.py:154
@@ -610,11 +621,11 @@ msgid ""
 msgstr ""
 
 #: ../wxpython/patient/gmGP_Recalls.py:90
-#: ../wxpython/patient/gmGP_ScratchPadRecalls.py:54
+#: ../wxpython/patient/gmGP_ScratchPadRecalls.py:51
 msgid "Status"
 msgstr ""
 
-#: ../wxpython/gmPersonDetails.py:164 ../wxpython/gmSelectPerson.py:51
+#: ../wxpython/gmPersonDetails.py:164 ../wxpython/gmSelectPerson.py:59
 msgid "&Add"
 msgstr ""
 
@@ -634,8 +645,8 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: ../wxpython/gmPersonDetails.py:270
-msgid "private"
+#: ../wxpython/patient/gmGP_PastHistory.py:121
+msgid "Year Onset"
 msgstr ""
 
 #: ../wxpython/gmLabels.py:37 ../wxpython/gmLabels.py:38
@@ -647,10 +658,14 @@ msgstr ""
 msgid "Change Font"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:169
+#: ../wxpython/gmGuiMain.py:253
 msgid ""
 "previous: %s - %s\n"
 "current (%s/%s): %s"
+msgstr ""
+
+#: ../wxpython/gmPersonNotebook.py:44
+msgid "Search"
 msgstr ""
 
 #: ../wxpython/gmPersonNotebook.py:47
@@ -691,11 +706,20 @@ msgstr ""
 msgid "icon_Set_Square"
 msgstr ""
 
+#: ../wxpython/gmTalkback.py:48
+msgid ""
+"An error occured in GnuMed. You can send a bug report from the window below."
+msgstr ""
+
+#: ../wxpython/gui/gmStikoBrowser.py:212
+msgid "Bookmarks"
+msgstr ""
+
 #: ../wxpython/gui/gmSQL.py:106
 msgid "Query"
 msgstr ""
 
-#: ../wxpython/gmSelectPerson.py:54
+#: ../wxpython/gmSelectPerson.py:62
 msgid "&Merge"
 msgstr ""
 
@@ -723,16 +747,12 @@ msgstr ""
 msgid "Recalls entered this consultation"
 msgstr ""
 
-#: ../wxpython/gui/gmGuidelines.py:72
+#: ../wxpython/gui/gmGuidelines.py:73 ../wxpython/gui/gmStikoBrowser.py:167
 msgid "Back"
 msgstr ""
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:208
 msgid "Full Product Information"
-msgstr ""
-
-#: ../wxpython/gui/gmGuidelines.py:156
-msgid "Guidelines"
 msgstr ""
 
 #: ../wxpython/gmCryptoText.py:183
@@ -750,6 +770,10 @@ msgstr ""
 #: ../wxpython/gmLoginDialog.py:333
 msgid ""
 "You need to set the option [workplace] -> <help desk> in the config file !"
+msgstr ""
+
+#: ../wxpython/patient/gmGP_ScratchPadRecalls.py:33
+msgid "Recalls/Reviews"
 msgstr ""
 
 #: ../wxpython/gmUserAdmin.py:67
@@ -772,6 +796,10 @@ msgstr ""
 msgid "Symbol"
 msgstr ""
 
+#: ../wxpython/patient/gmDemographics.py:158
+msgid "Preferred Name"
+msgstr ""
+
 #: ../wxpython/gui/gmDrugDisplay.py:232
 msgid "&Prescribe"
 msgstr ""
@@ -789,7 +817,7 @@ msgstr ""
 msgid "icon_blood_sample"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:178
+#: ../wxpython/gmGuiMain.py:155
 msgid "You are logged in as [%s]"
 msgstr ""
 
@@ -812,21 +840,21 @@ msgstr ""
 msgid "&Run query"
 msgstr ""
 
-#: ../wxpython/gui/gmScanMedDocs.py:121 ../wxpython/gui/gmScanMedDocs.py:173
-msgid "delete selected page from document"
+#: ../wxpython/patient/gmDemographics.py:414
+msgid "Age"
 msgstr ""
 
-#: ../python-common/gmPG.py:359
+#: ../python-common/gmPG.py:367 ../wxpython/patient/modules/gmPG.py:367
 msgid ""
 "Connection to database failed. \n"
 "DSN was [%s], host:port was [%s]"
 msgstr ""
 
-#: ../wxpython/gmPersonDetailsDlg.py:38
-msgid "PersonDetails"
+#: ../wxpython/patient/gmGP_Prescriptions.py:214
+msgid "Reprint All Items"
 msgstr ""
 
-#: ../wxpython/patient/gmBMICalc.py:311
+#: ../wxpython/patient/gmBMICalc.py:338
 msgid "BMI Calculator"
 msgstr ""
 
@@ -837,10 +865,6 @@ msgstr ""
 
 #: ../wxpython/patient/gmGP_Immunisation.py:102
 msgid "Schedule"
-msgstr ""
-
-#: ../wxpython/gmGuiMain.py:174
-msgid "failed"
 msgstr ""
 
 #: ../wxpython/gui/gmScanMedDocs.py:263 ../wxpython/gui/gmScanMedDocs.py:278
@@ -859,23 +883,24 @@ msgstr ""
 msgid "document pages"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:172
-msgid "success"
+#: ../wxpython/gmGuiMain.py:199
+msgid "Show"
 msgstr ""
 
 #: ../python-common/docDocument.py:676
+#: ../wxpython/patient/modules/docDocument.py:676
 msgid "Unable to start viewer on file [%s]."
 msgstr ""
 
-#: ../wxpython/gmPersonNotebook.py:44
-msgid "Search"
+#: ../wxpython/gui/gmStikoBrowser.py:236
+msgid "Print Page"
 msgstr ""
 
 #: ../wxpython/gmLabels.py:41
 msgid "timeframe"
 msgstr ""
 
-#: ../wxpython/patient/gmGP_ScratchPadRecalls.py:53
+#: ../wxpython/patient/gmGP_ScratchPadRecalls.py:50
 msgid "Recall or Review"
 msgstr ""
 
@@ -887,6 +912,10 @@ msgstr ""
 
 #: ../wxpython/gui/gmSnellen.py:430
 msgid " Cancel "
+msgstr ""
+
+#: ../wxpython/gmPersonDetails.py:79
+msgid "Prof."
 msgstr ""
 
 #: ../wxpython/gui/gmSnellen.py:407
@@ -901,8 +930,8 @@ msgstr ""
 msgid "Scan"
 msgstr ""
 
-#: ../wxpython/patient/gmGP_ScratchPadRecalls.py:22
-msgid "Recalls/Reviews"
+#: ../wxpython/gui/gmDrugDisplay.py:200
+msgid "Any"
 msgstr ""
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:199
@@ -917,7 +946,7 @@ msgstr ""
 msgid "Four Es"
 msgstr ""
 
-#: ../python-common/gmI18N.py:198
+#: ../python-common/gmI18N.py:196 ../wxpython/patient/modules/gmI18N.py:196
 msgid "%Y-%m-%d  %H:%M:%S"
 msgstr ""
 
@@ -953,7 +982,7 @@ msgstr ""
 msgid "show page"
 msgstr ""
 
-#: ../wxpython/gui/gmGuidelines.py:82
+#: ../wxpython/gui/gmGuidelines.py:83
 msgid "Print"
 msgstr ""
 
@@ -986,8 +1015,8 @@ msgstr ""
 msgid "Contraindications"
 msgstr ""
 
-#: ../wxpython/patient/gmGP_PastHistory.py:121
-msgid "Year Onset"
+#: ../python-common/gmPG.py:539 ../wxpython/patient/modules/gmPG.py:539
+msgid "The wx GUI framework hasn't been initialized yet!"
 msgstr ""
 
 #: ../wxpython/gmTalkback.py:32
@@ -1022,7 +1051,7 @@ msgstr ""
 msgid "ManualHtmlWindow: No more items in history!\n"
 msgstr ""
 
-#: ../wxpython/gmSelectPerson.py:45
+#: ../wxpython/gmSelectPerson.py:53
 msgid "&Edit"
 msgstr ""
 
@@ -1030,24 +1059,47 @@ msgstr ""
 msgid "display selected part of the document"
 msgstr ""
 
-#: ../wxpython/gui/gmGuidelines.py:159
-msgid "view"
+#: ../wxpython/gui/gmSnellen.py:424
+msgid ""
+"Control Snellen chart using mouse:\n"
+"left-click increases text\n"
+"right-click decreases text\n"
+"double-click ends"
 msgstr ""
 
 #: ../wxpython/gmUserAdmin.py:56
 msgid "Select"
 msgstr ""
 
-#: ../wxpython/gmLoginDialog.py:475
-msgid "backend options"
+#: ../wxpython/gmLoginDialog.py:336
+msgid ""
+"GnuMed main login screen\n"
+"\n"
+"USER:\n"
+" name of the GnuMed user\n"
+"PASSWORD\n"
+" password for this user\n"
+"\n"
+"button OK:\n"
+" proceed with login\n"
+"button OPTIONS:\n"
+" set advanced options\n"
+"button CANCEL:\n"
+" abort login and quit GnuMed client\n"
+"button HELP:\n"
+" this help screen\n"
+"\n"
+"For assistance on using GnuMed please contact:\n"
+" %s"
 msgstr ""
 
 #: ../wxpython/gmPersonDetails.py:161
 msgid "Categorize this address (i.e. \"home\", \"work\", \"holidays\")"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:100
-msgid "GnuMed: idle - no patient (%s@%s)"
+#: ../wxpython/patient/gmGP_ClinicalSummary.py:123
+#: ../wxpython/patient/gmGP_ClinicalSummary.py:128
+msgid "icon_clinical_summary"
 msgstr ""
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:217
@@ -1066,16 +1118,24 @@ msgstr ""
 msgid "Significant Past Problems"
 msgstr ""
 
-#: ../wxpython/gmUserAdmin.py:120
-msgid "Commit Changes"
+#: ../wxpython/gmGuiMain.py:257
+msgid "success"
+msgstr ""
+
+#: ../wxpython/patient/gmGP_Immunisation.py:79
+msgid "Vaccine Given"
 msgstr ""
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:150
 msgid "For"
 msgstr ""
 
-#: ../wxpython/gui/gmGuidelines.py:67
+#: ../wxpython/gui/gmGuidelines.py:68
 msgid "Load File"
+msgstr ""
+
+#: ../wxpython/gui/gmScanMedDocs.py:131 ../wxpython/gui/gmScanMedDocs.py:174
+msgid "move selected page within document"
 msgstr ""
 
 #: ../wxpython/gmPersonDetails.py:156
@@ -1090,7 +1150,7 @@ msgstr ""
 msgid "Edit Item"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:262
+#: ../wxpython/gmGuiMain.py:326
 msgid "Close this GnuMed client"
 msgstr ""
 
@@ -1127,8 +1187,8 @@ msgid ""
 "Please confirm the ID or type in a new numeric ID."
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:262
-msgid "E&xit\tAlt-X"
+#: ../wxpython/gui/gmStikoBrowser.py:114 ../wxpython/gui/gmStikoBrowser.py:119
+msgid "StikoHtmlWindow: No more items in history!\n"
 msgstr ""
 
 #: ../wxpython/gmLoginDialog.py:390
@@ -1147,24 +1207,32 @@ msgstr ""
 msgid "Directions"
 msgstr ""
 
-#: ../wxpython/gui/gmGuidelines.py:159
+#: ../wxpython/gui/gmGuidelines.py:157
 msgid "&Guidelines"
+msgstr ""
+
+#: ../wxpython/gmGuiMain.py:241
+msgid "loading list of plugins                    "
+msgstr ""
+
+#: ../wxpython/patient/gmGP_Prescriptions.py:220
+msgid "Save list layout"
 msgstr ""
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:205
 msgid "Make Item Reg 24"
 msgstr ""
 
+#: ../wxpython/patient/gmCalcPreg.py:149
+msgid "Preg. Calc"
+msgstr ""
+
 #: ../wxpython/patient/gmGP_ClinicalSummary.py:64
 msgid "   Alerts   "
 msgstr ""
 
-#: ../wxpython/gui/gmSnellen.py:424
-msgid ""
-"Control Snellen chart using mouse:\n"
-"left-click increases text\n"
-"right-click decreases text\n"
-"double-click ends"
+#: ../wxpython/gmTalkback.py:38
+msgid "Your email address"
 msgstr ""
 
 #: ../wxpython/gmLabels.py:39 ../wxpython/patient/gmGP_Prescriptions.py:147
@@ -1173,11 +1241,16 @@ msgid "Drug"
 msgstr ""
 
 #: ../python-common/docDocument.py:630
+#: ../wxpython/patient/modules/docDocument.py:630
 msgid "File [%s] does not exist !"
 msgstr ""
 
 #: ../wxpython/gmLabels.py:42
 msgid "log message"
+msgstr ""
+
+#: ../wxpython/gmLoginDialog.py:475
+msgid "backend options"
 msgstr ""
 
 #: ../wxpython/gmLabels.py:41
@@ -1192,8 +1265,10 @@ msgstr ""
 msgid "User's Login"
 msgstr ""
 
-#: ../wxpython/gmPersonDetails.py:275
-msgid "URL"
+#: ../python-common/gmPG.py:524 ../python-common/gmPG.py:549
+#: ../wxpython/patient/modules/gmPG.py:524
+#: ../wxpython/patient/modules/gmPG.py:549
+msgid "Can't connect to database without login information!"
 msgstr ""
 
 #: ../wxpython/gmLoginDialog.py:177
@@ -1208,6 +1283,10 @@ msgid ""
 "\n"
 "If you don't care about the ID you can switch off this\n"
 "message in the config file."
+msgstr ""
+
+#: ../wxpython/gmPersonDetails.py:275
+msgid "URL"
 msgstr ""
 
 #: ../wxpython/gmUserAdmin.py:74
@@ -1226,8 +1305,8 @@ msgstr ""
 msgid "resolved"
 msgstr ""
 
-#: ../wxpython/gmUserAdmin.py:96
-msgid "Change"
+#: ../wxpython/patient/gmCalcPreg.py:87
+msgid "icon_Preg_calc"
 msgstr ""
 
 #: ../wxpython/gmTalkback.py:57
@@ -1242,7 +1321,7 @@ msgstr ""
 msgid "different phone numbers like \"home\", \"work\" \"fax home\", ..."
 msgstr ""
 
-#: ../wxpython/gmPersonDetailsDlg.py:57 ../wxpython/gmSelectPerson.py:48
+#: ../wxpython/gmPersonDetailsDlg.py:57 ../wxpython/gmSelectPerson.py:56
 msgid "&New"
 msgstr ""
 
@@ -1258,11 +1337,11 @@ msgstr ""
 msgid "     Habits            Risk Factors"
 msgstr ""
 
-#: ../wxpython/patient/gmDemographics.py:408
-msgid "First name"
+#: ../wxpython/gmGuiMain.py:261
+msgid "failed"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:368
+#: ../wxpython/gmGuiMain.py:445
 msgid "GnuMed client"
 msgstr ""
 
@@ -1279,7 +1358,7 @@ msgstr ""
 msgid "given name(s)"
 msgstr ""
 
-#: ../wxpython/gui/gmGuidelines.py:87
+#: ../wxpython/gui/gmGuidelines.py:88 ../wxpython/gui/gmStikoBrowser.py:228
 msgid "View Source"
 msgstr ""
 
@@ -1296,8 +1375,8 @@ msgstr ""
 msgid "&Case insensitive"
 msgstr ""
 
-#: ../wxpython/patient/gmGP_Prescriptions.py:220
-msgid "Save list layout"
+#: ../wxpython/patient/gmCalcPreg.py:60
+msgid "Weeks:"
 msgstr ""
 
 #: ../wxpython/gui/gmSnellen.py:377
@@ -1326,7 +1405,7 @@ msgstr ""
 msgid "Dose & administration"
 msgstr ""
 
-#: ../wxpython/gui/gmGuidelines.py:77
+#: ../wxpython/gui/gmGuidelines.py:78 ../wxpython/gui/gmStikoBrowser.py:175
 msgid "Forward"
 msgstr ""
 
@@ -1334,8 +1413,8 @@ msgstr ""
 msgid "postcode"
 msgstr ""
 
-#: ../wxpython/patient/gmGP_Immunisation.py:79
-msgid "Vaccine Given"
+#: ../wxpython/gui/gmStikoBrowser.py:192
+msgid "Home"
 msgstr ""
 
 #: ../wxpython/gui/gmScanMedDocs.py:852
@@ -1352,8 +1431,8 @@ msgstr ""
 msgid "dose"
 msgstr ""
 
-#: ../wxpython/patient/gmGP_TabbedLists.py:113
-msgid "Dose"
+#: ../wxpython/patient/gmCalcPreg.py:55
+msgid "LNMP"
 msgstr ""
 
 #: ../wxpython/gmLoginDialog.py:176
@@ -1393,10 +1472,13 @@ msgstr ""
 msgid "Search by"
 msgstr ""
 
-#: ../wxpython/gui/gmScanMedDocs.py:131 ../wxpython/gui/gmScanMedDocs.py:174
-msgid "move selected page within document"
+#: ../wxpython/gui/gmStikoBrowser.py:151
+msgid "Gnumed STIKO Contents"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:156
+#: ../wxpython/gmGuiMain.py:240
 msgid "GnuMed: loading %s plugins"
 msgstr ""
+
+#~ msgid "Family name"
+#~ msgstr "Nom de Famille"
