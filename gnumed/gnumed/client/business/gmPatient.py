@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.32 2004-03-20 13:14:36 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmPatient.py,v 1.33 2004-03-20 13:31:18 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -539,7 +539,7 @@ class cPatientSearcher_SQL:
 			pass
 		try:
 			data['dob']
-			where_snippets.append("datetrunc('day', dob)=%(dob)s")
+			where_snippets.append("date_trunc('day', dob)=%(dob)s")
 		except KeyError:
 			pass
 		try:
@@ -882,7 +882,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.32  2004-03-20 13:14:36  ncq
+# Revision 1.33  2004-03-20 13:31:18  ncq
+# - PostgreSQL has date_trunc, not datetrunc
+#
+# Revision 1.32  2004/03/20 13:14:36  ncq
 # - sync data dict and named substs in __generate_queries_generic
 #
 # Revision 1.31  2004/03/20 13:05:20  ncq
