@@ -32,7 +32,7 @@ ID_LISTBOX = wxNewId()
 ID_BUTTON_PRESCRIBE = wxNewId()
 ID_BUTTON_DISPLAY = wxNewId()
 ID_BUTTON_PRINT = wxNewId()
-
+ID_BUTTON_BOOKMARK = wxNewId()
 
 class DrugDisplay(wxPanel):
 	"displays drug information in a convenience widget"
@@ -40,7 +40,7 @@ class DrugDisplay(wxPanel):
 		pos = wxPyDefaultPosition, size = wxPyDefaultSize,
 		style = wxTAB_TRAVERSAL ):
 		wxPanel.__init__(self, parent, id, pos, size, style)
-
+		print "Initializing GUI elements"
 		self.InitGuiElements()
 
 		# handler declarations for DrugDisplay
@@ -61,6 +61,7 @@ class DrugDisplay(wxPanel):
 	# methods for DrugDisplay
 
 	def TransferDataToWindow(self):
+		print "Transfer data to Window"
 		return true
 
 	def TransferDataFromWindow(self):
@@ -81,6 +82,7 @@ class DrugDisplay(wxPanel):
 		pass
 
 	def OnJumpToSelected(self, event):
+		print "selection made"
 		pass
 
 	def OnSearchByIndication(self, event):
@@ -112,6 +114,20 @@ class DrugDisplay(wxPanel):
 
 		self.szrVTop = wxBoxSizer( wxVERTICAL )
 
+		sboxProduct = wxStaticBox( self, -1, _("Product") )
+		sboxProduct.SetFont( wxFont( 8, wxSWISS, wxNORMAL, wxNORMAL ) )
+		self.szrProduct = wxStaticBoxSizer( sboxProduct, wxHORIZONTAL )
+
+		self.comboProduct = wxComboBox( self, ID_COMBO_PRODUCT, "", wxDefaultPosition, wxSize(130,-1),
+			[_("Drug A"),_("Drug B")] , wxCB_DROPDOWN )
+		self.comboProduct.SetToolTip( wxToolTip(_("Enter the name of the drug you are interested in")) )
+		self.szrProduct.AddWindow( self.comboProduct, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
+
+		self.btnBookmark = wxButton( self, ID_BUTTON_BOOKMARK, _("&Bookmark"), wxDefaultPosition, wxDefaultSize, 0 )
+		self.szrProduct.AddWindow( self.btnBookmark, 0, wxALIGN_CENTER_VERTICAL|wxALL, 1 )
+
+		self.szrVTop.AddSizer( self.szrProduct, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+
 		self.szrHTop = wxBoxSizer( wxHORIZONTAL )
 
 		self.mltxtMims = wxTextCtrl( self, ID_TEXTCTRL, "", wxDefaultPosition, wxSize(80,40), wxTE_MULTILINE )
@@ -120,17 +136,6 @@ class DrugDisplay(wxPanel):
 		self.szrHTop.AddSpacer( 10, 10, 0, wxALIGN_CENTRE|wxALL, 1 )
 
 		self.szrVInteractionSidebar = wxBoxSizer( wxVERTICAL )
-
-		txtProduct = wxStaticText( self, ID_TEXT, _("Product"), wxDefaultPosition, wxDefaultSize, 0 )
-		txtProduct.SetFont( wxFont( 8, wxSWISS, wxNORMAL, wxNORMAL ) )
-		self.szrVInteractionSidebar.AddWindow( txtProduct, 0, wxALIGN_CENTER_VERTICAL, 5 )
-
-		self.comboProduct = wxComboBox( self, ID_COMBO_PRODUCT, "", wxDefaultPosition, wxSize(130,-1),
-			[_("Drug A"),_("Drug B")] , wxCB_DROPDOWN )
-		self.comboProduct.SetToolTip( wxToolTip(_("Enter the name of the drug you are interested in")) )
-		self.szrVInteractionSidebar.AddWindow( self.comboProduct, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
-
-		self.szrVInteractionSidebar.AddSpacer( 20, 10, 0, wxALIGN_CENTRE|wxALL, 1 )
 
 		sboxSearchBy = wxStaticBox( self, -1, _("Search by") )
 		sboxSearchBy.SetFont( wxFont( 8, wxSWISS, wxNORMAL, wxNORMAL ) )
@@ -157,7 +162,7 @@ class DrugDisplay(wxPanel):
 		self.szrVInteractionSidebar.AddWindow( stxtJumpTo, 0, wxALIGN_CENTER_VERTICAL, 5 )
 
 		self.lboxJumpTo = wxListBox( self, ID_LISTBOX, wxDefaultPosition, wxSize(150,100),
-			[_("ListItem")] , wxLB_SINGLE )
+			[_("Indications"), _("Pharmacology"), _("Dosage")] , wxLB_SINGLE )
 		self.szrVInteractionSidebar.AddWindow( self.lboxJumpTo, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 10 )
 
 		self.szrVInteractionSidebar.AddSpacer( 20, 10, 0, wxALIGN_CENTRE|wxALL, 1 )
