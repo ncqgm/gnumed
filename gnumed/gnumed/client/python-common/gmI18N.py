@@ -46,7 +46,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -67,7 +67,7 @@ def install_domain():
 	except getopt.GetoptError:
 		log.Log(gmLog.lInfo, "problem parsing command line or --text-domain=<> not given")
 		exc = sys.exc_info()
-		log.LogException("Non-fatal exception caught:", exc, 0)
+		log.LogException("Non-fatal exception caught:", exc, fatal=0)
 
 	# 1) tuple(cmd_line) -> (known options, junk)
 	if len(cmd_line) > 0:
@@ -83,6 +83,31 @@ def install_domain():
 		text_domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
 	log.Log(gmLog.lInfo, 'text domain is "%s"' % text_domain)
+
+	# explicitely probe user locale settings
+	env_key = 'LANGUAGE'
+	if os.environ.has_key(env_key):
+		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, os.environ[env_key]))
+	else:
+		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+
+	env_key = 'LC_ALL'
+	if os.environ.has_key(env_key):
+		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, os.environ[env_key]))
+	else:
+		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+
+	env_key = 'LC_MESSAGES'
+	if os.environ.has_key(env_key):
+		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, os.environ[env_key]))
+	else:
+		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+
+	env_key = 'LANG'
+	if os.environ.has_key(env_key):
+		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, os.environ[env_key]))
+	else:
+		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	# now we can install this text domain
 	# 1) try standard places first
