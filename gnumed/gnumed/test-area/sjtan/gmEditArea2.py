@@ -24,6 +24,15 @@ RBn = 3
 CMBx =4
 LAB = 5
 
+#this does make this module dependent on a lot of other modules
+if __name__ == "__main__":
+	sys.path.append ("../python-common/")
+	sys.path.append ("../../client/python-common/")
+import gmDateTimeInput
+#from gmDateTimeInput import *
+
+GMDI = 6
+
 THRESHOLD_CHANGE = 3
 COMBO_MAX_LIST= 40
 COMBO_MAX_CACHE=4
@@ -34,7 +43,7 @@ backup_dbapi = PgSQL
 
 backup_source = "localhost::gnumed2" 
 
-re_table = re.compile("^create\s+(table|view)\s+(?P<table>\w+)\s*.*", re.I)
+re_table = re.compile("^create\s+(?P<type>table|view)\s+(?P<table>\w+)\s*.*", re.I)
 
 def setSharedConnection( conn):
 	sharedConnection = conn
@@ -49,6 +58,10 @@ def getBackupConnection():
 def extractTablename(statement):
 	re_obj = re_table.match( statement)
 	return re_obj.group("table")
+
+def extractType( statement):
+	re_obj = re_table.match( statement)
+	return re_obj.group("type")
 
 def makeSet( list):
 	set = []
@@ -160,6 +173,10 @@ class EditArea2(wxPanel):
 		
 		if type == LAB:
 			widget = wxStaticText(self, -1, displayName)
+
+		if type == GMDI:
+			label = wxStaticText(self, -1, displayName)
+			widget = wxTextCtrl(self, -1) #gmDateTimeInput.gmDateInput(self, -1) #doesn't want to work; inheritance/containment ?
 
 		if label <> None:
 			self.lineSizer.Add(label, 1, flag=wxALIGN_RIGHT)
@@ -368,12 +385,17 @@ class EditArea2(wxPanel):
 				if type == CMBx:
 					w.Clear()
 		self.targetId = None
+		self._setDefaultText()
 
 
 	def ddl(self, key, statement):
 		"""stores the creation statement for a table or view associated with the key"""
 		self.statements[key] = statement
 		self.statementsList.append(statement)
+	
+	def getTableType(self, key):
+		statement= self.statements.get(key, "")
+		return extractType(statement)
 
 	def ref( self, key1, key2):
 		"""adds sql  alteration statement for tables named in creation statements stored at key1 and key2.
@@ -935,7 +957,10 @@ class EditArea2(wxPanel):
 				id = self.saveNewTarget( r, recursionCount + 1, visited)
 				self.selectedIndex[widgetName] = id
 			else:
+				
 			# will need to distinguish readonly references from updateable references
+				if self.getTableType( self.mapping[widgetName].split(".")[0]).lower() == "table":
+					self.updateTarget( r, recursionCount + 1, visited)
 				pass
 			fieldList.append('id_%s' % r)
 			valueList.append( "%d"  % self.selectedIndex[ widgetName] )
@@ -1196,8 +1221,8 @@ class MedicationEditArea(EditArea2):
 		self.add("quantity", CMBx)
 		self.add("repeats",  newline=1)
 		self.add("direction", weight = 3, newline=1)
-		self.add("for", weight = 3)
-		self.add("date")
+		self.add("for", CMBx, weight = 5, newline = 1)
+		self.add("date", GMDI)
 		self.add("usual", CHBx, newline=1)
 		self.add("progress notes", weight = 6, newline = 1)
 	
@@ -1239,7 +1264,8 @@ class MedicationEditArea(EditArea2):
 		self.map("veteran", "prescription.veteran")
 		self.map("reg 24", "prescription.reg_24")
 		self.map("direction", "prescription.direction")
-		self.map("for", "prescription.for_condition")
+		self.map("for", "disease_code.description")
+		self.map("for", "prescription.for_condition", order=1)
 		self.map("usual", "prescription.usual")
 
 		self.ext_ref("prescription", "identity")
@@ -1442,20 +1468,14 @@ class DemographicEditArea(EditArea2):
 if __name__=="__main__":
 	setBackupConnectionSource()
 
-	print sys.argv
-	choice = None
-	if (len(sys.argv) == 1):
-		choice == "prescribe"
-	else:
-		choice == sys.argv[1]
-		print choice
+	print "sys.argv[1] == ", sys.argv[len(sys.argv) -1]
 
 
-#	if choice == "past":
+	if sys.argv[len(sys.argv) -1] == 'past':
+		app = wxPyWidgetTester(size=(500,300) )
+		app.SetWidget( PastHistoryEditArea, -1)
+		app.MainLoop()
 
-	app = wxPyWidgetTester(size=(500,300) )
-	app.SetWidget( PastHistoryEditArea, -1)
-	app.MainLoop()
 
 	app = wxPyWidgetTester(size=(500,300) )
 	app.SetWidget( MedicationEditArea, -1)
