@@ -584,7 +584,7 @@ class EditArea2(wxPanel):
 		list = []
 		for parentTableName in  self._getParentTableListFromChild(childTableName):
 			widgetName = self.tableToWidgetName[parentTableName][0]
-			id = self.selectedIndex.get(widgetName, 0)
+			id = self.selectedIndex.get(parentTableName, 0)
 			print "for parent table", parentTableName, " , narrowing id = ", id
 			if id == 0:
 				continue 
@@ -602,6 +602,16 @@ class EditArea2(wxPanel):
 		combo = self.getWidgetByName(widgetName)
 		text = combo.GetValue()
 		selection = self.findSelection( widgetName, text)
+		if selection == []:
+			return
+		if combo.GetSelection() <> -1:
+			id = combo.GetClientData( combo.GetSelection())
+			text = combo.GetString ( combo.GetSelection())
+			combo.Clear()
+			combo.Append( text, id)
+			combo.SetSelection(0)
+		else:	
+			combo.Clear()
 	#	self.disableTextChange = 1
 		combo.Clear()
 		for (id, name) in selection:
@@ -652,8 +662,10 @@ class EditArea2(wxPanel):
 	def setSelectedIndexToCurrentSelection(self, combo):	
 		if combo.GetSelection() < 0:
 			combo.SetSelection(0)
-		self.selectedIndex[combo.GetName()] = combo.GetClientData(combo.GetSelection())
-		print "index set to ", self.selectedIndex[combo.GetName()]
+		table = self.getTableFromWidget( combo.GetName())	
+		#self.selectedIndex[combo.GetName()] = combo.GetClientData(combo.GetSelection())
+		self.selectedIndex[table] = combo.GetClientData(combo.GetSelection())
+		print "index set to ", self.selectedIndex[table]
 
 	def _checkChildCaches(self, parentWidgetName):
 		"""checks the child caches, and repopulates on narrowing based on a selection  made in a parent widget."""
@@ -685,7 +697,8 @@ class EditArea2(wxPanel):
 			#print "clearing ", widget
 			widget.Clear()
 			widget.SetValue('')
-			self.selectedIndex[widgetName] = 0
+		
+			self.selectedIndex[childTable] = 0
 			# re-populate based on parent narrowing
 			self._defaultComboPopulate(widgetName)
 			
@@ -717,10 +730,11 @@ class EditArea2(wxPanel):
 			return
 		self.parentVisited[parentTable] = 1
 		
-		id = self.selectedIndex.get (childWidgetName, None)
+		childTable = self.getTableFromWidget( childWidgetName)
+		id = self.selectedIndex.get (childTable, None)
+
 		if id == None:
 			return
-		childTable = self.getTableFromWidget( childWidgetName)
 		print "parent widget=", parentWidgetName, "getFieldFromWidget", self.getFieldFromWidget(parentWidgetName)
 		statement = "select parent.id , parent.%s from %s child, %s parent  where child.id = %s and parent.id = child.id_%s " % ( self.getFieldFromWidget(parentWidgetName),  childTable, parentTable ,id, parentTable)
 		print statement
@@ -964,6 +978,10 @@ class EditArea2(wxPanel):
 				continue
 
 
+			if w.GetValue().strip() == "":
+				fieldList.pop()
+				continue
+
 			valueList.append("%s" % w.GetValue() )
 
 
@@ -979,22 +997,23 @@ class EditArea2(wxPanel):
 		for r in refList:
 			widgetName = self.getWidgetNameFromTable(r) 
 
-			if not  self.selectedIndex.has_key(widgetName): # cascade saveNewTarget to unsaved row in referenced table
+			if not  self.selectedIndex.has_key(r): # cascade saveNewTarget to unsaved row in referenced table
 				if (r in visited):
 					print "has already been visited=", r
 					continue
 				visited.append(target)
 				#recurse into unsaved referenced row
 				id = self.saveNewTarget( r, recursionCount + 1, visited)
-				self.selectedIndex[widgetName] = id
+				self.selectedIndex[r] = id
 			else:
 				
 			# will need to distinguish readonly references from updateable references
+				print "updating ", r, widgetName
 				if self.getTableType( self.mapping[widgetName].split(".")[0]).lower() == "table":
 					self.updateTarget( r, recursionCount + 1, visited)
 				pass
 			fieldList.append('id_%s' % r)
-			valueList.append( "%d"  % self.selectedIndex[ widgetName] )
+			valueList.append( "%d"  % self.selectedIndex[r] )
 			
 		# set any top container reference	
 		#for extRef in self.ext_refs.get(target, []):     # use this later when can do multiple external refs.
@@ -1101,6 +1120,9 @@ class EditArea2(wxPanel):
 
 		indexMap = getIndexMap( cu.description)
 
+		self.selectedIndex[target] =  id
+
+
 		for k in indexMap.keys():
 			print "checking keys " ,k , " has id in front ? ", k[0:3] == 'id_'
 			if k[0:3] == 'id_':
@@ -1132,7 +1154,11 @@ class EditArea2(wxPanel):
 				else:
 					value = 0
 			else:
-				value = str(row[i])
+				if row[i] == None:
+					value = ""
+				else:
+					value = str(row[i])
+
 			
 			w = self.getWidgetByName(widgetName)
 			w.SetValue(value)
@@ -1181,7 +1207,8 @@ class EditArea2(wxPanel):
 		
 		for (t, r) in self.view_refs:
 			widgetName = self.getWidgetNameFromTable(r)
-			self.selectedIndex[widgetName] = tuple[i]
+			#self.selectedIndex[widgetName] = tuple[i]
+			self.selectedIndex[r] = tuple[i]
 			i += 1
 			
 
