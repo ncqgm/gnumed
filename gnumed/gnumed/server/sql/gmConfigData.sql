@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -99,6 +99,22 @@ values (
 	'{"gmOffice","gmShowMedDocs","gmShowLab","gmLabJournal","gmVaccinationsPlugin","gmAllergiesPlugin","gmConfigRegistry"}'
 );
 
+-- Arbeitsplatz KnoppixMedica CD-Nutzer
+insert into cfg_item
+	(id_template, owner, workplace)
+values (
+	currval('cfg_template_id_seq'),
+	'xxxDEFAULTxxx',
+	'KnoppixMedica'
+);
+
+insert into cfg_str_array
+	(id_item, value)
+values (
+	currval('cfg_item_id_seq'),
+	'{"gmOffice","gmShowMedDocs","gmShowLab","gmLabJournal","gmVaccinationsPlugin","gmAllergiesPlugin","gmConfigRegistry","gmEMRBrowserPlugin","gmEMRTextDumpPlugin","gmSingleBoxSoapPlugin","gmStikoBrowser","gmXdtViewer","gmManual","gmDemographicsEditor"}'
+);
+
 -- ---------------------------------------------
 -- search behaviour options
 
@@ -132,11 +148,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $');
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.3  2004-09-13 19:25:56  ncq
+-- Revision 1.4  2004-10-01 13:26:15  ncq
+-- - add workplace "KnoppixMedica" CD user
+--
+-- Revision 1.3  2004/09/13 19:25:56  ncq
 -- - "plugin load order" with cookie "gui" now "horstspace.notebook.plugin_load_order"
 --
 -- Revision 1.2  2004/08/20 13:25:15  ncq
