@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -90,7 +90,7 @@ class wxBasePlugin (gmPlugin):
 		# it tells the plugin which icon to return data for,
 		which_icon = None
 		icon_data = self.GetIconData(which_icon)
-		if icon_data == None:
+		if icon_data is None:
 			return None
 		else:
 			return wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_data)))
@@ -328,7 +328,7 @@ def GetPluginLoadList(set):
 
 	1) look in database
 	2) look into source directory
-	 a) check for plugin.conf
+	 a) check for plugins.conf
 	 b) scan directly
 	 c) store in database
 	"""
@@ -466,7 +466,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.32  2003-01-11 22:03:30  hinnef
+# Revision 1.33  2003-01-12 01:45:12  ncq
+# - typo, "IS None" not "== None"
+#
+# Revision 1.32  2003/01/11 22:03:30  hinnef
 # removed gmConf
 #
 # Revision 1.31  2003/01/06 12:53:26  ncq
