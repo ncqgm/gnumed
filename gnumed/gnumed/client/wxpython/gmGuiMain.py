@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.169 2004-08-11 08:15:06 ncq Exp $
-__version__ = "$Revision: 1.169 $"
+# $Id: gmGuiMain.py,v 1.170 2004-08-20 13:34:48 ncq Exp $
+__version__ = "$Revision: 1.170 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -87,13 +87,13 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.guibroker['main.frame'] = self
 		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _whoami.get_workplace())
 		# get plugin layout style
-		self.layout_style, set1 = gmCfg.getFirstMatchingDBSet(
+		self.layout_style, set1 = gmCfg.getDBParam(
 			workplace = _whoami.get_workplace(),
 			option = 'main.window.layout_style'
 		)
 		if set1 is None:
  			self.layout_style = 'status_quo'
- 			gmCfg.setDBParam(
+ 			gmCfg.setDBParam (
 				workplace = _whoami.get_workplace(),
 				user = _whoami.get_db_account(),
 				option = 'main.window.layout_style',
@@ -101,7 +101,7 @@ class gmTopLevelFrame(wx.wxFrame):
 			)
 
 		# get Terry style horizontal ratio
-		self.bar_width, set1 = gmCfg.getFirstMatchingDBSet(
+		self.bar_width, set1 = gmCfg.getDBParam(
 			workplace = _whoami.get_workplace (),
 			option = 'main.window.sidebar_width'
 		)
@@ -216,11 +216,11 @@ class gmTopLevelFrame(wx.wxFrame):
  		def_width, def_height = (640,480)
 
 		# FIXME: add in user
- 		prev_width, set1 = gmCfg.getFirstMatchingDBSet( 
+ 		prev_width, set1 = gmCfg.getDBParam( 
 			workplace = _whoami.get_workplace(),
  			option = 'main.window.width'
 		)
- 		prev_height, set2 = gmCfg.getFirstMatchingDBSet( 
+ 		prev_height, set2 = gmCfg.getDBParam( 
  			workplace = _whoami.get_workplace(),
  			option = 'main.window.height'
  		)
@@ -797,7 +797,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.169  2004-08-11 08:15:06  ncq
+# Revision 1.170  2004-08-20 13:34:48  ncq
+# - getFirstMatchingDBSet() -> getDBParam()
+#
+# Revision 1.169  2004/08/11 08:15:06  ncq
 # - log debugging info on why workplace appears to be list on Richard's machine
 #
 # Revision 1.168  2004/08/09 00:03:19  ncq

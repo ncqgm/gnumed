@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.32 2004-08-04 17:16:02 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmPlugin.py,v 1.33 2004-08-20 13:34:48 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -271,7 +271,7 @@ def GetPluginLoadList(set):
 	"""
 	curr_workplace = _whoami.get_workplace()
 
-	p_list, match = gmCfg.getFirstMatchingDBSet (
+	p_list, match = gmCfg.getDBParam (
 		workplace = curr_workplace,
 		option = 'plugin load order',
 		cookie = str(set)
@@ -336,7 +336,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.32  2004-08-04 17:16:02  ncq
+# Revision 1.33  2004-08-20 13:34:48  ncq
+# - getFirstMatchingDBSet() -> getDBParam()
+#
+# Revision 1.32  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old

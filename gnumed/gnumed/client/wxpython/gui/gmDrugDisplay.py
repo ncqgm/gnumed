@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 from wxPython.wx import *
@@ -99,7 +99,7 @@ class DrugDisplay(wxPanel):
 			# assume we are outside gnumed
 			self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')
 		else:
-			self.dbName, match = gmCfg.getFirstMatchingDBSet(
+			self.dbName, match = gmCfg.getDBParam(
 				currworkplace,
 				option="DrugReferenceBrowser.drugDBName"
 			)
@@ -626,7 +626,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.22  2004-08-04 17:16:02  ncq
+# Revision 1.23  2004-08-20 13:34:48  ncq
+# - getFirstMatchingDBSet() -> getDBParam()
+#
+# Revision 1.22  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old

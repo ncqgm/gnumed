@@ -37,7 +37,7 @@ class DrugView:
 			self.dbConfFile = _cfg.get(aDatabaseName, 'configfile')
 		else:
 			# 
-			self.dbConfFile, match = gmCfg.getFirstMatchingDBSet(currWorkplace,
+			self.dbConfFile, match = gmCfg.getDBParam(currWorkplace,
 				option="DrugReferenceBrowser.%s.configfile" % aDatabaseName)
 		
 
@@ -388,7 +388,10 @@ if __name__ == "__main__":
 
 #========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.3  2004-07-19 11:50:42  ncq
+# Revision 1.4  2004-08-20 13:34:48  ncq
+# - getFirstMatchingDBSet() -> getDBParam()
+#
+# Revision 1.3  2004/07/19 11:50:42  ncq
 # - cfg: what used to be called "machine" really is "workplace", so fix
 #
 # Revision 1.2  2004/03/10 00:14:04  ncq

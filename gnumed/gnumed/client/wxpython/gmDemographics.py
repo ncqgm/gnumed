@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.37 2004-08-18 08:15:21 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmDemographics.py,v 1.38 2004-08-20 13:34:48 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -233,7 +233,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		#--------------------------------------------------------
 		self.itemDataMap = PatientData
 		# Try and get the user's column width from the databse
-		pat_cols_list = gmCfg.getFirstMatchingDBSet(option="widgets.demographics.patientlist.column_sizes")
+		pat_cols_list = gmCfg.getDBParam(option="widgets.demographics.patientlist.column_sizes")
 
 		if not pat_cols_list or len(pat_cols_list[0]) == 0:		# no values - use defaults
 			self.patientlist.SetColumnWidth(0, 100)
@@ -1031,7 +1031,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.37  2004-08-18 08:15:21  ncq
+# Revision 1.38  2004-08-20 13:34:48  ncq
+# - getFirstMatchingDBSet() -> getDBParam()
+#
+# Revision 1.37  2004/08/18 08:15:21  ncq
 # - check if column size for patient list is missing
 #
 # Revision 1.36  2004/08/16 13:32:19  ncq
