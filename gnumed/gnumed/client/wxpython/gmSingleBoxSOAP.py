@@ -7,8 +7,8 @@ typing clear-text clinical notes which are stored in clin_note.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.3 2003-06-24 12:57:05 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmSingleBoxSOAP.py,v 1.4 2003-06-25 22:51:24 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -36,7 +36,7 @@ class gmSingleBoxSOAPPanel(wxPanel):
 		wxPanel.__init__(self, *args, **kwargs)
 		self.__do_layout()
 
-		if not self.__register_interests():
+		if not self.__register_events():
 			raise ConstructorError, 'cannot register interests'
 
 		self.__pat = gmTmpPatient.gmCurrentPatient()
@@ -68,13 +68,14 @@ class gmSingleBoxSOAPPanel(wxPanel):
 		szr_outer.SetSizeHints(self)
 		self.Layout()
 	#--------------------------------------------------------
-	def __register_interests(self):
+	def __register_events(self):
 		# wxPython events
 		EVT_BUTTON(self.BTN_save, wxID_BTN_save, self._on_save_note)
 		EVT_BUTTON(self.BTN_discard, wxID_BTN_discard, self._on_discard_note)
 
 		# client internal signals
 		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_note)
+		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._save_note)
 
 		return 1
 	#--------------------------------------------------------
@@ -116,7 +117,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.3  2003-06-24 12:57:05  ncq
+# Revision 1.4  2003-06-25 22:51:24  ncq
+# - now also handle signale application_closing()
+#
+# Revision 1.3  2003/06/24 12:57:05  ncq
 # - actually connect to backend
 # - save note on patient change and on explicit save request
 #
