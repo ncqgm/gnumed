@@ -48,10 +48,10 @@ Usage:
 2.) create appropriate log targets and add them to the default logger or your own (from step 1)
 3.) call the cLogger.LogXXX() functions
 
-@copyright: GPL
+@license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 import sys, time, traceback, os.path, atexit, os, string, getopt
