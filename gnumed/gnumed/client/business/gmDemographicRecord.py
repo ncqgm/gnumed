@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.27 2004-03-04 10:41:21 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmDemographicRecord.py,v 1.28 2004-03-09 07:34:51 ihaywood Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -630,7 +630,7 @@ def getMaritalStatusTypes():
 		return []
 	return [row[0] for row in row_list]
 #------------------------------------------------------------------
-def getExtIDTypes (context):
+def getExtIDTypes (context = 'p'):
 	"""Gets list of [code, ID type] from the backend for the given context
 	"""
 	# FIXME: error handling
@@ -818,7 +818,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.27  2004-03-04 10:41:21  ncq
+# Revision 1.28  2004-03-09 07:34:51  ihaywood
+# reactivating plugins
+#
+# Revision 1.27  2004/03/04 10:41:21  ncq
 # - comments, cleanup, adapt to minor schema changes
 #
 # Revision 1.26  2004/03/03 23:53:22  ihaywood

@@ -1,3 +1,4 @@
+# -*- encoding: latin-1 -*-
 """GnuMed patient objects.
 
 This is a patient object intended to let a useful client-side
@@ -7,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.20 2004-03-07 23:52:32 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmPatient.py,v 1.21 2004-03-09 07:34:51 ihaywood Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -812,7 +813,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.20  2004-03-07 23:52:32  ncq
+# Revision 1.21  2004-03-09 07:34:51  ihaywood
+# reactivating plugins
+#
+# Revision 1.20  2004/03/07 23:52:32  ncq
 # - get_document_folder()
 #
 # Revision 1.19  2004/03/04 19:46:53  ncq

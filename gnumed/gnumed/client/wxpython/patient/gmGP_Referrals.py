@@ -19,17 +19,14 @@
 #      
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Referrals.py,v $
-# $Id: gmGP_Referrals.py,v 1.7 2003-11-17 10:56:42 sjtan Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmGP_Referrals.py,v 1.8 2004-03-09 07:34:51 ihaywood Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "R.Terry"
 
 from wxPython.wx import *
-import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
-import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
-import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
-import gmEditArea             				#panel class holding editing prompts and text boxes
-import gmPlugin, gmLog
-from gmPatientHolder import PatientHolder
+from Gnumed.wxpython import gmGuiElement_HeadingCaptionPanel, gmGuiElement_DividerCaptionPanel, gmGuiElement_AlertCaptionPanel, gmEditArea, gmPlugin
+from Gnumed.pycommon import gmLog
+from Gnumed.wxpython.gmPatientHolder import PatientHolder
 
 
 ID_REFERRALDATE = wxNewId ()
@@ -166,7 +163,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #==============================================================
 # $Log: gmGP_Referrals.py,v $
-# Revision 1.7  2003-11-17 10:56:42  sjtan
+# Revision 1.8  2004-03-09 07:34:51  ihaywood
+# reactivating plugins
+#
+# Revision 1.7  2003/11/17 10:56:42  sjtan
 #
 # synced and commiting.
 #

@@ -8,27 +8,21 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.25 2004-02-25 09:46:23 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmGP_Immunisation.py,v 1.26 2004-03-09 07:34:51 ihaywood Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
 
-if __name__ == "__main__":
-	# FIXME: this will not work on other platforms
-	sys.path.append("../../pycommon")
-	sys.path.append("../../business")
-	sys.path.append("../")
-	import gmI18N
-
-from gmGuiElement_HeadingCaptionPanel import HeadingCaptionPanel
-from gmGuiElement_DividerCaptionPanel import DividerCaptionPanel
-from gmGuiElement_AlertCaptionPanel import AlertCaptionPanel
+from Gnumed.wxpython.gmGuiElement_HeadingCaptionPanel import HeadingCaptionPanel
+from Gnumed.wxpython.gmGuiElement_DividerCaptionPanel import DividerCaptionPanel
+from Gnumed.wxpython.gmGuiElement_AlertCaptionPanel import AlertCaptionPanel
 
 # panel class holding editing prompts and text boxes
-import gmEditArea, gmPlugin, gmPatient, gmDispatcher, gmSignals
+from Gnumed.wxpython import gmEditArea, gmPlugin
+from Gnumed.business import gmPatient
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals
 
-import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
@@ -284,7 +278,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.25  2004-02-25 09:46:23  ncq
+# Revision 1.26  2004-03-09 07:34:51  ihaywood
+# reactivating plugins
+#
+# Revision 1.25  2004/02/25 09:46:23  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.24  2004/02/02 16:19:49  ncq

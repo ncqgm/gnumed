@@ -5,14 +5,9 @@
 __version__ = ""
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
-import sys, os, string,types
-# location of our modules
-if __name__ == "__main__":
-	sys.path.append(os.path.join('..', '..', 'pycommon'))
-	sys.path.append(os.path.join('..', '..', 'business'))
-	#sys.path.append(os.path.join('.','modules'))
+import sys, os, string, types
 
-import gmLog
+from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
@@ -22,12 +17,13 @@ _log.Log(gmLog.lData, __version__)
 if __name__ == "__main__":
 	import gmI18N
 
-import gmCfg
+from Gnumed.pycommon import gmCfg, gmGuiBroker, gmPG, gmWhoAmI
+from Gnumed.wxpython import gmPlugin
 _cfg = gmCfg.gmDefCfgFile
 
 from wxPython.wx import *
-from gmConfigCommon import *
-from gmGuiHelpers import gm_show_error, gm_show_question
+from Gnumed.pycommon.gmConfigCommon import *
+from Gnumed.wxpython.gmGuiHelpers import gm_show_error, gm_show_question
 
 [	ConfigTreeCtrlID,
 	ConfigTreeBoxID,
@@ -512,8 +508,6 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing config browser")
 
 else:
-	import gmPlugin, gmGuiBroker,gmPG
-	import gmWhoAmI
 	_whoami = gmWhoAmI.cWhoAmI()
 
 	class gmConfigRegistry(gmPlugin.wxNotebookPlugin):
@@ -538,7 +532,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.13  2004-02-25 09:46:22  ncq
+# Revision 1.14  2004-03-09 07:34:51  ihaywood
+# reactivating plugins
+#
+# Revision 1.13  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.12  2004/01/06 23:44:40  ncq

@@ -15,17 +15,12 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types, pickle
-# location of our modules
-if __name__ == "__main__":
-	sys.path.append(os.path.join('..','pycommon'))
-	#sys.path.append(os.path.join('..', '..', 'business'))
-	#sys.path.append(os.path.join('.','modules'))
+import gmLog, gmPG, gmCfg
 
-import gmLog
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
@@ -35,10 +30,7 @@ _log.Log(gmLog.lData, __version__)
 if __name__ == "__main__":
 	import gmI18N
 
-import gmCfg
 _cfg = gmCfg.gmDefCfgFile
-
-import gmPG
 
 _defaultDefSourceTable = {
 	'DB:CURRENT_USER_CURRENT_MACHINE': 'config-definitions/DBDefault.definitions',
@@ -896,7 +888,10 @@ def importDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.3  2004-03-04 01:38:49  ihaywood
+# Revision 1.4  2004-03-09 07:34:51  ihaywood
+# reactivating plugins
+#
+# Revision 1.3  2004/03/04 01:38:49  ihaywood
 # Now correctly validates unicode strings
 #
 # Revision 1.2  2004/02/25 09:46:21  ncq

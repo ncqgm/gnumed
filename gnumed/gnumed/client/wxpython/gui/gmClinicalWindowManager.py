@@ -18,17 +18,17 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.11 2004-02-18 14:04:25 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.12 2004-03-09 07:34:51 ihaywood Exp $
 # license: GPL
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
-import gmLog
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmDispatcher
+from Gnumed.wxpython import gmPlugin, gmShadow
+
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
-
-import gmGuiBroker, gmDispatcher, gmShadow, gmPlugin
 #==================================================
 class gmClinicalPanel (wxPanel):
 
@@ -239,7 +239,10 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.11  2004-02-18 14:04:25  ncq
+# Revision 1.12  2004-03-09 07:34:51  ihaywood
+# reactivating plugins
+#
+# Revision 1.11  2004/02/18 14:04:25  ncq
 # - whitespace fix
 #
 # Revision 1.10  2003/11/06 01:38:05  sjtan

@@ -15,33 +15,22 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.15 2004-03-04 11:19:05 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmDemographics.py,v 1.16 2004-03-09 07:34:51 ihaywood Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "R.Terry, SJ Tan"
-
-if __name__ == "__main__":
-	import sys
-	sys.path.extend( [ '../pycommon', '../business'] )
 
 from wxPython.wx import *
 from mx import DateTime
-import gmPlugin
-import gmGuiBroker
-import gmPatientNameQuery
-import gmLog, gmDispatcher, gmSignals, gmI18N, gmMedDoc
+from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
+from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmI18N
+from Gnumed.business import gmDemographicRecord, gmPatient
 from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
-import cPickle, zlib, shutil
+import cPickle, zlib, shutil, time
 from string import *
-import gmGP_PatientPicture
 
-import gmPatientHolder
-import time
+from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
+from Gnumed.business.gmDemographicRecord import MP_urb_by_zip , PostcodeMP, StreetMP, OccupationMP, CountryMP
 
-from gmPhraseWheel import cPhraseWheel
-from gmDemographicRecord import MP_urb_by_zip , PostcodeMP, StreetMP, OccupationMP, CountryMP
-import gmDemographicRecord, gmPatient
-
-import gmLog
 _log = gmLog.gmDefLog
 
 ID_PATIENT = wxNewId()
@@ -806,7 +795,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.15  2004-03-04 11:19:05  ncq
+# Revision 1.16  2004-03-09 07:34:51  ihaywood
+# reactivating plugins
+#
+# Revision 1.15  2004/03/04 11:19:05  ncq
 # - put a comment as to where to handle result from setCOB
 #
 # Revision 1.14  2004/03/03 23:53:22  ihaywood

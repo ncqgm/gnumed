@@ -1,9 +1,23 @@
-import gmDispatcher, gmSignals
-from gmPatient import gmCurrentPatient
-import sys
-import gmLog
-from wxPython.wx import wxCallAfter
+#############################################################################
+# gmPatientHolder
+# ----------------------------------
+#
+# This is an abstract ancestor for widgets which care when a new patient is loaded
+#
+# If you don't like it - change this code 
+#
+# @copyright: authorcd
+# @license: GPL (details at http://www.gnu.org)
+# @dependencies: wxPython (>= version 2.3.1)
+############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientHolder.py,v $
+# $Id: gmPatientHolder.py,v 1.9 2004-03-09 07:34:51 ihaywood Exp $
+__version__ = "$Revision: 1.9 $"
+__author__ = "R.Terry, SJ Tan"
 
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog
+from Gnumed.business.gmPatient import gmCurrentPatient
+import sys
 from wxPython.wx import *
 
 class PatientHolder:
