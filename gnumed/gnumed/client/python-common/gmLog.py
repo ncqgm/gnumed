@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -601,7 +601,7 @@ def __open_default_logfile():
 	# /var/log/base_dir/base_name.log
 	logName = os.path.join('/var/log', base_dir, base_name)
 	try:
-		loghandle = cLogTargetFile (lInfo, logName, "ab")
+		loghandle = cLogTargetFile(lInfo, logName, "ab")
 		print "log file is [%s]" % logName
 		return loghandle
 	except:
@@ -626,7 +626,7 @@ def __open_default_logfile():
 	except:
 		pass
 
-	print "Cannot open any log file. Aborting."
+	print "Cannot open any log file."
 	return None
 #---------------------------------------------------------------
 #def myExitFunc():
@@ -701,7 +701,13 @@ if __name__ == "__main__":
 	print "Done."
 else:
 	# register application specific default log file
-	gmDefLog = cLogger(aTarget=__open_default_logfile())
+	target = __open_default_logfile()
+	if not target:
+		raise ImportError, "Cannot open any log target. Falling back to dummy log target."
+		gmDefLog = cLogger(aTarget = None)
+	else:
+		gmDefLog = cLogger(target)
+		
 	# this needs Python 2.x
 	#atexit.register(myExitFunc)
 #---------------------------------------------------------------
@@ -747,7 +753,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.20  2002-09-12 23:20:10  ncq
+# Revision 1.21  2002-09-14 09:10:52  ncq
+# - gracefully handle the condition when we cannot open a default log file
+#
+# Revision 1.20  2002/09/12 23:20:10  ncq
 # - whitespace fix
 #
 # Revision 1.19  2002/09/08 15:53:32  ncq
