@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.126 2003-11-19 01:22:24 ncq Exp $
-__version__ = "$Revision: 1.126 $"
+# $Id: gmGuiMain.py,v 1.127 2003-11-19 14:45:32 ncq Exp $
+__version__ = "$Revision: 1.127 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -275,7 +275,6 @@ class gmTopLevelFrame(wxFrame):
 	def __load_plugins(self, backend):
 		# get plugin list
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
-		print plugin_list, "(*********"
 		if plugin_list is None:
 			_log.Log(gmLog.lWarn, "no plugins to load")
 			return 1
@@ -285,7 +284,7 @@ class gmTopLevelFrame(wxFrame):
 		progress_bar = gmPluginLoadProgressBar(nr_plugins)
 
 		#  and load them
-		last_plugin = ""
+		prev_plugin = ""
 		result = ""
 		for idx in range(len(plugin_list)):
 			curr_plugin = plugin_list[idx]
@@ -293,7 +292,7 @@ class gmTopLevelFrame(wxFrame):
 			progress_bar.Update(
 				idx,
 				_("previous: %s (%s)\ncurrent (%s/%s): %s") % (
-					last_plugin,
+					prev_plugin,
 					result,
 					(idx+1),
 					nr_plugins,
@@ -310,10 +309,10 @@ class gmTopLevelFrame(wxFrame):
 					_log.Log (gmLog.lErr, "plugin [%s] not loaded, see errors above" % curr_plugin)
 					result = _("failed")
 			except:
-				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info())
+				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info(), verbose = 0)
 				result = _("failed")
 
-			last_plugin = curr_plugin
+			prev_plugin = curr_plugin
 
 		progress_bar.Destroy()
 	#----------------------------------------------
@@ -847,7 +846,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.126  2003-11-19 01:22:24  ncq
+# Revision 1.127  2003-11-19 14:45:32  ncq
+# - re-decrease excess logging on plugin load failure which
+#   got dropped in Syans recent commit
+#
+# Revision 1.126  2003/11/19 01:22:24  ncq
 # - some cleanup, some local vars renamed
 #
 # Revision 1.125  2003/11/19 01:01:17  shilbert
