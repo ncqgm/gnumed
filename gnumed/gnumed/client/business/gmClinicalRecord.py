@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.115 2004-06-09 14:33:31 ncq Exp $
-__version__ = "$Revision: 1.115 $"
+# $Id: gmClinicalRecord.py,v 1.116 2004-06-13 07:55:00 ncq Exp $
+__version__ = "$Revision: 1.116 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -529,14 +529,28 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	# allergy API
 	#--------------------------------------------------------
- 	def get_allergies(self, remove_sensitivities = None):
-		"""Retrieves patient allergy items"""
- 		try:
- 			self.__db_cache['allergies']
- 		except KeyError:
-			# FIXME: date range, episode, encounter, issue, test filter
+ 	def get_allergies(self, remove_sensitivities=None, since=None, until=None, encounters=None, episodes=None, issues=None):
+		"""Retrieves patient allergy items.
+
+			remove_sensitivities
+				- retrieve real allergies only, without sensitivities
+			since
+				- initial date for allergy items
+			until
+				- final date for allergy items
+			encounters
+				- list of encounters whose allergies are to be retrieved
+			episodes
+				- list of episodes whose allergies are to be retrieved
+			issues
+				- list of health issues whose allergies are to be retrieved
+        """
+		try:
+			self.__db_cache['allergies']
+		except KeyError:
+			# FIXME: date range, test filter
 			# FIXME: check allergy_state first, then cross-check with select exists(... from allergy)
- 			self.__db_cache['allergies'] = []
+			self.__db_cache['allergies'] = []
 			cmd = "select id from v_pat_allergies where id_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
@@ -552,14 +566,22 @@ class cClinicalRecord:
 					_log.Log(gmLog.lInfo, 'better to report an error than rely on incomplete allergy information')
 					del self.__db_cache['allergies']
 					return None
-		# constrain by type (sensitivity/allergy)
- 		if remove_sensitivities:
-			tmp = []
- 			for allergy in self.__db_cache['allergies']:
-				if allergy['type'] != 'sensitivity':
-					tmp.append(allergy)
-			return tmp
-		return self.__db_cache['allergies']
+
+		if remove_sensitivities is None and issues is None and episodes is None and encounters is None:
+			return self.__db_cache['allergies']
+		# ok, lets's constrain our list
+		filtered_allergies = []
+		filtered_allergies.extend(self.__db_cache['allergies'])
+		if remove_sensitivities is not None:
+			filtered_allergies = filter(lambda allg: allg['type'] == 'allergy', filtered_allergies)
+		if issues is not None:
+			filtered_allergies = filter(lambda allg: allg['id_health_issue'] in issues, filtered_allergies)
+		if episodes is not None:
+			filtered_allergies = filter(lambda allg: allg['id_episode'] in episodes, filtered_allergies)
+		if encounters is not None:
+			filtered_allergies = filter(lambda allg: allg['id_encounter'] in encounters, filtered_allergies)
+
+		return filtered_allergies
 	#--------------------------------------------------------
 	def add_allergy(self, substance=None, allg_type=None, encounter_id=None, episode_id=None):
 		if encounter_id is None:
@@ -585,14 +607,17 @@ class cClinicalRecord:
 	def get_active_episode(self):
 		return self.__episode
 	#--------------------------------------------------------
-	def get_episodes(self, id_list=None):
+	def get_episodes(self, id_list=None, issues = None):
 		"""Fetches from backend patient episodes.
+
+		id_list - Episodes' PKs
+		issues - Health issues' PKs to filter episodes by
 		"""
 		try:
 			self.__db_cache['episodes']
 		except KeyError:
 			self.__db_cache['episodes'] = []
-			
+
 			cmd = "select id_episode from v_pat_episodes where id_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
@@ -605,12 +630,15 @@ class cClinicalRecord:
 				except gmExceptions.ConstructorError, msg:
 					_log.LogException(str(msg), sys.exc_info(), verbose=0)
 
-		if id_list is None:
+		if id_list is None and issues is None:
 			return self.__db_cache['episodes']
+		# ok, let's filter episode list
 		filtered_episodes = []
-		for episode in self.__db_cache['episodes']:
-			if episode['id'] in id_list:
-				filtered_episodes.append(episode)
+		filtered_episodes.extend(self.__db_cache['episodes'])
+		if issues is not None:
+			filtered_episodes = filter(lambda epi: epi['id_health_issue'] in issues, filtered_episodes)
+		if id_list is not None:
+			filtered_episodes = filter(lambda epi: epi['id'] in id_list, filtered_episodes)
 		return filtered_episodes
 	#------------------------------------------------------------------
 	def add_episode(self, episode_name = 'xxxDEFAULTxxx', id_health_issue = None):
@@ -829,20 +857,26 @@ class cClinicalRecord:
 			return [[_('no vaccinations recorded'), '']]
 		return rows
 	#--------------------------------------------------------
-	def get_vaccinations(self, ID = None, indication_list = None):
+	def get_vaccinations(self, ID = None, indication_list = None, since=None, until=None, encounters=None, episodes=None, issues=None):
 		"""Retrieves list of vaccinations the patient has received.
 
 		optional:
 		* ID - PK of the vaccinated indication
 		* indication_list - indications we want to retrieve vaccination
 			items for, must be primary language, not l10n_indication
+        * since - initial date for allergy items
+        * until - final date for allergy items
+        * encounters - list of encounters whose allergies are to be retrieved
+        * episodes - list of episodes whose allergies are to be retrieved
+        * issues - list of health issues whose allergies are to be retrieved
 		"""
 		try:
 			self.__db_cache['vaccinations']
 		except KeyError:
 			self.__db_cache['vaccinations'] = []
+			# FIXME: bulk loader
 			# get list of IDs
-			# FIXME: date range, episode, encounter, issue, test filter
+			# FIXME: date range, test filter
 			cmd = "select id from vaccination where fk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
@@ -855,23 +889,26 @@ class cClinicalRecord:
 					self.__db_cache['vaccinations'].append(gmVaccination.cVaccination(aPK_obj=row[0]))
 				except gmExceptions.ConstructorError:
 					_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
-		# apply filters
-		# 1) do we have an ID ?
-		if ID is not None:
-			for shot in self.__db_cache['vaccinations']:
-				if shot['pk_vaccination'] == ID:
-					return shot
-			_log.Log(gmLog.lErr, 'no vaccination [%s] found for patient [%s]' % (ID, self.id_patient))
-			return None
-		# 2) only certain indications ?
+
+		# ok, lets's constrain our list
 		filtered_shots = []
-		if indication_list is not None:
-			if len(indication_list) != 0:
-				for shot in self.__db_cache['vaccinations']:
-					if shot['indication'] in indication_list:
-						filtered_shots.append(shot)	
-				return (filtered_shots)
-		return (self.__db_cache['vaccinations'])
+		filtered_shots.extend(self.__db_cache['vaccinations'])
+		if ID is not None:
+			filtered_shots = filter(lambda shot: shot['pk_vaccination'] = ID, filtered_shots)
+			if len(filtered_shots) == 0:
+				_log.Log(gmLog.lErr, 'no vaccination [%s] found for patient [%s]' % (ID, self.id_patient))
+				return None
+			else:
+				return filtered_shots[0]
+		if issues is not None:
+			filtered_shots = filter(lambda shot: shot['id_health_issue'] in issues, filtered_shots)
+		if episodes is not None:
+			filtered_shots = filter(lambda shot: shot['id_episode'] in episodes, filtered_shots)
+ 		if encounters is not None:
+			filtered_shots = filter(lambda shot: shot['id_encounter'] in encounters, filtered_shots)
+		if indication_list is not None and len(indication_list) > 0:
+			filtered_shots = filter(lambda shot: shot['indication'] in indication_list, filtered_shots)
+		return (filtered_shots)
 	#--------------------------------------------------------
 	def get_missing_vaccinations(self, indication_list = None):
 		try:
@@ -928,37 +965,6 @@ class cClinicalRecord:
 			if due_shot['indication'] in indication_list: #and due_shot not in filtered_shots['boosters']:
 				filtered_shots['boosters'].append(due_shot)
 		return filtered_shots
-	#--------------------------------------------------------
-	# Carlos: putting this into gmClinicalRecord only makes sense
-	# if it operates on the vaccinations tied to a patient, hence
-	# I will let this operate on self.__db_cache['missing vaccinations'],
-	# if you want a generic method make it module-level, or better
-	# yet put it into gmVaccination.py
-	def get_indications_from_vaccinations(self, vaccinations=None):
-		"""Retrieves vaccination bundle indications list.
-
-		* vaccinations = list of any type of vaccination
-			- indicated
-			- due vacc
-			- overdue vaccs
-			- due boosters
-			- arbitrary
-		"""
-		if vaccinations is None:
-			_log.Log(gmLog.lErr, 'list of vaccinations must be supplied')
-			return (None, [['ERROR: list of vaccinations not supplied', _('ERROR: list of vaccinations not supplied')]])
-		if len(vaccinations) == 0:
-			return (1, [['empty list of vaccinations', _('empty list of vaccinations')]])
-		inds = []
-		for vacc in vaccinations:
-			try:
-				inds.append([vacc['indication'], vacc['l10n_indication']])
-			except KeyError:
-				try:
-					inds.append([vacc['indication'], vacc['indication']])
-				except KeyError:
-					inds.append(['vacc -> ind error: %s' % str(vacc), _('vacc -> ind error: %s') % str(vacc)])
-		return (1, inds)
 	#--------------------------------------------------------
 	def add_vaccination(self, vaccine):
 		"""Creates a new vaccination entry in backend."""
@@ -1121,18 +1127,32 @@ class cClinicalRecord:
 	#------------------------------------------------------------------
 	# lab data API
 	#------------------------------------------------------------------
-	def get_lab_results(self, limit=None):
+	def get_lab_results(self, limit=None, since=None, until=None, encounters=None, episodes=None, issues=None):
+		"""Retrieves lab result clinical items.
+
+		limit - maximum number of results to retrieve
+		since - initial date
+		until - final date
+		encounters - list of encounters
+		episodes - list of episodes
+		issues - list of health issues
+		"""
 		try:
 			return self.__db_cache['lab results']
 		except KeyError:
 			pass
 		self.__db_cache['lab results'] = []
-		# get list of IDs
-		# FIXME: date range, episode, encounter, issue, test filter
+		# FIXME: date range, test filter
 		if limit is None:
 			lim = ''
 		else:
-			lim = "limit %s" % limit
+			# only use limit if all other constraints are None
+			if since is None and until is None and encounters is None and episodes is None and issues is None:
+				lim = "limit %s" % limit
+			else:
+				lim = ''
+		# FIXME: bulk loader
+		# get list of IDs
 		cmd = "select pk_result from v_results4lab_req where pk_patient=%%s %s" % lim
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 		if rows is None:
@@ -1143,7 +1163,16 @@ class cClinicalRecord:
 			except gmExceptions.ConstructorError:
 				_log.Log('lab result error', sys.exc_info())
 
-		return self.__db_cache['lab results']
+		# ok, lets's constrain our list
+		filtered_lab_results = []
+		filtered_lab_results.extend(self.__db_cache['lab results'])
+ 		if issues is not None:
+			filtered_lab_results = filter(lambda lres: lres['id_health_issue'] in issues, filtered_lab_results)
+		if episodes is not None:
+			filtered_lab_results = filter(lambda lres: lres['id_episode'] in episodes, filtered_lab_results)
+		if encounters is not None:
+			filtered_lab_results = filter(lambda lres: lres['id_encounter'] in encounters, filtered_lab_results)
+		return filtered_lab_results
 	#------------------------------------------------------------------
 	def get_lab_request(self, pk=None, req_id=None, lab=None):
 		# FIXME: verify that it is our patient ? ...
@@ -1173,37 +1202,6 @@ class cClinicalRecord:
 	#------------------------------------------------------------------
 	# unchecked stuff
 	#------------------------------------------------------------------
-	# trial: allergy panel
-	#------------------------------------------------------------------
-	def create_allergy(self, allergy):
-		"""tries to add allergy to database."""
-		rw_conn = self._backend.GetConnection('historica', readonly = 0)
-		if rw_conn is None:
-			_log.Log(gmLog.lErr, 'cannot connect to service [historica]')
-			return None
-		rw_curs = rw_conn.cursor()
-		# FIXME: id_type hardcoded, not reading checkbox states (allergy or sensitivity)
-		cmd = """
-insert into allergy (
-	id_type, id_encounter, id_episode,  substance, narrative, definite
-) values (
-	%s, %s, %s, %s, %s, %s
-)
-"""
-		gmPG.run_query (rw_curs, cmd, 1, self.__encounter['pk_encounter'], self.__episode['id_episode'], allergy["substance"], allergy["reaction"], allergy["definite"])
-		rw_curs.close()
-		rw_conn.commit()
-		rw_conn.close()
-
-		return 1
-	#------------------------------------------------------------------
-	def get_past_history(self):
-		if not self.__dict__.has_key('past_history'):
-			from gmPastHistory import gmPastHistory
-			phx  = gmPastHistory(self._backend, self)
-			self.past_history = gmPHxEditAreaDecorator(phx)
-		return self.past_history
-        #-------------------------------------------------------------------
         def store_referral (self, cursor, text, form_id):
 		"""
 		Stores a referral in the clinical narrative
@@ -1291,7 +1289,13 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.115  2004-06-09 14:33:31  ncq
+# Revision 1.116  2004-06-13 07:55:00  ncq
+# - create_allergy moved to gmAllergy
+# - get_indications moved to gmVaccinations
+# - many get_*()ers constrained by issue/episode/encounter
+# - code by Carlos
+#
+# Revision 1.115  2004/06/09 14:33:31  ncq
 # - cleanup
 # - rewrite _db_callback_allg_modified()
 #
