@@ -3,12 +3,18 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.7 2004-12-15 12:48:39 ihaywood Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmResizingWidgets.py,v 1.8 2004-12-15 21:49:47 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
 from wxPython import wx
+
+from Gnumed.pycommon import gmI18N, gmLog
+from Gnumed.wxpython import gmGuiHelpers
+
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lInfo, __version__)
 
 STYLE_ERROR=1
 STYLE_TEXT=2
@@ -71,15 +77,17 @@ class cPickList (wx.wxListBox):
 		self.alive = 0
 		wx.wxListBox.Destroy (self)
 #====================================================================
+# there isn't really a particular reason why we do
+# not use wxMiniFrame instead of wxFrame
 class cPopupFrame(wx.wxFrame):
-#	def __init__ (self, text, widget_class, originator=None, pos=wxDefaultPosition):
+#	def __init__ (self, embed_header, widget_class, originator=None, pos=wxDefaultPosition):
 #		wxFrame.__init__(self, None, wxNewId(), widget_class.__name__, pos=pos, style=wxSIMPLE_BORDER)
 #		self.win = widget_class(self, -1, pos = pos, size = wxSize(300, 150), complete = self.OnOK)
-	def __init__ (self, text, widget, originator=None, pos=wx.wxDefaultPosition):
+	def __init__ (self, embed_header, widget, originator=None, pos=wx.wxDefaultPosition):
 		wx.wxFrame.__init__(self, None, wx.wxNewId(), widget.__class__.__name__, pos=pos, style=wx.wxSIMPLE_BORDER)
 		widget.set_completion_callback(self.OnOK)
 		self.win = widget
-		self.text = text
+		self.embed_header = embed_header
 		self.originator = originator
 
 		self.__do_layout()
@@ -110,8 +118,64 @@ class cPopupFrame(wx.wxFrame):
 	#------------------------------------------------
 	def OnOK (self, event=None):
 		if self.originator:
-			self.originator.Embed ("%s: %s" % (self.text, self.win.GetSummary()))
+			self.originator.Embed ("%s: %s" % (self.embed_header, self.win.GetSummary()))
 		self.Close ()
+#====================================================================
+class cPopupFrameNew(wx.wxFrame):
+	"""This serves as a generic container around whatever is popped up.
+
+	It has no functionality in itself. Given that should it
+	be either a wxMiniFrame or a wxWindow ?
+	"""
+	def __init__ (self, widget=None, pos=wx.wxPyDefaultPosition):
+		self.__ID = wx.wxNewId()
+		wx.wxFrame.__init__(
+			self,
+			parent = None,
+			id = self.__ID,
+			title = widget.__class__.__name__,
+			pos = pos,
+			style = wx.wxSIMPLE_BORDER
+		)
+#		widget.set_completion_callback(self.OnOK)
+#		self.embed_header = embed_header
+#		self.originator = originator
+
+		self.__widget = widget
+
+		self.__do_layout()
+#		self.__register_events()
+		self.__widget.SetFocus()
+	#------------------------------------------------
+#	def __register_events(self):
+#		EVT_BUTTON(self.__BTN_OK, self.__BTN_OK.GetId(), self.OnOK)
+#		EVT_BUTTON(self.__BTN_Cancel, self.__BTN_Cancel.GetId(), self._on_cancel)
+	#------------------------------------------------
+	def __do_layout(self):
+#		self.__BTN_OK = wx.wxButton (self, -1, _("OK"), style=wx.wxBU_EXACTFIT)
+#		self.__BTN_Cancel = wx.wxButton (self, -1, _("Cancel"), style=wx.wxBU_EXACTFIT)
+#		szr_btns = wx.wxBoxSizer(wx.wxHORIZONTAL)
+#		szr_btns.Add(self.__BTN_OK, 0, 0)
+#		szr_btns.Add(self.__BTN_Cancel, 0, 0)
+
+		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_main.Add(self.__widget, 1, wx.wxEXPAND, 0)
+		szr_main.Add(szr_btns, 0, wx.wxEXPAND)
+
+		self.SetAutoLayout(1)
+		self.SetSizer(szr_main)
+		szr_main.Fit(self)
+		szr_main.SetSizeHints(self)
+		self.Layout()
+	#------------------------------------------------
+#	def _on_cancel(self, event):
+#		self.Close()
+	#------------------------------------------------
+#	def OnOK(self, event=None):
+		# FIXME: deal with self.__widget here
+#		if self.originator:
+#			self.originator.Embed ("%s: %s" % (self.embed_header, self.__widget.GetSummary()))
+#		self.Close()
 #====================================================================
 class cResizingWindow(wx.wxScrolledWindow):
 	"""A vertically-scrolled window which allows subwindows
@@ -276,7 +340,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		except AttributeError:
 			pass
 	#------------------------------------------------
-	def GetPickList (self, callback, x, y):
+	def GetPickList (self, callback, x_intended, y):
 		"""
 		Returns a pick list, destroying a pre-existing pick list for this widget
 
@@ -284,8 +348,8 @@ class cResizingWindow(wx.wxScrolledWindow):
 
 		@param callback: called when a item is selected,
 		@type callback: callable
-		@param x: the X-position where the list should appear
-		@type x: int
+		@param x_intended: the X-position where the list should appear
+		@type x_intended: int
 		@param x: the Y-position where the list should appear
 		@type y: int
 
@@ -309,13 +373,16 @@ class cResizingWindow(wx.wxScrolledWindow):
 		list_width = int(list_height / 1.4)
 		if list_width > our_width:
 			list_width = our_width
-			x = 0
-		elif (x + list_width) > our_width:
-			x = our_width - list_width
-#		self.__list = cPickList(self, wx.wxPoint(x, y), wx.wxSize(list_width, list_height), callback)
+			x_intended = 0
+		elif (x_intended + list_width) > our_width:
+			x_intended = our_width - list_width
+#		self.__list = cPickList(self, wx.wxPoint(x_intended, y), wx.wxSize(list_width, list_height), callback=callback)
 #		return self.__list
-		list = cPickList(self, wx.wxPoint(x, y), wx.wxSize(list_width, list_height), callback)
+		list = cPickList(self, wx.wxPoint(x_intended, y), wx.wxSize(list_width, list_height), callback=callback)
 		return list
+	#------------------------------------------------
+	def get_best_popup_dimensions(self, x_intended, y_intended):
+		pass 
 	#------------------------------------------------
 	def set_completion_callback(self, callback):
 		self.complete = callback
@@ -364,12 +431,14 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		self.next_in_tab_order = None
 		self.prev_in_tab_order = None
 
-		self.__popup_keywords = {}
-
 		self.__parent = parent
+
+		self.__popup_keywords = {}
+		self.__popup_win = None
+
 		self.__show_list = 1
 		self.__embed = {}
-		self.list = 0
+		self.list = None
 		self.no_list = 0			# ??
 		self.__matcher = None
 	#------------------------------------------------
@@ -436,9 +505,9 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 	# event handlers
 	#------------------------------------------------
 	def __on_STC_modified(self, event):
-		event.Skip()
-		# did the user do anything of note ?
+		# did the user do anything of note to us ?
 		if not (event.GetModificationType() & (wx.wxSTC_MOD_INSERTTEXT | wx.wxSTC_MOD_DELETETEXT)):
+			event.Skip()
 			return
 		# do we need to resize ?
 		last_char_pos = self.GetLength()
@@ -460,7 +529,8 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		fragment = text[self.fragment_start:self.fragment_end].strip()
 		# is it a keyword for popping up an edit area or something ?
 		if fragment in self.__popup_keywords.keys():
-			print fragment, "is a popup keyword"
+			self.__handle_keyword(fragment)
+			event.Skip()
 			return
 
 		return
@@ -477,15 +547,15 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 
 		# do indeed show list
 		if len(fragment) == 0:
-			if self.list and self.list.alive:
+			if (self.list is not None) and self.list.alive:
 				self.list.Destroy()
 			return
 		matches_found, matches = self.__matcher.getMatches(fragment)
 		if not matches_found:
-			if self.list and self.list.alive:
+			if (self.list is not None) and self.list.alive:
 				self.list.Destroy()
 			return
-		if not (self.list and self.list.alive):
+		if not ((self.list is not None) and self.list.alive):
 			x, y = self.GetPositionTuple()
 			p = self.PointFromPosition(curs_pos)
 			self.list = self.__parent.GetPickList(self.__userlist, x+p.x, y+p.y)
@@ -496,7 +566,7 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		# FIXME: I think the event.Skip() logic is faulty, no ?
 		# FIXME: after all Skip() means that we DID handle the key
 
-		if self.list and not self.list.alive:
+		if (self.list is not None) and not self.list.alive:
 			self.list = None # someone else has destroyed our list!
 
 		curs_pos = self.GetCurrentPos()
@@ -544,7 +614,7 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		# <ENTER>
 		elif event.KeyCode() == wx.WXK_RETURN and not event.m_shiftDown:
 			# if list open proxy <ENTER> to list
-			if self.list and self.list.alive:
+			if (self.list is not None) and self.list.alive:
 				self.list.Enter ()
 			# if no text in the widget
 			elif self.GetLength() == 0:
@@ -565,12 +635,12 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		# <UP>
 		elif event.KeyCode() == wx.WXK_UP:
 			# if list open proxy <UP> to list
-			if self.list and self.list.alive:
+			if (self.list is not None) and self.list.alive:
 				self.list.Up()
 		# <DOWN>
 		elif event.KeyCode() == wx.WXK_DOWN:
 			# if list open proxy <UP> to list
-			if self.list and self.list.alive:
+			if (self.list is not None) and self.list.alive:
 				self.list.Down()
 		# other keys: no action
 		else:
@@ -578,11 +648,71 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 	#------------------------------------------------
 	def __OnKeyUp (self, event):
 		if not self.list:
-			cur = self.PointFromPosition (self.GetCurrentPos())
-			self.__parent.EnsureVisible (self, cur.x, cur.y)
+			curs_pos = self.PointFromPosition(self.GetCurrentPos())
+			self.__parent.EnsureVisible (self, curs_pos.x, curs_pos.y)
+	#------------------------------------------------
+	# internal API
+	#------------------------------------------------
+	def __handle_keyword(self, kwd=None):
+		print "detected popup keyword:", kwd
+
+		# create widget to show in popup
+		try:
+			create_widget = self.__popup_keywords[kwd]['widget_factory']
+			self.__widget_to_show = create_widget()
+		except KeyError:
+			gmGuiHelpers.gm_beep_statustext (
+				aMessage = _('No action configured for keyword [%s].') % kwd,
+				aLogLevel = gmLog.lWarn
+			)
+			return False
+		except StandardError:
+			_log.LogException('cannot call [%s] on keyword [%s] to create widget', sys.exc_info(), verbose=0)
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Cannot invoke action [%s] for keyword [%s].') % (create_widget, kwd),
+				aTitle = _('showing keyword popup')
+			)
+			return False
+		# make new popup window to put widget inside
+		self.__popup_win = wx.wxWindow (
+			parent = self.__parent,
+			id = -1,
+			pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos())),
+			size = ,
+			style = wx.wxSIMPLE_BORDER,
+			name = self.__class__.__name__
+		)
+
+		# display widget
+		# FIXME: the embed_header business needs to go away, eg. be dealt
+		# FIXME: with later by calling widget_to_show.get_embed_string()
+		# FIXME: same with originator
+		popup_frame = cPopupFrameNew (
+			widget = self.__widget_to_show,
+			pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))
+		)
+		popup_frame.Show()
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
 		# this is a callback
+#		--- old --------------
+#		# FIXME: need explanation on instance/callable business, it seems complicated
+#		if issubclass(data, cResizingWindow):
+#			win = data (
+#				self,
+#				-1,
+#				pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos())),
+#				size = wxSize(300, 150)
+#			)
+#			cPopupFrame (
+#				embed_header = text,
+#				widget = win,
+#				originator = self,
+#				pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))
+#			).Show()
+#		elif callable(data):
+#			data (text, self.__parent, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ())))
+#		--- old --------------
 		if self.MakePopup (text, data, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ()))):
 			pass
 		else:
@@ -601,7 +731,23 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		return False
 #====================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.7  2004-12-15 12:48:39  ihaywood
+# Revision 1.8  2004-12-15 21:49:47  ncq
+# - just to let Ian know what I'm getting at re keyword/string
+#   match separation
+# - both occur after matches but "keywords"
+# 	- don't have partial matches
+# 	- occur immediately
+# 	- execute arbitrary actions (usually popup some widget)
+# 	- embed data keys into the narrative and add additional
+# 	  data in the background
+#   while "string matches"
+#   	- produce partial matches (depending on configuration)
+# 	- occur after a 300ms timeout (configurable)
+# 	- always present a list to pick one entry from
+# 	- return a simple string and do not add additional data
+# - I think this warrants dedicated code
+#
+# Revision 1.7  2004/12/15 12:48:39  ihaywood
 # replaced fancy GUI-widget handling match providers with a simpler solution that
 # preserves the GUI/business layer divide.
 #
