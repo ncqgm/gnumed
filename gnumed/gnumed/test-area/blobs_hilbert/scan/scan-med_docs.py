@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __license__ = "GPL"
 __author__ = "\
 	Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
@@ -48,18 +48,15 @@ class scanFrame(wxFrame):
 	#----------------------------------------------
 	def __init__(self, parent):
 		self._init_ctrls(parent)
-		# make sure we have a clean base to begin with
-#		shutil.rmtree(_cfg.get("tmpdir", "tmpdir"), true)
-#		os.mkdir(_cfg.get("tmpdir", "tmpdir"))
 
-		# FIXME: dict !!
+		# FIXME: dict this !!
 		(self.TwainSrcMngr, self.TwainScanner) = (None, None)
 		(self.SaneSrcMngr, self.SaneScanner) = (None, None)
 		# like this:
-		self.acquire_handler[
+		self.acquire_handler = {
 			'wintwain': self.__acquire_from_twain,
 			'linsane': self.__acquire_from_sane
-		]
+		}
 
 		# get temp dir path from config file
 		tmp = None
@@ -68,11 +65,10 @@ class scanFrame(wxFrame):
 		except:
 			exc = sys.exc_info()
 			_log.LogException('Cannot get tmp dir from config file', exc, fatal=0)
-
 		# but use it only if it exists
-		if os.path.exists(tmp):
-			tempfile.tempdir = tmp
-
+		if tmp != None:
+			if os.path.exists(tmp):
+				tempfile.tempdir = tmp
 		# temp files shall start with "obj-"
 		tempfile.template = "obj-"
 	#----------------------------------------------
@@ -309,7 +305,7 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	def on_twain_event(self, event):
 		# self.TwainScanner.GetImageInfo()
-		_log.Log(gmLog.Data, 'pending image notification from TWAIN manager')
+		_log.Log(gmLog.Data, 'notification of pending image from TWAIN manager')
 
 		# just so we can us fname down below in case tempfile.mktemp() fails
 		fname = ""
@@ -362,7 +358,8 @@ class scanFrame(wxFrame):
 		# FIXME: get those from config file
 		#scanner.contrast=170 ; scanner.brightness=150 ; scanner.white_level=190
 		#scanner.depth=6
-		scanner.br_x=412.0 ; scanner.br_y=583.0
+		scanner.br_x = 412.0
+		scanner.br_y = 583.0
 
 		# just so we can us fname down below in case tempfile.mktemp() fails
 		fname = ""
@@ -442,8 +439,12 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	#-----------------------------------
 	def on_del_page(self, event):
+#		page_idx = self.LBOX_doc_pages.GetSelection()
+#		page_data = 
+
+
 		return
-		current_selection=self.LBOX_doc_pages.GetSelection()
+#		current_selection=
 		if current_selection == -1:
 			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
 			try:
