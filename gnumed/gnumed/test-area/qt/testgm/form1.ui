@@ -56,19 +56,6 @@
             <attribute name="title">
                 <string>Find Patient</string>
             </attribute>
-            <widget class="QLineEdit">
-                <property name="name">
-                    <cstring>searchPatientNameLineEdit</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>170</x>
-                        <y>20</y>
-                        <width>430</width>
-                        <height>24</height>
-                    </rect>
-                </property>
-            </widget>
             <widget class="QLabel">
                 <property name="name">
                     <cstring>textLabel1</cstring>
@@ -99,6 +86,19 @@
                 </property>
                 <property name="text">
                     <string>Find</string>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>searchPatientNameLineEdit</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>170</x>
+                        <y>20</y>
+                        <width>430</width>
+                        <height>24</height>
+                    </rect>
                 </property>
             </widget>
             <widget class="QDataTable">
@@ -1985,6 +1985,12 @@
         <signal>clicked()</signal>
         <receiver>dataBrowser1</receiver>
         <slot>update()</slot>
+    </connection>
+    <connection>
+        <sender>findPatientButton</sender>
+        <signal>clicked()</signal>
+        <receiver>findPatientDataTable</receiver>
+        <slot>clearSelection()</slot>
     </connection>
     <connection>
         <sender>findPatientButton</sender>
