@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.4 2003-01-17 00:24:33 ncq Exp $
+-- $Id: gmI18N.sql,v 1.5 2003-01-20 19:42:47 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -15,64 +15,14 @@
 -- strings in the database. Simply switching the language in
 -- i18n_curr_lang will enable the user to see another language.
 
--- For your database tables to take advantage of this you need to
--- create views that pull translations from i18n_translations based
--- on the original (English) string as the key, eg.
-
--- Your table is:
-
---	create table relations (
---		id serial primary key,
---		name varchar(10) unique
---	);
-
--- You would need to create a view like:
-
---	create view v_i18n_relations as
---		select
---			rel.id, tr.trans as name
---		from
---			relations as rel,
---			i18n_translations as tr,
---			i18n_curr_lang as lcurr
---		where
---			lcurr.owner = CURRENT_USER::varchar
---				and
---			tr.lang = lcurr.lang
---		;
-
--- Now, if you want to support i18n()ed 'sisters':
---  insert into relations (name) values (_('sister'));
-
--- This will insert the original string into i18n_keys so translators
--- know about all the strings to translate, it will also insert the
--- original as it's own default translation into i18n_translations
--- for the language setting en_GB. Which also means that original
--- strings should be English. Sorry. (But they do not have too.)
-
--- Thus you also need to insert a translation for, say, German:
---  insert into i18n_translations (lang, orig, trans) values ('de_DE', 'sister', 'Schwester');
-
--- Of course, the clients need to be aware of this fact and
--- access the views instead of the actual tables.
-
--- This i18n technique does not take care of strings that are inserted
--- into the database dynamically (at runtime). It only makes sense for
--- strings that are inserted once. Such strings are often used for
--- enumerations.
-
--- All this crap isn't necessary anymore once PostgreSQL supports
--- native internationalization of 'fixed' strings.
-
--- FIXME: we need a way to return the original as a default
--- if there's no translation available
+-- For details please see the Developer's Guide.
 -- =============================================
 \unset ON_ERROR_STOP
 
 create table i18n_curr_lang (
 	id serial primary key,
-	owner varchar(20) default CURRENT_USER,
-	lang varchar(10)
+	owner varchar(20) default CURRENT_USER unique not null,
+	lang varchar(10) not null
 );
 
 comment on table i18n_curr_lang is
@@ -94,26 +44,68 @@ create table i18n_translations (
 	id serial primary key,
 	lang varchar(10),
 	orig text,
-	trans text
+	trans text,
+	unique (lang, orig)
 );
 create index idx_orig on i18n_translations(orig);
--- can we have a rule/trigger here that would return the
--- original in case there's no translation available ?
 
 -- =============================================
-create function _ (text) returns text as '
+drop function i18n(text);
+
+create function i18n(text) returns text as '
 DECLARE
 	original ALIAS FOR $1;
 BEGIN
-	insert into i18n_keys (orig) values (original);
-	insert into i18n_translations (lang, orig, trans) values (''en_GB'', original, original);
+	if not exists(select id from i18n_keys where orig = original) then
+		insert into i18n_keys (orig) values (original);
+	end if;
 	return original;
 END;
 ' language 'plpgsql';
 
-comment on function _ (text) is
-	'_(text) will insert original strings into i18n_keys for later translation,
-	it will also insert a default English translation into i18n_translations';
+comment on function i18n(text) is
+	'insert original strings into i18n_keys for later translation';
+
+-- =============================================
+drop function _(text);
+
+create function _(text) returns text as '
+DECLARE
+	orig_str ALIAS FOR $1;
+	trans_str text;
+	my_lang varchar(10);
+BEGIN
+	-- no translation available at all ?
+	if not exists(select orig from i18n_translations where orig = orig_str) then
+		return orig_str;
+	end if;
+
+	-- get language
+	select into my_lang lang
+		from i18n_curr_lang
+	where
+		owner = CURRENT_USER::varchar;
+	if not found then
+		return orig_str;
+	end if;
+
+	-- get translation
+	select into trans_str trans
+		from i18n_translations
+	where
+		lang = my_lang
+			and
+		orig = orig_str;
+	if not found then
+		return orig_str;
+	end if;
+	return trans_str;
+END;
+' language 'plpgsql';
+
+comment on function _(text) is
+	'will return either the input or the translation if it exists,
+	 to be used as an after-select trigger function on your tables';
 
 \set ON_ERROR_STOP 1
 -- =============================================
@@ -133,11 +125,14 @@ TO group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.4  2003-01-17 00:24:33  ncq
+-- Revision 1.5  2003-01-20 19:42:47  ncq
+-- - simplified creation of translating view a lot
+--
+-- Revision 1.4  2003/01/17 00:24:33  ncq
 -- - add a few access right definitions
 --
 -- Revision 1.3  2003/01/05 13:05:51  ncq
