@@ -21,12 +21,22 @@
 #	- write cmEditArea.py
 #	- decide on type of list and text control to use
 #       - someone smart to fix the code (simplify for same result)
-#      
+#
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
+__version__ = "$Revision: 1.5 $"
+__author__  = "R. Terry <rterry@gnumed.net>, H. Herb <hherb@gnumed.net>"
+#============================================================================
+# $Log: gmGP_Allergies.py,v $
+# Revision 1.5  2003-01-09 12:01:39  hherb
+# connects now to database
+#
+
 
 from wxPython.wx import *
+import gmDispatcher, gmSignals, gmPG
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
-import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
+import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 import gmEditArea             #panel class holding editing prompts
 import gmPlugin
@@ -38,11 +48,7 @@ gmSECTION_ALLERGY = 7
 #------------------------------------
 #Dummy data to simulate allergy items
 #------------------------------------
-allergydata = {
-1 : ("penicillin","Allergy", "definate","amoxycillin trihydrate","anaphylaxis"),
-2 : ("macrolides","Sensitivity","definate", "erythromycin ethyl succinate", "nausea and vomiting"),
-3 : ( "celecoxib","Allergy","definate","celecoxib", "allergic drug rash"),
-}
+allergydata = {}
 
 allergyprompts = {
 1:("Date"),
@@ -59,7 +65,7 @@ class AllergyPanel(wxPanel):
 		#--------------------
 		#add the main heading
 		#--------------------
-		self.allergypanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,"  ALLERGIES  ")
+		self.allergypanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,_("ALLERGIES"))
 		#--------------------------------------------
 		#dummy panel will later hold the editing area
 		#--------------------------------------------
@@ -72,48 +78,33 @@ class AllergyPanel(wxPanel):
 		#-----------------------------------------------
 		#add the divider headings below the editing area
 		#-----------------------------------------------
-		self.drug_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Allergy and Sensitivity - Summary")
-		self.sizer_divider_drug_generic = wxBoxSizer(wxHORIZONTAL) 
+		self.drug_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Allergy and Sensitivity - Summary"))
+		self.sizer_divider_drug_generic = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_divider_drug_generic.Add(self.drug_subheading,1, wxEXPAND)
-		#--------------------------------------------------------------------------------------                                                                               
+		#--------------------------------------------------------------------------------------
 		#add the list to contain the drugs person is allergic to
 		#
 		# c++ Default Constructor:
 		# wxListCtrl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
-		# const wxSize& size = wxDefaultSize, long style = wxLC_ICON, 
+		# const wxSize& size = wxDefaultSize, long style = wxLC_ICON,
 		# const wxValidator& validator = wxDefaultValidator, const wxString& name = "listCtrl")
 		#
 		#--------------------------------------------------------------------------------------
 		self.list_allergy = wxListCtrl(self, ID_ALLERGYLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 		self.list_allergy.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-		#----------------------------------------	  
+		#----------------------------------------
 		# add some dummy data to the allergy list
 		#----------------------------------------
-		self.list_allergy.InsertColumn(0, "Type")
-		self.list_allergy.InsertColumn(1, "Status")
-		self.list_allergy.InsertColumn(2, "Class")
-		self.list_allergy.InsertColumn(3, "Generic")
-		self.list_allergy.InsertColumn(4, "Reaction")
+		self.list_allergy.InsertColumn(0, _("Type"))
+		self.list_allergy.InsertColumn(1, _("Status"))
+		self.list_allergy.InsertColumn(2, _("Class"))
+		self.list_allergy.InsertColumn(3, _("Generic"))
+		self.list_allergy.InsertColumn(4, _("Reaction"))
 		#-------------------------------------------------------------
 		#loop through the scriptdata array and add to the list control
 		#note the different syntax for the first coloum of each row
 		#i.e. here > self.list_allergy.InsertStringItem(x, data[0])!!
 		#-------------------------------------------------------------
-		items = allergydata.items()
-		for x in range(len(items)):
-			key, data = items[x]
-			self.list_allergy.InsertStringItem(x, data[0])
-			self.list_allergy.SetStringItem(x, 1, data[1])
-			self.list_allergy.SetStringItem(x, 2, data[2])
-			self.list_allergy.SetStringItem(x, 3, data[3])
-			self.list_allergy.SetStringItem(x, 4, data[4])
-			self.list_allergy.SetItemData(x, key)
-
-		self.list_allergy.SetColumnWidth(0, wxLIST_AUTOSIZE)
-		self.list_allergy.SetColumnWidth(1, wxLIST_AUTOSIZE)
-		self.list_allergy.SetColumnWidth(2, wxLIST_AUTOSIZE)
-		self.list_allergy.SetColumnWidth(3, wxLIST_AUTOSIZE)
-		self.list_allergy.SetColumnWidth(4, wxLIST_AUTOSIZE)
 		#--------------------------------------------------------------------------------------
 		#add a richtext control or a wxTextCtrl multiline to display the class text information
 		#e.g. would contain say information re the penicillins
@@ -123,7 +114,7 @@ class AllergyPanel(wxPanel):
 			"A member of a new class of nonsteroidal anti-inflammatory agents (COX-2 selective NSAIDs) which have a mechanism of action that inhibits prostaglandin synthesis primarily by inhibition of cyclooxygenase 2 (COX-2). At therapeutic doses these have no effect on prostanoids synthesised by activation of COX-1 thereby not interfering with normal COX-1 related physiological processes in tissues, particularly the stomach, intestine and platelets.",
 			size=(200, 100), style=wxTE_MULTILINE)
 		self.classtxt.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
-		#---------------------------------------------                                                                               
+		#---------------------------------------------
 		#add all elements to the main background sizer
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
@@ -138,7 +129,36 @@ class AllergyPanel(wxPanel):
 		self.mainsizer.Fit
 		self.SetAutoLayout(true)
 		self.Show(true)
-#----------------------------------------------------------------------	  
+		self.RegisterInterests()
+
+
+	def RegisterInterests(self):
+		gmDispatcher.connect(self.UpdateAllergies, gmSignals.patient_selected())
+
+
+
+	def UpdateAllergies(self, **kwargs):
+		kwds = kwargs['kwds']
+		query = "select id, type, status, class, generic, reaction from v_allergies where id_identity =%s" % kwds['ID']
+		#try:
+		db = gmPG.ConnectionPool().GetConnection('clinical')
+		cursor = db.cursor()
+		cursor.execute(query)
+		rows = cursor.fetchall()
+		#except:
+		#	return
+		for index in range(len(rows)):
+			row=rows[index]
+			key =row[0]
+			self.list_allergy.InsertStringItem(index, row[1])
+			self.list_allergy.SetItemData(index, key)
+			for column in range(2, len(row)):
+				self.list_allergy.SetStringItem(index, column, row[column])
+		for column in range(len(row)-1):
+			self.list_allergy.SetColumnWidth(column, wxLIST_AUTOSIZE)
+
+
+#----------------------------------------------------------------------
 class gmGP_Allergies (gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the allergies window"""
 
@@ -149,7 +169,7 @@ HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 \x14&\xa8\x07\x05h\x82\x11\x11 \xfd\x11H\x82 1\x84[\x11\x82Hn\x85i\x8f\x80\
 \xba&"\x82\x08\xbf\x13\x16\xd4\x03\x00\xe4\xa2I\x9c'
 }
-   
+
 	def name (self):
 		return 'Allergies Window'
 
@@ -168,7 +188,7 @@ HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 	def GetWidget (self, parent):
 		return AllergyPanel (parent, -1)
 
-#----------------------------------------------------------------------	  
+#----------------------------------------------------------------------
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(AllergyPanel, -1)
