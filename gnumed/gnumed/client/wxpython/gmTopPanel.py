@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -195,7 +195,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		age = self.curr_pat['demographics'].getMedicalAge ()
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
-		name = self.curr_pat['demographics'].getActiveName ()
+		name = self.curr_pat['demographics'].getActiveName()
 		self.txt_age.SetValue(age)
 		self.patient_selector.SetValue('%s, %s' % (name['last'], name['first']))
 		self._update_allergies()
@@ -305,7 +305,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.18  2003-10-26 11:27:10  ihaywood
+# Revision 1.19  2003-10-26 18:04:01  ncq
+# - cleanup
+#
+# Revision 1.18  2003/10/26 11:27:10  ihaywood
 # gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
 #
 # Ergregious breakages are fixed, but needs more work
