@@ -209,6 +209,8 @@ class CachedDBObject:
 		nq= self.queue_notification()
 		#make sure we release the lock even if something goes wrong
 		for caller in self.cache.notify.keys():
+			#as the next statement is "python thread atomic", it should not be affected
+			#by thread concurrency - we should not need a thread lock here (?)
 			if self.cache.notifyqueue>nq:
 				#another thread has made a newer buffer modification,
 				#let it do the job instead
