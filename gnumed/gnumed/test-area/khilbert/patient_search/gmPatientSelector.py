@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/patient_search/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.8 2003-03-27 21:04:58 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmPatientSelector.py,v 1.9 2003-03-28 15:26:06 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -73,39 +73,23 @@ patient_expander = {
 #============================================================
 # write your own query generator and add it here
 #------------------------------------------------------------
-
 # use compile() for speedup
 # must escape strings before use !!
 # ORDER BY !
 # FIXME: what about "< 40" ?
 
-def queries_default(raw = None):
-	if raw is None:
-		return []
-
+def _make_simple_query(raw):
 	queries = {
 		1: [],
 		2: [],
 		3: []
 	}
-
 	# "<ZIFFERN>" - patient ID or DOB
 	if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
 		tmp = raw.replace(' ', '')
 		tmp = tmp.replace('\t', '')
 		queries[1].append("SELECT id FROM v_basic_person WHERE id LIKE '%s%%';" % tmp)
 		queries[1].append("SELECT id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s');" % raw)
-		return queries
-
-	# "<CHARS>" - single name part
-	# yes, I know (did you read the docs carefully ?)
-	if re.match("^(\s|\t)*[a-zA-ZäÄöÖüÜß]+(\s|\t)*$", raw):
-		tmp = raw.replace(' ', '')
-		tmp = tmp.replace('\t', '')
-		queries[1].append("SELECT id FROM v_basic_person WHERE lastnames  ILIKE '%s%%';" % tmp)
-		queries[2].append("SELECT id FROM v_basic_person WHERE firstnames ILIKE '%s%%';" % tmp)
-		# name parts anywhere in name - third order query ...
-		queries[3].append("SELECT id FROM v_basic_person WHERE firstnames || lastnames ILIKE '%%%s%%';" % tmp)
 		return queries
 
 	# "#<ZIFFERN>" - patient ID
@@ -142,18 +126,57 @@ def queries_default(raw = None):
 		queries[1].append("SELECT id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s');" % tmp)
 		return queries
 
+	return None
+#------------------------------------------------------------
+def queries_default(raw = None):
+	if raw is None:
+		return []
+
+	# check to see if we get away with a simple query ...
+	queries = _make_simple_query(raw)
+	if queries is not None:
+		return queries
+
+	# no we don't
+	queries = {1: [], 2: [], 3: []}
+
+	# replace Umlauts
+	# (names of months do not contain Umlauts in German, so ...
+	no_umlauts = raw.replace('Ä', '(Ä|AE|Ae)')
+	no_umlauts = no_umlauts.replace('Ö', '(Ö|OE|Oe)')
+	no_umlauts = no_umlauts.replace('Ü', '(Ü|UE|Ue)')
+	no_umlauts = no_umlauts.replace('ä', '(ä|ae)')
+	no_umlauts = no_umlauts.replace('ö', '(ö|oe)')
+	no_umlauts = no_umlauts.replace('ü', '(ü|ue)')
+	no_umlauts = no_umlauts.replace('ß', '(ß|sz|ss)')
+	# René, Desiré, ...
+	no_umlauts = no_umlauts.replace('é', '(é|e)')
+
+	# "<CHARS>" - single name part
+	# yes, I know, this is culture specific (did you read the docs ?)
+	if re.match("^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", raw):
+		# there's no intermediate whitespace due to the regex
+		tmp = no_umlauts.strip()
+		# assumption: this is a last name
+		queries[1].append("SELECT id FROM v_basic_person WHERE lastnames  ~* '^%s';" % tmp)
+		# assumption: this is a first name
+		queries[2].append("SELECT id FROM v_basic_person WHERE firstnames ~* '^%s';" % tmp)
+		# name parts anywhere in name - third order query ...
+		queries[3].append("SELECT id FROM v_basic_person WHERE firstnames || lastnames ~* '%s';" % tmp)
+		return queries
+
 	# try to split on (major) part separators
-	parts_list = re.split(",|;", raw)
+	parts_list = re.split(",|;", no_umlauts)
 
 	# only one "major" part ? (i.e. no ",;" ?)
 	if len(parts_list) == 1:
 		# re-split on whitespace
-		tmp = re.split("\s*|\t*", raw)
+		sub_parts_list = re.split("\s*|\t*", no_umlauts)
 
 		# parse into name/date parts
 		date_count = 0
 		name_parts = []
-		for part in tmp:
+		for part in sub_parts_list:
 			# any digit signifies a date
 			# FIXME: what about "<40" ?
 			if re.search("\d", part):
@@ -163,32 +186,37 @@ def queries_default(raw = None):
 				name_parts.append(part)
 
 		# exactly 2 words ?
-		if len(tmp) == 2:
+		if len(sub_parts_list) == 2:
 			# no date = "first last" or "last first"
 			if date_count == 0:
-				queries[1].append("SELECT id FROM v_basic_person WHERE firstnames ILIKE '%s%%' AND lastnames ILIKE '%s%%';" % (name_parts[0], name_parts[1]))
-				queries[2].append("SELECT id FROM v_basic_person WHERE firstnames ILIKE '%s%%' AND lastnames ILIKE '%s%%';" % (name_parts[1], name_parts[0]))
+				# assumption: first last
+				queries[1].append("SELECT id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s';" % (name_parts[0], name_parts[1]))
+				# assumption: last first
+				queries[2].append("SELECT id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s';" % (name_parts[1], name_parts[0]))
 				# name parts anywhere in name - third order query ...
-				queries[3].append("SELECT id FROM v_basic_person WHERE firstnames || lastnames ILIKE '%%%s%%' AND firstnames || lastnames ILIKE '%%%s%%';" % (name_parts[0], name_parts[1]))
+				queries[3].append("SELECT id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s';" % (name_parts[0], name_parts[1]))
 				return queries
-			# FIXME
+			# FIXME: either "name date" or "date date"
+			_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % raw)
 			return queries
 
 		# exactly 3 words ?
-		if len(tmp) == 3:
+		if len(sub_parts_list) == 3:
 			# special case: 3 words, exactly 1 of them a date, no ",;"
 			if date_count == 1:
-				# first, last, dob - first order
-				queries[1].append("SELECT id FROM v_basic_person WHERE firstnames ILIKE '%s%%' AND lastnames ILIKE '%s%%' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part))
-				# last, first, dob - second order query
-				queries[2].append("SELECT id FROM v_basic_person WHERE firstnames ILIKE '%s%%' AND lastnames ILIKE '%s%%' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[1], name_parts[0], date_part))
+				# assumption: first, last, dob - first order
+				queries[1].append("SELECT id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part))
+				# assumption: last, first, dob - second order query
+				queries[2].append("SELECT id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[1], name_parts[0], date_part))
 				# name parts anywhere in name - third order query ...
-				queries[3].append("SELECT id FROM v_basic_person WHERE firstnames || lastnames ILIKE '%%%s%%' AND firstnames || lastnames ILIKE '%%%s%%' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part))
+				queries[3].append("SELECT id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part))
 				return queries
-			# FIXME
+			# FIXME: "name name name" or "name date date"
+			_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % raw)
 			return queries
 
-		# FIXME
+		# FIXME: no ',;' but neither "name name" nor "name name date"
+		_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % raw)
 		return queries
 
 	# more than one major part (separated by ';,')
@@ -212,46 +240,45 @@ def queries_default(raw = None):
 		where2 = []
 		where3 = []
 
-		# handle name parts first
+		# first, handle name parts
 		# special case: "<date(s)>, <name> <name>, <date(s)>"
 		if (len(name_parts) == 1) and (name_count == 2):
-			# usually "first name  last name"
-			# so check this version first
-			where1.append("firstnames ILIKE '%s%%'" % name_parts[0][0])
-			where1.append("lastnames ILIKE '%s%%'"  % name_parts[0][1])
-
-			where2.append("firstnames ILIKE '%s%%'" % name_parts[0][1])
-			where2.append("lastnames ILIKE '%s%%'"  % name_parts[0][0])
-
-			where3.append("firstnames || lastnames ILIKE '%%%s%%'" % name_parts[0][0])
-			where3.append("firstnames || lastnames ILIKE '%%%s%%'" % name_parts[0][1])
+			# usually "first last"
+			where1.append("firstnames ~* '^%s'" % name_parts[0][0])
+			where1.append( "lastnames ~* '^%s'" % name_parts[0][1])
+			# but sometimes "last first""
+			where2.append("firstnames ~* '^%s'" % name_parts[0][1])
+			where2.append( "lastnames ~* '^%s'" % name_parts[0][0])
+			# or even substrings anywhere in name
+			where3.append("firstnames || lastnames ~* '%s'" % name_parts[0][0])
+			where3.append("firstnames || lastnames ~* '%s'" % name_parts[0][1])
 
 		# special case: "<date(s)>, <name(s)>, <name(s)>, <date(s)>"
 		elif len(name_parts) == 2:
-			# usually "last name(s), first name(s)"
-			# so check this version first
-			where1.append("firstnames ILIKE '%s%%'" % string.join(name_parts[1], ' '))
-			where1.append("lastnames ILIKE '%s%%'" % string.join(name_parts[0], ' '))
-
-			where2.append("firstnames ILIKE '%s%%'" % string.join(name_parts[0], ' '))
-			where2.append("lastnames ILIKE '%s%%'" % string.join(name_parts[1], ' '))
-
-			where3.append("firstnames || lastnames ILIKE '%%%s%%'" % string.join(name_parts[0], ' '))
-			where3.append("firstnames || lastnames ILIKE '%%%s%%'" % string.join(name_parts[1], ' '))
+			# usually "last, first"
+			where1.append("firstnames ~* '^%s'" % string.join(name_parts[1], ' '))
+			where1.append( "lastnames ~* '^%s'" % string.join(name_parts[0], ' '))
+			# but sometimes "first, last"
+			where2.append("firstnames ~* '^%s'" % string.join(name_parts[0], ' '))
+			where2.append( "lastnames ~* '^%s'" % string.join(name_parts[1], ' '))
+			# or even substrings anywhere in name
+			where3.append("firstnames || lastnames ~* '%s'" % string.join(name_parts[0], ' '))
+			where3.append("firstnames || lastnames ~* '%s'" % string.join(name_parts[1], ' '))
 
 		# big trouble - arbitrary number of names
 		else:
+			# FIXME: deep magic, not sure of rationale ...
 			if len(name_parts) == 1:
 				for part in name_parts[0]:
-					where1.append("firstnames || lastnames ILIKE '%%%s%%'" % part)
-					where2.append("firstnames || lastnames ILIKE '%%%s%%'" % part)
+					where1.append("firstnames || lastnames ~* '%s'" % part)
+					where2.append("firstnames || lastnames ~* '%s'" % part)
 			else:
 				tmp = []
 				for part in name_parts:
 					tmp.append(string.join(part, ' '))
 				for part in tmp:
-					where1.append("firstnames || lastnames ILIKE '%%%s%%'" % part)
-					where2.append("firstnames || lastnames ILIKE '%%%s%%'" % part)
+					where1.append("firstnames || lastnames ~* '%s'" % part)
+					where2.append("firstnames || lastnames ~* '%s'" % part)
 
 		# secondly handle date parts
 		# FIXME: this needs a considerable smart-up !
@@ -266,11 +293,11 @@ def queries_default(raw = None):
 			where2.append("date_trunc('day', identity.deceased) LIKE (select timestamp '%s')" % date_parts[1])
 
 		if len(where1) > 0:
-			queries[1].append("SELECT id FROM v_basic_person WHERE %s" % string.join(where1, ' AND '))
+			queries[1].append("SELECT id FROM v_basic_person WHERE %s;" % string.join(where1, ' AND '))
 		if len(where2) > 0:
-			queries[2].append("SELECT id FROM v_basic_person WHERE %s" % string.join(where2, ' AND '))
+			queries[2].append("SELECT id FROM v_basic_person WHERE %s;" % string.join(where2, ' AND '))
 		if len(where3) > 0:
-			queries[3].append("SELECT id FROM v_basic_person WHERE %s" % string.join(where3, ' AND '))
+			queries[3].append("SELECT id FROM v_basic_person WHERE %s;" % string.join(where3, ' AND '))
 		return queries
 
 	return queries
