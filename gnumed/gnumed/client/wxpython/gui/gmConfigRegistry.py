@@ -11,19 +11,18 @@ from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
+	from Gnumed.pycommon import gmI18N
 
-_log.Log(gmLog.lData, __version__)
-
-if __name__ == "__main__":
-	import gmI18N
-
-from Gnumed.pycommon import gmCfg, gmGuiBroker, gmPG, gmWhoAmI
-from Gnumed.wxpython import gmPlugin
-_cfg = gmCfg.gmDefCfgFile
+from Gnumed.pycommon import gmCfg, gmWhoAmI
+# FIXME: change code to "gmConfigCommon.*"
+#from Gnumed.pycommon.gmConfigCommon import *
+from Gnumed.wxpython import gmPlugin, gmGuiHelpers
 
 from wxPython.wx import *
-from Gnumed.pycommon.gmConfigCommon import *
-from Gnumed.wxpython.gmGuiHelpers import gm_show_error, gm_show_question
+
+_cfg = gmCfg.gmDefCfgFile
+
+_log.Log(gmLog.lData, __version__)
 
 [	ConfigTreeCtrlID,
 	ConfigTreeBoxID,
@@ -222,7 +221,7 @@ class cConfTree(wxTreeCtrl):
 			newValue = currConfSource.castType(self.currSelParam,val)
 
 			if newValue is None:
-				gm_show_error (
+				gmGuiHelpers.gm_show_error (
 					_('Type of entered value is not compatible with type expected.'),
 					_('saving configuration')
 				)
@@ -239,7 +238,7 @@ class cConfTree(wxTreeCtrl):
 			# new value should be stored unchecked
 
 			if not confDefinition or not currConfSource.hasParameterDefinition(defParamName):
-				if gm_show_question (
+				if gmGuiHelpers.gm_show_question (
 					_("There is no config definition for this parameter.\nThus it can't be checked for validity.\n\nSave anyway ?"),
 					_('saving configuration')):
 					currConfSource.setConfigData( self.currSelParam,newValue)
@@ -257,7 +256,7 @@ class cConfTree(wxTreeCtrl):
 				self.__show_parameter(self.currSelSubtree,self.currSelParam)
 			else:
 				# TODO: display some hint on what could be wrong
-				gm_show_error (
+				gmGuiHelpers.gm_show_error (
 					_('Entered value is not valid.'),
 					_('saving configuration')
 				)
@@ -491,7 +490,7 @@ class gmConfigEditorPanel(wxPanel):
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	import gmPlugin, gmGuiBroker
+	import gmPlugin
 	_log.Log (gmLog.lInfo, "starting config browser")
 	
 	workplace = raw_input("Please enter a workplace name: ")
@@ -532,7 +531,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.14  2004-03-09 07:34:51  ihaywood
+# Revision 1.15  2004-03-09 08:59:35  ncq
+# - cleanup imports
+#
+# Revision 1.14  2004/03/09 07:34:51  ihaywood
 # reactivating plugins
 #
 # Revision 1.13  2004/02/25 09:46:22  ncq
