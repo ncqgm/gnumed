@@ -3,7 +3,7 @@
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
--- $Revision: 1.3 $ $Date: 2002-03-24 10:36:42 $ $Author: ncq $
+-- $Revision: 1.4 $ $Date: 2002-03-26 14:05:15 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -26,7 +26,7 @@ CREATE TABLE "doc_med" (
     "type" integer references doc_type(id) not null,
     "comment" character varying(60) not null,
     "date" character varying(20) not null,
-    "ext_ref" character varying (40) not null,
+    "ext_ref" character varying (40) not null
 );
 
 COMMENT ON TABLE "doc_med" IS 'a medical document object possibly containing several data objects such as several pages of a paper document';
