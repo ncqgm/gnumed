@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -358,7 +358,6 @@ class db_server:
 			return 1
 
 		cmd = "CREATE USER \"%s\" WITH PASSWORD '%s' CREATEDB;" % (_dbowner.name, _dbowner.password)
-		print cmd
 		try:
 			cursor.execute(cmd)
 		except:
@@ -494,12 +493,15 @@ class database:
 			_log.Log(gmLog.lErr, "Cannot create database.")
 			return None
 
+		# import schema
+		if not _import_schema(aSection = self.section, aSrv_name = self.server.name, aDB_name = self.name, aUser = self.owner.name):
+			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
+			return None
+
 		# reconnect as owner to db
 		if not self.__connect_owner_to_db():
 			_log.Log(gmLog.lErr, "Cannot connect to database.")
 			return None
-
-		# import schema
 
 		return 1
 	#--------------------------------------------------------------
@@ -1022,7 +1024,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.10  2003-05-06 13:05:54  ncq
+# Revision 1.11  2003-05-12 12:47:25  ncq
+# - import some schema files at the database level, too
+# - add corresponding schema list in the config files
+#
+# Revision 1.10  2003/05/06 13:05:54  ncq
 # - from now on create unicode databases
 #
 # Revision 1.9  2003/04/09 13:55:51  ncq

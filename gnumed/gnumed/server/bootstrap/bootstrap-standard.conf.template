@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.3 $
+version = $Revision: 1.4 $
 
 #----------------------------------
 [installation]
@@ -84,6 +84,15 @@ name = gnumed
 # which [section] holds specifics about the server
 # hosting this databse -> [server ...]
 server alias = local host
+
+# here you can import some schema files once per database
+# such as revision tracking, translation, etc.
+schema = $schema$
+sql/gmSchemaRevision.sql
+sql/gmServices.sql
+sql/gmI18N.sql
+$schema$
+
 
 #----------------------------------
 [server local host]
@@ -214,7 +223,11 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.3  2003-04-22 16:16:16  ncq
+# Revision 1.4  2003-05-12 12:47:25  ncq
+# - import some schema files at the database level, too
+# - add corresponding schema list in the config files
+#
+# Revision 1.3  2003/04/22 16:16:16  ncq
 # - added lots of comments on the postgres/gm-dbowner users
 #
 # Revision 1.2  2003/04/18 13:21:16  ncq
