@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.24 2003-04-05 00:39:23 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmDemographics.py,v 1.25 2003-04-25 11:15:58 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -72,20 +72,6 @@ ID_BUTTONFINDPATIENT = wxNewId()
 ID_TXTPATIENTFIND = wxNewId()
 ID_TXTPATIENTAGE = wxNewId()
 ID_TXTPATIENTALLERGIES  = wxNewId()
-ID_COMBOCONSULTTYPE =wxNewId()
-
-# Richard, can you please add some comments here ?
-consultation_types = [
-	_('in surgery'),
-	_('home visit'),
-	_('by phone'),
-	_('at specialist'),
-	_('patient absent'),
-	_('by email'),
-	_('other consultation')
-]
-
-gmDEF_CONSULT_TYPE = consultation_types[0]
 
 #------------------------------------
 #Dummy data to simulate allergy items
@@ -417,36 +403,6 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		# first, set up the widgets on the top line of the toolbar
 		top_panel = self.gb['main.toolbar']
 
-#		self.tb_patient_search = wxToolBar (
-#			top_panel,
-#			-1,
-#			wxDefaultPosition,
-#			wxDefaultSize,
-#			wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT
-#		)
-
-#		self.tool_patient_search = self.tb_patient_search.AddTool (
-#			ID_BUTTONFINDPATIENT,
-#			getToolbar_FindPatientBitmap(),
-#			shortHelpString = _("Patient Details")
-#		)
-#		EVT_TOOL (self.tb_patient_search, ID_BUTTONFINDPATIENT, self.OnTool)
-
-		# consultation type selector
-		self.combo_consultation_type = wxComboBox (
-			top_panel,
-			ID_COMBOCONSULTTYPE,
-			gmDEF_CONSULT_TYPE,
-			wxDefaultPosition,
-			wxDefaultSize,
-			consultation_types,
-			wxCB_DROPDOWN
-		)
-
-		# place them on the top toolbar
-#		top_panel.AddWidgetTopLine(self.tb_patient_search, 0, wxEXPAND)
-		top_panel.AddWidgetRightBottom (self.combo_consultation_type)
-
 		# and register ourselves as a widget
 		self.gb['modules.patient'][self.name ()] = self
 		self.mwm = self.gb['clinical.manager']
@@ -456,21 +412,22 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.RegisterInterests ()
 	#--------------------------------------------------------		
 	def OnTool (self, event):
-		self.mwm.Display (self.name ())
-		print "OnTool"
-		self.gb['modules.gui']['Patient'].Raise()
-#		self.widget.FindPatient (self.txt_findpatient.GetValue ())
+		pass
+#		self.mwm.Display (self.name ())
+#		print "OnTool"
+#		self.gb['modules.gui']['Patient'].Raise()
 
 	def RegisterInterests(self):
-		gmDispatcher.connect(self.OnSelected, gmSignals.patient_selected())
-
+		pass
+#		gmDispatcher.connect(self.OnSelected, gmSignals.patient_selected())
 
 	def OnSelected (self, **kwargs):
-		kwds = kwargs['kwds']
-		names = "%(title)s %(firstnames)s %(lastnames)s" % kwds
+		pass
+#		kwds = kwargs['kwds']
+#		names = "%(title)s %(firstnames)s %(lastnames)s" % kwds
 #		self.txt_findpatient.SetValue(names)
-		age = kwds['dob']
-		age = age.strip ()
+#		age = kwds['dob']
+#		age = age.strip ()
 		# FIXME:
 #		try:
 #			dmy = DateTime.strptime(age, "%d/%m/%y")
@@ -507,7 +464,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.24  2003-04-05 00:39:23  ncq
+# Revision 1.25  2003-04-25 11:15:58  ncq
+# cleanup
+#
+# Revision 1.24  2003/04/05 00:39:23  ncq
 # - "patient" is now "clinical", changed all the references
 #
 # Revision 1.23  2003/04/04 20:52:44  ncq
