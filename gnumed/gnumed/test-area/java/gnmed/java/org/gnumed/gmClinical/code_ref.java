@@ -49,11 +49,12 @@ public class code_ref {
     public void setDisease_code(disease_code _disease_code) {
         if (this.disease_code != _disease_code) {
             this.disease_code = _disease_code;
-            if (_disease_code != null) _disease_code.setCode_ref(this);
+       //     if (_disease_code != null) _disease_code.setCode_ref(this);
         }
     }
     /**
      *@hibernate.many-to-one
+     *
      */
     public coding_systems getCoding_systems() {
         return coding_systems;

@@ -67,9 +67,9 @@ public class clin_episode {
     }
     public void setClin_health_issue(clin_health_issue _clin_health_issue) {
         if (this.clin_health_issue != _clin_health_issue) {
-            //if (this.clin_health_issue != null) this.clin_health_issue.removeClin_episode(this);
+            if (this.clin_health_issue != null) this.clin_health_issue.removeClin_episode(this);
             this.clin_health_issue = _clin_health_issue;
-            //if (_clin_health_issue != null) _clin_health_issue.addClin_episode(this);
+            if (_clin_health_issue != null) _clin_health_issue.addClin_episode(this);
         }
     }
     

@@ -9,56 +9,56 @@ import org.gnumed.gmIdentity.identity;
 
 /**
  * <p>
- * 
+ *
  * </p>
  * @hibernate.class
  */
 public class clin_health_issue {
-
-  ///////////////////////////////////////
-  // attributes
-
-
-/**
- * <p>
- * Represents ...
- * </p>
- */
-    private String description; 
-
-/**
- * <p>
- * Represents ...
- * </p>
- */
-    private Integer id; 
-
-   ///////////////////////////////////////
-   // associations
-
-/**
- * <p>
- * 
- * </p>
- */
-    public identity identity; 
-/**
- * <p>
- * 
- * </p>
- */
+    
+    ///////////////////////////////////////
+    // attributes
+    
+    
+    /**
+     * <p>
+     * Represents ...
+     * </p>
+     */
+    private String description;
+    
+    /**
+     * <p>
+     * Represents ...
+     * </p>
+     */
+    private Integer id;
+    
+    ///////////////////////////////////////
+    // associations
+    
+    /**
+     * <p>
+     *
+     * </p>
+     */
+    public identity identity;
+    /**
+     * <p>
+     *
+     * </p>
+     */
     public Collection clin_episode = new java.util.HashSet(); // of type clin_episode
-/**
- * <p>
- * 
- * </p>
- */
+    /**
+     * <p>
+     *
+     * </p>
+     */
     public Collection clin_issue_component = new java.util.HashSet(); // of type clin_issue_component
-
-
-   ///////////////////////////////////////
-   // access methods for associations
-
+    
+    
+    ///////////////////////////////////////
+    // access methods for associations
+    
     /**
      *@hibernate.many-to-one
      */
@@ -72,37 +72,41 @@ public class clin_health_issue {
             if (_identity != null) _identity.addClin_health_issue(this);
         }
     }
+//    
+//    /**
+//     * @hibernate.collection-one-to-many
+//     *  class="org.gnumed.clin_episode"
+//     */
+//    public Collection getClin_episodes() {
+//        return clin_episode;
+//    }
+//    /** Setter for property clin_episodes.
+//     * @param clin_episodes New value of property clin_episodes.
+//     *
+//     */
+//    public void setClin_episodes(Collection clin_episodes) {
+//        clin_episode=clin_episodes;
+//    }
+//    
+//    public void addClin_episode(clin_episode _clin_episode) {
+//        if (! this.clin_episode.contains(_clin_episode)) {
+//            this.clin_episode.add(_clin_episode);
+//            _clin_episode.setClin_health_issue(this);
+//        }
+//    }
+//    public void removeClin_episode(clin_episode _clin_episode) {
+//        boolean removed = this.clin_episode.remove(_clin_episode);
+//        if (removed) _clin_episode.setClin_health_issue((clin_health_issue)null);
+//    }
     
     /**
-     * @hibernate.collection-one-to-many
-     *  class="org.gnumed.clin_episode"
-     */
-    public Collection getClin_episodes() {
-        return clin_episode;
-    }
-       /** Setter for property clin_episodes.
-     * @param clin_episodes New value of property clin_episodes.
      *
-     */
-    public void setClin_episodes(Collection clin_episodes) {
-    clin_episode=clin_episodes;
-    }    
-    
-    public void addClin_episode(clin_episode _clin_episode) {
-        if (! this.clin_episode.contains(_clin_episode)) {
-            this.clin_episode.add(_clin_episode);
-            _clin_episode.setClin_health_issue(this);
-        }
-    }
-    public void removeClin_episode(clin_episode _clin_episode) {
-        boolean removed = this.clin_episode.remove(_clin_episode);
-        if (removed) _clin_episode.setClin_health_issue((clin_health_issue)null);
-    }
-    
-    /**
-     *
+     *@hibernate.set
+     *  cascade="delete"
+     *@hibernate.collection-key
+     *  column="clin_health_issue"
      *@hibernate.collection-one-to-many
-     *  class="org.gnumed.clin_issue_component"
+     *      class="org.gnumed.gmClinical.clin_issue_component"
      */
     public Collection getClin_issue_components() {
         return clin_issue_component;
@@ -126,54 +130,54 @@ public class clin_health_issue {
         boolean removed = this.clin_issue_component.remove(_clin_issue_component);
         if (removed) _clin_issue_component.setClin_health_issue((clin_health_issue)null);
     }
-
-
-  ///////////////////////////////////////
-  // operations
-
-
-/**
- * <p>
- * Represents ...
- * </p>
- * @hibernate.property
- */
-    public String getDescription() {        
+    
+    
+    ///////////////////////////////////////
+    // operations
+    
+    
+    /**
+     * <p>
+     * Represents ...
+     * </p>
+     * @hibernate.property
+     */
+    public String getDescription() {
         return description;
-    } // end getDescription        
-
-/**
- * <p>
- * Represents ...
- * </p>
- */
-    public void setDescription(String _description) {        
+    } // end getDescription
+    
+    /**
+     * <p>
+     * Represents ...
+     * </p>
+     */
+    public void setDescription(String _description) {
         description = _description;
-    } // end setDescription        
-
-/**
- * <p>
- * Represents ...
- * </p>
- * @hibernate.id
- *      generator-class="hilo"
- */
-    public Integer getId() {        
+    } // end setDescription
+    
+    /**
+     * <p>
+     * Represents ...
+     * </p>
+     * @hibernate.id
+     *      generator-class="hilo"
+     */
+    public Integer getId() {
         return id;
-    } // end getId        
-
-/**
- * <p>
- * Represents ...
- * </p>
- */
-    public void setId(Integer _id) {        
+    } // end getId
+    
+    /**
+     * <p>
+     * Represents ...
+     * </p>
+     */
+    public void setId(Integer _id) {
         id = _id;
     }
     
- 
- // end setId        
-
+    
+    // end setId
+    
 } // end clin_health_issue
 
 

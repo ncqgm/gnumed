@@ -12,6 +12,8 @@ import java.util.*;
  * </p>
  * @hibernate.class
  *  discriminator-value="C"
+ * @hibernate.discriminator
+ *  column="TYPE"
  */
 public class clin_issue_component {
 

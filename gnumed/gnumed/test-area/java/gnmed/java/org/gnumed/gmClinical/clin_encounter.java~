@@ -95,9 +95,9 @@ public class clin_encounter {
     }
     public void setProvider(identity _identity) {
         if (this.provider != _identity) {
-            //if (this.provider != null) this.provider.removeClin_encounter(this);
+            if (this.provider != null) this.provider.removeClin_encounter(this);
             this.provider = _identity;
-            //if (_identity != null) _identity.addClin_encounter(this);
+            if (_identity != null) _identity.addClin_encounter(this);
         }
     }
     
