@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.2 2004-03-10 12:56:01 ihaywood Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmMatchProvider.py,v 1.3 2004-04-30 09:10:57 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -361,7 +361,8 @@ class cMatchProvider_SQL2(cMatchProvider):
 			return (_false, [])
 		for row in rows:
 			# FIXME: deal with gmpw_score...
-			matches.append({'data': row[0], 'label': row[1], 'weight': 0})
+#			matches.append({'data': row[0], 'label': row[1], 'weight': 0})
+			matches.append({'data': str(row[0]), 'label': row[1], 'weight': 0})
 		matches.sort(self.__cmp_items)
 		return (_true, matches)
 	#--------------------------------------------------------
@@ -542,7 +543,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.2  2004-03-10 12:56:01  ihaywood
+# Revision 1.3  2004-04-30 09:10:57  ncq
+# - label needs to be str()ed in list.append()
+#
+# Revision 1.2  2004/03/10 12:56:01  ihaywood
 # fixed sudden loss of main.shadow
 # more work on referrals,
 #
