@@ -1,12 +1,8 @@
-# 
-# created with  python handler_generator.py -d patient >handler_patient.py                  
-
-
-
 # ['gmBMICalc.py', 'gmCalcPreg.py', 'gmCrypto.py', 'gmDemographics.py', 'gmGP_Allergies.py', 'gmGP_AnteNatal_3.py', 'gmGP_ClinicalSummary.py', 'gmGP_FamilyHistory.py', 'gmGP_Immunisation.py', 'gmGP_Measurements.py', 'gmGP_PastHistory.py', 'gmGP_Prescriptions.py', 'gmGP_Recalls.py', 'gmGP_Referrals.py', 'gmGP_Requests.py', 'gmGP_ScratchPadRecalls.py', 'gmGP_TabbedLists.py']
 
 from wxPython.wx import * 
 #creating a handler as gmBMICalc_handler from patient/gmBMICalc.py
+# type_search_str =  class\s+(?P<new_type>\w+)\s*\(.*(?P<base_type>EditAreaTextBox|wxTextCtrl|wxComboBox|wxButton|wxRadioButton|wxCheckBox|wxListBox)
 # [('txtHeight', 'wxTextCtrl')]
 
 
@@ -48,7 +44,11 @@ class gmBMICalc_handler:
 #creating a handler as gmCrypto_handler from patient/gmCrypto.py
 # []
 #creating a handler as gmDemographics_handler from patient/gmDemographics.py
-# [('addresslist', 'wxListBox'), ('combo_relationship', 'wxComboBox'), ('combo_title', 'wxComboBox'), ('combo_sex', 'wxComboBox'), ('cb_preferredname', 'wxCheckBox'), ('txt_address', 'wxTextCtrl'), ('combo_maritalstatus', 'wxComboBox'), ('btn_browseNOK', 'wxButton'), ('txt_nameNOK', 'wxTextCtrl'), ('cb_addressresidence', 'wxCheckBox'), ('cb_addresspostal', 'wxCheckBox'), ('btn_photo_import', 'wxButton'), ('btn_photo_export', 'wxButton'), ('btn_photo_aquire', 'wxButton'), ('txt_findpatient', 'wxComboBox'), ('txt_age', 'wxTextCtrl'), ('txt_allergies', 'wxTextCtrl'), ('combo_consultation_type', 'wxComboBox')]
+# found new type = TextBox_RedBold which is base_type wxTextCtrl
+
+# found new type = TextBox_BlackNormal which is base_type wxTextCtrl
+
+# [('addresslist', 'wxListBox'), ('combo_relationship', 'wxComboBox'), ('txt_surname', 'TextBox_RedBold'), ('combo_title', 'wxComboBox'), ('txt_firstname', 'TextBox_RedBold'), ('combo_sex', 'wxComboBox'), ('cb_preferredname', 'wxCheckBox'), ('txt_preferred', 'TextBox_RedBold'), ('txt_address', 'wxTextCtrl'), ('txt_suburb', 'TextBox_BlackNormal'), ('txt_zip', 'TextBox_BlackNormal'), ('txt_birthdate', 'TextBox_BlackNormal'), ('combo_maritalstatus', 'wxComboBox'), ('txt_occupation', 'TextBox_BlackNormal'), ('txt_countryofbirth', 'TextBox_BlackNormal'), ('btn_browseNOK', 'wxButton'), ('txt_nameNOK', 'wxTextCtrl'), ('txt_homephone', 'TextBox_BlackNormal'), ('txt_workphone', 'TextBox_BlackNormal'), ('txt_fax', 'TextBox_BlackNormal'), ('txt_email', 'TextBox_BlackNormal'), ('txt_web', 'TextBox_BlackNormal'), ('txt_mobile', 'TextBox_BlackNormal'), ('cb_addressresidence', 'wxCheckBox'), ('cb_addresspostal', 'wxCheckBox'), ('btn_photo_import', 'wxButton'), ('btn_photo_export', 'wxButton'), ('btn_photo_aquire', 'wxButton'), ('txt_findpatient', 'wxComboBox'), ('txt_age', 'wxTextCtrl'), ('txt_allergies', 'wxTextCtrl'), ('combo_consultation_type', 'wxComboBox')]
 
 
 class gmDemographics_handler:
@@ -77,8 +77,18 @@ class gmDemographics_handler:
 		
 
 		id = wxNewId()
+		self.panel.txt_surname.SetId(id)
+		self.id_map['txt_surname'] = id
+		
+
+		id = wxNewId()
 		self.panel.combo_title.SetId(id)
 		self.id_map['combo_title'] = id
+		
+
+		id = wxNewId()
+		self.panel.txt_firstname.SetId(id)
+		self.id_map['txt_firstname'] = id
 		
 
 		id = wxNewId()
@@ -92,13 +102,43 @@ class gmDemographics_handler:
 		
 
 		id = wxNewId()
+		self.panel.txt_preferred.SetId(id)
+		self.id_map['txt_preferred'] = id
+		
+
+		id = wxNewId()
 		self.panel.txt_address.SetId(id)
 		self.id_map['txt_address'] = id
 		
 
 		id = wxNewId()
+		self.panel.txt_suburb.SetId(id)
+		self.id_map['txt_suburb'] = id
+		
+
+		id = wxNewId()
+		self.panel.txt_zip.SetId(id)
+		self.id_map['txt_zip'] = id
+		
+
+		id = wxNewId()
+		self.panel.txt_birthdate.SetId(id)
+		self.id_map['txt_birthdate'] = id
+		
+
+		id = wxNewId()
 		self.panel.combo_maritalstatus.SetId(id)
 		self.id_map['combo_maritalstatus'] = id
+		
+
+		id = wxNewId()
+		self.panel.txt_occupation.SetId(id)
+		self.id_map['txt_occupation'] = id
+		
+
+		id = wxNewId()
+		self.panel.txt_countryofbirth.SetId(id)
+		self.id_map['txt_countryofbirth'] = id
 		
 
 		id = wxNewId()
@@ -109,6 +149,36 @@ class gmDemographics_handler:
 		id = wxNewId()
 		self.panel.txt_nameNOK.SetId(id)
 		self.id_map['txt_nameNOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.txt_homephone.SetId(id)
+		self.id_map['txt_homephone'] = id
+		
+
+		id = wxNewId()
+		self.panel.txt_workphone.SetId(id)
+		self.id_map['txt_workphone'] = id
+		
+
+		id = wxNewId()
+		self.panel.txt_fax.SetId(id)
+		self.id_map['txt_fax'] = id
+		
+
+		id = wxNewId()
+		self.panel.txt_email.SetId(id)
+		self.id_map['txt_email'] = id
+		
+
+		id = wxNewId()
+		self.panel.txt_web.SetId(id)
+		self.id_map['txt_web'] = id
+		
+
+		id = wxNewId()
+		self.panel.txt_mobile.SetId(id)
+		self.id_map['txt_mobile'] = id
 		
 
 		id = wxNewId()
@@ -172,9 +242,17 @@ class gmDemographics_handler:
 			self.id_map['combo_relationship'],\
 			self.combo_relationship_text_entered)
 
+		EVT_TEXT(self.panel.txt_surname,\
+			self.id_map['txt_surname'],\
+			self.txt_surname_text_entered)
+
 		EVT_TEXT(self.panel.combo_title,\
 			self.id_map['combo_title'],\
 			self.combo_title_text_entered)
+
+		EVT_TEXT(self.panel.txt_firstname,\
+			self.id_map['txt_firstname'],\
+			self.txt_firstname_text_entered)
 
 		EVT_TEXT(self.panel.combo_sex,\
 			self.id_map['combo_sex'],\
@@ -184,13 +262,37 @@ class gmDemographics_handler:
 			self.id_map['cb_preferredname'],\
 			self.cb_preferredname_checkbox_clicked)
 
+		EVT_TEXT(self.panel.txt_preferred,\
+			self.id_map['txt_preferred'],\
+			self.txt_preferred_text_entered)
+
 		EVT_TEXT(self.panel.txt_address,\
 			self.id_map['txt_address'],\
 			self.txt_address_text_entered)
 
+		EVT_TEXT(self.panel.txt_suburb,\
+			self.id_map['txt_suburb'],\
+			self.txt_suburb_text_entered)
+
+		EVT_TEXT(self.panel.txt_zip,\
+			self.id_map['txt_zip'],\
+			self.txt_zip_text_entered)
+
+		EVT_TEXT(self.panel.txt_birthdate,\
+			self.id_map['txt_birthdate'],\
+			self.txt_birthdate_text_entered)
+
 		EVT_TEXT(self.panel.combo_maritalstatus,\
 			self.id_map['combo_maritalstatus'],\
 			self.combo_maritalstatus_text_entered)
+
+		EVT_TEXT(self.panel.txt_occupation,\
+			self.id_map['txt_occupation'],\
+			self.txt_occupation_text_entered)
+
+		EVT_TEXT(self.panel.txt_countryofbirth,\
+			self.id_map['txt_countryofbirth'],\
+			self.txt_countryofbirth_text_entered)
 
 		EVT_BUTTON(self.panel.btn_browseNOK,\
 			self.id_map['btn_browseNOK'],\
@@ -199,6 +301,30 @@ class gmDemographics_handler:
 		EVT_TEXT(self.panel.txt_nameNOK,\
 			self.id_map['txt_nameNOK'],\
 			self.txt_nameNOK_text_entered)
+
+		EVT_TEXT(self.panel.txt_homephone,\
+			self.id_map['txt_homephone'],\
+			self.txt_homephone_text_entered)
+
+		EVT_TEXT(self.panel.txt_workphone,\
+			self.id_map['txt_workphone'],\
+			self.txt_workphone_text_entered)
+
+		EVT_TEXT(self.panel.txt_fax,\
+			self.id_map['txt_fax'],\
+			self.txt_fax_text_entered)
+
+		EVT_TEXT(self.panel.txt_email,\
+			self.id_map['txt_email'],\
+			self.txt_email_text_entered)
+
+		EVT_TEXT(self.panel.txt_web,\
+			self.id_map['txt_web'],\
+			self.txt_web_text_entered)
+
+		EVT_TEXT(self.panel.txt_mobile,\
+			self.id_map['txt_mobile'],\
+			self.txt_mobile_text_entered)
 
 		EVT_CHECKBOX(self.panel.cb_addressresidence,\
 			self.id_map['cb_addressresidence'],\
@@ -254,10 +380,22 @@ class gmDemographics_handler:
 		print "combo_relationship_text_entered received ", event
 			
 
+	def txt_surname_text_entered( self, event):
+		pass
+
+		print "txt_surname_text_entered received ", event
+			
+
 	def combo_title_text_entered( self, event):
 		pass
 
 		print "combo_title_text_entered received ", event
+			
+
+	def txt_firstname_text_entered( self, event):
+		pass
+
+		print "txt_firstname_text_entered received ", event
 			
 
 	def combo_sex_text_entered( self, event):
@@ -272,16 +410,52 @@ class gmDemographics_handler:
 		print "cb_preferredname_checkbox_clicked received ", event
 			
 
+	def txt_preferred_text_entered( self, event):
+		pass
+
+		print "txt_preferred_text_entered received ", event
+			
+
 	def txt_address_text_entered( self, event):
 		pass
 
 		print "txt_address_text_entered received ", event
 			
 
+	def txt_suburb_text_entered( self, event):
+		pass
+
+		print "txt_suburb_text_entered received ", event
+			
+
+	def txt_zip_text_entered( self, event):
+		pass
+
+		print "txt_zip_text_entered received ", event
+			
+
+	def txt_birthdate_text_entered( self, event):
+		pass
+
+		print "txt_birthdate_text_entered received ", event
+			
+
 	def combo_maritalstatus_text_entered( self, event):
 		pass
 
 		print "combo_maritalstatus_text_entered received ", event
+			
+
+	def txt_occupation_text_entered( self, event):
+		pass
+
+		print "txt_occupation_text_entered received ", event
+			
+
+	def txt_countryofbirth_text_entered( self, event):
+		pass
+
+		print "txt_countryofbirth_text_entered received ", event
 			
 
 	def btn_browseNOK_button_clicked( self, event):
@@ -294,6 +468,42 @@ class gmDemographics_handler:
 		pass
 
 		print "txt_nameNOK_text_entered received ", event
+			
+
+	def txt_homephone_text_entered( self, event):
+		pass
+
+		print "txt_homephone_text_entered received ", event
+			
+
+	def txt_workphone_text_entered( self, event):
+		pass
+
+		print "txt_workphone_text_entered received ", event
+			
+
+	def txt_fax_text_entered( self, event):
+		pass
+
+		print "txt_fax_text_entered received ", event
+			
+
+	def txt_email_text_entered( self, event):
+		pass
+
+		print "txt_email_text_entered received ", event
+			
+
+	def txt_web_text_entered( self, event):
+		pass
+
+		print "txt_web_text_entered received ", event
+			
+
+	def txt_mobile_text_entered( self, event):
+		pass
+
+		print "txt_mobile_text_entered received ", event
 			
 
 	def cb_addressresidence_checkbox_clicked( self, event):
