@@ -19,7 +19,7 @@ cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -181,7 +181,7 @@ def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', aud
 	schema = []
 
 	# insert
-	#  audit triggers are named "zzt_*" to make
+	#  audit triggers are named "zt_*" to make
 	#  reasonably sure they are executed last
 	func_name_insert = 'ft_ins_%s' % (audited_table)
 	trigger_name_insert = 'zt_ins_%s' % (audited_table)
@@ -222,7 +222,7 @@ def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', aud
 
 	return schema
 #------------------------------------------------------------------
-def create_audit_schema(aCursor, audit_marker_table = 'audit_mark', audit_parent_table = 'audit_log'):
+def create_audit_schema(aCursor, audit_marker_table = 'audit_mark', audit_parent_table = 'audit_log', audit_prefix = 'log_'):
 	# get list of all derived tables
 	tables2audit = get_children(aCursor, audit_marker_table)
 
@@ -231,17 +231,18 @@ def create_audit_schema(aCursor, audit_marker_table = 'audit_mark', audit_parent
 	for audited_table in tables2audit:
 		# fail if corresponding audit trail table does not exist
 		if not audit_trail_table_exists(aCursor, audited_table[0]):
+			_log.Log(gmLog.lErr, 'cannot verify audit trail table [%s]' % audited_table[0])
 			return None
 		# create corresponding triggers
-		schema.extend(trigger_schema(aCursor, audited_table[0], audit_parent_table))
+		schema.extend(trigger_schema(aCursor, audited_table[0], audit_parent_table, audit_prefix))
 		schema.append('-- ----------------------------------------------')
 	return schema
 #==================================================================
 # main
 #------------------------------------------------------------------
 if __name__ == "__main__" :
-	audit_marker_table = raw_input("name of audit marker table   : ")
-	audit_parent_table = raw_input("name of auditing parent table: ")
+	audit_marker_table = raw_input("name of audit marker table      : ")
+	audit_parent_table = raw_input("name of audit trail parent table: ")
 
 	dbpool = gmPG.ConnectionPool()
 	conn = dbpool.GetConnection('default')
@@ -263,7 +264,11 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.6  2003-05-17 18:43:24  ncq
+# Revision 1.7  2003-05-22 12:54:48  ncq
+# - update comments
+# - make audit prefix configurable
+#
+# Revision 1.6  2003/05/17 18:43:24  ncq
 # - make triggers zt* so other things (like notify triggers) can easier run afterwards as, say zzt*
 #
 # Revision 1.5  2003/05/15 10:18:32  ncq
