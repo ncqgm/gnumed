@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1073,6 +1073,7 @@ def bootstrap_services():
 			return None
 		if not service.register():
 			return None
+		print "bootstrapped service [%s] ..." % service_alias
 	return 1
 #--------------------------------------------------------------
 def bootstrap_auditing():
@@ -1304,7 +1305,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.38  2003-11-28 10:00:41  ncq
+# Revision 1.39  2003-12-02 00:10:20  ncq
+# - be slightly more talkative on the console
+#
+# Revision 1.38  2003/11/28 10:00:41  ncq
 # - add "notification disable" option
 # - update template conf file
 # - use notification schema generator in bootstrapper
