@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -7,13 +7,13 @@ __copyright__ = __author__
 import time
 
 from wxPython.wx import *
-from wxPython.calendar import *
-from wxPython.utils import *
+#from wxPython.calendar import *
+#from wxPython.utils import *
 
 import gettext
 _ = gettext.gettext
 
-import gmDoctorsSchedulePnl
+import gmDoctorsSchedulePnl, gmCalendarDlg
 
 ID_BTN_CALENDAR = wxNewId()
 ID_BTN_TODAY = wxNewId()
@@ -100,7 +100,13 @@ class ScheduleAllDoctorsPnl(wxPanel):
 		self.SetDate(self.date)
 
 	def OnCalendar(self, evt):
-		pass
+		d=gmCalendarDlg.PopupCalendar(self, -1, "Select a date:")
+		retval = d.ShowModal() # Shows it
+		if retval == 1:
+			date = d.GetSelection()
+			self.SetDate(time.strptime(date, "%Y-%m-%d"))
+		d.Destroy() # finally destroy it when finished.
+
 
 	def SetDate(self, date=None):
 		self.date = date

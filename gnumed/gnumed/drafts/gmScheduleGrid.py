@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -162,6 +162,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		self.moveTo = None
 		self.idx_date2column={}
 		self.idx_column2date={}
+		self.idx_column2weekday = {}
 		self.idx_time2row={}
 		self.idx_row2time={}
 		#list of day-of-week indices, starting with Monday=0
@@ -177,6 +178,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		self.clr_blocked = wxLIGHT_GREY
 		self.clr_today = wxColour(255,255,125)
 		self.clr_selected_day = wxColour(190,225,255)
+		self.clr_weekend = wxColour(240,210, 210)
 
 		self.MakeGrid()
 		self.GoToDateTime()
@@ -213,22 +215,8 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		"""returns column representing a given date
 		IF that column is actually displayed currently,
 		else return the first displayed column"""
-		sd = self.Date
-		start = time.mktime(self.Date)
-		wanted = time.mktime(date)
-		delta = (wanted-start)/86400
-		if delta > 0 and delta <= self.days :
-			print "Delta = %d" % delta
-			return delta
-		else:
-			"Print date out of displayed range"
-			return 0
+		return self.idx_date2column[IsoDate(date)]
 
-	def ISODateToColumn(self, iso_date):
-		"""see DateToColumn; accepts a ISO formatted date string as parameter"""
-		#print iso_date
-		print "ISODateToColumn", iso_date
-		return self.DateToColumn(time.strptime(iso_date, "%Y-%m-%d"))
 
 
 	def TimeToRow(self, date):
@@ -242,18 +230,8 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 			minutes=0
 			hours+=1
 		label = "%02d:%02d" % (hours, minutes)
-		index=0
-		for lbl in self.timelabels:
-			if label==lbl:
-				break
-			index+=1
-		if index>=len(self.timelabels):
-			index = len(self.timelabels)-1
-		return index
+		return self.idx_time2row(label)
 
-	def ISOTimeToRow(self, iso_time):
-		"""see TimeToRow; accepts a ISO formatted time string as parameter"""
-		return self.TimeToRow(time.strptime(iso_time, "%H:%M:%S"))
 
 
 	def GoToDateTime(self, datetime=None):
@@ -285,116 +263,103 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 	def SetDoctor(self, id):
 		self.doctor_id = id
 
-	def MakeGrid(self):
+	def CreateLabels(self):
+		"""Create adequate labels for rows and columns.
+		Create a dictionary for fast & efficient mapping
+		of rows and columns to time and date"""
 
+		#label the columns
 		self.weekdaylabels = DayOfWeekLabels(self.Date, self.days)
-
 		for column in range(self.days):
-			date = IsoDate(self.AddDays(column))
-			self.idx_date2column[date] = column
-			self.idx_column2date[column] = date
+			date = self.AddDays(column)
+			isodate = IsoDate(date)
+			self.idx_date2column[isodate] = column
+			self.idx_column2date[column] = isodate
+			self.idx_column2weekday[column] = DayOfWeek(date)
+			self.SetColLabelValue(column, self.weekdaylabels[column])
 
+		#label the rows
 		self.timelabels = TimeLabels(self.hour_start, self.hour_end, self.session_interval, self.exclude)
-
 		for row in range(len(self.timelabels)):
 			self.idx_time2row[self.timelabels[row]]=row
 			self.idx_row2time[row]=self.timelabels[row]
+			self.SetRowLabelValue(row, self.timelabels[row])
 
+
+
+	def MakeGrid(self):
+		#self.SetInterval()
+		self.CreateLabels()
 		self.CreateGrid(len(self.timelabels), len(self.weekdaylabels))
-
 		#label the rows with default values
-		self.SetInterval()
+
 		#label the columns with default values
+		self.SetDate(self.Date, recreate=0)
+
+
+	def Recreate(self, interval = None):
+		if interval is not None:
+			self.session_interval = interval
 		self.SetDate(self.Date)
 
 
-	def Recreate(self):
-		print "called recreate"
-		self.SetDate(self.Date)
 
-
-	def SetInterval(self, start=None, end=None, interval=None, exclude=None):
-		if start is not None: self.hour_start = start
-		if end is not None: self.hour_end = end
-		if interval is not None: self.session_interval = interval
-		if exclude is not None: self.exclude=exclude
-
-		#label the rows
-		self.timelabels = TimeLabels(start=self.hour_start, end=self.hour_end, 
-			interval=self.session_interval, exclude=self.exclude)
-		index=0
-		for index in range(len(self.timelabels)):
-			self.SetRowLabelValue(index, self.timelabels[index])
-
+	def SetColumnColour(self, column, colour):
+		"""Replavcement for SetColAttr which causes incidental segfaults"""
+		for row in range(len(self.timelabels)):
+			self.SetCellBackgroundColour(row, column, colour)
 
 	def SetColumnColours(self):
 		#mark today in special colours
-		today_attr = wxGridCellAttr()
-		today_attr.SetBackgroundColour(self.clr_today)
-		blocked_attr = wxGridCellAttr()
-		blocked_attr.SetBackgroundColour(self.clr_blocked)
-		now = time.time()
-		start = time.mktime(self.Date)
-		delta = (now-start)/86400
-		if delta > 0 and delta < self.days:
-			if DayOfWeek() in self.blocked_days:
-				self.SetColAttr(0, blocked_attr)
-				return
-			#we are displaying the current week,
-			#so today must be the first day displayed
-			self.SetColAttr(0, today_attr)
+		#today_attr = wxGridCellAttr()
+		#today_attr.SetBackgroundColour(self.clr_today)
+		#blocked_attr = wxGridCellAttr()
+		#blocked_attr.SetBackgroundColour(self.clr_blocked)
+		#weekend_attr = wxGridCellAttr()
+		#weekend_attr.SetBackgroundColour(wxCYAN)
 
+		try:
+			#is today displayed?
+			col_today = self.idx_date2column[IsoDate(time.localtime())]
+			#self.SetColAttr(col_today, today_attr)
+			self.SetColumnColour(col_today, self.clr_today)
 
-
-
-
-	def BlockDate(self, blocked_date):
-		start = time.mktime(self.Date)
-		blocked = time.mktime(blocked_date)
-		delta = (blocked-start)/86400
-		if delta>0 and delta <self.days:
-			attr = wxGridCellAttr()
-			attr.SetBackgroundColour(self.clr_blocked)
-			self.SetColAttr(delta, attr)
+		except:
+			pass
+		start = self.Date
+		#mark all "blocked" days and weekends
+		for day in range(self.days):
+			wd = self.idx_column2weekday[day]
+			if wd in (5,6):
+				self.SetColumnColour(day, self.clr_weekend)
+			if wd in self.blocked_days:
+				self.SetColumnColour(day, self.clr_blocked)
 
 
 
 	def BlockDay(self, weekday):
+		"""Append a 'not-available' day to the list of blocked days"""
 		if weekday not in self.blocked_days:
 			self.blocked_days.append(weekday)
-		start = DayOfWeek(self.Date)
-		dow = start
-		for index in range(self.days):
-			if dow>6:
-				dow=0
-			if weekday == dow:
-				date = time.localtime(time.mktime(self.Date)+index*86400)
-				self.BlockDate(date)
-			dow+=1
 
 
-	def SetDate(self, date):
+
+	def SetDate(self, date, recreate=0):
+		"""Change the startig date of the schedule display"""
 		self.Date=date
-		#set the columns
+		self.CreateLabels()
+		#regenerate the columns
 		self.DeleteCols(0, self.GetNumberCols())
 		self.AppendCols(self.days)
-		self.weekdaylabels = DayOfWeekLabels(self.Date, self.days)
-		index=0
-		for index in range(len(self.weekdaylabels)):
-			self.SetColLabelValue(index, self.weekdaylabels[index])
-		#set the rows
+		#regenerate the rows
 		self.DeleteRows(0, self.GetNumberRows())
 		self.AppendRows(len(self.timelabels))
-		#label the rows with default values
-		self.SetInterval()
-		#label the columns with default values
 		self.SetColumnColours()
-		#dow = DayOfWeek(self.Date)
-		#scroll if neccessary so that the selected dat is visible
-		#self.MakeCellVisible(dow, 1)
 		self.UpdateData()
 
+
 	def AddDays(self, days, date=None):
+		"""Add 'days' to 'date' and return the result in standard (tuple) date format"""
 		if date==None:
 			date=self.Date
 		start = time.mktime(date)
@@ -402,17 +367,14 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 
 	def GetCellDate(self, column):
+		"""return the date tuple corresponding to a column"""
 		date = self.Date
-		#delete hours, minutes, seconds - we only want the date, not the time
 		return self.AddDays(column, date)
 
 
 	def GetCellTime(self, row):
+		"""return the time corresponding to a row"""
 		return self.GetRowLabelValue(row)
-		#parse time string in label (format hh:mm)
-		#hm = string.split(tstr, ":")
-		#return time in seconds
-		#return (int(hm[0])*360) + (int(hm[1])*60)
 
 
 	def GetCellDateTime(self, row, column):

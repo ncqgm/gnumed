@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -91,10 +91,8 @@ class DoctorsSchedulePnl(wxPanel):
 				self.interval=15
 		except:
 			self.interval=15
-		self.schedule.SetInterval(interval=self.interval)
-		print "Recreating schedule"
-		self.schedule.Recreate()
-		print "Blocking days", doctor_id
+		#self.schedule.SetInterval(interval=self.interval)
+		self.schedule.Recreate(interval = self.interval)
 		self.BlockDays(doctor_id)
 
 
