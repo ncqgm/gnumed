@@ -6,6 +6,8 @@ cvs -z3 -d<username>@savannah.gnu.org/cvsroot/gnumed checkout gnumed/gnumed/test
 This works, but only if run at the root of the local copy of the cvs gnumed tree, othewise
 mv gnumed/gnumed/test-area/sjtan/test-struts-3 ../sjtan/test-struts-3 works , if in the
 sjtan directory, then remove the gnumed/gnumed .. directory.
+then add in the CVS/Entries file ( in test-area/sjtan/CVS ) D/test-struts-3/////
+
 
 
 
