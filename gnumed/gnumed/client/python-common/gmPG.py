@@ -29,7 +29,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -279,7 +279,7 @@ class ConnectionPool:
 	def __connect(self, login):
 		"initialize connection to all neccessary servers"
 
-		if login==None and ConnectionPool.__connected is None:
+		if login is None and ConnectionPool.__connected is None:
 			try:
 				login = inputLoginParams()
 				print login.GetDBAPI_DSN()
@@ -356,6 +356,8 @@ class ConnectionPool:
 		else:
 			dsn = login.GetDBAPI_DSN()
 			hostport = "0"
+
+		_log.Log(gmLog.lData, 'connecting with parameters: %s' % login.GetInfoStr())
 
 		try:
 			if _isPGDB:
@@ -632,7 +634,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.31  2003-01-16 14:45:04  ncq
+# Revision 1.32  2003-02-07 14:23:48  ncq
+# - == None -> is None
+#
+# Revision 1.31  2003/01/16 14:45:04  ncq
 # - debianized
 #
 # Revision 1.30  2003/01/06 14:35:02  ncq
