@@ -11,9 +11,9 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten.Hilbert@gmx.net"
-__license__ = "GPL"		# (details at http://www.gnu.org)
+__license__ = "GPL (details at http://www.gnu.org)"
 
 import sys, os.path, string
 
@@ -28,7 +28,7 @@ _log.Log(gmLog.lInfo, __version__)
 # SQL statements for notification triggers
 #------------------------------------------------------------------
 trigger_schema = """
-create function f_announce_%(sig)s_mod() returns opaque as '
+create function trf_announce_%(sig)s_mod() returns opaque as '
 declare
 	episode_id integer;
 	patient_id integer;
@@ -44,17 +44,20 @@ begin
 		from v_pat_episodes vpep
 		where vpep.pk_episode = episode_id
 		limit 1;
+	if not found then
+		raise exception ''trf_announce_%(sig)s_mod(): cannot find patient for episode [%%]'', episode_id;
+	end if;
 	-- now, execute() the NOTIFY
 	execute ''notify "%(sig)s_mod_db:'' || patient_id || ''"'';
 	return NULL;
 end;
 ' language 'plpgsql';
 
-create trigger TR_%(sig)s_mod
+create trigger tr_%(sig)s_mod
 	after insert or delete or update
 	on %(tbl)s
 	for each row
-		execute procedure F_announce_%(sig)s_mod()
+		execute procedure trf_announce_%(sig)s_mod()
 ;
 """
 #------------------------------------------------------------------
@@ -101,7 +104,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.9  2004-09-17 20:57:12  ncq
+# Revision 1.10  2004-11-24 15:38:07  ncq
+# - improve generated change triggers
+#
+# Revision 1.9  2004/09/17 20:57:12  ncq
 # - use lowercase since things will be lowercase anyways
 #
 # Revision 1.8  2004/07/17 21:23:49  ncq
