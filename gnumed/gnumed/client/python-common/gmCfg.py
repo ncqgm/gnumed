@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -295,7 +295,7 @@ class cCfgFile:
 				_log.Log(gmLog.lErr, "Config file [%s] not found. Aborting." % self.cfgName)
 				return None
 		else:
-			_log.Log(gmLog.lInfo, "No config file given on command line. Format: --conf-file=<config file>")
+			_log.Log(gmLog.lData, "No config file given on command line. Format: --conf-file=<config file>")
 
 		# now make base path components
 		if aName == None:
@@ -535,6 +535,9 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.6  2002-09-08 15:55:47  ncq
+# Revision 1.7  2002-09-10 17:51:33  ncq
+# - more sensible log levels for some data
+#
+# Revision 1.6  2002/09/08 15:55:47  ncq
 # - added log cvs keyword
 #
