@@ -133,10 +133,23 @@ CREATE TABLE queries (
 	name char(40),
 	db INT REFERENCES DB,
 	query text
-)
+);
 
 -- ==================================================================================
 -- Tables for client-side configuration, storing options for the various users
+
+CREATE TABLE config_type (
+       id SERIAL PRIMARY KEY,
+       name VARCHAR (20)
+);
+
+insert into config_type values (1, 'boolean');
+insert into config_type values (2, 'range');
+insert into config_type values (3, 'selection');
+insert into config_type values (4, 'string');
+insert into config_type values (5, 'colour');
+insert into config_type values (6, 'font');
+
 
 CREATE TABLE config_desc (
        id SERIAL,
@@ -150,18 +163,6 @@ CREATE TABLE config_desc (
 
 insert into config_desc (name, type, sys_def, def) values ('main.notebook', 1, 1, 1);
 insert into config_desc (name, type, ancestor) values ('notebook2', 1, 1);
-
-CREATE TABLE config_type (
-       id SERIAL PRIMARY KEY,
-       name VARCHAR (20)
-);
-
-insert into config_type values (1, 'boolean');
-insert into config_type values (2, 'range');
-insert into config_type values (3, 'selection');
-insert into config_type values (4, 'string');
-insert into config_type values (5, 'colour');
-insert into config_type values (6, 'font');
 
 
 -- values possible for a selection type variable
