@@ -72,7 +72,7 @@ COMMENT ON TABLE state IS
 'state codes (country specific)';
 
 COMMENT ON COLUMN state.code IS
-'3 character long state code';
+'state code';
 
 COMMENT ON COLUMN state.country IS
 '2 character ISO 3166-1 country code';
@@ -87,7 +87,8 @@ COMMENT ON COLUMN country.deprecated IS
 create table urb (
         id serial primary key,
         statecode int references state(id),
-        postcode char(8),
+        postcode char(8), 
+	-- this does not work in the UK! Seperate postcodes for each street
         name varchar(60)
 ) inherits (audit_gis);
 
@@ -98,7 +99,7 @@ COMMENT ON COLUMN urb.statecode IS
 'reference to information about country and state';
 
 COMMENT ON COLUMN urb.postcode IS
-'the postcode';
+'the postcode (if applicable';
 
 COMMENT ON COLUMN urb.name IS
 'the name of the city/town/dwelling';
@@ -110,7 +111,8 @@ COMMENT ON COLUMN urb.name IS
 create table street (
         id serial primary key,
         id_urb integer references urb not null,
-        name varchar(60)
+        name varchar(60),
+	postcode char (10), -- for UK (or similar) postcodes
 ) inherits (audit_gis);
 
 COMMENT ON TABLE street IS
@@ -121,6 +123,9 @@ COMMENT ON COLUMN street.id_urb IS
 
 COMMENT ON COLUMN street.name IS
 'name of this street';
+
+COMMENT ON COLUMN street.postcode IS
+'postcode for systems (such as UK Royal Mail) which specify the street.';
 
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

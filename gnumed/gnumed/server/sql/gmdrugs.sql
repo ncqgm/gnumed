@@ -86,7 +86,15 @@ CREATE TABLE amount_unit (
 );
 
 COMMENT ON TABLE amount_unit IS
-'Example: ml, each, ..';
+'Unit to measure the preparation';
+
+insert into amount_unit values (1, 'each'); -- for discrete objects:
+-- tablets, capsules, etc.
+insert into amount_unit values (2, 'gram'); -- for solid but
+-- indiscrete: powders, pastes
+insert into amount_unit values (3, 'millilitre'); -- for liquid
+-- preparations: syrups, solutions
+ 
 
 
 -- =============================================
@@ -102,6 +110,13 @@ COMMENT ON COLUMN drug_unit.is_SI IS
 
 COMMENT ON TABLE drug_unit IS
 'true if it is a System International (SI) compliant unit';
+
+insert into drug_unit values (1, 'y', 'mg');
+insert into drug_unit values (2, 'y', 'g');
+insert into drug_unit values (3, 'y', 'ml');
+insert into drug_unit values (4, 'n', 'unit');
+insert into drug_unit values (5, 'n', 'international unit');
+
 
 
 -- =============================================
@@ -133,30 +148,32 @@ CREATE TABLE drug_package (
 	id SERIAL PRIMARY KEY,
 	max_rpts INTEGER, -- maximum repeats
 	name VARCHAR (100), -- generic name(s) 
-	description VARCHAR (100) -- extra presentation description
+	description VARCHAR (100), -- extra presentation description
+	course INTEGER -- in days, if prescription has a fixed course
+	-- (e.g. 28 for Pill, 14 for Losec HP7)
 );
 
 
 -- most packages are homogenous: all tablets are of the same type, so
--- this table has one-to-one with the previous.
+-- this table has one-to-one link with the previous.
 -- some drug 'packs', notably Losec HP7, and triphasic contraceptives,
 -- have several tablet types within the one packet, so several entries
 -- in this table for one in drug_package.
-CREATE TABLE drug_collection
+CREATE TABLE drug_series
 (
 	id SERIAL,
 	package INTEGER REFERENCES drug_package (id),	
 	presentation INTEGER REFERENCES drug_presentation (id),
 	route INTEGER REFERENCES drug_route (id),
 	amount_unit INTEGER REFERENCES amount_unit (id),
-	packsize INTEGER, -- no. of tabs, capsules, etc. in pack
-	amount FLOAT, -- actual 'amount' of drug, so 100 for 100mL bottle
+	amount FLOAT, -- actual 'amount' of drug, so 100 for 100mL
+	-- bottle, 28 for 28 tabs
 );
 
 -- Here's the money. Links substances to drugs. Obviously a drug can
--- have several substancss (hence compounds)
+-- have several substances (hence compounds)
 CREATE TABLE link_subst_drug (
-       package INTEGER REFERENCES drug_package (id),
+       series INTEGER REFERENCES drug_series (id),
        substance INTEGER REFERENCES substance (id),
        unit INTEGER REFERENCES drug_unit (id),
        amount FLOAT -- amount of drug
@@ -185,23 +202,25 @@ CREATE TABLE link_brand_package (
        price MONEY	       
 );
 
+-- Note here that several brands may link to a single drug_package
+-- entry.
+-- This may be taken to imply that the drugs are clinically
+-- interchangable.
+-- If they are not, because of adjuvant, solute or other reason, a
+-- seperate entry should exist in drug_package, and the difference
+-- noted by drug_flags below.
+
 -- =============================================
--- where does this link in?
 CREATE TABLE drug_flags (
 	id SERIAL PRIMARY KEY,
+	package INTEGER REFERENCES drug_package (id),
         description varchar(60),
         comment text
 );
 
 COMMENT ON TABLE drug_flags IS
 'important searchable information relating to a drug such as sugar
-free, gluten free, orange-floavoured, ...';
-
--- sugqestion:
-CREATE TABLE link_flag_collection (
-       flag_id INTEGER REFERENCES drug_flags(id),
-       pack_id INTEGER REFERENCES drug_collection (id)
-);
+free, gluten free, orange-flavoured, ...';
 
 -- ==============================================
 -- This is for formulary restriction imposed on the prescriber by a payor.
@@ -226,17 +245,22 @@ CREATE TABLE restriction (
 CREATE TABLE severity_code (
 	id SERIAL PRIMARY KEY,
 	code CHAR(3),
-        description text
+        description text,
+	block BOOL default 'f'
 );
 
 COMMENT ON TABLE severity_code IS
 'e.g. (contraindicated) (potentially life threatening) (not advisable) (caution) ...';
 
+COMMENT ON COLUMN severity_code.block IS
+'true indicates client should interrupt user if attempts to prescribe.';
 
 -- =============================================
 
 -- interaction between any substance or class of substances, or disease
-
+-- ideally, this refers to the physicological site of interaction,
+-- such as a cytochrome P450 enzyme, etc. Obviously for many
+-- interactions, the comment has to be 'interaction between X and Y'.
 CREATE TABLE interaction (
        id SERIAL PRIMARY KEY,
        comment text,
@@ -254,16 +278,17 @@ CREATE TABLE link_subst_interaction (
 	action CHAR DEFAULT NULL check (action in (NULL, 'S', 'I',
 	'D')),
 	-- this is for interactions mediated by enzymes or the like
-	-- S= Substrate of the enzyme 
+	-- S = Substrate of the enzyme 
 	-- I = Inhibits the enzyme
-	-- D = inDuces the enzyme 
+	-- D = inDuces the enzyme
+	-- how useful is this? 
         comment text
 );
 
 COMMENT ON COLUMN link_subst_interaction.subst_id IS 'Index of substance table';
 
 
-REATE TABLE link_class_interaction (
+CREATE TABLE link_class_interaction (
 	class_id INTEGER NOT NULL REFERENCES class (id),
 	interaction_id INTEGER NOT NULL REFERENCES interaction (id),
 	action CHAR DEFAULT NULL check (action in (NULL, 'S', 'I',
@@ -272,6 +297,8 @@ REATE TABLE link_class_interaction (
 );
 
 COMMENT ON COLUMN link_class_interaction.class_id IS 'Index of class table';
+-- this allows a class of drugs to 'inherit' the property of
+-- the interaction
 
 
 --=================================================
@@ -319,59 +346,30 @@ CREATE TABLE prescription (
 	-- Latin expressions for prescribing
 	-- mane='morning', nocte='night', bd=twice daily, tds=three times daily
 	-- qid=four times day. Are other times needed?
-
        dose FLOAT,
-       drug_unit INTEGER REFERENCES drug_unit (id),
-
+       unit INTEGER REFERENCES drug_unit (id),
+       route INTEGER REFERENCES drug_route (id),
        dose_denominator CHAR DEFAULT 'A' check (dose_denominator in
-       ('A', 'W', 'S', 'G')),
+       ('A', 'W', 'S')),
        -- A=absolute 
        -- W=by weight (kg)
        -- S=by computed surface area (m^2)
-       -- G=by GFR (ml/min). This option may be useful for some drugs
-       -- heavily dependent on renal function. GFR could be derived
-       -- from age-weight norms, or from the most recent U&E result.
-
        max_dose FLOAT, -- absolute maximum. For many drugs the
        -- 'paediatric' dose may be encoded above as 'by weight', 
        -- and the adult dose can be placed here. Smaller adults may
        -- get the calculated paediatric dose: probably a good thing.    
-
        elderly_dose FLOAT, -- some drugs (like tricyclics) reduced
        -- dose recommended in elderly 
 );
 
 -- with this table, a list of indicated drugs would appear in a sidebox
 -- when a diagnosis was entered, with interacting/contraindicated/allergic
--- drugs removed a priori. The prescriber could click on one to these to
+-- drugs removed first. The prescriber could click on one to these to
 -- bring up the prescription dialogue, pre-loaded with the drug.
 -- paediatric dosing can be automatically calculated.
 
-
--- ===============================================
-
-CREATE TABLE drug_monitoring (
-       id SERIAL,
-       subst_id INTEGER substance (id),
-       test varchar (10), -- needs to be some agreed code for path. results
-       max_result FLOAT,
-       min_result FLOAT,
-       frequency INTEGER, -- length between tests, in days.
-);		          
-
--- for drugs such as warfarin, clozapine, gentamycin, allows
--- auto-checking of the monitoring tests.
-
--- for warfarin and gentamycin, there are set methods for adjusting
--- the dose based on results:
-CREATE TABLE dose_adjustment
-(
-	subst_id INTEGER REFERENCES substance (id),
-	test VARCHAR (10),
-	script TEXT -- a Python script
-);
--- the script has a set of variables, containing the test results, the 
--- current dose, patient age/sex etc. and returns a suggested new dose.
+-- For drugs such as gentamicin and warfarin, client-side modules can 
+-- adjust dosing dsing further
 
 
 --=============================================
@@ -389,7 +387,7 @@ COMMENT ON TABLE link_disease_interaction IS
 
 
 --===============================================
--- side-effects: diseases *caused* by a substances
+-- side-effects
 -- obviously, the word 'disease' is used flexibly: 'nausea', 'diarrhoea'
 -- are symptoms, but will be listed in the table above. 
 
@@ -402,3 +400,9 @@ CREATE TABLE side_effect (
        frequency INTEGER, -- rough % of patients
        severity INTEGER REFERENCES severity_code (id)
 );
+
+
+
+
+
+
