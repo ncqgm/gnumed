@@ -12,7 +12,6 @@ for x in au de ;do
 		cat $path/$x/$y >> $target
 	done	
 
-	fi
 done
 
 
