@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/dist/Attic/make-links.sh,v $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 # GPL
 # Karsten.Hilbert@gmx.net
 
@@ -38,18 +38,21 @@ echo "=> server"
 mkdir server
 ln -vfs ~/.gnumed/gnumed-archive.conf server/gnumed-archive.conf
 ln -vfs ../../server/install.sh server/install.sh
-ln -vfs ../../server/bootstrap-gm_db_system.conf server/bootstrap-gm_db_system.conf
+ln -vfs ../../server/bootstrap-archive.conf server/bootstrap-archive.conf
 ln -vfs ../../server/README server/README
 ln -vfs ../../import/import-med_docs.py server/import-med_docs.py
 ln -vfs ../../import/remove-imported_dirs.sh server/remove-imported_dirs.sh
 ln -vfs ../../import/run-importer.sh server/run-importer.sh
 ln -vfs ../../modules server/modules
 ln -vfs ../../../../server/utils/bootstrap-gm_db_system.py server/bootstrap-gm_db_system.py
-ln -vfs ../../../../server/sql/country.specific/de/german-doc_types.sql server/german-doc_types.sql
-ln -vfs ../../../../server/sql/gmBlobs.sql server/gmBlobs.sql
-ln -vfs ../../../../server/sql/gmconfiguration.sql server/gmconfiguration.sql
-ln -vfs ../../../../server/sql/gmgis.sql server/gmgis.sql
-ln -vfs ../../../../server/sql/gmidentity.sql server/gmidentity.sql
-ln -vfs ../../../../server/sql/gmSchemaRevision.sql server/gmSchemaRevision.sql
-ln -vfs ../../../../server/sql/gmI18N.sql server/gmI18N.sql
-ln -vfs ../../../../server/sql/gmTestAccounts.sql server/gmTestAccounts.sql
+ln -vfs ../../../../server/utils/bootstrap-archive.conf.sample server/bootstrap-archive.conf.sample
+ln -vfs ../../../../server/sql server/sql
+
+#ln -vfs ../../../../server/sql/country.specific/de/german-doc_types.sql server/german-doc_types.sql
+#ln -vfs ../../../../server/sql/gmBlobs.sql server/gmBlobs.sql
+#ln -vfs ../../../../server/sql/gmconfiguration.sql server/gmconfiguration.sql
+#ln -vfs ../../../../server/sql/gmgis.sql server/gmgis.sql
+#ln -vfs ../../../../server/sql/gmidentity.sql server/gmidentity.sql
+#ln -vfs ../../../../server/sql/gmSchemaRevision.sql server/gmSchemaRevision.sql
+#ln -vfs ../../../../server/sql/gmI18N.sql server/gmI18N.sql
+#ln -vfs ../../../../server/sql/gmTestAccounts.sql server/gmTestAccounts.sql
