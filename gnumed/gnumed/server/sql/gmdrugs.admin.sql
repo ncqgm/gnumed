@@ -175,6 +175,9 @@ grant all on drug_element to group contributors;
 grant all on conditions to group contributors;
 grant all on available to group contributors;
 grant all on manufacturer to contributors;
+grant all on info_reference to contributors;
+grant all on interactions to contributors;
+grant all on adverse_effects to contributors;
 
 grant select on audit to group browsers;
 grant select on drug_dosage to group browsers;
@@ -199,16 +202,16 @@ grant select on drug_element to group browsers;
 grant select on conditions to group browsers;
 grant select on available to group browsers;
 grant select on manufacturer to browsers;
+grant select on info_reference to browsers;
+grant select on interactions to browsers;
+grant select on adverse_effects to browsers;
 
-grant select on adverse_effects to public;
 grant select on code_systems to public;
 grant select on drug_flags to public;
 grant select on drug_formulations to public;
 grant select on drug_routes to public;
 grant select on drug_units to public;
 grant select on information_topic to public;
-grant select on interactions to public;
-grant select on info_reference to public;
 grant select on drug_warning_categories to public;
 grant select on subsidies to public;
 

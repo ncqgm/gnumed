@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.23 $ $Date: 2002-11-17 14:57:27 $ $Author: ncq $
+-- $Revision: 1.24 $ $Date: 2002-11-23 01:41:05 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.23  2002-11-17 14:57:27  ncq
+-- Revision 1.24  2002-11-23 01:41:05  ihaywood
+-- dosage specific indications, denormalised package_size
+--
+-- Revision 1.23  2002/11/17 14:57:27  ncq
 -- - force on_error_stop for all scripts such that interactive fails, too
 --
 -- Revision 1.22  2002/11/11 03:17:43  ihaywood
@@ -71,14 +74,14 @@ insert into info_reference (source_category, description) values ('i', 'Rang, Da
 
 create table code_systems(
 	id serial primary key,
-	iso_country_code char(2) default '**',
+	iso_countrycode char(2) default '**',
 	name varchar(30),
 	version varchar(30),
 	revision varchar(30)
 );
 comment on table code_systems is
 'listing of disease coding systems used for drug indication listing';
-comment on column code_systems.iso_country_code is
+comment on column code_systems.iso_countrycode is
 'ISO country code of country where this code system applies. Use "**" for wildcard';
 comment on column code_systems.name is
 'name of the code systme like ICD, ICPC';
@@ -87,8 +90,18 @@ comment on column code_systems.version is
 comment on column code_systems.revision is
 'revision of the version of the coding system/classification';
 
-insert into code_systems(name, version, revision) values ('ICD', '10', 'SGBV v1.3');
-insert into code_systems(name, version) values ('ICPC', '2');
+--insert into code_systems(name, version, revision) values ('ICD', '10', 'SGBV v1.3');
+--insert into code_systems(name, version) values ('ICPC', '2');
+
+create table disease_code (
+	id serial primary key,
+	code varchar (20) unique,
+	id_system integer references code_systems (id),
+	description text
+);
+
+comment on table disease_code is
+'holds actual coding systems';
 
 
 create table drug_units (
@@ -105,6 +118,10 @@ insert into drug_units(unit) values('mg/ml');
 insert into drug_units(unit) values('U');
 insert into drug_units(unit) values('IU');
 insert into drug_units(unit) values('each');
+insert into drug_units(unit) values('mcg');
+insert into drug_units(unit) values('mcg/ml');
+insert into drug_units(unit) values('IU/ml');
+insert into drug_units(unit) values('day');
 
 create table drug_formulations(
 	id serial primary key,
@@ -128,6 +145,7 @@ insert into drug_formulations(description) values ('lotion');
 insert into drug_formulations(description) values ('suppository');
 insert into drug_formulations(description) values ('solution');
 insert into drug_formulations(description) values ('dermal patch');
+insert into drug_formulations(description) values ('kit');
 
 
 create table drug_routes (
@@ -156,22 +174,18 @@ insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.'
 
 create table drug_element (
 	id serial primary key,
-	category char check (category in ('t', 'p', 's', 'c')),
-	description text
-) inherits (audited_table);
+	category char check (category in ('t', 'p', 's', 'c'))
+);
 
 comment on table drug_element is 'collection of all drug elements: classes, compounds, and substances';
 
 comment on column drug_element.category is 't = therapeutic class, p = pharmaceutical class, s = substance, c = compound';
-
 create view drug_class as select * from drug_element where category = 't' or category = 'p';
 
 comment on view drug_class is
 'drug classes of specified categories';
 comment on column drug_class.category is
 'category of this class (t = therapeutic class, s = substance class)';
-comment on column drug_class.description is
-'name of this drug class (depending on category: beta blocker, antihistamine ...)';
 
 
 create table drug_warning_categories(
@@ -253,40 +267,17 @@ comment on column generic_drug.is_compound is
 create table generic_drug_name(
 	id serial primary key,
 	id_drug integer references drug_element (id),
-	name varchar(60),
+	name varchar(60) unique,
 	comment text
 );
 comment on table generic_drug_name is
 'this table allows synonyms / dictionary functionality for generic drug names';
 comment on column generic_drug_name.name is
-'the generic name of this drug';
+'the generic name of this drug, must be unique';
 
 \unset ON_ERROR_STOP
 drop function get_drug_name (integer);
 \set ON_ERROR_STOP 1
-
-create function get_drug_name (integer) returns text as '
-r = plpy.execute ("select category = ''p'' or category = ''t'' as is_drug, description from drug_element where id = %s" % args[0])
-if r[0]["is_drug"] == "t":
- return r[0]["description"]
-else:
- # drug name linked to country "**"
- r = plpy.execute ("select name from generic_drug_name, link_country_drug_name where iso_countrycode = ''**'' and id_drug_name = generic_drug_name.id and id_drug = %s" % args[0])
- if len (r) > 0:
-  return r[0]["name"]
- # drug name linked to no country
- r = plpy.execute ("select name from generic_drug_name where id_drug = %s and not exists (select * from link_country_drug_name where id_drug_name = generic_drug_name.id)" % args[0])
- if len (r) > 0:
-  return r[0]["name"]
- # in desperation, ANY drug name
- r = plpy.execute ("select name from generic_drug_name where id_drug = %s" % args[0])
- if len (r) > 0:
-  return r[0]["name"]
- else:
-  return "NONAME"
-' language 'plpython';
-
-comment on function get_drug_name (integer) is 'guaranteed returns a name for a drug/class';
 
 create table link_compound_generics(
 	id_compound integer references drug_element(id) not null,
@@ -305,17 +296,31 @@ create index idx_link_country_drug_name on link_country_drug_name(iso_countrycod
 comment on table link_country_drug_name is
 'indicates in which country a specific generic drug name is in use. ''**'' marks the international name';
 
+create function get_drug_name (integer) returns varchar (60) as
+'select coalesce (
+(select name from generic_drug_name, link_country_drug_name where 
+	iso_countrycode = ''**'' and 
+	id_drug_name = generic_drug_name.id and 
+	id_drug = $1), 
+(select name from generic_drug_name where 
+id_drug = $1 and 
+not exists (select * from link_country_drug_name where id_drug_name = generic_drug_name.id)),
+(select name from generic_drug_name where id_drug = $1),
+''NONAME'')' language 'sql';
+
+comment on function get_drug_name (integer) is 'guaranteed returns a name for a drug/class';
+
 create table drug_dosage(
 	id serial,
 	id_drug integer references drug_element (id),
 	id_drug_warning_categories integer references drug_warning_categories(id) default NULL,
 	id_info_reference integer references info_reference(id),
-	id_drug_route integer references drug_routes (id),
+	id_route integer references drug_routes (id),
 	dosage_hints text
 );
 
 comment on table drug_dosage is
-'A table linking drugs to dosage recommendations. This is the old link_drug_dosage. Refers to drugs, both compounds and single-substances.';
+'This is a drug-dose-route tuple. For dosage recommadations, and the basis for products and subsidies.';
 comment on column drug_dosage.id_drug_warning_categories is
 'indicates whether this dosage is targeted for specific patients, like paediatric or renal impairment';
 comment on column drug_dosage.dosage_hints is
@@ -369,10 +374,21 @@ create index idx_link_drug_information on link_drug_information(id_drug, id_info
 comment on table link_drug_information is
 'A many-to-many pivot table linking product information to drugs';
 
+create table severity_level
+(
+	id serial,
+	description varchar (100)
+);
+
+insert into severity_level values (0, 'irrelevant');
+insert into severity_level values (1, 'trivial');
+insert into severity_level values (2, 'minor');
+insert into severity_level values (3, 'major');
+insert into severity_level values (4, 'critical');
 
 create table adverse_effects(
 	id serial primary key,
-	severity integer,
+	severity integer references severity_level (id),
 	description text
 );
 comment on table adverse_effects is
@@ -408,7 +424,7 @@ comment on column link_drug_adverse_effects.important is
 
 create table interactions(
 	id serial primary key,
-	severity integer,
+	severity integer references severity_level (id),
 	description text,
 	comment text
 );
@@ -440,8 +456,7 @@ comment on table link_drug_interactions is
 create table link_drug_disease_interactions(
 	id serial,
 	id_drug integer references drug_element(id),
-	id_code_system integer references code_systems(id),
-	disease_code char(20),
+	diseasecode varchar (20) references disease_code(code),
 	id_interaction integer references interactions(id),
 	comment text
 );
@@ -451,20 +466,25 @@ comment on table link_drug_disease_interactions is
 
 create table product(
 	id serial primary key,
-	id_drug integer references drug_element(id),
+	id_drug integer references drug_element (id),
 	id_formulation integer references drug_formulations(id),
 	id_packing_unit integer references drug_units(id),
 	id_route integer references drug_routes (id),
-	package_size float,
 	comment text
 );
 comment on table product is
 'dispensable form of a generic drug including strength, package size etc';
-comment on column product.packing_unit is
-'unit of drug "entities" as packed: for tablets and similar discrete formulations it should be the id of "each"';
-comment on column product.package_size is
-'the number of packing_units of this drug in this package';
+comment on column product.id_packing_unit is
+'unit of drug "entities" as packed: for tablets and similar discrete formulations it should be the id of "each", for fized-course kits it should be the id of "day"';
 
+create table package_size
+(
+	id_product integer references product (id),
+	size float
+);
+
+comment on table package_size is
+'the various packing sizes available for this product';
 
 create table link_product_component
 
@@ -477,6 +497,7 @@ create table link_product_component
 
 comment on table link_product_component  is 
 'many-to-many pivot table linking products with their components';
+
 
 create table drug_flags (
 	id serial,
@@ -601,22 +622,22 @@ comment on column subsidized_products.condition is
 'condition that must be fulfilled so that this subsidy applies';
 
 
-create table link_drug_indication(
+create table link_dosage_indication(
 	id serial primary key,
-	id_drug integer references drug_element,
-	id_code_system integer references code_systems,
-	indication_code char(20),
+	id_drug_dosage integer references drug_dosage (id),
+	diseasecode varchar (20) references disease_code (code),
 	comment text,
 	line integer
 );
 
-create index idx_drug_indication on link_drug_indication(id_drug);
-create index idx_indication_drug on link_drug_indication(indication_code);
-comment on table link_drug_indication is
-'many to many pivot table linking drugs and indications';
-comment on column link_drug_indication.indication_code is
-'code of the disease/indication in the specified code system';
-comment on column link_drug_indication.line is 'the line (first-line, second-line) of this drug for this indication'; 
+create index idx_dosage_indication on link_dosage_indication(id_drug_dosage);
+create index idx_indication_dosage on link_dosage_indication(diseasecode);
+comment on table link_dosage_indication is
+'many to many pivot table linking drug dosages and indications';
+comment on column link_dosage_indication.diseasecode is
+'link to the disease code';
+comment on column link_dosage_indication.line is 
+'the line (first-line, second-line) of this drug for this indication'; 
 
 -- -----------------------------------------
 -- we need to be able to "lock" certain drugs from prescribing and such

@@ -107,7 +107,7 @@
     <meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
   </head>
   <body>
-<p><br><br>Dumped on 2002-11-7.</p><a name="index"><h1>Index of database - gmdrugs</h1><ul><li><a name="group_public">public</a></li><ul><li><a href="#table_adverse_effects">adverse_effects</a></li><li><a href="#table_audited_table">audited_table</a></li><li><a href="#table_available">available</a></li><li><a href="#table_code_systems">code_systems</a></li><li><a href="#table_conditions">conditions</a></li><li><a href="#table_drug_dosage">drug_dosage</a></li><li><a href="#table_drug_element">drug_element</a></li><li><a href="#table_drug_flags">drug_flags</a></li><li><a href="#table_drug_formulations">drug_formulations</a></li><li><a href="#table_drug_information">drug_information</a></li><li><a href="#table_drug_routes">drug_routes</a></li><li><a href="#table_drug_units">drug_units</a></li><li><a href="#table_drug_warning">drug_warning</a></li><li><a href="#table_drug_warning_categories">drug_warning_categories</a></li><li><a href="#table_generic_drug_name">generic_drug_name</a></li><li><a href="#table_info_reference">info_reference</a></li><li><a href="#table_information_topic">information_topic</a></li><li><a href="#table_interactions">interactions</a></li><li><a href="#table_link_compound_generics">link_compound_generics</a></li><li><a href="#table_link_country_drug_name">link_country_drug_name</a></li><li><a href="#table_link_drug_adverse_effects">link_drug_adverse_effects</a></li><li><a href="#table_link_drug_class">link_drug_class</a></li><li><a href="#table_link_drug_disease_interactions">link_drug_disease_interactions</a></li><li><a href="#table_link_drug_indication">link_drug_indication</a></li><li><a href="#table_link_drug_information">link_drug_information</a></li><li><a href="#table_link_drug_interactions">link_drug_interactions</a></li><li><a href="#table_link_drug_warning">link_drug_warning</a></li><li><a href="#table_link_flag_product">link_flag_product</a></li><li><a href="#table_link_product_component">link_product_component</a></li><li><a href="#table_link_product_manufacturer">link_product_manufacturer</a></li><li><a href="#table_manufacturer">manufacturer</a></li><li><a href="#table_product">product</a></li><li><a href="#table_subsidies">subsidies</a></li><li><a href="#table_subsidized_products">subsidized_products</a></li><li><a href="#table_substance_dosage">substance_dosage</a></li><li><a href="#table_users">users</a></li><li><a href="#function_get_drug_name( integer )">get_drug_name( integer )</a></li><li><a href="#function_plpython_call_handler(  )">plpython_call_handler(  )</a></li></ul></ul><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_adverse_effects">adverse_effects</a></h2><p>listing of possible adverse effects to drugs</p><table width="100%" cellspacing="0" cellpadding="3">
+<p><br><br>Dumped on 2002-11-23.</p><a name="index"><h1>Index of database - gmdrugs</h1><ul><li><a name="group_public">public</a></li><ul><li><a href="#table_adverse_effects">adverse_effects</a></li><li><a href="#table_available">available</a></li><li><a href="#table_code_systems">code_systems</a></li><li><a href="#table_conditions">conditions</a></li><li><a href="#table_disease_code">disease_code</a></li><li><a href="#table_drug_dosage">drug_dosage</a></li><li><a href="#table_drug_element">drug_element</a></li><li><a href="#table_drug_flags">drug_flags</a></li><li><a href="#table_drug_formulations">drug_formulations</a></li><li><a href="#table_drug_information">drug_information</a></li><li><a href="#table_drug_routes">drug_routes</a></li><li><a href="#table_drug_units">drug_units</a></li><li><a href="#table_drug_warning">drug_warning</a></li><li><a href="#table_drug_warning_categories">drug_warning_categories</a></li><li><a href="#table_generic_drug_name">generic_drug_name</a></li><li><a href="#table_info_reference">info_reference</a></li><li><a href="#table_information_topic">information_topic</a></li><li><a href="#table_interactions">interactions</a></li><li><a href="#table_link_compound_generics">link_compound_generics</a></li><li><a href="#table_link_country_drug_name">link_country_drug_name</a></li><li><a href="#table_link_dosage_indication">link_dosage_indication</a></li><li><a href="#table_link_drug_adverse_effects">link_drug_adverse_effects</a></li><li><a href="#table_link_drug_class">link_drug_class</a></li><li><a href="#table_link_drug_disease_interactions">link_drug_disease_interactions</a></li><li><a href="#table_link_drug_information">link_drug_information</a></li><li><a href="#table_link_drug_interactions">link_drug_interactions</a></li><li><a href="#table_link_drug_warning">link_drug_warning</a></li><li><a href="#table_link_flag_product">link_flag_product</a></li><li><a href="#table_link_product_component">link_product_component</a></li><li><a href="#table_link_product_manufacturer">link_product_manufacturer</a></li><li><a href="#table_manufacturer">manufacturer</a></li><li><a href="#table_package_size">package_size</a></li><li><a href="#table_product">product</a></li><li><a href="#table_severity_level">severity_level</a></li><li><a href="#table_subsidies">subsidies</a></li><li><a href="#table_subsidized_products">subsidized_products</a></li><li><a href="#table_substance_dosage">substance_dosage</a></li><li><a href="#function_get_drug_name( integer )">get_drug_name( integer )</a></li><li><a href="#function_levenshtein( text, text )">levenshtein( text, text )</a></li><li><a href="#function_metaphone( text, integer )">metaphone( text, integer )</a></li><li><a href="#function_plpython_call_handler(  )">plpython_call_handler(  )</a></li><li><a href="#function_soundex( text )">soundex( text )</a></li><li><a href="#function_text_soundex( text )">text_soundex( text )</a></li></ul></ul><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_adverse_effects">adverse_effects</a></h2><p>listing of possible adverse effects to drugs</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.adverse_effects Structure</caption>
                 <tr>
                 <th>F-Key</th>
@@ -115,17 +115,10 @@
                 <th>Type</th>
                 <th>Description</th>
                 </tr><tr class="tr0"><td></td><td>id</td>
-                  <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td></td><td>severity</td>
+                  <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td><a href="#table_severity_level">public -> severity_level</a>
+                  </td><td>severity</td>
                   <td>integer</td><td>the severity of a reaction. The scale has yet to be aggreed upon.</td></tr><tr class="tr0"><td></td><td>description</td>
-                  <td>text</td><td>the type of adverse effect like &quot;pruritus&quot;, &quot;hypotension&quot;, ...</td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_link_drug_adverse_effects">public.link_drug_adverse_effects</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_audited_table">audited_table</a></h2><p>ancestor table, inherited by all tables that need to be audited.</p><table width="100%" cellspacing="0" cellpadding="3">
-                <caption>public.audited_table Structure</caption>
-                <tr>
-                <th>F-Key</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Description</th>
-                </tr><tr class="tr0"><td></td><td>id</td>
-                  <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_available">available</a></h2><p>availability of products in specific countries - this allows multinational drug databases without redundancy</p><table width="100%" cellspacing="0" cellpadding="3">
+                  <td>text</td><td>the type of adverse effect like &quot;pruritus&quot;, &quot;hypotension&quot;, ...</td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_link_drug_adverse_effects">public.link_drug_adverse_effects</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_available">available</a></h2><p>availability of products in specific countries - this allows multinational drug databases without redundancy</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.available Structure</caption>
                 <tr>
                 <th>F-Key</th>
@@ -146,11 +139,11 @@
                 <th>Type</th>
                 <th>Description</th>
                 </tr><tr class="tr0"><td></td><td>id</td>
-                  <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td></td><td>iso_country_code</td>
+                  <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td></td><td>iso_countrycode</td>
                   <td>character(2)</td><td><i>default &apos;**&apos;</i><br><br>ISO country code of country where this code system applies. Use &quot;**&quot; for wildcard</td></tr><tr class="tr0"><td></td><td>name</td>
                   <td>character varying(30)</td><td>name of the code systme like ICD, ICPC</td></tr><tr class="tr1"><td></td><td>version</td>
                   <td>character varying(30)</td><td>version of the code system, like &quot;10&quot; for ICD-10</td></tr><tr class="tr0"><td></td><td>revision</td>
-                  <td>character varying(30)</td><td>revision of the version of the coding system/classification</td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_link_drug_disease_interactions">public.link_drug_disease_interactions</a></li><li><a href="#table_link_drug_indication">public.link_drug_indication</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_conditions">conditions</a></h2><p>normalised prescribing requirements for a drug or drugs</p><table width="100%" cellspacing="0" cellpadding="3">
+                  <td>character varying(30)</td><td>revision of the version of the coding system/classification</td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_disease_code">public.disease_code</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_conditions">conditions</a></h2><p>normalised prescribing requirements for a drug or drugs</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.conditions Structure</caption>
                 <tr>
                 <th>F-Key</th>
@@ -159,10 +152,23 @@
                 <th>Description</th>
                 </tr><tr class="tr0"><td></td><td>id</td>
                   <td>serial</td><td><i>NOT NULL UNIQUE </i></td></tr><tr class="tr1"><td></td><td>comment</td>
-                  <td>text</td><td></td></tr><tr class="tr0"><td></td><td>authority</td>
-                  <td>boolean</td><td>true if prescriber must contact the third-party before approval</td></tr><tr class="tr1"><td></td><td>title</td>
-                  <td>character varying(60)</td><td></td></tr><tr class="tr0"><td></td><td>id_subsidy</td>
-                  <td>integer</td><td></td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_subsidized_products">public.subsidized_products</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_drug_dosage">drug_dosage</a></h2><p>A table linking drugs to dosage recommendations. This is the old link_drug_dosage. Refers to drugs, both compounds and single-substances.</p><table width="100%" cellspacing="0" cellpadding="3">
+                  <td>text</td><td></td></tr><tr class="tr0"><td></td><td>title</td>
+                  <td>character varying(60)</td><td>short summary for selection in the database.</td></tr><tr class="tr1"><td><a href="#table_subsidies">public -> subsidies</a>
+                  </td><td>id_subsidy</td>
+                  <td>integer</td><td></td></tr><tr class="tr0"><td></td><td>authority</td>
+                  <td>boolean</td><td>true if prescriber must contact the third-party before approval</td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_subsidized_products">public.subsidized_products</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_disease_code">disease_code</a></h2><p>holds actual coding systems</p><table width="100%" cellspacing="0" cellpadding="3">
+                <caption>public.disease_code Structure</caption>
+                <tr>
+                <th>F-Key</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Description</th>
+                </tr><tr class="tr0"><td></td><td>id</td>
+                  <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td></td><td>code</td>
+                  <td>character varying(20)</td><td><i>UNIQUE </i></td></tr><tr class="tr0"><td><a href="#table_code_systems">public -> code_systems</a>
+                  </td><td>id_system</td>
+                  <td>integer</td><td></td></tr><tr class="tr1"><td></td><td>description</td>
+                  <td>text</td><td></td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_link_dosage_indication">public.link_dosage_indication</a></li><li><a href="#table_link_drug_disease_interactions">public.link_drug_disease_interactions</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_drug_dosage">drug_dosage</a></h2><p>This is a drug-dose-route tuple. For dosage recommadations, and the basis for products and subsidies.</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.drug_dosage Structure</caption>
                 <tr>
                 <th>F-Key</th>
@@ -177,9 +183,9 @@
                   <td>integer</td><td>indicates whether this dosage is targeted for specific patients, like paediatric or renal impairment</td></tr><tr class="tr1"><td><a href="#table_info_reference">public -> info_reference</a>
                   </td><td>id_info_reference</td>
                   <td>integer</td><td></td></tr><tr class="tr0"><td><a href="#table_drug_routes">public -> drug_routes</a>
-                  </td><td>id_drug_route</td>
+                  </td><td>id_route</td>
                   <td>integer</td><td></td></tr><tr class="tr1"><td></td><td>dosage_hints</td>
-                  <td>text</td><td>free text warnings, tips &amp; hints regarding applying this dosage recommendation</td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_substance_dosage">public.substance_dosage</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_drug_element">drug_element</a></h2><p>collection of all drug elements: classes, compounds, and substances</p><table width="100%" cellspacing="0" cellpadding="3">
+                  <td>text</td><td>free text warnings, tips &amp; hints regarding applying this dosage recommendation</td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_link_dosage_indication">public.link_dosage_indication</a></li><li><a href="#table_substance_dosage">public.substance_dosage</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_drug_element">drug_element</a></h2><p>collection of all drug elements: classes, compounds, and substances</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.drug_element Structure</caption>
                 <tr>
                 <th>F-Key</th>
@@ -188,14 +194,13 @@
                 <th>Description</th>
                 </tr><tr class="tr0"><td></td><td>id</td>
                   <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td></td><td>category</td>
-                  <td>character(1)</td><td>t = therapeutic class, p = pharmaceutical class, s = substance, c = compound</td></tr><tr class="tr0"><td></td><td>description</td>
-                  <td>text</td><td></td></tr></table><p>&nbsp;</p><table width="100%" cellspacing="0" cellpadding="3">
+                  <td>character(1)</td><td>t = therapeutic class, p = pharmaceutical class, s = substance, c = compound</td></tr></table><p>&nbsp;</p><table width="100%" cellspacing="0" cellpadding="3">
                     <caption>public.drug_element Constraints</caption>
                     <tr>
                     <th>Name</th>
                     <th>Constraint</th>
                     </tr><tr class="tr0"><td>drug_element_category</td>
-                      <td>CHECK (((category = &apos;t&apos;::bpchar) OR (category = &apos;p&apos;::bpchar)) OR (category = &apos;s&apos;::bpchar)) OR (category = &apos;c&apos;::bpchar)</td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_drug_dosage">public.drug_dosage</a></li><li><a href="#table_generic_drug_name">public.generic_drug_name</a></li><li><a href="#table_link_compound_generics">public.link_compound_generics</a></li><li><a href="#table_link_compound_generics">public.link_compound_generics</a></li><li><a href="#table_link_drug_adverse_effects">public.link_drug_adverse_effects</a></li><li><a href="#table_link_drug_class">public.link_drug_class</a></li><li><a href="#table_link_drug_class">public.link_drug_class</a></li><li><a href="#table_link_drug_disease_interactions">public.link_drug_disease_interactions</a></li><li><a href="#table_link_drug_indication">public.link_drug_indication</a></li><li><a href="#table_link_drug_information">public.link_drug_information</a></li><li><a href="#table_link_drug_interactions">public.link_drug_interactions</a></li><li><a href="#table_link_drug_interactions">public.link_drug_interactions</a></li><li><a href="#table_link_drug_warning">public.link_drug_warning</a></li><li><a href="#table_link_product_component">public.link_product_component</a></li><li><a href="#table_product">public.product</a></li><li><a href="#table_substance_dosage">public.substance_dosage</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_drug_flags">drug_flags</a></h2><p>flags for adjuvants such as &apos;gluten-free&apos;, &apos;paediatric formulation&apos;, etc.</p><table width="100%" cellspacing="0" cellpadding="3">
+                      <td>CHECK (((category = &apos;t&apos;::bpchar) OR (category = &apos;p&apos;::bpchar)) OR (category = &apos;s&apos;::bpchar)) OR (category = &apos;c&apos;::bpchar)</td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_drug_dosage">public.drug_dosage</a></li><li><a href="#table_generic_drug_name">public.generic_drug_name</a></li><li><a href="#table_link_compound_generics">public.link_compound_generics</a></li><li><a href="#table_link_compound_generics">public.link_compound_generics</a></li><li><a href="#table_link_drug_adverse_effects">public.link_drug_adverse_effects</a></li><li><a href="#table_link_drug_class">public.link_drug_class</a></li><li><a href="#table_link_drug_class">public.link_drug_class</a></li><li><a href="#table_link_drug_disease_interactions">public.link_drug_disease_interactions</a></li><li><a href="#table_link_drug_information">public.link_drug_information</a></li><li><a href="#table_link_drug_interactions">public.link_drug_interactions</a></li><li><a href="#table_link_drug_interactions">public.link_drug_interactions</a></li><li><a href="#table_link_drug_warning">public.link_drug_warning</a></li><li><a href="#table_link_product_component">public.link_product_component</a></li><li><a href="#table_product">public.product</a></li><li><a href="#table_substance_dosage">public.substance_dosage</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_drug_flags">drug_flags</a></h2><p>flags for adjuvants such as &apos;gluten-free&apos;, &apos;paediatric formulation&apos;, etc.</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.drug_flags Structure</caption>
                 <tr>
                 <th>F-Key</th>
@@ -283,7 +288,7 @@
                   <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td><a href="#table_drug_element">public -> drug_element</a>
                   </td><td>id_drug</td>
                   <td>integer</td><td></td></tr><tr class="tr0"><td></td><td>name</td>
-                  <td>character varying(60)</td><td>the generic name of this drug</td></tr><tr class="tr1"><td></td><td>comment</td>
+                  <td>character varying(60)</td><td><i>UNIQUE </i><br><br>the generic name of this drug, must be unique</td></tr><tr class="tr1"><td></td><td>comment</td>
                   <td>text</td><td></td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_link_country_drug_name">public.link_country_drug_name</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_info_reference">info_reference</a></h2><p>Source of any reference information in this database</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.info_reference Structure</caption>
                 <tr>
@@ -324,7 +329,8 @@
                 <th>Type</th>
                 <th>Description</th>
                 </tr><tr class="tr0"><td></td><td>id</td>
-                  <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td></td><td>severity</td>
+                  <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td><a href="#table_severity_level">public -> severity_level</a>
+                  </td><td>severity</td>
                   <td>integer</td><td>severity/significance of a potential interaction: the scale has yet to be agreed upon</td></tr><tr class="tr0"><td></td><td>description</td>
                   <td>text</td><td>the type of interaction (like: &quot;increases half life&quot;)</td></tr><tr class="tr1"><td></td><td>comment</td>
                   <td>text</td><td></td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_link_drug_disease_interactions">public.link_drug_disease_interactions</a></li><li><a href="#table_link_drug_interactions">public.link_drug_interactions</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_link_compound_generics">link_compound_generics</a></h2><p>links singular generic drugs to a compound drug (like Trimethoprim and Sulfamethoxazole to Cotrimoxazole)</p><table width="100%" cellspacing="0" cellpadding="3">
@@ -348,19 +354,34 @@
                 </tr><tr class="tr0"><td><a href="#table_generic_drug_name">public -> generic_drug_name</a>
                   </td><td>id_drug_name</td>
                   <td>integer</td><td></td></tr><tr class="tr1"><td></td><td>iso_countrycode</td>
-                  <td>character(2)</td><td></td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_link_drug_adverse_effects">link_drug_adverse_effects</a></h2><p>many to many pivot table linking drugs to adverse effects</p><table width="100%" cellspacing="0" cellpadding="3">
+                  <td>character(2)</td><td></td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_link_dosage_indication">link_dosage_indication</a></h2><p>many to many pivot table linking drug dosages and indications</p><table width="100%" cellspacing="0" cellpadding="3">
+                <caption>public.link_dosage_indication Structure</caption>
+                <tr>
+                <th>F-Key</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Description</th>
+                </tr><tr class="tr0"><td></td><td>id</td>
+                  <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td><a href="#table_drug_dosage">public -> drug_dosage</a>
+                  </td><td>id_drug_dosage</td>
+                  <td>integer</td><td></td></tr><tr class="tr0"><td><a href="#table_disease_code">public -> disease_code</a>
+                  </td><td>diseasecode</td>
+                  <td>character varying(20)</td><td>link to the disease code</td></tr><tr class="tr1"><td></td><td>comment</td>
+                  <td>text</td><td></td></tr><tr class="tr0"><td></td><td>line</td>
+                  <td>integer</td><td>the line (first-line, second-line) of this drug for this indication</td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_link_drug_adverse_effects">link_drug_adverse_effects</a></h2><p>many to many pivot table linking drugs to adverse effects</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.link_drug_adverse_effects Structure</caption>
                 <tr>
                 <th>F-Key</th>
                 <th>Name</th>
                 <th>Type</th>
                 <th>Description</th>
-                </tr><tr class="tr0"><td><a href="#table_drug_element">public -> drug_element</a>
+                </tr><tr class="tr0"><td></td><td>id</td>
+                  <td>serial</td><td><i>NOT NULL UNIQUE </i></td></tr><tr class="tr1"><td><a href="#table_drug_element">public -> drug_element</a>
                   </td><td>id_drug</td>
-                  <td>integer</td><td></td></tr><tr class="tr1"><td><a href="#table_adverse_effects">public -> adverse_effects</a>
+                  <td>integer</td><td></td></tr><tr class="tr0"><td><a href="#table_adverse_effects">public -> adverse_effects</a>
                   </td><td>id_adverse_effect</td>
-                  <td>integer</td><td></td></tr><tr class="tr0"><td></td><td>frequency</td>
-                  <td>character(1)</td><td>The likelihood this adverse effect happens: c=common, i=infrequent, r=rare</td></tr><tr class="tr1"><td></td><td>important</td>
+                  <td>integer</td><td></td></tr><tr class="tr1"><td></td><td>frequency</td>
+                  <td>character(1)</td><td>The likelihood this adverse effect happens: c=common, i=infrequent, r=rare</td></tr><tr class="tr0"><td></td><td>important</td>
                   <td>boolean</td><td>modifier for attribute &quot;frequency&quot; allowing to weigh rare adverse effects too important to miss</td></tr></table><p>&nbsp;</p><table width="100%" cellspacing="0" cellpadding="3">
                     <caption>public.link_drug_adverse_effects Constraints</caption>
                     <tr>
@@ -374,9 +395,10 @@
                 <th>Name</th>
                 <th>Type</th>
                 <th>Description</th>
-                </tr><tr class="tr0"><td><a href="#table_drug_element">public -> drug_element</a>
+                </tr><tr class="tr0"><td></td><td>id</td>
+                  <td>serial</td><td><i>NOT NULL UNIQUE </i></td></tr><tr class="tr1"><td><a href="#table_drug_element">public -> drug_element</a>
                   </td><td>id_drug</td>
-                  <td>integer</td><td></td></tr><tr class="tr1"><td><a href="#table_drug_element">public -> drug_element</a>
+                  <td>integer</td><td></td></tr><tr class="tr0"><td><a href="#table_drug_element">public -> drug_element</a>
                   </td><td>id_class</td>
                   <td>integer</td><td></td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_link_drug_disease_interactions">link_drug_disease_interactions</a></h2><p>many to many pivot table linking interactions between drugs and diseases</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.link_drug_disease_interactions Structure</caption>
@@ -385,30 +407,15 @@
                 <th>Name</th>
                 <th>Type</th>
                 <th>Description</th>
-                </tr><tr class="tr0"><td><a href="#table_drug_element">public -> drug_element</a>
+                </tr><tr class="tr0"><td></td><td>id</td>
+                  <td>serial</td><td><i>NOT NULL UNIQUE </i></td></tr><tr class="tr1"><td><a href="#table_drug_element">public -> drug_element</a>
                   </td><td>id_drug</td>
-                  <td>integer</td><td></td></tr><tr class="tr1"><td><a href="#table_code_systems">public -> code_systems</a>
-                  </td><td>id_code_system</td>
-                  <td>integer</td><td></td></tr><tr class="tr0"><td></td><td>disease_code</td>
-                  <td>character(20)</td><td></td></tr><tr class="tr1"><td><a href="#table_interactions">public -> interactions</a>
+                  <td>integer</td><td></td></tr><tr class="tr0"><td><a href="#table_disease_code">public -> disease_code</a>
+                  </td><td>diseasecode</td>
+                  <td>character varying(20)</td><td></td></tr><tr class="tr1"><td><a href="#table_interactions">public -> interactions</a>
                   </td><td>id_interaction</td>
                   <td>integer</td><td></td></tr><tr class="tr0"><td></td><td>comment</td>
-                  <td>text</td><td></td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_link_drug_indication">link_drug_indication</a></h2><p>many to many pivot table linking drugs and indications</p><table width="100%" cellspacing="0" cellpadding="3">
-                <caption>public.link_drug_indication Structure</caption>
-                <tr>
-                <th>F-Key</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Description</th>
-                </tr><tr class="tr0"><td></td><td>id</td>
-                  <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td><a href="#table_drug_element">public -> drug_element</a>
-                  </td><td>id_drug</td>
-                  <td>integer</td><td></td></tr><tr class="tr0"><td><a href="#table_code_systems">public -> code_systems</a>
-                  </td><td>id_code_system</td>
-                  <td>integer</td><td></td></tr><tr class="tr1"><td></td><td>indication_code</td>
-                  <td>character(20)</td><td>code of the disease/indication in the specified code system</td></tr><tr class="tr0"><td></td><td>comment</td>
-                  <td>text</td><td></td></tr><tr class="tr1"><td></td><td>line</td>
-                  <td>integer</td><td>the line (first-line, second-line) of this drug for this indication</td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_link_drug_information">link_drug_information</a></h2><p>A many-to-many pivot table linking product information to drugs</p><table width="100%" cellspacing="0" cellpadding="3">
+                  <td>text</td><td></td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_link_drug_information">link_drug_information</a></h2><p>A many-to-many pivot table linking product information to drugs</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.link_drug_information Structure</caption>
                 <tr>
                 <th>F-Key</th>
@@ -441,9 +448,10 @@
                 <th>Name</th>
                 <th>Type</th>
                 <th>Description</th>
-                </tr><tr class="tr0"><td><a href="#table_drug_element">public -> drug_element</a>
+                </tr><tr class="tr0"><td></td><td>id</td>
+                  <td>serial</td><td><i>NOT NULL UNIQUE </i></td></tr><tr class="tr1"><td><a href="#table_drug_element">public -> drug_element</a>
                   </td><td>id_drug</td>
-                  <td>integer</td><td></td></tr><tr class="tr1"><td><a href="#table_drug_warning">public -> drug_warning</a>
+                  <td>integer</td><td></td></tr><tr class="tr0"><td><a href="#table_drug_warning">public -> drug_warning</a>
                   </td><td>id_warning</td>
                   <td>integer</td><td></td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_link_flag_product">link_flag_product</a></h2><p>many-to-many pivot table linking products to flags</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.link_flag_product Structure</caption>
@@ -498,7 +506,17 @@
                   <td>text</td><td>phone number of company</td></tr><tr class="tr1"><td></td><td>fax</td>
                   <td>text</td><td>fax number of company</td></tr><tr class="tr0"><td></td><td>comment</td>
                   <td>text</td><td></td></tr><tr class="tr1"><td></td><td>code</td>
-                  <td>character(2)</td><td>two-letter symbol of manufacturer</td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_link_product_manufacturer">public.link_product_manufacturer</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_product">product</a></h2><p>dispensable form of a generic drug including strength, package size etc</p><table width="100%" cellspacing="0" cellpadding="3">
+                  <td>character(2)</td><td>two-letter symbol of manufacturer</td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_link_product_manufacturer">public.link_product_manufacturer</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_package_size">package_size</a></h2><p>the various packing sizes available for this product</p><table width="100%" cellspacing="0" cellpadding="3">
+                <caption>public.package_size Structure</caption>
+                <tr>
+                <th>F-Key</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Description</th>
+                </tr><tr class="tr0"><td><a href="#table_product">public -> product</a>
+                  </td><td>id_product</td>
+                  <td>integer</td><td></td></tr><tr class="tr1"><td></td><td>size</td>
+                  <td>double precision</td><td></td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_product">product</a></h2><p>dispensable form of a generic drug including strength, package size etc</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.product Structure</caption>
                 <tr>
                 <th>F-Key</th>
@@ -512,11 +530,19 @@
                   </td><td>id_formulation</td>
                   <td>integer</td><td></td></tr><tr class="tr1"><td><a href="#table_drug_units">public -> drug_units</a>
                   </td><td>id_packing_unit</td>
-                  <td>integer</td><td>unit of drug &quot;entities&quot; as packed: for tablets and similar discrete formulations it should be the id of &quot;each&quot;</td></tr><tr class="tr0"><td><a href="#table_drug_routes">public -> drug_routes</a>
+                  <td>integer</td><td>unit of drug &quot;entities&quot; as packed: for tablets and similar discrete formulations it should be the id of &quot;each&quot;, for fized-course kits it should be the id of &quot;day&quot;</td></tr><tr class="tr0"><td><a href="#table_drug_routes">public -> drug_routes</a>
                   </td><td>id_route</td>
-                  <td>integer</td><td></td></tr><tr class="tr1"><td></td><td>package_size</td>
-                  <td>double precision</td><td>the number of packing_units of this drug in this package</td></tr><tr class="tr0"><td></td><td>comment</td>
-                  <td>text</td><td></td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_available">public.available</a></li><li><a href="#table_link_flag_product">public.link_flag_product</a></li><li><a href="#table_link_product_component">public.link_product_component</a></li><li><a href="#table_link_product_manufacturer">public.link_product_manufacturer</a></li><li><a href="#table_subsidized_products">public.subsidized_products</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_subsidies">subsidies</a></h2><p>listing of possible subsidies for drug products</p><table width="100%" cellspacing="0" cellpadding="3">
+                  <td>integer</td><td></td></tr><tr class="tr1"><td></td><td>comment</td>
+                  <td>text</td><td></td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_available">public.available</a></li><li><a href="#table_link_flag_product">public.link_flag_product</a></li><li><a href="#table_link_product_component">public.link_product_component</a></li><li><a href="#table_link_product_manufacturer">public.link_product_manufacturer</a></li><li><a href="#table_package_size">public.package_size</a></li><li><a href="#table_subsidized_products">public.subsidized_products</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_severity_level">severity_level</a></h2><table width="100%" cellspacing="0" cellpadding="3">
+                <caption>public.severity_level Structure</caption>
+                <tr>
+                <th>F-Key</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Description</th>
+                </tr><tr class="tr0"><td></td><td>id</td>
+                  <td>serial</td><td><i>NOT NULL UNIQUE </i></td></tr><tr class="tr1"><td></td><td>description</td>
+                  <td>character varying(100)</td><td></td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_adverse_effects">public.adverse_effects</a></li><li><a href="#table_interactions">public.interactions</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_subsidies">subsidies</a></h2><p>listing of possible subsidies for drug products</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.subsidies Structure</caption>
                 <tr>
                 <th>F-Key</th>
@@ -527,7 +553,7 @@
                   <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td></td><td>iso_countrycode</td>
                   <td>character(2)</td><td>ISO country code of the country where this subsidy applies</td></tr><tr class="tr0"><td></td><td>name</td>
                   <td>character varying(30)</td><td>description of the subsidy (like PBS or RPBS in Australia)</td></tr><tr class="tr1"><td></td><td>comment</td>
-                  <td>text</td><td></td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_subsidized_products">public.subsidized_products</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_subsidized_products">subsidized_products</a></h2><p>listing of drug products that may attract a subsidy</p><table width="100%" cellspacing="0" cellpadding="3">
+                  <td>text</td><td></td></tr></table><p>Tables referencing this one via Foreign Key Constraints:</p><ul><li><a href="#table_conditions">public.conditions</a></li><li><a href="#table_subsidized_products">public.subsidized_products</a></li></ul><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_subsidized_products">subsidized_products</a></h2><p>listing of drug products that may attract a subsidy</p><table width="100%" cellspacing="0" cellpadding="3">
                 <caption>public.subsidized_products Structure</caption>
                 <tr>
                 <th>F-Key</th>
@@ -553,9 +579,9 @@
                 <th>Description</th>
                 </tr><tr class="tr0"><td></td><td>id</td>
                   <td>serial</td><td><i>NOT NULL PRIMARY KEY </i></td></tr><tr class="tr1"><td><a href="#table_drug_dosage">public -> drug_dosage</a>
-                  </td><td>id_drug_dosage</td>
+                  </td><td>id_dosage</td>
                   <td>integer</td><td></td></tr><tr class="tr0"><td><a href="#table_drug_units">public -> drug_units</a>
-                  </td><td>id_drug_units</td>
+                  </td><td>id_unit</td>
                   <td>integer</td><td></td></tr><tr class="tr1"><td><a href="#table_drug_element">public -> drug_element</a>
                   </td><td>id_component</td>
                   <td>integer</td><td>the component of a compound referred to by this row</td></tr><tr class="tr0"><td></td><td>dosage_type</td>
@@ -567,16 +593,4 @@
                     <th>Name</th>
                     <th>Constraint</th>
                     </tr><tr class="tr0"><td>substance_dosage_dosage_type</td>
-                      <td>CHECK (((dosage_type = &apos;*&apos;::bpchar) OR (dosage_type = &apos;w&apos;::bpchar)) OR (dosage_type = &apos;s&apos;::bpchar)) OR (dosage_type = &apos;a&apos;::bpchar)</td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Table: <a href="#group_public">public</a>.<a name="table_users">users</a></h2><p>extra data about database users</p><table width="100%" cellspacing="0" cellpadding="3">
-                <caption>public.users Structure</caption>
-                <tr>
-                <th>F-Key</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Description</th>
-                </tr><tr class="tr0"><td></td><td>login</td>
-                  <td>name</td><td></td></tr><tr class="tr1"><td></td><td>public_key</td>
-                  <td>text</td><td>armoured GPG public key of this user</td></tr><tr class="tr0"><td></td><td>title</td>
-                  <td>character varying(100)</td><td>full name and qualifications</td></tr><tr class="tr1"><td></td><td>password_expiry</td>
-                  <td>date</td><td>the date the password expires</td></tr><tr class="tr0"><td></td><td>iso_countrycode</td>
-                  <td>character(2)</td><td>the users country</td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Function: <a href="#group_public">public</a>.<a name="function_get_drug_name( integer )">get_drug_name( integer )</a></h2><pre>guaranteed returns a name for a drug/class</pre><hr><h2>Function: <a href="#group_public">public</a>.<a name="function_plpython_call_handler(  )">plpython_call_handler(  )</a></h2><pre>NO COMMENT</pre><p class="w3ref"><a href="http://validator.w3.org/check/referer">W3C HTML 4.01 Strict</a></p></body></html>
+                      <td>CHECK (((dosage_type = &apos;*&apos;::bpchar) OR (dosage_type = &apos;w&apos;::bpchar)) OR (dosage_type = &apos;s&apos;::bpchar)) OR (dosage_type = &apos;a&apos;::bpchar)</td></tr></table><p><a href="#index">Index</a> - <a href="#group_public">Schema public</a></p><hr><h2>Function: <a href="#group_public">public</a>.<a name="function_get_drug_name( integer )">get_drug_name( integer )</a></h2><pre>guaranteed returns a name for a drug/class</pre><hr><h2>Function: <a href="#group_public">public</a>.<a name="function_levenshtein( text, text )">levenshtein( text, text )</a></h2><pre>NO COMMENT</pre><hr><h2>Function: <a href="#group_public">public</a>.<a name="function_metaphone( text, integer )">metaphone( text, integer )</a></h2><pre>NO COMMENT</pre><hr><h2>Function: <a href="#group_public">public</a>.<a name="function_plpython_call_handler(  )">plpython_call_handler(  )</a></h2><pre>NO COMMENT</pre><hr><h2>Function: <a href="#group_public">public</a>.<a name="function_soundex( text )">soundex( text )</a></h2><pre>NO COMMENT</pre><hr><h2>Function: <a href="#group_public">public</a>.<a name="function_text_soundex( text )">text_soundex( text )</a></h2><pre>NO COMMENT</pre><p class="w3ref"><a href="http://validator.w3.org/check/referer">W3C HTML 4.01 Strict</a></p></body></html>
