@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.15 2004-12-25 18:52:44 cfmoro Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmResizingWidgets.py,v 1.16 2004-12-30 12:39:10 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -25,7 +25,7 @@ STYLE_TEXT=2
 STYLE_EMBED=4
 
 #====================================================================
-class cPickList (wx.wxListBox):
+class cPickList(wx.wxListBox):
 	def __init__ (self, parent, pos, size, callback):
 		wx.wxListBox.__init__(self, parent, -1, pos, size, style=wx.wxLB_SINGLE | wx.wxLB_NEEDED_SB)
 		self.callback = callback
@@ -396,12 +396,15 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 	resizes the parent accordingly.
 	
 	MUST ONLY be used inside ResizingWindow !
+
+	FIXME: override standard STC popup menu
 	"""
 	def __init__ (self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize, style=0):
 		if not isinstance(parent, cResizingWindow):
 			 raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
 		stc.wxStyledTextCtrl.__init__ (self, parent, id, pos, size, style)
 		self.SetWrapMode (stc.wxSTC_WRAP_WORD)
+		# FIXME: configure
 		self.StyleSetSpec (STYLE_ERROR, "fore:#7F11010,bold")
 		self.StyleSetSpec (STYLE_EMBED, "fore:#4040B0")
 		self.StyleSetChangeable (STYLE_EMBED, 0)
@@ -435,6 +438,11 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 	#------------------------------------------------
 	# public API
 	#------------------------------------------------
+	def set_keywords(self, popup_keywords=None):
+		if popup_keywords is None:
+			return
+		self.__popup_keywords = popup_keywords
+	#------------------------------------------------
 	def SetText(self, text):
 		self.__show_list = 0
 		stc.wxStyledTextCtrl.SetText(self, text)
@@ -456,11 +464,6 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		if style > -1:
 			self.StartStyling(start, 0xFF)
 			self.SetStyling(len(text), style)
-	#------------------------------------------------
-	def set_keywords(self, popup_keywords=None):
-		if popup_keywords is None:
-			return
-		self.__popup_keywords = popup_keywords
 	#------------------------------------------------
 	def Embed (self, text, data=None):
 		self.no_list = 1
@@ -535,6 +538,7 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		# is currently relevant term a keyword for popping up an edit area or something ?
 		fragment = self.__get_focussed_fragment()
 		if fragment in self.__popup_keywords.keys():
+			self.__timer.Stop()
 			self.__handle_keyword(fragment)
 #			# keep this so the parent class handler inserts the character for us
 #			event.Skip()
@@ -546,9 +550,12 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 
 		if self.__popup is not None:
 			print "proxying keypress to popup"
-			self.__popup.on_key_down(event)
-			if not event.GetSkipped():
-				return
+			try:
+				self.__popup.on_key_down(event)
+				if not event.GetSkipped():
+					return
+			except AttributeError:
+				pass
 
 #		if (self.list is not None) and not self.list.alive:
 #			self.list = None # someone else has destroyed our list!
@@ -679,12 +686,16 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		print "popup interaction completed"
 		self.__popup_visible = False
 		if self.__popup is None:
-			print "huh ? getting called from non-existing popup ?"
+			_log.Log(gmLog.lErr, 'got called from non-existing popup')
 			return
-		if not was_cancelled:
-			print "getting data from popup and acting on it"
-			print self.__popup.GetValue()
-			# FIXME: embed and store
+		if was_cancelled:
+			print "popup cancelled, ignoring data"
+			self.__popup.Destroy()
+			self.__popup = None
+			return
+		print "getting data from popup and acting on it"
+		print self.__popup.GetData()
+		# FIXME: wxCallAfter(embed) and store
 		# maybe be a little smarter here
 		self.__popup.Destroy()
 		self.__popup = None
@@ -739,39 +750,46 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 	def __get_best_popup_geom(self):
 		print "calculating optimal popup geometry"
 		parent_width, parent_height = self.__parent.GetSizeTuple()
+		print "parent size is %sx%s pixel" % (parent_width, parent_height)
 		# FIXME: this should be gotten from ourselves, not the parent, but how ?
-		char_height = self.__parent.GetCharHeight()
-		# make popup 9 lines of height char_height high
+		parent_char_height = self.__parent.GetCharHeight()
+		print "char height in parent is", parent_char_height, "pixel"
+		# make popup 9 lines of height parent_char_height high
 		# FIXME: better detect this, but how ?
-		popup_height = char_height * 9
-		# get current cursor position in pixels
+		popup_height = parent_char_height * 9
+		print "hence intended popup height is", popup_height, "pixel"
+		# get STC displacement inside parent
+		stc_origin_x, stc_origin_y = self.GetPositionTuple()
+		print "inside parent STC is @ %s:%s" % (stc_origin_x, stc_origin_y)
+		# get current cursor position inside STC in pixels
 		curs_pos = self.PointFromPosition(self.GetCurrentPos())
+		print "inside STC cursor is @ %s:%s" % (curs_pos.x, curs_pos.y)
 		# find best placement
 		# - height
-		if (popup_height + char_height) > parent_height:
+		if (popup_height + parent_char_height) > parent_height:
 			# don't let popup get bigger than parent window
 			popup_height = parent_height
-			y_final = 0
-		elif ((popup_height + char_height) + curs_pos.y) > parent_height:
+			popup_y_pos = 0
+		elif ((popup_height + parent_char_height) + (curs_pos.y + stc_origin_y)) > parent_height:
 			# if would fit inside but forced (partially) outside
 			# by cursor position then move inside
-			y_final = parent_height - popup_height
+			popup_y_pos = parent_height - popup_height
 		else:
-			y_final = curs_pos.y + char_height
+			popup_y_pos = (curs_pos.y + stc_origin_y) + parent_char_height
 		# - width
 		popup_width = int(popup_height / 1.4)		# Golden Cut
 		if popup_width > parent_width:
 			# don't let popup get bigger than parent window
 			popup_width = parent_width
-			x_final = 0
-		elif (curs_pos.x + popup_width) > parent_width:
+			popup_x_pos = 0
+		elif (popup_width + (curs_pos.x + stc_origin_x)) > parent_width:
 			# if would fit inside but forced (partially) outside
 			# by cursor position then move inside
-			x_final = parent_width - popup_width
+			popup_x_pos = parent_width - popup_width
 		else:
-			x_final = curs_pos.x
-		print "optimal placement = [%s:%s]" % (x_final, y_final)
-		return (wx.wxPoint(x_final, y_final), wx.wxSize(popup_width, popup_height))
+			popup_x_pos = curs_pos.x + stc_origin_x
+		print "optimal geometry = %sx%s @ %s:%s" % (popup_width, popup_height, popup_x_pos, popup_y_pos)
+		return (wx.wxPoint(popup_x_pos, popup_y_pos), wx.wxSize(popup_width, popup_height))
 	#------------------------------------------------
 	def __handle_keyword(self, kwd=None):
 		print "detected popup keyword:", kwd
@@ -785,22 +803,17 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 			)
 			return False
 
-#		popup_frame = cPopupFrameNew (
-#			widget = self.__widget_to_show,
-#			pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))
-#		)
 		best_pos, best_size = self.__get_best_popup_geom()
 		try:
 			self.__popup = create_widget (
-				parent = self,
-				pos = self.ClientToScreen(best_pos),
-#				pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos())),
+				parent = self.__parent,
+				pos = best_pos,
 				size = best_size,
 				style = wx.wxSIMPLE_BORDER,
 				completion_callback = self._cb_on_popup_completion
 			)
 		except StandardError:
-			_log.LogException('cannot call [%s] on keyword [%s] to create widget', sys.exc_info(), verbose=0)
+			_log.LogException('cannot call [%s] on keyword [%s] to create widget' % (create_widget, kwd), sys.exc_info(), verbose=1)
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Cannot invoke action [%s] for keyword [%s].') % (create_widget, kwd),
 				aTitle = _('showing keyword popup')
@@ -809,11 +822,13 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 
 		print "popup is:", type(self.__popup), str(self.__popup)
 
-		if not isinstance(self.__popup, wx.wxWindow):
+		# FIXME: issubclass() ?
+#		if not isinstance(self.__popup, wx.wxWindow):
+		if not isinstance(self.__popup, wx.wxPanel):
 			gmGuiHelpers.gm_beep_statustext (
 				aMessage = _('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd)
 			)
-			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (create_widget, kwd))
+			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (kwd, create_widget))
 			_log.Log(gmLog.lErr, 'the result (%s) is not a wxWindow subclass instance, however' % str(self.__popup))
 			return False
 
@@ -834,6 +849,7 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 
 		self.__popup_visible = True
 		self.__popup.Show()
+		print "after popup.Show()"
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
 		# this is a callback
@@ -872,6 +888,7 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		#cPopupFrame(text, win, self, cursor_position)).Show()
 		return False
 #====================================================================
+#====================================================================
 if __name__ == '__main__':
 
 #	from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
@@ -899,6 +916,65 @@ if __name__ == '__main__':
 			aTitle = 'msg box on create_widget from test_keyword'
 		)
 	#================================================================
+	class cTestKwdPopupPanel(wx.wxPanel):
+		def __init__(self, parent, pos, size, style, completion_callback):
+			wx.wxPanel.__init__ (
+				self,
+				parent,
+				-1,
+				pos,
+				size,
+				style
+			)
+			self.__completion_callback = completion_callback
+			self._wxID_BTN_OK = wx.wxNewId()
+			self._wxID_BTN_Cancel = wx.wxNewId()
+			self.__do_layout()
+			self.__register_interests()
+			self.Show()
+
+		def __do_layout(self):
+			# message
+			msg = "test keyword popup"
+			text = wx.wxStaticText (self, -1, msg)
+			# buttons
+			self.btn_OK = wx.wxButton(self, self._wxID_BTN_OK, _("OK"))
+			self.btn_OK.SetToolTipString(_('dismiss popup and embed data'))
+			self.btn_Cancel = wx.wxButton(self, self._wxID_BTN_Cancel, _("Cancel"))
+			self.btn_Cancel.SetToolTipString(_('dismiss popup and throw away data'))
+			szr_buttons = wx.wxBoxSizer(wx.wxHORIZONTAL)
+			szr_buttons.Add(self.btn_OK, 1, wx.wxEXPAND | wx.wxALL, 1)
+			szr_buttons.Add(5, 0, 0)
+			szr_buttons.Add(self.btn_Cancel, 1, wx.wxEXPAND | wx.wxALL, 1)
+			# arrange
+			szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
+			szr_main.Add(text, 1, wx.wxEXPAND | wx.wxALL, 1)
+			szr_main.Add(szr_buttons, 0)
+			# layout
+			self.SetAutoLayout(True)
+			self.SetSizer(szr_main)
+			szr_main.Fit(self)
+
+		def __register_interests(self):
+			wx.EVT_BUTTON(self.btn_OK, self._wxID_BTN_OK, self._on_ok)
+			wx.EVT_BUTTON(self.btn_Cancel, self._wxID_BTN_Cancel, self._on_cancel)
+
+		def _on_ok(self, event):
+			self.__completion_callback(was_cancelled = False)
+
+		def _on_cancel(self, event):
+			self.__completion_callback(was_cancelled = True)
+	#================================================================
+	def create_widget_on_test_kwd3(parent, pos, size, style, completion_callback):
+		pnl = cTestKwdPopupPanel (
+			parent = parent,
+			pos = pos,
+			size = size,
+			style = style,
+			completion_callback = completion_callback
+		)
+		return pnl
+	#================================================================
 	class cSoapWin (cResizingWindow):
 		def DoLayout(self):
 			self.input1 = cResizingSTC(self, -1)
@@ -919,7 +995,7 @@ if __name__ == '__main__':
 			self.AddWidget (widget=self.input3, label="A+P")
 
 			kwds = {}
-			kwds['$test_keyword'] = {'widget_factory': create_widget_on_test_kwd2}
+			kwds['$test_keyword'] = {'widget_factory': create_widget_on_test_kwd3}
 			self.input2.set_keywords(popup_keywords=kwds)
 	#================================================================
 	class cSoapPanel(wx.wxPanel):
@@ -1004,7 +1080,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.15  2004-12-25 18:52:44  cfmoro
+# Revision 1.16  2004-12-30 12:39:10  ncq
+# - real popup sample added demonstrating the (yet unclean) API
+#
+# Revision 1.15  2004/12/25 18:52:44  cfmoro
 # Fixed var name in loop
 #
 # Revision 1.14  2004/12/23 21:57:31  ncq
