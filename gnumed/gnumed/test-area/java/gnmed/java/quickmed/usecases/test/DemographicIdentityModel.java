@@ -442,6 +442,8 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     void setTelephone( String telephone, enum_telephone_role role) {
+        if (telephone == null || role==null || telephone.trim().equals(""))
+            return;
         
         if ( role.equals(mobile) ) {
             telephone t = new telephone();
@@ -596,6 +598,8 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getMobilePhone() {
+        if ( getIdentity().getMobile() == null)
+            return "";
         return  getIdentity().getMobile().getNumber();
     }
     
@@ -775,9 +779,9 @@ public class DemographicIdentityModel implements  DemographicModel {
         logger.info( " number = " + number + " street = " + streetS + " urbOrState = " + urbOrState + " postcode = " + postcode);
         String urbS = null;
         String stateS = null;
-        String[]  parts ;
+        String[]  parts = streetS == null ? new String[] { "","" } : getTwoParts(streetS);
         
-        if ( number != null && postcode!=null && isValidPostcode(postcode) ) {
+        if ( number != null && postcode!=null && isValidPostcode(postcode) && parts.length < 2 ) {
             setAddressObject( number, isStateString(urbOrState) ? getStreetPartOnly(streetS) : streetS , postcode);
             return;
         }
@@ -839,6 +843,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public void setNokPhone(String nokPhone) {
+        
         setTelephone(nokPhone, nok);
     }
     

@@ -63,6 +63,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jPanel3 = new javax.swing.JPanel();
         commencedSpinner1 = new javax.swing.JSpinner();
         jLabel1 = new javax.swing.JLabel();
+        freezeCheckbox = new javax.swing.JCheckBox();
         jPanel4 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -155,6 +156,15 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         jPanel3.add(jLabel1, gridBagConstraints);
+
+        freezeCheckbox.setText("freeze details");
+        freezeCheckbox.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                freezeCheckboxStateChanged(evt);
+            }
+        });
+
+        jPanel3.add(freezeCheckbox, new java.awt.GridBagConstraints());
 
         jPanel1.add(jPanel3);
 
@@ -446,18 +456,6 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
                 addressFieldFocusLost(evt);
             }
         });
-        addressField.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
-            }
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-                addressFieldInputMethodTextChanged(evt);
-            }
-        });
-        addressField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                addressFieldKeyReleased(evt);
-            }
-        });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 4;
@@ -625,21 +623,36 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
 
     }//GEN-END:initComponents
 
+    void setEnabledCollection(Collection c, boolean enabled) {
+        Iterator i = c.iterator();
+        while (i.hasNext()) {
+            Object o = i.next();
+            if (o instanceof java.awt.Component) {
+                ((java.awt.Component)o).setEnabled(enabled);
+            }
+        }
+    }
+    
+    
+    private void freezeCheckboxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_freezeCheckboxStateChanged
+        // Add your handling code here:
+        boolean enabled = !freezeCheckbox.getModel().isSelected();
+        ComponentCollector cc = new ComponentCollector();
+        Iterator i = cc.collectType(JTextComponent.class, this).iterator();
+        while (i.hasNext()) {
+            JTextComponent c = (JTextComponent)i.next();
+            c.setEditable(enabled);
+        }
+       setEnabledCollection(cc.collectType(JComboBox.class, this), enabled);
+       setEnabledCollection(cc.collectType(JSpinner.class, this), enabled);
+      
+    }//GEN-LAST:event_freezeCheckboxStateChanged
+
     private void surnameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_surnameFieldActionPerformed
         // Add your handling code here:
         
     }//GEN-LAST:event_surnameFieldActionPerformed
-    
-    private void addressFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_addressFieldKeyReleased
-        // Add your handling code here:
-        getModel().setAddress(addressField.getText());
-    }//GEN-LAST:event_addressFieldKeyReleased
-    
-    private void addressFieldInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_addressFieldInputMethodTextChanged
-        // Add your handling code here:
-        
-    }//GEN-LAST:event_addressFieldInputMethodTextChanged
-    
+            
     private void sexComboBox2ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_sexComboBox2ItemStateChanged
         // Add your handling code here:
         getModel(). setSex((String)sexComboBox2.getSelectedItem());
@@ -735,6 +748,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     private javax.swing.JLabel emailLabel;
     private javax.swing.JTextField emailTextField20;
     private javax.swing.JTextField ethnicityTextField13;
+    private javax.swing.JCheckBox freezeCheckbox;
     private javax.swing.JComboBox fundComboBox1;
     private javax.swing.JTextField givenNameField;
     private javax.swing.JTextField hccExpField8;
@@ -928,10 +942,14 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     }
     
     public void setBirthdate(Object birthdate) {
+        if (birthdate == null)
+            return;
         birthdateSpinner2.setValue(birthdate);
     }
     
     public void setCommenced(Object commenced) {
+        if (commenced == null)
+            return;
         commencedSpinner1.setValue(commenced);
     }
     
@@ -1087,6 +1105,22 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     
     public Object[] getRhesusList() {
           return getModel().getRhesusList();
+    }
+    
+    /** Getter for property frozen.
+     * @return Value of property frozen.
+     *
+     */
+    public boolean isFrozen() {
+        return freezeCheckbox.getModel().isSelected();
+    }
+    
+    /** Setter for property frozen.
+     * @param frozen New value of property frozen.
+     *
+     */
+    public void setFrozen(boolean frozen) {
+        freezeCheckbox.setSelected(frozen);
     }
     
 }

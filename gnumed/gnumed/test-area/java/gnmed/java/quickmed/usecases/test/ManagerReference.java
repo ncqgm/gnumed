@@ -17,5 +17,16 @@ public interface ManagerReference {
     TestProblemManager getProblemManager();
     TestScriptDrugManager getScriptDrugManager();
     
+    /** Getter for property connected.
+     * @return Value of property connected.
+     *
+     */
+    public boolean isConnected();    
+    
+    /** Setter for property connected.
+     * @param connected New value of property connected.
+     *
+     */
+    public void setConnected(boolean connected) throws Exception;
     
 }

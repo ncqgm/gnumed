@@ -84,7 +84,7 @@ public class identity {
     private Date deceased;
     
     
-    public Collection clin_attribute = new java.util.HashSet(); // of type clin_attribute
+    private Collection clin_attribute = new java.util.HashSet(); // of type clin_attribute
     
     
     ///////////////////////////////////////
@@ -95,26 +95,41 @@ public class identity {
      *
      * </p>
      */
-    public Collection identities_addresses = new java.util.HashSet(); // of type identities_addresses
+    private Collection identities_addresses = new java.util.HashSet(); // of type identities_addresses
     /**
      * <p>
      *
      * </p>
      */
-    public Collection clin_health_issue = new java.util.HashSet(); // of type clin_health_issue
+    private Collection clin_health_issue = new java.util.HashSet(); // of type clin_health_issue
     /**
      * <p>
      *
      * </p>
      */
-    public Collection clin_encounter = new java.util.HashSet(); // of type clin_encounter
+    private Collection clin_encounter = new java.util.HashSet(); // of type clin_encounter
     
-    public Collection names = new java.util.HashSet(); // of type Names
+    private Collection names = new java.util.HashSet(); // of type Names
     Collection script_drug = new java.util.HashSet();
     
     /** Holds value of property mobile. */
     private org.gnumed.gmGIS.telephone mobile;
-    public Collection social_identity = new java.util.HashSet(); // of type social_identity
+    private Collection social_identity = new java.util.HashSet(); // of type social_identity
+    
+   
+    /** Holds value of property persister. */
+    private Object persister;
+    
+    /** Holds value of property roles. */
+    private Collection roles;
+    
+    
+    
+    private StringBuffer sb = new StringBuffer();
+    private static java.text.Format dateFormat= java.text.DateFormat.getDateInstance( java.text.DateFormat.SHORT);
+    
+    
+    
     
     
     /**
@@ -560,6 +575,10 @@ public class identity {
     
     
     
+    
+    
+    
+    
     public script_drug findDrugScriptWithProduct(final product product, Double qty) throws Exception {
         Iterator i = getScript_drugs().iterator();
         long smallest = Long.MAX_VALUE;
@@ -587,11 +606,6 @@ public class identity {
     
     
     
-    StringBuffer sb = new StringBuffer();
-    static java.text.Format dateFormat= java.text.DateFormat.getDateInstance( java.text.DateFormat.SHORT);
-    
-    /** Holds value of property persister. */
-    private Object persister;
     
     public String toString() {
         sb.delete(0, sb.length());
@@ -636,6 +650,40 @@ public class identity {
      */
     public void setPersister(Object persister) {
         this.persister = persister;
+    }
+    
+    /** Getter for property role.
+     * @return Value of property role.
+     * @hibernate.set
+     *      cascade="all"
+     *      inverse="true"
+     * @hibernate.collection-key
+     *      column="identity"
+     * @hibernate.collection-one-to-many
+     *      class="org.gnumed.gmIdentity.identity_role_info"
+     */
+    public Collection getRoles() {
+        return this.roles;
+    }
+    
+    /** Setter for property role.
+     * @param role New value of property role.
+     *
+     */
+    public void setRoles(Collection roles) {
+        this.roles = roles;
+    }
+    
+    public void addRole(identity_role role) {
+        if (getRoles().contains(role))
+            return;
+        getRoles().add(role);
+    }
+    
+    public void removeRole(identity_role role) {
+        if (getRoles().contains(role))
+            return;
+        getRoles().remove(role);
     }
     
     // end setId

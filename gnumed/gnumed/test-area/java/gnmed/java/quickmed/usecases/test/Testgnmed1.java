@@ -139,7 +139,9 @@ public class Testgnmed1 extends javax.swing.JFrame {
         // Add your handling code here:
         // creates a new patient inner frame
         PatientInnerFrame frame = new PatientInnerFrame();
-        frame.getIdentity().setPersister(new SingleSessionManagerReference());
+        identity id = new identity();
+        id.setPersister(new SingleSessionManagerReference());
+        frame.setIdentity(id);
         desktopPane.add(frame);
         frame.setVisible(true);
         
@@ -163,10 +165,11 @@ public class Testgnmed1 extends javax.swing.JFrame {
         Object[] selected = idFinder.getSelectedValues();
         for (int i = 0; i < selected.length; ++i) {
             PatientInnerFrame frame = new PatientInnerFrame();
+            
             identity id = (identity) selected[i];
             id.setPersister(idFinder.getManagerRef());
             frame.setIdentity(id);
-            
+            frame.setDemographicsFrozen(true);
             desktopPane.add(frame);
             frame.setVisible(true);
             addWindowMenuItem(frame);

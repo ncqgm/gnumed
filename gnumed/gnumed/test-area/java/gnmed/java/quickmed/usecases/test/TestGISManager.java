@@ -278,6 +278,14 @@ public class TestGISManager {
     }
     
     public telephone setTelephoneWithRoleAt( identity id, String number, enum_telephone_role role, address_type addressType) {
+           
+            // pre-condition
+            if ( number == null || number.trim().length() == 0)
+               return null;
+           
+           number = number.trim();
+           
+           
            address a =findAddressByType(id, addressType);
             if (a == null)
                 a =  addDefaultAddress(id , addressType);

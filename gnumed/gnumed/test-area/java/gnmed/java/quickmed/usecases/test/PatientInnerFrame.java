@@ -22,8 +22,9 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
     }
     
     void addViews() {
-     summaryPanel1 = new SummaryPanel();
-     jScrollPane1.setViewportView(summaryPanel1);
+        summaryPanel1 = new SummaryPanel();
+        jScrollPane1.setViewportView(summaryPanel1);
+        pack();
     }
     
     /** This method is called from within the constructor to
@@ -66,11 +67,17 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
     private void formInternalFrameClosing(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameClosing
         // Add your handling code here:
         summaryPanel1.transferFormToModel();
+        try {
+            ( (ManagerReference)summaryPanel1.getIdentity().getPersister()).setConnected(true);
+            
+        } catch (Exception e) {
+           System.out.println(e);
+        }
         gnmed.test.DomainPrinter.getInstance().printIdentity( System.out, summaryPanel1.getIdentity());
         try {
             ((ManagerReference)summaryPanel1.getIdentity().getPersister()).getIdentityManager().save(summaryPanel1.getIdentity());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }//GEN-LAST:event_formInternalFrameClosing
     
@@ -95,8 +102,8 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
     public void setIdentity(identity identity) {
         
         summaryPanel1.setIdentity(identity);
-       
-       changeTitle();
+        
+        changeTitle();
     }
     
     void changeTitle() {
@@ -115,22 +122,38 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
                 append(", ").
                 append( ResourceBundle.getBundle(TERMS).getString("medical_record") );
                 
-               setTitle(sb.toString());
+                setTitle(sb.toString());
             }
         }
     }
     
-//    
-//    public String getTitle() {
-//        if (getIdentity() != null) {
-//            
-//        }
-//        return ResourceBundle.getBundle(TERMS).getString("medical_record");
-//    }
+    /** Getter for property demographicsFrozen.
+     * @return Value of property demographicsFrozen.
+     *
+     */
+    public boolean isDemographicsFrozen() {
+        return summaryPanel1.isDemographicsFrozen();
+    }
+    
+    /** Setter for property demographicsFrozen.
+     * @param demographicsFrozen New value of property demographicsFrozen.
+     *
+     */
+    public void setDemographicsFrozen(boolean demographicsFrozen) {
+        summaryPanel1.setDemographicsFrozen(demographicsFrozen);
+    }
+    
+    //
+    //    public String getTitle() {
+    //        if (getIdentity() != null) {
+    //
+    //        }
+    //        return ResourceBundle.getBundle(TERMS).getString("medical_record");
+    //    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
-
+    
     
 }

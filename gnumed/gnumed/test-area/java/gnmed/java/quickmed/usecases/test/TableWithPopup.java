@@ -86,9 +86,13 @@ public class TableWithPopup extends javax.swing.JPanel {
     private void deleteObjectAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteObjectAction
         // Add your handling code here:
          if ( jTable1.getModel()  instanceof ListObjectTableModel) {
-            ListObjectTableModel model = (ListObjectTableModel) jTable1.getModel();
+            ListObjectTableModel model = (ListObjectTableModel)jTable1.getModel();
             int row = jTable1.getSelectedRow();
-            model.remove(row);
+                
+            if ( JOptionPane.YES_OPTION == 
+            JOptionPane.showConfirmDialog(jTable1, "Are you sure you wish to delete " +model.getDisplayString(model.getList().get(row)) ) ) {
+                model.remove(row);
+            }
             
         }
     }//GEN-LAST:event_deleteObjectAction

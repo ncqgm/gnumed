@@ -147,6 +147,8 @@ public class ProblemDialog extends javax.swing.JDialog implements SearchSelectab
     
     public void setSearchText(String text) {
         jTextField1.setText(text);
+        if (text == null || text.trim().equals("") || text.trim().equals("%") )
+            return;
         jTextField1ActionPerformed(new java.awt.event.ActionEvent(jTextField1, 1, "search"));
     }
     

@@ -243,6 +243,9 @@ public class PrescribeDialog extends javax.swing.JDialog implements SearchSelect
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
         // Add your handling code here:
+        String text = jTextField1.getText();
+         if (text == null || text.trim().equals("") || text.trim().equals("%") )
+            return;
         try {
         List l =   getDrugManager().findPackagedProductByDrugName(jTextField1.getText());
 //                l.add(0, e.getDocument().getText(0, e.getDocument().getLength()));

@@ -17,6 +17,7 @@ import java.text.*;
  * @author  sjtan
  */
 public class ListObjectTableModel  extends AbstractTableModel {
+    private static Object[] zeroArgs = new Object[0];
     static Logger logger = Logger.global;
     /** Holds value of property list. */
     private java.util.List list = new ArrayList();
@@ -377,5 +378,20 @@ public class ListObjectTableModel  extends AbstractTableModel {
             ( (Removable)o).remove();
         fireTableDataChanged();   
         return o;
+    }
+    
+    public String getDisplayString(Object o) {
+        if (! getBeanClass().isAssignableFrom(o.getClass()))
+            return "";
+       StringBuffer sb = new StringBuffer();
+       for (int i = 0; i < getColumnPropertyDescriptors().length; ++i) {
+           try {
+               sb.append( getColumnPropertyDescriptors()[i].getReadMethod().invoke(o, zeroArgs).toString() );
+               if (i != getColumnPropertyDescriptors().length -1)
+                   sb.append(": ");
+           } catch (Exception e) {
+           }
+       }
+       return sb.toString();
     }
 }

@@ -20,7 +20,7 @@ public class SummaryPanel extends javax.swing.JPanel {
         modifyTabNames();
         
         // set link
-        otherSummaryPanel1.setIdentity(demographicPanel1.getIdentity());
+        otherSummaryPanel1.setIdentity(new identity());
     }
     
     void addViews() {
@@ -91,6 +91,22 @@ public class SummaryPanel extends javax.swing.JPanel {
     
     public void transferFormToModel() {
         demographicPanel1.transferFormToModel();
+    }
+    
+    /** Getter for property demographicsFrozen.
+     * @return Value of property demographicsFrozen.
+     *
+     */
+    public boolean isDemographicsFrozen() {
+        return demographicPanel1.isFrozen();
+    }
+    
+    /** Setter for property demographicsFrozen.
+     * @param demographicsFrozen New value of property demographicsFrozen.
+     *
+     */
+    public void setDemographicsFrozen(boolean demographicsFrozen) {
+        demographicPanel1.setFrozen(demographicsFrozen);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

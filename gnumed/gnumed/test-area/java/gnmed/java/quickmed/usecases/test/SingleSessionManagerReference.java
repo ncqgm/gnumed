@@ -68,7 +68,18 @@ public class SingleSessionManagerReference extends SessionHolder implements Mana
         return scriptDrugManager;
     }
     
+    public boolean isConnected() {
+        return getSession().isConnected();
+    }    
     
+    public void setConnected(boolean connected) throws Exception {
+        
+        if (connected)
+            getSession().reconnect();
+        else
+            getSession().disconnect();
+        
+    }    
  
       
 }
