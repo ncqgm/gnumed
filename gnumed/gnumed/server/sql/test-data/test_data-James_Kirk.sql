@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -78,7 +78,7 @@ insert into vaccination (
 	fk_provider,
 	fk_vaccine,
 	fk_vacc_def,
-	clin_date,
+	clin_when,
 	site,
 	batch_no
 ) values (
@@ -141,7 +141,10 @@ insert into allergy_state (
 commit;
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.3  2003-11-13 09:47:29  ncq
+-- Revision 1.4  2003-11-16 19:32:17  ncq
+-- - clin_when in clin_root_item
+--
+-- Revision 1.3  2003/11/13 09:47:29  ncq
 -- - use clin_date instead of date_given in vaccination
 --
 -- Revision 1.2  2003/11/09 17:58:46  ncq

@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.30 2003-11-13 09:47:29 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.31 2003-11-16 19:32:17 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -63,27 +63,10 @@ where
 	cu_e.id_encounter = cl_e.id
 ;
 
---\unset ON_ERROR_STOP
---drop view v_i18n_patient_encounters;
---\set ON_ERROR_STOP 1
-
---create view v_i18n_patient_encounters as
---select distinct on (vpi.id_encounter)
---	ce.id as id_encounter,
---	ce.id_location as id_location,
---	ce.id_provider as id_provider,
---	vpi.id_patient as id_patient,
---	_(et.description) as type
---from
---	(clin_encounter ce inner join v_patient_items vpi on (ce.id=vpi.id_encounter)),
---	_enum_encounter_type et
---where
---	et.id=ce.id_type
---;
 -- ---------------------------------------------
-create index idx_uniq_def_encounter
-   on clin_encounter(fk_patient)
-where description = '__default__';
+--create index idx_uniq_def_encounter
+--   on clin_encounter(fk_patient)
+--where description = '__default__';
 
 -- =============================================
 \unset ON_ERROR_STOP
@@ -145,9 +128,10 @@ drop view v_patient_items;
 
 create view v_patient_items as
 select
-	extract(epoch from cri.modified_when) as age,
+	extract(epoch from cri.clin_when) as age,
 	cri.modified_when as modified_when,
 	cri.modified_by as modified_by,
+	cri.clin_when as clin_date,
 	case cri.row_version
 		when 0 then false
 		else true
@@ -374,7 +358,7 @@ create view v_patient_vaccinations as
 select
 	v.id as pk_vaccination,
 	v.fk_patient as pk_patient,
-	v.clin_date as date,
+	v.clin_when as date,
 	vcine.trade_name as vaccine,
 	vcine.short_name as vaccine_short,
 	v.batch_no as batch_no,
@@ -472,11 +456,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.30 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.31 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.30  2003-11-13 09:47:29  ncq
+-- Revision 1.31  2003-11-16 19:32:17  ncq
+-- - clin_when in clin_root_item
+--
+-- Revision 1.30  2003/11/13 09:47:29  ncq
 -- - use clin_date instead of date_given in vaccination
 --
 -- Revision 1.29  2003/11/09 22:45:45  ncq
