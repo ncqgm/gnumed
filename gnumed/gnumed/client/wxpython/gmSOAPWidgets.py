@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.30 2005-03-18 16:48:41 cfmoro Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmSOAPWidgets.py,v 1.31 2005-03-29 07:31:01 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -43,8 +43,8 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 	Post-0.1? :
 		-Add context information widgets
 
-	Currently displays a dynamic stack of note input widgets on the left
-	and the health problems list on the right.
+	Currently displays a dynamic stack of note input widgets on the
+	right and the health problems list on the left
 	"""
 	#--------------------------------------------------------
 	def __init__(self, parent, id):
@@ -55,7 +55,6 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		@param id: Wx widget id
 		"""
 		# Call parents constructors
-		print "creating", self.__class__.__name__
 		wx.wxPanel.__init__ (
 			self,
 			parent = parent,
@@ -80,17 +79,37 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 	def __do_layout(self):
 		"""Arrange widgets.
 
-		left: soap editors
-		right: problem list (mix of issues and episodes)
+		left: problem list (mix of issues and episodes)
+		right: soap editors
 		"""
 		# SOAP input panel main splitter window
 		self.__splitter = wx.wxSplitterWindow(self, -1)
 
 		# left hand side
+		PNL_list = wx.wxPanel(self.__splitter, -1)
+		# - header
+		list_header = wx.wxStaticText (
+			parent = PNL_list,
+			id = -1,
+			label = _('Problem List (health issues and episodes)'),
+			style = wx.wxNO_BORDER | wx.wxALIGN_CENTRE
+		)
+		# - problem list
+		self.__LST_problems = wx.wxListBox (
+			PNL_list,
+			-1,
+			style= wx.wxNO_BORDER
+		)
+		# - arrange widgets
+		szr_left = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_left.Add(list_header, 0)
+		szr_left.Add(self.__LST_problems, 1, wx.wxEXPAND)
+		PNL_list.SetSizerAndFit(szr_left)
+
+		# right hand side
 		# - soap inputs panel
 		PNL_soap_editors = wx.wxPanel(self.__splitter, -1)
 		self.__soap_multisash = gmMultiSash.cMultiSash(PNL_soap_editors, -1)				
-		#self.__soap_multisash.SetController(self)		# what does this do ?
 		# - buttons
 		self.__BTN_save = wx.wxButton(PNL_soap_editors, -1, _('&Save'))
 		#self.__BTN_save.Disable()
@@ -114,32 +133,24 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		#self.__BTN_new.SetToolTipString(_('create empty progress note for new problem'))
 
 		# - arrange widgets
-		szr_btns_left = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		szr_btns_left.Add(self.__BTN_save, 0, wx.wxSHAPED)
-		szr_btns_left.Add(self.__BTN_clear, 0, wx.wxSHAPED)		
-		szr_btns_left.Add(self.__BTN_remove, 0, wx.wxSHAPED)
-		szr_btns_left.Add(self.__BTN_add_unassociated, 0, wx.wxSHAPED)
-		szr_left = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_left.Add(self.__soap_multisash, 1, wx.wxEXPAND)
-		szr_left.Add(szr_btns_left)
-		PNL_soap_editors.SetSizerAndFit(szr_left)
-
-		# right hand side
-		# - problem list
-		self.__LST_problems = wx.wxListBox (
-			self.__splitter,
-			-1,
-			style= wx.wxNO_BORDER
-		)
+		szr_btns_right = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		szr_btns_right.Add(self.__BTN_save, 0, wx.wxSHAPED)
+		szr_btns_right.Add(self.__BTN_clear, 0, wx.wxSHAPED)		
+		szr_btns_right.Add(self.__BTN_remove, 0, wx.wxSHAPED)
+		szr_btns_right.Add(self.__BTN_add_unassociated, 0, wx.wxSHAPED)
+		szr_right = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_right.Add(self.__soap_multisash, 1, wx.wxEXPAND)
+		szr_right.Add(szr_btns_right)
+		PNL_soap_editors.SetSizerAndFit(szr_right)
 
 		# arrange widgets
 		self.__splitter.SetMinimumPaneSize(20)
-		self.__splitter.SplitVertically(PNL_soap_editors, self.__LST_problems)
+		self.__splitter.SplitVertically(PNL_list, PNL_soap_editors)
 
 		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
 		szr_main.Add(self.__splitter, 1, wx.wxEXPAND, 0)
 		self.SetSizerAndFit(szr_main)
-	#--------------------------------------------------------			
+	#--------------------------------------------------------
 	def __refresh_problem_list(self):
 		"""
 		Updates health problems list
@@ -148,12 +159,21 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		emr = self.__pat.get_clinical_record()
 		problems = emr.get_problems()
 		for problem in problems:
-			item = '%s (%s)' % (problem['problem'], problem['type'])
+			if problem['type'] == 'issue':
+				issue = emr.problem2issue(problem)
+				last_encounter = emr.get_last_encounter(issue_id = issue['id'])
+				last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
+			elif problem['type'] == 'episode':
+				epi = emr.problem2episode(problem)
+				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
+				last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
+			else:
+				last = _('unknown')
+			item = _('%s "%s" (last %s)') % (_(problem['type']), problem['problem'], last)
 			self.__LST_problems.Append(item, problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
 		return True
-		
 	#--------------------------------------------------------
 	def __update_button_state(self):
 		"""
@@ -304,8 +324,8 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
 
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self.__on_patient_selected)
-		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self.__on_episodes_modified)
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
 	#--------------------------------------------------------
 	def __on_problem_activated(self, event):
 		"""
@@ -321,13 +341,11 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			- if currently selected editor is an unassociated one and its episode name is empty,
 			  set its episode name in phrasewheel
 		"""
-		print self.__class__.__name__, "-> __on_problem_activated()"
 		problem_idx = self.__LST_problems.GetSelection()
 		problem = self.__LST_problems.GetClientData(problem_idx)		
 
 		# FIXME: constant in gmEMRStructIssues 
 		if problem['type'] == 'issue':
-			print "... is issue"
 			# health issue selected, show episode selector dialog
 			pk_issue = problem['pk_health_issue']
 			episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg (
@@ -343,15 +361,12 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 				print "would be refreshing problem list now"
 #				self.__refresh_problem_list()
 				self.__selected_episode = episode_selector.get_selected_episode()
-				print 'Creating progress note for episode: %s' % self.__selected_episode
 			elif retval == gmEMRStructWidgets.dialog_CANCELLED:
-				print 'User canceled'
 				return False
 			else:
 				raise Exception('Invalid dialog return code [%s]' % retval)
 			episode_selector.Destroy() # finally destroy it when finished.
 		elif problem['type'] == 'episode':
-			print "... is episode"
 			# FIXME: check use of self.__selected_episode whether we can leave it as problem
 			self.__selected_episode = self.__pat.get_clinical_record().get_episodes(id_list=[problem['pk_episode']])[0]
 		else:
@@ -390,12 +405,11 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		self.__update_button_state()
 
 	#--------------------------------------------------------
-	def __on_patient_selected(self):
+	def _on_patient_selected(self):
 		"""Patient changed."""
 		self._schedule_data_reget()
 	#--------------------------------------------------------
-	def __on_episodes_modified(self):
-		print "episodes modified ..."
+	def _on_episodes_modified(self):
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def __on_save(self, event):
@@ -440,26 +454,10 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		# fill bundle for import
 		bundle = []
 		editor_content = soap_editor.GetValue()
-		print editor_content
 #		for input_label in editor_content.keys():
 		for input_label in editor_content.values():
 			print "Data: %s" % input_label.data
 			print "Value: %s" % input_label.value
-#			narr = editor_content[input_label].value
-#			if isinstance(narr, gmClinNarrative.cNarrative):
-#				# double-check staff_id vs. narr['who owns it']
-#				print "updating existing narrative"
-#				narr['narrative'] = editor_content['text']
-#				narr['soap_cat'] = editor_content['soap_cat']
-#				successful, data = narr.save_payload()
-#				if not successful:
-					# FIXME: pop up error dialog etc.
-#					print "cannot update narrative"
-#					print data
-#					continue
-				# FIXME: update associated types list
- 				# FIXME: handle embedded structural data list
-#				continue
 			bundle.append ({
 				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: input_label.data['soap_cat'],
 				gmSOAPimporter.soap_bundle_TYPES_KEY: [],		# these types need to come from the editor
@@ -511,8 +509,6 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		"""
 		Removes currently selected SOAP input widget
 		"""
-
-		print "remove SOAP input widget"
 		selected_leaf = self.__soap_multisash.get_focussed_leaf()
 		if not isinstance(selected_leaf.get_content(), cResizingSoapPanel):
 			msg = _('Cannot remove. No progress note editor is selected.')
@@ -840,7 +836,6 @@ class cResizingSoapPanel(wx.wxPanel):
 		epi_list = []
 		for epi in episodes:
 			epi_list.append({'label': epi['description'], 'data': epi['description']})
-		print epi_list
 		return epi_list
 	#--------------------------------------------------------
 	def GetHeadingTxt(self):
@@ -1175,7 +1170,14 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.30  2005-03-18 16:48:41  cfmoro
+# Revision 1.31  2005-03-29 07:31:01  ncq
+# - according to user feedback:
+#   - switch sides for problem selection/progress note editor
+#   - add header to problem list
+#   - improve problem list formatting/display "last open"
+# - remove debugging code
+#
+# Revision 1.30  2005/03/18 16:48:41  cfmoro
 # Fixes to integrate multisash notes input plugin in wxclient
 #
 # Revision 1.29  2005/03/17 21:23:16  cfmoro
