@@ -10,6 +10,6 @@
 #SHOW-MED_DOCS_DIR = ""
 
 python ./show-med_docs.py \
-	--conf-file=/home/ncq/.gnumed/gnumed-archiv.conf \
-	--text-domain=gnumed-archiv \
+	--conf-file=/home/ncq/.gnumed/gnumed-archive.conf \
+	--text-domain=gnumed-archive \
 	--log-file=/var/log/gnumed/archive-view.log

@@ -5,7 +5,7 @@
 # - first arg should be ISO language code
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/locale/Attic/create-gnumed_po.sh,v $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 # what language are we working on
 LANGNAME="$1"
@@ -17,15 +17,15 @@ fi
 # where to look for files
 BASE="../dist/"
 # what to call the result
-POTNAME="gnumed-archiv.pot"
+POTNAME="gnumed-archive.pot"
 
 echo "harvesting python source files in ${BASE} into the file ${POTNAME}"
 find ${BASE} -follow -name '*.py' -print0 | xargs -0 pygettext.py -v -o ${POTNAME} "-"
 
 echo "merging current source strings with old translations for language ${LANGNAME}"
 if [ -f "${LANGNAME}.po" ]; then
-	msgmerge -v -o gnumed-archiv-${LANGNAME}.po ${LANGNAME}.po ${POTNAME}
-	mv -vf gnumed-archiv-${LANGNAME}.po ${LANGNAME}.po
+	msgmerge -v -o gnumed-archive-${LANGNAME}.po ${LANGNAME}.po ${POTNAME}
+	mv -vf gnumed-archive-${LANGNAME}.po ${LANGNAME}.po
 	#rm -vf ${POTNAME}
 else
 	cp -vf ${POTNAME} ${LANGNAME}.po
