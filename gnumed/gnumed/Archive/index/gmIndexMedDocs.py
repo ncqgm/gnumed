@@ -11,7 +11,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -410,7 +410,7 @@ class indexFrame(wxPanel):
 		"""Set up phrase wheel.
 		"""
 		phrase_wheel_choices = self.__get_phrasewheel_choices()
-		
+
 		# FIXME: we need to set this to non-learning mode
 		self.mp = gmMatchProvider.cMatchProvider_FixedList(phrase_wheel_choices)
 		self.mp.setWordSeparators(separators = '[ \t=+&:@]+')
@@ -425,7 +425,6 @@ class indexFrame(wxPanel):
 		self.doc_id_wheel.on_resize (None)
 
 		return 1
-		
 	#--------------------------------
 	def __get_valid_doc_types(self):
 		# running standalone ? -> configfile
@@ -993,7 +992,7 @@ else:
 		def can_receive_focus(self):
 			# need patient
 			if not self._verify_patient_avail():
-				return None			
+				return None
 			return 1
 		# ---------------------------------------------
 		def DoToolbar (self, tb, widget):
@@ -1049,7 +1048,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.5  2003-11-09 16:01:16  ncq
+# Revision 1.6  2003-11-18 14:12:23  ncq
+# - cleanup
+#
+# Revision 1.5  2003/11/09 16:01:16  ncq
 # - cleanup
 #
 # Revision 1.4  2003/11/09 15:42:27  shilbert
