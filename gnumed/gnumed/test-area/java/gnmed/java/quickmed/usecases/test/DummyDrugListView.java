@@ -40,6 +40,9 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
     
     private script_drug script_drug;
     
+    /** Holds value of property manager. */
+    private TestScriptDrugManager manager;
+    
     /** Creates a new instance of DummyDrugListVIew */
     public DummyDrugListView() {
     }
@@ -61,13 +64,15 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
     }
     
     public void setDirections(String directions) {
-        Logger.global.info(this + " directions = " + directions);
+        Logger.global.finer(this + " directions = " + directions);
         this. directions = directions;
         updateIdentity();
     }
     
     public void setDrug(Object drug) {
-        Logger.global.info(this + " drug = " + drug.getClass() + ":"+drug);
+        if (drug == null)
+            return;
+        Logger.global.finer(this + " drug = " + drug.getClass() + ":"+drug);
         this.drug = drug;
         if (drug instanceof package_size) {
             package_size sz = (package_size) drug;
@@ -99,7 +104,7 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
      */
     public identity getIdentity() {
         if (getIdentityRef() != null) {
-            Logger.global.info("USING IDENTITY REF TO RETURN IDENTITY");
+            Logger.global.finer("USING IDENTITY REF TO RETURN IDENTITY");
             return (identity) getIdentityRef().getRef();
         }
         return this.identity;
@@ -146,7 +151,6 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
         
         if (!isUpdating())
             return;
-        TestScriptDrugManager manager = TestScriptDrugManager.instance();
         
         /*       ||||||||||||||||||||||||||||||||||
          * replace this with a linked script later.
@@ -159,7 +163,7 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
             Double qty = new Double(getQty().doubleValue());
             //try to update.  
             // ************   Meed tp deal with multiple duplicate products as well.
-            if (manager.updateIdentityScriptDrugs( getIdentity(), pz.getProduct(), qty,
+            if (getManager().updateIdentityScriptDrugs( getIdentity(), pz.getProduct(), qty,
                                                   getDirections(), getRepeats(), script)
                                                   )
             {
@@ -168,7 +172,7 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
             }
             
             //else create
-            manager.createIdentityScriptDrug( getIdentity(), pz, qty,
+             getManager().createIdentityScriptDrug( getIdentity(), pz, qty,
                                                                  getDirections(), getRepeats(), script);
             
             showIdentity();
@@ -184,11 +188,16 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
     }
     
     public void setScriptDrug(script_drug sd) {
-        Logger.global.info("Setting " + this + " with product = " +
+        try {
+        Logger.global.finer("Setting " + this + " with product = " +
             ((generic_drug_name)sd.getPackage_size().getProduct().getDrug_element().getGeneric_name().iterator().next()).getName() +
             "  directions = " + sd.getDirections() );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         
         setDrug(sd.getPackage_size());
+        if (sd.getQty() != null)
         setQty(new Integer(sd.getQty().intValue() ));
         setDirections(sd.getDirections());
         try {if (sd.getLink_script_drugs().iterator().hasNext()) 
@@ -220,7 +229,17 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
     }
     
     public void remove() {
-        TestScriptDrugManager.instance().removeScriptDrug( getIdentity(), getScriptDrug());
+        getManager().removeScriptDrug( getIdentity(), getScriptDrug());
     }
+    
+    /** Getter for property manager.
+     * @return Value of property manager.
+     *
+     */
+    public TestScriptDrugManager getManager() {
+        return ((ManagerReference)getIdentity().getPersister()).getScriptDrugManager();
+    }
+    
+    
     
 }

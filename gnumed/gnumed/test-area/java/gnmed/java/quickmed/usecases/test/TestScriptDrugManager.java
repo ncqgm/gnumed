@@ -26,7 +26,10 @@ import java.util.logging.*;
  */
 public class TestScriptDrugManager {
     
+    
     private  static TestScriptDrugManager manager;
+    
+     
     static {
         manager = new TestScriptDrugManager();
     };
@@ -45,11 +48,11 @@ public class TestScriptDrugManager {
     
     public List findScriptScript( identity id, product p) throws Exception {
         
-        Session sess =  HibernateInit.openSession();
+        Session sess =  getSession();  
         List l = sess.find("select sd from script_drug sd inner join sd.identity i "+
         " where sd.product.id = ? and i.id = ?", new Object[] { p.getId(), id.getId() } ,
         new Type[] { Hibernate.INTEGER, Hibernate.INTEGER }      );
-        sess.close();
+        getSession().disconnect();
         return l;
     }
     
@@ -87,14 +90,14 @@ public class TestScriptDrugManager {
         List l = null;
         Session s = null;
         try {
-            s = HibernateInit.openSession();
+            s = getSession(); 
             l = s.find("select p from product p inner join p.drug_element.generic_name n"
             + " where n.name like ? ",  name + "%" ,   Hibernate.STRING  );
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                s.close();
+                getSession().disconnect();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
@@ -102,24 +105,58 @@ public class TestScriptDrugManager {
         return l;
     }
     public List findPackagedProductByDrugName( String name) throws Exception {
-        Session s = HibernateInit.openSession();
+        Session s = getSession();  
         List l = s.find("select p from package_size p inner join p.product.drug_element.generic_name n"
         + " where n.name like ? ",  name + "%" ,   Hibernate.STRING  );
         
-        s.close();
+        getSession().disconnect();
         return l;
     }
     
     public List doQuery( String query, String var, boolean closeSession) throws Exception {
-        Session s = HibernateInit.openSession();
+        Session s = getSession(); 
         List l = s.find(query, var, Hibernate.STRING);
         if (closeSession)
-            s.close();
+           getSession().disconnect();
         return l;
     }
     public static void  main( String[] args) throws Exception {
         
         
+    }
+    
+    
+    private SessionHolder sessionHolder = new SessionHolder();
+    /** Getter for property session.
+     * @return Value of property session.
+     *
+     */
+    public Session getSession() {
+       return getSessionHolder().getSession();
+    }
+    
+    /** Setter for property session.
+     * @param session New value of property session.
+     *
+     */
+    public void setSession(Session session) {
+        getSessionHolder().setSession(session);
+    }
+    
+    /** Getter for property sessionHolder.
+     * @return Value of property sessionHolder.
+     *
+     */
+    public SessionHolder getSessionHolder() {
+        return this.sessionHolder;
+    }
+    
+    /** Setter for property sessionHolder.
+     * @param sessionHolder New value of property sessionHolder.
+     *
+     */
+    public void setSessionHolder(SessionHolder sessionHolder) {
+        this.sessionHolder = sessionHolder;
     }
     
 }

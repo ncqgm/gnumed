@@ -4,6 +4,7 @@
  */
 package org.gnumed.gmIdentity;
 
+
 import java.util.*;
 import java.util.Date;
 import org.gnumed.gmClinical.clin_encounter;
@@ -433,7 +434,7 @@ public class identity {
     /** Getter for property mobile.
      * @return Value of property mobile.
      *
-     *@hibernate.many-tp-one
+     *@hibernate.many-to-one
      *  cascade="all"
      */
     public org.gnumed.gmGIS.telephone getMobile() {
@@ -570,10 +571,14 @@ public class identity {
             if (sd.getPackage_size().getProduct() == product)
                 return sd;
             // if pretty close
-            long diff = Math.abs(Double.doubleToLongBits(qty.doubleValue()) - Double.doubleToLongBits(sd.getQty().doubleValue()));
-            if (sd.getPackage_size().getProduct().equals(product) &&  diff < smallest) {
-                smallest = diff;
-                chosen = sd;
+            try {
+                long diff = Math.abs(Double.doubleToLongBits(qty.doubleValue()) - Double.doubleToLongBits(sd.getQty().doubleValue()));
+                if (sd.getPackage_size().getProduct().equals(product) &&  diff < smallest) {
+                    smallest = diff;
+                    chosen = sd;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return chosen;
@@ -584,6 +589,9 @@ public class identity {
     
     StringBuffer sb = new StringBuffer();
     static java.text.Format dateFormat= java.text.DateFormat.getDateInstance( java.text.DateFormat.SHORT);
+    
+    /** Holds value of property persister. */
+    private Object persister;
     
     public String toString() {
         sb.delete(0, sb.length());
@@ -612,6 +620,22 @@ public class identity {
         }
         
         return super.toString();
+    }
+    
+    /** Getter for property persister.
+     * @return Value of property persister.
+     *
+     */
+    public Object getPersister() {
+        return this.persister;
+    }
+    
+    /** Setter for property persister.
+     * @param persister New value of property persister.
+     *
+     */
+    public void setPersister(Object persister) {
+        this.persister = persister;
     }
     
     // end setId

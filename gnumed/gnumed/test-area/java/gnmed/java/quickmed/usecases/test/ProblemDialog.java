@@ -18,6 +18,13 @@ import org.drugref.*;
  */
 public class ProblemDialog extends javax.swing.JDialog implements SearchSelectable  {
     
+    
+    private Ref managerRef;
+    
+     public ProblemDialog(java.awt.Frame parent, boolean modal, Ref managerRef) {
+         this( parent, modal);
+         setManagerRef(managerRef);
+     }
     /** Creates new form ProblemDialog */
     public ProblemDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -107,7 +114,8 @@ public class ProblemDialog extends javax.swing.JDialog implements SearchSelectab
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
         // Add your handling code here:
         try {
-        List l = TestProblemManager.instance().findDiseaseCodeByDescription(jTextField1.getText());
+        
+        List l = getProblemManager().findDiseaseCodeByDescription(jTextField1.getText());
         jList1.setListData(l.toArray());
         } catch (Exception e) {
             e.printStackTrace();
@@ -142,6 +150,42 @@ public class ProblemDialog extends javax.swing.JDialog implements SearchSelectab
         jTextField1ActionPerformed(new java.awt.event.ActionEvent(jTextField1, 1, "search"));
     }
     
+    /** Getter for property problemManager.
+     * @return Value of property problemManager.
+     *
+     */
+    public TestProblemManager getProblemManager() {
+        if (getManagerRef() != null) {
+            return ( ( ManagerReference) getManagerRef().getRef()).getProblemManager();
+        }
+            
+        return this.problemManager;
+    }
+    
+    /** Setter for property problemManager.
+     * @param problemManager New value of property problemManager.
+     *
+     */
+    public void setProblemManager(TestProblemManager problemManager) {
+        this.problemManager = problemManager;
+    }
+    
+    /** Getter for property managerRef.
+     * @return Value of property managerRef.
+     *
+     */
+    public Ref getManagerRef() {
+        return managerRef;
+    }
+    
+    /** Setter for property managerRef.
+     * @param managerRef New value of property managerRef.
+     *
+     */
+    public void setManagerRef(Ref managerRef) {
+        this.managerRef = managerRef;
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
@@ -153,5 +197,8 @@ public class ProblemDialog extends javax.swing.JDialog implements SearchSelectab
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
+
+    /** Holds value of property problemManager. */
+    private TestProblemManager problemManager;    
     
 }

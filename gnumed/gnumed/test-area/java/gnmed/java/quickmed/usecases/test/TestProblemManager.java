@@ -32,7 +32,7 @@ public class TestProblemManager {
     }
     
     /** Creates a new instance of TestProblemManager */
-    private TestProblemManager() {
+    public TestProblemManager() {
         try{
          HibernateInit.initAll();
         } catch(Exception e) {
@@ -55,12 +55,13 @@ public class TestProblemManager {
         } finally {
             sess.close();
         }
-        logger.info("found disease_codes = "  + list.size());
+        logger.fine("found disease_codes = "  + list.size());
         return list;
   
     }
     
     static DateFormat formatter = DateFormat.getDateInstance(DateFormat.SHORT);
+ 
     
     public clin_diagnosis createProblem( identity id, Date date, disease_code code) {
          clin_health_issue issue = new clin_health_issue();
@@ -120,4 +121,40 @@ public class TestProblemManager {
         }
         return createProblem(id, date, code);
     }
+    
+    
+    
+    private SessionHolder sessionHolder = new SessionHolder();
+    /** Getter for property session.
+     * @return Value of property session.
+     *
+     */
+    public Session getSession() {
+       return getSessionHolder().getSession();
+    }
+    
+    /** Setter for property session.
+     * @param session New value of property session.
+     *
+     */
+    public void setSession(Session session) {
+        getSessionHolder().setSession(session);
+    }
+    
+    /** Getter for property sessionHolder.
+     * @return Value of property sessionHolder.
+     *
+     */
+    public SessionHolder getSessionHolder() {
+        return this.sessionHolder;
+    }
+    
+    /** Setter for property sessionHolder.
+     * @param sessionHolder New value of property sessionHolder.
+     *
+     */
+    public void setSessionHolder(SessionHolder sessionHolder) {
+        this.sessionHolder = sessionHolder;
+    }
+    
 }

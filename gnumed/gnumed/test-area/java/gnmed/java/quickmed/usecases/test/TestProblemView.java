@@ -34,6 +34,9 @@ public class TestProblemView implements ProblemView , LimitedViewable, Removable
     /** Holds value of property diagnosis. */
     private clin_diagnosis diagnosis;
     
+    /** Holds value of property problemManager. */
+    private TestProblemManager problemManager;
+    
     /** Creates a new instance of TestProblemView */
     public TestProblemView() {
     }
@@ -78,16 +81,16 @@ public class TestProblemView implements ProblemView , LimitedViewable, Removable
     }
     
     void updateIdentity() {
-        logger.info("updating with " + getDate() + " and sign prob="+ getSignificantProblem());
+        logger.fine("updating with " + getDate() + " and sign prob="+ getSignificantProblem());
         if (!isUpdating() )
             return;
         if (getDiagnosis() == null && !(getSignificantProblem() instanceof String)) {
-            clin_diagnosis diagnosis = TestProblemManager.instance().createProblem((identity)getIdentityRef().getRef(),
+            clin_diagnosis diagnosis = getProblemManager().createProblem((identity)getIdentityRef().getRef(),
             getDate(), (disease_code) getSignificantProblem());
             setDiagnosis(diagnosis);
             return;
         }
-        clin_diagnosis diagnosis = TestProblemManager.instance().updateProblem( (identity)getIdentityRef().getRef(),
+        clin_diagnosis diagnosis =  getProblemManager().updateProblem( (identity)getIdentityRef().getRef(),
         getDate(), (disease_code) getSignificantProblem() , getDiagnosis());
         setDiagnosis(diagnosis);
     }
@@ -139,10 +142,18 @@ public class TestProblemView implements ProblemView , LimitedViewable, Removable
     
     public void remove() {
         try {
-            TestProblemManager.instance().removeDiagnosis( (identity)getIdentityRef().getRef(), getDiagnosis());
+            getProblemManager().removeDiagnosis( (identity)getIdentityRef().getRef(), getDiagnosis());
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    /** Getter for property problemManager.
+     * @return Value of property problemManager.
+     *
+     */
+    public TestProblemManager getProblemManager() {
+         return ((ManagerReference)((identity)getIdentityRef().getRef() ).getPersister()).getProblemManager();
     }
     
 }

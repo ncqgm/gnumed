@@ -104,15 +104,15 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jLabel13 = new javax.swing.JLabel();
         nokContactTextField14 = new javax.swing.JTextField();
         jPanel9 = new javax.swing.JPanel();
-        jLabel14 = new javax.swing.JLabel();
+        occupationLabel = new javax.swing.JLabel();
         jobTextField15 = new javax.swing.JTextField();
-        jLabel15 = new javax.swing.JLabel();
+        workLabel = new javax.swing.JLabel();
         workPhoneTextField16 = new javax.swing.JTextField();
-        jLabel17 = new javax.swing.JLabel();
+        mobileLabel = new javax.swing.JLabel();
         mobilePhoneTextField17 = new javax.swing.JTextField();
-        jLabel18 = new javax.swing.JLabel();
+        homeLabel = new javax.swing.JLabel();
         homePhoneTextField18 = new javax.swing.JTextField();
-        jLabel20 = new javax.swing.JLabel();
+        emailLabel = new javax.swing.JLabel();
         emailTextField20 = new javax.swing.JTextField();
 
         jLabel16.setText("jLabel16");
@@ -290,6 +290,12 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         surnameField.setText(" ");
         surnameField.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms2").getString("surname"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 10)));
         surnameField.setName("surname");
+        surnameField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                surnameFieldActionPerformed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 20;
@@ -497,7 +503,6 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jLabel21.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("nok"));
         jPanel2.add(jLabel21, new java.awt.GridBagConstraints());
 
-        nokTextFeld.setText("jTextField21");
         nokTextFeld.setName("nok");
         nokTextFeld.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -513,7 +518,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jLabel13.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("contact_nok"));
         jPanel2.add(jLabel13, new java.awt.GridBagConstraints());
 
-        nokContactTextField14.setText("jTextField14");
+        nokContactTextField14.setColumns(6);
         nokContactTextField14.setName("nokContact");
         nokContactTextField14.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -534,35 +539,37 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
 
         jPanel9.setLayout(new java.awt.GridBagLayout());
 
+        occupationLabel.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("occupation"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
-        jPanel9.add(jLabel14, gridBagConstraints);
+        jPanel9.add(occupationLabel, gridBagConstraints);
 
-        jobTextField15.setText("jTextField15");
+        jobTextField15.setColumns(7);
         jobTextField15.setName("occupation");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         jPanel9.add(jobTextField15, gridBagConstraints);
 
-        jLabel15.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("phone_work"));
+        workLabel.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("phone_work"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
-        jPanel9.add(jLabel15, gridBagConstraints);
+        jPanel9.add(workLabel, gridBagConstraints);
 
-        workPhoneTextField16.setText("jTextField16");
+        workPhoneTextField16.setColumns(5);
+        workPhoneTextField16.setText(" ");
         workPhoneTextField16.setName("workPhone");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 2.0;
         jPanel9.add(workPhoneTextField16, gridBagConstraints);
 
-        jLabel17.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("mobile"));
+        mobileLabel.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("mobile"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
-        jPanel9.add(jLabel17, gridBagConstraints);
+        jPanel9.add(mobileLabel, gridBagConstraints);
 
-        mobilePhoneTextField17.setText("jTextField17");
+        mobilePhoneTextField17.setColumns(5);
         mobilePhoneTextField17.setName("mobile");
         mobilePhoneTextField17.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -575,12 +582,12 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.weightx = 2.0;
         jPanel9.add(mobilePhoneTextField17, gridBagConstraints);
 
-        jLabel18.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("home"));
+        homeLabel.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("home"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
-        jPanel9.add(jLabel18, gridBagConstraints);
+        jPanel9.add(homeLabel, gridBagConstraints);
 
-        homePhoneTextField18.setText("jTextField18");
+        homePhoneTextField18.setColumns(5);
         homePhoneTextField18.setName("homePhone");
         homePhoneTextField18.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -593,11 +600,12 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.weightx = 1.0;
         jPanel9.add(homePhoneTextField18, gridBagConstraints);
 
+        emailLabel.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("email"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
-        jPanel9.add(jLabel20, gridBagConstraints);
+        jPanel9.add(emailLabel, gridBagConstraints);
 
-        emailTextField20.setText("jTextField20");
+        emailTextField20.setColumns(6);
         emailTextField20.setName("email");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -616,6 +624,11 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         add(jPanel2, gridBagConstraints);
 
     }//GEN-END:initComponents
+
+    private void surnameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_surnameFieldActionPerformed
+        // Add your handling code here:
+        
+    }//GEN-LAST:event_surnameFieldActionPerformed
     
     private void addressFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_addressFieldKeyReleased
         // Add your handling code here:
@@ -639,7 +652,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     private void pensionerFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pensionerFieldFocusLost
         
         // Add your handling code here:
-        setPensioner(pensionerExpField.getText().trim());
+        setPensioner(pensionerField.getText().trim());
     }//GEN-LAST:event_pensionerFieldFocusLost
     
     private void medicareFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_medicareFieldFocusLost
@@ -691,7 +704,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     
     private void birthdateSpinner2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_birthdateSpinner2StateChanged
         // Add your handling code here:
-        logger.info("BIRTHDATE CHANGED");
+        logger.finer("BIRTHDATE CHANGED");
         getModel().setBirthdate(((SpinnerDateModel)birthdateSpinner2.getModel()).getDate());
     }//GEN-LAST:event_birthdateSpinner2StateChanged
     
@@ -719,26 +732,23 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     private javax.swing.JSpinner birthdateSpinner2;
     private javax.swing.JSpinner commencedSpinner1;
     private javax.swing.JTextField countryOfBirthField12;
+    private javax.swing.JLabel emailLabel;
     private javax.swing.JTextField emailTextField20;
     private javax.swing.JTextField ethnicityTextField13;
     private javax.swing.JComboBox fundComboBox1;
     private javax.swing.JTextField givenNameField;
     private javax.swing.JTextField hccExpField8;
     private javax.swing.JTextField healthcareField;
+    private javax.swing.JLabel homeLabel;
     private javax.swing.JTextField homePhoneTextField18;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -760,9 +770,11 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     private javax.swing.JComboBox maritalComboBox3;
     private javax.swing.JTextField medicareExpField;
     private javax.swing.JTextField medicareField;
+    private javax.swing.JLabel mobileLabel;
     private javax.swing.JTextField mobilePhoneTextField17;
     private javax.swing.JTextField nokContactTextField14;
     private javax.swing.JTextField nokTextFeld;
+    private javax.swing.JLabel occupationLabel;
     private javax.swing.JTextField pensionerExpField;
     private javax.swing.JTextField pensionerField;
     private javax.swing.JTextField postcodeField11;
@@ -770,6 +782,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     private javax.swing.JComboBox rhesusComboBox5;
     private javax.swing.JComboBox sexComboBox2;
     private javax.swing.JTextField surnameField;
+    private javax.swing.JLabel workLabel;
     private javax.swing.JTextField workPhoneTextField16;
     // End of variables declaration//GEN-END:variables
     static class TestListener implements  PropertyChangeListener {
@@ -797,9 +810,11 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     
     static Logger logger;
     static {
-        logger = Logger.getLogger("TestDemographics");
-        logger.addHandler(new ConsoleHandler());
-        logger.setLevel(Level.INFO);
+        logger = Logger.global;
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(logger.getLevel());
+        logger.addHandler(handler);
+        
     };
     
     static javax.swing.InputVerifier monthYearInputVerifier;

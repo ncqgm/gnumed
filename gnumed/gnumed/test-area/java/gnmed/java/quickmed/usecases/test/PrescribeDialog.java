@@ -17,11 +17,16 @@ import org.drugref.*;
  */
 public class PrescribeDialog extends javax.swing.JDialog implements SearchSelectable {
     TestScriptDrugManager manager = TestScriptDrugManager.instance();
+    
+    public PrescribeDialog(java.awt.Frame parent, boolean modal, Ref ref) {
+     this( parent, modal);
+     setManagerRef(ref);
+    }
     /** Creates new form PrescribeDialog */
     public PrescribeDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        initController();
+//        initController();
 //        Set set = new HashSet();
 //        set.addAll(jList1.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
 //        set.add( KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0) );
@@ -37,7 +42,7 @@ public class PrescribeDialog extends javax.swing.JDialog implements SearchSelect
             try {
                 jList1.setModel( new DefaultListModel());
                 
-                List l =   manager.findPackagedProductByDrugName(e.getDocument().getText(0, e.getDocument().getLength()));
+                List l =   getDrugManager().findPackagedProductByDrugName(e.getDocument().getText(0, e.getDocument().getLength()));
 //                l.add(0, e.getDocument().getText(0, e.getDocument().getLength()));
                 jList1.setListData(l.toArray());
 //                List outList = new ArrayList();
@@ -238,6 +243,13 @@ public class PrescribeDialog extends javax.swing.JDialog implements SearchSelect
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
         // Add your handling code here:
+        try {
+        List l =   getDrugManager().findPackagedProductByDrugName(jTextField1.getText());
+//                l.add(0, e.getDocument().getText(0, e.getDocument().getLength()));
+        jList1.setListData(l.toArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jTextField1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyTyped
@@ -266,7 +278,36 @@ public class PrescribeDialog extends javax.swing.JDialog implements SearchSelect
     
     public void setSearchText(java.lang.String text) {
         jTextField1.setText(text);
+        jTextField1ActionPerformed(new java.awt.event.ActionEvent(jTextField1, 1, "search"));
     }    
+    
+    /** Getter for property managerRef.
+     * @return Value of property managerRef.
+     *
+     */
+    public Ref getManagerRef() {
+        return this.managerRef;
+    }
+    
+    /** Setter for property managerRef.
+     * @param managerRef New value of property managerRef.
+     *
+     */
+    public void setManagerRef(Ref managerRef) {
+        this.managerRef = managerRef;
+    }
+    
+    /** Getter for property drugManager.
+     * @return Value of property drugManager.
+     *
+     */
+    public TestScriptDrugManager getDrugManager() {
+        if (getManagerRef() != null) {
+            java.util.logging.Logger.global.info("MANAGER IS " + getManagerRef().getClass());
+            return ( ( ManagerReference) getManagerRef().getRef()).getScriptDrugManager();
+        }
+        return manager;
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
@@ -275,5 +316,8 @@ public class PrescribeDialog extends javax.swing.JDialog implements SearchSelect
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
+
+    /** Holds value of property managerRef. */
+    private Ref managerRef;    
     
 }

@@ -25,10 +25,10 @@ public class ShortDateCellRenderer extends DefaultTableCellRenderer {
     
     public Component getTableCellRendererComponent(JTable table, Object value,
                         boolean isSelected, boolean hasFocus, int row, int column)  {
-                            Logger.global.info(this + " examining " + value);
+                            Logger.global.finest(this + " examining " + value);
         if ( Date.class.isAssignableFrom(value.getClass())  ) {
             try {
-                Logger.global.info(this + " set text of " + value + " to " + format.format(value));
+                Logger.global.finest(this + " set text of " + value + " to " + format.format(value));
                 return  super.getTableCellRendererComponent(table,  format.format(value), 
                         isSelected, hasFocus,row,  column) ;
               

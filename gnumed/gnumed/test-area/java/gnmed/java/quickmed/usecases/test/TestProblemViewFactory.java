@@ -48,6 +48,7 @@ public class TestProblemViewFactory implements Factory {
     public Object newInstance() {
         TestProblemView view = new TestProblemView();
         view.setIdentityRef(getIdRef());
+      
         return view;
     }
     

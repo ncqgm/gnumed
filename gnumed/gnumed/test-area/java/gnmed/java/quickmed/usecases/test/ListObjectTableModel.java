@@ -85,7 +85,7 @@ public class ListObjectTableModel  extends AbstractTableModel {
     }
     
     public void setValueAt(Object value) {
-        logger.info("USING STORED ROW = " + getRow() + " STORED COL= " + getCol());
+        logger.finer("USING STORED ROW = " + getRow() + " STORED COL= " + getCol());
         setValueAt(value, getRow(), getCol());
     }
     
@@ -98,7 +98,7 @@ public class ListObjectTableModel  extends AbstractTableModel {
                 Method m = type.getMethod("decode", new Class[] { String.class } );
                 value =  m.invoke(type, new Object[] { value });
             }
-            logger.info("o is type" + o.getClass() + " beanClass is " + getBeanClass() + ":INVOKING ON " + o + " With Value=" + value +
+            logger.finer("o is type" + o.getClass() + " beanClass is " + getBeanClass() + ":INVOKING ON " + o + " With Value=" + value +
             "with method " + pd.getWriteMethod().getName() + " type ="+pd.getPropertyType());
 //            System.out.println(" invoking with value = " + value + " on " + o + " using write method="+
 //                pd.getWriteMethod().getName() + " for " );
@@ -190,9 +190,9 @@ public class ListObjectTableModel  extends AbstractTableModel {
     public void setVisibleProperties( Class beanClass, String[] propertyNames) throws Exception {
         setBeanClass(beanClass);
         
-        logger.info("SETTING BEAN CLASS TO " + beanClass.getName() );
+        logger.fine("SETTING BEAN CLASS TO " + beanClass.getName() );
         for (int i = 0; i < propertyNames.length; ++i) {
-            logger.info(" PROP NAME = " + propertyNames[i] );
+            logger.fine(" PROP NAME = " + propertyNames[i] );
         }
         
         PropertyDescriptor[] pds = Introspector.getBeanInfo(beanClass).getPropertyDescriptors();

@@ -15,8 +15,15 @@ import java.util.*;
 public class PatientInnerFrame extends javax.swing.JInternalFrame {
     final static String TERMS = "SummaryTerms";
     /** Creates new form PatientInnerFrame */
+    SummaryPanel summaryPanel1;
     public PatientInnerFrame() {
         initComponents();
+        addViews();
+    }
+    
+    void addViews() {
+     summaryPanel1 = new SummaryPanel();
+     jScrollPane1.setViewportView(summaryPanel1);
     }
     
     /** This method is called from within the constructor to
@@ -26,7 +33,6 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
      */
     private void initComponents() {//GEN-BEGIN:initComponents
         jScrollPane1 = new javax.swing.JScrollPane();
-        summaryPanel1 = new quickmed.usecases.test.SummaryPanel();
 
         setClosable(true);
         setIconifiable(true);
@@ -52,8 +58,6 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
             }
         });
 
-        jScrollPane1.setViewportView(summaryPanel1);
-
         getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -64,7 +68,7 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
         summaryPanel1.transferFormToModel();
         gnmed.test.DomainPrinter.getInstance().printIdentity( System.out, summaryPanel1.getIdentity());
         try {
-            IdentityManager.instance().save(summaryPanel1.getIdentity());
+            ((ManagerReference)summaryPanel1.getIdentity().getPersister()).getIdentityManager().save(summaryPanel1.getIdentity());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -89,7 +93,9 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
      *
      */
     public void setIdentity(identity identity) {
+        
         summaryPanel1.setIdentity(identity);
+       
        changeTitle();
     }
     
@@ -124,8 +130,7 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
-    private quickmed.usecases.test.SummaryPanel summaryPanel1;
     // End of variables declaration//GEN-END:variables
-    
+
     
 }

@@ -34,9 +34,16 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         }
     };
     
+    Ref managerRef = new Ref() {
+        public Object getRef() {
+            return getIdentity().getPersister();
+        }
+    };
+    
     /** Creates new form OtherSummaryPanel */
     public OtherSummaryPanel() {
         initComponents();
+//       setManagerReference(new SingleSessionManagerReference() );
         createDrugTableModel();
         createProblemTableModel();
         resizeManagementColumns();
@@ -48,6 +55,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         ListObjectTableModel model = new ListObjectTableModel();
         DummyDrugViewFactory factory = new DummyDrugViewFactory();
         factory.setIdentityRef( idRef );
+         
         model.setFactory(factory);
         model.newObject();
         drugModel = model;
@@ -62,7 +70,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         SelectionDialogListObjectTableModelLinker l2 = new SelectionDialogListObjectTableModelLinker();
         l2.setTable( tableWithPopup1.getTable());
         l2.setDialog( new PrescribeDialog((Frame) SwingUtilities.getAncestorOfClass(Frame.class,
-        OtherSummaryPanel.this), true ) );
+        OtherSummaryPanel.this), true , managerRef) );
         l2.setDialogColumn("drug");
     }
     
@@ -77,7 +85,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         SelectionDialogListObjectTableModelLinker l2 = new SelectionDialogListObjectTableModelLinker();
         l2.setTable( tableWithPopup2.getTable());
         l2.setDialog( new ProblemDialog((Frame) SwingUtilities.getAncestorOfClass(Frame.class,
-        OtherSummaryPanel.this), true ) );
+        OtherSummaryPanel.this), true, managerRef ) );
         l2.setDialogColumn("significantProblem");
         problemModel = model;
     }
@@ -151,9 +159,10 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         jScrollPane9 = new javax.swing.JScrollPane();
         jTextArea4 = new javax.swing.JTextArea();
         jSplitPane1 = new javax.swing.JSplitPane();
-        jPanel4 = new javax.swing.JPanel();
+        jSplitPane4 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         tableWithPopup2 = new quickmed.usecases.test.TableWithPopup();
+        jPanel7 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable3 = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -261,17 +270,14 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
 
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         jSplitPane1.setResizeWeight(0.4);
-        jPanel4.setLayout(new java.awt.GridBagLayout());
-
+        jSplitPane4.setResizeWeight(0.5);
+        jSplitPane4.setOneTouchExpandable(true);
         jScrollPane1.setBorder(new javax.swing.border.TitledBorder(null, "Significant problems - past and present", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
         jScrollPane1.setViewportView(tableWithPopup2);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.gridheight = java.awt.GridBagConstraints.RELATIVE;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 2.0;
-        jPanel4.add(jScrollPane1, gridBagConstraints);
+        jSplitPane4.setLeftComponent(jScrollPane1);
+
+        jPanel7.setLayout(new java.awt.GridLayout(1, 0));
 
         jScrollPane3.setBorder(new javax.swing.border.TitledBorder("Immunizations"));
         jTable3.setModel(new javax.swing.table.DefaultTableModel(
@@ -287,13 +293,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         ));
         jScrollPane3.setViewportView(jTable3);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.RELATIVE;
-        gridBagConstraints.gridheight = java.awt.GridBagConstraints.RELATIVE;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        jPanel4.add(jScrollPane3, gridBagConstraints);
+        jPanel7.add(jScrollPane3);
 
         jScrollPane2.setBorder(new javax.swing.border.TitledBorder("Allergies"));
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
@@ -309,15 +309,11 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         ));
         jScrollPane2.setViewportView(jTable2);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.gridheight = java.awt.GridBagConstraints.RELATIVE;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.5;
-        jPanel4.add(jScrollPane2, gridBagConstraints);
+        jPanel7.add(jScrollPane2);
 
-        jSplitPane1.setLeftComponent(jPanel4);
+        jSplitPane4.setRightComponent(jPanel7);
+
+        jSplitPane1.setTopComponent(jSplitPane4);
 
         jPanel5.setLayout(new java.awt.BorderLayout());
 
@@ -345,7 +341,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
 
         jPanel5.add(jSplitPane2, java.awt.BorderLayout.CENTER);
 
-        jSplitPane1.setRightComponent(jPanel5);
+        jSplitPane1.setBottomComponent(jPanel5);
 
         jSplitPane3.setRightComponent(jSplitPane1);
 
@@ -514,6 +510,10 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         problemModel.newObject();
     }
     
+   
+    
+  
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -526,9 +526,9 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -541,6 +541,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JSplitPane jSplitPane3;
+    private javax.swing.JSplitPane jSplitPane4;
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
     private javax.swing.JTable jTable4;
@@ -561,5 +562,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     
     /** Holds value of property identity. */
     private identity identity;
+    
+  
     
 }

@@ -71,6 +71,14 @@ public class enum_telephone_role {
         this.id = id;
     }
     
+    public boolean equals(final Object role) {
+        if (role instanceof enum_telephone_role) {
+            enum_telephone_role other = (enum_telephone_role)role;
+            return getId().equals(other.getId()) || getRole().equals(other.getRole());
+        }
+        return super.equals(role);
+    }
+    
     // end setRole
     
 } // end enum_telephone_role

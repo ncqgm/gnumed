@@ -22,14 +22,14 @@ public class InterfaceTransfer {
         this.aInterface = c;
         this.excludes = excludes;
         pds = Introspector.getBeanInfo(c).getPropertyDescriptors();
-        logger.info( this + " LOG LEVEL = " + logger.getLevel().getName());
+        logger.fine( this + " LOG LEVEL = " + logger.getLevel().getName());
     }
       
     public void transfer( Object from, Object to) throws Exception {
         if ( ! aInterface.isAssignableFrom(from.getClass())
             || ! aInterface.isAssignableFrom(to.getClass()) )
             throw new ClassCastException("MUST BE OF INTERFACE " + aInterface.getName() );
-        logger.info( this + " LOG LEVEL = " + logger.getLevel().getName());
+        logger.finer( this + " LOG LEVEL = " + logger.getLevel().getName());
         for (int i = 0; i < pds.length; ++i) {
             if (java.util.Arrays.asList(excludes).contains(pds[i].getName()) )
                 continue;
@@ -37,15 +37,18 @@ public class InterfaceTransfer {
             try {
             logger.finest("VALUE OF FROM attribute = " +  pds[i].getReadMethod().invoke(from, zeroArgs ) );
             } catch (Exception e) {
-                logger.info(e + " occuring when logging read from " + from);
+                logger.fine(e + " occuring when logging read from " + from);
             }
+            if (pds[i].getWriteMethod() == null)
+                continue;
             try {
                 pds[i].getWriteMethod().invoke(
                 to, new Object[] { 
                     pds[i].getReadMethod().invoke(
                     from, zeroArgs ) } );
             } catch (Exception e) {
-                logger.info(e.toString());
+                e.printStackTrace();
+                logger.severe(e.toString() + " from = " + from + "; prop=" + pds[i].getName());
             }
             
         }

@@ -61,7 +61,7 @@ public class DemographicIdentityModel implements  DemographicModel {
             addrTypeSetter = new Method[] {
                 address_type.class.getMethod("setName",  new Class[] { String.class})
             };
-            logger.info("CREATED socialIdSetters and AddrTypeSetter");
+            logger.fine("CREATED socialIdSetters and AddrTypeSetter");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
@@ -120,7 +120,7 @@ public class DemographicIdentityModel implements  DemographicModel {
             category.class.getMethod("getName", new Class[0]),
             Arrays.asList(new Object[] {widowed, unmarried, married, divorced })
             );
-            logger.info("CREATED mapMarital");
+            logger.fine("CREATED mapMarital");
         } catch (Exception e) {
             logger.severe(e.getMessage());
             mapMarital.put("married", married);
@@ -151,6 +151,7 @@ public class DemographicIdentityModel implements  DemographicModel {
             try {
                 map.put( keyGetter.invoke(list.get(0), new Object[0]), list.get(0));
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.info(e.getMessage());
             }
         }
@@ -159,12 +160,12 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     /** finds an entity with a particular attribute, or creates it
      */
-    public  static Object createOrFindEntity( String query,final  Object[] params, Type[] types,
+    public static  Object createOrFindEntity( String query,final  Object[] params, Type[] types,
     Class targetClass, Method[] paramSetters) throws Exception  {
         Object newObject = null;
         Session s = null;
         try {
-            s=  HibernateInit.openSession();
+            s= HibernateInit.openSession();
             newObject = s.iterate(query, params, types).next();
             if (newObject != null) {
                 return newObject;
@@ -172,7 +173,7 @@ public class DemographicIdentityModel implements  DemographicModel {
             throw new  Exception("No object found");
         } catch (Exception e) {
             try {
-                logger.info("Unable to find a " + targetClass.getName() + " with specified parameters . CREATING NEW ONE");
+                logger.fine("Unable to find a " + targetClass.getName() + " with specified parameters . CREATING NEW ONE");
                 newObject = targetClass.newInstance();
                 for (int i = 0; i < paramSetters.length; ++i) {
                     paramSetters[i].invoke(newObject, new Object[] { params[i] } );
@@ -180,17 +181,17 @@ public class DemographicIdentityModel implements  DemographicModel {
                 s.save(newObject);
                 s.flush();
                 s.connection().commit();
-                logger.info("SUCCESSFULLY CREATED a " +  targetClass.getName() );
+                logger.fine("SUCCESSFULLY CREATED a " +  targetClass.getName() );
                 return newObject;
             } catch ( Exception e2) {
-                s.disconnect();
-                s.close();
+                
+                HibernateInit.closeSession(s);
                 throw e2;
             }
         } finally {
-            logger.info("DISCONNECTING AND CLOSING " + s.toString());
+            logger.fine("DISCONNECTING AND CLOSING " + s.toString());
             //  s.disconnect();
-            s.close();
+            HibernateInit.closeSession(s);
             
         }
         //        return newObject;
@@ -203,7 +204,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         sess.save(c);
         sess.flush();
         sess.connection().commit();
-        logger.info("SAVED CATEGORY_TYPE = " + c.getId() + " " +c.getName());
+        logger.fine("SAVED CATEGORY_TYPE = " + c.getId() + " " +c.getName());
         return c;
     }
     
@@ -226,7 +227,7 @@ public class DemographicIdentityModel implements  DemographicModel {
             
         }finally {
             try {
-                sess.close();
+                 HibernateInit.closeSession(sess);
             }
             catch (Exception e2) {
                 e2.printStackTrace();
@@ -266,7 +267,7 @@ public class DemographicIdentityModel implements  DemographicModel {
             
         }finally {
             try {
-                sess.close();
+               HibernateInit.closeSession(sess);
             }
             catch (Exception e2) {
                 e2.printStackTrace();
@@ -352,8 +353,8 @@ public class DemographicIdentityModel implements  DemographicModel {
         s.flush();
         s.connection().commit();
         s.close();
-        logger.info("CREATED STREET " + st.getName() + " in urb " + st.getUrb());
-        logger.info("urb name ="+ st.getUrb().getName());
+        logger.fine("CREATED STREET " + st.getName() + " in urb " + st.getUrb());
+        logger.fine("urb name ="+ st.getUrb().getName());
         return st;
     }
     //
@@ -374,7 +375,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         try {
             Session s = HibernateInit.openSession();
             String v = state.toUpperCase().trim() ;
-            logger.info("SEEING IF " + v + " is a STATE STRING .");
+            logger.fine("SEEING IF " + v + " is a STATE STRING .");
             List l = s.find("select s from state s where upper(s.name) like ? or s.code like ?",
             new Object[] {v ,v } , new Type[] { Hibernate.STRING , Hibernate.STRING });
             s.connection().commit();
@@ -409,13 +410,13 @@ public class DemographicIdentityModel implements  DemographicModel {
             new Object[] { street + "%", u.getId()},
             new Type[] { Hibernate.STRING, Hibernate.INTEGER });
             if( ! it.hasNext())  {
-                sess.close();
+                HibernateInit.closeSession(sess);
                 return createStreet( street, u);
             }
             
             
             street s = (street) it.next() ;
-            sess.close();
+             HibernateInit.closeSession(sess);
             if (s == null)
                 return undefinedStreet;
             return s;
@@ -441,26 +442,22 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     void setTelephone( String telephone, enum_telephone_role role) {
-        if ( role == mobile) {
+        
+        if ( role.equals(mobile) ) {
             telephone t = new telephone();
             t.setEnum_telephone_role(role);
             t.setNumber(telephone);
             identity.setMobile(t);
-            logger.info("identity mobile set to " + t.getNumber());
+            logger.finer(" *** identity mobile set to " + t.getNumber());
             return;
         }
         // THIS DEPENDS ON AN ADDRESS EXISTING FOR THE PATIENT. MAY NEED DEFAULT ADDRESS.
+      
+        /* SETS THE HOME TELEPHONE AT THE HOME ADDRESS. */
+         logger.info(" *** SETTING " + telephone + " for  " + role.getRole() + " telephone");
+         getManagerReference().getGISManager().setTelephoneWithRoleAt(getIdentity(), telephone, role, homeAddress);
+         
         
-        Iterator i = getIdentity().getIdentities_addressess().iterator();
-        while (i.hasNext()) {
-            identities_addresses ia = (identities_addresses) i.next();
-            address  a = ia.getAddress();
-            if ( a.getTelephones().size() == 0)
-                a.addTelephone(new telephone());
-            telephone t = (telephone) a.getTelephones().iterator().next();
-            t.setNumber(telephone);
-            t.setEnum_telephone_role(role);
-        }
         
     }
     
@@ -469,7 +466,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         try {
             return (Date)shortestformat.parse(s.trim());
         } catch (Exception e) {
-            logger.info("UNABLE TO PARSE into DATE: " + s);
+            logger.fine("UNABLE TO PARSE into DATE: " + s);
             
         }
         return new Date();
@@ -486,7 +483,7 @@ public class DemographicIdentityModel implements  DemographicModel {
             si.setExpiry((Date) parseDate(val));
         else
             si.setNumber((String)val);
-        logger.info(si.toString() + " set with " + val.toString() + "is expiry = " + new Boolean(expiry).toString());
+        logger.fine(si.toString() + " set with " + val.toString() + "is expiry = " + new Boolean(expiry).toString());
     }
     
     social_identity findSocialIdentity( enum_social_id type ) {
@@ -494,7 +491,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         identity id = getIdentity();
         Collection c = id.getSocial_identitys();
         Iterator j = c.iterator();
-        logger.info("THERE WERE " + c.size() + " Social Identities found. Looking for " + type.getId() + " "+type.getName());
+        logger.fine("THERE WERE " + c.size() + " Social Identities found. Looking for " + type.getId() + " "+type.getName());
         while (j.hasNext()) {
              sid = (social_identity) j.next();
              try {
@@ -502,7 +499,7 @@ public class DemographicIdentityModel implements  DemographicModel {
              } catch (Exception e) {
               logger.info("UNABLE to print " + sid);   
              }
-            logger.info("checking at sid with type " + sid.getEnum_social_id());
+            logger.fine("checking at sid with type " + sid.getEnum_social_id());
             if (sid.getEnum_social_id().equals(type)) {
                 logger.finer("RETURNING " + sid.getNumber() + sid.getEnum_social_id().getName());
                 return sid;
@@ -555,7 +552,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         identities_addresses ia = getIdentity().findIdentityAddressByAddressType(homeAddress);
         if (ia != null && ia.getAddress() != null) {
             getByteStream().reset();
-            gnmed.test.DomainPrinter.getInstance().printAddress( getPrintStream(),  ia.getAddress());
+            gnmed.test.DomainPrinter.getInstance().printAddress( getPrintStream(),  ia.getAddress(), true);
             setLastAddressString( getByteStream().toString());
             setLastAddress(ia.getAddress());
             return  getByteStream().toString();
@@ -578,15 +575,16 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getFirstNames() {
-        return getIdentity().findNames(0).getFirstnames();
+        return getNames().getFirstnames();
     }
     
     public String getHomeTelephone() {
+        logger.info("*** LOOKING FOR  Telephone type = " + home.getRole());
         return getIdentity().findTelephoneByRole(home).getNumber();
     }
     
     public String getLastNames() {
-        return getIdentity().findNames(0).getLastnames();
+        return getNames().getLastnames();
     }
     
     public String getMedicare() {
@@ -598,11 +596,11 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getMobilePhone() {
-        return  getIdentity().findTelephoneByRole(mobile).getNumber();
+        return  getIdentity().getMobile().getNumber();
     }
     
     public String getNokPhone() {
-        return "nok phone";
+        return  getIdentity().findTelephoneByRole(nok).getNumber();
     }
     
     public String getPensioner() {
@@ -638,6 +636,9 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     /** Holds value of property lastAddress. */
     private address lastAddress;
+    
+    /** Holds value of property managerReference. */
+    private ManagerReference managerReference;
     
     String[] getTwoParts( String s) {
         String[] parts = s.split("[,|\\s]+");
@@ -695,7 +696,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     urb findUrb( String postcode) {
         try {
-            return  TestGISManager.instance().findByPostcode(postcode);
+            return  getManagerReference().getGISManager().findByPostcode(postcode);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -706,7 +707,7 @@ public class DemographicIdentityModel implements  DemographicModel {
             state = "%";
         logger.info("urb name = " + name + " : state name = " + state);
         try {
-            return  TestGISManager.instance().findUrbByNameAndState(name, state);
+            return  getManagerReference().getGISManager().findUrbByNameAndState(name, state);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -723,7 +724,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     street getStreetByName( String street, urb urb) {
         try {
-            street s = TestGISManager.instance().findStreetByNameAndUrb(street, urb );
+            street s = getManagerReference().getGISManager().findStreetByNameAndUrb(street, urb );
             if ( s == null) {
                 s = new street();
                 logger.info("street created");
@@ -754,7 +755,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         address a = getAddressWithNumber(number);
         a.setStreet(street);
         //        getIdentity().setIdentityAddress(homeAddress, a);
-        TestGISManager.instance().updateAddress(getIdentity(), homeAddress, a);
+        getManagerReference().getGISManager().updateAddress(getIdentity(), homeAddress, a);
         //    getUiModel().setAddress(getAddress());
     }
     
@@ -810,7 +811,6 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     
     public void setFirstNames(String firstNames) {
-        
         getNames().setFirstnames(firstNames.trim());
     }
     
@@ -818,11 +818,12 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     
     public void setHomeTelephone(String homeTelephone) {
+        logger.fine("***  ");
         setTelephone(homeTelephone, home);
     }
     
     public void setLastNames(String lastNames) {
-        getNames().setLastnames(lastNames);
+        getNames().setLastnames(lastNames.trim());
     }
     
     public void setMedicare(String _medicare) {
@@ -1037,4 +1038,15 @@ public class DemographicIdentityModel implements  DemographicModel {
             return bundle.getString("unknown");
         return a.getCategory();
     }
+    
+    /** Getter for property managerReference.
+     * @return Value of property managerReference.
+     *
+     */
+    public ManagerReference getManagerReference() {
+      return (ManagerReference) getIdentity().getPersister();
+    }
+    
+    
+    
 }

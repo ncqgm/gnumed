@@ -34,6 +34,7 @@ public class DummyDrugViewFactory implements Factory {
         DummyDrugListView view = new DummyDrugListView();
 //        view.setIdentity(getIdentity());
         view.setIdentityRef(getIdentityRef());
+//        view.setManager(getManager());
         return view;
     }
     

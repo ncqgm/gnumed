@@ -139,6 +139,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
         // Add your handling code here:
         // creates a new patient inner frame
         PatientInnerFrame frame = new PatientInnerFrame();
+        frame.getIdentity().setPersister(new SingleSessionManagerReference());
         desktopPane.add(frame);
         frame.setVisible(true);
         
@@ -149,7 +150,12 @@ public class Testgnmed1 extends javax.swing.JFrame {
     private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuItemActionPerformed
         // Add your handling code here:
         //        if (idFinder == null)
-        idFinder= new FindIdentity((Frame)SwingUtilities.getAncestorOfClass(Frame.class,  this), true);
+        
+        // using a Single Session manager reference so that the session is shared
+        // for all components created for one identity (  one session per identity ).
+        // Hibernate documentation says a caching is normally at a session division.
+        
+        idFinder= new FindIdentity((Frame)SwingUtilities.getAncestorOfClass(Frame.class,  this), true, new SingleSessionManagerReference() );
         idFinder.setLocationRelativeTo(desktopPane);
         idFinder.setLocation(desktopPane.getWidth()/3, desktopPane.getHeight()/3);
         idFinder.show();
@@ -157,7 +163,10 @@ public class Testgnmed1 extends javax.swing.JFrame {
         Object[] selected = idFinder.getSelectedValues();
         for (int i = 0; i < selected.length; ++i) {
             PatientInnerFrame frame = new PatientInnerFrame();
-            frame.setIdentity((identity) selected[i]);
+            identity id = (identity) selected[i];
+            id.setPersister(idFinder.getManagerRef());
+            frame.setIdentity(id);
+            
             desktopPane.add(frame);
             frame.setVisible(true);
             addWindowMenuItem(frame);
@@ -279,7 +288,5 @@ public class Testgnmed1 extends javax.swing.JFrame {
         frame.addInternalFrameListener( new Testgnmed1.MenuItemRemovalOnInnerFrameCloseListener( windowMenu.add(action)) );
         
     }
-    
-    
     
 }

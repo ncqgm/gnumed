@@ -130,11 +130,24 @@ public class address {
     public void setAddendum(String _addendum) {        
         addendum = _addendum;
     } // end setAddendum        
-
+    
+    
+    /**
+     *
+     *@hibernate.set
+     *  lazy="false"
+     *  cascade="all"
+     *
+     *@hibernate.collection-key
+     *  column="address"
+     *@hibernate.collection-one-to-many
+     *  class="org.gnumed.gmGIS.telephone"
+     */
      public Collection getTelephones() {
         return telephone;
     }
-    public void addTelephone(telephone _telephone) {
+
+     public void addTelephone(telephone _telephone) {
         if (! this.telephone.contains(_telephone)) {
             this.telephone.add(_telephone);
             _telephone.setAddress(this);
@@ -157,13 +170,21 @@ public class address {
     /**
      *finds the telephone by role
      */
+    
+    List garbage = new LinkedList();
     public telephone findTelephone( enum_telephone_role role) {
+        garbage.clear();
         Iterator i = getTelephones().iterator();
         while (i.hasNext()) {
             telephone t = (telephone) i.next();
+            if (t.getNumber().trim().length() == 0) {
+                garbage.add(t);
+                continue;
+            }
             if (t.getEnum_telephone_role().equals(role))
                 return t;
         }
+        getTelephones().removeAll(garbage);
         return null;
     }
     

@@ -26,8 +26,9 @@ public class FindIdentity extends javax.swing.JDialog {
         
     }
     /** Creates new form FindIdentity */
-    public FindIdentity(java.awt.Frame parent, boolean modal) {
+    public FindIdentity(java.awt.Frame parent, boolean modal, ManagerReference ref) {
         super(parent, modal);
+            setManagerRef(ref);
         initComponents();
         FindIdentity.IdentitySelectionListener listener = new FindIdentity.IdentitySelectionListener();
         jList1.addListSelectionListener(listener);
@@ -137,7 +138,7 @@ public class FindIdentity extends javax.swing.JDialog {
         String s = (String) jComboBox1.getSelectedItem();
         String names[] = s.split(",");
         try {
-            List ids = IdentityManager.instance().findIdentityByNames(names[0].trim(), names.length > 1 ? names[1].trim() : "");
+            List ids = getManagerRef().getIdentityManager().findIdentityByNames(names[0].trim(), names.length > 1 ? names[1].trim() : "");
             jList1.setListData(ids.toArray());
         } catch (Exception e) {
             e.printStackTrace();
@@ -158,7 +159,7 @@ public class FindIdentity extends javax.swing.JDialog {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        new FindIdentity(new javax.swing.JFrame(), true).show();
+        new FindIdentity(new javax.swing.JFrame(), true, new SingleSessionManagerReference() ).show();
     }
     
     /** Getter for property selectedValues.
@@ -169,6 +170,22 @@ public class FindIdentity extends javax.swing.JDialog {
         return jList1.getSelectedValues();
     }    
     
+    /** Getter for property managerRef.
+     * @return Value of property managerRef.
+     *
+     */
+    public ManagerReference getManagerRef() {
+        return this.managerRef;
+    }
+    
+    /** Setter for property managerRef.
+     * @param managerRef New value of property managerRef.
+     *
+     */
+    public void setManagerRef(ManagerReference managerRef) {
+        this.managerRef = managerRef;
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JComboBox jComboBox1;
@@ -176,5 +193,8 @@ public class FindIdentity extends javax.swing.JDialog {
     private javax.swing.JList jList1;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
+
+    /** Holds value of property managerRef. */
+    private ManagerReference managerRef;    
     
 }

@@ -11,18 +11,26 @@ import org.gnumed.gmIdentity.identity;
  * @author  sjtan
  */
 public class SummaryPanel extends javax.swing.JPanel {
-    
+    DemographicPanel demographicPanel1;
+    OtherSummaryPanel otherSummaryPanel1;
     /** Creates new form SummaryPanel */
     public SummaryPanel() {
         initComponents();
+        addViews();
         modifyTabNames();
         
         // set link
         otherSummaryPanel1.setIdentity(demographicPanel1.getIdentity());
     }
     
+    void addViews() {
+        demographicPanel1 = new DemographicPanel();
+        otherSummaryPanel1 = new OtherSummaryPanel();
+        jSplitPane1.setLeftComponent(demographicPanel1);
+        jSplitPane1.setRightComponent(otherSummaryPanel1);
+    }
     void modifyTabNames() {
-//        jTabbedPane1.setTitleAt(0, "Summary");
+        //        jTabbedPane1.setTitleAt(0, "Summary");
     }
     
     /** This method is called from within the constructor to
@@ -33,26 +41,20 @@ public class SummaryPanel extends javax.swing.JPanel {
     private void initComponents() {//GEN-BEGIN:initComponents
         jScrollPane1 = new javax.swing.JScrollPane();
         jSplitPane1 = new javax.swing.JSplitPane();
-        demographicPanel1 = new quickmed.usecases.test.DemographicPanel();
-        otherSummaryPanel1 = new quickmed.usecases.test.OtherSummaryPanel();
 
         setLayout(new java.awt.BorderLayout());
 
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-        jSplitPane1.setResizeWeight(0.5);
+        jSplitPane1.setResizeWeight(0.1);
         jSplitPane1.setContinuousLayout(true);
         jSplitPane1.setOneTouchExpandable(true);
         jSplitPane1.setAutoscrolls(true);
-        jSplitPane1.setLeftComponent(demographicPanel1);
-
-        jSplitPane1.setRightComponent(otherSummaryPanel1);
-
         jScrollPane1.setViewportView(jSplitPane1);
 
         add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
     }//GEN-END:initComponents
-
+    
     /** Getter for property documentListener.
      * @return Value of property documentListener.
      *
@@ -92,12 +94,10 @@ public class SummaryPanel extends javax.swing.JPanel {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private quickmed.usecases.test.DemographicPanel demographicPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
-    private quickmed.usecases.test.OtherSummaryPanel otherSummaryPanel1;
     // End of variables declaration//GEN-END:variables
-
+    
     /** Holds value of property documentListener. */
     private javax.swing.event.DocumentListener documentListener;
     
