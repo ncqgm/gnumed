@@ -1,7 +1,7 @@
 """GnuMed single box SOAP notes plugin.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSingleBoxSoapPlugin.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 #import os.path, sys, os, re
@@ -31,6 +31,12 @@ class gmSingleBoxSoapPlugin(gmPlugin.wxNotebookPlugin):
 
 	def ReceiveFocus(self):
 		pass
+
+	def can_receive_focus(self):
+		# need patient
+		if not self._verify_patient_avail():
+			return None
+		return 1
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -51,7 +57,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmSingleBoxSoapPlugin.py,v $
-# Revision 1.2  2003-06-26 21:41:51  ncq
+# Revision 1.3  2003-06-29 15:21:22  ncq
+# - add can_receive_focus() on patient not selected
+#
+# Revision 1.2  2003/06/26 21:41:51  ncq
 # - fatal->verbose
 #
 # Revision 1.1  2003/06/19 16:48:57  ncq

@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.8 2003-06-01 12:52:26 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.9 2003-06-29 15:21:22 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -226,9 +226,18 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 	#----------------------------------------------
 	def ReceiveFocus(self):
 		self.gb['modules.patient'][self.panel.GetVisiblePlugin()].Shown()
+	#----------------------------------------------
+	def can_receive_focus(self):
+		# need patient
+		if not self._verify_patient_avail():
+			return None
+		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.8  2003-06-01 12:52:26  ncq
+# Revision 1.9  2003-06-29 15:21:22  ncq
+# - add can_receive_focus() on patient not selected
+#
+# Revision 1.8  2003/06/01 12:52:26  ncq
 # - "verbose" != "verbosity"
 #
 # Revision 1.7  2003/06/01 01:47:33  sjtan
