@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.62 $
+-- $Revision: 1.63 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -280,7 +280,6 @@ create table vaccine (
 	id_route integer not null references vacc_route(id) default 1,
 	trade_name text unique not null,
 	short_name text unique not null,
-	fk_indications integer[] not null references vacc_indication(id),
 	is_live boolean not null default false,
 	is_licensed boolean not null default true,
 	min_age interval not null,
@@ -300,8 +299,6 @@ comment on column vaccine.trade_name is
 comment on column vaccine.short_name is
 	'common, maybe practice-specific shorthand name
 	 for referring to this vaccine';
-comment on column vaccine.fk_indications is
-	'list of indications this vaccine satisfies';
 comment on column vaccine.is_live is
 	'whether this is a live vaccine';
 comment on column vaccine.is_licensed is
@@ -312,8 +309,19 @@ comment on column vaccine.min_age is
 comment on column vaccine.max_age is
 	'maximum age this vaccine is licensed for';
 comment on column vaccine.last_batch_no is
-	'no of most recently used batch, for
+	'serial # of most recently used batch, for
 	 rapid data input purposes';
+
+-- --------------------------------------------
+create table lnk_vaccine2inds (
+	id serial primary key,
+	fk_vaccine integer not null references vaccine(id),
+	fk_indication integer not null references vacc_indication(id),
+	unique (fk_vaccine, fk_indication)
+);
+
+comment on table lnk_vaccine2inds is
+	'links vaccines to their indications';
 
 -- --------------------------------------------
 create table vacc_def (
@@ -705,11 +713,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.62 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.63 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.62  2003-10-19 15:43:00  ncq
+-- Revision 1.63  2003-10-20 22:01:01  ncq
+-- - removed use of array type in FKs as per Syan's suggestion
+--
+-- Revision 1.62  2003/10/19 15:43:00  ncq
 -- - even better vaccination tables
 --
 -- Revision 1.61  2003/10/07 22:29:10  ncq
