@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.18 2004-05-13 00:03:17 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmPathLab.py,v 1.19 2004-05-14 13:17:27 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types,sys
@@ -282,7 +282,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	try:
 		ttype = cTestType(lab=lab, code=code)
 	except gmExceptions.NoSuchClinItemError:
-		_log.LogException('will try to create test type', sys.exc_info())
+		_log.Log(gmLog.lInfo, 'will try to create test type')
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
@@ -294,7 +294,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.18 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.19 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -374,7 +374,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.18 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.19 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -487,7 +487,11 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.18  2004-05-13 00:03:17  ncq
+# Revision 1.19  2004-05-14 13:17:27  ncq
+# - less useless verbosity
+# - cleanup
+#
+# Revision 1.18  2004/05/13 00:03:17  ncq
 # - aPKey -> aPK_obj
 #
 # Revision 1.17  2004/05/11 01:37:21  ncq

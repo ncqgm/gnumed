@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.4 2004-05-12 14:30:30 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmVaccination.py,v 1.5 2004-05-14 13:17:27 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmI18N, gmPG
@@ -91,53 +91,23 @@ class cMissingBooster(gmClinItem.cClinItem):
 	"""Represents one due booster.
 	"""
 	_cmd_fetch_payload = """
-		select
-			indication,
-			regime,
-			reg_comment,
-			vacc_comment,
-			age_due_min,
-			age_due_max,				
-			min_interval,
-			amount_overdue,
-			now() - amount_overdue as latest_due,
-			pk_indication,
-			pk_recommended_by
+		select *, now() - amount_overdue as latest_due
 		from v_pat_missing_boosters vpmb
 		where
 			pk_patient=%(pat_id)s
 				and
-			indication=%(indication)s"""
+			indication=%(indication)s
+		order by amount_overdue"""
 	_cmds_store_payload = []
 
 	_updatable_fields = []
-	#--------------------------------------------------------
-#	def refetch_payload(self):
-#		"""
-#		Fetches due booster fields from backend
-#		"""
-#		self._payload = None
-#		args = { 'pat_id' : self.pat_id, 'indication' : self.indication, 'seq_no': self.seq_no }
-#		data, self._idx = gmPG.run_ro_query(
-#			'historica',
-#			self.__class__._cmd_fetch_payload,
-#			True,
-#			args)
-#		if data is None:
-#			_log.Log(gmLog.lErr, '[%s:%s]: error retrieving instance' % (self.__class__.__name__, self.pk))
-#			return False
-#		if len(data) == 0:
-#			_log.Log(gmLog.lErr, '[%s:%s]: no such instance' % (self.__class__.__name__, self.pk))
-#			return None
-#		self._payload = data[0]
-#		return True
 #============================================================
 # convenience functions
 #------------------------------------------------------------
 def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, vaccine=None):
 	# sanity check
-	# any of the args being None should fail the SQL code
-	# do episode/encounter belong to the patient ?
+	# 1) any of the args being None should fail the SQL code
+	# 2) do episode/encounter belong to the patient ?
 	cmd = "select exists(select 1 from v_patient_items where id_patient=%s and id_episode=%s and id_encounter=%s)"
 	valid = gmPG.run_ro_query('historica', cmd, None, patient_id, episode_id, encounter_id)
 	if valid is None:
@@ -235,7 +205,11 @@ if __name__ == '__main__':
 	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.4  2004-05-12 14:30:30  ncq
+# Revision 1.5  2004-05-14 13:17:27  ncq
+# - less useless verbosity
+# - cleanup
+#
+# Revision 1.4  2004/05/12 14:30:30  ncq
 # - cMissingVaccination()
 # - cMissingBooster()
 #
