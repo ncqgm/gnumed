@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.133 2004-08-11 09:01:27 ncq Exp $
-__version__ = "$Revision: 1.133 $"
+# $Id: gmClinicalRecord.py,v 1.134 2004-08-11 09:44:15 ncq Exp $
+__version__ = "$Revision: 1.134 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -267,9 +267,6 @@ class cClinicalRecord:
 					self.__db_cache['narrative'].append(gmClinNarrative.cNarrative(aPK_obj=row[0]))
 				except gmExceptions.ConstructorError:
 					_log.LogException('narrative error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
-#					_log.Log(gmLog.lInfo, 'better to report an error than rely on incomplete narrative information')
-					del self.__db_cache['narrative']
-					return None
 
 		if since is None \
 				and until is None \
@@ -293,6 +290,7 @@ class cClinicalRecord:
 		if encounters is not None:
 			filtered_narrative = filter(lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
 		if soap_cats is not None:
+			soap_cats = map(lambda c:string.lower(c), soap_cats)
 			filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
 		if exclude_rfe_aoe:
 			filtered_narrative = filter(lambda narr: True not in [narr['is_rfe'], narr['is_aoe']], filtered_narrative)
@@ -1416,7 +1414,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.133  2004-08-11 09:01:27  ncq
+# Revision 1.134  2004-08-11 09:44:15  ncq
+# - gracefully continue loading clin_narrative items if one fails
+# - map soap_cats filter to lowercase in get_clin_narrative()
+#
+# Revision 1.133  2004/08/11 09:01:27  ncq
 # - Carlos-contributed get_clin_narrative() with usual filtering
 #   and soap_cat filtering based on v_pat_narrative
 #
