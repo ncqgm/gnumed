@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/setup-users.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -89,16 +89,15 @@ def connect_to_db():
 		conn = PgSQL.connect(dsn)
 	except:
 		exc = sys.exc_info()
-		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on %s:%s)" % (user, password, database, host, port), exc, fatal=1)
+		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on %s:%s)." % (user, password, database, host, port), exc, fatal=1)
 		return None
-	_log.Log(gmLog.lInfo, "successfully connected to database")
-	print "Successfully connected to database."
+	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on %s:%s)" % (user, database, host, port))
 
 	return 1
 #------------------------------------------------------------------
 def verify_db():
+	"""Verify database version information."""
 
-	# verify database version information
 	required_version = _cfg.get("server", "version")
 	if not required_version:
 		_log.Log(gmLog.lErr, "Cannot load minimum required PostgreSQL version from config file.")
@@ -110,8 +109,50 @@ def verify_db():
 		return None
 
 	_log.Log(gmLog.lInfo, "installed PostgreSQL version: %s - this is OK for us" % conn.version)
-	print "PostgreSQL version successfully verified."
 	return 1
+#------------------------------------------------------------------
+def user_exists(aCursor, aUser):
+	try:
+		aCursor.execute("SELECT usename FROM pg_user WHERE usename='%s';" % aUser)
+	except:
+		exc = sys.exc_info()
+		_log.LogException("Cannot check for user existence.", exc, fatal=1)
+		return None
+	res = aCursor.fetchone()
+	if aCursor.rowcount == 1:
+		_log.Log(gmLog.lErr, "User %s exists." % aUser)
+		return 1
+	_log.Log(gmLog.lErr, "User %s does not exist." % aUser)
+	return None
+#------------------------------------------------------------------
+def create_superuser():
+	superuser = _cfg.get("standards", "gnumed database owner")
+	if not superuser:
+		_log.Log(gmLog.lErr, "Cannot load GnuMed database owner name from config file.")
+		return None
+	cursor = conn.cursor()
+	# does this user already exist ?
+	if user_exists(cursor, superuser):
+		cursor.close()
+		return 1
+	# get password for super user
+	print "We need a password for the GnuMed standard superuser [%s]." % superuser
+	password = raw_input("Please type password: ")
+	try:
+		cursor.execute("CREATE USER %s WITH PASSWORD '%s' CREATEDB CREATEUSER;" % (superuser, password))
+	except:
+		exc = sys.exc_info()
+		_log.LogException("Cannot create GnuMed standard superuser [%s]." % superuser, exc, fatal=1)
+		cursor.close()
+		return None
+	# paranoia is good
+	if user_exists(cursor, superuser):
+		cursor.close()
+		return 1
+
+	cursor.execute("COMMIT")
+	cursor.close()
+	return None
 #==================================================================
 if __name__ == "__main__":
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
@@ -126,6 +167,10 @@ if __name__ == "__main__":
 		sys.exit("Cannot verify database version.\nPlease see log file for details.")
 
 	# create GnuMed superuser "gm_db_owner"
+	if not create_superuser():
+		conn.close()
+		sys.exit("Cannot install GnuMed database owner.\nPlease see log file for details.")
+
 	# insert groups
 	# insert users
 	#  (pg_user, pg_shadow)
@@ -136,7 +181,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: setup-users.py,v $
-# Revision 1.2  2002-10-03 00:16:20  ncq
+# Revision 1.3  2002-10-03 14:05:37  ncq
+# - actually create the gnumed superuser
+#
+# Revision 1.2  2002/10/03 00:16:20  ncq
 # - first real steps: connect and verify database version
 #
 # Revision 1.1  2002/09/30 23:06:26  ncq
