@@ -231,7 +231,9 @@ class BMICalc_Panel(wxPanel):
 #---------------------------------------------------------------------------
 class TestFrame(wxFrame):
 	def __init__(self, parent, title, style):
-		wxFrame.__init__(self,parent, -1,title, style=style)
+		wxFrame.__init__(self,parent, -1,title, style=wxMAXIMIZE_BOX)
+		icon= images_gnuMedGP_Toolbar.getBMICalcIcon()
+        	self.SetIcon(icon)
                 EVT_CLOSE(self, self.OnCloseWindow)
 		#-----------------------------------------------------
 		#create an instance of the BMICalc_Panel and add it to 

@@ -7,13 +7,14 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Ian Haywood"
 
 from wxPython.wx import *
 from wxPython.calendar import *
 import math, zlib, cPickle
 import random
+import images_gnuMedGP_Toolbar
 
 ID_LNMP = wxNewId ()
 ID_DUE = wxNewId ()
@@ -35,7 +36,9 @@ class PregnancyDialogue (wxFrame):
 	"""
 
 	def __init__ (self, parent):
-		wxFrame.__init__(self, parent, -1, _("Pregnancy Calculator"))
+		wxFrame.__init__(self, parent, -1, _("Pregnancy Calculator"), style=wxMAXIMIZE_BOX)
+		icon= images_gnuMedGP_Toolbar.getPregcalcIcon()
+        	self.SetIcon(icon)
 		vbox = wxBoxSizer (wxVERTICAL)
 		vbox.Add (wxStaticText (self, -1, 'LNMP'), 0, wxALL, 5)
 		self.LNMPcal = wxCalendarCtrl (self, ID_LNMP)
@@ -149,6 +152,9 @@ else:
 
 #=====================================================================
 # $Log: gmCalcPreg.py,v $
-# Revision 1.5  2002-09-21 12:44:15  ncq
+# Revision 1.6  2002-12-31 01:11:03  michaelb
+# added custom window icon & locked size and removed maximize box
+#
+# Revision 1.5  2002/09/21 12:44:15  ncq
 # - added changelog keyword
 #
