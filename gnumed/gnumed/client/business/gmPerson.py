@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.10 2005-02-15 18:29:03 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmPerson.py,v 1.11 2005-02-19 15:06:33 sjtan Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -305,7 +305,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 			'signal': gmSignals.patient_selected(),
 			'sender': id(self.__class__)
 		}
-		gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
+		#gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
+		gmDispatcher.send(**kwargs)
 	#--------------------------------------------------------
 	def is_connected(self):
 		if isinstance(self._person, gmNull.cNull):
@@ -962,7 +963,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.10  2005-02-15 18:29:03  ncq
+# Revision 1.11  2005-02-19 15:06:33  sjtan
+#
+# **kwargs should be passed for signal parameters.
+#
+# Revision 1.10  2005/02/15 18:29:03  ncq
 # - test_result.id -> pk
 #
 # Revision 1.9  2005/02/13 15:23:31  ncq
