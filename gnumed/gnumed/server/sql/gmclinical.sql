@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -354,7 +354,7 @@ insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.'
 
 create table databases
 (
-	id serial,
+	id serial primary key,
 	name varchar (50),
 	published date
 );
@@ -370,7 +370,7 @@ comment on table databases is
 
 create table script_drug
 (
-	id serial,
+	id serial primary key,
 	name varchar (200) default 'GENERIC',
 	directions text,
 	adjuvant text,
@@ -396,7 +396,7 @@ comment on column script_drug.adjuvant is 'free text describing adjuvants, such 
 	
 create table constituents
 (
-	id serial,
+	id serial primary key,
 	name varchar (100),
 	dose float,
 	dose_unit integer references drug_units (id),
@@ -412,7 +412,7 @@ comment on column constituents.dose is
  
 create table script
 (
-	id serial,
+	id serial primary key,
 	id_transaction integer references clinical_transaction (id)
 );
 
@@ -434,7 +434,7 @@ comment on table link_script_drug is
 
 create table enum_immunities
 (
-	id serial,
+	id serial primary key,
 	name text
 );
 
@@ -447,11 +447,14 @@ insert into enum_immunities (name) values ('tetanus');
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.16 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.16  2003-04-02 12:31:07  ncq
+-- Revision 1.17  2003-04-02 13:37:56  ncq
+-- - fixed a few more missing "primary key" on referenced "id serial"s
+--
+-- Revision 1.16  2003/04/02 12:31:07  ncq
 -- - PostgreSQL 7.3 complained about referenced key enum_info_sources.id not being unique()d
 -- -> make it primary key as it should be
 --
