@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.40 2003-11-09 16:24:03 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmClinicalRecord.py,v 1.41 2003-11-09 22:51:29 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -208,8 +208,8 @@ class gmClinicalRecord:
 		cmd = "select %s from v_patient_items where id_patient=%%s order by src_table, age" % string.join(fields, ', ')
 		curs = self._ro_conn_clin.cursor()
 		if not gmPG.run_query(curs, cmd, self.id_patient):
-			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load item links for patient [%s]' % self.id_patient)
+			curs.close()
 			return None
 		rows = curs.fetchall()
 		view_col_idx = gmPG.get_col_indices(curs)
@@ -251,7 +251,6 @@ class gmClinicalRecord:
 					continue
 			rows = curs.fetchall()
 			table_col_idx = gmPG.get_col_indices(curs)
-			curs.close()
 			# format per-table items
 			for row in rows:
 				id_item = row[table_col_idx['id']]
@@ -295,6 +294,7 @@ class gmClinicalRecord:
 					view_row[view_col_idx['modified_string']],
 					table_name
 				))
+		curs.close()
 		return emr_data
 	#--------------------------------------------------------
 	def get_patient_ID(self):
@@ -584,7 +584,7 @@ where
 	def _set_active_episode(self, episode_name = '__default__'):
 		# does this episode exist at all ? (else we can't activate it in the first place)
 		cmd = "select id_episode from v_patient_episodes where id_patient=%s and episode=%s limit 1"
-		rows = gmPG.run_ro_query('historica', cmd, self.id_patient, episode_name)
+		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, episode_name)
 		# no
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot check for episode [%s] existance' % episode_name)
@@ -851,7 +851,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.40  2003-11-09 16:24:03  ncq
+# Revision 1.41  2003-11-09 22:51:29  ncq
+# - don't close cursor prematurely in get_text_dump()
+#
+# Revision 1.40  2003/11/09 16:24:03  ncq
 # - typo fix
 #
 # Revision 1.39  2003/11/09 03:29:11  ncq
