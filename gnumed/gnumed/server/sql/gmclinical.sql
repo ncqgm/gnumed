@@ -1,4 +1,9 @@
--- $REVISION=1.0$
+-- Project: GnuMed
+-- ===================================================================
+-- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
+-- $Revision: 1.5 $
+-- license: GPL
+-- author: 
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -237,3 +242,13 @@ comment on table clinical_diagnosis_extra is
 'Extra information about a diagnosis, just the confidentiality level at present.';
 
 
+-- =============================================
+-- do simple schema revision tracking
+\i gmSchemaRevision.sql
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.5 $')
+
+-- =============================================
+-- $Log: gmclinical.sql,v $
+-- Revision 1.5  2002-11-23 13:18:09  ncq
+-- - add "proper" metadata handling and schema revision tracking
+--
