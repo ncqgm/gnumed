@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTestTableMatcher.py,v $
-# $Id: gmTestTableMatcher.py,v 1.1 2003-09-15 14:56:10 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmTestTableMatcher.py,v 1.2 2003-09-15 18:38:04 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 import string, types, time, sys, re
@@ -23,7 +23,8 @@ _log = gmLog.gmDefLog
 
 from gmPhraseWheel import *
 from wxPython.wx import *
-import pgdb
+#import pgdb
+import gmPG, gmExceptions
 import traceback
 
 _true = (1==1)
@@ -34,7 +35,7 @@ _false = (1==0)
 class SingleTableMatchProvider(cMatchProvider):
 	"""match provider which looks in all the text fields , or a given set of text fields
 	"""
-	def __init__(self, table, searchable_fields= [],  connect_str=":template1", limit = 50):
+	def __init__(self, table, searchable_fields= [],  connect_str=":template1", limit = 50, aService = 'default'):
 		""" table - the name of the table to search
 		    searchable_fields - restrict the searchable fields to these fields, otherwise
 		    			use varchar fields.
@@ -44,39 +45,52 @@ class SingleTableMatchProvider(cMatchProvider):
 		"""
 		self.limit = limit
 
+#		self.connection = pgdb.connect(connect_str)
+		self.dbpool = gmPG.ConnectionPool()
+		self.connection = self.dbpool.GetConnection(aService)
+		self.connection.conn.toggleShowQuery
 
-		self.connection = pgdb.connect(connect_str)
-
-		try:
-			self.connection.rollback()
-			cursor = self.connection.cursor()
-			cursor.execute("select * from %s" % table)
-		except:
-			traceback.print_tb(sys.exc_info()[2])
+		# why ?
+#		self.connection.rollback()
+		cursor = self.connection.cursor()
+		cmd = "select * from %s limit 1" % table
+		if not gmPG.run_query(cursor, cmd):
+			cursor.close()
+			self.connection.ReleaseConnection()
 			print "table must be the name for a  public schema table"
-			return None
-		
-		self.table = table
+			raise gmExceptions.ConstructorError, "invalid source table name"
 
+		self.table = table
+		print "table:", table
 		self.find_matchable_fields(cursor, searchable_fields)
+		print "searchable fields:", searchable_fields
 
 		cursor.close()
 		cMatchProvider.__init__(self)
 
-		
 
 	def find_matchable_fields(self, cursor, fields):
+		cmd = "select * from %s limit 1" % self.table
+		print cmd
+		if not gmPG.run_query(cursor, cmd):
+			return
+		# FIXME: why not use column names ?
 		self.fieldPosition = {}
+		self.idPos = None
 		pos = -1
-		for x in  cursor.description:
+		for x in cursor.description:
+			print x
 			pos += 1
-			if x[0] in fields or ( fields ==[] and  x[1] == "varchar"):
+			if x[0] in fields or (fields == [] and x[1] == "varchar"):
 				self.fieldPosition[x[0]] = pos
 				continue
+			# FIXME: make this reference the PK of the table
 			if x[0] == "id":
 				self.idPos = pos
-		return			
-		
+		print "varchar fields:", self.fieldPosition
+		print "PKEY field:", self.idPos
+		return
+
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -87,16 +101,40 @@ class SingleTableMatchProvider(cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
-		# look for matches
-
-		return self.findMatchListForSearchableTextFields("select * from %s where lower(%s) like '%s%%'" , aFragment)
-
-	def findMatchListForSearchableTextFields( self, search_str, aFragment):
-		self.connection.rollback()
-		cursor = self.connection.cursor()
+		condition = "ilike"
+		fragment = "%s%%" % aFragment
+		print "condition:", condition
+		print "fragment:", fragment
+#		fragments = {'frag': aFragment}
+		return self.findMatchListForSearchableTextFields(condition, fragment)
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+		condition = "~*"
+		fragment = "(\s%s)|(^%s)" % (aFragment, aFragment)
+		print "condition:", condition
+		print "fragment:", fragment
+		return self.findMatchListForSearchableTextFields(condition, fragment)
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+		condition = "ilike"
+		fragment = "%%%s%%" % aFragment
+		print "condition:", condition
+		print "fragment:", fragment
+#		fragments = {'frag': aFragment}
+		return self.findMatchListForSearchableTextFields(condition, fragment)
+	#--------------------------------------------------------
+	def findMatchListForSearchableTextFields(self, search_condition, aFragment):
 		self.matches = []
+		cursor = self.connection.cursor()
 		for field in self.fieldPosition.keys():
-			self.addToMatchListFromSelect(cursor,search_str , field, aFragment)
+			cmd = "select * from %s where %s %s %%s limit %s" % (self.table, field, search_condition, self.limit)
+			print "running", cmd, "with data", aFragment
+			self.addToMatchListFromSelect(cursor, cmd, aFragment)
+			print "current matches:", self.matches
+		cursor.close()
+
 		# no matches found
 		if len(self.matches) == 0:
 			return (_false, [])
@@ -104,36 +142,26 @@ class SingleTableMatchProvider(cMatchProvider):
 		self.matches.sort(self.__cmp_items)
 		return (_true, self.matches)
 	#--------------------------------------------------------
+	def addToMatchListFromSelect(self, cursor, search_cmd, aFragment):
+		if not gmPG.run_query(cursor, search_cmd, aFragment):
+			_log.Log(gmLog.lErr, 'cannot look for matches')
+			return None
 
-
-	def addToMatchListFromSelect( self,cursor, search_str,  field, aFragment):
-		cursor.execute(search_str % (self.table, field, aFragment) )
-		selected_tuples = cursor.fetchmany(self.limit)
+		selected_tuples = cursor.fetchall()
+		print selected_tuples
 		for x in selected_tuples:
 			self.matches.append({'label': self.getConcatenationOfRowTextFields( x) , 'ID': x[self.idPos]} )
-		
-
-	
+	#--------------------------------------------------------
 	def	getConcatenationOfRowTextFields(self, tuple):
 		concat = []
 		for field in self.fieldPosition.keys():
 			pos = self.fieldPosition[field]
 			concat.append( tuple[pos] )
 		return "; ".join(concat)
-
-
-	#--------------------------------------------------------
-	def getMatchesByWord(self, aFragment):
-		"""Return matches for aFragment at start of words inside phrases."""
-		return self.findMatchListForSearchableTextFields("select * from %s where lower(%s) like '%% %s%%'" , aFragment)
-		
-	def getMatchesBySubstr(self, aFragment):
-		"""Return matches for aFragment as a true substring."""
-		return self.findMatchListForSearchableTextFields("select * from %s where lower(%s) like '%%%s%%'" , aFragment)
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
-		return self.getMatchesBySubstr(self, aFragment)
+		return self.getMatchesBySubstr(self, '')
 		return (_true, matches)
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
