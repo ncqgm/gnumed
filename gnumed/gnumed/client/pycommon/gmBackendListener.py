@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
@@ -37,21 +37,21 @@ class BackendListener:
 		self._listener_thread = None
 	#-------------------------------
 	def __del__(self):
+		if self._listener_thread is None:
+			return 1
+		try:
+			self.__unlisten_notification()
+		except: pass
 		try:
 			self._quit_lock.release()
-		except:
-			pass
-		try:
-			for notification in self._intercepted_notifications:
-				self.__unlisten_notification(notification)
-		except:
-			pass
-		try:
 			# give the thread time to terminate
-			if self._listener_thread is not None:
-				self._listener_thread.join(self._poll_interval+2)
-		except:
-			pass
+			self._listener_thread.join(self._poll_interval+2.0)
+		except: pass
+		try:
+			if self._listener_thread.isAlive():
+				print '__del__(): listener thread still alive after join()'
+				print '__del__(): active threads:', threading.enumerate()
+		except:	pass
 	#-------------------------------
 	# public API
 	#-------------------------------
@@ -63,12 +63,12 @@ class BackendListener:
 			try:
 				res = self._conn.query(cmd)
 			except StandardError:
-				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
-				_log.LogException('cannot register backend callback', sys.exc_info(), verbose=0)
 				try:
 					self._conn_lock.release()
 				except StandardError:
 					_log.LogException('this should never happen: we have the lock but cannot release it', verbose=1)
+				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
+				_log.LogException('cannot register backend callback', sys.exc_info(), verbose=0)
 				return None
 			self._conn_lock.release()
 			if res.resultType == libpq.RESULT_ERROR:
@@ -87,7 +87,7 @@ class BackendListener:
 	#-------------------------------
 	def unregister_callback(self, aSignal, aCallback):
 		# unlisten to signal
-		self.__unlisten_notification(aSignal)
+		self.__unlisten_notification([aSignal])
 		# don't deliver the backend signal anymore,
 		# this isn't strictly required but helps to prevent
 		# accumulation of dead receivers in gmDispatcher
@@ -97,6 +97,7 @@ class BackendListener:
 	def stop_thread(self):
 		if self._listener_thread is None:
 			return 1
+		self.__unlisten_notification()
 		self._quit_lock.release()
 		# give the thread time to terminate
 		self._listener_thread.join(self._poll_interval+2.0)
@@ -110,33 +111,36 @@ class BackendListener:
 	#-------------------------------
 	# internal helpers
 	#-------------------------------
-	def __unlisten_notification(self, aNotification):
-		# are we listening at all ?
-		if aNotification not in self._intercepted_notifications:
-			_log.Log(gmLog.lWarn, 'not listening to [%s]' % aNotification)
-			return 1
-		# stop listening
-		cmd = 'UNLISTEN "%s";' % aNotification
-		try:
-			self._conn_lock.acquire(1)
-			res = self._conn.query(cmd)
-			self._conn_lock.release()
-		except StandardError:
-			self._conn_lock.release()
-			_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
-			_log.LogException('cannot unlisten notification [%s]' % aNotification, sys.exc_info())
-			return None
-		if res.resultType == libpq.RESULT_ERROR:
-			_log.Log(gmLog.lErr, ">>>%s<<< failed" % cmd)
-			_log.Log(gmLog.lErr, 'cannot unlisten notification [%s]' % aNotification)
-			_log.Log(gmLog.lData, "command status [%s], result status [%s]" % (res.resultStatus, res.cmdStatus))
-			_log.Log(gmLog.lData, libpq.Error)
-			return None
-		# remove from list of intercepted signals
-		try:
-			self._intercepted_notifications.remove(aNotification)
-		except ValueError:
-			pass
+	def __unlisten_notification(self, notifications=None):
+		if notifications is None:
+			notifications = self._intercepted_notifications
+		for notify in notifications:
+			# are we listening at all ?
+			if notify not in notifications:
+				_log.Log(gmLog.lWarn, 'not listening to [%s]' % notify)
+				continue
+			# stop listening
+			cmd = 'UNLISTEN "%s";' % notify
+			try:
+				self._conn_lock.acquire(1)
+				res = self._conn.query(cmd)
+				self._conn_lock.release()
+			except StandardError:
+				self._conn_lock.release()
+				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
+				_log.LogException('cannot unlisten notification [%s]' % notify, sys.exc_info())
+				return None
+			if res.resultType == libpq.RESULT_ERROR:
+				_log.Log(gmLog.lErr, ">>>%s<<< failed" % cmd)
+				_log.Log(gmLog.lErr, 'cannot unlisten notification [%s]' % notify)
+				_log.Log(gmLog.lData, "command status [%s], result status [%s]" % (res.resultStatus, res.cmdStatus))
+				_log.Log(gmLog.lData, libpq.Error)
+				return None
+			# remove from list of intercepted signals
+			try:
+				self._intercepted_notifications.remove(notify)
+			except ValueError:
+				pass
 		return 1
 	#-------------------------------
 	def __connect(self, database, user, password, host, port=5432):
@@ -152,7 +156,7 @@ class BackendListener:
 	#-------------------------------
 	def __start_thread(self):
 		if self._conn is None:
-			_log.Log(gmLog.lErr, "Can't start thread. No connection to backend available.")
+			_log.Log(gmLog.lErr, "no connection to backend available, cannot start thread")
 			return None
 		try:
 			self._listener_thread = threading.Thread(target = self._process_notifications)
@@ -177,6 +181,8 @@ class BackendListener:
 			# any input available ?
 			if len(ready_input_sockets) == 0:
 				# no, select.select() timed out
+				# give others a chance to grab the conn lock (eg listen/unlisten)
+				time.sleep(0.3)
 				continue
 			# grab what came in
 			self._conn_lock.acquire(1)
@@ -287,7 +293,13 @@ if __name__ == "__main__":
 	listener.unregister_callback('patient_changed', OnPatientModified)
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.4  2004-06-09 14:42:05  ncq
+# Revision 1.5  2004-06-15 19:18:06  ncq
+# - _unlisten_notification() now accepts a list of notifications to unlisten from
+# - cleanup/enhance __del__
+# - slightly untighten notification handling loop so others
+#   get a chance to grab the connection lock
+#
+# Revision 1.4  2004/06/09 14:42:05  ncq
 # - cleanup, clarification
 # - improve exception handling in __del__
 # - tell_thread_to_stop() -> stop_thread(), uses self._listener_thread.join()
