@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.4 2003-02-26 23:22:04 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmMedDoc.py,v 1.5 2003-03-25 12:37:20 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil
@@ -69,7 +69,7 @@ class gmMedObj:
 
 		self.ID = aPKey			# == identity.id == primary key
 		if not self.__pkey_exists():
-			raise gmExceptions.ConstructorError, "No document with ID [%s] in database." % aPKey
+			raise gmExceptions.ConstructorError
 
 		self.filename = None
 		self.metadata = {}
@@ -80,60 +80,57 @@ class gmMedObj:
 		- true/false/None
 		"""
 		curs = self.__defconn.cursor()
-		cmd = "select exists(select id from doc_obj where id = %s);"
-		try:
-			curs.execute(cmd, self.ID)
-		except:
-			curs.close
-			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info(), fatal=0)
+		cmd = "select exists(select id from doc_obj where id = '%s');" % self.ID
+		if not gmPG.run_query(curs, cmd):
+			curs.close()
 			return None
+
 		res = curs.fetchone()[0]
 		curs.close()
+		if not res:
+			_log.Log(gmLog.lErr, "No document with ID [%s] in database." % self.ID)
 		return res
 	#--------------------------------------------------------
 	def __del__(self):
 		self.__backend.ReleaseConnection('blobs')
+		if self.__rwconn is not None:
+			self.__rwconn.close()
 	#--------------------------------------------------------
-	# attribute handler
+	# retrieve data
 	#--------------------------------------------------------
 	def __getitem__(self, item):
 		if item == 'filename':
 			return self.filename
 		if item == 'metadata':
-			self.__get_metadata()
+			self.__fetch_metadata()
 			return self.metadata
 	#--------------------------------------------------------
-	def __get_metadata(self):
+	def __fetch_metadata(self):
 		"""Document meta data loader for GnuMed compatible database."""
-		# FIXME: dynamic updates !
-
-		# sanity checks
-		if len(self.metadata) != 0:
-			return 1
 
 		# start our transaction (done implicitely by defining a cursor)
 		cursor = self.__defconn.cursor()
 
 		# get document level metadata
-		cmd = "SELECT doc_id, seq_idx, comment, octet_length(data) FROM doc_obj WHERE id = %s;"
-		try:
-			cursor.execute(cmd, self.ID)
-		except:
+		cmd = "SELECT doc_id, seq_idx, comment, octet_length(data) FROM doc_obj WHERE id = '%s';" % self.ID
+		if not gmPG.run_query(cursor, cmd):
 			cursor.close()
-			_log.LogException('Cannot load object [%s] metadata.' % self.ID, sys.exc_info())
+			_log.Log(gmLog.lErr, 'Cannot load object [%s] metadata.' % self.ID)
 			return None
 		result = cursor.fetchone()
 
-		self.metadata = {}
-		self.metadata['id'] = self.ID
-		self.metadata['document id'] = result[0]
-		self.metadata['sequence index'] = result[1]
-		self.metadata['comment'] = result[2]
-		self.metadata['size'] = result[3]
+		self.metadata = {
+			'id': self.ID,
+			'document id': result[0],
+			'sequence index': result[1],
+			'comment': result[2],
+			'size': result[3]
+		}
 
 		cursor.close()
-
 		return 1
+	#--------------------------------------------------------
+	# store data
 	#--------------------------------------------------------
 	def __setitem__(self, item=None, value=None):
 		if self.__rwconn is None:
@@ -141,11 +138,17 @@ class gmMedObj:
 		if item == 'metadata':
 			self.__update_metadata(value)
 			return
+		if item == 'data from file':
+			self.__update_data_from_file(value)
+			return
 		if item == 'data':
 			self.__update_data(value)
 			return
+		_log.Log(gmLog.lWarn, "don't know how to set item [%s]" % item)
+		raise KeyError, "don't know how to set item [%s]" % item
 	#--------------------------------------------------------
-	def __update_data(self, fname):
+	def __update_data_from_file(self, fname):
+		# read from file and convert (escape)
 		if not os.path.exists(fname):
 			raise ValueError, "[%s] does not exist" % fname
 		aFile = open(fname, "rb")
@@ -155,7 +158,27 @@ class gmMedObj:
 		from pyPgSQL.PgSQL import PgBytea
 		img_obj = PgBytea(img_data)
 
-		# finally insert the data
+		# insert the data
+		cmd = "UPDATE doc_obj SET data=%s WHERE id=%s;"
+		curs = self.__rwconn.cursor()
+		try:
+			curs.execute(cmd, img_obj, self.ID)
+		except:
+			_log.LogException('cannot update data from [%s]' % fname, sys.exc_info())
+			curs.close()
+			raise ValueError
+		self.__rwconn.commit()
+		curs.close()
+
+		self.filename = fname
+		_log.Log(gmLog.lData, 'successfully imported %s bytes from [%s] into object [%s]' % (len(img_data), self.filename, self.ID))
+	#--------------------------------------------------------
+	def __update_data(self, data):
+		# convert (escape)
+		from pyPgSQL.PgSQL import PgBytea
+		img_obj = PgBytea(data)
+
+		# insert the data
 		cmd = "UPDATE doc_obj SET data=%s WHERE id=%s;"
 		curs = self.__rwconn.cursor()
 		try:
@@ -163,18 +186,31 @@ class gmMedObj:
 		except:
 			_log.LogException('cannot update data', sys.exc_info())
 			curs.close()
-			raise ValueError, 'cannot update data'
+			raise ValueError
 		self.__rwconn.commit()
 		curs.close()
-		self.filename = fname
-		_log.Log(gmLog.lData, 'successfully imported data [%s] into object [%s]' % (self.filename, self.ID))
+
+		_log.Log(gmLog.lData, 'successfully imported %s bytes into object [%s]' % (len(data), self.ID))
 	#--------------------------------------------------------
 	def __update_metadata(self, data = None):
-		self.metadata['document id'] = data['document id']
-		self.metadata['sequence index'] = data['sequence index']
-		self.metadata['comment'] = data['comment']
-		cmd =  "UPDATE doc_obj SET doc_id='%s', seq_idx='%s', comment='%s' WHERE id='%s';" % \
-				(self.metadata['document id'], self.metadata['sequence index'], self.metadata['comment'], self.ID)
+		# make SET clause
+		sets = []
+		try:
+			sets.append("doc_id='%s'" % data['document id'])
+		except KeyError: pass
+
+		try:
+			sets.append("seq_idx='%s'" % data['sequence index'])
+		except KeyError: pass
+
+		try:
+			sets.append("comment='%s'" % data['comment'])
+		except KeyError: pass
+
+		set_clause = ', '.join(sets)
+
+		# actually set it in the DB
+		cmd =  "UPDATE doc_obj SET %s WHERE id='%s';" % (set_clause, self.ID)
 		curs = self.__rwconn.cursor()
 		if not gmPG.run_query(curs, cmd):
 			_log.Log(gmLog.lErr, 'cannot update metadata')
@@ -182,19 +218,33 @@ class gmMedObj:
 			raise ValueError
 		self.__rwconn.commit()
 		curs.close()
+
+		# and remember it
+#		try:
+#			self.metadata['document id'] = data['document id']
+#		except KeyError: pass
+
+#		try:
+#			self.metadata['sequence index'] = data['sequence index']
+#		except KeyError: pass
+
+#		try:
+#			self.metadata['comment'] = data['comment']
+#		except KeyError: pass
 	#--------------------------------------------------------
 	def export_to_file(self, aTempDir = None, aChunkSize = 0):
-		if not self.__get_metadata:
+		if not self.__fetch_metadata:
 			_log.Log(gmLog.lErr, 'Cannot load metadata.')
 			return None
 
 		# if None -> use tempfile module default, else use that path as base directory for temp files
-		tempfile.tempdir = aTempDir
+		if not aTempDir is None:
+			tempfile.tempdir = aTempDir
 		tempfile.template = "gm-doc_obj-"
 
 		# cDocument.metadata->objects->file name
-		self.filename = tempfile.mktemp()
-		aFile = open(self.filename, 'wb+')
+		fname = tempfile.mktemp()
+		aFile = open(fname, 'wb+')
 
 		# Windoze sucks: it can't transfer objects of arbitrary size,
 		# or maybe this is due to pyPgSQL,
@@ -224,7 +274,7 @@ class gmMedObj:
 			aFile.write(str(cursor.fetchone()[0]))
 		else:
 			needed_chunks, remainder = divmod(self.metadata['size'], max_chunk_size)
-			_log.Log(gmLog.lData, "need %s chunks" % needed_chunks)
+			_log.Log(gmLog.lData, "need %s chunks with a remainder of %s bytes" % (needed_chunks, remainder))
 
 			# retrieve chunks
 			for chunk_id in range(needed_chunks):
@@ -238,10 +288,10 @@ class gmMedObj:
 					return None
 				# it would be a fatal error to see more than one result as ids are supposed to be unique
 				aFile.write(str(cursor.fetchone()[0]))
-			_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
 
 			# retrieve remainder
 			if remainder > 0:
+				_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
 				pos = (needed_chunks*max_chunk_size) + 1
 				cmd = "SELECT substring(data from %s for %s) FROM doc_obj WHERE id=%s;"
 				try:
@@ -254,6 +304,7 @@ class gmMedObj:
 
 		aFile.close()
 		cursor.close()
+		self.filename = fname
 
 		return 1
 #============================================================
@@ -274,7 +325,6 @@ class gmMedDoc:
 			raise gmExceptions.ConstructorError, "No document with ID [%s] in database." % aPKey
 
 		self.metadata = {}
-		self.metadata['id'] = self.ID
 	#--------------------------------------------------------
 	def __pkey_exists(self):
 		"""Does this primary key exist ?
@@ -287,7 +337,7 @@ class gmMedDoc:
 			curs.execute(cmd, self.ID)
 		except:
 			curs.close
-			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info(), fatal=0)
+			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
 			return None
 		res = curs.fetchone()[0]
 		curs.close()
@@ -295,12 +345,14 @@ class gmMedDoc:
 	#--------------------------------------------------------
 	def __del__(self):
 		self.__backend.ReleaseConnection('blobs')
+		if self.__rwconn is not None:
+			self.__rwconn.close()
 	#--------------------------------------------------------
 	def __getitem__(self, item):
 		if item == 'metadata':
-			return self.__get_metadata()
+			return self.__fetch_metadata()
 	#--------------------------------------------------------
-	def __get_metadata(self):
+	def __fetch_metadata(self):
 		"""Document meta data loader for GnuMed compatible database."""
 		# FIXME: error handling !
 
@@ -308,12 +360,10 @@ class gmMedDoc:
 		cursor = self.__defconn.cursor()
 
 		# get document level metadata
-		cmd = "SELECT patient_id, type, comment, date, ext_ref FROM doc_med WHERE id = %s;"
-		try:
-			cursor.execute(cmd, self.ID)
-		except:
+		cmd = "SELECT patient_id, type, comment, date, ext_ref FROM doc_med WHERE id = '%s';" % self.ID
+		if not gmPG.run_query(cursor, cmd):
 			cursor.close()
-			_log.LogException('Cannot load document [%s] metadata.' % self.ID, sys.exc_info())
+			_log.Log(gmLog.lErr, 'cannot load document [%s] metadata' % self.ID)
 			return None
 		result = cursor.fetchone()
 		self.metadata['patient id'] = result[0]
@@ -321,15 +371,15 @@ class gmMedDoc:
 		self.metadata['comment'] = result[2]
 		self.metadata['date'] = result[3]
 		self.metadata['reference'] = result[4]
+
 		# translate type ID to localized verbose name
-		cmd = "select name from v_i18n_doc_type where id = %s;"
-		try:
-			cursor.execute(cmd, self.metadata['type ID'])
+		cmd = "select name from v_i18n_doc_type where id = '%s';" % self.metadata['type ID']
+		if not gmPG.run_query(cursor, cmd):
+			_log.Log(gmLog.lWarn, 'cannot find name for document type [%s]' % self.metadata['type ID'])
+			self.metadata['type'] = _('unknown doc type')
+		else:
 			result = cursor.fetchone()
 			self.metadata['type'] = result[0]
-		except:
-			_log.LogException('Cannot load document [%s] metadata.' % self.ID, sys.exc_info())
-			self.metadata['type'] = _('unknown doc type')
 
 		# get object level metadata for all objects of this document
 		cmd = "SELECT id, comment, seq_idx, octet_length(data) FROM doc_obj WHERE doc_id = %s;"
@@ -351,6 +401,8 @@ class gmMedDoc:
 		_log.Log(gmLog.lData, 'Meta data: %s' % self.metadata)
 
 		return self.metadata
+	#--------------------------------------------------------
+	# storing data
 	#--------------------------------------------------------
 	def __setitem__(self, item=None, value=None):
 		if self.__rwconn is None:
@@ -543,6 +595,11 @@ def call_viewer_on_file(aFile = None):
 	return 1, ""
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.4  2003-02-26 23:22:04  ncq
+# Revision 1.5  2003-03-25 12:37:20  ncq
+# - use gmPG helpers
+# - clean up code
+# - __update_data/metadata - this worked for moving between databases !
+#
+# Revision 1.4  2003/02/26 23:22:04  ncq
 # - metadata write support
 #
