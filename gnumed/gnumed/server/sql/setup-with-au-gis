@@ -1,5 +1,6 @@
 DB=gnumed7
-dropdb $DB
+#do manually, may not want to drop it
+#dropdb $DB
 createdb $DB 
 psql -f gnumed.sql $DB 
 psql -f gmconfiguration.sql $DB 
