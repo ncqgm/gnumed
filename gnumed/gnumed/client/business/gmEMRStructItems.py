@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -151,8 +151,7 @@ class cEncounter(gmClinItem.cClinItem):
             Get RFEs pertinent to this encounter.
 		"""
 		vals = {'enc': self.pk_obj}
-		# FIXME: from v_rfe
-		cmd = """select pk from clin_narrative where fk_encounter=%(enc)s and is_rfe=true"""
+		cmd = """select pk_narrative from v_pat_rfe where pk_encounter=%(enc)s"""
 		rows = gmPG.run_ro_query('historica', cmd, None, vals)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot get RFEs for encounter [%s]' % (self.pk_obj))
@@ -167,8 +166,7 @@ class cEncounter(gmClinItem.cClinItem):
             Get AOEs pertinent to this encounter.
 		"""
 		vals = {'enc': self.pk_obj}
-		# FIXME: from v_aoe
-		cmd = """select pk from clin_narrative where fk_encounter=%(enc)s and is_aoe=true"""
+		cmd = """select pk_narrative from v_pat_aoe where pk_encounter=%(enc)s"""
 		rows = gmPG.run_ro_query('historica', cmd, None, vals)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot get AOEs for encounter [%s]' % (self.pk_obj))
@@ -359,7 +357,10 @@ if __name__ == '__main__':
 	    
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.21  2004-07-04 15:09:40  ncq
+# Revision 1.22  2004-07-05 10:24:46  ncq
+# - use v_pat_rfe/aoe, by Carlos
+#
+# Revision 1.21  2004/07/04 15:09:40  ncq
 # - when refactoring need to fix imports, too
 #
 # Revision 1.20  2004/07/04 13:24:31  ncq

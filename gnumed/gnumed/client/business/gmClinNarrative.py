@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -19,20 +19,19 @@ _log.Log(gmLog.lInfo, __version__)
 # FIXME: write cDiag based on v_pat_diag (with a method get_codes())
 #============================================================
 class cRFE(gmClinItem.cClinItem):
-	"""Represents one Reason For Encounter
-
-	FIXME: rewrite based on v_rfe
+	"""
+        Represents one Reason For Encounter
 	"""
 	_cmd_fetch_payload = """
-		select * from clin_narrative
-		where pk=%s
+		select * from v_pat_rfe
+		where pk_narrative=%s
 		"""
 	_cmds_store_payload = [
-		"""select 1 from clin_narrative where pk=%(pk)s for update""",
+		"""select 1 from clin_narrative where pk=%(pk_narrative)s for update""",
 		"""update clin_narrative set
 				narrative=%(narrative)s,
 				clin_when=%(clin_when)s
-			where pk=%(pk)s"""
+			where pk=%(pk_narrative)s"""
 		]
 
 	_updatable_fields = [
@@ -44,18 +43,17 @@ class cAOE(gmClinItem.cClinItem):
 	"""
         Represents one Assessment Of Encounter
 
-	FIXME: rewrite based on v_rfe
 	"""
 	_cmd_fetch_payload = """
-		select * from clin_narrative
-		where pk=%s
+		select * from v_pat_aoe
+		where pk_narrative=%s
 		"""
 	_cmds_store_payload = [
-		"""select 1 from clin_narrative where pk=%(pk)s for update""",
+		"""select 1 from clin_narrative where pk=%(pk_narrative)s for update""",
 		"""update clin_narrative set
 				narrative=%(narrative)s,
 				clin_when=%(clin_when)s
-			where pk=%(pk)s"""
+			where pk=%(pk_narrative)s"""
 		]
 
 	_updatable_fields = [
@@ -92,7 +90,7 @@ class cAOE(gmClinItem.cClinItem):
 	    """
 	    self.__diagnosis = []
 	    queries = []
-	    vals = {'enc': self['fk_encounter'], 'epi': self['fk_episode'], 'dat': self['clin_when']}
+	    vals = {'enc': self['pk_encounter'], 'epi': self['pk_episode'], 'dat': self['clin_when']}
 		# FIXME: v_pat_diag.fk_narrative
 	    cmd = "select * from v_pat_diag where pk_encounter =%(enc)s and pk_episode=%(epi)s and diagnosed_when=%(dat)s"
 	    rows = gmPG.run_ro_query('historica', cmd, None, vals)
@@ -114,7 +112,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.1  2004-07-04 13:24:31  ncq
+# Revision 1.2  2004-07-05 10:24:46  ncq
+# - use v_pat_rfe/aoe, by Carlos
+#
+# Revision 1.1  2004/07/04 13:24:31  ncq
 # - add cRFE/cAOE
 # - use in get_rfes(), get_aoes()
 #
