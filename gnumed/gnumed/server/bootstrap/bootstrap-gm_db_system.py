@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -993,7 +993,7 @@ def _import_schema_file(anSQL_file = None, aSrv = None, aDB = None, aUser = None
 	else:
 		srv_arg = '-h "%s"' % aSrv
 
-	cmd = 'psql -q %s -d "%s" -U "%s" -f "%s"' % (srv_arg, aDB, aUser, SQL_file)
+	cmd = 'LC_CTYPE=UTF-8 psql -q %s -d "%s" -U "%s" -f "%s"' % (srv_arg, aDB, aUser, SQL_file)
 
 	_log.Log(gmLog.lInfo, "running [%s]" % cmd)
 	result = os.system(cmd)
@@ -1128,7 +1128,12 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.16  2003-06-11 13:39:47  ncq
+# Revision 1.17  2003-06-12 08:43:57  ncq
+# - the *shell* psql is running in, must have an encoding
+#   compatible with the *database* encoding, I'm not sure I
+#   understand why
+#
+# Revision 1.16  2003/06/11 13:39:47  ncq
 # - leave out -h in local connects
 # - use blank hostname in DSN for local connects
 #
