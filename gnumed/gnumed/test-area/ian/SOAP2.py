@@ -1,15 +1,13 @@
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/ian/SOAP2.py,v $
-# $Id: SOAP2.py,v 1.7 2004-11-09 11:20:59 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: SOAP2.py,v 1.8 2004-11-09 13:13:18 ihaywood Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Ian Haywood"
-__license__ = 'Ian, please add license'
-
-print __license__
+__license__ = 'GPL'
 
 from wxPython.wx import *
 from wxPython.stc import *
-import string
+import string, types
 
 STYLE_ERROR=1
 STYLE_TEXT=2
@@ -20,7 +18,8 @@ class PickList (wxListBox):
     def __init__ (self, parent, pos, size, callback):
         wxListBox.__init__ (self, parent, -1, pos, size, style=wxLB_SINGLE | wxLB_NEEDED_SB)
         self.callback = callback
-        EVT_LISTBOX (self, self.GetId (), self.Enter)
+        EVT_LISTBOX (self, self.GetId (), self.OnList)
+        self.alive = 1 # 0=dead, 1=alive, 2=must die
 
 
     def SetItems (self, items):
@@ -33,7 +32,6 @@ class PickList (wxListBox):
         n= 0
         for i in items:
             self.SetClientData (n, i['data'])
-        self.alive = 1
         self.SetSelection (0)
 
     def Up (self):
@@ -46,11 +44,28 @@ class PickList (wxListBox):
         if n < self.GetCount ()-1:
             self.SetSelection (n+1)
 
-    def Enter (self, event=None):
+    def Enter (self):
         n = self.GetSelection ()
         if n >= 0:
-            self.callback (self.GetString (n), self.GetClientData (n))
+            text = self.GetString (n)
+            data = self.GetClientData (n)
+            self.callback (text, data)
+        self.alive = 2
+        self.Destroy () # this is only safe when in the event handler of another widget
 
+    def OnList (self, event):
+        event.Skip ()
+        if self.alive != 2:
+            n = self.GetSelection ()
+            if n >= 0:
+                text = self.GetString (n)
+                data = self.GetClientData (n)
+                self.callback (text, data)
+            self.alive = 2
+        else:
+            wxCallAfter (self.Destroy) # in theory we shouldn't have to do this,
+                                       # but when we don't, wx segfaults.
+        
     def Destroy (self):
         self.alive = 0
         wxListBox.Destroy (self)
@@ -259,6 +274,24 @@ class ResizingSTC (wxStyledTextCtrl):
     
     MUST ONLY be used inside ResizingWindow!
     """
+
+
+    def ReplaceText (self, start, end, text, style=-1, space=0):
+        """
+        Oddly, the otherwise very rich wxSTC API does not provide an
+        easy way to replace text, so we provide it here.
+
+        @param start: the position in the text to start from
+        @param length: the length of the string to replace
+        @param text: the new string
+        @param style: the style for the replaced string
+        """
+        self.SetTargetStart (start)
+        self.SetTargetEnd (end)
+        self.ReplaceTarget (text)
+        if style > -1:
+            self.StartStyling (start, 0xFF)
+            self.SetStyling (len (text), style)
     
     def __init__ (self, parent, id, pos=wxDefaultPosition, size= wxDefaultSize, style=0):
         if not isinstance(parent, ResizingWindow):
@@ -289,6 +322,8 @@ class ResizingSTC (wxStyledTextCtrl):
         
     def __OnChange (self, event):
         event.Skip ()
+        if self.no_list:
+            return
         length = self.GetLength ()
         height = self.PointFromPosition (length).y - self.PointFromPosition (0).y + self.TextHeight (0)
         x, y = self.GetSizeTuple ()
@@ -306,7 +341,7 @@ class ResizingSTC (wxStyledTextCtrl):
             if self.end == -1:
                 self.end = length
             text = text[self.start:self.end].strip ()
-            if text and not self.no_list:
+            if text:
                 flag, l = self.__matcher.getMatches (text)
                 if flag:
                     if not (self.list and self.list.alive):
@@ -322,8 +357,7 @@ class ResizingSTC (wxStyledTextCtrl):
 
 
     def __userlist (self, text, data=None):
-        self.list.Destroy ()
-        if issubclass (data, ResizingWindow):
+        if isinstance (data, types.ClassType) and issubclass (data, ResizingWindow):
             PopupFrame (text, data, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ()))).Show ()
         elif callable (data):
             data (text, self.parent, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ())))
@@ -332,16 +366,11 @@ class ResizingSTC (wxStyledTextCtrl):
 
     def Embed (self, text, data=None):
         self.no_list = 1
-        self.SetTargetEnd (self.end)
-        self.SetTargetStart (self.start)
-        self.ReplaceTarget (text + ';')
-        self.StartStyling (self.start, 0xFF)
-        self.SetStyling (len (text)+1, STYLE_EMBED)
+        self.ReplaceText (self.start, self.end, text+';', STYLE_EMBED, 1)
+        self.GotoPos (self.start+len (text)+1)
+        self.SetFocus ()
         if data:
             self.__embed[text] = data
-        self.SetCurrentPos (self.start + len (text) + 1)
-        self.SetTargetEnd (0)
-        self.SetTargetStart (0)
         self.no_list = 0
 
     def __OnKeyDown (self, event):
@@ -383,7 +412,7 @@ class ResizingSTC (wxStyledTextCtrl):
                 if self.GetCharAt (pos and pos-1) == ord (';'):
                     if self.next:
                         self.next.SetFocus ()
-                    elif self.parent.complete ():
+                    elif self.parent.complete:
                         self.parent.complete ()
                 else:
                     self.AddText (';')
@@ -432,8 +461,8 @@ class PopupFrame (wxFrame):
         self.win = widget_class (self, -1, pos = pos, size = wxSize (300, 150), complete = self.OnOK)
         self.text = text
         self.originator = originator
-        self.ok = wxButton (self, -1, _(" OK "))
-        self.cancel = wxButton (self, -1, _(" Cancel "))
+        self.ok = wxButton (self, -1, _("OK"), style=wxBU_EXACTFIT)
+        self.cancel = wxButton (self, -1, _("Cancel"), style=wxBU_EXACTFIT)
         EVT_BUTTON (self.ok, self.ok.GetId (), self.OnOK)
         EVT_BUTTON (self.cancel, self.cancel.GetId (), self.OnClose)
         self.__do_layout()
@@ -520,12 +549,82 @@ if __name__ == '__main__':
             self.AddWidget (self.P, "Plan")
             self.SetValues ({"Subjective":"sore ear", "Plan":"Amoxycillin"})
 
-    # end of class MyFrame
+    class SOAPPanel (wxPanel):
+        def __init__ (self, parent, id):
+            wxPanel.__init__ (self, parent, id)
+            sizer = wxBoxSizer (wxVERTICAL)
+            self.soap = SOAPWindow (self, -1)
+            self.save = wxButton (self, -1, _(" Save "))
+            self.delete = wxButton (self, -1, _(" Delete "))
+            self.new = wxButton (self, -1, _(" New "))
+            self.list = wxListBox (self, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
+            EVT_BUTTON (self.save, self.save.GetId (), self.OnSave)
+            EVT_BUTTON (self.delete, self.delete.GetId (), self.OnDelete)
+            EVT_BUTTON (self.new, self.new.GetId (), self.OnNew)
+            EVT_LISTBOX (self.list, self.list.GetId (), self.OnList) 
+            self.__do_layout()
+
+        def __do_layout (self):
+            sizer_1 = wxBoxSizer(wxVERTICAL)
+            sizer_1.Add(self.soap, 3, wxEXPAND, 0)
+            sizer_2 = wxBoxSizer (wxHORIZONTAL)
+            sizer_2.Add(self.save, 0, 0)
+            sizer_2.Add(self.delete, 0, 0)
+            sizer_2.Add(self.new, 0, 0)
+            sizer_1.Add(sizer_2, 0, wxEXPAND)
+            sizer_1.Add(self.list, 3, wxEXPAND, 0)
+            self.SetAutoLayout(1)
+            self.SetSizer(sizer_1)
+            sizer_1.Fit(self)
+            sizer_1.SetSizeHints(self)
+            self.Layout()
+
+        def OnDelete (self, event):
+            self.soap.Clear ()
+            sel = self.list.GetSelection ()
+            if sel >= 0:
+                self.list.Delete (sel)
+
+        def OnNew (self, event):
+            sel = self.list.GetSelection ()
+            if sel >= 0:
+                self.OnSave (None)
+            self.soap.Clear ()
+            self.list.SetSelection (sel, 0)
+
+        def OnSave (self, event):
+            data = self.soap.GetValues ()
+            title = data['Assessment'] or data['Subjective'] or data['Plan'] or data['Objective']
+            self.soap.Clear ()
+            sel = self.list.GetSelection ()
+            if sel < 0:
+                self.list.Append (title, data)
+            else:
+                self.list.SetClientData (sel, data)
+                self.list.SetString (sel, title)
+
+        def OnList (self, event):
+            self.soap.SetValues (event.GetClientData ())
+
+    class testFrame (wxFrame):
+        def __init__ (self, title):
+            wxFrame.__init__ (self, None, wxNewId (), "test SOAP", size = wxSize (350, 200)) # this frame will have big fat borders
+            EVT_CLOSE (self, self.OnClose)
+            sizer = wxBoxSizer (wxVERTICAL)
+            panel = SOAPPanel (self, -1)
+            sizer.Add (panel, 1, wxGROW)
+            self.SetSizer (sizer)
+            self.SetAutoLayout(1)
+            sizer.Fit (self)
+            self.Layout ()
+
+        def OnClose (self, event):
+            self.Destroy ()
 
 
     class testApp (wxApp):
         def OnInit (self):
-            self.frame = PopupFrame ("testFrame", SOAPWindow)
+            self.frame = testFrame ("testFrame")
             self.frame.Show ()
             return 1
 
@@ -534,7 +633,17 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: SOAP2.py,v $
-# Revision 1.7  2004-11-09 11:20:59  ncq
+# Revision 1.8  2004-11-09 13:13:18  ihaywood
+# Licence added
+#
+# Segfaults fixed.
+# Demonstration listbox for multiple SOAP entries, I had intended to drop
+# this into the gnumed client, will check what Carlos is doing
+#
+# Still have vanishing cursor problem when returning  from a popup, can't
+# seem to get it back even after explicit SetFocus ()
+#
+# Revision 1.7  2004/11/09 11:20:59  ncq
 # - just silly cleanup
 #
 # Revision 1.6  2004/11/09 11:19:47  ncq
