@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-standard-DE.conf.sample,v $
-version = $Revision: 1.1 $
+version = $Revision: 1.2 $
 
 #----------------------------------
 [installation]
@@ -33,34 +33,6 @@ config
 demographics
 clinical
 $services$
-
-language library dirs = $language library dirs$
-/usr/lib/postgresql/lib/
-/usr/lib/pgsql/
-/usr/local/pgsql/lib
-$language library dirs$
-
-#----------------------------------
-# these really shouldn't be changed
-[GnuMed defaults]
-
-database owner alias = GnuMed owner
-
-groups = $groups$
-gm-doctors
-_gm-doctors
-gm-staff_medical
-_gm-staff_medical
-gm-staff_office
-_gm-staff_office
-gm-trainees_medical
-gm-trainees_office
-gm-public
-$groups$
-
-procedural languages = $procedural languages$
-pg/SQL
-$procedural languages$
 
 #----------------------------------
 # services
@@ -134,6 +106,35 @@ name = postgres
 #password =
 
 #----------------------------------
+# these really shouldn't be changed
+#----------------------------------
+[GnuMed defaults]
+
+database owner alias = GnuMed owner
+
+groups = $groups$
+gm-doctors
+_gm-doctors
+gm-staff_medical
+_gm-staff_medical
+gm-staff_office
+_gm-staff_office
+gm-trainees_medical
+gm-trainees_office
+gm-public
+$groups$
+
+procedural languages = $procedural languages$
+pg/SQL
+$procedural languages$
+
+language library dirs = $language library dirs$
+/usr/lib/postgresql/lib/
+/usr/lib/pgsql/
+/usr/local/pgsql/lib
+$language library dirs$
+
+#----------------------------------
 # languages
 #----------------------------------
 [pg/SQL]
@@ -161,7 +162,11 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard-DE.conf.sample,v $
-# Revision 1.1  2003-02-17 13:54:14  ncq
+# Revision 1.2  2003-02-23 19:13:08  ncq
+# - move language library dirs to [GnuMed defaults] and that to
+#   the bottom of the file as per suggestion by Andreas
+#
+# Revision 1.1  2003/02/17 13:54:14  ncq
 # - standard with German translations
 #
 # Revision 1.6  2003/02/11 17:13:39  hinnef

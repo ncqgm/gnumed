@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.conf.sample,v $
-version = $Revision: 1.4 $
+version = $Revision: 1.5 $
 
 #----------------------------------
 [installation]
@@ -33,54 +33,6 @@ services = $services$
 config
 patients
 $services$
-
-# where to look for dynamic libraries for procedural languages
-# - we can safely list any directories here that we come
-#   across on any distribution
-# - the first match will be used
-# - reorder the list if you want to force a particular
-#   directory to be used for a particular language
-language library dirs = $language library dirs$
-/usr/lib/postgresql/lib/
-/usr/lib/pgsql/
-$language library dirs$
-
-#----------------------------------
-# these really shouldn't be changed
-[GnuMed defaults]
-
-# needs to have a section [user GnuMed owner] in this file
-database owner alias = GnuMed owner
-
-# - these are the standard groups that exist
-#   in every GnuMed database
-# - note how some groups don't have a write-enabled counterpart
-# - you can (and probably should) define site-specific
-#   groups in another file
-# - at the end of the setup you'll be asked if you want to
-#   install your site-specific groups/users, too
-groups = $groups$
-gm-doctors
-_gm-doctors
-gm-staff_medical
-_gm-staff_medical
-gm-staff_office
-_gm-staff_office
-gm-trainees_medical
-gm-trainees_office
-gm-public
-$groups$
-
-# - activate these backend languages
-# - the names just point to the corresponding sections
-procedural languages = $procedural languages$
-pg/SQL
-$procedural languages$
-
-# Python isn't included in the default PostgreSQL
-# binaries yet although this is being discussed,
-# it may soon become a requirement for GnuMed, though
-#pg/Python
 
 #----------------------------------
 # corresponds to one of the services listed under installation
@@ -174,6 +126,56 @@ name = postgres
 #password =
 
 #----------------------------------
+# these really shouldn't be changed
+#----------------------------------
+[GnuMed defaults]
+
+# needs to have a section [user GnuMed owner] in this file
+database owner alias = GnuMed owner
+
+# - these are the standard groups that exist
+#   in every GnuMed database
+# - note how some groups don't have a write-enabled counterpart
+# - you can (and probably should) define site-specific
+#   groups in another file
+# - at the end of the setup you'll be asked if you want to
+#   install your site-specific groups/users, too
+groups = $groups$
+gm-doctors
+_gm-doctors
+gm-staff_medical
+_gm-staff_medical
+gm-staff_office
+_gm-staff_office
+gm-trainees_medical
+gm-trainees_office
+gm-public
+$groups$
+
+# - activate these backend languages
+# - the names just point to the corresponding sections
+procedural languages = $procedural languages$
+pg/SQL
+$procedural languages$
+
+# Python isn't included in the default PostgreSQL
+# binaries yet although this is being discussed,
+# it may soon become a requirement for GnuMed, though
+#pg/Python
+
+# where to look for dynamic libraries for procedural languages
+# - we can safely list any directories here that we come
+#   across on any distribution
+# - the first match will be used
+# - reorder the list if you want to force a particular
+#   directory to be used for a particular language
+language library dirs = $language library dirs$
+/usr/lib/postgresql/lib/
+/usr/lib/pgsql/
+/usr/local/pgsql/lib
+$language library dirs$
+
+#----------------------------------
 # don't ask, this is deep magic ;-)
 # meditate over it and enlightenment will be thine
 [pg/SQL]
@@ -201,7 +203,11 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-gm_db_system.conf.sample,v $
-# Revision 1.4  2003-02-09 11:46:11  ncq
+# Revision 1.5  2003-02-23 19:13:08  ncq
+# - move language library dirs to [GnuMed defaults] and that to
+#   the bottom of the file as per suggestion by Andreas
+#
+# Revision 1.4  2003/02/09 11:46:11  ncq
 # - added core database option for registering services
 # - convenience function _run_query()
 #

@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-archive.conf.sample,v $
-version = $Revision: 1.5 $
+version = $Revision: 1.6 $
 
 #----------------------------------
 [installation]
@@ -25,34 +25,6 @@ config
 demographics
 documents
 $services$
-
-language library dirs = $language library dirs$
-/usr/lib/postgresql/lib/
-/usr/lib/pgsql/
-/usr/local/pgsql/lib
-$language library dirs$
-
-#----------------------------------
-# these really shouldn't be changed
-[GnuMed defaults]
-
-database owner alias = GnuMed owner
-
-groups = $groups$
-gm-doctors
-_gm-doctors
-gm-staff_medical
-_gm-staff_medical
-gm-staff_office
-_gm-staff_office
-gm-trainees_medical
-gm-trainees_office
-gm-public
-$groups$
-
-procedural languages = $procedural languages$
-pg/SQL
-$procedural languages$
 
 #----------------------------------
 # services
@@ -99,7 +71,7 @@ $schema$
 # databases
 #----------------------------------
 [database gm-archive]
-name = gm-archive-test
+name = gm-archive-sample
 server alias = localhost
 
 #----------------------------------
@@ -114,6 +86,8 @@ schema = $schema$
 sql/gmTestAccounts.sql
 $schema$
 
+# gmArchiveAccounts.sql
+
 #----------------------------------
 # users
 #----------------------------------
@@ -124,6 +98,35 @@ name = gm-dbowner
 [user postgres]
 name = postgres
 #password =
+
+#----------------------------------
+# these really shouldn't be changed
+#----------------------------------
+[GnuMed defaults]
+
+database owner alias = GnuMed owner
+
+groups = $groups$
+gm-doctors
+_gm-doctors
+gm-staff_medical
+_gm-staff_medical
+gm-staff_office
+_gm-staff_office
+gm-trainees_medical
+gm-trainees_office
+gm-public
+$groups$
+
+procedural languages = $procedural languages$
+pg/SQL
+$procedural languages$
+
+language library dirs = $language library dirs$
+/usr/lib/postgresql/lib/
+/usr/lib/pgsql/
+/usr/local/pgsql/lib
+$language library dirs$
 
 #----------------------------------
 # languages
@@ -141,7 +144,11 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-archive.conf.sample,v $
-# Revision 1.5  2003-02-17 13:57:41  ncq
+# Revision 1.6  2003-02-23 19:13:08  ncq
+# - move language library dirs to [GnuMed defaults] and that to
+#   the bottom of the file as per suggestion by Andreas
+#
+# Revision 1.5  2003/02/17 13:57:41  ncq
 # - updated
 #
 # Revision 1.4  2003/02/09 11:46:11  ncq
