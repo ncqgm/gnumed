@@ -20,7 +20,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 
 __log__ = gmLog.gmDefLog
 #============================================================
@@ -495,6 +495,10 @@ class cPhraseWheel (wxTextCtrl):
 # MAIN
 #============================================================
 if __name__ == '__main__':
+	if len(sys.argv) < 2:
+		print "must specify drop down list delay as first argument (in milliseconds)"
+		sys.exit(0)
+
 	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 	import gmI18N
 	def clicked (data):
@@ -514,7 +518,7 @@ if __name__ == '__main__':
 			frame = wxFrame (None, -4, "phrase wheel test for GNUmed", size=wxSize(300, 350), style=wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
 
 			# actually, aDelay of 300ms is also the built-in default
-			ww = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp, aDelay = 900)
+			ww = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp, aDelay = int(sys.argv[1]))
 			ww.on_resize (None)
 			frame.Show (1)
 			return 1
