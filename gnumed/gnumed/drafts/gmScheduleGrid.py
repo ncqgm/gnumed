@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -269,6 +269,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		of rows and columns to time and date"""
 
 		#label the columns
+		self.SetColLabelSize (40)
 		self.weekdaylabels = DayOfWeekLabels(self.Date, self.days)
 		for column in range(self.days):
 			date = self.AddDays(column)
