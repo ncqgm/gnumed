@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.13 2005-03-16 12:57:26 sjtan Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmPerson.py,v 1.14 2005-03-18 07:44:10 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -644,13 +644,13 @@ class cPatientSearcher_SQL:
 			# there's no intermediate whitespace due to the regex
 			tmp = normalized.strip()
 			# assumption: this is a last name
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.lastnames  ~* '^%s'" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~* '^%s'" % tmp])
 			# assumption: this is a first name
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.firstnames ~* '^%s'" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s'" % tmp])
 			# name parts anywhere in name
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.firstnames || names.lastnames ~* '%s'" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s'" % tmp])
 			return queries
 
 		# try to split on (major) part separators
@@ -678,24 +678,22 @@ class cPatientSearcher_SQL:
 				# no date = "first last" or "last first"
 				if date_count == 0:
 					# assumption: first last
-					queries.append(
-						[
-						 "SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names,firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
-						]
-					)
 					queries.append([
-						 "SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
+					])
+					queries.append([
+						 "SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
 					])
 					# assumption: last first
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
 					])
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
 					])
 					# name parts anywhere in name - third order query ...
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.firstnames || names.lastnames ~* '%s' AND firstnames || lastnames ~* '%s'" % (name_parts[0], name_parts[1])
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s' AND firstnames || n.lastnames ~* '%s'" % (name_parts[0], name_parts[1])
 					])
 					return queries
 				# FIXME: either "name date" or "date date"
@@ -708,21 +706,21 @@ class cPatientSearcher_SQL:
 				if date_count == 1:
 					# assumption: first, last, dob - first order
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.firstnames ~ '^%s' AND names.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
 					])
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and firstnames ~* '^%s' AND names.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and firstnames ~* '^%s' AND n.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
 					])
 					# assumption: last, first, dob - second order query
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.firstnames ~ '^%s' AND names.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
 					])
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.firstnames ~* '^%s' AND names.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[1], name_parts[0], date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[1], name_parts[0], date_part)
 					])
 					# name parts anywhere in name - third order query ...
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.pk_identity = names.id_identity and names.firstnames || names.lastnames ~* '%s' AND names.firstnames || names.lastnames ~* '%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s' AND n.firstnames || n.lastnames ~* '%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
 					])
 					return queries
 				# FIXME: "name name name" or "name date date"
@@ -966,7 +964,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.13  2005-03-16 12:57:26  sjtan
+# Revision 1.14  2005-03-18 07:44:10  ncq
+# - queries fixed but logic needs more work !
+#
+# Revision 1.13  2005/03/16 12:57:26  sjtan
 #
 # fix import error.
 #
