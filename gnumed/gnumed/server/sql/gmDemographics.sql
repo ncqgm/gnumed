@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -156,6 +156,26 @@ comment on column comm_channel.url is
 
 -- ===================================================================
 
+create table enum_ext_id_types (
+	id serial primary key,
+	name text,
+	issuer text,
+	context char default 'p' check (context in ('p', 'o', 'c', 's'))
+);
+
+comment on table enum_ext_id_types is
+'a list of all bureaucratic IDs/serial number, etc.';
+comment on column enum_ext_id_types.issuer is
+'the authority issuing the number';
+comment on column enum_ext_id_types.context is
+'the context in which this number is used
+	- p for ordinary persons
+	- o for organisations
+	- c for clinicians
+	- s for staff in this clinic
+'; 
+-- ===================================================================
+
 -- the following table still needs a lot of work.
 -- especially the GPS and map related information needs to be
 -- normalized
@@ -241,11 +261,12 @@ comment on column identity.title IS
 
 -- ==========================================================
 create table ext_person_id (
-	pk serial primary key,
-	fk_identity integer not null references identity(id),
+	id serial primary key,
+	id_identity integer not null references identity(id),
 	external_id text not null,
-	description text,
-	unique (fk_identity, external_id, description)
+	origin integer not null references enum_ext_id_types (id),
+	comment text,
+	unique (id_identity, external_id, origin)
 ) inherits (audit_fields);
 
 select add_table_for_audit('ext_person_id');
@@ -256,9 +277,8 @@ comment on column ext_person_id.external_id is
 	'textual representation of external ID which
 	 may be Social Security Number, patient ID of
 	 another EMR system, you-name-it';
-comment on column ext_person_id.description is
-	'description of ID, e.g. name, originating system,
-	 scope, expiration, etc.';
+comment on column ext_person_id.origin is
+	'originating system';
 
 -- ==========================================================
 -- as opposed to the versioning of all other tables, changed names
@@ -507,7 +527,9 @@ GRANT SELECT ON
 	address_type,
 	state,
 	enum_comm_types,
+	enum_ext_id_types,
 	comm_channel,
+	ext_person_id,
 	mapbook,
 	coordinate,
 	address_info,
@@ -540,6 +562,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	address_id_seq,
 	comm_channel,
 	comm_channel_id_seq,
+	ext_person_id,
+	ext_person_id_id_seq,
 	coordinate,
 	coordinate_id_seq,
 	address_info,
@@ -562,11 +586,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.22 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.23 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.22  2004-03-02 10:22:30  ihaywood
+-- Revision 1.23  2004-03-03 23:51:41  ihaywood
+-- external ID tables harmonised
+--
+-- Revision 1.22  2004/03/02 10:22:30  ihaywood
 -- support for martial status and occupations
 -- .conf files now use host autoprobing
 --
