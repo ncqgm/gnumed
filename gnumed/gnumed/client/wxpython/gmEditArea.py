@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.58 2004-02-02 22:28:23 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmEditArea.py,v 1.59 2004-02-05 00:26:47 sjtan Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -908,104 +908,143 @@ class gmPastHistoryEditArea(gmEditArea):
 		except gmExceptions.ConstructorError:
 			_log.LogExceptions('cannot instantiate past Hx edit area', sys.exc_info())
 			raise
-	#----------------------------------------------------------------
-	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making past Hx lines")
-		lines = []
-		#self.gszr = wxGridSizer( 8, 1, 2, 2)
-		self.txt_condition = cEditAreaField(parent, PHX_CONDITION,wxDefaultPosition,wxDefaultSize)
-	#@	self.rb_laterality = wxRadioBox( parent, -1,   "Side", wxDefaultPosition, wxDefaultSize,  [ _("Left"), _("Right"), _("Both")]  )
 
+	def _define_prompts(self):
+		self._add_prompt(line = 1, label = _("When Noted"))
+		self._add_prompt(line = 2, label = _("Laterality"))
+		self._add_prompt(line = 3, label = _("Condition"))
+		self._add_prompt(line = 4, label = _("Notes"))
+		self._add_prompt(line = 6, label = _("Status"))
+		self._add_prompt(line = 7, label = _("Progress Note"))
+		self._add_prompt(line = 8, label = '')
 
+	def _define_fields(self, parent):
+		# line 1
+		self.fld_date_noted = gmDateTimeInput.gmDateInput(
+			parent = parent,
+			id = -1,
+			style = wxSIMPLE_BORDER
+		)
+		self._add_field(
+			line = 1,
+			pos = 1,
+			widget = self.fld_date_noted,
+			weight = 2
+		)
+		self._add_field(
+			line = 1, 
+			pos = 2,
+			widget = cPrompt_edit_area(parent,-1, _("Age")),
+			weight = 0)
 
-		self.rb_sidenone= wxRadioButton(parent, -1,  _("None"), wxDefaultPosition,wxDefaultSize)
-		self.rb_sideleft = wxRadioButton(parent, PHX_LEFT, _("(L)"), wxDefaultPosition,wxDefaultSize)
-		self.rb_sideright = wxRadioButton(parent,  PHX_RIGHT, _("(R)"), wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
-		self.rb_sideboth = wxRadioButton(parent,  PHX_BOTH, _("Both"), wxDefaultPosition,wxDefaultSize)
-		rbsizer = wxBoxSizer(wxHORIZONTAL)
-		rbsizer.Add(self.rb_sidenone,1,wxEXPAND)
-		rbsizer.Add(self.rb_sideleft,1,wxEXPAND)
-		rbsizer.Add(self.rb_sideright,1,wxEXPAND) 
-		rbsizer.Add(self.rb_sideboth,1,wxEXPAND)
-		szr1 = wxBoxSizer(wxHORIZONTAL)
-		szr1.Add(self.txt_condition, 4, wxEXPAND)
-		szr1.Add(rbsizer, 3, wxEXPAND)
-		#szr1.Add(self.rb_laterality, 3, wxEXPAND)
-		lines.append(szr1)
-#			self.sizer_line1.Add(self.rb_sideleft,1,wxEXPAND|wxALL,2)
-#			self.sizer_line1.Add(self.rb_sideright,1,wxEXPAND|wxALL,2)
-#			self.sizer_line1.Add(self.rb_sideboth,1,wxEXPAND|wxALL,2)
-		# line 2A
+		self.fld_age_noted = cEditAreaField(parent)	
+		self._add_field(
+			line = 1,
+			pos = 3,
+			widget = self.fld_age_noted,
+			weight = 2
+		)
 		
-		self.txt_notes1 = cEditAreaField(parent, PHX_NOTES,wxDefaultPosition,wxDefaultSize)
-		lines.append(self.txt_notes1)
+		# line 2
+		self.fld_laterality_none= wxRadioButton(parent, -1, _("None"))
+		self.fld_laterality_left= wxRadioButton(parent, -1, _("L"))
+		self.fld_laterality_right= wxRadioButton(parent, -1, _("R"))
+		self.fld_laterality_both= wxRadioButton(parent, -1, _("both"))
+		self._add_field(
+			line = 2,
+			pos = 1,
+			widget = self.fld_laterality_none,
+			weight = 0
+		)
+		self._add_field(
+			line = 2,
+			pos = 2,
+			widget = self.fld_laterality_left,
+			weight = 0
+		)
+		self._add_field(
+			line = 2,
+			pos = 3,
+			widget = self.fld_laterality_right,
+			weight = 1
+		)
+		self._add_field(
+			line = 2,
+			pos = 4,
+			widget = self.fld_laterality_both,
+			weight = 1
+		)
 		# line 3
-		self.txt_notes2= cEditAreaField(parent, PHX_NOTES2,wxDefaultPosition,wxDefaultSize)
-		lines.append(self.txt_notes2)
+		self.fld_condition= cEditAreaField(parent)
+		self._add_field(
+			line = 3,
+			pos = 1,
+			widget = self.fld_condition,
+			weight = 6
+		)
 		# line 4
-		self.txt_agenoted = cEditAreaField(parent,  PHX_AGE, wxDefaultPosition, wxDefaultSize)
-		szr4 = wxBoxSizer(wxHORIZONTAL)
-		szr4.Add(self.txt_agenoted, 1, wxEXPAND)
-		szr4.Add(5, 0, 5)
-		lines.append(szr4)
+		self.fld_notes= cEditAreaField(parent)
+		self._add_field(
+			line = 4,
+			pos = 1,
+			widget = self.fld_notes,
+			weight = 6
+		)
 		# line 5
-		self.txt_yearnoted  = cEditAreaField(parent, PHX_YEAR,wxDefaultPosition,wxDefaultSize)
-		szr5 = wxBoxSizer(wxHORIZONTAL)
-		szr5.Add(self.txt_yearnoted, 1, wxEXPAND)
-		szr5.Add(5, 0, 5)
-		lines.append(szr5)
-		# line 6
-		self.cb_active = wxCheckBox(parent,  PHX_ACTIVE, _("Active"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		self.cb_operation = wxCheckBox(parent,  PHX_OPERATION, _("Operation"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		self.cb_confidential = wxCheckBox(parent,  PHX_CONFIDENTIAL , _("Confidential"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		self.cb_significant = wxCheckBox(parent,  PHX_SIGNIFICANT, _("Significant"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		szr6 = wxBoxSizer(wxHORIZONTAL)
-		szr6.Add(self.cb_active, 1, wxEXPAND)
-		szr6.Add(self.cb_operation, 1, wxEXPAND)
-		szr6.Add(self.cb_confidential, 1, wxEXPAND)
-		szr6.Add(self.cb_significant, 1, wxEXPAND)
-		lines.append(szr6)
-		# line 7
-		self.txt_progressnotes  = cEditAreaField(parent, PHX_PROGRESSNOTES ,wxDefaultPosition,wxDefaultSize)
-		lines.append(self.txt_progressnotes)
-		# line 8
-		szr8 = wxBoxSizer(wxHORIZONTAL)
-		szr8.Add(5, 0, 6)
-		szr8.Add(self._make_standard_buttons(parent), 0, wxEXPAND)
-		lines.append(szr8)
+		self.fld_significant= wxCheckBox(
+			parent,
+			-1,
+			_("significant"),
+			style = wxNO_BORDER
+		)
+		self.fld_active= wxCheckBox(
+			parent,
+			-1,
+			_("active"),
+			style = wxNO_BORDER
+		)
 
+		self._add_field(
+			line = 5,
+			pos = 1,
+			widget = self.fld_significant,
+			weight = 0
+		)
+		self._add_field(
+			line = 5,
+			pos = 2,
+			widget = self.fld_active,
+			weight = 0
+		)
+		#line 6
+		self.fld_progress= cEditAreaField(parent)
+		self._add_field(
+			line = 6,
+			pos = 1,
+			widget = self.fld_progress,
+			weight = 6
+		)
 
-		self.input_fields = {
-			"condition": self.txt_condition,
-			"notes1": self.txt_notes1,
-			"notes2": self.txt_notes2,
-			"age": self.txt_agenoted,
-			"year": self.txt_yearnoted,
-			"progress": self.txt_progressnotes,
-			"active": self.cb_active,
-			"operation": self.cb_operation,
-			"confidential": self.cb_confidential,
-			"significant": self.cb_significant,
-			"both": self.rb_sideboth,
-			"left": self.rb_sideleft,
-			"right": self.rb_sideright,
-			"none": self.rb_sidenone
-		}
-
-		return lines
-
+		#line 7
+		self._add_field(
+			line = 7,
+			pos = 4,
+			widget = self._make_standard_buttons(parent),
+			weight = 2
+		)
 
 	def  _postInit(self):
+		return
 		#handling of auto age or year filling.
-		EVT_KILL_FOCUS( self.input_fields['age'], self._ageKillFocus)
-		EVT_KILL_FOCUS( self.input_fields['year'], self._yearKillFocus)
+		EVT_KILL_FOCUS( self.fld_age_noted, self._ageKillFocus)
+		EVT_KILL_FOCUS( self.fld_date_noted, self._yearKillFocus)
 
 	def _ageKillFocus( self, event):	
 		# skip first, else later failure later in block causes widget to be unfocusable
 		event.Skip()	
 		try :
-			year = self._getBirthYear() + int(self.input_fields['age'].GetValue().strip() )
-			self.input_fields['year'].SetValue( str (year) )
+			year = self._getBirthYear() + int(self.fld_age_noted.GetValue().strip() )
+			self.fld_date_noted.SetValue( str (year) )
 		except:
 			pass
 
@@ -1020,50 +1059,10 @@ class gmPastHistoryEditArea(gmEditArea):
 	def _yearKillFocus( self, event):	
 		event.Skip()	
 		try:
-			age = int(self.input_fields['year'].GetValue().strip() ) - self._getBirthYear() 
-			self.input_fields['age'].SetValue( str (age) )
+			age = int(self.fld_date_noted.GetValue().strip() ) - self._getBirthYear() 
+			self.fld_age_noted.SetValue( str (age) )
 		except:
 			pass
-
-	def get_fields_formatting_values(self):
-		fields = [	"condition", 
-				"notes1", 
-				"notes2", 
-				"age", 
-				"year", 
-				"progress", 
-				"active", 
-				"operation", 
-				"confidential", 
-				"significant", 
-				"both", 
-				"left", 
-				"right", 
-				"none"  ]
-				
-		values = self.getInputFieldValues(fields)
-		values['clin_history_id'] = self.getDataId()
-		s= "'%s'"
-		n = "%d"
-		formatting = {	"condition":s,
-				"notes1":s, 
-				"notes2":s, 
-				"age":s, 
-				"year":s, 
-				"progress":s, 
-				"active":n, 
-				"operation":n, 
-				"confidential":n, 
-				"significant":n, 
-				"both":n, 
-				"left":n, 
-				"right":n, 
-				"none":n  }
-
-		return fields,  formatting, values
-		
-
-	
 
 	__init_values = {
 			"condition": "",
@@ -1284,17 +1283,20 @@ class gmAllergyEditArea(gmEditArea):
 		return 1
 #========================================================
 class gmVaccinationEditArea(gmEditArea):
+	
 	"""
 	- warn on apparent duplicates
 	- ask if "missing" (= previous, non-recorded) vaccinations
 	  should be estimated and saved (add note "auto-generated")
 	"""
 	def __init__(self, parent, id):
+		pass
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'vaccination')
 		except gmExceptions.ConstructorError:
 			_log.LogException('cannot instantiate vaccination edit area', sys.exc_info(), verbose=1)
 			raise
+		
 	#----------------------------------------------------
 	def _define_fields(self, parent):
 #		# regime/disease
@@ -2036,6 +2038,7 @@ class EditArea(wxPanel):
 		self.SetAutoLayout(true)
 		self.Show(true)
 
+
 #====================================================================
 # old stuff still needed for conversion
 #--------------------------------------------------------------------
@@ -2317,12 +2320,16 @@ if __name__ == "__main__":
 #	app = wxPyWidgetTester(size = (400, 200))
 #	app.SetWidget(gmFamilyHxEditArea, -1)
 #	app.MainLoop()
-#	app = wxPyWidgetTester(size = (400, 200))
-#	app.SetWidget(gmPastHistoryEditArea, -1)
-#	app.MainLoop()
+	app = wxPyWidgetTester(size = (400, 200))
+	app.SetWidget(gmPastHistoryEditArea, -1)
+	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.58  2004-02-02 22:28:23  ncq
+# Revision 1.59  2004-02-05 00:26:47  sjtan
+#
+# converting gmPastHistory to _define.., _generate.. style.
+#
+# Revision 1.58  2004/02/02 22:28:23  ncq
 # - OK now inits the edit area as per Richard's specs
 #
 # Revision 1.57  2004/01/26 22:15:32  ncq
