@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.108 2003-06-25 22:50:30 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmGuiMain.py,v 1.109 2003-06-26 21:38:28 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -672,6 +672,7 @@ class gmApp(wxApp):
 			_log.Log(gmLog.lInfo, 'Cannot connect to database to check database locale setting.')
 			return None
 		rocurs = roconn.cursor()
+		# FIXME: gmPG.run_query()
 		# get current database locale
 		cmd = "select lang from i18n_curr_lang where owner = CURRENT_USER limit 1;"
 		try:
@@ -681,7 +682,7 @@ class gmApp(wxApp):
 			# that language settings are not wanted
 			_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
 			_log.Log(gmLog.lInfo, 'assuming language settings are not wanted/needed')
-			_log.LogException("Cannot get database language.", sys.exc_info(), fatal=0)
+			_log.LogException("Cannot get database language.", sys.exc_info(), verbose=0)
 			rocurs.close()
 			self.__backend.ReleaseConnection('default')
 			return None
@@ -690,14 +691,29 @@ class gmApp(wxApp):
 		self.__backend.ReleaseConnection('default')
 
 		if result is None:
-			msg = _("Currently there is no language selected in the database.\nYour system language is currently set to [%s].\n\nDo you want to set the database language to '%s' ?")  % (system_locale, system_locale)
+			msg = _(
+				"There is no language selected in the database.\n"
+				"Your system language is currently set to [%s].\n\n"
+				"Do you want to set the database language to '%s' ?\n\n"
+				"Answering <NO> will remember that decision until\n"
+				"the system language is changed. You can also reactivate\n"
+				"this inquiry by removing the appropriate ignore option\n"
+				"from the configuration file."
+			)  % (system_locale, system_locale)
 			_log.Log(gmLog.lData, "database locale currently not set")
 		else:
-			msg = _("The currently selected database language ('%s') does not match\nthe current system language ('%s').\n\nDo you want to set the database language to '%s' ?") % (db_lang, system_locale, system_locale)
 			db_lang = result[0]
+			msg = _(
+				"The currently selected database language ('%s') does\n"
+				"not match the current system language ('%s').\n\n"
+				"Do you want to set the database language to '%s' ?\n\n"
+				"Answering <NO> will remember that decision until\n"
+				"the system language is changed. You can also reactivate\n"
+				"this inquiry by removing the appropriate ignore option\n"
+				"from the configuration file."
+			) % (db_lang, system_locale, system_locale)
 			_log.Log(gmLog.lData, "current database locale: [%s]" % db_lang)
-
-			# check if system and db language are different
+			# check if we can match up system and db language somehow
 			if db_lang == system_locale_level['full']:
 				_log.Log(gmLog.lData, 'Database locale (%s) up to date.' % db_lang)
 				return 1
@@ -707,10 +723,16 @@ class gmApp(wxApp):
 			if db_lang == system_locale_level['language']:
 				_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at language level.' % (db_lang, system_locale))
 				return 1
+			# no match
+			_log.Log(gmLog.lWarn, 'database locale [%s] does not match system locale [%s]' % (db_lang, system_locale))
 
-			# no match: ask user
-			_log.Log(gmLog.lWarn, 'Database locale [%s] does not match system locale [%s]. Asking user what to do.' % (db_lang, system_locale))
-
+		# returns either None or a locale string
+		ignored_sys_lang = _cfg.get('backend', 'ignored mismatching system locale')
+		# are we to ignore *this* mismatch ?
+		if system_locale == ignored_sys_lang:
+			_log.Log(gmLog.lInfo, 'configured to ignore system-to-database locale mismatch')
+			return 1
+		# no, so ask user
 		dlg = wxMessageDialog(
 			parent = None,
 			message = msg,
@@ -721,7 +743,14 @@ class gmApp(wxApp):
 		dlg.Destroy()
 
 		if result == wxID_NO:
-			_log.Log(gmLog.lInfo, 'User did not want to set database locale. Good luck.')
+			_log.Log(gmLog.lInfo, 'User did not want to set database locale. Ignoring mismatch next time.')
+			comment = [
+				"If the system locale matches this value a mismatch",
+				"with the database locale will be ignored.",
+				"Remove this option if you want to stop ignoring mismatches.",
+			]
+			_cfg.set('backend', 'ignored mismatching system locale', system_locale, comment)
+			_cfg.store()
 			return 1
 
 		rwconn = self.__backend.GetConnection(service = 'default', readonly = 0)
@@ -735,7 +764,7 @@ class gmApp(wxApp):
 			try:
 				rwcurs.execute(cmd, lang)
 			except:
-				_log.LogException(">>>%s<<< failed." % (cmd % lang), sys.exc_info(), fatal=0)
+				_log.LogException(">>>%s<<< failed." % (cmd % lang), sys.exc_info(), verbose=0)
 				rwconn.rollback()
 				continue
 			_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
@@ -782,7 +811,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.108  2003-06-25 22:50:30  ncq
+# Revision 1.109  2003-06-26 21:38:28  ncq
+# - fatal->verbose
+# - ignore system-to-database locale mismatch if user so desires
+#
+# Revision 1.108  2003/06/25 22:50:30  ncq
 # - large cleanup
 # - lots of comments re method call order on application closing
 # - send application_closing() from _clean_exit()
