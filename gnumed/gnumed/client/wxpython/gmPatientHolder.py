@@ -2,6 +2,7 @@ import gmDispatcher, gmSignals
 from gmPatient import gmCurrentPatient
 import sys
 import gmLog
+from wxPython.wx import wxCallAfter
 
 class PatientHolder:
 	def __init__(self):

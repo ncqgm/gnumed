@@ -6,7 +6,7 @@
 #
 # If you don't like it - change this code see @TODO!
 #  $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -19,6 +19,10 @@ __license__ = "GPL"  # (details at http://www.gnu.org)
 #	implemented for gui presentation only
 #      
 ############################################################################
+
+import sys
+if __name__ == '__main__':
+	sys.path.append (['..', '../../python-common', '../../business'])
 
 from wxPython.wx import *
 import gmPlugin
@@ -110,7 +114,7 @@ class ContactsPanel(wxPanel):
           # add some dummy data to the allergy list
 	  self.list_organisations.InsertColumn(0,_( "Organisation"))
 	  self.list_organisations.InsertColumn(1,_( "Employees"))
-#	  self.list_organisations.InsertColumn(2,_( "xxxxxxxxxxxxxxxxxxxx"))
+	  self.list_organisations.InsertColumn(2,_( "Address"))
 	  self.list_organisations.InsertColumn(3,_( "Category/Email"))
 	  self.list_organisations.InsertColumn(4,_( "Phone"))
      
@@ -404,7 +408,11 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.9  2003-11-30 23:42:05  ncq
+# Revision 1.10  2004-02-18 06:30:30  ihaywood
+# Demographics editor now can delete addresses
+# Contacts back up on screen.
+#
+# Revision 1.9  2003/11/30 23:42:05  ncq
 # - never _('') !!
 # - don't use 'xsel' in font defs
 #

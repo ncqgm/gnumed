@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.8 2004-01-18 21:49:18 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmDemographics.py,v 1.9 2004-02-18 06:30:30 ihaywood Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -87,21 +87,6 @@ ID_TXTPATIENTFIND = wxNewId()
 ID_TXTPATIENTAGE = wxNewId()
 ID_TXTPATIENTALLERGIES  = wxNewId()
 
-#------------------------------------
-#Dummy data to simulate allergy items
-#------------------------------------
-aliasdata = {
-1 : ("Peter Patient"),
-2 : ("Bruce Dag"),
-}
-namelistdata = [
-	'Smith Adan 129 Box Hill Road BOX HILL etc....',
-	'Smith Jean 52 WhereEver Street CANBERRA etc.....',
-	'Smith Michael 99 Longbeach Rd MANLYVALE  etc........'
-]
-
-addressdata = ['129 Afred Street WARNERS BAY 2280', '99 Wolfe Street NEWCASTLE 2301']
-
 #--------------------------------------------------
 #Class which shows a blue bold label left justified
 #--------------------------------------------------
@@ -141,35 +126,35 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 			self.mwm = self.gb['clinical.manager']
 		except:
 			self.mwm = {}
+		self.to_delete = []
 	#	self.plugin = plugin
 		# controls on the top toolbar are available via plugin.foo
-		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,addressdata,wxLB_SINGLE)
+		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,[],wxLB_SINGLE)
 		self.addresslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
 		self.addresslist.SetForegroundColour(wxColor(180,182,180))
 		# code to link up SQLListControl
-		self.patientslist = gmSQLListControl.SQLListControl (self, ID_PATIENTSLIST, hideid=true, style= wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-		self.patientslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
-		EVT_LIST_ITEM_SELECTED (self.patientslist, ID_PATIENTSLIST, self.OnPatient)
+		# this has all been superseded several times over!!!
+		#self.patientslist = gmSQLListControl.SQLListControl (self, ID_PATIENTSLIST, hideid=true, style= wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		#self.patientslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
 		self.lbl_surname = BlueLabel(self,-1,"Surname")
 		self.lbl_firstname = BlueLabel(self,-1,"Firstname")
 		self.lbl_preferredname = BlueLabel(self,-1,"Salutation")
 		self.lbl_title = BlueLabel(self,-1,"Title")
-		self.lbl_sex = BlueLabel(self,-1,"Sex ")
+		self.lbl_sex = BlueLabel(self,-1,"Sex")
 		self.lbl_street = BlueLabel(self,-1,"Street")
-		self.lbl_suburb = BlueLabel(self,-1,"Suburb")
-		self.lbl_zip = BlueLabel(self,-1,"Postcode")
-		self.lbl_address_s = BlueLabel(self,-1,"Address(s)")
+		self.lbl_urb = BlueLabel(self,-1,"Suburb")
+		self.lbl_postcode = BlueLabel(self,-1,"Postcode")
+		self.lbl_address_s = BlueLabel(self,-1,"Address")
 		self.lbl_birthdate = BlueLabel(self,-1,"Birthdate")
-		self.lbl_maritalstatus = BlueLabel(self,-1,"  Marital Status")
+		self.lbl_maritalstatus = BlueLabel(self,-1,"Marital Status")
 		self.lbl_occupation = BlueLabel(self,-1,"Occupation")
 		self.lbl_birthplace = BlueLabel(self,-1,"Born In")
 		self.lbl_nextofkin = BlueLabel(self,-1,"")
 		self.lbl_addressNOK = BlueLabel(self,-1,"Next of Kin")
-		self.lbl_relationship = BlueLabel(self,-1,"  Relationship  ")
+		self.lbl_relationship = BlueLabel(self,-1,"Relationship")
 		self.lbl_homephone = BlueLabel(self,-1,"Home Phone")
 		self.lbl_workphone = BlueLabel(self,-1,"Work Phone")
 		self.lbl_fax = BlueLabel(self,-1,"Fax")
-		self.lbl_mobile = BlueLabel(self,-1,"Mobile")
 		self.lbl_email = BlueLabel(self,-1,"Email")
 		self.lbl_web = BlueLabel(self,-1,"Web")
 		self.lbl_mobile = BlueLabel(self,-1,"Mobile")
@@ -187,14 +172,14 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		#self.txt_address.SetInsertionPoint(0)
 		#self.txt_address.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		
-		self.txt_no= wxTextCtrl( self, 30, "")
-		self.txt_no.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.txt_number= wxTextCtrl( self, 30, "")
+		self.txt_number.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		self.txt_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wxDefaultPosition, size=wxDefaultSize )
 		self.txt_street.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.txt_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
+		self.txt_urb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
 
-		self.txt_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize )
+		self.txt_postcode  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize )
 
 		self.txt_birthdate = TextBox_BlackNormal(self,-1)
 		self.combo_maritalstatus = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,
@@ -209,7 +194,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 	#				      wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
 	#	self.txt_nameNOK.SetInsertionPoint(0)
 	#	self.txt_nameNOK.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-		self.txt_nameNOK = wxListBox( self, 30)
+		self.lb_nameNOK = wxListBox( self, 30)
 		self.txt_homephone = TextBox_BlackNormal(self,-1)
 		self.txt_workphone = TextBox_BlackNormal(self,-1)
 		self.txt_fax = TextBox_BlackNormal(self,-1)
@@ -264,27 +249,15 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self.sizer_line6_left.Add(self.lbl_line6gap,1,wxEXPAND)
 		#----------------
 		#3:street details
-		#a) the label
-		sizer_lblstreet = wxBoxSizer(wxVERTICAL)
-		sizer_lblstreet.Add(self.lbl_street,0, wxEXPAND)
-		#--------------------
-		#3:street details
-		#b) multiline textbox
-		#-------------------
-		self.sizer_line7_left = wxBoxSizer(wxHORIZONTAL)
-		#self.sizer_line7_left.Add(0,0,1)
-		#------------------------------
-		#3:street details
 		#c) residence or postal address
 		#------------------------------
 		sizer_respostal = wxBoxSizer(wxHORIZONTAL)
 		sizer_respostal.Add(self.cb_addressresidence,1,wxEXPAND)
 		sizer_respostal.Add(self.cb_addresspostal,1,wxEXPAND)
 
-		#sizer_respostal.Add(1,0,1)
 		self.sizer_line7_left = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line7_left.Add(sizer_lblstreet,3,wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line7_left.Add(self.txt_no,2,wxEXPAND)
+		self.sizer_line7_left.Add(self.lbl_street,3,wxALIGN_CENTER_VERTICAL,5)
+		self.sizer_line7_left.Add(self.txt_number,2,wxEXPAND)
 		self.sizer_line7_left.Add(0,0,1)
 		self.sizer_line7_left.Add(self.txt_street,4,wxEXPAND)
 		self.sizer_line7_left.Add(sizer_respostal,6,wxEXPAND)
@@ -292,11 +265,11 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		# create the suburb details
 		#--------------------------
 		self.sizer_line8_left = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line8_left.Add(self.lbl_suburb,3,wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line8_left.Add(self.txt_suburb,7,wxEXPAND)
+		self.sizer_line8_left.Add(self.lbl_urb,3,wxALIGN_CENTER_VERTICAL,5)
+		self.sizer_line8_left.Add(self.txt_urb,7,wxEXPAND)
 		self.sizer_line8_left.Add(0,0,1)
-		self.sizer_line8_left.Add(self.lbl_zip,3,wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line8_left.Add(self.txt_zip,3,wxEXPAND)
+		self.sizer_line8_left.Add(self.lbl_postcode,3,wxALIGN_CENTER_VERTICAL,5)
+		self.sizer_line8_left.Add(self.txt_postcode,3,wxEXPAND)
 
 		#--------------------------
 		# create address editing
@@ -365,7 +338,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self.sizer_gap_vertical =wxBoxSizer(wxVERTICAL)
 		self.sizer_gap_vertical.Add(1,47,1)
 		self.sizer_line5_right.Add(self.lbl_addressNOK,2,wxEXPAND)
-		self.sizer_line5_right.Add(self.txt_nameNOK, 6,wxEXPAND)
+		self.sizer_line5_right.Add(self.lb_nameNOK, 6,wxEXPAND)
 		self.sizer_line5_right.AddSizer(self.sizer_gap_vertical)
 		#----------------------------------------------------------------------------
 		# Contact numbers are on their own separate vertical sizer as the photo sits
@@ -418,7 +391,6 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self.sizerunder.AddSizer(self.leftside,10,wxEXPAND|wxALL,5)
 		self.sizerunder.Add(1,0,1)
 		self.sizerunder.AddSizer(self.rightside,10,wxEXPAND|wxALL,5)
-		self.mainsizer.Add(self.patientslist,3,wxEXPAND)
 		self.mainsizer.Add(self.sizerunder,0,wxEXPAND|wxALL,10)
 
 		sizer_control = wxBoxSizer(wxHORIZONTAL)
@@ -458,8 +430,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		EVT_LISTBOX_DCLICK(l, l.GetId(), self._address_selected) 
 
 	def __urb_selected(self, id):
-		print id
-		myPatient = self.get_demographic_record()
+		myPatient = self.patient.get_demographic_record()
 		self.input_fields['zip'].SetValue( gmDemographicRecord.getPostcodeForUrbId(id )  )
 
 
@@ -469,20 +440,19 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 
 	def _update_address_fields_on_selection(self):	
 		i = self.addresslist.GetSelection()
-		atype,data = self.addr_cache.items()[i]
+		data = self.addr_cache[i]
 		m = self.input_fields
-		m['address_type'].SetValue(atype)
+		m['address_type'].SetValue(data['type'])
 		for k,v in data.items():
-			try:
-				m[k].SetValue(v)
-			except:
-				pass
+			m[k].SetValue(v)
 
 	def _save_addresses(self):
-		myPatient = self.get_demographic_record()
-		for key, data in self.addr_cache.items():
+		myPatient = self.patient.get_demographic_record()
+		for data in self.addr_cache:
 			if data.has_key('dirty'):
-				myPatient.linkNewAddress( key, data['no'], data['street'], data['suburb'], data['zip'] )	
+				myPatient.linkNewAddress( data['type'], data['number'], data['street'], data['urb'], data['postcode'] )
+		for ID in self.to_delete:
+			myPatient.unlinkAddress (ID)
 				
 	def _save_btn_pressed(self, event):
 		self._save_data()
@@ -504,53 +474,38 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 				try:
 					w.SetValue(0)
 				except:
-					print "no cleared value for ", w
 					pass
 		
 		self.__update_address_types()
+		self.to_delete = [] # list of addresses to unlink
+		self.addr_cache = []
 
 	def get_input_value_map(self):
 		m = {}
 		for k, v in self.input_fields.items():
-			try:
-				m[k] = v.GetValue()
-			except:
-				print sys.exc_info()[0]
-
+			m[k] = v.GetValue()
 		return m	
 
-
 	def validate_fields(self):
-		m = self.get_input_value_map()
-		nameFields = [ m['firstname'].strip() , m['surname'].strip() ]
+		nameFields = [ self.value_map['firstname'].strip() , self.value_map['surname'].strip() ]
 		if "" in nameFields or "?" in nameFields:
 			raise Error("firstname and surname are required fields for identity")
 
 	
 	def _save_data(self):
 		try:
+			self.value_map = self.get_input_value_map ()
 			self.validate_fields()
-		except:
-			print sys.exc_info()[0]
-			return	
-	
-		try:
 			self._save_addresses()
+			myPatient = self.patient.get_demographic_record()
+			myPatient.addName(self.value_map['firstname'].strip(), self.value_map['surname'].strip(), activate=1)
+			myPatient.setGender( self.value_map['sex'] )
+			myPatient.setDOB( self.value_map['birthdate'])
+			myPatient.setTitle( self.value_map['title'])
+			self.setNewPatient(0)
+			gmDispatcher.send( gmSignals.patient_selected(), { 'id':  myPatient.getID() } )
 		except:
-			_log.LogException("save address", sys.exc_info() )
-
-	
-		m = self.get_input_value_map()
-			
-		myPatient = self.patient.get_demographic_record()
-
-		myPatient.addName(m['firstname'].strip(), m['surname'].strip(), activate=1)
-		myPatient.setGender( m['sex'] )
-		myPatient.setDOB( m['birthdate'])
-		myPatient.setTitle( m['title'])
-		self.setNewPatient(0)
-
-		gmDispatcher.send( gmSignals.patient_selected(), { 'id':  myPatient.getID() } )
+			_log.LogException ('error saving data', sys.exc_info (), verbose = 0)
 
 
 	def _del_button_pressed (self, event):
@@ -559,52 +514,35 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 	
 
 	def _add_address_pressed(self, event):
-		key, data = self._get_address_data()
-		self._set_local_address(key, data)
-
+		data = self._get_address_data()
+		self._set_local_address(data)
+		data['dirty'] = 1
+		self.addr_cache.append (data)	
+		self._update_address_list_display()
 
 	def _del_address_pressed(self, event):
-		key, data = self._get_address_data()
-		self._del_local_address(key)
-
+		try:
+			i = self.addresslist.GetSelection ()
+			if self.addr_cache[i].has_key('ID'):
+				self.to_delete.append (self.addr_cache[i]['ID'])
+			del self.addr_cache[i]
+			self._update_address_list_display()
+		except:
+			_log.LogException ('failed on delete address', sys.exc_info (), verbose=0)
+		
 	def _get_address_data(self):	
 		m = self.input_fields
 		data = {}
-		for f in ['no', 'street', 'suburb', 'zip']:
+		for f in ['number', 'street', 'urb', 'postcode']:
 		 	data[f] = m[f].GetValue()
-
-		
-		print "address data ", data	
-		return m['address_type'].GetValue(), data
-	
-	def _set_local_address(self, key, data):
-		if not self.__dict__.has_key('addr_cache'):
-			self.addr_cache = {}
-		
-		self.addr_cache[key] = data
-		data['dirty'] = 1	
-		print "address cache = ", self.addr_cache
-
-		self._update_address_list_display()
-
-	
-	def _del_local_address(self, key):
-		try:
-			del self.addr_cache[key]
-		except:
-			pass
-
-		self._update_address_list_display()
+		data['type'] = m['address_type'].GetValue ()
+		return data
 
 	def _update_address_list_display(self):
 		self.addresslist.Clear()
-		for atype, data in self.addr_cache.items():
-			s = '%-10s - %s,%s,%s,%s' % ( atype,  data['no'], data['street'], data['suburb'], data['zip'] )
+		for data in self.addr_cache:
+			s = '%-10s - %s,%s,%s' % ( data['type'],  data['number'], data['street'], data['urb'])
 			self.addresslist.Append(s)
-		
-		
-
-		
 
 
 	def __create_input_field_map(self):
@@ -635,17 +573,19 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 			
 	
 	def __update_addresses(self):
-		myPatient = self.get_demographic_record()
-		self.orig_address = {}
-		for x in gmDemographicRecord.getAddressTypes():
-			address = myPatient.getAddresses(x)
-			if address == None:
-				continue
-			self.orig_address[x] = self._store_to_input_addr(address[0])
-			
-		self.addr_cache = self.orig_address
-		self._update_address_list_display()
-
+		myPatient = self.patient.get_demographic_record()
+		try: 
+			self.addr_cache = myPatient.getAddresses (None)
+		except:
+			_log.LogException ('failed to get addresses', sys.exc_info (), verbose=0)
+		if self.addr_cache:
+			self._update_address_list_display()
+		else: # we have no addresses
+			self.txt_number.Clear ()
+			self.txt_street.Clear ()
+			self.txt_postcode.Clear ()
+			self.txt_urb.Clear ()
+			self.addresslist.Clear ()
 
 	def __update_nok(self):
 		"""this function is disabled until further notice. see l = []"""
@@ -661,49 +601,11 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		f['nameNOK'].Clear()
 		for data in l2:	
 			f['nameNOK'].Append( data['str'], data['id'] )
-
-	def _store_to_input_addr(self, address):
-			map = {}
-			map['no'] = address['number']
-			map['street'] = address['street']
-			map['suburb'] = address['urb']
-			map['zip'] = address['postcode']
-			map['id'] = address['ID']
-			return map
-
-	def _input_to_store_addr(self, input):
-		m = self.input_fields
-		map = { 'no': 'number', 'street': 'street', 'suburb': 'urb', 'zip': 'postcode' }
-		data = {}
-		for k,v in map:
-			if input.has_key[k]:
-				data[v] = input[k] 
-		return data	
 	
 	def _updateUI(self):
 		"""on patient_selected() signal handler , inherited from gmPatientHolder.PatientHolder"""
 		myPatient = self.patient.get_demographic_record()
-		
-#		print self, "GOT THIS"
-#		print "ID       ", myPatient.getID ()
- #               print "name     ", myPatient.getActiveName ()
-  #              print "title    ", myPatient.getTitle ()
-   #             print "dob      ", myPatient.getDOB (aFormat = 'DD.MM.YYYY')
-    #            print "med age  ", myPatient.getMedicalAge()
-     #           adr_types = gmDemographicRecord.getAddressTypes()
-      #          print "adr types", adr_types
-       #         for type_name in adr_types:
-        #                print "adr (%s)" % type_name, myPatient.getAddresses(type_name)
-
-#		try:
-#			print "relations ", myPatient.get_relatives()
-#		except:
-#			gmLog.gmDefLog.LogException("relations ", sys.exc_info(), verbose= 1)
-#			pass
-#                print "--------------------------------------"
-
 		m = self.input_fields
-
 		m['firstname'].SetValue( myPatient.getActiveName()['first'] )
 		m['surname'].SetValue( myPatient.getActiveName()['last'] )
 		title = myPatient.getTitle()
@@ -718,33 +620,9 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		t = time.strftime('%d/%m/%Y', t)
 		m['birthdate'].SetValue(t)
 		m['sex'].SetValue( myPatient.getGender() )
-
 		self.__update_address_types()
-
 		self.__update_addresses()
-		
-		self._update_address_fields_on_selection()
-
 		self.__update_nok()
-
-
-	def OnPatient (self, event):
-		pat_id = event.GetData ()
-		index = event.GetIndex ()
-		gmLog.gmDefLog.Log (gmLog.lInfo, "selected patient ID %s" % pat_id)
-		pat_title = self.patientslist.GetItem (index, 0).GetText ()
-		pat_fname = self.patientslist.GetItem (index, 1).GetText ()
-		pat_lname = self.patientslist.GetItem (index, 2).GetText ()
-		pat_dob = self.patientslist.GetItem (index, 3).GetText ()
-		# load the demographic text controls
-		# send a signal to other objects
-		# no, you need to set gmCurrentPatient()
-#		kwds = {'title':pat_title, 'firstnames':pat_fname, 'lastnames':pat_lname, 'dob':pat_dob, 'ID':pat_id}
-#		gmDispatcher.send (gmSignals.patient_selected (), sender='Terry Patient Selector', kwds=kwds )
-
-	def FindPatient (self, name):
-		self.patientslist.SetQueryStr (gmPatientNameQuery.MakeQuery (name), service='personalia')
-		self.patientslist.RunQuery ()
 
 #============================================================
 class gmDemographics(gmPlugin.wxBasePlugin):
@@ -820,7 +698,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.8  2004-01-18 21:49:18  ncq
+# Revision 1.9  2004-02-18 06:30:30  ihaywood
+# Demographics editor now can delete addresses
+# Contacts back up on screen.
+#
+# Revision 1.8  2004/01/18 21:49:18  ncq
 # - comment out debugging code
 #
 # Revision 1.7  2004/01/04 09:33:32  ihaywood
