@@ -5,7 +5,7 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.34 $
+-- $Revision: 1.35 $
 -- changelog:
 -- 17.11.2001:  (hherb) first useable version
 -- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
@@ -371,7 +371,7 @@ CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
 -- added IH 8/3/02
 -- table for street civilian type maps, i.e Melways
 create table mapbook (
-       id serial,
+       id serial primary key,
        name char (30)
 );
 
@@ -383,7 +383,7 @@ create table mapbook (
 -- there are others, military, aviation and country-specific.
 -- GPS handsets can display several.
 create table coordinate (
-      id serial,
+      id serial primary key,
       name varchar (30),
       scale float
 );
@@ -396,7 +396,8 @@ create table coordinate (
 
 
 create table address_info (
-        address_id int references address(id),
+        id serial primary key,
+        id_address int references address(id),
         location point,
         id_coord integer references coordinate (id),
         mapref char(30),
@@ -412,4 +413,4 @@ create table address_info (
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.34 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.35 $');
