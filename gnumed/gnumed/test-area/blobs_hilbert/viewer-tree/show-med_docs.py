@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on mime types.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #----------------------------------------------------------------------
 import os.path, sys, os
@@ -148,7 +148,7 @@ class cDocTree(wx.wxTreeCtrl):
 
 		# but do everything with objects
 		__log__.Log(gmLog.lData, "User selected object %s from document %s" % (node_data['id'], node_data['doc_id']))
-		exp_base = __cfg__.get("export", "basedir")
+		exp_base = __cfg__.get("export", "target")
 		if not os.path.exists(exp_base):
 			__log__.Log(gmLog.lErr, "The directory '%s' does not exist ! Falling back to default temporary directory." % exp_base) # which is tempfile.tempdir == None == use system defaults
 		else:
@@ -227,12 +227,13 @@ class MyFrame(wx.wxFrame):
 		client applications can provide patient data in their own way.
 		"""
 		# FIXME: error checking
-		exp_base = __cfg__.get("export", "basedir")
-		pat_file = __cfg__.get("export", "patient")
+		exp_base = __cfg__.get("export", "target")
+		pat_file = __cfg__.get("export", "pat_file")
+		pat_format = __cfg__.get("export", "pat_format")
 		aPatient = cPatient()
 		# FIXME: the method of getting the patient should be configurable
 		# get patient data from BDT file
-		if not aPatient.loadFromFile("xdt", os.path.expanduser(os.path.join(exp_base, pat_file))):
+		if not aPatient.loadFromFile(pat_format, os.path.expanduser(os.path.join(exp_base, pat_file))):
 			__log__.Log(gmLog.lErr, "problem with reading patient data from xDT file " + pat_file)
 			return None
 
