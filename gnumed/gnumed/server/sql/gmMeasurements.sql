@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.24 $
+-- $Revision: 1.25 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -225,7 +225,7 @@ comment on column test_result.material is
 	'the submitted material, eg. smear, serum, urine, etc.,
 	 LDT: 8430';
 comment on column test_result.material_detail is
-	'details re the material, eg. site take from, etc.
+	'details re the material, eg. site taken from, etc.
 	 LDT: 8431';
 comment on column test_result.reviewed_by_clinician is
 	'whether a clinician has seen this result yet,
@@ -352,11 +352,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.24 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.25 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.24  2004-05-06 23:29:04  ncq
+-- Revision 1.25  2004-05-18 20:38:21  ncq
+-- - typo fix
+--
+-- Revision 1.24  2004/05/06 23:29:04  ncq
 -- - rename test_type_uni to test_type_local
 -- - test_type_local.internal_name/code -> *.local_name/code
 -- - test_result.technically_abnormal: bool -> text
