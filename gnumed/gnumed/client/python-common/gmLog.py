@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -747,7 +747,9 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.19  2002-09-08 15:53:32  ncq
-# - added changelog cvs keyword
+# Revision 1.20  2002-09-12 23:20:10  ncq
+# - whitespace fix
 #
+# Revision 1.19  2002/09/08 15:53:32  ncq
+# - added changelog cvs keyword
 #
