@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.132 2005-03-14 15:16:04 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.133 2005-03-14 17:47:55 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -108,6 +108,29 @@ create index idx_clin_medication on clin_medication(discontinued) where disconti
 
 -- =============================================
 -- encounters
+
+\unset ON_ERROR_STOP
+drop trigger tr_set_encounter_timezone on clin_encounter;
+drop function f_set_encounter_timezone();
+\set ON_ERROR_STOP 1
+
+create function f_set_encounter_timezone() returns opaque as '
+begin
+	if TG_OP = ''INSERT'' then
+		NEW.source_time_zone := (select (extract(timezone from (select now()))::text || ''seconds'')::interval);
+	else
+		NEW.source_time_zone := OLD.source_time_zone;
+	end if;
+	return NEW;
+end;
+' language 'plpgsql';
+
+create trigger tr_set_encounter_timezone
+	before insert or update
+	on clin_encounter
+	for each row
+		execute procedure f_set_encounter_timezone()
+;
 
 -- per patient
 \unset ON_ERROR_STOP
@@ -1757,11 +1780,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.132 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.133 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.132  2005-03-14 15:16:04  ncq
+-- Revision 1.133  2005-03-14 17:47:55  ncq
+-- - store time zone of insert into clin_encounter as a
+--   reasonable approximation for other timestamp time zones
+--
+-- Revision 1.132  2005/03/14 15:16:04  ncq
 -- - missing variable declaration in f_rfi_type2item
 --
 -- Revision 1.131  2005/03/14 14:45:40  ncq
