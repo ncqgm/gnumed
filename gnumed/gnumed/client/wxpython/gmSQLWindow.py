@@ -154,14 +154,10 @@ class SQLWindow(wxPanel):
 
 	def ListServices(self):
 		"list all available services the backend is connected to"
-		try:
-			conn = gmPG.ConnectionPool().GetConnection('config')
-		except:
-			messagewidget.AppendText("Backend connection failed.")
-			return
-		services = conn.query("select name from db").getresult()
+
+		services = gmPG.ConnectionPool().GetAvailableServices()
 		for service in services:
-			self.choiceService.Append(service[0])
+			self.choiceService.Append(service)
 
 
 

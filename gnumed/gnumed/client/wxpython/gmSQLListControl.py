@@ -24,7 +24,7 @@ class SQLListControl(wxListCtrl):
 	"Intelligent list control able to display SQL query results in a formatted way"
 
 	__querystr = ''
-	__service = 'default'
+	__service = None
 	__status = None
 	__saved_stdout = None
 	__saved_stderr = None
@@ -107,6 +107,7 @@ class SQLListControl(wxListCtrl):
 	def RunQuery(self):
 		self.RedirectOutput()
 		try:
+			print "running query on service ", self.__service
 			conn = gmPG.ConnectionPool().GetConnection(self.__service)
 		except:
 			print "Exception thrown when trying to connect to backend in RunQuery()"
