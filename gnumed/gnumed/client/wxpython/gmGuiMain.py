@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-02-01 21:59:42 $
-# @version $Revision: 1.65 $ $Date: 2003-02-01 21:59:42 $ $Author: michaelb $
+# @Date: $Date: 2003-02-02 09:11:19 $
+# @version $Revision: 1.66 $ $Date: 2003-02-02 09:11:19 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.66 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -316,7 +316,7 @@ class MainFrame(wxFrame):
 	#----------------------------------------------
 	def OnPatientChanged(self, **kwargs):
 		kwds = kwargs['kwds']
-		patient = "%(title)s %(firstnames)s %(lastnames)s (%(dob)10.10s) #%(ID)d" % (kwds)
+		patient = "%(title)s %(firstnames)s %(lastnames)s (%(dob)s) #%(ID)d" % (kwds)
 		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -514,7 +514,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.65  2003-02-01 21:59:42  michaelb
+# Revision 1.66  2003-02-02 09:11:19  ihaywood
+# gmDemographics will connect, search and emit patient_selected
+#
+# Revision 1.65  2003/02/01 21:59:42  michaelb
 # moved 'About GnuMed' into module; gmGuiMain version no longer displayed in about box
 #
 # Revision 1.64  2003/02/01 11:57:56  ncq

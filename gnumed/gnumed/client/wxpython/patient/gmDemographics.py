@@ -447,14 +447,11 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		names = "%(title)s %(firstnames)s %(lastnames)s" % kwds
 		self.txt_findpatient.SetValue(names)
 		age = kwds['dob']
-		age.strip()
+		age = age.strip ()
 		try:
-			dmy = DateTime.strptime(age, "%d/%m/%Y")
+			dmy = DateTime.strptime(age, "%d/%m/%y")
 		except:
-			try:
-				dmy = DateTime.strptime(age, "%d/%m/%y")
-			except:
-				pass
+			dmy = DateTime.strptime(age, "%d/%m/%Y")
 		years = DateTime.Age(DateTime.now(), dmy).years
 		self.txt_age.SetValue(str(years))
 		#gmLog.gmDefLog.Log (gmLog.lInfo, "selected patient ID %s" % str(kwds['ID']))

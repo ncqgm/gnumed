@@ -65,7 +65,7 @@ class ScratchPadRecalls(wxPanel):
 		self.Show(true)
 
 	def register_interests(self):
-		gmDispatcher.connect(self.OnPatientID, gmSignals.patient_selected())
+		#gmDispatcher.connect(self.OnPatientID, gmSignals.patient_selected())
 
 
 	def UpdateRecalls(self, patid):
