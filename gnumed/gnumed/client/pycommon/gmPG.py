@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -694,8 +694,11 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 	conn = pool.GetConnection(str(service), readonly = 0)
 	if conn is None:
 		return (False, (1, _('cannot connect to service [%s]') % service))
+	if extra_verbose:
+		if dbapi == pyPgSQL.PgSQL:
+			conn.conn.toggleShowQuery
 	curs = conn.cursor()
-	for attempt in range(1, max_tries):
+	for attempt in range(0, max_tries):
 		if extra_verbose:
 			_log.Log(gmLog.lData, 'attempt %s' % attempt)
 		# run queries
@@ -720,6 +723,9 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 						continue
 					curs.close()
 					conn.close()
+					if extra_verbose:
+						if dbapi == pyPgSQL.PgSQL:
+							conn.conn.toggleShowQuery
 					return (False, (2, _('Cannot save data. Database row locked by another user.')))
 				# FIXME: handle more types of errors
 				_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], service), exc_info)
@@ -730,6 +736,9 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 				tmp = str(val).replace('ERROR:', '')
 				tmp = tmp.replace('ExecAppend:', '')
 				tmp = tmp.strip()
+				if extra_verbose:
+					if dbapi == pyPgSQL.PgSQL:
+						conn.conn.toggleShowQuery
 				return (False, (1, _('SQL: %s') % tmp))
 			# apparently succeeded
 			if extra_verbose:
@@ -739,6 +748,9 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 		# done with queries
 		break # out of retry loop
 	# done with attempt(s)
+	if extra_verbose:
+		if dbapi == pyPgSQL.PgSQL:
+			conn.conn.toggleShowQuery
 	# did we get result rows in the last query ?
 	data = None
 	idx = {}
@@ -765,6 +777,10 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 	return (True, (data, idx))
 #---------------------------------------------------
 def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, get_col_idx=False):
+	if extra_verbose:
+		if dbapi == pyPgSQL.PgSQL:
+			conn.conn.toggleShowQuery
+
 	# get cursor
 	curs = conn.cursor()
 
@@ -785,6 +801,9 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 			if str(val).find(_serialize_failure) > 0:
 				_log.Log(gmLog.lData, 'concurrency conflict detected')
 				curs.close()
+				if extra_verbose:
+					if dbapi == pyPgSQL.PgSQL:
+						conn.conn.toggleShowQuery
 				return (False, (2, _('Cannot save data. Database row locked by another user.')))
 			# FIXME: handle more types of errors
 			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], conn), exc_info)
@@ -794,13 +813,19 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 			tmp = str(val).replace('ERROR:', '')
 			tmp = tmp.replace('ExecAppend:', '')
 			tmp = tmp.strip()
+			if extra_verbose:
+				if dbapi == pyPgSQL.PgSQL:
+					conn.conn.toggleShowQuery
 			return (False, (1, _('SQL: %s') % tmp))
 		# apparently succeeded
 		if extra_verbose:
 			duration = time.time() - t1
 			_log.Log(gmLog.lData, 'query >>>%s<<< with args >>>%s<<< succeeded on link [%s]' % (query[:250], str(args)[:250], conn))
 			_log.Log(gmLog.lData, '%s rows affected/returned in %3.3f seconds' % (curs.rowcount, duration))
-
+	# done with queries
+	if extra_verbose:
+		if dbapi == pyPgSQL.PgSQL:
+			conn.conn.toggleShowQuery
 	# did we get result rows in the last query ?
 	data = None
 	idx = {}
@@ -1199,7 +1224,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.39 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.40 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1417,7 +1442,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.39  2005-01-03 18:22:58  ncq
+# Revision 1.40  2005-01-29 17:56:13  ncq
+# - fix silly off-by-one bug in commit2service() with # of attempts,
+#   this fixes the bug Carlos noted when creating episodes
+# - improve debug logging in commit2()
+#
+# Revision 1.39  2005/01/03 18:22:58  ncq
 # - improve (data, idx) return and docs in commit2
 #
 # Revision 1.38  2005/01/02 16:15:34  ncq
