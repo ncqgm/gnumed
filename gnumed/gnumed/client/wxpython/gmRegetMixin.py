@@ -15,12 +15,15 @@ whenever you learn of backend data changes. This will
 in most cases happen after you receive a gmDispatcher
 signal indicating a change in the backend.
 
+The _repopulate_data_method in the including class should
+return True if the contents could be redrawn successfully.
+
 @copyright: authors
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.1 2004-07-28 15:27:31 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmRegetMixin.py,v 1.2 2004-08-02 17:52:54 hinnef Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -86,7 +89,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.1  2004-07-28 15:27:31  ncq
+# Revision 1.2  2004-08-02 17:52:54  hinnef
+# Added hint to _repopulate_with_data return value
+#
+# Revision 1.1  2004/07/28 15:27:31  ncq
 # - first checkin, used in gmVaccWidget
 #
 #
