@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -221,11 +221,10 @@ class cCfgFile:
 			_log.Log(gmLog.lInfo, "No changed items: nothing to be stored.")
 			return 1
 
-		# get tmp filename
-		import tempfile
-		fname = tempfile.mktemp()
-		del tempfile
-		new_file = open (fname, "w")
+		new_name = "%s.new" % self.cfgName
+
+		# open new file for writing
+		new_file = open(new_name, "w")
 
 		# file level comment
 		if self._cfg_data.has_key('comment'):
@@ -257,10 +256,8 @@ class cCfgFile:
 			new_file.write("\n\n")
 
 		new_file.close
-		# remove old file
-		os.remove(self.cfgName)
-		# rename tmp file to old file
-		os.rename(fname, self.cfgName)
+		# rename new file to old file
+		os.rename(new_name, self.cfgName)
 		return 1
 	#----------------------------
 	# internal methods
@@ -273,12 +270,14 @@ class cCfgFile:
 		if aName != None:
 			self.cfgName = os.path.abspath(aName)
 			if os.path.exists(self.cfgName):
+				_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
 				return 1
 			else:
 				_log.Log(gmLog.lWarn, 'config file [%s] not found' % self.cfgName)
 				if aDir != None:
 					self.cfgName = os.path.abspath(os.path.join(aDir, aName))
 					if os.path.exists(self.cfgName):
+						_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
 						return 1
 					else:
 						_log.Log(gmLog.lWarn, 'Config file [%s] not found. Aborting.' % self.cfgName)
@@ -290,6 +289,7 @@ class cCfgFile:
 			_log.Log(gmLog.lData, '--conf-file=%s' % self.cfgName)
 			# file valid ?
 			if os.path.exists(self.cfgName):
+				_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
 				return 1
 			else:
 				_log.Log(gmLog.lErr, "Config file [%s] not found. Aborting." % self.cfgName)
@@ -316,6 +316,7 @@ class cCfgFile:
 			_log.Log(gmLog.lInfo, "$(%s) = %s" % (env_key, os.environ[env_key]))
 			self.cfgName = os.path.abspath(os.path.expanduser(os.path.join(os.environ[env_key], base_name)))
 			if os.path.exists(self.cfgName):
+				_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
 				return 1
 			else:
 				_log.Log(gmLog.lErr, "config file [%s] (in $%s) not found" % (self.cfgName, env_key))
@@ -327,6 +328,7 @@ class cCfgFile:
 		if not os.path.exists(self.cfgName):
 			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
 		else:
+			_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
 			return 1
 
 		# 5) ~/.base_name
@@ -334,6 +336,7 @@ class cCfgFile:
 		if not os.path.exists(self.cfgName):
 			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
 		else:
+			_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
 			return 1
 
 		# 6) /etc/base_dir/base_name
@@ -341,6 +344,7 @@ class cCfgFile:
 		if not os.path.exists(self.cfgName):
 			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
 		else:
+			_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
 			return 1
 
 		# 7) /etc/base_name
@@ -348,6 +352,7 @@ class cCfgFile:
 		if not os.path.exists(self.cfgName):
 			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
 		else:
+			_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
 			return 1
 
 		# 8) ./base_name
@@ -356,6 +361,7 @@ class cCfgFile:
 		if not os.path.exists(self.cfgName):
 			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
 		else:
+			_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
 			return 1
 
 		# we still don't have a valid config file name ?!?
