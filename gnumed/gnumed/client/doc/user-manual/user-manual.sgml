@@ -142,7 +142,7 @@ If CVS asks for a password, use a blank line. The module name is
 
       <para>Qouting from GnuMed's CVS instruction</para>
 	  <para>
-	"This project's CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module [<emphasis>gnumed</emphasis>]  you wish to check out must be specified as the modulename. When prompted for a password for anoncvs, simply press the Enter key.
+	This project's CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module [<emphasis>gnumed</emphasis>]  you wish to check out must be specified as the modulename. When prompted for a password for anoncvs, simply press the Enter key.
 	    </para>
       <para>You would type:</para>
 
@@ -688,8 +688,9 @@ $ python PgSQLTestCases.py
 
 	OK
 	    	</screen>
-		</itemizedlist>
-        </listitem>
+         </listitem>
+	</itemizedlist>
+       </listitem>
        </orderedlist>
 	</sect2>
 
@@ -921,7 +922,7 @@ exit
 export CVS_RSH="ssh"
 cvs -z3 -d:ext:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
 		</screen>
-        </para><para>
+        <para>
 		All the gnumed files will be downloaded to your hard drive.
         </para>
 	</sect2>
@@ -969,6 +970,7 @@ Download these files. If you have the RH 8.0 set of 5 cds, many of these files a
 NOTE: It is important that you get the right versions of all these rpms that match your RedHat release. gnumed.org's cvs download directories show which versions belong to which RedHat release.</emphasis>
 
 </para>
+</sect3>
 <sect3>
 
 <title>Prepare for Client</title>
@@ -1050,7 +1052,7 @@ GTK libraries
 mx extension libraries
 </para></listitem><listitem><para>
 PostgreSQL Database server - load the libs first, then the database and lastly the server:
-	<para><orderedlist>
+	<orderedlist>
 	<listitem><para>postgressql-libs
 	</para></listitem><listitem><para>
 	postgresql database
@@ -1110,8 +1112,9 @@ Then, obviously you would need to create the gnumed database and the bootstrap d
 </para></listitem></orderedlist>
 </para>
 </sect3>
+</sect2>
 
-<sect2 >
+<sect2>
 <title>Configure Files and Setup Environment Parameters</title>
 
 <sect3>
@@ -1165,6 +1168,7 @@ vi ~/.bashrc and add this line:
 </para></listitem>
 </orderedlist>
 </para>
+</sect3>
 
 <sect3>
 <title>Shortcut Scripts mono and check_log, set password and Configure Files
@@ -1496,6 +1500,7 @@ Click on the Python icon and type:
             </para></listitem>
 		    <listitem><para>
             grant appropriate access rights
+	    </para></listitem>
 		    <listitem><para>
             set up service-to-database/server mappings
             </para></listitem>
@@ -1559,6 +1564,7 @@ $language library dirs$
         of the bootstrapping scripts. All the config file parameters are documented
         in <literal>bootstrap-gm_db_system.conf.sample</literal>.
         </para>
+</sect2>
 </sect1>
 </chapter>
 
