@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.44 2004-10-17 22:26:42 sjtan Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmDemographics.py,v 1.45 2004-10-17 23:49:21 sjtan Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -91,7 +91,7 @@ ID_TXTPATIENTAGE = wx.wxNewId()
 ID_TXTPATIENTALLERGIES  = wx.wxNewId()
 ID_TXTNOK =wx.wxNewId()
 
-
+ID_CHECK_SPLIT=wx.wxNewId()
 
 # PatientData = {
 # 1 : ("Macks", "Jennifer","Flat9/128 Brook Rd","NEW LAMBTON HEIGHTS", "2302","19/01/2003","M"," 02 49 5678890"),
@@ -243,7 +243,62 @@ class PatientsPanel(wx.wxPanel):
 #		self.SetSizer( self.main_splitWindow)
 		self.SetAutoLayout(True)
 		self.sizer_main.Fit(self)
+	
+		self.inList = 0
+		self.preferredListSashPos = 0.8
+		self.preferredDetailSashPos = 0.3
+		self.sashChangeAmount = 10
+		self.sashChangeTiming=200
+		self.thresholdSashChange =self.sashChangeAmount * 2 # should'nt be more than 2 
+		self.delay = 1500
+		self.timerInterval = 100
+		self.delayChange = 5
+		self.timer = wx.wxTimer(self, ID_CHECK_SPLIT)
+		wx.EVT_TIMER(self, ID_CHECK_SPLIT, self.onTimer)
+		wx.EVT_ENTER_WINDOW( self.patientListWin, self.mousEnteredListWin)
+		wx.EVT_ENTER_WINDOW( self.patientDetailWin, self.mousEnteredDetailWin)
+		self.lastDir = 0
+		self.change = 0
+		self.timer.Start(self.delay)
 
+	def mousEnteredListWin(self, event):
+		self.inList = 1
+	
+	def mousEnteredDetailWin(self, event):
+		self.inList = 0
+		
+
+
+	def onTimer(self, event):
+		if self.inList:
+			targetPos = self.preferredListSashPos *self.main_splitWindow.GetClientSizeTuple()[1]
+
+		else:
+			targetPos = self.main_splitWindow.GetClientSizeTuple()[1] - self.patientDetailWin.GetBestSize()[1] - 20
+			if targetPos < 10:
+				targetPos = 10
+
+		
+		
+		diff = targetPos - self.main_splitWindow.GetSashPosition()
+		dir = diff/abs(diff)
+
+		if self.lastDir and dir <> self.lastDir:
+			self.lastDir = dir
+			self.timer.Start(self.delay) 
+			return
+				
+		if abs(diff) > self.thresholdSashChange:
+			self.timer.Start(self.timerInterval)
+			dir = diff / abs(diff)
+			self.main_splitWindow.SetSashPosition(self.main_splitWindow.GetSashPosition() + self.sashChangeAmount * dir, True)
+		else:
+			self.timer.Start(self.delay)
+			self.lastDir = 0
+			
+		self.lastDir  = dir
+
+		
 
 
 	#-----------------------------------------------------------
@@ -264,6 +319,7 @@ class PatientListWindow(wx.wxPanel):
 		)
 		# FIXME: remove
 		self.gb = gmGuiBroker.GuiBroker()
+
 		self.__createdemographicgui()
 
 	#-----------------------------------------------------------
@@ -1222,7 +1278,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.44  2004-10-17 22:26:42  sjtan
+# Revision 1.45  2004-10-17 23:49:21  sjtan
+#
+# the timer autoscroll idea.
+#
+# Revision 1.44  2004/10/17 22:26:42  sjtan
 #
 # split window new look Richard's demographics ( his eye for gui design is better
 # than most of ours). Rollback if vote no.
