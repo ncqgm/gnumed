@@ -1,7 +1,16 @@
-"""Test driving an enslaved GnuMed client."""
+"""Test driving an enslaved GnuMed client.
+
+This script demonstrates how to script a GnuMed client.
+
+To run the test you must have a GnuMed client running with
+
+ --slave=slave-test
+
+listening on port 9999 (the default).
+"""
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/test-slave.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time
@@ -78,7 +87,10 @@ del s
 
 #=====================================================================
 # $Log: test-slave.py,v $
-# Revision 1.1  2004-03-15 15:29:30  ncq
+# Revision 1.2  2004-03-15 22:40:17  ncq
+# - added docs on how to use this
+#
+# Revision 1.1  2004/03/15 15:29:30  ncq
 # - moved here from wxpython/
 #
 # Revision 1.2  2004/02/17 10:47:22  ncq
