@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/shilbert/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.4 2003-08-20 22:59:53 shilbert Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmXdtViewer.py,v 1.5 2003-08-21 19:35:02 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, string, fileinput, linecache
@@ -40,6 +40,8 @@ if __name__ == "__main__":
 	import gmXdtToolsLib
 
 import gmExceptions
+
+from gmGuiHelpers import gm_show_error
 
 from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
@@ -91,84 +93,6 @@ class gmXdtViewerPanel(wxPanel):
 			EVT_COMMAND_RIGHT_CLICK(self.list, tID, self.OnRightClick)
 		elif wxPlatform == '__WXGTK__':
 			EVT_RIGHT_UP(self.list, self.OnRightClick)
-	#-------------------------------------------------------------------------
-	def __handle_multiple_pats(self, pats_in_file = []):
-		do_not_split = _("show as is")
-		do_split = _("split by patient and let me select again")
-		# ask user what to do
-		dlg = wxSingleChoiceDialog(
-			parent = NULL,
-			message = _("The xDT file contains data on %s patients.\n\nHow would you like to proceed ?" % len(pats_in_file)),
-			caption = _("parsing XDT file"),
-			choices = [
-				do_not_split,
-				do_split
-			],
-			style = wxOK | wxCANCEL
-		)
-		btn_pressed = dlg.ShowModal()
-		dlg.Destroy()
-
-		# user cancelled
-		if btn_pressed == wxID_CANCEL:
-			return None
-
-		choice = dlg.GetStringSelection()
-		_log.Log(gmLog.lData, 'multiple patients in file: %s' % choice)
-		# user wants to see entire file
-		if choice == do_not_split:
-			return 1
-
-		# user wants to split file by patient
-		pat_select_list = []
-		for pat_id in pats_in_file.keys():
-			pat_select_list.append('%s:%s' % (pat_id, pats_in_file[pat_id]))
-		dlg = wxSingleChoiceDialog (
-			parent = NULL,
-			message = _("Please select the patient you want to display."),
-			caption = _("parsing XDT file"),
-			choices = pat_select_list,
-			style = wxOK | wxCANCEL
-		)
-		btn_pressed = dlg.ShowModal()
-		dlg.Destroy()
-
-		# user cancelled
-		if btn_pressed == wxID_CANCEL:
-			return None
-
-		pat_selected = dlg.GetStringSelection()
-		_log.Log(gmLog.lData, 'selected [%s]' % pat_selected)
-		ID,name = string.split(pat_selected,':')
-		data = gmXdtToolsLib.get_pat_data(self.filename, ID, name)
-		# how many records were obtained for this patient ?
-		path,files = data
-		if len(files) == '0':
-			__show_error(
-				_('There apparently were no records for patient %s.\n' % ID+':'+name),
-				_('parsing XDT file')
-			)
-			return None
-		else:
-			if len(files)== '1':
-				self.filename= path +'/'+files[0]
-			else :
-				dlg = wxSingleChoiceDialog (
-					parent = NULL,
-					message = _("Please select the patient you want to display."),
-					caption = _("parsing patient-list for records" ),
-					choices = files,
-					style = wxOK | wxCANCEL
-				)
-				btn_pressed = dlg.ShowModal()
-				dlg.Destroy() 
-				# user cancelled
-				if btn_pressed == wxID_CANCEL:
-					return None
-				rec_selected = dlg.GetStringSelection()
-				_log.Log(gmLog.lData, 'selected [%s]' %rec_selected)
-				self.filename = path + '/' + rec_selected
-		return 1
 	#------------------------------------------------------------------------
 	def populate_list(self, aFile = None):
 		# if file name supplied, use it
@@ -176,35 +100,11 @@ class gmXdtViewerPanel(wxPanel):
 			self.filename = aFile
 		# sanity check
 		if not os.path.isfile(self.filename):
-			__show_error(
+			gm_show_error(
 				_('[%s] is not the name of a valid file.\nCannot parse XDT data from it.' % self.filename),
 				_('parsing XDT file')
 			)
 			return None
-
-		# check how many patients are in the file
-		pats = gmXdtToolsLib.xdt_get_pats(self.filename)
-		nr_pats = len(pats)
-		# no patients
-		if nr_pats == 0:
-			__show_error(
-				_('File [%s] does not contain any XDT formatted patient records. Aborting.' % self.filename),
-				_('parsing XDT file')
-			)
-			return None
-		# more than one patient
-		if nr_pats > 1:
-			# standalone allows multiple-patient files
-			if __name__ == '__main__':
-				result = self.__handle_multiple_pats(pats)
-				if result is None:
-					return None
-			else:
-				__show_error(
-					_('File [%s] contains more than one patient. Aborting.' % self.filename),
-					_('parsing XDT file')
-				)
-				return None
 
 		# populate list
 		items = self.__decode_xdt()
@@ -215,7 +115,7 @@ class gmXdtViewerPanel(wxPanel):
 			self.list.SetStringItem(index=idx, col=1, label=data[1])
 			#self.list.SetItemData(item_idx, item_idx)
 
-		# reaspect
+		# re-aspect
 		self.list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.list.SetColumnWidth(1, wxLIST_AUTOSIZE)
 
@@ -357,6 +257,130 @@ class gmXdtViewerPanel(wxPanel):
 	def OnSize(self, event):
 		w,h = self.GetClientSizeTuple()
 		self.list.SetDimensions(0, 0, w, h)
+
+#======================================================
+def _preprocess_file(afile):
+	# file valid ?
+	if not os.path.isfile(afile):
+		gm_show_error (
+			_('XDT file [%s] not found. Aborting.' % afile),
+			_('preprocessing XDT file'),
+			gmLog.lErr
+		)
+		return None
+	# check how many patients are in the file
+	pats = gmXdtToolsLib.xdt_get_pats(afile)
+	nr_pats = len(pats)
+	# no patients
+	if nr_pats == 0:
+		gm_show_error(
+			_('File [%s] does not contain any XDT formatted patient records. Aborting.' % afile),
+			_('preprocessing XDT file')
+		)
+		return None
+	# more than one patient
+	if nr_pats > 1:
+		# standalone allows multiple-patient files
+		selected_pat_file = _split_and_select_pat(pats, afile)
+		if selected_pat_file is None:
+			return None
+	return selected_pat_file
+#---------------------
+def _split_and_select_pat(pats_in_file = None, afile = None):
+	# plugin handles single-patient files only
+	if __name__ != '__main__':
+		gm_show_error (
+			_('The XDT file [%s] contains more than one patient.\nThe GnuMed plugin mode does not handle such XDT files.\nPlease use the standalone version to split the file by patient.') % afile,
+			_('parsing XDT file'),
+			gmLog.lErr
+		)
+		return None
+
+	do_not_split = _("show as is")
+	do_split = _("split by patient and let me select one")
+
+	# ask user what to do
+	dlg = wxSingleChoiceDialog(
+		parent = NULL,
+		message = _("The xDT file contains data on several patients.\n\nHow would you like to proceed ?"),
+		caption = _("parsing XDT file"),
+		choices = [do_not_split, do_split],
+		style = wxOK | wxCANCEL
+	)
+	btn_pressed = dlg.ShowModal()
+	dlg.Destroy()
+
+	# user cancelled
+	if btn_pressed == wxID_CANCEL:
+		return None
+
+	# user wants to see entire file
+	choice = dlg.GetStringSelection()
+	_log.Log(gmLog.lData, 'multiple patients in file: %s' % choice)
+	if choice == do_not_split:
+		return 1
+
+	# user wants to split file by patient
+	if not gmXdtToolsLib.split_xdt_file(aFile):
+		gm_show_error (
+			_('Cannot split XDT file [%s] by patient.\nShowing file as is.'),
+			_('parsing XDT file'),
+			gmLog.lErr
+		)
+		return 1
+
+	if pats_in_file is None:
+		pats_in_file = gmXdtToolsLib.xdt_get_pats(afile)
+	pat_select_list = []
+	for pat_id in pats_in_file.keys():
+		pat_select_list.append('%s:%s' % (pat_id, pats_in_file[pat_id]))
+	dlg = wxSingleChoiceDialog (
+		parent = NULL,
+		message = _("Please select the patient you want to display."),
+		caption = _("parsing XDT file"),
+		choices = pat_select_list,
+		style = wxOK | wxCANCEL
+	)
+	btn_pressed = dlg.ShowModal()
+	dlg.Destroy()
+
+	# user cancelled
+	if btn_pressed == wxID_CANCEL:
+		return None
+
+	pat_selected = dlg.GetStringSelection()
+	_log.Log(gmLog.lData, 'selected [%s]' % pat_selected)
+	ID,name = string.split(pat_selected,':')
+	data = gmXdtToolsLib.get_pat_data(afile, ID, name)
+	# how many records were obtained for this patient ?
+	path,files = data
+	# none
+	if len(files) == 0:
+		gm_show_error(
+			_('The XDT file apparently did not contain data for\npatient [%s] (%s).' % (name, ID)),
+			_('parsing XDT file')
+		)
+		return None
+	# one
+	if len(files) == 1:
+		afile = os.path.join(path, files[0])
+		return 1
+	dlg = wxSingleChoiceDialog (
+		parent = NULL,
+		message = _("Please select the patient you want to display."),
+		caption = _("parsing patient-list for records" ),
+		choices = files,
+		style = wxOK | wxCANCEL
+	)
+	btn_pressed = dlg.ShowModal()
+	dlg.Destroy() 
+	# user cancelled
+	if btn_pressed == wxID_CANCEL:
+		return None
+	rec_selected = dlg.GetStringSelection()
+	_log.Log(gmLog.lData, 'selected [%s]' % rec_selected)
+	afile = path + '/' + rec_selected
+	return 1
 #======================================================
 # main
 #------------------------------------------------------
@@ -368,18 +392,19 @@ if __name__ == '__main__':
 		def OnInit (self):	
 			# has the user manually supplied a config file on the command line ?
 			if not gmCLI.has_arg('--xdt-file'):
-				_log.Log(gmLog.lData, "No XDT file given on command line. Format: --xdt-file=<file>")
-				return None 			
-			# yes -> verify it			
-			fname = gmCLI.arg['--xdt-file']
-			_log.Log(gmLog.lData, 'XDT file is [%s]' % fname)
-			# file valid ?
-			if not os.path.exists(fname):
-				_log.Log(gmLog.lErr, "XDT file [%s] not found. Aborting." % fname)
+				gm_show_error (
+					_('No XDT file given on command line.\n\nFormat: --xdt-file=<file>'),
+					_('loading XDT file'),
+					gmLog.lInfo
+				)
 				return None
-			# yes -> show it
-			frame = wxFrame(
-				parent=NULL,
+			# yes -> verify it
+			fname = _preprocess_file(gmCLI.arg['--xdt-file'])
+			if fname is None:
+				return None
+			# OK -> show it
+			frame = wxFrame (
+				parent = NULL,
 				id = -1,
 				title = _("XDT Viewer"),
 				size = wxSize(800,600)
@@ -428,6 +453,12 @@ else:
 			btn_pressed = dlg.ShowModal()
 			fname = dlg.GetPath()
 			dlg.Destroy()
+
+#					gm_show_error(
+#						_('File [%s] contains more than one patient. Aborting.' % afile),
+#						_('preprocessing XDT file')
+#					)
+
 			if btn_pressed == wxID_OK:
 				_log.Log(gmLog.lData, 'selected [%s]' % fname)
 				self.viewer.populate_list(fname)
@@ -436,30 +467,12 @@ else:
 			# ...
 
 			return 1
-
-#----------------------------------------
-# error handling
-#----------------------------------------
-def __show_error(aMessage = None, aTitle = ''):
-	# sanity checks
-	tmp = aMessage
-	if aMessage is None:
-		tmp = _('programmer forgot to specify error message')
-
-	tmp = tmp + _("\n\nPlease consult the error log for further information !")
-
-	dlg = wxMessageDialog(
-		NULL,
-		tmp,
-		aTitle,
-		wxOK | wxICON_ERROR
-	)
-	dlg.ShowModal()
-	dlg.Destroy()
-	return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.4  2003-08-20 22:59:53  shilbert
+# Revision 1.5  2003-08-21 19:35:02  ncq
+# - factor out splitting
+#
+# Revision 1.4  2003/08/20 22:59:53  shilbert
 # - just code cleanup
 #
 # Revision 1.3  2003/08/20 22:52:12  shilbert
