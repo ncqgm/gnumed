@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.9 2003-12-01 22:11:26 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.10 2003-12-02 02:14:40 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -25,7 +25,8 @@ create index idx_names_firstnames on names(firstnames);
 
 \unset ON_ERROR_STOP
 -- allow only unique names
-create unique index idx_uniq_active_name on names(id_identity) where active = true;
+drop index idx_uniq_active_name;
+create unique index idx_uniq_active_name on names(id_identity) where active;
 \set ON_ERROR_STOP 1
 
 -- IH: 9/3/02
@@ -50,9 +51,10 @@ BEGIN
 	return NEW;
 END;' LANGUAGE 'plpgsql';
 
-create TRIGGER TR_uniq_active_name
-	BEFORE insert or update ON names
-	FOR EACH ROW EXECUTE PROCEDURE F_uniq_active_name();
+-- only re-enable this once we know how to do it !!
+--create TRIGGER TR_uniq_active_name
+--	BEFORE insert or update ON names
+--	FOR EACH ROW EXECUTE PROCEDURE F_uniq_active_name();
 
 -- FIXME: we don't actually want this to be available
 \unset ON_ERROR_STOP
@@ -67,9 +69,10 @@ BEGIN
 	RETURN OLD;
 END;' LANGUAGE 'plpgsql';
 
-CREATE TRIGGER TR_delete_names
-	BEFORE DELETE ON identity
-	FOR EACH ROW EXECUTE PROCEDURE F_delete_names();
+-- only re-enable this once we know how to do it !!
+--CREATE TRIGGER TR_delete_names
+--	BEFORE DELETE ON identity
+--	FOR EACH ROW EXECUTE PROCEDURE F_delete_names();
 
 -- business functions
 
@@ -173,11 +176,16 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.9  2003-12-01 22:11:26  ncq
+-- Revision 1.10  2003-12-02 02:14:40  ncq
+-- - comment out triggers on name.active until we know how to to them :-(
+-- - at least we CAN do active names now
+-- - ensure unique active name by means of an index, though
+--
+-- Revision 1.9  2003/12/01 22:11:26  ncq
 -- - remove a raise notice
 --
 -- Revision 1.8  2003/11/26 23:54:51  ncq
