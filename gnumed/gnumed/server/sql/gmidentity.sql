@@ -217,14 +217,14 @@ END;' LANGUAGE 'plpgsql';
 
 -- create new name and new identity.
 
-CREATE RULE r_insert_basic_person AS ON INSERT TO v_basic_person DO INSTEAD
-(
-	INSERT INTO identity (pupic, gender, dob, cob) values
-	       (new_pupic (), NEW.gender, NEW.dob, NEW.cob);
-	INSERT INTO names (title, firstnames, lastnames, id_identity)
-	VALUES (NEW.title, NEW.firstnames, NEW.lastnames,
-	       currval ('identity_id_seq'));
-);
+CREATE RULE r_insert_basic_person AS
+	ON INSERT TO v_basic_person DO INSTEAD (
+		INSERT INTO identity (pupic, gender, dob, cob)
+					values (new_pupic(), NEW.gender, NEW.dob, NEW.cob);
+		INSERT INTO names (title, firstnames, lastnames, id_identity)
+					VALUES (NEW.title, NEW.firstnames, NEW.lastnames, currval ('identity_id_seq'));
+	)
+;
 
 
 -- rule for name change - add new name to list, making it active.
