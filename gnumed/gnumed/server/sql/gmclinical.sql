@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.47 $
+-- $Revision: 1.48 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -99,7 +99,7 @@ create table clin_encounter (
 	id serial primary key,
 	id_location integer,
 	id_provider integer,
-	id_type integer not null references _enum_encounter_type(id),
+	id_type integer not null references _enum_encounter_type(id) default 1,
 	description varchar(128) default '__default__'
 );
 
@@ -519,11 +519,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.47 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.48 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.47  2003-05-22 12:56:12  ncq
+-- Revision 1.48  2003-06-01 10:07:32  sjtan
+--
+-- change?
+--
+-- Revision 1.47  2003/05/22 12:56:12  ncq
 -- - add "last_active_episode"
 -- - adapt to audit_log -> audit_trail
 --
