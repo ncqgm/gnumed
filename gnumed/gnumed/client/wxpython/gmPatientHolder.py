@@ -4,6 +4,8 @@ import sys
 import gmLog
 from wxPython.wx import wxCallAfter
 
+from wxPython.wx import *
+
 class PatientHolder:
 	def __init__(self):
 		gmDispatcher.connect(self._setPatientModel, gmSignals.patient_selected())
