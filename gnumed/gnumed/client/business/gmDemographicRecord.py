@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.14 2003-11-30 01:06:21 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmDemographicRecord.py,v 1.15 2003-12-01 01:01:41 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -389,7 +389,7 @@ values (%s, currval ('address_id_seq'), (select id from address_type where name 
 		dob = self.getDOB()
 		if dob is None:
 			return '??'
-		return get_medical_age(dob)
+		return dob2medical_age(dob)
 	#------------------------------------------------------------
 	def add_external_ID(self, external_id = None, description = None):
 		if external_id is None:
@@ -423,7 +423,7 @@ values (%s, currval ('address_id_seq'), (select id from address_type where name 
 #================================================================
 # convenience functions
 #================================================================
-def get_medical_age(dob):
+def dob2medical_age(dob):
 	"""format patient age in a hopefully meaningful way"""
 
 	age = mx.DateTime.Age(mx.DateTime.now(), dob)
@@ -596,7 +596,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.14  2003-11-30 01:06:21  ncq
+# Revision 1.15  2003-12-01 01:01:41  ncq
+# - get_medical_age -> dob2medical_age
+#
+# Revision 1.14  2003/11/30 01:06:21  ncq
 # - add/remove_external_id()
 #
 # Revision 1.13  2003/11/23 23:32:01  ncq
