@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -504,7 +504,6 @@ if __name__ == '__main__':
 		application = wxPyWidgetTester(size=(640,480))
 		application.SetWidget(gmConfigEditorPanel,"any-doc",workplace, 0)
 		application.MainLoop()
-		print application.__dict__['this'].__dict__
 	except:
 		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=0)
 		# but re-raise them
@@ -539,7 +538,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.19  2004-06-28 22:34:09  hinnef
+# Revision 1.20  2004-07-06 20:55:38  hinnef
+# fixed bug introduced during testing :(
+#
+# Revision 1.19  2004/06/28 22:34:09  hinnef
 # fixed missing tree population in standalone use
 #
 # Revision 1.18  2004/06/13 22:31:48  ncq
