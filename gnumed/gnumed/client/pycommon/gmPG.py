@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -328,7 +328,7 @@ class ConnectionPool:
 		# is located from config DB
 		cfg_db = ConnectionPool.__ro_conns['default']
 		cursor = cfg_db.cursor()
-		cmd = "select name, host, port, opt, tty from db where id = %s ;"
+		cmd = "select name, host, port from db where id = %s"
 		if not run_query(cursor, None, cmd, srvc_id):
 			_log.Log(gmLog.lPanic, 'cannot get login info for service [%s] with id [%s] from config database' % (service, srvc_id))
 			_log.Log(gmLog.lPanic, 'make sure your service-to-database mappings are properly configured')
@@ -347,12 +347,6 @@ class ConnectionPool:
 		try: # port
 			dblogin.SetPort(auth_data[idx['port']])
 		except: pass
-		try: # backend options (not that I have any idea what we'd need them for, but hey :-)
-			dblogin.SetOptions(string.strip(auth_data[idx['opt']]))
-		except: pass
-		try: # tty option (what's that, actually ?)
-			dblogin.SetTTY(string.strip(auth_data[idx['tty']]))
-		except:pass
 		# and return what we thus got - which may very well be identical to the default login ...
 		return dblogin			
 	#-----------------------------
@@ -936,7 +930,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.27 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.28 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1164,7 +1158,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.27  2004-09-06 22:19:28  ncq
+# Revision 1.28  2004-09-13 09:33:07  ncq
+# - axe backend options/tty support
+#
+# Revision 1.27  2004/09/06 22:19:28  ncq
 # - some cleanup
 #
 # Revision 1.26  2004/09/06 18:56:16  ncq
