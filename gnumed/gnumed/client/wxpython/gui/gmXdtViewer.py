@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.11 2004-03-19 08:27:50 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmXdtViewer.py,v 1.12 2004-03-19 10:20:29 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, fileinput, string
@@ -29,6 +29,7 @@ import sys, os, fileinput, string
 from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
+from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.pycommon import gmLog
 from Gnumed.business.gmXdtMappings import xdt_id_map, xdt_map_of_content_maps
 if __name__ == "__main__":
@@ -255,11 +256,17 @@ if __name__ == '__main__':
 				fname = gmCLI.arg['--xdt-file']
 				_log.Log(gmLog.lData, 'XDT file is [%s]' % fname)
 				# file valid ?
-				if not os.path.exists(fname):
-					_log.Log(gmLog.lErr, "XDT file [%s] not found. Aborting." % fname)
+				if not os.access(fname, R_OK):
+					title = _('Opening xDT file')
+					msg = _('Error opening xDT file. Aborting\n'
+							'[%s]') % fname
+					gmGuiHelpers.gm_show_error(msg, title, gmLog.lErr)
 					return False
 			else:
-				_log.Log(gmLog.lData, "No XDT file given on command line. Format: --xdt-file=<file>")
+				title = _('Opening xDT file')
+				msg = _('No xDT file given on command line.\n'
+						'Format: --xdt-file=<file>')
+				gmGuiHelpers.gm_show_error(msg, title, gmLog.lWarn)
 				return False
 
 			frame = wxFrame(
@@ -323,7 +330,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.11  2004-03-19 08:27:50  ncq
+# Revision 1.12  2004-03-19 10:20:29  ncq
+# - in standalone, display nice message upon xdt file load errors
+#
+# Revision 1.11  2004/03/19 08:27:50  ncq
 # - fix imports, return BOOL from OnInit
 #
 # Revision 1.10  2004/03/18 09:43:02  ncq
