@@ -1404,7 +1404,7 @@ class PastHistoryEditArea(EditArea2):
 	def __init__(self, parent, id):
 		EditArea2.__init__(self, parent, id)
 		#self.add("coding system", CMBx, newline = 1)
-		self.add("condition", CMBx,  newline  = 1 )
+		self.add("condition", PWh,  newline  = 1 )
 		self.add("left",  RBn)
 		self.add("right", RBn)
 		self.add("both",  RBn, newline = 1)
