@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-02-01 06:41:03 $
-# @version $Revision: 1.62 $ $Date: 2003-02-01 06:41:03 $ $Author: michaelb $
+# @Date: $Date: 2003-02-01 07:10:50 $
+# @version $Revision: 1.63 $ $Date: 2003-02-01 07:10:50 $ $Author: michaelb $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.62 $"
+__version__ = "$Revision: 1.63 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -559,7 +559,7 @@ class AboutFrame (wxFrame, MainFrame):
 	def OnTimer(self, evt):
 		self.changing_txt.Replace(0,0,self.__scroll_list[self.__scroll_ctr])	# some trickery here
 		self.__scroll_ctr=self.__scroll_ctr+1
-		if(self.__scroll_ctr>1019):
+		if(self.__scroll_ctr>1147):
 			self.__scroll_ctr=0
 
 #==================================================
@@ -618,8 +618,8 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.62  2003-02-01 06:41:03  michaelb
-# 'about gnumed' frame added + small change on main window icon
+# Revision 1.63  2003-02-01 07:10:50  michaelb
+# fixed scrolling problem
 #
 # Revision 1.61  2003/01/29 04:26:37  michaelb
 # removed import images_gnuMedGP_TabbedLists.py
