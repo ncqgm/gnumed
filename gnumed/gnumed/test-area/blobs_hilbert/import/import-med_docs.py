@@ -25,7 +25,7 @@ from docDocument import cDocument
 from docDatabase import cDatabase
 #######################################################
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 
 __log__ = gmLog.gmDefLog
 __cfg__ = gmCfg.gmDefCfg
@@ -80,9 +80,10 @@ def standalone():
 			# we don't check for errors here since we just move on to the next dir
 			import_from_dir(os.path.join(REPOSITORY, theDir))
 #------- MAIN ----------------------
+__log__.SetAllLogLevels(gmLog.lData)
 if __cfg__ == None:
 	__log__.Log (gmLog.lErr, "cannot run without config file")
-	sys.exit()
+	sys.exit(1)
 
 __log__.Log (gmLog.lInfo, "starting import")
 
@@ -93,11 +94,11 @@ if __name__ == "__main__":
 	myDB = cDatabase(__cfg__)
 	if myDB == None:
 		__log__.Log (gmLog.lErr, "cannot create document database connection object")
-		sys.exit()
+		sys.exit(1)
 
 	if myDB.connect() == None:
 		__log__.Log (gmLog.lErr, "cannot connect to document database")
-		sys.exit()
+		sys.exit(1)
 
 	try:
 		standalone()
@@ -109,3 +110,5 @@ if __name__ == "__main__":
 	myDB.disconnect()
 
 __log__.Log (gmLog.lInfo, "done importing")
+
+sys.exit(0)
