@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.161 2004-07-18 19:49:07 ncq Exp $
-__version__ = "$Revision: 1.161 $"
+# $Id: gmGuiMain.py,v 1.162 2004-07-18 19:54:44 ncq Exp $
+__version__ = "$Revision: 1.162 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -404,18 +404,19 @@ class gmTopLevelFrame(wxFrame):
 		# old page here
 		self.__id_prev_page = event.GetOldSelection()
 		id_new_page = event.GetSelection()
-		_log.Log(gmLog.lInfo, 'about to switch notebook tabs: %s -> %s' % (self.__id_prev_page, id_new_page))
+		_log.Log(gmLog.lData, 'about to switch notebook tabs: %s -> %s' % (self.__id_prev_page, id_new_page))
 		if id_new_page == self.__id_prev_page:
 			# the docs say that on Windows GetSelection() returns the
 			# old page ID, eg. the same value that GetOldSelection()
 			# returns, hence we don't have any way of knowing which
 			# page is going to be it
-			_log.Log(gmLog.lData, 'cannot check whether page change needs to be veto()ed')
+			_log.Log(gmLog.lInfo, 'cannot check whether page change needs to be veto()ed')
 			event.Skip()
 			return
 		# check new page
 		new_page = self.guibroker['main.notebook.plugins'][id_new_page]
 		if not new_page.can_receive_focus():
+			_log.Log(gmLog.lData, 'veto()ing page change')
 			event.Veto()
 			return
 #		for key, item in self.plugins.items():
@@ -436,7 +437,7 @@ class gmTopLevelFrame(wxFrame):
 		"""
 		id_new_page = event.GetSelection()
 		id_old_page = event.GetOldSelection()
-		_log.Log(gmLog.lInfo, 'switching notebook tabs: %s (%s) -> %s' % (id_old_page, self.__id_prev_page, id_new_page))
+		_log.Log(gmLog.lData, 'switching notebook tabs: %s (%s) -> %s' % (id_old_page, self.__id_prev_page, id_new_page))
 		# get access to selected page
 		new_page = self.guibroker['main.notebook.plugins'][id_new_page]
 		# do we need to check the new page ?
@@ -986,7 +987,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.161  2004-07-18 19:49:07  ncq
+# Revision 1.162  2004-07-18 19:54:44  ncq
+# - improved logging for page change/veto debugging
+#
+# Revision 1.161  2004/07/18 19:49:07  ncq
 # - cleanup, commenting, better logging
 # - preparation for inner-frame notebook layout manager arrival
 # - use Python True, not wxWidgets true, as Python tells us to do
