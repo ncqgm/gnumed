@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmDemographics.au.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -25,18 +25,15 @@ comment on column org_AU.id_org is
 comment on column org_AU.ACN is
 	'Australian Company Number';
 
-create table log_org_AU (
-	id integer not null,
-	id_org integer not null,
-	ACN text
-) inherits (audit_trail);
-
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.au.sql,v $
--- Revision 1.1  2003-08-05 09:24:51  ncq
+-- Revision 1.2  2003-08-17 00:27:33  ncq
+-- - log_ tables removed, now auto-created
+--
+-- Revision 1.1  2003/08/05 09:24:51  ncq
 -- - first checkin
 --
