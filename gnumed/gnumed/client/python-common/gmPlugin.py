@@ -13,7 +13,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -21,6 +21,7 @@ import os, sys, re, traceback, cPickle, zlib
 from wxPython.wx import *
 
 import gmExceptions, gmGuiBroker, gmPG, gmShadow, gmLog, gmCfg
+import EditAreaHandler
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 #------------------------------------------------------------------
@@ -250,6 +251,7 @@ class wxPatientPlugin (wxBasePlugin):
 		self.menu_id = wxNewId ()
 		menu.Append (self.menu_id, menuname)
 		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnTool)
+		self.__my_dirty_hook(widget)
 	#-----------------------------------------------------        
 	def OnTool (self, event):
 		self.Shown ()
@@ -270,6 +272,19 @@ class wxPatientPlugin (wxBasePlugin):
 			tb2 = self.gb['toolbar.Patient Window']
 			tb2.DeleteTool (self.tool_id)
 		del self.gb['modules.patient'][self.name ()]
+
+	def __my_dirty_hook(self, widget):
+		print "\n\n\n\*********** WIDGET IS ***************%s"%widget
+		print " ***** class = %s \n" %widget.__class__.__name__
+		print "attributes = %s \n\n\n"%widget.__dict__
+		if widget.__dict__.has_key('editarea'):
+			#all set to put in hooks
+			section = widget.editarea.rightside.section
+			print "section = %d, or section name=%s\n" % (section, EditAreaHandler.section_num_map[section]) 
+			exec("self.%s_handler = EditAreaHandler.%s_handler(widget.editarea.rightside)"% ( EditAreaHandler.section_num_map[section],EditAreaHandler.section_num_map[section]) )
+			print "**** HANDLER IS IN ! (but it does nothing)"
+
+		pass
 #------------------------------------------------------------------
 def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	"""Instantiates a plugin object from a package directory, returning the object.
@@ -340,6 +355,7 @@ def GetPluginLoadList(set):
 		aConn = conn,
 		aDBAPI = gmPG.dbapi
 	)
+
 
 	# search database
 	# for this user on this machine	
@@ -428,8 +444,13 @@ def GetPluginLoadList(set):
 	# parse directory directly
 	if p_list is None:
 		_log.Log(gmLog.lWarn, "Config file [%s] does not contain the plugin load order !" % plugin_conf_name)
-		_log.Log(gmLog.lInfo, "Scanning plugin directory directly.")
+		_log.Log(gmLog.lInfo, "*** Scanning plugin directory directly.")
+
 		files = os.listdir(os.path.join(gb['gnumed_dir'], 'wxpython', set))
+
+		_log.Log(gmLog.lInfo, "the Path from set=%s parameter gnumed_dir=%s is %s"% ( set, gb['gnumed_dir'], os.path.join(gb['gnumed_dir'], 'wxpython', set) ) )
+
+		_log.Log(gmLog.lInfo, "returned this file list %s" % ("\n".join(files)))
 		p_list = []
 		for file in files:
 			if (re.compile ('.+\.py$').match(file)) and (file != '__init__.py'):
@@ -451,6 +472,8 @@ def GetPluginLoadList(set):
 	else:
 		p_list = None
 
+	_log.Log(gmLog.lInfo, "*** THESE ARE THE PLUGINS FROM gmPlugin.GetPluginList")
+	_log.Log(gmLog.lInfo, "%s" % "\n *** ".join(p_list))
 	return p_list
 #------------------------------------------------------------------
 def UnloadPlugin (set, name):
@@ -467,7 +490,12 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.36  2003-01-16 14:45:04  ncq
+# Revision 1.37  2003-02-07 05:08:08  sjtan
+#
+# added few lines to hook in the handler classes from EditAreaHandler.
+# EditAreaHandler was generated with editarea_gen_listener in wxPython directory.
+#
+# Revision 1.36  2003/01/16 14:45:04  ncq
 # - debianized
 #
 # Revision 1.35  2003/01/16 09:18:11  ncq
