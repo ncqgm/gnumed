@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.25 $
+# $Revision: 1.26 $
 ---------------------------------------------------
 Rules:
 ------
@@ -78,7 +78,7 @@ http://mail.gnu.org/mailman/listinfo/gnumed-devel
 
 
 ---------------------------------------------------
-michael.bonert@utoronto.ca	Wed Apr  2 00:17:07 EST 2003
+michael.bonert@utoronto.ca	Wed Apr  2 22:05:41 EST 2003
 ICQ ID: 97418709
 
 GnuMed Install Instructions for Mandrake Linux 9.1
@@ -102,11 +102,14 @@ by Michael Bonert
 	installed.
 
 3. Install wxPython -- (version used: wxPythonGTK-py2.2-2.4.0.1-1.i386.rpm)
+	NOTE: You should already have installed python from the Mandrake CDs.
+		python-2.2.2-6mdk
+		python-base-2.2.2-6mdk
+		python-docs-2.2.2-6mdk		# nice to have
 
 4. Install mx extenstion libraries -- (egenix-mx-base-2.0.4-py2.2_1.i386.rpm)
 
-5. Install pyPgSQL -- (pyPgSQL-2.3-1.src.rpm)
-
+5. Install pyPgSQL
 Before building and installing pyPgSQL make sure you have the following
 (from the Mandrake CDs):
 	libpython2.2-devel-2.2.2-6mdk
@@ -149,13 +152,46 @@ RECOMMENDATION: install gnumed in "/home/your_user_name/"
 $ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
 $ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
 
-7. Modify postgresql.conf
+7. set 'GNUMED_DIR' variable
+$ cd 			# cd to home
+$ vi .bash_profile	# or your favourite text editor
+
+Add the following:
+---
+GNUMED_DIR=$GNUMED_DIR/home/your_user_name/gnumed/gnumed/client
+---
+
+	ASIDE:
+		At this stage you can test the GUI with a public database.
+		Email Karsten (Karsten.Hilbert@gmx.net) or Michael
+		(michael.bonert@utoronto.ca) for the user name and
+		password.
+
+		Then...
+		$ cd /home/your_user_name/gnumed/gnumed/client/wxpython
+		$ python gnumed.py --debug
+			A "Welcome to the" [GnuMed] window should appear.
+
+		Click the "Options" button of the "Welcome to the" [GnuMed project] window
+			An "Advanced login options" window should appear.
+
+		Enter the following in it:
+			gnumed-public  		(for 'database')
+			anubis.homeunix.com 	(for 'host')
+			5432			(for 'port' this should be the default)
+		Click "Ok" to accept.
+
+		In the "Welcome to the" [GnuMed project] window:
+			enter the user name sent to you in "user"
+			enter the password sent to you in "password"
+
+8. Modify postgresql.conf
 $ su
 # cd /var/lib/pgsql/data
 # vi postgresql.conf
 	change '#tcpip_socket=false' to 'tcpip_socket=on'
 
-8. Modify "pg_hba.conf" found in "/var/lib/pgsql/data"
+9. Modify "pg_hba.conf" found in "/var/lib/pgsql/data"
 # vi pg_hba.conf
 
 last part of our "pg_hba.conf" should look like this:
@@ -168,7 +204,7 @@ local   all         all                                             trust
 host    all         all         127.0.0.1         255.255.255.255   trust
 ---
 
-9. Create db
+10. Creating the database
 (see -- http://mail.gnu.org/archive/html/gnumed-devel/2003-02/msg00079.html)
 $ su root
 # passwd postgres		# change password (I don't know what the default is--
@@ -196,47 +232,38 @@ When prompted:
 - give password
 - give another password
 
-NOTE: If you have problems the log file is in: "/home/your_user_name/.bootstrap-gm_db_system"
 
-10. set 'GNUMED_DIR' variable
-$ cd 			# cd to home
-$ vi .bash_profile	# or your favourite text editor
+NOTE 1: If you have problems the log file is in: "/home/your_user_name/.bootstrap-gm_db_system"
+NOTE 2: Make sure you have a current version of the code from the CVS
+NOTE 3: If bootstrapping fails it is a good idea to drop the gnumed database before trying again
+		$ dropdb gnumed
 
-Add the following:
----
-GNUMED_DIR=$GNUMED_DIR/home/your_user_name/gnumed/gnumed/client
----
+	-----
+	If you're still have problems bootstrapping:
 
+	Capture the screen output from bootstrap:
+	$ script -a bootstrapping.log		# opens a log file to capture output to display
+	$ python bootstrap-gm_db_system.py --conf-file=your_user_name-db.conf
+	$ exit					# closes 'script' session
 
+	Send Karsten (Karsten.Hilbert@gmx.net) the follow files:
+	- bootstrapping.log  		(in "/home/your_user_name/gnumed/gnumed/server/bootstrap")
+	- bootstrap-gm_db_system.log	(in "/home/your_user_name/.bootstrap-gm_db_system")
 
-Running GnuMed:
+-----
+Running GnuMed with a local database:
 $ cd /home/your_user_name/gnumed/gnumed/client/wxpython
 $ python gnumed.py --debug
+	A "Welcome to the" [GnuMed] window should appear.
+		in "user" enter: 	your_user_name
+		the password: 		(leave blank)
+
+	If you haven't started gnumed with another database
+	GnuMed will start with the following backend defaults:
+		gnumed		(for 'database')
+		127.0.0.1 	(for 'host')
+		5432		(for 'port')
 
 Find something you don't like and fix it... ;O)
-
----------------------------------------------------
-Karsten.Hilbert@gmx.net      2.4.2003
-
-there are two options for you:
-
-1) connect to the public database on my server for testing the frontend:
-   server: anubis.homeunix.com
-   database: gnumed-public
-   user/password: please write me a private mail
-
-
-2) on bootstrapping:
-
-To capture even the last bit of screen output do this:
-
-- go to the directory where you want to start bootstrap*
-- run the command "script -a bootstrapping.log"
-- run the bootstrapping as you did before
-- when finished, type "exit"<enter>
-- now also send me the bootstrapping.log file
-
-Michael: Can we add the latter part to the installation
-instructions ? Thanks for your excellent work !
 
 --------------------------------------------------
