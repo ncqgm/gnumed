@@ -52,7 +52,9 @@ the tuples returned are all selected rows
 
 to get the attribute labels, call gmSQLWindow.GetLabels()"""
 
-__version__ = "$Revision: 1.4 $"
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSQL.py,v $
+
+__version__ = "$Revision: 1.5 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
