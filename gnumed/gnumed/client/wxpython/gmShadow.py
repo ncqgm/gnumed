@@ -4,11 +4,11 @@ A module to add shadowing to an arbitrary widget.
 """
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmShadow.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  = "H.Berger <Hilmar.Berger@gmx.de>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, R.Terry <rterry@gnumed.net>"
 
 from wxPython.wx import *
-import gmGuiBroker
+from Gnumed.pycommon import gmGuiBroker
 #=========================================================
 class Shadow (wxPanel):
 	def __init__(self, parent, id):
@@ -56,7 +56,10 @@ class Shadow (wxPanel):
 		)
 #=======================================================================
 # $Log: gmShadow.py,v $
-# Revision 1.9  2003-11-17 10:56:39  sjtan
+# Revision 1.10  2004-03-04 19:47:07  ncq
+# - switch to package based import: from Gnumed.foo import bar
+#
+# Revision 1.9  2003/11/17 10:56:39  sjtan
 #
 # synced and commiting.
 #

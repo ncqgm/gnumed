@@ -2,19 +2,20 @@
 #embryonic gmGP_PatientPicture.py
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_PatientPicture.py,v $
-# $Id: gmGP_PatientPicture.py,v 1.6 2004-03-03 23:53:22 ihaywood Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmGP_PatientPicture.py,v 1.7 2004-03-04 19:46:54 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-			   
-
 import sys, os.path
-import gmGuiBroker
-import gmDispatcher, gmSignals, gmMedDoc
+
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmGuiBroker
+from Gnumed.business import gmMedDoc
+
 import mx.DateTime as mxDT
 from wxPython.wx import *
+
 current_patient = -1
 current_photo = None
 
@@ -59,6 +60,7 @@ class cPatientPicture (wxStaticBitmap):
 			current_patient = kwds['ID']
 			docs = gmMedDoc.search_for_document (kwds['ID'], gmMedDoc.MUGSHOT)
 			# FIXME: "where date = max(select date from ... where l1.pat=l2.pat)" ...
+			# FIXME: or rather use v_latest_mugshot
 			if docs: # get the latest in a series of photographs
 				latest_date = mxDT.DateTime (1)
 				latest_photo = None
@@ -98,7 +100,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmGP_PatientPicture.py,v $
-# Revision 1.6  2004-03-03 23:53:22  ihaywood
+# Revision 1.7  2004-03-04 19:46:54  ncq
+# - switch to package based import: from Gnumed.foo import bar
+#
+# Revision 1.6  2004/03/03 23:53:22  ihaywood
 # GUI now supports external IDs,
 # Demographics GUI now ALPHA (feature-complete w.r.t. version 1.0)
 # but happy to consider cosmetic changes

@@ -2,16 +2,14 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
-if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'pycommon'))
 
-import gmGuiBroker, gmGP_PatientPicture, gmPatientSelector
-import gmDispatcher, gmSignals, gmPatient, gmPG, gmGuiHelpers
-import gmLog, gmCLI
+from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
+from Gnumed.business import gmPatient
+from Gnumed.wxpython import gmGP_PatientPicture, gmPatientSelector, gmGuiHelpers
 
 from wxPython.wx import *
 
@@ -338,7 +336,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.31  2004-02-25 09:46:22  ncq
+# Revision 1.32  2004-03-04 19:47:07  ncq
+# - switch to package based import: from Gnumed.foo import bar
+#
+# Revision 1.31  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.30  2004/02/18 14:03:37  ncq

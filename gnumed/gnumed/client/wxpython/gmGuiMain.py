@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.141 2004-03-03 23:53:22 ihaywood Exp $
-__version__ = "$Revision: 1.141 $"
+# $Id: gmGuiMain.py,v 1.142 2004-03-04 19:46:54 ncq Exp $
+__version__ = "$Revision: 1.142 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -30,32 +30,23 @@ from wxPython.wx import *
 
 import sys, time, os, cPickle, zlib
 
-import gmLog
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lData, __version__)
-email_logger = None
+from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
+from Gnumed.wxpython import gmSQLSimpleSearch, gmSelectPerson, gmGuiHelpers, gmTopPanel, gmPlugin
+from Gnumed.business import gmPatient
 
-import gmCfg
 _cfg = gmCfg.gmDefCfgFile
-
-import gmWhoAmI                                                                 
 _whoami = gmWhoAmI.cWhoAmI()
 
-import gmPG
+email_logger = None
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lData, __version__)
+
 encoding = _cfg.get('backend', 'client encoding')
 gmPG.set_default_client_encoding(encoding)
 if encoding is None:
 	print 'WARNING: option <client encoding> not set in config file'
 	_log.Log(gmLog.lWarn, 'you need to set the parameter <client encoding> in the config file')
 	_log.Log(gmLog.lWarn, 'on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
-
-from gmI18N import gmTimeformat, system_locale, system_locale_level
-
-import gmDispatcher, gmSignals, gmGuiBroker, gmSQLSimpleSearch, gmSelectPerson, gmPlugin
-import gmGuiHelpers
-import gmTopPanel
-import gmPatient
-import gmCLI
 
 # widget IDs
 ID_ABOUT = wxNewId ()
@@ -407,7 +398,7 @@ class gmTopLevelFrame(wxFrame):
 		_log.Log(gmLog.lData, str(type(plugin_list)) + ": " + str(plugin_list))
 		for plugin_name in plugin_list:
 			plugin = gmPlugin.InstPlugin ('gui', plugin_name, guibroker = self.guibroker)
-			if isinstance (plugin, gmPlugin.wxNotebookPlugin): 
+			if isinstance (plugin, gmPlugin.wxNotebookPlugin):
 				if not (plugin.internal_name() in self.guibroker['modules.gui'].keys()):
 					# if not installed
 					id = wxNewId ()
@@ -534,7 +525,7 @@ class gmTopLevelFrame(wxFrame):
 	def Callback_UpdateTime(self):
 		"""Displays date and local time in the second slot of the status bar"""
 		t = time.localtime(time.time())
-		st = time.strftime(gmTimeformat, t)
+		st = time.strftime(gmI18N.gmTimeformat, t)
 		self.SetStatusText(st,1)
 	#----------------------------------------------
 	def on_user_error (self, signal, message):
@@ -665,7 +656,7 @@ class gmApp(wxApp):
 			wxInitAllImageHandlers()
 	#----------------------------------------------
 	def __set_db_lang(self):
-		if system_locale is None or system_locale == '':
+		if gmI18N.system_locale is None or gmI18N.system_locale == '':
 			_log.Log(gmLog.lWarn, "system locale is undefined (probably meaning 'C')")
 			return 1
 
@@ -688,7 +679,7 @@ class gmApp(wxApp):
 				"the system language is changed. You can also reactivate\n"
 				"this inquiry by removing the appropriate ignore option\n"
 				"from the configuration file."
-			)  % (system_locale, system_locale)
+			)  % (gmI18N.system_locale, gmI18N.system_locale)
 			_log.Log(gmLog.lData, "database locale currently not set")
 		else:
 			db_lang = result[0][0]
@@ -700,25 +691,25 @@ class gmApp(wxApp):
 				"the system language is changed. You can also reactivate\n"
 				"this inquiry by removing the appropriate ignore option\n"
 				"from the configuration file."
-			) % (db_lang, system_locale, system_locale)
+			) % (db_lang, gmI18N.system_locale, gmI18N.system_locale)
 			_log.Log(gmLog.lData, "current database locale: [%s]" % db_lang)
 			# check if we can match up system and db language somehow
-			if db_lang == system_locale_level['full']:
+			if db_lang == gmI18N.system_locale_level['full']:
 				_log.Log(gmLog.lData, 'Database locale (%s) up to date.' % db_lang)
 				return 1
-			if db_lang == system_locale_level['country']:
-				_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at country level.' % (db_lang, system_locale))
+			if db_lang == gmI18N.system_locale_level['country']:
+				_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at country level.' % (db_lang, gmI18N.system_locale))
 				return 1
-			if db_lang == system_locale_level['language']:
-				_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at language level.' % (db_lang, system_locale))
+			if db_lang == gmI18N.system_locale_level['language']:
+				_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at language level.' % (db_lang, gmI18N.system_locale))
 				return 1
 			# no match
-			_log.Log(gmLog.lWarn, 'database locale [%s] does not match system locale [%s]' % (db_lang, system_locale))
+			_log.Log(gmLog.lWarn, 'database locale [%s] does not match system locale [%s]' % (db_lang, gmI18N.system_locale))
 
 		# returns either None or a locale string
 		ignored_sys_lang = _cfg.get('backend', 'ignored mismatching system locale')
 		# are we to ignore *this* mismatch ?
-		if system_locale == ignored_sys_lang:
+		if gmI18N.system_locale == ignored_sys_lang:
 			_log.Log(gmLog.lInfo, 'configured to ignore system-to-database locale mismatch')
 			return 1
 		# no, so ask user
@@ -738,13 +729,13 @@ class gmApp(wxApp):
 				"with the database locale will be ignored.",
 				"Remove this option if you want to stop ignoring mismatches.",
 			]
-			_cfg.set('backend', 'ignored mismatching system locale', system_locale, comment)
+			_cfg.set('backend', 'ignored mismatching system locale', gmI18N.system_locale, comment)
 			_cfg.store()
 			return 1
 
 		# try setting database language (only possible if translation exists)
 		cmd = "select set_curr_lang(%s) "
-		for lang in [system_locale_level['full'], system_locale_level['country'], system_locale_level['language']]:
+		for lang in [gmI18N.system_locale_level['full'], gmI18N.system_locale_level['country'], gmI18N.system_locale_level['language']]:
 			if len (lang) > 0:
 				# FIXME: we would need to run that on all databases we connect to ...
 				result = gmPG.run_commit('default', [
@@ -776,7 +767,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.141  2004-03-03 23:53:22  ihaywood
+# Revision 1.142  2004-03-04 19:46:54  ncq
+# - switch to package based import: from Gnumed.foo import bar
+#
+# Revision 1.141  2004/03/03 23:53:22  ihaywood
 # GUI now supports external IDs,
 # Demographics GUI now ALPHA (feature-complete w.r.t. version 1.0)
 # but happy to consider cosmetic changes

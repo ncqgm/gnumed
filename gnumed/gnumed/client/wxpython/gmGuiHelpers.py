@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.6 2003-12-29 16:49:18 uid66147 Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmGuiHelpers.py,v 1.7 2004-03-04 19:46:54 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
 from wxPython.wx import *
 
-import gmLog
+from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
@@ -106,7 +106,10 @@ def gm_beep_statustext(aMessage, aLogLevel = None):
 	return 1
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.6  2003-12-29 16:49:18  uid66147
+# Revision 1.7  2004-03-04 19:46:54  ncq
+# - switch to package based import: from Gnumed.foo import bar
+#
+# Revision 1.6  2003/12/29 16:49:18  uid66147
 # - cleanup, gm_beep_statustext()
 #
 # Revision 1.5  2003/11/17 10:56:38  sjtan

@@ -18,7 +18,8 @@
 
 import sys, time
 from wxPython.wx import *
-import gmPG, gmLabels, gmLog
+from Gnumed.pycommon import gmPG, gmLog
+from Gnumed.wxpython import gmLabels
 
 _log = gmLog.gmDefLog
 

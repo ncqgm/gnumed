@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.18 2004-03-03 14:41:49 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmMedDoc.py,v 1.19 2004-03-04 19:46:53 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path
@@ -46,12 +46,11 @@ from cStringIO import StringIO
 if __name__ == '__main__':
 	sys.path.append(os.path.join('..', 'pycommon'))
 
-import gmLog
+from Gnumed.pycommon import gmLog, gmPG, gmExceptions
+
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
-import gmPG
-from gmExceptions import ConstructorError
 #============================================================
 class gmMedObj:
 	def __init__(self, aPKey):
@@ -504,7 +503,10 @@ def create_object(doc_id):
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.18  2004-03-03 14:41:49  ncq
+# Revision 1.19  2004-03-04 19:46:53  ncq
+# - switch to package based import: from Gnumed.foo import bar
+#
+# Revision 1.18  2004/03/03 14:41:49  ncq
 # - cleanup
 # - FIXME: write gmDocumentRecord_SQL
 #

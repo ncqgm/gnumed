@@ -4,20 +4,16 @@
 #
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
-# @dependencies: gmPG, gmLoginInfo
-# @change log:
-#	29.10.2001 hherb first draft, untested
-#
-# @TODO: testing
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.17 2003-11-17 10:56:38 sjtan Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmLogin.py,v 1.18 2004-03-04 19:47:06 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "H.Herb"
 
-from wxPython.wx import *
 import os.path
-import gmLoginDialog, gmPG, gmGuiBroker, gmLog, gmExceptions
+from wxPython.wx import *
+from Gnumed.pycommon import gmPG, gmGuiBroker, gmLog, gmExceptions
+from Gnumed.wxpython import gmLoginDialog
 
 _log = gmLog.gmDefLog
 #==============================================================
@@ -72,7 +68,10 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.17  2003-11-17 10:56:38  sjtan
+# Revision 1.18  2004-03-04 19:47:06  ncq
+# - switch to package based import: from Gnumed.foo import bar
+#
+# Revision 1.17  2003/11/17 10:56:38  sjtan
 #
 # synced and commiting.
 #
@@ -86,3 +85,5 @@ if __name__ == "__main__":
 # Revision 1.15  2003/02/07 14:28:05  ncq
 # - cleanup, cvs keywords
 #
+# @change log:
+#	29.10.2001 hherb first draft, untested

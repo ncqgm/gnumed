@@ -19,14 +19,12 @@
 
 
 from wxPython.wx import *
-import gmSQLListControl
-
+from Gnumed.wxpython import gmSQLListControl
 
 ID_COMBO_SEARCHEXPR = wxNewId()
 ID_BUTTON_SEARCH = wxNewId()
 ID_CHECKBOX_CASEINSENSITIVE = wxNewId()
 ID_LISTCTRL = wxNewId()
-
 
 class SQLSimpleSearch(wxPanel):
 	""" gmSQLSimpleSearch - a widget for simple database search & selection interaction"""

@@ -13,15 +13,13 @@ It features combo boxes which "remember" any number of previously entered settin
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.42 2003-12-29 16:58:52 uid66147 Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmLoginDialog.py,v 1.43 2004-03-04 19:47:06 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib,types
-
 from wxPython.wx import *
-
-import gmLoginInfo, gmGuiMain, gmGuiBroker, gmCfg, gmLog, gmWhoAmI
+from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmWhoAmI
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 _cfg = gmCfg.gmDefCfgFile
@@ -31,9 +29,9 @@ _whoami = gmWhoAmI.cWhoAmI()
 class cLoginParamChoices:
 	"""dummy class, structure for login parameters"""
 	def __init__(self):
-		self.userlist = ['test-doc']
+		self.userlist = ['test-doc', 'any-doc']
 		self.password = ''
-		self.databaselist = ['gnumed', 'gm-archive', 'gnumed-public']
+		self.databaselist = ['gnumed', 'gm-archive']
 		self.hostlist= ['localhost', '127.0.0.1']
 		self.portlist = ['5432']
 		self.backendoptionlist = ['']
@@ -565,7 +563,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.42  2003-12-29 16:58:52  uid66147
+# Revision 1.43  2004-03-04 19:47:06  ncq
+# - switch to package based import: from Gnumed.foo import bar
+#
+# Revision 1.42  2003/12/29 16:58:52  uid66147
 # - use whoami
 #
 # Revision 1.41  2003/11/17 10:56:38  sjtan

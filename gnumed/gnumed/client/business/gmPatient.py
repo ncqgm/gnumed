@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.18 2004-02-25 09:46:20 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmPatient.py,v 1.19 2004-03-04 19:46:53 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -18,15 +18,16 @@ if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'pycommon'))
 
 # start logging
-import gmLog
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N, gmBorg
+from Gnumed.business import gmClinicalRecord
+from Gnumed.business import gmDemographicRecord
+
 _log = gmLog.gmDefLog
 
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
 _log.Log(gmLog.lData, __version__)
-
-import gmExceptions, gmPG, gmSignals, gmDispatcher, gmClinicalRecord, gmI18N, gmDemographicRecord
 
 #============================================================
 # may get preloaded by the waiting list
@@ -161,9 +162,7 @@ class gmPerson:
 	_get_handler['ID'] = getID
 
 #============================================================
-from gmBorg import cBorg
-
-class gmCurrentPatient(cBorg):
+class gmCurrentPatient(gmBorg.cBorg):
 	"""Patient Borg to hold currently active patient.
 
 	There may be many instances of this but they all share state.
@@ -171,7 +170,7 @@ class gmCurrentPatient(cBorg):
 	def __init__(self, aPKey = None):
 		_log.Log(gmLog.lData, 'selection of patient [%s] requested' % aPKey)
 		# share state among all instances ...
-		cBorg.__init__(self)
+		gmBorg.cBorg.__init__(self)
 
 		# make sure we do have a patient pointer even if it is None
 		if not self.__dict__.has_key('patient'):
@@ -798,7 +797,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.18  2004-02-25 09:46:20  ncq
+# Revision 1.19  2004-03-04 19:46:53  ncq
+# - switch to package based import: from Gnumed.foo import bar
+#
+# Revision 1.18  2004/02/25 09:46:20  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.17  2004/02/18 06:36:04  ihaywood

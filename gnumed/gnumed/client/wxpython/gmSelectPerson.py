@@ -16,12 +16,12 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 
-import string, gmDispatcher, gmSignals
+import string
 from wxPython.wx import *
-from gmSQLSimpleSearch import SQLSimpleSearch
-import gmLog
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog
+from Gnumed.wxpython.gmSQLSimpleSearch import SQLSimpleSearch
 _log = gmLog.gmDefLog
 
 

@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.5 2004-03-02 10:21:10 ihaywood Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmKVK.py,v 1.6 2004-03-04 19:46:53 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -18,13 +18,13 @@ import sys, os.path, fileinput, re, string
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'pycommon'))
 
-import gmLog
+from Gnumed.pycommon import gmLog, gmExceptions
+
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmExceptions
 #============================================================
 class cKVK_data:
 	"""Abstract KVK data class.
@@ -281,7 +281,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.5  2004-03-02 10:21:10  ihaywood
+# Revision 1.6  2004-03-04 19:46:53  ncq
+# - switch to package based import: from Gnumed.foo import bar
+#
+# Revision 1.5  2004/03/02 10:21:10  ihaywood
 # gmDemographics now supports comm channels, occupation,
 # country of birth and martial status
 #
