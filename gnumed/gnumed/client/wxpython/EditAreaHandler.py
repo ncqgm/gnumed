@@ -4,6 +4,9 @@
 	#	a listener to the components.  
 
 from wxPython.wx import * 
+# type_search_str =  class\s+(?P<new_type>\w+)\s*\(.*(?P<base_type>EditAreaTextBox|wxTextCtrl|wxComboBox|wxButton|wxRadioButton|wxCheckBox|wxListBox)
+# found new type = EditAreaTextBox which is base_type wxTextCtrl
+
 
 
 class gmSECTION_SUMMARY_handler:
