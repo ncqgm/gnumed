@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.99 2004-09-17 20:59:58 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.100 2004-09-18 00:19:24 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -196,7 +196,11 @@ create view v_pat_episodes as
 select
 	cep.fk_patient as id_patient,
 	cep.description as description,
+	cep.is_active as episode_active,
+	cep.is_significant as episode_significant,
 	null as health_issue,
+	null as issue_active,
+	null as issue_significant,
 	cep.pk as pk_episode,
 	null as pk_health_issue,
 	cep.modified_when as episode_modified_when
@@ -209,8 +213,15 @@ where
 
 select
 	chi.id_patient as id_patient,
-	cep.description as description,
+	case when cep.description is null
+		then chi.description
+		else cep.description
+	end as description,
+	cep.is_active as episode_active,
+	cep.is_significant as episode_significant,
 	chi.description as health_issue,
+	chi.is_active as issue_active,
+	chi.is_significant as issue_significant,
 	cep.pk as pk_episode,
 	cep.fk_health_issue as pk_health_issue,
 	cep.modified_when as episode_modified_when
@@ -961,6 +972,75 @@ where
 	cn.pk_item = vpi.pk_item
 ;
 
+comment on view v_pat_narrative is
+	'patient SOAP narrative';
+
+-- *complete* narrative for searching
+\unset ON_ERROR_STOP
+drop view v_compl_narrative;
+\set ON_ERROR_STOP 1
+
+create view v_compl_narrative as
+-- soap items
+select
+	vpi.id_patient as pk_patient,
+	cn.soap_cat as soap_cat,
+	cn.narrative as narrative,
+	cn.pk as src_pk,
+	vpi.src_table as src_table
+from
+	clin_narrative cn,
+	v_patient_items vpi
+where
+	cn.pk_item = vpi.pk_item
+		and
+	trim(coalesce(cn.narrative, '')) != ''
+
+		union
+-- health issues
+select
+	chi.id_patient as pk_patient,
+	'a' as soap_cat,
+	chi.description as narrative,
+	chi.id as src_pk,
+	'clin_narrative' as src_table
+from
+	clin_health_issue chi
+where
+	trim(coalesce(chi.description, '')) != ''
+
+		union
+-- episodes
+select
+	cep.fk_patient as pk_patient,
+	'a' as soap_cat,
+	cep.description as narrative,
+	cep.pk as src_pk,
+	'clin_episode' as src_table
+from
+	clin_episode cep
+where
+	trim(coalesce(cep.description, '')) != ''
+
+		union
+-- encounters
+select
+	cenc.fk_patient as pk_patient,
+	's' as soap_cat,
+	cenc.description as narrative,
+	cenc.id as src_pk,
+	'clin_encounter' as src_table
+from
+	clin_encounter cenc
+where
+	trim(coalesce(cenc.description, '')) != ''
+;
+
+comment on view v_compl_narrative is
+	'*complete* narrative for patients including
+	 health issue/episode/encounter descriptions,
+	 mainly for searching the narrative';
+
 -- =============================================
 -- types of clin_root_item
 \unset ON_ERROR_STOP
@@ -993,6 +1073,39 @@ select distinct on (narrative, code, type, src_table)
 from
 	((v_patient_items vpi inner join lnk_type2item lt2i on (vpi.pk_item=lt2i.fk_item)) lnkd_items
 		inner join clin_item_type cit on (lnkd_items.fk_type=cit.pk)) items
+;
+
+-- =============================================
+-- problem list
+
+\unset ON_ERROR_STOP
+drop view v_problem_list;
+\set ON_ERROR_STOP 1
+
+create view v_problem_list as
+select
+	cep.fk_patient as pk_patient,
+	cep.description as problem,
+	cep.is_active as is_active,
+	cep.is_significant as is_significant,
+	cep.pk as pk_episode,
+	null as pk_health_issue
+from
+	clin_episode cep
+where
+	cep.fk_health_issue is null
+
+		union
+
+select
+	chi.id_patient as pk_patient,
+	chi.description as problem,
+	chi.is_active as is_active,
+	chi.is_significant as is_significant,
+	null as pk_episode,
+	chi.id as pk_health_issue
+from
+	clin_health_issue chi
 ;
 
 -- =============================================
@@ -1098,17 +1211,24 @@ GRANT SELECT ON
 	, v_pat_aoe
 	, v_pat_item_types
 	, v_types4item
+	, v_problem_list
+	, v_compl_narrative
 TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.99 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.100 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.99  2004-09-17 20:59:58  ncq
+-- Revision 1.100  2004-09-18 00:19:24  ncq
+-- - add v_compl_narrative
+-- - add v_problem_list
+-- - include is_significant in v_pat_episodes
+--
+-- Revision 1.99  2004/09/17 20:59:58  ncq
 -- - remove cruft
 -- - in v_pat_episodes UNION pull data from correct places ...
 --
