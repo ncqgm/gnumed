@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -29,20 +29,6 @@ _log.Log(gmLog.lData, __version__)
 if __name__ == "__main__":
 	import gmI18N
 
-try:
-	import twain
-	scan_drv = 'wintwain'
-except ImportError:
-	exc = sys.exc_info()
-	_log.LogException('Cannot import WinTWAIN.py.', exc, fatal=0)
-	try:
-		import sane
-		scan_drv = 'linsane'
-	except ImportError:
-		exc = sys.exc_info()
-		_log.LogException('Cannot import linSANE.py.', exc, fatal=0)
-		raise _("Can import neither TWAIN nor SANE scanner access library.")
-
 from wxPython.wx import *
 import string, time, shutil, os, tempfile
 
@@ -50,6 +36,9 @@ import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
 import docDocument
+
+_twain = None
+_sane = None
 #==================================================
 [	wxID_SCANFRAME,
 	wxID_LBOX_doc_pages,
@@ -71,18 +60,8 @@ class scanFrame(wxPanel):
 		# FIXME: dict this !!
 		(self.TwainSrcMngr, self.TwainScanner) = (None, None)
 		(self.SaneSrcMngr, self.SaneScanner) = (None, None)
-		# like this:
-		self.acquire_handler = {
-			'wintwain': self.__acquire_from_twain,
-			'linsane': self.__acquire_from_sane
-		}
-		if scan_drv == 'wintwain':
-			self.twain_event_handler = {
-				twain.MSG_XFERREADY: self.__twain_handle_transfer,
-				twain.MSG_CLOSEDSREQ: self.__twain_close_datasource,
-				twain.MSG_CLOSEDSOK: self.__twain_save_state,
-				twain.MSG_DEVICEEVENT: self.__twain_handle_src_event
-			}
+
+		self.scan_drv = "unknown"
 
 		# get temp dir path from config file
 		self.scan_tmp_dir = None
@@ -229,7 +208,50 @@ class scanFrame(wxPanel):
 	# event handlers
 	#-----------------------------------
 	def on_acquire_page(self, event):
-		return self.acquire_handler[scan_drv]()
+		global _twain
+		global _sane
+
+		# if we did not load the scanner driver yet
+		if self.scan_drv == "unknown":
+			try:
+				import twain
+				_twain = twain
+				self.scan_drv = 'wintwain'
+			except ImportError:
+				exc = sys.exc_info()
+				_log.LogException('Cannot import WinTWAIN.py.', exc, fatal=0)
+				try:
+					import sane
+					_sane = sane
+					self.scan_drv = 'linsane'
+				except ImportError:
+					exc = sys.exc_info()
+					_log.LogException('Cannot import SANE.py.', exc, fatal=0)
+					_log.Log(gmLog.lErr, "Can import neither TWAIN nor SANE scanner access library.")
+					dlg = wxMessageDialog(
+						self,
+						_('Cannot load any scanner driver (SANE or TWAIN).'),
+						_('acquiring page'),
+						wxOK | wxICON_ERROR
+					)
+					dlg.ShowModal()
+					dlg.Destroy()
+					return None
+
+			# like this:
+			self.acquire_handler = {
+				'wintwain': self.__acquire_from_twain,
+				'linsane': self.__acquire_from_sane
+			}
+			if self.scan_drv == 'wintwain':
+				self.twain_event_handler = {
+					twain.MSG_XFERREADY: self.__twain_handle_transfer,
+					twain.MSG_CLOSEDSREQ: self.__twain_close_datasource,
+					twain.MSG_CLOSEDSOK: self.__twain_save_state,
+					twain.MSG_DEVICEEVENT: self.__twain_handle_src_event
+				}
+
+		return self.acquire_handler[self.scan_drv]()
 	#-----------------------------------
 	def on_show_page(self, event):
 		# did user select a page ?
@@ -278,8 +300,6 @@ class scanFrame(wxPanel):
 
 			# 1) del item from self.acquired_pages
 			self.acquired_pages[page_idx:(page_idx+1)] = []
-			#tmp = self.acquired_pages[:page_idx] + self.acquired_pages[(page_idx+1):]
-			#self.acquired_pages = tmp
 
 			# 2) reload list box
 			self.__reload_LBOX_doc_pages()
@@ -347,10 +367,6 @@ class scanFrame(wxPanel):
 				# 3) move pages after the new position
 				self.acquired_pages[old_page_idx:(old_page_idx+1)] = []
 				self.acquired_pages[new_page_idx:new_page_idx] = [page_fname]
-
-				#head = self.acquired_pages[:new_page_idx]
-				#tail = self.acquired_pages[(new_page_idx+1):]
-				#self.acquired_pages = head + [page_fname] + tail
 
 				# 5) update list box
 				self.__reload_LBOX_doc_pages()
@@ -472,7 +488,7 @@ class scanFrame(wxPanel):
 			exc = sys.exc_info()
 			_log.LogException('Unable to get global heap image handle !', exc, fatal=1)
 			# free external image memory
-			twain.GlobalHandleFree(external_data_handle)
+			_twain.GlobalHandleFree(external_data_handle)
 			# hide the scanner user interface again
 			self.TwainScanner.HideUI()
 			return None
@@ -487,18 +503,18 @@ class scanFrame(wxPanel):
 		fname = tempfile.mktemp('.bmp')
 		try:
 			# convert to bitmap file
-			twain.DIBToBMFile(external_data_handle, fname)
+			_twain.DIBToBMFile(external_data_handle, fname)
 		except:
 			exc = sys.exc_info()
 			_log.LogException('Unable to convert image in global heap handle into file [%s] !' % fname, exc, fatal=1)
 			# free external image memory
-			twain.GlobalHandleFree(external_data_handle)
+			_twain.GlobalHandleFree(external_data_handle)
 			# hide the scanner user interface again
 			self.TwainScanner.HideUI()
 			return None
 
 		# free external image memory
-		twain.GlobalHandleFree(external_data_handle)
+		_twain.GlobalHandleFree(external_data_handle)
 		# hide the scanner user interface again
 		self.TwainScanner.HideUI()
 		# and keep a reference
@@ -541,11 +557,11 @@ class scanFrame(wxPanel):
 	def __open_twain_scanner(self):
 		# did we open the scanner before ?
 		if not self.TwainSrcMngr:
-			#_log.Log(gmLog.lData, "TWAIN version: %s" % twain.Version())
+			#_log.Log(gmLog.lData, "TWAIN version: %s" % _twain.Version())
 			# no, so we need to open it now
 			# TWAIN talks to us via MS-Windows message queues so we
 			# need to pass it a handle to ourselves
-			self.TwainSrcMngr = twain.SourceManager(self.GetHandle())
+			self.TwainSrcMngr = _twain.SourceManager(self.GetHandle())
 			if not self.TwainSrcMngr:
 				_log.Log(gmLog.lData, "cannot get a handle for the TWAIN source manager")
 				return None
@@ -933,7 +949,11 @@ else:
 			return (_('Tools'), _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.4  2002-10-08 21:05:48  ncq
+# Revision 1.5  2002-10-11 10:20:37  ncq
+# - on demand loading of scanner library so we can at least
+#   start on machines without SANE or TWAIN
+#
+# Revision 1.4  2002/10/08 21:05:48  ncq
 # - it is group scanning, not scan
 #
 # Revision 1.3  2002/10/08 20:55:34  ncq
