@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -351,7 +351,7 @@ class scanFrame(wxFrame):
 	def __reload_LBOX_doc_pages(self):
 		if len(self.acquired_pages) > 0:
 			self.LBOX_doc_pages.Clear()
-			for i in self.acquired_pages:
+			for i in range(len(self.acquired_pages)):
 				fname = self.acquired_pages[i]
 				path, name = os.path.split(fname)
 				self.LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
