@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.9 2003-06-29 15:21:22 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.10 2003-11-06 01:38:05 sjtan Exp $
 # license: GPL
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -175,6 +175,8 @@ class gmClinicalPanel (wxPanel):
 			self.visible_plugin = name
 	#----------------------------------------------
 	def GetVisiblePlugin(self):
+		if not self.__dict__.has_key('visible_plugin'):
+			return ""
 		return self.visible_plugin
 #==================================================
 class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
@@ -225,7 +227,10 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		# FIXME: should we unregister () each of our sub-modules?
 	#----------------------------------------------
 	def ReceiveFocus(self):
-		self.gb['modules.patient'][self.panel.GetVisiblePlugin()].Shown()
+		try:
+			self.gb['modules.patient'][self.panel.GetVisiblePlugin()].Shown()
+		except:
+			self.gb['modules.patient'][self.gb['modules.patient'].keys()[0]].Shown()
 	#----------------------------------------------
 	def can_receive_focus(self):
 		# need patient
@@ -234,7 +239,16 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.9  2003-06-29 15:21:22  ncq
+# Revision 1.10  2003-11-06 01:38:05  sjtan
+#
+# allows a default subclinical window to be selected, if none already selected; this allows the main tabs to switch
+# to clinical if a patient is selected whilst in any non- cliniclManager tab window.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.9  2003/06/29 15:21:22  ncq
 # - add can_receive_focus() on patient not selected
 #
 # Revision 1.8  2003/06/01 12:52:26  ncq
