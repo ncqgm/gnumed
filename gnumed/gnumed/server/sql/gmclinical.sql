@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.105 $
+-- $Revision: 1.106 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -662,29 +662,39 @@ comment on column form_data.value is
 -- patient attached diagnosis
 create table clin_working_diag (
 	pk serial primary key,
-	fk_description integer
-		not null
+	fk_progress_note integer
+		default null
 		references clin_aux_note(pk)
 		on update cascade
 		on delete restrict,
 	laterality char
 		default null
-		check ((laterality in ('l', 'r', '?')) or (laterality is null)),
+		check ((laterality in ('l', 'r', 'b', '?')) or (laterality is null)),
+--	definity char
+--		default 's'
+--		check (definity in ('s', 'c', 'e')),
 	is_chronic boolean
 		not null
 		default false,
 	is_active boolean
 		not null
 		default true
-		check ((is_chronic = true) and (is_active = true)),
+		check (
+			(is_chronic = false)
+				or
+			((is_chronic = true) and (is_active = true))
+		),
 	is_definite boolean
 		not null
-		default false
-		check ((is_active = true) and (is_definite = true)),
+		default false,
 	is_significant boolean
 		not null
 		default true
-		check ((is_active = true) and (is_significant = true)),
+		check (
+			(is_active = false)
+				or
+			((is_active = true) and (is_significant = true))
+		),
 	unique (narrative, id_episode),
 	unique (narrative, id_encounter)
 ) inherits (clin_root_item);
@@ -696,8 +706,10 @@ select add_table_for_audit('clin_working_diag');
 comment on table clin_working_diag is
 	'stores diagnoses attached to patients, may or may not be
 	 linked to codes via lnk_diag2code';
-comment on column clin_working_diag.fk_description is
-	'pointing to the PK of the label for the diagnosis';
+comment on column clin_working_diag.narrative is
+	'name of diagnosis';
+comment on column clin_working_diag.fk_progress_note is
+	'some additional clinical narrative such as approximate start';
 
 
 -- "working set" of coded diagnoses
@@ -849,11 +861,16 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.105 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.106 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.105  2004-04-30 12:22:31  ihaywood
+-- Revision 1.106  2004-05-02 19:24:02  ncq
+-- - clin_working_diag.narrative is used as the diag name now
+-- - a link to clin_aux_note now allows storage of aux note
+-- - fix check constraints in clin_working_diag
+--
+-- Revision 1.105  2004/04/30 12:22:31  ihaywood
 -- new referral table
 -- some changes to old medications tables, but still need more work
 --
