@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.109 2003-06-26 21:38:28 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmGuiMain.py,v 1.110 2003-06-26 22:28:50 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -103,19 +103,12 @@ class gmTopLevelFrame(wxFrame):
 			size,
 			style = wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE
 		)
-		self.SetAutoLayout(true)
-		
+
 		#initialize the gui broker
 		self.guibroker = gmGuiBroker.GuiBroker()
-		#allow access to a safe exit function for all modules in case of "emergencies"
 		self.guibroker['EmergencyExit'] = self._clean_exit
 		self.guibroker['main.frame'] = self
-		self.SetupStatusBar()
-		# allow all modules to access our status bar
-		self.guibroker['main.statustext'] = self.SetStatusText
 
-		# set window title via template
-		#  get user from database
 		backend = gmPG.ConnectionPool()
 		db = backend.GetConnection('default')
 		curs = db.cursor()
@@ -123,9 +116,13 @@ class gmTopLevelFrame(wxFrame):
 		(user,) = curs.fetchone()
 		curs.close()
 		backend.ReleaseConnection('default')
-		#  remember it
 		self.guibroker['currentUser'] = user
-		#  set it
+
+		self.SetupStatusBar()
+		self.SetStatusText(_("You are logged in as [%s].") % user)
+		self.guibroker['main.statustext'] = self.SetStatusText
+
+		# set window title via template
 		self.updateTitle(anActivity = _("idle"), aPatient = _("no patient"), aUser = user)
 		#  let others have access, too
 		self.guibroker['main.SetWindowTitle'] = self.updateTitle
@@ -133,7 +130,6 @@ class gmTopLevelFrame(wxFrame):
 		self.__setup_platform()
 		self.__setup_main_menu()
 		self.__setup_accelerators()
-		self.__register_events()
 
 		# a vertical box sizer for the main window
 		self.vbox = wxBoxSizer(wxVERTICAL)
@@ -154,19 +150,20 @@ class gmTopLevelFrame(wxFrame):
 		# now set up the main notebook
 		self.nb = wxNotebook (self, ID_NOTEBOOK, size = wxSize(320,240), style = wxNB_BOTTOM)
 		self.guibroker['main.notebook'] = self.nb
-		# add to main windows sizer
 		self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
 
 		# this list relates plugins to the notebook
 		self.guibroker['main.notebook.plugins'] = []	# (used to be called 'main.notebook.numbers')
-		# now load the plugins
-		self.__load_plugins(backend)
 
-		# signal any other modules requireing init.
+		self.__load_plugins(backend)
+		self.__register_events()
+
+		# signal any other modules requiring init.
 		#gmDispatcher.send( gmSignals.application_init())
 
-		self.SetStatusText(_("You are logged in as [%s].") % user)
+		# size, position and show ourselves
 		self.top_panel.ReFit()
+		self.SetAutoLayout(true)
 		self.SetSizer(self.vbox)
 		self.vbox.Fit(self)
 		#don't let the window get too small
@@ -174,8 +171,6 @@ class gmTopLevelFrame(wxFrame):
 		# setsizehints only allows minimum size, therefore window can't become small enough
 		# effectively we need the font size to be configurable according to screen size
 		#self.vbox.SetSizeHints(self)
-
-		# position and show ourselves
 		self.Fit()
 		self.Centre(wxBOTH)
 		self.Show(true)
@@ -811,7 +806,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.109  2003-06-26 21:38:28  ncq
+# Revision 1.110  2003-06-26 22:28:50  ncq
+# - need to define self.nb before using it
+# - reordered __init__ for clarity
+#
+# Revision 1.109  2003/06/26 21:38:28  ncq
 # - fatal->verbose
 # - ignore system-to-database locale mismatch if user so desires
 #
