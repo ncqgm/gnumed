@@ -50,7 +50,7 @@ class ConnectionPool:
 
 
 	def __init__(self, login=None):
-		"parameter login is of type gmLoginInfo.LoginInfo"
+		"""parameter login is of type gmLoginInfo.LoginInfo"""
 		if login is not None:
 			self.__disconnect()
 		if ConnectionPool.__connected is None:
@@ -175,12 +175,11 @@ class ConnectionPool:
 		###disconnect from all databases
 		for key in ConnectionPool.__databases.keys():
 			### check whether this connection might still be in use ...
-			if ConnectionPool.__connections_in_use[service] > 0 :
+			if ConnectionPool.__connections_in_use[key] > 0 :
 				###unless we are really mean :-(((
 				if force_it == 0:
 					#let the end user know that shit is happening
-					raise gmExceptions.ConnectionError, \
-					    _("Attempting to close a database connection that is still in use")
+					raise gmExceptions.ConnectionError, _("Attempting to close a database connection that is still in use")
 			else:
 				###close the connection
 				ConnectionPool.__databases[key].close()
