@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.3 2004-09-13 08:53:02 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmHorstSpace.py,v 1.4 2004-10-14 12:11:18 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -168,7 +168,7 @@ class cHorstSpaceLayoutMgr(wx.wxPanel):
 			# the docs say that on Windows GetSelection() returns the
 			# old page ID, eg. the same value that GetOldSelection()
 			# returns, hence we don't have any way of knowing which
-			# page is going to be it
+			# page is going to be it, so we just return assuming things are fine
 			_log.Log(gmLog.lInfo, 'cannot check whether page change needs to be veto()ed')
 			event.Skip()
 			return
@@ -270,7 +270,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.3  2004-09-13 08:53:02  ncq
+# Revision 1.4  2004-10-14 12:11:18  ncq
+# - improve comments
+#
+# Revision 1.3  2004/09/13 08:53:02  ncq
 # - gmMacroPrimitives.raise_notebook_plugin() didn't work since
 #   cHorstSpaceLayoutMgr used guibroker['horstspace.plugins'] rather
 #   than 'horstspace.notebook.gui'
