@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.3 2003-11-11 06:55:32 sjtan Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmEMRTextDump.py,v 1.4 2003-11-15 11:49:50 sjtan Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -24,8 +24,6 @@ class gmEMRDumpPanel(wxPanel):
 
 		if not self.__register_events():
 			raise ConstructorError, 'cannot register interests'
-
-		self.__pat = gmPatient.gmCurrentPatient()
 	#--------------------------------------------------------
 	def __do_layout(self):
 		self.txt = wxTextCtrl(
@@ -122,9 +120,12 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.3  2003-11-11 06:55:32  sjtan
+# Revision 1.4  2003-11-15 11:49:50  sjtan
 #
-# with patient create.
+# extra fields table appended in gmclinical.sql.
+#
+# Revision 1.5  2003/11/11 18:21:30  ncq
+# - cleanup
 #
 # Revision 1.4  2003/11/09 14:27:46  ncq
 # - clinical record has new API style

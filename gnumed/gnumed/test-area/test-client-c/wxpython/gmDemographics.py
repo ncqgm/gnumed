@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.2 2003-11-11 06:55:32 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmDemographics.py,v 1.3 2003-11-15 11:49:50 sjtan Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -198,13 +198,14 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self.txt_occupation = TextBox_BlackNormal(self,-1)
 		self.txt_countryofbirth = TextBox_BlackNormal(self,-1)
 		self.btn_browseNOK = wxButton(self,-1,"Browse NOK") #browse database to pick next of Kin
-		self.txt_nameNOK = wxTextCtrl(self, 30,
-					      "Peter Smith \n"
-					      "22 Lakes Way \n"
-					      "Valentine 2280",
-					      wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
-		self.txt_nameNOK.SetInsertionPoint(0)
-		self.txt_nameNOK.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+	#	self.txt_nameNOK = wxTextCtrl(self, 30,
+	#				      "Peter Smith \n"
+	#				      "22 Lakes Way \n"
+	#				      "Valentine 2280",
+	#				      wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
+	#	self.txt_nameNOK.SetInsertionPoint(0)
+	#	self.txt_nameNOK.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.txt_nameNOK = wxListBox( self, 30)
 		self.txt_homephone = TextBox_BlackNormal(self,-1)
 		self.txt_workphone = TextBox_BlackNormal(self,-1)
 		self.txt_fax = TextBox_BlackNormal(self,-1)
@@ -515,7 +516,8 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 
 	def validate_fields(self):
 		m = self.get_input_value_map()
-		if  "" in [ m['firstname'].strip() , m['surname'].strip() ]:
+		nameFields = [ m['firstname'].strip() , m['surname'].strip() ]
+		if "" in nameFields or "?" in nameFields:
 			raise Error("firstname and surname are required fields for identity")
 
 
@@ -639,6 +641,20 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self._update_address_list_display()
 
 
+	def __update_nok(self):
+		myPatient = self.get_patient()
+		l = myPatient.get_relative_list()
+		l2 = []
+		from gmDemographicRecord import get_time_tuple
+		for m in l:
+			s = """%-12s   - %s %s, %s, %s %s""" % (m['description'], m['firstnames'], m['lastnames'], m['gender'], _('born'), time.strftime('%d/%m/%Y', get_time_tuple(m['dob']) )  )
+			l2.append( {'str':s, 'id':m['id'] } )
+		
+		f = self.input_fields
+		f['nameNOK'].Clear()
+		for data in l2:	
+			f['nameNOK'].Append( data['str'], data['id'] )
+
 	def _store_to_input_addr(self, address):
 			map = {}
 			map['no'] = address['number']
@@ -671,6 +687,12 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
                 print "adr types", adr_types
                 for type_name in adr_types:
                         print "adr (%s)" % type_name, myPatient.getAddress (type_name)
+
+		try:
+			print "relations ", self.get_patient().get_relative_list()	
+		except:
+			gmLog.gmDefLog.LogException("relations ", sys.exc_info(), verbose= 1)
+			pass
                 print "--------------------------------------"
 
 		m = self.input_fields
@@ -686,6 +708,8 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self.__update_addresses()
 		
 		self._update_address_fields_on_selection()
+
+		self.__update_nok()
 
 
 	def OnPatient (self, event):
@@ -779,9 +803,9 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.2  2003-11-11 06:55:32  sjtan
+# Revision 1.3  2003-11-15 11:49:50  sjtan
 #
-# with patient create.
+# extra fields table appended in gmclinical.sql.
 #
 # Revision 1.1  2003/10/23 06:02:40  sjtan
 #

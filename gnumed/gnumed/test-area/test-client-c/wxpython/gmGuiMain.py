@@ -20,8 +20,8 @@ all signing all dancing GNUMed reference client.
 ############################################################################
 #<<<<<<< gmGuiMain.py
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.11 2003-11-11 06:55:32 sjtan Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmGuiMain.py,v 1.12 2003-11-15 11:49:50 sjtan Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -303,12 +303,13 @@ class gmTopLevelFrame(wxFrame):
 
 			try:
 				plugin = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend)
-				_log.Log(gmLog.lInfo,  'got plugin of type %s' % plugin.__class__.__name__)
 				if plugin:
+					_log.Log(gmLog.lInfo,  'got plugin of type %s' % plugin.__class__.__name__)
 					plugin.register()
 					result = _("success")
 				else:
-					_log.Log (gmLog.lErr, "plugin [%s] not loaded as no object, see errors above" % curr_plugin)
+					_log.Log (gmLog.lErr, "plugin [%s] not loaded, see errors above" % curr_plugin)
+					result = _("failed")
 			except:
 				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info())
 				result = _("failed")
@@ -851,9 +852,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.11  2003-11-11 06:55:32  sjtan
+# Revision 1.12  2003-11-15 11:49:50  sjtan
 #
-# with patient create.
+# extra fields table appended in gmclinical.sql.
+#
+# Revision 1.123  2003/11/11 18:22:18  ncq
+# - fix longstanding bug in plugin loader error handler (duh !)
 #
 # Revision 1.122  2003/11/09 17:37:12  shilbert
 # - ['demographics'] -> ['demographic record']

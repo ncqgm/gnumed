@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmTopPanel.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -205,12 +205,17 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	#-------------------------------------------------------
 	def _update_allergies(self, **kwargs):
 		epr = self.curr_pat['clinical record']
-		allergies = epr.get_allergies(remove_sensitivities=1)
+		allergy_names = epr.get_allergy_names(remove_sensitivities=1)
 		tmp = []
-		for allergy in allergies:
-			print "APPENDING ", allergy
+#<<<<<<< gmTopPanel.py
+#		for allergy in allergies:
+#			print "APPENDING ", allergy
 			#tmp.append(allergy['name'])   #temporary comment out, until get_allergies catches up
-			tmp.append(allergy[6])
+#			tmp.append(allergy[6])
+#=======
+		for allergy in allergy_names:
+			tmp.append(allergy['name'])
+#>>>>>>> 1.23
 		data = string.join(tmp, ',')
 		if data == '':
 			# needed because GUI stuff can't be called from a thread (and that's
@@ -306,9 +311,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.3  2003-11-11 06:55:32  sjtan
+# Revision 1.4  2003-11-15 11:49:50  sjtan
 #
-# with patient create.
+# extra fields table appended in gmclinical.sql.
+#
+# Revision 1.23  2003/11/13 08:15:25  ncq
+# - display allergies in top panel again
 #
 # Revision 1.22  2003/11/09 17:33:27  shilbert
 # - minor glitch

@@ -7,10 +7,10 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.13 2003-11-11 06:55:32 sjtan Exp $
+# $Id: gmClinicalRecord.py,v 1.14 2003-11-15 11:49:49 sjtan Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.13 2003-11-11 06:55:32 sjtan Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmClinicalRecord.py,v 1.14 2003-11-15 11:49:49 sjtan Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -218,6 +218,7 @@ class gmClinicalRecord:
 			return None
 		rows = curs.fetchall()
 		view_col_idx = gmPG.get_col_indices(curs)
+
 		# aggregate by src_table for item retrieval
 		items_by_table = {}
 		for item in rows:
@@ -226,6 +227,7 @@ class gmClinicalRecord:
 			if not items_by_table.has_key(src_table):
 				items_by_table[src_table] = {}
 			items_by_table[src_table][id_item] = item
+
 		# get mapping for issue/episode IDs
 		issue_map = self._get_health_issue_names()
 		if issue_map is None:
@@ -235,31 +237,32 @@ class gmClinicalRecord:
 			episode_map = {}
 		emr_data = {}
 		# get item data from all source tables
-		for table_name in items_by_table.keys():
-			item_ids = items_by_table[table_name].keys()
+		for src_table in items_by_table.keys():
+			item_ids = items_by_table[src_table].keys()
 			# we don't know anything about the columns of
 			# the source tables but, hey, this is a dump
 			if len(item_ids) == 0:
-				_log.Log(gmLog.lInfo, 'no items in table [%s] ?!?' % table_name)
+				_log.Log(gmLog.lInfo, 'no items in table [%s] ?!?' % src_table)
 				continue
 			elif len(item_ids) == 1:
-				cmd = "select * from %s where id=%%s order by modified_when" % table_name
+				cmd = "select * from %s where pk_item=%%s order by modified_when" % src_table
 				if not gmPG.run_query(curs, cmd, item_ids[0]):
-					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % table_name)
+					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			elif len(item_ids) > 1:
-				cmd = "select * from %s where id in %%s order by modified_when" % table_name
+				cmd = "select * from %s where pk_item in %%s order by modified_when" % src_table
 				if not gmPG.run_query(curs, cmd, item_ids):
-					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % table_name)
+					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			rows = curs.fetchall()
 			table_col_idx = gmPG.get_col_indices(curs)
 			# format per-table items
 			for row in rows:
-				id_item = row[table_col_idx['id']]
-				view_row = items_by_table[table_name][id_item]
+				# FIXME: make this get_pkey_name()
+				pk_item = row[table_col_idx['pk_item']]
+				view_row = items_by_table[src_table][pk_item]
 				age = view_row[view_col_idx['age']]
 				# format metadata
 				try:
@@ -297,7 +300,7 @@ class gmClinicalRecord:
 					emr_data[age].append(row[table_col_idx[col_name]])
 				emr_data[age].append(">>> %s from table %s <<<" % (
 					view_row[view_col_idx['modified_string']],
-					table_name
+					src_table
 				))
 		curs.close()
 		return emr_data
@@ -324,35 +327,34 @@ class gmClinicalRecord:
 		if remove_sensitivities:
 			col_idx = self.__db_cache['idx allergies']
 			for allergy in self.__db_cache['allergies']:
-				if allergy[col_idx['type']] == 'allergy':
+				if allergy[col_idx['id_type']] == 1:
 					data.append(allergy)
 		else:
 			data = self.__db_cache['allergies']
-
+		print "allergy data = ", data
+		print "allergy col_idx = " ,col_idx
 		return data
 	#--------------------------------------------------------
-	def _get_allergy_names(self):
+	def get_allergy_names(self, remove_sensitivities = None):
 		data = []
 		try:
 			self.__db_cache['allergies']
 		except KeyError:
-			if self._get_allergies() is None:
+			if self.get_allergies(remove_sensitivities) is None:
 				# remember: empty list will return false
 				# even though this is what we get with no allergies
-				_log.Log(gmLog.lErr, "Could not load allergies")
+				_log.Log(gmLog.lErr, "Cannot load allergies")
 				return []
+		idx = self.__db_cache['idx allergies']
 		for allergy in self.__db_cache['allergies']:
-			if allergy[15] == 2:
-				continue
 			tmp = {}
-			# FIXME: this should be accessible by col name, not position
-			tmp['id'] = allergy[0]
+			tmp['id'] = allergy[idx['id']]
 			# do we know the allergene ?
-			if allergy[10] not in [None, '']:
-				tmp['name'] = allergy[10]
+			if allergy[idx['allergene']] not in [None, '']:
+				tmp['name'] = allergy[idx['allergene']]
 			# no but the substance
 			else:
-				tmp['name'] = allergy[6]
+				tmp['name'] = allergy[idx['substance']]
 			data.append(tmp)
 		return data
 	#--------------------------------------------------------
@@ -943,7 +945,7 @@ class gmClinicalPart:
 #------------------------------------------------------------
 if __name__ == "__main__":
 	_ = lambda x:x
-	record = gmClinicalRecord(aPKey = 9)
+	record = gmClinicalRecord(aPKey = 3)
 	dump = record.get_text_dump()
 	if dump is not None:
 		keys = dump.keys()
@@ -956,9 +958,9 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.13  2003-11-11 06:55:32  sjtan
+# Revision 1.14  2003-11-15 11:49:49  sjtan
 #
-# with patient create.
+# extra fields table appended in gmclinical.sql.
 #
 # Revision 1.3  2003/10/25 16:13:26  sjtan
 #
@@ -971,6 +973,12 @@ if __name__ == "__main__":
 # clin_root_item schema stabilizes.
 #
 # Revision 1.1  2003/10/23 06:02:38  sjtan
+# Revision 1.43  2003/11/11 20:28:59  ncq
+# - get_allergy_names(), reimplemented
+#
+# Revision 1.42  2003/11/11 18:20:58  ncq
+# - fix get_text_dump() to actually do what it suggests
+#
 # Revision 1.41  2003/11/09 22:51:29  ncq
 # - don't close cursor prematurely in get_text_dump()
 #

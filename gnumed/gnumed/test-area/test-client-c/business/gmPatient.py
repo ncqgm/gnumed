@@ -7,10 +7,10 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.6 2003-11-11 06:55:32 sjtan Exp $
+# $Id: gmPatient.py,v 1.7 2003-11-15 11:49:49 sjtan Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.6 2003-11-11 06:55:32 sjtan Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPatient.py,v 1.7 2003-11-15 11:49:49 sjtan Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -160,6 +160,55 @@ class gmPerson:
 	_get_handler['clinical record'] = _get_clinical_record
 	_get_handler['API'] = _get_API
 	_get_handler['ID'] = getID
+
+	def create_default_relative(self, type = _('parent')):
+                newId = create_dummy_identity()
+                newPatient = gmPerson(newId)
+                new_demographics = newPatient.get_demographic_record()
+                old_demographics = self.get_demographic_record()
+                new_demographics.copyAddresses(old_demographics)
+                new_demographics.setActiveName( "?", old_demographics.getActiveName()['last'])
+		cmd = """
+	insert into 
+		lnk_person2relative 
+		
+			(id_identity, id_relative, id_relation_type) 
+	values	
+			(%s, %s, (select id from relation_types where description = %s) )
+"""
+		success = gmPG.run_commit ("personalia", [(cmd, (newId, self.getID() , type))])
+		if success:
+			return newId
+
+		return None
+	
+	def get_relative_list( self):
+		cmd = """
+		select  
+			v.id, t.description , v.firstnames, v.lastnames, v.gender, v.dob 
+		from 
+			v_basic_person v, relation_types t,  lnk_person2relative l 
+		where
+			l.id_identity = %s and v.id = l.id_relative and t.id = l.id_relation_type
+		"""
+		
+		data, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getID()	 )
+
+		return   [ { 'id': 		r[idx['id']], 
+			     'firstnames' : 	r[idx['firstnames']], 
+			     'lastnames': 	r[idx['lastnames']], 
+			     'gender': 		r[idx['gender']],
+			     'dob': 		r[idx['dob']] ,
+			     'description': 		r[idx['description']] 
+			   }
+			for r in data ]
+				
+		
+
+
+ 
+		
+
 #============================================================
 from gmBorg import cBorg
 
@@ -232,6 +281,9 @@ class gmCurrentPatient(cBorg):
 
 	def get_demographic_record(self):
 		return self.patient.get_demographic_record()
+
+	def get_relative_list(self):
+		return self.patient.get_relative_list()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
@@ -307,6 +359,11 @@ def create_dummy_identity():
 	[id] = cursor.fetchone()
 	pool.ReleaseConnection( 'personalia')
 	return  id
+
+#============================================================
+
+
+
 #============================================================
 # main/testing
 #============================================================
@@ -337,9 +394,9 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.6  2003-11-11 06:55:32  sjtan
+# Revision 1.7  2003-11-15 11:49:49  sjtan
 #
-# with patient create.
+# extra fields table appended in gmclinical.sql.
 #
 # Revision 1.6  2003/11/09 16:39:34  ncq
 # - get handler now 'demographic record', not 'demographics'

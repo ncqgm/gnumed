@@ -13,10 +13,11 @@ class gmEditAreaFacade:
 	def __init__(self, backend, patient):
 		self._backend = backend
 		self.patient = patient
-		self.ddl()
+		#self.ddl()
 
 
 	def ddl(self):
+		"""DEPRECATED"""
 		pass
 		self.table = None
 		__ddl_executed = 1
@@ -155,10 +156,10 @@ class gmPHxEditAreaDecorator(gmEditAreaFacade):
 	def __init__(self, pastHistory):
 		self.impl = pastHistory
 		gmEditAreaFacade.__init__(self, self.impl._backend, self.impl.patient)
+		self.table = "clin_history_editarea"
 
 	def ddl(self):
-
-		self.table = "clin_history_editarea"
+		"""THIS METHOD IS DEPRECATED AND NO LONGER USED. KEPT to show the link to extra table"""
 		if gmPHxEditAreaDecorator.__ddl_executed:
 			return
 		

@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.2 2003-11-11 06:55:32 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmDemographicRecord.py,v 1.3 2003-11-15 11:49:49 sjtan Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -223,19 +223,7 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 	def getDOBTimeTuple(self):
 		"""the mx.DateTime object from fetchall doesn't convert (? no time component) using package time, so get a time tuple to use"""
 		dob = self.getDOB()
-		list = [0,0,0,   0, 0, 0,   0, 0, 0]
-		try:
-			i = 0
-			l = str(dob).split(' ')[0].split('-')
-			for x in l:
-				list[i] = int(x)
-				i += 1
-		except:
-			print "Failed to parse dob"
-			_log.LogException("Failed to parse DOB", sys.exc_info(), verbose = 1)
-		
-		return list
-		
+		return get_time_tuple(dob)
 		
 
 	#--------------------------------------------------------
@@ -312,19 +300,27 @@ where
 		cmd = "delete from lnk_person2address where id_identity = %s and id_address = %s"
 		return gmPG.run_commit ('personalia', [(cmd, [self.ID, ID])])
 	#--------------------------------------------------------
-
-
-
+	def copyAddresses(self,  demographic_record):
+		types = getAddressTypes()
+		for type in types:
+			addresses = demographic_record.getAddress(type)
+			if addresses == None:
+				continue
+			for addr in addresses:
+				self.linkNewAddress( type, addr['number'], addr['street'], addr['urb'], addr['postcode'] )
 
 	#-------------------------------------------------------------------------------------------
 
 	def linkNewAddress (self, type, number, street, urb, postcode, state = None, country = None):
 		"""Adds a new address into this persons list of addresses.
 		"""
+
+		# address already in database ?
+
+		
 		if state == None:
 			state, country = self.__guess_state_country(urb, postcode)
 		
-		# address already in database ?
 		cmd = """
 select addr_id
 from v_basic_address
@@ -474,6 +470,7 @@ class StreetMP (gmMatchProvider.cMatchProvider_SQL):
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
 
+#------------------------------------------------------------
 
 class UrbMP (gmMatchProvider.cMatchProvider_SQL):
 	"""Returns a list of streets
@@ -490,6 +487,25 @@ class UrbMP (gmMatchProvider.cMatchProvider_SQL):
 			,'service' : 'demographica'
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
+		
+#------------------------------------------------------------
+def get_time_tuple( faultyMxDateObject):
+		list = [0,0,0,   0, 0, 0,   0, 0, 0]
+		try:
+			i = 0
+			l = str(faultyMxDateObject).split(' ')[0].split('-')
+			for x in l:
+				list[i] = int(x)
+				i += 1
+		except:
+			print "Failed to parse dob"
+			_log.LogException("Failed to parse DOB", sys.exc_info(), verbose = 1)
+		
+		return list
+		
+
+
+
 		
 #============================================================
 # callbacks
@@ -522,9 +538,9 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.2  2003-11-11 06:55:32  sjtan
+# Revision 1.3  2003-11-15 11:49:49  sjtan
 #
-# with patient create.
+# extra fields table appended in gmclinical.sql.
 #
 # Revision 1.2  2003/11/04 10:35:22  ihaywood
 # match providers in gmDemographicRecord
