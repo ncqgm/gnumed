@@ -666,6 +666,7 @@ if __name__ == '__main__':
 #  File "/usr/lib/python2.2/site-packages/pgdb.py", line 149, in getdescr
 #    self.__source.execute(
 #_pg.error: ERROR:  column "typprtlen" does not exist
+#                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # you need to patch $PYTHONPATH/pgdb.py like this:
 #
