@@ -39,7 +39,7 @@ class PickList (wxListBox):
 
     def Enter (self, event=None):
         n = self.GetSelection ()
-        self.callback (self.GetClientData (n), self.GetString (n))
+        self.callback (self.GetString (n), self.GetClientData (n))
 
     def Destroy (self):
         self.alive = 0
@@ -51,14 +51,15 @@ class ResizingWindow (wxScrolledWindow):
     and adjusts accordingly
     """
     
-    def __init__ (self, parent, id, size = wxDefaultSize):
-        wxScrolledWindow.__init__ (self, parent, id, size = size, style =wxVSCROLL)
+    def __init__ (self, parent, id, pos = wxDefaultPosition, size = wxDefaultSize):
+        wxScrolledWindow.__init__ (self, parent, id, pos = pos, size = size, style =wxVSCROLL)
         self.lines = [[]]
         self.SetScrollRate (0, 20) # suppresses X scrolling by setting X rate to zero
         self.prev = None
         self.next = None
         self.__matcher = None
         self.list = None
+        self.popup = None
 
     def AddWidget (self, widget, label=None):
         """
@@ -200,7 +201,7 @@ class ResizingWindow (wxScrolledWindow):
             y = h-lh
         else:
             y += ch
-        lw = int (lh / 1.6180339887) # golden section
+        lw = int (lh / 1.4)
         if lw > w:
             lw = w
             x = 0
@@ -208,9 +209,34 @@ class ResizingWindow (wxScrolledWindow):
             x = w-lw
         self.list = PickList (self, wxPoint (x, y), wxSize (lw, lh), callback)
         return self.list
-        
-                
-                    
+
+
+    def DestroyPopup (self):
+        if self.popup:
+            self.popup.Destroy ()
+            self.popup = None
+
+    def PlacePopup (self, window):
+        """
+        Accepts any window whose parent is this window, and
+        sizes and positions at appropriately
+        """
+        x, y = self.GetSizeTuple ()
+        x = x/4
+        width = x*3
+        y = y/3
+        height = y*2
+        window.SetDimensions (x, y, width, height)
+        self.popup = window
+
+    def PlaceFixedPopup (self, window):
+        """
+        Places a  popup window, preserves the window's size
+        """
+        x,y = self.GetSizeTuple ()
+        w,h = window.GetSizeTuple ()
+        window.MoveXY (x-w, y-h)
+        self.popup = None
 
 class ResizingSTC (wxStyledTextCtrl):
     """
@@ -238,6 +264,7 @@ class ResizingSTC (wxStyledTextCtrl):
         self.__embed = {}
         self.list = 0
         self.no_list = 0
+        self.__matcher = None
 
     def SetText (self, text):
         self.__no_list = 1
@@ -246,6 +273,7 @@ class ResizingSTC (wxStyledTextCtrl):
         
     def __OnChange (self, event):
         event.Skip ()
+        self.parent.DestroyPopup ()
         length = self.GetLength ()
         height = self.PointFromPosition (length).y - self.PointFromPosition (0).y + self.TextHeight (0)
         x, y = self.GetSizeTuple ()
@@ -279,22 +307,26 @@ class ResizingSTC (wxStyledTextCtrl):
                     self.list.Destroy ()
 
 
-    def __userlist (self, data, text):
+    def __userlist (self, text, data=None):
         self.list.Destroy ()
         if callable (data):
-            data (text)
+            data (text, self.parent, self)
         else:
-            self.no_list = 1
-            self.SetTargetEnd (self.end)
-            self.SetTargetStart (self.start)
-            self.ReplaceTarget (text + ';')
-            self.StartStyling (self.start, 0xFF)
-            self.SetStyling (len (text), STYLE_EMBED)
+            self.Embed (text, data)
+
+    def Embed (self, text, data=None):
+        self.no_list = 1
+        self.SetTargetEnd (self.end)
+        self.SetTargetStart (self.start)
+        self.ReplaceTarget (text + ';')
+        self.StartStyling (self.start, 0xFF)
+        self.SetStyling (len (text)+1, STYLE_EMBED)
+        if data:
             self.__embed[text] = data
-            self.SetCurrentPos (self.start + len (text) + 1)
-            self.SetTargetEnd (0)
-            self.SetTargetStart (0)
-            self.no_list = 0
+        self.SetCurrentPos (self.start + len (text) + 1)
+        self.SetTargetEnd (0)
+        self.SetTargetStart (0)
+        self.no_list = 0
 
     def __OnKeyDown (self, event):
         if self.list and not self.list.alive:
@@ -307,11 +339,28 @@ class ResizingSTC (wxStyledTextCtrl):
             else:
                 if self.next:
                     self.next.SetFocus ()
+        elif event.KeyCode () == ord (';'):
+            if self.GetLength () == 0:
+                wxBell ()
+            elif self.GetCharAt (pos and pos-1) == ord (';'):
+                wxBell ()
+            else:
+                event.Skip ()
+        elif event.KeyCode () == WXK_DELETE:
+            if self.GetStyleAt (pos) == STYLE_EMBED:
+                self.DelPhrase (pos)
+            else:
+                event.Skip ()
+        elif event.KeyCode () == WXK_BACK:
+            if self.GetStyleAt (pos and pos-1) == STYLE_EMBED:
+                self.DelPhrase (pos and pos-1)
+            else:
+                event.Skip ()
         elif event.KeyCode () == WXK_RETURN and not event.m_shiftDown:
             if self.list and self.list.alive:
                 self.list.Enter ()
             elif pos == self.GetLength ():
-                if self.GetTextRange (pos-1, pos) == ';':
+                if self.GetCharAt (pos and pos-1) == ord (';'):
                     if self.next:
                         self.next.SetFocus ()
                 else:
@@ -326,6 +375,18 @@ class ResizingSTC (wxStyledTextCtrl):
             self.list.Down ()
         else:
             event.Skip ()
+
+    def DelPhrase (self, pos):
+        end = pos+1
+        while end < self.GetLength () and self.GetCharAt (end) != ord(';'):
+            end += 1
+        start = pos
+        while start > 0 and self.GetCharAt (start and start-1) != ord (';'):
+            start -= 1
+        self.SetTargetStart (start)
+        self.SetTargetEnd (end)
+        self.ReplaceTarget ('')
+        
 
     def __OnKeyUp (self, event):
         if not self.list:
@@ -347,17 +408,42 @@ if __name__ == '__main__':
 
     from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 
+    class RecallWindow (wxWindow):
+        def __init__ (self, parent, id):
+            wxWindow.__init__ (self, parent, id)
+            self.type = wxTextCtrl (self, -1)
+            self.date = wxTextCtrl (self, -1)
+            self.notes = wxTextCtrl (self, -1)
+            szr = wxFlexGridSizer (3, 2)
+            szr.Add (wxStaticText (self, -1, 'Type'), 1)
+            szr.Add (self.type, 1)
+            szr.Add (wxStaticText (self, -1, 'Date'), 1)
+            szr.Add (self.date, 1)
+            szr.Add (wxStaticText (self, -1, 'Notes'), 1)
+            szr.Add (self.notes, 1)
+            szr.AddGrowableCol (1)
+            #szr.AddGrowableRow (2)
+            self.SetSizer (szr)
+            szr.Fit (self)
+
+    def Recall (text, parent, caller):
+        recall = RecallWindow (parent, -1)
+        parent.PlacePopup (recall)
+        recall.Layout ()
+        recall.Show ()
+
     AOElist = [{'label':'otitis media', 'data':1, 'weight':1}, {'label':'otitis externa', 'data':2, 'weight':1},
                 {'label':'cellulitis', 'data':3, 'weight':1}, {'label':'gingvitis', 'data':4, 'weight':1},
                 {'label':'ganglion', 'data':5, 'weight':1}]
 
     Subjlist = [{'label':'earache', 'data':1, 'weight':1}, {'label':'earache', 'data':1, 'weight':1},
-               {'label':'ear discahrge', 'data':2, 'weight':1}, {'label':'eardrum bulging', 'data':3, 'weight':1},
+               {'label':'ear discharge', 'data':2, 'weight':1}, {'label':'eardrum bulging', 'data':3, 'weight':1},
                {'label':'sore arm', 'data':4, 'weight':1}, {'label':'sore tooth', 'data':5, 'weight':1}]
 
     Planlist = [{'label':'pencillin V', 'data':1, 'weight':1}, {'label':'penicillin X', 'data':2, 'weight':1},
                 {'label':'penicillinamine', 'data':3, 'weight':1}, {'label':'penthrane', 'data':4, 'weight':1},
-                {'label':'penthidine', 'data':5, 'weight':1}]
+                {'label':'penthidine', 'data':5, 'weight':1},
+                {'label':'recall', 'data':Recall, 'weight':1}]
 
     
     class testFrame(wxFrame):
