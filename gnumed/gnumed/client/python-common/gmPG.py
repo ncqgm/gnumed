@@ -30,12 +30,14 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
 import string, copy, os, sys, select, threading
-import gmI18N
+#gnumed specific modules
+import gmI18N, gmLog, gmLoginInfo, gmExceptions
+_log = gmLog.gmDefLog
 
 #3rd party dependencies
 # first, do we have the preferred postgres-python library available ?
@@ -60,24 +62,16 @@ except ImportError:
 		except ImportError:
 			print "Apparently there is no database adapter available! Program halted"
 			sys.exit(-1)
-		
-
-
-
-# nope
-
 
 # FIXME: DBMS should eventually be configurable
 __backend = 'Postgres'
+
+_log.Log(gmLog.lInfo, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
+
 # check whether this adapter module suits our needs
 assert(float(dbapi.apilevel) >= 2.0)
 assert(dbapi.threadsafety > 0)
 assert(dbapi.paramstyle == 'pyformat')
-
-#gnumed specific modules
-import gmLoginInfo, gmLog, gmExceptions
-
-__log__ = gmLog.gmDefLog
 #======================================================================
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
@@ -258,10 +252,10 @@ class ConnectionPool:
 				print login.GetDBAPI_DSN()
 			except:
 				exc = sys.exc_info()
-				__log__.LogException("Exception: Cannot connect to databases without login information !", exc)
+				_log.LogException("Exception: Cannot connect to databases without login information !", exc)
 				raise gmExceptions.ConnectionError("Can't connect to database without login information!")
 
-		__log__.Log(gmLog.lData,login.GetInfoStr())
+		_log.Log(gmLog.lData,login.GetInfoStr())
 		ConnectionPool.__login = login
 
 		#first, connect to the configuration server
@@ -269,7 +263,7 @@ class ConnectionPool:
 			cdb = self.__pgconnect(login)
 		except:
 			exc = sys.exc_info()
-			__log__.LogException("Exception: Cannot connect to configuration database !", exc)
+			_log.LogException("Exception: Cannot connect to configuration database !", exc)
 			raise gmExceptions.ConnectionError("Could not connect to configuration database  backend!")
 
 		ConnectionPool.__connected = 1
@@ -333,7 +327,7 @@ class ConnectionPool:
 			return db
 		except:
 			exc = sys.exc_info()
-			__log__.LogException("Exception: Connection to database failed. DSN was [%s]" % dsn, exc)
+			_log.LogException("Exception: Connection to database failed. DSN was [%s]" % dsn, exc)
 			raise gmExceptions.ConnectionError, _("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport)
 	
 	#-----------------------------
@@ -531,13 +525,10 @@ def inputLoginParams():
 #==================================================================
 # Main
 #==================================================================
-
-__log__.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
-
 if __name__ == "__main__":
 
-	__log__.SetAllLogLevels(gmLog.lData)
-	__log__.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
+	_log.SetAllLogLevels(gmLog.lData)
+	_log.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 	_ = lambda x:x
 
 	dbpool = ConnectionPool()
@@ -577,9 +568,6 @@ if __name__ == "__main__":
 	print d
 	print "\nResult attributes\n==================\n"
 	n = fieldNames(cursor)
-	
+
 	print "Requesting write access connection:"
 	con = dbpool.GetConnection('config', readonly=0)
-	
-	__log__.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
-
