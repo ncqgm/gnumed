@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.174 2004-10-01 11:49:59 ncq Exp $
-__version__ = "$Revision: 1.174 $"
+# $Id: gmGuiMain.py,v 1.175 2004-10-01 13:17:35 ncq Exp $
+__version__ = "$Revision: 1.175 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -591,7 +591,11 @@ class gmApp(wxApp):
 		self.__setup_platform()
 
 		# check for slave mode
-		self.__guibroker['main.slave_mode'] = _cfg.get('workplace', 'slave mode')
+		tmp = _cfg.get('workplace', 'slave mode')
+		if tmp == 1:
+			self.__guibroker['main.slave_mode'] = True
+		else:
+			self.__guibroker['main.slave_mode'] = False
 		if self.__guibroker['main.slave_mode']:
 			self.__guibroker['main.slave_personality'] = _cfg.get('workplace', 'slave personality')
 			if not self.__guibroker['main.slave_personality']:
@@ -793,7 +797,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.174  2004-10-01 11:49:59  ncq
+# Revision 1.175  2004-10-01 13:17:35  ncq
+# - eventually do what was intended on slave_mode != 1
+#
+# Revision 1.174  2004/10/01 11:49:59  ncq
 # - improve message on unset database language
 #
 # Revision 1.173  2004/09/13 09:36:43  ncq
