@@ -559,8 +559,10 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	 * @param v
 	 * @param summary
 	 */
-	private void saveMedication(Connection conn, EntryMedication v, HealthSummary01 summary) {
+	private void saveMedication(Connection conn, EntryMedication med, HealthSummary01 summary)
+throws SQLException, DataSourceException {
 		// TODO Auto-generated method stub
+		
 		String s9 = "insert into clin_medication(pk_item, " +
 				"brandname, atc_code, " +
 				"db_origin, db_drug_id," +
@@ -573,6 +575,10 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 					" ? , ? , ? , ? , ?" +
 					", ? , ? , ? , ? , ?" +
 					" , ? , ? , ? , ? , ?)";
+		PreparedStatement stmt = conn.prepareStatement(s9);
+		setClinRootItemStatement(stmt, med, 15); 
+		
+		
 	}
 
 	/** gets the next id from the sequence named */
