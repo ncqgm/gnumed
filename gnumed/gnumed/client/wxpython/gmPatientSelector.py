@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.10 2003-04-04 20:46:45 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmPatientSelector.py,v 1.11 2003-04-04 23:54:30 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -444,8 +444,8 @@ class cPatientPickList(wxDialog):
 		self,
 		parent,
 		id = -1,
-		pos = wxPyDefaultPosition,
-		size = wxPyDefaultSize,
+		pos = (-1, -1),
+		size = (-1, -1),
 	):
 		wxDialog.__init__(
 			self,
@@ -454,7 +454,7 @@ class cPatientPickList(wxDialog):
 			_('please select a patient'),
 			pos,
 			size,
-			style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER
+			style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxSTAY_ON_TOP
 		)
 
 		self._do_layout()
@@ -587,7 +587,7 @@ class cPatientPickList(wxDialog):
 #============================================================
 class cPatientSelector(wxTextCtrl):
 	"""Widget for smart search for patients."""
-	def __init__ (self, parent, id = -1, pos = wxDefaultPosition, size = wxPyDefaultSize):
+	def __init__ (self, parent, id = -1, pos = (-1, -1), size = (-1, -1)):
 		self.curr_pat = gmTmpPatient.gmCurrentPatient()
 
 		# need to explicitely process ENTER events to avoid
@@ -759,7 +759,7 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 				if self.prev_pats == []:
 					return true
 				# show list
-				dlg = cPatientPickList(parent = self)
+				dlg = cPatientPickList(parent = NULL)
 				dlg.SetItems(self.prev_pats, self.prev_col_order)
 				result = dlg.ShowModal()
 				dlg.Destroy()
@@ -834,7 +834,7 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 			curs.close()
 
 			# and let user select from pick list
-			dlg = cPatientPickList(parent = self)
+			dlg = cPatientPickList(parent = NULL)
 			dlg.SetItems(pat_list, self.prev_col_order)
 			result = dlg.ShowModal()
 			dlg.Destroy()
@@ -966,7 +966,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.10  2003-04-04 20:46:45  ncq
+# Revision 1.11  2003-04-04 23:54:30  ncq
+# - tweaked some parent and style settings here and there, but still
+#   not where we want to be with the pick list ...
+#
+# Revision 1.10  2003/04/04 20:46:45  ncq
 # - adapt to new gmCurrentPatient()
 # - add (ugly) tooltip
 # - break out helper _display_name()
