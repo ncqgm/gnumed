@@ -1,7 +1,7 @@
 """Automatic GnuMed audit trail generation.
 
-This module creates SQL DDL commands for the "audit trail" tables,
-triggers and functions.
+This module creates SQL DDL commands for the audit
+trail triggers and functions.
 
 Theory of operation:
 
@@ -10,13 +10,16 @@ logged) must be marked as such by inheriting from a given
 parent table.
 
 This script finds all descendants of that parent table and
-creates the tables, triggers and functions neccessary to
-establish the audit trail. The backup audit tables will
-not have any constraints.
+creates the triggers and functions neccessary to establish
+the audit trail. The audit trail tables must have been
+created previously but need not contain all columns of the
+audited table. Do not put any constraints on the audit
+trail tables except for "not null" on those columns that
+cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -178,8 +181,10 @@ def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', aud
 	schema = []
 
 	# insert
-	func_name_insert = 'f_ins_%s' % (audited_table)
-	trigger_name_insert = 't_ins_%s' % (audited_table)
+	#  audit triggers are named "zzt_*" to make
+	#  reasonably sure they are executed last
+	func_name_insert = 'ft_ins_%s' % (audited_table)
+	trigger_name_insert = 'zzt_ins_%s' % (audited_table)
 
 	schema.append(drop_function % func_name_insert)
 	schema.append(template_insert_function % (func_name_insert))
@@ -190,8 +195,8 @@ def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', aud
 	schema.append('')
 
 	# update
-	func_name_update = 'f_upd_%s' % (audited_table)
-	trigger_name_update = 't_upd_%s' % (audited_table)
+	func_name_update = 'ft_upd_%s' % (audited_table)
+	trigger_name_update = 'zzt_upd_%s' % (audited_table)
 
 	schema.append(drop_function % func_name_update)
 	schema.append(template_update_function % (func_name_update, audit_trail_table, columns_clause, values_clause))
@@ -202,8 +207,8 @@ def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', aud
 	schema.append('')
 
 	# delete
-	func_name_delete = 'f_del_%s' % (audited_table)
-	trigger_name_delete = 't_del_%s' % (audited_table)
+	func_name_delete = 'ft_del_%s' % (audited_table)
+	trigger_name_delete = 'zzt_del_%s' % (audited_table)
 
 	schema.append(drop_function % func_name_delete)
 	schema.append(template_delete_function % (func_name_delete, audit_trail_table, columns_clause, values_clause))
@@ -258,7 +263,12 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.4  2003-05-14 22:03:28  ncq
+# Revision 1.5  2003-05-15 10:18:32  ncq
+# - name triggers "zzt_*" so they are executed last
+# - name trigger function "ft_*"
+# - better __doc__
+#
+# Revision 1.4  2003/05/14 22:03:28  ncq
 # - better names for template definitions and lots of other items
 # - attributes -> columns
 # - check whether target table exists, fail if not
