@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -52,10 +52,7 @@ class cHealthIssue(gmClinItem.cClinItem):
 class cEpisode(gmClinItem.cClinItem):
 	"""Represents one clinical episode.
 	"""
-	_cmd_fetch_payload = """
-		select * from v_pat_episodes
-		where id_episode=%s
-		"""
+	_cmd_fetch_payload = """select * from v_pat_episodes where id_episode=%s"""
 	_cmds_store_payload = [
 		"""select 1 from clin_episode where id=%(id)s for update""",
 		"""update clin_episode set
@@ -306,7 +303,10 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.14  2004-06-02 13:45:19  sjtan
+# Revision 1.15  2004-06-02 22:12:48  ncq
+# - cleanup
+#
+# Revision 1.14  2004/06/02 13:45:19  sjtan
 #
 # episode->description for update statement as well.
 #
