@@ -30,11 +30,14 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/setup-users.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 import sys, string, os.path
+
+# location of our modules
+sys.path.append(os.path.join('.', 'modules'))
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -395,7 +398,10 @@ else:
 	print "Please rewrite this as a plugin for GnuMed !"
 #==================================================================
 # $Log: setup-users.py,v $
-# Revision 1.7  2002-10-20 15:29:14  ncq
+# Revision 1.8  2002-10-29 22:55:55  ncq
+# - changed to importing from a symlink "modules" which points to client/python-common/
+#
+# Revision 1.7  2002/10/20 15:29:14  ncq
 # - now has support for site-specific configuration in a separate file
 # - remembers passwords from "usr" to "_usr"
 #
