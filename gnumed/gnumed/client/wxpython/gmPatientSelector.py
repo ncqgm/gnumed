@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.20 2003-10-26 17:42:51 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmPatientSelector.py,v 1.21 2003-11-04 00:22:46 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -23,7 +23,7 @@ import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-import gmPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK, gmDemographics
+import gmPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK
 
 from wxPython.wx import *
 
@@ -990,7 +990,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.20  2003-10-26 17:42:51  ncq
+# Revision 1.21  2003-11-04 00:22:46  ncq
+# - remove unneeded import
+#
+# Revision 1.20  2003/10/26 17:42:51  ncq
 # - cleanup
 #
 # Revision 1.19  2003/10/26 11:27:10  ihaywood
