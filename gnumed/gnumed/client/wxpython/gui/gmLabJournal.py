@@ -38,8 +38,10 @@ _whoami = gmWhoAmI.cWhoAmI()
 	wxID_LBOX_pending_results,
 	wxID_PHRWH_labs,
 	wxID_TXTCTRL_ids,
-	wxID_BTN_save_request_ID
-] = map(lambda _init_ctrls: wxNewId(), range(6))
+	wxID_BTN_save_request_ID,
+	wxID_BTN_select_all,
+	wxID_BTN_mark_reviewed
+] = map(lambda _init_ctrls: wxNewId(), range(8))
 
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, parent):
@@ -236,6 +238,7 @@ class cLabJournalNB(wxNotebook):
 		vbszr = wxBoxSizer( wxVERTICAL )
 		tID = wxNewId()
 		
+		# set up review list
 		self.review_Ctrl = gmLabIDListCtrl(
 			self.PNL_review_tab,
 			tID,
@@ -243,13 +246,15 @@ class cLabJournalNB(wxNotebook):
 			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
 		)
 		
+		vbszr.AddWindow(self.review_Ctrl, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+
 		# image list for panel
 		self.il = wxImageList(16, 16)
 		self.idx1 = self.il.Add(imagestest.getSmilesBitmap())
+		self.sm_up = self.il.Add(imagestest.getSmallUpArrowBitmap())
 		self.review_Ctrl.SetImageList(self.il, wxIMAGE_LIST_SMALL)
-
-		vbszr.AddWindow(self.review_Ctrl, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
-
+		
+		# layout review list 
 		self.review_Ctrl.InsertColumn(0, _(" "))
 		self.review_Ctrl.InsertColumn(1, _("patient name"))
 		self.review_Ctrl.InsertColumn(2, _("dob"))
@@ -258,6 +263,32 @@ class cLabJournalNB(wxNotebook):
 		self.review_Ctrl.InsertColumn(5, _("result"))
 		self.review_Ctrl.InsertColumn(6, _("range"))
 		self.review_Ctrl.InsertColumn(7, _("info provided by lab"))
+		
+		szr_buttons = wxBoxSizer(wxHORIZONTAL)
+		
+		# -- "select all requests" button -----------
+		self.BTN_select_all = wxButton(
+			name = 'BTN_select_all',
+			parent = self.PNL_review_tab,
+			id = wxID_BTN_select_all,
+			label = _("select all requests")
+		)
+		self.BTN_select_all.SetToolTipString(_('select all requests'))
+		EVT_BUTTON(self.BTN_select_all, wxID_BTN_select_all, self.on_select_all)
+		szr_buttons.Add(self.BTN_select_all, 0, wxALIGN_CENTER_VERTICAL, 1)
+
+		# -- "mark selected as reviewed" button -----------
+		self.BTN_mark_reviewed = wxButton(
+			name = 'BTN_mark_reviewed',
+			parent = self.PNL_review_tab,
+			id = wxID_BTN_mark_reviewed,
+			label = _("mark selected requests as reviewed")
+		)
+		self.BTN_mark_reviewed.SetToolTipString(_('mark selected requests as reviewed'))
+		EVT_BUTTON(self.BTN_mark_reviewed, wxID_BTN_mark_reviewed, self.on_mark_reviewed)
+		szr_buttons.Add(self.BTN_mark_reviewed, 0, wxALIGN_CENTER_VERTICAL, 1)
+		
+		vbszr.AddWindow(szr_buttons, 0, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 		
 		return vbszr
 	#------------------------------------------------------------------------
@@ -430,6 +461,13 @@ class cLabJournalNB(wxNotebook):
 			)
 			return None
 		self.__populate_notebook()
+		
+	#------------------------------------------------
+	def on_select_all(self, event):
+		evt.Skip()
+	#------------------------------------------------
+	def on_mark_reviewed(self, event):
+		evt.Skip()
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
 		#pass
@@ -682,7 +720,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.15  2004-05-26 11:07:04  shilbert
+# Revision 1.16  2004-05-26 13:31:00  shilbert
+# - cleanup, gui enhancements
+#
+# Revision 1.15  2004/05/26 11:07:04  shilbert
 # - gui layout changes
 #
 # Revision 1.14  2004/05/25 13:26:49  ncq
