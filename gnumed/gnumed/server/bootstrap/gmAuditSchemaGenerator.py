@@ -19,7 +19,7 @@ cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -39,8 +39,6 @@ import gmPG
 audit_trail_table_prefix = 'log_'
 # and inherit from this table
 audit_trail_parent_table = 'audit_trail'
-# while the audited tables are marked by inheriting from this
-audit_marker_table = 'audit_mark'
 # and also this for the fields used in auditing
 audit_fields_table = 'audit_fields'
 
@@ -87,17 +85,6 @@ WHERE
 		AND
 	pga.attrelid = pgc.oid
 ORDER BY pga.attnum"""
-
-query_pkey_name = """SELECT
-	pga.attname
-FROM
-	(pg_attribute pga inner join pg_index pgi on (pga.attrelid=pgi.indrelid))
-WHERE
-	pga.attnum=pgi.indkey[0]
-		and
-	pgi.indisprimary is true
-		and
-	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = %s)"""
 
 #==================================================================
 # SQL statements for auditing setup script
@@ -215,8 +202,7 @@ def audit_trail_table_schema(aCursor, table2audit):
 	_log.Log(gmLog.lInfo, 'trying to auto-create audit trail table [%s]' % audit_trail_table)
 	# audit those columns
 	audited_col_defs = get_col_defs(aCursor, table2audit)
-	cols2skip = get_columns(aCursor, audit_marker_table)
-	cols2skip.extend(get_columns(aCursor, audit_fields_table))
+	cols2skip = get_columns(aCursor, audit_fields_table)
 	attribute_list = []
 	for col in audited_col_defs[0]:
 		if col in cols2skip:
@@ -287,35 +273,44 @@ def trigger_schema(aCursor, audited_table):
 #------------------------------------------------------------------
 def create_audit_schema(aCursor):
 	# get list of all derived tables
-	tables2audit = get_children(aCursor, audit_marker_table)
-	if tables2audit is None:
+#	tables2audit = get_children(aCursor, audit_marker_table)
+	cmd = "select table_name from audited_tables";
+	if gmPG.run_query(aCursor, cmd) is None:
 		return None
+	rows = aCursor.fetchall()
+	if len(rows) is None:
+		_log.Log(gmLog.lInfo, 'no tables to audit')
+		return None
+	tables2audit = []
+	for row in rows:
+		tables2audit.extend(row)
+	_log.Log(gmLog.lData, tables2audit)
 	# for each derived table
 	schema = []
 	for audited_table in tables2audit:
 		# fail if corresponding audit trail table does not exist
-		audit_trail_schema = audit_trail_table_schema(aCursor, audited_table[0])
+		audit_trail_schema = audit_trail_table_schema(aCursor, audited_table)
 		if audit_trail_schema is None:
-			_log.Log(gmLog.lErr, 'cannot verify audit trail table existance on audited table [%s]' % audited_table[0])
+			_log.Log(gmLog.lErr, 'cannot verify audit trail table existance on audited table [%s]' % audited_table)
 			return None
 		schema.extend(audit_trail_schema)
 		if len(audit_trail_schema) != 0:
 			schema.append('-- ----------------------------------------------')
 		# create corresponding triggers
-		schema.extend(trigger_schema(aCursor, audited_table[0]))
+		schema.extend(trigger_schema(aCursor, audited_table))
 		schema.append('-- ----------------------------------------------')
 	return schema
 #==================================================================
 # main
 #------------------------------------------------------------------
 if __name__ == "__main__" :
-	tmp = ''
-	try:
-		tmp = raw_input("audit marker table [%s]: " % audit_marker_table)
-	except KeyboardError:
-		pass
-	if tmp != '':
-		audit_marker_table = tmp
+#	tmp = ''
+#	try:
+#		tmp = raw_input("audit marker table [%s]: " % audit_marker_table)
+#	except KeyboardError:
+#		pass
+#	if tmp != '':
+#		audit_marker_table = tmp
 
 	tmp = ''
 	try:
@@ -345,7 +340,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.15  2003-08-17 00:09:37  ncq
+# Revision 1.16  2003-10-01 15:43:45  ncq
+# - use table audited_tables now instead of inheriting from audit_mark
+#
+# Revision 1.15  2003/08/17 00:09:37  ncq
 # - add auto-generation of missing audit trail tables
 # - use that
 #
