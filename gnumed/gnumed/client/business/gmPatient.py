@@ -1,4 +1,4 @@
-# -*- encoding: latin-1 -*-
+# -*- coding: latin-1 -*-
 """GnuMed patient objects.
 
 This is a patient object intended to let a useful client-side
@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.49 2004-07-21 07:53:12 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmPatient.py,v 1.50 2004-08-18 08:13:51 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -921,7 +921,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.49  2004-07-21 07:53:12  ncq
+# Revision 1.50  2004-08-18 08:13:51  ncq
+# - fixed encoding special comment
+#
+# Revision 1.49  2004/07/21 07:53:12  ncq
 # - some cleanup in set_active_patient
 #
 # Revision 1.48  2004/07/20 10:09:44  ncq
