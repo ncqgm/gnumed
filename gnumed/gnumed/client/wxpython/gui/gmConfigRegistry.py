@@ -1,8 +1,12 @@
-#!/usr/bin/env python
-"""
-@license: GPL
-"""
-__version__ = ""
+"""GnuMed configuration editor.
+
+Works quite similar to the Windows Registry editor (but is
+a clean-room implementation).
+
+@license: GPL"""
+#================================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
+__version__ = "$Revision: 1.17 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -13,9 +17,7 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmI18N
 
-from Gnumed.pycommon import gmCfg, gmWhoAmI
-# FIXME: change code to "gmConfigCommon.*"
-from Gnumed.pycommon import gmConfigCommon
+from Gnumed.pycommon import gmCfg, gmWhoAmI, gmConfigCommon
 from Gnumed.wxpython import gmPlugin, gmGuiHelpers
 
 from wxPython.wx import *
@@ -531,7 +533,11 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.16  2004-03-12 18:33:02  hinnef
+# Revision 1.17  2004-03-12 22:30:12  ncq
+# - Hilmar, thanks :-)
+# - also some cleanup (hehe, you guessed it)
+#
+# Revision 1.16  2004/03/12 18:33:02  hinnef
 #  - fixed module import
 #
 # Revision 1.15  2004/03/09 08:59:35  ncq
