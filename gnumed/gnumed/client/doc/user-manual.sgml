@@ -298,6 +298,7 @@ the web. Here is a
 	  <title>Creating a database with PostgresQL</title>
 	  <para>This may be too simplistic but there a few things that need to be cleared up. The first is that when <emphasis>postgresQL</emphasis> gets installed, <emphasis>postgresQL</emphasis> will create a user called <emphasis>postgres</emphasis>. This user <emphasis>postgres</emphasis> can only create other users.  I suggest you create another user with the same name as you normally use to login.</para>
 	  <para>So to create another user to create the database you would first <screen>su root</screen> then you would <screen>su postgres</screen> then you would type <screen>createuser $USER</screen> where $USER is whatever login name you normally use. Be sure to let this new created user make new databases.
+	  </para>
 	  <para>Once you have created this second user, which you allow to create databases, you then would type, as this new user, ie first you would login back as a normal user and type <screen>createdb gnumed</screen>.
 	    </para>
 	</sect3>
@@ -337,7 +338,7 @@ executed and simply add <command>-i</command> as an argument.
 <para>Once PostgreSQL is set up, go to the section on
 setting up the database (<xref linkend="pgsql">.)</para>
 	</sect3>
-
+      </sect2>
 
 <sect2>
 	<title>RunningGnuMed</title>
@@ -356,9 +357,7 @@ setting up the database (<xref linkend="pgsql">.)</para>
 	<para>For <emphasis>database</emphasis> enter in <emphasis>gnumed</emphasis>. Remember this is the database name you created initally. <emphasis>If</emphasis> all goes well, you will see a very nice GUIm with that appears to be the picture of someone's mom.</para>
       </sect3>
 </sect2>
-
-
-
+    </sect1>
 
 
 <sect1 id="mac"><title>Mac</title>
@@ -461,6 +460,7 @@ PostgreSQL as a background process (similar to a UNIX daemon).
 </para>
 <para>Go to Control Panel: "Users", and create a new user for your
 system, called "postgres". Give the user privileges to run as a service.
+	  </para>
 <para>At the Cygwin prompt, type:
 <screen>
 ipc-daemon --install-as-service
