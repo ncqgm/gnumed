@@ -9,9 +9,9 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.7 2003-09-15 16:05:30 ncq Exp $
-__version__ = "$Revision: 1.7 $"
-__author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
+# $Id: gmPhraseWheel.py,v 1.8 2003-09-16 22:25:45 ncq Exp $
+__version__ = "$Revision: 1.8 $"
+__author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
 
@@ -20,6 +20,8 @@ if __name__ == "__main__":
 
 import gmLog
 _log = gmLog.gmDefLog
+
+import gmExceptions, gmPG
 
 from wxPython.wx import *
 
@@ -82,16 +84,12 @@ class cMatchProvider:
 		lngFragment = len(tmpFragment)
 		# order is important !
 		if lngFragment >= self.__threshold['substring']:
-			print "doing in-string search"
 			return self.getMatchesBySubstr(tmpFragment)
 		elif lngFragment >= self.__threshold['word']:
-			print "doing in-phrase search"
 			return self.getMatchesByWord(tmpFragment)
 		elif lngFragment >= self.__threshold['phrase']:
-			print "doing phrase-start search"
 			return self.getMatchesByPhrase(tmpFragment)
 		else:
-			print "not doing any search for matches"
 			return (_false, [])
 	#--------------------------------------------------------
 	def getAllMatches(self):
@@ -190,8 +188,8 @@ class cMatchProvider_FixedList(cMatchProvider):
 		"""aSeq must be a list of dicts. Each dict must have the keys (ID, label, weight)
 		"""
 		if not type(aSeq) in [types.ListType, types.TupleType]:
-			print "aList must be a list or tuple"
-			return None
+			_log.Log(gmLog.lErr, 'fixed list match provider argument must be a list or tuple of dicts')
+			raise gmExceptions.ConstructorError
 
 		self.__items = aSeq
 		cMatchProvider.__init__(self)
@@ -272,6 +270,113 @@ class cMatchProvider_FixedList(cMatchProvider):
 			return -1
 		else:
 			return 0
+#------------------------------------------------------------
+class cMatchProvider_SQL(cMatchProvider):
+	"""Match provider which searches matches
+	   in possibly several database tables.
+
+	Each table must have a primary key, at least one column
+	providing terms to match, a gmpw_user field and a gmpw_score
+	field.
+	"""
+	def __init__(self, source_defs):
+		self.dbpool = gmPG.ConnectionPool()
+
+		# sanity check table connections
+		self.srcs = []
+		for src_def in source_defs:
+			tmp = {
+				'service': src_def['service'],
+				'table': src_def['table'],
+				'col': src_def['column'],
+				'limit': src_def['limit']
+			}
+			conn = self.dbpool.GetConnection(tmp['service'])
+			if conn is None:
+				for src in self.srcs:
+					src['conn'].ReleaseConnection()
+				raise gmExceptions.ConstructorError, 'cannot connect to service [%s]' % tmp['service']
+#			conn.conn.toggleShowQuery
+			curs = conn.cursor()
+			cmd = "select %s, gmpw_user, gmpw_score from %s limit 1" % (tmp['col'], tmp['table'])
+			if not gmPG.run_query(curs, cmd):
+				curs.close()
+				for src in self.srcs:
+					src['conn'].ReleaseConnection()
+				raise gmExceptions.ConstructorError, 'cannot access [%s.{%s/gmpw_user/gmpw_score}] in service [%s]' % (tmp['table'], tmp['col'], tmp['service'])
+			pk = gmPG.get_pkey_name(curs, tmp['table'])
+			curs.close()
+			if pk is None:
+				tmp['pk'] = "oid"
+			else:
+				tmp['pk'] = pk
+			tmp['conn'] = conn
+			tmp['query'] = "select %s, %s from %s where %s" % (tmp['pk'], tmp['col'], tmp['table'], tmp['col'])
+			self.srcs.append(tmp)
+			_log.Log(gmLog.lData, 'valid match source: %s' % tmp)
+
+#		self._find_matchable_fields(cursor, searchable_fields)
+
+		cMatchProvider.__init__(self)
+	#--------------------------------------------------------
+	# internal matching algorithms
+	#
+	# if we end up here:
+	#	- aFragment will not be "None"
+	#   - aFragment will be lower case
+	#	- we _do_ deliver matches (whether we find any is a different story)
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, aFragment):
+		"""Return matches for aFragment at start of phrases."""
+		condition = "ilike"
+		fragment = "%s%%" % aFragment
+		return self.__find_matches(condition, fragment)
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+		condition = "~*"
+		fragment = "( %s)|(^%s)" % (aFragment, aFragment)
+		return self.__find_matches(condition, fragment)
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+		condition = "ilike"
+		fragment = "%%%s%%" % aFragment
+		return self.__find_matches(condition, fragment)
+	#--------------------------------------------------------
+	def getAllMatches(self):
+		"""Return all items."""
+		return self.getMatchesBySubstr('')
+	#--------------------------------------------------------
+	def __find_matches(self, search_condition, aFragment):
+		matches = []
+		for src in self.srcs:
+			curs = src['conn'].cursor()
+			# FIXME: deal with gmpw_score...
+			cmd = "%s %s %%s limit %s" % (src['query'], search_condition, src['limit'])
+			if not gmPG.run_query(curs, cmd, aFragment):
+				curs.close()
+				_log.Log(gmLog.lErr, 'cannot check for matches in %s' % src)
+				return (_false, [])
+			matching_rows = curs.fetchall()
+			curs.close()
+			for row in matching_rows:
+				matches.append({'ID': row[0], 'label': row[1]})
+
+		# no matches found
+		if len(matches) == 0:
+			return (_false, [])
+
+		matches.sort(self.__cmp_items)
+		return (_true, matches)
+	#--------------------------------------------------------
+	def __cmp_items(self, item1, item2):
+		"""naive ordering"""
+		if item1 < item2:
+			return -1
+		if item1 == item2:
+			return 0
+		return 1
 #============================================================
 class cWheelTimer(wxTimer):
 	"""Timer for delayed fetching of matches.
@@ -352,6 +457,9 @@ class cPhraseWheel (wxTextCtrl):
 		self.__picklist.Clear()
 		self.__picklist_win.Hide ()
 		self.__picklist_visible = _false
+
+		self.left_part = ''
+		self.right_part = ''
 	#--------------------------------------------------------
 	def __updateMatches(self):
 		"""Get the matches for the currently typed input fragment."""
@@ -361,24 +469,26 @@ class cPhraseWheel (wxTextCtrl):
 #		print "phrase wheel content:", entire_input
 		cursor_pos = self.GetInsertionPoint()
 #		print "cursor at position:", cursor_pos
-		left_part = entire_input[:cursor_pos]
-		right_part = entire_input[cursor_pos:]
-#		print "cursor in input: %s>>>CURSOR<<<%s" % (left_part, right_part)
+		left_of_cursor = entire_input[:cursor_pos]
+		right_of_cursor = entire_input[cursor_pos:]
+#		print "cursor in input: %s>>>CURSOR<<<%s" % (left_of_cursor, right_of_cursor)
 		# find last phrase separator before cursor position
-		left_boundary = self.phrase_separators.search(left_part)
+		left_boundary = self.phrase_separators.search(left_of_cursor)
 		if left_boundary is not None:
 #			print "left boundary span:", left_boundary.span()
 			phrase_start = left_boundary.end()
 		else:
 			phrase_start = 0
+		self.left_part = entire_input[:phrase_start]
 #		print "phrase start:", phrase_start
 		# find next phrase separator after cursor position
-		right_boundary = self.phrase_separators.search(right_part)
+		right_boundary = self.phrase_separators.search(right_of_cursor)
 		if right_boundary is not None:
 #			print "right boundary span:", right_boundary.span()
 			phrase_end = cursor_pos + (right_boundary.start() - 1)
 		else:
 			phrase_end = len(entire_input) - 1
+		self.right_part = entire_input[phrase_end+1:]
 #		print "phrase end:", phrase_end
 
 		# get current(ly relevant part of) input
@@ -426,7 +536,8 @@ class cPhraseWheel (wxTextCtrl):
 
 		n = self.__picklist.GetSelection()		# get selected item
 		data = self.__picklist.GetClientData(n)		# get data associated with selected item
-		self.SetValue (self.__picklist.GetString(n))	# tell the input field to display that data
+		selected_string = self.__picklist.GetString(n)
+		self.SetValue('%s%s%s' % (self.left_part, selected_string, self.right_part))
 
 		self.id_callback (data)				# and tell our parent about the user's selection
 	#--------------------------------------------------------
@@ -560,13 +671,30 @@ if __name__ == '__main__':
 						{'ID':5, 'label':"Jacobs", 	'weight':1},
 						{'ID':6, 'label':"Judson-Jacobs",'weight':5}
 					]
-			mp = cMatchProvider_FixedList(items)
+			mp1 = cMatchProvider_FixedList(items)
 
-			frame = wxFrame (None, -4, "phrase wheel test for GNUmed", size=wxSize(300, 350), style=wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
+			src = {
+				'service': 'default',
+				'table': 'gmpw_sql_test',
+				'column': 'phrase',
+				'limit': 25
+			}
+			mp2 = cMatchProvider_SQL([src])
 
-			# actually, aDelay of 300ms is also the built-in default
-			ww = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp)
-			ww.on_resize (None)
+			frame = wxFrame (
+				None,
+				-4,
+				"phrase wheel test for GNUmed",
+				size=wxSize(300, 350),
+				style=wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE
+			)
+
+			ww1 = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp1)
+			ww1.on_resize (None)
+			
+			ww2 = cPhraseWheel(frame, clicked, pos = (50, 150), size = (180, 30), aMatchProvider=mp2)
+			ww2.on_resize (None)
+
 			frame.Show (1)
 			return 1
 	#--------------------------------------------------------
@@ -575,7 +703,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.7  2003-09-15 16:05:30  ncq
+# Revision 1.8  2003-09-16 22:25:45  ncq
+# - cleanup
+# - added first draft of single-column-per-table SQL match provider
+# - added module test for SQL matcher
+#
+# Revision 1.7  2003/09/15 16:05:30  ncq
 # - allow several phrases to be typed in and only try to match
 #   the one the cursor is in at the moment
 #
