@@ -43,7 +43,7 @@ import string
 from wxPython.lib.splashscreen import SplashScreen
 import keyword
 import time
-import pg
+import gmPG
 import pdb
 import gmLog
 darkblue = '#00006C'
@@ -105,13 +105,7 @@ class DrugDisplay(wxPanel):
 		#-------------------------------------------------------------
 		self.GuiElements_Init()				#add main gui elements
 		self.inDisplay_PI = 0
-		self.db = pg.connect(dbname='mimsannual',
-					host = '',
-					port =5432,
-					opt = '',
-					tty = '',
-					user = 'richard',
-					passwd ='')
+		self.db = gmPG.ConnectionPool().GetConnection('pharmaceutica')
 		self.GetDrugIssue()
 		#--------------------------------------------------------------
 		# handler declarations for DrugDisplay
@@ -146,8 +140,12 @@ class DrugDisplay(wxPanel):
 		return
 	
 	def GetDrugIssue(self):
-		query = self.db.query('select * from issue')
-		result = query.getresult()
+		cursor = self.db.cursor()
+		try:
+			cursor.execute('select * from issue')
+		except:
+			return
+		result = cursor.fetchall()
 		for row in result:
 				insertstring =''
 				for field in row:
@@ -533,32 +531,32 @@ class DrugDisplay(wxPanel):
 
 
 #==================================================
-
+# Shall we just test this module?
 if __name__ == "__main__":
 	_ = lambda x:x
 	app = wxPyWidgetTester(size = (400, 300))
 	app.SetWidget(DrugDisplay, -1)
 	app.MainLoop()
 
+else:
+	#=================================================
 
-#=================================================
+	# make this into GNUMed plugin
 
-# make this into GNUMed plugin
+	import gmPlugin
+	import gmPG
+	import gmI18N
 
-import gmPlugin
-import gmPG
-import gmI18N
+	class gmDrugDisplay (gmPlugin.wxNotebookPlugin):
 
-class gmDrugDisplay (gmPlugin.wxNotebookPlugin):
+		def name (self):
+			return "MIMS"
 
-	def name (self):
-		return "MIMS"
+		def MenuInfo (self):
+			return ("view", "&MIMS")
 
-	def MenuInfo (self):
-		return ("view", "&MIMS")
-
-	def GetWidget (self, parent):
-		return DrugDisplay (parent, -1)
+		def GetWidget (self, parent):
+			return DrugDisplay (parent, -1)
 
 
 
