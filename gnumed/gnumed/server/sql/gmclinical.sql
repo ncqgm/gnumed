@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.87 $
+-- $Revision: 1.88 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -589,24 +589,11 @@ comment on column allergy.definite is
 -- ============================================
 -- form instance tables
 -- --------------------------------------------
-create table form_status (
-	pk serial primary key,
-	status text not null
-);
-
-comment on table form_status is
-	'the status of a form instance:
-	 - instantiated
-	 - printed
-	 - faxed
-	 - emailed
-	 - stored on smartcard';
-
--- --------------------------------------------
 create table form_instances (
 	pk serial primary key,
 	fk_form_def integer not null references form_defs(pk),
-	fk_status integer not null references form_status(pk)
+	form_name text not null
+	-- clin_root_item.narrative used as status field
 ) inherits (clin_root_item);
 
 select add_table_for_audit('form_instances');
@@ -615,9 +602,9 @@ comment on table form_instances is
 	'instances of forms, like a log of all processed forms';
 comment on column form_instances.fk_form_def is
 	'points to the definition of this instance';
-comment on column form_instances.fk_status is
-	'the status of this  instance, might be used in
-	 print queue like things';
+comment on column form_instances.form_name is
+	'a string uniquely identifying the form template,
+	 necessary for the audit trail';
 
 -- --------------------------------------------
 create table form_data (
@@ -912,11 +899,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.87 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.88 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.87  2004-03-08 17:03:02  ncq
+-- Revision 1.88  2004-03-10 00:05:31  ncq
+-- - remove form_status
+-- - add form_instance.form_name
+--
+-- Revision 1.87  2004/03/08 17:03:02  ncq
 -- - added form handling tables
 --
 -- Revision 1.86  2004/02/18 15:28:26  ncq
