@@ -3,7 +3,8 @@
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
--- $Revision: 1.10 $ $Date: 2002-06-25 12:19:45 $ $Author: ncq $
+-- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
+-- $Revision: 1.11 $ $Date: 2002-09-21 19:50:56 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -41,10 +42,10 @@ CREATE TABLE "doc_med" (
 );
 
 COMMENT ON TABLE "doc_med" IS 'a medical document object possibly containing several data objects such as several pages of a paper document';
-COMMENT ON COLUMN doc_med.type IS 'semantic type of document (not type of file or mime type), such as "referral letter", "discharge summary", etc.';
-COMMENT ON COLUMN doc_med.comment IS 'additional short comment such as "abdominal", "ward 3, Dr. Stein", etc.';
-COMMENT ON COLUMN doc_med.date IS 'date of document content creation (such as exam date), NOT date of document creation or date of import; may be imprecise such as "7/99"';
-COMMENT ON COLUMN doc_med.ext_ref IS 'external reference string of physical document, original paper copy can be found with this';
+COMMENT ON COLUMN "doc_med.type" IS 'semantic type of document (not type of file or mime type), such as "referral letter", "discharge summary", etc.';
+COMMENT ON COLUMN "doc_med.comment" IS 'additional short comment such as "abdominal", "ward 3, Dr. Stein", etc.';
+COMMENT ON COLUMN "doc_med.date" IS 'date of document content creation (such as exam date), NOT date of document creation or date of import; may be imprecise such as "7/99"';
+COMMENT ON COLUMN "doc_med.ext_ref" IS 'external reference string of physical document, original paper copy can be found with this';
 
 -- =============================================
 CREATE TABLE "doc_med_external_ref" (
