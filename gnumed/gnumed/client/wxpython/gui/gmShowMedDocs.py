@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -285,54 +285,69 @@ class cDocTree(wxTreeCtrl):
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
-	#import docPatient
-	from docDatabase import cDatabase
-	import docMime, docDocument
+	import gmXdtObjects
+	from gmXdtMappings import xdt_gmgender_map
 
 	class cStandalonePanel(wxPanel):
 
 		def __init__(self, parent, id):
-			if self.__connect_to_db() is None:
-				_log.Log (gmLog.lErr, "No need to work without being able to connect to database.")
-				raise AssertionError, "database connection needed"
-
+			# get patient from file
 			if self.__get_pat_data() is None:
-				_log.Log (gmLog.lErr, "Cannot load patient data.")
-				raise AssertionError, "Cannot load patient data."
+				raise ConstructorError, "Cannot load patient data."
 
-			# make sure aPatient knows its ID
-			result = aPatient.getIDfromGNUmed(self.__defconn)
-			if not result[0]:
-				if result[1] is None:
-					dlg = wxMessageDialog(
-						parent,
-						_('This patient does not exist in the document database.\n"%s %s"') % (aPatient.firstnames, aPatient.lastnames),
-						_('searching patient documents'),
-						wxOK | wxICON_ERROR
-					)
-					dlg.ShowModal()
-					dlg.Destroy()
-					raise AssertionError
-				else:
-					_log.Log(gmLog.lErr, "Patient data is ambigous. Aborting. (IDs: %s)" % str(result[1]))
-					raise AssertionError
-			else:
-				_log.Log(gmLog.lInfo, "Making document tree for patient with ID %s" % result[1])
+			# mangle date of birth into ISO8601 (yyyymmdd) for Postgres
+			cooked_search_terms = {
+				'globbing': None,
+				'case sensitive': None,
+				'dob': '%s%s%s' % (self.__xdt_pat['dob year'], self.__xdt_pat['dob month'], self.__xdt_pat['dob day']),
+				'last name': self.__xdt_pat['last name'],
+				'first name': self.__xdt_pat['first name'],
+				'gender': self.__xdt_pat['gender']
+			}
+
+			# find matching patient IDs
+			patient_ids = gmTmpPatient.get_patient_ids(cooked_search_terms)
+			print patient_ids
+			if patient_ids is None:
+				dlg = wxMessageDialog(
+					parent,
+					_('This patient does not exist in the document database.\n"%s %s"') % (aPatient.firstnames, aPatient.lastnames),
+					_('searching patient documents'),
+					wxOK | wxICON_ERROR
+				)
+				dlg.ShowModal()
+				dlg.Destroy()
+				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
+				raise ConstructorError, "Patient from XDT file does not exist in database."
+
+			# ambigous ?
+			if len(patient_ids) != 1:
+				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
+				raise ConstructorError, "Problem getting patient ID from database. Aborting."
+
+			try:
+				self.__gm_pat = gmTmpPatient.gmPatient(aPKey = patient_ids[0][0])
+			except:
+				_log.Log(gmLog.lPanic, 'Cannot access patient [%s] in database.' % patient_ids[0][0])
+				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
+				raise
 
 			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
 			self.SetTitle(_("stored medical documents"))
 
 			# make patient panel
+			gender = gmTmpPatient.gm2long_gender_map[xdt_gmgender_map[self.__xdt_pat['gender']]]
 			self.pat_panel = wxStaticText(
 				id = -1,
 				parent = self,
-				label = "%s %s (%s), %s" % (self.__patient.firstnames, self.__patient.lastnames, docPatient.gm2long_gender_map[self.__patient.gender], self.__patient.dob),
+				label = "%s %s (%s), %s.%s.%s" % (self.__xdt_pat['first name'], self.__xdt_pat['last name'], gender, self.__xdt_pat['dob day'], self.__xdt_pat['dob month'], self.__xdt_pat['dob year']),
 				style = wxALIGN_CENTER
 			)
 			self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
 
 			# make document tree
-			self.tree = cDocTree(self, -1, self.__patient, self.__conn)
+			self.tree = cDocTree(self, -1)
+			self.tree.update(self.__gm_pat)
 			self.tree.SelectItem(self.tree.root)
 
 			szr_main = wxBoxSizer(wxVERTICAL)
@@ -344,36 +359,22 @@ if __name__ == '__main__':
 			szr_main.Fit(self)
 			self.Layout()
 		#--------------------------------------------------------
-		def __del__(self):
-			self.DB.disconnect()
-		#--------------------------------------------------------
-		def __connect_to_db(self):
-			# connect to DB
-			self.DB = cDatabase(_cfg)
-			if self.DB is None:
-				_log.Log (gmLog.lErr, "cannot create document database connection object")
-				return None
-
-			if self.DB.connect() is None:
-				_log.Log (gmLog.lErr, "cannot connect to document database")
-				return None
-
-			self.__conn = self.DB.getConn()
-			return 1
-		#--------------------------------------------------------
 		def __get_pat_data(self):
 			"""Get data of patient for which to retrieve documents.
 
 			"""
 			# FIXME: error checking
 			pat_file = os.path.abspath(os.path.expanduser(_cfg.get("viewer", "patient file")))
+			# FIXME: actually handle pat_format, too
 			pat_format = _cfg.get("viewer", "patient file format")
-			self.__patient = docPatient.cPatient()
+
 			# get patient data from BDT file
-			if not self.__patient.loadFromFile(pat_format, pat_file):
-				_log.Log(gmLog.lErr, "problem with reading patient data from xDT file " + pat_file)
-				self.__patient = None
+			try:
+				self.__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
+			except:
+				_log.LogException('Cannot read patient from xDT file [%s].' % pat_file)
 				return None
+
 			return 1
 #== classes for plugin use ======================================
 else:
@@ -385,7 +386,6 @@ else:
 
 			# make document tree
 			self.tree = cDocTree(self, -1)
-			#self.tree.update(self.__pat)
 
 			# just one vertical sizer
 			sizer = wxBoxSizer(wxVERTICAL)
@@ -404,14 +404,14 @@ else:
 
 	class gmShowMedDocs(gmPlugin.wxNotebookPlugin):
 		def name (self):
-			return _("Archive")
+			return _("Documents")
 
 		def GetWidget (self, parent):
 			self.panel = cPluginTreePanel(parent, -1)
 			return self.panel
 
 		def MenuInfo (self):
-			return ('tools', _('&Show documents in archive'))
+			return ('tools', _('Show &archived documents'))
 
 		def ReceiveFocus(self):
 			# get patient object
@@ -431,7 +431,7 @@ else:
 if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "starting display handler")
 
-	if _cfg == None:
+	if _cfg is None:
 		_log.Log(gmLog.lErr, "Cannot run without config file.")
 		sys.exit("Cannot run without config file.")
 
@@ -451,7 +451,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.5  2003-02-17 16:10:50  ncq
+# Revision 1.6  2003-02-18 02:45:21  ncq
+# - almost fixed standalone mode again
+#
+# Revision 1.5  2003/02/17 16:10:50  ncq
 # - plugin mode seems to be fully working, actually calls viewers on files
 #
 # Revision 1.4  2003/02/15 14:21:49  ncq
