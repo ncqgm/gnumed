@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.19 2005-03-14 18:39:49 cfmoro Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmSOAPWidgets.py,v 1.20 2005-03-14 18:41:53 cfmoro Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -291,9 +291,9 @@ class cResizingSoapPanel(wx.wxPanel):
 			self.__soap_heading.SetValue(txt)
 		else:
 			self.__soap_heading.SetLabel(txt)
-		size = self.__soap_heading.GetBestSize()
-		self.__szr_main.SetItemMinSize(self.__soap_heading, size.width, size.height)
-		self.Layout()
+			size = self.__soap_heading.GetBestSize()
+			self.__szr_main.SetItemMinSize(self.__soap_heading, size.width, size.height)
+			self.Layout()
 		
 #============================================================
 class cSingleBoxSOAP(wx.wxTextCtrl):
@@ -519,7 +519,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.19  2005-03-14 18:39:49  cfmoro
+# Revision 1.20  2005-03-14 18:41:53  cfmoro
+# Indent fix
+#
+# Revision 1.19  2005/03/14 18:39:49  cfmoro
 # Clear phrasewheel on saving unassociated note
 #
 # Revision 1.18  2005/03/14 17:36:51  cfmoro
