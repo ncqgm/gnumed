@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.145 2004-05-15 15:51:03 sjtan Exp $
-__version__ = "$Revision: 1.145 $"
+# $Id: gmGuiMain.py,v 1.146 2004-06-01 07:59:55 ncq Exp $
+__version__ = "$Revision: 1.146 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -361,7 +361,7 @@ class gmTopLevelFrame(wxFrame):
 		# can we hand focus to new page ?
 		if not new_page.can_receive_focus():
 			# we can only hope things will work out anyways
-			_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows)")
+			_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows and Mac OSX)")
 		new_page.ReceiveFocus()
 		# activate toolbar of new page
 		self.top_panel.ShowBar(new_page.internal_name())
@@ -767,7 +767,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.145  2004-05-15 15:51:03  sjtan
+# Revision 1.146  2004-06-01 07:59:55  ncq
+# - comments improved
+#
+# Revision 1.145  2004/05/15 15:51:03  sjtan
 #
 # hoping to link this to organization widget.
 #

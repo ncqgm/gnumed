@@ -6,7 +6,7 @@ This module implements functions a macro can legally use.
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -76,7 +76,7 @@ class cMacroPrimitives:
 		return 0
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.11 $" % self.__class__.__name__
+		return "%s $Revision: 1.12 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -130,7 +130,7 @@ class cMacroPrimitives:
 		# FIXME: let user select patient
 		if len(pat_id) > 1:
 			return (0, _('several matching patients found for [%s]/%s') % (search_term, search_dict))
-		if not gmPatient.set_active_patient(pat_id[0][0]):
+		if not gmPatient.set_active_patient(pat_id[0]):
 			return (0, _('cannot activate patient [%s] (%s/%s)') % (pat_id[0], search_term, search_dict))
 		pat.lock()
 		self.__pat_lock_cookie = str(random.random())
@@ -201,7 +201,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.11  2004-03-20 19:48:07  ncq
+# Revision 1.12  2004-06-01 07:59:55  ncq
+# - comments improved
+#
+# Revision 1.11  2004/03/20 19:48:07  ncq
 # - adapt to flat id list from get_patient_ids
 #
 # Revision 1.10  2004/03/20 17:54:18  ncq

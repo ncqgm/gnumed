@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_PatientPicture.py,v $
-# $Id: gmGP_PatientPicture.py,v 1.8 2004-05-28 08:57:08 shilbert Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmGP_PatientPicture.py,v 1.9 2004-06-01 07:59:55 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -60,7 +60,7 @@ class cPatientPicture (wxStaticBitmap):
 			current_patient = kwds['ID']
 			docs = gmMedDoc.search_for_document (kwds['ID'], gmMedDoc.MUGSHOT)
 			# FIXME: "where date = max(select date from ... where l1.pat=l2.pat)" ...
-			# FIXME: or rather use v_latest_mugshot
+			# FIXME: or rather use v_latest_mugshot VO
 			if docs: # get the latest in a series of photographs
 				latest_date = mxDT.DateTime (1)
 				latest_photo = None
@@ -100,7 +100,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmGP_PatientPicture.py,v $
-# Revision 1.8  2004-05-28 08:57:08  shilbert
+# Revision 1.9  2004-06-01 07:59:55  ncq
+# - comments improved
+#
+# Revision 1.8  2004/05/28 08:57:08  shilbert
 # - bugfix for wxBitmapFromImage()
 #
 # Revision 1.7  2004/03/04 19:46:54  ncq
