@@ -4,13 +4,10 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.4 2005-01-10 20:14:02 cfmoro Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmSOAPWidgets.py,v 1.5 2005-01-11 08:12:39 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
-
-# python std
-import sys
 
 # 3rd party
 from wxPython import wx
@@ -49,7 +46,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		input_fields = []			# temporary cache of input fields
 		# add fields to edit widget
 		for input_label in self.__input_defs.keys():
-			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = self.__input_defs[label])
+			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = self.__input_defs[input_label])
 			self.AddWidget (widget=input_field, label=input_label)
 			self.Newline()
 			input_fields.append(input_field)
@@ -98,7 +95,7 @@ class cResizingSoapPanel(wx.wxPanel):
 			wx.wxNO_BORDER
 		)
 		self.__soap_heading = wx.wxStaticText(self, -1, 'error: no problem given')
-		self.__soap_text_editor = cSoapWin (
+		self.__soap_text_editor = cResizingSoapWin (
 			self,
 			size = wx.wxSize (300, 150),
 			# FIXME obtain cats from user preferences
@@ -321,6 +318,8 @@ class cSingleBoxSOAPPanel(wx.wxPanel):
 #------------------------------------------------------------
 if __name__ == "__main__":
 
+	import sys
+
 	def create_widget_on_test_kwd1(*args, **kwargs):
 		print "test keyword must have been typed..."
 		print "actually this would have to return a suitable wxWindow subclass instance"
@@ -346,11 +345,12 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
 	try:
-		app = wx.wxPyWidgetTester(size=(600,600))
-		app.SetWidget(cResizingSoapPanel, app.frame, 'cold/cough')
-#		soap_input = cSoapPanel(app.frame)
-		app.frame.Show(True)
+		app = wx.wxPyWidgetTester(size=(300,300))
+		app.SetWidget(cResizingSoapPanel, (0, {'description': 'cold/cough'}))
 		app.MainLoop()
+		del app
+
+		app = wx.wxPyWidgetTester(size=(600,600))
 		app.SetWidget(cSingleBoxSOAPPanel, -1)
 		app.MainLoop()
 	except StandardError:
@@ -360,7 +360,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.4  2005-01-10 20:14:02  cfmoro
+# Revision 1.5  2005-01-11 08:12:39  ncq
+# - fix a whole bunch of bugs from moving to main trunk
+#
+# Revision 1.4  2005/01/10 20:14:02  cfmoro
 # Import sys
 #
 # Revision 1.3  2005/01/10 17:50:36  ncq
