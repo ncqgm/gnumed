@@ -5,7 +5,7 @@
 -- For details regarding GPL licensing see http://gnu.org
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.4 $ $Date: 2004-03-10 00:08:31 $ $Author: ncq $
+-- $Revision: 1.5 $ $Date: 2004-03-10 15:45:15 $ $Author: ncq $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -52,13 +52,13 @@ comment on column form_queue.fk_form_instance is
 	 useful for recalling submitted jobs for changing';
 comment on column form_queue.form is
 	'the rendered form, IOW binary data such as a PDF file';
-comment on column form_queue.target_class is
+comment on column form_queue.fk_target_class is
 	'points to the target class';
 comment on column form_queue.submitted_when is
 	'when was this form job submitted';
 comment on column form_queue.fk_submitted_by is
 	'who of the staff submitted this form job';
-comment on column form_queue.fk_submitted_from is
+comment on column form_queue.submitted_from is
 	'the workplace this form job was submitted from';
 comment on column form_queue.status is
 	'status of the form job:
@@ -128,13 +128,29 @@ create table consults
 );
 
 -- ===================================================================
+-- permissions
+-- ===================================================================
+GRANT SELECT ON
+	form_target_classes
+	, form_queue
+TO GROUP "gm-public";
+
+GRANT select, insert, delete, update ON
+	form_queue
+	, form_queue_pk_seq
+TO GROUP "_gm-doctors";
+
+-- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmoffice.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.5 $');
 
 --=====================================================================
 -- $Log: gmoffice.sql,v $
--- Revision 1.4  2004-03-10 00:08:31  ncq
+-- Revision 1.5  2004-03-10 15:45:15  ncq
+-- - grants on form tables
+--
+-- Revision 1.4  2004/03/10 00:08:31  ncq
 -- - add form queue handling
 -- - remove papersizes
 -- - cleanup

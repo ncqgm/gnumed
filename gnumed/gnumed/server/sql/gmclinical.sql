@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.88 $
+-- $Revision: 1.89 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -817,29 +817,28 @@ comment on table clin_history_editarea is
 
 -- =============================================
 GRANT SELECT ON
-	"clin_root_item",
-	"clin_health_issue",
-	"clin_episode",
-	"last_act_episode",
+	clin_root_item,
+	clin_health_issue,
+	clin_episode,
+	last_act_episode,
 	"_enum_encounter_type",
-	"clin_encounter",
-	"curr_encounter",
-	"clin_note",
-	"clin_aux_note",
+	clin_encounter,
+	curr_encounter,
+	clin_note,
+	clin_aux_note,
 	"_enum_hx_type",
-	"_enum_hx_source",
-	"clin_history",
-	"clin_physical",
+	_enum_hx_source,
+	clin_history,
+	clin_physical,
 	"_enum_allergy_type",
-	"allergy",
-	"vaccination",
-	"vaccine",
-	"vacc_def"
+	allergy,
+	vaccination,
+	vaccine,
+	vacc_def
 	, vacc_regime
 	, lnk_vacc2vacc_def
 	, clin_history_editarea
 	, xlnk_identity
-	, form_status
 	, form_instances
 	, form_data
 TO GROUP "gm-doctors";
@@ -889,8 +888,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin_history_editarea_id_seq
 	, xlnk_identity
 	, xlnk_identity_pk_seq
-	, form_status
-	, form_status_pk_seq
 	, form_instances
 	, form_instances_pk_seq
 	, form_data
@@ -899,11 +896,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.88 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.89 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.88  2004-03-10 00:05:31  ncq
+-- Revision 1.89  2004-03-10 15:45:12  ncq
+-- - grants on form tables
+--
+-- Revision 1.88  2004/03/10 00:05:31  ncq
 -- - remove form_status
 -- - add form_instance.form_name
 --
