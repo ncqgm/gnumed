@@ -20,7 +20,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 
 __log__ = gmLog.gmDefLog
 #============================================================
@@ -514,7 +514,7 @@ if __name__ == '__main__':
 			frame = wxFrame (None, -4, "phrase wheel test for GNUmed", size=wxSize(300, 350), style=wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
 
 			# actually, aDelay of 300ms is also the built-in default
-			ww = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp, aDelay = 300)
+			ww = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp, aDelay = 900)
 			ww.on_resize (None)
 			frame.Show (1)
 			return 1
