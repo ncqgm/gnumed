@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.10 2004-10-11 20:11:32 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmVaccWidgets.py,v 1.11 2004-10-27 12:16:54 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -22,10 +22,6 @@ from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmExceptions, gmMatc
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-
-ID_VaccinatedIndicationsList = wxNewId()
-ID_VaccinationsPerRegimeList = wxNewId()
-ID_MissingShots = wxNewId()
 
 #======================================================================
 class cVaccinationEditArea(gmEditArea.gmEditArea):
@@ -171,31 +167,24 @@ class cVaccinationEditArea(gmEditArea.gmEditArea):
 	def _save_new_entry(self):
 		# FIXME: validation ?
 		emr = self.patient.get_clinical_record()
-		if emr is None:
-			# FIXME: badder error message
-			wxBell()
-			_gb['main.statustext'](_('Cannot save vaccination: %s') % data)
-			return None
 		# create new vaccination
-		status, data = emr.add_vaccination(self.fld_vaccine.GetValue())
-		if status is None:
-			wxBell()
-			_gb['main.statustext'](_('Cannot save vaccination: %s') % data)
-			return None
+		successfull, data = emr.add_vaccination(vaccine=self.fld_vaccine.GetValue())
+		if not successfull:
+			gmGuiHelpers.gm_beep_status_text(_('Cannot save vaccination: %s') % data)
+			return False
 		# update it with known data
 		data['pk_provider'] = _whoami.get_staff_ID()
 		data['date'] = self.fld_date_given.GetValue()
 		data['narrative'] = self.fld_progress_note.GetValue()
 		data['site'] = self.fld_site_given.GetValue()
 		data['batch_no'] = self.fld_batch_no.GetValue()
-		status, err = data.save_payload()
-		if status is None:
-			wxBell()
-			_gb['main.statustext'](_('Cannot save vaccination: %s') % err)
-			return None
+		successfull, err = data.save_payload()
+		if not successfull:
+			gmGuiHelpers.gm_beep_status_text(_('Cannot save vaccination: %s') % err)
+			return False
 		_gb['main.statustext'](_('Vaccination saved.'))
 		self.data = data
-		return 1
+		return True
 	#----------------------------------------------------
 	def _save_modified_entry(self):
 		"""Update vaccination object and persist to backend.
@@ -205,10 +194,9 @@ class cVaccinationEditArea(gmEditArea.gmEditArea):
 		self.data['date'] = self.fld_date_given.GetValue()
 		self.data['site'] = self.fld_site_given.GetValue()
 		self.data['narrative'] = self.fld_progress_note.GetValue()
-		status, data = self.data.save_payload()
-		if status is None:
-			wxBell()
-			_gb['main.statustext'](_('Cannot update vaccination: %s') % data)
+		successfull, data = self.data.save_payload()
+		if not successfull:
+			gmGuiHelpers.gm_beep_status_text(_('Cannot update vaccination: %s') % err)
 			return False
 		_gb['main.statustext'](_('Vaccination updated.'))
 		return True
@@ -277,6 +265,11 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize, wxRAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pat = gmPatient.gmCurrentPatient()
+		# do this here so "import cImmunisationsPanel from gmVaccWidgets" works
+		self.ID_VaccinatedIndicationsList = wxNewId()
+		self.ID_VaccinationsPerRegimeList = wxNewId()
+		self.ID_MissingShots = wxNewId()
+		self.ID_ActiveSchedules = wxNewId()
 		self.__do_layout()
 		self.__register_interests()
 		self.__reset_ui_content()
@@ -294,14 +287,16 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# divider headings below editing area
 		indications_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Indications"))
 		vaccinations_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Vaccinations"))
+		schedules_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Active Schedules"))
 		szr_MiddleCap = wxBoxSizer(wxHORIZONTAL)
-		szr_MiddleCap.Add(indications_heading, 1, wxEXPAND)
-		szr_MiddleCap.Add(vaccinations_heading, 1, wxEXPAND)
+		szr_MiddleCap.Add(indications_heading, 4, wxEXPAND)
+		szr_MiddleCap.Add(vaccinations_heading, 6, wxEXPAND)
+		szr_MiddleCap.Add(schedules_heading, 10, wxEXPAND)
 
 		# left list: indications for which vaccinations have been given
 		self.LBOX_vaccinated_indications = wxListBox(
 			parent = self,
-			id = ID_VaccinatedIndicationsList,
+			id = self.ID_VaccinatedIndicationsList,
 			choices = [],
 			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
 		)
@@ -311,30 +306,45 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# display the corresponding vaccinations on the right
 		self.LBOX_given_shots = wxListBox(
 			parent = self,
-			id = ID_VaccinationsPerRegimeList,
+			id = self.ID_VaccinationsPerRegimeList,
 			choices = [],
 			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
 		)
 		self.LBOX_given_shots.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 
+		self.LBOX_active_schedules = wxListBox (
+			parent = self,
+			id = self.ID_ActiveSchedules,
+			choices = [],
+			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
+		)
+		self.LBOX_active_schedules.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
+
 		szr_MiddleLists = wxBoxSizer(wxHORIZONTAL)
-		szr_MiddleLists.Add(self.LBOX_vaccinated_indications, 4,wxEXPAND)
+		szr_MiddleLists.Add(self.LBOX_vaccinated_indications, 4, wxEXPAND)
 		szr_MiddleLists.Add(self.LBOX_given_shots, 6, wxEXPAND)
+		szr_MiddleLists.Add(self.LBOX_active_schedules, 10, wxEXPAND)
 
 		#---------------------------------------------
 		# bottom part
 		#---------------------------------------------
-		pnl_MiddleCaption3 = gmTerryGuiParts.cDividerCaption(self, -1, _("Missing Immunisations"))
-		self.LBOX_missing_shots = wxListBox(
+		missing_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Missing Immunisations"))
+		szr_BottomCap = wxBoxSizer(wxHORIZONTAL)
+		szr_BottomCap.Add(missing_heading, 1, wxEXPAND)
+
+		self.LBOX_missing_shots = wxListBox (
 			parent = self,
-			id = ID_MissingShots,
-			size=(200, 100),
-			choices= [],
+			id = self.ID_MissingShots,
+			choices = [],
 			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
 		)
-		self.LBOX_missing_shots.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
+		self.LBOX_missing_shots.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
+
+		szr_BottomLists = wxBoxSizer(wxHORIZONTAL)
+		szr_BottomLists.Add(self.LBOX_missing_shots, 1, wxEXPAND)
+
 		# alert caption
-		pnl_BottomCaption = gmTerryGuiParts.cAlertCaption(self, -1, _('  Alerts  '))
+		pnl_AlertCaption = gmTerryGuiParts.cAlertCaption(self, -1, _('  Alerts  '))
 
 		#---------------------------------------------
 		# add all elements to the main background sizer
@@ -344,9 +354,9 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.mainsizer.Add(self.editarea, 6, wxEXPAND)
 		self.mainsizer.Add(szr_MiddleCap, 0, wxEXPAND)
 		self.mainsizer.Add(szr_MiddleLists, 4, wxEXPAND)
-		self.mainsizer.Add(pnl_MiddleCaption3, 0, wxEXPAND)
-		self.mainsizer.Add(self.LBOX_missing_shots, 4, wxEXPAND)
-		self.mainsizer.Add(pnl_BottomCaption, 0, wxEXPAND)
+		self.mainsizer.Add(szr_BottomCap, 0, wxEXPAND)
+		self.mainsizer.Add(szr_BottomLists, 4, wxEXPAND)
+		self.mainsizer.Add(pnl_AlertCaption, 0, wxEXPAND)
 
 		self.SetAutoLayout(True)
 		self.SetSizer(self.mainsizer)
@@ -355,9 +365,9 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	def __register_interests(self):
 		# wxPython events
 		EVT_SIZE(self, self.OnSize)
-		EVT_LISTBOX(self, ID_VaccinatedIndicationsList, self._on_vaccinated_indication_selected)
-		EVT_LISTBOX_DCLICK(self, ID_VaccinationsPerRegimeList, self._on_given_shot_selected)
-		EVT_LISTBOX_DCLICK(self, ID_MissingShots, self._on_missing_shot_selected)
+		EVT_LISTBOX(self, self.ID_VaccinatedIndicationsList, self._on_vaccinated_indication_selected)
+		EVT_LISTBOX_DCLICK(self, self.ID_VaccinationsPerRegimeList, self._on_given_shot_selected)
+		EVT_LISTBOX_DCLICK(self, self.ID_MissingShots, self._on_missing_shot_selected)
 #		EVT_RIGHT_UP(self.lb1, self.EvtRightButton)
 
 		# client internal signals
@@ -389,8 +399,11 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		shots = emr.get_vaccinations(indications = [ind])
 		# FIXME: use Set() for entire array (but problem with client_data)
 		for shot in shots:
-			label = '%s: %s' % (shot['date'].Format('%m/%Y'), shot['vaccine'])
-#			data = shot['pk_vaccination']
+			if shot['is_booster']:
+				marker = 'B'
+			else:
+				marker = '#%s' % shot['seq_no']
+			label = '%s - %s: %s' % (marker, shot['date'].Format('%m/%Y'), shot['vaccine'])
 			self.LBOX_given_shots.Append(label, shot)
 	#----------------------------------------------------
 	def __reset_ui_content(self):
@@ -399,12 +412,14 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# clear lists
 		self.LBOX_vaccinated_indications.Clear()
 		self.LBOX_given_shots.Clear()
+		self.LBOX_active_schedules.Clear()
 		self.LBOX_missing_shots.Clear()
 	#----------------------------------------------------
 	def _populate_with_data(self):
 		# clear lists
 		self.LBOX_vaccinated_indications.Clear()
 		self.LBOX_given_shots.Clear()
+		self.LBOX_active_schedules.Clear()
 		self.LBOX_missing_shots.Clear()
 
 		emr = self.__pat.get_clinical_record()
@@ -419,6 +434,19 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 #		self.LBOX_vaccinated_indications.Set(lines)
 #		self.LBOX_vaccinated_indications.SetClientData(data)
 
+		# populate active schedules list
+		scheds = emr.get_scheduled_vaccination_regimes()
+		if scheds is None:
+			label = _('ERROR: cannot retrieve active vaccination schedules')
+			self.LBOX_active_schedules.Append(label)
+		elif len(scheds) == 0:
+			label = _('no active vaccination schedules')
+			self.LBOX_active_schedules.Append(label)
+		else:
+			for sched in scheds:
+				label = _('%s for %s (%s shots): %s') % (sched['regime'], sched['l10n_indication'], sched['shots'], sched['comment'])
+				self.LBOX_active_schedules.Append(label)
+
 		# populate missing-shots list
 		missing_shots = emr.get_missing_vaccinations()
 		if missing_shots is None:
@@ -427,7 +455,7 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			return True
 		# due
 		due_template = _('%.0d weeks left: shot %s for %s in %s, due %s (%s)')
-		overdue_template = _('overdue %.0dyrs %.0dwks: shot %s for %s in schedule "%s (%s)"')
+		overdue_template = _('overdue %.0dyrs %.0dwks: shot %s for %s in schedule "%s" (%s)')
 		for shot in missing_shots['due']:
 			if shot['overdue']:
 				years, days_left = divmod(shot['amount_overdue'].days, 364.25)
@@ -454,7 +482,7 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 				)
 				self.LBOX_missing_shots.Append(label, shot)
 		# booster
-		lbl_template = _('due now: booster for %s in schedule "%s (%s)"')
+		lbl_template = _('due now: booster for %s in schedule "%s" (%s)')
 		for shot in missing_shots['boosters']:
 			# indication, regime, vacc_comment
 			label = lbl_template % (
@@ -491,7 +519,14 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.10  2004-10-11 20:11:32  ncq
+# Revision 1.11  2004-10-27 12:16:54  ncq
+# - make wxNewId() call internal to classes so that
+#   "import <a class> from <us>" works properly
+# - cleanup, properly use helpers
+# - properly deal with save_payload/add_vaccination results
+# - rearrange middle panel to include active schedules
+#
+# Revision 1.10  2004/10/11 20:11:32  ncq
 # - cleanup
 # - attach vacc VOs directly to list items
 # - add editing (eg. adding) missing vaccination
