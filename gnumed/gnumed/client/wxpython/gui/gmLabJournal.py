@@ -42,15 +42,12 @@ _whoami = gmWhoAmI.cWhoAmI()
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, parent):
 		query = """
-			select
-				pk,
-				internal_name
-			from
-				test_org
+			select pk, internal_name
+			from test_org
 			"""
 		self.mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
 		self.mp.setThresholds(aWord=2, aSubstring=4)
-		
+
 		gmPhraseWheel.cPhraseWheel.__init__(
 			self,
 			parent = parent,
@@ -58,12 +55,8 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 			aMatchProvider = self.mp,
 			size = wxDefaultSize,
 			pos = wxDefaultPosition
-			#id_callback = self.wheel_callback
 		)
 		self.SetToolTipString(_('choose which lab will process the probe with the specified ID'))
-	
-	#def wheel_callback(self, data):
-	#	print data
 #====================================
 class gmLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
     def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
@@ -127,16 +120,16 @@ class cLabJournalNB(wxNotebook):
 		
 		self.curr_pat = gmPatient.gmCurrentPatient()
 	#------------------------------------------------------------------------
-	def __init_SZR_due (self, call_fit = True, set_sizer = True ):
+	def __init_SZR_due (self):
 
-		vbszr_main = wxBoxSizer( wxVERTICAL )
+		vbszr = wxBoxSizer( wxVERTICAL )
 		self.lab_wheel = cLabWheel(self.PNL_due_tab)
 		self.lab_wheel.on_resize (None)
 		self.lab_wheel.addCallback(self.on_lab_selected)
 		
-		vbszr_main.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
+		vbszr.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
 
-		self.item2 = wxTextCtrl(
+		self.fld_request_id = wxTextCtrl(
 			self.PNL_due_tab,
 			wxID_TXTCTRL_ids,
 			"",
@@ -145,7 +138,7 @@ class cLabJournalNB(wxNotebook):
 			0
 			)
 
-		vbszr_main.AddWindow( self.item2, 0, wxALIGN_CENTER|wxALL, 5 )
+		vbszr.AddWindow( self.fld_request_id, 0, wxALIGN_CENTER|wxALL, 5 )
 
 		# -- "save request id" button -----------
 		self.BTN_save_request_ID = wxButton(
@@ -157,7 +150,7 @@ class cLabJournalNB(wxNotebook):
 		self.BTN_save_request_ID.SetToolTipString(_('associate chosen lab and ID with current patient'))
 		EVT_BUTTON(self.BTN_save_request_ID, wxID_BTN_save_request_ID, self.on_save_request_ID)
 
-		vbszr_main.AddWindow( self.BTN_save_request_ID, 0, wxALIGN_CENTER|wxALL, 5 )
+		vbszr.AddWindow( self.BTN_save_request_ID, 0, wxALIGN_CENTER|wxALL, 5 )
 
 		# maybe have a look at MultiColumnList
 		# our actual list
@@ -175,13 +168,12 @@ class cLabJournalNB(wxNotebook):
 		self.lbox_pending.InsertColumn(3, _("patient"))
 		self.lbox_pending.InsertColumn(4, _("status"))
 		
-		vbszr_main.AddWindow( self.lbox_pending, 0, wxALIGN_CENTER|wxALL, 5 )
-		return vbszr_main
+		vbszr.AddWindow( self.lbox_pending, 0, wxALIGN_CENTER|wxALL, 5 )
+		return vbszr
 
-	def __init_SZR_import_errors (self, call_fit = True, set_sizer = True ):
-	
-		xvszr_main = wxBoxSizer( wxVERTICAL )
-		
+	def __init_SZR_import_errors (self):
+		vbszr = wxBoxSizer( wxVERTICAL )
+
 		tID = wxNewId()
 		self.lbox_errors = gmLabIDListCtrl(
 			self.PNL_errors_tab,
@@ -190,16 +182,15 @@ class cLabJournalNB(wxNotebook):
 			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
 		)#|wxLC_HRULES)
 		
-		xvszr_main.AddWindow(self.lbox_errors, 0, wxALIGN_CENTER | wxALL, 5)
+		vbszr.AddWindow(self.lbox_errors, 0, wxALIGN_CENTER | wxALL, 5)
 
 		self.lbox_errors.InsertColumn(0, _("when"))
 		self.lbox_errors.InsertColumn(1, _("problem"))
 		self.lbox_errors.InsertColumn(2, _("solution"))
-		 
-		return xvszr_main
-		
-	def __init_SZR_review_status (self, call_fit = True, set_sizer = True ):
-		rvszr_main = wxBoxSizer( wxVERTICAL )
+		return vbszr
+
+	def __init_SZR_review_status (self):
+		vbszr = wxBoxSizer( wxVERTICAL )
 		tID = wxNewId()
 		
 		self.review_Ctrl = gmLabIDListCtrl(
@@ -208,8 +199,8 @@ class cLabJournalNB(wxNotebook):
 			size=(500,200),
 			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
 		)#|wxLC_HRULES)
-		
-		rvszr_main.AddWindow(self.review_Ctrl, 0, wxALIGN_CENTER | wxALL, 5)
+
+		vbszr.AddWindow(self.review_Ctrl, 0, wxALIGN_CENTER | wxALL, 5)
 
 		self.review_Ctrl.InsertColumn(0, _("patient name"))
 		self.review_Ctrl.InsertColumn(1, _("dob"))
@@ -217,8 +208,8 @@ class cLabJournalNB(wxNotebook):
 		self.review_Ctrl.InsertColumn(3, _("test"))
 		self.review_Ctrl.InsertColumn(4, _("result"))
 		self.review_Ctrl.InsertColumn(5, _("info provided by lab"))
-		 
-		return rvszr_main
+
+		return vbszr
 	#------------------------------------------------------------------------
 	def OnLeftDClick(self, evt):
 		pass
@@ -239,7 +230,7 @@ class cLabJournalNB(wxNotebook):
 	#------------------------------------------------------------------------
 	def __populate_notebook(self):
 		
-		self.item2.Clear()
+		self.fld_request_id.Clear()
 		self.lab_wheel.Clear()
 		self.lbox_pending.DeleteAllItems()
 		#------ due PNL ------------------------------------
@@ -355,7 +346,7 @@ class cLabJournalNB(wxNotebook):
 	# event handlers
 	#-----------------------------------
 	def on_save_request_ID(self, event):
-		req_id = self.item2.GetValue()
+		req_id = self.fld_request_id.GetValue()
 		if not req_id is None or req_id == '':
 			emr = self.curr_pat.get_clinical_record()
 			test = gmPathLab.create_lab_request(lab=self.lab_name[0][0], req_id = req_id, pat_id = self.curr_pat['ID'], encounter_id = emr.id_encounter, episode_id= emr.id_episode)
@@ -376,16 +367,18 @@ class cLabJournalNB(wxNotebook):
 		evt.Skip()
 	#-------------------------------------------------------
 	def on_lab_selected(self,data):
-		if not data is None: 
-			print "phrase wheel just changed lab to", data
-			# get last used id for lab
-			self.lab_name = self.__get_labname(data)
-			print self.lab_name
-			#guess next id
-			nID = self.guess_next_id(self.lab_name[0][0])
-			if not nID is None:
-				# set field to that
-				self.item2.SetValue(nID)
+		if data is None:
+			self.fld_request_id.SetValue('')
+
+		print "phrase wheel just changed lab to", data
+		# get last used id for lab
+		self.lab_name = self.__get_labname(data)
+		print self.lab_name
+		#guess next id
+		nID = self.guess_next_id(self.lab_name[0][0])
+		if not nID is None:
+			# set field to that
+			self.fld_request_id.SetValue(nID)
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
@@ -620,7 +613,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.8  2004-05-06 23:32:45  shilbert
+# Revision 1.9  2004-05-08 17:43:55  ncq
+# - cleanup here and there
+#
+# Revision 1.8  2004/05/06 23:32:45  shilbert
 # - now features a tab with unreviewed lab results
 #
 # Revision 1.7  2004/05/04 09:26:55  shilbert
