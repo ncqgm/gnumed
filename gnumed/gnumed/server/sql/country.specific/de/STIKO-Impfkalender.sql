@@ -11,19 +11,17 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+delete from lnk_vacc_def2regime;
 delete from vacc_def;
 delete from vacc_regime;
-delete from lnk_vacc_def2regime;
 
 ------------
 -- Masern --
 ------------
--- Impfstoffe
-
 -- Impfzeitpunkte
 insert into vacc_def
 	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
@@ -61,8 +59,6 @@ values (
 -----------
 -- Mumps --
 -----------
--- Impfstoffe
-
 -- Impfzeitpunkte
 insert into vacc_def
 	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
@@ -100,8 +96,6 @@ values (
 ------------
 -- Röteln --
 ------------
--- Impfstoffe
-
 -- Impfzeitpunkte
 insert into vacc_def
 	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
@@ -139,8 +133,6 @@ values (
 -------------
 -- Tetanus --
 -------------
--- Impfstoffe
-
 -- Impfzeitpunkte
 insert into vacc_def
 	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
@@ -245,8 +237,6 @@ values (
 ----------------
 -- Diphtherie --
 ----------------
--- Impfstoffe
-
 -- Impfzeitpunkte
 insert into vacc_def
 	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
@@ -357,8 +347,6 @@ values (
 ---------------
 -- Influenza --
 ---------------
--- Impfstoffe
-
 -- Impfzeitpunkte
 insert into vacc_def
 	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
@@ -391,8 +379,6 @@ values (
 ------------------
 -- Pneumokokken --
 ------------------
--- Impfstoffe
-
 -- Impfzeitpunkte
 insert into vacc_def
 	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
@@ -425,8 +411,6 @@ values (
 ---------------
 -- Pertussis --
 ---------------
--- Impfstoffe
-
 -- Impfzeitpunkte
 insert into vacc_def
 	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
@@ -500,11 +484,14 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename like '%STIKO-Impfkalender%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.4  2003-10-26 09:41:03  ncq
+-- Revision 1.5  2003-10-31 23:30:28  ncq
+-- - cleanup
+--
+-- Revision 1.4  2003/10/26 09:41:03  ncq
 -- - truncate -> delete from
 --
 -- Revision 1.3  2003/10/25 16:45:19  ncq
