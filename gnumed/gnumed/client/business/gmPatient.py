@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.42 2004-06-01 07:50:56 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmPatient.py,v 1.43 2004-06-01 23:58:01 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -364,6 +364,7 @@ class cPatientSearcher_SQL:
 				except KeyError:
 					self.__generate_queries = self.__query_generators['default']
 		# make a cursor
+#		self.conn = gmPG.ConnectionPool().GetConnection('personalia', extra_verbose=gmPyCompat.True)
 		self.conn = gmPG.ConnectionPool().GetConnection('personalia')
 		self.curs = self.conn.cursor()
 	#--------------------------------------------------------
@@ -910,7 +911,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.42  2004-06-01 07:50:56  ncq
+# Revision 1.43  2004-06-01 23:58:01  ncq
+# - debugged dob handling in _make_queries_generic
+#
+# Revision 1.42  2004/06/01 07:50:56  ncq
 # - typo fix
 #
 # Revision 1.41  2004/05/18 22:38:19  ncq
