@@ -1,13 +1,13 @@
 #======================================================================
 # GnuMed multisash based progress note input plugin
-# ----------------------------------------------
+# -------------------------------------------------
 #
 # this plugin displays the list of patient problems
-# toghether whith a multisash containet for progress notes
+# toghether whith a multisash container for progress notes
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -21,7 +21,7 @@ _log.Log(gmLog.lInfo, __version__)
 class gmMultiSashedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate multisash based progress note input window."""
 
-	tab_name = _('notes input (multisash)')
+	tab_name = _('progress notes')
 
 	def name (self):
 		return gmMultiSashedProgressNoteInputPlugin.tab_name
@@ -31,7 +31,7 @@ class gmMultiSashedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('tools', '&notes input (multisash)')
+		return ('tools', _('progress notes'))
 
 	def can_receive_focus(self):
 		# need patient
@@ -97,7 +97,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmMultiSashedProgressNoteInputPlugin.py,v $
-# Revision 1.3  2005-03-18 16:48:42  cfmoro
+# Revision 1.4  2005-03-29 07:34:20  ncq
+# - improve naming
+#
+# Revision 1.3  2005/03/18 16:48:42  cfmoro
 # Fixes to integrate multisash notes input plugin in wxclient
 #
 # Revision 1.2  2005/03/16 18:37:57  cfmoro
