@@ -1,17 +1,16 @@
 <HTML
 ><HEAD
 ><TITLE
->Mac</TITLE
+>Mac - GnuMED on MacOSX 10.2</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
-"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
 REL="UP"
 TITLE="Installation"
-HREF="c43.html"><LINK
+HREF="installation.html"><LINK
 REL="PREVIOUS"
 TITLE="Linux Installation"
 HREF="linux.html"><LINK
@@ -37,7 +36,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: User's Manual</TH
+>GNUMed: </TH
 ></TR
 ><TR
 ><TD
@@ -73,9 +72,359 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="MAC">2.3. Mac</H1
+NAME="MAC"
+></A
+>2.3. Mac - GnuMED on MacOSX 10.2</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN282"
+></A
+>2.3.1. System</H2
 ><P
->This has been done, more information is needed.</P
+>        Install the Developer's applications from the Developer's CD that comes 
+        with MacOSX10.2
+        Make sure you have installed security update 2002-08-23 as well as 
+        MaxOSX 10.2
+		</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN285"
+></A
+>2.3.2. Instaling Python and wxWindows</H2
+><P
+>        Download the latest versions of MachoPython and wxPythonOSX from 
+        	<A
+HREF="http://sourceforge.net/project/showfiles.php?group_id=10718"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>Sourceforge</I
+></A
+>
+        </P
+><P
+>        The versions at time of writing (8 Sept 2002) were 
+        MachoPython-2.2.1-4.dmg and wxPythonOSX-2.3.3pre6.dmg respectively.
+        </P
+><P
+>&#13;        These files are disk images. Open and  install them by doubleclicking 
+        the MachoPython.pkg package and then wxPythonOSX.pkg
+        </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN292"
+></A
+>2.3.3. Install mx extensions</H2
+><P
+>        Download the mx extensions from 
+        <A
+HREF="http://www.egenix.com/files/python/egenix-mx-base-2.0.3.tar.gz"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>Egenix</I
+></A
+>        
+        (The latest version can be found at 
+		<A
+HREF="http://www.lemburg.com/files/python/eGenix-mx-Extensions.html"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>this site</I
+></A
+>.)
+        </P
+><P
+>		The .tar.gz file will be uncompressed as egenix-mx-base-2.0.3
+        </P
+><P
+>        Open the terminal application and CD to the directory 
+        egenix-mx-base-2.0.3
+        type:
+		</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>su root
+password
+python setup.py install
+exit</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN302"
+></A
+>2.3.4. Installing postgresql</H2
+><P
+>        Good instructions for installing Postgresql from binary on MaxOSX 10.2 
+        are available at
+		<A
+HREF="http://www.entropy.ch/software/MacOSx/postgresql/"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>this page</I
+></A
+>
+        </P
+><P
+>        Also install the StartUp Item script (available on the same web page) 
+        so that postgresql is loaded at system startup.
+        </P
+><P
+>        To include /usr/local/bin in the command path, enter this command
+        <TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>        echo 'setenv PATH /usr/local/bin:$PATH' &#62;&#62; ~/.tcshrc
+        </PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+        </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN310"
+></A
+>2.3.5. Installing pypgsql</H2
+><P
+>        Download the source code from 
+        http://sourceforge.net/project/showfiles.php?group_id=16528
+        </P
+><P
+>        You may need to se a text editor to edit the file setup.py in the 
+        untarred folder pypgsql
+        so that the lines starting include_dirs and library_dirs look like this 
+        </P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>        include_dirs  = [ "/usr/local/pgsql/include" ]
+        library_dirs  = [ "/usr/local/pgsql/lib" ]
+        </PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>        In the terminal, go to the pypgsql directory and type
+		<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>        python setup.py build
+        </PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+        </P
+><P
+>        If you have build errors, download the setup.py file from
+		<A
+HREF="http://www.gnumed.org/directory/documents/144/setup.py"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>the Gnumed Homepage</I
+></A
+>,
+        move it to the pypgsql directory, and repeat the command.
+        </P
+><P
+>        Wait for the build to finish and then type
+		<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>        sudo python setup.py install
+        </PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+        (Enter your root password when prompted)
+        </P
+><P
+>        To test the install, type
+        <TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>        python test/PgSQLTestCases.py
+        </PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+        </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN324"
+></A
+>2.3.6. Download gnumed cvs</H2
+><P
+>		Open a new terminal window, and type
+        </P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>		Just press 'return' when asked for a password. Then type
+		<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+        </P
+><P
+>		All the gnumed files will be downloaded to your hard drive.
+        </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN331"
+></A
+>2.3.7. Configuring postgres for Gnumed</H2
+><P
+>		 From your home directory, go to the directory gnumed/gnumed/server/sql
+<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>cd ~/gnumed/gnumed/server/sql
+su postgres</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+Enter your postgres password.
+<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>createdb gnumed</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></P
+><P
+>Instructions on initialising the gnumed databases will follow - when 
+they are ready.</P
+></DIV
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
@@ -127,7 +476,7 @@ WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c43.html"
+HREF="installation.html"
 ACCESSKEY="U"
 >Up</A
 ></TD

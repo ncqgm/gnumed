@@ -4,19 +4,18 @@
 >Linux Installation</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
-"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
 REL="UP"
 TITLE="Installation"
-HREF="c43.html"><LINK
+HREF="installation.html"><LINK
 REL="PREVIOUS"
 TITLE="Obtaining Gnumed software"
-HREF="x45.html"><LINK
+HREF="optaining-gnumed.html"><LINK
 REL="NEXT"
-TITLE="Mac"
+TITLE="Mac - GnuMED on MacOSX 10.2"
 HREF="mac.html"></HEAD
 ><BODY
 CLASS="SECT1"
@@ -37,7 +36,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: User's Manual</TH
+>GNUMed: </TH
 ></TR
 ><TR
 ><TD
@@ -45,7 +44,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x45.html"
+HREF="optaining-gnumed.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -73,20 +72,26 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="LINUX">2.2. Linux Installation</H1
+NAME="LINUX"
+></A
+>2.2. Linux Installation</H1
 ><DIV
 CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN61">2.2.1. Distrubutions 'supported'</H2
+NAME="AEN69"
+></A
+>2.2.1. Distrubutions 'supported'</H2
 ><P
 >GnuMed is known being actively developed on:</P
 ><P
 >		<DIV
 CLASS="TABLE"
 ><A
-NAME="AEN65"><P
+NAME="AEN73"
+></A
+><P
 ><B
 >Table 2-1. "Supported" Distributions</B
 ></P
@@ -365,7 +370,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN140">2.2.2. Requirements</H2
+NAME="AEN148"
+></A
+>2.2.2. Requirements</H2
 ><P
 >GNUMed has run successfully on Linux. It requires a number of
 packages to be installed before it can be run.</P
@@ -375,7 +382,9 @@ packages to be installed before it can be run.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN145"><P
+NAME="AEN153"
+></A
+><P
 ><B
 >Table 2-2. Requirements</B
 ></P
@@ -446,9 +455,12 @@ VALIGN="TOP"
 CLASS="FILENAME"
 >1.2</TT
 ><A
-NAME="AEN168"
-HREF="#FTN.AEN168"
->[a]</A
+NAME="AEN176"
+HREF="#FTN.AEN176"
+><SPAN
+CLASS="footnote"
+>[a]</SPAN
+></A
 ></TD
 ></TR
 ><TR
@@ -492,9 +504,12 @@ CLASS="CITETITLE"
 ></A
 >
 					<A
-NAME="AEN182"
-HREF="#FTN.AEN182"
->[b]</A
+NAME="AEN190"
+HREF="#FTN.AEN190"
+><SPAN
+CLASS="footnote"
+>[b]</SPAN
+></A
 >
 				</TD
 ><TD
@@ -528,12 +543,24 @@ CLASS="CITETITLE"
 ><TD
 ALIGN="LEFT"
 VALIGN="TOP"
->2.3.2 <A
-NAME="AEN193"
-HREF="#FTN.AEN193"
->[c]</A
+>2.3.2 (both must be the same)
+          <A
+NAME="AEN201"
+HREF="#FTN.AEN201"
+><SPAN
+CLASS="footnote"
+>[c]</SPAN
+></A
 >
-(both must be the same)</TD
+            <A
+NAME="AEN203"
+HREF="#FTN.AEN203"
+><SPAN
+CLASS="footnote"
+>[d]</SPAN
+></A
+>
+			</TD
 ></TR
 ><TR
 ><TD
@@ -558,15 +585,26 @@ VALIGN="TOP"
 ><TD
 COLSPAN="3"
 >Notes:<BR><A
-NAME="FTN.AEN168"
+NAME="FTN.AEN176"
 >a. </A
 >GTK now comes included with wxPython 2.3.2. You dont need to download this package<BR><A
-NAME="FTN.AEN182"
+NAME="FTN.AEN190"
 >b. </A
 >Don't forget to include the Python interface libraries.<BR><A
-NAME="FTN.AEN193"
+NAME="FTN.AEN201"
 >c. </A
->wxPython includes GTK, so you only need to install WxPythin 2.3.2<BR></TD
+>wxPython includes GTK, so you only need to install wxPython 2.3.2<BR><A
+NAME="FTN.AEN203"
+>d. </A
+>On Debian,<A
+HREF="http://packages.debian.org/cgi-bin/search_packages.pl?keywords=libwx&searchon=names&subword=1&version=unstable&release=all"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>try this link</I
+></A
+> for a current package containing wxWindows.
+              <BR></TD
 ></TR
 ></TABLE
 ></DIV
@@ -624,13 +662,17 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN208">2.2.3. Postgresql</H2
+NAME="AEN220"
+></A
+>2.2.3. Postgresql</H2
 ><DIV
 CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN210">2.2.3.1. Creating a database with PostgresQL</H3
+NAME="AEN222"
+></A
+>2.2.3.1. Creating a database with PostgresQL</H3
 ><P
 >This may be too simplistic but there a few things that need to be cleared up. The first is that when <EM
 >postgresQL</EM
@@ -713,7 +755,9 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN223">2.2.3.2. Configuring PostgreSQL (quoting Steven Duffy)</H3
+NAME="AEN235"
+></A
+>2.2.3.2. Configuring PostgreSQL (quoting Steven Duffy)</H3
 ><P
 > Some steps are required to get the <SPAN
 CLASS="APPLICATION"
@@ -818,7 +862,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN251">2.2.4. RunningGnuMed</H2
+NAME="AEN263"
+></A
+>2.2.4. Running GnuMed</H2
 ><P
 >Simple I would have thought but to start Gnumed you must go all the way to</P
 ><TABLE
@@ -855,12 +901,22 @@ CLASS="SCREEN"
 ></P
 ><P
 >Do not be surprised with a multitude of [WARN} and [INFO] the the python interpreter will spew out. With any luck you will see a login gui</P
+><P
+>    When running from the client/wxpython/ directory of a normal
+    CVS tree it shouldn't be necessary at all to set GNUMED_DIR.                
+    Actually, the combination of _setting_ GNUMED_DIR and a
+    subsequent failure on import of GnuMed modules hints towards
+    an incorrectly set GNUMED_DIR. If at all it needs to be set to
+    the directory where your python-common/ subdir resides in the tree.
+    </P
 ><DIV
 CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN258">2.2.4.1. Logging in</H3
+NAME="AEN271"
+></A
+>2.2.4.1. Logging in</H3
 ><P
 >You will then be faced with login parameters. If you have set up the postgresql correctly, you only need to fill in the follow parameters.</P
 ><P
@@ -894,7 +950,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x45.html"
+HREF="optaining-gnumed.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -928,7 +984,7 @@ WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c43.html"
+HREF="installation.html"
 ACCESSKEY="U"
 >Up</A
 ></TD
@@ -936,7 +992,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Mac</TD
+>Mac - GnuMED on MacOSX 10.2</TD
 ></TR
 ></TABLE
 ></DIV
