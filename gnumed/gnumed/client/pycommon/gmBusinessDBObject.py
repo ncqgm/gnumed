@@ -83,8 +83,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.10 2005-01-31 06:25:35 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmBusinessDBObject.py,v 1.11 2005-01-31 12:56:55 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -302,13 +302,11 @@ class cBusinessDBObject:
 		"""
 		if not self._is_modified:
 			return (True, None)
-
 		params = {}
 		for field in self._idx.keys():
 			params[field] = self._payload[self._idx[field]]
 
 		conn = self.__class__._conn_pool.GetConnection(self.__class__._service, readonly=0)
-#		gmPG.ConnectionPool().GetConnection(self.__class__._service, readonly=0)
 		if conn is None:
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			return (False, (1, _('Cannot connect to database.')))
@@ -352,21 +350,21 @@ class cBusinessDBObject:
 		queries = []
 		for query in self.__class__._cmds_store_payload:
 			queries.append((query, [params]))
-		successful, data = gmPG.run_commit2(link_obj = conn, queries = queries, get_col_idx = True)
+		successful, result = gmPG.run_commit2(link_obj = conn, queries = queries, get_col_idx = True)
 		if not successful:
 			conn.rollback()
 			conn.close()
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			_log.Log(gmLog.lErr, params)
 			return (False, result)
-		data, idx = result
-		if data is None:
+		rows, idx = result
+		if rows is None:
 			conn.rollback()
 			conn.close()
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, last query did not return XMIN values' % (self.__class__.__name__, self.pk_obj))
-			return (False, data)
+			return (False, result)
 		# update cached XMIN values
-		row = data[0]
+		row = rows[0]
 		for key in idx.keys():
 			try:
 				self._payload[self._idx[key]] = row[idx[key]]
@@ -410,7 +408,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.10  2005-01-31 06:25:35  ncq
+# Revision 1.11  2005-01-31 12:56:55  ncq
+# - properly update xmin in save_payload()
+#
+# Revision 1.10  2005/01/31 06:25:35  ncq
 # - brown paper bag bug, I wonder how it ever worked:
 #   connections are gotten from an instance of the pool
 #
