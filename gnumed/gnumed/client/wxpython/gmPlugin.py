@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.35 2004-09-13 09:25:46 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmPlugin.py,v 1.36 2004-09-13 19:27:27 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -273,8 +273,7 @@ def GetPluginLoadList(set):
 
 	p_list, match = gmCfg.getDBParam (
 		workplace = curr_workplace,
-		option = 'plugin load order',
-		cookie = str(set)
+		option = 'horstspace.notebook.plugin_load_order'
 	)
 
 	if p_list is not None:
@@ -285,9 +284,8 @@ def GetPluginLoadList(set):
 		# store plugin list for the current user/current workplace
 		gmCfg.setDBParam(
 			workplace = curr_workplace,
-			option = 'plugin load order',
-			value = p_list,
-			cookie = str(set)
+			option = 'horstspace.notebook.plugin_load_order',
+			value = p_list
 		)
 		return p_list
 
@@ -311,9 +309,8 @@ def GetPluginLoadList(set):
 	# store for current user/current workplace
 	gmCfg.setDBParam(
 		workplace = curr_workplace,
-		option = 'plugin load order',
-		value = p_list,
-		cookie = str(set)
+		option = 'horstspace.notebook.plugin_load_order',
+		value = p_list
 	)
 
 	_log.Log(gmLog.lData, "plugin load list: %s" % str(p_list))
@@ -334,7 +331,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.35  2004-09-13 09:25:46  ncq
+# Revision 1.36  2004-09-13 19:27:27  ncq
+# - load "horstspace.notebook.plugin_load_order" instead of
+#   "plugin load order" with cookie "gui"
+#
+# Revision 1.35  2004/09/13 09:25:46  ncq
 # - fix plugin raise code
 #
 # Revision 1.34  2004/09/06 22:23:03  ncq
