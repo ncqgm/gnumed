@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.12 2004-08-18 10:18:42 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmGuiHelpers.py,v 1.13 2004-08-19 13:56:51 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -80,6 +80,28 @@ def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
 	dlg.Destroy()
 	return True
 #-------------------------------------------------------------------------
+def gm_show_warning(aMessage = None, aTitle = None, aLogLevel = None):
+	if aMessage is None:
+		aMessage = _('programmer forgot to specify warning')
+
+	if aLogLevel is not None:
+		log_msg = string.replace(aMessage, '\015', ' ')
+		log_msg = string.replace(log_msg, '\012', ' ')
+		_log.Log(aLogLevel, log_msg)
+
+	if aTitle is None:
+		aTitle = _('generic warning message dialog')
+
+	dlg = wxMessageDialog (
+		parent = NULL,
+		message = aMessage,
+		caption = aTitle,
+		style = wxOK | wxICON_EXCLAMATION
+	)
+	dlg.ShowModal()
+	dlg.Destroy()
+	return True
+#-------------------------------------------------------------------------
 def gm_show_question(aMessage = None, aTitle = None):
 	# sanity checks
 	if aMessage is None:
@@ -127,7 +149,10 @@ def gm_beep_statustext(aMessage, aLogLevel = None):
 	return 1
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.12  2004-08-18 10:18:42  ncq
+# Revision 1.13  2004-08-19 13:56:51  ncq
+# - added gm_show_warning()
+#
+# Revision 1.12  2004/08/18 10:18:42  ncq
 # - added gm_show_info()
 #
 # Revision 1.11  2004/05/28 13:30:27  ncq
