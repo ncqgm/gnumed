@@ -12,7 +12,11 @@ The manuals should reside where the manual_path points to
 @thanks: this code has been heavily "borrowed" from
          Robin Dunn's extraordinary wxPython sample
 """
-import os
+import os, sys
+
+if __name__ == '__main__':
+	print "this is not currently fit to run standalone"
+	sys.exit(1)
 
 from   wxPython.wx         import *
 from   wxPython.html       import *
