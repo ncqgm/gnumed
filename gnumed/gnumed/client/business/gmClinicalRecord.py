@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.43 2003-11-11 20:28:59 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmClinicalRecord.py,v 1.44 2003-11-16 19:30:26 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -198,6 +198,7 @@ class gmClinicalRecord:
 			'age',
 			"to_char(modified_when, 'YYYY-MM-DD @ HH24:MI') as modified_when",
 			'modified_by',
+			'clin_when',
 			"case is_modified when false then '%s' else '%s' end as modified_string" % (_('original entry'), _('modified entry')),
 			'id_item',
 			'id_encounter',
@@ -273,16 +274,16 @@ class gmClinicalRecord:
 					emr_data[age] = []
 
 				emr_data[age].append(
-					_('%s: encounter (%s) with "%s"') % (
-						view_row[view_col_idx['modified_when']],
-						view_row[view_col_idx['id_encounter']],
-						view_row[view_col_idx['modified_by']]
+					_('%s: encounter (%s)') % (
+						view_row[view_col_idx['clin_when']],
+						view_row[view_col_idx['id_encounter']]
 					)
 				)
 				emr_data[age].append(_('health issue: %s') % issue_name)
 				emr_data[age].append(_('episode     : %s') % episode_name)
 				# format table specific data columns
-				# - ignore those, they are metadata
+				# - ignore those, they are metadata, some
+				#   are in v_patient_items data already
 				cols2ignore = [
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
 					'pk_item', 'id', 'id_encounter', 'id_episode'
@@ -291,12 +292,18 @@ class gmClinicalRecord:
 				for col_name in table_col_idx.keys():
 					if col_name in cols2ignore:
 						continue
-					emr_data[age].append(">>> %s <<<" % col_name)
+					emr_data[age].append("=> %s:" % col_name)
 					emr_data[age].append(row[table_col_idx[col_name]])
-				emr_data[age].append(">>> %s from table %s <<<" % (
+				emr_data[age].append("----------------------------------------------------")
+				emr_data[age].append("-- %s from table %s" % (
 					view_row[view_col_idx['modified_string']],
 					src_table
 				))
+				emr_data[age].append("-- written %s by %s" % (
+					view_row[view_col_idx['modified_when']],
+					view_row[view_col_idx['modified_by']]
+				))
+				emr_data[age].append("----------------------------------------------------")
 		curs.close()
 		return emr_data
 	#--------------------------------------------------------
@@ -852,7 +859,11 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.43  2003-11-11 20:28:59  ncq
+# Revision 1.44  2003-11-16 19:30:26  ncq
+# - use clin_when in clin_root_item
+# - pretty print EMR text dump
+#
+# Revision 1.43  2003/11/11 20:28:59  ncq
 # - get_allergy_names(), reimplemented
 #
 # Revision 1.42  2003/11/11 18:20:58  ncq
