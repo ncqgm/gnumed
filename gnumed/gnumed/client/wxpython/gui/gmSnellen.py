@@ -16,7 +16,7 @@ import random
 import gmLog
 
 ID_SNELLENMENU = wxNewId ()
-
+ID_SNELLENBUTTON= wxNewId ()
 
 class SnellenChart (wxFrame):
     def convert (self, X,Y):

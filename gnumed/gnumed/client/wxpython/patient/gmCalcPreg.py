@@ -6,8 +6,8 @@
 # Changelog:
 # 11/7/02: inital version
 #====================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmPreg.py,v $
-__version__ = "$Revision: 1.5 $"
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
+__version__ = "$Revision"
 __author__ = "Ian Haywood"
 
 from wxPython.wx import *
@@ -22,6 +22,7 @@ ID_DUE = wxNewId ()
 ID_DAY = wxNewId ()
 ID_WEEK = wxNewId ()
 ID_MENU = wxNewId ()
+ID_BUTTON = wxNewId ()
 
 # Naegele's rule is easy for manual calculation, but a pain to code
 # Enter Haywood's rule ;-), human gestation is defined as 24192000 seconds.
@@ -116,7 +117,7 @@ else:
 	import gmPlugin
 	import images_gnuMedGP_Toolbar
 
-	class gmPreg (gmPlugin.wxBasePlugin):
+	class gmCalcPreg (gmPlugin.wxBasePlugin):
 		def name (self):
 			return 'Pregnancy Calculator'
 		#---------------------
@@ -125,12 +126,14 @@ else:
 			menu.Append (ID_MENU, "Preg. Calc", "Pregnancy Calculator")
 			EVT_MENU (self.gb['main.frame'], ID_MENU, self.OnTool)
 			self.tb = self.gb['main.toolbar']
-			self.toolid = self.tb.AddToolRightBottom (images_gnuMedGP_Toolbar.getToolbar_PregcalcBitmap(), 'Pregnancy Calculator', self.OnTool)
+			self.tool = wxBitmapButton (self.tb, ID_BUTTON, bitmap= images_gnuMedGP_Toolbar.getToolbar_PregcalcBitmap(), style=0)
+			self.tool.SetToolTip (wxToolTip('Pregnancy Calculator'))
+			self.tb.AddWidgetRightBottom (self.tool)
+			EVT_BUTTON (self.tool, ID_BUTTON, self.OnTool)
 		#---------------------
 		def unregister (self):
 			menu = self.gb['main.toolsmenu']
 			menu.Delete (ID_MENU)
-			self.tb.DeleteToolRightBottom (self.toolid)
 		#---------------------
 		def OnTool (self, event):
 			frame = PregnancyDialogue (self.gb['main.frame'])
