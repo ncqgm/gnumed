@@ -12,12 +12,13 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.34 2004-07-26 12:04:44 sjtan Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmDemographics.py,v 1.35 2004-07-30 13:43:33 sjtan Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
-from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCharacterValidator
+from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals
+from Gnumed.wxpython import gmCharacterValidator
 from Gnumed.business import gmDemographicRecord, gmPatient
 
 
@@ -799,7 +800,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.34  2004-07-26 12:04:44  sjtan
+# Revision 1.35  2004-07-30 13:43:33  sjtan
+#
+# update import
+#
+# Revision 1.34  2004/07/26 12:04:44  sjtan
 #
 # character level immediate validation , as per Richard's suggestions.
 #
