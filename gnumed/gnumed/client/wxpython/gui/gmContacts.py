@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -19,7 +19,7 @@ from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP, setPostcodeWidgetFromUrbId
-from Gnumed.business.gmOrganization import cOrgHelperImpl1, cOrgImpl1
+from Gnumed.business.gmOrganization import cOrgHelperImpl1,  cOrgHelperImpl2
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 
@@ -206,8 +206,9 @@ class ContactsPanel(wxPanel):
 
 	  self.input_fields = {
 	  	'name': self.txt_org_name,
+		'office': self.txt_org_type,
 		'category': self.txt_org_category,
-		'type': self.txt_org_type,
+		'subtype': self.combo_type,
 		'street': self.txt_org_street,
 		'urb': self.txt_org_suburb,
 		'postcode' : self.txt_org_zip,
@@ -386,8 +387,9 @@ class ContactsPanel(wxPanel):
 
        def get_org_values(self):
           f = self.input_fields
-	  v = [ f[n].GetValue() for n in ['name', 'memo', 'category', 'phone', 'fax', 'email', 'mobile'] ]
-	  return [ v[0], 'no office', 'no dept'] + v[1:]
+	  
+	  m =dict(  [ (n,f[n].GetValue()) for n in ['name','office', 'subtype', 'memo', 'category', 'phone', 'fax', 'email', 'mobile'] ] )
+	  return m 
   	
        def add_org(self, org):
 	  try:     
@@ -402,7 +404,17 @@ class ContactsPanel(wxPanel):
 		  
 	  a = org.getAddress()
 	  o = org.get()
-	  data = [ o['name'],"", " ".join( [a.get('number','').strip(), a.get('street','').strip(), a.get('urb','').strip(), a.get('postcode','')]), o.get('category',''), o.get('phone', '') ]
+	  
+	  nameCol , subTypeCol ='',''
+	  if  o['subtype'].isalnum():
+		 nameCol, subTypeCol  =   ''	, o['name'] + ' '+o['subtype']
+	  else:
+		 nameCol, subTypeCol = o['name'], ''
+		  
+	  if nameCol == '': fourthCol = o.get('email','')
+	  else:
+		  	fourthCol = o.get('category', '')
+	  data = [ nameCol, subTypeCol , " ".join( [a.get('number','').strip(), a.get('street','').strip(), a.get('urb','').strip(), a.get('postcode','')]), fourthCol, '/fax '.join([ o.get('phone', '') , o.get('fax', '')] ) ]
 	  x = self.list_organisations.GetItemCount()
 	  
 	  self._insert_org_data( x, key, data)
@@ -421,7 +433,7 @@ class ContactsPanel(wxPanel):
 	  self.list_organisations.DeleteAllItems()
 	  self._insert_example_data()
 	  
-	  orgs = cOrgHelperImpl1().findAllOrganizations()
+	  orgs = self.getOrgHelper().findAllOrganizations()
 	  for org in orgs:
 		  self.add_org(org)
 		 
@@ -431,9 +443,9 @@ class ContactsPanel(wxPanel):
 		  key, data = items[i]
 		  self._insert_org_data(i, key, data)
 
-       def _set_controller(self):
+       def _set_controller(self, helper = cOrgHelperImpl2() ):
           self._connect_list()
-	  self._helper = cOrgHelperImpl1()
+	  self._helper = helper 
 	  self._current = None
 		  
        def _connect_list(self):
@@ -444,11 +456,20 @@ class ContactsPanel(wxPanel):
 	  ix = event.GetIndex()
 	  key = self.list_organisations.GetItemData(ix)
 	  org = self._helper.getFromCache(key)
+	  self.clearForm()
 	  if org == None:
 		  org = self._helper.create()
 		  data = [ self.list_organisations.GetItem(ix,n).GetText() for n in xrange(0,5) ]
 		  
-		  org['name'] = data[0]
+		  org['name'] = data[0].strip()
+		  org['subtype'] = data[1].strip()
+		  j = 1
+		  while org['name'] == '' and j <= ix:
+			  org['name'] = self.list_organisations.GetItem(ix-j, 0).GetText().strip()
+			  j += 1
+
+		  if org['subtype'] <> '':
+			  org.setParent( org.getHelper().findOrgsByName(org['name'])[0] )
 		 
 		  #TODO remove this test filter
 		  if  data[3].lower().find('hospital') >= 0:  data[3] = 'hospital'
@@ -481,12 +502,17 @@ class ContactsPanel(wxPanel):
 			  print "unable to parse address"
 		  	  
 	  self.setCurrent(org)
+	  self.checkCategoryRequired()
+
+	  
+       def checkCategoryRequired(self):	  
+		  self.input_fields['category'].SetEditable(not  self.getCurrent()['name'].isalnum() )
 	
        def setCurrent(self, org):
 	  self.clearForm()
 	  self._current = org
 	  f = self.input_fields
-	  for n in ['name', 'category', 'phone', 'email', 'fax', 'mobile']:
+	  for n in ['name','subtype', 'category', 'phone', 'email', 'fax', 'mobile']:
 		  v = org[n]
 		  
 		  if v == None: v = ''
@@ -507,10 +533,14 @@ class ContactsPanel(wxPanel):
 	       return self._current
 
        def getOrgHelper(self):
-	       return self._helper
+	       return  self._helper
 
-       def newOrg(self):
-           self.setCurrent(self._helper.create())	   
+       def newOrg(self, parent = None):
+           self.setCurrent(self._helper.create())
+	   self.getCurrent().setParent(parent)
+	   if not parent is None:
+		   self.input_fields['category'].SetValue(parent['category'])
+	   self.input_fields['category'].SetEditable(parent is None)
 
        def clearForm(self):
            for k,f in self.input_fields.items():
@@ -602,7 +632,7 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 			w.setCurrent(org)
 		o = w.get_org_values()
 		a = w.get_address_values()
-		org.set(*o)
+		org.set(*[],**o)
 		org.setAddress(*a)
 		
 		isNew = org.getId() is None
@@ -614,6 +644,25 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 		
         def addBranchDept(self, event):
 		print "doBranchDeptAdd"
+		w = self._last_widget
+		parent = w.getCurrent()
+		if parent is None:
+			print "No parent org for sub org"
+			return
+		
+		if parent.getId() is None:
+			print "Please save parent org first"
+			return
+		
+		if not parent.getParent() is None:	
+			print "Only one level of sub-org implemented"
+			return
+		
+		w.newOrg(parent)
+		
+
+
+		
 
 	def displayOrg(self, event):
 		w = self._last_widget
@@ -628,7 +677,12 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.22  2004-05-28 10:06:03  shilbert
+# Revision 1.23  2004-05-28 15:20:41  sjtan
+#
+# add department and branch, but only onto saved top level orgs (i.e. hospitals
+# in the test case/ don't mistake the original dummy rows for saved orgs).
+#
+# Revision 1.22  2004/05/28 10:06:03  shilbert
 # - workaround for wxMac
 #
 # Revision 1.21  2004/05/28 04:29:55  sjtan
