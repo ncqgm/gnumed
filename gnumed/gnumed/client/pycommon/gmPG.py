@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -78,7 +78,8 @@ if time.daylight:
 	tz = time.altzone
 else:
 	tz = time.timezone
-# do some magic to convert Python's timezone to Postgres's desired format
+# do some magic to convert Python's timezone to a valid ISO timezone
+# is this save or will it return things like 13.5 hours ?
 _default_time_zone = "%+.1f" % (-tz / 3600.0)
 
 #======================================================================
@@ -392,16 +393,13 @@ class ConnectionPool:
 		if cfg_db is None:
 			raise gmExceptions.ConnectionError, _('Cannot connect to configuration database with:\n\n[%s]') % login.GetInfoStr()
 
-		ConnectionPool.__connected = 1
-
 		# this is the default gnumed server now
 		ConnectionPool.__databases['default'] = cfg_db
-		cmd = "select version()"
-		data = run_ro_query(cfg_db, cmd)
-		_log.Log(gmLog.lInfo, 'service [default/config] running on [%s]' % data[0][0])
-		
-		# preload all services with database id 0 (default)
 		cursor = cfg_db.cursor()
+		# document DB version
+		cursor.execute("select version()")
+		_log.Log(gmLog.lInfo, 'service [default/config] running on [%s]' % cursor.fetchone()[0])
+		# preload all services with database id 0 (default)
 		cmd = "select name from distributed_db"
 		if not run_query(cursor, cmd):
 			cursor.close()
@@ -436,10 +434,10 @@ class ConnectionPool:
 				raise gmExceptions.ConnectionError, _('Cannot connect to database with:\n\n[%s]') % login.GetInfoStr()
 			ConnectionPool.__databases[service] = conn
 			# - document DB version
-			cmd = "select version()"
-			data = run_ro_query(conn, cmd)
-			_log.Log(gmLog.lInfo, 'service [%s] running on [%s]' % (service, data[0][0]))
+			cursor.execute("select version()")
+			_log.Log(gmLog.lInfo, 'service [%s] running on [%s]' % (service, cursor.fetchone()[0]))
 		cursor.close()
+		ConnectionPool.__connected = 1
 		return ConnectionPool.__connected
 	#-----------------------------
 	def __pgconnect(self, login, readonly=2, encoding=None):
@@ -819,6 +817,7 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 		_log.Log(gmLog.lErr, 'query did not return rows !')
 	else:
 		data = curs.fetchall()
+	# can "close" before closing cursor since it just decrements the ref counter
 	close_conn(link_obj)
 	if get_col_idx:
 		col_idx = get_col_indices(curs)
@@ -947,7 +946,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.17 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.18 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1175,7 +1174,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.17  2004-04-28 03:25:01  ihaywood
+# Revision 1.18  2004-05-06 23:26:09  ncq
+# - cleanup _setup_default_ro_conns()
+#
+# Revision 1.17  2004/04/28 03:25:01  ihaywood
 # ensure sane timezone
 #
 # Revision 1.16  2004/04/27 22:43:28  ncq
