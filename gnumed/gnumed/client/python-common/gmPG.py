@@ -11,7 +11,7 @@
 # to anybody else.
 #=======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -90,6 +90,7 @@ class ConnectionPool:
 	def GetConnection(self, service = "default", readonly = 1):
 		"""if a distributed service exists, return it - otherwise return the default server"""
 
+		# make sure we use "_user" for read-write connections
 		if not readonly:
 			logininfo = self.GetLoginInfoFor(service)
 			user = logininfo.GetUser()
@@ -99,11 +100,13 @@ class ConnectionPool:
 			#<DEBUG>
 			_log.Log(gmLog.lData, "requesting RW connection to service [%s] for %s" % (service, user))
 			#</DEBUG>
+			# and actually get a new connections
 			try:
 				return self.__pgconnect(logininfo)
 			except:
 				_log.LogException("Cannot open RW connection to service [%s] for %s." % (service, user), sys.exc_info(), fatal=1)
 				return None
+		# make sure we use "user" for read-only connections
 		else:
 			logininfo = self.GetLoginInfoFor(service)
 			user = logininfo.GetUser()
@@ -114,6 +117,7 @@ class ConnectionPool:
 		_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
 		#</DEBUG>
 
+		# just reeturn a cached (read-only) connection
 		if ConnectionPool.__databases.has_key(service):
 			try:
 				ConnectionPool.__connections_in_use[service] += 1
@@ -346,7 +350,6 @@ class ConnectionPool:
 			raise gmExceptions.ConnectionError, _("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport)
 	
 	#-----------------------------
-	
 	def __decrypt(self, crypt_pwd, crypt_algo, pwd):
 		"""decrypt the encrypted password crypt_pwd using the stated algorithm
 		and the given password pwd"""
@@ -354,7 +357,6 @@ class ConnectionPool:
 		pass
 	
 	#-----------------------------
-	
 	def __disconnect(self, force_it=0):
 		"safe disconnect (respecting possibly active connections) unless the force flag is set"
 		###are we connected at all?
@@ -618,7 +620,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.34  2003-02-24 23:17:32  ncq
+# Revision 1.35  2003-03-27 21:11:26  ncq
+# - audit for connection object leaks
+#
+# Revision 1.34  2003/02/24 23:17:32  ncq
 # - moved some comments out of the way
 # - convenience function run_query()
 #
