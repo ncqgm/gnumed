@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.23 2003-11-05 22:21:06 sjtan Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmPhraseWheel.py,v 1.24 2003-11-07 20:48:04 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -279,10 +279,10 @@ class cPhraseWheel (wxTextCtrl):
 		else:
 			self.SetValue(self._picklist.GetString(selection_idx))
 
+		# get data associated with selected item
 		self.data = self._picklist.GetClientData(selection_idx)
 		# and tell our parent about the user's selection
 		for call in self.notify_caller:
-			# get data associated with selected item
 			call (self.data)
 		self.have_called = 1
 	#--------------------------------------------------------
@@ -486,7 +486,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.23  2003-11-05 22:21:06  sjtan
+# Revision 1.24  2003-11-07 20:48:04  ncq
+# - place comments where they belong
+#
+# Revision 1.23  2003/11/05 22:21:06  sjtan
 #
 # let's gmDateInput specify id_callback in constructor list.
 #
