@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.34 2003-07-19 20:17:23 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmClinicalRecord.py,v 1.35 2003-09-30 19:11:58 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -741,7 +741,6 @@ class gmClinicalRecord:
 	#------------------------------------------------------------------
 	def create_allergy(self, map):
 		"""tries to add allergy to database."""
-
 		rw_conn = self._backend.GetConnection('historica', readonly = 0)
 		if rw_conn is None:
 			_log.Log(gmLog.lErr, 'cannot connect to service [historica]')
@@ -751,57 +750,14 @@ class gmClinicalRecord:
 		cmd = """
 insert into
 allergy(id_type, id_encounter, id_episode,  substance, reaction, definite)
-values
-(%d, %d, %d, '%s', '%s', '%s' )
-""" % (1, self.id_encounter, self.id_episode, map["substance"], map["reaction"],
-		 map["definite"])
-		gmPG.run_query (rw_curs, cmd)
-		rw_curs.close ()
-		rw_conn.commit ()
+values (%s, %s, %s, %s, %s, %s)
+"""
+		gmPG.run_query (rw_curs, cmd, 1, self.id_encounter, self.id_episode, map["substance"], map["reaction"], map["definite"])
+		rw_curs.close()
+		rw_conn.commit()
+		rw_conn.close()
 
 		return 1
-	#------------------------------------------------------------------
-	# convenience sql call interface
-	#------------------------------------------------------------------
-	def execute(self, cmd, error_msg, rollback = 0):
-		#<DEBUG>
-		_log.Data("Running query : %s" % cmd)
-		#</DEBUG>
-		curs = self.getTransactionCursor()
-		if curs is None:
-			curs = self.getCursor()
-		if not gmPG.run_query(curs, cmd):
-			# this is utterly useless !!
-#			if rollback and not gmPG.run_query(curs, "rollback"):
-#				_log.Log(gm.lErr, "*****   Unable to rollback", sys.exc_info() )
-			# just closing the cursor without a commit rolls back
-			# and why would we want to roll back if we don't
-			# even check for is_update_command ?!?
-
-			#ok 
-			if rollback:
-				curs.close()
-			_log.Log(gmLog.lErr, error_msg)
-			
-			return None
-
-		if self.is_update_command(cmd):
-			# uhm, wouldn't you want to commit() here ?!?
-			return []  # don't fetch from cursor	
-		rows = curs.fetchall()
-		# I am completely stumped as to what you want to achieve here
-		if self.getTransactionCursor() is None:
-			curs.close()
-		
-		return rows
-
-	def is_update_command(self, cmd):
-		if 	string.find(string.lower(cmd), "insert") >= 0 or \
-			string.find(string.lower(cmd), "update") >= 0 or \
-			string.find(string.lower(cmd), "delete") >= 0 or \
-			string.find(string.lower(cmd), "commit") >= 0 or \
-			string.find(string.lower(cmd), "select into") >= 0:
-				return 1
 #============================================================
 # main
 #------------------------------------------------------------
@@ -819,7 +775,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.34  2003-07-19 20:17:23  ncq
+# Revision 1.35  2003-09-30 19:11:58  ncq
+# - remove dead code
+#
+# Revision 1.34  2003/07/19 20:17:23  ncq
 # - code cleanup
 # - add cleanup()
 # - use signals better
