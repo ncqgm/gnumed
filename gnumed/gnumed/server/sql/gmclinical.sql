@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.83 $
+-- $Revision: 1.84 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -80,8 +80,16 @@ comment on column clin_episode.description is
 
 create table last_act_episode (
 	id serial primary key,
-	id_episode integer not null references clin_episode(id),
-	id_patient integer unique not null
+	id_episode integer
+		unique
+		not null
+		references clin_episode(id),
+	id_patient integer
+		unique
+		not null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete restrict
 );
 
 comment on table last_act_episode is
@@ -108,7 +116,11 @@ comment on TABLE _enum_encounter_type is
 -- -------------------------------------------------------------------
 create table clin_encounter (
 	id serial primary key,
-	fk_patient integer not null,
+	fk_patient integer
+		not null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete restrict,
 	fk_location integer,
 	fk_provider integer,
 	fk_type integer not null references _enum_encounter_type(id) default 1,
@@ -116,7 +128,6 @@ create table clin_encounter (
 );
 
 -- remote foreign keys
-select add_x_db_fk_def('clin_encounter', 'fk_patient', 'personalia', 'identity', 'id');
 select add_x_db_fk_def('clin_encounter', 'fk_location', 'personalia', 'org', 'id');
 select add_x_db_fk_def('clin_encounter', 'fk_provider', 'personalia', 'staff', 'pk');
 
@@ -432,7 +443,10 @@ comment on column vacc_def.min_interval is
 create table vaccination (
 	id serial primary key,
 	fk_patient integer
-		not null,
+		not null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete restrict,
 	fk_provider integer
 		not null,
 	fk_vaccine integer
@@ -454,7 +468,6 @@ select add_table_for_audit('vaccination');
 select add_table_for_notifies('vaccination', 'vacc');
 
 -- remote foreign keys:
-select add_x_db_fk_def('vaccination', 'fk_patient', 'personalia', 'identity', 'id');
 select add_x_db_fk_def('vaccination', 'fk_provider', 'personalia', 'staff', 'pk');
 
 comment on table vaccination is
@@ -486,7 +499,12 @@ comment on column lnk_vacc2vacc_def.fk_vacc_def is
 -- allergies tables
 create table allergy_state (
 	id serial primary key,
-	id_patient integer unique not null,
+	id_patient integer
+		unique
+		not null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete restrict,
 	has_allergy integer default null check (has_allergy in (null, -1, 0, 1))
 ) inherits (audit_fields);
 
@@ -815,11 +833,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.83 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.84 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.83  2004-01-15 14:26:25  ncq
+-- Revision 1.84  2004-01-15 15:09:24  ncq
+-- - use xlnk_identity extensively
+--
+-- Revision 1.83  2004/01/15 14:26:25  ncq
 -- - add xlnk_identity: this is the only place with an unresolved remote foreign key
 -- - make other tables point to this table
 --
