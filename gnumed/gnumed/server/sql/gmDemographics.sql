@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -122,19 +122,6 @@ comment on column address.addendum is
 	'eg. appartment number, room number, level, entrance';
 
 -- ===================================================================
--- Other databases may reference to an address stored in this table.
--- As Postgres does not allow (yet) cross database queries, we use
--- external reference tables containing "external reference" counters
--- in order to preserve referential integrity
--- (no address shall be deleted as long as there is an external object
--- referencing this address)
-create table address_external_ref (
-	id serial primary key,
-	id_address integer references address(id),
-	refcounter int default 0
-);
-
--- ===================================================================
 create table address_type (
 	id serial primary key,
 	"name" text unique not null
@@ -212,11 +199,12 @@ select add_table_for_audit('address_info');
 create table identity (
 	id serial primary key,
 	pupic char(24),
-	gender varchar(2) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
+	gender varchar(2) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?', 'N/A')),
 	karyotype character(10) default null,
 	dob timestamp with time zone not null,
 	cob char(2),
-	deceased timestamp with time zone null
+	-- FIXME: constraint: deceased > dob
+	deceased timestamp with time zone default null
 ) inherits (audit_fields);
 
 select add_table_for_audit('identity');
@@ -231,13 +219,35 @@ comment on column identity.gender is
 	 (h)ermaphrodite,
 	 tm - (t)ranssexual phenotype (m)ale,
 	 tf - (t)ranssexual phenotype (f)emale,
-	 ? - unknown';
+	 ? - unknown,
+	 N/A - not applicable';
 comment on column identity.dob IS
 	'date/time of birth';
 comment on column identity.cob IS
 	'country of birth as per date of birth, coded as 2 character ISO code';
 comment on column identity.deceased IS
 	'date when a person has died (if so), format yyyymmdd';
+
+-- ==========================================================
+create table lnk_person2id (
+	pk serial primary key,
+	fk_identity_pk integer not null references identity(id),
+	external_id text not null,
+	description text,
+	unique (fk_identity_pk, external_id, description)
+) inherits (audit_fields);
+
+select add_table_for_audit('lnk_person2id');
+
+comment on table lnk_person2id is
+	'link external IDs to GnuMed identities';
+comment on column lnk_person2id.external_id is
+	'textual representation of external ID which
+	 may be Social Security Number, patient ID of
+	 another EMR system, you-name-it';
+comment on column lnk_person2id.description is
+	'description of ID, e.g. name, originating system,
+	 scope, expiration, etc.';
 
 -- ==========================================================
 -- as opposed to the versioning of all other tables, changed names
@@ -272,7 +282,9 @@ create table lnk_person2address (
 	id_identity integer references identity,
 	id_address integer references address,
 	id_type int references address_type default 1,
-	address_source varchar(30)
+	address_source varchar(30),
+	unique(id_identity, id_address),
+	unique(id_identity, id_type)
 );
 
 COMMENT ON TABLE lnk_person2address IS
@@ -439,7 +451,6 @@ GRANT SELECT ON
 	address,
 	address_type,
 	state,
-	address_external_ref,
 	enum_comm_types,
 	comm_channel,
 	mapbook,
@@ -455,7 +466,6 @@ GRANT SELECT ON
 	org_category,
 	org,
 	lnk_org2address
-	
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -469,8 +479,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	street_id_seq,
 	address,
 	address_id_seq,
-	address_external_ref,
-	address_external_ref_id_seq,
 	comm_channel,
 	comm_channel_id_seq,
 	coordinate,
@@ -495,11 +503,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.10 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.9  2003-10-01 15:45:20  ncq
+-- Revision 1.10  2003-10-26 18:00:03  ncq
+-- - add link table identity -> external IDs
+--
+-- Revision 1.9  2003/10/01 15:45:20  ncq
 -- - use add_table_for_audit() instead of inheriting from audit_mark
 --
 -- Revision 1.8  2003/09/21 06:54:13  ihaywood
