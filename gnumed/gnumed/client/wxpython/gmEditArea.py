@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.42 2003-11-22 02:02:53 ihaywood Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmEditArea.py,v 1.43 2003-11-25 16:38:46 hinnef Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -1274,16 +1274,13 @@ class gmVaccinationEditArea(gmEditArea):
 		self.txt_progressnotes= cEditAreaField(parent)
 		
 		lines.append(self.txt_targetdisease)
-
 		lines.append(self.txt_vaccine)
-
-		lines.append(self._makeLineSizer(self.txt_dategiven, 1, 2)  )
-
-		lines.append(self._makeLineSizer(self.txt_serialno, 1, 1)  )
-		lines.append(self._makeLineSizer(self.txt_sitegiven, 2, 3)  )
-		
+		lines.append(self.txt_dategiven)
+		lines.append(self.txt_serialno)
+		lines.append(self.txt_sitegiven)
 		lines.append(self.txt_progressnotes)
 		lines.append(self._make_standard_buttons(parent))
+
 		c = gmVaccinationEditArea
 		self.input_fields = {
 			c.TD: self.txt_targetdisease,
@@ -1348,14 +1345,13 @@ class gmMeasurementEditArea(gmEditArea):
 		
 		#lines.append(self.txt_targetdisease)
 
-		
-		lines.append(self._makeLineSizer(self.txt_type, 1, 2)  )
-
-		lines.append(self._makeLineSizer(self.txt_date, 1, 1)  )
-		lines.append(self._makeLineSizer(self.txt_value, 2, 3)  )
+		lines.append(self.txt_type)
+		lines.append(self.txt_date)
+		lines.append(self.txt_value)
 		lines.append(self.txt_comment)
 		lines.append(self.txt_progressnotes)
 		lines.append(self._make_standard_buttons(parent))
+
 		c = gmMeasurementEditArea
 		self.input_fields = {
 			c.T : self.txt_type,
@@ -1632,9 +1628,9 @@ class gmRequestEditArea(gmEditArea):
 		#lines.append(self.txt_targetdisease)
 
 		
-		lines.append(self._makeLineSizer( atype, 1, 2)  )
+		lines.append(atype)
 
-		lines.append(self._makeLineSizer( company, 1, 1)  )
+		lines.append(company)
 		lines.append(street)
  		lines.append(urb)
 
@@ -2216,7 +2212,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.42  2003-11-22 02:02:53  ihaywood
+# Revision 1.43  2003-11-25 16:38:46  hinnef
+# - adjust field sizes in requests, measurements and vaccinations
+#
+# Revision 1.42  2003/11/22 02:02:53  ihaywood
 # fixed syntax errors
 #
 # Revision 1.41  2003/11/20 22:43:24  hinnef
