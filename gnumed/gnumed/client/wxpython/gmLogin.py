@@ -6,16 +6,16 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.21 2004-07-18 20:30:54 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmLogin.py,v 1.22 2004-09-13 08:54:49 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "H.Herb"
 
-import os.path
+import os.path, sys
 
-from wxPython.wx import *
+from wxPython import wx
 
-from Gnumed.pycommon import gmPG, gmGuiBroker, gmLog, gmExceptions, gmI18N
-from Gnumed.wxpython import gmLoginDialog
+from Gnumed.pycommon import gmPG, gmLog, gmExceptions, gmI18N
+from Gnumed.wxpython import gmLoginDialog, gmGuiHelpers
 
 _log = gmLog.gmDefLog
 #==============================================================
@@ -23,40 +23,38 @@ def Login(max_attempts=3):
 	"""Display the login dialog and try to log into the backend.
 
 	- up to max_attempts times
-	- returns either a valid backend broker object if connection
-	  was succesful, or None.
+	- returns:
+		- valid backend broker object if connection successful
+		- None otherwise
 	"""
-	logged_in = False
 	attempt = 0
 	backend = None
 	#display the login dialog
-	broker = gmGuiBroker.GuiBroker ()
 	dlg = gmLoginDialog.LoginDialog(None, -1)
-	dlg.Centre(wxBOTH)
-	while not logged_in and attempt < max_attempts:
+	dlg.Centre(wx.wxBOTH)
+	while attempt < max_attempts:
 		dlg.ShowModal()
 		#get the login parameters
 		login = dlg.panel.GetLoginInfo()
 		if login is None:
-			#user cancelled
-			dlg.Destroy()
 			_log.Log(gmLog.lInfo, "user cancelled login dialog")
-			return None
-		_log.Log(gmLog.lInfo, "login attempt %s of %s" % (attempt, max_attempts))
+			break
 		#now try to connect to the backend
 		try:
 			backend = gmPG.ConnectionPool(login)
-			logged_in = True
 			# save the login settings for next login
 			dlg.panel.save_settings()
-			_log.Log(gmLog.lInfo, "backend connection successfully established")
+			break
 		except gmExceptions.ConnectionError, e:
 			attempt += 1
 			if attempt < max_attempts:
-				_log.LogException("backend connection failed", sys.exc_info(), verbose=0)
-				wxMessageBox(_("Unable to connect to database.\n(%s)\n\nPlease retry or cancel") % e)
-			else:
-				_log.LogException("backend connection failed", sys.exc_info(), verbose=1)
+				msg = _('Unable to connect to database:\n\n%s\n\nPlease retry or cancel !') % e
+				gmGuiHelpers.gm_show_error (
+					msg,
+					_('connecting to backend'),
+					gmLog.lErr
+				)
+			_log.LogException("login attempt %s of %s failed" % (attempt, max_attempts), sys.exc_info(), verbose=0)
 
 	dlg.Close()
 	dlg.Destroy()
@@ -68,7 +66,11 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.21  2004-07-18 20:30:54  ncq
+# Revision 1.22  2004-09-13 08:54:49  ncq
+# - cleanup
+# - use gmGuiHelpers
+#
+# Revision 1.21  2004/07/18 20:30:54  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.20  2004/06/20 16:01:05  ncq
