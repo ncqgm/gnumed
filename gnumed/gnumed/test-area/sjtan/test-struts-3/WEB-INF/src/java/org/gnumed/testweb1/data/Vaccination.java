@@ -10,7 +10,7 @@ package org.gnumed.testweb1.data;
  *
  * @author  sjtan
  */
-public interface Vaccination {
+public interface Vaccination extends ClinRootItem {
     public Vaccine getVaccine();
     /**
      * Getter for property tradeName.

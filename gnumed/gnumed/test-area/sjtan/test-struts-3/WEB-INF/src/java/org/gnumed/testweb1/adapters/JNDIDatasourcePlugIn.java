@@ -5,20 +5,11 @@
  */
 
 package org.gnumed.testweb1.adapters;
-import org.apache.struts.action.PlugIn;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
-
 import javax.sql.DataSource;
 
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
-import javax.naming.Binding;
-import javax.naming.Referenceable;
-import java.util.Enumeration;
+import org.apache.struts.action.PlugIn;
 import org.gnumed.testweb1.global.Constants;
 /**
  *

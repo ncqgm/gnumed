@@ -120,4 +120,5 @@ public interface ClinRootItem extends ClinWhenHolder {
      */
     public void setNewHealthIssueName(String newHealthIssueName);
     
+    public void normalizeHealthIssueName( ) ;
 }

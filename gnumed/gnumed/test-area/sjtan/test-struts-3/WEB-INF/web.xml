@@ -9,13 +9,19 @@
   <display-name>Struts Gnumed WebClient Application</display-name>
   
   <!-- Standard Action Servlet Configuration (with debugging) -->
-  <servlet>
+  <servlet >
     <servlet-name>action</servlet-name>
     <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+   
     <init-param>
       <param-name>config</param-name>
       <param-value>/WEB-INF/struts-config.xml</param-value>
+      </init-param>
+  <!--     <init-param>
+      <param-name>application</param-name>
+      <param-value>resources.application</param-value>
     </init-param>
+    -->
     <init-param>
       <param-name>debug</param-name>
       <param-value>5</param-value>

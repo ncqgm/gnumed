@@ -97,7 +97,7 @@ public class VitalsImpl1 extends ClinRootItemImpl1 implements Vitals {
         return rhythm;
     }
     
-    public void setRhythm(String rhytm) {
+    public void setRhythm(String rhythm) {
         this.rhythm = rhythm;
     }
     

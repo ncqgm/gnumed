@@ -6,11 +6,6 @@
 
 package org.gnumed.testweb1.adapters;
 import org.apache.struts.action.PlugIn;
-import org.apache.struts.config.PlugInConfig;
-import java.util.Map;
-import java.util.Iterator;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
 /**
  *
  * @author  sjtan

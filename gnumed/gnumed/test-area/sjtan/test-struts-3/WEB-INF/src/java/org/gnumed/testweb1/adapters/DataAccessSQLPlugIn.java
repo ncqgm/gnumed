@@ -6,55 +6,39 @@
 
 package org.gnumed.testweb1.adapters;
 
-import org.apache.struts.action.PlugIn;
-import org.apache.struts.config.PlugInConfig;
-import org.apache.struts.config.MessageResourcesConfig;
 import java.util.Map;
-import java.util.Iterator;
-
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import java.util.ResourceBundle;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
-
 import javax.sql.DataSource;
 
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
-import javax.naming.Binding;
-import javax.naming.Referenceable;
-import java.util.Enumeration;
-import org.gnumed.testweb1.global.Constants;
-
-import org.gnumed.testweb1.global.Util;
-
-import org.gnumed.testweb1.persist.DemographicDataAccess;
-import org.gnumed.testweb1.persist.scripted.ScriptedSQLDemographicDataAccess;
-import org.gnumed.testweb1.persist.scripted.DemographicDetailSQL;
-import org.gnumed.testweb1.persist.scripted.ClinicalSQL;
-import org.gnumed.testweb1.persist.scripted.ScriptedSQLClinicalAccess;
-import org.gnumed.testweb1.persist.HealthRecordAccess01;
-
-import org.gnumed.testweb1.persist.DataObjectFactoryUsing;
-import org.gnumed.testweb1.persist.ResourceBundleUsing;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.PlugIn;
+import org.apache.struts.config.PlugInConfig;
 import org.gnumed.testweb1.data.DataObjectFactory;
-import org.apache.struts.util.MessageResources;
-
-import java.util.ResourceBundle;
-import java.util.PropertyResourceBundle;
+import org.gnumed.testweb1.global.Constants;
+import org.gnumed.testweb1.global.Util;
+import org.gnumed.testweb1.persist.DataObjectFactoryUsing;
+import org.gnumed.testweb1.persist.DemographicDataAccess;
+import org.gnumed.testweb1.persist.HealthRecordAccess01;
+import org.gnumed.testweb1.persist.ResourceBundleUsing;
+import org.gnumed.testweb1.persist.scripted.ClinicalSQL;
+import org.gnumed.testweb1.persist.scripted.DemographicDetailSQL;
+import org.gnumed.testweb1.persist.scripted.ScriptedSQLClinicalAccess;
+import org.gnumed.testweb1.persist.scripted.ScriptedSQLDemographicDataAccess;
 /**
  *
  * @author  sjtan
  */
-public class DataAccessSQLPlugIn implements PlugIn {
+public class DataAccessSQLPlugIn extends BasicPlugin implements PlugIn {
     public final static String IMPL="impl";
     /** Creates a new instance of DemographicDataAccessSQLPlugin */
     public DataAccessSQLPlugIn() {
     }
     
-    Log log = LogFactory.getFactory().getLog(this.getClass());
+    Log log = LogFactory.getLog(this.getClass());
     
     public void destroy() {
     }
@@ -110,14 +94,7 @@ public class DataAccessSQLPlugIn implements PlugIn {
                 log.error(e);
             }
             
-            ResourceBundle bundle = null;
-            try {
-                String resourceParameter = moduleConfig.findMessageResourcesConfig("org.apache.struts.action.MESSAGE").getParameter();
-                
-                bundle = PropertyResourceBundle.getBundle(resourceParameter);
-            } catch (Exception e) {
-                log.error(e);
-            }
+            ResourceBundle bundle = getResourceBundle(moduleConfig);
             
             try {
                 String demoImplClassName =
@@ -199,5 +176,7 @@ public class DataAccessSQLPlugIn implements PlugIn {
             throw new javax.servlet.ServletException("Unable to set servlet attribute for pooled datasource", e);
         }
     }
+
+	 
     
 }

@@ -151,9 +151,23 @@
                   <arg0 key="demo.sex" resource="true" />
                    </field>
                  </form> 
+                 
+                 
+                 <form name="clinicalUpdateForm">
+                 <field property="narrative" indexedListProperty="narrative" depends="validwhen" >
+                 <arg0 key="new.issue.and.narrative.not.empty" resource="true"/>
+                 <var>
+                 <var-name>test</var-name>
+                 <var-value>((*this* == null) or (narrative[].healthIssue.newHealthIssueName != null)) 
+                 </var-value>
+                 </var>
+                 </field>
+                 
+                 </form>
               <!-- -->
               
     </formset>
+    
 
     <!-- An example formset for another locale
     <formset language="fr">

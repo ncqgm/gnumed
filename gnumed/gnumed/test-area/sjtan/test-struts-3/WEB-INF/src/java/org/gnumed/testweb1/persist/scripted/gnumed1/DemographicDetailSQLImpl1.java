@@ -63,7 +63,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL , DataObj
         
     }
     
-    Log log = LogFactory.getFactory().getLog(this.getClass());
+    Log log = LogFactory.getLog(this.getClass());
     
     /**
      * Holds value of property localExtIdNames.

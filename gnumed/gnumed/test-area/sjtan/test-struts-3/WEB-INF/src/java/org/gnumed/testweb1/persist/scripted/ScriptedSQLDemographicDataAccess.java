@@ -5,19 +5,18 @@
  */
 
 package org.gnumed.testweb1.persist.scripted;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import java.util.Date;
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import javax.sql.DataSource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.gnumed.testweb1.data.DemographicDetail;
+import org.gnumed.testweb1.global.Util;
+import org.gnumed.testweb1.persist.DataSourceException;
 import org.gnumed.testweb1.persist.DataSourceUsing;
 import org.gnumed.testweb1.persist.DemographicDataAccess;
-import org.gnumed.testweb1.persist.DataSourceException;
-import org.gnumed.testweb1.data.DemographicDetail;
-import org.gnumed.testweb1.persist.scripted.DemographicDetailSQL;
-import org.gnumed.testweb1.global.Util;
-
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
-import java.sql.*;
 
 /**
  *
@@ -31,7 +30,7 @@ public class ScriptedSQLDemographicDataAccess implements DemographicDataAccess, 
      */
     private DemographicDetailSQL demographicDetailSQL;
     
-    Log log = LogFactory.getFactory().getLog(this.getClass());
+    Log log = LogFactory.getLog(this.getClass());
     /** Creates a new instance of ScriptedSQLDemographicDataAccess */
     public ScriptedSQLDemographicDataAccess() {
         

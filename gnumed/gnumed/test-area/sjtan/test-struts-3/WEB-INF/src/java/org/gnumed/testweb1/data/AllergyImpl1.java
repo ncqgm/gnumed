@@ -10,7 +10,7 @@ package org.gnumed.testweb1.data;
  *
  * @author  sjtan
  */
-public class AllergyImpl1 extends ClinRootItemImpl1 implements Allergy {
+public class AllergyImpl1 extends EntryClinRootItemImpl1 implements Allergy {
     
     
     String substance,   generics;

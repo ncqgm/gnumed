@@ -6,41 +6,25 @@
 
 package org.gnumed.testweb1.actions;
 
-import org.apache.struts.action.Action;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionError;
-import org.apache.struts.action.ActionErrors;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.util.ModuleException;
-import org.apache.struts.util.MessageResources;
-import org.apache.commons.beanutils.PropertyUtils;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionError;
-import org.apache.struts.action.ActionErrors;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionMessages;
-import org.apache.struts.action.ActionMessage;
-import org.apache.struts.util.ModuleException;
-import org.apache.struts.util.MessageResources;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.gnumed.testweb1.global.Constants;
-import org.gnumed.testweb1.business.LoginModule;
-import org.gnumed.testweb1.exceptions.login.*;
 import java.lang.reflect.InvocationTargetException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.Action;
+ 
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.gnumed.testweb1.business.LoginModule;
+import org.gnumed.testweb1.exceptions.login.InvalidPasswordException;
+import org.gnumed.testweb1.exceptions.login.InvalidUserNameException;
+import org.gnumed.testweb1.global.Constants;
 /**
  *
  * @author  sjtan
@@ -51,14 +35,16 @@ public class LoginAction extends Action {
     public LoginAction() {
     }
     
-    Log log = LogFactory.getFactory().getLog(LoginAction.class);
+    Log log = LogFactory.getLog(LoginAction.class);
     
     public ActionForward execute(ActionMapping mapping,
     ActionForm form,
     HttpServletRequest request,
     HttpServletResponse response) {
         byte[] password = null;
-        ActionErrors errors = new ActionErrors();
+        
+        ActionMessages errors = new ActionMessages();
+        
         
         try {
             String username = (String) PropertyUtils.getSimpleProperty( form, "username");
@@ -82,19 +68,19 @@ public class LoginAction extends Action {
         
         }  catch (InvalidUserNameException iue) {
             log.error(iue);
-            errors.add(errors.GLOBAL_MESSAGE, new /*Should be ActionMessage for Struts 1.2*/ActionError("errors.invalid.user"));
+            errors.add(getClass().toString() , new /*Should be ActionMessage for Struts 1.2*/ActionMessage("errors.invalid.user"));
         } catch (InvalidPasswordException ipe) {
             log.error(ipe);
-            errors.add( errors.GLOBAL_MESSAGE, new ActionError("errors.invalid.password"));
+            errors.add(getClass().toString() , new ActionMessage("errors.invalid.password"));
         } catch (IllegalAccessException iae) {
             log.error(iae);
-            errors.add(errors.GLOBAL_MESSAGE, new ActionError("errors.app", iae));
+            errors.add(getClass().toString() , new ActionMessage("errors.app", iae));
         } catch(InvocationTargetException ite ) {
             log.error(ite);
-            errors.add(errors.GLOBAL_MESSAGE, new ActionMessage("errors.app", ite));
+            errors.add(getClass().toString() , new ActionMessage("errors.app", ite));
         } catch ( NoSuchMethodException nsme) {
             log.error(nsme);
-            errors.add(errors.GLOBAL_MESSAGE, new ActionError("errors.app", nsme));
+            errors.add(getClass().toString() , new ActionMessage("errors.app", nsme));
         } catch (NullPointerException npe) {
             npe.printStackTrace();
             log.error(npe);
@@ -108,7 +94,7 @@ public class LoginAction extends Action {
             
         }
         
-        saveErrors(request, errors);
+        saveMessages(request, errors);
         return  mapping.getInputForward();
     }
     

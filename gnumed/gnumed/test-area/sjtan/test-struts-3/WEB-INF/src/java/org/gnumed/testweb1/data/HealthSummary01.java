@@ -37,5 +37,13 @@ public interface HealthSummary01 {
     
     public List getEncounterTypes();
     
+    public Vaccine findVaccine(String tradeName);
+    
+    public void setVaccines( Vaccine[] vaccines);
+	/**
+	 * @param description
+	 * @return
+	 */
+	public HealthIssue findHealthIssue(String description);
 }
 

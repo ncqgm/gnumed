@@ -6,8 +6,6 @@
 
 package org.gnumed.testweb1.persist;
 import org.gnumed.testweb1.data.DemographicDetail;
-import java.util.Date;
-import org.apache.struts.config.ModuleConfig;
 /**
  *
  * @author  sjtan

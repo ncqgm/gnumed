@@ -103,11 +103,11 @@
 
 
 <!-- ======================================== Form Bean Definitions -->
+    
 
 
-
-    <form-beans>
-            <form-bean name="loginForm" type="org.apache.struts.validator.DynaValidatorForm" >
+    <form-beans >
+            <form-bean dynamic="true" id="loginForm" name="loginForm" type="org.apache.struts.validator.DynaValidatorForm" >
                 <form-property name="username" type="java.lang.String" size="32"/>
                 <form-property name="password" type="java.lang.String" size="32"/>
              </form-bean>
@@ -181,9 +181,9 @@
                 <form-property name="givenname" type="java.lang.String" size="100"/>
                  <form-property name="birthdate" type="java.lang.String" size="50"/>
              </form-bean>
-          
+    
           <form-bean name="clinicalUpdateForm" type="org.gnumed.testweb1.forms.ClinicalUpdateForm"/>
-          
+         
     <!-- sample form bean descriptor for an ActionForm
 
         <form-bean
@@ -222,7 +222,7 @@
 
     </form-beans>
 
-
+    
 
 
 
@@ -309,6 +309,11 @@
          <forward name="success" 
                 path="/AppMain.do"/> 
          
+         <forward name="printRecord"
+             
+            path="/printableRecord.do"
+            
+            />
                    
         </global-forwards>
 
@@ -343,6 +348,7 @@
         
         <action path="/Testdb" forward="testdb"/>
         
+        <action path="/printableRecord" forward="printablerecord"/>
         <!-- this is forwarding to the
         definition in struts-defs.xml called appmain -->
        

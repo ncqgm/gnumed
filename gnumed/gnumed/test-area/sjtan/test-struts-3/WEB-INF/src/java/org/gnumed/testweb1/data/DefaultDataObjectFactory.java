@@ -5,14 +5,13 @@
  */
 
 package org.gnumed.testweb1.data;
-import org.gnumed.testweb1.data.DataObjectFactory;
-import org.gnumed.testweb1.data.DefaultDemographicDetail;
-import org.gnumed.testweb1.data.DemographicDetail;
-import org.apache.struts.config.PlugInConfig;
 import java.util.Map;
 import java.util.ResourceBundle;
+
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.gnumed.testweb1.global.Constants;
 /**
  *
  * @author  sjtan
@@ -20,12 +19,12 @@ import org.apache.commons.logging.*;
 public class DefaultDataObjectFactory implements DataObjectFactory {
     static Log log = LogFactory.getLog(DefaultDataObjectFactory.class);
     
-    public static int nEntry =3;
+    public static int nEntry =4;
     
     public final static String[] itemTypes = new String[] { "narrative", "medication", "vaccination", "allergy", "vital" };
     public final static String[] factoryMethods = new String[]
     { "createEntryClinNarrative", "createMedication",
-      "createVaccination", "createEntryAllergy",
+      "createEntryVaccination", "createEntryAllergy",
       "createEntryVitals"
     };
     
@@ -34,12 +33,14 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
         log.info( ce + "BEING LOADED");
         for (int i = 0; i < itemTypes.length ; ++i) {
             try {
-                for (int j = 0; j < nEntry ; ++j) {
+            	for (int j = 0; j < nEntry ; ++j) {
+                	log.info("Setting property *" + itemTypes[i] + "* index " + j + " method " + factoryMethods[i]);
                     PropertyUtils.setIndexedProperty( ce, itemTypes[i], j,
                     getClass().getMethod( factoryMethods[i], new Class[0] ).invoke( this, new Object[0] ) );
                 }
             } catch (Exception e) {
                 log.error(e);
+                log.info( "Error with " + factoryMethods[i] + " property " + ce);
                 e.printStackTrace();
             }
             
@@ -146,15 +147,12 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     
     public ClinNarrative createEntryClinNarrative() {
         ClinNarrative cn = new EntryClinNarrativeImpl1();
-        addEntryEpisode(cn);
+        cn.setEpisode(createEntryClinicalEpisode());
         return cn;
         
     }
     
-    void addEntryEpisode( ClinRootItem ri) {
-        ri.setEpisode(createEntryClinicalEpisode());
-    }
-    
+   
     
     public AllergyEntry createEntryAllergy() {
         AllergyEntry a= new  AllergyEntryImpl1();
@@ -168,7 +166,28 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
         return a;
     }
     
-    
+    public EntryVaccination createEntryVaccination () {
+    	EntryVaccination v = new EntryVaccinationImpl1();
+    	v.setEpisode(createEntryClinicalEpisode());
+    	
+    	String issue = getBundle().getString(Constants.Schema.DEFAULT_VACCINATION_HEALTH_ISSUE_RESOURCE_KEY);
+		HealthIssue healthIssue = v.getEpisode().getHealthIssue();
+		healthIssue.setDescription(issue);
+		String defaultEpisodeName = getBundle().getString(Constants.Schema.DEFAULT_VACCINATION_EPISODE_RESOURCE_KEY);
+    	v.getEpisode().setDescription(defaultEpisodeName);
+    	String defaultNarrative = getBundle().getString(Constants.Schema.DEFAULT_VACCINATION_NARRATIVE_RESOURCE_KEY);
+    	v.setNarrative(defaultNarrative);
+    	
+    	return v;
+    }
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.DataObjectFactory#getResourceString(java.lang.String)
+	 */
+	public String getResourceString(String key) {
+		// TODO Auto-generated method stub
+		return getBundle().getString(key);
+	}
     
     
 }

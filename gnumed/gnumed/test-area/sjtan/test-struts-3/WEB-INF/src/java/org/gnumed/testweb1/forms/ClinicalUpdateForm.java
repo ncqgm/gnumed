@@ -6,33 +6,34 @@
 
 package org.gnumed.testweb1.forms;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForm;
-import org.gnumed.testweb1.data.ClinNarrative;
-import org.gnumed.testweb1.data.ClinicalEncounter;
-import org.gnumed.testweb1.data.ClinicalEncounterImpl1;
-import org.gnumed.testweb1.data.DataObjectFactory;
-import org.gnumed.testweb1.data.DefaultVaccination;
-import org.gnumed.testweb1.data.Vaccination;
-import org.gnumed.testweb1.data.AllergyEntry;
+import org.apache.struts.validator.ValidatorActionForm;
 import org.gnumed.testweb1.data.Allergy;
+import org.gnumed.testweb1.data.AllergyEntry;
+import org.gnumed.testweb1.data.ClinNarrative;
 import org.gnumed.testweb1.data.ClinRootItem;
-import org.gnumed.testweb1.data.EntryClinRootItem;
+import org.gnumed.testweb1.data.ClinicalEncounter;
+import org.gnumed.testweb1.data.DataObjectFactory;
 import org.gnumed.testweb1.data.EntryClinNarrative;
-import org.gnumed.testweb1.data.Vitals;
-import java.util.ListIterator;
+import org.gnumed.testweb1.data.EntryClinRootItem;
+import org.gnumed.testweb1.data.EntryVaccination;
+import org.gnumed.testweb1.data.Vaccination;
+
+ 
 /**
  *
  * @author  sjtan
  */
-public class ClinicalUpdateForm extends ActionForm {
+public class ClinicalUpdateForm extends  /*org.apache.struts.action.ActionForm */
+                                    ValidatorActionForm
+{
     static int updateBatch = 5;
-    //List vaccinations = new ArrayList();
-    Vaccination[] vaccinations ;
-    EntryClinNarrative[] narratives;
-    String test;
+ 
     Log log = LogFactory.getLog(this.getClass());
     
     static DataObjectFactory factory;
@@ -58,21 +59,10 @@ public class ClinicalUpdateForm extends ActionForm {
     private boolean[] linkNarrative;
     
     
-    /**
-     * Holds value of property allergyEntry.
-     */
-    private AllergyEntry[] allergyEntry;
-    
-    /**
-     * Holds value of property allergies.
-     */
-    private java.util.List allergies  ;
-    
-    private java.util.List vitals;
+   
     
     public ClinicalUpdateForm() {
-        initVaccinations();
-        setEncounter( factory.createEntryClinicalEncounter() );
+         setEncounter( factory.createEntryClinicalEncounter() );
         
         
     }
@@ -90,40 +80,9 @@ public class ClinicalUpdateForm extends ActionForm {
     }
     
     
-    private void initAllergies() {
-        allergies = getEncounter().getAllergies();
-    }
-    
-    private void initNarratives() {
-        narratives =  (EntryClinNarrative[])getEncounter().
-        getNarratives().toArray(new EntryClinNarrative[0]);
-        //    narratives = new ClinNarrative[nn.length];
-        //    System.arraycopy(nn, 0, narratives, 0, nn.length);
-        
-    }
-    
-    private void initVaccinations() {
-        vaccinations = new Vaccination[updateBatch];
-        for (int i =0; i < updateBatch; ++i) {
-            vaccinations[i] = new DefaultVaccination() ;
-        }
-        log.info("ClinicalForm was initialized");
-        
-    }
-    
-    
-    public Vaccination[] getVaccinations() {
-        return (Vaccination[]) vaccinations;
-    }
-  /*
-    public DefaultVaccination getVaccination(int index) {
-        return (DefaultVaccination) vaccinations.get(index);
-    }
-   */
-    
     public Vaccination getVaccination(int index) {
         
-        return vaccinations[index];
+        return (Vaccination)getEncounter().getVaccinations().get(index);
     }
     
     
@@ -132,20 +91,14 @@ public class ClinicalUpdateForm extends ActionForm {
     public void setVaccination( int index, Vaccination v) {
         //Vaccination vo = (Vaccination) vaccinations.get(index);
         try {
-            BeanUtils.copyProperties(vaccinations[index], v);
+            BeanUtils.copyProperties(getEncounter().getVaccinations().get(index), v);
         } catch (Exception e) {
             e.printStackTrace();
             
         }
-        log.info("COPIED vaccine="+ vaccinations[index]);
+         
     }
-    
-    public String getTest() {
-        return test;
-    }
-    public void setTest(String test) {
-        this.test=test;
-    }
+     
     
     /**
      * Getter for property encounter.
@@ -162,17 +115,9 @@ public class ClinicalUpdateForm extends ActionForm {
      */
     public void setEncounter(ClinicalEncounter encounter) {
         this.encounter = encounter;
-        initNarratives();
-        initAllergies();
+         
     }
     
-    /**
-     * Getter for property narratives.
-     * @return Value of property narratives.
-     */
-    public EntryClinNarrative[] getNarratives() {
-        return narratives;
-    }
     
     /**
      * Indexed getter for property narrative.
@@ -181,7 +126,7 @@ public class ClinicalUpdateForm extends ActionForm {
      */
     
     public EntryClinNarrative getNarrative(int index) {
-        return narratives[index];
+        return (EntryClinNarrative)  getEncounter().getNarratives().get(index);
     }
     
     /**
@@ -192,12 +137,12 @@ public class ClinicalUpdateForm extends ActionForm {
     public void setNarrative(int index, EntryClinNarrative narrative) {
         //Vaccination vo = (Vaccination) vaccinations.get(index);
         try {
-            BeanUtils.copyProperties(narratives[index], narrative);
+            BeanUtils.copyProperties(getEncounter().getNarratives().get(index), narrative);
         } catch (Exception e) {
             e.printStackTrace();
             
         }
-        log.info("COPIED narratives="+ narratives[index]);
+       
     }
     
     /**
@@ -234,27 +179,72 @@ public class ClinicalUpdateForm extends ActionForm {
         this.linkNarrative[index] = linkNarrative;
     }
     
+    /**
+     * Try to stick to form related problems.e.g
+     * split new and current healthIssue names, 
+     * linking of narratives
+     *
+     */
     public void linkObjects() {
+    	normalizeHealthIssueNames();
+    	
         copyPreviousEpisodeForLinkedNarrative();
-        
-        copyLinksToClinRootItems(getEncounter().getAllergies());
-        
-        copyLinksToClinRootItems(getEncounter().getVitals());
-        
-        
+      
+        getEncounter().mergeReferences();
+      
         alterAllergyMarkedNarratives();
     }
-    
-    void copyPreviousEpisodeForLinkedNarrative() {
-        for ( int i=1; i < narratives.length; ++i ) {
-            if ( narratives[i].isLinkedToPreviousEpisode() ) {
-                narratives[i].setNewHealthIssueName(narratives[i-1].getNewHealthIssueName());
-                narratives[i].setHealthIssueName(narratives[i-1].getHealthIssueName());
-                
-                narratives[i].setEpisode(narratives[i-1].getEpisode());
-                log.info(narratives[i] +  "#"+i+" WAS LINKED");
+   
+	
+
+	/**
+	 * 
+	 */
+	private void normalizeHealthIssueNames() {
+		// TODO Auto-generated method stub
+		Iterator i = getNarratives().iterator();
+		while (i.hasNext()) {
+			ClinNarrative cn= (ClinNarrative) i.next();
+			cn.normalizeHealthIssueName();
+		}
+	}
+
+
+
+
+	/**
+	 * @param vaccinations
+	 */
+	private void copyMatchingNarrativeLinksToRootItems(List vaccinations) {
+		// TODO Auto-generated method stub
+		Iterator i = vaccinations.iterator();
+		while (i.hasNext() ) {
+			
+			EntryVaccination v = (EntryVaccination) i.next();
+			String description = v.getHealthIssueName();
+			ClinNarrative[] ns = getEncounter().findNarrativeBySoapCat(description, "p");
+			if (ns.length ==0) {
+				ns = getEncounter().findNarrativeByHealthIssueName(description);
+			}
+			if (ns.length > 0) {
+				copyOverEpisodeAndEncounter(ns[0], v, v.getVaccineGiven() );
+			} else {
+				v.getEpisode().setDescription("vaccination");
+				
+			}
+		}
+	}
+
+
+
+
+	void copyPreviousEpisodeForLinkedNarrative() {
+        for ( int i=1; i < getEncounter().getNarratives().size(); ++i ) {
+            if ( getNarrative(i).isLinkedToPreviousEpisode() ) {
+            	getNarrative(i).setEpisode(getNarrative(i-1).getEpisode());
+                log.info(getNarrative(i) +  "#"+i+" WAS LINKED");
             } else {
-                log.info(narratives[i] + "*** #"+i+" is not Linked **");
+                log.info(getNarrative(i) + "*** #"+i+" is not Linked **");
             }
         }
     }
@@ -262,8 +252,8 @@ public class ClinicalUpdateForm extends ActionForm {
     void copyLinksToClinRootItems(java.util.List items) {
         if (items == null)
             return;
-        for ( int i= 0; i < narratives.length; ++i ) {
-            ClinRootItem n = (ClinRootItem) narratives[i];
+        for ( int i= 0; i < getEncounter().getNarratives().size(); ++i ) {
+            ClinRootItem n = getNarrative(i);
             if ( i >= items.size()) { 
                 log.info("number of narratives "+ i + " exceeds "+ items.size());
                 continue;
@@ -271,35 +261,52 @@ public class ClinicalUpdateForm extends ActionForm {
                   log.info("copying from #" + n + " to " + items.get(i));
        
             EntryClinRootItem p = (EntryClinRootItem) items.get(i);
-            
-            if (p.isEntered() ) {
-                log.debug(p.getClass()+"#"+ i + " is EDITED");
-                try {
-                    BeanUtils.copyProperties( p, n);
-                    n.setId(new Long(-1));
-                } catch (Exception e) {
-                    log.error(e.getLocalizedMessage(), e);
-                    
-                }
-            } else {
-                log.info(p.getClass()+"#"+i + " was not edited");
-            }
+            String label = String.valueOf(i);
+            copyOverEpisodeAndEncounter(n, p, label);
             
         }
     }
     
     
-    void alterAllergyMarkedNarratives() {
-        for ( int i = 0; i < narratives.length ; ++i) {
+    /**
+	 * @param n
+	 * @param p
+	 * @param label
+	 */
+	private void copyOverEpisodeAndEncounter(ClinRootItem n, EntryClinRootItem p, String label) {
+		if (p.isEntered() ) {
+		   log.info(p.getClass()+"#"+ label + " is EDITED");
+		    try {
+		        BeanUtils.copyProperties( p, n);
+		        n.setId(new Long(-1));
+		    } catch (Exception e) {
+		        log.error(e.getLocalizedMessage(), e);
+		        
+		    }
+		} else {
+		    log.info(p.getClass()+"#"+label + " was not edited");
+		}
+	}
+
+
+
+
+	void alterAllergyMarkedNarratives() {
+        for ( int i = 0; i < getEncounter().getNarratives().size() ; ++i) {
             
-            ClinNarrative n = ( ClinNarrative) narratives[i];
+            ClinNarrative n = ( ClinNarrative) getNarrative(i);
             
             if (getAllergy(i).isEntered()) {
-                String title = "ALLERGY:" + getAllergy(i).getSubstance() + " definite:" +
+            	getAllergy(i).setClin_when(n.getClin_when());
+                getAllergy(i).setNarrative(n.getNarrative());
+                
+                 String title = "ALLERGY:" + getAllergy(i).getSubstance() + " definite:" +
                 String.valueOf( getAllergy(i).isDefinite()) + ".  \n\r";
                 n.setNarrative(title +( n.getNarrative() != null ? n.getNarrative(): "" ) );
                 log.info("ALLERGY COPIED TO NARRATIVE:" + i + getAllergy(i).getSubstance());
                 n.setId(null);
+                
+               
             }
             
             
@@ -312,7 +319,7 @@ public class ClinicalUpdateForm extends ActionForm {
      * @return Value of the property at <CODE>index</CODE>.
      */
     public AllergyEntry getAllergy(int index) {
-        return (AllergyEntry)this.allergies.get(index);
+        return (AllergyEntry)getAllergies().get(index);
     }
     
     /**
@@ -321,31 +328,31 @@ public class ClinicalUpdateForm extends ActionForm {
      * @param allergyEntry New value of the property at <CODE>index</CODE>.
      */
     public void setAllergy(int index, Allergy allergyEntry) {
-        this.allergies.set(index, allergyEntry);
+        getEncounter().setAllergy(index, allergyEntry);
     }
     
     /**
      * Getter for property allergies.
      * @return Value of property allergies.
      */
-    public java.util.List getAllergies() {
-        return this.allergies;
+    public  List getAllergies() {
+        return getEncounter().getAllergies();
     }
     
     /**
      * Getter for property vitals.
      * @return Value of property vitals.
      */
-    public java.util.List getVitals() {
-        return vitals;
+    public  List getVitals() {
+        return getEncounter().getVitals();
+    }
+     
+    public List getNarratives() {
+    	return getEncounter().getNarratives();
     }
     
-    /**
-     * Setter for property vitals.l
-     * @param vitals New value of property vitals.
-     */
-    public void setVitals(java.util.List vitals) {
-        this.vitals = vitals;
+    public  List getVaccinations() {
+        return getEncounter().getVaccinations();
     }
-    
+     
 }

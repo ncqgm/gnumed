@@ -78,6 +78,8 @@
          <put name="rightBottom" value="episodeList" />
          </definition>
          
+         <definition name="printablerecord" page="/pages/summaryAndPastNotesPrintable.jsp">
+         </definition>         
          
         
           

@@ -5,6 +5,7 @@
  */
 
 package org.gnumed.testweb1.data;
+import java.util.Collection;
 import java.util.List;
 /**
  *
@@ -133,6 +134,8 @@ public interface ClinicalEncounter {
      */
     public ClinNarrative getNarrative(int index);
     
+    public List getVaccinations();
+    
     public List getNarratives();
     /**
      * Indexed setter for property narrative.
@@ -177,4 +180,19 @@ public interface ClinicalEncounter {
      */
     public java.util.List getVitals();
     
+    public ClinNarrative[] findNarrativeByHealthIssueName(String issueName) ;
+    
+    public ClinNarrative[] findNarrativeBySoapCat(String issueName, String soapCat );
+
+
+    public EntryClinRootItem[] getEntryRootItems();
+    
+    public Collection getMappedIssues();
+	public Collection getMappedEpisodes() ;
+	public void mergeReferences() ;
+
+	/**
+	 * @param hi
+	 */
+	public void replaceMappedIssue(HealthIssue hi);
 }

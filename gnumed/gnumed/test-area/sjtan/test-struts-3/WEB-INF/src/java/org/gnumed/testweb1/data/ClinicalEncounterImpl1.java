@@ -5,11 +5,19 @@
  */
 
 package org.gnumed.testweb1.data;
-import java.util.Date;
-import java.util.List;
 import java.util.ArrayList;
-import org.apache.commons.logging.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -23,6 +31,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     String location;
     List narratives, medications, vaccinations, allergys, vitals;
      
+    Map episodeMap, healthIssueMap;
     
     /** Creates a new instance of ClinicalEncounterImpl1 */
     public ClinicalEncounterImpl1() {
@@ -136,6 +145,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
          BeanUtils.setProperty(o, "encounter", this);
         } catch (Exception e) {
             log.error(e);
+            e.printStackTrace();
         }
         
     }
@@ -188,12 +198,25 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
      
     public ClinRootItem[] getRootItems() {
         java.util.List l = new ArrayList();
-        l.addAll(narratives);
-        l.addAll(allergys);
+        l.addAll(getNarratives());
+        l.addAll(getAllergies());
+        l.addAll(getVaccinations());
+        l.addAll(getVitals());
         return (ClinRootItem[]) l.toArray( new ClinRootItem[0]);
     }    
      
-     
+    public EntryClinRootItem[] getEntryRootItems() {
+    	List l = Arrays.asList(getRootItems());
+    	Iterator i = l.iterator();
+    	List l2 = new ArrayList();
+    	while (i.hasNext() ) {
+    		ClinRootItem ri = (ClinRootItem) i.next();
+    		if (ri instanceof EntryClinRootItem) {
+    			l2.add(ri);
+    		}
+    	}
+		return (EntryClinRootItem[])l2.toArray(new EntryClinRootItem[0] );
+    }
     
     public EntryVitals getVital(int index) {
         return (EntryVitals) vitals.get(index);
@@ -207,5 +230,110 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
             vitals.add(vital);
         }
     }
+
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.ClinicalEncounter#getVaccinations()
+	 */
+	public List getVaccinations() {
+		// TODO Auto-generated method stub
+		return vaccinations;
+		
+	}
     
+	public ClinNarrative[] findNarrativeByHealthIssueName(String issueName) {
+		Iterator i = getNarratives().iterator();
+		List candidates = new ArrayList();
+		while (i.hasNext()) {
+			ClinNarrative n = (ClinNarrative) i.next();
+			if ( issueName.equals( n.getHealthIssueName()) 
+			  ) {
+				candidates.add(n);
+			}
+		}
+		return (ClinNarrative[])candidates.toArray(new ClinNarrative[0]);
+		
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.ClinicalEncounter#findNarrativeBySoapCat(java.lang.String, java.lang.String)
+	 */
+	public ClinNarrative[] findNarrativeBySoapCat(String issueName, String soapCat) {
+		List candidates = new ArrayList();
+		
+		ClinNarrative[] ns = findNarrativeByHealthIssueName(issueName);
+		for (int i = 0; i < ns.length; ++i) {
+			if (ns[i].getSoapCat().equals(soapCat)) {
+				candidates.add(ns[i]);
+			}
+		}
+		return (ClinNarrative[])candidates.toArray(new ClinNarrative[0]);
+		
+	}
+	
+	public void mergeReferences() {
+		EntryClinRootItem[] items = getEntryRootItems();
+		episodeMap = new HashMap();
+		healthIssueMap = new HashMap();
+		for (int i = 0; i < items.length; ++i ) {
+			EntryClinRootItem item = items[i];
+			item.normalizeHealthIssueName();
+			if (healthIssueMap.get( item.getHealthIssueName() ) == null) {
+				healthIssueMap.put( item.getHealthIssueName(), item.getEpisode().getHealthIssue());
+			}
+			item.getEpisode().setHealthIssue((HealthIssue) healthIssueMap.get( item.getHealthIssueName()));
+		}
+		
+		for (int i = 0; i < items.length; ++i ) {
+			EntryClinRootItem item = items[i];
+			if (episodeMap.get(item.getEpisode().getDescription()) ==null) {
+				episodeMap.put(item.getEpisode().getDescription(), item.getEpisode());
+			}
+			item.setEpisode((ClinicalEpisode)episodeMap.get(item.getEpisode().getDescription()));
+		}
+	}
+	
+	public void  updateItemEpisodeReferences() {
+		EntryClinRootItem[] items = getEntryRootItems();
+		for (int i = 0; i < items.length ; ++i ) {
+			items[i].setEpisode((ClinicalEpisode)episodeMap.get(items[i].getEpisode().getDescription()));
+			
+		}
+	}
+	
+	public Collection getMappedIssues() {
+		return healthIssueMap.values();
+	}
+	
+	
+	public Collection getMappedEpisodes() {
+		return episodeMap.values();
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.ClinicalEncounter#replaceMappedIssue(org.gnumed.testweb1.data.HealthIssue)
+	 */
+	public void replaceMappedIssue(HealthIssue hi) {
+		// TODO Auto-generated method stub
+		healthIssueMap.put(hi.getDescription() , hi);
+		updateHealthIssueReferencesInMappedEpisodes();
+	}
+
+
+	/**
+	 * 
+	 */
+	private void updateHealthIssueReferencesInMappedEpisodes() {
+		// TODO Auto-generated method stub
+		Iterator i = getMappedEpisodes().iterator();
+		while (i.hasNext()) {
+			ClinicalEpisode ep = (ClinicalEpisode) i.next();
+			ep.setHealthIssue( (HealthIssue) healthIssueMap.get(ep.getHealthIssue().getDescription()));
+			
+		}
+	}
+	
+	
 }

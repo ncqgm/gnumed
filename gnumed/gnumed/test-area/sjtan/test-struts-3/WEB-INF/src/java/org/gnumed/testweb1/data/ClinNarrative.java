@@ -36,5 +36,5 @@ public interface ClinNarrative  extends ClinRootItem {
      */
     public void setAoe(boolean isAoe);
     
-    
+   
 }

@@ -55,7 +55,7 @@ public interface ClinicalEpisode {
      * Setter for property healthIssue.
      * @param healthIssue New value of property healthIssue.
      */
-    public void setHealthIssue(HealthIssue healthIssue);
+    public void setHealthIssue(HealthIssue object);
     
     /**
      * Getter for property modified_when.

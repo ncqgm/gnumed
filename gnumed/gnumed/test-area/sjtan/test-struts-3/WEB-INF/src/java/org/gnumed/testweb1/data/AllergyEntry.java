@@ -10,7 +10,7 @@ package org.gnumed.testweb1.data;
  *
  * @author  sjtan
  */
-public interface AllergyEntry extends EntryClinRootItem{
+public interface AllergyEntry extends EntryClinRootItem ,Allergy{
     
     /**
      * Getter for property definite.
@@ -36,6 +36,7 @@ public interface AllergyEntry extends EntryClinRootItem{
      */
     public void setSubstance(String substance);
     
-    
+    public boolean isMarked();
+    public void setMarked(boolean marked);
     
 }

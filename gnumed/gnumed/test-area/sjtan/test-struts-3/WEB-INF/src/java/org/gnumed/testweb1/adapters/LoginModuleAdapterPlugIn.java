@@ -5,15 +5,15 @@
  */
 
 package org.gnumed.testweb1.adapters;
-import org.gnumed.testweb1.business.LoginModule;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.PlugIn;
 import org.apache.struts.config.PlugInConfig;
-import java.util.Map;
-import java.util.Iterator;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.gnumed.testweb1.business.LoginModule;
+import org.gnumed.testweb1.global.Constants;
 import org.gnumed.testweb1.global.Util;
-import  org.gnumed.testweb1.global.Constants;
 
 
 /**
@@ -23,7 +23,7 @@ import  org.gnumed.testweb1.global.Constants;
 public class LoginModuleAdapterPlugIn implements PlugIn {
     public final  static String LOGIN_MODULE="loginModule";
     LoginModule module;
-    Log log = LogFactory.getFactory().getLog(this.getClass());
+    Log log = LogFactory.getLog(this.getClass());
     /** Creates a new instance of MockLoginModuleAdapterPlugIn */
     public LoginModuleAdapterPlugIn() {
     

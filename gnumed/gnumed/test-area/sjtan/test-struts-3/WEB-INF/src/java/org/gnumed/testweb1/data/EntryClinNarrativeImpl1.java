@@ -6,20 +6,20 @@
 
 package org.gnumed.testweb1.data;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  *
  * @author  sjtan
  */
 public class EntryClinNarrativeImpl1 extends ClinNarrativeImpl1 
 implements EntryClinNarrative, ClinWhenHolder {
+	
+	Log log = LogFactory.getLog(this.getClass());
+	
     ClinWhenEntryAdapter adapter;
-    boolean entered;
-    
-    /**
-     * Holds value of property linkedToPreviousEpisode.
-     */
-    private boolean linkedToPreviousEpisode = false;
-    
+   EntryClinRootItem item = new EntryClinRootItemImpl1();
     /** Creates a new instance of EntryClinNarrativeImpl1 */
     public EntryClinNarrativeImpl1() {
         super();
@@ -35,17 +35,18 @@ implements EntryClinNarrative, ClinWhenHolder {
     }
     
     public boolean isEntered() {
-        return entered;
+        return item.isEntered();
     }
     
     public void setNarrative(String narrative) {
         super.setNarrative(narrative);
         if (narrative != null && narrative.trim().length() > 0 )
         setEntered(true);
+        log.info( "narrative set to " + narrative + "entered = " + isEntered());
     }
     
     public void setEntered(boolean entered) {
-        this.entered = entered;
+        item.setEntered(entered);
     }
     
     /**
@@ -53,7 +54,7 @@ implements EntryClinNarrative, ClinWhenHolder {
      * @return Value of property linkedToPreviousEpisode.
      */
     public boolean isLinkedToPreviousEpisode() {
-        return this.linkedToPreviousEpisode;
+        return item.isLinkedToPreviousEpisode();
     }
     
     /**
@@ -61,7 +62,7 @@ implements EntryClinNarrative, ClinWhenHolder {
      * @param linkedToPreviousEpisode New value of property linkedToPreviousEpisode.
      */
     public void setLinkedToPreviousEpisode(boolean linkedToPreviousEpisode) {
-        this.linkedToPreviousEpisode = linkedToPreviousEpisode;
+        item.setLinkedToPreviousEpisode(linkedToPreviousEpisode);
     }
     
 }

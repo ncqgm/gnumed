@@ -10,7 +10,8 @@ import java.util.Date;
  *
  * @author  sjtan
  */
-public class NullRootItem implements ClinRootItem {
+public class NullRootItem
+ implements ClinRootItem {
     public static NullRootItem NullItem ;
     static {
         NullItem = new NullRootItem();
@@ -88,5 +89,13 @@ public class NullRootItem implements ClinRootItem {
     
     public void setSoapCat(String soapCat) {
     }
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.ClinRootItem#normalizeHealthIssueName()
+	 */
+	public void normalizeHealthIssueName() {
+		// TODO Auto-generated method stub
+		
+	}
     
 }

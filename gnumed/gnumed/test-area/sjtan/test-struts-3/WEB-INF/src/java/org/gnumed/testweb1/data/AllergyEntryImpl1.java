@@ -13,7 +13,7 @@ package org.gnumed.testweb1.data;
 public class AllergyEntryImpl1 extends AllergyImpl1 implements AllergyEntry, EntryClinRootItem {
     private boolean definite, entered, linked;
     private String substance;
-    ClinWhenEntryAdapter adapter = new ClinWhenEntryAdapter(this);
+    private boolean marked = false;
     
     /** Creates a new instance of AllergyInputImpl1 */
     public AllergyEntryImpl1() {
@@ -39,28 +39,25 @@ public class AllergyEntryImpl1 extends AllergyImpl1 implements AllergyEntry, Ent
     
    
     
-    public String getClinWhenString() {
-        return adapter.getClinWhenString();
-    }
-    
     public boolean isEntered() {
-        return entered;
+        return !("".equals(substance));
     }
     
-    public void setClinWhenString(String clinWhenString) {
-        adapter.setClinWhenString(clinWhenString);
-    }
-    
-    public void setEntered(boolean entered) {
-        this.entered = entered;
-    }
-    
-    public boolean isLinkedToPreviousEpisode() {
-      return   this.linked ;
-    }
-    
-    public void setLinkedToPreviousEpisode(boolean linkedToPreviousEpisode) {
-        this.linked = linkedToPreviousEpisode;
-    }
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.AllergyEntry#isMarked()
+	 */
+	public boolean isMarked() {
+		// TODO Auto-generated method stub
+		return marked;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.AllergyEntry#setMarked(boolean)
+	 */
+	public void setMarked(boolean marked) {
+		// TODO Auto-generated method stub
+		this.marked = marked;
+	}
     
 }

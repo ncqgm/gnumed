@@ -63,5 +63,11 @@ public interface HealthIssue {
     public void setClinicalEpisode(int index, ClinicalEpisode clinicalEpisode);
     
     public ClinRootItem getEarliestClinRootItem();
+
+	/**
+	 * @param candidateEpisode
+	 */
+	public void addClinicalEpisode(ClinicalEpisode candidateEpisode);
     
+	public boolean hasClinicalEpisode( ClinicalEpisode episode);
 }

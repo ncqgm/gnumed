@@ -5,34 +5,30 @@
  */
 
 package org.gnumed.testweb1.data;
-import java.text.SimpleDateFormat;
-import java.text.DateFormat;
-import org.gnumed.testweb1.global.Util;
-import java.util.*;
-import org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 /**
  *
  * @author  sjtan
  */
-public class ClinWhenEntryAdapter  {
-    ClinWhenHolder target;
-    
+public class ClinWhenEntryAdapter   {
+     DateEntryAdapter adapter; 
     static  Log log = LogFactory.getLog(ClinWhenEntryAdapter.class);
     
     /** Creates a new instance of ClinWhenEntryAdapter */
     public ClinWhenEntryAdapter(ClinWhenHolder target) {
-        this.target = target;
+        
+        adapter  = new DateEntryAdapter(target, "clin_when");
     }
     
      
     public String getClinWhenString() {
-        return Util.getShortestDateTimeString(target.getClin_when());
+        return adapter.getDateString();
     }
     
     public void setClinWhenString(String clinWhenString)  {
         try {
-            log.info("Clin WHEN STRING PARSES TO " +Util.parseDate(clinWhenString.trim() ));
-            target.setClin_when(Util.parseDate(clinWhenString.trim()));
+              adapter.setDateString(clinWhenString);
         } catch (Exception e) {
             log.error(e);
             throw new RuntimeException(e);

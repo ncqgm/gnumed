@@ -6,14 +6,14 @@
 
 package org.gnumed.testweb1.data;
 
-import java.beans.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.Locale;
 import org.gnumed.testweb1.global.Util;
 /**
  * @author sjtan
@@ -47,7 +47,7 @@ public class DefaultDemographicDetail implements Serializable, DemographicDetail
     private PropertyChangeSupport propertySupport;
     
     
-    Log log = LogFactory.getFactory().getLog(this.getClass());
+    Log log = LogFactory.getLog(this.getClass());
     
     
     

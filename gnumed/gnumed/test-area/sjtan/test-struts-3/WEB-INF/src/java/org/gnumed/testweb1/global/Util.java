@@ -6,23 +6,19 @@
 
 package org.gnumed.testweb1.global;
 
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.beanutils.BeanUtils;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.struts.config.PlugInConfig;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.config.ModuleConfig;
-import java.util.Map;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
-
-import org.apache.struts.action.ActionMapping;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import org.apache.struts.config.PlugInConfig;
 /**
  *
  * @author  sjtan
@@ -100,8 +96,8 @@ public class Util {
             if ( date.getTime() == outputDateFormat.parse(outputDateFormat.format(date)).getTime() ) {
                 java.util.Calendar cal = java.util.Calendar.getInstance();
                 cal.setTime(date);
-                if ( cal.get(cal.DAY_OF_MONTH) == cal.getMinimum(cal.DAY_OF_MONTH) ){
-                    if  (cal.get(cal.MONTH) == cal.getMinimum(cal.MONTH) ) {
+                if ( cal.get(Calendar.DAY_OF_MONTH) == cal.getMinimum(Calendar.DAY_OF_MONTH) ){
+                    if  (cal.get(Calendar.MONTH) == cal.getMinimum(Calendar.MONTH) ) {
                         return new SimpleDateFormat("yyyy").format(date);
                     }
                     return new  SimpleDateFormat("MMM yyyy").format(date);
@@ -179,4 +175,12 @@ public class Util {
         return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(new java.util.Date());
     }
     
+    public static String nullIsBlank( String s) {
+    	if ( s== null) 
+    		s = "";
+    	return s.trim();
+    }
+    
+   
+
 }

@@ -11,49 +11,29 @@ package org.gnumed.testweb1.actions;
  * Created on June 18, 2004, 4:23 AM
  */
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionError;
-import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.ActionMessage;
-import org.apache.struts.util.ModuleException;
-import org.apache.struts.util.MessageResources;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.beanutils.BeanUtils;
-
-import org.gnumed.testweb1.global.Constants;
-import org.gnumed.testweb1.business.LoginModule;
-import org.gnumed.testweb1.exceptions.demographic.*;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.Enumeration;
-import java.util.Collections;
-
-import org.gnumed.testweb1.adapters.DataObjectFactoryPlugIn;
-import org.gnumed.testweb1.data.DataObjectFactory;
-import org.gnumed.testweb1.data.DemographicDetail;
-import org.gnumed.testweb1.data.Vaccination;
+import org.apache.struts.action.ActionMessages;
 import org.gnumed.testweb1.data.ClinNarrative;
+import org.gnumed.testweb1.data.DataObjectFactory;
 import org.gnumed.testweb1.data.HealthRecord01;
-import org.gnumed.testweb1.data.HealthSummary01;
-
-import org.gnumed.testweb1.persist.DemographicDataAccess;
-import org.gnumed.testweb1.persist.HealthRecordAccess01;
-
+import org.gnumed.testweb1.data.Vaccination;
 import org.gnumed.testweb1.forms.ClinicalUpdateForm;
-
 import org.gnumed.testweb1.global.Constants;
-import org.gnumed.testweb1.global.Util;
-import java.util.List;
+import org.gnumed.testweb1.persist.HealthRecordAccess01;
 
 
 /**
@@ -65,7 +45,7 @@ public class ClinicalSaveAction extends Action {
     /** Creates a new instance of DemographicEntryAction */
     public ClinicalSaveAction() {
     }
-    Log log = LogFactory.getFactory().getLog(this.getClass());
+    Log log = LogFactory.getLog(this.getClass());
     
     
     
@@ -74,7 +54,7 @@ public class ClinicalSaveAction extends Action {
     HttpServletRequest request,
     HttpServletResponse response) {
         
-        ActionErrors errors = new ActionErrors();
+        ActionMessages messages = new ActionMessages();
         
         try {
 //            Enumeration en1 = request.getSession().getAttributeNames() ;
@@ -102,8 +82,14 @@ public class ClinicalSaveAction extends Action {
             
             
             
-            List l = java.util.Arrays.asList(cform.getVaccinations());
+            List l =cform.getVaccinations();
+            
             Iterator i = l.iterator();
+            if (!i.hasNext()) {
+            	log.info("****");
+            	log.info("No Vaccinations found.");
+            	log.info("****");
+            }
             while (i.hasNext()) {
                 Vaccination v = (Vaccination)i.next();
                 if (v.getVaccineGiven() == null || v.getVaccineGiven().trim().equals("") ) {
@@ -111,33 +97,41 @@ public class ClinicalSaveAction extends Action {
                 } else {
                     log.info("GOT vaccineGiven" + v.getVaccineGiven() + " on " + v.getDateGivenString()
                     + " batch no =" +v.getBatchNo() + " , and site given = " + v.getSite());
+                    
                 }
                 
                 
             }
             
 
-            List l2 =java.util. Arrays.asList(cform.getNarratives() );
+            List l2 =cform.getNarratives();
             if (l2.equals( cform.getEncounter().getNarratives() ) ) {
-                log.debug("The narratives are the same in the form");
+                log.info("The narratives are the same in the form");
             }
              System.err.println("There are " +l2.size() + "NARRATIVES");
             Iterator j =l2.iterator();
+            int ix = 0;
             while(j.hasNext()) {
                 ClinNarrative n = (ClinNarrative) j.next();
-                 log.debug("narrative found with text " + n.getNarrative() + ">");
-                 log.debug("Health issue name for " + n + " was " + n.getHealthIssueName());
-                 log.debug("Narrative SOAP CAT " +n.getSoapCat());
+                 log.info("narrative #"+ ix  + "found with text " + n.getNarrative() + ">");
+                 log.info("Health issue name for " + n + " was " + n.getHealthIssueName());
+                 log.info("Narrative SOAP CAT " +n.getSoapCat());
+                 ++ix;
             }
             
             HealthRecordAccess01 access = 
             (HealthRecordAccess01) servlet.getServletContext().
                 getAttribute(Constants.Servlet.HEALTH_RECORD_ACCESS);
          
-          
+            List nonFatalException = new ArrayList();
             HealthRecord01 record = (HealthRecord01) request.getSession().getAttribute(Constants.Session.HEALTH_RECORD);
-            access.save(cform.getEncounter() , record.getHealthSummary() );
-            
+            access.save(cform.getEncounter() , record.getHealthSummary(), nonFatalException );
+            if (nonFatalException.size() > 0) {
+            	for (int k = 0; k < nonFatalException.size(); ++k){
+            		messages.add("save item error", new ActionMessage(((Exception)nonFatalException.get(k)).getMessage()));
+            	}
+            	saveMessages(request, messages);
+            }
             // logging
             //    org.gnumed.testweb1.global.Util.logBean(log, form);
             
@@ -152,17 +146,16 @@ public class ClinicalSaveAction extends Action {
         } catch (Exception e)  {
               
             
-            e.printStackTrace();
             try {
                 util.setRequestAttributes( servlet,  request,   form, mapping);
             } catch (Exception e2) {
                 log.info(e2);
             }
-            log.info(e);
-            ActionError error = new ActionError(e.toString(), e);
-            errors.add("failure in EditClinical", error);
-            saveErrors( request, errors);
-            return mapping.getInputForward();
+            log.info(e,e);
+             messages.add( "error in constructing attributes for form", new ActionMessage("error is", e));
+             saveMessages(request,messages);
+             
+             return mapping.getInputForward();
         }
         
     }

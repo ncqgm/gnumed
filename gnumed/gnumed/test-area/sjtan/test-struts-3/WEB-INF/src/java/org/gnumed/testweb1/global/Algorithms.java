@@ -5,12 +5,21 @@
  */
 
 package org.gnumed.testweb1.global;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 /**
  *
  * @author  sjtan
  */
 public class Algorithms {
+
+    static double DEFAULT_WORD_THRESHOLD = 0.7;
+    
+    static double DEFAULT_MATCHED_WORDCOUNT_THRESHHOLD = 0.7;
+    
+    
     static Map stopWords;
     static {
         stopWords = new HashMap();
@@ -36,6 +45,15 @@ public class Algorithms {
         
         return (String[]) l.toArray(new String[0]);
         
+    }
+    
+    public static boolean normaliseMatch(String s1, String s2) {
+        return Algorithms.isCharMatchedInWords(Util.nullIsBlank(s1).trim().toLowerCase()
+        		, Util.nullIsBlank(s2).trim().toLowerCase());
+    }
+
+    public static boolean isCharMatchedInWords(String ss1, String ss2) {
+    	return isCharMatchedInWords(ss1,ss2, DEFAULT_WORD_THRESHOLD, DEFAULT_MATCHED_WORDCOUNT_THRESHHOLD);
     }
     
     public static boolean isCharMatchedInWords(String ss1, String ss2, double wordThreshold, double wordCountFraction ) {

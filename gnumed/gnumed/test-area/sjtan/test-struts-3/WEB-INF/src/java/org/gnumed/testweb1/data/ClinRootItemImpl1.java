@@ -6,6 +6,9 @@
 
 package org.gnumed.testweb1.data;
 
+import org.gnumed.testweb1.global.Util;
+import org.gnumed.testweb1.global.Constants.Schema;
+
 /**
  *
  * @author  sjtan
@@ -80,11 +83,11 @@ public class ClinRootItemImpl1 implements ClinRootItem {
     }
      
     public String getHealthIssueName() {
-        return healthIssueName;
+        return getEpisode().getHealthIssue().getDescription();
     }    
     
     public void setHealthIssueName(String healthIssueName) {
-        this.healthIssueName = healthIssueName;
+        getEpisode().getHealthIssue().setDescription(healthIssueName);
     }
     
     public java.util.Date getClin_when() {
@@ -103,4 +106,22 @@ public class ClinRootItemImpl1 implements ClinRootItem {
         this.newHealthIssueName = newHealthIssueName;
     }
     
+    
+    /** makes healthissue name non-null, default xxxDEFAULTxxxx */
+    public void normalizeHealthIssueName( ) {
+        
+        String healthIssueName =  getHealthIssueName();
+        String newName =  Util.nullIsBlank( getNewHealthIssueName());
+        
+        healthIssueName = Util.nullIsBlank(healthIssueName);
+        if ( ! "".equals(newName)  ) {
+        	healthIssueName = newName;
+        } else   if (healthIssueName.equals("")) {
+            healthIssueName = Schema.DEFAULT_HEALTH_ISSUE_LABEL;
+        }
+        
+        setNewHealthIssueName("");
+        setHealthIssueName(healthIssueName);
+         
+    }
 }

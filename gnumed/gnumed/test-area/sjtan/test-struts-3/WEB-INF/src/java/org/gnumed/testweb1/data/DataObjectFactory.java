@@ -6,6 +6,7 @@
 
 package org.gnumed.testweb1.data;
 import java.util.Map;
+import java.util.ResourceBundle;
 /**
  *
  * @author  sjtan
@@ -23,6 +24,8 @@ public interface DataObjectFactory {
     String siteGiven, String batchNo, 
     java.sql.Timestamp ts , Map vaccines) ;
      
+          
+    
     HealthIssue createHealthIssue( PatientIdentifiable pi, String description );
     
     ClinicalEncounter createClinicalEncounter( );
@@ -40,4 +43,8 @@ public interface DataObjectFactory {
      public ClinNarrative createEntryClinNarrative();
      public AllergyEntry createEntryAllergy();
      public EntryVitals createEntryVitals();
-}
+     
+     public void setBundle(ResourceBundle bundle);
+     public ResourceBundle getBundle();
+     public String getResourceString(String key);
+	}

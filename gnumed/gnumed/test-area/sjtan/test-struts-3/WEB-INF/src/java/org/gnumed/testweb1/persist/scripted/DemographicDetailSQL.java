@@ -7,12 +7,9 @@
 package org.gnumed.testweb1.persist.scripted;
 
 import java.sql.Connection;
-import org.gnumed.testweb1.persist.DataSourceException;
+
 import org.gnumed.testweb1.data.DemographicDetail;
-import org.apache.struts.util.MessageResources;
-import org.apache.struts.config.ModuleConfig;
-import javax.servlet.ServletContext;
-import org.gnumed.testweb1.data.DataObjectFactory;
+import org.gnumed.testweb1.persist.DataSourceException;
 /**
  *
  * @author  sjtan

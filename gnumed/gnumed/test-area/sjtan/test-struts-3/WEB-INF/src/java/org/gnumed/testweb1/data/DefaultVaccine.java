@@ -5,8 +5,8 @@
  */
 
 package org.gnumed.testweb1.data;
-import org.gnumed.testweb1.data.Vaccine;
-import java.beans.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
 /**

@@ -59,7 +59,10 @@ public final class Constants {
      
      public static final class Schema {
          public final static String DEFAULT_HEALTH_ISSUE_LABEL="xxxDEFAULTxxx";
-         
+         public final static String DEFAULT_VACCINATION_HEALTH_ISSUE_RESOURCE_KEY="vaccination.default.health.issue";
+         public final static String DEFAULT_VACCINATION_EPISODE_RESOURCE_KEY="vaccination.default.episode.description";
+         public final static String DEFAULT_VACCINATION_NARRATIVE_RESOURCE_KEY="vaccination.default.narrative";
+         public final static String DEFAULT_EPISODE_DESCRIPTION_KEY="default.episode.description";
      }
     
 }

@@ -5,17 +5,21 @@
  */
 
 package org.gnumed.testweb1.data;
-import java.sql.*;
-import java.util.*;
-import org.apache.commons.beanutils.ResultSetDynaClass;
-import org.apache.commons.beanutils.ResultSetIterator;
-import org.apache.commons.beanutils.DynaProperty;
-import org.apache.commons.beanutils.DynaBean;
-import org.apache.commons.beanutils.DynaClass;
-import org.apache.commons.beanutils.BasicDynaClass;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.beanutils.BasicDynaBean;
-import org.apache.commons.beanutils.MutableDynaClass;
+import org.apache.commons.beanutils.BasicDynaClass;
+import org.apache.commons.beanutils.DynaBean;
+import org.apache.commons.beanutils.DynaProperty;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.beanutils.ResultSetDynaClass;
 
 /**
  *
@@ -25,7 +29,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     Long identityId;
     List healthIssues, episodes, encounters, vaccinations, medications, allergys,
     narratives, lab_requests, test_results, referrals;
-    Map mapEpisodes, mapHI, emap;
+    Map mapEpisodes, mapHI, emap, vaccines;
     DataObjectFactory dof ;
     List encounterTypes;
     /** Creates a new instance of HealthSummaryQuickAndDirty01 */
@@ -79,6 +83,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
             
             sortEncounterRootItems();
             
+            this.vaccines = mapByTradeName(vaccines);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,7 +91,23 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
         
     }
     
-    void sortEncounterRootItems( ) {
+    /**
+	 * @param vaccines2
+	 * @return
+	 */
+	private Map mapByTradeName(Map vaccines2) {
+		// TODO Auto-generated method stub
+		Map m= new HashMap();
+		Iterator i = (Iterator) vaccines2.values().iterator();
+		while (i.hasNext()) {
+			Vaccine v = (Vaccine) i.next();
+			m.put(v.getTradeName(), v);
+		}
+		
+		return m;
+	}
+
+	void sortEncounterRootItems( ) {
         Iterator i = encounters.iterator();
         while (i.hasNext()) {
             ClinicalEncounter ce = (ClinicalEncounter) i.next();
@@ -280,7 +301,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
         while (rows.hasNext()) {
             DynaBean oldRow = (DynaBean) rows.next();
             System.out.println( "got oldRow" + oldRow);
-            PropertyUtils.setDebug(4);
+      //      PropertyUtils.setDebug(4);
             DynaBean newRow = bdc.newInstance();
             PropertyUtils.copyProperties(newRow, oldRow);
             results.add(newRow);
@@ -351,6 +372,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     public boolean addHealthIssue(HealthIssue issue) {
         
         addEpisodes( issue.getClinicalEpisodes() );
+        mapHI.put( issue.getDescription(), issue);
         return healthIssues.add(issue);
         
     }
@@ -365,5 +387,32 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     public List getEncounterTypes() {
         return encounterTypes;
     }
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.HealthSummary01#findVaccine(java.lang.String)
+	 */
+	public Vaccine findVaccine(String tradeName) {
+		// TODO Auto-generated method stub
+		
+		return (Vaccine) vaccines.get(tradeName);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.HealthSummary01#setVaccines(org.gnumed.testweb1.data.Vaccine[])
+	 */
+	public void setVaccines(Vaccine[] vaccines) {
+		// TODO Auto-generated method stub
+		
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.HealthSummary01#findHealthIssue(java.lang.String)
+	 */
+	public HealthIssue findHealthIssue(String description) {
+		
+		// TODO Auto-generated method stub
+		return (HealthIssue)mapHI.get(description);
+	}
     
 }

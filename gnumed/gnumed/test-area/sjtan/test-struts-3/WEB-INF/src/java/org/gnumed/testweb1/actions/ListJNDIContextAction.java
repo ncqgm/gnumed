@@ -6,51 +6,27 @@
 
 package org.gnumed.testweb1.actions;
 
-import org.apache.struts.action.Action;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Enumeration;
+
+import javax.naming.Binding;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingEnumeration;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionError;
-import org.apache.struts.action.ActionErrors;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.util.ModuleException;
-import org.apache.struts.util.MessageResources;
-import org.apache.commons.beanutils.PropertyUtils;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionError;
-import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessages;
-import org.apache.struts.action.ActionMessage;
-import org.apache.struts.util.ModuleException;
-import org.apache.struts.util.MessageResources;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.beanutils.BeanUtils;
-
 import org.gnumed.testweb1.global.Constants;
-
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
-import javax.naming.Binding;
-import javax.naming.Referenceable;
-import java.util.Enumeration;
-import javax.sql.DataSource;
-import java.sql.*;
 /**
  *
  *
@@ -61,7 +37,7 @@ public class ListJNDIContextAction extends Action {
     /** Creates a new instance of ListJNDIContextAction */
     public ListJNDIContextAction() {
     }
-    Log log = LogFactory.getFactory().getLog(ListJNDIContextAction.class);
+    static Log log = LogFactory.getLog(ListJNDIContextAction.class);
     
     public void listNamingContext(Context context) throws javax.naming.NamingException{
         
@@ -94,7 +70,7 @@ public class ListJNDIContextAction extends Action {
     HttpServletRequest request,
     HttpServletResponse response) {
         
-        ActionErrors errors = new ActionErrors();
+        ActionMessages errors = new ActionMessages();
         
         try {
             DataSource src =(DataSource) servlet.getServletContext().getAttribute(Constants.POOLED_DATASOURCE);
@@ -166,8 +142,7 @@ public class ListJNDIContextAction extends Action {
             
             
         }
-        
-        saveErrors(request, errors);
+        saveMessages(request, errors);
         //   return  mapping.getInputForward();
         return mapping.getInputForward();
     }

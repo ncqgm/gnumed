@@ -5,22 +5,24 @@
  */
 
 package org.gnumed.testweb1.adapters;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.PlugIn;
 import org.apache.struts.config.PlugInConfig;
-import java.util.Map;
-import java.util.Iterator;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.gnumed.testweb1.data.DataObjectFactory;
 import org.gnumed.testweb1.global.Constants;
 import org.gnumed.testweb1.global.Util;
 /**
  *
  * @author  sjtan
  */
-public class DataObjectFactoryPlugIn implements PlugIn {
+public class DataObjectFactoryPlugIn extends BasicPlugin implements PlugIn {
    
     
-    Log log = LogFactory.getFactory().getLog(this.getClass());
+    Log log = LogFactory.getLog(this.getClass());
     
     /** Creates a new instance of DataObjectFactoryPlugin */
     public DataObjectFactoryPlugIn() {
@@ -46,9 +48,11 @@ public class DataObjectFactoryPlugIn implements PlugIn {
         logProperties(map);
         
         String implClassName =(String) map.get(Constants.Servlet.OBJECT_FACTORY);
-        
+        DataObjectFactory factory = null;
         try {
-            Object factory = Class.forName(implClassName).newInstance();
+            factory = (DataObjectFactory) Class.forName(implClassName).newInstance();
+            
+            factory.setBundle(getResourceBundle(moduleConfig));
             actionServlet.getServletContext().setAttribute(Constants.Servlet.OBJECT_FACTORY, factory);
             log.info ("Set Servlet context attribute "+ Constants.Servlet.OBJECT_FACTORY);
             
@@ -63,8 +67,7 @@ public class DataObjectFactoryPlugIn implements PlugIn {
         
         try {
             
-            Object factory = Class.forName(implClassName).newInstance();
-            org.gnumed.testweb1.forms.ClinicalUpdateForm.setDataObjectFactory((org.gnumed.testweb1.data.DataObjectFactory) factory);
+             org.gnumed.testweb1.forms.ClinicalUpdateForm.setDataObjectFactory((org.gnumed.testweb1.data.DataObjectFactory) factory);
                 
             log.info ("Set clinical update form "+ Constants.Servlet.OBJECT_FACTORY);
             
