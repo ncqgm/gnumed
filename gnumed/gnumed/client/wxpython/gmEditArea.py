@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.39 2003-11-19 23:23:53 sjtan Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmEditArea.py,v 1.40 2003-11-20 01:37:09 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -691,7 +691,7 @@ class gmEditArea( wxPanel):
 
 	def _changePatient( self, kwds = None):
 		from gmPatient import gmCurrentPatient
-		self._setPatientModel(gmCurrentPatient(kwds['ID']))
+		self._setPatientModel(gmCurrentPatient())
 		try:
 			self._updateUI()
 			self._init_fields()
@@ -2186,7 +2186,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.39  2003-11-19 23:23:53  sjtan
+# Revision 1.40  2003-11-20 01:37:09  ncq
+# - no code in gmEditArea has any business of calling
+#   gmCurrentPatient() with an explicit ID
+#
+# Revision 1.39  2003/11/19 23:23:53  sjtan
 #
 # extract birthyear from gmDateTime object returned by gmDemographicRecord.getDOB() locally.
 #
