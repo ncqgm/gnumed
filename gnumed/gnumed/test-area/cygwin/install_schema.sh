@@ -11,3 +11,6 @@ for  x in `cat filelist`;do
 	psql -f $x gnumed 2>> err
 done
 
+#some of the country specific data is needed, such as enum_ext_id_types
+sh install_local_schema.sh
+
