@@ -54,3 +54,13 @@ class PureVirtualFunction(Exception):
 		return self.errmsg
 
 
+class ConstructorError(Exception):
+	"""Raised when a constructor fails."""
+	def __init__(self, errmsg = None):
+		if errmsg is not None:
+			self.errmsg = errmsg
+		else:
+			self.errmsg = "*.__init__() failed !"
+
+	def __str__(self):
+		return self.errmsg
