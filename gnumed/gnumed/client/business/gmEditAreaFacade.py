@@ -9,6 +9,13 @@ class gmEditAreaFacade:
 	__ddl_executed = 0
 
 	def __init__(self, backend, patient):
+		""" sets the handle to a backend and patient business object. 
+		The backend handle is needed as gmEditAreaFacade is a Decorator pattern object
+		around patient business objects : i.e. it has the same interface as the business objects,
+		and allows extra processing on business object calls. 
+		The extra processing is updating non-core tables which store edit area specific fields. 
+		The decorator object always forwards a call to the business object it is decorating.
+		"""
 		self._backend = backend
 		self.patient = patient
 		#self.ddl()
@@ -40,6 +47,13 @@ class gmEditAreaFacade:
 		return "id_other"
 
 	def getFormattedValues(self,  fields,  values, formatting):
+		"""
+			fields - a list of ordered keys for formatting.
+			values - a map of values.
+			formatting - a map of formatting.
+			uses formatting to format values; returns the formatted values as a list
+			IN THE ORDER specified in fields list.
+		"""
 		map = {}
 		for f, v in formatting.items():
 			map[f] = v % values[f]
@@ -51,6 +65,9 @@ class gmEditAreaFacade:
 		return list
 
 	def _print(self, list):
+		"""
+			for info/ non-error logging. 
+		"""
 		try:
 			if to_stdout:
 				print list
@@ -69,6 +86,8 @@ class gmEditAreaFacade:
 
 
 	def _error_sql_construct_report(self, f, values, formatting, op = "insert"):
+		""" debugging report for formatting.
+		"""
 		self._traceback("error whilst formatting")
 		if not values.has_key(f):
 			self._print("no value for for ", f)
@@ -82,12 +101,16 @@ class gmEditAreaFacade:
 		
 
 	def escape_str_quote(self, s):
+		"""wxPython text controls don't escape the ' character, and Python literally
+		will intepret this character as end of string if string inserted in a ' delimited string.
+		So escape all text string."""
 		if type(s) == type(""):
 			s = s.replace("'", "\\\'" )
 		return s	
 	
 		
 	def editarea_insert_data(self, conn,  fields,  formatting, values):
+		"""generic editarea specific table insert."""
 		valList = []
 		for f in fields:
 			try:
@@ -112,6 +135,7 @@ class gmEditAreaFacade:
 
 
 	def editarea_update_data( self,  conn, fields,  formatting, values ):
+		"""generic editarea specific table update."""
 		frags = []
 		for f in fields:
 			try:
@@ -124,6 +148,7 @@ class gmEditAreaFacade:
 		curs.execute(cmd % (self.table, ", ".join(frags), self.getRefName(),  self.getDataId()) )
 			
 	def editarea_delete_data( self, conn):
+		"""generic editarea specific table delete."""
 		cmd = "delete from %s where %s= %d"
 		curs = conn.cursor()
 		curs.execute(cmd % (self.table,  self.getRefName(),  self.getDataId()) )
@@ -195,6 +220,7 @@ class gmPHxEditAreaDecorator(gmEditAreaFacade):
 		return "id_clin_history"
 	
 	def create_history(self, (fields, formatting, values)  ):
+		"""update via impl, the real business object, then save the editarea specific fields"""
    	    conn = self._backend.GetConnection('historica', readonly = 0)
 	    try:
 		id = self.impl._create_history(conn, fields, formatting, values )
@@ -208,6 +234,7 @@ class gmPHxEditAreaDecorator(gmEditAreaFacade):
 
 		
 	def update_history( self, (fields, formatting, values), ix ):
+		"""update via impl, the real business object, then save the editarea specific fields"""
    	    conn = self._backend.GetConnection('historica', readonly = 0)
 	    try:
 		    self.impl._update_history( conn, fields, formatting, values, ix )	
@@ -234,6 +261,7 @@ class gmPHxEditAreaDecorator(gmEditAreaFacade):
 
 		
 	def update_local_history(self, id, map):
+		"""cache update"""
 		return self.impl.update_local_history(id, map)
 
         def _add_to_local_history(self, id, map):
@@ -241,6 +269,7 @@ class gmPHxEditAreaDecorator(gmEditAreaFacade):
 
 		
 	def short_format(self, map):
+		"""get a short format string from the field values found in map"""
 		return self.impl.short_format(map)
 
 	def get_significant_past_history( self ):
