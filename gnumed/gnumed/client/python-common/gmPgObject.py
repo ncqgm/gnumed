@@ -19,10 +19,14 @@
 
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.9 $"                                               
+__version__ = "$Revision: 1.10 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 # $Log: gmPgObject.py,v $
-# Revision 1.9  2002-10-26 04:32:32  hherb
+# Revision 1.10  2002-10-26 04:43:06  hherb
+# Undo implemented for fetched rows modified before committtment
+# Manually enforced "save" implemented
+#
+# Revision 1.9  2002/10/26 04:32:32  hherb
 # minor code cleanup, comments added
 #
 # Revision 1.8  2002/10/26 04:14:24  hherb
@@ -265,6 +269,7 @@ class pgobject:
 				is_new=1
 				columns = ""
 				count = 0
+				#create a "safe" primary key (assumption: primary key is of type "serial")
 				self._primarykey = self.new_primary_key()
 				self._row[self._index[self._pkcolumn]] = self._primarykey
 				if self._pkcolumn not in self._modified:
@@ -344,6 +349,17 @@ class pgobject:
 			self._save()
 		self._primarykey = primarykey
 		
+	def save(self):
+		"""force the current data to be written to the backend manually"""
+		self._save()
+		
+	def undo(self):
+		"""reset the state ofthe row to the state it has on the backend"""
+		if self._fetched:
+			self._fetch()
+		else:
+			print "Undo for new objects not impemented yet"
+		
 		
 				
 if __name__ == "__main__":
@@ -411,5 +427,10 @@ if __name__ == "__main__":
 	dbo = pgobject(db, 'test_pgo', 1)
 	print dbo['id_fk']['text'] 
 	dbo['id_fk']['text'] = "this is a new foreign key for table 1!"
+	print "\nText before change:", dbo['text']
+	dbo['text'] = "I just changed it!"
+	print "Text after change (not committed):", dbo['text']
+	dbo.undo()
+	print "Text after undo:", dbo['text']
 	
 	
