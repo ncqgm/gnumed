@@ -8,12 +8,12 @@
 #--------------------------------------------------------------
 # @author: Karsten Hilbert
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
-# @Date: $Date: 2004-02-25 09:30:13 $
-# @version $Revision: 1.1 $ $Date: 2004-02-25 09:30:13 $ $Author: ncq $
+# @Date: $Date: 2004-06-25 12:29:47 $
+# @version $Revision: 1.2 $ $Date: 2004-06-25 12:29:47 $ $Author: ncq $
 ###############################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/tools/Attic/find_todo.py,v $
-__version__ = "$Revision"
+__version__ = "$Revision: 1.2 $"
+__license__ = "GPL (details at http://www.gnu.org)"
 
 import string, sys, fileinput
 
@@ -40,6 +40,9 @@ for line in fileinput.input():
 
 #=====================================================================
 # $Log: find_todo.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-06-25 12:29:47  ncq
+# - coding style
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
