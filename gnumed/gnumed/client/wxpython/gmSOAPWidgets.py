@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.31 2005-03-29 07:31:01 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmSOAPWidgets.py,v 1.32 2005-03-29 18:40:55 cfmoro Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -157,18 +157,22 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		"""
 		self.__LST_problems.Clear()
 		emr = self.__pat.get_clinical_record()
-		problems = emr.get_problems()
+		problems = emr.get_problems()		
 		for problem in problems:
+			last = _('unknown')
 			if problem['type'] == 'issue':
 				issue = emr.problem2issue(problem)
 				last_encounter = emr.get_last_encounter(issue_id = issue['id'])
-				last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
+				print last_encounter
+				if not last_encounter is None:
+					last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
 			elif problem['type'] == 'episode':
-				epi = emr.problem2episode(problem)
+				epi = emr.problem2episode(problem)				
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
-				last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
-			else:
-				last = _('unknown')
+				print last_encounter
+				if not last_encounter is None:
+					last = last_encounter['last_affirmed'].Format('%Y-%m-%d')				
+			print last
 			item = _('%s "%s" (last %s)') % (_(problem['type']), problem['problem'], last)
 			self.__LST_problems.Append(item, problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
@@ -1170,7 +1174,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.31  2005-03-29 07:31:01  ncq
+# Revision 1.32  2005-03-29 18:40:55  cfmoro
+# Fixed last encounter date when does not exists
+#
+# Revision 1.31  2005/03/29 07:31:01  ncq
 # - according to user feedback:
 #   - switch sides for problem selection/progress note editor
 #   - add header to problem list
