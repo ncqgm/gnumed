@@ -576,7 +576,21 @@ throws SQLException, DataSourceException {
 					", ? , ? , ? , ? , ?" +
 					" , ? , ? , ? , ? , ?)";
 		PreparedStatement stmt = conn.prepareStatement(s9);
-		setClinRootItemStatement(stmt, med, 15); 
+		setClinRootItemStatement(stmt, med, 16); 
+		stmt.setString(2, med.getBrandName());
+		stmt.setString(3, med.getATC_code());
+		stmt.setString(4, med.getDB_origin());
+		stmt.setString(5, med.getDB_drug_id());
+		stmt.setString(6, "");
+		stmt.setDouble(7, med.getDose());
+		stmt.setInt(8, med.getPeriod());
+		stmt.setString(9, "form");
+		stmt.setString(10, med.getDirections());
+		stmt.setBoolean( 11, med.isPRN());
+		stmt.setBoolean(12, med.isSR());
+		stmt.setDate(13, new java.sql.Date(med.getStart().getTime()));
+		stmt.setDate(14, new java.sql.Date(med.getLast().getTime()));
+		stmt.setDate(15, new java.sql.Date(med.getDiscontinued().getTime()));
 		
 		
 	}

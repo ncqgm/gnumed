@@ -23,7 +23,7 @@ public class MedicationImpl1 extends ClinRootItemImpl1 implements Medication {
     private String DB_drug_id, DB_origin;
     private String directions;
     private String ATC;
-    
+    private String amountUnit, form;
     
     /** Creates a new instance of MedicationImpl1 */
     public MedicationImpl1() {
@@ -199,6 +199,38 @@ public class MedicationImpl1 extends ClinRootItemImpl1 implements Medication {
 	public void setDiscontinued(Date d) {
 		// TODO Auto-generated method stub
 		this.discontinued = d;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#getForm()
+	 */
+	public String getForm() {
+		// TODO Auto-generated method stub
+		return form;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setForm(java.lang.String)
+	 */
+	public void setForm(String form) {
+		// TODO Auto-generated method stub
+		this.form = form;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#getAmountUnit()
+	 */
+	public String getAmountUnit() {
+		// TODO Auto-generated method stub
+		return amountUnit;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setAmountUnit(java.lang.String)
+	 */
+	public void setAmountUnit(String unit) {
+		// TODO Auto-generated method stub
+		this.amountUnit = unit;
 	}
     
 }
