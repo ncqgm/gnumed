@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -58,7 +58,6 @@ import os.path, fileinput, string, sys, shutil
 
 # gnumed modules
 import gmLog, gmCLI
-import gmExceptions
 
 _log = gmLog.gmDefLog
 #================================
@@ -111,17 +110,17 @@ class cCfgFile:
 	_modified = None
 	#----------------------------
 	def __init__(self, aPath = None, aFile = None):
-	    	"""Init ConfigFile object. For valid combinations of these
+		"""Init ConfigFile object. For valid combinations of these
 		parameters see above. Raises a ConfigError exception if
 		no config file could be found. 
-    		"""
-    	    	self._cfg_data = {}
+		"""
+		self._cfg_data = {}
 		# get conf file name
 		if not self.__get_conf_name(aPath, aFile):
-			raise ConfigError,"cannot find config file"
+			raise IOError, "cannot find config file"
 		# load config file
 		if not self.__parse_conf_file():
-			raise ConfigError,"cannot parse config file"
+			raise SyntaxError, "cannot parse config file"
 	#----------------------------
 	# API - access config data
 	#----------------------------
@@ -271,9 +270,9 @@ class cCfgFile:
 	#----------------------------
 	def __get_conf_name(self, aDir = None, aName = None):
 		"""Try to construct a valid config file name.
-		Returns None if no valid name could be found, else TRUE(1)."""
-    	    	
-    		_log.Log(gmLog.lData, '(<aDir=%s>, <aName=%s>)' % (aDir, aName))
+		Returns None if no valid name could be found, else TRUE(1).
+		"""
+		_log.Log(gmLog.lData, '(<aDir=%s>, <aName=%s>)' % (aDir, aName))
 		# 1) has the programmer manually specified a config file ?
 		if aName != None:
 			self.cfgName = os.path.abspath(aName)
@@ -290,9 +289,9 @@ class cCfgFile:
 					else:
 						_log.Log(gmLog.lWarn, 'Config file [%s] not found. Aborting.' % self.cfgName)
 						return None
-    	    	    	    	else:
-				    return None
-				    
+				else:
+					return None
+
 		# 2) has the user manually supplied a config file on the command line ?
 		if gmCLI.has_arg('--conf-file'):
 			self.cfgName = gmCLI.arg['--conf-file']
@@ -518,11 +517,9 @@ if __name__ == "__main__":
 	except:
 		exc = sys.exc_info()
 		_log.LogException('unhandled exception', exc, fatal=1)
+		raise
 
 	print myCfg
-
-	if myCfg == None:
-		print "cannot open file"
 
 	data = myCfg.getCfg()
 
@@ -545,20 +542,27 @@ if __name__ == "__main__":
 
 	print myCfg.get('backend', 'hosts')
 
-	myCfg.set("date", "modified", "jetzt", ["sollte eigentlich immer aktuell sein"])
+	myCfg.set("date", "modified", "right now", ["should always be rather current"])
 	myCfg.store()
 else:
-	# if gmCfg was imported by gnumed.py, it should find a default config file
-	try:
-	    gmDefCfgFile = cCfgFile()
-	# else somebody might just have included it for some other purpose
-    	except:
-    	    _log.Log(gmLog.lWarn, "gmCfg included but no CfgFile specified. Continuing.")
-
-	    	    
+	# have a sane pointer even if we fail on import (in
+	# case the caller ignores the exception)
+	gmDefCfgFile = None
+	# - we are being imported
+	# - if we don't find any config file we raise an exception
+	# - IF the called really knows what she does she can handle
+	#   that exception in her own code
+	_tmp = cCfgFile()
+	# we only get here if we DON'T throw an exception
+	gmDefCfgFile = _tmp
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.16  2002-10-18 19:57:09  hinnef
+# Revision 1.17  2002-10-19 19:24:37  ncq
+# - fixed some whitespace breakage
+# - raise error on failing to parse default config file, if you really want
+#   to override this you should handle that exception in your own code
+#
+# Revision 1.16  2002/10/18 19:57:09  hinnef
 # fixed problems when a invalid filename is given, static class variables and
 # changed the initialization of gmDefCfgFile so that it can be imported from
 # standalone modules
