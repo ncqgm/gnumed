@@ -6,20 +6,19 @@ trail triggers and functions.
 Theory of operation:
 
 Any table that needs to be audited (all modifications
-logged) must be marked as such by inheriting from a given
-parent table.
+logged) must be recorded in the table "audited_tables".
 
-This script finds all descendants of that parent table and
-creates the triggers and functions neccessary to establish
-the audit trail. The audit trail tables must have been
-created previously but need not contain all columns of the
-audited table. Do not put any constraints on the audit
-trail tables except for "not null" on those columns that
-cannot be null in the audited table.
+This script creates the triggers, functions and tables
+neccessary to establish the audit trail. Some or all
+audit trail tables may have been created previously but
+need not contain all columns of the audited table. Do not
+put any constraints on the audit trail tables except for
+"not null" on those columns that cannot be null in the
+audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -150,15 +149,6 @@ template_create_audit_trail_table = """create table %s (
 ) inherits (%s)"""
 
 #------------------------------------------------------------------
-def get_children(aCursor, aTable):
-	"""Return all descendants of aTable.
-	"""
-	if not gmPG.run_query(aCursor, query_table_descendants, aTable):
-		_log.Log(gmLog.lErr, 'cannot get children of table %s' % aTable)
-		return None
-	rows = aCursor.fetchall()
-	return rows
-#------------------------------------------------------------------
 def get_columns(aCursor, aTable):
 	"""Return column attributes of table
 	"""
@@ -272,26 +262,24 @@ def trigger_schema(aCursor, audited_table):
 	return schema
 #------------------------------------------------------------------
 def create_audit_schema(aCursor):
-	# get list of all derived tables
-#	tables2audit = get_children(aCursor, audit_marker_table)
+	# get list of all marked tables
 	cmd = "select table_name from audited_tables";
 	if gmPG.run_query(aCursor, cmd) is None:
 		return None
 	rows = aCursor.fetchall()
-	if len(rows) is None:
+	if len(rows) == 0:
 		_log.Log(gmLog.lInfo, 'no tables to audit')
 		return None
 	tables2audit = []
 	for row in rows:
 		tables2audit.extend(row)
 	_log.Log(gmLog.lData, tables2audit)
-	# for each derived table
+	# for each marked table
 	schema = []
 	for audited_table in tables2audit:
-		# fail if corresponding audit trail table does not exist
 		audit_trail_schema = audit_trail_table_schema(aCursor, audited_table)
 		if audit_trail_schema is None:
-			_log.Log(gmLog.lErr, 'cannot verify audit trail table existance on audited table [%s]' % audited_table)
+			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for audited table [%s]' % audited_table)
 			return None
 		schema.extend(audit_trail_schema)
 		if len(audit_trail_schema) != 0:
@@ -340,7 +328,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.16  2003-10-01 15:43:45  ncq
+# Revision 1.17  2003-10-19 12:56:27  ncq
+# - streamline
+#
+# Revision 1.16  2003/10/01 15:43:45  ncq
 # - use table audited_tables now instead of inheriting from audit_mark
 #
 # Revision 1.15  2003/08/17 00:09:37  ncq
