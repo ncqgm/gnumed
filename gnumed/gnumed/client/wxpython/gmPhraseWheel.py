@@ -18,7 +18,7 @@ interface of Richard Terry's Visual Basic client
 This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 
 __log__ = gmLog.gmDefLog
 
@@ -316,7 +316,8 @@ class cPhraseWheel (wxTextCtrl):
 		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
 
 		wxTextCtrl.__init__ (self, parent, id, "", pos, size)
-		self.SetBackgroundColour (wxColour (200, 100, 100))
+		# unneccsary as we are using styles
+		#self.SetBackgroundColour (wxColour (200, 100, 100))
 		self.parent = parent
 
 		# set event handlers
@@ -329,10 +330,13 @@ class cPhraseWheel (wxTextCtrl):
 
 		self.id_callback = id_callback
 
-		self.__picklist_win = wxPopupTransientWindow (parent, -1)
+		x, y = pos
+		width, height = size
+		self.__picklist_win = wxWindow (parent, -1, pos = (x, y+height), size = (width, width))
 		self.panel = wxPanel(self.__picklist_win, -1)
 		self.__picklist = wxListBox(self.panel, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
 		self.__picklist.Clear()
+		self.__picklist_win.Hide ()
 		self.__picklist_visible = gmpw_false
 	#--------------------------------------------------------
 	def __updateMatches(self):
@@ -351,9 +355,9 @@ class cPhraseWheel (wxTextCtrl):
 
 		# recalculate position
 		# FiXME: check for number of entries - shrink list windows
-		pos = self.ClientToScreen ((0,0))
-		dim = self.GetSize ()
-		self.__picklist_win.Position(pos, (0, dim.height))
+		#pos = self.ClientToScreen ((0,0))
+		#dim = self.GetSize ()
+		#self.__picklist_win.Position(pos, (0, dim.height))
 
 		# select first value
 		self.__picklist.SetSelection (0)
@@ -363,12 +367,13 @@ class cPhraseWheel (wxTextCtrl):
 
 		# and show it
 		# FIXME: we should _update_ the list window instead of redisplaying it
-		self.__picklist_win.Popup()
+		self.__picklist_win.Show()
+		self.__picklist.Show ()
 	#--------------------------------------------------------
 	def __hide_picklist(self):
 		"""Hide the pick list."""
 		if self.__picklist_visible:
-			self.__picklist_win.Dismiss()		# dismiss the dropdown list window
+			self.__picklist_win.Hide()		# dismiss the dropdown list window
 		self.__picklist_visible = gmpw_false
 	#--------------------------------------------------------
 	# specific event handlers
