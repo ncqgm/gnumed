@@ -106,7 +106,7 @@ export PYTHONPATH=/usr/lib/python1.5/site-packages:/usr/local/lib/python2.1/site
 </screen>
 </para>
 
-<sect2><title>Configurating PostgreSQL (quoting Steven Duffy)</title>
+<sect2><title>Configuring PostgreSQL (quoting Steven Duffy)</title>
 <para> Some steps are required to get the <application>PostgreSQL</application>
 database system running.</para>
 <para>First, make sure you have the PostgreSQL server daemon running.
@@ -168,7 +168,7 @@ There is a Mac port of Python, and one of wxWindows is in progress.
 </row>
 <row>
   <entry>wxWindows windowing library</entry>
-  <entry>
+   <entry>
 <ulink url="http://prdownloads.sourceforge.net/wxpython/wxPython-2.3.2.1-Py22.exe">
 <citetitle>wxWindows for Python bindings</citetitle></ulink>
 </entry><entry>2.3.2</entry></row>
@@ -193,7 +193,7 @@ There is a Mac port of Python, and one of wxWindows is in progress.
   <entry>IPC for Cygwin</entry>
   <entry>
 <ulink url="http://www.neuro.gatech.edu/users/cwilson/cygutils/V1.1/cygipc/cygipc-1.11-1.tar.bz2">
-<citetitle>CygIPC (this is not an .EXE file. Save it to C:\CYGWIN)</citetitle></ulink>
+<citetitle>CygIPC </citetitle></ulink>(this is not an .EXE file. Save it to C:\CYGWIN)
 </entry><entry>1.11</entry>
 </row>
 </tbody>
@@ -219,9 +219,7 @@ mkdir /usr/share/postgresql/data
 /usr/bin/postmaster -D /usr/share/postgresql/data &
 </screen>
 Postgres should now be running. <emphasis>DO NOT</emphasis> close
-the window containing these commands. You can follow the
-instructions below (<xref linkend="pgsql">)
-to install the GNUMed database.
+the window containing these commands. 
 </para>
 <para>Every time to want to run PostgreSQL again, open up Cygwin as
 before and type:
@@ -235,7 +233,7 @@ before and type:
 setting up the database (<xref linkend="pgsql">.)</para>
 <sect3><title>Running PostgreSQL as an NT service</title>
 
-<para>On Windows NT, Windows 2000 or Windows NT it is possible to run
+<para>On Windows NT, 2000 or XP it is possible to run
 PostgreSQL as a background process (similar to a UNIX daemon).
 </para>
 <para>Go to Control Panel: "Users", and create a new user for your
@@ -263,13 +261,15 @@ Now log in as the "postgres" user, load Cygwin again and type:
 <screen>
 initdb -D /usr/share/postgresql/data
 </screen>
-The datbase is now running. Make sure you use "psql -U postgres .."
-when you first use the database.</para>
+The database will now run whenever Windows is loaded. 
+You <emphasis>must</emphasis> be user "postgres" to use the database
+on this computer. </para>
 
 </sect3>
 </sect2>
 
-<sect2><title>
+<sect2><title>Running the client</title>
+<para>
 Once you have done this, you can run GNUMed from the Python interpreter.
 Click on the Python icon and type:
 <screen>
@@ -277,12 +277,7 @@ Click on the Python icon and type:
 <prompt>>>></prompt>  sys.path.append ('path-to-gnumed-files')
 <prompt>>>></prompt>  import gnumed
 <prompt>>>></prompt>  gnumed.main ()
-</screen>
-</sect2>
-
-<sect2 id="nt-xp"><title>Windows NT/2000/XP</title>
-<para>It is possible to run PostgreSQL, using the cygwin UNIX emulator,
-but it not highly recommended.</para>
+</screen></para>
 </sect2>
 
 </sect1>
@@ -303,7 +298,7 @@ directory:
 </screen>
 <para>
 Then enter the <filename>country.specific</filename> directory, then the directory  for your country's code, and then install the <filename>.sql</filename>
-file there too. <footnote><para>The only such directory at the moment is au, the only working databases is postcodes.su.sql</para></footnote></para>
+file there too. <footnote><para>The only such directory at the moment is au, the only working databases is postcodes.au.sql</para></footnote></para>
 
 <para>FIXME: presumably some shell script to create all the databases and
 feed in the ER scripts?</para>
