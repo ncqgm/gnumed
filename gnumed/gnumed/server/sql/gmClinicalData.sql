@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.6 2003-04-28 20:56:16 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.7 2003-05-04 23:59:35 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -16,6 +16,15 @@
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
+--		self.__consultation_types = [
+--			_('in surgery'),
+--			_('home visit'),
+--			_('by phone'),
+--			_('at specialist'),
+--			_('patient absent'),
+--			_('by email'),
+--			_('other consultation')
+--		]
 INSERT INTO _enum_encounter_type (description) values (i18n('in surgery'));
 INSERT INTO _enum_encounter_type (description) values (i18n('phone consultation'));
 INSERT INTO _enum_encounter_type (description) values (i18n('fax consultation'));
@@ -125,11 +134,14 @@ insert into enum_immunities (name) values ('tetanus');
 -- ===================================================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.6  2003-04-28 20:56:16  ncq
+-- Revision 1.7  2003-05-04 23:59:35  ncq
+-- - add comment on encounter types
+--
+-- Revision 1.6  2003/04/28 20:56:16  ncq
 -- - unclash "allergy" in hx type and type of allergic reaction + translations
 -- - some useful indices
 --
