@@ -6,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/michaelb/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.6 2003-07-06 20:22:41 michaelb Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPregCalc.py,v 1.7 2003-07-06 21:36:30 michaelb Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -61,16 +61,27 @@ class PregnancyFrame (wxFrame):
 	#
 	# explore idea of 'status bar' across bottom -- something to make
 	# 	clear how to use the calculator
+	#
+	# change the set-up of the RowColSizer(), shrink the size of the 'Weeks' & 'Days' fields
+	#	make column on right side of preg. calc. more compact
+	#
+	# clean-up the names of the variables (some could be named more descriptively)
+	#
 
 	def __init__ (self, parent):
 		myStyle = wxMINIMIZE_BOX | wxSYSTEM_MENU | wxCAPTION | wxALIGN_CENTER | \
 			wxALIGN_CENTER_VERTICAL | wxTAB_TRAVERSAL | wxSTAY_ON_TOP
 		wxFrame.__init__(self, parent, -1, _("Pregnancy Calculator"), style=myStyle)
 
-		# initialization
+		# initialization of variables used in the control & calculation
 		self.lnp_or_usdate=0	# controls which variable (LNP or Ultrasound) a calendar event changes
 					# (if == 0): {calendar selection modifies LNP}
 					# (if == 1): {calendar selection modifies Ultrasound Date}
+
+		self.ustxt=wxDateTime_Today()	# avoids problem - one would have if the user clicked on
+						# ultrasound date
+						# BONUS: makes the preg. calculator useful for EDC calcs given
+						# 	a date and the gestation time
 
 		icon = wxEmptyIcon()
 		icon.CopyFromBitmap(wxBitmapFromXPMData(cPickle.loads(zlib.decompress( _icons[_("""icon_Preg_calc""")] ))) )
@@ -87,7 +98,10 @@ class PregnancyFrame (wxFrame):
 
 		self.txtlnmp = wxTextCtrl(self,-1,"",size=(100,20))  	# text for lmp
 		self.txtlnmp.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-                szr_row1 = wxBoxSizer(wxHORIZONTAL)
+		self.txtlnmp.SetToolTip(wxToolTip(_("Click on calendar to enter the last mentral period date")))
+		tiplmp=self.txtlnmp.GetToolTip()
+
+		szr_row1 = wxBoxSizer(wxHORIZONTAL)
 		szr_row1.Add(self.txtlnmp,1,wxEXPAND|wxALL,2)
 		EVT_SET_FOCUS(self.txtlnmp, self.OnSetFocus_lnmp)
 
@@ -180,6 +194,9 @@ class PregnancyFrame (wxFrame):
 		label1.SetForegroundColour(wxColour(0,0,0))
   		self.txtdate = wxTextCtrl(self,-1,"",size=(25,20))
 		self.txtdate.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtdate.SetToolTip(wxToolTip(_("Click on this field and then the ultrasound scan date on the calendar")))
+		tipdue=self.txtdate.GetToolTip()
+		wxToolTip_Enable(1)
 		self.szr_txtdate  = wxBoxSizer(wxHORIZONTAL)
 		self.szr_txtdate.Add(self.txtdate,1,wxEXPAND|wxALL,2)
 		EVT_SET_FOCUS(self.txtdate, self.OnSetFocus_USDate)
@@ -362,7 +379,9 @@ class PregnancyFrame (wxFrame):
 		self.txtgest.SetValue("")
 		self.txtedc.SetValue("")
 		self.txtdue.SetValue("")
+
 		self.txtdate.SetValue("")
+		self.ustxt=wxDateTime_Today()
 
 		self.txtweeks.SetValue(0)			# FIXME - MAKE IT RESET TO BLANK?
 		self.txtdays.SetValue(0)
@@ -454,8 +473,8 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.6  2003-07-06 20:22:41  michaelb
-# locked down some wxTextCtrl boxes; when ultrasound field activated flips to 18/52 date, dead code removal
+# Revision 1.7  2003-07-06 21:36:30  michaelb
+# fixed ultrasound scan date bug, added tooltips to 'LMP' and 'Date' fields
 #
 # Revision 1.5  2003/07/05 06:44:28  michaelb
 # fixed "Revised EDC" calc, on reset LMP selected & calendar put on current date
