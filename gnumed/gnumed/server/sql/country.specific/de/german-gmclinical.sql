@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-gmclinical.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- part of GnuMed
 -- GPL
@@ -76,7 +76,7 @@ insert into i18n_translations(lang, orig, trans) values
 insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'allergy', 'Allergieanamnese');
 insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'drug', '?? Drogenanamnese');
+	('de_DE', 'drug', 'Medikamentenanamnese');
 insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'sexual', 'Sexualanamnese');
 insert into i18n_translations(lang, orig, trans) values
@@ -115,10 +115,13 @@ insert into i18n_translations(lang, orig, trans) values
 -- =============================================
 -- do simple revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-gmclinical.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-gmclinical.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: german-gmclinical.sql,v $
--- Revision 1.1  2003-01-27 01:36:12  ncq
+-- Revision 1.2  2003-01-27 08:50:41  ncq
+-- - drug history -> Medikamentenanamnese
+--
+-- Revision 1.1  2003/01/27 01:36:12  ncq
 -- - script consolidation
 --
