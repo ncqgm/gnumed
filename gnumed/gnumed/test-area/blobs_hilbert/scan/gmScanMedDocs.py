@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -526,7 +526,14 @@ class ScanPanel(wxPanel):
 			# get JPEG quality factor
 			quality_value = _cfg.get("scanning", "JPEG quality level")
 			if quality_value is None:
+				_log.Log(gmLog.lWarn, "JPEG quality level not specified in config file, using default level of 75")
 				quality_value = 75
+			else:
+				if quality_value.isdigit():
+					quality_value = int(quality_value, 10)
+				else:
+					_log.Log(gmLog.lWarn, "JPEG quality level [%s] not a number, using default level of 75" % quality_value)
+					quality_value = 75
 			# do we want progression ?
 			progression_flag = _cfg.get("scanning", "progressive JPEG")
 			# actually convert to JPEG
@@ -977,7 +984,10 @@ else:
 			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.15  2002-12-27 11:17:00  ncq
+# Revision 1.16  2002-12-28 21:40:17  ncq
+# - quality_value needs to be int()
+#
+# Revision 1.15  2002/12/27 11:17:00  ncq
 # - implemented conversion to JPEG in TWAIN, too
 #
 # Revision 1.14  2002/12/08 12:40:54  ncq
