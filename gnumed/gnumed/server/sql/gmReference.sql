@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -62,8 +62,8 @@ comment on table link_table2src is
 -- -------------------------------------------------------------------
 CREATE TABLE basic_unit (
 	id serial primary key,
-	name_short text not null,
-	name_long text
+	name_short text unique not null,
+	name_long text unique
 );
 
 COMMENT ON TABLE basic_unit IS
@@ -97,10 +97,13 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.1  2003-07-27 16:50:52  ncq
+-- Revision 1.2  2003-08-10 01:01:59  ncq
+-- - add constraints on basic_unit
+--
+-- Revision 1.1  2003/07/27 16:50:52  ncq
 -- - first check-in
 --
