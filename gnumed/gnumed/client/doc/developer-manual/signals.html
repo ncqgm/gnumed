@@ -1,0 +1,485 @@
+<HTML
+><HEAD
+><TITLE
+>List of GnuMed client internal signals</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE=" Design "
+HREF="design.html"><LINK
+REL="PREVIOUS"
+TITLE="List of distributed database services"
+HREF="services.html"><LINK
+REL="NEXT"
+TITLE="FAQ"
+HREF="faq.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="services.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Design</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="faq.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SIGNALS"
+></A
+>5.3. List of GnuMed client internal signals</H1
+><P
+>         
+	    All signals are defined in the module gmSignals.py, located in the source
+	    tree under gnumed/client/python-common.</P
+><P
+>	    Developers never should use these signal strings directly, but always refer
+	    to the signal strings via their factory functions in the module gmSignals.</P
+><P
+>	    The name of the factory function is identical with the signal it represents:
+	    gmSignals.popup_notice() would thus return the string 'popup_notice'.
+	    </P
+><P
+>	    However, these factory functions <EM
+>may</EM
+> do more than just that; they
+	    can also trigger a 'listen' signal for asynchronous backend notifications,
+	    and they can do some house keeping in order to avoid that the same callback
+	    is triggered multiple times unneccessarily.
+	    </P
+><P
+>		<DIV
+CLASS="TABLE"
+><A
+NAME="AEN472"
+></A
+><P
+><B
+>Table 5-1. Signals</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Signal</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Meaning</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Parameter(s)</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Origin</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+COLSPAN="4"
+ALIGN="CENTER"
+VALIGN="TOP"
+><EM
+>General messages</EM
+></TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>popup_notice</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A popup notice wants to be displayed (can be disabled if 
+			client does not want to be interrupted)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: closedcircle"
+><P
+>id_sender (ID of sender)</P
+></LI
+><LI
+STYLE="list-style-type: closedcircle"
+><P
+>id_recipients ( IDs of recipients  as list (-1 = broadcast message))</P
+></LI
+></UL
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Frontend or Backend</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>popup_alert</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A popup alert wants to be displayed (high priority 
+			message - should not be disabled by the client)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: closedcircle"
+><P
+>id_sender (ID of sender) id_recipients</P
+></LI
+><LI
+STYLE="list-style-type: closedcircle"
+><P
+>( IDs of recipients  as list (-1 = broadcast message))</P
+></LI
+></UL
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Frontend or Backend</TD
+></TR
+><TR
+><TD
+COLSPAN="4"
+ALIGN="CENTER"
+VALIGN="TOP"
+><EM
+>"Current patient" related messages</EM
+></TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>patient_selected</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A patient has been selected within the client user interface. This 
+			 patient is now the "current" patient. All widgets displaying client data
+			 must update themselves accordingly</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>id_patient (ID of patient)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Frontend</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>patient_modified</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A patient's demographic data has been updated. Widgets displaying a
+		      patient's demographic data must update themselves</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>id_patient (ID of patient)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Frontend or Backend</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>medication_modified</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>The current patient's medication has been modified. Medication related
+		      widgets have to update themselves. This can also be used for drug interaction
+		      checking, drug allergy checking etc. </TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>id_patient (ID of patient)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Frontend or Backend</TD
+></TR
+><TR
+><TD
+COLSPAN="4"
+ALIGN="CENTER"
+VALIGN="TOP"
+><EM
+>Waiting room related</EM
+></TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>waitingroom_added</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A patient has been added to the waiting room</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: closedcircle"
+><P
+>id_patient (ID of patient)</P
+></LI
+><LI
+STYLE="list-style-type: closedcircle"
+><P
+>id_doctor (ID of doctor to see patient)</P
+></LI
+></UL
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Frontend or Backend</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>waitingroom_incons</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A patient has entered a consultation (is seen by a doctor)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: closedcircle"
+><P
+>id_patient (ID of patient)</P
+></LI
+><LI
+STYLE="list-style-type: closedcircle"
+><P
+>id_doctor (ID of doctor to see patient)</P
+></LI
+></UL
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Frontend or Backend</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>waitingroom_left</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A patient has left the waitingroom (finished consultation)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: closedcircle"
+><P
+>id_patient (ID of patient)</P
+></LI
+><LI
+STYLE="list-style-type: closedcircle"
+><P
+>id_doctor (ID of doctor to see patient)</P
+></LI
+></UL
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Frontend or Backend</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+    	</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="services.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="faq.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>List of distributed database services</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="design.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>FAQ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

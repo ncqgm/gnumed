@@ -1,0 +1,1368 @@
+<HTML
+><HEAD
+><TITLE
+>python-common</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE=" Modules "
+HREF="modules.html"><LINK
+REL="PREVIOUS"
+TITLE=" Modules "
+HREF="modules.html"><LINK
+REL="NEXT"
+TITLE="wxpython"
+HREF="wxpython-modules.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="modules.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 4. Modules</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="wxpython-modules.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PYTHON-COMMON"
+></A
+>4.1. python-common</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN202"
+></A
+>4.1.1. gmCLI.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>&#13;GNUmed command line options handling.
+
+All command line argument handling should go through this module.
+
+Theory of operation:
+Upon startup the command line is parsed for any option
+arguments. Those are assumed to start with at least one "-".
+Any arguments not starting with a "-" are considered
+non-option arguments. Option arguments are then stored in
+the module level global dictionary _cli_args{}.
+
+Your module should import gmCLI and query for existence of
+one-letter arguments like this:
+
+if gmGLI.has_arg("-v"):
+	do_something_verbosely()
+else:
+	be_rather_quiet()
+
+If you want to access the value for a long option you should
+first check for it's existence and then access the value:
+
+if gmCLI.has_arg("--foo"):
+	print gmCLI.arg["--foo"]
+else:
+	print "no argument --foo specified"
+
+Remember that even though a long argument exists it may not
+have a value, e.g. the value might amount to an empty string.
+
+Limitations:
+1) Aggregated short arguments are not supported, eg you CANNOT say
+    my-script -fo
+   instead of
+    my-script -f -o
+   In fact, "-fo" will be truncated to "-f"
+2) Values on short arguments are not supported. Use long
+   style arguments for that, e.g.:
+    my-script --foo=bar&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN205"
+></A
+>4.1.2. gmCachedAddress.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>&#13; gmCachedAddress - data broker for a person's address
+ @TODO: Almost everything
+
+ class AddressCache(gmDBCache.DBcache)
+ class CachedAddress(gmDBCache.CachedDBObject)
+	def get(self, id=None, by_reference=0, refresh_only=0):
+	def create_address_link( self, addressMap, db):
+	def update_address_link(self, addressMap, db):
+	def dictresult(self, id=None):</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN208"
+></A
+>4.1.3. gmConf.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>Configuration model
+This duplicates some of Karsten's work, but a configuration tool is required
+that talks to the remote database
+
+def GetAllConfigs ():
+def SetConfig (key, value):
+# HACK FOR NOW
+config = {'main.use_notebook':1, 'main.shadow':1, 'main.shadow.colour':(131, 129, 131), 'main.shadow.width':10}&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN211"
+></A
+>4.1.4. gmConf.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+># gmCachedDBObject : abstraction and performance improvement for simple
+#                     database query result objects
+#
+#
+# CachedDBObject is a base class which should not
+# be used directly.
+# In order to derive a functional class from CachedDBObject, do as follows:
+#
+# class Derived(CachedDBObject):
+#
+#       #first, create the "shared buffer" variable
+#	dbcache = DBcache()
+#       #this static variable MUST have the name "dbcache"
+#       #it must create an instance of DBcache or a subclass thereof
+#
+#       #then, create the appropriate constructor
+#	def __init__(...)
+#		#now create a reference to the static variable
+#		self.cache = Derived.dbcache
+#		#and pass it to the constructor
+#		cachedDBObject.__init__( cache=self.cache...)
+#               #__init__ MUST call the base class constructor
+#
+# When creating more than one instance from "Derived",
+# the callback system should be used to ensure that any
+# instance using the shared buffer gets notified of buffer changes:
+#
+# myInstance = Derived(...)
+# myInstance.notify_me('identifier of myInstance', callback_function)
+#
+# where 'identifier of myInstance' is an arbitrary string and
+# 'callback function' is a function of the prototype:
+#
+# function('identifier of callback triggering class', 'id')
+#
+# where 'id' typically would be the foreign key causing the
+# current data set in the buffer
+#
+
+class DBcache:
+	"prototype for a database object cache 'static' (singleton) information"
+
+class CachedDBObject
+
+	def reset(self)
+		"force a re-query of buffer on next data access attempt"
+
+	def setQueryStr(self, querystr)
+
+	def getQueryStr(self)
+
+	def setId(self, id, lazy=0)
+
+	def getId(self)
+		"get the ID of the current object"
+
+	def get(self, id=None, by_reference=0, refresh_only=0):
+		returns the buffer. If id is not None and not in cache,
+		the backend will be queried.
+		If by_reference is not zero, a copy of the buffer instead 
+		of a reference to it will be returned.
+		When using multiple threads to access the data,
+		always use copies of the buffer!
+
+	def notify_me(self, who, callback=None):
+    		Register function 'callback' for caller 'who'
+
+		If callback is None, the callback for caller 'who'
+		will be removed (if exists)
+		'callback' is a function that accepts two parameters:
+		The first parameter is the identity of the registered
+		caller ('who'), the second parameter is the buffer id.
+		'callback' must not return anything
+
+	def queue_notification(self, queue=1):
+		simple helper mechanism to ensure only the most recent thread
+		updates widgets on data change
+		
+	def notify(self):
+		forces execution of all registered callback functions
+		This function will be called whenever the buffer changes
+		
+	def attributes(self):
+		returns row attributes ('field names')
+
+	def pprint(self):
+		"format buffer content in printable form"
+
+	def dictresult(self):&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="GMDISPATCHER"
+></A
+>4.1.5. gmDispatcher.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>&#13;     Provides global signal dispatching services.
+
+class DispatcherError(exceptions.Exception)
+
+class _Any:
+    	# Helper class
+	
+Methods provided by gmDispatcher:
+
+     def connect(receiver, signal=Any, sender=Any, weak=1)
+	Connect receiver to sender for signal
+
+	If sender is Any, receiver will receive signal from any sender.
+	If signal is Any, receiver will receive any signal from sender.
+	If sender is None, receiver will receive signal from anonymous.
+	If signal is Any and sender is None, receiver will receive any 
+	    signal from anonymous.
+	If signal is Any and sender is Any, receiver will receive any 
+	    signal from any sender.
+	If weak is true, weak references will be used.
+
+     def disconnect(receiver, signal=Any, sender=Any, weak=1)
+	Disconnect receiver from sender for signal.
+
+	Disconnecting is not required. The use of disconnect is the same as for
+	connect, only in reverse. Think of it as undoing a previous connection.
+
+     def disconnect(receiver, signal=Any, sender=Any, weak=1)
+	Disconnect receiver from sender for signal.
+
+	Disconnecting is not required. The use of disconnect is the same as for
+	connect, only in reverse. Think of it as undoing a previous connection.
+
+     def send(signal, sender=None, **kwds)
+	Send signal from sender to all connected receivers.
+
+	Return a list of tuple pairs [(receiver, response), ... ].
+	If sender is None, signal is sent anonymously.
+
+     def _call(receiver, **kwds)
+	Call receiver with only arguments it can accept.
+
+     def safeRef(object)
+	Return a *safe* weak reference to a callable object.
+
+class BoundMethodWeakref
+
+    def __init__(self, boundMethod):
+        Return a weak-reference-like instance for a bound method.
+
+    def __repr__(self)
+        Return the closest representation.
+
+    def __call__(self)
+        Return a strong reference to the bound method.
+
+    def _removeReceiver(receiver)
+    	Remove receiver from connections.
+
+    def _cleanupConnections(senderkey, signal)
+        Delete any empty signals for senderkey. Delete senderkey if empty.
+
+    def _removeSender(senderkey)
+    	Remove senderkey from connections.&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN217"
+></A
+>4.1.6. gmExceptions.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>class ConnectionError(Exception)
+	#raised whenever the database backend connection fails
+
+class ConfigError(Exception)
+	#raised whenever a configuration error occurs
+
+class NoGuiError(Exception):
+	#raised whenever the database backend connection fails
+
+class PureVirtualFunction(Exception):
+	#raised whenever the database&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN220"
+></A
+>4.1.7. gmGuiBroker.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>GNUMed GUI element brokerage
+
+This module provides wrappers for the equivalent of global
+variables needed for a gnumed GUI client interface
+
+class GuiBroker:
+	Wrapper for global objects needed by GNUMmed GUI clients
+
+	#This class wraps all global gui objects (variables)for a gnumed
+	#application. The static (at application level)dictionary
+	#__objects can be accessed through the method addobject
+	#and getobject.
+	#So, if you need to access the main window frame, you would
+	#query an instance of GuiBroker for it.
+
+	def addobject(self, widget, key=None):
+		Add an object to the gnumed gui object dictionary"
+
+		An object can be anything (class, variable, widget)
+		The "key" is a key expression (number, text) that
+		allows you to retrieve the object.
+		Convention for keys is the widget or variable name
+		as a text string
+		If key is not passed as parameter, a unique serial
+		number is allocated as key and returned
+
+	def getobject(self, key):
+		allows to retrieve a gnumed gui element; see addobject()
+		regarding the key parameter
+
+	def keylist(self):
+		returns a list of all keys; see documentation for the
+		dictionary data type
+
+	def valuelist(self):
+		returns a list of all values; see documentation for the
+		dictionary data type
+
+	def itemlist(self):
+		returns a list of all key:value pairs;
+		see documentation for the dictionary data type
+
+	def __getitem__(self, key):
+		Allows retrieving the value via value = instance[key]
+
+	def __setitem__(self, key, object):
+		Allows access in the style of instance[key]=value&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN223"
+></A
+>4.1.8. gmI18N.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>GNUmed client internationalization/localization.
+
+All i18n/l10n issues should be handled through this modules.
+
+Theory of operation:
+
+By importing this module a textdomain providing translations is
+automatically installed. The translating method gettext.gettext()
+is installed into the global (!) namespace as _(). Your own modules thus
+need not do _anything_ (not even import gmI18N) to have _() available
+to them for translating strings. You need to make sure, however, that
+gmI18N is imported in your main module before any of the modules using
+it. In order to resolve circular references involving modules that
+absolutely _have_ to be imported before this module you can explicitely
+import gmI18N into them at the very beginning.
+
+The text domain (i.e. the name of the message catalog file) is derived
+from the name of the main executing script unless explicitely given on
+the command line like this:
+ --text-domain=&#60; your text domain &#62;
+This module searches for message catalog files in 3 main locations:
+ - in standard POSIX places (/usr/share/locale/ ...)
+ - below $GNUMED_DIR/locale/
+ - below (one level above binary directory)/locale/
+
+For DOS/Windows I don't know of standard places so only the last
+option will work unless you have CygWin installed. I don't know a
+thing about classic Mac behaviour. New Mac's are POSIX, of course.
+
+The language you want to see is derived from the following locale
+related environment variables (in this order):
+ - LANGUAGE
+ - LC_ALL
+ - LC_MESSAGES
+ - LANG&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN226"
+></A
+>4.1.9. gmLog.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>&#13;GNUMed client log handling.
+
+All error logging, user notification and otherwise unhandled 
+exception handling should go through classes or functions of 
+this module
+
+Theory of operation:
+
+A logger object is a unifying wrapper for an arbitrary number
+of log targets. A log target may be a file, syslog, the console,
+or an email address, or, in fact, any object derived from the
+class cLogTarget. Log targets will only log messages with at least
+their own message priority level (log level). Each log target
+may have it's own log level.
+
+There's also a dummy log target that just drops messages to the floor.
+
+By importing gmLog into your code you'll immediately have
+access to a default logger: gmDefLog. Initially, the logger has
+a log file as it's default target. The name of the file is
+automatically derived from the name of the main application.
+The log file will be found in one of the following standard
+locations:
+
+1) given on the command line as "--log-file=&#60; log file &#62;"
+2) ~/.&#60; base_name &#62;/&#60; base_name &#62; .log
+3) /var/log/&#60; base_name &#62;/&#60; base_name &#62; .log
+4) /var/log/&#60; base_name &#62; .log
+5) /dir/of/binary/&#60; base_name &#62; .log	- mainly for DOS/Windows
+
+where &#60; base_name &#62; is derived from the name
+of the main application.
+
+By importing gmLog and logging to the default log your modules
+never need to worry about the real message destination or whether
+at any given time there's a valid logger available. Your MAIN
+module simply adds real log targets to the default logger and
+all other modules will merrily and automagically start logging
+there.
+
+You can of course instantiate any number of additional loggers
+that log to different targets alltogether if you want to keep
+some messages separate from others.
+
+Usage:
+1.) if desired create an instance of cLogger
+2.) create appropriate log targets and add them to the default logger or your 
+    own (from step 1)
+3.) call the cLogger.LogXXX() functions
+
+# log levels:
+# lPanic - try to log this before we die
+# lErr   - some error occured, may be recoverable
+# lWarn  - something should be done about this though it's not fatal
+# lInfo  - user info like program flow
+# lData  - raw data processed by program
+
+# injudicious use of lData may lead to copious amounts of log output
+# and has inherent security risks (may dump raw data including passwords,
+# sensitive records, etc)
+
+
+class cLogger:
+	def __init__(self, aTarget=None):
+		Open an instance of cLogger and initialize a target.
+		in case there's no target given open a dummy target
+
+	def close(self):
+		Close this logger and cleanly shutdown any open targets.
+
+	def AddTarget (self, aTarget):
+		Add another log target.
+
+		- targets must be objects derived from cLogTarget
+		- ignores identical targets
+		- the number of concurrent targets is potentially unlimited
+
+	def RemoveTarget (self, anID):
+		Remove a log target by it's ID.
+		- clients have to track target ID's themselves if they want to
+		  remove targets
+
+	def Log(self, aLogLevel, aMsg, aRawnessFlag = lUncooked):
+		Log a message.
+
+		- for a list of log levels see top of file
+		- messages above the currently active level of logging/verbosity
+		  are dropped silently
+		- if Rawness == lCooked non-printables &#60; 32 (space) will be mapped to
+		  their name in ASCII
+		- FIXME: this should be a Unicode mapping
+
+	def LogDelimiter (self):
+		Write a horizontal delimiter to the log target.
+
+	def LogException(self, aMsg, exception, fatal=1):
+		Log an exception.
+		'exception' is a tuple as returned by sys.exc_info()
+
+	def SetAllLogLevels (self, aLogLevel = None):
+		Set a certain log level on all targets.
+
+private classes / methods:
+class cLogTarget:
+	Base class for actual log target implementations.
+	- derive your targets from this class
+	- offers lots of generic functionality
+
+	def __init__(self, aLogLevel = lErr)
+	def close(self)
+	def getID (self)
+	def SetLogLevel(self, aLogLevel)
+	def writeMsg (self, aLogLevel, aMsg)
+	def hasLogged (self)
+	def writeDelimiter (self)
+	def flush (self)&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN229"
+></A
+>4.1.10. gmLoginInfo.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+># gmLoginInfo - a class to encapsulate Postgres login information
+
+class LoginInfo:
+	"a class to encapsulate Postgres login information"
+
+	def __init__(self, user, passwd, host='localhost', port=5432, database='gnumed', options='', tty='', profile='default'):
+
+
+	def SetInfo(self, user, passwd, host='localhost', port=5432, dbname='gnumed', opt='', tty='', profile='default'):
+
+
+	def GetInfo(self):
+
+
+	def GetInfoStr(self):
+
+	    # doesn't hand out passwords 
+
+	def GetPGDB_DSN(self):
+
+    	    return dsn in colon delimited form as one string and host
+	    
+	def GetDBAPI_DSN(self):
+
+    	    return dsn in colon delimited form as one string
+	  
+    	def SetUser(self, user):
+
+	def GetUser(self):
+
+	def SetPassword(self, passwd):
+
+	def SetPassword(self, passwd):
+
+	def GetPasswordHash(self):
+
+	def SetDatabase(self, dbname):
+
+	def GetDatabase(self):
+
+	def SetHost(self, host):
+
+	def SetHost(self, host):
+
+	def SetPort(self, port):
+
+	def GetPort(self):
+
+	def SetOptions(self, opt):
+
+	def GetOptions(self):
+
+	def SetTTY(self, tty):
+
+	def GetTTY(self):
+
+	def GetTTY(self):
+
+	def GetTTY(self):
+
+
+	def Clear(self):
+
+		"clears all connection information regarding user, password etc."
+&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="GMPG"
+></A
+>4.1.11. gmPG.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+># gmConnectionPool - Broker for Postgres distributed backend connections
+
+
+as of 09.08.2002 tries to handle psycopg (Zope), PyPGSql and pgdb
+
+class ConnectionPool:
+
+	"maintains a static dictionary of available database connections
+
+	def __init__(self, login=None):
+		parameter login is of type gmLoginInfo.LoginInfo
+
+	def GetConnection(self, service):
+
+		"if a distributed service exists, return it - otherwise return the default server"
+
+
+	def ReleaseConnection(self, service):
+
+		"decrease reference counter of active connection"
+
+
+	def GetAvailableServices(self):
+
+		list all distributed services available on this system
+
+		(according to configuration database)
+
+
+	def Connected(self):
+
+
+	def LogError(self, msg):
+
+		"This function must be overridden by GUI applications"
+
+
+#---------------------------------------------------
+# database helper functions
+#---------------------------------------------------
+def cursorIndex(cursor):
+
+	returns a dictionary of row atribute names and their row indices
+
+
+def descriptionIndex(cursordescription):
+
+	returns a dictionary of row atribute names and their row indices
+
+
+def dictResult(cursor, fetched=None):
+
+	"returns the all rows fetchable by the cursor as dictionary (attribute:value)"
+
+
+def fieldNames(cursor):
+
+	"returns the attribute names of the fetched rows in natural sequence as a list"
+
+	
+def listDatabases(service='default'):
+
+	"list all accessible databases on the database backend of the specified service"
+
+
+def listUserTables(service='default'):
+
+	"list the tables except all system tables of the specified service"
+
+
+def listSystemTables(service='default'):
+
+	"list the system tables of the specified service"
+
+
+def listSystemTables(service='default'):
+
+	"list the system tables of the specified service"
+
+
+def quickROQuery(query, service='default'):
+
+	a quick read-only query that fetches all possible results at once
+
+	returns the tuple containing the fetched rows and the cursor 'description' object
+
+
+def getBackendName():
+
+
+def prompted_input(prompt, default=None):
+
+
+def inputTMLoginParams():
+
+	text mode input request of database login parameters
+
+
+def inputWXLoginParams():
+
+	GUI (wx) mode input request of database login parameters.
+
+	Returns gmLoginInfo.LoginInfo object
+
+
+def inputLoginParams():
+
+	"input request for database backend login parameters. Try GUI dialog if available"
+&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN235"
+></A
+>4.1.12. gmPlugin.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>&#13;# gmPlugin - base classes for GNUMed's plugin architecture
+class gmPlugin:
+	base class for all gnumed plugins
+
+	def provides ():
+		Returns a list of services that the plugin provides
+
+	def requires ():
+		Requires a list of services that must be registered
+		before this plugin is registered. The configuration
+		tool must check these and make sure the load order
+		satisfies the plugins' requirements
+
+	def description ():
+		Returns a brief description of the plugin.
+
+	def name (self):
+
+	def register(self):
+
+	def unregister(self):
+
+class wxBasePlugin (gmPlugin):
+	
+	
+	base class for all plugins providing wxPython widgets.
+	Plugins must have a class descending of this class in their file, which MUST HAVE THE SAME NAME AS THE FILE.
+	The file must be in a directory which is loaded by LoadPluginSet (gui/ for the moment, others may be added for different plugin types)
+
+	# NOTE: I anticipate that all plugins will in fact be derived
+	# from this class. Without the brokers a plugin is useless (IH)
+
+	def __init__(self, guibroker=None, callbackbroker=None, dbbroker=None, params=None):
+
+	def GetIcon (self):
+		Return icon representing page on the toolbar.
+		This is the default behaviour. GetIconData should return
+		pickled, compressed and escaped string with the icon data.
+
+		If you want to change the behaviour (because you want to load
+		plugin icons from overseas via a satellite link or something
+		you need to override this function in your plugin (class).
+
+		Using this standard code also allows us to only import cPickle
+		and zlib here and not in each and every plugin module which
+		should speed up plugin load time :-)
+
+		# FIXME: load from config which plugin we want
+		# which_icon is a cookie stored on the backend by a config manager,
+		# it tells the plugin which icon to return data for,
+
+	def GetIconData(self, anIconID = None):
+		# FIXME: in overriding methods need to be very careful about the
+		# type of the icon ID since if we read it back from the database we
+		# may not know what type it was
+
+	def GetWidget (self, parent):
+		Return the widget to display
+
+	def MenuInfo (self):
+		Return tuple of (menuname, menuitem).
+		menuname can be "tools", "view", "help", "file"
+
+	def Raise (self):
+		Raises this plugin to the top level if not visible.
+
+	def Shown (self):
+		Called whenever this module is shown onscreen.
+
+class wxNotebookPlugin (wxBasePlugin):
+	
+	Base plugin for plugins which provide a 'big page'
+	Either whole screen, or notebook if it exists
+		
+	def register (self):
+		Register ourselves with the main notebook widget.
+
+	def unregister (self):
+		Remove ourselves.
+
+	def Raise (self):
+	def OnMenu (self, event):
+	def GetNotebookNumber (self):
+	def DoToolbar (self, tb, widget):
+		
+		sets up the toolbar for this widget.
+		tb is the toolbar
+		widget is the widget returned by GetWidget () for connecting events
+
+
+class wxPatientPlugin (wxBasePlugin):
+	
+	A 'small page', sits inside the patient view, with the side visible
+
+	def register (self)
+	def OnTool (self, event):
+	def Raise (self):
+	def unregister (self):
+
+
+def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
+	Loads a plugin from a package directory.
+
+	- "set" specifies the subdirectory in which to find the plugin
+	- this knows nothing of databases, all it does is load a named plugin
+
+	There will be a general 'gui' directory for large GUI
+	components: prescritions, etc., then several others for more
+	specific types: export/import filters, crypto algorithms
+	guibroker, dbbroker are broker objects provided
+	defaults are the default set of plugins to be loaded
+
+	FIXME: we should inform the user about failing plugins
+
+def GetAllPlugins (set):
+	
+	Searches the directory for all plugins
+
+def UnloadPlugin (set, name):
+	
+	Unloads the named plugin&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN238"
+></A
+>4.1.13. gmdbf.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>&#13;This is a module for reading dbf files.
+
+It has been modified thanks to suggestions and patches from Jeff Bauer
+and Kevin Dahlhausen. Unfortunately I lost patches which fix
+endianness problems, which were sent to me by someone, so that will
+have to wait. I do not use this module much these days, but since it
+seems to be in use "out there" I thought I would finally make an
+update available. This version should be more portable. Also, rather
+than printing an error message an exception is now raised when the dbf
+file appears to be corrupt.
+
+Usage: the following
+
+import dbf
+db = dbf.dbf('mydata.dbf')
+
+creates a dbf object db associated with an existing dbf file
+'mydata.dbf'.  The dbf file is opened by the constructor. If the file
+is not there IOError is raised. If the file appears not to be a dbf
+format file, TypeError is raised.
+
+If you prefer to create a dbf object, but open the actual file later,
+you can use the following:
+
+import dbf
+db = dbf.dbf('mydata.dbf', openit=0)
+
+and then you can call
+
+db.open()
+
+to actually open the file. Note that the constructor, if called this
+way, does not verify that the file is there, so the IOError exception
+is raised by the call to open.
+
+Once the dbf object is created and opened (implicitly or not), the
+following are available:
+
+-- db.fields  : returns a a list of tuples describing the fields
+-- db.nrecs   : returns the number of records
+-- db[n]      : returns a tuple containing record number n (0 &#60;= n &#60; nrecs)
+-- db.status(): prints some essential data about the dbf file
+
+So to list the first two fields of mydata.dbf, assuming they are string
+fields, one might write:
+
+import dbf
+from string import strip
+db=dbf.dbf('mydata.dbf')
+for k in db:
+    print "%s, %s" % (strip(k[1]), strip(k[2]))
+
+
+Good luck!
+
+class dbf:
+	def __init__(self, fname, openit=1):
+	def open(self):
+	def _get(self, recno):
+	def __getitem__(self, recno):
+	def dictresult(self, recno):
+	def status(self):
+	def close(self):
+&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="GMSIGNALS"
+></A
+>4.1.14. gmSignals.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+># gmSignals.py
+
+gmSignals - factory functions returning GnuMed internal signal strings. 
+This helps to avoid that  simple typographic mistakes result in messages
+not being dispatched. It would allow to do messenging house keeping as well.
+
+def popup_notice():
+	a notice of general interest has been received
+
+def popup_alert():
+	an important notice of general ineterest has been received
+	
+def patient_selected():
+	the current active patient displayed by the client has been selected
+	
+def patient_modified():
+	the current patients demographic data has been modified
+	
+def medication_modified():
+	the current patient's medication has been modified
+	
+def waitingroom_added():
+	a patient has been added to the waiting room
+	
+def waitingroom_incons():
+	a patient has started his consultation with the doctor
+	
+def waitingroom_left():
+	a aptient has left the waiting room, finished his consultation&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="GMDBOBJECT"
+></A
+>4.1.15. gmDbObject.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+> gmDbObject : base class for generic database objects
+              this base class should provide a higher level database API      
+              to the client programmers, since it takes care of
+              some error handling and handles the differences
+              between read-only and read/write connections
+
+class DBObject:
+    High level DB-API based base class for all gnumed database objects
+
+    def __init__(self, dbbroker, service='default', select_query=None):
+	    dbbroker: database broker as in gmPG.py
+	    service: name of the gnumed database service the data is based on
+	    select_query: query that selects the rows associated with class instance
+
+    def SetSelectQuery(self, query):
+	    Definition of the query string used to select the row(s)
+	    associated with this database object. Parameters (for example for
+	    a 'where' clause are allowed in
+	     'dictionary parameter style', that is as '%(dictionary key)s'
+	    All parameters have to be passed as strings, but no quoting!!!
+
+
+    def SetInsertQuery(self, query):
+	    Definition of the query that would insert a row into this
+	    database object. All parameters must
+	    be set in 'dictionary parameter style', that is as '%(dictionary key)s'
+	    All parameters have to be passed as strings, but no quoting!!!
+
+
+    def SetUpdateQuery(self, query):
+	    Definition of the query neccessary to update the associated row.
+	    The string must have a '%(primarykey)s' parameter which is representing the 
+	    primary key attribute of the row to update. All other parameters must
+	    be set in 'dictionary parameter style', that is as '%(dictionary key)s'
+	    All parameters have to be passed as strings, but no quoting!!!
+
+
+    def SetDeleteQuery(self, query):
+	    Definition of the query neccessary to delete the associated row.
+	    The string must have a '%(primarykey)s' parameter which is representing the 
+	    primary key attribute of the row to delete
+
+
+    def LogError(self, msg, map):
+	    Please replace with gnumed logging functins s.a.p.
+
+
+    def Select(self, map=None, maxfetch=0, listonly=0):
+	    Executes the select query and returns a list of
+	    PgResultSets (see pyPgSQL documentation)
+	    dictionary 'map' can be used for query parameters, for
+	    example for a 'WHERE' clause.
+	    'maxfetch' limits the number of rows returned
+	    'listonly' can speed things up if a large number
+	    of rows is expected as result by returning a simple list
+	    of lists instead of a list of PgResultSets
+
+    def Insert(self, map):
+	    insert a row with attributes as listed in the dictionary 'map'.
+	    Returns the OID is succesful, otherwise returns 'None'
+
+
+    def Update(self, map):
+	    update a row with attributes as listed in the dictionary "map".
+	    'map' dictionary  MUST contain the key 'primarykey' with the
+	    value set to the primay key of the row to be updated
+	    Returns 'None' if failed, the primary key if success 
+
+
+    def Delete(self, map):
+	    deletes a row as determined by the delete query string.
+	    'map' dictionary  MUST contain the key 'primarykey' with the
+	    value set to the primay key of the row to be deleted
+	    Returns 'None' if failed, the primary key if success </PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="modules.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="wxpython-modules.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Modules</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="modules.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>wxpython</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

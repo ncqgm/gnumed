@@ -34,7 +34,7 @@
 <revhistory>
       <revision>
 	<revnumber>0.1.2</revnumber>
-	<date>2002-09-09</date>
+	<date>2002-09-13</date>
 	<authorinitials>hb</authorinitials>
 	<revremark>Further inclusion of gnumed whitepapers.</revremark>
       </revision>
@@ -61,32 +61,30 @@
    </bookinfo>
    <toc></toc>
 
-<preface>
+<preface id=preface>
 	<title>Preface</title>
 	<para>GnuMed never sleeps.</para>
 </preface>
 
-<chapter id="intro">
-     <title>Introduction</title>
+    <chapter id="intro">
+     	<title>Introduction</title>
+	<para>GNUMed is  a comprehensive scalable software solution for paperless 
+	medical practice with emphasis on privacy protection, secure patient-centric 
+	record sharing, decision support and ease of use.
+	</para>
+	<para>GNUMed is not yet ready for download as a package.
+	It will become available at 
+	<ulink url="http://gnumed.org/">
+	<citetitle>gnumed.org</citetitle></ulink>.
 
-    <para>GNUMed is  a comprehensive scalable software solution for paperless 
-medical practice with emphasis on privacy protection, secure patient-centric 
-record sharing, decision support and ease of use.
-</para>
-       <para>GNUMed is not yet ready for download as a package.
-It will become available at 
-<ulink url="http://gnumed.org/">
-<citetitle>gnumed.org</citetitle></ulink>.
- 
-It is released under the GNU 
-General Public Licence, see the file <filename>LICENCE</filename> for details.
-</para>
+	It is released under the GNU 
+	General Public Licence, see the file <filename>LICENCE</filename> for details.
+	</para>
+    </chapter>
 
-  </chapter>
-
-  <chapter>
+  <chapter id=cvs>
     <title>Checking out, Checking in GnuMed CVS</title>
-    <sect1>
+    <sect1 id=cvs-access>
       <title>Developer CVS Access via SSH (Version 1, RSA)</title>
       <para>Only project developers can access the CVS tree via this method. SSH1 must be installed on your client machine. If you have SSH version two, add
 	<screen>Host subversions.gnu.org
@@ -138,7 +136,7 @@ chmod +x ~/bin/ssh_cvs
 	    </para>
 	</sect2>
     </sect1>
-    <sect1>
+    <sect1 id=cvs-basic-commands>
       <title>Basic commands</title>
       <para>Again just making it clear</para>
       <para>To Checkout CVS as a developer, you will type:</para>
@@ -155,9 +153,9 @@ chmod +x ~/bin/ssh_cvs
     </sect1>
   </chapter>
 
-  <chapter>
+  <chapter id=guidelines>
     <title>Coding Guidelines</title>
-    <sect1>
+    <sect1 id=coding-guidelines>
       <title>strings and translation</title>
       <para>hardcoded error strings meant for developers / debugging are in English.All other strings MUST be translateable, that is called as a gettext 
 function. To achieve this, you do the following:
@@ -183,26 +181,253 @@ instead of
       </para>
     </sect1>
 
-    <sect1>
-      <title>Database Guidelines</title>
-      <para>When doing database work, NEVER rely on a table being present in the "default" database. Lookup the appropriate service 
-(as listed in http://gnumed.net/whitepapers/serviceslist.html) and use it 
-accordingly - for example ALL person and address related details are 
-available via the service "personalia" now.</para>
-      <para>
-Whether "personalia" is actually implemented in "default" or on some other 
-server in a completely different database should not matter to client 
-programmers. Just request the right service from the database broker 
-object, and that's it - should work.</para>
-      <para>
-In order to make this testable, you must set up your configuration tables 
-in the default database accordingly
-(database name in "db", service in "distributed_db", reference to db and 
-distributed_db in "config" attributes "db" and "ddb")
-      </para>
-    </sect1>
+    	<sect1 id=backend-interaction>
+    	    <title>Interacting with the Backend</title>
+	    <para>
+	    Most of the backend interaction happens through <ulink url="http://www.python.org/topics/database/DatabaseAPI-2.0.html">
+	    <citetitle>DB-API 2.0</citetitle></ulink> compliant database adapters. Since there are still a few ambiguities
+	    in the API definition, and furthermore some important PostgreSQL specific
+	    features not accessible via DB-API, we have decided to focus mainly on one
+	    specific adaper: <ulink url="http://pypgsql.sourceforge.net/"><citetitle>PyPgSQL</citetitle></ulink>. This
+	    should not be a problem, since it is highly portable. We have succesfully
+	    compiled it so far on different flavours of Linux and BSD, on different versions
+	    of Windows, and on Mac OS/X.
+	    </para>
+	    <para>
+	    In order to understand how to access the backend in principle, you'll have
+	    to understand the <ulink url="http://www.python.org/topics/database/DatabaseAPI-2.0.html"><citetitle>
+	    DB-API specifications</citetitle></ulink> first. You can find a brief generic introduction
+	    <ulink url="http://www.amk.ca/python/writing/DB-API.html"><citetitle>here</citetitle></ulink>.
+	    </para>
+	    <para>
+	    Next, you'll have to understand the concept of "<link linkend=services>
+	    services</link>" in GnuMed. Fortunately, most of the complexity behind services
+	    is handled by the service broker object <link linkend=gmPG>
+	    gmPG</link>. gmPG will also handle a lot of other complex issues such as gathering
+	    log in information in order to make backend connections in the first place.
+	    </para>
+	    <para>
+	    PostgreSQL is fully transactional. Transactions (sequences of database modifications)
+	    are only "committed" if the server is told so, otherwise the transactions
+	    are rolled back (changes will not be visible in the database). Rollbacks
+	    happen automatically if an error occurs during a transaction that may affect
+	    the integrity of the database, but the rollback can also be initiated programmatically.&nbsp;
+	    PostgreSQL "commits" happen on connection level. If a connection has several
+	    active cursors (which it may at any time), a "commit" will affect all of
+	    these cursors.
+	    </para>
+	    <para>
+	    Thus, in order not to interfere accidentally with other transactions, any
+	    client action that modifies the backend database MUST request a separate
+	    connection. However, establishing a connection is ressource intensive and
+	    costs time, even if it is only milliseconds on a LAN. Since most of the database
+	    interaction is typically read-only, where we don't have to fear transactional
+	    collisions, we don't need to establish extra costly connections for the client
+	    objecst that just want to read the database without modifying it.
+	    </para>
+	    <para>
+	    Since we want to make gnumed as resistant to programmatic errors as reasonably
+	    possible, we have decided to make sure that write access will not happen
+	    accidentally through a "read-only" connection. Unfortunately,PostgreSQL provides
+	    no simple way of achieving this. Our current solution is that a pseudo-user
+	    is created for each user; the user gets only read-only access, the pseudo-user
+	    gets res &amp; write access. Once again, this is handled entirely transparent
+	    by <link linkend=gmPG>
+	    gmPG</link>. If a read-only connection is requested, gmPG will return an open
+	    connection from a pool of shared connections. If a writeable connection is
+	    requested, gmPG opens a new connection under the alias of the pseudo-user
+	    associated with the current user.
+	    </para>
+	    <para>
+	    For a practical example, let us assume we want to access a person's demographic
+	    details. From the "<link linkend=services>services table</link>" we know
+	    that this information is available through the service "personalia". Our
+	    request for a read-only connection would look like this:
+	    </para>
+	    <para>
+<screen>
+import gmPG
+connection = gmPG.ConnectionPool().GetConnection("personalia")
+</screen>
+	    </para>
+	    <para>
+	    That's all! If we are already logged in, gmPG will use the cached login information.
+	    If not, gmPG will determine whether we are using a graphical user interface
+	    and display a nice login dialogue, otherwise it will ask for login parameters
+	    via command line. Then, gmPG will determine in which physical database the
+	    service "personalia" is located, and return that connection.
+	    </para>
+	    <para>
+	    Now, we could already start doing something with the database. We could for
+	    example get a list of all people who's surname begins with "H":
+	    </para>
+	    <para>
+<screen>
+cursor = connection.cursor()
+cursor.execute("Select * from v_basic_person where name like 'H%'" )
+result = cursor.fetchall()
+</screen>
+	    </para>
+	    <para>
+	    "result" will contain a list of "PgResultSet" objects, if there are any database
+	    rows matching the search criteria. The PgResultSet is a most convenient object
+	    wrapper which among other things allows us to address attributes by their
+	    names:
+	    </para>
+	    <para>
+<screen>
+    for person in result:
+	print person['title'], person['firstnames'], person['lastnames'], person['dob']
+</screen>
+	    </para>
+	    <para>
+	    Of course, in most cases you would not query the database directly like that.
+	    You would rather access the backend via classes derived from <link linkend=gmDbObject>
+	    gmDbObject</link> or at a even higher level through one of the cached database
+	    objects.
+	    </para>
+    	</sect1>
 
-    <sect1>
+
+    	<sect1 id=internal-messaging>
+	    <title>Internal Messenging and Signal Dispatching</title>
+
+	    <para>The gnumed client depends on two different types 
+	    of messages:</para>
+
+	    <orderedlist numeration="arabic">
+		<listitem><para>Messages coming form the backend. Example: a receptionist queues 
+	     patients as they arrive into a waiting room widget. On the doctors screen 
+	     there should be a small widget informing him about the number of patients 
+	     waiting for him. This is achieved through asynchronous messages from the backend.</para></listitem>
+		<listitem><para>Client-internal messages. They allow widgets to communicate. Example: 
+	     One widget allows the doctor to select the active patient. This widget, after 
+	     selection, has to notify other widgets depending on this information (like 
+	     widgets displaying the patients past medical history, his allergies etc.) 
+	      to update themselves.</para></listitem>
+
+	    </orderedlist><para>
+	     Both types of messages are handled via a global dispatcher module called 
+	    <link linkend=gmDispatcher> gmDispatcher.py </link>
+	     The module <link linkend=gmPG>gmPG.py </link>
+    	    takes care of handling the asynchronous messages from the backend 
+	    via a separate background thread.</para><para>
+	     </para><para>
+	     Procedure changing "global" data that may affect any other widget, must
+	    post a message through gmDispatcher.</para><para>
+	     </para><para>
+	     Widgets depending on backend data must register their interest through gmDispatcher.</para><para>
+	     </para><para>
+	     A  table listing all available message labels
+	      ("signals") and their meanings can be found <link linkend=signals>here.</link>
+	      However, these message strings should never be hardcoded. Developers must 
+	    instead use the embedding variables as listed in the module <link linkend=gmSignals>gmSignals.py </link>.</para><para>
+	     </para><para>
+	     Developers writing code that creates new signals must
+	     update this webpage via CVS.</para><para>
+	     </para><para>
+
+	    <emphasis>Examples:</emphasis>
+
+	    <orderedlist numeration="arabic">
+	    	<listitem><para>A widget allows to select the current patient.
+	     	    <orderedlist numeration="arabic">
+		    <listitem><para>It first registers it's interest in all patients added, modified
+		    or deleted with the backend as it should always be able to display the most
+		    current status of the backend data. For that purpose, it defines a callback
+		    function "self.OnDemographicsUpdated()".</para></listitem>
+    		    
+		    <listitem><para>Then, it registers this callback function with the dispatcher for
+		    all signals that would modify the patient database.  </para><para>
+		    If anybody within a gnumed system modifies demographic information, this
+		    widget would be automatically notified about this.  </para><para>
+		    </para></listitem>
+		    
+		    <listitem><para>Once the user has interactively selected a patient, it has to alert
+		    all other widgets that this has happened. For that purpose, the event handler
+		    reacting to a patient being selected notifies the gmDispatcher about this. 
+		    </para><para>
+    	    	    	<screen>
+     def __init__(self):
+
+         #register our interest in the&nbsp;patients stored on the backend
+
+         gmDispatcher.connect(self.OnDemographicsUpdated, gmSignals.demographics_updated())
+
+        	     	</screen>
+    	    	    	<screen>        	     
+    def OnDemographicsUpdated(self, id):
+	"when the patients have changed on the backed, update the ones we display"
+
+        #id is irrelevant here; we just update the whole displayed list
+
+        self.UpdatePatientList()
+        	        </screen>
+        	     
+    	    	    	<screen>        	     
+    def UpdatePatientList(self):
+	"Update the displayed list of patients from the backend"
+
+      #request a backend connection
+
+      db = gmPG.ConnectionPool().GetConnection('demographica')
+
+      cursor = db.cursor()
+
+      #query patients to be displayed
+
+      cursor.execute(....)
+
+      result = cursor.fetchall()
+
+      #display the result
+    	    	    	</screen>
+        		  
+        	       
+        	     	<screen>
+     def OnPatientSelected(self, id):
+	 """When a patient has been selected by the user, call this function     
+	 id is the primary key identifying the selected patient"""     
+
+    	 gmDispatcher.send(gmSignals.patient_selected(), id=id)
+    	    	    	</screen>    	       
+        	     
+		 </para></listitem>
+
+	      </orderedlist>
+	      </para></listitem>
+	      <listitem><para>Another widget displays the current (active) patient's name.&nbsp;
+
+	      <itemizedlist mark=closedcircle>
+
+		<listitem><para>Thus, it has to register it's interest in the event the current patient
+	    changes. The registered callback could query the database directly. However,
+	    data that is likely to be shared among many widgets, should be cached to
+	    avoid unneccessary backend traffic and to improve client performance. Thus,
+	    it requests the data from the gmCachedPerson.CachedPerson object:
+      <screen>
+      def __init__(self):
+        #code to display and place the widget
+        # now register our callback function with the dispatcher
+        gmDispatcher.connect(self.Update, gmSignals.patient_selected())
+      </screen>
+
+      <screen>
+      def Update(self, id_patient):
+        "show the currently selected patient"
+        patient = gmCachedPerson.CachedPerson.dictresult()
+        self.TxtctrlSurname.SetValue(patient['surname']
+        ....
+      </screen>
+		</para></listitem>
+	      </itemizedlist>
+    	      </para></listitem>
+	    </orderedlist>
+
+    	</sect1>
+
+
+    <sect1 id=widgets>
       <title>Widgets</title>
       <para>When trying to map database results to widgets, remember that not all 
 widgets can use the same functions (like SetValue()) under all 
@@ -214,7 +439,7 @@ unfortunately a little bit more typing.</para>
 
     </sect1>
 
-    <sect1>
+    <sect1 id=documentation>
       <title>Comments. Documenting Code</title>
       <sect2>
 	<title>Module documention</title>
@@ -228,12 +453,14 @@ Please insert the following template at the beginning of the file:</para>
 # @copyright: author                                                            
 # @license: GPL (details at http://www.gnu.org)                                 
 # @dependencies: any libs / program versions the module might depend on       
-# @change log:                                                                  
-#       date initials of the author changes made                
 #                                                                               
 # @TODO:        
 #############################################################################
     	</screen>
+    	<para>
+	A changelog will be appended automatically to every file using comments supplied
+	when commiting changes.
+    	</para>
       </sect2>
 
       <sect2>
@@ -253,13 +480,13 @@ self-explanatory</para>
       </sect2>
     </sect1>
 
-    <sect1>
+    <sect1 id=cvs-guidelines>
       <title>CVS Guidelines</title>
       <para>Always test before you check in (yes, I have been guilty of not
   heeding my own advice, sorry)</para>
     </sect1>
 
-    <sect1>
+    <sect1 id=debugging>
       <title>DEBUGGING/LOGGING</title>
       <para>Place markers before/after logging statements
   that can be commented out once things work like this:
@@ -269,9 +496,9 @@ gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log
 #&lt;/DEBUG&gt;</screen>
     </chapter>
 
-    <chapter>
+    <chapter id=modules>
     	<title> Modules </title>
-<sect1><title>python-common</title>
+<sect1 id=python-common><title>python-common</title>
 <sect2><title>gmCLI.py</title><screen>
 
 GNUmed command line options handling.
@@ -963,6 +1190,7 @@ def UnloadPlugin (set, name):
 	Unloads the named plugin
 
 </screen></sect2>
+
 <sect2><title>gmdbf.py</title><screen>
 
 This is a module for reading dbf files.
@@ -1067,9 +1295,88 @@ def waitingroom_left():
 
 </screen>
 </sect2>
+
+<sect2 id=gmDbObject><title>gmDbObject.py</title>
+<screen>
+ gmDbObject : base class for generic database objects
+              this base class should provide a higher level database API      
+              to the client programmers, since it takes care of
+              some error handling and handles the differences
+              between read-only and read/write connections
+
+class DBObject:
+    High level DB-API based base class for all gnumed database objects
+
+    def __init__(self, dbbroker, service='default', select_query=None):
+	    dbbroker: database broker as in gmPG.py
+	    service: name of the gnumed database service the data is based on
+	    select_query: query that selects the rows associated with class instance
+
+    def SetSelectQuery(self, query):
+	    Definition of the query string used to select the row(s)
+	    associated with this database object. Parameters (for example for
+	    a 'where' clause are allowed in
+	     'dictionary parameter style', that is as '%(dictionary key)s'
+	    All parameters have to be passed as strings, but no quoting!!!
+
+
+    def SetInsertQuery(self, query):
+	    Definition of the query that would insert a row into this
+	    database object. All parameters must
+	    be set in 'dictionary parameter style', that is as '%(dictionary key)s'
+	    All parameters have to be passed as strings, but no quoting!!!
+
+
+    def SetUpdateQuery(self, query):
+	    Definition of the query neccessary to update the associated row.
+	    The string must have a '%(primarykey)s' parameter which is representing the 
+	    primary key attribute of the row to update. All other parameters must
+	    be set in 'dictionary parameter style', that is as '%(dictionary key)s'
+	    All parameters have to be passed as strings, but no quoting!!!
+
+
+    def SetDeleteQuery(self, query):
+	    Definition of the query neccessary to delete the associated row.
+	    The string must have a '%(primarykey)s' parameter which is representing the 
+	    primary key attribute of the row to delete
+
+
+    def LogError(self, msg, map):
+	    Please replace with gnumed logging functins s.a.p.
+
+
+    def Select(self, map=None, maxfetch=0, listonly=0):
+	    Executes the select query and returns a list of
+	    PgResultSets (see pyPgSQL documentation)
+	    dictionary 'map' can be used for query parameters, for
+	    example for a 'WHERE' clause.
+	    'maxfetch' limits the number of rows returned
+	    'listonly' can speed things up if a large number
+	    of rows is expected as result by returning a simple list
+	    of lists instead of a list of PgResultSets
+
+    def Insert(self, map):
+	    insert a row with attributes as listed in the dictionary 'map'.
+	    Returns the OID is succesful, otherwise returns 'None'
+
+
+    def Update(self, map):
+	    update a row with attributes as listed in the dictionary "map".
+	    'map' dictionary  MUST contain the key 'primarykey' with the
+	    value set to the primay key of the row to be updated
+	    Returns 'None' if failed, the primary key if success 
+
+
+    def Delete(self, map):
+	    deletes a row as determined by the delete query string.
+	    'map' dictionary  MUST contain the key 'primarykey' with the
+	    value set to the primay key of the row to be deleted
+	    Returns 'None' if failed, the primary key if success 
+</screen>
+</sect2>
 </sect1>
 
-<sect1><title>wxpython</title>
+<sect1 id=wxpython-modules><title>wxpython</title>
 <sect2><title>gnumed.py</title><screen>
 main wrapper setting up global brokers, logging, command line argument handling, i18n, etc.
 GNUmed
@@ -1415,23 +1722,23 @@ should be del()ed after use, actually
 </sect2>
 </sect1>
 
-<sect1><title>wxpython/gui - "whole page" plugin widgets regarding the notebook</title>
+<sect1 id=gui-plugins><title>wxpython/gui - "whole page" plugin widgets regarding the notebook</title>
 <para>TODO</para>
 </sect1>
-<sect1><title>wxpython/gui-de - same as ../gui for Germany (AMIS-browser should life here)</title>
+<sect1 id=gui-plugins-de><title>wxpython/gui-de - same as ../gui for Germany (AMIS-browser should life here)</title>
 <para>TODO</para>
 </sect1>
 
-<sect1><title>wxpython/patient - "patient page" plugin widgets</title>
+<sect1 id=patient-plugins><title>wxpython/patient - "patient page" plugin widgets</title>
 <para>TODO</para>
 </sect1>
 	
 </chapter>
 
 
-    <chapter>
+    <chapter id=design>
     	<title> Design </title>
-	<sect1>
+	<sect1 id=db-architecture>
 	    <title>GNUMed Database Architecture</title>
     	    <sect2>	
     	    	<title>Client-Server architecture with optional middleware layers</title>
@@ -1500,7 +1807,7 @@ should be del()ed after use, actually
     	</sect1>
 
 
-	<sect1>
+	<sect1 id=services>
 	    <title>List of distributed database services</title>
     	    <sect2>
 	    <title>Configuration - the service administering all other services</title>
@@ -1688,148 +1995,6 @@ should be del()ed after use, actually
     	</sect1>	
 
 
-    	<sect1>
-	    <title>Internal Messenging and Signal Dispatching</title>
-
-
-	    <sect2>
-		<title>Internal Messenging and Signal Dispatching</title>
-
-	    <para>The gnumed client depends on two different types 
-	    of messages:</para>
-
-	    <orderedlist numeration="arabic">
-		<listitem><para>Messages coming form the backend. Example: &nbsp;a receptionist queues 
-	     patients as they arrive into a waiting room widget. On the doctors screen 
-	     there should be a small widget informing him about the number of patients 
-	     waiting for him. This is achieved through asynchronous messages from the backend.</para></listitem>
-		<listitem><para>Client-internal messages. They allow widgets to communicate. Example: 
-	     One widget allows the doctor to select the active patient. This widget, after 
-	     selection, has to notify other widgets depending on this information (like 
-	     widgets displaying the patients past medical history, his allergies etc.) 
-	      to update themselves.</para></listitem>
-
-	    </orderedlist><para>
-	     Both types of messages are handled via a global dispatcher module called 
-	    <link linkend=gmDispatcher> gmDispatcher.py </link>
-	     The module <link linkend=gmPG>gmPG.py </link>
-    	    takes care of handling the asynchronous messages from the backend 
-	    via a separate background thread.</para><para>
-	     </para><para>
-	     Procedure changing "global" data that may affect any other widget, must
-	    post a message through gmDispatcher.</para><para>
-	     </para><para>
-	     Widgets depending on backend data must register their interest through gmDispatcher.</para><para>
-	     </para><para>
-	     A  table listing all available message labels
-	      ("signals") and their meanings can be found <link linkend=signals>here.</link>
-	      However, these message strings should never be hardcoded. Developers must 
-	    instead use the embedding variables as listed in the module <link linkend=gmSignals>gmSignals.py </link>.</para><para>
-	     </para><para>
-	     Developers writing code that creates new signals must
-	     update this webpage via CVS.</para><para>
-	     </para><para>
-
-	    <emphasis>Examples:</emphasis>
-
-	    <orderedlist numeration="arabic">
-	    	<listitem><para>A widget allows to select the current patient.
-	     	    <orderedlist numeration="arabic">
-		    <listitem><para>It first registers it's interest in all patients added, modified
-		    or deleted with the backend as it should always be able to display the most
-		    current status of the backend data. For that purpose, it defines a callback
-		    function "self.OnDemographicsUpdated()".</para></listitem>
-    		    
-		    <listitem><para>Then, it registers this callback function with the dispatcher for
-		    all signals that would modify the patient database.  </para><para>
-		    If anybody within a gnumed system modifies demographic information, this
-		    widget would be automatically notified about this.  </para><para>
-		    </para></listitem>
-		    
-		    <listitem><para>Once the user has interactively selected a patient, it has to alert
-		    all other widgets that this has happened. For that purpose, the event handler
-		    reacting to a patient being selected notifies the gmDispatcher about this. 
-		    </para><para>
-    	    	    	<screen>
-     def __init__(self):
-
-         #register our interest in the&nbsp;patients stored on the backend
-
-         gmDispatcher.connect(self.OnDemographicsUpdated, gmSignals.demographics_updated())
-
-        	     	</screen>
-    	    	    	<screen>        	     
-    def OnDemographicsUpdated(self, id):
-	"when the patients have changed on the backed, update the ones we display"
-
-        #id is irrelevant here; we just update the whole displayed list
-
-        self.UpdatePatientList()
-        	        </screen>
-        	     
-    	    	    	<screen>        	     
-    def UpdatePatientList(self):
-	"Update the displayed list of patients from the backend"
-
-      #request a backend connection
-
-      db = gmPG.ConnectionPool().GetConnection('demographica')
-
-      cursor = db.cursor()
-
-      #query patients to be displayed
-
-      cursor.execute(....)
-
-      result = cursor.fetchall()
-
-      #display the result
-    	    	    	</screen>
-        		  
-        	       
-        	     	<screen>
-     def OnPatientSelected(self, id):
-	 """When a patient has been selected by the user, call this function     
-	 id is the primary key identifying the selected patient"""     
-
-    	 gmDispatcher.send(gmSignals.patient_selected(), id=id)
-    	    	    	</screen>    	       
-        	     
-		 </para></listitem>
-
-	      </orderedlist>
-	      </para></listitem>
-	      <listitem><para>Another widget displays the current (active) patient's name.&nbsp;
-
-	      <orderedlist numeration="arabic">
-
-		<listitem><para>Thus, it has to register it's interest in the event the current patient
-	    changes. The registered callback could query the database directly. However,
-	    data that is likely to be shared among many widgets, should be cached to
-	    avoid unneccessary backend traffic and to improve client performance. Thus,
-	    it requests the data from the gmCachedPerson.CachedPerson object:
-      <screen>
-      def __init__(self):
-        #code to display and place the widget
-        # now register our callback function with the dispatcher
-        gmDispatcher.connect(self.Update, gmSignals.patient_selected())
-      </screen>
-
-      <screen>
-      def Update(self, id_patient):
-        "show the currently selected patient"
-        patient = gmCachedPerson.CachedPerson.dictresult()
-        self.TxtctrlSurname.SetValue(patient['surname']
-        ....
-      </screen>
-		</para></listitem>
-	      </orderedlist>
-    	      </para></listitem>
-	    </orderedlist>
-
-    	</sect1>
-
-
     	<sect1 id=signals>
 	    <title>List of GnuMed client internal signals</title>
                     
@@ -1949,7 +2114,7 @@ should be del()ed after use, actually
 		</table>
     	</sect1>
 
-	<sect1>
+	<sect1 id=faq>
 	<title>FAQ</title>
     	<para>
 > I would be interested in hearing about the database design 
@@ -2014,7 +2179,7 @@ the issues better than me.
 	    
 	</sect1>
 
-	<sect1>
+	<sect1 id=gui-design>
 	    <title>GUI design</title>
 
     	    <sect2>
@@ -2129,7 +2294,7 @@ the issues better than me.
     	    </sect2>
 	</sect1>
 
-    	<sect1>
+    	<sect1 id=login-screen>
 	    <title>Login Screen</title>
 	    <sect2>
 		<title>Short description</title>
@@ -2192,7 +2357,7 @@ the issues better than me.
 
     	</sect1>
 
-    	<sect1>
+    	<sect1 id=main-toolbar>
 	<title>Main Toolbar</title>
 
 	    <sect2>
@@ -2247,7 +2412,81 @@ the issues better than me.
         </sect2>
     	</sect1>
 	
-    	<sect1>
+    	<sect1 id=drug-browser>
+	<title>Pharmaceutical Reference Browser</title>
+
+	    <sect2>
+		<title>Short Description</title>
+
+    		<para>
+		Browser for Drug database.
+		</para>
+
+    	    </sect2>
+
+	    <sect2>
+		<title>Data Shown/Accessible</title>
+		<itemizedlist mark=opencircle>
+		    <listitem><para>Drug decscription as supplied by database.[text]</para></listitem>
+		</itemizedlist>
+    	    </sect2>
+
+	    <sect2>
+		<title>Functionality</title>
+		<itemizedlist mark=opencircle>
+		    <listitem><para>Browse drugs by generic name, brand name and inidication.</para></listitem>
+		    <listitem><para>Hold tool icons and generally important information specific to the current module</para></listitem>
+		</itemizedlist>
+    	    </sect2>
+
+    	    <sect2>
+	    <title>Internals / Additional Information</title>
+	    <para>
+            </sect2>
+    	</sect1>
+
+    	<sect1 id=prescription>
+	<title>Prescription Dialog</title>
+
+	    <sect2>
+		<title>Short Description</title>
+
+    		<para>
+		Dialog used for writing a prescription. Shows additional information about prescribed drug.
+		</para>
+
+    	    </sect2>
+
+	    <sect2>
+		<title>Data Shown/Accessible</title>
+		<itemizedlist mark=opencircle>
+		    <listitem><para>Class of Drug []</para></listitem>
+		    <listitem><para>Generic Name []</para></listitem>
+		    <listitem><para>Brand Name []</para></listitem>
+		    <listitem><para>Strength []</para></listitem>
+		    <listitem><para>Direction []</para></listitem>
+		    <listitem><para>Indication (what is the drug prescribed for) []</para></listitem>
+		    <listitem><para>Repeats []</para></listitem>
+		    <listitem><para>Quantity []</para></listitem>
+		    <listitem><para>Regulatory information []</para></listitem>
+		</itemizedlist>
+    	    </sect2>
+
+	    <sect2>
+		<title>Functionality</title>
+		<itemizedlist mark=opencircle>
+		    <listitem><para>Link to drug database.</para></listitem>
+		</itemizedlist>
+    	    </sect2>
+
+    	    <sect2>
+	    <title>Internals / Additional Information</title>
+	    <para>
+	    </para>
+    	    </sect2>	    
+    	</sect1>
+
+    	<sect1 id=appointment-book>
 	    <title>Appointment book</title>    	
     	    <sect2>
 		<title>Functionality</title>

@@ -1,0 +1,322 @@
+<HTML
+><HEAD
+><TITLE
+>Interacting with the Backend</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Coding Guidelines"
+HREF="guidelines.html"><LINK
+REL="PREVIOUS"
+TITLE="strings and translation"
+HREF="coding-guidelines.html"><LINK
+REL="NEXT"
+TITLE="Internal Messenging and Signal Dispatching"
+HREF="internal-messaging.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="coding-guidelines.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. Coding Guidelines</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="internal-messaging.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="BACKEND-INTERACTION"
+></A
+>3.2. Interacting with the Backend</H1
+><P
+>	    Most of the backend interaction happens through <A
+HREF="http://www.python.org/topics/database/DatabaseAPI-2.0.html"
+TARGET="_top"
+>	    <I
+CLASS="CITETITLE"
+>DB-API 2.0</I
+></A
+> compliant database adapters. Since there are still a few ambiguities
+	    in the API definition, and furthermore some important PostgreSQL specific
+	    features not accessible via DB-API, we have decided to focus mainly on one
+	    specific adaper: <A
+HREF="http://pypgsql.sourceforge.net/"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>PyPgSQL</I
+></A
+>. This
+	    should not be a problem, since it is highly portable. We have succesfully
+	    compiled it so far on different flavours of Linux and BSD, on different versions
+	    of Windows, and on Mac OS/X.
+	    </P
+><P
+>	    In order to understand how to access the backend in principle, you'll have
+	    to understand the <A
+HREF="http://www.python.org/topics/database/DatabaseAPI-2.0.html"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>	    DB-API specifications</I
+></A
+> first. You can find a brief generic introduction
+	    <A
+HREF="http://www.amk.ca/python/writing/DB-API.html"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>here</I
+></A
+>.
+	    </P
+><P
+>	    Next, you'll have to understand the concept of "<A
+HREF="services.html"
+>	    services</A
+>" in GnuMed. Fortunately, most of the complexity behind services
+	    is handled by the service broker object <A
+HREF="python-common.html#GMPG"
+>	    gmPG</A
+>. gmPG will also handle a lot of other complex issues such as gathering
+	    log in information in order to make backend connections in the first place.
+	    </P
+><P
+>	    PostgreSQL is fully transactional. Transactions (sequences of database modifications)
+	    are only "committed" if the server is told so, otherwise the transactions
+	    are rolled back (changes will not be visible in the database). Rollbacks
+	    happen automatically if an error occurs during a transaction that may affect
+	    the integrity of the database, but the rollback can also be initiated programmatically. 
+	    PostgreSQL "commits" happen on connection level. If a connection has several
+	    active cursors (which it may at any time), a "commit" will affect all of
+	    these cursors.
+	    </P
+><P
+>	    Thus, in order not to interfere accidentally with other transactions, any
+	    client action that modifies the backend database MUST request a separate
+	    connection. However, establishing a connection is ressource intensive and
+	    costs time, even if it is only milliseconds on a LAN. Since most of the database
+	    interaction is typically read-only, where we don't have to fear transactional
+	    collisions, we don't need to establish extra costly connections for the client
+	    objecst that just want to read the database without modifying it.
+	    </P
+><P
+>	    Since we want to make gnumed as resistant to programmatic errors as reasonably
+	    possible, we have decided to make sure that write access will not happen
+	    accidentally through a "read-only" connection. Unfortunately,PostgreSQL provides
+	    no simple way of achieving this. Our current solution is that a pseudo-user
+	    is created for each user; the user gets only read-only access, the pseudo-user
+	    gets res &#38; write access. Once again, this is handled entirely transparent
+	    by <A
+HREF="python-common.html#GMPG"
+>	    gmPG</A
+>. If a read-only connection is requested, gmPG will return an open
+	    connection from a pool of shared connections. If a writeable connection is
+	    requested, gmPG opens a new connection under the alias of the pseudo-user
+	    associated with the current user.
+	    </P
+><P
+>	    For a practical example, let us assume we want to access a person's demographic
+	    details. From the "<A
+HREF="services.html"
+>services table</A
+>" we know
+	    that this information is available through the service "personalia". Our
+	    request for a read-only connection would look like this:
+	    </P
+><P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>import gmPG
+connection = gmPG.ConnectionPool().GetConnection("personalia")</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	    </P
+><P
+>	    That's all! If we are already logged in, gmPG will use the cached login information.
+	    If not, gmPG will determine whether we are using a graphical user interface
+	    and display a nice login dialogue, otherwise it will ask for login parameters
+	    via command line. Then, gmPG will determine in which physical database the
+	    service "personalia" is located, and return that connection.
+	    </P
+><P
+>	    Now, we could already start doing something with the database. We could for
+	    example get a list of all people who's surname begins with "H":
+	    </P
+><P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>cursor = connection.cursor()
+cursor.execute("Select * from v_basic_person where name like 'H%'" )
+result = cursor.fetchall()</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	    </P
+><P
+>	    "result" will contain a list of "PgResultSet" objects, if there are any database
+	    rows matching the search criteria. The PgResultSet is a most convenient object
+	    wrapper which among other things allows us to address attributes by their
+	    names:
+	    </P
+><P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>    for person in result:
+	print person['title'], person['firstnames'], person['lastnames'], person['dob']</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	    </P
+><P
+>	    Of course, in most cases you would not query the database directly like that.
+	    You would rather access the backend via classes derived from <A
+HREF="python-common.html#GMDBOBJECT"
+>	    gmDbObject</A
+> or at a even higher level through one of the cached database
+	    objects.
+	    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="coding-guidelines.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="internal-messaging.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>strings and translation</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="guidelines.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Internal Messenging and Signal Dispatching</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

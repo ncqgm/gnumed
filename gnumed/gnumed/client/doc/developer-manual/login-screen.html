@@ -1,0 +1,261 @@
+<HTML
+><HEAD
+><TITLE
+>Login Screen</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE=" Design "
+HREF="design.html"><LINK
+REL="PREVIOUS"
+TITLE="GUI design"
+HREF="gui-design.html"><LINK
+REL="NEXT"
+TITLE="Main Toolbar"
+HREF="main-toolbar.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="gui-design.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Design</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="main-toolbar.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LOGIN-SCREEN"
+></A
+>5.6. Login Screen</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN616"
+></A
+>5.6.1. Short description</H2
+><P
+>		User authentication , possibility to choose login options.
+		</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN619"
+></A
+>5.6.2. Data Shown/Accessible</H2
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>user name [free text]</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>user password [free text]</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>GnuMed database name [free text, choose from list]</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>GnuMed database host name [free text, choose from list]</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>GnuMed database host port [free text, choose from list]</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>GnuMed database options [free text, choose from list]</P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN634"
+></A
+>5.6.3. Functionality</H2
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>Get user name and password</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>Change GnuMed database options (database name, host, port of database server, database options)</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>Try to start GnuMed using the given user and options.</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>Remember the user/options used at the last login attempt.</P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN645"
+></A
+>5.6.4. Internals / Additional Information</H2
+><P
+>		GNUMeds design allow connection to arbitrary servers. The server of choice is simply
+		entered into the "host" text entry field. This is handy to connect to a replicated backup server in case
+		of a failure of the primary server. It also allows to replicate the database onto the workstation
+		and work separated from the net. As we are using TCP/IP (with optional SSL/TL secure protocol layers,
+		the server can be located anywhere in the world. This allows for example a doctor to access a visiting patient's
+		health record without importing / exporting data first. It also allows for centralized  record keeping in
+		practices with multiple locations, or it allows a doctor to access his records from home.
+		</P
+><P
+>		After entering the password and hitting enter (or after clicking onto the login button), the client attempts
+		a server backend connection. If successful, the connection is logged and the GnuMed main screen displayed. The users
+		preferences are loaded and the client configured accordingly. This can involve a complete reconfiguration
+		of the client user interface. As the client remembers the last state before
+		it was closed the last time, no configuration will be neccessary (unless it involves confidential settings)
+		if always the same user uses this particular workstation.
+		</P
+><P
+>		After a succesful login (and succesful user configuration) the first page of the notebook is opened automatically
+		and the cursor is placed inthe "patient selector" search expression combo box, ready to search for a specific patient.
+		</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="gui-design.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="main-toolbar.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>GUI design</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="design.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Main Toolbar</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

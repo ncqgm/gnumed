@@ -1,0 +1,381 @@
+<HTML
+><HEAD
+><TITLE
+>GNUMed</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="NEXT"
+TITLE="Preface"
+HREF="preface.html"></HEAD
+><BODY
+CLASS="BOOK"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="BOOK"
+><A
+NAME="AEN1"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+><A
+NAME="AEN2"
+></A
+>GNUMed</H1
+><H2
+CLASS="SUBTITLE"
+>Developers's Manual</H2
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN6"
+></A
+>Gerardo Arnaez</H3
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN9"
+></A
+>Hilmar Berger</H3
+><DIV
+CLASS="REVHISTORY"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+COLSPAN="3"
+><B
+>Revision History</B
+></TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+>Revision 0.1.2</TD
+><TD
+ALIGN="LEFT"
+>2002-09-13</TD
+><TD
+ALIGN="LEFT"
+>Revised by: hb</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+COLSPAN="3"
+>Further inclusion of gnumed whitepapers.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+>Revision 0.1.1</TD
+><TD
+ALIGN="LEFT"
+>2002-08-12</TD
+><TD
+ALIGN="LEFT"
+>Revised by: hb</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+COLSPAN="3"
+>Added some basic description of gnumed client modules.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+>Revision 0.1</TD
+><TD
+ALIGN="LEFT"
+>2002-08-03</TD
+><TD
+ALIGN="LEFT"
+>Revised by: gea</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+COLSPAN="3"
+>Initial developers manual written, mostly will copy from savanah.gnu.org</TD
+></TR
+></TABLE
+></DIV
+><DIV
+><DIV
+CLASS="ABSTRACT"
+><A
+NAME="AEN12"
+></A
+><P
+></P
+><P
+>      
+      Copyright (c) 2001,2002 GNUMed developers</P
+><P
+>      Permission is granted to copy, distribute and/or modify this document
+      under the terms of the GNU Free Documentation License, Version 1.1
+      or any later version published by the Free Software Foundation;
+      with no Invariant Sections, with no
+      Front-Cover Texts, and with no Back-Cover Texts.</P
+><P
+>      A copy of the license is included in the section entitled "GNU
+      Free Documentation License".</P
+><P
+></P
+></DIV
+></DIV
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="preface.html"
+>Preface</A
+></DT
+><DT
+>1. <A
+HREF="intro.html"
+>Introduction</A
+></DT
+><DT
+>2. <A
+HREF="cvs.html"
+>Checking out, Checking in GnuMed CVS</A
+></DT
+><DD
+><DL
+><DT
+>2.1. <A
+HREF="cvs-access.html"
+>Developer CVS Access via SSH (Version 1, RSA)</A
+></DT
+><DT
+>2.2. <A
+HREF="cvs-basic-commands.html"
+>Basic commands</A
+></DT
+></DL
+></DD
+><DT
+>3. <A
+HREF="guidelines.html"
+>Coding Guidelines</A
+></DT
+><DD
+><DL
+><DT
+>3.1. <A
+HREF="coding-guidelines.html"
+>strings and translation</A
+></DT
+><DT
+>3.2. <A
+HREF="backend-interaction.html"
+>Interacting with the Backend</A
+></DT
+><DT
+>3.3. <A
+HREF="internal-messaging.html"
+>Internal Messenging and Signal Dispatching</A
+></DT
+><DT
+>3.4. <A
+HREF="widgets.html"
+>Widgets</A
+></DT
+><DT
+>3.5. <A
+HREF="documentation.html"
+>Comments. Documenting Code</A
+></DT
+><DT
+>3.6. <A
+HREF="cvs-guidelines.html"
+>CVS Guidelines</A
+></DT
+><DT
+>3.7. <A
+HREF="debugging.html"
+>DEBUGGING/LOGGING</A
+></DT
+></DL
+></DD
+><DT
+>4. <A
+HREF="modules.html"
+>Modules</A
+></DT
+><DD
+><DL
+><DT
+>4.1. <A
+HREF="python-common.html"
+>python-common</A
+></DT
+><DT
+>4.2. <A
+HREF="wxpython-modules.html"
+>wxpython</A
+></DT
+><DT
+>4.3. <A
+HREF="gui-plugins.html"
+>wxpython/gui - "whole page" plugin widgets regarding the notebook</A
+></DT
+><DT
+>4.4. <A
+HREF="gui-plugins-de.html"
+>wxpython/gui-de - same as ../gui for Germany (AMIS-browser should life here)</A
+></DT
+><DT
+>4.5. <A
+HREF="patient-plugins.html"
+>wxpython/patient - "patient page" plugin widgets</A
+></DT
+></DL
+></DD
+><DT
+>5. <A
+HREF="design.html"
+>Design</A
+></DT
+><DD
+><DL
+><DT
+>5.1. <A
+HREF="db-architecture.html"
+>GNUMed Database Architecture</A
+></DT
+><DT
+>5.2. <A
+HREF="services.html"
+>List of distributed database services</A
+></DT
+><DT
+>5.3. <A
+HREF="signals.html"
+>List of GnuMed client internal signals</A
+></DT
+><DT
+>5.4. <A
+HREF="faq.html"
+>FAQ</A
+></DT
+><DT
+>5.5. <A
+HREF="gui-design.html"
+>GUI design</A
+></DT
+><DT
+>5.6. <A
+HREF="login-screen.html"
+>Login Screen</A
+></DT
+><DT
+>5.7. <A
+HREF="main-toolbar.html"
+>Main Toolbar</A
+></DT
+><DT
+>5.8. <A
+HREF="drug-browser.html"
+>Pharmaceutical Reference Browser</A
+></DT
+><DT
+>5.9. <A
+HREF="prescription.html"
+>Prescription Dialog</A
+></DT
+><DT
+>5.10. <A
+HREF="appointment-book.html"
+>Appointment book</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+><DIV
+CLASS="LOT"
+><DL
+CLASS="LOT"
+><DT
+><B
+>List of Tables</B
+></DT
+><DT
+>5-1. <A
+HREF="signals.html#AEN472"
+>Signals</A
+></DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="preface.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Preface</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

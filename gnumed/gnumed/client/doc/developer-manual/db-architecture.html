@@ -1,0 +1,269 @@
+<HTML
+><HEAD
+><TITLE
+>GNUMed Database Architecture</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE=" Design "
+HREF="design.html"><LINK
+REL="PREVIOUS"
+TITLE=" Design "
+HREF="design.html"><LINK
+REL="NEXT"
+TITLE="List of distributed database services"
+HREF="services.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="design.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Design</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="services.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DB-ARCHITECTURE"
+></A
+>5.1. GNUMed Database Architecture</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN307"
+></A
+>5.1.1. Client-Server architecture with optional middleware layers</H2
+><P
+>    	    	GNUMed is designed as a <EM
+>client-server</EM
+> architecture with <EM
+>optional middleware</EM
+> components.
+		The database backend is provided by PostgreSQL, a largely SQL-92 compliant  object-relational
+		database server. PostgreSQL is free software, obtainable at http://www.postgresql.org. 
+		It is portable, running on virtually all Posix compatible systems including Gnu/Linux, 
+		BSD Unix, Solaris, Mac OS/X. Although we do not recommend it, it can be run on Microsoft
+		Windows NT, 2000 and XP.
+    	    	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN312"
+></A
+>5.1.2. Distribution of database services</H2
+><P
+>    	    	GNUMed allows distributions of database services. Closely related information like a person's
+		name and address are regarded as a "service", which may or may not be hosted on the same physical 
+		server as other services. Developers have to refer to the list of services when designing database 
+		queries. A <EM
+>central pivot database</EM
+> provides information about the nature and whereabouts of 
+		distributed services. On the client side, distribution is made transparent to the developer
+		and end user through a <EM
+>"database service broker"</EM
+> object which not only hides information about
+		service distribution, but can also be used for load balancing , reusable connections and database
+		replication in future versions. 
+    	    	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN317"
+></A
+>5.1.3. Normalization of data</H2
+><P
+>    	    	Tables are <EM
+>normalized</EM
+> to the  3rd normal form as long as this does not deteriorate query performance
+		too much. In order to simplify client software development, a <EM
+>pseudo-denormalization</EM
+> is achieved through
+		updateable views. Foreign key constraints ensure <EM
+>referential integrity</EM
+> of highly normalized data.
+		Reference counter tables keep track of <EM
+>cross-database relational integrity</EM
+>, as PostgreSQL does not allow
+		(yet) cross-database constraints and queries.
+		</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN324"
+></A
+>5.1.4. Audit trailing</H2
+><P
+>    	    	<EM
+>Trigger functions</EM
+> ensure business logic and <EM
+>audit trailing</EM
+> . Deleting and updating of data is caught by
+		triggers, and copies of the originals are kept in audit trail tables at all times. Database programmers
+		need not to worry about this, as all audit trail related triggers and tables are generated automatically.
+		In order to achieve this, we do use postgres specific extensions such as table inheritance and built-in 
+		procedural languages such as pgsql, pgtcl and pgpython. Thus, gnumed can not be
+    	    	easily ported to a different database backend.
+    	    	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN329"
+></A
+>5.1.5. Access control</H2
+><P
+>    	    	The PostgreSQL server supports <EM
+>secure authentication protocols</EM
+> such as Kerberos as well as <EM
+>secure
+		communication protocols</EM
+> between client and server(s) such as SSL. In addition, data of more strictly
+		confidential data wil be stored encrypted with arbitrary algorithms; although the cryptographic process
+		is performed on the client side, this is supported by the GNUMed server through a sophisticated key management.
+		A user hierarchy can be implemented, and access to tables and procedures can be regulated through this hierarchy
+		on the server side.
+    	    	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN334"
+></A
+>5.1.6. Multigenerational concurrency control and backups</H2
+><P
+>    	    PostgreSQL uses a multigenerational concurrency control system. This not only avoids most locking situations,
+	    but also allows <EM
+>life "snapshot" backups</EM
+> of the complete database system while the system is running even under
+	    full load.
+	    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="design.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="services.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Design</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="design.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>List of distributed database services</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
