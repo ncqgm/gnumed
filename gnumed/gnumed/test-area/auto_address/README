@@ -32,7 +32,9 @@ createdb gnumed9
 
 then install the dump
 
-psql -f gnumed8.sql
+psql -f gnumed8.sql gnumed9    
+
+this runs the dump script gnumed8.sql on database gnumed9
 
 
 once this is done, 
@@ -49,10 +51,13 @@ and any username password if configured already.
 when confronted with the person search screen, go to the inner notebook second (Details) page
 to make a person entry ; 
 the suburbs should autofill. Make sure the address type is HOME if not already there.
-save and new should both work in the details page.
 
-Double clicking in the search box will select the person, but not switch the ui to the details
-page; manually switching to the details page, shows the selected person ready for editing.
+Save and New buttons should both work in the details page.
+
+
+When Searching, need to type search phrase then hit search. (Type and search has been done in a different branch . see test_area/clin_summary.)
+
+Double clicking in the search box will select the person, but not switch the ui to the Person details page; manually switching to the details page, shows the selected person ready for editing.
 
 
 
