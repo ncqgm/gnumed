@@ -31,6 +31,7 @@ Reason for writing yet another install script:
 
 redo-max.sh doesn't run in cygwin for some reason ;
 this is a temporary workaround to get things running on cygwin.
+(and windows for that matter)
 
 
 
