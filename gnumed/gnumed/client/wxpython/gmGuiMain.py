@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.130 2003-11-30 01:09:10 ncq Exp $
-__version__ = "$Revision: 1.130 $"
+# $Id: gmGuiMain.py,v 1.131 2003-12-29 16:56:00 uid66147 Exp $
+__version__ = "$Revision: 1.131 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -115,23 +115,20 @@ class gmTopLevelFrame(wxFrame):
 		self.guibroker['EmergencyExit'] = self._clean_exit
 		self.guibroker['main.frame'] = self
 
-		backend = gmPG.ConnectionPool()
-		db = backend.GetConnection('default')
-		curs = db.cursor()
-		curs.execute('select CURRENT_USER;')
-		(user,) = curs.fetchone()
-		curs.close()
-		backend.ReleaseConnection('default')
-		self.guibroker['currentUser'] = user
-
 		self.SetupStatusBar()
-		self.SetStatusText(_("You are logged in as [%s].") % user)
+		self.SetStatusText(_("You are logged in as [%s].") % _whoami.get_db_account())
 		self.guibroker['main.statustext'] = self.SetStatusText
 
 		# set window title via template
-		self.updateTitle(anActivity = _("idle"), aPatient = _("no patient"), aUser = user)
+		self.updateTitle(anActivity = _("idle"))
 		#  let others have access, too
 		self.guibroker['main.SetWindowTitle'] = self.updateTitle
+
+		# set window icon
+		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
+		icon = wxEmptyIcon()
+		icon.CopyFromBitmap(icon_bmp_data)
+		self.SetIcon(icon)
 
 		self.__setup_platform()
 		self.__setup_main_menu()
@@ -161,7 +158,7 @@ class gmTopLevelFrame(wxFrame):
 		# this list relates plugins to the notebook
 		self.guibroker['main.notebook.plugins'] = []	# (used to be called 'main.notebook.numbers')
 
-		self.__load_plugins(backend)
+		self.__load_plugins()
 		self.__register_events()
 
 		# size, position and show ourselves
@@ -179,11 +176,11 @@ class gmTopLevelFrame(wxFrame):
  		defaultWidth, defaultHeight = (640,480)
  		
  		width, set1 = gmCfg.getFirstMatchingDBSet( 
-			machine = _whoami.getMachine(),
+			machine = _whoami.get_workplace(),
  			option = 'main.window.width'
 		)
  		height, set2 = gmCfg.getFirstMatchingDBSet( 
- 			machine = _whoami.getMachine(),
+ 			machine = _whoami.get_workplace(),
  			option = 'main.window.height'
  		)
  		# FIXME: Why does gmCfg return an instance type for numeric types ??
@@ -192,8 +189,8 @@ class gmTopLevelFrame(wxFrame):
  			currentWidth = int(width)
 		else:
  			currentWidth = defaultWidth
- 			gmCfg.setDBParam(machine = _whoami.getMachine(),
- 				user = _whoami.getUser(),
+ 			gmCfg.setDBParam(machine = _whoami.get_workplace(),
+ 				user = _whoami.get_db_account(),
  				option = 'main.window.width',
  				value = currentWidth )
 				 				
@@ -201,8 +198,8 @@ class gmTopLevelFrame(wxFrame):
  			currentHeight = int(height)
  		else:
  			currentHeight = defaultHeight
- 			gmCfg.setDBParam(machine = _whoami.getMachine(),
-				user = _whoami.getUser(),
+ 			gmCfg.setDBParam(machine = _whoami.get_workplace(),
+				user = _whoami.get_db_account(),
 				option = 'main.window.height',
  				value = currentHeight )
  
@@ -276,7 +273,7 @@ class gmTopLevelFrame(wxFrame):
 		# and activate menu structure
 		self.SetMenuBar(self.mainmenu)
 	#----------------------------------------------
-	def __load_plugins(self, backend):
+	def __load_plugins(self):
 		# get plugin list
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
 		if plugin_list is None:
@@ -304,7 +301,7 @@ class gmTopLevelFrame(wxFrame):
 			)
 
 			try:
-				plugin = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend)
+				plugin = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker)
 				if plugin:
 					_log.Log(gmLog.lInfo,  'got plugin of type %s' % plugin.__class__.__name__)
 					plugin.register()
@@ -431,9 +428,7 @@ class gmTopLevelFrame(wxFrame):
 			#success
 
 		# update window title
-		fname = names['first'][:1]
-		pat_string = "%s %s.%s (%s) #%d" % (demos.getTitle()[:4], fname, names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'), int(pat['ID']))
-		self.updateTitle(aPatient = pat_string)
+		self.updateTitle()
 	#----------------------------------------------
 	def OnAbout(self, event):
 		import gmAbout
@@ -539,7 +534,7 @@ class gmTopLevelFrame(wxFrame):
 		#_log.Log(gmLog.lInfo,'OnMaximize')
 	#----------------------------------------------
 	#----------------------------------------------
-	def updateTitle(self, anActivity = None, aPatient = None, aUser = None):
+	def updateTitle(self, anActivity = None):
 		"""Update title of main window based on template.
 
 		This gives nice tooltips on iconified GnuMed instances.
@@ -550,24 +545,23 @@ class gmTopLevelFrame(wxFrame):
 		FIXME: we should go through the global patient cache object
 		       to get at the data we need
 		"""
-		if not anActivity is None:
+		if anActivity is not None:
 			self.title_activity = str(anActivity)
-		if not aPatient is None:
-			self.title_patient = str(aPatient)
-		if not aUser is None:
-			self.title_user = str(aUser)
+
+		pat = gmPatient.gmCurrentPatient()
+		if pat.is_connected():
+			demos = pat.get_demographic_record()
+			names = demos.getActiveName()
+			fname = names['first'][:1]
+			pat_str = "%s %s.%s (%s) #%d" % (demos.getTitle()[:4], fname, names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'), int(pat['ID']))
+		else:
+			pat_str = _('no patient')
 
 		# generate title from template
-		title = "GnuMed [%s@%s] %s: %s" % (self.title_user, _whoami.getMachine(), self.title_activity, self.title_patient)
+		title = "GnuMed [%s@%s] %s: %s" % (_whoami.get_staff_name(), _whoami.get_workplace(), self.title_activity, pat_str)
 
 		# set it
 		self.SetTitle(title)
-
-		# set window icon
-		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
-		icon = wxEmptyIcon()
-		icon.CopyFromBitmap(icon_bmp_data)
-		self.SetIcon(icon)
 	#----------------------------------------------
 	def SetupStatusBar(self):
 		self.CreateStatusBar(2, wxST_SIZEGRIP)
@@ -676,8 +670,8 @@ class gmApp(wxApp):
 		if result is None:
 			# if the actual query fails assume the admin
 			# knows her stuff and fail graciously
+			_log.Log(gmLog.lWarn, 'cannot get database language')
 			_log.Log(gmLog.lInfo, 'assuming language settings are not wanted/needed')
-			_log.LogException("Cannot get database language.", sys.exc_info(), verbose=0)
 			return None
 		if len(result) == 0:
 			msg = _(
@@ -774,7 +768,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.130  2003-11-30 01:09:10  ncq
+# Revision 1.131  2003-12-29 16:56:00  uid66147
+# - current user now handled by whoami
+# - updateTitle() has only one parameter left: anActivity, the others can be derived
+#
+# Revision 1.130  2003/11/30 01:09:10  ncq
 # - use gmGuiHelpers
 #
 # Revision 1.129  2003/11/29 01:33:23  ncq
