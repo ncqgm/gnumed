@@ -31,7 +31,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     Long id;
     String location;
     List narratives, medications, vaccinations, allergys, vitals;
-     
+     List[] lists ;
     Map episodeMap, healthIssueMap;
     
     /** Creates a new instance of ClinicalEncounterImpl1 */
@@ -41,6 +41,9 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
         
         createCollections();
         
+        lists = new List[] {
+                narratives, allergys, vaccinations, vitals, medications };
+           
         
     }
     
@@ -176,9 +179,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     }
     
     public List getNarratives() {
-        Collection sorted = new TreeSet(narratives);
-        narratives = new ArrayList(sorted);
-        log.info("Returning " + sorted + " after sorting narratives");
+     
         return narratives;
     }
     
@@ -365,6 +366,37 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
 	public List getMedications() {
 		return medications;
 	}
+        
+        public boolean addClinRootItem(ClinRootItem item) {
+            if (item instanceof ClinNarrative && ! narratives.contains(item) )
+               return narratives.add(item);
+            
+            if (item instanceof Medication && ! medications.contains(item) )
+                return medications.add(item);
+            
+            if (item instanceof Allergy && ! allergys.contains(item) )
+                return allergys.add(item);
+            
+              
+            if (item instanceof Vaccination && ! vaccinations.contains(item) )
+               return vaccinations.add(item);
+            
+            
+              
+            if (item instanceof Vitals && ! vitals.contains(item) )
+               return vitals.add(item);
+            
+            return false;
+            
+            
+        }
 	
-	
+        public boolean contains(ClinRootItem item) {
+
+             for(int i = 0; i < lists.length;++i) {
+                 if (lists[i].contains(item)) return true;
+             }
+             return false;
+        }
+        
 }

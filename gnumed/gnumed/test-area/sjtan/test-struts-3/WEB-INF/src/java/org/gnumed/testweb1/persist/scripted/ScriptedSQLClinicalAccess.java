@@ -40,7 +40,8 @@ public class ScriptedSQLClinicalAccess implements ClinicalDataAccess , Credentia
         java.sql.Connection conn = null;
         try {
            conn = getDataSource().getConnection();
-           
+           conn.rollback();
+           conn.commit();
            Util.setSessionAuthentication(conn, (Principal)threadCredential.getCredential());
            
             return sqlProvider.getVaccines(conn);

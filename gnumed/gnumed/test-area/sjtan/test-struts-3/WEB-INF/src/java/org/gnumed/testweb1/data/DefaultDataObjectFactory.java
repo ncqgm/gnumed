@@ -19,7 +19,7 @@ import org.gnumed.testweb1.global.Constants;
 public class DefaultDataObjectFactory implements DataObjectFactory {
     static Log log = LogFactory.getLog(DefaultDataObjectFactory.class);
     
-    public static int nEntry =4;
+    public static int nEntry = Constants.Servlet.DEFAULT_NUMBER_OF_CLIN_ITEMS;
     
     public final static String[] itemTypes = new String[] { "narrative", "medication", "vaccination", "allergy", "vital" };
     public final static String[] factoryMethods = new String[]
@@ -58,6 +58,8 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
         }
         return ce;
     }
+    
+    
    
     /** the index property is needed for doing a drug find and returning the result to the
      * right entryMedication object within the list of entryMedications.

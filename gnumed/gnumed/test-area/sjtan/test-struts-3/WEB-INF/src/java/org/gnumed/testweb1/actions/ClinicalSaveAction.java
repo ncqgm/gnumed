@@ -102,7 +102,7 @@ public class ClinicalSaveAction extends Action {
 			try {
 				util.setRequestAttributes(servlet, request, form, mapping);
 			} catch (Exception e2) {
-				log.info(e2);
+				log.error(e2,e2);
 			}
 			return mapping.findForward("successClinicalEditAgain");
 
@@ -110,12 +110,12 @@ public class ClinicalSaveAction extends Action {
 		      try {
 				util.setRequestAttributes(servlet, request, form, mapping);
 			} catch (Exception e2) {
-				log.info(e2);
+				log.error(e,e);
 			}
 			
 			setNonFatalErrors(request, messages, nonFatalException);
 			  
-			log.info(e, e);
+			log.error(e, e);
 			messages.add("fatal",
 					new ActionMessage("clinicalSave", e, e.getCause() ));
 			saveErrors(request, messages);

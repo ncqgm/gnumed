@@ -48,6 +48,8 @@ public final class Constants {
         public final static String OBJECT_FACTORY="objectFactory";
         
         public final static String DRUGREF_ACCESS= "drugRefAccess";
+        
+        public static int DEFAULT_NUMBER_OF_CLIN_ITEMS = 8;
     }
     
     public static final  class Session {

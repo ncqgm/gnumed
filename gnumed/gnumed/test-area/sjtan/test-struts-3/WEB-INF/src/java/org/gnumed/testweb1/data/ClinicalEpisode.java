@@ -6,6 +6,8 @@
 
 package org.gnumed.testweb1.data;
 
+import java.util.List;
+
 /**
  * As Per Gnumed Cllnical Schema: 
  * this interpretation: a clinical episode is a problem
@@ -91,5 +93,10 @@ public interface ClinicalEpisode {
      */
     public java.util.List getRootItems();
     
+    public List getRootItemsByType( Class type );
+    
     public ClinRootItem getEarliestRootItem();
+    
+    public boolean isClosed();
+    public void setClosed(boolean closed);
 }

@@ -193,7 +193,7 @@ public class ClinicalUpdateForm extends  /*org.apache.struts.action.ActionForm *
       
         getEncounter().mergeReferences();
       
-        alterAllergyMarkedNarratives();
+        transferNarrativeDetailToEnteredAllergies();
     }
    
 	
@@ -295,7 +295,7 @@ public class ClinicalUpdateForm extends  /*org.apache.struts.action.ActionForm *
 
 
 
-	void alterAllergyMarkedNarratives() {
+	void transferNarrativeDetailToEnteredAllergies() {
         for ( int i = 0; i < getEncounter().getNarratives().size() ; ++i) {
             
             ClinNarrative n = ( ClinNarrative) getNarrative(i);

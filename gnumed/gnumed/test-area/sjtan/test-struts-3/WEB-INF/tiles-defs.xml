@@ -78,6 +78,7 @@
          <put name="content" value="/pages/clinicalStatus/episodeList.jsp" type="page"/>
          </definition>
          
+         <definition name="debugHealthRecord" page="/pages/common/debugHealthRecord.jsp"/>
          <!-- used by ClinicalEdit action -->
           
         <definition name="encounterEntry" page="/pages/layout/intraLinkedClinical.jsp">
@@ -86,8 +87,14 @@
        
          <definition name="clinicalentry" page="/pages/layout/topClinicalLayout.jsp">
          <put name="leftTop" value="encounterEntry" />
-            <put name="leftBottom" value="pastNotes" />
-         <put name="rightTop" value="clinSummary" />
+         
+          <put name="leftBottom" value="pastNotes" />
+        <!--  
+        
+             <put name="leftBottom" value="debugHealthRecord"/>
+            -->
+        
+               <put name="rightTop" value="clinSummary" />
          <put name="rightBottom" value="episodeList" />
          </definition>
          

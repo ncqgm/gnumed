@@ -234,8 +234,7 @@ e.g. getNarrative(index) ...  id='narrative'
                     />
                 </div>   
            
-                <%-- a numbered anchor id , for this item's entry --%>
-                <div id="entryItem<%=index%>" 
+                   <div id="entryItem<%=index%>" 
                     style="display:<%=((index.intValue() ==0)?"block":"none")%>" 
                     >
             
@@ -425,7 +424,6 @@ e.g. getNarrative(index) ...  id='narrative'
                     </div>
                     </sub> 
                 </div>
-         
                 <%-- only show the linked checkbox if not the first entry --%>  
              
                 <%-- This checkbox updates the narrative.linkedToPreviousEpisode property,

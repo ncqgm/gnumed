@@ -7,7 +7,7 @@
 <html:base/>   
     <html:form action="/SaveClinical"  > 
   <a name='submitEncounter' />
-   
+    <html:link page="./encounterEpisodeBased.jsp">test 2</html:link>
     <jsp:include page="./encounter_2.jsp"/> 
     
         <jsp:include page="./vaccinationEntry.jsp"/>

@@ -189,6 +189,10 @@ public interface ClinicalEncounter {
 
     public EntryClinRootItem[] getEntryRootItems();
     
+    public boolean contains(ClinRootItem item);
+    
+    public boolean addClinRootItem(ClinRootItem item);
+    
     public Collection getMappedIssues();
 	public Collection getMappedEpisodes() ;
 	public void mergeReferences() ;

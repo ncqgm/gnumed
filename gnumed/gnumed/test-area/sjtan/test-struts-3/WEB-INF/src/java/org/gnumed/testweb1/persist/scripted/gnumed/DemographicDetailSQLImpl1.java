@@ -477,7 +477,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 	}
 
 	final static String[] sqlToDetailsNameAddress = {
-			"id, firstnames, lastnames, title, dob, gender, number, street, city, postcode, state, country,"
+			"pk_identity, firstnames, lastnames, title, dob, gender, number, street, city, postcode, state, country,"
 					,
 			"id, givenname, surname, title, birthdate, sex, streetno ,street, urb, postcode, state, countryCode, "
 				
@@ -526,7 +526,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 	 */
 	private Long getNextId(Connection conn) throws SQLException {
 		PreparedStatement stmtGetPk = conn
-				.prepareStatement("select nextval('identity_id_seq')");
+				.prepareStatement("select nextval('identity_pk_seq')");
 		stmtGetPk.execute();
 		ResultSet rs = stmtGetPk.getResultSet();
 		if (!rs.next())
@@ -553,7 +553,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 			throw new SQLException(
 					"Unable to Insert due to unparsed null birthdateValue");
 		PreparedStatement stmtIdentity = conn
-				.prepareStatement("insert into identity(id, title, dob , gender) values (?,  ? , ? , ?)");
+				.prepareStatement("insert into identity(pk, title, dob , gender) values (?,  ? , ? , ?)");
 		// new id retrieved for web page identification
 		//detail.setId(getNextId(conn));
 		stmtIdentity.setObject(1, detail.getId());
@@ -590,7 +590,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 	private void updateIdentity(Connection conn, DemographicDetail detail)
 			throws DataSourceException, UnsupportedEncodingException, SQLException {
 		PreparedStatement stmtIdentity = conn
-				.prepareStatement("update identity  set title = ?, dob = ? , gender = ? where id = ?");
+				.prepareStatement("update identity  set title = ?, dob = ? , gender = ? where pk = ?");
 		stmtIdentity.setObject(4, detail.getId());
 		stmtIdentity.setString(1, Util.encode( detail.getTitle()));
 		stmtIdentity.setDate(2, new java.sql.Date(detail.getBirthdateValue()
@@ -1071,8 +1071,8 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 		List l = null;
 		try {
 			PreparedStatement stmt = conn
-					.prepareStatement("select v.id,  firstnames, lastnames , dob, gender , number, street, city, postcode, state, country "
-							+ "from  v_basic_person v left  join (select * from lnk_person_org_address l, v_basic_address a where l.id_address= a.id) as la on v.id=la.id_identity  "
+					.prepareStatement("select v.pk_identity,  firstnames, lastnames , dob, gender , number, street, city, postcode, state, country "
+							+ "from  v_basic_person v left  join (select * from lnk_person_org_address l, v_basic_address a where l.id_address= a.id) as la on v.pk_identity=la.id_identity  "
 							+ " where "
 							+ " strpos( upper(firstnames), upper( ? ) ) > 0 "
 							+ "and strpos(upper(lastnames), upper( ?  ) ) > 0");
@@ -1130,11 +1130,11 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 			.createDemographicDetail();
 		    
 			String selectDetailNamesAddress = "select * from v_basic_person p " +
-			"left join lnk_person_org_address l on (p.id = l.id_identity) " +
+			"left join lnk_person_org_address l on (p.pk_identity = l.id_identity) " +
 			"left join v_basic_address a on (l.id_address = a.id) " +
 		// can't access salaam to change view, so resort to application selection of comms.
 		// "left join v_person_comms_flat vc on vc.id = p.id " +
-			"where p.id= ? ";
+			"where p.pk_identity= ? ";
             
 			DynaBean bean = getDynaBeanFromSQL(conn, id, selectDetailNamesAddress);
 			if (bean == null)
@@ -1166,6 +1166,8 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 			    transferDynaBeanToDetail(detail, bean, sqlToDetailsComms[0], sqlToDetailsComms[1]);
 
 			} catch (Exception e) {
+			    conn.rollback();
+			    conn.commit();
 			    getCommsAlternate(conn, id, detail);
 			}
 			
@@ -1336,7 +1338,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
         int id = 0;
         try {
         Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("select nextval('identity_id_seq')");
+        ResultSet rs = stmt.executeQuery("select nextval('identity_pk_seq')");
         if (rs.next()) 
             id = rs.getInt(1); 
         } catch (Exception e) {

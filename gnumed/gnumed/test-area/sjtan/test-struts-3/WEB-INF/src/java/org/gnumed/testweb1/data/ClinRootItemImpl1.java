@@ -11,13 +11,16 @@ import java.util.Map;
 
 import org.gnumed.testweb1.global.Util;
 import org.gnumed.testweb1.global.Constants.Schema;
+import org.apache.commons.logging.*;
 
 /**
  * The base class for  clinical items such as narratives, vaccinations, medications, lab requests.
  * @author  sjtan
  */
 public class ClinRootItemImpl1 implements ClinRootItem, Comparable {
-    static Map soapOrder;
+       static Log log = LogFactory.getLog( org.gnumed.testweb1.data.ClinNarrativeImpl1.class);
+
+       static Map soapOrder;
     static {
            soapOrder = new HashMap();
            String soap = Schema.SOAP_CAT_FOR_CLINROOT_SORT;
@@ -65,12 +68,19 @@ public class ClinRootItemImpl1 implements ClinRootItem, Comparable {
     
     public void setEncounter(ClinicalEncounter encounter) {
        this. clinicalEncounter = encounter;
+       if (encounter != null) {
+           log.info("added encounter" + encounter + " to " + getNarrative());
+           encounter.addClinRootItem(this);
+       }
+       
     }
     
     public void setEpisode(ClinicalEpisode episode) {
         
         this.episode = episode;
-        episode.setRootItem(episode.getRootItemCount(), this);
+        if (episode !=null) {
+            episode.setRootItem(episode.getRootItemCount(), this);
+        }
     }
     
     public void setId(Long id) {

@@ -5,13 +5,13 @@
  */
 
 package org.gnumed.testweb1.data;
-
+import org.apache.commons.logging.*;
 /**
  *
  * @author  sjtan
  */
 public class ClinNarrativeImpl1 extends ClinRootItemImpl1 implements ClinNarrative {
-    
+ 
     /**
      * assesssment of encounter
      */

@@ -43,6 +43,7 @@ import org.gnumed.testweb1.data.HealthRecord01;
 import org.gnumed.testweb1.data.HealthSummary01;
 import org.gnumed.testweb1.data.HealthSummaryQuickAndDirty01;
 import org.gnumed.testweb1.data.Vaccination;
+import org.gnumed.testweb1.data.Vaccine;
 import org.gnumed.testweb1.data.Vitals;
 import org.gnumed.testweb1.global.Algorithms;
 import org.gnumed.testweb1.global.Util;
@@ -134,6 +135,7 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
+			conn.rollback();
 			Util.setSessionAuthentication(conn,(Principal)threadCredential.getCredential());
 			conn.setReadOnly(true);
 
@@ -372,6 +374,9 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 		try {
 
 			conn = getDataSource().getConnection();
+			conn.rollback();
+			Statement stmt0 = conn.createStatement();
+			stmt0.execute("rollback;begin");
 			Util.setSessionAuthentication(conn,(Principal)threadCredential.getCredential());
 			
 
@@ -426,15 +431,17 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			if (itemsAttached == 0) {
 				removeEmptyEncounter(encounter, conn);
 			}
-
+			Statement stmt = conn.createStatement();
+			stmt.execute("commit");
 			conn.commit();
 			
 
 		} catch (Exception exception) {
 			try {
+			    Statement stmt = conn.createStatement();
+			    stmt.execute("rollback;commit");
 				conn.rollback();
-				Statement stmt=conn.createStatement();
-                stmt.execute("abort");
+				conn.commit(); 
 			} catch (Exception e2) {
 				e2.printStackTrace();
 			}
@@ -618,7 +625,7 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 				if (!allergy.isEntered())
 					continue;
 				if (!defaultAllergyEpisode) {
-				    meetSchemaRequirementEpisode(encounter, summary, conn, "allergy entered(autotext)");
+				    meetSchemaRequirementEpisode(encounter, summary, conn, "allergy entered: " + allergy.getSubstance() + " (autotext)");
 				    defaultAllergyEpisode =true;
 				}
 				linkRootItem(conn, allergy, summary);
@@ -676,10 +683,13 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 				
 				Util.logBean(log, v);
 				if (v.isEntered()) {
+				    String vaccName = getVaccineName(v);
 				    log.info("VACCINATION APPEARS ENTERED FOR ABOVE ");
 				    if (! defaultVaccEpisode) {
-				        meetSchemaRequirementEpisode(encounter, summary  , conn, "vaccination(auto-text)");
+				        meetSchemaRequirementEpisode(encounter, summary  , conn, "vaccination given: " + vaccName + " (auto-text)");
 				        defaultVaccEpisode = true;
+				    } else {
+				        addVaccNameToDefaultEpisode(conn, vaccName);
 				    }
 					linkRootItem(conn, v, summary);
 					saveVaccination(conn, v, summary, encounter.getId().intValue());
@@ -702,6 +712,38 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	}
 	
 	/**
+     * @param conn
+     * @param vaccName
+     */
+    private void addVaccNameToDefaultEpisode(Connection conn, String vaccName) {
+        // TODO Auto-generated method stub
+        try {
+        Statement stmt = conn.createStatement();
+        stmt.execute("update clin_narrative set narrative= narrative || '\n" + "vaccination given: "+
+                vaccName+" (auto-text)' where pk=(select max(pk) from clin_narrative)");
+    
+        } catch (Exception e) {
+            
+            log.error(e,e);
+        }
+    }
+
+    /**
+     * @param v
+     * @return
+     */
+    private String getVaccineName(EntryVaccination v) {
+        String vaccName = "not determined";
+        try {
+            Vaccine vacc = (Vaccine)getVaccineMap().get(new Integer(Integer.parseInt(v.getVaccineGiven())));
+            vaccName = vacc.getTradeName();
+        } catch (Exception e) {
+            log.error(e,e);
+        }
+        return vaccName;
+    }
+
+    /**
      * @param i
 	 * @param conn
 	 * @param narrativeText TODO
@@ -750,14 +792,13 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
         c.executeUpdate("insert into clin_episode " +
                         "( fk_patient, fk_clin_narrative) " +
                         "values ( " + summary.getIdentityId().toString() + " , nextval('clin_narrative_pk_seq')) ");
-        String autoText = "vaccination (auto record)";
-        c.executeUpdate("insert into clin_narrative " +
-                        "(pk,  fk_episode, fk_encounter, narrative) " +
+         c.executeUpdate("insert into clin_narrative " +
+                        "(pk,  fk_episode, fk_encounter, narrative, soap_cat) " +
                         "values(" +
                         "currval('clin_narrative_pk_seq')," +
                         " (select max(pk) from clin_episode where fk_patient = " +  summary.getIdentityId().toString() + ")," +
                         " (select max(id) from clin_encounter where fk_patient = " + summary.getIdentityId().toString() + ") ," +
-                        "  '"+narrativeText+"' )");
+                        "  '"+narrativeText+"', 'a' )");
         conn.commit();
 
 //        PreparedStatement  defer = conn.prepareStatement("set constraints rfi_fk_clin_narrative deferred");
@@ -1020,7 +1061,8 @@ throws SQLException, DataSourceException {
 		setClinRootItemStatement(stmt, narrative, 3);
 		
 		// for the first narrative with a healthIssueStart set,
-		if ( narrative.getHealthIssueStart().getTime() + 1000 * 3600 * 24  < narrative.getClin_when().getTime()  ) {
+		log.info("HealthIssueStart "+narrative.getHealthIssueStart() +" is " + (narrative.getHealthIssueStart().getTime() + 1000 * 3600 * 24) + " vs narrative.clin_when = "+  narrative.getClin_when() +" is " + narrative.getClin_when().getTime());
+		if ( narrative.getHealthIssueStart().getTime()  < narrative.getClin_when().getTime()  ) {
 		    stmt.setTimestamp(3, new Timestamp(narrative.getHealthIssueStart().getTime()));
 		}
 		

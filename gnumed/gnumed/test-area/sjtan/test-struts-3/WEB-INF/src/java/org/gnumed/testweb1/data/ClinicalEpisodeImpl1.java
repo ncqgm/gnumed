@@ -6,6 +6,10 @@
 
 package org.gnumed.testweb1.data;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 
 /**
  *
@@ -15,7 +19,7 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
 	
 	  
     static long SAME_EPISODE_INTERVAL =  5 * 1000; // 5 seconds
-    
+    private boolean closed;
     private String description;
     private HealthIssue hi;
     private Long id;
@@ -59,7 +63,15 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
     }
     
     public void setHealthIssue(HealthIssue healthIssue) {
-        this.hi = healthIssue;
+        if (!healthIssue.hasClinicalEpisode(this)) {
+            healthIssue.addClinicalEpisode(this);
+        }
+        this.hi = healthIssue; // out here because of nullHealthIssue object
+        // it's a problem with hasClinicalEpisode()
+        // for some reason, nullHealthIssue may have an
+        // an unlinked episode. maybe it's the definition.
+        
+        
     }
     
     public void setId(Long id) {
@@ -110,6 +122,39 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
         }
         
         return ((earliest != null) ? earliest : NullRootItem.NullItem);
+    }
+
+    /* (non-Javadoc)
+     * @see org.gnumed.testweb1.data.ClinicalEpisode#getRootItemsByType(java.lang.Class)
+     */
+    public List getRootItemsByType(Class type) {
+       
+        Iterator i = rootItems.iterator();
+        List result = new ArrayList();
+        while (i.hasNext()) {
+            ClinRootItem item = (ClinRootItem) i.next();
+            if(type.isInstance(item)) {
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see org.gnumed.testweb1.data.ClinicalEpisode#isClosed()
+     */
+    public boolean isClosed() {
+      
+        return closed;
+    }
+
+    /* (non-Javadoc)
+     * @see org.gnumed.testweb1.data.ClinicalEpisode#setClosed(boolean)
+     */
+    public void setClosed(boolean closed) {
+         
+        this.closed = closed;
+        
     }
     
 }

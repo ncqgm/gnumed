@@ -17,13 +17,15 @@
 
 <table>
 <tr>
+
+    <td> <b><bean:message key="demo.surname"/> </b>: </td>
+        <td> <html:text property="surname" size="20" maxlength="32" />
+        </td>
+
 <td>
 <b><bean:message key="demo.givenname"/> </b>:</td><td> <html:text property="givenname" size="20" maxlength="32" />
 </td>
 
-    <td> <b><bean:message key="demo.surname"/> </b>: </td>
-        <td> <html:text property="surname" size="20" maxlength="32" />
-        
    <td><b><bean:message key="demo.birthdate"/></b>: </td> 
    <td> <html:text property="birthdate" size="20" maxlength="32" />
 </td></tr>

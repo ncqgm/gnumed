@@ -56,6 +56,7 @@ public class ScriptedSQLDemographicDataAccess  implements DemographicDataAccess,
             DataSource src = getDataSource();
             //conn = src.getConnection();
             conn = src.getConnection();
+            conn.rollback();
             
             Util.setSessionAuthentication(conn, (Principal) localCredential.getCredential());
             
@@ -82,6 +83,7 @@ public class ScriptedSQLDemographicDataAccess  implements DemographicDataAccess,
             checkDataSourceExists();
             DataSource src = getDataSource();
             conn = src.getConnection();
+            conn.rollback();
             Util.setSessionAuthentication(conn, (Principal) localCredential.getCredential());
             
             return demographicDetailSQL.findByPrimaryKey(conn, id);
@@ -108,6 +110,7 @@ public class ScriptedSQLDemographicDataAccess  implements DemographicDataAccess,
             
             DataSource src = getDataSource();
             conn = src.getConnection();
+            conn.rollback();
             Util.setSessionAuthentication(conn, (Principal) localCredential.getCredential());
             
             DemographicDetail existingDetail = null;

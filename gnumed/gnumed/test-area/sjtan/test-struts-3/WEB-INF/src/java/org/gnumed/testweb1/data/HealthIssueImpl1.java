@@ -4,12 +4,16 @@ package org.gnumed.testweb1.data;
 
 import java.util.Iterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * 
  * @author sjtan
  */
 public class HealthIssueImpl1 implements HealthIssue {
-
+    
+    static Log log = LogFactory.getLog(HealthIssueImpl1.class);
 	Long id;
 
 	String description;
@@ -75,6 +79,7 @@ public class HealthIssueImpl1 implements HealthIssue {
 		}
 
                 if (early == null) {
+                    log.info("for " + getDescription() + " there was no earliest clin item found");
                     early = NullRootItem.NullItem;
                   
                 }

@@ -49,7 +49,10 @@
 	    	<bean:message key="show.printable.summary.notes"/> 
 	    --%>
         </html:link>
-        | <b> zoom with ctrl- / ctrl= in mozilla  </b>
+        
+        <html:link page="/pages/clinicalUpdate/encounterEpisodeBased.jsp">test 2</html:link>
+        
+    | <b> zoom with ctrl- / ctrl= in mozilla  </b>
         
     </td>
     </tr> 

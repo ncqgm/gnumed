@@ -34,7 +34,9 @@
                 <bean:write name="episode" property="description" />
                 </b>
                 : issue is 
+                
                 <bean:write name="episode" property="healthIssue.description"/>
+            	
             </td>
             <td>
                 <a name='#episodeSummary<%=index%>'/>
