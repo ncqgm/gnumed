@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.33 $ $Date: 2003-01-06 05:01:40 $ $Author: ihaywood $
+-- $Revision: 1.34 $ $Date: 2003-04-19 06:25:12 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.33  2003-01-06 05:01:40  ihaywood
+-- Revision 1.34  2003-04-19 06:25:12  ihaywood
+-- bugfixes
+--
+-- Revision 1.33  2003/01/06 05:01:40  ihaywood
 -- resolved merge conflict
 --
 -- Revision 1.32  2003/01/05 13:05:52  ncq
@@ -84,12 +87,22 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+
+create table audit_drugs
+(
+	audit_id serial
+);
+
+comment on table audit_drugs is 'ancestor table to mark tables for auditing';
+
+
 -- ===========================================
 create table info_reference(
 	id serial primary key,
 	source_category char check (source_category in ('p', 'a', 'i', 'm', 'o', 's')),
 	description text
-);
+) inherits (audit_drugs);
+
 comment on table info_reference is
 	'Source of any reference information in this database';
 comment on column info_reference.source_category is
@@ -135,10 +148,10 @@ comment on table disease_code is
 
 -- ===========================================
 create table ATC (
-	code char(8) primary key,
+	code varchar(8) primary key,
 	src char check (src in ('p', 's')),
 	description text
-);
+) inherits (audit_drugs);
 
 comment on table ATC is
 	'ATC coding of drugs ("nordic system") as maintained by the WHO';
@@ -226,19 +239,13 @@ create table drug_element (
 	id serial primary key,
 	category char check (category in ('t', 'p', 's', 'c', 'k')),
 	description text
-);
+) inherits (audit_drugs);
 
 comment on table drug_element is 'collection of all drug elements: classes, compounds, and substances';
 
 comment on column drug_element.category is 't = therapeutic class, p = pharmaceutical class, s = substance, c = compound, k= category';
+
 create view drug_class as select * from drug_element where category = 't' or category = 'p';
-
-create table link_drug_atc
-(
-	code varchar (7),
-	id_drug integer references drug_element (id)
-);
-
 comment on view drug_class is
 	'drug classes of specified categories';
 comment on column drug_class.category is
@@ -247,8 +254,8 @@ comment on column drug_class.category is
 -- ===========================================
 create table link_drug_atc (
 	drug_id integer references drug_element(id),
-	atccode char(8) references ATC(code)
-);
+	atccode varchar(8) references ATC(code)
+) inherits (audit_drugs);
 
 comment on table link_drug_atc is
 	'many to many pivot table associating drug elements and ATC codes';
@@ -280,7 +287,7 @@ create table drug_warning(
 	id_reference integer references info_reference(id) default NULL,
 	code char(4),
 	details text
-);
+) inherits (audit_drugs);
 comment on table drug_warning is
 	'any warning associated with a specific drug';
 comment on column drug_warning.code is
@@ -316,7 +323,7 @@ create table drug_information(
 	info text,
 	id_topic integer references information_topic (id),
 	comment text
-);
+) inherits (audit_drugs);
 comment on table drug_information is
 	'any product information about a specific drug in HTML format';
 comment on column drug_information.info is
@@ -338,7 +345,7 @@ create table generic_drug_name(
 	id_drug integer references drug_element (id),
 	name varchar(100),
 	comment text
-);
+) inherits (audit_drugs);
 comment on table generic_drug_name is
 	'this table allows synonyms / dictionary functionality for generic drug names';
 comment on column generic_drug_name.name is
@@ -348,7 +355,7 @@ comment on column generic_drug_name.name is
 create table link_compound_generics(
 	id_compound integer references drug_element(id) not null,
 	id_component integer references drug_element(id) not null
-);
+) inherits (audit_drugs);
 
 create index idx_link_compound_generics on link_compound_generics(id_compound, id_component);
 
@@ -394,7 +401,7 @@ create table drug_dosage(
 	id_info_reference integer references info_reference(id),
 	id_route integer references drug_routes (id),
 	dosage_hints text
-);
+) inherits (audit_drugs);
 
 comment on table drug_dosage is
 	'This is a drug-dose-route tuple. For dosage recommadations, and the basis for products and subsidies.';
@@ -412,7 +419,8 @@ create table substance_dosage(
 	dosage_type char check (dosage_type in ('*', 'w', 's', 'a')),
 	dosage_start float,
 	dosage_max float
-);
+) inherits (audit_drugs);
+
 comment on table substance_dosage is
 	'Dosage suggestion for a particular /substance/ (not compound). This the old dosage.';
 comment on column substance_dosage.dosage_type is
@@ -428,7 +436,7 @@ create table link_drug_class(
 	id serial,
 	id_drug integer references drug_element(id),
 	id_class integer references drug_element(id)
-);
+) inherits (audit_drugs);
 
 create index idx_link_drug_class on link_drug_class(id_drug, id_class);
 
@@ -440,7 +448,7 @@ create table link_drug_warning(
 	id serial,
 	id_drug integer references drug_element(id),
 	id_warning integer references drug_warning(id)
-);
+) inherits (audit_drugs);
 
 create index idx_link_drug_warning on link_drug_warning(id_drug, id_warning);
 
@@ -451,7 +459,7 @@ comment on table link_drug_warning is
 create table link_drug_information(
 	id_drug integer references drug_element(id),
 	id_info integer references drug_information(id)
-);
+) inherits (audit_drugs);
 
 create index idx_link_drug_information on link_drug_information(id_drug, id_info);
 
@@ -461,15 +469,16 @@ comment on table link_drug_information is
 -- ===========================================
 create table severity_level (
 	id serial,
-	description varchar (100)
-);
+	description varchar (100),
+	comment text
+) inherits (audit_drugs);
 
 -- i18n
-insert into severity_level values (0, 'irrelevant');
-insert into severity_level values (1, 'trivial');
-insert into severity_level values (2, 'minor');
-insert into severity_level values (3, 'major');
-insert into severity_level values (4, 'critical');
+insert into severity_level (description, comment) values ('irrelevant', 'largely academic point. No warning given');
+insert into severity_level (description, comment) values ('trivial', 'only useful in post-hoc checking. No warning given');
+insert into severity_level (description, comment) values ('minor', 'noticeable, but usually does not affect clinical decision, warning in sidebar');
+insert into severity_level (description, comment) values ('major', 'usually affects clinical decision, but sometimes is overridden, warning highlighted');
+insert into severity_level (description, comment) values ('critical', 'Warning in dialogue box, prescriber must click to override, entry made in notes. Use very rarely. Example: Roaccutane in pregnant woman');
 
 -- ===========================================
 create table adverse_effects(
@@ -496,7 +505,7 @@ insert into adverse_effects (severity, description) values (2, 'drowsiness');
 insert into adverse_effects (severity, description) values (2, 'tremor');
 insert into adverse_effects (severity, description) values (3, 'confusion');
 insert into adverse_effects (severity, description) values (3, 'psychosis');
-insert into adverse_effects (severity, description) values (3, 'ototoxicity');
+
 
 -- ===========================================
 create table link_drug_adverse_effects(
@@ -506,7 +515,7 @@ create table link_drug_adverse_effects(
 	frequency char check(frequency in ('c', 'i', 'r')),
 	important boolean,
 	comment text
-);
+) inherits (audit_drugs);
 comment on table link_drug_adverse_effects is
 	'many to many pivot table linking drugs to adverse effects';
 comment on column link_drug_adverse_effects.frequency is
@@ -517,22 +526,18 @@ comment on column link_drug_adverse_effects.important is
 -- ===========================================
 create table interactions(
 	id serial primary key,
-	severity integer references severity_level (id),
-	description text,
-	comment text
-);
+	description text
+) inherits (audit_drugs);
 comment on table interactions is
 	'possible interactions between drugs';
-comment on column interactions.severity is
-	'severity/significance of a potential interaction: the scale has yet to be agreed upon';
 comment on column interactions.description is
 	'the type of interaction (like: "increases half life")';
 
-insert into interactions (severity, description) values (1, 'increases half-life');
-insert into interactions (severity, description) values (1, 'decreases half-life');
-insert into interactions (severity, description) values (1, 'worsens disease');
-insert into interactions (severity, description) values (1, 'unknown');
-insert into interactions (severity, description) values (1, 'blocks receptor');
+insert into interactions ( description) values ( 'increases half-life');
+insert into interactions ( description) values ( 'decreases half-life');
+insert into interactions ( description) values ( 'worsens disease');
+insert into interactions ( description) values ( 'unknown');
+insert into interactions ( description) values ( 'blocks receptor');
 
 -- ===========================================
 create table link_drug_interactions(
@@ -540,8 +545,10 @@ create table link_drug_interactions(
 	id_drug integer references drug_element(id),
 	id_interacts_with integer references drug_element(id),
 	id_interaction integer references interactions(id),
+	severity integer references severity_level (id),
 	comment text
-);
+) inherits (audit_drugs);
+
 comment on table link_drug_interactions is
 'many to many pivot table linking drugs and their interactions';
 
@@ -552,7 +559,8 @@ create table link_drug_disease_interactions(
 	id_disease_code integer references disease_code(id),
 	id_interaction integer references interactions (id),
 	comment text
-);
+) inherits (audit_drugs);
+
 comment on table link_drug_disease_interactions is
 	'many to many pivot table linking interactions between drugs and diseases';
 
@@ -565,7 +573,8 @@ create table product(
 	id_route integer references drug_routes (id),
 	amount float default 1.0,
 	comment text
-);
+) inherits (audit_drugs);
+
 comment on table product is
 'dispensable form of a generic drug including strength, package size etc';
 
@@ -581,7 +590,8 @@ create table package_size
 (
 	id_product integer references product (id),
 	size float
-);
+) inherits (audit_drugs);
+
 comment on table package_size is
 	'the various packing sizes available for this product';
 
@@ -591,7 +601,7 @@ create table link_product_component(
 	id_component integer references drug_element (id),
 	strength float,
 	id_unit integer references drug_units (id)
-);
+) inherits (audit_drugs);
 
 comment on table link_product_component  is
 	'many-to-many pivot table linking products with their components';
@@ -615,7 +625,7 @@ insert into drug_flags (description) values ('flavoured');
 create table link_flag_product (
 	id_product integer references product (id),
 	id_flag integer references drug_flags (id)
-);
+) inherits (audit_drugs);
 
 comment on table link_flag_product is
 	'many-to-many pivot table linking products to flags';
@@ -647,7 +657,8 @@ create table manufacturer(
 	fax text,
 	comment text,
 	code char (2)
-);
+) inherits (audit_drugs);
+
 comment on table manufacturer is
 	'list of pharmaceutical manufacturers';
 comment on column manufacturer.name is
@@ -668,7 +679,7 @@ create table link_product_manufacturer(
 	id_product integer references product(id),
 	id_manufacturer integer references manufacturer(id),
 	brandname varchar (60) default 'GENERIC'
-);
+) inherits (audit_drugs);
 
 create index idx_link_product_manufacturer on link_product_manufacturer(id_product, id_manufacturer);
 
@@ -681,7 +692,8 @@ create table subsidies(
 	iso_countrycode char(2),
 	name varchar(30),
 	comment text
-);
+) inherits (audit_drugs);
+
 comment on table subsidies is
 	'listing of possible subsidies for drug products';
 comment on column subsidies.iso_countrycode is
@@ -699,7 +711,7 @@ create table conditions (
 	id_subsidy integer references subsidies (id),
 	id_drug integer references drug_element (id),
 	authority boolean
-);
+) inherits (audit_drugs);
 
 comment on table conditions is
 	'normalised prescribing requirements for a drug or drugs';
@@ -721,7 +733,7 @@ create table subsidized_products(
 	copayment float default 0.0,
 	comment text,
 	restriction text
-);
+) inherits (audit_drugs);
 
 comment on table subsidized_products is
 	'listing of drug products that may attract a subsidy. Drugs are ';
@@ -745,7 +757,7 @@ create table link_dosage_indication(
 	id_disease_code integer references disease_code (id),
 	comment text,
 	line integer
-);
+) inherits (audit_drugs);
 
 create index idx_dosage_indication on link_dosage_indication(id_drug_dosage);
 create index idx_indication_dosage on link_dosage_indication(id_disease_code);
@@ -764,7 +776,7 @@ create table link_drug_indication(
 	id_disease_code integer references disease_code (id),
 	comment text,
 	line integer
-);
+) inherits (audit_drugs);
 
 create index idx_drug_indication on link_drug_indication(id_drug);
 create index idx_indication_drug on link_drug_indication(id_disease_code);
@@ -778,7 +790,7 @@ comment on column link_drug_indication.line is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.33 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.34 $');
 
 -- -----------------------------------------
 -- we need to be able to "lock" certain drugs from prescribing and such
