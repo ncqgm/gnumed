@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/README,v $
-$Revision: 1.5 $
+$Revision: 1.6 $
 
 Welcome to the GnuMed CVS tree !
 
@@ -11,7 +11,7 @@ necessary to run GnuMed use:
 Documentation is in:
 	gnumed/client/doc/
 Also (and probably up to date):
-	http://hherb.com/cgi-bin/twiki/view/Gnumed/
+	http://hherb.com/cgi-bin/twiki/view/Gnumed/ (currently down until a new wiki is up and running (as of Dec. 22nd, 2004))
 
 
 If you want to look at the frontend code go to:
