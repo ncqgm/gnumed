@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-02-05 12:15:01 $
-# @version $Revision: 1.67 $ $Date: 2003-02-05 12:15:01 $ $Author: ncq $
+# @Date: $Date: 2003-02-06 12:44:06 $
+# @version $Revision: 1.68 $ $Date: 2003-02-06 12:44:06 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.67 $"
+__version__ = "$Revision: 1.68 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -52,7 +52,7 @@ import gmGP_PatientPicture                     #panel to display patients pictur
 import gmGP_Toolbar                            #panel with two toolbars on top of the screen
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 
-from gmI18N import gmTimeformat, curr_locale
+from gmI18N import gmTimeformat, system_locale
 
 _log = gmLog.gmDefLog
 email_logger = None
@@ -245,7 +245,7 @@ class MainFrame(wxFrame):
 			#Mac OS specific stuff here
 			_log.Log(gmLog.lInfo,'running on a Mac')
 		else:
-			_log.Log(gmLog.lInfo,'running on an unknown platform')
+			_log.Log(gmLog.lInfo,'running on an unknown platform (%s)' % wxPlatform)
 	#----------------------------------------------
 	def LoadPlugins(self, backend):
 		# get plugin list
@@ -495,8 +495,8 @@ class gmApp(wxApp):
 		return true
 	#----------------------------------------------
 	def __set_db_lang(self):
-		if curr_locale is None:
-			_log.Log(gmLog.lInfo, "system locale is undefined ('C')")
+		if system_locale is None:
+			_log.Log(gmLog.lInfo, "system locale is undefined (probably meaning 'C')")
 			return 1
 
 		# get db conn
@@ -515,33 +515,35 @@ class gmApp(wxApp):
 			conn.close()
 			return None
 		db_lang = curs.fetchone()[0]
+		_log.Log(gmLog.lData, "current database locale: [%s]" % db_lang)
+
 		# identical ?
-		if db_lang == curr_locale:
+		if db_lang == system_locale:
 			_log.Log(gmLog.lData, 'Database locale (%s) up to date.' % db_lang)
 			curs.close()
 			conn.close()
 			return 1
 		# trim '@variant' part
-		no_variant = curr_locale.split('@', 1)[0]
+		no_variant = system_locale.split('@', 1)[0]
 		if db_lang == no_variant:
-			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at lang_COUNTRY(@variant) level.' % (db_lang, curr_locale))
+			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at lang_COUNTRY(@variant) level.' % (db_lang, system_locale))
 			curs.close()
 			conn.close()
 			return 1
 		# trim '_LANG@variant' part
-		no_country = curr_locale.split('_', 1)[0]
+		no_country = system_locale.split('_', 1)[0]
 		if db_lang == no_country:
-			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at lang(_COUNTRY@variant) level.' % (db_lang, curr_locale))
+			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at lang(_COUNTRY@variant) level.' % (db_lang, system_locale))
 			curs.close()
 			conn.close()
 			return 1
 
 		# no match: ask user
-		_log.Log(gmLog.lWarn, 'Database locale (%s) does not match system locale (%s). Asking user what to do.' % (db_lang, curr_locale))
+		_log.Log(gmLog.lWarn, 'Database locale (%s) does not match system locale (%s). Asking user what to do.' % (db_lang, system_locale))
 
 		dlg = wxMessageDialog(
 			parent = None,
-			message = _("The currently selected database language ('%s') does not match\nthe current system language ('%s').\n\nDo you want to set the database language to '%s' ?") % (db_lang, curr_locale, curr_locale),
+			message = _("The currently selected database language ('%s') does not match\nthe current system language ('%s').\n\nDo you want to set the database language to '%s' ?") % (db_lang, system_locale, system_locale),
 			caption = _('checking database language settings'),
 			style = wxYES_NO | wxCENTRE | wxICON_QUESTION
 		)
@@ -555,30 +557,42 @@ class gmApp(wxApp):
 			return 1
 
 		# try setting to "lang_COUNTRY@variant"
-		cmd = "select set_curr_lang('%s');" % curr_locale
+		cmd = "select set_curr_lang('%s');" % system_locale
 		try:
 			curs.execute(cmd)
+			_log.Log(gmLog.lData, "Successfully set database language to [%s]." % system_locale)
 		except:
 			_log.LogException("Cannot set database language at 'lang_COUNTRY@variant' level.", sys.exc_info(), fatal=0)
 			# try setting to "lang_COUNTRY"
 			cmd = "select set_curr_lang('%s');" % no_variant
 			try:
 				curs.execute(cmd)
+				_log.Log(gmLog.lData, "Successfully set database language to [%s]." % no_variant)
 			except:
 				_log.LogException("Cannot set database language at 'lang_COUNTRY' level.", sys.exc_info(), fatal=0)
 				# try setting to "lang"
 				cmd = "select set_curr_lang('%s');" % no_country
 				try:
 					curs.execute(cmd)
+					_log.Log(gmLog.lData, "Successfully set database language to [%s]." % no_country)
 				except:
 					_log.LogException("Cannot set database language at 'lang' level.", sys.exc_info(), fatal=0)
 					curs.close
+					conn.close()
 					return None
 
-		_log.Log(gmLog.lData, "Successfully set database language.")
+		cmd = "select * from i18n_curr_lang;"
+		try:
+			curs.execute(cmd)
+			result = curs.fetchall()
+			_log.Log(gmLog.lData, str(result))
+		except:
+			_log.LogException("Cannot get database language.", sys.exc_info(), fatal=0)
+
 		conn.commit()
 		curs.close()
 		conn.close()
+
 		return 1
 #=================================================
 def main():
@@ -604,7 +618,10 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.67  2003-02-05 12:15:01  ncq
+# Revision 1.68  2003-02-06 12:44:06  ncq
+# - curr_locale -> system_locale
+#
+# Revision 1.67  2003/02/05 12:15:01  ncq
 # - not auto-sets the database level language if so desired and possible
 #
 # Revision 1.66  2003/02/02 09:11:19  ihaywood
