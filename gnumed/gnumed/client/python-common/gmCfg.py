@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.70 $"
+__version__ = "$Revision: 1.71 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -57,10 +57,11 @@ import os.path, fileinput, string, sys, shutil
 from types import *
 
 # gnumed modules
-import gmLog, gmCLI
+import gmLog
 _log = gmLog.gmDefLog
 
 _gmPG = None
+_gmCLI = None
 
 # flags for __get_conf_name
 cfg_SEARCH_STD_DIRS = 1
@@ -482,6 +483,10 @@ class cCfgFile:
 		parameters see above. Raises a ConfigError exception if
 		no config file could be found. 
 		"""
+		global _gmCLI
+		if _gmCLI is None:
+			import gmCLI as _gmCLI
+		if 
 		self._cfg_data = {}
 		# get conf file name
 		if not self.__get_conf_name(aPath, aFile, flags):
@@ -709,8 +714,8 @@ class cCfgFile:
 
 		# did the user manually supply a config file on the command line ?
 		if not (flags & cfg_IGNORE_CMD_LINE):
-			if gmCLI.has_arg('--conf-file'):
-				self.cfgName = gmCLI.arg['--conf-file']
+			if _gmCLI.has_arg('--conf-file'):
+				self.cfgName = _gmCLI.arg['--conf-file']
 				# file valid ?
 				if os.path.isfile(self.cfgName):
 					_log.Log(gmLog.lData, 'found config file [--conf-file=%s]' % self.cfgName)
@@ -721,7 +726,7 @@ class cCfgFile:
 			else:
 				_log.Log(gmLog.lData, "No config file given on command line. Format: --conf-file=<config file>")
 		else:
-			if gmCLI.has_arg('--conf-file'):
+			if _gmCLI.has_arg('--conf-file'):
 				_log.Log(gmLog.lInfo, 'ignoring command line per cfg_IGNORE_CMD_LINE')
 
 		candidate_files = []
@@ -1207,7 +1212,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.70  2004-02-25 08:39:04  ncq
+# Revision 1.71  2004-02-25 08:46:12  ncq
+# - hopefully lazyied the import of gmCLI, too
+#
+# Revision 1.70  2004/02/25 08:39:04  ncq
 # - I think I removed the dependancy on gmPG as long as cCfgSQL isn't used
 #
 # Revision 1.69  2004/01/06 23:44:40  ncq
