@@ -30,7 +30,7 @@ This module searches for message catalog files in 3 main locations:
 
 For DOS/Windows I don't know of standard places so only the last
 option will work unless you have CygWin installed. I don't know a
-thing about classic Mac behaviour. New Mac's are POSIX, of course.
+thing about classic Mac behaviour. New Macs are POSIX, of course.
 
 The language you want to see is derived from the following locale
 related environment variables (in this order):
@@ -44,7 +44,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -52,7 +52,7 @@ import gettext, sys, os.path, string, os
 import gmLog, gmCLI
 _log = gmLog.gmDefLog
 
-system_locale = None
+system_locale = ''
 system_locale_level = {}
 #---------------------------------------------------------------------------
 def install_domain():
@@ -99,6 +99,10 @@ def install_domain():
 	else:
 		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
+	# did we find any locale setting ? assume en_EN if not
+	if system_locale is None:
+		_log.Log(gmLog.lErr, 'the system locale is not set to anything, assuming [en_EN]')
+		system_locale = "en_EN"
 	# generate system locale levels
 	system_locale_level['full'] = system_locale
 	# trim '@<variant>' part
@@ -211,7 +215,10 @@ _log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.25  2003-03-24 16:52:27  ncq
+# Revision 1.26  2003-04-18 09:00:02  ncq
+# - assume en_EN for locale if none found
+#
+# Revision 1.25  2003/03/24 16:52:27  ncq
 # - calculate system locale levels at startup
 #
 # Revision 1.24  2003/02/05 21:27:05  ncq
