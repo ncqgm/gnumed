@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.2 2003-10-19 13:01:20 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.3 2003-11-22 13:58:25 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -24,35 +24,29 @@ create index idx_names_firstnames on names(firstnames);
 -- rules/triggers/functions on table "names"
 
 -- IH: 9/3/02
--- trigger function to ensure only one name is active.
+-- trigger function to ensure only one name is active
 -- it's behaviour is to set all other names to inactive when
 -- a name is made active
-
 \unset ON_ERROR_STOP
-drop trigger TR_activate_name on names;
-drop function F_activate_name();
+drop trigger TR_uniq_active_name on names;
+drop function F_uniq_active_name();
 \set ON_ERROR_STOP 1
 
-create FUNCTION F_activate_name() RETURNS OPAQUE AS '
+create FUNCTION F_uniq_active_name() RETURNS OPAQUE AS '
 DECLARE
 BEGIN
 	IF NEW.active THEN
-		UPDATE names SET active=''f''
-		WHERE
-			id_identity = NEW.id_identity
-				AND
-			active;
+		-- for the observant: yes this trigger is recursive, but only once
+		UPDATE names SET active = false	WHERE id_identity = NEW.id_identity AND active;
 	END IF;
 	RETURN NEW;
 END;' LANGUAGE 'plpgsql';
 
-create TRIGGER TR_activate_name
+create TRIGGER TR_uniq_active_name
 	BEFORE INSERT OR UPDATE ON names
-	FOR EACH ROW EXECUTE PROCEDURE F_activate_name();
--- for the observant: yes this trigger is recursive, but only once
+	FOR EACH ROW EXECUTE PROCEDURE F_uniq_active_name();
 
--- ==========================================================
--- we don't really want this to be available
+-- FIXME: we don't actually want this to be available
 \unset ON_ERROR_STOP
 drop trigger TR_delete_names on identity;
 drop function F_delete_names();
@@ -68,6 +62,39 @@ END;' LANGUAGE 'plpgsql';
 CREATE TRIGGER TR_delete_names
 	BEFORE DELETE ON identity
 	FOR EACH ROW EXECUTE PROCEDURE F_delete_names();
+
+-- business functions
+\unset ON_ERROR_STOP
+drop function add_name(integer, text, text, bool);
+\set ON_ERROR_STOP 1
+
+create function add_name(integer, text, text, bool) returns integer as '
+DECLARE
+	identity_id alias for $1;
+	first alias for $2;
+	last alias for $3;
+	activated alias for $4;
+
+	n_rec record;
+BEGIN
+	select into n_rec * from names where id_identity = identity_id and firstnames = first and lastnames = last;
+	-- exists already
+	if FOUND then
+		-- set the desired activation state
+		update names set active = activated where id = n_rec.id;
+		if FOUND then
+			return n_rec.id;
+		end if;
+		return NULL;
+	end if;
+	-- new name
+	insert into names (id_identity, firstnames, lastnames, active) values (identity_id, first, last, activated);
+	if FOUND then
+		n_id := select id from names where id_identity = identity_id and firstnames = first and lastnames = last;
+		return n_id;
+	end if;
+	return NULL;
+END;' language 'plpgsql';
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -139,11 +166,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.2  2003-10-19 13:01:20  ncq
+-- Revision 1.3  2003-11-22 13:58:25  ncq
+-- - rename constraint for unique active names
+-- - add add_name() function
+--
+-- Revision 1.2  2003/10/19 13:01:20  ncq
 -- - add omitted "index"
 --
 -- Revision 1.1  2003/08/02 10:46:03  ncq
