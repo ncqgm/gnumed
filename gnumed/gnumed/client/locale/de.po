@@ -2,11 +2,11 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.31 $
+# $Revision: 1.32 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GnuMed 0.1\n"
-"POT-Creation-Date: Thu Jun 19 18:28:35 2003\n"
+"POT-Creation-Date: Mon Jun 23 23:38:04 2003\n"
 "PO-Revision-Date: 2002-09-17 15:18+0200\n"
 "Last-Translator: Sebastian Hilbert <sebastian.hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -70,7 +70,7 @@ msgstr "&Speichern"
 msgid "Actions"
 msgstr "Aktionen"
 
-#: ../wxpython/gmGuiMain.py:539
+#: ../wxpython/gmGuiMain.py:616
 msgid "GnuMed client"
 msgstr "GnuMed: Hauptprogramm"
 
@@ -128,7 +128,7 @@ msgstr "Benutzerverwaltung"
 msgid "icon-future_mom"
 msgstr ""
 
-#: ../python-common/gmPG.py:348 ../wxpython/patient/modules/gmPG.py:348
+#: ../python-common/gmPG.py:347 ../wxpython/patient/modules/gmPG.py:347
 msgid ""
 "Cannot connect to database with:\n"
 "\n"
@@ -223,7 +223,7 @@ msgstr ""
 msgid "First Name: "
 msgstr "Vorname: "
 
-#: ../wxpython/gui/gmSingleBoxSoapPlugin.py:29
+#: ../wxpython/gui/gmSingleBoxSoapPlugin.py:30
 msgid "David's single box SOAP entry"
 msgstr "Davids Einfeld-Kartei"
 
@@ -410,7 +410,7 @@ msgstr ""
 msgid "Information"
 msgstr "Information"
 
-#: ../python-common/gmPG.py:595 ../wxpython/patient/modules/gmPG.py:595
+#: ../python-common/gmPG.py:591 ../wxpython/patient/modules/gmPG.py:591
 msgid "The wx GUI framework hasn't been initialized yet!"
 msgstr "Die wx-GUI ist noch nicht initialisiert."
 
@@ -582,7 +582,8 @@ msgid "data input error"
 msgstr "Dateneingabefehler"
 
 #: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:911
-#: ../wxpython/gmTopPanel.py:187 ../wxpython/gui/gmConfigRegistry.py:302
+#: ../wxpython/gmGuiMain.py:563 ../wxpython/gmTopPanel.py:187
+#: ../wxpython/gui/gmConfigRegistry.py:302
 #: ../wxpython/gui/gmShowMedDocs.py:368 ../wxpython/gui/gmShowMedDocs.py:517
 msgid "programmer forgot to specify error message"
 msgstr "Programmierer hat vergessen, Fehler genau anzugeben."
@@ -757,13 +758,13 @@ msgstr "Kontakte"
 msgid "Dialog was cancelled by user"
 msgstr "Anmeldung wurde vom Benutzer abgebrochen"
 
-#: ../AAA-dummy-for-locale/Archive/index/bak/gmIndexMedDocs.py:233
-#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:245
-#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:853
-#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:278
-#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:689
-msgid "choose document type"
-msgstr "Befundtyp auswählen"
+#: ../wxpython/gmGuiMain.py:393
+msgid ""
+"Cannot create new encounter for patient\n"
+"\"%s\"."
+msgstr ""
+"Kann keinen Arztkontakt für den Patienten speichern\n"
+"\"%s\"."
 
 #: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:1006
 #: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:788
@@ -914,6 +915,10 @@ msgstr ""
 #: ../wxpython/patient/gmGP_Prescriptions.py:214
 msgid "Reprint All Items"
 msgstr "Alles erneut drucken"
+
+#: ../wxpython/gmSingleBoxSOAP.py:50
+msgid "save clinical note in EMR"
+msgstr "Karteieintrag abspeichern"
 
 #: ../wxpython/gmLoginDialog.py:445
 msgid "host"
@@ -1105,6 +1110,12 @@ msgstr "Kontraindikationen"
 msgid "Mstr."
 msgstr "Herr"
 
+#: ../AAA-dummy-for-locale/Archive/index/bak/gmIndexMedDocs.py:379
+#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:1005
+#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:787
+msgid "You must type in a short document comment."
+msgstr "Sie müssen ein kurzen Befundkommentar angeben"
+
 #: ../wxpython/patient/gmGP_Allergies.py:85
 msgid "Generic"
 msgstr "generisch"
@@ -1205,7 +1216,7 @@ msgstr ""
 msgid "Significant Past Problems"
 msgstr " wichtige zurueckliegende Erkrankungen"
 
-#: ../wxpython/gui/gmConfigRegistry.py:321
+#: ../wxpython/gmGuiMain.py:581 ../wxpython/gui/gmConfigRegistry.py:321
 msgid "programmer forgot to specify question"
 msgstr "Programmierer hat vergessen, Frage anzugeben."
 
@@ -1216,6 +1227,28 @@ msgstr "Adresse bei"
 #: ../wxpython/gmPatientSelector.py:799
 msgid "please select a KVK"
 msgstr "bitte eine Chipkarte wählen"
+
+#: ../wxpython/gmGuiMain.py:375
+msgid ""
+"There is a recent encounter recorded for\n"
+"\"%s\".\n"
+"It was started %s\n"
+"and last affirmed %s.\n"
+"The last known activity was\n"
+"\"%s\".\n"
+"\n"
+"Do you want to reactivate this encounter ?\n"
+"Hitting \"No\" will start a new one."
+msgstr ""
+"Es ist folgender Arzt-Patienten-Kontakt für\n"
+"\"%s\" vermerkt.\n"
+"gestartet: %s\n"
+"zuletzt bestätigt: %s\n"
+"letzte bekannte Aktivität war\n"
+"\"%s\"\n"
+"\n"
+"Wollen Sie diesen Kontakt fortführen ?\n"
+"Mit \"Nein\" legen Sie einen neuen Kontakt an."
 
 #: ../wxpython/gmEditArea.py:142
 msgid "Comment"
@@ -1249,9 +1282,10 @@ msgstr "erweiterte Optionen"
 msgid "password"
 msgstr "Passwort"
 
-#: ../wxpython/patient/gmGP_TabbedLists.py:87
-msgid "Requests"
-msgstr "Aufträge"
+#: ../wxpython/gmGuiMain.py:371 ../wxpython/gmGuiMain.py:385
+#: ../wxpython/gmGuiMain.py:397
+msgid "recording patient encounter"
+msgstr "vermerke Arzt-Patienten-Kontakt"
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:149
 msgid "Directions"
@@ -1261,11 +1295,7 @@ msgstr "Anweisungen"
 msgid "Make Item Reg 24"
 msgstr ""
 
-#: ../wxpython/gmSingleBoxSOAP.py:43
-msgid "clear"
-msgstr "leeren"
-
-#: ../python-common/gmPG.py:306 ../wxpython/patient/modules/gmPG.py:306
+#: ../python-common/gmPG.py:305 ../wxpython/patient/modules/gmPG.py:305
 msgid ""
 "Cannot connect to configuration database with:\n"
 "\n"
@@ -1298,7 +1328,7 @@ msgstr "Logdateieintrag"
 msgid "reason"
 msgstr "Grund"
 
-#: ../wxpython/gmGuiMain.py:582
+#: ../wxpython/gmGuiMain.py:659
 msgid ""
 "The currently selected database language ('%s') does not match\n"
 "the current system language ('%s').\n"
@@ -1381,7 +1411,7 @@ msgstr ""
 msgid "GnuMed Talkback Facility"
 msgstr "GnuMed Antwortfunktion"
 
-#: ../wxpython/gmSingleBoxSOAP.py:42
+#: ../wxpython/gmSingleBoxSOAP.py:49
 msgid "save"
 msgstr "speichern"
 
@@ -1426,7 +1456,7 @@ msgstr "Die Befundnummer ist meistens auf den Befundblättern aufgedruckt"
 msgid "year onset"
 msgstr "Beginn"
 
-#: ../wxpython/gmGuiMain.py:406
+#: ../wxpython/gmGuiMain.py:450
 msgid "&File"
 msgstr "&Datei"
 
@@ -1518,7 +1548,7 @@ msgstr ""
 "\n"
 "Davon hätte ich gern eine Kopie !"
 
-#: ../wxpython/gmGuiMain.py:410
+#: ../wxpython/gmGuiMain.py:454
 msgid "&View"
 msgstr "&Zeige"
 
@@ -1538,7 +1568,7 @@ msgstr "ALLERGIEN"
 msgid "Referral letter details"
 msgstr "Arztbrief (Details)"
 
-#: ../wxpython/gmGuiMain.py:402
+#: ../wxpython/gmGuiMain.py:446
 msgid "Close this GnuMed client"
 msgstr "Dieses GnuMed-Fenster schliessen."
 
@@ -1631,7 +1661,7 @@ msgstr "Datum (JJJJ-MM-TT)"
 msgid "Cannot load document object file list."
 msgstr "Kann Objektliste des Befunds nicht laden."
 
-#: ../wxpython/gui/gmSingleBoxSoapPlugin.py:19
+#: ../wxpython/gui/gmSingleBoxSoapPlugin.py:20
 msgid "David's SOAP"
 msgstr ""
 
@@ -1647,6 +1677,10 @@ msgstr "Dokumentenzuordnung starten"
 #: ../wxpython/gmUserAdmin.py:41
 msgid "User's Info"
 msgstr "Benutzerinfo"
+
+#: ../wxpython/gmSelectPerson.py:53
+msgid "&Select"
+msgstr "&Auswahl"
 
 #: ../wxpython/gmLabels.py:35 ../wxpython/gmLabels.py:36
 #: ../wxpython/gmLabels.py:41 ../wxpython/gmLabels.py:44
@@ -1667,10 +1701,9 @@ msgstr "Benutzer"
 msgid "Indication"
 msgstr "Indikation"
 
-#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:588
-#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:602
-msgid "choose a file"
-msgstr "wählen Sie eine Datei"
+#: ../wxpython/gmSingleBoxSOAP.py:51
+msgid "discard"
+msgstr "verwerfen"
 
 #: ../wxpython/gmGuiMain.py:76
 msgid "loading list of plugins                    "
@@ -1689,9 +1722,9 @@ msgstr ""
 "Kann Seite (Datei %s) nicht löschen.\n"
 "Siehe Log für Details"
 
-#: ../wxpython/gmSelectPerson.py:53
-msgid "&Select"
-msgstr "&Auswahl"
+#: ../wxpython/patient/gmGP_TabbedLists.py:87
+msgid "Requests"
+msgstr "Aufträge"
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:119
 msgid "Drug Interactions"
@@ -1977,7 +2010,7 @@ msgstr "nächstes Bild von der Quelle holen"
 msgid "You tried to log in as [%s] with password [%s]."
 msgstr "Sie haben versucht, sich als Nutzer [%s] mit Passwort [%s] anzumelden."
 
-#: ../wxpython/gmSingleBoxSOAP.py:48
+#: ../wxpython/gmSingleBoxSOAP.py:57
 msgid "SOAP clinical notes"
 msgstr "Karteieinträge als Freitext"
 
@@ -2010,6 +2043,16 @@ msgstr "&Kontakte"
 #: ../wxpython/patient/gmGP_TabbedLists.py:267
 msgid "Quantity"
 msgstr "Menge"
+
+#: ../wxpython/gmGuiMain.py:366
+msgid ""
+"Can neither attach to an existing encounter\n"
+"nor create a new one for patient\n"
+"\"%s\"."
+msgstr ""
+"Kann weder den existierenden Kontakt fort-\n"
+"führen noch einen neuen eintragen. Patient:\n"
+"\"%s\""
 
 #: ../wxpython/gui/gmGuidelines.py:63
 msgid "?button?"
@@ -2103,7 +2146,7 @@ msgstr "Geburtsland"
 msgid "preferred"
 msgstr "bevorzugt"
 
-#: ../wxpython/gmGuiMain.py:366 ../wxpython/gmGuiMain.py:424
+#: ../wxpython/gmGuiMain.py:410 ../wxpython/gmGuiMain.py:468
 msgid "About GnuMed"
 msgstr "Über GnuMed"
 
@@ -2211,7 +2254,7 @@ msgstr ""
 msgid "an email address, web address, etc."
 msgstr "eine E-mail-Adresse, Internet-Adresse, etc."
 
-#: ../wxpython/gmGuiMain.py:603
+#: ../wxpython/gmGuiMain.py:680
 msgid "checking database language settings"
 msgstr "einstellen der Datenbanksprache"
 
@@ -2239,7 +2282,7 @@ msgstr "Zurück"
 msgid "save data"
 msgstr "Daten speichern"
 
-#: ../wxpython/gmGuiMain.py:415
+#: ../wxpython/gmGuiMain.py:459
 msgid "&Tools"
 msgstr "&Werkzeuge"
 
@@ -2412,11 +2455,13 @@ msgstr "Befundtyp"
 msgid "timeframe"
 msgstr "Zeitrahmen"
 
-#: ../AAA-dummy-for-locale/Archive/index/bak/gmIndexMedDocs.py:379
-#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:1005
-#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:787
-msgid "You must type in a short document comment."
-msgstr "Sie müssen ein kurzen Befundkommentar angeben"
+#: ../AAA-dummy-for-locale/Archive/index/bak/gmIndexMedDocs.py:233
+#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:245
+#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:853
+#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:278
+#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:689
+msgid "choose document type"
+msgstr "Befundtyp auswählen"
 
 #: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:1031
 #: ../AAA-dummy-for-locale/Archive/scan/gmScanMedDocs.py:951
@@ -2453,6 +2498,11 @@ msgstr "Willkomen bei"
 #: ../wxpython/gmPersonDetails.py:240
 msgid "areacode"
 msgstr "Postleitzahl"
+
+#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:588
+#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:602
+msgid "choose a file"
+msgstr "wählen Sie eine Datei"
 
 #: ../wxpython/patient/gmGP_ScratchPadRecalls.py:42
 msgid "Recalls/Reviews"
@@ -2521,7 +2571,7 @@ msgstr "Beginn"
 msgid "Send"
 msgstr "Senden"
 
-#: ../wxpython/gmGuiMain.py:579
+#: ../wxpython/gmGuiMain.py:656
 msgid ""
 "Currently there is no language selected in the database.\n"
 "Your system language is currently set to [%s].\n"
@@ -2571,7 +2621,7 @@ msgstr ""
 "Befundtypen werden von der Datenbank festgelegt.\n"
 "Lassen Sie Ihren Datenbankadmin gegebenenfalls weitere Typen hinzufügen"
 
-#: ../wxpython/gmGuiMain.py:420
+#: ../wxpython/gmGuiMain.py:464
 msgid "&Reference"
 msgstr "&Wissen"
 
@@ -2639,7 +2689,7 @@ msgstr ""
 "Der aktuelle Befund erhält die Nummer \"%s\".\n"
 "Bitte bestätigen Sie die Nummer oder tippen Sie eine andere ein."
 
-#: ../wxpython/gmGuiMain.py:402
+#: ../wxpython/gmGuiMain.py:446
 msgid "E&xit\tAlt-X"
 msgstr "E&xit\tAlt-X"
 
@@ -2728,9 +2778,9 @@ msgstr "Stammdaten zeigen"
 msgid "User's Login"
 msgstr "Benutzeranmeldung"
 
-#: ../python-common/gmPG.py:579 ../python-common/gmPG.py:608
-#: ../wxpython/patient/modules/gmPG.py:579
-#: ../wxpython/patient/modules/gmPG.py:608
+#: ../python-common/gmPG.py:575 ../python-common/gmPG.py:604
+#: ../wxpython/patient/modules/gmPG.py:575
+#: ../wxpython/patient/modules/gmPG.py:604
 msgid "Can't connect to database without login information!"
 msgstr ""
 "Ohne Login-Informationen kann keine Verbindung zur Datenbank aufgebaut "
@@ -2843,12 +2893,17 @@ msgstr "beidseits"
 msgid "invalid configuration"
 msgstr "ungültige Konfiguration"
 
+#: ../wxpython/gmSingleBoxSOAP.py:52
+msgid "discard clinical note"
+msgstr "Karteieintrag verwerfen"
+
 #: ../wxpython/gui/gmGuidelines.py:78 ../wxpython/gui/gmStikoBrowser.py:177
 msgid "Forward"
 msgstr "Vorwärts"
 
 #: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:913
-#: ../wxpython/gmTopPanel.py:189 ../wxpython/gui/gmConfigRegistry.py:304
+#: ../wxpython/gmGuiMain.py:565 ../wxpython/gmTopPanel.py:189
+#: ../wxpython/gui/gmConfigRegistry.py:304
 #: ../wxpython/gui/gmShowMedDocs.py:370 ../wxpython/gui/gmShowMedDocs.py:519
 msgid ""
 "\n"
@@ -2950,6 +3005,9 @@ msgstr "aktiv"
 msgid "Send to"
 msgstr "Senden an"
 
+#~ msgid "clear"
+#~ msgstr "leeren"
+
 #~ msgid "operated"
 #~ msgstr "operiert"
 
@@ -3027,9 +3085,6 @@ msgstr "Senden an"
 #~ msgid "GnuMed error reporting"
 #~ msgstr "GnuMed Fehlerbericht"
 
-#~ msgid "searching patient documents"
-#~ msgstr "suche Befunde zum Patienten"
-
 #~ msgid "%s %s (%s pages) [%s]"
 #~ msgstr "%s %s (%s Seiten) [%s]"
 
@@ -3038,13 +3093,6 @@ msgstr "Senden an"
 
 #~ msgid "&Show Documents"
 #~ msgstr "Befunde zeigen"
-
-#~ msgid ""
-#~ "Cannot find any documents for this patient.\n"
-#~ "\"%s %s\""
-#~ msgstr ""
-#~ "Kann für diesen Patienten keine Dokumente finden.\n"
-#~ "\"%s %s\""
 
 #~ msgid ""
 #~ "Cannot display page.\n"
