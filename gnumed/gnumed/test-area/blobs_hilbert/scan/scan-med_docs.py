@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __license__ = "GPL"
 __author__ = "\
 	Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
@@ -29,8 +29,8 @@ except ImportError:
 	scan_drv = 'linsane'
 
 [	wxID_SCANFRAME,
+	wxID_LBOX_doc_pages,
 	wxID_BTN_del_page,
-	wxID_SCANFRAMELISTBOX1,
 	wxID_BTN_show_page,
 	wxID_BTN_move_page,
 	wxID_BTN_save_doc,
@@ -40,22 +40,41 @@ except ImportError:
 ] = map(lambda _init_ctrls: wxNewId(), range(9))
 #==================================================
 class scanFrame(wxFrame):
-	tmpfilename="tmp.jpg"
 	picList = []
 	page = 0
 	selected_pic = ''
+	# a dict holding our objects
+	acquired_pages = {}
 	#----------------------------------------------
 	def __init__(self, parent):
 		self._init_ctrls(parent)
 		# make sure we have a clean base to begin with
-		shutil.rmtree(_cfg.get("tmpdir", "tmpdir"), true)
-		os.mkdir(_cfg.get("tmpdir", "tmpdir"))
+#		shutil.rmtree(_cfg.get("tmpdir", "tmpdir"), true)
+#		os.mkdir(_cfg.get("tmpdir", "tmpdir"))
 
-		(self.TwainSrcMngr, self.Scanner) = (None, None)
-		self._acquire_handler{
+		# FIXME: dict !!
+		(self.TwainSrcMngr, self.TwainScanner) = (None, None)
+		(self.SaneSrcMngr, self.SaneScanner) = (None, None)
+		# like this:
+		self._acquire_handler[
 			'wintwain': self.__acquire_from_twain,
 			'linsane': self.__acquire_from_sane
-		}
+		]
+
+		# get temp dir path from config file
+		tmp = None
+		try:
+			tmp = os.path.abspath(os.path.expanduser(_cfg.get("repositories", "scan_tmp")))
+		except:
+			exc = sys.exc_info()
+			_log.LogException('Cannot get tmp dir from config file', exc, fatal=0)
+
+		# but use it only if it exists
+		if os.path.exists(tmp):
+			tempfile.tempdir = tmp
+
+		# temp files shall start with "obj-"
+		tempfile.template = "obj-"
 	#----------------------------------------------
 	def _init_utils(self):
 		pass
@@ -111,7 +130,7 @@ class scanFrame(wxFrame):
 		#-- list box with pages -------------
 		self.LBOX_doc_pages = wxListBox(
 			choices = [],
-			id = wxID_SCANFRAMELISTBOX1
+			id = wxID_LBOX_doc_pages,
 			name = 'LBOX_doc_pages',
 			parent = self.PNL_main,
 			pos = wxPoint(56, 184),
@@ -210,8 +229,6 @@ class scanFrame(wxFrame):
 	def on_acquire_image(self, event):
 		_log.Log(gmLog.lData, "trying to acquire image")
 		self._acquire_handler[scan_drv]
-
-			self.ScanWithSane()
 	#-----------------------------------
 	def on_show_page(self, event):
 		page_idx = self.LBOX_doc_pages.GetSelection()
@@ -249,23 +266,24 @@ class scanFrame(wxFrame):
 	def __acquire_from_twain(self):
 		_log.Log(gmLog.lInfo, "scanning with TWAIN source")
 		# open scanner on demand
-		if not self.Scanner:
+		if not self.TwainScanner:
 			if not self.__open_twain_scanner():
-			dlg = wxMessageDialog(
-				self,
-				_('Cannot connect to TWAIN source (scanner or camera).'),
-				_('TWAIN source error'),
-				wxOK | wxICON_ERROR
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return None
+				dlg = wxMessageDialog(
+					self,
+					_('Cannot connect to TWAIN source (scanner or camera).'),
+					_('TWAIN source error'),
+					wxOK | wxICON_ERROR
+				)
+				dlg.ShowModal()
+				dlg.Destroy()
+				return None
 
-		self.Scanner.RequestAcquire()
+		self.TwainScanner.RequestAcquire()
 	#-----------------------------------
 	def __open_twain_scanner(self):
 		# did we open the scanner before ?
 		if not self.TwainSrcMngr:
+			_log.Log(gmLog.lData, "TWAIN version: %s" % twain.Version())
 			# no, so we need to open it now
 			# TWAIN talks to us via MS-Windows message queues so we
 			# need to pass it a handle to ourselves
@@ -274,134 +292,155 @@ class scanFrame(wxFrame):
 				_log.Log(gmLog.lData, "cannot get a handle for the TWAIN source manager")
 				return None
 
-		# TWAIN will notify us when the image is scanned
-		self.TwainSrcMngr.SetCallback(self.on_twain_event)
-		self.Scanner = self.TwainSrcMngr.OpenSource()
-			if not self.Scanner:
+			# TWAIN will notify us when the image is scanned
+			self.TwainSrcMngr.SetCallback(self.on_twain_event)
+
+			_log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(self.TwainSrcMngr.GetIdentity()))
+
+		if not self.TwainScanner:
+			self.TwainScanner = self.TwainSrcMngr.OpenSource()
+			if not self.TwainScanner:
 				_log.Log(gmLog.lData, "cannot open the scanner via the TWAIN source manager")
 				return None
-	#-----------------------------------
 
-#	def ProcessXFer(self):
-#		(handle, more_to_come) = self.Scanner.XferImageNatively()
-#		twain.DIBToBMFile(handle, self.tmpfilename)
-#		twain.GlobalHandleFree(handle)
-#		self.Scanner.HideUI()
-		#save image-file to disk
-#		self.savePage(null)
-		#update List of pages in GUI
-#		self.UpdatePicList()
+			_log.Log(gmLog.lData, "TWAIN data source: %s" % self.TwainScanner.GetSourceName())
+			_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.TwainScanner.GetIdentitiy()))
+		return 1
 	#-----------------------------------
 	def on_twain_event(self, event):
+		# self.TwainScanner.GetImageInfo()
 		_log.Log(gmLog.Data, 'pending image notification from TWAIN manager')
+
+		# just so we can us fname down below in case tempfile.mktemp() fails
+		fname = ""
 		try:
-			(global_data_handle, more_images_pending) = self.Scanner.XferImageNatively()
-			twain.DIBToBMFile(global_data_handle, self.tmpfilename)
-			twain.GlobalHandleFree(global_data_handle)
+			fname = tempfile.mktemp()
+			# get from source
+			(external_data_handle, more_images_pending) = self.TwainScanner.XferImageNatively()
+			# convert to bitmap file
+			# FIXME: should be JPEG
+			twain.DIBToBMFile(external_data_handle, fname)
+			# free external image memory
+			twain.GlobalHandleFree(external_data_handle)
+			# and keep a reference (put nothing at [0])
+			self.acquired_images[len(self.acquired_images)+1] = fname
+
+			# FIXME:
 			#if more_images_pending:
-
-			# hide the scanner user interface again
-			self.Scanner.HideUI()
-
-			#save image-file to disk
-			self.savePage(null)
-			#update List of pages in GUI
-			self.UpdatePicList()
 		except:
-			print _('I am afraid I was unable to get the image from the scanner')
-	#----------------------------------------------------------------
-	def savePage(self,im):
-		if len(self.picList) != 0:
-			lastPageInList=self.picList[len(self.picList)-1]
-			biggest_number_strg=lastPageInList.replace(_('page'),'')
-			biggest_number= int(biggest_number_strg) + 1
-		# twain specific
-		if scan_drv == 'wintwain':
-			if len(self.picList) == 0:
-				shutil.copy(self.tmpfilename,_cfg.get("tmpdir", "tmpdir") + _('page')+str(1)+'.bmp')
-			else:
-				shutil.copy(self.tmpfilename,_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.bmp')
-		# SANE way of life # Write the image out as a JPG file
-		# Note : file format is determined by extension ; otherwise specify type
-		else:
-			if len(self.picList) == 0:
-				im.save(_cfg.get("tmpdir", "tmpdir") + _('page')+str(1)+'.jpg')
-				print "I just saved page 1"
-				# remove when sane works one day
-				return
-			else:
-				im.save(_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.jpg')
-				print "I just saved" + str(_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.jpg')
-	
-	#-----------------------------------------------------------------
-	def UpdatePicList(self):
-		if len(self.picList) == 0:
-			self.LBOX_doc_pages.Append(_('page1'))
-			self.picList.append(_('page1'))
-		else:
-			lastPageInList=self.picList[len(self.picList)-1]
-			biggest_number_strg=lastPageInList.replace(_('page'),'')
-			biggest_number= int(biggest_number_strg) + 1
-			self.LBOX_doc_pages.Append(_('page') + `biggest_number`)
-			self.picList.append(_('page') + `biggest_number`)
-			
-	#-------------------------------------------------------------------
-	def ScanWithSane(self):
-		_log.Log(gmLog.lInfo, "I use sane ")
-		# tell App what scanner to use
-		# fixme : might not work if more than one scanner available
-		print 'SANE version:' , sane.init()
-		available_scanner = sane.get_devices()
-		# replace != by == when real scanner is available
-		if sane.get_devices() == []:
-			_log.Log (gmLog.lErr, "sane did not find any scanner")
-			dlg = wxMessageDialog(self, _('There is no scanner available'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
+			exc = sys.exc_info()
+			_log.LogException('Unable to get image from scanner into [%s] !' % fname, exc, fatal=1)
+			# hide the scanner user interface again
+			self.TwainScanner.HideUI()
+			return None
+
+		# hide the scanner user interface again
+		self.TwainScanner.HideUI()
+
+		#update list of pages in GUI
+		self.__reload_LBOX_doc_pages()
+	#-----------------------------------
+	# SANE related scanning code
+	#-----------------------------------
+	def __acquire_from_sane(self):
+		_log.Log(gmLog.lInfo, "scanning with SANE source")
+
+		# open scanner on demand
+		if not self.SaneScanner:
+			if not self.__open_sane_scanner():
+				dlg = wxMessageDialog(
+					self,
+					_('Cannot connect to SANE source (scanner or camera).'),
+					_('SANE source error'),
+					wxOK | wxICON_ERROR
+				)
 				dlg.ShowModal()
-			finally:
 				dlg.Destroy()
-		else:	  
-			#print 'SANE version:' , sane.init()
-			print 'Available devices=', sane.get_devices() 
-			#open scanner and get parameters
-			scanner = sane.open(available_scanner[0][0])
-			#tell me what parameters are supported
-			print 'SaneDev object=', scanner
-			print 'Device parameters:', scanner.get_parameters()
-			#print 'Device parameters:', scanner.optlist
-			# Set scan parameters
-			# fixme : get those from config file
-			#scanner.contrast=170 ; scanner.brightness=150 ; scanner.white_level=190
-			#scanner.depth=6
-			scanner.br_x=412.0 ; scanner.br_y=583.0
-			# Initiate the scan
+				return None
+
+		# Set scan parameters
+		# FIXME: get those from config file
+		#scanner.contrast=170 ; scanner.brightness=150 ; scanner.white_level=190
+		#scanner.depth=6
+		scanner.br_x=412.0 ; scanner.br_y=583.0
+
+		# just so we can us fname down below in case tempfile.mktemp() fails
+		fname = ""
+		try:
+			# FIXME: get extension from config file
+			fname = tempfile.mktemp('.jpg')
+			# initiate the scan
 			scanner.start()
-			# Get an Image object 
-			im=scanner.snap()
-			#save image-file to disk
-			self.savePage(im)
-			#update List of pages in GUI
-			self.UpdatePicList()
+			# get an Image object
+			img = scanner.snap()
+			#save image file to disk
+			img.save(fname)
+			# and keep a reference (put nothing at [0])
+			self.acquired_images[len(self.acquired_images)+1] = fname
+
+			# FIXME:
+			#if more_images_pending:
+		except:
+			exc = sys.exc_info()
+			_log.LogException('Unable to get image from scanner into [%s] !' % fname, exc, fatal=1)
+			return None
+
+		#update list of pages in GUI
+		self.__reload_LBOX_doc_pages()
+	#-----------------------------------
+	def __open_sane_scanner(self):
+		# did we open the scanner before ?
+		if not self.SaneSrcMngr:
+			# no, so we need to open it now
+			try:
+				init_result = sane.init()
+			except:
+				exc = sys.exc_info()
+				_log.LogException('cannot init SANE', exc, fatal=1)
+				self.SaneSrcMngr = None
+				return None
+
+			_log.Log(gmLog.lData, "SANE version: %s" % init_result)
+
+		if not self.SaneScanner:
+			# FIXME: actually we should use this to remember which device we work with
+			devices = []
+			devices = sane.get_devices()
+			if devices == []:
+				_log.Log (gmLog.lErr, "SANE did not find any devices")
+				dlg = wxMessageDialog(self, _('There is no scanner available'),_('Attention'), wxOK | wxICON_INFORMATION)
+				dlg.ShowModal()
+				dlg.Destroy()
+				return None
+
+			_log.Log(gmLog.lData, "available SANE devices: %s" % devices)
+
+			try:
+				# by default use the first device
+				self.SaneScanner = sane.open(sane.get_devices()[0][0])
+			except:
+				exc = sys.exc_info()
+				_log.LogException('cannot open SANE scanner', exc, fatal=1)
+				return None
+
+			_log.Log(gmLog.lData, 'opened SANE device: %s' % str(scanner))
+			_log.Log(gmLog.lData, 'SANE device config: %s' % scanner.get_parameters())
+			_log.Log(gmLog.lData, 'SANE device opts:' % scanner.optlist())
+
+		return 1
+	#-----------------------------------
+	# internal methods
+	#-----------------------------------
+	def __reload_LBOX_doc_pages(self):
+		if len(self.acquired_images) > 0:
+			self.LBOX_doc_pages.Clear()
+			for seq_ID, fname in self.acquired_images.items():
+				path, name = os.path.split(fname)
+				self.LBOX_doc_pages.Append(_('page %s (%s in %s)') % (seq_ID, name, path), {'index': seq_ID, 'file name': fname})
+
 
 	#-----------------------------------
-#	def OnBTN_show_pageButton(self, event):
-#		current_selection=self.LBOX_doc_pages.GetSelection()
-#		if not current_selection == -1:
-#			pic_selection=current_selection+1
-#			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
-#			#for debugging only
-#			print "I show u:" + self.selected_pic
-#			if scan_drv == 'wintwain':
-#				self.show_pic(_cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.bmp') 
-#			else:
-#				self.show_pic(_cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.jpg') 
-#		else:
-#			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
-#			try:
-#				dlg.ShowModal()
-#			finally:
-#				dlg.Destroy()
-
+	#-----------------------------------
 	def OnBTN_del_pageButton(self, event):
 		current_selection=self.LBOX_doc_pages.GetSelection()
 		if current_selection == -1:
@@ -445,9 +484,9 @@ class scanFrame(wxFrame):
 			for i in range(len(self.picList)):
 				if i == 0:
 					self.picList = []
-					self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_SCANFRAMELISTBOX1, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
+					self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_LBOX_doc_pages, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
 				self.UpdatePicList()	
-	
+	#-----------------------------------	
 	def OnBTN_save_docButton(self, event):
 		if self.picList != []:
 			# create xml file
@@ -472,7 +511,7 @@ class scanFrame(wxFrame):
 			shutil.rmtree(_cfg.get("tmpdir", "tmpdir"), true)
 			os.mkdir(_cfg.get("tmpdir", "tmpdir"))
 			self.picList = []	
-			self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_SCANFRAMELISTBOX1, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
+			self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_LBOX_doc_pages, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
 			dlg = wxMessageDialog(self, _('please put down') + savedir + _('on paper copy for reference'),_('Attention'), wxOK | wxICON_INFORMATION)
 			try:
 				dlg.ShowModal()
@@ -484,7 +523,7 @@ class scanFrame(wxFrame):
 				dlg.ShowModal()
 			finally:
 				dlg.Destroy()
-	
+	#-----------------------------------
 	def OnBTN_move_pageButton(self, event):
 		pass
 		##current_selection=self.LBOX_doc_pages.GetSelection()
@@ -514,17 +553,16 @@ class scanFrame(wxFrame):
 		##	  finally:
 		##		  dlg.Destroy()
 
-
-#=====================================================================
+#======================================================
 class ScanningApp(wxApp):
 	def OnInit(self):
 		wxInitAllImageHandlers()
-		self.main = scanFrame.(None)
+		self.main = scanFrame(None)
 		#workaround for running in wxProcess
 		#self.main.Show();self.main.Hide();self.main.Show()
 		self.SetTopWindow(self.main)
 		return true
-
+#-----------------------------------
 def main():
 	application = ScanningApp(0)
 	application.MainLoop()
@@ -538,3 +576,43 @@ if __name__ == '__main__':
 		exc = sys.exc_info()
 		_log.LogException('Unhandled exception.', exc, fatal=1)
 		raise
+
+#======================================================
+	#-----------------------------------
+#	def savePage(self,im):
+#		if len(self.picList) != 0:
+#			lastPageInList=self.picList[len(self.picList)-1]
+#			biggest_number_strg=lastPageInList.replace(_('page'),'')
+#			biggest_number= int(biggest_number_strg) + 1
+
+		# twain specific
+#		if scan_drv == 'wintwain':
+#			if len(self.picList) == 0:
+#				shutil.copy(self.tmpfilename,_cfg.get("tmpdir", "tmpdir") + _('page')+str(1)+'.bmp')
+#			else:
+#				shutil.copy(self.tmpfilename,_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.bmp')
+		# SANE way of life # Write the image out as a JPG file
+		# Note : file format is determined by extension ; otherwise specify type
+#		else:
+#			if len(self.picList) == 0:
+#				im.save(_cfg.get("tmpdir", "tmpdir") + _('page')+str(1)+'.jpg')
+#				print "I just saved page 1"
+				# remove when sane works one day
+#				return
+#			else:
+#				im.save(_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.jpg')
+#				print "I just saved" + str(_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.jpg')
+	
+	#-----------------------------------
+
+#	def UpdatePicList(self):
+#		if len(self.picList) == 0:
+#			self.LBOX_doc_pages.Append(_('page1'))
+#			self.picList.append(_('page1'))
+#		else:
+#			lastPageInList=self.picList[len(self.picList)-1]
+#			biggest_number_strg=lastPageInList.replace(_('page'),'')
+#			biggest_number= int(biggest_number_strg) + 1
+#			self.LBOX_doc_pages.Append(_('page') + `biggest_number`)
+#			self.picList.append(_('page') + `biggest_number`)
+
