@@ -5,17 +5,17 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.61 2003-11-17 10:56:37 sjtan Exp $
+# $Id: gmPlugin.py,v 1.62 2003-11-18 19:06:26 hinnef Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.61 2003-11-17 10:56:37 sjtan Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmPlugin.py,v 1.62 2003-11-18 19:06:26 hinnef Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
 
 from wxPython.wx import *
 
-import gmExceptions, gmGuiBroker, gmPG, gmShadow, gmLog, gmCfg, gmTmpPatient
+import gmExceptions, gmGuiBroker, gmPG, gmShadow, gmLog, gmCfg, gmPatient
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
@@ -230,7 +230,7 @@ class wxNotebookPlugin (wxBasePlugin):
 		- convenience method for your can_receive_focus() handlers
 		"""
 		# fail if no patient selected
-		pat = gmTmpPatient.gmCurrentPatient()
+		pat = gmPatient.gmCurrentPatient()
 		if not pat.is_connected():
 			# FIXME: people want an optional beep and an optional red backgound here
 			self._set_status_txt(_('Cannot switch to [%s]: no patient selected') % self.name())
@@ -476,7 +476,7 @@ def GetPluginLoadList(set):
 		rwconn.close()
 	else:
 		p_list = None
-	print " PLUGIN LOAD LIST", p_list
+
 	_log.Log(gmLog.lData, "*** THESE ARE THE PLUGINS FROM gmPlugin.GetPluginList")
 	_log.Log(gmLog.lData, "%s" % "\n *** ".join(p_list))
         db.ReleaseConnection(service = "default")
@@ -496,7 +496,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.61  2003-11-17 10:56:37  sjtan
+# Revision 1.62  2003-11-18 19:06:26  hinnef
+# gmTmpPatient->gmPatient, again
+#
+# Revision 1.61  2003/11/17 10:56:37  sjtan
 #
 # synced and commiting.
 #
