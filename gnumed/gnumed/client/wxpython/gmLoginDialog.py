@@ -24,6 +24,9 @@ It features combo boxes which "remember" any number of previously entered settin
 """
 
 from wxPython.wx import *
+
+import gmLoginInfo
+
 import gettext
 _ = gettext.gettext
 
@@ -314,6 +317,18 @@ class LoginPanel(wxPanel):
 			self.loginparams.portlist = ComboBoxItems(self.portcombo)
 			self.loginparams.backendoptionlist = ComboBoxItems(self.beoptioncombo)
 			return self.loginparams
+		else:
+			return None
+
+	def GetLoginInfo(self):
+		if not self.cancelled:
+			"convenience function for compatibility with gmLoginInfo.LoginInfo"
+			login = gmLoginInfo.LoginInfo(self.GetUser(), self.GetPassword())
+			login.SetDatabase(self.GetDatabase())
+			login.SetHost(self.GetHost())
+			login.SetPort(self.GetPort())
+			login.SetOptions(self.GetBackendOptions())
+			return login
 		else:
 			return None
 

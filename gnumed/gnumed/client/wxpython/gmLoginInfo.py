@@ -50,6 +50,7 @@ class LoginInfo:
         	return self.GetUser(), self.GetPassword(), self.GetHost(), self.GetPort(), \
 		self.GetDatabase(), self.GetOptions(), self.GetTTY(), self.GetProfile()
 
+
     	def SetUser(self, user):
 		self.__user = user
 

@@ -32,7 +32,7 @@ class ConnectionPool:
 
 
 	def __init__(self, login=None):
-		### TODO: don't allow disconnection of connections in use!!!
+		"parameter login is of type gmLoginInfo.LoginInfo"
 		if login is not None:
 			self.__disconnect()
 		if ConnectionPool.__connected is None:
@@ -105,9 +105,11 @@ class ConnectionPool:
 	def __pgconnect(self, login):
 		"connect to a postgres backend as specified by login object; return a connection object"
 		try:
+			#print "Trying to connect:\nuser = [%s]\nPassword=[%s]\nHost=[%s]\nPort=[%d]\nOpt=[%s]\ntty=[%s]" \
+			#      % (login.GetUser(), login.GetPassword(), login.GetHost(), int(login.GetPort()), login.GetOptions(), login.GetTTY())
 			db = pg.connect(dbname=login.GetDatabase(),
 					host = login.GetHost(),
-					port = login.GetPort(),
+					port = int(login.GetPort()),
 					opt = login.GetOptions(),
 					tty = login.GetTTY(),
 					user = login.GetUser(),
@@ -198,6 +200,8 @@ class ConnectionPool:
 		(according to configuration database)"""
 		return ConnectionPool.__databases.keys()
 
+	def Connected(self):
+		return ConnectionPool.__connected
 
 	def LogError(self, msg):
 		"This function must be overridden by GUI applications"
