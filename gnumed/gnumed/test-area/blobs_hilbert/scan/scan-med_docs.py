@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -23,8 +23,15 @@ try:
 	import twain
 	scan_drv = 'wintwain'
 except ImportError:
-	import sane
-	scan_drv = 'linsane'
+	exc = sys.exc_info()
+	_log.LogException('Cannot import WinTWAIN.py.', exc, fatal=0)
+	try:
+		import sane
+		scan_drv = 'linsane'
+	except ImportError:
+		exc = sys.exc_info()
+		_log.LogException('Cannot import linSANE.py.', exc, fatal=0)
+		raise _("Can import neither TWAIN nor SANE scanner access library.")
 
 [	wxID_SCANFRAME,
 	wxID_LBOX_doc_pages,
@@ -209,7 +216,7 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	def on_acquire_page(self, event):
 		_log.Log(gmLog.lData, "trying to acquire image")
-		self.acquire_handler[scan_drv]
+		self.acquire_handler[scan_drv]()
 	#-----------------------------------
 	def on_show_page(self, event):
 		page_idx = self.LBOX_doc_pages.GetSelection()
@@ -315,7 +322,7 @@ class scanFrame(wxFrame):
 			if  btn == wxID_OK:
 				tmp = dlg.GetValue()
 
-				# numveric ?
+				# numeric ?
 				if not tmp.isdigit():
 					new_page_idx = -1
 					continue
@@ -371,7 +378,7 @@ class scanFrame(wxFrame):
 	def __open_twain_scanner(self):
 		# did we open the scanner before ?
 		if not self.TwainSrcMngr:
-			_log.Log(gmLog.lData, "TWAIN version: %s" % twain.Version())
+			#_log.Log(gmLog.lData, "TWAIN version: %s" % twain.Version())
 			# no, so we need to open it now
 			# TWAIN talks to us via MS-Windows message queues so we
 			# need to pass it a handle to ourselves
@@ -392,14 +399,14 @@ class scanFrame(wxFrame):
 				return None
 
 			_log.Log(gmLog.lData, "TWAIN data source: %s" % self.TwainScanner.GetSourceName())
-			_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.TwainScanner.GetIdentitiy()))
+			_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.TwainScanner.GetIdentity()))
 		return 1
 	#-----------------------------------
 	def on_twain_event(self, event):
 		# self.TwainScanner.GetImageInfo()
 		_log.Log(gmLog.Data, 'notification of pending image from TWAIN manager')
 
-		# just so we can us fname down below in case tempfile.mktemp() fails
+		# just so we can use fname down below in case tempfile.mktemp() fails
 		fname = ""
 		try:
 			fname = tempfile.mktemp()
@@ -523,6 +530,67 @@ class scanFrame(wxFrame):
 
 		return 1
 	#-----------------------------------
+	def __get_ID_mode(self):
+		tmp = None
+		try:
+			tmp = os.path.abspath(os.path.expanduser(_cfg.get("metadata", "document_ID_mode")))
+		except:
+			exc = sys.exc_info()
+			_log.LogException('cannot get document ID generation mode from config file', exc, fatal=0)
+
+		if not tmp in ['random', 'consecutive']:
+			_log.Log(gmLog.lErr, '"%s" is not a valid document ID generation mode. Falling back to "random".' % tmp)
+			tmp = "random"
+
+		_log.Log(gmLog.lData, 'document ID generation mode "%s"' % tmp)
+		return tmp
+	#-----------------------------------
+	def __get_next_consecutive_ID(self):
+		fname = None
+		try:
+			fname = os.path.abspath(os.path.expanduser(_cfg.get("metadata", "document_ID_file")))
+		except:
+			exc = sys.exc_info()
+			_log.LogException('Cannot get name of file with most recently used document ID from config file', exc, fatal=0)
+			return None
+
+		try:
+			ID_file = open(fname, "rb")
+		except:
+			exc = sys.exc_info()
+			_log.LogException('Cannot open file [%s] with most recently used document ID.' % fname, exc, fatal=0)
+			return None
+
+		ID_str = ID_file.readline()
+		ID_file.close()
+
+		# ask for confirmation of ID
+		doc_id = -1
+		tmp = str(int(ID_str) + 1)
+		while doc_id == -1:
+			dlg = wxTextEntryDialog(
+				parent = self,
+				message = _('The most recently used document ID was "%s".\nWe would use the ID "%s" for the current document.\nPlease confirm the ID or type in a new numeric ID.\n\nYou should also write down this ID on the documents themselves.' % (ID_str, tmp)),
+				caption = _('document ID'),
+				defaultValue = tmp,
+				style = wxOK | wxCentre
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			tmp = dlg.GetValue()
+			# numeric ?
+			if not tmp.isdigit():
+				doc_id = -1
+			else:
+				doc_id = int(tmp)
+
+		ID_str = tmp
+		# store new document ID as most recently used one
+		ID_file.write("%s\n" % ID_str)
+		ID_file.close()
+		dirname = os.path.join(basedir, ID_str)
+
+	#-----------------------------------
 	def on_save_doc(self, event):
 		return
 
@@ -538,9 +606,96 @@ class scanFrame(wxFrame):
 			dlg.Destroy()
 			return None
 
-		# - make document reference string
-		# - make directory in to_index
-		# - move data file there
+		# get target repository
+		try:
+			target_repository = os.path.abspath(os.path.expanduser(_cfg.get("repositories", "to_index")))
+		except:
+			exc = sys.exc_info()
+			_log.LogException('Cannot get target repository for scans from config file.', exc, fatal=1)
+			dlg = wxMessageDialog(
+				self,
+				_('Cannot get target repository from config file.'),
+				_('missing config file option'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		if not os.path.exists(target_repository):
+			_log.Log(gmLog.lErr, 'Target repository [%s] not accessible.' % target_repository)
+			dlg = wxMessageDialog(
+				self,
+				_('The configured target repository is not accessible.\n[%s]' % target_repository),
+				_('invalid config value'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		# get document ID generation mode
+		mode = self.__get_ID_mode()
+
+		# get document ID
+		if mode == "consecutive":
+			doc_id = self.__get_next_consecutive_ID()
+		else:
+			doc_id = self.__get_random_ID()
+
+		# actually make document reference string
+
+		# FIXME: there needs to be locking here
+		if mode == "consecutive":
+
+		else:
+			# set up temp file environment
+			# remember state
+			prefix = tempfile.gettempprefix()
+			tmpdir = tempfile.tempdir		
+			tempfile.tempdir = target_repository
+			tempfile.template = ""
+			# create temp dir name
+			dirname = tempfile.mktemp()
+			# reset state
+			tempfile.tempdir = tmpdir
+			tempfile.template = prefix
+			try:
+				show_ID = _cfg.get('scanning', 'show_document_ID')
+			except:
+				exc = sys.exc_info()
+				_log.LogException('Cannot get option from config file.', exc, fatal=0)
+				show_ID = "yes"
+
+			if show_ID != "no":
+				tmp = os.path.commonprefix(target_repository, dirname)
+				tmp = tmp.replace(target_repository, '')
+				dlg = wxMessageDialog(
+					self,
+					_("This is the reference ID for the current document:\n%s\nYou should write this down on the original documents.\n\nIf you don't care about the ID you can switch off this\nmessage in the config file." % tmp),
+					_('random document ID'),
+					wxOK | wxICON_ERROR
+				)
+				dlg.ShowModal()
+				dlg.Destroy()
+
+		# create new directory in target repository
+		if os.path.exists(dirname):
+			_log.Log(gmLog.lErr, 'The target repository subdirectory [%s] already exists. Cannot save current document there.' % dirname)
+			dlg = wxMessageDialog(
+				self,
+				_("The target repository subdirectory already exists.\n(%s)\nCannot save current document there." % tmp),
+				_('target directory subdirectory'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+#################################################################
+
+
+		# - move data files there
 		# - write XML meta file
 		# - write checkpoint file
 		# - clean up gui/acquired_images
