@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/README,v $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 GnuMed internationalization
 ===========================
@@ -59,15 +59,17 @@ How to translate the GnuMed UI
 Those are the rough steps to get GnuMed translated
 into your language:
 
-- create a *.pot file containing all English
+- create a *.po file containing all English
   message strings
 - merge this file with preexisting translations
   for your language
 - translate the remaining non-translated English
   program strings into your language
-- compile a binary message catalog from the translated
-  messages
+- compile a binary message catalog (*.mo file) from
+  the translated messages
 
+Creating a *.po file
+--------------------
 With
  <create-gnumed_po.sh $LANG>
 you can rescan the Python source for strings that need
@@ -80,6 +82,27 @@ po mode or kbabel) as long as you keep a copy of your
 final results in $LANG.po as a repository for future
 translations.
 
+If you execute this script for the first time you will
+end up with a $LANG.po file without any previous translations.
+In this case you need to edit a few metadata entries at the
+very top of the $LANG.po file such as the character set you
+are using.
+
+Hints for translations:
+ - look at translations in other languages to get an idea
+ - look at the source and/or the running GnuMed to find good translations
+ - keep exactly the same number of %s, %d etc in your translation,
+   they are formatting placeholders and will be replaced with
+   certain data (such as file names) dynamically at runtime
+ - if the file asks you to translate the empty string ("")
+   go into the python source and remove the _() around the
+   empty string,
+   the empty string cannot be translated and _will_ produce errors
+   because it is used as the message string ID for po-file
+   metadata
+
+Creating a *.mo file
+--------------------
 With 
  <create-gnumed_mo.sh $LANG>
 you can compile a *.mo file from the message catalog source.
@@ -87,7 +110,6 @@ You will end up with a $LANG-gnumed.mo file.
 
 Installation of translated messages
 -----------------------------------
-
 On a POSIX system (Linux, BSD, MacOSX, CygWin) the
 $LANG-gnumed.mo file should be moved into
  /usr/share/locale/$LANG/LC_MESSAGES/
