@@ -4,7 +4,7 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/amis-create_tables.sql,v $
 -- author: Horst Herb, Hilmar Berger, Karsten Hilbert
--- version: $Revision: 1.4 $
+-- version: $Revision: 1.5 $
 -- license: GPL
 -- TODO: further processing of the data (normalizing)
 
@@ -427,7 +427,7 @@ GRANT SELECT ON
 	amis_unlikely_interaction, 
 	amis_interaction_type, 
 	amis_interaction_text
-TO "gm-public";
+TO GROUP "gm-public";
 
 -- ==========================================================
 -- == changelog =============================================
@@ -435,7 +435,10 @@ TO "gm-public";
 --	30.11.2001: \set & \unset applied correctly
 --
 -- $Log: amis-create_tables.sql,v $
--- Revision 1.4  2002-11-04 16:00:17  hinnef
+-- Revision 1.5  2002-11-10 13:56:17  ncq
+-- - need to use grant to GROUP when granting to group, obviously !!
+--
+-- Revision 1.4  2002/11/04 16:00:17  hinnef
 -- bugfixes in amis_substances etc.
 --
 -- Revision 1.3  2002/10/29 23:18:11  ncq
