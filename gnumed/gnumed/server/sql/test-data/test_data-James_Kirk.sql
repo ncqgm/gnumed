@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -35,16 +35,16 @@ values (currval('identity_id_seq'), currval('identity_id_seq'));
 
 -- health issue
 delete from clin_health_issue where
-	id_patient = currval('xlnk_identity_pk_seq');
+	id_patient = currval('identity_id_seq');
 
 insert into clin_health_issue (id_patient)
-values (currval('xlnk_identity_pk_seq'));
+values (currval('identity_id_seq'));
 
 -- episode
 delete from clin_episode where id in (
 	select id_episode
 	from v_patient_episodes
-	where id_patient = currval('xlnk_identity_pk_seq')
+	where id_patient = currval('identity_id_seq')
 );
 
 insert into clin_episode (id_health_issue, description)
@@ -52,7 +52,7 @@ values (
 	(select id
 	 from clin_health_issue
 	 where
-	 	id_patient=currval('xlnk_identity_pk_seq')
+	 	id_patient=currval('identity_id_seq')
 			and
 		description = 'xxxDEFAULTxxx'),
 	'knive cut left arm 9/2000'
@@ -66,7 +66,7 @@ insert into clin_encounter (
 	fk_type,
 	description
 ) values (
-	currval('xlnk_identity_pk_seq'),
+	currval('identity_id_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
 	(select id from _enum_encounter_type where description='in surgery'),
@@ -88,7 +88,7 @@ insert into vaccination (
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
 	'contaminated knife cut, prev booster > 7 yrs',
-	currval('xlnk_identity_pk_seq'),
+	currval('identity_id_seq'),
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
 	(select id from vaccine where trade_name='Tetasorbat SSW'),
 	'2000-9-17',
@@ -118,7 +118,7 @@ insert into clin_encounter (
 	fk_type,
 	description
 ) values (
-	currval('xlnk_identity_pk_seq'),
+	currval('identity_id_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
 	(select id from _enum_encounter_type where description='in surgery'),
@@ -146,7 +146,7 @@ insert into allergy_state (
 	id_patient,
 	has_allergy
 ) values (
-	currval('xlnk_identity_pk_seq'),
+	currval('identity_id_seq'),
 	1
 );
 
@@ -157,7 +157,7 @@ insert into doc_med (
 	comment,
 	ext_ref
 ) values (
-	currval('xlnk_identity_pk_seq'),
+	currval('identity_id_seq'),
 	(select id from doc_type where name='referral report other'),
 	'Vietnam 2003: The Peoples Republic',
 	'vietnam-2003-3::1'
@@ -199,7 +199,7 @@ insert into doc_med (
 	comment,
 	ext_ref
 ) values (
-	currval('xlnk_identity_pk_seq'),
+	currval('identity_id_seq'),
 	(select id from doc_type where name='referral report other'),
 	'Vietnam 2003: Tagwerk',
 	'vietnam-2003-3::2'
@@ -227,11 +227,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.9  2004-01-14 10:42:05  ncq
+-- Revision 1.10  2004-01-15 14:52:10  ncq
+-- - fix id_patient breakage
+--
+-- Revision 1.9  2004/01/14 10:42:05  ncq
 -- - use xlnk_identity
 --
 -- Revision 1.8  2004/01/06 23:44:40  ncq
