@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -235,6 +235,11 @@ class ConnectionPool:
 		except KeyError:
 			###if the requested service is not mapped, return default login information
 			return dblogin
+
+		# get connection to database config and create cursor (HB)
+		cdb = ConnectionPool.__databases['config']
+		cursor = cdb.cursor()
+
 		cursor.execute(querystr)
 		database = cursor.fetchone()
 		idx = cursorIndex(cursor)
@@ -323,7 +328,7 @@ class ConnectionPool:
 
 			###initialize our reference counter
 			ConnectionPool.__connections_in_use[service]=0
-			dblogin = self.GetLoginInfoFor(login, service)
+			dblogin = self.GetLoginInfoFor(service,login)
 			#update 'Database Broker' dictionary
 			ConnectionPool.__databases[service] = self.__pgconnect(dblogin)
 		try:
@@ -619,7 +624,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.17  2002-09-15 13:20:17  hherb
+# Revision 1.18  2002-09-19 18:07:48  hinnef
+# fixed two bugs that prevented distributed services from working (HB)
+#
+# Revision 1.17  2002/09/15 13:20:17  hherb
 # option to return results as list instead of result set objects added
 #
 # Revision 1.16  2002/09/10 07:44:29  ncq
