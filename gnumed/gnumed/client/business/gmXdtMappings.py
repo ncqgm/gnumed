@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.18 2004-04-21 15:27:38 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmXdtMappings.py,v 1.19 2004-05-11 08:06:49 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -1333,9 +1333,16 @@ xdt_map_of_content_maps = {
 	'9132': kvdt_enthaltene_Datenpakete_map,
 	'9600': xdt_Archivierungsart_map
 }
+#--------------------------------------------------------------
+def xdt_8date2iso(date=None):
+	"""DDMMYYYY -> YYYY-MM-DD"""
+	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.18  2004-04-21 15:27:38  ncq
+# Revision 1.19  2004-05-11 08:06:49  ncq
+# - xdt_8date2iso()
+#
+# Revision 1.18  2004/04/21 15:27:38  ncq
 # - map 8407 to string for ldt import
 #
 # Revision 1.17  2004/04/19 12:43:44  ncq
