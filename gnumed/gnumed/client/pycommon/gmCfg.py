@@ -5,12 +5,16 @@ Two sources of configuration information are supported:
  - INI-style configuration files
  - database tables
 
-Just import this module to have access to a default config file.
+Just import this module to have access to a default config file:
+
+> from Gnumed.pycommon import gmCfg
+> _cfg = gmCfg.gmDefCfgFile
+> option = _cfg.get(group, option)
 
 Theory of operation:
 
-Upon importing this module a basic config file will be parsed. This
-file is registered at the default source for configuration information.
+Upon importing this module a "default" config file will be parsed. This
+file is registered as the default source for configuration information.
 
 The module will look for the config file in the following standard
 places:
@@ -49,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -1234,7 +1238,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.16  2004-08-11 11:07:33  ncq
+# Revision 1.17  2004-08-16 12:06:50  ncq
+# - hopefully improve docstring by including import example
+#
+# Revision 1.16  2004/08/11 11:07:33  ncq
 # - needless args on cfg queries removed
 #
 # Revision 1.15  2004/08/11 08:00:05  ncq
