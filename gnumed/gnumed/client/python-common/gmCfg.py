@@ -50,11 +50,11 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
-import os.path, fileinput, string, sys
+import os.path, fileinput, string, sys, shutil
 
 # gnumed modules
 import gmLog, gmCLI
@@ -257,8 +257,8 @@ class cCfgFile:
 
 		new_file.close
 		# rename new file to old file
-		os.remove(self.cfgName)
-		os.rename(new_name, self.cfgName)
+		shutil.copyfile(new_name, self.cfgName)
+		os.remove(new_name)
 		return 1
 	#----------------------------
 	# internal methods
@@ -536,7 +536,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.8  2002-09-10 18:15:28  ncq
+# Revision 1.9  2002-09-10 18:31:45  ncq
+# - windows is strange: os.rename -> shutil.copyfile + os.remove
+#
+# Revision 1.8  2002/09/10 18:15:28  ncq
 # - os.rename() over existing files fails on non-UNIX
 #
 # Revision 1.7  2002/09/10 17:51:33  ncq
