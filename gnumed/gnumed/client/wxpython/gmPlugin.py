@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.23 2004-07-15 05:17:43 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmPlugin.py,v 1.24 2004-07-15 06:15:55 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re
@@ -304,7 +304,7 @@ def GetPluginLoadList(set):
 	if p_list is None:
 		_log.Log(gmLog.lInfo, "[%s] does not contain plugin load order" % plugin_conf_name)
 		search_path = os.path.join(gb['gnumed_dir'], 'wxpython', set)
-		files = os.listdir(search_patch)
+		files = os.listdir(search_path)
 		_log.Log(gmLog.lData, "plugin set: %s, gnumed_dir: %s" % (set, gb['gnumed_dir']))
 		_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
 		_log.Log(gmLog.lData, "files found: %s" % str(files))
@@ -349,7 +349,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.23  2004-07-15 05:17:43  ncq
+# Revision 1.24  2004-07-15 06:15:55  ncq
+# - fixed typo patch -> path
+#
+# Revision 1.23  2004/07/15 05:17:43  ncq
 # - better/correct logging in GetPluginLoadList()
 #
 # Revision 1.22  2004/06/26 23:09:22  ncq
