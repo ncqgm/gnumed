@@ -23,7 +23,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.struts.Globals;
 import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -93,23 +95,32 @@ public class ClinicalSaveAction extends Action {
 			
 			
 			setNonFatalErrors(request, messages, nonFatalException);
-			if (nonFatalException.size() >0)
+			if (nonFatalException.size() >0) {
 			    saveErrors(request, messages);
-			
-			return mapping.findForward("success");
-
-		} catch (Exception e) {
-		    setNonFatalErrors(request, messages, nonFatalException);
+			//    saveMessages(request, messages);
+			}
 			try {
 				util.setRequestAttributes(servlet, request, form, mapping);
 			} catch (Exception e2) {
 				log.info(e2);
 			}
-			log.info(e, e);
-			messages.add("error in constructing attributes for form",
-					new ActionMessage("error is", e));
-			saveErrors(request, messages);
+			return mapping.findForward("successClinicalEditAgain");
 
+		} catch (Exception e) {
+		      try {
+				util.setRequestAttributes(servlet, request, form, mapping);
+			} catch (Exception e2) {
+				log.info(e2);
+			}
+			
+			setNonFatalErrors(request, messages, nonFatalException);
+			  
+			log.info(e, e);
+			messages.add("fatal",
+					new ActionMessage("clinicalSave", e, e.getCause() ));
+			saveErrors(request, messages);
+			//saveMessages(request, messages);
+		
 			return mapping.getInputForward();
 		}
 
@@ -123,9 +134,9 @@ public class ClinicalSaveAction extends Action {
     public void setNonFatalErrors(HttpServletRequest request, ActionMessages messages, List nonFatalException) {
         if (nonFatalException.size() > 0) {
         	for (int k = 0; k < nonFatalException.size(); ++k) {
-        		messages.add("save item error",
-        				new ActionMessage(((Exception) nonFatalException
-        						.get(k)).getMessage()));
+        	    Exception e = (Exception) nonFatalException.get(k);
+         		messages.add("nonfatal",
+        				new ActionMessage("clinicalSave", e,e.getCause() ) );
         	}
         	
         }

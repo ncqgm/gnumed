@@ -10,25 +10,34 @@
 	
   		
 
-        <definition name="template" page="/pages/layout/mainLayout.jsp"  >
+	<definition name="template" page="/pages/layout/mainLayout.jsp" />
         		
         
-          <definition name="index" extends="template">
-		<put name="content" value="/pages/Welcome.jsp" type="page"/>
-              </definition>
         
+               
+        <definition name="support" extends="template">
                 <put name="support" value="/pages/common/support.jsp" type="page"/>
      	</definition>
+        
+          <definition name="index" extends="support">
+                <put name="menu1" value="/pages/searchPatient/newPatient.jsp" type="page"/>
+	        <put name="content2" value="/pages/searchPatient/findIdentity.jsp" type="page"/>
+                <put name="content3" value="/pages/searchPatient/listIdentities.jsp" type="page"/>
+                
+          </definition>
+          
+          <definition name="welcome" extends="index">
+                	<put name="content" value="/pages/Welcome.jsp" type="page"/>
+          </definition>
+          
+        
+        <definition name="development" page="/pages/common/development_notes.jsp"/>
      	
      	<definition name="template_topmenu" extends="template" >
      		<put name="menu1" value="/pages/common/topMenu.jsp" type="page"/>
      	</definition>
      	
-        <definition name="appmain" extends="template">
-            <put name="content" value="/pages/appmain.jsp" type="page"/>
-        </definition>	
         
-
 	<definition name="about" extends="template">
 		<put name="content" value="/pages/about.jsp" type="page"/>
 		</definition>
@@ -64,7 +73,7 @@
          <put name="content" value="/pages/clinicalStatus/pastNotes.jsp" type="page"/>
          </definition>
          
-           <definition name="episodeList" page="/pages/intraLinkedClinical.jsp">
+           <definition name="episodeList" page="/pages/layout/intraLinkedClinical.jsp">
          <put name="content" value="/pages/clinicalStatus/episodeList.jsp" type="page"/>
          </definition>
          

@@ -65,7 +65,7 @@
   
   <Resource auth="Container" name="jdbc/drugref" type="javax.sql.DataSource" 
 	  driverClassName="org.postgresql.Driver"
-	  url="jdbc:postgresql://127.0.0.1:5432/drugref"
+	  url="jdbc:postgresql://127.0.0.1:5432/drugrefold"
 	  username="any-doc" password="any-doc"
 	  maxActive="20" maxIdle="10"
 	  />
@@ -84,7 +84,7 @@
     </parameter>
     <parameter>
       <name>url</name>
-      <value>jdbc:postgresql://127.0.0.1:5432/drugref</value>
+      <value>jdbc:postgresql://127.0.0.1:5432/drugrefold</value>
     </parameter>
     <parameter>
       <name>username</name>

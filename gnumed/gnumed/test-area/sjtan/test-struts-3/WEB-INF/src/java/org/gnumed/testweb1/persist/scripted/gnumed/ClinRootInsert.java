@@ -6,12 +6,10 @@
  */
 package org.gnumed.testweb1.persist.scripted.gnumed;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.gnumed.testweb1.data.ClinRootItem;
-import org.gnumed.testweb1.data.Vaccination;
 import org.gnumed.testweb1.persist.DataSourceException;
 
 /**
@@ -25,8 +23,8 @@ public interface ClinRootInsert {
 	 void setClinRootItemStatement(PreparedStatement stmt,
 			ClinRootItem item, int startIndex) throws DataSourceException,
 			SQLException ;
-	 
-	 Integer getNextId(Connection connection, String string) throws SQLException, DataSourceException ;
+//	 
+//	 Integer getNextId(Connection connection, String string) throws SQLException, DataSourceException ;
     /**
      * @param stmt
      * @param vacc

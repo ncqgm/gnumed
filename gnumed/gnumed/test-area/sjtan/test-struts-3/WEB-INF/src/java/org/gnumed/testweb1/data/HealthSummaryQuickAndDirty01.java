@@ -65,8 +65,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
             allergys = getListOfDynaBeansFromResultSet(allergyRS);
             
             healthIssues = getListOfDynaBeansFromResultSet(healthIssuesRS);
-            constructHealthIssues();
-            
+             
             episodes = getListOfDynaBeansFromResultSet(episodesRS);
             if (medReadScript== null) {
             	medications= getListOfDynaBeansFromResultSet(medicationsRS);
@@ -87,9 +86,12 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
             
             encounterTypes = getListOfDynaBeansFromResultSet(encounterTypeRS);
             
+            
+            constructHealthIssues();
+            constructEncounters();
             constructEpisodes();
             
-            constructEncounters();
+           
             
             constructNarratives();
             
@@ -161,6 +163,8 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     }
     
     void constructEpisodes() {
+        HealthIssue nullHealthIssue = dof.createHealthIssue();
+        nullHealthIssue.setDescription("Unlinked episodes");
         
         Iterator i = episodes.iterator();
         List newEpisodes = new ArrayList();
@@ -174,13 +178,19 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
             ep.setId( new Long( ((Integer)b.get("pk")).longValue()));
             
             ep.setModified_when( new java.util.Date( (long) ( (java.sql.Timestamp)b.get("modified_when")).getTime()));
-            Long hiId = new Long(((Number)b.get("fk_health_issue")).longValue());
             
-            HealthIssue hi = (HealthIssue) mapHI.get(hiId);
-            if (hi != null) {
-                ep.setHealthIssue(hi);
-                hi.setClinicalEpisode(hi.getClinicalEpisodes().length,ep); //add
+            Number n = (Number)b.get("fk_health_issue");
+              
+            HealthIssue hi = (n != null ) ?  (HealthIssue) mapHI.get(new Long(n.longValue())): null;
+            if (hi == null) {
+                hi = nullHealthIssue;
             }
+                ep.setHealthIssue(hi);
+                
+                log.info("hi has clinicalEpisodes" + hi.getClinicalEpisodes());
+                
+                hi.setClinicalEpisode(hi.getClinicalEpisodes().length,ep); //add
+            
             newEpisodes.add(ep);
             mapEpisodes.put(ep.getId(), ep);
         }

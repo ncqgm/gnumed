@@ -57,7 +57,7 @@ public class EntryVaccinationImpl1
 	
 	public void setVaccineGiven(String vaccineGiven) {
 		vaccineGiven = Util.nullIsBlank(vaccineGiven);
-		if ("".equals(vaccineGiven)) {
+		if ("".equals(vaccineGiven) || "0".equals(vaccineGiven) ) {
 			setEntered(false);
 		} else {
 			setEntered(true);

@@ -6,7 +6,6 @@
 
 package org.gnumed.testweb1.data;
 
-import org.gnumed.testweb1.global.Algorithms;
 
 /**
  *

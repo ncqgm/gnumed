@@ -2,7 +2,7 @@
 
 <!DOCTYPE struts-config PUBLIC
           "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN"
-          "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+          "http://jakarta.apache.org/dtds/struts-config_1_1.dtd">
 
 
 
@@ -291,6 +291,8 @@
             path="/Testdb.do"
             
             />
+         <forward name="development" path="/Development.do"/>
+         
           <!--  using path-"/testdb" doesn't work, so use a forwarding action
                 path="/Testdb.do"  -->
           
@@ -332,15 +334,21 @@
             <!-- Forwards to Welcome.jsp -->
             
   <!-- Most of these lowercase forward parameters refer to struts-defs.xml definitions -->
-        <action path="/Welcome" forward="index"/>
-
+  
+  <!-- the first path is /xxx.do as a url, with the forward the name of a tiles definition,
+  or another action with the .do on it -->
+        <action path="/Welcome" forward="welcome"/>
+        
+        <action path="/AppMain" forward="index"/> 
+          
+          
         <action path="/Ads" forward="ads"/>
 
         <action path="/About" forward="about"/>
             
         <action path="/GetLogin" forward="getlogin"/>     
         
-        <action path="/AppMain" forward="appmain"/> 
+      
         
         <action path="/PastNotes" forward="pastNotes"/>
         
@@ -355,7 +363,8 @@
         <action path="/printableRecord" forward="printablerecord"/>
         <!-- this is forwarding to the
         definition in struts-defs.xml called appmain -->
-       
+       <action path="/Development" forward = "development"/>
+        
         <action path="/TestListNamesDisplay" forward="testlinknames"/>
         
          <action 
@@ -423,11 +432,14 @@
              name="clinicalUpdateForm"
              scope="request"
              input="clinicalEditAgain"
+             
              >
              
              <forward name="clinicalEditAgain" path="clinicalentry"/>
-               
+              <forward name="successClinicalEditAgain" path="index"/> 
          </action>
+        
+        
         
          
            <!-- stuff for the version2 clinicalUpdateForm --> 

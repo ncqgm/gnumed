@@ -132,10 +132,12 @@ public class ScriptedSQLDemographicDataAccess  implements DemographicDataAccess,
             
         } finally {
             try {
-        //        conn.close();
+                if (!conn.isClosed()) {
+                    conn.close();
+                }
                 } catch (Exception e) {
                     log.error(e.getLocalizedMessage());
-                throw new DataSourceException(e);
+                
                 }
         }
     }

@@ -121,4 +121,13 @@ public interface ClinRootItem extends ClinWhenHolder {
     public void setNewHealthIssueName(String newHealthIssueName);
     
     public void normalizeHealthIssueName( ) ;
+    
+    /**
+     * @return Returns the healthIssueStart.
+     */
+    public java.util.Date getHealthIssueStart() ;
+    /**
+     * @param healthIssueStart The healthIssueStart to set.
+     */
+    public void setHealthIssueStart(java.util.Date healthIssueStart) ;
 }

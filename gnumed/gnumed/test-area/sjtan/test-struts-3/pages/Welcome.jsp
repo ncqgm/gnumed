@@ -1,9 +1,9 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
 
-<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
-<%@ taglib uri="/tags/struts-html" prefix="html" %>
-<%@ taglib uri="/tags/struts-logic" prefix="logic" %>
+<%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
+<%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
+<%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic" %>
 <html>
 <body>
 
@@ -53,6 +53,7 @@ while (en.hasMoreElements()) {
 </p>
 Hello
 
- <jsp:include page="./searchPatient/findIdentity.jsp" />
+ <html:link forward="success"  />
+ 
 </body>
 </html>

@@ -71,7 +71,7 @@ public class ListJNDIContextAction extends Action {
 
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response) {
-
+	    Connection con =null;
 		ActionMessages errors = new ActionMessages();
 
 		try {
@@ -93,7 +93,7 @@ public class ListJNDIContextAction extends Action {
 						Constants.POOLED_DATASOURCE_GNUMED, src);
 
 			}
-			Connection con = src.getConnection();
+			con = src.getConnection();
 			Statement stmt = con.createStatement();
 
 			stmt.execute("select lastnames, firstnames from names");
@@ -113,8 +113,6 @@ public class ListJNDIContextAction extends Action {
 			w.print("</ol></body>");
 			w.flush();
 			log.info("finished with connection");
-
-			con.close();
 
 			return null;
 
@@ -136,9 +134,14 @@ public class ListJNDIContextAction extends Action {
 			 */
 
 		} catch (Exception e) {
-			log.debug("error in " + this.toString(), e);
+			log.error("error in " + this.toString(), e);
 		} finally {
-
+		    try {
+                con.close();
+            } catch (Exception e) {
+                // TODO: handle exception
+                log.error(e,e);
+            }
 		}
 		saveMessages(request, errors);
 		//   return mapping.getInputForward();

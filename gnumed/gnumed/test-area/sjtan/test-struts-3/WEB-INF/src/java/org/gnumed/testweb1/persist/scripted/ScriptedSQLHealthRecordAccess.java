@@ -23,7 +23,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,7 +46,6 @@ import org.gnumed.testweb1.data.Vaccination;
 import org.gnumed.testweb1.data.Vitals;
 import org.gnumed.testweb1.global.Algorithms;
 import org.gnumed.testweb1.global.Util;
-import org.gnumed.testweb1.global.Constants.Schema;
 import org.gnumed.testweb1.persist.ClinicalDataAccess;
 import org.gnumed.testweb1.persist.CredentialUsing;
 import org.gnumed.testweb1.persist.DataObjectFactoryUsing;
@@ -145,7 +143,7 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			healthIssuesRS = getHealthIssueRS(conn, patientId);
 
 			episodesRS = getClinEpisodesRS(conn, getIdsFromResultSet(
-					healthIssuesRS, "id"));
+					healthIssuesRS, "id"), patientId);
 			encountersRS = getClinEncountersRS(conn, patientId);
 			long[] encounter_ids = getIdsFromResultSet(encountersRS, "id");
 
@@ -175,13 +173,13 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 		    e.printStackTrace();
 			throw new DataSourceException(e);
 		} finally {
-//			if (conn != null) {
-//				try {
-//					//conn.close();
-//				} catch (SQLException se) {
-//					throw new DataSourceException(se);
-//				}
-//			}
+		
+				try {
+					conn.close();
+				} catch (Exception se) {
+					throw new DataSourceException(se);
+				}
+
 
 		}
 
@@ -225,13 +223,21 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			long[] ids) throws SQLException {
 
 		PreparedStatement stmt = conn.prepareStatement(selectString
-				+ ((ids.length == 0) ? "( null ) " : "(" + idsToString(ids)
-						+ ")"));
+				+ getIdSelectionWhereClause(ids));
 		stmt.execute();
 		return stmt.getResultSet();
 	}
 
-	private ResultSet getHealthIssueRS(Connection conn, long patientId)
+	/**
+     * @param ids
+     * @return
+     */
+    private String getIdSelectionWhereClause(long[] ids) {
+        return ((ids.length == 0) ? "( null ) " : "(" + idsToString(ids)
+        		+ ")");
+    }
+
+    private ResultSet getHealthIssueRS(Connection conn, long patientId)
 			throws SQLException {
 		String s = "select " + HEALTH_ISSUE_ATTRIBUTES
 				+ " from clin_health_issue hi  where hi.id_patient =  ?";
@@ -246,10 +252,13 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	}
 
 	private ResultSet getClinEpisodesRS(Connection conn,
-			long[] clin_health_issue_ids) throws SQLException {
-		return getRowsForIds(conn,
-				"select * from clin_episode where fk_health_issue  in",
-				clin_health_issue_ids);
+			long[] clin_health_issue_ids, long patientId) throws SQLException {
+		    String stmt = 
+				"select * from clin_episode where fk_health_issue  in  " + getIdSelectionWhereClause(
+				clin_health_issue_ids) + " union select * from clin_episode where fk_patient = " + Long.toString(patientId);
+		    Statement s=  conn.createStatement();
+		    return s.executeQuery(stmt);
+		    
 	}
 
 	private ResultSet getClinEncountersRS(Connection conn, long patientId)
@@ -358,8 +367,7 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	 */
 	public void save(ClinicalEncounter encounter, HealthSummary01 summary,
 			List nonFatalExceptions) throws DataSourceException {
-		String s1 = "insert into clin_encounter (id, description, started, last_affirmed,  fk_patient) values (?, ?, ?,?,  ? )";
-
+		
 		Connection conn = null;
 		try {
 
@@ -369,10 +377,12 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 
 		//	conn.setAutoCommit(false);
 
-			Integer idEncounter = insertEncounter(encounter, summary, s1, conn);
+			insertEncounter(encounter, summary, conn);
 			conn.commit();
 
 			List healthIssues = new ArrayList();
+			
+			
 
 			/*
 			 * EntryClinRootItem[] items = (EntryClinRootItem[]) encounter
@@ -385,8 +395,12 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			//       };
 			//       removeEmptyNarratives(itemLists);
 			int itemsAttached = 0;
+			Map newIssues = new HashMap();
+			itemsAttached = saveNewHealthIssues(encounter, summary,
+			        nonFatalExceptions, conn, newIssues);
+			
 			itemsAttached += saveNarrativesCollection(encounter, summary,
-					nonFatalExceptions, conn);
+					nonFatalExceptions, conn, newIssues);
 
 			itemsAttached += saveAllergiesCollection(encounter, summary,
 					nonFatalExceptions, conn);
@@ -410,32 +424,88 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			}
 			
 			if (itemsAttached == 0) {
-				conn.rollback();
-				Statement stmt = conn.createStatement();
-				stmt.execute("delete from clin_encounter where id="
-						+ idEncounter.toString());
-				conn.commit();
-				throw new DataSourceException(
-						"No items attached. Encounter deleted" );
+				removeEmptyEncounter(encounter, conn);
 			}
 
 			conn.commit();
-			conn.close();
+			
 
 		} catch (Exception exception) {
 			try {
 				conn.rollback();
-				conn.close();
+				Statement stmt=conn.createStatement();
+                stmt.execute("abort");
 			} catch (Exception e2) {
 				e2.printStackTrace();
 			}
 			log.info(exception, exception);
 			throw new DataSourceException("unexpected ", exception);
+		} finally {
+		    try {
+                        conn.close();
+		    } catch (Exception e) {
+                log.error(e,e);
+            }
 		}
 
 	}
 
 	/**
+     * @param encounter
+     * @param summary
+     * @param nonFatalExceptions
+     * @param conn
+     * @return
+     */
+    private int saveNewHealthIssues(ClinicalEncounter encounter, HealthSummary01 summary, List nonFatalExceptions, Connection conn, Map newHealthIssues) {
+        
+        int itemsAttached = 0;
+		for (Iterator i = encounter.getNarratives().iterator(); i.hasNext();) {
+			EntryClinNarrative narrative = (EntryClinNarrative) i.next();
+			
+			try {
+			    log.info("Checking for NEW HEALTH ISSUE " + narrative.getHealthIssueName());
+			    if (!"".equals(narrative.getHealthIssueName()) && 
+			            narrative.getHealthIssueName() != null ) {
+			        
+			        HealthIssue issue = 
+			            findExistingHealthIssue(narrative.getHealthIssueName(), summary);
+					
+					if (issue == null || issue.getId() == null) {
+						issue = createNewHealthIssue(conn, narrative, summary);
+						summary.addHealthIssue(issue);
+						newHealthIssues.put(issue.getDescription(), issue);
+						itemsAttached++;
+					}
+					
+			    }
+				
+
+			} catch (Exception e) {
+				log.info("Save new health issue error " + e, e);
+				nonFatalExceptions.add(e);
+			}
+		}
+		return itemsAttached;
+    }
+
+    /**
+     * @param encounter
+     * @param conn
+     * @throws SQLException
+     * @throws DataSourceException
+     */
+    private void removeEmptyEncounter(ClinicalEncounter encounter, Connection conn) throws SQLException, DataSourceException {
+        conn.rollback();
+        Statement stmt = conn.createStatement();
+        stmt.execute("delete from clin_encounter where id="
+        		+ encounter.getId());
+        conn.commit();
+        throw new DataSourceException(
+        		"No items attached. Encounter deleted" );
+    }
+
+    /**
 	 * @param encounter
 	 * @param summary
 	 * @param s1
@@ -444,10 +514,12 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	 *         DataSourceException
 	 * @throws SQLException
 	 */
-	private Integer insertEncounter(ClinicalEncounter encounter,
-			HealthSummary01 summary, String s1, Connection conn)
+	private Long insertEncounter(ClinicalEncounter encounter,
+			HealthSummary01 summary,  Connection conn)
 			throws DataSourceException, SQLException {
-		Integer idEncounter = getNextId(conn, "clin_encounter_id_seq");
+//		this can cause deadlocking   
+//		Integer idEncounter = getNextId(conn, "clin_encounter_id_seq");
+	    String s1 = "insert into clin_encounter ( description, started, last_affirmed,  fk_patient) values ( ?, ?,?,  ? )";
 
 		encounter.getDescription();
 
@@ -455,31 +527,51 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 		java.util.Date affirmed = nullToNow(encounter.getLastAffirmed());
 
 		PreparedStatement insertEncounter = conn.prepareStatement(s1);
-		insertEncounter.setObject(1, idEncounter);
-		insertEncounter.setString(2, encounter.getDescription());
-		insertEncounter.setTimestamp(3, new Timestamp(started.getTime()));
-		insertEncounter.setTimestamp(4, new Timestamp(affirmed.getTime()));
-		insertEncounter.setObject(5, summary.getIdentityId());
+		insertEncounter.setString(1, encounter.getDescription());
+		insertEncounter.setTimestamp(2, new Timestamp(started.getTime()));
+		insertEncounter.setTimestamp(3, new Timestamp(affirmed.getTime()));
+		insertEncounter.setObject(4, summary.getIdentityId());
 		insertEncounter.execute();
-		encounter.setId(new Long(idEncounter.longValue()));
-
-		return idEncounter;
+		log.info("EXECUTED " + s1 + " with " + encounter.getDescription());
+		encounter.setId(new Long( getLastId(conn, "clin_encounter_id_seq").intValue()));
+		return encounter.getId();
+		
+		
 	}
  
 	/**
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
+    private Integer getLastId(Connection conn, String sequence) throws SQLException {
+        Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery("select currval('" + sequence + "')");
+		if (!rs.next())
+		    throw new SQLException("no currval found for "+sequence );
+		Integer id =  new Integer (rs.getInt(1));
+		log.info( "got from seq=" + sequence + " currval = " + id);
+		return id;
+    }
+
+    /**
 	 * @param encounter
 	 * @param nonFatalExceptions
 	 * @param conn
 	 * @return
 	 */
 	private int saveNarrativesCollection(ClinicalEncounter encounter,
-			HealthSummary01 summary, List nonFatalExceptions, Connection conn) {
+			HealthSummary01 summary, List nonFatalExceptions, Connection conn , Map newIssues) {
 	    int itemsAttached = 0;
 		for (Iterator i = encounter.getNarratives().iterator(); i.hasNext();) {
 			EntryClinNarrative narrative = (EntryClinNarrative) i.next();
-			if (!narrative.isEntered())
-				continue;
+			
+			if(!ensureEpisodeWithOnsetOfNewHealthIssue(newIssues, narrative)
+			        && !narrative.isEntered() )
+			    continue;
+			
 			try {
+			    
 				linkRootItem(conn, narrative, summary);
 				saveNarrative(conn, narrative);
 				++itemsAttached;
@@ -492,6 +584,23 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	}
 
 	/**
+     * @param newIssues
+     * @param narrative
+     */
+    private boolean ensureEpisodeWithOnsetOfNewHealthIssue(Map newIssues, EntryClinNarrative narrative) {
+        boolean firstNarrativeOnNewHealthIssue =false;
+        if ( newIssues.get(narrative.getHealthIssueName()) != null) {
+            narrative.setClin_when( narrative.getHealthIssueStart());
+            if (!narrative.isEntered()) {
+                narrative.setNarrative("initial narrative(auto) for health issue");
+            }
+            newIssues.remove(narrative.getHealthIssueName());
+            firstNarrativeOnNewHealthIssue = true;
+        }
+        return firstNarrativeOnNewHealthIssue;
+    }
+
+    /**
 	 * @param encounter
 	 * @param summary
 	 * @param nonFatalExceptions
@@ -501,14 +610,19 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	private int saveAllergiesCollection(ClinicalEncounter encounter,
 			HealthSummary01 summary, List nonFatalExceptions, Connection conn) {
 	    int itemsAttached =0;
+	    boolean defaultAllergyEpisode = false;
 		for (Iterator i = encounter.getAllergies().iterator(); i.hasNext();) {
 			try {
 
 				AllergyEntry allergy = (AllergyEntry) i.next();
 				if (!allergy.isEntered())
 					continue;
+				if (!defaultAllergyEpisode) {
+				    meetSchemaRequirementEpisode(encounter, summary, conn, "allergy entered(autotext)");
+				    defaultAllergyEpisode =true;
+				}
 				linkRootItem(conn, allergy, summary);
-				saveAllergy(conn, allergy);
+				saveAllergy(conn, allergy, summary);
 				itemsAttached++;
 			} catch (Exception e) {
 				nonFatalExceptions.add(e);
@@ -551,9 +665,10 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	 */
 	private int saveVaccinationsCollection(ClinicalEncounter encounter,
 			HealthSummary01 summary, List nonFatalExceptions, Connection conn) throws SQLException {
-	    
-	    meetSchemaRequirementVaccinations(encounter.getId().intValue(), summary.getIdentityId().intValue() , conn);
 	    int itemsAttached =0;
+	   try{
+	    boolean defaultVaccEpisode = false;
+	   
 		for (Iterator i = encounter.getVaccinations().iterator(); i.hasNext();) {
 			try {
 				EntryVaccination v = (EntryVaccination) i.next();
@@ -561,24 +676,38 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 				
 				Util.logBean(log, v);
 				if (v.isEntered()) {
+				    log.info("VACCINATION APPEARS ENTERED FOR ABOVE ");
+				    if (! defaultVaccEpisode) {
+				        meetSchemaRequirementEpisode(encounter, summary  , conn, "vaccination(auto-text)");
+				        defaultVaccEpisode = true;
+				    }
 					linkRootItem(conn, v, summary);
 					saveVaccination(conn, v, summary, encounter.getId().intValue());
 					itemsAttached++;
 				}
 			} catch (Exception e) {
 				nonFatalExceptions.add(e);
+				
+				conn.rollback();
 			}
 		}
 		conn.commit();
+	    } 
+	   		catch ( Exception e2) {
+	        log.error(e2,e2);
+	        conn.rollback();
+	    }
+	    
 		return itemsAttached;
 	}
 	
 	/**
      * @param i
 	 * @param conn
+	 * @param narrativeText TODO
 	 * @throws SQLException
      */
-    private void meetSchemaRequirementVaccinations(int idEncounter, int idPatient, Connection conn) throws SQLException {
+    private void meetSchemaRequirementEpisode(ClinicalEncounter encounter, HealthSummary01 summary, Connection conn, String narrativeText) throws SQLException {
         // TODO Auto-generated method stub
         
         conn.commit();
@@ -620,14 +749,15 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
         c.executeUpdate("set constraints rfi_fk_clin_narrative deferred");
         c.executeUpdate("insert into clin_episode " +
                         "( fk_patient, fk_clin_narrative) " +
-                        "values ( " + Integer.toString(idPatient) + " , nextval('clin_narrative_pk_seq')) ");
+                        "values ( " + summary.getIdentityId().toString() + " , nextval('clin_narrative_pk_seq')) ");
+        String autoText = "vaccination (auto record)";
         c.executeUpdate("insert into clin_narrative " +
                         "(pk,  fk_episode, fk_encounter, narrative) " +
                         "values(" +
                         "currval('clin_narrative_pk_seq')," +
-                        " (select max(pk) from clin_episode where fk_patient = " + Integer.toString(idPatient) + ")," +
-                        " (select max(id) from clin_encounter where fk_patient = " + Integer.toString(idPatient) + ") ," +
-                        "  'vaccination (auto record)' )");
+                        " (select max(pk) from clin_episode where fk_patient = " +  summary.getIdentityId().toString() + ")," +
+                        " (select max(id) from clin_encounter where fk_patient = " + summary.getIdentityId().toString() + ") ," +
+                        "  '"+narrativeText+"' )");
         conn.commit();
 
 //        PreparedStatement  defer = conn.prepareStatement("set constraints rfi_fk_clin_narrative deferred");
@@ -689,12 +819,12 @@ throws SQLException, DataSourceException {
                 
 	}
 
-	/** gets the next id from the sequence named */
-	private Integer getNextId(Connection conn, String seqName)
-			throws DataSourceException, SQLException {
-		
-			return clinRootInsert.getNextId(conn, seqName);
-	}
+//	/** gets the next id from the sequence named */
+//	private Integer getNextId(Connection conn, String seqName)
+//			throws DataSourceException, SQLException {
+//		
+//			return clinRootInsert.getNextId(conn, seqName);
+//	}
 
 	private ClinicalEpisode findOrCreateEpisode(Connection conn,
 			HealthIssue issue, ClinicalEpisode candidateEpisode)
@@ -744,9 +874,11 @@ throws SQLException, DataSourceException {
 			throws DataSourceException, SQLException {
 
 		if (theEpisode == null || theEpisode.getId() == null) {
+		    
+// this might cause deadlock?
+//			Integer id = getNextId(conn, "clin_episode_pk_seq");
 
-			Integer id = getNextId(conn, "clin_episode_pk_seq");
-//version 0.1
+		    //version 0.1
 //			String s3b = "insert into clin_episode( pk, description, fk_health_issue) values( ? , ?, ?)";
 //			PreparedStatement stmt = conn.prepareStatement(s3b);
 //
@@ -755,20 +887,19 @@ throws SQLException, DataSourceException {
 //			stmt.setInt(3, issue.getId().intValue());
 
 //version 0.2			
-			String s3b = "insert into clin_episode( pk, fk_health_issue) values( ? ,  ?)";
+			String s3b = "insert into clin_episode(  fk_health_issue) values(   ?)";
 			
 			PreparedStatement stmt = conn.prepareStatement(s3b);
-
-			stmt.setInt(1, id.intValue());
-//			stmt.setString(2, candidateEpisode.getDescription());
-			stmt.setInt(2, issue.getId().intValue());
+ 
+			stmt.setInt(1 , issue.getId().intValue());
 
 			stmt.execute();
-
-			candidateEpisode.setId(new Long(id.longValue()));
+			
+			candidateEpisode.setId(new Long( getLastId(conn, "clin_episode_pk_seq").longValue()));
 			candidateEpisode.setHealthIssue(issue);
 			issue.addClinicalEpisode(candidateEpisode);
 			theEpisode = candidateEpisode;
+			
 
 		}
 		return theEpisode;
@@ -786,7 +917,7 @@ throws SQLException, DataSourceException {
 	private void linkRootItem(Connection conn, ClinRootItem item,
 			HealthSummary01 summary) throws DataSourceException, SQLException {
 		HealthIssue issue = findOrCreateHealthIssue(conn, item
-				.getHealthIssueName(), summary);
+				, summary);
 		ClinicalEpisode episode = findOrCreateEpisode(conn, issue, item
 				.getEpisode());
 		episode.setHealthIssue(issue);
@@ -795,13 +926,30 @@ throws SQLException, DataSourceException {
 	}
 
 	private HealthIssue findOrCreateHealthIssue(Connection conn,
-			String healthIssueName, HealthSummary01 summary)
+			ClinRootItem issueHolder, HealthSummary01 summary)
 			throws DataSourceException, SQLException {
 		// hacky guard
-		if ("".equals(healthIssueName.trim()))
-			healthIssueName = "xxxDEFAULTxxx";
+		if ("".equals(issueHolder.getHealthIssueName().trim()))
+			issueHolder .setHealthIssueName( "xxxDEFAULTxxx");
 
-		HealthIssue issue = null;
+		HealthIssue issue = findExistingHealthIssue(issueHolder.getHealthIssueName(), summary);
+		
+		if (issue == null || issue.getId() == null) {
+			issue = createNewHealthIssue(conn, issueHolder, summary);
+			summary.addHealthIssue(issue);
+		}
+
+		return issue;
+
+	}
+
+	/**
+     * @param healthIssueName
+     * @param summary
+     * @return
+     */
+    private HealthIssue findExistingHealthIssue(String healthIssueName, HealthSummary01 summary) {
+        HealthIssue issue = null;
 		Iterator i = summary.getHealthIssues().iterator();
 		while (i.hasNext()) {
 			HealthIssue hi = (HealthIssue) i.next();
@@ -814,40 +962,68 @@ throws SQLException, DataSourceException {
 				break;
 			}
 		}
-		if (issue == null || issue.getId() == null) {
+        return issue;
+    }
 
-			log.info("New health issue is " + healthIssueName
-					+ " identity id = " + summary.getIdentityId());
-			Integer id = getNextId(conn, "clin_health_issue_id_seq");
-			String s2b = "insert into clin_health_issue(id, id_patient, description) values( ?,?,?)";
-			PreparedStatement stmt = conn.prepareStatement(s2b);
-			stmt.setInt(1, id.intValue());
-			stmt.setInt(2, summary.getIdentityId().intValue());
-			stmt.setString(3, healthIssueName);
-			stmt.execute();
-			conn.commit();
-			issue = getDataObjectFactory().createHealthIssue();
-			issue.setId(new Long(id.longValue()));
-			issue.setDescription(healthIssueName);
-			summary.addHealthIssue(issue);
-		}
+    /**
+     * @param conn
+     * @param healthIssueNameHolder
+     * @param summary
+     * @return
+     * @throws SQLException
+     */
+    private HealthIssue createNewHealthIssue(Connection conn, ClinRootItem healthIssueNameHolder, HealthSummary01 summary) throws SQLException {
+        HealthIssue issue;
+        Integer id = insertNewHealthIssue(conn, healthIssueNameHolder.getHealthIssueName(), summary);
+        issue = getDataObjectFactory().createHealthIssue();
+        issue.setId(new Long(id.longValue()));
+        issue.setDescription(healthIssueNameHolder.getHealthIssueName());
+        conn.commit();
+        return issue;
+    }
 
-		return issue;
+    /**
+     * @param conn
+     * @param healthIssueName
+     * @param summary
+     * @return
+     * @throws SQLException
+     */
+    private Integer insertNewHealthIssue(Connection conn, String healthIssueName, HealthSummary01 summary) throws SQLException {
+        log.info("New health issue is " + healthIssueName
+        		+ " identity id = " + summary.getIdentityId());
+        String s2b = "insert into clin_health_issue" +
+        		"(  id_patient, description)" +
+        		" values( ?,?)";
+        PreparedStatement stmt = conn.prepareStatement(s2b);
+         stmt.setInt(1, summary.getIdentityId().intValue());
+        stmt.setString(2, healthIssueName);
+        stmt.execute();
+ 
+        Integer id = getLastId(conn, "clin_health_issue_id_seq" );
+        return id;
+    }
 
-	}
-
-	private void saveNarrative(Connection conn, ClinNarrative narrative)
+    private void saveNarrative(Connection conn, ClinNarrative narrative)
 			throws DataSourceException, SQLException {
 
-		String s4 = "insert into clin_narrative(pk_item, is_aoe, is_rfe, clin_when, narrative, soap_cat,  fk_encounter, fk_episode) "
-				+ "values (?,  ? , ? , ?, ?, ? , ? , ? )";
+		String s4 = "insert into clin_narrative(" +
+				" is_aoe, is_rfe, clin_when, narrative, soap_cat,  fk_encounter, fk_episode) "
+				+ "values (" +
+				"  ?,     ? ,       ? ,       ?,          ?,        ? ,           ? " +
+				" )";
 
 		PreparedStatement stmt = conn.prepareStatement(s4);
-		stmt.setBoolean(2, narrative.isAoe());
-		stmt.setBoolean(3, narrative.isRfe());
+		stmt.setBoolean(1, narrative.isAoe());
+		stmt.setBoolean(2, narrative.isRfe());
 
-		setClinRootItemStatement(stmt, narrative, 4);
-
+		setClinRootItemStatement(stmt, narrative, 3);
+		
+		// for the first narrative with a healthIssueStart set,
+		if ( narrative.getHealthIssueStart().getTime() + 1000 * 3600 * 24  < narrative.getClin_when().getTime()  ) {
+		    stmt.setTimestamp(3, new Timestamp(narrative.getHealthIssueStart().getTime()));
+		}
+		
 		log.info(s4);
 
 		stmt.execute();
@@ -861,7 +1037,7 @@ throws SQLException, DataSourceException {
 			clinRootInsert.setClinRootItemStatement(stmt, item, startIndex);
 	}
 
-	private void saveAllergy(Connection conn, Allergy allergy)
+	private void saveAllergy(Connection conn, Allergy allergy, HealthSummary01 summary)
 			throws DataSourceException, SQLException {
 		if (allergy instanceof EntryClinRootItem
 				&& !((EntryClinRootItem) allergy).isEntered())
@@ -871,26 +1047,28 @@ throws SQLException, DataSourceException {
 					+ allergy.getNarrative() + ":" + allergy.getSubstance());
 
 			if (allergy.getEncounter() == null || allergy.getEpisode() == null) {
-				log.info("DIDNot save");
 				throw new DataSourceException(
-						"Allergy had no encounter or episode");
+						"Allergy had no encounter or episode, allergy not saved.");
 			}
-			String s5 = "insert into allergy(pk_item, definite, substance,id_type,   clin_when, narrative, soap_cat,  fk_encounter, fk_episode) "
-					+ "values (?,  ? , ? , ?, ?, ? , ? , ?, ?)";
+			String s5 = "insert into allergy" +
+            "( definite, substance,id_type,   clin_when, narrative, soap_cat,  fk_encounter, fk_episode) "
++ "values        (?,        ? ,         ? ,         ?,      ?,          ? , "+ getMaxEncounterMaxEpisodeString(summary)+ " )";
 
 			log.info("SAVE ALLERGY" + allergy.getEncounter() + ":"
 					+ allergy.getNarrative() + ":" + allergy.getSubstance());
-
+                                        
+                        conn.commit();
+                        
 			PreparedStatement stmt = conn.prepareStatement(s5);
 
-			setClinRootItemStatement(stmt, allergy, 5);
+                        stmt.setBoolean(1, allergy.isDefinite());
+                        
+			stmt.setString(2, allergy.getSubstance());
 
-			stmt.setInt(4, 1); // id_type allergy
+			stmt.setInt(3, 1); // id_type allergy
 			//  ** change **
+			setClinRootItemStatement(stmt, allergy, 4,7);
 
-			stmt.setString(3, allergy.getSubstance());
-
-			stmt.setBoolean(2, allergy.isDefinite());
 
 			log.info(s5);
 			stmt.execute();
@@ -898,6 +1076,11 @@ throws SQLException, DataSourceException {
 
 		} catch (Exception e) {
 			conn.rollback();
+                        Statement recovery = conn.createStatement();
+                        recovery.execute("abort");
+                        conn.commit();
+                        recovery.close();
+                        
 			log.info(e, e);
 			throw new DataSourceException("allergy save error." + e.getCause(),
 					e);
@@ -912,36 +1095,34 @@ throws SQLException, DataSourceException {
 		    if (idVaccine == 0) {
 		        return;
 		    }
-			String s6 = "insert into vaccination (" +
-					"pk_item, fk_patient, fk_provider, fk_vaccine, site, " +
-					"batch_no, "
-					+ " clin_when, narrative, soap_cat,  fk_encounter, fk_episode) "
-					+ "values (?,  ? , ? , ?, ?, ? , ? , ?, ?, " +
-							" (select max(id) from clin_encounter " +
-								"where fk_patient=" +summary.getIdentityId().toString() +
-							" ), " +
-							"(select max(pk) from clin_episode "+
-							"where fk_patient=" +summary.getIdentityId().toString() +
+			String encounterEpisodeString = getMaxEncounterMaxEpisodeString(summary);
+            String s6 = "insert into vaccination (" +
+					" fk_patient, fk_provider, fk_vaccine, site, batch_no, "
+					+ " clin_when, narrative, soap_cat,  " +
+							"fk_encounter, 	fk_episode) "
+					+ "values (?,  ? , 			? ,			 ?, 	?		," +
+							" ? , 	? , 	   ?," +
+							encounterEpisodeString +
 							 
-							")  )";
+							" )";
 
 			PreparedStatement stmt = conn.prepareStatement(s6);
+			int i = 0;
+			stmt.setInt(++i, summary.getIdentityId().intValue());
 
-			setClinRootItemStatement(stmt, vacc, 7, 10);
-			
-			stmt.setInt(2, summary.getIdentityId().intValue());
-
-			stmt.setInt(3, 0);
+			stmt.setInt(++i, 0);
 			log.info("TRYING TO SET" + s6 + " WITH vacc.getVaccineGiven()="
 					+ vacc.getVaccineGiven());
 
 			
-            stmt.setInt(4, idVaccine);
+            stmt.setInt(++i, idVaccine);
 
-			stmt.setString(5, vacc.getSite());
+			stmt.setString(++i, vacc.getSite());
 
-			stmt.setString(6, vacc.getBatchNo());
-		
+			stmt.setString(++i, vacc.getBatchNo());
+
+			setClinRootItemStatement(stmt, vacc, 6, 9);
+			
 			
 			
 			log.info(s6);
@@ -959,6 +1140,19 @@ throws SQLException, DataSourceException {
 	}
 
 	/**
+     * @param summary
+     * @return
+     */
+    private String getMaxEncounterMaxEpisodeString(HealthSummary01 summary) {
+        String getEncounterEpisodeParameterString = " (select max(id) from clin_encounter " +
+        					"where fk_patient=" +summary.getIdentityId().toString() +
+        				" ), " +
+        				"(select max(pk) from clin_episode "+
+        				"where fk_patient=" +summary.getIdentityId().toString() +")";
+        return getEncounterEpisodeParameterString;
+    }
+
+    /**
      * @param stmt
      * @param vacc
      * @param i
@@ -966,9 +1160,9 @@ throws SQLException, DataSourceException {
 	 * @throws SQLException
 	 * @throws DataSourceException
      */
-    private void setClinRootItemStatement(PreparedStatement stmt, Vaccination vacc, int i, int j) throws DataSourceException, SQLException {
+    private void setClinRootItemStatement(PreparedStatement stmt, ClinRootItem item, int i, int j) throws DataSourceException, SQLException {
         // TODO Auto-generated method stub
-        clinRootInsert.setClinRootItemStatement(stmt, vacc, i, j);
+        clinRootInsert.setClinRootItemStatement(stmt, item, i, j);
     }
 
     /**

@@ -31,6 +31,8 @@ public class DrugRefAccessImpl1 implements DrugRefAccess {
         if (name == null )
             return new org.gnumed.testweb1.data.DrugRef[0];
         
+        Connection conn = null;
+        try {
         name = name.trim();
         
         if ("".equals(name))
@@ -38,7 +40,9 @@ public class DrugRefAccessImpl1 implements DrugRefAccess {
         
         String s2 =  SELECT_DRUGREF + " where position ( lower( ? ) in lower("+
         BRAND_NAME + ") ) > 0 or position ( lower( ? ) in lower(" +  ATC_NAME + ") ) > 0";
-        Connection conn = getDataSource().getConnection();
+        
+        
+        conn = getDataSource().getConnection();
         PreparedStatement stmt = conn.prepareStatement(s2);
         stmt.setString(1, name);
         stmt.setString(2, name);
@@ -64,7 +68,17 @@ public class DrugRefAccessImpl1 implements DrugRefAccess {
             l.add(drugRef);
             
         }
-        return (DrugRef[]) l.toArray(new DrugRef[0]);
+        	return (DrugRef[]) l.toArray(new DrugRef[0]);
+        } catch(SQLException e) {
+            throw e;
+        } finally {
+            try {
+                conn.close();
+            }catch (Exception e2) {
+                // TODO: handle exception
+                log.error(e2,e2);
+            }
+        }
         
     }
     

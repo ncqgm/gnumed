@@ -306,7 +306,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 		boolean findIdUrbFromUrbStateCountry(String urb, String state,
 				String country) throws UnsupportedEncodingException, SQLException {
 		    stmt = conn.prepareStatement("select u.id from urb u, state s where u.id_state = s.id " +
-		    		"and u.name=? and (s.name=? or s.code=?) and s.country = ?");
+		    		"and lower(u.name)=lower(?) and (s.name=? or s.code=?) and s.country = ?");
 		    stmt.setString(1,   Util.encode(urb));
 		    stmt.setString(2, Util.encode( state));
 		    stmt.setString(3, Util.encode( state) );

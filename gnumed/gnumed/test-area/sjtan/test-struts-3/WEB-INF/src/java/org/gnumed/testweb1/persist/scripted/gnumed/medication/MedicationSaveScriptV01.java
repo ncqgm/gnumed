@@ -9,11 +9,7 @@ package org.gnumed.testweb1.persist.scripted.gnumed.medication;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
- 
-import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Date;
- 
 
 import org.gnumed.testweb1.data.EntryMedication;
 import org.gnumed.testweb1.data.HealthSummary01;
@@ -53,25 +49,26 @@ public class MedicationSaveScriptV01 implements MedicationSaveScript, ClinMedica
 	 * @throws SQLException
 	 */
 	protected void setStatement(EntryMedication med, ClinRootInsert rootItemInserter, PreparedStatement stmt) throws DataSourceException, SQLException {
-		rootItemInserter.setClinRootItemStatement(stmt, med, 15); 
-		stmt.setString(2, med.getBrandName());
-		stmt.setString(3, med.getATC_code());
-		stmt.setString(4, med.getDB_origin());
-		stmt.setString(5, med.getDB_drug_id());
-		stmt.setString(6, med.getConvertedAmountUnit());
+		rootItemInserter.setClinRootItemStatement(stmt, med, 14); 
+		int i = 0;
+		stmt.setString(++i, med.getBrandName());
+		stmt.setString(++i, med.getATC_code());
+		stmt.setString(++i, med.getDB_origin());
+		stmt.setString(++i, med.getDB_drug_id());
+		stmt.setString(++i, med.getConvertedAmountUnit());
 		//stmt.setDouble(7, med.getConvertedDose());
 		
-		stmt.setString(7 , "'{ " + String.valueOf(med.getConvertedDose()) + " }'");
+		stmt.setString(++i , "'{ " + String.valueOf(med.getConvertedDose()) + " }'");
 		//changed
-		stmt.setInt(8,  med.getPeriod());
-		stmt.setString(9, med.getForm());
-		stmt.setString(10, med.getDirections());
-		stmt.setBoolean( 11, med.isPRN());
-		stmt.setTimestamp(12, new java.sql.Timestamp(med.getStart().getTime()));
-		stmt.setTimestamp(13, new java.sql.Timestamp(med.getLast().getTime()));
-		stmt.setTimestamp(14,med.getDiscontinued() == null? null: new java.sql.Timestamp( med.getDiscontinued().getTime()));
-		stmt.setString(17, "p");
-		stmt.setBoolean(20,  med.isSR());
+		stmt.setInt(++i,  med.getPeriod());
+		stmt.setString(++i, med.getForm());
+		stmt.setString(++i, med.getDirections());
+		stmt.setBoolean( ++i, med.isPRN());
+		stmt.setTimestamp(++i, new java.sql.Timestamp(med.getStart().getTime()));
+		stmt.setTimestamp(++i, new java.sql.Timestamp(med.getLast().getTime()));
+		stmt.setTimestamp(++i,med.getDiscontinued() == null? null: new java.sql.Timestamp( med.getDiscontinued().getTime()));
+		stmt.setString(++i, "p");
+		stmt.setBoolean(++i,  med.isSR());
 	}
 
 	/**
@@ -80,16 +77,25 @@ public class MedicationSaveScriptV01 implements MedicationSaveScript, ClinMedica
 	 */
 	public String getInsertStatement(ClinRootInsert rootItemInserter) {
 		String s9 = "insert into clin_medication("+
-				pk_item + ", " + brandName + ", " 
-				+ atc_code + ", " + db_origin
-				+ ", " + db_drug_id + ", " + amount_unit + ", " +
-				dose + ", " + period + ", " + 
-				form + ", " +	directions + ", "
+				//pk_item + ", " + 
+				brandName + ", " 
+				+ atc_code + ", "
+				+ db_origin + ", "
+				+ db_drug_id + ", " 
+				+ amount_unit + ", "  
+				+ dose + ", " 
+				+ period + ", " 
+				+ form + ", " 
+				+	directions + ", "
 				+ prn + ", " +
-				started + ", " + last_prescribed + ", " +
+				started + ", " 
+				+ last_prescribed + ", " +
 				discontinued + ", " +
-			 	rootItemInserter.getClinRootFields()+ ", " +sr  + " ) " 
-				+ "values (?,  ? , ? , ?,   ?," +
+			 	rootItemInserter.getClinRootFields()+ ", " 
+			 	+sr  + " ) " 
+				+ "values (" +
+					//	"?," +
+						"  ? , ? , ?,   ?," +
 					" ? , ? , ? , ? , ?" +
 					", ? , ? , ? , ? , ?" +
 					" , ? , ? , ? , ? , ?)";

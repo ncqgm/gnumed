@@ -1,15 +1,16 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
-<%@taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
-<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
 
-<%@ taglib uri="/tags/struts-html" prefix="html" %>
+<%@taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles"%>
+<%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
+
+<%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
  <html:base />
 
 <html>
 <head><title>Clinical Entry</title>
 
-    <LINK   TYPE="text/css" REL="stylesheet" href="./style.css" title="Style"/>    
+    <LINK   TYPE="text/css" REL="stylesheet" href="../style.css" title="Style"/>    
  
 </head> 
 <body>
@@ -39,7 +40,7 @@
         |
         <bean:define id="printToken" value="1"/>
         <html:link
-            page="/pages/printableHistory.jsp"   
+            page="/pages/clinicalStatus/printableHistory.jsp"   
             paramId="print"
             paramName="printToken"
             >show printable notes

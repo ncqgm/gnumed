@@ -42,49 +42,42 @@ public class MedicationSaveScriptV02 extends MedicationSaveScriptV01 implements
 	 * @throws SQLException
 	 */
  
+	
+	
 	protected void setStatement(EntryMedication med,
 			ClinRootInsert rootItemInserter, PreparedStatement stmt)
 			throws DataSourceException, SQLException {
  
-		int j = 1;
-		stmt.setString(++j, med.getBrandName());
-		stmt.setString(++j, med.getATC_code());
-		stmt.setString(++j, med.getDB_origin());
-		stmt.setString(++j, med.getDB_drug_id());
-		stmt.setString(++j, med.getConvertedAmountUnit());
+		int j = 0;
+		stmt.setString(++j, med.getBrandName());  //+1
+		stmt.setString(++j, med.getATC_code());	//+2
+		stmt.setString(++j, med.getDB_origin()); //+3
+		stmt.setString(++j, med.getDB_drug_id());//+4
+		stmt.setString(++j, med.getConvertedAmountUnit()); //+5
 		//stmt.setDouble(++j, med.getConvertedDose());
 
 		stmt
 				.setString(++j, "{" + String.valueOf(med.getConvertedDose())
-						+ " }");
+						+ " }"); //+6
 		//changed
-		stmt.setString(++j, String.valueOf(med.getPeriod()) + INTERVAL_HOURS);
-		stmt.setString(++j, med.getForm());
-		stmt.setString(++j, med.getDirections());
+		stmt.setString(++j, String.valueOf(med.getPeriod()) + INTERVAL_HOURS);//+7
+		stmt.setString(++j, med.getForm());//+8
+		stmt.setString(++j, med.getDirections());  //+9
  
-		stmt.setBoolean(++j, med.isPRN());
-		stmt.setBoolean(++j, med.isSR());
+		stmt.setBoolean(++j, med.isPRN()); //+10
+		stmt.setBoolean(++j, med.isSR());//+11
 		//	stmt.setDate(++j, new java.sql.Date(med.getStart().getTime()));
 		// //deprecated
-		stmt.setTimestamp(++j, new java.sql.Timestamp(med.getLast().getTime()));
+		stmt.setTimestamp(++j, new java.sql.Timestamp(med.getLast().getTime())); //+12
+		
 		stmt.setTimestamp(++j, med.getDiscontinued() == null ? null
-				: new java.sql.Timestamp(med.getDiscontinued().getTime()));
+				: new java.sql.Timestamp(med.getDiscontinued().getTime())); //+13
+		stmt.setString( ++j, med.getGenericName() == null ? "" : med.getGenericName() ); // +14
+		//+14
+		med.setSoapCat("p"); 
+		
 		rootItemInserter.setClinRootItemStatement(stmt, med, ++j);
-		j = 16;
- 
-		stmt.setString(++j, "p");
-		//		stmt.setBoolean(++j, med.isSR());
-		j = 19;
-		if (med.getGenericName() == null
-				|| "".equals(med.getGenericName().trim())) {
-			log.info("setting " + j + 1 + " to null");
-			stmt.setNull(++j, Types.VARCHAR);
-		} else {
-			log.info("setting statment param " + j + 1 + " to "
-					+ med.getGenericName());
-			stmt.setString(++j, med.getGenericName());
-
-		}
+	
 		
 	}
 
@@ -94,7 +87,7 @@ public class MedicationSaveScriptV02 extends MedicationSaveScriptV01 implements
 	 */
 	public String getInsertStatement(ClinRootInsert rootItemInserter) {
 		String s9 = "insert into clin_medication("
-				+ ClinMedicationFieldsV02.pk_item + ", "
+				//+ ClinMedicationFieldsV02.pk_item + ", "
 				+ ClinMedicationFieldsV02.brandName + ", "
 				+ ClinMedicationFieldsV02.atc_code + ", "
 				+ ClinMedicationFieldsV02.db_origin + ", "
@@ -107,16 +100,24 @@ public class MedicationSaveScriptV02 extends MedicationSaveScriptV01 implements
 				+ ClinMedicationFieldsV02.prn + ", " +
 				 ClinMedicationFieldsV02.sr + ", " 
 				// + started +", " //-
+				
 												// deprecated to clin_when?
 				+ ClinMedicationFieldsV02.last_prescribed + ", "
-				+ ClinMedicationFieldsV02.discontinued + ", " + // 14
+				+ ClinMedicationFieldsV02.discontinued + ", "   // 13
+				+ generic_name +	", " +// 14 
 				// fields
 				// here
-				rootItemInserter.getClinRootFields() + ", " + generic_name
+				rootItemInserter.getClinRootFields()  // +5
+				
 				+ "  ) "
 
-				+ "values (?,  ? , ? , ?, ?,  " + "?, ? , ? , ? , ? , "
-				+ "?, ? , ? , ? , ? , " + "?, ? , ? , ? , ?)"; 
+				+ "values (" +
+				// "?,  " +
+				"? , ? , ?, ?,  " + //4
+				"?, ? , ? , ? , ? , " +
+				"?, ? , ? , ? , ? , " +
+				"?, ? , ? , ? , ?)"; 
+				//19 fields
 		return s9;
 	}
 

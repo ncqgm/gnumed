@@ -197,4 +197,6 @@ public interface ClinicalEncounter {
 	 * @param hi
 	 */
 	public void replaceMappedIssue(HealthIssue hi);
+
+	
 }

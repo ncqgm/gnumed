@@ -26,6 +26,9 @@ public class ClinRootItemImpl1 implements ClinRootItem, Comparable {
                soapOrder.put(cat, new Integer(i));
            }
     };
+    
+    java.util.Date healthIssueStart = new java.util.Date();
+   
     java.util.Date clin_when = new java.util.Date();
     ClinicalEpisode episode;
     ClinicalEncounter clinicalEncounter;
@@ -174,5 +177,17 @@ public class ClinRootItemImpl1 implements ClinRootItem, Comparable {
         }
         
         return 0;
+    }
+    /**
+     * @return Returns the healthIssueStart.
+     */
+    public java.util.Date getHealthIssueStart() {
+        return healthIssueStart;
+    }
+    /**
+     * @param healthIssueStart The healthIssueStart to set.
+     */
+    public void setHealthIssueStart(java.util.Date healthIssueStart) {
+        this.healthIssueStart = healthIssueStart;
     }
 }

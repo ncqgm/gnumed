@@ -19,11 +19,20 @@ implements EntryClinNarrative, ClinWhenHolder {
 	Log log = LogFactory.getLog(this.getClass());
 	
     ClinWhenEntryAdapter adapter;
+    DateEntryAdapter issueStartedAdapter = new DateEntryAdapter(this, "healthIssueStart");
    EntryClinRootItem item = new EntryClinRootItemImpl1();
     /** Creates a new instance of EntryClinNarrativeImpl1 */
     public EntryClinNarrativeImpl1() {
         super();
         adapter = new ClinWhenEntryAdapter(this);
+    }
+    
+    public String getHealthIssueStartString() {
+        return issueStartedAdapter.getDateString();
+    }
+    
+    public void setHealthIssueStartString(String start) {
+        issueStartedAdapter.setDateString(start);
     }
     
     public String getClinWhenString() {

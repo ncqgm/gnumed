@@ -1,4 +1,6 @@
-/*
+
+
+/**
  * NullRootItem.java
  *
  * Created on September 26, 2004, 4:28 PM
@@ -16,8 +18,9 @@ public class NullRootItem
     static {
         NullItem = new NullRootItem();
     }
+    
     /** Creates a new instance of NullRootItem */
-    NullRootItem() {
+    public NullRootItem() {
     }
     
     public java.util.Date getClin_when() {
@@ -87,6 +90,7 @@ public class NullRootItem
     public void setPk(Integer pk) {
     }
     
+    
     public void setSoapCat(String soapCat) {
     }
 
@@ -97,5 +101,21 @@ public class NullRootItem
 		// TODO Auto-generated method stub
 		
 	}
+
+    /* (non-Javadoc)
+     * @see org.gnumed.testweb1.data.ClinRootItem#getHealthIssueStart()
+     */
+    public Date getHealthIssueStart() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.gnumed.testweb1.data.ClinRootItem#setHealthIssueStart(java.util.Date)
+     */
+    public void setHealthIssueStart(Date healthIssueStart) {
+        // TODO Auto-generated method stub
+        
+    }
     
 }

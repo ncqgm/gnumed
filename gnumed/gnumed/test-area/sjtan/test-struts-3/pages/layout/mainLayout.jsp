@@ -1,14 +1,15 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
-<%@taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
-<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
+<%@taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles"%>
+<%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
 
-<%@ taglib uri="/tags/struts-html" prefix="html" %>
+<%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
 
 <html>
 <html:base/>
 <head><title>JSP Page</title>
-    <LINK   TYPE='text/css'  REL='stylesheet' href='style.css'/>     
+    
+    <LINK   TYPE='text/css'  REL='stylesheet' href='../style.css'/>     
 </head>
 <!--
 <STYLE type="text/css" >
@@ -32,7 +33,23 @@
      
         <tr>
             <td width='85%'> 
-                <tiles:insert name="content"/> 
+                <table>
+                <tr>
+                  <td>
+                   <tiles:insert name="content"/>
+                  </td>
+                </tr>
+                <tr>
+                    <td>
+                        <tiles:insert name="content2"/>
+                    </td>
+                </tr>
+                  <tr>
+                    <td>
+                        <tiles:insert name="content3"/>
+                    </td>
+                </tr>
+                </table>
             </td> 
         
             <td> 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!DOCTYPE web-app
-  PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
-  "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
+  PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+  "http://java.sun.com/j2ee/dtd/web-app_2_3.dtd">
 
 
 <web-app >
-  <display-name>Struts Gnumed WebClient Application</display-name>
+  <display-name>Struts Gnumed Test WebClient Application</display-name>
   
   <!-- Standard Action Servlet Configuration (with debugging) -->
   <servlet >
@@ -31,7 +31,7 @@
       <param-value>2</param-value>
     </init-param>
     <load-on-startup>2</load-on-startup>
-      </servlet>
+  </servlet>
 
 
   <!-- Standard Action Servlet Mapping -->
@@ -43,51 +43,66 @@
 
   <!-- The Usual Welcome File List -->
   <welcome-file-list>
-    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>pages/index.jsp</welcome-file>
   </welcome-file-list>
 
 
-  <!-- Struts Tag Library Descriptors -->
+  <!-- Struts Tag Library Descriptors 
   <taglib>
-    <taglib-uri>/tags/struts-bean</taglib-uri>
+    <taglib-uri>http://struts.apache.org/tags-bean</taglib-uri>
     <taglib-location>/WEB-INF/lib/struts-bean.tld</taglib-location>
   </taglib>
 
   <taglib>
-    <taglib-uri>/tags/struts-html</taglib-uri>
+    <taglib-uri>http://struts.apache.org/tags-html</taglib-uri>
     <taglib-location>/WEB-INF/lib/struts-html.tld</taglib-location>
   </taglib>
 
   <taglib>
-    <taglib-uri>/tags/struts-logic</taglib-uri>
-    <taglib-location>/WEB-INF/lib/struts-logic.tld</taglib-location>
+    <taglib-uri>http://struts.apache.org/tags-logic</taglib-uri>
+    <taglib-location>/WEB-INF/lib/tlds/struts-logic.tld</taglib-location>
   </taglib>
   
    <taglib>
-    <taglib-uri>/tags/struts-bean-el</taglib-uri>
+    <taglib-uri>http://struts.apache.org/tags-bean-el</taglib-uri>
     <taglib-location>/WEB-INF/lib/struts-bean-el.tld</taglib-location>
   </taglib>
 
   <taglib>
-    <taglib-uri>/tags/struts-html-el</taglib-uri>
+    <taglib-uri>http://struts.apache.org/tags-html-el</taglib-uri>
     <taglib-location>/WEB-INF/lib/struts-html-el.tld</taglib-location>
   </taglib>
 
   <taglib>
-    <taglib-uri>/tags/struts-logic-el</taglib-uri>
+    <taglib-uri>http://struts.apache.org/tags-logic-el</taglib-uri>
     <taglib-location>/WEB-INF/lib/struts-logic-el.tld</taglib-location>
   </taglib>
 
   <taglib>
-    <taglib-uri>/tags/struts-nested</taglib-uri>
+    <taglib-uri>http://struts.apache.org/tags-nested</taglib-uri>
     <taglib-location>/WEB-INF/lib/struts-nested.tld</taglib-location>
   </taglib>
 
   <taglib>
-    <taglib-uri>/tags/struts-tiles</taglib-uri>
+    <taglib-uri>http://struts.apache.org/tags-tiles</taglib-uri>
     <taglib-location>/WEB-INF/lib/struts-tiles.tld</taglib-location>
   </taglib>
   
+  -->
+  
+   <!-- Define reference to the user database for looking up roles -->
+  <resource-env-ref>
+    <description>
+      Link to the UserDatabase instance from which we request lists of
+      defined role names.  Typically, this will be connected to the global
+      user database with a ResourceLink element in server.xml or the context
+      configuration file for the Manager web application.
+    </description>
+    <resource-env-ref-name>users</resource-env-ref-name>
+    <resource-env-ref-type>
+      org.apache.catalina.UserDatabase
+    </resource-env-ref-type>
+  </resource-env-ref>
 <!-- must be put here, the DBCP database pooled basic datasource -->
 <resource-ref>
  <description>postgres gnumed access</description>
@@ -103,19 +118,7 @@
  <res-auth>Container</res-auth>
 </resource-ref>
 
-  <!-- Define reference to the user database for looking up roles -->
-  <resource-env-ref>
-    <description>
-      Link to the UserDatabase instance from which we request lists of
-      defined role names.  Typically, this will be connected to the global
-      user database with a ResourceLink element in server.xml or the context
-      configuration file for the Manager web application.
-    </description>
-    <resource-env-ref-name>users</resource-env-ref-name>
-    <resource-env-ref-type>
-      org.apache.catalina.UserDatabase
-    </resource-env-ref-type>
-  </resource-env-ref>
+ 
 
   <!-- Define a Security Constraint on this Application -->
   <security-constraint>

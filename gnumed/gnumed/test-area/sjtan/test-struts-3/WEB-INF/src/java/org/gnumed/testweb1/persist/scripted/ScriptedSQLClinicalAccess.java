@@ -48,7 +48,7 @@ public class ScriptedSQLClinicalAccess implements ClinicalDataAccess , Credentia
             throw new DataSourceException( e);//Util.getStaceTraceN(e, 8));
         } finally {
             try {
-              //  conn.close();
+               conn.close();
             }catch (Exception e) {
              throw new DataSourceException(e); //Util.getStaceTraceN(e, 8));
         }
