@@ -106,3 +106,9 @@ Can't run GNUMed without database connection
 2002-04-07 23:21:14 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
 2002-04-07 23:21:14 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/test-area/clin_summary
 2002-04-07 23:21:14 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-05-17 21:44:08 ------------------------------------------------------------
+2002-05-17 21:44:08 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-05-17 21:44:08 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-05-17 21:45:17 ------------------------------------------------------------
+2002-05-17 21:45:17 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-05-17 21:45:17 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"

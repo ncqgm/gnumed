@@ -45,4 +45,7 @@ CREATE plugin (
 				   -- this module, configs job to check this
        param TEXT -- parameters in the URL format: foo=bar&a=b
 );
+
+-- SELECT modules.modulename, plugin.param FROM modules, plugin WHERE modules.id =
+--       plugin.file AND username = CURRENT_USER ORDER BY plugin.loadorder
        

@@ -16,6 +16,7 @@
 
 import gmExceptions, os, inspect
 from gmLog import gmDefLog
+from wxPython.wx import *
 
 class gmPlugin:
 	# these are class variables which provide clues to the
@@ -124,7 +125,7 @@ class gmCrypto (gmPlugin):
 		gmExceptions.PureVirtualFunction ()
 		
 "A plugin which uses crypto algorithms"
-class gmCryptoUser ():
+class gmCryptoUser:
 	def LoadAlgorithms ():
 		self.algorithm = {}
 		for file in os.listdir ('crypto'):
