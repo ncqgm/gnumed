@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.30 $
+-- $Revision: 1.31 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -158,10 +158,17 @@ comment on column cfg_template.description is
 -- ======================================================
 create table cfg_item (
 	id SERIAL PRIMARY KEY,
-	id_template INTEGER REFERENCES cfg_template (id),
-	owner name not null default CURRENT_USER,
-	machine VARCHAR (40) not null default 'xxxDEFAULTxxx',
-	cookie VARCHAR (40) not null default 'xxxDEFAULTxxx'
+	id_template INTEGER
+		REFERENCES cfg_template (id),
+	owner name
+		not null
+		default CURRENT_USER,
+	workplace text
+		not null
+		default 'xxxDEFAULTxxx',
+	cookie text
+		not null
+		default 'xxxDEFAULTxxx'
 );
 
 comment on table cfg_item is
@@ -169,11 +176,22 @@ comment on table cfg_item is
 comment on column cfg_item.id_template is
 	'this points to the class of this option, think of this as a base object, this also defines the data type';
 comment on column cfg_item.owner is
-	'the database level user this option belongs to; this is the "role" of the user from the perspective of the database; can be "default" at the application level to indicate that it does not care';
-comment on column cfg_item.machine is
-	'the logical workplace this option pertains to; can be a hostname but should be a logical rather than a physical identifier, machines get moved, workplaces do not; kind of like a "role" for the machine; associate this with a physical machine through a local config file or environment variable; can be "default" if we do not care';
+	'the database level user this option belongs to; this
+	 is the "role" of the user from the perspective of
+	 the database; can be "default" at the application
+	 level to indicate that it does not care';
+comment on column cfg_item.workplace is
+	'the logical workplace this option pertains to;
+	 can be a hostname but should be a logical rather
+	 than a physical identifier, machines get moved,
+	 workplaces do not; kind of like a "role" for the
+	 machine; associate this with a physical workplace
+	 through a local config file or environment variable';
 comment on column cfg_item.cookie is
-	'an arbitrary, opaque entity the client code can use to associate this config item with even finer grained context; could be the pertinent patient ID for patient specific options; can default to "default"';
+	'an arbitrary, opaque entity the client code can use
+	 to associate this config item with even finer grained
+	 context; could be the pertinent patient ID for patient
+	 specific options';
 
 -- ======================================================
 create table cfg_string (
@@ -218,11 +236,14 @@ GRANT select, insert, update, delete on
 to group "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.30 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.31 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.30  2004-07-17 20:57:53  ncq
+-- Revision 1.31  2004-07-19 11:50:43  ncq
+-- - cfg: what used to be called "machine" really is "workplace", so fix
+--
+-- Revision 1.30  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --

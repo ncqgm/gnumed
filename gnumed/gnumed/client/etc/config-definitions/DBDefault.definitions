@@ -1,5 +1,5 @@
 # gnumed config definition file
-# definitions for DB:CURRENT/DEFAULT_USER_CURRENT/DEFAULT_MACHINE
+# definitions for DB:CURRENT/DEFAULT_USER_CURRENT/DEFAULT_WORKPLACE
 
 [_config_version_]
 version=0.01

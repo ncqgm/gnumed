@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.24 2004-06-28 12:18:52 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmForms.py,v 1.25 2004-07-19 11:50:42 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -41,7 +41,7 @@ class gmFormEngine:
 		self.pk_def = pk_def
 		self.patient = gmPatient.gmCurrentPatient ()
 		self.whoami = gmWhoAmI.cWhoAmI ()
-		self.machine = self.whoami.get_workplace ()
+		self.workplace = self.whoami.get_workplace ()
 
 	def convert (self, item):
 		"""
@@ -218,7 +218,7 @@ class TextForm (gmFormEngine):
 	#----------------------------------------------------------
 	
 	def printout (self):
-		command, set1 = gmCfg.getFirstMatchingDBSet (machine = self.machine, option = 'main.comms.print')
+		command, set1 = gmCfg.getFirstMatchingDBSet (workplace = self.workplace, option = 'main.comms.print')
 		self.exe (command)
 #============================================================
 class LaTeXForm (TextForm):
@@ -427,7 +427,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.24  2004-06-28 12:18:52  ncq
+# Revision 1.25  2004-07-19 11:50:42  ncq
+# - cfg: what used to be called "machine" really is "workplace", so fix
+#
+# Revision 1.24  2004/06/28 12:18:52  ncq
 # - more id_* -> fk_*
 #
 # Revision 1.23  2004/06/26 07:33:55  ncq

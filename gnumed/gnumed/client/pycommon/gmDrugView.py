@@ -31,13 +31,13 @@ class DrugView:
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
 		
-		currMachine = _whoami.get_workplace()
-		if currMachine is None:
+		currWorkplace = _whoami.get_workplace()
+		if currWorkplace is None:
 			# assume we are outside gnumed
 			self.dbConfFile = _cfg.get(aDatabaseName, 'configfile')
 		else:
 			# 
-			self.dbConfFile, match = gmCfg.getFirstMatchingDBSet(currMachine,
+			self.dbConfFile, match = gmCfg.getFirstMatchingDBSet(currWorkplace,
 				option="DrugReferenceBrowser.%s.configfile" % aDatabaseName)
 		
 
@@ -388,7 +388,10 @@ if __name__ == "__main__":
 
 #========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.2  2004-03-10 00:14:04  ncq
+# Revision 1.3  2004-07-19 11:50:42  ncq
+# - cfg: what used to be called "machine" really is "workplace", so fix
+#
+# Revision 1.2  2004/03/10 00:14:04  ncq
 # - fix imports
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq

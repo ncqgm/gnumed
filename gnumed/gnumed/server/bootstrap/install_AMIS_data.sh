@@ -19,12 +19,15 @@ echo "Now config parameters will be set in the GnuMed database so that GnuMed wi
 echo "know which drug data should be accessed. These settings can be changed via"
 echo "the Setup plugin in GnuMed. The corresponding parameters are"
 echo "DrugReferenceBrowser.drugDBName and DrugReferenceBrowser.amis.configfile"
-echo "stored under DEFAULT_USER_DEFAULT_MACHINE."
+echo "stored under DEFAULT_USER_DEFAULT_WORKPLACE."
 echo "You will have to login to the GnuMed database to write these data." 
 env PYTHONPATH=$MODULES_DIR $MODULES_DIR/tools/transferDBset.py -i ./amis-config.set
 
 # $Log: install_AMIS_data.sh,v $
-# Revision 1.3  2003-12-29 21:09:00  uid67323
+# Revision 1.4  2004-07-19 11:50:43  ncq
+# - cfg: what used to be called "machine" really is "workplace", so fix
+#
+# Revision 1.3  2003/12/29 21:09:00  uid67323
 # -added some informative messages
 #
 # Revision 1.2  2003/11/09 17:50:06  ncq

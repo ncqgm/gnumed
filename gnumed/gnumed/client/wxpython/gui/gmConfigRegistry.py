@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -285,7 +285,7 @@ class cConfTree(wxTreeCtrl):
 		elif type == 'defaultSubtree':
 			message=_("(Subtree root)")
 		elif type == 'root':
-			message=_("(Config parameter tree for current/default user and machine)")
+			message=_("(Config parameter tree for current/default user and workplace)")
 		# show message
 		self.paramTextCtrl.ShowMessage(message)
 		# expand/unexpand node if it has children
@@ -369,20 +369,20 @@ class cParamCtrl(wxTextCtrl):
 # TODO: -a MenuBar allowing for import, export and options
 # 		-open a connection to backend via gmCfg
 class gmConfigEditorPanel(wxPanel):
-	def __init__(self, parent, aUser,aMachine, plugin = 1):
+	def __init__(self, parent, aUser,aWorkplace, plugin = 1):
 		wxPanel.__init__(self, parent, -1)
 
 		self.currUser = aUser
-		self.currMachine = aMachine
+		self.currWorkplace = aWorkplace
 		# init data structures
 		# initialize the objects holding data on the subtrees
 		# add default subtrees root nodes if possible
 		#   default entries in root:
 		# 	 -default config file (usually ~/.gnumed/gnumed.conf)
-		#	 -current user, current machine
-		#	 -current user, default machine
-		#	 -default user, current machine
-		#	 -default user, default machine
+		#	 -current user, current workplace
+		#	 -current user, default workplace
+		#	 -default user, current workplace
+		#	 -default user, default workplace
 		self.mConfSources = {}
 
 		# if we pass no config file name, we get the default cfg file
@@ -394,14 +394,14 @@ class gmConfigEditorPanel(wxPanel):
 		# now get the absolute path of the default cfg file
 		self.mConfSources['FILE:%s' % cfgFileName] = cfgFileDefault
 		try:
-			if not (self.currUser is None or self.currMachine is None) :
-				self.mConfSources['DB:CURRENT_USER_CURRENT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_CURRENT_MACHINE',aMachine=self.currMachine)
+			if not (self.currUser is None or self.currWorkplace is None) :
+				self.mConfSources['DB:CURRENT_USER_CURRENT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_CURRENT_WORKPLACE',aWorkplace=self.currWorkplace)
 			if not (self.currUser is None) :
-				self.mConfSources['DB:CURRENT_USER_DEFAULT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_DEFAULT_MACHINE')
-			if not (self.currMachine is None) :
-				self.mConfSources['DB:DEFAULT_USER_CURRENT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_CURRENT_MACHINE',aUser='xxxDEFAULTxxx',aMachine=self.currMachine)
+				self.mConfSources['DB:CURRENT_USER_DEFAULT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_DEFAULT_WORKPLACE')
+			if not (self.currWorkplace is None) :
+				self.mConfSources['DB:DEFAULT_USER_CURRENT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_CURRENT_WORKPLACE',aUser='xxxDEFAULTxxx',aWorkplace=self.currWorkplace)
 			# this should always work
-			self.mConfSources['DB:DEFAULT_USER_DEFAULT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_DEFAULT_MACHINE',aUser='xxxDEFAULTxxx')
+			self.mConfSources['DB:DEFAULT_USER_DEFAULT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_DEFAULT_WORKPLACE',aUser='xxxDEFAULTxxx')
 		except:
 			pass
 # main sizers
@@ -449,7 +449,7 @@ class gmConfigEditorPanel(wxPanel):
 		self.configTreeBoxSizer = wxStaticBoxSizer( self.configTreeBox, wxHORIZONTAL )
 		
 # config tree        
-		rootLabel = "%s@%s" % (self.currUser,self.currMachine)
+		rootLabel = "%s@%s" % (self.currUser,self.currWorkplace)
 		self.configTree = cConfTree( parent = self,
 						id = ConfigTreeCtrlID ,
 						pos = wxPoint(0, 0), 
@@ -535,7 +535,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.21  2004-07-15 07:57:20  ihaywood
+# Revision 1.22  2004-07-19 11:50:43  ncq
+# - cfg: what used to be called "machine" really is "workplace", so fix
+#
+# Revision 1.21  2004/07/15 07:57:20  ihaywood
 # This adds function-key bindings to select notebook tabs
 # (Okay, it's a bit more than that, I've changed the interaction
 # between gmGuiMain and gmPlugin to be event-based.)

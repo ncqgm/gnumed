@@ -1,5 +1,5 @@
 #===================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ _cfg = gmCfg.gmDefCfgFile
 
 #===================================================
 class cWhoAmI(gmBorg.cBorg):
-	"""Who we are and on which machine we sit.
+	"""Who we are and which workplace we are on.
 
 	- db_account is derived from CURRENT_USER in the database, 
 	  thus it is determined by the name used to login
@@ -120,7 +120,10 @@ if __name__ == '__main__':
 	print "staff name:", whoami.get_staff_name()
 #===================================================
 # $Log: gmWhoAmI.py,v $
-# Revision 1.2  2004-04-10 01:48:31  ihaywood
+# Revision 1.3  2004-07-19 11:50:42  ncq
+# - cfg: what used to be called "machine" really is "workplace", so fix
+#
+# Revision 1.2  2004/04/10 01:48:31  ihaywood
 # can generate referral letters, output to xdvi at present
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq

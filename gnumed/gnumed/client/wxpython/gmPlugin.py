@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.27 2004-07-18 19:51:42 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmPlugin.py,v 1.28 2004-07-19 11:50:43 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re
@@ -256,10 +256,10 @@ def GetPluginLoadList(set):
 	 b) scan directly
 	 c) store in database
 	"""
-	curr_machine = _whoami.get_workplace()
+	curr_workplace = _whoami.get_workplace()
 
 	p_list, match = gmCfg.getFirstMatchingDBSet(
-		machine = curr_machine,
+		workplace = curr_workplace,
 		cookie = str(set),
 		option = 'plugin load order'
 	)
@@ -274,15 +274,15 @@ def GetPluginLoadList(set):
 	)
 
 	if p_list is not None:
-		# found plugin load list for this user/this machine
-		if match == 'CURRENT_USER_CURRENT_MACHINE':
+		# found plugin load list for this user/this workplace
+		if match == 'CURRENT_USER_CURRENT_WORKPLACE':
 			db.ReleaseConnection(service = "default")
 			return p_list
-		# all other cases of user/machine pairing:
-		# store plugin list for the current user/current machine
+		# all other cases of user/workplace pairing:
+		# store plugin list for the current user/current workplace
 		rwconn = db.GetConnection(service = "default", readonly = 0)
 		dbcfg.set(
-			machine = curr_machine,
+			workplace = curr_workplace,
 			option = 'plugin load order',
 			value = p_list,
 			cookie = str(set),
@@ -323,11 +323,11 @@ def GetPluginLoadList(set):
 			db.ReleaseConnection(service = "default")
 			return None
 
-	# set for default user on this machine
+	# set for default user on this workplace
 	_log.Log(gmLog.lInfo, "Storing default plugin load order in database.")
 	rwconn = db.GetConnection(service = "default", readonly = 0)
 	dbcfg.set(
-		machine = curr_machine,
+		workplace = curr_workplace,
 		user = 'xxxDEFAULTxxx',
 		option = 'plugin load order',
 		value = p_list,
@@ -355,7 +355,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.27  2004-07-18 19:51:42  ncq
+# Revision 1.28  2004-07-19 11:50:43  ncq
+# - cfg: what used to be called "machine" really is "workplace", so fix
+#
+# Revision 1.27  2004/07/18 19:51:42  ncq
 # - better logging
 #
 # Revision 1.26  2004/07/15 20:37:56  ncq

@@ -15,7 +15,7 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string, types, pickle
@@ -30,17 +30,17 @@ if __name__ == '__main__':
 _log.Log(gmLog.lData, __version__)
 _cfg = gmCfg.gmDefCfgFile
 _defaultDefSourceTable = {
-	'DB:CURRENT_USER_CURRENT_MACHINE': 'config-definitions/DBDefault.definitions',
-	'DB:CURRENT_USER_DEFAULT_MACHINE' : 'config-definitions/DBDefault.definitions',
-	'DB:DEFAULT_USER_CURRENT_MACHINE' : 'config-definitions/DBDefault.definitions',
-	'DB:DEFAULT_USER_DEFAULT_MACHINE' : 'config-definitions/DBDefault.definitions',
+	'DB:CURRENT_USER_CURRENT_WORKPLACE': 'config-definitions/DBDefault.definitions',
+	'DB:CURRENT_USER_DEFAULT_WORKPLACE' : 'config-definitions/DBDefault.definitions',
+	'DB:DEFAULT_USER_CURRENT_WORKPLACE' : 'config-definitions/DBDefault.definitions',
+	'DB:DEFAULT_USER_DEFAULT_WORKPLACE' : 'config-definitions/DBDefault.definitions',
 	'gnumed.conf': 'config-definitions/gnumed.conf.definitions'
 }
 
 ###############################################################################
 class ConfigSource:
 	"""Base class for interface to access config data and definitions on a single 
-	   configuration source (config file, user/machine specific backend data
+	   configuration source (config file, user/workplace specific backend data
 	   collection.
 	   The source name will be used to retrieve the config definitions from
 	   a config definition source (file, DB) automatically.
@@ -191,11 +191,11 @@ class ConfigSource:
 ###############################################################################
 class ConfigSourceDB(ConfigSource):
 	"""Interface to access config data and definitions in a single 
-	   configuration user/machine specific backend data collection.
+	   configuration user/workplace specific backend data collection.
 	"""
-	def __init__(self, aSourceName=None,aUser = None, aMachine = 'xxxDEFAULTxxx'):
+	def __init__(self, aSourceName=None,aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 		try:
-			mConfigDataSource = ConfigDataDB(aUser,aMachine)
+			mConfigDataSource = ConfigDataDB(aUser,aWorkplace)
 		except:	
 			mConfigDataSource = None
 
@@ -398,7 +398,7 @@ class ConfigDefinition:
 class ConfigData:
 	""" 
     Base class. Derived classes hold config data for a particular 
-	backend user/machine combination, config file etc.	    
+	backend user/workplace combination, config file etc.	    
 	this will contain: 
 		a) config parameter names
 		b) config parameter values
@@ -451,7 +451,7 @@ class ConfigData:
 #--------------------------------------------------------------------------
 class ConfigDataDB(ConfigData):
 	""" 
-	Class that holds config data for a particular user/machine pair 
+	Class that holds config data for a particular user/workplace pair 
 	"""
 	# static class variables that hold links to backend and gmCfg
 	# this will be shared by all ConfigDataDB objects
@@ -459,7 +459,7 @@ class ConfigDataDB(ConfigData):
 	_backend = None
 	_dbcfg = None
 
-	def __init__(self, aUser = None, aMachine = 'xxxDEFAULTxxx'):
+	def __init__(self, aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 		""" Init DB connection"""
 		ConfigData.__init__(self,"DB")
 		
@@ -479,7 +479,7 @@ class ConfigDataDB(ConfigData):
 			raise ConstructorError, "ConfigData.__init__(): need db conn"
 			
 		self.mUser = aUser
-		self.mMachine = aMachine
+		self.mWorkplace = aWorkplace
 
 	#---------------------------------------------------------------------
 	def GetConfigData(self, aParameterName = None):
@@ -490,7 +490,7 @@ class ConfigDataDB(ConfigData):
 		try:
 			name=self.mConfigData[aParameterName][0]
 			cookie = self.mConfigData[aParameterName][1]
-			result=ConfigDataDB._dbcfg.get(self.mMachine, self.mUser,cookie,name)
+			result=ConfigDataDB._dbcfg.get(self.mWorkplace, self.mUser,cookie,name)
 		except:
 			_log.Log(gmLog.lErr, "Cannot get parameter value for [%s]" % aParameterName )
 			return None
@@ -506,7 +506,7 @@ class ConfigDataDB(ConfigData):
 			cookie = self.mConfigData[aParameterName][1]
 	                rwconn = ConfigDataDB._backend.GetConnection(service = "default", readonly = 0)    
 
-			result=ConfigDataDB._dbcfg.set(	machine = self.mMachine, 
+			result=ConfigDataDB._dbcfg.set(	workplace = self.mWorkplace, 
 							user = self.mUser,
 							cookie = cookie,
 							option = name,
@@ -550,7 +550,7 @@ class ConfigDataDB(ConfigData):
 		try:
 			rwconn = ConfigDataDB._backend.GetConnection(service = "default", readonly = 0)    
 
-			result=ConfigDataDB._dbcfg.set(	machine = self.mMachine, 
+			result=ConfigDataDB._dbcfg.set(	workplace = self.mWorkplace, 
 							user = self.mUser,
 							cookie = cookie,
 							option = option,
@@ -574,7 +574,7 @@ class ConfigDataDB(ConfigData):
 		Refreshes the parameter cache, too.
 		"""
 		try:
-			result=ConfigDataDB._dbcfg.getAllParams(self.mUser,self.mMachine)
+			result=ConfigDataDB._dbcfg.getAllParams(self.mUser,self.mWorkplace)
 		except:
 			_log.Log(gmLog.lErr, "Cannot get config parameter names.")
 			raise
@@ -766,18 +766,18 @@ class ConfigDataFile(ConfigData):
 
 
 #=========================================================================
-def exportDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
+def exportDBSet(filename,aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 	"""
-	Fetches a backend stored set of config options (defined by user and machine)
+	Fetches a backend stored set of config options (defined by user and workplace)
 	and returns it as a plain text file.
 	NOTE: This will not write "valid value" information, since this is only
 	hold in config definition files !
 	Returns: 1 for success, 0 if no parameters were found, None on failure.
 	"""
 	try:
-		expConfigSource = ConfigSourceDB("export",aUser,aMachine)
+		expConfigSource = ConfigSourceDB("export",aUser,aWorkplace)
 	except:
-		_log.Log(gmLog.lErr, "Cannot open config set [%s@%s]." % (aUser,aMachine))
+		_log.Log(gmLog.lErr, "Cannot open config set [%s@%s]." % (aUser,aWorkplace))
 		return None
 		
 	try:
@@ -788,7 +788,7 @@ def exportDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 		
 	paramList = expConfigSource.getAllParamNames()
 	if paramList is None:
-		_log.Log(gmLog.lInfo, "DB-set [%s,%s]contained no data." % (aUser,aMachine))
+		_log.Log(gmLog.lInfo, "DB-set [%s,%s]contained no data." % (aUser,aWorkplace))
 		return 0
 	text = ''
 	for param in (paramList):
@@ -806,7 +806,7 @@ def exportDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 			(param,cType,description,value))
 	return len(paramList)
 #-------------------------------------------------------------------------
-def importDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
+def importDBSet(filename,aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 	"""get config definitions from a file exported with 
 	   exportDBSet()."""
 
@@ -821,9 +821,9 @@ def importDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 		return None
 
 	try:
-		importConfigSource = ConfigSourceDB("export",aUser,aMachine)
+		importConfigSource = ConfigSourceDB("export",aUser,aWorkplace)
 	except:
-		_log.Log(gmLog.lErr, "Cannot open config set [%s@%s]." % (aUser,aMachine))
+		_log.Log(gmLog.lErr, "Cannot open config set [%s@%s]." % (aUser,aWorkplace))
 		return None
 
 	existingParamList = importConfigSource.getAllParamNames()
@@ -869,7 +869,7 @@ def importDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 				s=importConfigSource.setConfigData(paramName,paramValue)
 				if s is None:
 					_log.Log(gmLog.lWarn, 
-						"Cannot store config parameter [%s] to set [%s@%s]." % (paramName,aUser,aMachine))
+						"Cannot store config parameter [%s] to set [%s@%s]." % (paramName,aUser,aWorkplace))
 				else:
 					successfully_stored = successfully_stored + 1
 				
@@ -878,14 +878,17 @@ def importDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 			s=importConfigSource.addConfigParam(paramName,paramType,paramValue,paramDescription)
 			if s is None:
 				_log.Log(gmLog.lWarn, 
-					"Cannot store config parameter [%s] to set [%s@%s]." % (paramName,aUser,aMachine))
+					"Cannot store config parameter [%s] to set [%s@%s]." % (paramName,aUser,aWorkplace))
 			else:
 				successfully_stored = successfully_stored + 1	
 	return successfully_stored
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.5  2004-03-09 08:37:54  ncq
+# Revision 1.6  2004-07-19 11:50:42  ncq
+# - cfg: what used to be called "machine" really is "workplace", so fix
+#
+# Revision 1.5  2004/03/09 08:37:54  ncq
 # - tiny cleanup
 #
 # Revision 1.4  2004/03/09 07:34:51  ihaywood

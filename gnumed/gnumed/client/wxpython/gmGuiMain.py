@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.162 2004-07-18 19:54:44 ncq Exp $
-__version__ = "$Revision: 1.162 $"
+# $Id: gmGuiMain.py,v 1.163 2004-07-19 11:50:42 ncq Exp $
+__version__ = "$Revision: 1.163 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -108,20 +108,20 @@ class gmTopLevelFrame(wxFrame):
 		self.guibroker['main.frame'] = self
 		# get plugin layout style
 		self.layout_style, set1 = gmCfg.getFirstMatchingDBSet(
-			machine = _whoami.get_workplace(),
+			workplace = _whoami.get_workplace(),
 			option = 'main.window.layout_style'
 		)
 		if set1 is None:
  			self.layout_style = 'status_quo'
  			gmCfg.setDBParam(
-				machine = _whoami.get_workplace(),
+				workplace = _whoami.get_workplace(),
 				user = _whoami.get_db_account(),
 				option = 'main.window.layout_style',
 				value = self.layout_style
 			)
 		# get Terry style horizontal ratio
 		self.bar_width, set1 = gmCfg.getFirstMatchingDBSet(
-			machine = _whoami.get_workplace (),
+			workplace = _whoami.get_workplace (),
 			option = 'main.window.sidebar_width'
 		)
 		if set1 is None:
@@ -231,11 +231,11 @@ class gmTopLevelFrame(wxFrame):
 
 		# FIXME: add in user
  		prev_width, set1 = gmCfg.getFirstMatchingDBSet( 
-			machine = _whoami.get_workplace(),
+			workplace = _whoami.get_workplace(),
  			option = 'main.window.width'
 		)
  		prev_height, set2 = gmCfg.getFirstMatchingDBSet( 
- 			machine = _whoami.get_workplace(),
+ 			workplace = _whoami.get_workplace(),
  			option = 'main.window.height'
  		)
  		# FIXME: Why does gmCfg return an instance type for numeric types ??
@@ -245,7 +245,7 @@ class gmTopLevelFrame(wxFrame):
 		else:
 			desired_width = def_width
 			gmCfg.setDBParam(
-				machine = _whoami.get_workplace(),
+				workplace = _whoami.get_workplace(),
 				user = _whoami.get_db_account(),
 				option = 'main.window.width',
 				value = desired_width
@@ -256,7 +256,7 @@ class gmTopLevelFrame(wxFrame):
 		else:
  			desired_height = def_height
 			gmCfg.setDBParam(
-				machine = _whoami.get_workplace(),
+				workplace = _whoami.get_workplace(),
 				user = _whoami.get_db_account(),
 				option = 'main.window.height',
 				value = desired_height
@@ -652,13 +652,13 @@ class gmTopLevelFrame(wxFrame):
 		curr_width, curr_height = self.GetClientSizeTuple()
 		_log.Log(gmLog.lInfo, 'GUI size at shutdown: [%s:%s]' % (curr_width, curr_height))
 		gmCfg.setDBParam(
-			machine = _whoami.get_workplace(),
+			workplace = _whoami.get_workplace(),
 			user = _whoami.get_db_account(),
 			option = 'main.window.width',
 			value = curr_width
 		)
 		gmCfg.setDBParam(
-			machine = _whoami.get_workplace(),
+			workplace = _whoami.get_workplace(),
 			user = _whoami.get_db_account(),
 			option = 'main.window.height',
 			value = curr_height
@@ -666,7 +666,7 @@ class gmTopLevelFrame(wxFrame):
 		# user changed the sidebar size -- remember that
 		if self.bar_width != 210:
 			gmCfg.setDBParam(
-				machine = _whoami.get_workplace(),
+				workplace = _whoami.get_workplace(),
 				user = _whoami.get_db_account(),
 				option = 'main.window.sidebar_width',
 				value = self.bar_width
@@ -987,7 +987,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.162  2004-07-18 19:54:44  ncq
+# Revision 1.163  2004-07-19 11:50:42  ncq
+# - cfg: what used to be called "machine" really is "workplace", so fix
+#
+# Revision 1.162  2004/07/18 19:54:44  ncq
 # - improved logging for page change/veto debugging
 #
 # Revision 1.161  2004/07/18 19:49:07  ncq

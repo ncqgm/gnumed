@@ -2,7 +2,7 @@
 
 # license GPL
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/tools/transferDBset.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 #=====================================================
@@ -23,11 +23,11 @@ def usage():
 	print "Usage"
 	print "-----"
 	print """ 
-	%s [-i|-e] [-user=<user>] [-machine=<machine>] filename
+	%s [-i|-e] [-user=<user>] [-workplace=<workplace>] filename
 	  -i\timport from file
 	  -e\texport to file
 	  --user=<username> (Default: DEFAULT USER)
-	  --machine=<machine> (Default: DEFAULT MACHINE)
+	  --workplace=<workplace> (Default: DEFAULT WORKPLACE)
 	""" % sys.argv[0]
 		  
 	sys.exit(1)
@@ -54,19 +54,19 @@ else:
 	user = gmCfg.cfg_DEFAULT
 	user2display = "DEFAULT USER"
 
-# get machine
-if gmCLI.has_arg('--machine'):
-	machine = gmCLI.arg['--machine']
-	machine2display = machine
+# get workplace
+if gmCLI.has_arg('--workplace'):
+	workplace = gmCLI.arg['--workplace']
+	workplace2display = workplace
 else:
-	machine = gmCfg.cfg_DEFAULT
-	machine2display = "DEFAULT MACHINE"
+	workplace = gmCfg.cfg_DEFAULT
+	workplace2display = "DEFAULT WORKPLACE"
 
-print "User: %s\tMachine %s.\nConfig file: %s." % (user2display, machine2display, filename)
+print "User: %s\tWorkplace %s.\nConfig file: %s." % (user2display, workplace2display, filename)
 
 # import 
 if gmCLI.has_arg('-i'):
-	result = gmConfigCommon.importDBSet(filename, aMachine=machine, aUser = user)
+	result = gmConfigCommon.importDBSet(filename, aWorkplace=workplace, aUser = user)
 	if result is not None:
 		print "Import of file %s succeeded, %s parameters stored in DB." % (filename,result)
 	else:
@@ -74,7 +74,7 @@ if gmCLI.has_arg('-i'):
 		
 # export  
 elif gmCLI.has_arg('-e'):
-	result = gmConfigCommon.exportDBSet(filename, aMachine=machine, aUser = user)
+	result = gmConfigCommon.exportDBSet(filename, aWorkplace=workplace, aUser = user)
 	if result is not None:
 		print "Export to file %s succeeded, %s parameters written to file." % (filename,result)
 	else:
@@ -86,7 +86,10 @@ else:
 sys.exit(0)
 #=====================================================
 # $Log: transferDBset.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-07-19 11:50:42  ncq
+# - cfg: what used to be called "machine" really is "workplace", so fix
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.3  2003/10/26 21:34:45  hinnef

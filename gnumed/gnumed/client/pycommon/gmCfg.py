@@ -36,7 +36,7 @@ later on.
 
 Once your software has established database connectivity you can
 set up a config source from the database. You can limit the option
-applicability by the constraints "machine", "user", and "cookie".
+applicability by the constraints "workplace", "user", and "cookie".
 
 The basic API for handling items is get()/set() which works for both
 database and INI file access. Both sources cache data. The database
@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -77,10 +77,10 @@ class cCfgBase:
 	def __init__(self):
 		pass
 
-	def get(machine = None, user = None, cookie = None, option = None):
+	def get(workplace = None, user = None, cookie = None, option = None):
 		pass
 
-	def set(machine = None, user = None, cookie = None, option = None, value = None):
+	def set(workplace = None, user = None, cookie = None, option = None, value = None):
 		pass
 #================================
 # FIXME: notify/listen on set() to ensure cache coherency across clients
@@ -97,7 +97,7 @@ class cCfgSQL:
 	def __del__(self):
 		pass
 	#----------------------------
-	def get(self, machine = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None):
+	def get(self, workplace = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None):
 		"""Get config value from database.
 
 		- works for
@@ -110,7 +110,7 @@ class cCfgSQL:
 		- caches items for faster repeat retrieval
 		"""
 		# fastpath
-		cache_key = self.__make_key(machine, user, cookie, option)
+		cache_key = self.__make_key(workplace, user, cookie, option)
 		if self.cache.has_key(cache_key):
 			return self.cache[cache_key]
 
@@ -132,12 +132,12 @@ select cfg_item.id, cfg_template.type
 from cfg_item, cfg_template
 where
 cfg_template.name like %s and
-cfg_item.machine like %s and
+cfg_item.workplace like %s and
 cfg_item.cookie like %s and
 (cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || 
 CURRENT_USER or cfg_item.owner like %s or cfg_item.owner like '_' || %s)
 and cfg_template.id = cfg_item.id_template limit 1;
-""", option, machine, cookie, user, user) is None:
+""", option, workplace, cookie, user, user) is None:
 			curs.close()
 			return None
 
@@ -164,7 +164,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 
 		return result[0]
 	#----------------------------
-	def getID(self, machine = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None):
+	def getID(self, workplace = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None):
 		# sanity checks
 		if option is None:
 			_log.Log(gmLog.lErr, "Need to know which option to retrieve the ID for.")
@@ -179,24 +179,24 @@ select cfg_item.id, cfg_template.type
 from cfg_item, cfg_template
 where
 cfg_template.name like %s and
-cfg_item.machine like %s and
+cfg_item.workplace like %s and
 cfg_item.cookie like %s and
 (cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER 
 or cfg_item.owner like %s or cfg_item.owner like '_' || %s)
 and cfg_template.id = cfg_item.id_template limit 1;
-""", option, machine, cookie, user, user) is None:
+""", option, workplace, cookie, user, user) is None:
 			curs.close()
 			return None
 		result = curs.fetchone()
 		if result is None:
-			cache_key = self.__make_key(machine, user, cookie, option)
+			cache_key = self.__make_key(workplace, user, cookie, option)
 			_log.Log(gmLog.lWarn, 'option [%s] not in config database' % cache_key)
 			curs.close()
 			return None
 
 		return result[0]
 	#----------------------------
-	def set(self, machine = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None, value = None, aRWConn = None):
+	def set(self, workplace = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None, value = None, aRWConn = None):
 		"""Set the value of a config option.
 
 		- inserts or updates value in the database
@@ -216,7 +216,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 			_log.Log(gmLog.lErr, "Need rw connection to database to store the value.")
 			return None
 
-		cache_key = self.__make_key(machine, user, cookie, option)
+		cache_key = self.__make_key(workplace, user, cookie, option)
 		data_value = value
 		if type(value) is StringType:
 			data_type = 'string'
@@ -252,15 +252,15 @@ and cfg_template.id = cfg_item.id_template limit 1;
 			owner_where = " and owner=%s"
 			where_args.append (user)
 
-		if machine is None:
-			machine_field = ""
-			machine_value = ""
-			machine_where = ""
+		if workplace is None:
+			workplace_field = ""
+			workplace_value = ""
+			workplace_where = ""
 		else:
-			machine_field = ", machine"
-			machine_value = ", %s" 
-			machine_where = " and machine=%s"
-			where_args.append (machine)
+			workplace_field = ", workplace"
+			workplace_value = ", %s" 
+			workplace_where = " and workplace=%s"
+			where_args.append (workplace)
 
 		if cookie is None:
 			cookie_field = ""
@@ -298,10 +298,11 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		# FIXME: this does not always find the existing entry (in particular if user=None)
 		# reason: different handling of None in set() and get()
 		# do we need to insert a new option or update an existing one ?
-		if self.get(machine, user, cookie, option) is None:
+		# FIXME: this should be autofixed now since we don't do user/_user anymore
+		if self.get(workplace, user, cookie, option) is None:
 			# insert new option
 			# insert option instance
-			cmd = "insert into cfg_item (id_template %s%s%s) values (%s%s%s%s)" % (owner_field, machine_field, cookie_field, template_id, owner_value, machine_value, cookie_value)
+			cmd = "insert into cfg_item (id_template %s%s%s) values (%s%s%s%s)" % (owner_field, workplace_field, cookie_field, template_id, owner_value, workplace_value, cookie_value)
 			if _gmPG.run_query(curs, None, cmd, where_args) is None:
 				curs.close()
 				return None
@@ -313,7 +314,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		else:
 			# update existing option
 			# get item id
-			item_id = self.getID(machine, user, cookie, option)
+			item_id = self.getID(workplace, user, cookie, option)
 			if item_id is None:
 				curs.close()
 				return None
@@ -334,8 +335,8 @@ and cfg_template.id = cfg_item.id_template limit 1;
 
 		return 1
 	#-------------------------------------------
-	def getAllParams(self, user = None, machine = cfg_DEFAULT):
-		"""Get names of all stored parameters for a given machine/(user)/cookie-key.
+	def getAllParams(self, user = None, workplace = cfg_DEFAULT):
+		"""Get names of all stored parameters for a given workplace/(user)/cookie-key.
 		This will be used by the ConfigEditor object to create a parameter tree.
 		"""
 
@@ -345,22 +346,21 @@ and cfg_template.id = cfg_item.id_template limit 1;
 			_gmPG = gmPG
 
 		where_args = []
-		# if no machine given: any machine (= cfg_DEFAULT)
-		where_machine = "cfg_item.machine like %s"
-		where_args.append(machine)
+		# if no workplace given: any workplace (= cfg_DEFAULT)
+		where_workplace = "cfg_item.workplace like %s"
+		where_args.append(workplace)
 
 		# if no user given: current db user
-		# but check for "_user", too, due to ro/rw conn interaction
 		if user is None:
-			where_user = "(cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER)"
+			where_user = "cfg_item.owner like CURRENT_USER"
 		else:
-			where_user = "cfg_item.owner like %s or cfg_item.owner like '_' || %s"
+			where_user = "cfg_item.owner like %s"
 			where_args.append(user)
 			where_args.append(user)
 
 		cmd =	("select name, cookie, owner, type, description "
 				"from cfg_template, cfg_item "
-				"where cfg_template.id = cfg_item.id_template and %s and %s" % (where_machine, where_user))
+				"where cfg_template.id = cfg_item.id_template and %s and %s" % (where_workplace, where_user))
 
 		curs = self.conn.cursor()
 
@@ -374,12 +374,12 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		curs.close()
 
 		if result is None:
-			_log.Log(gmLog.lWarn, 'no parameters stored for [%s@%s] in config database' % (user, machine))
+			_log.Log(gmLog.lWarn, 'no parameters stored for [%s@%s] in config database' % (user, workplace))
 			return None
 
 		return result
 	#----------------------------
-	def delete(self, machine = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None, aRWConn = None):
+	def delete(self, workplace = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None, aRWConn = None):
 		"""
 		Deletes an option or a whole group.
 		Note you have to call store() in order to save
@@ -393,12 +393,12 @@ and cfg_template.id = cfg_item.id_template limit 1;
 			_log.Log(gmLog.lErr, "Need rw connection to database to store the value.")
 			return None
 
-		cache_key = self.__make_key(machine, user, cookie, option)
+		cache_key = self.__make_key(workplace, user, cookie, option)
 		
 		curs = aRWConn.cursor()
 
 		# get item id
-		item_id = self.getID(machine, user, cookie, option)
+		item_id = self.getID(workplace, user, cookie, option)
 		if item_id is None:
 			curs.close()
 			return None
@@ -447,8 +447,8 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		return 1		
 		
 	#----------------------------
-	def __make_key(self, machine, user, cookie, option):
-		return '%s-%s-%s-%s' % (machine, user, cookie, option)
+	def __make_key(self, workplace, user, cookie, option):
+		return '%s-%s-%s-%s' % (workplace, user, cookie, option)
 #================================
 class cCfgFile:
 	"""Handle common INI-style config files.
@@ -1005,11 +1005,11 @@ def create_default_cfg_file():
 	print "Had to create empty (default) config file [%s].\nPlease check the docs for possible settings." % tmp
 	return 1
 #-------------------------------------------------------------
-def getFirstMatchingDBSet(machine = cfg_DEFAULT, cookie = cfg_DEFAULT, option = None):
+def getFirstMatchingDBSet(workplace = cfg_DEFAULT, cookie = cfg_DEFAULT, option = None):
 	"""Convenience function to get config value from database.
 
-	This will search in descending order from CURRENT_USER_CURRENT_MACHINE
-	to DEFAULT_USER_DEFAULT_MACHINE. It will not try to find entries for
+	This will search in descending order from CURRENT_USER_CURRENT_WORKPLACE
+	to DEFAULT_USER_DEFAULT_WORKPLACE. It will not try to find entries for
 	other than the current user.
 
 	We assume that the config tables are found on service "default".
@@ -1026,13 +1026,13 @@ def getFirstMatchingDBSet(machine = cfg_DEFAULT, cookie = cfg_DEFAULT, option = 
 	# first create list of sets to search
 	setList=[]
 
-	# if no machine is given, search only sets for DEFAULT_MACHINE
-	if not machine == cfg_DEFAULT:
-		setList.append(['CURRENT_USER_CURRENT_MACHINE',None,machine])
-	setList.append(['CURRENT_USER_DEFAULT_MACHINE',None,cfg_DEFAULT])
-	if not machine == cfg_DEFAULT:
-		setList.append(['DEFAULT_USER_CURRENT_MACHINE',cfg_DEFAULT,machine])
-	setList.append(['DEFAULT_USER_DEFAULT_MACHINE',cfg_DEFAULT,cfg_DEFAULT])
+	# if no workplace is given, search only sets for DEFAULT_WORKPLACE
+	if not workplace == cfg_DEFAULT:
+		setList.append(['CURRENT_USER_CURRENT_WORKPLACE',None,workplace])
+	setList.append(['CURRENT_USER_DEFAULT_WORKPLACE',None,cfg_DEFAULT])
+	if not workplace == cfg_DEFAULT:
+		setList.append(['DEFAULT_USER_CURRENT_WORKPLACE',cfg_DEFAULT,workplace])
+	setList.append(['DEFAULT_USER_DEFAULT_WORKPLACE',cfg_DEFAULT,cfg_DEFAULT])
 
 	# connect to database
 	db = _gmPG.ConnectionPool()
@@ -1045,15 +1045,15 @@ def getFirstMatchingDBSet(machine = cfg_DEFAULT, cookie = cfg_DEFAULT, option = 
 	matchingSet = None
 	for set in (setList):
 		user = set[1]
-		machine = set[2]
+		workplace = set[2]
 		result = dbcfg.get(
-			machine = machine,
+			workplace = workplace,
 			user = user,
 			option = option,
 			cookie = cookie
 		)
 #DEBUG
-#		_log.Log(gmLog.lData, 'Set [%s@%s]: %s' % (user, machine, result))
+#		_log.Log(gmLog.lData, 'Set [%s@%s]: %s' % (user, workplace, result))
 
 		if result is not None:
 			matchingSet = set[0]
@@ -1063,7 +1063,7 @@ def getFirstMatchingDBSet(machine = cfg_DEFAULT, cookie = cfg_DEFAULT, option = 
 
 	return (result,matchingSet)
 #-------------------------------------------------------------
-def setDBParam(machine = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT, option = None, value = None):
+def setDBParam(workplace = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT, option = None, value = None):
 	"""Convenience function to store config values in database for the current user.
 
 	We assume that the config tables are found on service "default".
@@ -1091,12 +1091,12 @@ def setDBParam(machine = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT, 
 	)
 	rwconn = db.GetConnection(service = "default", readonly = 0)
 	if rwconn is None:
-		_log.Log(gmLog.lWarn, 'Could not get a rw connection for [%s@%s].' % (user, machine))
+		_log.Log(gmLog.lWarn, 'Could not get a rw connection for [%s@%s].' % (user, workplace))
 		db.ReleaseConnection(service = "default")
 		return 0
 	# set value
 	dbcfg.set(
-		machine = machine,
+		workplace = workplace,
 		user = user,
 		option = option,
 		value = value,
@@ -1203,14 +1203,14 @@ if __name__ == "__main__":
 		myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
 
 		myDBCfg.set(user = cfg_DEFAULT, option = "blatest", value = "xxx", aRWConn = conn)
-		print "blatest set to:", myDBCfg.get(machine = cfg_DEFAULT, user=cfg_DEFAULT,option = "blatest")
+		print "blatest set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT,option = "blatest")
 		
 		myDBCfg.delete( user= cfg_DEFAULT, option = "blatest", aRWConn = conn)
-		print "after deletion blatest set to:", myDBCfg.get(machine = cfg_DEFAULT, user=cfg_DEFAULT,option = "blatest")
+		print "after deletion blatest set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT,option = "blatest")
 		
 		conn.close()
 		
-		val,set = getFirstMatchingDBSet(machine = "test", cookie = "gui", 
+		val,set = getFirstMatchingDBSet(workplace = "test", cookie = "gui", 
 			option = "plugin load order")
 		print "found set for [plugin load order.gui] for %s: \n%s" % (set,str(val))
 
@@ -1230,7 +1230,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.11  2004-07-17 21:08:51  ncq
+# Revision 1.12  2004-07-19 11:50:42  ncq
+# - cfg: what used to be called "machine" really is "workplace", so fix
+#
+# Revision 1.11  2004/07/17 21:08:51  ncq
 # - gmPG.run_query() now has a verbosity parameter, so use it
 #
 # Revision 1.10  2004/07/12 13:49:39  ncq

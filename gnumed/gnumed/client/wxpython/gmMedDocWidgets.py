@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -220,12 +220,12 @@ class cDocTree(wxTreeCtrl):
 		_log.Log(gmLog.lData, "User selected object [%s]" % obj_id)
 
 		if __name__ == "__main__":
-			tmp = "unknown_machine"
+			tmp = "unknown_workplace"
 		else:
 			tmp = _whoami.get_workplace()
 
 		exp_base = self.__dbcfg.get(
-			machine = tmp,
+			workplace = tmp,
 			option = "doc export dir"
 		)
 		if exp_base is None:
@@ -253,7 +253,7 @@ class cDocTree(wxTreeCtrl):
 		else:
 			gb = gmGuiBroker.GuiBroker()
 			chunksize = self.__dbcfg.get(
-				machine = _whoami.get_workplace(),
+				workplace = _whoami.get_workplace(),
 				option = "doc export chunk size"
 			)
 		if chunksize is None:
@@ -344,7 +344,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.2  2004-07-18 20:30:54  ncq
+# Revision 1.3  2004-07-19 11:50:43  ncq
+# - cfg: what used to be called "machine" really is "workplace", so fix
+#
+# Revision 1.2  2004/07/18 20:30:54  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.1  2004/06/26 23:39:34  ncq
