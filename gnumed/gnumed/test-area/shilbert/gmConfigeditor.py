@@ -67,10 +67,8 @@ wxID_patient_format_import_LBOX ] = map(lambda _init_ctrls: wxNewId(), range(38)
 class gmConfigEditorPanel(wxPanel):
 	def __init__(self, parent):
 		wxPanel.__init__(self, parent, -1)
-		self.parent_notebook = wxNotebook(self, -1, style=wxNB_RIGHT)
+		self.parent_notebook = wxNotebook(self, -1, style=wxNB_RIGHT | wxTAB_TRAVERSAL)
 		self.CtrlsContainer = []
-		self.groupCtrlsList = {}
-		self.optionCtrlsList = {}
 		#create notebook tab for checking and saving
 		self.saveCfgFilePanel = wxPanel(id = wxID_WXFRAME1DUMPTOCFGFILEPANEL, name = 'dumptoCfgFilePanel', parent = self.parent_notebook, pos = wxPoint(0,0), size = wxSize(768, 513), style = wxTAB_TRAVERSAL)
 		self.parent_notebook.AddPage(self.saveCfgFilePanel,'check n save')
@@ -78,56 +76,77 @@ class gmConfigEditorPanel(wxPanel):
 		# get the name of all the groups in a config-file and
 		# add a notebook tab for each 
 		groups  = _cfg.getGroups()
-		for group in groups:		
-		# create a check-button for each group on the "check n save" panel
-			BTNcheck_n_save  = wxButton (self.saveCfgFilePanel,-1,group,(20,y))
+		for group in groups:
+			groupCtrlsList = {}
+			# create a check-button for each group on the "check n save" panel
+			BTNcheck_n_save  = wxButton (self.saveCfgFilePanel, -1, group, (20,y))
 			y = y + 30
+
 			# dynamically draw the rest
 			panel_nb_page = wxPanel(
+				parent = self.parent_notebook,
 				id = -1,
-				 name = group,
-				 parent = self.parent_notebook,
-				 pos = wxPoint(0, 0), 
-				 size = wxSize(640, 480),
-				 style = wxTAB_TRAVERSAL
+				name = group,
+				style = wxTAB_TRAVERSAL
 			)
-			self.parent_notebook.AddPage(panel_nb_page, group)    	
-			panelsizer = wxBoxSizer(wxVERTICAL)
-			
-			notebooksizer = wxBoxSizer(wxVERTICAL)
-			grid_sizer_1 = wxGridSizer(14, 2, 0, 0)
+
+			# calculate rows automatically
+			# -----------------------------
+			# option | edit field | comment
+			# -----------------------------
+			fgszr_ctrls = wxFlexGridSizer(rows=0, cols=3, vgap=10, hgap=10)
+			#fgszr_ctrls.AddGrowableCol(idx=0)
+			fgszr_ctrls.AddGrowableCol(idx=1)
+			fgszr_ctrls.AddGrowableCol(idx=2)
 			# now get all available options in a group plus their descriptions
 			# add descritiption and options as statictext
-			options  = _cfg.getOptions(group)	
+			options  = _cfg.getOptions(group)
 			# now get all available options in a group plus their descriptions
 			# add description and options as statictext
-			for option in options:	
-				tempcomment = wxStaticText(panel_nb_page,-1,str(option))
-				#tempcomment = wxStaticText(self.panel,-1,str(string.join(_cfg.getComment(group,option),"\n")))
-				tempctrl = wxTextCtrl(panel_nb_page,-1,str(_cfg.get(group,option)))
-				self.optionCtrlsList[option]=tempctrl
-				grid_sizer_1.Add(tempcomment, 0, wxLEFT, 10)
-				grid_sizer_1.Add(tempctrl, 0, wxLEFT, 10)
-			
-			self.groupCtrlsList[group]=self.optionCtrlsList
-			#now clean the list of ctrls
-			self.optionCtrlsList = {}
-			#print self.groupCtrlsList
-			notebooksizer.Add(grid_sizer_1, 1, wxEXPAND, 0)
+			optionCtrlsList = {}
+			for option in options:
+				# option name == field label
+				label = wxStaticText(parent=panel_nb_page, id=-1, label=option, style=wxALIGN_LEFT)
+				fgszr_ctrls.Add(label)
+				# edit field
+				# FIXME: handle lists !  -> wxTE_MULTILINE
+				edit_field = wxTextCtrl(panel_nb_page, -1, str(_cfg.get(group, option)))
+				optionCtrlsList[option] = edit_field
+				fgszr_ctrls.Add(edit_field)
+				# option comment
+				tmp = str(string.join(_cfg.getComment(group, option),"\n"))
+				comment = wxStaticText(parent=panel_nb_page, id=-1, label=tmp, style=wxALIGN_LEFT)
+				fgszr_ctrls.Add(comment)
+
+			groupCtrlsList[group] = optionCtrlsList
+
+			# add page to notebook
 			panel_nb_page.SetAutoLayout(1)
-			panel_nb_page.SetSizer(notebooksizer)
-			notebooksizer.Fit(panel_nb_page)
-			notebooksizer.SetSizeHints(panel_nb_page)
-			panelsizer.Add(wxNotebookSizer(self.parent_notebook), 1, wxEXPAND, 0)
+			panel_nb_page.SetSizer(fgszr_ctrls)
+#			fgszr_ctrls.Fit(panel_nb_page)
+#			fgszr_ctrls.SetSizeHints(panel_nb_page)
+			self.parent_notebook.AddPage(panel_nb_page, group)
+
+			# make notebook sizer work
+			szr_nb = wxNotebookSizer(self.parent_notebook)
+
+			# assemble parts into main window
+			szr_main_pnl = wxBoxSizer(wxVERTICAL)
+			# the option edit notebook
+			szr_main_pnl.Add(szr_nb, 1, wxEXPAND, 0)
+			# the group comment below the notebook
+			# the buttons at the bottom
+
 			self.SetAutoLayout(1)
-			self.SetSizer(panelsizer)
-			panelsizer.Fit(self)
-			panelsizer.SetSizeHints(self)
+			self.SetSizer(szr_main_pnl)
+			szr_main_pnl.Fit(self)
+			szr_main_pnl.SetSizeHints(self)
 			self.Layout()
+
 			#append dictionary to a list
-			self.CtrlsContainer.append(self.groupCtrlsList)
-			# clean dictionary
-			self.groupCtrlsList = {}
+			self.CtrlsContainer.append(groupCtrlsList)
+
+
 		#self.check_metadata_BTN  = wxButton (self.dumptoCfgFilePanel,wxID_check_metadata_BTN,_('check metadata'),(1,20))
 		#self.check_scan_BTN      = wxButton (self.dumptoCfgFilePanel,wxID_check_scan_BTN,_('check scan'),(1,60))
 		#self.check_index_BTN     = wxButton (self.dumptoCfgFilePanel,wxID_check_index_BTN,_('check index'),(1,100))
@@ -182,7 +201,7 @@ if __name__ == '__main__':
 
 	# catch all remaining exceptions
 	try:
-		application = wxPyWidgetTester(size=(800,1000))
+		application = wxPyWidgetTester(size=(640,400))
 		application.SetWidget(gmConfigEditorPanel)
 		application.MainLoop()
 	except:
@@ -232,7 +251,10 @@ else:
 			return 1
 
 # $Log: gmConfigeditor.py,v $
-# Revision 1.7  2003-04-13 17:42:00  shilbert
+# Revision 1.8  2003-04-14 10:06:07  ncq
+# - manually reworked sizers to make more sense
+#
+# Revision 1.7  2003/04/13 17:42:00  shilbert
 # - typos in panel names fixed
 #
 # Revision 1.6  2003/04/13 17:37:47  shilbert
