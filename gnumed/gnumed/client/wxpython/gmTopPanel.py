@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib
@@ -226,7 +226,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		print "display patient demographic window now"
 	#-------------------------------------------------------
 	def _update_allergies(self, **kwargs):
-		print "allergy update:", kwargs
+		# FIXME: filter out sensitivities
 		epr = self.curr_pat['clinical record']
 		allergy_names = epr['allergy names']
 		tmp = []
@@ -234,6 +234,8 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			tmp.append(allergy['name'])
 		data = string.join(tmp, ',')
 		if data == '':
+			# needed because GUI stuff can't be called from a thread (and that's
+			# where we are coming from via backend listener -> dispatcher)
 			wxCallAfter(self.txt_allergies.SetValue, _('no allergies recorded'))
 		else:
 			wxCallAfter(self.txt_allergies.SetValue, data)
@@ -325,7 +327,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.7  2003-05-03 14:18:06  ncq
+# Revision 1.8  2003-05-04 23:33:56  ncq
+# - comments bettered
+#
+# Revision 1.7  2003/05/03 14:18:06  ncq
 # - must use wxCallAfter in _update_allergies since this can be called
 #   indirectly from a thread listening to backend signals and one cannot use
 #   wx GUI functions from Python threads other than main()
