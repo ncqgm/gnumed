@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -18,7 +18,7 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmI18N, gmLoginInfo, gmExceptions
+import gmI18N, gmLoginInfo, gmExceptions, gmCLI
 
 #3rd party dependencies
 
@@ -543,7 +543,11 @@ def run_query(aCursor = None, aQuery = None, *args):
 	try:
 		aCursor.execute(aQuery, *args)
 	except:
-		_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), verbose=0)
+		if gmCLI.has_arg("--debug"):
+			log_much = 1
+		else:
+			log_much = 0
+		_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), verbose = log_much)
 		return None
 	return 1
 #---------------------------------------------------
@@ -749,7 +753,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.58  2003-06-23 21:21:55  ncq
+# Revision 1.59  2003-06-25 22:24:55  ncq
+# - improve logging in run_query() depending on --debug (yuck !)
+#
+# Revision 1.58  2003/06/23 21:21:55  ncq
 # - missing "return None" in run_query added
 #
 # Revision 1.57  2003/06/23 14:25:40  ncq
