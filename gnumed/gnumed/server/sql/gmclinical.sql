@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.123 $
+-- $Revision: 1.124 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -29,7 +29,8 @@ comment on table xlnk_identity is
 
 -- ===================================================================
 -- generic EMR structure
--- -------------------------------------------------------------------
+-- ===================================================================
+-- health issue tables
 create table clin_health_issue (
 	id serial primary key,
 	id_patient integer
@@ -40,6 +41,10 @@ create table clin_health_issue (
 	description text
 		not null
 		default null,
+	is_active boolean
+		default true,
+	is_significant boolean
+		default true,
 	unique (id_patient, description)
 ) inherits (audit_fields);
 
@@ -49,40 +54,53 @@ comment on table clin_health_issue is
 	'longer-ranging, underlying, encompassing issue with one''s
 	 health such as "mild immunodeficiency", "diabetes type 2",
 	 in Belgium it is called "problem",
-	 Weed includes lots of little things into it';
+	 L.L.Weed includes lots of little things into it, we do not';
 comment on column clin_health_issue.id_patient is
  	'id of patient this health issue relates to, should
 	 be reference but might be outside our own database';
 comment on column clin_health_issue.description is
 	'descriptive name of this health issue, may
 	 change over time as evidence increases';
+comment on column clin_health_issue.is_active is
+	'whether this health issue (problem) is still active';
+comment on column clin_health_issue.is_significant is
+	'whether this health issue (problem) has any clinical relevance';
 
--- -------------------------------------------------------------------
+-- ===================================================================
 -- episode related tables
--- -------------------------------------------------------------------
 create table clin_episode (
 	pk serial primary key,
-	fk_patient integer
-		default null
-		references xlnk_identity(xfk_identity)
-		on update cascade
-		on delete restrict,
 	fk_health_issue integer
 		default null
 		references clin_health_issue(id)
 		on update cascade
 		on delete restrict,
+	fk_patient integer
+		default null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete restrict,
 	description text
-		default 'xxxDEFAULTxxx',
+		default null,
+	is_active boolean
+		default true,
+	is_significant boolean
+		default true,
 	unique (fk_health_issue, description),
 	unique (fk_patient, description)
 ) inherits (audit_fields);
 
-alter table clin_episode add constraint non_redundant_patient
+alter table clin_episode add constraint standalone_epi_needs_patient
 	check (
 		((fk_health_issue is null) and (fk_patient is not null))
 			or
 		((fk_health_issue is not null) and (fk_patient is null))
+	);
+
+alter table clin_episode add constraint standalone_epi_needs_name
+	check (
+		(fk_health_issue is not null) or
+		((fk_health_issue is null) and (description is not null))
 	);
 
 select add_table_for_audit('clin_episode');
@@ -100,13 +118,23 @@ comment on column clin_episode.description is
 	'descriptive name of this episode, may change over time; if
 	 "xxxDEFAULTxxx" applications should display the most recently
 	 associated diagnosis/month/year plus some marker for "default"';
+comment on column clin_episode.is_active is
+	'whether the episode is still active,
+	 Prone to misinterpretation: Does TRUE mean that
+	 the episode is not yet "closed" in a temporal
+	 sense or does it mean that the health state
+	 which is defined by the description field still
+	 needs attention ? Eventually this will be resolved
+	 by making description a foreign key to a narrative
+	 row elsewhere which in turn can have further
+	 attributes instead of it being a field of this table.';
+comment on column clin_episode.is_significant is
+	'whether the condition used for naming the episode
+	 is clinically relevant, eventually this would become
+	 an attribute of a clinical narrative row elsewhere
+	 that is just referenced from "description"';
 
--- unique names (descriptions) for episodes per health issue (e.g. per patient),
--- about the only reason for this table to exist is the description field such
--- as to allow arbitrary names for episodes, another reason is that explicit
--- recording of episodes removes the ambiguity that results from basing them
--- on start/end dates of bouts of care,
-
+-- -------------------------------------------------------------------
 create table last_act_episode (
 	id serial primary key,
 	fk_episode integer
@@ -131,7 +159,7 @@ comment on table last_act_episode is
 	 the life time of a patient object as the value can
 	 change from under us';
 
--- -------------------------------------------------------------------
+-- ===================================================================
 -- encounter related tables
 -- -------------------------------------------------------------------
 create table encounter_type (
@@ -161,7 +189,7 @@ create table clin_encounter (
 		on update cascade
 		on delete restrict,
 	description text
-		default '',
+		default null,
 	started timestamp with time zone
 		not null
 		default CURRENT_TIMESTAMP,
@@ -185,10 +213,11 @@ comment on COLUMN clin_encounter.fk_provider is
 comment on COLUMN clin_encounter.fk_type is
 	'ID of type of this encounter';
 comment on column clin_encounter.description is
-	'descriptive name of this encounter, may change over time; if
-	 "xxxDEFAULTxxx" applications should display "<date> (<provider>)"
-	 plus some marker for "default"';
+	'descriptive name of this encounter, may change over time;
+	 could be RFE, if "xxxDEFAULTxxx" applications should
+	 display "<date> (<provider>)" plus some marker for "default"';
 
+-- -------------------------------------------------------------------
 create table curr_encounter (
 	id serial primary key,
 	fk_encounter integer
@@ -1006,11 +1035,16 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.123 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.124 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.123  2004-09-17 21:02:04  ncq
+-- Revision 1.124  2004-09-18 00:20:57  ncq
+-- - add active/significant fields to episode/issue table
+-- - improve comments
+-- - tighten constraints on clin_episode
+--
+-- Revision 1.123  2004/09/17 21:02:04  ncq
 -- - further tighten clin_episode
 --
 -- Revision 1.122  2004/09/17 20:14:06  ncq
