@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.29 2004-06-01 23:56:39 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmPathLab.py,v 1.30 2004-06-16 17:16:56 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -83,19 +83,22 @@ class cLabResult(gmClinItem.cClinItem):
 			params = {
 				'pat_id': patient_id,
 				'type': test_type,
-				'valn': val_num,
-				'vala': val_alpha,
 				'when': when,
 				'unit': unit
 			}
 			where_snippets = [
 				'pk_patient=%(pat_id)s',
 				'pk_test_type=%(type)s',
-				'val_num=%(valn)s::float',
-				'val_alpha=%(vala)s',
 				'%s=%%(when)s' % when_field,
 				'val_unit=%(unit)s'
 			]
+			if val_num is not None:
+				params['valn'] = val_num
+				where_snippets.append('val_num=%(valn)s::float')
+			if val_alpha is not None:
+				params['vala'] = val_alpha
+				where_snippets.append('val_alpha=%(vala)s')
+
 			where_clause = ' and '.join(where_snippets)
 			cmd = "select pk_result from v_results4lab_req where %s" % where_clause
 			data = gmPG.run_ro_query('historica', cmd, None, params)
@@ -300,7 +303,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.29 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.30 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -383,7 +386,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.29 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.30 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -416,7 +419,7 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 	tres = None
 	try:
 		tres = cLabResult(
-			patient_id = patient_id,
+			patient_id=patient_id,
 			when_field=when_field,
 			when=when,
 			test_type=test_type,
@@ -619,7 +622,11 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.29  2004-06-01 23:56:39  ncq
+# Revision 1.30  2004-06-16 17:16:56  ncq
+# - correctly handle val_num/val_alpha in create_lab_result so
+#   we can safely detect duplicates
+#
+# Revision 1.29  2004/06/01 23:56:39  ncq
 # - improved error handling in several places
 #
 # Revision 1.28  2004/05/30 20:12:33  ncq
