@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.150 2004-06-21 14:48:26 sjtan Exp $
-__version__ = "$Revision: 1.150 $"
+# $Id: gmGuiMain.py,v 1.151 2004-06-21 16:06:54 ncq Exp $
+__version__ = "$Revision: 1.151 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -32,7 +32,9 @@ import sys, time, os, cPickle, zlib
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker
 from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmTopPanel, gmPlugin
 from Gnumed.business import gmPatient
-from Gnumed.pycommon import gmI18N
+
+if __name__ == '__main__':
+	from Gnumed.pycommon import gmI18N
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
@@ -758,8 +760,6 @@ def main():
 # Main
 #==================================================
 if __name__ == '__main__':
-	_ = lambda x:x	# fool epydoc
-	from Gnumed.pycommon import gmI18N
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	_log.AddTarget(aLogTarget)
@@ -770,7 +770,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.150  2004-06-21 14:48:26  sjtan
+# Revision 1.151  2004-06-21 16:06:54  ncq
+# - fix epydoc i18n fix
+#
+# Revision 1.150  2004/06/21 14:48:26  sjtan
 #
 # restored some methods that gmContacts depends on, after they were booted
 # out from gmDemographicRecord with no home to go , works again ;
