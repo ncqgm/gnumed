@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.74 2004-06-26 23:42:44 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.75 2004-06-28 12:15:38 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -53,8 +53,6 @@ drop index idx_lreq_encounter;
 drop index idx_lreq_episode;
 
 drop index idx_episode_h_issue;
-
-drop index idx_allergy_comment;
 \set ON_ERROR_STOP 1
 
 -- clin_root_item & children indices
@@ -285,6 +283,34 @@ order by
 
 -- ==========================================================
 -- tests stuff
+
+\unset ON_ERROR_STOP
+drop view v_lab_requests;
+\set ON_ERROR_STOP 1
+
+create view v_lab_requests as
+select
+	lr.pk as pk_request,
+	torg.internal_name as lab_name,
+	request_id as request_id,
+	lab_request_id as lab_request_id,
+	clin_when as sampled_when,
+	lab_rxd_when as lab_rxd_when,
+	results_reported_when as results_reported_when,
+	request_status as request_status,
+	_(request_status) as l10n_request_status,
+	is_pending as is_pending,
+	fk_test_org as pk_test_org,
+	fk_requestor as pk_requestor,
+	fk_encounter as pk_encounter,
+	fk_episode as fk_episode
+from
+	lab_request lr,
+	test_org torg
+where
+	lr.fk_test_org=torg.pk
+;
+
 
 \unset ON_ERROR_STOP
 drop view v_test_org_profile;
@@ -826,6 +852,7 @@ GRANT SELECT ON
 	, v_pat_missing_vaccs
 	, v_pat_missing_boosters
 	, v_most_recent_encounters
+	, v_lab_requests
 	, v_results4lab_req
 	, v_test_org_profile
 	, v_pat_diag
@@ -835,11 +862,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.74 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.75 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.74  2004-06-26 23:42:44  ncq
+-- Revision 1.75  2004-06-28 12:15:38  ncq
+-- - add view on lab_request -> v_lab_requests so we can fk_ -> pk_
+--
+-- Revision 1.74  2004/06/26 23:42:44  ncq
 -- - indices on clin_root_item fields in descendants
 -- - id_* -> fk/pk_*
 --
