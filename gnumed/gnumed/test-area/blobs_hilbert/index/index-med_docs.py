@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -712,15 +712,29 @@ class indexFrame(wxFrame):
 		"""
 		indexing_file = os.path.join(aDir, __cfg__.get("metadata", "now_indexing"))
 		can_index_file = os.path.join(aDir, __cfg__.get("metadata", "can_index"))
+		cookie = __cfg__.get("metadata", "indexing_cookie")
 
 		# 1) anyone indexing already ?
 		if os.path.exists(indexing_file):
 			_log.Log(gmLog.lInfo, 'Someone seems to be indexing this directory already. Indexing lock [%s] exists.' % indexing_file)
-			return None
+			# did _we_ lock this dir earlier and then died unexpectedly ?
+			fhandle = open(indexing_file, 'r')
+			tmp = fhandle.readline()
+			fhandle.close()
+			tmp = string.replace(tmp,'\015','')
+			tmp = string.replace(tmp,'\012','')
+			# yep, it's our cookie
+			if (tmp == cookie) and (os.path.exists(can_index_file)):
+				_log.Log(gmLog.lInfo, 'Seems like _we_ locked this directory earlier and subsequently died without completing our task.')
+				_log.Log(gmLog.lInfo, 'At least the cookie we found is the one we use, too (%s).' % cookie)
+				_log.Log(gmLog.lInfo, 'Unlocking this directory.')
+				os.remove(indexing_file)
+			# nope, someone else
+			else:
+				return None
 
 		# 2) check for ready-for-indexing checkpoint
 		if not os.path.exists(can_index_file):
-			# unlock again
 			_log.Log(gmLog.lInfo, 'Not ready for indexing yet. Checkpoint [%s] does not exist.' % can_index_file)
 			return None
 
@@ -735,15 +749,17 @@ class indexFrame(wxFrame):
 		"""
 		indexing_file = os.path.join(aDir, __cfg__.get("metadata", "now_indexing"))
 		can_index_file = os.path.join(aDir, __cfg__.get("metadata", "can_index"))
+		cookie = __cfg__.get("metadata", "indexing_cookie")
 
 		# 1) anyone indexing already ?
 		if os.path.exists(indexing_file):
 			_log.Log(gmLog.lInfo, 'Someone seems to be indexing this directory already. Indexing lock [%s] exists.' % indexing_file)
 			return None
 
-		# 2) lock for indexing by us
+		# 2) lock for indexing by us and store cookie
 		try:
 			tag_file = open(indexing_file, 'w')
+			tag_file.write(cookie)
 			tag_file.close()
 		except IOError:
 			# this shouldn't happen
