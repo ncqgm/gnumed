@@ -13,7 +13,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -22,7 +22,7 @@ import os.path, sys
 from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals, gmWhoAmI
-from Gnumed.business import gmEMRStructItems, gmPatient
+from Gnumed.business import gmEMRStructItems, gmPatient, gmSOAPimporter
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
@@ -31,7 +31,6 @@ sys.path.append ('../../ian')
 import SOAP2
 
 import SOAPMultiSash
-from gmSOAPimporter import cSOAPImporter
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -380,53 +379,53 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		vstaff_id = gmWhoAmI.cWhoAmI().get_staff_ID()
 		# compose soap bundle
 		clin_ctx = {
-			cSOAPImporter._episode_id_key:vepisode_id,
-			cSOAPImporter._encounter_id_key: vencounter_id,
-			cSOAPImporter._staff_id_key: vstaff_id
+			gmSOAPimporter.cSOAPImporter._episode_id_key:vepisode_id,
+			gmSOAPimporter.cSOAPImporter._encounter_id_key: vencounter_id,
+			gmSOAPimporter.cSOAPImporter._staff_id_key: vstaff_id
 		}
 		bundle = []
 		# subjective
 		bundle.append(
 		{
-			cSOAPImporter._soap_cat_key:'s',
-			cSOAPImporter._types_key:['Hx'],
-			cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Subjective'],
-			cSOAPImporter._clin_ctx_key:clin_ctx,
-			cSOAPImporter._struct_data_key:{}
+			gmSOAPimporter.cSOAPImporter._soap_cat_key:'s',
+			gmSOAPimporter.cSOAPImporter._types_key:['Hx'],
+			gmSOAPimporter.cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Subjective'],
+			gmSOAPimporter.cSOAPImporter._clin_ctx_key:clin_ctx,
+			gmSOAPimporter.cSOAPImporter._struct_data_key:{}
 		}
 		)
 		# objective
 		bundle.append(
 		{
-			cSOAPImporter._soap_cat_key:'o',
-			cSOAPImporter._types_key:['Hx'],
-			cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Objective'],
-			cSOAPImporter._clin_ctx_key:clin_ctx,
-			cSOAPImporter._struct_data_key:{}
+			gmSOAPimporter.cSOAPImporter._soap_cat_key:'o',
+			gmSOAPimporter.cSOAPImporter._types_key:['Hx'],
+			gmSOAPimporter.cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Objective'],
+			gmSOAPimporter.cSOAPImporter._clin_ctx_key:clin_ctx,
+			gmSOAPimporter.cSOAPImporter._struct_data_key:{}
 		}
 		)
 		# assesment
 		bundle.append(
 		{
-			cSOAPImporter._soap_cat_key:'a',
-			cSOAPImporter._types_key:['Hx'],
-			cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Assessment'],
-			cSOAPImporter._clin_ctx_key:clin_ctx,				  
-			cSOAPImporter._struct_data_key:{}
+			gmSOAPimporter.cSOAPImporter._soap_cat_key:'a',
+			gmSOAPimporter.cSOAPImporter._types_key:['Hx'],
+			gmSOAPimporter.cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Assessment'],
+			gmSOAPimporter.cSOAPImporter._clin_ctx_key:clin_ctx,				  
+			gmSOAPimporter.cSOAPImporter._struct_data_key:{}
 		}
 		)
 		# plan
 		bundle.append(
 		{
-		   cSOAPImporter._soap_cat_key:'p',
-			cSOAPImporter._types_key:['Hx'],
-			cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Plan'],
-			cSOAPImporter._clin_ctx_key:clin_ctx,
-			cSOAPImporter._struct_data_key:{}
+			gmSOAPimporter.cSOAPImporter._soap_cat_key:'p',
+			gmSOAPimporter.cSOAPImporter._types_key:['Hx'],
+			gmSOAPimporter.cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Plan'],
+			gmSOAPimporter.cSOAPImporter._clin_ctx_key:clin_ctx,
+			gmSOAPimporter.cSOAPImporter._struct_data_key:{}
 		}
 		)
 		# let's dump soap contents		   
-		importer = cSOAPImporter()
+		importer = gmSOAPimporter.cSOAPImporter()
 		print bundle[0]
 		importer.import_soap(bundle)
 				
@@ -526,7 +525,6 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Check and configure adecuate buttons enabling state
 		"""
-		
 		print "cSOAPInput.check_buttons" 
 		
 		if self.__selected_leaf is None:
