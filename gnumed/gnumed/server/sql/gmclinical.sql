@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.85 $
+-- $Revision: 1.86 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -124,7 +124,10 @@ create table clin_encounter (
 	fk_location integer,
 	fk_provider integer,
 	fk_type integer not null references _enum_encounter_type(id) default 1,
-	description text default ''
+	description text default '',
+	started timestamp with time zone not null default CURRENT_TIMESTAMP,
+	last_affirmed timestamp with time zone not null default CURRENT_TIMESTAMP
+--	,state text default 'affirmed'
 );
 
 -- remote foreign keys
@@ -845,11 +848,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.85 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.86 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.85  2004-01-18 21:56:38  ncq
+-- Revision 1.86  2004-02-18 15:28:26  ncq
+-- - merge curr_encounter into clin_encounter
+--
+-- Revision 1.85  2004/01/18 21:56:38  ncq
 -- - v_patient_vacc4ind
 -- - reformatting DDLs
 --
