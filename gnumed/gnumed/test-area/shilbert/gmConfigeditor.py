@@ -113,7 +113,18 @@ class gmConfigEditorPanel(wxPanel):
 				fgszr_ctrls.Add(label)
 				# edit field
 				# FIXME: handle lists !  -> wxTE_MULTILINE
-				edit_field = wxTextCtrl(panel_nb_page, -1, str(self.cfg.get(group, option)))
+				if type (self.cfg.get(group, option)) is list :
+					edit_field = wxTextCtrl(
+						parent = panel_nb_page,
+						id =  -1,
+						value = "",
+						style = wxTE_MULTILINE
+						)
+						
+					for listoption in self.cfg.get(group, option):
+						edit_field.AppendText(listoption)
+				else:
+					edit_field = wxTextCtrl(panel_nb_page, -1, str(self.cfg.get(group, option)))					
 				optionCtrlsList[option] = edit_field
 				fgszr_ctrls.Add(edit_field)
 				# option comment
@@ -169,9 +180,14 @@ class gmConfigEditorPanel(wxPanel):
 				optionsdict = elementsdict[groups]
 				temp = optionsdict.keys()
 				for option in temp:
-					data = optionsdict[option].GetValue()
+					if type (self.cfg.get(groups, option)) is list :
+						tmp = optionsdict[option].GetValue()
+						data = string.split(tmp,"\n")
+					else:
+						data = optionsdict[option].GetValue()
 					self.cfg.set(groups,option,data)
-	    	self.cfg.store()
+				
+	    	#self.cfg.store()
 		
 	def __exit(self,evt):
 		sys.exit()
@@ -249,7 +265,10 @@ else:
 
 #===========================================
 # $Log: gmConfigeditor.py,v $
-# Revision 1.10  2003-04-15 02:31:13  ncq
+# Revision 1.11  2003-04-15 18:41:19  shilbert
+# - now handles options as lists if applicable
+#
+# Revision 1.10  2003/04/15 02:31:13  ncq
 # - some cleanup
 #
 # Revision 1.9  2003/04/14 20:47:04  shilbert
