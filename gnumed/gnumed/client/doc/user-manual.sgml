@@ -309,7 +309,7 @@ setting up the database (<xref linkend="pgsql">.)</para>
 	<para>You will then be faced with login parameters. If you have set up the postgresql correctly, you only need to fill in the follow parameters.</para>
 
 	<para>For <emphasis>Login</emphasis> you enter in the usernamem you used to create the database.</para>
-	<para>For <emphasis>database</emphasis> enter in <emphasis>gnumed</emphasis>. Remember this is the database name you created initally. <emphasis>If</emphasis> all goes well, you will see a very nice GUI</para>
+	<para>For <emphasis>database</emphasis> enter in <emphasis>gnumed</emphasis>. Remember this is the database name you created initally. <emphasis>If</emphasis> all goes well, you will see a very nice GUIm with that appears to be the picture of someone's mom.</para>
       </sect3>
 </sect2>
 
