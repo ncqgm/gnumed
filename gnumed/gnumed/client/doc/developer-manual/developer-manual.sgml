@@ -257,9 +257,9 @@ gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log
                 </para></listitem>
 			</itemizedlist>
             <para>
-            Each GnuMed database has a table "schema_revision". Doing a
+            Each GnuMed database has a table "gm_schema_revision". Doing a
 			<ProgramListing>
-            select * from schema_revision
+            select * from gm_schema_revision
             </ProgramListing>
 			will show you which version of which SQL file was imported
 			into this database (as long as they adhere to the GnuMed
@@ -276,7 +276,7 @@ gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log
 	After importing <link linkend=gmCfg>gmCfg.py</link> data stored in a standard configuration file at ~/.gnumed/gnumed.conf
 	is available. Information in this file is particularly important for all activity until a connection to the backend has 
 	been established. Once the backend available, configuration information stored in tables of the gnumed database can be used.
-	However, it is possible to force file or database accessat any time. 
+	However, it is possible to force file or database access at any time. 
     	</para>
 	<sect2>
 	<title>Standard configuration file</title>
