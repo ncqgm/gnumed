@@ -8,8 +8,8 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.18 $"
-__author__ = "H. Herb <hherb@gnumed.net>"
+__version__ = "$Revision: 1.19 $"
+__author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
 from pyPgSQL import libpq
@@ -228,16 +228,21 @@ if __name__ == "__main__":
 	print "Without backend thread, it took", t_nothreads, "seconds"
 
 	# now try with listener to measure impact
-	print "Now fire up psql in a new shell, return\nhere and hit <enter> to continue."
+	print "Now in a new shell connect psql to the"
+	print "database <gnumed> on localhost, return"
+	print "here and hit <enter> to continue."
 	try:
-		raw_input('hit <enter> when done starting psql: ')
+		raw_input('hit <enter> when done starting psql')
 	except:
 		pass
-	print "You now have about 30 seconds to go to the psql shell"
-	print "and type 'notify patient_changed'<enter> several times."
+	print "You now have about 30 seconds to go"
+	print "to the psql shell and type"
+	print " notify patient_changed<enter>"
+	print "several times."
 	print "This should trigger our backend listening callback."
 	print "You can also try to stop the demo with Ctrl-C!"
-	listener = BackendListener(service='default', database='gnumed', user='gnumed', password='')
+
+	listener = BackendListener(service='default', database='gnumed', user='gm-dbowner', password='')
 	listener.register_callback('patient_changed', OnPatientModified)
 
 	try:
@@ -257,15 +262,17 @@ if __name__ == "__main__":
 		t_threaded = t2-t1
 		print "With backend thread, it took", t_threaded, "seconds"
 		print "Difference:", t_threaded-t_nothreads
-
-		listener.exit()
 	except KeyboardInterrupt:
 		print "cancelled by user"
-		listener.exit()
 
+	listener.tell_thread_to_stop()
+	listener.unregister_callback('patient_changed', OnPatientModified)
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.18  2003-07-04 20:01:48  ncq
+# Revision 1.19  2003-09-11 10:53:10  ncq
+# - fix test code in __main__
+#
+# Revision 1.18  2003/07/04 20:01:48  ncq
 # - remove blocking keyword from acquire() since Python does not like the
 #
 # Revision 1.17  2003/06/26 04:18:40  ihaywood
