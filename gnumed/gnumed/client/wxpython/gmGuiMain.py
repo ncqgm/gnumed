@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.113 2003-09-03 17:32:41 hinnef Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmGuiMain.py,v 1.114 2003-10-13 21:00:29 hinnef Exp $
+__version__ = "$Revision: 1.114 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -177,7 +177,39 @@ class gmTopLevelFrame(wxFrame):
 		# setsizehints only allows minimum size, therefore window can't become small enough
 		# effectively we need the font size to be configurable according to screen size
 		#self.vbox.SetSizeHints(self)
-		self.Fit()
+
+		defaultSize = (640,480)
+		# try to get last window size from the backend
+		result, set = gmCfg.getFirstMatchingDBSet( 
+			machine = _whoami.getMachine(),
+			option = 'main.window.size')
+		print set, result
+		if not set is None and len(result) == 2:
+			currentSize = tuple(result)
+		else:
+			currentSize = defaultSize
+			db = gmPG.ConnectionPool()
+			conn = db.GetConnection(service = "default")
+			dbcfg = gmCfg.cCfgSQL(
+				aConn = conn,
+				aDBAPI = gmPG.dbapi
+			)
+			rwconn = db.GetConnection(service = "default", readonly = 0)
+			dbcfg.set(
+				machine = _whoami.getMachine(),
+				user = _whoami.getUser(),
+				option = 'main.window.size',
+				value = [currentSize[0],currentSize[1]],
+				aRWConn = rwconn
+			)
+			rwconn.close()
+			db.ReleaseConnection(service = "default")
+		_log.Log(gmLog.lInfo, 'currSize [%s,%s]' % currentSize)
+
+		# FIXME: size should be stored as a special type [int,int]
+		self.SetClientSize(wxSize(int(currentSize[0]),int(currentSize[1])))
+# Fit() will re-shrink the window
+#		self.Fit()
 		self.Centre(wxBOTH)
 		self.Show(true)
 	#----------------------------------------------
@@ -627,7 +659,7 @@ class gmApp(wxApp):
 		self.__set_db_lang()
 
 		# create the main window
-		frame = gmTopLevelFrame(None, -1, _('GnuMed client'), size=(600,440))
+		frame = gmTopLevelFrame(None, -1, _('GnuMed client'), (640,440))
 		# and tell the app to use it
 		self.SetTopWindow(frame)
 		#frame.Unlock()
@@ -815,7 +847,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.113  2003-09-03 17:32:41  hinnef
+# Revision 1.114  2003-10-13 21:00:29  hinnef
+# -added main.window.size config parameter (will be set on startup)
+#
+# Revision 1.113  2003/09/03 17:32:41  hinnef
 # make use of gmWhoAmI
 #
 # Revision 1.112  2003/07/21 21:05:56  ncq
