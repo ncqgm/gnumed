@@ -27,8 +27,8 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.15 2003-04-05 00:39:23 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmGP_TabbedLists.py,v 1.16 2003-04-23 09:20:32 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 
 from wxPython.wx import *
 #from wxPython.gizmos import *
@@ -223,13 +223,13 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
 	self.List_Recalls = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
 	self.List_Inbox = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
 
-	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Script, pPage = self.List_Script, strText = '')
-	#self.notebook1.AddPage(bSelect = true, imageId = tabimage_Inbox, pPage = szr_script_page, strText = '')
-	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Requests, pPage = self.List_Requests, strText = '')
-	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Measurements, pPage = self.List_Measurements, strText = '')
-	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Referrals, pPage = self.List_Referrals, strText = '')
-	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Recalls, pPage = self.List_Recalls, strText = '')
-	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Inbox, pPage = self.List_Inbox, strText = '')
+	self.notebook1.AddPage(self.List_Script, '', true, tabimage_Script)
+	#self.notebook1.AddPage(true, tabimage_Inbox, szr_script_page, '')
+	self.notebook1.AddPage(self.List_Requests, '', true, tabimage_Requests)
+	self.notebook1.AddPage(self.List_Measurements, '', true, tabimage_Measurements)
+	self.notebook1.AddPage(self.List_Referrals, '', true, tabimage_Referrals)
+	self.notebook1.AddPage(self.List_Recalls, '', true, tabimage_Recalls)
+	self.notebook1.AddPage(self.List_Inbox, '', true, tabimage_Inbox)
         self.notebook1.SetSelection(0)                               #start on scriptpage
 #--------------------------------------
 	#Now lets do things to the script list:
@@ -338,7 +338,11 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.15  2003-04-05 00:39:23  ncq
+# Revision 1.16  2003-04-23 09:20:32  ncq
+# - reordered arguments and removed keywords from Tabbed Lists to work
+#   around difference betwee 2.0.4.1 to 2.0.4.7
+#
+# Revision 1.15  2003/04/05 00:39:23  ncq
 # - "patient" is now "clinical", changed all the references
 #
 # Revision 1.14  2003/02/25 05:30:46  michaelb
