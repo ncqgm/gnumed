@@ -17,13 +17,12 @@
 ############################################################################
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmDbObject.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 import sys
 import gmLog
 _log = gmLog.gmDefLog
-_log.SetAllLogLevels(gmLog.lData)
 #============================================================
 class DBObject:
 	"""High level DB-API based base class for all gnumed database objects"""
@@ -204,6 +203,7 @@ class DBObject:
 # main
 #============================================================
 if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
 	import gmPG
 	db = gmPG.ConnectionPool()
 	dbo = DBObject(db, select_query = "select * from pg_tables where tablename not like 'pg_%'")
@@ -215,6 +215,9 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDbObject.py,v $
-# Revision 1.3  2002-09-16 10:44:08  ncq
+# Revision 1.4  2002-09-16 23:26:30  ncq
+# - move setallloglevels to a saner place
+#
+# Revision 1.3  2002/09/16 10:44:08  ncq
 # - add logging as requested
 #
