@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.28 $
+# $Revision: 1.29 $
 ---------------------------------------------------
 Rules:
 ------
@@ -278,3 +278,41 @@ NOTE: I added the above sections but did not delete it because I am not sure if 
 
 Wed Apr  2 20:49:53 PST 2003 Gerardo Arnaez
 --------------------------------------------
+Michael Bonert <bonerti AT mie DOT utoronto DOT ca>	Tue Apr 22 23:42:58 EDT 2003
+
+Changes refers to an earlier version of the install guide I wrote:
+http://savannah.gnu.org/cgi-bin/viewcvs/gnumed/gnumed/gnumed/client/doc/TODO/user-manual.txt?rev=1.27&content-type=text/vnd.viewcvs-markup (same as above)
+
+All is the same except for Step #5
+
+
+Alternate Step #5 - Install with RPM
+-----
+5. Install pyPgSQL (pyPgSQL-2.3-3mdk.i586.rpm)
+	Email me (bonerti AT mie DOT utoronto DOT ca) for the RPM <-- hopefully this can be replaced by a link to the website soon
+
+	Before installing pyPgSQL make sure you have the following
+	(from the Mandrake CDs):
+		libpython2.2-devel-2.2.2-6mdk
+
+	Testing pyPgSQL:
+	$ su root
+	# su postgres		# trick to avoid having to know the postgres passwd
+	$ cd /usr/share/doc/pyPgSQL-2.3/test
+	$ python PgSQLTestCases.py
+
+	IMPORTANT NOTE:
+		A database user with your user name has to exist for the test to work
+		properly if you are testing as a normal user.  See step #10
+		for how	to create database users.
+
+	TEST OUTPUT:
+		..................................................................
+		----------------------------------------------------------------------
+		Ran 66 tests in 0.827s
+
+		OK
+-----
+
+--------------------------------------------------
+
