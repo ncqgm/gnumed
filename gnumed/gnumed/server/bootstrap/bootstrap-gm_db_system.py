@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -536,17 +536,15 @@ class database:
 		# sockets (because we want to connect locally and want to use
 		# IDENT/SAMEUSER authentication) we need to leave the host name
 		# empty upon which the adapter will have to assume a local
-		# connection, we also assume that "localhost" and "127.0.0.1"
-		# are meant to signify local connections
-		# IH: No. "localhost" may, but "127.0.0.1" means TCP/IP coonection
-		# via loopback interface.
+		# connection, we also assume that "localhost" and "" are
+		# meant to signify local connections
 		# this is also in accord with what the psql manpage says:
 		#  If you omit the host name, psql will connect via a
 		#  Unix domain socket to a server on the local host
 		# This seems to be particularly necessary under Debian
 		# GNU/Linux because otherwise the authentification fails
-		if srv.name == "localhost":
-			srvname = ""
+		if srv.name in ['localhost', '']:
+			srvname = ''
 		else:
 			srvname = srv.name
 		try:
@@ -578,17 +576,17 @@ class database:
 		# sockets (because we want to connect locally and want to use
 		# IDENT/SAMEUSER authentication) we need to leave the host name
 		# empty upon which the adapter will have to assume a local
-		# connection, we also assume that "localhost" and "127.0.0.1"
-		# are meant to signify local connections
+		# connection, we also assume that "localhost" and "" are meant
+		# to signify local connections
 		# this is also in accord with what the psql manpage says:
 		#  If you omit the host name, psql will connect via a
 		#  Unix domain socket to a server on the local host
 		# This seems to be particularly necessary under Debian
 		# GNU/Linux because otherwise the authentification fails
-		if srv.name not in ['localhost']:
-			srvname = srv.name
-		else:
+		if srv.name in ['localhost', '']:
 			srvname = ''
+		else:
+			srvname = srv.name
 		try:
 			dsn = dsn_format % (
 				srvname,
@@ -1011,7 +1009,7 @@ def _import_schema_file(anSQL_file = None, aSrv = None, aDB = None, aUser = None
 	# This seems to be necessary under Debian GNU/Linux because
 	# otherwise the authentification fails
 	# We have to leave out the -h option here ...
-	if aSrv in ['localhost', '127.0.0.1', '']:
+	if aSrv in ['localhost', '']:
 		srv_arg = ''
 	else:
 		srv_arg = '-h "%s"' % aSrv
@@ -1152,7 +1150,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.26  2003-10-01 16:18:17  ncq
+# Revision 1.27  2003-10-09 14:53:09  ncq
+# - consolidate localhost and '' to mean UNIX domain socket connection
+#
+# Revision 1.26  2003/10/01 16:18:17  ncq
 # - remove audit_mark reference
 #
 # Revision 1.25  2003/08/26 14:11:13  ncq
