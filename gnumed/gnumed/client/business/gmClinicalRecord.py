@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.51 2003-11-28 10:06:18 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmClinicalRecord.py,v 1.52 2003-11-30 01:05:30 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -446,25 +446,32 @@ class gmClinicalRecord:
 	#--------------------------------------------------------
 	def get_vaccinations(self):
 		try:
-			return self.__db_cache['vaccinations']
+			return (self.__db_cache['vaccinations'], self.__db_cache['idx vaccinations'])
 		except KeyError:
-			pass
-		self.__db_cache['vaccinations'] = {}
-
-		cmd = """
+			self.__db_cache['vaccinations'] = []
+			cmd = """
 select
 	pk_vaccination,
 	date,
 	vaccine,
 	vaccine_short,
 	batch_no,
+	regime,
 	indication,
 	is_booster,
+	seq_no,
 	site,
 	pk_provider
 from  v_patient_vaccinations
 where pk_patient = %s
 """
+			rows, self.__db_cache['idx vaccinations'] = gmPG.run_ro_query('historica', cmd, 1, self.id_patient)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot load vaccinations for patient [%s]' % self.id_patient)
+				del self.__db_cache['vaccinations']
+				return (None, None)
+			self.__db_cache['vaccinations'] = rows
+		return (self.__db_cache['vaccinations'], self.__db_cache['idx vaccinations'])
 	#--------------------------------------------------------
 	def get_due_vaccinations(self):
 		try:
@@ -849,16 +856,7 @@ insert into allergy (
 			phx  = gmPastHistory(self._backend, self)
 			self.past_history = gmPHxEditAreaDecorator(phx)
 		return self.past_history
-
-	def get_allergies_manager(self):
-		if not self.__dict__.has_key('allergy'):
-			from gmAllergies import gmAllergies
-			self.allergy = gmAllergies( self._backend, self)
-		return self.allergy
-
-
-	
-
+#============================================================
 class gmClinicalPart:
 	def __init__(self, backend, patient):
 		self._backend = backend
@@ -901,6 +899,21 @@ class gmClinicalPart:
 			all_map[row[0]]= map	
 
 		return all_map
+#============================================================
+# convenience functions
+#------------------------------------------------------------
+def get_vacc_regimes():
+	cmd = 'select description from vacc_regime'
+	rows = gmPG.run_ro_query('historica', cmd, 0)
+	if rows is None:
+		return None
+	if len(rows) == 0:
+		return []
+	data = []
+	for row in rows:
+		data.extend(rows)
+	return data
+
 #------------------------------------------------------------
 # main
 #------------------------------------------------------------
@@ -933,7 +946,11 @@ if __name__ == "__main__":
 	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.51  2003-11-28 10:06:18  ncq
+# Revision 1.52  2003-11-30 01:05:30  ncq
+# - improve get_vaccinations
+# - added get_vacc_regimes
+#
+# Revision 1.51  2003/11/28 10:06:18  ncq
 # - remove dead code
 #
 # Revision 1.50  2003/11/28 08:08:05  ncq
