@@ -111,12 +111,13 @@ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 		<para>
 		<table frame=all>
 			<title>"Supported" Distributions</title>
-			<tgroup cols=3 align=left colsep=1 rowsep=1>
+			<tgroup cols=4 align=left colsep=1 rowsep=1>
 			<thead>
 			<row>
 				<entry>Distribution</entry>
 				<entry>Version</entry>
 				<entry>URL</entry>
+		  		<entry>Functional?</entry>
 			</row>
 			</thead>
 			
@@ -125,7 +126,15 @@ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 				<entry>Debian</entry>
 				<entry>unstable</entry>
 				<entry><ulink url="http://www.debian.org">www.debian.org</ulink></entry>
+		  		<entry>Yes</entry>	
 			</row>
+		
+		<row>
+		  <entry>RedHat</entry>
+		  <entry>???</entry>
+		  <entry><ulink url="http://www.redhat.com">www.redhat.com</ulink></entry>
+		  <entry>yes</entry>
+		</row>
 			<row>
 				<entry>Suse</entry>
 				<entry>???</entry>
@@ -135,13 +144,48 @@ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 				<entry>Mandrake</entry>
 				<entry>???</entry>
 				<entry><ulink url="http://www,mandrake.com">www.mandrake.com</ulink></entry>
+		  <entry>Yes</entry>
 			</row>
 
 			<row>
 				<entry>Microsoft</entry>
-				<entry>NT?, Win98??</entry>
+				<entry>Win98</entry>
 				<entry><ulink url="http://www.microsoft.com">www.microsoft.com</ulink></entry>
+		  <entry>yes</entry>
 			</row>
+
+		<row>
+		  <entry>Gentoo</entry>
+		  <entry>???</entry>
+		  <entry><ulink url="htttp://www.gentoo·org">www.gentoo.com</ulink></entry>
+		  <entry>Yes</entry>
+		</row>
+
+		<row>
+		  <entry>Solaris</entry>
+		  <entry>???</entry>
+		  <entry><ulink url="http://www.sun.com">www.sun.com</ulink></entry>
+		  <entry>Sporadically</entry>
+		</row>
+<row>
+		  <entry>BSD</entry>
+		  <entry>???</entry>
+		  <entry><ulink url="http://www.sun.com">www.freebsd.org</ulink></entry>
+		  <entry>Sporadically</entry>
+		</row>
+
+<row>
+		  <entry>w-smith</entry>
+		  <entry>???</entry>
+		  <entry><ulink url="http://www.e-smith.org">www.e-smith.org</ulink></entry>
+		  <entry>server side only</entry>
+		</row>
+		<row>
+		  <entry>Mac OS X</entry>
+		  <entry>???</entry>
+		  <entry>www.apple.com</entry>
+		  <entry>Unknown</entry>
+		</row>
 			</tbody>
 			</tgroup>
 
