@@ -6,8 +6,9 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/michaelb/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.1 2003-07-01 06:35:09 michaelb Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPregCalc.py,v 1.2 2003-07-04 06:56:32 rterry Exp $
+# Michael I have cut and pasted all my code - hope doesn't stuff up your stuff
+__version__ = "$Revision: 1.2 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -58,13 +59,14 @@ class PregnancyFrame (wxFrame):
 		#------------------------------
 		# sizer holding the 'LNMP' stuff
 		#------------------------------
-		label = wxStaticText(self,-1,_("LNMP"),size = (50,20))
+		label = wxStaticText(self,-1,_("Lmp"),size = (50,20))                 #label Lmp
 		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		label.SetForegroundColour(wxColour(0,0,131))
+		label.SetForegroundColour(wxColour(0,0,0))
 
-		self.txtlnmp = wxTextCtrl(self,-1,"",size=(100,20))
+		self.txtlnmp = wxTextCtrl(self,-1,"",size=(100,20))                   # text for lmp
 		self.txtlnmp.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-
+                szr_row1 = wxBoxSizer(wxHORIZONTAL)
+		szr_row1.Add(self.txtlnmp,1,wxEXPAND|wxALL,2)
 		#EVT_TEXT(self, self.txtlnmp.GetId(), self.EvtText_height)
 		#EVT_SET_FOCUS(self.txtheight, self.OnSetFocus_height)
 		#EVT_CHAR(self.txtheight, self.EvtChar_height)
@@ -72,107 +74,117 @@ class PregnancyFrame (wxFrame):
 		szr_lnmp = wxBoxSizer(wxHORIZONTAL)
 		szr_lnmp.Add(label, 1, 0, 0)
 		szr_lnmp.Add(10,1,0,0)
-		rcs.Add(szr_lnmp, flag=wxEXPAND, row=1, col=1)
-		rcs.Add(self.txtlnmp, flag=wxEXPAND, row=1, col=2, colspan=5)
+		rcs.Add(szr_lnmp, flag=wxEXPAND, row=0, col=1)
+		rcs.Add(szr_row1, flag=wxEXPAND, row=0, col=2, colspan=5)
 		#------------------------------
 		# sizer holding the 'Gest.' stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("Gest."),size = (50,20))
 		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		label.SetForegroundColour(wxColour(0,0,131))
+		label.SetForegroundColour(wxColour(0,0,0))
 
 		self.txtgest = wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtgest.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-
+		self.txtgest_szr  = wxBoxSizer(wxHORIZONTAL)
+		self.txtgest_szr.Add(self.txtgest,1,wxEXPAND|wxALL,2)
 		#EVT_TEXT(self, self.txtmass.GetId(), self.EvtText_mass)
 		#EVT_SET_FOCUS(self.txtmass, self.OnSetFocus_mass)
 		#EVT_CHAR(self.txtmass, self.EvtChar_mass)
 
 		szr_gest = wxBoxSizer(wxHORIZONTAL)
 		szr_gest.Add(label, 1, 0, 0)
-		szr_gest.Add(10,1,0,0)			# done to add space between wxStaticText & wxTextCtrl
-		rcs.Add(szr_gest, flag=wxEXPAND, row=2, col=1)
-		rcs.Add(self.txtgest, flag=wxEXPAND, row=2, col=2, colspan=5)
+		szr_gest.Add(10,1,0,0)
+		rcs.Add(szr_gest, flag=wxEXPAND, row=1, col=1)
+		rcs.Add(self.txtgest_szr, flag=wxEXPAND, row=1, col=2, colspan=5)
 
 		#------------------------------
 		# sizer holding the 'EDC' stuff
 		#------------------------------
-		label = wxStaticText(self,-1,_("EDC"),size = (50,20))
+		label = wxStaticText(self,-1,_("Edc"),size = (50,20))
 		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		label.SetForegroundColour(wxColour(0,0,131))
-
+		label.SetForegroundColour(wxColour(0,0,0))
+		
   		self.txtedc = wxTextCtrl(self,-1,"",size=(100,20))
-		#self.txtedc.Enable(false)
 		self.txtedc.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-
+		szr_txtedc = wxBoxSizer(wxHORIZONTAL)
+		szr_txtedc.Add(self.txtedc,1,wxEXPAND|wxALL,2)
 		szr_edc = wxBoxSizer(wxHORIZONTAL)
 		szr_edc.Add(label,1,0,0)
 		szr_edc.Add(10,1,0,0)
-		rcs.Add(szr_edc, flag=wxEXPAND, row=3, col=1)
-		rcs.Add(self.txtedc, flag=wxEXPAND, row=3, col=2, colspan=5)
+		rcs.Add(szr_edc, flag=wxEXPAND, row=2, col=1)
+		rcs.Add(szr_txtedc, flag=wxEXPAND, row=2, col=2, colspan=5)
 
 		#------------------------------
 		# "Ultrasound Scan" label
 		#------------------------------
-		us_label = wxStaticText(self,-1,_("18/52 Ultrasound Scan"),size = (100,20))
-		us_label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		us_label.SetForegroundColour(wxColour(0,0,131))
-
-		rcs.Add(us_label, flag=wxALIGN_CENTRE_HORIZONTAL, row=5, col=2, colspan=5)
-
+		us_label = wxStaticText(self,-1,_("18/52 Ultrasound Scan"),size = (20,20))
+		us_label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		us_label.SetForegroundColour(wxColour(50,50,204))
+		szr_backgrnd_18WkScanDue = wxBoxSizer(wxVERTICAL)
+		szr_backgrnd_18WkScanDue.Add(1,3, 0)
+		szr_backgrnd_18WkScanDue.Add(us_label,1,wxEXPAND,1)
+		#rcs.Add(us_label, flag=wxALIGN_CENTRE_HORIZONTAL, row=4, col=2, colspan=5)
+		rcs.Add(szr_backgrnd_18WkScanDue, flag=wxALIGN_CENTRE_HORIZONTAL, row=3, col=2, colspan=5)
 		#------------------------------
 		# sizer holding the 'Due' stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("Due"),size = (100,20))
 		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		label.SetForegroundColour(wxColour(0,0,131))
+		label.SetForegroundColour(wxColour(0,0,0))
 
   		self.txtdue = wxTextCtrl(self,-1,"",size=(100,20))
 		#self.txtdue.Enable(false)
 		self.txtdue.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-
+		self.szr_txtdue  = wxBoxSizer(wxHORIZONTAL)
+		self.szr_txtdue.Add(self.txtdue,1,wxEXPAND|wxALL,2)
 		szr_due = wxBoxSizer(wxHORIZONTAL)
 		szr_due.Add(label,1,0,0)
 		szr_due.Add(10,1,0,0)
-		rcs.Add(szr_due, flag=wxEXPAND, row=6, col=1)
-		rcs.Add(self.txtdue, flag=wxEXPAND, row=6, col=2, colspan=5)
+		rcs.Add(szr_due, flag=wxEXPAND, row=4, col=1)
+		rcs.Add(self.szr_txtdue, flag=wxEXPAND, row=4, col=2, colspan=5)
 
 		#------------------------------
 		# "Ultrasound Scan - Revised EDC" label
 		#------------------------------
 		rev_edc_label = wxStaticText(self,-1,_("Ultrasound Scan - Revised EDC"),size = (100,20))
-		rev_edc_label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		rev_edc_label.SetForegroundColour(wxColour(0,0,131))
-
-		rcs.Add(rev_edc_label, flag=wxALIGN_CENTRE_HORIZONTAL, row=8, col=2, colspan=5)
+		rev_edc_label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		rev_edc_label.SetForegroundColour(wxColour(50,50,204))
+		szr_backgrnd_RevEDCLabel = wxBoxSizer(wxVERTICAL)
+		szr_backgrnd_RevEDCLabel.Add(1,3, 0)
+		szr_backgrnd_RevEDCLabel.Add(rev_edc_label,1,wxEXPAND,1)
+		#rcs.Add(rev_edc_label, flag=wxALIGN_CENTRE_HORIZONTAL, row=6, col=2, colspan=5)
+		rcs.Add(szr_backgrnd_RevEDCLabel, flag=wxALIGN_CENTRE_HORIZONTAL, row=5, col=2, colspan=5)
 
 		#------------------------------
 		# sizer holding the 'newedc' stuff
 		#------------------------------
 		label1 = wxStaticText(self,-1,_("Date"),size = (25,20))
 		label1.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		label1.SetForegroundColour(wxColour(0,0,131))
+		label1.SetForegroundColour(wxColour(0,0,0))
 
   		self.txtdate = wxTextCtrl(self,-1,"",size=(25,20))
 		#self.txtdate.Enable(false)
 		self.txtdate.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-
+		self.szr_txtdate  = wxBoxSizer(wxHORIZONTAL)
+		self.szr_txtdate.Add(self.txtdate,1,wxEXPAND|wxALL,2)
 		label2 = wxStaticText(self,-1,_("Weeks"),size = (25,20))
 		label2.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		label2.SetForegroundColour(wxColour(0,0,131))
+		label2.SetForegroundColour(wxColour(0,0,0))
 
 		self.txtweeks = wxTextCtrl(self,-1,"",size=(25,20), style = wxTE_READONLY)
 		#self.txtweeks.Enable(false)
 		self.txtweeks.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-
+		self.szr_txtweeks  = wxBoxSizer(wxHORIZONTAL)
+		self.szr_txtweeks.Add(self.txtweeks,1,wxEXPAND|wxALL,2)
 		label3 = wxStaticText(self,-1,_("Days"),size = (25,20))
 		label3.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		label3.SetForegroundColour(wxColour(0,0,131))
-
+		label3.SetForegroundColour(wxColour(0,0,0))
+		
 		self.txtdays = wxTextCtrl(self,-1,"",size=(25,20), style = wxTE_READONLY)
 		#self.txtdays.Enable(false)
 		self.txtdays.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-
+		self.szr_txtdays  = wxBoxSizer(wxHORIZONTAL)
+		self.szr_txtdays.Add(self.txtdays,1,wxEXPAND|wxALL,2)
 		szr_label1 = wxBoxSizer(wxHORIZONTAL)
 		szr_label1.Add(label1,1,0,0)
 		szr_label1.Add(10,1,0,0)
@@ -185,79 +197,67 @@ class PregnancyFrame (wxFrame):
 		szr_label3.Add(label3,1,0,0)
 		szr_label3.Add(10,1,0,0)
 
-		rcs.Add(szr_label1, flag=wxEXPAND, row=9, col=1)
-		rcs.Add(self.txtdate, flag=wxEXPAND, row=9, col=2)
-		rcs.Add(szr_label2, flag=wxEXPAND, row=9, col=3)
-		rcs.Add(self.txtweeks, flag=wxEXPAND, row=9, col=4)
-		rcs.Add(szr_label3, flag=wxEXPAND, row=9, col=5)
-		rcs.Add(self.txtdays, flag=wxEXPAND, row=9, col=6)
+		rcs.Add(szr_label1, flag=wxEXPAND, row=6, col=1)
+		rcs.Add(self.szr_txtdate, flag=wxEXPAND, row=6, col=2)
+		rcs.Add(szr_label2, flag=wxEXPAND, row=6, col=3)
+		rcs.Add(self.szr_txtweeks, flag=wxEXPAND, row=6, col=4)
+		rcs.Add(szr_label3, flag=wxEXPAND, row=6, col=5)
+		rcs.Add(self.szr_txtdays, flag=wxEXPAND, row=6, col=6)
 
 		#------------------------------
 		# sizer holding the new 'EDC' stuff
 		#------------------------------
-		label = wxStaticText(self,-1,_("EDC"),size = (100,20))
+		label = wxStaticText(self,-1,_("Edc"),size = (100,20))
 		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		label.SetForegroundColour(wxColour(0,0,131))
+		label.SetForegroundColour(wxColour(0,0,0))
 
   		self.txtnewedc = wxTextCtrl(self,-1,"",size=(100,20))
-		#self.txtnewedc.Enable(false)
 		self.txtnewedc.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-
+		self.szr_txtnewedc  = wxBoxSizer(wxHORIZONTAL)
+		self.szr_txtnewedc.Add(self.txtnewedc,1,wxEXPAND|wxALL,2)
 		szr_label=wxBoxSizer(wxHORIZONTAL)
 		szr_label.Add(label,1,0,0)
 		szr_label.Add(10,1,0,0)
-		rcs.Add(szr_label, flag=wxEXPAND, row=10, col=1)
-		rcs.Add(self.txtnewedc, flag=wxEXPAND, row=10, col=2, colspan=5)
-
+		rcs.Add(szr_label, flag=wxEXPAND, row=7, col=1)
+		rcs.Add(self.szr_txtnewedc, flag=wxEXPAND, row=7, col=2, colspan=5)
+		self.btnPrint = wxButton(self,1011,_('&Print'))
+		self.btnSave = wxButton(self,1011,_('&Save'))
+		szr_buttons = wxBoxSizer(wxHORIZONTAL)
+		szr_buttons.Add(self.btnPrint,0,wxEXPAND)
+		szr_buttons.Add(self.btnSave,0,wxEXPAND)
+		rcs.Add(szr_buttons, flag=wxEXPAND,row=9, col=3, colspan=4) 
 		#------------------------------
 		# Sizer holding stuff on the right
 		#------------------------------
 		szr_main_rt = wxBoxSizer(wxVERTICAL)
 		szr_main_rt.Add(rcs)
-
-		#------------------------------
-		# Add calendar (stuff on the left)
-		#------------------------------
-		self.LNMPcal = wxCalendarCtrl (self, ID_LNMP)
-		szr_main_lf = wxBoxSizer(wxVERTICAL)
-		szr_main_lf.Add(1,5,0,0)
-		szr_main_lf.Add(self.LNMPcal,1,wxALIGN_CENTRE_HORIZONTAL | wxALL,20)
-
-		#------------------------------
-		# Super-sizer holds all the stuff above the four buttons at the bottom
-		#------------------------------
-		szr_main_top= wxBoxSizer(wxHORIZONTAL)
-		szr_main_top.Add(szr_main_lf,0,0)
-		szr_main_top.Add(5,1,0,0)
-		szr_main_top.Add(szr_main_rt,0,0)
-		szr_main_top.Add(15,1,0,0)
-
-		#------------------------------
-		# Add buttons that appear across the bottom
-		#------------------------------
-		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		szr_buttons.AddMany([
-			(5,5,1,0),
-			(wxButton(self, 1010, _('&Reset')), 0, wxEXPAND),
-			(wxButton(self, 1011, _('&Print')), 0, wxEXPAND),
-			(wxButton(self, 1012, _('&Save')), 0, wxEXPAND),
-			(wxButton(self, 1013, _('&Handout')), 0, wxEXPAND),
-			(5,5,1,0),
-		])
-
 		EVT_BUTTON(self,1010,self.EvtReset)
 		EVT_BUTTON(self,1011,self.EvtPrint)
 		EVT_BUTTON(self,1012,self.EvtSave)
-		EVT_BUTTON(self,1013,self.EvtHandout)
-
+		#------------------------------
+		# Add calendar (stuff on the left)
+		#------------------------------
+		self.LNMPcal = wxCalendarCtrl (self, ID_LNMP,style = wxRAISED_BORDER)
+		szr_main_lf = wxBoxSizer(wxVERTICAL)
+		
+		szr_main_lf.Add(self.LNMPcal,0,wxALIGN_CENTRE_HORIZONTAL)
+		btn_reset = wxButton(self, 1010, _('&Reset'))       
+		#szr_main_lf.Add(5,0,5)
+		szr_main_lf.Add(btn_reset,0,wxEXPAND)               
+		#--------------------------------------
+		# Super-sizer holds all the stuff above 
+		#--------------------------------------
+		szr_main_top= wxBoxSizer(wxHORIZONTAL)
+		szr_main_top.Add(szr_main_lf,0,0)
+		szr_main_top.Add(15,0,0,0)
+		szr_main_top.Add(szr_main_rt,0,0)
+		#szr_main_top.Add(15,1,0,0)
+		
 		#------------------------------
 		# Put everything together in one big sizer
 		#------------------------------
-		szr_main= wxBoxSizer(wxVERTICAL)
-		szr_main.Add(szr_main_top,0,0)
-		szr_main.Add(1,5,0,0)
-		szr_main.Add(szr_buttons,1,wxEXPAND | wxBOTTOM,5)
-
+		szr_main= wxBoxSizer(wxHORIZONTAL)
+		szr_main.Add(szr_main_top,1,wxEXPAND|wxALL,10)
 		self.SetSizer (szr_main)
 		self.SetAutoLayout (1)
 		szr_main.Fit (self)
@@ -335,7 +335,9 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.1  2003-07-01 06:35:09  michaelb
+# Revision 1.2  2003-07-04 06:56:32  rterry
+# richards latest gui improvement to pregcalc
+#
+# Revision 1.1  2003/07/01 06:35:09  michaelb
 # a new pregnancy calc
 #
-
