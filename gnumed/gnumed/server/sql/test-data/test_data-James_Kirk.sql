@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.39 $
+-- $Revision: 1.40 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -100,11 +100,16 @@ delete from clin_episode where pk in (
 	where id_patient = currval('identity_id_seq')
 );
 
-insert into clin_episode (fk_health_issue, description)
-values (
+insert into clin_episode (
+	fk_health_issue,
+	is_active,
+	clinically_relevant
+) values (
 	currval('clin_health_issue_id_seq'),
-	'knife cut L arm 9/2000'
+	'false'::boolean,
+	'true'::boolean
 );
+--	'knife cut L arm 9/2000'
 
 -- encounter: first, for knife cut ------------------------------------------------
 insert into clin_encounter (
@@ -214,14 +219,16 @@ insert into clin_narrative (
 	fk_episode,
 	narrative,
 	soap_cat,
-	is_aoe
+	is_aoe,
+	is_episode_name
 ) values (
 	'2000-9-17 17:14:32',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_pk_seq'),
 	'?contaminated laceration L forearm',
 	'a',
-	'true'::boolean
+	'true'::boolean,
+	'false'::boolean
 );
 
 
@@ -474,13 +481,15 @@ insert into clin_narrative (
 	fk_episode,
 	narrative,
 	soap_cat,
-	is_aoe
+	is_aoe,
+	is_episode_name
 ) values (
 	'2000-9-18 8:17:32',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_pk_seq'),
 	'postop infected laceration L forearm',
 	'a',
+	'true'::boolean,
 	'true'::boolean
 );
 
@@ -627,11 +636,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.39 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.40 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.39  2004-10-11 19:36:32  ncq
+-- Revision 1.40  2004-11-16 18:59:57  ncq
+-- - adjust to episode naming changes
+--
+-- Revision 1.39  2004/10/11 19:36:32  ncq
 -- - id -> pk
 --
 -- Revision 1.38  2004/09/29 10:31:11  ncq

@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -50,10 +50,9 @@ delete from clin_episode where pk in (
 	where id_patient = currval('identity_id_seq')
 );
 
-insert into clin_episode (fk_health_issue, description)
+insert into clin_episode (fk_health_issue)
 values (
-	currval('clin_health_issue_id_seq'),
-	'lab data regression test'
+	currval('clin_health_issue_id_seq')
 );
 
 -- encounter
@@ -93,11 +92,14 @@ insert into lab_request (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.8  2004-09-17 21:00:18  ncq
+-- Revision 1.9  2004-11-16 18:59:57  ncq
+-- - adjust to episode naming changes
+--
+-- Revision 1.8  2004/09/17 21:00:18  ncq
 -- - IF health issue then MUST have description
 --
 -- Revision 1.7  2004/09/17 20:18:10  ncq
