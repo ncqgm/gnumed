@@ -23,13 +23,13 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.10 2004-05-17 23:53:10 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmLDTimporter.py,v 1.11 2004-05-25 00:22:26 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
 # stdlib
-import glob, os.path, sys, tempfile, fileinput, time, copy
+import glob, os.path, sys, tempfile, fileinput, time, copy, random
 
 from Gnumed.pycommon import gmLog, gmCLI
 if __name__ == '__main__':
@@ -40,8 +40,7 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.business import gmPathLab
-from Gnumed.business.gmXdtMappings import map_Befundstatus_xdt2gm, xdt_Befundstatus_map, map_8407_2str, xdt_8date2iso, xdt_Teststatus_map
+from Gnumed.business import gmPathLab, gmXdtMappings, gmPatient
 
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
@@ -49,7 +48,7 @@ _cfg = gmCfg.gmDefCfgFile
 class cLDTImporter:
 
 	_chunk_starters = ['8000', '8410']
-	_map_8202line2req_field = {
+	_map_820xline2req_field = {
 		'8311': 'lab_request_id',
 		'8301': 'lab_rxd_when',
 		'8302': 'results_reported_when',
@@ -67,7 +66,6 @@ class cLDTImporter:
 			raise gmExceptions.ConstructorError, 'cannot connect to database'
 		else:
 			pool.ReleaseConnection('historica')
-			return
 	#-----------------------------------------------------------
 	def import_file(self, filename=None):
 		# verify ldt file
@@ -147,14 +145,13 @@ class cLDTImporter:
 		self.__lab_name = field_data
 		return True
 	#-----------------------------------------------------------
-	def _verify_9211(self, a_line, field_data):
-		if field_data not in ['09/95']:
-			_log.Log(gmLog.lWarn, 'not sure I can handle LDT version [%s], will try' % field_data)
-		return True
+#	def _verify_9211(self, a_line, field_data):
+#		if field_data not in ['09/95']:
+#			_log.Log(gmLog.lWarn, 'not sure I can handle LDT version [%s], will try' % field_data)
+#		return True
 	#-----------------------------------------------------------
 	_map_field2verifier = {
-		'8300': _verify_8300,
-		'9211': _verify_9211
+		'8300': _verify_8300
 		}
 	#-----------------------------------------------------------
 	def __verify_file_header(self, filename):
@@ -164,25 +161,41 @@ class cLDTImporter:
 		to the LDT specs but rather that it is fit for import.
 		"""
 		verified_lines = 0
+		in_header = False
 		for line in fileinput.input(filename):
-			line_type = line[3:7]
-			line_data = line[7:-2]
-			# found start of record following header
+			tmp = line.replace('\r','')
+			tmp = tmp.replace('\n','')
+			line_type = tmp[3:7]
+			line_data = tmp[7:]
+			# found start of record
 			if line_type == '8000':
+				# header found ?
+				if line_data == '8220':
+					in_header = True
+					continue
+				# skip prepended junk
+				if not in_header:
+					continue
+				# found record following header
 				if line_data != '8220':
 					fileinput.close()
-					return (verified_lines == len(cLDTImporter._map_field2verifier))
-			else:
-				try:
-					verify_line = cLDTImporter._map_field2verifier[line_type]
-				except KeyError:
-					continue
-				if verify_line(self, line, line_data):
-					verified_lines += 1
-				else:
-					_log.Log(gmLog.lErr, 'cannot handle LDT file [%s]' % filename)
-					fileinput.close()
+					if verified_lines == len(cLDTImporter._map_field2verifier):
+						return True
+					_log.Log(gmLog.lErr, 'zuwenige verifizierbare Zeilen im LDT-Datei-Header')
 					return False
+			if not in_header:
+				continue
+			try:
+				verify_line = cLDTImporter._map_field2verifier[line_type]
+			except KeyError:
+				_log.Log(gmLog.lData, 'kein Handler für Zeilentyp [%s] in LDT-Datei-Header' % line_type)
+				continue
+			if verify_line(self, line, line_data):
+				verified_lines += 1
+			else:
+				_log.Log(gmLog.lErr, 'cannot handle LDT file [%s]' % filename)
+				fileinput.close()
+				return False
 
 		_log.Log(gmLog.lErr, 'LDT file [%s] contains nothing but a header' % filename)
 		fileinput.close()
@@ -198,36 +211,38 @@ class cLDTImporter:
 		source_files = {}
 		source_files['data'] = []
 		outname = None
+		in_header = False
+		in_trailer = False
 		for line in fileinput.input(filename):
-			line_type = line[3:7]
-			line_data = line[7:-2]
+			tmp = line.replace('\r','')
+			tmp = tmp.replace('\n','')
+			line_type = tmp[3:7]
+			line_data = tmp[7:]
 			if line_type == '8000':
-				# start of header == start of file
-				if line_data == '8220':
-					outname = os.path.join(self.work_dir, 'header.txt')
-					source_files['header'] = outname
-					outfile = open(outname, 'w+b')
-					outname = None
+				# start headers == start of file
+				if line_data in ['0020', '8220']:
+					if not in_header:
+						header = os.path.join(self.work_dir, 'header.txt')
+						source_files['header'] = header
+						outfile = open(header, 'w+b')
+						in_header = True
 				# start of trailer
-				elif line_data == '8221':
-					outfile.close()
+				elif line_data in ['8221', '0021']:
+					in_header = False
 					# did we have any data records ?
 					if outname is not None:
 						# yes, so append them
 						source_files['data'].append(outname)
-					outname = os.path.join(self.work_dir, 'trailer.txt')
-					source_files['trailer'] = outname
-					outfile = open(outname, 'w+b')
-				# start of LG-Bericht
-				elif line_data == '8202':
-					outfile.close()
-					# first record ?
-					if outname is not None:
-						# no, so append record name
-						source_files['data'].append(outname)
-					outname = os.path.join(self.work_dir, tempfile.mktemp(suffix='.txt'))
-					outfile = open(outname, 'w+b')
+					if not in_trailer:
+						outfile.close()
+						trailer = os.path.join(self.work_dir, 'trailer.txt')
+						source_files['trailer'] = trailer
+						outfile = open(trailer, 'w+b')
+						in_trailer = True
+				# start of data record
 				else:
+					in_header = False
+					in_trailer = False
 					outfile.close()
 					# first record ?
 					if outname is not None:
@@ -235,7 +250,8 @@ class cLDTImporter:
 						source_files['data'].append(outname)
 					outname = os.path.join(self.work_dir, tempfile.mktemp(suffix='.txt'))
 					outfile = open(outname, 'w+b')
-					_log.Log(gmLog.lWarn, 'unbekannter Satztyp [%s]' % line_data)
+					if line_data not in ['8202', '8201']:
+						_log.Log(gmLog.lWarn, 'unbekannter Satztyp [%s]' % line_data)
 			# keep line
 			outfile.write(line)
 
@@ -249,13 +265,13 @@ class cLDTImporter:
 		return request_data['8311'][0].strip()
 	#-----------------------------------------------------------
 	def __xform_8301(self, request_data):
-		return xdt_8date2iso(request_data['8301'][0].strip())
+		return gmXdtMappings.xdt_8date2iso(request_data['8301'][0].strip())
 	#-----------------------------------------------------------
 	def __xform_8302(self, request_data):
-		return xdt_8date2iso(request_data['8302'][0].strip())
+		return gmXdtMappings.xdt_8date2iso(request_data['8302'][0].strip())
 	#-----------------------------------------------------------
 	def __xform_3103(self, request_data):
-		tmp = xdt_8date2iso(request_data['3103'][0])
+		tmp = gmXdtMappings.xdt_8date2iso(request_data['3103'][0])
 		# keep for result records to store
 		self.__ref_group_str = ' / '.join([self.__ref_group_str, ("geb: %s" % tmp)])
 		# - sanity check patient dob
@@ -280,7 +296,7 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	def __xform_8401(self, request_data):
 		try:
-			req_stat = map_Befundstatus_xdt2gm[request_data['8401'][0].strip()]
+			req_stat = gmXdtMappings.map_Befundstatus_xdt2gm[request_data['8401'][0].strip()]
 		except KeyError:
 			_log.Log(gmLog.lErr, 'unbekannter Befundstatus [%s] (Feld 8401, Regel 135)' % request_data['8401'][0])
 			req_stat = 'preliminary'
@@ -310,11 +326,11 @@ class cLDTImporter:
 	def __xform_8407(self, request_data):
 		tmp = request_data['8407'][0]
 		# keep this so test results can store it
-		self.__ref_group_str = ' / '.join([map_8407_2str[tmp], self.__ref_group_str])
+		self.__ref_group_str = ' / '.join([gmXdtMappings.map_8407_2str[tmp], self.__ref_group_str])
 		# - sanity check patient gender/age
-		# I discussed the age cutoff with a pediatrician
-		# and we came to the conclusion that a useful
-		# value for child/adult line in terms of lab results
+		# I discussed the age cutoff with a pediatrician and
+		# we came to the conclusion that a useful value for
+		# child/adult age separation in terms of lab results
 		# would be 12 years.
 		# - get patient gender/age
 		cmd = """
@@ -331,9 +347,9 @@ class cLDTImporter:
 					vpi.id_item=%s"""
 		data = gmPG.run_ro_query('personalia', cmd, None, self.__request['pk_item'])
 		if data is None:
-			_log.Log(gmLog.lErr, 'cannot sanity check patient ref group [%s]' % map_8407_2str[tmp])
+			_log.Log(gmLog.lErr, 'cannot sanity check patient ref group [%s]' % gmXdtMappings.map_8407_2str[tmp])
 		elif len(data) == 0:
-			_log.Log(gmLog.lErr, 'cannot sanity check patient ref group [%s]' % map_8407_2str[tmp])
+			_log.Log(gmLog.lErr, 'cannot sanity check patient ref group [%s]' % gmXdtMappings.map_8407_2str[tmp])
 		else:
 			gender = data[0]
 			is_child = data[1]
@@ -346,18 +362,24 @@ class cLDTImporter:
 					((tmp in [1,4]) and (gender != 'm')) or
 					# weiblich
 					((tmp in [2,5]) and (gender != 'f'))):
-					_log.Log(gmLog.lErr, 'lab thinks patient is [%s] but patient is [%s:child->%s]' % (map_8407_2str[tmp], gender, is_child))
+					_log.Log(gmLog.lErr, 'lab thinks patient is [%s] but patient is [%s:child->%s]' % (gmXdtMappings.map_8407_2str[tmp], gender, is_child))
 					self.__ref_group_str = "!!!*** Im Labor wurde vermutlich eine falsche Referenzgruppe verwendet (Alter/Geschlecht). ***!!!\n%s" % self.__ref_group_str
 		return None
 	#-----------------------------------------------------------
 	__8202line_handler = {
+		'0020': None,
+		'9105': None,
 		'8000': None,
 		'8100': None,
 		'8310': None,
 		'8311': __xform_8311,
 		'8301': __xform_8301,
 		'8302': __xform_8302,
+		'3100': None,
+		'3101': None,
+		'3102': None,
 		'3103': __xform_3103,
+		'3104': None,
 		'8401': __xform_8401,
 		'8405': __xform_8405,
 		'8407': __xform_8407
@@ -398,7 +420,107 @@ class cLDTImporter:
 				# FIXME: todo item
 				return False
 			try:
-				self.__request[cLDTImporter._map_8202line2req_field[line_type]] = line_data
+				self.__request[cLDTImporter._map_820xline2req_field[line_type]] = line_data
+			except KeyError:
+				pass
+		self.__request.save_payload()
+		return True
+	#-----------------------------------------------------------
+	#-----------------------------------------------------------
+	def __get_request_from_8201(self, request_data):
+		request = None
+		pat_ldt = None
+		try:
+			pat_ldt = {
+				'lastnames': request_data['3101'][0],
+				'firstnames': request_data['3102'][0],
+				'dob': gmXdtMappings.xdt_8date2iso(request_data['3103'][0])
+			}
+		except KeyError, IndexError:
+			pass
+		# either get lab request from request id
+		if request_data.has_key('8310'):
+			reqid = request_data['8310'][0]
+			try:
+				request = gmPathLab.cLabRequest(req_id=reqid, lab=self.__lab_name)
+			except gmExceptions.ConstructorError:
+				_log.LogException('cannot get lab request', sys.exc_info(), verbose=0)
+			# try to verify patient
+			if request is not None:
+				if pat_ldt is not None:
+					pat_db = request.get_patient()
+					if ((pat_ldt['lastnames'] != pat_db['lastnames']) or
+					    (pat_ldt['firstnames'] != pat_db['firstnames']) or
+					    (pat_ldt['dob'] != pat_db['dob'].Format('%Y-%m-%d'))):
+						_log.Log(gmLog.lErr, 'patient mismatch LDT-Datei <-> Datenbank')
+						_log.Log(gmLog.lData, 'Datei: %s' % pat_ldt)
+						_log.Log(gmLog.lData, 'DB: %s' % pat_db)
+						return None
+
+		# or create one from name/dob
+		# FIXME: we may have to use field 3100, too
+		if request is None:
+			# check essential fields
+			if pat_ldt is None:
+				_log.Log(gmLog.lErr, 'Satz vom Typ [8000:%s] enthält nicht alle Felder [3101, 3102, 3103]' % request_data['8000'][0])
+				_log.Log(gmLog.lErr, 'Kann lab_request nicht automatisch erzeugen.')
+				return None
+			# find patient
+			searcher = gmPatient.cPatientSearcher_SQL()
+			pat_ids = searcher.get_patient_ids(search_dict=pat_ldt)
+			if len(pat_ids) == 0:
+				_log.Log(gmLog.lErr, 'Kann in der Datenbank keinen Patienten für %s finden.' % str(pat_ldt))
+				return None
+			if len(pat_ids) > 1:
+				_log.Log(gmLog.lErr, 'Mehrere Patienten für %s gefunden: %s' % (str(pat_ldt), str(pat_ids)))
+				return None
+			# create lab request
+			try:
+				pat = gmPatient.gmPerson(aPKey=pat_ids[0])
+			except gmExceptions.ConstructorError:
+				_log.LogException('patient error', sys.exc_info())
+				return None
+			emr = pat.get_clinical_record()
+			if request_data.has_key('8310'):
+				reqid = request_data['8310'][0]
+			elif request_data.has_key('8311'):
+				reqid = request_data['8311'][0]
+			else:
+				reqid = str(random.randrange(sys.maxint))
+			request = emr.add_lab_request(lab=self.__lab_name, req_id=reqid)
+			if request is None:
+				_log.Log(gmLog.lErr, 'cannot auto-create lab request with [%s:%s]' % (self.__lab_name, reqid))
+				return None
+		# eventually we got one
+		return request
+	#-----------------------------------------------------------
+	def __handle_8201(self, request_data):
+		self.__request = self.__get_request_from_8201(request_data)
+		if self.__request is None:
+			prob = 'Kann Labordaten keiner Anforderung zuordnen.'
+			sol = 'Zuordnungen überprüfen. Systembetreuer verständigen. Details im Log.'
+			ctxt = 'Labor [%s], LDT-Datei [%s]' % (self.__lab_name, self.ldt_filename)
+			add_todo(problem=prob, solution=sol, context=ctxt)
+			return False
+
+		# update fields in request from request_data
+		for line_type in request_data.keys():
+			# get handler
+			try:
+				handle_line = cLDTImporter.__8202line_handler[line_type]
+			except KeyError:
+				_log.LogException('no handler for line [%s] in [8000:8201] record' % line_type, sys.exc_info(), verbose=0)
+				continue
+			# ignore line
+			if handle_line is None:
+				continue
+			# handle line
+			line_data = handle_line(self, request_data)
+			if line_data is False:
+				# FIXME: todo item
+				return False
+			try:
+				self.__request[cLDTImporter._map_820xline2req_field[line_type]] = line_data
 			except KeyError:
 				pass
 		self.__request.save_payload()
@@ -407,24 +529,28 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	__chunk8000_handler = {
 		# skip file header chunk
-		'8220': lambda x: True,
+		'8220': None,
+		'8201': __handle_8201,
 		'8202': __handle_8202
 	}
 	#-----------------------------------------------------------
 	def __handle_8000(self, chunk):
 		try:
-			if not cLDTImporter.__chunk8000_handler[chunk['8000'][0]](self, chunk):
-				_log.Log(gmLog.lErr, 'kann Satz vom Typ [8000:%s] nicht importieren' % chunk['8000'][0])
-				return False
+			handler = cLDTImporter.__chunk8000_handler[chunk['8000'][0]]
 		except KeyError:
-			_log.Log(gmLog.lErr, 'unbekannter Satztyp [8000:%s]' % chunk['8000'][0])
+			_log.Log(gmLog.lErr, 'kein Handler für Satztyp [8000:%s]' % chunk['8000'][0])
+			return False
+		if handler is None:
+			return True
+		if not handler(self, chunk):
+			_log.Log(gmLog.lErr, 'kann Satz vom Typ [8000:%s] nicht importieren' % chunk['8000'][0])
 			return False
 		return True
 	#-----------------------------------------------------------
 	#-----------------------------------------------------------
 	def __xform_8418(self, result_data):
 		try:
-			tmp = xdt_Teststatus_map[result_data['8418'][0].strip()]
+			tmp = gmXdtMappings.xdt_Teststatus_map[result_data['8418'][0].strip()]
 		except KeyError:
 			tmp = _('unknown test status [%s]' % result_data['8418'][0].strip())
 		if self.__lab_result['note_provider'] is None:
@@ -460,6 +586,22 @@ class cLDTImporter:
 		else:
 			self.__lab_result['material_detail'] = "%s\n%s" % (self.__lab_result['material_detail'], tmp)
 		return True
+	#-----------------------------------------------------------
+	def __xform_8432(self, result_data):
+		self.__request['req_when'] = mxDT.strptime(
+			result_data['8432'][0],
+			'%d%m%Y',
+			self.__request['req_when']
+			)
+		self.__request.save_payload()
+	#-----------------------------------------------------------
+	def __xform_8433(self, result_data):
+		self.__request['req_when'] = mxDT.strptime(
+			result_data['8433'][0],
+			'%H%M',
+			self.__request['req_when']
+			)
+		self.__request.save_payload()
 	#-----------------------------------------------------------
 	def __xform_8420(self, result_data):
 		tmp = result_data['8420'][0].strip()
@@ -515,6 +657,8 @@ class cLDTImporter:
 		'8429': __xform_8429,
 		'8430': __xform_8430,
 		'8431': __xform_8431,
+		'8432': __xform_8432,
+		'8433': __xform_8433,
 		'8420': __xform_8420,
 		'8421': __xform_8421,
 		'8480': __xform_8480,
@@ -526,7 +670,7 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	def __handle_8410(self, result_data):
 		if self.__request is None:
-			_log.Log(gmLog.lErr, '8410 type result record found before lab request')
+			_log.Log(gmLog.lErr, 'Kann Labordaten nicht ohne Zuordnung importieren.')
 			return False
 		# skip pseudo results
 		if len(result_data) == 3:
@@ -563,7 +707,7 @@ class cLDTImporter:
 		if status in [False, None]:
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.10 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.11 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# - try to create test row
 		whenfield = 'lab_rxd_when'			# FIXME: make this configurable
@@ -622,12 +766,15 @@ class cLDTImporter:
 	}
 	#-----------------------------------------------------------
 	def __import_request_file(self, filename):
+		random.jumpahead(int(time.strftime('%S%M%H')))
 		self.__ref_group_str = ''
 		self.__request = None
 		chunk = {}
 		for line in fileinput.input(filename):
-			line_type = line[3:7]
-			line_data = line[7:-2]
+			tmp = line.replace('\r','')
+			tmp = tmp.replace('\n','')
+			line_type = tmp[3:7]
+			line_data = tmp[7:]
 			if line_type in cLDTImporter._chunk_starters:
 				# process any previous data
 				if len(chunk) != 0:
@@ -694,7 +841,6 @@ def run_import():
 		return False
 	import_file_pattern = os.path.join(import_dir, filename_pattern)
 	files2import = glob.glob(import_file_pattern)
-	_log.Log(gmLog.lData, 'importing files: %s' % files2import)
 	importer = cLDTImporter(cfg=_cfg)
 	# loop over files
 	for ldt_file in files2import:
@@ -707,7 +853,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	rep_by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.10 $'
+	rep_by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.11 $'
 	recvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=rep_by, receiver=recvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -738,7 +884,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.10  2004-05-17 23:53:10  ncq
+# Revision 1.11  2004-05-25 00:22:26  ncq
+# - imports nearly everything thrown at it now
+#
+# Revision 1.10  2004/05/17 23:53:10  ncq
 # - while commiting I screwed up, praise be to MC's extf2s
 #   undelete function for rescuing things from the ashes
 # - the comment for 1.9 got lost in the process, so here it is again:
