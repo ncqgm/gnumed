@@ -27,7 +27,7 @@ further details.
 # TODO: warn if empty password
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -102,7 +102,7 @@ class user:
 			self.password = self.cfg.get(self.group, "password")
 			if self.password is None:
 				if _interactive:
-					self.password=getpass.getpass("I need the password for the GnuMed database user [%s].\nPlease type password: " % self.name)
+					self.password = getpass.getpass("I need the password for the GnuMed database user [%s].\nPlease type password: " % self.name)
 				else:
 					raise ConstructorError, "cannot load database user password from config file"
 		else:
@@ -1005,7 +1005,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.23  2003-02-11 18:16:05  ncq
+# Revision 1.24  2003-02-14 00:43:39  ncq
+# - fix whitespace
+#
+# Revision 1.23  2003/02/11 18:16:05  ncq
 # - updated comments, added explanation about table config (db, ...)
 #
 # Revision 1.22  2003/02/11 17:11:41  hinnef
