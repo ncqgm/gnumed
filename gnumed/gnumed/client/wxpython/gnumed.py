@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -80,16 +80,16 @@ def get_base_dir():
 	# environment variable
 	if os.environ.has_key('GNUMED_DIR'):
 		tmp = os.environ['GNUMED_DIR']
+		# - however, we don't want any random rogue to throw us off
+		#   balance so we check whether that's a valid path,
+		# - note that it may still be the wrong directory
+		if os.path.exists(tmp):
+			return os.path.abspath(tmp)
+		print 'Environment variable GNUMED_DIR contains "%s".' % tmp
+		print 'This is not a valid path, however.'
 	else:
-		tmp = ""
-	# however, we don't want any random rogue to throw us off
-	# balance so we check whether that's a valid path,
-	# note that it may still be the wrong directory
-	if os.path.exists(tmp):
-		return os.path.abspath(tmp)
+		print 'Environment variable GNUMED_DIR is not set.'
 
-	print 'Environment variable GNUMED_DIR contains "%s".' % tmp
-	print 'This is not a valid path, however.'
 	print 'Trying to fall back to system defaults.'
 
 	# standard path
@@ -230,7 +230,10 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.43  2002-11-04 15:38:59  ncq
+# Revision 1.44  2002-11-06 11:52:43  ncq
+# - correct misleading printk()s
+#
+# Revision 1.43  2002/11/04 15:38:59  ncq
 # - use helper in gmCfg for config file creation
 #
 # Revision 1.42  2002/11/03 14:10:15  ncq
