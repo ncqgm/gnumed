@@ -1,0 +1,39 @@
+# GnuMed client config file
+
+[workplace]
+help desk = one-line contact information here
+name = <name for this workplace>
+
+
+[backend]
+
+# If the system locale matches this value a mismatch
+# with the database locale will be ignored.
+# Remove this option if you want to stop ignoring mismatches.
+ignored mismatching system locale = fr
+
+hosts = $hosts$
+localhost
+hherb.com
+anubis.homeunix.com
+$hosts$
+
+databases = $databases$
+gnumed
+$databases$
+
+logins = $logins$
+any-doc
+gm-dbowner
+test-doc
+$logins$
+
+client encoding = latin1
+
+ports = $ports$
+5432
+$ports$
+
+options = $options$
+
+$options$
