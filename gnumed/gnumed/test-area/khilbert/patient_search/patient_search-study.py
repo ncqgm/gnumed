@@ -1,63 +1,10 @@
 #!/usr/bin/env python
 
-# use compile() for speedup
-# must escape strings before use !!
-
 import string, re
 
 def generate_queries(raw):
 
 	queries = []
-
-	# "#<ZIFFERN>" format patient ID
-	if re.match("^(\s|\t)*#(\d|\s|\t)+$", raw):
-		print "patient ID"
-		print " will return"
-		print "  1) patient based on id"
-		print "  2) <not found>"
-		tmp = raw.replace(' ', '')
-		tmp = tmp.replace('\t', '')
-		tmp = tmp.replace('#', '')
-		queries.append("... where id like '%s%%';" % tmp)
-		return queries
-
-	# "<ZIFFERN>" - patient ID or DOB
-	elif re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
-		print "either patient ID or d.o.b."
-		print " will return"
-		print "  1) patient based on id"
-		print "  2) patient based on d.o.b."
-		print "  3) <not found>"
-		tmp = raw.replace(' ', '')
-		tmp = tmp.replace('\t', '')
-		queries.append("... where id like '%s%%';" % tmp)
-		queries.append("... where date_trunc('day', dob) like (select timestamp '%s');" % raw)
-		return queries
-
-	# "<Z I  FF ERN>" - DOB or patient ID
-	elif re.match("^(\d|\s|\t)+$", raw):
-		print "either d.o.b. or patient ID"
-		print " will return"
-		print "  1) patient based on d.o.b."
-		print "  2) patient based on id"
-		print "  3) <not found>"
-		cmd = "... where date_trunc('day', dob) like (select timestamp '%s');" % raw
-		print "query:", cmd
-		tmp = raw.replace(' ', '')
-		tmp = tmp.replace('\t', '')
-		queries.append("... where id like '%s%%';" % tmp)
-		return queries
-
-	# "*|$<...>" - DOB
-	elif re.match("^(\s|\t)*(\*|\$).+$", raw):
-		print "supposedly d.o.b."
-		print " will return:"
-		print "  1) patient based on d.o.b."
-		print "  2) not found"
-		tmp = raw.replace('*', '')
-		tmp = tmp.replace('$', '')
-		queries.append("... where date_trunc('day', dob) like (select timestamp '%s');" % tmp)
-		return queries
 
 	# "+<...>" - DOD date of death
 	elif re.match("^(\s|\t)*\+.+$", raw):
@@ -74,28 +21,10 @@ def generate_queries(raw):
 		print "- we don't expect patient IDs in complicated patterns"
 		print "- hence, any digits signify a date"
 
-		# try to split on part separators
+		# try to split on (major) part separators
 		parts_list = re.split(",|;", raw)
 
-		# special case: 3 words, 1 date, no ",;"
-		if len(parts_list) == 1:
-			# re-split on whitespace
-			tmp = re.split("\s*|\t*", parts_list[0])
-			if len(tmp) == 3:
-				date_count = 0
-				name_parts = []
-				for part in tmp:
-					if re.search("\d", part):
-						date_count = date_count + 1
-						date_part = part
-					else:
-						name_parts.append(part)
-				# if exactly one date
-				if date_count == 1:
-					queries.append("... where firstnames ilike '%s%%' and lastnames ilike '%s%%' and date_trunc('day', dob) like (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part))
-					queries.append("... where firstnames ilike '%s%%' and lastnames ilike '%s%%' and date_trunc('day', dob) like (select timestamp '%s');" % (name_parts[1], name_parts[0], date_part))
-					queries.append("... where firstnames || lastnames ilike '%%%s%%' and firstnames || lastnames ilike '%%%s%%' and date_trunc('day', dob) like (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part))
-					return queries
+
 
 		# parse into name and date parts
 		date_parts = []
