@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -347,6 +347,7 @@ class BMICalc_Panel(wxPanel):
 				self.txtgoal.SetValue('')
 	#-----------------------------------------
 	def calc_ideal_mass_range(self):
+		# FIXME: this needs to be done according to reference charts by ethnicity
 		try:
 			self.low_norm_mass=20.*((eval(self.txtheight.GetValue())/100.)**2)
 			self.upp_norm_mass=25.*((eval(self.txtheight.GetValue())/100.)**2)
@@ -476,10 +477,10 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 		# buttons
 		gszr_right_buttons = wxGridSizer(1, 4, 1, 4)  # rows, cols, hgap, vgap
 		gszr_right_buttons.AddMany([
-			(wxButton(self, 1010, '&Reset'), 0, wxEXPAND),
-			(wxButton(self, 1011, '&Print'), 0, wxEXPAND),
-			(wxButton(self, 1012, '&Save'),	0, wxEXPAND),
-			(wxButton(self, 1013, '&Handout'), 0, wxEXPAND),
+			(wxButton(self, 1010, _('&Reset')), 0, wxEXPAND),
+			(wxButton(self, 1011, _('&Print')), 0, wxEXPAND),
+			(wxButton(self, 1012, _('&Save')), 0, wxEXPAND),
+			(wxButton(self, 1013, _('&Handout')), 0, wxEXPAND),
 		])
 
 		EVT_BUTTON(self,1010,self.EvtReset)
@@ -592,8 +593,6 @@ else:
 			EVT_TOOL (self.tool, ID_BMITOOL, self.OnBMITool)
 		#---------------------
 		def unregister (self):
-			#tb2 = self.gb['toolbar.Clinical']
-			#tb2.DeleteTool (ID_BMITOOL)
 			menu = self.gb['main.toolsmenu']
 			menu.Delete (ID_BMIMENU)
 		#---------------------
@@ -616,7 +615,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.20  2003-04-26 03:32:30  michaelb
+# Revision 1.21  2003-04-26 08:45:56  ncq
+# - removed some left-over cruft, i18n()ed buttons, added comments on BMI reference charts
+#
+# Revision 1.20  2003/04/26 03:32:30  michaelb
 # misc. clean-up, elimination of variables that can be done without
 #
 # Revision 1.19  2003/04/22 05:10:11  michaelb
