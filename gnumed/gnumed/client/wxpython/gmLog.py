@@ -50,10 +50,10 @@ Usage:
 
 @copyright: GPL
 """
-
-__version__ = "$Revision: 1.20 $"
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLog.py,v $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-
+#-------------------------------------------
 import sys, time, traceback, os.path, atexit, os, string, getopt
 
 # safely import SYSLOG, currently POSIX only
@@ -214,6 +214,15 @@ class cLogger:
 				self.__targets[key].writeMsg(lPanic, aMsg)
 				for line in tbs:
 					self.__targets[key].writeMsg(lPanic, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
+	#---------------------------
+	def SetAllLogLevels (aLogLevel = None):
+		"""Set a certain log level on all targets."""
+		if aLogLevel == None:
+			return
+		for key in self.__targets.keys():
+			self.__targets[key].SetLogLevel(aLogLevel)
+	#---------------------------
+	# internal methods
 	#---------------------------
 	def __char2AsciiName(self, aChar):
 		if ord(aChar) in range(0,32):
