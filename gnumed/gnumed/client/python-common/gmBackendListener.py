@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -52,9 +52,12 @@ class BackendListener:
 				res = self._conn.query(cmd)
 				self._conn_lock.release()
 			except StandardError:
-				self._conn_lock.release()
 				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
 				_log.LogException('cannot register backend callback', sys.exc_info())
+				try:
+					self._conn_lock.release()
+				except:
+					_log.LogException("must have passed lock release, or not acquired lock at all", sys.exc_info())
 				return None
 			if res.resultType == libpq.RESULT_ERROR:
 				_log.Log(gmLog.lErr, 'cannot register backend callback')
@@ -261,7 +264,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.12  2003-05-03 14:14:27  ncq
+# Revision 1.13  2003-05-27 14:38:22  sjtan
+#
+# looks like was intended to be caught if throws exception here.
+#
+# Revision 1.12  2003/05/03 14:14:27  ncq
 # - slightly better variable names
 # - keep reference to thread so we properly rejoin() upon __del__
 # - helper __unlisten_signal()
