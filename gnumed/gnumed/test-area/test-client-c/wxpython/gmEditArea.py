@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.7 2003-10-27 14:01:26 sjtan Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmEditArea.py,v 1.8 2003-10-27 15:20:49 sjtan Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -367,7 +367,7 @@ class gmEditArea( wxPanel):
 
 		self._postInit()
 		
-		self.stateNew = 1
+		self.dataId  = None
 
 		self._out_yaml()
 
@@ -676,7 +676,26 @@ class gmEditArea( wxPanel):
 		for k,v  in self.input_fields.items():
 			values[k] = v.GetValue()
 		return values	
-			
+
+	def setInputFieldValues(self, map, id ):
+		for k,v in map.items():
+			field = self.input_fields.get(k, None)
+			if field == None:
+				continue
+			try:
+				field.SetValue( str(v) )
+			except:
+				try:
+					field.SetValue( v)
+				except:
+					
+					print "field ", k, ":", sys.exc_info()[0]
+
+		self.dataId = id	
+	
+	def getDataId(self):
+		return self.dataId 
+				
 
 
 #====================================================================
@@ -957,11 +976,17 @@ class gmPastHistoryEditArea(gmEditArea):
 		for k,v in values.items():
 			self.input_fields[k].SetValue(v)
 		
-		self.stateNew = 1
+		self.dataId = None
 		
 	def _save_data(self):
-		if self.stateNew:
+		if self.dataId == None:
 			self.patient.get_clinical_record().create_history( self._getInputFieldValues() )
+			return
+
+		print "please implement update"
+		clinical = self.patient.get_clinical_record()
+		clinical.update_history( self._getInputFieldValues(), self.getDataId() )
+
 		
 
 		
@@ -1866,9 +1891,9 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.7  2003-10-27 14:01:26  sjtan
+# Revision 1.8  2003-10-27 15:20:49  sjtan
 #
-# syncing with main tree.
+# multi-list selection item goes back into editarea.
 #
 # Revision 1.6  2003/10/26 00:58:53  sjtan
 #

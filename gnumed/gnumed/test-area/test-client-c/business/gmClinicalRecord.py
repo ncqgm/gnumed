@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.3 2003-10-25 16:13:26 sjtan Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmClinicalRecord.py,v 1.4 2003-10-27 15:20:49 sjtan Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -972,8 +972,9 @@ values (%s, %s, %s, %s, %s, %s)
 		gmDispatcher.send(gmSignals.clin_history_updated())
 
 
-	def update_history( self,map,  ix) :
+	def update_history( self, map,  ix ):
 			cmd = "update clin_history set  narrative='%s', id_type= 1, id_episode=%d, id_encounter=%d where id = %d"
+			print "not implemented"
 			
 	def _get_history_storage_keys(self):
 		return [ 'significant', 'condition', 'active', 'year' , 'laterality', 'operation', 'confidential', 'notes' ]
@@ -1004,13 +1005,13 @@ values (%s, %s, %s, %s, %s, %s)
 
 	
 	def filter_history(self, key, range, list = [], includeAsDefault = 0):
-		print "filtering with ", key, " in ", range
+		#print "filtering with ", key, " in ", range
 		
 		if list == []:
 			list = self.get_all_history()
 		l = []
 		for id, map in list:
-			print "checking ", map.get(key, None) 
+			#print "checking ", map.get(key, None) 
 			if map.get(key , None) in range:
 				l.append( (id,map) )
 			elif includeAsDefault  and not map.has_key(key): 
@@ -1071,7 +1072,11 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.3  2003-10-25 16:13:26  sjtan
+# Revision 1.4  2003-10-27 15:20:49  sjtan
+#
+# multi-list selection item goes back into editarea.
+#
+# Revision 1.3  2003/10/25 16:13:26  sjtan
 #
 # past history , can add  after selecting patient.
 #

@@ -188,10 +188,21 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		self.Show(true)
 
 		gmDispatcher.connect(self._updateUI,  gmSignals.clin_history_updated())
+	
+		self.significant_problem_list.addItemListener( self._significantPastItemSelected)	
+
+	def _significantPastItemSelected(self, event):
+		clinical = self.patient.get_clinical_record()
+		significant_past = clinical.get_significant_past_history()
+		(selId, str) = event['item']
+		for (id, map) in significant_past:
+			if id == selId:
+				self.editarea.setInputFieldValues(map, id)
+
 
 
 	def _updateUI(self):
-		print "past history specific ui update"
+		#print "past history specific ui update"
 		clinical = self.patient.get_clinical_record()
 		significant_past = clinical.get_significant_past_history()
 		active_hx = clinical.get_active_history()

@@ -13,6 +13,38 @@ class MultiColumnList( wxGrid):
 		self.SetData( { 1: "2000 AMI",  2 : "2000 Stroke", 3 : "1987 Asthma", 4 : "2002 Thin bones", 5 : "2002 cough" } , 4)
 
 		EVT_SIZE( self, self._resizeData)
+
+		self.EnableEditing(0)
+		EVT_GRID_CELL_LEFT_DCLICK( self, self._cellDoubleClicked)
+		self.listeners = []
+		
+	
+	def _cellDoubleClicked( self, event):
+		#print self.GetSelectedCells()
+		#print self.GetSelectionBlockTopLeft()
+		event.Skip()
+		x, y =  self.GetGridCursorRow(), self.GetGridCursorCol()
+		print x,y
+		items = self.data.items()
+		ix = y * self.col_rows[1] + x
+		if ix < len(items):
+			print items[ix]
+			self.selData = items[ix]
+			self._notifyObservers()
+	
+	def addItemListener(self, listener):
+		if listener not in self.listeners:
+			self.listeners.append(listener)
+
+	def removeItemListener(self, listener):		
+		if listener in self.listeners:
+			self.listeners.remove(listener)
+
+	def _notifyObservers(self):
+		for l in self.listeners:
+			l( { 'source':self, 'item': self.selData } )
+			
+		
 		
 
 	def _resizeData(self, event):
@@ -48,9 +80,12 @@ class MultiColumnList( wxGrid):
 		return predictedRows
 
 	def SetData( self, map,  maxRows = 8 , fitClientSize = 0):
+
 		self.GetTable().SetValue(0,0, 'AAAAAAAAAAAAAAAA')
 		if fitClientSize:
 			predictedRows = self._getPredictedRows(map)
+		else:
+			predictedRows = maxRows
 			
 		self.ClearGrid()
 		rows = []
@@ -91,7 +126,7 @@ class MultiColumnList( wxGrid):
 		self.SetRowLabelSize( 1)
 		self.SetColLabelSize(1)
 		self.EndBatch()
-
+		self.col_rows = ( len(cols), predictedRows)	
 		self.data = map
 		
 	def GetData(self):
