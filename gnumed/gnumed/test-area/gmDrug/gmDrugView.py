@@ -1,4 +1,4 @@
-#! /usr/local/bin/python
+#!/usr/local/bin/python
 
 import sys, string, re, types, os.path
 
@@ -8,10 +8,11 @@ if __name__ == "__main__":
 
 import gmLog
 _log = gmLog.gmDefLog
-import gmCfg
 
-import gmPG
-import gmDrugObject
+import gmCfg
+_cfg = gmCfg.gmDefCfgFile
+
+import gmPG, gmDrugObject
 
 darkblue = '#00006C'
 darkgreen = '#0106D0A'
@@ -32,20 +33,32 @@ class DrugView:
 			return None
 
 		# open configuration source
+		self.dbConfFile = _cfg.get(aDatabaseName, 'configfile')
+
+		if self.dbConfFile is None:
+			_log.Log(gmLog.lErr, "No config information on drug database [%s] found." % aDatabaseName)
+			return None
+
 		try:
-			defCfg=gmCfg.gmDefCfgFile.getCfg()
-			dbInfo = defCfg['groups'][aDatabaseName]    
-			self.dbConfFile=dbInfo['options']['configfile']['value']
 			self.mDrugInterface = gmDrugObject.Drug(queryCfgSource = self.dbConfFile)
-			# handle all exceptions 
-		except KeyError:
-			exc = sys.exc_info()
-			_log.LogException("No config information on drug database [%s] found." % aDatabaseName, exc, fatal=1)
-			return None
 		except:
-			exc = sys.exc_info()
-			_log.LogException("Unhandled exception while opening config file", exc, fatal=1)
+			_log.LogException("Unhandled exception while opening config file", sys.exc_info(), fatal=1)
 			return None
+
+#		try:
+#			defCfg=gmCfg.gmDefCfgFile.getCfg()
+#			dbInfo = defCfg['groups'][aDatabaseName]    
+#			self.dbConfFile=dbInfo['options']['configfile']['value']
+#			self.mDrugInterface = gmDrugObject.Drug(queryCfgSource = self.dbConfFile)
+			# handle all exceptions 
+#		except KeyError:
+#			exc = sys.exc_info()
+#			_log.LogException("No config information on drug database [%s] found." % aDatabaseName, exc, fatal=1)
+#			return None
+#		except:
+#			exc = sys.exc_info()
+#			_log.LogException("Unhandled exception while opening config file", exc, fatal=1)
+#			return None
 
 		self.__mFormatString = {} 	# format strings
 		self.__mGroupPos = {}		# query group on position x
