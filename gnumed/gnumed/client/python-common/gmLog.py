@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -446,18 +446,17 @@ class cLogTargetEMail(cLogTarget):
 		self.__to = string.join(aTo, ", ")
 		self.__comment = ""
 
-		import smtplib
 		if anSMTPServer == None:
-			self.__smtpd = smtplib.SMTP("localhost")
+			self.__smtp_server = 'localhost'
 		else:
-			self.__smtpd = smtplib.SMTP(str(anSMTPServer))
+			self.__smtp_server = str(anSMTPServer)
 
 		self.ID = "email: " + self.__to
 		self.writeMsg (lInfo, "instantiated e-mail logging with ID " + str(self.ID))
 	#---------------------------
-	def close(self):
-		cLogTarget.close(self)
-		self.__smtpd.close()
+#	def close(self):
+#		cLogTarget.close(self)
+#		self.__smtpd.quit()
 	#---------------------------
 	def setFrom (self, aFrom):
 		self.__from = str(aFrom)
@@ -531,8 +530,15 @@ class cLogTargetEMail(cLogTarget):
 		# - dump actual message buffer
 		msg = msg + string.join(self.__msg_buffer, '')
 
+		# dynamically import smtplib statically - God, I love Python
+		import smtplib
+
+		# connect to mail server
+		smtpd = smtplib.SMTP(self.__smtp_server)
 		# send mail
-		self.__smtpd.sendmail(self.__from, self.__to, msg)
+		smtpd.sendmail(self.__from, self.__to, msg)
+		# tear down connection
+		smtpd.quit()
 
 		# reinitialize msg buffer
 		del self.__msg_buffer
