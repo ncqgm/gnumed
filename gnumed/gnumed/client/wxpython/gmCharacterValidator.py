@@ -6,13 +6,13 @@ import string
 class CharValidator:
 	def __init__(self):
 		self.enabled = 1
-		self.special_upper = range(192,224)
-		self.special_lower = range( 224, 256)
-		self.lowercase = range(97, 123) 
-		self.uppercase = range(65, 91) 
+		#self.special_upper = range(192,224)
+		#self.special_lower = range( 224, 256)
+		#self.lowercase = range(97, 123) 
+		#self.uppercase = range(65, 91) 
 
-		self.all_lower = self.lowercase + self.special_lower
-		self.all_upper = self.uppercase + self.special_upper
+		#self.all_lower = self.lowercase + self.special_lower
+		#self.all_upper = self.uppercase + self.special_upper
 
 		
 		self.digits = range(48, 58)
@@ -64,14 +64,14 @@ class CharValidator:
 		"""wrapper for converting to upper case and single spaces
 		converts intercepts lowercase input and puts in uppercase.
 		"""
-		print "keyCode=", keyEvent.GetKeyCode()
-		if not self._allow_case_only(keyEvent, self.all_lower, self.all_upper, exclusiveof = self.print_other + self.digits):
+		#print "keyCode=", keyEvent.GetKeyCode()
+		if not self._allow_case_only(keyEvent, string.lowercase, string.uppercase, exclusiveof = self.print_other + self.digits):
 			keyEvent.Skip()	
 
 	def allow_lower_only(self, keyEvent):
 		""" wrapper to convert uppercase to lowercase.
 		"""	
-		if not  self._allow_case_only( self, keyEvent, self.all_upper, self.all_lower):
+		if not  self._allow_case_only( self, keyEvent, string.uppercase, string.lowercase):
 			keyEvent.Skip()
 
 	def allow_digits_only( self, keyEvent):
@@ -81,7 +81,7 @@ class CharValidator:
 
 		k = keyEvent.GetKeyCode()
 		
-		if k in self.all_lower or k in  self.all_upper or k in self.print_other or k in  self.name_punctuation:
+		if chr(k) in string.letters  or k in self.print_other or k in  self.name_punctuation:
 			keyEvent.Skip(0)
 			return
 
@@ -93,25 +93,25 @@ class CharValidator:
 		if self._allow_single_spaces(keyEvent):
 			return 1
 
-		print "not processed by single space"
+		#print "not processed by single space"
 
 		c = keyEvent.GetEventObject()
 		
-		if keyEvent.GetKeyCode() in case:
-			print "in range"
+		if chr(keyEvent.GetKeyCode()) in case:
+			#print "in range"
 			keyEvent.Skip(0)
 			
 			p = c.GetInsertionPoint()
 			
-			print "insertion point =", p, " length of text=", len(c.GetValue())	
+			#print "insertion point =", p, " length of text=", len(c.GetValue())	
 			t = c.GetValue()
-			u = chr(toCase[case.index(keyEvent.GetKeyCode())]) 	
-			print len(t),len(u)
+			u = toCase[case.index(chr(keyEvent.GetKeyCode()))] 	
+			#print len(t),len(u)
 			#wxwidget's initial value bug.
 			#t = self._remove_init_whitespace_bug(t)
 			c.SetValue(t[:p]+u+t[p:])
-			print len(t),len(u)
-			print p
+			#print len(t),len(u)
+			#print p
 			c.SetInsertionPoint(p+1)
 			return 1
 		
@@ -137,7 +137,7 @@ class CharValidator:
 		if self._allow_single_spaces(keyEvent):
 			return 1
 		k = keyEvent.GetKeyCode()
-		if k in self.all_lower:
+		if chr(k) in string.lowercase:
 			keyEvent.Skip(0)
 			c = keyEvent.GetEventObject()
 			p = c.GetInsertionPoint()
