@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.1 2004-08-18 10:15:26 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPatPicWidgets.py,v 1.2 2004-08-19 14:07:54 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -18,17 +18,17 @@ from wxPython.lib.imagebrowser import *
 import mx.DateTime as mxDT
 
 # GnuMed
-from Gnumed.pycommon import gmDispatcher, gmSignals, gmGuiBroker,gmLog
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmGuiBroker, gmLog, gmI18N
 from Gnumed.business import gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-ID_PUP_AquirePhoto = wxNewId()
-ID_PUP_ImportPhoto = wxNewId()
-ID_PUP_ExportPhoto = wxNewId()
-ID_PUP_DeletePhoto = wxNewId()
+ID_AquirePhoto = wxNewId()
+ID_ImportPhoto = wxNewId()
+ID_ExportPhoto = wxNewId()
+ID_RemovePhoto = wxNewId()
 
 # IMO this current_photo nonsense has to go -kh
 current_patient = -1
@@ -38,28 +38,23 @@ current_photo = None
 class cPatientPicture (wxStaticBitmap):
 	"""A patient picture control ready for display.
 		with popup menu to import/export
-		delete or aquire menu items
-	"""	
+		remove or aquire from a device
+	"""
 	def __init__(self, parent, id):
-		global current_photo
 		try:
-			self.default_photo = os.path.join(gmGuiBroker.GuiBroker()['gnumed_dir'], 'bitmaps', 'any_body2.png')
-			print 'after try', self.default_photo
+			self.__def_pic_name = os.path.join(gmGuiBroker.GuiBroker()['gnumed_dir'], 'bitmaps', 'any_body2.png')
 		except:
-			self.default_photo = "../bitmaps/any_body2.png"
-		print 'default photo is', self.default_photo
+			self.__def_pic_name = "../bitmaps/any_body2.png"
+		print 'default photo is', self.__def_pic_name
+		self.__curr_pic_name = self.__def_pic_name
 		# just in case
 		wxImage_AddHandler(wxPNGHandler())
 		wxImage_AddHandler(wxJPEGHandler ())
-		if not current_photo:
-			print 'setting current photo'
-			current_photo = self.default_photo
-		img_data = wxImage(current_photo, wxBITMAP_TYPE_ANY)
+		img_data = wxImage(self.__curr_pic_name, wxBITMAP_TYPE_ANY)
 		bmp_data = wxBitmapFromImage(img_data)
 		del img_data
-		self.desired_width = bmp_data.GetWidth ()
-		self.desired_height = bmp_data.GetHeight ()
-
+		self.desired_width = bmp_data.GetWidth()
+		self.desired_height = bmp_data.GetHeight()
 		wxStaticBitmap.__init__(
 			self,
 			parent,
@@ -68,7 +63,9 @@ class cPatientPicture (wxStaticBitmap):
 			wxPoint(0, 0),
 			wxSize(self.desired_width, self.desired_height)
 		)
-
+		tt = wxToolTip(_('Patient picture.\nRight-click for context menu.'))
+		self.SetToolTip(tt)
+		self.__pat = gmPatient.gmCurrentPatient()
 		self.__register_events()
 	#-----------------------------------------------------------------
 	# event handling
@@ -76,49 +73,56 @@ class cPatientPicture (wxStaticBitmap):
 	def __register_events(self):
 		# wxPython events
 		EVT_RIGHT_UP(self, self._on_RightClick_photo)
-		EVT_MENU(self, ID_PUP_AquirePhoto, self._on_AquirePhoto)
-		EVT_MENU(self, ID_PUP_ImportPhoto, self._on_ImportPhoto)
-		EVT_MENU(self, ID_PUP_ExportPhoto, self._on_ExportPhoto)
-		EVT_MENU(self, ID_PUP_DeletePhoto, self._on_DeletePhoto)
+		EVT_MENU(self, ID_AquirePhoto, self._on_AquirePhoto)
+		EVT_MENU(self, ID_ImportPhoto, self._on_ImportPhoto)
+		EVT_MENU(self, ID_ExportPhoto, self._on_ExportPhoto)
+		EVT_MENU(self, ID_RemovePhoto, self._on_RemovePhoto)
 
 		# dispatcher signals
 		gmDispatcher.connect(receiver=self._on_patient_selected, signal=gmSignals.patient_selected())
 	#-----------------------------------------------------------------
 	def _on_RightClick_photo(self, event):
 		menu_patientphoto = wxMenu()
-		menu_patientphoto.Append(ID_PUP_AquirePhoto, _("Aquire from imaging device"))
-		menu_patientphoto.Append(ID_PUP_ImportPhoto, _("Import from file"))
-		menu_patientphoto.Append(ID_PUP_ExportPhoto, _("Export to file"))
-		menu_patientphoto.Append(ID_PUP_DeletePhoto, "Delete Photo - not sure what this means ?")
+		menu_patientphoto.Append(ID_AquirePhoto, _("Aquire from imaging device"))
+		menu_patientphoto.Append(ID_ImportPhoto, _("Import from file"))
+		menu_patientphoto.Append(ID_ExportPhoto, _("Export to file"))
+		menu_patientphoto.Append(ID_RemovePhoto, "Remove Photo")
 		self.PopupMenu(menu_patientphoto, event.GetPosition())
 		menu_patientphoto.Destroy()
 	#-----------------------------------------------------------------
-	def _on_ImportPhoto(self,event):
+	def _on_ImportPhoto(self, event):
 		"""Import an existing photo."""
-		imp_dlg = ImageDialog(self,os.getcwd())
-    		imp_dlg.Centre()
-		try:
-			if imp_dlg.ShowModal() == wxID_OK:
-				importedphoto= imp_dlg.GetFile()
-				print "You Selected File: " + importedphoto       # show the selected file
-# 				photo = dialogue.GetPath ()
- 				self.setPhoto(self,photo)
 
-# 				#self.patientpicture.setPhoto (photo)
-# 				self.default_photo = photo
-# 				doc = gmMedDoc.create_document (self.patient.get_ID ())
-# 				doc.update_metadata({'type ID':gmMedDoc.MUGSHOT})
-# 				obj = gmMedDoc.create_object (doc)
-# 				obj.update_data_from_file (photo)
-			else:
-				print "No file selected"
-		except:
-			_log.LogException ('failed to import photo', sys.exc_info (), verbose= 0)
+		# FIXME: read start path from option in DB
+		imp_dlg = ImageDialog(self, os.getcwd())
+		imp_dlg.Centre()
+		usr_action = imp_dlg.ShowModal()
+
+		if usr_action != wxID_OK:
+			print "No file selected"
+			return True
+
+		new_pic_name = imp_dlg.GetFile()
+		print "new pic name is", new_pic_name
+		# try to set new patient picture
+		if not self.__set_photo(self, new_pic_name):
+			print "error setting new pic"
+			return False
+
+		# save in database
+#		doc = gmMedDoc.create_document(self.__pat['ID'])
+#		doc.update_metadata({'type ID': gmMedDoc.MUGSHOT})
+#		obj = gmMedDoc.create_object(doc)
+#		obj.update_data_from_file(photo)
+
+		self.Show(True)
+
+		return True
 	#-----------------------------------------------------------------
-	def _on_ExportPhoto(self,event):
+	def _on_ExportPhoto(self, event):
 		exp_dlg = wxFileDialog (self, style=wxSAVE)
-		if exp_dlg.ShowModal () == wxID_OK:
-			shutil.copyfile (self.getPhoto(), exp_dlg.GetPath())
+		if exp_dlg.ShowModal() == wxID_OK:
+			shutil.copyfile (self.__pic_name, exp_dlg.GetPath())
 	#-----------------------------------------------------------------
 	def _on_AquirePhoto(self,event):
 		gmGuiHelpers.gm_show_info (
@@ -126,14 +130,14 @@ class cPatientPicture (wxStaticBitmap):
 			_('acquire patient photograph')
 		)
 	#-----------------------------------------------------------------
-	def _on_DeletePhoto(self,event):
+	def _on_RemovePhoto(self,event):
 		gmGuiHelpers.gm_show_info (
-			_('This feature is not implemented yet.'),
-			_('delete patient photograph')
+			_('This feature is not implemented yet.\n\nActually, I am not even sure what it is supposed to do ?'),
+			_('remove patient photograph')
 		)
 	#-----------------------------------------------------------------
 	def _on_patient_selected(self):
-		print "updating patient photo, needs to be implemented, async"
+		print "pulling patient photo from DB, needs to be implemented, async"
 	#-----------------------------------------------------------------
 	# FIXME: do this async from _on_patient_selected
 	def newPatient (self, signal, kwds):
@@ -155,22 +159,26 @@ class cPatientPicture (wxStaticBitmap):
 				if current_photo:
 					self.setPhoto (current_photo)
 			else:
-				if current_photo != self.default_photo:
-					current_photo = self.default_photo
+				if current_photo != self.__def_pic_name:
+					current_photo = self.__def_pic_name
 					self.setPhoto (current_photo)
 		else:
 			self.setPhoto (current_photo)
 	#-----------------------------------------------------------------
-	def setPhoto (self, fname):
+	def __set_photo(self, fname=None):
+		"""Set the photograph to be photo in file fname.
 		"""
-		Manually set the photograph to be photo in file fname
-		"""
-		img_data = wxImage (fname, wxBITMAP_TYPE_ANY)
-		img_data.Rescale(self.desired_width, self.desired_height)
-		bmp_data = wxBitmapFromImage(img = img_data)
+		try:
+			img_data = wxImage (fname, wxBITMAP_TYPE_ANY)
+			img_data.Rescale(self.desired_width, self.desired_height)
+			bmp_data = wxBitmapFromImage(img = img_data)
+		except:
+			_log.LogException('cannot set patient picture to [%s]' % fname)
+			return False
 		del img_data
 		self.SetBitmap(bmp_data)
-		self.Show(True)
+		self.__pic_name = fname
+		return True
 	#-----------------------------------------------------------------
 	def getPhoto (self):
 		return current_photo
@@ -184,7 +192,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.1  2004-08-18 10:15:26  ncq
+# Revision 1.2  2004-08-19 14:07:54  ncq
+# - cleanup
+# - add tooltip but doesn't work with wxBitmap
+#
+# Revision 1.1  2004/08/18 10:15:26  ncq
 # - Richard is improving the patient picture
 # - added popup menu
 # - cleanups
