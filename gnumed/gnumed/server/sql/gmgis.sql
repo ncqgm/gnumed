@@ -13,6 +13,8 @@
 -- 30.03.2002:  (hherb) view basic_address renamed to v_basic_address
 --               bugfix in rule update_address
 --               bugfix in rule insert_address
+-- 31.03.2002:  rules for v_basic_address rewritten, using id now
+--               and supporting external reference counting
 
 
 
@@ -149,6 +151,7 @@ create view v_basic_address
 -- update and delete that will update the underlying tables accordingly
 as
 select
+	a.id as id,
         s.country as country,
         s.code as state,
         u.postcode as postcode,
@@ -196,8 +199,8 @@ BEGIN
 END;' LANGUAGE 'plpgsql';
 
 CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
-        INSERT INTO address (addrtype, street, number, addendum)
-        VALUES (
+        INSERT INTO address (id, addrtype, street, number, addendum)
+        VALUES ( nextval('address_id_seq'),
                1,
                find_street (NEW.street, (SELECT urb.id FROM urb, state WHERE
                            (urb.name = NEW.city) AND
@@ -210,17 +213,36 @@ CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
                );
 
 
+CREATE FUNCTION decrease_refcount(INTEGER) RETURNS INTEGER AS'
+DECLARE
+        old_id ALIAS FOR $1;
+        rc RECORD;
+BEGIN
+        SELECT INTO rc *
+	FROM address_external_ref
+	WHERE old_id = rc.id;
+
+        IF FOUND THEN
+		IF rc.refcounter > 0 THEN
+			rc.refcounter := rc.refcounter-1
+			UPDATE address_external_id
+				SET refcounter := rc.refcounter
+				WHERE old_id = rc.id;
+			RETURN refcounter;
+		ELSE RETURN 0;
+        ELSE
+		RAISE NOTICE ''Cannot find any external reference for record'';
+	        RETURN 0,
+        END IF;
+END;' LANGUAGE 'plpgsql';
+
+
+
 CREATE RULE delete_address AS ON DELETE TO v_basic_address DO INSTEAD
-       DELETE FROM address WHERE addrtype = 1 AND
-       number = OLD.number AND addendum = OLD.street2 AND
-       street = (SELECT street.id FROM street, urb, state WHERE
-               street.name = OLD.street AND
-               street.id_urb = urb.id AND
-               urb.name = OLD.city AND
-               urb.postcode = OLD.postcode AND
-               urb.statecode = state.id AND
-               state.code = OLD.state AND
-               state.country = OLD.country);
+	DELETE FROM address
+	WHERE (decrease_refcount(OLD.id) > 0)
+	AND address.id = OLD.id;
+
 
 CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
        UPDATE address SET number = NEW.number, addendum = NEW.street2,
@@ -232,16 +254,7 @@ CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
                    state.code = NEW.state AND
                    state.country = NEW.country))
         WHERE
-               addrtype = 1 AND
-               number = OLD.number AND addendum = OLD.street2 AND
-               street = (SELECT street.id FROM street, urb, state  WHERE
-               street.name = OLD.street AND
-               street.id_urb = urb.id AND
-               urb.name = OLD.city AND
-               urb.postcode = OLD.postcode AND
-               urb.statecode = state.id AND
-               state.code = OLD.state AND
-               state.country = OLD.country);
+               OLD.id=NEW.id;
 
 -- =============================================
 
