@@ -51,12 +51,13 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
 # use getopt directly, instead
-import sys, time, traceback, os.path, atexit, os, string, getopt
+import sys, time, traceback, os.path, os, string, getopt
+#, atexit
 
 # safely import SYSLOG, currently POSIX only
 try:
@@ -628,8 +629,8 @@ def __open_default_logfile():
 	print "Cannot open any log file. Aborting."
 	return None
 #---------------------------------------------------------------
-def myExitFunc():
-	pass
+#def myExitFunc():
+#	pass
 	# FIXME - do something useful
 	#gmDefLog.close()
 	# should close other loggers, too, but I need to keep track of them first
@@ -702,7 +703,7 @@ else:
 	# register application specific default log file
 	gmDefLog = cLogger(aTarget=__open_default_logfile())
 	# this needs Python 2.x
-	atexit.register(myExitFunc)
+	#atexit.register(myExitFunc)
 #---------------------------------------------------------------
 # sample code for inclusion in your project
 #---------------------------------------------------------------
