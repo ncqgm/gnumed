@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.58 2004-04-27 15:18:38 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.59 2004-04-30 09:12:30 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -647,7 +647,7 @@ GRANT SELECT ON
 	, xlnk_identity
 	, form_instances
 	, form_data
-	, clin_diag
+	, clin_working_diag
 	, lnk_diag2code
 TO GROUP "gm-doctors";
 
@@ -698,8 +698,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, form_instances_pk_seq
 	, form_data
 	, form_data_pk_seq
-	, clin_diag
-	, clin_diag_pk_seq
+	, clin_working_diag
+	, clin_working_diag_pk_seq
 	, lnk_diag2code
 	, lnk_diag2code_pk_seq
 TO GROUP "_gm-doctors";
@@ -751,11 +751,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.58 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.59 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.58  2004-04-27 15:18:38  ncq
+-- Revision 1.59  2004-04-30 09:12:30  ncq
+-- - fk description clin_working_diag -> clin_aux_note
+-- - v_pat_diag
+--
+-- Revision 1.58  2004/04/27 15:18:38  ncq
 -- - rework diagnosis tables + grants for them
 --
 -- Revision 1.57  2004/04/26 21:17:10  ncq

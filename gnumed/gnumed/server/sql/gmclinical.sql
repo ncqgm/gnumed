@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.103 $
+-- $Revision: 1.104 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -662,9 +662,9 @@ comment on column form_data.value is
 -- patient attached diagnosis
 create table clin_working_diag (
 	pk serial primary key,
-	description text
-		default null
-		references clin_aux_note(narrative)
+	fk_description integer
+		not null
+		references clin_aux_note(pk)
 		on update cascade
 		on delete restrict,
 	laterality char
@@ -696,9 +696,8 @@ select add_table_for_audit('clin_working_diag');
 comment on table clin_working_diag is
 	'stores diagnoses attached to patients, may or may not be
 	 linked to codes via lnk_diag2code';
-comment on column description is
-	'label of the diagnosis, foreign-keyed to clin_aux_note,
-	 inserts/updates/deletes ';
+comment on column clin_working_diag.fk_description is
+	'pointing to the PK of the label for the diagnosis';
 
 
 -- "working set" of coded diagnoses
@@ -879,11 +878,15 @@ comment on column referral.narrative is
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.103 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.104 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.103  2004-04-29 14:12:50  ncq
+-- Revision 1.104  2004-04-30 09:12:30  ncq
+-- - fk description clin_working_diag -> clin_aux_note
+-- - v_pat_diag
+--
+-- Revision 1.103  2004/04/29 14:12:50  ncq
 -- - add description to clin_working_diag and change meaning of clin_working_diag.narrative
 -- - TODO: add trigger to attach clin_aux_note to description field
 --
