@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.38 2004-03-25 11:14:48 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmPatient.py,v 1.39 2004-04-11 10:14:36 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -484,7 +484,7 @@ class cPatientSearcher_SQL:
 			tmp = raw.replace(' ', '')
 			tmp = tmp.replace('\t', '')
 			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
-			queries.append(["SELECT i_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
 			return queries
 
 		# "#<ZIFFERN>" - patient ID
@@ -499,7 +499,7 @@ class cPatientSearcher_SQL:
 
 		# "<Z I  FF ERN>" - DOB or patient ID
 		if re.match("^(\d|\s|\t)+$", raw):
-			queries.append(["SELECT i_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
 			tmp = raw.replace(' ', '')
 			tmp = tmp.replace('\t', '')
 			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
@@ -512,14 +512,14 @@ class cPatientSearcher_SQL:
 			# apparently not needed due to PostgreSQL smarts...
 			#tmp = tmp.replace('-', '.')
 			#tmp = tmp.replace('/', '.')
-			queries.append(["SELECT i_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % tmp])
 			return queries
 
 		# "*|$<...>" - DOB
 		if re.match("^(\s|\t)*(\*|\$).+$", raw):
 			tmp = raw.replace('*', '')
 			tmp = tmp.replace('$', '')
-			queries.append(["SELECT i_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % tmp])
 			return queries
 
 		return None
@@ -549,7 +549,7 @@ class cPatientSearcher_SQL:
 			pass
 		try:
 			data['dob']
-			where_snippets.append("date_trunc('day', dob)=%(dob)s")
+			where_snippets.append("dob=%(dob)s::timestamp")
 		except KeyError:
 			pass
 		try:
@@ -656,21 +656,21 @@ class cPatientSearcher_SQL:
 				if date_count == 1:
 					# assumption: first, last, dob - first order
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
+						"SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
 					])
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
+						"SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
 					])
 					# assumption: last, first, dob - second order query
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
+						"SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
 					])
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[1], name_parts[0], date_part)
+						"SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[1], name_parts[0], date_part)
 					])
 					# name parts anywhere in name - third order query ...
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
+						"SELECT i_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
 					])
 					return queries
 				# FIXME: "name name name" or "name date date"
@@ -779,33 +779,33 @@ class cPatientSearcher_SQL:
 			# FIXME: this needs a considerable smart-up !
 			if len(date_parts) == 1:
 				if len(wheres) > 0:
-					wheres[0].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+					wheres[0].append("dob='%s'::timestamp" % date_parts[0])
 				else:
 					wheres.append([
-						"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0]
+						"dob='%s'::timestamp" % date_parts[0]
 					])
 				if len(wheres) > 1:
-					wheres[1].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+					wheres[1].append("dob='%s'::timestamp" % date_parts[0])
 				else:
 					wheres.append([
-						"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0]
+						"dob='%s'::timestamp" % date_parts[0]
 					])
 			elif len(date_parts) > 1:
 				if len(wheres) > 0:
-					wheres[0].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+					wheres[0].append("dob='%s'::timestamp" % date_parts[0])
 					wheres[0].append("date_trunc('day', identity.deceased) LIKE (select timestamp '%s'" % date_parts[1])
 				else:
 					wheres.append([
-						"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0],
+						"dob='%s'::timestamp" % date_parts[0],
 						"date_trunc('day', identity.deceased) LIKE (select timestamp '%s'" % date_parts[1]
 					])
 				if len(wheres) > 1:
-					wheres[1].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+					wheres[1].append("dob='%s'::timestamp" % date_parts[0])
 					wheres[1].append("date_trunc('day', identity.deceased) LIKE (select timestamp '%s')" % date_parts[1])
 				else:
 					wheres.append([
-						"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0],
-						"date_trunc('day', identity.deceased) LIKE (select timestamp '%s')" % date_parts[1]
+						"dob='%s'::timestamp" % date_parts[0],
+						"identity.deceased='%s'::timestamp" % date_parts[1]
 					])
 
 			# and finally generate the queries ...
@@ -892,7 +892,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.38  2004-03-25 11:14:48  ncq
+# Revision 1.39  2004-04-11 10:14:36  ncq
+# - fix b0rked dob/dod handling in query generation
+# - searching by dob should now work
+#
+# Revision 1.38  2004/03/25 11:14:48  ncq
 # - fix get_document_folder()
 #
 # Revision 1.37  2004/03/25 11:03:23  ncq
