@@ -31,27 +31,19 @@ It is helpful to have a solid log target set up before importing this
 module in your code. This way you will be able to see even those log
 messages generated during module import.
 
-Once your software has established database connectivity it can call
- activateDatabase()
-to switch on database access for configuration options.
-
-The default config data source is then switched to database access.
-
-At any time can you force file or database access for a particular
-configuration call via a parameter except before database access is
-activated in which case the module will always use file access.
-
-NOTE: DATABASE CONFIG DOES NOT WORK YET !
+Once your software has established database connectivity you can
+set up a config source from the database.
 
 @copyright: GPL
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
 import os.path, fileinput, string, sys, shutil
+from types import *
 
 # gnumed modules
 import gmLog, gmCLI
@@ -67,7 +59,239 @@ class cCfgBase:
 
 	def set(machine = None, user = None, cookie = None, option = None, value = None):
 		pass
+#================================
+class cCfgSQL:
+	def __init__(self, aConn = None):
+		if aConn is None:
+			_log.Log(gmLog.lErr, "Cannot init database config object without database connection.")
+			raise AssertionError, "Cannot init database config object without database connection."
 
+		self.conn = aConn
+		self.cache = {}
+		#self.curr_user = "unknown"
+		#curs = self.conn.cursor()
+		#if self.__run_query(curs, "select CURRENT_USER;")
+		#result = curs.fetchone()
+		#if result is None:
+		#	_log.Log(gmLog.lErr, "Cannot retrieve current database user ?!?")
+		#else:
+		#	self.curr_user = result[0]
+		#curs.close()
+	#----------------------------
+	def __del__(self):
+		pass
+		#self.curs.close()
+	#----------------------------
+	def get(self, machine = None, user = None, cookie = None, option = None):
+		# fastpath
+		cache_key = self.__make_key(machine, user, cookie, option)
+		if self.cache.has_key(cache_key):
+			return self.cache[cache_key]
+
+		# sanity checks
+		if option is None:
+			_log.Log(gmLog.lErr, "Need to know which option to retrieve.")
+			return None
+		where_option = "cfg_template.name like '%s'" % option
+
+		# if no machine given: any machine
+		if machine is None:
+			where_machine = " and cfg_item.machine like 'default'"
+		else:
+			where_machine = " and cfg_item.machine like '%s'" % machine
+
+		# if no cookie given: standard cookie
+		if cookie is None:
+			where_cookie = " and cfg_item.cookie like 'default'"
+		else:
+			where_cookie = " and cfg_item.cookie like '%s'" % cookie
+
+		# if no user given: current db user
+		if user is None:
+			where_user = ' and cfg_item.owner like CURRENT_USER'
+		else:
+			where_user = " and cfg_item.owner like '%s'" % user
+
+		curs = self.conn.cursor()
+
+		# retrieve option definition
+		if self.__run_query(curs, "select cfg_item.id, cfg_template.type from cfg_item, cfg_template where %s%s%s%s and cfg_template.id = cfg_item.id_template limit 1;" % (where_option, where_user, where_machine, where_cookie)) is None:
+			curs.close()
+			return None
+
+		result = curs.fetchone()
+		if result is None:
+			curs.close()
+			return None
+		(item_id, value_type) = result
+
+		# retrieve value from appropriate table
+		if self.__run_query(curs, "select value from cfg_%s where id_item=%s limit 1;" % (value_type, item_id)) is None:
+			curs.close()
+			return None
+		result = curs.fetchone()
+		curs.close()
+
+		if result is None:
+			_log.Log(gmLog.lWarn, 'option [%s] not in config database' % cache_key)
+			return None
+		else:
+			self.cache[cache_key] = result
+			return result[0]
+	#----------------------------
+	def getID(self, machine = None, user = None, cookie = None, option = None):
+		# sanity checks
+		if option is None:
+			_log.Log(gmLog.lErr, "Need to know which option to retrieve the ID for.")
+			return None
+		where_option = "cfg_template.name like '%s'" % option
+
+		# if no machine given: any machine
+		if machine is None:
+			where_machine = " and cfg_item.machine like 'default'"
+		else:
+			where_machine = " and cfg_item.machine like '%s'" % machine
+
+		# if no user given: current db user
+		if user is None:
+			where_user = ' and cfg_item.owner like CURRENT_USER'
+		else:
+			where_user = " and cfg_item.owner like '%s'" % user
+
+		# if no cookie given: standard cookie
+		if cookie is None:
+			where_cookie = " and cfg_item.cookie like 'default'"
+		else:
+			where_cookie = " and cfg_item.cookie like '%s'" % cookie
+
+		curs = self.conn.cursor()
+		# retrieve option definition
+		if self.__run_query(curs, "select cfg_item.id from cfg_item, cfg_template where %s%s%s%s and cfg_template.id = cfg_item.id_template limit 1;" % (where_option, where_user, where_machine, where_cookie)) is None:
+			curs.close()
+			return None
+		result = curs.fetchone()
+		if result is None:
+			_log.Log(gmLog.lWarn, 'option [%s] not in config database' % cache_key)
+			curs.close()
+			return None
+
+		return result[0]
+	#----------------------------
+	def set(self, machine = None, user = None, cookie = None, option = None, value = None):
+
+		# sanity checks
+		if option is None:
+			_log.Log(gmLog.lErr, "Need to know which option to store.")
+			return None
+		if value is None:
+			_log.Log(gmLog.lErr, "Need to know the value to store.")
+			return None
+
+		cache_key = self.__make_key(machine, user, cookie, option)
+		if type(value) is StringType:
+			data_type = 'string'
+		elif type(value) is FloatType:
+			data_type = 'numeric'
+		elif type(value) is IntType:
+			data_type = 'numeric'
+		elif type(value) is LongType:
+			data_type = 'numeric'
+		# FIXME: UnicodeType ?
+		else:
+			_log.Log(gmLog.lErr, 'Cannot store option of type [%s] (%s).' % (data_type, cache_key))
+			return None
+
+		# set up field/value pairs
+		if user is None:
+			owner_field = ""
+			owner_value = ""
+			owner_where = ""
+		else:
+			owner_field = ", owner"
+			owner_value = ", '%s'" % user
+			owner_where = " and owner='%s'" % user
+
+		if machine is None:
+			machine_field = ""
+			machine_value = ""
+			machine_where = ""
+		else:
+			machine_field = ", machine"
+			machine_value = ", '%s'" % machine
+			machine_where = " and machine='%s'" % machine
+
+		if cookie is None:
+			cookie_field = ""
+			cookie_value = ""
+			cookie_where = ""
+		else:
+			cookie_field = ", cookie"
+			cookie_value = ", '%s'" % cookie
+			cookie_where = " and cookie='%s'" % cookie
+
+		# get id of option template
+		curs = self.conn.cursor()
+		if self.__run_query(curs, "select id from cfg_template where name like '%s' and type like '%s' limit 1;" % (option, data_type)) is None:
+			curs.close()
+			return None
+		# if not in database insert new option template
+		result = curs.fetchone()
+		if result is None:
+			# insert new template
+			if self.__run_query(curs, "insert into cfg_template (name, type) values ('%s', '%s')" % (option, data_type)) is None:
+				curs.close()
+				return None
+			if self.__run_query(curs, "select id from cfg_template where name like '%s' and type like '%s' limit 1;" % (option, data_type)) is None:
+				curs.close()
+				return None
+			result = curs.fetchone()
+		template_id = result[0]
+
+		# do we need to insert a new option or update an existing one ?
+		if self.get(machine, user, cookie, option) is None:
+			# insert new option
+			# insert option instance
+			if self.__run_query(curs, "insert into cfg_item (id_template %s%s%s) values (%s%s%s%s)" % (owner_field, machine_field, cookie_field, template_id, owner_value, machine_value, cookie_value)) is None:
+				curs.close()
+				return None
+			# insert option value
+			if self.__run_query(curs, "insert into cfg_%s (id_item, value) values (currval('cfg_item_id_seq'), '%s')" % (data_type, value)) is None:
+				curs.close()
+				return None
+		else:
+			# update existing option
+			# get item id
+			item_id = self.getID(machine, user, cookie, option)
+			if item_id is None:
+				curs.close()
+				return None
+			# update option instance
+			if self.__run_query(curs, "update cfg_%s set value='%s' where id_item='%s'%s%s%s;" % (data_type, value, item_id, owner_where, machine_where, cookie_where)) is None:
+				curs.close()
+				return None
+
+		# actually commit our stuff
+		self.conn.commit()
+		curs.close()
+
+		# don't update the cache before checking for key existence
+		# because that would make the get() fastpath valid without
+		# knowing whether the option is stored in the database
+		self.cache[cache_key] = value
+
+		return 1
+	#----------------------------
+	def __make_key(self, machine, user, cookie, option):
+		return '%s-%s-%s-%s' % (machine, user, cookie, option)
+	#----------------------------
+	def __run_query(self, aCursor, aQuery):
+		_log.Log(gmLog.lData, "running >>>%s<<<" % aQuery)
+		try:
+			aCursor.execute(aQuery)
+		except:
+			_log.LogException("query >>>%s<<< failed" % aQuery, sys.exc_info(), fatal=0)
+			return None
+		return 1
 #================================
 class cCfgFile:
 	"""Handle common INI-style config files.
@@ -553,50 +777,81 @@ if __name__ == '__main__':
 _log.Log(gmLog.lData, __version__)
 
 if __name__ == "__main__":
-	try:
-		myCfg = cCfgFile(aFile = sys.argv[1])
-	except:
-		exc = sys.exc_info()
-		_log.LogException('unhandled exception', exc, fatal=1)
-		raise
+	if len(sys.argv) > 1:
+		try:
+			myCfg = cCfgFile(aFile = sys.argv[1])
+		except:
+			exc = sys.exc_info()
+			_log.LogException('unhandled exception', exc, fatal=1)
+			raise
 
-	print myCfg
+		print myCfg
 
-	# display file level data
-	print "file: %s" % myCfg.cfgName
-	tmp = myCfg.getComment()
-	if not tmp is None:
-		print "comment:", tmp
-
-	# display group level data
-	groups = myCfg.getGroups()
-	print "groups:", str(groups)
-
-	# recurse groups
-	for group in groups:
-		print "GROUP [%s]" % group
-
-		tmp = myCfg.getComment(aGroup = group)
+		# display file level data
+		print "file: %s" % myCfg.cfgName
+		tmp = myCfg.getComment()
 		if not tmp is None:
-			print " ", tmp
+			print "comment:", tmp
 
-		# recurse options
-		options = myCfg.getOptions(group)
-		for option in options:
-			tmp = myCfg.get(group, option)
+		# display group level data
+		groups = myCfg.getGroups()
+		print "groups:", str(groups)
+
+		# recurse groups
+		for group in groups:
+			print "GROUP [%s]" % group
+
+			tmp = myCfg.getComment(aGroup = group)
 			if not tmp is None:
-				print "OPTION <%s> = %s" % (option, tmp)
-			tmp = myCfg.getComment(group, option)
-			if not tmp is None:
-				print "  %s" % tmp
+				print " ", tmp
 
-	myCfg.set("date", "modified", "right now", ["should always be rather current"])
-	myCfg.store()
+			# recurse options
+			options = myCfg.getOptions(group)
+			for option in options:
+				tmp = myCfg.get(group, option)
+				if not tmp is None:
+					print "OPTION <%s> = %s" % (option, tmp)
+				tmp = myCfg.getComment(group, option)
+				if not tmp is None:
+					print "  %s" % tmp
 
-	print "======================================================================"
-	print __doc__
-	print "======================================================================"
+		myCfg.set("date", "modified", "right now", ["should always be rather current"])
+		myCfg.store()
 
+	else:
+		print "======================================================================"
+		print __doc__
+		print "======================================================================"
+		raw_input()
+
+		print "testing database config"
+		print "======================="
+		from pyPgSQL import PgSQL
+		dsn = "%s:%s:%s:%s:%s:%s:%s" % ('localhost', '5432', 'test', 'postgres', '', '', '')
+		conn = 	PgSQL.connect(dsn)
+		myDBCfg = cCfgSQL(aConn = conn)
+
+		font = myDBCfg.get(option = 'font name')
+		print "font is currently:", font
+
+		new_font = "huh ?"
+		if font == "Times New Roman":
+			new_font = "Courier"
+		if font == "Courier":
+			new_font = "Times New Roman"
+		myDBCfg.set(option='font name', value=new_font)
+
+		font = myDBCfg.get(option = 'font name')
+		print "font is now:", font
+
+		import random
+		random.seed()
+		new_opt = str(random.random())
+		print "setting new option", new_opt
+		myDBCfg.set(option=new_opt, value = "I do not know.")
+		print "new option is now:", myDBCfg.get(option = new_opt)
+
+		conn.close()
 else:
 	# - we are being imported
 
@@ -613,7 +868,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.26  2002-11-18 09:41:25  ncq
+# Revision 1.27  2002-11-28 11:40:12  ncq
+# - added database config
+# - reorganized self test
+#
+# Revision 1.26  2002/11/18 09:41:25  ncq
 # - removed magic #! interpreter incantation line to make Debian happy
 #
 # Revision 1.25  2002/11/17 20:09:10  ncq
