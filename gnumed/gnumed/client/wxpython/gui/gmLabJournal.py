@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = ""
+__version__ = "$Revision: 1.21 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -26,6 +26,7 @@ from Gnumed.business import gmPatient, gmClinicalRecord, gmPathLab
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.artwork import checkboxOn, checkboxOff
+
 # 3rd party
 from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
@@ -43,6 +44,7 @@ _whoami = gmWhoAmI.cWhoAmI()
 	wxID_BTN_mark_reviewed
 ] = map(lambda _init_ctrls: wxNewId(), range(8))
 
+#====================================
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, parent):
 		query = """
@@ -85,13 +87,6 @@ class cLabJournalNB(wxNotebook):
 	def __init__(self, parent, id):
 		"""Set up our specialised notebook.
 		"""
-#		# connect to config database
-#		pool = gmPG.ConnectionPool()
-#		self.__dbcfg = gmCfg.cCfgSQL(
-#			aConn = pool.GetConnection('default'),
-#			aDBAPI = gmPG.dbapi
-#		)
-		
 		wxNotebook.__init__(
 			self,
 			parent,
@@ -154,9 +149,9 @@ class cLabJournalNB(wxNotebook):
 
 		hbszr.AddWindow(self.lab_label, 0, wxALIGN_CENTER | wxALL, 5)
 		hbszr.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
-		
-		vbszr.AddWindow(hbszr,0, wxALIGN_LEFT | wxALL, 5)
-		
+
+		vbszr.Add(hbszr, 0, wxALIGN_LEFT | wxALL, 5)
+
 		self.req_id_label = wxStaticText(
 			name = 'req_id_label',
 			parent = self.PNL_due_tab,
@@ -179,7 +174,7 @@ class cLabJournalNB(wxNotebook):
 		hbszr2.AddWindow(self.req_id_label, 0, wxALIGN_CENTER | wxALL, 5)
 		hbszr2.AddWindow(self.fld_request_id, 0, wxALIGN_CENTER| wxALL, 5 )
 		
-		vbszr.AddWindow(hbszr2,0, wxALIGN_LEFT | wxALL, 5)
+		vbszr.Add(hbszr2,0, wxALIGN_LEFT | wxALL, 5)
 
 		# -- "save request id" button -----------
 		self.BTN_save_request_ID = wxButton(
@@ -191,7 +186,7 @@ class cLabJournalNB(wxNotebook):
 		self.BTN_save_request_ID.SetToolTipString(_('associate chosen lab and ID with current patient'))
 		EVT_BUTTON(self.BTN_save_request_ID, wxID_BTN_save_request_ID, self.on_save_request_ID)
 
-		vbszr.AddWindow( self.BTN_save_request_ID, 0, wxALIGN_CENTER|wxALL, 5 )
+		vbszr.Add( self.BTN_save_request_ID, 0, wxALIGN_CENTER|wxALL, 5 )
 
 		# our actual list
 		tID = wxNewId()
@@ -289,7 +284,7 @@ class cLabJournalNB(wxNotebook):
 		EVT_BUTTON(self.BTN_mark_reviewed, wxID_BTN_mark_reviewed, self.on_mark_reviewed)
 		szr_buttons.Add(self.BTN_mark_reviewed, 0, wxALIGN_CENTER_VERTICAL, 1)
 		
-		vbszr.AddWindow(szr_buttons, 0, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+		vbszr.Add(szr_buttons, 0, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 		
 		return vbszr
 	#------------------------------------------------------------------------
@@ -398,7 +393,7 @@ class cLabJournalNB(wxNotebook):
 
 		# we show 50 items at once , notify user if there are more
 		if more_avail:
-			gmGuiHelpers.gm_beep_statustext(_('More results to review than shown. Review some to see the remaining'))
+			gmGuiHelpers.gm_beep_statustext(_('More unreviewed results available. Review some to see more.'))
 	#------------------------------------------------------------------------
 	def __get_import_errors(self):
 		query = """select * from housekeeping_todo where category='lab'"""
@@ -406,47 +401,27 @@ class cLabJournalNB(wxNotebook):
 		return import_errors
 	#------------------------------------------------------------------------
 	def __get_labname(self, data):
+		# FIXME: eventually, this will be done via a cOrg value object class
 		query= """select internal_name from test_org where pk=%s"""
 		labs = gmPG.run_ro_query('historica', query, None, data)
 		return labs
-	#------------------------------------------------------------------------
-	#def __get_last_used_ID(self, lab_name):
-	#	query = """
-	#		select request_id 
-	#		from lab_request lr0 
-	#		where lr0.clin_when = (
-	#			select max(lr1.clin_when)
-	#			from lab_request lr1 
-	#			where lr1.fk_test_org = ( 
-	#				select pk 
-	#				from test_org 
-	#				where internal_name=%s 
-	#			)
-	#		)"""
-	#	last_id = gmPG.run_ro_query('historica', query, None, lab_name)
-	#	return last_id
-	#--------------------------------------------------------------------------	
-	def guess_next_id(self, id):
-	
-		#if not len(self.__get_last_used_ID(lab_name)) == 0:
-		#	last = self.__get_last_used_ID(lab_name)[0][0]
-		#	next = chr(ord(last[-1:])+1)
-		#	return next
-		#else:
-		#	return None
-		pass
 	#-----------------------------------
 	# event handlers
 	#-----------------------------------
 	def on_save_request_ID(self, event):
 		req_id = self.fld_request_id.GetValue()
-		if not req_id is None or req_id == '':
+		if not req_id is None or req_id.strip() == '':
 			emr = self.curr_pat.get_clinical_record()
 			if emr is None:
 				# FIXME: error message
 				return None
-			test = gmPathLab.create_lab_request(lab=int(self.lab), req_id = req_id, pat_id = self.curr_pat['ID'], encounter_id = emr.get_active_encounter()['pk_encounter'], episode_id = emr.get_active_episode()['id_episode'])
-			#test = gmPathLab.create_lab_request(req_id='ML#SC937-0176-CEC#11', lab='Enterprise Main Lab', encounter_id = emr.id_encounter, episode_id= emr.id_episode)
+			test = gmPathLab.create_lab_request(
+				lab=int(self.lab),
+				req_id = req_id,
+				pat_id = self.curr_pat['ID'],
+				encounter_id = emr.get_active_encounter()['pk_encounter'],
+				episode_id = emr.get_active_episode()['id_episode']
+			)
 			# FIXME : react on succes or failure of save_request
 		else :
 			_log.Log(gmLog.lErr, 'No request ID typed in yet !')
@@ -455,8 +430,10 @@ class cLabJournalNB(wxNotebook):
 				_('saving request id')
 			)
 			return None
+		# FIXME: maybe populate request list only ?
+		# btw, we can make the sub-notebook tabs load data on-demand just
+		# like the main notebook tabs :-)
 		self.__populate_notebook()
-		
 	#------------------------------------------------
 	def on_select_all(self, event):
 		for item_idx in range(self.LstCtrl_unreviewed.GetItemCount()):
@@ -581,7 +558,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.20  2004-05-28 21:11:56  shilbert
+# Revision 1.21  2004-05-29 10:22:10  ncq
+# - looking good, just some cleanup/comments as usual
+#
+# Revision 1.20  2004/05/28 21:11:56  shilbert
 # - basically keep up with API changes
 #
 # Revision 1.19  2004/05/28 07:12:11  shilbert
