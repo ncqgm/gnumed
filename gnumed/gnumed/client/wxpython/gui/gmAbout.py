@@ -6,7 +6,7 @@
 # Changelog:
 # 30/01/03: inital version
 #====================================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
@@ -50,26 +50,26 @@ class AboutFrame (wxFrame):
 
 		box = wxBoxSizer(wxVERTICAL)
 		box.Add(0,0, 2)
-		box.Add(wxStaticText(self, -1, "Monty the Serpent && the FSF Present"), 0, wxALIGN_CENTRE)
+		box.Add(wxStaticText(self, -1, _("Monty the Serpent && the FSF Present")), 0, wxALIGN_CENTRE)
 		box.Add(0,0, 3)
 
-		txt=wxStaticText(self, -1, "GnuMed")
+		txt=wxStaticText(self, -1, _("GnuMed"))
 		txt.SetFont(wxFont(30, wxSWISS, wxNORMAL, wxNORMAL))
 		box.Add(txt, 0, wxALIGN_CENTRE)
-		box.Add(wxStaticText(self, -1, "Free eMedicine"), 0, wxALIGN_CENTRE)
+		box.Add(wxStaticText(self, -1, _("Free eMedicine")), 0, wxALIGN_CENTRE)
 
 		box.Add(0,0, 4)
-		box.Add(wxStaticText(self, -1, "Version X.X.X brought to you by"), 0, wxALIGN_CENTRE)
-		box.Add(wxStaticText(self, -1, "Drs Horst Herb && Karsten Hilbert"), 0, wxALIGN_CENTRE)
+		box.Add(wxStaticText(self, -1, _("Version X.X.X brought to you by")), 0, wxALIGN_CENTRE)
+		box.Add(wxStaticText(self, -1, _("Drs Horst Herb && Karsten Hilbert")), 0, wxALIGN_CENTRE)
 
 
 		self.changing_txt=wxTextCtrl(self, -1, "", size=(230,20))
 		box.Add(self.changing_txt, 0, wxALIGN_CENTRE)
 		box.Add(0,0, 1)
-		box.Add(wxStaticText(self, -1, "Please visit http://www.gnumed.org/ for more info"), 0, wxALIGN_CENTRE)
+		box.Add(wxStaticText(self, -1, _("Please visit http://www.gnumed.org/ for more info")), 0, wxALIGN_CENTRE)
 		box.Add(0,0, 1)
 
-		btn = wxButton(self, ID_MENU , "Close")
+		btn = wxButton(self, ID_MENU , _("Close"))
 		box.Add(btn,0, wxALIGN_CENTRE)
 		box.Add(0,0, 1)
 
