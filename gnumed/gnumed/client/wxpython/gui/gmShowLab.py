@@ -1,11 +1,11 @@
-#!/usr/bin/env python
-#----------------------------------------------------------------------
 """
 """
+#============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
-#================================================================
+
+# system
 import os.path, sys, os, re, string, random
 
 from Gnumed.pycommon import gmLog
@@ -19,12 +19,15 @@ else:
 
 _log.Log(gmLog.lData, __version__)
 
-#from Gnumed.business import gmMedDoc
 from Gnumed.pycommon import gmPG, gmCfg, gmExceptions, gmWhoAmI
 from Gnumed.business import gmPatient, gmClinicalRecord
 from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.pycommon.gmPyCompat import *
+
+# 3rd party
 from wxPython.wx import *
 from wxPython.grid import * 
+
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
 
@@ -98,9 +101,6 @@ class cLabDataGrid(wxGrid):
 			)
 		
 		self.curr_pat = gmPatient.gmCurrentPatient()
-		_log.Log(gmLog.lData, self.curr_pat)
-		
-		
 
         # There is a bug in wxGTK for this method...
         #grid.AutoSizeColumns(True)
@@ -545,7 +545,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.3  2004-04-15 20:14:14  shilbert
+# Revision 1.4  2004-04-16 00:27:13  ncq
+# - PyCompat
+#
+# Revision 1.3  2004/04/15 20:14:14  shilbert
 # - supports multiline text, uses custom renderer
 # - changes in font, data alignment
 #
