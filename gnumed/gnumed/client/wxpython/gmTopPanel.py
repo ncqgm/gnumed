@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib
@@ -147,23 +147,14 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	# internal helpers
 	#-------------------------------------------------------
 	def __load_consultation_types(self):
-#		self.__consultation_types = [
-#			_('in surgery'),
-#			_('home visit'),
-#			_('by phone'),
-#			_('at specialist'),
-#			_('patient absent'),
-#			_('by email'),
-#			_('other consultation')
-#		]
-
 		dbpool = gmPG.ConnectionPool()
 		conn = dbpool.GetConnection(service = 'historica')
 		rocurs = conn.cursor()
-		cmd = "SELECT description from vi18n_enum_encounter_type;"
+		cmd = "SELECT description from v_i18n_enum_encounter_type;"
 		if not gmPG.run_query(rocurs, cmd):
 			rocurs.close()
 			dbpool.ReleaseConnection('historica')
+			_log.Log(gmLog.lWarn, 'cannot load consultation types from backend')
 			self.__consultation_types = [_('in surgery')]
 			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
 			self.__show_error(
@@ -327,7 +318,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.8  2003-05-04 23:33:56  ncq
+# Revision 1.9  2003-05-05 00:00:21  ncq
+# - do load encounter types again
+#
+# Revision 1.8  2003/05/04 23:33:56  ncq
 # - comments bettered
 #
 # Revision 1.7  2003/05/03 14:18:06  ncq
