@@ -3038,9 +3038,9 @@ the issues better than me.
 		</para>
 	    </sect3>
     	    <sect3>
-		<title>View v_i18n_patient_encounters</title>
+		<title>View v_i18n_curr_encounters</title>
 	    	<para>
-		This view links encounters to patients and provides a translated
+		This view shows the current encounters and provides a translated
 		encounter type (if a translation is available).
 		</para>
 	    </sect3>
