@@ -4,8 +4,7 @@
 >Linux Installation</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
-"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
@@ -37,7 +36,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: User's Manual</TH
+>GNUMed: </TH
 ></TR
 ><TR
 ><TD
@@ -73,20 +72,26 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="LINUX">2.2. Linux Installation</H1
+NAME="LINUX"
+></A
+>2.2. Linux Installation</H1
 ><DIV
 CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN69">2.2.1. Distrubutions 'supported'</H2
+NAME="AEN81"
+></A
+>2.2.1. Distrubutions 'supported'</H2
 ><P
 >GnuMed is known being actively developed on:</P
 ><P
 >		<DIV
 CLASS="TABLE"
 ><A
-NAME="AEN73"><P
+NAME="AEN85"
+></A
+><P
 ><B
 >Table 2-1. "Supported" Distributions</B
 ></P
@@ -365,7 +370,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN148">2.2.2. Requirements</H2
+NAME="AEN160"
+></A
+>2.2.2. Requirements</H2
 ><P
 >GNUMed has run successfully on Linux. It requires a number of
 packages to be installed before it can be run.</P
@@ -375,7 +382,9 @@ packages to be installed before it can be run.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN153"><P
+NAME="AEN165"
+></A
+><P
 ><B
 >Table 2-2. Requirements</B
 ></P
@@ -446,9 +455,12 @@ VALIGN="TOP"
 CLASS="FILENAME"
 >1.2</TT
 ><A
-NAME="AEN176"
-HREF="#FTN.AEN176"
->[a]</A
+NAME="AEN188"
+HREF="#FTN.AEN188"
+><SPAN
+CLASS="footnote"
+>[a]</SPAN
+></A
 ></TD
 ></TR
 ><TR
@@ -492,9 +504,12 @@ CLASS="CITETITLE"
 ></A
 >
 					<A
-NAME="AEN190"
-HREF="#FTN.AEN190"
->[b]</A
+NAME="AEN202"
+HREF="#FTN.AEN202"
+><SPAN
+CLASS="footnote"
+>[b]</SPAN
+></A
 >
 				</TD
 ><TD
@@ -530,14 +545,20 @@ ALIGN="LEFT"
 VALIGN="TOP"
 >2.3.2 (both must be the same)
           <A
-NAME="AEN201"
-HREF="#FTN.AEN201"
->[c]</A
+NAME="AEN213"
+HREF="#FTN.AEN213"
+><SPAN
+CLASS="footnote"
+>[c]</SPAN
+></A
 >
             <A
-NAME="AEN203"
-HREF="#FTN.AEN203"
->[d]</A
+NAME="AEN215"
+HREF="#FTN.AEN215"
+><SPAN
+CLASS="footnote"
+>[d]</SPAN
+></A
 >
 			</TD
 ></TR
@@ -557,23 +578,23 @@ TARGET="_top"
 ><TD
 ALIGN="LEFT"
 VALIGN="TOP"
->????</TD
+>2.3</TD
 ></TR
 ></TBODY
 ><TR
 ><TD
 COLSPAN="3"
 >Notes:<BR><A
-NAME="FTN.AEN176"
+NAME="FTN.AEN188"
 >a. </A
 >GTK now comes included with wxPython 2.3.2. You dont need to download this package<BR><A
-NAME="FTN.AEN190"
+NAME="FTN.AEN202"
 >b. </A
 >Don't forget to include the Python interface libraries.<BR><A
-NAME="FTN.AEN201"
+NAME="FTN.AEN213"
 >c. </A
 >wxPython includes GTK, so you only need to install wxPython 2.3.2<BR><A
-NAME="FTN.AEN203"
+NAME="FTN.AEN215"
 >d. </A
 >On Debian,<A
 HREF="http://packages.debian.org/cgi-bin/search_packages.pl?keywords=libwx&searchon=names&subword=1&version=unstable&release=all"
@@ -640,7 +661,9 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN220">2.2.2.1. Debian specific requirements</H3
+NAME="AEN232"
+></A
+>2.2.2.1. Debian specific requirements</H3
 ><P
 >This is what is known to work on Debian as of late</P
 ><P
@@ -674,7 +697,7 @@ HREF="mailto:gouchi@altern.org"
 ></LI
 ><LI
 ><P
->pypgsql-2.1.tar.gz</P
+>pypgsql-2.3.tar.gz</P
 ></LI
 ><LI
 ><P
@@ -701,13 +724,17 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN245">2.2.3. Postgresql</H2
+NAME="AEN257"
+></A
+>2.2.3. Postgresql</H2
 ><DIV
 CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN247">2.2.3.1. Creating a database with PostgresQL</H3
+NAME="AEN259"
+></A
+>2.2.3.1. Creating a database with PostgresQL</H3
 ><P
 >This may be too simplistic but there a few things that need to be cleared up. The first is that when <EM
 >postgresQL</EM
@@ -790,7 +817,9 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN260">2.2.3.2. Configuring PostgreSQL (quoting Steven Duffy)</H3
+NAME="AEN272"
+></A
+>2.2.3.2. Configuring PostgreSQL (quoting Steven Duffy)</H3
 ><P
 > Some steps are required to get the <SPAN
 CLASS="APPLICATION"
@@ -895,7 +924,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN288">2.2.4. Running GnuMed</H2
+NAME="AEN300"
+></A
+>2.2.4. Running GnuMed</H2
 ><P
 >Simple I would have thought but to start Gnumed you must go all the way to</P
 ><TABLE
@@ -945,7 +976,9 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN296">2.2.4.1. Logging in</H3
+NAME="AEN308"
+></A
+>2.2.4.1. Logging in</H3
 ><P
 >You will then be faced with login parameters. If you have set up the postgresql correctly, you only need to fill in the follow parameters.</P
 ><P

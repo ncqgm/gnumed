@@ -4,17 +4,19 @@
 >Configuring PostgreSQL for GnuMed</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
-"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
 REL="UP"
-TITLE="Installation"
-HREF="installation.html"><LINK
+TITLE="Configuration"
+HREF="configuration.html"><LINK
 REL="PREVIOUS"
-TITLE="Windows"
-HREF="win9x.html"></HEAD
+TITLE="Configuration"
+HREF="configuration.html"><LINK
+REL="NEXT"
+TITLE="GnuMed database user structure"
+HREF="user-structure.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -34,7 +36,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: User's Manual</TH
+>GNUMed: </TH
 ></TR
 ><TR
 ><TD
@@ -42,7 +44,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="win9x.html"
+HREF="configuration.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -50,12 +52,16 @@ ACCESSKEY="P"
 WIDTH="80%"
 ALIGN="center"
 VALIGN="bottom"
->Chapter 2. Installation</TD
+>Chapter 3. Configuration</TD
 ><TD
 WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
->&nbsp;</TD
+><A
+HREF="user-structure.html"
+ACCESSKEY="N"
+>Next</A
+></TD
 ></TR
 ></TABLE
 ><HR
@@ -66,25 +72,112 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="PGSQL">2.5. Configuring <SPAN
+NAME="PGSQL"
+></A
+>3.1. Configuring <SPAN
 CLASS="APPLICATION"
 >PostgreSQL</SPAN
 > for GnuMed</H1
 ><P
 >This section applies is distribtuion/OS independant.</P
-><P
->Quoting Steven Duffy in the gnumed.org website</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
 ><A
-NAME="AEN447"><BLOCKQUOTE
-CLASS="BLOCKQUOTE"
+NAME="AEN460"
+></A
+>3.1.1. GnuMed database 101</H2
 ><P
->Now that PostgreSQL is installed and working, the server scripts from the CVS repository can be executed. These scripts all end in .sql are intended to be executed from within psql. The one required script is gmconfiguration.sql. To set it up, do the following from the <TT
-CLASS="FILENAME"
->gnumed/gnumed/server/sql</TT
->
-directory:</P
-></BLOCKQUOTE
-><TABLE
+>        GnuMed does not simply store all of it's data in a monolithic database.
+        It rather uses the concept of a service. A service is a set of tables
+        relating to a semantically reasonably distinct part of the data. It's
+        probably easiest to understand via the example of the "blobs" service.
+        This service stores medical documents relating to patients. These can
+        be scans of referral letters or discharge summaries, paper-based lab
+        results or incoming faxes. Any aggregate of diverse medical data on a
+        patient that's not easily split up and stored.
+        </P
+><P
+>        Other services include "default" (the core database tables that tell
+        your client software which service is to be found where), "personalia"
+        (holding all the patient demographics), and various clinical services
+        for drug data, clinical history, etc. The authoritative list of services
+        is found in server/sql/gmconfiguration.sql. Any service living in the
+        same database as the "default" service does not need to be mapped
+        explicitely (but it can). If there's no mapping it is assumed that
+        a service lives in the "default" service's database.
+        </P
+><P
+>        Services can coexist in one and the same database on a single server
+        or be spread out across several databases or even servers both on-site
+        and off-site. However, non-monolithic services have not been tested
+        well yet and will require the non-standard dblink PostgreSQL extension
+        (found in contrib/ in the PostgreSQL source tree). Until further notice
+        it is recommended to stick to non-distribution of services via
+        monolithic databases except for services that don't require
+        cross-database referential integrity links such as a drug database
+        for informational purposes. What has been tested successfully, however,
+        is access to GnuMed databases over WAN links, including via internet
+        from arbitrary locations.
+        </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN465"
+></A
+>3.1.2. Database setup</H2
+><P
+>        The theory roughly goes like this:
+        </P
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>            create databases
+            </P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>            import all the necessary tables for the services you want to support
+            </P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>            import any necessary translation files for the languages
+            you wish to support
+            </P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>            grant appropriate access rights
+		    </P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>            set up service-to-database/server mappings
+            </P
+></LI
+></UL
+><P
+>        All of this is handled automatically by the script bootstrap-gm_db_system.py
+        living in server/utils/. This script does not yet set up mappings of
+        services to their databases/servers (although in theory it can install
+        services on remote servers already). As this is not yet fully supported by
+        GnuMed anyways (due to dblink being non-standard) one should stick
+        to a monolithic service layout. Several sample config files for
+        bootstrapping are supplied in server/utils/. They can be used by calling
+        the script like this:
+		<TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -94,73 +187,27 @@ WIDTH="100%"
 COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
-><TT
-CLASS="PROMPT"
->#</TT
-> createdb gnumed
-<TT
-CLASS="PROMPT"
->#</TT
-> psql gnumed
-<TT
-CLASS="PROMPT"
->gnumed=&#62;</TT
-> \i gmconfiguration.sql 
-<TT
-CLASS="PROMPT"
->gnumed=&#62;</TT
-> \i gmidentity.sql
-<TT
-CLASS="PROMPT"
->gnumed=&#62;</TT
-> \i gmgis.sql</PRE
+>         bootstrap-gm_db_system.py --conf-file=&#60;a config file&#62;
+		</PRE
 ></FONT
 ></TD
 ></TR
 ></TABLE
-><P
->Then enter the <TT
-CLASS="FILENAME"
->country.specific</TT
-> directory, then the directory  for your country's code, and then install the <TT
-CLASS="FILENAME"
->.sql</TT
 >
-file there too. <A
-NAME="AEN459"
-HREF="#FTN.AEN459"
->[1]</A
-></P
+        To set up a straightforward monolithic system on the local machine use
+        the config file localhost-monolithic.conf.sample.
+        </P
 ><P
->FIXME: presumably some shell script to create all the databases and
-feed in the ER scripts?</P
+>        Make sure to remove test accounts and to set up your own config file
+        if you want to go life.
+        </P
+><P
+>        If you want to tweak things by hand read the config files and the source
+        of the bootstrapping scripts. All the config file parameters are documented
+        in bootstrap-gm_db_system.conf.sample
+        </P
 ></DIV
-><H3
-CLASS="FOOTNOTES"
->Notes</H3
-><TABLE
-BORDER="0"
-CLASS="FOOTNOTES"
-WIDTH="100%"
-><TR
-><TD
-ALIGN="LEFT"
-VALIGN="TOP"
-WIDTH="5%"
-><A
-NAME="FTN.AEN459"
-HREF="pgsql.html#AEN459"
->[1]</A
-></TD
-><TD
-ALIGN="LEFT"
-VALIGN="TOP"
-WIDTH="95%"
-><P
->The only such directory at the moment is au, the only working databases is postcodes.au.sql</P
-></TD
-></TR
-></TABLE
+></DIV
 ><DIV
 CLASS="NAVFOOTER"
 ><HR
@@ -177,7 +224,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="win9x.html"
+HREF="configuration.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -194,20 +241,24 @@ ACCESSKEY="H"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->&nbsp;</TD
+><A
+HREF="user-structure.html"
+ACCESSKEY="N"
+>Next</A
+></TD
 ></TR
 ><TR
 ><TD
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Windows</TD
+>Configuration</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="installation.html"
+HREF="configuration.html"
 ACCESSKEY="U"
 >Up</A
 ></TD
@@ -215,7 +266,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->&nbsp;</TD
+>GnuMed database user structure</TD
 ></TR
 ></TABLE
 ></DIV
