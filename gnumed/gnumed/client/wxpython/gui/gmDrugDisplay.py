@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 from wxPython.wx import *
@@ -282,7 +282,7 @@ class DrugDisplay(wxPanel):
 		item = event.GetData()
 		# get drug id and query mode
 		mode, code = self.__mListCtrlItems[item]
-		gmLog.gmDefLog.Log (gmLog.lData,  "mode %s ,text code: %s" % (mode,code) )
+#		gmLog.gmDefLog.Log (gmLog.lData,  "mode %s ,text code: %s" % (mode,code) )
 		# show detailed info
 		if mode == MODE_BRAND:
 			self.ToggleWidget ()
@@ -346,10 +346,10 @@ class DrugDisplay(wxPanel):
 		# tell the DrugView abstraction layer to do an index search 
 		# on brand/generic/indication 
 		# expect a dictionary containing at least name & ID 
-		# type will be set by radiobuttons
-		# type and ID form (virtually) a unique ID that can be used to access other data in the db
+		# qtype will be set by radiobuttons
+		# qtype and ID form (virtually) a unique ID that can be used to access other data in the db
 
-		type = self.mode
+		qtype = self.mode
 		result = self.mDrugView.SearchIndex(self.mode,drugtofind,searchmode)
 
 		# no drug found for this name
@@ -362,13 +362,13 @@ class DrugDisplay(wxPanel):
 				self.ToggleWidget ()
 			self.html_viewer.SetPage(self.NoDrugFoundMessageHTML)
 			return 
-			
+
 		numOfRows = len(result['id'])		
 	   	# found exactly one drug
 		if numOfRows == 1:
 			seld.mId = result['id']
 			# if we found a brand *product*, show the product info
-			if type == MODE_BRAND:
+			if qtype == MODE_BRAND:
 				if self.whichWidget == 'listctrl_drugchoice':
 					self.ToggleWidget ()
 					self.Display_PI (self.mId)
@@ -377,11 +377,11 @@ class DrugDisplay(wxPanel):
 					self.mLastId = self.mId
 			# if we found a generic substance name, show all brands
 			# containing this generic
-			elif type == MODE_GENERIC:
+			elif qtype == MODE_GENERIC:
 				self.Display_Generic (self.mId)
 			# if we are browsing indications, show all generics + brands
 			# that match. Display Indication 
-			elif type == MODE_INDICATION:
+			elif qtype == MODE_INDICATION:
 				self.Display_Indication(self.mId)
 
 		# we have more than one result
@@ -390,7 +390,7 @@ class DrugDisplay(wxPanel):
 			if self.whichWidget == 'html_viewer':
 				self.ToggleWidget ()
 			# show list
-			self.BuildListCtrl(result,type)
+			self.BuildListCtrl(result,qtype)
 
 	#---------------------------------------------------------------------------------------------------------------------------
 	def Display_Generic (self, aId):
@@ -399,16 +399,22 @@ class DrugDisplay(wxPanel):
         display them
 		"""
 		brandsList=self.mDrugView.getBrandsForGeneric(aId)
-		type = MODE_BRAND
+
+		if type(brandsList['name']) == type([]):
+			res_num=len (brandsList['name'])
+		else:
+			res_num = 1
+		
+		qtype = MODE_BRAND
 		# no brand - should be an error, but AMIS allows that :(
-		if brandsList is None or len (brandsList['name']) == 0:
+		if brandsList is None or res_num == 0:
 			gmLog.gmDefLog.Log (gmLog.lWarn,  "No brand product available containing generic ID: %s" % str(aId) )
 			if self.whichWidget == 'listctrl_drugchoice':
 				self.ToggleWidget ()
 			self.html_viewer.SetPage(self.NoDrugFoundMessageHTML)
 			return None        	
 		# one brand, so display product information
-		if len (brandsList['name']) == 1:
+		if res_num == 1:
 			if self.whichWidget == 'listctrl_drugchoice':
 				self.ToggleWidget ()
 			self.Display_PI (brandsList['id'])
@@ -417,12 +423,12 @@ class DrugDisplay(wxPanel):
 			if self.whichWidget == 'html_viewer':
 				self.ToggleWidget ()
 			# show list
-			self.BuildListCtrl(brandsList,type)
+			self.BuildListCtrl(brandsList,qtype)
 
 			return True
 
 	#-----------------------------------------------------------------
-	def BuildListCtrl(self, aDataDict=None, type=None):
+	def BuildListCtrl(self, aDataDict=None, dtype=None):
 		"""
 		Sets all the ListCtrl widget to display the items found in 
 		a database search. 
@@ -434,14 +440,20 @@ class DrugDisplay(wxPanel):
 		self.listctrl_drugchoice.ClearAll ()
 		self.__mListCtrlItems = {}
 
+		if aDataDict is None or not (aDataDict.has_key('id') & aDataDict.has_key('name')):
+			_log.Log(gmLog.lWarn, "No data to build list control.")
+			return None
+		#print "1:", aDataDict['id']
 		# get column names from aDataDict key names
 		# remove 'id' and display name at leftmost position
 		columns = aDataDict.keys()
 		columns.remove('id')
 		columns.remove('name')
 		columns.insert(0,'name')
+		
 		# number of rows (products, drugs, substances etc.) found
 		numOfRows = len(aDataDict['id'])
+			
 		# set column names			
 		# add columns for each parameter fetched
 		col_no = 0
@@ -454,7 +466,7 @@ class DrugDisplay(wxPanel):
 		for row in range(0,numOfRows):
 			col_no = 0
 		# for each product, display all parameters available 
-        # code taken from gmSQLListCtrl.py
+        	# code taken from gmSQLListCtrl.py
 			for col in columns:
 				# item text
 				item_text = str(aDataDict[col][row])
@@ -466,13 +478,16 @@ class DrugDisplay(wxPanel):
 					self.listctrl_drugchoice.SetItemData(item,item)
 					id = aDataDict['id'][row]
 			    	# set data as type and database ID
-					self.__mListCtrlItems[item]=(type,id)			
+					self.__mListCtrlItems[item]=(dtype,id)
 				else:
 					self.listctrl_drugchoice.SetStringItem(row,col_no,item_text)
 				col_no += 1
 		# finally set column widths to AUTOSIZE
 		for i in range(0,len(columns)):
 			self.listctrl_drugchoice.SetColumnWidth(i, wxLIST_AUTOSIZE)
+		# set focus to first item
+		firstItemState=self.listctrl_drugchoice.GetItemState(0,wxLIST_STATE_FOCUSED | wxLIST_STATE_SELECTED)
+		self.listctrl_drugchoice.SetItemState(0,wxLIST_STATE_FOCUSED | wxLIST_STATE_SELECTED, wxLIST_STATE_FOCUSED | wxLIST_STATE_SELECTED)
 		# show the listctrl
 		self.listctrl_drugchoice.Show()
 		# save data for further use 
@@ -613,7 +628,7 @@ else:
 	from Gnumed.pycommon import gmPG, gmI18N
 	from Gnumed.wxpython import gmPlugin
 
-	class gmDrugDisplay (gmPlugin.cNotebookPluginOld):
+	class gmDrugDisplay (gmPlugin.cNotebookPlugin):
 	
 		def name (self):
 			return _("DrugBrowser")
@@ -626,7 +641,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.24  2005-03-06 14:54:19  ncq
+# Revision 1.25  2005-03-17 20:30:56  hinnef
+# fixed some bugs, module dependencies
+#
+# Revision 1.24  2005/03/06 14:54:19  ncq
 # - szr.AddWindow() -> Add() such that wx2.5 works
 # - 'demographic record' -> get_identity()
 #
