@@ -12,21 +12,21 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @change log:
-#	    10.06.2002 rterry initial implementation, untested
-#           30.07.2002 rterry initial implementation, untested
+
 # @TODO:
 #	almost everything
 #      
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_FamilyHistory.py,v $
+__version__ = "$Revision: 1.6 $"
+__author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, S.Tan"
 
 from wxPython.wx import *
+
+import gmEditArea, gmPlugin, gmLog
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
-import gmEditArea
-#from gmEditArea import *
-import gmPlugin, gmLog
 
 ID_MEMBERCONDITIONSLIST = wxNewId()
 ID_FAMILYMEMBERSLIST = wxNewId()
@@ -187,9 +187,18 @@ class gmGP_FamilyHistory(gmPlugin.wxPatientPlugin):
 
 	def GetWidget (self, parent):
 		return FamilyHistoryPanel (parent, -1)
+#======================================================================
+# main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(FamilyHistoryPanel, -1)
 	app.MainLoop()
-#----------------------------------------------------------------------
+#======================================================================# 
+# $Log: gmGP_FamilyHistory.py,v $
+# Revision 1.6  2003-06-01 12:50:46  ncq
+# - cleanup, CVS keywords
+#
+# @change log:
+#	    10.06.2002 rterry initial implementation, untested
+#           30.07.2002 rterry initial implementation, untested
