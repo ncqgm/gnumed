@@ -6,8 +6,14 @@
 <%@taglib uri="http://jakarta.apache.org/struts/tags-logic" prefix="logic"%>
 
 <%-- DEVELOPMENT NOTE: HOWTO get vaccination update to work. 
-    The ClinicalUpdateForm class must have a Vaccination getVaccination(int index)
+    
+    1.The ClinicalUpdateForm class
+    must have a Vaccination getVaccination(int index)
     for struts to properly update a contained vaccination object.
+    
+    2. The id attribute of the logic:iterate tag must also be the property name 
+        (vaccination for getVaccination(index) ).
+
     " Vaccination[] getVaccination(int index); "  will be usable as a readonly 
     method. So will " List getVaccination(int index); "
 --%>
@@ -16,12 +22,13 @@
 <head><title>JSP Page</title></head>
 <body>
 <h2> <bean:message key="vacc.entry.heading"/> </h2>
-
+  
     <logic:present name="vaccines" scope="session">
         <b> Got to here </b>
-        
+        <%--
         <html:form action="/SaveClinical"  >    
          <html:text property="test"/> 
+--%>
         <%-- <html:text property="vaccinations"/> --%>
 
             <table>
@@ -57,11 +64,12 @@
                    
                     </tr>
                 </logic:iterate>
-            </table>            
+            </table>     
+        <%--
 <html:submit altKey="change.clinical" ><bean:message key="change.clinical"/></html:submit>
             <html:reset altKey="reset" />
         </html:form>
-     
+   --%>  
     </logic:present>
 
 </body>

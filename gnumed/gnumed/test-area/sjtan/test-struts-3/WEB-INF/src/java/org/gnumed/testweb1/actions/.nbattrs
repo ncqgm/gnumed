@@ -4,6 +4,9 @@
     <fileobject name="ClinicalEditAction.java">
         <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="ClinicalEditAction"/>
     </fileobject>
+    <fileobject name="ClinicalSaveAction.java">
+        <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="ClinicalSaveAction"/>
+    </fileobject>
     <fileobject name="DemographicEditAction.java">
         <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="DemographicEditAction"/>
     </fileobject>

@@ -124,9 +124,11 @@ public class ClinicalEditAction extends Action {
             
             Util.setScopedMappingAttribute(request, mapping, form);
             //request.setAttribute(Constants.Request.CLINICAL_UPDATE_FORM, form);
-            request.getSession().setAttribute("vaccinations", 
+            request.setAttribute("vaccinations", 
                 ((ClinicalUpdateForm)form).getVaccinations());
-            
+           request.setAttribute("narratives",
+                ((ClinicalUpdateForm)form).getEncounter().getNarratives() );
+           
             
         } catch (Exception e) {
             e.printStackTrace();

@@ -15,6 +15,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.gnumed.testweb1.data.DefaultVaccination;
 import org.gnumed.testweb1.data.ClinicalEncounterImpl1;
 import org.gnumed.testweb1.data.ClinicalEncounter;
+import org.gnumed.testweb1.data.ClinNarrative;
 import org.gnumed.testweb1.data.DataObjectFactory;
 /**
  *
@@ -24,6 +25,7 @@ public class ClinicalUpdateForm extends ActionForm {
     static int updateBatch = 5;
     //List vaccinations = new ArrayList();
     Vaccination[] vaccinations ;
+    ClinNarrative[] narratives;
     String test;
     Log log = LogFactory.getLog(this.getClass());
    
@@ -43,6 +45,14 @@ public class ClinicalUpdateForm extends ActionForm {
     public ClinicalUpdateForm() {
         initVaccinations();
         setEncounter( new ClinicalEncounterImpl1(10, 40, 10, 10, factory ));
+        
+    }
+    
+    private void initNarratives() {
+         narratives =  (ClinNarrative[])getEncounter().
+        getNarratives().toArray(new ClinNarrative[0]);
+    //    narratives = new ClinNarrative[nn.length];
+    //    System.arraycopy(nn, 0, narratives, 0, nn.length);
     }
     
     private void initVaccinations() {
@@ -61,6 +71,7 @@ public class ClinicalUpdateForm extends ActionForm {
         return (DefaultVaccination) vaccinations.get(index);
     }
 */    
+    
     public Vaccination getVaccination(int index) { 
         
         return vaccinations[index];
@@ -93,6 +104,7 @@ public class ClinicalUpdateForm extends ActionForm {
      */
     public ClinicalEncounter getEncounter() {
         return this.encounter;
+        
     }
     
     /**
@@ -101,6 +113,41 @@ public class ClinicalUpdateForm extends ActionForm {
      */
     public void setEncounter(ClinicalEncounter encounter) {
         this.encounter = encounter;
+        initNarratives();
     }
+    
+    /**
+     * Getter for property narratives.
+     * @return Value of property narratives.
+     */
+    public ClinNarrative[] getNarratives() {
+        return narratives;
+    }
+    
+    /**
+     * Indexed getter for property narrative.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+      
+    public ClinNarrative getNarrative(int index) {
+        return narratives[index];
+    }    
+       
+    /**
+     * Indexed setter for property narrative.
+     * @param index Index of the property.
+     * @param narrative New value of the property at <CODE>index</CODE>.
+     */
+    public void setNarrative(int index, ClinNarrative narrative) {
+         //Vaccination vo = (Vaccination) vaccinations.get(index);
+        try {
+            BeanUtils.copyProperties(narratives[index], narrative);
+        } catch (Exception e) {
+            e.printStackTrace();
+           
+        }
+         log.info("COPIED narratives="+ narratives[index]);
+    }    
     
 }

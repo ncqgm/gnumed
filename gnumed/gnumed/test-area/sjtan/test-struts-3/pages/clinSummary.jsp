@@ -10,7 +10,10 @@
     <title>Summary</title>
 
 <body>
-    <h2>Summary</h2>
+    <h2>Summary</h2>  
+  
+  <jsp:include page="./patient_detail_block.jsp"/>   
+    
     <h3>Problem List</h3>
     <table>
     <logic:iterate   id="healthIssue" 

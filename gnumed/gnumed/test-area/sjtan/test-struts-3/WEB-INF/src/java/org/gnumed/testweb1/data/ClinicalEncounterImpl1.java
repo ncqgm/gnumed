@@ -32,13 +32,15 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     
     
     public ClinicalEncounterImpl1( int nn, int nm, int nv, int na, DataObjectFactory f) {
+        this();
         load( narratives, nn, f.createClinNarrative() );
         load( medications, nm, f.createMedication() );
         load( vaccinations, nv, f.createVaccination() );
-        load( allergys, na, f.createAllergy() );
+        //load( allergys, na, f.createAllergy() );
     }
     
     private void load(List l, int n, Object o) {
+        System.err.println("l , n, o" + l + n + o);
         try {
             for (int i = 0; i < n; ++i ) {
                 l.add( o.getClass().newInstance());

@@ -35,6 +35,7 @@ public class ClinRootItemImpl1 implements ClinRootItem {
     }
     
     public String getNarrative() {
+        System.err.println("Get narrative ()" + this);
         return narrative;
     }
     
@@ -57,6 +58,7 @@ public class ClinRootItemImpl1 implements ClinRootItem {
     
     public void setNarrative(String narrative) {
         this.narrative = narrative;
+        System.err.println("setNarrative " + this);
     }
     
     public void setSoapCat(char soapCat) {

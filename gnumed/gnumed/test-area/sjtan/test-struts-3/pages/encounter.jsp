@@ -6,6 +6,11 @@
 <%@taglib uri="http://jakarta.apache.org/struts/tags-logic" prefix="logic"%>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-nested" prefix="nested"%>
 
+<%--  See vaccination regarding indexed properties for <logic:iterate>
+ 1. need a indexed getter method on the bean.  2. the id attribute of logic:iterate must
+be the name of the property targetted by the getter
+e.g. getNarrative(index) ...  id='narrative'
+--%>
 <html>
 <head>
     <title>Encounter </title>
@@ -44,41 +49,26 @@
 
 </head>
 <body>
-
+<h3> <bean:message key="encounter.entry.title"/> </h3>
     <%-- <jsp:useBean id="beanInstanceName" scope="session" class="beanPackage.BeanClassName" /> --%>
     <%-- <jsp:getProperty name="beanInstanceName"  property="propertyName" /> --%>
     <html:base/>
     <div class="errors">
         <html:errors/>
+        
     </div>
+    
+    
+    
+    <jsp:include page="./patient_detail_block.jsp"/>
+    
+    
     <div id="testdiv" class="testdiv0" style='visibility:hidden;'>
     <h2>THis should be hidden </h2>
     </div>
-    <table>
-        
-        <tr>
-
-        <td><b> <bean:write name="detail" property="id"/> </b> </td>
-        <td colspan='4'>
-            <html:link action="/DemographicEdit" paramId="id" paramName="detail" paramProperty="id">
-                <bean:write name="detail" property="surname"/>, <bean:write name="detail" property="givenname" /> 
-            </html:link>
-        </td>
-        <td colspan='2'> <bean:message key="demo.born"/> <bean:write name="detail" property="birthdate" />
-        </td>
-        <td colspan='8'> <bean:write name="detail" property="streetno"/>, 
-            <bean:write name="detail" property="street"/>, <bean:write name="detail" property="urb"/>, 
-            <bean:write name="detail" property="state"/>, <bean:write name="detail" property="postcode" />.
-        </td>   
-        <td>
-            <bean:message key="demo.publicHealthId"/> :
-            <bean:write name="detail" property="publicHealthId"/> 
-            <bean:message key="demo.publicHealthIdExp"/> :
-            <bean:write name="detail" property="publicHealthIdExp"/>
-        </td>
-        </tr>
-    </table>
+    <%--
     <html:form action="/SaveClinical">
+--%>
         <table>
             
            
@@ -86,9 +76,10 @@
             <td>
                 <bean:message key="current.encounter"/>
             </td>
+            
             <td>
                 <bean:message key="encounter.time"/>
-                <html:text name="clinicalUpdateForm" property="encounter.started"/>
+                <bean:write name="clinicalUpdateForm" property="encounter.started"/>
             </td>
             <td>
                 <bean:message key="encounter.location"/>
@@ -97,12 +88,14 @@
                     <html:option value="2">nursing home </html:option>
                 </html:select>
             </td>
+             
             </tr>
+            
         </table>
          
-        <logic:iterate id="clinNarrative" name="clinicalUpdateForm" 
-            property="encounter.narrative" scope="request"
-            indexId="index" >
+        <logic:iterate id="narrative" name="clinicalUpdateForm" 
+        property="encounter.narratives"   
+         scope="request" indexId="index">
             <a name='linkNarrative<%=index%>' </a>
             <table>
                 <tr>
@@ -124,7 +117,7 @@
                 <td>
                 <div id="sel<%=index%>">
                 
-                    <nested:select name="clinNarrative" property="healthIssueName" indexed="true" value="0"
+                    <nested:select name="clinicalNarrative" property="healthIssueName" indexed="true" value="0"
                         onchange=""
                         >
                         <html:option value="0">not selected</html:option>
@@ -138,7 +131,7 @@
                 <div id="txtNewHealthIssue<%=index%>" style="display:none" >
                     
                                 New Health Issue:
-                                <html:text name="clinNarrative" property="healthIssueName" indexed="true"/>
+                                <html:text name="narrative" property="healthIssueName" indexed="true"/>
                         
                 
                 </div>
@@ -174,7 +167,8 @@
                     </tr>
                     <tr>
                     <td COLSPAN='2'>
-                        <html:textarea  name="clinNarrative" property="narrative" rows="6" cols="40" indexed="true"/>
+                        <html:textarea  name="narrative" property="narrative"  rows="6" cols="40" indexed="true" />
+                    
                     </td>
                     </tr>
                 </table>
@@ -182,6 +176,7 @@
                     
             
         </logic:iterate>
+        <%--
         <table>
             <td>
                 <html:submit altKey="change.clinical" ><bean:message key="change.clinical"/></html:submit>
@@ -193,6 +188,10 @@
         </table>
 
     </html:form>
+--%>
+
+<html:javascript formName="clinicalUpdateForm"
+   dynamicJavascript="true" staticJavascript="false"/> 
 
 
 </body>

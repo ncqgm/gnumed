@@ -13,12 +13,30 @@
 <html:errors/>
 </b></p>
 </div>
-<jsp:include page="./clinSummary.jsp"/>
-<%--
-<jsp:include page="./encounter.jsp"/> 
---%>
-<jsp:include page="./vaccinationEntry.jsp"/>
 
+
+<jsp:include page="./clinSummary.jsp"/>
+
+    <html:form action="/SaveClinical"> 
+
+
+            <jsp:include page="./encounter.jsp"/> 
+
+
+            <jsp:include page="./vaccinationEntry.jsp"/>
+ <%--
+ --%>   
+        <table>
+            <td>
+                <html:submit altKey="change.clinical" ><bean:message key="change.clinical"/></html:submit>
+            </td>
+            <td>
+                <html:reset altKey="reset" />
+            </td>
+            </tr>
+        </table>
+
+    </html:form>
 
 </body>
 </html>
