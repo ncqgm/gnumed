@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.16 2004-06-30 12:43:10 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmPatientExporter.py,v 1.17 2004-06-30 12:52:36 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-
+_cfg = gmCfg.gmDefCfgFile
 #============================================================
 def prompted_input(prompt, default=None):
 	usr_input = raw_input(prompt)
@@ -436,25 +436,20 @@ def dump_constraint(first_constraint, export_tool, txt):
     export_tool.outFile.write(txt)
     return False
 #------------------------------------------------------------
-def process_cli(since, until, encounters, episodes, issues, export_tool):
-    """
-        Obtains, dumps and normalizes config file options
-        
-        since - constraing end date
-        until - constraint begin date
-        encounters - constraint encounters
-        episodes - constraint episodes
-        issues - constraint health issues
+def get_constraints(export_tool):
+    """Obtains, dumps and normalizes config file options
+
         export_tool - Main exporter object
     """
+    if gmCLI.has_arg('--conf-file'):
+        usage()
     # Retrieve options
-    exporter_cfg = gmCfg.cCfgFile(aFile = gmCLI.arg['--conf-file'])
     cfg_group = 'constraints'
-    since = exporter_cfg.get(cfg_group, 'since').strip()
-    until = exporter_cfg.get(cfg_group, 'until').strip()
-    encounters = exporter_cfg.get(cfg_group, 'encounters')
-    episodes = exporter_cfg.get(cfg_group, 'episodes')
-    issues = exporter_cfg.get(cfg_group, 'issues')
+    since = _cfg.get(cfg_group, 'since').strip()
+    until = _cfg.get(cfg_group, 'until').strip()
+    encounters = _cfg.get(cfg_group, 'encounters')
+    episodes = _cfg.get(cfg_group, 'episodes')
+    issues = _cfg.get(cfg_group, 'issues')
     separator = ','
     txt = ''
     first_constraint = True
@@ -488,28 +483,20 @@ def process_cli(since, until, encounters, episodes, issues, export_tool):
     
 #------------------------------------------------------------		        
 def run():
-	"""
-        Main module application execution loop
+	"""Main module application execution loop.
 	"""
 	if gmCLI.has_arg('--fileout'):
 		fname = gmCLI.arg['--fileout']
 	else:
 		usage()
 	export_tool = gmEmrExport(fname)
+
+	since, until, encounters, episodes, issues, export_tool = get_constraints(export_tool)
+
 	patient = None
 	patient_id = None
 	patient_term = None
-	since = None
-	until = None
-	encounters = None
-	episodes = None
-	issues = None
-	
 	pat_searcher = gmPatient.cPatientSearcher_SQL()
-	if gmCLI.has_arg('--conf-file'):
-	   since, until, encounters, episodes, issues, export_tool = process_cli(since, until, encounters, episodes, issues, export_tool)
-	else:
-	    usage()
 
 	while patient_term != 'bye':
 		patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
@@ -578,7 +565,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.16  2004-06-30 12:43:10  ncq
+# Revision 1.17  2004-06-30 12:52:36  ncq
+# - cleanup
+#
+# Revision 1.16  2004/06/30 12:43:10  ncq
 # - read opts from config file, cleanup
 #
 # Revision 1.15  2004/06/29 08:16:35  ncq
