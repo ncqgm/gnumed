@@ -219,6 +219,7 @@ class cConfTree(wxTreeCtrl):
 
 			# get new value
 			val = self.paramTextCtrl.GetValue()
+			
 			currConfSource = self.mConfSources[self.currSelSubtree]
 			newValue = currConfSource.castType(self.currSelParam,val)
 
@@ -343,9 +344,14 @@ class cParamCtrl(wxTextCtrl):
 		elif self.type == 'str_array':
 		# we can't use AppendText here because that would mark the value
 		# as modified 
+			first = 1
 			all = ''
 			for line in (self.value):
-				all = all + line + '\n'
+				if first:
+					first = 0
+				else:
+					all = all + '\n'
+				all = all + line
 			self.SetValue(all)			
 		elif self.type == 'numeric':
 			self.SetValue(str(self.value))
@@ -530,7 +536,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.7  2003-09-03 17:33:22  hinnef
+# Revision 1.8  2003-10-13 21:01:46  hinnef
+# -fixed a bug that would introduce newlines in str_array type values
+#
+# Revision 1.7  2003/09/03 17:33:22  hinnef
 # make use of gmWhoAmI, try to get config info from backend
 #
 # Revision 1.6  2003/08/24 08:58:18  ncq
