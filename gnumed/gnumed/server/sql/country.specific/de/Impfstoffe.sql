@@ -6,13 +6,13 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+set client_encoding to 'LATIN1';
 -- =============================================
--------------
 -- Tetanus --
 -------------
 insert into vaccine (
@@ -546,11 +546,14 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.20  2004-12-18 09:56:34  ncq
+-- Revision 1.21  2005-04-03 09:29:57  ncq
+-- - when using non-ascii chars must specify encoding ...
+--
+-- Revision 1.20  2004/12/18 09:56:34  ncq
 -- - cleanup
 --
 -- Revision 1.19  2004/10/01 11:44:51  ncq
