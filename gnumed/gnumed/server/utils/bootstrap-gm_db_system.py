@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -780,6 +780,33 @@ def bootstrap_services():
 			return None
 	return 1
 #------------------------------------------------------------------
+def ask_for_confirmation():
+	services = _cfg.get("installation", "services")
+	if services is None:
+		return 1
+	print "You are about to install the following GnuMed services:"
+	print "-------------------------------------------------------"
+	for service in services:
+		service_name = _cfg.get("service %s" % service, "name")
+		db_alias = _cfg.get("service %s" % service, "database alias")
+		db_name = _cfg.get("database %s" % db_alias, "name")
+		srv_alias = _cfg.get("database %s" % db_alias, "server alias")
+		srv_name = _cfg.get("server %s" % srv_alias, "name")
+		print "service [%s] => database [%s] => server [%s]" % (service_name, db_name, srv_name)
+	print "-------------------------------------------------------"
+	desc = _cfg.get("installation", "description")
+	if desc is not None:
+		for line in desc:
+			print line
+	if _interactive:
+		print "Do you really want to install this database setup ?"
+		answer = raw_input("Type yes or no: ")
+		if answer == "yes":
+			return 1
+		else:
+			return None
+	return 1
+#------------------------------------------------------------------
 def exit_with_msg(aMsg = None):
 	if aMsg is not None:
 		print aMsg
@@ -806,6 +833,9 @@ if __name__ == "__main__":
 	tmp = _cfg.get("installation", "interactive")
 	if tmp == "yes":
 		_interactive = 1
+
+	if not ask_for_confirmation():
+		exit_with_msg("Bootstrapping aborted by user.")
 
 	# bootstrap services
 	if not bootstrap_services():
@@ -843,7 +873,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.11  2003-01-26 12:36:24  ncq
+# Revision 1.12  2003-01-26 13:14:36  ncq
+# - show a description before installing
+# - ask user for confirmation if interactive
+#
+# Revision 1.11  2003/01/26 12:36:24  ncq
 # - next generation
 #
 # Revision 1.5  2003/01/22 22:46:46  ncq

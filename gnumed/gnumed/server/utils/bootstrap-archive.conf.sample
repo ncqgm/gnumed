@@ -3,21 +3,22 @@
 # license: GPL
 # author: Karsten Hilbert@gmx.net
 
-# create database suitable for GnuMed/Archive:
-# - on localhost
-# - monolithic
-# - no test data
-# - german translations
-
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-archive.conf.sample,v $
-version = $Revision: 1.1 $
+version = $Revision: 1.2 $
 
 #----------------------------------
 [installation]
 
 interactive = yes
+
+description = $description$
+- suitable for GnuMed/Archive
+- a monolithic setup on localhost
+- no test data included
+- german translations included
+$description$
 
 services = $services$
 config
@@ -130,7 +131,11 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-archive.conf.sample,v $
-# Revision 1.1  2003-01-26 12:47:17  ncq
+# Revision 1.2  2003-01-26 13:14:36  ncq
+# - show a description before installing
+# - ask user for confirmation if interactive
+#
+# Revision 1.1  2003/01/26 12:47:17  ncq
 # - next generation from test-area/
 #
 # Revision 1.1  2003/01/24 13:40:02  ncq
