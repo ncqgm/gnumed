@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.3 2003-11-22 13:58:25 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.4 2003-11-23 00:02:47 sjtan Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -35,7 +35,7 @@ drop function F_uniq_active_name();
 create FUNCTION F_uniq_active_name() RETURNS OPAQUE AS '
 DECLARE
 BEGIN
-	IF NEW.active THEN
+	IF NEW.active and NEW.active = true THEN
 		-- for the observant: yes this trigger is recursive, but only once
 		UPDATE names SET active = false	WHERE id_identity = NEW.id_identity AND active;
 	END IF;
@@ -90,8 +90,7 @@ BEGIN
 	-- new name
 	insert into names (id_identity, firstnames, lastnames, active) values (identity_id, first, last, activated);
 	if FOUND then
-		n_id := select id from names where id_identity = identity_id and firstnames = first and lastnames = last;
-		return n_id;
+		select id from names where id_identity = identity_id and firstnames = first and lastnames = last;
 	end if;
 	return NULL;
 END;' language 'plpgsql';
@@ -166,11 +165,16 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.3  2003-11-22 13:58:25  ncq
+-- Revision 1.4  2003-11-23 00:02:47  sjtan
+--
+-- NEW.active is not the same as NEW.active = true; does it mean 'is there a NEW.active' ?
+-- the syntax for n_id variable didn't seem to work; this works?
+--
+-- Revision 1.3  2003/11/22 13:58:25  ncq
 -- - rename constraint for unique active names
 -- - add add_name() function
 --
