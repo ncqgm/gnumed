@@ -28,7 +28,7 @@ class Toolbar(wxPanel):
 	# IMHO: space is at too much of a premium for such padding
 	self.sizer.Add(1,3,0,wxEXPAND)		  
         self.sizer.Add(self.toplinesizer,1,wxEXPAND)
-        self.sizer.Add(self.bottomlinesizer,1,wxEXPAND)
+        self.sizer.Add(self.bottomlinesizer,1,wxEXPAND|wxALL, 2)
 	self.SetSizer(self.sizer)  #set the sizer 
 	self.sizer.Fit(self)             #set to minimum size as calculated by sizer
         self.SetAutoLayout(true)                 #tell frame to use the sizer
