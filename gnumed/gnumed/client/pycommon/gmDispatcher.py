@@ -2,12 +2,11 @@
 
 # this code has been written by Patrick O'Brien <pobrien@orbtech.com>
 # downloaded from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/87056
-# not modified yet
 """
 import exceptions
 import types
+import traceback
 import weakref
-
 
 class DispatcherError(exceptions.Exception):
 	def __init__(self, args=None):
@@ -159,8 +158,15 @@ def send(signal, sender=None, **kwds):
 			if receiver is None:
 				# This receiver is dead, so skip it.
 				continue
-		response = _call(receiver, signal=signal, sender=sender, **kwds)
-		responses += [(receiver, response)]
+		try:
+			response = _call(receiver, signal=signal, sender=sender, **kwds)
+			responses += [(receiver, response)]
+		except:
+			# this seems such a fundamental error that it appears reasonable
+			# to print directly to the console instead of making the whole
+			# module depend on gmLog.py
+			import traceback
+			traceback.print_exc()
 	return responses
 
 def _call(receiver, **kwds):
@@ -256,7 +262,13 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.2  2004-06-21 17:05:20  ncq
+# Revision 1.3  2005-03-17 12:59:16  ncq
+# - if an event receiver fails we should not fail all other receivers, too
+# - so report and continue
+# - but do not make us depend on gmLog just because of one fundamental,
+#   low level failure - may be the wrong choice in the long term, however
+#
+# Revision 1.2  2004/06/21 17:05:20  ncq
 # - whitespace cleanup
 # - it's a bit harsh to throw an exception when trying
 #   to disconnect an unconnected signal, reporting and
