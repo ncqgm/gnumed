@@ -15,15 +15,16 @@ whenever you learn of backend data changes. This will
 in most cases happen after you receive a gmDispatcher
 signal indicating a change in the backend.
 
-The _populate_with_data() method in the including class must
-return True if the contents could be redrawn successfully.
+The _populate_with_data() method must be overriden in the
+including class and must return True if the contents was
+be redrawn successfully.
 
 @copyright: authors
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.3 2004-08-04 17:12:06 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmRegetMixin.py,v 1.4 2004-09-05 14:55:19 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -51,7 +52,6 @@ class cRegetOnPaintMixin:
 	def _on_paint_event(self, event):
 		"""Repopulate UI if data is stale."""
 		if self._data_stale:
-			print "%s._on_paint_event(): stale data, repopulating" % self.__class__.__name__
 			self.__populate_with_data()
 		event.Skip()
 	#-----------------------------------------------------
@@ -62,7 +62,10 @@ class cRegetOnPaintMixin:
 			self._data_stale = True
 	#-----------------------------------------------------
 	def _populate_with_data(self):
-		"""Override in includers !"""
+		"""Override in includers !
+
+		- must fill widget controls with data
+		"""
 		print "%s._populate_with_data() not implemented" % self.__class__.__name__
 		_log.Log(gmLog.lErr, 'not implemented for %s' % self.__class__.__name__)
 		return False
@@ -74,10 +77,8 @@ class cRegetOnPaintMixin:
 		- if visible redisplay immediately
 		"""
 		if self.GetUpdateRegion().IsEmpty() == 1:
-			print "%s._schedule_data_reget(): scheduling update" % self.__class__.__name__
 			self._data_stale = True
 		else:
-			print "%s._schedule_data_reget(): updating now" % self.__class__.__name__
 			self.__populate_with_data()
 			self.Refresh()
 
@@ -89,7 +90,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.3  2004-08-04 17:12:06  ncq
+# Revision 1.4  2004-09-05 14:55:19  ncq
+# - improve comments, some cleanup
+#
+# Revision 1.3  2004/08/04 17:12:06  ncq
 # - fix comment
 #
 # Revision 1.2  2004/08/02 17:52:54  hinnef
