@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -20,10 +20,10 @@ from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 
 if __name__ == '__main__':
-    _log.SetAllLogLevels(gmLog.lData)
+	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmI18N
 else:
-    from Gnumed.pycommon import gmGuiBroker
+	from Gnumed.pycommon import gmGuiBroker
 
 _log.Log(gmLog.lData, __version__)
 
@@ -625,7 +625,10 @@ else:
     pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.36  2004-03-19 08:08:41  ncq
+# Revision 1.37  2004-03-19 08:29:21  ncq
+# - fix spurious whitespace
+#
+# Revision 1.36  2004/03/19 08:08:41  ncq
 # - fix import of gmLoginInfo
 # - remove dead code
 #
