@@ -1,15 +1,3 @@
-#!/usr/bin/env python
-
-#@copyright: GPL
-
-#TODO:
-# - see spincontrol for list box handling
-#------------------------------------------------------------
-from wxPython.wx import *
-import string, types, time
-
-import gmLog
-
 """
 A class, extending wxTextCtrl, which has a drop-down pick list,
 automatically filled based on the inital letters typed. Based on the
@@ -17,13 +5,26 @@ interface of Richard Terry's Visual Basic client
 
 This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
-__author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.4 $"
+#@copyright: GPL
 
-__log__ = gmLog.gmDefLog
+############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
+# $Id: gmPhraseWheel.py,v 1.5 2003-09-10 01:50:25 ncq Exp $
+__version__ = "$Revision: 1.5 $"
+__author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
-gmpw_true = (1==1)
-gmpw_false = (1==0)
+import string, types, time, sys
+
+if __name__ == "__main__":
+	sys.path.append ("../python-common/")
+
+import gmLog
+_log = gmLog.gmDefLog
+
+from wxPython.wx import *
+
+_true = (1==1)
+_false = (1==0)
 #------------------------------------------------------------
 # generic base class
 #------------------------------------------------------------
@@ -58,11 +59,11 @@ class cMatchProvider:
 		"""
 		# do we return matches at all ?
 		if not self.__deliverMatches:
-			return (gmpw_false, [])
+			return (_false, [])
 
 		# sanity check
-		if aFragment == None:
-			__log__.Log(gmLog.lErr, 'Cannot find matches without a fragment.')
+		if aFragment is None:
+			_log.Log(gmLog.lErr, 'Cannot find matches without a fragment.')
 			raise ValueError, 'Cannot find matches without a fragment.'
 
 		# user explicitely wants all matches
@@ -80,7 +81,7 @@ class cMatchProvider:
 		elif lngFragment >= self.__threshold['phrase']:
 			return self.getMatchesByPhrase(tmpFragment)
 		else:
-			return (gmpw_false, [])
+			return (_false, [])
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		pass
@@ -123,10 +124,10 @@ class cMatchProvider:
 		"""
 		# sanity checks
 		if aSubstring < aWord:
-			__log__.Log(gmLog.lErr, 'Setting substring threshold (%s) lower than word-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold['substring'], self.__threshold['word']))
+			_log.Log(gmLog.lErr, 'Setting substring threshold (%s) lower than word-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold['substring'], self.__threshold['word']))
 			return (1==0)
 		if aWord < aPhrase:
-			__log__.Log(gmLog.lErr, 'Setting word-start threshold (%s) lower than phrase-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold['word'], self.__threshold['phrase']))
+			_log.Log(gmLog.lErr, 'Setting word-start threshold (%s) lower than phrase-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold['word'], self.__threshold['phrase']))
 			return (1==0)
 
 		# now actually reassign thresholds
@@ -139,11 +140,11 @@ class cMatchProvider:
 	def setWordSeparators(self, separators = None):
 		# sanity checks
 		if type(separators) != types.StringType:
-			__log__.Log(gmLog.lErr, 'word separators argument is of type %s, expected type string' % type(separators))
+			_log.Log(gmLog.lErr, 'word separators argument is of type %s, expected type string' % type(separators))
 			return None
 
 		if separators == "":
-			__log__.Log(gmLog.lErr, 'Not defining any word separators does not make sense ! Falling back to default (%s).' % string.punctuation + string.whitespace)
+			_log.Log(gmLog.lErr, 'Not defining any word separators does not make sense ! Falling back to default (%s).' % string.punctuation + string.whitespace)
 			return None
 
 		self.word_separators = tuple(separators)
@@ -153,18 +154,18 @@ class cMatchProvider:
 
 		Useful if a slow network database link is detected, for example.
 		"""
-		self.__deliverMatches = gmpw_false
+		self.__deliverMatches = _false
 	#--------------------------------------------------------
 	def enableMatching(self):
-		self.__deliverMatches = gmpw_true
+		self.__deliverMatches = _true
 	#--------------------------------------------------------
 	def disableLearning(self):
 		"""Immediately stop learning new items."""
-		self.__learnNewItems = gmpw_false
+		self.__learnNewItems = _false
 	#--------------------------------------------------------
 	def enableLearning(self):
 		"""Immediately start learning new items."""
-		self.__learnNewItems = gmpw_true
+		self.__learnNewItems = _true
 #------------------------------------------------------------
 # usable instances
 #------------------------------------------------------------
@@ -175,7 +176,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 	def __init__(self, aSeq = None):
 		"""aSeq must be a list of dicts. Each dict must have the keys (ID, label, weight)
 		"""
-		if not (type(aSeq) == types.ListType) or (type(aSeq) == types.TupleType):
+		if not type(aSeq) in [types.ListType, types.TupleType]:
 			print "aList must be a list or tuple"
 			return None
 
@@ -198,10 +199,10 @@ class cMatchProvider_FixedList(cMatchProvider):
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
-			return (gmpw_false, [])
+			return (_false, [])
 
 		matches.sort(self.__cmp_items)
-		return (gmpw_true, matches)
+		return (_true, matches)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -219,10 +220,10 @@ class cMatchProvider_FixedList(cMatchProvider):
 					matches.append(item)
 		# no matches found
 		if len(matches) == 0:
-			return (gmpw_false, [])
+			return (_false, [])
 
 		matches.sort(self.__cmp_items)
-		return (gmpw_true, matches)
+		return (_true, matches)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
@@ -233,20 +234,20 @@ class cMatchProvider_FixedList(cMatchProvider):
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
-			return (gmpw_false, [])
+			return (_false, [])
 
 		matches.sort(self.__cmp_items)
-		return (gmpw_true, matches)
+		return (_true, matches)
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
 		matches = self.__items
 		# no matches found
 		if len(matches) == 0:
-			return (gmpw_false, [])
+			return (_false, [])
 
 		matches.sort(self.__cmp_items)
-		return (gmpw_true, matches)
+		return (_true, matches)
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
 		"""Compare items based on weight."""
@@ -268,23 +269,20 @@ class cWheelTimer(wxTimer):
 
 	No logging in here as this should be as fast as possible.
 	"""
-	def __init__(self, aCallback = None, aDelay = None):
+	def __init__(self, aCallback = None, aDelay = 300):
 		"""Set up our timer with reasonable defaults.
 
 		- delay default is 300ms as per Richard Terry's experience
 		- delay should be tailored to network speed/user speed
 		"""
 		# sanity check
-		if aCallback == None:
-			__log__.Log(gmLog.lErr, "No use setting up a timer without a callback function.")
+		if aCallback is None:
+			_log.Log(gmLog.lErr, "No use setting up a timer without a callback function.")
 			return None
 		else:
 			self.__callback = aCallback
 
-		if aDelay == None:
-			self.__delay = 300
-		else:
-			self.__delay = aDelay
+		self.__delay = aDelay
 
 		wxTimer.__init__(self)
 	#--------------------------------------------------------
@@ -301,15 +299,15 @@ class cPhraseWheel (wxTextCtrl):
 					pos = wxDefaultPosition,
 					size = wxDefaultSize,
 					aMatchProvider = None,
-					aDelay = None):
+					aDelay = 300):
 		"""
-		id_callback holds a refence to another Python function.
+		id_callback holds a reference to another Python function.
 		This function is called when the user selects a value.
 		This function takes a single parameter -- being the ID of the
 		value so selected"""
 
 		if not isinstance(aMatchProvider, cMatchProvider):
-			__log__.Log(gmLog.lPanic, "aMatchProvider must be a match provider object")
+			_log.Log(gmLog.lErr, "aMatchProvider must be a match provider object")
 			return None
 
 		self.__matcher = aMatchProvider
@@ -337,7 +335,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.__picklist = wxListBox(self.panel, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
 		self.__picklist.Clear()
 		self.__picklist_win.Hide ()
-		self.__picklist_visible = gmpw_false
+		self.__picklist_visible = _false
 	#--------------------------------------------------------
 	def __updateMatches(self):
 		"""Get the matches for the currently typed input fragment."""
@@ -363,7 +361,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.__picklist.SetSelection (0)
 
 		# remember that we have a list window
-		self.__picklist_visible = gmpw_true
+		self.__picklist_visible = _true
 
 		# and show it
 		# FIXME: we should _update_ the list window instead of redisplaying it
@@ -374,7 +372,7 @@ class cPhraseWheel (wxTextCtrl):
 		"""Hide the pick list."""
 		if self.__picklist_visible:
 			self.__picklist_win.Hide()		# dismiss the dropdown list window
-		self.__picklist_visible = gmpw_false
+		self.__picklist_visible = _false
 	#--------------------------------------------------------
 	# specific event handlers
 	#--------------------------------------------------------
@@ -411,7 +409,7 @@ class cPhraseWheel (wxTextCtrl):
 		if self.__picklist_visible:
 			selected = self.__picklist.GetSelection ()
 			# only move down if not at end of list
-			if selected < (self.__picklist.GetCount() - 1):
+			if selected < (self.__picklist.GetCount()-1):
 				self.__picklist.SetSelection (selected+1)
 		# if we don't have a pick list
 		else:
@@ -464,7 +462,7 @@ class cPhraseWheel (wxTextCtrl):
 			self.__timer.Stop()
 		else:
 			# start timer for delayed match retrieval
-			self.__timer.Start(oneShot = gmpw_true)
+			self.__timer.Start(oneShot = _true)
 	#--------------------------------------------------------
 	def on_resize (self, event):
 		sz = self.GetSize()
@@ -501,9 +499,10 @@ class cPhraseWheel (wxTextCtrl):
 #--------------------------------------------------------
 if __name__ == '__main__':
 	import gmI18N
+	#----------------------------------------------------
 	def clicked (data):
 		print "Selected :%s" % data
-	#--------------------------------------------------------
+	#----------------------------------------------------
 	class TestApp (wxApp):
 		def OnInit (self):
 			items = [	{'ID':1, 'label':"Bloggs", 	'weight':5},
@@ -518,7 +517,7 @@ if __name__ == '__main__':
 			frame = wxFrame (None, -4, "phrase wheel test for GNUmed", size=wxSize(300, 350), style=wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
 
 			# actually, aDelay of 300ms is also the built-in default
-			ww = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp, aDelay = 300)
+			ww = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp)
 			ww.on_resize (None)
 			frame.Show (1)
 			return 1
@@ -526,6 +525,13 @@ if __name__ == '__main__':
 	app = TestApp ()
 	app.MainLoop ()
 
+#==================================================
+# $Log: gmPhraseWheel.py,v $
+# Revision 1.5  2003-09-10 01:50:25  ncq
+# - cleanup
+#
+#
+#==================================================
 
 #----------------------------------------------------------
 # ideas
@@ -583,3 +589,5 @@ if __name__ == '__main__':
 #	    else:
 #		return matches
 #----
+#TODO:
+# - see spincontrol for list box handling
