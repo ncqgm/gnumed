@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.16 2004-07-17 20:57:53 ncq Exp $
+-- $Id: gmI18N.sql,v 1.17 2005-02-01 16:52:50 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -66,35 +66,33 @@ comment on function i18n(text) is
 -- =============================================
 create function _(text) returns text as '
 DECLARE
-	orig_str ALIAS FOR $1;
-	trans_str text;
-	my_lang varchar(10);
+    orig_str ALIAS FOR $1;
+    trans_str text;
+    my_lang varchar(10);
 BEGIN
-	-- no translation available at all ?
-	if not exists(select orig from i18n_translations where orig = orig_str) then
-		return orig_str;
-	end if;
-
-	-- get language
-	select into my_lang lang
-		from i18n_curr_lang
-	where
-		owner = CURRENT_USER;
-	if not found then
-		return orig_str;
-	end if;
-
-	-- get translation
-	select into trans_str trans
-		from i18n_translations
-	where
-		lang = my_lang
-			and
-		orig = orig_str;
-	if not found then
-		return orig_str;
-	end if;
-	return trans_str;
+    -- no translation available at all ?
+    if not exists(select orig from i18n_translations where orig = orig_str) then
+	return orig_str;
+    end if;
+    -- get language
+    select into my_lang lang
+	from i18n_curr_lang
+    where
+	owner = CURRENT_USER;
+    if not found then
+	return orig_str;
+    end if;
+    -- get translation
+    select into trans_str trans
+	from i18n_translations
+    where
+	lang = my_lang
+	    and
+	orig = orig_str;
+    if not found then
+	return orig_str;
+    end if;
+    return trans_str;
 END;
 ' language 'plpgsql';
 
@@ -122,6 +120,22 @@ comment on function set_curr_lang(text) is
 	'set preferred language:
 	 - for "current user"
 	 - only if translations for this language are available';
+
+-- =============================================
+create function force_curr_lang(text) returns unknown as '
+DECLARE
+    language ALIAS FOR $1;
+BEGIN
+    raise notice ''Forcing current language to [%] without checking for translations..'', language;
+    delete from i18n_curr_lang where owner = CURRENT_USER;
+    insert into i18n_curr_lang (lang) values (language);
+    return 1;
+END;
+' language 'plpgsql';
+
+comment on function force_curr_lang(text) is
+	'force preferred language to some language:
+	 - for "current user"';
 
 -- =============================================
 create function set_curr_lang(text, name) returns unknown as '
@@ -179,11 +193,14 @@ TO group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.16 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.16  2004-07-17 20:57:53  ncq
+-- Revision 1.17  2005-02-01 16:52:50  ncq
+-- - added force_curr_lang()
+--
+-- Revision 1.16  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --
