@@ -5,7 +5,7 @@
 -- author: Ian Haywood <>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmFormDefs.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 
 -- Note: this is office related while gmFormData.sql is clinical content
 
@@ -109,7 +109,7 @@ comment on column form_field_queries.query is
 	the form of named string formatters such as ''%(identity.id)s'' (table.field).';
 
 insert into form_field_queries (name, service, query) values (
-	'patient_full_name', 'gmidentity', 'select firstnames || " " || lastnames from names where active and id_identity = ''%(identity.id)s'' limit 1;');
+	'patient_full_name', 'gmidentity', 'select firstnames || '' '' || lastnames from names where active and id_identity = ''%(identity.id)s'' limit 1;');
 insert into form_field_queries (name, service, query) values (
 	'patient_dob', 'gmidentity', 'select dob from identity where id = ''%(identity.id)s'';');
 insert into form_field_queries (name, service, query) values (
@@ -149,7 +149,7 @@ comment on column form_fields.is_editable is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.2 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- * do we need "form_types.iso_countrycode" ?
@@ -159,7 +159,10 @@ INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql
 
 -- =============================================
 -- $Log: gmFormDefs.sql,v $
--- Revision 1.2  2003-01-01 00:21:25  ncq
+-- Revision 1.3  2003-01-01 13:36:56  ncq
+-- - in queries: string constants must be quoted by ''s
+--
+-- Revision 1.2  2003/01/01 00:21:25  ncq
 -- - added flag is_editable to form field definition
 --
 -- Revision 1.1  2003/01/01 00:15:06  ncq
