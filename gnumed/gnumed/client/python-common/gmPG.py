@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -152,8 +152,7 @@ class ConnectionPool:
 			ConnectionPool.__listeners[backend] = listener
 		# actually start listening
 		listener = ConnectionPool.__listeners[backend]
-		# FIXME:********************  REACTIVATE THIS WHEN NEEDED 
-		#listener.register_callback(signal, callback)
+		listener.register_callback(signal, callback)
 		return 1
 	#-----------------------------
 	def Unlisten(self, service, signal, callback):
@@ -496,7 +495,6 @@ def run_query(aCursor = None, aCmd = None):
 		aCursor.execute(aCmd)
 	except:
 		_log.LogException("query >>>%s<<< failed" % aCmd, sys.exc_info())
-		#quickROQuery( aCmd)
 		return None
 
 	return 1
@@ -703,7 +701,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.48  2003-06-01 01:47:32  sjtan
+# Revision 1.49  2003-06-01 12:21:25  ncq
+# - re-enable listening to async backend notifies
+# - what do you mean "reactivate when needed" ?! this is used *already*
+#
+# Revision 1.48  2003/06/01 01:47:32  sjtan
 #
 # starting allergy connections.
 #
