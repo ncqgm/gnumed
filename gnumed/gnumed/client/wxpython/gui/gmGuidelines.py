@@ -12,17 +12,19 @@ The manuals should reside where the manual_path points to
 @thanks: this code has been heavily "borrowed" from
          Robin Dunn's extraordinary wxPython sample
 """
-import sys, os
+import os
 
 from   wxPython.wx         import *
 from   wxPython.html       import *
 import wxPython.lib.wxpTag
+
 from Gnumed.wxpython import gmPlugin
-from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker
+from Gnumed.pycommon import gmLog, gmGuiBroker
+
+if __name__ == "__main__":
+	_ = lambda x:x
 
 #----------------------------------------------------------------------
-
-
 class GuidelinesHtmlWindow(wxHtmlWindow):
     def __init__(self, parent, id):
         wxHtmlWindow.__init__(self, parent, id)
