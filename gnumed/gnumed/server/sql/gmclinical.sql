@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.33 $
+-- $Revision: 1.34 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -213,7 +213,7 @@ create table allergy (
 	id serial primary key,
 	id_clin_transaction integer not null references clin_transaction(id),
 	substance varchar(128) not null,
-	id_substance varchar(256) default null,
+	substance_code varchar(256) default null,
 	generics varchar(256) default null,
 	allergene varchar(256) default null,
 	atc_code varchar(32) default null,
@@ -234,8 +234,8 @@ comment on column allergy.id_clin_transaction is
 	'link to transaction, provides: patient, recorded_when';
 comment on column allergy.substance is
 	'real-world name of substance the patient reacted to, brand name if drug';
-comment on column allergy.id_substance is
-	'data source specific opaque product identifier; must provide a link
+comment on column allergy.substance_code is
+	'data source specific opaque product code; must provide a link
 	 to a unique product/substance in the database in use; should follow
 	 the parseable convention of "<source>::<source version>::<identifier>",
 	 e.g. "MIMS::2003-1::190" for Zantac; it is left as an exercise to the
@@ -259,9 +259,9 @@ comment on column allergy.had_hypo is
 comment on column allergy.id_comment is
 	'free text comment, such as first/last time observed, etc.';
 
-create rule r_announce_new_allergy as
-	on insert to allergy do
-		notify "allergy_new";
+--create rule r_announce_new_allergy as
+--	on insert to allergy do
+--		notify "allergy_new_db";
 
 -- ===================================================================
 -- -------------------------------------------------------------------
@@ -468,6 +468,7 @@ GRANT SELECT ON
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
+	"audit_clinical_id_audit_seq",
 	"clin_narrative",
 	"clin_narrative_id_seq",
 	"clin_health_issue",
@@ -499,11 +500,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.33 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.34 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.33  2003-04-30 23:30:29  ncq
+-- Revision 1.34  2003-05-01 15:06:29  ncq
+-- - allergy.id_substance -> allergy.substance_code
+--
+-- Revision 1.33  2003/04/30 23:30:29  ncq
 -- - v_i18n_patient_allergies
 -- - new_allergy -> allergy_new
 --
