@@ -1,9 +1,16 @@
-# FIXME: make list window fit list ...
+"""GnuMed quick patient search widget.
 
+This widget allows to search for patients based on the
+critera name, date of birth and patient ID. It goes to
+considerable length to understand the user's intent from
+her input. For that to work well we need per-culture
+query generators. However, there's always the fallback
+generator.
+"""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/patient_search/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.5 2003-03-25 16:52:46 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPatientSelector.py,v 1.6 2003-03-25 19:44:38 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -22,7 +29,7 @@ import gmTmpPatient, gmDispatcher, gmSignals, gmPG
 
 from wxPython.wx import *
 #------------------------------------------------------------
-ID_LISTCTRL = wxNewId()
+ID_PatPickList = wxNewId()
 
 #============================================================
 # country-specific functions
@@ -67,6 +74,7 @@ patient_expander = {
 # use compile() for speedup
 # must escape strings before use !!
 # ORDER BY !
+# FIXME: what about "< 40" ?
 
 def queries_default(raw = None):
 	if raw is None:
@@ -131,17 +139,13 @@ def queries_default(raw = None):
 		queries[1].append("SELECT id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s');" % tmp)
 		return queries
 
-	print "- this is a more complicated pattern"
-
 	# try to split on (major) part separators
 	parts_list = re.split(",|;", raw)
-	print "major parts:", parts_list
 
-	# only one "major" part ? (i.e. no ",;" ?
+	# only one "major" part ? (i.e. no ",;" ?)
 	if len(parts_list) == 1:
 		# re-split on whitespace
 		tmp = re.split("\s*|\t*", raw)
-		print '"major" parts:', tmp
 
 		# parse into name/date parts
 		date_count = 0
@@ -172,11 +176,11 @@ def queries_default(raw = None):
 			# special case: 3 words, exactly 1 of them a date, no ",;"
 			if date_count == 1:
 				# first, last, dob - first order
-				queries[1].append("SELECT id FROM v_basic_person WHERE firstnames ILIKE '%s%%' AND lastnames ILIKE '%s%%' AND date_trunc('day', dob) like (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part))
+				queries[1].append("SELECT id FROM v_basic_person WHERE firstnames ILIKE '%s%%' AND lastnames ILIKE '%s%%' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part))
 				# last, first, dob - second order query
-				queries[2].append("SELECT id FROM v_basic_person WHERE firstnames ILIKE '%s%%' AND lastnames ILIKE '%s%%' AND date_trunc('day', dob) like (select timestamp '%s');" % (name_parts[1], name_parts[0], date_part))
+				queries[2].append("SELECT id FROM v_basic_person WHERE firstnames ILIKE '%s%%' AND lastnames ILIKE '%s%%' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[1], name_parts[0], date_part))
 				# name parts anywhere in name - third order query ...
-				queries[3].append("SELECT id FROM v_basic_person WHERE firstnames || lastnames ILIKE '%%%s%%' AND firstnames || lastnames ILIKE '%%%s%%' AND date_trunc('day', dob) like (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part))
+				queries[3].append("SELECT id FROM v_basic_person WHERE firstnames || lastnames ILIKE '%%%s%%' AND firstnames || lastnames ILIKE '%%%s%%' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part))
 				return queries
 			# FIXME
 			return queries
@@ -184,7 +188,87 @@ def queries_default(raw = None):
 		# FIXME
 		return queries
 
-	# FIXME: what about "< 40" ?
+	# more than one major part (separated by ';,')
+	else:
+		# parse into name and date parts
+		date_parts = []
+		name_parts = []
+		name_count = 0
+		for part in parts_list:
+			# any digits ?
+			if re.search("\d+", part):
+				# FIXME: parse out whitespace *not* adjacent to a *word*
+				date_parts.append(part)
+			else:
+				tmp = part.strip()
+				tmp = re.split("\s*|\t*", tmp)
+				name_count = name_count + len(tmp)
+				name_parts.append(tmp)
+
+		where1 = []
+		where2 = []
+		where3 = []
+
+		# handle name parts first
+		# special case: "<date(s)>, <name> <name>, <date(s)>"
+		if (len(name_parts) == 1) and (name_count == 2):
+			# usually "first name  last name"
+			# so check this version first
+			where1.append("firstnames ILIKE '%s%%'" % name_parts[0][0])
+			where1.append("lastnames ILIKE '%s%%'"  % name_parts[0][1])
+
+			where2.append("firstnames ILIKE '%s%%'" % name_parts[0][1])
+			where2.append("lastnames ILIKE '%s%%'"  % name_parts[0][0])
+
+			where3.append("firstnames || lastnames ILIKE '%%%s%%'" % name_parts[0][0])
+			where3.append("firstnames || lastnames ILIKE '%%%s%%'" % name_parts[0][1])
+
+		# special case: "<date(s)>, <name(s)>, <name(s)>, <date(s)>"
+		elif len(name_parts) == 2:
+			# usually "last name(s), first name(s)"
+			# so check this version first
+			where1.append("firstnames ILIKE '%s%%'" % string.join(name_parts[1], ' '))
+			where1.append("lastnames ILIKE '%s%%'" % string.join(name_parts[0], ' '))
+
+			where2.append("firstnames ILIKE '%s%%'" % string.join(name_parts[0], ' '))
+			where2.append("lastnames ILIKE '%s%%'" % string.join(name_parts[1], ' '))
+
+			where3.append("firstnames || lastnames ILIKE '%%%s%%'" % string.join(name_parts[0], ' '))
+			where3.append("firstnames || lastnames ILIKE '%%%s%%'" % string.join(name_parts[1], ' '))
+
+		# big trouble - arbitrary number of names
+		else:
+			if len(name_parts) == 1:
+				for part in name_parts[0]:
+					where1.append("firstnames || lastnames ILIKE '%%%s%%'" % part)
+					where2.append("firstnames || lastnames ILIKE '%%%s%%'" % part)
+			else:
+				tmp = []
+				for part in name_parts:
+					tmp.append(string.join(part, ' '))
+				for part in tmp:
+					where1.append("firstnames || lastnames ILIKE '%%%s%%'" % part)
+					where2.append("firstnames || lastnames ILIKE '%%%s%%'" % part)
+
+		# secondly handle date parts
+		# FIXME: this needs a considerable smart-up !
+		if len(date_parts) == 1:
+			where1.append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+			where2.append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+		elif len(date_parts) > 1:
+			where1.append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+			where1.append("date_trunc('day', identity.deceased) LIKE (select timestamp '%s'" % date_parts[1])
+
+			where2.append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+			where2.append("date_trunc('day', identity.deceased) LIKE (select timestamp '%s')" % date_parts[1])
+
+		if len(where1) > 0:
+			queries[1].append("SELECT id FROM v_basic_person WHERE %s" % string.join(where1, ' AND '))
+		if len(where2) > 0:
+			queries[2].append("SELECT id FROM v_basic_person WHERE %s" % string.join(where2, ' AND '))
+		if len(where3) > 0:
+			queries[3].append("SELECT id FROM v_basic_person WHERE %s" % string.join(where3, ' AND '))
+		return queries
 
 	return queries
 #------------------------------------------------------------
@@ -215,8 +299,8 @@ class cPatientPickList(wxDialog):
 		self.items = []
 
 		# set event handlers
-		#EVT_LIST_ITEM_SELECTED(self, ID_LISTCTRL, self.OnItemCursor)
-		EVT_LIST_ITEM_ACTIVATED(self, ID_LISTCTRL, self._on_item_activated)
+		#EVT_LIST_ITEM_SELECTED(self, ID_PatPickList, self.OnItemCursor)
+		EVT_LIST_ITEM_ACTIVATED(self, ID_PatPickList, self._on_item_activated)
 
 		#EVT_BUTTON(self, ID_NEW, self.OnNew)
 		#EVT_BUTTON(self, wxID_OK, self.OnOk)
@@ -289,7 +373,7 @@ class cPatientPickList(wxDialog):
 		# make list
 		self.listctrl = wxListCtrl(
 			parent = self,
-			id = ID_LISTCTRL,
+			id = ID_PatPickList,
 			pos = wxDefaultPosition,
 			size = wxSize(160,120),
 			style = wxLC_REPORT | wxLC_SINGLE_SEL | wxVSCROLL | wxHSCROLL | wxSUNKEN_BORDER
@@ -467,7 +551,7 @@ class cPatientSelector(wxTextCtrl):
 				NULL,
 				_('Cannot find ANY matching patients !\nCurrently selected patient stays active.\n\n(We should offer to jump to entering a new patient from here.)'),
 				_('selecting patient'),
-				wxOK | wxICON_INFORMATION
+				wxOK | wxICON_EXCLAMATION
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
@@ -543,6 +627,11 @@ class cPatientSelector(wxTextCtrl):
 
 		# generate queries
 		queries = self.generate_queries(self.GetValue())
+		#<DEBUG>
+		_log.Log(gmLog.lData, queries[1])
+		_log.Log(gmLog.lData, queries[2])
+		_log.Log(gmLog.lData, queries[3])
+		#</DEBUG>
 
 		# get list of matching ids
 		ids = self._fetch_pat_ids(queries)
@@ -663,6 +752,11 @@ if __name__ == "__main__":
 #  ?, Ian 1977
 #  Ian Haywood, 19/12/77
 #  PUPIC
+# "HIlbert, karsten"
+# "karsten, hilbert"
+# "kars, hilb"
+# "hilb; karsten, 23.10.74"
+
 
 #------------------------------------------------------------
 # notes
@@ -676,9 +770,10 @@ if __name__ == "__main__":
 
 # phrase wheel is most likely too slow
 
-# search fragment history
+# extend search fragment history
 
 # ask user whether to send off level 3 queries - or thread them
 
-# "- we don't expect patient IDs in complicated patterns"
-# "- hence, any digits signify a date"
+# we don't expect patient IDs in complicated patterns, hence any digits signify a date
+
+# FIXME: make list window fit list size ...
