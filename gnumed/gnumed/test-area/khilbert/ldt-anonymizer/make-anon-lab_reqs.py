@@ -8,8 +8,8 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/ldt-anonymizer/make-anon-lab_reqs.py,v $
-# $Id: make-anon-lab_reqs.py,v 1.3 2004-06-26 07:33:55 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: make-anon-lab_reqs.py,v 1.4 2004-06-28 15:16:53 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -65,13 +65,15 @@ patid = pat_ids[0]
 print "Laborata Testwoman has ID [%s]" % patid
 pat = gmPatient.gmCurrentPatient(aPKey=patid)
 emr = pat.get_clinical_record()
-enc_id = emr.get_active_encounter()['pk_encounter']
+enc = emr.get_active_encounter()
+enc_id = enc['pk_encounter']
 print "encounter", enc_id
-epi_id = emr.get_active_episode()['pk_episode']
+epi = emr.get_active_episode()
+epi_id = epi['pk_episode']
 print "episode", epi_id
 
 infilename = sys.argv[1]
-print "generating request IDs from LDT file [%s]" % infilename
+print "generating requests for IDs in LDT file [%s]" % infilename
 
 for line in fileinput.input(infilename):
 	tmp = line.replace('\r','')
@@ -98,7 +100,10 @@ print "done"
 
 #===============================================================
 # $Log: make-anon-lab_reqs.py,v $
-# Revision 1.3  2004-06-26 07:33:55  ncq
+# Revision 1.4  2004-06-28 15:16:53  ncq
+# - id_ -> fk_/pk_
+#
+# Revision 1.3  2004/06/26 07:33:55  ncq
 # - id_episode -> fk/pk_episode
 #
 # Revision 1.2  2004/06/23 21:12:43  ncq
