@@ -22,21 +22,23 @@ with
 highlighted headings which are portected from user editing.
 A pluggable autocompletion mechanism is provided
 """
-    
+
 import string, re
+
 from wxPython.wx import *
 from wxPython.stc import *
+
 if __name__ == "__main__":
     import sys
     sys.path.append ("../..")
-from Gnumed.pycommon import gmLog
+from Gnumed.pycommon import gmLog, gmI18N
 
 STYLE_HEADER=1
 STYLE_TEXT=2
 STYLE_KEYWORD=3
 
 class SOAPTextCtrl (wxStyledTextCtrl):
-    def __init__ (self, parent, id, headers = ['Subjective', 'Objective', 'Assessment', 'Plan'], matchers = {}):
+    def __init__ (self, parent, id, headers = None, matchers = {}):
         """
         @type parent: wxWindow
         @param parent: the parent widget
@@ -57,7 +59,17 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         self.SetMarginWidth (1, 0)
         self.AutoCompStops ("()<>,.;:'\"[]{}\\|/? !@#$%^&*")
         self.autocompstr = ''
-        self.headers = headers
+        if headers is None:
+		    self.headers = [
+                _('Subjective'),
+                _('Objective'),
+                _('Assessment'),
+                _('Plan')
+            ]
+        else:
+            self.headers = headers
+        # FIXME: do we need to check that all headers have matchers
+        # and set missing ones to gmNull.cNull() ?
         self.matchers = matchers
         self.__matcher = None
         self.AutoCompSetSeparator (10)
