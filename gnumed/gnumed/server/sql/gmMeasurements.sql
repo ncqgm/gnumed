@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -242,7 +242,8 @@ create table lab_request (
 		not null
 		references test_org(pk),
 	request_id text
-		not null,
+		not null
+		check (trim(both from request_id) != ''),
 	-- FIXME: references staff(pk)
 	fk_requestor integer
 		default null
@@ -345,11 +346,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.22 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.23 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.22  2004-05-02 22:52:47  ncq
+-- Revision 1.23  2004-05-04 08:14:26  ncq
+-- - check constraint on lab_request.request_id disallowing empty request ids
+--
+-- Revision 1.22  2004/05/02 22:52:47  ncq
 -- - fix check constraints in lab_request
 --
 -- Revision 1.21  2004/04/21 15:31:09  ncq
