@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.3 2004-04-16 16:17:33 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmAllergy.py,v 1.4 2004-04-20 00:17:55 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 from Gnumed.pycommon import gmLog
@@ -17,7 +17,7 @@ class cAllergy(gmClinItem.cClinItem):
 	"""Represents one allergy event.
 	"""
 	_cmd_fetch_payload = """
-		select * from v_i18n_patient_allergies
+		select * from v_pat_allergies
 		where id=%s"""
 
 	_cmds_store_payload = [
@@ -72,7 +72,10 @@ if __name__ == '__main__':
 	allg.save_payload()
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.3  2004-04-16 16:17:33  ncq
+# Revision 1.4  2004-04-20 00:17:55  ncq
+# - allergies API revamped, kudos to Carlos
+#
+# Revision 1.3  2004/04/16 16:17:33  ncq
 # - test save_payload
 #
 # Revision 1.2  2004/04/16 00:00:59  ncq

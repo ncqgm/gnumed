@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.95 $
+-- $Revision: 1.96 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -561,12 +561,14 @@ create table _enum_allergy_type (
 -- --------------------------------------------
 create table allergy (
 	id serial primary key,
-	substance varchar(128) not null,
-	substance_code varchar(256) default null,
-	generics varchar(256) default null,
-	allergene varchar(256) default null,
-	atc_code varchar(32) default null,
-	id_type integer not null references _enum_allergy_type(id),
+	substance text not null,
+	substance_code text default null,
+	generics text default null,
+	allergene text default null,
+	atc_code text default null,
+	id_type integer
+		not null
+		references _enum_allergy_type(id),
 	generic_specific boolean default false,
 	definite boolean default false
 ) inherits (clin_root_item);
@@ -835,11 +837,14 @@ comment on table clin_history_editarea is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.95 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.96 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.95  2004-04-14 20:03:59  ncq
+-- Revision 1.96  2004-04-20 00:17:56  ncq
+-- - allergies API revamped, kudos to Carlos
+--
+-- Revision 1.95  2004/04/14 20:03:59  ncq
 -- - fix check constraints on intervals
 --
 -- Revision 1.94  2004/04/12 22:49:41  ncq

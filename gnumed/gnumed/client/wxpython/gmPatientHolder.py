@@ -8,8 +8,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientHolder.py,v $
-# $Id: gmPatientHolder.py,v 1.14 2004-04-11 10:09:38 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmPatientHolder.py,v 1.15 2004-04-20 00:17:55 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog, gmExceptions
@@ -68,12 +68,13 @@ class PatientHolder:
 	# FIXME: what are these 2 for???
 	def get_past_history(self):
 		return self.patient.get_clinical_record().get_past_history()
-	def get_allergies(self):
-		return self.patient.get_clinical_record().get_allergies_manager()
 
 #====================================================
 # $Log: gmPatientHolder.py,v $
-# Revision 1.14  2004-04-11 10:09:38  ncq
+# Revision 1.15  2004-04-20 00:17:55  ncq
+# - allergies API revamped, kudos to Carlos
+#
+# Revision 1.14  2004/04/11 10:09:38  ncq
 # - cleanup
 #
 # Revision 1.13  2004/04/10 01:48:31  ihaywood

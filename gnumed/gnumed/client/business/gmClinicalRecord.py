@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.85 2004-04-17 11:54:16 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmClinicalRecord.py,v 1.86 2004-04-20 00:17:55 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -24,7 +24,7 @@ from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, 
 if __name__ == "__main__":
 	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.business import gmPathLab
+from Gnumed.business import gmPathLab, gmAllergy
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -177,7 +177,7 @@ class cClinicalRecord:
 	def _allergy_added_deleted(self):
 		curs = self._ro_conn_clin.cursor()
 		# did number of allergies change for our patient ?
-		cmd = "select count(*) from v_i18n_patient_allergies where id_patient=%s"
+		cmd = "select count(*) from v_pat_allergies where id_patient=%s"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
 			_log.Log(gmLog.lData, 'cannot check for added/deleted allergies, assuming addition/deletion did occurr')
@@ -530,70 +530,46 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	# allergy methods
 	#--------------------------------------------------------
-	def get_allergies(self, remove_sensitivities = None):
-		"""Return rows from v_i18n_patient_allergies."""
-		try:
-			self.__db_cache['allergies']
-		except:
-			self.__db_cache['allergies'] = []
-			cmd = "select * from v_i18n_patient_allergies where id_patient=%s"
-			rows, col_idx = gmPG.run_ro_query('historica', cmd, 1, self.id_patient)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load allergies for patient [%s]' % self.id_patient)
+ 	def get_allergies(self, remove_sensitivities = None):
+		"""Retrieves patient allergy items"""
+ 		try:
+ 			self.__db_cache['allergies']
+ 		except KeyError:
+ 			self.__db_cache['allergies'] = []
+			id_list = self._get_allergies_list():
+			had_errors = False
+			for allg_id in id_list:
+				try:
+					self.__db_cache['allergies'].append(gmAllergy.cAllergy(aPKey=allg_id))
+				except gmExceptions.ConstructorError:
+					_log.LogException('allergy error', sys.exc_info(), verbose=0)
+					had_errors = True
+			if had_errors and (len(self.__db_cache['allergies'] == 0)):
 				del self.__db_cache['allergies']
 				return None
-			self.__db_cache['allergies'] = rows
-			self.__db_cache['idx allergies'] = col_idx
-
-		data = []
-		if remove_sensitivities:
-			col_idx = self.__db_cache['idx allergies']
-			for allergy in self.__db_cache['allergies']:
-				if allergy[col_idx['id_type']] == 1:
-					data.append(allergy)
-		else:
-			data = self.__db_cache['allergies']
-		return data
-	#--------------------------------------------------------
-	def get_allergy_names(self, remove_sensitivities = None):
-		data = []
-		try:
-			self.__db_cache['allergies']
-		except KeyError:
-			if self.get_allergies(remove_sensitivities) is None:
-				# remember: empty list will return false
-				# even though this is what we get with no allergies
-				_log.Log(gmLog.lErr, "Cannot load allergies")
-				return []
-		idx = self.__db_cache['idx allergies']
-		for allergy in self.__db_cache['allergies']:
-			tmp = {}
-			tmp['id'] = allergy[idx['id']]
-			# do we know the allergene ?
-			if allergy[idx['allergene']] not in [None, '']:
-				tmp['name'] = allergy[idx['allergene']]
-			# no but the substance
-			else:
-				tmp['name'] = allergy[idx['substance']]
-			data.append(tmp)
-		return data
+		# constrain by type (sensitivity/allergy)
+ 		if remove_sensitivities:
+			tmp = []
+ 			for allergy in self.__db_cache['allergies']:
+				if allergy['type'] != 'sensitivity':
+					tmp.append(allergy)
+			return tmp
+		return self.__db_cache['allergies']
 	#--------------------------------------------------------
 	def _get_allergies_list(self):
-		"""Return list of IDs in v_i18n_patient_allergies for this patient."""
+		"""Required to retrieve patient allergy item value objects."""
 		try:
 			return self.__db_cache['allergy IDs']
 		except KeyError:
 			pass
 		self.__db_cache['allergy IDs'] = []
 		curs = self._ro_conn_clin.cursor()
-		cmd = "select id from v_i18n_patient_allergies where id_patient=%s"
-		if not gmPG.run_query(curs, cmd, self.id_patient):
-			curs.close()
+		cmd = "select id from v_pat_allergies where id_patient=%s"
+		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+		if rows is None
 			_log.Log(gmLog.lErr, 'cannot load list of allergies for patient [%s]' % self.id_patient)
 			del self.__db_cache['allergy IDs']
 			return None
-		rows = curs.fetchall()
-		curs.close()
 		for row in rows:
 			self.__db_cache['allergy IDs'].extend(row)
 		return self.__db_cache['allergy IDs']
@@ -1475,7 +1451,7 @@ order by amount_overdue
 		return self.__db_cache['lab results']
 	#------------------------------------------------------------------
 	def get_lab_request(self, pk=None, req_id=None, lab=None):
-		# FIXME: verify that it is our patient ...
+		# FIXME: verify that it is our patient ? ...
 		try:
 			req = gmPathLab.cLabRequest(aPKey=pk, req_id=req_id, lab=lab)
 		except gmExceptions.ConstructorError:
@@ -1638,7 +1614,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.85  2004-04-17 11:54:16  ncq
+# Revision 1.86  2004-04-20 00:17:55  ncq
+# - allergies API revamped, kudos to Carlos
+#
+# Revision 1.85  2004/04/17 11:54:16  ncq
 # - v_patient_episodes -> v_pat_episodes
 #
 # Revision 1.84  2004/04/15 09:46:56  ncq

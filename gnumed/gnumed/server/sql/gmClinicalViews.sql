@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.51 2004-04-17 12:42:09 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.52 2004-04-20 00:17:56 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -407,27 +407,32 @@ create trigger TR_allergy_add_del
 -- or maybe not since then we won't be able to separate affected patients in UPDATEs
 
 \unset ON_ERROR_STOP
-drop view v_i18n_patient_allergies;
+drop view v_pat_allergies;
 \set ON_ERROR_STOP 1
 
-create view v_i18n_patient_allergies as
+create view v_pat_allergies as
 select
 	a.id as id,
 	a.pk_item as id_item,
 	vpep.id_patient as id_patient,
-	vpep.id_health_issue as id_health_issue,
-	a.id_episode as id_episode,
-	a.id_encounter as id_encounter,
+	case when coalesce(a.allergene, '') = ''
+		then a.substance
+		else a.allergene
+	end as descriptor,
+	a.allergene as allergene,
 	a.substance as substance,
 	a.substance_code as substance_code,
 	a.generics as generics,
-	a.allergene as allergene,
-	a.atc_code as atc_code,
-	a.narrative as reaction,
 	a.generic_specific as generic_specific,
+	a.atc_code as atc_code,
+	at.value as type,
+	_(at.value) as l10n_type,
 	a.definite as definite,
+	a.narrative as reaction,
 	a.id_type as id_type,
-	_(at.value) as type
+	vpep.id_health_issue as id_health_issue,
+	a.id_episode as id_episode,
+	a.id_encounter as id_encounter
 from
 	allergy a,
 	_enum_allergy_type at,
@@ -717,7 +722,7 @@ GRANT SELECT ON
 	, v_pat_encounters
 	, v_pat_episodes
 	, v_patient_items
-	, v_i18n_patient_allergies
+	, v_pat_allergies
 	, v_vacc_regimes
 	, v_pat_vacc4ind
 	, v_pat_missing_vaccs
@@ -732,7 +737,7 @@ TO GROUP "gm-doctors";
 --	"v_pat_episodes",
 --	"v_patient_items",
 --	"v_i18n_curr_encounters",
---	"v_i18n_patient_allergies",
+--	"v_pat_allergies",
 --	"v_vacc_regimes",
 --	v_patient_vaccinations,
 --	v_pat_due_vaccs,
@@ -743,11 +748,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.51 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.52 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.51  2004-04-17 12:42:09  ncq
+-- Revision 1.52  2004-04-20 00:17:56  ncq
+-- - allergies API revamped, kudos to Carlos
+--
+-- Revision 1.51  2004/04/17 12:42:09  ncq
 -- - add v_pat_encounters
 --
 -- Revision 1.50  2004/04/17 11:54:16  ncq

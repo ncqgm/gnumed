@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -239,15 +239,18 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
 		epr = self.curr_pat['clinical record']
-		allergy_names = epr.get_allergy_names(remove_sensitivities=1)
-		tmp = []
-		for allergy in allergy_names:
-			tmp.append(allergy['name'])
-		data = string.join(tmp, ',')
-		if data == '':
+		allergies = epr.get_allergies(remove_sensitivities=1)
+		if allergies is None:
+			self.txt_allergies.SetValue(_('error getting allergies'))
+			return False
+		if len(allergies) == 0:
 			self.txt_allergies.SetValue(_('no allergies recorded'))
-		else:
-			self.txt_allergies.SetValue(data)
+			return True
+		tmp = []
+		for allergy in allergies:
+			tmp.append(allergy['descriptor'])
+		data = ','.join(tmp)
+		self.txt_allergies.SetValue(data)
 	#-------------------------------------------------------
 	# remote layout handling
 	#-------------------------------------------------------
@@ -336,7 +339,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.33  2004-03-25 11:03:23  ncq
+# Revision 1.34  2004-04-20 00:17:55  ncq
+# - allergies API revamped, kudos to Carlos
+#
+# Revision 1.33  2004/03/25 11:03:23  ncq
 # - getActiveName -> get_names
 #
 # Revision 1.32  2004/03/04 19:47:07  ncq
