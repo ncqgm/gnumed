@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.131 2005-03-14 14:45:40 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.132 2005-03-14 15:16:04 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1445,7 +1445,7 @@ drop trigger tr_rfi_type2item;
 
 create function f_rfi_type2item() returns opaque as '
 declare
-	item_pk integer;
+	dummy integer;
 	msg text;
 begin
 	-- does fk_item change at all ?
@@ -1537,7 +1537,7 @@ from
 --		end if;
 --	end if;
 --	-- is it typed fHx ?
---	select into dummy 1 from v_pat_item_types vpit
+--	select into item_pk 1 from v_pat_item_types vpit
 --	where
 --		vpit.pk_item = NEW.pk_item
 	
@@ -1757,11 +1757,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.131 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.132 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.131  2005-03-14 14:45:40  ncq
+-- Revision 1.132  2005-03-14 15:16:04  ncq
+-- - missing variable declaration in f_rfi_type2item
+--
+-- Revision 1.131  2005/03/14 14:45:40  ncq
 -- - episode naming much simplified hence simplified views
 -- - add episode name into v_compl_narrative
 -- - some id_patient -> pk_patient
