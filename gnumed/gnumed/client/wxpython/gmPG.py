@@ -68,6 +68,7 @@ class ConnectionPool:
 			service = string.strip(cdb.query(
 			                       "select name from distributed_db where id = %d"
 			                       % db['ddb']).getresult()[0][0])
+			print "processing service " , service
 			###initialize our reference counter
 			ConnectionPool.__connections_in_use[service]=0
 			###try to get login information for a particular service
@@ -78,6 +79,7 @@ class ConnectionPool:
 			###get the name of the distributed datbase service
 			try:
 				dblogin.SetDatabase(string.strip(database['name']))
+				print "service = ", service, "database = ", database['name']
 			except: pass
 			###hostname of the distributed service
 			try:
@@ -98,7 +100,7 @@ class ConnectionPool:
 			#update 'Database Broker' dictionary
 			ConnectionPool.__databases[service] = self.__pgconnect(dblogin)
 
-			return ConnectionPool.__connected
+		return ConnectionPool.__connected
 
 
 
@@ -106,8 +108,8 @@ class ConnectionPool:
 	def __pgconnect(self, login):
 		"connect to a postgres backend as specified by login object; return a connection object"
 		try:
-			#print "Trying to connect:\nuser = [%s]\nPassword=[%s]\nHost=[%s]\nPort=[%d]\nOpt=[%s]\ntty=[%s]" \
-			#      % (login.GetUser(), login.GetPassword(), login.GetHost(), int(login.GetPort()), login.GetOptions(), login.GetTTY())
+			#print "Trying to connect:\n dbname = [%s]\nuser = [%s]\nPassword=[%s]\nHost=[%s]\nPort=[%d]\nOpt=[%s]\ntty=[%s]" \
+			#      % (login.GetDatabase(), login.GetUser(), login.GetPassword(), login.GetHost(), int(login.GetPort()), login.GetOptions(), login.GetTTY())
 			db = pg.connect(dbname=login.GetDatabase(),
 					host = login.GetHost(),
 					port = int(login.GetPort()),
@@ -115,6 +117,7 @@ class ConnectionPool:
 					tty = login.GetTTY(),
 					user = login.GetUser(),
 					passwd = login.GetPassword())
+			#print "connected!", db
 			return db
 		except TypeError:
 			msg = _("Query failed when trying to connect to backend [%s]:\n \
@@ -131,6 +134,7 @@ class ConnectionPool:
 			        Some error occurred during pg connection definition") % login.GetDatabase()
 			self.LogError(msg)
 			return None
+
 
 
 	def __decrypt(self, crypt_pwd, crypt_algo, pwd):
