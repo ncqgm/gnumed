@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -203,8 +203,8 @@ else:
 
 		def populate_with_data(self):
 			# no use reloading if invisible
-			#if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
-			#	return 1
+			if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
+				return 1
 			if self._widget.tree.update() is None:
 				_log.Log(gmLog.lErr, "cannot update document tree")
 				return None
@@ -288,7 +288,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.50  2004-07-15 07:57:21  ihaywood
+# Revision 1.51  2004-07-15 20:42:18  ncq
+# - support if-needed updates again
+#
+# Revision 1.50  2004/07/15 07:57:21  ihaywood
 # This adds function-key bindings to select notebook tabs
 # (Okay, it's a bit more than that, I've changed the interaction
 # between gmGuiMain and gmPlugin to be event-based.)
