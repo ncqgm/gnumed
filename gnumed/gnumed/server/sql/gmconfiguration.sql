@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -101,7 +101,7 @@ COMMENT ON TABLE config IS
 	'maps a service name to a database location for a particular user, includes user credentials for that database';
 
 COMMENT ON COLUMN config.profile IS
-	'allows multiple profiles per user / pseudo user; one user may have different configuration profiles depending on role, need and location';
+	'allows multiple profiles per user / pseudo user, one user may have different configuration profiles depending on role, need and location';
 
 COMMENT ON COLUMN config.username IS
 	'user name as used within the GnuMed system';
@@ -136,7 +136,10 @@ GRANT SELECT ON db, distributed_db, config TO GROUP "gm-public";
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.15  2002-11-01 16:53:27  ncq
+-- Revision 1.16  2002-11-12 17:04:10  ncq
+-- - remove a ; in a '' since this currently foo-bars bootstrapping
+--
+-- Revision 1.15  2002/11/01 16:53:27  ncq
 -- - still errors in here, darn it !
 --
 -- Revision 1.14  2002/11/01 16:35:38  ncq
