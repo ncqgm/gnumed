@@ -1,8 +1,14 @@
 Regression tests and proof-of-concept clients
 =============================================
 
+Modify the conf files for your machine.
+
 Export:
-test-export.py is a simple text mode document export client
+-------
+- test-export.py is a simple text mode document export client
+- call it like this:
+
+ python test-export.py --conf-file=export.conf
 
 Import
 ------
@@ -10,6 +16,12 @@ Import
 Make a link from ./test-import to ../import/import-med_docs.py.
 This will allow you to run an import test.
 
+- call it like this:
+
+ python test-import.py --conf-file=import.conf
+
+
+
 Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- 
-$Revision: 1.1 $
+$Revision: 1.2 $
