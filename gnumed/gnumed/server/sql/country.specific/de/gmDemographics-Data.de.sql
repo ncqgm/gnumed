@@ -1,6 +1,6 @@
 -- GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics-Data.de.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -23,12 +23,23 @@ insert into i18n_translations(lang, orig, trans) values('de_DE', 'separated', 'g
 insert into i18n_translations(lang, orig, trans) values('de_DE', 'legal guardian', 'Vormund');
 
 -- =============================================
+-- external ID types
+insert into enum_ext_id_types (name, issuer, context) values ('KV-Nummer', 'KV', 'c');
+insert into enum_ext_id_types (name, issuer, context) values ('Mitgliedsnummer', 'Krankenkasse', 'p');
+insert into enum_ext_id_types (name, issuer, context) values ('BLZ', 'Bank', 'o');
+
+--insert into enum_ext_id_types (name, issuer, context) values ('', '', '');
+-- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Data.de.sql,v $', '$Revision: 1.1 $');
+delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Data.de.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Data.de.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmDemographics-Data.de.sql,v $
--- Revision 1.1  2003-08-05 08:16:00  ncq
+-- Revision 1.2  2004-03-04 10:53:07  ncq
+-- - add a bunch of external id types
+--
+-- Revision 1.1  2003/08/05 08:16:00  ncq
 -- - cleanup/renaming
 --
 -- Revision 1.3  2003/06/11 14:03:44  ncq
