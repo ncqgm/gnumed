@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.33 2004-06-28 12:18:52 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmPathLab.py,v 1.34 2004-06-28 15:14:50 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -127,32 +127,32 @@ class cLabRequest(gmClinItem.cClinItem):
 	"""Represents one lab request."""
 
 	_cmd_fetch_payload = """
-		select * from lab_request
-		where pk=%s"""
+		select * from v_lab_requests
+		where pk_request=%s"""
 
 	_cmds_store_payload = [
-		"""select 1 from lab_request where pk=%(pk)s for update""",
+		"""select 1 from lab_request where pk=%(pk_request)s for update""",
 		"""update lab_request set
-				clin_when=%(clin_when)s,
-				narrative=%(narrative)s,
 				request_id=%(request_id)s,
 				lab_request_id=%(lab_request_id)s,
+				clin_when=%(sampled_when)s,
 				lab_rxd_when=%(lab_rxd_when)s,
 				results_reported_when=%(results_reported_when)s,
 				request_status=%(request_status)s,
-				is_pending=%(is_pending)s::bool
-			where pk=%(pk)s"""
+				is_pending=%(is_pending)s::bool,
+				narrative=%(progress_note)s
+			where pk=%(pk_request)s"""
 		]
 
 	_updatable_fields = [
-		'clin_when',
-		'narrative',
 		'request_id',
 		'lab_request_id',
+		'sampled_when',
 		'lab_rxd_when',
 		'results_reported_when',
 		'request_status',
-		'is_pending'
+		'is_pending',
+		'progress_note'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, req_id=None, lab=None):
@@ -167,13 +167,13 @@ class cLabRequest(gmClinItem.cClinItem):
 			where_snippets.append('request_id=%(req_id)s')
 			vals['req_id'] = req_id
 			if type(lab) == types.IntType:
-				where_snippets.append('fk_test_org=%(lab)s')
+				where_snippets.append('pk_test_org=%(lab)s')
 				vals['lab'] = lab
 			else:
-				where_snippets.append('fk_test_org=(select pk from test_org where internal_name=%(lab)s)')
+				where_snippets.append('lab_name=%(lab)s')
 				vals['lab'] = str(lab)
 			where_clause = ' and '.join(where_snippets)
-			cmd = "select pk from lab_request where %s" % where_clause
+			cmd = "select pk_request from v_lab_requests where %s" % where_clause
 			data = gmPG.run_ro_query('historica', cmd, None, vals)
 			# error
 			if data is None:
@@ -303,7 +303,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.33 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.34 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -386,7 +386,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.33 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.34 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -436,14 +436,16 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
+	if request is None:
+		return (False, _('need lab request when inserting lab result'))
 	# not found
 	if encounter_id is None:
 		encounter_id = request['pk_encounter']
 	queries = []
 	cmd = "insert into test_result (fk_encounter, fk_episode, fk_type, val_num, val_alpha, val_unit) values (%s, %s, %s, %s, %s, %s)"
-	queries.append((cmd, [encounter_id, request['fk_episode'], test_type, val_num, val_alpha, unit]))
+	queries.append((cmd, [encounter_id, request['pk_episode'], test_type, val_num, val_alpha, unit]))
 	cmd = "insert into lnk_result2lab_req (fk_result, fk_request) values ((select currval('test_result_id_seq')), %s)"
-	queries.append((cmd, [request['pk']]))
+	queries.append((cmd, [request['pk_request']]))
 	cmd = "select currval('test_result_id_seq')"
 	queries.append((cmd, []))
 	# insert new
@@ -524,17 +526,17 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 	  - if supplied it is applied to the most recently used ID
 	"""
 	if type(lab) == types.IntType:
-		lab_snippet = '%s'
+		lab_snippet = 'vlr.fk_test_org=%s'
 	else:
-		lab_snippet = '(select pk from test_org where internal_name=%s)'
+		lab_snippet = 'vlr.lab_name=%s'
 		lab = str(lab)
 	cmd =  """
 		select request_id
 		from lab_request lr0
 		where lr0.clin_when = (
-			select max(lr1.clin_when)
-			from lab_request lr1
-			where lr1.fk_test_org=%s
+			select max(vlr.sampled_when)
+			from v_lab_requests vlr
+			where %s
 		)""" % lab_snippet
 	rows = gmPG.run_ro_query('historica', cmd, None, lab)
 	if rows is None:
@@ -614,16 +616,19 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 
-	test_result()
+#	test_result()
 	test_request()
 #	test_create_result()
-#	test_unreviewed()
-#	test_pending()
+	test_unreviewed()
+	test_pending()
 
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.33  2004-06-28 12:18:52  ncq
+# Revision 1.34  2004-06-28 15:14:50  ncq
+# - use v_lab_requests
+#
+# Revision 1.33  2004/06/28 12:18:52  ncq
 # - more id_* -> fk_*
 #
 # Revision 1.32  2004/06/26 07:33:55  ncq
