@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -18,6 +18,7 @@ from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP, setPostcodeWidgetFromUrbId
+from Gnumed.business.gmOrganization import cOrgHelperImpl1
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 
@@ -375,10 +376,30 @@ class ContactsPanel(wxPanel):
        	  f = self.input_fields
 	  vals = [ f[n].GetValue() for n in ['street', 'urb', 'postcode'] ]
 	  # split the street value into 2 parts, number and street. ? Have a separate number field instead.
-	  vals = [ vals[0].split(' ')[0] , ' '.join( vals[0].split(' ')[1:] ) ] + vals[1:]
+	  vals = [ vals[0].split(' ')[0] , ' '.join( vals[0].split(' ')[1:] ) ] + vals[1:] + [None,None]
+	  # [None, None] is state and country at the moment
 	  return vals
 
+       def get_org_values(self):
+          f = self.input_fields
+	  v = [ f[n].GetValue() for n in ['name', 'memo', 'category', 'phone', 'fax', 'email', 'mobile'] ]
+	  return [ v[0], 'no office', 'no dept'] + v[1:]
+  	
+       def add_org(self, org):
+	  a = org.getAddress()
+	  o = org.get()
+	  data = [ o['name'],"", " ".join( [a['number'], a['street'], a['urb'], a['postcode']]), o['category'], o['phone'] ]
+	  key = org.getId()
+	  x = self.list_organisations.GetItemCount()
+	  self.list_organisations.InsertStringItem(x, data[0])
+	  self.list_organisations.SetStringItem(x, 1, data[1])
+	  self.list_organisations.SetStringItem(x, 2, data[2])
+	  self.list_organisations.SetStringItem(x, 3, data[3])
+	  self.list_organisations.SetStringItem(x, 4, data[4])
+	  self.list_organisations.SetItemData(x, key)
 
+
+	  
 class gmContacts (gmPlugin.wxNotebookPlugin):
 	tab_name = _("Contacts")
 
@@ -447,10 +468,20 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 	def doOrgAdd(self, event):
 		print "doOrgAdd"
 		w = self._last_widget
-		print w.get_address_values()
+		a = w.get_address_values()
+		o = w.get_org_values()
+		org = cOrgHelperImpl1()
+		org.set(*o)
+		org.setAddress(*a)
+		org.save()
+		w.add_org(org)
+		
 
         def doBranchDeptAdd(self, event):
 		print "doBranchDeptAdd"
+
+		
+		
 
 
 if __name__ == "__main__":
@@ -460,7 +491,12 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.17  2004-05-25 16:18:13  sjtan
+# Revision 1.18  2004-05-25 17:56:50  sjtan
+#
+# first steps at activating gmContacts. Will need a manually inserted
+# org_category that matches the category name entered in the category field.
+#
+# Revision 1.17  2004/05/25 16:18:13  sjtan
 #
 # move methods for postcode -> urb interaction to gmDemographics so gmContacts can use it.
 #
