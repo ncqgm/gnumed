@@ -73,40 +73,50 @@ class MultiColumnList( wxGrid):
 				alist.append("  ".join(l) )
 		return alist		
 
-	def _getPredictedRows(self, map):
+	def _getPredictedRows(self, items):
 		(w,h) = self.GetClientSize()
 		predictedRows = h/ (self.GetRowSize(0) + 1)  
 		if predictedRows == 0: 
 			predictedRows = 4
-		predictedCols = len(map) / predictedRows
-
-		(x,y ) = self.GetTextExtent(self._getLongestItem(self._ensureStringList(map.values()) ))
+		predictedCols = len(items) / predictedRows
+		list = []
+		for id , v in items:
+			list.append(v)
+		(x,y ) = self.GetTextExtent(self._getLongestItem(self._ensureStringList(list) ))
 		maxCols = w / (x + EXTRA_ROW_SPACE)
 		if maxCols == 0:
 			maxCols = 1
 		if predictedCols >= maxCols:
 			predictedCols = maxCols 
-			predictedRows = len(map) / predictedCols + 1
+			predictedRows = len(items) / predictedCols + 1
 			
 		print "text extent", x, y,"  ;row height ", self.GetRowSize(0), "; client size", w, h , "  ;maxCols", maxCols, "  predictedCols", predictedCols, "  predictedRows", predictedRows	
 
 		return predictedRows
 
-	def SetData( self, map,  maxRows = 8 , fitClientSize = 0):
+	def SetData(self, map, maxRows = 8, fitClientSize = 0):
+		self.SetDataItems( map.items(), maxRows, fitClientSize) 
+
+
+	def SetDataItems( self, items,  maxRows = 8 , fitClientSize = 0):
 
 		self.GetTable().SetValue(0,0, 'AAAAAAAAAAAAAAAA')
-		if len(map) == 0:
-			map = {'0': ("") }
+		if len(items) == 0:
+			items = ( 0, "")
 		if fitClientSize :
-			predictedRows = self._getPredictedRows(map)
+			predictedRows = self._getPredictedRows(items)
 		else:
 			predictedRows = maxRows
 			
 		self.ClearGrid()
 		rows = []
 		cols = []
+	
+	
 		seqTypes = ( type([]), type( () ) )
-		for k,v in map.items():
+
+		
+		for k,v in items:
 			if type(v) in seqTypes:
 				v = "   ".join(v)
 
@@ -142,6 +152,10 @@ class MultiColumnList( wxGrid):
 		self.SetColLabelSize(1)
 		self.EndBatch()
 		self.col_rows = ( len(cols), predictedRows)	
+
+		map = {}
+		for id, m in items:
+			map[id] = m
 		self.data = map
 		
 	def GetData(self):

@@ -3,13 +3,13 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.9 2003-11-01 13:49:39 sjtan Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmEditArea.py,v 1.10 2003-11-02 14:13:35 sjtan Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
 #====================================================================
-import sys, traceback
+import sys, traceback, time
 
 if __name__ == "__main__":
 	sys.path.append('.')
@@ -568,10 +568,15 @@ class gmEditArea( wxPanel):
 
 	#--------------------------------------------------------
 	def _init_fields(self):
-		_log.Log(gmLog.lErr, 'programmer forgot to define _init_fields() for [%s]' % self._type)
-		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
-		raise AttributeError
+		for k,v in self.get_init_values().items():
+			self.input_fields[k].SetValue(v)
+		self.dataId = None
+		
+	#	_log.Log(gmLog.lErr, 'programmer forgot to define _init_fields() for [%s]' % self._type)
+	#	_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
+	#	raise AttributeError
 	#--------------------------------------------------------
+	
 	def _save_data(self):
 		print "SAVING ", self._getInputFieldValues()
 		_log.Log(gmLog.lErr, 'programmer forgot to define _save_data() for [%s]' % self._type)
@@ -753,8 +758,12 @@ class gmAllergyEditArea(gmEditArea):
 		self.RBtn_is_allergy = wxRadioButton(parent, -1, _("Allergy"), wxDefaultPosition,wxDefaultSize)
 		self.RBtn_is_sensitivity = wxRadioButton(parent, -1, _("Sensitivity"), wxDefaultPosition,wxDefaultSize)
 		self.cb_is_definite_allergy = wxCheckBox(parent, -1, _("Definite"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		self.input_fields['sensitivity'] = self.RBtn_is_sensitivity
+		self.input_fields['is allergy'] = self.RBtn_is_allergy
 
 		self.input_fields['definite'] = self.cb_is_definite_allergy
+
+		self.input_fields['generic_specific'] = self.cb_generic_specific
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.Add(5, 0, 0)
 		szr.Add(self.RBtn_is_allergy, 2, wxEXPAND)
@@ -764,16 +773,61 @@ class gmAllergyEditArea(gmEditArea):
 		lines.append(szr)
 
 		return lines
+
+	__init_values = {
+		'date recorded' : str( time.strftime('%x') ),
+		'substance' : '',
+		'generic': '',
+		'allergy class' : '',
+		'reaction': '',
+		'definite': 0,
+		'sensitivity': 0,
+		'is allergy' : 0,
+		'generic_specific' : 0
+		}
+	
+	def get_init_values(self):
+		return gmAllergyEditArea.__init_values
+
 	#--------------------------------------------------------
 	def _save_data(self):
 		print "saving allergy data"
+		clinical = self.patient.get_clinical_record().get_allergy()
+		if self.getDataId() == None:
+			id = clinical.create_allergy( self.get_fields_formatting_values() )
+			self.setDataId(id)
+			return 1	
+		print "UDPATE ALLERGY NEEDS IMPLEMENTATION"
+			
 		return 1
 	#--------------------------------------------------------
-	def _init_fields(self):
-		print "initializing allergy input fields"
-		return 1
 
 
+	def get_fields_formatting_values(self):
+		fields =  ['date recorded', 'substance', 'generic', 'allergy class', 'reaction', 'definite', 'sensitivity', 'is allergy' , 'generic_specific' ]
+		values = self.getInputFieldValues(fields)
+
+		
+		formatting = {}
+		formatting.update(gmAllergyEditArea.__formatting)
+
+		return fields, formatting, values	
+
+	def get_formatting():
+		return gmAllergyEditArea.__formatting
+	
+	S , N = "'%s'", "%d"
+	__formatting =  { 
+				'date recorded': S,
+				'substance': S,
+				'generic' : S,
+				'allergy class': S,
+				'reaction' : S,
+				'definite' : N,
+				'sensitivity': N,
+				'is allergy': N,
+				'generic_specific' : N
+			}	
 
 		
 #====================================================================
@@ -1007,8 +1061,8 @@ class gmPastHistoryEditArea(gmEditArea):
 		
 
 	
-	def _init_fields(self):
-		values = {
+
+	__init_values = {
 			"condition": "",
 			"notes1": "",
 			"notes2": "",
@@ -1023,12 +1077,11 @@ class gmPastHistoryEditArea(gmEditArea):
 			"left": 0,
 			"right": 0,
 			"none" : 1
+			}
 
-		}
-		for k,v in values.items():
-			self.input_fields[k].SetValue(v)
+	def get_init_values(self):
+		return gmPastHistoryEditArea.__init_values
 		
-		self.dataId = None
 		
 	def _save_data(self):
 		clinical = self.patient.get_clinical_record().get_past_history()
@@ -1221,7 +1274,11 @@ class gmPrescriptionEditArea(gmEditArea):
 
 # This makes gmPrescriptionEditArea more adaptable to different nationalities special requirements.
 # ( well, it could be.)
-# to change at runtime, do gmPrescriptionEditArea = [ one or more columnListInfo ] 
+# to change at runtime, do 
+
+#             gmPrescriptionEditArea.extraColumns  = [ one or more columnListInfo ]  
+
+#    each columnListInfo  element describes one column,
 #    where columnListInfo is    a  list of 
 #  		tuples of 	[ inputMap name,  widget label, widget class to instantiate from]
 
@@ -1983,9 +2040,9 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.9  2003-11-01 13:49:39  sjtan
+# Revision 1.10  2003-11-02 14:13:35  sjtan
 #
-# using backup gui specific tables for editarea, as well as trying to input into current server tables.
+# some clinical stuff.
 #
 # Revision 1.6  2003/10/26 00:58:53  sjtan
 #

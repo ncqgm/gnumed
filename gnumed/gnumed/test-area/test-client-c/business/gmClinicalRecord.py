@@ -7,14 +7,15 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.5 2003-11-01 13:49:39 sjtan Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmClinicalRecord.py,v 1.6 2003-11-02 14:13:34 sjtan Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, string
 import time
 import yaml
+import traceback
 
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
@@ -813,28 +814,45 @@ values (%s, %s, %s, %s, %s, %s)
 	def get_past_history(self):
 		if not self.__dict__.has_key('past_history'):
 			from gmPastHistory import gmPastHistory
-			self.past_history = gmPastHistory(self._backend, self)
+			from gmEditAreaFacade import gmPHxEditAreaDecorator
+			phx  = gmPastHistory(self._backend, self)
+			self.past_history = gmPHxEditAreaDecorator(phx)
 		return self.past_history
+
+	def get_allergy(self):
+		if not self.__dict__.has_key('allergy'):
+			from gmAllergies import gmAllergies
+			self.allergy = gmAllergies( self._backend, self)
+		return self.allergy
+
+
 	
 
-	#-----------------------------------------------------------------------
-	#This is basic Observer pattern, or  model-view pattern
-	#----------------------------------------------------------------------
-	# use the more general gmDispatcher
-#	def getObservers(self):
-#		if not self.__dict__.has_key('observers'):
-#			self.observers = []
-#		list = []
-#		list.extend(self.observers)
-#		return list
-	
-#	def addObserver(self, observer):
-#		if observer not in self.getObservers():
-#			self.observers.append(observer)
+class gmClinicalPart:
+	def __init__(self, backend, patient):
+		#gmEditAreaFacade.__init__(self, backend, patient)
+		self._backend = backend
+		self.patient = patient
 		
-#	def notifyObservers(self):
-#		for observer in self.getObservers():
-#			observer.modelChanged(self)
+	def id_patient(self):
+		return self.patient.id_patient
+
+	def id_encounter(self):
+		return self.patient.id_encounter
+
+	def id_episode(self):
+		return self.patient.id_episode
+
+
+        def escape_str_quote(self, s):
+               if type(s) == type(""):
+			s = s.replace("'", "\\\'" )
+               return s
+
+
+	def traceback(self):
+		print sys.exc_info()[0], sys.exc_info()[1]
+		traceback.print_tb(sys.exc_info()[2])
 
 
 			
@@ -854,9 +872,9 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.5  2003-11-01 13:49:39  sjtan
+# Revision 1.6  2003-11-02 14:13:34  sjtan
 #
-# using backup gui specific tables for editarea, as well as trying to input into current server tables.
+# some clinical stuff.
 #
 # Revision 1.3  2003/10/25 16:13:26  sjtan
 #

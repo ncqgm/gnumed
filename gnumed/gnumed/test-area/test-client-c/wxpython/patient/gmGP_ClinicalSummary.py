@@ -5,6 +5,7 @@ try:
 	import gmGuiElement_AlertCaptionPanel          #panel to hold flashing
 	import gmPlugin
 	from gmPatientHolder import PatientHolder
+	import gmDispatcher, gmSignals
 
 except:
 	print  "import error"
@@ -93,6 +94,19 @@ class ClinicalSummary(wxPanel, PatientHolder):
 		self.sizer.Fit(self)                              #set to minimum size as calculated by sizer
 		self.SetAutoLayout(true)                     #tell frame to use the sizer
 		self.Show(true) 
+		gmDispatcher.connect(self._updateActiveProblemsUI,  gmSignals.clin_history_updated())
+
+	def _updateUI(self):
+		self._updateActiveProblemsUI()
+
+	def	_updateActiveProblemsUI(self):
+		clinical = self.patient.get_clinical_record().get_past_history()
+		list = clinical.get_active_history()
+		newList = []
+		for id, v in list:
+			newList.append( [id, clinical.short_format( v) ])
+		self.activeproblemlist.SetData(newList, fitClientSize = 1)
+
 #============================================================
 class gmGP_ClinicalSummary (gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the clinical summary.
