@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.9 2003-04-20 15:32:15 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmMedDoc.py,v 1.10 2003-06-26 21:26:15 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path
@@ -75,8 +75,8 @@ class gmMedObj:
 		- true/false/None
 		"""
 		curs = self.__defconn.cursor()
-		cmd = "select exists(select id from doc_obj where id = '%s');" % self.ID
-		if not gmPG.run_query(curs, cmd):
+		cmd = "select exists(select id from doc_obj where id = %s );"
+		if not gmPG.run_query(curs, cmd, self.ID):
 			curs.close()
 			return None
 
@@ -107,8 +107,8 @@ class gmMedObj:
 		cursor = self.__defconn.cursor()
 
 		# get document level metadata
-		cmd = "SELECT doc_id, seq_idx, comment, octet_length(data) FROM doc_obj WHERE id = '%s';" % self.ID
-		if not gmPG.run_query(cursor, cmd):
+		cmd = "SELECT doc_id, seq_idx, comment, octet_length(data) FROM doc_obj WHERE id = %s ;"
+		if not gmPG.run_query(cursor, cmd, self.ID):
 			cursor.close()
 			_log.Log(gmLog.lErr, 'Cannot load object [%s] metadata.' % self.ID)
 			return None
@@ -154,7 +154,7 @@ class gmMedObj:
 		img_obj = PgBytea(img_data)
 
 		# insert the data
-		cmd = "UPDATE doc_obj SET data=%s WHERE id=%s;"
+		cmd = "UPDATE doc_obj SET data=%s WHERE id=%s ;"
 		curs = self.__rwconn.cursor()
 		try:
 			curs.execute(cmd, img_obj, self.ID)
@@ -174,7 +174,7 @@ class gmMedObj:
 		img_obj = PgBytea(data)
 
 		# insert the data
-		cmd = "UPDATE doc_obj SET data=%s WHERE id=%s;"
+		cmd = "UPDATE doc_obj SET data=%s WHERE id=%s ;"
 		curs = self.__rwconn.cursor()
 		try:
 			curs.execute(cmd, img_obj, self.ID)
@@ -259,7 +259,7 @@ class gmMedObj:
 		if ((max_chunk_size == 0) or (self.metadata['size'] <= max_chunk_size)):
 			_log.Log(gmLog.lInfo, "retrieving entire object at once")
 			# retrieve object
-			cmd = "SELECT data FROM doc_obj WHERE id=%s;"
+			cmd = "SELECT data FROM doc_obj WHERE id=%s ;"
 			try:
 				cursor.execute(cmd, self.ID)
 			except:
@@ -275,7 +275,7 @@ class gmMedObj:
 			for chunk_id in range(needed_chunks):
 				_log.Log(gmLog.lData, "retrieving chunk %s" % (chunk_id+1))
 				pos = (chunk_id*max_chunk_size) + 1
-				cmd = "SELECT substring(data from %s for %s) FROM doc_obj WHERE id=%s;"
+				cmd = "SELECT substring(data from %s for %s) FROM doc_obj WHERE id=%s ;"
 				try:
 					cursor.execute(cmd, (pos, max_chunk_size, self.ID))
 				except:
@@ -288,7 +288,7 @@ class gmMedObj:
 			if remainder > 0:
 				_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
 				pos = (needed_chunks*max_chunk_size) + 1
-				cmd = "SELECT substring(data from %s for %s) FROM doc_obj WHERE id=%s;"
+				cmd = "SELECT substring(data from %s for %s) FROM doc_obj WHERE id=%s ;"
 				try:
 					cursor.execute(cmd, (pos, remainder, self.ID))
 				except:
@@ -355,8 +355,8 @@ class gmMedDoc:
 		- will return a list of strings
 		"""
 		cursor = self.__defconn.cursor()
-		cmd = "SELECT substring(text from 1 for 50) FROM doc_desc WHERE doc_id='%s';" %  self.ID
-		if not gmPG.run_query(cursor, cmd):
+		cmd = "SELECT substring(text from 1 for 50) FROM doc_desc WHERE doc_id= %s ;"
+		if not gmPG.run_query(cursor, cmd, self.ID):
 			cursor.close()
 			_log.Log(gmLog.lErr, 'Cannot load document [%s] descriptions.' % self.ID)
 			return None
@@ -377,8 +377,8 @@ class gmMedDoc:
 		cursor = self.__defconn.cursor()
 
 		# get document level metadata
-		cmd = "SELECT patient_id, type, comment, date, ext_ref FROM doc_med WHERE id = '%s';" % self.ID
-		if not gmPG.run_query(cursor, cmd):
+		cmd = "SELECT patient_id, type, comment, date, ext_ref FROM doc_med WHERE id =  %s ;"
+		if not gmPG.run_query(cursor, cmd, self.ID):
 			cursor.close()
 			_log.Log(gmLog.lErr, 'cannot load document [%s] metadata' % self.ID)
 			return None
@@ -390,8 +390,8 @@ class gmMedDoc:
 		self.metadata['reference'] = result[4]
 
 		# translate type ID to localized verbose name
-		cmd = "select name from v_i18n_doc_type where id = '%s';" % self.metadata['type ID']
-		if not gmPG.run_query(cursor, cmd):
+		cmd = "select name from v_i18n_doc_type where id=  %s ;"
+		if not gmPG.run_query(cursor, cmd, self.metadata['type ID']):
 			_log.Log(gmLog.lWarn, 'cannot find name for document type [%s]' % self.metadata['type ID'])
 			self.metadata['type'] = _('unknown doc type')
 		else:
@@ -399,7 +399,7 @@ class gmMedDoc:
 			self.metadata['type'] = result[0]
 
 		# get object level metadata for all objects of this document
-		cmd = "SELECT id, comment, seq_idx, octet_length(data) FROM doc_obj WHERE doc_id = %s;"
+		cmd = "SELECT id, comment, seq_idx, octet_length(data) FROM doc_obj WHERE doc_id = %s ;"
 		try:
 			cursor.execute(cmd, self.ID)
 		except:
@@ -433,10 +433,9 @@ class gmMedDoc:
 		self.metadata['comment'] = data['comment']
 		self.metadata['date'] = data['date']
 		self.metadata['reference'] = data['reference']
-		cmd =  "UPDATE doc_med SET patient_id='%s', type='%s', comment='%s', date='%s', ext_ref='%s' WHERE id='%s';" % \
-				(self.metadata['patient id'], self.metadata['type ID'], self.metadata['comment'], self.metadata['date'], self.metadata['reference'], self.ID)
 		curs = self.__rwconn.cursor()
-		if not gmPG.run_query(curs, cmd):
+		cmd =  "UPDATE doc_med SET patient_id= %s , type= %s , comment= %s , date= %s , ext_ref= %s WHERE id= %s ;"
+		if not gmPG.run_query(curs, cmd, self.metadata['patient id'], self.metadata['type ID'], self.metadata['comment'], self.metadata['date'], self.metadata['reference'], self.ID):
 			_log.Log(gmLog.lErr, 'cannot update metadata')
 			curs.close()
 			raise ValueError
@@ -497,7 +496,7 @@ def create_object(data):
 	not None - new document ID
 	"""
 	try:
-		cmd = "INSERT INTO doc_obj (doc_id) VALUES ('%s');" % data['document id']
+		data['document id']
 	except KeyError:
 		_log.Log(gmLog.lErr, data)
 		_log.LogException('invalid argument data structure', sys.exc_info())
@@ -509,7 +508,8 @@ def create_object(data):
 	# start our transaction (done implicitely by defining a cursor)
 	cursor = conn.cursor()
 
-	if not gmPG.run_query(cursor, cmd):
+	cmd = "INSERT INTO doc_obj (doc_id) VALUES ( %s );"
+	if not gmPG.run_query(cursor, cmd, data['document id']):
 		_log.Log(gmLog.lErr, 'Cannot insert object.')
 		_log.Log(gmLog.lErr, data)
 		cursor.close()
@@ -540,7 +540,10 @@ def create_object(data):
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.9  2003-04-20 15:32:15  ncq
+# Revision 1.10  2003-06-26 21:26:15  ncq
+# - cleanup re (cmd,args) and %s; quoting bug
+#
+# Revision 1.9  2003/04/20 15:32:15  ncq
 # - removed __run_query helper
 # - call_viewer_on_file moved to gmMimeLib
 #
