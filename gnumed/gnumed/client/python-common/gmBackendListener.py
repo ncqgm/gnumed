@@ -1,6 +1,6 @@
 """GnuMed database backend listener.
 
-This module implements listening for asynchronuous
+This module implements threaded listening for asynchronuous
 notifications from the database backend.
 
 NOTE !  This is specific to the DB adapter pyPgSQL and
@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -30,24 +30,26 @@ class BackendListener:
 		self._thread_running = 0
 		#connect to the backend
 		self._conn = self.__connect(database, user, password, host, port)
+		# lock for access to connection object
+		self._conn_lock = threading.Lock()
 	#-------------------------------
-	#def __del__(self):
-	#	self.__quit=1
-		#give the thread time to terminate
-	#	time.sleep(self._poll_interval+2)
-
+#	def __del__(self):
+#		self._quit = 1
+#		# give the thread time to terminate
+#		time.sleep(self._poll_interval+2)
 	#-------------------------------
 	# public API
 	#-------------------------------
 	def register_callback(self, aSignal, aCallback):
-		if not self._thread_running:
-			self.__start_thread()
 		# if not listening to that signal yet, do so now
 		if aSignal not in self._intercepted_signals:
 			cmd = 'LISTEN "%s";' % aSignal
 			try:
+				self._conn_lock.acquire(blocking = 1)
 				res = self._conn.query(cmd)
+				self._conn_lock.release()
 			except StandardError:
+				self._conn_lock.release()
 				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
 				_log.LogException('cannot register backend callback', sys.exc_info())
 				return None
@@ -56,12 +58,14 @@ class BackendListener:
 				_log.Log(gmLog.lErr, 'cannot register backend callback')
 				_log.Log(gmLog.lErr, ">>>%s<<< failed" % cmd)
 				_log.Log(gmLog.lData, "command status [%s], result status [%s]" % (res.resultStatus, res.cmdStatus))
-				_log.Log(gmLog.lData, self._conn.errorMessage)
+#				_log.Log(gmLog.lData, self._conn.errorMessage)
 				_log.Log(gmLog.lData, libpq.Error)
 				return None
 			self._intercepted_signals.append(aSignal)
 		# connect signal with callback function
 		gmDispatcher.connect(receiver = aCallback, signal = aSignal, sender = self._service)
+		if not self._thread_running:
+			self.__start_thread()
 	#-------------------------------
 	def unregister_callback(self, aSignal, aCallback):
 		# are we listening at all ?
@@ -112,32 +116,49 @@ class BackendListener:
 		self._thread_running = 1
 		thread.start()
 	#-------------------------------
+	# the actual threaded code
+	#-------------------------------
 	def _process_notifications(self):
 		while 1:
 			# don't check for input if we plan on quitting anyways
 			if self._quit:
 				break
+			# give others some time to acquire the lock before waiting for input
+			time.sleep(0.35)
+			self._conn_lock.acquire(blocking = 1)
 			ready_input_sockets = select.select([self._conn.socket], [], [], 1.0)[0]
+			self._conn_lock.release()
+
 			if len(ready_input_sockets) != 0:
+				# grab what came in
+				time.sleep(0.2)
+				self._conn_lock.acquire(blocking = 1)
 				self._conn.consumeInput()
 				note = self._conn.notifies()
+				self._conn_lock.release()
+				# any notifications amongst the data ?
 				while note:
-					_log.Log(gmLog.lData, 'backend [%s] sent signal [%s]' % (note.be_pid, note.relname))
-#					sys.stdout.flush()
-					gmDispatcher.send(signal = note.relname, sender = self._service, backend_pid = note.be_pid)					
+#					_log.Log(gmLog.lData, 'backend [%s] sent signal [%s]' % (note.be_pid, note.relname))
+					gmDispatcher.send(signal = note.relname, sender = self._service, sending_backend_pid = note.be_pid)
 					# don't handle more notifications if we plan on quitting anyways
 					if self._quit:
 						break
+					time.sleep(0.25)
+					self._conn_lock.acquire(blocking = 1)
 					note = self._conn.notifies()
+					self._conn_lock.release()
 			else:
 				# don't sleep waiting for input if we plan on quitting anyways
 				if self._quit:
 					break
-				# wait at max self.__poll_intervall
+				# wait at max self.__poll_intervall + 300ms
+				time.sleep(0.35)
+				self._conn_lock.acquire(blocking = 1)
 				select.select([self._conn.socket], [], [], self._poll_interval)
-#				time.sleep(self._poll_interval)
+				self._conn_lock.release()
+
 			if self._quit:
-				self._thread_running=0
+				self._thread_running = 0
 				break
 #=====================================================================
 # main
@@ -215,7 +236,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.9  2003-04-27 11:34:02  ncq
+# Revision 1.10  2003-04-28 21:38:13  ncq
+# - properly lock access to self._conn across threads
+# - give others a chance to acquire the lock
+#
+# Revision 1.9  2003/04/27 11:34:02  ncq
 # - rewrite register_callback() to allow for more than one callback per signal
 # - add unregister_callback()
 # - clean up __connect(), __start_thread()
