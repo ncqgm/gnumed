@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -85,27 +85,50 @@ class ConnectionPool:
 	#-----------------------------
 	def GetConnection(self, service = "default", readonly = 1, checked = 1):
 		"""check connection is live"""
+
 		conn =  self.GetConnectionUnchecked(service, readonly)
-		try:
-			if checked:
+		if checked:
+			try:
 				cursor = conn.cursor()
 				cursor.execute("select 1;")
 				cursor.close()
-			return conn
-		except StandardError:
-			_log.LogException("connection is dead", sys.exc_info(), 4)
-			_log.Data("trying a direct connection via __pgconnect()")
-			logininfo = self.GetLoginInfoFor(service)
-			conn =  self.__pgconnect(logininfo, readonly)
-			try:
-				if checked:
+			except StandardError:
+				_log.LogException("connection is dead", sys.exc_info(), 4)
+				_log.Data("trying a direct connection via __pgconnect()")
+				# actually this sort of defies the whole thing since
+				# GetLoginInfoFor() depends on GetConnection() ...
+				logininfo = self.GetLoginInfoFor(service)
+				conn = self.__pgconnect(logininfo, readonly)
+				try:
 					cursor = conn.cursor()
 					cursor.execute("select 1;")
 					cursor.close()
-				return conn
-			except:
-				_log.LogException("connection is dead", sys.exc_info(), 4)
-				return  None
+				except:
+					_log.LogException("connection is dead", sys.exc_info(), 4)
+					return  None
+
+		return conn
+
+#		try:
+#			if checked:
+#				cursor = conn.cursor()
+#				cursor.execute("select 1;")
+#				cursor.close()
+#			return conn
+#		except StandardError:
+#			_log.LogException("connection is dead", sys.exc_info(), 4)
+#			_log.Data("trying a direct connection via __pgconnect()")
+#			logininfo = self.GetLoginInfoFor(service)
+#			conn =  self.__pgconnect(logininfo, readonly)
+#			try:
+#				if checked:
+#					cursor = conn.cursor()
+#					cursor.execute("select 1;")
+#					cursor.close()
+#				return conn
+#			except:
+#				_log.LogException("connection is dead", sys.exc_info(), 4)
+#				return  None
 	#-----------------------------
 	def GetConnectionUnchecked(self, service = "default", readonly = 1):
 		"""if a distributed service exists, return it - otherwise return the default server"""
@@ -728,7 +751,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.52  2003-06-03 13:46:52  ncq
+# Revision 1.53  2003-06-03 13:59:20  ncq
+# - rewrite the lifeness check to look much cleaner
+#
+# Revision 1.52  2003/06/03 13:46:52  ncq
 # - some more fixes to Syans connection liveness check in GetConnection()
 #
 # Revision 1.51  2003/06/01 13:20:32  sjtan
