@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.168 2004-08-09 00:03:19 ncq Exp $
-__version__ = "$Revision: 1.168 $"
+# $Id: gmGuiMain.py,v 1.169 2004-08-11 08:15:06 ncq Exp $
+__version__ = "$Revision: 1.169 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -85,6 +85,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.guibroker = gmGuiBroker.GuiBroker()
 		self.guibroker['EmergencyExit'] = self._clean_exit
 		self.guibroker['main.frame'] = self
+		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _whoami.get_workplace())
 		# get plugin layout style
 		self.layout_style, set1 = gmCfg.getFirstMatchingDBSet(
 			workplace = _whoami.get_workplace(),
@@ -796,7 +797,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.168  2004-08-09 00:03:19  ncq
+# Revision 1.169  2004-08-11 08:15:06  ncq
+# - log debugging info on why workplace appears to be list on Richard's machine
+#
+# Revision 1.168  2004/08/09 00:03:19  ncq
 # - Horst space layout manager factored out into its own file
 #
 # Revision 1.167  2004/08/04 17:16:02  ncq
