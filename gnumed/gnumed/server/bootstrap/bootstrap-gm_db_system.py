@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -71,7 +71,7 @@ try:
 except ImportError:
 	print """Please make sure the GnuMed Python modules are in the Python path !"""
 	raise
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfg, gmPsql
 from Gnumed.pycommon.gmExceptions import ConstructorError
 
 # local imports
@@ -81,7 +81,6 @@ import gmScoringSchemaGenerator
 score_gen = gmScoringSchemaGenerator
 import gmNotificationSchemaGenerator
 notify_gen = gmNotificationSchemaGenerator
-import Psql
 
 _log = gmLog.gmDefLog
 _log.SetAllLogLevels(gmLog.lData)
@@ -777,7 +776,7 @@ class database:
 
 		# import auditing schema
 #		if not _import_schema_file(anSQL_file = '/tmp/audit-trail-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
-		psql = Psql.Psql (self.conn)
+		psql = gmPsql.Psql (self.conn)
 		if psql.run ('/tmp/audit-trail-schema.sql') != 0:
 			_log.Log(gmLog.lErr, "cannot import audit schema definition for database [%s]" % (self.name))
 			return None
@@ -822,7 +821,7 @@ class database:
 
 		# import scoring schema
 #		if not _import_schema_file(anSQL_file = '/tmp/scoring-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
-		psql = Psql.Psql (self.conn)
+		psql = gmPsql.Psql (self.conn)
 		if psql.run('/tmp/scoring-schema.sql') != 0:
 			_log.Log(gmLog.lErr, "cannot import scoring schema definition for database [%s]" % (self.name))
 			return None
@@ -857,7 +856,7 @@ class database:
 
 		# import notification schema
 #		if not _import_schema_file(anSQL_file = '/tmp/notification-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
-		psql = Psql.Psql (self.conn)
+		psql = gmPsql.Psql (self.conn)
 		if psql.run('/tmp/notification-schema.sql') != 0:
 			_log.Log(gmLog.lErr, "cannot import notification schema definition for database [%s]" % (self.name))
 			return None
@@ -1219,7 +1218,7 @@ def _import_schema (aSection, aConn):
 			schema_base_dir = os.path.expandvars('$GNUMED_DIR/server')
 
 	# and import them
-	psql = Psql.Psql (aConn)
+	psql = gmPsql.Psql (aConn)
 	for file in schema_files:
 		the_file = os.path.join(schema_base_dir, file)
 #		if _import_schema_file(anSQL_file = the_file, aSrv = aSrv_name, aDB = aDB_name, aUser = aUser):
@@ -1431,7 +1430,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.58  2004-06-28 13:23:20  ncq
+# Revision 1.59  2004-06-28 13:31:17  ncq
+# - really fix imports, now works again
+#
+# Revision 1.58  2004/06/28 13:23:20  ncq
 # - fix import statements
 #
 # Revision 1.57  2004/06/23 21:10:48  ncq
