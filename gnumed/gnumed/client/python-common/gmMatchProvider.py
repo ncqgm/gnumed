@@ -1,15 +1,15 @@
-"""
-Base classes for match providers, which are used by business objects
-to give phrasewheels the ability to guess phrases
-"""
+"""Base classes for match providers.
 
-# Copyright (C) GNUMed developers
-#@copyright: GPL
+They are used by business objects to give
+phrasewheels the ability to guess phrases.
 
+Copyright (C) GNUMed developers
+license: GPL
+"""
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.2 2003-11-04 10:35:23 ihaywood Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmMatchProvider.py,v 1.3 2003-11-09 14:25:21 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -17,8 +17,6 @@ import gmPG, gmExceptions
 
 _true = (1==1)
 _false = (1==0)
-
-
 #------------------------------------------------------------
 # generic base class
 #------------------------------------------------------------
@@ -402,10 +400,10 @@ class cMatchProvider_SQL(cMatchProvider):
 			# query
 			for context_var, condition in src['extra conditions'].iteritems ():
 				if self.__context.has_key (context_var) and self.__context[context_var]:
-					context_where += " and (%s)"% self.condition
+					context_where += " and (%s)" % self.condition
 					vars.append (self.__context[context_var])
 			if src['extra conditions'].has_key ('default'):
-				content_where += " and (%s)" % src['extra conditions']['default']
+				context_where += " and (%s)" % src['extra conditions']['default']
 				       
 
 			cmd = "select %s, %s from %s where %s %s %%s%s" % (
