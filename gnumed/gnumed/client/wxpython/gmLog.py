@@ -41,7 +41,7 @@ Usage:
 @copyright: GPL
 """
 
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, time, traceback, os.path, atexit, os, string
@@ -403,13 +403,13 @@ class cLogTargetEMail(cLogTarget):
 	# do our extra work
 	self.__from = str(aFrom)
 	self.__to = string.join(aTo, ", ")
-	print self.__to
 
 	import smtplib
+	print anSMTPServer
 	if anSMTPServer == None:
 	    self.__smtpd = smtplib.SMTP("localhost")
 	else:
-	    self.__smtpd = smtplib.SMTP(anSMTPServer)
+	    self.__smtpd = smtplib.SMTP(str(anSMTPServer))
 
 	self.ID = "email: " + self.__to
 	self.writeMsg (lInfo, "instantiated e-mail logging with ID " + str(self.ID))
@@ -459,7 +459,7 @@ class cLogTargetEMail(cLogTarget):
 	msg = msg + 'From: %s\n' % self.__from
 	msg = msg + 'To: %s\n' % self.__to
 	msg = msg + 'Date: %s\n' % time.strftime("%a, %d %b %Y %H:%M:%S %Z", time.localtime(time.time()))
-	msg = msg + 'Subject: GNUmed error log demon\n'
+	msg = msg + 'Subject: gmLog error log demon\n'
 	msg = msg + '\n'
 	# create mail body
 	# - dump system info
@@ -502,6 +502,8 @@ if __name__ == "__main__":
     print "please type sender and receiver of log messages"
     aFrom = raw_input("From: ").strip()
     aTo = raw_input("To: ").strip().split()
+    #aServer = raw_input("SMTP server: ").strip().split()
+    #mailhandle = cLogTargetEMail(lData, aFrom, aTo, aServer[0])
     mailhandle = cLogTargetEMail(lData, aFrom, aTo)
     log.AddTarget(mailhandle)
 
