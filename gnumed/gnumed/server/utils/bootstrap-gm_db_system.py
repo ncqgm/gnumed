@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -51,10 +51,12 @@ import gmUserSetup
 dbapi = None
 dbconn = None
 
-known_passwords = {}
+core_server = {}
+initial_user = {}
+initial_database = None
 #==================================================================
 def connect_to_db():
-	print "Connecting to PostgreSQL server ..."
+	print "Connecting to PostgreSQL server as initial user ..."
 
 	# load database adapter
 	global dbapi
@@ -68,52 +70,83 @@ def connect_to_db():
 	dbapi = PgSQL
 
 	# load authentication information
-	tmp = _cfg.get("server", "name")
+	global core_server
+	tmp = _cfg.get("core server", "name")
 	if not tmp:
 		_log.Log(gmLog.lErr, "Cannot load database host name from config file.")
 		tmp = "localhost"
-	host = raw_input("host [%s]: " % tmp)
-	if host == "":
-		host = tmp
+	core_server["host name"] = raw_input("host [%s]: " % tmp)
+	if core_server["host name"] == "":
+		core_server["host name"] = tmp
 
-	tmp = _cfg.get("server", "port")
+	tmp = _cfg.get("core server", "port")
 	if not tmp.isdigit():
 		_log.Log(gmLog.lErr, "Cannot load database API port number from config file.")
 		tmp = 5432
-	port = raw_input("port [%s]: " % tmp)
-	if port == "":
-		port = tmp
+	core_server["port"] = raw_input("port [%s]: " % tmp)
+	if core_server["port"] == "":
+		core_server["port"] = tmp
 
-	tmp = _cfg.get("server", "database")
+	global initial_database
+	tmp = _cfg.get("core server", "initial database")
 	if not tmp:
-		_log.Log(gmLog.lErr, "Cannot load database name from config file.")
-		database = "gnumed"
-	database = raw_input("database [%s]: " % tmp)
-	if database == "":
-		database = tmp
+		_log.Log(gmLog.lErr, "Cannot load initial database name from config file.")
+		tmp = "template1"
+	initial_database = raw_input("database [%s]: " % tmp)
+	if initial_database == "":
+		initial_database = tmp
 
-	tmp = _cfg.get("server", "user")
+	global initial_user
+	tmp = _cfg.get("core server", "initial user")
 	if not tmp:
 		_log.Log(gmLog.lErr, "Cannot load database super-user from config file.")
 		tmp = "postgres"
-	user = raw_input("user [%s]: " % tmp)
-	if user == "":
-		user = tmp
+	initial_user["name"] = raw_input("user [%s]: " % tmp)
+	if initial_user["name"] == "":
+		initial_user["name"] = tmp
 
 	# get password from user
 	print "We still need a password to actually access the database."
-	print "(user [%s] in db [%s] on [%s:%s])" % (user, database, host, port)
-	password = raw_input("Please type password: ")
+	print "(user [%s] in db [%s] on [%s:%s])" % (initial_user["name"], database, core_server["host name"], core_server["port"])
+	initial_user["password"] = raw_input("Please type password: ")
 
 	# log in
-	dsn = "%s:%s:%s:%s:%s" % (host, port, database, user, password)
+	dsn = "%s:%s:%s:%s:%s" % (core_server["host name"], core_server["port"], database, initial_user["name"], initial_user["password"])
 	try:
 		conn = PgSQL.connect(dsn)
 	except:
 		exc = sys.exc_info()
-		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (user, password, database, host, port), exc, fatal=1)
+		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (initial_user["name"], initial_user["password"], database, core_server["host name"], core_server["port"]), exc, fatal=1)
 		return None
-	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (user, database, host, port))
+	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (initial_user["name"], database, core_server["host name"], core_server["port"]))
+
+	print "Successfully connected."
+	return conn
+#------------------------------------------------------------------
+def reconnect_as_gm_owner():
+	print "Reconnecting to PostgreSQL server as GnuMed database owner ..."
+
+	global core_server
+	global initial_database
+
+	if not gmUserSetup.dbowner.has_key("name"):
+		_log.Log(gmLog.lErr, "Cannot connect without GnuMed database owner name.")
+		return None
+
+	if not gmUserSetup.dbowner.has_key("password"):
+		# get password from user
+		print "We need the password for the GnuMed database owner."
+		print "(user [%s] in db [%s] on [%s:%s])" % (gmUserSetup.dbowner["name"], initial_database, core_server["host name"], core_server["port"])
+		gmUserSetup.dbowner["password"] = raw_input("Please type password: ")
+
+	# log in
+	dsn = "%s:%s:%s:%s:%s" % (core_server["host name"], core_server["port"], initial_database, gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"])
+	try:
+		conn = PgSQL.connect(dsn)
+	except:
+		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"], initial_database, core_server["host name"], core_server["port"]), sys.exc_info(), fatal=1)
+		return None
+	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (gmUserSetup.dbowner["name"], initial_database, core_server["host name"], core_server["port"]))
 
 	print "Successfully connected."
 	return conn
@@ -123,7 +156,7 @@ def verify_db():
 
 	print "Verifying PostgreSQL server version..."
 
-	required_version = _cfg.get("server", "version")
+	required_version = _cfg.get("GnuMed defaults", "postgres version")
 	if not required_version:
 		_log.Log(gmLog.lErr, "Cannot load minimum required PostgreSQL version from config file.")
 		return None
@@ -236,11 +269,11 @@ def bootstrap_user_structure():
 def bootstrap_procedural_languages():
 	print "Activating procedural languages..."
 
-	lang_list = _cfg.get("defaults", "procedural languages")
+	lang_list = _cfg.get("GnuMed defaults", "procedural languages")
 	if lang_list is None:
 		print "No procedural languages to activate or error loading language list."
 
-	lib_dirs = _cfg.get("defaults", "language library dirs")
+	lib_dirs = _cfg.get("GnuMed defaults", "language library dirs")
 	if lang_list is None:
 		_log.Log(gmLog.lErr, "Error loading procedural language library directories list.")
 		exit_with_msg("Error loading procedural language library directories list.")
@@ -248,6 +281,61 @@ def bootstrap_procedural_languages():
 	for lang in lang_list:
 		if not install_lang(lib_dirs, lang):
 			exit_with_msg("Error installing procedural language [%s]." % lang)
+
+	return 1
+#------------------------------------------------------------------
+def db_exists(aDatabase):
+	cmd = "SELECT datname FROM pg_database WHERE datname='%s';" % aDatabase
+
+	aCursor = dbconn.cursor()
+	try:
+		aCursor.execute(cmd)
+	except:
+		_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
+		return None
+
+	res = aCursor.fetchone()
+	tmp = aCursor.rowcount
+	aCursor.close()
+	if tmp == 1:
+		_log.Log(gmLog.lInfo, "Database %s exists." % aDatabase)
+		return 1
+
+	_log.Log(gmLog.lInfo, "Database %s does not exist." % aDatabase)
+	return None
+#------------------------------------------------------------------
+bootstrap_core_database()
+	print "Bootstrapping GnuMed core database..."
+
+	global dbconn
+
+	# reconnect as GnuMed database owner
+	dbconn.close()
+	tmp = reconnect_as_gm_owner()
+	if tmp is None:
+		exit_with_msg("Cannot reconnect to database as GnuMed database owner.")
+	dbconn = tmp
+
+	database = _cfg.get("GnuMed defaults", "core database name")
+	if not database:
+		_log.Log(gmLog.lErr, "Cannot load name of core GnuMed database from config file.")
+		database = "gnumed"
+
+	# create main database
+	if db_exists(database):
+		return 1
+
+	cursor = dbconn.cursor()
+	cmd = 'create database "%s"' % database
+	try:
+		cursor.execute(cmd)
+	except:
+		_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
+		return None
+	dbconn.commit()
+	cursor.close()
+
+	# reconnect to main database as database owner
 
 	return 1
 #==================================================================
@@ -272,12 +360,11 @@ if __name__ == "__main__":
 
 	print "Bootstrapping GnuMed database system..."
 
-	# connect to database
+	# connect to template database as superuser
 	tmp = connect_to_db()
 	if tmp is None:
 		exit_with_msg("Cannot connect to database.")
-	else:
-		dbconn = tmp
+	dbconn = tmp
 
 	if not verify_db():
 		dbconn.close()
@@ -289,9 +376,8 @@ if __name__ == "__main__":
 	# insert procedural languages
 	bootstrap_procedural_languages()
 
-	# reconnect as GnuMed database owner
-
 	# boostrap gnumed core database
+	bootstrap_core_database()
 
 	# setup (possibly distributed) services
 
@@ -302,7 +388,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.1  2002-10-31 22:59:19  ncq
+# Revision 1.2  2002-11-01 13:56:05  ncq
+# - now also installs the GnuMed core database "gnumed"
+#
+# Revision 1.1  2002/10/31 22:59:19  ncq
 # - tests environment, bootstraps users, bootstraps procedural languages
 # - basically replaces gnumed.sql and setup-users.py
 #
