@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -54,9 +54,9 @@ class scanFrame(wxPanel):
 	# a list holding our objects
 	acquired_pages = []
 	#----------------------------------------------
-	def __init__(self, parent, id):
-		wxPanel.__init__(self,parent,id,wxDefaultPosition,wxDefaultSize,)
-        
+	def __init__(self, parent):
+		wxPanel.__init__(self, parent, -1, wxDefaultPosition, wxDefaultSize)
+
 		# FIXME: dict this !!
 		(self.TwainSrcMngr, self.TwainScanner) = (None, None)
 		(self.SaneSrcMngr, self.SaneScanner) = (None, None)
@@ -675,9 +675,11 @@ class scanFrame(wxPanel):
 				_log.LogException('cannot open SANE scanner', exc, fatal=1)
 				return None
 
+			_log.Log(gmLog.lData, 'SANE device list  : %s' % str(_sane.get_devices()))
 			_log.Log(gmLog.lData, 'opened SANE device: %s' % str(self.SaneScanner))
 			_log.Log(gmLog.lData, 'SANE device config: %s' % self.SaneScanner.get_parameters())
 			_log.Log(gmLog.lData, 'SANE device opts  : %s' % self.SaneScanner.optlist())
+			_log.Log(gmLog.lData, 'SANE device opts  : %s' % self.SaneScanner.getoptions())
 
 		return 1
 	#-----------------------------------
@@ -929,7 +931,7 @@ if __name__ == '__main__':
 	try:
 		#application = ScanningApp(size = (800,600))
 		application = wxPyWidgetTester(size=(-1,-1))
-		application.SetWidget(scanFrame,-1)
+		application.SetWidget(scanFrame, -1)
 		application.MainLoop()
 	except:
 		exc = sys.exc_info()
@@ -943,13 +945,16 @@ else:
 			return _("Scan")
 
 		def GetWidget (self, parent):
-			return scanFrame (parent, -1)
+			return scanFrame (parent)
 
 		def MenuInfo (self):
-			return (_('Tools'), _('&scan documents'))
+			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.8  2002-11-17 17:09:43  ncq
+# Revision 1.9  2002-11-17 18:17:43  ncq
+# - sane + plugin fixes
+#
+# Revision 1.8  2002/11/17 17:09:43  ncq
 # - yet more sane fixes
 #
 # Revision 1.7  2002/11/17 17:07:03  ncq
