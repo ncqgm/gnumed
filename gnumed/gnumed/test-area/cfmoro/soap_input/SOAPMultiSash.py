@@ -6,7 +6,7 @@
 #
 # Created:      2002/11/20
 # Version:      0.1
-# RCS-ID:       $Id: SOAPMultiSash.py,v 1.13 2004-12-03 16:22:25 cfmoro Exp $
+# RCS-ID:       $Id: SOAPMultiSash.py,v 1.14 2004-12-03 16:34:44 cfmoro Exp $
 # License:      wxWindows licensie
 # GnuMed customization (Carlos): 
 #        Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -164,6 +164,8 @@ class wxMultiSplit(wxWindow):
         """
         if not self.view2:             
             print "Removing first leaf"
+            # can't be sure is selected when user clicked destroyer element, so...
+            self.view1.detail.Select()
             # we just hide SOAP input widget's contents when removing unique leaf
             soap_widget = self.view1.detail.child
             soap_issue = soap_widget.GetHealthIssue()            
