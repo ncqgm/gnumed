@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.125 2004-06-28 16:05:42 ncq Exp $
-__version__ = "$Revision: 1.125 $"
+# $Id: gmClinicalRecord.py,v 1.126 2004-06-30 15:31:22 shilbert Exp $
+__version__ = "$Revision: 1.126 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -486,11 +486,12 @@ class cClinicalRecord:
 
 				if not emr_data.has_key(age):
 					emr_data[age] = []
-
+				
+				# temp addition :
 				emr_data[age].append(
 					_('%s: encounter (%s)') % (
 						view_row[view_col_idx['clin_when']],
-						view_row[view_col_idx['fk_encounter']]
+						view_row[view_col_idx['pk_encounter']]
 					)
 				)
 				emr_data[age].append(_('health issue: %s') % issue_name)
@@ -1318,7 +1319,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.125  2004-06-28 16:05:42  ncq
+# Revision 1.126  2004-06-30 15:31:22  shilbert
+# - fk/pk issue fixed
+#
+# Revision 1.125  2004/06/28 16:05:42  ncq
 # - fix spurious 'id' for episode -> pk_episode
 #
 # Revision 1.124  2004/06/28 12:18:41  ncq
