@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -156,7 +156,7 @@ INSERT INTO cfg_type_enum VALUES ('str_array');
 -- ======================================================
 create table cfg_template (
 	id SERIAL PRIMARY KEY,
-	name VARCHAR(20) NOT NULL DEFAULT 'must set this !',
+	name VARCHAR(80) NOT NULL DEFAULT 'must set this !',
 	type VARCHAR (20) references cfg_type_enum (name),
 	cfg_group VARCHAR (20) not null default '__default__',
 	description TEXT NOT NULL DEFAULT 'programmer is an avid Camel Book Reader'
@@ -236,11 +236,14 @@ GRANT select, insert, update, delete on
 to group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.25 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.26 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.25  2003-07-27 22:01:48  ncq
+-- Revision 1.26  2003-10-26 23:02:22  hinnef
+-- - changed config param name length to 80
+--
+-- Revision 1.25  2003/07/27 22:01:48  ncq
 -- - comment out unused service names
 --
 -- Revision 1.24  2003/05/12 12:43:39  ncq
