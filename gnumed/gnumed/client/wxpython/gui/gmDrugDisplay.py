@@ -64,6 +64,8 @@ if __name__ == "__main__":
 import gmPG, gmDrugView
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
+import gmWhoAmI
+_whoami = gmWhoAmI.cWhoAmI()
 from gmExceptions import *
 #============================================================
 # These constants are used when referring to menu items below
@@ -104,7 +106,20 @@ class DrugDisplay(wxPanel):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		
-		self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')
+		# if we are not inside gnumed we won't get a definite answer on
+		# who and where we are. in this case try to get config source 
+		# from main config file (see gmCfg on how the name of this file
+		# is determined
+		# this is necessary to enable stand alone use of the drug browser
+		currMachine = _whoami.getMachine()
+		if currMachine is None:
+			# assume we are outside gnumed
+			self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')
+		else:
+			# 
+			self.dbName, match = gmCfg.getFirstMatchingDBSet(currMachine,
+				option="DrugReferenceBrowser.drugDBName")
+		
 		if self.dbName is None:
 			_log.Log(gmLog.lPanic,"No drug database specified. Aborting drug browser.")
 			# FIXME: we shouldn't directly call Close() on the parent
@@ -116,8 +131,10 @@ class DrugDisplay(wxPanel):
 		try:    
 			self.mDrugView=gmDrugView.DrugView(self.dbName)
 		except:
+			_log.LogException("Unhandled exception during DrugView API init.", sys.exc_info(), verbose = 0)
 			raise ConstructorError, "Couldn't initialize DrugView API"			
-			
+#			return None
+						
 		self.mode = MODE_BRAND
 		self.previousMode = MODE_BRAND
 		self.printer = wxHtmlEasyPrinting()		#printer object to print html page
@@ -618,10 +635,7 @@ else:
 			return ("view", _("&DrugBrowser"))
 
 		def GetWidget (self, parent):
-			try:
-				return DrugDisplay (parent, -1)
-			except:
-				return None
+			return DrugDisplay (parent, -1)
 				
 
 # @change log:
@@ -630,7 +644,10 @@ else:
 #	05.09.2002 hherb DB-API 2.0 compliance
 
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.11  2003-08-24 13:41:10  hinnef
+# Revision 1.12  2003-09-03 17:33:22  hinnef
+# make use of gmWhoAmI, try to get config info from backend
+#
+# Revision 1.11  2003/08/24 13:41:10  hinnef
 # moved to main tree, bug fixes
 #
 # Revision 1.6  2002/11/17 16:44:23  hinnef

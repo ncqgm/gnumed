@@ -505,7 +505,8 @@ if __name__ == '__main__':
 
 else:
 	import gmPlugin, gmGuiBroker,gmPG
-
+	import gmWhoAmI
+	_whoami = gmWhoAmI.cWhoAmI()
 
 	class gmConfigRegistry(gmPlugin.wxNotebookPlugin):
 		def name (self):
@@ -513,9 +514,9 @@ else:
 
 		def GetWidget (self, parent):
 			# get current workplace name
-			self.gb = gmGuiBroker.GuiBroker()
-			workplace = self.gb['workplace_name']
-			currUser = self.gb['currentUser']
+			workplace = _whoami.getMachine() 
+			currUser = _whoami.getUser()			
+			_log.Log (gmLog.lInfo, "ConfigReg: %s@%s" % (currUser,workplace))
 
 			self.panel = gmConfigEditorPanel(parent,currUser,workplace)
 			return self.panel
@@ -529,7 +530,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.6  2003-08-24 08:58:18  ncq
+# Revision 1.7  2003-09-03 17:33:22  hinnef
+# make use of gmWhoAmI, try to get config info from backend
+#
+# Revision 1.6  2003/08/24 08:58:18  ncq
 # - use gm_show_*
 #
 # Revision 1.5  2003/08/23 18:40:43  hinnef

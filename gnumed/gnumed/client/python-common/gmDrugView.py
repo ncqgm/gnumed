@@ -12,7 +12,9 @@ _log = gmLog.gmDefLog
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
-import gmPG, gmDrugObject
+import gmPG, gmDrugObject, gmWhoAmI
+_whoami = gmWhoAmI.cWhoAmI()
+
 from gmExceptions import *
 
 darkblue = '#00006C'
@@ -34,8 +36,23 @@ class DrugView:
 			raise ConstructorError,"No database name specified."
 
 		# open configuration source
-		self.dbConfFile = _cfg.get(aDatabaseName, 'configfile')
+		# if we are not inside gnumed we won't get a definite answer on
+		# who and where we are. in this case try to get config source 
+		# from main config file (see gmCfg on how the name of this file
+		# is determined
+		
+		currMachine = _whoami.getMachine()
+		if currMachine is None:
+			# assume we are outside gnumed
+			self.dbConfFile = _cfg.get(aDatabaseName, 'configfile')
+		else:
+			# 
+			self.dbConfFile, match = gmCfg.getFirstMatchingDBSet(currMachine,
+				option="DrugReferenceBrowser.%s.configfile" % aDatabaseName)
+		
 
+		_log.Log(gmLog.lInfo, "dbConfFile is [%s]" % str(self.dbConfFile))
+			
 		if self.dbConfFile is None:
 			_log.Log(gmLog.lErr, "No config information on drug database [%s] found." % aDatabaseName)
 			raise ConstructorError,"No DrugDB config file specified."
@@ -380,7 +397,10 @@ if __name__ == "__main__":
 	pass
 
 # $Log: gmDrugView.py,v $
-# Revision 1.1  2003-08-24 13:38:24  hinnef
+# Revision 1.2  2003-09-03 17:32:05  hinnef
+# make use of gmWhoAmI, try to get config info from backend
+#
+# Revision 1.1  2003/08/24 13:38:24  hinnef
 # moved to main-tree, some bug fixes
 #
 # Revision 1.6  2002/11/17 16:44:23  hinnef
