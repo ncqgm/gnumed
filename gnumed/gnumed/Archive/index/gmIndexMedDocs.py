@@ -12,7 +12,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -69,7 +69,7 @@ class indexFrame(wxPanel):
 		self.__get_repository()
 		
 		# provide valid choices for document types
-		self.__get_valid_choices()
+		self.__get_valid_doc_types()
 	
 		wxPanel.__init__(self, parent, -1, wxDefaultPosition, wxDefaultSize)
 
@@ -83,10 +83,12 @@ class indexFrame(wxPanel):
 		self.__set_properties()
 		self.__do_layout()
 
-		# we are indexing data from one particular patient
+		# we are indexing data of one particular patient
 		# this is a design decision
+
+		# if standalone: load patient from file
 		if __name__ == '__main__':
-			if not self.load_patient():
+			if not self.__load_patient_from_file():
 				return -1
 			self.fill_pat_fields()
 		
@@ -422,19 +424,17 @@ class indexFrame(wxPanel):
 		return 1
 		
 	#--------------------------------
-	def __get_valid_choices(self):
+	def __get_valid_doc_types(self):
 		# running standalone ? -> configfile
 		if __name__ == '__main__':
-			# get valid document types from ini-file
 			self.valid_doc_types = _cfg.get("metadata", "doctypes")
 		# we run embedded -> query database
 		else:	
 			doc_types = []
-			db = gmPG.ConnectionPool()
-			dbo = gmDbObject.DBObject(db, select_query = "SELECT * FROM doc_type")
-			tmp = dbo.Select()
-			for n in tmp:
-				doc_types.append(n[1])
+			cmd = "SELECT name FROM doc_type"
+			rows = gmPG.run_ro_query('blobs', cmd)
+			for row in rows:
+				doc_types.append(row[0])
 			self.valid_doc_types = doc_types
 	#--------------------------------
 	def __get_repository(self):
@@ -454,7 +454,7 @@ class indexFrame(wxPanel):
 		else :
 			# fixme : needs to be read from db
 			self.repository = '/home/basti/gnumed/repository'
-			
+
 	#--------------------------------
 	def __get_phrasewheel_choices(self):
 		"""Return a list of dirs that can be indexed.
@@ -647,47 +647,30 @@ class indexFrame(wxPanel):
 	#----------------------------------------
 	# patient related helpers
 	#----------------------------------------
-	def load_patient(self):
+	def __load_patient_from_file(self):
 		"""Get data of patient for which to index documents.
 
 		- later on we might want to provide access
 		  to other methods of getting the patient
 		"""
-		if __name__ == '__main__':
-			pat_file = os.path.abspath(os.path.expanduser(_cfg.get("index", "patient file")))
-			# FIXME: actually handle pat_format, too  :-)
-			pat_format = _cfg.get("index", "patient file format")
-			_log.Log(gmLog.lWarn, 'patient file format is [%s]' % pat_format)
-			_log.Log(gmLog.lWarn, 'note that we only handle xDT files so far')
+		pat_file = os.path.abspath(os.path.expanduser(_cfg.get("index", "patient file")))
+		# FIXME: actually handle pat_format, too  :-)
+		pat_format = _cfg.get("index", "patient file format")
+		_log.Log(gmLog.lWarn, 'patient file format is [%s]' % pat_format)
+		_log.Log(gmLog.lWarn, 'note that we only handle xDT files so far')
 
-			# get patient data from xDT file
-			try:
-				self.__xdt_patient = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
-			except:
-				_log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
-				gm_show_error(
-					aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
-					aTitle = _('loading patient from xDT file')
-				)
-				return None
+		# get patient data from xDT file
+		try:
+			self.__xdt_patient = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
+		except:
+			_log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
+			gm_show_error(
+				aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
+				aTitle = _('loading patient from xDT file')
+			)
+			return None
 
-			return 1
-		else:
-			# query GNUmed for active patient
-			# get connection
-			self.__backend = gmPG.ConnectionPool()
-			self.__defconn = self.__backend.GetConnection('blobs')
-			if self.__defconn is None:
-				_log.Log(gmLog.lErr, "Cannot retrieve documents without database connection !")
-				raise ConstructorError, "gmIndexMedDocs.load_patient(): need db conn"
-
-			self.curr_pat = gmPatient.gmCurrentPatient()
-			#return [{'last':'foo','first':'foo'}]
-			self.name = self.curr_pat['active name']
-			self.dob = self.curr_pat['dob']
-			_log.Log(gmLog.lData, 'name is [%s]' % self.name)
-	
-			return 1
+		return 1
 	#----------------------------------------
 	def fill_pat_fields(self):
 		if __name__ == '__main__':
@@ -696,9 +679,13 @@ class indexFrame(wxPanel):
 			self.TBOX_last_name.SetValue(self.__xdt_patient['last name'])
 			self.TBOX_dob.SetValue("%s.%s.%s" % (self.__xdt_patient['dob day'], self.__xdt_patient['dob month'], self.__xdt_patient['dob year']))
 		else:
-			self.TBOX_first_name.SetValue(self.name['first'])
-			self.TBOX_last_name.SetValue(self.name['last'])
-			self.TBOX_dob.SetValue(self.dob)
+			# query GNUmed for active patient
+			curr_pat = gmPatient.gmCurrentPatient()
+			name = curr_pat['demographic record'].getActiveName()
+			self.TBOX_first_name.SetValue(name['first'])
+			self.TBOX_last_name.SetValue(name['last'])
+			dob = curr_pat['demographic record'].getDOB('YYYY-MM-DD')
+			self.TBOX_dob.SetValue(dob)
 	#----------------------------------------
 	def __keep_patient_file(self, aDir):
 		# keep patient file for import
@@ -952,26 +939,6 @@ class indexFrame(wxPanel):
 			return None
 
 		return 1
-	#----------------------------------------
-	# error handling
-	#----------------------------------------
-"""	def __show_error(self, aMessage = None, aTitle = ''):
-		# sanity checks
-		tmp = aMessage
-		if aMessage is None:
-			tmp = _( 'programmer forgot to specify error message')
-
-		tmp = tmp + _("\n\nPlease consult the error log for further information !")
-
-		dlg = wxMessageDialog(
-			NULL,
-			tmp,
-			aTitle,
-			wxOK | wxICON_ERROR
-		)
-		dlg.ShowModal()
-		dlg.Destroy()
-		return 1"""
 #======================================================
 # main
 #------------------------------------------------------
@@ -1000,7 +967,7 @@ if __name__ == '__main__':
 # == classes for plugin use ===========================
 else:
 
-	import gmPlugin,gmGuiBroker,gmDbObject,gmPG
+	import gmPlugin, gmGuiBroker ,gmPG
 
 	class gmIndexMedDocs(gmPlugin.wxNotebookPlugin):
 		def name (self):
@@ -1018,9 +985,6 @@ else:
 			return ('tools', _('&Index Documents'))
 		
 		def ReceiveFocus(self):
-			if not self.panel.load_patient():
-				_log.Log(gmLog.lErr, "failed to load patient: [%s]" %self.panel.load_patient())
-				return -1
 			self.panel.fill_pat_fields()
 			# FIXME: register interest in patient_changed signal, too
 			#self.panel.tree.SelectItem(self.panel.tree.root)
@@ -1037,7 +1001,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.1  2003-11-08 12:07:43  shilbert
+# Revision 1.2  2003-11-08 18:11:13  ncq
+# - cleanup
+#
+# Revision 1.1  2003/11/08 12:07:43  shilbert
 # - name change index_med_docs -> gmIndexMedDocs
 # - fixed issues with updated phrasewheel
 # - made it work as plugin again
