@@ -108,10 +108,10 @@ class LoginPanel(wxPanel):
 			self.topsizer.Add(wxStaticText (self, -1, _("Cannot find image") + bitmap, style=wxALIGN_CENTRE), 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
 
 		tmp = _cfg.get('workplace', 'name')
-		if tmp == None:
+		if tmp is None:
 			print _('You should name this workplace to better identify the machine !\nTo do this set the option "name" in the group [workplace] in the config file !')
 			tmp = _("<no workplace name set in config file>")
-			self.gb['workplace_name'] = 'unknown workplace'
+			self.gb['workplace_name'] = '__default__'
 		else:
 			self.gb['workplace_name'] = tmp
 
@@ -578,7 +578,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.27  2003-01-07 10:22:52  ncq
+# Revision 1.28  2003-01-16 09:22:28  ncq
+# - changed default workplace name to "__default__" to play better with the database
+#
+# Revision 1.27  2003/01/07 10:22:52  ncq
 # - fixed font definition
 #
 # Revision 1.26  2002/09/21 14:49:22  ncq
