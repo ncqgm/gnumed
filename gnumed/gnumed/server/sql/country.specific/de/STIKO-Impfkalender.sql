@@ -9,7 +9,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -25,7 +25,7 @@ insert into vacc_regime
 values (
 	1,
 	(select id from vacc_indication where description='measles'),
-	'Masern-Impfung, meist in MMR-Kombination'
+	'MMR (Masern, STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -58,7 +58,7 @@ insert into vacc_regime
 values (
 	1,
 	(select id from vacc_indication where description='mumps'),
-	'Mumps-Impfung, meist in MMR-Kombination'
+	'MMR (Mumps, STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -91,7 +91,7 @@ insert into vacc_regime
 values (
 	1,
 	(select id from vacc_indication where description='rubella'),
-	'Röteln-Impfung, meist in MMR-Kombination'
+	'MMR (Röteln, STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -124,7 +124,7 @@ insert into vacc_regime
 values (
 	1,
 	(select id from vacc_indication where description='tetanus'),
-	'Tetanus-Impfung, meist in DTaP- bzw. DT/Td-Kombination'
+	'DTaP DT/Td (Tetanus, STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -189,7 +189,7 @@ insert into vacc_regime
 values (
 	1,
 	(select id from vacc_indication where description='diphtheria'),
-	'Diphtherie-Impfung, meist in DTaP- bzw. DT/Td-Kombination'
+	'DTaP DT/Td (Diphtherie, STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -250,7 +250,7 @@ insert into vacc_regime
 values (
 	1,
 	(select id from vacc_indication where description='influenza'),
-	'jährlich neu von WHO empfohlener Impfstoff'
+	'Influenza (STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -300,7 +300,7 @@ insert into vacc_regime
 values (
 	1,
 	(select id from vacc_indication where description='pertussis'),
-	'Pertussis-Impfung, oft in DTaP-Kombination'
+	'DTaP (Pertussis, STIKO)'
 );
 
 -- Impfzeitpunkte festlegen
@@ -332,11 +332,14 @@ values
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename like '%STIKO-Impfkalender%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.6  2003-11-26 23:19:08  ncq
+-- Revision 1.7  2003-12-01 22:22:41  ncq
+-- - vastly improve strings
+--
+-- Revision 1.6  2003/11/26 23:19:08  ncq
 -- - vacc_def now links to vacc_regime instead of vacc_indication
 --
 -- Revision 1.5  2003/10/31 23:30:28  ncq
