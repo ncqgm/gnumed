@@ -46,38 +46,21 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
-import gettext, getopt, sys, os.path, string
-import gmLog
+import gettext, sys, os.path, string
+import gmLog, gmCLI
 log = gmLog.gmDefLog
 #---------------------------------------------------------------------------
 def install_domain():
 	"""Install a text domain suitable for the main script.
 	"""
-	cmd_line = []
-	known_opts = []
 	text_domain = ""
 	# text domain given on command line ?
-	# long options only !
-	try:
-		cmd_line = getopt.getopt(sys.argv[1:], '', ['text-domain=',])
-	except getopt.GetoptError:
-		log.Log(gmLog.lInfo, "problem parsing command line or --text-domain=<> not given")
-		exc = sys.exc_info()
-		log.LogException("Non-fatal exception caught:", exc, fatal=0)
-
-	# 1) tuple(cmd_line) -> (known options, junk)
-	if len(cmd_line) > 0:
-		known_opts = cmd_line[0]
-		log.Log(gmLog.lData, 'cmd line is "%s"' % str(cmd_line))
-	if len(known_opts) > 0:
-		# 2) sequence(known_opt) -> (opt 1, opt 2, ..., opt n)
-		first_opt = known_opts[0]
-		# 3) tuple(first_opt) -> (option name, option value)
-		text_domain = first_opt[1]
+	if gmCLI.has_arg('--text-domain'):
+		text_domain = gmCLI.arg['--text-domain']
 	# else get text domain from name of script 
 	else:
 		text_domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
