@@ -55,11 +55,11 @@ entirely.
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
-import gettext, sys, os.path, string
+import gettext, sys, os.path, string, os
 import gmLog, gmCLI
 log = gmLog.gmDefLog
 #---------------------------------------------------------------------------
@@ -106,15 +106,15 @@ def install_domain():
 
 	# now we can install this text domain
 	# 1) try standard places first
-	log.Log(gmLog.lData, 'Looking in standard POSIX locations (see Python Manual).')
-	try:
-		gettext.install(text_domain)
-		log.Log(gmLog.lData, 'Found message catalog.')
-		return 1
-	except IOError:
-		# most likely we didn't have a .mo file
-		exc = sys.exc_info()
-		log.LogException('Cannot install textdomain from standard POSIX locations.', exc, fatal=0)
+	if os.name == 'posix':
+		log.Log(gmLog.lData, 'Looking in standard POSIX locations (see Python Manual).')
+		try:
+			gettext.install(text_domain)
+			log.Log(gmLog.lData, 'Found message catalog.')
+			return 1
+		except IOError:
+			# most likely we didn't have a .mo file
+			log.LogException('Cannot install textdomain from standard POSIX locations.', sys.exc_info(), fatal=0)
 
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
@@ -129,8 +129,7 @@ def install_domain():
 				return 1
 			except IOError:
 				# most likely we didn't have a .mo file
-				exc = sys.exc_info()
-				log.LogException('Cannot install textdomain from custom location [%s].' % (loc_dir), exc)
+				log.LogException('Cannot install textdomain from custom location [%s].' % (loc_dir), sys.exc_info())
 		else:
 			log.Log(gmLog.lWarn, 'Custom location [%s] does not exist. Cannot install textdomain from there.' % (loc_dir))
 	else:
@@ -150,8 +149,7 @@ def install_domain():
 			return 1
 		except IOError:
 			# most likely we didn't have a .mo file
-			exc = sys.exc_info()
-			log.LogException('Cannot install textdomain from one level above binary location [%s].' % (loc_dir), exc, 0)
+			log.LogException('Cannot install textdomain from one level above binary location [%s].' % (loc_dir), sys.exc_info(), 0)
 	else:
 		log.Log(gmLog.lWarn, "The application level locale directory [%s] does not exist. Cannot install textdomain from there." % (loc_dir))
 
@@ -166,8 +164,7 @@ def install_domain():
 			return 1
 		except IOError:
 			# most likely we didn't have a .mo file
-			exc = sys.exc_info()
-			log.LogException('Cannot install textdomain from within path to binary [%s].' % (loc_dir), exc, 0)
+			log.LogException('Cannot install textdomain from within path to binary [%s].' % (loc_dir), sys.exc_info(), 0)
 	else:
 		log.Log(gmLog.lWarn, "The application level locale directory [%s] does not exist. Cannot install textdomain from there." % (loc_dir))
 
@@ -202,7 +199,11 @@ log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.20  2002-11-18 09:41:25  ncq
+# Revision 1.21  2002-12-09 23:39:50  ncq
+# - only try standard message catalog locations on true POSIX systems
+#   as windows will choke on it
+#
+# Revision 1.20  2002/11/18 09:41:25  ncq
 # - removed magic #! interpreter incantation line to make Debian happy
 #
 # Revision 1.19  2002/11/17 20:09:10  ncq
