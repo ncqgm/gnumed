@@ -8,12 +8,12 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: gmMultiSash.py,v 1.1 2005-03-15 07:53:28 ncq Exp $
+# RCS-ID:		$Id: gmMultiSash.py,v 1.2 2005-03-17 19:54:20 cfmoro Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMultiSash.py,v $
-# $Id: gmMultiSash.py,v 1.1 2005-03-15 07:53:28 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmMultiSash.py,v 1.2 2005-03-17 19:54:20 cfmoro Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Gerrit van Dyk, Carlos, Karsten"
 #__license__ = "GPL"
 	   
@@ -93,6 +93,7 @@ class cMultiSash(wxWindow):
 			self.bottom_leaf = self.__find_bottom_leaf(self.child)
 		else:
 			self.bottom_leaf = bottom_leaf
+		self.bottom_leaf.Select()
 		
 	#---------------------------------------------
 	def refresh_displayed_leafs(self, splitter):
@@ -883,7 +884,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: gmMultiSash.py,v $
-# Revision 1.1  2005-03-15 07:53:28  ncq
+# Revision 1.2  2005-03-17 19:54:20  cfmoro
+# Ensure a the bottom leaf is selected after adding or removing leaf to avoid corrupted references
+#
+# Revision 1.1  2005/03/15 07:53:28  ncq
 # - moved to main trunk from test_area
 # - license check needed !
 #
