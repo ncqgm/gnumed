@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.37 2003-11-17 10:56:37 sjtan Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmEditArea.py,v 1.38 2003-11-19 13:55:57 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -549,12 +549,11 @@ class gmEditArea( wxPanel):
 		EVT_BUTTON(self.btn_Clear, wxID_BTN_Clear, self._on_clear_btn_pressed)
 		EVT_BUTTON(self.btn_Delete, wxID_BTN_Delete, self._on_delete_btn_pressed)
 		#self._register_dirty_editarea_listener()
-			
+
 		# client internal signals
 		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._check_unsaved_data)
 		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._check_unsaved_data)
 		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self._changePatient)
-		
 
 		return 1
 
@@ -591,7 +590,7 @@ class gmEditArea( wxPanel):
 #----------DIRTY DATA CHECK: checks original loaded data with current input values , and sets dirty if any changes
 #----------------------------------------------------------------------------------------------------------------------			
 
-	def _check_unsaved_data(self, kwds):
+	def _check_unsaved_data(self, **kwds):
 		self._pre_save_data()
 		self._init_fields()
 
@@ -2181,7 +2180,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.37  2003-11-17 10:56:37  sjtan
+# Revision 1.38  2003-11-19 13:55:57  ncq
+# - Syans forgot to accept kw arg list in _check_unsaved_data()
+#
+# Revision 1.37  2003/11/17 10:56:37  sjtan
 #
 # synced and commiting.
 #
