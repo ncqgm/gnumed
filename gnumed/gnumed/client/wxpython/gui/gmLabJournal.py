@@ -63,10 +63,6 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_('choose which lab will process the probe with the specified ID'))
 #====================================
 class gmLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
-	#BEGIN_EVENT_TABLE(gmLabIDListCtrl, wxListCtrl)
-	#	EVT_LEFT_DOWN(gmLabIDListCtrl, self.OnMouseEvent)
-	#END_EVENT_TABLE()
-	
 	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
 		wxListCtrl.__init__(self, parent, ID, pos, size, style)
 		wxListCtrlAutoWidthMixin.__init__(self)
@@ -89,12 +85,12 @@ class cLabJournalNB(wxNotebook):
 	def __init__(self, parent, id):
 		"""Set up our specialised notebook.
 		"""
-		# connect to config database
-		pool = gmPG.ConnectionPool()
-		self.__dbcfg = gmCfg.cCfgSQL(
-			aConn = pool.GetConnection('default'),
-			aDBAPI = gmPG.dbapi
-		)
+#		# connect to config database
+#		pool = gmPG.ConnectionPool()
+#		self.__dbcfg = gmCfg.cCfgSQL(
+#			aConn = pool.GetConnection('default'),
+#			aDBAPI = gmPG.dbapi
+#		)
 		
 		wxNotebook.__init__(
 			self,
@@ -239,30 +235,30 @@ class cLabJournalNB(wxNotebook):
 		tID = wxNewId()
 		
 		# set up review list
-		self.review_Ctrl = gmLabIDListCtrl(
+		self.LstCtrl_unreviewed = gmLabIDListCtrl(
 			self.PNL_review_tab,
 			tID,
 			size=wxDefaultSize,
 			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
 		)
 		
-		vbszr.AddWindow(self.review_Ctrl, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+		vbszr.AddWindow(self.LstCtrl_unreviewed, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 
 		# image list for panel
 		self.il = wxImageList(16, 16)
-		self.idx1 = self.il.Add(imagestest.getSmilesBitmap())
+		self.smiles_bmp_idx = self.il.Add(imagestest.getSmilesBitmap())
 		self.sm_up = self.il.Add(imagestest.getSmallUpArrowBitmap())
-		self.review_Ctrl.SetImageList(self.il, wxIMAGE_LIST_SMALL)
+		self.LstCtrl_unreviewed.SetImageList(self.il, wxIMAGE_LIST_SMALL)
 		
 		# layout review list 
-		self.review_Ctrl.InsertColumn(0, _(" "))
-		self.review_Ctrl.InsertColumn(1, _("patient name"))
-		self.review_Ctrl.InsertColumn(2, _("dob"))
-		self.review_Ctrl.InsertColumn(3, _("date"))
-		self.review_Ctrl.InsertColumn(4, _("analysis"))
-		self.review_Ctrl.InsertColumn(5, _("result"))
-		self.review_Ctrl.InsertColumn(6, _("range"))
-		self.review_Ctrl.InsertColumn(7, _("info provided by lab"))
+		self.LstCtrl_unreviewed.InsertColumn(0, _('reviewed'))
+		self.LstCtrl_unreviewed.InsertColumn(1, _("patient name"))
+		self.LstCtrl_unreviewed.InsertColumn(2, _("dob"))
+		self.LstCtrl_unreviewed.InsertColumn(3, _("date"))
+		self.LstCtrl_unreviewed.InsertColumn(4, _("analysis"))
+		self.LstCtrl_unreviewed.InsertColumn(5, _("result"))
+		self.LstCtrl_unreviewed.InsertColumn(6, _("range"))
+		self.LstCtrl_unreviewed.InsertColumn(7, _("info provided by lab"))
 		
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
 		
@@ -327,9 +323,9 @@ class cLabJournalNB(wxNotebook):
 			self.lbox_pending.SetStringItem(index = item_idx, col=1, label=lab[0][0])
 			# request id
 			self.lbox_pending.SetStringItem(index = item_idx, col=2, label=request['request_id'])
-			# patient name
-			name, dobobj = self.__get_pat4result(request)
-			self.lbox_pending.SetStringItem(index = item_idx, col=3, label=name)
+			# patient
+			pat = request.get_patient()
+			self.lbox_pending.SetStringItem(index = item_idx, col=3, label="%s %s (%s)" % (pat[2], pat[3], pat[4].date))
 			self.lbox_pending.SetStringItem(index = item_idx, col=4, label=_('pending'))
 			# FIXME: make use of rest data in patient via mouse over context
 		#----- import errors PNL -----------------------
@@ -351,52 +347,52 @@ class cLabJournalNB(wxNotebook):
 		#t2 = time.time()
 		#print t2-t1
 		if more_avail is None:
-			item_idx = self.review_Ctrl.InsertItem(info=wxListItem())
-			item = self.review_Ctrl.GetItem(item_idx)
+			item_idx = self.LstCtrl_unreviewed.InsertItem(info=wxListItem())
+			item = self.LstCtrl_unreviewed.GetItem(item_idx)
 			item.SetTextColour(wxRED)
-			self.review_Ctrl.SetItem(item)
-			self.review_Ctrl.SetStringItem(index = item_idx, col=2, label=data)
+			self.LstCtrl_unreviewed.SetItem(item)
+			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=2, label=data)
 			return None
 
 		for result in data:
-			item_idx = self.review_Ctrl.InsertItem(info=wxListItem())
+			item_idx = self.LstCtrl_unreviewed.InsertItem(info=wxListItem())
 			
 			# -- put checkbox in first column
-			self.review_Ctrl.InsertImageItem(index = item_idx, imageIndex=self.idx1)
-			self.review_Ctrl.SetColumnWidth(0, wxLIST_AUTOSIZE)
+			self.LstCtrl_unreviewed.InsertImageItem(index = item_idx, imageIndex=self.smiles_bmp_idx)
+			self.LstCtrl_unreviewed.SetColumnWidth(0, wxLIST_AUTOSIZE)
 
 			# abnormal ? -> display in red
 			if (result['abnormal'] is not None) and (result['abnormal'].strip() != ''):
-				item = self.review_Ctrl.GetItem(item_idx)
+				item = self.LstCtrl_unreviewed.GetItem(item_idx)
 				item.SetTextColour(wxRED)
-				self.review_Ctrl.SetItem(item)
-			# patient name
-			name, dobobj = self.__get_pat4result(result)
-			self.review_Ctrl.SetStringItem(index = item_idx, col=1, label=name)
-			self.review_Ctrl.SetStringItem(index = item_idx, col=2, label=dobobj.date)
-			# when rxd
-			self.review_Ctrl.SetStringItem(index = item_idx, col=3, label=result['lab_rxd_when'].date)
+				self.LstCtrl_unreviewed.SetItem(item)
+			# patient
+			pat = result.get_patient()
+			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=1, label="%s %s" % (pat[2], pat[3]))
+			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=2, label=pat[4].date)
+			# rxd when
+			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=3, label=result['lab_rxd_when'].date)
 			# test name
-			self.review_Ctrl.SetStringItem(index = item_idx, col=4, label=result['unified_name'])
+			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=4, label=result['unified_name'])
 			# result including unit
 			# FIXME: what about val_unit empty ?
-			self.review_Ctrl.SetStringItem(item_idx, 5, '%s %s' % (result['unified_val'], result['val_unit']))
+			self.LstCtrl_unreviewed.SetStringItem(item_idx, 5, '%s %s' % (result['unified_val'], result['val_unit']))
 			# normal range
-			if not result['val_normal_range'] is None:
-				self.review_Ctrl.SetStringItem(index = item_idx, col=6, label=result['val_normal_range'])
+			if result['val_normal_range'] is None:
+				self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=6, label='')
 			else:
-				self.review_Ctrl.SetStringItem(index = item_idx, col=6, label='')
+				self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=6, label=result['val_normal_range'])
 			# notes from provider 
-			if not result['note_provider'] is None:
-				self.review_Ctrl.SetStringItem(index = item_idx, col=7, label=result['note_provider'])
+			if result['note_provider'] is None:
+				self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=7, label='')
 			else:
-				self.review_Ctrl.SetStringItem(index = item_idx, col=7, label='')
+				self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=7, label=result['note_provider'])
 
 		# we show 50 items at once , notify user if there are more
 		if more_avail:
-			#self.review_Ctrl.GetItemCount()
-			item_idx = self.review_Ctrl.InsertItem(info=wxListItem())
-			self.review_Ctrl.SetStringItem(index= item_idx, col=6, label=_('more results available for review'))
+			item_idx = self.LstCtrl_unreviewed.InsertItem(info=wxListItem())
+			# maybe in red ?
+			self.LstCtrl_unreviewed.SetStringItem(index= item_idx, col=6, label=_('more results available for review'))
 	#------------------------------------------------------------------------
 	def __get_import_errors(self):
 		query = """select * from housekeeping_todo where category='lab'"""
@@ -432,13 +428,6 @@ class cLabJournalNB(wxNotebook):
 			return next
 		else:
 			return None
-	#--------------------------------------------------------------------------
-	def __get_pat4result(self,result):
-		pat4result = result.get_patient()
-		#query = """select * from v_basic_person where i_id=%s"""
-		#pat4result = gmPG.run_ro_query('historica', query, None, id)
-		#return pat4result[0][4]+' '+pat4result[0][5], pat4result[0][6]
-		return pat4result[2]+' '+pat4result[3], pat4result[4]
 	#-----------------------------------
 	# event handlers
 	#-----------------------------------
@@ -487,142 +476,7 @@ class cLabJournalNB(wxNotebook):
 			# set field to that
 			self.fld_request_id.SetValue(nID)
 #== classes for standalone use ==================================
-if __name__ == '__main__':
-
-	print "let's work on the plugin version only for now"
-
-#	from Gnumed.pycommon import gmLoginInfo
-#	from Gnumed.business import gmXdtObjects, gmXdtMappings, gmDemographicRecord
-
-#	wxID_btn_quit = wxNewId()
-
-#	class cStandalonePanel(wxPanel):
-
-#		def __init__(self, parent, id):
-#			# get patient from file
-#			if self.__get_pat_data() is None:
-#				raise gmExceptions.ConstructorError, "Cannot load patient data."
-
-			# set up database connectivity
-#			auth_data = gmLoginInfo.LoginInfo(
-#				user = _cfg.get('database', 'user'),
-#				passwd = _cfg.get('database', 'password'),
-#				host = _cfg.get('database', 'host'),
-#				port = _cfg.get('database', 'port'),
-#				database = _cfg.get('database', 'database')
-#			)
-#			backend = gmPG.ConnectionPool(login = auth_data)
-
-			# mangle date of birth into ISO8601 (yyyymmdd) for Postgres
-#			cooked_search_terms = {
-				#'dob': '%s%s%s' % (self.__xdt_pat['dob year'], self.__xdt_pat['dob month'], self.__xdt_pat['dob day']),
-#				'lastnames': self.__xdt_pat['last name'],
-#				'firstnames': self.__xdt_pat['first name'],
-#				'gender': self.__xdt_pat['gender']
-#			}
-#			print cooked_search_terms
-			# find matching patient IDs
-#			searcher = gmPatient.cPatientSearcher_SQL()
-#			patient_ids = searcher.get_patient_ids(search_dict = cooked_search_terms)
-#			if patient_ids is None or len(patient_ids)== 0:
-#				gmGuiHelpers.gm_show_error(
-#					aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
-#					aTitle = _('searching patient')
-#				)
-#				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-#				raise gmExceptions.ConstructorError, "Patient from XDT file does not exist in database."
-
-			# ambigous ?
-#			if len(patient_ids) != 1:
-#				gmGuiHelpers.gm_show_error(
-#					aMessage = _('Data in xDT file matches more than one patient in database !'),
-#					aTitle = _('searching patient')
-#				)
-#				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-#				raise gmExceptions.ConstructorError, "Problem getting patient ID from database. Aborting."
-
-#			try:
-#				gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0])
-#			except:
-				# this is an emergency
-#				gmGuiHelpers.gm_show_error(
-#					aMessage = _('Cannot load patient from database !\nAborting.'),
-#					aTitle = _('searching patient')
-#				)
-#				_log.Log(gmLog.lPanic, 'Cannot access patient [%s] in database.' % patient_ids[0])
-#				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-#				raise
-
-			# make main panel
-#			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
-#			self.SetTitle(_("lab journal"))
-
-			# make patient panel
-#			gender = gmDemographicRecord.map_gender_gm2long[gmXdtMappings.map_gender_xdt2gm[self.__xdt_pat['gender']]]
-#			self.pat_panel = wxStaticText(
-#				id = -1,
-#				parent = self,
-#				label = "%s %s (%s), %s.%s.%s" % (self.__xdt_pat['first name'], self.__xdt_pat['last name'], gender, self.__xdt_pat['dob day'], self.__xdt_pat['dob month'], self.__xdt_pat['dob year']),
-#				style = wxALIGN_CENTER
-#			)
-#			self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
-
-			# make lab journal notebook 
-#			self.nb = cLabJournalNB(self, -1)
-#			self.nb.update()
-
-			# buttons
-#			btn_quit = wxButton(
-#				parent = self,
-#				id = wxID_btn_quit,
-#				label = _('Quit')
-#			)
-#			EVT_BUTTON (btn_quit, wxID_btn_quit, self.__on_quit)
-			
-#			szr_buttons = wxBoxSizer(wxHORIZONTAL)
-#			szr_buttons.Add(btn_quit, 0, wxALIGN_CENTER_VERTICAL, 1)
-
-#			szr_main = wxBoxSizer(wxVERTICAL)
-#			szr_main.Add(self.pat_panel, 0, wxEXPAND, 1)
-#			szr_nb = wxNotebookSizer( self.nb )
-			
-#			szr_main.Add(szr_nb, 1, wxEXPAND, 9)
-#			szr_main.Add(szr_buttons, 0, wxEXPAND, 1)
-
-#			self.SetAutoLayout(1)
-#			self.SetSizer(szr_main)
-#			szr_main.Fit(self)
-#			self.Layout()
-		#--------------------------------------------------------
-#		def __get_pat_data(self):
-		#	"""Get data of patient for which to retrieve documents.
-
-		#	"""
-			# FIXME: error checking
-#			pat_file = os.path.abspath(os.path.expanduser(_cfg.get("viewer", "patient file")))
-			# FIXME: actually handle pat_format, too
-#			pat_format = _cfg.get("viewer", "patient file format")
-
-			# get patient data from BDT file
-#			try:
-#				self.__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
-#			except:
-#				_log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
-#				gmGuiHelpers.gm_show_error(
-#					aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
-#					aTitle = _('loading patient from xDT file')
-#				)
-#				return None
-
-#			return 1
-		#--------------------------------------------------------
-#		def __on_quit(self, evt):
-#			app = wxGetApp()
-#			app.ExitMainLoop()
-
-#== classes for plugin use ======================================
-else:
-
+if __name__ != '__main__':
 	class cPluginPanel(wxPanel):
 		def __init__(self, parent, id):
 			# set up widgets
@@ -720,7 +574,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.16  2004-05-26 13:31:00  shilbert
+# Revision 1.17  2004-05-26 14:05:21  ncq
+# - cleanup
+#
+# Revision 1.16  2004/05/26 13:31:00  shilbert
 # - cleanup, gui enhancements
 #
 # Revision 1.15  2004/05/26 11:07:04  shilbert
