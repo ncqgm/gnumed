@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.11 2003-12-29 16:28:04 uid66147 Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmMatchProvider.py,v 1.12 2004-01-06 10:02:47 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -290,6 +290,91 @@ class cMatchProvider_FixedList(cMatchProvider):
 		else:
 			return 0
 #------------------------------------------------------------
+class cMatchProvider_SQL2(cMatchProvider):
+	"""Match provider which searches matches
+	   in possibly several database tables.
+	"""
+	def __init__(self, service = None, query = None):
+		"""
+		"""
+		if query is None:
+			_log.Log(gmLog.lErr, 'must define query')
+			raise gmException.ConstructorError, 'must define query'
+		if service is None:
+			service = 'default'
+		self._service = service
+		self._query = query
+		self._context_vals = {}
+		cMatchProvider.__init__(self)
+	#--------------------------------------------------------
+	def set_context(self, values=None):
+		if values is None:
+			_log.Log(gmLog.lErr, 'programming error: values is None')
+			return 1
+		for key in values.keys():
+			self._context_vals[key] = values[key]
+	#--------------------------------------------------------
+	# internal matching algorithms
+	#
+	# if we end up here:
+	#	- aFragment will not be "None"
+	#   - aFragment will be lower case
+	#	- we _do_ deliver matches (whether we find any is a different story)
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, aFragment):
+		"""Return matches for aFragment at start of phrases."""
+		fragment_condition = "ilike %(fragment)s"
+		self._context_vals['fragment'] = "%s%%" % aFragment
+		return self.__find_matches(fragment_condition)
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+		fragment_condition = "~* %(fragment)s"
+		self._context_vals['fragment'] = "( %s)|(^%s)" % (aFragment, aFragment)
+		return self.__find_matches(fragment_condition)
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+		fragment_condition = "ilike %(fragment)s"
+		self._context_vals['fragment'] = "%%%s%%" % aFragment
+		return self.__find_matches(fragment_condition)
+	#--------------------------------------------------------
+	def getAllMatches(self):
+		"""Return all items."""
+		return self.getMatchesBySubstr('')
+	#--------------------------------------------------------
+	def __find_matches(self, fragment_condition):
+		matches = []
+		# FIXME: deal with gmpw_score...
+		print "context values:", self._context_vals
+		query = self._query % {'fragment_condition': fragment_condition}
+		print "processed query:", query
+		pool = gmPG.ConnectionPool()
+		conn = pool.GetConnection(self._service, extra_verbose=1)
+		rows = gmPG.run_ro_query(conn, query, None, self._context_vals)
+		pool.ReleaseConnection(self._service)
+		print "matches:", rows
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot check for matches with %s' % query)
+			_log.Log(gmLog.lErr, 'context: %s' % self._context_vals)
+			return (_false, [])
+		# no matches found
+		if len(rows) == 0:
+			return (_false, [])
+		for row in rows:
+			# FIXME: deal with gmpw_score...
+			matches.append({'data': row[0], 'label': row[1], 'weight': 0})
+		matches.sort(self.__cmp_items)
+		return (_true, matches)
+	#--------------------------------------------------------
+	def __cmp_items(self, item1, item2):
+		"""naive ordering"""
+		if item1 < item2:
+			return -1
+		if item1 == item2:
+			return 0
+		return 1
+#------------------------------------------------------------
 class cMatchProvider_SQL(cMatchProvider):
 	"""Match provider which searches matches
 	   in possibly several database tables.
@@ -450,10 +535,16 @@ class cMatchProvider_SQL(cMatchProvider):
 
 
 # FUTURE: a cMatchProvider_LDAP
+#================================================================
+if __name__ == '__main__':
+	pass
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.11  2003-12-29 16:28:04  uid66147
+# Revision 1.12  2004-01-06 10:02:47  ncq
+# - add _SQL2 match provider that operates on queries rather than tables/columns
+#
+# Revision 1.11  2003/12/29 16:28:04  uid66147
 # - I think we got the indentation level wrong when
 #   applying the extra condition default context
 #
