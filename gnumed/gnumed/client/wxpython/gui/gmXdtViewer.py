@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.6 2003-04-25 13:04:39 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmXdtViewer.py,v 1.7 2003-04-28 12:12:18 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys,os,fileinput,string,linecache
@@ -287,8 +287,10 @@ else:
 	import gmPlugin
 
 	class gmXdtViewer(gmPlugin.wxNotebookPlugin):
+		tab_name = 'XDT'
+
 		def name (self):
-			return 'XDT'
+			return gmXdtViewer.tab_name
 
 		def GetWidget (self, parent):
 			self.viewer = gmXdtViewerPanel(parent)
@@ -310,20 +312,24 @@ else:
 				wildcard = aWildcard,
 				style = wxOPEN | wxFILE_MUST_EXIST
 			)
-			if dlg.ShowModal() == wxID_OK:
-				fname = dlg.GetPath()
-				_log.Log(gmLog.lData, 'selected [%s]' % fname)
+			choice = dlg.ShowModal()
+			fname = dlg.GetPath()
 			dlg.Destroy()
+			if choice == wxID_OK:
+				_log.Log(gmLog.lData, 'selected [%s]' % fname)
+				self.viewer.filename = fname
+				self.viewer.Populate()
 
 			# - via currently selected patient -> XDT files
 			# ...
 
-			self.viewer.filename = fname
-			self.viewer.Populate()
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.6  2003-04-25 13:04:39  ncq
+# Revision 1.7  2003-04-28 12:12:18  ncq
+# - refactor name(), better CANCEL handling on file select dialog
+#
+# Revision 1.6  2003/04/25 13:04:39  ncq
 # - reorder variable use so fname is defined when logging
 #
 # Revision 1.5  2003/02/19 15:56:33  ncq
