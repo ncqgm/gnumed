@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.16 2004-06-25 15:19:42 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.17 2004-06-27 02:39:46 sjtan Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -233,20 +233,21 @@ CREATE VIEW lnk_org2address AS
 
 -- ==========================================================
 \unset ON_ERROR_STOP
-drop view v_person_comms;
-drop view v_person_comms_flat;
+drop view v_person_comms cascade;
 \set ON_ERROR_STOP 1
 
 create view v_person_comms as
 select *
 from
 	(select i.id as pk_identity, ect.id as pk_comm_type
-	 from (enum_comm_types ect cross join identity i)) as ic
+	 from (enum_comm_types ect cross join identity i) 
+	 where exists( select id from lnk_identity2comm_chan l where l.id_identity=i.id) 
+	) as ic
 		left join
 	(select li2cc.id_identity as pk_identity, cc.url as url, cc.id_type as pk_comm_type
 	 from lnk_identity2comm_chan li2cc, comm_channel cc
 	 where li2cc.id_comm = cc.id) as l_comm
-	 	using (pk_identity, pk_comm_type);
+	 	using (pk_identity, pk_comm_type) ;
 
 
 create view v_person_comms_flat as
@@ -272,7 +273,7 @@ where
 	and v2.pk_comm_type = 2
 	and v3.pk_comm_type = 3
 	and v4.pk_comm_type = 4
-	and v5.pk_comm_type = 5;
+	and v5.pk_comm_type = 5 ;
 
 -- ==========================================================
 -- permissions
@@ -293,11 +294,15 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.16 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.16  2004-06-25 15:19:42  ncq
+-- Revision 1.17  2004-06-27 02:39:46  sjtan
+--
+-- fix-up for lots of empty rows.
+--
+-- Revision 1.16  2004/06/25 15:19:42  ncq
 -- - add v_person_comms_flat by Syan, this isn't really
 --   nice since it uses hardcoded comm types
 --
