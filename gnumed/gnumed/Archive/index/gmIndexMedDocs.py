@@ -11,7 +11,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 else :
 	import gmPatient
 	
-import gmCfg, gmI18N, gmXmlDocDesc, gmXdtObjects, gmMatchProvider
+import gmCfg, gmI18N, gmXmlDocDesc, gmXdtObjects, gmMatchProvider, gmExceptions
 #if __name__ == '__main__':
 _cfg = gmCfg.gmDefCfgFile
 
@@ -42,9 +42,9 @@ from gmPhraseWheel import *
 from gmExceptions import ConstructorError
 from gmGuiHelpers import gm_show_error
 
-[	wxID_INDEXFRAME,
+[	wxID_indexPnl,
 	wxID_TBOX_desc_long,
-	wxID_INDEXFRAMEBEFNRBOX,
+	wxID_indexPnlBEFNRBOX,
 	wxID_TBOX_doc_date,
 	wxID_TBOX_dob,
 	wxID_BTN_del_page,
@@ -65,39 +65,136 @@ from gmGuiHelpers import gm_show_error
 	wxID_PNL_main
 ] = map(lambda _init_ctrls: wxNewId(), range(21))
 #====================================
-class indexFrame(wxPanel):
+class cDocWheel(cPhraseWheel):
+	def __init__(self, parent):
+		# FIXME: we need to set this to non-learning mode
+		self.mp = gmMatchProvider.cMatchProvider_FixedList([])
+		self.mp.setWordSeparators(separators = '[ \t=+&:@]+')
+		
+		cPhraseWheel.__init__(
+			self,
+			parent = parent,
+			id = -1,
+			aMatchProvider = self.mp,
+			size = wxDefaultSize,
+			pos = wxDefaultPosition
+			#self.wheel_callback,
+		)
+		self.SetToolTipString(_('the document identifier is usually written or stamped onto the physical pages of the document'))
+	#--------------------------------
+	def update_choices(self, aRepository):
+		doc_dirs = self.__get_choices(aRepository)
+		self.mp.setItems(doc_dirs)
+		self.Clear()
+	#--------------------------------
+	def __get_choices(self, aRepository = None):
+		"""Return a list of dirs that can be indexed.
+
+		- directory names in self.repository correspond to
+		  identification strings on paper documents
+		- when starting to type an ident the phrase
+		  wheel must show matching directories
+		"""
+		# get document directories
+		doc_dirs = os.listdir(aRepository)
+
+		# generate list of choices
+		phrase_wheel_choices = []
+		for i in range(len(doc_dirs)):
+			full_dir = os.path.join(aRepository, doc_dirs[i])
+
+			# don't add stray files
+			if not os.path.isdir(full_dir):
+				_log.Log(gmLog.lData, "ignoring stray file [%s]" % doc_dirs[i])
+				continue
+
+			if not self.__could_be_locked(full_dir):
+				_log.Log(gmLog.lInfo, "Document directory [%s] not checkpointed for indexing. Skipping." % full_dir)
+				continue
+
+			# same weight for all of them
+			phrase_wheel_choices.append({'data': i, 'label': doc_dirs[i], 'weight': 1})
+
+		#<DEBUG>
+		_log.Log(gmLog.lData, "document dirs: %s" % str(phrase_wheel_choices))
+		#</DEBUG>
+
+		if len(phrase_wheel_choices) == 0:
+			_log.Log(gmLog.lWarn, "No document directories in repository. Nothing to do.")
+			dlg = wxMessageDialog(
+				self,
+				_("There are no documents in the repository.\n(%s)\n\nSeems like there's nothing to do today." % aRepository),
+				_('Information'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+
+		return phrase_wheel_choices
+	#----------------------------------------
+	def __could_be_locked(self, aDir):
+		"""check whether we _could_ acquire the lock for indexing
+
+		i.e., whether we should worry about this directory at all
+		"""
+		# FIXME: embedded -> database !
+		indexing_file = os.path.join(aDir, _cfg.get("index", "lock file"))
+		can_index_file = os.path.join(aDir, _cfg.get("index", "checkpoint file"))
+		cookie = _cfg.get("index", "cookie")
+
+		# 1) anyone indexing already ?
+		if os.path.exists(indexing_file):
+			_log.Log(gmLog.lInfo, 'Indexing lock [%s] exists.' % indexing_file)
+			# did _we_ lock this dir earlier and then died unexpectedly ?
+			fhandle = open(indexing_file, 'r')
+			tmp = fhandle.readline()
+			fhandle.close()
+			tmp = string.replace(tmp,'\015','')
+			tmp = string.replace(tmp,'\012','')
+			# yep, it's our cookie
+			if (tmp == cookie) and (os.path.exists(can_index_file)):
+				_log.Log(gmLog.lInfo, 'Seems like *we* locked this directory.')
+				_log.Log(gmLog.lInfo, 'At least it is locked with our cookie ([%s]).' % cookie)
+				_log.Log(gmLog.lInfo, 'Unlocking directory.')
+				os.remove(indexing_file)
+			# nope, someone else
+			else:
+				return None
+
+		# 2) check for ready-for-indexing checkpoint
+		if not os.path.exists(can_index_file):
+			_log.Log(gmLog.lInfo, 'Checkpoint [%s] does not exist.' % can_index_file)
+			return None
+
+		return 1
+#====================================
+class indexPnl(wxPanel):
 
 	def __init__(self, parent):
 		# provide repository
 		self.__get_repository()
-		
+
 		# provide valid choices for document types
 		self.__get_valid_doc_types()
 	
 		wxPanel.__init__(self, parent, -1, wxDefaultPosition, wxDefaultSize)
 
 		# set up GUI
-		self._init_ctrls(parent)
-
-		# items for phraseWheel
-		if __name__ == '__main__':
-			if not self._init_phrase_wheel():
-				return -1
-
+		self._init_ctrls()
 		self.__set_properties()
 		self.__do_layout()
 
 		# we are indexing data of one particular patient
 		# this is a design decision
-
-		# if standalone: load patient from file
 		if __name__ == '__main__':
 			if not self.__load_patient_from_file():
-				return -1
+				raise gmExceptions.ConstructorError, 'cannot load patient from file'
 			self.fill_pat_fields()
-		
+			self.doc_id_wheel.update_choices(self.repository)
+		else:
+			self.doc_id_wheel = None
 	#--------------------------------------
-	def _init_ctrls(self, prnt):
+	def _init_ctrls(self):
 
 		# -- main panel -----------------------
 		self.PNL_main = wxPanel(
@@ -106,7 +203,6 @@ class indexFrame(wxPanel):
 			parent = self,
 			style = wxTAB_TRAVERSAL
 		)
-
 		#-- left column -----------------------
 		self.lbl_left_header = wxStaticText(
 			id = -1,
@@ -115,13 +211,17 @@ class indexFrame(wxPanel):
 			label = _("1) select")
 		)
 		self.lbl_left_header.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-		#--------------------------------------
+		#--- document ID phrase wheel ---------
 		self.lbl_doc_id_wheel = wxStaticText(
 			id =  -1,
 			name = 'lbl_doc_id_wheel',
 			parent = self.PNL_main,
 			label = _("document identifier")
 		)
+		#--------------------------------------
+		if __name__ == '__main__':
+			self.doc_id_wheel = cDocWheel(self.PNL_main)
+			self.doc_id_wheel.on_resize (None)
 		# -- load pages button ----------------
 		self.BTN_load_pages = wxButton(
 			id = wxID_BTN_load_pages,
@@ -330,8 +430,6 @@ class indexFrame(wxPanel):
 		self.SelBOX_doc_type.SetToolTipString(_('Document types are determined by the database.\nAsk your database administrator to add more types if needed.'))
 		self.BTN_save_data.SetToolTipString(_('save entered metadata with document'))
 		self.TBOX_desc_long.SetToolTipString(_('a summary or longer comment for this document'))
-		if __name__ == '__main__':
-			self.doc_id_wheel.SetToolTipString(_('the document identifier is usually written or stamped onto the physical pages of the document'))
 
 		EVT_BUTTON(self.BTN_load_pages, wxID_BTN_load_pages, self.on_load_pages)
 		EVT_BUTTON(self.BTN_show_page, wxID_BTN_show_page, self.on_show_page)
@@ -350,8 +448,8 @@ class indexFrame(wxPanel):
 		# left vertical column (1/3) in upper half of the screen
 		szr_left = wxBoxSizer(wxVERTICAL)
 		szr_left.Add(self.lbl_left_header, 0, 0, 0)
-		szr_left.Add(self.lbl_doc_id_wheel, 0, wxLEFT|wxTOP, 5)
 		if __name__ == '__main__':
+			szr_left.Add(self.lbl_doc_id_wheel, 0, wxLEFT|wxTOP, 5)
 			szr_left.Add(self.doc_id_wheel, 0, wxEXPAND|wxALL, 5)
 		szr_left.Add(self.BTN_load_pages, 1, wxEXPAND|wxALL, 5)
 		szr_left.Add(self.staticText4, 0, wxLEFT, 5)
@@ -409,25 +507,6 @@ class indexFrame(wxPanel):
 		szr_main_outer.Fit(self)
 		self.Layout()
 	#--------------------------------
-	def _init_phrase_wheel(self):
-		"""Set up phrase wheel."""
-		phrase_wheel_choices = self.get_phrasewheel_choices()
-
-		# FIXME: we need to set this to non-learning mode
-		self.mp = gmMatchProvider.cMatchProvider_FixedList(phrase_wheel_choices)
-		self.mp.setWordSeparators(separators = '[ \t=+&:@]+')
-		# running standalone ? -> phrasewheel appears on PNL_main
-		self.doc_id_wheel = cPhraseWheel(
-					parent = self.PNL_main,
-					id = -1,
-					aMatchProvider = self.mp,
-					size=wxDefaultSize,
-					pos=wxDefaultPosition
-					#self.wheel_callback,
-					)
-		self.doc_id_wheel.on_resize (None)
-		return 1
-	#--------------------------------
 	def __get_valid_doc_types(self):
 		# running standalone ? -> configfile
 		if __name__ == '__main__':
@@ -453,64 +532,17 @@ class indexFrame(wxPanel):
 				_('starting document indexer')
 				)
 				raise ConstructorError, msg
-			
 		# we run embedded -> query database
 		else :
 			# fixme : needs to be read from db
 			self.repository = '/home/basti/gnumed/repository'
-
-	#--------------------------------
-	def get_phrasewheel_choices(self):
-		"""Return a list of dirs that can be indexed.
-
-		- directory names in self.repository correspond to identification
-		  strings on paper documents
-		- when starting to type an ident the phrase wheel must
-		  show matching directories
-		"""
-
-		# get document directories
-		doc_dirs = os.listdir(self.repository)		
-
-		# generate list of choices
-		phrase_wheel_choices = []
-		for i in range(len(doc_dirs)):
-			full_dir = os.path.join(self.repository, doc_dirs[i])
-
-			# don't add stray files
-			if not os.path.isdir(full_dir):
-				_log.Log(gmLog.lData, "ignoring stray file [%s]" % doc_dirs[i])
-				continue
-
-			if not self.__could_be_locked(full_dir):
-				_log.Log(gmLog.lInfo, "Document directory [%s] not checkpointed for indexing. Skipping." % full_dir)
-				continue
-
-			# same weight for all of them
-			phrase_wheel_choices.append({'data': i, 'label': doc_dirs[i], 'weight': 1})
-
-		#<DEBUG>
-		_log.Log(gmLog.lData, "document dirs: %s" % str(phrase_wheel_choices))
-		#</DEBUG>
-
-		if len(phrase_wheel_choices) == 0:
-			_log.Log(gmLog.lWarn, "No document directories in repository. Nothing to do !.")
-			dlg = wxMessageDialog(
-				self,
-				_("There are no documents in the repository.\n(%s)\n\nSeems like there's nothing to do today." % self.repository),
-				_('Information'),
-				wxOK | wxICON_INFORMATION
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return None
-
-		return phrase_wheel_choices
+	#----------------------------------------
+	def set_wheel_link(self, aWheel):
+		self.doc_id_wheel = aWheel
 	#----------------------------------------
 	# event handlers
 	#----------------------------------------
 	def on_load_pages(self, event):
-
 		curr_doc_id = self.doc_id_wheel.GetLineText(0)
 
 		# has the user supplied anything ?
@@ -556,9 +588,7 @@ class indexFrame(wxPanel):
 				return None
 			self.__unlock_for_import(full_dir)
 			self.__clear_doc_fields()
-			self.doc_id_wheel.Clear()
-			doc_dirs = self.get_phrasewheel_choices()
-			self.mp.setItems(doc_dirs)
+			self.doc_id_wheel.update_choices(self.repository)
 	#----------------------------------------
 	def on_show_page(self, event):
 		# did user select a page ?
@@ -872,41 +902,6 @@ class indexFrame(wxPanel):
 
 		return 1
 	#----------------------------------------
-	def __could_be_locked(self, aDir):
-		"""check whether we _could_ acquire the lock for indexing
-
-		i.e., whether we should worry about this directory at all
-		"""
-		indexing_file = os.path.join(aDir, _cfg.get("index", "lock file"))
-		can_index_file = os.path.join(aDir, _cfg.get("index", "checkpoint file"))
-		cookie = _cfg.get("index", "cookie")
-
-		# 1) anyone indexing already ?
-		if os.path.exists(indexing_file):
-			_log.Log(gmLog.lInfo, 'Indexing lock [%s] exists.' % indexing_file)
-			# did _we_ lock this dir earlier and then died unexpectedly ?
-			fhandle = open(indexing_file, 'r')
-			tmp = fhandle.readline()
-			fhandle.close()
-			tmp = string.replace(tmp,'\015','')
-			tmp = string.replace(tmp,'\012','')
-			# yep, it's our cookie
-			if (tmp == cookie) and (os.path.exists(can_index_file)):
-				_log.Log(gmLog.lInfo, 'Seems like *we* locked this directory.')
-				_log.Log(gmLog.lInfo, 'At least it is locked with our cookie ([%s]).' % cookie)
-				_log.Log(gmLog.lInfo, 'Unlocking directory.')
-				os.remove(indexing_file)
-			# nope, someone else
-			else:
-				return None
-
-		# 2) check for ready-for-indexing checkpoint
-		if not os.path.exists(can_index_file):
-			_log.Log(gmLog.lInfo, 'Checkpoint [%s] does not exist.' % can_index_file)
-			return None
-
-		return 1
-	#----------------------------------------
 	def __lock_for_indexing(self, aDir):
 		"""three-stage locking
 
@@ -959,7 +954,7 @@ if __name__ == '__main__':
 	try:
 		wxInitAllImageHandlers()
 		application = wxPyWidgetTester(size=(800,600))
-		application.SetWidget(indexFrame)
+		application.SetWidget(indexPnl)
 		application.MainLoop()
 	except StandardError:
 		exc = sys.exc_info()
@@ -978,7 +973,7 @@ else:
 			return _("Index")
 		# ---------------------------------------------
 		def GetWidget (self, parent):
-			self.panel = indexFrame(parent)
+			self.panel = indexPnl(parent)
 			return self.panel
 		# ---------------------------------------------
 		def MenuInfo (self):
@@ -986,10 +981,10 @@ else:
 		# ---------------------------------------------
 		def ReceiveFocus(self):
 			self.panel.fill_pat_fields()
+			self.doc_id_wheel.update_choices(self.panel.repository)
 			self._set_status_txt(_('steps: 1: select document | 2: describe it | 3: save it'))
 			# FIXME: register interest in patient_changed signal, too
 			#self.panel.tree.SelectItem(self.panel.tree.root)
-			self._update_doc_id_wheel()
 			return 1
 		# ---------------------------------------------
 		def can_receive_focus(self):
@@ -998,37 +993,12 @@ else:
 				return None
 			return 1
 		# ---------------------------------------------
-		def _update_doc_id_wheel(self):
-			self.doc_id_wheel.Clear()
-			phrase_wheel_choices = self.panel.get_phrasewheel_choices()
-			#self.mp.setItems(phrase_wheel_choices)
-		# ---------------------------------------------
-		def _init_phrase_wheel(self):
-			"""Set up phrase wheel."""
-			phrase_wheel_choices = self.panel.get_phrasewheel_choices()
-			# FIXME: we need to set this to non-learning mode
-			self.mp = gmMatchProvider.cMatchProvider_FixedList(phrase_wheel_choices)
-			self.mp.setWordSeparators(separators = '[ \t=+&:@]+')
-			return 1
-		
-		# ---------------------------------------------
 		def DoToolbar (self, tb, widget):
-			
-			self._init_phrase_wheel()
-			self.doc_id_wheel = cPhraseWheel(
-					parent = tb,
-					id = -1,
-					aMatchProvider = self.mp,
-					size=wxDefaultSize,
-					pos=wxDefaultPosition
-					#self.wheel_callback,
-					)
-			self.doc_id_wheel.on_resize (None)
-			self.doc_id_wheel.SetToolTipString(_('the document identifier is usually written or stamped onto the physical pages of the document'))	
-			#self._update_doc_id_wheel()
-			
+			self.doc_id_wheel = cDocWheel.__init__(self, tb)
+			self.panel.set_wheel_link(self.doc_id_wheel)
 			tool1 = tb.AddControl(self.doc_id_wheel)
-			
+#			self.doc_id_wheel.on_resize (None)
+
 			tool1 = tb.AddTool(
 				wxID_PNL_BTN_load_pages,
 				images_Archive_plugin.getcontentsBitmap(),
@@ -1078,10 +1048,13 @@ else:
 			))
 #======================================================
 # this line is a replacement for gmPhraseWheel just in case it doesn't work 
-#self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
+#self.doc_id_wheel = wxTextCtrl(id = wxID_indexPnlBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.7  2003-11-19 00:33:53  shilbert
+# Revision 1.8  2003-11-19 13:34:29  ncq
+# - moved doc wheel to its own class
+#
+# Revision 1.7  2003/11/19 00:33:53  shilbert
 # - added phrase_wheel to toolbar
 #
 # Revision 1.6  2003/11/18 14:12:23  ncq
