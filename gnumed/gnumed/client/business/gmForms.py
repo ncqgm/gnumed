@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.17 2004-05-27 13:40:21 ihaywood Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmForms.py,v 1.18 2004-05-28 13:13:15 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -71,11 +71,13 @@ class gmFormEngine:
 		"""
 		return self.flags
 	#--------------------------------------------------------
-	def store(self, episode, encounter, params=None, curs='historica'):
-		"""
-		Stores the parameters in the backend
-		Accept a backend cursor, so we can do this as one transaction
-		with other tables (see gmReferral.send_referral ())
+	def store(self, episode, encounter, params=None, link_obj='historica'):
+		"""Stores the parameters in the backend.
+
+		- link_obj can be a cursor, a connection or a service name
+		- assigning a cursor to link_obj allows the calling code to
+		  group the call to store() into an enclosing transaction
+		  (for an example see gmReferral.send_referral()...)
 		"""
 		# some forms may not have values ...
 		if params is None:
@@ -96,7 +98,7 @@ class gmFormEngine:
 		# in one transaction
 		queries = []
 		# - store form instance in form_instance
-		cmd = "insert into form_instances(fk_form_def, form_name, id_episode, id_encounter) values (%s, %s, %s, %s);"
+		cmd = "insert into form_instances(fk_form_def, form_name, id_episode, id_encounter) values (%s, %s, %s, %s)"
 		queries.append((cmd, [self.pk_def, form_name, episode, encounter]))
 		# - store params in form_data
 		for key in params.keys():
@@ -105,11 +107,13 @@ class gmFormEngine:
 				values ((select currval('form_instances_pk_seq')), %s, %s::text)
 			"""
 			queries.append((cmd, [key, params[key]]))
-		status, err = gmPG.run_commit(curs, queries, True)
+		# - get inserted PK
+		queries.append("select currval ('form_instances_pk_seq')")
+		status, err = gmPG.run_commit(link_obj, queries, True)
 		if status is None:
 			_log.Log(gmLog.lErr, 'failed to store form [%s] (%s): %s' % (self.pk_def, form_name, err))
 			return None
-		return gmPG.run_ro_query (curs, "select currval ('form_instances_pk_seq')", None)[0][0]
+		return status
 #============================================================
 class TextForm (gmFormEngine):
 	"""
@@ -344,7 +348,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.17  2004-05-27 13:40:21  ihaywood
+# Revision 1.18  2004-05-28 13:13:15  ncq
+# - move currval() inside transaction in gmForm.store()
+#
+# Revision 1.17  2004/05/27 13:40:21  ihaywood
 # more work on referrals, still not there yet
 #
 # Revision 1.16  2004/04/21 22:26:48  ncq
