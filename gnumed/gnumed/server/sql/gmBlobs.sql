@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.35 $ $Date: 2003-05-12 12:43:39 $ $Author: ncq $
+-- $Revision: 1.36 $ $Date: 2003-12-29 15:28:03 $ $Author: uid66147 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -33,7 +33,7 @@ CREATE TABLE "doc_med" (
 	"patient_id" integer references identity not null,
 	"type" integer references doc_type(id),
 	"comment" character varying(60),
-	"date" timestamp with time zone,
+	"date" timestamp with time zone default CURRENT_DATE,
 	"ext_ref" character varying (40)
 );
 
@@ -52,15 +52,9 @@ COMMENT ON COLUMN doc_med.ext_ref IS
 	'external reference string of physical document, original paper copy can be found with this';
 
 -- =============================================
-CREATE TABLE "doc_med_external_ref" (
-	doc_id int references doc_med(id),
-	refcounter int default 0
-);
-
--- =============================================
 CREATE TABLE "doc_obj" (
 	"id" serial primary key,
-	"doc_id" integer references doc_med(id) not null,
+	"doc_id" integer references doc_med(id),
 	"seq_idx" integer,
 	"comment" character varying(30),
 	"data" bytea
@@ -74,7 +68,7 @@ COMMENT ON COLUMN doc_obj.data IS 'actual binary object data';
 -- =============================================
 CREATE TABLE "doc_desc" (
 	"id" serial primary key,
-	"doc_id" integer references doc_med(id),
+	"doc_id" integer references doc_med(id) on delete cascade on update cascade,
 	"text" text
 );
 
@@ -86,8 +80,7 @@ GRANT SELECT ON
 	"doc_obj",
 	"doc_med",
 	"doc_type",
-	"v_i18n_doc_type",
-	"doc_med_external_ref"
+	"v_i18n_doc_type"
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -98,13 +91,12 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"doc_med",
 	"doc_med_id_seq",
 	"doc_type",
-	"v_i18n_doc_type",
-	"doc_med_external_ref"
+	"v_i18n_doc_type"
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.35 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.36 $');
 
 -- =============================================
 -- questions:
@@ -122,7 +114,13 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.35  2003-05-12 12:43:39  ncq
+-- Revision 1.36  2003-12-29 15:28:03  uid66147
+-- - add default current_date to doc_med.date
+-- - remove doc_med_external_ref table, we use x_db_fk's now
+-- - add on delete/update rules
+-- - allow NULL doc_id in doc_obj (think doc object creation)
+--
+-- Revision 1.35  2003/05/12 12:43:39  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --
