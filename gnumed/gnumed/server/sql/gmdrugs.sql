@@ -45,7 +45,7 @@ CREATE TABLE entity (
 	compound BOOL -- true for compound. No significance if class is true
 );
 
--- dump file in gmdrugs.dump.sql
+-- dump file in gmdrugs.entity.sql
 
 COMMENT ON TABLE entity IS
 'Pharmacologic entity: class, compound or substance.';
@@ -216,7 +216,7 @@ COPY "drug_route"  FROM stdin;
 3	subcutaneous
 4	oral
 5	suppository
-6	peissary
+6	pessary
 7	opthalmological
 8	otological
 9	dermatological
@@ -230,6 +230,22 @@ CREATE TABLE presentation (
 	id SERIAL PRIMARY KEY,
 	name varchar (30)
 );
+
+COPY "presentation" FROM stdin;
+1	tablet
+2	chewable tablet
+3	effervescent tablet
+4	capsule
+5	injection
+6	powder
+7	wafer
+8	suspension
+9	lozenge
+10	cream
+11	ointment
+12	paste
+13	solution
+\.    
 
 -- =============================================
 -- This describes the physical form of the drug, distingushing between liquid
@@ -248,23 +264,23 @@ CREATE TABLE drug_form (
 
 
 COPY "drug_form"  FROM stdin;
-7	11	1	2	1
-10	4	3	3	1
-12	4	1	1	1
-15	4	1	1	1
-17	1	5	2	1
-13	4	1	3	1
-9	4	3	3	1
-6	1	1	2	1
-5	4	1	1	1
-4	4	1	2	1
-3	4	1	1	1
-2	4	1	1	1
+7	11	1	2	13
+10	4	3	3	6
+12	4	1	1	2
+15	4	1	1	9
+17	1	5	2	5
+13	4	1	3	6
+9	4	3	3	6
+6	1	1	2	5
+5	4	1	1	7
+4	4	1	2	8
+3	4	1	1	4
+2	4	1	1	3
 1	4	1	1	1
-8	7	1	3	1
-11	4	3	3	1
-14	4	1	3	1
-16	1	3	2	1
+8	7	1	3	11
+11	4	3	3	6
+14	4	1	3	6
+16	1	3	2	5
 \.
 
 -- temporary table to match pbs formandstrength with drug_form
@@ -274,9 +290,6 @@ CREATE TABLE pbs_xref (
 	pbs_regex varchar (100), -- RE for PBS field of form description
 	pbs_scanf varchar (100) -- scanf () string to grab dose from PBS field
 );
-
- select formandstrength from pbsimport except select pbsimport.formandstrength from pbsimport, drug_form where  
-pbsimport.formandstrength ~ drug_form.pbs_regex;
 
 COPY "pbs_xref"  FROM stdin;
 7	Solution for inhalation [0-9]+ mg.*	Solution for inhalation %d
@@ -298,6 +311,19 @@ COPY "pbs_xref"  FROM stdin;
 16	Injection [0-9]+ g.*	Injection %d
 18	Injection set	Injection set	
 \.
+
+--select formandstrength from pbsimport except select pbsimport.formandstrength from pbsimport, drug_form where pbsimport.formandstrength ~ drug_form.pbs_regex;
+
+select drug_route.description, drug_units.description, 
+amount_units.description, presentation.name, pbs_xref.pbs_regex 
+from drug_route, drug_units, amount_units, presentation, drug_form, pbs_xref 
+where drug_route.id = drug_form.route and 
+drug_units.id = drug_form.unit and 
+amount_units.id = drug_form.amount_unit and 
+presentation.id = drug_form.presentation and 
+pbs_xref.drug_form_id = drug_form.id;  
+
+
 
 
 -- wrapper to the C scanf () function. Returns one integer.
