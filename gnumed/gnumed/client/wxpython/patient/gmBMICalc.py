@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -394,7 +394,9 @@ else:
 		def OnBMITool (self, event):
 			# FIXME: update patient ID
 			frame = BMI_Frame(self.gb['main.frame'])
-			icon = wxEmptyIcon().CopyFromBitmap(self.GetIcon())
+			icon_xpm_data = self.GetIcon()
+			icon = wxEmptyIcon()
+			icon.CopyFromBitmap(icon_xpm_data)
 			frame.SetIcon(icon)
 			frame.Show (1)
 		#---------------------
@@ -408,7 +410,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.10  2003-01-12 17:13:54  ncq
+# Revision 1.11  2003-01-12 18:51:32  ncq
+# - fixed segfault on invocation as plugin
+#
+# Revision 1.10  2003/01/12 17:13:54  ncq
 # - streamlined import based on invocation
 #
 # Revision 1.9  2003/01/12 02:14:06  ncq
