@@ -5,17 +5,14 @@ import gmLog
 
 class PatientHolder:
 	def __init__(self):
-		gmDispatcher.connect( self._setPatientModel, gmSignals.patient_selected() )
-
-	def _setPatientModel( self, kwds = None):
+		gmDispatcher.connect(self._setPatientModel, gmSignals.patient_selected())
 		self.patient = gmCurrentPatient()
+
+	def _setPatientModel( self, **kwds):
 		try:
 			self._updateUI()
 		except:
 			gmLog.gmDefLog.LogException( "updateUI problem", sys.exc_info(), verbose=1)
-
-	def get_patient(self):
-		return self.patient
 
 	def get_demographic_record(self):
 		return self.get_patient().get_demographic_record()
