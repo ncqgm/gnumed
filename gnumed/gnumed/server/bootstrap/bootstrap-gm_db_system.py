@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1068,7 +1068,7 @@ def bootstrap_services():
 		exit_with_msg("Service list empty. Nothing to do here.")
 	# run through services
 	for service_alias in services:
-		print "bootstrapping service [%s] (= %s) ..." % (_cfg.get('service %s' % service_alias, 'name'), service_alias)
+		print "==> bootstrapping service [%s] (= %s) ..." % (_cfg.get('service %s' % service_alias, 'name'), service_alias)
 		service = gmService(service_alias)
 		if not service.bootstrap():
 			return None
@@ -1305,7 +1305,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.44  2004-01-06 23:44:40  ncq
+# Revision 1.45  2004-01-14 10:47:43  ncq
+# - stdout readability
+#
+# Revision 1.44  2004/01/06 23:44:40  ncq
 # - __default__ -> xxxDEFAULTxxx
 #
 # Revision 1.43  2004/01/05 01:36:42  ncq
