@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -253,7 +253,7 @@ def create_encounter(fk_patient=None, fk_location=-1, fk_provider=None, descript
 			insert into clin_encounter (
 				fk_patient, fk_location, fk_provider, description, fk_type
 			) values (
-				%s, -1, %s, %s,	coalesce((select id from encounter_type where description=%s), 0)
+				%s, -1, %s, %s,	coalesce((select pk from encounter_type where description=%s), 0)
 			)"""
 	queries.append((cmd, [fk_patient, fk_provider, description, enc_type]))
 	cmd = "select currval('clin_encounter_id_seq')"
@@ -306,7 +306,10 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.9  2004-05-30 20:10:31  ncq
+# Revision 1.10  2004-06-01 08:20:14  ncq
+# - limit in get_lab_results
+#
+# Revision 1.9  2004/05/30 20:10:31  ncq
 # - cleanup
 #
 # Revision 1.8  2004/05/22 12:42:54  ncq
