@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.16 2003-11-17 11:14:53 sjtan Exp $
+-- $Id: gmClinicalData.sql,v 1.17 2003-11-22 14:54:33 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -196,6 +196,7 @@ insert into vacc_indication (description) values (i18n('diphtheria'));
 insert into vacc_indication (description) values (i18n('influenza'));
 insert into vacc_indication (description) values (i18n('pneumococcus'));
 insert into vacc_indication (description) values (i18n('pertussis'));
+insert into vacc_indication (description) values (i18n('hepatitis A'));
 
 -- ===================================================================
 -- vaccination indication to disease code links
@@ -431,13 +432,32 @@ insert into lnk_vacc_ind2code
 values
 	((select id from vacc_indication where description='pertussis'), 'A37.9', 'ICD-10-GM');
 
+-- Hepatitis A
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='hepatitis A'), 'B15', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='hepatitis A'), 'B15.0', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='hepatitis A'), 'B15.9', 'ICD-10-GM');
+
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.16 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.16  2003-11-17 11:14:53  sjtan
+-- Revision 1.17  2003-11-22 14:54:33  ncq
+-- - add HepA vaccination indication
+--
+-- Revision 1.16  2003/11/17 11:14:53  sjtan
 --
 -- (perhaps temporary) extra referencing table for past history.
 --
