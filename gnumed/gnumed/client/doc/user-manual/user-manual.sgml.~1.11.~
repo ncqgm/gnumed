@@ -1377,34 +1377,10 @@ This allows for a missing Austrian translation to fall back to
 </part>
 
 <part id="manual">
-
-<title>Using GnuMed</title>
+<title>How to use GnuMed</title>
 	<chapter id="usage">
-      <title>Usage</title>
-<sect1>
-	<title>Logging In</title>
-	<sect2>
-	  <title>Setting Up Test Account</title>
-	  <para>Before you can start login you will need to create
-	  test accounts, the developers have provided such a test
-	    account. It is located at
-	  <computeroutput>gnumed/server/sql/gmTestAccounts.sql</computeroutput>.That
-	  is you will need to parse it into your postgresql account</para>
-	</sect2>
-	<sect2>
-	  <title>Login/Password</title>
-	<para>When you first gnumed, you will see the login
-	screen</para>
-	<para>For <computeroutput>user</computeroutput> type <computeroutput>test-doc</computeroutput></para>
-	<para>for <computeroutput>password</computeroutput> type <computeroutput>test-doc</computeroutput></para>
-	</sect2>
-
-      </sect1>
-
-      <sect1>
-	<title>How do I use GnuMed to make a cup of tea</title>
+		<title>How do I use GnuMed to make a cup of tea</title>
       <para>Ask Marvin</para>
-      </sect1>
     </chapter>
   </part>
 &gfdl;

@@ -1,0 +1,3643 @@
+<HTML
+><HEAD
+><TITLE
+>GNUMed</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"></HEAD
+><BODY
+CLASS="BOOK"
+><DIV
+CLASS="BOOK"
+><A
+NAME="AEN1"><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+><A
+NAME="AEN2">GNUMed</H1
+><H2
+CLASS="SUBTITLE"
+>User's Manual</H2
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN6">Ian Haywood</H3
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN9">Gerardo Arnaez</H3
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN12">Hilmar Berger</H3
+><DIV
+><DIV
+CLASS="ABSTRACT"
+><A
+NAME="AEN15"><P
+></P
+><P
+>      
+      Copyright (c) 2001,2002 GNUMed developers</P
+><P
+>      Permission is granted to copy, distribute and/or modify this document
+      under the terms of the GNU Free Documentation License, Version 1.1
+      or any later version published by the Free Software Foundation;
+      with no Invariant Sections, with no
+      Front-Cover Texts, and with no Back-Cover Texts.</P
+><P
+>      A copy of the license is included in the section entitled "GNU
+      Free Documentation License".</P
+><P
+></P
+></DIV
+></DIV
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="#PREFACE"
+>Preface</A
+></DT
+><DT
+>I. <A
+HREF="#ADMINISTRATION"
+>Administration: Installation and Configuration</A
+></DT
+><DD
+><DL
+><DT
+>1. <A
+HREF="#INTRO"
+>Introduction</A
+></DT
+><DT
+>2. <A
+HREF="#INSTALLATION"
+>Installation</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#OPTAINING-GNUMED"
+>Obtaining Gnumed software</A
+></DT
+><DT
+><A
+HREF="#LINUX"
+>Linux Installation</A
+></DT
+><DT
+><A
+HREF="#DEBIAN"
+>Debian specific requirements</A
+></DT
+><DT
+><A
+HREF="#MANDRAKE"
+>Mandrake- GnuMed on Mandrake 9.1</A
+></DT
+><DT
+><A
+HREF="#MAC"
+>Mac - GnuMED on MacOSX 10.2</A
+></DT
+><DT
+><A
+HREF="#WIN9X"
+>Windows</A
+></DT
+></DL
+></DD
+><DT
+>3. <A
+HREF="#CONFIGURATION"
+>Configuration</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#PGSQL"
+>Configuring <SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+> for GnuMed</A
+></DT
+><DT
+><A
+HREF="#CONFIGNOTES"
+>Language configuration</A
+></DT
+><DT
+><A
+HREF="#USER-STRUCTURE"
+>GnuMed database user structure</A
+></DT
+><DT
+><A
+HREF="#PLUGIN-CONF"
+>Plugin Configuration</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>II. <A
+HREF="#MANUAL"
+>Using GnuMed</A
+></DT
+><DD
+><DL
+><DT
+>4. <A
+HREF="#USAGE"
+>Usage</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#AEN654"
+>Logging In</A
+></DT
+><DT
+><A
+HREF="#AEN669"
+>How do I use GnuMed to make a cup of tea</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+>A. <A
+HREF="#APPENDIX"
+>Appendix</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="#GFDL"
+>GNU Free Documentation License</A
+></DT
+><DD
+><DL
+><DT
+>0. <A
+HREF="#AEN679"
+>PREAMBLE</A
+></DT
+><DT
+>1. <A
+HREF="#AEN684"
+>APPLICABILITY AND DEFINITIONS</A
+></DT
+><DT
+>2. <A
+HREF="#AEN694"
+>VERBATIM COPYING</A
+></DT
+><DT
+>3. <A
+HREF="#AEN698"
+>COPYING IN QUANTITY</A
+></DT
+><DT
+>4. <A
+HREF="#AEN704"
+>MODIFICATIONS</A
+></DT
+><DT
+>5. <A
+HREF="#AEN740"
+>COMBINING DOCUMENTS</A
+></DT
+><DT
+>6. <A
+HREF="#AEN745"
+>COLLECTIONS OF DOCUMENTS</A
+></DT
+><DT
+>7. <A
+HREF="#AEN749"
+>AGGREGATION WITH INDEPENDENT WORKS</A
+></DT
+><DT
+>8. <A
+HREF="#AEN753"
+>TRANSLATION</A
+></DT
+><DT
+>9. <A
+HREF="#AEN756"
+>TERMINATION</A
+></DT
+><DT
+>10. <A
+HREF="#AEN759"
+>FUTURE REVISIONS OF THIS LICENSE</A
+></DT
+><DT
+><A
+HREF="#AEN764"
+>How to use this License for your documents</A
+></DT
+></DL
+></DD
+></DL
+></DD
+></DL
+></DIV
+><DIV
+CLASS="LOT"
+><DL
+CLASS="LOT"
+><DT
+><B
+>List of Tables</B
+></DT
+><DT
+>2-1. <A
+HREF="#AEN90"
+>"Supported" Distributions</A
+></DT
+><DT
+>2-2. <A
+HREF="#AEN170"
+>Requirements</A
+></DT
+><DT
+>2-3. <A
+HREF="#AEN490"
+>Requirements</A
+></DT
+></DL
+></DIV
+><DIV
+CLASS="PREFACE"
+><HR><H1
+><A
+NAME="PREFACE">Preface</H1
+><P
+>GnuMed never sleeps.</P
+></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="ADMINISTRATION"><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+>I. Administration: Installation and Configuration</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>1. <A
+HREF="#INTRO"
+>Introduction</A
+></DT
+><DT
+>2. <A
+HREF="#INSTALLATION"
+>Installation</A
+></DT
+><DT
+>3. <A
+HREF="#CONFIGURATION"
+>Configuration</A
+></DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="CHAPTER"
+><HR><H1
+><A
+NAME="INTRO">Chapter 1. Introduction</H1
+><P
+>GNUMed is  a comprehensive scalable software solution for paperless 
+medical practice with emphasis on privacy protection, secure patient-centric 
+record sharing, decision support and ease of use.</P
+><P
+>GNUMed is not yet ready for download as a package.
+It will become available at 
+<A
+HREF="http://gnumed.org/"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>gnumed.org</I
+></A
+>.
+ 
+It is released under the GNU 
+General Public Licence, see the file <TT
+CLASS="FILENAME"
+>LICENCE</TT
+> for details.</P
+></DIV
+><DIV
+CLASS="CHAPTER"
+><HR><H1
+><A
+NAME="INSTALLATION">Chapter 2. Installation</H1
+><DIV
+CLASS="SECT1"
+><H2
+CLASS="SECT1"
+><A
+NAME="OPTAINING-GNUMED">Obtaining Gnumed software</H2
+><P
+>The latest sources are available by CVS at 
+<A
+HREF="http://savannah.gnu.org/projects/gnumed/"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>savannah.gnu.org</I
+></A
+>.
+If CVS asks for a password, use a blank line. The module name is 
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>gnumed</I
+></SPAN
+></P
+><P
+>Qouting from GnuMed's CVS instruction</P
+><P
+>	"This project's CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module [<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>gnumed</I
+></SPAN
+>]  you wish to check out must be specified as the modulename. When prompted for a password for anoncvs, simply press the Enter key.
+	    </P
+><P
+>You would type:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>Source tree: cvs -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
+	</PRE
+></TD
+></TR
+></TABLE
+><P
+>Remeber to hit enter when it asks for a password. Then type:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
+	</PRE
+></TD
+></TR
+></TABLE
+><P
+>You should then see the cvs directory download into a gnumed directory</P
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="LINUX">Linux Installation</H2
+><DIV
+CLASS="SECT2"
+><H3
+CLASS="SECT2"
+><A
+NAME="AEN86">Distrubutions 'supported'</H3
+><P
+>GnuMed is known being actively developed on:</P
+><P
+>		<DIV
+CLASS="TABLE"
+><A
+NAME="AEN90"><P
+><B
+>Table 2-1. "Supported" Distributions</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Distribution</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Version</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>URL</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Functional?</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Debian</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>unstable</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.debian.org"
+TARGET="_top"
+>www.debian.org</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Yes</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>RedHat</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>???</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.redhat.com"
+TARGET="_top"
+>www.redhat.com</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>yes</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Suse</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>???</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.suse.com"
+TARGET="_top"
+>www.suse.com</A
+></TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Mandrake</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>8.2 (2.4.18-6mdk kernel)</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.mandrake.com"
+TARGET="_top"
+>www.mandrake.com</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Yes</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Microsoft</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Win98</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.microsoft.com"
+TARGET="_top"
+>www.microsoft.com</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>yes</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Gentoo</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>???</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.gentoo.org"
+TARGET="_top"
+>www.gentoo.org</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Yes</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Solaris</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>???</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.sun.com"
+TARGET="_top"
+>www.sun.com</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Sporadically</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>BSD</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>???</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.sun.com"
+TARGET="_top"
+>www.freebsd.org</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Sporadically</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>w-smith</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>???</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.e-smith.org"
+TARGET="_top"
+>www.e-smith.org</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>server side only</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Mac OS X</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>???</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.apple.com"
+TARGET="_top"
+>www.apple.com</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Unknown</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>WinME</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>???</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.microsoft.com"
+TARGET="_top"
+>www.microsoft.com</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Does not work with authentication type "crypt" in pg_hba.conf. Must be "password"</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+>
+		</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN165">Requirements</H3
+><P
+>GNUMed has run successfully on Linux. It requires a number of
+packages to be installed before it can be run.</P
+><P
+>GNUMed requires the following packages:</P
+><P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN170"><P
+><B
+>Table 2-2. Requirements</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Package</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>URL</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Version</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Python Scripting Language</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.python.org/"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>python.org</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="FILENAME"
+>2.2</TT
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>GTK libraries</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.gtk.org/"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>gtk.org</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="FILENAME"
+>1.2</TT
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>mx extension libraries</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.lemburg.com/files/python/eGenix-mx-Extensions.html"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>mx</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="FILENAME"
+>mx</TT
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>PostgreSQL Database server</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.postgresql.org/"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>postgresql.org</I
+></A
+>
+					<A
+NAME="AEN205"
+HREF="#FTN.AEN205"
+>[a]</A
+>
+				</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>7.2</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>wxWindows windowing library</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>                <A
+HREF="http://www.wxwindows.org/dl_gtk.htm#dev"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>wxwindows web site</I
+></A
+>
+                </TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.4</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>wxPython</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>    			<A
+HREF="http://www.wxpython.org/download.php#binaries"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>wxpython.org</I
+></A
+>
+				</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.4</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>PyPgSQL</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://pypgsql.sourceforge.net/"
+TARGET="_top"
+>www.pypgsql.sourceforge.net</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.3</TD
+></TR
+></TBODY
+><TR
+><TD
+COLSPAN="3"
+>Notes:<BR><A
+NAME="FTN.AEN205"
+>a. </A
+>						Don't forget to include the Python interface libraries.
+					<BR></TD
+></TR
+></TABLE
+></DIV
+>
+
+	  </P
+><P
+>This list looks daunting, but Python and GTK libraries are
+almost invariably installed, and PostgreSQL, if not installed, will be
+on your Linux CDs somewhere.</P
+><P
+>Note that the packages should be installed in the listed order, as 
+some depend upon others. Also, if using RPM, you must install the libraries 
+(postgresql-lib), then the main package (postgresql), then the others, 
+including postgresql-python.</P
+><P
+>On some distros, some of the Python libraries get installed in funny places.
+So Python can find them, add this line to your <TT
+CLASS="FILENAME"
+>.profile</TT
+>:
+
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>export PYTHONPATH=/usr/lib/python1.5/site-packages:/usr/local/lib/python2.1/site-packages</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+>NOTE: on some the later distros (Mandrake is where I have seen this), wxGTK does not install 
+as it requires a version of libpng older than what's installed. This old library is vanishing off 
+the web. Here is a  
+<A
+HREF="http://mail.student.unimelb.edu.au/~ihaywood/libpng-1.0.8-1.i386.rpm"
+TARGET="_top"
+> 
+<I
+CLASS="CITETITLE"
+>mirror</I
+></A
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN233">Postgresql</H3
+><DIV
+CLASS="SECT3"
+><H4
+CLASS="SECT3"
+><A
+NAME="AEN235">Configuring PostgreSQL (quoting Steven Duffy)</H4
+><P
+> Usually PostgresSQL should be started automatically at bootup. Most modern
+        distributions configure PostgresSQL correctly to do so. If you installed the package
+        from sources, some steps may be required to get the <SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+>
+        database system running.</P
+><P
+>First, make sure you have the PostgreSQL server daemon running. Just enter
+        the following lines on the command line:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ ps ax | grep "postmaster"
+
+ this should print something like 
+
+ 212  ?  S    0:00 /usr/local/pgsql/bin/postmaster -i -o -F -D/usr/local/pgsql/...
+		</PRE
+></TD
+></TR
+></TABLE
+><P
+> You might as well check under <TT
+CLASS="FILENAME"
+>/etc/rc.d/</TT
+>, or
+         run <SPAN
+CLASS="APPLICATION"
+>Linuxconf</SPAN
+> or whatever your distribution offers.</P
+><P
+>         If <SPAN
+CLASS="APPLICATION"
+>postmaster</SPAN
+> isn't running you can set it up 
+         with these commands as root:
+		<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>su - postgres
+initdb -D ~postgres/data
+postmaster [-i] -D ~postgres/data &#62;logfile 2&#62;&#38;1 &#38;
+		</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+>		You should enable TCP/IP access to the database. In order to do this you can either 
+        add the '-i' option when starting <SPAN
+CLASS="APPLICATION"
+>postmaster</SPAN
+> (see above and below) or do the following:
+        </P
+><DIV
+CLASS="PROCEDURE"
+><OL
+TYPE="1"
+><LI
+><P
+>find and open <TT
+CLASS="FILENAME"
+>/etc/postgresql/postgresql.conf</TT
+></P
+></LI
+><LI
+><P
+>change <B
+CLASS="COMMAND"
+>tcpip_socket = false</B
+> to <B
+CLASS="COMMAND"
+>tcpip_socket = on</B
+></P
+></LI
+><LI
+><P
+>save changes and restart <SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+></P
+></LI
+></OL
+></DIV
+><P
+>If you'd rather like to add the '-i' option and don't know where 
+        <SPAN
+CLASS="APPLICATION"
+>postmaster</SPAN
+> is started:</P
+><P
+>		If your distribution uses as <SPAN
+CLASS="APPLICATION"
+>postgresql</SPAN
+> 
+		script to start the server, it is likely the <B
+CLASS="COMMAND"
+>pg_ctl</B
+> 
+		is used to run postmaster. In this case, find where
+		<B
+CLASS="COMMAND"
+>pg_ctl</B
+> 
+		is executed and add<B
+CLASS="COMMAND"
+> insert -o \&quot;-i\&quot;</B
+> as one of
+		the options to pg_ctl. Otherwise, find the script from which postmaster is 
+		executed and simply add <B
+CLASS="COMMAND"
+>-i</B
+> as an argument.
+		</P
+><P
+>Once PostgreSQL is set up, go to the section on
+		setting up the database (<A
+HREF="#PGSQL"
+>SQL Setup</A
+>.)</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN270">Running GnuMed</H3
+><P
+>To start Gnumed you must go the the <TT
+CLASS="FILENAME"
+>client/wxpython</TT
+> 
+        directory of the <SPAN
+CLASS="APPLICATION"
+>gnumed</SPAN
+>-CVS tree. If you 
+        installed <SPAN
+CLASS="APPLICATION"
+>gnumed</SPAN
+> in your homedir this should be:
+		<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>cd ~/gnumed/gnumed/client/wxpython</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+>Now type<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>python gnumed.py</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+>Do not be surprised with a multitude of [WARN} and [INFO] the the python 
+        interpreter will spew out. With any luck you will see a login gui</P
+><P
+>        When running from the client/wxpython/ directory of a normal
+        CVS tree it shouldn't be necessary at all to set GNUMED_DIR.                
+        Actually, the combination of _setting_ GNUMED_DIR and a
+        subsequent failure on import of GnuMed modules hints towards
+        an incorrectly set GNUMED_DIR. If at all it needs to be set to
+        the directory where your python-common/ subdir resides in the tree.
+        </P
+><DIV
+CLASS="SECT3"
+><HR><H4
+CLASS="SECT3"
+><A
+NAME="AEN281">Logging in</H4
+><P
+>You will then be faced with login parameters. If you have set up the 
+         postgresql correctly, you only need to fill in the following parameters.</P
+><P
+>	     Enter 'test-doc' for login and password as those are the predefined test accounts.
+         </P
+><P
+>         Pressing the button 'options' you can change the parameters used to connect to the
+         database. These should normally be set up correctly so you usually don't have to 
+         change anything there.
+         </P
+><P
+>         After pressing the 'Ok' button there should appear a progress bar showing the 
+         modules being loaded. Finally the <SPAN
+CLASS="APPLICATION"
+>gnumed</SPAN
+>-GUI will appear.
+         </P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="DEBIAN">Debian specific requirements</H2
+><P
+>This is what is known to work on Debian as of late</P
+><P
+>Son 01 Dez 2002 11:54:06 CET  <TT
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:gouchi@altern.org"
+>gouchi@altern.org</A
+>&#62;</TT
+></P
+><P
+>I have reinstalled Gnumed on Debian Woody (2.4.18-bf2.4), and this the list of package, I have installed, if he can help:
+	    <P
+></P
+><UL
+><LI
+><P
+>egenix-mx-base-2.0.4.tar.gz</P
+></LI
+><LI
+><P
+>libwxgtk2.3-python_2.3.3.2_i386.deb</P
+></LI
+><LI
+><P
+>libwxgtk2.3_2.3.3.2_i386.deb</P
+></LI
+><LI
+><P
+>postgresql-7.2.3.tar.gz</P
+></LI
+><LI
+><P
+>pypgsql-2.3.tar.gz</P
+></LI
+><LI
+><P
+>python2.2-dev_2.2.1-4_i386.deb</P
+></LI
+><LI
+><P
+>python2.2-egenix-mxdatetime_2.0.3-3.2_i386.deb</P
+></LI
+><LI
+><P
+>python2.2-egenix-mxtools_2.0.3-3.2_i386.deb</P
+></LI
+><LI
+><P
+>python2.2_2.2.1-4_i386.deb</P
+></LI
+></UL
+></P
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="MANDRAKE">Mandrake- GnuMed on Mandrake 9.1</H2
+><P
+>GnuMed Install Instructions for Mandrake Linux 9.1
+by Michael Bonert</P
+><P
+><TT
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:michael.bonert@utoronto.ca"
+>michael.bonert@utoronto.ca</A
+>&#62;</TT
+></P
+><P
+>Wed Apr  2 00:17:07 EST 2003</P
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN319">Package Installation</H3
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>		  Install CVS (from the Mandrake CDs):
+		  cvs-1.11.5-1mdk</P
+></LI
+><LI
+><P
+>			Install postgresql (from the Mandrake CDs):
+			<A
+NAME="AEN326"
+HREF="#FTN.AEN326"
+>[1]</A
+>
+	     	</P
+></LI
+><LI
+><P
+>        Install Postgresql-7.3:
+        </P
+><P
+></P
+><UL
+><LI
+><P
+>			postgresql-7.3.2-5mdk</P
+></LI
+><LI
+><P
+>			postgresql-devel-7.3.2-5mdk</P
+></LI
+><LI
+><P
+>			postgresql-python-7.3.2-5mdk</P
+></LI
+><LI
+><P
+>			postgresql-server-7.3.2-5mdk</P
+></LI
+><LI
+><P
+>			postgresql-pl-7.3.2-5mdk</P
+></LI
+><LI
+><P
+>			pgaccess-0.98.8.20030117-2mdk		# nice to have</P
+></LI
+><LI
+><P
+>			postgresql-docs-7.3.2-5mdk		# nice to have</P
+></LI
+></UL
+></LI
+><LI
+><P
+>			Install wxPython -- (version used: wxPythonGTK-py2.2-2.4.0.1-1.i386.rpm)</P
+></LI
+><LI
+><P
+>			Install mx extenstion libraries -- (egenix-mx-base-2.0.4-py2.2_1.i386.rpm)</P
+></LI
+><LI
+><P
+>			Install pyPgSQL</P
+><P
+>	        This package can be installed either from source or from a RPM.
+	        Email me (bonerti AT mie DOT utoronto DOT ca) for the RPM.</P
+><P
+></P
+><UL
+><LI
+><P
+>	            If you install the RMP:
+		         </P
+><P
+>	             Before installing pyPgSQL make sure you have the following
+	             (from the Mandrake CDs): 
+                 </P
+><P
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>	             libpython2.2-devel-2.2.2-6mdk
+                </I
+></SPAN
+></P
+><P
+>	             Install the rpm and check that everything went right:
+                 </P
+><P
+>			    <TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ su root
+# su postgres		# trick to avoid having to know the postgres passwd
+$ cd /usr/share/doc/pyPgSQL-2.3/test
+$ python PgSQLTestCases.py
+
+this should print:
+
+	..................................................................
+	----------------------------------------------------------------------
+	Ran 66 tests in 1.090s
+
+	OK
+		    </PRE
+></TD
+></TR
+></TABLE
+>
+
+				  </P
+><P
+>				IMPORTANT NOTE:
+			    </P
+><P
+>				A database user with your user name has to exist for the test to work
+	            properly if you are testing as a normal user.  See step #10
+	            for how	to create database users.
+	            </P
+></LI
+><LI
+><P
+>                If you would like to install from sources:
+                </P
+><P
+>	            Before building and installing pyPgSQL make sure you have the following
+	            (from the Mandrake CDs):<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>	            libpython2.2-devel-2.2.2-6mdk</I
+></SPAN
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ tar zxvf pyPgSQL-2.3.tar.gz<A
+NAME="AEN368"
+HREF="#FTN.AEN368"
+>[2]</A
+>
+$ cd pypgsql
+				 </PRE
+></TD
+></TR
+></TABLE
+><P
+>            Set include and library directories in "setup.py" with your favourite editor:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+># Set this to 1 if you need to use your own settings
+USE_CUSTOM = 1
+                  <A
+NAME="AEN372"
+HREF="#FTN.AEN372"
+>[3]</A
+>
+            ...
+
+if USE_CUSTOM:
+    include_dirs = ["/usr/include/pgsql"]
+    library_dirs = ["/usr/lib/pgsql"]</PRE
+></TD
+></TR
+></TABLE
+><P
+>      Now build pyPgSQL and install it:
+      </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ python setup.py build
+	    $ python setup.py install
+        <A
+NAME="AEN376"
+HREF="#FTN.AEN376"
+>[4]</A
+>
+        
+      </PRE
+></TD
+></TR
+></TABLE
+><P
+>Testing pyPgSQL:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ cd test<A
+NAME="AEN380"
+HREF="#FTN.AEN380"
+>[5]</A
+>
+$ python PgSQLTestCases.py
+
+ this should print:
+
+	..................................................................
+	----------------------------------------------------------------------
+	Ran 66 tests in 1.090s
+
+	OK
+	    	</PRE
+></TD
+></TR
+></TABLE
+></LI
+></UL
+></LI
+></OL
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN382">Get GnuMed source</H3
+><P
+>RECOMMENDATION: install gnumed in "/home/your_user_name/"
+	-- where 'your_user_name' is your favourite normal user - e.g. 'michael'
+	  </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
+$ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
+	  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN386">Modify postgresql.conf</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ su
+# cd /var/lib/pgsql/data
+# vi postgresql.conf<A
+NAME="AEN389"
+HREF="#FTN.AEN389"
+>[6]</A
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN391">Modify "pg_hba.conf" found in
+	  "/var/lib/pgsql/data"</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+># vi pg_hba.conf</PRE
+></TD
+></TR
+></TABLE
+><P
+>last part of our "pg_hba.conf" should look like this:
+	    <TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+># Using sockets credentials for improved security. Not available everywhere,
+# but works on Linux, *BSD (and probably some others)
+
+#local  all     all     ident   sameuser
+local   all         all                                             trust
+host    all         all         127.0.0.1         255.255.255.255   trust
+	    </PRE
+></TD
+></TR
+></TABLE
+>
+	  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN396">Create db</H3
+><P
+>(see -- http://mail.gnu.org/archive/html/gnumed-devel/2003-02/msg00079.html)</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ su root
+	    # passwd postgres<A
+NAME="AEN400"
+HREF="#FTN.AEN400"
+>[7]</A
+></PRE
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="/docbook-dsssl/caution.gif"
+HSPACE="5"
+ALT="Caution"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+># you'll need this password later so remember it.</P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>If you wish to create a user for gnumed please change 
+      <TT
+CLASS="FILENAME"
+>sql/gmTestAccounts.sql</TT
+>. Creating them at the command
+      line is not recommended.</P
+><P
+>	  Now change back to your normal account and bootstrap the gnumed database.</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ cd /home/your_user_name/gnumed/gnumed/server/bootstrap
+$ cp bootstrap-standard-AU.conf.sample your_user_name-db.conf
+$ ln -s /home/your_user_name/gnumed/gnumed/client/python-common modules
+$ ln -s /home/your_user_name/gnumed/gnumed/server/sql/ sql
+	  </PRE
+></TD
+></TR
+></TABLE
+><P
+>	At this point you may want to confirm that postgresql is
+	running:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ mcc
+	  </PRE
+></TD
+></TR
+></TABLE
+><P
+>click on 'System'</P
+><P
+>click on 'DrakXServices...'</P
+><P
+>'postgresql' should say 'running'</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ python bootstrap-gm_db_system.py
+	    --conf-file=your_user_name-db.conf</PRE
+></TD
+></TR
+></TABLE
+><P
+>When prompted:
+	    <P
+></P
+><UL
+><LI
+><P
+>- yes</P
+></LI
+><LI
+><P
+>- give password</P
+></LI
+><LI
+><P
+>- give another password</P
+></LI
+></UL
+></P
+><P
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>NOTE: If you have problems the log file is in: "/home/your_user_name/.bootstrap-gm_db_system"
+	    </I
+></SPAN
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN424">Set 'GNUMED_DIR' variable</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ cd 			# cd to home
+$ vi .bash_profile	# or your favourite text editor
+	  </PRE
+></TD
+></TR
+></TABLE
+><P
+>Add the following:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>GNUMED_DIR=$GNUMED_DIR/home/your_user_name/gnumed/gnumed/client
+	  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN429">Running GnuMed:</H3
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>$ cd /home/your_user_name/gnumed/gnumed/client/wxpython
+$ python gnumed.py --debug
+	  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="MAC">Mac - GnuMED on MacOSX 10.2</H2
+><DIV
+CLASS="SECT2"
+><H3
+CLASS="SECT2"
+><A
+NAME="AEN434">System</H3
+><P
+>        Install the Developer's applications from the Developer's CD that comes 
+        with MacOSX10.2
+        Make sure you have installed security update 2002-08-23 as well as 
+        MaxOSX 10.2
+		</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN437">Instaling Python and wxWindows</H3
+><P
+>        Download the latest versions of MachoPython and wxPythonOSX from 
+        	<A
+HREF="http://sourceforge.net/project/showfiles.php?group_id=10718"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>Sourceforge</I
+></A
+>
+        </P
+><P
+>        The versions at time of writing (8 Sept 2002) were 
+        MachoPython-2.2.1-4.dmg and wxPythonOSX-2.3.3pre6.dmg respectively.
+        </P
+><P
+>&#13;        These files are disk images. Open and  install them by doubleclicking 
+        the MachoPython.pkg package and then wxPythonOSX.pkg
+        </P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN444">Install mx extensions</H3
+><P
+>        Download the mx extensions from 
+        <A
+HREF="http://www.egenix.com/files/python/egenix-mx-base-2.0.3.tar.gz"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>Egenix</I
+></A
+>        
+        (The latest version can be found at 
+		<A
+HREF="http://www.lemburg.com/files/python/eGenix-mx-Extensions.html"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>this site</I
+></A
+>.)
+        </P
+><P
+>		The .tar.gz file will be uncompressed as egenix-mx-base-2.0.3
+        </P
+><P
+>        Open the terminal application and CD to the directory 
+        egenix-mx-base-2.0.3
+        type:
+		</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>su root
+password
+python setup.py install
+exit</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN454">Installing postgresql</H3
+><P
+>        Good instructions for installing Postgresql from binary on MaxOSX 10.2 
+        are available at
+		<A
+HREF="http://www.entropy.ch/software/MacOSx/postgresql/"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>this page</I
+></A
+>
+        </P
+><P
+>        Also install the StartUp Item script (available on the same web page) 
+        so that postgresql is loaded at system startup.
+        </P
+><P
+>        To include /usr/local/bin in the command path, enter this command
+        <TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>        echo 'setenv PATH /usr/local/bin:$PATH' &#62;&#62; ~/.tcshrc
+        </PRE
+></TD
+></TR
+></TABLE
+>
+        </P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN462">Installing pypgsql</H3
+><P
+>        Download the source code from 
+        http://sourceforge.net/project/showfiles.php?group_id=16528
+        </P
+><P
+>        You may need to se a text editor to edit the file setup.py in the 
+        untarred folder pypgsql
+        so that the lines starting include_dirs and library_dirs look like this 
+        </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>        include_dirs  = [ "/usr/local/pgsql/include" ]
+        library_dirs  = [ "/usr/local/pgsql/lib" ]
+        </PRE
+></TD
+></TR
+></TABLE
+><P
+>        In the terminal, go to the pypgsql directory and type
+		<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>        python setup.py build
+        </PRE
+></TD
+></TR
+></TABLE
+>
+        </P
+><P
+>        If you have build errors, download the setup.py file from
+		<A
+HREF="http://www.gnumed.org/directory/documents/144/setup.py"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>the Gnumed Homepage</I
+></A
+>,
+        move it to the pypgsql directory, and repeat the command.
+        </P
+><P
+>        Wait for the build to finish and then type
+		<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>        sudo python setup.py install
+        </PRE
+></TD
+></TR
+></TABLE
+>
+        (Enter your root password when prompted)
+        </P
+><P
+>        To test the install, type
+        <TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>        python test/PgSQLTestCases.py
+        </PRE
+></TD
+></TR
+></TABLE
+>
+        </P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN476">Download gnumed cvs</H3
+><P
+>		Open a new terminal window, and type
+        </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
+		</PRE
+></TD
+></TR
+></TABLE
+><P
+>		Just press 'return' when asked for a password. Then type
+		<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
+		</PRE
+></TD
+></TR
+></TABLE
+>
+        </P
+><P
+>		All the gnumed files will be downloaded to your hard drive.
+        </P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN483">Configuring postgres for Gnumed</H3
+><P
+>        See (<A
+HREF="#PGSQL"
+>SQL Setup</A
+>).
+		</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="WIN9X">Windows</H2
+><P
+>GNUMed requires the following packages. Each link points to a .EXE file. Download them and run each in turn.
+
+<DIV
+CLASS="TABLE"
+><A
+NAME="AEN490"><P
+><B
+>Table 2-3. Requirements</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Package</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>URL</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Version</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Python Scripting Language</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="ftp://ftp.python.org/pub/python/2.2.1/Python-2.2.1c2.exe"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>python.org</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.1</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>wxWindows windowing library</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://prdownloads.sourceforge.net/wxpython/wxPython-2.3.2.1-Py22.exe"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>wxWindows for Python bindings</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.3.2</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>mx extension libraries</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.egenix.com/files/python/egenix-mx-base-2.0.3.win32-py2.2.exe"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>mx</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.0.3</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>PyGresQL -- Python libraries for SQL</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://prdownloads.sourceforge.net/pypgsql/pyPgSQL-2.0.win32-py2.2.exe"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>PyGresQL</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.2</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CYGWIN UNIX emulator</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.cygwin.com/setup.exe"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>cygwin.com</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.1</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>IPC for Cygwin</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.neuro.gatech.edu/users/cwilson/cygutils/V1.1/cygipc/cygipc-1.11-1.tar.bz2"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>CygIPC </I
+></A
+>(this is not an .EXE file. Save it to C:\CYGWIN)</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>1.11</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></P
+><P
+>Download these packages. For cygwin, make sure you select
+the package <SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+> in the Databases category. </P
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN537">Installing PostgreSQL</H3
+><P
+>Double-click on the Cygwin icon on your desktop. The UNIX command
+prompt appears. Take a deep breath, and type:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>cd /
+tar xvjf /cygipc-1.11-1.bz2
+/usr/local/bin/ipc-daemon &#38;
+mkdir /usr/share/postgresql/data
+/usr/bin/initdb -D /
+/usr/bin/postmaster -D /usr/share/postgresql/data &#38;</PRE
+></TD
+></TR
+></TABLE
+>
+Postgres should now be running. <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>DO NOT</I
+></SPAN
+> close
+the window containing these commands. </P
+><P
+>Every time to want to run PostgreSQL again, open up Cygwin as
+before and type:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>/usr/local/bin/ipc-daemon &#38;
+/usr/bin/postmaster -D /usr/share/postgresql/data &#38;</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+>Once PostgreSQL is set up, go to the section on
+setting up the database (<A
+HREF="#PGSQL"
+>SQL Setup</A
+>.)</P
+><DIV
+CLASS="SECT3"
+><HR><H4
+CLASS="SECT3"
+><A
+NAME="AEN546">Running PostgreSQL as an NT service</H4
+><P
+>On Windows NT, 2000 or XP it is possible to run
+PostgreSQL as a background process (similar to a UNIX daemon).</P
+><P
+>Go to Control Panel: "Users", and create a new user for your
+system, called "postgres". Give the user privileges to run as a service.
+	  </P
+><P
+>At the Cygwin prompt, type:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>ipc-daemon --install-as-service</PRE
+></TD
+></TR
+></TABLE
+>
+Then,as a single line:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>cygrunsrv --install postmaster --path /usr/bin/postmaster --args "-D
+  /usr/share/postgresql/data -i" --dep ipc-daemon --termsig INT --user
+  postgres --shutdown</PRE
+></TD
+></TR
+></TABLE
+>
+Then
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>mkdir /usr/share/postgresql/data
+chown postgres /usr/share/postgresql/data</PRE
+></TD
+></TR
+></TABLE
+>
+If this directory (/usr/share/postgresql/data) already exists from your previous
+efforts, delete it with "rm -R /usr/share/postgresql/data", and repeat.</P
+><P
+>Reboot the computer.
+Now log in as the "postgres" user, load Cygwin again and type:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>initdb -D /usr/share/postgresql/data</PRE
+></TD
+></TR
+></TABLE
+>
+The database will now run whenever Windows is loaded. 
+You <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>must</I
+></SPAN
+> be user "postgres" to use the database
+on this computer. </P
+><P
+>Once PostgreSQL is set up, go to the section on
+setting up the database (<A
+HREF="#PGSQL"
+>SQL Setup</A
+>.)</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN559">Running the client</H3
+><P
+>Once you have done this, you can run GNUMed from the Python interpreter.
+Click on the Python icon and type:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>&#62;&#62;&#62;</TT
+>  import sys
+<TT
+CLASS="PROMPT"
+>&#62;&#62;&#62;</TT
+>  sys.path.append ('path-to-gnumed-files')
+<TT
+CLASS="PROMPT"
+>&#62;&#62;&#62;</TT
+>  import gnumed
+<TT
+CLASS="PROMPT"
+>&#62;&#62;&#62;</TT
+>  gnumed.main ()</PRE
+></TD
+></TR
+></TABLE
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="CHAPTER"
+><HR><H1
+><A
+NAME="CONFIGURATION">Chapter 3. Configuration</H1
+><DIV
+CLASS="SECT1"
+><H2
+CLASS="SECT1"
+><A
+NAME="PGSQL">Configuring <SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+> for GnuMed</H2
+><P
+>This section applies is distribtuion/OS independant.</P
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN573">GnuMed database 101</H3
+><P
+>        GnuMed does not simply store all of it's data in a monolithic database.
+        It rather uses the concept of a service. A service is a set of tables
+        relating to a semantically reasonably distinct part of the data. It's
+        probably easiest to understand via the example of the "blobs" service.
+        This service stores medical documents relating to patients. These can
+        be scans of referral letters or discharge summaries, paper-based lab
+        results or incoming faxes. Any aggregate of diverse medical data on a
+        patient that's not easily split up and stored.
+        </P
+><P
+>        Other services include "default" (the core database tables that tell
+        your client software which service is to be found where), "personalia"
+        (holding all the patient demographics), and various clinical services
+        for drug data, clinical history, etc. The authoritative list of services
+        is found in server/sql/gmconfiguration.sql. Any service living in the
+        same database as the "default" service does not need to be mapped
+        explicitely (but it can). If there's no mapping it is assumed that
+        a service lives in the "default" service's database.
+        </P
+><P
+>        Services can coexist in one and the same database on a single server
+        or be spread out across several databases or even servers both on-site
+        and off-site. However, non-monolithic services have not been tested
+        well yet and will require the non-standard dblink PostgreSQL extension
+        (found in contrib/ in the PostgreSQL source tree). Until further notice
+        it is recommended to stick to non-distribution of services via
+        monolithic databases except for services that don't require
+        cross-database referential integrity links such as a drug database
+        for informational purposes. What has been tested successfully, however,
+        is access to GnuMed databases over WAN links, including via internet
+        from arbitrary locations.
+        </P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN578">Database setup</H3
+><P
+>        The theory roughly goes like this:
+        </P
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>            create databases
+            </P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>            import all the necessary tables for the services you want to support
+            </P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>            import any necessary translation files for the languages
+            you wish to support
+            </P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>            grant appropriate access rights
+		    </P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>            set up service-to-database/server mappings
+            </P
+></LI
+></UL
+><P
+>        All of this is handled automatically by the script bootstrap-gm_db_system.py
+        living in server/utils/. This script does not yet set up mappings of
+        services to their databases/servers (although in theory it can install
+        services on remote servers already). As this is not yet fully supported by
+        GnuMed anyways (due to dblink being non-standard) one should stick
+        to a monolithic service layout. Several sample config files for
+        bootstrapping are supplied in server/utils/. </P
+><P
+>        Before running the bootstrap script make sure you've installed the symbolic links 
+        to <TT
+CLASS="LITERAL"
+>modules</TT
+> and <TT
+CLASS="LITERAL"
+>sql</TT
+>. You can do this
+        by typing 
+        <TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>sh make-links.sh
+		</PRE
+></TD
+></TR
+></TABLE
+>
+        </P
+><P
+>		Now use a sample config file by calling the script like this:
+		<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>         bootstrap-gm_db_system.py --conf-file=&lt;a config file&gt;
+		</PRE
+></TD
+></TR
+></TABLE
+>
+        </P
+><P
+>You should see some line like
+        <TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>Done bootstrapping: We probably succeeded.	
+		</PRE
+></TD
+></TR
+></TABLE
+>
+	     at the end of the output if everything went right.
+         </P
+><P
+>Make sure you check the following section in your config file 
+        points to the pgsql libraries.
+		<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>language library dirs = $language library dirs$
+/usr/lib/postgresql/                                                            
+/usr/lib/postgresql/lib/                                                        
+/usr/lib/pgsql/                                                                 
+/usr/local/pgsql/lib                                                            
+$language library dirs$ 
+		</PRE
+></TD
+></TR
+></TABLE
+>
+        Many known locations are already listed so you might not have to 
+        change anything.
+        </P
+><P
+>        To set up a straightforward monolithic system on the local machine use
+        the config file <TT
+CLASS="LITERAL"
+>localhost-monolithic.conf.sample</TT
+>.
+        </P
+><P
+>        Make sure to remove test accounts and to set up your own config file
+        if you want to go life.
+        </P
+><P
+>        If you want to tweak things by hand read the config files and the source
+        of the bootstrapping scripts. All the config file parameters are documented
+        in <TT
+CLASS="LITERAL"
+>bootstrap-gm_db_system.conf.sample</TT
+>.
+        </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="CONFIGNOTES">Language configuration</H2
+><P
+>Upon startup the client autoconfigures the language used
+in the database.
+	</P
+><P
+>The following things influence its decision:
+	  <P
+></P
+><UL
+><LI
+><P
+>The language is taken from the system locale in the environment
+variables checked for the GUI language by gmI18N.py.
+	      </P
+></LI
+><LI
+><P
+>If there's no i18n_curr_lang table in the database the client
+assumes that no translations are wanted and tries to work
+without it. Same if other errors prevent normal operations - a
+warning is logged and things continue.
+	      </P
+></LI
+><LI
+><P
+>If the language given in the database doesn't match the system
+locale the user is asked whether to update the database setting
+to that. One can influence the system locale setting in
+per-instance wrapper scripts if so desired.
+	      </P
+></LI
+><LI
+><P
+>The database language setting is only updated if translations
+are actually available for the target language. Two levels of
+truncation of the system locale are used to find matching
+		translations:
+		<P
+></P
+><UL
+><LI
+><P
+>1) full locale: 'de_DE@euro'
+		    </P
+></LI
+><LI
+><P
+>2) no dialect:  'de_DE'
+		    </P
+></LI
+><LI
+><P
+>3) no country:  'de'
+		    </P
+></LI
+></UL
+></P
+></LI
+></UL
+></P
+><P
+>This allows for a missing Austrian translation to fall back to
+	  a general German (de_AT -&#62; de) one, for example.
+      </P
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="USER-STRUCTURE">GnuMed database user structure</H2
+><P
+>    PostgreSQL does not support read-write versus read-only connections.
+    To protect us from unwanted writes we emulate this separation by
+    setting up two accounts per user. The normal account name "user" is
+    used for read-only connections. This is ensured by only granting
+    SELECT rights to those accounts. The read-write account name is
+    formed by prepending a "_" to the normal account such that "user"
+    has a companian account named "_user". Those accounts are granted
+    appropriate INSERT, DELETE and UPDATE rights in the database.
+	</P
+><P
+>    As it is very tedious to grant rights to each and every single
+    account the concept of user groups is used. A group "group" is
+    actually granted SELECT rights only, while "_group" receives
+    INSERT, UPDATE, and DELETE rights on database objects. Users
+    are simply added to those groups, name "user" to group "group" and
+    "_user" to group "_group" thereby acquiring the respective database
+    rights.
+	</P
+><P
+>    Default groups that always exist in a properly configured GnuMed
+    database are:
+	</P
+><P
+>    <TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>    gm-doctors              _gm-doctors
+    gm-staff_medical        _gm-staff_medical
+    gm-staff_office         _gm-staff_office
+    gm-trainees_medical
+    gm-trainees_office
+    gm-public
+    </PRE
+></TD
+></TR
+></TABLE
+>
+	</P
+><P
+>    Notice how there are no write rights for trainees and the public.
+	</P
+><P
+>    gmPG will return read-only connections by default. If a read-write
+    connection is requested  by means of setting read_only = 0 a new
+    connection to the service is instantiated for the user "_CURRENT_USER".
+    Read-only connections are cached and shared, read-write ones are not.
+	</P
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="PLUGIN-CONF">Plugin Configuration</H2
+><P
+>	The plugin configuration is now implemented as follows:
+	</P
+><P
+>		
+    IMHO this is GnuMed configuration information. Actually it
+    should live in an Administrators Guide as discussed recently
+    on the list but for now we can share admin and user staff
+    in the User Manual since we don't have much user level
+    information yet...
+	</P
+><P
+>	Upon startup GnuMed tries to read a list of which plugins to
+	load. It looks in several places:
+	</P
+><P
+>    <TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>1) in the database (the config tables in gmconfiguration.sql
+   need to be imported)
+   a) as the current user on the current machine
+   b) as the current user on the "default" machine
+   c) as the "default" user on the current machine
+   d) as the "default" user on the "default" machine
+
+2) in the file plugins.conf in the corresponding plugin
+   directory (note that the format changed - this is now
+   expected to be a standard gmCfg config file, group is
+   "plugins", the list option "load order")
+
+3) direct scan of the plugin directory
+	</PRE
+></TD
+></TR
+></TABLE
+>
+	</P
+><P
+> 
+    If any of the stages one b-d finds corresponding data that
+    configuration is saved specific to the current user/machine.
+	</P
+><P
+>    If stage two finds a plugins.conf file it assumes that the
+    admin has set up a default for all users of this machine and
+    thus writes that configuration into the database specific to
+    the current user/machine.
+	</P
+><P
+>    Stage three will always load all available plugins. It will
+    therefore write that configuration into the database specific
+    to the machine but not specific to a user (eg. to the default
+    user).
+	</P
+><P
+>    Subsequent loading will thus find the configuration at earlier
+    stages. Thusly the client should be autoconfiguring to a
+    certain degree.
+	</P
+><P
+>    I have not yet connected to the backend explicit add/drop of
+    plugins via Ian's new popup menu. This will come next.
+	</P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="MANUAL"><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+>II. Using GnuMed</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>4. <A
+HREF="#USAGE"
+>Usage</A
+></DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="CHAPTER"
+><HR><H1
+><A
+NAME="USAGE">Chapter 4. Usage</H1
+><DIV
+CLASS="SECT1"
+><H2
+CLASS="SECT1"
+><A
+NAME="AEN654">Logging In</H2
+><DIV
+CLASS="SECT2"
+><H3
+CLASS="SECT2"
+><A
+NAME="AEN656">Setting Up Test Account</H3
+><P
+>Before you can start login you will need to create
+	  test accounts, the developers have provided such a test
+	    account. It is located at
+	  <TT
+CLASS="COMPUTEROUTPUT"
+>gnumed/server/sql/gmTestAccounts.sql</TT
+>.That
+	  is you will need to parse it into your postgresql account</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN660">Login/Password</H3
+><P
+>When you first gnumed, you will see the login
+	screen</P
+><P
+>For <TT
+CLASS="COMPUTEROUTPUT"
+>user</TT
+> type <TT
+CLASS="COMPUTEROUTPUT"
+>test-doc</TT
+></P
+><P
+>for <TT
+CLASS="COMPUTEROUTPUT"
+>password</TT
+> type <TT
+CLASS="COMPUTEROUTPUT"
+>test-doc</TT
+></P
+></DIV
+></DIV
+><DIV
+CLASS="SECT1"
+><HR><H2
+CLASS="SECT1"
+><A
+NAME="AEN669">How do I use GnuMed to make a cup of tea</H2
+><P
+>Ask Marvin</P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="APPENDIX"
+><HR><H1
+><A
+NAME="APPENDIX">Appendix A. Appendix</H1
+><DIV
+CLASS="SECT1"
+><H2
+CLASS="SECT1"
+><A
+NAME="GFDL">GNU Free Documentation License</H2
+><P
+>Version 1.1, March 2000</P
+><A
+NAME="AEN677"><BLOCKQUOTE
+CLASS="BLOCKQUOTE"
+><P
+>Copyright (C) 2000  Free Software Foundation, Inc.
+59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+Everyone is permitted to copy and distribute verbatim copies
+of this license document, but changing it is not allowed.</P
+></BLOCKQUOTE
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN679">0. PREAMBLE</H3
+><P
+>The purpose of this License is to make a manual, textbook,
+    or other written document "free" in the sense of freedom: to
+    assure everyone the effective freedom to copy and redistribute it,
+    with or without modifying it, either commercially or
+    noncommercially.  Secondarily, this License preserves for the
+    author and publisher a way to get credit for their work, while not
+    being considered responsible for modifications made by
+    others.</P
+><P
+>This License is a kind of "copyleft", which means that
+    derivative works of the document must themselves be free in the
+    same sense.  It complements the GNU General Public License, which
+    is a copyleft license designed for free software.</P
+><P
+>We have designed this License in order to use it for manuals
+    for free software, because free software needs free documentation:
+    a free program should come with manuals providing the same
+    freedoms that the software does.  But this License is not limited
+    to software manuals; it can be used for any textual work,
+    regardless of subject matter or whether it is published as a
+    printed book.  We recommend this License principally for works
+    whose purpose is instruction or reference.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN684">1. APPLICABILITY AND DEFINITIONS</H3
+><P
+>This License applies to any manual or other work that
+    contains a notice placed by the copyright holder saying it can be
+    distributed under the terms of this License.  The "Document",
+    below, refers to any such manual or work.  Any member of the
+    public is a licensee, and is addressed as "you".</P
+><P
+>A "Modified Version" of the Document means any work
+    containing the Document or a portion of it, either copied
+    verbatim, or with modifications and/or translated into another
+    language.</P
+><P
+>A "Secondary Section" is a named appendix or a front-matter
+    section of the Document that deals exclusively with the
+    relationship of the publishers or authors of the Document to the
+    Document's overall subject (or to related matters) and contains
+    nothing that could fall directly within that overall subject.
+    (For example, if the Document is in part a textbook of
+    mathematics, a Secondary Section may not explain any mathematics.)
+    The relationship could be a matter of historical connection with
+    the subject or with related matters, or of legal, commercial,
+    philosophical, ethical or political position regarding
+    them.</P
+><P
+>The "Invariant Sections" are certain Secondary Sections
+    whose titles are designated, as being those of Invariant Sections,
+    in the notice that says that the Document is released under this
+    License.</P
+><P
+>The "Cover Texts" are certain short passages of text that
+    are listed, as Front-Cover Texts or Back-Cover Texts, in the
+    notice that says that the Document is released under this
+    License.</P
+><P
+>A "Transparent" copy of the Document means a
+    machine-readable copy, represented in a format whose specification
+    is available to the general public, whose contents can be viewed
+    and edited directly and straightforwardly with generic text
+    editors or (for images composed of pixels) generic paint programs
+    or (for drawings) some widely available drawing editor, and that
+    is suitable for input to text formatters or for automatic
+    translation to a variety of formats suitable for input to text
+    formatters.  A copy made in an otherwise Transparent file format
+    whose markup has been designed to thwart or discourage subsequent
+    modification by readers is not Transparent.  A copy that is not
+    "Transparent" is called "Opaque".</P
+><P
+>Examples of suitable formats for Transparent copies include
+    plain ASCII without markup, Texinfo input format, LaTeX input
+    format, SGML or XML using a publicly available DTD, and
+    standard-conforming simple HTML designed for human modification.
+    Opaque formats include PostScript, PDF, proprietary formats that
+    can be read and edited only by proprietary word processors, SGML
+    or XML for which the DTD and/or processing tools are not generally
+    available, and the machine-generated HTML produced by some word
+    processors for output purposes only.</P
+><P
+>The "Title Page" means, for a printed book, the title page
+    itself, plus such following pages as are needed to hold, legibly,
+    the material this License requires to appear in the title page.
+    For works in formats which do not have any title page as such,
+    "Title Page" means the text near the most prominent appearance of
+    the work's title, preceding the beginning of the body of the
+    text.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN694">2. VERBATIM COPYING</H3
+><P
+>You may copy and distribute the Document in any medium,
+    either commercially or noncommercially, provided that this
+    License, the copyright notices, and the license notice saying this
+    License applies to the Document are reproduced in all copies, and
+    that you add no other conditions whatsoever to those of this
+    License.  You may not use technical measures to obstruct or
+    control the reading or further copying of the copies you make or
+    distribute.  However, you may accept compensation in exchange for
+    copies.  If you distribute a large enough number of copies you
+    must also follow the conditions in section 3.</P
+><P
+>You may also lend copies, under the same conditions stated
+    above, and you may publicly display copies.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN698">3. COPYING IN QUANTITY</H3
+><P
+>If you publish printed copies of the Document numbering more
+    than 100, and the Document's license notice requires Cover Texts,
+    you must enclose the copies in covers that carry, clearly and
+    legibly, all these Cover Texts: Front-Cover Texts on the front
+    cover, and Back-Cover Texts on the back cover.  Both covers must
+    also clearly and legibly identify you as the publisher of these
+    copies.  The front cover must present the full title with all
+    words of the title equally prominent and visible.  You may add
+    other material on the covers in addition.  Copying with changes
+    limited to the covers, as long as they preserve the title of the
+    Document and satisfy these conditions, can be treated as verbatim
+    copying in other respects.</P
+><P
+>If the required texts for either cover are too voluminous to
+    fit legibly, you should put the first ones listed (as many as fit
+    reasonably) on the actual cover, and continue the rest onto
+    adjacent pages.</P
+><P
+>If you publish or distribute Opaque copies of the Document
+    numbering more than 100, you must either include a
+    machine-readable Transparent copy along with each Opaque copy, or
+    state in or with each Opaque copy a publicly-accessible
+    computer-network location containing a complete Transparent copy
+    of the Document, free of added material, which the general
+    network-using public has access to download anonymously at no
+    charge using public-standard network protocols.  If you use the
+    latter option, you must take reasonably prudent steps, when you
+    begin distribution of Opaque copies in quantity, to ensure that
+    this Transparent copy will remain thus accessible at the stated
+    location until at least one year after the last time you
+    distribute an Opaque copy (directly or through your agents or
+    retailers) of that edition to the public.</P
+><P
+>It is requested, but not required, that you contact the
+    authors of the Document well before redistributing any large
+    number of copies, to give them a chance to provide you with an
+    updated version of the Document.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN704">4. MODIFICATIONS</H3
+><P
+>You may copy and distribute a Modified Version of the
+    Document under the conditions of sections 2 and 3 above, provided
+    that you release the Modified Version under precisely this
+    License, with the Modified Version filling the role of the
+    Document, thus licensing distribution and modification of the
+    Modified Version to whoever possesses a copy of it.  In addition,
+    you must do these things in the Modified Version:</P
+><P
+></P
+><OL
+TYPE="A"
+><LI
+><P
+>Use in the Title Page
+      (and on the covers, if any) a title distinct from that of the
+      Document, and from those of previous versions (which should, if
+      there were any, be listed in the History section of the
+      Document).  You may use the same title as a previous version if
+      the original publisher of that version gives permission.</P
+></LI
+><LI
+><P
+>List on the Title Page,
+      as authors, one or more persons or entities responsible for
+      authorship of the modifications in the Modified Version,
+      together with at least five of the principal authors of the
+      Document (all of its principal authors, if it has less than
+      five).</P
+></LI
+><LI
+><P
+>State on the Title page
+      the name of the publisher of the Modified Version, as the
+      publisher.</P
+></LI
+><LI
+><P
+>Preserve all the
+      copyright notices of the Document.</P
+></LI
+><LI
+><P
+>Add an appropriate
+      copyright notice for your modifications adjacent to the other
+      copyright notices.</P
+></LI
+><LI
+><P
+>Include, immediately
+      after the copyright notices, a license notice giving the public
+      permission to use the Modified Version under the terms of this
+      License, in the form shown in the Addendum below.</P
+></LI
+><LI
+><P
+>Preserve in that license
+      notice the full lists of Invariant Sections and required Cover
+      Texts given in the Document's license notice.</P
+></LI
+><LI
+><P
+>Include an unaltered
+      copy of this License.</P
+></LI
+><LI
+><P
+>Preserve the section
+      entitled "History", and its title, and add to it an item stating
+      at least the title, year, new authors, and publisher of the
+      Modified Version as given on the Title Page.  If there is no
+      section entitled "History" in the Document, create one stating
+      the title, year, authors, and publisher of the Document as given
+      on its Title Page, then add an item describing the Modified
+      Version as stated in the previous sentence.</P
+></LI
+><LI
+><P
+>Preserve the network
+      location, if any, given in the Document for public access to a
+      Transparent copy of the Document, and likewise the network
+      locations given in the Document for previous versions it was
+      based on.  These may be placed in the "History" section.  You
+      may omit a network location for a work that was published at
+      least four years before the Document itself, or if the original
+      publisher of the version it refers to gives permission.</P
+></LI
+><LI
+><P
+>In any section entitled
+      "Acknowledgements" or "Dedications", preserve the section's
+      title, and preserve in the section all the substance and tone of
+      each of the contributor acknowledgements and/or dedications
+      given therein.</P
+></LI
+><LI
+><P
+>Preserve all the
+      Invariant Sections of the Document, unaltered in their text and
+      in their titles.  Section numbers or the equivalent are not
+      considered part of the section titles.</P
+></LI
+><LI
+><P
+>Delete any section
+      entitled "Endorsements".  Such a section may not be included in
+      the Modified Version.</P
+></LI
+><LI
+><P
+>Do not retitle any
+      existing section as "Endorsements" or to conflict in title with
+      any Invariant Section.</P
+></LI
+></OL
+><P
+>If the Modified Version includes new front-matter sections
+    or appendices that qualify as Secondary Sections and contain no
+    material copied from the Document, you may at your option
+    designate some or all of these sections as invariant.  To do this,
+    add their titles to the list of Invariant Sections in the Modified
+    Version's license notice.  These titles must be distinct from any
+    other section titles.</P
+><P
+>You may add a section entitled "Endorsements", provided it
+    contains nothing but endorsements of your Modified Version by
+    various parties--for example, statements of peer review or that
+    the text has been approved by an organization as the authoritative
+    definition of a standard.</P
+><P
+>You may add a passage of up to five words as a Front-Cover
+    Text, and a passage of up to 25 words as a Back-Cover Text, to the
+    end of the list of Cover Texts in the Modified Version.  Only one
+    passage of Front-Cover Text and one of Back-Cover Text may be
+    added by (or through arrangements made by) any one entity.  If the
+    Document already includes a cover text for the same cover,
+    previously added by you or by arrangement made by the same entity
+    you are acting on behalf of, you may not add another; but you may
+    replace the old one, on explicit permission from the previous
+    publisher that added the old one.</P
+><P
+>The author(s) and publisher(s) of the Document do not by
+    this License give permission to use their names for publicity for
+    or to assert or imply endorsement of any Modified Version.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN740">5. COMBINING DOCUMENTS</H3
+><P
+>You may combine the Document with other documents released
+    under this License, under the terms defined in section 4 above for
+    modified versions, provided that you include in the combination
+    all of the Invariant Sections of all of the original documents,
+    unmodified, and list them all as Invariant Sections of your
+    combined work in its license notice.</P
+><P
+>The combined work need only contain one copy of this
+    License, and multiple identical Invariant Sections may be replaced
+    with a single copy.  If there are multiple Invariant Sections with
+    the same name but different contents, make the title of each such
+    section unique by adding at the end of it, in parentheses, the
+    name of the original author or publisher of that section if known,
+    or else a unique number.  Make the same adjustment to the section
+    titles in the list of Invariant Sections in the license notice of
+    the combined work.</P
+><P
+>In the combination, you must combine any sections entitled
+    "History" in the various original documents, forming one section
+    entitled "History"; likewise combine any sections entitled
+    "Acknowledgements", and any sections entitled "Dedications".  You
+    must delete all sections entitled "Endorsements."</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN745">6. COLLECTIONS OF DOCUMENTS</H3
+><P
+>You may make a collection consisting of the Document and
+    other documents released under this License, and replace the
+    individual copies of this License in the various documents with a
+    single copy that is included in the collection, provided that you
+    follow the rules of this License for verbatim copying of each of
+    the documents in all other respects.</P
+><P
+>You may extract a single document from such a collection,
+    and distribute it individually under this License, provided you
+    insert a copy of this License into the extracted document, and
+    follow this License in all other respects regarding verbatim
+    copying of that document.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN749">7. AGGREGATION WITH INDEPENDENT WORKS</H3
+><P
+>A compilation of the Document or its derivatives with other
+    separate and independent documents or works, in or on a volume of
+    a storage or distribution medium, does not as a whole count as a
+    Modified Version of the Document, provided no compilation
+    copyright is claimed for the compilation.  Such a compilation is
+    called an "aggregate", and this License does not apply to the
+    other self-contained works thus compiled with the Document, on
+    account of their being thus compiled, if they are not themselves
+    derivative works of the Document.</P
+><P
+>If the Cover Text requirement of section 3 is applicable to
+    these copies of the Document, then if the Document is less than
+    one quarter of the entire aggregate, the Document's Cover Texts
+    may be placed on covers that surround only the Document within the
+    aggregate.  Otherwise they must appear on covers around the whole
+    aggregate.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN753">8. TRANSLATION</H3
+><P
+>Translation is considered a kind of modification, so you may
+    distribute translations of the Document under the terms of section
+    4.  Replacing Invariant Sections with translations requires
+    special permission from their copyright holders, but you may
+    include translations of some or all Invariant Sections in addition
+    to the original versions of these Invariant Sections.  You may
+    include a translation of this License provided that you also
+    include the original English version of this License.  In case of
+    a disagreement between the translation and the original English
+    version of this License, the original English version will
+    prevail.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN756">9. TERMINATION</H3
+><P
+>You may not copy, modify, sublicense, or distribute the
+    Document except as expressly provided for under this License.  Any
+    other attempt to copy, modify, sublicense or distribute the
+    Document is void, and will automatically terminate your rights
+    under this License.  However, parties who have received copies, or
+    rights, from you under this License will not have their licenses
+    terminated so long as such parties remain in full
+    compliance.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN759">10. FUTURE REVISIONS OF THIS LICENSE</H3
+><P
+>The Free Software Foundation may publish new, revised
+    versions of the GNU Free Documentation License from time to time.
+    Such new versions will be similar in spirit to the present
+    version, but may differ in detail to address new problems or
+    concerns.  See <A
+HREF="http://www.gnu.org/copyleft/"
+TARGET="_top"
+>http://www.gnu.org/copyleft/</A
+>
+    </P
+><P
+>Each version of the License is given a distinguishing
+    version number.  If the Document specifies that a particular
+    numbered version of this License "or any later version" applies to
+    it, you have the option of following the terms and conditions
+    either of that specified version or of any later version that has
+    been published (not as a draft) by the Free Software Foundation.
+    If the Document does not specify a version number of this License,
+    you may choose any version ever published (not as a draft) by the
+    Free Software Foundation.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><HR><H3
+CLASS="SECT2"
+><A
+NAME="AEN764">How to use this License for your documents</H3
+><P
+>To use this License in a document you have written, include
+    a copy of the License in the document and put the following
+    copyright and license notices just after the title page:</P
+><A
+NAME="AEN767"><BLOCKQUOTE
+CLASS="BLOCKQUOTE"
+><P
+>      Copyright (c)  YEAR  YOUR NAME.
+      Permission is granted to copy, distribute and/or modify this document
+      under the terms of the GNU Free Documentation License, Version 1.1
+      or any later version published by the Free Software Foundation;
+      with the Invariant Sections being LIST THEIR TITLES, with the
+      Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
+      A copy of the license is included in the section entitled "GNU
+      Free Documentation License".</P
+></BLOCKQUOTE
+><P
+>If you have no Invariant Sections, write "with no Invariant
+    Sections" instead of saying which ones are invariant.  If you have
+    no Front-Cover Texts, write "no Front-Cover Texts" instead of
+    "Front-Cover Texts being LIST"; likewise for Back-Cover
+    Texts.</P
+><P
+>If your document contains nontrivial examples of program
+    code, we recommend releasing these examples in parallel under your
+    choice of free software license, such as the GNU General Public
+    License, to permit their use in free software.</P
+></DIV
+></DIV
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN326"
+HREF="#AEN326"
+>[1]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>	            NOTE: If the packages all show up when you do a
+	            'remove software packages' (in 'mcc') they are all
+	            installed.</P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN368"
+HREF="#AEN368"
+>[2]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>gunzip + untar 'pyPgSQL-2.3.tar.gz'</P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN372"
+HREF="#AEN372"
+>[3]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>					Don't forget to change this line!!!
+				 </P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN376"
+HREF="#AEN376"
+>[4]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>NOTE: If the directory settings in 'setup.py' are wrong you will 
+get a misleading error about 'gcc'
+		</P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN380"
+HREF="#AEN380"
+>[5]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>install directory: ../pypgsql/test</P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN389"
+HREF="#AEN389"
+>[6]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>change '#tcpip_socket=false' to 'tcpip_socket=on'</P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN400"
+HREF="#AEN400"
+>[7]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+># change password (I don't know what the default is</P
+></TD
+></TR
+></TABLE
+></BODY
+></HTML
+>
