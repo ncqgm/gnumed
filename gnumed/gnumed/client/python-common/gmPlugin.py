@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -285,6 +285,8 @@ def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 		return None
 
 	guibroker['modules.%s' % aPackage][plugin.name()] = plugin
+
+	return 1
 #------------------------------------------------------------------
 # (TODO: get plugin list from gmconfiguration for this user).
 def GetAllPlugins (set):
@@ -293,7 +295,7 @@ def GetAllPlugins (set):
 	"""
 	gb = gmGuiBroker.GuiBroker ()
 	dir = gb['gnumed_dir']
-	# FIXME: in future versions we will ask the backend where plguins are
+	# FIXME: in future versions we will ask the backend where plugins are
 	dir = os.path.join (dir, 'wxpython', set)
 	
 	files = os.listdir (dir)
@@ -312,3 +314,9 @@ def UnloadPlugin (set, name):
 	plugin.unregister ()
 	del gb['modules.%s' % set][name]
 	log (gmLog.lInfo, "unloaded plugin %s/%s" % (set, name))
+
+#==================================================================
+# $Log: gmPlugin.py,v $
+# Revision 1.22  2002-09-09 00:50:28  ncq
+# - return success or failure on LoadPlugin()
+#
