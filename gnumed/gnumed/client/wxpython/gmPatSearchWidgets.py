@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.2 2004-08-20 13:31:05 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPatSearchWidgets.py,v 1.3 2004-08-24 15:41:13 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -83,9 +83,12 @@ class cPatientPickList(wx.wxDialog):
 		pos = (-1, -1),
 		size = (600, 400),
 	):
+
+		# this works (as suggested by Robin Dunn) but is quite ugly IMO
+		prnt = wx.wxGetTopLevelParent(parent)
 		wx.wxDialog.__init__(
 			self,
-			parent,
+			prnt,
 			id,
 			title,
 			pos,
@@ -94,7 +97,7 @@ class cPatientPickList(wx.wxDialog):
 		)
 
 		self._do_layout()
-		self.items = []
+		self.__items = []
 
 		# set event handlers
 		#wx.EVT_LIST_ITEM_SELECTED(self, ID_PatPickList, self.OnItemCursor)
@@ -108,7 +111,7 @@ class cPatientPickList(wx.wxDialog):
 	def SetItems(self, items = [], col_order = []):
 		# TODO: make selectable by 0-9
 
-		self.items = items
+		self.__items = items
 
 		# set up columns
 		self.listctrl.ClearAll()
@@ -116,15 +119,15 @@ class cPatientPickList(wx.wxDialog):
 			self.listctrl.InsertColumn(order_idx, col_order[order_idx]['label'])
 
 		# now add items
-		for row_idx in range(len(self.items)):
+		for row_idx in range(len(self.__items)):
 			# set up item
-			row = self.items[row_idx]
+			row = self.__items[row_idx]
 			# first column
 			try:
 				self.listctrl.InsertStringItem(row_idx, str(row[col_order[0]['data idx']]))
 			except KeyError:
 				_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
-				if self.items != []:
+				if self.__items != []:
 					_log.Log(gmLog.lData, "item keys: %s" % row.keys())
 				else:
 					_log.Log(gmLog.lData, "item keys: None")
@@ -135,7 +138,7 @@ class cPatientPickList(wx.wxDialog):
 					self.listctrl.SetStringItem(row_idx, order_idx, str(row[col_order[order_idx]['data idx']]))
 				except KeyError:
 					_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
-					if self.items != []:
+					if self.__items != []:
 						_log.Log(gmLog.lData, "item keys: %s" % row.keys())
 					else:
 						_log.Log(gmLog.lData, "item keys: None")
@@ -153,7 +156,7 @@ class cPatientPickList(wx.wxDialog):
 	#--------------------------------------------------------
 	def _on_item_activated(self, evt):
 		# item dict must always contain ID to be used for selection later on at index 0
-		item = self.items[evt.m_itemIndex]
+		item = self.__items[evt.m_itemIndex]
 		try:
 			self.EndModal(item[0])
 		except KeyError:
@@ -646,7 +649,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.2  2004-08-20 13:31:05  ncq
+# Revision 1.3  2004-08-24 15:41:13  ncq
+# - eventually force patient pick list to stay on top
+#   as suggested by Robin Dunn
+#
+# Revision 1.2  2004/08/20 13:31:05  ncq
 # - cleanup/improve comments/improve naming
 # - dismiss patient regardless of search result if so configured
 # - don't search on empty search term
