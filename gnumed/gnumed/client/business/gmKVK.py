@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.6 2004-03-04 19:46:53 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmKVK.py,v 1.7 2005-03-06 14:48:23 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -231,13 +231,13 @@ def kvks_extract_picklist(aList = None):
 
 	# set up column order for pick list
 	col_order = [
-		{'label': _('last name'),		'data idx': 3},
-		{'label': _('first name'),		'data idx': 4},
-		{'label': _('dob'),				'data idx': 5},
-		{'label': _('town'),			'data idx': 6},
-		{'label': _('street'),			'data idx': 7},
-		{'label': _('insurance company'), 'data idx': 8},
-		{'label': _('valid until'),		'data idx': 9}
+		{'label': _('last name'),		'field name': 3},
+		{'label': _('first name'),		'field name': 4},
+		{'label': _('dob'),				'field name': 5},
+		{'label': _('town'),			'field name': 6},
+		{'label': _('street'),			'field name': 7},
+		{'label': _('insurance company'), 'field name': 8},
+		{'label': _('valid until'),		'field name': 9}
 	]
 	return data, col_order
 #============================================================
@@ -281,7 +281,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.6  2004-03-04 19:46:53  ncq
+# Revision 1.7  2005-03-06 14:48:23  ncq
+# - patient pick list now works with 'field name' not 'data idx'
+#
+# Revision 1.6  2004/03/04 19:46:53  ncq
 # - switch to package based import: from Gnumed.foo import bar
 #
 # Revision 1.5  2004/03/02 10:21:10  ihaywood
