@@ -1,10 +1,10 @@
 #!/usr/bin/python
-#############################################################################
+############################################################################
 #
 # gmSelectPerson : convenience widget that allows to search for people
 #                   and pick a selection from a list box displaying the
 #                   search results
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 #
 # @author: Dr. Horst Herb
 # @copyright: author
@@ -15,11 +15,12 @@
 #
 # @TODO: Almost everything
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
+__version__ = "$Revision: 1.6 $"
 
 import string, gmDispatcher, gmSignals
 from wxPython.wx import *
 from gmSQLSimpleSearch import SQLSimpleSearch
-
 
 ID_BUTTON_SELECT = wxNewId()
 ID_BUTTON_ADD = wxNewId()
@@ -27,8 +28,7 @@ ID_BUTTON_NEW = wxNewId()
 ID_BUTTON_MERGE = wxNewId()
 ID_BUTTON_EDIT = wxNewId()
 
-
-
+#===========================================================================
 class DlgSelectPerson(SQLSimpleSearch):
 	"""The central dialog interface to all person related queries.
 	It allows to select a patient via fractions of surname or first names and surname,
