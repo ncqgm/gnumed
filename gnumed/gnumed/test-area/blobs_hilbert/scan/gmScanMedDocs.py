@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -647,7 +647,7 @@ class scanFrame(wxPanel):
 				self.SaneSrcMngr = None
 				return None
 
-			_log.Log(gmLog.lData, "SANE version: %s" % init_result)
+			_log.Log(gmLog.lData, "SANE version: %s" % str(init_result))
 
 		if not self.SaneScanner:
 			# FIXME: actually we should use this to remember which device we work with
@@ -675,9 +675,9 @@ class scanFrame(wxPanel):
 				_log.LogException('cannot open SANE scanner', exc, fatal=1)
 				return None
 
-			_log.Log(gmLog.lData, 'opened SANE device: %s' % str(scanner))
-			_log.Log(gmLog.lData, 'SANE device config: %s' % scanner.get_parameters())
-			_log.Log(gmLog.lData, 'SANE device opts  : %s' % scanner.optlist())
+			_log.Log(gmLog.lData, 'opened SANE device: %s' % str(self.SaneScanner))
+			_log.Log(gmLog.lData, 'SANE device config: %s' % self.SaneScanner.get_parameters())
+			_log.Log(gmLog.lData, 'SANE device opts  : %s' % self.SaneScanner.optlist())
 
 		return 1
 	#-----------------------------------
@@ -949,7 +949,10 @@ else:
 			return (_('Tools'), _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.6  2002-11-17 16:24:13  ncq
+# Revision 1.7  2002-11-17 17:07:03  ncq
+# - various sane related fixes
+#
+# Revision 1.6  2002/11/17 16:24:13  ncq
 # - sane.* -> _sane.*
 #
 # Revision 1.5  2002/10/11 10:20:37  ncq
