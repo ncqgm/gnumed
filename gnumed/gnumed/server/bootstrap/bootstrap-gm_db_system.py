@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -532,15 +532,17 @@ class database:
 		# empty upon which the adapter will have to assume a local
 		# connection, we also assume that "localhost" and "127.0.0.1"
 		# are meant to signify local connections
+		# IH: No. "localhost" may, but "127.0.0.1" means TCP/IP coonection
+		# via loopback interface.
 		# this is also in accord with what the psql manpage says:
 		#  If you omit the host name, psql will connect via a
 		#  Unix domain socket to a server on the local host
 		# This seems to be particularly necessary under Debian
 		# GNU/Linux because otherwise the authentification fails
-		if srv.name not in ['localhost', '127.0.0.1']:
-			srvname = srv.name
+		if srv.name == "localhost":
+			srvname = ""
 		else:
-			srvname = ''
+			srvname = srv.name
 		try:
 			dsn = dsn_format % (
 				srvname,
@@ -577,7 +579,7 @@ class database:
 		#  Unix domain socket to a server on the local host
 		# This seems to be particularly necessary under Debian
 		# GNU/Linux because otherwise the authentification fails
-		if srv.name not in ['localhost', '127.0.0.1']:
+		if srv.name not in ['localhost']:
 			srvname = srv.name
 		else:
 			srvname = ''
@@ -1150,7 +1152,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.22  2003-08-24 13:46:32  hinnef
+# Revision 1.23  2003-08-26 10:52:52  ihaywood
+# bugfixes to bootstrap scripts
+#
+# Revision 1.22  2003/08/24 13:46:32  hinnef
 # added audit disable option to omit audit table generation
 #
 # Revision 1.21  2003/08/17 00:09:37  ncq
