@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.40 2005-02-01 10:16:07 ihaywood Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmPlugin.py,v 1.41 2005-03-29 07:28:20 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -315,6 +315,9 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 	1) from database
 	2) from list of defaults
 	3) if 2 is None, from source directory (then stored in database)
+
+	FIXME: look at gmRichardSpace to see how to load plugins
+	FIXME: NOT from files in directories (important for py2exe)
 	"""
 	curr_workplace = _whoami.get_workplace()
 
@@ -381,7 +384,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.40  2005-02-01 10:16:07  ihaywood
+# Revision 1.41  2005-03-29 07:28:20  ncq
+# - add FIXME on plugin scanning
+#
+# Revision 1.40  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace
