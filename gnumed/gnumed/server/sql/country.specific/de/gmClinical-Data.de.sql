@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmClinical-Data.de.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 
 -- part of GnuMed
 -- GPL
@@ -111,6 +111,35 @@ insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'subcutaneous', 'subkutan');
 
 -- =============================================
+-- Impfindikationen
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'measles', 'Masern');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'mumps', 'Mumps');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'rubella', 'Röteln');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'tetanus', 'Tetanus');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'diphtheria', 'Diphtherie');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'pertussis', 'Pertussis');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'haemophilus influenzae b', 'Haemophilus Influenzae B');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'hepatitis B', 'Hepatitis B');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'poliomyelitis', 'Poliomyelitis');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'influenza', 'Influenza');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'hepatitis A', 'Hepatitis A');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'pneumococcus', 'Pneumokokken');
+insert into i18n_translations (lang, orig, trans) values
+	values ('de_DE', 'meningococcus C', 'Meningokokken Typ C');
+
+-- =============================================
 -- description
 --insert into i18n_translations(lang, orig, trans) values
 --	('de_DE', '', '');
@@ -125,11 +154,15 @@ insert into i18n_translations(lang, orig, trans) values
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.2 $');
+delete from gm_schema_revision where filename = '$RCSfile: gmClinical-Data.de.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmClinical-Data.de.sql,v $
--- Revision 1.2  2003-10-19 13:51:34  ncq
+-- Revision 1.3  2004-01-12 13:32:17  ncq
+-- - translate vaccination indications
+--
+-- Revision 1.2  2003/10/19 13:51:34  ncq
 -- - add vacc route translations
 --
 -- Revision 1.1  2003/08/05 08:16:00  ncq
