@@ -4,13 +4,13 @@ This is a clinical record object intended to let a useful
 client-side API crystallize from actual use in true XP fashion.
 
 Make sure to call set_func_ask_user() and set_encounter_ttl()
-early on in your code (before gmClinicalRecord.__init__() is
+early on in your code (before cClinicalRecord.__init__() is
 called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.76 2004-03-19 11:55:38 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmClinicalRecord.py,v 1.77 2004-03-20 19:41:59 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -37,7 +37,7 @@ _encounter_hard_ttl = mxDT.TimeDelta(hours=6)
 
 _func_ask_user = None
 #============================================================
-class gmClinicalRecord:
+class cClinicalRecord:
 
 	# handlers for __getitem__()
 	_get_handler = {}
@@ -227,7 +227,7 @@ class gmClinicalRecord:
 		"""Return any attribute if known how to retrieve it.
 		"""
 		try:
-			return gmClinicalRecord._get_handler[aVar](self)
+			return cClinicalRecord._get_handler[aVar](self)
 		except KeyError:
 			_log.LogException('Missing get handler for [%s]' % aVar, sys.exc_info())
 			return None
@@ -713,6 +713,10 @@ class gmClinicalRecord:
 		
 		return id_issue
 	#--------------------------------------------------------
+	# set up handler map
+	_get_handler['health issues'] = get_health_issues
+	_get_handler['health issue names'] = get_health_issue_names
+	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
 	def get_vaccinated_indications(self):
@@ -1094,10 +1098,6 @@ order by amount_overdue
 		if result is None:
 			return (None, msg)
 		return (1, '')
-	#--------------------------------------------------------
-	# set up handler map
-	_get_handler['health issues'] = get_health_issues
-	_get_handler['health issue names'] = get_health_issue_names
 	#------------------------------------------------------------------
 	# encounter API
 	#------------------------------------------------------------------
@@ -1284,6 +1284,8 @@ order by amount_overdue
 		self.id_encounter = anID
 		return 1
 	#------------------------------------------------------------------
+	# unchecked stuff
+	#------------------------------------------------------------------
 	# trial: allergy panel
 	#------------------------------------------------------------------
 	def create_allergy(self, allergy):
@@ -1391,7 +1393,7 @@ def set_func_ask_user(a_func = None):
 if __name__ == "__main__":
 	_ = lambda x:x
 	gmPG.set_default_client_encoding('latin1')
-	record = gmClinicalRecord(aPKey = 11)
+	record = cClinicalRecord(aPKey = 11)
 	vaccs = record.get_due_vaccinations()
 	print vaccs['due']
 	print vaccs['overdue']
@@ -1421,7 +1423,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.76  2004-03-19 11:55:38  ncq
+# Revision 1.77  2004-03-20 19:41:59  ncq
+# - gmClin* cClin*
+#
+# Revision 1.76  2004/03/19 11:55:38  ncq
 # - in allergy.reaction -> allergy.narrative
 #
 # Revision 1.75  2004/03/04 19:35:01  ncq
