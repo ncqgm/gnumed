@@ -6,30 +6,34 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/localhost-monolithic.conf.sample,v $
-version = $Revision: 1.1 $
+version = $Revision: 1.2 $
 
 #----------------------------------
 [installation]
 
-# set this to no if you want to run this script without
-# any user interaction, in this case you must provide passwords
-# for the users to be installed,
-# this has been conceived to make Debian postinst happy :-)
 interactive = yes
 
-# these NEED NOT correspond to GnuMed service names,
-# you just need to have a group corresponding to each line
+description = $description$
+This will set up a standard monolithic test system for GnuMed
+that is immediately useable. It will contain patient demographics,
+clinical tables, german translations and some sample data.
+
+There's also some test accounts for access to the database.
+Please refer to server/sql/gmTestAccounts.sql to learn more
+about those. If you import them YOU MUST make sure to remove
+them prior to going life on a production system because they
+currently apply to ALL databases.
+
+The database name will be "gnumed-test" which is expected
+to not exist prior to running this script.
+$description$
+
 services = $services$
 config
 demographics
+clinical
 $services$
 
-# where to look for dynamic libraries for procedural languages
-# - we can safely list any directories here that we come
-#   across on any distribution
-# - the first match will be used
-# - reorder the list if you want to force a particular
-#   directory to be used for a particular language
 language library dirs = $language library dirs$
 /usr/lib/postgresql/lib/
 /usr/lib/pgsql/
@@ -41,13 +45,6 @@ $language library dirs$
 
 database owner alias = GnuMed owner
 
-# - these are the standard groups that exist
-#   in every GnuMed database
-# - note how some groups don't have a write-enabled counterpart
-# - you can (and probably should) define site-specific
-#   groups in another file
-# - at the end of the setup you'll be asked if you want to
-#   install your site-specific groups/users, too
 groups = $groups$
 gm-doctors
 _gm-doctors
@@ -60,13 +57,9 @@ gm-trainees_office
 gm-public
 $groups$
 
-# - activate these backend languages
-# - the names just point to the corresponding sections
 procedural languages = $procedural languages$
 pg/SQL
 $procedural languages$
-
-#pg/Python
 
 #----------------------------------
 # services
@@ -74,7 +67,7 @@ $procedural languages$
 [service config]
 name = default
 version = 0.1
-database alias = gnumed-test
+database alias = core
 postgres version = 7.1
 schema = $schema$
 sql/gmconfiguration.sql
@@ -84,18 +77,28 @@ $schema$
 [service demographics]
 name = personalia
 version = 0.1
-database alias = gnumed-test
+database alias = core
 postgres version = 7.1
 schema = $schema$
 sql/gmidentity.sql
 sql/gmgis.sql
-sql/gmServices.sql
+sql/country.specific/de/german-family_relations.sql
+$schema$
+
+[service clinical]
+name = historica
+version = 0.1
+database alias = core
+postgres version = 7.1
+schema = $schema$
+sql/gmclinical.sql
+sql/country.specific/de/german-clinical.sql
 $schema$
 
 #----------------------------------
 # databases
 #----------------------------------
-[database gnumed-test]
+[database core]
 name = gnumed-test
 server alias = localhost
 
@@ -147,7 +150,10 @@ $language activation$
 
 #----------------------------------
 # $Log: localhost-monolithic.conf.sample,v $
-# Revision 1.1  2003-01-26 12:47:17  ncq
+# Revision 1.2  2003-01-27 01:48:03  ncq
+# - updated to be more complete, added description
+#
+# Revision 1.1  2003/01/26 12:47:17  ncq
 # - next generation from test-area/
 #
 # Revision 1.1  2003/01/22 22:50:36  ncq
