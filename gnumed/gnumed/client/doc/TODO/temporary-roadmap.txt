@@ -1,13 +1,16 @@
 GnuMed temporary roadmap
 ========================
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/temporary-roadmap.txt,v $
-$Revision: 1.8 $
+$Revision: 1.9 $
 -----------------------------------------------------------------
-This is the temporary roadmap. Please always include the
-URL to this document when discussing items on the list:
 
-http://savannah.gnu.org/cgi-bin/viewcvs/gnumed/gnumed/gnumed/client/doc/TODO/temporary-roadmap.txt
------------------------------------------------------------------
+This is now hosted here:
+
+http://sidicpc22.uwaterloo.ca/twiki/bin/view/Gnumed/RoadMap
+
+============================================================
+People please remove sections they have moved to the Wiki !!
+============================================================
 
 ------------------------
 MUST HAVE first release:
@@ -18,7 +21,6 @@ maintainer:
 hackers: Ian Haywood
  - no family relationship handling
  - search done (or nearly, in top panel)
- - mediocre attempt at input/modification available
  - input needs considerably more smarts
 status: in progress
 
@@ -184,7 +186,10 @@ Old German first-off roadmap is here:
 
 -----------------------------------------------------------------
 $Log: temporary-roadmap.txt,v $
-Revision 1.8  2004-03-09 11:01:36  ncq
+Revision 1.9  2004-03-15 13:27:16  ncq
+- is now in Wiki, please remove duplicate content
+
+Revision 1.8  2004/03/09 11:01:36  ncq
 - added blurb on form handling concept
 
 Revision 1.7  2003/07/30 23:13:40  ncq
