@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -581,7 +581,7 @@ class database:
 		# FIXME: we need to pull this nasty trick of ending and restarting
 		# the current transaction to work around pgSQL automatically associating
 		# cursors with transactions
-		cmd = 'commit; create database "%s"; begin' % self.name
+		cmd = "commit; create database \"%s\" with encoding='unicode'; begin" % self.name
 
 		cursor = self.conn.cursor()
 		try:
@@ -1022,7 +1022,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.9  2003-04-09 13:55:51  ncq
+# Revision 1.10  2003-05-06 13:05:54  ncq
+# - from now on create unicode databases
+#
+# Revision 1.9  2003/04/09 13:55:51  ncq
 # - some whitespace fixup
 #
 # Revision 1.8  2003/04/09 13:07:19  ncq
