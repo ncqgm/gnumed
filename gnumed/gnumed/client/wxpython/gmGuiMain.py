@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.183 2005-03-14 14:37:19 ncq Exp $
-__version__ = "$Revision: 1.183 $"
+# $Id: gmGuiMain.py,v 1.184 2005-03-29 07:27:54 ncq Exp $
+__version__ = "$Revision: 1.184 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -122,7 +122,7 @@ class gmTopLevelFrame(wx.wxFrame):
 					)
 			#----------------------
 			# create layout manager
-		        #----------------------
+			#----------------------
 			if self.layout_style == 'status_quo':
 				_log.Log(gmLog.lInfo, 'loading Horst space layout manager')
 				self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
@@ -493,7 +493,8 @@ class gmApp(wxApp):
 		# set up language in database
 		self.__set_db_lang()
 		# create the main window
-		frame = gmTopLevelFrame(None, -1, _('GnuMed client'), (640,440), gmCLI.arg.get ('--layout', None))
+		cli_layout = gmCLI.arg.get('--layout', None)
+		frame = gmTopLevelFrame(None, -1, _('GnuMed client'), (640,440), cli_layout)
 		# and tell the app to use it
 		self.SetTopWindow(frame)
 		#frame.Unlock()
@@ -654,7 +655,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.183  2005-03-14 14:37:19  ncq
+# Revision 1.184  2005-03-29 07:27:54  ncq
+# - just silly cleanup
+#
+# Revision 1.183  2005/03/14 14:37:19  ncq
 # - attempt to log display settings
 #
 # Revision 1.182  2005/03/08 16:45:55  ncq
