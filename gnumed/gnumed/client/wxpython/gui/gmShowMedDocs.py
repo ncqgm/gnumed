@@ -11,47 +11,30 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
 
-# location of our modules
-if __name__ == '__main__':
-    # CVS
-    sys.path.append(os.path.join('..', '..', 'pycommon'))
-    sys.path.append(os.path.join('..', '..', 'business'))
-    # UNIX installation
-    sys.path.append('/usr/share/gnumed/pycommon')
-    sys.path.append('/usr/share/gnumed/business')
-    # Windows
-    sys.path.append(os.path.join('.', 'modules'))
-
-import gmLog
+from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
+
 if __name__ == '__main__':
     _log.SetAllLogLevels(gmLog.lData)
+	from Gnumed.pycommon import gmI18N
+else:
+    from Gnumed.pycommon import gmGuiBroker
 
 _log.Log(gmLog.lData, __version__)
 
-if __name__ == "__main__":
-    import gmI18N
-else:
-    import gmGuiBroker
-
-import gmCfg
-_cfg = gmCfg.gmDefCfgFile
-
-import gmWhoAmI
-_whoami = gmWhoAmI.cWhoAmI()
-
-import gmPG
-import gmPatient, gmMedDoc, gmMimeLib
-from gmExceptions import ConstructorError
-
-from gmGuiHelpers import gm_show_error
+from Gnumed.pycommon import gmCfg, gmWhoAmI, gmPG, gmMimeLib, gmExceptions
+from Gnumed.business import gmPatient, gmMedDoc
+from Gnumed.wxpython import gmGuiHelpers
 
 from wxPython.wx import *
+
+_cfg = gmCfg.gmDefCfgFile
+_whoami = gmWhoAmI.cWhoAmI()
 #----------------------------------------------------------------------
 #        self.tree = MyTreeCtrl(self, tID, wxDefaultPosition, wxDefaultSize,
 #                               wxTR_HAS_BUTTONS | wxTR_EDIT_LABELS# | wxTR_MULTIPLE
@@ -85,7 +68,7 @@ class cDocTree(wxTreeCtrl):
         self.__defconn = self.__backend.GetConnection('blobs')
         if self.__defconn is None:
             _log.Log(gmLog.lErr, "Cannot retrieve documents without database connection !")
-            raise ConstructorError, "cDocTree.__init__(): need db conn"
+            raise gmExceptions.ConstructorError, "cDocTree.__init__(): need db conn"
 
         # connect to config database
         self.__dbcfg = gmCfg.cCfgSQL(
@@ -106,7 +89,7 @@ class cDocTree(wxTreeCtrl):
     def update(self):
         if self.curr_pat['ID'] is None:
             _log.Log(gmLog.lErr, 'need patient for update')
-            gm_show_error(
+            gmGuiHelpers.gm_show_error(
                 aMessage = _('Cannot load documents.\nYou first need to select a patient.'),
                 aTitle = _('loading document list')
             )
@@ -136,7 +119,7 @@ class cDocTree(wxTreeCtrl):
         doc_ids = self.curr_pat['document id list']
         if doc_ids is None:
             name = self.curr_pat['demographic record'].getActiveName()
-            gm_show_error(
+            gmGuiHelpers.gm_show_error(
                 aMessage = _('Cannot find any documents for patient\n[%s %s].') % (name['first'], name['last']),
                 aTitle = _('loading document list')
             )
@@ -270,7 +253,7 @@ class cDocTree(wxTreeCtrl):
             obj = gmMedDoc.gmMedObj(aPKey = obj_id)
         except:
             _log.LogException('Cannot instantiate object [%s]' % obj_id, sys.exc_info())
-            gm_show_error(
+            gmGuiHelpers.gm_show_error(
                 aMessage = _('Document part does not seem to exist in database !!'),
                 aTitle = _('showing document')
             )
@@ -294,7 +277,7 @@ class cDocTree(wxTreeCtrl):
         # retrieve object
         if not obj.export_to_file(aTempDir = exp_base, aChunkSize = chunksize):
             _log.Log(gmLog.lErr, "Cannot export object [%s] data from database !" % node_data['id'])
-            gm_show_error(
+            gmGuiHelpers.gm_show_error(
                 aMessage = _('Cannot export document part from database to file.'),
                 aTitle = _('showing document')
             )
@@ -303,7 +286,7 @@ class cDocTree(wxTreeCtrl):
         fname = obj['filename']
         (result, msg) = gmMimeLib.call_viewer_on_file(fname)
         if not result:
-            gm_show_error(
+            gmGuiHelpers.gm_show_error(
                 aMessage = _('Cannot display object.\n%s.') % msg,
                 aTitle = _('displaying page')
             )
@@ -387,9 +370,8 @@ class cDocTree(wxTreeCtrl):
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
-    import gmLoginInfo
-    import gmXdtObjects
-    from gmXdtMappings import xdt_gmgender_map
+    from Gnumed.wxpython import gmLoginInfo
+    from Gnumed.business import gmXdtObjects, gmXdtMappings
 
     wxID_btn_quit = wxNewId()
 
@@ -398,7 +380,7 @@ if __name__ == '__main__':
         def __init__(self, parent, id):
             # get patient from file
             if self.__get_pat_data() is None:
-                raise ConstructorError, "Cannot load patient data."
+                raise gmExceptions.ConstructorError, "Cannot load patient data."
 
             # set up database connectivity
             auth_data = gmLoginInfo.LoginInfo(
@@ -421,29 +403,29 @@ if __name__ == '__main__':
             }
 
             # find matching patient IDs
-            patient_ids = gmTmpPatient.get_patient_ids(cooked_search_terms)
+            patient_ids = gmPatient.get_patient_ids(cooked_search_terms)
             if patient_ids is None:
-                gm_show_error(
+                gmGuiHelpers.gm_show_error(
                     aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
                     aTitle = _('searching patient')
                 )
                 _log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-                raise ConstructorError, "Patient from XDT file does not exist in database."
+                raise gmExceptions.ConstructorError, "Patient from XDT file does not exist in database."
 
             # ambigous ?
             if len(patient_ids) != 1:
-                gm_show_error(
+                gmGuiHelpers.gm_show_error(
                     aMessage = _('Data in xDT file matches more than one patient in database !'),
                     aTitle = _('searching patient')
                 )
                 _log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-                raise ConstructorError, "Problem getting patient ID from database. Aborting."
+                raise gmExceptions.ConstructorError, "Problem getting patient ID from database. Aborting."
 
             try:
-                gm_pat = gmTmpPatient.gmCurrentPatient(aPKey = patient_ids[0])
+                gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0])
             except:
                 # this is an emergency
-                gm_show_error(
+                gmGuiHelpers.gm_show_error(
                     aMessage = _('Cannot load patient from database !\nAborting.'),
                     aTitle = _('searching patient')
                 )
@@ -456,7 +438,7 @@ if __name__ == '__main__':
             self.SetTitle(_("stored medical documents"))
 
             # make patient panel
-            gender = gmTmpPatient.gm2long_gender_map[xdt_gmgender_map[self.__xdt_pat['gender']]]
+            gender = gmPatient.gm2long_gender_map[gmXdtMappings.xdt_gmgender_map[self.__xdt_pat['gender']]]
             self.pat_panel = wxStaticText(
                 id = -1,
                 parent = self,
@@ -504,7 +486,7 @@ if __name__ == '__main__':
                 self.__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
             except:
                 _log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
-                gm_show_error(
+                gmGuiHelpers.gm_show_error(
                     aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
                     aTitle = _('loading patient from xDT file')
                 )
@@ -663,7 +645,11 @@ else:
     pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.34  2004-03-06 21:52:02  shilbert
+# Revision 1.35  2004-03-07 22:19:26  ncq
+# - proper import
+# - re-fix gmTmpPatient -> gmPatient (fallout from "Syan's commit")
+#
+# Revision 1.34  2004/03/06 21:52:02  shilbert
 # - adapted code to new API since __set/getitem is gone
 #
 # Revision 1.33  2004/02/25 09:46:23  ncq
