@@ -517,7 +517,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL , DataObj
      */
     public DemographicDetail insert(Connection conn, DemographicDetail detail) throws DataSourceException {
         try {
-            conn.setAutoCommit(false);
+         //   conn.setAutoCommit(false);
             conn.commit();
             detail = insertIdentity(conn, detail);
             insertNames(conn, detail);
@@ -531,14 +531,14 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL , DataObj
             writeExtIds(conn, detail);
             
             conn.commit();
-            conn.setAutoCommit(true);
+//            conn.setAutoCommit(true);
             conn.close();
             return detail;
         } catch (Exception e) {
             try {
                 conn.rollback();
                 
-                conn.setAutoCommit(true);
+//                conn.setAutoCommit(true);
                 conn.close();
             } catch (Exception e2) {
                 throw new DataSourceException(e2);
@@ -557,7 +557,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL , DataObj
      */
     public void update(Connection conn, DemographicDetail detail) throws DataSourceException {
         try {
-            conn.setAutoCommit(false);
+  //          conn.setAutoCommit(false);
             conn.commit();
             updateIdentity(conn, detail);
             updateNames( conn, detail);
@@ -567,14 +567,14 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL , DataObj
             updateContacts(conn, detail);
             writeExtIds(conn, detail);
             conn.commit();
-            conn.setAutoCommit(true);
+  //          conn.setAutoCommit(true);
             conn.close();
             
         } catch (Exception e) {
             DataSourceException de = new DataSourceException(e);
             try {
                 conn.rollback();
-                conn.setAutoCommit(true);
+  //              conn.setAutoCommit(true);
                 conn.close();
             } catch (Exception e2) {
                 e2.printStackTrace(System.err);

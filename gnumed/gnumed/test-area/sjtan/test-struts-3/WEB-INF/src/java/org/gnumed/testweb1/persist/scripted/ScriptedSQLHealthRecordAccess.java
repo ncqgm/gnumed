@@ -345,7 +345,7 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 
 			conn = getDataSource().getConnection();
 
-			conn.setAutoCommit(false);
+		//	conn.setAutoCommit(false);
 
 			Integer idEncounter = insertEncounter(encounter, summary, s1, conn);
 			conn.commit();
@@ -550,7 +550,9 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 					
 					med.updateDirections(); // parsed data added to directions
 					// one way of storing qty and repeats on clin_medication
-					med.setNarrative(med.getNarrative() + "\n\nscript:"+med.getDirections());
+					med.setNarrative(med.getNarrative() + "\n\nscript:"+med.getGenericName()+"("
+							+med.getBrandName()+") " 
+							+med.getDirections() );
 					linkRootItem(conn, med, summary);
 					saveMedication(conn, med, summary);
 					itemsAttached++ ;

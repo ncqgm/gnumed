@@ -77,7 +77,7 @@
              <td>
              <b><bean:write name="medication" property="brandname" /> </b>
             </td>
-             <td><bean:write name="medication" property="directions" />
+             <td > <bean:write name="medication" property="directions"  />
             </td>
             <td><bean:write name="medication" property="started" format="dd/MM/yy"/>
             </td>

@@ -15,17 +15,17 @@
     </parameter>
     <parameter>
       <name>url</name>
-      <value>jdbc:postgresql://127.0.0.1:5432/gnumed</value>
+      <value>jdbc:postgresql://hherb.com:5432/gnumed</value>
     </parameter>
     <parameter>
       <name>username</name>
       <!--   <value>sjtan</value> -->
-      <value>_test-doc</value> 
+      <value>_any-doc</value> 
     </parameter>
     <parameter>
       <name>password</name>
       <!-- <value>monica</value> -->
-      <value>test-doc</value>
+      <value>any-doc</value>
     </parameter>
     <parameter>
       <name>maxActive</name>
@@ -108,4 +108,5 @@
       <name>logAbandoned</name>
       <value>true</value>
     </parameter>
+    </ResourceParams>
 </Context>
