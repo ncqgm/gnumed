@@ -2,14 +2,14 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.15 $"
-__author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
+__version__ = "$Revision: 1.16 $"
+__author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
-import gmLog, gmGuiBroker, gmGP_PatientPicture, gmPatientSelector, gmDispatcher, gmSignals, gmTmpPatient, gmPG
+import gmLog, gmGuiBroker, gmGP_PatientPicture, gmPatientSelector, gmDispatcher, gmSignals, gmTmpPatient, gmPG, gmGuiHelpers
 _log = gmLog.gmDefLog
 
 from wxPython.wx import *
@@ -158,9 +158,10 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			_log.Log(gmLog.lWarn, 'cannot load consultation types from backend')
 			self.__consultation_types = [_('in surgery')]
 			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
-			self.__show_error(
+			gmGuiHelpers.gm_show_error (
 				_('Cannot load consultation types from backend.\nConsequently, the only available type is:\n[%s]') % self.__consultation_types[0],
-				_('loading consultation types')
+				_('loading consultation types'),
+				gmLog.lWarn
 			)
 			return None
 		result = rocurs.fetchall()
@@ -169,33 +170,16 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		if len(result) == 0:
 			self.__consultation_types = [_('in surgery')]
 			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
-			self.__show_error(
+			gmGuiHelpers.gm_show_error (
 				_('Cannot load consultation types from backend.\nConsequently, the only available type is:\n[%s]') % self.__consultation_types[0],
-				_('loading consultation types')
+				_('loading consultation types'),
+				gmLog.lWarn
 			)
 			return None
 		self.__consultation_types = []
 		for cons_type in result:
 			self.__consultation_types.append(cons_type[0])
 		self.DEF_CONSULT_TYPE = self.__consultation_types[0]
-		return 1
-	#--------------------------------------------------------
-	def __show_error(self, aMessage = None, aTitle = ''):
-		# sanity checks
-		tmp = aMessage
-		if aMessage is None:
-			tmp = _('programmer forgot to specify error message')
-
-		tmp = tmp + _("\n\nPlease consult the error log for further information !")
-
-		dlg = wxMessageDialog(
-			NULL,
-			tmp,
-			aTitle,
-			wxOK | wxICON_ERROR
-		)
-		dlg.ShowModal()
-		dlg.Destroy()
 		return 1
 	#-------------------------------------------------------
 	# event handling
@@ -220,7 +204,6 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		print "display patient demographic window now"
 	#-------------------------------------------------------
 	def _update_allergies(self, **kwargs):
-		# FIXME: filter out sensitivities
 		epr = self.curr_pat['clinical record']
 		allergy_names = epr['allergy names']
 		_log.Log(gmLog.lData, "allergy names: %s" % allergy_names)
@@ -322,7 +305,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.15  2003-07-07 08:34:31  ihaywood
+# Revision 1.16  2003-10-19 12:20:10  ncq
+# - use GuiHelpers.py
+#
+# Revision 1.15  2003/07/07 08:34:31  ihaywood
 # bugfixes on gmdrugs.sql for postgres 7.3
 #
 # Revision 1.14  2003/06/26 21:40:29  ncq
