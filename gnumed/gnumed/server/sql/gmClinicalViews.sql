@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.104 2004-09-25 13:25:56 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.105 2004-09-28 12:29:29 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -532,7 +532,7 @@ where
 -- vaccination stuff
 -- -----------------------------------------------------
 \unset ON_ERROR_STOP
-drop view v_vacc_regimes;
+drop view v_vacc_regimes cascade;
 \set ON_ERROR_STOP 1
 
 create view v_vacc_regimes as
@@ -566,6 +566,7 @@ select
 	_(vind.description) as l10n_indication,
 	vreg.name as regime,
 	coalesce(vreg.comment, '') as reg_comment,
+	vdef.id as pk_vacc_def,
 	vdef.is_booster as is_booster,
 	vdef.seq_no as vacc_seq_no,
 	vdef.min_age_due as age_due_min,
@@ -633,6 +634,7 @@ select
 	vvd4r.age_due_max,
 	vvd4r.min_interval,
 	vvd4r.vacc_comment as vacc_comment,
+	vvd4r.pk_vacc_def as pk_vacc_def,
 	vvr4p.pk_regime as pk_regime,
 	vvr4p.pk_indication as pk_indication,
 	vvr4p.pk_recommended_by as pk_recommended_by
@@ -1244,11 +1246,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.104 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.105 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.104  2004-09-25 13:25:56  ncq
+-- Revision 1.105  2004-09-28 12:29:29  ncq
+-- - add pk_vacc_def to v_vaccs_scheduled4pat
+--
+-- Revision 1.104  2004/09/25 13:25:56  ncq
 -- - is_significant -> clinically_relevant
 --
 -- Revision 1.103  2004/09/22 14:12:19  ncq
