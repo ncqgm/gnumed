@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.1 2003-10-23 06:02:39 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmEditArea.py,v 1.2 2003-10-24 03:50:36 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -351,7 +351,9 @@ class gmEditArea( wxPanel):
 		self.SetAutoLayout(true)
 
 		self.__register_events()
-
+		
+		self._postInit()
+		
 		self.Show(true)
 	#----------------------------------------------------------------
 	def _make_prompt(self, parent, aLabel, aColor):
@@ -429,8 +431,22 @@ class gmEditArea( wxPanel):
 		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND | wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
 		szr_buttons.Add(self.btn_Delete, 1, wxEXPAND | wxALL, 1)
+		
+		#self.buttons = {
+		#	'save': self.btn_Save,
+		#	'clear': self.btn_Clear,
+		#	'delete': self.btn_Delete
+		#	}
 
 		return szr_buttons
+
+	#def setButtonAction( self, name, action):
+	#		if self.buttons.has_key(name):
+	#			EVT_BUTTON( self.buttons[name], self.buttons[name].GetId(),  action )
+			
+
+		
+			
 	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
 		_log.Log(gmLog.lErr, 'programmer forgot to define edit area lines for [%s]' % self._type)
@@ -447,7 +463,13 @@ class gmEditArea( wxPanel):
 
 		# get lines
 		lines = self._make_edit_lines(parent = fields_pnl)
-
+		list = []
+		list.extend(self.input_fields.keys())
+		list.sort()
+		print "  ", self._type + ":"
+		for x in list:
+			print "        -", x
+		print	
 		
 		self.lines = lines
 		if len(lines) != len(_prompt_defs[self._type]):
@@ -491,6 +513,7 @@ class gmEditArea( wxPanel):
 		# connect standard buttons
 		EVT_BUTTON(self.btn_Save, wxID_BTN_Save, self._on_save_btn_pressed)
 		EVT_BUTTON(self.btn_Clear, wxID_BTN_Clear, self._on_clear_btn_pressed)
+		EVT_BUTTON(self.btn_Delete, wxID_BTN_Delete, self._on_delete_btn_pressed)
 
 		# client internal signals
 		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_data)
@@ -505,21 +528,40 @@ class gmEditArea( wxPanel):
 		self._save_data()
 		event.Skip()
 	#--------------------------------------------------------
-	def _save_data(self):
-		_log.Log(gmLog.lErr, 'programmer forgot to define _save_data() for [%s]' % self._type)
-		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
-		raise AttributeError
-	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
 		print "CLEAR button pressed"
 		self._init_fields()
 		event.Skip()
+	
+	#--------------------------------------------------------
+	def _on_delete_btn_pressed(self, event):
+		print "DELETE button pressed"
+		self._delete_data()
+		event.Skip()
+
 	#--------------------------------------------------------
 	def _init_fields(self):
 		_log.Log(gmLog.lErr, 'programmer forgot to define _init_fields() for [%s]' % self._type)
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
-	
+	#--------------------------------------------------------
+	def _save_data(self):
+		print "SAVING ", self._getInputFieldValues()
+		_log.Log(gmLog.lErr, 'programmer forgot to define _save_data() for [%s]' % self._type)
+		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
+		raise AttributeError
+	#--------------------------------------------------------
+	def _delete_data(self):	
+		_log.Log(gmLog.lErr, 'programmer forgot to define _delete_fields() for [%s]' % self._type)
+		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
+		raise AttributeError
+
+
+	def _postInit(self):
+		"""override for further control setup"""
+		pass
+		
+
 	def _makeLineSizer(self,  widget, weight, spacerWeight):
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.Add( widget, weight, wxEXPAND)
@@ -585,7 +627,12 @@ class gmEditArea( wxPanel):
 		return newlines	
 		
 
-
+	def _getInputFieldValues(self):
+		values = {}
+		for k,v  in self.input_fields.items():
+			values[k] = v.GetValue()
+		return values	
+			
 
 
 #====================================================================
@@ -650,6 +697,8 @@ class gmAllergyEditArea(gmEditArea):
 	def _init_fields(self):
 		print "initializing allergy input fields"
 		return 1
+
+
 
 		
 #====================================================================
@@ -806,7 +855,10 @@ class gmPastHistoryEditArea(gmEditArea):
 			"active": self.cb_active,
 			"operation": self.cb_operation,
 			"confidential": self.cb_confidential,
-			"significant": self.cb_significant
+			"significant": self.cb_significant,
+			"both": self.rb_sideboth,
+			"left": self.rb_sideleft,
+			"right": self.rb_sideright,
 		}
 
 		return lines
@@ -1019,7 +1071,13 @@ class gmReferralEditArea(gmEditArea):
 			"street2": self.txt_street2,
 			"suburb": self.txt_suburb,
 			"postcode" : self.txt_postcode,
-			"for": self.txt_for
+			"for": self.txt_for,
+			"include Meds": cb_med,
+			"include Family Hx" : cb_fhx,
+			"include Active Problems": cb_active,
+			"include Past Problems" : cb_past,
+			"include Social Hx": cb_social,
+			"include Habits": cb_habits
 		}
 		#return lines
 		return self._makeExtraColumns( parent, lines)
@@ -1157,7 +1215,6 @@ class gmRequestEditArea(gmEditArea):
 			"request": request,
 			"notes": notes,
 			"meds" : meds,
-			"billings": billings,
 			"copyto" : copyto,
 			"progress" : progress
 		}
@@ -1709,7 +1766,12 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.1  2003-10-23 06:02:39  sjtan
+# Revision 1.2  2003-10-24 03:50:36  sjtan
+#
+# make sure smaller widgets such as checkboxes and radiobuttons on input_fields;
+# "pastable" yaml input_field maps output from print statements.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #
