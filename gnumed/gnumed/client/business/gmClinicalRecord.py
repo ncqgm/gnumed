@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.88 2004-04-24 12:59:17 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmClinicalRecord.py,v 1.89 2004-05-02 19:27:30 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -937,19 +937,7 @@ class cClinicalRecord:
 		except KeyError:
 			pass
 		self.__db_cache['due vaccinations'] = {}
-		# get patient dob
-		cmd = "select dob from identity where id=%s"
-		dob = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
-		if dob is None:
-			_log.Log(gmLog.lErr, 'error loading DOB for patient [%s]' % self.id_patient)
-			return (None, _('error loading date of birth') % self.id_patient)
-		if len(dob) == 0:
-			_log.Log(gmLog.lErr, 'DOB for patient [%s] not found' % self.id_patient)
-			return (None, _('error loading date of birth') % self.id_patient)
-		args = {
-			'pat_dob': dob[0][0].Format('%Y-%m-%d'),
-			'pat_id': self.id_patient
-			}
+		args = {'pat_id': self.id_patient}
 		# due, non-booster
 		self.__db_cache['due vaccinations']['due'] = []
 		cmd = """
@@ -960,11 +948,11 @@ class cClinicalRecord:
 				seq_no,
 				case when age_due_max is null
 					then (now() + '2 years'::interval)
-					else (%(pat_dob)s::timestamp + age_due_max)
+					else ((select dob from identity where id=%(pat_id)s) + age_due_max)
 				end as latest_due,
 				case when age_due_max is null
 					then '2 years'::interval
-					else age(%(pat_dob)s::timestamp + age_due_max)
+					else age((select dob from identity where id=%(pat_id)s) + age_due_max)
 				end as time_left,
 				vacc_comment,
 				age_due_min,
@@ -977,7 +965,7 @@ class cClinicalRecord:
 			where
 				pk_patient=%(pat_id)s
 					and
-				age(%(pat_dob)s::timestamp) between age_due_min and coalesce(age_due_max, '115 years'::interval)
+				age((select dob from identity where id=%(pat_id)s)) between age_due_min and coalesce(age_due_max, '115 years'::interval)
 			order by time_left
 		"""
 		vaccs = gmPG.run_ro_query('historica', cmd, None, args)
@@ -995,7 +983,7 @@ class cClinicalRecord:
 				regime,
 				reg_comment,
 				seq_no,
-				age(%(pat_dob)s::timestamp + age_due_max) as amount_overdue,
+				age((select dob from identity where id=%(pat_id)s) + age_due_max) as amount_overdue,
 				vacc_comment,
 				age_due_min,
 				age_due_max,
@@ -1007,7 +995,7 @@ class cClinicalRecord:
 			where
 				pk_patient=%(pat_id)s
 					and
-				age(%(pat_dob)s::timestamp) > coalesce(age_due_max, '115 years'::interval)
+				age((select dob from identity where id=%(pat_id)s)) > coalesce(age_due_max, '115 years'::interval)
 			order by amount_overdue
 		"""
 		vaccs = gmPG.run_ro_query('historica', cmd, None, args)
@@ -1033,9 +1021,9 @@ class cClinicalRecord:
 			from
 				v_pat_missing_boosters vpmb
 			where
-				pk_patient=%s
+				pk_patient=%(pat_id)s
 		"""
-		vaccs = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+		vaccs = gmPG.run_ro_query('historica', cmd, None, args)
 		if vaccs is None:
 			_log.Log(gmLog.lErr, 'error loading due boosters for patient [%s]' % self.id_patient)
 			vaccs = [
@@ -1424,7 +1412,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.88  2004-04-24 12:59:17  ncq
+# Revision 1.89  2004-05-02 19:27:30  ncq
+# - simplify get_due_vaccinations
+#
+# Revision 1.88  2004/04/24 12:59:17  ncq
 # - all shiny and new, vastly improved vaccinations
 #   handling via clinical item objects
 # - mainly thanks to Carlos Moro
