@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.64 2004-01-21 16:52:02 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmClinicalRecord.py,v 1.65 2004-01-24 17:07:46 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -115,7 +115,7 @@ class gmClinicalRecord:
 		if result is None:
 			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in clinical database' % self.id_patient)
 			return None
-		if len(result) == 0:
+		if not result:
 			_log.Log(gmLog.lInfo, "no patient [%s] in clinical database" % self.id_patient)
 			cmd1 = "insert into xlnk_identity (xfk_identity, pupic) values (%s, %s)"
 			cmd2 = "select currval('xlnk_identity_pk_seq')"
@@ -1217,7 +1217,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.64  2004-01-21 16:52:02  ncq
+# Revision 1.65  2004-01-24 17:07:46  ncq
+# - fix insertion into xlnk_identity
+#
+# Revision 1.64  2004/01/21 16:52:02  ncq
 # - eventually do the right thing in get_vaccinations()
 #
 # Revision 1.63  2004/01/21 15:53:05  ncq
