@@ -47,7 +47,7 @@ permanent you need to call store() on the file object.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -202,11 +202,7 @@ class cCfgSQL:
 		data_value = value
 		if type(value) is StringType:
 			data_type = 'string'
-		elif type(value) is FloatType:
-			data_type = 'numeric'
-		elif type(value) is IntType:
-			data_type = 'numeric'
-		elif type(value) is LongType:
+		elif type(value) in [FloatType, IntType, LongType]:
 			data_type = 'numeric'
 		elif type(value) is ListType:
 			data_type = 'str_array'
@@ -214,13 +210,16 @@ class cCfgSQL:
 				data_value = self.dbapi.PgArray(value)
 			except AttributeError:
 				_log.LogException('this dbapi does not support PgArray', sys.exc_info())
+				print "This Python DB-API module does not support the PgArray data type."
+				print "It is recommended to install at least version 2.3 of pyPgSQL from"
+				print "<http://pypgsql.sourceforge.net>."
 				return None
 		elif isinstance(value, self.dbapi.PgArray):
 			data_type = 'str_array'
 			data_value = value
 		# FIXME: UnicodeType ?
 		else:
-			_log.Log(gmLog.lErr, 'Cannot store option of type [%s] (%s -> %s).' % (type(value), cache_key, data_value))
+			_log.Log(gmLog.lErr, "Don't know how to store option of type [%s] (%s -> %s)." % (type(value), cache_key, data_value))
 			return None
 
 		# set up field/value pairs
@@ -927,7 +926,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.40  2003-02-21 08:51:57  ncq
+# Revision 1.41  2003-02-21 08:58:51  ncq
+# - improve PgArray detection even more
+#
+# Revision 1.40  2003/02/21 08:51:57  ncq
 # - catch exception on missing PgArray
 #
 # Revision 1.39  2003/02/15 08:51:05  ncq
