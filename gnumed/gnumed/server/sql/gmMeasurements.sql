@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.36 $
+-- $Revision: 1.37 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -162,7 +162,7 @@ comment on column lnk_tst2norm.id_norm is
 create table unmatched_test_result (
 	pk serial primary key,
 	fk_patient_candidates integer[],
-	request_id text
+	request_id text,
 	firstnames text,
 	lastnames text,
 	dob date,
@@ -172,7 +172,7 @@ create table unmatched_test_result (
 	data text		-- bytea, perhaps ?
 ) inherits (audit_fields);
 
-select add_table_for_audit('test_result');
+select add_table_for_audit('unmatched_test_result');
 
 comment on table unmatched_test_result is
 	'this table holds test results that could not be matched
@@ -425,11 +425,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.36 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.37 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.36  2005-02-08 07:07:40  ncq
+-- Revision 1.37  2005-02-08 07:22:42  ncq
+-- - missing "," and wrong table name used
+--
+-- Revision 1.36  2005/02/08 07:07:40  ncq
 -- - improve path results staging table
 -- - cleanup
 --
