@@ -26,7 +26,7 @@ msgstr " OK "
 
 #: ../wxpython/patient/gmGP_ClinicalSummary.py:63
 msgid "Inbox"
-msgstr ""
+msgstr "Posteingang"
 
 #: ../wxpython/gmPersonDetailsDlg.py:55
 msgid "&Save"
@@ -104,7 +104,6 @@ msgid "Active Problems"
 msgstr ""
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:113
-#, fuzzy
 msgid "Drug Interactions"
 msgstr "Interaktionen"
 
@@ -113,9 +112,8 @@ msgid "A&dd"
 msgstr "&Hinzufügen"
 
 #: ../wxpython/patient/gmGP_TabbedLists.py:117
-#, fuzzy
 msgid "Instructions"
-msgstr "Interaktionen"
+msgstr "Anweisungen"
 
 #: ../wxpython/patient/gmGP_Immunisation.py:120
 msgid "Vaccine"
@@ -185,7 +183,7 @@ msgstr ""
 #: ../wxpython/gmGuiMain.py:340
 #, fuzzy
 msgid "GNUmed client"
-msgstr "GNUMed client"
+msgstr "GnuMed: Hauptprogramm"
 
 #: ../wxpython/gmLabels.py:37
 msgid "at"
@@ -213,13 +211,12 @@ msgid "preferred"
 msgstr "bevorzugt"
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:192
-#, fuzzy
 msgid "Pregnancy Information"
 msgstr "Schwangerschaftsrechner"
 
 #: ../wxpython/gmCryptoText.py:107
 msgid "Encrypt"
-msgstr "Entschlüsseln"
+msgstr "Verschlüsseln"
 
 #: ../wxpython/gui/gmSnellen.py:417
 msgid "Alphabet: "
@@ -275,7 +272,7 @@ msgstr "Warnhinweise, Vorsichtsmaßnahmen?"
 
 #: ../wxpython/patient/gmGP_ScratchPadRecalls.py:16
 msgid "Scratch Pad"
-msgstr ""
+msgstr "Notizen"
 
 #: ../wxpython/gui/gmDrugDisplay.py:228
 msgid "Indications"
@@ -287,7 +284,7 @@ msgstr "A&nzeigen"
 
 #: ../wxpython/patient/gmGP_TabbedLists.py:130
 msgid "Quantity"
-msgstr ""
+msgstr "Menge"
 
 #: ../wxpython/gui/gmGuidelines.py:62
 msgid "?button?"
@@ -357,17 +354,16 @@ msgid "Enter the name of the drug you are interested in"
 msgstr "Wählen Sie den Namen des Medikamentes das sie interessiert"
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:143
-#, fuzzy
 msgid "Directions"
-msgstr "Warnhinweise, Vorsichtsmaßnahmen?"
+msgstr "Anweisungen"
 
 #: ../wxpython/gmLabels.py:34 ../wxpython/gmPersonDetails.py:126
 msgid "d.o.b"
-msgstr "date of birth? Geburtsdatum?"
+msgstr "Geburtsdatum"
 
 #: ../wxpython/gmPersonDetails.py:132
 msgid "c.o.b"
-msgstr "country of birth? Geburtsland?"
+msgstr "Geburtsland"
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:210
 msgid "Save Item no print"
@@ -432,7 +428,7 @@ msgstr "&Hinzufügen"
 
 #: ../wxpython/gmTalkback.py:60
 msgid "GNUmed Talkback"
-msgstr ""
+msgstr "GnuMed: R�ckmeldungen"
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:218
 #, fuzzy
