@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-03-24 11:35:19 $
-# @version $Revision: 1.3 $ $Date: 2002-03-24 11:35:19 $ $Author: ihaywood $
+# @Date: $Date: 2002-03-24 11:57:46 $
+# @version $Revision: 1.4 $ $Date: 2002-03-24 11:57:46 $ $Author: ihaywood $
 # @change log:
 #	14.03.02 ihaywood inital version.
 #      
@@ -62,6 +62,7 @@ class MainWindow(wxPanel):
         # setup booking grid
         lID = wxNewId ()
         self.grid = wxGrid (self, lID)
+        self.cell_selected_active = 0
         EVT_GRID_SELECT_CELL (self.grid, self.onCellSelected)
         EVT_GRID_CELL_LEFT_DCLICK (self.grid, self.onCellDClicked)
         EVT_GRID_CELL_RIGHT_CLICK (self.grid, self.onCellGetFloatMenu)
@@ -95,18 +96,18 @@ class MainWindow(wxPanel):
 
         # button rows
         row1 = wxBoxSizer (wxHORIZONTAL)
-        row1.Add (wxStaticText (self, -1, "Patient: "), 0, wxEXPAND, 0)
-        row1.Add (self.namectrl, 1, wxEXPAND, 0)
+        row1.Add (wxStaticText (self, -1, "Patient: "))
+        row1.Add (self.namectrl, 1, wxEXPAND)
         buttonbox = wxGridSizer (2)
-        buttonbox.Add (self.bookbutton, 1, wxEXPAND, 0)
-        buttonbox.Add (self.cancelbutton, 1, wxEXPAND, 0)
-        buttonbox.Add (self.findbutton, 1, wxEXPAND, 0)
-        buttonbox.Add (self.sessionbutton, 1, wxEXPAND, 0)
+        buttonbox.Add (self.bookbutton, 1, wxEXPAND)
+        buttonbox.Add (self.cancelbutton, 1, wxEXPAND)
+        buttonbox.Add (self.findbutton, 1, wxEXPAND)
+        buttonbox.Add (self.sessionbutton, 1, wxEXPAND)
 
         leftsizer = wxBoxSizer (wxVERTICAL)
-        leftsizer.Add (self.calendar, 0, wxALL, 0)
-        leftsizer.Add (row1, 0, wxALL, 0)
-        leftsizer.Add (buttonbox, 0, wxALL, 0)
+        leftsizer.Add (self.calendar)
+        leftsizer.Add (row1, 0, wxEXPAND)
+        leftsizer.Add (buttonbox, 1, wxEXPAND)
         
         self.sizer = wxBoxSizer(wxHORIZONTAL) 
         self.sizer.Add (leftsizer, 0, wxALL, 5)
@@ -122,7 +123,9 @@ class MainWindow(wxPanel):
         self.SetGrid (time.strftime ("%d %b %Y"))
 
     def OnDayChange (self, event):
+        self.cell_selected_active = 0 # stop spurious calls to onCellSelected
         self.SetGrid (event.GetDate ().Format("%d %b %Y")) # get just the date
+        self.cell_selected_active = 1
 
     def SetGrid (self, date):
         select = ''
@@ -171,7 +174,10 @@ ORDER BY time""" % (select, date))
 
     # callabcks for UI
     def onCellSelected (self, event):
-        print "Selected:", event.GetCol (), event.GetRow ()
+        if self.cell_selected_active:
+            pass
+        # NOT DOCUMENTED!!!:
+        # event.GetCol (), event.GetRow ()
         event.Skip ()
 
     def onCellDClicked (self, event):
@@ -246,8 +252,7 @@ def run ():
 
 
 if __name__ == '__main__':
-    import pdb
-    pdb.run ('run ()')
+    run ()
 
 
 
