@@ -9,15 +9,15 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.1 2003-03-28 15:54:08 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPatientSelector.py,v 1.2 2003-03-28 15:56:04 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, re, time, string
 if __name__ == "__main__":
-	sys.path.append(os.path.join('.', 'modules'))
-	sys.path.append(os.path.join('.', 'business'))
+	sys.path.append(os.path.join('..', 'python-common'))
+	sys.path.append(os.path.join('..', 'business'))
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -829,3 +829,9 @@ if __name__ == "__main__":
 # clear search field upon get-focus ?
 
 # F1 -> context help with hotkey listing
+
+#============================================================
+# $Log: gmPatientSelector.py,v $
+# Revision 1.2  2003-03-28 15:56:04  ncq
+# - adapted to GnuMed CVS structure
+#
