@@ -5,7 +5,7 @@
 # - first arg should be ISO language code
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/locale/Attic/create-gnumed_po.sh,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 # what language are we working on
 LANGNAME="$1"
@@ -15,7 +15,7 @@ if [ "${LANGNAME}" == "" ]; then
 fi
 
 # where to look for files
-BASE="dist/"
+BASE="../dist/"
 # what to call the result
 POTNAME="gnumed-archiv.pot"
 
