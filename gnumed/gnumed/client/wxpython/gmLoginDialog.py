@@ -34,8 +34,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.34 2003-03-31 00:17:43 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmLoginDialog.py,v 1.35 2003-03-31 00:18:34 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 
 from wxPython.wx import *
 import os.path, time
@@ -241,7 +241,6 @@ class LoginPanel(wxPanel):
 			self.loginparams.backendoptionlist = tmp
 	#----------------------------
 	def save_settings(self):
-		return
 		"""Save parameter settings to standard configuration file"""
 
 		_cfg.set('backend', 'logins', self.__cbox_to_list(self.usercombo))
@@ -603,7 +602,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.34  2003-03-31 00:17:43  ncq
+# Revision 1.35  2003-03-31 00:18:34  ncq
+# - or so I thought
+#
+# Revision 1.34  2003/03/31 00:17:43  ncq
 # - started cleanup/clarification
 # - made saving of values work again
 #
