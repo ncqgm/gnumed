@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -43,12 +43,12 @@ try:
 	_isPGDB = 0
 except ImportError:
 	try:
-	# well, well, no such luck - fall back to stock pgdb library
 		import psycopg # try Zope library
 		dbapi = psycopg
 		_isPGDB = 0
 	except ImportError:
 		try:
+			# well, well, no such luck - fall back to stock pgdb library
 			import pgdb # try standard Postgres binding
 			dbapi = pgdb
 			_isPGDB = 1
@@ -58,9 +58,9 @@ except ImportError:
 			raise
 
 # FIXME: DBMS should eventually be configurable
-__backend = 'Postgres'
+__backend = 'PostgreSQL'
 
-_log.Log(gmLog.lInfo, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
+_log.Log(gmLog.lInfo, 'DBMS [%s] via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 
 # check whether this adapter module suits our needs
 assert(float(dbapi.apilevel) >= 2.0)
@@ -388,6 +388,9 @@ class ConnectionPool:
 
 		# this is the default gnumed server now
 		ConnectionPool.__databases['default'] = cfg_db
+		cmd = "select version()"
+		data = run_ro_query(cfg_db, cmd)
+		_log.Log(gmLog.lInfo, 'service [default/config] running on [%s]' % data[0][0])
 		
 		# preload all services with database id 0 (default)
 		cursor = cfg_db.cursor()
@@ -425,6 +428,9 @@ class ConnectionPool:
 			if conn is None:
 				raise gmExceptions.ConnectionError, _('Cannot connect to database with:\n\n[%s]') % login.GetInfoStr()
 			ConnectionPool.__databases[service] = conn
+			cmd = "select version()"
+			data = run_ro_query(conn, cmd)
+			_log.Log(gmLog.lInfo, 'service [%s] running on [%s]' % (service, data[0][0]))
 		cursor.close()
 		return ConnectionPool.__connected
 	#-----------------------------
@@ -549,17 +555,17 @@ def fieldNames(cursor):
 #---------------------------------------------------
 def listDatabases(service='default'):
 	"""list all accessible databases on the database backend of the specified service"""
-	assert(__backend == 'Postgres')
+	assert(__backend == 'PostgreSQL')
 	return run_ro_query(service, "select * from pg_database")
 #---------------------------------------------------
 def listUserTables(service='default'):
 	"""list the tables except all system tables of the specified service"""
-	assert(__backend == 'Postgres')
+	assert(__backend == 'PostgreSQL')
 	return run_ro_query(service, "select * from pg_tables where tablename not like 'pg_%'")
 #---------------------------------------------------
 def listSystemTables(service='default'):
 	"""list the system tables of the specified service"""
-	assert(__backend == 'Postgres')
+	assert(__backend == 'PostgreSQL')
 	return run_ro_query(service, "select * from pg_tables where tablename like 'pg_%'")
 #---------------------------------------------------
 def listTables(service='default'):
@@ -1095,7 +1101,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.3  2004-03-03 14:49:22  ncq
+# Revision 1.4  2004-03-27 21:40:01  ncq
+# - upon first connect log PG version services run on
+#
+# Revision 1.3  2004/03/03 14:49:22  ncq
 # - need to commit() before curs.close() in run_commit()
 # - micro-optimize when to commit() [eg, link_obj not a cursor]
 #
