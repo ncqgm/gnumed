@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.9 2003-04-01 16:01:06 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmPatientSelector.py,v 1.10 2003-04-04 20:46:45 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -535,10 +535,9 @@ class cPatientPickList(wxDialog):
 		self.listctrl = wxListCtrl(
 			parent = self,
 			id = ID_PatPickList,
-			pos = wxDefaultPosition,
-			size = wxSize(160,120),
 			style = wxLC_REPORT | wxLC_SINGLE_SEL | wxVSCROLL | wxHSCROLL | wxSUNKEN_BORDER
 		)
+		#pos = wxDefaultPosition,
 		# and place it
 		self.szrMain.AddWindow(self.listctrl, 1, wxGROW | wxALIGN_CENTER_VERTICAL, 5)
 
@@ -584,13 +583,12 @@ class cPatientPickList(wxDialog):
 
 		#won't work on Windoze otherwise:
 		self.listctrl.SetFocus()
+
 #============================================================
 class cPatientSelector(wxTextCtrl):
 	"""Widget for smart search for patients."""
-	def __init__ (self, parent, id = -1, pos = wxDefaultPosition, size = wxDefaultSize):
-
-		name = gmTmpPatient.gmDefPatient['active name']
-		val = "%s, %s" % (name['last'], name['first'])
+	def __init__ (self, parent, id = -1, pos = wxDefaultPosition, size = wxPyDefaultSize):
+		self.curr_pat = gmTmpPatient.gmCurrentPatient()
 
 		# need to explicitely process ENTER events to avoid
 		# them being handed over to the next control
@@ -598,12 +596,22 @@ class cPatientSelector(wxTextCtrl):
 			self,
 			parent,
 			id,
-			val,
+			'',
 			pos,
 			size,
 			style = wxTE_PROCESS_ENTER
 		)
-		self.SetBackgroundColour (wxColour (200, 100, 100))
+#		self.SetBackgroundColour (wxColour (200, 100, 100))
+		selector_tooltip = _( \
+"""Patient search field.                                   \n
+to search, type any of:\n - fragment of last or first name\n - date of birth (can start with '$' or '*')\n - patient ID (can start with '#')\nand hit <ENTER>
+<ALT-L> or <ALT-P>\n - list of *L*ast/*P*revious patients\n<ALT-K> or <ALT-C>\n - list of *K*VKs/*C*hipcards\n<CURSOR-UP>\n - recall most recently used search term
+""")
+		self.SetToolTip(wxToolTip(selector_tooltip))
+
+		self._display_name()
+
+		# FIXME: is this necessary ?
 		self.parent = parent
 
 		# set locale dependant query handlers
@@ -656,14 +664,17 @@ class cPatientSelector(wxTextCtrl):
 		if anID is None:
 			return None
 
-		kwargs = {
-			'ID': anID,
-			'signal': gmSignals.patient_selected(),
-			'sender': str(id(self))
-		}
-		gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
-		name = gmTmpPatient.gmDefPatient['active name']
-		self.SetValue(value = '%s, %s' % (name['last'], name['first']))
+		if anID == self.curr_pat['ID']:
+			return None
+
+		old_ID = self.curr_pat['ID']
+		self.curr_pat = gmTmpPatient.gmCurrentPatient(aPKey = anID)
+		if old_ID == self.curr_pat['ID']:
+			_log.LogException('cannot change active patient', sys.exc_info())
+			# error message ?
+			return None
+
+		self._display_name()
 
 		# remember patient
 		if data is not None:
@@ -714,6 +725,13 @@ class cPatientSelector(wxTextCtrl):
 
 		return pat_ids
 	#--------------------------------------------------------
+	def _display_name(self):
+		name = self.curr_pat['active name']
+		if name is None:
+			self.SetValue(_('no active patient'))
+		else:
+			self.SetValue('%s, %s' % (name['last'], name['first']))
+	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_loose_focus(self, evt):
@@ -729,11 +747,7 @@ class cPatientSelector(wxTextCtrl):
 			self.prev_search_term = curr_search_term
 
 		# and display currently active patient
-		if gmTmpPatient.gmDefPatient is None:
-			self.SetValue(value = _('no active patient'))
-		else:
-			name = gmTmpPatient.gmDefPatient['active name']
-			self.SetValue(value = '%s, %s' % (name['last'], name['first']))
+		self._display_name()
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_char(self, evt):
@@ -792,7 +806,8 @@ class cPatientSelector(wxTextCtrl):
 		ids = self._fetch_pat_ids(queries)
 		duration = time.time() - start
 		print "%s patient IDs fetched in %3.3f seconds" % (len(ids), duration)
-		if ids is None or len(ids[0]) == 0:
+
+		if ids is None or len(ids) == 0:
 			dlg = wxMessageDialog(
 				NULL,
 				_('Cannot find ANY matching patients for search term\n"%s" !\nCurrently selected patient stays active.\n\n(We should offer to jump to entering a new patient from here.)' % curr_search_term),
@@ -801,12 +816,11 @@ class cPatientSelector(wxTextCtrl):
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
-
 			return true
 
 		curs = self.conn.cursor()
 		# only one matching patient
-		if len(ids[0]) == 1:
+		if len(ids) == 1:
 			# and make our selection known to others
 			data, self.prev_col_order = self.pat_expander(curs, ids)
 			curs.close()
@@ -833,11 +847,11 @@ class cPatientSelector(wxTextCtrl):
 #------------------------------------------------------------
 if __name__ == "__main__":
 
-	kwargs = {}
-	kwargs['ID'] = 1
-	kwargs['signal']= gmSignals.patient_selected()
-	kwargs['sender'] = 'main'
-	gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
+#	kwargs = {}
+#	kwargs['ID'] = 1
+#	kwargs['signal']= gmSignals.patient_selected()
+#	kwargs['sender'] = 'main'
+#	gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
 
 	app = wxPyWidgetTester(size = (200, 40))
 	app.SetWidget(cPatientSelector, -1)
@@ -948,9 +962,17 @@ if __name__ == "__main__":
 # maybe don't do umlaut translation in the first 2-3 letters
 # such that not to defeat index use for the first level query ?
 
+# user defined function key to start search
+
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.9  2003-04-01 16:01:06  ncq
+# Revision 1.10  2003-04-04 20:46:45  ncq
+# - adapt to new gmCurrentPatient()
+# - add (ugly) tooltip
+# - break out helper _display_name()
+# - fix KeyError on ids[0]
+#
+# Revision 1.9  2003/04/01 16:01:06  ncq
 # - fixed handling of no-patients-found result
 #
 # Revision 1.8  2003/04/01 15:33:22  ncq
