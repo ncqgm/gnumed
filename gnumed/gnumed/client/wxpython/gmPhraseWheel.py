@@ -9,11 +9,11 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.5 2003-09-10 01:50:25 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPhraseWheel.py,v 1.6 2003-09-13 17:46:29 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
-import string, types, time, sys
+import string, types, time, sys, re
 
 if __name__ == "__main__":
 	sys.path.append ("../python-common/")
@@ -39,13 +39,15 @@ class cMatchProvider:
 	- in-memory list created on the fly
 	"""
 	__threshold = {}
-	word_separators = tuple(string.punctuation + string.whitespace)
+	default_word_separators = re.compile('[- \t=+&:_@]+')
+	default_ignored_chars = re.compile("""[?!."'\\(){}\[\]<>~#*$%^]+""")
 	#--------------------------------------------------------
 	def __init__(self):
 		self.enableMatching()
 		self.enableLearning()
 		self.setThresholds()
 		self.setWordSeparators()
+		self.ignored_chars = cMatchProvider.default_ignored_chars
 	#--------------------------------------------------------
 	# actions
 	#--------------------------------------------------------
@@ -67,12 +69,17 @@ class cMatchProvider:
 			raise ValueError, 'Cannot find matches without a fragment.'
 
 		# user explicitely wants all matches
-		# FIXME: should "*" be hardcoded ?
 		if aFragment == "*":
 			return self.getAllMatches()
 
+		# case insensitivity
 		tmpFragment = string.lower(aFragment)
-		lngFragment = len(aFragment)
+		# remove ignored chars
+		tmpFragment = self.ignored_chars.sub('', tmpFragment)
+		# normalize word separators
+		tmpFragment = string.join(self.word_separators.split(tmpFragment), ' ')
+		# length in number of significant characters only
+		lngFragment = len(tmpFragment)
 		# order is important !
 		if lngFragment >= self.__threshold['substring']:
 			return self.getMatchesBySubstr(tmpFragment)
@@ -135,19 +142,21 @@ class cMatchProvider:
 		self.__threshold['word']	= aWord
 		self.__threshold['substring']	= aSubstring
 
-		return (1==1)
+		return _true
 	#--------------------------------------------------------
 	def setWordSeparators(self, separators = None):
-		# sanity checks
-		if type(separators) != types.StringType:
-			_log.Log(gmLog.lErr, 'word separators argument is of type %s, expected type string' % type(separators))
-			return None
-
+		if separators is None:
+			self.word_separators = cMatchProvider.default_word_separators
+			return 1
 		if separators == "":
-			_log.Log(gmLog.lErr, 'Not defining any word separators does not make sense ! Falling back to default (%s).' % string.punctuation + string.whitespace)
+			_log.Log(gmLog.lErr, 'Not defining any word separators does not make sense ! Keeping previous setting.')
 			return None
-
-		self.word_separators = tuple(separators)
+		try:
+			self.word_separators = re.compile(separators)
+		except:
+			_log.LogException('cannot compile word separators regex >>>%s<<<, keeping previous setting' % separators)
+			return None
+		return _true
 	#--------------------------------------------------------
 	def disableMatching(self):
 		"""Don't search for matches.
@@ -195,6 +204,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		matches = []
 		# look for matches
 		for item in self.__items:
+			# at start of phrase, that is
 			if string.find(string.lower(item['label']), aFragment) == 0:
 				matches.append(item)
 		# no matches found
@@ -210,13 +220,13 @@ class cMatchProvider_FixedList(cMatchProvider):
 		# look for matches
 		for item in self.__items:
 			pos = string.find(string.lower(item['label']), aFragment)
-			# at start of phrase
+			# found at start of phrase
 			if pos == 0:
 				matches.append(item)
-			# as a true substring
+			# found as a true substring
 			elif pos > 0:
 				# but use only if substring is at start of a word
-				if (item['label'])[pos-1] in self.word_separators:
+				if (item['label'])[pos-1] == ' ':
 					matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -292,6 +302,9 @@ class cWheelTimer(wxTimer):
 #------------------------------------------------------------
 class cPhraseWheel (wxTextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface."""
+
+	default_phrase_separators = re.compile('[;/|]+')
+
 	def __init__ (self,
 					parent,
 					id_callback,
@@ -309,8 +322,9 @@ class cPhraseWheel (wxTextCtrl):
 		if not isinstance(aMatchProvider, cMatchProvider):
 			_log.Log(gmLog.lErr, "aMatchProvider must be a match provider object")
 			return None
-
 		self.__matcher = aMatchProvider
+		self.__currMatches = []
+		self.phrase_separators = cPhraseWheel.default_phrase_separators
 		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
 
 		wxTextCtrl.__init__ (self, parent, id, "", pos, size)
@@ -322,7 +336,7 @@ class cPhraseWheel (wxTextCtrl):
 		# 1) entered text changed
 		EVT_TEXT	(self, self.GetId(), self.__on_text_update)
 		# 2) a key was released
-		EVT_KEY_UP	(self, self.__on_key_up)
+		EVT_KEY_UP	(self, self.__on_key_released)
 		# 3) evil user wants to resize widget
 		EVT_SIZE	(self, self.on_resize)
 
@@ -340,8 +354,13 @@ class cPhraseWheel (wxTextCtrl):
 	def __updateMatches(self):
 		"""Get the matches for the currently typed input fragment."""
 
+		# get current(ly relevant part of) input
+		relevant_input = self.GetValue()
+#		cursor_pos = self.GetInsertionPoint()
+		# find last phrase separator position before cursor position
+#		prev_pos = self.phrase_separators.##(relevant_input)
 		# get all currently matching items
-		(matched, self.__currMatches) = self.__matcher.getMatches(self.GetValue())
+		(matched, self.__currMatches) = self.__matcher.getMatches(relevant_input)
 		# and refill our picklist with them
 		self.__picklist.Clear()
 		if matched:
@@ -358,7 +377,7 @@ class cPhraseWheel (wxTextCtrl):
 		#self.__picklist_win.Position(pos, (0, dim.height))
 
 		# select first value
-		self.__picklist.SetSelection (0)
+		self.__picklist.SetSelection(0)
 
 		# remember that we have a list window
 		self.__picklist_visible = _true
@@ -366,7 +385,7 @@ class cPhraseWheel (wxTextCtrl):
 		# and show it
 		# FIXME: we should _update_ the list window instead of redisplaying it
 		self.__picklist_win.Show()
-		self.__picklist.Show ()
+		self.__picklist.Show()
 	#--------------------------------------------------------
 	def __hide_picklist(self):
 		"""Hide the pick list."""
@@ -378,81 +397,85 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	def OnSelected (self):
 		"""Gets called when user selected a list item."""
-
-		print "__on_selected"
-
 		self.__hide_picklist()
 
 		n = self.__picklist.GetSelection()		# get selected item
 		data = self.__picklist.GetClientData(n)		# get data associated with selected item
 		self.SetValue (self.__picklist.GetString(n))	# tell the input field to display that data
 
-		self.id_callback (data)				# and tell our parents about the user's selection
+		self.id_callback (data)				# and tell our parent about the user's selection
+	#--------------------------------------------------------
+	# individual key handlers
 	#--------------------------------------------------------
 	def __on_enter (self):
 		"""Called when the user pressed <ENTER>.
 
 		FIXME: this might be exploitable for some nice statistics ...
 		"""
-		print "on <enter>"
 
 		# if we have a pick list
 		if self.__picklist_visible:
 			# tell the input field about it
-			self.OnSelected ()
+			self.OnSelected()
 	#--------------------------------------------------------
-	def __on_down(self):
-
-		print "__on_down"
-
-		# if we have a pick list
+	def __on_down_arrow(self):
+		# if we already have a pick list go to next item
 		if self.__picklist_visible:
-			selected = self.__picklist.GetSelection ()
-			# only move down if not at end of list
-			if selected < (self.__picklist.GetCount()-1):
-				self.__picklist.SetSelection (selected+1)
-		# if we don't have a pick list
+			selected = self.__picklist.GetSelection()
+			# but only if not at end of list already
+			if selected < (self.__picklist.GetCount() - 1):
+				self.__picklist.SetSelection(selected + 1)
+
+		# if we don't yet have a pick list
+		# - open new pick list
+		# (this can happen when we TAB into a field pre-filled
+		#  with the top-weighted contextual data but want to
+		#  select another contextual item)
 		else:
-			# but only if we have matches
+			# don't need timer anymore since user explicitely requested list
+			self.__timer.Stop()
+			# update matches according to current input
+			self.__updateMatches()
+			# if we do have matches now show list
 			if len(self.__currMatches) > 0:
 				self.__show_picklist()
 	#--------------------------------------------------------
+	def __on_up_arrow(self):
+		if self.__picklist_visible:
+			selected = self.__picklist.GetSelection()
+			# select previous item if available
+			if selected > 0:
+				self.__picklist.SetSelection(selected-1)
+			else:
+				# FIXME: return to input field and close pick list ?
+				pass
+		else:
+			# FIXME: input history ?
+			pass
+	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
-	def __on_key_up (self, key):
+	def __on_key_released (self, key):
 		"""Is called when a key is released."""
-
-		print "__on_key_up"
-
 		# user moved down
-		if key.GetKeyCode () == WXK_DOWN:
-			self.__on_down()
+		if key.GetKeyCode() == WXK_DOWN:
+			self.__on_down_arrow()
 			return
+		# user moved up
+		if key.GetKeyCode() == WXK_UP:
+			self.__on_up_arrow()
+			return
+		# FIXME: need PAGE UP/DOWN//POS1/END here
 
 		# user pressed <ENTER>
-		if key.GetKeyCode () == WXK_RETURN:
+		if key.GetKeyCode() == WXK_RETURN:
 			self.__on_enter()
 			return
 
-		# if we are in the drop down list
-		if self.__picklist_visible:
-			selected = self.__picklist.GetSelection()
-			# user moved up
-			if key.GetKeyCode() == WXK_UP:
-				# select previous item if available
-				if selected > 0:
-					self.__picklist.SetSelection (selected-1)
-			# FIXME: we need Page UP/DOWN, Pos1/End here
-
-			# user typed anything else
-			else:
-				key.Skip ()
-		else:
-			key.Skip()
+		key.Skip()
 	#--------------------------------------------------------
 	def __on_text_update (self, event):
 		"""Internal handler for EVT_TEXT (called when text has changed)"""
-		print "__on_text_update"
 
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
@@ -527,7 +550,13 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.5  2003-09-10 01:50:25  ncq
+# Revision 1.6  2003-09-13 17:46:29  ncq
+# - pattern match word separators
+# - pattern match ignore characters as per Richard's suggestion
+# - start work on phrase separator pattern matching with extraction of
+#   relevant input part (where the cursor is at currently)
+#
+# Revision 1.5  2003/09/10 01:50:25  ncq
 # - cleanup
 #
 #
