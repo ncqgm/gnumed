@@ -1,31 +1,37 @@
-#############################################################################
-# gmGP_Immunisations.py
-# ----------------------------------
+#======================================================================
+# GnuMed immunisation/vaccination panel
+# -------------------------------------
 #
-# This panel will hold all the immunisation details
-#
-# If you don't like it - change this code see @TODO!
+# this panel holds the immunisation details
 #
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @change log:
-#	10.06.2002 rterry initial implementation, untested
-#	30.07.2002 rterry icons inserted in file, code cleaned up
-# @TODO:
-############################################################################
+#======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.11 2003-09-21 00:24:19 sjtan Exp $
-__version__ = "$Revision: 1.11 $"
-__author__ = "R.Terry, S.J.Tan"
+# $Id: gmGP_Immunisation.py,v 1.12 2003-10-19 12:25:07 ncq Exp $
+__version__ = "$Revision: 1.12 $"
+__author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
-from wxPython.wx import *
+import sys
 
-import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
-import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
-import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
-import gmEditArea             				#panel class holding editing prompts and text boxes
-import gmPlugin
+if __name__ == "__main__":
+	# FIXME: this will not work on other platforms
+	sys.path.append("../../python-common")
+	sys.path.append("../../business")
+	sys.path.append("../")
+	import gmI18N
+
+# panel class to display top headings
+from gmGuiElement_HeadingCaptionPanel import HeadingCaptionPanel
+# panel class to display sub-headings or divider headings
+from gmGuiElement_DividerCaptionPanel import DividerCaptionPanel
+# panel to hold flashing alert messages
+from gmGuiElement_AlertCaptionPanel import AlertCaptionPanel
+
+# panel class holding editing prompts and text boxes
+import gmEditArea
+import gmPlugin, gmTmpPatient
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -33,6 +39,7 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
+from wxPython.wx import *
 
 ID_IMMUNISATIONLIST = wxNewId()
 ID_IMMUNISATIONS = wxNewId()
@@ -40,7 +47,7 @@ ID_ALL_MENU  = wxNewId()
 
 gmSECTION_IMMUNISATIONS = 6
 #------------------------------------
-#Dummy data to simulate allergy items
+#Dummy data to simulate items
 #------------------------------------
 scheduledata = {
 1 : ("Influenza","null"),
@@ -61,20 +68,21 @@ immunisationprompts = {
 6:("Progress Notes"),
 7:("")    
 }
-#----------------------------------------------------------------------
+#======================================================================
 class ImmunisationPanel(wxPanel):
 
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
+		self.pat = gmTmpPatient.gmCurrentPatient()
 		#--------------------
 		#add the main heading
 		#--------------------
-		self.immunisationpanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,_("  IMMUNISATIONS  "))
-		#--------------------------------------------
-		#dummy panel will later hold the editing area
-		#--------------------------------------------
-		self.dummypanel1 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
-		self.dummypanel1.SetBackgroundColour(wxColor(222, 222, 222))
+		pnl_UpperCaption = HeadingCaptionPanel (self, -1, _("  IMMUNISATIONS  "))
+#		#--------------------------------------------
+#		#dummy panel will later hold the editing area
+#		#--------------------------------------------
+#		self.dummypanel1 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
+#		self.dummypanel1.SetBackgroundColour(wxColor(222, 222, 222))
 		#--------------------------------------------------
 		#now create the editarea specific for immunisations
 		#--------------------------------------------------
@@ -82,11 +90,11 @@ class ImmunisationPanel(wxPanel):
 		#-----------------------------------------------
 		#add the divider headings below the editing area
 		#-----------------------------------------------
-		self.disease_schedule_heading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Disease or Schedule"))
-		self.vaccine_given_heading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Vaccine Given"))
-		self.sizer_divider_schedule_vaccinegiven = wxBoxSizer(wxHORIZONTAL) 
-		self.sizer_divider_schedule_vaccinegiven.Add(self.disease_schedule_heading,1, wxEXPAND)
-		self.sizer_divider_schedule_vaccinegiven.Add( self.vaccine_given_heading,1, wxEXPAND)
+		disease_schedule_heading = DividerCaptionPanel(self, -1, _("Disease or Schedule"))
+		vaccine_given_heading = DividerCaptionPanel(self, -1, _("Vaccine Given"))
+		szr_MiddleCaption1 = wxBoxSizer(wxHORIZONTAL)
+		szr_MiddleCaption1.Add(disease_schedule_heading, 1, wxEXPAND)
+		szr_MiddleCaption1.Add(vaccine_given_heading, 1, wxEXPAND)
 		#--------------------------------------------------------------------------------------
 		#add the list to contain the drugs person is allergic to
 		#
@@ -96,13 +104,19 @@ class ImmunisationPanel(wxPanel):
 		# const wxValidator& validator = wxDefaultValidator, const wxString& name = "listCtrl")
 		#
 		#--------------------------------------------------------------------------------------
-		self.disease_schedule_list = wxListCtrl(self, ID_IMMUNISATIONLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		self.disease_schedule_list = wxListCtrl(
+			self,
+			ID_IMMUNISATIONLIST,
+			wxDefaultPosition,
+			wxDefaultSize,
+			wxLC_REPORT | wxLC_NO_HEADER | wxSUNKEN_BORDER
+		)
 		self.disease_schedule_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		self.schedule_vaccine_given_list = wxListCtrl(self, ID_IMMUNISATIONLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 		self.schedule_vaccine_given_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-		self.sizer_schedule_vaccine = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_schedule_vaccine.Add(self.disease_schedule_list,4,wxEXPAND)
-		self.sizer_schedule_vaccine.Add(self.schedule_vaccine_given_list,6, wxEXPAND)
+		szr_MiddleCaption2 = wxBoxSizer(wxHORIZONTAL)
+		szr_MiddleCaption2.Add(self.disease_schedule_list,4,wxEXPAND)
+		szr_MiddleCaption2.Add(self.schedule_vaccine_given_list,6, wxEXPAND)
 		#----------------------------------------
 		# add some dummy data to the Schedule list
 		#-----------------------------------------
@@ -142,28 +156,35 @@ class ImmunisationPanel(wxPanel):
 		self.schedule_vaccine_given_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.schedule_vaccine_given_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
 		#--------------------------------------------------------------------------------------
-		#add a richtext control or a wxTextCtrl multiline to display the class text information
-		#e.g. would contain say information re the penicillins
-		#--------------------------------------------------------------------------------------
-		self.missing_immunisations_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Missing Immunisations")
-		self.missingimmunisation_listbox = wxListBox(self,-1,size=(200, 100), choices= [ "Schedule: Pneumococcal - no vaccination recorded"], style=wxLB_SINGLE)
-		self.missingimmunisation_listbox.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		pnl_MiddleCaption3 = DividerCaptionPanel(self, -1, _("Missing Immunisations"))
+		epr = self.pat['clinical record']
+#		missing_shots = epr['vaccination status']
+		# FIXME: get list of due vaccs, too, and highlight those
+		self.LBOX_missing_shots = wxListBox(
+			self,
+			-1,
+			size=(200, 100),
+			choices= [ "Schedule: Pneumococcal - no vaccination recorded"],
+			style=wxLB_SINGLE
+		)
+		self.LBOX_missing_shots.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		#----------------------------------------
 		#add an alert caption panel to the bottom
 		#----------------------------------------
-		self.alertpanel = gmGuiElement_AlertCaptionPanel.AlertCaptionPanel(self,-1,"  Alerts  ")
+		pnl_BottomCaption = AlertCaptionPanel(self, -1, _("  Alerts  "))
 		#---------------------------------------------
 		#add all elements to the main background sizer
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
-		self.mainsizer.Add(self.immunisationpanelheading,0,wxEXPAND)
-		self.mainsizer.Add(self.dummypanel1,1,wxEXPAND)
-		self.mainsizer.Add(self.editarea,6,wxEXPAND)
-		self.mainsizer.Add(self.sizer_divider_schedule_vaccinegiven,0,wxEXPAND)
-		self.mainsizer.Add( self.sizer_schedule_vaccine,4,wxEXPAND)
-		self.mainsizer.Add(self.missing_immunisations_subheading,0,wxEXPAND)
-		self.mainsizer.Add(self.missingimmunisation_listbox,4,wxEXPAND)
-		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
+		self.mainsizer.Add(pnl_UpperCaption, 0, wxEXPAND)
+#		self.mainsizer.Add(self.dummypanel1,1,wxEXPAND)
+		self.mainsizer.Add(self.editarea, 6, wxEXPAND)
+		self.mainsizer.Add(szr_MiddleCaption1, 0, wxEXPAND)
+		self.mainsizer.Add(szr_MiddleCaption2, 4, wxEXPAND)
+		self.mainsizer.Add(pnl_MiddleCaption3, 0, wxEXPAND)
+		self.mainsizer.Add(self.LBOX_missing_shots, 4, wxEXPAND)
+		self.mainsizer.Add(pnl_BottomCaption, 0, wxEXPAND)
+
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit (self)
 		self.SetAutoLayout(true)
@@ -210,7 +231,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.11  2003-09-21 00:24:19  sjtan
+# Revision 1.12  2003-10-19 12:25:07  ncq
+# - start connecting to backend
+#
+# Revision 1.11  2003/09/21 00:24:19  sjtan
 #
 # rollback.
 #
@@ -220,3 +244,6 @@ if __name__ == "__main__":
 # Revision 1.8  2003/02/07 12:18:14  ncq
 # - cvs metadata keywords
 #
+# @change log:
+#	10.06.2002 rterry initial implementation, untested
+#	30.07.2002 rterry icons inserted in file, code cleaned up
