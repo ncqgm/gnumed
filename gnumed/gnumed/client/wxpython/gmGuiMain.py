@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.111 2003-07-07 08:34:31 ihaywood Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmGuiMain.py,v 1.112 2003-07-21 21:05:56 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -39,17 +39,20 @@ email_logger = None
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
+import gmPG
+encoding = _cfg.get('backend', 'client encoding')
+gmPG.set_default_client_encoding(encoding)
+if encoding is None:
+	print 'WARNING: option <client encoding> not set in config file'
+	_log.Log(gmLog.lWarn, 'you need to set the parameter <client encoding> in the config file')
+	_log.Log(gmLog.lWarn, 'on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
+
 from gmI18N import gmTimeformat, system_locale, system_locale_level
 
-import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmPlugin
-#import images
-#import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
-import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
-import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
-import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
+import gmDispatcher, gmSignals, gmGuiBroker, gmSQLSimpleSearch, gmSelectPerson, gmPlugin
+
 import gmTopPanel
 import gmTmpPatient
-#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 
 # widget IDs
 ID_ABOUT = wxNewId ()
@@ -809,7 +812,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.111  2003-07-07 08:34:31  ihaywood
+# Revision 1.112  2003-07-21 21:05:56  ncq
+# - actually set database client encoding from config file, warn if missing
+#
+# Revision 1.111  2003/07/07 08:34:31  ihaywood
 # bugfixes on gmdrugs.sql for postgres 7.3
 #
 # Revision 1.110  2003/06/26 22:28:50  ncq
