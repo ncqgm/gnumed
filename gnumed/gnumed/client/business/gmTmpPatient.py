@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.25 2003-06-22 16:18:34 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmTmpPatient.py,v 1.26 2003-06-26 21:28:02 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -131,7 +131,7 @@ class gmPerson:
 			curs.execute(cmd, self.ID)
 		except:
 			curs.close()
-			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info(), fatal=0)
+			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info(), verbose=0)
 			return None
 		res = curs.fetchone()[0]
 		curs.close()
@@ -178,7 +178,7 @@ class gmPerson:
 			return None
 
 		curs = blobs_conn.cursor()
-		cmd = "SELECT id from doc_med WHERE patient_id=%s;"
+		cmd = "SELECT id from doc_med WHERE patient_id=%s ;"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -204,7 +204,7 @@ class gmPerson:
 	#--------------------------------------------------------
 	def _getActiveName(self):
 		curs = self._defconn_ro.cursor()
-		cmd = "select firstnames, lastnames from v_basic_person where i_id = %s;"
+		cmd = "select firstnames, lastnames from v_basic_person where i_id = %s ;"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -224,7 +224,7 @@ class gmPerson:
 	#--------------------------------------------------------
 	def _getTitle(self):
 		curs = self._defconn_ro.cursor()
-		cmd = "select title from v_basic_person where i_id = %s;"
+		cmd = "select title from v_basic_person where i_id = %s ;"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -247,7 +247,7 @@ class gmPerson:
 	def _getDOB(self):
 		curs = self._defconn_ro.cursor()
 		# FIXME: invent a mechanism to set the desired format
-		cmd = "select to_char(dob, 'DD.MM.YYYY') from v_basic_person where i_id = %s;"
+		cmd = "select to_char(dob, 'DD.MM.YYYY') from v_basic_person where i_id = %s ;"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -263,7 +263,7 @@ class gmPerson:
 	#--------------------------------------------------------
 	def _get_medical_age(self):
 		curs = self._defconn_ro.cursor()
-		cmd = "select dob from identity where id = %s;"
+		cmd = "select dob from identity where id = %s ;"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -459,7 +459,7 @@ def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
 
 		# start our transaction (done implicitely by defining a cursor)
 		cursor = conn.cursor()
-		cmd = "SELECT i_id FROM v_basic_person WHERE %s;" % where_clause
+		cmd = "SELECT i_id FROM v_basic_person WHERE %s ;" % where_clause
 		if not gmPG.run_query(cursor, cmd):
 			cursor.close()
 			backend.ReleaseConnection('personalia')
@@ -636,7 +636,7 @@ def create_patient(data):
 	try:
 		pat = gmPerson(aPKey = pat_id)
 	except:
-		_log.LogException('cannot init patient with ID [%s]' % pat_id, sys.exc_info(), fatal=1)
+		_log.LogException('cannot init patient with ID [%s]' % pat_id, sys.exc_info(), verbose=1)
 		return None
 
 	return pat
@@ -688,7 +688,10 @@ if __name__ == "__main__":
 			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.25  2003-06-22 16:18:34  ncq
+# Revision 1.26  2003-06-26 21:28:02  ncq
+# - fatal->verbose, %s; quoting bug
+#
+# Revision 1.25  2003/06/22 16:18:34  ncq
 # - cleanup, send signal prior to changing the active patient, too
 #
 # Revision 1.24  2003/06/19 15:24:23  ncq
