@@ -3,8 +3,8 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.12 2004-12-23 15:08:41 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmResizingWidgets.py,v 1.13 2004-12-23 16:22:52 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -191,11 +191,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 
 		self.__lines = [[]]
 #		self.__list = None
-#		self.__matcher = None
-#		self.__popup = None
 
-#		self.prev_in_tab_order = None
-#		self.next_in_tab_order = None
 		self.complete = complete	# ??
 
 		self.__szr_main = None
@@ -392,20 +388,6 @@ class cResizingWindow(wx.wxScrolledWindow):
 	def GetSummary (self):
 		"""Gets a terse summary string for the data in the widget"""
 		return ""
-	#------------------------------------------------
-#	FIXME: I don't think this should know about something as specific as cClinItem ...
-#	def Set (self, item):
-#		"""
-#		Accepts a cClinItem, sets the widget to reflect its contents
-#		"""
-#		pass
-	#------------------------------------------------
-#	def Save (self, item):
-#		"""
-#		Accepts a cClinItem, sets *it* to reflect the widget's contents
-#		"""
-#		pass
-
 #====================================================================
 class cResizingSTC (stc.wxStyledTextCtrl):
 	"""
@@ -443,12 +425,12 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 			callback = self._on_timer_fired,
 			delay = 300
 		)
+		self.__matcher = None
 
 		self.__show_list = 1
 		self.__embed = {}
 		self.list = None
 		self.no_list = 0			# ??
-		self.__matcher = None
 	#------------------------------------------------
 	# public API
 	#------------------------------------------------
@@ -544,56 +526,19 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 			self.__timer.Stop()
 		else:
 			self.__timer.Start(oneShot = True)
+		# do we need to resize ?
 		true_txt_height = (self.PointFromPosition(last_char_pos).y - self.PointFromPosition(0).y) + self.TextHeight(0)
 		x, visible_height = self.GetSizeTuple()
-		# do we need to resize ?
 		if visible_height != true_txt_height:
 			self.__parent.ReSize(self, true_txt_height)
-		# get currently relevant term from string
-		curs_pos = self.GetCurrentPos()
-		text = self.GetText()
-		self.fragment_start = text.rfind(';', 0, curs_pos)				# FIXME: ';' hardcoded as separator
-		if self.fragment_start == -1:
-			self.fragment_start = 0
-		else:
-			self.fragment_start += 1
-		self.fragment_end = text.find(';', curs_pos, last_char_pos)		# FIXME: ';' hardcoded as separator
-		if self.fragment_end == -1:
-			self.fragment_end = last_char_pos
-		fragment = text[self.fragment_start:self.fragment_end].strip()
-		# is it a keyword for popping up an edit area or something ?
+		# is currently relevant term a keyword for popping up an edit area or something ?
+		fragment = self.__get_focussed_fragment()
 		if fragment in self.__popup_keywords.keys():
 			self.__handle_keyword(fragment)
-			event.Skip()
+#			# keep this so the parent class handler inserts the character for us
+#			event.Skip()
 			return
-
 		return
-
-		# FIXME: we need to use a timeout here !
-
-		# - get matches and popup select list
-		if self.no_list:
-			return
-		if self.__matcher is None:
-			return
-		if not self.__show_list:
-			return
-
-		# do indeed show list
-		if len(fragment) == 0:
-			if (self.list is not None) and self.list.alive:
-				self.list.Destroy()
-			return
-		matches_found, matches = self.__matcher.getMatches(fragment)
-		if not matches_found:
-			if (self.list is not None) and self.list.alive:
-				self.list.Destroy()
-			return
-		if not ((self.list is not None) and self.list.alive):
-			x, y = self.GetPositionTuple()
-			p = self.PointFromPosition(curs_pos)
-			self.list = self.__parent.GetPickList(self.__userlist, x+p.x, y+p.y)
-		self.list.SetItems(matches)
 	#------------------------------------------------
 	def __on_key_down(self, event):
 		"""Act on some key presses we want to process ourselves."""
@@ -745,12 +690,52 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 	#------------------------------------------------
 	def _on_timer_fired(self, cookie):
 		print 'timer <%s> fired' % cookie
-		print 'we should popup a context pick list now'
+		fragment = self.__get_focussed_fragment()
+		print 'should popup context pick list on <%s> now' % fragment
+
 		return 1
+
+		# - get matches and popup select list
+		if self.no_list:
+			return
+		if self.__matcher is None:
+			return
+		if not self.__show_list:
+			return
+
+		# do indeed show list
+		if len(fragment) == 0:
+			if (self.list is not None) and self.list.alive:
+				self.list.Destroy()
+			return
+		matches_found, matches = self.__matcher.getMatches(fragment)
+		if not matches_found:
+			if (self.list is not None) and self.list.alive:
+				self.list.Destroy()
+			return
+		if not ((self.list is not None) and self.list.alive):
+			x, y = self.GetPositionTuple()
+			p = self.PointFromPosition(curs_pos)
+			self.list = self.__parent.GetPickList(self.__userlist, x+p.x, y+p.y)
+		self.list.SetItems(matches)
 	#------------------------------------------------
 	# internal API
 	#------------------------------------------------
-	def __get_best_popup_position(self):
+	def __get_focussed_fragment(self):
+		curs_pos = self.GetCurrentPos()
+		text = self.GetText()
+		self.fragment_start = text.rfind(';', 0, curs_pos)				# FIXME: ';' hardcoded as separator
+		if self.fragment_start == -1:
+			self.fragment_start = 0
+		else:
+			self.fragment_start += 1
+		last_char_pos = self.GetLength()
+		self.fragment_end = text.find(';', curs_pos, last_char_pos)		# FIXME: ';' hardcoded as separator
+		if self.fragment_end == -1:
+			self.fragment_end = last_char_pos
+		return text[self.fragment_start:self.fragment_end].strip()
+	#------------------------------------------------
+	def __get_best_popup_geom(self):
 		print "calculating optimal popup geometry"
 		parent_width, parent_height = self.__parent.GetSizeTuple()
 		# FIXME: this should be gotten from ourselves, not the parent, but how ?
@@ -803,7 +788,7 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 #			widget = self.__widget_to_show,
 #			pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))
 #		)
-		best_pos, best_size = self.__get_best_popup_position()
+		best_pos, best_size = self.__get_best_popup_geom()
 		try:
 			self.__popup = create_widget (
 				parent = self,
@@ -1018,8 +1003,12 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.12  2004-12-23 15:08:41  ncq
-# - user timer from gmTimer to time list popup
+# Revision 1.13  2004-12-23 16:22:52  ncq
+# - factor out __get_focussed_fragment and us in keyword/list handling
+# - move list popup handling to where it belongs
+#
+# Revision 1.12  2004/12/23 15:08:41  ncq
+# - use timer from gmTimer to time list popup
 # - callback simply prints a message to the console for now
 #
 # Revision 1.11  2004/12/23 14:11:55  ncq
