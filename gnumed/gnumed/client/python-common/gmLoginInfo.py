@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.13 2003-06-26 02:31:23 ihaywood Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmLoginInfo.py,v 1.14 2003-08-17 17:58:09 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -38,7 +38,7 @@ class LoginInfo:
 	__profile = 'default'
 	#------------------------------------------
 	def __init__(self, user, passwd, host='localhost', port=5432, database='gnumed', options='', tty='', profile='default'):
-    		self.SetInfo(user, passwd, host, port, database, options, tty, profile)
+		self.SetInfo(user, passwd, host, port, database, options, tty, profile)
 	#------------------------------------------
 	def SetInfo(self, user, passwd, host='localhost', port=5432, dbname='gnumed', opt='', tty='', profile='default'):
 		self.SetUser(user)
@@ -220,7 +220,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.13  2003-06-26 02:31:23  ihaywood
+# Revision 1.14  2003-08-17 17:58:09  ncq
+# - whitespace fix
+#
+# Revision 1.13  2003/06/26 02:31:23  ihaywood
 # Fix for non-integer port values
 #
 # Revision 1.12  2003/06/16 09:52:04  ncq
