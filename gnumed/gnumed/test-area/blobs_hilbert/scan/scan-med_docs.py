@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __license__ = "GPL"
 __author__ = "\
 	Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
@@ -256,6 +256,39 @@ class scanFrame(wxFrame):
 			dlg.ShowModal()
 			dlg.Destroy()
 	#-----------------------------------
+	def on_del_page(self, event):
+		page_idx = self.LBOX_doc_pages.GetSelection()
+
+		if page_idx == -1:
+			dlg = wxMessageDialog(
+				self,
+				_('You must select a page before you can delete it.'),
+				_('Attention'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+		else:
+			page_data = self.LBOX_doc_pages.GetClientData(page_idx)
+			page_fname = page_data['file name']
+			page_seq_ID = page_data['index']
+
+			# 1) del item from self.acquired_pages
+			#  - move trailing items forward one position
+			for idx in range(page_seq_ID, len(self.acquired_pages)):
+				self.acquired_pages[idx] = self.acquired_pages[idx+1]
+			#  - remove last item
+			del self.acquired_pages[len(self.acquired_pages)]
+
+			# 2) reload list box
+			self.__reload_LBOX_doc_pages()
+
+			# 3) kill file in os
+			os.remove(page_fname)
+
+			return 1
+	#-----------------------------------
 	# TWAIN related scanning code
 	#-----------------------------------
 	def __acquire_from_twain(self):
@@ -433,87 +466,7 @@ class scanFrame(wxFrame):
 			for seq_ID, fname in self.acquired_images.items():
 				path, name = os.path.split(fname)
 				self.LBOX_doc_pages.Append(_('page %s (%s in %s)') % (seq_ID, name, path), {'index': seq_ID, 'file name': fname})
-
-
 	#-----------------------------------
-	#-----------------------------------
-	def on_del_page(self, event):
-		page_idx = self.LBOX_doc_pages.GetSelection()
-
-		if page_idx != -1:
-			page_data = self.LBOX_doc_pages.GetClientData(page_idx)
-			page_fname = page_data['file name']
-			page_seq_ID = page_data['index']
-
-			# 1) del item from self.acquired_pages
-			#  - move trailing items forward one position
-			for idx in range(page_seq_ID, len(self.acquired_pages)):
-				self.acquired_pages[idx] = self.acquired_pages[idx+1]
-			#  - remove last item
-			del self.acquired_pages[len(self.acquired_pages)]
-
-			# 2) reload list box
-			self.__reload_LBOX_doc_pages()
-
-			# 3) kill file in os
-			os.remove(page_fname)
-		else:
-			dlg = wxMessageDialog(
-				self,
-				_('You must select a page before you can delete it.'),
-				_('Attention'),
-				wxOK | wxICON_INFORMATION
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-
-
-		return
-#		current_selection=
-		if current_selection == -1:
-			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		else:
-			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
-			#del page from hdd												 
-			if scan_drv == 'wintwain':
-				try:
-					os.remove(_cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.bmp')
-				except OSError:
-					_log.Log (gmLog.lErr, "I was unable to wipe the file " + _cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.bmp' + " from disk because it simply was not there ")
-			else:
-				try:
-					os.remove(_cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.jpg')
-				except OSError:
-					_log.Log (gmLog.lErr, "I was unable to wipe the file " + _cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.jpg' + " from disk because it simply was not there ")
-			#now rename (decrease index by 1) all pages above the deleted one
-			i = current_selection
-			#print self.picList												 
-			for i in range(i,len(self.picList)-1):
-				if scan_drv == 'wintwain':
-					try:
-						os.rename(_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i+1)+ '.bmp',_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i) + '.bmp')
-					except OSError:
-						_log.Log (gmLog.lErr, "I was unable to rename the file " + _cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i+1) + '.bmp' + " from disk because it simply was not there ")
-				else:
-					try:
-						os.rename(_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i+1)+ '.jpg',_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i) + '.jpg')
-					except OSError:
-						_log.Log (gmLog.lErr, "I was unable to rename the file " + _cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i+1) + '.jpg' + " from disk because it simply was not there ")
-				#print "I renamed" +str(_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i+1) + '.jpg') + "into" + str(_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i) + '.jpg')
-			self.LBOX_doc_pages.Delete(current_selection)
-			self.picList.remove(self.selected_pic)
-			#rebuild list to clean the gap
-			i = 0
-			for i in range(len(self.picList)):
-				if i == 0:
-					self.picList = []
-					self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_LBOX_doc_pages, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
-				self.UpdatePicList()	
-	#-----------------------------------	
 	def on_save_doc(self, event):
 		return
 		if self.picList != []:
@@ -586,8 +539,8 @@ class ScanningApp(wxApp):
 	def OnInit(self):
 		wxInitAllImageHandlers()
 		self.main = scanFrame(None)
-		#workaround for running in wxProcess
-		#self.main.Show();self.main.Hide();self.main.Show()
+		self.main.Centre(wxBOTH)
+		self.main.Show(true)
 		self.SetTopWindow(self.main)
 		return true
 #-----------------------------------
