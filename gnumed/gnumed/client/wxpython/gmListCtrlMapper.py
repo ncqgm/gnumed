@@ -1,9 +1,6 @@
 from wxPython.wx import *
-try:
-	import gmLog
-except:
-	sys.path.append('../pycommon')
-	import gmLog
+
+from Gnumed.pycommon import gmLog
 
 class gmListCtrlMapper:
 
