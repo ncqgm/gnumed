@@ -42,9 +42,7 @@ class BackendListener:
 				note = self._cnx.notifies()
 				while note:
 					sys.stdout.flush()
-					sys.stdout.write(
-						"ASYNC NOTICE of '%s' from backend pid %d recieved\n" %
-						(note.relname, note.be_pid))
+					print '+'
 					gmDispatcher.send(note.relname, sender=None)
 					note = self._cnx.notifies()
 					if self._quit:
@@ -76,11 +74,12 @@ if __name__ == "__main__":
 
 	def OnPatientSelected():
 		sys.stdout.flush()
-		print "Backed says: patient has been selected"
-		
+		print "\nBacked says: patient has been selected"
+	print "this demo will self-terminate in approx. 30 secs."
+	print "you can't stop it with Ctrl-C!"		
 	listener = BackendListener(database='gnumed', user='hherb', password='')
-	listener.RegisterForFeedback('patient', OnPatientSelected)
-	print "Now fire up psql, and type 'notify patient'"
+	print "Now fire up psql in a new shell, and type 'notify patient_changed'"
+	listener.RegisterForFeedback('patient_changed', OnPatientSelected)
 	counter = 0
 	while counter<30:
 		counter += 1
