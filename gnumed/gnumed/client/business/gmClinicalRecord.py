@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.160 2005-02-20 10:31:44 sjtan Exp $
-__version__ = "$Revision: 1.160 $"
+# $Id: gmClinicalRecord.py,v 1.161 2005-02-23 19:38:40 ncq Exp $
+__version__ = "$Revision: 1.161 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -93,10 +93,16 @@ class cClinicalRecord:
 	def cleanup(self):
 		self.__episode.set_active()
 		_log.Log(gmLog.lData, 'cleaning up after clinical record for patient [%s]' % self.pk_patient)
+
 		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.pk_patient)
 		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._health_issues_modified)
+
+		sig = "%s:%s" % (gmSignals.episode_change_db(), self.pk_patient)
+		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_episodes_modified)
+
 		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.pk_patient)
 		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self.db_callback_vaccs_modified)
+
 		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.pk_patient)
 		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_allg_modified)
 	#--------------------------------------------------------
@@ -171,15 +177,19 @@ class cClinicalRecord:
 		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.pk_patient)
 		if not self._conn_pool.Listen('historica', sig, self.db_callback_vaccs_modified):
 			return None
+
 		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.pk_patient)
 		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._db_callback_allg_modified):
 			return None
+
 		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.pk_patient)
 		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._health_issues_modified):
 			return None
+
 		sig = "%s:%s" % (gmSignals.episode_change_db(), self.pk_patient)
 		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._db_callback_episodes_modified):
 			return None
+
 		return 1
 	#--------------------------------------------------------
 	def db_callback_vaccs_modified(self, **kwds):
@@ -214,8 +224,8 @@ class cClinicalRecord:
 		try:
 			del self.__db_cache['problems']			
 		except KeyError:
-			pass			
-		gmDispatcher.send(signal = gmSignals.episodes_updated(), sender = self.__class__.__name__)
+			pass
+		gmDispatcher.send(signal = gmSignals.episodes_modified(), sender = self.__class__.__name__)
 		return 1
 	#--------------------------------------------------------
 	def _clin_item_modified(self):
@@ -1692,7 +1702,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.160  2005-02-20 10:31:44  sjtan
+# Revision 1.161  2005-02-23 19:38:40  ncq
+# - listen to episode changes in DB, too
+#
+# Revision 1.160  2005/02/20 10:31:44  sjtan
 #
 # lazy initialize preconditions for create_episode.
 #
