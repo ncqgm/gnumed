@@ -83,16 +83,11 @@ class PrescriptionPanel (wxPanel):
 	  self.sizer1.Add(self.txt_scriptDate,3,wxEXPAND|wxALL,3)
 	  self.sizer1.Add(1,0,1)
 	  self.sizer_authority.Add(self.sizer1,0,wxEXPAND)
-	  
-          #self.dummypanel = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
-	  #self.dummypanel.SetBackgroundColour(wxColor(200,200,200))
-          #-------------------------------------------------
+	  #-------------------------------------------------
 	  #now create the editarea specific for prescribing
 	  #-------------------------------------------------
           self.editarea = gmEditArea.EditArea(self,-1,scriptprompts,gmSECTION_SCRIPT)
-          #self.dummypanel2 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
-	  #self.dummypanel2.SetBackgroundColour(wxColor(222,222,222))
-	  #---------------------------------------------------------------------
+          #---------------------------------------------------------------------
           #add the divider headings below the editing area for drug interactions
 	  #and add text control to show mini-drug interactions
           #---------------------------------------------------------------------
@@ -118,7 +113,8 @@ class PrescriptionPanel (wxPanel):
 	  #
           #--------------------------------------------------------------------------------------
        	  self.list_script = wxListCtrl(self, ID_SCRIPTLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-          self.list_script.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, 'xselfont'))
+          self.list_script.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+	  EVT_RIGHT_UP(self.list_script, self.OnRightMouseUp)
           #----------------------------------------	  
           # add some dummy data to the allergy list
 	  self.list_script.InsertColumn(0, "Drug")
@@ -161,7 +157,59 @@ class PrescriptionPanel (wxPanel):
           self.SetSizer(self.mainsizer)
           self.SetAutoLayout(true)
           self.Show(true)
-      
+	  
+     def OnRightMouseUp(self, event):
+	   "A right mouse click triggers a popup menu for the list script"
+	   #-------------------
+	   #create a popup menu
+	   #-------------------
+	   self.menu = wxMenu()
+	   self.menu.Append(0,"Authority Indications")
+	   self.menu.Append(1,"Interactions")
+	   self.menu.Append(2, "Pregnancy Information")
+	   self.menu.Append(3,"Resticted use Information")
+	   self.menu.AppendSeparator()
+	   self.menu.Append(4, "Edit Item")
+	   self.menu.Append(5,"Delete Item")
+	   self.menu.Append(6, "Delete all Items")
+	   self.menu.Append(7,"Make Item Reg 24")
+	   self.menu.AppendSeparator()
+	   self.menu.Append(8, "Brief Product Information")
+	   self.menu.Append(9,"Full Product Information")
+	   self.menu.AppendSeparator()
+	   self.menu.Append(10, "Print Single Item")
+	   self.menu.Append(11,"Print All Items")
+	   self.menu.AppendSeparator()
+	   self.menu.Append(12,"Reprint Item")
+	   self.menu.Append(13,"Reprint All Items")
+	   self.menu.AppendSeparator()
+	   self.menu.Append(14,"Save Item no print")
+	   self.menu.Append(15,"Save All Items no printt")
+	   self.menu.AppendSeparator()
+	   self.menu.Append(16,"Change Font")
+	   self.menu.Append(17,"Save list layout")
+	   self.menu.AppendSeparator()
+	   self.menu.Append(18,"Help")
+	   self.menu.AppendSeparator()
+	   self.menu.Append(19,"Exit")
+	   ##connect the events to event handler functions
+	   #EVT_MENU(self, 0, self.OnEncrypt)
+	   #EVT_MENU(self, 1, self.OnDecrypt)
+	   #EVT_MENU(self, 2, self.OnSetPassphrase)
+	   #------------
+	   #show the menu 
+	   #-------------
+	   popup = self.list_script.PopupMenu(self.menu,event.GetPosition()) 
+	   # whatever the user selected in the menu will have
+	   # been handled already virtue of the MENU events
+	   # created above
+   
+	   #free resources
+	   self.menu.Destroy()
+   
+	   #anybody else needs to intercept right click events?
+	   event.Skip()#
+	
           
 class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
 	"""
