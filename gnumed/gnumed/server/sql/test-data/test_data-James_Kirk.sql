@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.43 $
+-- $Revision: 1.44 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -70,17 +70,17 @@ delete from lnk_pat2vacc_reg where fk_patient = currval('identity_id_seq');
 -- tetanus
 insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
 	currval('identity_id_seq'),
-	(select pk_regime from v_vacc_regimes where regime='Tetanus (STIKO)')
+	(select pk_regime from v_vacc_regimes where regime='Tetanus (SFCVC)')
 );
 -- meningococcus C
 insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
 	currval('identity_id_seq'),
-	(select pk_regime from v_vacc_regimes where regime='MenC (STIKO)')
+	(select pk_regime from v_vacc_regimes where regime='MenC (SFCVC)')
 );
 -- hemophilus B
 insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
 	currval('identity_id_seq'),
-	(select pk_regime from v_vacc_regimes where regime='HiB (STIKO)')
+	(select pk_regime from v_vacc_regimes where regime='HiB (SFCVC)')
 );
 
 -- health issue
@@ -276,10 +276,10 @@ insert into vaccination (
 	'prev booster > 7 yrs',
 	currval('identity_id_seq'),
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
-	(select id from vaccine where trade_name='Tetasorbat SSW'),
+	(select id from vaccine where trade_name='Tetasorbat (SFCMS)'),
 	'2000-9-17',
 	'left deltoid muscle',
-	'102041A'
+	'SFCMS#102041A#11'
 );
 
 
@@ -623,11 +623,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.43 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.44 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.43  2004-11-28 14:38:18  ncq
+-- Revision 1.44  2004-12-18 09:58:13  ncq
+-- - vaccinate according to Starfleet rules
+--
+-- Revision 1.43  2004/11/28 14:38:18  ncq
 -- - some more deletes
 -- - use new method of episode naming
 -- - this actually bootstraps again
