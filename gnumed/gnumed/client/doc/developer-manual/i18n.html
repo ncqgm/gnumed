@@ -1,0 +1,419 @@
+<HTML
+><HEAD
+><TITLE
+>Internationalization / Localization</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Coding Guidelines"
+HREF="guidelines.html"><LINK
+REL="PREVIOUS"
+TITLE="Gnumed Configuration"
+HREF="configuration.html"><LINK
+REL="NEXT"
+TITLE="Interacting with the Backend"
+HREF="backend-interaction.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="configuration.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. Coding Guidelines</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="backend-interaction.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="I18N"
+></A
+>3.5. Internationalization / Localization</H1
+><P
+>	Supplied by Karsten Hilbert, &#60;Karsten.Hilbert@gmx.net&#62; GnuMed i18n/L10n coordinator
+	</P
+><P
+>	At this point in time GnuMed is only prepared for being translated
+	into foreign languages. This also only holds true for languages
+	that can be written left-to-right with "latin" characters. Very
+	little has been done to make GnuMed compatible with other aspects
+	of localization such as date/time/monetary/magnitude formatting
+	or icon meaning.
+	</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN171"
+></A
+>3.5.1. date/time localization</H2
+><P
+>	In gmI18N.py there's a string called gmTimeFormat which holds
+	the standard way of formatting a date as a string. The string
+	itself is marked for translation by gettext. Translators should
+	provide a translation that displays the parts of the date in
+	the order and with filling characters appropriate for their
+	language. This way gmTimeFormat can serve as a crude tool
+	for date/time display localization. Whenever programmers want
+	to display a complete date they should use gmTimeFormat as
+	the formatting string instead of hardcoding their own idea
+	of how a date should be displayed.
+	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN174"
+></A
+>3.5.2. icon localization</H2
+><P
+>	Icon image data for plugins is located in the corresponding
+	plugin source file. The icon a user wants to load is referenced
+	by a string which acts as a key into the directory for the
+	icon data. If no key is given to the GetIconData() method
+	a hardcoded default key is used. This default key shall be
+	wrapped in _() to facilitate using an appropriate default
+	key per language. The key name should be of the form
+	"icon_XXXX_YYYY" where XXXX_YYYY give some indication of
+	the image shown on the icon (like ALT tags in HTML image
+	descriptions). This key will then show up in per-language
+	message catalogs and can be translated to suitable per-language
+	keys. The translation must, of course, name another existing
+	key/icon pair. If no translation is provided the gettext
+	system will fall back to the english key and thus load
+	the default icon.
+	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN177"
+></A
+>3.5.3. GUI text localization</H2
+><P
+>	The GNU gettext system is used to provide a user interface
+	translated into the local language. Currently only the
+	original English version and a German translation exist.
+
+	NOTE: $LANG corresponds to the ISO code for your language
+	NOTE: Requires gettext tools to be installed.
+
+	Message catalogs, related files and useful shell scripts
+	live in the directories below gnumed/client/locale/ .
+	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN180"
+></A
+>3.5.4. How to translate the GnuMed UI</H2
+><P
+>	Those are the rough steps to get GnuMed translated
+	into your language:
+
+	- create a *.po file containing all English
+	  message strings
+	- merge this file with preexisting translations
+	  for your language
+	- translate the remaining non-translated English
+	  program strings into your language
+	- compile a binary message catalog (*.mo file) from
+	  the translated messages
+	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN183"
+></A
+>3.5.5. Creating a *.po file</H2
+><P
+>	With
+<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+> &#60;create-gnumed_po.sh $LANG&#62;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	you can rescan the Python source for strings that need
+	translation. The result is merged with the file $LANG.po
+	which serves as a repository of previously translated
+	strings. You can then edit this file adding in more
+	translations for message strings. For this you can use
+	a simple text editor or any tool you wish (such as EMACS
+	po mode or kbabel) as long as you keep a copy of your
+	final results in $LANG.po as a repository for future
+	translations.
+
+	If you execute this script for the first time you will
+	end up with a $LANG.po file without any previous translations.
+	In this case you need to edit a few metadata entries at the
+	very top of the $LANG.po file such as the character set you
+	are using.
+
+	Hints for translations:
+	 - look at translations in other languages to get an idea
+	 - look at the source and/or the running GnuMed to find good translations
+	 - keep exactly the same number of %s, %d etc in your translation,
+	   they are formatting placeholders and will be replaced with
+	   certain data (such as file names) dynamically at runtime
+	 - if the file asks you to translate the empty string ("")
+	   go into the python source and remove the _() around the
+	   empty string,
+	   the empty string cannot be translated and _will_ produce errors
+	   because it is used as the message string ID for po-file
+	   metadata
+	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN187"
+></A
+>3.5.6. Creating a *.mo file</H2
+><P
+>	With 
+<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+> &#60;create-gnumed_mo.sh $LANG&#62;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	you can compile a *.mo file from the message catalog source.
+	You will end up with a $LANG-gnumed.mo file.
+	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN191"
+></A
+>3.5.7. Installation of translated messages</H2
+><P
+>	On a POSIX system (Linux, BSD, MacOSX, CygWin) the
+	$LANG-gnumed.mo file should be moved into
+	 /usr/share/locale/$LANG/LC_MESSAGES/
+	or the corresponding standard place. Alternatively you
+	can make symlinks from there to
+	 /usr/share/gnumed/client/locale/$LANG.mo
+
+	You need to name either the copy or the symlink "gnumed.mo".
+
+	On MS Windows you must create the following directories:
+	client/
+	 client/wxpython/
+	 client/locale/
+	  client/locale/$LANG/
+	   client/locale/$LANG/LC_MESSAGES/
+
+	You then need to move the $LANG-gnumed.mo to the
+	appropriate LC_MESSAGES directory (or make a symlink)
+	again under the name of "gnumed.mo".
+	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN194"
+></A
+>3.5.8. Coding I18N</H2
+><P
+>Hardcoded error strings meant for developers / debugging are in English. All other 
+	      strings MUST be translateable, that is called as a gettext function. To achieve this, 
+	      you do the following:
+	      </P
+><P
+>	      If your modules can be called as a standalone script you should add this to your main part:
+<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>if name == '__main__':
+	import gettext
+	_ = gettext.gettext()
+    # ... now on to other stuff</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+
+	      If your module is invoked from within the GNUmed framework the translation function _() is 
+	      automatically defined for you.
+	      </P
+><P
+>	      Now, whenever you use a string, do it like
+<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>print _("this will be automatically translated")
+instead of
+print "this can't be translated and should thus not be written this way"</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	      </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="configuration.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="backend-interaction.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Gnumed Configuration</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="guidelines.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Interacting with the Backend</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

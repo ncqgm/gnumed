@@ -1,0 +1,472 @@
+<HTML
+><HEAD
+><TITLE
+>Gnumed Configuration</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Coding Guidelines"
+HREF="guidelines.html"><LINK
+REL="PREVIOUS"
+TITLE="DEBUGGING/LOGGING"
+HREF="debugging.html"><LINK
+REL="NEXT"
+TITLE="Internationalization / Localization"
+HREF="i18n.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="debugging.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. Coding Guidelines</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="i18n.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CONFIGURATION"
+></A
+>3.4. Gnumed Configuration</H1
+><P
+>	Gnumed uses two sources of configuration information:
+	   - INI-style configuration files
+	   - database tables
+	After importing <A
+HREF="python-common.html#GMCFG"
+>gmCfg.py</A
+> data stored in a standard configuration file at ~/.gnumed/gnumed.conf
+	is available. Information in this file is particularly important for all activity until a connection to the backend has 
+	been established. Once the backend available, configuration information stored in tables of the gnumed database can be used.
+	However, it is possible to force file or database accessat any time. 
+    	</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN112"
+></A
+>3.4.1. Standard configuration file</H2
+><P
+>	Currently the default configuration file holds the following information:
+	<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+># GnuMed client config file                                                     
+                                                                                
+[backend]                                                                       
+databases = $databases$                                                         
+gnumed                                                                          
+$databases$                                                                     
+ports = $ports$                                                                 
+5432                                                                            
+$ports$                                                                         
+hosts = $hosts$                                                                 
+localhost                                                                       
+127.0.0.1                                                                       
+$hosts$                                                                         
+options = $options$                                                             
+                                                                                
+$options$                                                                       
+logins = $logins$                                                               
+hinnef                                                                          
+guest                                                                           
+$logins$                                                                        
+
+[workplace]                                                                     
+# this is to identify the machine at a logical (business) level                 
+name = test                           
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN116"
+></A
+>3.4.2. Database configuration tables</H2
+><P
+>    	Table 'db' holds the information on databases known to gnumed. The database that has id=0 is always the default database,
+	that is the database used to log in to the backend at the start of gnumed (=the one the configuration tables are stored on).
+	If no entry for id=0 is present, the parameters passed on startup are used. Additional databases like demographic databases,
+	drug databases must therefore use id's &#62;= 1.
+	</P
+><P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>CREATE TABLE db (
+id SERIAL PRIMARY KEY,
+name CHAR(35),	    	-- name of the database
+port INT DEFAULT 5432,  -- port number of server hosting this database
+host VARCHAR(255)DEFAULT 'localhost', -- host name of IP number of the server hosting the database
+opt varchar(255) DEFAULT '',	-- options passed to the database backend
+tty varchar(255) DEFAULT ''
+);
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	</P
+><P
+>    	Table 'ddb' holds the names assigned to services known to gnumed. Names and actual databases are linked via the table 
+	<A
+HREF="configuration.html#TABLE-CONFIG"
+>'config'</A
+>
+	</P
+><P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>CREATE TABLE distributed_db (
+	id SERIAL PRIMARY KEY,
+	name char(35)
+);
+    	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	</P
+><P
+>	The following services are predefined. Naming of additional services needs approval by gnumed administrators!
+    	<P
+></P
+><UL
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'default' : this service contains at least the basic gnumed configuration
+    	</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'transactions' : this service may be used for external audit trails and replication issues
+    	</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'personalia' : this service contains all persoon and address related tables
+    	</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'historica' : this service contains patient's medical histories
+    	</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'extresults' : this service stores external downloadable results such as pathology
+    	</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'correspondence' -- this service contains all correspondence (letters, emails)
+    	</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'pharmaceutica' : this service provides all pharmaceutical information
+    	</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'reference' : this service provides "external" reead only information such as coding (ICD) and patient
+	 education material
+    	</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'blobs' : this service takes care of large (&#62;= 2MB )binary objects
+    	</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'accounting'-- this services provides all tables for accounting purposes
+    	</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'office' : this servicecontains office related tables such as rosters and waiting room
+    	</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>	
+    	'modules' : this service allows to manage gnumed client modules
+    	</P
+></LI
+></UL
+>
+	</P
+><P
+>	Table 'config' holds general information about available databases, services and users. 
+	</P
+><P
+>	<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>    CREATE TABLE config (
+    id SERIAL PRIMARY KEY,
+    profile CHAR(25) DEFAULT 'default',     	    -- allows multiple profiles per user / pseudo user
+    	    	    	    	    	    	    -- one user may have different configuration profiles depending on role, need and location
+    username CHAR(25) DEFAULT CURRENT_USER, 	    -- user name as used within the gnumed system
+    ddb INT REFERENCES distributed_db DEFAULT NULL, -- reference to one of the allowed distrbuted servers
+    db INT REFERENCES db,   	    	    	    -- reference to the implementation details of the distributed server
+    crypt_pwd varchar(255) DEFAULT NULL,    	    -- password for user and database, encrypted
+    crypt_algo varchar(255) DEFAULT NULL,   	    -- encryption algorithm used for password encryption
+    pwd_hash varchar(255) DEFAULT NULL,     	    -- hash of the unencrypted password
+    hash_algo varchar(255) DEFAULT NULL     	    -- algorithm used for password hashing
+);
+    	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN154"
+></A
+>3.4.3. Setting up a service</H2
+><DIV
+CLASS="PROCEDURE"
+><OL
+TYPE="1"
+><LI
+><P
+>	    Store the parameters to access the database in table 'db':</P
+><P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>insert into db VALUES (&#60;db_id&#62;,'database_name', &#60;port&#62; , &#60;host&#62; , &#60;opt&#62; , &#60;tty&#62;);</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	    </P
+><P
+>	    where &#60;db_id&#62; is not 0 (0 is already assigned to the default database). The parameters 
+	    &#60;port&#62; , &#60;host&#62; , &#60;opt&#62; and &#60;tty&#62; can be omitted if the 
+	    backend is the same as for the default database.
+	    </P
+></LI
+><LI
+><P
+>	    Store the parameters to access the database in table 'db':</P
+><P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>insert into config VALUES ('','','username', &#60;distributed_db_id&#62; , &#60;db_id&#62;) ;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	    </P
+><P
+>	    where &#60;distributed_db_id&#62; and  &#60; db_id &#62; reference entries  in tables 'db' and 'ddb'.
+	    If you add a new service, you will have to update table 'ddb' before. Please contact the gnumed admins before
+	    adding new services !
+	    </P
+></LI
+></OL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="debugging.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="i18n.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>DEBUGGING/LOGGING</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="guidelines.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Internationalization / Localization</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
