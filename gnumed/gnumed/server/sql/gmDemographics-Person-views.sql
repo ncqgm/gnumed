@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.14 2004-04-07 18:16:06 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.15 2004-06-25 15:08:57 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -218,6 +218,11 @@ where
 
 -- =========================================================
 -- emulate previous structure of address linktables
+\unset ON_ERROR_STOP
+drop view lnk_person2address;
+drop view lnk_org2address;
+\set ON_ERROR_STOP 1
+
 CREATE VIEW lnk_person2address AS
 	SELECT id_identity, id_address, id_type
 	FROM lnk_person_org_address;
@@ -227,6 +232,22 @@ CREATE VIEW lnk_org2address AS
 	FROM lnk_person_org_address;
 
 -- ==========================================================
+\unset ON_ERROR_STOP
+drop view v_pat_comms;
+\set ON_ERROR_STOP 1
+
+create view v_pat_comms as
+select *
+from
+	(select i.id as pk_identity, ect.id as pk_comm_type
+	 from (enum_comm_types ect cross join identity i)) as ic
+		left join
+	(select li2cc.id_identity as pk_identity, cc.url as url, cc.id_type as pk_comm_type
+	 from lnk_identity2comm_chan li2cc, comm_channel cc
+	 where li2cc.id_comm = cc.id) as l_comm
+	 	using (pk_identity, pk_comm_type);
+
+-- ==========================================================
 -- permissions
 -- ==========================================================
 GRANT SELECT ON
@@ -234,6 +255,7 @@ GRANT SELECT ON
 	v_staff,
 	lnk_person2address,
 	lnk_org2address
+	, v_pat_comms
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -242,11 +264,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.14 $');
+delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.15 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.14  2004-04-07 18:16:06  ncq
+-- Revision 1.15  2004-06-25 15:08:57  ncq
+-- - v_pat_comms by Syan
+--
+-- Revision 1.14  2004/04/07 18:16:06  ncq
 -- - move grants into re-runnable scripts
 -- - update *.conf accordingly
 --
