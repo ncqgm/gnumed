@@ -102,9 +102,9 @@ class gmConfigEditorPanel(wxPanel):
 			# now get all available options in a group plus their descriptions
 			# add description and options as statictext
 			for option in options:	
-				tempcomment = wxStaticText(self.panel,-1,str(option))
+				tempcomment = wxStaticText(panel_nb_page,-1,str(option))
 				#tempcomment = wxStaticText(self.panel,-1,str(string.join(_cfg.getComment(group,option),"\n")))
-				tempctrl = wxTextCtrl(self.panel,-1,str(_cfg.get(group,option)))
+				tempctrl = wxTextCtrl(panel_nb_page,-1,str(_cfg.get(group,option)))
 				self.optionCtrlsList[option]=tempctrl
 				grid_sizer_1.Add(tempcomment, 0, wxLEFT, 10)
 				grid_sizer_1.Add(tempctrl, 0, wxLEFT, 10)
@@ -232,7 +232,10 @@ else:
 			return 1
 
 # $Log: gmConfigeditor.py,v $
-# Revision 1.6  2003-04-13 17:37:47  shilbert
+# Revision 1.7  2003-04-13 17:42:00  shilbert
+# - typos in panel names fixed
+#
+# Revision 1.6  2003/04/13 17:37:47  shilbert
 #  - now save changes
 #
 # Revision 1.5  2003/04/13 15:08:17  ncq
