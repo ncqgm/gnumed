@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.12 2003-06-01 14:11:52 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmClinicalRecord.py,v 1.13 2003-06-01 14:15:48 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -270,15 +270,15 @@ class gmClinicalRecord:
 			self.execute("rollback", "rolling back because of invalid encounter_id = 0")
 			return 0
 
-
-
-		# **** NB DEFINATE IS MISPELLED IN SQL SCRIPT : CHANGE IF THE WRONG SPELLING LATER 
 		cmd = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, definite ) values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
 		self.execute( cmd, "unable to create allergy entry ", rollback = 1)
 
 		#idiosyncratic bug.
 		#seems like calling commit by sql doesn't commit the
 		#the connection properly, prematurely closing it?
+
+		# this may well be true but why not using the conn.commit()
+		# provided by the DB-API ?
 
 		#self.execute("commit", "unable to commit ", rollback = 1)
 
@@ -382,6 +382,9 @@ class gmClinicalRecord:
 			# this is utterly useless !!
 #			if rollback and not gmPG.run_query(curs, "rollback"):
 #				_log.Log(gm.lErr, "*****   Unable to rollback", sys.exc_info() )
+			# just closing the cursor without a commit rolls back
+			# and why would we want to roll back if we don't
+			# even check for is_update_command ?!?
 			curs.close()
 			_log.Log(gmLog.lErr, error_msg)
 			
@@ -449,7 +452,10 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.12  2003-06-01 14:11:52  ncq
+# Revision 1.13  2003-06-01 14:15:48  ncq
+# - more comments
+#
+# Revision 1.12  2003/06/01 14:11:52  ncq
 # - added some comments
 #
 # Revision 1.11  2003/06/01 14:07:42  ncq
