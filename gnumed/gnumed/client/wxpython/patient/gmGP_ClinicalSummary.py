@@ -31,12 +31,12 @@ class ClinicalSummary(wxPanel):
 	     
 	except:
 	     pass
-	#------------------------------------------------------------------------
-	#import social history if available this will be the top item on the page
-	#------------------------------------------------------------------------
+	##------------------------------------------------------------------------
+	##import social history if available this will be the top item on the page
+	##------------------------------------------------------------------------
         try:                                                      
-	     import gmGP_FamilyHistory
-	     familyhistory = gmGP_FamilyHistory.FamilyHistory(self,-1)
+	     import gmGP_FamilyHistorySummary
+	     familyhistorysummary = gmGP_FamilyHistorySummary.FamilyHistorySummary(self,-1)
 	     
 	except:
 	     pass
@@ -80,7 +80,7 @@ class ClinicalSummary(wxPanel):
 	#------------------------------------------------------------
 	sizer= wxBoxSizer(wxVERTICAL)
 	sizer.Add(socialhistory,5,wxEXPAND)
-	sizer.Add(familyhistory,5,wxEXPAND)
+	sizer.Add(familyhistorysummary,5,wxEXPAND)
 	sizer.Add(heading1,0,wxEXPAND)   
 	sizer.Add(activeproblemlist,8,wxEXPAND)
 	sizer.Add(heading2,0,wxEXPAND)  
