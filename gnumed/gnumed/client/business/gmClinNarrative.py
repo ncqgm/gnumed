@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -267,17 +267,27 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 	cmd = "select currval('clin_narrative_pk_seq')"
 	queries.append((cmd, []))
 
-	result, msg = gmPG.run_commit('historica', queries, True)
-	if result is None:
+	successful, data = gmPG.run_commit2('historica', queries, extra_verbose=True)
+	if not successful:
+		err, msg = data
 		return (False, msg)
-
 	try:
-		narrative = cNarrative(aPK_obj = result[0][0])
+		narrative = cNarrative(aPK_obj = data[0][0])
 	except gmExceptions.ConstructorError:
-		_log.LogException('cannot instantiate narrative' % (result[0][0]), sys.exc_info, verbose=0)
+		_log.LogException('cannot instantiate narrative' % (data[0][0]), sys.exc_info, verbose=0)
 		return (False, _('internal error, check log'))
 
 	return (True, narrative)
+#------------------------------------------------------------
+def delete_clin_narrative(narrative=None):
+	"""Deletes a clin_narrative row by it's PK."""
+	cmd = """delete from clin_narrative where pk=%s"""
+	successful, data = gmPG.run_commit2('historica', (cmd, [narrative]))
+	if not successful:
+		err, msg = data
+		_log.Log(gmLog.lErr, 'cannot delete narrative (%s: %s)' % (err, msg))
+		return False
+	return True
 #============================================================
 # main
 #------------------------------------------------------------
@@ -321,7 +331,11 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.11  2005-01-02 19:55:30  ncq
+# Revision 1.12  2005-01-31 09:21:48  ncq
+# - use commit2()
+# - add delete_clin_narrative()
+#
+# Revision 1.11  2005/01/02 19:55:30  ncq
 # - don't need _xmins_refetch_col_pos anymore
 #
 # Revision 1.10  2004/12/20 16:45:49  ncq
