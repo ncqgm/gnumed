@@ -1,8 +1,10 @@
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
 __copyright__ = __author__
+
+import time
 
 from wxPython.wx import *
 from wxPython.calendar import *
@@ -28,18 +30,23 @@ class ScheduleAllDoctorsPnl(wxPanel):
 		index=0
 		for doctor in doctors:
 			#pnl =
-			self.schedules.append(gmDoctorsSchedulePnl.DoctorsSchedulePnl(self, doctor))
+			self.schedules.append(gmDoctorsSchedulePnl.DoctorsSchedulePnl(self, doctor=None))
 			self.szrSchedules.AddWindow(self.schedules[index], 1, wxGROW|wxALIGN_CENTER_VERTICAL, 3 )
 			index+=1
+		self.schedules[0].SetDoctor(1)
+		self.schedules[1].SetDoctor(3)
 		self.szrMain.AddSizer(self.szrSchedules, 1, wxGROW|wxALIGN_TOP|wxLEFT|wxRIGHT, 5 )
 
 		self.SetSizer(self.szrMain)
 		self.SetAutoLayout(true)
 		self.szrMain.Fit(self)
 		self.szrMain.SetSizeHints(self)
+		self.SetDate()
+
 
 	def OnCalendar(self):
 		pass
+
 
 	def DateSelectionPanel(self, parent, sizer):
 		txt = wxStaticText( self, -1, _("Appointments for week:"), wxDefaultPosition, wxDefaultSize, 0 )
@@ -49,6 +56,14 @@ class ScheduleAllDoctorsPnl(wxPanel):
 		self.btnCalendar = wxButton( self, ID_BTN_CALENDAR, "Calendar", wxDefaultPosition, wxDefaultSize, 0 )
 		sizer.AddWindow( self.btnCalendar, 0, wxALIGN_BOTTOM|wxALIGN_CENTER_VERTICAL, 5 )
 		EVT_BUTTON(self, ID_BTN_CALENDAR, self.OnCalendar)
+
+
+	def SetDate(self, date=None):
+		self.date = date
+		if self.date==None:
+			self.date= time.localtime()
+		for i in range(len(self.schedules)):
+			self.schedules[i].SetDate(self.date)
 
 
 

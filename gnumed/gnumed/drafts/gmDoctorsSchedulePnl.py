@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -16,7 +16,7 @@ import gmScheduleGrid
 
 ID_COMBO_STAFF = wxNewId()
 
-doctorquery = "select title, firstname, surname, id_staff from v_doctors_only"
+doctorquery = "select title, givennames, surnames, id from v_doctors_only"
 preferred_interval_query = "select duration from v_duration_standard where id_staff = %d"
 doc_available_query = "select is_available(%d, %s)"    #id_doctor, date, time
 
@@ -28,15 +28,16 @@ class DoctorsSchedulePnl(wxPanel):
 		self.db = self.dbpool.GetConnection('appointments')
 		cur = self.db.cursor()
 		cur.execute(doctorquery);
-		self.doctors=gmPG.dictresult(cur);
+		self.doctors=gmPG.dictResult(cur);
+		self.doctor=doctor
+		self.doctorindex = {}
+		#to look up a doctor's id depending on the index in the combo box
+		#as combo box Set/Get client data seems buggy
 
-		self.doctor_labels = []
-		for doc in self.doctors:
-			label = "%s %s %s (%d)" % (doc['title'], doc['givennames'], doc['surnames'], doc['id_staff'])
-			self.doctor_labels.append(label)
 
 		self.szrMain = wxBoxSizer(wxVERTICAL)
 		self.szrTopRow = wxBoxSizer(wxHORIZONTAL)
+
 		session_interval = 15
 
 		self.schedule = gmScheduleGrid.ScheduleGrid(self, session_interval=session_interval)
@@ -48,15 +49,69 @@ class DoctorsSchedulePnl(wxPanel):
 		txt = wxStaticText( self, -1, _("with:"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.szrTopRow.AddWindow( txt, 0, wxALIGN_CENTER_VERTICAL, 5 )
 		self.cbStaffSelection = wxComboBox( self, ID_COMBO_STAFF, "", wxDefaultPosition, wxSize(70,-1),
-		self.doctor_labels , wxCB_DROPDOWN )
+		[] , wxCB_DROPDOWN )
+		EVT_COMBOBOX(self, ID_COMBO_STAFF, self.OnStaffSelected)
 		self.szrTopRow.AddWindow( self.cbStaffSelection, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
 
+		self.FillComboStaff(self.doctors)
 		if self.doctor is not None:
-			self.cbStaffSelection.SetSelection(self.cbStaffSelection.FindString(doctor))
+			self.SetDoctor(self.doctor)
+
 		self.SetSizer(self.szrMain)
 		self.SetAutoLayout(true)
 		self.szrMain.Fit(self)
 		self.szrMain.SetSizeHints(self)
+
+
+	def FillComboStaff(self, doctors):
+		index=0
+		for doc in doctors:
+			docstr = "%s %s %s" % (doc['title'], doc['givennames'], doc['surnames'])
+			id = doc['id']
+			self.doctorindex[index] = id;
+			self.cbStaffSelection.Append(docstr, id)
+			self.cbStaffSelection.SetClientData(index, id)
+			index+=1
+
+
+	def SelectDoctor(self, doctor_id):
+		cur = self.db.cursor()
+		cur.execute(preferred_interval_query % doctor_id)
+		try:
+			(self.interval, )= cur.fetchone()
+			if self.interval is None or self.interval < 5:
+				self.interval=15
+		except:
+			self.interval=15
+		self.schedule.SetInterval(interval=self.interval)
+
+
+	def SetDoctor(self, doctor_id):
+		print "Trying to select Doctor id=", doctor_id
+		cbindex = -1
+		for key in self.doctorindex.keys():
+			print "key, index:", key, self.doctorindex[key]
+			if self.doctorindex[key] == doctor_id:
+				cbindex = key
+				print "found: ", cbindex
+				break
+		if cbindex > -1:
+			self.cbStaffSelection.SetSelection(cbindex)
+			self.SelectDoctor(doctor_id)
+
+
+	def OnStaffSelected(self, evt):
+		idx = evt.GetSelection()
+		id = self.doctorindex[idx]
+		if id is not None:
+			self.SelectDoctor(id)
+
+
+	def SetDate(self, date):
+		self.date = date
+		self.schedule.SetDate(date)
+
+
 
 if __name__ == '__main__':
 	app = wxPyWidgetTester(size=(600,440))
