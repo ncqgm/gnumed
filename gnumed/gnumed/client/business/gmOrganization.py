@@ -5,11 +5,12 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.business import gmClinItem
+from Gnumed.business import gmDemographicRecord
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -28,6 +29,11 @@ class cOrgCategory(gmClinItem.cClinItem):
 
 
 class  cOrganization(gmClinItem.cClinItem):
+
+	def update(self, map):
+		for (k,v) in map.items:
+			self.__setitem__(k) = v
+			
 	_cmd_fetch_payload = _cmd_template_fetch_payload % "org"
 	_cmds_store_payload = [
 		"""select 1 from org where id = %(id)s for update""",
@@ -71,9 +77,53 @@ class cLnkPersonOrgAddress(gmClinItem.cClinItem):
 	_updatable_fields=["id_identity", "id_address" , "id_type", 
 		"id_org" ,"id_occupation", "address_source"]
 
+	def findByOrgId(id):
+		cmds = """select id from lnk_person_org_address 
+			where id_org = %s and id_identity = NULL
+			"""
+
+
+class cCatFinder(gmBorg.cBorg):
+
+	def __init__(self, categoryType):
+		gmBorg.cBorg.__init__(self)
+		if not self.__dict__.has_key(categories):
+			self.categories = {}
+			
+		if not self.categories.has_key(categoryType):
+			self.categories[categoryType] = {'toId': {}, 'toDescription': {} }
+			self.reload(categoryType)
+		
+		
+
+	def reload(self, categoryType):
+		result, msg = gmPG.run_ro_query("select id, description from %s" % categoryType)
+		if result == None:
+			gmLog.gmDefLog(gmLog.lErr, "failed to load %s" % categoryType)
+		
+		for (id, description) in result:
+			self.categories[categoryType]['toId'][description] = id
+			self.categories[categoryType]['toDescription'][id] = description
+
+		
+	def getId(self, categoryType, category):
+		return self.categories.get(categoryType, {}).get('toId',{}).get(category, None)
+
+	def getCategory(self, categoryType, id):
+		return self.categories.get(categoryType, {}).get('toDescription',{}).get(id, "")
+
+	def getCategories(self, categoryType):
+		return self.categories.get(categoryType,{}).get('toDescription',{}).keys()
+	
+cCatFinder('org_category')
+cCatFinder('enum_comm_types')
+
 
 class cOrgHelper:
 	def __init__(self):
+		pass
+
+	def getPk(self):
 		pass
 
 	def set(self, name, office, department, address, memo, category, phone, fax, email,mobile):
@@ -94,6 +144,310 @@ class cOrgHelper:
 	def save(self):
 		return
 
+
+class cOrgHelperImpl1(cOrgHelper):
+	 
+		
+	commtypes = { 
+		"email":gmDemographicRecord.EMAIL, 
+		"fax":gmDemographicRecord.FAX, 
+		#gmDemographicRecord.HOME_PHONE, 
+		"phone":gmDemographicRecord.WORK_PHONE,
+		"web":gmDemographicRecord.WEB, 
+		"mobile":gmDemographicRecord.MOBILE,
+		"jabber":gmDemographicRecord.JABBER 
+		}
+	
+	commnames = dict( [ v,k for k,v in commtypes.items()] )
+
+	def __init__(self):
+		self._map = {}
+		self._changes= {}
+		self.pk = None
+		self._addressModified(False)
+		self._address = {}
+		pass
+
+	def getPk(self):
+		return self.pk
+	
+	def getAddressDict(self):
+		d = {}
+		d.update(self._address)
+		return d
+	
+	def setAddress(self, number, street, urb, postcode, state, country):
+		self._setAddressImpl( number, street, urb, postcode, state, country)
+	
+	def _setAddressImpl( self, *kword, **kargs):	
+		for k in ['number', 'street', 'urb', 'postcode']:
+			a = self._address
+			if a.has_key(k) and a[k] <> kargs[k]:
+				self._addressModified(True)
+				a[k] = kargs[k]	
+	
+	def _addressModified(self, val = None):
+		if val <> None:
+			self._amodified = val
+		return self._amodified
+	
+	def set(self, name, office, department,  memo, category, phone, fax, email,mobile):
+		self._set_impl(name, office, department,  memo, category, phone, fax, email,mobile)
+		
+		
+	def _set_impl(self, *kwrd, **kargs):
+		changed = {} 
+		for k in [ 'name', 'office', 'department','memo','category', 'phone', 'fax', 'email', 'mobile' ]:
+			v = self._map.get(k, None)
+			if v != kargs[k]:
+				changed[k] = kargs[k]
+		
+		self._changed = changed
+	
+	def _save_comm_channels(self):
+		if self.getId() == None:
+			gmLog.gmDefLog.log(gmLog.lInfo, "Unable to save comm channel %s : %s due to no org id" % (k,v) )
+			return False
+	
+		comm_changes = {}
+		for k,id_type in self.__class__.commtypes. items():
+			if self._changed.has_key(k):
+				comm_changes[id_type] = self._changed[k]
+		
+		urls = comm_changes.values()
+		
+		places = ['%s'] *len(urls)
+		
+		format = ', '.join(places)
+		
+		cmd = [
+		("""select id, url, id_type from comm_channel where url in( %s )""" % format, urls) ]
+		result = gmPG.run_commit(cmd)
+		if result == None:
+			gmLog.gmDefLog.log(gmLog.lInfo, "find existing org comms failed" )
+			return False
+		
+		
+		existing_urls = map ( [ (url,(id, id_type) ) for (id, url, id_type) in result] )
+		for id_type , url in comm_changes:
+			if url in existing_urls.keys() and existing_urls[url][1] <> id_type:
+				gmLog.gmDefLog.log(gmLog.lWarn, "Existing comm url mismatches type for org url %s, inserting same url different type!" % url)
+				del existing_urls[url]
+		cmds = []
+
+		delete_link_cmd = 
+				"""delete from lnk_org2comm_channel
+				where id_comm in ( 
+					select l2.id_comm from 
+					lnk_org2comm_channel l2 , comm_channel c 
+					where 	     c.id = l2.id_comm 
+						and  c.id_type = %s
+						and  l2.id_org = %s
+					) """
+					
+		for url in existing_urls.keys():
+			(id_comm, id_type) = existing_urls[url]
+			cmds = [  
+				(delete_link_cmd,[id_type, self.getPk() ] )
+			
+				("""insert into lnk_org2comm_channel( id_comm, id_org)
+				values ( %s, %s ) """ , [ id_comm. self.getPk() ] )
+				]
+		
+		for id_type, url inn comm_changes:
+			if url in existing_urls.keys():
+				continue
+
+			if url.strip() == "":
+				cmds.append(delete_link_cmd, [id_type, self.getPk() )
+			else:
+					
+				cmds.append( 
+					("""insert into comm_channel( url, id_type)
+					values( '%s', %s)""", [url, id_type] ) )
+				cmds.append(
+					("""insert into lnk_org2comm_channel(id_comm, id_org)
+					values( currval('comm_channel_id_seq'), %s)""",
+					[self.getPk()]  )  )
+		
+				
+		result = gmPG.run_commit(cmds)
+	
+	def _save_address(self):
+		a = self._address
+		
+		if not self._addressModified():
+			return True
+		
+		return self.linkNewAddress(a['number'],a['street'], a['urb'], a['postcode'], a['state'], a['country']  )
+		
+
+
+	def linkNewAddress (self,  number, street, urb, postcode, state = None, country = None):
+		"""Adds a new address into this org list of addresses. Basically cut and
+		paste and delete unnecessary fields from gmDemographics function.
+		"""
+		if state is None:
+			state, country = guess_state_country(urb, postcode)
+
+		# address already in database ?
+		cmd = """
+			select addr_id from v_basic_address
+			where
+				number = %s and
+				street = %s and
+				city = %s and
+				postcode = %s and
+				state = %s and
+				country = %s
+			"""
+		data = gmPG.run_ro_query ('personalia', cmd, None, number, street, urb, postcode, state, country)
+		if data is None:
+			s = " ".join( (  number, street, urb, postcode, state, country ) )
+			_log.Log(gmLog.lErr, 'cannot check for address existence (%s)' % s)
+			return None
+
+		# delete any pre-existing link for this org 
+		cmd = """
+			delete from lnk_org2address
+			where
+				id_org = %s 
+			"""
+		gmPG.run_commit ('personalia', [(cmd, [self.getPk()])])
+
+		# yes, address already there, just add the link
+		if len(data) > 0:
+			addr_id = data[0][0]
+			cmd = """
+				insert into lnk_org2address (id_identity, id_address)
+				values (%s, %s)
+				"""
+			return gmPG.run_commit ("personalia", [(cmd, (self.getPk(), addr_id))])
+
+		# no, insert new address and link it, too
+		cmd1 = """
+			insert into v_basic_address (number, street, city, postcode, state, country)
+			values (%s, %s, %s, %s, %s, %s)
+			"""
+		cmd2 = """
+			insert into lnk_org2address (id_org, id_address)
+			values (%s, currval ('address_id_seq'))
+			"""
+		return gmPG.run_commit ("personalia", [
+			(cmd1, (number, street, urb, postcode, state, country)),
+			(cmd2, (self.getPk() ))
+			]
+		)
+
+		
+
+	def get_name_office_department_memo_category_phone_fax_email_mobile(self): 
+		m = {}
+		m.update(self._map)
+		m.update(self._changes)
+		return m 
+
+	def get_address(self):
+		return self._address
+
+	def findAllOrganizations():
+		return []
+
+	def findAllOrganizationPKAndName():
+		return [ (0,"") ]
+
+	def load(self, pk):
+		return ( self._load_org(pk) and 
+			self._load_comm_channels() 
+			and self._load_address() )
+		
+		
+
+		
+	def _load_org(self, pk):	
+		org = cOrganization(pk)
+		if not org.reload_payload():
+			gmLog.gmDefLog.log(gmLog.lInfo, "Unable to load org %s" %pk )
+			return False
+	
+		m=self._map
+		m['category']=cCatFinder("org_category").getCategory(org['id_category'])
+		m['name']=org['description']
+		self.pk = pk
+		return True
+	
+	
+	def _load_comm_channels(self):
+		pk = self.getPk()
+		cmd = ("""select id_type, url from comm_channel c, lnk_org2comm_channel l where l.id_org = %s""" , [pk] )
+		result = gmPG.run_ro_query([cmd])
+		if result == None:
+			gmLog.gmDefLog.log(gmLog.lInfo, "Unable to load comm channels for org" )
+			return False
+
+		n = self.__class__.commnames
+		for (id_type, url) in result:	
+			if n.has_key(int(id_type)):
+				m[n[id_type]] = url
+				
+		return True
+	
+	def _load_address(self):
+		pk = self.getPk()
+		cmd = """select number, street, city, postcode, state, country from v_basic_address v , lnk_org2address l where v.addr_id = l.id_address and l.id_org = %s"""
+		result = gmPG.run_ro_query( cmd, pk)
+		if result == None:
+			gmLog.gmDefLog.log(gmLog.lInfo, "failure in org address load" )
+			return False
+		if len(result ) == 0:
+				gmLog.gmDefLog.log(gmLog.lInfo, "No address for org" )
+			return True
+		
+		r = result[0]
+		self._address = { 'number':r[0], 'street':r[1], 'urb':r[2], 'postcode':r[3], 'state':r[4], 'country': r[5]  }
+	
+		self._addressModified(False)
+
+		return True
+	
+		
+	
+	def _create(self):
+		cmd = ("""insert into org (description, id_category) values("xxxDefaultxxxx", 1)""", [])
+		cmd2 = ("""select currval('org_id_seq')""", [])
+		result = gmPG.run_commit( [cmd, cmd2])
+		if result == None:
+			return False
+		self.pk = result[0][0]
+		return true
+	
+	def save(self):
+		m = {}
+		m.update(self._map)
+		m.update(c)
+		c = self._changes
+		if not c.has_key('name') or c['name'].strip() =='':
+			print "PLEASE ENTER ORG NAME" #change this
+			return False
+		
+		if self.getPk() == None:
+			if not self._create():
+				gmLog.gmDefLog.log(gmLog.lErr, "Cannot create org")
+				return False
+		if c.has_key('name') or c.has_key('category'):	
+			org = cOrganization(self.getPk())
+
+			org['description'] = c['name']
+			id_cat = cCatFinder('org_category').getId(c['category'])
+			if id_cat <> None:
+				org['id_category'] = id_cat
+				
+				
+			org.save_payload()
+			
+		self._save_address()
+		self._save_comm_channels()
+
 #============================================================
 if __name__== "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
@@ -109,7 +463,14 @@ if __name__== "__main__":
 		print "-"*50
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.2  2004-05-16 13:05:14  ncq
+# Revision 1.3  2004-05-20 15:37:12  sjtan
+#
+# pre-test version of gmOrganization connecting to current org tables. Needs
+# unit testing, and then handling of subOrgs and organizational people
+# linking. Some cut and paste of linkAddress from gmDemographicRecord. Not
+# for use .
+#
+# Revision 1.2  2004/05/16 13:05:14  ncq
 # - remove methods that violate the basic rules for
 #   clinical items (eg no creation via clin item objects)
 # - cleanup
