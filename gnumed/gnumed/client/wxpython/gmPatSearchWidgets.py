@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.11 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmPatSearchWidgets.py,v 1.12 2005-02-01 10:16:07 ihaywood Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -63,11 +63,7 @@ def pat_expand_default(curs = None, ID_list = None):
 	if pat_data is None:
 		_log.Log(gmLog.lErr, 'cannot fetch extended patient data')
 
-	col_order = [
-		{'label': _('last name'),	'data idx': 1},
-		{'label': _('first name'),	'data idx': 2},
-		{'label': _('dob'),			'data idx': 3}
-	]
+
 	return pat_data, col_order
 #------------------------------------------------------------
 patient_expander = {
@@ -108,7 +104,13 @@ class cPatientPickList(wx.wxDialog):
 		# TODO: make selectable by 0-9
 
 		self.__items = items
-
+		# set col_order
+		if not col_order:
+			col_order = [
+		{'label': _('Surname'),'data idx': 'lastnames'},
+		{'label': _('First name'),'data idx': 'firstnames'},
+		{'label': _('DOB'),'data idx': 'dob'}
+		]
 		# set up columns
 		self.__listctrl.ClearAll()
 		for order_idx in range(len(col_order)):
@@ -385,20 +387,16 @@ and hit <ENTER>
 	def _on_patient_selected(self, **kwargs):
 		wx.wxCallAfter(self._display_name)
 	#--------------------------------------------------------
-	def SetActivePatient(self, anID = None, data = None):
-		if not gmPerson.set_active_patient(anID):
+	def SetActivePatient(self, pat):
+		if not gmPerson.set_active_patient(pat):
 			_log.Log (gmLog.lErr, 'cannot change active patient')
 			return None
 
-		# remember patient ?
-		if data is None:
-			return True
-
 		# only unique patients
 		for prev_pat in self.__prev_pats:
-			if prev_pat[0] == anID:
+			if prev_pat[0].getID () == pat.getID ():
 				return True
-		self.__prev_pats.append(data)
+		self.__prev_pats.append(pat)
 
 		# and only 10 of them
 		if len(self.__prev_pats) > 10:
@@ -410,8 +408,8 @@ and hit <ENTER>
 	#--------------------------------------------------------
 	def _display_name(self):
 		if self.curr_pat.is_connected():
-			name = self.curr_pat['demographic record'].get_names()
-			self.SetValue('%s, %s' % (name['last'], name['first']))
+			demo = self.curr_pat['demographic record']
+			self.SetValue (demo['description'])
 		else:
 			self.SetValue(_('no active patient'))
 	#--------------------------------------------------------
@@ -480,14 +478,14 @@ and hit <ENTER>
 					return True
 				# show list
 				dlg = cPatientPickList(parent = self)
-				dlg.SetItems(self.__prev_pats, self.__pat_picklist_col_defs)
+				dlg.SetItems(self.__prev_pats)
 				result = dlg.ShowModal()
 				dlg.Destroy()
 				# and process selection
 				if result > 0:
 					# and make our selection known to others
 					wx.wxBeginBusyCursor()
-					self.SetActivePatient(anID = result)
+					self.SetActivePatient(pat = result)
 					wx.wxEndBusyCursor()
 				return True
 
@@ -546,10 +544,10 @@ and hit <ENTER>
 
 		# get list of matching ids
 		start = time.time()
-		ids = self.__pat_searcher.get_patient_ids(curr_search_term)
+		pats = self.__pat_searcher.get_persons(curr_search_term)
 		duration = time.time() - start
 
-		if ids is None:
+		if pats is None:
 			wx.wxEndBusyCursor()
 			gmGuiHelpers.gm_show_error (
 				_('Error searching for matching patients.\n\nSearch term: "%s"' % curr_search_term),
@@ -557,9 +555,9 @@ and hit <ENTER>
 			)
 			return None
 
-		_log.Log (gmLog.lInfo, "%s patient ID(s) fetched in %3.3f seconds" % (len(ids), duration))
+		_log.Log (gmLog.lInfo, "%s patient objects(s) fetched in %3.3f seconds" % (len(pats), duration))
 
-		if len(ids) == 0:
+		if len(pats) == 0:
 			wx.wxEndBusyCursor()
 			gmGuiHelpers.gm_show_warning (
 				_('Cannot find any matching patients.\n\nSearch term: "%s"\n\n(We should offer to jump to entering a new patient from here.)' % curr_search_term),
@@ -567,38 +565,23 @@ and hit <ENTER>
 			)
 			return None
 
-		curs = self.__conn.cursor()
 		# only one matching patient
-		if len(ids) == 1:
+		if len(pats) == 1:
 			# make our selection known to others
-			pats_data, self.__pat_picklist_col_defs = self.__pat_expander(curs, ids)
-			curs.close()
-			if len(pats_data) == 0:
-				wx.wxEndBusyCursor()
-				return None
-			self.SetActivePatient(ids[0], pats_data[0])
+			self.SetActivePatient(pats[0])
 			wx.wxEndBusyCursor()
 			return None
 
 		# more than one matching patient
-		start = time.time()
-		pats_data, self.__pat_picklist_col_defs = self.__pat_expander(curs, ids)
-		duration = time.time() - start
-		_log.Log (gmLog.lInfo, "patient data fetched in %3.3f seconds" % duration)
-		curs.close()
 		# let user select from pick list
 		picklist = cPatientPickList(parent = self)
-		picklist.SetItems(pats_data, self.__pat_picklist_col_defs)
+		picklist.SetItems(pats)
 		picklist.Centre()
 		wx.wxEndBusyCursor()
 		result = picklist.ShowModal()
 		wx.wxBeginBusyCursor()
 		picklist.Destroy()
-		for pat in pats_data:
-			if result == pat[0]:
-				self.SetActivePatient(anID=result, data=pat)
-				break
-
+		self.SetActivePatient(pat=result)
 		wx.wxEndBusyCursor()
 		return None
 #============================================================
@@ -723,7 +706,14 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.11  2005-01-31 10:37:26  ncq
+# Revision 1.12  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.11  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.10  2004/10/20 12:40:55  ncq

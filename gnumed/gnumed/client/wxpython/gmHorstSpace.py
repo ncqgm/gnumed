@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.6 2004-10-17 16:06:30 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmHorstSpace.py,v 1.7 2005-02-01 10:16:07 ihaywood Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -21,39 +21,18 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 
 import os.path, os, sys
 
-from wxPython import wx
 from wxPython.wx import *
+import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI
-from Gnumed.wxpython import gmPlugin
+from Gnumed.wxpython import gmPlugin, gmTopPanel
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _whoami = gmWhoAmI.cWhoAmI()
-
+		  
 #==============================================================================
-class gmPluginLoadProgressBar (wx.wxProgressDialog):
-	def __init__(self, nr_plugins):
-		wx.wxProgressDialog.__init__(
-			self,
-			title = _("GnuMed: configuring [%s] (%s plugins)") % (_whoami.get_workplace(), nr_plugins),
-			message = _("loading list of plugins                               "),
-			maximum = nr_plugins,
-			parent = None,
-			style = wx.wxPD_ELAPSED_TIME
-			)
-		# set window icon
-		gb = gmGuiBroker.GuiBroker()
-		png_fname = os.path.join(gb['gnumed_dir'], 'bitmaps', 'serpent.png')
-		icon = wxEmptyIcon()
-		try:
-			icon.LoadFile(png_fname, wxBITMAP_TYPE_PNG)
-		except:
-			_log.Log(gmLog.lWarn, 'wxIcon.LoadFile() not supported')
-		self.SetIcon(icon)
-
-#==============================================================================
-class cHorstSpaceLayoutMgr(wx.wxPanel):
+class cHorstSpaceLayoutMgr(wxPanel):
 	"""GnuMed inner-frame layout manager.
 
 	This implements a Horst-space notebook-only
@@ -61,33 +40,42 @@ class cHorstSpaceLayoutMgr(wx.wxPanel):
 	"""
 	def __init__(self, parent, id):
 		# main panel
-		wx.wxPanel.__init__(
+		wxPanel.__init__(
 			self,
 			parent = parent,
 			id = id,
-			pos = wx.wxPyDefaultPosition,
-			size = wx.wxPyDefaultSize,
-			style = wx.wxNO_BORDER,
+			pos = wxPyDefaultPosition,
+			size = wxPyDefaultSize,
+			style = wxNO_BORDER,
 			name = 'HorstSpace.LayoutMgrPnl'
 		)
 		# notebook
-		self.ID_NOTEBOOK = wx.wxNewId()
-		self.nb = wx.wxNotebook (
+		self.ID_NOTEBOOK = wxNewId()
+		self.nb = wxNotebook (
 			parent=self,
 			id = self.ID_NOTEBOOK,
-			size = wx.wxSize(320,240),
-			style = wx.wxNB_BOTTOM
+			size = wxSize(320,240),
+			style = wxNB_BOTTOM
 		)
-		nb_szr = wx.wxNotebookSizer(self.nb)
-
+		#nb_szr = wx.wxNotebookSizer(self.nb)
 		# plugins
 		self.__gb = gmGuiBroker.GuiBroker()
-		self.__gb['horstspace.notebook'] = self.nb			# FIXME: remove per Ian's API suggestion
+		self.__gb['horstspace.notebook'] = self.nb # FIXME: remove per Ian's API suggestion
+		# top panel
+		
+		#---------------------
+		# create the "top row"
+		#---------------------
+		# important patient data is always displayed there
+		# - top panel with toolbars
+		self.top_panel = gmTopPanel.cMainTopPanel(self, -1)
+		self.__gb['horstspace.top_panel'] = self.top_panel
 		self.__load_plugins()
-
+		
 		# layout handling
-		self.main_szr = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.main_szr.Add(nb_szr, 1, wx.wxEXPAND)
+		self.main_szr = wxBoxSizer(wx.VERTICAL)
+		self.main_szr.Add(self.top_panel, 0, wxEXPAND)
+		self.main_szr.Add(self.nb, 1, wxEXPAND)
 		self.SetSizer(self.main_szr)
 #		self.SetSizerAndFit(self.main_szr)
 #		self.Layout()
@@ -107,49 +95,39 @@ class cHorstSpaceLayoutMgr(wx.wxPanel):
 	#----------------------------------------------
 	def __load_plugins(self):
 		# get plugin list
-		plugin_list = gmPlugin.GetPluginLoadList('gui')
+		plugin_list = gmPlugin.GetPluginLoadList('horstspace.notebook.plugin_load_order', 'gui')
 		if plugin_list is None:
 			_log.Log(gmLog.lWarn, "no plugins to load")
 			return True
 
-		wx.wxBeginBusyCursor()
+		wxBeginBusyCursor()
 		nr_plugins = len(plugin_list)
 
 		#  set up a progress bar
-		progress_bar = gmPluginLoadProgressBar(nr_plugins)
+		progress_bar = gmPlugin.cLoadProgressBar(nr_plugins)
 
 		#  and load them
 		prev_plugin = ""
-		result = ""
+		result = -1
 		for idx in range(len(plugin_list)):
 			curr_plugin = plugin_list[idx]
-
-			progress_bar.Update(
-				idx,
-				_("previous: %s (%s)\ncurrent (%s/%s): %s") % (
-					prev_plugin,
-					result,
-					(idx+1),
-					nr_plugins,
-					curr_plugin)
-			)
-
+			progress_bar.Update(result, curr_plugin)
 			try:
 				plugin = gmPlugin.instantiate_plugin('gui', curr_plugin)
 				if plugin:
 					plugin.register()
-					result = _("success")
+					result = 1
 				else:
 					_log.Log (gmLog.lErr, "plugin [%s] not loaded, see errors above" % curr_plugin)
-					result = _("failed")
+					result = 1
 			except:
 				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info(), verbose = 0)
-				result = _("failed")
+				result = 0
 
 			prev_plugin = curr_plugin
 
 		progress_bar.Destroy()
-		wx.wxEndBusyCursor()
+		wxEndBusyCursor()
 		return True
 	#----------------------------------------------
 	# external callbacks
@@ -195,7 +173,7 @@ class cHorstSpaceLayoutMgr(wx.wxPanel):
 		if self.__new_page_is_checked or new_page.can_receive_focus():
 			new_page.receive_focus()
 			# activate toolbar of new page
-			self.__gb['main.top_panel'].ShowBar(new_page.__class__.__name__)
+			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
 			event.Skip()
 			return
 
@@ -265,12 +243,19 @@ class cHorstSpaceLayoutMgr(wx.wxPanel):
 		page.unregister()
 #==============================================================================
 if __name__ == '__main__':
-	wx.wxInitAllImageHandlers()
+	wxInitAllImageHandlers()
 	pgbar = gmPluginLoadProgressBar(3)
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.6  2004-10-17 16:06:30  ncq
+# Revision 1.7  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.6  2004/10/17 16:06:30  ncq
 # - silly whitespace fix
 #
 # Revision 1.5  2004/10/16 22:42:12  sjtan

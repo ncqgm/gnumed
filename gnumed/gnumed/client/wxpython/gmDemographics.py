@@ -8,13 +8,13 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.50 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmDemographics.py,v 1.51 2005-02-01 10:16:07 ihaywood Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import cPickle, zlib, shutil, time, string
+import cPickle, zlib, shutil, time, string, sys
 
 # 3rd party
 from mx import DateTime
@@ -31,6 +31,7 @@ _log = gmLog.gmDefLog
 _whoami = gmWhoAmI.cWhoAmI()
 _cfg = gmCfg.gmDefCfgFile
 
+ID_Popup_OpenPatient = wx.wxNewId ()
 ID_Popup_SaveDisplayLayout = wx.wxNewId()
 ID_Popup_AddPerson = wx.wxNewId()
 ID_Popup_AddAddressForPerson = wx.wxNewId()
@@ -271,66 +272,28 @@ class PatientListWindow(wx.wxPanel):
 		self.gb = gmGuiBroker.GuiBroker()
 
 		self.__createdemographicgui()
+		self.__register_events ()
 
 	#-----------------------------------------------------------
 	def  __createdemographicgui(self):
 		#------------------------------------------------------------------------
-		#create patient list, add column headers and data
+		#create patient list
 		#-----------------------------------------------------------------------
-		patientlist_ID = wx.wxNewId()
+		self.patientlist_ID = wx.wxNewId()
 		self.patientlist = wx.wxListCtrl (
 			self,
-			patientlist_ID,
+			self.patientlist_ID,
 			wx.wxPyDefaultPosition,
 			size=(400,10),
 			style = wx.wxLC_REPORT | wx.wxSUNKEN_BORDER | wx.wxLC_VRULES | wx.wxLC_HRULES
 		)
-		self.patientlist.InsertColumn(0, _("Name"))
-		self.patientlist.InsertColumn(1, "")
-		self.patientlist.InsertColumn(2, _("Street"))
-		self.patientlist.InsertColumn(4, _("Place"))
-		self.patientlist.InsertColumn(5, _("Postcode"), wx.wxLIST_FORMAT_CENTRE)
-		self.patientlist.InsertColumn(6, _("Date of Birth"), wx.wxLIST_FORMAT_CENTRE)
-		self.patientlist.InsertColumn(7, _("Sex"), wx.wxLIST_FORMAT_CENTRE)
-		self.patientlist.InsertColumn(8, _("Home Phone"), wx.wxLIST_FORMAT_CENTRE)
-
 		opt_val, set = gmCfg.getDBParam(
 			workplace = _whoami.get_workplace(),
 			option="widgets.demographics.patientlist.column_sizes"
 		)
-		if not opt_val or len(opt_val) == 0:
-			print 'patient list column sizes: using defaults'
-			self.patientcolumnslist = ['100','100','250','200','60','100','50','100']
-		else:
-			self.patientcolumnslist = opt_val
-		print self.patientcolumnslist
-		# set column widths
-		for i in range (0,8):
-			self.patientlist.SetColumnWidth(i,int(self.patientcolumnslist[i]))
-# 		#-------------------------------------------------------------
-# 		#loop through the PatientData array and add to the list control
-# 		#note the different syntax for the first coloum of each row
-# 		#i.e. here > self.patientlist.InsertStringItem(x, data[0])!!
-# 		#-------------------------------------------------------------
-# 		items = PatientData.items()
-# 		for x in range(len(items)):
-# 			key, data = items[x]
-# 			print x, data[0],data[1],data[2],data[3],data[4],data[5]
-# 			self.patientlist.InsertStringItem(x, data[0])
-# 			self.patientlist.SetStringItem(x, 1, data[1])
-# 			self.patientlist.SetStringItem(x, 2, data[2])
-# 			self.patientlist.SetStringItem(x, 3, data[3])
-# 			self.patientlist.SetStringItem(x, 4, data[4])
-# 			self.patientlist.SetStringItem(x, 5, data[5])
-# 			self.patientlist.SetStringItem(x, 6, data[6])
-# 			self.patientlist.SetStringItem(x, 7, data[7])
-# 			self.patientlist.SetItemData(x, key)
-# 		#--------------------------------------------------------
-# 		#note the number passed to the wx.wxColumnSorterMixin must be
-# 		#the 1 based count of columns
-# 		#--------------------------------------------------------
-# 		self.itemDataMap = PatientData
-
+		self.patientcolumns = {_('Name'):100, _('Address'):250, _("Home Phone"):60, _("Sex"):50, _("Date of Birth"):60}
+		if opt_val and len(opt_val):
+			self.patientcolumns.update (dict ([i.split (':') for i in opt_val]))
 		sizer_top_patientlist = wx.wxBoxSizer(wx.wxHORIZONTAL)
 		sizer_top_patientlist.Add(
 			self.patientlist,
@@ -341,14 +304,14 @@ class PatientListWindow(wx.wxPanel):
 		)
 		# adjust layout
 		self.SetSizer(sizer_top_patientlist)
-#		self.SetSizer( self.main_splitWindow)
 		self.SetAutoLayout(True)
 		sizer_top_patientlist.Fit(self)
-		self.__register_events()
 
 	def __register_events(self):
 		# patient list popup menu
 		wx.EVT_RIGHT_UP(self.patientlist, self._on_RightClick_patientlist)
+		wx.EVT_LIST_ITEM_ACTIVATED (self.patientlist, self.patientlist_ID, self._on_list_click)
+		wx.EVT_MENU(self, ID_Popup_OpenPatient, self._on_Popup_OpenPatient)
 		wx.EVT_MENU(self, ID_Popup_SaveDisplayLayout, self._on_PopupSaveDisplayLayout)
 		wx.EVT_MENU(self, ID_Popup_AddPerson , self._on_Popup_AddPerson)
 		wx.EVT_MENU(self, ID_Popup_AddAddressForPerson, self._on_Popup_AddAddressForPerson)
@@ -362,39 +325,42 @@ class PatientListWindow(wx.wxPanel):
 		wx.EVT_MENU(self, ID_Popup_SaveDisplayLayout, self._on_PopupSaveDisplayLayout)
 		wx.EVT_MENU(self, ID_Popup_BuildSQL, self._on_Popup_BuildSQL)
 		wx.EVT_MENU(self, ID_Popup_Help, self._on_PopupHelp)
-		#wx.EVT_MENU(self, ID_Popup_AddPerson 3, self._on_PopupThirteen)
-		#wx.EVT_MENU(self, ID_Popup_AddPerson 4, self._on_Popup_DeletePersonteen)
+		gmDispatcher.connect (signal=gmSignals.search_result (), receiver=self._on_search)
 
 	def _on_RightClick_patientlist(self, event):
-# 		Maximise Viewing Area
-# 		Minimise Viewing Area
-# 		---------------------
-# 		Add Person
-# 		Add Address for person
-# 		Add Family Member
-# 		--------------------------
-# 		Delete Person
-# 		Delete Address for person
-# 		Undo Delete
-# 		------------------------------------
-# 		Sort A_Z
-# 		Sort Z_A
-# 		--------------
-# 		Change Font
-# 		Save Display Layout
-# 		--------------------------
-# 		Build SQL
-# 		-------------------
-# 		Help
-# 		----------------
-# 		Exit
-
-		#self.log.WriteText("OnRightClick\n")
+		"""
+ 		Maximise Viewing Area
+ 		Minimise Viewing Area
+ 		---------------------
+ 		Add Person
+ 		Add Address for person
+ 		Add Family Member
+ 		--------------------------
+ 		Delete Person
+ 		Delete Address for person
+ 		Undo Delete
+ 		------------------------------------
+ 		Sort A_Z
+ 		Sort Z_A
+ 		--------------
+ 		Change Font
+ 		Save Display Layout
+ 		--------------------------
+ 		Build SQL
+ 		-------------------
+ 		Help
+ 		----------------
+ 		Exit
+		"""
 
 		#-----------------------------------------------------------------
 		# make a menu to popup over the patient list
 		#-----------------------------------------------------------------
 		self.menu_patientlist = wx.wxMenu()
+		#Trigger routine to open new patient
+		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_OpenPatient ,"Open As Patient")
+		item.SetBitmap(images_patient_demographics.getperson_addBitmap())
+		self.menu_patientlist.AppendItem(item)
 		#Trigger routine to clear all textboxes to add entirely new person
 		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_AddPerson ,"Add Person")
 		item.SetBitmap(images_patient_demographics.getperson_addBitmap())
@@ -447,13 +413,26 @@ class PatientListWindow(wx.wxPanel):
 		item.SetBitmap(images_patient_demographics.gethelpBitmap())
 		self.menu_patientlist.AppendItem(item)
 		self.menu_patientlist.AppendSeparator()
-
-
 		# Popup the menu.  If an item is selected then its handler
 		# will be called before PopupMenu returns.
 		self.PopupMenu(self.menu_patientlist, event.GetPosition())
 		self.menu_patientlist.Destroy()
 
+	def _on_list_click (self, event):
+		self.__load_patient (self.ids_in_list[event.getIndex ()])
+
+	def _on_Popup_OpenPatient (self, event):
+		sel = self.patientlist.GetNextItem (-1, wx.wxLIST_NEXT_ALL, wx.wxLIST_STATE_SELECTED)
+		if sel > -1:
+			self.__load_patient (self.ids_in_list[sel])
+
+	def __load_patient (self, patient):
+		wx.wxBeginBusyCursor ()
+		try:
+			gmPatient.set_active_patient (patient)
+		except:
+			_log.LogException ("loading patient %d" % patient['id'], sys.exc_info (), verbose=0)
+		wx.wxEndBusyCursor ()
 
 	def _on_Popup_AddPerson(self, event):
 	       print 'I\'m adding a person.....'
@@ -531,24 +510,51 @@ class PatientListWindow(wx.wxPanel):
 		)
 		wx.wxEndBusyCursor()
 	#----------------------------------------------------------
-	def _on_PopupEleven(self, event):
-		self.log.WriteText("Popup nine\n")
+	def _on_search (self, ids, display_fields = ['name', 'dob', 'home_address', 'gender', 'home_phone']):
+		"""
+		Receives a list of gmDemographicRecord.cIdentity objects to display
+		"""
+		n = 0
+		self.patientlist.ClearAll ()
+		trans = {'name':_('Name'), 'home_address':_('Address'), 'gender':_('Sex'), 'home_phone':_('Home Phone'), 'dob':_("Date of Birth")}
+		for i in display_fields:
+			if i in ['dob', 'gender', 'home_phone']:
+				self.patientlist.InsertColumn (n, trans[i], wx.wxLIST_FORMAT_CENTRE)
+			else:
+				self.patientlist.InsertColumn (n, trans[i])
+			self.patientlist.SetColumnWidth(n,int(self.patientcolumns[trans[i]]))
+			n+=1
+		try:
+			for i in range (0, len (ids)):
+				self.patientlist.InsertStringItem (i, getattr (self, '_form_%s' % display_fields[0]) (ids[i]))
+				for j in range (1, len (display_fields)):
+					self.patientlist.SetStringItem (i, j, getattr (self, '_form_%s' % display_fields[j]) (ids[i]))
+		except:
+			_log.LogException ("inserting into listbox", sys.exc_info (), verbose=0)
+		self.ids_in_list = ids
 
-	def _on_PopupTwelve(self, event):
-		self.log.WriteText("Popup nine\n")
+	def _form_name (self, i):
+		return _("%(lastnames)s, %(firstnames)s") % i
 
-	def _on_PopupThirteen(self, event):
-		self.log.WriteText("Popup nine\n")
+	def _form_home_address (self, i):
+		for a in i['addresses']:
+			if a['type'] == 'home':
+				return _("%(number)s %(street)s %(addendum)s, %(city)s %(postcode)s") % a
+		if i['addresses']:
+			return _("%(number)s %(street)s %(addendum)s, %(city)s %(postcode)s") % i['addresses'][0]
+		return _("[No address recorded]")
 
-	def _on_Popup_DeletePersonteen(self, event):
-		self.log.WriteText("Popup nine\n")
+	def _form_gender (self, i):
+		return i['gender']
 
-	def _on_PopupFifteen(self, event):
-		self.log.WriteText("Popup nine\n")
+	def _form_dob (self, i):
+		return i['dob'].Format (_("%d/%m/%y"))
 
-	def _on_Popup_UndoDeleteteen(self, event):
-		self.log.WriteText("Popup nine\n")
-
+	def _form_home_phone (self, i):
+		for c in i['comms']:
+			if c['type'] == 'telephone':
+				return c['url']
+		return _("No telephone")
 	
 class PatientDetailWindow(wx.wxPanel):		
 	def __init__(self, parent, id= -1):
@@ -573,8 +579,8 @@ class PatientDetailWindow(wx.wxPanel):
 			'm': _('Male'),
 			'f': _("Female"),
 			'?': _("Unknown"),
-			'tm': _('Trans. Male'),
-			'tf': _('Trans. Female'),
+			'tm': _('Transexual to Male'),
+			'tf': _('Transexual to Female'),
 			'h':_('Hermaphrodite')
 		}
 		self.__createdemographicgui()
@@ -1228,7 +1234,14 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.50  2005-01-31 10:37:26  ncq
+# Revision 1.51  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.50  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.49  2004/12/18 13:45:51  sjtan

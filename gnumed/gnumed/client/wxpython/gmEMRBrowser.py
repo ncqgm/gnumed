@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.8 2005-01-31 13:02:18 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmEMRBrowser.py,v 1.9 2005-02-01 10:16:07 ihaywood Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -143,8 +143,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		# EMR tree root item
 		demos = self.__pat.get_demographic_record()
-		names = demos.get_names()
-		root_item = self.__emr_tree.AddRoot(_('%s %s EMR') % (names['first'], names['last']))
+		root_item = self.__emr_tree.AddRoot(_('%s EMR') % demos['description'])
 
 		# Obtain all the tree from exporter
 		self.__exporter.get_historical_tree(self.__emr_tree)
@@ -234,7 +233,14 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.8  2005-01-31 13:02:18  ncq
+# Revision 1.9  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.8  2005/01/31 13:02:18  ncq
 # - use ask_for_patient() in gmPerson.py
 #
 # Revision 1.7  2005/01/31 10:37:26  ncq

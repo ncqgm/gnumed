@@ -47,7 +47,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.70 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -117,7 +117,7 @@ def setup_logging():
 
 	# Console Is Good(tm)
 	# ... but only for Panics and important messages
-	aLogTarget = gmLog.cLogTargetConsole(gmLog.lPanic)
+	aLogTarget = gmLog.cLogTargetConsole(gmLog.lWarn)
 	_log.AddTarget(aLogTarget)
 
 	return 1
@@ -276,12 +276,9 @@ if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
 	print "--------------"
 	print __doc__
 	sys.exit(0)
-
 _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 _log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.name))
-
 setup_cfg_file()
-
 appPath = get_base_dir()
 if appPath is None:
 	sys.exit("CRITICAL ERROR: Cannot determine base path.")
@@ -353,7 +350,14 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.69  2004-09-13 09:31:10  ncq
+# Revision 1.70  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.69  2004/09/13 09:31:10  ncq
 # - --slave and --port now in config file, remove help
 #
 # Revision 1.68  2004/09/10 10:40:48  ncq

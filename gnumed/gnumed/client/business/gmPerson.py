@@ -8,13 +8,12 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.3 2005-01-31 18:48:45 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPerson.py,v 1.4 2005-02-01 10:16:07 ihaywood Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, time, re, string
-
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N, gmNull
 from Gnumed.business import gmClinicalRecord, gmDemographicRecord, gmMedDoc
 
@@ -34,12 +33,15 @@ class cPerson:
 	# handlers for __getitem__
 	_get_handler = {}
 
-	def __init__(self, aPKey = None):
-		self.__ID = aPKey			# == identity.id == primary key
-		if not self._pkey_exists():
-			raise gmExceptions.ConstructorError, "No person with ID [%s] in database." % aPKey
-
-		self.__db_cache = {}
+	def __init__(self, demo_record = None):
+		if not isinstance (demo_record, gmDemographicRecord.cIdentity):
+			import pdb
+			pdb.set_trace ()
+		self.__ID = demo_record['id']  	# == identity.id == primary key
+		# if not self._pkey_exists():
+		# redundant as this checks the demographic database, but we already have
+		# this object. 
+		self.__db_cache = {'demographic record':demo_record}
 
 		# register backend notification interests ...
 		if not self._register_interests():
@@ -62,18 +64,6 @@ class cPerson:
 		# FIXME: document folder
 	#--------------------------------------------------------
 	# internal helper
-	#--------------------------------------------------------
-	def _pkey_exists(self):
-		"""Does this primary key exist ?
-
-		- true/false/None
-		"""
-		cmd = "select exists(select id from identity where id = %s)"
-		res = gmPG.run_ro_query('personalia', cmd, None, self.__ID)
-		if res is None:
-			_log.Log(gmLog.lErr, 'check for person ID [%s] existence failed' % self.__ID)
-			return None
-		return res[0][0]
 	#--------------------------------------------------------
 	def _register_interests(self):
 		return 1
@@ -110,11 +100,6 @@ class cPerson:
 		return docs
 	#----------------------------------------------------------
 	def get_clinical_record(self):
-		"""Get EMR object for person.
-
-		Only when calling this for the first time on a person
-		are you saying that the person became a patient.
-		"""
 		try:
 			return self.__db_cache['clinical record']
 		except KeyError:
@@ -126,22 +111,11 @@ class cPerson:
 			_log.LogException('cannot instantiate clinical record for person [%s]' % self.__ID, sys.exc_info())
 			return None
 		duration = time.time() - tstart
-		print "get_clinical_record() took %.3f seconds" % duration
+		print "get_clinical_record() took %s seconds" % duration
 		return self.__db_cache['clinical record']
 	#--------------------------------------------------------
 	def get_demographic_record(self):
-		if self.__db_cache.has_key('demographic record'):
-			return self.__db_cache['demographic record']
-		tstart = time.time()
-		try:
-			# FIXME: we need some way of setting the type of backend such that
-			# FIXME: to instantiate the correct type of demographic record class
-			self.__db_cache['demographic record'] = gmDemographicRecord.cDemographicRecord_SQL(aPKey = self.__ID)
-		except StandardError:
-			_log.LogException('cannot instantiate demographic record for person [%s]' % self.__ID, sys.exc_info())
-			return None
-		duration = time.time() - tstart
-		print "get_demographic_record() took %.3f seconds" % duration
+		# because we are instantiated with it, it always exists
 		return self.__db_cache['demographic record']
 	#--------------------------------------------------------
 	def get_document_folder(self):
@@ -151,7 +125,7 @@ class cPerson:
 			pass
 		try:
 			# FIXME: we need some way of setting the type of backend such that
-			# FIXME: to instantiate the correct type of document folder class
+			# to instantiate the correct type of document folder class
 			self.__db_cache['document folder'] = gmMedDoc.cDocumentFolder(aPKey = self.__ID)
 		except StandardError:
 			_log.LogException('cannot instantiate document folder for person [%s]' % self.__ID, sys.exc_info())
@@ -168,7 +142,7 @@ class cPerson:
 	#--------------------------------------------------------
 	def _get_API(self):
 		API = []
-		for handler in cPerson._get_handler.keys():
+		for handler in gmPerson._get_handler.keys():
 			data = {}
 			# FIXME: how do I get an unbound method object ?
 			func = self._get_handler[handler]
@@ -181,8 +155,10 @@ class cPerson:
 		return API
 	#--------------------------------------------------------
 	# set up handler map
+	_get_handler['demographic record'] = get_demographic_record
+	_get_handler['document folder'] = get_document_folder
 	_get_handler['API'] = _get_API
-	_get_handler['ID'] = getID
+	_get_handler['id'] = getID
 
 #============================================================
 class gmCurrentPatient(gmBorg.cBorg):
@@ -190,81 +166,81 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 	There may be many instances of this but they all share state.
 	"""
-	def __init__(self, aPKey=None):
+	def __init__(self, patient = None):
 		"""Change or get currently active patient.
 
-		aPKey:
+		patient:
 		* None: get currently active patient
 		* -1: unset currently active patient
-		* other: set active patient to aPKey if possible
+		* cPerson instance: set active patient if possible
 		"""
 		gmBorg.cBorg.__init__(self)
 
 		# make sure we do have a patient pointer
-		try:
-			tmp = self._person
-		except AttributeError:
-			self._person = gmNull.cNull()
+		# FIXME: speed up by use of try: except:
+		if not self.__dict__.has_key('_patient'):
+			self._patient = gmNull.cNull()
 
 		# set initial lock state,
 		# this lock protects against activating another patient
 		# when we are controlled from a remote application
-		try:
-			tmp = self._locked
-		except AttributeError:
+		# FIXME: speed up by use of try: except:
+		if not self.__dict__.has_key('_locked'):
 			self.unlock()
 
 		# user wants copy of current patient
-		if aPKey is None:
+		if patient is None:
 			return None
+
+		if patient != -1:
+			to_id = patient['id']
+		else:
+			to_id = -1
+
 		# same ID, no change needed
-		if self._person['ID'] == aPKey:
+		if self._patient['id'] == to_id:
 			return None
+
 		# user wants different patient
-		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self._person['ID'], aPKey))
-		# but no go if patient is locked
+		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self._patient['id'], to_id))
+
+		# but not if patient is locked
 		if self._locked:
-			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self._person['ID'], aPKey))
+			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self._patient['id'], to_id))
 			# FIXME: exception ?
 			return None
+
 		# user wants to explicitely unset current patient
-		if aPKey == -1:
+		if to_id == -1:
 			_log.Log(gmLog.lData, 'explicitely unsetting patient')
 			new_pat = gmNull.cNull()
 		else:
-			try:
-				new_pat = cPerson(aPKey)
-			except:
-				_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
-				# returning None on INTERNAL errors (and thus silently
-				# staying the same patient) is a design decision
-				# FIXME: maybe raise exception here ?
-				return None
+			new_pat = patient
 
 		self.__send_pre_selection_notification()
-		self._person.cleanup()
-		self._person = new_pat
+		self._patient.cleanup()
+		self._patient = new_pat
 		self.__send_selection_notification()
 
 		return None
 	#--------------------------------------------------------
 	def cleanup(self):
-		self._person.cleanup()
+		self._patient.cleanup()
 	#--------------------------------------------------------
 	def get_clinical_record(self):
-		return self._person.get_clinical_record()
+		return self._patient.get_clinical_record()
 	#--------------------------------------------------------
 	def get_demographic_record(self):
-		return self._person.get_demographic_record()
+		return self._patient.get_demographic_record()
 	#--------------------------------------------------------
 	def get_document_folder(self):
-		return self._person.get_document_folder()
+		return self._patient.get_document_folder()
 	#--------------------------------------------------------
-	def get_ID(self):
-		return self._person.getID()
+	def getID(self):
+		return self._patient.getID()
 	#--------------------------------------------------------
 	def export_data(self):
-		return self._person.export_data()
+		return self._patient.export_data()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
@@ -299,7 +275,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
 		kwargs = {
-			'ID': self._person['ID'],
+			'id': self._patient['id'],
+			'patient':self._patient,
 			'signal': gmSignals.patient_selected(),
 			'sender': id(self.__class__)
 		}
@@ -308,14 +285,15 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __send_pre_selection_notification(self):
 		"""Sends signal when another patient is about to become active."""
 		kwargs = {
-			'ID': self._person['ID'],
+			'id': self._patient['id'],
+			'patient': self._patient['id'],
 			'signal': gmSignals.activating_patient(),
 			'sender': id(self.__class__)
 		}
 		gmDispatcher.send(gmSignals.activating_patient(), kwds=kwargs)
 	#--------------------------------------------------------
 	def is_connected(self):
-		if isinstance(self._person, gmNull.cNull):
+		if isinstance(self._patient, gmNull.cNull):
 			return False
 		else:
 			return True
@@ -325,7 +303,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __getitem__(self, aVar = None):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
-		return self._person[aVar]
+		return self._patient[aVar]
 #============================================================
 class cPatientSearcher_SQL:
 	"""UI independant i18n aware patient searcher."""
@@ -362,8 +340,17 @@ class cPatientSearcher_SQL:
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
-	def get_patient_ids(self, search_term = None, a_locale = None, search_dict = None):
-		"""Get patient IDs for given parameters.
+	def get_persons (self, search_term = None, a_locale = None, search_dict = None):
+		r = self.get_demos (search_term, a_locale, search_dict)
+		if r is None:
+			return r
+		else:
+			return [cPerson (i) for i in r]
+	#--------------------------------------------------------
+	def get_demos(self, search_term = None, a_locale = None, search_dict = None):
+		"""Get patient demographic objects for given parameters.
+		These are actually demographic objects now,
+		but the caller shouldn't really care
 
 		- either search term or search dict
 		- search dict contains structured data that doesn't need to be parsed
@@ -404,21 +391,23 @@ class cPatientSearcher_SQL:
 			for cmd in query_list:
 				# FIXME: actually, we should pass in the parsed search_term
 				if search_dict is None:
-					rows = gmPG.run_ro_query(self.curs, cmd)
+					rows, idx = gmPG.run_ro_query(self.curs, cmd, True)
 				else:
-					rows = gmPG.run_ro_query(self.curs, cmd, None, search_dict)
+					rows, idx = gmPG.run_ro_query(self.curs, cmd, True, search_dict)
 				if rows is None:
 					_log.Log(gmLog.lErr, 'cannot fetch patient IDs')
 				else:
-					pat_ids.extend(rows)
+					pat_ids.append((rows, idx))
 			# if we got patients don't try more query levels
 			if len(pat_ids) > 0:
 				break
-
-		pat_id_list = []
-		for row in pat_ids:
-			pat_id_list.append(row[0])
-		return pat_id_list
+		pat_demos = []
+		try:
+			for rows, idx in pat_ids:
+				pat_demos.extend ([gmDemographicRecord.cIdentity (row={'pk_field':'id', 'data':row, 'idx':idx}) for row in rows])
+		except:
+			_log.LogException ("cannot create patient demographic objects", sys.exc_info (), verbose=0)
+		return pat_demos
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -499,8 +488,8 @@ class cPatientSearcher_SQL:
 		# "<digits>" - GnuMed patient ID or DOB
 		if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
 			tmp = raw.strip()
-			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id = '%s'" % tmp])
-			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
+			queries.append(["SELECT * FROM v_basic_person WHERE i_id = '%s'" % tmp])
+			queries.append(["SELECT * FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
 			return queries
 
 		# "#<di git  s>" - GnuMed patient ID
@@ -510,15 +499,15 @@ class cPatientSearcher_SQL:
 			tmp = tmp.replace(' ', '')
 			tmp = tmp.replace('\t', '')
 			# this seemingly stupid query ensures the id actually exists
-			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id = '%s'" % tmp])
+			queries.append(["SELECT * FROM v_basic_person WHERE i_id = '%s'" % tmp])
 			# but might also be an external ID
 			tmp = raw.replace('#', '')
 			tmp = tmp.strip()
 			tmp = tmp.replace(' ', '*#DUMMY#*')
 			tmp = tmp.replace('\t', '*#DUMMY#*')
 			tmp = tmp.replace('*#DUMMY#*', '(\s|\t|-|/)*')
-			queries.append(["select id_identity from lnk_identity2ext_id where external_id ~* '^%s'" % tmp])
-			queries.append(["select id_identity from lnk_identity2ext_id where external_id ~* '%s'" % tmp])
+			queries.append(["select vba.* from lnk_identity2ext_id li2ei, v_basic_person vba where vba.i_id = li2ei.id_identity and li2ei.external_id ~* '^%s'" % tmp])
+			queries.append(["select vba.* from lnk_identity2ext_id li2ei, v_basic_person vba where vba.i_id = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
 			return queries
 
 		# "#<di/git s/orc-hars>" - external ID (or PUPIC)
@@ -530,16 +519,16 @@ class cPatientSearcher_SQL:
 			tmp = tmp.replace('-', '*#DUMMY#*')
 			tmp = tmp.replace('/', '*#DUMMY#*')
 			tmp = tmp.replace('*#DUMMY#*', '(\s|\t|-|/)*')
-			queries.append(["select id_identity from lnk_identity2ext_id where external_id ~* '^%s'" % tmp])
-			queries.append(["select id_identity from lnk_identity2ext_id where external_id ~* '%s'" % tmp])
+			queries.append(["select vba.* from lnk_identity2ext_id li2ei, v_basic_person vba where vba.i_id = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
+			queries.append(["select vba.* from lnk_identity2ext_id li2ei, v_basic_person vba where vba.i_id = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
 			return queries
 
 		# "<d igi ts>" - DOB or patient ID
 		if re.match("^(\d|\s|\t)+$", raw):
-			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
+			queries.append(["SELECT * FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
 			tmp = raw.replace(' ', '')
 			tmp = tmp.replace('\t', '')
-			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
+			queries.append(["SELECT * FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
 			return queries
 
 		# "<Z(.|/|-/ )I  FF ERN>" - DOB
@@ -549,22 +538,22 @@ class cPatientSearcher_SQL:
 			# apparently not needed due to PostgreSQL smarts...
 			#tmp = tmp.replace('-', '.')
 			#tmp = tmp.replace('/', '.')
-			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % tmp])
+			queries.append(["SELECT * FROM v_basic_person WHERE dob='%s'::timestamp" % tmp])
 			return queries
 
 		# " , <alpha>" - first name
 		if re.match("^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw):
 			tmp = raw.split(',')[1].strip()
 			tmp = self.__normalize(tmp)
-			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s'" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM names, v_basic_person vbp WHERE names.firstnames ~ '^%s' and vbp.i_id = names.id_identity" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM names, v_basic_person vbp WHERE names.firstnames ~ '^%s' and vbp.i_id = names.id_identity" % tmp])
 			return queries
 
 		# "*|$<...>" - DOB
 		if re.match("^(\s|\t)*(\*|\$).+$", raw):
 			tmp = raw.replace('*', '')
 			tmp = tmp.replace('$', '')
-			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % tmp])
+			queries.append(["SELECT * FROM v_basic_person WHERE dob='%s'::timestamp" % tmp])
 			return queries
 
 		return None
@@ -607,7 +596,7 @@ class cPatientSearcher_SQL:
 		except KeyError:
 			pass
 
-		queries.append(['select i_id from v_basic_person where %s' % ' and '.join(where_snippets)])
+		queries.append(['select * from v_basic_person where %s' % ' and '.join(where_snippets)])
 		# sufficient data ?
 		if len(queries) == 0:
 			_log.Log(gmLog.lErr, 'invalid search dict structure')
@@ -640,13 +629,13 @@ class cPatientSearcher_SQL:
 			# there's no intermediate whitespace due to the regex
 			tmp = normalized.strip()
 			# assumption: this is a last name
-			queries.append(["SELECT DISTINCT id_identity FROM names WHERE lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT id_identity FROM names WHERE lastnames  ~* '^%s'" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.lastnames  ~* '^%s'" % tmp])
 			# assumption: this is a first name
-			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s'" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.firstnames ~* '^%s'" % tmp])
 			# name parts anywhere in name
-			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames || lastnames ~* '%s'" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.firstnames || names.lastnames ~* '%s'" % tmp])
 			return queries
 
 		# try to split on (major) part separators
@@ -676,22 +665,22 @@ class cPatientSearcher_SQL:
 					# assumption: first last
 					queries.append(
 						[
-						 "SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
+						 "SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names,firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
 						]
 					)
 					queries.append([
-						 "SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
+						 "SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
 					])
 					# assumption: last first
 					queries.append([
-						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
 					])
 					queries.append([
-						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
 					])
 					# name parts anywhere in name - third order query ...
 					queries.append([
-						"SELECT DISTINCT id_identity FROM names WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s'" % (name_parts[0], name_parts[1])
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.firstnames || names.lastnames ~* '%s' AND firstnames || lastnames ~* '%s'" % (name_parts[0], name_parts[1])
 					])
 					return queries
 				# FIXME: either "name date" or "date date"
@@ -704,21 +693,21 @@ class cPatientSearcher_SQL:
 				if date_count == 1:
 					# assumption: first, last, dob - first order
 					queries.append([
-						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.firstnames ~ '^%s' AND names.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
 					])
 					queries.append([
-						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and firstnames ~* '^%s' AND names.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
 					])
 					# assumption: last, first, dob - second order query
 					queries.append([
-						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.firstnames ~ '^%s' AND names.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
 					])
 					queries.append([
-						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[1], name_parts[0], date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.firstnames ~* '^%s' AND names.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[1], name_parts[0], date_part)
 					])
 					# name parts anywhere in name - third order query ...
 					queries.append([
-						"SELECT DISTINCT id_identity FROM names WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names WHERE vbp.i_id = names.id_identity and names.firstnames || names.lastnames ~* '%s' AND names.firstnames || names.lastnames ~* '%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
 					])
 					return queries
 				# FIXME: "name name name" or "name date date"
@@ -860,15 +849,13 @@ class cPatientSearcher_SQL:
 			for where_clause in wheres:
 				if len(where_clause) > 0:
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE %s" % string.join(where_clause, ' AND ')
+						"SELECT * FROM v_basic_person WHERE %s" % string.join(where_clause, ' AND ')
 					])
 				else:
 					queries.append([])
 			return queries
 
 		return []
-#============================================================
-# convenience methods
 #============================================================
 def create_dummy_identity():
 	cmd1 = "insert into identity(gender, dob) values('?', CURRENT_TIMESTAMP)"
@@ -880,28 +867,32 @@ def create_dummy_identity():
 		return None
 	return data[0][0]
 #============================================================
-def set_active_patient(anID = None):
+def set_active_patient(person = None):
 	"""Set active patient.
 
-	If anID is -1 the active patient will be unset.
+	If person is -1 the active patient will be unset.
 	"""
-	if anID is None:
+	if person is None:
 		_log.Log(gmLog.lErr, 'programming error: anID is None, must be -1 or (int > 0)')
 		return False
 	tstart = time.time()
 	pat = gmCurrentPatient()
-	old_ID = pat.get_ID()
+	old_ID = pat.getID ()
+	# FIXME: why do we repeat the login of gmCurrentPatient ()
+	if person == -1:
+		new_ID = -1
+	else:
+		new_ID = person.getID ()
 	# nothing to do
-	if old_ID == anID:
+	if old_ID == new_ID:
 		return True
 	# attempt to switch
 	try:
-		pat = gmCurrentPatient(anID)
+		pat = gmCurrentPatient(person)
 	except:
 		_log.LogException('error changing active patient', sys.exc_info())
 		return False
-	# who are we now ?
-	new_ID = pat.get_ID()
+	new_ID = pat.getID ()
 	# nothing happened
 	if new_ID == old_ID:
 		_log.Log (gmLog.lErr, 'error changing active patient')
@@ -932,15 +923,15 @@ def ask_for_patient():
 	if search_fragment in ['bye', None]:
 		print "user cancelled patient search"
 		return None
-	search_ids = person_searcher.get_patient_ids(search_term = search_fragment)
-	if search_ids is None or len(search_ids) == 0:
+	search = person_searcher.get_persons(search_term = search_fragment)
+	if search is None or len(search_ids) == 0:
 		prompted_input("No patient matches the query term. Press any key to continue.")
 		return None
-	elif len(search_ids) > 1:
+	elif len(search) > 1:
 		prompted_input("Several patients match the query term. Press any key to continue.")
 		return None
-	person_id = search_ids[0]
-	patient = gmCurrentPatient(person_id)
+	person = search[0]
+	patient = gmCurrentPatient(person)
 	return patient
 #============================================================
 # main/testing
@@ -951,11 +942,30 @@ if __name__ == "__main__":
 	searcher = cPatientSearcher_SQL()
 	p_data = None
 	while 1:
-		myPatient = ask_for_patient()
-		if myPatient is None:
+		while 1:
+			p_data = raw_input('patient data: ')
+			if p_data == '-1':
+				break
+			p_ids = searcher.get_persons(p_data)
+			if p_ids is None:
+				print "error searching matching patients"
+			else:
+				if len(p_ids) == 1:
+					break
+				if len(p_ids) > 1:
+					print "more than one matching patient found:", p_ids
+				else:
+					print "no matching patient found"
+		if p_data == '-1':
 			break
-		print "ID       ", myPatient['ID']
-		demos = myPatient.get_demographic_record()
+		try:
+			myPatient = gmCurrentPatient(p_ids[0])
+		except:
+			_log.LogException('Unable to set up patient with ID [%s]' % p_ids, sys.exc_info())
+			print "patient", p_ids, "can not be set up"
+			continue
+		print "ID       ", myPatient['id']
+		demos = myPatient['demographic record']
 		print "demogr.  ", demos
 		print "name     ", demos.get_names(1)
 		print "doc ids  ", myPatient['document id list']
@@ -965,7 +975,14 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.3  2005-01-31 18:48:45  ncq
+# Revision 1.4  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.3  2005/01/31 18:48:45  ncq
 # - self._patient -> self._person
 # - speedup
 #

@@ -7,14 +7,14 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.55 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.55 $"
-__author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
+# $Id: gmDemographicRecord.py,v 1.56 2005-02-01 10:16:07 ihaywood Exp $
+__version__ = "$Revision: 1.56 $"
+__author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
-import sys, os.path, time
+import sys, os.path, time, string
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider, gmI18N
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider, gmI18N, gmBusinessDBObject
 from Gnumed.business import gmMedDoc
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -23,6 +23,7 @@ _log.Log(gmLog.lInfo, __version__)
 
 # 3rd party
 import mx.DateTime as mxDT
+
 
 #============================================================
 # map gender abbreviations in a GnuMed demographic service
@@ -33,329 +34,320 @@ map_gender_gm2long = {
 	'tf': _('transsexual, female phenotype'),
 	'tm': _('transsexual, male phenotype')
 }
-#============================================================
-# virtual ancestor class, SQL and LDAP descendants
-class cDemographicRecord:
 
-	def addName (self, firstname, lastname, activate):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def getTitle(self):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def setDOB (self, dob):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def getDOB(self):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def getCOB ():
-		raise gmExceptions.PureVirtualFunction ()
-
-	def setCOB (self, cob):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def getID(self):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def setTitle (self, title):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def getGender(self):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def setGender(self, gender):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def getAddresses (self, type):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def linkNewAddress (self, addr_type, number, street, urb, postcode, state = None, country = None):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def unlinkAddress (self, ID):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def setAddress (self, type, number, street, urb, postcode, state, country):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def getCommChannel (self, type):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def linkCommChannel (self, type, comm):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def getMedicalAge(self):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def setOccupation(self, occupation):
-		raise gmExceptions.PureVirtualFunction ()
-
-	def getOccupation(self):
-		raise gmExceptions.PureVirtualFunction ()
-
-
-#============================================================
-# may get preloaded by the waiting list
-class cDemographicRecord_SQL(cDemographicRecord):
-	"""Represents the demographic data of a patient.
-	"""
+#===================================================================
+#class cComm (gmBusinessDBObject.cBusinessDBObject):
 	
-	def __init__(self, aPKey = None):
-		"""Fails if
+#===================================================================
 
-		- no connection to database possible
-		- patient referenced by aPKey does not exist
-		"""
-		self.ID = aPKey	# == identity.id == primary key
-		if not self._pkey_exists():
-			raise gmExceptions.ConstructorError, "no patient with ID [%s] in database" % aPKey
+#class cAddress (gmBusinessDBObject.cBusinessObject):
+	# to be honest, I'm not really convinced it means much sense to be able to
+	# change addresses and comms. When someone 'changes' their address, really they are unbinding
+	# from the old address and binding to a new one,
+	# so I'm going back to having addresses and comms as plain dictionaries
+	
+#===================================================================
+class cOrg (gmBusinessDBObject.cBusinessDBObject):
+	"""
+	Organisations
 
-		self.PUPIC = ""
-		self.__db_cache = {}
+	This is also the common ancestor of cIdentity, self._table is used to
+	hide the difference.
+	The aim is to be able to sanely write code which doesn't care whether
+	its talking to an organisation or an individual"""
+	_table = "org"
 
-		# register backend notification interests ...
-		#if not self._register_interests():
-			#raise gmExceptions.ConstructorError, "Cannot register patient modification interests."
-
-		_log.Log(gmLog.lData, 'instantiated demographic record for patient [%s]' % self.ID)
-
-				
-	#--------------------------------------------------------
-	def cleanup(self):
-		"""Do cleanups before dying.
-
-		- note that this may be called in a thread
-		"""
-		_log.Log(gmLog.lData, 'cleaning up after patient [%s]' % self.ID)
-		# FIXME: unlisten from signals etc.
-	#--------------------------------------------------------
-	# internal helper
-	#--------------------------------------------------------
-	def _pkey_exists(self):
-		"""Does this primary key exist ?
-
-		- true/false/None
-		"""
-		cmd = "select exists(select id from identity where id = %s)"
-		res = gmPG.run_ro_query('personalia', cmd, None, self.ID)
-		if res is None:
-			_log.Log(gmLog.lErr, 'check for person ID [%s] existence failed' % self.ID)
-			return None
-		return res[0][0]
-	#--------------------------------------------------------
-	# messaging
-	#--------------------------------------------------------
-	def _register_interests(self):
-		# backend
-		self._backend.Listen(
-			service = 'personalia',
-			signal = '"%s.%s"' % (gmSignals.patient_modified(), self.ID),
-			callback = self._patient_modified
-		)
-	#--------------------------------------------------------
-	def _patient_modified(self):
-		# <DEBUG>
-		_log.Log(gmLog.lData, "patient_modified signal received from backend")
-		# </DEBUG>
-	#--------------------------------------------------------
-	# API
-	#--------------------------------------------------------
-	def export_demographics (self, all = False):
-		demographics_data = {}
-		demographics_data['id'] = self.getID()
-		demographics_data['names'] = []
-		names = self.get_names(all)
-		if all:
-			for name in names:
-				demographics_data['names'].append(name)
+	_cmd_fetch_payload = "select *, xmin from org where id=%s"
+	_cmds_lock_rows_for_update = ["select 1 from org where id=%(id)s and xmin=%(xmin)s"]
+	_cmds_store_payload = ["update org set description=%(description)s, id_category=(select id from org_category where description=%(occupation)s) where id=%(id)s", "select xmin from org whereid=%(id)s"]
+	_updatable_fields = ["description", "occupation"]
+	_service = 'personalia'
+	#------------------------------------------------------------------
+	def cleanup (self):
+		pass
+	#------------------------------------------------------------------
+	def export_demographics (self):
+		if not self.__cache.has_key ('addresses'):
+			self['addresses']
+		if not self.__cache.has_key ('comms'):
+			self['comms']
+		return self.__cache
+	#------------------------------------------------------------------
+	def get_addresses (self):
+		"""Returns a list of address dictionaries. Fields are
+		- id
+		- number
+		- addendum
+		- street
+		- city
+		- postcode
+		- type"""
+		cmd = """select
+				vba.id,
+				vba.number,
+				vba.addendum, 
+				vba.street,
+				vba.city,
+				vba.postcode,
+				at.name
+			from
+				v_basic_address vba,
+				lnk_person_org_address lpoa,
+				address_type at
+			where
+				lpoa.id_address = vba.id
+				and lpoa.id_type = at.id
+				and lpoa.id_%s = %%s 
+				""" % self._table     # this operator, then passed to SQL layer
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, [self['id']])
+		if rows is None:
+			return []
+		elif len(rows) == 0:
+			return []
 		else:
-			demographics_data['names'].append(names)
-		demographics_data['gender'] = self.getGender()
-		demographics_data['title'] = self.getTitle()
-		demographics_data['dob'] = self.getDOB (aFormat = 'DD.MM.YYYY')
-		demographics_data['mage'] =  self.getMedicalAge()
-		address_map = {}
-		adr_types = getAddressTypes()
-		# FIXME: rewrite using the list returned from getAddresses()
-		for adr_type in adr_types:
-			if not all and adr_type != "home":
-				continue
-			address_map[adr_type] = self.getAddresses(adr_type)
-		demographics_data['addresses'] = address_map
-		return demographics_data
+			return [{'id':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'city':i[4], 'postcode':i[5],
+				 'type':i[6]} for i in rows]
+	#--------------------------------------------------------------------
+	def get_members (self):
+		"""
+		Returns a list of (address dict, cIdentity) tuples 
+		"""
+		cmd = """select
+				vba.id,
+				vba.number,
+				vba.addendum, 
+				vba.street,
+				vba.city,
+				vba.postcode,
+				at.name,
+				vbp.i_id as id,
+				title,
+				firstnames,
+				lastnames,
+				dob,
+				cob,
+				gender,
+				pupic,
+				fk_marital_status,
+				marital_status,
+				karyotype,
+				xmin_identity,
+				preferred
+			from
+				v_basic_address vba,
+				lnk_person_org_address lpoa,
+				address_type at,
+				v_basic_person vbp
+			where
+				lpoa.id_address = vba.id
+				and lpoa.id_type = at.id
+				and lpoa.id_identity = vbp.i_id
+				and lpoa.id_org = %%s
+				"""
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['id'])
+		if rows is None:
+			return []
+		elif len(rows) == 0:
+			return []
+		else:
+			return [({'id':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'city':i[4], 'postcode':i[5], 'type':i[6]}, cIdentity (row = {'data':i[7:], 'id':idx[7:], 'pk_field':'id'})) for i in rows]	
+	#------------------------------------------------------------
+	def set_member (self, person, address):
+		"""
+		Binds a person to this organisation at this address
+		"""
+		cmd = "insert into lnk_person_org_address (id_type, id_address, id_org, id_identity) values ((select id from address_types where type=%(type)s), create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(org_id)s, %(i_id)s)"
+		address['i_id'] = person['id']
+		address['org_id'] = self['id']
+		if not id_addr:
+			return (False, None)
+		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
+	#------------------------------------------------------------
+	def unlink_person (self, person):
+		cmd = "delete from lnk_person_org_address where id_org = %s and id_identity = %s"
+		return gmPG.run_commit2 ('personalia', [(cmd, [self['id'], person['id']])])
+	#------------------------------------------------------------
+	def unlink_address (self, address):
+		cmd = "delete from lnk_person_org_address where id_address = %s and id_%s = %%s" % self._table
+		return gmPG.run_commit2 ('personalia', [(cmd, [address['id'], self['id']])])
+	#------------------------------------------------------------
+	def get_ext_ids (self):
+		"""
+		Returns a list of dictionaries of external IDs
+		Fields:
+		- origin [the origin]
+		- comment [a user comment]
+		- external_id [the actual external ID]
+		"""
+		cmd = """select
+		eeidt.name, comment, external_id
+		from lnk_%s2ext_id, enum_external_id_types eeidt where id_%s = %%s and
+		eeidt.id = fk_origin""" % (self._table, self._table)
+		rows = gmPG.run_ro_query ('personalia', cmd, None, self['id'])
+		if rows is None:
+			return []
+		return [{'origin':row[0], 'comment':row[1], 'external_id':row[2]} for row in rows]
+	#----------------------------------------------------------------
+	def set_ext_id (self, fk_origin, ext_id, comment=None):
+		"""
+		@param fk_origin the origin type ID as returned by GetExternalIDs
+		@param ext_id the external ID, a free string as far as GNUMed is concerned.[1]
+		Set ext_id to None to delete an external id
+		@param comment distinguishes several IDs of one origin
+
+		<b>[1]</b> But beware, language extension packs are entitled to add backend triggers to check for validity of external IDs.
+		"""
+		to_commit = []
+		if comment:
+			cmd = """delete from lnk_%s2ext_id where
+			id_%s = %%s and fk_origin = %%s
+			and comment = %%s""" % (self._table, self._table)
+			to_commit.append ((cmd, [self.__cache['id'], fk_origin, comment]))
+		else:
+			cmd = """delete from lnk_%s2ext_id where
+			id_%s = %%s and fk_origin = %%s""" % (self._table, self._table)
+			to_commit.append ((cmd, [self.__cache['id'], fk_origin]))
+		if ext_id:
+			cmd = """insert into lnk_%s2ext_id (id_%s, fk_origin, external_id, comment)
+			values (%%s, %%s, %%s)""" % (self._table, self._table)
+			to_commit.append ((cmd, [self.__cache['id'], fk_origin, ext_id, comment]))
+		return gmPG.run_commit2 ('personalia', to_commit)
+	#-------------------------------------------------------
+	def delete_ext_id (self, fk_origin, comment=None):
+		self.set_ext_id (fk_origin, None, comment)
+	#-------------------------------------------------------	
+	def get_comms (self):
+		"""A list of ways to communicate"""
+		cmd = """select
+				ect.descripton,
+				lcc.url,
+				lcc.is_confidential
+			from
+				lnk_%s_comm_channel lcc,
+				enum_comm_types ect
+			where
+				lcc.id_%s = %%s and
+				lcc.id_type = ect.id
+				""" (self._table, self._table)
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['id'])
+		if rows is None:
+			return []
+		elif len(rows) == 0:
+			return []
+		else:
+			return [{'url':i[1],'type':i[0], 'is_confidential':[2]} for i in rows]
+	#--------------------------------------------------------------
+	def set_comm (self, id_type, url, is_confidential):
+		"""
+		@param id_type is the ID of the comms type from getCommChannelTypes
+		"""
+		cmd1 = """delete from lnk_%s2comm_channel where
+		id_%s = %%s and url = %%s""" % (self._table, self._table)
+		cmd2 = """insert into lnk_%s2ext_id (id_%s, id_type, url, is_confidential)
+		values (%%s, %%s, %%s, %%s)""" % (self._table, self._table)
+		return gmPG.run_commit2 ('personalia', [(cm1, [self['id'], url]), (cm2, [self['id'], id_type, url, is_confidential])])
+	#-------------------------------------------------------
+	def delete_comm (self, url):
+		cmd = """delete from lnk_%s2comm_channel where
+		id_%s = %%s and url = %%s""" % (self._table, self._table)
+		return gmPG.run_commit2 ('personalia', [(cmd, [self['id'], url])])
+#==============================================================================
+class cIdentity (cOrg):
+	_table = "identity"
+	_cmd_fetch_payload = "select * from v_basic_person where i_id=%s"
+	_cmds_lock_rows_for_update = ["select 1 from identity where id=%(id)s and xmin_identity = %(xmin_identity)"]
+	_cmds_store_payload = ["""
+	update identity set title=%(title)s, dob=%(dob)s, cob=%(cob)s, gender=%(gender)s,
+	fk_marital_status = %(fk_marital_status)s, karyotype = %(karyotype)s, pupic = %(pupic)s where id=%(id)s""", "select xmin_identity from v_basic_person where id=%(id)s"]
+	_updatable_fields = ["title", "dob", "cob", "gender", "fk_marital_status", "karyotype", "pupic"]	
 	#--------------------------------------------------------
-	def get_names(self, all=False):
-		if all:
-			cmd = """
+	def get_all_names(self):
+		cmd = """
 				select n.firstnames, n.lastnames, i.title
 				from names n, identity i
 				where n.id_identity=%s and i.id=%s"""
-		else:
-			cmd = """
-				select vbp.firstnames, vbp.lastnames, i.title
-				from v_basic_person vbp, identity i
-				where vbp.i_id=%s and i.id=%s"""
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID, self.ID)
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self._cache['id'], self.__cache['id'])
 		if rows is None:
 			return None
 		if len(rows) == 0:
-			name = {'first': '**?**', 'last': '**?**', 'title': '**?**'}
-			if all:
-				return [name]
-			return name
-		if all:
+			return [{'first': '**?**', 'last': '**?**', 'title': '**?**'}]
+		else:
 			names = []
 			for row in rows:
 				names.append({'first': row[0], 'last': row[1], 'title': row[2]})
 			return names
-		else:
-			return {'first': rows[0][0], 'last': rows[0][1], 'title': rows[0][2]}
 	#--------------------------------------------------------
-#	def getFullName (self):
-#		cmd  = "select title, firstnames, lastnames from v_basic_person where i_id = %s"
-#		r = gmPG.run_ro_query ('personalia', cmd, 0, self.ID)
-#		if r:
-#			return "%s %s %s" % (r[0][0], r[0][1], r[0][2])
-#		else:
-#			return _("Unknown")
+	def get_description (self):
+		"""
+		Again, allow code reuse where we don't care whether we are talking to a person
+		or organisation"""
+		return _("%(title)s %(firstnames)s %(lastnames)s") % self 
 	#--------------------------------------------------------
-	def addName(self, firstname, lastname, activate = None):
-		"""Add a name and possibly activate it."""
+	def add_name(self, firstnames, lastnames, active=True):
+		"""Add a name """
 		cmd = "select add_name(%s, %s, %s, %s)"
-		if activate:
-			activate_str = 'true'
-		else:
-			activate_str = 'false'
-		gmPG.run_commit ('personalia', [(cmd, [self.ID, firstname, lastname, activate_str])])
-	#---------------------------------------------------------	
-	def getTitle(self):
-		cmd = "select title from v_basic_person where i_id = %s"
-		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
-		if data is None:
-			return ''
-		if len(data) == 0:
-			return ''
-		if data[0][0] == None:
-			return ''
-		return data[0][0]
-	#--------------------------------------------------------
-	def setTitle (self, title):
-		cmd = "update identity set title=%s where id=%s"
-		return gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
-	#--------------------------------------------------------
-	def getID(self):
-		return self.ID
-	#--------------------------------------------------------
-	def getDOB(self, aFormat = None):
-		if aFormat is None:
-			cmd = "select dob from identity where id=%s"
-		else:
-			cmd = "select to_char(dob, '%s') from identity where %s" % (aFormat, "id=%s")
-		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)		
-		if data is None:
-			if aFormat is None:
-				return None
-			return ''
-		if len(data) == 0:
-			if aFormat is None:
-				return None
-			return ''
-		return data[0][0]
-	#--------------------------------------------------------
-	def setDOB (self, dob):
-		cmd = "update identity set dob = %s where id = %s"
-		return gmPG.run_commit ('personalia', [(cmd, [dob, self.ID])])
-	#---------------------------------------------------------------------
-	def getCOB (self):
-		cmd = "select country.name from country, identity where country.code = identity.cob and identity.id = %s"
-		data = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
-		return data and data[0][0]
-	#--------------------------------------------------------------------
-	def setCOB (self, cob):
-		cmd = "update identity set cob = country.code from country where identity.id = %s and country.name = %s"
-		success, err_msg = gmPG.run_commit('personalia', [(cmd, [self.ID, cob])], return_err_msg=1)
-		if not success:
-			# user probably gave us invalid country
-			msg = '%s (%s)' % ((_('invalid country [%s]') % cob), err_msg)
-			print "invalid country!"
-			raise gmExceptions.InvalidInputError (msg)
-	#----------------------------------------------------------------------
-	def getMaritalStatus (self):
-		cmd = "select name from marital_status, identity where marital_status.id = identity.id_marital_status and identity.id = %s"
-		data = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
-		return data and data[0][0]
-	#--------------------------------------------------------------------
-	def setMaritalStatus (self, cob):
-		cmd = "update identity set id_marital_status = (select id from marital_status where name = %s) where id = %s"
-		return gmPG.run_commit ('personalia', [(cmd, [cob, self.ID])])
-	#---------------------------------------------------------------------
-	def getOccupation (self):
+		if active:
+			# junk the cache appropriately
+			if self._ext_cache.has_key ('description'):
+				del self._ext_cache['description']
+			self._payload[self._idx['firstnames']] = firstnames
+			self._payload[self._idx['lastnames']] = lastnames
+		if self._ext_cache['all_names']:
+			del self._ext_cache['all_names']
+		active = (active and 't') or 'f'
+		return gmPG.run_commit2 ('personalia', [(cmd, [self['id'], firstnames, lastnames, active])])
+	#------------------------------------------------------------
+	def add_address (self, address):
 		"""
-		Currently we do not support more than one occupation
+		Binds an address to this person
 		"""
+		cmd = "insert into lnk_person_org_address ((select id from address_types where type = %s), id_address, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(i_id)s)"
+		address["i_id"] = self['id']
+		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
+	#---------------------------------------------------------------------
+	def get_occupation (self):
 		cmd = "select o.name from occupation o, lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s"
 		data = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
-		return data and data[0][0]
+		return data and [i[0] for i in data] 
 	#--------------------------------------------------------------------
-	def setOccupation (self, occupation):
-		# does occupation already exist ?
-		cmd = "select o.id from occupation o where o.name = %s"
-		data = gmPG.run_ro_query ('personalia', cmd, None, occupation)
-		# error
-		if data is None:
-			gmLog.gmDefLog.Log(gmLog.lErr, 'cannnot check for occupation')
-			return None
-		# none found
-		if len(data) == 0:
-			cmd1 = "insert into occupation (name) values (%s)"
-			cmd2 = "select currval('occupation_id_seq')"
-			data = gmPG.run_commit ('personalia', [
-				(cmd1, [occupation]),
-				(cmd2, [])
-			])
-			if (data is None) or (len(data) == 0):
-				_log.Log(gmLog.lErr, 'cannot add occupation details')
-				return None
-
-		id_occupation = data[0][0]
-		# delete pre-existing link as required
-		cmd1 = """
+	def add_occupation (self, occupation):
+		# does occupation already exist ? -> backend can sort this out
+		cmd = "insert into lnk_job2person (id_identity, id_occupation) values (%s, create_occupation (%s))"
+		if self._ext_cache.has_key ('occupation'):
+			self._ext_cache['occupation'].append (occupation)
+		return gmPG.run_commit2 ('personalia', [(cmd, [self['id'], occupation])])
+	#----------------------------------------------------------------------
+	def delete_occupation (self, occupation):
+		if self._ext_cache.has_key ('occupation'):
+			del self._ext_cache[self._ext_cache.index (occupation)]
+		cmd = """
 		delete from
-			lnk_job2person
+		lnk_job2person
 		where
-			id_identity = %s"""
-		# creating new link
-		cmd2 = """insert into lnk_job2person (id_identity, id_occupation) values (%s, %s)"""
-		return gmPG.run_commit ('personalia', [
-			(cmd1, [self.ID]),
-			(cmd2, [self.ID, id_occupation])
-		])
+		id_identity = %s and id_occupation = (select id from occupation where name = %s)"""
+		return gmPG.run_commit2 ('personalia', [(cmd, [self['id'], occupation])])
 	#----------------------------------------------------------------------
 	def get_relatives(self):
 		cmd = """
 select
-	v.id, t.description , v.firstnames, v.lastnames, v.gender, v.dob
+        t.description, v.id as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, fk_marital_status,
+	marital_status, xmin_identity, preferred
 from
 	v_basic_person v, relation_types t, lnk_person2relative l
 where
-	l.id_identity = %s and
+	(l.id_identity = %s and
 	v.id = l.id_relative and
-	t.id = l.id_relation_type
+	t.id = l.id_relation_type) or
+	(l.id_relation = %s and
+	v.id = i.id_identity and
+	t.inverse = l.id_relation_type)
 """
-		data, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
+		data, idx = gmPG.run_ro_query('personalia', cmd, 1, [self['id'], self['id']])
 		if data is None:
 			return []
 		if len(data) == 0:
 			return []
-		return [{
-			'id': r[idx['id']],
-			'firstnames': r[idx['firstnames']],
-			'lastnames': r[idx['lastnames']],
-			'gender': r[idx['gender']],
-			'dob': r[idx['dob']],
-			'description': r[idx['description']]
-			} for r in data ]
+		return [(r[0], cIdentity (row = {'data':r[1:], 'idx':idx, 'pk_field':'id'})) for r in data ]
 	#--------------------------------------------------------
 	def link_new_relative(self, rel_type = 'parent'):
 		from Gnumed.business.gmPerson import create_dummy_identity
@@ -367,277 +359,29 @@ where
 		relative_demographics.copyAddresses(self)
 		relative_demographics.addName( '**?**', self.get_names()['last'], activate = 1)
 		# and link the two
-		cmd = """
+		cmd2 = """
 			insert into lnk_person2relative (
 				id_identity, id_relative, id_relation_type
 			) values (
 				%s, %s, (select id from relation_types where description = %s)
 			)"""
-		success = gmPG.run_commit ("personalia", [(cmd, (id_new_relative, self.ID, rel_type))])
-		if success:
-			return id_new_relative
-		return None
-	#--------------------------------------------------------
-	def getGender(self):
-		cmd = "select gender from v_basic_person where i_id = %s"
-		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
-		if data is None:
-			return ''
-		if len(data) == 0:
-			return ''
-		return data[0][0]
-	#--------------------------------------------------------
-	def setGender(self, gender):
-		gender = gender.lower()
-		cmd = "update identity set gender = %s where id = %s"
-		return gmPG.run_commit ('personalia', [(cmd, [gender, self.ID])])
-	#--------------------------------------------------------
-	def getAddresses(self, addr_type = None, firstonly = 0):
-		"""Return a patient's addresses. 
-			addr_type is the address_type.name, not address_type.id
-
-		- return all types if addr_type is None
-		"""
-		vals = {'pat_id': self.ID}
-		if addr_type is None:
-			addr_where = ''
+		if self._ext_cache.has_key ('relatives'):
+			del self._ext_cache['relatives']
+		if rel_type:
+			return gmPG.run_commit2 ('personalia', [(cmd1, [self['id'], relation['id'], relation['id'], aelf['id']]),
+								(cmd2, [relation['id'], self['id'], rel_type])])
 		else:
-			addr_where = 'and at.name = %(addr_type)s'
-			vals['addr_type'] = addr_type
-		if firstonly:
-			limit = ' limit 1'
-		else:
-			limit = ''
-		cmd = """select
-				vba.addr_id,
-				vba.number,
-				vba.street,
-				vba.city,
-				vba.postcode,
-				at.name
-			from
-				v_basic_address vba,
-				lnk_person_org_address lpoa,
-				address_type at
-			where
-				lpoa.id_address = vba.addr_id
-				and lpoa.id_type = at.id
-				and lpoa.id_identity = %%(pat_id)s
-				%s %s""" % (addr_where, limit)
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, vals)
-		if rows is None:
-			return []
-		if len(rows) == 0:
-			return []
-		ret = [{
-			'ID': r[idx['addr_id']],
-			'number': r[idx['number']],
-			'street': r[idx['street']],
-			'urb': r[idx['city']],
-			'postcode': r[idx['postcode']],
-			'type': r[idx['name']]
-		} for r in rows]
-		if firstonly:
-			return ret[0]
-		else:
-			return ret
-	#--------------------------------------------------------
-	def unlinkAddress (self, ID):
-		cmd = "delete from lnk_person_org_address where id_identity = %s and id_address = %s"
-		return gmPG.run_commit ('personalia', [(cmd, [self.ID, ID])])
-	#--------------------------------------------------------
-	def copyAddresses(self, a_demographic_record):
-		addr_types = getAddressTypes()
-		for addr_type in addr_types:
-			addresses = a_demographic_record.getAddresses(addr_type)
-			if addresses is None:
-				continue
-			for addr in addresses:
-				self.linkNewAddress(addr_type, addr['number'], addr['street'], addr['urb'], addr['postcode'])
-	#--------------------------------------------------------
-	def linkNewAddress (self, addr_type, number, street, urb, postcode, state = None, country = None):
-		"""Adds a new address into this persons list of addresses.
-		"""
-		if state is None:
-			state, country = guess_state_country(urb, postcode)
-
-		# address already in database ?
-		cmd = """
-			select addr_id from v_basic_address
-			where
-				number = %s and
-				street = %s and
-				city = %s and
-				postcode = %s and
-				state = %s and
-				country = %s
-			"""
-		data = gmPG.run_ro_query ('personalia', cmd, None, number, street, urb, postcode, state, country)
-		if data is None:
-			s = " ".join( ( addr_type, number, street, urb, postcode, state, country ) )
-			_log.Log(gmLog.lErr, 'cannot check for address existence (%s)' % s)
-			return None
-
-		# delete any pre-existing link for this identity and the given address type
-		cmd = """
-			delete from lnk_person_org_address
-			where
-				id_identity = %s and
-				id_type = (select id from address_type where name = %s)
-			"""
-		gmPG.run_commit ('personalia', [(cmd, [self.ID, addr_type])])
-
-		# yes, address already there, just add the link
-		if len(data) > 0:
-			addr_id = data[0][0]
-			cmd = """
-				insert into lnk_person_org_address (id_identity, id_address, id_type)
-				values (%s, %s, (select id from address_type where name = %s))
-				"""
-			return gmPG.run_commit ("personalia", [(cmd, (self.ID, addr_id, addr_type))])
-
-		# no, insert new address and link it, too
-		cmd1 = """
-			insert into v_basic_address (number, street, city, postcode, state, country)
-			values (%s, %s, %s, %s, %s, %s)
-			"""
-		cmd2 = """
-			insert into lnk_person_org_address (id_identity, id_address, id_type)
-			values (%s, currval ('address_id_seq'), (select id from address_type where name = %s))
-			"""
-		return gmPG.run_commit ("personalia", [
-			(cmd1, (number, street, urb, postcode, state, country)),
-			(cmd2, (self.ID, addr_type))
-			]
-		)
-	#------------------------------------------------------------
-	# FIXME: should we support named channel types, too ?
-	def linkCommChannel (self, channel_type, url):
-		"""Links a comm channel with a patient. Adds it first if needed.
-
-		(phone no., email, etc.).
-		channel_type is an ID as returned from getCommChannelTypeID()
-		"""	
-		# does channel already exist ?
-		cmd = "select cc.id from comm_channel cc where cc.id_type = %s and cc.url = %s"
-		data = gmPG.run_ro_query ('personalia', cmd, None, channel_type, url)
-		# error
-		if data is None:
-			_log(gmLog.lErr, 'cannnot check for comm channel details')
-			return None
-		# none found
-		if len(data) == 0:
-			cmd1 = "insert into comm_channel (id_type, url) values (%s, %s)"
-			cmd2 = "select currval('comm_channel_id_seq')"
-			data = gmPG.run_commit ('personalia', [
-				(cmd1, [channel_type, url]),
-				(cmd2, [])
-			])
-			if (data is None) or (len(data) == 0):
-				_log.Log(gmLog.lErr, 'cannot add communication channel details')
-				return None
-
-		id_channel = data[0][0]
-		# delete pre-existing link as required
-		cmd1 = """
-		delete from
-			lnk_identity2comm_chan
-		where
-			id_identity = %s
-				and
-			exists(
-				select 1
-				from comm_channel cc
-				where cc.id_type = %s and cc.id = id_comm)"""
-		# creating new link
-		cmd2 = """insert into lnk_identity2comm_chan (id_identity, id_comm) values (%s, %s)"""
-		return gmPG.run_commit ('personalia', [
-			(cmd1, [self.ID, channel_type]),
-			(cmd2, [self.ID, id_channel])
-		])
-	#-------------------------------------------------------------
-	def getCommChannel (self, channel=None):
-		"""
-		Gets the comm channel url, given its type ID
-		If ID default, a mapping of all IDs and urls
-		"""
-		if channel:
-			data = gmPG.run_ro_query ('personalia', """
-			select cc.url from comm_channel cc, lnk_identity2comm_chan lp2cc where
-			cc.id_type = %s and lp2cc.id_identity = %s and lp2cc.id_comm = cc.id
-			""", None, channel, self.ID)
-			return data and data[0][0]
-		else:
-			data = gmPG.run_ro_query ('personalia', """
-			select cc.id_type, cc.url
-			from
-			comm_channel cc,
-			lnk_identity2comm_chan lp2cc
-			where
-			cc.id = lp2cc.id_comm and lp2cc.id_identity = %s
-			""", None, self.ID)
-			return dict(rows)
+			return gmPG.run_commit2 ('personalia', [(cmd1, [self['id'], relation['id'], relation['id'], aelf['id']])])
 	#----------------------------------------------------------------------
-	def getMedicalAge(self):
-		dob = self.getDOB()
+	def delete_relative(self, relation):
+		self.set_relative (None, relation)
+	#----------------------------------------------------------------------
+	def get_medical_age(self):
+		dob = self['dob']
 		if dob is None:
 			return '??'
 		return dob2medical_age(dob)
 	#----------------------------------------------------------------------
-	def addExternalID(self, external_id = None, origin = 'DEFAULT', comment = None):
-		# FIXME: should we support named origins, too ?
-		if external_id is None:
-			_log.Log(gmLog.lErr, 'must have external ID to add it')
-			return None
-		args = {
-			'ID': self.ID,
-			'ext_ID': external_id,
-			'origin': origin,
-			'comment': comment,
-			}
-		if comment:
-			cmd1 = 'insert into lnk_identity2ext_id (id_identity, external_id, fk_origin, comment) values (%(ID)s, %(ext_ID)s, %(origin)s, %(comment)s)'
-		else:
-			cmd1 = 'insert into lnk_identity2ext_id (id_identity, external_id, fk_origin) values (%(ID)s, %(ext_ID)s, %(origin)s)'
-		cmd2 = "select currval('lnk_identity2ext_id_id_seq')"
-		result = gmPG.run_commit('personalia', [
-			(cmd1, [args]),
-			(cmd2, [])
-		])
-		if result is None:
-			_log.Log(gmLog.lErr, 'cannot link external ID [%s@%s] (%s)' % (external_id, origin, comment))
-			return None
-		return result[0][0]
-	#------------------------------------------------------------
-	def removeExternalID(self, pk_external_ID):
-		cmd = 'delete from lnk_identity2ext_id where id=%s'
-		return gmPG.run_commit('personalia', [(cmd, [pk_external_ID])])
-	#---------------------------------------------------------------
-	def listExternalIDs (self):
-		"""
-		Returns a list of dictionaries of external IDs
-		Fields:
-		- id [the key used to delete ext. IDs
-		- origin [the origin code as returned by getExternalIDTypes]
-		- comment [a user comment]
-		- external_id [the actual external ID]
-		"""
-		cmd = "select id, fk_origin, comment, external_id from lnk_identity2ext_id where id_identity = %s"
-		rows = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
-		if rows is None:
-			return []
-		return [{'id':row[0], 'origin':row[1], 'comment':row[2], 'external_id':row[3]} for row in rows]
-	#----------------------------------------------------------------
-	def getExternalID (self, type):
-		"""
-		Gets an external ID by name
-		"""
-		cmd = "select external_id from lnk_identity2ext_id, enum_ext_id_types where enum_ext_id_types.name = %s and enum_ext_id_types.pk = lnk_identity2ext_id.fk_type and id_identity = %s"
-		rows = gmPG.run_ro_query ("personalia", cmd, None, type, self.ID)
-		if rows:
-			return rows[0][0]
-		else:
-			return None
 #================================================================
 # convenience functions
 #================================================================
@@ -664,35 +408,35 @@ def dob2medical_age(dob):
 	return "%sm%ss" % (age.minutes, age.seconds)
 #----------------------------------------------------------------
 def getAddressTypes():
-	"""Gets a simple list of address types."""
-	row_list = gmPG.run_ro_query('personalia', "select name from address_type")
+	"""Gets a dictionary mapping address type names to the ID"""
+	row_list = gmPG.run_ro_query('personalia', "select name, id from address_type")
 	if row_list is None:
-		return []
+		return {}
 	if len(row_list) == 0:
-		return []
-	return [row[0] for row in row_list]
+		return {}
+	return dict (row_list)
 #----------------------------------------------------------------
 def getMaritalStatusTypes():
-	"""Gets a simple list of types of marital status."""
-	row_list = gmPG.run_ro_query('personalia', "select name from marital_status")
+	"""Gets a dictionary matching marital status types to their internal ID"""
+	row_list = gmPG.run_ro_query('personalia', "select name, pk from marital_status")
 	if row_list is None:
-		return []
+		return {}
 	if len(row_list) == 0:
-		return []
-	return [row[0] for row in row_list]
+		return {}
+	return dict (row_list)
 #------------------------------------------------------------------
 def getExtIDTypes (context = 'p'):
-	"""Gets list of [code, ID type] from the backend for the given context
+	"""Gets dictionary mapping ext ID names to internal code from the backend for the given context
 	"""
 	# FIXME: error handling
-	rl = gmPG.run_ro_query('personalia', "select pk, name from enum_ext_id_types where context = %s", None, context)
+	rl = gmPG.run_ro_query('personalia', "select name, pk from enum_ext_id_types where context = %s", None, context)
 	if rl is None:
-		return []
-	return rl
+		return {}
+	return dict (rl)
 #----------------------------------------------------------------
 def getCommChannelTypes():
-	"""Gets the dictionary of ID->comm channels"""
-	row_list = gmPG.run_ro_query('personalia', "select id, description from enum_comm_types")
+	"""Gets the dictionary of comm channel types to internal ID"""
+	row_list = gmPG.run_ro_query('personalia', "select description, id from enum_comm_types")
 	if row_list is None:
 		return None
 	if len (row_list) == 0:
@@ -845,21 +589,17 @@ class OccupationMP (gmMatchProvider.cMatchProvider_SQL):
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
 
-class NameMP (gmMatchProvider.cMatchProvider_SQL):
+class NameMP (gmMatchProvider.cMatchProvider):
 	"""
 	List of names
 	"""
-	def __init__ (self):
-		source =[{
-			'service':'personalia',
-			'table':'names',
-			'pk':'id_identity',
-			'column':'lastnames',
-			'result':"lastnames || ', ' || firstnames",
-			'limit':5,
-			'extra conditions':{'occupation':'exists (select 1 from lnk_job2person where id_occupation = %s and lnk_job2person.id_identity = names.id_identity)'}
-			}]
-		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
+	def getMatches (self, fragment):
+		cmd = "select search_identity (%s)"
+		data, idx = gmPG.run_ro_query ('personalia', cmd, 1, fragment)
+		if data is None:
+			_log.Log(gmLog.lErr, "cannot search for identity")
+			return None
+		return [{'data':cIdentity (idx, i), 'label':"%s %s %s" % (i[idx['title']], i[idx['firstnames']], i[idx['lastnames']])} for i in data]
 
 #------------------------------------------------------------
 class OrgCategoryMP (gmMatchProvider.cMatchProvider_SQL):
@@ -889,28 +629,33 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 	while 1:
-		pID = raw_input('a patient ID: ')
-		if pID == '-1':
+		pID = raw_input('a patient: ')
+		if pID == '':
 			break
 		try:
-			myPatient = cDemographicRecord_SQL(aPKey = pID)
+			myPatient = cIdentity (aPK_obj = pID)
 		except:
 			_log.LogException('Unable to set up patient with ID [%s]' % pID, sys.exc_info())
 			print "patient", pID, "can not be set up"
 			continue
-		print "ID       ", myPatient.getID ()
-		print "name     ", myPatient.get_names (1)
-		print "title    ", myPatient.getTitle ()
-		print "dob      ", myPatient.getDOB (aFormat = 'DD.MM.YYYY')
-		print "med age  ", myPatient.getMedicalAge()
-		adr_types = getAddressTypes()
-		print "adr types", adr_types
-		for type_name in adr_types:
-			print "adr (%s)" % type_name, myPatient.getAddresses(type_name)
+		print "ID       ", myPatient['id']
+		print "name     ", myPatient['description']
+		print "title    ", myPatient['title']
+		print "dob      ", myPatient['dob']
+		print "med age  ", myPatient['medical_age']
+		for adr in myPatient['addresses']:
+			print "address  ", adr	
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.55  2005-01-31 10:37:26  ncq
+# Revision 1.56  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.55  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.54  2004/08/18 09:05:07  ncq

@@ -12,26 +12,26 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.176 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.176 $"
+# $Id: gmGuiMain.py,v 1.177 2005-02-01 10:16:07 ihaywood Exp $
+__version__ = "$Revision: 1.177 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 import sys, time, os, cPickle, zlib
-
 from wxPython.wx import *
 from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
-from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmTopPanel, gmPlugin, gmHorstSpace
+from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers
+from Gnumed.wxpython import gmHorstSpace
+from Gnumed.wxpython import gmRichardSpace
 from Gnumed.business import gmPerson
 from Gnumed.pycommon.gmPyCompat import *
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
-
 email_logger = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -69,7 +69,7 @@ class gmTopLevelFrame(wx.wxFrame):
 	"""
 
 	#----------------------------------------------
-	def __init__(self, parent, id, title, size=wxPyDefaultSize):
+	def __init__(self, parent, id, title, size=wxPyDefaultSize, layout=None):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
 		wxFrame.__init__(
@@ -85,34 +85,9 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__gb['EmergencyExit'] = self._clean_exit
 		self.__gb['main.frame'] = self
+		self.bar_width = -1
 		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _whoami.get_workplace())
-		# get plugin layout style
-		self.layout_style, set1 = gmCfg.getDBParam(
-			workplace = _whoami.get_workplace(),
-			option = 'main.window.layout_style'
-		)
-		if set1 is None:
- 			self.layout_style = 'status_quo'
- 			gmCfg.setDBParam (
-				workplace = _whoami.get_workplace(),
-				option = 'main.window.layout_style',
-				value = self.layout_style
-			)
-
-		# get Terry style horizontal ratio
-		# FIXME: this belongs into Terry layout manager
-		self.bar_width, set1 = gmCfg.getDBParam (
-			workplace = _whoami.get_workplace(),
-			option = 'main.window.sidebar_width'
-		)
-		if set1 is None:
- 			self.bar_width = 210 # about 1/3 of our hardcoded efault screen-width
-			gmCfg.setDBParam (
-				workplace = _whoami.get_workplace(),
-				option = 'main.window.sidebar_width',
-				value = 210
-			)
-
+		self.__setup_main_menu()
 		self.SetupStatusBar()
 		self.SetStatusText(_("You are logged in as [%s].") % _whoami.get_db_account())
 		self.__gb['main.statustext'] = self.SetStatusText
@@ -123,84 +98,45 @@ class gmTopLevelFrame(wx.wxFrame):
 		else:
 			self.__title_template = 'GnuMed [%s@%s] %s: %s'
 		self.updateTitle(anActivity = _("idle"))
+		self.__setup_platform()
 		#  let others have access, too
 		self.__gb['main.SetWindowTitle'] = self.updateTitle
-
+		if layout is None:
+			# get plugin layout style
+			self.layout_style, set1 = gmCfg.getDBParam(
+				workplace = _whoami.get_workplace(),
+				option = 'main.window.layout_style'
+				)
+			if set1 is None:
+				self.layout_style = 'status_quo'
+				gmCfg.setDBParam (
+					workplace = _whoami.get_workplace(),
+					option = 'main.window.layout_style',
+					value = self.layout_style
+					)
+			#----------------------
+			# create layout manager
+		        #----------------------
+			if self.layout_style == 'status_quo':
+				_log.Log(gmLog.lInfo, 'loading Horst space layout manager')
+				self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
+			elif self.layout_style == 'terry':
+				_log.Log(gmLog.lInfo, "loading Richard Terry's layout manager")
+				self.LayoutMgr = gmRichardSpace.cLayoutMgr(self, -1)
+		else:
+			# layout class is explicitly provided, use that
+			_log.Log (gmLog.lInfo, "loading %s as toplevel" % layout)
+			l = layout.split (".")
+			self.LayoutMgr = getattr (__import__ (".".join (l[:-1])), l[-1]) (self, -1)
 		# set window icon
 		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
 		icon = wxEmptyIcon()
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
-
-		self.__setup_platform()
-		self.__setup_main_menu()
 		self.acctbl = []
 		self.__gb['main.accelerators'] = self.acctbl
-
-		#---------------------
-		# create the "top row"
-		#---------------------
-		# important patient data is always displayed there
-		# - top panel with toolbars
-		self.top_panel = gmTopPanel.cMainTopPanel(self, -1)
-		self.__gb['main.top_panel'] = self.top_panel
-
-		#----------------------
-		# create layout manager
-		#----------------------
-		if self.layout_style == 'status_quo':
-			_log.Log(gmLog.lInfo, 'loading Horst space layout manager')
-			self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
-		elif self.layout_style == 'terry':
-			# one should try to factor out the parts between the #==========
-			# into their own container (?frame, ?sizer, ?panel) and then
-			# do generic interaction with that container only
-			# layout specific interaction should be done inside that
-			# container IMO
-			#==========
-			# set up the Terry-style split screen
-			self.LayoutMgr = wxPanel (self, -1)
-			self.imagelist = wxImageList (16, 16)
-			self.nb = wxNotebook (self.LayoutMgr, ID_NOTEBOOK, size = wxSize(320,240))
-			self.__gb['main.notebook'] = self.nb
-			self.nb.SetImageList (self.imagelist)
-			self.leftbox = wxSashLayoutWindow (
-				self.LayoutMgr,
-				ID_LEFTBOX,
-				wxDefaultPosition,
-				wxSize(200, 30),
-				wxNO_BORDER|wxSW_3D
-			)
-			self.leftbox.SetDefaultSize(wxSize(self.bar_width, 1000))
-			self.leftbox.SetOrientation(wxLAYOUT_VERTICAL)
-			self.leftbox.SetAlignment(wxLAYOUT_RIGHT)
-			self.leftbox.SetSashVisible(wxSASH_LEFT, True)
-			EVT_SIZE (self.LayoutMgr, self.OnPanelSize)
-			EVT_SASH_DRAGGED (self.leftbox, ID_LEFTBOX, self.OnSashDrag)
-			#==========
-
-		# this list relates plugins to the notebook
-		self.__gb['main.notebook.plugins'] = []	# (used to be called 'main.notebook.numbers')
-
 		self.__register_events()
-		# this flag prevents pointless repaeated reloading of accelerator table during startup
-		self.dont_touch_accels = 1
-		self.plugins = {}				# relates plugins to the notebook
-#		self.__load_plugins()			# do in Terry layout manager
-		self.__setup_accelerators()
-		self.dont_touch_accels = 0
-
-		#-------------------------------
-		# stack panels in vertical sizer
-		#-------------------------------
 		self.vbox = wxBoxSizer(wxVERTICAL)
-		#self.vbox.SetMinSize(wxSize(320,240))
-		self.__gb['main.vbox'] = self.vbox
-		# position in main sizer but:
-		# - we want this to NOT grow vertically, hence proportion = 0
-		# - but then proportion 10 for the layout manager does
-		#   not mean anything according to the docs
-		self.vbox.Add (self.top_panel, 0, wxEXPAND, 1)
 		self.vbox.Add(self.LayoutMgr, 10, wxEXPAND | wxALL, 1)
 
 		self.SetAutoLayout(True)
@@ -328,93 +264,7 @@ class gmTopLevelFrame(wx.wxFrame):
 
 		# intra-client signals
 		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
-
-		# ?
-#		gmDispatcher.connect(self.on_user_error, gmSignals.user_error ())
-#		if self.layout_style == 'terry':
-#			gmDispatcher.connect(self.on_new_notebook, gmSignals.new_notebook ())
-#			gmDispatcher.connect(self.on_unload_plugin, gmSignals.unload_plugin ())
-#			gmDispatcher.connect(self.SetNotebook, gmSignals.wish_display_plugin ())
-#			gmDispatcher.connect (self.on_new_sidebar, gmSignals.new_sidebar ())
-		# ?
-	#----------------------------------------------
-	def SetNotebook (self, id_new_page=-1, name=""):
-		"""Programmatic version of the above.
-
-		Is also the handler for wish_display_plugin
-		"""
-		id_old_page = self.nb.GetSelection ()
-		if id_new_page > -1:
-			for key, item in self.plugins.items ():
-				if item['n'] == id_new_page:
-					name=key
-					break
-		else:
-			id_new_page = self.plugins[name]['n']
-
-		if id_new_page != id_old_page:
-			ret = gmDispatcher.send (gmSignals.display_plugin (), sender=self, name=key)
-			for receiver, response in ret:
-				if response == 'veto':
-					return
-			self.nb.SetSelection (id_new_page)
-		else:
-			_log.Log(gmLog.lData, 'cannot check if page change needs to be veto()ed')
-
-	#----------------------------------------------
-	def on_new_notebook (self, **kwargs):
-		"""
-		A plugin has asked to be displayed by the new method
-		"""
-		widget = kwargs['widget'] (self.nb)
-		if self.layout_style =='terry' and kwargs['icon']:
-			im_n = self.imagelist.AddIcon (kwargs['icon'])
-			self.nb.AddPage (widget, "", im_n)
-		else:
-			self.nb.AddPage (widget, kwargs['label'])
-		n = len (self.plugins)
-		menu_id = wxNewId()
-		self.plugins[kwargs['name']] = {}
-		self.plugins[kwargs['name']]['n'] = n
-		self.plugins[kwargs['name']]['type'] = 'notebook'
-		self.plugins[kwargs['name']]['menu_id'] = menu_id
-		self.menu_view.Append (menu_id, kwargs['label'], kwargs.setdefault ("help", ""))
-		EVT_MENU (self, menu_id, lambda e: self.SetNotebook (n))
-		if n < 25:
-			self.acctbl.append ((0,WXK_F1+n, menu_id))
-		if not self.dont_touch_accels:
-			self.SetAcceleratorTable(wxAcceleratorTable (self.acctbl))
-		widget.Show (1)
-	#----------------------------------------------
-	def on_unload_plugin (self, **kwargs):
-		"""
-		A notebook widget has requested unloading
-		"""
-		plugin = self.plugins[kwargs['name']]
-		if plugin['type'] == 'notebook':
-			n = plugin['n']
-			self.nb.DeletePage (n)
-			self.menu_view.Delete (plugin['menu_id'])
-			new_acctbl = []
-			for flags, keycode, mid in self.acctbl:
-				if mid != plugin['menu_id']:
-					if keycode > WXK_F1+n and keycode < WXK_F24:
-						keycode -= 1
-					new_acctbl.append ((flags, keycode, mid))
-			self.acctbl = new_acctbl
-			self.SetAcceleratorTable(wxAcceleratorTable (self.acctbl))
-			for i in self.plugins.keys ():
-				if self.plugins[i]['n'] > n:
-					self.plugins[i]['n'] -= 1
-		del self.plugins[kwargs['name']]
-	#----------------------------------------------
-	def on_new_sidebar (self, **kwargs):
-		"""
-		Loads a widget into the sidebar.
-		Only ever called in 'terry' mode
-		"""
-		pass
-	#-----------------------------------------------
+     	#-----------------------------------------------
 	def on_patient_selected(self, **kwargs):
 		wxCallAfter(self.__on_patient_selected, **kwargs)
 	#----------------------------------------------
@@ -474,7 +324,7 @@ class gmTopLevelFrame(wx.wxFrame):
 			value = curr_height
 		)
 		# user changed the sidebar size -- remember that
-		if self.bar_width != 210:
+		if self.bar_width > -1 and self.bar_width != 210:
 			gmCfg.setDBParam(
 				workplace = _whoami.get_workplace(),
 				option = 'main.window.sidebar_width',
@@ -521,9 +371,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		pat = gmPerson.gmCurrentPatient()
 		if pat.is_connected():
 			demos = pat.get_demographic_record()
-			names = demos.get_names()
-			fname = names['first'][:1]
-			pat_str = "%s %s.%s (%s) #%d" % (demos.getTitle()[:4], fname, names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'), int(pat['ID']))
+			pat_str = "%s %s.%s (%s) #%d" % (demos['title'][:4], demos['firstnames'], demos['lastnames'], demos['dob'].Format (_('%d/%m/%y')), int(demos['id']))
 		else:
 			pat_str = _('no patient')
 
@@ -587,7 +435,6 @@ class gmApp(wxApp):
 		# create a GUI element dictionary that
 		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
-
 		self.__setup_platform()
 
 		# check for slave mode
@@ -608,7 +455,6 @@ class gmApp(wxApp):
 				gmGuiHelpers.gm_show_error(msg, _('Starting slave mode'), gmLog.lErr)
 				return False
 			_log.Log(gmLog.lInfo, 'assuming slave mode personality [%s]' % self.__guibroker['main.slave_personality'])
-
 		# connect to backend (implicitely runs login dialog)
 		from Gnumed.wxpython import gmLogin
 		self.__backend = gmLogin.Login()
@@ -634,9 +480,8 @@ class gmApp(wxApp):
 
 		# set up language in database
 		self.__set_db_lang()
-
 		# create the main window
-		frame = gmTopLevelFrame(None, -1, _('GnuMed client'), (640,440))
+		frame = gmTopLevelFrame(None, -1, _('GnuMed client'), (640,440), gmCLI.arg.get ('--layout', None))
 		# and tell the app to use it
 		self.SetTopWindow(frame)
 		#frame.Unlock()
@@ -797,7 +642,14 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.176  2005-01-31 10:37:26  ncq
+# Revision 1.177  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.176  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.175  2004/10/01 13:17:35  ncq

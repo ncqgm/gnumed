@@ -83,8 +83,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.11 2005-01-31 12:56:55 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmBusinessDBObject.py,v 1.12 2005-02-01 10:16:07 ihaywood Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -117,7 +117,6 @@ class cBusinessDBObject:
 		- must return xmin of all rows that _cmds_store_payload
 		  will be updating
 	"""
-	_conn_pool = gmPG.ConnectionPool()			# once for ALL descendants :-)
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
 		"""Init business object.
@@ -144,6 +143,7 @@ class cBusinessDBObject:
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
 		self._idx = {}
+		self._conn_pool = gmPG.ConnectionPool()# once for ALL descendants :-)
 		if aPK_obj is not None:
 			self.__init_from_pk(aPK_obj=aPK_obj)
 		else:
@@ -408,7 +408,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.11  2005-01-31 12:56:55  ncq
+# Revision 1.12  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.11  2005/01/31 12:56:55  ncq
 # - properly update xmin in save_payload()
 #
 # Revision 1.10  2005/01/31 06:25:35  ncq

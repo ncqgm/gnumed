@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.27 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmForms.py,v 1.28 2005-02-01 10:16:07 ihaywood Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -45,7 +45,7 @@ class gmFormEngine:
 
 	def convert (self, item):
 		"""
-		Perform whatever character set conversions are reuired for this form
+		Perform whatever character set conversions are required for this form
 		"""
 		return item
 
@@ -62,7 +62,7 @@ class gmFormEngine:
 
 	def cleanup (self):
 		"""
-		A sop to TeX which can't act as a true filter to delete temporary files
+		A sop to TeX which can't act as a true filter: to delete temporary files
 		"""
 		pass
 
@@ -315,6 +315,10 @@ class LaTeXForm (TextForm):
 		os.chdir (self.oldcwd)
 		os.rmdir (self.tmp)
 
+#===========================================================
+class HL7Form (gmFormEngine):
+	pass
+
 #============================================================
 # convenience functions
 #------------------------------------------------------------
@@ -427,7 +431,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.27  2005-01-31 10:37:26  ncq
+# Revision 1.28  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.27  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.26  2004/08/20 13:19:06  ncq

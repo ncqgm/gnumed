@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -161,19 +161,19 @@ def display_plugin ():
 
 def wish_display_plugin ():
 	"""
-	This event expressed the desire that aplugin be displayed
-	.I.e the plugin manger *receives* this evet, it generates the above
+	This event expressed the desire that a plugin be displayed
+	I.e the plugin manger *receives* this event, it generates the above
 	- name: plugin unique name
 	"""
 	return "wish_display_plugin"
 
-def new_sidebar ():
+def search_result ():
 	"""
-	A new sidebar widget
--widget: the wxWindow to display
-- name: the unique plugin ma e(for unloading)
-"""
-	return "new_sidebar"
+	The results of a patient search
+	- ids: a list of gmDemographicRecord.cIdentity objects
+	- display_fields: a list of fields to display
+	"""
+	return "search_result"
 
 	
 #=============================================================	
@@ -202,7 +202,14 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.6  2005-01-31 20:25:37  ncq
+# Revision 1.7  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.6  2005/01/31 20:25:37  ncq
 # - add episode change signals
 #
 # Revision 1.5  2004/07/15 07:57:20  ihaywood

@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.39 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmPlugin.py,v 1.40 2005-02-01 10:16:07 ihaywood Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -22,6 +22,52 @@ gmPerson = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _whoami = gmWhoAmI.cWhoAmI()
+
+
+#==============================================================================
+class cLoadProgressBar (wxProgressDialog):
+	def __init__(self, nr_plugins):
+		wxProgressDialog.__init__(
+			self,
+			title = _("GnuMed: configuring [%s] (%s plugins)") % (_whoami.get_workplace(), nr_plugins),
+			message = _("loading list of plugins                               "),
+			maximum = nr_plugins,
+			parent = None,
+			style = wxPD_ELAPSED_TIME
+			)
+		# set window icon
+		gb = gmGuiBroker.GuiBroker()
+		png_fname = os.path.join(gb['gnumed_dir'], 'bitmaps', 'serpent.png')
+		icon = wxEmptyIcon()
+		try:
+			icon.LoadFile(png_fname, wxBITMAP_TYPE_PNG)
+		except:
+			_log.Log(gmLog.lWarn, 'wxIcon.LoadFile() not supported')
+		self.SetIcon(icon)
+		self.idx = 0
+		self.nr_plugins = nr_plugins
+		self.prev_plugin = ""
+
+	def Update (self, result, plugin):
+		if result == -1:
+			result = ""
+		elif result == 0:
+			result = _("failed")
+		else:
+			result = _("success")
+		wxProgressDialog.Update (self, 
+				self.idx,
+				_("previous: %s (%s)\ncurrent (%s/%s): %s") % (
+					self.prev_plugin,
+					result,
+					(self.idx+1),
+					self.nr_plugins,
+					plugin))
+		self.prev_plugin = plugin
+		self.idx += 1
+			
+
+
 
 #==================================================================
 # TODO: remove set argument
@@ -46,7 +92,7 @@ class cNotebookPlugin:
 		nb = self.gb['horstspace.notebook']
 		widget = self.GetWidget(nb)
 		# create toolbar
-		top_panel = self.gb['main.top_panel']
+		top_panel = self.gb['horstspace.top_panel']
 		tb = top_panel.CreateBar()
 		self.populate_toolbar(tb, widget)
 		tb.Realize()
@@ -263,17 +309,18 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 
 	return plugin
 #------------------------------------------------------------------
-def GetPluginLoadList(set):
+def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 	"""Get a list of plugins to load.
 
 	1) from database
-	2) from source directory (store in database)
+	2) from list of defaults
+	3) if 2 is None, from source directory (then stored in database)
 	"""
 	curr_workplace = _whoami.get_workplace()
 
 	p_list, match = gmCfg.getDBParam (
 		workplace = curr_workplace,
-		option = 'horstspace.notebook.plugin_load_order'
+		option = option
 	)
 
 	if p_list is not None:
@@ -284,36 +331,39 @@ def GetPluginLoadList(set):
 		# store plugin list for the current user/current workplace
 		gmCfg.setDBParam(
 			workplace = curr_workplace,
-			option = 'horstspace.notebook.plugin_load_order',
+			option = option,
 			value = p_list
 		)
 		return p_list
 
-	_log.Log(gmLog.lInfo, "plugin load order not found in DB, scanning directory and storing in DB")
-
-	# parse plugin directory
-	gb = gmGuiBroker.GuiBroker()
-	search_path = os.path.join(gb['gnumed_dir'], 'wxpython', set)
-	files = os.listdir(search_path)
-	_log.Log(gmLog.lData, "plugin set: %s, gnumed_dir: %s" % (set, gb['gnumed_dir']))
-	_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
-	_log.Log(gmLog.lData, "files found: %s" % str(files))
-	p_list = []
-	for file in files:
-		if (re.compile ('.+\.py$').match(file)) and (file != '__init__.py'):
-			p_list.append(file[:-3])
-	if (len(p_list) == 0):
-		_log.Log(gmLog.lErr, 'cannot find plugins by scanning plugin directory ?!?')
-		return None
+	if defaults is None:
+		_log.Log(gmLog.lInfo, "plugin load order not found in DB, scanning directory and storing in DB")
+		
+		# parse plugin directory
+		gb = gmGuiBroker.GuiBroker()
+		search_path = os.path.join(gb['gnumed_dir'], 'wxpython', plugin_dir)
+		files = os.listdir(search_path)
+		_log.Log(gmLog.lData, "plugin set: %s, gnumed_dir: %s" % (plugin_dir, gb['gnumed_dir']))
+		_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
+		_log.Log(gmLog.lData, "files found: %s" % str(files))
+		p_list = []
+		for file in files:
+			if (re.compile ('.+\.py$').match(file)) and (file != '__init__.py'):
+				p_list.append(file[:-3])
+		if (len(p_list) == 0):
+			_log.Log(gmLog.lErr, 'cannot find plugins by scanning plugin directory ?!?')
+			return None
+	else:
+		p_list = defaults
 
 	# store for current user/current workplace
 	gmCfg.setDBParam(
 		workplace = curr_workplace,
-		option = 'horstspace.notebook.plugin_load_order',
+		option = option,
 		value = p_list
 	)
 
-	_log.Log(gmLog.lData, "plugin load list: %s" % str(p_list))
+	_log.Log(gmLog.lData, "plugin load list stored: %s" % str(p_list))
 	return p_list
 #------------------------------------------------------------------
 def UnloadPlugin (set, name):
@@ -331,7 +381,14 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.39  2005-01-31 10:37:26  ncq
+# Revision 1.40  2005-02-01 10:16:07  ihaywood
+# refactoring of gmDemographicRecord and follow-on changes as discussed.
+#
+# gmTopPanel moves to gmHorstSpace
+# gmRichardSpace added -- example code at present, haven't even run it myself
+# (waiting on some icon .pngs from Richard)
+#
+# Revision 1.39  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.38  2004/11/21 20:56:14  ncq
