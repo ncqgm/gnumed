@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.60 2005-02-18 11:16:41 ihaywood Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmDemographicRecord.py,v 1.61 2005-02-19 15:04:55 sjtan Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -87,7 +87,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				vba.number,
 				vba.addendum, 
 				vba.street,
-				vba.urb,
+				vba.city,
 				vba.postcode,
 				at.name
 			from
@@ -99,7 +99,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				and lpoa.id_type = at.id
 				and lpoa.id_%s = %%s 
 				""" % self._table     # this operator, then passed to SQL layer
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, [self['id']])
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, [self.getId()])
 		if rows is None:
 			return []
 		elif len(rows) == 0:
@@ -143,7 +143,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				and lpoa.id_identity = vbp.pk_identity
 				and lpoa.id_org = %%s
 				"""
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['id'])
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getId())
 		if rows is None:
 			return []
 		elif len(rows) == 0:
@@ -160,18 +160,18 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		"""
 		cmd = "insert into lnk_person_org_address (id_type, id_address, id_org, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(org_id)s, %(pk_identity)s)"
 		address['pk_identity'] = person['pk_identity']
-		address['org_id'] = self['id']
+		address['org_id'] = self.getId()
 		if not id_addr:
 			return (False, None)
 		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
 	#------------------------------------------------------------
 	def unlink_person (self, person):
 		cmd = "delete from lnk_person_org_address where id_org = %s and id_identity = %s"
-		return gmPG.run_commit2 ('personalia', [(cmd, [self['id'], person['id']])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), person['id']])])
 	#------------------------------------------------------------
 	def unlink_address (self, address):
 		cmd = "delete from lnk_person_org_address where id_address = %s and id_%s = %%s" % self._table
-		return gmPG.run_commit2 ('personalia', [(cmd, [address['id'], self['id']])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [address['id'], self.getId()])])
 	#------------------------------------------------------------
 	def get_ext_ids (self):
 		"""
@@ -183,8 +183,8 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		"""
 		cmd = """select
 		fk_origin, comment, external_id
-		from lnk_%s2ext_id where id_%s = %%s and""" % (self._table, self._table)
-		rows = gmPG.run_ro_query ('personalia', cmd, None, self['id'])
+		from lnk_%s2ext_id where id_%s = %%s """ % (self._table, self._table)
+		rows = gmPG.run_ro_query ('personalia', cmd, None, self['pk_identity'])
 		if rows is None:
 			return {}
 		return [{'fk_origin':row[0], 'comment':row[1], 'external_id':row[2]} for row in rows]
@@ -227,11 +227,12 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				lcc.url,
 				lcc.is_confidential
 			from
-				lnk_%s_comm_channel lcc
+				lnk_%s2comm lcc
 			where
 				lcc.id_%s = %%s
-				""" (self._table, self._table)
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['id'])
+				""" % (self._table, self._table)
+
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getId() )
 		if rows is None:
 			return {}
 		elif len(rows) == 0:
@@ -248,13 +249,16 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		cmd2 = """insert into lnk_%s2ext_id (id_%s, id_type, url, is_confidential)
 		values (%%s, %%s, %%s, %%s)""" % (self._table, self._table)
 		del self._ext_cache['comms']
-		return gmPG.run_commit2 ('personalia', [(cm1, [self['id'], url]), (cm2, [self['id'], id_type, url, is_confidential])])
+		return gmPG.run_commit2 ('personalia', [(cm1, [self.getId(), url]), (cm2, [self.getId(), id_type, url, is_confidential])])
 	#-------------------------------------------------------
 	def delete_comm (self, url):
 		cmd = """delete from lnk_%s2comm_channel where
 		id_%s = %%s and url = %%s""" % (self._table, self._table)
 		del self._ext_cache['comms']
-		return gmPG.run_commit2 ('personalia', [(cmd, [self['id'], url])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), url])])
+
+	def getId(self):
+		return self['id']
 #==============================================================================
 class cIdentity (cOrg):
 	_table = "identity"
@@ -273,6 +277,9 @@ class cIdentity (cOrg):
 		"""select xmin_identity from v_basic_person where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ["title", "dob", "cob", "gender", "fk_marital_status", "karyotype", "pupic"]
+
+	def getId(self):
+		return self['pk_identity']
 	#--------------------------------------------------------
 	def get_all_names(self):
 		cmd = """
@@ -308,19 +315,19 @@ class cIdentity (cOrg):
 		if self._ext_cache['all_names']:
 			del self._ext_cache['all_names']
 		active = (active and 't') or 'f'
-		return gmPG.run_commit2 ('personalia', [(cmd, [self['id'], firstnames, lastnames, active])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), firstnames, lastnames, active])])
 	#------------------------------------------------------------
 	def add_address (self, address):
 		"""
 		Binds an address to this person
 		"""
 		cmd = "insert into lnk_person_org_address (id_type, id_address, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(urb)s, %(postcode)s), %(pk_identity)s)"
-		address["pk_identity"] = self['id']
+		address["pk_identity"] = self.getId()
 		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
 	#---------------------------------------------------------------------
 	def get_occupation (self):
 		cmd = "select o.name from occupation o, lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s"
-		data = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
+		data = gmPG.run_ro_query ('personalia', cmd, None, self['pk_identity'])
 		return data and [i[0] for i in data] 
 	#--------------------------------------------------------------------
 	def add_occupation (self, occupation):
@@ -328,7 +335,7 @@ class cIdentity (cOrg):
 		cmd = "insert into lnk_job2person (id_identity, id_occupation) values (%s, create_occupation (%s))"
 		if self._ext_cache.has_key ('occupation'):
 			self._ext_cache['occupation'].append (occupation)
-		return gmPG.run_commit2 ('personalia', [(cmd, [self['id'], occupation])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [self['pk_identity'], occupation])])
 	#----------------------------------------------------------------------
 	def delete_occupation (self, occupation):
 		if self._ext_cache.has_key ('occupation'):
@@ -338,7 +345,7 @@ class cIdentity (cOrg):
 		lnk_job2person
 		where
 		id_identity = %s and id_occupation = (select id from occupation where name = %s)"""
-		return gmPG.run_commit2 ('personalia', [(cmd, [self['id'], occupation])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [self['pk_identity'], occupation])])
 	#----------------------------------------------------------------------
 	def get_relatives(self):
 		cmd = """
@@ -355,7 +362,7 @@ where
 	vbp.pk_identity = i.id_identity and
 	t.inverse = l.id_relation_type)
 """
-		data, idx = gmPG.run_ro_query('personalia', cmd, 1, [self['id'], self['id']])
+		data, idx = gmPG.run_ro_query('personalia', cmd, 1, [self.getId(), self.getId()])
 		if data is None:
 			return []
 		if len(data) == 0:
@@ -383,11 +390,11 @@ where
 		if rel_type:
 			return gmPG.run_commit2 (
 				'personalia',
-				[(cmd1, [self['id'], relation['id'], relation['id'], self['id']]),
-				 (cmd2, [relation['id'], self['id'], rel_type])]
+				[(cmd1, [self.getId(), relation['id'], relation['id'], self.getId()]),
+				 (cmd2, [relation['id'], self.getId(), rel_type])]
 			)
 		else:
-			return gmPG.run_commit2 ('personalia', [(cmd1, [self['id'], relation['id'], relation['id'], self['id']])])
+			return gmPG.run_commit2 ('personalia', [(cmd1, [self.getId(), relation['id'], relation['id'], self.getId()])])
 	#----------------------------------------------------------------------
 	def delete_relative(self, relation):
 		self.set_relative (None, relation)
@@ -665,7 +672,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.60  2005-02-18 11:16:41  ihaywood
+# Revision 1.61  2005-02-19 15:04:55  sjtan
+#
+# identity.id is now identity.pk_identity, so adapt
+#
+# Revision 1.60  2005/02/18 11:16:41  ihaywood
 # new demographics UI code won't crash the whole client now ;-)
 # still needs much work
 # RichardSpace working
