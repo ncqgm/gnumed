@@ -3,14 +3,40 @@ import re
 import sys
 
 
-credentials = "hherb.com:gnumed:any-doc:any-doc"
-#credentials = "localhost:gnumed:any-doc:any-doc"
+#credentials = "hherb.com:gnumed:any-doc:any-doc"
+
+""" uncomment the credentials below for local testing.
+this is meant to sit on a server object, either local machine or LAN. 
+and will take a long time across the internet. 
+The values in self.model, self.values, self.collections, self.refs
+need to be packed up and serialized by a server for sending to a client.
+"""
+credentials = "localhost:gnumed:any-doc:any-doc"
 
 class SchemaParser:
 	
 	def __init__(self, config):
 		self.config = config
+
+		self.create_regex()
+		#self.create_alias_sets()
+		self.fks = self.get_fk_list()
+		self.model = {}
+		self.next_level_maps = {}
+		self.type_tables = {} 
+		self.parents = {}
+		self.global_visited = {}
+		self.inherits = self.get_inherits()
+		self.formList = {}
+
 		self.build()
+		
+	def isDirectChild(self, child, parent):
+		for c, p in self.inherits:
+			if  c== child and p == parent:
+				return 1
+		return 0
+
 
 	def get_inherits(self):
 
@@ -92,18 +118,17 @@ class SchemaParser:
 		on the node's next level nodes, visiting any node not already visited.
 
 		"""
-		self.create_regex()
-		#self.create_alias_sets()
-		self.fks = self.get_fk_list()
-		self.model = {}
-		self.next_level_maps = {}
 		for x in self.config.roots:
 			self.visited = []
 			self.target = x
 			#self.next_level_maps[x] = {}
 			self.next_level_map = {} #self.next_level_maps[x]
+			self.next_up = None
+			self.parents[x] = [] 
 			self.build_levels([(x,'root')])
 			self.model[x] =  self.get_model(x)
+
+			for y in self.visited: self.global_visited[y] = 1
 		
 	
 		for k,  map in self.model.items():
@@ -113,9 +138,28 @@ class SchemaParser:
 			print "root", k
 			self.print_map(  map, 1)
 			
+			
 
 			print
 			print
+
+		print self.type_tables
+		print "These tables are not type tables"
+		print  filter( lambda(x): x not in self.type_tables.keys() , self.global_visited.keys() ) 
+
+		print 
+		print "These tables have non-reference/non-structural attributes"
+		print self.getDomainAttributedTables()
+
+		print 
+		print "The flattened attributes were:-"
+
+		self.get_forms(1)
+
+
+
+	def getDomainAttributedTables(self):
+		return filter( lambda(x): x not in self.type_tables.keys() and len(self.get_attributes(x)) > 1 , self.global_visited.keys() )
 
 	def getModelFor(self, k):
 		return self.model.get(k, {})
@@ -187,11 +231,18 @@ class SchemaParser:
 				continue
 
 			if self.is_type_table(x):
+				self.type_tables[x] = 1
 				continue
 			#print "searching x", x
 
 			next_level_for_x = self.find_next_level_nodes(x)
 			self.next_level_map[x] = next_level_for_x
+
+			for y in next_level_for_x:
+				if not self.parents.has_key(y):
+					self.parents[y] = [x]
+				else:	self.parents[y].append(x)	
+
 			next_level += next_level_for_x
 		if next_level == []:
 			return
@@ -212,8 +263,7 @@ class SchemaParser:
 
 	def find_next_level_nodes(self, node):
 		l = []
-		inherits = self.get_inherits()
-		for t, parent in inherits:
+		for t, parent in self.inherits:
 			if node == parent and not self.next_level_map.has_key(t):
 				l.append((t, "<-") )
 
@@ -221,7 +271,11 @@ class SchemaParser:
 		repeat_fk = []
 		for t1, t2 in self.fks:
 			if node == t2 and not self.is_suppressed(node, t1):#and not self.next_level_map.has_key(t1):
-				l.append( (t1, "-*") )
+				if not self.is_reversed_link(t2,t1):
+
+					l.append( (t1, "-*") )
+				else:
+					l.append( (t1, '-1') )
 				
 			elif node == t1 and not self.is_suppressed(node, t2):
 				if not self.next_level_map.has_key(t2):
@@ -238,8 +292,9 @@ class SchemaParser:
 		#		print '\t\t\t', x
 		for x in repeat_fk:
 			for ( root, referer, referred) in self.config.double_linked:
-				if [self.target, node, x] == [ root, referer, referred]:
-					print "ALLOWING REPEAT FK", self.target, node, x
+				if [self.target, node, x] == [ root, referer, referred] and referred  not in self.parents.get(node,[]) :
+					print "ALLOWING REPEAT FK", self.target, node, x, " parents of ", node, " are ", self.parents.get(node, [])
+					
 					l.append((x, '-1(2)') )
 
 		
@@ -264,20 +319,132 @@ class SchemaParser:
 		for r in self.regex_link_tables:
 			if r.match(k):
 				return 1
+			else:
+				print k, " does not match ", r.pattern
 		return 0
 
+	def is_reversed_link(self, parent, node):
+		for p, n in self.config.reversed_link:
+			if parent == p and n == node:
+				return True
+		
+		return False
+		
 	def is_type_table(self, t):
 		for r in self.regex_type_tables:
 			if r.match(t):
 				return 1
 		return 0
-	
+
+
+		
+
+	def get_flat_attributes(self, attributes, node,  nodeMap):
+		for x in self.get_attributes(node):
+				attributes.append( node+'.'+x)
+
+		for k, (tag, map) in nodeMap.items():
+			if tag == '-1':
+				self.get_flat_attributes( attributes,k ,  map)
+			elif tag == '-1(2)':
+				attributes.append(k+'.'+self.get_attributes(k)[0])
 		
 				
+			
+	def get_forms( self, printForms = 0):
+		for k in self.config.roots:
+			map = self.model[k]
+			a = [] 
+			self.get_flat_attributes(a, k, map)
+			allForms = []
+			self.get_collection_forms( allForms, map)
+			self.formList[k] = allForms
+
+			if printForms:
+				print "-" * 30
+				print "For root = ", k, " the flat attribute was: "
+				for k2 in self.sort_pk_first(a):
+					print '\t', k2
+					
+				print "Other forms collected within ", k  ," are:-"
+				self.print_form_list( allForms, 1)
+
+	def print_form_list(self, list, tab):		
+			for k, v in list:
+				print "\t" * tab , "For collection item ", k
+
+				if filter(lambda(x): type(x) <> type([]), v) == []:
+					print "collection subtypes are:"
+				else:	
+					print "\t" * tab , "attributes are :"
+
+				for k2 in self.sort_pk_first(v):
+					if type(k2) == type([]):
+						self.print_form_list(k2, tab+1)
+					else:
+						print "\t" * (tab + 1), k2
+
+	def sort_pk_first( self, l):
+		def sort_path(k1, k2):
+			[t1,a1] = k1.split('.')
+			[t2,a2] = k2.split('.')
+			aIsId = a1[:2] in ['id', 'pk']
+			bIsId = a2[:2] in ['id', 'pk']
+			if aIsId and not bIsId:
+				return -1
+			if not aIsId and bIsId:
+				return 1
+			
+			return cmp(t1,t2) 
+	
+		#l.sort(sort_path)
+		return l
+
+	
+		
+	def mergeParentAttributes( self, attributes, parent_attrs):
+		for node, x in [z.split('.') for z in parent_attrs]:	
+			skip = 0
+			for n, a in [y.split('.') for y in attributes]:
+				if a == x and self.isDirectChild( n, node):
+					skip = 1
+			if not skip:
+				attributes.append( node+'.'+x)
+
+	
+	def get_collection_forms(self, allForms, map, parent_attrs = []):
+
+			for k2, (tag, map2) in map.items():
+				if tag == '-*' or tag == '<-':
+					a2 = []
+					self.get_flat_attributes( a2, k2, map2)
+
+					if tag == '<-':
+						self.mergeParentAttributes(a2, parent_attrs)
+						#a2.extend( parent_attrs )
+
+					if '<-' in [ tag for k,(tag,m) in map2.items() ]:
+						inc_parent_attrs = a2
+						a2 = []
+					else:
+						inc_parent_attrs = []
+
+					forms = []
+					self.get_collection_forms(forms , map2, inc_parent_attrs)
+					a2.append(forms)
+					allForms.append( (k2, a2))
+							
+				
+					
+			
+	
+
+
 class Config:
 	def __init__(self, lines):
 		self.external_fk = {}
 		self.double_linked = []
+		self.reversed_link = []
 		for l in lines:
 			#no indentation
 			l = l.strip()
@@ -354,7 +521,10 @@ class Config:
 				l = [ x.strip() for x in defn.split(',') ]
 				for y in l:
 					self.double_linked.append( [ z.strip() for z in y.split('.') ] )
-			
+			elif name == "reversed_link":
+				l = [ x.strip() for x in defn.split(',') ]
+				for y in l:
+					self.reversed_link.append( [ z.strip() for z in y.split('.') ] )
 			
 	def __str__(self):
 		l = [ "Configuration is : ",
@@ -374,16 +544,18 @@ class Config:
 		return '\n'.join(l)
 
 config = """
-roots:	identity, org, xlnk_identity, clin_root_item
+roots:	identity, names,  org, xlnk_identity
 #roots:, form_instances, vacc_def
 #hide:	xlnk_identity
 external_fk:	xlnk_identity.xfk_identity references identity
-link_tables:	lnk.*
-type_tables:	^.*enum.*, ^.*category, occupation, marital_status, staff_role
+link_tables:	^lnk.*
+reversed_link:	xlnk_identity.allergy_state, clin_root_item.lnk_type2item, clin_narrative.clin_diag, clin_narrative.lnk_code2narr
 
-suppress:	 xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode,  identity..org, vacc_def..xlnk_identity, xlnk_identity.test_org.test_type, org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan, 		clin_root_item.test_org.xlnk_identity, clin_root_item.test_result.xlnk_identity, clin_root_item.lab_request.xlnk_identity, clin_root_item.referral.xlnk_identity, clin_root_item.vaccination.xlnk_identity, clin_root_item..last_act_episode, clin_root_item.clin_health_issue.xlnk_identity
+type_tables:	^.*enum.*, ^.*category,  marital_status, staff_role, clin_item_type
 
-double_linked:	xlnk_identity.referral.xlnk_identity, identity.lnk_person2relative.identity, identity.lnk_job2person.occupation, xlnk_identity.lnk_result2lab_req.test_result, 	xlnk_identity.clin_root_item.clin_episode
+suppress:	 xlnk_identity.test_result, xlnk_identity.lab_request, xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode, xlnk_identity.clin_encounter.curr_encounter, xlnk_identity.test_type.test_result,  identity..org,  xlnk_identity.test_org.test_type, xlnk_identity.form_instances.referral,  org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan, identity.occupation.lnk_job2person
+
+double_linked:	xlnk_identity.referral.xlnk_identity, identity.lnk_person2relative.identity, identity.lnk_job2person.occupation, xlnk_identity.lnk_result2lab_req.test_result, 	xlnk_identity.clin_root_item.clin_episode, xlnk_identity.test_result.xlnk_identity, xlnk_identity.lab_request.xlnk_identity
 
 show_attrs:	0
 #show_attr_direction:	v
@@ -395,6 +567,7 @@ if __name__ == '__main__':
 	l = config.split("\n")
 	configObject = Config(l)
 
+
 	if len(sys.argv) > 1:
 		for x in sys.argv:
 			if x == '-showattr':
@@ -404,6 +577,7 @@ if __name__ == '__main__':
 	print configObject
 	print "*"* 40
 	s = SchemaParser(configObject)
+
 	
 
 #=========================================================================
