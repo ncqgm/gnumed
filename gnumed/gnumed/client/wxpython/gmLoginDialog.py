@@ -34,11 +34,11 @@ It features combo boxes which "remember" any number of previously entered settin
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.36 2003-04-05 00:37:46 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmLoginDialog.py,v 1.37 2003-05-10 18:48:09 hinnef Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
-import os.path, time, cPickle, zlib
+import os.path, time, cPickle, zlib,types
 from wxPython.wx import *
 import gmLoginInfo, gmGuiMain, gmGuiBroker, gmCfg, gmLog
 _cfg = gmCfg.gmDefCfgFile
@@ -220,23 +220,23 @@ class LoginPanel(wxPanel):
 		self.loginparams = cLoginParamChoices()
 
 		tmp = _cfg.get('backend', 'logins')
-		if tmp is not None:
+		if tmp is not None and type(tmp)==types.StringType:
 			self.loginparams.userlist = tmp
 
 		tmp = _cfg.get('backend', 'databases')
-		if tmp is not None:
+		if tmp is not None and type(tmp)==types.StringType:
 			self.loginparams.databaselist = tmp
 
 		tmp = _cfg.get('backend', 'hosts')
-		if tmp is not None:
+		if tmp is not None and type(tmp)==types.StringType:
 			self.loginparams.hostlist = tmp
 
 		tmp = _cfg.get('backend', 'ports')
-		if tmp is not None:
+		if tmp is not None and type(tmp)==types.StringType:
 			self.loginparams.portlist = tmp
 
 		tmp = _cfg.get('backend', 'options')
-		if tmp is not None:
+		if tmp is not None and type(tmp)==types.StringType:
 			self.loginparams.backendoptionlist = tmp
 	#----------------------------
 	def save_settings(self):
@@ -601,7 +601,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.36  2003-04-05 00:37:46  ncq
+# Revision 1.37  2003-05-10 18:48:09  hinnef
+# - added stricter type checks when reading from cfg-file
+#
+# Revision 1.36  2003/04/05 00:37:46  ncq
 # - renamed a few variables to reflect reality
 #
 # Revision 1.35  2003/03/31 00:18:34  ncq
