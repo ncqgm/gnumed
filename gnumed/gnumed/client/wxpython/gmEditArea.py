@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.55 2004-01-24 10:24:17 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmEditArea.py,v 1.56 2004-01-26 18:25:07 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -1299,7 +1299,7 @@ class gmVaccinationEditArea(gmEditArea):
 #		# regime/disease
 #		query = """
 #			select distinct on (regime)
-#				id_regime,
+#				pk_regime,
 #				regime || ' - ' || _(indication)
 #			from
 #				v_vacc_regimes
@@ -1333,26 +1333,6 @@ class gmVaccinationEditArea(gmEditArea):
 			widget = self.fld_vaccine,
 			weight = 3
 		)
-		# Batch No (http://www.fao.org/docrep/003/v9952E12.htm)
-		self.fld_batch_no_lbl = wxStaticText(
-			parent,
-			-1,
-			_("  Serial # "),
-			style = wxALIGN_CENTER_VERTICAL
-		)
-		self._add_field(
-			line = 1,
-			pos = 2,
-			widget = self.fld_batch_no_lbl,
-			weight = 0
-		)
-		self.fld_batch_no = cEditAreaField(parent)
-		self._add_field(
-			line = 1,
-			pos = 3,
-			widget = self.fld_batch_no,
-			weight = 1
-		)
 
 		# FIXME: gmDateTimeInput
 		self.fld_date_given = cEditAreaField(parent)
@@ -1361,6 +1341,27 @@ class gmVaccinationEditArea(gmEditArea):
 			pos = 1,
 			widget = self.fld_date_given,
 			weight = 2
+		)
+
+		# Batch No (http://www.fao.org/docrep/003/v9952E12.htm)
+		self.fld_batch_no_lbl = wxStaticText(
+			parent,
+			-1,
+			_("  Serial # "),
+			style = wxALIGN_CENTER_VERTICAL
+		)
+		self._add_field(
+			line = 3,
+			pos = 1,
+			widget = self.fld_batch_no_lbl,
+			weight = 0
+		)
+		self.fld_batch_no = cEditAreaField(parent)
+		self._add_field(
+			line = 3,
+			pos = 2,
+			widget = self.fld_batch_no,
+			weight = 1
 		)
 
 		# site given
@@ -1387,7 +1388,7 @@ class gmVaccinationEditArea(gmEditArea):
 		)
 		_decorate_editarea_field(self.fld_site_given)
 		self._add_field(
-			line = 3,
+			line = 4,
 			pos = 1,
 			widget = self.fld_site_given,
 			weight = 1
@@ -1412,14 +1413,14 @@ class gmVaccinationEditArea(gmEditArea):
 		)
 		_decorate_editarea_field(self.fld_progress_note)
 		self._add_field(
-			line = 4,
+			line = 5,
 			pos = 1,
 			widget = self.fld_progress_note,
 			weight = 1
 		)
 
 		self._add_field(
-			line = 5,
+			line = 6,
 			pos = 1,
 			widget = self._make_standard_buttons(parent),
 			weight = 1
@@ -1429,9 +1430,10 @@ class gmVaccinationEditArea(gmEditArea):
 	def _define_prompts(self):
 		self._add_prompt(line = 1, label = _("Vaccine"))
 		self._add_prompt(line = 2, label = _("Date given"))
-		self._add_prompt(line = 3, label = _("Site injected"))
-		self._add_prompt(line = 4, label = _("Progress Note"))
-		self._add_prompt(line = 5, label = '')
+		self._add_prompt(line = 3, label = _("Serial #"))
+		self._add_prompt(line = 4, label = _("Site injected"))
+		self._add_prompt(line = 5, label = _("Progress Note"))
+		self._add_prompt(line = 6, label = '')
 	#----------------------------------------------------
 	def _save_new_entry(self):
 		vacc = {}
@@ -2332,7 +2334,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.55  2004-01-24 10:24:17  ncq
+# Revision 1.56  2004-01-26 18:25:07  ncq
+# - some attribute names changed in the backend
+#
+# Revision 1.55  2004/01/24 10:24:17  ncq
 # - method rename for consistency
 #
 # Revision 1.54  2004/01/22 23:42:19  ncq
