@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.33 2005-03-31 17:42:43 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.34 2005-03-31 18:02:07 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -42,6 +42,35 @@ insert into soap_cat_ranks (rank, soap_cat) values (1, 's');
 insert into soap_cat_ranks (rank, soap_cat) values (1, 'o');
 insert into soap_cat_ranks (rank, soap_cat) values (1, 'a');
 insert into soap_cat_ranks (rank, soap_cat) values (1, 'p');
+
+-- ===================================================================
+-- v_emr_journal
+select i18n('health issue');
+select i18n('episode');
+select i18n('encounter');
+
+select i18n('vaccine');
+select i18n('batch no');
+select i18n('indication');
+select i18n('site');
+select i18n('notes');
+
+select i18n('allergene');
+select i18n('substance');
+select i18n('generic');
+select i18n('ATC code');
+select i18n('type');
+select i18n('reaction');
+
+select i18n('lab');
+select i18n('sample ID');
+select i18n('sample taken');
+select i18n('status');
+select i18n('notes');
+
+select i18n('code');
+select i18n('name');
+select i18n('value');
 
 -- ===================================================================
 -- clinical narrative types
@@ -598,11 +627,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.33 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.34 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.33  2005-03-31 17:42:43  ncq
+-- Revision 1.34  2005-03-31 18:02:07  ncq
+-- - add more strings for translation
+--
+-- Revision 1.33  2005/03/31 17:42:43  ncq
 -- - soap_cat_ranks, request_status strings
 --
 -- Revision 1.32  2004/09/29 10:26:40  ncq
