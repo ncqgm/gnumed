@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -63,11 +63,15 @@ def connect_to_db():
 	dbapi = None
 	try:
 		from pyPgSQL import PgSQL
-	except:
-		exc = sys.exc_info()
-		_log.LogException("Cannot load pyPgSQL.pgSQL database adapter module.", exc, fatal=1)
-		return None
-	dbapi = PgSQL
+		dbapi = PgSQL
+	except ImportError:
+		try:
+			import psycopg # try Zope library
+			dbapi = psycopg
+		except ImportError:
+			print "Cannot find Python module for connecting to the database server. Program halted."
+			_log.LogException("Cannot load database adapter module.", sys.exc_info(), fatal=1)
+			return None
 
 	# load authentication information
 	global core_server
@@ -568,7 +572,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.7  2002-11-16 01:12:09  ncq
+# Revision 1.8  2002-11-18 12:23:31  ncq
+# - make Debian happy by checking for psycopg, too
+#
+# Revision 1.7  2002/11/16 01:12:09  ncq
 # - now finally also imports sql schemata from files
 #
 # Revision 1.6  2002/11/03 15:03:07  ncq
