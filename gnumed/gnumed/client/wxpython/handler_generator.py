@@ -38,12 +38,12 @@ class generator:
 		self.control_definition_str = None
 		self.gen_func_params_map = {
 		#'EditAreaTextBox': [("EVT_TEXT", "text_entered")],
-		'wxTextCtrl': [("EVT_TEXT", "text_entered", "GetValue")],
-		'wxComboBox': [("EVT_TEXT", "text_entered", "GetValue")] ,
-		'wxRadioButton': [("EVT_RADIOBUTTON", "radiobutton_clicked", "GetValue")],
-		'wxCheckBox': [("EVT_CHECKBOX", "checkbox_clicked", "GetValue")],
-		'wxButton' : [("EVT_BUTTON", "button_clicked" , None )],
-		'wxListBox': [("EVT_LISTBOX", "list_box_single_clicked", "GetStringSelection"), ("EVT_LISTBOX_DCLICK", "list_box_double_clicked", "GetStringSelection" )]
+		'wxTextCtrl': [("EVT_TEXT", "text_entered", "GetValue", "SetValue")],
+		'wxComboBox': [("EVT_TEXT", "text_entered", "GetValue", "SetValue")] ,
+		'wxRadioButton': [("EVT_RADIOBUTTON", "radiobutton_clicked", "GetValue", "SetValue")],
+		'wxCheckBox': [("EVT_CHECKBOX", "checkbox_clicked", "GetValue", "SetValue")],
+		'wxButton' : [("EVT_BUTTON", "button_clicked" , None , None )],
+		'wxListBox': [("EVT_LISTBOX", "list_box_single_clicked", "GetStringSelection", "SetStringSelection"), ("EVT_LISTBOX_DCLICK", "list_box_double_clicked", "GetStringSelection", "SetStringSelection" )]
 		}
 		self.components = [ 'wxTextCtrl', 'wxComboBox', 'wxButton', 'wxRadioButton', 'wxCheckBox', 'wxListBox' ]
 	
@@ -104,18 +104,14 @@ class generator:
 	def gen_id_set(self, component):
 		return """
 		if self.panel.__dict__.has_key('%s'):
-			id = self.panel.%s.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.%s.SetId(id)
-			self.id_map['%s'] = id
-			""" % (component,  component, component, component)
+			self.set_id_common( '%s',self.panel.%s)
+			""" % (component,  component, component)
 		
 		
-	def gen_command(self,  macro, function_suffix,accessor,    component):
+	def gen_command(self,  macro, function_suffix, accessor, setter,    component):
 		self.evts.append("""if self.panel.__dict__.has_key('%s'):
 			%s(self.panel.%s,\\\n\t\t\tself.id_map['%s'],\\\n\t\t\tself.%s_%s)""" % ( component, macro, component, component,  component , function_suffix) )
-		self.funcs.append((component, function_suffix, accessor) )
+		self.funcs.append((component, function_suffix, accessor, setter ) )
 
 	def process_comp_type_pair(self,  comp, type):
 
@@ -125,7 +121,7 @@ class generator:
 		params = self.gen_func_params_map[type]
 		self.ids.append(self.gen_id_set(comp))
 		for cmd_func in params:
-			self.gen_command( macro = cmd_func[0], function_suffix = cmd_func[1] , accessor = cmd_func[2], component =  comp) 	
+			self.gen_command( macro = cmd_func[0], function_suffix = cmd_func[1] , accessor = cmd_func[2], setter = cmd_func[3], component =  comp) 	
 	
 
 	def process_map( self, map):
@@ -168,6 +164,7 @@ class generator:
 			
 		print "#",  list	
 		self.print_imports()
+		self.print_base_class()
 		for x in list:
 			path = os.path.join( dir_path, x)
 			if os.path.isfile(path):
@@ -183,18 +180,31 @@ class generator:
 		
 	def print_single_class(self, name, has_import_statements = 1):
 		if has_import_statements:
-			self.print_imports()
+			self.print_setup()
 		self.print_class(name)
+		
+	def print_setup(self):
+		self.print_imports()
+		self.print_base_class()
 		
 	def print_imports(self):
 		print """
 from wxPython.wx import * """		
+
+	def get_parts_name(self, name):
+			parts = string.split( name, '_')
+			if len(parts) > 1:
+				name = '_'.join( parts[1:])
+				prefix = parts[0]
+				return name, prefix
+			
+			return name, ""
 	
-	def print_class(self , name ):
+	def print_base_class(self  ):
 		
 		print """
 
-class %s_handler:
+class base_handler:
 
 	def create_handler(self, panel, model = None):
 		if model == None and self.model <> None:
@@ -204,30 +214,131 @@ class %s_handler:
 
 	def __init__(self, panel, model = None):
 		self.panel = panel
-		self.model = model
+		
 		if panel <> None:
-			self.__set_id()
-			self.__set_evt()
+			self.set_id()
+			self.set_evt()
 			self.impl = None
-			if model == None:
-				self.model = {}  # change this to a persistence/business object later
+			self.set_name_map()	
 
+		self.set_model(model)
+			
+	def set_id(self):
+		# pure virtual
+		pass
+	
+	def set_evt(self):
+		# pure virtual
+		pass
+
+	def set_name_map(self):
+		# implement in subclasses,ie. pure virtual(c++) or abstact method( java)
+		pass
+		
 	def set_model(self,  model):
+		if model == None:
+			self.model ={}
+			return
+		
 		self.model = model
+		
+		
+		if  len(model) > 0 and self.panel <> None:
+			self.update_ui(model)
+			
+	def update_ui(self, model):
+		
+		if not  self.__dict__.has_key('name_map'):
+			return
+		if self.name_map == None:
+			return
+		
+		for k in model.keys():
+			v = model[k]
+			map = self.name_map.get( k, None)
+			if map == None:
+				continue
+			print "comp map = ", map
+			setter = map.get('setter_name', None)
+			if setter == None:
+				continue
+			component = map.get('comp_name')
+			if component ==  None:
+				continue
+			
+			#setter(component, v)
+			try:
+				exec( 'self.panel.%s.%s("%s")' % ( component, setter, v) )
+			except:
+				try:
+					exec( 'self.panel.%s.%s(%s)' % ( component, setter, v) )
+				except:
+					print 'failed to set',component,setter,  v
+			
+			
 		
 	def set_impl(self, impl):
 		self.impl = impl
+		
+	def get_valid_component( self , key):
+		if self.panel.__dict__.has_key(key):
+			return self.panel.__dict__[key]
+		return None
 
-	def __set_id(self):
+	def get_valid_func( self, key , func):
+		component =  self.get_valid_component(key)
+		if component == None:
+			return None
+		if component.__class__.__dict__.has_key(func):
+			return component.__class__.__dict__[func]
+		else:
+			print "unable to find ", func, "in component.class ", component.__class__.__name__
+		return None
+
+	def set_id_common(self, name ,  control ):
+		id = control.GetId()
+		if id <= 0:
+			id = wxNewId()
+			control.SetId(id)
+		self.id_map[name] = id
+
+		
+	""" 
+
+	def print_class(self, name):
+		print"""
+class %s_handler( base_handler):
+	
+	def __init__(self, panel, model = None):
+		base_handler.__init__(self, panel, model)
+		""" % name
+		
+	
+		print """
+	def set_name_map(self):
+		map = {}
+		"""
+		for i in self.funcs:
+			name, prefix = self.get_parts_name( i[0] )
+			print""" 
+		comp_map = { 'component': self.get_valid_component('%s') ,\n\t\t\t'setter': self.get_valid_func( '%s', '%s')  ,\n\t\t\t'comp_name' : '%s','setter_name' :  '%s' } 
+		map['%s'] = comp_map
+		""" % (  i[0], i[0], i[3] ,  i[0], i[3] , name) 
+
+		print """
+		self.name_map = map
+	
+
+	def set_id(self):
 		self.id_map = {}
-""" % name
+""" 
 		
 		for i in self.ids:
 			print i
 		
 		
 		print """
-	def __set_evt(self):
+	def set_evt(self):
 		pass
 		"""
 		for i in self.evts:
@@ -247,22 +358,25 @@ class %s_handler:
 			print """
 		print "%s_%s received ", event
 			""" % (i[0], i[1])
+			#    comp, func_suffix
 			
 			if i[2] == None:	# no accessor
 				continue
 			
-			name = i[0]
-			parts = string.split( name, '_')
-			if len(parts) > 1:
-				name = '_'.join( parts[1:])
+			name, prefix = self.get_parts_name(i[0])
 				
 			print """	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['%s']= obj.%s()
-			print self.model['%s']
-		"""  	% (name, i[2], name)
-			#    comp, func_suffix, comp, accessor, comp
+			try :
+				self.model['%s']= obj.%s()
+			except:
+				# for dumbdbm persistent maps
+				self.model['%s'] = str(obj.%s())
+				
+			print self.model, "%s = ",  self.model['%s']
+		"""  	% (name, i[2], name, i[2], name, name)
+			#comp, accessor, comp , comp, comp
 
 
 
