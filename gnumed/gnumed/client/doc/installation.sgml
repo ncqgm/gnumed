@@ -31,6 +31,12 @@
    </abstract>
 
 <revhistory>
+      <revision>
+	<revnumber>0.1.2</revnumber>
+	<date>2002-09-02</date>
+	<authorinitials>gea</authorinitials>
+	<revremark>Intro.sgml converted into installation.sgml since each section will be a different file. also moved things about to make it clear and addded more hints in getting things running</revremark>
+      </revision>
 	<revision>
 		<revnumber>0.1.1</revnumber>
 		<date>2002-09-01</date>
@@ -74,7 +80,59 @@ If CVS asks for a password, use a blank line. The module name is
 <sect1 id="linux">
 	<title>Linux Installation</title>
 
-	<para>GNUMed has run successfully on Linux. It requires a number of
+	<sect2>
+		<title>Distrubutions 'supported'</title>
+		<para>GnuMed is known being actively developed on:</para>
+		<para>
+		<table frame=all>
+			<title>"Supported" Distributions</title>
+			<tgroup cols=3 align=left colsep=1 rowsep=1>
+			<thead>
+			<row>
+				<entry>Distribution</entry>
+				<entry>Version</entry>
+				<entry>URL</entry>
+			</row>
+			</thead>
+			
+			<tbody>
+			<row>
+				<entry>Debian</entry>
+				<entry>unstable</entry>
+				<entry><ulink url="http://www.debian.org">www.debian.org</ulink></entry>
+			</row>
+			<row>
+				<entry>Suse</entry>
+				<entry>???</entry>
+				<entry><ulink url="http://www.suse.com">www.suse.com</ulink></entry>
+			</row>
+			<row>
+				<entry>Mandrake</entry>
+				<entry>???</entry>
+				<entry><ulink url="http://www,mandrake.com">www.mandrake.com</ulink></entry>
+			</row>
+
+			<row>
+				<entry>Microsoft</entry>
+				<entry>NT?, Win98??</entry>
+				<entry><ulink url="http://www.microsoft.com">www.microsoft.com</ulink></entry>
+			</row>
+			</tbody>
+			</tgroup>
+
+		</table>
+		</para>
+
+
+
+
+	</sect2>
+
+
+	
+      <sect2>
+	<title>Requirements</title>
+      <para>GNUMed has run successfully on Linux. It requires a number of
 packages to be installed before it can be run.</para>
       
 <para>GNUMed requires the following packages:</para>
@@ -158,58 +216,26 @@ the web. Here is a
 <ulink url="http://mail.student.unimelb.edu.au/~ihaywood/libpng-1.0.8-1.i386.rpm"> 
 <citetitle>mirror</citetitle></ulink></para> 
 
-
-	<sect2>
-		<title>Distrubutions 'supported'</title>
-		<para>GnuMed is known being actively developed on:</para>
-		<para>
-		<table frame=all>
-			<title>"Supported" Distributions</title>
-			<tgroup cols=3 align=left colsep=1 rowsep=1>
-			<thead>
-			<row>
-				<entry>Distribution</entry>
-				<entry>Version</entry>
-				<entry>URL</entry>
-			</row>
-			</thead>
-			
-			<tbody>
-			<row>
-				<entry>Debian</entry>
-				<entry>unstable</entry>
-				<entry><ulink url="http://www.debian.org">www.debian.org</ulink></entry>
-			</row>
-			<row>
-				<entry>Suse</entry>
-				<entry>???</entry>
-				<entry><ulink url="http://www.suse.com">www.suse.com</ulink></entry>
-			</row>
-			<row>
-				<entry>Mandrake</entry>
-				<entry>???</entry>
-				<entry><ulink url="http://www,mandrake.com">www.mandrake.com</ulink></entry>
-			</row>
-
-			<row>
-				<entry>Microsoft</entry>
-				<entry>NT?, Win98??</entry>
-				<entry><ulink url="http://www.microsoft.com">www.microsoft.com</ulink></entry>
-			</row>
-			</tbody>
-			</tgroup>
-
-		</table>
-		</para>
+      </sect2>
 
 
 
 
-	</sect2>
+
+      <sect2>
+	<title>Postgresql</title>
+
+	<sect3>
+	  <title>Creating a database with PostgresQL</title>
+	  <para>This may be too simplistic but there a few things that need to be cleared up. The first is that when <emphasis>postgresQL</emphasis> gets installed, <emphasis>postgresQL</emphasis> will create a user called <emphasis>postgres</emphasis>. This user <emphasis>postgres</emphasis> can only create other users.  I suggest you create another user with the same name as you normally use to login.</para>
+	  <para>So to create another user to create the database you would first <screen>su root</screen> then you would <screen>su postgres</screen> then you would type <screen>createuser $USER</screen> where $USER is whatever login name you normally use. Be sure to let this new created user make new databases.
+	  <para>Once you have created this second user, which you allow to create databases, you then would type, as this new user, ie first you would login back as a normal user and type <screen>createdb gnumed</screen>.
+	    </para>
+	</sect3>
 
 
-
-<sect2><title>Configuring PostgreSQL (quoting Steven Duffy)</title>
+	<sect3>
+	<title>Configuring PostgreSQL (quoting Steven Duffy)</title>
 <para> Some steps are required to get the <application>PostgreSQL</application>
 database system running.</para>
 <para>First, make sure you have the PostgreSQL server daemon running.
@@ -241,13 +267,30 @@ executed and simply add <command>-i</command> as an argument.
 
 <para>Once PostgreSQL is set up, go to the section on
 setting up the database (<xref linkend="pgsql">.)</para>
+	</sect3>
 
-	<sect3>
-	  <title>Creating a database with PostgresQL</title>
-	  <para>This may be too simplistic but there a few things that need to be cleared up. The first is that when <emphasis>postgresQL</emphasis> gets installed, <emphasis>postgresQL</emphasis> will create a user called <emphasis>postgres</emphasis>. This user <emphasis>postgres</emphasis> can only create other users.  I suggest you create another user with the same name as you normally use to login.</para>
-	  <para>So to create another user to create the database you would first <screen>su root</screen> then you would <screen>su postgres</screen> then you would type <screen>createuser $USER</screen> where $USER is whatever login name you normally use. Be sure to let this new created user make new databases.
-	  <para>Once you have created this second user, which you allow to create databases, you then would type, as this new user, ie first you would login back as a normal user and type <screen>createdb gnumed</screen>.  
+
+<sect2>
+	<title>RunningGnuMed</title>
+	
+		<para>Simple I would have thought but to start Gnumed you must go all the way to</para>
+	<screen>~/gnumed/gnumed/client/wxpython</screen>
+	<para>And one you are here, you should type: <screen>python gnumed.py</screen></para>
+
+	<para>Do not be surprised with a multitude of [WARN} and [INFO] the the python interpreter will spew out. With any luck you will see a login gui</para>
+
+      <sect3>
+	<title>Logging in</title>
+	<para>You will then be faced with login parameters. If you have set up the postgresql correctly, you only need to fill in the follow parameters.</para>
+
+	<para>For <emphasis>Login</emphasis> you enter in the usernamem you used to create the database.</para>
+	<para>For <emphasis>database</emphasis> enter in <emphasis>gnumed</emphasis>. Remember this is the database name you created initally. <emphasis>If</emphasis> all goes well, you will see a very nice GUI</para>
+      </sect3>
 </sect2>
+
+
+
+
 
 <sect1 id="mac"><title>Mac</title>
 <para>This has been done, more information is needed.
@@ -396,12 +439,15 @@ Click on the Python icon and type:
 </sect1>
 
 <sect1 id="pgsql" xreflabel="SQL Setup">
-<title>Setting up <application>PostgreSQL</application></title>
+<title>Configuring <application>PostgreSQL</application> for GnuMed</title>
+      <para>This section applies is distribtuion/OS independant.</para>
 <para>Quoting Steven Duffy in the gnumed.org website</para>
+      <blockquote>
 <para>
 Now that PostgreSQL is installed and working, the server scripts from the CVS repository can be executed. These scripts all end in .sql are intended to be executed from within psql. The one required script is gmconfiguration.sql. To set it up, do the following from the <filename>gnumed/gnumed/server/sql</filename>
 directory:
 </para>
+      </blockquote>
 <screen>
 <prompt>#</prompt> createdb gnumed
 <prompt>#</prompt> psql gnumed
@@ -416,28 +462,6 @@ file there too. <footnote><para>The only such directory at the moment is au, the
 <para>FIXME: presumably some shell script to create all the databases and
 feed in the ER scripts?</para>
 </sect1>
-
-<sect1>
-	<title>Getting GnuMed to run</title>
-
-
-	<sect2><title>Starting GnuMed</title>
-		<para>Simple I would have thought but to start Gnumed you must go all the way to</para>
-	<screen>~/gnumed/gnumed/client/wxpython</screen>
-	<para>And one you are here, you should type: <screen>python gnumed.py</screen></para>
-
-	<para>Do not be surprised with a multitude of [WARN} and [INFO] the the python interpreter will spew out. With any luck you will see a login gui</para>
-	</sect2>
-
-      <sect2>
-	<title>Logging in</title>
-	<para>You will then be faced with login parameters. If you have set up the postgresql correctly, you only need to fill in the follow parameters.</para>
-
-	<para>For <emphasis>Login</emphasis> you enter in the usernamem you used to create the database.</para>
-	<para>For <emphasis>database</emphasis> enter in <emphasis>gnumed</emphasis>. Remember this is the database name you created initally. <emphasis>If</emphasis> all goes well, you will see a very nice GUI</para>
-
-</sect1>
-
 
 </chapter>
 </book>
