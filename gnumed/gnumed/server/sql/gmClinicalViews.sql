@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.62 2004-05-02 19:25:21 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.63 2004-05-06 23:34:52 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -262,21 +262,21 @@ create view v_test_org_profile as
 select
 	torg.pk as pk_test_org,
 	torg.internal_name,
-	ttu.id as pk_test_type,
-	ttu.code as test_code,
-	ttu.coding_system,
-	ttu.internal_code as unified_code,
-	ttu.name as test_name,
-	ttu.internal_name as unified_name,
-	ttu.basic_unit,
-	ttu.comment as test_comment,
+	ttl.id as pk_test_type,
+	ttl.code as test_code,
+	ttl.coding_system,
+	ttl.local_code as unified_code,
+	ttl.name as test_name,
+	ttl.local_name as unified_name,
+	ttl.basic_unit,
+	ttl.comment as test_comment,
 	torg.comment as org_comment,
 	torg.fk_org as pk_org
 from
 	test_org torg,
-	(test_type tt1 left outer join test_type_uni ttu1 on (tt1.id=ttu1.fk_test_type)) ttu
+	(test_type tt1 left outer join test_type_local ttl1 on (tt1.id=ttl1.fk_test_type)) ttl
 where
-	ttu.fk_test_org=torg.pk
+	ttl.fk_test_org=torg.pk
 ;
 
 
@@ -293,10 +293,10 @@ select
 	lr.lab_rxd_when,
 	tr.clin_when as val_when,
 	lr.results_reported_when as reported_when,
-	coalesce(ttu.internal_code, ttu.code) as unified_code,
-	coalesce(ttu.internal_name, ttu.name) as unified_name,
-	ttu.code as lab_code,
-	ttu.name as lab_name,
+	coalesce(ttl.local_code, ttl.code) as unified_code,
+	coalesce(ttl.local_name, ttl.name) as unified_name,
+	ttl.code as lab_code,
+	ttl.name as lab_name,
 	case when coalesce(trim(both from tr.val_alpha), '') = ''
 		then tr.val_num::text
 		else case when tr.val_num is null
@@ -332,13 +332,13 @@ from
 		inner join
 	lab_request lr on (tr.fk_request=lr.pk),
 	v_pat_episodes vpep,
-	(test_type tt1 left outer join test_type_uni ttu1 on (tt1.id=ttu1.fk_test_type)) ttu
+	(test_type tt1 left outer join test_type_local ttl1 on (tt1.id=ttl1.fk_test_type)) ttl
 where
 	lr.is_pending=false
 		and
 	vpep.id_episode=lr.id_episode
 		and
-	ttu.id=tr.fk_type
+	ttl.id=tr.fk_type
 ;
 
 -- ==========================================================
@@ -749,7 +749,7 @@ TO GROUP "_gm-doctors";
 grant select on
 	test_org
 	, test_type
-	, test_type_uni
+	, test_type_local
 	, lnk_tst2norm
 	, test_result
 	, lab_request
@@ -761,8 +761,8 @@ grant select, insert, update, delete on
 	, test_org_pk_seq
 	, test_type
 	, test_type_id_seq
-	, test_type_uni
-	, test_type_uni_pk_seq
+	, test_type_local
+	, test_type_local_pk_seq
 	, lnk_tst2norm
 	, lnk_tst2norm_id_seq
 	, test_result
@@ -793,11 +793,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.62 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.63 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.62  2004-05-02 19:25:21  ncq
+-- Revision 1.63  2004-05-06 23:34:52  ncq
+-- - test_type_uni -> test_type_local
+--
+-- Revision 1.62  2004/05/02 19:25:21  ncq
 -- - adapt to progress_note <-> description reversal in clin_working_diag
 --
 -- Revision 1.61  2004/04/30 12:22:31  ihaywood
