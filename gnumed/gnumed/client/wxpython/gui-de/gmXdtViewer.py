@@ -20,26 +20,26 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui-de/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.2 2003-02-13 15:51:09 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmXdtViewer.py,v 1.3 2003-02-15 10:53:10 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys,os,fileinput,string,linecache
-#modules = {}
 # location of our modules
-sys.path.append(os.path.join('..', '..', 'python-common'))
-sys.path.append(os.path.join('..', '..', 'business'))
+if __name__ == "__main__":
+	sys.path.append(os.path.join('..', '..', 'python-common'))
+	sys.path.append(os.path.join('..', '..', 'business'))
 
 import gmLog
-#<DEBUG>
-gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
-#</DEBUG>
 _log = gmLog.gmDefLog
+if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
+
+_log.Log(gmLog.lData, __version__)
 
 from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
-import gmCLI
 from gmXdtMappings import xdt_id_map, xdt_packet_type_map
 #=============================================================================
 class gmXdtListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
@@ -276,6 +276,7 @@ class gmBDT(wxPanel):
 # main
 #------------------------------------------------------
 if __name__ == '__main__':
+	import gmCLI
 	try:
 		application = wxPyWidgetTester(size=(800,600))
 		application.SetWidget(gmXdtViewerPanel)
@@ -298,7 +299,10 @@ else:
 			return ('tools', _('&show BDT'))
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.2  2003-02-13 15:51:09  ncq
+# Revision 1.3  2003-02-15 10:53:10  ncq
+# - works standalone
+#
+# Revision 1.2  2003/02/13 15:51:09  ncq
 # - added TODO
 #
 # Revision 1.1  2003/02/13 15:25:15  ncq
