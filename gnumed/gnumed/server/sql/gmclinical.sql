@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.90 $
+-- $Revision: 1.91 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -553,7 +553,6 @@ create table allergy (
 	allergene varchar(256) default null,
 	atc_code varchar(32) default null,
 	id_type integer not null references _enum_allergy_type(id),
-	reaction text default '',
 	generic_specific boolean default false,
 	definite boolean default false
 ) inherits (clin_root_item);
@@ -580,8 +579,6 @@ comment on column allergy.atc_code is
 	'ATC code of allergene or substance if approprate, applicable for penicilline, not so for cat fur';
 comment on column allergy.id_type is
 	'allergy/sensitivity';
-comment on column allergy.reaction is
-	'description of reaction such as "difficulty breathing", "skin rash", "diarrhea" etc.';
 comment on column allergy.generic_specific is
 	'only meaningful for *drug*/*generic* reactions:
 	 1) true: applies to one in "generics" forming "substance",
@@ -901,11 +898,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.90 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.91 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.90  2004-03-18 10:57:20  ncq
+-- Revision 1.91  2004-03-19 10:55:40  ncq
+-- - remove allergy.reaction -> use clin_root_item.narrative instead
+--
+-- Revision 1.90  2004/03/18 10:57:20  ncq
 -- - several fixes to the data
 -- - better constraints on vacc.seq_no/is_booster
 --

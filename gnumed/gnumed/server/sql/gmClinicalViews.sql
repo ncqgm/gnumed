@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.45 2004-03-12 23:15:04 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.46 2004-03-19 10:55:40 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -319,12 +319,11 @@ select
 	a.generics as generics,
 	a.allergene as allergene,
 	a.atc_code as atc_code,
-	a.reaction as reaction,
+	a.narrative as reaction,
 	a.generic_specific as generic_specific,
 	a.definite as definite,
 	a.id_type as id_type,
-	_(at.value) as type,
-	a.narrative as "comment"
+	_(at.value) as type
 from
 	allergy a,
 	_enum_allergy_type at,
@@ -533,11 +532,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.45 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.46 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.45  2004-03-12 23:15:04  ncq
+-- Revision 1.46  2004-03-19 10:55:40  ncq
+-- - remove allergy.reaction -> use clin_root_item.narrative instead
+--
+-- Revision 1.45  2004/03/12 23:15:04  ncq
 -- - adjust to id_ -> fk_/pk_
 --
 -- Revision 1.44  2004/02/18 15:29:05  ncq
