@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/indexFrame.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -70,7 +70,8 @@ class indexFrame(wxFrame):
 		pass
 	#---------------------------------------------------------------------------
 	def _init_ctrls(self, prnt):
-		# create our basic frame
+
+		#-- basic frame -------------
 		wxFrame.__init__(
 			self,
 			id = wxID_INDEXFRAME,
@@ -84,6 +85,7 @@ class indexFrame(wxFrame):
 		self._init_utils()
 		self.SetClientSize(wxSize(763, 616))
 
+		#-- main panel -------------
 		self.PNL_main = wxPanel(
 			id = wxID_INDEXFRAMEMAINPANEL,
 			name = 'main panel',
@@ -94,6 +96,7 @@ class indexFrame(wxFrame):
 		)
 		self.PNL_main.SetBackgroundColour(wxColour(225, 225, 225))
 
+		#-- load pages button -------------
 		self.BTN_get_pages = wxButton(
 			id = wxID_INDEXFRAMEGETPAGESBUTTON,
 			label = _('load pages'),
@@ -103,10 +106,19 @@ class indexFrame(wxFrame):
 			size = wxSize(176, 22),
 			style = 0
 		)
-		self.BTN_get_pages.SetToolTipString(_('retrieve all pages for this document'))
+		self.BTN_get_pages.SetToolTipString(_('load all pages for this document'))
 		EVT_BUTTON(self.BTN_get_pages, wxID_INDEXFRAMEGETPAGESBUTTON, self.on_get_pages)
 
-		self.readFaxButton = wxButton(id = wxID_INDEXFRAMEREADFAXBUTTON, label = _('load fax-document'), name = 'readFaxButton', parent = self.PNL_main, pos = wxPoint(48, 232), size = wxSize(176, 22), style = 0)
+		#-- load fax button -------------
+		self.BTN_read_fax = wxButton(
+			id = wxID_INDEXFRAMEREADFAXBUTTON,
+			label = _('load fax-document'),
+			name = 'BTN_read_fax',
+			parent = self.PNL_main,
+			pos = wxPoint(48, 232),
+			size = wxSize(176, 22),
+			style = 0
+		)
 
 		self.showPicButton = wxButton(id = wxID_INDEXFRAMESHOWPICBUTTON, label = _('show page'), name = 'showPicButton', parent = self.PNL_main, pos = wxPoint(48, 400), size = wxSize(95, 22), style = 0)
 		self.showPicButton.SetToolTipString(_('show page'))
@@ -115,6 +127,7 @@ class indexFrame(wxFrame):
 		self.delPicButton = wxButton(id = wxID_INDEXFRAMEDELPICBUTTON, label = _('delete page'), name = 'delPicButton', parent = self.PNL_main, pos = wxPoint(143, 400), size = wxSize(90, 22), style = 0)
 		EVT_BUTTON(self.delPicButton, wxID_INDEXFRAMEDELPICBUTTON, self.OnDelpicbuttonButton)
 
+		#-- list box with pages -------------
 		self.LBOX_doc_pages = wxListBox(
 			choices = [],
 			id = wxID_INDEXFRAMELBOXPAGES,
@@ -126,6 +139,7 @@ class indexFrame(wxFrame):
 			validator = wxDefaultValidator
 		)
 
+		#-- first name text box -------------
 		self.TBOX_first_name = wxTextCtrl(
 			id = wxID_INDEXFRAMEFIRSTNAMEBOX,
 			name = 'TBOX_first_name',
@@ -139,6 +153,7 @@ class indexFrame(wxFrame):
 		self.TBOX_first_name.SetBackgroundColour(wxColour(255, 255, 255))
 		#self.TBOX_first_name.Enable(false)
 
+		#-- last name text box -------------
 		self.TBOX_last_name = wxTextCtrl(
 			id = wxID_INDEXFRAMELASTNAMEBOX,
 			name = 'TBOX_last_name',
@@ -152,6 +167,7 @@ class indexFrame(wxFrame):
 		self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
 		#self.TBOX_last_name.Enable(false)
 
+		#-- dob text box -------------
 		self.TBOX_dob = wxTextCtrl(
 			id = wxID_INDEXFRAMEDATEOFBIRTHBOX,
 			name = 'TBOX_dob',
@@ -165,14 +181,33 @@ class indexFrame(wxFrame):
 		#self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
 		#self.TBOX_dob.Enable(false)
 
-		self.BefundDate = wxTextCtrl(id = wxID_INDEXFRAMEBEFUNDDATE, name = 'BefundDate', parent = self.PNL_main, pos = wxPoint(304, 312), size = wxSize(152, 22), style = 0, value = _('please fill in'))
+		#-- document date text box -------------
+		self.TBOX_doc_date = wxTextCtrl(
+			id = wxID_INDEXFRAMEBEFUNDDATE,
+			name = 'TBOX_doc_date',
+			parent = self.PNL_main,
+			pos = wxPoint(304, 312),
+			size = wxSize(152, 22),
+			style = 0,
+			value = _('please fill in')
+		)
 
-		self.shortDecriptionBox = wxTextCtrl(id = wxID_INDEXFRAMESHORTDECRIPTIONBOX, name = 'shortDecriptionBox', parent = self.PNL_main, pos = wxPoint(304, 368), size = wxSize(152, 22), style = 0, value = _('please fill in'))
+		#-- document comment text box -------------
+		self.TBOX_desc_short = wxTextCtrl(
+			id = wxID_INDEXFRAMESHORTDECRIPTIONBOX,
+			name = 'TBOX_desc_short',
+			parent = self.PNL_main,
+			pos = wxPoint(304, 368),
+			size = wxSize(152, 22),
+			style = 0,
+			value = _('please fill in')
+		)
 
-		self.DescriptionChoiceBox = wxComboBox(
+		#-- document type selection box -------------
+		self.SelBOX_doc_type = wxComboBox(
 			choices = self.valid_doc_types,
 			id = wxID_INDEXFRAMEDESCRIPTIONCHOICEBOX,
-			name = 'DescriptionChoiceBox',
+			name = 'SelBOX_doc_type',
 			parent = self.PNL_main,
 			pos = wxPoint(304, 416),
 			size = wxSize(152, 22),
@@ -180,7 +215,7 @@ class indexFrame(wxFrame):
 			validator = wxDefaultValidator,
 			value = _('choose document type')
 		)
-		self.DescriptionChoiceBox.SetLabel('')
+		self.SelBOX_doc_type.SetLabel('')
 
 		self.saveButton = wxButton(id = wxID_INDEXFRAMESAVEBUTTON, label = _('save document'), name = 'saveButton', parent = self.PNL_main, pos = wxPoint(544, 112), size = wxSize(144, 328), style = 0)
 		self.saveButton.SetToolTipString(_('save'))
@@ -279,12 +314,12 @@ class indexFrame(wxFrame):
 		self.TBOX_dob.SetValue(self.myPatient.dob)
 
 		#if not self.Obj_Datum_value == _('please fill in'):
-#		self.BefundDate.AppendText(self.Obj_Datum_value)
+#		self.TBOX_doc_date.AppendText(self.Obj_Datum_value)
 		#if not self.Obj_Name_value == _('please fill in'):
-#		self.shortDecriptionBox.AppendText(self.Obj_Name_value)
+#		self.TBOX_desc_short.AppendText(self.Obj_Name_value)
 		#if not self.Obj_Typ_value =='':
-#		index = self.DescriptionChoiceBox.FindString(self.Obj_Typ_value)
-#		self.DescriptionChoiceBox.SetSelection(index)
+#		index = self.SelBOX_doc_type.FindString(self.Obj_Typ_value)
+#		self.SelBOX_doc_type.SetSelection(index)
 		#if not self.Obj_Beschreibung_value =='':
 #		self.additionCommentBox.AppendText(self.Obj_Beschreibung_value)
 	#----------------------------------------
@@ -337,9 +372,9 @@ class indexFrame(wxFrame):
 	#----------------------------------------
 	def __clear_doc_data(self):
 		# clear fields
-		self.BefundDate.Clear()
-		self.shortDecriptionBox.Clear()
-		self.DescriptionChoiceBox.SetSelection(-1)
+		self.TBOX_doc_date.Clear()
+		self.TBOX_desc_short.Clear()
+		self.SelBOX_doc_type.SetSelection(-1)
 		self.additionCommentBox.Clear()
 		self.LBOX_doc_pages.Clear()
 		# forget all pages
@@ -497,12 +532,12 @@ class indexFrame(wxFrame):
 	def updateGUIonLoadRecords(self):
 		self.TBOX_dob.AppendText(self.Geburtsdatum)
 		#if not self.Obj_Datum_value == _('please fill in'):
-		self.BefundDate.AppendText(self.Obj_Datum_value)
+		self.TBOX_doc_date.AppendText(self.Obj_Datum_value)
 		#if not self.Obj_Name_value == _('please fill in'):
-		self.shortDecriptionBox.AppendText(self.Obj_Name_value)
+		self.TBOX_desc_short.AppendText(self.Obj_Name_value)
 		#if not self.Obj_Typ_value =='':
-		index = self.DescriptionChoiceBox.FindString(self.Obj_Typ_value)
-		self.DescriptionChoiceBox.SetSelection(index)
+		index = self.SelBOX_doc_type.FindString(self.Obj_Typ_value)
+		self.SelBOX_doc_type.SetSelection(index)
 		#if not self.Obj_Beschreibung_value =='':
 		self.additionCommentBox.AppendText(self.Obj_Beschreibung_value)
 
@@ -574,10 +609,10 @@ class indexFrame(wxFrame):
 		event.Skip()
 		# check whether values for date of record, record type, short comment and extended comment
 		# have been filled in
-		date=self.BefundDate.GetLineText(0)
+		date=self.TBOX_doc_date.GetLineText(0)
 		datechecklist = string.split(date,'-')
-		shortDescription=self.shortDecriptionBox.GetLineText(0)
-		DescriptionChoice=self.DescriptionChoiceBox.GetSelection()
+		shortDescription=self.TBOX_desc_short.GetLineText(0)
+		DescriptionChoice=self.SelBOX_doc_type.GetSelection()
 		additionalComment=self.additionCommentBox.GetLineText(0)
 		# do some checking on the date
 		if date == _('please fill in'):
@@ -730,9 +765,9 @@ class indexFrame(wxFrame):
 			out_file.write ("<" + __cfg__.get("metadata", "name_tag")        + ">" + self.Nachname           + "</" + __cfg__.get("metadata", "name_tag")      + ">\n")
 			out_file.write ("<" + __cfg__.get("metadata", "firstname_tag")   + ">" + self.Vorname            + "</" + __cfg__.get("metadata", "firstname_tag") + ">\n")
 			out_file.write ("<" + __cfg__.get("metadata", "birth_tag")       + ">" + self.queryGeburtsdatum  + "</" + __cfg__.get("metadata", "birth_tag")     + ">\n" )
-			out_file.write ("<" + __cfg__.get("metadata", "date_tag")        + ">" + self.BefundDate.GetLineText(0) + "</" + __cfg__.get("metadata", "date_tag") + ">\n" )
-			out_file.write ("<" + __cfg__.get("metadata", "type_tag")        + ">" + self.DescriptionChoiceBox.GetStringSelection() + "</" + __cfg__.get("metadata", "type_tag") + ">\n")
-			out_file.write ("<" + __cfg__.get("metadata", "comment_tag")     + ">" + self.shortDecriptionBox.GetLineText(0) + "</" + __cfg__.get("metadata", "comment_tag") + ">\n")
+			out_file.write ("<" + __cfg__.get("metadata", "date_tag")        + ">" + self.TBOX_doc_date.GetLineText(0) + "</" + __cfg__.get("metadata", "date_tag") + ">\n" )
+			out_file.write ("<" + __cfg__.get("metadata", "type_tag")        + ">" + self.SelBOX_doc_type.GetStringSelection() + "</" + __cfg__.get("metadata", "type_tag") + ">\n")
+			out_file.write ("<" + __cfg__.get("metadata", "comment_tag")     + ">" + self.TBOX_desc_short.GetLineText(0) + "</" + __cfg__.get("metadata", "comment_tag") + ">\n")
 			out_file.write ("<" + __cfg__.get("metadata", "add_comment_tag") + ">" + self.additionCommentBox.GetValue() + "</" + __cfg__.get("metadata", "add_comment_tag") + ">\n")
 			out_file.write ("<" + __cfg__.get("metadata", "ref_tag")         + ">" + self.Obj_Referenz_value + "</" + __cfg__.get("metadata", "ref_tag") + ">\n")
 			while x < runs:
