@@ -1,7 +1,7 @@
 -- Project: GnuMed - cross-database foreign key descriptions
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCrossDB_FKs.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -21,7 +21,7 @@
 create table x_db_fk (
 	id serial primary key,
 	fk_schema name default null,
-	fk_table name not null references pg_class(relname),
+	fk_table name not null, -- references pg_class(relname),
 	fk_col name not null, -- references pg_attribute(attname),
 	src_service text not null default 'default',
 	src_schema name default null,
@@ -69,7 +69,7 @@ create table x_db_fk_violation (
 	-- value casted to text ...
 	fk_value text not null,
 	fk_schema name default null,
-	fk_table name not null references pg_class(relname),
+	fk_table name not null, -- references pg_class(relname),
 	fk_col name not null, -- references pg_attribute(attname),
 	src_service text not null default 'default',
 	src_schema name default null,
@@ -94,11 +94,14 @@ create table x_db_fk_violation (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmCrossDB_FKs.sql,v $
--- Revision 1.1  2003-07-26 23:52:40  ncq
+-- Revision 1.2  2003-07-26 23:59:03  ncq
+-- - can't create trigger on pg_class, hence cannot reference as FK source
+--
+-- Revision 1.1  2003/07/26 23:52:40  ncq
 -- - initial commit
 -- - remote foreign keys
 --
