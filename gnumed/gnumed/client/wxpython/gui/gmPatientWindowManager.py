@@ -17,9 +17,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmPatientWindowManager.py,v $
-# $Id: gmPatientWindowManager.py,v 1.14 2003-02-09 10:30:49 ncq Exp $
+# $Id: gmPatientWindowManager.py,v 1.15 2003-02-09 20:03:43 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -220,11 +220,14 @@ class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
 		menu.Destroy (self.menu_id)
 		# FIXME: should we unregister () each of our sub-modules?
 	#----------------------------------------------
-	def Shown (self):
+	def ReceiveFocus(self):
 		self.gb['modules.patient'][self.pw.GetVisible()].Shown()
 #==================================================
 # $Log: gmPatientWindowManager.py,v $
-# Revision 1.14  2003-02-09 10:30:49  ncq
+# Revision 1.15  2003-02-09 20:03:43  ncq
+# - Shown -> ReceiveFocus
+#
+# Revision 1.14  2003/02/09 10:30:49  ncq
 # - cleanup
 #
 # Revision 1.13  2003/02/09 01:08:03  sjtan
