@@ -12,8 +12,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.29 2004-06-27 13:42:26 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmDemographics.py,v 1.30 2004-06-29 22:48:47 shilbert Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -421,7 +421,10 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.sizer_line4_right.Add(self.combo_relationship,2,wxEXPAND)
 		#name of next of kin
 		self.sizer_gap_vertical =wxBoxSizer(wxVERTICAL)
-		self.sizer_gap_vertical.Add(1,47,1)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_gap_vertical.Add((1,47),1)
+		else:
+			self.sizer_gap_vertical.Add(1,47,1)
 		self.sizer_line5_right.Add(self.lbl_addressNOK,2,wxEXPAND)
 		self.sizer_line5_right.Add(self.lb_nameNOK, 6,wxEXPAND)
 		self.sizer_line5_right.AddSizer(self.sizer_gap_vertical)
@@ -775,7 +778,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.29  2004-06-27 13:42:26  ncq
+# Revision 1.30  2004-06-29 22:48:47  shilbert
+# - one more wxMAC fix
+#
+# Revision 1.29  2004/06/27 13:42:26  ncq
 # - further Mac fixes - maybe 2.5 issues ?
 #
 # Revision 1.28  2004/06/23 21:26:28  ncq
