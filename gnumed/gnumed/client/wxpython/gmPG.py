@@ -48,7 +48,7 @@ class ConnectionPool:
 			ConnectionPool.__connected = 1
 
 		#this is the default gnumed server now!
-		ConnectionPool.__databases['gnumed'] = cdb
+		ConnectionPool.__databases['default'] = cdb
 
 		#try to establish connections to all servers we need
 		#according to configuration database
@@ -124,14 +124,23 @@ class ConnectionPool:
 			return
 		#disconnect from all databases
 		for key in ConnectionPool.__databases.keys():
-			ConnectionPool.__databases[key].disconnect()
+			ConnectionPool.__databases[key].close()
 		#clear the dictionary
 		ConnectionPool.__databases.clear()
 		gmdbConnectionPool.__connected = 0
 
 
 	def getConnection(self, service):
-		return gmdbConnectionPool.__databases[service]
+		"if a distributed service exists, return it - otherwise return the default server
+		if gmdbConnectionPool.__databases.has_key(service):
+			return gmdbConnectionPool.__databases[service]
+		else:
+			return gmdbConnectionPool.__databases['default']
+
+
+	def GetAvailableServices(self):
+		return gmdbConnectionPool.__databases.items()
+
 
 	def LogError(msg):
 		"This function must be overridden by GUI applications"
