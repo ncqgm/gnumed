@@ -2,11 +2,11 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GnuMed 0.1\n"
-"POT-Creation-Date: Sat Feb  1 02:20:35 2003\n"
+"POT-Creation-Date: Sat Feb  1 03:50:05 2003\n"
 "PO-Revision-Date: 2002-09-17 15:18+0200\n"
 "Last-Translator: Sebastian Hilbert <sebastian.hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -1140,7 +1140,7 @@ msgstr "Übersetzen"
 msgid "Miss"
 msgstr "Frau"
 
-#: ../python-common/gmI18N.py:192 ../wxpython/patient/modules/gmI18N.py:192
+#: ../python-common/gmI18N.py:194 ../wxpython/patient/modules/gmI18N.py:194
 msgid "%Y-%m-%d  %H:%M:%S"
 msgstr "%Y-%m-%d  %H:%M:%S"
 
