@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -274,6 +274,7 @@ class cDocument:
 
 		# if None -> use tempfile module default, else use that path as base directory for temp files
 		tempfile.tempdir = aTempDir
+		tempfile.template = "obj-"
 
 		# now get the object
 		obj = self.__metadata['objects'][anObjID]
@@ -290,8 +291,6 @@ class cDocument:
 		aFile.close()
 		# close our connection
 		cursor.close()
-
-		del self.tmp
 
 		__log__.Log(gmLog.lData, 'Meta data: %s' % self.__metadata)
 		return (1==1)
@@ -508,7 +507,7 @@ class cPatientDocumentList:
 			__log__.Log(gmLog.lData, "Trying to load document with id %s" % aDocumentID)
 
 		if (aTempDir == None) or (not os.path.exists (aTempDir)):
-			__log__.Log(gmLog.lErr, "The directory '%s' does not exist ! Falling back to default temporary directory." % (aTempDir, tempfile.tempdir)) # which is tempfile.tempdir == None == use system defaults
+			__log__.Log(gmLog.lErr, "The directory '%s' does not exist ! Falling back to default temporary directory." % aTempDir) # which is tempfile.tempdir == None == use system defaults
 		else:
 			__log__.Log(gmLog.lData, "working into directory '%s'" % aTempDir)
 
