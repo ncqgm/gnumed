@@ -1,0 +1,160 @@
+$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/TODO,v $
+$Id: TODO,v 1.1 2004-03-27 22:35:44 ncq Exp $
+$Revision: 1.1 $
+====================================================
+
+gmCfg
+
+- make PgArray into a stub
+
+- note on "__default__" behaviour
+---------
+gmLoginDialog
+
+- phrase wheel
+----------
+gmShadow
+
+- cfg.*
+---------
+Mail to Medys
+
+- LNMP-Rechner
+--------
+date ctrl
+
+- display day of week on dates on loosing focus
+- display current interpretation of fragment
+- ask user if month/year ambigous on loosing focus
+- calendar popup
+- restrict: max offset from base
+- restrict: after/before (base) only
+- restrict: (list of days of week) only
+- restrict: y2k window
+- input "tuesday march 2000" -> popup with all 4 or 5 possible tuesdays in march 2000
+
+-------------
+i18n
+- script to del lang in db when no translation avail for lang
+
+--------------
+patient search
+- enter -> search and make active
+- button -> search and start new client instance with patient
+--------------
+document signing script
+--------------
+script to collect name<->gender correspondence
+
+-----------------------------------
+slave mode
+- on close warn if attached
+----------------------------
+gmMacroPrimitives
+- get_visible_plugin()
+- spinlock on user input (how ?)
+-------------------------
+xdt2gnumed.py
+-------------------------
+bootstrap
+- cleanup nice mode
+-------------------------
+encounter handling
+- connect type picker in main GUI
+- MRC/MCU-type based creation (per patient) in __init__()
+------------------------
+vaccinations widget
+- delete entries
+------------------------
+gnumed.py
+- rework use of resource_dir/base_dir
+--------------------------
+gmI18N
+- only explicitely install _()
+--------------------------
+main GUI
+- on new patient
+- if child
+- Wizard für erledigte Vorsorgen/Impfungen
+- anhand Alter "über"fällige errechnen
+- zum Ankreuzen als erledigt anbieten
+- weiteren Ablaufplan zum Ausdruck anbieten
+
+--------------------------
+- whole page notebook plugin for GNotary client
+- whole page PubMed search-by-email plugin
+- whole page print queue plugin with beep or popup
+
+top toolbar:
+ title
+ name
+ gender
+ age (up to 2 years in Monaten)
+
+on birthday:
+ flash dob for 3-4 seconds (config)
+ display dob in red for another 3-4 seconds (config)
+--------------------
+www.dosing.de
+
+- on Rezept
+  -> if diagnose==niere or nierenwert==pathologisch
+    - zeige warnung
+	- zeige dosis-rechner
+dosis-rechner:
+	know how to get lab results
+	know how to find out data on drugs
+	know how to take age into account
+	know how to calculate dosage
+	return dosage for reuse by other modules
+--------------------
+amis-client
+--------------------
+stiko-client
+--------------------
+www.roche.de/realflu
+grenzach.internet@roche.com
+ melde-client
+--------------------
+GnuMed system health monitor
+- GUI event monitor
+- passive only
+- displays backend async messages
+- displays database health statistics
+- whole-page notebook plugin for GnuMed client ?
+
+---------------------------------
+GnuMed database integrity checker
+
+- several scripts
+- check for particular potential problems
+- report problems in standard format to
+  - system health monitor
+  - admin
+  - database
+
+-------
+Signals
+
+- via backend:
+  - server: warn_about_update
+  eventually:
+  - server: request_commit_and_cease (work)
+  - client: ack_commit_and_cease
+  - client: done_commit_and_cease
+  - server: request_resume_after_cease
+
+---------------------
+CD/DVD viewer
+
+- X ray facilities start handing CD/DVD to people with
+  their studies on them
+- the included browser, however, only runs on windows
+- so, on linux provide the following:
+- function "browse CD/DVD"
+  - scan all files on media
+  - match against known list of useful mime types
+    (gif, jpeg, png, mpeg, dicom, etc)
+  - display known useful files in flat list
+  - let user select a file
+  - start viewer via mailcap
