@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -108,6 +108,7 @@ class ConnectionPool:
 		if login is not None:
 			self.__disconnect()
 		if ConnectionPool.__connected is None:
+			self.SetFetchReturnsList()
 			ConnectionPool.__connected = self.__connect(login)
 	#-----------------------------
 	def GetConnection(self, service, readonly=1):
@@ -623,7 +624,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.24  2002-10-20 16:10:46  ncq
+# Revision 1.25  2002-10-25 13:02:35  hherb
+# FetchReturnsList now default on connection creation
+#
+# Revision 1.24  2002/10/20 16:10:46  ncq
 # - a few bits here and there
 # - cleaner logging
 # - raise ImportError on failing to import a database adapter instead of dying immediately
