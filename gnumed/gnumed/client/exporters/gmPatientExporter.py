@@ -10,19 +10,18 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.22 2004-07-18 10:46:30 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmPatientExporter.py,v 1.23 2004-07-26 00:02:30 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
 import sys, traceback, string, types
 
+import mx.DateTime.Parser as mxParser
+
 from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull
 from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab, gmMedDoc
 from Gnumed.pycommon.gmPyCompat import *
-
-# 3rd party
-import mx.DateTime.Parser as mxParser
 
 if __name__ == "__main__":
     gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
@@ -35,7 +34,7 @@ def prompted_input(prompt, default=None):
     """
     Obtains entry from standard input
     
-    prompt - Promt text to display in standard output
+    prompt - Prompt text to display in standard output
     default - Default value (for user to press only intro)
     """    
     usr_input = raw_input(prompt)
@@ -145,7 +144,7 @@ class cEmrExport:
                 if text == None:
                     return a_vacc['batch_no']
                 if text == 'DUE':
-                    if a_vacc['overdue'] == True:
+                    if a_vacc['overdue']:
                         text = 'OVERDUE  '
                     else:
                         text = 'DUE      '
@@ -260,49 +259,53 @@ class cEmrExport:
             txt += offset*' ' + a_field + (20-len(a_field))*' ' + ':\t' + str(item[a_field]) + '\n'
         return txt
     #--------------------------------------------------------
-    def get_allergy_output(self, allergy):
+    def get_allergy_output(self, allergy, left_margin = 0):
         """
             Dumps allergy item data
             allergy - Allergy item to dump
+            left_margin - Number of spaces on the left margin
         """
         txt = ''
-        txt += 12*' ' + 'Allergy: \n'
-        txt += self.dump_item_fields(15, allergy, ['allergene', 'substance', 'generic_specific','l10n_type', 'definite', 'reaction'])
+        txt += left_margin*' ' + _('Allergy') + ': \n'
+        txt += self.dump_item_fields((left_margin+3), allergy, ['allergene', 'substance', 'generic_specific','l10n_type', 'definite', 'reaction'])
         return txt
     #--------------------------------------------------------
-    def get_vaccination_output(self, vaccination):
+    def get_vaccination_output(self, vaccination, left_margin = 0):
         """
             Dumps vaccination item data
             vaccination - Vaccination item to dump
+            left_margin - Number of spaces on the left margin
         """
         txt = ''
-        txt += 12*' ' + 'Vaccination: \n'
-        txt += self.dump_item_fields(15, vaccination, ['l10n_indication', 'vaccine', 'batch_no', 'site', 'narrative'])        
+        txt += left_margin*' ' + _('Vaccination') + ': \n'
+        txt += self.dump_item_fields((left_margin+3), vaccination, ['l10n_indication', 'vaccine', 'batch_no', 'site', 'narrative'])        
         return txt
     #--------------------------------------------------------
-    def get_lab_result_output(self, lab_result):
+    def get_lab_result_output(self, lab_result, left_margin = 0):
         """
             Dumps lab result item data
             lab_request - Lab request item to dump
+            left_margin - Number of spaces on the left margin            
         """
         txt = ''
         if self.lab_new_encounter:
-            txt += 12*' ' + 'Lab result: \n'
-        txt += 15*' ' + lab_result['unified_name'] + (20-len(lab_result['unified_name']))*' ' + ':\t' + lab_result['unified_val']+ ' ' + lab_result['val_unit'] + '(' + lab_result['material'] + ')' + '\n'
+            txt += (left_margin+3)*' ' + _('Lab result') + ': \n'
+        txt += (left_margin+3)*' ' + lab_result['unified_name'] + (20-len(lab_result['unified_name']))*' ' + ':\t' + lab_result['unified_val']+ ' ' + lab_result['val_unit'] + '(' + lab_result['material'] + ')' + '\n'
         return txt
     #--------------------------------------------------------
-    def get_item_output(self, item):
+    def get_item_output(self, item, left_margin = 0):
         """
             Obtains formatted clinical item output dump
             item - The clinical item to dump
+            left_margin - Number of spaces on the left margin            
         """
         txt = ''
         if isinstance(item, gmAllergy.cAllergy):
-            txt += self.get_allergy_output(item)
+            txt += self.get_allergy_output(item, left_margin)
         elif isinstance(item, gmVaccination.cVaccination):
-            txt += self.get_vaccination_output(item)
+            txt += self.get_vaccination_output(item, left_margin)
         elif isinstance(item, gmPathLab.cLabResult):
-            txt += self.get_lab_result_output(item)
+            txt += self.get_lab_result_output(item, left_margin)
             self.lab_new_encounter = False
         return txt
     #--------------------------------------------------------
@@ -363,6 +366,7 @@ class cEmrExport:
         Retrieves patient's historical in form of a wx tree of health issues
                                                                                         -> episodes
                                                                                            -> encounters
+        Encounter object is associated with item to allow displaying its information
         """
         
         # variable initialization
@@ -379,12 +383,38 @@ class cEmrExport:
                items =  filter(lambda item: item['pk_episode'] in [an_episode['pk_episode']], self.__filtered_items)
                encounters = self.get_encounters_for_items(items)
                for an_encounter in encounters:
-                    parent_encounter =  emr_tree.AppendItem(parent_episode, an_encounter['l10n_type'] + ': ' + an_encounter['started'].Format('%Y-%m-%d'))
+                    parent_encounter =  emr_tree.AppendItem(parent_episode, an_encounter['l10n_type'] + ': ' + \
+                    an_encounter['started'].Format('%Y-%m-%d'))
+                    emr_tree.SetPyData(parent_encounter, an_encounter)
                     
-    #--------------------------------------------------------            
-    def dump_historical_tree(self):
+    #--------------------------------------------------------  
+    def dump_encounter_info(self, encounter, left_margin = 0):
         """
-        Dumps patient's historical in form of a tree of health issues
+        Dumps encounter specific data (title, rfe, aoe and soap)
+                                                              
+        """
+        txt = ''
+        # rfe
+        rfes = encounter.get_rfes()
+        for rfe in rfes:
+            txt += left_margin *' ' + 'RFE: ' + rfe['clin_when'].Format('%Y-%m-%d %H:%M') + ', ' +  rfe['rfe'] + '\n'
+        # FIXME: SOAP
+        # aoe
+        aoes = encounter.get_aoes()            
+        for aoe in aoes:
+            txt += left_margin*' ' + 'AOE: ' + aoe['clin_when'].Format('%Y-%m-%d %H:%M') + ', ' +  aoe['aoe'] + '\n'
+            if aoe.is_diagnosis():
+                diagnosis = aoe.get_diagnosis()
+                for a_code in diagnosis.get_codes():
+                    txt += (left_margin+3)*' ' + a_code[0] +'(' + a_code[1] + ')\n' 
+        # items
+        for an_item  in self.__filtered_items:
+            if an_item['pk_encounter'] == encounter['pk_encounter']:
+                txt += self.get_item_output(an_item, left_margin)
+        return txt    
+    #--------------------------------------------------------  
+    def dump_historical_tree(self):
+        """Dumps patient's historical in form of a tree of health issues
                                                         -> episodes
                                                            -> encounters
                                                               -> clinical items
@@ -402,13 +432,18 @@ class cEmrExport:
                items =  filter(lambda item: item['pk_episode'] in [an_episode['pk_episode']], self.__filtered_items)
                encounters = self.get_encounters_for_items(items)
                for an_encounter in encounters:
+                    # title
                     self.lab_new_encounter = True
-                    self.__target.write('\n' + 9*' ' + 'Encounter, ' + an_encounter['l10n_type'] + ': ' + an_encounter['started'].Format('%Y-%m-%d') + ' to ' + \
-                    an_encounter['last_affirmed'].Format('%Y-%m-%d') + ' ' + \
-                    '"' + an_encounter['description'] + '"\n')
-                    for an_item  in items:
-                        if an_item['pk_encounter'] == an_encounter['pk_encounter']:
-                            self.__target.write(self.get_item_output(an_item))
+                    self.__target.write(
+                        '\n         %s %s: %s - %s (%s)\n' % (
+                            _('Encounter'),
+                            an_encounter['l10n_type'],
+                            an_encounter['started'].Format('%A, %Y-%m-%d %H:%M'),
+                            an_encounter['last_affirmed'].Format('%m-%d %H:%M'),
+                            an_encounter['description']
+                        )
+                    )
+                    self.__target.write(self.dump_encounter_info(an_encounter, 12))
     #--------------------------------------------------------
     def dump_clinical_record(self):
         """
@@ -546,7 +581,7 @@ def usage():
     """
         Prints application usage options to stdout.
     """
-    print 'usage: python gmPatientExporter [--fileout=<outputfilename>] [--conf-file=<file>]'
+    print 'usage: python gmPatientExporter [--fileout=<outputfilename>] [--conf-file=<file>] [--text-domain=<textdomain>]'
     sys.exit(0)
 #------------------------------------------------------------
 def parse_constraints():
@@ -660,7 +695,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.22  2004-07-18 10:46:30  ncq
+# Revision 1.23  2004-07-26 00:02:30  ncq
+# - Carlos introduces export of RFE/AOE and dynamic layouting (left margin)
+#
+# Revision 1.22  2004/07/18 10:46:30  ncq
 # - lots of cleanup by Carlos
 #
 # Revision 1.21  2004/07/09 22:39:40  ncq
