@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 
 -- this belongs into the service clinical (historica)
 
@@ -16,8 +16,16 @@
 create table test_org (
 	id serial primary key,
 	id_org integer unique not null,
-	id_adm_contact integer default null,
-	id_med_contact integer default null,
+	id_adm_contact integer
+		default null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete restrict,
+	id_med_contact integer
+		default null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete restrict,
 	"comment" text
 ) inherits (audit_fields);
 
@@ -25,8 +33,6 @@ select add_table_for_audit('test_org');
 
 -- remote foreign keys
 select add_x_db_fk_def('test_org', 'id_org', 'personalia', 'org', 'id');
-select add_x_db_fk_def('test_org', 'id_adm_contact', 'personalia', 'identity', 'id');
-select add_x_db_fk_def('test_org', 'id_med_contact', 'personalia', 'identity', 'id');
 
 COMMENT ON TABLE test_org IS
 	'organisation providing results';
@@ -183,15 +189,17 @@ comment on column test_result.clinically_relevant is
 create table lab_result (
 	id serial primary key,
 	id_result integer not null references test_result(id),
-	id_sampler integer default null,
+	id_sampler integer
+		default null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete restrict,
 	sample_id text not null default 'unknown',
 	-- this is according to LDT
 	abnormal_tag character(5)
 ) inherits (clin_root_item);
 
 select add_table_for_audit('lab_result');
-
-select add_x_db_fk_def('lab_result', 'id_sampler', 'personalia', 'identity', 'id');
 
 comment on table lab_result is
 	'additional data for lab results';
@@ -235,11 +243,15 @@ comment on column lab_result.abnormal_tag IS
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.10 $');
+delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.10  2003-10-01 15:45:20  ncq
+-- Revision 1.11  2004-01-15 15:15:41  ncq
+-- - use xlnk_identity
+--
+-- Revision 1.10  2003/10/01 15:45:20  ncq
 -- - use add_table_for_audit() instead of inheriting from audit_mark
 --
 -- Revision 1.9  2003/08/17 00:25:38  ncq
