@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib
@@ -147,7 +147,6 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	# internal helpers
 	#-------------------------------------------------------
 	def __load_consultation_types(self):
-#		# Richard, can you please add some comments here ?
 #		self.__consultation_types = [
 #			_('in surgery'),
 #			_('home visit'),
@@ -237,16 +236,11 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		"""
 		self.szr_bottom_row.Prepend(widget, 0, wxALL, 0)
 	#-------------------------------------------------------
-#	def AddWidgetTopLine (self, widget, proportion = 0, flag = wxEXPAND, border = 0):
-#		"""Inserts a widget onto the top line.
-#		"""
-#		self.szr_top_row.Add(widget, proportion, flag, border)
-	#-------------------------------------------------------
 	def AddBar (self, key):
 		"""Creates and returns a new empty toolbar, referenced by key.
 
 		Key should correspond to the notebook page number as defined
-		by the notebook (see gmPlugin.py), so that gmGuiMain can 
+		by the notebook (see gmPlugin.py), so that gmGuiMain can
 		display the toolbar with the notebook
 		"""
 		self.subbars[key] = wxToolBar (
@@ -293,7 +287,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			self.subbars[key].Show(1)
 			self.__current = key
 		except KeyError:
-			gmLog.gmDefLog.LogException("cannot show undefined toolbar [%s]" % key, sys.exc_info(), fatal=0)
+			gmLog.gmDefLog.LogException("cannot show undefined toolbar [%s]" % key, sys.exc_info(), fatal=1)
 	#-------------------------------------------------------
 	def DeleteBar (self, key):
 		"""Removes a toolbar.
@@ -306,7 +300,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 				self.__current = self.subbars.keys()[0]
 				self.subbars[self.__current].Show(1)
 		except KeyError:
-			gmLog.gmDefLog.LogException("cannot delete undefined toolbar [%s]" % key, sys.exc_info(), fatal=0)
+			gmLog.gmDefLog.LogException("cannot delete undefined toolbar [%s]" % key, sys.exc_info(), fatal=1)
 
 #===========================================================	
 if __name__ == "__main__":
@@ -317,7 +311,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.3  2003-04-25 13:37:22  ncq
+# Revision 1.4  2003-04-28 12:05:21  ncq
+# - use plugin.internal_name(), cleaner logging
+#
+# Revision 1.3  2003/04/25 13:37:22  ncq
 # - moved combo box "consultation type" here from gmDemographics (still needs to be placed right-most)
 # - helper __show_error()
 # - connected "consultation type" to backend
