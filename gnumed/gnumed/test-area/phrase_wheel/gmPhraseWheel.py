@@ -20,7 +20,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 
 __log__ = gmLog.gmDefLog
 
@@ -40,7 +40,6 @@ class cMatchProvider:
 	- in-memory list created on the fly
 	"""
 	__threshold = {}
-	word_separators = tuple(string.punctuation + string.whitespace)
 	#--------------------------------------------------------
 	def __init__(self):
 		self.enableMatching()
@@ -138,17 +137,18 @@ class cMatchProvider:
 
 		return (1==1)
 	#--------------------------------------------------------
-	def setWordSeparators(self, separators = None):
+	def setWordSeparators(self, separators = string.punctuation + string.whitespace):
 		# sanity checks
 		if type(separators) != types.StringType:
-			__log__.Log(gmLog.lErr, 'word separators argument is of type %s, expected type string' % type(separators))
+			__log__.Log(gmLog.lErr, 'word separators argument is of type %s, expected type <string>' % type(separators))
 			return None
 
 		if separators == "":
-			__log__.Log(gmLog.lErr, 'Not defining any word separators does not make sense ! Falling back to default (%s).' % string.punctuation + string.whitespace)
+			__log__.Log(gmLog.lErr, 'Not defining any word separators does not make sense ! Keeping old value "%s".' % str(self.word_separators))
 			return None
 
 		self.word_separators = tuple(separators)
+		__log__.Log(gmLog.lData, 'word separators set to: %s' % str(self.word_separators))
 	#--------------------------------------------------------
 	def disableMatching(self):
 		"""Don't search for matches.
