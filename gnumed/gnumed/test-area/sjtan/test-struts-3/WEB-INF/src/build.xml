@@ -1,0 +1,124 @@
+<project name="blank" basedir="../" default="all">
+
+    <property name="lib.path" value="./lib"/>
+
+    <!-- Local system paths -->
+    <property name="servlet.jar" value="${lib.path}/servlet-api.jar"/>
+    <property name="jdbc20ext.jar" value="/javasoft/lib/jdbc2_0-stdext.jar"/>
+        <!-- NOTE: If "dist" target is used, a local
+             "projects/lib" directory will be utilized or created -->
+    <property name="distpath.project" value="../dist"/>
+
+    <!-- Project settings -->
+    <property name="project.title" value="Gnumed WebClient test "/>
+    <property name="project.distname" value="test-struts-3"/>
+    <property name="project.version" value="0.1"/>
+
+
+    <!-- Path settings -->
+    <property name="doc.path" value="./doc/api"/>
+    <property name="doc.src" value="./src/java"/>
+
+
+    <!-- classpath for Struts 1.1 -->
+    <path id="compile.classpath">
+        <pathelement path="${lib.path}/commons-lang.jar"/>
+        <pathelement path ="${lib.path}/commons-beanutils.jar"/>
+        <pathelement path ="${lib.path}/commons-digester.jar"/>
+        <pathelement path ="${lib.path}/struts.jar"/>
+        <pathelement path ="${lib.path}/servlet-api.jar"/>
+	<pathelement path ="${lib.path}/commons-logging.jar"/>
+        <pathelement path ="classes"/>
+        <pathelement path ="${classpath}"/>
+        
+    </path>
+
+
+    <!-- Check timestamp on files -->
+    <target name="prepare">
+        <tstamp/>
+    </target>
+
+
+    <!-- Copy any resource or configuration files -->
+    <target name="resources">
+        <copy todir="classes" includeEmptyDirs="no">
+            <fileset dir="src/java">
+            <patternset>
+                <include name="**/*.conf"/>
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>
+               
+            </patternset>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Normal build of application -->
+    <target name="compile" depends="prepare,resources">
+        <javac srcdir="src/java" destdir="classes" debug="true" >
+            <classpath refid="compile.classpath"/>
+            
+        </javac>
+    </target>
+
+
+    <!-- Remove classes directory for clean build -->
+    <target name="clean"
+      description="Prepare for clean build">
+      <delete dir="classes"/>
+      <mkdir  dir="classes"/>
+    </target>
+
+
+    <!-- Build Javadoc documentation -->
+    <target name="javadoc"
+     description="Generate JavaDoc API docs">
+        <delete dir="./doc/api"/>
+        <mkdir dir="./doc/api"/>
+        <javadoc sourcepath="./src/java"
+            destdir="./doc/api"
+            classpath="${servlet.jar}:${jdbc20ext.jar}"
+            packagenames="*"
+            author="true"
+            private="true"
+            version="true"
+            windowtitle="${project.title} API Documentation"
+            doctitle="&lt;h1&gt;${project.title} Documentation (Version ${project.version})&lt;/h1&gt;"
+            bottom="Copyright &#169; 2002">
+            <classpath refid="compile.classpath"/>
+        </javadoc>
+    </target>
+
+
+    <!-- Build entire project -->
+    <target name="project" depends="clean,prepare,compile,javadoc"/>
+
+
+    <!-- Create binary distribution -->
+    <target name="dist"
+        description="Create binary distribution">
+
+      <mkdir
+        dir="${distpath.project}"/>
+      <jar
+        jarfile="${distpath.project}/${project.distname}.jar"
+        basedir="./classes"/>
+      <copy
+        file="${distpath.project}/${project.distname}.jar"
+        todir="${distpath.project}"/>
+
+      <war
+        basedir="../"
+        warfile="${distpath.project}/${project.distname}.war"
+        webxml="web.xml">
+        <exclude name="${distpath.project}/${project.distname}.war"/>
+       </war>
+
+    </target>
+
+
+    <!-- Build project and create distribution-->
+    <target name="all" depends="project,dist"/>
+
+</project>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Context crossContext="true" debug="5" docBase="/home/sjtan/projects/gnumed3/gnumed/gnumed/test-area/sjtan/test-struts-3" path="/test-struts-3" reloadable="true" scope="session">
+  <Logger className="org.apache.catalina.logger.FileLogger" prefix="localhost_DBTest_log." suffix=".txt" timestamp="true"/>
+  <Resource auth="Container" name="jdbc/gnumed" type="javax.sql.DataSource"/>
+  <ResourceParams name="jdbc/gnumed">
+    <parameter>
+      <name>factory</name>
+      <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+    </parameter>
+    <parameter>
+      <name>driverClassName</name>
+      <value>org.postgresql.Driver</value>
+    </parameter>
+    <parameter>
+      <name>url</name>
+      <value>jdbc:postgresql://127.0.0.1:5432/gnumed</value>
+    </parameter>
+    <parameter>
+      <name>username</name>
+      <value>sjtan</value>
+    </parameter>
+    <parameter>
+      <name>password</name>
+      <value>pass</value>
+    </parameter>
+    <parameter>
+      <name>maxActive</name>
+      <value>20</value>
+    </parameter>
+    <parameter>
+      <name>maxIdle</name>
+      <value>10</value>
+    </parameter>
+    <parameter>
+      <name>maxWait</name>
+      <value>-1</value>
+      <!-- negative maxWait means requestors block indefinitely on empty pool, until connection
+		returned to pool -->
+    </parameter>
+    <parameter>
+      <name>removeAbandoned</name>
+      <value>true</value>
+    </parameter>
+    <parameter>
+      <name>removeAbandonedTimeout</name>
+      <value>5</value>
+      <!-- too long a timeout , and things may freeze -->
+    </parameter>
+    <parameter>
+      <name>logAbandoned</name>
+      <value>true</value>
+    </parameter>
+  </ResourceParams>
+</Context>

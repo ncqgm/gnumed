@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE attributes PUBLIC "-//NetBeans//DTD DefaultAttributes 1.0//EN" "http://www.netbeans.org/dtds/attributes-1_0.dtd">
+<attributes version="1.0">
+    <fileobject name="ClinicalEditAction.java">
+        <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="ClinicalEditAction"/>
+    </fileobject>
+    <fileobject name="ClinicalSaveAction.java">
+        <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="ClinicalSaveAction"/>
+    </fileobject>
+    <fileobject name="DemographicEditAction.java">
+        <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="DemographicEditAction"/>
+    </fileobject>
+    <fileobject name="DemographicSaveAction.java">
+        <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="DemographicSaveAction"/>
+    </fileobject>
+    <fileobject name="FindIdentityAction.java">
+        <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="FindIdentityAction"/>
+    </fileobject>
+    <fileobject name="ListJNDIContextAction.java">
+        <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="ListJNDIContextAction"/>
+    </fileobject>
+</attributes>

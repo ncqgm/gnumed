@@ -1,0 +1,44 @@
+
+-ant not found . - download ant binary package from apache and add as root, a soft link as /usr/bin/ant	
+			e.g. if ant downloaded to /home/john/downloada/ant-1.5 then ln -s /home/john/downloads/ant-1.5/bin/ant /usr/bin/ant
+			and  'export ANT_HOME=/home/john/downloads/ant-1.5'  shows up with env.
+
+-no javac, java found - should load jdk1.5 
+
+
+-running ant says no build file ; change dir to test-struts-3/WEB-INF/src
+-running ant  comes up with 100 errors. ls test-struts-3/WEB-INF/lib  and see if any files. copy struts/lib/* to test-struts-3/WEB-INF/lib .
+-running ant comes up with 20 errors.  copy tomcat/commons/lib/servlet-api.jar to test-struts-3/WEB-INF/lib .
+
+-can't run tomcat. jdk present?
+
+-can't get to http://localhost:8080 when tomcat is running: url is right?
+
+-permission denied when click Manager in left hand menu.  Haven't set users-xml.xml with a role manager and manager in a user's roles? change it , and  Stop and Start tomcat to get rid of previous tomcat state. ?using the right user and password.
+
+
+-pasting WEB-INF/context.xml  doesn't work ? using file:  before the full path to this file? ls the path correct? 'ls' the path used.
+Is the context.xml  docBase='path-to-test-struts-3' correct? 'ls' the docBase string.
+
+-'deploy button' says already deployed. Undeploy, stop and start tomcat again. Try pasting context file again and depoloy.
+
+-not finding the application, at http:/localhost:8080/test-struts-3 , try clicking the hypertexted test-struts-3 at the manager screen.
+                                                                      try restart catalina.
+ 
+- login 'admin' doesn't work ; is cookie password being used? use password 'password'
+
+- search doesn't work. Comes up with missing org.postgresql.Driver ;  copy pg73jdbc2.jar  or whatever postgres jar file is supplied
+to tomcat/commons/lib/  directory, and restart tomcat/catalina. 
+
+- check <username > <password>  in META-INF/context.xml are set to correct user name and password for write access in your gnumed setup.
+
+- search 'blocks' : ? deadlock somewhere. Get rid of old browser clients to same web page. stop catalina. restart postgres. restart catalina.
+		? typed a small criteria  and too many records being retrieved?
+
+
+   
+
+
+
+
+

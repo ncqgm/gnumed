@@ -1,0 +1,95 @@
+
+The following steps were tested:
+
+
+Have a java sdk1.4.2  installed.   
+
+Have ant installed. 
+
+
+1.
+get tomcat from 
+http://apache.planetmirror.com.au/dist/jakarta/tomcat-5/v5.0.28/bin/jakarta-tomcat-5.0.28.tar.gz
+
+tar -zxvf xxx.tar.gz  to unpack.
+
+2.
+get struts from
+http://apache.planetmirror.com.au/dist/jakarta/struts/binaries/jakarta-struts-1.1.tar.gz
+
+
+
+3.
+In order to compile, certain library files ( all file contents of {struts-basedir}/lib directory , and {tomcat-basedir}/commons/lib/servlet-api.jar )
+must be COPIED into  WEB-INF/lib/ of this directory
+	Reason: these files need to be found by the build.xml   
+
+
+4.
+In order to run, {tomcat-basedir}/commons/lib/  must have a valid postgres jar file  (e.g. common/lib/pg73jdbc2.jar ).
+ On the Mandrake system I am using, these jar files are found in /usr/share/pgsql  and there are 3 there, but you only
+need one (xxxjdb2.jar seems to work).
+
+	Reason: the tomcat server manages pooled database connections using commons-pool , and requires the database driver for
+postgres which is it must be able to find.  {tomcat-basdir}/shared/lib  and this application WEB-INF/lib directory don't work
+as places to put the postgres jar file.
+
+
+5.In order to run tomcat,   {tomcat-basedir}/conf/tomcat-users.xml   should have the lines 
+  <role rolename="manager"/>
+  <role rolename="admin"/>
+  <user username="tomcat" password="tomcat" roles="tomcat,manager"/>
+  <user username="admin" password="admin" roles="admin"/>
+
+
+before running tomcat. This creates the roles of admin and manager. The manager role is the most important.
+
+
+
+6. Set the right context path in the  META-INF/context.xml  configuration file.
+
+In the 3rd line,
+
+<Context crossContext="true" debug="5" docBase="/home/sjtan/projects/test-struts-3" path="/test-struts-3" reloadable="true" scope="session">
+
+change /home/sjtan/projects/test-struts-3  to where this directory resides, 
+e.g. /home/john/projects/gnumed/gnumed/test-area/sjtan/test-struts-3
+
+hint: test that it is the path by selecting the docBase string, and then on the command line, do a 'ls' and paste the string.
+
+
+
+
+7. compile by changing to /WEB-INF/src where the build.xml file is , and typing 'ant'.
+
+
+8. start tomcat, by going to {tomcat-basedir}/bin/   and typing 'catalina.sh debug' , followed by 'run' at the '>' prompt.
+
+
+9. go to http://localhost:8080  to see if tomcat ran.
+
+10. go to http://localhost:8080/manager ; if step 5. works, then the user name 'tomcat', password 'tomcat' should give
+the manager page.
+
+11. Point tomcat to the context.xml file of step 6.
+In the box on the manager page which says: -
+
+Deploy directory or WAR file located on server
+    XML Configuration file URL: [                       ]
+
+put the file:/home/john/projects/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
+
+i.e whatever  is the URL file path to the file edited in step 6. ( note the single slashed file:/ as a url base)
+
+
+( For some reason, the application doesn't work as a drop-in war file yet, perhaps something to do with the pooled 
+database connections and tomcat mediating it ).
+
+When the deploy button is pressed, there should be an OK - test-struts-2 deployed message, 
+
+12. Using the demographics application:   go to http://localhost:8080/test-struts-3
+click login.
+the user name  "admin" , password "password"  is the only login.
+From the login page, a new patient can be created or patient search is done. 
+Clicking patient names found will edit that patient. 
+Clicking clinical next to the patient name, will take to the first clinical screen, which is non-functional.

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+ <!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+       "http://jakarta.apache.org/struts/dtds/tiles-config_1_1.dtd">
+
+<tiles-definitions>
+
+	<!-- DEFAULT MAIN TEMPLATE -->
+	
+        <definition name="template" page="/pages/main.jsp">
+                <put name="support" value="/pages/support.jsp" type="page"/>
+     	</definition>
+        
+          <definition name="index" extends="template">
+		<put name="content" value="/pages/Welcome.jsp" type="page"/>
+              </definition>
+
+	<definition name="about" extends="template">
+		<put name="content" value="/pages/about.jsp" type="page"/>
+		</definition>
+
+	<definition name="ads" extends="template">
+		<put name="content" value="/pages/ads.jsp" type="page"/>
+	</definition>
+
+        <definition name="getlogin" extends="template">
+		<put name="content" value="/pages/login.jsp" type="page"/>
+	</definition>
+
+           <definition name="dummylogin" extends="template">
+		<put name="content" value="/pages/dummylogin_done.jsp" type="page"/>
+	</definition>
+        
+        
+        <definition name="appmain" extends="template">
+            <put name="content" value="/pages/appmain.jsp" type="page"/>
+        </definition>
+        
+	<definition name="demoentry" extends="template">
+            <put name="content" value="/pages/demographicEntry.jsp" type="page"/>
+        </definition>
+      
+        <definition name="clinicalentry" extends="template">
+            <put name="content" value="/pages/clinicalEntry.jsp" type="page"/>
+        </definition>
+      
+        
+        <definition name="testdb" extends="template">
+        <put name="content" value="/pages/test_dbcp.jsp" type="page"/>
+        </definition>
+        
+        <definition name="testlinknames" extends="template">
+        <put name="content" value="/TestListNames.do" type="page"/>
+        </definition>
+        
+          
+<!--
+	<definition name="news" page="/WEB-INF/jsp/news.jsp" controllerClass="org.springframework.samples.tiles.NewsFeedController">
+		<put name="size" value="5"/>
+	</definition>
+
+	<definition name="theserverside" extends="news">
+		<put name="sourceName" value="theserverside"/>
+	</definition>
+
+	<definition name="worldpress" extends="news">
+		<put name="sourceName" value="worldpress"/>
+	</definition>
+
+	<definition name="slashdot" extends="news">
+		<put name="sourceName" value="slashdot"/>
+	</definition>
+        -->
+</tiles-definitions>

@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN"
+          "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+
+
+
+<!--
+
+     This is a blank Struts configuration file with an example
+
+     welcome action/page and other commented sample elements.
+
+
+
+     Tiles and the Struts Validator are configured using the factory defaults
+
+     and are ready-to-use.
+
+
+
+     NOTE: If you have a generator tool to create the corresponding Java classes
+
+     for you, you could include the details in the "form-bean" declarations.
+
+     Otherwise, you would only define the "form-bean" element itself, with the
+
+     corresponding "name" and "type" attributes, as shown here.
+
+-->
+
+
+
+
+
+<struts-config>
+
+
+
+<!-- ==================================== Data Source Configuration -->
+
+<!--
+
+ <data-sources>
+
+   <data-source>
+
+     <set-property
+
+        property="autoCommit"
+
+        value="false"/>
+
+     <set-property
+
+        property="description"
+
+        value="Example Data Source Configuration"/>
+
+     <set-property
+
+        property="driverClass"
+
+        value="org.postgresql.Driver"/>
+
+     <set-property
+
+        property="maxCount"
+
+        value="4"/>
+
+     <set-property
+
+        property="minCount"
+
+        value="2"/>
+
+     <set-property
+
+        property="password"
+
+        value="mypassword"/>
+
+     <set-property
+
+        property="url"
+
+        value="jdbc:postgresql://localhost/mydatabase"/>
+
+     <set-property
+
+        property="user"
+
+        value="myusername"/>
+
+   </data-source>
+
+ </data-sources>
+
+-->
+
+
+
+<!-- ======================================== Form Bean Definitions -->
+
+
+
+    <form-beans>
+            <form-bean name="loginForm" type="org.apache.struts.validator.DynaValidatorForm" >
+                <form-property name="username" type="java.lang.String" size="32"/>
+                <form-property name="password" type="java.lang.String" size="32"/>
+             </form-bean>
+             
+             <form-bean name="editloginForm" type="org.apache.struts.validator.DynaValidatorForm" >
+                <form-property name="username" type="java.lang.String" size="32"/>
+                <form-property name="password" type="java.lang.String" size="32"/>
+                <form-property name="confirmPassword" type="java.lang.String" size="32"/>
+                <form-property name="providerId" type="java.lang.String" size="32"/>
+                <form-property name="role" type="java.lang.String" size="32"/>
+             </form-bean>
+             
+           <!-- The form element names here are mapped to the properties of 
+                   org.gnumed.testweb1.data.DemographicDetail , so if a a property name
+                   is changed here, change it in the interface and all of its implementors,
+                   or change the  implementation of data transfer, which is currently
+                   just BeanUtils.copy( bean, form). Asnother way is to re-implement the
+                   form as a subclass of ActionForm which implements DemographicDetail.
+                   -->
+           <form-bean name="demographicForm" type="org.apache.struts.validator.DynaValidatorForm">
+                    <form-property name="id" type="java.lang.Long" size="10" />
+                <form-property name="title" type="java.lang.String" size="32"/>
+                <form-property name="surname" type="java.lang.String" size="100"/>
+                <form-property name="givenname" type="java.lang.String" size="100"/>
+                <form-property name="sex" type="java.lang.String" size="8"/>
+                <form-property name="birthdate" type="java.lang.String" size="20"/>
+                <form-property name="streetno" type="java.lang.String" size="50"/>
+                <form-property name="street" type="java.lang.String" size="100"/>
+                <form-property name="urb" type="java.lang.String" size="100"/>
+                <form-property name="state" type="java.lang.String" size="50"/>
+                <form-property name="postcode" type="java.lang.String" size="50"/>
+                <form-property name="countryCode" type="java.lang.String" size="4"/>
+              
+                  <form-property name="homePhone" type="java.lang.String" size="50"/>
+                <form-property name="workPhone" type="java.lang.String" size="50"/>
+                <form-property name="mobile" type="java.lang.String" size="50"/>
+                <form-property name="email" type="java.lang.String"  size="100"/>
+                <form-property name="fax" type="java.lang.String"  size="50"/>
+                <form-property name="publicHealthId" type="java.lang.String" size="40"/>
+                <form-property name="publicHealthIdExp" type="java.lang.String" size="8"/>
+               
+                <form-property name="publicHealthFamilyId" type="java.lang.String" size="6"/>
+                <form-property name="veteransId" type="java.lang.String" size="20"/>
+                <form-property name="privateHealthProvider" type="java.lang.String" size="50"/>
+                <form-property name="privateHealthId" type="java.lang.String" size="50"/>
+         </form-bean>
+    
+         <form-bean name="providerForm" type="org.apache.struts.validator.DynaValidatorForm">
+                <form-property name="id" type="java.lang.Long" size="10" initial="0"/>
+                
+                <form-property name="occupation" type="java.lang.String" size="32"/>
+                <form-property name="title" type="java.lang.String" size="32"/>
+                <form-property name="surname" type="java.lang.String" size="100"/>
+                <form-property name="givenname" type="java.lang.String" size="100"/>
+                <form-property name="sex" type="java.lang.String" size="100"/>
+                <form-property name="streetno" type="java.lang.String" size="20"/>
+                <form-property name="street" type="java.lang.String" size="100"/>
+                <form-property name="urb" type="java.lang.String" size="100"/>
+                <form-property name="state" type="java.lang.String" size="40"/>
+                <form-property name="postcode" type="java.lang.String" size="20"/>
+                <form-property name="faxPhone" type="java.lang.String" size="50"/>
+                <form-property name="businessPhone" type="java.lang.String" size="50"/>
+                <form-property name="mobile" type="java.lang.String" size="100"/>
+                <form-property name="email" type="java.lang.String" size="100"/>
+                <form-property name="pager" type="java.lang.String" size="100"/>
+                <form-property name="providerId" type="java.lang.String" size="100"/>
+           </form-bean>
+         <form-bean name="findIdentityForm" type="org.apache.struts.validator.DynaValidatorForm">
+                <form-property name="id" type="java.lang.Long" size="10" initial="0"/>
+                <form-property name="surname" type="java.lang.String" size="100"/>
+                <form-property name="givenname" type="java.lang.String" size="100"/>
+                 <form-property name="birthdate" type="java.lang.String" size="50"/>
+             </form-bean>
+          
+          <form-bean name="clinicalUpdateForm" type="org.gnumed.testweb1.forms.ClinicalUpdateForm"/>
+          
+    <!-- sample form bean descriptor for an ActionForm
+
+        <form-bean
+
+            name="inputForm"
+
+            type="app.InputForm"/>
+
+    end sample -->
+
+
+
+    <!-- sample form bean descriptor for a DynaActionForm
+
+        <form-bean
+
+            name="logonForm"
+
+            type="org.apache.struts.action.DynaActionForm">
+
+            <form-property
+
+                name="username"
+
+                type="java.lang.String"/>
+
+            <form-property
+
+                name="password"
+
+                type="java.lang.String"/>
+
+    end sample -->
+
+
+
+    </form-beans>
+
+
+
+
+
+<!-- ================================= Global Exception Definitions -->
+
+
+
+    <global-exceptions>
+
+        <!-- sample exception handler
+
+        <exception
+
+            key="expired.password"
+
+            type="app.ExpiredPasswordException"
+
+            path="/changePassword.jsp"/>
+
+        end sample -->
+
+    </global-exceptions>
+
+
+
+
+
+<!-- =================================== Global Forward Definitions -->
+
+
+
+    <global-forwards>
+
+        <!-- Default forward to "Welcome" action -->
+
+        <!-- Demonstrates using index.jsp to forward -->
+        
+      
+
+        <forward
+
+            name="welcomeLink"
+
+            path="/Welcome.do"/>
+          
+        <forward
+
+            name="aboutLink"
+
+            path="/About.do"/>
+            
+        <forward      
+            name="adsLink"
+
+            path="/Ads.do"/>
+        <forward
+            name="dbtestLink" 
+            path="/Testdb.do"
+            
+            />
+          <!--  using path-"/testdb" doesn't work, so use a forwarding action
+                path="/Testdb.do"  -->
+          
+                
+        <forward name="testListNamesLink" 
+                path="/TestListNamesDisplay.do"/> 
+             
+          
+          
+        <forward      
+            name="loginLink"
+
+            path="/GetLogin.do"/>
+       
+         <forward      
+            name="login"
+
+            path="/Login.do"/>    
+            
+        <forward
+            name="getDemographicEntry"
+            path="/GetDemoEntry.do"/>
+            
+         <forward name="success" 
+                path="/AppMain.do"/> 
+         
+                   
+        </global-forwards>
+
+
+
+
+
+<!-- =================================== Action Mapping Definitions -->
+
+
+
+    <action-mappings>
+
+
+
+            <!-- Default "Welcome" action -->
+
+            <!-- Forwards to Welcome.jsp -->
+            
+  <!-- Most of these lowercase forward parameters refer to struts-defs.xml definitions -->
+        <action path="/Welcome" forward="index"/>
+
+        <action path="/Ads" forward="ads"/>
+
+        <action path="/About" forward="about"/>
+            
+        <action path="/GetLogin" forward="getlogin"/>     
+        
+        <action path="/AppMain" forward="appmain"/> 
+        
+        <action path="/GetDemoEntry" forward="/DemographicEdit.do"/>
+        
+        <action path="/Testdb" forward="testdb"/>
+        <!-- this is forwarding to the
+        definition in struts-defs.xml called appmain -->
+       
+        <action path="/TestListNamesDisplay" forward="testlinknames"/>
+        
+         <action 
+                 path="/Login"   
+                 type="org.gnumed.testweb1.actions.LoginAction" 
+                 name="loginForm"
+                 scope="session"
+                 input="loginLink"
+                 /> 
+               
+       
+         
+        <action path="/FindIdentity"
+            type="org.gnumed.testweb1.actions.FindIdentityAction"
+            name="findIdentityForm"
+            scope="request"
+            input="success" 
+        />
+                 
+        <action
+                path="/TestListNames"
+                type="org.gnumed.testweb1.actions.ListJNDIContextAction"
+                scope="request"
+               
+                />
+                      <!--
+                -->
+            
+        <action 
+                path="/DemographicEdit"
+                type="org.gnumed.testweb1.actions.DemographicEditAction"
+                attribute="demographicForm"
+                scope="request"
+                >
+                <forward name="successLoadForEdit" path="demoentry"/>
+                
+            </action>
+            
+                       
+        <action  
+                 path="/SaveDemographic"
+                 type="org.gnumed.testweb1.actions.DemographicSaveAction"
+                 name="demographicForm"
+                 scope="request"
+                 input="demographicEditAgain"
+                >
+                <forward name="demographicEditAgain" path="demoentry"/>
+               
+         </action>
+         
+        <action
+            path="/ClinicalEdit"
+            type="org.gnumed.testweb1.actions.ClinicalEditAction"
+            attribute="clinicalUpdateForm"
+            scope="request"
+            >
+            <forward name="successLoadClinical" path="clinicalentry"/>
+        
+        </action>
+        
+            
+        <action
+             path="/SaveClinical"
+             type="org.gnumed.testweb1.actions.ClinicalSaveAction"
+             name="clinicalUpdateForm"
+             scope="request"
+             input="clinicalEditAgain"
+             >
+             
+             <forward name="clinicalEditAgain" path="clinicalentry"/>
+               
+         </action>
+            
+    <!-- sample input and input submit actions 
+
+
+        <action
+
+            path="/Input"
+
+            type="org.apache.struts.actions.ForwardAction"
+
+            parameter="/pages/Input.jsp"/>
+
+
+
+        <action
+
+            path="/InputSubmit"
+
+            type="app.InputAction"
+
+            name="inputForm"
+
+            scope="request"
+
+            validate="true"
+
+            input="/pages/Input.jsp"/>
+
+
+
+    end samples -->
+
+
+
+
+
+    </action-mappings>
+
+
+
+
+
+<!-- ===================================== Controller Configuration -->
+
+
+<!--
+    <controller
+
+       processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
+
+
+-->
+
+  <controller>
+    <!-- The "input" parameter on "action" elements is the name of a
+         local or global "forward" rather than a module-relative path -->
+         
+    <set-property property="inputForward" value="true"/>
+   <!-- addit : without this, the return mapping.getInputForward() doesn't work ,
+            e.g. for return errors and re-displaying the form -->
+  </controller>
+
+<!-- ================================ Message Resources Definitions -->
+
+
+
+   
+
+
+
+
+<!-- ======================================= Plug Ins Configuration -->
+
+
+  <!-- ========== Tiles plugin ===================  -->
+  <!--												-->
+  <!--
+     This plugin initialize Tiles definition factory. This later can takes some
+	 parameters explained here after. The plugin first read parameters from web.xml, then
+	 overload them with parameters defined here. All parameters are optional.
+	 The plugin should be declared in each struts-config file.
+       - definitions-config: (optional) 
+            Specify configuration file names. There can be several comma 
+		    separated file names (default: ?? )
+       - moduleAware: (optional - struts1.1) 
+            Specify if the Tiles definition factory is module aware. If true (default), 
+			there will be one factory for each Struts module. 
+			If false, there will be one common factory for all module. In this later case, 
+			it is still needed to declare one plugin per module. The factory will be 
+			initialized with parameters found in the first initialized plugin (generally the
+			one associated with the default module).
+			  true : One factory per module. (default)
+			  false : one single shared factory for all modules
+	   - definitions-parser-validate: (optional)
+	        Specify if xml parser should validate the Tiles configuration file.
+			  true : validate. DTD should be specified in file header. (default)
+			  false : no validation
+			  
+	  Paths found in Tiles definitions are relative to the main context.
+  -->
+   <!-- Not used by tiles or this website, but needed due to a bug in actual Struts version -->
+  
+<message-resources parameter="resources.application"/>  
+<!--
+<message-resources parameter="org.apache.struts.webapp.tiles.dev1-1.ApplicationResources" null="false" />
+-->
+  <plug-in className="org.apache.struts.tiles.TilesPlugin" >
+    <set-property property="definitions-config" 
+	                 value="/WEB-INF/tiles-defs.xml" />
+    <set-property property="moduleAware" value="true" />
+  </plug-in>
+
+  <!-- end comment if struts1.0.x -->
+
+  <plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+    <set-property
+        property="pathnames"
+        value="/WEB-INF/validator-rules.xml,/WEB-INF/validation.xml"/>
+  </plug-in>
+  
+  <plug-in className="org.gnumed.testweb1.adapters.LoginModuleAdapterPlugIn">
+      <set-property property="loginModule" 
+        value="org.gnumed.testweb1.mock.MockLoginModule"/>
+      
+  </plug-in>
+  
+  <plug-in className="org.gnumed.testweb1.adapters.DataObjectFactoryPlugIn">
+    <set-property
+        property="objectFactory"
+        value="org.gnumed.testweb1.data.DefaultDataObjectFactory"/>
+  </plug-in>
+  
+  <plug-in className="org.gnumed.testweb1.adapters.JNDIDatasourcePlugIn"/>
+
+  
+  <plug-in  className="org.gnumed.testweb1.adapters.DataAccessSQLPlugIn">
+    <set-property property="demographicSQLProvider" 
+            value = "org.gnumed.testweb1.persist.scripted.gnumed1.DemographicDetailSQLImpl1"
+    />
+    <set-property property="clinicalSQLProvider" 
+            value = "org.gnumed.testweb1.persist.scripted.gnumed1.ClinicalSQLImpl1"
+    />
+
+  </plug-in>
+  
+  
+  
+</struts-config>
+

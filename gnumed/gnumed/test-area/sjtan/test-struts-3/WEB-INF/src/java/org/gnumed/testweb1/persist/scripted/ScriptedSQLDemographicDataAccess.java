@@ -1,0 +1,132 @@
+/*
+ * ScriptedSQLDemographicDataAccess.java
+ *
+ * Created on June 21, 2004, 1:32 AM
+ */
+
+package org.gnumed.testweb1.persist.scripted;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import java.util.Date;
+import javax.sql.DataSource;
+import org.gnumed.testweb1.persist.DataSourceUsing;
+import org.gnumed.testweb1.persist.DemographicDataAccess;
+import org.gnumed.testweb1.persist.DataSourceException;
+import org.gnumed.testweb1.data.DemographicDetail;
+import org.gnumed.testweb1.persist.scripted.DemographicDetailSQL;
+import org.gnumed.testweb1.global.Util;
+
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import java.sql.*;
+
+/**
+ *
+ * @author  sjtan
+ */
+public class ScriptedSQLDemographicDataAccess implements DemographicDataAccess,  DataSourceUsing {
+    private DataSource dataSource;
+    
+    /**
+     * Holds value of property demographicDetailSQL.
+     */
+    private DemographicDetailSQL demographicDetailSQL;
+    
+    Log log = LogFactory.getFactory().getLog(this.getClass());
+    /** Creates a new instance of ScriptedSQLDemographicDataAccess */
+    public ScriptedSQLDemographicDataAccess() {
+        
+    }
+    
+    public DemographicDetail[] findDemographicDetail(
+    DemographicDetail fragment)
+    throws DataSourceException{
+        checkDataSourceExists();
+        
+        try {
+            DataSource src = getDataSource();
+            Connection conn = src.getConnection();
+            return this.demographicDetailSQL.findByExample(conn, fragment);
+        } catch (SQLException sqle) {
+            log.error(sqle + ":" + sqle.getLocalizedMessage());
+            
+            throw new DataSourceException(sqle);
+        }
+        
+    }
+    
+    public DemographicDetail findDemographicDetailById(final Long id) throws DataSourceException{
+        try {
+            checkDataSourceExists();
+            DataSource src = getDataSource();
+            Connection conn = src.getConnection();
+            return demographicDetailSQL.findByPrimaryKey(conn, id);
+           
+        } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
+            throw new DataSourceException(e);
+        }
+    }
+    
+    public DemographicDetail save(DemographicDetail detail)
+    throws DataSourceException{
+        try {
+            
+            checkDataSourceExists();
+            
+            DataSource src = getDataSource();
+            Connection con = src.getConnection();
+            
+            if (detail.getId() == null || detail.getId().intValue() == 0) {
+                log.info("before insert");
+                detail = demographicDetailSQL.insert(con, detail);
+                log.info("after normal insert");
+            }
+            
+            
+            else {
+                log.info("before update");
+                demographicDetailSQL.update(con, detail);
+                log.info("after update");
+            }
+            
+            return detail;
+        } catch (Exception e) {
+            
+            throw new DataSourceException(Util.getStaceTraceN(e, 12 ));
+            
+        }
+    }
+    
+    protected void checkDataSourceExists() throws NullPointerException {
+        
+        dataSource.getClass();
+    }
+    
+    
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+    
+    public void setDataSource(DataSource ds) {
+        dataSource = ds;
+    }
+    
+    /**
+     * Getter for property demographicDetailSQL.
+     * @return Value of property demographicDetailSQL.
+     */
+    public DemographicDetailSQL getDemographicDetailSQL() {
+        return this.demographicDetailSQL;
+    }
+    
+    /**
+     * Setter for property demographicDetailSQL.
+     * @param demographicDetailSQL New value of property demographicDetailSQL.
+     */
+    public void setDemographicDetailSQL(DemographicDetailSQL demographicDetailSQL) {
+        this.demographicDetailSQL = demographicDetailSQL;
+    }
+    
+   
+    
+}
