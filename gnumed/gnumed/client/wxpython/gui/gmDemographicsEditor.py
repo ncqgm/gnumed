@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-# $Id: gmDemographicsEditor.py,v 1.10 2004-08-24 14:28:42 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmDemographicsEditor.py,v 1.11 2004-10-16 22:42:12 sjtan Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL'
 
@@ -46,17 +46,23 @@ if __name__ == '__main__':
 
 	# catch all remaining exceptions
 	try:
-		application = wx.wxPyWidgetTester(gmDemographicsEditorPlugin, (640,400))
+		application = wx.wxPyWidgetTester(gmDemographicsEditor, (640, 400) )
 		application.MainLoop()
 	except StandardError:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
+		gmLog.gmDefLog.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
 		# but re-raise them
 		raise
 
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.10  2004-08-24 14:28:42  ncq
+# Revision 1.11  2004-10-16 22:42:12  sjtan
+#
+# script for unitesting; guard for unit tests where unit uses gmPhraseWheel; fixup where version of wxPython doesn't allow
+# a child widget to be multiply inserted (gmDemographics) ; try block for later versions of wxWidgets that might fail
+# the Add (.. w,h, ... ) because expecting Add(.. (w,h) ...)
+#
+# Revision 1.10  2004/08/24 14:28:42  ncq
 # - cleanup
 #
 # Revision 1.9  2004/08/04 17:16:02  ncq

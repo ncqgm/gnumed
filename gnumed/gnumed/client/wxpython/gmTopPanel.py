@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.52 2004-10-14 12:13:58 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmTopPanel.py,v 1.53 2004-10-16 22:42:12 sjtan Exp $
+__version__ = "$Revision: 1.53 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -209,7 +209,11 @@ class cMainTopPanel(wxPanel):
 		if wxPlatform == '__WXMAC__':
 			self.szr_stacked_rows.Add((1, 3), 0, wxEXPAND)
 		else:
-			self.szr_stacked_rows.Add(1, 3, 0, wxEXPAND)
+			try:
+				self.szr_stacked_rows.Add(1, 3, 0, wxEXPAND)
+			except:
+				self.szr_stacked_rows.Add((1, 3), 0, wxEXPAND)
+
 		self.szr_stacked_rows.Add(self.szr_top_row, 1, wxEXPAND)
 		self.szr_stacked_rows.Add(self.szr_bottom_row, 1, wxEXPAND | wxALL, 2)
 
@@ -452,7 +456,13 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.52  2004-10-14 12:13:58  ncq
+# Revision 1.53  2004-10-16 22:42:12  sjtan
+#
+# script for unitesting; guard for unit tests where unit uses gmPhraseWheel; fixup where version of wxPython doesn't allow
+# a child widget to be multiply inserted (gmDemographics) ; try block for later versions of wxWidgets that might fail
+# the Add (.. w,h, ... ) because expecting Add(.. (w,h) ...)
+#
+# Revision 1.52  2004/10/14 12:13:58  ncq
 # - factor out toolbar creation from toolbar registering
 #
 # Revision 1.51  2004/09/13 09:26:16  ncq

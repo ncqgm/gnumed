@@ -12,14 +12,14 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.4 2004-10-14 12:11:18 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmHorstSpace.py,v 1.5 2004-10-16 22:42:12 sjtan Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-import os.path, os
+import os.path, os,sys
 
 from wxPython import wx
 from wxPython.wx import *
@@ -270,7 +270,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.4  2004-10-14 12:11:18  ncq
+# Revision 1.5  2004-10-16 22:42:12  sjtan
+#
+# script for unitesting; guard for unit tests where unit uses gmPhraseWheel; fixup where version of wxPython doesn't allow
+# a child widget to be multiply inserted (gmDemographics) ; try block for later versions of wxWidgets that might fail
+# the Add (.. w,h, ... ) because expecting Add(.. (w,h) ...)
+#
+# Revision 1.4  2004/10/14 12:11:18  ncq
 # - improve comments
 #
 # Revision 1.3  2004/09/13 08:53:02  ncq

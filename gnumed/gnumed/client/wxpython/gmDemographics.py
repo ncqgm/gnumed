@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.42 2004-09-10 10:51:14 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmDemographics.py,v 1.43 2004-10-16 22:42:12 sjtan Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -385,9 +385,10 @@ class PatientsPanel(wx.wxPanel, gmPatientHolder.PatientHolder):
 		lbl_heading_address = BlueLabel_Bold(self,-1, _("Address"), wx.wxALIGN_CENTRE)
 		self.sizer_lbl_heading_address = wx.wxBoxSizer(wx.wxHORIZONTAL)   #holds address heading
 		self.sizer_lbl_heading_address.Add(lbl_space,1,wx.wxEXPAND|wx.wxTOP|wx.wxBOTTOM,1)
-		self.sizer_lbl_heading_address.Add(lbl_space,1,wx.wxEXPAND|wx.wxTOP|wx.wxBOTTOM,1)
+	#	self.sizer_lbl_heading_address.Add(lbl_space,1,wx.wxEXPAND|wx.wxTOP|wx.wxBOTTOM,1)
 		self.sizer_lbl_heading_address.Add(lbl_heading_address,1,wx.wxEXPAND|wx.wxTOP|wx.wxBOTTOM,1)
-		self.sizer_lbl_heading_address.Add(lbl_space,1,wx.wxEXPAND|wx.wxTOP|wx.wxBOTTOM,1)
+		lbl_space2 = BlueLabel_Normal(self,-1,"",wx.wxLEFT) #This lbl_space is used as a spacer between label
+		self.sizer_lbl_heading_address.Add(lbl_space2,1,wx.wxEXPAND|wx.wxTOP|wx.wxBOTTOM,1)
 		#------------------------------------------------------------------------------
 		#Next add street label + 3 line size textbox for street
 		#------------------------------------------------------------------------------
@@ -480,9 +481,12 @@ class PatientsPanel(wx.wxPanel, gmPatientHolder.PatientHolder):
 		self.txt_email = TextBox_BlackNormal(self,-1)
 		self.txt_web = TextBox_BlackNormal(self,-1)
 
+		lbl_space = BlueLabel_Normal(self,-1,"",wx.wxLEFT) #This lbl_space is used as a spacer between label
 		self.sizer_contacts_line1 .Add(lbl_space,1,wx.wxEXPAND|wx.wxTOP|wx.wxBOTTOM,1)
+		lbl_space = BlueLabel_Normal(self,-1,"",wx.wxLEFT) #This lbl_space is used as a spacer between label
 		self.sizer_contacts_line1 .Add(lbl_space,1,wx.wxEXPAND)
 		self.sizer_contacts_line1 .Add(lbl_contact_heading,1,wx.wxEXPAND|wx.wxTOP|wx.wxBOTTOM,1)
+		lbl_space = BlueLabel_Normal(self,-1,"",wx.wxLEFT) #This lbl_space is used as a spacer between label
 		self.sizer_contacts_line1 .Add(lbl_space,1,wx.wxEXPAND|wx.wxTOP|wx.wxBOTTOM,1)
 		self.sizer_contacts_line2 .Add(lbl_homephone,3,wx.wxEXPAND|wx.wxTOP|wx.wxBOTTOM,1)
 		self.sizer_contacts_line2 .Add(self.txt_homephone,5,wx.wxEXPAND|wx.wxTOP|wx.wxBOTTOM,1)
@@ -1162,7 +1166,13 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.42  2004-09-10 10:51:14  ncq
+# Revision 1.43  2004-10-16 22:42:12  sjtan
+#
+# script for unitesting; guard for unit tests where unit uses gmPhraseWheel; fixup where version of wxPython doesn't allow
+# a child widget to be multiply inserted (gmDemographics) ; try block for later versions of wxWidgets that might fail
+# the Add (.. w,h, ... ) because expecting Add(.. (w,h) ...)
+#
+# Revision 1.42  2004/09/10 10:51:14  ncq
 # - improve previous checkin comment
 #
 # Revision 1.41  2004/09/10 10:41:38  ncq

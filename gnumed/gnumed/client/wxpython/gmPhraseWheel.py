@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.39 2004-09-13 09:24:30 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmPhraseWheel.py,v 1.40 2004-10-16 22:42:12 sjtan Exp $
+__version__ = "$Revision: 1.40 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -108,7 +108,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.__picklist_visible = False
 
 		self.__gb = gmGuiBroker.GuiBroker()
-		if not self.__gb['main.slave_mode']:
+		if self.__gb.has_key('main.slave_mode') and not self.__gb['main.slave_mode']:
 			self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
 		else:
 			self.__timer = gmNull.cNull()
@@ -535,7 +535,13 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.39  2004-09-13 09:24:30  ncq
+# Revision 1.40  2004-10-16 22:42:12  sjtan
+#
+# script for unitesting; guard for unit tests where unit uses gmPhraseWheel; fixup where version of wxPython doesn't allow
+# a child widget to be multiply inserted (gmDemographics) ; try block for later versions of wxWidgets that might fail
+# the Add (.. w,h, ... ) because expecting Add(.. (w,h) ...)
+#
+# Revision 1.39  2004/09/13 09:24:30  ncq
 # - don't start timers in slave_mode since cannot start from
 #   other than main thread, this is a dirty fix but will do for now
 #
