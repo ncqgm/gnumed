@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
@@ -176,7 +176,7 @@ class BackendListener:
 						try:
 							gmDispatcher.send(signal = note.relname, sender = self._service, sending_backend_pid = note.be_pid)
 						except:
-							print "problem passing on notification to intra-client dispatcher"
+							print "problem routing notification [%s] from [%s] to intra-client dispatcher" % (note.relname, note.be_pid)
 					if self._quit_lock.acquire(0):
 						break
 					time.sleep(0.25)
@@ -279,7 +279,10 @@ if __name__ == "__main__":
 	listener.unregister_callback('patient_changed', OnPatientModified)
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.2  2004-04-21 14:27:15  ihaywood
+# Revision 1.3  2004-06-01 23:42:53  ncq
+# - improve error message from failed notify dispatch attempt
+#
+# Revision 1.2  2004/04/21 14:27:15  ihaywood
 # bug preventing backendlistener working on local socket connections
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq
