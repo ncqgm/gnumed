@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #############################################################################
 #
-# gmimmunisations
+# gmGP_Immunisations.py
 # ----------------------------------
 #
 # This panel will hold all the immunisation details
@@ -14,7 +14,7 @@
 # @dependencies: wxPython (>= version 2.3.1)
 # @change log:
 #	    10.06.2002 rterry initial implementation, untested
-#
+#           30.07.2002 rterry icons inserted in file, code cleaned up
 # @TODO:
 #	
 #      
@@ -27,7 +27,9 @@ import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert mes
 import gmEditArea             #panel class holding editing prompts and text boxes
 import gmPlugin
 import gmLog
-import images_gnuMedGP_Toolbar
+from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
+import cPickle, zlib   
+
 ID_IMMUNISATIONLIST = wxNewId()
 ID_IMMUNISATIONS = wxNewId()
 ID_ALL_MENU  = wxNewId()
@@ -63,7 +65,7 @@ class ImmunisationPanel(wxPanel):
           #--------------------
           #add the main heading
           #--------------------
-          self.immunisationpanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,"  IMMUNISATIONS  ")
+          self.immunisationpanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,_("  IMMUNISATIONS  "))
           #--------------------------------------------
           #dummy panel will later hold the editing area
           #--------------------------------------------
@@ -73,13 +75,11 @@ class ImmunisationPanel(wxPanel):
 	  #now create the editarea specific for immunisations
 	  #--------------------------------------------------
           self.editarea = gmEditArea.EditArea(self,-1,immunisationprompts,gmSECTION_IMMUNISATIONS)
-          #self.dummypanel2 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
-	  #self.dummypanel2.SetBackgroundColour(wxColor(222,222,222))
           #-----------------------------------------------
           #add the divider headings below the editing area
           #-----------------------------------------------
-          self.disease_schedule_heading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Disease or Schedule")
-	  self.vaccine_given_heading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Vaccine Given")
+          self.disease_schedule_heading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Disease or Schedule"))
+	  self.vaccine_given_heading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Vaccine Given"))
           self.sizer_divider_schedule_vaccinegiven = wxBoxSizer(wxHORIZONTAL) 
           self.sizer_divider_schedule_vaccinegiven.Add(self.disease_schedule_heading,1, wxEXPAND)
 	  self.sizer_divider_schedule_vaccinegiven.Add( self.vaccine_given_heading,1, wxEXPAND)
@@ -94,18 +94,16 @@ class ImmunisationPanel(wxPanel):
 	  #
           #--------------------------------------------------------------------------------------
        	  self.disease_schedule_list = wxListCtrl(self, ID_IMMUNISATIONLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-          self.disease_schedule_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, 'xselfont'))
+          self.disease_schedule_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 	  self.schedule_vaccine_given_list = wxListCtrl(self, ID_IMMUNISATIONLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-          self.schedule_vaccine_given_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, 'xselfont'))
-
+          self.schedule_vaccine_given_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 	  self.sizer_schedule_vaccine = wxBoxSizer(wxHORIZONTAL)
 	  self.sizer_schedule_vaccine.Add(self.disease_schedule_list,4,wxEXPAND)
 	  self.sizer_schedule_vaccine.Add(self.schedule_vaccine_given_list,6, wxEXPAND)
-	  
           #-----------------------------------------	  
           # add some dummy data to the Schedule list
 	  #-----------------------------------------
-	  self.disease_schedule_list.InsertColumn(0, "Schedule")
+	  self.disease_schedule_list.InsertColumn(0, _("Schedule"))
 	  self.disease_schedule_list.InsertColumn(1, "null")
 	  #-------------------------------------------------------------
           #loop through the scheduledata array and add to the list control
@@ -116,23 +114,13 @@ class ImmunisationPanel(wxPanel):
 	  for x in range(len(items)):
 	      key, data = items[x]
 	      gmLog.gmDefLog.Log (gmLog.lData, items[x])
-	      #print x, data[0],data[1],data[2]
 	      self.disease_schedule_list.InsertStringItem(x, data[0])
-	      #self.disease_schedule_list.SetStringItem(x, 1, data[1])
-	      #self.disease_schedule_list.SetStringItem(x, 2, data[2])
-	      #self.disease_schedule_list.SetStringItem(x, 3, data[3])
-	      #self.disease_schedule_list.SetStringItem(x, 4, data[4])
 	      self.disease_schedule_list.SetItemData(x, key)
 	  self.disease_schedule_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
-          #self.disease_schedule_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
-	  #self.disease_schedule_list.SetColumnWidth(2, wxLIST_AUTOSIZE)
-	  #self.disease_schedule_list.SetColumnWidth(3, wxLIST_AUTOSIZE)
-	  #self.disease_schedule_list.SetColumnWidth(4, wxLIST_AUTOSIZE)
-	  
-	   #-----------------------------------------	  
+          #-----------------------------------------	  
           # add some dummy data to the vaccines list
 	  #-----------------------------------------
-	  self.schedule_vaccine_given_list.InsertColumn(0, "Vaccine")
+	  self.schedule_vaccine_given_list.InsertColumn(0, _("Vaccine"))
 	  self.schedule_vaccine_given_list.InsertColumn(1, "null")
 	  #-------------------------------------------------------------
           #loop through the scheduledata array and add to the list control
@@ -143,29 +131,19 @@ class ImmunisationPanel(wxPanel):
 	  for x in range(len(items)):
 	      key, data = items[x]
 	      print items[x]
-	      #print x, data[0],data[1],data[2]
 	      self.schedule_vaccine_given_list.InsertStringItem(x, data[0])
-	     
 	      self.schedule_vaccine_given_list.SetStringItem(x, 1, data[1])
-	      #self.disease_schedule_list.SetStringItem(x, 2, data[2])
-	      #self.disease_schedule_list.SetStringItem(x, 3, data[3])
-	      #self.disease_schedule_list.SetStringItem(x, 4, data[4])
 	      self.schedule_vaccine_given_list.SetItemData(x, key)
 	  self.schedule_vaccine_given_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
           self.schedule_vaccine_given_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
-	  #self.disease_schedule_list.SetColumnWidth(2, wxLIST_AUTOSIZE)
-	  #self.disease_schedule_list.SetColumnWidth(3, wxLIST_AUTOSIZE)
-	  #self.disease_schedule_list.SetColumnWidth(4, wxLIST_AUTOSIZE)
 	  #--------------------------------------------------------------------------------------
           #add a richtext control or a wxTextCtrl multiline to display the class text information
           #e.g. would contain say information re the penicillins
           #--------------------------------------------------------------------------------------
           self.missing_immunisations_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Missing Immunisations")
           self.missingimmunisationtxt = wxTextCtrl(self,-1, "Schedule: Pneumococcal - no vaccination recorded",
-                   
-                                        
-                                          size=(200, 100), style=wxTE_MULTILINE)
-	  self.missingimmunisationtxt.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+						   size=(200, 100), style=wxTE_MULTILINE)
+	  self.missingimmunisationtxt.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
           #----------------------------------------
           #add an alert caption panel to the bottom
           #----------------------------------------
@@ -177,7 +155,6 @@ class ImmunisationPanel(wxPanel):
           self.mainsizer.Add(self.immunisationpanelheading,0,wxEXPAND)
           self.mainsizer.Add(self.dummypanel1,1,wxEXPAND)
           self.mainsizer.Add(self.editarea,6,wxEXPAND)
-          #self.mainsizer.Add(self.dummypanel2,1,wxEXPAND)
           self.mainsizer.Add(self.sizer_divider_schedule_vaccinegiven,0,wxEXPAND)
           self.mainsizer.Add( self.sizer_schedule_vaccine,4,wxEXPAND)
           self.mainsizer.Add(self.missing_immunisations_subheading,0,wxEXPAND)
@@ -204,7 +181,7 @@ class gmGP_Immunisation (gmPlugin.wxPatientPlugin):
            return ('view', '&Immunisation')
 
     def GetIcon (self):
-           return images_gnuMedGP_Toolbar.getToolbar_ImmunisationBitmap()
+           return getpatient_immunisationsBitmap()
 
     def GetWidget (self, parent):
            return ImmunisationPanel (parent, -1)
@@ -216,4 +193,18 @@ if __name__ == "__main__":
 	app.SetWidget(ImmunisationPanel, -1)
 	app.MainLoop()
            
+#----------------------------------------------------------------------
+def getpatient_immunisationsData():
+    return cPickle.loads(zlib.decompress(
+'x\xdam\xd0\xb1\n\x80 \x10\x06\xe0\xbd\xa7\xf8\xa1\xc1\xa6\x9f$\xe8\x01\x1a\
+\x1a[Z\\#\x9a\x8a\xea\xfd\xa7N3\xf4\xb0C\x90\xff\xf3\x0e\xd4\xe6\xb8m5\x1b\
+\xdbCV\x07k\xaae6\xc4\x8a\xe1X\xd6=$H\x9a\xaes\x0b\xc1I\xa8G\xa9\xb6\x8d\x87\
+\xa9H\xa0@\xafe\xa7\xa8Bi\xa2\xdfs$\x19,G:\x175\xa1\x98W\x85\xc1\x9c\x1e\xcf\
+Mc4\x85\x9f%\xfc\xae\x93!\xd5K_\xd4\x86\xf8\xa1?\x88\x12\xf9\x00 =F\x87' ))
+
+def getpatient_immunisationsBitmap():
+    return wxBitmapFromXPMData(getpatient_immunisationsData())
+
+def getpatient_immunisationsImage():
+    return wxImageFromBitmap(getpatient_immunisationsBitmap())
 
