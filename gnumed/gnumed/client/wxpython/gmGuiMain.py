@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-02-01 07:10:50 $
-# @version $Revision: 1.63 $ $Date: 2003-02-01 07:10:50 $ $Author: michaelb $
+# @Date: $Date: 2003-02-01 11:57:56 $
+# @version $Revision: 1.64 $ $Date: 2003-02-01 11:57:56 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -321,9 +321,9 @@ class MainFrame(wxFrame):
 		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
 	def OnAbout(self, event):
-		gmAbout=AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wxMAXIMIZE_BOX)
+		gmAbout = AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wxMAXIMIZE_BOX)
 		gmAbout.Centre(wxBOTH)
-    		MainFrame.otherWin = gmAbout
+		MainFrame.otherWin = gmAbout
 		gmAbout.Show(true)
 	#----------------------------------------------
 	def SetupAccelerators(self):
@@ -530,7 +530,7 @@ class AboutFrame (wxFrame, MainFrame):
 		box.Add(txt, 0, wxALIGN_CENTRE)
 		box.Add(wxStaticText(self, -1, _("Free eMedicine")), 0, wxALIGN_CENTRE)
 		box.Add(0,0, 4)
-		box.Add(wxStaticText(self, -1, _("Version X.X.X brought to you by")), 0, wxALIGN_CENTRE)
+		box.Add(wxStaticText(self, -1, _("Version [CVS %s] brought to you by") % __version__ ), 0, wxALIGN_CENTRE)
 		box.Add(wxStaticText(self, -1, _("Drs Horst Herb && Karsten Hilbert")), 0, wxALIGN_CENTRE)
 
 		self.changing_txt=wxTextCtrl(self, -1, "", size=(230,20))
@@ -618,7 +618,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.63  2003-02-01 07:10:50  michaelb
+# Revision 1.64  2003-02-01 11:57:56  ncq
+# - display gmGuiMain version in About box
+#
+# Revision 1.63  2003/02/01 07:10:50  michaelb
 # fixed scrolling problem
 #
 # Revision 1.61  2003/01/29 04:26:37  michaelb
