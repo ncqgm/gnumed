@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.5 2004-08-18 08:30:25 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmVaccWidgets.py,v 1.6 2004-09-13 09:28:26 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -404,16 +404,14 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		print "updated indications"
 
 		# populate missing-shots list
-		# FIXME: this is very slow !
 		missing_shots = emr.get_missing_vaccinations()
-		print "got missing shots - this was slow, no ?"
 		if missing_shots is None:
 			label = _('ERROR: cannot retrieve due/overdue vaccinations')
 			self.LBOX_missing_shots.Append(label, None)
 			return True
 		# due
 		due_template = _('%.0d weeks left: shot %s for %s in %s, due %s (%s)')
-		overdue_template = _('overdue %.0dyrs %.0dwks: shot %s for %s in %s (%s)')
+		overdue_template = _('overdue %.0dyrs %.0dwks: shot %s for %s in schedule "%s (%s)"')
 		for shot in missing_shots['due']:
 			if shot['overdue']:
 				years, days_left = divmod(shot['amount_overdue'].days, 364.25)
@@ -477,7 +475,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.5  2004-08-18 08:30:25  ncq
+# Revision 1.6  2004-09-13 09:28:26  ncq
+# - improve strings
+#
+# Revision 1.5  2004/08/18 08:30:25  ncq
 # - what used to be v_vacc_regimes now is v_vacc_defs4reg
 #
 # Revision 1.4  2004/07/28 15:40:53  ncq
