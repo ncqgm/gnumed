@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -655,7 +655,7 @@ def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1, extra_ve
 			* True - if all queries succeeded (also if there were 0 queries)
 			* False - if *any* error occurred
 		- <data> if <status> is True:
-			* "None" if last query did not return rows
+			* (None, {}) if last query did not return rows
 			* ("fetchall() result", <index>) if last query returned any rows
 			* for <index> see <get_col_idx>
 		- <data> if <status> is False:
@@ -741,6 +741,7 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 	# done with attempt(s)
 	# did we get result rows in the last query ?
 	data = None
+	idx = {}
 	# now, the DB-API is ambigous about wether cursor.description
 	# and cursor.rowcount apply to the most recent query in a cursor
 	# (does this statement make any sense in the first place ?) or
@@ -760,9 +761,8 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 	curs.close()
 	conn.close()
 	if get_col_idx:
-		return (True, (data, get_col_indices(curs)))
-	else:
-		return (True, (data, {}))
+		idx = get_col_indices(curs)
+	return (True, (data, idx))
 #---------------------------------------------------
 def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, get_col_idx=False):
 	# get cursor
@@ -803,6 +803,7 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 
 	# did we get result rows in the last query ?
 	data = None
+	idx = {}
 	# now, the DB-API is ambigous about whether cursor.description
 	# and cursor.rowcount apply to the most recent query in a cursor
 	# (does this statement make any sense in the first place ?) or
@@ -822,9 +823,8 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 		conn.commit()
 	curs.close()
 	if get_col_idx:
-		return (True, (data, get_col_indices(curs)))
-	else:
-		return (True, (data, {}))
+		idx = get_col_indices(curs)
+	return (True, (data, idx))
 #---------------------------------------------------
 def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=False):
 	# run queries
@@ -859,6 +859,7 @@ def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=
 
 	# did we get result rows in the last query ?
 	data = None
+	idx = {}
 	# now, the DB-API is ambigous about whether cursor.description
 	# and cursor.rowcount apply to the most recent query in a cursor
 	# (does this statement make any sense in the first place ?) or
@@ -875,9 +876,8 @@ def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=
 			_log.Log(gmLog.lData, 'there seem to be rows but fetchall() failed -- DB API violation ?')
 			_log.Log(gmLog.lData, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
 	if get_col_idx:
-		return (True, (data, get_col_indices(curs)))
-	else:
-		return (True, (data, {}))
+		idx = get_col_indices(curs)
+	return (True, (data, idx))
 #---------------------------------------------------
 def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	"""Convenience function for running a transaction
@@ -1199,7 +1199,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.38 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.39 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1417,7 +1417,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.38  2005-01-02 16:15:34  ncq
+# Revision 1.39  2005-01-03 18:22:58  ncq
+# - improve (data, idx) return and docs in commit2
+#
+# Revision 1.38  2005/01/02 16:15:34  ncq
 # - by Ian: make commit2() return col idx on request
 # - changed to always return tuple (data, idx) with
 #   idx = {} if not requested
