@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.91 2003-04-01 15:55:24 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmGuiMain.py,v 1.92 2003-04-03 13:50:21 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -532,6 +532,10 @@ class gmApp(wxApp):
 
 		# get read-only connection
 		roconn = self.__backend.GetConnection(service = 'default')
+		if roconn is None:
+			_log.Log(gmLog.lInfo, 'Cannot connect to database to check database locale setting.')
+			return None
+
 		# set up 'read-only' cursor
 		rocurs = roconn.cursor()
 
@@ -591,6 +595,10 @@ class gmApp(wxApp):
 
 		# get read-write connection
 		rwconn = self.__backend.GetConnection(service = 'default', readonly = 0)
+		if rwconn is None:
+			_log.Log(gmLog.lInfo, 'Cannot connect to database to set database locale.')
+			return None
+
 		# set up 'read-write' cursor
 		rwcurs = rwconn.cursor()
 
@@ -636,7 +644,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.91  2003-04-01 15:55:24  ncq
+# Revision 1.92  2003-04-03 13:50:21  ncq
+# - catch more early results of connection failures ...
+#
+# Revision 1.91  2003/04/01 15:55:24  ncq
 # - fix setting of db lang, better message if no lang set yet
 #
 # Revision 1.90  2003/04/01 12:26:04  ncq
