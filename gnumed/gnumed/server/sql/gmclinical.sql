@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.132 $
+-- $Revision: 1.133 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -912,8 +912,8 @@ create table clin_medication (
 		not null,
 	atc_code text
 		not null,
-	is_CR boolean,
-		not null
+	is_CR boolean
+		not null,
 	-- medical application
 	dosage numeric[]
 		not null,
@@ -1073,11 +1073,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.132 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.133 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.132  2004-10-20 13:16:03  ncq
+-- Revision 1.133  2004-10-20 13:52:27  sjtan
+--
+-- placement of , with recent change to field.
+--
+-- Revision 1.132  2004/10/20 13:16:03  ncq
 -- - is_SR -> is_CR
 -- - improved comments on clin_medication
 --
