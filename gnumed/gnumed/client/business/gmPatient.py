@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.43 2004-06-01 23:58:01 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmPatient.py,v 1.44 2004-06-15 19:14:30 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -60,11 +60,12 @@ class gmPerson:
 		"""
 		_log.Log(gmLog.lData, 'cleaning up after person [%s]' % self.__ID)
 		if self.__db_cache.has_key('clinical record'):
-			emr = self.__db_cache['clinical record']
-			emr.cleanup()
+			self.__db_cache['clinical record'].cleanup()
+			del self.__db_cache['clinical record']
 		if self.__db_cache.has_key('demographic record'):
-			demos = self.__db_cache['demographic record']
-			demos.cleanup()
+			self.__db_cache['demographic record'].cleanup()
+			del self.__db_cache['demographic record']
+		# FIXME: document folder
 	#--------------------------------------------------------
 	# internal helper
 	#--------------------------------------------------------
@@ -258,6 +259,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 		self.__send_selection_notification()
 
 		return None
+	#--------------------------------------------------------
+	def cleanup(self):
+		self._patient.cleanup()
 	#--------------------------------------------------------
 	def get_clinical_record(self):
 		return self._patient.get_clinical_record()
@@ -911,7 +915,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.43  2004-06-01 23:58:01  ncq
+# Revision 1.44  2004-06-15 19:14:30  ncq
+# - add cleanup() to current patient calling gmPerson.cleanup()
+#
+# Revision 1.43  2004/06/01 23:58:01  ncq
 # - debugged dob handling in _make_queries_generic
 #
 # Revision 1.42  2004/06/01 07:50:56  ncq
