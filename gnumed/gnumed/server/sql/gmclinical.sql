@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.44 $
+-- $Revision: 1.45 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -19,7 +19,8 @@ create table clin_narrative (
 
 comment on table clin_narrative is
 	'contains all the clinical narrative aggregated for full text search,
-	 ancestor for all tables that want to store clinical free text';
+	 ancestor for all tables that want to store clinical free text,
+	 do *not* use directly !';
 comment on column clin_narrative.narrative is
 	'well, the narrative itself';
 
@@ -31,7 +32,7 @@ create table clin_health_issue (
 	id_patient integer not null,
 	description varchar(128) default '__default__',
 	unique (id_patient, description)
-) inherits (audit_mark);
+);
 
 comment on table clin_health_issue is
 	'long-ranging, underlying health issue such as "mild immunodeficiency", "diabetes type 2"';
@@ -49,7 +50,7 @@ create table clin_episode (
 	id_health_issue integer not null references clin_health_issue(id),
 	description varchar(128) default '__default__',
 	unique (id_health_issue, description)
-) inherits (clin_narrative, audit_mark);
+) inherits (clin_narrative);
 
 comment on table clin_episode is
 	'clinical episodes such as "recurrent Otitis media", "traffic accident 7/99", "Hepatitis B"';
@@ -70,7 +71,7 @@ comment on column clin_episode.description is
 create table _enum_encounter_type (
 	id serial primary key,
 	description varchar(32) unique not null
-) inherits (audit_mark);
+);
 
 comment on TABLE _enum_encounter_type is
 	'these are the types of encounter';
@@ -81,7 +82,7 @@ create table clin_encounter (
 	id_location integer,
 	id_provider integer,
 	id_type integer not null references _enum_encounter_type(id)
-) inherits (clin_narrative, audit_mark);
+) inherits (clin_narrative);
 
 comment on table clin_encounter is
 	'a clinical encounter between a person and the health care system';
@@ -138,7 +139,7 @@ create table clin_history (
 	id serial primary key,
 	id_type integer not null references _enum_hx_type(id),
 	id_source integer REFERENCES _enum_hx_source(id)
-) inherits (clin_item, audit_mark);
+) inherits (clin_item);
 
 -- narrative provided by clin_item
 
@@ -152,7 +153,7 @@ comment on COLUMN clin_history.id_source is
 -- --------------------------------------------
 create table clin_physical (
 	id serial primary key
-) inherits (clin_item, audit_mark);
+) inherits (clin_item);
 
 -- narrative provided by clin_item
 
@@ -163,7 +164,7 @@ comment on TABLE clin_physical is
 create table _enum_allergy_type (
 	id serial primary key,
 	value varchar(32) unique not null
-) ;
+);
 
 -- --------------------------------------------
 create table allergy (
@@ -206,13 +207,34 @@ comment on column allergy.generic_specific is
 comment on column allergy.definate is
 	'true: definate, false: not definate';
 
+create table log_allergy (
+	-- clin_narrative
+	pk_narr integer not null,
+	narrative text,
+	-- clin_item
+	pk_item integer not null,
+	id_encounter integer not null,
+	id_episode integer not null,
+	-- allergy
+	id integer not null,
+	substance varchar(128) not null,
+	substance_code varchar(256),
+	generics varchar(256),
+	allergene varchar(256),
+	atc_code varchar(32),
+	id_type integer not null,
+	reaction text,
+	generic_specific boolean not null,
+	definate boolean not null
+) inherits (audit_log);
+
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
 -- -------------------------------------------------------------------
 create table enum_coding_systems (
 	id serial primary key,
 	description text
-) inherits (audit_mark);
+);
 
 comment on TABLE enum_coding_systems is
 	'The various types of coding systems available';
@@ -224,7 +246,7 @@ create table coding_systems (
 	description text,
 	version char(6),
 	deprecated timestamp
-) inherits (audit_mark);
+);
 
 comment on table coding_systems is
 	'The coding systems in this database.';
@@ -236,7 +258,7 @@ create table clin_diagnosis (
 	code char(16),
 	id_coding_systems int REFERENCES coding_systems (id),
 	text text
-) inherits (audit_mark);
+);
 
 comment on TABLE clin_diagnosis is
 	'Coded clinical diagnoses assigned to patient, in addition to history';
@@ -253,7 +275,7 @@ comment on column clin_diagnosis.text is
 create table enum_confidentiality_level (
 	id SERIAL primary key,
 	description text
-)inherits (audit_mark);
+);
 
 comment on table enum_confidentiality_level is
 	'Various levels of confidentialoty of a coded diagnosis, such as public, clinical staff, treating doctor, etc.';
@@ -263,7 +285,7 @@ create table clin_diagnosis_extra (
 	id serial primary key,
 	id_clin_diagnosis int REFERENCES clin_diagnosis (id),
 	id_enum_confidentiality_level int REFERENCES enum_confidentiality_level (id)
-) inherits (audit_mark);
+);
 
 comment on table clin_diagnosis_extra is
 'Extra information about a diagnosis, just the confidentiality level at present.';
@@ -430,11 +452,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.44 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.45 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.44  2003-05-12 19:29:45  ncq
+-- Revision 1.45  2003-05-13 14:49:10  ncq
+-- - warning on clin_narrative to not use directly
+-- - make allergy the only audited table for now, add audit table for it
+--
+-- Revision 1.44  2003/05/12 19:29:45  ncq
 -- - first stab at real auditing
 --
 -- Revision 1.43  2003/05/12 12:43:39  ncq
