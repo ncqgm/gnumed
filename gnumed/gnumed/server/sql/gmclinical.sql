@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.52 $
+-- $Revision: 1.53 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -503,6 +503,7 @@ GRANT SELECT ON
 	"last_act_episode",
 	"_enum_encounter_type",
 	"clin_encounter",
+	"curr_encounter",
 	"clin_note",
 	"log_clin_note",
 	"clin_aux_note",
@@ -529,6 +530,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"_enum_encounter_type_id_seq",
 	"clin_encounter",
 	"clin_encounter_id_seq",
+	"curr_encounter",
+	"curr_encounter_id_seq",
 	"clin_note",
 	"clin_note_id_seq",
 	"clin_aux_note",
@@ -557,11 +560,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.52 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.53 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.52  2003-06-22 16:22:37  ncq
+-- Revision 1.53  2003-06-23 21:56:52  ncq
+-- - grants on curr_encounter
+--
+-- Revision 1.52  2003/06/22 16:22:37  ncq
 -- - add curr_encounter for tracking active encounters
 -- - split clin_aux_note from clin_note so we can cleanly separate
 --   deliberate free text from referenced free text (when building EHR
