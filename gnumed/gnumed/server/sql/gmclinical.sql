@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.97 $
+-- $Revision: 1.98 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -494,7 +494,7 @@ create table vaccination (
 		not null
 		default 'not recorded',
 	unique (fk_patient, fk_vaccine, clin_when)
-) inherits (audit_fields, clin_root_item);
+) inherits (clin_root_item);
 
 -- Richard tells us that "refused" should go into progress note
 
@@ -802,7 +802,6 @@ comment on column constituents.dose is
 'the amount of drug (if salt, the amount of active base substance, in a unit (see amount_unit above)';
 
 -- =============================================
-
 create table referral (
 	id serial primary key,
 	fk_referee integer
@@ -818,16 +817,26 @@ create table referral (
 
 select add_table_for_audit ('referral');
 
-comment on table referral is 'table for referrals to defined individuals. Text of referral letter goes in clin_root_item.narrative';
+comment on table referral is 'table for referrals to defined individuals';
 comment on column referral.transmission_method is 'p=post, f=fax, e=email';
 comment on column referral.fk_referee is 'person to whom the referral is directed';
+comment on column referral.narrative is
+	'inherited from clin_root_item;
+	 stores text of referral letter';
+
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.97 $');
+delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.98 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.97  2004-04-21 15:35:23  ihaywood
+-- Revision 1.98  2004-04-21 20:36:07  ncq
+-- - cleanup/comments on referral
+-- - don't inherit audit_fields in vaccination, those fields are pulled in
+--   via clin_root_item already
+--
+-- Revision 1.97  2004/04/21 15:35:23  ihaywood
 -- new referral table (do we still need gmclinical.form_data then?)
 --
 -- Revision 1.96  2004/04/20 00:17:56  ncq
