@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.28 $ $Date: 2003-01-24 14:21:47 $ $Author: ncq $
+-- $Revision: 1.29 $ $Date: 2003-01-24 14:32:27 $ $Author: ncq $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -116,13 +116,14 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"doc_med",
 	"doc_med_id_seq",
 	"doc_type",
+	"v_i18n_doc_type",
 	"doc_med_external_ref"
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.28 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.29 $');
 
 -- =============================================
 -- questions:
