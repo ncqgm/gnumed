@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.7 $
+$Revision: 1.8 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -9,4 +9,8 @@ Rules:
 - Please date it. Thanks
 - delete things if you incorporated them into the guide
 --------------------------------------------------------------
+Sam 21 Sep 2002 20:14:41 CEST
+karsten.hilbert@gmx.net
 
+add gnumed/client/locale/README to the chapter on i18n
+--------------------------------------------------------------
