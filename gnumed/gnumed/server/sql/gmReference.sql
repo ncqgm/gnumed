@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -24,7 +24,8 @@ create table ref_source (
 	name_long text unique default null,
 	version text not null,
 	description text,
-	source text unique not null
+	source text unique not null,
+	unique(name_short, version)
 ) inherits (audit_fields);
 
 select add_table_for_audit('ref_source');
@@ -94,6 +95,41 @@ COMMENT ON column unit.factor IS
 	'what factor the value with this unit has to be multiplied with to get values in the basic_unit';
 COMMENT ON column unit.shift IS
 	'what has to be added (after multiplying by factor) to a value with this unit to get values in the basic_unit';
+
+-- ===================================================================
+-- ATC classification
+-- -------------------------------------------------------------------
+create table atc_group (
+	pk serial primary key,
+	code text
+		unique
+		not null,
+	description text
+		unique
+		not null
+) inherits (audit_fields);
+
+select add_table_for_audit('atc_group');
+
+
+create table atc_substance (
+	pk serial primary key,
+	code text
+		unique
+		not null,
+	name text
+		unique
+		not null,
+	ddd_amount numeric,
+	fk_ddd_unit integer
+		references unit(pk)
+		on update cascade
+		on delete restrict,
+	route text,
+	comment text
+) inherits (audit_fields);
+
+select add_table_for_audit('atc_substance');
 
 -- =============================================
 create table test_norm (
@@ -223,11 +259,15 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.11  2004-06-23 21:11:27  ncq
+-- Revision 1.12  2004-06-26 23:43:51  ncq
+-- - added unique() in ref_source
+-- - atc_* tables
+--
+-- Revision 1.11  2004/06/23 21:11:27  ncq
 -- - whitespace fix
 --
 -- Revision 1.10  2004/06/17 11:32:08  ihaywood
