@@ -49,6 +49,7 @@ COMMENT ON COLUMN country.deprecated IS
 -- =============================================
 
 -- state codes. Any need for more than 3 characters?
+-- yes, at least in Germany we have up to 6
 
 create table state (
 	id serial primary key,
