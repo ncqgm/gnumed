@@ -11,36 +11,39 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
 
 # location of our modules
 if __name__ == '__main__':
-	# CVS
-	sys.path.append(os.path.join('..', '..', 'pycommon'))
-	sys.path.append(os.path.join('..', '..', 'business'))
-	# UNIX installation
-	sys.path.append('/usr/share/gnumed/pycommon')
-	sys.path.append('/usr/share/gnumed/business')
-	# Windows
-	sys.path.append(os.path.join('.', 'modules'))
+    # CVS
+    sys.path.append(os.path.join('..', '..', 'pycommon'))
+    sys.path.append(os.path.join('..', '..', 'business'))
+    # UNIX installation
+    sys.path.append('/usr/share/gnumed/pycommon')
+    sys.path.append('/usr/share/gnumed/business')
+    # Windows
+    sys.path.append(os.path.join('.', 'modules'))
 
 import gmLog
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
+    _log.SetAllLogLevels(gmLog.lData)
 
 _log.Log(gmLog.lData, __version__)
 
 if __name__ == "__main__":
-	import gmI18N
+    import gmI18N
 else:
-	import gmGuiBroker
+    import gmGuiBroker
 
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
+
+import gmWhoAmI
+_whoami = gmWhoAmI.cWhoAmI()
 
 import gmPG
 import gmPatient, gmMedDoc, gmMimeLib
@@ -54,9 +57,9 @@ from wxPython.wx import *
 #                               wxTR_HAS_BUTTONS | wxTR_EDIT_LABELS# | wxTR_MULTIPLE
 #                               , self.log)
 
-		# NOTE:  For some reason tree items have to have a data object in
-		#        order to be sorted.  Since our compare just uses the labels
-		#        we don't need any real data, so we'll just use None.
+        # NOTE:  For some reason tree items have to have a data object in
+        #        order to be sorted.  Since our compare just uses the labels
+        #        we don't need any real data, so we'll just use None.
 
 #        EVT_TREE_ITEM_EXPANDED  (self, tID, self.OnItemExpanded)
 #        EVT_TREE_ITEM_COLLAPSED (self, tID, self.OnItemCollapsed)
@@ -67,601 +70,603 @@ from wxPython.wx import *
 
 #        EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 
-[	wxID_PNL_main,
-	wxID_TB_BTN_show_page
+[   wxID_PNL_main,
+    wxID_TB_BTN_show_page
 ] = map(lambda _init_ctrls: wxNewId(), range(2))
 #================================================================
 class cDocTree(wxTreeCtrl):
-	"""This wxTreeCtrl derivative displays a tree view of stored medical documents.
-	"""
-	def __init__(self, parent, id):
-		"""Set up our specialised tree.
-		"""
-		# get connection
-		self.__backend = gmPG.ConnectionPool()
-		self.__defconn = self.__backend.GetConnection('blobs')
-		if self.__defconn is None:
-			_log.Log(gmLog.lErr, "Cannot retrieve documents without database connection !")
-			raise ConstructorError, "cDocTree.__init__(): need db conn"
+    """This wxTreeCtrl derivative displays a tree view of stored medical documents.
+    """
+    def __init__(self, parent, id):
+        """Set up our specialised tree.
+        """
+        # get connection
+        self.__backend = gmPG.ConnectionPool()
+        self.__defconn = self.__backend.GetConnection('blobs')
+        if self.__defconn is None:
+            _log.Log(gmLog.lErr, "Cannot retrieve documents without database connection !")
+            raise ConstructorError, "cDocTree.__init__(): need db conn"
 
-		# connect to config database
-		self.__dbcfg = gmCfg.cCfgSQL(
-			aConn = self.__backend.GetConnection('default'),
-			aDBAPI = gmPG.dbapi
-		)
+        # connect to config database
+        self.__dbcfg = gmCfg.cCfgSQL(
+            aConn = self.__backend.GetConnection('default'),
+            aDBAPI = gmPG.dbapi
+        )
 
-		wxTreeCtrl.__init__(self, parent, id, style=wxTR_NO_BUTTONS)
+        wxTreeCtrl.__init__(self, parent, id, style=wxTR_NO_BUTTONS)
 
-		self.root = None
-		self.doc_list = None
-		self.curr_pat = gmPatient.gmCurrentPatient()
-		_log.Log(gmLog.lData, self.curr_pat)
-		# connect handlers
-		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
-		EVT_TREE_ITEM_RIGHT_CLICK(self, self.GetId(), self.__on_right_click)
-	#------------------------------------------------------------------------
-	def update(self):
-		if self.curr_pat['ID'] is None:
-			_log.Log(gmLog.lErr, 'need patient for update')
-			gm_show_error(
-				aMessage = _('Cannot load documents.\nYou first need to select a patient.'),
-				aTitle = _('loading document list')
-			)
-			return None
+        self.root = None
+        self.doc_list = None
+        self.curr_pat = gmPatient.gmCurrentPatient()
+        _log.Log(gmLog.lData, self.curr_pat)
+        # connect handlers
+        EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
+        EVT_TREE_ITEM_RIGHT_CLICK(self, self.GetId(), self.__on_right_click)
+    #------------------------------------------------------------------------
+    def update(self):
+        if self.curr_pat['ID'] is None:
+            _log.Log(gmLog.lErr, 'need patient for update')
+            gm_show_error(
+                aMessage = _('Cannot load documents.\nYou first need to select a patient.'),
+                aTitle = _('loading document list')
+            )
+            return None
 
-		if self.doc_list is not None:
-			del self.doc_list
+        if self.doc_list is not None:
+            del self.doc_list
 
-		if self.__populate_tree() is None:
-			return None
+        if self.__populate_tree() is None:
+            return None
 
-		return 1
-	#------------------------------------------------------------------------
-	def __populate_tree(self):
-		# FIXME: check if patient changed at all
+        return 1
+    #------------------------------------------------------------------------
+    def __populate_tree(self):
+        # FIXME: check if patient changed at all
 
-		# clean old tree
-		if not self.root is None:
-			self.DeleteAllItems()
+        # clean old tree
+        if not self.root is None:
+            self.DeleteAllItems()
 
-		# init new tree
-		self.root = self.AddRoot(_("available documents (most recent on top)"), -1, -1)
-		self.SetPyData(self.root, None)
-		self.SetItemHasChildren(self.root, FALSE)
+        # init new tree
+        self.root = self.AddRoot(_("available documents (most recent on top)"), -1, -1)
+        self.SetPyData(self.root, None)
+        self.SetItemHasChildren(self.root, FALSE)
 
-		# read documents from database
-		doc_ids = self.curr_pat['document id list']
-		if doc_ids is None:
-			name = self.curr_pat['demographic record'].getActiveName()
-			gm_show_error(
-				aMessage = _('Cannot find any documents for patient\n[%s %s].') % (name['first'], name['last']),
-				aTitle = _('loading document list')
-			)
-			return None
+        # read documents from database
+        doc_ids = self.curr_pat['document id list']
+        if doc_ids is None:
+            name = self.curr_pat['demographic record'].getActiveName()
+            gm_show_error(
+                aMessage = _('Cannot find any documents for patient\n[%s %s].') % (name['first'], name['last']),
+                aTitle = _('loading document list')
+            )
+            return None
 
-		# fill new tree from document list
-		self.SetItemHasChildren(self.root, TRUE)
+        # fill new tree from document list
+        self.SetItemHasChildren(self.root, TRUE)
 
-		# add our documents as first level nodes
-		self.doc_list = {}
-		for doc_id in doc_ids:
-			try:
-				doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
-			except:
-				continue
+        # add our documents as first level nodes
+        self.doc_list = {}
+        for doc_id in doc_ids:
+            try:
+                doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
+            except:
+                continue
 
-			self.doc_list[doc_id] = doc
+            self.doc_list[doc_id] = doc
+            mdata = doc.get_metadata()
+            date = '%10s' % mdata['date'] + " " * 10
+            typ = '%s' % mdata['type'] + " " * 25
+            cmt = '"%s"' % mdata['comment'] + " " * 25
+            ref = mdata['reference'] + " " * 15
+            page_num = str(len(mdata['objects']))
+            tmp = _('%s %s: %s (%s pages, %s)')
+            # FIXME: handle date correctly
+            label =  tmp % (date[:10], typ[:25], cmt[:25], page_num, ref[:15])
+            doc_node = self.AppendItem(self.root, label)
+            self.SetItemBold(doc_node, bold=TRUE)
+            # id: doc_med.id for access
+            # date: for sorting
+            data = {
+                'type': 'document',
+                'id': doc_id,
+                'date': mdata['date']
+            }
+            self.SetPyData(doc_node, data)
+            self.SetItemHasChildren(doc_node, TRUE)
 
-			mdata = doc['metadata']
-			date = '%10s' % mdata['date'] + " " * 10
-			typ = '%s' % mdata['type'] + " " * 25
-			cmt = '"%s"' % mdata['comment'] + " " * 25
-			ref = mdata['reference'] + " " * 15
-			page_num = str(len(mdata['objects']))
-			tmp = _('%s %s: %s (%s pages, %s)')
-			# FIXME: handle date correctly
-			label =  tmp % (date[:10], typ[:25], cmt[:25], page_num, ref[:15])
-			doc_node = self.AppendItem(self.root, label)
-			self.SetItemBold(doc_node, bold=TRUE)
-			# id: doc_med.id for access
-			# date: for sorting
-			data = {
-				'type': 'document',
-				'id': doc_id,
-				'date': mdata['date']
-			}
-			self.SetPyData(doc_node, data)
-			self.SetItemHasChildren(doc_node, TRUE)
+            # now add objects as child nodes
+            i = 1
+            for obj_id in mdata['objects'].keys():
+                obj = mdata['objects'][obj_id]
+                p = str(obj['index']) +  " "
+                c = str(obj['comment'])
+                s = str(obj['size'])
+                if c == "None":
+                    c = _("no comment available")
+                tmp = _('page %s: \"%s\" (%s bytes)')
+                label = tmp % (p[:2], c, s)
+                obj_node = self.AppendItem(doc_node, label)
+                # id = doc_med.id for retrival
+                # seq_idx for sorting
+                data = {
+                    'type': 'object',
+                    'id': obj_id,
+                    'seq_idx'   : obj['index']
+                }
+                self.SetPyData(obj_node, data)
+                i += 1
+            # and expand
+            #self.Expand(doc_node)
 
-			# now add objects as child nodes
-			i = 1
-			for obj_id in mdata['objects'].keys():
-				obj = mdata['objects'][obj_id]
-				p = str(obj['index']) +  " "
-				c = str(obj['comment'])
-				s = str(obj['size'])
-				if c == "None":
-					c = _("no comment available")
-				tmp = _('page %s: \"%s\" (%s bytes)')
-				label = tmp % (p[:2], c, s)
-				obj_node = self.AppendItem(doc_node, label)
-				# id = doc_med.id for retrival
-				# seq_idx for sorting
-				data = {
-					'type': 'object',
-					'id': obj_id,
-					'seq_idx'	: obj['index']
-				}
-				self.SetPyData(obj_node, data)
-				i += 1
-			# and expand
-			#self.Expand(doc_node)
+        # and uncollapse
+        self.Expand(self.root)
 
-		# and uncollapse
-		self.Expand(self.root)
+        return 1
+    #------------------------------------------------------------------------
+    def OnCompareItems (self, item1, item2):
+        """Used in sorting items.
 
-		return 1
-	#------------------------------------------------------------------------
-	def OnCompareItems (self, item1, item2):
-		"""Used in sorting items.
+        -1 - 1 < 2
+         0 - 1 = 2
+         1 - 1 > 2
+        """
+        data1 = self.GetPyData(item1)
+        data2 = self.GetPyData(item2)
 
-		-1 - 1 < 2
-		 0 - 1 = 2
-		 1 - 1 > 2
-		"""
-		data1 = self.GetPyData(item1)
-		data2 = self.GetPyData(item2)
+        # doc node
+        if data1['type'] == 'document':
+            # compare dates
+            if data1['date'] > data2['date']:
+                return -1
+            elif data1['date'] == data2['date']:
+                return 0
+            return 1
+        # object node
+        else:
+            # compare sequence IDs (= "page number")
+            if data1['seq_idx'] < data2['seq_idx']:
+                return -1
+            elif data1['seq_idx'] == data2['seq_idx']:
+                return 0
+            return 1
+    #------------------------------------------------------------------------
+    def OnActivate (self, event):
+        item = event.GetItem()
+        node_data = self.GetPyData(item)
 
-		# doc node
-		if data1['type'] == 'document':
-			# compare dates
-			if data1['date'] > data2['date']:
-				return -1
-			elif data1['date'] == data2['date']:
-				return 0
-			return 1
-		# object node
-		else:
-			# compare sequence IDs (= "page number")
-			if data1['seq_idx'] < data2['seq_idx']:
-				return -1
-			elif data1['seq_idx'] == data2['seq_idx']:
-				return 0
-			return 1
-	#------------------------------------------------------------------------
-	def OnActivate (self, event):
-		item = event.GetItem()
-		node_data = self.GetPyData(item)
+        # exclude pseudo root node
+        if node_data is None:
+            return None
 
-		# exclude pseudo root node
-		if node_data is None:
-			return None
+        # do nothing with documents yet
+        if node_data['type'] == 'document':
+            return None
 
-		# do nothing with documents yet
-		if node_data['type'] == 'document':
-			return None
+        # but do everything with objects
+        obj_id = node_data['id']
+        _log.Log(gmLog.lData, "User selected object [%s]" % obj_id)
 
-		# but do everything with objects
-		obj_id = node_data['id']
-		_log.Log(gmLog.lData, "User selected object [%s]" % obj_id)
+        if __name__ == "__main__":
+            tmp = "unknown_machine"
+        else:
+            tmp = _whoami.get_workplace()
 
-		if __name__ == "__main__":
-			tmp = "unknown_machine"
-		else:
-			tmp = _whoami.get_workplace()
+        exp_base = self.__dbcfg.get(
+            machine = tmp,
+            option = "doc export dir"
+        )
+        if exp_base is None:
+            exp_base = ''
+        else:
+            exp_base = os.path.abspath(os.path.expanduser(exp_base))
+        if not os.path.exists(exp_base):
+            _log.Log(gmLog.lErr, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base) # which is tempfile.tempdir == None == use system defaults
+        else:
+            _log.Log(gmLog.lData, "working into directory [%s]" % exp_base)
 
-		exp_base = self.__dbcfg.get(
-			machine = tmp,
-			option = "doc export dir"
-		)
-		if exp_base is None:
-			exp_base = ''
-		else:
-			exp_base = os.path.abspath(os.path.expanduser(exp_base))
-		if not os.path.exists(exp_base):
-			_log.Log(gmLog.lErr, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base) # which is tempfile.tempdir == None == use system defaults
-		else:
-			_log.Log(gmLog.lData, "working into directory [%s]" % exp_base)
+        # instantiate object
+        try:
+            obj = gmMedDoc.gmMedObj(aPKey = obj_id)
+        except:
+            _log.LogException('Cannot instantiate object [%s]' % obj_id, sys.exc_info())
+            gm_show_error(
+                aMessage = _('Document part does not seem to exist in database !!'),
+                aTitle = _('showing document')
+            )
+            return None
 
-		# instantiate object
-		try:
-			obj = gmMedDoc.gmMedObj(aPKey = obj_id)
-		except:
-			_log.LogException('Cannot instantiate object [%s]' % obj_id, sys.exc_info())
-			gm_show_error(
-				aMessage = _('Document part does not seem to exist in database !!'),
-				aTitle = _('showing document')
-			)
-			return None
+        if __name__ == "__main__":
+            chunksize = None
+        else:
+            gb = gmGuiBroker.GuiBroker()
+            chunksize = self.__dbcfg.get(
+                machine = _whoami.get_workplace(),
+                option = "doc export chunk size"
+            )
+        if chunksize is None:
+            # 1 MB
+            chunksize = 1 * 1024 * 1024
 
-		if __name__ == "__main__":
-			chunksize = None
-		else:
-			gb = gmGuiBroker.GuiBroker()
-			chunksize = self.__dbcfg.get(
-				machine = _whoami.get_workplace(),
-				option = "doc export chunk size"
-			)
-		if chunksize is None:
-			# 1 MB
-			chunksize = 1 * 1024 * 1024
+        # make sure metadata is there
+        tmp = obj.get_metadata
 
-		# make sure metadata is there
-		tmp = obj['metadata']
+        # retrieve object
+        if not obj.export_to_file(aTempDir = exp_base, aChunkSize = chunksize):
+            _log.Log(gmLog.lErr, "Cannot export object [%s] data from database !" % node_data['id'])
+            gm_show_error(
+                aMessage = _('Cannot export document part from database to file.'),
+                aTitle = _('showing document')
+            )
+            return None
 
-		# retrieve object
-		if not obj.export_to_file(aTempDir = exp_base, aChunkSize = chunksize):
-			_log.Log(gmLog.lErr, "Cannot export object [%s] data from database !" % node_data['id'])
-			gm_show_error(
-				aMessage = _('Cannot export document part from database to file.'),
-				aTitle = _('showing document')
-			)
-			return None
+        fname = obj['filename']
+        (result, msg) = gmMimeLib.call_viewer_on_file(fname)
+        if not result:
+            gm_show_error(
+                aMessage = _('Cannot display object.\n%s.') % msg,
+                aTitle = _('displaying page')
+            )
+            return None
+        return 1
+    #--------------------------------------------------------
+    def __on_right_click(self, evt):
+        item = evt.GetItem()
+        node_data = self.GetPyData(item)
 
-		fname = obj['filename']
-		(result, msg) = gmMimeLib.call_viewer_on_file(fname)
-		if not result:
-			gm_show_error(
-				aMessage = _('Cannot display object.\n%s.') % msg,
-				aTitle = _('displaying page')
-			)
-			return None
-		return 1
-	#--------------------------------------------------------
-	def __on_right_click(self, evt):
-		item = evt.GetItem()
-		node_data = self.GetPyData(item)
+        # exclude pseudo root node
+        if node_data is None:
+            return None
 
-		# exclude pseudo root node
-		if node_data is None:
-			return None
+        # objects
+        if node_data['type'] == 'object':
+            self.__handle_obj_context(node_data)
 
-		# objects
-		if node_data['type'] == 'object':
-			self.__handle_obj_context(node_data)
+        # documents
+        if node_data['type'] == 'document':
+            self.__handle_doc_context(node_data)
 
-		# documents
-		if node_data['type'] == 'document':
-			self.__handle_doc_context(node_data)
+        evt.Skip()
+    #--------------------------------------------------------
+    def __handle_doc_context(self, data):
+        doc_id = data['id']
+        try:
+            doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
+        except:
+            _log.LogException('Cannot init document [%s]' % doc_id, sys.exc_info())
+            # FIXME: message box
+            return None
 
-		evt.Skip()
-	#--------------------------------------------------------
-	def __handle_doc_context(self, data):
-		doc_id = data['id']
-		try:
-			doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
-		except:
-			_log.LogException('Cannot init document [%s]' % doc_id, sys.exc_info())
-			# FIXME: message box
-			return None
+        descriptions = doc['descriptions']
 
-		descriptions = doc['descriptions']
-
-		# build menu
-		wxIDs_desc = []
-		desc_menu = wxMenu()
-		for desc in descriptions:
-			d_id = wxNewId()
-			wxIDs_desc.append(d_id)
-			# contract string
-			tmp = re.split('\r\n+|\r+|\n+|\s+|\t+', desc)
-			tmp = string.join(tmp, ' ')
-			# but only use first 30 characters
-			tmp = "%s ..." % tmp[:30]
-			desc_menu.AppendItem(wxMenuItem(desc_menu, d_id, tmp))
-			# connect handler
-			EVT_MENU(desc_menu, d_id, self.__show_description)
-		wxID_load_submenu = wxNewId()
-		menu = wxMenu(title = _('document menu'))
-		menu.AppendMenu(wxID_load_submenu, _('descriptions ...'), desc_menu)
-		self.PopupMenu(menu, wxPyDefaultPosition)
-		menu.Destroy()
-	#--------------------------------------------------------
-	def __show_description(self, evt):
-		print "showing description"
-	#--------------------------------------------------------
-	def __handle_obj_context(self, data):
-		print "handling object context menu"
-	#--------------------------------------------------------
+        # build menu
+        wxIDs_desc = []
+        desc_menu = wxMenu()
+        for desc in descriptions:
+            d_id = wxNewId()
+            wxIDs_desc.append(d_id)
+            # contract string
+            tmp = re.split('\r\n+|\r+|\n+|\s+|\t+', desc)
+            tmp = string.join(tmp, ' ')
+            # but only use first 30 characters
+            tmp = "%s ..." % tmp[:30]
+            desc_menu.AppendItem(wxMenuItem(desc_menu, d_id, tmp))
+            # connect handler
+            EVT_MENU(desc_menu, d_id, self.__show_description)
+        wxID_load_submenu = wxNewId()
+        menu = wxMenu(title = _('document menu'))
+        menu.AppendMenu(wxID_load_submenu, _('descriptions ...'), desc_menu)
+        self.PopupMenu(menu, wxPyDefaultPosition)
+        menu.Destroy()
+    #--------------------------------------------------------
+    def __show_description(self, evt):
+        print "showing description"
+    #--------------------------------------------------------
+    def __handle_obj_context(self, data):
+        print "handling object context menu"
+    #--------------------------------------------------------
 
 ########### may become obsolete
-	def __show_error(self, aMessage = None, aTitle = ''):
-		# sanity checks
-		tmp = aMessage
-		if aMessage is None:
-			tmp = _('programmer forgot to specify error message')
+    def __show_error(self, aMessage = None, aTitle = ''):
+        # sanity checks
+        tmp = aMessage
+        if aMessage is None:
+            tmp = _('programmer forgot to specify error message')
 
-		tmp = tmp + _("\n\nPlease consult the error log for further information !")
+        tmp = tmp + _("\n\nPlease consult the error log for further information !")
 
-		dlg = wxMessageDialog(
-			NULL,
-			tmp,
-			aTitle,
-			wxOK | wxICON_ERROR
-		)
-		dlg.ShowModal()
-		dlg.Destroy()
-		return 1
+        dlg = wxMessageDialog(
+            NULL,
+            tmp,
+            aTitle,
+            wxOK | wxICON_ERROR
+        )
+        dlg.ShowModal()
+        dlg.Destroy()
+        return 1
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
-	import gmLoginInfo
-	import gmXdtObjects
-	from gmXdtMappings import xdt_gmgender_map
+    import gmLoginInfo
+    import gmXdtObjects
+    from gmXdtMappings import xdt_gmgender_map
 
-	wxID_btn_quit = wxNewId()
+    wxID_btn_quit = wxNewId()
 
-	class cStandalonePanel(wxPanel):
+    class cStandalonePanel(wxPanel):
 
-		def __init__(self, parent, id):
-			# get patient from file
-			if self.__get_pat_data() is None:
-				raise ConstructorError, "Cannot load patient data."
+        def __init__(self, parent, id):
+            # get patient from file
+            if self.__get_pat_data() is None:
+                raise ConstructorError, "Cannot load patient data."
 
-			# set up database connectivity
-			auth_data = gmLoginInfo.LoginInfo(
-				user = _cfg.get('database', 'user'),
-				passwd = _cfg.get('database', 'password'),
-				host = _cfg.get('database', 'host'),
-				port = _cfg.get('database', 'port'),
-				database = _cfg.get('database', 'database')
-			)
-			backend = gmPG.ConnectionPool(login = auth_data)
+            # set up database connectivity
+            auth_data = gmLoginInfo.LoginInfo(
+                user = _cfg.get('database', 'user'),
+                passwd = _cfg.get('database', 'password'),
+                host = _cfg.get('database', 'host'),
+                port = _cfg.get('database', 'port'),
+                database = _cfg.get('database', 'database')
+            )
+            backend = gmPG.ConnectionPool(login = auth_data)
 
-			# mangle date of birth into ISO8601 (yyyymmdd) for Postgres
-			cooked_search_terms = {
-				'globbing': None,
-				'case sensitive': None,
-				'dob': '%s%s%s' % (self.__xdt_pat['dob year'], self.__xdt_pat['dob month'], self.__xdt_pat['dob day']),
-				'last name': self.__xdt_pat['last name'],
-				'first name': self.__xdt_pat['first name'],
-				'gender': self.__xdt_pat['gender']
-			}
+            # mangle date of birth into ISO8601 (yyyymmdd) for Postgres
+            cooked_search_terms = {
+                'globbing': None,
+                'case sensitive': None,
+                'dob': '%s%s%s' % (self.__xdt_pat['dob year'], self.__xdt_pat['dob month'], self.__xdt_pat['dob day']),
+                'last name': self.__xdt_pat['last name'],
+                'first name': self.__xdt_pat['first name'],
+                'gender': self.__xdt_pat['gender']
+            }
 
-			# find matching patient IDs
-			patient_ids = gmTmpPatient.get_patient_ids(cooked_search_terms)
-			if patient_ids is None:
-				gm_show_error(
-					aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
-					aTitle = _('searching patient')
-				)
-				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-				raise ConstructorError, "Patient from XDT file does not exist in database."
+            # find matching patient IDs
+            patient_ids = gmTmpPatient.get_patient_ids(cooked_search_terms)
+            if patient_ids is None:
+                gm_show_error(
+                    aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
+                    aTitle = _('searching patient')
+                )
+                _log.Log(gmLog.lPanic, self.__xdt_pat['all'])
+                raise ConstructorError, "Patient from XDT file does not exist in database."
 
-			# ambigous ?
-			if len(patient_ids) != 1:
-				gm_show_error(
-					aMessage = _('Data in xDT file matches more than one patient in database !'),
-					aTitle = _('searching patient')
-				)
-				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-				raise ConstructorError, "Problem getting patient ID from database. Aborting."
+            # ambigous ?
+            if len(patient_ids) != 1:
+                gm_show_error(
+                    aMessage = _('Data in xDT file matches more than one patient in database !'),
+                    aTitle = _('searching patient')
+                )
+                _log.Log(gmLog.lPanic, self.__xdt_pat['all'])
+                raise ConstructorError, "Problem getting patient ID from database. Aborting."
 
-			try:
-				gm_pat = gmTmpPatient.gmCurrentPatient(aPKey = patient_ids[0])
-			except:
-				# this is an emergency
-				gm_show_error(
-					aMessage = _('Cannot load patient from database !\nAborting.'),
-					aTitle = _('searching patient')
-				)
-				_log.Log(gmLog.lPanic, 'Cannot access patient [%s] in database.' % patient_ids[0])
-				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-				raise
+            try:
+                gm_pat = gmTmpPatient.gmCurrentPatient(aPKey = patient_ids[0])
+            except:
+                # this is an emergency
+                gm_show_error(
+                    aMessage = _('Cannot load patient from database !\nAborting.'),
+                    aTitle = _('searching patient')
+                )
+                _log.Log(gmLog.lPanic, 'Cannot access patient [%s] in database.' % patient_ids[0])
+                _log.Log(gmLog.lPanic, self.__xdt_pat['all'])
+                raise
 
-			# make main panel
-			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
-			self.SetTitle(_("stored medical documents"))
+            # make main panel
+            wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
+            self.SetTitle(_("stored medical documents"))
 
-			# make patient panel
-			gender = gmTmpPatient.gm2long_gender_map[xdt_gmgender_map[self.__xdt_pat['gender']]]
-			self.pat_panel = wxStaticText(
-				id = -1,
-				parent = self,
-				label = "%s %s (%s), %s.%s.%s" % (self.__xdt_pat['first name'], self.__xdt_pat['last name'], gender, self.__xdt_pat['dob day'], self.__xdt_pat['dob month'], self.__xdt_pat['dob year']),
-				style = wxALIGN_CENTER
-			)
-			self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
+            # make patient panel
+            gender = gmTmpPatient.gm2long_gender_map[xdt_gmgender_map[self.__xdt_pat['gender']]]
+            self.pat_panel = wxStaticText(
+                id = -1,
+                parent = self,
+                label = "%s %s (%s), %s.%s.%s" % (self.__xdt_pat['first name'], self.__xdt_pat['last name'], gender, self.__xdt_pat['dob day'], self.__xdt_pat['dob month'], self.__xdt_pat['dob year']),
+                style = wxALIGN_CENTER
+            )
+            self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
 
-			# make document tree
-			self.tree = cDocTree(self, -1)
-			self.tree.update()
-			self.tree.SelectItem(self.tree.root)
+            # make document tree
+            self.tree = cDocTree(self, -1)
+            self.tree.update()
+            self.tree.SelectItem(self.tree.root)
 
-			# buttons
-			btn_quit = wxButton(
-				parent = self,
-				id = wxID_btn_quit,
-				label = _('Quit')
-			)
-			EVT_BUTTON (btn_quit, wxID_btn_quit, self.__on_quit)
-			szr_buttons = wxBoxSizer(wxHORIZONTAL)
-			szr_buttons.Add(btn_quit, 0, wxALIGN_CENTER_VERTICAL, 1)
+            # buttons
+            btn_quit = wxButton(
+                parent = self,
+                id = wxID_btn_quit,
+                label = _('Quit')
+            )
+            EVT_BUTTON (btn_quit, wxID_btn_quit, self.__on_quit)
+            szr_buttons = wxBoxSizer(wxHORIZONTAL)
+            szr_buttons.Add(btn_quit, 0, wxALIGN_CENTER_VERTICAL, 1)
 
-			szr_main = wxBoxSizer(wxVERTICAL)
-			szr_main.Add(self.pat_panel, 0, wxEXPAND, 1)
-			szr_main.Add(self.tree, 1, wxEXPAND, 9)
-			szr_main.Add(szr_buttons, 0, wxEXPAND, 1)
+            szr_main = wxBoxSizer(wxVERTICAL)
+            szr_main.Add(self.pat_panel, 0, wxEXPAND, 1)
+            szr_main.Add(self.tree, 1, wxEXPAND, 9)
+            szr_main.Add(szr_buttons, 0, wxEXPAND, 1)
 
-			self.SetAutoLayout(1)
-			self.SetSizer(szr_main)
-			szr_main.Fit(self)
-			self.Layout()
-		#--------------------------------------------------------
-		def __get_pat_data(self):
-			"""Get data of patient for which to retrieve documents.
+            self.SetAutoLayout(1)
+            self.SetSizer(szr_main)
+            szr_main.Fit(self)
+            self.Layout()
+        #--------------------------------------------------------
+        def __get_pat_data(self):
+            """Get data of patient for which to retrieve documents.
 
-			"""
-			# FIXME: error checking
-			pat_file = os.path.abspath(os.path.expanduser(_cfg.get("viewer", "patient file")))
-			# FIXME: actually handle pat_format, too
-			pat_format = _cfg.get("viewer", "patient file format")
+            """
+            # FIXME: error checking
+            pat_file = os.path.abspath(os.path.expanduser(_cfg.get("viewer", "patient file")))
+            # FIXME: actually handle pat_format, too
+            pat_format = _cfg.get("viewer", "patient file format")
 
-			# get patient data from BDT file
-			try:
-				self.__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
-			except:
-				_log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
-				gm_show_error(
-					aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
-					aTitle = _('loading patient from xDT file')
-				)
-				return None
+            # get patient data from BDT file
+            try:
+                self.__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
+            except:
+                _log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
+                gm_show_error(
+                    aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
+                    aTitle = _('loading patient from xDT file')
+                )
+                return None
 
-			return 1
-		#--------------------------------------------------------
-		def __on_quit(self, evt):
-			app = wxGetApp()
-			app.ExitMainLoop()
-		#--------------------------------------------------------
+            return 1
+        #--------------------------------------------------------
+        def __on_quit(self, evt):
+            app = wxGetApp()
+            app.ExitMainLoop()
+        #--------------------------------------------------------
 
 #################
-		def __show_error(self, aMessage = None, aTitle = ''):
-			# sanity checks
-			tmp = aMessage
-			if aMessage is None:
-				tmp = _('programmer forgot to specify error message')
+        def __show_error(self, aMessage = None, aTitle = ''):
+            # sanity checks
+            tmp = aMessage
+            if aMessage is None:
+                tmp = _('programmer forgot to specify error message')
 
-			tmp = tmp + _("\n\nPlease consult the error log for further information !")
+            tmp = tmp + _("\n\nPlease consult the error log for further information !")
 
-			dlg = wxMessageDialog(
-				NULL,
-				tmp,
-				aTitle,
-				wxOK | wxICON_ERROR
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return 1
+            dlg = wxMessageDialog(
+                NULL,
+                tmp,
+                aTitle,
+                wxOK | wxICON_ERROR
+            )
+            dlg.ShowModal()
+            dlg.Destroy()
+            return 1
 #== classes for plugin use ======================================
 else:
 
-	class cPluginTreePanel(wxPanel):
-		def __init__(self, parent, id):
-			# set up widgets
-			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
+    class cPluginTreePanel(wxPanel):
+        def __init__(self, parent, id):
+            # set up widgets
+            wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
 
-			# make document tree
-			self.tree = cDocTree(self, -1)
+            # make document tree
+            self.tree = cDocTree(self, -1)
 
-			# just one vertical sizer
-			sizer = wxBoxSizer(wxVERTICAL)
-			sizer.Add(self.tree, 1, wxEXPAND, 0)
-			self.SetAutoLayout(1)
-			self.SetSizer(sizer)
-			sizer.Fit(self)
-			self.Layout()
-		#--------------------------------------------------------
-		def __del__(self):
-			# FIXME: return service handle
-			#self.DB.disconnect()
-			pass
+            # just one vertical sizer
+            sizer = wxBoxSizer(wxVERTICAL)
+            sizer.Add(self.tree, 1, wxEXPAND, 0)
+            self.SetAutoLayout(1)
+            self.SetSizer(sizer)
+            sizer.Fit(self)
+            self.Layout()
+        #--------------------------------------------------------
+        def __del__(self):
+            # FIXME: return service handle
+            #self.DB.disconnect()
+            pass
 
-	#------------------------------------------------------------
-	import gmPlugin, images_Archive_plugin, images_Archive_plugin1
+    #------------------------------------------------------------
+    import gmPlugin, images_Archive_plugin, images_Archive_plugin1
 
-	class gmShowMedDocs(gmPlugin.wxNotebookPlugin):
-		tab_name = _("Documents")
+    class gmShowMedDocs(gmPlugin.wxNotebookPlugin):
+        tab_name = _("Documents")
 
-		def name (self):
-			return gmShowMedDocs.tab_name
+        def name (self):
+            return gmShowMedDocs.tab_name
 
-		def GetWidget (self, parent):
-			self.panel = cPluginTreePanel(parent, -1)
-			return self.panel
+        def GetWidget (self, parent):
+            self.panel = cPluginTreePanel(parent, -1)
+            return self.panel
 
-		def MenuInfo (self):
-			return ('tools', _('Show &archived documents'))
+        def MenuInfo (self):
+            return ('tools', _('Show &archived documents'))
 
-		def ReceiveFocus(self):
-			if self.panel.tree.update() is None:
-				_log.Log(gmLog.lErr, "cannot update document tree")
-				return None
-			# FIXME: register interest in patient_changed signal, too
-			self.panel.tree.SelectItem(self.panel.tree.root)
-			return 1
+        def ReceiveFocus(self):
+            if self.panel.tree.update() is None:
+                _log.Log(gmLog.lErr, "cannot update document tree")
+                return None
+            # FIXME: register interest in patient_changed signal, too
+            self.panel.tree.SelectItem(self.panel.tree.root)
+            return 1
 
-		def can_receive_focus(self):
-			# need patient
-			if not self._verify_patient_avail():
-				return None
-			return 1
+        def can_receive_focus(self):
+            # need patient
+            if not self._verify_patient_avail():
+                return None
+            return 1
 
-		def DoToolbar (self, tb, widget):
-			#tool1 = tb.AddTool(
-			#	wxID_PNL_BTN_load_pages,
-			#	images_Archive_plugin.getcontentsBitmap(),
-			#	shortHelpString=_("load pages"),
-			#	isToggle=false
-			#)
-			#EVT_TOOL (tb, wxID_PNL_BTN_load_pages, widget.on_load_pages)
+        def DoToolbar (self, tb, widget):
+            #tool1 = tb.AddTool(
+            #   wxID_PNL_BTN_load_pages,
+            #   images_Archive_plugin.getcontentsBitmap(),
+            #   shortHelpString=_("load pages"),
+            #   isToggle=false
+            #)
+            #EVT_TOOL (tb, wxID_PNL_BTN_load_pages, widget.on_load_pages)
 
-			#tool1 = tb.AddTool(
-			#	wxID_PNL_BTN_save_data,
-			#	images_Archive_plugin.getsaveBitmap(),
-			#	shortHelpString=_("save document"),
-			#	isToggle=false
-			#)
-			#EVT_TOOL (tb, wxID_PNL_BTN_save_data, widget.on_save_data)
-			
-			#tool1 = tb.AddTool(
-			#	wxID_PNL_BTN_del_page,
-			#	images_Archive_plugin.getcontentsBitmap(),
-			#	shortHelpString=_("delete page"),
-			#	isToggle=false
-			#)
-			#EVT_TOOL (tb, wxID_PNL_BTN_del_page, widget.on_del_page)
-			
-			tool1 = tb.AddTool(
-				wxID_TB_BTN_show_page,
-				images_Archive_plugin.getreportsBitmap(),
-				shortHelpString=_("show document"),
-				isToggle=false
-			)
-			EVT_TOOL (tb, wxID_TB_BTN_show_page, cDocTree.OnActivate)
-	
-			#tool1 = tb.AddTool(
-			#	wxID_PNL_BTN_select_files,
-			#	images_Archive_plugin1.getfoldersearchBitmap(),
-			#	shortHelpString=_("select files"),
-			#	isToggle=false
-			#)
-			#EVT_TOOL (tb, wxID_PNL_BTN_select_files, widget.on_select_files)
-		
-			tb.AddControl(wxStaticBitmap(
-				tb,
-				-1,
-				images_Archive_plugin.getvertical_separator_thinBitmap(),
-				wxDefaultPosition,
-				wxDefaultSize
-			))
+            #tool1 = tb.AddTool(
+            #   wxID_PNL_BTN_save_data,
+            #   images_Archive_plugin.getsaveBitmap(),
+            #   shortHelpString=_("save document"),
+            #   isToggle=false
+            #)
+            #EVT_TOOL (tb, wxID_PNL_BTN_save_data, widget.on_save_data)
+            
+            #tool1 = tb.AddTool(
+            #   wxID_PNL_BTN_del_page,
+            #   images_Archive_plugin.getcontentsBitmap(),
+            #   shortHelpString=_("delete page"),
+            #   isToggle=false
+            #)
+            #EVT_TOOL (tb, wxID_PNL_BTN_del_page, widget.on_del_page)
+            
+            tool1 = tb.AddTool(
+                wxID_TB_BTN_show_page,
+                images_Archive_plugin.getreportsBitmap(),
+                shortHelpString=_("show document"),
+                isToggle=false
+            )
+            EVT_TOOL (tb, wxID_TB_BTN_show_page, cDocTree.OnActivate)
+    
+            #tool1 = tb.AddTool(
+            #   wxID_PNL_BTN_select_files,
+            #   images_Archive_plugin1.getfoldersearchBitmap(),
+            #   shortHelpString=_("select files"),
+            #   isToggle=false
+            #)
+            #EVT_TOOL (tb, wxID_PNL_BTN_select_files, widget.on_select_files)
+        
+            tb.AddControl(wxStaticBitmap(
+                tb,
+                -1,
+                images_Archive_plugin.getvertical_separator_thinBitmap(),
+                wxDefaultPosition,
+                wxDefaultSize
+            ))
 #================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	_log.Log (gmLog.lInfo, "starting display handler")
+    _log.Log (gmLog.lInfo, "starting display handler")
 
-	if _cfg is None:
-		_log.Log(gmLog.lErr, "Cannot run without config file.")
-		sys.exit("Cannot run without config file.")
+    if _cfg is None:
+        _log.Log(gmLog.lErr, "Cannot run without config file.")
+        sys.exit("Cannot run without config file.")
 
-	# catch all remaining exceptions
-	try:
-		application = wxPyWidgetTester(size=(640,480))
-		application.SetWidget(cStandalonePanel,-1)
-		application.MainLoop()
-	except:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
-		# but re-raise them
-		raise
+    # catch all remaining exceptions
+    try:
+        application = wxPyWidgetTester(size=(640,480))
+        application.SetWidget(cStandalonePanel,-1)
+        application.MainLoop()
+    except:
+        _log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+        # but re-raise them
+        raise
 
-	_log.Log (gmLog.lInfo, "closing display handler")
+    _log.Log (gmLog.lInfo, "closing display handler")
 else:
-	# we are being imported
-	pass
+    # we are being imported
+    pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.33  2004-02-25 09:46:23  ncq
+# Revision 1.34  2004-03-06 21:52:02  shilbert
+# - adapted code to new API since __set/getitem is gone
+#
+# Revision 1.33  2004/02/25 09:46:23  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.32  2004/01/06 23:19:52  ncq
