@@ -121,4 +121,16 @@ public interface BasicScriptFormLayoutAdjustable {
      */
     public void setSplitWidth(int splitWidth);
     
+    /** Getter for property leftMargin.
+     * @return Value of property leftMargin.
+     *
+     */
+    public int getLeftMargin();
+    
+    /** Setter for property leftMargin.
+     * @param leftMargin New value of property leftMargin.
+     *
+     */
+    public void setLeftMargin(int leftMargin);
+    
 }
