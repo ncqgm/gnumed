@@ -33,7 +33,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -654,33 +654,37 @@ def call_viewer_on_file(aFile = None):
 		os.system(viewer_cmd)
 		return 1, ""
 
-	_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
-	# does the file already have an extension ?
-	(path_name, f_ext) = os.path.splitext(aFile)
-	# no
-	if f_ext == "":
-		# try to guess one
-		f_ext = docMime.guess_ext_by_mimetype(mime_type)
-		if f_ext is None:
-			_log.Log(gmLog.lErr, "Unable to guess file extension from mime type. Trying sheer luck.")
-			file_to_display = aFile
-			f_ext = ""
-		else:
-			file_to_display = aFile + f_ext
-			shutil.copyfile(aFile, file_to_display)
-	# yes
-	else:
-		file_to_display = aFile
-
-	_log.Log(gmLog.lData, "%s <%s> (%s) -> %s" % (aFile, mime_type, f_ext, file_to_display))
-	# FIXME: we should only do this on Windows !
-	try:
-		os.startfile(file_to_display)
-	except:
-		exc = sys.exc_info()
-		msg = _("Unable to start viewer on file [%s].") % file_to_display
-		_log.LogException(msg, exc, fatal=0)
+	_log.Log(gmLog.lErr, "Cannot determine viewer via standard mailcap mechanism.")
+	if os.name == "posix":
+		_log.Log(gmLog.lErr, "You should add a viewer for this mime type to your mailcap file.")
+		msg = _("Unable to start viewer on file\[%s]\nYou need to update your mailcap file.") % aFile
 		return None, msg
+	else:
+		_log.Log(gmLog.lWarn, "Let's see what the OS can do about that.")
+		# does the file already have an extension ?
+		(path_name, f_ext) = os.path.splitext(aFile)
+		# no
+		if f_ext == "":
+			# try to guess one
+			f_ext = docMime.guess_ext_by_mimetype(mime_type)
+			if f_ext is None:
+				_log.Log(gmLog.lErr, "Unable to guess file extension from mime type. Trying sheer luck.")
+				file_to_display = aFile
+				f_ext = ""
+			else:
+				file_to_display = aFile + f_ext
+				shutil.copyfile(aFile, file_to_display)
+		# yes
+		else:
+			file_to_display = aFile
+
+		_log.Log(gmLog.lData, "%s <%s> (%s) -> %s" % (aFile, mime_type, f_ext, file_to_display))
+		try:
+			os.startfile(file_to_display)
+		except:
+			msg = _("Unable to start viewer on file [%s].") % file_to_display		
+			_log.LogException(msg, exc = sys.exc_info(), fatal=0)
+			return None, msg
 
 	# clean up if necessary
 	# don't kill the file from under the (async) viewer
@@ -698,7 +702,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.24  2002-12-27 14:40:47  ncq
+# Revision 1.25  2003-01-05 13:42:52  ncq
+# - only use startfile() on windows, not on POSIX
+#
+# Revision 1.24  2002/12/27 14:40:47  ncq
 # - sort items by creation date/page index
 # - on startup expand first level only (documents yes, pages no)
 #
