@@ -18,7 +18,7 @@ public class Names {
   ///////////////////////////////////////
   // attributes
 
-
+   private StringBuffer sb = new StringBuffer();
 /**
  * <p>
  * Represents ...
@@ -202,7 +202,19 @@ public class Names {
  */
     public void setTitle(String _title) {        
         title = _title;
-    } // end setTitle        
+    }
+    
+    public String toString() {
+      sb.delete(0, sb.length());
+      if (getTitle() != null)
+      sb.append(getTitle()).append('.');
+      sb.append(getFirstnames());
+      sb.append(' ');
+      sb.append(getLastnames() );
+      return sb.toString();
+    }
+    
+ // end setTitle        
 
 } // end Names
 

@@ -238,9 +238,27 @@ public class product {
         boolean removed = this.link_product_manufacturer.remove(_link_product_manufacturer);
         if (removed) _link_product_manufacturer.setProduct((product)null);
     }
+    
+    /**
+     *@hibernate.set
+     *  inverse="true"
+     *@hibernate.collection-key
+     *  column="id_product"
+     *@hibernate.collection-one-to-many
+     *  class="org.drugref.subsidized_products"
+     */
+    
     public Collection getSubsidized_productss() {
         return subsidized_products;
     }
+     /** Setter for property subsidized_productss.
+     * @param subsidized_productss New value of property subsidized_productss.
+     *
+     */
+    public void setSubsidized_productss(Collection subsidized_productss) {
+        subsidized_products = subsidized_productss;
+    }
+    
     public void addSubsidized_products(subsidized_products _subsidized_products) {
         if (! this.subsidized_products.contains(_subsidized_products)) {
             this.subsidized_products.add(_subsidized_products);
@@ -384,6 +402,9 @@ public class product {
        sb.append(getComment());
        return sb.toString();
     }
+    
+   
+    
 } // end product
 
 

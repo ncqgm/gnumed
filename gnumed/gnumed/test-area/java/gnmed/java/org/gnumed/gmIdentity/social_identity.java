@@ -149,6 +149,10 @@ public class social_identity {
         
     }
     
+    public String toString() {
+        return getNumber();
+    }
+    
     // end setNumber
     
 } // end social_identity

@@ -46,7 +46,12 @@ public class TestScriptDrugManager {
         }
     }
     
-    public List findScriptScript( identity id, product p) throws Exception {
+    
+    /**
+     *  finds script_drug objects from an identity that matches a product
+     *
+     */
+    public List findScriptDrug( identity id, product p) throws Exception {
         
         Session sess =  getSession();
         List l = sess.find("select sd from script_drug sd inner join sd.identity i "+
@@ -60,7 +65,25 @@ public class TestScriptDrugManager {
         id.removeScript_drug(sd);
     }
     
-    public void createIdentityScriptDrug(identity id,package_size p, Double qty,
+    public  script_drug createOrUpdateScriptDrug( identity id, package_size packageSize, Double qty,
+    String directions, Integer repeats, script script ) throws Exception  {
+        //try to update.
+        // ************   Need to deal with multiple duplicate products as well.
+        script_drug sd = null;
+        
+        sd =  updateIdentityScriptDrug( id, packageSize , qty,directions,repeats, script);
+        
+        if (sd == null)
+            sd =  createIdentityScriptDrug(id, packageSize , qty,directions,repeats, script);
+        
+        return sd;
+    }
+    
+    
+    /** given a specific package_size object, a qty, instructions and repeats
+     * create a script_drug object and add it to the given identity.
+     */
+    public script_drug createIdentityScriptDrug(identity id, package_size p, Double qty,
     String instructions, Integer repeats, script script) throws Exception {
         script_drug sd = new script_drug();
         sd.setDirections(instructions);
@@ -73,19 +96,23 @@ public class TestScriptDrugManager {
         //        lsd.setScript_drug(sd);
         //        lsd.setRepeats(repeats);
         //        lsd.setScript(script);
+        return sd;
     }
     
-    public boolean updateIdentityScriptDrugs( identity id, product p, Double qty,
+    public script_drug updateIdentityScriptDrug( identity id, package_size pz, Double qty,
     String instructions, Integer repeats, script script ) throws Exception {
-        script_drug sd =id.findDrugScriptWithProduct(p, qty);
+        script_drug sd =id.findDrugScriptWithProduct(pz.getProduct(), qty);
         if (sd != null) {
             sd.setQty(qty);
             sd.setDirections(instructions);
             //                sd.addLink_script_drug(lsd); //  CHECK AND FIX LATER
-            return true;
+            
         }
-        return false;
+        return sd;
     }
+    
+    /** finds product objects by their generic drug name
+     */
     public List findByDrugName( String name) throws Exception {
         List l = null;
         Session s = null;
@@ -104,6 +131,10 @@ public class TestScriptDrugManager {
         }
         return l;
     }
+    
+    /**
+     *find package_size objects by their drug name
+     */
     public List findPackagedProductByDrugName( String name) throws Exception {
         Session s = getSession();
         List l = s.find("select p from package_size p inner join p.product.drug_element.generic_name n"

@@ -10,10 +10,17 @@ import java.util.logging.*;
 import org.drugref.*;
 import org.gnumed.gmIdentity.*;
 import org.gnumed.gmClinical.*;
+
 /**
  *  This class is the interface between the drug table model and the domain model.
  *  It will create objects and associations for the script problem , as well as providing
  *  the view. ( too many responsibilities ? )
+ *
+ *  method updateIdentity() will gather the data from drug:object, qty:int , repeats:int,
+ *  where drug is a package_size object currently; it checks for any script_drug objects
+ * associated with the identity which have the same product as the package_size object,
+ *  and updates that script_drug object if it exists, or creates a new one and adds it
+ * to the identity.
  * @author  sjtan
  *
  */
@@ -161,35 +168,22 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
         try {
             package_size pz = (package_size) getDrug();
             Double qty = new Double(getQty().doubleValue());
-            //try to update.  
-            // ************   Meed tp deal with multiple duplicate products as well.
-            if (getManager().updateIdentityScriptDrugs( getIdentity(), pz.getProduct(), qty,
-                                                  getDirections(), getRepeats(), script)
-                                                  )
-            {
-//                showIdentity();
-                return;
-            }
-            
-            //else create
-             getManager().createIdentityScriptDrug( getIdentity(), pz, qty,
-                                                                 getDirections(), getRepeats(), script);
-            
+            script_drug sd = getManager().createOrUpdateScriptDrug(getIdentity(),  pz, qty, getDirections(), getRepeats(), script);
             showIdentity();
         } catch (Exception e) {
             e.printStackTrace();
         }
         
-        
     }
     void showIdentity() {
-        
+        ManagerReference ref = (ManagerReference) getIdentity().getPersister();
+        ref.getGISManager().getSession();
         gnmed.test.DomainPrinter.getInstance().printIdentity(System.out, getIdentity());
     }
     
     public void setScriptDrug(script_drug sd) {
         try {
-        Logger.global.finer("Setting " + this + " with product = " +
+            Logger.global.finer("Setting " + this + " with product = " +
             ((generic_drug_name)sd.getPackage_size().getProduct().getDrug_element().getGeneric_name().iterator().next()).getName() +
             "  directions = " + sd.getDirections() );
         } catch (Exception e) {
@@ -198,9 +192,9 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
         
         setDrug(sd.getPackage_size());
         if (sd.getQty() != null)
-        setQty(new Integer(sd.getQty().intValue() ));
+            setQty(new Integer(sd.getQty().intValue() ));
         setDirections(sd.getDirections());
-        try {if (sd.getLink_script_drugs().iterator().hasNext()) 
+        try {if (sd.getLink_script_drugs().iterator().hasNext())
             setRepeats(  ( (link_script_drug)sd.getLink_script_drugs().iterator().next()).getRepeats());
         } catch (Exception e) {
             e.printStackTrace();

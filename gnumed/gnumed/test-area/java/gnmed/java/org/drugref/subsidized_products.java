@@ -10,6 +10,7 @@ import java.util.*;
  * <p>
  * 
  * </p>
+ * @hibernate.class
  */
 public class subsidized_products {
 
@@ -75,10 +76,18 @@ public class subsidized_products {
  */
     public subsidies subsidies; 
 
+    /** Holds value of property audit_id. */
+    private Long audit_id;    
 
    ///////////////////////////////////////
    // access methods for associations
 
+    /**
+     * the product subsidized.
+     *
+     *@hibernate.many-to-one
+     *  column="id_product"
+     */
     public product getProduct() {
         return product;
     }
@@ -89,9 +98,15 @@ public class subsidized_products {
             if (_product != null) _product.addSubsidized_products(this);
         }
     }
+    
+    /**
+     *@hibernate.many-to-one
+     *      column="id_subsidy"
+     */
     public subsidies getSubsidies() {
         return subsidies;
     }
+    
     public void setSubsidies(subsidies _subsidies) {
         if (this.subsidies != _subsidies) {
             if (this.subsidies != null) this.subsidies.removeSubsidized_products(this);
@@ -109,6 +124,7 @@ public class subsidized_products {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public Integer getQuantity() {        
         return quantity;
@@ -127,6 +143,7 @@ public class subsidized_products {
  * <p>
  * Represents ...
  * </p>
+ *@hibernate.property
  */
     public Integer getMax_rpt() {        
         return max_rpt;
@@ -145,6 +162,7 @@ public class subsidized_products {
  * <p>
  * Represents ...
  * </p>
+ *@hibernate.property
  */
     public Double getCopayment() {        
         return copayment;
@@ -163,6 +181,7 @@ public class subsidized_products {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public String getComment() {        
         return comment;
@@ -181,6 +200,7 @@ public class subsidized_products {
  * <p>
  * Represents ...
  * </p>
+ *@hibernate.property
  */
     public String getRestriction() {        
         return restriction;
@@ -199,6 +219,8 @@ public class subsidized_products {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.id
+ *     generator-class="hilo"
  */
     public Integer getId() {        
         return id;
@@ -211,7 +233,26 @@ public class subsidized_products {
  */
     public void setId(Integer _id) {        
         id = _id;
-    } // end setId        
+    }
+    
+    /** Getter for property audit_id.
+     * @return Value of property audit_id.
+     *
+     * @hibernate.property
+     */
+    public Long getAudit_id() {
+        return this.audit_id;
+    }
+    
+    /** Setter for property audit_id.
+     * @param audit_id New value of property audit_id.
+     *
+     */
+    public void setAudit_id(Long audit_id) {
+        this.audit_id = audit_id;
+    }
+    
+ // end setId        
 
 } // end subsidized_products
 

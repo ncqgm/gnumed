@@ -38,6 +38,7 @@ public class TestGISManager {
     public final static enum_telephone_role mobile = createOrFindEnumTelephone( Globals.bundle.getString("mobile"));
     public final static enum_telephone_role nok = createOrFindEnumTelephone( Globals.bundle.getString("nok"));
     public final static address_type homeAddress = createOrFindAddressType(Globals.bundle.getString("home"));
+    public final static address_type workAddress = createOrFindAddressType(Globals.bundle.getString("work"));
     
     public final static enum_telephone_role pager  = createOrFindEnumTelephone(Globals.bundle.getString("pager"));
     public final static enum_telephone_role fax  = createOrFindEnumTelephone(Globals.bundle.getString("fax"));
@@ -136,6 +137,21 @@ public class TestGISManager {
         return street;
     }
     
+    public street createOrFindStreet( String name, urb urb) throws Exception {
+        street s = findStreetByNameAndUrb(name, urb) ;
+        if (s == null) {
+            s = new street();
+            s.setName(name);
+            s.setUrb(urb);
+            s.setPostcode(urb.getPostcode());
+            Session sess = getSession();
+            sess.save(s);
+            sess.connection().commit();
+            sess.disconnect();
+        }
+        return s;
+    }
+    
     public street findStreetByNameAndUrb( String name, urb urb) throws Exception {
         street street = null;
         Session sess = null;
@@ -218,7 +234,7 @@ public class TestGISManager {
         a.setStreet(s);
         a = substituteExistingAddress(a);
         return a;
-     }
+    }
     
     public address findExistingAddress( address a) {
         address a2 = null;
@@ -281,7 +297,7 @@ public class TestGISManager {
         urbS = urbS.trim();
         urb urb = null;
         try {
-        urb = findUrbByNameAndState(urbS, state.getName());
+            urb = findUrbByNameAndState(urbS, state.getName());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -296,11 +312,11 @@ public class TestGISManager {
     
     public state findState(String stateStr) {
         Session sess = null;
-       state state = null;
+        state state = null;
         try {
             sess =  getSession();
             
-            Iterator j = 
+            Iterator j =
             sess.iterate("select s from state s where lower(s.name) = ?" , stateStr.trim().toLowerCase(),
             Hibernate.STRING );
             if (j.hasNext())
@@ -309,7 +325,7 @@ public class TestGISManager {
             logger.info(e.getLocalizedMessage());
         } finally {
             try {
-            getSession().disconnect();
+                getSession().disconnect();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -320,7 +336,7 @@ public class TestGISManager {
     public state findStateByPostcode( String postcode) {
         urb urb = null;
         try {
-          urb = findUrbByPostcode(postcode);
+            urb = findUrbByPostcode(postcode);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -331,20 +347,20 @@ public class TestGISManager {
     }
     
     public state createOrFindState(String stateStr, String code) {
-         state s = findState(stateStr );
+        state s = findState(stateStr );
         if (s == null) {
             s.setName(stateStr);
             s.setCode(code);
             try {
-            getSession().save(s);
-            getSession().flush();
-            getSession().connection().commit();
-            getSession().disconnect();
+                getSession().save(s);
+                getSession().flush();
+                getSession().connection().commit();
+                getSession().disconnect();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-         return s;
+        return s;
         
     }
     
@@ -352,29 +368,29 @@ public class TestGISManager {
      * adds a default address of the type
      */
     public address addDefaultAddress( identity id ,address_type type) {
-       address a = createOrFindDefaultAddress();
-       if (a != null) {
-           identities_addresses ia = new identities_addresses();
-           ia.setAddress(a);
-           ia.setAddress_type(type);
-           ia.setIdentity(id);
-       }
-       return a;
+        address a = createOrFindDefaultAddress();
+        if (a != null) {
+            identities_addresses ia = new identities_addresses();
+            ia.setAddress(a);
+            ia.setAddress_type(type);
+            ia.setIdentity(id);
+        }
+        return a;
     }
     
     public address createOrFindDefaultAddress() {
-         address a = null;
+        address a = null;
         state s = createOrFindState(Globals.bundle.getString("unknown"), Globals.bundle.getString("unknown"));
         
         
         urb u = createOrFindNamedUrb(Globals.bundle.getString("unknown"),   s);
         try {
-        street street = createStreet(Globals.bundle.getString("unknown"), u);
-        a = createOrFindAddress("", street);
+            street street = createStreet(Globals.bundle.getString("unknown"), u);
+            a = createOrFindAddress("", street);
         } catch (Exception e) {
             e.printStackTrace();
         }
-     
+        
         return a;
     }
     

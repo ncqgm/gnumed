@@ -188,6 +188,13 @@ public class address {
         return null;
     }
     
+    StringBuffer sb = new StringBuffer();
+    public String toString() {
+        sb.delete(0, sb.length());
+        sb.append(getNumber()).append(", ").append(getStreet());
+        return sb.toString();
+    }
+    
 } // end address
 
 

@@ -7,9 +7,12 @@ package org.drugref;
 import java.util.*;
 
 /**
+ * class that maps to subsidy scheme tables.
  * <p>
  * 
  * </p>
+ * @hibernate.class
+ * 
  */
 public class subsidies {
 
@@ -53,12 +56,25 @@ public class subsidies {
  * 
  * </p>
  */
-    public Collection subsidized_products = new java.util.HashSet(); // of type subsidized_products
+    public Collection subsidized_products = new java.util.HashSet();
+    
+    /** Holds value of property audit_id. */
+    private Integer audit_id;
+    
+ // of type subsidized_products
 
 
    ///////////////////////////////////////
    // access methods for associations
 
+    /**
+     *@hibernate.set
+     *  inverse="true"
+     *@hibernate.collection-key
+     *  column="id_subsidy"
+     *@hibernate.collection-one-to-many
+     *  class="org.drugref.subsidized_products"
+     */
     public Collection getSubsidized_productss() {
         return subsidized_products;
     }
@@ -73,6 +89,9 @@ public class subsidies {
         if (removed) _subsidized_products.setSubsidies((subsidies)null);
     }
 
+    public void setSubsidized_productss(Collection productss) {
+          subsidized_products = productss;
+    }
 
   ///////////////////////////////////////
   // operations
@@ -82,6 +101,7 @@ public class subsidies {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public String getIso_countrycode() {        
         return iso_countrycode;
@@ -98,8 +118,9 @@ public class subsidies {
 
 /**
  * <p>
- * Represents ...
+ * Represents the name of the subsidy scheme.
  * </p>
+ *  @hibernate.property
  */
     public String getName() {        
         return name;
@@ -116,8 +137,9 @@ public class subsidies {
 
 /**
  * <p>
- * Represents ...
+ * Represents commentary about scheme.
  * </p>
+ *  @hibernate.property
  */
     public String getComment() {        
         return comment;
@@ -136,6 +158,8 @@ public class subsidies {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.id
+ *  generator-class="hilo"
  */
     public Integer getId() {        
         return id;
@@ -148,7 +172,26 @@ public class subsidies {
  */
     public void setId(Integer _id) {        
         id = _id;
-    } // end setId        
+    }
+    
+    /** Getter for property audit_id.
+     * @return Value of property audit_id.
+     *
+     *@hibernate.property
+     */
+    public Integer getAudit_id() {
+        return this.audit_id;
+    }
+    
+    /** Setter for property audit_id.
+     * @param audit_id New value of property audit_id.
+     *
+     */
+    public void setAudit_id(Integer audit_id) {
+        this.audit_id = audit_id;
+    }
+    
+ // end setId        
 
 } // end subsidies
 

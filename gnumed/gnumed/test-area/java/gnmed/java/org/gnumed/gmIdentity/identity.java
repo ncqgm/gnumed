@@ -161,6 +161,16 @@ public class identity {
         boolean removed = this.social_identity.remove(_social_identity);
         if (removed) _social_identity.setIdentity((identity)null);
     }
+    
+    public social_identity findSocialIdentityByEnum(enum_social_id enum) {
+        Iterator j = getSocial_identitys().iterator();
+        while ( j.hasNext()) {
+            social_identity id = (social_identity)j.next();
+            if (id.getEnum_social_id().equals(enum))
+                return id;
+        }
+        return null;
+    }
     ///////////////////////////////////////
     // access methods for associations
     
@@ -617,7 +627,7 @@ public class identity {
             ia =(identities_addresses )i.next();
         
         if (n != null) {
-            sb.append(n.getLastnames()).append(", ").append(n.getFirstnames());
+            sb.append(n.toString());
             sb.append(", ").
             append("XY".equals(getKaryotype()) ? "male ": "female ");
             sb.

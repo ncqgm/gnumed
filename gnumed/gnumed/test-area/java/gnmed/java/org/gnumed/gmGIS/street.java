@@ -126,7 +126,18 @@ public class street {
  */
     public void setPostcode(String _postcode) {        
         postcode = _postcode;
-    } // end setPostcode        
+    }
+  
+    public String toString() {
+          StringBuffer sb = new StringBuffer();
+          sb.append(getName());
+          if (getUrb() != null) {
+              sb.append(", ").append(getUrb());
+          }
+          return sb.toString();
+    }
+    
+ // end setPostcode        
 
 } // end street
 

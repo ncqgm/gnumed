@@ -124,7 +124,20 @@ public class urb {
  */
     public void setPostcode(String _postcode) {        
         postcode = _postcode;
-    } // end setPostcode        
+    }
+    
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(getName());
+        if ( getState() != null)  
+            sb.append(", ").append(getState());
+       if ( getPostcode() != null)
+           sb.append(", ").append(getPostcode());
+        sb.append(".");
+        return sb.toString();
+    }
+    
+ // end setPostcode        
 
 } // end urb
 

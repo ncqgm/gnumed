@@ -95,6 +95,10 @@ public class enum_social_id {
         return super.equals(other);
     }
     
+    public String toString() {
+        return getName();
+    }
+    
  // end setName        
 
 } // end enum_social_id

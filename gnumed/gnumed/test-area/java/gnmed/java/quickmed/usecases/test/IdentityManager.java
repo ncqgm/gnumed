@@ -37,10 +37,18 @@ public class IdentityManager {
     
     public  static category_type rhesus = createOrFindCategoryType( Globals.bundle.getString("rhesus") );
     
-    public final static enum_social_id pension = createOrFindEnumSocialId(Globals.bundle.getString("pension") , 2);
-    public final static enum_social_id medicare =createOrFindEnumSocialId(Globals.bundle.getString("medicare"), 1);
-    public final static enum_social_id recordNo = createOrFindEnumSocialId(Globals.bundle.getString("record_no"), 3);
+    public final static int MEDICARE_ID = 1;
+    public final static int PENSION_ID = 2;
+    public final static int RECORD_NO_ID = 3;
+    public final static int PROVIDER_ID = 5;
+    public final static int PRESCRIBER_ID = 7;
     
+    public final static enum_social_id pension = createOrFindEnumSocialId(Globals.bundle.getString("pension") , PENSION_ID);
+    public final static enum_social_id medicare =createOrFindEnumSocialId(Globals.bundle.getString("medicare"), MEDICARE_ID);
+    public final static enum_social_id recordNo = createOrFindEnumSocialId(Globals.bundle.getString("record_no"), RECORD_NO_ID);
+    public final static enum_social_id providerNo = IdentityManager.createOrFindEnumSocialId(Globals.bundle.getString("provider_no"), PROVIDER_ID);
+    public final static enum_social_id prescriberNo = IdentityManager.createOrFindEnumSocialId(Globals.bundle.getString("prescriber_no"), PRESCRIBER_ID);
+  
     
     public final static category married = createOrFindCategory( Globals.bundle.getString("married"), maritalStatus);
     public final static  category unmarried = createOrFindCategory( Globals.bundle.getString("unmarried"), maritalStatus);
@@ -69,7 +77,7 @@ public class IdentityManager {
         return c;
     }
     
-    static category_type createOrFindCategoryType( String type) {
+    public static category_type createOrFindCategoryType(String type) {
         category_type c = null;
         Session sess = null;
         try {
@@ -108,7 +116,7 @@ public class IdentityManager {
         return c;
     }
     
-    static category createOrFindCategory( String type, category_type superType ) {
+    public static category createOrFindCategory(String type, category_type superType) {
         category c = null;
         Session sess = null;
         try {
@@ -139,7 +147,7 @@ public class IdentityManager {
     
     
     
-    static enum_social_id createOrFindEnumSocialId( String name, int id) {
+    public static enum_social_id createOrFindEnumSocialId(String name, int id) {
         
         try {
             final  Method[] socialIdSetters = new Method[] {
@@ -275,7 +283,7 @@ public class IdentityManager {
     public List findProviders( String last, String first, identity_role[] roles) throws Exception {
         FlushMode oldMode =  getSession().getFlushMode();
         try {
-//            getSession().setFlushMode(FlushMode.AUTO);
+            //            getSession().setFlushMode(FlushMode.AUTO);
             if (last == null)
                 last = "";
             if (first == null)
@@ -303,17 +311,17 @@ public class IdentityManager {
                 if (last.length() > 0) {
                     Collection c = new ArrayList();
                     Iterator j = l.iterator();
-                  while (j.hasNext()) {
-                      identity id = (identity) j.next();
-                      if (id.findNames(0).getLastnames().toLowerCase().startsWith(last) &&
+                    while (j.hasNext()) {
+                        identity id = (identity) j.next();
+                        if (id.findNames(0).getLastnames().toLowerCase().startsWith(last) &&
                         id.findNames(0).getLastnames().toLowerCase().startsWith(first) )
-                          c.add(id);
-                  }
-                   
-//                    getSession().update(l);
-//                    getSession().connection().commit();
-//                    Collection c = getSession().filter( l, query2, new Object[] { last+"%", first+"%" },
-//                    twoStringTypes ) ;
+                            c.add(id);
+                    }
+                    
+                    //                    getSession().update(l);
+                    //                    getSession().connection().commit();
+                    //                    Collection c = getSession().filter( l, query2, new Object[] { last+"%", first+"%" },
+                    //                    twoStringTypes ) ;
                     set.addAll(c);
                     continue;
                 }

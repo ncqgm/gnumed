@@ -150,7 +150,13 @@ public class state {
      */
     public void setDeprecated(Date _deprecated) {
         deprecated = _deprecated;
-    } // end setDeprecated
+    }
+    
+    public String toString() {
+        return getName();
+    }
+    
+ // end setDeprecated
     
 } // end state
 
