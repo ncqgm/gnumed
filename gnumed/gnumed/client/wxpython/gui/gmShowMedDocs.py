@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -104,11 +104,22 @@ class cDocTree(wxTreeCtrl):
 		return 1
 	#------------------------------------------------------------------------
 	def __populate_tree(self):
+		# FIXME: patient changed at all ?
+
+		# clean old tree
+		if not self.root is None:
+			self.DeleteAllItems()
+
+		# init new tree
+		self.root = self.AddRoot(_("available documents (most recent on top)"), -1, -1)
+		self.SetPyData(self.root, None)
+		self.SetItemHasChildren(self.root, FALSE)
+
 		# read documents from database
 		self.doc_list = self.pat.getMedDocsList()
 		if self.doc_list is None:
 			dlg = wxMessageDialog(
-				parent,
+				self,
 				_('Cannot find any documents for this patient.\n"%s"') % self.pat.getActiveName('$first$ $last$' ),
 				_('searching patient documents'),
 				wxOK | wxICON_ERROR
@@ -117,13 +128,7 @@ class cDocTree(wxTreeCtrl):
 			dlg.Destroy()
 			return None
 
-		# clean old tree
-		if not self.root is None:
-			self.DeleteAllItems()
-
-		# build tree from document list
-		self.root = self.AddRoot(_("available documents (most recent on top)"), -1, -1)
-		self.SetPyData(self.root, None)
+		# fill new tree from document list
 		self.SetItemHasChildren(self.root, TRUE)
 
 		# add our documents as first level nodes
@@ -424,7 +429,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.1  2003-02-09 20:07:31  ncq
+# Revision 1.2  2003-02-09 23:41:09  ncq
+# - reget doc list on receiving focus thus being able to react to selection of a different patient
+#
+# Revision 1.1  2003/02/09 20:07:31  ncq
 # - works as a plugin, patient hardcoded, though
 #
 # Revision 1.8  2003/01/26 17:00:18  ncq
