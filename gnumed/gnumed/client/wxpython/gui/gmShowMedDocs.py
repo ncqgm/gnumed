@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -193,6 +193,13 @@ else:
 		def __register_interests(self):
 			gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
 			#gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._schedule_data_reget)
+
+		#-------------------------------------------------------
+		def _schedule_data_reget(self):
+			self.__doc_tree._failed_populate = False
+			cRegetOnPaintMixin._schedule_data_reget()
+			
+		
 		#--------------------------------------------------------
 		def _populate_with_data(self):
 			if not self.__doc_tree.refresh():
@@ -260,7 +267,15 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.56  2004-10-14 12:15:21  ncq
+# Revision 1.57  2004-10-17 00:05:36  sjtan
+#
+# fixup for paint event re-entry when notification dialog occurs over medDocTree graphics
+# area, and triggers another paint event, and another notification dialog , in a loop.
+# Fixup is set flag to stop _repopulate_tree, and to only unset this flag when
+# patient activating signal gmMedShowDocs to schedule_reget, which is overridden
+# to include resetting of flag, before calling mixin schedule_reget.
+#
+# Revision 1.56  2004/10/14 12:15:21  ncq
 # - cleanup
 #
 # Revision 1.55  2004/09/19 15:12:26  ncq

@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -43,6 +43,8 @@ class cDocTree(wxTreeCtrl):
 
 		self.__register_events()
 
+		self._failed_populate = False
+
 #		self.tree = MyTreeCtrl(self, tID, wxDefaultPosition, wxDefaultSize,
 #								wxTR_HAS_BUTTONS | wxTR_EDIT_LABELS# | wxTR_MULTIPLE
 #								, self.log)
@@ -62,6 +64,7 @@ class cDocTree(wxTreeCtrl):
 #		 EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 	#--------------------------------------------------------
 	def refresh(self):
+	
 		if not self.__pat.is_connected():
 			gmGuiHelpers.gm_beep_statustext(
 				_('Cannot load documents. No active patient.'),
@@ -75,6 +78,8 @@ class cDocTree(wxTreeCtrl):
 		return True
 	#--------------------------------------------------------
 	def __populate_tree(self):
+		if self._failed_populate:
+			return False
 		# FIXME: check if patient changed at all
 
 		# clean old tree
@@ -91,6 +96,7 @@ class cDocTree(wxTreeCtrl):
 		docs = docs_folder.get_documents()
 		if docs is None or len(docs) == 0:
 			name = self.__pat['demographic record'].get_names()
+			self._failed_populate = True
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Cannot find any documents for patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading document list')
@@ -184,6 +190,7 @@ class cDocTree(wxTreeCtrl):
 		return None
 	#------------------------------------------------------------------------
 	def _on_activate (self, event):
+		self._failed_populate = False
 		node = event.GetItem()
 		node_data = self.GetPyData(node)
 
@@ -304,7 +311,15 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.7  2004-10-14 12:11:50  ncq
+# Revision 1.8  2004-10-17 00:05:36  sjtan
+#
+# fixup for paint event re-entry when notification dialog occurs over medDocTree graphics
+# area, and triggers another paint event, and another notification dialog , in a loop.
+# Fixup is set flag to stop _repopulate_tree, and to only unset this flag when
+# patient activating signal gmMedShowDocs to schedule_reget, which is overridden
+# to include resetting of flag, before calling mixin schedule_reget.
+#
+# Revision 1.7  2004/10/14 12:11:50  ncq
 # - __on_activate -> _on_activate
 #
 # Revision 1.6  2004/10/11 19:56:03  ncq

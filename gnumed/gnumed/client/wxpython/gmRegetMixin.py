@@ -23,8 +23,8 @@ be redrawn successfully.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.4 2004-09-05 14:55:19 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmRegetMixin.py,v 1.5 2004-10-17 00:05:36 sjtan Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -42,6 +42,7 @@ class cRegetOnPaintMixin:
 	_schedule_data_reget() at appropriate times.
 	"""
 	def __init__(self):
+		self.error_notice = None
 		self._data_stale = True
 		try:
 			wx.EVT_PAINT(self, self._on_paint_event)
@@ -54,6 +55,8 @@ class cRegetOnPaintMixin:
 		if self._data_stale:
 			self.__populate_with_data()
 		event.Skip()
+		
+			
 	#-----------------------------------------------------
 	def __populate_with_data(self):
 		if self._populate_with_data():
@@ -90,7 +93,15 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.4  2004-09-05 14:55:19  ncq
+# Revision 1.5  2004-10-17 00:05:36  sjtan
+#
+# fixup for paint event re-entry when notification dialog occurs over medDocTree graphics
+# area, and triggers another paint event, and another notification dialog , in a loop.
+# Fixup is set flag to stop _repopulate_tree, and to only unset this flag when
+# patient activating signal gmMedShowDocs to schedule_reget, which is overridden
+# to include resetting of flag, before calling mixin schedule_reget.
+#
+# Revision 1.4  2004/09/05 14:55:19  ncq
 # - improve comments, some cleanup
 #
 # Revision 1.3  2004/08/04 17:12:06  ncq
