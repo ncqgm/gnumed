@@ -1,75 +1,58 @@
-#!/usr/bin/python
 #############################################################################
+# This panel is the gui frontend to allow choice of person to
+# refer to by name, company or category
 #
-# gmGP_Referrals
-# ----------------------------------
-#
-# This panel is the gui frontend to allow choice of person to refer to by name
-# company or category
-#
-# @author: Dr. Richard Terry
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
-# @dependencies: wxPython (>= version 2.3.1)
-# @change log:
-#	    01.08.2002 rterry initial implementation, untested
-#
-# @TODO:almost everything
-#	
-#      
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Referrals.py,v $
-# $Id: gmGP_Referrals.py,v 1.9 2004-03-10 12:56:01 ihaywood Exp $
-__version__ = "$Revision: 1.9 $"
-__author__ = "R.Terry"
+# $Id: gmGP_Referrals.py,v 1.10 2004-03-10 14:16:47 ncq Exp $
+__version__ = "$Revision: 1.10 $"
+__author__ = "R.Terry, I.Haywood"
 
 from wxPython.wx import *
+
 from Gnumed.wxpython import gmGuiElement_HeadingCaptionPanel, gmGuiElement_DividerCaptionPanel, gmGuiElement_AlertCaptionPanel, gmEditArea, gmPlugin
 from Gnumed.pycommon import gmLog
 from Gnumed.wxpython.gmPatientHolder import PatientHolder
 
+ID_REFERRALDATE = wxNewId()
 
-ID_REFERRALDATE = wxNewId ()
-ID_REFERRALTXT  = wxNewId()
-gmSECTION_REFERRALS = 11
-
+#==============================================================
 class ReferralsPanel (wxPanel, PatientHolder):
-     def __init__(self,parent, id):
-		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
+	def __init__(self,parent, id):
 		PatientHolder.__init__(self)
+
+		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
 		self.SetBackgroundColour(wxColor(222,222,222))
-		#--------------------
-		#add the main heading
-		#--------------------
-		self.referralspanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,"     REFERRALS     ")
+		# top heading
+		self.referralspanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,_("     REFERRALS     "))
 		#----------------------------------
-		#put date at top - allow backdating
-		#FIXME remove the date text below
+		# put date at top - allow backdating
+		# FIXME remove the fixed date below
+		# FIXME use gmDateTimeInput
+		# FIXME shouldn't this be part of the editarea proper ?
 		#----------------------------------
-		self.sizer_top  = wxBoxSizer(wxHORIZONTAL)
+		szr_top = wxBoxSizer(wxHORIZONTAL)
 		self.txt_referraldate = wxTextCtrl(self,ID_REFERRALDATE,"12/06/2002",wxDefaultPosition,wxDefaultSize)
-		self.spacer = wxWindow(self,-1, wxDefaultPosition,wxDefaultSize,0) 
-		self.spacer.SetBackgroundColour(wxColor(222,222,222))
-		self.sizer_top.Add(self.spacer,6,wxEXPAND)
-		self.sizer_top.Add(self.txt_referraldate,1,wxEXPAND|wxALL,2)
-		self.sizer_top.Add(10,0,0)
-		#---------------------------------------------
-		#now create the editarea specific for referrals
-		#---------------------------------------------
+		spacer_top = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
+		spacer_top.SetBackgroundColour(wxColor(222,222,222))
+		szr_top.Add(spacer_top, 6, wxEXPAND)
+		szr_top.Add(self.txt_referraldate, 1, wxEXPAND|wxALL, 2)
+		szr_top.Add(10, 0, 0)
+		# create referrals specific editarea
 		self.editarea = gmEditArea.gmReferralEditArea(self, -1)
-		#---------------------------------------------
-		#add all elements to the main background sizer
-		#---------------------------------------------
-		self.mainsizer = wxBoxSizer(wxVERTICAL)
-		self.mainsizer.Add(self.referralspanelheading,0,wxEXPAND)
-		self.mainsizer.Add(0,5,0)
-		self.mainsizer.Add(self.sizer_top,0,wxEXPAND)
-		self.mainsizer.Add(self.editarea,10,wxEXPAND)
-		self.SetSizer(self.mainsizer)
+		# add elements to the main background sizer
+		self.szr_main = wxBoxSizer(wxVERTICAL)
+		self.szr_main.Add(self.referralspanelheading, 0, wxEXPAND)
+		self.szr_main.Add(0, 5, 0)
+		self.szr_main.Add(szr_top, 0, wxEXPAND)
+		self.szr_main.Add(self.editarea, 10, wxEXPAND)
+		self.SetSizer(self.szr_main)
 		self.SetAutoLayout(true)
 		self.Show(true)
-	
-#==============================================================		
+
+#==============================================================
 class gmGP_Referrals (gmPlugin.wxPatientPlugin):
 	"""
 	Plugin to encapsulate the referrals window
@@ -106,7 +89,7 @@ C\x96[C\xe8\xd4P\xfb\xff\xa7\x1a\xb5P/\x85\xf6!\xc2\xf7\xdd\xbbA\xcf\xdbs\
 				return self.__icons[_("""icon_writing_pen""")]
 
 	def GetWidget (self, parent):
-		return  ReferralsPanel (parent, -1)
+		return  ReferralsPanel(parent, -1)
 
 #==============================================================
 if __name__ == "__main__":
@@ -115,7 +98,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #==============================================================
 # $Log: gmGP_Referrals.py,v $
-# Revision 1.9  2004-03-10 12:56:01  ihaywood
+# Revision 1.10  2004-03-10 14:16:47  ncq
+# - readability, comments
+#
+# Revision 1.9  2004/03/10 12:56:01  ihaywood
 # fixed sudden loss of main.shadow
 # more work on referrals,
 #
@@ -139,3 +125,5 @@ if __name__ == "__main__":
 # Revision 1.6  2003/02/02 13:34:28  ncq
 # - cvs keyword metadata
 #
+# @change log:
+#	    01.08.2002 rterry initial implementation, untested
