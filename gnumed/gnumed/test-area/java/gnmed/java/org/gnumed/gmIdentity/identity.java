@@ -121,7 +121,7 @@ public class identity {
     private Object persister;
     
     /** Holds value of property roles. */
-    private Collection roles;
+    private Collection roles = new java.util.HashSet();
     
     
     
@@ -617,9 +617,10 @@ public class identity {
             ia =(identities_addresses )i.next();
         
         if (n != null) {
-            sb.append(n.getLastnames()).append(", ").append(n.getFirstnames()).
-            append(", ").
-            append(getKaryotype().equals("XY") ? "male ": "female ").
+            sb.append(n.getLastnames()).append(", ").append(n.getFirstnames());
+            sb.append(", ").
+            append("XY".equals(getKaryotype()) ? "male ": "female ");
+            sb.
             append( getDob() != null ?  dateFormat.format(getDob()) : "");
             if (ia != null && ia.getAddress() != null)
                 sb.append(" : ").append(ia.getAddress().getNumber()).
@@ -656,7 +657,7 @@ public class identity {
      * @return Value of property role.
      * @hibernate.set
      *      cascade="all"
-     *      inverse="true"
+     *      inverse="false"
      * @hibernate.collection-key
      *      column="identity"
      * @hibernate.collection-one-to-many
@@ -674,13 +675,13 @@ public class identity {
         this.roles = roles;
     }
     
-    public void addRole(identity_role role) {
+    public void addRole(identity_role_info role) {
         if (getRoles().contains(role))
             return;
         getRoles().add(role);
     }
     
-    public void removeRole(identity_role role) {
+    public void removeRole(identity_role_info role) {
         if (getRoles().contains(role))
             return;
         getRoles().remove(role);

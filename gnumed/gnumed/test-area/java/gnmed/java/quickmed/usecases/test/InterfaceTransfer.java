@@ -29,7 +29,7 @@ public class InterfaceTransfer {
         if ( ! aInterface.isAssignableFrom(from.getClass())
             || ! aInterface.isAssignableFrom(to.getClass()) )
             throw new ClassCastException("MUST BE OF INTERFACE " + aInterface.getName() );
-        logger.finer( this + " LOG LEVEL = " + logger.getLevel().getName());
+        logger.fine( this + " LOG LEVEL = " + logger.getLevel().getName() + "from="+from + " : to="+to);
         for (int i = 0; i < pds.length; ++i) {
             if (java.util.Arrays.asList(excludes).contains(pds[i].getName()) )
                 continue;

@@ -26,11 +26,11 @@ public class SingleSessionManagerReference extends SessionHolder implements Mana
         Session s = null;
         try {
             s = gnmed.test.HibernateInit.openSession();
-              setSession(s);
+            setSession(s);
         } catch (Exception e) {
-         e.printStackTrace();   
+            e.printStackTrace();
         }
-      
+        
         
     }
     
@@ -40,7 +40,7 @@ public class SingleSessionManagerReference extends SessionHolder implements Mana
         if (GISManager == null) {
             GISManager = new TestGISManager();
             GISManager.setSessionHolder(this);
-         }
+        }
         return GISManager;
     }
     
@@ -62,7 +62,7 @@ public class SingleSessionManagerReference extends SessionHolder implements Mana
     
     public TestScriptDrugManager getScriptDrugManager() {
         if (scriptDrugManager == null) {
-             scriptDrugManager = new TestScriptDrugManager();
+            scriptDrugManager = new TestScriptDrugManager();
             scriptDrugManager.setSessionHolder(this);
         }
         return scriptDrugManager;
@@ -70,16 +70,22 @@ public class SingleSessionManagerReference extends SessionHolder implements Mana
     
     public boolean isConnected() {
         return getSession().isConnected();
-    }    
+    }
     
-    public void setConnected(boolean connected) throws Exception {
-        
-        if (connected)
-            getSession().reconnect();
-        else
-            getSession().disconnect();
-        
-    }    
- 
-      
+    public void setConnected(boolean connected)  {
+        try {
+            if (connected ) {
+                if (!getSession().isConnected())
+                    getSession().reconnect();
+            }
+            else {
+                if (getSession().isConnected())
+                    getSession().disconnect();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
 }

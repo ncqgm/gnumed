@@ -5,17 +5,27 @@
  */
 
 package quickmed.usecases.test;
-
+import org.gnumed.gmIdentity.identity;
 /**
  *
  * @author  syan
  */
 public class TestContacts extends javax.swing.JFrame {
-    
+    ContactsPanel panel1;
     /** Creates new form TestContacts */
     public TestContacts() {
         initComponents();
-        setContentPane(new ContactstPanel());
+        panel1 =new ContactsPanel();
+        
+        identity id = new identity();
+        ManagerReference manager = new SingleSessionManagerReference();
+        id.setPersister(manager);
+        
+        TestProviderController controller = new TestProviderController();
+        controller.setIdentity(id);
+        
+        panel1.setController(controller);
+        setContentPane(panel1);
         pack();
     }
     

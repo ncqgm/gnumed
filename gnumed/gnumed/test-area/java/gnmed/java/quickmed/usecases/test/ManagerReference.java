@@ -27,6 +27,6 @@ public interface ManagerReference {
      * @param connected New value of property connected.
      *
      */
-    public void setConnected(boolean connected) throws Exception;
+    public void setConnected(boolean connected) ;
     
 }

@@ -5,7 +5,7 @@
  */
 
 package quickmed.usecases.test;
-
+import java.util.*;
 /**
  *
  * @author  syan
@@ -18,4 +18,5 @@ public class Globals {
     public Globals() {
     }
     
+    public static final ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE);
 }

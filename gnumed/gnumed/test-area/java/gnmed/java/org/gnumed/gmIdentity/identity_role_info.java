@@ -30,7 +30,7 @@ public class identity_role_info {
      * @return Value of property identity_role.
      *
      * @hibernate.many-to-one
-     *      cascade="none"
+     *      cascade="save-update"
      *     
      */
     public identity_role getIdentity_role() {
@@ -78,6 +78,13 @@ public class identity_role_info {
      */
     public void setId(Long id) {
         this.id = id;
+    }
+    
+    public String toString() {
+        StringBuffer sb = new StringBuffer( getIdentity_role().getName());
+        if (getComments() != null )
+            sb.append(":  ").append(getComments());
+        return sb.toString();
     }
     
 }

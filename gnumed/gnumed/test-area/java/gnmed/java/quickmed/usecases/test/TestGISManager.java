@@ -15,6 +15,7 @@ import net.sf.hibernate.type.*;
 import junit.framework.*;
 import java.util.*;
 import java.util.logging.*;
+import java.lang.reflect.*;
 /**
  *
  * @author  sjtan
@@ -25,12 +26,49 @@ public class TestGISManager {
     
     static TestGISManager instance = new TestGISManager();
     
-    
     public static TestGISManager instance() {
         return instance;
     }
     
     public TestGISManager() {
+    }
+    
+    public final static enum_telephone_role home = createOrFindEnumTelephone( Globals.bundle.getString("home"));
+    public final static  enum_telephone_role work= createOrFindEnumTelephone( Globals.bundle.getString("work"));
+    public final static enum_telephone_role mobile = createOrFindEnumTelephone( Globals.bundle.getString("mobile"));
+    public final static enum_telephone_role nok = createOrFindEnumTelephone( Globals.bundle.getString("nok"));
+    public final static address_type homeAddress = createOrFindAddressType(Globals.bundle.getString("home"));
+    
+    public final static enum_telephone_role pager  = createOrFindEnumTelephone(Globals.bundle.getString("pager"));
+    public final static enum_telephone_role fax  = createOrFindEnumTelephone(Globals.bundle.getString("fax"));
+    
+    static address_type createOrFindAddressType( String type) {
+        try {
+            final  Method[] addrTypeSetter = new Method[] {
+                address_type.class.getMethod("setName",  new Class[] { String.class})
+            };
+            
+            return (address_type)  Utilities.createOrFindEntity(
+            "from a in class address_type where a.name = ? ",
+            new Object[] { type },
+            new Type[] { Hibernate.STRING }  , address_type.class,
+            addrTypeSetter );
+        } catch (Exception e) {
+            address_type a = new address_type();
+            a.setName(type);
+            return a;
+        }
+    }
+    
+    public static enum_telephone_role createOrFindEnumTelephone( String name) {
+        try {
+            Method[] setters = new Method[] { enum_telephone_role.class.getMethod("setRole", new Class[] { String.class }) };
+            return (enum_telephone_role) Utilities.createOrFindEntity("from r in class org.gnumed.gmGIS.enum_telephone_role where r.role=?", new Object[] { name},
+            new Type[] { Hibernate.STRING }, enum_telephone_role.class, setters);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     
     public urb findByPostcode(String postcode) throws Exception {
@@ -48,7 +86,7 @@ public class TestGISManager {
         } catch (Exception e) {
             logger.info(e.getLocalizedMessage());
         } finally {
-             getSession().disconnect();
+            getSession().disconnect();
         }
         logger.info("found u = " + (u != null ? u.getName() : null) );
         return u;
@@ -70,7 +108,7 @@ public class TestGISManager {
         } catch (Exception e) {
             logger.info(e.getLocalizedMessage());
         } finally {
-             getSession().disconnect();
+            getSession().disconnect();
         }
         logger.info("found u = " + u);
         logger.info("u.name = " + u.getName());
@@ -81,7 +119,7 @@ public class TestGISManager {
         street street = null;
         Session sess = null;
         try {
-           sess =  getSession();
+            sess =  getSession();
             
             List l  =
             sess.find("select s from street s where lower(s.name) like ? "+
@@ -102,10 +140,10 @@ public class TestGISManager {
         street street = null;
         Session sess = null;
         try {
-           sess =  getSession();
+            sess =  getSession();
             
-          
-           
+            
+            
             List l  =
             sess.find("select s from street s where lower(s.name) like ? "+
             "and s.urb.id = ? ", new Object[] { name.trim().toLowerCase(), urb.getId() },
@@ -124,7 +162,7 @@ public class TestGISManager {
         Session sess = null;
         address  address = null;
         try {
-           sess =  getSession();
+            sess =  getSession();
             
             List l  =
             sess.find("select a from address a where lower(a.number) = ? and a.street.id = ? " +
@@ -144,7 +182,7 @@ public class TestGISManager {
         Session sess = null;
         urb urb = null;
         try {
-             sess =  getSession();
+            sess =  getSession();
             
             Iterator i =
             sess.iterate("select u from  urb u where lower(u.name)= ?",
@@ -163,7 +201,7 @@ public class TestGISManager {
         Session sess = null;
         boolean found = false;
         try {
-             sess =  getSession();
+            sess =  getSession();
             
             found =
             sess.iterate("select u from  urb  u where lower(u.postcode)= ?",
@@ -172,7 +210,7 @@ public class TestGISManager {
         } catch (Exception e) {
             logger.info(e.getLocalizedMessage());
         } finally {
-             getSession().disconnect();
+            getSession().disconnect();
         }
         return found;
     }
@@ -184,7 +222,7 @@ public class TestGISManager {
         if (a.getStreet().getId() == null)
             return a;
         try {
-            sess =  getSession(); 
+            sess =  getSession();
             Iterator j = sess.iterate( "select a from address a where a.number like ? "+
             "a.street.id = ? ", new Object[] { a.getNumber(), a.getStreet().getId() },
             new Type[] { Hibernate.STRING, Hibernate.LONG } );
@@ -197,7 +235,7 @@ public class TestGISManager {
         }
         finally {
             try {
-                 getSession().disconnect();
+                getSession().disconnect();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
@@ -278,25 +316,25 @@ public class TestGISManager {
     }
     
     public telephone setTelephoneWithRoleAt( identity id, String number, enum_telephone_role role, address_type addressType) {
-           
-            // pre-condition
-            if ( number == null || number.trim().length() == 0)
-               return null;
-           
-           number = number.trim();
-           
-           
-           address a =findAddressByType(id, addressType);
-            if (a == null)
-                a =  addDefaultAddress(id , addressType);
-            telephone t = a.findTelephone(role);
-            if ( t == null) {
-                t = new telephone();
-                t.setEnum_telephone_role(role);
-                a.addTelephone(t);
-            }
-            t.setNumber(number);
-            return t;
+        
+        // pre-condition
+        if ( number == null || number.trim().length() == 0)
+            return null;
+        
+        number = number.trim();
+        
+        
+        address a =findAddressByType(id, addressType);
+        if (a == null)
+            a =  addDefaultAddress(id , addressType);
+        telephone t = a.findTelephone(role);
+        if ( t == null) {
+            t = new telephone();
+            t.setEnum_telephone_role(role);
+            a.addTelephone(t);
+        }
+        t.setNumber(number);
+        return t;
     }
     
     
@@ -307,7 +345,7 @@ public class TestGISManager {
      *
      */
     public Session getSession() {
-       return getSessionHolder().getSession();
+        return getSessionHolder().getSession();
     }
     
     /** Setter for property session.

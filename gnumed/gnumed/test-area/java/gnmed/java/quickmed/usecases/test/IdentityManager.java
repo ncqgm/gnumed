@@ -15,6 +15,7 @@ import junit.framework.*;
 
 import org.drugref.*;
 import org.gnumed.gmIdentity.*;
+
 import org.gnumed.gmClinical.*;
 
 import java.lang.reflect.*;
@@ -28,6 +29,142 @@ public class IdentityManager {
     static Logger logger = Logger.global;
     static IdentityManager manager;
     
+    static Map mapMarital ;
+    public  static category_type maritalStatus = createOrFindCategoryType( Globals.bundle.getString("marital_status") );
+    
+    public  static category_type ABO = createOrFindCategoryType( Globals.bundle.getString("ABO") );
+    
+    
+    public  static category_type rhesus = createOrFindCategoryType( Globals.bundle.getString("rhesus") );
+    
+    public final static enum_social_id pension = createOrFindEnumSocialId(Globals.bundle.getString("pension") , 2);
+    public final static enum_social_id medicare =createOrFindEnumSocialId(Globals.bundle.getString("medicare"), 1);
+    public final static enum_social_id recordNo = createOrFindEnumSocialId(Globals.bundle.getString("record_no"), 3);
+    
+    
+    public final static category married = createOrFindCategory( Globals.bundle.getString("married"), maritalStatus);
+    public final static  category unmarried = createOrFindCategory( Globals.bundle.getString("unmarried"), maritalStatus);
+    public final static    category divorced = createOrFindCategory( Globals.bundle.getString("divorced"), maritalStatus);
+    public final static   category widowed = createOrFindCategory( Globals.bundle.getString("widowed"), maritalStatus);
+    public final static category unknown = createOrFindCategory( Globals.bundle.getString("unknown"), maritalStatus);
+    public final static category [] maritalList = new category[] { married, unmarried, divorced, widowed };
+    
+    
+    public final static category A = createOrFindCategory( Globals.bundle.getString("A"), ABO);
+    public final static  category B = createOrFindCategory( Globals.bundle.getString("B"), ABO);
+    public  final static    category AB = createOrFindCategory( Globals.bundle.getString("AB"), ABO);
+    public final static   category O = createOrFindCategory( Globals.bundle.getString("O"), ABO);
+    public final static category rhPos = createOrFindCategory( Globals.bundle.getString("positive"), rhesus);
+    public final static category rhNeg = createOrFindCategory( Globals.bundle.getString("negative"), rhesus);
+    public final static category [] ABOList = new category[] {A, B, AB, O };
+    public final static category [] rhesusList = new category[] {rhPos, rhNeg };
+    
+    static category_type createAndSaveCategoryType  (Session sess, String type) throws Exception {
+        category_type c = new category_type();
+        c.setName(type);
+        sess.save(c);
+        sess.flush();
+        sess.connection().commit();
+        logger.fine("SAVED CATEGORY_TYPE = " + c.getId() + " " +c.getName());
+        return c;
+    }
+    
+    static category_type createOrFindCategoryType( String type) {
+        category_type c = null;
+        Session sess = null;
+        try {
+            sess =  HibernateInit.openSession();
+            List l = sess.find("select ct from category_type ct where ct.name like ?",
+            type,  Hibernate.STRING
+            );
+            
+            if (l.size() == 0 )
+                c = createAndSaveCategoryType(sess,   type);
+            else
+                c = (category_type) l.get(0);
+        } catch (Exception e) {
+            
+            e.printStackTrace();
+            
+        }finally {
+            try {
+                HibernateInit.closeSession(sess);
+            }
+            catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return c;
+    }
+    
+    static category createAndSaveCategory( Session sess, String type, category_type superType )throws Exception {
+        category c = new category();
+        c.setName(type);
+        c.setCategory_type(superType);
+        sess.save(c);
+        sess.flush();
+        
+        sess.connection().commit();
+        return c;
+    }
+    
+    static category createOrFindCategory( String type, category_type superType ) {
+        category c = null;
+        Session sess = null;
+        try {
+            sess =  HibernateInit.openSession();
+            List l = sess.find("select c from category c where c.name like ? and c.category_type.id = ?",
+            new Object[] { type, superType.getId() } ,
+            new Type[] { Hibernate.STRING, Hibernate.LONG }
+            );
+            
+            if (l.size() == 0 )
+                c = createAndSaveCategory(sess,   type, superType);
+            else
+                c = (category) l.get(0);
+        } catch (Exception e) {
+            
+            e.printStackTrace();
+            
+        }finally {
+            try {
+                HibernateInit.closeSession(sess);
+            }
+            catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return c;
+    }
+    
+    
+    
+    static enum_social_id createOrFindEnumSocialId( String name, int id) {
+        
+        try {
+            final  Method[] socialIdSetters = new Method[] {
+                enum_social_id.class.getMethod("setName",
+                new Class[] { String.class}),
+                enum_social_id.class.getMethod("setId", new Class[]{ Integer.class}) };
+                
+                return (enum_social_id) Utilities.createOrFindEntity(
+                "from e in class org.gnumed.gmIdentity.enum_social_id where e.name = ? and  e.id = ?",
+                new Object[] { name, new Integer(id) },
+                new Type[] { Hibernate.STRING, Hibernate.INTEGER },
+                enum_social_id.class , socialIdSetters
+                
+                );
+        } catch (Exception e ) {
+            e.printStackTrace();
+        }
+        enum_social_id eid = new enum_social_id();
+        eid.setName(name);
+        eid.setId(new Integer(id));
+        return eid;
+    }
+    
+    
+    
     static {
         manager = new IdentityManager();
     }
@@ -38,12 +175,12 @@ public class IdentityManager {
     
     /** Creates a new instance of IdentityManager */
     IdentityManager() {
-       
+        
     }
     
     public void save(identity id ) throws Exception  {
         Session sess = getSession();
-       
+        
         if (id .getId() == null) {
             sess.save(id );
             Logger.global.fine("SAVED NEW ID ");
@@ -71,42 +208,7 @@ public class IdentityManager {
         return l;
     }
     
-   public  static Object createOrFindEntity( String query,final  Object[] params, Type[] types,
-    Class targetClass, Method[] paramSetters) throws Exception  {
-        Object newObject = null;
-        Session s = null;
-        try {
-            s=  HibernateInit.openSession();
-            newObject = s.iterate(query, params, types).next();
-            if (newObject != null) {
-                return newObject;
-            }
-            throw new  Exception("No object found");
-        } catch (Exception e) {
-            try {
-                logger.fine("Unable to find a " + targetClass.getName() + " with specified parameters . CREATING NEW ONE");
-                newObject = targetClass.newInstance();
-                for (int i = 0; i < paramSetters.length; ++i) {
-                    paramSetters[i].invoke(newObject, new Object[] { params[i] } );
-                }
-                s.save(newObject);
-                s.flush();
-                s.connection().commit();
-                logger.fine("SUCCESSFULLY CREATED a " +  targetClass.getName() );
-                return newObject;
-            } catch ( Exception e2) {
-                
-                HibernateInit.closeSession(s);
-                throw e2;
-            }
-        } finally {
-            logger.fine("DISCONNECTING AND CLOSING " + s.toString());
-            //  s.disconnect();
-            HibernateInit.closeSession(s);
-            
-        }
-        //        return newObject;
-    }
+    
     
     private SessionHolder sessionHolder = new SessionHolder();
     /** Getter for property session.
@@ -114,7 +216,7 @@ public class IdentityManager {
      *
      */
     public Session getSession() {
-       return getSessionHolder().getSession();
+        return getSessionHolder().getSession();
     }
     
     /** Setter for property session.
@@ -141,4 +243,48 @@ public class IdentityManager {
         this.sessionHolder = sessionHolder;
     }
     
+    
+    public identity_role createOrFindRole( String name) {
+        try {
+            return (identity_role)
+            Utilities.createOrFindEntity(getSession(), "select r from identity_role r where r.name like ?",
+            new Object[] { name }, new Type[] { Hibernate.STRING },
+            identity_role.class,
+            new Method[] { identity_role.class.getMethod("setName" , new Class[] { String.class } ) } );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public void updateRole( identity_role role) {
+        try {
+            getSession().update(role);
+            getSession().flush();
+            getSession().connection().commit();
+            getSession().disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public List findProviders( String last, String first, identity_role[] roles) throws Exception {
+        if (last == null)
+            last = "";
+        if (first == null)
+            first = "";
+        
+        String query = "select i from identity i inner join i.roles r where r.identity_role.name  like ?";
+       Set set = new HashSet();
+        if ( roles.length == 0) {
+            set.addAll(getSession().find(query, "%", Hibernate.STRING) );
+        }
+        
+        for (int i = 0; i < roles.length; ++i) {
+            set.addAll(getSession().find(query, roles[i].getName(), Hibernate.STRING) );
+        }
+        // more stuff get a good test string
+        
+        return Arrays.asList(set.toArray());
+    }
 }

@@ -52,7 +52,7 @@ public class identity_role {
      *      table="link_role_identity"
      *      inverse="true"
      *      lazy="true"
-     *      cascade="none"
+     *      cascade="save-update"
      * @hibernate.collection-key
      *  column="subtype"
      * @hibernate.collection-many-to-many
@@ -96,9 +96,9 @@ public class identity_role {
      *
      * @hibernate.set
      *      table="link_role_role"
-     *      inverse="true"
+     *      inverse="false"
      *      lazy="true"
-     *      cascade="none"
+     *      cascade="save-update"
      * @hibernate.collection-key
      *  column="supertype"
      * @hibernate.collection-many-to-many

@@ -29,83 +29,37 @@ import java.io.*;
  */
 public class DemographicIdentityModel implements  DemographicModel {
     
-    street undefinedStreet;
-    address addressEdited;
-    
-    
-    
-    
-    
     /** Holds value of property identity. */
     private identity identity;
     /** Holds value of property uiModel. */
     private DemographicModel uiModel;
     
+    /** Holds value of property lastAddressString. */
+    private String lastAddressString;
+    
+    /** Holds value of property lastAddress. */
+    private address lastAddress;
+    
+    private street undefinedStreet;
+    
+    private address addressEdited;
+    
+    /** Holds value of property managerReference. */
+    private ManagerReference managerReference;
     
     
-    final static Logger logger;
-    final static ResourceBundle bundle = ResourceBundle.getBundle("SummaryTerms");
+    final static Logger logger = Logger.global;
     
     
-    private  static Method[] socialIdSetters = null;
-    private  static Method[] addrTypeSetter =null;
-    static {
-//        logger = Logger.getLogger("DemographicIdentityModel");
-        logger = Logger.global;
-//        logger.setLevel(logger.global.getLevel());
-        //        logger.addHandler(new ConsoleHandler());
-        try {
-            socialIdSetters = new Method[] { enum_social_id.class.getMethod("setName", new Class[] { String.class}),
-            enum_social_id.class.getMethod("setId", new Class[]{ Integer.class}) };
-            
-            addrTypeSetter = new Method[] {
-                address_type.class.getMethod("setName",  new Class[] { String.class})
-            };
-            logger.fine("CREATED socialIdSetters and AddrTypeSetter");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
+    
     final static DateFormat shortestformat = new SimpleDateFormat("MM/yy");
     
     
-    
-    final static enum_telephone_role home = createOrFindEnumTelephone( bundle.getString("home"));
-    final static  enum_telephone_role work= createOrFindEnumTelephone( bundle.getString("work"));
-    final static enum_telephone_role mobile = createOrFindEnumTelephone( bundle.getString("mobile"));
-    final static enum_telephone_role nok = createOrFindEnumTelephone( bundle.getString("nok"));
-    final static enum_social_id pension = createOrFindEnumSocialId(bundle.getString("pension") , 2);
-    final static enum_social_id medicare =createOrFindEnumSocialId(bundle.getString("medicare"), 1);
-    final static enum_social_id recordNo = createOrFindEnumSocialId(bundle.getString("record_no"), 3);
-    final static address_type homeAddress = createOrFindAddressType(bundle.getString("home"));
-    
-    static Map mapMarital ;
-      static category_type maritalStatus = createOrFindCategoryType( bundle.getString("marital_status") );
-    
-      static category_type ABO = createOrFindCategoryType( bundle.getString("ABO") );
-    
-    
-      static category_type rhesus = createOrFindCategoryType( bundle.getString("rhesus") );
+    final static Pattern addressPattern =
+    Pattern.compile("\\s*(\\d+|\\d+\\w?|\\d+\\W+\\d+)[,|\\s]+([\\w|\\s]+)[,|\\s]+(\\D+)[,|\\s]*(\\d+)?");
     
     
     
-    final static category married = createOrFindCategory( bundle.getString("married"), maritalStatus);
-    final static  category unmarried = createOrFindCategory( bundle.getString("unmarried"), maritalStatus);
-    final static    category divorced = createOrFindCategory( bundle.getString("divorced"), maritalStatus);
-    final static   category widowed = createOrFindCategory( bundle.getString("widowed"), maritalStatus);
-    final static category unknown = createOrFindCategory( bundle.getString("unknown"), maritalStatus);
-    final static category [] maritalList = new category[] { married, unmarried, divorced, widowed };
-    
-    
-    final static category A = createOrFindCategory( bundle.getString("A"), ABO);
-    final static  category B = createOrFindCategory( bundle.getString("B"), ABO);
-    final static    category AB = createOrFindCategory( bundle.getString("AB"), ABO);
-    final static   category O = createOrFindCategory( bundle.getString("O"), ABO);
-    final static category rhPos = createOrFindCategory( bundle.getString("positive"), rhesus);
-    final static category rhNeg = createOrFindCategory( bundle.getString("negative"), rhesus);
-    final static category [] ABOList = new category[] {A, B, AB, O };
-    final static category [] rhesusList = new category[] {rhPos, rhNeg };
     
     /** Holds value of property byteStream. */
     private ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -113,20 +67,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     /** Holds value of property printStream. */
     private PrintStream printStream = new PrintStream(byteStream, true);
     
-    static {
-        
-        try {
-            mapMarital=  createMap(
-            category.class.getMethod("getName", new Class[0]),
-            Arrays.asList(new Object[] {widowed, unmarried, married, divorced })
-            );
-            logger.fine("CREATED mapMarital");
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-            mapMarital.put("married", married);
-            mapMarital.put("unmarried", unmarried);
-        }
-    };
+    
     
     /** Creates a new instance of DemographicIdentityModel */
     public DemographicIdentityModel() {
@@ -140,209 +81,11 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     
     
-    /**
-     * creates a map out of a list of attributes given a getter method for a particular attribute.
-     *  Precondition: objects must be the same class or inherit from the same class as the class from
-     *  which the getter method comes from.
-     */
-    public  static Map createMap( Method keyGetter, List list) {
-        Map map = new HashMap();
-        for (int i = 0; i < list.size(); ++i) {
-            try {
-                map.put( keyGetter.invoke(list.get(0), new Object[0]), list.get(0));
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.info(e.getMessage());
-            }
-        }
-        return map;
-    }
-    
-    /** finds an entity with a particular attribute, or creates it
-     */
-    public static  Object createOrFindEntity( String query,final  Object[] params, Type[] types,
-    Class targetClass, Method[] paramSetters) throws Exception  {
-        Object newObject = null;
-        Session s = null;
-        try {
-            s= HibernateInit.openSession();
-            newObject = s.iterate(query, params, types).next();
-            if (newObject != null) {
-                return newObject;
-            }
-            throw new  Exception("No object found");
-        } catch (Exception e) {
-            try {
-                logger.fine("Unable to find a " + targetClass.getName() + " with specified parameters . CREATING NEW ONE");
-                newObject = targetClass.newInstance();
-                for (int i = 0; i < paramSetters.length; ++i) {
-                    paramSetters[i].invoke(newObject, new Object[] { params[i] } );
-                }
-                s.save(newObject);
-                s.flush();
-                s.connection().commit();
-                logger.fine("SUCCESSFULLY CREATED a " +  targetClass.getName() );
-                return newObject;
-            } catch ( Exception e2) {
-                
-                HibernateInit.closeSession(s);
-                throw e2;
-            }
-        } finally {
-            logger.fine("DISCONNECTING AND CLOSING " + s.toString());
-            //  s.disconnect();
-            HibernateInit.closeSession(s);
-            
-        }
-        //        return newObject;
-    }
     
     
-    static category_type createAndSaveCategoryType  (Session sess, String type) throws Exception {
-        category_type c = new category_type();
-        c.setName(type);
-        sess.save(c);
-        sess.flush();
-        sess.connection().commit();
-        logger.fine("SAVED CATEGORY_TYPE = " + c.getId() + " " +c.getName());
-        return c;
-    }
-    
-    static category_type createOrFindCategoryType( String type) {
-        category_type c = null;
-        Session sess = null;
-        try {
-            sess =  HibernateInit.openSession();
-            List l = sess.find("select ct from category_type ct where ct.name like ?",
-            type,  Hibernate.STRING
-            );
-            
-            if (l.size() == 0 )
-                c = createAndSaveCategoryType(sess,   type);
-            else
-                c = (category_type) l.get(0);
-        } catch (Exception e) {
-            
-            e.printStackTrace();
-            
-        }finally {
-            try {
-                 HibernateInit.closeSession(sess);
-            }
-            catch (Exception e2) {
-                e2.printStackTrace();
-            }
-        }
-        return c;
-    }
-    
-    static category createAndSaveCategory( Session sess, String type, category_type superType )throws Exception {
-        category c = new category();
-        c.setName(type);
-        c.setCategory_type(superType);
-        sess.save(c);
-        sess.flush();
-        
-        sess.connection().commit();
-        return c;
-    }
-    
-    static category createOrFindCategory( String type, category_type superType ) {
-        category c = null;
-        Session sess = null;
-        try {
-            sess =  HibernateInit.openSession();
-            List l = sess.find("select c from category c where c.name like ? and c.category_type.id = ?",
-            new Object[] { type, superType.getId() } ,
-            new Type[] { Hibernate.STRING, Hibernate.LONG }
-            );
-            
-            if (l.size() == 0 )
-                c = createAndSaveCategory(sess,   type, superType);
-            else
-                c = (category) l.get(0);
-        } catch (Exception e) {
-            
-            e.printStackTrace();
-            
-        }finally {
-            try {
-               HibernateInit.closeSession(sess);
-            }
-            catch (Exception e2) {
-                e2.printStackTrace();
-            }
-        }
-        return c;
-    }
-    
-    static address_type createOrFindAddressType( String type) {
-        try {
-        return (address_type) createOrFindEntity(
-        "from a in class address_type where a.name = ? ",
-        new Object[] { type },
-        new Type[] { Hibernate.STRING }  , address_type.class,
-        addrTypeSetter );
-        } catch (Exception e) {
-            address_type a = new address_type();
-            a.setName(type);
-            return a;
-        }
-    }
     
     
-    static enum_social_id createOrFindEnumSocialId( String name, int id) {
-        try {
-            return (enum_social_id) createOrFindEntity(
-            "from e in class org.gnumed.gmIdentity.enum_social_id where e.name = ? and  e.id = ?",
-            new Object[] { name, new Integer(id) },
-            new Type[] { Hibernate.STRING, Hibernate.INTEGER },
-            enum_social_id.class, socialIdSetters
-            
-            );
-        } catch (Exception e ) {
-            e.printStackTrace();
-        }
-        enum_social_id eid = new enum_social_id();
-        eid.setName(name);
-        eid.setId(new Integer(id));
-        return eid;
-    }
     
-    
-    static enum_telephone_role createOrFindEnumTelephone( String name) {
-        try {
-            Method[] setters = new Method[] { enum_telephone_role.class.getMethod("setRole", new Class[] { String.class }) };
-            return (enum_telephone_role) createOrFindEntity("from r in class org.gnumed.gmGIS.enum_telephone_role where r.role=?", new Object[] { name},
-            new Type[] { Hibernate.STRING }, enum_telephone_role.class, setters);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-        //        enum_telephone_role role = null;
-        //        Session s;
-        //        try {
-        //            s=  HibernateInit.openSession();
-        //            role = (enum_telephone_role) s.iterate("from r in class org.gnumed.orgGIS.enum_telephone_role where r.role=?",
-        //            name , Hibernate.STRING).next();
-        //            return role;
-        //        }catch(Exception e) {
-        //            logger.info("Could not find telephone role = " + name);
-        //            role = new enum_telephone_role();
-        //            role.setRole(name);
-        //            try {
-        //                s.save(role);
-        //                s.flush();
-        //                s.connection().commit();
-        //            } catch (Exception e2) {
-        //                e2.printStackTrace();
-        //            }
-        //        }
-        //        finally {
-        //            s.close();
-        //        }
-        //        return role;
-    }
     
     street createStreet(String street,  urb urb) throws Exception {
         Session s=  HibernateInit.openSession();
@@ -416,7 +159,7 @@ public class DemographicIdentityModel implements  DemographicModel {
             
             
             street s = (street) it.next() ;
-             HibernateInit.closeSession(sess);
+            HibernateInit.closeSession(sess);
             if (s == null)
                 return undefinedStreet;
             return s;
@@ -441,11 +184,11 @@ public class DemographicIdentityModel implements  DemographicModel {
         setAddressEdited(a);
     }
     
-    void setTelephone( String telephone, enum_telephone_role role) {
+    public void setTelephone( String telephone, enum_telephone_role role) {
         if (telephone == null || role==null || telephone.trim().equals(""))
             return;
         
-        if ( role.equals(mobile) ) {
+        if ( role.equals(TestGISManager.mobile) ) {
             telephone t = new telephone();
             t.setEnum_telephone_role(role);
             t.setNumber(telephone);
@@ -454,11 +197,11 @@ public class DemographicIdentityModel implements  DemographicModel {
             return;
         }
         // THIS DEPENDS ON AN ADDRESS EXISTING FOR THE PATIENT. MAY NEED DEFAULT ADDRESS.
-      
+        
         /* SETS THE HOME TELEPHONE AT THE HOME ADDRESS. */
-         logger.info(" *** SETTING " + telephone + " for  " + role.getRole() + " telephone");
-         getManagerReference().getGISManager().setTelephoneWithRoleAt(getIdentity(), telephone, role, homeAddress);
-         
+        logger.info(" *** SETTING " + telephone + " for  " + role.getRole() + " telephone");
+        getManagerReference().getGISManager().setTelephoneWithRoleAt(getIdentity(), telephone, role, TestGISManager.homeAddress);
+        
         
         
     }
@@ -475,8 +218,8 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     String formatDate(Date d) {
-             return  shortestformat.format(d);
-       
+        return  shortestformat.format(d);
+        
     }
     
     
@@ -489,18 +232,18 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     social_identity findSocialIdentity( enum_social_id type ) {
-         social_identity sid = null;
+        social_identity sid = null;
         identity id = getIdentity();
         Collection c = id.getSocial_identitys();
         Iterator j = c.iterator();
         logger.fine("THERE WERE " + c.size() + " Social Identities found. Looking for " + type.getId() + " "+type.getName());
         while (j.hasNext()) {
-             sid = (social_identity) j.next();
-             try {
-            logger.finer("LOOKING AT SID "+ sid.getNumber() + sid.getEnum_social_id().getName() ); 
-             } catch (Exception e) {
-              logger.info("UNABLE to print " + sid);   
-             }
+            sid = (social_identity) j.next();
+            try {
+                logger.finer("LOOKING AT SID "+ sid.getNumber() + sid.getEnum_social_id().getName() );
+            } catch (Exception e) {
+                logger.info("UNABLE to print " + sid);
+            }
             logger.fine("checking at sid with type " + sid.getEnum_social_id());
             if (sid.getEnum_social_id().equals(type)) {
                 logger.finer("RETURNING " + sid.getNumber() + sid.getEnum_social_id().getName());
@@ -511,7 +254,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         return sid;
     }
     
-   
+    
     
     void setSocialIdentity( Object val, enum_social_id type, boolean expiry) {
         Iterator i = getIdentity().getSocial_identitys().iterator();
@@ -551,7 +294,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     
     public String getAddress()  {
-        identities_addresses ia = getIdentity().findIdentityAddressByAddressType(homeAddress);
+        identities_addresses ia = getIdentity().findIdentityAddressByAddressType(TestGISManager.homeAddress);
         if (ia != null && ia.getAddress() != null) {
             getByteStream().reset();
             gnmed.test.DomainPrinter.getInstance().printAddress( getPrintStream(),  ia.getAddress(), true);
@@ -581,8 +324,8 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getHomeTelephone() {
-        logger.info("*** LOOKING FOR  Telephone type = " + home.getRole());
-        return getIdentity().findTelephoneByRole(home).getNumber();
+        //        logger.info("*** LOOKING FOR  Telephone type = " + home.getRole());
+        return getTelephone(TestGISManager.home);
     }
     
     public String getLastNames() {
@@ -590,11 +333,11 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getMedicare() {
-        return findSocialIdentity (medicare).getNumber();
+        return findSocialIdentity(IdentityManager.medicare).getNumber();
     }
     
     public String getMedicareExpiry() {
-        return formatDate(findSocialIdentity ( medicare).getExpiry());
+        return formatDate(findSocialIdentity(IdentityManager. medicare).getExpiry());
     }
     
     public String getMobilePhone() {
@@ -604,15 +347,15 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getNokPhone() {
-        return  getIdentity().findTelephoneByRole(nok).getNumber();
+        return  getTelephone(TestGISManager.nok);
     }
     
     public String getPensioner() {
-        return findSocialIdentity( pension).getNumber();
+        return findSocialIdentity( IdentityManager.pension).getNumber();
     }
     
     public String getPensionerExpiry() {
-        return  formatDate(findSocialIdentity (pension).getExpiry());
+        return  formatDate(findSocialIdentity(IdentityManager.pension).getExpiry());
         
     }
     
@@ -621,7 +364,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getRecordNo() {
-        return findSocialIdentity(recordNo).getNumber();
+        return findSocialIdentity(IdentityManager.recordNo).getNumber();
     }
     
     public String getSex() {
@@ -629,20 +372,18 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getWorkTelephone() {
-        return  getIdentity().findTelephoneByRole(work).getNumber();
+        return  getTelephone(TestGISManager.work);
     }
     
-    final static Pattern addressPattern =
-    Pattern.compile("\\s*(\\d+|\\d+\\w?|\\d+\\W+\\d+)[,|\\s]+([\\w|\\s]+)[,|\\s]+(\\D+)[,|\\s]*(\\d+)?");
     
-    /** Holds value of property lastAddressString. */
-    private String lastAddressString;
-    
-    /** Holds value of property lastAddress. */
-    private address lastAddress;
-    
-    /** Holds value of property managerReference. */
-    private ManagerReference managerReference;
+    public String getTelephone( enum_telephone_role role) {
+        try {
+            return  getIdentity().findTelephoneByRole(role).getNumber();
+        } catch (Exception e) {
+            logger.fine(e.toString());
+        }
+        return "";
+    }
     
     String[] getTwoParts( String s) {
         String[] parts = s.split("[,|\\s]+");
@@ -719,7 +460,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     address getAddressWithNumber( String number) {
-        address a = findIdentityAddress( homeAddress);
+        address a = findIdentityAddress( TestGISManager.homeAddress);
         if (a == null)
             a = new address();
         a.setNumber(number);
@@ -759,7 +500,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         address a = getAddressWithNumber(number);
         a.setStreet(street);
         //        getIdentity().setIdentityAddress(homeAddress, a);
-        getManagerReference().getGISManager().updateAddress(getIdentity(), homeAddress, a);
+        getManagerReference().getGISManager().updateAddress(getIdentity(), TestGISManager.homeAddress, a);
         //    getUiModel().setAddress(getAddress());
     }
     
@@ -823,7 +564,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     public void setHomeTelephone(String homeTelephone) {
         logger.fine("***  ");
-        setTelephone(homeTelephone, home);
+        setTelephone(homeTelephone, TestGISManager.home);
     }
     
     public void setLastNames(String lastNames) {
@@ -831,39 +572,39 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public void setMedicare(String _medicare) {
-        setSocialIdentity(_medicare, medicare, false);
+        setSocialIdentity(_medicare, IdentityManager.medicare, false);
     }
     
     public void setMedicareExpiry(String medicareExpiry) {
-        setSocialIdentity( medicareExpiry, medicare,  true);
+        setSocialIdentity( medicareExpiry, IdentityManager.medicare,  true);
     }
     
     public void setMobilePhone(String mobilePhone) {
-        setTelephone(mobilePhone, mobile);
+        setTelephone(mobilePhone, TestGISManager.mobile);
     }
     
     public void setNokPhone(String nokPhone) {
         
-        setTelephone(nokPhone, nok);
+        setTelephone(nokPhone, TestGISManager.nok);
     }
     
     public void setPensioner(String pensioner) {
-        setSocialIdentity( pensioner, pension, false);
+        setSocialIdentity( pensioner, IdentityManager.pension, false);
     }
     
     public void setPensionerExpiry(String pensionerExpiry) {
-        setSocialIdentity(pensionerExpiry, pension, true);
+        setSocialIdentity(pensionerExpiry, IdentityManager.pension, true);
     }
     
     public void setPostcode(String postcode) {
     }
     
     public void setRecordNo(String recordNoStr) {
-        setSocialIdentity(recordNoStr, recordNo, false);
+        setSocialIdentity(recordNoStr,IdentityManager. recordNo, false);
     }
     
     public void setSex(String sex) {
-        if (sex.equals(bundle.getString("male"))) {
+        if (sex.equals(Globals.bundle.getString("male"))) {
             identity.setKaryotype("XY");
             return;
         }
@@ -871,7 +612,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public void setWorkTelephone(String workTelephone) {
-        setTelephone(workTelephone, work);
+        setTelephone(workTelephone, TestGISManager.work);
     }
     
     /** Getter for property addressEdited.
@@ -911,7 +652,7 @@ public class DemographicIdentityModel implements  DemographicModel {
      *
      */
     public Object[] getMaritalList() {
-        return maritalList;
+        return IdentityManager.maritalList;
     }
     
     /** Getter for property byteStream.
@@ -978,7 +719,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     
     public Object getMaritalStatus() {
-        return findAttribute( maritalStatus);
+        return findAttribute( IdentityManager.maritalStatus);
         
     }
     
@@ -988,7 +729,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     
     public Object getAbo() {
-        return findAttribute(ABO);
+        return findAttribute(IdentityManager.ABO);
     }
     
     public void setAbo(Object abo) {
@@ -996,7 +737,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public Object getRhesus() {
-        return findAttribute(rhesus);
+        return findAttribute(IdentityManager.rhesus);
     }
     
     public void setRhesus(Object rh) {
@@ -1004,13 +745,13 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public Object[] getABOList() {
-        return ABOList;
+        return IdentityManager.ABOList;
     }
     
     
     
     public Object[] getRhesusList() {
-        return rhesusList;
+        return IdentityManager.rhesusList;
     }
     
     
@@ -1040,7 +781,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     Object findAttribute( category_type type) {
         category_attribute a = getIdentity().findCategoryAttribute(type);
         if ( a == null)
-            return bundle.getString("unknown");
+            return Globals.bundle.getString("unknown");
         return a.getCategory();
     }
     
@@ -1049,7 +790,7 @@ public class DemographicIdentityModel implements  DemographicModel {
      *
      */
     public ManagerReference getManagerReference() {
-      return (ManagerReference) getIdentity().getPersister();
+        return (ManagerReference) getIdentity().getPersister();
     }
     
     
