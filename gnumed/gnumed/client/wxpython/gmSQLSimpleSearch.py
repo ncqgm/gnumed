@@ -1,3 +1,23 @@
+#!/usr/bin/python
+#############################################################################
+#
+# gmSQLSimpleSearch - a widget for simple database search & selection interaction
+# ---------------------------------------------------------------------------
+#
+# @author: Dr. Horst Herb
+# @copyright: author
+# @license: GPL (details at http://www.gnu.org)
+# @dependencies: gmPG, gmLoginInfo
+# @change log:
+#	06.10.2001 hherb first draft, untested
+#
+# @TODO: testing & writing the module test function
+#	 a context menu (right click) for most common actions (like delete row)
+############################################################################
+
+""" gmSQLSimpleSearch - a widget for simple database search & selection interaction"""
+
+
 from wxPython.wx import *
 import gmSQLListControl
 import gettext
@@ -11,13 +31,14 @@ ID_LISTCTRL = wxNewId()
 
 
 class SQLSimpleSearch(wxPanel):
+	""" gmSQLSimpleSearch - a widget for simple database search & selection interaction"""
 
 	def __init__(self, parent, id,
 		pos = wxPyDefaultPosition, size = wxPyDefaultSize,
 		style = wxTAB_TRAVERSAL, service = 'default' ):
 
 		#the backend service to connect to
-		self.__service=service
+		self.SetService(service)
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
 
@@ -63,6 +84,7 @@ class SQLSimpleSearch(wxPanel):
 
 
 	def SetService(self, service):
+		"determine the database service the query will run on"
 		self.__service = service
 
 	def TransferDataToWindow(self):
