@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.82 $
+-- $Revision: 1.83 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -10,11 +10,33 @@
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
+create table xlnk_identity (
+	pk serial primary key,
+	xfk_identity integer unique not null,
+	pupic text unique not null,
+	data text unique default null
+) inherits (audit_fields);
+
+select add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'id');
+select add_table_for_audit('xlnk_identity');
+
+comment on table xlnk_identity is
+	'this is the one table with the unresolved identity(id)
+	 foreign key, all other tables in this service link to
+	 this table, depending upon circumstances one can add
+	 dblink() verification or a true FK constraint (if "personalia"
+	 is in the same database as "historica")';
+
+-- ===================================================================
 -- generic EMR structure
 -- -------------------------------------------------------------------
 create table clin_health_issue (
 	id serial primary key,
-	id_patient integer not null,
+	id_patient integer
+		not null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete restrict,
 	description varchar(128) default 'xxxDEFAULTxxx',
 	unique (id_patient, description)
 ) inherits (audit_fields);
@@ -741,6 +763,7 @@ GRANT SELECT ON
 	, vacc_regime
 	, lnk_vacc2vacc_def
 	, clin_history_editarea
+	, xlnk_identity
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -786,15 +809,21 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, lnk_vacc2vacc_def_pk_seq
 	, "clin_history_editarea"
 	, "clin_history_editarea_id_seq"
+	, xlnk_identity
+	, xlnk_identity_pk_seq
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.82 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.83 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.82  2004-01-12 13:16:22  ncq
+-- Revision 1.83  2004-01-15 14:26:25  ncq
+-- - add xlnk_identity: this is the only place with an unresolved remote foreign key
+-- - make other tables point to this table
+--
+-- Revision 1.82  2004/01/12 13:16:22  ncq
 -- - make vaccine unique on short/long name not short name alone
 --
 -- Revision 1.81  2004/01/10 01:43:34  ncq
