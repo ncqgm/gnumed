@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -625,10 +625,12 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	# is it a cursor ?
 	if hasattr(link_obj, 'fetchone') and hasattr(link_obj, 'description'):
 		curs = link_obj
+		conn = None
 	# is it a connection ?
 	elif (hasattr(link_obj, 'commit') and hasattr(link_obj, 'cursor')):
 		curs = link_obj.cursor()
 		close_cursor = 1
+		conn = link_obj
 	# take it to be a service name then
 	else:
 		pool = ConnectionPool()
@@ -676,7 +678,8 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	# clean up
 	if close_cursor:
 		curs.close()
-	conn.commit()
+	if conn:
+		conn.commit()
 	if close_conn:
 		conn.close()
 	# FIXME:
@@ -1092,7 +1095,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-03-03 05:24:01  ihaywood
+# patient photograph support
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.92  2004/02/18 13:43:33  ncq

@@ -36,11 +36,12 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.16 2004-02-25 09:46:20 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmMedDoc.py,v 1.17 2004-03-03 05:24:01 ihaywood Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path
+from cStringIO import StringIO
 
 if __name__ == '__main__':
 	sys.path.append(os.path.join('..', 'pycommon'))
@@ -131,6 +132,33 @@ class gmMedObj:
 		fname = tempfile.mktemp()
 		aFile = open(fname, 'wb+')
 
+		if self.__export (aFile, aChunkSize):
+			aFile.close ()
+			return fname
+		else:
+			aFile.close ()
+			return None
+
+	def export_to_string (self, aChunkSize = 0):
+		"""
+		Returns the document as a Python string
+		WARNING: better have enough RAM for whatever it is!!!!
+		"""
+		aFile = StringIO ()
+		if self.__export (aFile, aChunkSize):
+			r = aFile.getvalue ()
+			aFile.close ()
+			return r
+		else:
+			aFile.close ()
+			return None
+	
+
+	def __export (self, aFile, aChunkSize = 0):
+		"""
+		Internal helper, grabs data and writes it to
+		the Python file object provided
+		"""
 		# Windoze sucks: it can't transfer objects of arbitrary size,
 		# or maybe this is due to pyPgSQL ?
 		# anyways, we need to split the transfer,
@@ -154,10 +182,12 @@ class gmMedObj:
 			if len(data) == 0:
 				_log.Log(gmLog.lErr, 'BLOB [%s] does not exist' % self.ID)
 				return None
+			if data[0][0] is None:
+				_log.Log (gmLog.lErr, 'BLOB [%s] is NULL' % self.ID)
+				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
 			aFile.write(str(data[0][0]))
-			aFile.close()
-			return fname
+			return 1
 
 		# retrieve chunks
 		needed_chunks, remainder = divmod(self.metadata['size'], max_chunk_size)
@@ -184,9 +214,7 @@ class gmMedObj:
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
 			aFile.write(str(data[0][0]))
-
-		aFile.close()
-		return fname
+		return 1
 	#--------------------------------------------------------
 	# store data
 	#--------------------------------------------------------
@@ -271,14 +299,14 @@ class gmMedObj:
 #============================================================
 class gmMedDoc:
 
-	def __init__(self, aPKey):
+	def __init__(self, aPKey, presume_exists =0):
 		"""Fails if
 
 		- no connection to database possible
 		- document referenced by aPKey does not exist.
 		"""
 		self.ID = aPKey			# == doc_med.id == primary key
-		if not self.__pkey_exists():
+		if not presume_exists and not self.__pkey_exists():
 			raise gmExceptions.ConstructorError, "No document with ID [%s] in database." % aPKey
 
 		self.metadata = {}
@@ -367,7 +395,7 @@ WHERE
 		except KeyError: pass
 		try:
 			self.metadata['type ID'] = data['type ID']
-			sets.append('type=%(type id)s')
+			sets.append('type=%(type ID)s')
 		except KeyError: pass
 		try:
 			self.metadata['comment'] = data['comment']
@@ -383,7 +411,7 @@ WHERE
 		except KeyError: pass
 
 		set_clause = ', '.join(sets)
-		cmd =  "UPDATE doc_med SET %s WHERE id=%(obj id)s" % set_clause
+		cmd =  "UPDATE doc_med SET %s WHERE id=%%(obj id)s" % set_clause
 
 		data['obj id'] = self.ID
 		result =  gmPG.run_commit('blobs', [
@@ -418,6 +446,33 @@ def create_document(patient_id=None):
 	doc = gmMedDoc(aPKey = doc_id)
 	return doc
 #============================================================
+def search_for_document (patient_id, type_id=None):
+	"""
+	Searches for documents with the given patient and type ID
+	No type ID returns all documents for the patient
+	"""
+	if type_id is None:
+		cmd = "SELECT id from doc_med WHERE patient_id=%s"
+		tmp = gmPG.run_ro_query('blobs', cmd, None, patient_id)
+	else:
+		cmd = "SELECT id from doc_med WHERE patient_id=%s and type=%s"
+		tmp = gmPG.run_ro_query ('blobs', cmd, None, patient_id, type_id)
+		
+	if tmp is None:
+		return []
+	docs = []
+	for doc_id in tmp:
+		if doc_id is not None:
+			docs.append(gmMedDoc (doc_id, presume_exists=1)) # suppress pointless checking of primary key
+	if len(docs) == 0:
+		_log.Log(gmLog.lInfo, "No documents found for person (ID [%s])." % patient_id)
+		return []
+	return docs
+
+# define some document types that are programmatically useful
+MUGSHOT=26
+
+#============================================================
 def create_object(doc_id):
 	"""
 	None - failed
@@ -427,6 +482,8 @@ def create_object(doc_id):
 	if doc_id is None:
 		_log.Log(gmLog.lErr, 'need document id to create object')
 		return None
+	if isinstance (doc_id, gmMedDoc):
+		doc_id = doc_id.ID
 	# insert document
 	cmd1 = "INSERT INTO doc_obj (doc_id) VALUES (%s)"
 	cmd2 = "select currval('doc_obj_id_seq')"
@@ -439,11 +496,14 @@ def create_object(doc_id):
 		return None
 	obj_id = result[0][0]
 	# and init new document object
-	obj = gmMedDoc(aPKey = obj_id)
+	obj = gmMedObj(aPKey = obj_id)
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.16  2004-02-25 09:46:20  ncq
+# Revision 1.17  2004-03-03 05:24:01  ihaywood
+# patient photograph support
+#
+# Revision 1.16  2004/02/25 09:46:20  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.15  2004/01/26 18:19:55  ncq

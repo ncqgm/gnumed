@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.24 2004-03-02 10:21:09 ihaywood Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmDemographicRecord.py,v 1.25 2004-03-03 05:24:01 ihaywood Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -24,7 +24,7 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N, gmMatchProvider, gmPatient
+import gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N, gmMatchProvider, gmPatient, gmMedDoc
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -50,6 +50,12 @@ class gmDemographicRecord:
 		raise gmExceptions.PureVirtualFunction ()
 
 	def getDOB(self):
+		raise gmExceptions.PureVirtualFunction ()
+
+	def getCOB ():
+		raise gmExceptions.PureVirtualFunction ()
+
+	def setCOB (self, cob):
 		raise gmExceptions.PureVirtualFunction ()
 
 	def getID(self):
@@ -776,7 +782,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.24  2004-03-02 10:21:09  ihaywood
+# Revision 1.25  2004-03-03 05:24:01  ihaywood
+# patient photograph support
+#
+# Revision 1.24  2004/03/02 10:21:09  ihaywood
 # gmDemographics now supports comm channels, occupation,
 # country of birth and martial status
 #

@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.12 2004-03-02 23:57:59 ihaywood Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmDemographics.py,v 1.13 2004-03-03 05:24:01 ihaywood Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -28,9 +28,9 @@ from mx import DateTime
 import gmPlugin
 import gmGuiBroker
 import gmPatientNameQuery
-import gmLog, gmDispatcher, gmSignals, gmI18N
+import gmLog, gmDispatcher, gmSignals, gmI18N, gmMedDoc
 from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
-import cPickle, zlib
+import cPickle, zlib, shutil
 from string import *
 import gmGP_PatientPicture
 
@@ -202,7 +202,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		#--------------------
 		self.btn_photo_import= wxButton(self,-1,"Import")
 		self.btn_photo_export = wxButton(self,-1,"Export")
-		self.btn_photo_aquire = wxButton(self,-1,"Acquire")
+		#self.btn_photo_acquire = wxButton(self,-1,"Acquire")
 
 		
 		#-------------------------------------------------------
@@ -361,7 +361,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.sizer_photo = wxBoxSizer(wxVERTICAL)
 		self.patientpicture = gmGP_PatientPicture.cPatientPicture(self, -1)
 		self.sizer_photo.Add(self.patientpicture,3,wxALIGN_CENTER_HORIZONTAL,0)
-		self.sizer_photo.Add(self.btn_photo_aquire,1,wxALIGN_CENTER_HORIZONTAL,0)
+		#self.sizer_photo.Add(self.btn_photo_acquire,1,wxALIGN_CENTER_HORIZONTAL,0)
 		self.sizer_photo.Add(self.btn_photo_export,1,wxALIGN_CENTER_HORIZONTAL,0)
 		self.sizer_photo.Add(self.btn_photo_import,1,wxALIGN_CENTER_HORIZONTAL,0)
 		self.sizer_contactsandphoto  = wxBoxSizer(wxHORIZONTAL)
@@ -416,7 +416,10 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		EVT_BUTTON(self.btn_new, self.btn_new.GetId (), self._new_button_pressed)
 
 		l = self.addresslist
-		EVT_LISTBOX_DCLICK(l, l.GetId(), self._address_selected) 
+		EVT_LISTBOX_DCLICK(l, l.GetId(), self._address_selected)
+
+		EVT_BUTTON(self.btn_photo_import, self.btn_photo_import.GetId (), self._photo_import)
+		EVT_BUTTON(self.btn_photo_export, self.btn_photo_export.GetId (), self._photo_export)
 
 	def __urb_selected(self, id):
 		myPatient = self.patient.get_demographic_record()
@@ -448,6 +451,27 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 			self._save_data()
 		except:
 			_log.LogException ('failed on save data', sys.exc_info (), verbose=0)
+
+	def _photo_import (self, event):
+		try:
+			dialogue = wxFileDialog (self, style=wxOPEN | wxFILE_MUST_EXIST, wildcard = "*.bmp|*.png|*.jpg|*.jpeg|*.pnm|*.xpm")
+			if dialogue.ShowModal () == wxID_OK:
+				photo = dialogue.GetPath ()
+				self.patientpicture.setPhoto (photo)
+				doc = gmMedDoc.create_document (self.patient.get_ID ())
+				doc.update_metadata({'type ID':gmMedDoc.MUGSHOT})
+				obj = gmMedDoc.create_object (doc)
+				obj.update_data_from_file (photo)
+		except:
+			_log.LogException ('failed to import photo', sys.exc_info (), verbose= 0)
+
+	def _photo_export (self, event):
+		try:
+			dialogue = wxFileDialog (self, style=wxSAVE)
+			if dialogue.ShowModal () == wxID_OK:
+				shutil.copyfile (self.patientpicture.getPhoto (), dialogue.GetPath ())
+		except:
+			_log.LogException ('failed to export photo', sys.exc_info (), verbose= 0)
 
 	def setNewPatient(self, isNew):
 		self._newPatient = isNew
@@ -709,7 +733,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.12  2004-03-02 23:57:59  ihaywood
+# Revision 1.13  2004-03-03 05:24:01  ihaywood
+# patient photograph support
+#
+# Revision 1.12  2004/03/02 23:57:59  ihaywood
 # Support for full range of backend genders
 #
 # Revision 1.11  2004/03/02 10:21:10  ihaywood

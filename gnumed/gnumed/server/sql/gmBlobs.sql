@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.38 $ $Date: 2004-01-05 00:58:27 $ $Author: ncq $
+-- $Revision: 1.39 $ $Date: 2004-03-03 05:24:01 $ $Author: ihaywood $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -33,7 +33,7 @@ CREATE TABLE "doc_med" (
 	"patient_id" integer references identity not null,
 	"type" integer references doc_type(id),
 	comment text,
-	"date" timestamp with time zone default CURRENT_DATE,
+	"date" timestamp with time zone default CURRENT_TIMESTAMP,
 	ext_ref text
 );
 
@@ -96,7 +96,7 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.38 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.39 $');
 
 -- =============================================
 -- questions:
@@ -114,7 +114,10 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.38  2004-01-05 00:58:27  ncq
+-- Revision 1.39  2004-03-03 05:24:01  ihaywood
+-- patient photograph support
+--
+-- Revision 1.38  2004/01/05 00:58:27  ncq
 -- - remove excessive quoting
 --
 -- Revision 1.37  2004/01/05 00:31:01  ncq
