@@ -21,7 +21,7 @@
 gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -33,9 +33,11 @@ if __name__ == "__main__":
 	"""Launch the gnumed wx GUI client."""
 	appPath = os.path.split(os.path.abspath(sys.argv[0]))[0]
 
+#<DEBUG>
 	# console is Good(tm)
-	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
-	gmLog.gmDefLog.AddTarget(aLogTarget)
+#	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
+#	gmLog.gmDefLog.AddTarget(aLogTarget)
+#</DEBUG>
 
 #<DEBUG>
 #	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module.')
