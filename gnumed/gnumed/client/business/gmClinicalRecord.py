@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.127 2004-06-30 20:33:40 ncq Exp $
-__version__ = "$Revision: 1.127 $"
+# $Id: gmClinicalRecord.py,v 1.128 2004-07-02 00:20:54 ncq Exp $
+__version__ = "$Revision: 1.128 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -241,7 +241,7 @@ class cClinicalRecord:
 			'modified_by',
 			'clin_when',
 			"case is_modified when false then '%s' else '%s' end as modified_string" % (_('original entry'), _('modified entry')),
-			'id_item',
+			'pk_item',
 			'pk_encounter',
 			'pk_episode',
 			'pk_health_issue',
@@ -261,10 +261,10 @@ class cClinicalRecord:
 		items_by_table = {}
 		for item in rows:
 			src_table = item[view_col_idx['src_table']]
-			id_item = item[view_col_idx['id_item']]
+			pk_item = item[view_col_idx['pk_item']]
 			if not items_by_table.has_key(src_table):
 				items_by_table[src_table] = {}
-			items_by_table[src_table][id_item] = item
+			items_by_table[src_table][pk_item] = item
 
 		# get mapping for issue/episode IDs
 		issues = self.get_health_issues()
@@ -371,7 +371,7 @@ class cClinicalRecord:
 			'modified_by',
 			'clin_when',
 			"case is_modified when false then '%s' else '%s' end as modified_string" % (_('original entry'), _('modified entry')),
-			'id_item',
+			'pk_item',
 			'pk_encounter',
 			'pk_episode',
 			'pk_health_issue',
@@ -429,10 +429,10 @@ class cClinicalRecord:
 		items_by_table = {}
 		for item in rows:
 			src_table = item[view_col_idx['src_table']]
-			id_item = item[view_col_idx['id_item']]
+			pk_item = item[view_col_idx['pk_item']]
 			if not items_by_table.has_key(src_table):
 				items_by_table[src_table] = {}
-			items_by_table[src_table][id_item] = item
+			items_by_table[src_table][pk_item] = item
 
 		# get mapping for issue/episode IDs
 		issues = self.get_health_issues()
@@ -1318,7 +1318,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.127  2004-06-30 20:33:40  ncq
+# Revision 1.128  2004-07-02 00:20:54  ncq
+# - v_patient_items.id_item -> pk_item
+#
+# Revision 1.127  2004/06/30 20:33:40  ncq
 # - add_clinical_note() -> add_clin_narrative()
 #
 # Revision 1.126  2004/06/30 15:31:22  shilbert

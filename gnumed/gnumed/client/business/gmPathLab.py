@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.34 2004-06-28 15:14:50 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmPathLab.py,v 1.35 2004-07-02 00:20:54 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -190,7 +190,7 @@ class cLabRequest(gmClinItem.cClinItem):
 			select vpi.id_patient, vbp.title, vbp.firstnames, vbp.lastnames, vbp.dob
 			from v_patient_items vpi, v_basic_person vbp
 			where
-				vpi.id_item=%s
+				vpi.pk_item=%s
 					and
 				vbp.i_id=vpi.id_patient"""
 		pat = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_item']])
@@ -303,7 +303,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.34 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.35 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -386,7 +386,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.34 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.35 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -625,7 +625,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.34  2004-06-28 15:14:50  ncq
+# Revision 1.35  2004-07-02 00:20:54  ncq
+# - v_patient_items.id_item -> pk_item
+#
+# Revision 1.34  2004/06/28 15:14:50  ncq
 # - use v_lab_requests
 #
 # Revision 1.33  2004/06/28 12:18:52  ncq
