@@ -13,15 +13,19 @@ It features combo boxes which "remember" any number of previously entered settin
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.41 2003-11-17 10:56:38 sjtan Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmLoginDialog.py,v 1.42 2003-12-29 16:58:52 uid66147 Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib,types
+
 from wxPython.wx import *
-import gmLoginInfo, gmGuiMain, gmGuiBroker, gmCfg, gmLog
-_cfg = gmCfg.gmDefCfgFile
+
+import gmLoginInfo, gmGuiMain, gmGuiBroker, gmCfg, gmLog, gmWhoAmI
 _log = gmLog.gmDefLog
+_log.Log(gmLog.lData, __version__)
+_cfg = gmCfg.gmDefCfgFile
+_whoami = gmWhoAmI.cWhoAmI()
 
 #====================================================
 class cLoginParamChoices:
@@ -82,15 +86,7 @@ class LoginPanel(wxPanel):
 		except:
 			self.topsizer.Add(wxStaticText (self, -1, _("Cannot find image") + bitmap, style=wxALIGN_CENTRE), 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
 
-		tmp = _cfg.get('workplace', 'name')
-		if tmp is None:
-			print _('You should name this workplace to better identify the machine !\nTo do this set the option "name" in the group [workplace] in the config file !')
-			tmp = _("<no workplace name set in config file>")
-			self.gb['workplace_name'] = '__default__'
-		else:
-			self.gb['workplace_name'] = tmp
-
-		paramsbox_caption = _("Login - %s" % tmp)
+		paramsbox_caption = _("Login - %s" % _whoami.get_workplace())
 		#why doesn't this align in the centre ?
 		self.paramsbox = wxStaticBox( self, -1, paramsbox_caption, style=wxALIGN_CENTRE_HORIZONTAL)
 		self.paramsboxsizer = wxStaticBoxSizer( self.paramsbox, wxVERTICAL )
@@ -569,7 +565,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.41  2003-11-17 10:56:38  sjtan
+# Revision 1.42  2003-12-29 16:58:52  uid66147
+# - use whoami
+#
+# Revision 1.41  2003/11/17 10:56:38  sjtan
 #
 # synced and commiting.
 #
