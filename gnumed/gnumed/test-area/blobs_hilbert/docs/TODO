@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -9,18 +9,6 @@ immediately
 Conf/Doc
 --------
 - useable docs
-
-viewer
-------
- internationalize
- > Windoof-Test mit Win-Standard-Programm und Irfanview
- > sort objects by sequence index
- move view() to docDocument viewer code
-
-import
-------
- > handle date as date not string
- > fixup
 
 scan
 ----
@@ -32,8 +20,18 @@ scan
 
 index
 -----
+- internationalize on Windows
+
+import
+------
+- handle date as date not string
+- doc_type_usr/_sys
+- fixup
+
+viewer
+------
  internationalize on Windows
- delete page
+ > sort objects by sequence index
  move view() to docDocument viewer code
 
 =====================================================
@@ -48,6 +46,7 @@ index
 - reload phrase wheel after completing a dir
 - quit button
 - Funktion Seiten umsortieren fertigstellen
+- wxDateEntry() mit ordentlichem Validator
 
 import
 ------
@@ -71,6 +70,7 @@ scan
  > Scan-Parametern verknüpft
 - Paginiernummer aufdrucken
 - Barcode aufdrucken: Name/dob/Paginiernummer
+- ADF
 
 viewer
 ------
