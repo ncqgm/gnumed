@@ -126,6 +126,9 @@ class LoginPanel(wxPanel):
 		if tmp == None:
 			print _('You should name this workplace to better identify the machine !\nTo do this set the option "name" in the group [workplace] in the config file !')
 			tmp = _("<no workplace name set in config file>")
+			self.gb['workplace_name'] = 'unknown workplace'
+		else:
+			self.gb['workplace_name'] = tmp
 
 		paramsbox_caption = _("Login - %s" % tmp)
 		self.paramsbox = wxStaticBox( self, -1, paramsbox_caption, style=wxALIGN_CENTRE_HORIZONTAL)
@@ -577,7 +580,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.23  2002-09-09 01:05:16  ncq
+# Revision 1.24  2002-09-10 08:54:35  ncq
+# - remember workplace name once loaded
+#
+# Revision 1.23  2002/09/09 01:05:16  ncq
 # - fixed i18n glitch
 # - added note that _("") is invalid !!
 #
