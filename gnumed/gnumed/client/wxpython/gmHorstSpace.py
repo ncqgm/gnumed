@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.2 2004-08-18 08:17:40 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmHorstSpace.py,v 1.3 2004-09-13 08:53:02 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -227,7 +227,7 @@ class cHorstSpaceLayoutMgr(wx.wxPanel):
 				plugin = None
 				continue
 			# already loaded ?
-			if plugin.__class__.__name__ in self.guibroker['horstspace.plugins'].keys():
+			if plugin.__class__.__name__ in self.guibroker['horstspace.notebook.gui'].keys():
 				plugin = None
 				continue
 			# add to load menu
@@ -270,7 +270,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.2  2004-08-18 08:17:40  ncq
+# Revision 1.3  2004-09-13 08:53:02  ncq
+# - gmMacroPrimitives.raise_notebook_plugin() didn't work since
+#   cHorstSpaceLayoutMgr used guibroker['horstspace.plugins'] rather
+#   than 'horstspace.notebook.gui'
+#
+# Revision 1.2  2004/08/18 08:17:40  ncq
 # - wxMac workaround for missing wxIcon.LoadFile()
 #
 # Revision 1.1  2004/08/08 23:54:37  ncq
