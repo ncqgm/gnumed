@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.34 $
+-- $Revision: 1.35 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -68,8 +68,11 @@ insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
 delete from clin_health_issue where
 	id_patient = currval('identity_id_seq');
 
-insert into clin_health_issue (id_patient)
-values (currval('identity_id_seq'));
+insert into clin_health_issue (id_patient, description)
+values (
+	currval('identity_id_seq'),
+	'9/2000 extraterrestrial infection'
+);
 
 -- episode "knife cut"
 delete from clin_episode where pk in (
@@ -605,11 +608,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.34 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.35 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.34  2004-09-17 20:18:10  ncq
+-- Revision 1.35  2004-09-17 20:32:27  ncq
+-- - IF there is a health issue it MUST have a label, there is no default
+--
+-- Revision 1.34  2004/09/17 20:18:10  ncq
 -- - clin_episode_id_seq -> *_pk_seq
 --
 -- Revision 1.33  2004/09/02 00:43:20  ncq
