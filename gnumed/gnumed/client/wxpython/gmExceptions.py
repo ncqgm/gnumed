@@ -19,10 +19,20 @@ class ConnectionError(Exception):
     #raised whenever the database backend connection fails
     def __init__(self, errmsg):
 	self.errmsg=errmsg
-	
+
     def __str__(self):
 	return errmsg
-    
+
+	
+
+class NoGuiError(Exception):
+    #raised whenever the database backend connection fails
+    def __init__(self, errmsg):
+	self.errmsg=errmsg
+
+    def __str__(self):
+	return errmsg
+
 
 
 
