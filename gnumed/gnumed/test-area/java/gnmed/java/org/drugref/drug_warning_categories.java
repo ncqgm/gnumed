@@ -10,6 +10,7 @@ import java.util.*;
  * <p>
  * 
  * </p>
+ *@hibernate.class
  */
 public class drug_warning_categories {
 
@@ -48,6 +49,8 @@ public class drug_warning_categories {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.id
+ *  generator-class="assigned"
  */
     public Integer getId() {        
         return id;
@@ -66,6 +69,7 @@ public class drug_warning_categories {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public String getDescription() {        
         return description;
@@ -84,6 +88,7 @@ public class drug_warning_categories {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public String getComment() {        
         return comment;

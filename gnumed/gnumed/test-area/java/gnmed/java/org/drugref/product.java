@@ -1,3 +1,4 @@
+
 /** Java class "product.java" generated from Poseidon for UML.
  *  Poseidon for UML is developed by <A HREF="http://www.gentleware.com">Gentleware</A>.
  *  Generated with <A HREF="http://jakarta.apache.org/velocity/">velocity</A> template engine.
@@ -11,6 +12,8 @@ import org.gnumed.gmClinical.script_drug;
  * <p>
  * 
  * </p>
+ *@hibernate.class
+ *  mutable="false"
  */
 public class product {
 
@@ -77,12 +80,6 @@ public class product {
  * 
  * </p>
  */
-    public link_product_component link_product_component; 
-/**
- * <p>
- * 
- * </p>
- */
     public Collection drug_flags = new java.util.HashSet(); // of type drug_flags
 /**
  * <p>
@@ -95,18 +92,33 @@ public class product {
  * 
  * </p>
  */
+    public Collection link_product_manufacturer = new java.util.HashSet(); // of type link_product_manufacturer
+/**
+ * <p>
+ * 
+ * </p>
+ */
     public Collection subsidized_products = new java.util.HashSet(); // of type subsidized_products
 /**
  * <p>
  * 
  * </p>
  */
-    public script_drug script_drug; 
+    public Collection script_drug = new java.util.HashSet();
+    
+    /** Holds value of property audit_id. */
+    private Integer audit_id;
+    
+ // of type script_drug
 
 
    ///////////////////////////////////////
    // access methods for associations
 
+    /**
+     *@hibernate.many-to-one
+     *  column="id_drug"
+     */
     public drug_element getDrug_element() {
         return drug_element;
     }
@@ -117,6 +129,11 @@ public class product {
             if (_drug_element != null) _drug_element.addProduct(this);
         }
     }
+    
+    /**
+     *@hibernate.many-to-one
+     *  column="id_formulation"
+     */
     public drug_formulations getDrug_formulations() {
         return drug_formulations;
     }
@@ -127,21 +144,48 @@ public class product {
             if (_drug_formulations != null) _drug_formulations.addProduct(this);
         }
     }
+    
+    /**
+     *  @hibernate.many-to-one
+     *      column="id_packing_unit"
+     */
     public drug_units getDrug_units() {
         return drug_units;
     }
     public void setDrug_units(drug_units _drug_units) {
         this.drug_units = _drug_units;
     }
+    
+    /**
+     * @hibernate.many-to-one
+     *     column="id_route"
+     */
     public drug_routes getDrug_routes() {
         return drug_routes;
     }
     public void setDrug_routes(drug_routes _drug_routes) {
         this.drug_routes = _drug_routes;
     }
+    
+    /**
+     *@hibernate.set
+     *  
+     *@hibernate.collection-key
+     *  column="id_product"
+     *@hibernate.collection-one-to-many
+     *  class="org.drugref.package_size"
+     */
     public Collection getPackage_sizes() {
         return package_size;
     }
+      /** Setter for property package_sizes.
+     * @param package_sizes New value of property package_sizes.
+     *
+     */
+    public void setPackage_sizes(Collection package_sizes) {
+        package_size = package_sizes;
+    }
+    
     public void addPackage_size(package_size _package_size) {
         if (! this.package_size.contains(_package_size)) {
             this.package_size.add(_package_size);
@@ -151,16 +195,6 @@ public class product {
     public void removePackage_size(package_size _package_size) {
         boolean removed = this.package_size.remove(_package_size);
         if (removed) _package_size.setProduct((product)null);
-    }
-    public link_product_component getLink_product_component() {
-        return link_product_component;
-    }
-    public void setLink_product_component(link_product_component _link_product_component) {
-        if (this.link_product_component != _link_product_component) {
-            if (this.link_product_component != null) this.link_product_component.removeProduct(this);
-            this.link_product_component = _link_product_component;
-            if (_link_product_component != null) _link_product_component.addProduct(this);
-        }
     }
     public Collection getDrug_flagss() {
         return drug_flags;
@@ -188,6 +222,19 @@ public class product {
         boolean removed = this.available.remove(_available);
         if (removed) _available.setProduct((product)null);
     }
+    public Collection getLink_product_manufacturers() {
+        return link_product_manufacturer;
+    }
+    public void addLink_product_manufacturer(link_product_manufacturer _link_product_manufacturer) {
+        if (! this.link_product_manufacturer.contains(_link_product_manufacturer)) {
+            this.link_product_manufacturer.add(_link_product_manufacturer);
+            _link_product_manufacturer.setProduct(this);
+        }
+    }
+    public void removeLink_product_manufacturer(link_product_manufacturer _link_product_manufacturer) {
+        boolean removed = this.link_product_manufacturer.remove(_link_product_manufacturer);
+        if (removed) _link_product_manufacturer.setProduct((product)null);
+    }
     public Collection getSubsidized_productss() {
         return subsidized_products;
     }
@@ -201,16 +248,34 @@ public class product {
         boolean removed = this.subsidized_products.remove(_subsidized_products);
         if (removed) _subsidized_products.setProduct((product)null);
     }
-    public script_drug getScript_drug() {
+    
+    
+    /**
+     *
+     */
+    public Collection getScript_drugs() {
         return script_drug;
     }
-    public void setScript_drug(script_drug _script_drug) {
-        if (this.script_drug != _script_drug) {
-            this.script_drug = _script_drug;
-            if (_script_drug != null) _script_drug.setProduct(this);
+    public void addScript_drug(script_drug _script_drug) {
+        if (! this.script_drug.contains(_script_drug)) {
+            this.script_drug.add(_script_drug);
+            _script_drug.setProduct(this);
         }
     }
+    public void removeScript_drug(script_drug _script_drug) {
+        boolean removed = this.script_drug.remove(_script_drug);
+        if (removed) _script_drug.setProduct((product)null);
+    }
 
+      
+    /** Setter for property script_drugs.
+     * @param script_drugs New value of property script_drugs.
+     *
+     */
+    public void setScript_drugs(Collection script_drugs) {
+    script_drug =script_drugs;
+    }
+    
 
   ///////////////////////////////////////
   // operations
@@ -220,6 +285,7 @@ public class product {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public Double getAmount() {        
         return amount;
@@ -238,6 +304,7 @@ public class product {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public String getComment() {        
         return comment;
@@ -256,6 +323,8 @@ public class product {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.id
+ *      generator-class="hilo"
  */
     public Integer getId() {        
         return id;
@@ -268,11 +337,29 @@ public class product {
  */
     public void setId(Integer _id) {        
         id = _id;
-    } // end setId        
+    }
+  
+    /** Getter for property audit_id.
+     * @return Value of property audit_id.
+     * @hibernate.property
+     */
+    public Integer getAudit_id() {
+        return this.audit_id;
+    }
+    
+    /** Setter for property audit_id.
+     * @param audit_id New value of property audit_id.
+     *
+     */
+    public void setAudit_id(Integer audit_id) {
+        this.audit_id = audit_id;
+    }
+    
+  
+    
+ // end setId        
 
 } // end product
-
-
 
 
 

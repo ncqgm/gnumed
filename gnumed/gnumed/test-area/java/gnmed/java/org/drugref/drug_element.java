@@ -10,6 +10,9 @@ import java.util.*;
  * <p>
  * 
  * </p>
+ * @hibernate.class
+ *  mutable="false"
+ *  
  */
 public class drug_element {
 
@@ -100,12 +103,44 @@ public class drug_element {
  * 
  * </p>
  */
-    public Collection link_drug_disease_interactions = new java.util.HashSet(); // of type link_drug_disease_interactions
+    public Collection link_drug_disease_interactions = new java.util.ArrayList();
+    
+    /** Holds value of property audit_id. */
+    private Integer audit_id;
+    /**
+ * <p>
+ * 
+ * </p>
+ */
+    public Collection toCompound = new java.util.HashSet(); // of type link_compound_generics
+/**
+ * <p>
+ * 
+ * </p>
+ */
+    public Collection toComponent = new java.util.HashSet();
+    
+    /** Holds value of property generic_name. */
+    private Collection generic_name;
+    
+ // of type link_compound_generics
+   
+ // of type link_drug_disease_interactions
 
 
    ///////////////////////////////////////
    // access methods for associations
 
+    /**
+     *@hibernate.set
+     *  table="link_drug_atc"
+     *@hibernate.collection-key
+     *  column="id_drug"
+     *@hibernate.collection-many-to-many
+     *  column="atccode"
+     *  class="org.drugref.atc"
+     *  
+     */
     public Collection getAtcs() {
         return atc;
     }
@@ -119,6 +154,16 @@ public class drug_element {
         boolean removed = this.atc.remove(_atc);
         if (removed) _atc.removeDrug_element(this);
     }
+    
+      /** Setter for property atcs.
+     * @param atcs New value of property atcs.
+     *
+     */
+    public void setAtcs(Collection atcs) {
+    atc = atcs;
+    }    
+    
+    
     public Collection getDrugs() {
         return drug;
     }
@@ -208,6 +253,15 @@ public class drug_element {
         boolean removed = this.link_drug_indication.remove(_link_drug_indication);
         if (removed) _link_drug_indication.setDrug_element((drug_element)null);
     }
+    
+    /**
+     *@hibernate.set
+     *  cascade="none"
+     *@hibernate.collection-key
+     *  column="drug_element"
+     *@hibernate.collection-one-to-many
+     *  class="org.drugref.product"
+     */
     public Collection getProducts() {
         return product;
     }
@@ -221,6 +275,17 @@ public class drug_element {
         boolean removed = this.product.remove(_product);
         if (removed) _product.setDrug_element((drug_element)null);
     }
+    
+       
+    /** Setter for property products.
+     * @param products New value of property products.
+     *
+     */
+    public void setProducts(Collection products) {
+    product = products;
+    }
+    
+    
     public Collection getLink_drug_disease_interactionss() {
         return link_drug_disease_interactions;
     }
@@ -244,6 +309,8 @@ public class drug_element {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.id
+ *  generator-class="hilo"
  */
     public Integer getId() {        
         return id;
@@ -262,6 +329,7 @@ public class drug_element {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public char getCategory() {        
         return category;
@@ -280,6 +348,7 @@ public class drug_element {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public String getDescription() {        
         return description;
@@ -292,8 +361,111 @@ public class drug_element {
  */
     public void setDescription(String _description) {        
         description = _description;
-    } // end setDescription        
-
+    }
+ 
+    /** Getter for property audit_id.
+     * @return Value of property audit_id.
+     * @hibernate.property
+     */
+    public Integer getAudit_id() {
+        return this.audit_id;
+    }    
+  
+    /** Setter for property audit_id.
+     * @param audit_id New value of property audit_id.
+     *
+     */
+    public void setAudit_id(Integer audit_id) {
+        this.audit_id = audit_id;
+    }    
+    
+ // end setDescription        
+    
+    /**
+     *
+     * @hibernate.set
+     *  inverse="true"
+     * @hibernate.collection-key
+     *      column="id_component"
+     * @hibernate.collection-one-to-many
+     *      class="org.drugref.link_compound_generics"
+     */
+     public Collection getToCompounds() {
+        return toCompound;
+    }
+    public void addToCompound(link_compound_generics _link_compound_generics) {
+        if (! this.toCompound.contains(_link_compound_generics)) {
+            this.toCompound.add(_link_compound_generics);
+            _link_compound_generics.setComponent(this);
+        }
+    }
+    public void removeToCompound(link_compound_generics _link_compound_generics) {
+        boolean removed = this.toCompound.remove(_link_compound_generics);
+        if (removed) _link_compound_generics.setComponent((drug_element)null);
+    }
+    
+    
+    /** Setter for property toCompounds.
+     * @param toCompounds New value of property toCompounds.
+     *
+     */
+    public void setToCompounds(Collection toCompounds) {
+        toCompound = toCompounds;
+    }
+    
+      /**
+     *
+     * @hibernate.set
+       * inverse="true"
+       * 
+     * @hibernate.collection-key
+     *      column="id_compound"
+     * @hibernate.collection-one-to-many
+     *      class="org.drugref.link_compound_generics"
+     */
+    public Collection getToComponents() {
+        return toComponent;
+    }
+    public void addToComponent(link_compound_generics _link_compound_generics) {
+        if (! this.toComponent.contains(_link_compound_generics)) {
+            this.toComponent.add(_link_compound_generics);
+            _link_compound_generics.setCompound(this);
+        }
+    }
+    public void removeToComponent(link_compound_generics _link_compound_generics) {
+        boolean removed = this.toComponent.remove(_link_compound_generics);
+        if (removed) _link_compound_generics.setCompound((drug_element)null);
+    }
+    
+    /** Setter for property toComponents.
+     * @param toComponents New value of property toComponents.
+     *
+     */
+    public void setToComponents(Collection toComponents) {
+        toComponent = toComponents;
+    }
+    
+    /** Getter for property generic_name.
+     * @return Value of property generic_name.
+     * @hibernate.set
+     *      inverse="true"
+     *@hibernate.collection-key
+     *  column="id_drug"
+     *@hibernate.collection-one-to-many
+     *  class="org.drugref.generic_drug_name"
+     */
+    public Collection getGeneric_name() {
+        return this.generic_name;
+    }    
+    
+    /** Setter for property generic_name.
+     * @param generic_name New value of property generic_name.
+     *
+     */
+    public void setGeneric_name(Collection generic_name) {
+        this.generic_name = generic_name;
+    }
+    
 } // end drug_element
 
 

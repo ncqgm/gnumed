@@ -11,6 +11,7 @@ import org.gnumed.gmClinical.coding_systems;
  * <p>
  * 
  * </p>
+ * @hibernate.class
  */
 public class code_systems {
 
@@ -158,6 +159,8 @@ public class code_systems {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.id
+ *      generator-class="hilo"
  */
     public Integer getId() {        
         return id;

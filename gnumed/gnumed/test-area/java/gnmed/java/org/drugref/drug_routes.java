@@ -10,6 +10,8 @@ import java.util.*;
  * <p>
  * 
  * </p>
+ *@hibernate.class
+ *  mutable="false"
  */
 public class drug_routes {
 
@@ -55,6 +57,8 @@ public class drug_routes {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.id
+ *  generator-class="assigned"
  */
     public Integer getId() {        
         return id;
@@ -73,6 +77,7 @@ public class drug_routes {
  * <p>
  * Represents ...
  * </p>
+ *@hibernate.property
  */
     public String getAbbreviation() {        
         return abbreviation;
@@ -91,6 +96,7 @@ public class drug_routes {
  * <p>
  * Represents ...
  * </p>
+ *@hibernate.property
  */
     public String getDescription() {        
         return description;
@@ -109,6 +115,7 @@ public class drug_routes {
  * <p>
  * Represents ...
  * </p>
+ *@hibernate.property
  */
     public String getComment() {        
         return comment;

@@ -10,6 +10,8 @@ import java.util.*;
  * <p>
  * 
  * </p>
+ * @hibernate.class
+ *      mutable="false"
  */
 public class generic_drug_name {
 
@@ -48,10 +50,16 @@ public class generic_drug_name {
  */
     public drug_element drug_element; 
 
+    /** Holds value of property audit_id. */
+    private Integer audit_id;    
 
    ///////////////////////////////////////
    // access methods for associations
 
+    /**
+     *@hibernate.many-to-one
+     *  column="id_drug"
+     */
     public drug_element getDrug_element() {
         return drug_element;
     }
@@ -68,6 +76,7 @@ public class generic_drug_name {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public String getName() {        
         return name;
@@ -86,6 +95,7 @@ public class generic_drug_name {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public String getComment() {        
         return comment;
@@ -104,6 +114,8 @@ public class generic_drug_name {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.id
+ *  generator-class="assigned"
  */
     public Integer getId() {        
         return id;
@@ -116,7 +128,25 @@ public class generic_drug_name {
  */
     public void setId(Integer _id) {        
         id = _id;
-    } // end setId        
+    }
+    
+    /** Getter for property audit_id.
+     * @return Value of property audit_id.
+     * @hibernate.property
+     */
+    public Integer getAudit_id() {
+        return this.audit_id;
+    }
+    
+    /** Setter for property audit_id.
+     * @param audit_id New value of property audit_id.
+     *
+     */
+    public void setAudit_id(Integer audit_id) {
+        this.audit_id = audit_id;
+    }
+    
+ // end setId        
 
 } // end generic_drug_name
 

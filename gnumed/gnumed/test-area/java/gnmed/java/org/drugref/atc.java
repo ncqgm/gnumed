@@ -10,6 +10,8 @@ import java.util.*;
  * <p>
  * 
  * </p>
+ * @hibernate.class
+ *  mutable="false"
  */
 public class atc {
 
@@ -39,12 +41,13 @@ public class atc {
  * 
  * </p>
  */
-    public Collection drug_element = new java.util.HashSet(); // of type drug_element
+    public Collection drug_element = new java.util.ArrayList(); // of type drug_element
 
 
    ///////////////////////////////////////
    // access methods for associations
 
+    
     public Collection getDrug_elements() {
         return drug_element;
     }
@@ -68,6 +71,9 @@ public class atc {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.id
+ *  generator-class="assigned"
+ *  type="string"
  */
     public String getCode() {        
         return code;
@@ -86,6 +92,8 @@ public class atc {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
+ *
  */
     public String getText() {        
         return text;

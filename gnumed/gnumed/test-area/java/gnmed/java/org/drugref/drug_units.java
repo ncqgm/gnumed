@@ -10,6 +10,8 @@ import java.util.*;
  * <p>
  * 
  * </p>
+ * @hibernate.class
+ *  mutable="false"
  */
 public class drug_units {
 
@@ -41,6 +43,8 @@ public class drug_units {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.id
+ *  generator-class="assigned"
  */
     public Integer getId() {        
         return id;
@@ -59,6 +63,7 @@ public class drug_units {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public String getUnit() {        
         return unit;

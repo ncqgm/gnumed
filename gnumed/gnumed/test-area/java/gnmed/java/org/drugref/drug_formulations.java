@@ -10,6 +10,8 @@ import java.util.*;
  * <p>
  * 
  * </p>
+ *@hibernate.class
+ *  mutable="false"
  */
 public class drug_formulations {
 
@@ -75,6 +77,7 @@ public class drug_formulations {
  * <p>
  * Represents ...
  * </p>
+ *@hibernate.property
  */
     public String getDescription() {        
         return description;
@@ -93,6 +96,7 @@ public class drug_formulations {
  * <p>
  * Represents ...
  * </p>
+ * @hibernate.property
  */
     public String getComment() {        
         return comment;
@@ -105,7 +109,27 @@ public class drug_formulations {
  */
     public void setComment(String _comment) {        
         comment = _comment;
-    } // end setComment        
+    }
+    
+    /** Getter for property id.
+     * @return Value of property id.
+     *
+     * @hibernate.id
+     *  generator-class="assigned"
+     */
+    public Integer getId() {
+        return this.id;
+    }
+    
+    /** Setter for property id.
+     * @param id New value of property id.
+     *
+     */
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    
+ // end setComment        
 
 } // end drug_formulations
 

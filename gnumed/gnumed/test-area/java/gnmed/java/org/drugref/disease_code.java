@@ -11,6 +11,9 @@ import org.gnumed.gmClinical.code_ref;
  * <p>
  * 
  * </p>
+ * was commented out to let access to drugref's original disease code table.
+ * But now trying to match fields to drugref org.
+ *@hibernate.class
  */
 public class disease_code {
 
@@ -41,33 +44,25 @@ public class disease_code {
  * </p>
  */
     public code_systems code_systems; 
-/**
- * <p>
- * 
- * </p>
- */
-    public code_ref code_ref; 
 
-
+    /** Holds value of property id. */
+    private Integer id;
+    
+    /** Holds value of property id_system. */
+    private String id_system;
+    
    ///////////////////////////////////////
    // access methods for associations
 
+    /**
+     * 
+     */
     public code_systems getCode_systems() {
         return code_systems;
     }
     public void setCode_systems(code_systems _code_systems) {
         this.code_systems = _code_systems;
     }
-    public code_ref getCode_ref() {
-        return code_ref;
-    }
-    public void setCode_ref(code_ref _code_ref) {
-        if (this.code_ref != _code_ref) {
-            this.code_ref = _code_ref;
-            if (_code_ref != null) _code_ref.setDisease_code(this);
-        }
-    }
-
 
   ///////////////////////////////////////
   // operations
@@ -77,6 +72,9 @@ public class disease_code {
  * <p>
  * Represents ...
  * </p>
+// * @hibernate.id
+// *  generator-class="assigned"
+ * @hibernate.property
  */
     public String getCode() {        
         return code;
@@ -95,6 +93,8 @@ public class disease_code {
  * <p>
  * Represents ...
  * </p>
+ *
+  * @hibernate.property
  */
     public String getDescription() {        
         return description;
@@ -107,7 +107,42 @@ public class disease_code {
  */
     public void setDescription(String _description) {        
         description = _description;
-    } // end setDescription        
+    }
+    
+    /** Getter for property id.
+     * @return Value of property id.
+     * @hibernate.id
+     *  generator-class="hilo"
+     */
+    public Integer getId() {
+        return this.id;
+    }
+    
+    /** Setter for property id.
+     * @param id New value of property id.
+     *
+     */
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    
+    /** Getter for property id_code_systems.
+     * @return Value of property id_code_systems.
+     * @hibernate.property
+     */
+    public String getId_system() {
+        return this.id_system;
+    }
+    
+    /** Setter for property id_code_systems.
+     * @param id_code_systems New value of property id_code_systems.
+     *
+     */
+    public void setId_system(String id_system) {
+        this.id_system = id_system;
+    }
+    
+ // end setDescription        
 
 } // end disease_code
 
