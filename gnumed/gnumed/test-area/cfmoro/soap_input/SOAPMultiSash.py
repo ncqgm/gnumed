@@ -6,7 +6,7 @@
 #
 # Created:	  2002/11/20
 # Version:	  0.1
-# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.21 2005-01-18 19:23:16 cfmoro Exp $
+# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.22 2005-01-18 19:51:13 cfmoro Exp $
 # License:	  wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (cMultiSashLeaf)
@@ -442,6 +442,7 @@ class cMultiSashLeafContent(wxWindow):
 		# basic variables
 		self.soap_panel = None
 		self.childController = childController
+		self.normalColour = self.GetBackgroundColour()
 		
 		# child widget creation
 		episode = childController.get_selected_episode()
@@ -449,7 +450,7 @@ class cMultiSashLeafContent(wxWindow):
 			self.MakeEmptyWidget()
 		else:
 			self.MakeSoapEditor()
-
+					
 		# event handling
 		EVT_SET_FOCUS(self,self.OnSetFocus)
 		EVT_CHILD_FOCUS(self,self.OnChildFocus)
@@ -509,24 +510,28 @@ class cMultiSashLeafContent(wxWindow):
 		Destroys current widget (usually EmptyWidget, becouse no soap editors are
 		displayed at startup - no episode selected)
 		"""
+		self.SetBackgroundColour(self.normalColour)
 		if not self.soap_panel is None:
 			self.soap_panel.Destroy()
 			self.soap_panel = None
 		self.soap_panel = gmSOAPWidgets.cResizingSoapPanel(self, self.childController.get_selected_episode())
 		self.soap_panel.MoveXY(2,2)
 		self.Select()
+		self.OnSize(None)
 		
 	def MakeEmptyWidget(self):
 		"""
 		Destroys current widget (usually soap editor, becouse no soap editors
 		displayed, eg. all removed)
-		"""		
+		"""
+		self.SetBackgroundColour(self.normalColour)
 		if not self.soap_panel is None:
 			self.soap_panel.Destroy()
 			self.soap_panel = None
 		self.soap_panel = EmptyWidget(self)
 		self.soap_panel.MoveXY(2,2)
-		self.Select()		
+		self.Select()	
+		self.OnSize(None)	
 
 	def OnChildFocus(self,evt):
 		self.OnSetFocus(evt)
