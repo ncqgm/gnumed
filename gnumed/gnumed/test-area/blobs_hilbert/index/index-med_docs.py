@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -505,7 +505,40 @@ class indexFrame(wxFrame):
 			#self.initgmPhraseWheel()
 	#----------------------------------------
 	def on_show_page(self, event):
+		# did user select a page ?
 		page_idx = self.LBOX_doc_pages.GetSelection()
+
+		if page_idx == -1:
+			dlg = wxMessageDialog(
+				self,
+				_('You must select a page before you can view it.'),
+				_('displaying page'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		# now, which file was that again ?
+		page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
+
+		(result, msg) = docDocument.call_viewer_on_file(page_fname)
+		if not result:
+			dlg = wxMessageDialog(
+				self,
+				_('Cannot display page %s.\n%s') % (page_idx+1, msg),
+				_('displaying page'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+		return 1
+	#-----------------------------------
+
+
+###################################################
+
 
 		if page_idx != -1:
 			page_data = self.LBOX_doc_pages.GetClientData(page_idx)
@@ -538,15 +571,7 @@ class indexFrame(wxFrame):
 			else:
 				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, viewer_cmd))
 				os.system(viewer_cmd)
-		else:
-			dlg = wxMessageDialog(
-				self,
-				_('You must select a page before you can view it.'),
-				_('Attention'),
-				wxOK | wxICON_INFORMATION
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
+
 	#----------------------------------------
 	def on_del_page(self, event):
 		page_idx = self.LBOX_doc_pages.GetSelection()
