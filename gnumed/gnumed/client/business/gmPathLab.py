@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.48 2005-02-15 18:29:03 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmPathLab.py,v 1.49 2005-03-23 18:31:19 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -215,7 +215,7 @@ class cLabRequest(gmClinItem.cClinItem):
 	def get_patient(self):
 		cmd = """
 			select vpi.id_patient, vbp.title, vbp.firstnames, vbp.lastnames, vbp.dob
-			from v_patient_items vpi, v_basic_person vbp
+			from v_pat_items vpi, v_basic_person vbp
 			where
 				vpi.pk_item=%s
 					and
@@ -350,7 +350,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.48 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.49 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -437,7 +437,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.48 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.49 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -693,7 +693,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.48  2005-02-15 18:29:03  ncq
+# Revision 1.49  2005-03-23 18:31:19  ncq
+# - v_patient_items -> v_pat_items
+#
+# Revision 1.48  2005/02/15 18:29:03  ncq
 # - test_result.id -> pk
 #
 # Revision 1.47  2005/02/13 15:45:31  ncq

@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -243,7 +243,7 @@ class cProblem(gmClinItem.cClinItem):
 	_cmds_lock_rows_for_update = []
 	_cmds_store_payload = ["""select 1"""]
 	_updatable_fields = []
-	
+
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None):
 		"""Initialize.
@@ -505,7 +505,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.45  2005-03-20 16:47:26  ncq
+# Revision 1.46  2005-03-23 18:31:19  ncq
+# - v_patient_items -> v_pat_items
+#
+# Revision 1.45  2005/03/20 16:47:26  ncq
 # - cleanup
 #
 # Revision 1.44  2005/03/17 21:59:35  cfmoro
