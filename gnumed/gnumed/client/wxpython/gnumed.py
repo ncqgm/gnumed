@@ -21,7 +21,7 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -103,10 +103,10 @@ if __name__ == "__main__":
 	sys.path.append(os.path.join(appPath, 'python-common'))
 
 	try:
+		import gmI18N
 		import gmLog
 		import gmGuiBroker
 		import gmGuiMain
-		import gmI18N
 	except ImportError:
 		#exc = sys.exc_info()
 		#gmLog.gmDefLog.LogException ("Exception: Cannot load modules.", exc)

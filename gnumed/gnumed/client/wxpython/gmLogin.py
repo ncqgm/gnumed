@@ -16,7 +16,7 @@
 
 from wxPython.wx import *
 import os.path
-import gmLoginDialog, gmPG, gmGuiBroker, gmLog, gmExceptions
+import gmLoginDialog, gmPG, gmGuiBroker, gmLog, gmExceptions
 
 def Login(max_attempts=3):
 	"""Display the login dialog and try to log into the backend up to max_attempts times

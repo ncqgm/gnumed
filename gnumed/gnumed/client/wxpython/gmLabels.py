@@ -58,5 +58,5 @@ def LabelListControl(listctrl, labellist):
 
 
 if __name__ == "__main__":
-	#import gmI18N
-    print "This module has no test function yet. Please write it"
+	_ = lambda x:x
+	print "This module has no test function yet. Please write it"
