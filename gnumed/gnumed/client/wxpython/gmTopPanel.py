@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.50 2004-08-20 06:48:31 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmTopPanel.py,v 1.51 2004-09-13 09:26:16 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -90,7 +90,7 @@ class cMainTopPanel(wxPanel):
 		self.szr_top_row.Add (self.btn_pat_demographics, 0, wxEXPAND | wxBOTTOM, 3)
 		#  - patient selector
 		self.patient_selector = gmPatSearchWidgets.cPatientSelector(self, -1)
-		if gmCLI.has_arg('--slave'):
+		if self.__gb['main.slave_mode']:
 			self.patient_selector.SetEditable(0)
 			self.patient_selector.SetToolTip(None)
 		self.patient_selector.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
@@ -448,7 +448,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.50  2004-08-20 06:48:31  ncq
+# Revision 1.51  2004-09-13 09:26:16  ncq
+# - --slave -> 'main.slave_mode'
+#
+# Revision 1.50  2004/08/20 06:48:31  ncq
 # - import gmPatSearchWidgets
 #
 # Revision 1.49  2004/08/18 10:16:03  ncq
