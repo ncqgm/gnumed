@@ -1,10 +1,72 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/README,v $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
+
+GnuMed internationalization
+===========================
+
+At this point in time GnuMed is only prepared for being translated
+into foreign languages. This also only holds true for languages
+that can be written left-to-right with "latin" characters. Very
+little has been done to make GnuMed compatible with other aspects
+of localization such as date/time/monetary/magnitude formatting
+or icon meaning.
+
+date/time localization
+----------------------
+In gmI18N.py there's a string called gmTimeFormat which holds
+the standard way of formatting a date as a string. The string
+itself is marked for translation by gettext. Translators should
+provide a translation that displays the parts of the date in
+the order and with filling characters appropriate for their
+language. This way gmTimeFormat can serve as a crude tool
+for date/time display localization. Whenever programmers want
+to display a complete date they should use gmTimeFormat as
+the formatting string instead of hardcoding their own idea
+of how a date should be displayed.
+
+icon localization
+-----------------
+Icon image data for plugins is located in the corresponding
+plugin source file. The icon a user wants to load is referenced
+by a string which acts as a key into the directory for the
+icon data. If no key is given to the GetIconData() method
+a hardcoded default key is used. This default key shall be
+wrapped in _() to facilitate using an appropriate default
+key per language. The key name should be of the form
+"icon_XXXX_YYYY" where XXXX_YYYY give some indication of
+the image shown on the icon (like ALT tags in HTML image
+descriptions). This key will then show up in per-language
+message catalogs and can be translated to suitable per-language
+keys. The translation must, of course, name another existing
+key/icon pair. If no translation is provided the gettext
+system will fall back to the english key and thus load
+the default icon.
+
+GUI text localization
+=====================
+The GNU gettext system is used to provide a user interface
+translated into the local language. Currently only the
+original English version and a German translation exist.
 
 NOTE: $LANG corresponds to the ISO code for your language
 NOTE: Requires gettext tools to be installed.
 
-All the message catalog sources live here.
+Message catalogs, related files and useful shell scripts
+live in the directories below gnumed/client/locale/ .
+
+How to translate the GnuMed UI
+------------------------------
+Those are the rough steps to get GnuMed translated
+into your language:
+
+- create a *.pot file containing all English
+  message strings
+- merge this file with preexisting translations
+  for your language
+- translate the remaining non-translated English
+  program strings into your language
+- compile a binary message catalog from the translated
+  messages
 
 With
  <create-gnumed_po.sh $LANG>
@@ -13,38 +75,38 @@ translation. The result is merged with the file $LANG.po
 which serves as a repository of previously translated
 strings. You can then edit this file adding in more
 translations for message strings. For this you can use
-a simple text editor or any tool you wish as long as you
-keep a copy of your final results in $LANG.po as a
-repository for future translations.
+a simple text editor or any tool you wish (such as EMACS
+po mode or kbabel) as long as you keep a copy of your
+final results in $LANG.po as a repository for future
+translations.
 
 With 
  <create-gnumed_mo.sh $LANG>
 you can compile a *.mo file from the message catalog source.
 You will end up with a $LANG-gnumed.mo file.
 
-On a POSIX system this file should be moved into
+Installation of translated messages
+-----------------------------------
+
+On a POSIX system (Linux, BSD, MacOSX, CygWin) the
+$LANG-gnumed.mo file should be moved into
  /usr/share/locale/$LANG/LC_MESSAGES/
 or the corresponding standard place. Alternatively you
 can make symlinks from there to
  /usr/share/gnumed/client/locale/$LANG.mo
 
-On Windows it must live "right here" (relative to
-../wxpython/) so that gmI18N can find $LANG-gnumed.mo
-regardless. In this case you need to create the following
-directories:
+You need to name either the copy or the symlink "gnumed.mo".
 
+On MS Windows you must create the following directories:
 client/
  client/wxpython/
  client/locale/
   client/locale/$LANG/
    client/locale/$LANG/LC_MESSAGES/
 
-and then symlink the $LANG-gnumed.mo file into the
-appropriate language directory under the invariant name
-gnumed.mo such that, for example, for German a link
- locale/de/LC_MESSAGES/gnumed.mo -> locale/de-gnumed.mo
-would exist.
-
+You then need to move the $LANG-gnumed.mo to the
+appropriate LC_MESSAGES directory (or make a symlink)
+again under the name of "gnumed.mo".
 
 Karsten Hilbert
 <Karsten.Hilbert@gmx.net>
