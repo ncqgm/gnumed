@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Influenza.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -29,17 +29,20 @@ values (
 	'6 months'::interval,
 	false,
 	'4 weeks'::interval,
-	'nie zuvor geimpfte Kinder in 4 Wo boostern'
+	'nie zuvor geimpfte Kinder 4 Wo danach boostern'
 );
 
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfplan-Influenza.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Influenza.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Influenza.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: Impfplan-Influenza.sql,v $
--- Revision 1.1  2003-11-30 12:37:39  ncq
+-- Revision 1.2  2003-12-01 22:13:57  ncq
+-- - wording change
+--
+-- Revision 1.1  2003/11/30 12:37:39  ncq
 -- - InfectoVac Flu 2003/4
 --
 -- Revision 1.4  2003/11/28 08:15:57  ncq
