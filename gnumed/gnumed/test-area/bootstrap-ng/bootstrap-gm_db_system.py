@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/bootstrap-ng/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -52,16 +52,19 @@ dbapi = None
 try:
 	from pyPgSQL import PgSQL
 	dbapi = PgSQL
+	dsn_format = "%s:%s:%s:%s:%s"
 except ImportError:
 	_log.Log(gmLog.lErr, "Cannot load pyPgSQL.PgSQL database adapter module.")
 	try:
 		import psycopg
 		dbapi = psycopg
+		dsn_format = "host=%s port=%s dbname=%s user=%s password=%s"
 	except ImportError:
 		_log.Log(gmLog.lErr, "Cannot load psycopg database adapter module.")
 		try:
 			import pgdb
 			dbapi = pgdb
+			dsn_format = "%s:%s:%s:%s:%s"
 		except ImportError:
 			print "Cannot find Python module for connecting to the database server. Program halted."
 			_log.Log(gmLog.lErr, "Cannot load pgdb database adapter module.")
@@ -161,7 +164,7 @@ class db_server:
 			_log.Log(gmLog.lErr, "Need to know the database server port address.")
 			return None
 
-		dsn = "%s:%s:%s:%s:%s" % (
+		dsn = dsn_format % (
 			self.name,
 			self.port,
 			self.template_db,
@@ -479,7 +482,7 @@ class database:
 	def __connect_owner_to_template(self):
 		srv = self.server
 		try:
-			dsn = "%s:%s:%s:%s:%s" % (
+			dsn = dsn_format % (
 				srv.name,
 				srv.port,
 				srv.template_db,
@@ -503,7 +506,7 @@ class database:
 	def __connect_owner_to_db(self):
 		srv = self.server
 		try:
-			dsn = "%s:%s:%s:%s:%s" % (
+			dsn = dsn_format % (
 				srv.name,
 				srv.port,
 				self.name,
@@ -984,7 +987,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.3  2003-01-21 01:11:09  ncq
+# Revision 1.4  2003-01-22 08:43:05  ncq
+# - use dsn_formatstring to iron out DB-API incompatibilities
+#
+# Revision 1.3  2003/01/21 01:11:09  ncq
 # - current (non-complete) state of affairs
 #
 # Revision 1.2  2003/01/14 20:52:46  ncq
