@@ -13,6 +13,12 @@
 #
 # @TODO: Almost everything
 ############################################################################
+"""
+gnumed - launcher for the main gnumed GUI client module
+Use as standalone program.
+"""
+
+__version__ = "$Revision: 1.6 $"
 
 import sys, os
 import gmLog
@@ -39,14 +45,17 @@ if __name__ == "__main__":
 		#this does NOT affect the cdw in the shell from where gnumed is started!
 		os.chdir(appPath)
 	except:
-		pass
+		print "Cannot change into application directory [%s]" % appPath
+
 
 	try:
 		import gmGuiMain
 	except ImportError:
 		exc = sys.exc_info()
 		gmLog.gmDefLog.LogException ("Exception: Cannot load gmGuiMain", exc)
-		sys.exit("CRITICAL ERROR: Can't find module gmGuiMain! - Program halted")
+		sys.exit("CRITICAL ERROR: Can't find module gmGuiMain! - Program halted\n \
+		           Please check whether your PYTHONPATH environment variable\n \
+			   is set correctly")
 
 	#run gnumed and intercept _all_ exceptions (but reraise them ...)
 	try:
