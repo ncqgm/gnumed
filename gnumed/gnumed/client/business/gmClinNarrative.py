@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -15,8 +15,93 @@ from Gnumed.pycommon.gmPyCompat import *
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 #============================================================
-# FIXME: write cNarrative object based on clin_narrative
-# FIXME: write cDiag based on v_pat_diag (with a method get_codes())
+class cDiag(gmClinItem.cClinItem):
+	"""
+        Represents one real diagnosis
+	"""
+	_cmd_fetch_payload = """
+		select * from v_pat_diag where pk_diag=%s"""
+	_cmds_store_payload = [
+		"""select 1 from clin_diag where pk=%(pk_diag)s for update""",
+		"""update clin_diag set
+				laterality=%()s,
+				laterality=%(laterality)s,
+				is_chronic=%(is_chronic)s::boolean,
+				is_active=%(is_active)::booleans,
+				is_definite=%(is_definite)::booleans,
+				is_significant=%(is_significant)::booleans
+			where pk=%(pk_diag)s""",
+		"""select 1 from clin_narrative where pk=%(pk_diagnosis)s for update""",
+		"""update clin_narrative set
+				narrative=%(diagnosis)s
+			where pk=%(pk_diagnosis)s"""
+		]
+
+	_updatable_fields = [
+		'diagnosis',
+		'laterality',
+		'is_chronic',
+		'is_active',
+		'is_definite',
+		'is_significant'
+	]
+	#--------------------------------------------------------
+	def get_codes(self):
+		"""
+			Retrieves codes for the diagnosis
+		"""
+		try:
+			self.__codes
+		except:
+			self.load_codes()
+		return self.__codes
+	#--------------------------------------------------------
+	def load_codes(self):
+	    """
+			Fetches from backend codes associated with this diagnosis
+	    """
+	    self.__codes = []
+	    queries = []
+	    cmd = "select code, coding_system from v_coded_diags where diagnosis=%s"
+	    rows = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['diagnosis']])
+	    if rows is None:
+	        _log.Log(gmLog.lErr, 'cannot query codes for diagnosis [%s]' % self._payload[self._idx['diagnosis']])
+	        del self.__codes
+	        return []
+	    self.__codes = rows
+	    return self.__codes
+	#--------------------------------------------------------
+	def add_code(self, code=None, coding_system=None):
+		"""
+			Associates a code (from coding system) with this diagnosis.
+		"""
+		# FIXME:
+		print "please write me"
+#============================================================
+class cNarrative(gmClinItem.cClinItem):
+	"""
+        Represents one clinical free text entry
+	"""
+	_cmd_fetch_payload = """
+		select * from clin_narrative where pk=%s"""
+	_cmds_store_payload = [
+		"""select 1 from clin_narrative where pk=%(pk)s for update""",
+		"""update clin_narrative set
+				narrative=%(narrative)s,
+				clin_when=%(clin_when)s,
+				is_rfe=%(is_rfe)::boolean,
+				is_aoe=%(is_aoe)::boolean,
+				soap_cat=%(soap_cat)
+			where pk=%(pk)s"""
+		]
+
+	_updatable_fields = [
+		'narrative',
+		'clin_when',
+		'is_rfe',
+		'is_aoe',
+		'soap_cat'
+	]
 #============================================================
 class cRFE(gmClinItem.cClinItem):
 	"""
@@ -90,9 +175,8 @@ class cAOE(gmClinItem.cClinItem):
 	    """
 	    self.__diagnosis = []
 	    queries = []
-	    vals = {'enc': self['pk_encounter'], 'epi': self['pk_episode'], 'dat': self['clin_when']}
-		# FIXME: v_pat_diag.fk_narrative
-	    cmd = "select * from v_pat_diag where pk_encounter =%(enc)s and pk_episode=%(epi)s and diagnosed_when=%(dat)s"
+	    vals = {'pk_narrative': self['pk_narrative']}
+	    cmd = "select * from v_pat_diag where pk_diagnosis=%(pk_narrative)s"
 	    rows = gmPG.run_ro_query('historica', cmd, None, vals)
 	    if rows is None:
 	        _log.Log(gmLog.lErr, 'cannot query diagnosis for aoe [%s]' % (self.pk_obj))
@@ -101,18 +185,89 @@ class cAOE(gmClinItem.cClinItem):
 	    if len(rows) > 0:
 	        self.__diagnosis = rows[0]
 #============================================================
-def create_clin_narrative():
-	print "fixme"
+# convenience functions
+#============================================================
+def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, encounter_id=None):
+	"""
+		Creates a new clinical narrative entry
+		
+		narrative - free text clinical narrative
+		soap_cat - soap category
+		episode_id - episodes's primary key
+		encounter_id - encounter's primary key
+	"""
+	# sanity check
+	# 1) any of the args being None should fail the SQL code
+	# 2) do episode/encounter belong to the patient ?
+	cmd = """select id_patient from v_pat_episodes where pk_episode=%s 
+                 union 
+             select pk_patient from v_pat_encounters where pk_encounter=%s"""
+	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
+	if (rows is None) or (len(rows) == 0):
+		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
+		return (False, _('internal error, check log'))
+	if len(rows) > 1:
+		_log.Log(gmLog.lErr, 'episode [%s] and encounter [%s] belong to more than one patient !?!' % (episode_id, encounter_id))
+		return (False, _('consistency error, check log'))
+	# insert new narrative
+	queries = []
+	cmd = """insert into clin_narrative (fk_encounter, fk_episode, narrative, soap_cat)
+				 values (%s, %s, %s, %s)"""
+	queries.append((cmd, [encounter_id, episode_id, narrative, soap_cat]))
+	# get PK of inserted row
+	cmd = "select currval('clin_narrative_pk_seq')"
+	queries.append((cmd, []))
 
+	result, msg = gmPG.run_commit('historica', queries, True)
+	if result is None:
+		return (False, msg)
+
+	try:
+		narrative = cNarrative(aPK_obj = result[0][0])
+	except gmExceptions.ConstructorError:
+		_log.LogException('cannot instantiate narrative' % (result[0][0]), sys.exc_info, verbose=0)
+		return (False, _('internal error, check log'))
+
+	return (True, narrative)
 #============================================================
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
-	print "unit test missing"
+	import sys
+	_log = gmLog.gmDefLog
+	_log.SetAllLogLevels(gmLog.lData)
+	from Gnumed.pycommon import gmPG
+	gmPG.set_default_client_encoding('latin1')
 
+	print "\ndiagnose test"
+	print  "-------------"
+	diagnose = cDiag(aPK_obj=2)
+	fields = diagnose.get_fields()
+	for field in fields:
+		print field, ':', diagnose[field]
+	print "updatable:", diagnose.get_updatable_fields()
+	print "codes:", diagnose.get_codes()
+
+	print "\nnarrative test"
+	print   "--------------"
+	narrative = cNarrative(aPK_obj=1)
+	fields = narrative.get_fields()
+	for field in fields:
+		print field, ':', narrative[field]
+	print "updatable:", narrative.get_updatable_fields()
+	
+	#print "creating narrative..."
+	#status, new_narrative = create_clin_narrative(narrative = 'Test narrative', soap_cat = 'a', episode_id=1, encounter_id=2)
+	#print new_narrative
+	
+	# FIXME cRFE and cAOE tests
+	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.2  2004-07-05 10:24:46  ncq
+# Revision 1.3  2004-07-06 00:09:19  ncq
+# - Carlos added create_clin_narrative(), cDiag, cNarrative, and unit tests - nice work !
+#
+# Revision 1.2  2004/07/05 10:24:46  ncq
 # - use v_pat_rfe/aoe, by Carlos
 #
 # Revision 1.1  2004/07/04 13:24:31  ncq
