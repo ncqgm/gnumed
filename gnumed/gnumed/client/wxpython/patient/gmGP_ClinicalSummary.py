@@ -18,13 +18,12 @@ ID_OVERVIEWMENU = wxNewId ()
 class ClinicalSummary(wxPanel):
     def __init__(self, parent,id):
 	wxPanel.__init__(self,parent,id,wxDefaultPosition,wxDefaultSize,style = wxRAISED_BORDER)
-	sizer = wxBoxSizer(wxVERTICAL)
 	#------------------------------------------------------------------------
 	#import social history if available this will be the top item on the page
 	#------------------------------------------------------------------------
 	try: 
 	     import gmGP_SocialHistory
-	     socialhistory = gmGP_SocialHistory.SocialHistory(self,-1)
+	     self.socialhistory = gmGP_SocialHistory.SocialHistory(self,-1)
 	     
 	except:
 	     pass
@@ -33,7 +32,7 @@ class ClinicalSummary(wxPanel):
 	##------------------------------------------------------------------------
         try:                                                      
 	     import gmGP_FamilyHistorySummary
-	     familyhistorysummary = gmGP_FamilyHistorySummary.FamilyHistorySummary(self,-1)
+	     self.familyhistorysummary = gmGP_FamilyHistorySummary.FamilyHistorySummary(self,-1)
 	     
 	except:
 	     pass
@@ -43,7 +42,7 @@ class ClinicalSummary(wxPanel):
 
 	try:                                                        
 	     import gmGP_ActiveProblems
-	     activeproblemlist = gmGP_ActiveProblems.ActiveProblems(self,-1)
+	     self.activeproblemlist = gmGP_ActiveProblems.ActiveProblems(self,-1)
 	     
 	except:
 	     pass	       
@@ -53,7 +52,7 @@ class ClinicalSummary(wxPanel):
 	#------------------------------
         try:                                                        
 	     import gmGP_HabitsRiskFactors
-	     habitsriskfactors = gmGP_HabitsRiskFactors.HabitsRiskFactors(self,-1)
+	     self.habitsriskfactors = gmGP_HabitsRiskFactors.HabitsRiskFactors(self,-1)
 	     
 	except:
 	     pass
@@ -63,30 +62,30 @@ class ClinicalSummary(wxPanel):
 	#------------
         try:                                                        
 	     import gmGP_Inbox
-	     inbox = gmGP_Inbox.Inbox(self,-1)
+	     self.inbox = gmGP_Inbox.Inbox(self,-1)
 	     
 	except:
 	     pass
 	 
-	heading1 = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Active Problems" ))                         
-        heading2 = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("     Habits            Risk Factors"))
-	heading3 = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Inbox"))
-        alertpanel = gmGuiElement_AlertCaptionPanel.AlertCaptionPanel(self,-1,_("   Alerts   "))
+	self.heading1 = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Active Problems" ))                         
+        self.heading2 = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("     Habits            Risk Factors"))
+	self.heading3 = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Inbox"))
+        self.alertpanel = gmGuiElement_AlertCaptionPanel.AlertCaptionPanel(self,-1,_("   Alerts   "))
 	#------------------------------------------------------------ 
 	#now that we have all the elements, construct the whole panel
 	#------------------------------------------------------------
-	sizer= wxBoxSizer(wxVERTICAL)
-	sizer.Add(socialhistory,5,wxEXPAND)
-	sizer.Add(familyhistorysummary,5,wxEXPAND)
-	sizer.Add(heading1,0,wxEXPAND)   
-	sizer.Add(activeproblemlist,8,wxEXPAND)
-	sizer.Add(heading2,0,wxEXPAND)  
-	sizer.Add(habitsriskfactors,5,wxEXPAND)
-	sizer.Add(heading3,0,wxEXPAND)  
-#	sizer.Add(inbox,5,wxEXPAND)
-	sizer.Add(alertpanel,0,wxEXPAND)
-        self.SetSizer(sizer)                         #set the sizer 
-	sizer.Fit(self)                              #set to minimum size as calculated by sizer
+	self.sizer= wxBoxSizer(wxVERTICAL)
+	self.sizer.Add(self.socialhistory,5,wxEXPAND)
+	self.sizer.Add(self.familyhistorysummary,5,wxEXPAND)
+	self.sizer.Add(self.heading1,0,wxEXPAND)   
+	self.sizer.Add(self.activeproblemlist,8,wxEXPAND)
+	self.sizer.Add(self.heading2,0,wxEXPAND)  
+	self.sizer.Add(self.habitsriskfactors,5,wxEXPAND)
+	self.sizer.Add(self.heading3,0,wxEXPAND)  
+	self.sizer.Add(self.inbox,5,wxEXPAND)
+	self.sizer.Add(self.alertpanel,0,wxEXPAND)
+        self.SetSizer(self.sizer)                         #set the sizer 
+	self.sizer.Fit(self)                              #set to minimum size as calculated by sizer
         self.SetAutoLayout(true)                     #tell frame to use the sizer
         self.Show(true) 
 
