@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib
@@ -225,7 +225,8 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
 	#-------------------------------------------------------
-	def _update_allergies(self):
+	def _update_allergies(self, **kwargs):
+		print "allergy update:", kwargs
 		epr = self.curr_pat['clinical record']
 		allergy_names = epr['allergy names']
 		tmp = []
@@ -233,9 +234,9 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			tmp.append(allergy['name'])
 		data = string.join(tmp, ',')
 		if data == '':
-			self.txt_allergies.SetValue(_('no allergies recorded'))
+			wxCallAfter(self.txt_allergies.SetValue, _('no allergies recorded'))
 		else:
-			self.txt_allergies.SetValue(data)
+			wxCallAfter(self.txt_allergies.SetValue, data)
 	#-------------------------------------------------------
 	# remote layout handling
 	#-------------------------------------------------------
@@ -324,7 +325,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.6  2003-05-03 00:43:14  ncq
+# Revision 1.7  2003-05-03 14:18:06  ncq
+# - must use wxCallAfter in _update_allergies since this can be called
+#   indirectly from a thread listening to backend signals and one cannot use
+#   wx GUI functions from Python threads other than main()
+#
+# Revision 1.6  2003/05/03 00:43:14  ncq
 # - properly set allergies field on patient change
 # - hot update of allergies in DB needs testing
 #
