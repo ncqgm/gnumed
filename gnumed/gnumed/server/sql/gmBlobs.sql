@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.33 $ $Date: 2003-02-26 23:02:53 $ $Author: ncq $
+-- $Revision: 1.34 $ $Date: 2003-04-07 11:09:54 $ $Author: ncq $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -18,28 +18,6 @@ CREATE TABLE "doc_type" (
 	"id" serial primary key,
 	"name" character varying(40) unique
 );
-
-INSERT into doc_type(name) values(i18n('discharge summary internal'));
-INSERT into doc_type(name) values(i18n('discharge summary surgical'));
-INSERT into doc_type(name) values(i18n('discharge summary psychiatric'));
-INSERT into doc_type(name) values(i18n('discharge summary neurological'));
-INSERT into doc_type(name) values(i18n('discharge summary orthopaedic'));
-INSERT into doc_type(name) values(i18n('discharge summary other'));
-INSERT into doc_type(name) values(i18n('discharge summary rehabilitation'));
-
-INSERT into doc_type(name) values(i18n('referral report internal'));
-INSERT into doc_type(name) values(i18n('referral report surgical'));
-INSERT into doc_type(name) values(i18n('referral report ENT'));
-INSERT into doc_type(name) values(i18n('referral report eye'));
-INSERT into doc_type(name) values(i18n('referral report urology'));
-INSERT into doc_type(name) values(i18n('referral report orthopaedic'));
-INSERT into doc_type(name) values(i18n('referral report neuro'));
-INSERT into doc_type(name) values(i18n('referral report radiology'));
-INSERT into doc_type(name) values(i18n('referral report other'));
-INSERT into doc_type(name) values(i18n('referral report cardiology'));
-INSERT into doc_type(name) values(i18n('referral report psychotherapy'));
-
--- add any number of types here, this is just to give you an idea
 
 -- =============================================
 create view v_i18n_doc_type (id, name) as
@@ -130,7 +108,7 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.33 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.34 $');
 
 -- =============================================
 -- questions:
@@ -146,3 +124,8 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 --   - has a 1 GB limit for data objects
 -- - we explicitely don't store MIME types etc. as selecting an appropriate viewer is a runtime issue
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
+-- =============================================
+-- $Log: gmBlobs.sql,v $
+-- Revision 1.34  2003-04-07 11:09:54  ncq
+-- - separated out data inserts from schema definition
+--
