@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.19 2003-05-21 14:24:29 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmEditArea.py,v 1.20 2003-05-21 15:09:18 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "R.Terry, K.HIlbert"
 #====================================================================
 import sys
@@ -540,6 +540,8 @@ class EditTextBoxes(wxPanel):
 #====================================================================
 class EditArea(wxPanel):
 	def __init__(self, parent, id, line_labels, section):
+		_log.Log(gmLog.lWarn, '***** old style EditArea instantiated, please convert *****')
+
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, style = wxNO_BORDER)
 		self.SetBackgroundColour(wxColor(222,222,222))
 
@@ -943,7 +945,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.19  2003-05-21 14:24:29  ncq
+# Revision 1.20  2003-05-21 15:09:18  ncq
+# - log warning on use of old style edit area
+#
+# Revision 1.19  2003/05/21 14:24:29  ncq
 # - re-added old lines generating code for reference during conversion
 #
 # Revision 1.18  2003/05/21 14:11:26  ncq
