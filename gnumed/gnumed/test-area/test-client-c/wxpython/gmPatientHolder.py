@@ -28,6 +28,9 @@ class PatientHolder:
 	def get_patient(self):
 		return self.patient
 
+	def get_demographic_record(self):
+		return self.get_patient().get_demographic_record()
+
 	def get_clinical_record(self):
 		return self.get_patient().get_clinical_record()
 

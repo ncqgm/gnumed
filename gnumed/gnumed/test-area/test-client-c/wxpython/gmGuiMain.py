@@ -20,8 +20,8 @@ all signing all dancing GNUMed reference client.
 ############################################################################
 #<<<<<<< gmGuiMain.py
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.9 2003-11-06 02:06:26 sjtan Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmGuiMain.py,v 1.10 2003-11-08 18:12:58 sjtan Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -276,6 +276,7 @@ class gmTopLevelFrame(wxFrame):
 	def __load_plugins(self, backend):
 		# get plugin list
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
+		print plugin_list, "(*********"
 		if plugin_list is None:
 			_log.Log(gmLog.lWarn, "no plugins to load")
 			return 1
@@ -853,9 +854,9 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.9  2003-11-06 02:06:26  sjtan
+# Revision 1.10  2003-11-08 18:12:58  sjtan
 #
-# ui test fixes.
+# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
 #
 # Revision 1.121  2003/10/31 23:23:17  ncq
 # - make "attach to encounter ?" dialog more informative

@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.4 2003-11-06 02:06:26 sjtan Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPhraseWheel.py,v 1.5 2003-11-08 18:12:58 sjtan Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -121,6 +121,7 @@ class cPhraseWheel (wxTextCtrl):
 
 		self.left_part = ''
 		self.right_part = ''
+		self.state_chosen = 0
 	#--------------------------------------------------------
 	def allow_multiple_phrases(self, state = _true):
 		self.__handle_multiple_phrases = state
@@ -228,12 +229,27 @@ class cPhraseWheel (wxTextCtrl):
 			for item in self.__currMatches:
 				self._picklist.Append(item['label'], clientData = item['data'])
 				
+
+	def __unique_text(self, matches):
+		l = []
+		found = {}
+		for map in matches:
+			if found.has_key(map['label']):
+				continue
+			found[map['label']] = 1
+			l.append( map)
+		return l	
+
 	#--------------------------------------------------------
 	def __show_picklist(self):
 		"""Display the pick list."""
 
+		# if just chosen, and no change in user input, then don't show (this handles choices that are substrings of other choices)
+		if self.state_chosen:
+			return 1
+		
 		# if only one match and text == match
-		if len(self.__currMatches) == 1:
+		if len(self.__unique_text(self.__currMatches) ) == 1:
 			if self.__currMatches[0]['label'] == self.relevant_input:
 				# don't display drop down list
 				self._hide_picklist()
@@ -279,12 +295,14 @@ class cPhraseWheel (wxTextCtrl):
 		else:
 			self.SetValue(self._picklist.GetString(selection_idx))
 
+		# get data associated with selected item
 		self.data = self._picklist.GetClientData(selection_idx)
 		# and tell our parent about the user's selection
 		for call in self.notify_caller:
-			# get data associated with selected item
 			call (self.data)
 		self.have_called = 1
+		self._hide_picklist()
+		self.state_chosen = 1
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
@@ -340,6 +358,11 @@ class cPhraseWheel (wxTextCtrl):
 	def __on_key_pressed (self, key):
 		"""Is called when a key is pressed."""
 		# user moved down
+		key.Skip()
+
+		# make choice dirty
+		self.state_chosen = 0
+
 		if key.GetKeyCode() == WXK_DOWN:
 			self.__on_down_arrow(key)
 			return
@@ -354,7 +377,6 @@ class cPhraseWheel (wxTextCtrl):
 			self.__on_enter()
 			return
 
-		key.Skip()
 	#--------------------------------------------------------
 	def __on_text_update (self, event):
 		"""Internal handler for EVT_TEXT (called when text has changed)"""
@@ -404,6 +426,8 @@ class cPhraseWheel (wxTextCtrl):
 		# also, our picklist is refilled and sorted according to weight
 
 		# display list - but only if we have more than one match
+		# THAT isn't duplicated
+
 		if len(self.__currMatches) > 0:
 			# show it
 			self.on_resize (None)
@@ -486,9 +510,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.4  2003-11-06 02:06:26  sjtan
+# Revision 1.5  2003-11-08 18:12:58  sjtan
 #
-# ui test fixes.
+# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
+#
+# Revision 1.24  2003/11/07 20:48:04  ncq
+# - place comments where they belong
 #
 # Revision 1.23  2003/11/05 22:21:06  sjtan
 #

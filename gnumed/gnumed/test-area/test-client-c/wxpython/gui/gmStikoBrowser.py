@@ -16,7 +16,9 @@
 #
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.4 $"
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/gui/Attic/gmStikoBrowser.py,v $
+__version__ = "$Revision: 1.4 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -32,18 +34,20 @@ stiko_path = os.path.join("doc", "medical_knowledge", "de", "STIKO", "STI_NEU.ht
 import images_for_gnumed_browser16_16
 import images_gnuMedGP_Toolbar
 
-ID_STIKOCONTENTS = wxNewId()
-ID_STIKOBACK = wxNewId()
-ID_STIKOFORWARD = wxNewId()
-ID_STIKOHOME = wxNewId()
-ID_STIKOBABELFISH = wxNewId()
-ID_STIKOPRINTER  = wxNewId()
-ID_STIKOOPENFILE = wxNewId()
-ID_STIKOBOOKMARKS = wxNewId()
-ID_STIKOADDBOOKMARK = wxNewId()
-ID_STIKOVIEWSOURCE = wxNewId()
-ID_STIKORELOAD = wxNewId()
-ID_VIEWSOURCE  = wxNewId()
+[
+ID_STIKOCONTENTS,
+ID_STIKOBACK,
+ID_STIKOFORWARD,
+ID_STIKOHOME,
+ID_STIKOBABELFISH,
+ID_STIKOPRINTER,
+ID_STIKOOPENFILE,
+ID_STIKOBOOKMARKS,
+ID_STIKOADDBOOKMARK,
+ID_STIKOVIEWSOURCE,
+ID_STIKORELOAD,
+ID_VIEWSOURCE
+] = map(lambda _init_ctrls: wxNewId(), range(12))
 
 #----------------------------------------------------------------------
 
@@ -239,3 +243,13 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
 			isToggle=true
 		)
 		EVT_TOOL (tb, ID_STIKOPRINTER, widget.OnPrint)
+
+#======================================================
+# $Log: gmStikoBrowser.py,v $
+# Revision 1.4  2003-11-15 11:49:50  sjtan
+#
+# extra fields table appended in gmclinical.sql.
+#
+# Revision 1.4  2003/11/07 23:19:54  shilbert
+# - removed repetitive calls to wxNewId()
+#

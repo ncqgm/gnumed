@@ -5,8 +5,10 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.1 2003-10-23 06:02:39 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPlugin.py,v 1.2 2003-11-08 18:12:58 sjtan Exp $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/python-common/Attic/gmPlugin.py,v $
+# $Id: gmPlugin.py,v 1.2 2003-11-08 18:12:58 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -180,7 +182,7 @@ class wxNotebookPlugin (wxBasePlugin):
 		self.gb['toolbar.%s' % self.internal_name ()] = tb
 		self.DoToolbar (tb, widget)
 		tb.Realize()
-
+		
 		# and put ourselves into the menu structure if so
 		if self.MenuInfo() is not None:
 			name_of_menu, menu_item_name = self.MenuInfo()
@@ -235,6 +237,13 @@ class wxNotebookPlugin (wxBasePlugin):
 			set_statustext(_('Cannot switch to [%s]: no patient selected') % self.name())
 			return None
 		return 1
+	#-----------------------------------------------------
+	def _set_status_txt(self, txt):
+
+		set_statustext = self.gb['main.statustext']
+		set_statustext(txt)
+		return 1
+	
 	#-----------------------------------------------------
 	def Raise (self):
 		nbns = self.gb['main.notebook.plugins']
@@ -422,6 +431,7 @@ def GetPluginLoadList(set):
 			)
 			rwconn.close()
 			db.ReleaseConnection(service = "default")
+			print "THE p_list is ", p_list
 			return p_list
 
 	_log.Log(gmLog.lWarn, "No plugin load order stored in database. Trying local config file.")
@@ -469,7 +479,7 @@ def GetPluginLoadList(set):
 		rwconn.close()
 	else:
 		p_list = None
-
+	print " PLUGIN LOAD LIST", p_list
 	_log.Log(gmLog.lData, "*** THESE ARE THE PLUGINS FROM gmPlugin.GetPluginList")
 	_log.Log(gmLog.lData, "%s" % "\n *** ".join(p_list))
         db.ReleaseConnection(service = "default")
@@ -489,9 +499,15 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.1  2003-10-23 06:02:39  sjtan
+# Revision 1.2  2003-11-08 18:12:58  sjtan
 #
-# manual edit areas modelled after r.terry's specs.
+# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
+#
+# Revision 1.59  2003/11/08 10:48:36  shilbert
+# - added convenience function _set_status_txt()
+#
+# Revision 1.58  2003/10/26 01:38:06  ncq
+# - gmTmpPatient -> gmPatient, cleanup
 #
 # Revision 1.57  2003/09/24 10:32:54  ncq
 # - whitespace cleanup

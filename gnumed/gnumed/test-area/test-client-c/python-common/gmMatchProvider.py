@@ -8,8 +8,8 @@ to give phrasewheels the ability to guess phrases
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.2 2003-11-06 02:06:26 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmMatchProvider.py,v 1.3 2003-11-08 18:12:58 sjtan Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -18,6 +18,10 @@ import gmPG, gmExceptions
 _true = (1==1)
 _false = (1==0)
 
+import gmLog
+
+_log = gmLog.gmDefLog
+score_defs = 0
 
 #------------------------------------------------------------
 # generic base class
@@ -303,6 +307,7 @@ class cMatchProvider_SQL(cMatchProvider):
 
 		# sanity check table connections
 		self.srcs = []
+		print "source_defs = ", source_defs
 		for src_def in source_defs:
 
 			# FIXME: testing every table at load time is going to get slow 
@@ -330,7 +335,7 @@ class cMatchProvider_SQL(cMatchProvider):
 			self.srcs.append(src_def)
 			_log.Log(gmLog.lData, 'valid match source: %s' % src_def)
 			
-		if score_defs:
+		if score_def <> []:
 			rw_conn = self.dbpool.GetConnection(score_def['service'], readonly = 0)
 			if rw_conn is None:
 				self.__close_sources()
@@ -395,19 +400,22 @@ class cMatchProvider_SQL(cMatchProvider):
 			curs = src['conn'].cursor()
 			# FIXME: deal with gmpw_score...
 			context_where = ''
+			content_where = ''
 			vars = [aFragment]
 			# matches keys of the extra conditions and context
 			# where a condition has a matching context variable,
 			# the expression is added to the where clause on the
 			# query
-			for context_var, condition in src['extra conditions'].iteritems ():
-				if self.__context.has_key (context_var) and self.__context[context_var]:
-					context_where += " and (%s)"% self.condition
-					vars.append (self.__context[context_var])
+			if  self.__dict__.has_key('__context'):
+				for context_var, condition in src['extra conditions'].iteritems ():
+					if self.__context.has_key (context_var) and self.__context[context_var]:
+						context_where += " and (%s)"% self.condition
+						vars.append (self.__context[context_var])
 			if src['extra conditions'].has_key ('default'):
 				content_where += " and (%s)" % src['extra conditions']['default']
-				       
-
+				
+						       
+			src_def = src
 			cmd = "select %s, %s from %s where %s %s %%s%s" % (
 				src_def['pk'],
 				src_def['column'],

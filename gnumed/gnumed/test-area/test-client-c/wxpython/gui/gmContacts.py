@@ -1,17 +1,15 @@
 #!/usr/bin/python
 #############################################################################
 #
-# gmContacts.py
-# ----------------------------------
-#
 # This panel is a contact manager to display and allow the
 # use to add/delete/edit organisations,branches, persons
 #
 # If you don't like it - change this code see @TODO!
-#
-# @author Dr. Richard Terry
-# @copyright: authorcd
-# @license: GPL (details at http://www.gnu.org)
+#  $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/gui/Attic/gmContacts.py,v $
+__version__ = "$Revision: 1.4 $"
+__author__ = "Dr. Richard Terry, \
+  			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
+__license__ = "GPL"  # (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
 # @change log:
 #	    02.07.2002 rterry initial implementation, untested
@@ -25,9 +23,7 @@
 from wxPython.wx import *
 import gmPlugin
 import images_contacts_toolbar16_16
-ID_ORGANISATIONSLIST = wxNewId()
-ID_ALL_MENU  = wxNewId()
-ID_COMBOTYPE = wxNewId()
+
 DISPLAYPERSON = 0
 organisationsdata = {
 1 : ("John Hunter Hospital","", "Lookout Rd NEW LAMBTON HEIGHTS","Public Hospital","02 49213000"),
@@ -40,26 +36,31 @@ organisationsdata = {
 8 : ( " ","- P Lang","Sports Physiotherapist","plang@jphysio.bdh.com.au", "494223568"),		     
 9 : ( " ","- L Short","Physiotherapist","lshort@jphysio.bdh.com.au", "494223568"),	
 }
+[
+ID_ORGANISATIONSLIST, 
+ID_ALL_MENU,
+ID_COMBOTYPE,
+ID_SAVESQL,
+ID_SEARCHGLOBAL,
+ID_ORGANISATIONDISPLAY,
+ID_GENERALPRACTICESDISPLAY,
+ID_DOCTORSDISPLAY,
+ID_PERSONSDISPLAY,
+ID_ORGANISATIONADD,
+ID_BRANCHDEPTADD,
+ID_EMPLOYEEADD,
+ID_PERSONADD,
+ID_RELOAD,
+ID_SEARCHSPECIFIC,
+ID_SORTA_Z,
+ID_SORTZ_A,
+ID_SENDEMAIL,
+ID_LINKINTERNET,
+ID_INSTANTREPORT,
+ID_REPORTS,
+ID_SAVE
 
-ID_SAVESQL = wxNewId()
-ID_SEARCHGLOBAL= wxNewId()
-ID_ORGANISATIONDISPLAY = wxNewId()
-ID_GENERALPRACTICESDISPLAY = wxNewId()
-ID_DOCTORSDISPLAY = wxNewId()
-ID_PERSONSDISPLAY = wxNewId()
-ID_ORGANISATIONADD = wxNewId()
-ID_BRANCHDEPTADD = wxNewId()
-ID_EMPLOYEEADD = wxNewId()
-ID_PERSONADD = wxNewId()
-ID_RELOAD = wxNewId()
-ID_SEARCHSPECIFIC = wxNewId()
-ID_SORTA_Z = wxNewId()
-ID_SORTZ_A = wxNewId()
-ID_SENDEMAIL = wxNewId()
-ID_LINKINTERNET = wxNewId()
-ID_INSTANTREPORT = wxNewId()
-ID_REPORTS = wxNewId()
-ID_SAVE = wxNewId()
+] = map(lambda _init_ctrls: wxNewId(), range(22))
 
 #--------------------------------------------------
 #Class which shows a blue bold label left justified
@@ -107,11 +108,11 @@ class ContactsPanel(wxPanel):
 	  self.list_organisations.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, 'xselfont'))
           #----------------------------------------	  
           # add some dummy data to the allergy list
-	  self.list_organisations.InsertColumn(0, "Organisation")
-	  self.list_organisations.InsertColumn(1, "Employees")
-	  self.list_organisations.InsertColumn(2, "")
-	  self.list_organisations.InsertColumn(3, "Category/Email")
-	  self.list_organisations.InsertColumn(4, "Phone")
+	  self.list_organisations.InsertColumn(0,_( "Organisation"))
+	  self.list_organisations.InsertColumn(1,_( "Employees"))
+	  self.list_organisations.InsertColumn(2,_( ""))
+	  self.list_organisations.InsertColumn(3,_( "Category/Email"))
+	  self.list_organisations.InsertColumn(4,_( "Phone"))
      
 	  #-------------------------------------------------------------
 	  #loop through the scriptdata array and add to the list control
@@ -138,27 +139,27 @@ class ContactsPanel(wxPanel):
       	  #--------------------
           #create static labels
 	  #--------------------
-	  self.lbl_heading = DarkBlueHeading(self,-1,"Organisation")
-	  self.lbl_org_name = BlueLabel(self,-1,"Name")
-	  self.lbl_Type = BlueLabel(self,-1,"Office")
-	  self.lbl_org_street = BlueLabel(self,-1,"Street")
-	  self.lbl_org_suburb = BlueLabel(self,-1,"Suburb")
-	  self.lbl_org_state = BlueLabel(self,-1,"State")                   #eg NSW
-	  self.lbl_org_zip = wxStaticText(self,id,"Zip",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTRE) 
+	  self.lbl_heading = DarkBlueHeading(self,-1,_("Organisation"))
+	  self.lbl_org_name = BlueLabel(self,-1,_("Name"))
+	  self.lbl_Type = BlueLabel(self,-1,_("Office"))
+	  self.lbl_org_street = BlueLabel(self,-1,("Street"))
+	  self.lbl_org_suburb = BlueLabel(self,-1,_("Suburb"))
+	  self.lbl_org_state = BlueLabel(self,-1,_("State"))                   #eg NSW
+	  self.lbl_org_zip = wxStaticText(self,id,_("Zip"),wxDefaultPosition,wxDefaultSize,wxALIGN_CENTRE) 
 	  self.lbl_org_zip.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 	  self.lbl_org_zip.SetForegroundColour(wxColour(0,0,131))
 	  #self.lbl_org_zip = BlueLabel(self,-1,"Zip")
-	  self.lbl_org_category = BlueLabel(self,-1,"Category")
+	  self.lbl_org_category = BlueLabel(self,-1,_("Category"))
 	  #self.lbl_pers_occupation =  BlueLabel(self,-1,"Occupation")
-	  self.lbl_org_user1 = BlueLabel(self,-1,"User1")
-	  self.lbl_org_user2 = BlueLabel(self,-1,"User2")
-	  self.lbl_org_user3 = BlueLabel(self,-1,"User3")
-	  self.lbl_org_phone = BlueLabel(self,-1,"Phone")
-	  self.lbl_org_fax = BlueLabel(self,-1,"Fax")
-          self.lbl_org_email = BlueLabel(self,-1,"Email")	 
-          self.lbl_org_internet = BlueLabel(self,-1,"Internet")
-	  self.lbl_org_mobile = BlueLabel(self,-1,"Mobile")
-          self.lbl_org_memo = BlueLabel(self,-1,"Memo")
+	  self.lbl_org_user1 = BlueLabel(self,-1,_("User1"))
+	  self.lbl_org_user2 = BlueLabel(self,-1,_("User2"))
+	  self.lbl_org_user3 = BlueLabel(self,-1,_("User3"))
+	  self.lbl_org_phone = BlueLabel(self,-1,_("Phone"))
+	  self.lbl_org_fax = BlueLabel(self,-1,_("Fax"))
+          self.lbl_org_email = BlueLabel(self,-1,_("Email"))	 
+          self.lbl_org_internet = BlueLabel(self,-1,_("Internet"))
+	  self.lbl_org_mobile = BlueLabel(self,-1,_("Mobile"))
+          self.lbl_org_memo = BlueLabel(self,-1,_("Memo"))
           	  
           #--------------------
 	  #create the textboxes
@@ -193,7 +194,7 @@ class ContactsPanel(wxPanel):
 	  #----------------------
 	  #create the check boxes
 	  #----------------------
-	  self.chbx_postaladdress = wxCheckBox(self, -1, " Postal Address ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+	  self.chbx_postaladdress = wxCheckBox(self, -1,_( " Postal Address "), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 	  #-------------------------------------------
 	  #create the sizers for each line of controls
 	  #-------------------------------------------
@@ -355,48 +356,58 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 
 	def DoToolbar (self, tb, widget):
 	      tool1 = tb.AddTool(ID_SEARCHGLOBAL, images_contacts_toolbar16_16.getfind_globalBitmap(),
-				shortHelpString="Global Search Of Contacts Database", isToggle=false)
-	      tb.AddControl(wxTextCtrl(tb, ID_SEARCHGLOBAL, name ="txtGlobalSearch",size =(100,-1),style = 0, value = ''))
+				shortHelpString=_("Global Search Of Contacts Database"), isToggle=false)
+	      tb.AddControl(wxTextCtrl(tb, ID_SEARCHGLOBAL, name =_("txtGlobalSearch"),size =(100,-1),style = 0, value = ''))
 	      tool1 = tb.AddTool(ID_ORGANISATIONDISPLAY, images_contacts_toolbar16_16.getorganisationBitmap(),
-				shortHelpString="Display Organisations",)
+				shortHelpString=_("Display Organisations"),)
 	      tool1 = tb.AddTool(ID_GENERALPRACTICESDISPLAY, images_contacts_toolbar16_16.getgeneralpracticesBitmap(),
-				shortHelpString="Display General Practices",)
+				shortHelpString=_("Display General Practices"),)
 	      tool1 = tb.AddTool(ID_DOCTORSDISPLAY, images_contacts_toolbar16_16.getdoctorBitmap(),
-				shortHelpString="Display Doctors",)
+				shortHelpString=_("Display Doctors"),)
 	      tool1 = tb.AddTool(ID_PERSONSDISPLAY, images_contacts_toolbar16_16.getpersonBitmap(),
-				shortHelpString="Display Persons", isToggle=false)
+				shortHelpString=_("Display Persons"), isToggle=false)
 	      tool1 = tb.AddTool(ID_ORGANISATIONADD, images_contacts_toolbar16_16.getorganisation_addBitmap(),
-				shortHelpString="Add an Organisation",)
+				shortHelpString=_("Add an Organisation"),)
 	      tool1 = tb.AddTool(ID_BRANCHDEPTADD, images_contacts_toolbar16_16.getbranch_addBitmap(),
-				shortHelpString="Add Branch or Department",)
+				shortHelpString=_("Add Branch or Department"),)
 	      tool1 = tb.AddTool(ID_EMPLOYEEADD, images_contacts_toolbar16_16.getemployeesBitmap(),
-				shortHelpString="Add an Employee",)
+				shortHelpString=_("Add an Employee"),)
 	      tool1 = tb.AddTool(ID_PERSONADD, images_contacts_toolbar16_16.getperson_addBitmap(),
-				shortHelpString="Add Person",)
+				shortHelpString=_("Add Person"),)
               tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
               tool1 = tb.AddTool(ID_RELOAD, images_contacts_toolbar16_16.getreloadBitmap(),
-				shortHelpString="Refresh Display",)
+				shortHelpString=_("Refresh Display"),)
               tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
               tool1 = tb.AddTool(ID_SEARCHSPECIFIC, images_contacts_toolbar16_16.getfind_specificBitmap(),
-				shortHelpString="Find Specific Records in Contacts Database",)
+				shortHelpString=_("Find Specific Records in Contacts Database"),)
               tool1 = tb.AddTool(ID_SORTA_Z, images_contacts_toolbar16_16.getsort_A_ZBitmap(),
-				shortHelpString="Sort A to Z",)
+				shortHelpString=_("Sort A to Z"),)
               tool1 = tb.AddTool(ID_SORTZ_A, images_contacts_toolbar16_16.getsort_Z_ABitmap(),
-				shortHelpString="Sort Z to A",)
+				shortHelpString=_("Sort Z to A"),)
 	      tool1 = tb.AddTool(ID_SENDEMAIL, images_contacts_toolbar16_16.getsendemailBitmap(),
-				shortHelpString="Send Email",)
+				shortHelpString=_("Send Email"),)
 	      tool1 = tb.AddTool(ID_LINKINTERNET, images_contacts_toolbar16_16.getearthBitmap(),
-				shortHelpString="Load Web Address",)
+				shortHelpString=_("Load Web Address"),)
 	      tool1 = tb.AddTool(ID_INSTANTREPORT, images_contacts_toolbar16_16.getlighteningBitmap(),
-				shortHelpString="Instant Report from Grid",)
+				shortHelpString=_("Instant Report from Grid"),)
 	      tool1 = tb.AddTool(ID_REPORTS, images_contacts_toolbar16_16.getreportsBitmap(),
-				shortHelpString="Pre-formatted reports",)
+				shortHelpString=_("Pre-formatted reports"),)
 	      tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
 	      tool1 = tb.AddTool(ID_SAVE, images_contacts_toolbar16_16.getsaveBitmap(),
-				shortHelpString="Save Record",)		
+				shortHelpString=_("Save Record"),)		
           
 
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (800, 600))
 	app.SetWidget(ContactsPanel, -1)
 	app.MainLoop()
+
+#======================================================
+# $Log: gmContacts.py,v $
+# Revision 1.4  2003-11-15 11:49:50  sjtan
+#
+# extra fields table appended in gmclinical.sql.
+#
+# Revision 1.8  2003/11/07 22:29:46  shilbert
+# - added _() for i18n where necessary
+#

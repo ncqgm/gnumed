@@ -14,8 +14,13 @@
 # @TODO: Almost everything
 ############################################################################
 
+if __name__ == "__main__":
+	import sys
+	sys.path.append('../wxpython-common')
 from wxPython.wx import *
 #import gmSmartTextCtrl
+
+import gmPhraseWheel, gmMatchProvider
 
 
 ID_COMBO_TITLE = wxNewId()
@@ -186,7 +191,11 @@ def PersonDetailsFunc( parent, call_fit = true, set_sizer = true ):
 
 	#then street name
 	szr = CaptionSizer(parent,_("street"))
-	parent.tcStreet = gmSmartTextCtrl.SmartTextCtrl( parent, ID_TEXTCTRL_STREET, 0, wxDefaultPosition, wxSize(80,-1) )
+	#parent.tcStreet = gmPhraseWheel.cPhraseWheel( parent, ID_TEXTCTRL_STREET, 0, wxDefaultPosition, wxSize(80,-1) )
+	parent.tcStreet = wxTextCtrl( parent, ID_TEXTCTRL_STREET,"",  wxDefaultPosition, wxSize(80,-1) )
+
+
+
 	szr.AddWindow( parent.tcStreet, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
 	parent.szrStreet.AddSizer( szr, 1, wxALIGN_CENTRE, 5 )
 

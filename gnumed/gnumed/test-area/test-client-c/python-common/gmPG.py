@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -35,6 +35,9 @@ del gmCLI
 
 # first, do we have the preferred postgres-python library available ?
 try:
+	import pyPgSQL
+	_log.Log(gmLog.lData, pyPgSQL.__version__)
+	del pyPgSQL
 	import pyPgSQL.PgSQL # try preferred backend library
 	dbapi = pyPgSQL.PgSQL
 	_isPGDB = 0
@@ -1006,19 +1009,19 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.5  2003-11-06 02:06:26  sjtan
+# Revision 1.8  2003-11-15 11:49:49  sjtan
 #
-# ui test fixes.
+# extra fields table appended in gmclinical.sql.
 #
-# Revision 1.2  2003/10/25 08:29:40  sjtan
-#
+# Revision 1.83
 # uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
 # yaml serializer to store editarea data in  narrative text field of clin_root_item until
 # clin_root_item schema stabilizes.
 #
-# Revision 1.1  2003/10/23 06:02:39  sjtan
-#
 # manual edit areas modelled after r.terry's specs.
+# Revision 1.82  2003/11/07 20:34:04  ncq
+# - more logging yet
+#
 # Revision 1.81  2003/11/04 00:19:24  ncq
 # - GetConnection now toggles query printing via extra_verbose if dbapi=pyPgSql
 #
