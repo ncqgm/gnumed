@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.59 2004-04-30 09:12:30 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.60 2004-04-30 09:20:09 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -622,7 +622,37 @@ create trigger at_curr_encounter_upd
 	for each row execute procedure f_curr_encounter_force_upd()
 ;
 -- should really be "for each statement" but that isn't supported yet by PostgreSQL
+
 -- =============================================
+\unset ON_ERROR_STOP
+drop view v_pat_diag;
+\set ON_ERROR_STOP 1
+
+create view v_pat_diag as
+select
+	cwd.pk as pk_diagnosis,
+	vpi.id_patient as pk_patient,
+	cauxn.narrative as diagnosis,
+	cwd.laterality as laterality,
+	cwd.is_chronic as is_chronic,
+	cwd.is_active as is_active,
+	cwd.is_definite as is_definite,
+	cwd.is_significant as is_significant,
+	cwd.narrative as comment,
+	cwd.id_encounter as pk_encounter,
+	cwd.id_episode as pk_episode
+from
+	clin_working_diag cwd,
+	v_patient_items vpi,
+	clin_aux_note cauxn
+where
+	cwd.id_encounter = vpi.id_encounter
+		and
+	cwd.fk_description = cauxn.pk
+;
+
+-- =============================================
+
 GRANT SELECT ON
 	clin_root_item,
 	clin_health_issue,
@@ -745,17 +775,21 @@ GRANT SELECT ON
 	, v_most_recent_encounters
 	, v_results4lab_req
 	, v_test_org_profile
+	, v_pat_diag
 TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.59 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.60 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.59  2004-04-30 09:12:30  ncq
+-- Revision 1.60  2004-04-30 09:20:09  ncq
+-- - add v_pat_diag, grants
+--
+-- Revision 1.59  2004/04/30 09:12:30  ncq
 -- - fk description clin_working_diag -> clin_aux_note
 -- - v_pat_diag
 --
