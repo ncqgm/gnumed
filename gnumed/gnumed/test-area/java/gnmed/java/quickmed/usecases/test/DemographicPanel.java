@@ -216,7 +216,6 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
 
         medicareExpField.setColumns(1);
         medicareExpField.setFont(new java.awt.Font("Dialog", 0, 10));
-        medicareExpField.setText("jTextField1");
         medicareExpField.setInputVerifier(getMonthYearInputVerifier());
         medicareExpField.setName("expMedicare");
         medicareExpField.addActionListener(new java.awt.event.ActionListener() {
@@ -228,7 +227,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = -30;
+        gridBagConstraints.weightx = 1.0;
         jPanel4.add(medicareExpField, gridBagConstraints);
 
         jLabel5.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("pen_dva"));
@@ -250,13 +249,12 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jPanel4.add(pensionerField, gridBagConstraints);
 
         pensionerExpField.setFont(new java.awt.Font("Dialog", 0, 10));
-        pensionerExpField.setText("jTextField2");
         pensionerExpField.setInputVerifier(getMonthYearInputVerifier());
         pensionerExpField.setName("expDVA");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = -30;
+        gridBagConstraints.weightx = 1.0;
         jPanel4.add(pensionerExpField, gridBagConstraints);
 
         jLabel6.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("health_care_card"));
@@ -272,13 +270,12 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jPanel4.add(healthcareField, gridBagConstraints);
 
         hccExpField8.setFont(new java.awt.Font("Dialog", 0, 10));
-        hccExpField8.setText("jTextField3");
         hccExpField8.setInputVerifier(getMonthYearInputVerifier());
         hccExpField8.setName("expHCC");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = -30;
+        gridBagConstraints.weightx = 1.0;
         jPanel4.add(hccExpField8, gridBagConstraints);
 
         jLabel7.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("health_fund"));
@@ -628,7 +625,11 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         while (i.hasNext()) {
             Object o = i.next();
             if (o instanceof java.awt.Component) {
-                ((java.awt.Component)o).setEnabled(enabled);
+                java.awt.Component co = 
+                ((java.awt.Component)o);
+                co.setEnabled(enabled);
+                co.setFocusable(enabled);
+                
             }
         }
     }
@@ -642,6 +643,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         while (i.hasNext()) {
             JTextComponent c = (JTextComponent)i.next();
             c.setEditable(enabled);
+            c.setFocusable(enabled);
         }
        setEnabledCollection(cc.collectType(JComboBox.class, this), enabled);
        setEnabledCollection(cc.collectType(JSpinner.class, this), enabled);

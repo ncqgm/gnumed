@@ -19,6 +19,10 @@ import javax.swing.*;
  * @author  sjtan
  */
 public class TestReferralPanel extends javax.swing.JPanel implements ClientProviderRelatable {
+    public static final int DEFAULT_PLAINTEXT_LINELEN= 50;
+    public static final int DEFAULT_PLAINTEXT_TABSIZE = 8;
+    
+    
     private ContactsPanel contacts;
     private identity client;
     /** Creates new form TestReferralPanel */
@@ -28,6 +32,8 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
         changeTabNames();
         //        addPrintServiceUI();
         
+        setPlainTextLineLength(DEFAULT_PLAINTEXT_LINELEN);
+        setPlainTextTabSize(DEFAULT_PLAINTEXT_TABSIZE);
     }
     
     void addContactsPanel() {
@@ -154,7 +160,7 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
         
         DocFlavor flavor = DocFlavor.INPUT_STREAM.AUTOSENSE;
         
-         
+        
         HashPrintRequestAttributeSet attributes = new HashPrintRequestAttributeSet();
         attributes.add( MediaSizeName.ISO_A4);
         attributes.add( MediaSizeName.FOLIO);
@@ -177,7 +183,7 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
             }
         }
         
-       
+        
         
         PrintService service = ServiceUI.printDialog(null,
         x, y,
@@ -185,22 +191,22 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
         if (service != null) try {
             DocPrintJob job = service.createPrintJob();
             String filename = "./tmp.txt";
-             FileWriter w = new FileWriter(filename);
-             PrintWriter pw = new PrintWriter( w);
-             pw.println(transformToPlatformNewlines(wordWrap(getLetter(), 75, 8)));
-             pw.close();
+            FileWriter w = new FileWriter(filename);
+            PrintWriter pw = new PrintWriter( w);
+            pw.println(transformToPlatformNewlines(getLetter()))   ;
+            pw.close();
             FileInputStream fis = new FileInputStream( filename);
-//            PipedInputStream is = new PipedInputStream();
-//            BufferedInputStream bis = new BufferedInputStream(is);
-//            PipedOutputStream os = new PipedOutputStream();
-//            final PrintStream ps = new PrintStream(os, true);
-//            is.connect(os);
-//            new Thread( new Runnable() {
-//                public void run() {
-//                    ps.println(getLetter());
-//                    ps.close();
-//                }
-//            } ).start();
+            //            PipedInputStream is = new PipedInputStream();
+            //            BufferedInputStream bis = new BufferedInputStream(is);
+            //            PipedOutputStream os = new PipedOutputStream();
+            //            final PrintStream ps = new PrintStream(os, true);
+            //            is.connect(os);
+            //            new Thread( new Runnable() {
+            //                public void run() {
+            //                    ps.println(getLetter());
+            //                    ps.close();
+            //                }
+            //            } ).start();
             SimpleDoc doc = new SimpleDoc( fis , flavor ,null);
             job.print( doc, attributes);
         } catch (Exception e) {
@@ -269,7 +275,7 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
         
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream( bos);
-     
+        
         DomainPrinter.getInstance().printIdentity(ps, getClient());
         String summary = bos.toString();
         String salutations = Globals.bundle.getString("salutations");
@@ -280,7 +286,7 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
         
         
         
-        // create title 
+        // create title
         org.gnumed.gmIdentity.Names cn = getClient().findNames(0);
         
         sb.append(cn.getLastnames()).append('_').append(cn.getFirstnames()).append('_');
@@ -299,40 +305,44 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
         //         ps2.println(letter);
         //
         //        fos.close();
-        setLetter(letter);
-        jEditorPane1.setText(letter);
+        setLetter(wordWrap(letter, getPlainTextLineLength(), getPlainTextTabSize()) );
+        jEditorPane1.setText(getLetter());
         jTabbedPane1.setSelectedIndex(1);
     }
     
     public String transformToPlatformNewlines(String letter) {
-            
+        
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream( bos);
-      
-     // transform /n to platform specific newline
+        
+        // transform /n to platform specific newline
         for (int j = 0;j < letter.length(); ++j) {
             if (letter.charAt(j) == '\n') {
                 ps.println();
             }
             ps.print(letter.charAt(j));
         }
-        return  bos.toString();   
+        return  bos.toString();
     }
     
     public String wordWrap( String letter , int triggerLineLength, int tabSize) {
         int len = 0;
         StringBuffer buf = new StringBuffer();
         for (int j = 0;j < letter.length(); ++j) {
-             if (letter.charAt(j) == '\t') 
-                 len += tabSize;
-             else
-                 if (letter.charAt(j) == '\n')
-                     len = 0;
-             if (len >= triggerLineLength && Character.isSpaceChar(letter.charAt(j) ) ) {
-                buf.append('\n');
+            if (letter.charAt(j) == '\t')
+                len += tabSize;
+            else
+                if (letter.charAt(j) == '\n')
+                    len = 0;
+            if (len >= triggerLineLength
+            && ( Character.isISOControl(letter.charAt(j)) ||
+            Character.isWhitespace(letter.charAt(j) ) )  ) {
+                buf.append("\n");
+                len = 0;
                 continue;
-             }
-             buf.append(letter.charAt(j));
+            }
+            
+            buf.append(letter.charAt(j));
         }
         return buf.toString();
     }
@@ -368,6 +378,38 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
         this.letter = letter;
     }
     
+    /** Getter for property plainTextLineLength.
+     * @return Value of property plainTextLineLength.
+     *
+     */
+    public int getPlainTextLineLength() {
+        return this.plainTextLineLength;
+    }
+    
+    /** Setter for property plainTextLineLength.
+     * @param plainTextLineLength New value of property plainTextLineLength.
+     *
+     */
+    public void setPlainTextLineLength(int plainTextLineLength) {
+        this.plainTextLineLength = plainTextLineLength;
+    }
+    
+    /** Getter for property plainTextTabSize.
+     * @return Value of property plainTextTabSize.
+     *
+     */
+    public int getPlainTextTabSize() {
+        return this.plainTextTabSize;
+    }
+    
+    /** Setter for property plainTextTabSize.
+     * @param plainTextTabSize New value of property plainTextTabSize.
+     *
+     */
+    public void setPlainTextTabSize(int plainTextTabSize) {
+        this.plainTextTabSize = plainTextTabSize;
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton generateLetterButton;
     private javax.swing.JButton jButton1;
@@ -392,5 +434,11 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
     
     /** Holds value of property letter. */
     private String letter;
+    
+    /** Holds value of property plainTextLineLength. */
+    private int plainTextLineLength;
+    
+    /** Holds value of property plainTextTabSize. */
+    private int plainTextTabSize;
     
 }

@@ -20,7 +20,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
     /** Creates new form Testgnmed1 */
     public Testgnmed1() {
         initComponents();
-        new Thread( new Runnable()  {
+          new Thread( new Runnable()  {
             public void run() {
                 try {
                     gnmed.test.HibernateInit.initAll();
@@ -44,7 +44,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
         jMenuItem1 = new javax.swing.JMenuItem();
         openMenuItem = new javax.swing.JMenuItem();
         saveMenuItem = new javax.swing.JMenuItem();
-        saveAsMenuItem = new javax.swing.JMenuItem();
+        closeMenuItem2 = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
         editMenu = new javax.swing.JMenu();
         cutMenuItem = new javax.swing.JMenuItem();
@@ -69,6 +69,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
         desktopPane.setAutoscrolls(true);
         getContentPane().add(desktopPane, java.awt.BorderLayout.CENTER);
 
+        fileMenu.setMnemonic('f');
         fileMenu.setText("File");
         jMenuItem1.setText("New Patient");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
@@ -88,11 +89,25 @@ public class Testgnmed1 extends javax.swing.JFrame {
 
         fileMenu.add(openMenuItem);
 
-        saveMenuItem.setText("Save");
+        saveMenuItem.setMnemonic(java.util.ResourceBundle.getBundle("SummaryTerms").getString("Save").charAt(0));
+        saveMenuItem.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("Save"));
+        saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveMenuItemActionPerformed(evt);
+            }
+        });
+
         fileMenu.add(saveMenuItem);
 
-        saveAsMenuItem.setText("Save As ...");
-        fileMenu.add(saveAsMenuItem);
+        closeMenuItem2.setMnemonic(java.util.ResourceBundle.getBundle("SummaryTerms").getString("Close").charAt(0));
+        closeMenuItem2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("Close"));
+        closeMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeMenuItem2ActionPerformed(evt);
+            }
+        });
+
+        fileMenu.add(closeMenuItem2);
 
         exitMenuItem.setText("Exit");
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -120,6 +135,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
 
         menuBar.add(editMenu);
 
+        jMenu1.setMnemonic('d');
         jMenu1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("Documents"));
         referraljMenuItem2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("referral_letter"));
         referraljMenuItem2.addActionListener(new java.awt.event.ActionListener() {
@@ -132,6 +148,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
 
         menuBar.add(jMenu1);
 
+        windowMenu.setMnemonic('w');
         windowMenu.setText("Window");
         menuBar.add(windowMenu);
 
@@ -148,6 +165,19 @@ public class Testgnmed1 extends javax.swing.JFrame {
 
         pack();
     }//GEN-END:initComponents
+
+    private void closeMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeMenuItem2ActionPerformed
+        // Add your handling code here:
+        getFocusedFrame().doDefaultCloseAction();
+    }//GEN-LAST:event_closeMenuItem2ActionPerformed
+
+    private void saveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveMenuItemActionPerformed
+        // Add your handling code here:
+        if ( getFocusedFrame() instanceof PatientInnerFrame) {
+            PatientInnerFrame patientFrame = (PatientInnerFrame) getFocusedFrame();
+            patientFrame.saveIdentity();
+        }
+    }//GEN-LAST:event_saveMenuItemActionPerformed
 
     private void referraljMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_referraljMenuItem2ActionPerformed
         // Add your handling code here:
@@ -214,6 +244,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
         public void internalFrameActivated( InternalFrameEvent event) {
             PatientInnerFrame frame = (PatientInnerFrame) event.getInternalFrame();
             setFocusedIdentity( frame.getIdentity());
+            setFocusedFrame( frame);
         }
     }
     /** 
@@ -245,6 +276,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
+    private javax.swing.JMenuItem closeMenuItem2;
     private javax.swing.JMenuItem contentMenuItem;
     private javax.swing.JMenuItem copyMenuItem;
     private javax.swing.JMenuItem cutMenuItem;
@@ -260,7 +292,6 @@ public class Testgnmed1 extends javax.swing.JFrame {
     private javax.swing.JMenuItem openMenuItem;
     private javax.swing.JMenuItem pasteMenuItem;
     private javax.swing.JMenuItem referraljMenuItem2;
-    private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JMenuItem saveMenuItem;
     private javax.swing.JMenu windowMenu;
     // End of variables declaration//GEN-END:variables
@@ -273,6 +304,9 @@ public class Testgnmed1 extends javax.swing.JFrame {
     
     /** Holds value of property focusedIdentity. */
     private identity focusedIdentity;
+    
+    /** Holds value of property focusedFrame. */
+    private JInternalFrame focusedFrame;
     
     /**
      * the action of selecting a window from the window menu.
@@ -339,6 +373,22 @@ public class Testgnmed1 extends javax.swing.JFrame {
      */
     public void setFocusedIdentity(identity focusedIdentity) {
         this.focusedIdentity = focusedIdentity;
+    }
+    
+    /** Getter for property focusedFrame.
+     * @return Value of property focusedFrame.
+     *
+     */
+    public JInternalFrame getFocusedFrame() {
+        return this.focusedFrame;
+    }
+    
+    /** Setter for property focusedFrame.
+     * @param focusedFrame New value of property focusedFrame.
+     *
+     */
+    public void setFocusedFrame(JInternalFrame focusedFrame) {
+        this.focusedFrame = focusedFrame;
     }
     
 }

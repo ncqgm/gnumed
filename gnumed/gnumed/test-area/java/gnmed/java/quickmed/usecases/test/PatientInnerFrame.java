@@ -76,6 +76,13 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
     
     private void formInternalFrameClosing(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameClosing
         // Add your handling code here:
+        saveIdentity();
+    }//GEN-LAST:event_formInternalFrameClosing
+    
+    private void onCloseFinalizeIdentity(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_onCloseFinalizeIdentity
+        
+    }//GEN-LAST:event_onCloseFinalizeIdentity
+    public void saveIdentity() {
         summaryPanel1.transferFormToModel();
         try {
             ( (ManagerReference)summaryPanel1.getIdentity().getPersister()).setConnected(true);
@@ -89,12 +96,7 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }//GEN-LAST:event_formInternalFrameClosing
-    
-    private void onCloseFinalizeIdentity(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_onCloseFinalizeIdentity
-        
-    }//GEN-LAST:event_onCloseFinalizeIdentity
-    
+    }
     /** Getter for property identity.
      * @return Value of property identity.
      *

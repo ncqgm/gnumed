@@ -95,6 +95,14 @@ public class FindIdentity extends javax.swing.JDialog {
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         getContentPane().add(jButton1, gridBagConstraints);
 
+        jList1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jList1KeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                jList1KeyTyped(evt);
+            }
+        });
         jList1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jList1MouseClicked(evt);
@@ -112,6 +120,17 @@ public class FindIdentity extends javax.swing.JDialog {
 
         pack();
     }//GEN-END:initComponents
+
+    private void jList1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jList1KeyPressed
+        // Add your handling code here:
+        if( evt.getKeyCode() == evt.VK_ENTER)
+            setVisible(false);
+    }//GEN-LAST:event_jList1KeyPressed
+
+    private void jList1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jList1KeyTyped
+        // Add your handling code here:
+        
+    }//GEN-LAST:event_jList1KeyTyped
 
     private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
         // Add your handling code here:
