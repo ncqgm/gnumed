@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -579,7 +579,11 @@ class cCfgFile:
 
 		new_file.close()
 		# copy new file to old file
-		shutil.copyfile(new_name, self.cfgName)
+		try:
+			shutil.copyfile(new_name, self.cfgName)
+		except StandardError:
+			_log.LogException('cannot move modified options into config file', fatal=0)
+
 		os.remove(new_name)
 		return 1
 	#----------------------------
@@ -974,7 +978,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.50  2003-06-17 22:21:53  ncq
+# Revision 1.51  2003-06-21 10:44:09  ncq
+# - handle read-only media better when modifying config file
+#
+# Revision 1.50  2003/06/17 22:21:53  ncq
 # - improve __get_conf_name()
 #
 # Revision 1.49  2003/06/03 21:52:23  hinnef
