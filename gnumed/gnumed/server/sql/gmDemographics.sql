@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.43 $
+-- $Revision: 1.44 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -291,11 +291,15 @@ comment on table names IS
 comment on column names.active IS
 	'true if the name is still in use';
 comment on column names.firstnames IS
-	'all first names of an identity in legal order';
+	'all first names of an identity in legal order,\n
+	 IOW "minor" name, identifier of this identity within\n
+	 the group defined by <lastnames>';
 comment on column names.lastnames IS
-	'all last names of an identity in legal order';
+	'all last names of an identity in legal order,\n
+	 IOW "major" name, "group identifier", eg. family, village, tribe, ...';
 comment on column names.preferred IS
-	'preferred first name, the name a person is usually called (nickname)';
+	'preferred first name, the name a person is usually\n
+	 called (nickname, warrior name)';
 comment on column names.comment is
 	'a comment regarding this name, useful in things like "this was
 	 the name before marriage" etc';
@@ -528,11 +532,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.43 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.44 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.43  2005-03-01 20:38:19  ncq
+-- Revision 1.44  2005-03-14 14:40:35  ncq
+-- - improved comments on name fields
+--
+-- Revision 1.43  2005/03/01 20:38:19  ncq
 -- - varchar -> text
 --
 -- Revision 1.42  2005/02/13 14:42:47  ncq
