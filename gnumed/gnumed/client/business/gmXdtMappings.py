@@ -4,8 +4,8 @@ This maps XDT field IDs to verbose names.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.3 2003-02-13 15:26:09 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmXdtMappings.py,v 1.4 2003-02-13 15:42:54 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "S.Hilbert"
 __license__ = "GPL"
 
@@ -546,24 +546,27 @@ xdt_id_map = {
 	    }
 #--------------------------------------------------------------
 xdt_packet_type_map = {
-	'0020': "######################### Datentraegeranfang #######################",
-	'0021': "######################### Datentraegerende #######################",
-	'0022': "######################### Datenpaketstart ######################",
-	'0023': "######################### Datenpaketende ######################",
-	'0010': "######################### Praxisdaten #########################",
-	'0101': "######################### Aerztliche Behandlung ####################",
-	'0102': "######################### Ueberweisungsfall' ######################",
-	'0103': "######################### Belegaerztliche Behandlung #################",
-	'0104': "######################### Notfalldienst/Vertretung/Notfall #####################",
-	'0190': "######################### Privatabrechnung ##################",
-	'0191': "######################### BG-Abrechnung ####################",
-	'0199': "######################### unstrukturierte Faelle ##################",
-	'6100': "######################### Patientenstamm ################",
-	'6200': "######################### Behandlungsdaten ################"
+	'0020': "========<< Anfang Datenträger >>========",
+	'0021': "========<< Ende Datenträger >>========",
+	'0022': "========<< Anfang Datenpaket >>========",
+	'0023': "========<< Ende Datenpaket >>========",
+	'0010': "========<< Praxisdaten >>========",
+	'0101': "========<< Fall: Primärarzt >>========",
+	'0102': "========<< Fall: Überweisung >>========",
+	'0103': "========<< Fall: Belegarzt  >>========",
+	'0104': "========<< Fall: Notfall/Dienst/Vertretung >>========",
+	'0190': "========<< Fall: Privat >>========",
+	'0191': "========<< Fall: BG >>========",
+	'0199': "========<< Fall: unstrukturierte >>========",
+	'6100': "========<< Patientenstamm >>========",
+	'6200': "========<< Behandlungsdaten >>========"
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.3  2003-02-13 15:26:09  ncq
+# Revision 1.4  2003-02-13 15:42:54  ncq
+# - changed some strings
+#
+# Revision 1.3  2003/02/13 15:26:09  ncq
 # - added mappings for content translation of Satzidentifikation
 #
 # Revision 1.2  2003/02/13 12:21:53  ncq
