@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.5 2003-11-17 10:56:38 sjtan Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmGuiHelpers.py,v 1.6 2003-12-29 16:49:18 uid66147 Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -27,6 +27,8 @@ from wxPython.wx import *
 import gmLog
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
+
+set_status_text = None
 # ========================================================================
 def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	if aMessage is None:
@@ -42,8 +44,10 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	if aTitle is None:
 		aTitle = _('generic error message dialog')
 
-	print aMessage
+	print "-" * len(aTitle)
 	print aTitle
+	print "-" * len(aTitle)
+	print aMessage
 
 	dlg = wxMessageDialog (
 		parent = NULL,
@@ -75,9 +79,37 @@ def gm_show_question(aMessage = None, aTitle = None):
 		return 1
 	else:
 		return 0
+#-------------------------------------------------------------------------
+def gm_beep_statustext(aMessage, aLogLevel = None):
+	if aMessage is None:
+		aMessage = _('programmer forgot to specify alert message')
+
+	if aLogLevel is not None:
+		log_msg = string.replace(aMessage, '\015', ' ')
+		log_msg = string.replace(log_msg, '\012', ' ')
+		_log.Log(aLogLevel, log_msg)
+
+	wxBell()
+
+	# only now and here can we assume that wxWindows
+	# is sufficiently initialized
+	global set_status_text
+	if set_status_text is None:
+		import gmGuiBroker as gb
+		try:
+			set_status_text = gb.GuiBroker()['main.statustext']
+		except KeyError:
+			_log.LogException('called too early, cannot set status text')
+			raise
+
+	set_status_text(aMessage)
+	return 1
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.5  2003-11-17 10:56:38  sjtan
+# Revision 1.6  2003-12-29 16:49:18  uid66147
+# - cleanup, gm_beep_statustext()
+#
+# Revision 1.5  2003/11/17 10:56:38  sjtan
 #
 # synced and commiting.
 #
