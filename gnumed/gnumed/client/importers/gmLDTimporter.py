@@ -23,71 +23,28 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.6 2004-05-08 22:15:10 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmLDTimporter.py,v 1.7 2004-05-11 01:32:04 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
 # stdlib
-import glob, os.path, sys, tempfile, fileinput
+import glob, os.path, sys, tempfile, fileinput, time
 
-from Gnumed.pycommon import gmLog
-_log = gmLog.gmDefLog
+from Gnumed.pycommon import gmLog, gmCLI
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
+	if gmCLI.has_arg('--debug'):
+		gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+	else:
+		gmLog.gmDefLog.SetAllLogLevels(gmLog.lWarn)
 
 from Gnumed.pycommon import gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.business import gmPathLab
-from Gnumed.business.gmXdtMappings import map_Befundstatus_xdt2gm, xdt_Befundstatus_map, map_8407_2str
+from Gnumed.business.gmXdtMappings import map_Befundstatus_xdt2gm, xdt_Befundstatus_map, map_8407_2str, xdt_8date2iso
 
+_log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
-
-lines_8220 = [
-	'8000',
-	'8100',
-	'9211',
-	'9221',
-	'0201',
-	'0203',
-	'0204',
-	'0205',
-	'0206',
-	'8300',
-	'0101',
-	'9106',
-	'8312',
-	'9103',
-	'9300',
-	'9301']
-
-lines_8202 = [
-	'8000',
-	'8100',
-	'8310',
-	'8311',
-	'8301',
-	'8302',
-	'3103',
-	'8401',
-	'8405',
-	'8407',
-	'8410',
-	'8411',
-	'8412',
-	'8418',
-	'8428',
-	'8429',
-	'8430',
-	'8431',
-	'8420',
-	'8421',
-	'8480',
-	'8470',
-	'8460',
-	'8422',
-	'8490']
-
 #===============================================================
 class cLDTImporter:
 
@@ -129,25 +86,28 @@ class cLDTImporter:
 		os.mkdir(self.work_dir, 0700)
 
 		# split into parts
-		file_list = self.__split_file(self.ldt_filename)
-		if file_list is None:
+		source_files = self.__split_file(self.ldt_filename)
+		if source_files is None:
 			_log.Log(gmLog.lErr, 'cannot split LDT file [%s]' % self.ldt_filename)
 			return False
 
-		print "initial request files:", file_list
+		print "initial request files:", source_files
 
-		# import request results
-		for request_file in file_list['data']:
-			if self.__import_request_result(request_file):
-				# remove from file_list
-				file_list['data'].remove(request_file)
+		# import requested results
+		target_files = source_files
+		target_files['data'] = []
+		for request_file in source_files['data']:
+			if self.__import_request_file(request_file):
+				source_files['data'].remove(request_file)
+				target_files['data'].append(request_file)
 			else:
 				_log.Log(gmLog.lErr, 'cannot import LDT request result from [%s]' % request_file)
 
-		print "left over request files:", file_list
+		print "left over request files:", source_files
+		print "target files to pass on:", target_files
 
 		# reassemble file if anything left
-		if len(file_list['data']) > 0:
+		if len(source_files['data']) > 0:
 			pass
 
 		# clean up
@@ -156,72 +116,83 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	# internal helpers
 	#-----------------------------------------------------------
-	def __import_result(self, request=None, lab_result=None):
-		# sanity checks
-		if None in [request, lab_result]:
-			_log.Log(gmLog.lErr, 'need request and result args for import')
-			return False
-		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
-		try:
-			v_num = lab_result['val_num']
-		except KeyError:
-			v_num = None
-		try:
-			v_alpha = lab_result['val_alpha']
-		except KeyError:
-			v_alpha = None
-		try:
-			if request[whenfield] is None:
-				raise KeyError
-			if (v_num is None) and (v_alpha) is None:
-				raise KeyError
-			a = lab_result['code']
-			a = lab_result['name']
-			a = lab_result['val_unit']
-		except KeyError:
-			_log.Log(gmLog.lErr, 'request or result do not contain minimum data: %s %s' % (str(request), str(lab_result)))
-			return False
-		# - verify/create test type
-		status, ttype = gmPathLab.create_test_type(lab=self.__lab_name, code=lab_result['code'], name=lab_result['name'], unit=lab_result['val_unit'])
-		if status in [False, None]:
-			return False
-		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'auto-created by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.6 $] while importing [%s]' % self.ldt_filename
-			ttype.save_payload()
-		# - try to create test row
-		status, test = gmPathLab.create_test_result(
-			patient_id = request.get_patient()[0],
-			when_field = whenfield,
-			when = request[whenfield],
-			test_type = ttype['id'],
-			val_num = v_num,
-			val_alpha = v_alpa,
-			unit = lab_result['val_unit'],
-			encounter_id = request['id_encounter'],
-			episode_id = request['id_episode']
-		)
-		if status is False:
-			_log.Log(gmLog.lErr, 'cannot create result record')
-			_log.Log(gmLog.lData, str(lab_result))
-			return False
-		# make this configurable (whether skipping or duplicating)
-		if status is None:
-			_log.Log(gmLog.lWarn, 'skipping duplicate test result')
-			_log.Log(gmLog.lData, 'database: %s' % str(test))
-			_log.Log(gmLog.lData, 'ldt file: %s' % str(lab_result))
-			return True
-		# update result record from dict
-		for field in lab_result.keys():
-			try:
-				test[field] = lab_result[field]
-			except KeyError:
-				pass
-		# - self.__ref_group validation, warn if mismatch
-		test['reviewed_by_clinician'] = False
-		lab_result.save_payload()
-		return True
+	def __verify_file_header(self, filename):
+		"""Verify that header is suitable for import.
+
+		This does not verify whether the header is conforming
+		to the LDT specs but rather that it is fit for import.
+		"""
+		verified_lines = 0
+		for line in fileinput.input(filename):
+			line_type = line[3:7]
+			line_data = line[7:-2]
+			# found start of record following header
+			if line_type == '8000':
+				if line_data != '8220':
+					fileinput.close()
+					return (verified_lines == len(cLDTImporter._map_field2verifier))
+			else:
+				try:
+					verify_line = cLDTImporter._map_field2verifier[line_type]
+				except KeyError:
+					continue
+				if verify_line(self, line, line_data):
+					verified_lines += 1
+				else:
+					_log.Log(gmLog.lErr, 'cannot handle LDT file [%s]' % filename)
+					fileinput.close()
+					return False
+
+		_log.Log(gmLog.lErr, 'LDT file [%s] contains nothing but a header' % filename)
+		fileinput.close()
+		return False
 	#-----------------------------------------------------------
-	def __import_request_result(self, filename):
+	def __split_file(self, filename):
+		"""Split LDT file.
+
+		Splits LDT files into header (record type 8220), data
+		records (8202, etc) and trailer (8221).
+		"""
+		tempfile.tempdir = self.work_dir
+		source_files = {}
+		source_files['data'] = []
+		for line in fileinput.input(filename):
+			line_type = line[3:7]
+			line_data = line[7:-2]
+			if line_type == '8000':
+				# start of header == start of file
+				if line_data == '8220':
+					outname = os.path.join(self.work_dir, 'header.txt')
+					source_files['header'] = outname
+					outfile = open(outname, 'w+b')
+				# start of trailer
+				elif line_data == '8221':
+					outfile.close()
+					outname = os.path.join(self.work_dir, 'trailer.txt')
+					source_files['trailer'] = outname
+					outfile = open(outname, 'w+b')
+				# start of LG-Bericht
+				elif line_data == '8202':
+					outfile.close()
+					outname = os.path.join(self.work_dir, tempfile.mktemp(suffix='.txt'))
+					source_files['data'].append(outname)
+					outfile = open(outname, 'w+b')
+				else:
+					outfile.close()
+					_log.Log(gmLog.lErr, 'unknown result type [%s]' % line_data)
+					outname = os.path.join(self.work_dir, tempfile.mktemp(suffix='.txt'))
+					source_files['data'].append(outname)
+					outfile = open(outname, 'w+b')
+			# keep line
+			outfile.write(line)
+
+		# end of file
+		outfile.close()
+		fileinput.close()
+		return source_files
+	#-----------------------------------------------------------
+	def __import_request_file(self, filename):
+		_log.Log(gmLog.lInfo, 'trying to import request+results from [%s]' % request_file)
 		request = self.__import_request_header(filename)
 		if request is False:
 			return False
@@ -242,8 +213,6 @@ class cLDTImporter:
 						had_errors = True
 				# start new record
 				data = {'code': line_data}
-				if self.__ref_group is not None:
-					data['ref_group'] = map_8407_2str[self.__ref_group]
 				continue
 			elif line_type == '8411':
 				data['name'] = line_data.strip()
@@ -252,7 +221,8 @@ class cLDTImporter:
 				# GnuMed does not support KV-Abrechnung yet
 				continue
 			elif line_type == '8428':
-				# GnuMed does not support Material-Ident
+				# GnuMed does not support Material-Ident, it never will
+				# unless someone provides a convincing use case
 				continue
 			elif line_type == '8430':
 				data['material'] = line_data
@@ -285,9 +255,6 @@ class cLDTImporter:
 			# skip request header
 			elif line_type in ['8000', '8100', '8310', '8311', '8301', '8302', '8401', '8405', '8407']:
 				continue
-#			elif line_type == '':
-#				data[''] = line_data
-#				continue
 			else:
 				_log.Log(gmLog.lErr, 'unbekannter LDT-Zeilentyp [%s], Inhalt: [%s], breche ab' % (line_type, line_data))
 				fileinput.close()
@@ -375,10 +342,10 @@ class cLDTImporter:
 				header['lab_request_id'] = line_data
 				continue
 			elif line_type == '8301':
-				header['lab_rxd_when'] = line_data
+				header['lab_rxd_when'] = xdt_8date2iso(line_data)
 				continue
 			elif line_type == '8302':
-				header['results_reported_when'] = line_data
+				header['results_reported_when'] = xdt_8date2iso(line_data)
 				continue
 			elif line_type == '8405':
 				header['narrative'] = line_data
@@ -394,69 +361,83 @@ class cLDTImporter:
 		fileinput.close()
 		return False
 	#-----------------------------------------------------------
-	def __verify_file_header(self, filename):
-		"""Verify that header is suitable for import.
-
-		This does not verify whether the header is conforming
-		to the LDT specs but rather that it is fit for import.
-		"""
-		verified_lines = 0
-		for line in fileinput.input(filename):
-			line_type = line[3:7]
-			line_data = line[7:-2]
-			# found start of record following header
-			if line_type == '8000':
-				if line_data != '8220':
-					fileinput.close()
-					return (verified_lines == len(cLDTImporter._map_field2verifier))
-			else:
-				try:
-					verify_line = cLDTImporter._map_field2verifier[line_type]
-				except KeyError:
-					continue
-				if verify_line(self, line, line_data):
-					verified_lines += 1
-				else:
-					_log.Log(gmLog.lErr, 'cannot handle LDT file [%s]' % filename)
-					fileinput.close()
-					return False
-
-		_log.Log(gmLog.lErr, 'LDT file [%s] contains nothing but a header' % filename)
-		fileinput.close()
-		return False
-	#-----------------------------------------------------------
-	def __split_file(self, filename):
-		tempfile.tempdir = self.work_dir
-		file_list = {}
-		file_list['data'] = []
-		for line in fileinput.input(filename):
-			line_type = line[3:7]
-			line_data = line[7:-2]
-			if line_type == '8000':
-				# start of header == start of file
-				if line_data == '8220':
-					outname = os.path.join(self.work_dir, 'header.txt')
-					file_list['header'] = outname
-					outfile = open(outname, 'w+b')
-				# start of trailer
-				elif line_data == '8221':
-					outfile.close()
-					outname = os.path.join(self.work_dir, 'trailer.txt')
-					file_list['trailer'] = outname
-					outfile = open(outname, 'w+b')
-				# start of LG-Bericht
-				elif line_data == '8202':
-					outfile.close()
-					outname = os.path.join(self.work_dir, tempfile.mktemp(suffix='.txt'))
-					file_list['data'].append(outname)
-					outfile = open(outname, 'w+b')
-			# keep line
-			outfile.write(line)
-
-		# end of file
-		outfile.close()
-		fileinput.close()
-		return file_list
+	def __import_result(self, request=None, lab_data=None):
+		# sanity checks
+		if None in [request, lab_data]:
+			_log.Log(gmLog.lErr, 'need request and result args for import')
+			return False
+		if len(lab_data) == 2:
+			if lab_data.has_key('code') and lab_data.has_key('name'):
+				return True
+		# FIXME: make this configurable
+		whenfield = 'lab_rxd_when'
+		try:
+			v_num = lab_data['val_num']
+		except KeyError:
+			v_num = None
+		try:
+			v_alpha = lab_data['val_alpha']
+		except KeyError:
+			v_alpha = None
+		try:
+			if request[whenfield] is None:
+				raise KeyError
+			if (v_num is None) and (v_alpha) is None:
+				raise KeyError
+			a = lab_data['code']
+			a = lab_data['name']
+			a = lab_data['val_unit']
+		except KeyError:
+			_log.Log(gmLog.lErr, 'request or result does not contain minimum data for import')
+			_log.Log(gmLog.lData, 'request: %s' % str(request))
+			_log.Log(gmLog.lData, 'result : %s' % str(lab_data))
+			return False
+		# - verify/create test type
+		status, ttype = gmPathLab.create_test_type(
+			lab=self.__lab_name,
+			code=lab_data['code'],
+			name=lab_data['name'],
+			unit=lab_data['val_unit']
+		)
+		if status in [False, None]:
+			return False
+		if ttype['comment'] in [None, '']:
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.7 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype.save_payload()
+		# - try to create test row
+		status, lab_result = gmPathLab.create_lab_result(
+			patient_id = request.get_patient()[0],
+			when_field = whenfield,
+			when = request[whenfield],
+			test_type = ttype['id'],
+			val_num = v_num,
+			val_alpha = v_alpha,
+			unit = lab_data['val_unit'],
+			encounter_id = request['id_encounter'],
+			episode_id = request['id_episode'],
+			request_id = request['pk']
+		)
+		if status is False:
+			_log.Log(gmLog.lErr, 'cannot create result record')
+			_log.Log(gmLog.lData, str(lab_data))
+			return False
+		# FIXME: make this configurable (whether skipping or duplicating)
+		if status is None:
+			_log.Log(gmLog.lWarn, 'skipping duplicate lab result on import')
+			_log.Log(gmLog.lData, 'ldt file: %s' % str(lab_data))
+			return True
+		# update result record from dict
+		if self.__ref_group is not None:
+			lab_data['ref_group'] = map_8407_2str[self.__ref_group]
+		for field in lab_data.keys():
+			try:
+				lab_result[field] = lab_data[field]
+			except KeyError:
+				pass
+		# FIXME: - self.__ref_group validation, warn if mismatch
+		lab_result['reviewed'] = False
+		lab_result.save_payload()
+		return True
 	#-----------------------------------------------------------
 	def _verify_8300(self, a_line, field_data):
 		cmd = "select exists(select pk from test_org where internal_name=%s)"
@@ -522,13 +503,14 @@ def run_import():
 	# loop over files
 	for ldt_file in files2import:
 		importer = cLDTImporter(cfg=_cfg)
+		_log.Log(gmLog.lInfo, 'trying to import LDT file [%s]' % ldt_file)
 		if not importer.import_file(ldt_file):
 			_log.Log(gmLog.lErr, 'cannot import LDT file [%s]' % ldt_file)
 	return True
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	rep_by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.6 $'
+	rep_by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.7 $'
 	recvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=rep_by, receiver=recvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -538,7 +520,7 @@ if __name__ == '__main__':
 	if _cfg is None:
 		_log.Log(gmLog.lErr, 'need config file to run')
 		sys.exit(1)
-	# set encodingr
+	# set encoding
 	gmPG.set_default_client_encoding('latin1')
 	# setup login defs
 	auth_data = gmLoginInfo.LoginInfo(
@@ -550,11 +532,19 @@ if __name__ == '__main__':
 	)
 	backend = gmPG.ConnectionPool(login = auth_data)
 	# actually run the import
-	run_import()
-
+	try:
+		run_import()
+	except:
+		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
+		sys.exit(1)
+	sys.exit(0)
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.6  2004-05-08 22:15:10  ncq
+# Revision 1.7  2004-05-11 01:32:04  ncq
+# - eventually actually imports test types and results
+# - doesn't handle left over data though
+#
+# Revision 1.6  2004/05/08 22:15:10  ncq
 # - almost there, all the code is there but it needs fixing and fine-tuning
 #
 # Revision 1.5  2004/04/26 21:58:22  ncq
