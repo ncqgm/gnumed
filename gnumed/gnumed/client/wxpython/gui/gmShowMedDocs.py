@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -93,6 +93,10 @@ class cDocTree(wxTreeCtrl):
 	def update(self, aPatient = None):
 		if aPatient is None:
 			_log.Log(gmLog.lErr, 'need patient object for update')
+			self.__show_error(
+				aMessage = _('Cannot load documents.\nYou first need to select a patient.'),
+				aTitle = _('loading document list')
+			)
 			return None
 		self.pat = aPatient
 
@@ -120,14 +124,10 @@ class cDocTree(wxTreeCtrl):
 		doc_ids = self.pat['document id list']
 		if doc_ids is None:
 			name = self.pat['active name']
-			dlg = wxMessageDialog(
-				self,
-				_('Cannot find any documents for the patient\n[%s %s].') % (name['first'], name['last']),
-				_('searching patient documents'),
-				wxOK | wxICON_ERROR
+			self.__show_error(
+				aMessage = _('Cannot find any documents for the patient\n[%s %s].') % (name['first'], name['last']),
+				aTitle = _('loading document list')
 			)
-			dlg.ShowModal()
-			dlg.Destroy()
 			return None
 
 		# fill new tree from document list
@@ -176,7 +176,7 @@ class cDocTree(wxTreeCtrl):
 				tmp = _('page %s: \"%s\" (%s bytes)')
 				label = tmp % (p[:2], c, s)
 				obj_node = self.AppendItem(doc_node, label)
-				# id = doc_med.id for retrieval
+				# id = doc_med.id for retrival
 				# seq_idx for sorting
 				data = {
 					'type': 'object',
@@ -451,7 +451,7 @@ if __name__ == '__main__':
 			return 1
 #== classes for plugin use ======================================
 else:
-	#------------------------------------------------------------
+
 	class cPluginTreePanel(wxPanel):
 		def __init__(self, parent, id):
 			# set up widgets
@@ -472,6 +472,7 @@ else:
 			# FIXME: return service handle
 			#self.DB.disconnect()
 			pass
+
 	#------------------------------------------------------------
 	import gmPlugin
 
@@ -480,6 +481,7 @@ else:
 			return _("Documents")
 
 		def GetWidget (self, parent):
+			self.__pat = gmTmpPatient.gmDefPatient
 			self.panel = cPluginTreePanel(parent, -1)
 			return self.panel
 
@@ -488,16 +490,11 @@ else:
 
 		def ReceiveFocus(self):
 			# get patient object
-			# FIXME: should be done in __init__()
-			self.__pat = gmTmpPatient.gmDefPatient
-			if self.__pat is None:
-				_log.Log(gmLog.lErr, "Cannot work without patient object.")
-				#raise ConstructorError, "cPluginTreePanel.__init__(): need patient object"
+			if self.panel.tree.update(self.__pat) is None:
+				_log.Log(gmLog.lErr, "cannot update document tree")
+				return None
 			# FIXME: register interest in patient_changed signal, too
-			else:
-				self.panel.tree.update(self.__pat)
-				# FIXME: we should handle errors in tree.update here (e.g. tree=None)
-				self.panel.tree.SelectItem(self.panel.tree.root)
+			self.panel.tree.SelectItem(self.panel.tree.root)
 
 #================================================================
 # MAIN
@@ -525,7 +522,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.13  2003-03-02 17:03:19  ncq
+# Revision 1.14  2003-03-23 02:38:46  ncq
+# - updated Hilmar's fix
+#
+# Revision 1.13  2003/03/02 17:03:19  ncq
 # - make sure metadata is retrieved
 #
 # Revision 1.12  2003/03/02 11:13:01  hinnef
