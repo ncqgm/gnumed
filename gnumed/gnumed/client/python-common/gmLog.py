@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -378,11 +378,12 @@ class cLogTargetConsole(cLogTarget):
 		self.writeMsg (lData, "instantiated console logging with ID " + str(self.ID))
 	#---------------------------
 	def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		sys.stdout.write(aTimeStamp + aPrefix + aLocation + aMsg)
+		#sys.stdout.write(aTimeStamp + aPrefix + aLocation + aMsg)
+		sys.stdout.write(aPrefix + aLocation + aMsg)
 	#---------------------------
 	def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		sys.stderr.write(aTimeStamp + aPrefix + aLocation + aMsg)
-
+		#sys.stderr.write(aTimeStamp + aPrefix + aLocation + aMsg)
+		sys.stderr.write(aPrefix + aLocation + aMsg)
 #---------------------------------------------------------------
 class cLogTargetSyslog(cLogTarget):
 	def __init__ (self, aLogLevel = lErr):
@@ -761,7 +762,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.30  2002-11-20 12:08:36  ncq
+# Revision 1.31  2003-02-12 01:03:44  ncq
+# - when logging to console: don't display timestamp, it scrolls past too fast anyways
+#
+# Revision 1.30  2002/11/20 12:08:36  ncq
 # - finally make --log-file=LOGFILE actually work
 #
 # Revision 1.29  2002/11/18 11:36:04  ncq
