@@ -3,8 +3,8 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.4 2004-12-13 19:03:00 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmResizingWidgets.py,v 1.5 2004-12-14 10:26:01 ihaywood Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -86,6 +86,7 @@ class cPopupFrame(wx.wxFrame):
 
 		EVT_BUTTON(self.__BTN_OK, self.__BTN_OK.GetId(), self.OnOK)
 		EVT_BUTTON(self.__BTN_Cancel, self.__BTN_Cancel.GetId(), self._on_close)
+		self.win.SetFocus ()
 	#------------------------------------------------
 	def __do_layout(self):
 		self.__BTN_OK = wx.wxButton (self, -1, _("OK"), style=wx.wxBU_EXACTFIT)
@@ -139,7 +140,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 				if line[0]['label'] is not None:
 					self.__szr_main.Add(line[0]['label'], 1)
 				else:
-					self.__szr_main.Add(20, 20)
+					self.__szr_main.Add((1, 1))
 				# the rest gets crammed into column 2
 				h_szr = wx.wxBoxSizer (wx.wxHORIZONTAL)
 				h_szr.Add(line[0]['instance'], 1, wx.wxGROW)
@@ -149,7 +150,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 					h_szr.Add(widget['instance'], 1, wx.wxGROW)
 				self.__szr_main.Add(h_szr, 1, wx.wxGROW)
 		self.__szr_main.AddGrowableCol(1)
-		self.__szr_main.Add(10, 10)
+		self.__szr_main.Add((1, 1))
 
 		self.SetSizer(self.__szr_main)
 		self.FitInside()
@@ -266,6 +267,14 @@ class cResizingWindow(wx.wxScrolledWindow):
 					widget['instance'].SetValue(widget['instance'].GetMin())
 
 	#------------------------------------------------
+	def SetFocus (self):
+		try:
+			self.lines[0][0]['instance'].SetFocus ()
+			# try to focus on the first line if we can.
+		except IndexError:
+			pass
+		except AttributeError:
+			pass
 	#------------------------------------------------
 	def GetPickList (self, callback, x, y):
 		"""
@@ -559,7 +568,11 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 			self.Embed (text, data)
 #====================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.4  2004-12-13 19:03:00  ncq
+# Revision 1.5  2004-12-14 10:26:01  ihaywood
+#
+# minor fixes carried over from SOAP2.py
+#
+# Revision 1.4  2004/12/13 19:03:00  ncq
 # - inching close to code that I actually understand
 #
 # Revision 1.3  2004/12/07 21:54:56  ncq
