@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.30 2004-03-20 12:49:55 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmPatient.py,v 1.31 2004-03-20 13:05:20 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -557,6 +557,7 @@ class cPatientSearcher_SQL:
 
 		queries = []
 		queries.append(['select i_id, n_id from v_basic_person where %s' % ' and '.join(where_snippets)])
+		return queries
 	#--------------------------------------------------------
 	# queries for DE
 	#--------------------------------------------------------
@@ -881,7 +882,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.30  2004-03-20 12:49:55  ncq
+# Revision 1.31  2004-03-20 13:05:20  ncq
+# - we of course need to return results from __generate_queries_generic
+#
+# Revision 1.30  2004/03/20 12:49:55  ncq
 # - support gender, too, in search_dict in get_patient_ids
 #
 # Revision 1.29  2004/03/20 12:32:51  ncq
