@@ -15,7 +15,7 @@ spec = None
 specMap = None
 global HOME_PHONE_TYPE, BUSINESS_PHONE_TYPE
 
-
+import time, random
 
 global debug
 
@@ -134,7 +134,6 @@ def find_id_state_like(text):
 def get_random_profile(idMgr):
 	"""creates a random profile.
 	"""
-	import random
 	r = random.Random()
 	yr = 1900 + r.randint(0, 99)
 	month = r.randint(1, 12)
@@ -157,23 +156,20 @@ dobDay=day, dobMonth=month, dobYear=yr, sex="?", phoneCountryCode=str(code), pho
 		print "\n\n ** RANDOM PROFILE = \n\t",[ t.value.value() for t in profile], "\n"
 	return profile
 
-def get_random_street():
-	import random
-	r = random.Random()
+def get_random_street(seed = time.time()):
+	r = random.Random(seed)
 	street = r.choice(["Bell st", "Red rd", "Blue Ave", "Black Boulevard"])
 	return street
 
 def get_random_surname():
-	import random
 	r = random.Random()
 	surname = random.choice(["Smith", "Jones", "Green", "Barnaby", "Williams", "McDonald" ])
 	return surname
 
 global test_locations
 test_locations = []
-def get_random_location():
-	import random
-	r = random.Random()
+def get_random_location(seed = time.time()):
+	r = random.Random(seed)
 
 	global test_locations
 	if test_locations == []:
@@ -181,8 +177,7 @@ def get_random_location():
 	if debug:
 		print "TEST locations are", test_locations
 
-	import random
-	r = random.Random()
+
 	return r.choice(test_locations)
 
 def load_test_locations():
@@ -218,15 +213,15 @@ def load_test_locations():
 
 	if test_data == []:
 		test_data= [
-			('JERVIS BAY','NSW', 2540, 'AU'),
-			('BARTON','NSW', 2600,'AU'),
-			('ACTION', 'NSW',2601,'AU'),
-			('AINSLIE','NSW', 2602,'AU'),
-			('GARRAN', 'NSW',2605,'AU'),
-			('BONDI JUNCTION', 'SA',1355,'AU'),
-			('DOUBLE BAY', 'SA',1360,'AU'),
-			('STRAWBERRY HILL','SA', 1420,'AU'),
-			('ALEXANDRIA', 'SA',1435,'AU') ]
+			('JERVIS BAY','ACT', 2540, 'AU'),
+			('BARTON','ACT', 2600,'AU'),
+			('ACTON', 'ACT',2601,'AU'),
+			('AINSLIE','ACT', 2602,'AU'),
+			('GARRAN', 'ACT',2605,'AU'),
+			('BONDI JUNCTION', 'NSW',1355,'AU'),
+			('DOUBLE BAY', 'NSW',1360,'AU'),
+			('STRAWBERRY HILLS','NSW', 1420,'AU'),
+			('ALEXANDRIA', 'NSW',1435,'AU') ]
 
 	return test_data
 

@@ -109,7 +109,7 @@ sql_traits = """select * from
   gender, cob,
   a.number, s.name as street,
   u.name as urb_name , u.postcode,
-  state.name as state, state.country as country_code,
+  state.code as state, state.country as country_code,
   trim(both ' ' from c.url) as telephone_home,
   trim (both ' ' from c2.url2) as telephone_business,
    to_char( dob, 'YYYYMMDDHH24MISS') as datetimeofbirth,
@@ -179,7 +179,7 @@ def get_field_index_map( description):
 	ix = {}
 	for i in xrange(0, len(description)):
 		ix[description[i][0]] = i
-	if debug:
+	if '-debug2' in sys.argv:
 		print "index map is ",ix
 	return ix
 
@@ -362,7 +362,7 @@ def do_profile_update(pu, conn):
 		print "the modify list is : "
 		for t in pu.modify_list:
 			print t.name, t.value.value()
-
+	other_traits_param_pos , other_traits_update_values = 0 , []
 	for trait in pu.modify_list:
 		# ignore blank values
 		if trait.value.value().strip() == '':
@@ -376,9 +376,17 @@ def do_profile_update(pu, conn):
 
 			# the clause 'and active=true' reduces the sql execution time
 			# by over a half. This can be found by profiling the sql calls.
-			cursor.execute("update names set active = false where id_identity = %s and active = true " % pu.id )
+			if not conn.__dict__.has_key('exec_inactivate_old_names'):
+
+				cursor.execute("prepare inactivate_old_names(int) as update names set active = false where id_identity = $1 and active = true ")
+				conn.exec_inactivate_old_names = "execute inactivate_old_names(%s)"
+			cursor.execute(conn.exec_inactivate_old_names % pu.id )
 			# check for semantic key constraint
-			cursor.execute("select id from names where lastnames = '%s' and firstnames = '%s' and preferred = '%s' and id_identity = %s" % tuple(l[0:3] + [pu.id]) )
+			if not conn.__dict__.has_key('exec_check_name_exists'):
+
+				cursor.execute("prepare check_name_exists( text, text, text, int) as select id from names where lastnames = $1 and firstnames = $2 and preferred = $3 and id_identity = $4")
+				conn.exec_check_name_exists = "execute check_name_exists('%s', '%s', '%s', %s)"
+			conn.execute(conn.exec_check_name_exists  % tuple(l[0:3] + [pu.id]) )
 			res = cursor.fetchone()
 			if res <> None:
 				n = res[0]
@@ -386,8 +394,12 @@ def do_profile_update(pu, conn):
 				cursor.execute("update names set active = true where id = %d" % n)
 				continue
 
+			if not conn.__dict__.has_key('exec_insert_names'):
+				conn.execute("prepare insert_names( text, text, text, int) as insert into names ( lastnames, firstnames, preferred, id_identity, active) values ( $1, $2, $3, $4, true)")
+				conn.exec_insert_names ="execute insert_names('%s', '%s', '%s', %s)"
+			conn.execute(conn.exec_insert_names % tuple ( l[0:3]+[pu.id] ) )
 
-			statements.append( "insert into names ( lastnames, firstnames, preferred, id_identity, active) values ( '%s','%s','%s', %s, true) " % tuple ( l[0:3]+[pu.id] ) )
+
 
 			if len(l) >= 4 and l[3] <> '':
 				statements.append("update identity set title = '%s' where id = %s" % ( l[4], pu.id))
@@ -396,19 +408,20 @@ def do_profile_update(pu, conn):
 			if l[1] == '' or l[2] =='' or l[3] =='' or (l[4] =='' and l[5] ==''):
 				continue
 			s1 = "delete from lnk_person2address where id_identity = %s and id_type = 1"
-			s2_findUrb = "select urb.id from urb, state where state.id = urb.id_state and urb.name = '%s' and (urb.postcode = '%s' or   state.name='%s' )"
+			s2_findUrb = "select urb.id from urb, state where state.id = urb.id_state and urb.name = '%s' and (urb.postcode = '%s' or state.code = '%s'  or state.name='%s' )"
 
 			s3_findStreet = "select street.id, urb.id from street ,urb , state where street.id_urb = urb.id and urb.id_state = state.id and street.name ='%s' and ( street.id_urb = %d or   urb.postcode = '%s' or (street.postcode = '%s' and state.name = '%s' ))"
 			s3b1_insertStreet = "insert into street( name, id_urb) values( '%s', %d)"
-			s3b2_selectNewStreet = "select curr_val('street_id_seq')"
+			s3b2_selectNewStreet = "select currval('street_id_seq')"
 
 
 			s4_selectAddress = "select id from address a where a.number = '%s' and a.id_street = %d"
 
-			s4b1_insertAddress = "insert into address a ( number, id_street) values ( '%s', %d)"
-			s4b2_selectNewAddress = "select curr_val('address_id_seq')"
+			s4b1_insertAddress = "insert into address  ( number, id_street) values ( '%s', %d)"
+			s4b2_selectNewAddress = "select currval('address_id_seq')"
 
-			cursor.execute(s2_findUrb % (l[2] ,l[4] ,l[3]) )
+			cursor.execute(s1 % pu.id)
+			cursor.execute(s2_findUrb % (l[2] ,l[4] ,l[3], l[3]) )
 			res = cursor.fetchall()
 			if (len(res) == 0):
 				urb_id = 0
@@ -460,44 +473,84 @@ def do_profile_update(pu, conn):
 			if trait.name == hl7.PHONE_NUMBER_HOME: comm_type = HOME_PHONE_TYPE
 			else:	 comm_type = BUSINESS_PHONE_TYPE
 
-			cursor.execute("select id_comm from lnk_person2comm_channel l, comm_channel c where  id_identity = %s and l.id_comm = c.id and c.id_type = %d" % (pu.id, comm_type) )
+			if not conn.__dict__.has_key('exec_find_comm'):
+				cursor.execute("""prepare find_comm(int, int) as
+select id_comm from lnk_person2comm_channel l, comm_channel c where  id_identity = $1 and l.id_comm = c.id and c.id_type = $2""")
+
+				conn.exec_find_comm = "execute find_comm(%s,%d)"
+				cursor.execute("prepare delete_comm_reference(int, int) as delete from lnk_person2comm_channel  where id_identity = $1 and id_comm = $2")
+				conn.exec_delete_comm_ref = "execute delete_comm_reference(%s, %d)"
+				cursor.execute("""prepare count_remaining_comm_refs(int) as select count(id) from lnk_person2comm_channel l where l.id_comm = $1""")
+				conn.exec_count_remaining_comm_refs = "execute count_remaining_comm_refs(%s)"
+				cursor.execute("prepare delete_orphan_comm(int) as delete from comm_channel where id = $1")
+				conn.exec_delete_orphan_comm = """execute delete_orphan_comm(%s)"""
+				cursor.execute("""prepare find_existing_duplicate_comm(text) as select id from comm_channel where url= $1""")
+				conn.exec_find_existing_duplicate_comm = "execute find_existing_duplicate_comm('%s')"
+
+				cursor.execute("prepare create_comm( int, text) as  insert into comm_channel( id_type, url) values( $1 , $2)")
+				cursor.execute("""prepare create_comm_lnk(int,int) as insert into lnk_person2comm_channel(id_identity, id_comm) values ( $1, $2)""")
+
+			cursor.execute( conn.exec_find_comm % (pu.id, comm_type) )
+
 			res = cursor.fetchone()
 			if (res <> None and len(res) <> 0):
 				id_comm = res[0]
-				cursor.execute("delete from lnk_person2comm_channel  where id_identity = %s and id_comm = %d" % (pu.id, id_comm) )
-				cursor.execute("select count(id) from lnk_person2comm_channel l where l.id_comm = %d" % id_comm )
+				cursor.execute(conn.exec_delete_comm_ref % (pu.id, id_comm) )
+				cursor.execute( conn.exec_count_remaining_comm_refs % id_comm)
+
 				res2 = cursor.fetchone()
 				if res2[0] == 0:
-					cursor.execute("delete from comm_channel where id = %d" % id_comm)
-			cursor.execute("select id from comm_channel where id_type = %d and url = '%s'" % ( comm_type, trait.value.value() ) )
+					cursor.execute(conn.exec_delete_orphan_comm % id_comm)
+
+			cursor.execute( conn.exec_find_existing_duplicate_comm %  trait.value.value()  )
+
 			res = cursor.fetchone()
 			if debug:
 				print "existing id comm_channel =", res
 			if res <> None:
 				id_comm = res[0]
 			else:
-				cursor.execute("insert into comm_channel( id_type, url) values( %d, '%s')" % (comm_type, trait.value.value() ))
+				cursor.execute("execute create_comm( %d, '%s')" % (comm_type, trait.value.value() ))
 				cursor.execute("""select currval('comm_channel_id_seq')""")
 				[id_comm] = cursor.fetchone()
-			cursor.execute("insert into lnk_person2comm_channel(id_identity, id_comm) values ( %s, %d)" % ( pu.id, id_comm) )
+			cursor.execute("execute create_comm_lnk(%s, %d)" % ( pu.id, id_comm) )
 
 
 
 		elif trait.name in [ hl7.DATE_TIME_OF_BIRTH, hl7.PATIENT_DEATH_DATE_AND_TIME ] :
 			if l[0] == '':
 				continue
+			other_traits_param_pos += 1
+			frags.append(" %s = to_timestamp($%d, 'YYYYMMDDHH24MISS')" %
+			( in_trait_map[trait.name], other_traits_param_pos) )
 
-			frags.append(" %s = to_timestamp('%s', 'YYYYMMDDHH24MISS')" % ( in_trait_map[trait.name], trait.value.value() ) )
+			other_traits_update_values.append( trait.value.value()  )
 
 			#statements.append( "update identity set %s = to_timestamp('%s', 'YYYYMMDDHH24MISS') where id = %s" % ( in_trait_map[trait.name], trait.value.value(), pu.id) )
 		elif trait.name in [hl7.SEX, hl7.NATIONALITY]:
 			if l[0] == '':
 				continue
-			frags.append( " %s = '%s'" % (in_trait_map[trait.name], trait.value.value().lower() ) )
+			other_traits_param_pos += 1
+			frags.append( " %s = $%d" % (in_trait_map[trait.name], other_traits_param_pos))
+			other_traits_update_values.append( trait.value.value().lower()  )
 
 			#statements.append("update identity set %s = '%s' where id = %s" % (in_trait_map[trait.name], trait.value.value(), pu.id) )
+	if frags <> []:
 
-	cursor.execute("update identity set %s where id = %s" % ( ",".join(frags), pu.id) )
+		stmt = "update identity set %s where id = $%d" % ( ",".join(frags), other_traits_param_pos + 1)
+		h =abs( hash(stmt))
+		if not conn.__dict__.has_key('other_stmts'):
+			conn.other_stmts = {}
+
+		if not conn.other_stmts.has_key(h):
+			conn.other_stmts[h] = "execute do_trait_update_%d(%s)" % (h , ", ".join( ["'%s'"] * len(other_traits_update_values) + ["%s"]  ) )
+
+			cursor.execute("""prepare do_trait_update_%d(%s) as %s""" % (h,  ", ".join( ['text'] * len(other_traits_update_values) + ['int'] ) ,  stmt) )
+
+		cursor.execute(conn.other_stmts[h] % tuple(other_traits_update_values + [pu.id]) )
+
+
+
 	for s in statements:
 		cursor.execute(s)
 

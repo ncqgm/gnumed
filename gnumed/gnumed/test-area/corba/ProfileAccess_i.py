@@ -20,8 +20,7 @@ class ProfileAccess_i(PersonIdService__POA.ProfileAccess, StartIdentificationCom
 	def __init__(self, dsn=None, ProviderClass = PlainConnectionProvider ):
 		self.connector = ProviderClass(dsn)
 		self.call_count = { 'update_and_clear' : 0, 'get_profile': 0 }
-
-
+		self.statements = {}
 	def report(self):
 		print self.connector.getConnection().__dict__
 
@@ -30,10 +29,23 @@ class ProfileAccess_i(PersonIdService__POA.ProfileAccess, StartIdentificationCom
 		conn.rollback()
 
 		field_list , traits = get_field_list_and_traitname_list(specTraits)
+		traits.sort()
+		h = hash( ''.join(traits) )
+		if debug:
+			print "using hash = ", h
+		if self.statements.has_key(h):
+			stmt = self.statements[h]
+		else:
+			stmt = "prepare find_profile_%d(int) as select %s from (%s) as traits  where traits.id = $1" % (h, ','.join(field_list), sql_traits)
+			conn.execute(stmt)
+			stmt = "execute find_profile_%d(%%s)" % h
+			self.statements[h] = stmt
 
-		stmt = "select %s from (%s) as traits  where traits.id = %s" % (','.join(field_list), sql_traits , id)
+
+		#stmt = "select %s from (%s) as traits  where traits.id = %s" % (','.join(field_list), sql_traits , id)
+		stmt_i = stmt % id
 		cursor = conn.cursor()
-		cursor.execute(stmt)
+		cursor.execute(stmt_i)
 		result = cursor.fetchall()
 		tprofiles = get_tagged_profiles_from_cursor_result( result, cursor.description)
 		if len(tprofiles) > 1:
@@ -46,13 +58,17 @@ class ProfileAccess_i(PersonIdService__POA.ProfileAccess, StartIdentificationCom
 		if debug:
 			print "idSeq", idSeq
 		field_list , traits = get_field_list_and_traitname_list(specTraits)
+		profiles = []
+		for id in idSeq:
+			profile = self.get_profile(id, specTraits)
+			profiles.append(PersonIdService.TaggedProfile(id,profile))
 
-		stmt = "select %s from (%s) as traits  where id in ( %s)" % (','.join(field_list), sql_traits , ','.join(idSeq) )
-		conn = self.connector.getConnection()
-		cursor = conn.cursor()
-		cursor.execute(stmt)
-		result = cursor.fetchall()
-		return  get_tagged_profiles_from_cursor_result( result, cursor.description)
+		return profiles
+	#	stmt = "select %s from (%s) as traits  where id in ( %s)" % (','.join(field_list), sql_traits , ','.join(idSeq) )
+	#	conn = self.connector.getConnection()
+	#	cursor = conn.cursor()
+	##	result = cursor.fetchall()
+	#	return  get_tagged_profiles_from_cursor_result( result, cursor.description)
 
 	def update_and_clear_traits(self,  profileUpdateSeq):
 		ids = []
@@ -70,15 +86,20 @@ class ProfileAccess_i(PersonIdService__POA.ProfileAccess, StartIdentificationCom
 		global sql_address
 		if debug:
 			print "getting known traits for ", id
-
 		cursor = self.connector.getConnection().cursor()
-		cursor.execute("select * from (%s) as i where i.id = %s" % (sql_traits , id))
-		resultList = cursor.fetchall()
+
+		if not self.__dict__.has_key('exec_select_all_traits'):
+			cursor.execute( "prepare get_all_traits(int) as select * from (%s) as i where i.id = $1" % sql_traits)
+			self.exec_select_all_traits = "execute get_all_traits(%s)"
+		cursor.execute( self.exec_select_all_traits % id)
+		#cursor.execute("select * from (%s) as i where i.id = %s" % (sql_traits , id))
+		res = cursor.fetchone()
 		to_ix = get_field_index_map(cursor.description)
 
 		traits_known = []
-		for res in resultList:
-			self.__add_to_traits_known(  traits_known, res, cursor)
+		self.__add_to_traits_known(  traits_known, res, cursor)
+		if debug:
+			print "traits known ", traits_known
 		return traits_known
 
 	def __add_to_traits_known(self, traits_known, res, cursor):
@@ -91,8 +112,8 @@ class ProfileAccess_i(PersonIdService__POA.ProfileAccess, StartIdentificationCom
 			if traitSpec == None:
 			 		continue
 
-			if traitSpec.trait not in traits_known:
-					traits_known.append(traitSpec.trait)
+			traits_known.append(traitSpec.trait)
+
 		return traits_known
 
 

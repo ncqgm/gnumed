@@ -3,6 +3,9 @@ import ResolveIdComponent
 import CORBA
 import sys, string, random, traceback
 from PersonIdTestUtils import *
+import PersonIdTestUtils
+
+N_PROFILES_TO_CHANGE = 10
 debug = 0
 last_id = 0
 import HL7Version2_3
@@ -148,28 +151,98 @@ def _test_update_and_clear_traits(pxs):
 	if restored_names == oldNames and restored_names <> testNames:
 		print"PASS: old names were restored."
 
+	_test_update_and_clear_address_traits(pxs)
+
+def _test_update_and_clear_address_traits(pxs):
+	tprofiles = __get_test_tagged_profiles(pxs)
+	old_addresses = {}
+	profileUpdateSeq = []
+	import random, time
+
+	for tp in tprofiles:
+		location = PersonIdTestUtils.get_random_location(seed= time.time())
+		street = PersonIdTestUtils.get_random_street(time.time())
+		number = str ( random.randint(1,200) )
+		l = filter( lambda(t): t.name == hl7.PATIENT_ADDRESS , tp.profile )
+		if len(l) == 0:
+			print "NO ADDRESS TRAIT FOUND"
+		elif len(l) == 1:
+			trait = l[0]
+			if debug:
+				print "old address trait for ", tp.id, " was ", trait.value.value()
+			old_addresses[tp.id] = trait
+		else:
+			print "SHOULDN'T HAPPEN. more than one address trait ",tp.id
+
+		new_trait = PersonIdService.Trait(hl7.PATIENT_ADDRESS, CORBA.Any(CORBA._tc_string,  '^'.join( [str(number)]+[street]+list(map( lambda(v): str(v), location)))) )
+		profileUpdateSeq.append( PersonIdService.ProfileUpdate( tp.id, [], [new_trait] ))
+	pxs.update_and_clear_traits( profileUpdateSeq)
+	updateMap = dict( [(pu.id, pu.modify_list) for pu in profileUpdateSeq])
+
+	tprofs2 = __get_test_tagged_profiles(pxs)
+	for tp in tprofs2:
+
+		if not updateMap.has_key(tp.id):
+			print "FAIL: , updateMap doesnt record update for ", tp.id
+			continue
+		traits =  updateMap[tp.id]
+		if len(traits) == 0:
+			print "FAIL: update map has profile id but no update traits"
+			continue
+		trait = find_trait_in_profile(hl7.PATIENT_ADDRESS, tp.profile)
+		if trait == None:
+			print "FAIL: retrieved profile doesn't have the updated address"
+			continue
+		if trait.value.value() == traits[0].value.value():
+			print "PASS: found updated address on retrieval of ",tp.id
+		else:
+			print "FAIL?: found different trait values : inserted=", traits[0].value.value() , " retrieved after modify = ", trait.value.value()
+
+	restoreSeq = []
+	for id, trait in old_addresses.items():
+		restoreSeq.append( PersonIdService.ProfileUpdate( id, [] , [trait]))
+	pxs.update_and_clear_traits( restoreSeq)
+	tprof3 = __get_test_tagged_profiles(pxs)
+	restored = filter( lambda(tp): tp.id in old_addresses.keys() , tprof3)
+	orig_profile_map = dict( [ (tp.id, tp.profile) for tp in tprofiles])
+
+	for tp in restored:
+		p = orig_profile_map.get(tp.id, None)
+		if p == None:
+			print "FAIL, profile not found in original profiles ,id=",tp.id
+			continue
+		is_same , reason, errors = same_profile(p, tp.profile)
+		if is_same:
+			print "PASS: old profile was restored for ", tp.id
+
+		else:
+			print "PROFILES SEEM TO DIFFER :",reason,  errors
+
+
+
 
 def same_profile(p, other):
-	if debug:
-		print "same_profile :"
-		print "p = ", [ (t.name, t.value.value()) for t in p]
-		print "other = ", [ (t.name, t.value.value()) for t in other]
-		print
-	matched = 0
-	for trait in p:
-		t = find_trait_in_profile(trait.name, other)
-		if t.value.value() == trait.value.value():
-			matched += 1
-	if debug:
-		print "matched traits in profiles ", matched
+	m = dict ( [ (t.name, t.value) for t in p ])
+	m2 = dict( [ (t.name, t.value) for t in other] )
+	k = m.keys()
+	k.sort()
+	k2 = m2.keys()
+	k2.sort()
+	if k <> k2:
+		return 0 , "different keys", (k, k2)
 
-	return matched == len(p)
+	for k in k2:
+		if m[k].value() <> m2[k].value():
+			if debug:
+				print "same_profile(p,other): FOUND  A different value", k, " value1 = ", m[k].value(), " value2 = ", m2[k].value()
+			return 0, "a different value", (k, m[k].value(), m2[k].value() )
+	return 1, None, None
 
 def __get_test_tagged_profiles(pxs):
 	"""gets them from sequential_access.get_first_ids( 100, [PERMANENT], [ALL_TRAITS] )"""
 	sxs = pxs._get_sequential_access()
 	states, specTraits = [find_id_state_like("PERM")], get_specified_traits("ALL_TRAITS")
-	return  sxs.get_first_ids(100,  states, specTraits)
+	return  sxs.get_first_ids(N_PROFILES_TO_CHANGE,  states, specTraits)
 
 def __get_test_ids(pxs):
 	"""gets the ids only from the test tagged profiles"""
