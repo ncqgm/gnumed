@@ -5,18 +5,29 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 
 if __name__ == "__main__":
-			
-	print
 	print "*" * 50 
 	print "RUNNING UNIT TEST of gmOrganization "
+
+	print """\nNB If imports not found , try:
+	
+	change to gnumed/client directory , then
+	
+	export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py
+	"""
+	print
 	print "In the connection query, please enter"
 	print "a WRITE-ENABLED user e.g. _test-doc (not test-doc), and the right password"
 	print
 	print "Run the unit test with cmdline argument '--clean'  if trying to clean out test data"
 	print
+
+	print """You can get a sermon by running 
+	export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py --sermon
+	"""
+
 
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG, gmI18N, gmBorg
@@ -543,6 +554,7 @@ class cOrgHelperImpl1(cOrgHelper):
 		print "self.getId() = ", self.getId() , " is None : ", self.getId() is None
 		if self.getId() is None:
 			if not self._create():
+				import sys
 				gmLog.gmDefLog.Log(gmLog.lErr, "Cannot create org")
 				return False
 		if self.getId() is None:
@@ -635,17 +647,22 @@ def get_org_data_for_org_ids(idList):
 	return m 
 
 #============================================================
+#
+#  IGNORE THE FOLLOWING, IF NOT INTERESTED IN TEST CODE
+#
+#
 
 def get_test_data():
 	"""test org data for unit testing in testOrg()"""
 	return [ 
 			( ["Box Hill Hospital", "", "", "Eastern", "hospital", "0398953333", "111-1111","bhh@oz", ""],  ["33", "Nelson Rd", "Box Hill", "3128", None , None] ), 
-			( ["Frankston Hospital", "", "", "Peninsula", "hospital", "0397847777", "03784-3111","fh@oz", ""],  ["21", "Hastings Rd", "Frankston", "3334", None , None] )
+			( ["Frankston Hospital", "", "", "Peninsula", "hospital", "0397847777", "03784-3111","fh@oz", ""],  ["21", "Hastings Rd", "Frankston", "3199", None , None] )
 		]
 		
 def testOrg():
 	"""runs a test of load, save , shallow_del  on items in from get_test_data"""
 	l = get_test_data()
+	results = []
 	for (f, a) in l:
 		result, obj =	_testOrgRun(f, a)
 		results.append( (result, obj) )
@@ -749,6 +766,65 @@ if __name__== "__main__":
 			else: 	print "failed to clean orgs"
 			sys.exit(1)
 
+		if sys.argv[1] == "--sermon":
+			print"""
+This test case shows how many things can go wrong , even with just a test case.
+Problem areas include:
+	- postgres administration :  pg_ctl state, pg_hba.conf, postgres.conf  config files .
+	- schema integrity constraints : deletion of table entries which are subject to foreign keys, no input for no default value and no null value columns, input with duplicated values where unique key constraint applies to non-primary key columns, dealing with access control by connection identity management.
+
+
+	- efficiency trade-offs -e.g. using db objects for localising code with data and easier function call interface ( then hopefully, easier to program with) , vs. need to access many objects at once
+	without calling the backend for each object.
+
+	- error and exception handling - at what point in the call stack to handle an error.
+Better to use error return values and log exceptions near where they occur, vs. wrapping inside try: except: blocks and catching typed exceptions.
+
+	
+	- test-case construction:  test data is needed often, and the issue
+	is whether it is better to keep the test data volatile in the test-case,
+	which handles both its creation and deletion, or to add it to test data
+	server configuration files, which may involve running backend scripts
+	for loading and removing test data.
+		
+	
+	
+- Database connection problems:
+	-Is the problem in :
+		- pg_ctl start -D  /...mydata-directory is wrong, and gnumed isn't existing there.
+		
+		- ..mydata-directory/pg_hba.conf
+			- can psql connect locally and remotely with the username and password.
+			- Am I using md5 authenentication and I've forgotten the password.
+				- I need to su postgres, alter pg_hba.conf to use trust for
+				the gnumed database, pg_ctl restart -D .., su normal_user,  psql gnumed, alter user my_username password 'doh'
+				- might be helpful: the default password for _test-doc is test-doc
+
+		- ../mydata-directory/postgres.conf 
+			- tcp connect  flag isn't set to true
+		
+		- remote/local mixup : 
+		a different set of user passwords on different hosts. e.g the password 
+		for _test-doc is 'pass' on localhost and 'test-doc' for the serverhost.
+		- In the prompts for admin and user login, local host was used for one, and
+		remote host for the other
+
+		
+				
+- test data won't go away : 
+	- 'hospital' category in org_category : the test case failed in a previous run
+	and the test data was left there; now the test case won't try to delete it 
+	because it exists as a pre-existing category, so manually delete with psql.
+
+	- test-case failed unexpectedly, or break key was hit in the middle of a test-case run. 
+		Soln: run with --clean option,
+			then delete temporary org_category  entries with psql.
+
+	- remote/local mixup: as above		
+
+"""
+	
+
 
 	for n in xrange(1,8):
 		print "Test Fetch of CommType , id=",n
@@ -801,13 +877,17 @@ if __name__== "__main__":
 	  7 | jabber
 	  (7 rows)
 	  """
-	tmp_category = False  
+	tmp_category = False  # tmp_category means test data will need to be added and removed
+			      # for  org_category .
+			      
 	if not "hospital" in c.getCategories("org_category") :
 		print "FAILED in prerequisite for org_category : test categories are not present."
 
 		tmp_category = True
 	
 	if tmp_category:
+		# test data in a categorical table (restricted access) is needed
+		
 		print """You will need to switch login identity to database administrator in order
 			to have permission to write to the org_category table, 
 			and then switch back to the ordinary write-enabled user in order
@@ -817,14 +897,24 @@ if __name__== "__main__":
 			"""
 		
 		print "NEED TO CREATE TEMPORARY ORG_CATEGORY.\n\n ** PLEASE ENTER administrator login  : e.g  user 'gm-dbowner' and  his password"
+		#get a admin login
 		tmplogin = gmPG.request_login_params()
+		
+		# and save it , for later removal of test categories.
+		from Gnumed.pycommon import gmLoginInfo
+		adminlogin = gmLoginInfo.LoginInfo(*tmplogin.GetInfo())
+		
+		#login as admin
 		p = gmPG.ConnectionPool( tmplogin) 
 		conn = p.GetConnection("personalia")
 		
+		# use the last value + 1 of the relevant sequence, but don't increment it
 		cursor = conn.cursor()
 		cursor.execute("select last_value from org_id_seq")
 		[org_id_seq] = cursor.fetchone()
-		cursor.execute( "insert into org_category(description, id) values('hospital', %d)" % (org_id_seq + 1) )
+		cursor.execute("select last_value from org_category_id_seq")
+		[org_cat_id_seq] = cursor.fetchone()
+		cursor.execute( "insert into org_category(description, id) values('hospital', %d)" % (org_cat_id_seq + 1) )
 		cursor.execute("select id from org_category where description in ('hospital')")
 		result =  cursor.fetchone()
 		if result == None or len(result) == 0:
@@ -843,26 +933,56 @@ if __name__== "__main__":
 			print "** Now ** RESUME LOGIN **  of write-enabled user (e.g. _test-doc) "
 			conn = None
 			p.ReleaseConnection("personalia")
-			login2 = gmPG.request_login_params()
-			gmPG.ConnectionPool( login2)
-			
-			c.reload("org_category")
 
-		
+			# The next block tries to get and verify a read-write connection 
+			# which has permission to write to org tables, so the test case
+			# can run.
+			while (1):
+				# get the RW user for org tables (again)
+				login2 = gmPG.request_login_params()
+
+				#login as the RW user
+				gmPG.ConnectionPool( login2)
+				conn = p.GetConnection('personalia', readonly = 0)
+
+				# test it is a RW user, by making a entry and deleting it
+				try:
+					c.reload("org_category")
+					cursor = conn.cursor()
+					cursor.execute("""
+				insert into org ( description, id_category, id) 
+				values ( 'xxxDEFAULTxxx', %d,
+				%d)
+					""" % ( c.getId('org_category', 'hospital') , org_id_seq + 1 ) )
+					cursor.execute("""
+				delete from org where id = %d""" % ( org_id_seq + 1) )
+				# make sure this exercise is committed, else a deadlock will occur
+					conn.commit()
+				except:
+					gmLog.gmDefLog.LogException("Test of Update failed", sys.exc_info() )
+					print "login cannot update org"
+					p.ReleaseConnection('personalia')
+					continue
+				
+				break
+
+		# run the test case
 		results = testOrg()
+
+		# cleanup after the test case
+		for (result , org) in results:
+			if not result and org.getId() <> None:
+				print "trying cleanup"
+				if  org.shallow_del(): print " 	may have succeeded"
+				else:
+					print "May need manual removal of org id =", org.getId()
+					
 	except:
 		import  sys
 		print sys.exc_info()[0], sys.exc_info()[1]
 		gmLog.gmDefLog.LogException( "Fatal exception", sys.exc_info(),1)
-
-	for (result , org) in results:
-		if not result:
-			print "trying cleanup"
-			if org.shallow_del(): print " 	may have succeeded"
-			else:
-				print "May need manual removal of org id =", org.getId()
-				
-				
+			
+	# clean-up any temporary categories.		
 	if tmp_category:
 		while(1):
 			try:
@@ -873,8 +993,10 @@ if __name__== "__main__":
 				"""
 				
 		
-				tmplogin = gmPG.request_login_params()
-				p = gmPG.ConnectionPool(tmplogin)
+				#tmplogin = gmPG.request_login_params()
+
+				# use the saved previous admin login
+				p = gmPG.ConnectionPool(adminlogin)
 
 				conn = p.GetConnection("personalia")
 
@@ -886,6 +1008,7 @@ if __name__== "__main__":
 			except:
 				import sys
 				print sys.exc_info()[0], sys.exc_info()[1]
+				p.ReleaseConnection("personalia")
 				continue
 
 			if cursor.fetchone() == None:
@@ -905,7 +1028,11 @@ if __name__== "__main__":
 	
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.10  2004-05-24 00:32:24  sjtan
+# Revision 1.11  2004-05-24 03:34:56  sjtan
+#
+# tested local and remote test case; setup/pulldown for test case is within test case.
+#
+# Revision 1.10  2004/05/24 00:32:24  sjtan
 #
 # don't want to increment the sequence number for a temporary org_category, as there is no way
 # of restoring it.
