@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -147,10 +147,11 @@ class cDocTree(wxTreeCtrl):
 				obj = mdata['objects'][oid]
 				p = str(obj['index']) +  " "
 				c = str(obj['comment'])
+				s = str(obj['size'])
 				if c == "None":
 					c = _("no comment available")
-				tmp = _('page %s: \"%s\"')
-				label = tmp % (p[:2], c)
+				tmp = _('page %s: \"%s\" (%s bytes)')
+				label = tmp % (p[:2], c, s)
 				obj_node = self.AppendItem(doc_node, label)
 				data = {'doc_id'	: doc_id,
 						'id'		: oid,
@@ -378,7 +379,10 @@ else:
 			return ('tools', _('&Show Documents'))
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.6  2003-01-24 14:57:32  ncq
+# Revision 1.7  2003-01-25 00:21:42  ncq
+# - show nr of bytes on object in metadata :-)
+#
+# Revision 1.6  2003/01/24 14:57:32  ncq
 # - correctly handle date as timestamp
 #
 # Revision 1.5  2003/01/24 13:15:22  ncq
