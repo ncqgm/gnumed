@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.28 2003-07-09 16:21:22 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmTmpPatient.py,v 1.29 2003-07-19 20:18:28 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -92,35 +92,16 @@ class gmPerson:
 
 		_log.Log(gmLog.lData, 'Instantiated patient [%s].' % self.ID)
 	#--------------------------------------------------------
-	def __del__(self):
-		if _log is not None:
-			_log.Log(gmLog.lData, 'cleaning up after patient [%s]' % self.ID)
-#		if self.__db_cache.has_key('clinical record'):
-#			del self.__db_cache['clinical record']
-		if self.__dict__.has_key('_backend'):
-			self._backend.ReleaseConnection('personalia')
-	#--------------------------------------------------------
-	# cache handling
-	#--------------------------------------------------------
-	def commit(self):
+	def cleanup(self):
 		"""Do cleanups before dying.
 
 		- note that this may be called in a thread
 		"""
-		# unlisten to signals
-		print "unimplemented: committing patient data"
-	#--------------------------------------------------------
-	def invalidate_cache(self):
-		"""Called when the cache turns cold.
-
-		"""
-		print "unimplemented: invalidating patient data cache"
-	#--------------------------------------------------------
-	#--------------------------------------------------------
-	def setQueryTree(self, aCol, aQueryTree = None):
-		if aQueryTree is None:
-			return None
-		self._query_trees[aCol] = aQueryTree
+		_log.Log(gmLog.lData, 'cleaning up after patient [%s]' % self.ID)
+		if self.__db_cache.has_key('clinical record'):
+			emr = self.__db_cache['clinical record']
+			emr.cleanup()
+		self._backend.ReleaseConnection('personalia')
 	#--------------------------------------------------------
 	# internal helper
 	#--------------------------------------------------------
@@ -152,14 +133,9 @@ class gmPerson:
 		)
 	#--------------------------------------------------------
 	def _patient_modified(self):
-		# uh, oh, cache may have been modified ...
 		# <DEBUG>
 		_log.Log(gmLog.lData, "patient_modified signal received from backend")
 		# </DEBUG>
-		# this is fraught with problems:
-		# can we safely just throw away the cache ?
-		# we may have new data in there ...
-		self.invalidate_cache()
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -364,9 +340,8 @@ class gmCurrentPatient(cBorg):
 							tmp = gmPerson(aPKey)
 							# clean up after ourselves
 							self.__send_pre_selection_notification()
-							self.patient.commit()
-							# FIXME: is this needed ?
-							del self.patient
+							self.patient.cleanup()
+							# and change to new patient
 							self.patient = tmp
 							self.unlock()
 							self.__send_selection_notification()
@@ -444,11 +419,6 @@ class gmCurrentPatient(cBorg):
 			return self.patient[aVar]
 		else:
 			return None
-
-#	def setData(self, data):
-#		self.lock()
-#		self.patient = data
-#		self.unlock()
 #============================================================
 
 
@@ -661,21 +631,7 @@ def create_patient(data):
 def _patient_selected(**kwargs):
 	print "received patient_selected notification"
 	print kwargs['kwds']
-#	patient = gmCurrentPatient(kwargs['kwds']['ID'])
-#	adjust_data(kwargs)
 
-def adjust_data(kwargs):
-	map = kwargs['kwds']
-	map['active name']=  {'last':map['lastnames'], 'first': map['firstnames'] }
-	datePart = str(map['dob']).split(' ')[0]
-	_log.Data("date part = " + str(datePart))
-	datenums = str(datePart).split('-')
-	mxDob = mx.DateTime.DateTime( int(datenums[0]), int(datenums[1]), int(datenums[2]))
-
-	map['medical age'] = get_medical_age(mxDob)
-	map['clinical record'] = gmClinicalRecord.gmClinicalRecord(map['ID'])
-
-gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 if __name__ == "__main__":
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
@@ -706,7 +662,11 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.28  2003-07-09 16:21:22  ncq
+# Revision 1.29  2003-07-19 20:18:28  ncq
+# - code cleanup
+# - explicitely cleanup EMR when cleaning up patient
+#
+# Revision 1.28  2003/07/09 16:21:22  ncq
 # - better comments
 #
 # Revision 1.27  2003/06/27 16:04:40  ncq
