@@ -1,55 +1,50 @@
-# GnuMed user/group setup file
-#----------------------------------
+# GnuMed database system bootstrapping config file
+#-------------------------------------------------
 # license: GPL
 # author: Karsten Hilbert@gmx.net
 
 #----------------------------------
 [revision control]
-file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.conf,v $
-version = $Revision: 1.3 $
+file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.conf.sample,v $
+version = $Revision: 1.1 $
 
 #----------------------------------
-# DB server hosting core database
-# these shouldn't be changed, really
-[core server]
+[installation]
 
-# - should in most cases be localhost as we don't want
-#   to transmit passwords over remote links
-# - also, we need to do some things as a database superuser
-#   (such as installing procedural languages) but we
-#   do not want to be able to connect remotely as superuser
-name = localhost	# fill in your server name/IP here
-port = 5432			# standard is 5432
+# set this to no if you want to run this script without
+# any user interaction, in this case you must provide passwords
+# for the users to be installed,
+# this has been conceived to make Debian postinst happy :-)
+interactive = yes
 
-# the database we connect to before any GnuMed database exists
-initial database = template1
+# these NEED NOT correspond to GnuMed service names,
+# you just need to have a group corresponding to each line
+services = $services$
+config
+patients
+$services$
 
-# this must be a super user capable of installing procedural languages
-initial user = postgres
+# where to look for dynamic libraries for procedural languages
+# - we can safely list any directories here that we come
+#   across on any distribution
+# - the first match will be used
+# - reorder the list if you want to force a particular
+#   directory to be used for a particular language
+language library dirs = $language library dirs$
+/usr/lib/postgresql/lib/
+/usr/lib/pgsql/
+$language library dirs$
 
 #----------------------------------
 # these really shouldn't be changed
 [GnuMed defaults]
 
-# minimum PostgreSQL version for proper operation
-postgres version = 7.1
-
-# all GnuMed tables belong to this user
-gnumed database owner = gm-dbowner
-
-# this is the core GnuMed database everything else hinges upon
-core database name = gnumed
-
-core database schema = $core database schema$
-../sql/gmconfiguration.sql
-../sql/gmidentity.sql
-../sql/gmgis.sql
-$core database schema$
+database owner alias = GnuMed owner
 
 # - these are the standard groups that exist
 #   in every GnuMed database
 # - note how some groups don't have a write-enabled counterpart
-# - you can define (and probably should) define site-specific
+# - you can (and probably should) define site-specific
 #   groups in another file
 # - at the end of the setup you'll be asked if you want to
 #   install your site-specific groups/users, too
@@ -69,18 +64,55 @@ $groups$
 # - the names just point to the corresponding sections
 procedural languages = $procedural languages$
 pg/SQL
-pg/Python
 $procedural languages$
 
-# - we can safely list any directory here that we come
-#   across on any distribution
-# - the first match will be used
-# - reorder the list if you want to force a particular
-#   directory to be used for a particular language
-language library dirs = $language library dirs$
-/usr/lib/postgresql/lib/
-/usr/lib/pgsql/
-$language library dirs$
+#pg/Python
+
+#----------------------------------
+[service config]
+name = default
+database alias = gnumed-test
+version = 0.1
+
+schema = $schema$
+../sql/gmconfiguration.sql
+$schema$
+
+postgres version = 7.1
+
+#----------------------------------
+[service patients]
+database alias = gnumed-test
+name = personalia
+version = 0.1
+
+schema = $schema$
+../sql/gmidentity.sql
+../sql/gmgis.sql
+$schema$
+
+postgres version = 7.1
+
+#----------------------------------
+[database gnumed]
+name = gnumed
+server alias = localhost
+
+#----------------------------------
+[server localhost]
+name = localhost
+port = 5432
+template database = template1
+super user alias = postgres
+
+#----------------------------------
+[user GnuMed owner]
+name = gm-dbowner
+#password = 
+
+[user postgres]
+name = postgres
+#password =
 
 #----------------------------------
 [pg/SQL]
@@ -105,6 +137,41 @@ $call handler$
 language activation = $language activation$
 CREATE TRUSTED PROCEDURAL LANGUAGE 'plpython' HANDLER plpython_call_handler;
 $language activation$
+
+#----------------------------------
+#----------------------------------
+#----------------------------------
+#----------------------------------
+# DB server hosting core database
+# these shouldn't be changed, really
+[core server]
+
+# - should in most cases be localhost as we don't want
+#   to transmit passwords over remote links
+# - also, we need to do some things as a database superuser
+#   (such as installing procedural languages) but we
+#   do not want to be able to connect remotely as superuser
+name = localhost	# fill in your server name/IP here
+port = 5432			# standard is 5432
+
+# the database we connect to before any GnuMed database exists
+initial database = template1
+
+# this must be a super user capable of installing procedural languages
+initial user = postgres
+
+[other]
+# minimum PostgreSQL version for proper operation
+postgres version = 7.1
+
+# this is the core GnuMed database everything else hinges upon
+core database name = gnumed
+
+core database schema = $core database schema$
+../sql/gmconfiguration.sql
+../sql/gmidentity.sql
+../sql/gmgis.sql
+$core database schema$
 
 #----------------------------------
 # this is a setup for testing
@@ -214,43 +281,10 @@ custom = $custom$
 $custom$
 
 #----------------------------------
-# $Log: bootstrap-gm_db_system.conf,v $
-# Revision 1.3  2002-11-16 01:12:09  ncq
-# - now finally also imports sql schemata from files
+# $Log: bootstrap-gm_db_system.conf.sample,v $
+# Revision 1.1  2003-01-26 12:47:17  ncq
+# - next generation from test-area/
 #
-# Revision 1.2  2002/11/01 13:56:05  ncq
-# - now also installs the GnuMed core database "gnumed"
-#
-# Revision 1.1  2002/10/31 22:59:19  ncq
-# - tests environment, bootstraps users, bootstraps procedural languages
-# - basically replaces gnumed.sql and setup-users.py
-#
-# Revision 1.9  2002/10/29 23:03:32  ncq
-# - gm-public is intended to be a group holding _all_ gnumed users
-# - useful for access to select on config/db setup etc.
-#
-# Revision 1.8  2002/10/29 22:54:06  ncq
-# - consistenly use "gm-" prefix for GnuMed groups/users (except for test users)
-#
-# Revision 1.7  2002/10/20 15:29:14  ncq
-# - now has support for site-specific configuration in a separate file
-# - remembers passwords from "usr" to "_usr"
-#
-# Revision 1.6  2002/10/08 14:08:37  ncq
-# - seems to fully work now
-#
-# Revision 1.5  2002/10/04 15:49:08  ncq
-# - name default users/groups usefully
-#
-# Revision 1.4  2002/10/03 14:05:36  ncq
-# - actually create the gnumed superuser
-#
-# Revision 1.3  2002/10/03 00:22:37  ncq
-# - add a clarifying comment
-#
-# Revision 1.2  2002/10/03 00:16:20  ncq
-# - first real steps: connect and verify database version
-#
-# Revision 1.1  2002/09/30 23:06:26  ncq
-# - first shot so people can see what I am getting at
+# Revision 1.4  2003/01/22 23:21:45  ncq
+# - this sort of documents the whole affair
 #
