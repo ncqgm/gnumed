@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.37 2004-09-29 10:25:04 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmPathLab.py,v 1.38 2004-10-12 18:32:52 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -161,32 +161,42 @@ class cLabRequest(gmClinItem.cClinItem):
 		'progress_note'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, req_id=None, lab=None):
+	def __init__(self, aPK_obj=None, row=None):
+		"""Instantiate lab request.
+
+		The aPK_obj can be either a dict with the keys "req_id"
+		and "lab" or a simple primary key.
+		"""
+		# instantiate from row data ?
+		if aPK_obj is None:
+			gmClinItem.cClinItem.__init__(self, row=row)
+			return
 		pk = aPK_obj
-		# no PK given, so find it from req_id and lab
-		if pk is None:
-			if None in [req_id, lab]:
-				raise gmExceptions.ConstructorError, 'req_id and lab must be defined (%s:%s)' % (lab, req_id)
+		# instantiate from "req_id" and "lab" ?
+		if type(aPK_obj) == types.DictType:
+			# sanity check
+			try:
+				aPK_obj['req_id']
+				aPK_obj['lab']
+			except:
+				_log.LogException('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
+				raise gmExceptions.ConstructorError, '[%s:??]: cannot derive PK from [%s]' % (self.__class__.__name__, aPK_obj)
 			# generate query
 			where_snippets = []
 			vals = {}
 			where_snippets.append('request_id=%(req_id)s')
-			vals['req_id'] = req_id
-			if type(lab) == types.IntType:
+			if type(aPK_obj['lab']) == types.IntType:
 				where_snippets.append('pk_test_org=%(lab)s')
-				vals['lab'] = lab
 			else:
 				where_snippets.append('lab_name=%(lab)s')
-				vals['lab'] = str(lab)
 			where_clause = ' and '.join(where_snippets)
 			cmd = "select pk_request from v_lab_requests where %s" % where_clause
-			data = gmPG.run_ro_query('historica', cmd, None, vals)
-			# error
+			# get pk
+			data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
 			if data is None:
-				raise gmExceptions.ConstructorError, 'error getting lab request for [%s:%s]' % (lab, req_id)
-			# no such request
+				raise gmExceptions.ConstructorError, '[%s:??]: error getting lab request for [%s]' % (self.__class__.__name__, aPK_obj)
 			if len(data) == 0:
-				raise gmExceptions.NoSuchClinItemError, 'no lab request for [%s:%s]' % (lab, req_id)
+				raise gmExceptions.NoSuchClinItemError, '[%s:??]: no lab request for [%s]' % (self.__class__.__name__, aPK_obj)
 			pk = data[0][0]
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
@@ -234,35 +244,54 @@ class cTestType(gmClinItem.cClinItem):
 		'conversion_unit'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, lab=None, code=None, name=None):
+	def __init__(self, aPK_obj=None, row=None):
+		"""Instantiate lab request.
+
+		The aPK_obj can be either a dict with the keys "lab",
+		"code" and "name" or a simple primary key.
+		"""
+		# instantiate from row data ?
+		if aPK_obj is None:
+			gmClinItem.cClinItem.__init__(self, row=row)
+			return
 		pk = aPK_obj
-		# no PK given, so find it from lab/code/name
-		if pk is None:
-			if lab is None:
-				raise gmExceptions.ConstructorError, 'need lab to find test type'
-			if (code is None) and (name is None):
-				raise gmExceptions.ConstructorError, 'need code and/or name to find test type'
+		# instantiate from lab/code/name ?
+		if type(aPK_obj) == types.DictType:
+			# sanity checks
+			try:
+				aPK_obj['lab']
+			except KeyError:
+				_log.LogException('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
+				raise gmExceptions.ConstructorError, '[%s:??]: cannot derive PK from [%s]' % (self.__class__.__name__, aPK_obj)
+			try:
+				aPK_obj['code']
+			except KeyError:
+				aPK_obj['code'] = None
+			try:
+				aPK_obj['name']
+			except KeyError:
+				if aPK_obj['code'] is None:
+					_log.LogException('[%s:??]: faulty <aPK_obj> structure: [%s]' % (self.__class__.__name__, aPK_obj), sys.exc_info())
+					raise gmExceptions.ConstructorError, '[%s:??]: must have <code> and/or <name>' % self.__class__.__name__
+				aPK_obj['name'] = None
+
+			# generate query
 			where_snippets = []
 			vals = {}
-			if type(lab) == types.IntType:
+			if type(aPK_obj['lab']) == types.IntType:
 				where_snippets.append('fk_test_org=%(lab)s')
-				vals['lab'] = lab
 			else:
 				where_snippets.append('fk_test_org=(select pk from test_org where internal_name=%(lab)s)')
-				vals['lab'] = str(lab)
-			if code is not None:
+			if aPK_obj['code'] is not None:
 				where_snippets.append('code=%(code)s')
-				vals['code'] = code
-			if name is not None:
+			if aPK_obj['name'] is not None:
 				where_snippets.append('name=%(name)s')
-				vals['name'] = name
 			where_clause = ' and '.join(where_snippets)
 			cmd = "select pk from test_type where %s" % where_clause
-			data = gmPG.run_ro_query('historica', cmd, None, vals)
-			# error
+			# get pk
+			data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
 			if data is None:
 				raise gmExceptions.ConstructorError, 'error getting test type for [%s:%s:%s]' % (lab, code, name)
-			# no such request
 			if len(data) == 0:
 				raise gmExceptions.NoSuchClinItemError, 'no test type for [%s:%s:%s]' % (lab, code, name)
 			pk = data[0][0]
@@ -309,7 +338,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.37 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.38 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -392,7 +421,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.37 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.38 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -631,7 +660,11 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.37  2004-09-29 10:25:04  ncq
+# Revision 1.38  2004-10-12 18:32:52  ncq
+# - allow cLabRequest and cTestType to be filled from bulk fetch row data
+# - cLabResult not adapted yet
+#
+# Revision 1.37  2004/09/29 10:25:04  ncq
 # - basic_unit->conversion_unit
 #
 # Revision 1.36  2004/09/18 13:51:56  ncq
