@@ -7,11 +7,11 @@ typing clear-text clinical notes which are stored in clin_note.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.4 2003-06-25 22:51:24 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmSingleBoxSOAP.py,v 1.5 2003-06-26 22:26:04 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys
+import sys, string
 
 if __name__ == "__main__":
 	sys.path.append ("../python-common/")
@@ -93,20 +93,23 @@ class gmSingleBoxSOAPPanel(wxPanel):
 	# internal helpers
 	#--------------------------------------------------------
 	def _save_note(self):
-		print "saving note"
-		if self.soap_box.IsModified():
-			print "note modified, saving"
-			note = self.soap_box.GetValue()
-			if note != '':
-				print "note not empty, saving"
-				emr = self.__pat['clinical record']
-				if not emr.create_clinical_note(note):
-					print "cannot save note !"
-					return None
-				else:
-					print "note saved"
-					self.soap_box.SetValue('')
-					return 1		
+		# sanity checks
+		if self.__pat is None:
+			return 1
+		if not self.soap_box.IsModified():
+			return 1
+		note = self.soap_box.GetValue()
+		if string.strip(note) == '':
+			return 1
+		# now save note
+		emr = self.__pat['clinical record']
+		if not emr.create_clinical_note(note):
+			_log.Log(gmLog.lErr, 'error saving clinical note')
+			return None
+		else:
+			self.soap_box.SetValue('')
+			return 1
+		return 1
 #============================================================
 # main
 #------------------------------------------------------------
@@ -117,7 +120,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.4  2003-06-25 22:51:24  ncq
+# Revision 1.5  2003-06-26 22:26:04  ncq
+# - streamlined _save_note()
+#
+# Revision 1.4  2003/06/25 22:51:24  ncq
 # - now also handle signale application_closing()
 #
 # Revision 1.3  2003/06/24 12:57:05  ncq
