@@ -21,8 +21,8 @@
 gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
-__version__ = "$Revision: 1.17 $"
-__author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>"
+__version__ = "$Revision: 1.18 $"
+__author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
 import sys, os, gettext
@@ -34,6 +34,8 @@ if __name__ == "__main__":
 	# NEW RULE 1: nobody, but nobody, queries argv except here
 	# NEW RULE 2: no assumptions made about the current directory
 	# both of these are due to portability
+
+	# some OS (Windows/DOS) will have the base path set in the environment
 	if os.environ.has_key('GNUMED'):
 		# Windows or other OS that has set everything
 		appPath = os.environ['GNUMED']
@@ -43,9 +45,9 @@ if __name__ == "__main__":
 		# problem: we are in gnumed/client/wxpython, but the base
 		# directory is ALWAYS gnumed/client
 		appPath = appPath[:-9]
-		# manually extend our path
-		sys.path.append (appPath + '/wxpython')
-		sys.path.append (appPath + '/python-common')
+		# manually extend our module search path
+		sys.path.append(os.path.join(appPath, 'wxpython'))
+		sys.path.append(os.path.join(appPath, 'python-common'))
 	try:
 		import gmLog
 		import gmGuiBroker
