@@ -1,23 +1,50 @@
-This is a putative forms/letters system for gnumed. based on LaTeX
 
-The file a4form.cls is a LaTeX class file. Put it in the TeX search
-path (on Debian /usr/local/share/texmf/tex/latex/a4form/) then run
-"texhash" as root to make sure TeX can find it. 
+GNUMED SOURCE PACKAGE
 
-The module accepts a LaTeX file and a dictionary.
-The dictionary is translated to set of TeX macros,
-which can be used in the document. The document can be any LaTeX 
-document, however a special class (a4form) is defined to print
-text at specific positions.
+Copyright (C) 2002, 2003, 2004 GNUMed developers
 
-Advantages:
-	- one-stop-shop: scripts, forms, letters can all be expressed as templates.
-	- high quality output
-	- totally free (including the fonts)
-	- can run without a GUI, such as on a server
-	- cross-platform, including Windows
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-Disadvantages
-	- old-fashioned (TeX dates back to mid-1980s)
-	- big dependency (about the same size as wxWindows DLL)
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+This is a release of the source of GNUMed based on a CVS snapshot on 20/2/04
+GNUMed is in early development, it is not ready for clinical use.
+
+This packaging is for Linux/Unix type systems only. It will not work on Windows.
+Mac OS X: worth a try?
+
+This package contains the client software only.
+
+To install, run
+	python install.py
+
+in this directory
+
+install.py takes several options
+	MANIFEST=1    -- creates a MANIFEST file listing all the files installed
+                         useful for packagers
+	PREFIX=foo    -- the installation prefix. Default: /usr
+	BINDIR=foo    -- location of the gnumed binary. Default: /usr/bin
+	DOCDIR=foo    -- location of the documentation, Default: /usr/share/doc/gnumed
+
+	remove        -- removes the previously installed files.
+
+The installer also installs /etc/gnumed.conf if it doesn't already exist.
+
+Once you have installed, typing "gnumed" at the prompt will start the client,
+you will see a login screen. If you get that far, let us know on
+gnumed-devel@gnu.org, and we'll give you the address of a server to connect to.
+
+Ian Haywood <ihaywood@gnu.org>	
 

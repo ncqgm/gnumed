@@ -3,6 +3,14 @@
 import sys, os.path, os, py_compile, shutil
 from os.path import join
 
+def soft_delete (f):
+    if os.access (f, os.W_OK):
+        if os.path.isdir (f):
+            shutil.rmtree (f, 1)
+        else:
+            os.unlink (f)
+
+
 if os.getuid () != 0:
     print """
 *** You are not root. This script won't work
@@ -18,6 +26,7 @@ prefix = '/usr'
 bindir = '/usr/bin'
 sharedir = '/usr/share/gnumed'
 docdir = '/usr/share/doc/gnumed'
+mandir = '/usr/share/man/man1'
 manifest = None
 
 # grab the command line args
@@ -27,6 +36,7 @@ for i in sys.argv[1:]:
         bindir = join (prefix, "bin")
         docdir = prefix + "/share/doc/gnumed"
         sharedir = prefix + "/share/gnumed"
+	mandir = prefix + "/share/man/man1"
         
     if i[:7] == "BINDIR=":
         bindir = i[7:]
@@ -49,7 +59,7 @@ Options are
       BINDIR=x    -- gnumed command directory, default /usr/bin
       SHAREDIR=x  -- gnumed general files, default /usr/share/gnumed
       DOCDIR=x    -- documentation files, default /usr/share/doc/gnumed
-      MANIFEST    -- flag, if 1 then MANIFEST of installed files is written
+      MANIFEST    -- flag, if 1 then a MANIFEST of installed files is written
       remove      -- reverses the function of this script
       """
         sys.exit (0)
@@ -57,12 +67,6 @@ Options are
         remove = 1
     
 if remove:
-    def soft_delete (f):
-        if os.access (f, os.W_OK):
-            if os.path.isdir (f):
-                shutil.rmtree (f, 1)
-            else:
-                os.unlink (f)
     soft_delete (join (bindir, 'gnumed'))
     soft_delete (sharedir)
     soft_delete (docdir)
@@ -159,6 +163,7 @@ print "=> done"
 
 
 print "=> Creating link in %s" % join (bindir, 'gnumed')
+soft_delete (join (bindir, 'gnumed'))
 os.symlink (join (sharedir, 'wxpython', 'gnumed.sh'), join (bindir, 'gnumed'))
 print "=> done"
 

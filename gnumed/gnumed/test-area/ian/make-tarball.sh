@@ -15,7 +15,7 @@ if [ -d gnumed-$VERSION ] ; then rm -R gnumed-$VERSION/ ; fi
 
 mkdir gnumed-$VERSION
 cd gnumed-$VERSION
-cp -R ../gnumed/README .
+cp -R ../gnumed/gnumed/test-area/ian/README .
 cp -R ../gnumed/gnumed/client/* .
 find -name *~ -exec rm \{} \;
 find -name *.pyc -exec rm \{} \;
