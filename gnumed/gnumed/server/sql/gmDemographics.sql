@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -397,22 +397,6 @@ create table log_relation (
 	ended date
 ) inherits (audit_trail);
 
--- ==========================================================
--- FIXME: until proper permissions system is developed,
--- otherwise new users  can spend hours wrestling with
--- postgres permissions
-GRANT SELECT ON
-	names,
-	identity,
-	identity_id_seq
-TO GROUP "gm-doctors";
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON
-	names,
-	names_id_seq,
-	identity_id_seq
-TO GROUP "_gm-doctors";
-
 -- ===================================================================
 -- organisation related tables
 -- ===================================================================
@@ -452,22 +436,33 @@ create table org (
 );
 
 -- ===================================================================
--- the AU specific application code better know about this table
--- ACN - Australian Company Number
--- actually belongs into country.specific/AU/
-create table org_AU (
-	id serial primary key,
-	id_org integer unique not null references org(id),
-	ACN text
-) ;
+-- permissions
+-- ===================================================================
+-- FIXME: until proper permissions system is developed,
+-- otherwise new users  can spend hours wrestling with
+-- postgres permissions
+GRANT SELECT ON
+	names,
+	identity,
+	identity_id_seq
+TO GROUP "gm-doctors";
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON
+	names,
+	names_id_seq,
+	identity_id_seq
+TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.2  2003-08-02 13:17:05  ncq
+-- Revision 1.3  2003-08-05 09:16:46  ncq
+-- - cleanup
+--
+-- Revision 1.2  2003/08/02 13:17:05  ncq
 -- - add audit tables
 -- - cleanup
 --
