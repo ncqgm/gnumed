@@ -1,5 +1,4 @@
 """loads handler onto widgets stored in widget map of guiBroker."""
-load_handles = 1 # set to zero if want no handles
 import gmGuiBroker 
 import EditAreaHandler
 from handler_gmSelectPersonImpl import *
@@ -26,14 +25,8 @@ def configure_handlers():
 	gb['models']['gmDemographics'] = model
 	gb['PatientsPanel_handler'] = handler
 
-	frame = gb['main.frame']
 	gmDispatcher.connect( save_models, gmSignals.application_clean_closing())
 
-	#evt_handler =  CloseCleanupEvtHandler( frame)
-	#evt_handler.SetEvtHandlerEnabled(1)
-	#frame.PushEventHandler( evt_handler)
-	#frame.SetEvtHandlerEnabled(1)
-	#print "FRAME got event handler", evt_handler
 		
 
 	
