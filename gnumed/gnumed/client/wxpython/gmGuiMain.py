@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.76 2003-02-09 09:47:38 sjtan Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmGuiMain.py,v 1.77 2003-02-09 12:44:43 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -61,14 +61,16 @@ ID_HELP = wxNewId ()
 ID_NOTEBOOK = wxNewId ()
 #==================================================
 
-icon_serpent='x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
+icon_serpent = \
+"""x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
 \xc1\x85\xd5\x98N5\xa5\xef?\xf5N\xd0\x8a\xdcA\xc2\xf7qw\x84\xdb\xfa\xb5\xcd\
 \xd4\xda;\xc9\x1a\xc8\xb6\xcd<\xb5\xa0\x85\x1e\xeb\xbc\xbc7b!\xf6\xdeHl\x1c\
 \x94\x073\xec<*\xf7\xbe\xf7\x99\x9d\xb21~\xe7.\xf5\x1f\x1c\xd3\xbdVlL\xc2\
 \xcf\xf8ye\xd0\x00\x90\x0etH \x84\x80B\xaa\x8a\x88\x85\xc4(U\x9d$\xfeR;\xc5J\
 \xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
-\xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec'
+\xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec"""
 
+#==================================================
 class ProgressDialog (wxProgressDialog):
 	def __init__(self, nr_plugins):
 		wxProgressDialog.__init__(
@@ -84,7 +86,7 @@ class ProgressDialog (wxProgressDialog):
 		icon = wxEmptyIcon()
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
-
+#==================================================
 class MainFrame(wxFrame):
 	"""GNUmed client's main windows frame.
 
@@ -193,6 +195,7 @@ class MainFrame(wxFrame):
 		self.Fit ()
 		self.Centre(wxBOTH)
 		self.Show(true)
+		# load widget handlers
 		import handler_loading_script
 
 	#----------------------------------------------
@@ -293,9 +296,6 @@ class MainFrame(wxFrame):
 				p = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend)
 				_log.Log(gmLog.lInfo,  'got plugin of type %s' % p.__class__.__name__)
 				p.register()
-				#print p
-				#sys.exit(0)
-
 				result = _("success")
 			except:
 				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info())
@@ -621,7 +621,10 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.76  2003-02-09 09:47:38  sjtan
+# Revision 1.77  2003-02-09 12:44:43  ncq
+# - fixed my typo
+#
+# Revision 1.76  2003/02/09 09:47:38  sjtan
 #
 # handler loading placed here.
 #
