@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.121 2003-10-31 23:23:17 ncq Exp $
-__version__ = "$Revision: 1.121 $"
+# $Id: gmGuiMain.py,v 1.122 2003-11-09 17:37:12 shilbert Exp $
+__version__ = "$Revision: 1.122 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -381,7 +381,7 @@ class gmTopLevelFrame(wxFrame):
 		#</DEBUG>
 		try:
 			epr = pat['clinical record']
-			demos = pat['demographics']
+			demos = pat['demographic record']
 		except:
 			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
 			return None
@@ -850,7 +850,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.121  2003-10-31 23:23:17  ncq
+# Revision 1.122  2003-11-09 17:37:12  shilbert
+# - ['demographics'] -> ['demographic record']
+#
+# Revision 1.121  2003/10/31 23:23:17  ncq
 # - make "attach to encounter ?" dialog more informative
 #
 # Revision 1.120  2003/10/27 15:53:10  ncq
