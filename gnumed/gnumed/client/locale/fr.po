@@ -1,8 +1,8 @@
-# SOME DESCRIPTIVE TITLE.
+# French GnuMed translation.
 # Copyright (C) YEAR ORGANIZATION
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# FIRST AUTHOR <gouchi@altern.org>, 2003.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/fr.po,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
@@ -17,11 +17,11 @@ msgstr ""
 
 #: ../wxpython/gmTalkback.py:36
 msgid "Send to"
-msgstr ""
+msgstr "Envoyer à"
 
 #: ../wxpython/gui/gmScanMedDocs.py:661
 msgid "opening scanner"
-msgstr ""
+msgstr "Scanner activé"
 
 #: ../wxpython/gui/gmScanMedDocs.py:949
 msgid "Tools"
@@ -37,31 +37,31 @@ msgstr ""
 
 #: ../wxpython/gui/gmScanMedDocs.py:166
 msgid "scan documents"
-msgstr ""
+msgstr "Scanne des documents"
 
 #: ../wxpython/gmSQLSimpleSearch.py:53
 msgid "&Search"
-msgstr ""
+msgstr "&Chercher"
 
 #: ../wxpython/gmPersonDetailsDlg.py:55
 msgid "&Save"
-msgstr ""
+msgstr "&Sauvegarder"
 
 #: ../wxpython/gui/gmDrugDisplay.py:225
 msgid "Actions"
-msgstr ""
+msgstr "Actions"
 
 #: ../wxpython/gui/gmSQL.py:130
 msgid "Results"
-msgstr ""
+msgstr "Résultats"
 
 #: ../wxpython/gmLabels.py:34
 msgid "called"
-msgstr ""
+msgstr "appelé"
 
 #: ../wxpython/gui/gmScanMedDocs.py:758 ../wxpython/gui/gmScanMedDocs.py:804
 msgid "document ID"
-msgstr ""
+msgstr "document ID"
 
 #: ../wxpython/patient/gmGP_Allergies.py:161
 #: ../wxpython/patient/gmGP_Allergies.py:166
@@ -75,31 +75,31 @@ msgstr ""
 
 #: ../wxpython/patient/gmDemographics.py:408
 msgid "Family name"
-msgstr ""
+msgstr "Nom de Famille"
 
 #: ../wxpython/gmCryptoText.py:161
 msgid "This is not correctly encrypted text!"
-msgstr ""
+msgstr "Ce texte n'est pas correctement  encrypté!"
 
 #: ../python-common/docDocument.py:639
 msgid "Cannot import docMime.py !"
-msgstr ""
+msgstr "Impossible d'importer docMime.py !"
 
 #: ../wxpython/gmUserAdmin.py:65
 msgid "First Name: "
-msgstr ""
+msgstr "Prénom: "
 
 #: ../wxpython/gmUserAdmin.py:41
 msgid "User's Info"
-msgstr ""
+msgstr "Informations utilisateur"
 
 #: ../wxpython/gmSelectPerson.py:42
 msgid "&Select"
-msgstr ""
+msgstr "&Selectionner"
 
 #: ../wxpython/gmLoginDialog.py:108
 msgid "Cannot find image"
-msgstr ""
+msgstr "Impossible de trouver l'image"
 
 #: ../wxpython/patient/gmCalcPreg.py:38
 msgid "Pregnancy Calculator"
