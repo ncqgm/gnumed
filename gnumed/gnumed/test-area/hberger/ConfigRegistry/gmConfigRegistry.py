@@ -36,9 +36,6 @@ DescriptionBoxID,
 ConfigDescriptionTextID
 ] = map(lambda _init_ctrls: wxNewId(), range(8))
 
-# local vars
-#configTreeItem = {}
-
 #================================================================
 class cConfTree(wxTreeCtrl):
 	"""This wxTreeCtrl derivative displays a tree view of configuration 
@@ -60,6 +57,8 @@ class cConfTree(wxTreeCtrl):
 
 		# connect handler
 		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
+		EVT_RIGHT_DOWN(self,self.OnRightDown)
+
 	#------------------------------------------------------------------------
 	def update(self):
 
@@ -223,16 +222,35 @@ class cConfTree(wxTreeCtrl):
 			self.paramTextCtrl.ShowParam(confData)
 			self.paramTextCtrl.SetEditable(1)
 			self.paramDescription.SetValue(description)
+			return 1
 		elif type == 'branch':
-			self.paramTextCtrl.ShowMessage(_("(Branch)"))
+			message=_("(Branch)")
 		elif type == 'defaultSubtree':
-			self.paramTextCtrl.ShowMessage(_("(Subtree root)"))
+			message=_("(Subtree root)")
 		elif type == 'root':
-			self.paramTextCtrl.ShowMessage(_("(Config parameter tree for current/default user and machine)"))
-
+			message=_("(Config parameter tree for current/default user and machine)")
+		# show message
+		self.paramTextCtrl.ShowMessage(message)
+		# expand/unexpand node if it has children
+		if self.ItemHasChildren(item):
+			if self.IsExpanded(item):
+				self.Collapse(item)
+			else:
+				self.Expand(item)
 		return 1
 
 		#--------------------------------------------------------
+	def OnRightDown(self,event):
+		position = event.GetPosition()
+#DEBUG
+		_log.Log(gmLog.lInfo, "Right clicked (x:%s y:%s)" % (str(position.x),str(position.y)))
+		(item,flags) = self.HitTest(position)
+#DEBUG
+		_log.Log(gmLog.lInfo, "clicked item (%s %s)" % (str(item),str(flags)))
+#		if flags & (wxTREE_HITTEST_ONITEMLABEL) == TRUE:
+		self.SelectItem(item)
+
+
 	def __show_error(self, aMessage = None, aTitle = ''):
 			# sanity checks
 			tmp = aMessage
@@ -761,7 +779,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.5  2003-05-16 10:51:45  hinnef
+# Revision 1.6  2003-05-22 16:28:37  hinnef
+# - selecting an item now expands/collapses its subtrees
+#
+# Revision 1.5  2003/05/16 10:51:45  hinnef
 # - now subtrees can hold config file data
 #
 # Revision 1.4  2003/05/11 17:00:26  hinnef
