@@ -24,10 +24,11 @@ All definitions are loaded from a config file.
 Please consult the User Manual in the GnuMed CVS for
 further details.
 """
+#==================================================================
 # TODO: warn if empty password
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -279,7 +280,7 @@ class db_server:
 			_log.Log(gmLog.lWarn, "No procedural languages to activate or error loading language list.")
 			return 1
 
-		lib_dirs = _cfg.get("installation", "language library dirs")
+		lib_dirs = _cfg.get("GnuMed defaults", "language library dirs")
 		if lib_dirs is None:
 			_log.Log(gmLog.lErr, "Error loading procedural language library directories list.")
 			return None
@@ -1005,7 +1006,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.24  2003-02-14 00:43:39  ncq
+# Revision 1.25  2003-02-23 19:07:06  ncq
+# - moved language library dirs to [GnuMed defaults]
+#
+# Revision 1.24  2003/02/14 00:43:39  ncq
 # - fix whitespace
 #
 # Revision 1.23  2003/02/11 18:16:05  ncq
