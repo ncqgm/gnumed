@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -14,78 +14,91 @@
 insert into cfg_template
 	(name, type, description)
 values (
-	'plugin load order',
+	'horstspace.notebook.plugin_load_order',
 	'str_array',
 	'which plugins to load in the GUI'
 );
 
 -- Arbeitsplatz Labor
 insert into cfg_item
-	(id_template, owner, workplace, cookie)
+	(id_template, owner, workplace)
 values (
 	currval('cfg_template_id_seq'),
 	'xxxDEFAULTxxx',
-	'Labor',
-	'gui'
+	'Labor'
 );
 
 insert into cfg_str_array
 	(id_item, value)
 values (
 	currval('cfg_item_id_seq'),
-	'{"gmShowLab","gmLabJournal"}'
+	'{"gmShowLab","gmLabJournal","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz (Dokumenten)archiv
 insert into cfg_item
-	(id_template, owner, workplace, cookie)
+	(id_template, owner, workplace)
 values (
 	currval('cfg_template_id_seq'),
 	'xxxDEFAULTxxx',
-	'Archiv',
-	'gui'
+	'Dokumente'
 );
 
 insert into cfg_str_array
 	(id_item, value)
 values (
 	currval('cfg_item_id_seq'),
-	'{"gmShowMedDocs","gmIndexMedDocs","gmScanMedDocs"}'
+	'{"gmShowMedDocs","gmIndexMedDocs","gmScanMedDocs","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Sprechzimmer 1
 insert into cfg_item
-	(id_template, owner, workplace, cookie)
+	(id_template, owner, workplace)
 values (
 	currval('cfg_template_id_seq'),
 	'xxxDEFAULTxxx',
-	'Sprechzimmer 1',
-	'gui'
+	'Sprechzimmer 1'
 );
 
 insert into cfg_str_array
 	(id_item, value)
 values (
 	currval('cfg_item_id_seq'),
-	'{"gmShowLab","gmLabJournal","gmShowMedDocs","gmIndexMedDocs","gmScanMedDocs"}'
+	'{"gmShowLab","gmLabJournal","gmShowMedDocs","gmIndexMedDocs","gmScanMedDocs","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Kinderarzt
 insert into cfg_item
-	(id_template, owner, workplace, cookie)
+	(id_template, owner, workplace)
 values (
 	currval('cfg_template_id_seq'),
 	'xxxDEFAULTxxx',
-	'Kinderarzt',
-	'gui'
+	'Kinderarzt'
 );
 
 insert into cfg_str_array
 	(id_item, value)
 values (
 	currval('cfg_item_id_seq'),
-	'{"gmVaccinationsPlugin","gmShowMedDocs","gmShowLab"}'
+	'{"gmVaccinationsPlugin","gmShowMedDocs","gmShowLab","gmConfigRegistry"}'
 );
+
+-- Arbeitsplatz Archivbrowser
+insert into cfg_item
+	(id_template, owner, workplace)
+values (
+	currval('cfg_template_id_seq'),
+	'xxxDEFAULTxxx',
+	'Archivbrowser'
+);
+
+insert into cfg_str_array
+	(id_item, value)
+values (
+	currval('cfg_item_id_seq'),
+	'{"gmOffice","gmShowMedDocs","gmShowLab","gmLabJournal","gmVaccinationsPlugin","gmAllergiesPlugin","gmConfigRegistry"}'
+);
+
 -- ---------------------------------------------
 -- search behaviour options
 
@@ -119,11 +132,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $');
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.2  2004-08-20 13:25:15  ncq
+-- Revision 1.3  2004-09-13 19:25:56  ncq
+-- - "plugin load order" with cookie "gui" now "horstspace.notebook.plugin_load_order"
+--
+-- Revision 1.2  2004/08/20 13:25:15  ncq
 -- - add patient_search.always_dismiss_previous_patient
 --
 -- Revision 1.1  2004/07/19 14:41:55  ncq
