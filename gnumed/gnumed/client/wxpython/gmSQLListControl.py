@@ -30,15 +30,24 @@ class SQLListControl(wxListCtrl):
 	__saved_stderr = None
 	__stdout = None
 	__stderr = None
-	__feedback = false
+	__feedback = true
 	__labels = []
+	__maxfetch = 0
 
 
 
-	def __init__(self, parent, id, pos=wxPyDefaultPosition, size=wxPyDefaultSize, style=wxLC_REPORT, feedback=false):
+	def __init__(self, parent, id, pos=wxPyDefaultPosition, size=wxPyDefaultSize, style=wxLC_REPORT, feedback=true):
 		wxListCtrl.__init__(self, parent, id, pos, size, style)
 		self.__feedback = feedback
 
+
+
+	def SetMaxfetch(self, n):
+		self.__maxfetch = maxfetch
+
+
+	def GetMaxFetch(self):
+		return self.__maxfetch
 
 
 	def SetQueryStr(self, querystr, service = 'default'):
@@ -125,15 +134,22 @@ class SQLListControl(wxListCtrl):
         	#time needed for database query
         	t1 = time.time()
 
+		cursor = conn.cursor()
 		cursor.execute(self.__querystr)
-		queryresult = cursor.fetchall ()
+		if self.__maxfetch > 0:
+			queryresult = cursor.fetchmany(self.__maxfetch)
+		else:
+			queryresult = cursor.fetchall()
+
 		t2 = time.time()
 		if self.__feedback:
 			print "Query [%s] returned %d tuples in %3.3f sec\n\n" % (self.__querystr, cursor.rowcount, t2-t1)
 
 		#set list control labels depending on the returned fields, unless manually overridden
+
 		if len(self.__labels)<=0:
-			self.__labels = [field[0] for field in cursor.description]
+			self.__labels = gmPG.fieldNames(cursor)
+
 		gmLabels.LabelListControl(self, self.__labels)
 		rowcount=0
 		for row in queryresult:
@@ -142,16 +158,17 @@ class SQLListControl(wxListCtrl):
 				if colcount==0:
 					self.InsertStringItem(rowcount,str(attr))
 				else:
-					self.SetStringItem(rowcount,colcount, str(attr))
+					self.SetStringItem(rowcount,colcount, str(attr))            
                 		colcount +=1
             		rowcount +=1
 
 		#adjust column width according to the query results
-		for w in range(0, len(cursor.description)):
+		for w in range(0, len(self.__labels)):
 			self.SetColumnWidth(w, wxLIST_AUTOSIZE)
 
 		t2f = time.time()
 		self.__SetStatusText("%d records found; retrieved and displayed in %1.3f sec." % (cursor.rowcount, t2f-t1f))
+
 		#restore standard output
 		self.RestoreOutput()
 
