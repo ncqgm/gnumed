@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -57,7 +57,7 @@ import os.path, fileinput, string, sys, shutil
 from types import *
 
 # gnumed modules
-import gmLog
+from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 
 _gmPG = None
@@ -713,7 +713,7 @@ class cCfgFile:
 			# lazy import gmCLI
 			global _gmCLI
 			if _gmCLI is None:
-				import gmCLI
+				from Gnumed.pycommon import gmCLI
 				_gmCLI = gmCLI
 			# and check command line options
 			if _gmCLI.has_arg('--conf-file'):
@@ -1003,7 +1003,7 @@ def getFirstMatchingDBSet(machine = cfg_DEFAULT, cookie = cfg_DEFAULT, option = 
 	# import gmPG if need be
 	global _gmPG
 	if _gmPG is None:
-		import gmPG
+		from Gnumed.pycommon import gmPG
 		_gmPG = gmPG
 
 	# first create list of sets to search
@@ -1062,7 +1062,7 @@ def setDBParam(machine = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT, 
 	# import gmPG if need be
 	global _gmPG
 	if _gmPG is None:
-		import gmPG
+		from Gnumed.pycommon import gmPG
 		_gmPG = gmPG
 
 	# connect to database
@@ -1213,7 +1213,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.3  2004-02-26 14:32:46  ncq
+# Revision 1.4  2004-06-19 18:55:44  shilbert
+# - fixes for various import statements
+#
+# Revision 1.3  2004/02/26 14:32:46  ncq
 # - fixed and lazied even more
 #
 # Revision 1.2  2004/02/25 22:56:38  sjtan
