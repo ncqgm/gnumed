@@ -6,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/michaelb/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.4 2003-07-05 06:14:41 michaelb Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPregCalc.py,v 1.5 2003-07-05 06:44:28 michaelb Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -48,9 +48,6 @@ class PregnancyFrame (wxFrame):
 	"""
 
 	#TODO
-	# change "Gest."  split into days and weeks (?)
-	#	-- make with spin dials (similar to Ian's Preg Calc)?
-	#
 	# IMPROVE removal of time from txtlnmp, txtedc, txtdue
 	#
 	# add tooltips to wxTextCtrl fields to describe what they
@@ -323,13 +320,13 @@ class PregnancyFrame (wxFrame):
 			#	Day Light Savings/Standard Time Calc?
 
 			#LNMP = self.LNMPcal.GetDate ().GetTicks () - 18000 	# Standard Time Fix (?)
-			LNMP = self.LNMPcal.GetDate ().GetTicks ()		# Correct for Day Light Saving Time
+			self.LNMP = self.LNMPcal.GetDate ().GetTicks ()		# Correct for Day Light Saving Time
 			#today = wxGetCurrentTime ()
 			today = wxDateTime_Today().GetTicks()
-			due = LNMP + GESTATION
-			gest = today - LNMP
+			due = self.LNMP + GESTATION
+			gest = today - self.LNMP
 			#gest = due - today
-			ultrasound18_52 = LNMP + US18_52
+			ultrasound18_52 = self.LNMP + US18_52
 
 			"""
 			print LNMP
@@ -340,7 +337,7 @@ class PregnancyFrame (wxFrame):
 
 			# -----------------
 			LNMPtxt = wxDateTime()			# FIXME - remove time from date, change format of date (?)
-			LNMPtxt.SetTimeT(LNMP)
+			LNMPtxt.SetTimeT(self.LNMP)
 			self.txtlnmp.SetValue(self.PurgeTime(LNMPtxt))
 
 			# -----------------
@@ -383,11 +380,11 @@ class PregnancyFrame (wxFrame):
 			days=self.txtdays.GetValue()
 
 			# get date of ultrasound
-			newedc=self.usdate+WEEK*weeks+DAY*days
+			#newedc=self.usdate+WEEK*weeks+DAY*days	#WRONG
+			newedc=self.usdate+GESTATION-WEEK*weeks-DAY*days
+
 			wxD=wxDateTime()
 			wxD.SetTimeT(newedc)
-
-			#self.txtnewedc.SetValue(str(eval(self.txtmass.GetValue())-eval(self.txtgoal.GetValue())))
 			self.txtnewedc.SetValue(self.PurgeTime(wxD))
 		except:
 			pass	# error handling
@@ -401,10 +398,12 @@ class PregnancyFrame (wxFrame):
 		self.txtdue.SetValue("")
 		self.txtdate.SetValue("")
 
-		self.txtweeks.SetValue(0)		# FIXME - MAKE IT RESET TO BLANK
+		self.txtweeks.SetValue(0)			# FIXME - MAKE IT RESET TO BLANK?
 		self.txtdays.SetValue(0)
 		self.txtnewedc.SetValue("")
-		# TODO -- reset Calendar to current date
+
+		self.lnp_or_usdate=0
+		self.LNMPcal.SetDate(wxDateTime_Today())	# reset Calendar to current date
 
 	#-----------------------------------------
 	def EvtPrint(self, event):
@@ -435,6 +434,7 @@ class PregnancyFrame (wxFrame):
 	def OnSetFocus_USDate (self, event):
 		self.lnp_or_usdate=1
 		#print self.lnp_or_usdate	# test
+		# TODO - flip calendar to 18/52 date
 		event.Skip()
 
 
@@ -490,7 +490,10 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.4  2003-07-05 06:14:41  michaelb
+# Revision 1.5  2003-07-05 06:44:28  michaelb
+# fixed "Revised EDC" calc, on reset LMP selected & calendar put on current date
+#
+# Revision 1.4  2003/07/05 06:14:41  michaelb
 # calculation fully functional!
 #
 # Revision 1.2  2003/07/04 06:56:32  rterry
