@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.23 2004-06-26 07:33:55 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmForms.py,v 1.24 2004-06-28 12:18:52 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -111,7 +111,7 @@ class gmFormEngine:
 		# in one transaction
 		queries = []
 		# - store form instance in form_instance
-		cmd = "insert into form_instances(fk_form_def, form_name, fk_episode, id_encounter) values (%s, %s, %s, %s)"
+		cmd = "insert into form_instances(fk_form_def, form_name, fk_episode, fk_encounter) values (%s, %s, %s, %s)"
 		queries.append((cmd, [self.pk_def, form_name, episode, encounter]))
 		# - store params in form_data
 		for key in params.keys():
@@ -427,7 +427,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.23  2004-06-26 07:33:55  ncq
+# Revision 1.24  2004-06-28 12:18:52  ncq
+# - more id_* -> fk_*
+#
+# Revision 1.23  2004/06/26 07:33:55  ncq
 # - id_episode -> fk/pk_episode
 #
 # Revision 1.22  2004/06/18 13:32:37  ncq

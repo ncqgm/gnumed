@@ -2,8 +2,8 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.6 2004-06-26 23:45:50 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmClinicalRecordTest.py,v 1.7 2004-06-28 12:18:52 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -133,12 +133,12 @@ class AllergyTests(unittest.TestCase):
 		"""Check that a new allergy can be created"""
 		gmLog.gmDefLog.flush()
 		# create new allergy
-		id_encounter = self.emr.get_active_encounter()['pk_encounter']
+		pk_encounter = self.emr.get_active_encounter()['pk_encounter']
 		pk_episode = self.emr.get_active_episode()['pk_episode']
 		new_allergy = self.emr.add_allergy (
 			substance='Test substance',
 			allg_type = 1,
-			encounter_id = id_encounter,
+			encounter_id = pk_encounter,
 			episode_id = pk_episode
 		)
 		self.assertEqual(isinstance(new_allergy, gmAllergy.cAllergy), True, 'add_allergy() failed')
@@ -301,7 +301,10 @@ if __name__ == "__main__":
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.6  2004-06-26 23:45:50  ncq
+# Revision 1.7  2004-06-28 12:18:52  ncq
+# - more id_* -> fk_*
+#
+# Revision 1.6  2004/06/26 23:45:50  ncq
 # - cleanup, id_* -> fk/pk_*
 #
 # Revision 1.5  2004/06/26 07:33:55  ncq

@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.8 2004-06-26 07:33:55 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmVaccination.py,v 1.9 2004-06-28 12:18:52 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types
@@ -126,10 +126,10 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 	# insert new vaccination
 	queries = []
 	if type(vaccine) == types.IntType:
-		cmd = """insert into vaccination (id_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
+		cmd = """insert into vaccination (fk_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
 				 values (%s, %s, %s, %s, %s)"""
 	else:
-		cmd = """insert into vaccination (id_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
+		cmd = """insert into vaccination (fk_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
 				 values (%s, %s, %s, %s, (select id from vaccine where trade_name=%s))"""
 		vaccine = str(vaccine)
 	queries.append((cmd, [encounter_id, episode_id, patient_id, staff_id, vaccine]))
@@ -255,7 +255,10 @@ if __name__ == '__main__':
 	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.8  2004-06-26 07:33:55  ncq
+# Revision 1.9  2004-06-28 12:18:52  ncq
+# - more id_* -> fk_*
+#
+# Revision 1.8  2004/06/26 07:33:55  ncq
 # - id_episode -> fk/pk_episode
 #
 # Revision 1.7  2004/06/13 08:03:07  ncq

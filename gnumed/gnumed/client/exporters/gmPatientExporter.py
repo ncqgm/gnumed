@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.11 2004-06-26 23:45:50 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmPatientExporter.py,v 1.12 2004-06-28 12:18:52 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -152,7 +152,7 @@ class gmEmrExport:
 	    encounter_ids = []
 	    for an_item in items:
 	        try :
-	            encounter_ids.append(an_item['id_encounter'])
+	            encounter_ids.append(an_item['pk_encounter'])
 	        except:
 	            encounter_ids.append(an_item['pk_encounter'])
 	    return emr.get_encounters(id_list = encounter_ids)
@@ -272,7 +272,7 @@ class gmEmrExport:
 	    # Extract from considered items related episodes
 	    filtered_episodes = self.get_set_for_field(filtered_items, 'pk_episode')
 	    # Extract from considered items related encounters
-	    filtered_encounters = self.get_set_for_field(filtered_items, 'id_encounter')
+	    filtered_encounters = self.get_set_for_field(filtered_items, 'pk_encounter')
 	    
 	    # All values fetched and filtered, we can begin with the tree
 	    txt = ''
@@ -289,7 +289,7 @@ class gmEmrExport:
                     an_encounter['last_affirmed'].Format('%Y-%m-%d') + ' ' + \
                     an_encounter['description'] + '\n'
                     for an_item  in items:
-                        if an_item['id_encounter'] == an_encounter['pk_encounter']:
+                        if an_item['pk_encounter'] == an_encounter['pk_encounter']:
                             txt += self.get_item_output(an_item)
 	    return txt
 	#--------------------------------------------------------
@@ -471,7 +471,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.11  2004-06-26 23:45:50  ncq
+# Revision 1.12  2004-06-28 12:18:52  ncq
+# - more id_* -> fk_*
+#
+# Revision 1.11  2004/06/26 23:45:50  ncq
 # - cleanup, id_* -> fk/pk_*
 #
 # Revision 1.10  2004/06/26 06:53:25  ncq

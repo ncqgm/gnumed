@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.123 2004-06-26 23:45:50 ncq Exp $
-__version__ = "$Revision: 1.123 $"
+# $Id: gmClinicalRecord.py,v 1.124 2004-06-28 12:18:41 ncq Exp $
+__version__ = "$Revision: 1.124 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -209,7 +209,7 @@ class cClinicalRecord:
 		if note is None:
 			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
 			return 1
-		cmd = "insert into clin_note(id_encounter, fk_episode, narrative) values (%s, %s, %s)"
+		cmd = "insert into clin_note(fk_encounter, fk_episode, narrative) values (%s, %s, %s)"
 		return gmPG.run_commit('historica', [(cmd, [self.__encounter['pk_encounter'], self.__episode['pk_episode'], note])])
 	#--------------------------------------------------------
 	# __getitem__ handling
@@ -242,7 +242,7 @@ class cClinicalRecord:
 			'clin_when',
 			"case is_modified when false then '%s' else '%s' end as modified_string" % (_('original entry'), _('modified entry')),
 			'id_item',
-			'id_encounter',
+			'pk_encounter',
 			'pk_episode',
 			'pk_health_issue',
 			'src_table'
@@ -320,7 +320,7 @@ class cClinicalRecord:
 				emr_data[age].append(
 					_('%s: encounter (%s)') % (
 						view_row[view_col_idx['clin_when']],
-						view_row[view_col_idx['id_encounter']]
+						view_row[view_col_idx['pk_encounter']]
 					)
 				)
 				emr_data[age].append(_('health issue: %s') % issue_name)
@@ -330,7 +330,7 @@ class cClinicalRecord:
 				#   are in v_patient_items data already
 				cols2ignore = [
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
-					'pk_item', 'id', 'id_encounter', 'fk_episode'
+					'pk_item', 'id', 'fk_encounter', 'fk_episode'
 				]
 				col_data = []
 				for col_name in table_col_idx.keys():
@@ -372,7 +372,7 @@ class cClinicalRecord:
 			'clin_when',
 			"case is_modified when false then '%s' else '%s' end as modified_string" % (_('original entry'), _('modified entry')),
 			'id_item',
-			'id_encounter',
+			'pk_encounter',
 			'pk_episode',
 			'pk_health_issue',
 			'src_table'
@@ -395,9 +395,9 @@ class cClinicalRecord:
 		if not encounters is None and len(encounters) > 0:
 			params['enc'] = encounters
 			if len(encounters) > 1:
-				where_snippets.append('id_encounter in %(enc)s')
+				where_snippets.append('fk_encounter in %(enc)s')
 			else:
-				where_snippets.append('id_encounter=%(enc)s')
+				where_snippets.append('fk_encounter=%(enc)s')
 		# episodes
 		if not episodes is None and len(episodes) > 0:
 			params['epi'] = episodes
@@ -490,7 +490,7 @@ class cClinicalRecord:
 				emr_data[age].append(
 					_('%s: encounter (%s)') % (
 						view_row[view_col_idx['clin_when']],
-						view_row[view_col_idx['id_encounter']]
+						view_row[view_col_idx['fk_encounter']]
 					)
 				)
 				emr_data[age].append(_('health issue: %s') % issue_name)
@@ -500,7 +500,7 @@ class cClinicalRecord:
 				#   are in v_patient_items data already
 				cols2ignore = [
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
-					'pk_item', 'id', 'id_encounter', 'fk_episode'
+					'pk_item', 'id', 'fk_encounter', 'fk_episode'
 				]
 				col_data = []
 				for col_name in table_col_idx.keys():
@@ -585,7 +585,7 @@ class cClinicalRecord:
 		if episodes is not None:
 			filtered_allergies = filter(lambda allg: allg['pk_episode'] in episodes, filtered_allergies)
 		if encounters is not None:
-			filtered_allergies = filter(lambda allg: allg['id_encounter'] in encounters, filtered_allergies)
+			filtered_allergies = filter(lambda allg: allg['pk_encounter'] in encounters, filtered_allergies)
 
 		return filtered_allergies
 	#--------------------------------------------------------
@@ -915,7 +915,7 @@ class cClinicalRecord:
 		if episodes is not None:
 			filtered_shots = filter(lambda shot: shot['pk_episode'] in episodes, filtered_shots)
  		if encounters is not None:
-			filtered_shots = filter(lambda shot: shot['id_encounter'] in encounters, filtered_shots)
+			filtered_shots = filter(lambda shot: shot['pk_encounter'] in encounters, filtered_shots)
 		if indications is not None:
 			filtered_shots = filter(lambda shot: shot['indication'] in indications, filtered_shots)
 		return (filtered_shots)
@@ -1249,7 +1249,7 @@ class cClinicalRecord:
 		"""
 		cmd = """
 		insert into referral (
-		id_encounter, fk_episode, narrative, fk_form
+		fk_encounter, fk_episode, narrative, fk_form
 		) values (
 		%s, %s, %s, %s
 		)
@@ -1318,7 +1318,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.123  2004-06-26 23:45:50  ncq
+# Revision 1.124  2004-06-28 12:18:41  ncq
+# - more id_* -> fk_*
+#
+# Revision 1.123  2004/06/26 23:45:50  ncq
 # - cleanup, id_* -> fk/pk_*
 #
 # Revision 1.122  2004/06/26 07:33:55  ncq
