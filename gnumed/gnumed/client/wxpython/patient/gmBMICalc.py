@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -128,12 +128,11 @@ class BMICalc_Panel(wxPanel):
 		self.loss=''		# mass to lose
 		self.goal=''		# a more ideal mass
 
-		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER )
-		sizer = wxBoxSizer(wxVERTICAL)
+		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER | wxTAB_TRAVERSAL)
 		#------------------------------
 		#sizer with heading label
 		#------------------------------
-		lblheading = wxStaticText(
+		label = wxStaticText(
 			self,
 			-1,
 			_("Current height/mass"),
@@ -141,62 +140,68 @@ class BMICalc_Panel(wxPanel):
 			wxDefaultSize,
 			style = wxALIGN_CENTRE
 		)
-		lblheading.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
-		lblheading.SetForegroundColour(wxColour(0,0,131))
-		szr_left1 = wxBoxSizer(wxHORIZONTAL)
-		szr_left1.Add(lblheading,1,0)
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		label.SetForegroundColour(wxColour(0,0,131))
+		szr_upper_heading = wxBoxSizer(wxHORIZONTAL)
+		szr_upper_heading.Add(label,1,0)
 		#------------------------------
 		#sizer holding the height stuff
 		#------------------------------
-		szr_left2 = wxBoxSizer(wxHORIZONTAL)
-		label1 = wxStaticText(self,-1,_("Height (cm)"),size = (1,20))
-		label1.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		label1.SetForegroundColour(wxColour(0,0,131))
+		label = wxStaticText(self,-1,_("Height (cm)"),size = (1,20))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetForegroundColour(wxColour(0,0,131))
+
 		self.txtHeight = wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtHeight.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+
 		EVT_TEXT(self, self.txtHeight.GetId(), self.EvtText_Height)
 		EVT_SET_FOCUS(self.txtHeight, self.OnSetFocus_Height)
-		EVT_CHAR(self.txtHeight, self.EvtChar_Height)
-		szr_left2.Add(10,1,0,0)
-		szr_left2.Add(label1,1,wxALIGN_CENTRE_VERTICAL|0)
-		szr_left2.Add(self.txtHeight,1,wxALIGN_CENTRE_VERTICAL|0)
+
+		szr_height = wxBoxSizer(wxHORIZONTAL)
+		szr_height.Add(10,1,0,0)
+		szr_height.Add(label, 1, wxALIGN_CENTRE_VERTICAL, 0)
+		szr_height.Add(self.txtHeight, 1, wxALIGN_CENTRE_VERTICAL | wxEXPAND, 0)
 		#------------------------------
 		#sizer holding the mass stuff
 		#------------------------------
-		szr_left3 = wxBoxSizer(wxHORIZONTAL)
-		label2 = wxStaticText(self,-1,_("Mass (kg)"),size = (20,20))
-		label2.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		label2.SetForegroundColour(wxColour(0,0,131))
+		label = wxStaticText(self,-1,_("Mass (kg)"),size = (20,20))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetForegroundColour(wxColour(0,0,131))
 
 		self.txtmass = wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtmass.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+
 		EVT_TEXT(self, self.txtmass.GetId(), self.EvtText_mass)
 		EVT_SET_FOCUS(self.txtmass, self.OnSetFocus_mass)
-		EVT_CHAR(self.txtmass, self.EvtChar_mass)
-		szr_left3.Add(10,1,0,0)
-		szr_left3.Add(label2,1,wxALIGN_CENTRE_VERTICAL|0)
-		szr_left3.Add(self.txtmass,1,wxALIGN_CENTRE_VERTICAL|0)
-		szr_left3.Add(5,5,1,0)
+
+		szr_mass = wxBoxSizer(wxHORIZONTAL)
+		szr_mass.Add(10,1,0,0)
+		szr_mass.Add(label, 1, wxALIGN_CENTRE_VERTICAL, 0)
+		szr_mass.Add(self.txtmass, 1, wxALIGN_CENTRE_VERTICAL | wxEXPAND, 0)
+		szr_mass.Add(5,5,1,0)
 		#------------------------------
 		#sizer holding the BMI stuff
 		#------------------------------
-		szr_left4 = wxBoxSizer(wxHORIZONTAL)
-		label3 = wxStaticText(self,-1,_("BMI"),size = (100,20))
-		label3.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		label3.SetForegroundColour(wxColour(0,0,131))
+		label = wxStaticText(self,-1,_("BMI"),size = (100,20))
+		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetForegroundColour(wxColour(0,0,131))
 
 		self.txtbmi = wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtbmi.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		szr_left4.Add(10,1,0,0)
-		szr_left4.Add(label3,1,wxALIGN_CENTRE_VERTICAL|0)
-		szr_left4.Add(self.txtbmi,1,wxALIGN_CENTRE_VERTICAL|0)
-		szr_left4.Add(5,5,1,0)
+
+		szr_bmi = wxBoxSizer(wxHORIZONTAL)
+		szr_bmi.Add(10,1,0,0)
+		szr_bmi.Add(label,1,wxALIGN_CENTRE_VERTICAL|0,0)
+		szr_bmi.Add(self.txtbmi,1,wxALIGN_CENTRE_VERTICAL | wxEXPAND,0)
+		szr_bmi.Add(5,5,1,0)
 		#--------------------------------------------------
 		#the color elipses to show where on scale of mass
 		#--------------------------------------------------
+		# FIXME: this should not be able to receive focus, e.g
+		# it should be skipped during tabbing
 		bmi_colour_scale = BMI_Colour_Scale(self)
-		szr_left5 = wxBoxSizer(wxHORIZONTAL)
-		szr_left5.Add(bmi_colour_scale,1,wxEXPAND)
+		szr_col_scale = wxBoxSizer(wxHORIZONTAL)
+		szr_col_scale.Add(bmi_colour_scale,1,wxEXPAND)
 		#-----------------------------------------------------
 		#put a slider control under the bmi colour range scale
 		#-----------------------------------------------------
@@ -205,104 +210,117 @@ class BMICalc_Panel(wxPanel):
 					wxSL_HORIZONTAL | wxSL_AUTOTICKS | wxSL_LABELS )
 		self.slider.SetTickFreq(1, 1)
 		EVT_SCROLL(self.slider, self.SLIDER_EVT)
-		EVT_CHAR(self.slider, self.EvtChar_slider)
-		szr_left6 = wxBoxSizer(wxHORIZONTAL)
-		szr_left6.Add(self.slider,1,wxEXPAND)
+		szr_slider = wxBoxSizer(wxHORIZONTAL)
+		szr_slider.Add(self.slider,1,wxEXPAND)
 		#---------------------------------------------------------------------
 		#Add the adjusted values heading, underlined, autoexpand to fill width
-		#TOFIX - find underline constant
+		#FIXME: find underline constant
 		#---------------------------------------------------------------------
-		szr_left7 = wxBoxSizer(wxHORIZONTAL)
-		label4 = wxStaticText(self,-1,_("Adjusted Values"),wxDefaultPosition,\
-			wxDefaultSize, style = wxALIGN_CENTRE)  #add underline
-		label4.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
-		label4.SetForegroundColour(wxColour(0,0,131))
-		szr_left7.Add(label4,1,wxEXPAND)
+		label = wxStaticText(
+			self,
+			-1,
+			_("Adjusted Values"),
+			wxDefaultPosition,
+			wxDefaultSize,
+			style = wxALIGN_CENTRE
+		)  #add underline
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		label.SetForegroundColour(wxColour(0,0,131))
+
+		szr_lower_heading = wxBoxSizer(wxHORIZONTAL)
+		szr_lower_heading.Add(label,1,wxEXPAND)
 		#-----------------------
 		#Put in the goal mass
 		#----------------------
-		lblgoal = wxStaticText(self,-1,_("Goal mass"),size = (30,20))
-		lblgoal.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		lblgoal.SetForegroundColour(wxColour(0,0,131))
+		label = wxStaticText(self,-1,_("Goal mass"),size = (30,20))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetForegroundColour(wxColour(0,0,131))
+
 		self.txtgoal= wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtgoal.SetFont(wxFont(14,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+
 		EVT_TEXT(self, self.txtgoal.GetId(), self.EvtText_goal)
 		EVT_SET_FOCUS(self.txtgoal, self.OnSetFocus_goal)
-		EVT_CHAR(self.txtgoal, self.EvtChar_goal)
-		szr_left8 = wxBoxSizer(wxHORIZONTAL)
-		szr_left8.Add(10,1,0,0)
-		szr_left8.Add(lblgoal,1,0)
-		szr_left8.Add(self.txtgoal,1,0)
+
+		szr_goal_mass = wxBoxSizer(wxHORIZONTAL)
+		szr_goal_mass.Add(10,1,0,0)
+		szr_goal_mass.Add(label,1,wxALIGN_CENTRE_VERTICAL,0)
+		szr_goal_mass.Add(self.txtgoal,1,wxALIGN_CENTRE_VERTICAL | wxEXPAND, 0)
 		#-----------------------------
 		#and the amount to loose in Kg
 		#-----------------------------
-		lblloss = wxStaticText(self,-1,_("kg to loose"),size = (30,20))
-		lblloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		lblloss.SetForegroundColour(wxColour(0,0,131))
+		label = wxStaticText(self,-1,_("kg to loose"),size = (30,20))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetForegroundColour(wxColour(0,0,131))
+
 		self.txtloss= wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+
 		EVT_TEXT(self, self.txtloss.GetId(), self.EvtText_loss)
 		EVT_SET_FOCUS(self.txtloss, self.OnSetFocus_loss)
-		EVT_CHAR(self.txtloss, self.EvtChar_loss)
-		szr_left9 = wxBoxSizer(wxHORIZONTAL)
-		szr_left9.Add(10,1,0,0)
-		szr_left9.Add(lblloss,1,0)
-		szr_left9.Add(self.txtloss,1,0)
+
+		szr_to_loose = wxBoxSizer(wxHORIZONTAL)
+		szr_to_loose.Add(10,1,0,0)
+		szr_to_loose.Add(label,1,wxALIGN_CENTRE_VERTICAL,0)
+		szr_to_loose.Add(self.txtloss,1,wxALIGN_CENTRE_VERTICAL | wxEXPAND,0)
 		#-----------------------------------------------------------------
 		#finally add all the horizontal sizers from top down to main sizer
 		#-----------------------------------------------------------------
-		sizer.Add(1,5,0,0)
-		sizer.Add(szr_left1,0,wxEXPAND)
-		sizer.Add(1,5,0,0)
-		sizer.Add(szr_left2,0,0)
-		sizer.Add(1,5,0,0)
-		sizer.Add(szr_left3,0,0)
-		sizer.Add(1,5,0,0)
-		sizer.Add(szr_left4,0,0)
-		sizer.Add(1,20,0,0)
-		sizer.Add(szr_left5,0,0)
-		sizer.Add(szr_left6,0,0)
-		sizer.Add(szr_left7,0,wxEXPAND)
-		sizer.Add(1,5,0,0)
-		sizer.Add(szr_left8,0,0)
-		sizer.Add(1,5,0,0)
-		sizer.Add(szr_left9,0,0)
-		sizer.Add(1,20,0,0)
+		szr_main = wxBoxSizer(wxVERTICAL)
+		szr_main.Add(1,5,0,0)
+		szr_main.Add(szr_upper_heading,0,wxEXPAND)
+		szr_main.Add(1,5,0,0)
+		szr_main.Add(szr_height,0,0)
+		szr_main.Add(1,5,0,0)
+		szr_main.Add(szr_mass,0,0)
+		szr_main.Add(1,5,0,0)
+		szr_main.Add(szr_bmi,0,0)
+		szr_main.Add(1,20,0,0)
+		szr_main.Add(szr_col_scale,0,0)
+		szr_main.Add(szr_slider,0,0)
+		szr_main.Add(szr_lower_heading,0,wxEXPAND)
+		szr_main.Add(1,5,0,0)
+		szr_main.Add(szr_goal_mass,0,0)
+		szr_main.Add(1,5,0,0)
+		szr_main.Add(szr_to_loose,0,0)
+		szr_main.Add(1,20,0,0)
 		#---------------------------------------
 		#set, fit and layout sizer so it appears
 		#---------------------------------------
-		self.SetSizer(sizer)
-		sizer.Fit(self)
+		self.SetSizer(szr_main)
+		szr_main.Fit(self)
 		self.SetAutoLayout(true)
 		self.Show(true)
-
+	#-----------------------------------------
+	# event handlers
+	#-----------------------------------------
 	def OnSetFocus_Height(self, event):
 		self.focus=1
 		event.Skip()
-
+	#-----------------------------------------
 	def OnSetFocus_mass(self, event):
 		self.focus=2
 		event.Skip()
-
+	#-----------------------------------------
 	def OnSetFocus_goal(self, event):
 		self.focus=4
 		event.Skip()
-
+	#-----------------------------------------
 	def OnSetFocus_loss(self, event):
 		self.focus=5
 		event.Skip()
-
+	#-----------------------------------------
 	def EvtText_Height(self, event):
 		if(self.focus==1):
 			self.height=event.GetString()
 			self.calc_ideal_mass_range()
 			self.CalcBMI()
-
+	#-----------------------------------------
 	def EvtText_mass(self, event):
 		if(self.focus==2):
 			self.mass=event.GetString()
 			self.CalcBMI()
-
+	#-----------------------------------------
 	def EvtText_goal(self, event):
 		if(self.focus==4):
 			self.goal=event.GetString()
@@ -316,7 +334,7 @@ class BMICalc_Panel(wxPanel):
 					pass	# error handling
 			else:
 				self.txtloss.SetValue('')
-
+	#-----------------------------------------
 	def EvtText_loss(self, event):
 		if(self.focus==5):
 			self.loss=event.GetString()
@@ -330,18 +348,18 @@ class BMICalc_Panel(wxPanel):
 					pass	# error handling
 			else:
 				self.txtgoal.SetValue('')
-
+	#-----------------------------------------
 	def calc_ideal_mass_range(self):
 		try:
 			self.low_norm_mass=20.*((eval(self.height)/100.)**2)
 			self.upp_norm_mass=25.*((eval(self.height)/100.)**2)
 			print self.low_norm_mass, self.upp_norm_mass	# test
 
-			# FIX ME - display upp_norm_mass & low_norm_mass
+			# FIXME - display upp_norm_mass & low_norm_mass
 			#bmi_colour_scale = BMI_Colour_Scale(self)
 		except:
 			pass 	# error handling
-
+	#-----------------------------------------
 	def CalcBMI(self):
 		if(self.height=='' or self.mass==''):
 			self.txtbmi.SetValue('')
@@ -351,11 +369,11 @@ class BMICalc_Panel(wxPanel):
 				self.txtbmi.SetValue(str(self.BMI))
 			except:
 				pass	# error handling
-
+	#-----------------------------------------
 	def CalcNEWBMI(self):
 		self.NEWBMI=round(eval(self.goal)/((eval(self.height)/100.)**2),0)
 		self.slider.SetValue(self.NEWBMI)
-
+	#-----------------------------------------
 	def SLIDER_EVT(self, event):
 		self.NEWBMI=self.slider.GetValue()
 		try:
@@ -367,116 +385,88 @@ class BMICalc_Panel(wxPanel):
 			self.txtloss.SetValue(self.loss)
 		except:
 			pass 	# error handling
-
-	# The following routines are used to tab between fields
-	def EvtChar_Height(self, event):
-		if(event.GetKeyCode()==9 or event.GetKeyCode()==13):	# 'Tab'=9 and 'Enter'=13
-			self.txtmass.SetFocus()
-		else:
-			event.Skip()
-
-	def EvtChar_mass(self, event):
-		if(event.GetKeyCode()==9 or event.GetKeyCode()==13):
-			self.slider.SetFocus()
-		else:
-			event.Skip()
-
-	def EvtChar_slider(self, event):
-		if(event.GetKeyCode()==9 or event.GetKeyCode()==13):
-			self.txtgoal.SetFocus()
-		else:
-			event.Skip()
-
-	def EvtChar_goal(self, event):
-		if(event.GetKeyCode()==9 or event.GetKeyCode()==13):
-			self.txtloss.SetFocus()
-		else:
-			event.Skip()
-
-	def EvtChar_loss(self, event):
-		if(event.GetKeyCode()==9 or event.GetKeyCode()==13):
-			self.txtHeight.SetFocus()
-		else:
-			event.Skip()
-
-
-
 #-------------------------------------------------------------------
 #Creates all the sizers necessary to hold the top two menu's, picture
 #from for patients picture, the main two left and right panels, with shadows
+# Huh ??
 #---------------------------------------------------------------------------
 class BMI_Frame(wxFrame):
 
 	def __init__(self, parent):
-		wxFrame.__init__(self, parent, -1, _("BMI Calculator"))
+		# default frame style - maximize box + float on parent + centering + tabbing
+		# wxFRAME_FLOAT_ON_PARENT makes it modal
+		myStyle = wxMINIMIZE_BOX | wxRESIZE_BORDER | wxSYSTEM_MENU | wxCAPTION | wxALIGN_CENTER | wxALIGN_CENTER_VERTICAL | wxTAB_TRAVERSAL | wxSTAY_ON_TOP
+		wxFrame.__init__(
+			self,
+			parent,
+			-1,
+			_("BMI Calculator"),
+			style = myStyle
+		)
 
 		EVT_CLOSE(self, self.OnCloseWindow)
+
 		#-----------------------------------------------------
-		#create an instance of the BMICalc_Panel and add it to
-		#the left hand sizer - a vertical box sizer
+		#create an instance of the BMICalc_Panel
 		#-----------------------------------------------------
-		self.bmipanel = BMICalc_Panel(self,-1)
-		szr_vbs_left = wxBoxSizer(wxVERTICAL)
-		szr_vbs_left.Add(self.bmipanel,1,wxEXPAND)
-		#-----------------------------------------------------
-		#Create the right hand vertical box sizer and add to
-		#it the area the graph will occupy and  the buttons
-		#underneath the graph. A button is here to occupy
-		#the space that will be occupied by the graph
-		#-----------------------------------------------------
-                #pretendgraph =wxButton(self,-1,"The graph goes here")
-		t3 = wxTextCtrl(
+		pnl_bmi = BMICalc_Panel(self,-1)
+		#--------------------------------------------------
+		# right hand vertical sizer
+		#  -----------------------
+		# | graph/text            |
+		# |-----------------------|
+		# | gap                   |
+		# |-----------------------|
+		# | btn | btn | btn | ... |
+		#  -----------------------
+
+		# surrogate text for graphics
+		text4graph = wxTextCtrl(
 			self,
 			-1,
 			"Hi Guys, this is a prototype BMI Calculator + graph.\n\n"
 			"Comments please to rterry@gnumed.net..\n\n"
-			"The text boxes are set not to resize at the moment..\n\n"
-			"Can someone tell me how to remove the maximizing button...\n\n"
 			"Can someone tell me how to centre this frame on the screen...\n\n"
 			"This text box needs to be replaced by a graph class....\n"
 			"which amongst other things could show this patients mass trends!!!!\n\n"
 			"The mass range on the green epilpse would be calculated for each patient...\n\n"
 		 	"Bye for now...\n\n",
 			size=(200, 100),
-			style=wxTE_MULTILINE
+			style = wxTE_MULTILINE | wxTE_READONLY
 		)
-		gs = wxGridSizer(1, 4, 1, 4)  # rows, cols, hgap, vgap
-		gs.AddMany([
+
+		# buttons
+		gszr_right_buttons = wxGridSizer(1, 4, 1, 4)  # rows, cols, hgap, vgap
+		gszr_right_buttons.AddMany([
 			(wxButton(self, 1010, '&Reset'), 0, wxEXPAND),
 			(wxButton(self, 1010, '&Print'), 0, wxEXPAND),
 			(wxButton(self, 1010, '&Save'),	0, wxEXPAND),
 			(wxButton(self, 1010, '&Handout'), 0, wxEXPAND),
 		])
-		#-----------------------------------------------------------------
-		#Now create the right hand vertical box sizer and stack the graph,
-		#gap, and gridsizer containing the horizontal buttons onto it
-		#-----------------------------------------------------------------
-		szr_vbs_right = wxBoxSizer(wxVERTICAL)                           #create vertical box sizer
-		szr_vbs_right.Add(t3,8,wxEXPAND)                       #add a pretend graph
-		szr_vbs_right.Add(1,5,0,wxEXPAND)                                #gap under graph, above buttons
-		szr_vbs_right.Add(gs,1,wxEXPAND)                                 #Add the row of buttons
-		#-------------------------------------------------------------------
-		#Now create a sizer which will contain the left hand sizer + BMICalc
-		#and the right hand sizer (graph + buttons). This is a horizontal
-		#sizer so will get visually(calc:space:graph+buttons)
-		#-------------------------------------------------------------------
-		szr_main_panels = wxBoxSizer(wxHORIZONTAL)                      #add the BMICalc_Panel instance
-		szr_main_panels.Add(szr_vbs_left,1,wxEXPAND)                    #put a small gap in between
-		szr_main_panels.Add(5,0,0,wxEXPAND)
-		szr_main_panels.Add(szr_vbs_right,1,wxEXPAND)
-		#--------------------------------------------------------------------
-		#now create the  the main sizer of the frame with a border around it
-		#--------------------------------------------------------------------
-		szr_main_container = wxBoxSizer(wxVERTICAL)
-		szr_main_container.Add(szr_main_panels,1, wxEXPAND|wxALL,10)
-		self.SetSizer(szr_main_container)        #set the sizer
-		szr_main_container.Fit(self)             #set to minimum size as calculated by sizer
-		self.SetAutoLayout(true)                 #tell frame to use the sizer
-		self.Show(true)                          #show the frame
-	
-#	def getBitmap (self):
-#		return wxBitmapFromXPMData (cPickle.loads(zlib.decompress(_icons[_("""icon_BMI_calc""")] )))
 
+		# arrange them
+		szr_right_col = wxBoxSizer(wxVERTICAL)
+		szr_right_col.Add(text4graph,1,wxEXPAND)
+		szr_right_col.Add(1,5,0,wxEXPAND)
+		szr_right_col.Add(gszr_right_buttons,0,wxEXPAND)
+
+		#--------------------------------------------------
+		# horizontal main sizer
+		#  --------------------------
+		# | input   | g | graph/text |
+		# | fields  | a |------------
+		# |         | p | buttons    |
+		#  --------------------------
+		szr_main = wxBoxSizer(wxHORIZONTAL)
+		szr_main.Add(pnl_bmi, 0, wxEXPAND | wxALL, 10)
+		szr_main.Add(5, 0, 0, wxEXPAND)
+		szr_main.Add(szr_right_col, 1, wxEXPAND | wxALL, 10)
+
+		self.SetSizer(szr_main)
+		szr_main.Fit(self)
+		self.SetAutoLayout(true)
+		self.Show(true)
+	#-------------------------------------------
 	def OnCloseWindow(self, event):
 		self.Destroy()
 #== if run as standalone =======================================================
@@ -532,7 +522,6 @@ else:
 			)
 			self.tb.AddWidgetRightBottom (self.tool)
 			EVT_TOOL (self.tool, ID_BMITOOL, self.OnBMITool)
-			# kind = wxITEM_NORMAL,
 		#---------------------
 		def unregister (self):
 			#tb2 = self.gb['toolbar.Clinical']
@@ -559,7 +548,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.16  2003-04-20 02:40:52  michaelb
+# Revision 1.17  2003-04-20 12:26:56  ncq
+# - clean up, sizer streamlining
+#
+# Revision 1.16  2003/04/20 02:40:52  michaelb
 # tabbing btw fields/slider works, calculation works (slider functional, 'Goal mass' & 'kg to loose' functional)
 #
 # Revision 1.15  2003/04/14 07:35:54  ncq
