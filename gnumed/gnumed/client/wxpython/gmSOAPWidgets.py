@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.33 2005-03-29 18:43:06 cfmoro Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmSOAPWidgets.py,v 1.34 2005-04-03 20:18:27 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -467,11 +467,11 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 				gmSOAPimporter.soap_bundle_STRUCT_DATA_KEY: {}	# this data needs to come from the editor
 			})
 
-		# let's dump soap contents		   
+		# let's dump soap contents
 		print 'Saving: %s' % bundle
-		#importer = gmSOAPimporter.cSOAPImporter()
-		#importer.import_soap(bundle)
-				
+		importer = gmSOAPimporter.cSOAPImporter()
+		importer.import_soap(bundle)
+
 		# update buttons
 		soap_widget.SetSaved(True)
 		self.__update_button_state()
@@ -1171,7 +1171,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.33  2005-03-29 18:43:06  cfmoro
+# Revision 1.34  2005-04-03 20:18:27  ncq
+# - I feel haphazardous - enable actual progress note writing on [save]  :-))
+#
+# Revision 1.33  2005/03/29 18:43:06  cfmoro
 # Removed debugging lines O:)
 #
 # Revision 1.32  2005/03/29 18:40:55  cfmoro
