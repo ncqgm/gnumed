@@ -13,8 +13,8 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.42 2003-02-09 20:00:06 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmPlugin.py,v 1.43 2003-02-11 12:27:07 sjtan Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -158,6 +158,7 @@ class wxBasePlugin (gmPlugin):
 			self.gb['widgets'] = {}
 		
 		self.gb['widgets'][widget.__class__.__name__] = widget
+		widget.plugin = self
 		return
 
 			
@@ -513,7 +514,11 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.42  2003-02-09 20:00:06  ncq
+# Revision 1.43  2003-02-11 12:27:07  sjtan
+#
+# suspect this is not the preferred way to get a handle on the plugin. Probably from guiBroker?
+#
+# Revision 1.42  2003/02/09 20:00:06  ncq
 # - on notebook plugins rename Shown() to ReceiveFocus() as that's what this does, not only display itself
 #
 # Revision 1.41  2003/02/09 11:52:28  ncq
