@@ -6,7 +6,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docMime.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #=======================================================================================
@@ -78,7 +78,7 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 	(cmd, junk) = mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = "\'%s\'" % aFileName)
 	# FIXME: actually we should check for "x-token" flags such as x-docsys
 
-	if (cmd == None) and ()
+	#if (cmd == None) and ()
 	return cmd
 #-----------------------------------------------------------------------------------
 def get_win_fname(aMimeType = None):
