@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -85,6 +85,7 @@ class scanFrame(wxFrame):
 			title = _('Scanning documents')
 		)
 		self._init_utils()
+		# FIXME: load from file/store in file
 		self.SetClientSize(wxSize(631, 473))
 
 		#-- main panel -------------
@@ -338,6 +339,79 @@ class scanFrame(wxFrame):
 			# or cancel moving ?
 			elif btn == wxID_CANCEL:
 				return 1
+	#-----------------------------------
+	def on_save_doc(self, event):
+		# anything to do ?
+		if self.acquired_images == []:
+			dlg = wxMessageDialog(
+				self,
+				_('You must acquire some images before\nyou can save them as a document !'),
+				_('missing images'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		# get target directory
+		target_repository = self.__get_target_repository()
+		if not target_repository:
+			return None
+
+		# get document ID generation mode
+		mode = self.__get_ID_mode()
+		# get document ID
+		if mode == "consecutive":
+			doc_id = self.__get_next_consecutive_ID()
+		else:
+			doc_id = self.__get_random_ID(target_repository)
+
+		# create new directory in target repository
+		doc_dir = self.__make_doc_dir(target_repository, doc_id)
+		if not doc_dir:
+			return None
+
+		# write XML meta file
+		if not self.__dump_metadata_to_xml(doc_dir):
+			return None
+
+		# copy data files there
+		for i in self.acquired_pages:
+			old_name = self.acquired_pages[i]
+			new_name = os.path.join(doc_dir, os.path.basename(old_name))
+			try:
+				shutil.copyfile(old_name, new_name)
+			except:
+				exc = sys.exc_info()
+				_log.LogException("Can't move file [%s] into target repository [%s]." % (old_name, new_name), exc, fatal = 1)
+				dlg = wxMessageDialog(
+					self,
+					_('Cannot move pages into target directory.'),
+					_('saving document'),
+					wxOK | wxICON_ERROR
+				)
+				dlg.ShowModal()
+				dlg.Destroy()
+				return None
+
+		# unlock the directory for indexing
+		if not self.__unlock_for_indexing(doc_dir):
+			return None
+
+		# remove old data files
+		for i in self.acquired_pages:
+			old_name = self.acquired_pages[i]
+			try:
+				os.remove(old_name)
+			except:
+				exc = sys.exc_info()
+				_log.LogException("Cannot remove source file [%s]." % old_name, exc, fatal = 0)
+
+		# clean up gui/acquired_images
+		self.acquired_images = []
+		self.__reload_LBOX_doc_pages()
+
+		# finally show doc ID for copying down on paper
 	#-----------------------------------
 	# internal methods
 	#-----------------------------------
@@ -599,7 +673,7 @@ class scanFrame(wxFrame):
 			ID_file = open(fname, "wb")
 		except:
 			exc = sys.exc_info()
-			_log.LogException('Cannot open file [%s] with most recently used document ID for storing new ID.' % fname, exc, fatal=0)
+			_log.LogException('Cannot open file [%s] storing the most recently used document ID for saving the new ID.' % fname, exc, fatal=0)
 			return None
 		ID_file.write("%s\n" % new_ID)
 		ID_file.close()
@@ -640,10 +714,6 @@ class scanFrame(wxFrame):
 		tag = _cfg.get("metadata", "document_tag")
 		content.append('<%s>\n' % tag)
 
-#		tag = _cfg.get("metadata", "ref_tag")
-#		doc_ref = self.doc_id_wheel.GetLineText(0)
-#		content.append('<%s>%s</%s>\n' % (tag, doc_ref, tag))
-
 		tag = _cfg.get("metadata", "obj_tag")
 		for idx in range(len(self.acquired_pages)):
 			dirname, fname = os.path.split(self.acquired_pages[idx])
@@ -659,22 +729,8 @@ class scanFrame(wxFrame):
 		xml_file.close()
 		return 1
 	#-----------------------------------
-	def on_save_doc(self, event):
-		return
-
-		# - anything to do ?
-		if self.acquired_images == []:
-			dlg = wxMessageDialog(
-				self,
-				_('You must acquire some images before\nyou can save them as a document !'),
-				_('missing images'),
-				wxOK | wxICON_ERROR
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return None
-
-		# get target repository
+	def __get_target_repository(self):
+		"""Retrieve and validate target repository configuration."""
 		tmp = _cfg.get("repositories", "to_index")
 		if tmp == None:
 			_log.Log(gmLog.lErr, 'Cannot get target repository for scans from config file.')
@@ -687,14 +743,14 @@ class scanFrame(wxFrame):
 			dlg.ShowModal()
 			dlg.Destroy()
 			return None
-		target_repository = os.path.abspath(os.path.expanduser(tmp))
+		tmp = os.path.abspath(os.path.expanduser(tmp))
 
 		# valid dir ?
-		if not os.path.exists(target_repository):
-			_log.Log(gmLog.lErr, 'Target repository [%s] not accessible.' % target_repository)
+		if not os.path.exists(tmp):
+			_log.Log(gmLog.lErr, 'Target repository [%s] not accessible.' % tmp)
 			dlg = wxMessageDialog(
 				self,
-				_('The configured target repository is not accessible.\n[%s]' % target_repository),
+				_('The configured target repository is not accessible.\n[%s]' % tmp),
 				_('invalid config value'),
 				wxOK | wxICON_ERROR
 			)
@@ -702,23 +758,17 @@ class scanFrame(wxFrame):
 			dlg.Destroy()
 			return None
 
-		# get document ID generation mode
-		mode = self.__get_ID_mode()
-
-		# get document ID
-		if mode == "consecutive":
-			doc_id = self.__get_next_consecutive_ID()
-		else:
-			doc_id = self.__get_random_ID(target_repository)
-
-		# create new directory in target repository
-		dirname = os.path.join(target_repository, doc_id)
+		return tmp
+	#-----------------------------------
+	def __make_doc_dir(self, repository, doc_dir):
+		"""Make new document directory in target repository."""
+		dirname = os.path.join(repository, doc_dir)
 		if os.path.exists(dirname):
-			_log.Log(gmLog.lErr, 'The target repository subdirectory [%s] already exists. Cannot save current document there.' % dirname)
+			_log.Log(gmLog.lErr, 'The subdirectory [%s] already exists in the repository [%s]. Cannot save current document there.' % (doc_dir, repository))
 			dlg = wxMessageDialog(
 				self,
-				_("The target repository subdirectory already exists.\n(%s)\nCannot save current document there." % dirname),
-				_('target directory subdirectory'),
+				_('The subdirectory [%s] already exists in the repository [%s]. Cannot save current document there.') % (doc_dir, repository),
+				_('document directory'),
 				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
@@ -733,68 +783,46 @@ class scanFrame(wxFrame):
 			dlg = wxMessageDialog(
 				self,
 				_("Cannot create the target repository subdirectory.\n(%s)" % dirname),
-				_('target directory subdirectory'),
+				_('document directory'),
 				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
 			return None
 
-		# - write XML meta file
-		if not self.__dump_metadata_to_xml(target_repository):
+		return dirname
+	#-----------------------------------
+	def __unlock_for_indexing(self, aDir):
+		"""Write checkpoint file so indexing can start."""
+		can_index_file = _cfg.get('metadata', 'can_index')
+		if not can_index_file:
+			dlg = wxMessageDialog(
+				self,
+				_('You must specify a checkpoint file for indexing in the config file.\nUse option <can_index> in group [metadata].'),
+				_('saving document'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
 			return None
 
-		# - move data files there
-#################################################################
-
-		# - write checkpoint file
-		# - clean up gui/acquired_images
-
-#		else:
-#			full_dir = os.path.join(self.repository, self.doc_id_wheel.GetLineText(0))
-
-#			self.__unlock_for_import(full_dir)
-#			self.__clear_doc_fields()
-#			self.doc_id_wheel.Clear()
-
-
-		if self.picList != []:
-			# create xml file
-			out_file = open(_cfg.get("tmpdir", "tmpdir") + _cfg.get("metadata", "description"),"w")
-			tmpdir_content = self.picList
-			runs = len(tmpdir_content)
-			x=0
-			# here come the contents of the xml-file
-			out_file.write ("<" + _cfg.get("metadata", "document_tag")+">\n")
-			out_file.write ("<" + _cfg.get("metadata", "ref_tag") + ">" + savedir + "</" + _cfg.get("metadata", "ref_tag") + ">\n")
-			while x < runs:
-				out_file.write ("<image>" + tmpdir_content[x] + ".jpg" + "</image>\n")
-				x=x+1
-			out_file.write ("</" + _cfg.get("metadata", "document_tag")+">\n")
-			out_file.close()
-
-			# move files around
-			shutil.copytree(_cfg.get("tmpdir", "tmpdir"),_cfg.get("source", "repositories") + savedir)
-			# generate a file to tell import script that we are done here
-			out_file = open(_cfg.get("source", "repositories") + savedir + '/' + _cfg.get("metadata", "checkpoint"),"w")
-			# refresh
-			shutil.rmtree(_cfg.get("tmpdir", "tmpdir"), true)
-			os.mkdir(_cfg.get("tmpdir", "tmpdir"))
-
-			self.picList = []	
-			self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_LBOX_doc_pages, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
-			dlg = wxMessageDialog(self, _('please put down') + savedir + _('on paper copy for reference'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		else:
-			dlg = wxMessageDialog(self, _('There is nothing to save on disk ? Please aquire images first'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-
+		fullname = os.path.join(aDir, can_index_file)
+		try:
+			f = open(fullname, "wb")
+		except:
+			exc = sys.exc_info()
+			_log.LogException("Cannot lock target directory with checkpoint file [%s]." % fullname, exc, fatal = 1)
+			dlg = wxMessageDialog(
+				self,
+				_('Cannot lock target directory !\ncheckpoint file: %s.') % fullname,
+				_('saving document'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+		f.close()
+		return 1
 #======================================================
 class ScanningApp(wxApp):
 	def OnInit(self):
