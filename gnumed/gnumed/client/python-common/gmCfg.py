@@ -47,7 +47,7 @@ permanent you need to call store() on the file object.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -90,8 +90,9 @@ class cCfgSQL:
 			- strings
 			- ints/floats
 			- (string) lists
-		- string lists currently only work with pyPgSQL due to the need
-		  for a PgArray data type
+		- string lists currently only work with pyPgSQL >= 2.3
+		  due to the need for a PgArray data type
+		- also string lists will work with PostgreSQL only
 		- caches items for faster repeat retrieval
 		"""
 		# fastpath
@@ -910,7 +911,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.29  2002-12-26 15:21:18  ncq
+# Revision 1.30  2002-12-26 15:49:10  ncq
+# - better comments
+#
+# Revision 1.29  2002/12/26 15:21:18  ncq
 # - database config now works even with string lists
 #
 # Revision 1.28  2002/12/01 01:11:42  ncq
