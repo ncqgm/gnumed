@@ -10,12 +10,21 @@ package org.gnumed.testweb1.data;
  *
  * @author  sjtan
  */
-public class VitalsImpl1 implements Vitals {
+public class VitalsImpl1 extends ClinRootItemImpl1 implements Vitals {
     private int diastolic,systolic, pr, rr, pefr,postpefr;
     private float wt, ht, temp;
     private String rhythm;
     /** Creates a new instance of VitalsImpl1 */
     public VitalsImpl1() {
+        diastolic = 0;
+        systolic = 0;
+        pr = 0;
+        rr = 0;
+        pefr = 0;
+        postpefr = 0;
+        wt = (float)0.0;
+        ht = (float)0.0;
+        temp = (float)0.0;
     }
     
     public int getDiastolic() {

@@ -278,7 +278,9 @@ e.g. getNarrative(index) ...  id='narrative'
                     <tr>
                         <td colspan='6'>
                             <div id="vitals<%=index%>" style='display: none'>
-                                <jsp:include page="./vitals.jsp"/>
+                                <bean:define id="ix" value="<%=String.valueOf(index)%>"  toScope="request"/>
+                                 <jsp:include page="./vitals.jsp"/>
+                                 
                             </div>
                         </td>     
                     </tr>

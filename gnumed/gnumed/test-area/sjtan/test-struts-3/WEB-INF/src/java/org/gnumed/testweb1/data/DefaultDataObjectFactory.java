@@ -19,19 +19,23 @@ import org.apache.commons.logging.*;
  */
 public class DefaultDataObjectFactory implements DataObjectFactory {
     static Log log = LogFactory.getLog(DefaultDataObjectFactory.class);
-   
+    
     public static int nEntry = 20;
     
-    public final static String[] itemTypes = new String[] { "narrative", "medication", "vaccination", "allergy" };
-    public final static String[] factoryMethods = new String[] { "createEntryClinNarrative", "createMedication", "createVaccination", "createEntryAllergy" };
-   
-     
+    public final static String[] itemTypes = new String[] { "narrative", "medication", "vaccination", "allergy", "vital" };
+    public final static String[] factoryMethods = new String[]
+    { "createEntryClinNarrative", "createMedication",
+      "createVaccination", "createEntryAllergy",
+      "createEntryVitals"
+    };
+    
+    
     private  ClinicalEncounter loadEntryObjects( ClinicalEncounter ce) {
         log.info( ce + "BEING LOADED");
         for (int i = 0; i < itemTypes.length ; ++i) {
             try {
                 for (int j = 0; j < nEntry ; ++j) {
-                    PropertyUtils.setIndexedProperty( ce, itemTypes[i], j, 
+                    PropertyUtils.setIndexedProperty( ce, itemTypes[i], j,
                     getClass().getMethod( factoryMethods[i], new Class[0] ).invoke( this, new Object[0] ) );
                 }
             } catch (Exception e) {
@@ -96,8 +100,7 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     
     public ClinicalEncounter createClinicalEncounter() {
         ClinicalEncounter ce =  new ClinicalEncounterImpl1();
-        Vitals vitals = createVitals();
-        ce.setVitals(vitals);
+        
         return ce;
     }
     
@@ -105,9 +108,9 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     public ClinicalEncounter createEntryClinicalEncounter() {
         return loadEntryObjects( createClinicalEncounter() );
         
-       
+        
     }
-     
+    
     
     
     public ClinNarrative createClinNarrative() {
@@ -145,19 +148,27 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
         ClinNarrative cn = new EntryClinNarrativeImpl1();
         addEntryEpisode(cn);
         return cn;
-    
+        
     }
     
     void addEntryEpisode( ClinRootItem ri) {
         ri.setEpisode(createEntryClinicalEpisode());
-     }
+    }
+    
     
     public AllergyEntry createEntryAllergy() {
-        AllergyEntry a= new AllergyEntryImpl1();
+        AllergyEntry a= new  AllergyEntryImpl1();
         a.setEpisode(createEntryClinicalEpisode());
         return a;
     }
-     
+    
+    public EntryVitals createEntryVitals() {
+        EntryVitals a= new  EntryVitalsImpl1();
+        a.setEpisode(createEntryClinicalEpisode());
+        return a;
+    }
+    
+    
     
     
 }

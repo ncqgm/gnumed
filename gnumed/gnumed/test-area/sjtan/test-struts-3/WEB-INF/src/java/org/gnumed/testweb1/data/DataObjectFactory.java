@@ -39,4 +39,5 @@ public interface DataObjectFactory {
      public ClinicalEncounter createEntryClinicalEncounter();
      public ClinNarrative createEntryClinNarrative();
      public AllergyEntry createEntryAllergy();
+     public EntryVitals createEntryVitals();
 }

@@ -12,26 +12,26 @@
  
 <b><bean:message key="vitals"/></b> 
         <table width='100%' border='1'><tr> 
-        <td colspan='2'>BP <html:text name="clinicalUpdateForm" property="encounter.vitals.systolic" size="3" maxlength="4"/>
-        / <html:text name="clinicalUpdateForm" property="encounter.vitals.diastolic" size="2"  maxlength="4"/> mmHg
-        </td><td>PR <html:text name="clinicalUpdateForm" property="encounter.vitals.pr" size="3"  maxlength="4"/>bpm
+        <td colspan='2'>BP <html-el:text name="clinicalUpdateForm" property="encounter.vital[${ix}].systolic" size="3" maxlength="4"/>
+        / <html-el:text name="clinicalUpdateForm" property="encounter.vital[${ix}].diastolic" size="2"  maxlength="4"/> mmHg
+        </td><td>PR <html-el:text name="clinicalUpdateForm" property="encounter.vital[${ix}].pr" size="3"  maxlength="4"/>bpm
         </td>
-        <td>rhythm <html:text name="clinicalUpdateForm" property="encounter.vitals.rhytm" size="12" maxlength="8"/>
+        <td>rhythm <html-el:text name="clinicalUpdateForm" property="encounter.vital[${ix}].rhytm" size="12" maxlength="8"/>
         </td> 
-        <td>T <html:text name="clinicalUpdateForm" property="encounter.vitals.temp" size="3" maxlength="4"/>c
+        <td>T <html-el:text name="clinicalUpdateForm" property="encounter.vital[${ix}].temp" size="3" maxlength="4"/>c
         </td>
-        <td>RR <html:text name="clinicalUpdateForm" property="encounter.vitals.rr" size="2" maxlength="4"/>kg
+        <td>RR <html-el:text name="clinicalUpdateForm" property="encounter.vital[${ix}].rr" size="2" maxlength="4"/>kg
         </td> 
         </tr>
         <tr>
-        <td>ht <html:text name="clinicalUpdateForm" property="encounter.vitals.height" size="4"/>m
+        <td>ht <html-el:text name="clinicalUpdateForm" property="encounter.vital[${ix}].height" size="4"/>m
         </td>
-        <td>wt <html:text name="clinicalUpdateForm" property="encounter.vitals.height" size="4"/>kg
+        <td>wt <html-el:text name="clinicalUpdateForm" property="encounter.vital[${ix}].height" size="4"/>kg
         </td>
          
-        <td>PEFR pre <html:text name="clinicalUpdateForm" property="encounter.vitals.prepefr" size="4"/>
+        <td>PEFR pre <html-el:text name="clinicalUpdateForm" property="encounter.vital[${ix}].prepefr" size="4"/>
         </td>
-        <td>PEFR post <html:text name="clinicalUpdateForm" property="encounter.vitals.postpefr" size="4"/>
+        <td>PEFR post <html-el:text name="clinicalUpdateForm" property="encounter.vital[${ix}].postpefr" size="4"/>
         </td>
         </tr></table>
         

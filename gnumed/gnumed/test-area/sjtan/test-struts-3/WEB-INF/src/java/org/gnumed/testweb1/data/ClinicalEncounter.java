@@ -146,18 +146,6 @@ public interface ClinicalEncounter {
     public void sortRootItems(final java.util.Comparator comparator) ;
     
     /**
-     * Getter for property vitals.
-     * @return Value of property vitals.
-     */
-    public Vitals getVitals();
-    
-    /**
-     * Setter for property vitals.
-     * @param vitals New value of property vitals.
-     */
-    public void setVitals(Vitals vitals);
-    
-    /**
      * Getter for property allergies.
      * @return Value of property allergies.
      */
@@ -168,5 +156,25 @@ public interface ClinicalEncounter {
      * @return Value of property rootItems.
      */
     public ClinRootItem[] getRootItems();
+    
+    /**
+     * Indexed getter for property vital.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+    public EntryVitals getVital(int index);
+    
+    /**
+     * Indexed setter for property vital.
+     * @param index Index of the property.
+     * @param vital New value of the property at <CODE>index</CODE>.
+     */
+    public void setVital(int index, EntryVitals vital);
+    
+    /**
+     * Getter for property vitals.
+     * @return Value of property vitals.
+     */
+    public java.util.List getVitals();
     
 }

@@ -21,8 +21,8 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     String type, description;
     Long id;
     String location;
-    List narratives, medications, vaccinations, allergys;
-    Vitals vitals;
+    List narratives, medications, vaccinations, allergys, vitals;
+     
     
     /** Creates a new instance of ClinicalEncounterImpl1 */
     public ClinicalEncounterImpl1() {
@@ -61,6 +61,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
         medications = new java.util.ArrayList();
         vaccinations = new java.util.ArrayList();
         allergys = new java.util.ArrayList();
+        vitals = new java.util.ArrayList();
     }
     
     
@@ -172,13 +173,10 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
         
     }
     
-    public Vitals getVitals() {
+    public java.util.List getVitals() {
         return vitals;
     }
-    
-    public void setVitals(Vitals vitals) {
-        this.vitals = vitals;
-    }
+     
     
     public void removeNarrative(ClinNarrative narrative) {
         narratives.remove(narrative);
@@ -195,5 +193,19 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
         return (ClinRootItem[]) l.toArray( new ClinRootItem[0]);
     }    
      
+     
+    
+    public EntryVitals getVital(int index) {
+        return (EntryVitals) vitals.get(index);
+        
+    }
+    
+    public void setVital(int index, EntryVitals vital) {
+        if ( index < getVitals().size() ) {
+            vitals.set(index, vital);
+        } else {
+            vitals.add(vital);
+        }
+    }
     
 }
