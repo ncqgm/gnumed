@@ -2,7 +2,7 @@
 
 # license GPL
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/tools/Attic/transferDBset.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 #=====================================================
@@ -62,14 +62,13 @@ else:
 	machine = gmCfg.cfg_DEFAULT
 	machine2display = "DEFAULT MACHINE"
 
-print "Trying to access DB set for user %s, machine %s to file %s." % (user2display, machine2display, filename)
+print "Trying to access DB set for user %s, machine %s.\nConfig file: %s." % (user2display, machine2display, filename)
 
 # import 
 if gmCLI.has_arg('-i'):
 	result = gmConfigCommon.importDBSet(filename, aMachine=machine, aUser = user)
-	print "result [%s]" % result
 	if result is not None:
-		print "Import of file %s succeeded, %s parameters read." % (filename,result)
+		print "Import of file %s succeeded, %s parameters stored in DB." % (filename,result)
 	else:
 		print "Import of file %s failed" % filename
 		
@@ -77,7 +76,7 @@ if gmCLI.has_arg('-i'):
 elif gmCLI.has_arg('-e'):
 	result = gmConfigCommon.exportDBSet(filename, aMachine=machine, aUser = user)
 	if result is not None:
-		print "Export to file %s succeeded, %s parameters written." % (filename,result)
+		print "Export to file %s succeeded, %s parameters written to file." % (filename,result)
 	else:
 		print "Export to file %s failed" % filename
 # wrong option
@@ -87,6 +86,9 @@ else:
 sys.exit(0)
 #=====================================================
 # $Log: transferDBset.py,v $
-# Revision 1.1  2003-10-02 20:03:16  hinnef
+# Revision 1.2  2003-10-26 21:17:39  hinnef
+# - code clean up
+#
+# Revision 1.1  2003/10/02 20:03:16  hinnef
 # initial revision
 #
