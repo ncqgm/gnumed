@@ -63,7 +63,6 @@ public class ScriptedSQLDemographicDataAccess  implements DemographicDataAccess,
             return details;
         
         } catch (SQLException e2) {
-            // TODO Auto-generated catch block
             e2.printStackTrace();
             throw new DataSourceException("failed connection",e2);
             
@@ -111,8 +110,14 @@ public class ScriptedSQLDemographicDataAccess  implements DemographicDataAccess,
             conn = src.getConnection();
             Util.setSessionAuthentication(conn, (Principal) localCredential.getCredential());
             
+            DemographicDetail existingDetail = null;
+            try {
+               existingDetail=  demographicDetailSQL.findByPrimaryKey(conn,detail.getId());
+            }catch (Exception e) {
+                log.info(e);
+            }
             
-            if (detail.getId() == null || detail.getId().intValue() == 0) {
+            if (detail.getId() == null || detail.getId().intValue() == 0 || existingDetail ==null ) {
                 log.info("before insert");
                 detail = demographicDetailSQL.insert(conn, detail);
                 log.info("after normal insert");
@@ -176,9 +181,23 @@ public class ScriptedSQLDemographicDataAccess  implements DemographicDataAccess,
      * @see org.gnumed.testweb1.persist.CredentialUsing#setCredential(java.lang.Object)
      */
     public void setCredential(Object o) {
-        // TODO Auto-generated method stub
         localCredential.setCredential(o);
         
+    }
+
+    /* (non-Javadoc)
+     * @see org.gnumed.testweb1.persist.DemographicDataAccess#newDemographicDetail()
+     */
+    public DemographicDetail newDemographicDetail() throws DataSourceException {
+        try {
+          
+            DemographicDetail detail =  getDemographicDetailSQL().newDemographicDetail(getDataSource().getConnection());
+            return detail;
+        } catch (Exception e) {
+            throw new DataSourceException(e);
+        }
+        
+       
     }
 
    

@@ -25,6 +25,11 @@ public interface DemographicDetailSQL {
     public DemographicDetail findByPrimaryKey(Connection conn, Long id) throws DataSourceException;
 
     public DemographicDetail[] findByExample(Connection conn, DemographicDetail detailFragment) throws DataSourceException;
+
+    /**
+     * 
+     */
+   public DemographicDetail newDemographicDetail(Connection conn) throws DataSourceException;
  
     
 }

@@ -27,14 +27,14 @@
         </logic:equal>
             
             <td>
-    <%--    <bean:write name="tableCol"/> --%>
+                <%--    <bean:write name="tableCol"/> --%>
     
                 <i>
     
-    <bean:write name="healthIssue" property="earliestClinRootItem.clin_when" format="MMM yyyy" />
+                <bean:write name="healthIssue" property="earliestClinRootItem.clin_when" format="MMM yyyy" />
        
-        </i>
-                 <b>
+                </i>
+                <b>
                 <bean:write name="healthIssue" property="description" />
                 </b> 
             </td>
@@ -54,42 +54,59 @@
    name="healthRecord" property="healthSummary.medications"/>
    <logic:equal name="countMedications" value="0">
             
-                <bean:message  key="medications.not.listed"/>
+       <bean:message  key="medications.not.listed"/>
              
-        </logic:equal>  
+   </logic:equal>  
       <logic:notEqual name="countMedications" value="0">
-     <table  border='1'>
-    		  <th>
-            <td>brandname</td>
-            <td>directions</td>
-            <td>started</td>
-            <td>last</td>
-            <td>atc code</td>
-            </th>
-            <logic:iterate   id="medication" 
-            name="healthRecord" 
-            property="healthSummary.medications"
-            >
+          <table  border='1' >
+              <th >
+                  <td>brandname</td>
+                  <td >
+                      <table border='1'>
+                          <tr >
+                              <td colspan='3' >directions</td>
+                          </tr>
+                          <tr>
+                              <td>started</td>
+                              <td>last</td>
+                              <td>atc code</td>
+                          </tr>
+                      </table>
+                  </td>
+            
+              </th>
+              <logic:iterate   id="medication" 
+                  name="healthRecord" 
+                  property="healthSummary.medications"
+                  >
            
-            <tr>
-            <td>
-            </td>
-             <td>
-             <b><bean:write name="medication" property="brandName" /> </b>
-            </td>
-             <td > <bean:write name="medication" property="directions"  />
-            </td>
-            <td><bean:write name="medication" property="start" format="dd/MM/yy"/>
-            </td>
-    		<td><bean:write name="medication" property="last" format="dd/MM/yy"/>
-            </td>
+                  <tr>
+                      <td>
+                      </td>
+                      <td>
+                          <b><bean:write name="medication" property="brandName" /> </b>
+                      </td>
+                      <td colspan='3'>
+                      <table border='1'>
+                          <tr>
+                              <td colspan='3'>
+                                  <bean:write name="medication" property="directions"  />
+                              </td>
+                          </tr>
+                          <tr>
+                              <td><bean:write name="medication" property="start" format="dd/MM/yy"/>
+                              </td>
+                              <td><bean:write name="medication" property="last" format="dd/MM/yy"/>
+                              </td>
            
-            <td> <bean:write name="medication" property="ATC_code"/>
-            </td>
-           
-            </tr>
-            </logic:iterate>
-        </table>
+                              <td> <bean:write name="medication" property="ATC_code"/>
+                              </td>
+                          </tr>
+                      </table>
+                      </td>
+                  </tr>
+              </logic:iterate>
+          </table>
       </logic:notEqual>      
    <b>
         Allergies </b>
@@ -103,80 +120,80 @@
            --%>
    <logic:equal name="countAllergies" value="0">
             
-                <bean:message  key="allergies.not.listed"/>
+       <bean:message  key="allergies.not.listed"/>
              
-        </logic:equal>  
+   </logic:equal>  
    <logic:notEqual name="countAllergies" value="0">
-     <table  border='1'>
+       <table  border='1'>
         
            <logic:iterate   id="allergy" 
-            name="healthRecord" 
-            property="healthSummary.allergys"
-            >
-            <tr>
-            <td>
-                <allergy> <%-- CSS tag --%>
-                    <bean:write name="allergy" property="substance"/>
-                    </allergy>
-            </td>
-            <td>
-                <logic:equal name="allergy" property="definite" value="true">
-                    definite
-                </logic:equal>
-                <logic:equal name="allergy" property="definite" value="false">
-                    not definite
-                </logic:equal>
-            </td>
-            <td>
-                <small>
-                    <bean:write name="allergy" property="narrative" />
-                </small>
-                <sub>
-                    <bean:write name="allergy" property="clin_when" format="dd/MM/yyyy"/>
-                </sub>
-            </td>
-            </tr>
-        </logic:iterate>
-    </table>
-    </logic:notEqual> 
+               name="healthRecord" 
+               property="healthSummary.allergys"
+               >
+               <tr>
+               <td>
+                   <allergy> <%-- CSS tag --%>
+                   <bean:write name="allergy" property="substance"/>
+                   </allergy>
+               </td>
+               <td>
+                   <logic:equal name="allergy" property="definite" value="true">
+                       definite
+                   </logic:equal>
+                   <logic:equal name="allergy" property="definite" value="false">
+                       not definite
+                   </logic:equal>
+               </td>
+               <td>
+                   <small>
+                       <bean:write name="allergy" property="narrative" />
+                   </small>
+                   <sub>
+                       <bean:write name="allergy" property="clin_when" format="dd/MM/yyyy"/>
+                   </sub>
+               </td>
+               </tr>
+           </logic:iterate>
+       </table>
+   </logic:notEqual> 
 
     <b>Vaccinations </b>
     <logic:present name="vaccines" scope="session">
-     <bean:size id="countVaccs"    
-                name="healthRecord" property="healthSummary.vaccinations"
-           />
-             <logic:equal name="countVaccs" value="0">
+        <bean:size id="countVaccs"    
+        name="healthRecord" property="healthSummary.vaccinations"
+        />
+        <logic:equal name="countVaccs" value="0">
              
-                <bean:message key="vaccinations.not.listed" />
+            <bean:message key="vaccinations.not.listed" />
              
-            </logic:equal>
+        </logic:equal>
         
             
-            <logic:notEqual name="countVaccs" value="0">
+        <logic:notEqual name="countVaccs" value="0">
             <table>
-            <logic:iterate id="vaccination"
-                name="healthRecord"
-                property="healthSummary.vaccinations"
-                >
-                <tr>
-                <td>
-                    <bean:write name="vaccination" property="dateGivenString"/>
-                </td>
-                <td>
-                    <bean:write name="vaccination" property="vaccine.tradeName" />
-                </td>
-                <td>
-                    <bean:write name="vaccination" property="site" />
-                </td>
-                <td>
-                    <bean:write name="vaccination" property="batchNo" />
-                </td>
+                <logic:iterate id="vaccination"
+                    name="healthRecord"
+                    property="healthSummary.vaccinations"
+                    >
+                    <tr>
+                    <td>
+                        <bean:write name="vaccination" property="dateGivenString"/>
+                    </td>
+                    <td>
+                        <bean:write name="vaccination" property="vaccine.tradeName" />
+                    </td>
+                    <td>
+                        <bean:write name="vaccination" property="site" />
+                    </td>
+                    <td>
+                        <bean:write name="vaccination" property="batchNo" />
+                    </td>
     
-                </tr>
+                    </tr>
     
-            </logic:iterate>  
-             </table>
-             </logic:notEqual>
+                </logic:iterate>  
+            </table>
+        </logic:notEqual>
        
     
     </logic:present>

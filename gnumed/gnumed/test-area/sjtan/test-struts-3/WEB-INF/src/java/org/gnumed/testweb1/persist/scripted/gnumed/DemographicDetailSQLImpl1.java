@@ -554,7 +554,8 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 					"Unable to Insert due to unparsed null birthdateValue");
 		PreparedStatement stmtIdentity = conn
 				.prepareStatement("insert into identity(id, title, dob , gender) values (?,  ? , ? , ?)");
-		detail.setId(getNextId(conn));
+		// new id retrieved for web page identification
+		//detail.setId(getNextId(conn));
 		stmtIdentity.setObject(1, detail.getId());
 		stmtIdentity.setString(2,Util.encode( detail.getTitle()));
 		stmtIdentity.setDate(3, new java.sql.Date(detail.getBirthdateValue()
@@ -1324,5 +1325,26 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 		//        log.info("RESOURCE public.health.id.name IS "
 		// +mr.getMessage("public.health.id.name"));
 	}
+
+
+
+
+    /* (non-Javadoc)
+     * @see org.gnumed.testweb1.persist.scripted.DemographicDetailSQL#getNextIdentityId()
+     */
+    public DemographicDetail newDemographicDetail(Connection conn) throws DataSourceException {
+        int id = 0;
+        try {
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery("select nextval('identity_id_seq')");
+        if (rs.next()) 
+            id = rs.getInt(1); 
+        } catch (Exception e) {
+            throw new DataSourceException(e);
+        }
+        DemographicDetail detail = getDataObjectFactory().createDemographicDetail();
+        detail.setId(new Long(id));
+        return detail;
+    }
 
 }

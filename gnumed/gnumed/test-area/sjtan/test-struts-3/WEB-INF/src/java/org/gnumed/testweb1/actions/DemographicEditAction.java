@@ -32,83 +32,91 @@ import org.gnumed.testweb1.persist.LoginInfoUsing;
  * @author sjtan
  */
 public class DemographicEditAction extends Action {
-	ActionUtil util = new ActionUtil();
+    ActionUtil util = new ActionUtil();
 
-	/** Creates a new instance of DemographicEditAction */
-	public DemographicEditAction() {
-	}
+    /** Creates a new instance of DemographicEditAction */
+    public DemographicEditAction() {
+    }
 
-	Log log = LogFactory.getLog(this.getClass());
+    Log log = LogFactory.getLog(this.getClass());
 
-	public ActionForward execute(ActionMapping mapping, ActionForm form,
-			HttpServletRequest request, HttpServletResponse response) {
+    public ActionForward execute(ActionMapping mapping, ActionForm form,
+            HttpServletRequest request, HttpServletResponse response) {
 
-		try {
-			if (form == null) {
+        try {
+            if (form == null) {
 
-				//        deprecated in Struts 1.2
-				//            ActionFormBeans beans = (ActionFormBeans)
-				// servlet.getServletContext()
-				//          .getAttribute("org.apache.struts.action.FORM_BEANS") ;
-				//        ActionFormBean bean = beans.findFormBean("demographicForm");
-				//          DynaActionFormClass dynaClass =
-				//          DynaActionFormClass.createDynaActionFormClass(bean);
+                //        deprecated in Struts 1.2
+                //            ActionFormBeans beans = (ActionFormBeans)
+                // servlet.getServletContext()
+                //          .getAttribute("org.apache.struts.action.FORM_BEANS") ;
+                //        ActionFormBean bean = beans.findFormBean("demographicForm");
+                //          DynaActionFormClass dynaClass =
+                //          DynaActionFormClass.createDynaActionFormClass(bean);
 
-				FormBeanConfig config = mapping.getModuleConfig()
-						.findFormBeanConfig("demographicForm");
+                FormBeanConfig config = mapping.getModuleConfig()
+                        .findFormBeanConfig("demographicForm");
 
-				form = (ActionForm) config.getDynaActionFormClass()
-						.newInstance();
+                form = (ActionForm) config.getDynaActionFormClass()
+                        .newInstance();
 
-			}
-			log.info("FORM is " + form);
+            }
+            log.info("FORM is " + form);
 
-			DemographicDataAccess dataAccess = (DemographicDataAccess) servlet
-					.getServletContext().getAttribute(
-							Constants.Servlet.DEMOGRAPHIC_ACCESS);
+            DemographicDataAccess dataAccess = (DemographicDataAccess) servlet
+                    .getServletContext().getAttribute(
+                            Constants.Servlet.DEMOGRAPHIC_ACCESS);
 
+            Util.setUserCredential(request, (CredentialUsing) dataAccess);
 
-			Util.setUserCredential(request, (CredentialUsing)dataAccess);
-			
-			Long id = null;
+            Long id = null;
 
-			if (request.getParameter(Constants.Request.PATIENT_ID) != null)
+            if (request.getParameter(Constants.Request.PATIENT_ID) != null) {
 
-				id = new Long(Long.parseLong(request
-						.getParameter(Constants.Request.PATIENT_ID)));
+                id = new Long(Long.parseLong(request
+                        .getParameter(Constants.Request.PATIENT_ID)));
+            }
+            
+            DemographicDetail detail = null;
+            if (id != null && id.longValue() != (long) 0) {
+                detail = dataAccess.findDemographicDetailById(id);
+                BeanUtils.copyProperties(form, detail);
+            } else {
+                detail = dataAccess.newDemographicDetail();
+//                log.info("New detail is " + detail);
+//                Util.logBean(log, detail);
 
-			if (id != null && id.longValue() != (long) 0) {
+                BeanUtils.setProperty(form, "id", detail.getId());
+            
+            }
 
-				DemographicDetail detail = dataAccess
-						.findDemographicDetailById(id);
+           
 
-				BeanUtils.copyProperties(form, detail);
+            log.info("FORM ID IS " + BeanUtils.getSimpleProperty(form, "id"));
 
-				log.info("FORM ID IS "
-						+ BeanUtils.getSimpleProperty(form, "id"));
+            util.setAttributeOnScopeFromMappingAttributeAndScope(request,
+                    mapping, form);
 
-			}
-
-			util.setAttributeOnScopeFromMappingAttributeAndScope(request, mapping, form);
-
-			//            if ("session".equals(mapping.getScope())) {
-			//                request.getSession().setAttribute(mapping.getAttribute(), form);
-			//
-			//            } else {
-			//                request.setAttribute(mapping.getAttribute(), form);
-			//            }
-			//
-		} catch (Exception e) {
-			util.setAttributeOnScopeFromMappingAttributeAndScope(request, mapping, form);
-			log.error(e);
-			ActionMessages messages = new ActionMessages();
-			messages.add("error in constructing attributes for form",
-					new ActionMessage("error is", e));
-			saveMessages(request, messages);
-			return mapping.getInputForward();
-		}
-		log.info("going to successLoadForEdit");
-		return mapping.findForward("successLoadForEdit");
-	}
+            //            if ("session".equals(mapping.getScope())) {
+            //                request.getSession().setAttribute(mapping.getAttribute(), form);
+            //
+            //            } else {
+            //                request.setAttribute(mapping.getAttribute(), form);
+            //            }
+            //
+        } catch (Exception e) {
+            
+            util.setAttributeOnScopeFromMappingAttributeAndScope(request,
+                    mapping, form);
+            log.error(e);
+            ActionMessages messages = new ActionMessages();
+            messages.add("error in constructing attributes for form",
+                    new ActionMessage("error is", e));
+            saveMessages(request, messages);
+            return mapping.getInputForward();
+        }
+        log.info("going to successLoadForEdit");
+        return mapping.findForward("successLoadForEdit");
+    }
 }
 
