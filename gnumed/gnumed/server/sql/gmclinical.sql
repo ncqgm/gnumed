@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.149 $
+-- $Revision: 1.150 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -244,8 +244,8 @@ create table clin_root_item (
 		references clin_episode(pk),
 	narrative text,
 	soap_cat text
-		default null
-		check(soap_cat in ('s', 'o', 'a', 'p'))
+		not null
+		check(lower(soap_cat) in ('s', 'o', 'a', 'p'))
 ) inherits (audit_fields);
 
 comment on TABLE clin_root_item is
@@ -269,6 +269,8 @@ comment on COLUMN clin_root_item.fk_episode is
 	'the episode this item belongs to';
 comment on column clin_root_item.narrative is
 	'each clinical item by default inherits a free text field for clinical narrative';
+comment on column clin_root_item.soap_cat is
+	'each clinical item must be in one of the S, O, A, P categories';
 
 -- --------------------------------------------
 create table clin_item_type (
@@ -1081,11 +1083,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.149 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.150 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.149  2005-02-12 13:49:14  ncq
+-- Revision 1.150  2005-02-13 14:46:12  ncq
+-- - make clin_root_item.soap_cat not null
+--
+-- Revision 1.149  2005/02/12 13:49:14  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes
