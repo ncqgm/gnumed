@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.17 $ $Date: 2002-12-01 13:53:09 $ $Author: ncq $
+-- $Revision: 1.18 $ $Date: 2002-12-05 23:15:52 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -16,22 +16,22 @@ CREATE TABLE "doc_type" (
 	"name" character varying(40)
 );
 
-INSERT INTO doc_type(id, name) values(1,'discharge summary internal');
-INSERT INTO doc_type(id, name) values(2,'discharge summary surgical');
-INSERT INTO doc_type(id, name) values(3,'discharge summary psychiatric');
-INSERT INTO doc_type(id, name) values(4,'discharge summary neurological');
-INSERT INTO doc_type(id, name) values(5,'discharge summary orthopaedic');
-INSERT INTO doc_type(id, name) values(6,'discharge summary other');
+INSERT INTO doc_type(id, name) values(1,'discharge summary internal');		-- <i18n>
+INSERT INTO doc_type(id, name) values(2,'discharge summary surgical');		-- <i18n>
+INSERT INTO doc_type(id, name) values(3,'discharge summary psychiatric');	-- <i18n>
+INSERT INTO doc_type(id, name) values(4,'discharge summary neurological');	-- <i18n>
+INSERT INTO doc_type(id, name) values(5,'discharge summary orthopaedic');	-- <i18n>
+INSERT INTO doc_type(id, name) values(6,'discharge summary other');			-- <i18n>
 
-INSERT INTO doc_type(id, name) values(7,'referral report internal');
-INSERT INTO doc_type(id, name) values(8,'referral report surgical');
-INSERT INTO doc_type(id, name) values(9,'referral report ENT');
-INSERT INTO doc_type(id, name) values(10,'referral report eye');
-INSERT INTO doc_type(id, name) values(11,'referral report urology');
-INSERT INTO doc_type(id, name) values(12,'referral report orthopaedic');
-INSERT INTO doc_type(id, name) values(13,'referral report neuro');
-INSERT INTO doc_type(id, name) values(14,'referral report radiology');
-INSERT INTO doc_type(id, name) values(15,'referral report other');
+INSERT INTO doc_type(id, name) values(7,'referral report internal');		-- <i18n>
+INSERT INTO doc_type(id, name) values(8,'referral report surgical');		-- <i18n>
+INSERT INTO doc_type(id, name) values(9,'referral report ENT');				-- <i18n>
+INSERT INTO doc_type(id, name) values(10,'referral report eye');			-- <i18n>
+INSERT INTO doc_type(id, name) values(11,'referral report urology');		-- <i18n>
+INSERT INTO doc_type(id, name) values(12,'referral report orthopaedic');	-- <i18n>
+INSERT INTO doc_type(id, name) values(13,'referral report neuro');			-- <i18n>
+INSERT INTO doc_type(id, name) values(14,'referral report radiology');		-- <i18n>
+INSERT INTO doc_type(id, name) values(15,'referral report other');			-- <i18n>
 
 -- add any number of types here, this is just to give you an idea
 
@@ -100,7 +100,7 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.17 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- questions:

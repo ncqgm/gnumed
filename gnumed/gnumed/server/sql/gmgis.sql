@@ -5,7 +5,7 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.28 $
+-- $Revision: 1.29 $
 -- changelog:
 -- 17.11.2001:  (hherb) first useable version
 -- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
@@ -125,11 +125,11 @@ create table address_type (
 ) inherits (audit_gis);
 
  -- do not alter the id of home !
-INSERT INTO address_type(id, name) values(1,'home');
-INSERT INTO address_type(id, name) values(2,'work');
-INSERT INTO address_type(id, name) values(3,'parents');
-INSERT INTO address_type(id, name) values(4,'holidays');
-INSERT INTO address_type(id, name) values(5,'temporary');
+INSERT INTO address_type(id, name) values(1,'home');		-- <i18n>
+INSERT INTO address_type(id, name) values(2,'work');		-- <i18n>
+INSERT INTO address_type(id, name) values(3,'parents');		-- <i18n>
+INSERT INTO address_type(id, name) values(4,'holidays');	-- <i18n>
+INSERT INTO address_type(id, name) values(5,'temporary');	-- <i18n>
 
 -- ===================================================================
 create table address (
@@ -421,4 +421,4 @@ create table address_info (
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.28 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.29 $');

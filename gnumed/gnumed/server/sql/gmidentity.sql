@@ -160,15 +160,15 @@ COMMENT ON COLUMN relation_types.description IS
 -- Only that way we will be able to exchange relationship details between multilingual
 -- databases. Hopefully, we will soon have an ontology taking care of this problem.
 
-insert into relation_types(biological, description) values('t', 'parent');
-insert into relation_types(biological, description) values('t', 'sibling');
-insert into relation_types(biological, description) values('t', 'halfsibling');
-insert into relation_types(biological, description) values('f', 'stepparent');
-insert into relation_types(biological, description) values('f', 'married');
-insert into relation_types(biological, description) values('f', 'defacto');
-insert into relation_types(biological, description) values('f', 'divorced');
-insert into relation_types(biological, description) values('f', 'separated');
-insert into relation_types(biological, description) values('f', 'legal_guardian');
+insert into relation_types(biological, description) values(true, 'parent');				-- <i18n>
+insert into relation_types(biological, description) values(true, 'sibling');			-- <i18n>
+insert into relation_types(biological, description) values(true, 'halfsibling');		-- <i18n>
+insert into relation_types(biological, description) values(false, 'stepparent');		-- <i18n>
+insert into relation_types(biological, description) values(false, 'married');			-- <i18n>
+insert into relation_types(biological, description) values(false, 'defacto');			-- <i18n>
+insert into relation_types(biological, description) values(false, 'divorced');			-- <i18n>
+insert into relation_types(biological, description) values(false, 'separated');			-- <i18n>
+insert into relation_types(biological, description) values(false, 'legal_guardian');	-- <i18n>
 
 -- ==========================================================
 
@@ -280,7 +280,6 @@ TO GROUP "_gm-doctors";
 
 -- ==========================================================
 -- insert some example people
-
 insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Ian', 'Haywood', '1977-12-19', 'UK', 'm');
 insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Ms.', 'Cilla', 'Raby', '1979-3-1', 'AU', 'f');
 insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Horst', 'Herb', '1970-1-1', 'DE', 'm');
@@ -292,4 +291,4 @@ insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) valu
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.25 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.26 $');
