@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -657,9 +657,8 @@ class database:
 
 		tmp = _cfg.get(self.section, 'audit disable')
 		# if this option is not given, assume we want auditing
-		if not tmp is None:
-		# if we don't want auditing on this tables, return without
-		# error
+		if tmp is not None:
+			# if we don't want auditing on this tables, return without error
 			if int(tmp) == 1:
 				return 1
 
@@ -1152,7 +1151,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.23  2003-08-26 10:52:52  ihaywood
+# Revision 1.24  2003-08-26 12:58:55  ncq
+# - coding style cleanup
+#
+# Revision 1.23  2003/08/26 10:52:52  ihaywood
 # bugfixes to bootstrap scripts
 #
 # Revision 1.22  2003/08/24 13:46:32  hinnef
