@@ -1,0 +1,508 @@
+<HTML
+><HEAD
+><TITLE
+>Backend I18N for non-dynamic ("fixed") strings in the backend.</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Coding Guidelines"
+HREF="guidelines.html"><LINK
+REL="PREVIOUS"
+TITLE="Client Internationalization / Localization"
+HREF="i18n.html"><LINK
+REL="NEXT"
+TITLE="Interacting with the Backend"
+HREF="backend-interaction.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="i18n.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 3. Coding Guidelines</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="backend-interaction.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="BACKEND-I18N"
+></A
+>3.7. Backend I18N for non-dynamic ("fixed") strings in the backend.</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN227"
+></A
+>3.7.1. Introduction</H2
+><P
+>        In enumerations we often see fixed strings being stored in the backend.
+	    There's no good way a client can translate those to the local language.
+	    Nevertheless we need to provide a translation. Consider the following
+	    example:
+	    </P
+><P
+>	    We want a table that enumerates family relations. The obvious table
+	    design would be
+	    </P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>create table member (
+	id serial primary key,
+	name varchar(20)
+);
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>	    Other tables will obviously reference table.id but we want the frontend
+	    to be able to show a spelled-out name for the family member type. A simple
+	    </P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+> select name from member where id='some ID';
+	    </PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>	    will, however, always return the version that was put into the database in
+	    upon installation. Typically this would be done by statements such as
+	    </P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+> insert into member(name) values('sister');
+	    </PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>	    Hence, queries would always return the English 'sister'.
+	    </P
+><P
+>	    PostgreSQL does not directly support localization of database content.
+	    Therefor the following scheme has been devised:
+        </P
+><P
+>	    At the top of your psql script schema definition files include the
+	    file gnumed/server/gmI18N.sql which provides a localization infrastructure.
+	    For your convenience, just copy/paste the following two lines:
+	    </P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>-- do fixed string i18n()ing
+\i gmI18N.sql
+	    </PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>	    The database will then contain several new tables starting with i18n_* and
+	    a few functions.
+		</P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN241"
+></A
+>3.7.1.1. i18n_curr_lang</H3
+><P
+>        Here you can/should set the currently preferred language on a per-user
+        basis. Only one language per user is allowed at any one time. Switching
+        the language here will enable the user to see another translation (if
+        provided).
+		</P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN244"
+></A
+>3.7.1.2. i18n_keys</H3
+><P
+>        This is just a convenience table listing all the strings that need
+        translations. Dump this and give to translation teams. A tool will be
+        provided to make use of this table. It is of no importance to the
+        actual online translation process.
+		</P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN247"
+></A
+>3.7.1.3. i18n_translations</H3
+><P
+>        This is where translations actually live. As in gettext the original
+        string is used as the key and the language code (which should correspond
+        with those used in i18n_curr_lang) as a discrimator.
+		</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN250"
+></A
+>3.7.2. How to translate strings</H2
+><P
+>        Make your string insertions aware of i18n issues. This is what the
+        function i18n(text) is for. Regarding the above example insertions
+        need to be rewritten from
+		</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+> insert into member(name) values('sister');
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>        to
+        </P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>        
+ insert into member(name) values(i18n('sister'));
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>	
+The i18n() function will take care of inserting the string 'sister'
+into the i18n_keys table where translation teams will find it and
+provide a translation. Later on, when a translation is available it
+will be inserted into i18n_translations:
+		</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+> insert into i18n_translations(lang, orig, trans) values ('de_DE', 'sister', 'Schwester');
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN258"
+></A
+>3.7.3. How to make your tables translate strings</H2
+><P
+>        Now that we have translations available in i18n_translations we
+        can start making our tables aware of them. Unfortunately,
+        PostgreSQL does not yet support column-level select rules. We
+        therefor have to create views wrapping the original tables. Note
+        that the original table will still be useable. Original tables
+        which have translated strings should be named "_tablename" while
+        views translating them should be named "v_i18n_tablename". Going
+        back to our previous example, the table
+		</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>create table member (
+	id serial primary key,
+	name varchar(20)
+);
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>		should be renamed to "_member" and a view created on it:
+		</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>        
+create view v_i18n_member (id, name) as
+	select _member.id, _(_member.name)
+	from member;
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>		By making sure to use the same column names in the view we
+		minimize frontend coding changes.
+		</P
+><P
+>        You will notice how the function _() is used to access
+        the translation for the attribute "name". This function is
+        provided by gmI18N.sql and provides nearly the same
+        functionality as gettext.gettext() which is often aliased
+        to _() in Python and other languages. It will return
+        a translation based on the user's currently selected language
+        in i18n_curr_lang and the translation for that language
+        in i18n_translations using the original string as the key.
+		</P
+><P
+>        NOTE: We used to use _() where we use i18n() now. This
+        was contrary to _()'s standard use and has been changed !
+		</P
+><P
+>        If no translation is available for a given string _()
+        will return the original string. Also, if the user did
+        not select a language in i18n_curr_lang the original
+        is returned.
+        </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN268"
+></A
+>3.7.4. How to make the frontend use translated strings</H2
+><P
+>        All the backend infrastructure is in place now so we
+        can make frontends aware of translated strings. The first
+        step is to make frontends use the v_i18n_* views instead
+        of the tables. If we fail to do that everything will still
+        work. We just won't get translations :-)
+		</P
+><P
+>		
+        The second step is to make sure the current user has
+        a language selected in i18n_curr_lang. Use something like
+		</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>insert into i18n_curr_lang(lang) values ('de_DE');
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>        This will default to the CURRENT_USER. The actual value need
+        not conform to anything in particular. It can be "Klingon" for
+        that matter. Make sure then to have "Klingon" translations
+        available in i18n_translations.
+		</P
+><P
+>	    This i18n technique does not take care of strings that are inserted
+        into the database dynamically (at runtime). It only makes sense for
+	    strings that are inserted once. Such strings are often used for
+	    enumerations.
+	    </P
+><P
+>	    All this crap isn't necessary anymore once PostgreSQL supports
+	    native internationalization of 'fixed' strings.
+	    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="i18n.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="backend-interaction.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Client Internationalization / Localization</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="guidelines.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Interacting with the Backend</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
