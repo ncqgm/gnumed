@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.7 2004-06-20 18:35:07 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmPatientExporter.py,v 1.8 2004-06-20 18:50:53 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -296,7 +296,10 @@ class gmEmrExport:
 		txt += self.get_historical_tree(emr, since_val, until_val, encounters_val, episodes_val, issues_val)
 		print txt
 
-		emr.cleanup()
+		try:
+			emr.cleanup()
+		except:
+			print "error cleaning up EMR"
 	#--------------------------------------------------------
 	def dump_demographic_record(self, all = False):
 		"""
@@ -349,7 +352,10 @@ if __name__ == "__main__":
 			patient_id = prompted_input("Patient ID (or 'bye' to exit) [14]: ", '14')
 			if patient_id == 'bye':
 				if patient is not None:
-					patient.cleanup()
+					try:
+						patient.cleanup()
+					except:
+						print "error cleaning up patient"
 				sys.exit(0)
 			patient = gmPatient.gmCurrentPatient(patient_id)
 			since = prompted_input("Since (eg. 2001-01-01): ")
@@ -366,17 +372,26 @@ if __name__ == "__main__":
 			export_tool.dump_demographic_record(True)
 			export_tool.dump_clinical_record(patient, since_val=since, until_val=until ,encounters_val=encounters, episodes_val=episodes, issues_val=issues)
 			#print(patient.get_document_folder())
-			patient.cleanup()
+			try:
+				patient.cleanup()
+			except:
+				print "error cleaning up patient"
 	except SystemExit:
 		print "Normally exited, bye"
 	except:
 		traceback.print_exc(file=sys.stdout)
 		if patient is not None:
-			patient.cleanup()
+			try:
+				patient.cleanup()
+			except:
+				print "error cleaning up patient"
 		sys.exit(1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.7  2004-06-20 18:35:07  ncq
+# Revision 1.8  2004-06-20 18:50:53  ncq
+# - some exception catching, needs more cleanup
+#
+# Revision 1.7  2004/06/20 18:35:07  ncq
 # - more work from Carlos
 #
 # Revision 1.6  2004/05/12 14:34:41  ncq
