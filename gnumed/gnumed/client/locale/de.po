@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
-"POT-Creation-Date: Thu Aug 29 23:02:31 2002\n"
+"POT-Creation-Date: Fri Aug 30 12:23:44 2002\n"
 "PO-Revision-Date: 2002-08-05 18:36+0200\n"
 "Last-Translator: Christian Axel Herda <dc.herda@t-online.de>\n"
 "Language-Team: deutsch <de@li.org>\n"
@@ -14,10 +14,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.3\n"
 "X-Generator: KBabel 0.9.6\n"
-
-#: ../wxpython/gmTalkback.py:36
-msgid "Send to"
-msgstr ""
 
 #: ../wxpython/gmTalkback.py:45
 msgid ""
@@ -31,10 +27,6 @@ msgstr " OK "
 #: ../wxpython/patient/gmGP_ClinicalSummary.py:63
 msgid "Inbox"
 msgstr ""
-
-#: ../wxpython/gmLogin.py:41
-msgid "user cancelled login dialog"
-msgstr "Abbruch des Login-Dialogs durch Benutzer"
 
 #: ../wxpython/gmPersonDetailsDlg.py:55
 msgid "&Save"
@@ -62,7 +54,7 @@ msgstr "Vorname: "
 
 #: ../wxpython/gmLoginDialog.py:404
 msgid "Login"
-msgstr "Login"
+msgstr "GnuMed: Anmeldung bei der Datenbank"
 
 #: ../wxpython/gui/gmDrugDisplay.py:202
 msgid "Any"
@@ -208,9 +200,9 @@ msgstr "Herr"
 msgid "year onset"
 msgstr ""
 
-#: ../wxpython/gmLogin.py:51
-msgid "backend connection failed"
-msgstr "Hintergrundverbindung fehlgeschlagen?"
+#: ../wxpython/gmPersonDetails.py:205
+msgid "state"
+msgstr "Land"
 
 #: ../wxpython/patient/gmDemographics.py:408
 msgid "Date of birth"
@@ -258,7 +250,7 @@ msgstr ""
 
 #: ../wxpython/gmLoginDialog.py:186
 msgid "Login Parameters"
-msgstr "Anmeldung bei der Datenbank"
+msgstr "Anmeldeparameter"
 
 #: ../wxpython/gmPersonDetails.py:138
 msgid "pre&v. names"
@@ -305,9 +297,12 @@ msgstr ""
 msgid "&Undo"
 msgstr "&Rückgängig"
 
-#: ../wxpython/gmLogin.py:43
-msgid " of "
-msgstr "von"
+#: ../wxpython/gmTalkback.py:42
+#, fuzzy
+msgid ""
+"Description/  \n"
+"Comment  "
+msgstr "Beschreibung"
 
 #: ../wxpython/patient/gmGP_TabbedLists.py:121
 #, fuzzy
@@ -391,20 +386,22 @@ msgstr "??"
 msgid "Timestamp"
 msgstr "Zeitmarke"
 
-#: ../wxpython/gmTalkback.py:42
+#: ../wxpython/gmLogin.py:52
 #, fuzzy
 msgid ""
-"Description/  \n"
-"Comment  "
-msgstr "Beschreibung"
-
-#: ../wxpython/gmLabels.py:34
-msgid "city"
-msgstr "Stadt"
+"Unable to connect to database.\n"
+"(%s)\n"
+"\n"
+"Please retry or cancel"
+msgstr ""
+"Anmeldung bei Datenbank fehlgeschlagen.\n"
+"(%s)\n"
+"\n"
+"Bitte versuchen Sie es erneut oder brechen Sie ab."
 
 #: ../wxpython/gui/gmDrugDisplay.py:206
 msgid "Generic name"
-msgstr "Freiname? Generika?"
+msgstr "Freiname"
 
 #: ../wxpython/gmGuiMain.py:204
 #, fuzzy
@@ -446,10 +443,6 @@ msgstr "Bea&rbeiten"
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: ../wxpython/gmLogin.py:43
-msgid "login attempt #"
-msgstr "Login Versuch #"
-
 #: ../wxpython/gmPersonDetails.py:270
 msgid "private"
 msgstr "privat"
@@ -470,7 +463,7 @@ msgstr "Frau"
 
 #: ../wxpython/gmLoginDialog.py:428
 msgid "Dialog was cancelled by user"
-msgstr "Dialog wurde vom Benutzer abgebrochen"
+msgstr "Anmeldung vom Benutzer abgebrochen"
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:142
 #, fuzzy
@@ -540,6 +533,10 @@ msgstr "Nachname:"
 #: ../wxpython/gmUserAdmin.py:97
 msgid "Delete"
 msgstr "Löschen"
+
+#: ../wxpython/gmLabels.py:34
+msgid "city"
+msgstr "Stadt"
 
 #: ../wxpython/gui/gmSnellen.py:276
 msgid "Symbol"
@@ -676,10 +673,6 @@ msgstr "&Drucken"
 #: ../wxpython/gmPersonDetails.py:79
 msgid "Dr."
 msgstr "Dr."
-
-#: ../wxpython/gmLogin.py:48
-msgid "backend connection successfully established"
-msgstr "Hintergrundverbindung erfolgreich hergestellt"
 
 #: ../wxpython/gmPersonDetails.py:79 ../wxpython/gmPersonDetailsDlg.py:72
 #: ../wxpython/gmPersonDetailsDlg.py:169
@@ -855,7 +848,7 @@ msgstr "Zugriffsrechte des Benutzers"
 
 #: ../wxpython/gmLoginDialog.py:430
 msgid "You tried to log in as [%s] with password [%s]"
-msgstr "Sie haben versucht sich als (%s) mit dem Passwort (%s) ein zu loggen"
+msgstr "Sie haben versucht, sich als Nutzer [%s] mit dem Passwort [%s] anzumelden."
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:199
 msgid "Make Item Reg 24"
@@ -894,14 +887,6 @@ msgstr "Benutzer Login"
 #: ../wxpython/gmPersonDetails.py:275
 msgid "URL"
 msgstr "URL"
-
-#: ../wxpython/gmLogin.py:53
-msgid ""
-"Login failed because: %s\n"
-"Please retry or cancel"
-msgstr ""
-"Login fehlgeschlagen weil: %s\n"
-"Bitte versuchen Sie es erneut oder brechen Sie ab"
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:211
 msgid "Save All Items no print"
@@ -1048,9 +1033,12 @@ msgstr "Suche durch"
 msgid "Edit Item"
 msgstr ""
 
-#: ../wxpython/gmPersonDetails.py:205
-msgid "state"
-msgstr "Land"
+#: ../wxpython/gmTalkback.py:36
+msgid "Send to"
+msgstr ""
+
+#~ msgid "user cancelled login dialog"
+#~ msgstr "Abbruch des Login-Dialogs durch Benutzer"
 
 #~ msgid "Not GNUMed database"
 #~ msgstr "Keine GNUMed Datenbank"
