@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.31 $
+-- $Revision: 1.32 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -68,7 +68,7 @@ comment on column clin_health_issue.description is
 -- -------------------------------------------------------------------
 create table clin_episode (
 	id serial primary key,
-	id_health_issue integer references clin_health_issue(id),
+	id_health_issue integer not null references clin_health_issue(id),
 	description varchar(128) default '__default__',
 	id_comment integer references clin_narrative(id)
 ) inherits (audit_clinical);
@@ -126,8 +126,8 @@ comment on column clin_encounter.id_comment is
 -- -------------------------------------------------------------------
 create table clin_transaction (
 	id serial primary key,
-	id_encounter integer references clin_encounter(id),
-	id_episode integer references clin_episode(id),
+	id_encounter integer not null references clin_encounter(id),
+	id_episode integer not null references clin_episode(id),
 	committed timestamp with time zone default CURRENT_TIMESTAMP
 ) inherits (audit_clinical);
 
@@ -499,11 +499,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.31 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.32 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.31  2003-04-28 21:40:40  ncq
+-- Revision 1.32  2003-04-29 12:38:32  ncq
+-- - add not null to referencing constraints in episode/transactions
+--
+-- Revision 1.31  2003/04/28 21:40:40  ncq
 -- - better indices
 --
 -- Revision 1.30  2003/04/28 20:56:16  ncq
