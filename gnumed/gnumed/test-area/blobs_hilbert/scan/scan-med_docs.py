@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -403,37 +403,52 @@ class scanFrame(wxFrame):
 		return 1
 	#-----------------------------------
 	def on_twain_event(self, event):
-		# self.TwainScanner.GetImageInfo()
-		_log.Log(gmLog.Data, 'notification of pending image from TWAIN manager')
+		_log.Log(gmLog.lData, 'notification of pending image from TWAIN manager')
+		_log.Log(gmLog.lData, 'image info: %s' % self.TwainScanner.GetImageInfo())
 
-		# just so we can use fname down below in case tempfile.mktemp() fails
-		fname = ""
+		# get from source
 		try:
-			fname = tempfile.mktemp()
-			# get from source
 			(external_data_handle, more_images_pending) = self.TwainScanner.XferImageNatively()
-			# convert to bitmap file
-			# FIXME: should be JPEG
-			twain.DIBToBMFile(external_data_handle, fname)
-			# free external image memory
-			twain.GlobalHandleFree(external_data_handle)
-			# and keep a reference
-			self.acquired_pages[len(self.acquired_pages)] = fname
-
-			# FIXME:
-			#if more_images_pending:
 		except:
 			exc = sys.exc_info()
-			_log.LogException('Unable to get image from scanner into [%s] !' % fname, exc, fatal=1)
+			_log.LogException('Unable to get global heap image handle !', exc, fatal=1)
+			# free external image memory
+			twain.GlobalHandleFree(external_data_handle)
 			# hide the scanner user interface again
 			self.TwainScanner.HideUI()
 			return None
 
+		_log.Log(gmLog.lData, '%s pending images' % more_images_pending)
+
+		# convert to bitmap file
+		# for now we know it's bitmap
+		# FIXME: should be JPEG ?
+		fname = tempfile.mktemp('.bmp')
+		try:
+			twain.DIBToBMFile(external_data_handle, fname)
+		except:
+			exc = sys.exc_info()
+			_log.LogException('Unable to convert image in global heap handle into file [%s] !' % fname, exc, fatal=1)
+			# free external image memory
+			twain.GlobalHandleFree(external_data_handle)
+			# hide the scanner user interface again
+			self.TwainScanner.HideUI()
+			return None
+
+		# free external image memory
+		twain.GlobalHandleFree(external_data_handle)
 		# hide the scanner user interface again
 		self.TwainScanner.HideUI()
 
+		# and keep a reference
+		self.acquired_pages[len(self.acquired_pages)] = fname
 		#update list of pages in GUI
 		self.__reload_LBOX_doc_pages()
+
+		# FIXME:
+		#if more_images_pending:
+
+		return 1
 	#-----------------------------------
 	# SANE related scanning code
 	#-----------------------------------
@@ -647,7 +662,7 @@ class scanFrame(wxFrame):
 
 		# FIXME: there needs to be locking here
 		if mode == "consecutive":
-
+			pass
 		else:
 			# set up temp file environment
 			# remember state
