@@ -30,7 +30,6 @@ INSERT INTO address_type(id, name) values(5, i18n('temporary'));
 -- ===================================================================
 -- here come the ISO country codes ...
 
-BEGIN WORK;
 insert into country(code, name) values('AF', i18n('AFGHANISTAN'));
 insert into country(code, name) values('AL', i18n('ALBANIA'));
 insert into country(code, name) values('DZ', i18n('ALGERIA'));
@@ -256,15 +255,18 @@ insert into country(code, name) values('UA', i18n('UKRAINE'));
 insert into country(code, name) values('AE', i18n('UNITED ARAB EMIRATES'));
 insert into country(code, name) values('GB', i18n('UNITED KINGDOM'));
 insert into country(code, name) values('US', i18n('UNITED STATES'));
-COMMIT WORK;
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.1 $');
+delete from gm_schema_revision where filename like '%phics-GIS-data%';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-data.sql,v $
--- Revision 1.1  2003-08-02 10:41:29  ncq
+-- Revision 1.2  2003-12-29 15:32:59  uid66147
+-- - remove begin/commit as it does not play well with transactions in python
+--
+-- Revision 1.1  2003/08/02 10:41:29  ncq
 -- - rearranging files for clarity as to services/schemata
 --
 -- Revision 1.4  2003/05/12 12:43:39  ncq
