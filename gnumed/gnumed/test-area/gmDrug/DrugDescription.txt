@@ -1,0 +1,83 @@
+1. Files: 
+gmDrugObject: 	query abstraction
+gmDrugView:		drug abstraction (hides index search, product info creation and
+				so on)
+gmDrugDisplay:	frontend to display drug information
+
+~/.gnumed/gnumed.conf (default config file)
+<SOMEDIR>/<DATABASE_QUERY_DEFINITION_FILE>
+
+2. Configuration
+a) Pointers to the default drug database used in ~/.gnumed/gnumed.conf (default config file):
+[DrugReferenceBrowser]                                                          
+drugDBname = <dbname>
+
+[<dbname>]                                                                       configfile = <PathToDrugDBConfigFile>
+
+where dbname references  the path entry and the <PathToDrugDBConfigFile>
+points to a config file holding detailed information on queries, output formatting etc. (There are two separate entries to allow for more than one drug database.)
+
+b) in DrugDBConfigFile:
+	
+    There are two different types of entries : 
+    1. query definitions (defining queries that can be accessed via the query 	group name
+    2. format definitions (defining formatting of fetched data in the product info widget of the drug reference browser
+        
+ --------------------------------------------------------------------------
+    Query Definition:
+    
+    [EntryGroupNameY]
+    type=query 			# type=query identifies queries 
+    querygroup=<querygroupname>	# identifies the query group the query belongs
+				# to. All queries belonging to one group are 
+                                # fetched at once by DrugObject.
+    query=$query$
+    <here comes the query text, possibly containing %s to map variables>
+    $query$
+    variables=<variables returned in result dictionary as keys (column names)>
+    mappings=<variables mapped to query string in order of appearance>
+
+-----------------------------------------------------------------------------
+	Format Definition:
+    
+    [EntryGroupNameX]
+    type=format			# identifies format information used by produc info
+    querygroup=<query group>	# querygroup holding parameters needed by this
+    				# part of product info
+    formattype=<ftype>		# one of single, heading, noheading and list
+    position=<#num>		# position of appearance in product info sheet	
+    usedvars=<vars used>	# should match format string mappings
+    heading=$heading$		# heading, needed if not ftype='noheadings'
+	<heading>
+    $heading$
+    format=$format$
+    <e.g. %(presentation)s >	# format string containing parameter names
+    				# that should be mapped from result dict
+                                # if all parameter in result are empty,
+                                # this text part will be ignored
+    $format$
+
+3. Guide to configure the Drug Reference Browser for a particular database
+
+    1. create a <DATABASE_QUERY_DEFINITION_FILE> and configure your default gnumed config file accordingly (see above).
+    2. create query definitions for all query groups and parameters needed. 
+      	You will at least need the query groups 
+      	- 'brand_index_exact' : a index of brand products selected from a list by a at least partial name
+       (mapping : 'Key' - holding the name (or parts of it) to search for; 
+       parameters expected as result : a list of brand products identified by at least parameters 'id' and 'name', additional parameters will be displayed, too)
+
+	- 'generic_index_exact' : a index of generic substances, see  'brand_index_exact' for details
+        
+        - 'product_info' : a group holding all details on a specific drug (brand product) selected by a unique ID (var 'ID') from the list of all drugs. 
+        This group should contain queries that select information from different
+        tables using only the drug ID. The number of queries is not limited.
+        The data fetched by these queries must be processed by a format definition to be displayed in the product info widget. There is no 1:1 mapping between query definitions and format definitions (that is, both types access a pool of parameters that are supplied by the queries and processed by format definition, but you don't have to use all parameters fetched. You must, however, query all parameters you would like to display. :)
+	
+    3. Create format definitions for all sections you would like to display.
+    Every section consist of maximal two parts: a section heading and its content. Both types can be omitted (format type 'heading' takes only a heading and format type 'noheading' takes only content). Format type 'single' has a heading and expects a single result (i.e. no list). Format type 'list' had a heading and expects a variable containing a list.
+    All format types except 'heading' expect a list of parameters used in entry 'usedvars' (the same that are used in the format string) to check for empty parameter sets (One could extract those variables from the format string too. Currently, however, this is not supported). Empty parameter sets will not be displayed. That can be used to display information that is not present with all drugs in the database without printing only headings with empty paragraphs.
+    The parameters used will be mapped to the dictionary created by query group 'product_info'. 
+    Every entry must contain an unique positional index (entry 'position', non-negative integer) that defines the order of appearance of format strings in product info sheet.
+     
+     4. Try it. If it fails, send me an email <hilmar.berger@gmx.de> or ask somebody else at the gnumed-devel list.
+     
