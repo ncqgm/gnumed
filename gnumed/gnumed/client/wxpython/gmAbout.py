@@ -7,7 +7,7 @@
 # 30/01/03: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
@@ -149,3 +149,9 @@ if __name__ == '__main__':
 	gettext.textdomain ('gnumed')
 	app = TestApp ()
 	app.MainLoop ()
+
+#------------------------------------------------------------
+# $Log: gmAbout.py,v $
+# Revision 1.6  2003-05-17 18:18:19  michaelb
+# added $Log statement
+#
