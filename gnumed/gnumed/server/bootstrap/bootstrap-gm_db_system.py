@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1120,9 +1120,9 @@ def _import_schema (aSection, aConn):
 		the_file = os.path.join(schema_base_dir, file)
 #		if _import_schema_file(anSQL_file = the_file, aSrv = aSrv_name, aDB = aDB_name, aUser = aUser):
 		if psql.run(the_file) == 0:
-			_log.Log (gmLog.lInfo, 'successfully imported SQL schema file [%s]' % the_file)
+			_log.Log (gmLog.lInfo, 'successfully imported [%s]' % the_file)
 		else:
-			_log.Log (gmLog.lErr, 'failed to import SQL schema file [%s]' % the_file)
+			_log.Log (gmLog.lErr, 'failed to import [%s]' % the_file)
 			return None
 	return 1
 #--------------------------------------------------------------
@@ -1261,7 +1261,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.35  2003-11-02 11:28:43  ncq
+# Revision 1.36  2003-11-02 12:48:55  ncq
+# - add schema base directory option to config files
+# - hence we don't need the sql link anymore
+#
+# Revision 1.35  2003/11/02 11:28:43  ncq
 # - merge with Ian's changes:
 #   - support "schema base directory" in config file
 #   - re-add commented out old _import_schema_file code, we can drop it later

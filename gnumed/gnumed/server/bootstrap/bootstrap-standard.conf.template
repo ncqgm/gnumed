@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.15 $
+version = $Revision: 1.16 $
 
 #----------------------------------
 [installation]
@@ -49,6 +49,9 @@ database alias = gnumed-test
 # later to be used for service version tracking
 version = 0.1
 
+# a common base path for the schema files
+schema base directory =
+
 # the sql files to be imported for this service
 schema = $schema$
 ../sql/gmconfiguration.sql
@@ -58,21 +61,6 @@ $schema$
 postgres version = 7.1
 
 # database alias in which to register this service
-registration database = gnumed
-
-
-[service patients]
-database alias = gnumed-test
-name = personalia
-version = 0.1
-
-schema = $schema$
-../sql/gmDemographics.sql
-../sql/...
-$schema$
-
-postgres version = 7.1
-
 registration database = gnumed
 
 #----------------------------------
@@ -270,7 +258,11 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.15  2003-10-19 12:57:19  ncq
+# Revision 1.16  2003-11-02 12:48:55  ncq
+# - add schema base directory option to config files
+# - hence we don't need the sql link anymore
+#
+# Revision 1.15  2003/10/19 12:57:19  ncq
 # - add scoring schema generator and use it
 #
 # Revision 1.14  2003/10/01 15:59:20  ncq
