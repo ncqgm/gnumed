@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -38,7 +38,7 @@ import gmPG
 audit_trail_table_prefix = 'log_'
 # and inherit from this table
 audit_trail_parent_table = 'audit_trail'
-# and also this for the fields used in auditing
+# audited tables inherit these fields
 audit_fields_table = 'audit_fields'
 
 #==================================================================
@@ -205,15 +205,14 @@ def audit_trail_table_schema(aCursor, table2audit):
 def trigger_schema(aCursor, audited_table):
 	audit_trail_table = '%s%s' % (audit_trail_table_prefix, audited_table)
 
-	target_columns = get_columns(aCursor, audit_trail_table)
-	columns2skip = get_columns(aCursor, audit_trail_parent_table)
+	target_columns = get_columns(aCursor, audited_table)
+	columns2skip = get_columns(aCursor, audit_fields_table)
 	columns = []
 	values = []
 	for column in target_columns:
-		if column in columns2skip:
-			continue
-		columns.append(column)
-		values.append('OLD.%s' % column)
+		if column not in columns2skip:
+			columns.append(column)
+			values.append('OLD.%s' % column)
 	columns_clause = string.join(columns, ', ')
 	values_clause = string.join(values, ', ')
 
@@ -328,7 +327,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.17  2003-10-19 12:56:27  ncq
+# Revision 1.18  2003-10-25 16:58:40  ncq
+# - fix audit trigger function generation omitting target column names
+#
+# Revision 1.17  2003/10/19 12:56:27  ncq
 # - streamline
 #
 # Revision 1.16  2003/10/01 15:43:45  ncq

@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -699,10 +699,10 @@ class database:
 		if not _import_schema_file(anSQL_file = '/tmp/audit-trail-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
 			_log.Log(gmLog.lErr, "cannot import audit schema definition for database [%s]" % (self.name))
 			return None
-		try:
-			os.remove('/tmp/audit-trail-schema.sql')
-		except StandardError:
-			_log.LogException('cannot remove audit trail schema file [/tmp/audit-trail-schema.sql]', sys.exc_info(), verbose = 0)
+#		try:
+#			os.remove('/tmp/audit-trail-schema.sql')
+#		except StandardError:
+#			_log.LogException('cannot remove audit trail schema file [/tmp/audit-trail-schema.sql]', sys.exc_info(), verbose = 0)
 		return 1
 	#--------------------------------------------------------------
 	def bootstrap_scoring(self):
@@ -1216,7 +1216,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.30  2003-10-25 08:13:01  ncq
+# Revision 1.31  2003-10-25 16:58:40  ncq
+# - fix audit trigger function generation omitting target column names
+#
+# Revision 1.30  2003/10/25 08:13:01  ncq
 # - conn.version() is non-standard, fix for non-providers
 #
 # Revision 1.29  2003/10/19 12:57:19  ncq
