@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -64,7 +64,7 @@ class cEpisode(gmClinItem.cClinItem):
 			where id=%(id)s"""
 		]
 	_updatable_fields = [
-		'episode',
+		'description',
 		'id_health_issue'
 	]
 	#--------------------------------------------------------
@@ -306,7 +306,10 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.10  2004-06-01 08:20:14  ncq
+# Revision 1.11  2004-06-01 23:53:56  ncq
+# - v_pat_episodes.episode -> *.description
+#
+# Revision 1.10  2004/06/01 08:20:14  ncq
 # - limit in get_lab_results
 #
 # Revision 1.9  2004/05/30 20:10:31  ncq
