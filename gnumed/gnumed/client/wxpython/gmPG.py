@@ -65,11 +65,12 @@ class ConnectionPool:
 			return None
 
 		#first, connect to the configuration server
-		cdb = self.__pgconnect(login)
-		if cdb is None:
-			return None
-		else:
-			ConnectionPool.__connected = 1
+		try:
+		    cdb = self.__pgconnect(login)
+		except:
+		    return None
+		    
+		ConnectionPool.__connected = 1
 
 		#this is the default gnumed server now!
 		ConnectionPool.__databases['config'] = cdb
@@ -85,26 +86,26 @@ class ConnectionPool:
 
 		#for all configuration entries that match given user and profile
 		for db in databases:
+
 			###get the symbolic name of the distributed service
 			cursor.execute("select name from distributed_db where id = %d" %  db[dbidx['ddb']])
 			service = string.strip(cursor.fetchone()[0])
-			                       
-			                      
 			print "processing service " , service
+
 			###initialize our reference counter
 			ConnectionPool.__connections_in_use[service]=0
+
 			###try to get login information for a particular service
 			querystr = "select name, host, port, opt, tty from db where id = %d" % db[dbidx['db']]
-			print querystr
 			cursor.execute(querystr)
 			database = cursor.fetchone()
 			idx = cursorIndex(cursor)
+
 			###create a copy of the default login information, keeping user name and password
 			dblogin = copy.deepcopy(login)
 			###get the name of the distributed datbase service
 			try:
 				dblogin.SetDatabase(string.strip(database[idx['name']]))
-				print "service = ", service, "database = ", database[idx['name']]
 			except: pass
 			###hostname of the distributed service
 			try:
@@ -142,8 +143,9 @@ class ConnectionPool:
 		    db = pgdb.connect(dsn, host=hostport)
 		    return db
 		except: 
-		    self.LogError("Connection to tabase failed. \nDSN was [%s], host:port was [%s]" % (dsn, hostport))
-		    return None
+		    self.LogError(_("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport))
+		    raise gmExceptions.ConnectionError, _("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport)
+
 
 
 
@@ -169,7 +171,7 @@ class ConnectionPool:
 				if force_it == 0:
 					#let the end user know that shit is happening
 					raise gmExceptions.ConnectionError, \
-					    _("Attempting to close a databse connectiuon that is still in use")
+					    _("Attempting to close a database connectiuon that is still in use")
 			else:
 				###close the connection
 				ConnectionPool.__databases[key].close()
@@ -177,6 +179,7 @@ class ConnectionPool:
 		#clear the dictionary (would close all connections anyway)
 		ConnectionPool.__databases.clear()
 		ConnectionPool.__connected = None
+
 
 
 	def GetConnection(self, service):
