@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.70 2004-06-01 08:43:21 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.71 2004-06-02 00:05:51 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -127,7 +127,7 @@ create view v_pat_episodes as
 select
 	chi.id_patient as id_patient,
 	cep.id as id_episode,
-	cep.description as episode,
+	cep.description as description,
 	chi.id as id_health_issue,
 	chi.description as health_issue
 from
@@ -748,11 +748,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.70 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.71 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.70  2004-06-01 08:43:21  ncq
+-- Revision 1.71  2004-06-02 00:05:51  ncq
+-- - vpep.episode now vpep.description
+--
+-- Revision 1.70  2004/06/01 08:43:21  ncq
 -- - fix grants re allergy_state
 -- - include soap_cat in v_patient_items
 --
