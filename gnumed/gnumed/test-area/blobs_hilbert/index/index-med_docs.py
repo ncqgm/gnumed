@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -26,7 +26,23 @@ import docXML
 _log = gmLog.gmDefLog
 __cfg__ = gmCfg.gmDefCfg
 
-[wxID_INDEXFRAME, wxID_INDEXFRAMEADDITIONCOMMENTBOX, wxID_INDEXFRAMEBEFNRBOX, wxID_INDEXFRAMEBEFUNDDATE, wxID_INDEXFRAMEDATEOFBIRTHBOX, wxID_INDEXFRAMEDELPICBUTTON, wxID_INDEXFRAMEDESCRIPTIONCHOICEBOX, wxID_INDEXFRAMEFIRSTNAMEBOX, wxID_INDEXFRAMEGETPAGESBUTTON, wxID_INDEXFRAMELASTNAMEBOX, wxID_INDEXFRAMELBOXPAGES, wxID_INDEXFRAMEMAINPANEL, wxID_INDEXFRAMEREADFAXBUTTON, wxID_INDEXFRAMESAVEBUTTON, wxID_INDEXFRAMESHORTDECRIPTIONBOX, wxID_INDEXFRAMESHOWPICBUTTON, wxID_INDEXFRAMESTATICTEXT1, wxID_INDEXFRAMESTATICTEXT10, wxID_INDEXFRAMESTATICTEXT11, wxID_INDEXFRAMESTATICTEXT12, wxID_INDEXFRAMESTATICTEXT13, wxID_INDEXFRAMESTATICTEXT2, wxID_INDEXFRAMESTATICTEXT3, wxID_INDEXFRAMESTATICTEXT4, wxID_INDEXFRAMESTATICTEXT5, wxID_INDEXFRAMESTATICTEXT6, wxID_INDEXFRAMESTATICTEXT7, wxID_INDEXFRAMESTATICTEXT8, wxID_INDEXFRAMESTATICTEXT9] = map(lambda _init_ctrls: wxNewId(), range(29))
+[	wxID_INDEXFRAME,
+	wxID_INDEXFRAMEADDITIONCOMMENTBOX,
+	wxID_INDEXFRAMEBEFNRBOX,
+	wxID_INDEXFRAMEBEFUNDDATE,
+	wxID_INDEXFRAMEDATEOFBIRTHBOX,
+	wxID_BTN_del_page,
+	wxID_BTN_load_fax,
+	wxID_BTN_save_data,
+	wxID_BTN_show_page,
+	wxID_BTN_load_pages,
+	wxID_INDEXFRAMEDESCRIPTIONCHOICEBOX,
+	wxID_INDEXFRAMEFIRSTNAMEBOX,
+	wxID_INDEXFRAMELASTNAMEBOX,
+	wxID_INDEXFRAMELBOXPAGES,
+	wxID_INDEXFRAMEMAINPANEL,
+	wxID_INDEXFRAMESHORTDECRIPTIONBOX
+] = map(lambda _init_ctrls: wxNewId(), range(16))
 
 #====================================
 class indexFrame(wxFrame):
@@ -87,29 +103,29 @@ class indexFrame(wxFrame):
 		self.PNL_main.SetBackgroundColour(wxColour(225, 225, 225))
 
 		#-- load pages button -------------
-		self.BTN_get_pages = wxButton(
-			id = wxID_INDEXFRAMEGETPAGESBUTTON,
+		self.BTN_load_pages = wxButton(
+			id = wxID_BTN_load_pages,
 			label = _('load pages'),
-			name = 'BTN_get_pages',
+			name = 'BTN_load_pages',
 			parent = self.PNL_main,
 			pos = wxPoint(48, 160),
 			size = wxSize(176, 22),
 			style = 0
 		)
-		self.BTN_get_pages.SetToolTipString(_('load the pages of this document'))
-		EVT_BUTTON(self.BTN_get_pages, wxID_INDEXFRAMEGETPAGESBUTTON, self.on_get_pages)
+		self.BTN_load_pages.SetToolTipString(_('load the pages of this document'))
+		EVT_BUTTON(self.BTN_load_pages, wxID_BTN_load_pages, self.on_load_pages)
 
 		#-- load fax button -------------
-		self.BTN_read_fax = wxButton(
-			id = wxID_INDEXFRAMEREADFAXBUTTON,
+		self.BTN_load_fax = wxButton(
+			id = wxID_BTN_load_fax,
 			label = _('load fax document'),
-			name = 'BTN_read_fax',
+			name = 'BTN_load_fax',
 			parent = self.PNL_main,
 			pos = wxPoint(48, 232),
 			size = wxSize(176, 22),
 			style = 0
 		)
-		self.BTN_read_fax.SetToolTipString(_('currently non-functional: load a fax document'))
+		self.BTN_load_fax.SetToolTipString(_('currently non-functional: load a fax document'))
 
 		#-- list box with pages -------------
 		self.LBOX_doc_pages = wxListBox(
@@ -124,9 +140,9 @@ class indexFrame(wxFrame):
 		)
 		self.LBOX_doc_pages.SetToolTipString(_('these pages make up the current document'))
 
-		#-- load pages button -------------
+		#-- show page button -------------
 		self.BTN_show_page = wxButton(
-			id = wxID_INDEXFRAMESHOWPICBUTTON,
+			id = wxID_BTN_show_page,
 			label = _('show page'),
 			name = 'BTN_show_page',
 			parent = self.PNL_main,
@@ -135,12 +151,10 @@ class indexFrame(wxFrame):
 			style = 0
 		)
 		self.BTN_show_page.SetToolTipString(_('display selected part of the document'))
-		EVT_BUTTON(self.BTN_show_page, wxID_INDEXFRAMESHOWPICBUTTON, self.on_show_page)
+		EVT_BUTTON(self.BTN_show_page, wxID_BTN_show_page, self.on_show_page)
 
-
-		self.delPicButton = wxButton(id = wxID_INDEXFRAMEDELPICBUTTON, label = _('delete page'), name = 'delPicButton', parent = self.PNL_main, pos = wxPoint(143, 400), size = wxSize(90, 22), style = 0)
-		#EVT_BUTTON(self.delPicButton, wxID_INDEXFRAMEDELPICBUTTON, self.OnDelpicbuttonButton)
-
+		self.delPicButton = wxButton(id = wxID_BTN_del_page, label = _('delete page'), name = 'delPicButton', parent = self.PNL_main, pos = wxPoint(143, 400), size = wxSize(90, 22), style = 0)
+		#EVT_BUTTON(self.delPicButton, wxID_BTN_del_page, self.OnDelpicbuttonButton)
 
 		#-- first name text box -------------
 		self.TBOX_first_name = wxTextCtrl(
@@ -233,7 +247,7 @@ class indexFrame(wxFrame):
 
 		#-- save data button -------------
 		self.BTN_save_data = wxButton(
-			id = wxID_INDEXFRAMESAVEBUTTON,
+			id = wxID_BTN_save_data,
 			label = _('save data'),
 			name = 'BTN_save_data',
 			parent = self.PNL_main,
@@ -242,10 +256,10 @@ class indexFrame(wxFrame):
 			style = 0
 		)
 		self.BTN_save_data.SetToolTipString(_('save entered metadata with document'))
-		EVT_BUTTON(self.BTN_save_data, wxID_INDEXFRAMESAVEBUTTON, self.on_save_data)
+		EVT_BUTTON(self.BTN_save_data, wxID_BTN_save_data, self.on_save_data)
 
 		self.staticText1 = wxStaticText(
-			id = wxID_INDEXFRAMESTATICTEXT1,
+			id = -1,
 			label = _('1) select'),
 			name = 'staticText1',
 			parent = self.PNL_main,
@@ -256,7 +270,7 @@ class indexFrame(wxFrame):
 		self.staticText1.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
 		self.staticText2 = wxStaticText(
-			id = wxID_INDEXFRAMESTATICTEXT2,
+			id = -1,
 			label = _('2) describe'),
 			name = 'staticText2',
 			parent = self.PNL_main,
@@ -267,7 +281,7 @@ class indexFrame(wxFrame):
 		self.staticText2.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
 		self.staticText3 = wxStaticText(
-			id = wxID_INDEXFRAMESTATICTEXT3,
+			id = -1,
 			label = _('3) save'),
 			name = 'staticText3',
 			parent = self.PNL_main,
@@ -277,15 +291,15 @@ class indexFrame(wxFrame):
 		)
 		self.staticText3.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.staticText4 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT4, label = _('or'), name = 'staticText4', parent = self.PNL_main, pos = wxPoint(48, 192), size = wxSize(49, 29), style = 0)
+		self.staticText4 = wxStaticText(id = -1, label = _('or'), name = 'staticText4', parent = self.PNL_main, pos = wxPoint(48, 192), size = wxSize(49, 29), style = 0)
 		self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.staticText5 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT5, label = _('date (YYYY-MM-DD)'), name = 'staticText5', parent = self.PNL_main, pos = wxPoint(304, 288), size = wxSize(158, 16), style = 0)
+		self.staticText5 = wxStaticText(id = -1, label = _('date (YYYY-MM-DD)'), name = 'staticText5', parent = self.PNL_main, pos = wxPoint(304, 288), size = wxSize(158, 16), style = 0)
 
-		self.staticText6 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT6, label = _('date of birth'), name = 'staticText6', parent = self.PNL_main, pos = wxPoint(304, 208), size = wxSize(152, 16), style = 0)
+		self.staticText6 = wxStaticText(id = -1, label = _('date of birth'), name = 'staticText6', parent = self.PNL_main, pos = wxPoint(304, 208), size = wxSize(152, 16), style = 0)
 
 		self.staticText7 = wxStaticText(
-			id = wxID_INDEXFRAMESTATICTEXT7,
+			id = -1,
 			label = _('document identifier'),
 			name = 'staticText7',
 			parent = self.PNL_main,
@@ -295,7 +309,7 @@ class indexFrame(wxFrame):
 		)
 
 		self.staticText8 = wxStaticText(
-			id = wxID_INDEXFRAMESTATICTEXT8,
+			id = -1,
 			label = _('document pages'),
 			name = 'staticText8',
 			parent = self.PNL_main,
@@ -305,7 +319,7 @@ class indexFrame(wxFrame):
 		)
 
 		self.staticText9 = wxStaticText(
-			id = wxID_INDEXFRAMESTATICTEXT9,
+			id = -1,
 			label = _('first name'),
 			name = 'staticText9',
 			parent = self.PNL_main,
@@ -315,7 +329,7 @@ class indexFrame(wxFrame):
 		)
 
 		self.staticText10 = wxStaticText(
-			id = wxID_INDEXFRAMESTATICTEXT10,
+			id = -1,
 			label = _('last name'),
 			name = 'staticText10',
 			parent = self.PNL_main,
@@ -324,10 +338,10 @@ class indexFrame(wxFrame):
 			style = 0
 		)
 
-		self.staticText11 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT11, label = _('short comment'), name = 'staticText11', parent = self.PNL_main, pos = wxPoint(304, 352), size = wxSize(152, 16), style = 0)
+		self.staticText11 = wxStaticText(id = -1, label = _('short comment'), name = 'staticText11', parent = self.PNL_main, pos = wxPoint(304, 352), size = wxSize(152, 16), style = 0)
 
 		self.staticText12 = wxStaticText(
-			id = wxID_INDEXFRAMESTATICTEXT12,
+			id = -1,
 			label = _('document type'),
 			name = 'staticText12',
 			parent = self.PNL_main,
@@ -337,7 +351,7 @@ class indexFrame(wxFrame):
 		)
 
 		self.staticText13 = wxStaticText(
-			id = wxID_INDEXFRAMESTATICTEXT13,
+			id = -1,
 			label = _('additional comment'),
 			name = 'staticText13',
 			parent = self.PNL_main,
@@ -408,7 +422,7 @@ class indexFrame(wxFrame):
 	#----------------------------------------
 	# event handlers
 	#----------------------------------------
-	def on_get_pages(self, event):
+	def on_load_pages(self, event):
 		_log.Log(gmLog.lData, "Trying to load document.")
 
 		curr_doc_id = self.doc_id_wheel.GetLineText(0)
