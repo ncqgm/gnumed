@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.10 2003-05-17 17:26:37 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmLoginInfo.py,v 1.11 2003-06-14 22:41:30 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 #====================================================================
@@ -94,12 +94,11 @@ class LoginInfo:
 		if readonly == 2:
 			print "GetDBAPI_DSN(): old style call, please convert"
 			_log.Log(gmLog.lWarn, 'old style call, please convert')
-		if self.GetHost () == "unix": # the virtual host "unix" is for UNIX socket connection
+		host = self.GetHost()
+		port = str(self.GetPort())
+		if host in ['unix', '', 'localhost', '127.0.0.1']:
 			host = ""
-			port = "" # the port setting is ignored
-		else:
-			host = self.GetHost()
-			port = str(self.GetPort())
+			port = ""
 		dsn = "%s:%s:%s:%s:%s:%s:%s" % (
 			host,
 			port,
@@ -207,7 +206,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.10  2003-05-17 17:26:37  ncq
+# Revision 1.11  2003-06-14 22:41:30  ncq
+# - leave host/port blank for UNIX domain socket authentication data
+#
+# Revision 1.10  2003/05/17 17:26:37  ncq
 # - start clean up of _user/user mess:
 #   - introduce __ro/rw_user
 #   - add "readonly" parameter to GetUser(), Get*_DSN() and SetUser()
