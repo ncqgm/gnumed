@@ -6,7 +6,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docMime.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #=======================================================================================
@@ -26,14 +26,19 @@ def guess_mimetype(aFileName = None):
 	mime_guesser_cmd = ("file -i -b %s" % aFileName)
 
 	mime_type = desperate_guess
+	ret_code = -1
 	# this only works on POSIX with 'file' installed (which is standard, however)
 	# it might work of Cygwin installations
 	# -i get mime type
 	# -b don't display a header
-	aPipe = os.popen(mime_guesser_cmd)
-	tmp = aPipe.readline()
-	ret_code = aPipe.close()
-	if ret_code == None:
+	aPipe = os.popen(mime_guesser_cmd, "r")
+	if aPipe == None:
+		__log__.Log(gmLog.lData, "Cannot open pipe to [%s]." % mime_guesser_cmd)
+	else:
+		tmp = aPipe.readline()
+		ret_code = aPipe.close()
+
+	if ret_code == None and tmp != "":
 		mime_type = string.replace(tmp, "\n", "")
 		__log__.Log(gmLog.lData, "%s -> %s" % (aFileName, mime_type))
 	else:
@@ -55,6 +60,7 @@ def guess_mimetype(aFileName = None):
 		tmp = docMagic.file(aFileName)
 		# save ressources
 		del docMagic
+
 		if not tmp == None:
 			mime_type = tmp
 
