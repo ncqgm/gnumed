@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.6 2003-01-20 20:21:53 ncq Exp $
+-- $Id: gmI18N.sql,v 1.7 2003-01-24 14:16:18 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -50,8 +50,6 @@ create table i18n_translations (
 create index idx_orig on i18n_translations(orig);
 
 -- =============================================
-drop function i18n(text);
-
 create function i18n(text) returns text as '
 DECLARE
 	original ALIAS FOR $1;
@@ -67,8 +65,6 @@ comment on function i18n(text) is
 	'insert original strings into i18n_keys for later translation';
 
 -- =============================================
-drop function _(text);
-
 create function _(text) returns text as '
 DECLARE
 	orig_str ALIAS FOR $1;
@@ -132,11 +128,14 @@ TO group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.6  2003-01-20 20:21:53  ncq
+-- Revision 1.7  2003-01-24 14:16:18  ncq
+-- - don't drop functions repeatedly since that will kill views created earlier
+--
+-- Revision 1.6  2003/01/20 20:21:53  ncq
 -- - keep the last useful bit from i18n.sql as documentation
 --
 -- Revision 1.5  2003/01/20 19:42:47  ncq
