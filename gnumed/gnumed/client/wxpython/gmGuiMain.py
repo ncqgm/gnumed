@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.83 2003-02-14 00:05:36 sjtan Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmGuiMain.py,v 1.84 2003-02-17 16:20:38 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -38,7 +38,17 @@ from wxPython.html import *
 
 import sys, time, os, cPickle, zlib
 
-import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmLog, gmPlugin, gmCfg
+import gmLog
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lData, __version__)
+email_logger = None
+
+import gmCfg
+_cfg = gmCfg.gmDefCfgFile
+
+from gmI18N import gmTimeformat, system_locale
+
+import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmPlugin
 #import handler_loader
 import images
 import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
@@ -48,12 +58,6 @@ import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert mes
 import gmGP_PatientPicture                     #panel to display patients picture
 import gmGP_Toolbar                            #panel with two toolbars on top of the screen
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
-
-from gmI18N import gmTimeformat, system_locale
-
-_log = gmLog.gmDefLog
-email_logger = None
-_cfg = gmCfg.gmDefCfgFile
 
 # widget IDs
 ID_ABOUT = wxNewId ()
@@ -188,8 +192,8 @@ class MainFrame(wxFrame):
 		# load plugins
 		self.LoadPlugins(backend)
 
-		#signal any other modules requireing init.
-		gmDispatcher.send( gmSignals.application_init())
+		# signal any other modules requireing init.
+		#gmDispatcher.send( gmSignals.application_init())
 
 		self.SetStatusText(_("You are logged in as [%s]") % user)
 		self.tb.ReFit ()
@@ -287,7 +291,6 @@ class MainFrame(wxFrame):
 		result = ""
 		for idx in range(len(plugin_list)):
 			curr_plugin = plugin_list[idx]
-			#print "\n\n\n\n%s\n\n\n",curr_plugin
 
 			progress_bar.Update(
 				idx,
@@ -630,11 +633,13 @@ if __name__ == '__main__':
 	gb['gnumed_dir'] = os.curdir + "/.."
 	main()
 
-_log.Log(gmLog.lData, __version__)
-
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.83  2003-02-14 00:05:36  sjtan
+# Revision 1.84  2003-02-17 16:20:38  ncq
+# - streamline imports
+# - comment out app_init signal dispatch since it breaks
+#
+# Revision 1.83  2003/02/14 00:05:36  sjtan
 #
 # generated files more usable.
 #
