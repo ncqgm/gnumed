@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.5 2004-07-17 21:08:51 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmMatchProvider.py,v 1.6 2005-03-14 14:35:27 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -289,7 +289,96 @@ class cMatchProvider_FixedList(cMatchProvider):
 			return -1
 		else:
 			return 0
-#------------------------------------------------------------
+# ===========================================================
+class cMatchProvider_Func(cMatchProvider):
+	"""Match provider which searches matches
+	   in the results of a function call.
+	"""
+	def __init__(self, get_candidates = None):
+		"""get_candidates() must return a list of strings."""
+		if get_candidates is None:
+			_log.Log(gmLog.lErr, 'must define function to retrieve match candidates list')
+			raise gmException.ConstructorError, 'must define match candidates function'
+		self._get_candidates = get_candidates
+		cMatchProvider.__init__(self)
+		print "setting up function() match provider"
+	#--------------------------------------------------------
+	# internal matching algorithms
+	#
+	# if we end up here:
+	#	- aFragment will not be "None"
+	#   - aFragment will be lower case
+	#	- we _do_ deliver matches (whether we find any is a different story)
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, aFragment):
+		"""Return matches for aFragment at start of phrases."""
+		print "getting phrase matches"
+		matches = []
+		candidates = self._get_candidates()
+		# look for matches
+		for candidate in candidates:
+			# at start of phrase, that is
+			if aFragment.startswith(candidate['label'].lower()):
+				matches.append(candidate)
+		# no matches found
+		if len(matches) == 0:
+			return (_false, [])
+
+		matches.sort(self.__cmp_candidates)
+		return (_true, matches)
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+		print "getting word matches"
+		matches = []
+		candidates = self._get_candidates()
+		# look for matches
+		for candidate in candidates:
+			pos = candidate['label'].lower().find(aFragment)
+#			pos = string.find(string.lower(candidate['label']), aFragment)
+			# found as a true substring
+			# but use only if substring is at start of a word
+			# FIXME: use word seps
+			if (pos == 0) or (candidate['label'][pos-1] == ' '):
+				matches.append(candidate)
+		# no matches found
+		if len(matches) == 0:
+			return (_false, [])
+
+		matches.sort(self.__cmp_candidates)
+		return (_true, matches)
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+		matches = []
+		candidates = self._get_candidates()
+		# look for matches
+		for candidate in candidates:
+			if candidate['label'].lower().find(aFragment) != -1:
+#			if string.find(string.lower(candidate['label']), aFragment) != -1:
+				matches.append(candidate)
+		# no matches found
+		if len(matches) == 0:
+			return (_false, [])
+
+		matches.sort(self.__cmp_candidates)
+		return (_true, matches)
+	#--------------------------------------------------------
+	def getAllMatches(self):
+		"""Return all candidates."""
+		return self._get_candidates()
+	#--------------------------------------------------------
+	def __cmp_candidates(self, candidate1, candidate2):
+		"""naive ordering"""
+		return 0
+		# FIXME: do ordering
+#		if candidate1 < candidate2:
+#			return -1
+#		if candidate1 == candidate2:
+#			return 0
+#		return 1
+
+# ===========================================================
 class cMatchProvider_SQL2(cMatchProvider):
 	"""Match provider which searches matches
 	   in possibly several database tables.
@@ -536,7 +625,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.5  2004-07-17 21:08:51  ncq
+# Revision 1.6  2005-03-14 14:35:27  ncq
+# - add match provider class cMatchProvider_Func which pulls
+#   match candidates through a function
+#
+# Revision 1.5  2004/07/17 21:08:51  ncq
 # - gmPG.run_query() now has a verbosity parameter, so use it
 #
 # Revision 1.4  2004/05/02 22:54:43  ncq
