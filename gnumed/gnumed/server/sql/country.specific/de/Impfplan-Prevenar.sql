@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Prevenar.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -35,7 +35,7 @@ values (
 	'2 months'::interval,
 	'6 months'::interval,
 	false,
-	'1 month'::interval,
+	'4 weeks'::interval,
 	'<6 Monate, Hersteller'
 );
 
@@ -47,7 +47,7 @@ values (
 	'3 months'::interval,
 	'7 months'::interval,
 	false,
-	'1 month'::interval,
+	'4 weeks'::interval,
 	'<6 Monate, Hersteller'
 );
 
@@ -59,7 +59,7 @@ values (
 	'4 months'::interval,
 	'8 months'::interval,
 	false,
-	'1 month'::interval,
+	'4 weeks'::interval,
 	'<6 Monate, Hersteller'
 );
 
@@ -96,7 +96,7 @@ values (
 	'7 months'::interval,
 	'11 months'::interval,
 	false,
-	'1 month'::interval,
+	'4 weeks'::interval,
 	'7-11 Monate, Hersteller'
 );
 
@@ -108,7 +108,7 @@ values (
 	'8 months'::interval,
 	'12 months'::interval,
 	false,
-	'1 month'::interval,
+	'4 weeks'::interval,
 	'7-11 Monate, Hersteller'
 );
 
@@ -120,7 +120,7 @@ values (
 	'1 year'::interval,
 	'2 years'::interval,
 	false,
-	'1 month'::interval,
+	'4 weeks'::interval,
 	'7-11 Monate, Hersteller'
 );
 
@@ -164,11 +164,15 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename like '%Impfplan-Prevenar%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: Impfplan-Prevenar.sql,v $
--- Revision 1.3  2003-11-26 23:54:51  ncq
+-- Revision 1.4  2003-11-28 08:15:57  ncq
+-- - PG 7.1/pyPgSQL/mxDateTime returns 0 for interval=1 month,
+--   it works with interval=4 weeks, though, so use that
+--
+-- Revision 1.3  2003/11/26 23:54:51  ncq
 -- - lnk_vaccdef2reg does not exist anymore
 --
 -- Revision 1.2  2003/11/26 00:12:19  ncq
