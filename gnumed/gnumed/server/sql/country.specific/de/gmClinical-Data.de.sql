@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmClinical-Data.de.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 
 -- part of GnuMed
 -- GPL
@@ -113,31 +113,31 @@ insert into i18n_translations(lang, orig, trans) values
 -- =============================================
 -- Impfindikationen
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'measles', 'Masern');
+	('de_DE', 'measles', 'Masern');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'mumps', 'Mumps');
+	('de_DE', 'mumps', 'Mumps');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'rubella', 'Röteln');
+	('de_DE', 'rubella', 'Röteln');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'tetanus', 'Tetanus');
+	('de_DE', 'tetanus', 'Tetanus');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'diphtheria', 'Diphtherie');
+	('de_DE', 'diphtheria', 'Diphtherie');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'pertussis', 'Pertussis');
+	('de_DE', 'pertussis', 'Pertussis');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'haemophilus influenzae b', 'Haemophilus Influenzae B');
+	('de_DE', 'haemophilus influenzae b', 'Haemophilus Influenzae B');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'hepatitis B', 'Hepatitis B');
+	('de_DE', 'hepatitis B', 'Hepatitis B');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'poliomyelitis', 'Poliomyelitis');
+	('de_DE', 'poliomyelitis', 'Poliomyelitis');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'influenza', 'Influenza');
+	('de_DE', 'influenza', 'Influenza');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'hepatitis A', 'Hepatitis A');
+	('de_DE', 'hepatitis A', 'Hepatitis A');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'pneumococcus', 'Pneumokokken');
+	('de_DE', 'pneumococcus', 'Pneumokokken');
 insert into i18n_translations (lang, orig, trans) values
-	values ('de_DE', 'meningococcus C', 'Meningokokken Typ C');
+	('de_DE', 'meningococcus C', 'Meningokokken Typ C');
 
 -- =============================================
 -- description
@@ -155,11 +155,14 @@ insert into i18n_translations (lang, orig, trans) values
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmClinical-Data.de.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmClinical-Data.de.sql,v $
--- Revision 1.3  2004-01-12 13:32:17  ncq
+-- Revision 1.4  2004-01-12 17:16:19  ncq
+-- - removed extra "values"
+--
+-- Revision 1.3  2004/01/12 13:32:17  ncq
 -- - translate vaccination indications
 --
 -- Revision 1.2  2003/10/19 13:51:34  ncq
