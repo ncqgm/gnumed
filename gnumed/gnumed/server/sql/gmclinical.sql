@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.34 $
+-- $Revision: 1.35 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -70,7 +70,8 @@ create table clin_episode (
 	id serial primary key,
 	id_health_issue integer not null references clin_health_issue(id),
 	description varchar(128) default '__default__',
-	id_comment integer references clin_narrative(id)
+	id_comment integer references clin_narrative(id),
+	unique (id_health_issue, description)
 ) inherits (audit_clinical);
 
 comment on table clin_episode is
@@ -83,9 +84,7 @@ comment on column clin_episode.id_comment is
 	'link to some note for this episode, such as when the episode started before the first transaction, etc.';
 
 -- start/end to be calculated from commit times of corresponding transactions
---	"comment" text default '',
---comment on column clin_episode."comment" is
---	'some note as to the episode, such as when the episode started before the first transaction, etc.';
+-- unique names (descriptions) for episodes per health issue (e.g. per patient)
 
 -- -------------------------------------------------------------------
 create table _enum_encounter_type (
@@ -105,7 +104,7 @@ create table clin_encounter (
 	id serial primary key,
 	id_location integer,
 	id_provider integer,
-	id_type integer references _enum_encounter_type(id),
+	id_type integer not null references _enum_encounter_type(id),
 	id_comment integer references clin_narrative(id)
 ) inherits (audit_clinical);
 
@@ -222,7 +221,7 @@ create table allergy (
 	generic_specific boolean default false,
 	definate boolean default false,
 	had_hypo boolean default false,
-	id_comment integer references clin_narrative(id)
+	id_comment integer references clin_narrative(id) default null
 ) inherits (audit_clinical);
 
 create index idx_allergy_transaction on allergy(id_clin_transaction);
@@ -500,11 +499,17 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.34 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.35 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.34  2003-05-01 15:06:29  ncq
+-- Revision 1.35  2003-05-02 15:08:55  ncq
+-- - episodes must have unique names (==description) per health issue
+-- - remove cruft
+-- - add not null to id_type in clin_encounter
+-- - default id_comment in allergy to null
+--
+-- Revision 1.34  2003/05/01 15:06:29  ncq
 -- - allergy.id_substance -> allergy.substance_code
 --
 -- Revision 1.33  2003/04/30 23:30:29  ncq
