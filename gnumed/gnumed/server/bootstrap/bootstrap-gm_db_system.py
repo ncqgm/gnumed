@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -524,15 +524,30 @@ class database:
 	#--------------------------------------------------------------
 	def __connect_owner_to_template(self):
 		srv = self.server
+		# if we want to force the DB-API to connect via UNIX domain
+		# sockets (because we want to connect locally and want to use
+		# IDENT/SAMEUSER authentication) we need to leave the host name
+		# empty upon which the adapter will have to assume a local
+		# connection, we also assume that "localhost" and "127.0.0.1"
+		# are meant to signify local connections
+		# this is also in accord with what the psql manpage says:
+		#  If you omit the host name, psql will connect via a
+		#  Unix domain socket to a server on the local host
+		# This seems to be particularly necessary under Debian
+		# GNU/Linux because otherwise the authentification fails
+		if srv.name not in ['localhost', '127.0.0.1']:
+			srvname = srv.name
+		else:
+			srvname = ''
 		try:
 			dsn = dsn_format % (
-				srv.name,
+				srvname,
 				srv.port,
 				srv.template_db,
 				self.owner.name,
 				self.owner.password
 			)
-		except:
+		except StandardError:
 			_log.LogException("Cannot construct DSN !", sys.exc_info(), verbose=1)
 			return None
 
@@ -549,9 +564,24 @@ class database:
 	#--------------------------------------------------------------
 	def __connect_owner_to_db(self):
 		srv = self.server
+		# if we want to force the DB-API to connect via UNIX domain
+		# sockets (because we want to connect locally and want to use
+		# IDENT/SAMEUSER authentication) we need to leave the host name
+		# empty upon which the adapter will have to assume a local
+		# connection, we also assume that "localhost" and "127.0.0.1"
+		# are meant to signify local connections
+		# this is also in accord with what the psql manpage says:
+		#  If you omit the host name, psql will connect via a
+		#  Unix domain socket to a server on the local host
+		# This seems to be particularly necessary under Debian
+		# GNU/Linux because otherwise the authentification fails
+		if srv.name not in ['localhost', '127.0.0.1']:
+			srvname = srv.name
+		else:
+			srvname = ''
 		try:
 			dsn = dsn_format % (
-				srv.name,
+				srvname,
 				srv.port,
 				self.name,
 				self.owner.name,
@@ -940,20 +970,31 @@ def _import_schema_file(anSQL_file = None, aSrv = None, aDB = None, aUser = None
 		_log.Log(gmLog.lErr, "Schema file [%s] does not exist." % SQL_file)
 		return None
 
-	# -W = force password prompt
-	# -q = quiet
-	#cmd = 'psql -a -E -h "%s" -d "%s" -U "%s" -f "%s" >> /tmp/psql-import.log 2>&1' % (aHost, aDB, aUser, SQL_file)
-	#cmd = 'psql -q -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
-	#cmd = 'psql -a -E -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
-
 	old_path = os.getcwd()
 	path = os.path.dirname(SQL_file)
 	os.chdir(path)
 
-	cmd = 'psql -q -h "%s" -d "%s" -U "%s" -f "%s"' % (aSrv, aDB, aUser, SQL_file)
-	# Debian sort of works better with this:
-	#cmd = 'psql -q -h "%s" -d "%s" -f "%s"' % (aSrv, aDB, SQL_file)
-	# but we need to find a better solution
+	# (at, 11.6.2003)
+	# The following psql call has to be done as user aUser (= gm-dbowner)
+	# Because we can not ask for a password while non-interactive install
+	# authenitification method in /etc/postgresql/pg_hba.conf has to be set
+	# to TRUST.  This can be done via the following line:
+	#    local   gnumed-test  @gmTemplate1User.list                  trust
+	# This requires a file /var/lib/postgres/data/gmTemplate1User.list containing
+	# at least gm-dbowner
+	# From `man psql`: If you omit the host name, psql will connect
+	#                  via a Unix domain socket to a server on the
+	#                  local host.
+	# This seems to be necessary under Debian GNU/Linux because
+	# otherwise the authentification fails
+	# We have to leave out the -h option here ...
+	if aSrv in ['localhost', '127.0.0.1', '']:
+		srv_arg = ''
+	else:
+		srv_arg = '-h "%s"' % aSrv
+
+	cmd = 'psql -q %s -d "%s" -U "%s" -f "%s"' % (srv_arg, aDB, aUser, SQL_file)
+
 	_log.Log(gmLog.lInfo, "running [%s]" % cmd)
 	result = os.system(cmd)
 	_log.Log(gmLog.lInfo, "raw result: %s" % result)
@@ -1087,7 +1128,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.15  2003-06-10 10:00:09  ncq
+# Revision 1.16  2003-06-11 13:39:47  ncq
+# - leave out -h in local connects
+# - use blank hostname in DSN for local connects
+#
+# Revision 1.15  2003/06/10 10:00:09  ncq
 # - fatal= -> verbose=
 # - some more comments re Debian/auth/FIXMEs
 # - don't fail on libpq.Warning as suggested by Andreas Tille
