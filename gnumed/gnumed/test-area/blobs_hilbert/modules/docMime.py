@@ -5,18 +5,16 @@
 @copyright: GPL
 """
 #=======================================================================================
+import os, mailcap, string
 import gmLog
 
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 
 __log__ = gmLog.gmDefLog
 #=======================================================================================
 def guess_mimetype(aFileName = None):
-    """Guess mime type of arbitrary file.
-
-    Perhaps this should be moved elsewhere (another module).
-    """
+    """Guess mime type of arbitrary file."""
     # sanity check
     if aFileName == None:
 	__log__.Log(gmLog.lErr, "Cannot guess mimetypes if I don't have any file to guess on.")
@@ -35,3 +33,23 @@ def guess_mimetype(aFileName = None):
 
     return mime_type
 #-----------------------------------------------------------------------------------
+def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
+    """Return command for viewer for this mime type."""
+
+    # sanity checks
+    if aMimeType == None:
+	__log__.Log(gmLog.lErr, "Cannot determine viewer if I don't have a mime type.")
+	return None
+
+    if aFileName == None:
+	__log__.Log(gmLog.lErr, "You should specify a file name for the replacement of %s.")
+	aFileName = """%s"""
+
+    mailcaps = mailcap.getcaps()
+    (cmd, junk) = mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = aFileName)
+    # FIXME: actually we should check for "x-token" flags such as x-docsys
+    return cmd
+#-----------------------------------------------------------------------------------
+if __name__ == "__main__":
+    print str(guess_mimetype("~/.bashrc"))
+    print str(get_viewer_cmd(guess_mimetype("~/.bashrc"), "~/.bashrc"))
