@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -80,8 +80,8 @@ class DarkBlueHeading(wxStaticText):
 			family = wxSWISS,
 			style = wxNORMAL,
 			weight = wxBOLD,
-			underline = false,
-			faceName = '')
+			underline = false
+			)
 		)
 		self.SetForegroundColour(wxColour(0,0,255))
 #------------------------------------------------------------
@@ -628,7 +628,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.21  2004-05-28 04:29:55  sjtan
+# Revision 1.22  2004-05-28 10:06:03  shilbert
+# - workaround for wxMac
+#
+# Revision 1.21  2004/05/28 04:29:55  sjtan
 #
 # gui test case option; should setup/teardown ok if correct logins.
 #
