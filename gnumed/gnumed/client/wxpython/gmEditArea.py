@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.21 2003-05-23 14:39:35 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmEditArea.py,v 1.22 2003-05-25 04:43:15 sjtan Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "R.Terry, K.HIlbert"
 #====================================================================
 import sys
@@ -19,6 +19,8 @@ if __name__ == "__main__":
 	import gmI18N
 
 import gmExceptions, gmDateTimeInput
+
+from PropertySupport import *
 
 from wxPython.wx import *
 
@@ -108,6 +110,10 @@ _known_edit_area_types = [
 	'family history'
 ]
 
+allergyDate = "Date"
+allergyDrug ="Drug/Subst"
+
+
 _prompt_defs = {
 	'allergy': [
 		_("Date"),
@@ -128,6 +134,12 @@ _prompt_defs = {
 	]
 }
 
+familyhistoryprompts = {
+
+}
+
+
+
 #====================================================================
 #text control class to be later replaced by the gmPhraseWheel
 #--------------------------------------------------------------------
@@ -139,8 +151,9 @@ class cEditAreaField(wxTextCtrl):
 		self.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 #====================================================================
 #====================================================================
-class gmEditArea(wxPanel):
+class gmEditArea(PropertySupported, wxPanel):
 	def __init__(self, parent, id, aType = None):
+		PropertySupported.__init__(self)
 		# sanity checks
 		if aType not in _known_edit_area_types:
 			_log.Log(gmLog.lErr, 'unknown edit area type: [%s]' % aType)
@@ -156,19 +169,29 @@ class gmEditArea(wxPanel):
 			wxDefaultSize,
 			style = wxNO_BORDER | wxTAB_TRAVERSAL
 		)
+		self.listener = TestPropertyListener("edit area test listener")
+		self.addPropertyListener( self.listener)
+		# refactor: pull-up this to base class
+		self.input_fields = {}
 #		self.SetBackgroundColour(wxColor(222,222,222))
 
 		# make prompts
 		szr_prompts = self.__make_prompts(_prompt_defs[self._type])
 
 		# make editing area
-		szr_editing_area = self.__make_editing_area()
+		self.szr_editing_area = self.__make_editing_area()
 
+		# added this so PropertySupport can notify Listeners of  the component map
+		# temporary hack for testing purposes
+		x = self.input_fields
+		self.input_fields = None
+		self.input_fields = x 
+		
 		# stack prompts and fields horizontally
 		self.szr_main_panels = wxBoxSizer(wxHORIZONTAL)
 		self.szr_main_panels.Add(szr_prompts, 11, wxEXPAND)
 		self.szr_main_panels.Add(5, 0, 0, wxEXPAND)
-		self.szr_main_panels.Add(szr_editing_area, 90, wxEXPAND)
+		self.szr_main_panels.Add(self.szr_editing_area, 90, wxEXPAND)
 
 		# use sizer for border around everything plus a little gap
 		# FIXME: fold into szr_main_panels ?
@@ -258,6 +281,7 @@ class gmEditArea(wxPanel):
 
 		# get lines
 		lines = self._make_edit_lines(parent = fields_pnl)
+		self.lines = lines
 		if len(lines) != len(_prompt_defs[self._type]):
 			_log.Log(gmLog.lErr, '#(edit lines) not equal #(prompts) for [%s], something is fishy' % self._type)
 		for line in lines:
@@ -304,7 +328,6 @@ class gmAllergyEditArea(gmEditArea):
 	def _make_edit_lines(self, parent):
 		_log.Log(gmLog.lData, "making allergy lines")
 		lines = []
-		self.input_fields = {}
 		# line 1
 		self.input_fields['date recorded'] = gmDateTimeInput.gmDateInput(parent, -1, style = wxSIMPLE_BORDER)
 		lines.append(self.input_fields['date recorded'])
@@ -949,7 +972,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.21  2003-05-23 14:39:35  ncq
+# Revision 1.22  2003-05-25 04:43:15  sjtan
+#
+# PropertySupport misuse for notifying Configurator objects during gui construction,
+# more debugging info
+#
+# Revision 1.21  2003/05/23 14:39:35  ncq
 # - use gmDateInput widget in gmAllergyEditArea
 #
 # Revision 1.20  2003/05/21 15:09:18  ncq

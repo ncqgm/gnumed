@@ -1,13 +1,16 @@
 from wxPython.wx import *
 
+from PropertySupport import *
 #--------------------------------------------------------------------
 # A class for displaying patients active problems
 # This code is shit and needs fixing, here for gui development only
 # TODO: almost everything
 #--------------------------------------------------------------------
-class ActiveProblems(wxPanel):
+class ActiveProblems(wxPanel, PropertySupported):
     def __init__(self, parent,id):
+	PropertySupported.__init__(self)
 	wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, 0 )
+	self.addPropertyListener(TestPropertyListener("test active problems listener"))
 	activeproblemsamplelist =['1980 Hypertension','1982 Acute myocardial infartion', '1992 NIDDM']
 	sizer = wxBoxSizer(wxVERTICAL)
        
@@ -23,6 +26,8 @@ class ActiveProblems(wxPanel):
 
 	
 if __name__ == "__main__":
+
+    	
     app = wxPyWidgetTester(size = (400, 100))
     app.SetWidget(ActiveProblems, -1)
     app.MainLoop()
