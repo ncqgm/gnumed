@@ -1,12 +1,12 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <sebastian.hilbert@gmx.net>, YEAR.
-# POT-Version: $Revision: 1.5 $
+# POT-Version: $Revision: 1.6 $
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumedarchiv 0.1\n"
-"POT-Creation-Date: Sun Dec 22 12:38:03 2002\n"
+"POT-Creation-Date: Thu Dec 26 17:10:48 2002\n"
 "PO-Revision-Date: 2002-09-16 23:53+0200\n"
 "Last-Translator: Sebastian Hilbert <sebastian.hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -68,6 +68,10 @@ msgstr "Scannen"
 #: ../dist/client/index-med_docs.py:209
 msgid "date (YYYY-MM-DD)"
 msgstr "Datum (JJJJ-MM-TT)"
+
+#: ../dist/client/gmShowMedDocs.py:89 ../dist/client/gmShowMedDocs.py:108
+msgid "searching patient documents"
+msgstr "suche Befunde zum Patienten"
 
 #: ../dist/client/modules/docDocument.py:644
 #: ../dist/server/modules/docDocument.py:644
@@ -176,14 +180,14 @@ msgstr ""
 "Format: JJJJ-MM-TT"
 
 #: ../dist/client/gmScanMedDocs.py:269 ../dist/client/gmScanMedDocs.py:284
-#: ../dist/client/index-med_docs.py:515 ../dist/client/index-med_docs.py:531
-#: ../dist/client/show-med_docs.py:180
+#: ../dist/client/gmShowMedDocs.py:199 ../dist/client/index-med_docs.py:515
+#: ../dist/client/index-med_docs.py:531
 msgid "displaying page"
 msgstr "Seite anzeigen"
 
-#: ../dist/client/show-med_docs.py:127
+#: ../dist/client/gmShowMedDocs.py:146
 msgid "no comment available"
-msgstr ""
+msgstr "kein Kommentar gespeichert"
 
 #: ../dist/client/index-med_docs.py:646
 msgid ""
@@ -261,7 +265,7 @@ msgstr "Seite %s (%s in %s)"
 msgid "&scan documents"
 msgstr "Befund scannen"
 
-#: ../dist/client/show-med_docs.py:202
+#: ../dist/client/gmShowMedDocs.py:221
 msgid "stored medical documents"
 msgstr "gespeicherte medizinische Befunde"
 
@@ -269,7 +273,7 @@ msgstr "gespeicherte medizinische Befunde"
 msgid "GnuMed/Archiv: Associating documents with patients."
 msgstr "Gnumed/Archiv: Befunde einem Patienten zuordnen"
 
-#: ../dist/client/show-med_docs.py:128
+#: ../dist/client/gmShowMedDocs.py:147
 msgid "page %s: \"%s\""
 msgstr "Seite %s: \"%s\""
 
@@ -301,6 +305,10 @@ msgstr ""
 #: ../dist/client/gmScanMedDocs.py:108 ../dist/client/index-med_docs.py:142
 msgid "show page"
 msgstr "Seite anzeigen"
+
+#: ../dist/client/gmShowMedDocs.py:345
+msgid "&Show Documents"
+msgstr "Befunde zeigen"
 
 #: ../dist/client/index-med_docs.py:164
 msgid "first name"
@@ -366,6 +374,14 @@ msgstr "Information"
 msgid "You must select a page before you can move it around."
 msgstr "Sie müssen ein Seite wählen bevor Sie sie verschieben können."
 
+#: ../dist/client/gmShowMedDocs.py:107
+msgid ""
+"Cannot find any documents for this patient.\n"
+"\"%s %s\""
+msgstr ""
+"Kann für diesen Patienten keine Dokumente finden.\n"
+"\"%s %s\""
+
 #: ../dist/client/modules/docPatient.py:37
 #: ../dist/server/modules/docPatient.py:37
 msgid "male"
@@ -383,7 +399,7 @@ msgstr ""
 "Befundtypen werden von der Datenbank festgelegt.\n"
 "Lassen Sie Ihren Datenbankadmin gegebenenfalls weitere Typen hinzufügen"
 
-#: ../dist/client/show-med_docs.py:99
+#: ../dist/client/gmShowMedDocs.py:118
 msgid "available documents"
 msgstr "verfügbare Befunde"
 
@@ -456,7 +472,7 @@ msgstr ""
 "Der aktuelle Befund erhält die Nummer \"%s\".\n"
 "Bitte bestätigen Sie die Nummer oder tippen Sie eine andere ein."
 
-#: ../dist/client/show-med_docs.py:179
+#: ../dist/client/gmShowMedDocs.py:198
 msgid ""
 "Cannot display page.\n"
 "%s."
@@ -476,13 +492,21 @@ msgstr "Die Befundnummer ist meistens auf den Befundblättern aufgedruckt"
 msgid "Error"
 msgstr "Fehler"
 
+#: ../dist/client/gmShowMedDocs.py:88
+msgid ""
+"This patient does not exist in the document database.\n"
+"\"%s %s\""
+msgstr ""
+"Diesen Patienten gibt es nicht in der Datenbank.\n"
+"\"%s %s\""
+
 #: ../dist/client/index-med_docs.py:157
 msgid "2) describe"
 msgstr "2) beschreiben"
 
 #: ../dist/client/gmScanMedDocs.py:239
 msgid "Cannot load any scanner driver (SANE or TWAIN)."
-msgstr ""
+msgstr "Kann keinen Scannertreiber laden (SANE oder TWAIN)."
 
 #: ../dist/client/index-med_docs.py:753
 msgid "document date: missing"
@@ -668,7 +692,7 @@ msgstr "derzeit nicht funktional: ein Befundfax laden"
 
 #: ../dist/client/index-med_docs.py:774
 msgid "please choose"
-msgstr ""
+msgstr "bitte auswählen"
 
 #: ../dist/client/gmScanMedDocs.py:130 ../dist/client/gmScanMedDocs.py:173
 msgid "move selected page within document"
@@ -679,9 +703,6 @@ msgstr "Gewählte Seite im Befund verschieben"
 
 #~ msgid "Scanning documents"
 #~ msgstr "Befunde scannen"
-
-#~ msgid "date: %s | comment: %s | reference: %s"
-#~ msgstr "Datum: %s | Kommentar: %s | Nummer: %s"
 
 #~ msgid ""
 #~ "Cannot display page %s. The file\n"
@@ -700,10 +721,3 @@ msgstr "Gewählte Seite im Befund verschieben"
 
 #~ msgid "You did not select a page"
 #~ msgstr "Sie haben keine Seite ausgewählt"
-
-#~ msgid ""
-#~ "I am afraid I was not able to delete the page from disk because it was "
-#~ "not there"
-#~ msgstr ""
-#~ "Ich befürchte, ich konnte die Seite nicht von der Festplatte löschen weil "
-#~ "sie nicht auf der Platte war."
