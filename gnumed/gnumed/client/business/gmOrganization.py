@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
 
@@ -300,7 +300,7 @@ class cOrgHelperImpl2(cOrgHelperImpl1):
 		return l2
 
 
-class cPerson:
+class _cPersonMarker:
 	"""marker class, for person type check"""
 	pass
 			
@@ -317,7 +317,7 @@ class cOrgHelperImpl3(cOrgHelperImpl2):
 		return cOrgDemographicAdapter()
 	
 	def isPersonOrg(self, org):
-		return cPerson in inspect.getmro(org.__class__) 
+		return _cPersonMarker in inspect.getmro(org.__class__) 
 
 	def isPerson(self, org):
 		return self.isPersonOrg(org)
@@ -898,7 +898,7 @@ class cCompositeOrgImpl1( cOrgImpl1):
 			
 
 	
-class cOrgDemographicAdapter(cOrg, cPerson):
+class cOrgDemographicAdapter(cOrg, _cPersonMarker):
 	
 	def __init__(self, parent = None, helper = cOrgHelperImpl3()):
 		self._parent = parent
@@ -1890,7 +1890,12 @@ if __name__ == '__main__':
 			clean_org_categories(adminlogin)
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.25  2004-05-31 14:24:19  sjtan
+# Revision 1.26  2004-06-01 07:15:05  ncq
+# - made cPerson into "private" class _cPersonMarker (as per the comment)
+#   such that never ever even the slighest confusion will arise whether to
+#   use that "class" or the cPerson in gmPatient.py
+#
+# Revision 1.25  2004/05/31 14:24:19  sjtan
 #
 # intra-list cut and paste implemented. Not using wxClipboard ( could paste textified person
 # into clipboard ). Now the GP can be moved out of the Engineering department , but he may not be happy ;)
