@@ -1,3 +1,4 @@
+#  coding: latin-1
 """GnuMed quick patient search widget.
 
 This widget allows to search for patients based on the
@@ -9,10 +10,10 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.25 2003-11-18 23:34:02 ncq Exp $
+# $Id: gmPatientSelector.py,v 1.26 2003-11-22 00:26:10 ihaywood Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.25 2003-11-18 23:34:02 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmPatientSelector.py,v 1.26 2003-11-22 00:26:10 ihaywood Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -993,7 +994,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.25  2003-11-18 23:34:02  ncq
+# Revision 1.26  2003-11-22 00:26:10  ihaywood
+# Set coding to latin-1 to please python 2.3
+#
+# Revision 1.25  2003/11/18 23:34:02  ncq
 # - don't use reload to force reload of same patient
 #
 # Revision 1.24  2003/11/17 10:56:38  sjtan
