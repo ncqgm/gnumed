@@ -7,8 +7,8 @@ typing clear-text clinical notes which are stored in clin_note.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.6 2003-07-05 12:57:23 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmSingleBoxSOAP.py,v 1.7 2003-10-26 01:36:13 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -17,7 +17,7 @@ if __name__ == "__main__":
 	sys.path.append ("../python-common/")
 	import gmI18N
 
-import gmDispatcher, gmTmpPatient, gmSignals
+import gmDispatcher, gmPatient, gmSignals
 
 from gmExceptions import ConstructorError
 from wxPython.wx import *
@@ -39,7 +39,7 @@ class gmSingleBoxSOAPPanel(wxPanel):
 		if not self.__register_events():
 			raise ConstructorError, 'cannot register interests'
 
-		self.__pat = gmTmpPatient.gmCurrentPatient()
+		self.__pat = gmPatient.gmCurrentPatient()
 	#--------------------------------------------------------
 	def __do_layout(self):
 		# large box for free-text clinical notes
@@ -123,7 +123,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.6  2003-07-05 12:57:23  ncq
+# Revision 1.7  2003-10-26 01:36:13  ncq
+# - gmTmpPatient -> gmPatient
+#
+# Revision 1.6  2003/07/05 12:57:23  ncq
 # - catch one more error on saving note
 #
 # Revision 1.5  2003/06/26 22:26:04  ncq

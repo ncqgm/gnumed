@@ -9,8 +9,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.12 2003-10-19 12:25:07 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmGP_Immunisation.py,v 1.13 2003-10-26 01:36:14 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -31,7 +31,7 @@ from gmGuiElement_AlertCaptionPanel import AlertCaptionPanel
 
 # panel class holding editing prompts and text boxes
 import gmEditArea
-import gmPlugin, gmTmpPatient
+import gmPlugin, gmPatient
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -73,7 +73,7 @@ class ImmunisationPanel(wxPanel):
 
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
-		self.pat = gmTmpPatient.gmCurrentPatient()
+		self.pat = gmPatient.gmCurrentPatient()
 		#--------------------
 		#add the main heading
 		#--------------------
@@ -231,7 +231,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.12  2003-10-19 12:25:07  ncq
+# Revision 1.13  2003-10-26 01:36:14  ncq
+# - gmTmpPatient -> gmPatient
+#
+# Revision 1.12  2003/10/19 12:25:07  ncq
 # - start connecting to backend
 #
 # Revision 1.11  2003/09/21 00:24:19  sjtan

@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -30,7 +30,7 @@ if __name__ == "__main__":
 import gmLog
 _log = gmLog.gmDefLog
 
-import gmDispatcher, gmSignals, gmPG, gmPlugin, gmEditArea, gmTmpPatient
+import gmDispatcher, gmSignals, gmPG, gmPlugin, gmEditArea, gmPatient
 
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
@@ -114,7 +114,7 @@ class AllergyPanel(wxPanel):
 		self.SetAutoLayout(true)
 		self.Show(true)
 
-		self.__pat = gmTmpPatient.gmCurrentPatient()
+		self.__pat = gmPatient.gmCurrentPatient()
 		self.RegisterInterests()
 	#-----------------------------------------------
 	def RegisterInterests(self):
@@ -197,7 +197,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.14  2003-06-03 14:28:33  ncq
+# Revision 1.15  2003-10-26 01:36:14  ncq
+# - gmTmpPatient -> gmPatient
+#
+# Revision 1.14  2003/06/03 14:28:33  ncq
 # - some cleanup, Syans work starts looking good
 #
 # Revision 1.13  2003/06/01 13:20:32  sjtan

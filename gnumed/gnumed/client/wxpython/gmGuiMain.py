@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.116 2003-10-22 21:34:42 hinnef Exp $
-__version__ = "$Revision: 1.116 $"
+# $Id: gmGuiMain.py,v 1.117 2003-10-26 01:36:13 ncq Exp $
+__version__ = "$Revision: 1.117 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -55,7 +55,7 @@ from gmI18N import gmTimeformat, system_locale, system_locale_level
 import gmDispatcher, gmSignals, gmGuiBroker, gmSQLSimpleSearch, gmSelectPerson, gmPlugin
 
 import gmTopPanel
-import gmTmpPatient
+import gmPatient
 
 # widget IDs
 ID_ABOUT = wxNewId ()
@@ -196,7 +196,7 @@ class gmTopLevelFrame(wxFrame):
 				user = _whoami.getUser(),
 				option = 'main.window.width',
 				value = currentWidth )
-				
+
 		if not set2 is None:
 			currentHeight = int(height)
 		else:
@@ -375,7 +375,7 @@ class gmTopLevelFrame(wxFrame):
 		event.Skip() # required for MSW
 	#----------------------------------------------
 	def on_patient_selected(self, **kwargs):
-		pat = gmTmpPatient.gmCurrentPatient()
+		pat = gmPatient.gmCurrentPatient()
 		#<DEBUG>
 		_log.Log(gmLog.lWarn, "patient changed to [%s]" % pat)
 		#</DEBUG>
@@ -848,7 +848,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.116  2003-10-22 21:34:42  hinnef
+# Revision 1.117  2003-10-26 01:36:13  ncq
+# - gmTmpPatient -> gmPatient
+#
+# Revision 1.116  2003/10/22 21:34:42  hinnef
 # -changed string array for main.window.size into two separate integer parameters
 #
 # Revision 1.115  2003/10/19 12:17:16  ncq

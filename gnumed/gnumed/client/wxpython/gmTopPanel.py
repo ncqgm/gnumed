@@ -2,14 +2,14 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
-import gmLog, gmGuiBroker, gmGP_PatientPicture, gmPatientSelector, gmDispatcher, gmSignals, gmTmpPatient, gmPG, gmGuiHelpers
+import gmLog, gmGuiBroker, gmGP_PatientPicture, gmPatientSelector, gmDispatcher, gmSignals, gmPatient, gmPG, gmGuiHelpers
 _log = gmLog.gmDefLog
 
 from wxPython.wx import *
@@ -45,7 +45,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 
 		# init plugin toolbars dict
 		self.subbars = {}
-		self.curr_pat = gmTmpPatient.gmCurrentPatient()
+		self.curr_pat = gmPatient.gmCurrentPatient()
 
 		# and actually display ourselves
 		self.SetAutoLayout(true)
@@ -305,7 +305,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.16  2003-10-19 12:20:10  ncq
+# Revision 1.17  2003-10-26 01:36:14  ncq
+# - gmTmpPatient -> gmPatient
+#
+# Revision 1.16  2003/10/19 12:20:10  ncq
 # - use GuiHelpers.py
 #
 # Revision 1.15  2003/07/07 08:34:31  ihaywood

@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.2 2003-07-19 20:20:59 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmEMRTextDump.py,v 1.3 2003-10-26 01:36:13 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -12,7 +12,7 @@ if __name__ == "__main__":
 	sys.path.append ("../python-common/")
 	import gmI18N
 
-import gmDispatcher, gmTmpPatient, gmSignals
+import gmDispatcher, gmPatient, gmSignals
 
 from gmExceptions import ConstructorError
 from wxPython.wx import *
@@ -25,7 +25,7 @@ class gmEMRDumpPanel(wxPanel):
 		if not self.__register_events():
 			raise ConstructorError, 'cannot register interests'
 
-		self.__pat = gmTmpPatient.gmCurrentPatient()
+		self.__pat = gmPatient.gmCurrentPatient()
 	#--------------------------------------------------------
 	def __do_layout(self):
 		self.txt = wxTextCtrl(
@@ -50,7 +50,7 @@ class gmEMRDumpPanel(wxPanel):
 		return 1
 	#--------------------------------------------------------
 	def _retrieve_EMR_text(self):
-		pat = gmTmpPatient.gmCurrentPatient()
+		pat = gmPatient.gmCurrentPatient()
 		# this should not really happen
 		if not pat.is_connected():
 			_log.Log(gmLog.lErr, 'no active patient, cannot get EMR text dump')
@@ -122,7 +122,10 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.2  2003-07-19 20:20:59  ncq
+# Revision 1.3  2003-10-26 01:36:13  ncq
+# - gmTmpPatient -> gmPatient
+#
+# Revision 1.2  2003/07/19 20:20:59  ncq
 # - use panel instead of scrolled window so it actually works nicely
 # - maybe later put panel inside scrolled window...
 # - code cleanup

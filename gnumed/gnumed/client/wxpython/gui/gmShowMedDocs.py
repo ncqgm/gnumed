@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -43,7 +43,7 @@ import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
 import gmPG
-import gmTmpPatient, gmMedDoc, gmMimeLib
+import gmPatient, gmMedDoc, gmMimeLib
 from gmExceptions import ConstructorError
 
 from gmGuiHelpers import gm_show_error
@@ -93,7 +93,7 @@ class cDocTree(wxTreeCtrl):
 
 		self.root = None
 		self.doc_list = None
-		self.curr_pat = gmTmpPatient.gmCurrentPatient()
+		self.curr_pat = gmPatient.gmCurrentPatient()
 
 		# connect handlers
 		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
@@ -419,7 +419,7 @@ if __name__ == '__main__':
 			}
 
 			# find matching patient IDs
-			patient_ids = gmTmpPatient.get_patient_ids(cooked_search_terms)
+			patient_ids = gmPatient.get_patient_ids(cooked_search_terms)
 			if patient_ids is None:
 				gm_show_error(
 					aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
@@ -438,7 +438,7 @@ if __name__ == '__main__':
 				raise ConstructorError, "Problem getting patient ID from database. Aborting."
 
 			try:
-				gm_pat = gmTmpPatient.gmCurrentPatient(aPKey = patient_ids[0])
+				gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0])
 			except:
 				# this is an emergency
 				gm_show_error(
@@ -454,7 +454,7 @@ if __name__ == '__main__':
 			self.SetTitle(_("stored medical documents"))
 
 			# make patient panel
-			gender = gmTmpPatient.gm2long_gender_map[xdt_gmgender_map[self.__xdt_pat['gender']]]
+			gender = gmPatient.gm2long_gender_map[xdt_gmgender_map[self.__xdt_pat['gender']]]
 			self.pat_panel = wxStaticText(
 				id = -1,
 				parent = self,
@@ -612,7 +612,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.28  2003-08-27 12:31:41  ncq
+# Revision 1.29  2003-10-26 01:36:14  ncq
+# - gmTmpPatient -> gmPatient
+#
+# Revision 1.28  2003/08/27 12:31:41  ncq
 # - some cleanup
 #
 # Revision 1.27  2003/08/24 12:50:20  shilbert

@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.17 2003-10-19 12:17:57 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmPatientSelector.py,v 1.18 2003-10-26 01:36:13 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -23,7 +23,7 @@ import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-import gmTmpPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK
+import gmPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK
 
 from wxPython.wx import *
 
@@ -589,7 +589,7 @@ class cPatientPickList(wxDialog):
 class cPatientSelector(wxTextCtrl):
 	"""Widget for smart search for patients."""
 	def __init__ (self, parent, id = -1, pos = (-1, -1), size = (-1, -1)):
-		self.curr_pat = gmTmpPatient.gmCurrentPatient()
+		self.curr_pat = gmPatient.gmCurrentPatient()
 
 		# need to explicitely process ENTER events to avoid
 		# them being handed over to the next control
@@ -670,7 +670,7 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 			return None
 
 		old_ID = self.curr_pat['ID']
-		self.curr_pat = gmTmpPatient.gmCurrentPatient(aPKey = anID)
+		self.curr_pat = gmPatient.gmCurrentPatient(aPKey = anID)
 		if old_ID == self.curr_pat['ID']:
 			_log.LogException('cannot change active patient', sys.exc_info())
 			# error message ?
@@ -988,7 +988,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.17  2003-10-19 12:17:57  ncq
+# Revision 1.18  2003-10-26 01:36:13  ncq
+# - gmTmpPatient -> gmPatient
+#
+# Revision 1.17  2003/10/19 12:17:57  ncq
 # - typo fix
 #
 # Revision 1.16  2003/09/21 07:52:57  ihaywood
