@@ -354,9 +354,8 @@ class cLabJournalNB(wxNotebook):
 			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=2, label=data)
 			return None
 
-		for result in data:
-			item_idx = self.LstCtrl_unreviewed.InsertItem(info=wxListItem())
-			
+		for item_idx in range(len(data)):
+			result = data[item_idx]
 			# -- put checkbox in first column
 			self.LstCtrl_unreviewed.InsertImageItem(index = item_idx, imageIndex=self.smiles_bmp_idx)
 			self.LstCtrl_unreviewed.SetColumnWidth(0, wxLIST_AUTOSIZE)
@@ -390,9 +389,7 @@ class cLabJournalNB(wxNotebook):
 
 		# we show 50 items at once , notify user if there are more
 		if more_avail:
-			item_idx = self.LstCtrl_unreviewed.InsertItem(info=wxListItem())
-			# maybe in red ?
-			self.LstCtrl_unreviewed.SetStringItem(index= item_idx, col=6, label=_('more results available for review'))
+			gmGuiHelpers.gm_beep_statustext(_('More results to review than shown. Review some to see the remaining'))
 	#------------------------------------------------------------------------
 	def __get_import_errors(self):
 		query = """select * from housekeeping_todo where category='lab'"""
@@ -574,7 +571,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.17  2004-05-26 14:05:21  ncq
+# Revision 1.18  2004-05-27 08:47:35  shilbert
+# - listctrl item insertion bugfix
+#
+# Revision 1.17  2004/05/26 14:05:21  ncq
 # - cleanup
 #
 # Revision 1.16  2004/05/26 13:31:00  shilbert
