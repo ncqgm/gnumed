@@ -15,7 +15,7 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types, pickle
@@ -41,11 +41,11 @@ _cfg = gmCfg.gmDefCfgFile
 import gmPG
 
 _defaultDefSourceTable = {
-	'DB:CURRENT_USER_CURRENT_MACHINE': 'DBDefault.definitions',
-	'DB:CURRENT_USER_DEFAULT_MACHINE' : 'DBDefault.definitions',
-	'DB:DEFAULT_USER_CURRENT_MACHINE' : 'DBDefault.definitions',
-	'DB:DEFAULT_USER_DEFAULT_MACHINE' : 'DBDefault.definitions',
-	'gnumed.conf': 'gnumed.conf.definitions'
+	'DB:CURRENT_USER_CURRENT_MACHINE': 'config-definitions/DBDefault.definitions',
+	'DB:CURRENT_USER_DEFAULT_MACHINE' : 'config-definitions/DBDefault.definitions',
+	'DB:DEFAULT_USER_CURRENT_MACHINE' : 'config-definitions/DBDefault.definitions',
+	'DB:DEFAULT_USER_DEFAULT_MACHINE' : 'config-definitions/DBDefault.definitions',
+	'gnumed.conf': 'config-definitions/gnumed.conf.definitions'
 }
 
 ###############################################################################
@@ -251,7 +251,7 @@ class ParameterDefinition:
 	#---------------------------------------------------------------------
 	def isValid(self,aValue):
 #DEBUG
-		_log.Log(gmLog.lInfo, "isValid %s - %s - %s" % (self.mName,self.mType,aValue))
+#		_log.Log(gmLog.lInfo, "isValid %s - %s - %s" % (self.mName,self.mType,aValue))
 
 		if self.mType == "string":
 			return self.__isString(aValue)
@@ -898,7 +898,10 @@ def importDBSet(filename,aUser = None, aMachine = '__default__'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.9  2003-10-26 21:35:45  hinnef
+# Revision 1.10  2003-11-07 07:48:27  hinnef
+# changed path to configfiles so that they will be found in client/etc/...
+#
+# Revision 1.9  2003/10/26 21:35:45  hinnef
 # -bugfixes in AddConfigParam and importDBSet
 #
 # Revision 1.8  2003/10/26 01:38:06  ncq
