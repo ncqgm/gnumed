@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.21 2003-03-29 13:50:09 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmDemographics.py,v 1.22 2003-03-29 18:27:14 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -85,6 +85,8 @@ consultation_types = [
 	_('other consultation')
 ]
 
+gmDEF_CONSULT_TYPE = consultation_types[0]
+
 #------------------------------------
 #Dummy data to simulate allergy items
 #------------------------------------
@@ -92,7 +94,11 @@ aliasdata = {
 1 : ("Peter Patient"),
 2 : ("Bruce Dag"),
 }
-namelistdata = ['Smith Adan 129 Box Hill Road BOX HILL etc....','Smith Jean 52 WhereEver Street CANBERRA etc.....','Smith Michael 99 Longbeach Rd MANLYVALE  etc........']
+namelistdata = [
+	'Smith Adan 129 Box Hill Road BOX HILL etc....',
+	'Smith Jean 52 WhereEver Street CANBERRA etc.....',
+	'Smith Michael 99 Longbeach Rd MANLYVALE  etc........'
+]
 
 addressdata = ['129 Afred Street WARNERS BAY 2280', '99 Wolfe Street NEWCASTLE 2301']
 
@@ -448,12 +454,12 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		)
 		self.lbl_age.SetFont (wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 		self.lbl_age.SetForegroundColour (wxColour(0,0,131))
-		# FIXME: fixed size ?!?, non-editable
 		self.txt_age = wxTextCtrl (
 			top_panel,
 			ID_TXTPATIENTAGE,
 			"",
-			size = (40,-1)
+			size = (40,-1),
+			style = wxTE_READONLY
 		)
 		self.txt_age.SetFont (wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 
@@ -469,7 +475,12 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 		self.lbl_allergies.SetForegroundColour(wxColour(255,0,0))
 
-		self.txt_allergies = wxTextCtrl(top_panel,ID_TXTPATIENTALLERGIES,"")
+		self.txt_allergies = wxTextCtrl(
+			top_panel,
+			ID_TXTPATIENTALLERGIES,
+			"",
+			style = wxTE_READONLY
+		)
 		self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		self.txt_allergies.SetForegroundColour(wxColour(255,0,0))
 
@@ -477,7 +488,7 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.combo_consultation_type = wxComboBox (
 			top_panel,
 			ID_COMBOCONSULTTYPE,
-			_("Surgery"),
+			gmDEF_CONSULT_TYPE,
 			wxDefaultPosition,
 			wxDefaultSize,
 			consultation_types,
@@ -485,12 +496,12 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		)
 
 		# place them on the top toolbar
-		top_panel.szr_top_tb.Add(self.tb_patient_search, 0 ,wxEXPAND)
-		top_panel.szr_top_tb.Add(self.txt_findpatient, 5, wxEXPAND|wxALL, 3)
-		top_panel.szr_top_tb.Add(self.lbl_age, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
-		top_panel.szr_top_tb.Add(self.txt_age, 1, wxEXPAND | wxALL, 3)
-		top_panel.szr_top_tb.Add(self.lbl_allergies, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
-		top_panel.szr_top_tb.Add(self.txt_allergies, 6, wxEXPAND|wxALL, 3)
+		top_panel.AddWidgetTopLine(self.tb_patient_search, 0, wxEXPAND)
+		top_panel.AddWidgetTopLine(self.txt_findpatient, 5, wxEXPAND | wxALL, 3)
+		top_panel.AddWidgetTopLine(self.lbl_age, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
+		top_panel.AddWidgetTopLine(self.txt_age, 0, wxEXPAND | wxALL, 3)
+		top_panel.AddWidgetTopLine(self.lbl_allergies, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
+		top_panel.AddWidgetTopLine(self.txt_allergies, 6, wxEXPAND | wxALL, 3)
 
 		# and register ourselves as a widget
 		self.gb['modules.patient'][self.name ()] = self
@@ -553,7 +564,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.21  2003-03-29 13:50:09  ncq
+# Revision 1.22  2003-03-29 18:27:14  ncq
+# - make age/allergies read-only, cleanup
+#
+# Revision 1.21  2003/03/29 13:50:09  ncq
 # - adapt to new "top row" panel
 #
 # Revision 1.20  2003/03/28 16:43:12  ncq
