@@ -6,7 +6,7 @@
 # Changelog:
 # 30/01/03: inital version
 #====================================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
@@ -23,7 +23,8 @@ class AboutFrame (wxFrame):
 	"""
 
 	# Monty (2)
-	__icons ={"""monty""": 'x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
+	__icons ={"""icon_monty_2""":
+'x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
 \xc1\x85\xd5\x98N5\xa5\xef?\xf5N\xd0\x8a\xdcA\xc2\xf7qw\x84\xdb\xfa\xb5\xcd\
 \xd4\xda;\xc9\x1a\xc8\xb6\xcd<\xb5\xa0\x85\x1e\xeb\xbc\xbc7b!\xf6\xdeHl\x1c\
 \x94\x073\xec<*\xf7\xbe\xf7\x99\x9d\xb21~\xe7.\xf5\x1f\x1c\xd3\xbdVlL\xc2\
@@ -87,7 +88,7 @@ class AboutFrame (wxFrame):
 	def getBitmap (self):
 		# used for:
 		# (1) defintion the window icon
-		return wxBitmapFromXPMData(cPickle.loads(zlib.decompress( self.__icons[_("""monty""")] )))
+		return wxBitmapFromXPMData(cPickle.loads(zlib.decompress( self.__icons[_("""icon_monty_2""")] )))
 
 	def OnClose (self, event):
 		self.timer.Stop ()
