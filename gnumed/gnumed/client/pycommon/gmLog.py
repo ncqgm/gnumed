@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -278,10 +278,14 @@ class cLogger:
 	#---------------------------
 	def SetAllLogLevels (self, aLogLevel = None):
 		"""Set a certain log level on all targets."""
-		if aLogLevel == None:
+		if aLogLevel is None:
 			return
 		for key in self.__targets.keys():
 			self.__targets[key].SetLogLevel(aLogLevel)
+	#---------------------------
+	def flush(self):
+		for key in self.__targets.keys():
+			self.__targets[key].flush()
 	#---------------------------
 	# internal methods
 	#---------------------------
@@ -814,7 +818,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.2  2004-03-02 10:19:53  ihaywood
+# Revision 1.3  2004-06-09 14:52:56  ncq
+# - implement flush() method at cLogger level
+#
+# Revision 1.2  2004/03/02 10:19:53  ihaywood
 # problems with accessing sys.stderr
 # use "print" as backup now
 #
