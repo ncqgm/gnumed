@@ -5,13 +5,13 @@
 """
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmPyCompat.py,v $
-# $Id: gmPyCompat.py,v 1.2 2004-03-18 09:47:33 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPyCompat.py,v 1.3 2004-03-19 09:36:33 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # define dict() if < Python 2.2
 try:
-	dict(['a','b'])
+	dict()
 except NameError:
 	def dict(list):
 		d = {}
@@ -28,7 +28,10 @@ except NameError:
 
 #========================================================================
 # $Log: gmPyCompat.py,v $
-# Revision 1.2  2004-03-18 09:47:33  ncq
+# Revision 1.3  2004-03-19 09:36:33  ncq
+# - use dict() instead of dict(['a', 'b'])
+#
+# Revision 1.2  2004/03/18 09:47:33  ncq
 # - removed printk()
 #
 # Revision 1.1  2004/03/15 15:06:28  ncq
