@@ -4,7 +4,7 @@ This module implements threaded listening for scripting.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScriptingListener.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, SimpleXMLRPCServer, select
@@ -51,11 +51,12 @@ class cScriptingListener:
 		except: pass
 	#-------------------------------
 	def __start_server(self, a_port, a_macro_executor):
-		self._port = a_port
+		self._port = int(a_port)
 		self._macro_executor = a_macro_executor
 		try:
-			self._server = SimpleXMLRPCServer.SimpleXMLRPCServer(('localhost', self._port))
+			self._server = SimpleXMLRPCServer.SimpleXMLRPCServer(addr=('127.0.0.1', self._port), logRequests=False)
 			self._server.register_instance(self._macro_executor)
+			self._server.allow_reuse_address = True
 		except:
 			_log.LogException('cannot start XML-RPC server [localhost:%s]' % a_port, sys.exc_info())
 			return None
@@ -129,7 +130,12 @@ if __name__ == "__main__":
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmScriptingListener.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-09-13 08:51:03  ncq
+# - make sure port is an integer
+# - start XML RPC server with logRequests=False
+# - socket allow_reuse_address
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.3  2004/02/05 23:46:21  ncq
