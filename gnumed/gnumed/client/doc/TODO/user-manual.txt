@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.24 $
+# $Revision: 1.25 $
 ---------------------------------------------------
 Rules:
 ------
@@ -216,4 +216,27 @@ $ python gnumed.py --debug
 Find something you don't like and fix it... ;O)
 
 ---------------------------------------------------
+Karsten.Hilbert@gmx.net      2.4.2003
 
+there are two options for you:
+
+1) connect to the public database on my server for testing the frontend:
+   server: anubis.homeunix.com
+   database: gnumed-public
+   user/password: please write me a private mail
+
+
+2) on bootstrapping:
+
+To capture even the last bit of screen output do this:
+
+- go to the directory where you want to start bootstrap*
+- run the command "script -a bootstrapping.log"
+- run the bootstrapping as you did before
+- when finished, type "exit"<enter>
+- now also send me the bootstrapping.log file
+
+Michael: Can we add the latter part to the installation
+instructions ? Thanks for your excellent work !
+
+--------------------------------------------------
