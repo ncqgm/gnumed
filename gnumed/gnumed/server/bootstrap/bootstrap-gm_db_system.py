@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -208,7 +208,7 @@ class db_server:
 	# procedural languages related
 	#--------------------------------------------------------------
 	def __lang_exists(self, aLanguage):
-		cmd = "SELECT lanname FROM pg_language WHERE lanname='%s';" % aLanguage
+		cmd = "SELECT lanname FROM pg_language WHERE lanname='%s'" % aLanguage
 		aCursor = self.conn.cursor()
 		if not _run_query(aCursor, cmd):
 			aCursor.close()
@@ -331,7 +331,7 @@ class db_server:
 		return 1
 	#--------------------------------------------------------------
 	def __user_exists(self, aCursor, aUser):
-		cmd = "SELECT usename FROM pg_user WHERE usename='%s';" % aUser
+		cmd = "SELECT usename FROM pg_user WHERE usename='%s'" % aUser
 		try:
 			aCursor.execute(cmd)
 		except:
@@ -370,7 +370,7 @@ class db_server:
 			cursor.close()
 			return 1
 
-		cmd = "CREATE USER \"%s\" WITH PASSWORD '%s' CREATEDB;" % (_dbowner.name, _dbowner.password)
+		cmd = "CREATE USER \"%s\" WITH PASSWORD '%s' CREATEDB" % (_dbowner.name, _dbowner.password)
 		try:
 			cursor.execute(cmd)
 		except:
@@ -389,7 +389,7 @@ class db_server:
 		return 1
 	#--------------------------------------------------------------
 	def __group_exists(self, aCursor, aGroup):
-		cmd = "SELECT groname FROM pg_group WHERE groname='%s';" % aGroup
+		cmd = "SELECT groname FROM pg_group WHERE groname='%s'" % aGroup
 		try:
 			aCursor.execute(cmd)
 		except:
@@ -407,7 +407,7 @@ class db_server:
 		if self.__group_exists(aCursor, aGroup):
 			return 1
 
-		cmd = "CREATE GROUP \"%s\";" % aGroup
+		cmd = "CREATE GROUP \"%s\"" % aGroup
 		try:
 			aCursor.execute(cmd)
 		except:
@@ -603,7 +603,7 @@ class database:
 		return 1
 	#--------------------------------------------------------------
 	def __db_exists(self):
-		cmd = "SELECT datname FROM pg_database WHERE datname='%s';" % self.name
+		cmd = "SELECT datname FROM pg_database WHERE datname='%s'" % self.name
 
 		aCursor = self.conn.cursor()
 		try:
@@ -737,7 +737,7 @@ class gmService:
 		curs = self.db.conn.cursor()
 
 		# do we have version tracking available ?
-		cmd = "select exists(select relname from pg_class where relname='gm_services' limit 1);"
+		cmd = "select exists(select relname from pg_class where relname='gm_services' limit 1)"
 		try:
 			curs.execute(cmd)
 		except:
@@ -760,7 +760,7 @@ class gmService:
 			_log.Log(gmLog.lErr, "Need to know service name.")
 			curs.close()
 			return -1
-		cmd = "select exists(select id from gm_services where name = '%s' limit 1);" % self.name
+		cmd = "select exists(select id from gm_services where name = '%s' limit 1)" % self.name
 		try:
 			curs.execute(cmd)
 		except:
@@ -777,7 +777,7 @@ class gmService:
 			_log.Log(gmLog.lErr, "Need to know service version.")
 			curs.close()
 			return -1
-		cmd = "select version, created from gm_services where name = '%s' limit 1);" % self.name
+		cmd = "select version, created from gm_services where name = '%s' limit 1)" % self.name
 		try:
 			curs.execute(cmd)
 		except:
@@ -829,7 +829,7 @@ class gmService:
 
 		curs = coreDB.conn.cursor()
 		# check for presence of service name in core database (service config)
-		cmd = "select id from distributed_db where name='%s' limit 1;" % self.name
+		cmd = "select id from distributed_db where name='%s' limit 1" % self.name
 		try:
 			curs.execute(cmd)
 		except:
@@ -862,7 +862,7 @@ class gmService:
 			return 1
 		# if not, insert database definition in table db
 		else:
-			cmd = "select id from db where name='%s' limit 1;" % self.db.name
+			cmd = "select id from db where name='%s' limit 1" % self.db.name
 			try:
 				curs.execute(cmd)
 			except:
@@ -877,7 +877,7 @@ class gmService:
 				_log.Log(gmLog.lInfo, "Storing database definition for [%s]." % self.db.name)
 				_log.Log(gmLog.lInfo, "name=%s, host=%s, port=%s" % (self.db.name,self.db.server.port,self.db.server.name))
 	
-				cmd = "INSERT INTO db (name,port,host) VALUES ('%s',%s,'%s');" % (self.db.name,self.db.server.port,self.db.server.name)
+				cmd = "INSERT INTO db (name,port,host) VALUES ('%s',%s,'%s')" % (self.db.name,self.db.server.port,self.db.server.name)
 				try:
 					curs.execute(cmd)
 				except:
@@ -888,7 +888,7 @@ class gmService:
 				coreDB.conn.commit()
 
 				# get the database id for the created entry
-				cmd = "select id from db where name='%s' limit 1;" % self.db.name
+				cmd = "select id from db where name='%s' limit 1" % self.db.name
 				try:
 					curs.execute(cmd)
 				except:
@@ -912,7 +912,7 @@ class gmService:
 			# __default__ user, upon client startup if not "user" config exists
 			# the __default__ config will be read, confirmed by the current user
 			# and stored for her ...
-			cmd = "INSERT INTO config (username,db,ddb) VALUES ('%s',%s,'%s');" % ('',dbID,ddbID)
+			cmd = "INSERT INTO config (username,db,ddb) VALUES ('%s',%s,'%s')" % ('',dbID,ddbID)
 			try:
 				curs.execute(cmd)
 			except:
@@ -1128,7 +1128,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.17  2003-06-12 08:43:57  ncq
+# Revision 1.18  2003-06-27 08:52:14  ncq
+# - remove extra ; in SQL statements
+#
+# Revision 1.17  2003/06/12 08:43:57  ncq
 # - the *shell* psql is running in, must have an encoding
 #   compatible with the *database* encoding, I'm not sure I
 #   understand why
