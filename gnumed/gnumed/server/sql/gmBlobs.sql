@@ -3,7 +3,7 @@
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
--- $Revision: 1.7 $ $Date: 2002-04-03 16:56:24 $ $Author: ncq $
+-- $Revision: 1.8 $ $Date: 2002-04-13 14:41:57 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -11,12 +11,22 @@ CREATE TABLE "doc_type" (
     "name" character varying(40)
 );
 
-INSERT INTO doc_type(id, name) values(1,'ultrasound');
-INSERT INTO doc_type(id, name) values(2,'CT scan');
-INSERT INTO doc_type(id, name) values(3,'MRT scan');
-INSERT INTO doc_type(id, name) values(4,'referral letter');
-INSERT INTO doc_type(id, name) values(5,'discharge summary');
-INSERT INTO doc_type(id, name) values(6,'neuro exam');
+INSERT INTO doc_type(id, name) values(1,'discharge summary internal');
+INSERT INTO doc_type(id, name) values(2,'discharge summary surgical');
+INSERT INTO doc_type(id, name) values(3,'discharge summary psychiatric');
+INSERT INTO doc_type(id, name) values(4,'discharge summary neurological');
+INSERT INTO doc_type(id, name) values(4,'discharge summary orthopaedic');
+INSERT INTO doc_type(id, name) values(5,'discharge summary other');
+
+INSERT INTO doc_type(id, name) values(6,'referral report internal');
+INSERT INTO doc_type(id, name) values(6,'referral report surgical');
+INSERT INTO doc_type(id, name) values(6,'referral report ENT');
+INSERT INTO doc_type(id, name) values(6,'referral report eye');
+INSERT INTO doc_type(id, name) values(6,'referral report urology');
+INSERT INTO doc_type(id, name) values(6,'referral report orthopaedic');
+INSERT INTO doc_type(id, name) values(6,'referral report neuro');
+INSERT INTO doc_type(id, name) values(6,'referral report radiology');
+INSERT INTO doc_type(id, name) values(6,'referral report other');
 
 -- add any number of types here, this is just to give you an idea
 
@@ -31,7 +41,7 @@ CREATE TABLE "doc_med" (
 );
 
 COMMENT ON TABLE "doc_med" IS 'a medical document object possibly containing several data objects such as several pages of a paper document';
-COMMENT ON COLUMN doc_med.type IS 'semantic type of document (not type of file or mime type), such as "ultrasound", referral letter, "discharge summary", etc.';
+COMMENT ON COLUMN doc_med.type IS 'semantic type of document (not type of file or mime type), such as "referral letter", "discharge summary", etc.';
 COMMENT ON COLUMN doc_med.comment IS 'additional short comment such as "abdominal", "ward 3, Dr. Stein", etc.';
 COMMENT ON COLUMN doc_med.date IS 'date of document content creation (such as exam date), NOT date of document creation or date of import; may be imprecise such as "7/99"';
 COMMENT ON COLUMN doc_med.ext_ref IS 'external reference string of physical document, original paper copy can be found with this';
