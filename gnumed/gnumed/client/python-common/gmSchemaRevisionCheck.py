@@ -7,11 +7,19 @@ Schema names are the filenames of the sql files used to create this schema on
 bootstrap with the '.sql'-suffix stripped.
 
 license: GPL
+
+Notes: We cannot actually assume all revisions to be listed in service
+       'default' but we can assume the relevant revision to be listed
+	   in the very same service the user/caller is going to look for
+	   the actual schema tables. I would solve this by lazy-fetching
+	   on-access and caching.
+
+Should not gmSchemaRevisionChecker inherit from cBorg ? See gmCurrentPatient.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSchemaRevisionCheck.py,v $
-# $Id: gmSchemaRevisionCheck.py,v 1.4 2003-11-28 16:12:52 hinnef Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmSchemaRevisionCheck.py,v 1.5 2003-11-28 23:03:54 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Hilmar Berger <ju0815nk@gmx.net>"
 
 # access our modules
@@ -30,30 +38,28 @@ _log.Log(gmLog.lData, __version__)
 
 import gmExceptions, gmPG
 
+#============================================================
 class gmSchemaRevisionChecker:
+	"""Checks the schema revisions in a GnuMed database.
+
+	all instances of this class share the same dictionary
+	this way we have to get the data only once
 	"""
-	Class to check the schema revisions in a GnuMed database.
-	"""
-	# all instances of this class share the same dictionary 
-	# this way we have to get the data only once
 	_revisions = {}
-	_initialized = 0	
-	
+	_initialized = 0
+	#--------------------------------------------------------
 	def __init__(self):
-		"""
-		Initializes the version list.
-		"""
+		"""Initializes the version list."""
 		# check if the list has already been initialized
 		# by another instance
 		if not gmSchemaRevisionChecker._initialized:
 			self._getRevisions()
-		
+	#--------------------------------------------------------
 	def getSchemaRevision(self,schema = None):
-		"""Returns the current revision of a schema.
-		"""
+		"""Returns the current revision of a schema."""
 		if gmSchemaRevisionChecker._revisions.has_key(schema):
 			return gmSchemaRevisionChecker._revisions[schema]
-
+	#--------------------------------------------------------
 	def checkSchemaRevision(self,schema = None, minRevision = '0.0', exact = 0):
 		"""Check the Revision of a particular schema.
 
@@ -88,14 +94,16 @@ class gmSchemaRevisionChecker:
 					return 1
 				else:
 					return 0
-		
+	#--------------------------------------------------------
 	def _getRevisions(self):
-		"""
-		Fetches the Revisions from the backend. 
+		"""Fetches the Revisions from the backend.
+
+		FIXME: see Notes section at top.
+
 		We assume that gm_schema_revision is on service 'default'.
 		Sets the class-wide dictionary '_revisions'.
 		"""
-		# get backend connection and run the query
+		# retrieve revisions
 		cmd = "select filename, version from gm_schema_revision"
 		result = gmPG.run_ro_query('default', cmd, None)
 		if result is None:
@@ -114,29 +122,32 @@ class gmSchemaRevisionChecker:
 				schema = schemaMatch.group(1)
 			if versionMatch is not None:
 				version = versionMatch.group(1)
-			_log.Log(gmLog.lData, 'found schema : %s revision %s' % (schema,version) )
+			_log.Log(gmLog.lData, 'found schema: %s revision %s' % (schema,version))
 			# check for malformed entries; these will not be stored
 			if version == '?' or schema == '?':
-				_log.Log(gmLog.lData, 'malformed schema entry found : %s %s' % (entry[0],entry[1])) 
+				_log.Log(gmLog.lData, 'malformed schema entry found: %s %s' % (entry[0],entry[1]))
 			else:
 				gmSchemaRevisionChecker._revisions[schema] = version
 
 		# mark _revisions as initialized
 		gmSchemaRevisionChecker._initialized = 1
-
-#-----------------------------------------------------------------------------
-# test case
+#============================================================
+# main/testing
+#------------------------------------------------------------
 if __name__ == "__main__":
-		
 	a = gmSchemaRevisionChecker()
 	x = a.getSchemaRevision('gmconfiguration')
 	print a.checkSchemaRevision('gmconfiguration',1.1), " should be 1"
 	print a.checkSchemaRevision('gmconfiguration','1.100000'), " should be 0"
 	print a.checkSchemaRevision('gmconfiguration',x), " should be 1"
 	print a.checkSchemaRevision('gmconfiguration',float(x)+0.1,exact = 1), " should be 0"
-
+#============================================================
 # $Log: gmSchemaRevisionCheck.py,v $
-# Revision 1.4  2003-11-28 16:12:52  hinnef
+# Revision 1.5  2003-11-28 23:03:54  ncq
+# - comments and cleanup
+# - since I am a control-freak I like this code, hehe :-)
+#
+# Revision 1.4  2003/11/28 16:12:52  hinnef
 # - removed dead code
 #
 # Revision 1.3  2003/11/28 10:31:55  ncq
