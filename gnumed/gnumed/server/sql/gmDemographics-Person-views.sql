@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.18 2004-06-28 12:16:19 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.19 2004-07-17 20:57:53 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -282,26 +282,29 @@ where
 -- permissions
 -- ==========================================================
 GRANT SELECT ON
-	v_basic_person,
-	v_staff,
-	lnk_person2address,
-	lnk_org2address
-	,v_person_comms
-	,v_person_comms_flat
+	v_staff
+	, lnk_person2address
+	, lnk_org2address
+	, v_person_comms
+	, v_person_comms_flat
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	v_basic_person
-TO GROUP "_gm-doctors";
+TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.18 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.18  2004-06-28 12:16:19  ncq
+-- Revision 1.19  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.18  2004/06/28 12:16:19  ncq
 -- - drop ... cascade; doesn't work on 7.1
 --
 -- Revision 1.17  2004/06/27 02:39:46  sjtan

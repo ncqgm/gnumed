@@ -10,7 +10,7 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPublicAccounts.sql,v $
--- $Id: gmPublicAccounts.sql,v 1.4 2003-06-10 08:56:59 ncq Exp $
+-- $Id: gmPublicAccounts.sql,v 1.5 2004-07-17 20:57:53 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
@@ -25,18 +25,18 @@ CREATE USER "any-doc"
 	WITH PASSWORD 'any-doc'
 	IN GROUP "gm-doctors", "gm-public"
 ;
-CREATE USER "_any-doc"
-	WITH PASSWORD 'any-doc'
-	IN GROUP "gm-doctors", "_gm-doctors", "gm-public"
-;
 
 -- ===================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.5 $');
 
 -- ===================================================
 -- $Log: gmPublicAccounts.sql,v $
--- Revision 1.4  2003-06-10 08:56:59  ncq
+-- Revision 1.5  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.4  2003/06/10 08:56:59  ncq
 -- - schema_revision -> gm_schema_revision
 --
 -- Revision 1.3  2003/05/12 12:43:39  ncq

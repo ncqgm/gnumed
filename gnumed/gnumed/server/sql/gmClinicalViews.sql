@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.91 2004-07-12 17:23:09 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.92 2004-07-17 20:57:53 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -798,34 +798,7 @@ where
 ;
 
 -- =============================================
-GRANT SELECT ON
-	clin_root_item
-	, clin_health_issue
-	, clin_episode
-	, last_act_episode
-	, encounter_type
-	, clin_encounter
-	, curr_encounter
-	, clin_narrative
-	, lnk_code2narr
-	, clin_diag
-	, clin_aux_note
-	, _enum_allergy_type
-	, allergy
-	, allergy_state
-	, vaccination
-	, vaccine
-	, vacc_def
-	, vacc_regime
-	, lnk_vacc2vacc_def
-	, xlnk_identity
-	, form_instances
-	, form_data
-	, constituent
-	, curr_medication
-	, referral
-TO GROUP "gm-doctors";
-
+-- tables
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	clin_root_item,
 	clin_root_item_pk_item_seq,
@@ -846,13 +819,13 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, lnk_code2narr
 	, lnk_code2narr_pk_seq
 	, clin_diag
-	, clin_diag_pk_seq,
-	clin_aux_note,
-	clin_aux_note_pk_seq,
-	_enum_allergy_type,
-	_enum_allergy_type_id_seq,
-	allergy,
-	allergy_id_seq
+	, clin_diag_pk_seq
+	, clin_aux_note
+	, clin_aux_note_pk_seq
+	, _enum_allergy_type
+	, _enum_allergy_type_id_seq
+	, allergy
+	, allergy_id_seq
 	, allergy_state
 	, allergy_state_id_seq
 	, vaccination
@@ -876,19 +849,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, curr_medication
 	, curr_medication_id_seq
 	, constituent
-TO GROUP "_gm-doctors";
+TO GROUP "gm-doctors";
 
 -- measurements
-grant select on
-	test_org
-	, test_type
-	, test_type_local
-	, lnk_tst2norm
-	, test_result
-	, lab_request
-	, lnk_result2lab_req
-to group "gm-doctors";
-
 grant select, insert, update, delete on
 	test_org
 	, test_org_pk_seq
@@ -904,8 +867,9 @@ grant select, insert, update, delete on
 	, lab_request_pk_seq
 	, lnk_result2lab_req
 	, lnk_result2lab_req_pk_seq
-to group "_gm-doctors";
+to group "gm-doctors";
 
+-- views
 GRANT SELECT ON
 	v_pat_encounters
 	, v_pat_episodes
@@ -930,11 +894,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.91 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.92 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.91  2004-07-12 17:23:09  ncq
+-- Revision 1.92  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.91  2004/07/12 17:23:09  ncq
 -- - allow for coding any SOAP row
 -- - adjust views/tables to that
 --

@@ -1,7 +1,7 @@
 -- Project: GnuMed - public database table for phrase wheel SQL test
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPhraseWheelTest.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -31,10 +31,6 @@ select add_table_for_scoring('gmpw_sql_test');
 GRANT all on
 	gmpw_sql_test
 to group "gm-doctors";
-
-GRANT all on
-	gmpw_sql_test
-to group "_gm-doctors";
 
 -- ===================================================================
 insert into gmpw_sql_test(phrase) values ('Sepsis acutissima hyperergica fulminans');
@@ -237,11 +233,15 @@ insert into gmpw_sql_test(phrase) values ('Nervenhyperregeneration [Narbenneurom
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmPhraseWheelTest.sql,v $';
-insert into gm_schema_revision (filename, version) VALUES('$RCSfile: gmPhraseWheelTest.sql,v $', '$Revision: 1.6 $');
+insert into gm_schema_revision (filename, version) VALUES('$RCSfile: gmPhraseWheelTest.sql,v $', '$Revision: 1.7 $');
 
 -- ===================================================================
 -- $Log: gmPhraseWheelTest.sql,v $
--- Revision 1.6  2004-01-10 01:29:25  ncq
+-- Revision 1.7  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.6  2004/01/10 01:29:25  ncq
 -- - add test data for test-nurse, test-doctor
 --
 -- Revision 1.5  2003/12/29 15:41:15  uid66147

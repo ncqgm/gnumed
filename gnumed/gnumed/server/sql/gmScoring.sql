@@ -1,7 +1,7 @@
 -- GnuMed phrasewheel scoring functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmScoring.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -78,14 +78,18 @@ comment on COLUMN scoring_fields.score is
 grant SELECT, UPDATE, INSERT, DELETE on
 	"scoring_fields",
 	"scoring_fields_pk_seq"
-to group "_gm-doctors";
+to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmScoring.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmScoring.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================================
 -- $Log: gmScoring.sql,v $
--- Revision 1.1  2003-10-19 13:04:57  ncq
+-- Revision 1.2  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.1  2003/10/19 13:04:57  ncq
 -- - scoring implementation
 --

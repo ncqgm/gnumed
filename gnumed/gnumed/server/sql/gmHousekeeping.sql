@@ -1,7 +1,7 @@
 -- Project: GnuMed - database housekeeping TODO tables
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmHousekeeping.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -66,16 +66,20 @@ TO GROUP "gm-public";
 GRANT select, insert, update, delete on
 	housekeeping_todo
 	, housekeeping_todo_pk_seq
-TO GROUP "_gm-doctors";
+TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmHousekeeping.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmHousekeeping.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmHousekeeping.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmHousekeeping.sql,v $
--- Revision 1.5  2004-04-27 15:19:45  ncq
+-- Revision 1.6  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.5  2004/04/27 15:19:45  ncq
 -- - add cookie
 --
 -- Revision 1.4  2004/04/26 09:40:11  ncq

@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.15 2003-12-29 15:40:42 uid66147 Exp $
+-- $Id: gmI18N.sql,v 1.16 2004-07-17 20:57:53 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -109,10 +109,6 @@ BEGIN
 	if exists(select id from i18n_translations where lang = language) then
 		delete from i18n_curr_lang where owner = CURRENT_USER;
 		insert into i18n_curr_lang (lang) values (language);
-
-		delete from i18n_curr_lang where owner = (select trim(leading ''_'' from CURRENT_USER));
-		insert into i18n_curr_lang (lang, owner) values (language, (select trim(leading ''_'' from CURRENT_USER)));
-
 		return 1;
 	else
 		raise exception ''Cannot set current language to [%]. No translations available.'', language;
@@ -124,7 +120,7 @@ END;
 
 comment on function set_curr_lang(text) is
 	'set preferred language:
-	 - for "current user" and "_current_user"
+	 - for "current user"
 	 - only if translations for this language are available';
 
 -- =============================================
@@ -179,15 +175,19 @@ TO group "gm-public";
 GRANT SELECT, INSERT, UPDATE, DELETE on
 	i18n_curr_lang,
 	i18n_curr_lang_id_seq
-TO group "_gm-doctors";
+TO group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.15  2003-12-29 15:40:42  uid66147
+-- Revision 1.16  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.15  2003/12/29 15:40:42  uid66147
 -- - added not null
 -- - added v_missing_translations
 --

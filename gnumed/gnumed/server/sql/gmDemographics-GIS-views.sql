@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -362,16 +362,20 @@ TO GROUP "gm-doctors";
 
 GRANT select, delete, insert, update ON
 	v_basic_address
-TO GROUP "_gm-doctors";
+TO GROUP "gm-doctors";
 
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.10 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.9  2004-04-10 01:48:31  ihaywood
+-- Revision 1.10  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.9  2004/04/10 01:48:31  ihaywood
 -- can generate referral letters, output to xdvi at present
 --
 -- Revision 1.8  2004/01/05 00:45:41  ncq

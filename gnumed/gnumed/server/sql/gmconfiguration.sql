@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.29 $
+-- $Revision: 1.30 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -215,14 +215,18 @@ GRANT select, insert, update, delete on
 	cfg_string,
 	cfg_str_array,
 	cfg_numeric
-to group "_gm-doctors";
+to group "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.29 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.30 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.29  2004-03-10 00:06:20  ncq
+-- Revision 1.30  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.29  2004/03/10 00:06:20  ncq
 -- - remove stale service defs
 --
 -- Revision 1.28  2004/01/06 23:44:40  ncq

@@ -10,7 +10,7 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmKnoppixAccounts.sql,v $
--- $Id: gmKnoppixAccounts.sql,v 1.1 2003-06-24 11:37:13 ncq Exp $
+-- $Id: gmKnoppixAccounts.sql,v 1.2 2004-07-17 20:57:53 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
@@ -25,18 +25,18 @@ CREATE USER "knoppix-doc"
 	WITH PASSWORD 'knoppix-doc'
 	IN GROUP "gm-doctors", "gm-public"
 ;
-CREATE USER "_knoppix-doc"
-	WITH PASSWORD 'knoppix-doc'
-	IN GROUP "gm-doctors", "_gm-doctors", "gm-public"
-;
 
 -- ===================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmKnoppixAccounts.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmKnoppixAccounts.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================
 -- $Log: gmKnoppixAccounts.sql,v $
--- Revision 1.1  2003-06-24 11:37:13  ncq
+-- Revision 1.2  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.1  2003/06/24 11:37:13  ncq
 -- - accounts for public Knoppix DB
 --
 -- Revision 1.4  2003/06/10 08:56:59  ncq

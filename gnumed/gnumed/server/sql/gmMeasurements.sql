@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.27 $
+-- $Revision: 1.28 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -340,28 +340,18 @@ create table lnk_result2lab_req (
 --     being taken at different dates, since the date is stored for every
 --     result
 
--- the doctor wants to see types of measurements grouped together
--- even if they come from different labs (maybe because she switched
--- labs at some point),
--- that's what this is for,
-
---create table test_unified (
---	id serial primary key,
---	short_name CHARACTER VARYING(10),
---	long_name CHARACTER VARYING(60),
---	comment CHARACTER VARYING(60)
---) INHERITS (audit_identity);
-
---COMMENT ON TABLE lab_test IS 'to unify tests accross lab result providers with different names for the same test';
-
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.27 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.28 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.27  2004-06-02 00:04:50  ncq
+-- Revision 1.28  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.27  2004/06/02 00:04:50  ncq
 -- - soap_cat defaults
 --
 -- Revision 1.26  2004/06/01 07:58:13  ncq

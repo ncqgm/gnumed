@@ -1,7 +1,7 @@
 -- GnuMed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -106,15 +106,19 @@ grant SELECT, UPDATE, INSERT, DELETE on
 	"audit_fields_pk_audit_seq",
 	"audit_trail",
 	"audit_trail_pk_audit_seq"
-to group "_gm-doctors";
+to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.7 $');
 
 -- ===================================================================
 -- $Log: gmAudit.sql,v $
--- Revision 1.6  2003-10-01 15:45:20  ncq
+-- Revision 1.7  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.6  2003/10/01 15:45:20  ncq
 -- - use add_table_for_audit() instead of inheriting from audit_mark
 --
 -- Revision 1.5  2003/06/29 15:22:50  ncq

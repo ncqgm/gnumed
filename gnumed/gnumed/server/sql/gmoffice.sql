@@ -5,7 +5,7 @@
 -- For details regarding GPL licensing see http://gnu.org
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.6 $ $Date: 2004-03-23 22:43:46 $ $Author: ncq $
+-- $Revision: 1.7 $ $Date: 2004-07-17 20:57:53 $ $Author: ncq $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -138,16 +138,20 @@ TO GROUP "gm-public";
 GRANT select, insert, delete, update ON
 	form_queue
 	, form_queue_pk_seq
-TO GROUP "_gm-doctors";
+TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmoffice.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.7 $');
 
 --=====================================================================
 -- $Log: gmoffice.sql,v $
--- Revision 1.6  2004-03-23 22:43:46  ncq
+-- Revision 1.7  2004-07-17 20:57:53  ncq
+-- - don't use user/_user workaround anymore as we dropped supporting
+--   it (but we did NOT drop supporting readonly connections on > 7.3)
+--
+-- Revision 1.6  2004/03/23 22:43:46  ncq
 -- - 7.4 is stricter about FKs having to point to unique references
 --
 -- Revision 1.5  2004/03/10 15:45:15  ncq
