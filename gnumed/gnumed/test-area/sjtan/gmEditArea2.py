@@ -57,6 +57,15 @@ def makeSet( list):
 			continue
 		set.append(x)
 	return set	
+
+def getIndexMap( description):
+	map = {}
+	i = 0
+	for x in description:
+		x.append(i)
+		map[x[0]] = x
+		i += 1
+	return map	
 	
 
 class EditArea2(wxPanel):
@@ -109,6 +118,10 @@ class EditArea2(wxPanel):
 		self.defaultFunctions = {}
 
 		self.ext_refs = {}
+
+		self.writeMapping = {}  # used when an initial value may be mapped as in drug.quantity to the prescription.quantity field, but the write must be for a different table
+
+		self.descriptions = {} # for update and insert to check value types from dbapi cursor.description 
 
 	def add(self, propName,  type=TBx ,weight=1,  displayName = None,  newline = 0):
 		""" sets the default display Name to the property name,
@@ -172,6 +185,11 @@ class EditArea2(wxPanel):
 		self._executeBrowseDDL()
 		self.makeListControl(self)
 		self.topSizer.Add(self.lineSizer, wxEXPAND)
+		
+		saverSizer = SaverSizer(self, -1) 
+		saverSizer.setOkCommand( self.saveOrUpdate)
+		saverSizer.setCancelCommand( self.clear)
+		self.addSizer(saverSizer)
 		
 		self.topestSizer = wxFlexGridSizer( 2, 1  , 0, 0)
 		#self.topestSizer.AddGrowableRow(0)
@@ -334,6 +352,18 @@ class EditArea2(wxPanel):
 	def getWidgetNames(self):
 		return self.widgets.keys()	
 
+	def clear(self):
+		for name, w in self.widgets.items():
+			type = self.getWidgetType(name)
+			if type == CHBx or type == RBn:
+				w.SetValue(0)
+
+			else:
+				w.SetValue('')
+				if type == CMBx:
+					w.Clear()
+			
+
 
 	def ddl(self, key, statement):
 		"""stores the creation statement for a table or view associated with the key"""
@@ -368,6 +398,7 @@ class EditArea2(wxPanel):
 	
 	def map( self, widgetName, sqlNames, order = 0, defaultFunction = None):
 		if order == 1:
+			self.writeMapping[widgetName] = sqlNames
 			return
 		self.mapping[widgetName] = sqlNames
 		tableName = sqlNames.split('.')[0]
@@ -375,6 +406,10 @@ class EditArea2(wxPanel):
 		
 		self.defaultFunctions[widgetName] = defaultFunction
 
+	def isWriteMapping( self, widgetName, field, target):
+		"""determines if the target table and field matches the widget named, as a write mapping"""
+		(table2, field2) = self.writeMapping.get(widgetName, ".").split(".")	
+		return  table2 == target and field2 == field
 
 	def _addTableToWidgetMapping(self, tableName, widgetName):	
 		list = self.tableToWidgetName.get(tableName, [] )
@@ -798,7 +833,7 @@ class EditArea2(wxPanel):
 		fields = []
 		for (widgetName, v) in self.mapping.items():
 			(table, field) = v.split('.')
-			if table == target:
+			if table == target or self.isWriteMapping( widgetName, field,  target):
 				fields.append( (field, self.getWidgetByName(widgetName)) )
 		return fields
 
@@ -810,30 +845,70 @@ class EditArea2(wxPanel):
 			fmap[field] = widgetName
 			map[table] = fmap
 		return map
+
+	def getDescription(self, target):
+		description =  self.descriptions.get(target, None)
+		if description == None:
+			cu = self.getConnection().cursor()
+			cu.execute("select * from %s where id = 1" % target)
+			description = cu.description
+			self.descriptions[target] = description
+			cu.close()
+		return description	
+		
 		
 
 	def saveOrUpdate(self):
 		
 		if self.targetId == None:
 			saveNew(self)
-		self.updateTarget(self.target, self.targetId)	
+		else:
+			self.updateTarget(self.target, self.targetId)	
+
+		self.updateList()
 		
 
 	def saveNew(self):
 		id = self.saveNewTarget( self.target)
 		self.targetId = id
 
-		self.updateList()
 
-	def parseTargetFields(self,target, recursionCount,  visited):	
+	def parseTargetFields(self,target, recursionCount,  visited):
+
+		
 		fields = self._getTargetFields(target)	
 		print "fields = ", fields
 		
 		fieldList = []
 		valueList = []
+		description = self.getDescription(target)
+		indexMap = getIndexMap(description)
+		
 		for (f, w) in fields:
+
 			fieldList.append(f)
-			valueList.append("'%s'" % w.GetValue() )
+			print "checking ", indexMap[f][1]
+			typestr = str(indexMap[f][1])
+			if typestr in ['char', 'varchar','text','bpchar', 'timestamp'] :
+				valueList.append("'%s'" % w.GetValue() )
+				continue
+
+			if typestr in ["bool", "boolean"]:
+				if w.GetValue() == 0:
+					v = "'f'"
+				else:	
+					v = "'t'"
+				valueList.append(v)
+				continue
+
+
+			valueList.append("%s" % w.GetValue() )
+
+
+
+			
+
+		print "after PARSING \n", fieldList, valueList	
 
 		refList = self.narrowOn.get(target ,[] )
 		#print "refList for ", target, " = ", refList
@@ -908,9 +983,9 @@ class EditArea2(wxPanel):
 		(fieldList, valueList) = self.parseTargetFields( target, recursionCount, visited)
 		list = []
 		for i in xrange(0, len(fieldList)):
-			list.append( 'set %s = %s' % (fieldList[i], valueList[i]) )
+			list.append( ' %s = %s' % (fieldList[i], valueList[i]) )
 			
-		statement = "update %s 	%s where id = %d" % (target, ', '.join(list), id)
+		statement = "update %s 	set %s where id = %d" % (target, ', '.join(list), id)
 		print statement
 
 		cu = self.getConnection().cursor()
@@ -920,7 +995,99 @@ class EditArea2(wxPanel):
 			self.getConnection().commit()
 			
 	
-	def changeTargetRow( self, tuple):
+	def changeTargetRow( self, event):
+		self.clear()
+		#self._editLoadStrategy1(event)
+		self._editLoadStrategy2(event)
+		
+
+	def _editLoadStrategy2(self, event):
+		"""load using the id and foreign key ids stored with row of the view ; 
+			pro: more thorough and up to date, and doesn't rely on all the information being in the view  ; 
+
+			con: view needs at least id information; will access server a few times in order to retrieve 
+			each table row as it follows references ; won't update whole editarea if any displayed information
+			isn't connected via a reference path to the root target table; absolutely depends on naming
+			of references as id_xxxxx where xxxx is the correct spelling of the referenced table"""
+		tuple = self.listCtrl.getRow(event.GetIndex())
+		d = self.listCtrl.description
+		indexMap = getIndexMap(d)
+		id = tuple[indexMap['id'][-1]]
+		self.updateWidgetsFromTarget(self.target ,  id , [ self._getExtRefCondition() ])
+		self.targetId = id
+	
+
+	def updateWidgetsFromTarget(self, target, id, extra_conditions = [] ):
+	 	"""recursively update widgets, following 'id_'... fields as references"""
+
+		conditions = [ "id = %d" %  id ]
+		conditions.extend ( extra_conditions)
+		
+		cu = self.getConnection().cursor()
+		cu.execute("select * from %s where  %s" % (target, " and ".join(conditions) )  )
+
+		row = cu.fetchone()
+
+
+		rMap = self._getReverseMapping()
+		fieldWidgetMap = rMap.get(target, {})
+		self._updateWidgetsFromRow( fieldWidgetMap, cu.description , row)
+
+		indexMap = getIndexMap( cu.description)
+
+		for k in indexMap.keys():
+			print "checking keys " ,k , " has id in front ? ", k[0:3] == 'id_'
+			if k[0:3] == 'id_':
+				try:
+					target = k[3:]
+				#	if target == self.extRef:
+				#		external_condition = self._getExtRefCondition()
+				#		id = None
+					id =  row[indexMap[k][-1]]
+					self.updateWidgetsFromTarget( target, id, [])
+				except:
+					print sys.exc_info()[0], sys.exc_info()[1]
+					print_tb( sys.exc_info()[2]) 
+					
+			
+	def _updateWidgetsFromRow(self, fieldWidgetMap, description, row):
+		indexMap = getIndexMap( description)
+		for (f, widgetName) in fieldWidgetMap.items():
+			i  = indexMap.get(f, [None])[-1]
+			if i  == None:
+				continue
+			fieldInfo =  indexMap.get(f, None)
+			if (str(fieldInfo[1]) == 'timestamp'):
+				value = time.strftime('%x', time.localtime(row[i]) )
+				
+			elif (str(fieldInfo[1]) in [ 'bool', 'boolean'] ):
+				if  str(row[i])[0] in ['1', 't']:
+					value = 1
+				else:
+					value = 0
+			else:
+				value = str(row[i])
+			
+			w = self.getWidgetByName(widgetName)
+			w.SetValue(value)
+			if self.getWidgetType(widgetName) == CMBx:
+				self._actionForTextEntered(w)
+				
+				
+				
+			
+			
+			
+
+	def _getExtRefCondition(self):
+		return " id_%s = %d" % ( self.extRef, self.extRefId)
+		
+		
+
+		
+
+	def _editLoadStrategy1(self, event):	
+		tuple = self.listCtrl.getRow(event.GetIndex())
 		targetFields = {}
 
 		i = 0
@@ -983,6 +1150,7 @@ class SaverSizer(wxFlexGridSizer):
 		self.okCommand = self.printOk
 		
 		EVT_BUTTON( self.okButton, self.okButton.GetId(), self.doOkCommand)
+		EVT_BUTTON( self.cancelButton, self.cancelButton.GetId(), self.doCancelCommand)
 
 
 	def printOk(self):
@@ -992,12 +1160,17 @@ class SaverSizer(wxFlexGridSizer):
 		self.okCommand = command
 		print "self.okCommand = ", command
 
+	def setCancelCommand(self, command):
+		self.cancelCommand = command
+
 
 	def doOkCommand(self, event):
 		print event
 		self.okCommand()
 		
-	
+
+	def doCancelCommand(self, event):
+		self.cancelCommand()
 
 		
 		
@@ -1018,9 +1191,6 @@ class MedicationEditArea(EditArea2):
 		self.add("date")
 		self.add("usual", CHBx, newline=1)
 		self.add("progress notes", weight = 6, newline = 1)
-		saverSizer = SaverSizer(self, -1) 
-		saverSizer.setOkCommand( self.saveNew)
-		self.addSizer(saverSizer)
 	
 		self.ddl("identity", "create table identity( id integer primary key, name text)")
 		
@@ -1048,6 +1218,7 @@ class MedicationEditArea(EditArea2):
 		self.ddl("prescription", "create table prescription(id integer primary key, quantity integer, repeats integer, for_condition text, direction text,  date timestamp default now(), veteran bool, usual bool , reg_24 bool)")
 		self.map("date", "prescription.date", defaultFunction = self.now )
 		self.map("quantity", "prescription.quantity", order = 1)
+		self.map("repeats", "prescription.repeats")
 		
 		self.ref("prescription", "drug")
 
@@ -1069,7 +1240,7 @@ class MedicationEditArea(EditArea2):
 
 		self.target("prescription")
 
-		self.browse( [ ("drug.name",150 ),  ( "prescription.direction", 60), ("prescription.quantity", 40) , ( "prescription.repeats",40 ) , ( "prescription.date", 60) , ("prescription.veteran" , 20 )  ])
+		self.browse( [ ("drug.name",180 ),  ( "prescription.direction", 60), ("prescription.quantity", 60) , ( "prescription.repeats",60 ) , ( "prescription.date", 60) , ("prescription.veteran" , 20 )  ])
 
 		
 		self.finish()

@@ -39,9 +39,9 @@ class BrowseListCtrl( TestListCtrl):
 		
 
 	def _listItemActivated(self,  event):
-		row =  self.rows[ event.GetIndex()]
+		#row =  self.rows[ event.GetIndex()]
 		for func in self.notifyList:
-			func(row)
+			func(event)
 	
 
 	def _dummyNotify(self, row):
@@ -80,6 +80,12 @@ class BrowseListCtrl( TestListCtrl):
 		for t in rows:
 			self._setRow(  map ,  t, row)
 			row += 1
+
+	def getDescription(self):
+		return self.description
+
+	def getRow(self, index):
+		return self.rows[index]
 
 
 	def _setRow(self, descriptionMap,  tuple, row):
@@ -120,7 +126,8 @@ class BrowseListCtrl( TestListCtrl):
 		self._setData( description, rows)
 		
 	def addListSelectionListener( self, func):
-		"""func will be notified with the selected row ( as in dbapi fetchone()) """
+		"""func will be notified with a list selection event"""
+		#the selected row ( as in dbapi fetchone()) """
 		self.notifyList.append(func)
 
 		
