@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmReference.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -11,6 +11,11 @@
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
+
+
+insert into form_types (name) values ('radiology');
+insert into form_types (name) values ('pathology');
+insert into form_types (name) values ('vascular');
 
 
 -- this form is for nice laTeX referral letters
@@ -144,4 +149,36 @@ insert into form_defs (pk, name_short, name_long, revision, engine, template) va
 \\hspace{1cm} @PRESCRIBERNAME
 }
 \\end{page}
+\\end{document}');
+
+insert into form_defs (pk, name_short, name_long, revision, engine, template) values
+(4,
+ 'Basic request', 'A proof-of-concept basic request form', 1, 'L', 
+ '\\documentclass[12pt]{article}
+\\begin{document}
+
+\\begin{tabular}{ll}
+\\textbf{Sender:} & @"%(title)s %(first)s %(last)s" % sender.get_names ()@ \\\\
+& @"%(number)s %(street)s" % sender.getAddresses (''work'', 1)@ \\\\
+& @"%(urb)s %(postcode)s" % sender.getAddresses (''work'', 1)@ \\\\
+\\end{tabular}
+
+\\begin{tabular}{ll}
+\\textbf{Patient:} & @"%(title)s %(first)s %(last)s" % patient.get_names ()@ \\\\
+& @"%(number)s %(street)s" % patient.getAddresses (''home'', 1)@ \\\\
+& @"%(urb)s %(postcode)s" % patient.getAddresses (''home'', 1)@ \\\\
+DOB: & @patient.getDOB ().Format (''%x'')@ \\\\
+\\end{tabular}
+
+\\textbf{Request:}  @request@
+
+
+\\textbf{Clinical Notes:} @clinical_notes@
+
+
+\\ifnum@len (instructions)@>0
+\\textbf{Patient Instructions:} 
+@instructions@
+\\fi
+
 \\end{document}');

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmDemographics.au.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -76,11 +76,11 @@ insert into occupation (name) values ('farmer');
 insert into occupation (name) values ('unknown');
 
 insert into enum_ext_id_types (name, issuer, context) values ('Medicare', 'HIC', 'p');
+insert into enum_ext_id_types (name, issuer, context) values ('Provider No.', 'HIC', 'c');
+insert into enum_ext_id_types (name, issuer, context) values ('Prescriber No.', 'HIC', 'c');
 insert into enum_ext_id_types (name, issuer, context) values ('DVA', 'Department of Veteran''s Affairs', 'p');
 insert into enum_ext_id_types (name, issuer, context) values ('CRN', 'Centrelink', 'p');
 insert into enum_ext_id_types (name, issuer, context) values ('Licence No.', 'RTA', 'p');
-insert into enum_ext_id_types (name, issuer, context) values ('Provider No.', 'HIC', 'c');
-insert into enum_ext_id_types (name, issuer, context) values ('Prescriber No.', 'HIC', 'c');
 insert into enum_ext_id_types (name, issuer, context) values ('ABN', 'ATO', 'o');
 insert into enum_ext_id_types (name, issuer, context) values ('ACN', 'ATO', 'o');
 --insert into enum_ext_id_types (name, issuer, context) values ('', '', '');
@@ -89,11 +89,16 @@ insert into enum_ext_id_types (name, issuer, context) values ('ACN', 'ATO', 'o')
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics.au.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.11 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.au.sql,v $
--- Revision 1.10  2004-03-04 19:41:52  ncq
+-- Revision 1.11  2004-06-17 11:31:07  ihaywood
+-- A new form template for the new form markup.
+-- Basically @...@ where any Python expression can exist
+-- between the "@" signs. The other form templates will be changed over eventually.
+--
+-- Revision 1.10  2004/03/04 19:41:52  ncq
 -- - whitespace, comment
 --
 -- Revision 1.9  2004/03/04 10:48:06  ncq
