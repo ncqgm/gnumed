@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.26 $
+-- $Revision: 1.27 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -181,6 +181,8 @@ create table test_result (
 select add_table_for_audit('test_result');
 select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_short');
 
+alter table test_result alter column soap_cat set default 'o';
+
 COMMENT ON TABLE test_result is
 	'the results of a single measurement';
 -- FIXME: housekeeping sanity script:
@@ -282,6 +284,8 @@ select i18n('preliminary');
 select i18n('partial');
 select i18n('final');
 
+alter table lab_request alter column soap_cat set default 'p';
+
 comment on column lab_request.clin_when is
 	'the time the sample for this request was taken
 	 LDT: 8432:8433';
@@ -353,11 +357,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.26 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.27 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.26  2004-06-01 07:58:13  ncq
+-- Revision 1.27  2004-06-02 00:04:50  ncq
+-- - soap_cat defaults
+--
+-- Revision 1.26  2004/06/01 07:58:13  ncq
 -- - improve comments
 --
 -- Revision 1.25  2004/05/18 20:38:21  ncq
