@@ -11,6 +11,18 @@
 
 -- =============================================
 
+-- any table that needs auditing MUST inherit audit_gis
+-- A python script (gmhistorian.py) generates automatically all triggers
+-- and tables neccessary to allow versioning and audit trail keeping of
+-- these tables
+
+create table audit_gis (
+	audit_id serial primary key
+);
+
+COMMENT ON TABLE audit_gis IS
+'not for direct use - must be inherited by all auditable tables';
+
 -- country codes as per ISO 3166-1
 -- no versioning / check sum neccessary, as this table
 -- only uses original ISO data (= reference verifiable any time)
@@ -40,7 +52,7 @@ create table state (
 	country char(2) references country(code),
 	name varchar(60),
 	deprecated date
-);
+) inherits (audit_gis);
 
 COMMENT ON TABLE state IS
 'state codes (country specific)';
@@ -61,7 +73,7 @@ create table urb (
 	statecode int references state(id),
 	postcode char(8),
 	name varchar(60)
-);
+) inherits (audit_gis);
 
 COMMENT ON TABLE urb IS
 'cities, towns, dwellings ...';
@@ -81,7 +93,7 @@ create table street (
 	id serial primary key,
 	id_urb integer references urb,
 	name varchar(60)
-);
+) inherits (audit_gis);
 
 COMMENT ON TABLE street IS
 'street names, specific for distinct "urbs"';
@@ -97,14 +109,14 @@ COMMENT ON COLUMN street.name IS
 create table address_type (
 	id serial primary key,
 	name char(10) NOT NULL
-);
+) inherits (audit_gis);
 
 
-INSERT INTO address_type values(1,'home');	-- do not alter the id of "home" !
-INSERT INTO address_type values(2,'work');
-INSERT INTO address_type values(3,'parents');
-INSERT INTO address_type values(4,'holidays');
-INSERT INTO address_type values(5,'temporary');
+INSERT INTO address_type(id, name) values(1,'home'); -- do not alter the id of home !
+INSERT INTO address_type(id, name) values(2,'work');
+INSERT INTO address_type(id, name) values(3,'parents');
+INSERT INTO address_type(id, name) values(4,'holidays');
+INSERT INTO address_type(id, name) values(5,'temporary');
 
 
 -- =============================================
@@ -115,10 +127,19 @@ create table address (
 	street int references street(id),
 	number char(10),
 	addendum text
+) inherits (audit_gis);
+
+
+create table address_external_ref (
+	id int references address primary key,
+	refcounter int default 0
 );
 
 
 create view basic_address
+-- if you suffer from performance problems when selecting from this view,
+-- implement it as a real table and create rules / triggers for insert,
+-- update and delete that will update the underlying tables accordingly
 as
 select
 	s.country as country,
@@ -163,7 +184,7 @@ create table address_info (
 	map char(30),
 	howto_get_there text,
 	comments text
-);
+) inherits (audit_gis);
 -- =============================================
 
 
