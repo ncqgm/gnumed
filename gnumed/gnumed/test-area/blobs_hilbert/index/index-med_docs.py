@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/indexFrame.py,v $
-__version__ = "$Revision: 1.12 $"
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
+__version__ = "$Revision: 1.1 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -337,13 +337,14 @@ class indexFrame(wxFrame):
 	# event handlers
 	#----------------------------------------
 	def on_get_pages(self, event):
+		_log.Log(gmLog.lData, "Trying to load document.")
 		if not self.__load_doc():
-			_log.Log(gmLog.lPanic, "Cannot load document object file list.")
+			_log.Log(gmLog.lErr, "Cannot load document object file list.")
 			dlg = wxMessageDialog(
 				self,
 				_('Cannot load document object file list from xDT file.\n\nPlease consult the error log for details.'),
-				_('Attention'),
-				wxOK | wxICON_INFORMATION
+				_('Error'),
+				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
@@ -382,8 +383,8 @@ class indexFrame(wxFrame):
 			dlg = wxMessageDialog(
 				self,
 				_('Cannot load patient from xDT file.\n\nPlease consult the error log for details.'),
-				_('Attention'),
-				wxOK | wxICON_INFORMATION
+				_('Error'),
+				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
@@ -418,8 +419,8 @@ class indexFrame(wxFrame):
 			dlg = wxMessageDialog(
 				self,
 				_('You must type in a document ID !\n\nUsually you will find the document ID written on\nthe physical sheet of paper. There should be only one\nper document even if there are multiple pages.'),
-				_('Attention'),
-				wxOK | wxICON_INFORMATION
+				_('missing document ID'),
+				wxOK | wxICON_EXCLAMATION
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
@@ -435,8 +436,8 @@ class indexFrame(wxFrame):
 			_log.Log(gmLog.lErr, 'Cannot access metadata file [%s].' % fname)
 			dlg = wxMessageDialog(self, 
 				_('Cannot access metadata file\n[%s].\nPlease see error log for details.' % fname),
-				_('Attention'),
-				wxOK | wxICON_INFORMATION
+				_('Error'),
+				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
@@ -448,8 +449,8 @@ class indexFrame(wxFrame):
 			_log.Log(gmLog.lErr, 'Cannot load image list from metadata file [%s].' % fname)
 			dlg = wxMessageDialog(self, 
 				_('Cannot load image list from metadata file [%s].\nPlease see error log for details.' % fname),
-				_('Attention'),
-				wxOK | wxICON_INFORMATION
+				_('Error'),
+				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
@@ -710,7 +711,27 @@ class indexFrame(wxFrame):
 			self.doc_id_wheel.Clear()
 			# items for phraseWheel
 			self.initgmPhraseWheel()
-			
+#======================================================
+class IndexerApp(wxApp):
+	def OnInit(self):
+		wxInitAllImageHandlers()
+		self.main = create(None)
+		#workaround for running in wxProcess
+		#self.main.Show();self.main.Hide();self.main.Show()
+		self.main.Centre(wxBOTH)
+		self.main.Show(true)
+		self.SetTopWindow(self.main)
+		return true
+#------------------------------------------------------
+def main():
+	application = IndexerApp(0)
+	application.MainLoop()
+#======================================================
+# main
+#------------------------------------------------------
+if __name__ == '__main__':
+	main()
+
 # this line is a replacement for gmPhraseWhell just in case it doesn't work 
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 
