@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -241,21 +241,27 @@ class db_server:
 		if self.__lang_exists(lib_name.replace(".so", "", 1)):
 			return 1
 
-		if aDirList is None:
-			_log.Log(gmLog.lErr, "Need dir list to search for language library !")
-			return None
-
-		# FIXME: make this optional (for remote installation)
-		lib_path = None
-		for lib_dir in aDirList:
-			tmp = os.path.join(lib_dir, lib_name)
-			if os.path.exists(tmp):
-				lib_path = tmp
-				break
-
-		if lib_path is None:
-			_log.Log(gmLog.lErr, "cannot find language library file in any of %s" % aDirList)
-			return None
+		# do we check for library file existence ?
+		check_for_lib = self.cfg.get(self.section, "procedural language library check")
+		if string.lower(check_for_lib) != "no":
+			if aDirList is None:
+				_log.Log(gmLog.lErr, "Need dir list to search for language library !")
+				return None
+			lib_path = None
+			for lib_dir in aDirList:
+				tmp = os.path.join(lib_dir, lib_name)
+				if os.path.exists(tmp):
+					lib_path = tmp
+					break
+			if lib_path is None:
+				_log.Log(gmLog.lErr, "cannot find language library file in any of %s" % aDirList)
+				return None
+		else:
+			tmp = self.cfg.get(aLanguage, "library dir")
+			if tmp is None:
+				_log.Log(gmLog.lErr, 'if procedural language library search is disabled, you need to set the library dir option')
+				return None
+			lib_path = os.path.join(tmp, lib_name)
 
 		tmp = self.cfg.get(aLanguage, "call handler")
 		if tmp is None:
@@ -1151,7 +1157,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.24  2003-08-26 12:58:55  ncq
+# Revision 1.25  2003-08-26 14:11:13  ncq
+# - add option to disable checking for proc lang library files on remote machines
+#
+# Revision 1.24  2003/08/26 12:58:55  ncq
 # - coding style cleanup
 #
 # Revision 1.23  2003/08/26 10:52:52  ihaywood

@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.12 $
+version = $Revision: 1.13 $
 
 #----------------------------------
 [installation]
@@ -129,6 +129,12 @@ template database = template1
 # database server super user -> [user ...]
 super user alias = postgres
 
+# do we check for procedural language library
+# existance in the filesystem ?
+# set this to "no" if you want to bootstrap remote
+# machines where you don't have filesystem access ...
+procedural language library check = yes
+
 # you can put some schema files here,
 # they will be imported into the template database
 # so be very careful,
@@ -225,6 +231,11 @@ name = postgres
 [pg/SQL]
 library name = plpgsql.so
 
+# if <procedural language library check> is set to "no"
+# you need to set this to an explicit path valid for the
+# remote server
+library dir = 
+
 call handler = $call handler$
 CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS '%s' LANGUAGE 'C';
 $call handler$
@@ -237,6 +248,11 @@ $language activation$
 [pg/Python]
 library name = plpython.so
 
+# if <procedural language library check> is set to "no"
+# you need to set this to an explicit path valid for the
+# remote server
+library dir = 
+
 call handler = $call handler$
 CREATE FUNCTION plpython_call_handler () RETURNS OPAQUE AS '%s' LANGUAGE 'C';
 $call handler$
@@ -247,7 +263,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.12  2003-08-26 13:05:04  ncq
+# Revision 1.13  2003-08-26 14:11:13  ncq
+# - add option to disable checking for proc lang library files on remote machines
+#
+# Revision 1.12  2003/08/26 13:05:04  ncq
 # - add "audit disable" flag
 #
 # Revision 1.11  2003/08/17 18:06:36  ncq
