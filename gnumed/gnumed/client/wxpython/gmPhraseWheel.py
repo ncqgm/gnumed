@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.8 2003-09-16 22:25:45 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmPhraseWheel.py,v 1.9 2003-09-17 05:46:37 ihaywood Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -442,8 +442,8 @@ class cPhraseWheel (wxTextCtrl):
 		# set event handlers
 		# 1) entered text changed
 		EVT_TEXT	(self, self.GetId(), self.__on_text_update)
-		# 2) a key was released
-		EVT_KEY_UP	(self, self.__on_key_released)
+		# 2) a key was pressed
+		EVT_KEY_DOWN	(self, self.__on_key_pressed)
 		# 3) evil user wants to resize widget
 		EVT_SIZE	(self, self.on_resize)
 
@@ -591,8 +591,8 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
-	def __on_key_released (self, key):
-		"""Is called when a key is released."""
+	def __on_key_pressed (self, key):
+		"""Is called when a key is pressed."""
 		# user moved down
 		if key.GetKeyCode() == WXK_DOWN:
 			self.__on_down_arrow()
@@ -679,7 +679,7 @@ if __name__ == '__main__':
 				'column': 'phrase',
 				'limit': 25
 			}
-			mp2 = cMatchProvider_SQL([src])
+			#mp2 = cMatchProvider_SQL([src])
 
 			frame = wxFrame (
 				None,
@@ -692,8 +692,8 @@ if __name__ == '__main__':
 			ww1 = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp1)
 			ww1.on_resize (None)
 			
-			ww2 = cPhraseWheel(frame, clicked, pos = (50, 150), size = (180, 30), aMatchProvider=mp2)
-			ww2.on_resize (None)
+			#ww2 = cPhraseWheel(frame, clicked, pos = (50, 150), size = (180, 30), aMatchProvider=mp2)
+			#ww2.on_resize (None)
 
 			frame.Show (1)
 			return 1
@@ -703,7 +703,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.8  2003-09-16 22:25:45  ncq
+# Revision 1.9  2003-09-17 05:46:37  ihaywood
+# auto-repeat enabled for scrolling
+#
+# Revision 1.8  2003/09/16 22:25:45  ncq
 # - cleanup
 # - added first draft of single-column-per-table SQL match provider
 # - added module test for SQL matcher
