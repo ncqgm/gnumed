@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-11 13:06:52 $
-# @version $Revision: 1.27 $ $Date: 2002-07-11 13:06:52 $ $Author: ihaywood $
+# @Date: $Date: 2002-07-17 10:04:29 $
+# @version $Revision: 1.28 $ $Date: 2002-07-17 10:04:29 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -51,14 +51,14 @@ from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 
 from gmI18N import gmTimeformat
 
+myLog = gmLog.gmDefLog
+
 # widget IDs
 ID_ABOUT = wxNewId ()
 ID_EXIT = wxNewId ()
 ID_HELP = wxNewId ()
 ID_NOTEBOOK = wxNewId ()
- 	
-
-
+#==================================================
 class MainFrame(wxFrame):
 	"""GNUMed client's main windows frame
 	This is where it all happens. Avoid popping up any other windows.
@@ -340,10 +340,7 @@ class gmApp(wxApp):
 		frame.CentreOnScreen(wxBOTH)
 		frame.Show(true)
 		return true
-
-
-
-
+#=================================================
 def main():
 	"""GNUMed client written in Python
 	to run this application simply call main() or run the module as "main"
@@ -356,25 +353,25 @@ def main():
 	app.MainLoop()
 
 #=================================================
-# just for convenience, really
-myLog = gmLog.gmDefLog
-
-def mainWithTalkback ():
+def mainWithTalkback():
 	"""
 	Alternative main () method to run tablkback logger
 	"""
-	emailLogger = gmLog.cLogTargetEmail (gmLog.lErr, aFrom = "GNUMed client", aTo = "bug-gnumed@gnu.org", anSMTPServer = "fencepost.gnu.org")
+	#emailLogger = gmLog.cLogTargetEmail (gmLog.lErr, aFrom = "GNUMed client", aTo = "bug-gnumed@gnu.org", anSMTPServer = "fencepost.gnu.org")
+	emailLogger = gmLog.cLogTargetEMail (gmLog.lErr, aFrom = "GNUMed client", aTo = "gnumed-bugs@gmx.net", anSMTPServer = "mail.gmx.net")
 	myLog.AddTarget (emailLogger)
-	main ()
+
+	main()
+
 	if emailLogger.hasLogged ():
 		dialog = wxDialog (None, "GNUMed Bug Report")
 		vbox = wxBoxSizer (wxVERTICAL)
-		text = wxStaticText (dialog, -1 , _("GNUMed had an error. You can make a bug report to the developers here via e-mail"))
+		text = wxStaticText (dialog, -1 , _("GNUMed had an error. You can make a bug report to the developers here via e-mail."))
 		vbox.Add (text, 0, wxALL, 5)
 		pboxgrid = wxFlexGridSizer( 4, 2, 5, 5 )
 		pboxgrid.AddGrowableCol( 1 )
 
-		label = wxStaticText( self, -1, _("e-mail"), wxDefaultPosition, wxDefaultSize, 0 )
+		label = wxStaticText( self, -1, _("your e-mail"), wxDefaultPosition, wxDefaultSize, 0 )
 		pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 		email = wxTextCtrl( dialog, -1, "", size = wxSize (100, -1))
 		pboxgrid.AddWindow( email, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
@@ -405,11 +402,13 @@ def mainWithTalkback ():
 		if dialog.ShowModal () == wxID_OK:
 			emailLogger.setComment (comment.GetValue ())
 			emailLogger.setFrom (email.GetValue ())
-			emailLogger.send ()
-
+			emailLogger.flush ()
+	else:
+		print "nothing logged"
 
 #==================================================
-
+# Main
+#==================================================
 if __name__ == '__main__':
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
