@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.20 2004-01-06 10:09:06 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmGP_Immunisation.py,v 1.21 2004-01-18 21:54:39 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -37,11 +37,13 @@ _log.Log(gmLog.lData, __version__)
 from wxPython.wx import *
 import mx.DateTime as mxDT
 
-ID_VaccinatedRegimesList = wxNewId()
+ID_VaccinatedIndicationsList = wxNewId()
 ID_VaccinationsPerRegimeList = wxNewId()
 ID_MissingShots = wxNewId()
 
 #======================================================================
+# FIXME: vaccination business object,
+# move to business/gmVaccination.py
 class cVacc:
 	pass
 #======================================================================
@@ -56,40 +58,40 @@ class ImmunisationPanel(wxPanel):
 		# top part
 		#-----------------------------------------------
 		pnl_UpperCaption = HeadingCaptionPanel (self, -1, _("  IMMUNISATIONS  "))
-		self.editarea = gmEditArea.gmVaccinationEditArea(self,-1)
+		self.editarea = gmEditArea.gmVaccinationEditArea(self, -1)
 
 		#-----------------------------------------------
 		# middle part
 		#-----------------------------------------------
 		# divider headings below editing area
-		vaccinated_regimes_heading = DividerCaptionPanel(self, -1, _("Disease or Schedule"))
-		vaccine_given_heading = DividerCaptionPanel(self, -1, _("Vaccinations"))
+		indications_heading = DividerCaptionPanel(self, -1, _("Indications"))
+		vaccinations_heading = DividerCaptionPanel(self, -1, _("Vaccinations"))
 		szr_MiddleCap = wxBoxSizer(wxHORIZONTAL)
-		szr_MiddleCap.Add(vaccinated_regimes_heading, 1, wxEXPAND)
-		szr_MiddleCap.Add(vaccine_given_heading, 1, wxEXPAND)
+		szr_MiddleCap.Add(indications_heading, 1, wxEXPAND)
+		szr_MiddleCap.Add(vaccinations_heading, 1, wxEXPAND)
 
-		# left list: regimes for which vaccinations have been given
-		self.LBOX_vaccinated_regimes = wxListBox(
+		# left list: indications for which vaccinations have been given
+		self.LBOX_vaccinated_indications = wxListBox(
 			parent = self,
-			id = ID_VaccinatedRegimesList,
+			id = ID_VaccinatedIndicationsList,
 			choices = [],
 			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
 		)
-		self.LBOX_vaccinated_regimes.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.LBOX_vaccinated_indications.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		# right list: when a regime has been selected on the left
+		# right list: when an indication has been selected on the left
 		# display the corresponding vaccinations on the right
-		self.LBOX_shots_per_regime = wxListBox(
+		self.LBOX_given_shots = wxListBox(
 			parent = self,
 			id = ID_VaccinationsPerRegimeList,
 			choices = [],
 			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
 		)
-		self.LBOX_shots_per_regime.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.LBOX_given_shots.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
 		szr_MiddleLists = wxBoxSizer(wxHORIZONTAL)
-		szr_MiddleLists.Add(self.LBOX_vaccinated_regimes, 4,wxEXPAND)
-		szr_MiddleLists.Add(self.LBOX_shots_per_regime, 6, wxEXPAND)
+		szr_MiddleLists.Add(self.LBOX_vaccinated_indications, 4,wxEXPAND)
+		szr_MiddleLists.Add(self.LBOX_given_shots, 6, wxEXPAND)
 
 		#---------------------------------------------
 		# bottom part
@@ -127,19 +129,19 @@ class ImmunisationPanel(wxPanel):
 	def __register_interests(self):
 		# events
 		EVT_SIZE(self, self.OnSize)
-		EVT_LISTBOX(self, ID_VaccinatedRegimesList, self.on_vaccinated_regime_selected)
+		EVT_LISTBOX(self, ID_VaccinatedIndicationsList, self.on_vaccinated_indication_selected)
 		EVT_LISTBOX_DCLICK(self, ID_VaccinationsPerRegimeList, self.on_given_shot_selected)
 		EVT_LISTBOX_DCLICK(self, ID_MissingShots, self.on_missing_shot_selected)
 #		EVT_RIGHT_UP(self.lb1, self.EvtRightButton)
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		# behaves just like patient_selected, really
-		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._on_vaccinations_updated)
 	#----------------------------------------------------
 	# event handlers
 	#----------------------------------------------------
 	def OnSize (self, event):
-		w, h = event.GetSize ()
+		w, h = event.GetSize()
 		self.mainsizer.SetDimension (0, 0, w, h)
 	#----------------------------------------------------
 	def on_given_shot_selected(self, event):
@@ -148,55 +150,51 @@ class ImmunisationPanel(wxPanel):
 		shot,idx = epr.get_vaccinations(ID = id_vacc)
 		vacc = {}
 		vacc['ID'] = shot[idx['pk_vaccination']]
-		vacc['disease schedule'] = shot[idx['regime']]
 		vacc['vaccine'] = shot[idx['vaccine']]
 		vacc['date given'] = shot[idx['date']].Format('%Y-%m-%d')
-		vacc['seq no'] = str(shot[idx['seq_no']])
-		vacc['is booster'] = shot[idx['is_booster']]
 		vacc['batch no'] = shot[idx['batch_no']]
 		vacc['site given'] = shot[idx['site']]
-#		vacc['progress_note'] = shot[idx['comment']]
-		vacc['progress_note'] = 'needs to be linked'
+		vacc['progress note'] = shot[idx['narrative']]
 		self.editarea.set_data(vacc)
 	#----------------------------------------------------
 	def on_missing_shot_selected(self, event):
 		print "now editing missing shot:", event.GetSelection(), event.GetString(), event.IsSelection(), event.GetClientData()
 		id_vacc = event.GetClientData()
-		epr = self.patient.get_clinical_record()
+#		epr = self.patient.get_clinical_record()
 	#----------------------------------------------------
-	def on_vaccinated_regime_selected(self, event):
-		"""Update right hand middle list to show vaccinations given for selected schedule."""
-		sched_list = event.GetEventObject()
-		selected_item = sched_list.GetSelection()
-		regime = sched_list.GetClientData(selected_item)
+	def on_vaccinated_indication_selected(self, event):
+		"""Update right hand middle list to show vaccinations given for selected indication."""
+		ind_list = event.GetEventObject()
+		selected_item = ind_list.GetSelection()
+		ind = ind_list.GetClientData(selected_item)
 		epr = self.patient.get_clinical_record()
-		shots, idx = epr.get_vaccinations(regime_list = [regime])
+		shots, idx = epr.get_vaccinations(indication_list = [ind])
 		# clear list
-		self.LBOX_shots_per_regime.Set([])
+		self.LBOX_given_shots.Set([])
 		# FIXME: use Set() for entire array (problem with client_data)
 		for shot in shots:
-			label = '%s: %s (%s)' % (shot[idx['date']].Format('%m/%Y'), shot[idx['vaccine_short']], shot[idx['vaccine']])
+			label = '%s: %s' % (shot[idx['date']].Format('%m/%Y'), shot[idx['vaccine']])
 			data = shot[idx['pk_vaccination']]
-			self.LBOX_shots_per_regime.Append(label, data)
+			self.LBOX_given_shots.Append(label, data)
 	#----------------------------------------------------
-	def _on_patient_selected(self, **kwargs):
-		# FIXME: only do this if visible ...
-		epr = self.patient.get_clinical_record()
+	def __reset_ui_content(self):
+		# clear edit area
+		self.editarea.set_data()
 		# clear lists
-		self.LBOX_vaccinated_regimes.Set([])
-		self.LBOX_shots_per_regime.Set([])
-		self.LBOX_missing_shots.Set([])
+		self.LBOX_vaccinated_indications.Clear()
+		self.LBOX_given_shots.Clear()
+		self.LBOX_missing_shots.Clear()
 
-		# populate vaccinated-regimes list
-		regimes = epr.get_vaccinated_regimes()
+		# populate vaccinated-indications list
+		epr = self.patient.get_clinical_record()
+		indications = epr.get_vaccinated_indications()
 		# FIXME: would be faster to use Set() but can't
 		# use Set(labels, client_data), and have to know
 		# line position in SetClientData :-(
-		for regime in regimes:
-			label = '%s (%s)' % (regime[0], regime[1])
-			self.LBOX_vaccinated_regimes.Append(label, regime[0])
-#		self.LBOX_vaccinated_regimes.Set(lines)
-#		self.LBOX_vaccinated_regimes.SetClientData(data)
+		for indication in indications:
+			self.LBOX_vaccinated_indications.Append(indication[1], indication[0])
+#		self.LBOX_vaccinated_indications.Set(lines)
+#		self.LBOX_vaccinated_indications.SetClientData(data)
 
 		# populate missing-shots list
 		missing_shots = epr.get_due_vaccinations()
@@ -204,14 +202,17 @@ class ImmunisationPanel(wxPanel):
 			label = _('ERROR: cannot retrieve due/overdue vaccinations')
 			self.LBOX_missing_shots.Append(label, None)
 		else:
+			booster = _('booster')
+			shot_template = _('shot %s')
 			# due
+			lbl_template = _('%.0d weeks left: %s for %s, due %s (%s)')
 			for shot in missing_shots['due']:
 				if shot[3]:
-					shot_str = _('booster')
+					shot_str = booster
 				else:
-					shot_str = _('shot %s') % shot[2]
+					shot_str = shot_template % shot[2]
 				# time_left, seq_no, regime, latest_due, comment
-				label = _('%.0d weeks left: %s for %s, due %s (%s)') % (
+				label = lbl_template % (
 					shot[5].days / 7,
 					shot_str,
 					shot[1],
@@ -220,15 +221,16 @@ class ImmunisationPanel(wxPanel):
 				)
 				self.LBOX_missing_shots.Append(label, shot[0])	# pk_vacc_def
 			# overdue
+			lbl_template = _('overdue %.0dyrs %.0dwks: %s for %s (%s)')
 			for shot in missing_shots['overdue']:
 				if shot[3]:
-					shot_str = _('booster')
+					shot_str = booster
 				else:
-					shot_str = _('shot %s') % shot[2]
+					shot_str = shot_template % shot[2]
 				years, days_left = divmod(shot[4].days, 364.25)
 				weeks = days_left / 7
 				# amount_overdue, seq_no, regime, comment
-				label = _('overdue %.0dyrs %.0dwks: %s for %s (%s)') % (
+				label = lbl_template % (
 					years,
 					weeks,
 					shot_str,
@@ -236,6 +238,12 @@ class ImmunisationPanel(wxPanel):
 					shot[6]
 				)
 				self.LBOX_missing_shots.Append(label, shot[0])	# pk_vacc_def
+	#----------------------------------------------------
+	def _on_patient_selected(self, **kwargs):
+		wxCallAfter(self.__reset_ui_content)
+	#----------------------------------------------------
+	def _on_vaccinations_updated(self, **kwargs):
+		wxCallAfter(self.__reset_ui_content)
 #======================================================================
 class gmGP_Immunisation(gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the immunisation window."""
@@ -274,7 +282,13 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.20  2004-01-06 10:09:06  ncq
+# Revision 1.21  2004-01-18 21:54:39  ncq
+# - rework from schedule/disease to indication paradigm
+# - make progress note work in edit area
+# - connect to vacc_mod_db signal and properly handle it
+# - _update_ui_content()
+#
+# Revision 1.20  2004/01/06 10:09:06  ncq
 # - reorder due/overdue listing
 #
 # Revision 1.19  2003/12/29 17:10:59  uid66147
