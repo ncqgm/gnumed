@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -341,7 +341,7 @@ class cCfgSQL:
 
 		curs = self.conn.cursor()
 
-	        # retrieve option definition
+		# retrieve option definition
 		if gmPG.run_query(curs, cmd, where_args) is None:
 			curs.close()
 			return None
@@ -349,9 +349,7 @@ class cCfgSQL:
 		# result should contain a list of strings
 		result = curs.fetchall()
 		curs.close()
-#<DEBUG>
-#		_log.Log(gmLog.lData, 'options [%s@%s]: %s' % (user, machine, result))
-#</DEBUG>
+
 		if result is None:
 			_log.Log(gmLog.lWarn, 'no parameters stored for [%s@%s] in config database' % (user, machine))
 			return None
@@ -360,20 +358,6 @@ class cCfgSQL:
 	#----------------------------
 	def __make_key(self, machine, user, cookie, option):
 		return '%s-%s-%s-%s' % (machine, user, cookie, option)
-	#----------------------------
-#	def __run_query(self, aCursor, aQuery, *args):
-#		try:
-#			if len(args) == 0:
-#				aCursor.execute(aQuery)
-#			else:
-#				aCursor.execute(aQuery, args)
-#		except:
-#			if len(args) == 0:
-#				_log.LogException("query >>>%s<<< failed" % aQuery, sys.exc_info(), verbose=0)
-#			else:
-#				_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), verbose=0)
-#			return None
-#		return 1
 #================================
 class cCfgFile:
 	"""Handle common INI-style config files.
@@ -687,7 +671,7 @@ class cCfgFile:
 			# - /etc/
 			std_dirs.append('/etc')
 
-			# 8) ./
+			# - ./
 			# last resort for inferior operating systems such as DOS/Windows
 			a_dir = os.path.abspath(os.path.split(sys.argv[0])[0])
 			std_dirs.append(a_dir)
@@ -702,9 +686,7 @@ class cCfgFile:
 			cfgNameHidden = os.path.expanduser(os.path.join('~', '.' + base_name))
 			candidate_files.insert(1, cfgNameHidden)
 
-		#<DEBUG>
-		#_log.Log(gmLog.lInfo, "config file search order: %s" % str(candidate_files))
-		#</DEBUG>
+		_log.Log(gmLog.lData, "config file search order: %s" % str(candidate_files))
 
 		# eventually loop through all candidates
 		for candidate in (candidate_files):
@@ -999,7 +981,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.58  2003-08-23 18:33:50  hinnef
+# Revision 1.59  2003-08-24 08:01:44  ncq
+# - removed some dead code, cleanup
+#
+# Revision 1.58  2003/08/23 18:33:50  hinnef
 # added small comment in __get_conf_name(), commented out two verbose debug messages
 #
 # Revision 1.57  2003/08/10 00:53:09  ncq
