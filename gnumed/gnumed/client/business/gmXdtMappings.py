@@ -1,11 +1,11 @@
-"""GnuMed XDT mapping data.
+"""GnuMed German XDT mapping data.
 
 This maps XDT field IDs to verbose names.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.1 2003-02-13 12:21:26 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmXdtMappings.py,v 1.2 2003-02-13 12:21:53 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "S.Hilbert"
 __license__ = "GPL"
 
@@ -546,6 +546,9 @@ xdt_id_map = {
 	    }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.1  2003-02-13 12:21:26  ncq
+# Revision 1.2  2003-02-13 12:21:53  ncq
+# - comment
+#
+# Revision 1.1  2003/02/13 12:21:26  ncq
 # - first check in
 #
