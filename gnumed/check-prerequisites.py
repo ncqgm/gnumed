@@ -1,0 +1,50 @@
+#!/bin/python
+
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
+# $Revision: 1.1 $
+
+import sys
+
+print "=> checking for Python module mxDateTime ..."
+try:
+	import mx.DateTime
+	print "=> found"
+except ImportError:
+	print "ERROR: mxDateTime not installed"
+	print "ERROR: this is needed to handle dates and times"
+	print "ERROR: mxDateTime is available from http://www.egenix.com/files/python/"
+	sys.exit(-1)
+
+print "=> checking for Python module pyPgSQL ..."
+try:
+	import pyPgSQL.PgSQL
+	print "=> found"
+except ImportError:
+	print "ERROR: pyPgSQL not installed"
+	print "ERROR: this is needed to access PostgreSQL"
+	print "ERROR: pyPgSQL is available from http://pypgsql.sourceforge.net"
+	sys.exit(-1)
+
+print "=> checking for Python module wxPython ..."
+import os
+if os.getenv('DISPLAY') is None:
+	print "WARNING: cannot check for module wxPython"
+	print "WARNING: you must run this in a GUI terminal window"
+else:
+	try:
+		import wxPython.wx
+		print "=> found"
+	except ImportError:
+		print "ERROR: wxPython not installed"
+		print "ERROR: this is needed to show the GnuMed GUI"
+		print "ERROR: wxPython is available from http://www.wxpython.org"
+		sys.exit(-1)
+	print "=> found"
+
+sys.exit(0)
+
+#=================================================================
+# $Log: check-prerequisites.py,v $
+# Revision 1.1  2004-02-19 16:51:08  ncq
+# - first version
+#
