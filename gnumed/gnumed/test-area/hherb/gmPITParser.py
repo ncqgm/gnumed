@@ -221,6 +221,8 @@ e.g. pitimporter download.pit > download.html""" % (__version__, __author__)
 		result = pi.nextResult()
 		if (not result) : #or (len(result.keys())<1):
 			break
+#		for tmp in result.keys():
+#			print tmp, "=", result[tmp]
 		Result2HTML(result)
 	print "</body></html>"
 
