@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.18 $ $Date: 2002-10-28 04:39:07 $ $Author: ihaywood $
+-- $Revision: 1.19 $ $Date: 2002-10-28 10:02:52 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.18  2002-10-28 04:39:07  ihaywood
+-- Revision 1.19  2002-10-28 10:02:52  ihaywood
+-- new column in conditions
+--
+-- Revision 1.18  2002/10/28 04:39:07  ihaywood
 -- added drug_flags and minor changes
 --
 -- Revision 1.17  2002/10/26 12:38:20  ihaywood
@@ -548,14 +551,19 @@ comment on column subsidies.iso_countrycode is
 comment on column subsidies.name is
 'description of the subsidy (like PBS or RPBS in Australia)';
 
+insert into subsidies (iso_countrycode, name, comment) values ('AU', 'PBS', 'Pharmaceutical Benefits Schedule');
+
 create table conditions (
 	id serial,
 	comment text,
+	title varchar (60),
+	id_subsidy ineger references subsidies (id),
 	authority boolean
 );
 
 comment on table conditions is 'normalised prescribing requirements for a drug or drugs';
-comment on column conditions.authority is 'true if prescriber must contact the third-party before approval'; 
+comment on column conditions.authority is 'true if prescriber must contact the third-party before approval';
+comment on column conditions.title is 'short summary for selection in the database.'; 
 
 create table subsidized_products(
 	id_product integer references product(id),
