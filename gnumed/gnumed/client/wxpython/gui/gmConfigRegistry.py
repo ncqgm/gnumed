@@ -7,7 +7,7 @@ import sys, os, string,types
 # location of our modules
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', '..', 'python-common'))
-	#sys.path.append(os.path.join('..', '..', 'business'))
+	sys.path.append(os.path.join('..', '..', 'business'))
 	#sys.path.append(os.path.join('.','modules'))
 
 import gmLog
@@ -24,6 +24,7 @@ import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
 from wxPython.wx import *
+from gmConfigCommon import *
 
 [	ConfigTreeCtrlID,
 	ConfigTreeBoxID,
@@ -41,13 +42,12 @@ class cConfTree(wxTreeCtrl):
 	parameter names.
 	"""
 	def __init__(self, parent, id, aConn = None,size=wxDefaultSize,pos=wxDefaultPosition,
-				style=None,configInfo = None,rootLabel = "",paramWidgets=None):
+				style=None,configSources = None,rootLabel = "",paramWidgets=None):
 		"""Set up our specialised tree."""
 
 		self.paramTextCtrl = paramWidgets[0]
 		self.paramDescription = paramWidgets[1]
-		self.mConfData = configInfo[0]
-		self.mConfDefinition = configInfo[1]
+		self.mConfSources = configSources
 		self.rootLabel = rootLabel
 
 		wxTreeCtrl.__init__(self, parent, id, pos, size, style)
@@ -87,7 +87,7 @@ class cConfTree(wxTreeCtrl):
 
 		# now get subtrees for four maingroups (see __init__)
 
-		for nodeDescription in (self.mConfData.keys()) :
+		for nodeDescription in (self.mConfSources.keys()) :
 
 			# get subtree
 			subTree = self.__getSubTree(nodeDescription)
@@ -113,8 +113,8 @@ class cConfTree(wxTreeCtrl):
 	# this must be reentrant as we will iterate over the tree branches
 	def __addSubTree(self,aNode=None, aSubTree=None):
 		"""
-		adds a subtree of parameter names to an existing tree. 
-		return resulting tree.
+		Adds a subtree of parameter names to an existing tree. 
+		Returns resulting tree.
 		"""
 #DEBUG
 #		_log.Log(gmLog.lInfo, "subTree %s" % str(aSubTree))
@@ -150,8 +150,12 @@ class cConfTree(wxTreeCtrl):
 		get a subtree from the backend via ConfigData layer.
 		the subtree must have a special structure (see addTreeItem).
 		"""
+		# if the subtree config data source is null, return empty subtree
+		if self.mConfSources[nodeDescription] is None:
+			return None
+			
 		# get all parameter names
-		tmpParamList = self.mConfData[nodeDescription].getAllNames()
+		tmpParamList = self.mConfSources[nodeDescription].getAllParamNames()
 		if tmpParamList is None:
 			return None
 
@@ -206,30 +210,48 @@ class cConfTree(wxTreeCtrl):
 	#------------------------------------------------------------------------
 
 	def SaveCurrParam(self):
+		"""save parameter dialog"""
+	# self.currSelParam is the name of the parameter with optional
+	# cookie part appended, defParamName the name without cookie part !
+	# you must use the latter to access config definitions !
+
 		if not (self.currSelParam is None or self.currSelSubtree is None):
+
 			# get new value
 			val = self.paramTextCtrl.GetValue()
-			newValue = self.__castType(self.currSelSubtree,self.currSelParam,val)
+			currConfSource = self.mConfSources[self.currSelSubtree]
+			newValue = currConfSource.castType(self.currSelParam,val)
+
 			if newValue is None:
 				self.__show_error('Type of entered value is not compatible with type expected.')
 				
+			# a particular config definition refers to a parameter name
+			# without the cookie part. we have to strip the 
+			# cookie off get the correct parameter
+			defParamName = currConfSource.getRawName(self.currSelParam)
+
 			# config definition object
-			confDefinition = self.mConfDefinition[self.currSelSubtree]
+			confDefinition = currConfSource.hasDefinition()
+
 			# if there is no config definition, ask the user if the
 			# new value should be stored unchecked
-			if confDefinition is None or not confDefinition.hasParameter(self.currSelParam):
+
+			if not confDefinition or not currConfSource.hasParameterDefinition(defParamName):
 				if self.__show_question(
 """There is no config definition for this parameter.
 This means that it can't be checked for validity. 
 Anyway store parameter ?"""):
-					self.mConfData[self.currSelSubtree].SetConfigData(self.currSelParam,newValue)
+					currConfSource.setConfigData( self.currSelParam,newValue)
+				
 					# reshow new data to mark it non modified
 					self.__show_parameter(self.currSelSubtree,self.currSelParam)
 				return 
 
 			# else check parameter for validity
-			if confDefinition.isValid(self.currSelParam,newValue):
-				self.mConfData[self.currSelSubtree].SetConfigData(self.currSelParam,newValue)
+
+			if currConfSource.isValid(defParamName,newValue):
+				currConfSource.setConfigData(self.currSelParam,newValue)
+				
 				# reshow new data to mark it non modified
 				self.__show_parameter(self.currSelSubtree,self.currSelParam)
 			else:
@@ -283,13 +305,14 @@ Anyway store parameter ?"""):
 
 	#------------------------------------------------------------------------
 	def __show_parameter(self,aSubtree=None, aParam=None):	
-			# get the parameter value + metadata
-			confData = self.mConfData[aSubtree].GetConfigData(aParam)
-			# extract description from metadata
-			description = confData[1][4]
+			# get the parameter value
+			value = self.mConfSources[aSubtree].getConfigData(aParam)
+			currType = self.mConfSources[aSubtree].getParamType(aParam)
+			# get description
+			description = self.mConfSources[aSubtree].getDescription(aParam)
 #DEBUG
 #			_log.Log(gmLog.lInfo, "VALUE %s" % str(confData))
-			self.paramTextCtrl.ShowParam(confData)
+			self.paramTextCtrl.ShowParam(aParam,currType,value)
 			self.paramTextCtrl.SetEditable(1)
 			self.paramDescription.SetValue(description)
 
@@ -333,401 +356,35 @@ Anyway store parameter ?"""):
 			else: 
 				return 0
 
-	#------------------------------------------------------------------------
-	def __castType(self,aSubtree = None, aParam = None, aValue=None):
-		# TODO: get type from definition, more types
-		# get last type from config data dict 
-		lastType = self.mConfData[aSubtree].mConfigData[aParam][3]
-		if lastType == 'str_array':
-			castedVal = string.split(aValue,'\n')
-			if not type(castedVal) is types.ListType:
-				castedVal = [str(castedVal)]
-		elif lastType == 'numeric':
-			if not type(eval(aValue)) in (types.IntType, types.FloatType, types.LongType):
-				castedVal = None
-			else:
-				castedVal = aValue
-		elif lastType == 'string':
-			castedVal = str(aValue)
-
-		return castedVal
-###############################################################################
-class ParameterDefinition:
-	"""Describes a gnumed configuration parameter.
-	"""
-	def __init__(self,aParamName = None,aParamType = None,aValidValsList = None,aParamDescription = None):
-		self.mName = aParamName
-		self.mType = aParamType
-		self.mDescription = aParamDescription
-		# perhaps make this a class <validator>, too ?
-		# - one method: bool isValid()
-		# - derived classes for:
-		#   validator -> string -> font
-		#   validator -> string -> color
-		#   validator -> numeric -> range
-		#   ...
-		self.mValidVals = aValidValsList
-
-###############################################################################
-# IDEAS: if no config definition is available, we should make the 
-# data read-only by default, and only allow change after an explicit warning
-# TODO : almost all
-class ConfigDefinition:
-	""" holds config definitions read from a file/DB.
-	this will contain: 
-		a) config parameter names
-		b) config parameter description (optional)
-		c) config parameter type
-		d) config parameter valid values (if type is select_from_list)
-		e) config information version (must match the version used in ConfigData)
-	"""
-	def __init__(self, aDefinitionSource=None):
-		# get queries from configuration source (currently only files are supported)
-		if queryCfgSource is None:
-			_log.Log(gmLog.lWarn, "No configuration definition source specified")
-			# we want to return an error here 
-			# in that case we'll have to raise an exception... can't return
-			# anything else than None from an __init__ method
-			raise TypeError, "No configuration definition source specified !"
-		else:
-			self.__mDefinitionSource = aDefinitionSource
-			if not self.__getDefinitions():
-				raise IOError, "cannot load definitions"
-		
-		self.__mParameterDefinitions = {}
-		self.__mVersion = None
-	#------------------------------------------------------------------------
-	def hasParameter(self, aParameterName = None):
-		return self.__mParameterDefinitions.has_key(aParameterName)
-	#------------------------------------------------------------------------
-	def isValid(self,aParameterName=None,aValue=None):
-		return 1
-
-	#------------------------------------------------------------------------
-	def __getDefinitions(self):
-		"""get config definitions"""
-
-		# open configuration source
-		try:
-			cfgSource = gmCfg.cCfgFile(aFile = self.__mDefinitionSource)
-			# handle all exceptions including 'config file not found'
-		except:
-			exc = sys.exc_info()
-			_log.LogException("Unhandled exception while opening config file [%s]" % self.__mDefinitionSource, exc, verbose=1)
-			return None
-
-		cfgData = cfgSource.getCfg()
-		groups = cfgSource.getGroups()
-
-		if not groups.has_key('_config_version_'):
-			_log.Log(gmLog.lWarn, "No configuration definition version defined.")
-			_log.Log(gmLog.lWarn, "Matching definitions to config data is unsafe.")
-			_log.Log(gmLog.lWarn, "Config data will be read-only by default.")
-			self.mVersion = None
-		else:
-			version = cfgSource.get(groups['_config_version_'], "version")
-			# we don't check for type in order to allow for versions like '1.20.1b'			 
-			del groups[_config_version_]
-			self.__mVersion = version
-			_log.Log(gmLog.lInfo, "Found config parameter definition version %s." % version)
-
-
-		# every group holds one parameter description
-		# group name = parameter name
-		for paramName in groups:
-			paramType = cfgSource.get(entry_group, "type")
-			# groups not containing queries are silently ignored
-			continue
-
-			# parameter description - might differ from that stored 
-			# in backend tables (cfg_template)
-			paramDescription = cfgSource.get(entry_group, "description")
-			continue
-
-			# if valid value list is supplied, get it
-			validValuesRaw = cfgSource.get(entry_group, "validvalues")
-			# transform valid values to a list
-			if not validValuesRaw is None:
-				if type(validValuesRaw) == types.ListType:
-					validVals = validValuesRaw
-				else:
-					validVals = string.split(validValuesRaw,',')
-			continue
-
-			# add new entry to parameter definition dictionary
-			self.__mParameterDefinitions[paramName] = ParameterDefinition(paramName,paramType,validVals,paramDescription)
-
-###############################################################################
-# TODO: 
-# -handle backend data modifications using backend notification
-# -method to change/add new parameters
-
-class ConfigData:
-	""" 
-    Base class. Derived classes hold config data for a particular 
-	backend user/machine combination, config file etc.	    
-	this will contain: 
-		a) config parameter names
-		b) config parameter values
-		c) config information version (must match the version used in ConfigDefinition)
-	"""
-
-	def __init__(self, aType = None):
-		self.type = aType
-		self.mConfigData = {}
-
-# pure virtual methods
-	def GetAllNames(self):
-		pass
-
-	def GetConfigData(self):
-		pass
-
-	def SetConfigData(self):
-		pass    	
-
-#--------------------------------------------------------------------------
-class ConfigDataDB(ConfigData):
-	""" 
-	Class that holds config data for a particular user/machine pair 
-	"""
-	# static class variables that hold links to backend and gmCfg
-	# this will be shared by all ConfigDataDB objects
-	# this assumes that there will always be only one backend config source
-	_backend = None
-	_dbcfg = None
-
-	def __init__(self, aType = "DB", aUser = None, aMachine = '__default__'):
-		""" Init DB connection"""
-		ConfigData.__init__(self,aType)
-		
-		# get connection
-		if ConfigDataDB._backend is None:
-			ConfigDataDB._backend = gmPG.ConnectionPool()
-
-		# connect to config database
-		if ConfigDataDB._dbcfg is None:
-			ConfigDataDB._dbcfg = gmCfg.cCfgSQL(
-				aConn = self._backend.GetConnection('default'),
-				aDBAPI = gmPG.dbapi
-			)
-
-		if ConfigDataDB._dbcfg is None:
-			_log.Log(gmLog.lErr, "Cannot access configuration without database connection !")
-			raise ConstructorError, "ConfigData.__init__(): need db conn"
-
-		self.mUser = aUser
-		self.mMachine = aMachine
-
-	def GetConfigData(self, aParameterName = None):
-		"""
-		Gets Config Data for a particular parameter. 
-		Returns a tuple consisting of the value and a list of metadata 
-		(name,cookie, owner, type and description)
-		"""
-		name=self.mConfigData[aParameterName][0]
-		cookie = self.mConfigData[aParameterName][1]
-		try:
-			result=ConfigDataDB._dbcfg.get(self.mMachine, self.mUser,cookie,name)
-		except:
-			_log.Log(gmLog.lErr, "Cannot get parameter value for [%s]" % aParameterName )
-		
-		return (result,self.mConfigData[aParameterName])
-		
-	def SetConfigData(self, aParameterName, aValue):
-		"""
-		Sets Config Data for a particular parameter. 
-		"""
-		name=self.mConfigData[aParameterName][0]
-		cookie = self.mConfigData[aParameterName][1]
-		try:
-	                rwconn = ConfigDataDB._backend.GetConnection(service = "default", readonly = 0)    
-
-			result=ConfigDataDB._dbcfg.set(	machine = self.mMachine, 
-							user = self.mUser,
-							cookie = cookie,
-							option = name,
-							value = aValue,
-							aRWConn = rwconn )
-			rwconn.close()		
-			ConfigDataDB._backend.ReleaseConnection(service = "default")
-		except:
-			_log.Log(gmLog.lErr, "Cannot set parameter value for [%s]" % aParameterName )
-
-	def getAllNames(self):
-		"""
-		fetch names and parameter data from backend. Returns list of
-		parameter names where cookie and real name are concatenated.
-		"""
-		try:
-			result=ConfigDataDB._dbcfg.getAllParams(self.mUser,self.mMachine)
-		except:
-			_log.Log(gmLog.lErr, "Cannot get config parameter names.")
-			raise
-		if not result:
-			return None
-		else:
-			# gmCfg.getAllParams returns name,cookie, owner, type and description 
-			# of a parameter. 
-			# We combine name + cookie to one single name. If cookie == '__default__'
-			# we set the last part of the name to "" (an empty part). This
-			# must processed by the ConfigTree so that the empty part is not 
-			# displayed. If the cookie is something else, we mark the cookie part
-			# by a leading "._"
-			mParamNames = []
-			# for param in (result): why???
-			for param in result:
-				name = param[0]
-				cookie = param[1]
-				if cookie == '__default__':
-					cookie_part = ""
-				else:
-					cookie_part = "._%s" % cookie
-
-				newName = name + cookie_part
-				# store data for every parameter in mConfigData
-				self.mConfigData[newName]=param
-				# add new name to list
-				mParamNames.append(newName)
-#DEBUG		
-#		_log.Log (gmLog.lData, "%s" % self.mConfigData)
-
-		return mParamNames
-
-#--------------------------------------------------------------------------
-class ConfigDataFile(ConfigData):
-	""" 
-	Class that holds config data for a particular config file
-	"""
-	def __init__(self, aType = "FILE", aFilename = None):
-		""" Init config file """
-		ConfigData.__init__(self,aType)
-
-		self.filename = aFilename
-		self.__cfgfile = None
-		
-		# open config file
-		try:
-			self.__cfgfile = gmCfg.cCfgFile(aFile = self.filename)
-		except:
-			_log.LogException("Can't open config file !", sys.exc_info(), verbose=1)
-
-		# this is a little bit ugly, but we need to get the full name of the
-		# file because this depends on the installation/system settings
-		# if no absolute path was specified, we get the config file gnumed
-		# would find first which is what we want usually
-		self.fullPath = self.__cfgfile.cfgName
-
-	def GetFullPath(self):
-		""" returns the absolute path to the config file in use"""
-		return self.fullPath
-
-	def GetConfigData(self, aParameterName = None):
-		"""
-		Gets Config Data for a particular parameter. 
-		Returns a tuple consisting of the value and a list of metadata 
-		(name,cookie, owner, type and description)
-		"""
-		name=self.mConfigData[aParameterName][0]
-		group = self.mConfigData[aParameterName][1]
-		try:
-			result=self.__cfgfile.get(group,name)
-		except:
-			_log.Log(gmLog.lErr, "Cannot get parameter value for [%s]" % aParameterName )
-		
-		return (result,self.mConfigData[aParameterName])
-		
-	def SetConfigData(self, aParameterName = None, aValue = None):
-		"""
-		Sets Config Data for a particular parameter. 
-		"""
-		option = self.mConfigData[aParameterName][0]
-		group = self.mConfigData[aParameterName][1]
-		try:
-			result=self.__cfgfile.set(aGroup = group,
-						anOption = option,
-						aValue = aValue)
-			self.__cfgfile.store()
-		except:
-			_log.Log(gmLog.lErr, "Cannot set parameter value for [%s]" % aParameterName )
-		return 1
-
-	def getAllNames(self):
-		"""
-		fetch names and parameter data from config file. Returns list of
-		parameter names where group and option name are concatenated.
-		"""
-		
-		# this returns name,cookie, owner (TODO), type and description 
-		# of a parameter. 
-		# We combine group + option name to one single name. 
-		groups = self.__cfgfile.getGroups()
-		if len(groups) == 0:
-			return None
-		mParamNames = []		
-		for group in (groups):
-			options = self.__cfgfile.getOptions(group)
-			if len(options) == 0:
-				continue
-			else:
-				for option in (options):			
-					currType=type(self.__cfgfile.get(group,option))
-					if currType in (types.IntType, types.FloatType, types.LongType):
-						myType = 'numeric'
-					elif currType is types.StringType:
-						myType = 'string'
-					elif currType is types.ListType:
-						myType = 'str_array'
-					else:
-					# FIXME: we should raise an exception here or make the entry
-					# read only since we don't know how to handle this entry
-						mType = 'string'
-
-					description = self.__cfgfile.getComment(group,option)
-					if description is []:
-						description = ''
-					else:
-						myDescription = string.join(description,'\n')
-					optionData=[option,group,'',myType,myDescription]
-
-					newName = group + '.' + option
-					self.mConfigData[newName] = optionData
-					mParamNames.append(newName)
-			
-#DEBUG		
-#		_log.Log (gmLog.lData, "%s" % self.mConfigData)
-
-		return mParamNames
-
 ###############################################################################
 class cParamCtrl(wxTextCtrl):
 	def __init__(self, parent, id,value,pos,size,style,type ):
 		wxTextCtrl.__init__(self, parent, -1, value="",style=style)		
 		self.parent = parent
 
-	def ShowParam(self,aParam=None,aSubTree=None):
+	def ShowParam(self,aParam=None,aType=None,aValue=None):
 		self.Clear()
 		if aParam is None:
 			return
+#DEBUG
+#		_log.Log(gmLog.lInfo, "Param %s VALUE %s Type %s" % (aParam,aValue,aType))
+#DEBUG			
 		# store current parameter for later use
 		self.currParam = aParam
-		# get metadata
-		metadata = aParam[1]
-		value = aParam[0]
-		type = metadata[3]
-		name = metadata[0] + '.' + metadata[1]
-#		self.parent.configEntryParamBox.SetTitle(_("Parameter") + ": " + name)
-		if type == 'string':
-			self.SetValue(value)
-		elif type == 'str_array':
+		self.value = aValue
+		self.type = aType
+		
+		if self.type == 'string':
+			self.SetValue(self.value)
+		elif self.type == 'str_array':
 		# we can't use AppendText here because that would mark the value
 		# as modified 
 			all = ''
-			for line in (value):
+			for line in (self.value):
 				all = all + line + '\n'
 			self.SetValue(all)			
-		elif type == 'numeric':
-			self.SetValue(str(value))
+		elif self.type == 'numeric':
+			self.SetValue(str(self.value))
 			
 	def ShowMessage(self,aMessage=""):
 		self.currParam = None
@@ -737,7 +394,7 @@ class cParamCtrl(wxTextCtrl):
 
 	def RevertToSaved(self):
 		if not self.currParam is None:
-			self.ShowParam(self.currParam)
+			self.ShowParam(self.currParam, self.type, self.value)
 
 ###############################################################################
 # TODO: -a MenuBar allowing for import, export and options
@@ -757,24 +414,25 @@ class gmConfigEditorPanel(wxPanel):
 		#	 -current user, default machine
 		#	 -default user, current machine
 		#	 -default user, default machine
-		self.mConfData = {}
+		self.mConfSources = {}
+
 		# if we pass no config file name, we get the default cfg file
-		cfgFile = ConfigDataFile()
+		cfgFileDefault = ConfigSourceFile("gnumed.conf")
+		cfgFileName = cfgFileDefault.GetFullPath()
+		# if the file was not found, we display some error message
+		if cfgFileName is None:
+			cfgFileName = "gnumed.conf not found"
 		# now get the absolute path of the default cfg file
-		self.mConfData['FILE:%s' % cfgFile.GetFullPath()] = cfgFile
+		self.mConfSources['FILE:%s' % cfgFileName] = cfgFileDefault
+
 		if not (self.currUser is None or self.currMachine is None) :
-			self.mConfData['DB:CURRENT_USER_CURRENT_MACHINE'] = ConfigDataDB(aMachine=self.currMachine)
+			self.mConfSources['DB:CURRENT_USER_CURRENT_MACHINE'] = ConfigSourceDB('DB:CURRENT_USER_CURRENT_MACHINE',aMachine=self.currMachine)
 		if not (self.currUser is None) :
-			self.mConfData['DB:CURRENT_USER_DEFAULT_MACHINE'] = ConfigDataDB()
+			self.mConfSources['DB:CURRENT_USER_DEFAULT_MACHINE'] = ConfigSourceDB('DB:CURRENT_USER_DEFAULT_MACHINE')
 		if not (self.currMachine is None) :
-			self.mConfData['DB:DEFAULT_USER_CURRENT_MACHINE'] = ConfigDataDB(aUser='__default__',aMachine=self.currMachine)
+			self.mConfSources['DB:DEFAULT_USER_CURRENT_MACHINE'] = ConfigSourceDB('DB:DEFAULT_USER_CURRENT_MACHINE',aUser='__default__',aMachine=self.currMachine)
 		# this should always work
-		self.mConfData['DB:DEFAULT_USER_DEFAULT_MACHINE'] = ConfigDataDB(aUser='__default__')
-		# setup config definitions 
-		self.mConfDefinitions = {}
-		for k in self.mConfData.keys():
-		# TODO: here we should add some real config source
-			self.mConfDefinitions[k]=None
+		self.mConfSources['DB:DEFAULT_USER_DEFAULT_MACHINE'] = ConfigSourceDB('DB:DEFAULT_USER_DEFAULT_MACHINE',aUser='__default__')
 		
 # main sizers
 		self.mainSizer = wxBoxSizer(wxHORIZONTAL)
@@ -827,7 +485,7 @@ class gmConfigEditorPanel(wxPanel):
 						pos = wxPoint(0, 0), 
 						size = wxSize(200, 300),
 						style = wxTR_HAS_BUTTONS|wxTAB_TRAVERSAL,
-						configInfo = [self.mConfData,self.mConfDefinitions],
+						configSources = self.mConfSources,
 						rootLabel = rootLabel,
 						paramWidgets=(self.configEntryParamCtrl,self.configEntryDescription)
 						)
@@ -865,13 +523,8 @@ class gmConfigEditorPanel(wxPanel):
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	import gmPG
 	import gmPlugin, gmGuiBroker
 	_log.Log (gmLog.lInfo, "starting config browser")
-
-	if _cfg is None:
-		_log.Log(gmLog.lErr, "Cannot run without config file.")
-		sys.exit("Cannot run without config file.")
 	
 	workplace = raw_input("Please enter a workplace name: ")
 	# catch all remaining exceptions
@@ -880,7 +533,7 @@ if __name__ == '__main__':
 		application.SetWidget(gmConfigEditorPanel,"test-doc",workplace)
 		application.MainLoop()
 	except:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
+		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=0)
 		# but re-raise them
 		raise
 
@@ -912,7 +565,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.4  2003-06-26 21:41:51  ncq
+# Revision 1.5  2003-08-23 18:40:43  hinnef
+# split up in gmConfigRegistry.py and gmConfigCommon.py, debugging, more comments
+#
+# Revision 1.4  2003/06/26 21:41:51  ncq
 # - fatal->verbose
 #
 # Revision 1.3  2003/06/26 04:18:40  ihaywood
