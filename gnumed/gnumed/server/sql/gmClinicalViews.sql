@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.10 2003-05-05 00:27:34 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.11 2003-05-05 00:31:28 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -160,6 +160,7 @@ where
 
 -- =============================================
 GRANT SELECT ON
+	"v_i18n_enum_encounter_type",
 	"v_patient_episodes",
 	"v_patient_items",
 	"v_i18n_patient_encounters",
@@ -167,6 +168,7 @@ GRANT SELECT ON
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
+	"v_i18n_enum_encounter_type",
 	"v_patient_episodes",
 	"v_patient_items",
 	"v_i18n_patient_encounters",
@@ -181,11 +183,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.10  2003-05-05 00:27:34  ncq
+-- Revision 1.11  2003-05-05 00:31:28  ncq
+-- - add grants
+--
+-- Revision 1.10  2003/05/05 00:27:34  ncq
 -- - add as to encounter types
 --
 -- Revision 1.9  2003/05/05 00:19:12  ncq
