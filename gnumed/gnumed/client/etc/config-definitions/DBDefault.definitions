@@ -16,6 +16,14 @@ description = Height of the GnuMed main window in pixels. Please note that you s
 type = numeric
 description = Width of the GnuMed main window in pixels. Please note that you still have to add the window border size to get the final size.
 
+[main.window.mode]
+type = string
+description = mode of main client frame. Values are 'status_quo' and 'terry'
+
+[main.window.sidebar_width]
+type = numeric
+description = width of the sidebar, in pixels
+
 [main.comms.print]
 type = string
 description = system command for printing to the local printer. %F is the filename of the file to be printed

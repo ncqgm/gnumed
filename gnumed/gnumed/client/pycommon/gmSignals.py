@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -115,6 +115,51 @@ def application_init():
 def user_error ():
 	"an error of interest to the user"
 	return "user_error"
+
+def new_notebook ():
+	"""a new notebook page creation event
+It should carry a dictionary:
+- name: the unique name (for unloading)
+- widget: the wxWindow to display
+- label: the notebook label
+- icon: the notebook icon (which may or may not be used, can be None)
+	"""
+	return "new_notebook"
+
+def unload_plugin ():
+	"""
+	Requested that the named plugin be unloaded
+	- name: the plugin name
+	"""
+	return "unload_notebook"
+
+def display_plugin ():
+	"""
+	Requested that the named plugin be displayed
+	- name: the unique name of the plugin
+
+	If the plugin doesn't want to be displayed, it should listen for this event and
+	return the string 'veto'
+	"""
+	return "display_plugin"
+
+
+def wish_display_plugin ():
+	"""
+	This event expressed the desire that aplugin be displayed
+	.I.e the plugin manger *receives* this evet, it generates the above
+	- name: plugin unique name
+	"""
+	return "wish_display_plugin"
+
+def new_sidebar ():
+	"""
+	A new sidebar widget
+-widget: the wxWindow to display
+- name: the unique plugin ma e(for unloading)
+"""
+	return "new_sidebar"
+
 	
 #=============================================================	
 if __name__ == "__main__":
@@ -142,7 +187,14 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.4  2004-05-22 11:48:16  ncq
+# Revision 1.5  2004-07-15 07:57:20  ihaywood
+# This adds function-key bindings to select notebook tabs
+# (Okay, it's a bit more than that, I've changed the interaction
+# between gmGuiMain and gmPlugin to be event-based.)
+#
+# Oh, and SOAPTextCtrl allows Ctrl-Enter
+#
+# Revision 1.4  2004/05/22 11:48:16  ncq
 # - allergy signal handling cleanup
 #
 # Revision 1.3  2004/03/28 11:50:16  ncq

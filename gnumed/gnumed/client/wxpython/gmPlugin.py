@@ -5,15 +5,15 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.24 2004-07-15 06:15:55 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmPlugin.py,v 1.25 2004-07-15 07:57:20 ihaywood Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re
 
 from wxPython.wx import *
 
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWhoAmI
+from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWhoAmI, gmDispatcher, gmSignals
 from Gnumed.wxpython import gmShadow
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -37,6 +37,7 @@ class wxNotebookPlugin:
 		except KeyError:
 			self.gb['main.notebook.raised_plugin'] = 'none'
 		self._widget = None
+		self.raised = 0
 	#-----------------------------------------------------
 	def register (self):
 		"""Register ourselves with the main notebook widget."""
@@ -44,76 +45,55 @@ class wxNotebookPlugin:
 		self.gb['modules.%s' % self._set][self.__class__.__name__] = self
 		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self._set))
 
-		# add ourselves to the main notebook
-		nb = self.gb['main.notebook']
-		widget = self.GetWidget(nb)
-		nb.AddPage(widget, self.name())
-		# FIXME: really use Show() here ?
-		widget.Show(1)
-
-		# place ourselves in the top panel,
-		# pages that don't want a toolbar must install a
-		# blank one otherwise the previous page's toolbar
-		# would be visible
-		top_panel = self.gb['main.top_panel']
-		tb = top_panel.AddBar(self.__class__.__name__)
-		self.gb['toolbar.%s' % self.__class__.__name__] = tb
-		self.populate_toolbar (tb, widget)
-		tb.Realize()
-
-		# and put ourselves into the menu structure if so
-		menu_info = self.MenuInfo()
-		if menu_info is not None:
-			name_of_menu, menu_item_name = menu_info
-			menu = self.gb['main.%smenu' % name_of_menu]
-			self.menu_id = wxNewId()
-			# FIXME: this shouldn't be self.name() but rather self.menu_help_string()
-			menu.Append (self.menu_id, menu_item_name, self.name())			# (id, item name, help string)
-			EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
-
-		# so *notebook* can find this widget
-		self.gb['main.notebook.plugins'].append(self)
-
+		if self.__class__.label is None:
+			label = self.name ()
+		else:
+			label = self.__class__.label
+		if self.__class__.widget is None:
+			widget = self.GetWidget
+		else:
+			widget = self.__class__.widget
+		gmDispatcher.connect (self.on_display, gmSignals.display_plugin ())
+		gmDispatcher.send (gmSignals.new_notebook (), sender=self, widget=widget,
+				   label=label, icon=self.__class__.icon,
+				   help=self.__class__.help_string,
+				   name=self.__class__.__name__)
 		return 1
+
+	def on_load (self, *args):
+		self.register ()
 	#-----------------------------------------------------
 	def unregister(self):
 		"""Remove ourselves."""
-		del self.gb['modules.%s' % self._set][self.__class__.__name__]
+		
 		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self._set))
 
-		# delete menu item
-		menu_info = self.MenuInfo()
-		if menu_info is not None:
-			menu = self.gb['main.%smenu' % menu_info[0]]
-			menu.Delete(self.menu_id)
-
-		# delete toolbar
-		top_panel = self.gb['main.top_panel']
-		top_panel.DeleteBar(self.__class__.__name__)
-
-		# correct the plugin dictionary
-		nb_plugins = self.gb['main.notebook.plugins']
-		nb_page_num = nb_plugins.index(self)
-		del nb_plugins[nb_page_num]
-
-		# delete notebook page
-		nb = self.gb['main.notebook']
-		nb.DeletePage(nb_page_num)
+		gmDispatcher.send (gmSignals.unload_plugin (), sender=self, name=self.__class__.__name__)
 	#-----------------------------------------------------
-	def name(self):
-		return 'plugin %s' % self.__class__.__name__
-	#-----------------------------------------------------
-	def MenuInfo (self):
-		"""Return tuple of (menuname, menuitem)."""
-		return None
+	icon = None
+	help_string = ""
+	widget = None # hack for old-style plugins
+	label = None
 	#-----------------------------------------------------
 	def populate_with_data(self):
 		print "missing", self.__class__.__name__, "-> populate_with_data()"
 	#-----------------------------------------------------
-	def ReceiveFocus(self):
+	def on_display (self, name):
 		"""We *are* receiving focus now."""
-		self.gb['main.notebook.raised_plugin'] = self.__class__.__name__
-		self.populate_with_data()
+		if name == self.__class__.__name__:
+			# yep, that's us
+			if self.can_receive_focus ():
+				self.raised = 1
+				try:
+					self.populate_with_data()
+				except:
+					_log.LogException("problem with populate-with-data ()", sys.exc_info(), verbose=0)
+			else:
+				return 'veto'
+		elif self.raised:
+			# somebody else now
+			self.raised = 0
+			# FIXME: we might want to do something here
 	#-----------------------------------------------------
 	def can_receive_focus(self):
 		"""Called when this plugin is *about to* receive focus.
@@ -158,8 +138,6 @@ class wxNotebookPlugin:
 		nb.SetSelection(plugin_idx)
 		return 1
 	#-----------------------------------------------------
-	def OnMenu (self, event):
-		self.Raise()
 	#----------------------------------------------------
 	def populate_toolbar (self, tb, widget):
 		"""Populates the toolbar for this widget.
@@ -177,6 +155,9 @@ class wxNotebookPlugin:
 	# -----------------------------------------------------
 	def OnShow (self, evt):
 		self.register() # register without changing configuration
+	#--------------------------------------------------------
+	def GetWidget (self, parent):
+		return None
 #=========================================================
 # some convenience functions
 #---------------------------------------------------------
@@ -349,7 +330,14 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.24  2004-07-15 06:15:55  ncq
+# Revision 1.25  2004-07-15 07:57:20  ihaywood
+# This adds function-key bindings to select notebook tabs
+# (Okay, it's a bit more than that, I've changed the interaction
+# between gmGuiMain and gmPlugin to be event-based.)
+#
+# Oh, and SOAPTextCtrl allows Ctrl-Enter
+#
+# Revision 1.24  2004/07/15 06:15:55  ncq
 # - fixed typo patch -> path
 #
 # Revision 1.23  2004/07/15 05:17:43  ncq

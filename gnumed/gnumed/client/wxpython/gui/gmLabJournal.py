@@ -6,7 +6,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -685,8 +685,8 @@ if __name__ != '__main__':
 
 		def populate_with_data(self):
 			# no use reloading if invisible
-			if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
-				return 1
+			#if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
+			#	return 1
 			if self._widget.nb.update() is None:
 				_log.Log(gmLog.lErr, "cannot update lab journal with data")
 				return None
@@ -743,7 +743,14 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.32  2004-06-30 07:05:31  shilbert
+# Revision 1.33  2004-07-15 07:57:20  ihaywood
+# This adds function-key bindings to select notebook tabs
+# (Okay, it's a bit more than that, I've changed the interaction
+# between gmGuiMain and gmPlugin to be event-based.)
+#
+# Oh, and SOAPTextCtrl allows Ctrl-Enter
+#
+# Revision 1.32  2004/06/30 07:05:31  shilbert
 # - 'clin_when' -> 'sampled_when'
 # - more fk/pk changes
 #

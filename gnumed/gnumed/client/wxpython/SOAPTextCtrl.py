@@ -137,7 +137,9 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         else:
             if event.KeyCode () in [WXK_RETURN, WXK_RIGHT, WXK_DELETE]:
                 self.__matcher = None
-                if self.GetCharAt (pos) == 10: # we are at the end of a line
+                if event.ControlDown () and event.KeyCode () == WXK_RETURN:
+                    self.CmdKeyExecute (wxSTC_KEY_RETURN) # Ctrl-Enter is always "real" enter
+                elif self.GetCharAt (pos) == 10: # we are at the end of a line
                     pos += 1
                     if self.GetStyleAt (pos) == STYLE_HEADER: # the next line is a header
                         doclen = self.GetLength ()

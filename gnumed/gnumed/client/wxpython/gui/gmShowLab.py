@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -501,8 +501,8 @@ else:
 
 		def populate_with_data(self):
 			# no use reloading if invisible
-			if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
-				return 1
+			#if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
+			#	return 1
 			if self._widget.grid.update() is None:
 				_log.Log(gmLog.lErr, "cannot update grid with lab data")
 				return None
@@ -591,7 +591,14 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.11  2004-06-20 16:50:51  ncq
+# Revision 1.12  2004-07-15 07:57:21  ihaywood
+# This adds function-key bindings to select notebook tabs
+# (Okay, it's a bit more than that, I've changed the interaction
+# between gmGuiMain and gmPlugin to be event-based.)
+#
+# Oh, and SOAPTextCtrl allows Ctrl-Enter
+#
+# Revision 1.11  2004/06/20 16:50:51  ncq
 # - carefully fool epydoc
 #
 # Revision 1.10  2004/06/20 06:49:21  ihaywood

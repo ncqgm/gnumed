@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -530,15 +530,19 @@ else:
 			return ('tools', _('&ConfigRegistry'))
 
 		def populate_with_data(self):
-			# no use reloading if invisible
-			if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
-				return 1
 			self._widget.configTree.update()
 			return 1
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.20  2004-07-06 20:55:38  hinnef
+# Revision 1.21  2004-07-15 07:57:20  ihaywood
+# This adds function-key bindings to select notebook tabs
+# (Okay, it's a bit more than that, I've changed the interaction
+# between gmGuiMain and gmPlugin to be event-based.)
+#
+# Oh, and SOAPTextCtrl allows Ctrl-Enter
+#
+# Revision 1.20  2004/07/06 20:55:38  hinnef
 # fixed bug introduced during testing :(
 #
 # Revision 1.19  2004/06/28 22:34:09  hinnef

@@ -2,7 +2,7 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmEMRTextDumpPlugin.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmLog
@@ -31,8 +31,8 @@ class gmEMRTextDumpPlugin(gmPlugin.wxNotebookPlugin):
 
 	def populate_with_data(self):
 		# no use reloading if invisible
-		if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
-			return 1
+		#if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
+		#	return 1
 		self._widget.populate()
 		return 1
 
@@ -57,7 +57,14 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRTextDumpPlugin.py,v $
-# Revision 1.8  2004-06-20 16:50:51  ncq
+# Revision 1.9  2004-07-15 07:57:20  ihaywood
+# This adds function-key bindings to select notebook tabs
+# (Okay, it's a bit more than that, I've changed the interaction
+# between gmGuiMain and gmPlugin to be event-based.)
+#
+# Oh, and SOAPTextCtrl allows Ctrl-Enter
+#
+# Revision 1.8  2004/06/20 16:50:51  ncq
 # - carefully fool epydoc
 #
 # Revision 1.7  2004/06/20 06:49:21  ihaywood

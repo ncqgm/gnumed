@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.157 2004-06-26 23:09:22 ncq Exp $
-__version__ = "$Revision: 1.157 $"
+# $Id: gmGuiMain.py,v 1.158 2004-07-15 07:57:20 ihaywood Exp $
+__version__ = "$Revision: 1.158 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -52,6 +52,7 @@ ID_ABOUT = wxNewId ()
 ID_EXIT = wxNewId ()
 ID_HELP = wxNewId ()
 ID_NOTEBOOK = wxNewId ()
+ID_LEFTBOX = wxNewId ()
 #==================================================
 
 icon_serpent = \
@@ -105,6 +106,19 @@ class gmTopLevelFrame(wxFrame):
 		self.guibroker['EmergencyExit'] = self._clean_exit
 		self.guibroker['main.frame'] = self
 
+		self.mode, set1 = gmCfg.getFirstMatchingDBSet(machine = _whoami.get_workplace (),
+							      option = 'main.window.mode')
+		if set1 is None:
+ 			self.mode = 'status_quo'
+ 			gmCfg.setDBParam(machine = _whoami.get_workplace(),
+					 user = _whoami.get_db_account(),
+					 option = 'main.window.mode',
+					 value = self.mode )
+
+		self.bar_width, set1 = gmCfg.getFirstMatchingDBSet(machine = _whoami.get_workplace (),
+							      option = 'main.window.sidebar_width')
+		if set1 is None:
+ 			self.bar_width = 210 # about 1/3 of our hardcoded efault screen-width
 		self.SetupStatusBar()
 		self.SetStatusText(_("You are logged in as [%s].") % _whoami.get_db_account())
 		self.guibroker['main.statustext'] = self.SetStatusText
@@ -126,8 +140,8 @@ class gmTopLevelFrame(wxFrame):
 
 		self.__setup_platform()
 		self.__setup_main_menu()
-		self.__setup_accelerators()
-
+		self.acctbl = []
+		self.guibroker['main.accelerators'] = self.acctbl
 		# a vertical box sizer for the main window
 		self.vbox = wxBoxSizer(wxVERTICAL)
 		#self.vbox.SetMinSize(wxSize(320,240))
@@ -144,17 +158,34 @@ class gmTopLevelFrame(wxFrame):
 		# - but then proportion 10 for the notebook does not mean anything
 		self.vbox.Add (self.top_panel, 0, wxEXPAND, 1)
 
-		# now set up the main notebook
-		self.nb = wxNotebook (self, ID_NOTEBOOK, size = wxSize(320,240), style = wxNB_BOTTOM)
+		if self.mode == 'status_quo':
+			# now set up the main notebook
+			self.nb = wxNotebook (self, ID_NOTEBOOK, size = wxSize(320,240), style = wxNB_BOTTOM)
+			self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
+		elif self.mode == 'terry':
+			# set up the Terry-style split screen 
+			self.mainpanel = wxPanel (self, -1)
+			self.imagelist = wxImageList (16, 16)
+			self.nb = wxNotebook (self.mainpanel, ID_NOTEBOOK, size = wxSize(320,240))
+			self.nb.SetImageList (self.imagelist)
+			self.leftbox = wxSashLayoutWindow(self.mainpanel, ID_LEFTBOX, wxDefaultPosition,
+							  wxSize(200, 30), wxNO_BORDER|wxSW_3D)
+			self.leftbox.SetDefaultSize(wxSize(self.bar_width, 1000))
+			self.leftbox.SetOrientation(wxLAYOUT_VERTICAL)
+			self.leftbox.SetAlignment(wxLAYOUT_RIGHT)
+			self.leftbox.SetSashVisible(wxSASH_LEFT, True)
+			EVT_SIZE (self.mainpanel, self.OnPanelSize)
+			EVT_SASH_DRAGGED (self.leftbox, ID_LEFTBOX, self.OnSashDrag)
+			self.vbox.Add (self.mainpanel, 10, wxEXPAND | wxALL, 1)
+			
 		self.guibroker['main.notebook'] = self.nb
-		self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
-
 		# this list relates plugins to the notebook
-		self.guibroker['main.notebook.plugins'] = []	# (used to be called 'main.notebook.numbers')
-
-		self.__load_plugins()
+		self.plugins = {}
 		self.__register_events()
-
+		self.dont_touch_accels = 1
+		self.__load_plugins()
+		self.__setup_accelerators ()
+		self.dont_touch_accels = 0 # his flag prevents pointless repaeated reloading of accelerator table during startup
 		# size, position and show ourselves
 		self.top_panel.ReFit()
 		self.SetAutoLayout(true)
@@ -220,11 +251,9 @@ class gmTopLevelFrame(wxFrame):
 			_log.Log(gmLog.lInfo,'running on an unknown platform (%s)' % wxPlatform)
 	#----------------------------------------------
 	def __setup_accelerators(self):
-		acctbl = wxAcceleratorTable([
-			(wxACCEL_ALT | wxACCEL_CTRL, ord('X'), ID_EXIT),
-			(wxACCEL_CTRL, ord('H'), ID_HELP)
-		])
-		self.SetAcceleratorTable(acctbl)
+		self.acctbl.append ((wxACCEL_ALT | wxACCEL_CTRL, ord('X'), ID_EXIT))
+		self.acctbl.append ((wxACCEL_CTRL, ord('H'), ID_HELP))
+		self.SetAcceleratorTable(wxAcceleratorTable (self.acctbl))
 	#----------------------------------------------
 	def __setup_main_menu(self):
 		"""Create the main menu entries.
@@ -321,14 +350,17 @@ class gmTopLevelFrame(wxFrame):
 		EVT_MAXIMIZE(self, self.OnMaximize)
 		# - notebook page is about to change
 		EVT_NOTEBOOK_PAGE_CHANGING (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanging)
-		# - notebook page has been changed
-		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanged)
 		# - popup menu on right click in notebook
 		EVT_RIGHT_UP(self.nb, self._on_right_click)
 
 		# intra-client signals
 		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
 		gmDispatcher.connect(self.on_user_error, gmSignals.user_error ())
+		gmDispatcher.connect(self.on_new_notebook, gmSignals.new_notebook ())
+		gmDispatcher.connect(self.on_unload_plugin, gmSignals.unload_plugin ())
+		gmDispatcher.connect(self.SetNotebook, gmSignals.wish_display_plugin ())
+		if self.mode == 'terry':
+			gmDispatcher.connect (self.on_new_sidebar, gmSignals.new_sidebar ())
 	#----------------------------------------------
 	def OnNotebookPageChanging(self, event):
 		"""Called before notebook page change is processed.
@@ -340,32 +372,94 @@ class gmTopLevelFrame(wxFrame):
 		# old page here
 		new_page_id = event.GetSelection()
 		if new_page_id != old_page_id:
-			new_page = self.guibroker['main.notebook.plugins'][new_page_id]
-			if not new_page.can_receive_focus():
-				event.Veto()
-				return
+			for key, item in self.plugins.items ():
+				if item['n'] == new_page_id:
+					ret = gmDispatcher.send (gmSignals.display_plugin (), sender=self, name=key)
+					break
+			for receiver, response in ret:
+				if response == 'veto':
+					event.Veto()
+					return
 		else:
 			_log.Log(gmLog.lData, 'cannot check if page change needs to be veto()ed')
 		event.Skip() # required for MSW
 	#----------------------------------------------
-	def OnNotebookPageChanged(self, event):
-		"""Called when notebook changes.
-
-		FIXME: we can maybe change title bar information here
+	def SetNotebook (self, new_page_id=-1, name=""):
+		"""Programmatic version of the above
+		Is also the handler for wish_display_plugin
 		"""
-		new_page_id = event.GetSelection()
-		old_page_id = event.GetOldSelection()
-		# get access to selected page
-		new_page = self.guibroker['main.notebook.plugins'][new_page_id]
-		# can we hand focus to new page ?
-		if not new_page.can_receive_focus():
-			# we can only hope things will work out anyways
-			_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows and Mac OSX)")
-		new_page.ReceiveFocus()
-		# activate toolbar of new page
-		self.top_panel.ShowBar(new_page.__class__.__name__)
-		event.Skip() # required for MSW
+		old_page_id = self.nb.GetSelection ()
+		if new_page_id > -1:
+			for key, item in self.plugins.items ():
+				if item['n'] == new_page_id:
+					name=key
+					break
+		else:
+			new_page_id = self.plugins[name]['n']
+
+		if new_page_id != old_page_id:
+			ret = gmDispatcher.send (gmSignals.display_plugin (), sender=self, name=key)
+			for receiver, response in ret:
+				if response == 'veto':
+					return
+			self.nb.SetSelection (new_page_id)
+		else:
+			_log.Log(gmLog.lData, 'cannot check if page change needs to be veto()ed')
+
 	#----------------------------------------------
+	def on_new_notebook (self, **kwargs):
+		"""
+		A plugin has asked to be displayed by the new method
+		"""
+		widget = kwargs['widget'] (self.nb)
+		if self.mode =='terry' and kwargs['icon']:
+			im_n = self.imagelist.AddIcon (kwargs['icon'])
+			self.nb.AddPage (widget, "", im_n)
+		else:
+			self.nb.AddPage (widget, kwargs['label'])
+		n = len (self.plugins)
+		menu_id = wxNewId()
+		self.plugins[kwargs['name']] = {}
+		self.plugins[kwargs['name']]['n'] = n
+		self.plugins[kwargs['name']]['type'] = 'notebook'
+		self.plugins[kwargs['name']]['menu_id'] = menu_id
+		self.menu_view.Append (menu_id, kwargs['label'], kwargs.setdefault ("help", ""))
+		EVT_MENU (self, menu_id, lambda e: self.SetNotebook (n))
+		if n < 25:
+			self.acctbl.append ((0,WXK_F1+n, menu_id))
+		if not self.dont_touch_accels:
+			self.SetAcceleratorTable(wxAcceleratorTable (self.acctbl))
+		widget.Show (1)
+	#----------------------------------------------
+	def on_unload_plugin (self, **kwargs):
+		"""
+		A notebook widget has requested unloading
+		"""
+		plugin = self.plugins[kwargs['name']]
+		if plugin['type'] == 'notebook':
+			n = plugin['n']
+			self.nb.DeletePage (n)
+			self.menu_view.Delete (plugin['menu_id'])
+			new_acctbl = []
+			for flags, keycode, mid in self.acctbl:
+				if mid != plugin['menu_id']:
+					if keycode > WXK_F1+n and keycode < WXK_F24:
+						keycode -= 1
+					new_acctbl.append ((flags, keycode, mid))
+			self.acctbl = new_acctbl
+			self.SetAcceleratorTable(wxAcceleratorTable (self.acctbl))
+			for i in self.plugins.keys ():
+				if self.plugins[i]['n'] > n:
+					self.plugins[i]['n'] -= 1
+		del self.plugins[kwargs['name']]
+	#----------------------------------------------
+	def on_new_sidebar (self, **kwargs):
+		"""
+		Loads a widget into the sidebar.
+		Only ever called in 'terry' mode
+		"""
+		pass
+	#-----------------------------------------------
 	def on_patient_selected(self, **kwargs):
 		wxCallAfter(self.__on_patient_selected, **kwargs)
 	#----------------------------------------------
@@ -391,6 +485,7 @@ class gmTopLevelFrame(wxFrame):
 		load_menu = wxMenu()
 		any_loadable = 0
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
+		plugin = None
 		for plugin_name in plugin_list:
 			try:
 				plugin = gmPlugin.instantiate_plugin('gui', plugin_name)
@@ -398,16 +493,17 @@ class gmTopLevelFrame(wxFrame):
 				continue
 			# not a plugin
 			if not isinstance(plugin, gmPlugin.wxNotebookPlugin):
-				del plugin
+				plugin = None
 				continue
 			# already loaded
-			if plugin.__class__.__name__ in self.guibroker['modules.gui'].keys():
-				del plugin
+			if plugin.__class__.__name__ in self.plugins.keys():
+				plugin = None
 				continue
 			# add to load menu
-			id = wxNewId()
-			load_menu.AppendItem(wxMenuItem(load_menu, id, plugin.name()))
-			EVT_MENU(load_menu, id, plugin.on_load)
+			nid = wxNewId()
+			load_menu.AppendItem(wxMenuItem(load_menu, nid, plugin.label or plugin.name()))
+			print plugin
+			EVT_MENU(load_menu, nid, plugin.on_load)
 			any_loadable = 1
 		# make menus
 		menu = wxMenu()
@@ -415,28 +511,20 @@ class gmTopLevelFrame(wxFrame):
 		ID_DROP = wxNewId()
 		if any_loadable:
 			menu.AppendMenu(ID_LOAD, _('add plugin ...'), load_menu)
-		plugins = self.guibroker['main.notebook.plugins']
-		raised_plugin = plugins[self.nb.GetSelection()].name()
+		n = self.nb.GetSelection ()
+		for key, item in self.plugins.items ():
+			if item['type'] == 'notebook' and item['n'] == n:
+				raised_plugin = key
+				break
+		print "raised_plugin %s" % raised_plugin
 		menu.AppendItem(wxMenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))
-		EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
+		EVT_MENU (menu, ID_DROP, lambda e: self.on_unload_plugin (name=raised_plugin))
 		self.PopupMenu(menu, evt.GetPosition())
 		menu.Destroy()
 		evt.Skip()
-	#----------------------------------------------		
-	def _on_drop_plugin(self, evt):
-		"""Unload plugin and drop from load list."""
-		plugins = self.guibroker['main.notebook.plugins']
-		plugin = plugins[self.nb.GetSelection()]
-		plugin.unregister()
-		# FIXME: set selection to another plugin
-		# FIXME:"dropping" means talking to configurator so not reloaded
-	#----------------------------------------------
-	def OnPluginHide (self, evt):
-		"""Unload plugin but don't touch configuration."""
-		# this dictionary links notebook page numbers to plugin objects
-		plugins = self.guibroker['main.notebook.plugins']
-		plugin = plugins[self.nb.GetSelection()]
-		plugin.unregister()
+
+	def loadmenu (self, plugin):
+		print "asked to load %s" % str (plugin)
 	#----------------------------------------------
 	def OnFileExit(self, event):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
@@ -462,6 +550,11 @@ class gmTopLevelFrame(wxFrame):
 		"""
 		# signal imminent demise to plugins
 		gmDispatcher.send(gmSignals.application_closing())
+		if self.bar_width != 210: # user changed the sidebar size -- remember that
+			gmCfg.setDBParam(machine = _whoami.get_workplace(),
+					 user = _whoami.get_db_account(),
+					 option = 'main.window.sidebar_width',
+					 value = self.bar_width )
 		# handle our own stuff
 		gmPG.ConnectionPool().StopListeners()
 		try:
@@ -548,6 +641,18 @@ class gmTopLevelFrame(wxFrame):
 			self.nb.GetPage(i).Enable(true)
 		# go straight to patient selection
 		self.nb.AdvanceSelection()
+	#-----------------------------------------------
+	def OnPanelSize (self, event):
+		wxLayoutAlgorithm ().LayoutWindow (self.mainpanel, self.nb)
+	#------------------------------------------------
+	def OnSashDrag (self, event):
+		if event.GetDragStatus() == wxSASH_STATUS_OUT_OF_RANGE:
+			return
+		self.leftbox.SetDefaultSize(wxSize(event.GetDragRect().width, 1000))
+		self.bar_width = event.GetDragRect ().width
+		wxLayoutAlgorithm().LayoutWindow(self.mainpanel, self.nb)
+		self.nb.Refresh()
+
 #==================================================
 class gmApp(wxApp):
 
@@ -766,7 +871,14 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.157  2004-06-26 23:09:22  ncq
+# Revision 1.158  2004-07-15 07:57:20  ihaywood
+# This adds function-key bindings to select notebook tabs
+# (Okay, it's a bit more than that, I've changed the interaction
+# between gmGuiMain and gmPlugin to be event-based.)
+#
+# Oh, and SOAPTextCtrl allows Ctrl-Enter
+#
+# Revision 1.157  2004/06/26 23:09:22  ncq
 # - better comments
 #
 # Revision 1.156  2004/06/25 14:39:35  ncq
