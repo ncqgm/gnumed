@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.18 2003-05-21 14:11:26 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmEditArea.py,v 1.19 2003-05-21 14:24:29 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "R.Terry, K.HIlbert"
 #====================================================================
 import sys
@@ -602,6 +602,336 @@ class EditArea(wxPanel):
 		self.SetAutoLayout(true)
 		self.Show(true)
 #====================================================================
+# old stuff still needed for conversion
+#--------------------------------------------------------------------
+#		elif section == gmSECTION_PASTHISTORY:
+#			self.txt_condition = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#			self.rb_sideleft = wxRadioButton(self, 32, " (L) ", wxDefaultPosition,wxDefaultSize)
+#			self.rb_sideright = wxRadioButton(self, 33, "(R)", wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
+#			self.rb_sideboth = wxRadioButton(self, 33, "Both", wxDefaultPosition,wxDefaultSize)
+#			self.rbsizer = wxBoxSizer(wxHORIZONTAL)
+#			self.rbsizer.Add(self.rb_sideleft,1,wxEXPAND)
+#			self.rbsizer.Add(self.rb_sideright,1,wxEXPAND) 
+#			self.rbsizer.Add(self.rb_sideboth,1,wxEXPAND)
+#			self.sizer_line1.Add(self.txt_condition,4,wxEXPAND)
+#			self.sizer_line1.Add(self.rb_sideleft,1,wxEXPAND|wxALL,2)
+#			self.sizer_line1.Add(self.rb_sideright,1,wxEXPAND|wxALL,2) 
+#			self.sizer_line1.Add(self.rb_sideboth,1,wxEXPAND|wxALL,2)
+#			self.txt_notes1 = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#			self.txt_notes2= cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#			self.txt_agenoted = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#			self.sizer_line4.Add(self.txt_agenoted,1,wxEXPAND)
+#			self.sizer_line4.Add(5,0,5)
+#			self.txt_yearnoted  = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#			self.sizer_line5.Add(self.txt_yearnoted,1,wxEXPAND)
+#			self.sizer_line5.Add(5,0,5)
+#			self.cb_active = wxCheckBox(self, -1, " Active ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#			self.cb_operation = wxCheckBox(self, -1, " Operation ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#			self.cb_confidential = wxCheckBox(self, -1, " Confidential ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#			self.cb_significant = wxCheckBox(self, -1, " Significant ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#			self.txt_progressnotes  = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#			self.sizer_line6.Add(self.cb_active,1,wxEXPAND)
+#			self.sizer_line6.Add(self.cb_operation,1,wxEXPAND)
+#			self.sizer_line6.Add(self.cb_confidential,1,wxEXPAND)
+#			self.sizer_line6.Add(self.cb_significant,1,wxEXPAND)
+#			self.gszr.Add(self.sizer_line1,0,wxEXPAND)
+#			self.gszr.Add(self.txt_notes1,0,wxEXPAND)
+#			self.gszr.Add(self.txt_notes2,0,wxEXPAND)
+#			self.gszr.Add(self.sizer_line4,0,wxEXPAND)
+#			self.gszr.Add(self.sizer_line5,0,wxEXPAND)
+#			self.gszr.Add(self.sizer_line6,0,wxEXPAND)
+#			self.gszr.Add(self.txt_progressnotes,0,wxEXPAND)
+#			self.sizer_line7.Add(5,0,6)
+#			self.sizer_line7.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#			self.sizer_line7.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)   
+#			self.gszr.Add(self.sizer_line7,0,wxEXPAND)
+			#self.anylist = wxListCtrl(self, -1,  wxDefaultPosition,wxDefaultSize,wxLC_REPORT|wxLC_LIST|wxSUNKEN_BORDER)
+
+
+#		elif section == gmSECTION_VACCINATION:
+#		      self.txt_targetdisease = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_vaccine = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_dategiven= cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_serialno = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_sitegiven  = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#	              self.txt_progressnotes  = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#	              self.gszr.Add(self.txt_targetdisease,0,wxEXPAND)
+#		      self.gszr.Add(self.txt_vaccine,0,wxEXPAND)
+#		      self.gszr.Add(self.txt_dategiven,0,wxEXPAND)
+#		      self.gszr.Add(self.txt_serialno,0,wxEXPAND)
+#		      self.gszr.Add(self.txt_sitegiven,0,wxEXPAND)
+#		      self.gszr.Add(self.txt_progressnotes,0,wxEXPAND)
+#		      self.sizer_line6.Add(5,0,6)
+#		      self.sizer_line6.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#	              self.sizer_line6.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)    
+#		      self.gszr.Add(self.sizer_line6,1,wxEXPAND)
+
+
+#		elif section == gmSECTION_SCRIPT:
+#		      gmLog.gmDefLog.Log (gmLog.lData, "in script section now")
+#		      self.text1_prescription_reason = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text2_drug_class = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text3_generic_drug = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text4_brand_drug = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text5_strength = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text6_directions = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text7_for_duration = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text8_prescription_progress_notes = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text9_quantity = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      lbl_veterans = cPrompt_edit_area(self,-1,"  Veteran  ")
+#		      lbl_reg24 = cPrompt_edit_area(self,-1,"  Reg 24  ")
+#		      lbl_quantity = cPrompt_edit_area(self,-1,"  Quantity  ")
+#		      lbl_repeats = cPrompt_edit_area(self,-1,"  Repeats  ")
+#		      lbl_usualmed = cPrompt_edit_area(self,-1,"  Usual  ")
+#		      self.cb_veteran  = wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.cb_reg24 = wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.cb_usualmed = wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.sizer_auth_PI = wxBoxSizer(wxHORIZONTAL)
+#		      self.btn_authority = wxButton(self,-1,">Authority")     #create authority script
+#		      self.btn_briefPI   = wxButton(self,-1,"Brief PI")       #show brief drug product information
+#		      self.sizer_auth_PI.Add(self.btn_authority,1,wxEXPAND|wxALL,2)  #put authority button and PI button
+#		      self.sizer_auth_PI.Add(self.btn_briefPI,1,wxEXPAND|wxALL,2)    #on same sizer
+#		      self.text10_repeats  = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.sizer_line3.Add(self.text3_generic_drug,5,wxEXPAND)
+#		      self.sizer_line3.Add(lbl_veterans,1,wxEXPAND)
+ #       	      self.sizer_line3.Add(self.cb_veteran,1,wxEXPAND)
+#		      self.sizer_line4.Add(self.text4_brand_drug,5,wxEXPAND)
+#		      self.sizer_line4.Add(lbl_reg24,1,wxEXPAND)
+ #       	      self.sizer_line4.Add(self.cb_reg24,1,wxEXPAND)
+#		      self.sizer_line5.Add(self.text5_strength,5,wxEXPAND)
+#		      self.sizer_line5.Add(lbl_quantity,1,wxEXPAND)
+ #       	      self.sizer_line5.Add(self.text9_quantity,1,wxEXPAND)
+#		      self.sizer_line6.Add(self.text6_directions,5,wxEXPAND)
+#		      self.sizer_line6.Add(lbl_repeats,1,wxEXPAND)
+ #       	      self.sizer_line6.Add(self.text10_repeats,1,wxEXPAND)
+#		      self.sizer_line7.Add(self.text7_for_duration,5,wxEXPAND)
+#		      self.sizer_line7.Add(lbl_usualmed,1,wxEXPAND)
+ #       	      self.sizer_line7.Add(self.cb_usualmed,1,wxEXPAND)
+#		      self.sizer_line8.Add(5,0,0)
+#		      self.sizer_line8.Add(self.sizer_auth_PI,2,wxEXPAND)
+#		      self.sizer_line8.Add(5,0,2)
+#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)
+#		      self.gszr.Add(self.text1_prescription_reason,1,wxEXPAND) #prescribe for
+#		      self.gszr.Add(self.text2_drug_class,1,wxEXPAND) #prescribe by class
+#		      self.gszr.Add(self.sizer_line3,1,wxEXPAND) #prescribe by generic, lbl_veterans, cb_veteran
+#		      self.gszr.Add(self.sizer_line4,1,wxEXPAND) #prescribe by brand, lbl_reg24, cb_reg24
+#		      self.gszr.Add(self.sizer_line5,1,wxEXPAND) #drug strength, lbl_quantity, text_quantity 
+#		      self.gszr.Add(self.sizer_line6,1,wxEXPAND) #txt_directions, lbl_repeats, text_repeats 
+#		      self.gszr.Add(self.sizer_line7,1,wxEXPAND) #text_for,lbl_usual,chk_usual
+#		      self.gszr.Add(self.text8_prescription_progress_notes,1,wxEXPAND)            #text_progressNotes
+#		      self.gszr.Add(self.sizer_line8,1,wxEXPAND)
+		      
+		      
+#	        elif section == gmSECTION_REQUESTS:
+#		      #----------------------------------------------------------------------------- 	
+	              #editing area for general requests e.g pathology, radiology, physiotherapy etc
+		      #create textboxes, radiobuttons etc
+		      #-----------------------------------------------------------------------------
+#		      self.txt_request_type = cTBOX_edit_area(self,ID_REQUEST_TYPE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_company = cTBOX_edit_area(self,ID_REQUEST_COMPANY,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_street = cTBOX_edit_area(self,ID_REQUEST_STREET,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_suburb = cTBOX_edit_area(self,ID_REQUEST_SUBURB,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_phone= cTBOX_edit_area(self,ID_REQUEST_PHONE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_requests = cTBOX_edit_area(self,ID_REQUEST_REQUESTS,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_notes = cTBOX_edit_area(self,ID_REQUEST_FORMNOTES,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_medications = cTBOX_edit_area(self,ID_REQUEST_MEDICATIONS,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_copyto = cTBOX_edit_area(self,ID_REQUEST_COPYTO,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_progressnotes = cTBOX_edit_area(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+#		      self.lbl_companyphone = cPrompt_edit_area(self,-1,"  Phone  ")
+#		      self.cb_includeallmedications = wxCheckBox(self, -1, " Include all medications ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.rb_request_bill_bb = wxRadioButton(self, ID_REQUEST_BILL_BB, "Bulk Bill ", wxDefaultPosition,wxDefaultSize)
+#	              self.rb_request_bill_private = wxRadioButton(self, ID_REQUEST_BILL_PRIVATE, "Private", wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
+#		      self.rb_request_bill_rebate = wxRadioButton(self, ID_REQUEST_BILL_REBATE, "Rebate", wxDefaultPosition,wxDefaultSize)
+#		      self.rb_request_bill_wcover = wxRadioButton(self, ID_REQUEST_BILL_wcover, "w/cover", wxDefaultPosition,wxDefaultSize)
+		      #--------------------------------------------------------------
+                     #add controls to sizers where multiple controls per editor line
+		      #--------------------------------------------------------------
+#                      self.sizer_request_optionbuttons = wxBoxSizer(wxHORIZONTAL)
+#		      self.sizer_request_optionbuttons.Add(self.rb_request_bill_bb,1,wxEXPAND)
+#		      self.sizer_request_optionbuttons.Add(self.rb_request_bill_private ,1,wxEXPAND)
+#                      self.sizer_request_optionbuttons.Add(self.rb_request_bill_rebate  ,1,wxEXPAND)
+#                      self.sizer_request_optionbuttons.Add(self.rb_request_bill_wcover  ,1,wxEXPAND)
+#		      self.sizer_line4.Add(self.txt_request_suburb,4,wxEXPAND)
+#		      self.sizer_line4.Add(self.lbl_companyphone,1,wxEXPAND)
+#		      self.sizer_line4.Add(self.txt_request_phone,2,wxEXPAND)
+#		      self.sizer_line7.Add(self.txt_request_medications, 4,wxEXPAND)
+#		      self.sizer_line7.Add(self.cb_includeallmedications,3,wxEXPAND)
+#		      self.sizer_line10.AddSizer(self.sizer_request_optionbuttons,3,wxEXPAND)
+#		      self.sizer_line10.AddSizer(self.szr_buttons,1,wxEXPAND)
+		      #self.sizer_line10.Add(self.btn_OK,1,wxEXPAND|wxALL,1)
+	              #self.sizer_line10.Add(self.btn_Clear,1,wxEXPAND|wxALL,1)  
+		      #------------------------------------------------------------------
+		      #add either controls or sizers with controls to vertical grid sizer
+		      #------------------------------------------------------------------
+#                      self.gszr.Add(self.txt_request_type,0,wxEXPAND)                   #e.g Pathology
+#		      self.gszr.Add(self.txt_request_company,0,wxEXPAND)                #e.g Douglas Hanly Moir
+#		      self.gszr.Add(self.txt_request_street,0,wxEXPAND)                 #e.g 120 Big Street  
+#		      self.gszr.AddSizer(self.sizer_line4,0,wxEXPAND)                   #e.g RYDE NSW Phone 02 1800 222 365
+#		      self.gszr.Add(self.txt_request_requests,0,wxEXPAND)               #e.g FBC;ESR;UEC;LFTS
+#		      self.gszr.Add(self.txt_request_notes,0,wxEXPAND)                  #e.g generally tired;weight loss;
+#		      self.gszr.AddSizer(self.sizer_line7,0,wxEXPAND)                   #e.g Lipitor;losec;zyprexa
+#		      self.gszr.Add(self.txt_request_copyto,0,wxEXPAND)                 #e.g Dr I'm All Heart, 120 Big Street Smallville
+#		      self.gszr.Add(self.txt_request_progressnotes,0,wxEXPAND)          #emphasised to patient must return for results 
+ #                     self.sizer_line8.Add(5,0,6)
+#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#	              self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)   
+#		      self.gszr.Add(self.sizer_line10,0,wxEXPAND)                       #options:b/bill private, rebate,w/cover btnok,btnclear
+
+		      
+#	        elif section == gmSECTION_MEASUREMENTS:
+#		      self.combo_measurement_type = wxComboBox(self, ID_MEASUREMENT_TYPE, "", wxDefaultPosition,wxDefaultSize, ['Blood pressure','INR','Height','Weight','Whatever other measurement you want to put in here'], wxCB_DROPDOWN)
+#		      self.combo_measurement_type.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+#		      self.combo_measurement_type.SetForegroundColour(wxColor(255,0,0))
+#		      self.txt_measurement_value = cTBOX_edit_area(self,ID_MEASUREMENT_VALUE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_txt_measurement_date = cTBOX_edit_area(self,ID_MEASUREMENT_DATE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_txt_measurement_comment = cTBOX_edit_area(self,ID_MEASUREMENT_COMMENT,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_txt_measurement_progressnote = cTBOX_edit_area(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+#		      self.sizer_graphnextbtn = wxBoxSizer(wxHORIZONTAL)
+#		      self.btn_nextvalue = wxButton(self,ID_MEASUREMENT_NEXTVALUE,"   Next Value   ")                 #clear fields except type
+#		      self.btn_graph   = wxButton(self,ID_MEASUREMENT_GRAPH," Graph ")                        #graph all values of this type
+#		      self.sizer_graphnextbtn.Add(self.btn_nextvalue,1,wxEXPAND|wxALL,2)  #put next and graph button
+#		      self.sizer_graphnextbtn.Add(self.btn_graph,1,wxEXPAND|wxALL,2)      #on same sizer	
+#		      self.gszr.Add(self.combo_measurement_type,0,wxEXPAND)              #e.g Blood pressure
+#		      self.gszr.Add(self.txt_measurement_value,0,wxEXPAND)               #e.g 120.70
+#		      self.gszr.Add(self.txt_txt_measurement_date,0,wxEXPAND)            #e.g 10/12/2001
+#		      self.gszr.Add(self.txt_txt_measurement_comment,0,wxEXPAND)         #e.g sitting, right arm
+#		      self.gszr.Add(self.txt_txt_measurement_progressnote,0,wxEXPAND)    #e.g given home BP montitor, see 1 week
+#		      self.sizer_line8.Add(5,0,0)
+#		      self.sizer_line8.Add(self.sizer_graphnextbtn,2,wxEXPAND)
+#		      self.sizer_line8.Add(5,0,2)
+#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)
+#		      self.gszr.AddSizer(self.sizer_line8,0,wxEXPAND)
+		      
+
+#	        elif section == gmSECTION_REFERRALS:
+#		      self.btnpreview = wxButton(self,-1,"Preview")
+#		      self.sizer_btnpreviewok = wxBoxSizer(wxHORIZONTAL)
+		      #--------------------------------------------------------
+	              #editing area for referral letters, insurance letters etc
+		      #create textboxes, checkboxes etc
+		      #--------------------------------------------------------
+#		      self.txt_referralcategory = cTBOX_edit_area(self,ID_REFERRAL_CATEGORY,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralname = cTBOX_edit_area(self,ID_REFERRAL_NAME,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralorganisation = cTBOX_edit_area(self,ID_REFERRAL_ORGANISATION,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralstreet1 = cTBOX_edit_area(self,ID_REFERRAL_STREET1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralstreet2 = cTBOX_edit_area(self,ID_REFERRAL_STREET2,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralstreet3 = cTBOX_edit_area(self,ID_REFERRAL_STREET3,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralsuburb = cTBOX_edit_area(self,ID_REFERRAL_SUBURB,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralpostcode = cTBOX_edit_area(self,ID_REFERRAL_POSTCODE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralfor = cTBOX_edit_area(self,ID_REFERRAL_FOR,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralwphone= cTBOX_edit_area(self,ID_REFERRAL_WPHONE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralwfax= cTBOX_edit_area(self,ID_REFERRAL_WFAX,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralwemail= cTBOX_edit_area(self,ID_REFERRAL_WEMAIL,wxDefaultPosition,wxDefaultSize)
+		      #self.txt_referralrequests = cTBOX_edit_area(self,ID_REFERRAL_REQUESTS,wxDefaultPosition,wxDefaultSize)
+		      #self.txt_referralnotes = cTBOX_edit_area(self,ID_REFERRAL_FORMNOTES,wxDefaultPosition,wxDefaultSize)
+		      #self.txt_referralmedications = cTBOX_edit_area(self,ID_REFERRAL_MEDICATIONS,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralcopyto = cTBOX_edit_area(self,ID_REFERRAL_COPYTO,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralprogressnotes = cTBOX_edit_area(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+#		      self.lbl_referralwphone = cPrompt_edit_area(self,-1,"  W Phone  ")
+#		      self.lbl_referralwfax = cPrompt_edit_area(self,-1,"  W Fax  ")
+#		      self.lbl_referralwemail = cPrompt_edit_area(self,-1,"  W Email  ")
+#		      self.lbl_referralpostcode = cPrompt_edit_area(self,-1,"  Postcode  ")
+#		      self.chkbox_referral_usefirstname = wxCheckBox(self, -1, " Use Firstname ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.chkbox_referral_headoffice = wxCheckBox(self, -1, " Head Office ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.chkbox_referral_medications = wxCheckBox(self, -1, " Medications ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.chkbox_referral_socialhistory = wxCheckBox(self, -1, " Social History ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.chkbox_referral_familyhistory = wxCheckBox(self, -1, " Family History ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.chkbox_referral_pastproblems = wxCheckBox(self, -1, " Past Problems ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.chkbox_referral_activeproblems = wxCheckBox(self, -1, " Active Problems ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.chkbox_referral_habits = wxCheckBox(self, -1, " Habits ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      #self.chkbox_referral_Includeall = wxCheckBox(self, -1, " Include all of the above ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      #--------------------------------------------------------------
+                      #add controls to sizers where multiple controls per editor line
+		      #--------------------------------------------------------------
+#		      self.sizer_line2.Add(self.txt_referralname,2,wxEXPAND) 
+#		      self.sizer_line2.Add(self.chkbox_referral_usefirstname,2,wxEXPAND)
+#		      self.sizer_line3.Add(self.txt_referralorganisation,2,wxEXPAND)
+#		      self.sizer_line3.Add(self.chkbox_referral_headoffice,2, wxEXPAND)
+#		      self.sizer_line4.Add(self.txt_referralstreet1,2,wxEXPAND)
+#		      self.sizer_line4.Add(self.lbl_referralwphone,1,wxEXPAND)
+#		      self.sizer_line4.Add(self.txt_referralwphone,1,wxEXPAND)
+#		      self.sizer_line5.Add(self.txt_referralstreet2,2,wxEXPAND)
+#		      self.sizer_line5.Add(self.lbl_referralwfax,1,wxEXPAND)
+#		      self.sizer_line5.Add(self.txt_referralwfax,1,wxEXPAND)
+#		      self.sizer_line6.Add(self.txt_referralstreet3,2,wxEXPAND)
+#		      self.sizer_line6.Add(self.lbl_referralwemail,1,wxEXPAND)
+#		      self.sizer_line6.Add(self.txt_referralwemail,1,wxEXPAND)
+#		      self.sizer_line7.Add(self.txt_referralsuburb,2,wxEXPAND)
+#		      self.sizer_line7.Add(self.lbl_referralpostcode,1,wxEXPAND)
+#		      self.sizer_line7.Add(self.txt_referralpostcode,1,wxEXPAND)
+#		      self.sizer_line10.Add(self.chkbox_referral_medications,1,wxEXPAND)
+#	              self.sizer_line10.Add(self.chkbox_referral_socialhistory,1,wxEXPAND)
+#		      self.sizer_line10.Add(self.chkbox_referral_familyhistory,1,wxEXPAND)
+#		      self.sizer_line11.Add(self.chkbox_referral_pastproblems  ,1,wxEXPAND)
+#		      self.sizer_line11.Add(self.chkbox_referral_activeproblems  ,1,wxEXPAND)
+#		      self.sizer_line11.Add(self.chkbox_referral_habits  ,1,wxEXPAND)
+#		      self.sizer_btnpreviewok.Add(self.btnpreview,0,wxEXPAND)
+#		      self.szr_buttons.Add(self.btn_Clear,0, wxEXPAND)		      
+		      #------------------------------------------------------------------
+		      #add either controls or sizers with controls to vertical grid sizer
+		      #------------------------------------------------------------------
+ #                     self.gszr.Add(self.txt_referralcategory,0,wxEXPAND)               #e.g Othopaedic surgeon
+#		      self.gszr.Add(self.sizer_line2,0,wxEXPAND)                        #e.g Dr B Breaker
+#		      self.gszr.Add(self.sizer_line3,0,wxEXPAND)                        #e.g General Orthopaedic servies
+#		      self.gszr.Add(self.sizer_line4,0,wxEXPAND)                        #e.g street1
+#		      self.gszr.Add(self.sizer_line5,0,wxEXPAND)                        #e.g street2
+#		      self.gszr.Add(self.sizer_line6,0,wxEXPAND)                        #e.g street3
+#		      self.gszr.Add(self.sizer_line7,0,wxEXPAND)                        #e.g suburb and postcode
+#		      self.gszr.Add(self.txt_referralfor,0,wxEXPAND)                    #e.g Referral for an opinion
+#		      self.gszr.Add(self.txt_referralcopyto,0,wxEXPAND)                 #e.g Dr I'm All Heart, 120 Big Street Smallville
+#		      self.gszr.Add(self.txt_referralprogressnotes,0,wxEXPAND)          #emphasised to patient must return for results 
+#		      self.gszr.AddSizer(self.sizer_line10,0,wxEXPAND)                   #e.g check boxes to include medications etc
+#		      self.gszr.Add(self.sizer_line11,0,wxEXPAND)                       #e.g check boxes to include active problems etc
+		      #self.spacer = wxWindow(self,-1,wxDefaultPosition,wxDefaultSize)
+		      #self.spacer.SetBackgroundColour(wxColor(255,255,255))
+#		      self.sizer_line12.Add(5,0,6)
+		      #self.sizer_line12.Add(self.spacer,6,wxEXPAND)
+#		      self.sizer_line12.Add(self.btnpreview,1,wxEXPAND|wxALL,2)
+#	              self.sizer_line12.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)    
+#	              self.gszr.Add(self.sizer_line12,0,wxEXPAND)                       #btnpreview and btn clear
+		      
+
+#		elif section == gmSECTION_RECALLS:
+		      #FIXME remove present options in this combo box	  #FIXME defaults need to be loaded from database	  
+#		      self.combo_tosee = wxComboBox(self, ID_RECALLS_TOSEE, "", wxDefaultPosition,wxDefaultSize, ['Doctor1','Doctor2','Nurse1','Dietition'], wxCB_READONLY ) #wxCB_DROPDOWN)
+#		      self.combo_tosee.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+#		      self.combo_tosee.SetForegroundColour(wxColor(255,0,0))
+		      #FIXME defaults need to be loaded from database
+#		      self.combo_recall_method = wxComboBox(self, ID_RECALLS_CONTACTMETHOD, "", wxDefaultPosition,wxDefaultSize, ['Letter','Telephone','Email','Carrier pigeon'], wxCB_READONLY )
+#		      self.combo_recall_method.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+#		      self.combo_recall_method.SetForegroundColour(wxColor(255,0,0))
+		      #FIXME defaults need to be loaded from database
+ #                     self.combo_apptlength = wxComboBox(self, ID_RECALLS_APPNTLENGTH, "", wxDefaultPosition,wxDefaultSize, ['brief','standard','long','prolonged'], wxCB_READONLY )
+#		      self.combo_apptlength.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+#		      self.combo_apptlength.SetForegroundColour(wxColor(255,0,0))
+#		      self.txt_recall_for = cTBOX_edit_area(self,ID_RECALLS_TXT_FOR, wxDefaultPosition,wxDefaultSize)
+#		      self.txt_recall_due = cTBOX_edit_area(self,ID_RECALLS_TXT_DATEDUE, wxDefaultPosition,wxDefaultSize)
+#		      self.txt_recall_addtext = cTBOX_edit_area(self,ID_RECALLS_TXT_ADDTEXT,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_recall_include = cTBOX_edit_area(self,ID_RECALLS_TXT_INCLUDEFORMS,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_recall_progressnotes = cTBOX_edit_area(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+#		      self.lbl_recall_consultlength = cPrompt_edit_area(self,-1,"  Appointment length  ")
+		      #sizer_lkine1 has the method of recall and the appointment length
+#		      self.sizer_line1.Add(self.combo_recall_method,1,wxEXPAND)
+#		      self.sizer_line1.Add(self.lbl_recall_consultlength,1,wxEXPAND)
+#		      self.sizer_line1.Add(self.combo_apptlength,1,wxEXPAND)
+		      #Now add the controls to the grid sizer
+ #                     self.gszr.Add(self.combo_tosee,1,wxEXPAND)                       #list of personel for patient to see
+#		      self.gszr.Add(self.txt_recall_for,1,wxEXPAND)                    #the actual recall may be free text or word wheel  
+#		      self.gszr.Add(self.txt_recall_due,1,wxEXPAND)                    #date of future recall 
+#		      self.gszr.Add(self.txt_recall_addtext,1,wxEXPAND)                #added explanation e.g 'come fasting' 
+#		      self.gszr.Add(self.txt_recall_include,1,wxEXPAND)                #any forms to be sent out first eg FBC
+#		      self.gszr.AddSizer(self.sizer_line1,1,wxEXPAND)                        #the contact method, appointment length
+#		      self.gszr.Add(self.txt_recall_progressnotes,1,wxEXPAND)          #add any progress notes for consultation
+#		      self.sizer_line8.Add(5,0,6)
+#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#	              self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)    
+#		      self.gszr.Add(self.sizer_line8,1,wxEXPAND)
+#		else:
+#		      pass
+
+#====================================================================
 # main
 #--------------------------------------------------------------------
 if __name__ == "__main__":
@@ -612,9 +942,11 @@ if __name__ == "__main__":
 	app.SetWidget(gmFamilyHxEditArea, -1)
 	app.MainLoop()
 #====================================================================
-
 # $Log: gmEditArea.py,v $
-# Revision 1.18  2003-05-21 14:11:26  ncq
+# Revision 1.19  2003-05-21 14:24:29  ncq
+# - re-added old lines generating code for reference during conversion
+#
+# Revision 1.18  2003/05/21 14:11:26  ncq
 # - much needed rewrite/cleanup of gmEditArea
 # - allergies/family history edit area adapted to new gmEditArea code
 # - old code still there for non-converted edit areas
