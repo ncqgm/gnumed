@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
 
@@ -60,7 +60,9 @@ class cCatFinder(gmBorg.cBorg):
 #cCatFinder('enum_comm_types')
 
 
+DEPARTMENT = 1
 class cOrg:
+	
 	def __init__(self):
 		pass
 
@@ -70,7 +72,7 @@ class cOrg:
 	def setId(self, id): # ? change to non-public
 		pass	
 	
-	def set(self, name, office, department, memo, category, phone, fax, email,mobile = ""):
+	def set(self, name, office, subtype, memo, category, phone, fax, email,mobile = ""):
 		pass
 
 	def setAddress(self, number, street, urb, postcode, state, country):
@@ -94,6 +96,17 @@ class cOrg:
 
 	def save(self):
 		return False
+
+	def getSubOrgs(self, orgType = DEPARTMENT):
+		return []
+
+	def getParent(self):
+		return None
+
+	def addSubOrg(self, org, orgType = DEPARTMENT):
+		return False
+		
+
 
 class cOrgHelper:
 	#-----------------------------
@@ -122,6 +135,8 @@ class cOrgHelper:
 
 	def create(self):
 		return None
+
+
 
 class cOrgHelperImpl1(gmBorg.cBorg):
 
@@ -191,7 +206,7 @@ class cOrgHelperImpl1(gmBorg.cBorg):
 		m = {}
 		orglist = []
 		for id in fetch_ids:
-			org = cOrgImpl1()
+			org = self.create()
 			if not org._load_org_from_tuple(om.get(id, None), id):
 				continue
 			org._load_comm_channels_from_tuples( cm.get(id, None) )
@@ -199,7 +214,18 @@ class cOrgHelperImpl1(gmBorg.cBorg):
 			orglist.append(org)
 		return orglist			
 			
-	
+	def findOrgsByName( self, name, exact = False):
+		"""the org name is a unique key, so should only return one or none org"""
+		if exact: query= "select id from org where description = '%s'"%name
+		else: query = "select id from org where description like '%s%%'"%name
+			
+		result = gmPG.run_ro_query("personalia", query )
+		if result is None:
+			gmLog.gmDefLog.Log(gmLog.lErr, "Unable to find org by name %s" % name) 
+			return [None] 
+
+		return self.findOrgsForIds([ x[0] for x in result])	
+			
 
 	def findAllOrganizationPKAndName(self):
 		return [ (0,"") ]
@@ -207,10 +233,46 @@ class cOrgHelperImpl1(gmBorg.cBorg):
 
 	def create(self):
 		return cOrgImpl1()
+
+		
+
+
+
+class cOrgHelperImpl2(cOrgHelperImpl1):
+	
+	def __init__(self):
+		cOrgHelperImpl1.__init__(self)
+	
+	def create(self):
+		return cCompositeOrgImpl1()
+
+	def findOrgsForIds(self, ids):
+		"""extends cOrgHelperImpl1's findOrgsforIds and orders them
+		parent/ child order"""
+		
+		l = cOrgHelperImpl1.findOrgsForIds(self, ids)
+		childMap = {}
+		parents = filter( lambda(o): o.getParent() is None, l)
+		childMap = dict( [ (p.getId() , []) for p in parents ] )
+		for o in l:
+			if o in parents:
+				continue
+			childMap[o.getParent().getId()].append(o)
+		
+		l2 = []
+		for p in parents:
+			l2.append(p)
+			for c in childMap[p.getId()]:
+				l2.append(c)
+		
+		return l2
+			
+
+	
 	
 class cOrgImpl1(cOrg):
 	
-	attrNames = [ 'name', 'office', 'department', 'memo','category', 'phone', 'fax', 'email', 'mobile' ]
+	attrNames = [ 'name', 'office', 'subtype', 'memo','category', 'phone', 'fax', 'email', 'mobile' ]
 	addressNames = [ 'number', 'street', 'urb', 'postcode', 'state', 'country']
 		
 	commtypes = { 
@@ -231,7 +293,8 @@ class cOrgImpl1(cOrg):
 	#--------------------------------------------------------------------------
 
 	def __init__(self, helper = cOrgHelperImpl1() ):
-		self._map = {}
+		self._map = dict ( [ (n,'') for n in self.__class__.attrNames] )
+		
 		self._changed= {}
 		self.pk = None
 		self._addressModified(False)
@@ -240,6 +303,9 @@ class cOrgImpl1(cOrg):
 		self._personMap = {}
 		self._helper = helper
 		pass
+
+	def getHelper(self):
+		return self._helper
 
 	def getId(self):
 		return self.pk
@@ -276,8 +342,8 @@ class cOrgImpl1(cOrg):
 			self._amodified = val
 		return self._amodified
 	
-	def set(self, name, office, department,  memo, category, phone, fax, email,mobile):
-		self._set_impl(name, office, department,  memo, category, phone, fax, email,mobile)
+	def set(self, name, office, subtype,  memo, category, phone, fax, email,mobile):
+		self._set_impl(name, office, subtype,  memo, category, phone, fax, email,mobile)
 		
 		
 	def _set_impl(self, *kwrd, **kargs):
@@ -320,6 +386,8 @@ class cOrgImpl1(cOrg):
 				comm_changes[id_type] = self._changed[k]
 		
 		urls = comm_changes.values()
+		if urls == []:
+			return True
 		
 		places = ['%s'] *len(urls)
 		
@@ -383,7 +451,11 @@ class cOrgImpl1(cOrg):
 		
 		if not self._addressModified():
 			return True
-		
+
+		# allow for no address
+		if a['urb'].strip() == '':
+			return True
+
 		return self.linkNewAddress(a['number'],a['street'], a['urb'], a['postcode'], a.get('state', None), a.get('country', None)  )
 		
 
@@ -487,6 +559,7 @@ class cOrgImpl1(cOrg):
 		m=self._map
 		cf = cCatFinder()
 		m['category']=cf.getCategory("org_category",id_category)
+
 		m['name']=description
 		self.setId(pk)
 
@@ -592,7 +665,7 @@ class cOrgImpl1(cOrg):
 	
 	def save(self):
 
-		#TODO only the name, category attributes are saved; sql places for memo , office, department needed.
+		#TODO only the name, category attributes are saved; sql places for memo , office, subtype needed.
 		m={}
 		c = self._changed
 		m.update(self._map)
@@ -615,8 +688,8 @@ class cOrgImpl1(cOrg):
 			#print "pk = ", self.getId()
 			#org = cOrganization(str(self.getId()))
 			cf = cCatFinder()
-			print "cCatFinder", cf.getCategories('org_category')
-			print "m['category']", m['category'], "cf.getId(.. = ", cf.getId('org_category', m['category'])
+			#print "cCatFinder", cf.getCategories('org_category')
+			#print "m['category']", m['category'], "cf.getId(.. = ", cf.getId('org_category', m['category'])
 			cmd = """
 				update org set description='%s' , 
 						id_category = %s where id = %s
@@ -662,9 +735,6 @@ class cOrgImpl1(cOrg):
 		return True
 		
 	
-
-			
-
 	def getPersonMap(self):
 		"""gets the persons associated with this org, lazy loading demographic records
 		and caching if needed; need to later use a singleton demographic cache,
@@ -694,6 +764,90 @@ class cOrgImpl1(cOrg):
 		
 		return m
 			
+
+class cCompositeOrgImpl1( cOrgImpl1):
+	"""this class behaves differently from cOrgImpl1 iff there is a parent org"""
+
+	def __init__(self, parent = None, helper = cOrgHelperImpl2() ):
+		cOrgImpl1.__init__(self, helper)
+		self._parent = parent
+
+	def _create(self):
+		
+		if not cOrgImpl1._create(self):
+
+			return False
+		
+		return self._saveCompositeName()
+
+	def save(self):
+		"""if getParent() is None, then the behaviour is 
+		unchanged from cOrgImpl1, but if there is a parent org,
+		then there will also sub-org information saved in the description"""
+
+		if not cOrgImpl1.save(self):
+			return False
+		return self._saveCompositeName()
+
+	
+	
+	def _saveCompositeName(self):
+		parent = self.getParent()
+		if parent == None:
+			return True
+
+		new_description = '\n'.join([parent['name'] , self['name'], self['subtype']])
+		result = gmPG.run_commit("personalia", [ ("""update org set description='%s' where id=%d
+			""" % (new_description, self.getId() ), [] ) ])
+		if result == None:
+			gmLog.gmDefLog.LogException("unable to update sub-org name", sys.exc_info() )
+			return False
+		return True
+
+	
+	def _load_org_from_tuple(self, tuple, pk = None):
+		"""this loads the org like cOrgImpl1, but then checks for
+		additional sub-org information in the 'name' aka org.description,
+		and if it exists, the parent is retrieved or constructed using
+		the findOrgByName function.
+		"""
+
+		if not cOrgImpl1._load_org_from_tuple(self, tuple, pk):
+			return False
+
+		# first extended behaviour, recognise subtype attribute.
+		self['subtype'] = ''
+
+		l = self['name'].split('\n')
+		print "split org name into ", l
+		if len(l) < 3:
+			return True
+
+		(parentName, self['name'], self['subtype'] ) = l
+		orgList = self._helper.findOrgsByName(parentName, exact = True)
+		if orgList == []:
+			return True
+		org = orgList[0]
+		self.setParent(org)	
+		
+		return True	
+
+			
+			
+	def setParent(self, parent):
+		self._parent = parent
+		
+		
+
+	def getParent(self):
+		return self._parent
+
+	def getSubOrgs(self, orgtype=DEPARTMENT):
+		return []
+
+	
+		
+		
 
 		
 def get_comm_channels_data_for_org_ids( idList):	
@@ -758,6 +912,9 @@ def get_org_data_for_org_ids(idList):
 	for (id_org, d, id_cat) in result:
 		m[id_org] = (d, id_cat)
 	return m
+
+
+
 
 #============================================================
 #
@@ -891,7 +1048,7 @@ def testOrg():
 def _testOrgRun( f1, a1):
 
 	print """testing single level orgs"""
-	f = [ "name", "office", "department",  "memo", "category", "phone", "fax", "email","mobile"]
+	f = [ "name", "office", "subtype",  "memo", "category", "phone", "fax", "email","mobile"]
 	a = ["number", "street", "urb", "postcode", "state", "country"]
 	h = cOrgImpl1()
 
@@ -964,8 +1121,14 @@ def clean_test_org():
 	names = [ "".join( ["'" ,str(org[0]), "'"] )  for ( org, address) in l]
 	names += [ "'John Hunter Hospital'", "'Belmont District Hospital'"]
 	nameList = ",".join(names)
+	categoryList = "'hospital'"
 
-	cmds = [ ( """create temp table del_org as select id  from org where description in(%s) """%nameList, [] ),
+	cmds = [ ( """create temp table del_org as 
+			select id  from org 
+			where description in(%s) or 
+			id_category in ( select id from org_category c 
+						where c.description in (%s))
+		""" % (nameList, categoryList), [] ),
 		("""create temp table del_identity as  
 		select id  from identity 
 		where id in 
@@ -1397,7 +1560,11 @@ if __name__ == "__main__":
 			clean_org_categories(adminlogin)
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.19  2004-05-28 13:19:23  ncq
+# Revision 1.20  2004-05-28 15:13:53  sjtan
+#
+# one level of sub orgs done ; can enter departments; category stays as hospital.
+#
+# Revision 1.19  2004/05/28 13:19:23  ncq
 # - Syan, can't we move all test related code
 #   into if __name__ == '__main__' ?
 #
