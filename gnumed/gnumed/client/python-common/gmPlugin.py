@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -304,7 +304,9 @@ def GetAllPlugins (set):
 		filesCR = f.readlines()
 		files=[]
 		for file in filesCR:
-			files.append(file[:-1])
+			#check whether this file has been commented out
+			if file[0] != '#':
+				files.append(file[:-1])
 	except:
 		files = os.listdir (dir)
 	ret = []
@@ -329,7 +331,10 @@ def UnloadPlugin (set, name):
 log(gmLog.lData, __version__)
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.25  2002-11-12 20:30:10  hherb
+# Revision 1.26  2002-11-12 23:03:25  hherb
+# further changes towards customization of plugin loading order
+#
+# Revision 1.25  2002/11/12 20:30:10  hherb
 # Uses an optional config file in each plugin directory determining the order plugins are loaded as well as which plugins are loaded
 #
 # Revision 1.24  2002/09/26 13:10:43  ncq
