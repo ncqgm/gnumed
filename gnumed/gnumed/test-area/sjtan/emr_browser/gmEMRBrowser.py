@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/sjtan/emr_browser/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.2 2005-01-31 10:18:11 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmEMRBrowser.py,v 1.3 2005-01-31 13:06:40 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -212,42 +212,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		 self.PopupMenu(self.popup, (event.GetX(), event.GetY() ))
 
 #== Module convenience functions (for standalone use) =======================
-def prompted_input(prompt, default=None):
-	"""
-	Obtains entry from standard input
-	
-	promp - Promt text to display in standard output
-	default - Default value (for user to press only intro)
-	"""
-	usr_input = raw_input(prompt)
-	if usr_input == '':
-		return default
-	return usr_input
-#------------------------------------------------------------				 
-def askForPatient():
-	"""
-		Main module application patient selection function.
-	"""
-	
-	# Variable initializations
-	pat_searcher = gmPerson.cPatientSearcher_SQL()
-
-	# Ask patient to dump and set in exporter object
-	patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
-	if patient_term == 'bye':
-		return None
-	search_ids = pat_searcher.get_patient_ids(search_term = patient_term)
-	if search_ids is None or len(search_ids) == 0:
-		prompted_input("No patient matches the query term. Press any key to continue.")
-		return None
-	elif len(search_ids) > 1:
-		prompted_input("Various patients match the query term. Press any key to continue.")
-		return None
-	patient_id = search_ids[0]
-	patient = gmPerson.gmCurrentPatient(patient_id)
-	return patient
-
-
 
 import Queue
 
@@ -504,7 +468,7 @@ if __name__ == '__main__':
 		pool = gmPG.ConnectionPool()
 		
 		# obtain patient
-		patient = askForPatient()
+		patient = gmPerson.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
@@ -538,7 +502,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.2  2005-01-31 10:18:11  ncq
+# Revision 1.3  2005-01-31 13:06:40  ncq
+# - use gmPerson.ask_for_patient()
+#
+# Revision 1.2  2005/01/31 10:18:11  ncq
 # - gmPatient -> gmPerson
 #
 # Revision 1.1  2004/12/21 23:52:59  sjtan

@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.8 2005-01-31 09:50:59 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmEMRStructWidgets.py,v 1.9 2005-01-31 13:06:02 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -591,46 +591,6 @@ class cEpisodeEditor(wx.wxPanel):
 		self.__on_clear(event)
 		# refresh episode table
 		self.__refresh_episode_list()
-
-#== Module convenience functions (for standalone use) =======================
-def prompted_input(prompt, default=None):
-	"""
-	Obtains entry from standard input
-	
-	promp - Promt text to display in standard output
-	default - Default value (for user to press only intro)
-	"""
-	usr_input = raw_input(prompt)
-	if usr_input == '':
-		return default
-	return usr_input
-
-#------------------------------------------------------------
-def askForPatient():
-	"""
-		Main module application patient selection function.
-	"""
-	
-	# Variable initializations
-	pat_searcher = gmPerson.cPatientSearcher_SQL()
-
-	# Ask patient
-	patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
-
-	if patient_term == 'bye':
-		return None
-	search_ids = pat_searcher.get_patient_ids(search_term = patient_term)
-	if search_ids is None or len(search_ids) == 0:
-		prompted_input("No patient matches the query term. Press any key to continue.")
-		return None
-	elif len(search_ids) > 1:
-		prompted_input("Various patients match the query term. Press any key to continue.")
-		return None
-	patient_id = search_ids[0]
-	patient = gmPerson.gmCurrentPatient(patient_id)
-
-	return patient
-
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -780,7 +740,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.8  2005-01-31 09:50:59  ncq
+# Revision 1.9  2005-01-31 13:06:02  ncq
+# - use gmPerson.ask_for_patient()
+#
+# Revision 1.8  2005/01/31 09:50:59  ncq
 # - gmPatient -> gmPerson
 #
 # Revision 1.7  2005/01/29 19:12:19  cfmoro
