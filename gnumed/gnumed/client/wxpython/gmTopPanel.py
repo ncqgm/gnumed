@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -148,13 +148,9 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	# internal helpers
 	#-------------------------------------------------------
 	def __load_consultation_types(self):
-		dbpool = gmPG.ConnectionPool()
-		conn = dbpool.GetConnection(service = 'historica')
-		rocurs = conn.cursor()
-		cmd = "SELECT description from v_i18n_enum_encounter_type;"
-		if not gmPG.run_query(rocurs, cmd):
-			rocurs.close()
-			dbpool.ReleaseConnection('historica')
+		cmd = "SELECT description from v_i18n_enum_encounter_type"
+		result = gmPG.run_ro_query('historica', cmd, None)
+		if result is None:
 			_log.Log(gmLog.lWarn, 'cannot load consultation types from backend')
 			self.__consultation_types = [_('in surgery')]
 			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
@@ -164,9 +160,6 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 				gmLog.lWarn
 			)
 			return None
-		result = rocurs.fetchall()
-		rocurs.close()
-		dbpool.ReleaseConnection('historica')
 		if len(result) == 0:
 			self.__consultation_types = [_('in surgery')]
 			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
@@ -207,15 +200,8 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		epr = self.curr_pat['clinical record']
 		allergy_names = epr.get_allergy_names(remove_sensitivities=1)
 		tmp = []
-#<<<<<<< gmTopPanel.py
-#		for allergy in allergies:
-#			print "APPENDING ", allergy
-			#tmp.append(allergy['name'])   #temporary comment out, until get_allergies catches up
-#			tmp.append(allergy[6])
-#=======
 		for allergy in allergy_names:
 			tmp.append(allergy['name'])
-#>>>>>>> 1.23
 		data = string.join(tmp, ',')
 		if data == '':
 			# needed because GUI stuff can't be called from a thread (and that's
@@ -311,7 +297,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.24  2003-11-17 10:56:39  sjtan
+# Revision 1.25  2003-11-18 23:48:08  ncq
+# - remove merge conflict remnants in update_allergy
+#
+# Revision 1.24  2003/11/17 10:56:39  sjtan
 #
 # synced and commiting.
 #
