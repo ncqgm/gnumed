@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -946,7 +946,7 @@ def ask_for_confirmation():
 def exit_with_msg(aMsg = None):
 	if aMsg is not None:
 		print aMsg
-	print "Please see log file for details."
+	print "Please check the log file for details."
 	try:
 		dbconn.close()
 	except:
@@ -1013,7 +1013,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.4  2003-03-23 03:51:27  ncq
+# Revision 1.5  2003-03-23 21:04:44  ncq
+# - fixed faulty English
+#
+# Revision 1.4  2003/03/23 03:51:27  ncq
 # - fail gracefully on missing config file
 #
 # Revision 1.3  2003/02/27 09:20:58  ncq
