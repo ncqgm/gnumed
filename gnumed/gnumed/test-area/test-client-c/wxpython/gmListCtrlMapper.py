@@ -11,7 +11,9 @@ class gmListCtrlMapper:
 	    self.list = listCtrl
 
     def SetData( self, map):
+	gmLog.gmDefLog.Log (gmLog.lData, "SETTING DATA FOR %s with %s" % ( str(list) ,  map ))
 	items = map.items()
+	self.list.DeleteAllItems()
 	for x in range(len(items)):
             key, data = items[x]
             #<DEBUG>
@@ -19,8 +21,9 @@ class gmListCtrlMapper:
             #</DEBUG>
 	    #print x, data[0],data[1]
 	    self.list.InsertStringItem(x, data[0])
-            self.list.SetStringItem(x, 1, data[1])
             self.list.SetItemData(x, key)
+	    for row in range( 1, len(data)):
+		    self.list.SetStringItem(x, row, data[row])
 
     def GetData(self):
 	map = {}

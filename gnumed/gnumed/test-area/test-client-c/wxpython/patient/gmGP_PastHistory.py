@@ -32,6 +32,8 @@ import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea             				#panel class holding editing prompts and text boxes
 import gmPlugin, gmLog
 
+import gmDispatcher, gmSignals
+
 from gmPatientHolder import PatientHolder
 
 from gmListCtrlMapper import gmListCtrlMapper
@@ -114,6 +116,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#---------------------------------------------------------
 		self.significant_problem_list.InsertColumn(0, _("year onset"))
 		self.significant_problem_list.InsertColumn(1, _("Condition"))
+		self.significant_problem_list.InsertColumn(2, _("Notes"))
 		#-------------------------------------------------------------------------
 		#loop through the significanthistorydata array and add to the list control
 		#note the different syntax for the first coloum of each row
@@ -135,6 +138,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#------------------------------------------------
 		self.active_problem_list.InsertColumn(0, _("Year Onset"))
 		self.active_problem_list.InsertColumn(1, _("Condition"))
+		self.active_problem_list.InsertColumn(2, _("Notes"))
 		#-------------------------------------------------------------
 		#loop through the activehistorydata array and add to the list control
 		#note the different syntax for the first coloum of each row
@@ -178,7 +182,36 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		self.mainsizer.Fit
 		self.SetAutoLayout(true)
 		self.Show(true)
+
+		gmDispatcher.connect(self._updateUI,  gmSignals.clin_history_updated())
+
+
+	def _updateUI(self):
+		print "past history specific ui update"
+		clinical = self.patient.getClinicalRecord()
+		significant_past = clinical.get_significant_past_history()
+		active_hx = clinical.get_active_history()
+		self.active_mapper.SetData(  self._get_list_map( active_hx) )
+		self.significant_mapper.SetData( self._get_list_map( significant_past) )
+
+
 	
+	def _get_list_map(self, clin_history_list):
+		newMap = {}
+		for (id, map) in clin_history_list:
+			print map
+			newMap[id] = ( str(map['year']), self._format_condition(map) , map['notes1'] )  
+		return newMap	
+	
+	def _format_condition( self, map):
+		side = map.get('laterality', '')
+		if side == 'none': 
+			side = ''
+		condition = " ".join( (side, map['condition'] ))
+
+		return condition	
+			
+		
 		
 		
 #----------------------------------------------------------------------

@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.1 2003-10-23 06:02:38 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmTmpPatient.py,v 1.2 2003-10-25 16:13:26 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -219,11 +219,28 @@ update v_basic_person set firstnames = %s, lastnames = %s where i_id = %s
 		if len(data) == 0:
 			return ''
 		return data[0][0]
+
+		
 	#--------------------------------------------------------
 	def setDOB (self, dob):
 		cmd = "update V_basic_person set dob = %s where i_id = %s"
 		gmPG.run_commit ('personalia', [(cmd, [dob, self.ID])])
 	#--------------------------------------------------------
+	def getDOBValue(self):
+		cmd = "select dob from v_basic_person where i_id = %s"
+		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
+		if data is None or data ==[]:
+			return None
+
+		return data[0][0]
+
+	def getBirthYear(self):
+		dob = self.getDOBValue()
+		if dob == None:
+			return None
+		return time.localtime(dob)[0]
+
+	#---------------------------------------------------------------	
 	def GetAddress (self, type):
 		cmd = """
 select
@@ -363,6 +380,9 @@ values (%s, currval ('address_id_seq'), (select id from address_type where name 
 			return None
 		return self.__db_cache['clinical record']
 	#--------------------------------------------------------
+
+	def get_clinical_record(self):
+		return self._get_clinical_record()
 	#--------------------------------------------------------
 	def _get_API(self):
 		API = []
@@ -515,6 +535,12 @@ class gmCurrentPatient(cBorg):
 			return self.patient[aVar]
 		else:
 			return None
+
+	def getPatientModel(self):
+		return self.patient
+	
+	def getClinicalRecord(self):
+		return self.patient.get_clinical_record()
 #============================================================
 
 #------------------------------------------------------------
@@ -767,7 +793,11 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.1  2003-10-23 06:02:38  sjtan
+# Revision 1.2  2003-10-25 16:13:26  sjtan
+#
+# past history , can add  after selecting patient.
+#
+# Revision 1.1  2003/10/23 06:02:38  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #

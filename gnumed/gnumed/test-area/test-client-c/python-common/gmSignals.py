@@ -23,7 +23,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -67,6 +67,10 @@ def item_change_db():
 	- the actual signal name is appended with the relevant patient ID
 	"""
 	return 'item_change_db'
+
+def clin_history_updated():
+	"""Frontend signal for clin_history  update."""
+	return "clin_history_updated"
 
 def clin_item_updated():
 	"""Frontend signal for clin_root_item cache update."""
@@ -138,7 +142,11 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.2  2003-10-25 08:29:40  sjtan
+# Revision 1.3  2003-10-25 16:13:26  sjtan
+#
+# past history , can add  after selecting patient.
+#
+# Revision 1.2  2003/10/25 08:29:40  sjtan
 #
 # uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
 # yaml serializer to store editarea data in  narrative text field of clin_root_item until

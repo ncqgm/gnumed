@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.4 2003-10-25 08:29:40 sjtan Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmEditArea.py,v 1.5 2003-10-25 16:13:26 sjtan Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -364,11 +364,15 @@ class gmEditArea( wxPanel):
 
 		self.__register_events()
 		
+
 		self._postInit()
+		
+		self.stateNew = 1
 
 		self._out_yaml()
 
 		self.Show(true)
+
 	#----------------------------------------------------------------
 	def _make_prompt(self, parent, aLabel, aColor):
 		# FIXME: style for centering in vertical direction ?
@@ -540,7 +544,7 @@ class gmEditArea( wxPanel):
 		# client internal signals
 		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_data)
 		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._save_data)
-		#gmDispatcher.connect(signal = gmSignals.patient_object_changed(), receiver = self._setPatientModel)
+		gmDispatcher.connect(signal = gmSignals.patient_object_changed(), receiver = self._changePatient)
 
 		return 1
 	#--------------------------------------------------------
@@ -579,13 +583,21 @@ class gmEditArea( wxPanel):
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
 
-	#def _setPatientModel(self, patient):
-	#	print self, "received", patient
-	#	self.patient = patient
-	#	self._updateUI()
+	def _changePatient( self, patient):
+		self._setPatientModel(patient)
+		try:
+			self._updateUI()
+			self._init_fields()
+		except:
+			print sys.exc_info()[0]
+
+
+	def _setPatientModel(self, patient):
+		print self, "received", patient
+		self.patient = patient
 	
-	#def _updateUI(self):
-	#	print "subclasses must override"
+	def _updateUI(self):
+		print "you may want to override _updateUI for " , self.__class__.__name__
 		
 
 	def _postInit(self):
@@ -821,10 +833,12 @@ class gmPastHistoryEditArea(gmEditArea):
 
 
 
-		self.rb_sideleft = wxRadioButton(parent, PHX_LEFT, _(" (L) "), wxDefaultPosition,wxDefaultSize)
+		self.rb_sidenone= wxRadioButton(parent, -1,  _("None"), wxDefaultPosition,wxDefaultSize)
+		self.rb_sideleft = wxRadioButton(parent, PHX_LEFT, _("(L)"), wxDefaultPosition,wxDefaultSize)
 		self.rb_sideright = wxRadioButton(parent,  PHX_RIGHT, _("(R)"), wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
 		self.rb_sideboth = wxRadioButton(parent,  PHX_BOTH, _("Both"), wxDefaultPosition,wxDefaultSize)
 		rbsizer = wxBoxSizer(wxHORIZONTAL)
+		rbsizer.Add(self.rb_sidenone,1,wxEXPAND)
 		rbsizer.Add(self.rb_sideleft,1,wxEXPAND)
 		rbsizer.Add(self.rb_sideright,1,wxEXPAND) 
 		rbsizer.Add(self.rb_sideboth,1,wxEXPAND)
@@ -890,12 +904,66 @@ class gmPastHistoryEditArea(gmEditArea):
 			"both": self.rb_sideboth,
 			"left": self.rb_sideleft,
 			"right": self.rb_sideright,
+			"none": self.rb_sidenone
 		}
 
 		return lines
-	
 
-#====================================================================
+
+	def  _postInit(self):
+		#handling of auto age or year filling.
+		EVT_KILL_FOCUS( self.input_fields['age'], self._ageKillFocus)
+		EVT_KILL_FOCUS( self.input_fields['year'], self._yearKillFocus)
+
+	def _ageKillFocus( self, event):	
+		# skip first, else later failure later in block causes widget to be unfocusable
+		event.Skip()	
+		birthyear = self.patient.getPatientModel().getBirthYear()
+		try :
+			year = birthyear + int(self.input_fields['age'].GetValue().strip() )
+			self.input_fields['year'].SetValue( str (year) )
+		except:
+			print "failed to get year from age"
+		
+	def _yearKillFocus( self, event):	
+		event.Skip()	
+		birthyear = self.patient.getPatientModel().getBirthYear()
+		try:
+			age = int(self.input_fields['year'].GetValue().strip() ) - birthyear
+			self.input_fields['age'].SetValue( str (age) )
+		except:
+			print "failed to get age from year"
+
+
+	
+	def _init_fields(self):
+		values = {
+			"condition": "",
+			"notes1": "",
+			"notes2": "",
+			"age": "",
+			"year": "",
+			"progress": "",
+			"active": 1,
+			"operation": 0,
+			"confidential": 0,
+			"significant": 1,
+			"both": 0,
+			"left": 0,
+			"right": 0,
+			"none" : 1
+		}
+		for k,v in values.items():
+			self.input_fields[k].SetValue(v)
+		
+		self.stateNew = 1
+		
+	def _save_data(self):
+		if self.stateNew:
+			self.patient.getClinicalRecord().create_history( self._getInputFieldValues() )
+		
+
+		
 class gmVaccinationEditArea(gmEditArea):
 	def __init__(self, parent, id):
 		try:
@@ -1797,7 +1865,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.4  2003-10-25 08:29:40  sjtan
+# Revision 1.5  2003-10-25 16:13:26  sjtan
+#
+# past history , can add  after selecting patient.
+#
+# Revision 1.4  2003/10/25 08:29:40  sjtan
 #
 # uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
 # yaml serializer to store editarea data in  narrative text field of clin_root_item until
