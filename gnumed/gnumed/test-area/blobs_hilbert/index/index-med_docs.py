@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -19,10 +19,10 @@ import gmLog
 gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 #</DEBUG>
 
+import gmCfg, gmI18N
 from docPatient import *
 from gmPhraseWheel import *
 import docDocument
-import gmCfg, gmI18N
 import docXML
 
 _log = gmLog.gmDefLog
@@ -34,7 +34,7 @@ _cfg = gmCfg.gmDefCfgFile
 	wxID_TBOX_doc_date,
 	wxID_TBOX_dob,
 	wxID_BTN_del_page,
-	wxID_BTN_load_fax,
+	wxID_BTN_select_files,
 	wxID_BTN_save_data,
 	wxID_BTN_show_page,
 	wxID_BTN_load_pages,
@@ -112,10 +112,10 @@ class indexFrame(wxPanel):
 			parent = self.PNL_main,
 			label = _("or")
 		)
-		# -- load fax button ------------------
-		self.BTN_load_fax = wxButton(
-			id = wxID_BTN_load_fax,
-			name = 'BTN_load_fax',
+		# -- select files button --------------
+		self.BTN_select_files = wxButton(
+			id = wxID_BTN_select_files,
+			name = 'BTN_select_files',
 			parent = self.PNL_main,
 			label = _("load fax document")
 		)
@@ -350,7 +350,7 @@ class indexFrame(wxPanel):
 		self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
 		self.BTN_load_pages.SetToolTipString(_('load the pages of this document'))
-		self.BTN_load_fax.SetToolTipString(_('currently non-functional: load a fax document'))
+		self.BTN_select_files.SetToolTipString(_('currently non-functional: load a fax document'))
 		self.LBOX_doc_pages.SetToolTipString(_('these pages make up the current document'))
 		self.BTN_show_page.SetToolTipString(_('display selected part of the document'))
 		self.BTN_del_page.SetToolTipString(_('delete selected part of the document'))
@@ -369,6 +369,7 @@ class indexFrame(wxPanel):
 		EVT_BUTTON(self.BTN_del_page, wxID_BTN_del_page, self.on_del_page)
 		EVT_BUTTON(self.BTN_save_data, wxID_BTN_save_data, self.on_save_data)
 		EVT_BUTTON(self.BTN_save_data, wxID_BTN_save_data, self.on_save_data)
+		EVT_BUTTON(self.BTN_select_files, wxID_BTN_select_files, self.on_select_files)
 
 		self.LBOX_doc_pages.SetSelection(0)
 		self.SelBOX_doc_type.SetSelection(0)
@@ -384,7 +385,7 @@ class indexFrame(wxPanel):
 		szr_left.Add(self.doc_id_wheel, 0, wxEXPAND|wxALL, 5)
 		szr_left.Add(self.BTN_load_pages, 1, wxEXPAND|wxALL, 5)
 		szr_left.Add(self.staticText4, 0, wxLEFT, 5)
-		szr_left.Add(self.BTN_load_fax, 1, wxEXPAND|wxALL, 5)
+		szr_left.Add(self.BTN_select_files, 1, wxEXPAND|wxALL, 5)
 		szr_left.Add(self.staticText8, 0, wxLEFT, 5)
 		szr_left.Add(self.LBOX_doc_pages, 1, wxEXPAND|wxALL, 5)
 		szr_left_btns = wxBoxSizer(wxHORIZONTAL)
@@ -579,6 +580,24 @@ class indexFrame(wxPanel):
 		self.__reload_doc_pages()
 
 		return 1
+	#----------------------------------------
+	def on_select_files (self, event):
+		# patient file chooser
+		dlg = wxFileDialog(
+			self,
+			_('choose a file'),
+			'',
+			'',
+			wildcard = "all (*.*)|*.*|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg",
+			style = wxFILE_MUST_EXIST
+		)
+		dlg.ShowModal()
+		dlg.Destroy()
+		aDir = os.path.dirname(dlg.GetPath())
+		self.doc_id_wheel.SetValue(aDir)
+		# aDir is just a dummy here
+		self.on_load_pages(aDir)
+		return None
 	#----------------------------------------
 	def wheel_callback (self, data):
 		pass
@@ -919,7 +938,11 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.24  2002-12-22 11:51:24  ncq
+# Revision 1.25  2002-12-29 00:54:02  ncq
+# - started support for loading of external files
+# - fixed gmI18N import position
+#
+# Revision 1.24  2002/12/22 11:51:24  ncq
 # - patient format -> patient file format
 #
 # Revision 1.23  2002/12/13 10:39:30  ncq
