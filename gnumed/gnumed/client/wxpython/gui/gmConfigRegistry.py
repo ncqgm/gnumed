@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -369,6 +369,9 @@ class cParamCtrl(wxTextCtrl):
 # 		-open a connection to backend via gmCfg
 class gmConfigEditorPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, parent, aUser,aWorkplace, plugin = 1):
+		"""aUser and aWorkplace can be set such that an admin
+		   could potentially edit another user ...
+		"""
 		wxPanel.__init__(self, parent, -1)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		
@@ -545,7 +548,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.28  2005-03-17 20:29:47  hinnef
+# Revision 1.29  2005-03-29 07:33:06  ncq
+# - add comment
+#
+# Revision 1.28  2005/03/17 20:29:47  hinnef
 # added Setup method for Richard-Space
 #
 # Revision 1.27  2005/03/06 14:54:19  ncq
