@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.32 2004-07-24 17:15:26 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmDemographics.py,v 1.33 2004-08-31 19:46:45 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -25,7 +25,6 @@ from mx import DateTime
 from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals
 
 import gmPlugin
-import gmPatientNameQuery
 import gmSQLListControl, gmDataPanelMixin
 from string import *
 import gmGP_PatientPicture
@@ -430,7 +429,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.32  2004-07-24 17:15:26  ncq
+# Revision 1.33  2004-08-31 19:46:45  ncq
+# - don't import patientnamequery.py
+#
+# Revision 1.32  2004/07/24 17:15:26  ncq
 # - small cleanups to keep track of plugin interface changes
 #
 # Revision 1.31  2004/07/18 20:30:54  ncq
