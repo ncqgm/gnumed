@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -222,7 +222,6 @@ comment on column form_defs.url is
 	authority)';
 
 -- =============================================
--- FIXME: how is this intended to be used ?
 create table form_field_types (
 	name text unique,
 	pk serial primary key
@@ -235,20 +234,20 @@ create table form_fields (
 		not null
 		references form_defs(pk),
 	long_name text not null,
-	internal_name text not null,
+	template_placeholder text not null,
 	help text,
 	fk_type integer not null references form_field_types(pk),
 	param text,
 	display_order integer,
 	unique (fk_form, long_name),
-	unique (fk_form, internal_name)
+	unique (fk_form, template_placeholder)
 );
 
 comment on table form_fields is
 	'List of fields for a particular form';
 comment on column form_fields.long_name is
 	'The full name of the form field as presented to the user';
-comment on column form_fields.internal_name is
+comment on column form_fields.template_placeholder is
 	'The name of the field as exposed to the form template.
 	 In other words, the placeholder in form_defs.template where
 	 the value entered into this field ist to be substituted.
@@ -307,11 +306,14 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.15  2005-01-24 17:57:43  ncq
+-- Revision 1.16  2005-01-27 17:24:50  ncq
+-- - form_fields.internal_name -> template_placeholder
+--
+-- Revision 1.15  2005/01/24 17:57:43  ncq
 -- - cleanup
 -- - Ian's enhancements to address and forms tables
 --
