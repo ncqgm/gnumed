@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -290,10 +290,15 @@ class cLogger:
 	# internal methods
 	#---------------------------
 	def __char2AsciiName(self, aChar):
-		if ord(aChar) in range(0,32):
+		try:
 			return AsciiName[ord(aChar)]
-		else:
+		except IndexError:
 			return aChar
+
+#		if ord(aChar) in range(0,32):
+#			return AsciiName[ord(aChar)]
+#		else:
+#			return aChar
 #---------------------------------------------------------------
 class cLogTarget:
 	"""Base class for actual log target implementations.
@@ -819,7 +824,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.5  2004-08-11 08:00:05  ncq
+# Revision 1.6  2004-08-16 19:24:21  ncq
+# - try to speed up __char2AsciiName()
+#
+# Revision 1.5  2004/08/11 08:00:05  ncq
 # - improve log prefix
 # - cleanup SQL cfg/remove old use of _USER
 #
