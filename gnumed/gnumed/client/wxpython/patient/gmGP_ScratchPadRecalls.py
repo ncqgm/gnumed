@@ -97,7 +97,7 @@ class gmGP_ScratchPadRecalls (gmPlugin.wxBasePlugin):
                                    (mwm.righthalfpanel, -1), position=2)
 
     def unregister (self):
-        self.gb['patient.manager'].Unregister ('acratchpad_recalls')
+        self.gb['patient.manager'].Unregister ('scratchpad_recalls')
     
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 500))
