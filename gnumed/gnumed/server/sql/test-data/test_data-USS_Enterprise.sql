@@ -1,11 +1,10 @@
 -- Projekt GnuMed
 -- USS Enterprise defs
--- http://www.nimoy.com/spock.html
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -66,11 +65,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.3  2004-03-18 18:32:09  ncq
+-- Revision 1.4  2004-03-19 11:56:59  ncq
+-- - remove misleading URL
+--
+-- Revision 1.3  2004/03/18 18:32:09  ncq
 -- - thrombocytes -> platelets
 --
 -- Revision 1.2  2004/03/18 10:29:51  ncq
