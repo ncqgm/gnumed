@@ -1,0 +1,8 @@
+14-4-2002, since allergy is inherited from phx_event, made description conform to allergy description,
+extra now caries the detail of the allergy.
+
+
+can forsee some data mapping problem due to inheritance in the future...
+
+
+

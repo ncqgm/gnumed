@@ -16,8 +16,8 @@ revocation = """insert into revocation( revoked, rec_time,  author, replacing_id
 phx_durableInsert =  """insert into phx_durable(author, rec_time, started, fin , description, place, extra, patient)
 	       values ( CURRENT_USER, now(), '%(date)s', '%(fin)s',  '%(description)s', '%(place)s' , '%(extra)s', %(patient)d );"""
 
-allergy_insert = """ insert into allergy (author, rec_time, started, drug, description, patient) 
-		values (  CURRENT_USER, now(), '%(date)s', '%(drug)s', '%(description)s', %(patient)d ); """
+allergy_insert = """ insert into allergy (author, rec_time, started, drug, description, extra, patient) 
+		values (  CURRENT_USER, now(), '%(date)s', '%(drug)s', '%(drug)s allergy','%(extra)s', %(patient)d ); """
 
 
 class SimpleSummaryMap:
@@ -48,7 +48,7 @@ class SimpleSummaryMap:
 
 				{'dbname': 'date', 'name' : 'date'},
 				{'dbname' : 'drug', 'name': 'drug' },
-				{ 'dbname' : 'description', 'name': 'reaction' },
+				{ 'dbname' : 'extra', 'name': 'detail' },
 			      ]
 
 		self.allMap = { 'phx': phxList, 'meds' : medsList , 'allergies': allergyList }
