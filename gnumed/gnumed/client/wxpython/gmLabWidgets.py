@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -378,7 +378,7 @@ class cLabJournalNB(wxNotebook):
 		EVT_KEY_UP(self.__grid_unreviewed_results, self.OnKeyPressed)
 	#------------------------------------------------------------------------
 	def update(self):
-		if self.__pat['ID'] is None:
+		if self.__pat['pk'] is None:
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Cannot load lab journal.\nYou first need to select a patient.'),
 				aTitle = _('loading lab journal')
@@ -726,7 +726,7 @@ class cLabDataGrid(wxGrid):
 
 	#------------------------------------------------------------------------
 	def update(self):
-		if self.__pat['ID'] is None:
+		if self.__pat['pk'] is None:
 			_log.Log(gmLog.lErr, 'need patient for update')
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Cannot load lab data.\nYou first need to select a patient.'),
@@ -865,7 +865,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.8  2005-01-31 10:37:26  ncq
+# Revision 1.9  2005-02-15 18:33:08  ncq
+# - identity.id -> pk
+#
+# Revision 1.8  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.7  2004/10/27 12:18:19  ncq
