@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.15 2005-03-09 19:41:18 cfmoro Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmSOAPWidgets.py,v 1.16 2005-03-13 09:05:06 cfmoro Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -15,11 +15,14 @@ from wxPython import wx
 # GnuMed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.wxpython import gmResizingWidgets
+from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
+PROBLEM_UNDEFINED = -1
+PROBLEM_SAVED = -2
 
 # FIXME attribute encapsulation and private methods
 # FIXME i18n
@@ -90,7 +93,7 @@ class cResizingSoapPanel(wx.wxPanel):
 		Construct a new SOAP input widget.
 		Can work as:
 			a) Progress note creation: displays an empty set of soap entries to
-			create a new soap note for the given problem.
+			create a new soap note for the given problem (or unassociated)
 			b) Progress note editor: displays the narrative entries (format and
 			narrative text) encapsulated in each element of input_defs.
 
@@ -99,15 +102,17 @@ class cResizingSoapPanel(wx.wxPanel):
 		@param problem: the problem to create the SOAP editor for.
 		For clarity let's assume there cannot be a SOAP editor w/o
 		a health problem.
-		@type problem gmEMRStructItems.cProblem instance
+		@type problem gmEMRStructItems.cProblem instance or None (to create an
+		unassociated progress note).
 
 		@param input_defs: the display and associated data for each displayed narrative
 		@type input_defs: a list of cSOAPLineDef instances
 
 		"""
-		# sanity check
-		if not isinstance(problem, gmEMRStructItems.cProblem):
+		# sanity check		
+		if not isinstance(problem, gmEMRStructItems.cProblem) and problem != PROBLEM_UNDEFINED:
 			raise gmExceptions.ConstructorError, 'cannot make progress note editor for health problem [%s]' % str(problem)
+			
 		self.__problem = problem
 
 		# do layout
@@ -119,7 +124,10 @@ class cResizingSoapPanel(wx.wxPanel):
 			wx.wxNO_BORDER
 		)
 		# - heading
-		self.__soap_heading = wx.wxStaticText(self, -1, 'error: no problem given')
+		if problem == PROBLEM_UNDEFINED:
+			self.__soap_heading = gmPhraseWheel.cPhraseWheel(self, -1)
+		else:
+			self.__soap_heading = wx.wxStaticText(self, -1, 'error: no problem given')
 		# - editor
 		if input_defs is None:
 			soap_lines = []
@@ -156,9 +164,9 @@ class cResizingSoapPanel(wx.wxPanel):
 			input_defs = soap_lines
 		)
 		# - arrange
-		self.__szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		self.__szr_main.Add(self.__soap_heading)
-		self.__szr_main.Add(self.__soap_text_editor)
+		self.__szr_main = wx.wxFlexGridSizer(cols = 1, rows = 3, vgap = 4, hgap = 4)
+		self.__szr_main.Add(self.__soap_heading, 1, wx.wxEXPAND)
+		self.__szr_main.Add(self.__soap_text_editor, 0, wx.wxSHAPED)
 		self.SetSizerAndFit(self.__szr_main)
 
 		self.SetProblem(problem) # display health problem
@@ -174,9 +182,13 @@ class cResizingSoapPanel(wx.wxPanel):
 		@type problem: gmEMRStructItems.cEpisode		
 		"""
 		self.__problem = problem
-		# display health problem
-		txt = 'problem: %s' % self.__problem['problem']
-		self.__set_heading(txt)
+		if problem == PROBLEM_UNDEFINED:
+			# FIXME: load phrasewheel with data
+			pass
+		else:
+			# display health problem
+			txt = 'problem: %s' % self.__problem['problem']
+			self.__set_heading(txt)
 		# flag indicating saved state
 		self.__is_saved = False		
 	#--------------------------------------------------------
@@ -185,6 +197,33 @@ class cResizingSoapPanel(wx.wxPanel):
 		Retrieve the related health problem for this SOAP input widget.
 		"""
 		return self.__problem
+	#--------------------------------------------------------
+	def GetHeadingTxt(self):
+		"""
+		Retrieve the header displayed text. Typically useful to obtain
+		the entered problem text in an unassociated progress note.
+		"""
+		txt = ''
+		if self.__problem == PROBLEM_UNDEFINED:
+			txt = self.__soap_heading.GetValue()
+		else:
+			txt = self.__soap_heading.GetLabel()
+		return txt
+		
+	#--------------------------------------------------------
+	def SetHeadingTxt(self,txt):
+		"""
+		Set the header displayed text. Typically useful to configure
+		the entered problem text in an unassociated progress note.
+		
+		@param txt: The heading text to set (episode name)
+		@param txt: string
+		"""
+		if self.__problem == PROBLEM_UNDEFINED:
+			self.__soap_heading.SetValue(txt)
+		else:
+			self.__soap_heading.SetLabel(txt)
+		
 	#--------------------------------------------------------
 	def get_editor(self):
 		"""
@@ -208,7 +247,7 @@ class cResizingSoapPanel(wx.wxPanel):
 		self.__is_saved = is_saved
 		self.__set_heading('')
 		self.Clear()
-		self.__problem = None
+		self.__problem = PROBLEM_SAVED
 	#--------------------------------------------------------
 	def IsSaved(self):
 		"""
@@ -444,7 +483,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.15  2005-03-09 19:41:18  cfmoro
+# Revision 1.16  2005-03-13 09:05:06  cfmoro
+# Added intial support for unassociated progress notes
+#
+# Revision 1.15  2005/03/09 19:41:18  cfmoro
 # Decoupled cResizingSoapPanel from editing problem-encounter soap notes use case
 #
 # Revision 1.14  2005/03/04 19:44:28  cfmoro

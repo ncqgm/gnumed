@@ -12,9 +12,12 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
+
+# std
+import types
 
 # 3rd party
 from wxPython import wx
@@ -29,6 +32,7 @@ import multisash
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
 
 # FIXME attribute encapsulation and private methods
 # FIXME i18n
@@ -97,6 +101,9 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__BTN_remove = wx.wxButton(PNL_soap_editors, -1, _('&Remove'))
 		self.__BTN_remove.Disable()
 		self.__BTN_remove.SetToolTipString(_('close focussed progress note'))
+		
+		self.__BTN_add_unassociated = wx.wxButton(PNL_soap_editors, -1, _('&Unassociated new progress note'))
+		self.__BTN_add_unassociated.SetToolTipString(_('create a progress note that is not at first associated with any predefined problem'))
 
 		# FIXME comment out that button for now until we fully
 		# understand how we want it to work.
@@ -107,9 +114,9 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# - arrange widgets
 		szr_btns_left = wx.wxBoxSizer(wx.wxHORIZONTAL)
 		szr_btns_left.Add(self.__BTN_save, 0, wx.wxSHAPED)
-		szr_btns_left.Add(self.__BTN_clear, 0, wx.wxSHAPED)
-		#szr_btns_left.Add(self.__BTN_new, 0, wx.wxSHAPED)
+		szr_btns_left.Add(self.__BTN_clear, 0, wx.wxSHAPED)		
 		szr_btns_left.Add(self.__BTN_remove, 0, wx.wxSHAPED)
+		szr_btns_left.Add(self.__BTN_add_unassociated, 0, wx.wxSHAPED)
 		szr_left = wx.wxBoxSizer(wx.wxVERTICAL)
 		szr_left.Add(self.__soap_multisash, 1, wx.wxEXPAND)
 		szr_left.Add(szr_btns_left)
@@ -153,6 +160,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		selected_soap = self.__soap_multisash.get_focussed_leaf().get_content()
 		# if soap stack is empty, disable save, clear and remove buttons		
 		if isinstance(selected_soap, multisash.cEmptyChild) or selected_soap.IsSaved():
+			print("AAAAA")
 			self.__BTN_save.Enable(False)
 			self.__BTN_clear.Enable(False)
 			self.__BTN_remove.Enable(False)
@@ -169,7 +177,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	def __get_problem(self, emr_struct_element):
 		"""
 		Retrieve the problem in the list that corresponds with a
-		issue or episode selected via dialog.
+		issue, episode (both typically selected via dialog) or
+		problem name (typically in an unassociated note).
 		"""
 		result_problem = None
 		
@@ -177,10 +186,14 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			for problem in self.__emr.get_problems():
 				if problem['pk_health_issue'] == emr_struct_element['id']:
 					result_problem = problem
-		else:
+		elif isinstance(emr_struct_element, gmEMRStructItems.cEpisode):
 			for problem in self.__emr.get_problems():
 				if problem['pk_episode'] == emr_struct_element['pk_episode']:
 					result_problem = problem
+		elif isinstance(emr_struct_element, types.StringType):
+			for problem in self.__emr.get_problems():
+				if problem['problem'] == emr_struct_element:
+					result_problem = problem					
 		return result_problem
 		
 	#--------------------------------------------------------
@@ -203,10 +216,12 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		for a_leaf in all_leafs:
 			content = a_leaf.get_content()
 			if isinstance(content, gmSOAPWidgets.cResizingSoapPanel):
-				if content.GetProblem() is None:
-					displayed_episodes.append(None)
-				else:
-					displayed_episodes.append(content.GetProblem()['pk_episode'])
+				if content.GetProblem() == gmSOAPWidgets.PROBLEM_SAVED:
+					displayed_episodes.append(gmSOAPWidgets.PROBLEM_SAVED)
+				elif content.GetProblem() != gmSOAPWidgets.PROBLEM_UNDEFINED:
+					displayed_episodes.append(content.GetProblem()['problem'])
+				elif content.GetProblem() == gmSOAPWidgets.PROBLEM_UNDEFINED:
+					displayed_episodes.append(content.GetHeadingTxt())
 		return displayed_episodes
 		
 	#--------------------------------------------------------
@@ -226,19 +241,54 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		return None
 
 	#--------------------------------------------------------
-	def __focus_episode(self, episode_id):
+	def __focus_episode(self, episode_name):
 		"""
-		Retrieves the list of episodes that are currently displayed in the
-		multisash widget.
+		Focus in multisash widget the progress note for the given
+		problem name.
+		
+		@param episode_name: The name of the problem to focus
+		@type episode_name: string
 		"""
 		all_leafs = self.__soap_multisash.get_displayed_leafs()
-		for a_leaf in all_leafs:
+		for a_leaf in all_leafs:			
 			content = a_leaf.get_content()
+			target_name = ''
+			
 			if not content is None and \
 			isinstance(content, gmSOAPWidgets.cResizingSoapPanel) and \
-			content.GetProblem()['pk_episode'] == episode_id:
+			content.GetProblem() != gmSOAPWidgets.PROBLEM_SAVED and \
+			content.GetProblem() != gmSOAPWidgets.PROBLEM_UNDEFINED:
+				target_name = content.GetProblem()['problem']
+			elif content.GetProblem() == gmSOAPWidgets.PROBLEM_UNDEFINED:
+				target_name = content.GetHeadingTxt()
+			
+			if target_name == episode_name:
 				a_leaf.Select()
 				return
+				
+	#--------------------------------------------------------
+	def __check_problem(self, problem_name):
+		"""
+		Check wether the supplied problem (usually, from an unassociated
+		progress note, is an existing episode or we must create a new
+		episode (unattached to any problem).
+		
+		@param problem_name: The progress note's problem name to check
+		@type problem: StringType
+		"""
+		
+		target_episode = None
+		
+		target_episode = self.__get_problem(problem_name)
+		if not target_episode is None and isinstance(target_episode, gmEMRStructItems.cEpisode):
+			# the text is not an existing episode, let's create it
+			target_episode = self.__emr.add_episode (episode_name = problem_name)
+		
+		if not target_episode is None:
+			return (True, target_episode)
+		else:
+			return (False, target_episode)
+						
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -248,9 +298,9 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# wxPython events
 		wx.EVT_LISTBOX_DCLICK(self.__LST_problems, self.__LST_problems.GetId(), self.__on_problem_selected)
 		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
-		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
-		#wx.EVT_BUTTON(self.__BTN_new, self.__BTN_new.GetId(), self.__on_new)
+		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)		
 		wx.EVT_BUTTON(self.__BTN_remove, self.__BTN_remove.GetId(), self.__on_remove)
+		wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
 
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self.__on_patient_selected)
@@ -267,6 +317,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			- if editor for episode exists: focus it
 			- if no editor for episode exists: create one and focus it
 			- update button status
+			- if currently selected editor is an unassociated one and its episode name is empty,
+			  set its episode name in phrasewheel
 		"""
 		print self.__class__.__name__, "-> __on_problem_selected()"
 		problem_idx = self.__LST_problems.GetSelection()
@@ -306,13 +358,21 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			_log.Log(gmLog.lErr, 'invalid problem type [%s]' % type(problem))
 			return False
 
-		episode_id = self.__selected_episode['pk_episode']
-		if episode_id not in self.__get_displayed_episodes():
+		episode_name = self.__selected_episode['problem']
+		if episode_name not in self.__get_displayed_episodes():
+			focused_widget = self.__soap_multisash.get_focussed_leaf().get_content()
+			if isinstance(focused_widget, gmSOAPWidgets.cResizingSoapPanel) and \
+			focused_widget.GetProblem() == gmSOAPWidgets.PROBLEM_UNDEFINED and \
+			focused_widget.GetHeadingTxt().strip() == '':
+				# configure problem name un unassociated progress note
+				focused_widget = self.__soap_multisash.get_focussed_leaf().get_content()		
+				focused_widget.SetHeadingTxt(self.__selected_episode['problem'])
+				return
 			# let's create new note for the selected episode
-			if None in self.__get_displayed_episodes():
+			if gmSOAPWidgets.PROBLEM_SAVED in self.__get_displayed_episodes():
 				# there are some displayed empty notes (after saving)
 				# set the selected problem in first of them
-				leaf = self.__get_leaf_for_episode(episode = None)
+				leaf = self.__get_leaf_for_episode(episode = gmSOAPWidgets.PROBLEM_SAVED)
 				leaf.get_content().SetProblem(self.__selected_episode)
 			else:
 				# create note in new leaf, always on bottom
@@ -326,8 +386,9 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 					gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening progress note editor'))
 		else:
 			# let's find and focus the displayed note for the selected episode
-			self.__focus_episode(episode_id)
+			self.__focus_episode(episode_name)
 		self.__update_button_state()
+
 	#--------------------------------------------------------
 	def __on_patient_selected(self):
 		self._schedule_data_reget()
@@ -345,6 +406,21 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		soap_editor = soap_widget.get_editor()
 		# set up clinical context in soap bundle
 		problem = soap_widget.GetProblem()
+		if problem == gmSOAPWidgets.PROBLEM_UNDEFINED:
+			episode_name = soap_widget.GetHeadingTxt()
+			if episode_name is None or episode_name.strip() == '':
+				msg = _('Cannot save progress note for empty problem.'
+				'\nPlease, type a new episode name or select an existing one from the list.')
+				gmGuiHelpers.gm_show_error(msg, _('progress note editor'), gmLog.lErr)
+				_log.Log(gmLog.lErr, 'empty problem ')
+				return							
+			stat, problem = self.__check_problem(episode_name)
+			if not stat:
+				msg = _('Cannot save progress note for episode [%s].' % episode_name)
+				gmGuiHelpers.gm_show_error(msg, _('progress note editor'), gmLog.lErr)
+				_log.Log(gmLog.lErr, 'episode error ')
+				return			
+			print "SAVING UNASSOCIATED note for PROBLEM: %s " % problem
 		encounter = self.__emr.get_active_encounter()
 		staff_id = gmWhoAmI.cWhoAmI().get_staff_ID()
 		clin_ctx = {
@@ -355,12 +431,15 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# fill bundle for import
 		bundle = []
 		editor_content = soap_editor.GetValue()
-		for input_label in editor_content.keys():
-			narr = editor_content[input_label]['data']
-			if isinstance(narr, gmClinNarrative.cNarrative):
-				# double-check staff_id vs. narr['who owns it']
-				print "updating existing narrative"
-				narr['narrative'] = editor_content['text']
+		print editor_content
+		for input_label in editor_content.values():
+			print "Data: %s" % input_label.data
+			print "Value: %s" % input_label.value
+#			narr = editor_content[input_label].value
+#			if isinstance(narr, gmClinNarrative.cNarrative):
+#				# double-check staff_id vs. narr['who owns it']
+#				print "updating existing narrative"
+#				narr['narrative'] = editor_content['text']
 #				narr['soap_cat'] = editor_content['soap_cat']
 #				successful, data = narr.save_payload()
 #				if not successful:
@@ -369,12 +448,12 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 #					print data
 #					continue
 				# FIXME: update associated types list
-				# FIXME: handle embedded structural data list
-				continue
+ 				# FIXME: handle embedded structural data list
+#				continue
 			bundle.append ({
-				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: input_label,
+				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: input_label.data['soap_cat'],
 				gmSOAPimporter.soap_bundle_TYPES_KEY: [],		# these types need to come from the editor
-				gmSOAPimporter.soap_bundle_TEXT_KEY: editor_content[input_label],
+				gmSOAPimporter.soap_bundle_TEXT_KEY: input_label.value,
 				gmSOAPimporter.soap_bundle_CLIN_CTX_KEY: clin_ctx,
 				gmSOAPimporter.soap_bundle_STRUCT_DATA_KEY: {}	# this data needs to come from the editor
 			})
@@ -397,34 +476,21 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		selected_soap.Clear()
 
 	#--------------------------------------------------------
-	def __on_new(self, evt):
+	def __on_add_unassociated(self, evt):
 		"""
-		Create and display a new SOAP input widget on the stack
-		"""
-		pass
-
-		#print "New SOAP"
-		
-		#if isinstance(self.__selected_soap, SOAPMultiSash.EmptyWidget):
-		#	self.__managed_episodes.append(self.__selected_episode[1]['pk_episode'])
-		#	self.__focussed_soap_editor.MakeSoapEditor()
-		# first SOAP input widget is displayed by showing an empty hidden one
-		#if not self.__selected_soap is None and not self.__selected_soap.IsContentShown():
-#		#	self.__managed_episodes.append(self.__selected_episode[1])
-#		#	self.__selected_soap.SetHealthIssue(self.__selected_episode)
-		#	self.__focussed_soap_editor.GetSOAPPanel().Show()
-		#	self.__focussed_soap_editor.detail.Select()
-		#	self.__focussed_soap_editor.creatorHor.Show(True)
-		#	self.__focussed_soap_editor.closer.Show(True)
-			
-		#else:
-			# create SOAP input widget for currently selected issue
-			# FIXME: programmatically calculate height
-		#	self.__focussed_soap_editor.AddLeaf(SOAPMultiSash.MV_VER, 130)
-
-		#print "problems with soap: %s"%(self.__managed_episodes)
-		
-		
+		Create and display a new SOAP input widget on the stack for an unassociated
+		progress note.
+		"""		
+		successful, errno = self.__soap_multisash.add_content(content = gmSOAPWidgets.cResizingSoapPanel(self, problem = gmSOAPWidgets.PROBLEM_UNDEFINED))
+		# FIXME: actually, one would have to check errno but there is only one error number so far
+		if not successful:
+			msg = _('Cannot open progress note editor for\n\n'
+					'[%s]\n\n'
+					'The GnuMed window is too small. Please enlarge\n'
+					'the lowermost editor and try again.') % problem['problem']
+			gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening progress note editor'))
+		self.__update_button_state()
+				
 	#--------------------------------------------------------
 	def __on_remove(self, event):
 		"""
@@ -514,7 +580,7 @@ if __name__ == '__main__':
 			sys.exit(0)
 
 		# display standalone browser
-		application = wx.wxPyWidgetTester(size=(600,400))
+		application = wx.wxPyWidgetTester(size=(800,500))
 		soap_input = cMultiSashedSoapPanel(application.frame, -1)
 		#soap_input.refresh_tree()
 		
@@ -540,7 +606,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.25  2005-03-03 21:34:23  ncq
+# Revision 1.26  2005-03-13 09:04:34  cfmoro
+# Added intial support for unassociated progress notes
+#
+# Revision 1.25  2005/03/03 21:34:23  ncq
 # - cleanup
 # - start implementing saving existing narratives
 #
