@@ -1,23 +1,13 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.43 $
+-- $Revision: 1.44 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
-
--- ===================================================================
--- auditing
--- -------------------------------------------------------------------
-create table clin_audit (
-	id_audit serial
-);
-
-comment on table clin_audit is 
-	'ancestor table for auditing. Marks tables for automatic audit trigger generation';
 
 -- ===================================================================
 -- clinical narrative aggregation, this is a generic table for SOAP
@@ -41,7 +31,7 @@ create table clin_health_issue (
 	id_patient integer not null,
 	description varchar(128) default '__default__',
 	unique (id_patient, description)
-) inherits (clin_audit);
+) inherits (audit_mark);
 
 comment on table clin_health_issue is
 	'long-ranging, underlying health issue such as "mild immunodeficiency", "diabetes type 2"';
@@ -51,7 +41,7 @@ comment on column clin_health_issue.description is
 	'descriptive name of this health issue, may change over time';
 
 -- start: start of first episode
--- end: end of latest episode
+-- end: end of most recent episode
 
 -- -------------------------------------------------------------------
 create table clin_episode (
@@ -59,7 +49,7 @@ create table clin_episode (
 	id_health_issue integer not null references clin_health_issue(id),
 	description varchar(128) default '__default__',
 	unique (id_health_issue, description)
-) inherits (clin_audit, clin_narrative);
+) inherits (clin_narrative, audit_mark);
 
 comment on table clin_episode is
 	'clinical episodes such as "recurrent Otitis media", "traffic accident 7/99", "Hepatitis B"';
@@ -80,7 +70,7 @@ comment on column clin_episode.description is
 create table _enum_encounter_type (
 	id serial primary key,
 	description varchar(32) unique not null
-) inherits (clin_audit);
+) inherits (audit_mark);
 
 comment on TABLE _enum_encounter_type is
 	'these are the types of encounter';
@@ -91,7 +81,7 @@ create table clin_encounter (
 	id_location integer,
 	id_provider integer,
 	id_type integer not null references _enum_encounter_type(id)
-) inherits (clin_audit, clin_narrative);
+) inherits (clin_narrative, audit_mark);
 
 comment on table clin_encounter is
 	'a clinical encounter between a person and the health care system';
@@ -111,10 +101,8 @@ comment on COLUMN clin_encounter.id_type is
 create table clin_item (
 	pk_item serial primary key,
 	id_encounter integer not null references clin_encounter(id),
-	id_episode integer not null references clin_episode(id),
-	commit_when timestamp with time zone not null default CURRENT_TIMESTAMP,
-	commit_who name not null default CURRENT_USER
-) inherits (clin_audit, clin_narrative);
+	id_episode integer not null references clin_episode(id)
+) inherits (clin_narrative);
 
 comment on TABLE clin_item is
 	'ancestor table for clinical items of any kind, can be used
@@ -126,11 +114,6 @@ comment on COLUMN clin_item.id_encounter is
 	'the encounter this item belongs to';
 comment on COLUMN clin_item.id_episode is
 	'the episode this item belongs to';
-comment on COLUMN clin_item.commit_when is
-	'when has this item been committed';
-comment on COLUMN clin_item.commit_who is
-	'by whom has this particular item been committed, need not
-	 correspond to the provider in clin_encounter';
 
 -- --------------------------------------------
 create table _enum_hx_type (
@@ -155,7 +138,7 @@ create table clin_history (
 	id serial primary key,
 	id_type integer not null references _enum_hx_type(id),
 	id_source integer REFERENCES _enum_hx_source(id)
-) inherits (clin_item);
+) inherits (clin_item, audit_mark);
 
 -- narrative provided by clin_item
 
@@ -169,7 +152,7 @@ comment on COLUMN clin_history.id_source is
 -- --------------------------------------------
 create table clin_physical (
 	id serial primary key
-) inherits (clin_item);
+) inherits (clin_item, audit_mark);
 
 -- narrative provided by clin_item
 
@@ -181,10 +164,6 @@ create table _enum_allergy_type (
 	id serial primary key,
 	value varchar(32) unique not null
 ) ;
-
---create view vi18n_enum_allergy_type as
---	select _enum_allergy_type.id, _(_enum_allergy_type.value)
---	from _enum_allergy_type;
 
 -- --------------------------------------------
 create table allergy (
@@ -198,7 +177,7 @@ create table allergy (
 	reaction text default '',
 	generic_specific boolean default false,
 	definate boolean default false
-) inherits (clin_item);
+) inherits (clin_item, audit_mark);
 
 -- narrative provided by clin_item
 
@@ -233,7 +212,7 @@ comment on column allergy.definate is
 create table enum_coding_systems (
 	id serial primary key,
 	description text
-) inherits (clin_audit);
+) inherits (audit_mark);
 
 comment on TABLE enum_coding_systems is
 	'The various types of coding systems available';
@@ -245,7 +224,7 @@ create table coding_systems (
 	description text,
 	version char(6),
 	deprecated timestamp
-) inherits (clin_audit);
+) inherits (audit_mark);
 
 comment on table coding_systems is
 	'The coding systems in this database.';
@@ -257,7 +236,7 @@ create table clin_diagnosis (
 	code char(16),
 	id_coding_systems int REFERENCES coding_systems (id),
 	text text
-) inherits (clin_audit);
+) inherits (audit_mark);
 
 comment on TABLE clin_diagnosis is
 	'Coded clinical diagnoses assigned to patient, in addition to history';
@@ -274,7 +253,7 @@ comment on column clin_diagnosis.text is
 create table enum_confidentiality_level (
 	id SERIAL primary key,
 	description text
-)inherits (clin_audit);
+)inherits (audit_mark);
 
 comment on table enum_confidentiality_level is
 	'Various levels of confidentialoty of a coded diagnosis, such as public, clinical staff, treating doctor, etc.';
@@ -284,7 +263,7 @@ create table clin_diagnosis_extra (
 	id serial primary key,
 	id_clin_diagnosis int REFERENCES clin_diagnosis (id),
 	id_enum_confidentiality_level int REFERENCES enum_confidentiality_level (id)
-) inherits (clin_audit);
+) inherits (audit_mark);
 
 comment on table clin_diagnosis_extra is
 'Extra information about a diagnosis, just the confidentiality level at present.';
@@ -423,7 +402,6 @@ GRANT SELECT ON
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
-	"clin_audit_id_audit_seq",
 	"clin_narrative",
 	"clin_narrative_pk_narr_seq",
 	"clin_health_issue",
@@ -452,11 +430,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.43 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.44 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.43  2003-05-12 12:43:39  ncq
+-- Revision 1.44  2003-05-12 19:29:45  ncq
+-- - first stab at real auditing
+--
+-- Revision 1.43  2003/05/12 12:43:39  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --
