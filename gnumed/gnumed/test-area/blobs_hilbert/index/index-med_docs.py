@@ -1,14 +1,15 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
 from wxPython.lib.anchors import LayoutAnchors
 
-import Image, os, time, shutil, os.path
+#import Image
+import os, time, shutil, os.path
 
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
@@ -49,9 +50,7 @@ class indexFrame(wxFrame):
 		self.__fill_pat_fields()
 
 		# repository base
-		self.repository = os.path.expanduser(__cfg__.get("repositories", "to_index"))
-		# name of document description XML file
-		self.desc_file_name = __cfg__.get("metadata", "description")
+		self.repository = os.path.abspath(os.path.expanduser(__cfg__.get("repositories", "to_index")))
 
 		# items for phraseWheel
 		if not self._init_phrase_wheel():
@@ -125,12 +124,23 @@ class indexFrame(wxFrame):
 		)
 		self.LBOX_doc_pages.SetToolTipString(_('these pages make up the current document'))
 
-		self.showPicButton = wxButton(id = wxID_INDEXFRAMESHOWPICBUTTON, label = _('show page'), name = 'showPicButton', parent = self.PNL_main, pos = wxPoint(48, 400), size = wxSize(95, 22), style = 0)
-		self.showPicButton.SetToolTipString(_('show page'))
-		#EVT_BUTTON(self.showPicButton, wxID_INDEXFRAMESHOWPICBUTTON, self.OnShowpicbuttonButton)
+		#-- load pages button -------------
+		self.BTN_show_page = wxButton(
+			id = wxID_INDEXFRAMESHOWPICBUTTON,
+			label = _('show page'),
+			name = 'BTN_show_page',
+			parent = self.PNL_main,
+			pos = wxPoint(48, 400),
+			size = wxSize(95, 22),
+			style = 0
+		)
+		self.BTN_show_page.SetToolTipString(_('display selected part of the document'))
+		EVT_BUTTON(self.BTN_show_page, wxID_INDEXFRAMESHOWPICBUTTON, self.on_show_page)
+
 
 		self.delPicButton = wxButton(id = wxID_INDEXFRAMEDELPICBUTTON, label = _('delete page'), name = 'delPicButton', parent = self.PNL_main, pos = wxPoint(143, 400), size = wxSize(90, 22), style = 0)
 		#EVT_BUTTON(self.delPicButton, wxID_INDEXFRAMEDELPICBUTTON, self.OnDelpicbuttonButton)
+
 
 		#-- first name text box -------------
 		self.TBOX_first_name = wxTextCtrl(
@@ -401,7 +411,22 @@ class indexFrame(wxFrame):
 	def on_get_pages(self, event):
 		_log.Log(gmLog.lData, "Trying to load document.")
 
-		full_dir = os.path.join(self.repository, self.doc_id_wheel.GetLineText(0))
+		curr_doc_id = self.doc_id_wheel.GetLineText(0)
+
+		# has the user supplied anything ?
+		if curr_doc_id == '':
+			_log.Log(gmLog.lErr, 'No document ID typed in yet !')
+			dlg = wxMessageDialog(
+				self,
+				_('You must type in a document ID !\n\nUsually you will find the document ID written on\nthe physical sheet of paper. There should be only one\nper document even if there are multiple pages.'),
+				_('missing document ID'),
+				wxOK | wxICON_EXCLAMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		full_dir = os.path.join(self.repository, curr_doc_id)
 
 		# lock this directory now
 		if not self.__lock_for_indexing(full_dir):
@@ -417,7 +442,7 @@ class indexFrame(wxFrame):
 			return None
 
 		# actually try loading pages
-		if not self.__load_doc():
+		if not self.__load_doc(full_dir):
 			_log.Log(gmLog.lErr, "Cannot load document object file list.")
 			dlg = wxMessageDialog(
 				self,
@@ -439,29 +464,47 @@ class indexFrame(wxFrame):
 		if not self.__valid_input():
 			return None
 		else:
-			self.__dump_metadata_to_xml()
 			full_dir = os.path.join(self.repository, self.doc_id_wheel.GetLineText(0))
+			self.__dump_metadata_to_xml(full_dir)
 			self.__unlock_for_import(full_dir)
 			self.__clear_doc_fields()
 			self.doc_id_wheel.Clear()
 			# FIXME: this needs to be reloaded !
 			#self.initgmPhraseWheel()
+	#----------------------------------------
+	def on_show_page(self, event):
+		page_idx = self.LBOX_doc_pages.GetSelection()
 
+		if page_idx != -1:
+			page_data = self.LBOX_doc_pages.GetClientData(page_idx)
+			page_fname = page_data['file name']
+
+			import docMime
+
+			mime_type = docMime.guess_mimetype(page_fname)
+			viewer_cmd = docMime.get_viewer_cmd(mime_type, page_fname)
+
+			if viewer_cmd == None:
+				__log__.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
+				new_fname = docMime.get_win_fname(mime_type)
+				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, new_fname))
+				shutil.copyfile(page_fname, new_fname)
+				os.startfile(new_fname)
+			else:
+				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, viewer_cmd))
+				os.system(viewer_cmd)
+		else:
+			dlg = wxMessageDialog(
+				self,
+				_('You must select a page before you can view it.'),
+				_('Attention'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
 	#---------------------------------------------------------------------------
 	def wheel_callback (self, data):
 		print "Selected :%s" % data
-	#---------------------------------------------------------------------------
-	def show_pic(self,bild):
-		try:
-			bild=Image.open(bild)
-			bild.show()
-			return true
-		except IOError:
-			dlg = wxMessageDialog(self, _('page could not be opened or does not exist'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
 	#----------------------------------------
 	# internal methods
 	#----------------------------------------
@@ -470,13 +513,14 @@ class indexFrame(wxFrame):
 		# to other methods of getting the patient
 
 		# get patient data from BDT/XDT file
-		pat_file = os.path.expanduser(__cfg__.get("metadata", "patient_file"))
+		pat_file = os.path.abspath(os.path.expanduser(__cfg__.get("metadata", "patient_file")))
+		pat_format = __cfg__.get("metadata", "patient_format")
 		self.myPatient = cPatient()
-		if not self.myPatient.loadFromFile("xdt", pat_file):
-			_log.Log(gmLog.lPanic, "Cannot read patient from xDT file [%s]" % pat_file)
+		if not self.myPatient.loadFromFile(pat_format, pat_file):
+			_log.Log(gmLog.lPanic, "Cannot read patient from %s file [%s]" % (pat_format, pat_file))
 			dlg = wxMessageDialog(
 				self,
-				_('Cannot load patient from xDT file.\n\nPlease consult the error log for details.'),
+				_('Cannot load patient from %s file.\n\nPlease consult the error log for details.' % pat_format),
 				_('Error'),
 				wxOK | wxICON_ERROR
 			)
@@ -496,32 +540,16 @@ class indexFrame(wxFrame):
 		self.TBOX_doc_date.SetValue(_('please fill in'))
 		self.TBOX_desc_short.SetValue(_('please fill in'))
 		self.TBOX_desc_long.SetValue(_('please fill in'))
-		self.SelBOX_doc_type.SetSelection(-1)
+		#self.SelBOX_doc_type.SetSelection(-1)
+		self.SelBOX_doc_type.SetValue(_('choose document type'))
 		self.LBOX_doc_pages.Clear()
 	#----------------------------------------
-	def __load_doc(self):
-		# make sure to get the first line only :-)
-		curr_doc_id = self.doc_id_wheel.GetLineText(0)
-
-		# has the user supplied anything ?
-		if curr_doc_id == '':
-			_log.Log(gmLog.lErr, 'No document ID typed in yet !')
-			dlg = wxMessageDialog(
-				self,
-				_('You must type in a document ID !\n\nUsually you will find the document ID written on\nthe physical sheet of paper. There should be only one\nper document even if there are multiple pages.'),
-				_('missing document ID'),
-				wxOK | wxICON_EXCLAMATION
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return None
-
+	def __load_doc(self, aDir):
 		# well, so load the document from that directory
-		work_dir = os.path.join(self.repository, curr_doc_id)
-		_log.Log(gmLog.lData, 'working in [%s]' % work_dir)
+		_log.Log(gmLog.lData, 'working in [%s]' % aDir)
 
 		# check for metadata file
-		fname = os.path.join(work_dir, self.desc_file_name)
+		fname = os.path.join(aDir, __cfg__.get("metadata", "description"))
 		if not os.path.exists (fname):
 			_log.Log(gmLog.lErr, 'Cannot access metadata file [%s].' % fname)
 			dlg = wxMessageDialog(self, 
@@ -535,7 +563,7 @@ class indexFrame(wxFrame):
 
 		# actually get pages
 		self.myDoc = cDocument()
-		if not self.myDoc.loadImgListFromXML(fname , work_dir):
+		if not self.myDoc.loadImgListFromXML(fname, aDir):
 			_log.Log(gmLog.lErr, 'Cannot load image list from metadata file[%s].' % fname)
 			dlg = wxMessageDialog(self, 
 				_('Cannot load image list from metadata file\n[%s].\n\nPlease see error log for details.' % fname),
@@ -550,14 +578,13 @@ class indexFrame(wxFrame):
 	#----------------------------------------
 	def __fill_doc_fields(self):
 		self.__clear_doc_fields()
-		pageLst = self.myDoc.getMetaData()['objects']
-		for page_num, fname in pageLst.items():
-			self.LBOX_doc_pages.Append(_('page %s (%s)') % (page_num, fname['file name']), {'number': page_num, 'file': fname})
+		objLst = self.myDoc.getMetaData()['objects']
+		for obj in objLst.values():
+			page_num = obj['index']
+			path, name = os.path.split(obj['file name'])
+			self.LBOX_doc_pages.Append(_('page %s (%s in %s)') % (page_num, name, path), obj)
 	#----------------------------------------
-	def __dump_metadata_to_xml(self):
-
-		# make sure to get the first line only :-)
-		curr_doc_dir = self.doc_id_wheel.GetLineText(0)
+	def __dump_metadata_to_xml(self, aDir):
 
 		content = []
 
@@ -586,7 +613,8 @@ class indexFrame(wxFrame):
 		content.append('<%s>%s</%s>\n' % (tag, self.TBOX_desc_long.GetValue(), tag))
 
 		tag = __cfg__.get("metadata", "ref_tag")
-		content.append('<%s>%s</%s>\n' % (tag, curr_doc_dir, tag))
+		doc_ref = self.doc_id_wheel.GetLineText(0)
+		content.append('<%s>%s</%s>\n' % (tag, doc_ref, tag))
 
 		# FIXME: take reordering into account
 		tag = __cfg__.get("metadata", "obj_tag")
@@ -597,11 +625,10 @@ class indexFrame(wxFrame):
 
 		content.append('</%s>\n' % __cfg__.get("metadata", "document_tag"))
 
-		# overwrite old XML metadata file
-		xml_fname = os.path.join(self.repository, curr_doc_dir, self.desc_file_name)
+		# overwrite old XML metadata file and write new one
+		xml_fname = os.path.join(aDir, __cfg__.get("metadata", "description"))
 		os.remove(xml_fname)
 		xml_file = open(xml_fname, "w")
-		# write content to it
 		map(xml_file.write, content)
 		xml_file.close()
 	#----------------------------------------
@@ -640,7 +667,7 @@ class indexFrame(wxFrame):
 		else:
 			return 1
 
-		_log.Log(gmLog.lErr, 'Cannot save collected metadata. It is not fully valid.')
+		_log.Log(gmLog.lErr, 'Collected metadata is not fully valid.')
 		_log.Log(gmLog.lData, msg)
 
 		dlg = wxMessageDialog(
@@ -735,25 +762,6 @@ class indexFrame(wxFrame):
 		return 1
 	#----------------------------------------
 	#----------------------------------------
-	def OnShowpicbuttonButton(self, event):
-		self.BefValue = self.doc_id_wheel.GetLineText(0)
-		current_selection = self.LBOX_doc_pages.GetSelection()
-		if not current_selection == -1:
-			pic_selection = current_selection+1
-			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
-			#for debugging only
-			print "I show u:" + self.selected_pic
-			if os.name == 'posix':
-				self.show_pic(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.jpg')
-			else:
-				self.show_pic(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.bmp')
-		else:
-			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-
 	def OnDelpicbuttonButton(self, event):
 		current_selection=self.LBOX_doc_pages.GetSelection()
 		self.BefValue=self.doc_id_wheel.GetLineText(0)
@@ -784,7 +792,7 @@ class indexFrame(wxFrame):
 				except OSError:
 					_log.Log (gmLog.lErr, "I was unable to rename the file " + __cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg' + " from disk because it simply was not there ")
 				print "I renamed" +str(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg') + "into" + str(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i) + '.jpg')
-			
+
 			#print "u want to del:" + self.selected_pic
 			self.LBOX_doc_pages.Delete(current_selection)
 			self.doc_pages.remove(self.selected_pic + '.jpg')
