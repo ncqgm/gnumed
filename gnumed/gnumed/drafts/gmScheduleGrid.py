@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -15,6 +15,10 @@ from wxPython.lib import colourdb
 import gettext
 _ = gettext.gettext
 
+import gmPG
+
+ID_LISTBOX_SELECTION = wxNewId()
+
 #--------------------------------------------------------------------------
 
 days_of_week = (_("Monday"),
@@ -26,6 +30,11 @@ days_of_week = (_("Monday"),
 		_("Sunday"))
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+pat_by_names_query = \
+	"select id, lastnames, firstnames, dob from v_basic_person where lastnames ILIKE '%s%%' and firstnames ILIKE '%s%%'"
+pat_by_surnames_query = \
+	"select id, lastnames, firstnames, dob from v_basic_person where lastnames ILIKE '%s%%'"
 
 def ParseTimeInterval(interval):
 	res = []
@@ -133,8 +142,10 @@ def DayOfWeek(date=None):
 
 class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 	def __init__(self, parent, doctor_id=None, hour_start=9, hour_end=18, session_interval=15, exclude=None, date=None, days=7, log=sys.stdout):
-		wxGrid.__init__(self, parent, -1)
+		wxGrid.__init__(self, parent, -1, style=wxWANTS_CHARS | wxSIMPLE_BORDER)
 		##wxGridAutoEditMixin.__init__(self)
+		pool = gmPG.ConnectionPool()
+		self.db = pool.GetConnection('personalia')
 		self.doctor_id = doctor_id
 		self.log = log
 		self.days=days
@@ -159,6 +170,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 
 		# test all the events
+  		EVT_CHAR(self.GetGridWindow(), self.OnChar)
 		#EVT_GRID_CELL_LEFT_CLICK(self, self.OnCellLeftClick)
 		EVT_GRID_CELL_RIGHT_CLICK(self, self.OnCellRightClick)
 		#EVT_GRID_CELL_LEFT_DCLICK(self, self.OnCellLeftDClick)
@@ -179,8 +191,24 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		#EVT_GRID_EDITOR_HIDDEN(self, self.OnEditorHidden)
 		#EVT_GRID_EDITOR_CREATED(self, self.OnEditorCreated)
 
+		EVT_KEY_DOWN(self,self.OnKeyDown)
 
-	def SetDoctor(self, id):		
+	def OnKeyDown(self,evt):
+		code = evt.KeyCode()
+		if code == WXK_TAB:
+			print "tab!"
+
+		elif code == WXK_RETURN:
+			evt.Skip()
+		else:
+			evt.Skip()
+
+
+	def OnChar(self, evt):
+		print "OnCHar"
+		evt.Skip()
+
+	def SetDoctor(self, id):
 		self.doctor_id = id
 
 	def MakeGrid(self):
@@ -279,10 +307,12 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		start = time.mktime(date)
 		return(time.localtime(start+86400*days))
 
+
 	def GetCellDate(self, column):
 		date = self.Date
 		#delete hours, minutes, seconds - we only want the date, not the time
 		return self.AddDays(column, date)
+
 
 	def GetCellTime(self, row):
 		return self.GetRowLabelValue(row)
@@ -290,7 +320,6 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		#hm = string.split(tstr, ":")
 		#return time in seconds
 		#return (int(hm[0])*360) + (int(hm[1])*60)
-
 
 
 	def GetCellDateTime(self, row, column):
@@ -327,8 +356,6 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		print "Add patient"
 
 	def OnCellRightClick(self, evt):
-		self.log.write("OnCellRightClick: (%d,%d) %s\n" %
-		(evt.GetRow(), evt.GetCol(), evt.GetPosition()))
 		row = evt.GetRow()
 		col = evt.GetCol()
 		self.SetGridCursor(row,col)
@@ -415,7 +442,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		sl = string.split(value, " ")
 		try:
 			surname=sl[0]
-			if surname[0]=='+' and len(surname)>1: 
+			if surname[0]=='+' and len(surname)>1:
 				surname=surname[1:]
 			increment = string.count(sl[1], '+')
 			if increment < 1:
@@ -425,6 +452,47 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		except:
 			pass
         	return surname, firstname, increment
+
+
+	def NewPatient(self, surname, firstname):
+		return None
+
+
+	def ChoosePatient(self, patient_dict):
+		crect = self.CellToRect(self.GetGridCursorRow(), self.GetGridCursorCol())
+		self.li = wxListBox( self, ID_LISTBOX_SELECTION, wxPoint(crect.x, crect.y+crect.height), wxSize(200,120),
+        		[] , wxLB_SINGLE )
+		for p in patient_dict:
+			self.li.Append("%s, %s" % (p["lastnames"], p["firstnames"]), p["id"])
+		self.li.SetFocus()
+		EVT_LISTBOX(self, ID_LISTBOX_SELECTION, self.OnItemSelected)
+
+
+	def OnItemSelected(self, evt):
+		print "Item was selected", self.li.GetClientData(self.li.GetSelection())
+		self.SetCellValue(self.GetGridCursorRow(), self.GetGridCursorCol(), self.li.GetString(self.li.GetSelection()))
+		self.li.Destroy()
+
+
+	def GetPatientByName(self, surname, firstname=None):
+		cur = self.db.cursor()
+		if firstname is not None:
+			qstr = pat_by_names_query % (surname, firstname)
+			print qstr
+			cur.execute(qstr)
+		else:
+			qstr = pat_by_surnames_query % surname
+			print qstr
+			cur.execute(qstr)
+		result = gmPG.dictResult(cur)
+		n = len(result)
+		if n == 0:
+			return self.NewPatient(surname, firstname)
+		elif n == 1:
+			pat = result[0]
+			return pat["id"], pat["firstname"], pat["surname"]
+		else:
+			return self.ChoosePatient(result)
 
 
 
@@ -439,38 +507,33 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 		if  value is not None and value != '':
 			surname, firstname, increment = self.ParseAppEntry(value)
+			self.GetPatientByName(surname, firstname);
+			return
+			if id is None:
+				return
 			for i in range(increment+1):
 				self.SetCellBackgroundColour(row+i, col, self.clr_appointed)
 				if i > 0:
 					incstr = '+'
 				else:
 					incstr=''
-				self.SetCellValue(row+i, col, "%s%s, %s" % (incstr, surname, firstname))
+				#self.SetCellValue(row+i, col, "%s%s, %s" % (incstr, surname, firstname))
 		else:
 			self.SetCellBackgroundColour(row, col, wxWHITE)
 		datetime=self.GetCellDateTime(row, col)
 		duration = self.session_interval + increment * self.session_interval
+
 		dts = time.strftime("%Y-%m-%d %H:%M", datetime)
-		print "%d min. ppointment made for % s on %s with Dr. [id=%d]" % (duration, value, dts, self.doctor_id)
+		print "%d min. Appointment made for % s on %s with Dr. [id=%d]" % (duration, value, dts, self.doctor_id)
 
 
 	def OnCellChange(self, evt):
-		self.log.write("OnCellChange: (%d,%d) %s\n" %
-			(evt.GetRow(), evt.GetCol(), evt.GetPosition()))
-
-		# Show how to stay in a cell that has bad data.  We can't just
-		# call SetGridCursor here since we are nested inside one so it
-		# won't have any effect.  Instead, set coordinants to move to in
-		# idle time.
 		row = evt.GetRow()
 		col = evt.GetCol()
 		value = self.GetCellValue(row, col)
 		if value[0]=='+':
 			return
 		self.AppointmentMade(row, col, value)
-		#value = self.GetCellValue(evt.GetRow(), evt.GetCol())
-		#if value == 'no good':
-		#    self.moveTo = evt.GetRow(), evt.GetCol()
 
 
 	def OnIdle(self, evt):
