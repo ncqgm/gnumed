@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -607,7 +607,7 @@ def run_query(aCursor=None, verbosity=None, aQuery=None, *args):
 #	print t2-t1, aQuery
 	return 1
 #---------------------------------------------------
-def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1, extra_verbose=False):
+def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1, extra_verbose=False, get_col_idx = False):
 	"""Convenience function for running a transaction
 	   that is supposed to get committed.
 
@@ -644,6 +644,11 @@ def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1, extra_ve
 		- max_tries is honored if and only if link_obj is a service
 		  name such that we have full control over the transaction
 
+	<get_col_idx>
+		- if true, the returned data will include a dictionary
+		  mapping field names to column positions
+		- if false, the returned data returns an empty dict
+
 	method result:
 		- returns a tuple (status, data)
 		- <status>:
@@ -651,7 +656,8 @@ def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1, extra_ve
 			* False - if *any* error occurred
 		- <data> if <status> is True:
 			* "None" if last query did not return rows
-			* "fetchall() result" if last query returned any rows
+			* ("fetchall() result", <index>) if last query returned any rows
+			* for <index> see <get_col_idx>
 		- <data> if <status> is False:
 			* a tuple (error, message) where <error> can be:
 			* 1: unspecified error
@@ -668,14 +674,14 @@ def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1, extra_ve
 	# check link_obj
 	# is it a cursor ?
 	if hasattr(link_obj, 'fetchone') and hasattr(link_obj, 'description'):
-		return __commit2cursor(cursor=link_obj, queries=queries, extra_verbose=extra_verbose)
+		return __commit2cursor(cursor=link_obj, queries=queries, extra_verbose=extra_verbose, get_col_idx=get_col_idx)
 	# is it a connection ?
 	if (hasattr(link_obj, 'commit') and hasattr(link_obj, 'cursor')):
-		return __commit2conn(conn=link_obj, queries=queries, end_tx=end_tx, extra_verbose=extra_verbose)
+		return __commit2conn(conn=link_obj, queries=queries, end_tx=end_tx, extra_verbose=extra_verbose, get_col_idx=get_col_idx)
 	# take it to be a service name then
-	return __commit2service(service=link_obj, queries=queries, max_tries=max_tries, extra_verbose=extra_verbose)
+	return __commit2service(service=link_obj, queries=queries, max_tries=max_tries, extra_verbose=extra_verbose, get_col_idx=get_col_idx)
 #---------------------------------------------------
-def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=False):
+def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=False, get_col_idx=False):
 	# sanity checks
 	try: int(max_tries)
 	except ValueEror: max_tries = 1
@@ -735,7 +741,7 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 	# done with attempt(s)
 	# did we get result rows in the last query ?
 	data = None
-	# now, the DB-API is ambigous about whether cursor.description
+	# now, the DB-API is ambigous about wether cursor.description
 	# and cursor.rowcount apply to the most recent query in a cursor
 	# (does this statement make any sense in the first place ?) or
 	# to the entire lifetime of said cursor, pyPgSQL thinks the
@@ -753,9 +759,12 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 	conn.commit()
 	curs.close()
 	conn.close()
-	return (True, data)
+	if get_col_idx:
+		return (True, (data, get_col_indices(curs)))
+	else:
+		return (True, (data, {}))
 #---------------------------------------------------
-def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False):
+def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, get_col_idx=False):
 	# get cursor
 	curs = conn.cursor()
 
@@ -812,9 +821,12 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False):
 	if end_tx:
 		conn.commit()
 	curs.close()
-	return (True, data)
+	if get_col_idx:
+		return (True, (data, get_col_indices(curs)))
+	else:
+		return (True, (data, {}))
 #---------------------------------------------------
-def __commit2cursor(cursor=None, queries=None, extra_verbose=False):
+def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=False):
 	# run queries
 	for query, args in queries:
 		if extra_verbose:
@@ -862,7 +874,10 @@ def __commit2cursor(cursor=None, queries=None, extra_verbose=False):
 		if curs.description is not None:
 			_log.Log(gmLog.lData, 'there seem to be rows but fetchall() failed -- DB API violation ?')
 			_log.Log(gmLog.lData, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
-	return (True, data)
+	if get_col_idx:
+		return (True, (data, get_col_indices(curs)))
+	else:
+		return (True, (data, {}))
 #---------------------------------------------------
 def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	"""Convenience function for running a transaction
@@ -1184,7 +1199,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.37 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.38 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1402,7 +1417,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.37  2004-12-20 16:48:00  ncq
+# Revision 1.38  2005-01-02 16:15:34  ncq
+# - by Ian: make commit2() return col idx on request
+# - changed to always return tuple (data, idx) with
+#   idx = {} if not requested
+#
+# Revision 1.37  2004/12/20 16:48:00  ncq
 # - minor improvement to inline docs
 #
 # Revision 1.36  2004/11/24 16:00:43  ncq
