@@ -30,8 +30,8 @@ def Login(max_attempts=3):
 	backend = None
 	print "In Login()"
 	#display the login dialog
-	dlg = gmLoginDialog.LoginDialog(NULL, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
-	dlg.CenterOnScreen()
+	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
+	dlg.Centre(wxBOTH)
 	while not logged_in and attempts< max_attempts:
 		dlg.ShowModal()
 		#get the login parameters

@@ -400,6 +400,7 @@ class LoginDialog(wxDialog):
 	def __init__(self, parent, id, title=_("Login"), png_bitmap=None):
 		wxDialog.__init__(self, parent, id, title)
 		self.panel = LoginPanel(self, -1, isDialog=1, bitmap=png_bitmap)
+		self.Centre()
 
 
 

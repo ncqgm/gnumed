@@ -66,9 +66,9 @@ class gmCryptoText(wxTextCtrl):
     position
     """
 
-    def __init__(self, parent, id, defaulttext=None):
+    def __init__(self, parent, id, size=wxPyDefaultSize, style=wxTE_MULTILINE, defaulttext=None):
         #initialize parent class
-        wxTextCtrl.__init__(self, parent, id, style=wxTE_MULTILINE)
+        wxTextCtrl.__init__(self, parent, id, size=size, style=style)
 
         #will search for text tags within fuzzymargin characters
         self.fuzzymargin = 25
