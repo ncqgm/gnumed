@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -33,7 +33,7 @@ class cDocument:
 			__log__.Log(gmLog.lData, "working from directory '" + str(aBaseDir) + "'")
 
 		# check for Befund description file
-		desc_file_name = aCfg.get("metadata", "description")
+		desc_file_name = aCfg.get("import", "description")
 		if not os.path.exists (os.path.join(aBaseDir, desc_file_name)):
 			__log__.Log (gmLog.lErr, "skipping " + aBaseDir + "- no description file (" + desc_file_name + ") found")
 			return None
@@ -43,7 +43,7 @@ class cDocument:
 		self.__metadata = {}
 
 		# document type
-		tmp = self.__get_from_xml(aTag = aCfg.get("metadata", "type_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = aCfg.get("import", "type_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			__log__.Log(gmLog.lErr, "Cannot load document type.")
 			return (1 == 0)
@@ -52,7 +52,7 @@ class cDocument:
 			__log__.Log(gmLog.lData, "Document type: " + str(self.__metadata['type']))
 
 		# document comment
-		tmp = self.__get_from_xml(aTag = aCfg.get("metadata", "comment_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = aCfg.get("import", "comment_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			__log__.Log(gmLog.lErr, "Cannot load document comment.")
 			return (1 == 0)
@@ -61,7 +61,7 @@ class cDocument:
 			__log__.Log(gmLog.lData, "Document comment: " + str(self.__metadata['comment']))
 
 		# document reference date
-		tmp = self.__get_from_xml(aTag = aCfg.get("metadata", "date_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = aCfg.get("import", "date_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			__log__.Log(gmLog.lErr, "Cannot load document reference date.")
 			return (1 == 0)
@@ -70,7 +70,7 @@ class cDocument:
 			__log__.Log(gmLog.lData, "document reference date: " + str(self.__metadata['date']))
 
 		# external reference string
-		tmp = self.__get_from_xml(aTag = aCfg.get("metadata", "ref_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = aCfg.get("import", "ref_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			__log__.Log(gmLog.lErr, "Cannot load document reference string.")
 			return (1 == 0)
@@ -79,7 +79,7 @@ class cDocument:
 			__log__.Log(gmLog.lData, "document reference string: " + str(self.__metadata['reference']))
 
 		# document description
-		tmp = self.__get_from_xml(aTag = aCfg.get("metadata", "desc_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = aCfg.get("import", "desc_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			__log__.Log(gmLog.lErr, "Cannot load long document description.")
 		else:

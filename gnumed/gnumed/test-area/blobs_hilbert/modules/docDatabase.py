@@ -11,7 +11,7 @@ for lazy programmers wanting to access GNUmed BLOBs.
 import gmPG, gmLog, gmLoginInfo
 
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 
 __log__ = gmLog.gmDefLog
 #-----------------------------------------------------------
@@ -26,11 +26,11 @@ class cDatabase:
 	def connect(self):
 		#get the login parameters
 		login = gmLoginInfo.LoginInfo('', '')
-		user = self.__cfg.get("sink", "user")
-		passwd = self.__cfg.get("sink", "password")
-		database = self.__cfg.get("sink", "database")
-		host = self.__cfg.get("sink", "host")
-		port = self.__cfg.getint("sink", "port")
+		user = self.__cfg.get("database", "user")
+		passwd = self.__cfg.get("database", "password")
+		database = self.__cfg.get("database", "database")
+		host = self.__cfg.get("database", "host")
+		port = self.__cfg.getint("database", "port")
 		login.SetInfo(user, passwd, dbname=database, host=host, port=port)
 
 		#now try to connect to the backend
