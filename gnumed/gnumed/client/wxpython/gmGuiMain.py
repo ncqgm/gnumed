@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.93 2003-04-04 20:43:47 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmGuiMain.py,v 1.94 2003-04-08 21:24:14 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -50,12 +50,12 @@ from gmI18N import gmTimeformat, system_locale, system_locale_level
 
 import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmPlugin
 #import handler_loader
-import images
-import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
+#import images
+#import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-import gmGP_Toolbar                            #panel with two toolbars on top of the screen
+import gmTopPanel
 import gmTmpPatient
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 
@@ -154,7 +154,7 @@ class MainFrame(wxFrame):
 		# create the "top row"
 		# important patient data is always there
 		# - top panel with toolbars
-		self.top_panel = gmGP_Toolbar.cMainTopPanel(self, -1)
+		self.top_panel = gmTopPanel.cMainTopPanel(self, -1)
 		self.guibroker['main.toolbar'] = self.top_panel
 		# add to main windows sizer
 		# problem:
@@ -646,7 +646,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.93  2003-04-04 20:43:47  ncq
+# Revision 1.94  2003-04-08 21:24:14  ncq
+# - renamed gmGP_Toolbar -> gmTopPanel
+#
+# Revision 1.93  2003/04/04 20:43:47  ncq
 # - take advantage of gmCurrentPatient()
 #
 # Revision 1.92  2003/04/03 13:50:21  ncq

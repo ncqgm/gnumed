@@ -1,16 +1,15 @@
 # GnuMed
 # GPL
 
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_Toolbar.py,v $
-__version__ = "$Revision: 1.13 $"
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
+__version__ = "$Revision: 1.1 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
-import gmLog, gmGuiBroker
-import gmGP_PatientPicture, gmPatientSelector
+import gmLog, gmGuiBroker, gmGP_PatientPicture, gmPatientSelector, gmDispatcher, gmSignals, gmTmpPatient
 
 from wxPython.wx import *
 
@@ -35,18 +34,31 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 
 	def __init__(self, parent, id):
 
-		gb = gmGuiBroker.GuiBroker ()
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+
+		self.__do_layout()
+		self.__register_interests()
+
+		# init plugin toolbars dict
+		self.subbars = {}
+		self.curr_pat = gmTmpPatient.gmCurrentPatient()
+
+		# and actually display ourselves
+		self.SetAutoLayout(true)
+		self.Show(true)
+	#-------------------------------------------------------
+	def __do_layout(self):
+		"""Create the layout.
+
+		.--------------------------------.
+		| patient | top row              |
+		| picture |----------------------|
+		|         | bottom row           |
+		`--------------------------------'
+		"""
 		self.SetBackgroundColour(bg_col)
 
-		# layout:
-		# .--------------------------------.
-		# | patient | toolbar              |
-		# | picture |----------------------|
-		# |         | toolbar              |
-		# `--------------------------------'
-
-		# create toolbars
+		# create rows
 		# - top row
 		# .--------------------------------------.
 		# | details | patient  | age | allergies |
@@ -60,18 +72,10 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			parent = self,
 			id = ID_BTN_pat_demographics,
 			bitmap = bmp,
-			style = wxBU_AUTODRAW
+			style = wxBU_EXACTFIT | wxNO_BORDER
 		)
 		self.btn_pat_demographics.SetToolTip(wxToolTip(_("display patient demographics")))
 		self.szr_top_row.Add (self.btn_pat_demographics, 0, wxEXPAND)
-		EVT_BUTTON(self, ID_BTN_pat_demographics, self.__on_display_demographics)
-
-#		self.tool_patient_search = self.tb_patient_search.AddTool (
-#			ID_BUTTONFINDPATIENT,
-#			getToolbar_FindPatientBitmap(),
-#			shortHelpString = _("Patient Details")
-#		)
-#		EVT_TOOL (self.tb_patient_search, ID_BUTTONFINDPATIENT, self.OnTool)
 
 		#  - patient selector
 		self.patient_selector = gmPatientSelector.cPatientSelector(self, -1)
@@ -80,13 +84,12 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		#  - age
 		self.lbl_age = wxStaticText (self, -1, _("Age"), style = wxALIGN_CENTER_VERTICAL)
 		self.lbl_age.SetFont (wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
-#		self.lbl_age.SetForegroundColour (fg_col)
 		self.txt_age = wxTextCtrl (self, -1, "", size = (40,-1), style = wxTE_READONLY)
 		self.txt_age.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 		self.txt_age.SetBackgroundColour(bg_col)
 		self.szr_top_row.Add (self.lbl_age, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
 		self.szr_top_row.Add (self.txt_age, 0, wxEXPAND | wxALL, 3)
-		#  - allergies
+		#  - allergies (substances only like "makrolides, penicillins, eggs")
 		self.lbl_allergies = wxStaticText (self, -1, _("Allergies"), style = wxALIGN_CENTER_VERTICAL)
 		self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 		self.lbl_allergies.SetBackgroundColour(bg_col)
@@ -105,31 +108,49 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		self.szr_bottom_row.Add (self.pnl_bottom_row, 1, wxGROW)
 
 		# - stack them atop each other
-		self.szr_toolbars = wxBoxSizer(wxVERTICAL)
-		self.szr_toolbars.Add(1, 3, 0, wxEXPAND)	# ??? (IMHO: space is at too much of a premium for such padding)
-		self.szr_toolbars.Add(self.szr_top_row, 1, wxEXPAND)
-		self.szr_toolbars.Add(self.szr_bottom_row, 1, wxEXPAND | wxALL, 2)
+		self.szr_stacked_rows = wxBoxSizer(wxVERTICAL)
+		self.szr_stacked_rows.Add(1, 3, 0, wxEXPAND)	# ??? (IMHO: space is at too much of a premium for such padding)
+		self.szr_stacked_rows.Add(self.szr_top_row, 1, wxEXPAND)
+		self.szr_stacked_rows.Add(self.szr_bottom_row, 1, wxEXPAND | wxALL, 2)
 
 		# create patient picture
 		self.patient_picture = gmGP_PatientPicture.cPatientPicture(self, -1)
+		gb = gmGuiBroker.GuiBroker()
 		gb['main.patient_picture'] = self.patient_picture
 
 		# create main sizer
 		self.szr_main = wxBoxSizer(wxHORIZONTAL)
 		# - insert patient picture
 		self.szr_main.Add(self.patient_picture, 0, wxEXPAND)
-		# - insert stacked toolbars
-		self.szr_main.Add(self.szr_toolbars, 1, wxEXPAND)
+		# - insert stacked rows
+		self.szr_main.Add(self.szr_stacked_rows, 1, wxEXPAND)
 
-		# init toolbars dict
-		self.subbars = {}
-
-		self.SetSizer(self.szr_main)	#set the sizer
-		self.szr_main.Fit(self)			#set to minimum size as calculated by sizer
-		self.SetAutoLayout(true)		#tell frame to use the sizer
-		self.Show(true)
+		# associate ourselves with our main sizer
+		self.SetSizer(self.szr_main)
+		# and auto-size to minimum calculated size
+		self.szr_main.Fit(self)
 	#-------------------------------------------------------
-	# event handlers
+	# event handling
+	#-------------------------------------------------------
+	def __register_interests(self):
+		# events
+		EVT_BUTTON(self, ID_BTN_pat_demographics, self.__on_display_demographics)
+		# client internal signals
+		gmDispatcher.connect(self._on_patient_selected, gmSignals.patient_selected())
+	#----------------------------------------------
+	def _on_patient_selected(self, **kwargs):
+		age = self.curr_pat['medical age']
+		# FIXME: if the age is below, say, 2 hours we should fire
+		# a timer here that updates the age in increments of 1 minute ... :-)
+		print type(age), age, str(age)
+		print age.__dict__
+		try:
+			print age.day, age.hour, age.minute, age.second
+		except: pass
+		age_val = age.strftime('%H %M %S')
+		print age_val
+		self.txt_age.SetValue(age_val)
+		print "should also update allergies now"
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
@@ -146,10 +167,10 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		"""
 		self.szr_bottom_row.Prepend(widget, 0, wxALL, 0)
 	#-------------------------------------------------------
-	def AddWidgetTopLine (self, widget, proportion = 0, flag = wxEXPAND, border = 0):
-		"""Inserts a widget onto the top line.
-		"""
-		self.szr_top_row.Add(widget, proportion, flag, border)
+#	def AddWidgetTopLine (self, widget, proportion = 0, flag = wxEXPAND, border = 0):
+#		"""Inserts a widget onto the top line.
+#		"""
+#		self.szr_top_row.Add(widget, proportion, flag, border)
 	#-------------------------------------------------------
 	def AddBar (self, key):
 		"""Creates and returns a new empty toolbar, referenced by key.
@@ -225,8 +246,11 @@ if __name__ == "__main__":
 	app.SetWidget(cMainTopPanel, -1)
 	app.MainLoop()
 #===========================================================
-# $Log: gmGP_Toolbar.py,v $
-# Revision 1.13  2003-04-04 20:43:01  ncq
+# $Log: gmTopPanel.py,v $
+# Revision 1.1  2003-04-08 21:24:14  ncq
+# - renamed gmGP_Toolbar -> gmTopPanel
+#
+# Revision 1.13  2003/04/04 20:43:01  ncq
 # - install new patient search widget
 # - rework to be a more invariant top pane less dependant on gmDemographics
 # - file should be renamed to gmTopPane.py
