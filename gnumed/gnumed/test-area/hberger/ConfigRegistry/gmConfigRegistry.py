@@ -27,7 +27,7 @@ from wxPython.wx import *
 
 [
 ConfigTreeCtrlID,
-ConfigEntryListboxID ,
+ConfigEntryParamCtrlID ,
 ConfigDescriptionTextID
 ] = map(lambda _init_ctrls: wxNewId(), range(3))
 
@@ -40,7 +40,7 @@ class cConfTree(wxTreeCtrl):
 	parameter names.
 	"""
 	def __init__(self, parent, id, aConn = None,size=wxDefaultSize,pos=wxDefaultPosition,
-				style=None,aUser=None,aMachine=None):
+				style=None,aUser=None,aMachine=None,paramWidgets=None):
 		"""Set up our specialised tree.
 		   default entries in root:
 			 -current user, current machine
@@ -53,6 +53,8 @@ class cConfTree(wxTreeCtrl):
 
 		self.currUser = aUser
 		self.currMachine = aMachine
+		self.paramTextCtrl = paramWidgets[0]
+		self.paramDescription = paramWidgets[1]
 
 		# initialize the objects holding data on the subtrees
 		# add default subtrees root nodes if possible
@@ -94,7 +96,7 @@ class cConfTree(wxTreeCtrl):
 		# init new tree
 		rootname = "%s@%s" % (self.currUser,self.currMachine)
 		self.root = self.AddRoot(rootname, -1, -1)
-		self.SetPyData(self.root, None)
+		self.SetPyData(self.root, {'type': 'root', 'name': rootname})
 		self.SetItemHasChildren(self.root, FALSE)
 
 		# now get subtrees for four maingroups (see __init__)
@@ -102,10 +104,10 @@ class cConfTree(wxTreeCtrl):
 		for nodeDescription in (self.mConfData.keys()) :
 
 			# get subtree
-			subTree = self.__getSubTree(self.mConfData[nodeDescription])
+			subTree = self.__getSubTree(nodeDescription)
 			node = self.AppendItem(self.root, nodeDescription)
 			# mabe we should store some data (version ?)
-			self.SetPyData(node, nodeDescription)
+			self.SetPyData(node, {'type': 'defaultSubtree', 'name': nodeDescription})
 			self.SetItemHasChildren(node, TRUE)
 			# we might as well not display whole subtrees, but than we can't
 			# add anything, neither
@@ -149,7 +151,7 @@ class cConfTree(wxTreeCtrl):
 #DEBUG
 #			_log.Log(gmLog.lInfo, "Node: %s Name: %s" % (str(aNode),nodeName) )
 			node = self.AppendItem(aNode, nodeName)
-			self.SetPyData(aNode, nodeEntry[0])
+			self.SetPyData(node, nodeEntry[0])
 			self.SetItemHasChildren(aNode, TRUE)
 			# now add subTrees
 			if not nodeEntry[1] == {}:
@@ -158,13 +160,13 @@ class cConfTree(wxTreeCtrl):
 				self.Expand(node)
 				
 	#------------------------------------------------------------------------
-	def __getSubTree(self,configData):
+	def __getSubTree(self,nodeDescription):
 		"""
 		get a subtree from the backend via ConfigData layer.
 		the subtree must have a special structure (see addTreeItem).
 		"""
 		# get all parameter names
-		tmpParamList = configData.getAllNames()
+		tmpParamList = self.mConfData[nodeDescription].getAllNames()
 		if tmpParamList is None:
 			return None
 
@@ -173,7 +175,8 @@ class cConfTree(wxTreeCtrl):
 		# convert name list to a tree structure
 		currSubTree = [None,{},""]
 		for paramName in (tmpParamList):
-			self.__addTreeItem(currSubTree,paramName)
+			self.__addTreeItem(currSubTree,paramName,
+					{'type': 'parameter', 'ref': paramName, 'subtree': nodeDescription})
 
 		return currSubTree			
 
@@ -185,7 +188,7 @@ class cConfTree(wxTreeCtrl):
 		each subTree entry consists of a 3 element list:
 		element [0] is an optional arbitrary object that should be connected 
 		with the tree element(ID, etc.), element [1] a dictionary 
-		holding the children of this subtree (again elements of type subTree)
+		holding the children of this element (again elements of type subTree)
 		list element [3] is the branch name
 		"""		
 		nameParts = string.split(str(aStructuredName), '.')
@@ -205,9 +208,9 @@ class cConfTree(wxTreeCtrl):
 			if not tmpDict.has_key(part):
 				# initialize new branch
 				tmpDict[part]=[]
-				tmpDict[part].append(None)
+				tmpDict[part].append({ 'type': 'branch', 'name': branchName })
 				tmpDict[part].append({})
-				tmpDict[part].append(branchName)
+				tmpDict[part].append(part)
 			# set new start for branching nodes
 			tmpFunc = tmpFunc + "[1]['%s']" % part
 		# set object
@@ -215,13 +218,34 @@ class cConfTree(wxTreeCtrl):
 		return aSubTree
 
 	#------------------------------------------------------------------------
-# under construction ...
+
 	def OnActivate (self, event):
 		item = event.GetItem()
-# ...
+		data = self.GetPyData(item)
+		_log.Log(gmLog.lInfo, "ItemData %s" % str(data))
+
+		self.paramDescription.Clear()
+
+		type = data['type']
+		if type == 'parameter':
+			ref = data['ref']
+			subtree = data ['subtree']
+			confData = self.mConfData[subtree].GetConfigData(ref)
+			description = confData[1][4]
+			_log.Log(gmLog.lInfo, "VALUE %s" % str(confData))
+			self.paramTextCtrl.ShowParam(confData)
+			self.paramDescription.SetValue(description)
+		elif type == 'branch':
+			self.paramTextCtrl.ShowMessage(_("(Branch)"))
+		elif type == 'defaultSubtree':
+			self.paramTextCtrl.ShowMessage(_("(Subtree root)"))
+		elif type == 'root':
+			self.paramTextCtrl.ShowMessage(_("(Config parameter tree for current/default user and machine)"))
+
 		return 1
+
 		#--------------------------------------------------------
-		def __show_error(self, aMessage = None, aTitle = ''):
+	def __show_error(self, aMessage = None, aTitle = ''):
 			# sanity checks
 			tmp = aMessage
 			if aMessage is None:
@@ -372,13 +396,21 @@ class ConfigData:
 		self.mMachine = aMachine
 		self.mConfigData = {}
 
-	def __GetConfigData(self, aParameterName = None):
+	def GetConfigData(self, aParameterName = None):
 		"""
-		Gets Config Data (value, owner, decription etc.) for a particular 
-		parameter.
+		Gets Config Data for a particular parameter. 
+		Returns a tuple consisting of the value and a list of metadata 
+		(name,cookie, owner, type and description)
 		"""
-		pass
-
+		name=self.mConfigData[aParameterName][0]
+		cookie = self.mConfigData[aParameterName][1]
+		try:
+			result=ConfigData._dbcfg.get(self.mMachine, self.mUser,cookie,name)
+		except:
+			_log.Log(gmLog.lErr, "Cannot get parameter value for [%s]" % aParameterName )
+		
+		return (result,self.mConfigData[aParameterName])
+		
 	def getAllNames(self):
 		"""
 		fetch names and parameter data from backend. Returns list of
@@ -419,6 +451,33 @@ class ConfigData:
 		return mParamNames
 
 ###############################################################################
+class cParamCtrl(wxTextCtrl):
+	def __init__(self, parent, id,value,pos,size,style,type ):
+		wxTextCtrl.__init__(self, parent, -1, value="",style=style)		
+
+	def ShowParam(self,aParam=None):
+		self.Clear()
+		if aParam is None:
+			return
+		metadata = aParam[1]
+		value = aParam[0]
+		type = metadata[3]
+		description = metadata[4]
+		
+		if type == 'string':
+			self.SetValue(value)
+		elif type == 'str_array':
+			for line in (value):
+				self.AppendText(line + '\n')
+		elif type == 'numeric':
+			self.SetValue(str(value))
+			
+	def ShowMessage(self,aMessage=""):
+		self.Clear()
+		self.SetValue(aMessage)
+
+
+###############################################################################
 # TODO: -a MenuBar allowing for import, export and options
 # 		-open a connection to backend via gmCfg
 class gmConfigEditorPanel(wxPanel):
@@ -428,6 +487,32 @@ class gmConfigEditorPanel(wxPanel):
 # main sizers
 		self.mainSizer = wxBoxSizer(wxHORIZONTAL)
 		self.rightSizer = wxBoxSizer(wxVERTICAL)
+
+# selected parameter
+		self.configEntryParamBox = wxStaticBox( self, -1, _("Parameters") )
+		self.configEntryParamBoxSizer = wxStaticBoxSizer( self.configEntryParamBox, wxHORIZONTAL )
+
+		self.configEntryParamCtrl = cParamCtrl( parent = self, 
+											id = ConfigEntryParamCtrlID, 
+											pos = wxDefaultPosition, 
+											size = wxSize(250,100),
+											value = "" , 
+											style = wxLB_SINGLE,
+											type = None)
+		self.configEntryParamBoxSizer.AddWindow( self.configEntryParamCtrl, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
+
+# parameter description
+		self.configEntryDescriptionBox = wxStaticBox( self, -1, _("Parameter Description") )
+		self.configEntryDescriptionBoxSizer = wxStaticBoxSizer( self.configEntryDescriptionBox, wxHORIZONTAL )
+
+		self.configEntryDescription = wxTextCtrl(parent = self, 
+												id = ConfigDescriptionTextID,
+												pos = wxDefaultPosition, 
+												size = wxSize(250,100),
+												style = wxTE_READONLY | wxLB_SINGLE,
+												value ="" )
+		self.configEntryDescriptionBoxSizer.AddWindow( self.configEntryDescription, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
+
 # static box for config tree
 		self.configTreeBox = wxStaticBox( self, -1, _("Config Options") )
 		self.configTreeBoxSizer = wxStaticBoxSizer( self.configTreeBox, wxHORIZONTAL )
@@ -438,37 +523,15 @@ class gmConfigEditorPanel(wxPanel):
 										size = wxSize(200, 300),
 										style = wxTR_HAS_BUTTONS,
 										aUser = aUser,
-										aMachine = aMachine
+										aMachine = aMachine,
+										paramWidgets=(self.configEntryParamCtrl,self.configEntryDescription)
 										)
 #		configTreeItem['root']=self.configTree.AddRoot(localMachineName)
 		self.configTreeBoxSizer.AddWindow( self.configTree, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 5 )
 
-# entry in selected parameter
-		self.configEntryListBox = wxStaticBox( self, -1, _("Parameters") )
-		self.configEntryListBoxSizer = wxStaticBoxSizer( self.configEntryListBox, wxHORIZONTAL )
-
-		self.configEntryListbox = wxListBox( parent = self, 
-											id = ConfigEntryListboxID, 
-											pos = wxDefaultPosition, 
-											size = wxSize(250,100),
-											choices = [] , 
-											style = wxLB_SINGLE )
-		self.configEntryListBoxSizer.AddWindow( self.configEntryListbox, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
-
-# parameter description
-		self.configEntryDescriptionBox = wxStaticBox( self, -1, _("Parameter Description") )
-		self.configEntryDescriptionBoxSizer = wxStaticBoxSizer( self.configEntryDescriptionBox, wxHORIZONTAL )
-
-		self.configEntryDescription = wxTextCtrl(parent = self, 
-												id = ConfigDescriptionTextID,
-												pos = wxDefaultPosition, 
-												size = wxSize(250,100),
-												style = wxTE_READONLY,
-												value ="Here will go the description..." )
-		self.configEntryDescriptionBoxSizer.AddWindow( self.configEntryDescription, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
 
 # add right panels to right sizer
-		self.rightSizer.Add(self.configEntryListBoxSizer, 1, wxEXPAND, 0)
+		self.rightSizer.Add(self.configEntryParamBoxSizer, 1, wxEXPAND, 0)
 		self.rightSizer.Add(self.configEntryDescriptionBoxSizer, 1, wxEXPAND, 0)
 
 # add widgets to main sizer		
@@ -542,6 +605,9 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.2  2003-05-10 18:44:02  hinnef
+# Revision 1.3  2003-05-11 16:56:48  hinnef
+# - now shows values of config parameters, too
+#
+# Revision 1.2  2003/05/10 18:44:02  hinnef
 # added revision log keyword
 #
