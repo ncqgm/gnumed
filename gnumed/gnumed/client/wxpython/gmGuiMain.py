@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-09-10 10:26:03 $
-# @version $Revision: 1.43 $ $Date: 2002-09-10 10:26:03 $ $Author: ncq $
+# @Date: $Date: 2002-09-10 12:25:33 $
+# @version $Revision: 1.44 $ $Date: 2002-09-10 12:25:33 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -150,11 +150,12 @@ class MainFrame(wxFrame):
 		#  this dictionary relates plugins to the notebook
 		self.guibroker['main.notebook.numbers'] = {}
 		plugin_list = gmPlugin.GetAllPlugins('gui')
+		nr_plugins = len(plugin_list)
 		#  set up a progress bar
 		progress_bar = wxProgressDialog(
-			title = _("GnuMed: loading plugins"),
+			title = _("GnuMed: loading %s plugins") % nr_plugins,
 			message = _("loading list of plugins                    "),
-			maximum = len(plugin_list),
+			maximum = nr_plugins,
 			parent = self,
 			style = wxPD_APP_MODAL | wxPD_ELAPSED_TIME
 			)
@@ -163,7 +164,7 @@ class MainFrame(wxFrame):
 		result = ""
 		for idx in range(len(plugin_list)):
 			curr_plugin = plugin_list[idx]
-			progress_bar.Update(idx, _("previous: %s - %s\ncurrent : %s") % (last_plugin, result, curr_plugin))
+			progress_bar.Update(idx, _("previous: %s - %s\ncurrent (%s/%s): %s") % (last_plugin, result, (idx+1), nr_plugins, curr_plugin))
 			if gmPlugin.LoadPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend):
 				result = _("success")
 			else:
@@ -389,7 +390,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.43  2002-09-10 10:26:03  ncq
+# Revision 1.44  2002-09-10 12:25:33  ncq
+# - gimmicks rule :-)
+# - display plugin_nr/nr_of_plugins on load in progress bar
+#
+# Revision 1.43  2002/09/10 10:26:03  ncq
 # - properly i18n() strings
 #
 # Revision 1.42  2002/09/10 09:08:49  ncq
