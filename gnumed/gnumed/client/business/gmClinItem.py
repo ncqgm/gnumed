@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.16 2004-06-02 21:50:32 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmClinItem.py,v 1.17 2004-06-18 13:31:21 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -125,12 +125,15 @@ class cClinItem:
 		if status is None:
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			_log.Log(gmLog.lData, params)
-			return (None, err)
+			return (False, err)
 		self._is_modified = False
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.16  2004-06-02 21:50:32  ncq
+# Revision 1.17  2004-06-18 13:31:21  ncq
+# - return False from save_payload on failure to update
+#
+# Revision 1.16  2004/06/02 21:50:32  ncq
 # - much improved error logging in set/getitem()
 #
 # Revision 1.15  2004/06/02 12:51:47  ncq
