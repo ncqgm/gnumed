@@ -6,12 +6,12 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: multisash.py,v 1.4 2005-02-16 11:19:12 ncq Exp $
+# RCS-ID:		$Id: multisash.py,v 1.5 2005-02-17 16:46:20 cfmoro Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/multisash.py,v $
-# $Id: multisash.py,v 1.4 2005-02-16 11:19:12 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: multisash.py,v 1.5 2005-02-17 16:46:20 cfmoro Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "cfmoro"
 __license__ = "GPL"
 	   
@@ -62,19 +62,53 @@ class wxMultiSash(wxWindow):
 		process some action over the focused widget.
 		"""
 		return self.focussed_leaf
+		
 	#---------------------------------------------		  
-	def get_bottom_leaf(self):
+	#def get_bottom_leaf(self):
+	#	"""
+	#	Retrieves the bottom leaf. Typically, used to call AddLeaf
+	#	on it to ensure new widgets are created under the bottom leaf.		  
+	#	"""
+	#	return self.bottom_leaf
+
+	#---------------------------------------------		  
+	def add_content(self, content):
 		"""
-		Retrieves the bottom leaf. Typically, used to call AddLeaf
-		on it to ensure new widgets are created under the bottom leaf.		  
+		Adds he supplied content widget to the multisash, setting it as
+		child of the bottom leaf.
+		
+		@param content The new content widget to add.
+		@type content Any wxWindow derived object.
+		"""		
+		successful, errno = self.bottom_leaf.AddLeaf(direction = MV_VER, pos = 100)
+		if successful:
+			self.bottom_leaf.set_content(content)
+		return successful, errno
+				
+	#---------------------------------------------		  
+	def refresh_bottom_leaf(self, bottom_leaf = None):
 		"""
-		return self.__find_bottom_leaf(self.child)
+		Updates the field that keeps track of the bottom leaf. It is required
+		to ensure new leafs are created under the bottom one.
+		If the bottom leaf is supplied as parameter, it is set. Typically,
+		after a new leaf has been added/created.
+		If the bottom leaf ins not supplied ad parameter, it will be dinamically
+		obtained. Typically, after leaf destruction.
+		
+		@param bottom_leaf The leaf to be set as bottom one
+		@type bottom_leaf wxMultiViewLeaf
+		"""
+		if bottom_leaf is None:
+			self.bottom_leaf = self.__find_bottom_leaf(self.child)
+		else:
+			self.bottom_leaf = bottom_leaf
+		
 	#---------------------------------------------
 	# internal API
 	#---------------------------------------------
 	def __find_bottom_leaf(self, splitter):
 		"""
-		Recursively find the bottom leaf.
+		Recursively find and return the bottom leaf.
 		"""
 		print "__find_bottom_leaf()"
 		print "splitter: %s [%s]" % (splitter.__class__.__name__, id(splitter))
@@ -183,6 +217,7 @@ class wxMultiSplit(wxWindow):
 			self.view1.SetSize(wxSize(w2,h2))
 			self.view2.OnSize(None)
 			# Gnumed: sets the newly created leaf as the bottom and focus it
+			self.multiView.refresh_bottom_leaf(self.view2)
 			self.view2.set_focus()
 
 	def DestroyLeaf(self,caller):
@@ -239,7 +274,8 @@ class wxMultiSplit(wxWindow):
 				# set the upper content leaf (view2) as bottom
 				#self.GetParent().view2.set_bottom()													
 			self.view1 = None
-			self.view2 = None			 
+			self.view2 = None
+			multiView = self.multiView
 			self.Destroy()
 			try:
 				print "leaf 1: %s [%s]" % (self.view1.__class__.__name__, id(self.view1))
@@ -249,6 +285,9 @@ class wxMultiSplit(wxWindow):
 				print "leaf 2: %s [%s]" % (self.view2.__class__.__name__, id(self.view2))
 			except:
 				pass
+			# Gnumed: find and update the bottom leaf
+			multiView.refresh_bottom_leaf()
+		
 	#---------------------------------------------
 	def CanSize(self,side,view):
 		if self.SizeTarget(side,view):
@@ -394,13 +433,16 @@ class wxMultiViewLeaf(wxWindow):
 		if self.detail is not None and not self.detail.selected :
 			self.detail.Select()		
 		print "focussed soap editor leaf:", self.__class__.__name__, id(self)
-		self.multiView.get_bottom_leaf()
+		#self.multiView.get_bottom_leaf()
 
 	def UnSelect(self):
 		self.detail.UnSelect()
 
 	def DefaultChildChanged(self):
 		self.detail.SetNewChildCls(self.multiView._defChild)
+		
+	def set_content(self, content):
+		self.detail.set_new_content(content)		
 	#-----------------------------------------------------
 	def AddLeaf(self,direction,pos):
 		"""Add a leaf.
@@ -530,6 +572,14 @@ class MultiClient(wxWindow):
 			self.child = None
 		self.child = childCls(self)
 		self.child.MoveXY(2,2)
+		
+	def set_new_content(self,content):
+		if self.child:
+			self.child.Destroy()
+			self.child = None
+		content.Reparent(self)
+		self.child = content
+		self.child.MoveXY(2,2)		
 
 	def OnSetFocus(self,evt):
 		self.Select()
@@ -849,7 +899,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: multisash.py,v $
-# Revision 1.4  2005-02-16 11:19:12  ncq
+# Revision 1.5  2005-02-17 16:46:20  cfmoro
+# Adding and removing soap editors. Simplified multisash interface.
+#
+# Revision 1.4  2005/02/16 11:19:12  ncq
 # - better error handling
 # - tabified
 # - get_bottom_leaf() verified

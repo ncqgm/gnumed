@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -228,21 +228,14 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		return result_problem
 		
 	#--------------------------------------------------------
-	def make_soap_editor(self, parent = None):
+	def __make_soap_editor(self):
 		"""
-		Factory method for the multisash widget.
-		Creates a new soap editor for the selected episode.
-		@param parent The parent of the soap editor to create
-		@type parent SOAPMultiSash.cMultiSashLeaf
+		Instantiates a new soap editor. The widget itself (cMultiSashedSoapPanel)
+		is the temporary parent, as the final one will be the multisash bottom
+		leaf (by reparenting).
 		"""
-		#if parent.soap_panel is not None:
-		#	parent.soap_panel.Destroy()
-		#	parent.soap_panel = None		
-		parent.soap_panel = gmSOAPWidgets.cResizingSoapPanel(parent, self.__selected_episode)
-		return parent.soap_panel
-		#parent.soap_panel.MoveXY(2,2)
-		#self.__set_focus()
-		#parent.OnSize(None)		
+		soap_editor = gmSOAPWidgets.cResizingSoapPanel(self, self.__selected_episode)
+		return soap_editor
 		
 	#--------------------------------------------------------
 	# event handling
@@ -313,12 +306,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		episode_id = self.__selected_episode['pk_episode']
 		if episode_id not in self.__managed_episodes:
 			# create new leaf always on bottom
-			leaf = self.__soap_multisash.get_bottom_leaf()
-#			print "focussed soap editor:", self.__focussed_soap_editor
-			#print "focussed soap editor leaf:", leaf.__class__.__name__, id(leaf)
-#			self.__focussed_soap_editor.AddLeaf(SOAPMultiSash.MV_VER, 130)
-			#self.__soap_multisash.SetDefaultChildClass(self.make_soap_editor)
-			successful, errno = leaf.AddLeaf(direction = multisash.MV_VER, pos = 100)
+			successful, errno = self.__soap_multisash.add_content(content = self.__make_soap_editor())
 			if not successful:
 				msg = _('Cannot open progress note editor for\n\n'
 						'[%s]\n\n'
@@ -559,7 +547,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.16  2005-02-16 11:19:12  ncq
+# Revision 1.17  2005-02-17 16:46:20  cfmoro
+# Adding and removing soap editors. Simplified multisash interface.
+#
+# Revision 1.16  2005/02/16 11:19:12  ncq
 # - better error handling
 # - tabified
 # - get_bottom_leaf() verified
