@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1344,21 +1344,23 @@ def become_pg_demon_user():
 		return None
 
 	pg_demon_user_passwd_line = None
-	if os.getuid () == 0: # we are the super-user
+	if os.getuid() == 0: # we are the super-user
 		try:
 			pg_demon_user_passwd_line = pwd.getpwnam ('postgres')
-			_cfg.set ('user postgres', 'name', 'postgres')
+			# make sure we actually use this name to log in
+			_cfg.set('user postgres', 'name', 'postgres')
 		except KeyError:
 			try:
 				pg_demon_user_passwd_line = pwd.getpwnam ('pgsql')
-				# make sure we actually use this name to log in 
-				_cfg.set ('user postgres', 'name', 'pgsql')
+				_cfg.set('user postgres', 'name', 'pgsql')
 			except KeyError:
-				_log.Log (gmLog.lWarn, 'can''t find postgres user')
-		if pg_demon_user_passwd_line:
-			_log.Log (gmLog.lInfo, 'switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
-			os.setuid (pg_demon_user_passwd_line[2])
+				_log.Log (gmLog.lWarn, 'cannot find postgres user')
+				return None
+		_log.Log (gmLog.lInfo, 'switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
+		os.setuid(pg_demon_user_passwd_line[2])
 	else:
+		_log.Log(gmLog.lWarn, 'not running as root, cannot become postmaster demon user')
+		_log.Log(gmLog.lWarn, 'may have trouble connecting as gm-dbowner if IDENT auth forced on us')
 		if _interactive:
 			print "WARNING: This script may not work if not running as the system administrator."
 
@@ -1442,7 +1444,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.56  2004-06-14 18:58:06  ncq
+# Revision 1.57  2004-06-23 21:10:48  ncq
+# - cleanup become_demon_user()
+#
+# Revision 1.56  2004/06/14 18:58:06  ncq
 # - cleanup
 # - fix "return self.conn and 1" in self.__connect_to_template()
 #   which in some Python versions doesn't evaluate to TRUE,
