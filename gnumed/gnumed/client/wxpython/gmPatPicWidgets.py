@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.4 2004-08-20 13:23:43 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPatPicWidgets.py,v 1.5 2004-09-18 13:54:37 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -130,7 +130,7 @@ class cPatientPicture (wxStaticBitmap):
 	#-----------------------------------------------------------------
 	def _on_RemovePhoto(self,event):
 		gmGuiHelpers.gm_show_info (
-			_('This feature is not implemented yet.\n\nActually, I am not even sure what it is supposed to do ?'),
+			_('This feature is not implemented yet.'),
 			_('remove patient photograph')
 		)
 	#-----------------------------------------------------------------
@@ -190,7 +190,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.4  2004-08-20 13:23:43  ncq
+# Revision 1.5  2004-09-18 13:54:37  ncq
+# - improve strings
+#
+# Revision 1.4  2004/08/20 13:23:43  ncq
 # - aquire -> acquire
 #
 # Revision 1.3  2004/08/19 14:37:30  ncq
