@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.37 2003-10-26 11:27:10 ihaywood Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmClinicalRecord.py,v 1.38 2003-10-31 23:18:48 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -179,7 +179,7 @@ class gmClinicalRecord:
 		if not gmPG.run_query(rwcurs, cmd, self.id_encounter, self.id_episode, note):
 			rwcurs.close()
 			rwconn.close()
-			_log.Log(gmLog.lErr, 'cannot create clinical note (episode %d, encounter %d)' % (self.id_episode, self,id_encounter))
+			_log.Log(gmLog.lErr, 'cannot create clinical note (episode %d, encounter %d)' % (self.id_episode, self.id_encounter))
 			return None
 		rwconn.commit()
 		rwcurs.close()
@@ -679,8 +679,15 @@ where
 		# else auto-search for encounter and attach if necessary
 		ro_curs = self._ro_conn_clin.cursor()
 		if anID is None:
-			# 1) very recent encounter recorded (that we always consider current) ?
-			cmd = "select id_encounter, started, last_affirmed, \"comment\" from curr_encounter where id_patient=%s and now() - last_affirmed < %s::interval limit 1"
+			# 1) very recent encounter recorded ? (that we always consider current)
+			cmd = """
+				select pk_encounter
+				from v_i18n_curr_encounters
+				where
+					pk_patient=%s
+						and
+					now() - last_affirmed < %s::interval
+				"""
 			if not gmPG.run_query(ro_curs, cmd, self.id_patient, self.encounter_soft_ttl):
 				ro_curs.close()
 				_log.Log(gmLog.lErr, 'cannot access current encounter table')
@@ -696,7 +703,20 @@ where
 					return 1, ''
 
 			# 2) encounter recorded that's fairly recent ?
-			cmd = "select id_encounter, started, last_affirmed, \"comment\" from curr_encounter where id_patient=%s and now() - last_affirmed < %s::interval limit 1"
+			cmd = """
+				select
+					pk_encounter,
+					started,
+					last_affirmed,
+					status,
+					description,
+					type
+				from v_i18n_curr_encounters
+				where
+					pk_patient=%s
+						and
+					now() - last_affirmed < %s::interval
+				limit 1"""
 			if not gmPG.run_query(ro_curs, cmd, self.id_patient, self.encounter_hard_ttl):
 				ro_curs.close()
 				_log.Log(gmLog.lErr, 'cannot access current encounter table')
@@ -709,18 +729,20 @@ where
 					'ID': row[0],
 					'started': row[1],
 					'affirmed': row[2],
-					'comment': row[3]
+					'status': row[3],
+					'comment': row[4],
+					'type': row[5]
 				}
 				return 0, data
 
-			# 3) no encounter active or timed out, so create new one
-			self.id_encounter = self.__insert_encounter(comment)
+			# 3) no encounter active or encounter timed out, create new one
+			self.id_encounter = self.__insert_encounter()
 			if self.id_encounter is None:
 				return -1, ''
 			else:
 				return 1, ''
 		else:
-			_log.Log(gmLog.lErr, 'invalid argument combination: forced=false + anID=[%d]' % anID)
+			_log.Log(gmLog.lErr, 'invalid argument combination: forced=false & anID given (= %d)' % anID)
 			return -1, ''
 	#------------------------------------------------------------------
 	def __insert_encounter(self, aComment = 'created'):
@@ -731,14 +753,14 @@ where
 			_log.Log(gmLog.lErr, 'cannot connect to service [historica]')
 			return None
 		rw_curs = rw_conn.cursor()
-		# delete old entry if any
-		cmd = "delete from curr_encounter where id_patient=%s"
+		# delete old entries if any
+		cmd = "delete from curr_encounter where id_encounter in (select id from clin_encounter where fk_patient=%s)"
 		if not gmPG.run_query(rw_curs, cmd, self.id_patient):
 			_log.Log(gmLog.lErr, 'cannot delete curr_encounter entry for patient [%s]' % self.id_patient)
 		# insert new encounter
 		# FIXME: we don't deal with location/provider yet
-		cmd = "insert into clin_encounter(id_location, id_provider) values(-1, -1)"
-		if not gmPG.run_query(rw_curs, cmd):
+		cmd = "insert into clin_encounter(fk_patient, fk_location, fk_provider) values(%s, -1, -1)"
+		if not gmPG.run_query(rw_curs, cmd, self.id_patient):
 			_log.Log(gmLog.lErr, 'cannot insert new encounter for patient [%s]' % self.id_patient)
 			rw_curs.close()
 			rw_conn.close()
@@ -752,8 +774,8 @@ where
 			return None
 		id_encounter = rw_curs.fetchone()[0]
 		# and record as currently active encounter
-		cmd = "insert into curr_encounter (id_encounter, id_patient, \"comment\") values (%s, %s, %s)"
-		if not gmPG.run_query(rw_curs, cmd, id_encounter, self.id_patient, aComment):
+		cmd = "insert into curr_encounter (id_encounter, \"comment\") values (%s, %s, %s)"
+		if not gmPG.run_query(rw_curs, cmd, id_encounter, aComment):
 			_log.Log(gmLog.lErr, 'cannot record currently active encounter for patient [%s]' % self.id_patient)
 			rw_curs.close()
 			rw_conn.close()
@@ -767,20 +789,10 @@ where
 	def __affirm_current_encounter(self, aComment = 'affirmed'):
 		"""Update internal comment and time stamp on curr_encounter row.
 		"""
-		rw_conn = self._backend.GetConnection('historica', readonly = 0)
-		if rw_conn is None:
-			_log.Log(gmLog.lWarn, 'cannot connect to service [historica]')
-			return None
-		rw_curs = rw_conn.cursor()
-		cmd = "update curr_encounter set comment=%s where id_patient=%s and id_encounter=%s"
-		if not gmPG.run_query(rw_curs, cmd, aComment, self.id_patient, self.id_encounter):
+		cmd = "update curr_encounter set comment=%s where id_encounter=%s"
+		if not gmPG.run_commit('historica', [(cmd, [aComment, self.id_encounter])]):
 			_log.Log(gmLog.lErr, 'cannot reaffirm encounter')
-			rw_curs.close()
-			rw_conn.close()
 			return None
-		rw_conn.commit()
-		rw_curs.close()
-		rw_conn.close()
 		return 1
 	#------------------------------------------------------------------
 	# trial: allergy panel
@@ -808,6 +820,7 @@ values (%s, %s, %s, %s, %s, %s)
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
+	_ = lambda x:x
 	record = gmClinicalRecord(aPKey = 1)
 	dump = record['text dump']
 	if dump is not None:
@@ -821,7 +834,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.37  2003-10-26 11:27:10  ihaywood
+# Revision 1.38  2003-10-31 23:18:48  ncq
+# - improve encounter business
+#
+# Revision 1.37  2003/10/26 11:27:10  ihaywood
 # gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
 #
 # Ergregious breakages are fixed, but needs more work
