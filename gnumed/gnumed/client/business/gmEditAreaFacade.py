@@ -70,13 +70,13 @@ class gmEditAreaFacade:
 	def _error_sql_construct_report(self, f, values, formatting, op = "insert"):
 		self._traceback("error whilst formatting")
 		if not values.has_key(f):
-			self._print(("no value for for ", f))
+			self._print("no value for for ", f)
 		if not formatting.has_key(f):
-			self._print(("no formatting for ", f))
+			self._print("no formatting for ", f)
 
-		self._print (("formatting for ", f, " is ", formatting.get(f, "none")))
+		self._print ("formatting for ", f, " is ", formatting.get(f, "none"))
 
-		self._print (("value for ", f, " is ", values.get(f, "none")))
+		self._print ("value for ", f, " is ", values.get(f, "none"))
 		
 		
 

@@ -54,7 +54,7 @@ class gmPastHistory(gmClinicalPart):
 			map['year'] = int(map['age']) + self._getBirthYear()
 
 		except:
-			self._print( [ "failed to calc year from age", map['age'] ])
+			self._print(  "failed to calc year from age", map['age'] )
 		
 	def _getBirthDate(self):
 		if not self.__dict__.has_key('birthdate') :
@@ -76,7 +76,7 @@ class gmPastHistory(gmClinicalPart):
 		ro_curs = conn.cursor()
 
 		#<DEBUG>
-		self._print( (  "executing ", cmd % params ) )
+		self._print(   "executing ", cmd % params ) 
 		#</DEBUG>
 		_log.Log(gmLog.lData,  "executing ", cmd % params )
 
@@ -209,7 +209,7 @@ class gmPastHistory(gmClinicalPart):
 		cmd = "update clin_history set  narrative='%s', id_type= 1, id_episode=%d, id_encounter=%d where id = %d"
 		params = ( self.get_narrative(values) , self.id_episode(), self.id_encounter() , ix)
 		curs = conn.cursor()
-		self._print( ("using ", cmd , " and params ", params) )
+		self._print( "using ", cmd , " and params ", params) 
 		curs.execute( cmd % params)
 	#	self.editarea_update_data( conn, fields, formatting, values)
 		curs.close()
@@ -244,7 +244,7 @@ class gmPastHistory(gmClinicalPart):
 									hi.id_patient = %d
 									"""
 		params = self.id_patient()
-		self._print( ("self.id_patient=", params ))
+		self._print( "self.id_patient=", params )
 
 		try:
 			conn = self._backend.GetConnection('historica', readonly = 0)
@@ -301,22 +301,22 @@ class gmPastHistory(gmClinicalPart):
 
 	
 	def filter_history(self, key, range, list = [], includeAsDefault = 0):
-		self._print (("filtering with ", key, " in ", range ))
+		self._print ("filtering with ", key, " in ", range )
 	
 		l = []
 		for id, map in list:
 			self._print ("checking ", map.get(key, None) )
 			if map.get(key , None) in range:
-				self._print (("key ", key, " value is in ", range))
+				self._print ("key ", key, " value is in ", range)
 				l.append( (id,map) )
 			elif includeAsDefault  and not map.has_key(key): 
-				self._print(( "key ", key, "is not in range ", range, " but included as default."))
+				self._print( "key ", key, "is not in range ", range, " but included as default.")
 				l.append( (id,map) )
 			else:
-				self._print (("key ", key, "is not in range ", range, " and not included."))
+				self._print ("key ", key, "is not in range ", range, " and not included.")
 				pass
 				
-		self._print ((" got filtered history ", l))
+		self._print (" got filtered history ", l)
 		
 		return l
 

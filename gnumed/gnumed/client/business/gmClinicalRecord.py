@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.48 2003-11-18 14:16:41 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmClinicalRecord.py,v 1.49 2003-11-19 23:27:44 sjtan Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -881,28 +881,10 @@ class gmClinicalPart:
                return s
 
 
-#	def _print(self, *kargs):
+	def _print(self, *kargs):
+		return
+		#_log.Log(gmLog.lInfo, "   ".join([ str(x) for x in kargs ]) )
 
-#		try:
-#			if len(kargs) > 1:
-#				list = kargs
-#			else:
-#				list = kargs[0]
-
-#			if type(list) in [ type([]), type(()) ]:
-#				strList = []
-#				for x in list:
-#					strList.append(str(list))
-#				msg  = "   ".join(strList)
-#			else:
-#				msg = str(list)
-				
-#			import gmLog
-#			gmLog.gmDefLog.Log(gmLog.lInfo, msg)
-#		except:
-#			_print(list)
-	
-	
 	def validate_not_null( self, values, fields):
 		for f in fields:
 			if values.has_key(f):
@@ -947,7 +929,11 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.48  2003-11-18 14:16:41  ncq
+# Revision 1.49  2003-11-19 23:27:44  sjtan
+#
+# make _print()  a dummy function , so that  code reaching gmLog through this function works;
+#
+# Revision 1.48  2003/11/18 14:16:41  ncq
 # - cleanup
 # - intentionally comment out some methods and remove some code that
 #   isn't fit for the main trunk such that it breaks and gets fixed
