@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.9 2004-04-11 10:10:56 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmGuiHelpers.py,v 1.10 2004-05-26 23:23:35 shilbert Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -94,7 +94,7 @@ def gm_beep_statustext(aMessage, aLogLevel = None):
 	# is sufficiently initialized
 	global set_status_text
 	if set_status_text is None:
-		import gmGuiBroker as gb
+		from Gnumed.pycommon import gmGuiBroker as gb
 		try:
 			set_status_text = gb.GuiBroker()['main.statustext']
 		except KeyError:
@@ -105,7 +105,10 @@ def gm_beep_statustext(aMessage, aLogLevel = None):
 	return 1
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.9  2004-04-11 10:10:56  ncq
+# Revision 1.10  2004-05-26 23:23:35  shilbert
+# - import statement fixed
+#
+# Revision 1.9  2004/04/11 10:10:56  ncq
 # - cleanup
 #
 # Revision 1.8  2004/04/10 01:48:31  ihaywood
