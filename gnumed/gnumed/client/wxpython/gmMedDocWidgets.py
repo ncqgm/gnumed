@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -115,10 +115,17 @@ class cDocTree(wxTreeCtrl):
 
 			self.__doc_list[doc_id] = doc
 			mdata = doc.get_metadata()
+			# FIXME: rework !! display "doc error" on error
 			date = '%10s' % mdata['date'] + " " * 10
 			typ = '%s' % mdata['type'] + " " * 25
-			cmt = '"%s"' % mdata['comment'] + " " * 25
-			ref = mdata['reference'] + " " * 15
+			if mdata['comment'] is not None:
+				cmt = '"%s"' % mdata['comment'] + " " * 25
+			else:
+				cmt = ' ' * 25
+			if mdata['reference'] is not None:
+				ref = mdata['reference'] + " " * 15
+			else:
+				ref = ' ' * 15
 			page_num = str(len(mdata['objects']))
 			tmp = _('%s %s: %s (%s pages, %s)')
 			# FIXME: handle date correctly
@@ -328,7 +335,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.4  2004-09-19 15:10:44  ncq
+# Revision 1.5  2004-10-01 13:34:26  ncq
+# - don't fail to display just because some metadata is missing
+#
+# Revision 1.4  2004/09/19 15:10:44  ncq
 # - lots of cleanup
 # - use status message instead of error box on missing patient
 #   so that we don't get an endless loop
