@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.2 2005-01-31 12:59:56 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPerson.py,v 1.3 2005-01-31 18:48:45 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -135,7 +135,7 @@ class cPerson:
 		tstart = time.time()
 		try:
 			# FIXME: we need some way of setting the type of backend such that
-			# to instantiate the correct type of demographic record class
+			# FIXME: to instantiate the correct type of demographic record class
 			self.__db_cache['demographic record'] = gmDemographicRecord.cDemographicRecord_SQL(aPKey = self.__ID)
 		except StandardError:
 			_log.LogException('cannot instantiate demographic record for person [%s]' % self.__ID, sys.exc_info())
@@ -151,7 +151,7 @@ class cPerson:
 			pass
 		try:
 			# FIXME: we need some way of setting the type of backend such that
-			# to instantiate the correct type of document folder class
+			# FIXME: to instantiate the correct type of document folder class
 			self.__db_cache['document folder'] = gmMedDoc.cDocumentFolder(aPKey = self.__ID)
 		except StandardError:
 			_log.LogException('cannot instantiate document folder for person [%s]' % self.__ID, sys.exc_info())
@@ -201,28 +201,30 @@ class gmCurrentPatient(gmBorg.cBorg):
 		gmBorg.cBorg.__init__(self)
 
 		# make sure we do have a patient pointer
-		# FIXME: speed up by use of try: except:
-		if not self.__dict__.has_key('_patient'):
-			self.__person = gmNull.cNull()
+		try:
+			tmp = self._person
+		except AttributeError:
+			self._person = gmNull.cNull()
 
 		# set initial lock state,
 		# this lock protects against activating another patient
 		# when we are controlled from a remote application
-		# FIXME: speed up by use of try: except:
-		if not self.__dict__.has_key('_locked'):
+		try:
+			tmp = self._locked
+		except AttributeError:
 			self.unlock()
 
 		# user wants copy of current patient
 		if aPKey is None:
 			return None
 		# same ID, no change needed
-		if self.__person['ID'] == aPKey:
+		if self._person['ID'] == aPKey:
 			return None
 		# user wants different patient
-		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self.__person['ID'], aPKey))
+		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self._person['ID'], aPKey))
 		# but no go if patient is locked
 		if self._locked:
-			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.__person['ID'], aPKey))
+			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self._person['ID'], aPKey))
 			# FIXME: exception ?
 			return None
 		# user wants to explicitely unset current patient
@@ -240,29 +242,29 @@ class gmCurrentPatient(gmBorg.cBorg):
 				return None
 
 		self.__send_pre_selection_notification()
-		self.__person.cleanup()
-		self.__person = new_pat
+		self._person.cleanup()
+		self._person = new_pat
 		self.__send_selection_notification()
 
 		return None
 	#--------------------------------------------------------
 	def cleanup(self):
-		self.__person.cleanup()
+		self._person.cleanup()
 	#--------------------------------------------------------
 	def get_clinical_record(self):
-		return self.__person.get_clinical_record()
+		return self._person.get_clinical_record()
 	#--------------------------------------------------------
 	def get_demographic_record(self):
-		return self.__person.get_demographic_record()
+		return self._person.get_demographic_record()
 	#--------------------------------------------------------
 	def get_document_folder(self):
-		return self.__person.get_document_folder()
+		return self._person.get_document_folder()
 	#--------------------------------------------------------
 	def get_ID(self):
-		return self.__person.getID()
+		return self._person.getID()
 	#--------------------------------------------------------
 	def export_data(self):
-		return self.__person.export_data()
+		return self._person.export_data()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
@@ -297,7 +299,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
 		kwargs = {
-			'ID': self.__person['ID'],
+			'ID': self._person['ID'],
 			'signal': gmSignals.patient_selected(),
 			'sender': id(self.__class__)
 		}
@@ -306,14 +308,14 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __send_pre_selection_notification(self):
 		"""Sends signal when another patient is about to become active."""
 		kwargs = {
-			'ID': self.__person['ID'],
+			'ID': self._person['ID'],
 			'signal': gmSignals.activating_patient(),
 			'sender': id(self.__class__)
 		}
 		gmDispatcher.send(gmSignals.activating_patient(), kwds=kwargs)
 	#--------------------------------------------------------
 	def is_connected(self):
-		if isinstance(self.__person, gmNull.cNull):
+		if isinstance(self._person, gmNull.cNull):
 			return False
 		else:
 			return True
@@ -323,7 +325,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __getitem__(self, aVar = None):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
-		return self.__person[aVar]
+		return self._person[aVar]
 #============================================================
 class cPatientSearcher_SQL:
 	"""UI independant i18n aware patient searcher."""
@@ -928,17 +930,17 @@ def ask_for_patient():
 	person_searcher = cPatientSearcher_SQL()
 	search_fragment = prompted_input("\nEnter person search term (eg. 'Kirk') or leave blank to exit")
 	if search_fragment in ['bye', None]:
+		print "user cancelled patient search"
 		return None
 	search_ids = person_searcher.get_patient_ids(search_term = search_fragment)
 	if search_ids is None or len(search_ids) == 0:
 		prompted_input("No patient matches the query term. Press any key to continue.")
 		return None
 	elif len(search_ids) > 1:
-		prompted_input("Various patients match the query term. Press any key to continue.")
+		prompted_input("Several patients match the query term. Press any key to continue.")
 		return None
 	person_id = search_ids[0]
 	patient = gmCurrentPatient(person_id)
-
 	return patient
 #============================================================
 # main/testing
@@ -963,7 +965,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.2  2005-01-31 12:59:56  ncq
+# Revision 1.3  2005-01-31 18:48:45  ncq
+# - self._patient -> self._person
+# - speedup
+#
+# Revision 1.2  2005/01/31 12:59:56  ncq
 # - cleanup, improved comments
 # - rename class gmPerson to cPerson
 # - add helpers prompted_input() and ask_for_patient()
