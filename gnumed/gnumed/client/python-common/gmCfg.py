@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -499,7 +499,7 @@ class cCfgFile:
 			_log.Log(gmLog.lInfo, "No changed items: nothing to be stored.")
 			return 1
 
-		bak_name = "%s.tmp.bak" % self.cfgName
+		bak_name = "%s.gmCfg.bak" % self.cfgName
 		try:
 			os.remove(bak_name)
 		except:
@@ -511,7 +511,7 @@ class cCfgFile:
 			_log.LogException("Problem backing up config file !", sys.exc_info(), fatal=0)
 
 		# open new file for writing
-		new_name = "%s.new" % self.cfgName
+		new_name = "%s.gmCfg.new" % self.cfgName
 		new_file = open(new_name, "wb")
 
 		# file level comment
@@ -939,7 +939,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.45  2003-03-31 00:26:46  ncq
+# Revision 1.46  2003-04-14 07:45:47  ncq
+# - better temp names in cfgFile.store()
+#
+# Revision 1.45  2003/03/31 00:26:46  ncq
 # - forgot "\n"
 #
 # Revision 1.44  2003/03/30 21:38:28  ncq
