@@ -206,8 +206,6 @@ public class FindIdentity extends javax.swing.JDialog {
             // hack to reconnect session for lazyanagerRef().getIdentityManager().initialized collections
             
             //            jList1.setListData(ids.toArray());
-               
-            
         } catch (Exception e) {
             e.printStackTrace();
         }

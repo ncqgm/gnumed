@@ -210,8 +210,7 @@ public class identity {
     /**
      *@hibernate.set
      *      cascade="all"
-     ** //     *      lazy="true"
-     * //     *      inverse="true"
+     *      inverse="true"
      *@hibernate.collection-key
      *      column="identity"
      *@hibernate.collection-one-to-many
@@ -242,9 +241,8 @@ public class identity {
     
     /**
      *@hibernate.set
-      *  cascade="all"
+     *  cascade="all"
      *  inverse="true"
-     * //     *  lazy="true"
      *@hibernate.collection-key
      *  column="identity"
      *@hibernate.collection-one-to-many

@@ -133,4 +133,16 @@ public interface BasicScriptFormLayoutAdjustable {
      */
     public void setLeftMargin(int leftMargin);
     
+    /** Getter for property maxCharsAcross.
+     * @return Value of property maxCharsAcross.
+     *
+     */
+    public int getMaxCharsAcross();
+    
+    /** Setter for property maxCharsAcross.
+     * @param maxCharsAcross New value of property maxCharsAcross.
+     *
+     */
+    public void setMaxCharsAcross(int maxCharsAcross);
+    
 }

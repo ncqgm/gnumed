@@ -43,6 +43,7 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
             fontSizeTextField1.setText( Integer.toString( p.getFontSize()) );
             splitWidthTextField1.setText( Integer.toString(p.getSplitWidth()) );
             jSpinner1.getModel().setValue(new Integer( p.getLeftMargin() ) );
+            jSpinner2.getModel().setValue(new Integer( p.getMaxCharsAcross()) );
         }
     }
     
@@ -77,6 +78,8 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
         fontSizeTextField1 = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
         jSpinner1 = new javax.swing.JSpinner();
+        jLabel10 = new javax.swing.JLabel();
+        jSpinner2 = new javax.swing.JSpinner();
         jButton2 = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
@@ -158,10 +161,18 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
         jPanel2.add(jLabel9, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.ipadx = 20;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 0.5;
         jPanel2.add(jSpinner1, gridBagConstraints);
+
+        jLabel10.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("max_chars_across"));
+        jPanel2.add(jLabel10, new java.awt.GridBagConstraints());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.ipadx = 10;
+        jPanel2.add(jSpinner2, gridBagConstraints);
 
         jButton2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("print"));
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -199,6 +210,7 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -211,6 +223,7 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JSpinner jSpinner1;
+    private javax.swing.JSpinner jSpinner2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField splitWidthTextField1;
     private javax.swing.JTextField subsidizedOriginTextField;
@@ -334,6 +347,7 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
         setSplitWidth();
         setFontSize();
         setLeftMargin();
+        setMaxCharsAcross();
     }
     
     void setPages(int pages) {
@@ -423,6 +437,17 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
             e.printStackTrace();
         }
         
+    }
+    
+    void  setMaxCharsAcross() {
+        try {
+            
+             BasicScriptFormLayoutAdjustable f = (BasicScriptFormLayoutAdjustable) getBasicScriptPrintable();
+            f.setMaxCharsAcross(((Integer)jSpinner2.getModel().getValue()).intValue() );
+            
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     public static java.awt.Point getPointFromText( String text) {
