@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.138 $
+-- $Revision: 1.139 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -252,8 +252,7 @@ create table clin_root_item (
 	fk_encounter integer
 		not null
 		references clin_encounter(id)
-		deferrable
-		initially deferred,
+		deferrable,
 	fk_episode integer
 		not null
 		references clin_episode(pk),
@@ -1078,11 +1077,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.138 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.139 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.138  2004-11-21 21:01:08  ncq
+-- Revision 1.139  2004-11-21 21:54:30  ncq
+-- - do not defer initially fk_encounter in clin_root_item
+--
+-- Revision 1.138  2004/11/21 21:01:08  ncq
 -- - clin_episode.is_active -> clin_episode.is_open as per discussion on the list
 -- - make clin_root_item.fk_encounter deferrable and initially deferred
 --
