@@ -30,11 +30,11 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/setup-users.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
-import sys, string
+import sys, string, os.path
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -45,6 +45,8 @@ _cfg = gmCfg.gmDefCfgFile
 
 dbapi = None
 conn = None
+
+known_passwords = {}
 #==================================================================
 def connect_to_db():
 
@@ -128,7 +130,7 @@ def user_exists(aCursor, aUser):
 	return None
 #------------------------------------------------------------------
 def create_superuser():
-	superuser = _cfg.get("standards", "gnumed database owner")
+	superuser = _cfg.get("defaults", "gnumed database owner")
 	if not superuser:
 		_log.Log(gmLog.lErr, "Cannot load GnuMed database owner name from config file.")
 		return None
@@ -161,6 +163,7 @@ def create_user(aCursor, aUser):
 	if user_exists(aCursor, aUser):
 		return 1
 
+	# FIXME: remember this, too for "_usr"
 	valid_until = _cfg.get(aUser, "valid until")
 	if not valid_until:
 		_log.Log(gmLog.lErr, "Cannot load account expiration date for GnuMed user [%s] from config file." % aUser)
@@ -174,12 +177,17 @@ def create_user(aCursor, aUser):
 		group_cmd = ' IN GROUP "' + string.join(groups, '", "') + '"'
 		_log.Log(gmLog.lWarn, "GnuMed user [%s] belongs to GnuMed groups [%s]." % (aUser, group_cmd))
 
-	# get password for user
-	print "We need a password for the GnuMed user [%s]." % aUser
-	password = raw_input("Please type password: ")
+	global known_passwords
+	if not known_passwords.has_key(aUser):
+		# get password for user
+		print "We need a password for the GnuMed user [%s]." % aUser
+		password = raw_input("Please type password: ")
+		# FIXME: this assumes that "usr" is always defined before "_usr"
+		known_passwords[aUser] = password
+		known_passwords["_%s" % aUser] = password
 
 	try:
-		aCursor.execute("CREATE USER \"%s\" WITH PASSWORD '%s' %s VALID UNTIL '%s';" % (aUser, password, group_cmd, valid_until))
+		aCursor.execute("CREATE USER \"%s\" WITH PASSWORD '%s' %s VALID UNTIL '%s';" % (aUser, known_passwords[aUser], group_cmd, valid_until))
 	except:
 		exc = sys.exc_info()
 		_log.LogException("Cannot create GnuMed user [%s]." % aUser, exc, fatal=1)
@@ -191,14 +199,23 @@ def create_user(aCursor, aUser):
 
 	return None
 #------------------------------------------------------------------
-def create_users():
-	users = _cfg.get("standards", "users")
-	if not users:
-		_log.Log(gmLog.lErr, "Cannot load GnuMed user names from config file.")
+def create_users(aCfg = None, aSection = None):
+	if aCfg is None:
+		cfg = _cfg
+	else:
+		cfg = aCfg
+
+	if aSection is None:
+		section = "defaults"
+	else:
+		section = aSection
+
+	users = cfg.get(section, "users")
+	if users is None:
+		_log.Log(gmLog.lErr, "Cannot load GnuMed user names from config file (section = [%s])." % aSection)
 		return None
 
 	cursor = conn.cursor()
-
 	for user in users:
 		if not create_user(cursor, user):
 			cursor.close()
@@ -206,6 +223,24 @@ def create_users():
 
 	conn.commit()
 	cursor.close()
+	return 1
+#------------------------------------------------------------------
+def create_test_users():
+	print "\nDo you want to create GnuMed database test accounts ?"
+	print "This would create a few dummy accounts in the GnuMed"
+	print "database that you can use to get to know things."
+	print "They are NOT intended to be used in a production environment !"
+	answer = None
+	while answer not in ["y", "n", "yes", "no"]:
+		answer = raw_input("Create test accounts ? [y/n]: ")
+
+	if answer not in ["y", "yes"]:
+		_log.Log(gmLog.lInfo, "User did not want to create test accounts.")
+		return 1
+
+	if not create_users(aSection = "test users"):
+		_log.Log(gmLog.lErr, "Cannot create GnuMed test users.")
+		return None
 	return 1
 #==================================================================
 # group related
@@ -242,10 +277,20 @@ def create_group(aCursor, aGroup):
 
 	return None
 #------------------------------------------------------------------
-def create_groups():
-	groups = _cfg.get("standards", "groups")
-	if not groups:
-		_log.Log(gmLog.lErr, "Cannot load GnuMed group names from config file.")
+def create_groups(aCfg = None, aSection = None):
+	if aCfg is None:
+		cfg = _cfg
+	else:
+		cfg = aCfg
+
+	if aSection is None:
+		section = "defaults"
+	else:
+		section = aSection
+
+	groups = cfg.get(section, "groups")
+	if groups is None:
+		_log.Log(gmLog.lErr, "Cannot load GnuMed group names from config file (section [%s])." % section)
 		return None
 
 	cursor = conn.cursor()
@@ -257,6 +302,66 @@ def create_groups():
 
 	conn.commit()
 	cursor.close()
+	return 1
+#==================================================================
+# user _and_ group related
+#------------------------------------------------------------------
+def create_standard_structure():
+	# create GnuMed superuser
+	if not create_superuser():
+		_log.Log(gmLog.lErr, "Cannot install GnuMed database owner.")
+		return None
+
+	# insert standard groups
+	if not create_groups():
+		_log.Log(gmLog.lErr, "Cannot create GnuMed standard groups.")
+		return None
+
+	return 1
+#------------------------------------------------------------------
+def create_local_structure():
+	print "\nDo you want to create site-specific GnuMed database accounts ?"
+	print "You will usually want to do this if you are\ninstalling a production site for real use."
+	answer = None
+	while answer not in ["y", "n", "yes", "no"]:
+		answer = raw_input("Create site-specific accounts ? [y/n]: ")
+
+	if answer not in ["y", "yes"]:
+		_log.Log(gmLog.lInfo, "User did not want to create site-specific accounts.")
+		return 1
+
+	print "Please type the path to the config file from which\nyou want to load site-specific account definitions.\nLeave empty to abort."
+	done = None
+	while done is None:
+		tmp = raw_input("path to config file: ")
+		if tmp == "":
+			_log.Log(gmLog.lInfo, "User aborted creation of site-specific accounts.")
+			return 1
+		fname = os.path.abspath(os.path.expanduser(tmp))
+		if not os.path.exists(fname):
+			print "file [%s] does not exist" % fname
+		else:
+			done = 1
+
+	print "Reading site-specific accounts from [%s]." % fname
+
+	# open local config file
+	try:
+		myCfg = gmCfg.cCfgFile(aFile = fname)
+	except:
+		exc = sys.exc_info()
+		_log.LogException("Unhandled exception encountered.", exc, fatal=1)
+		return None
+
+	# create local groups
+	if not create_groups(aCfg = myCfg, aSection = "site specific"):
+		_log.Log(gmLog.lErr, "Cannot create site-specific GnuMed users.")
+		return None
+
+	# create local users
+	if not create_users(aCfg = myCfg, aSection = "site specific"):
+		_log.Log(gmLog.lErr, "Cannot create site-specific GnuMed users.")
+		return None
 	return 1
 #==================================================================
 if __name__ == "__main__":
@@ -271,28 +376,30 @@ if __name__ == "__main__":
 		conn.close()
 		sys.exit("Cannot verify database version.\nPlease see log file for details.")
 
-	# create GnuMed superuser
-	if not create_superuser():
+	if not create_standard_structure():
 		conn.close()
-		sys.exit("Cannot install GnuMed database owner.\nPlease see log file for details.")
+		sys.exit("Cannot create GnuMed standard user/group structure.\nPlease see log file for details.")
 
-	# insert groups
-	if not create_groups():
-		conn.close()
-		sys.exit("Cannot create GnuMed groups.\nPlease see log file for details.")
+	# insert test users
+	if not create_test_users():
+		print "Cannot create GnuMed test users.\nPlease see log file for details."
 
-	# insert users
-	if not create_users():
-		conn.close()
-		sys.exit("Cannot create GnuMed users.\nPlease see log file for details.")
+	# insert site-specific users
+	if not create_local_structure():
+		print "Cannot create site-specific GnuMed user/group structure.\nPlease see log file for details."
 
 	conn.close()
 	_log.Log(gmLog.lInfo, "shutdown")
 else:
 	print "This currently isn't intended to be used as a module."
+	print "Please rewrite this as a plugin for GnuMed !"
 #==================================================================
 # $Log: setup-users.py,v $
-# Revision 1.6  2002-10-08 14:08:37  ncq
+# Revision 1.7  2002-10-20 15:29:14  ncq
+# - now has support for site-specific configuration in a separate file
+# - remembers passwords from "usr" to "_usr"
+#
+# Revision 1.6  2002/10/08 14:08:37  ncq
 # - seems to fully work now
 #
 # Revision 1.5  2002/10/04 15:49:52  ncq
