@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.41 2003-11-09 22:51:29 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmClinicalRecord.py,v 1.42 2003-11-11 18:20:58 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -213,6 +213,7 @@ class gmClinicalRecord:
 			return None
 		rows = curs.fetchall()
 		view_col_idx = gmPG.get_col_indices(curs)
+
 		# aggregate by src_table for item retrieval
 		items_by_table = {}
 		for item in rows:
@@ -221,6 +222,7 @@ class gmClinicalRecord:
 			if not items_by_table.has_key(src_table):
 				items_by_table[src_table] = {}
 			items_by_table[src_table][id_item] = item
+
 		# get mapping for issue/episode IDs
 		issue_map = self._get_health_issue_names()
 		if issue_map is None:
@@ -230,31 +232,32 @@ class gmClinicalRecord:
 			episode_map = {}
 		emr_data = {}
 		# get item data from all source tables
-		for table_name in items_by_table.keys():
-			item_ids = items_by_table[table_name].keys()
+		for src_table in items_by_table.keys():
+			item_ids = items_by_table[src_table].keys()
 			# we don't know anything about the columns of
 			# the source tables but, hey, this is a dump
 			if len(item_ids) == 0:
-				_log.Log(gmLog.lInfo, 'no items in table [%s] ?!?' % table_name)
+				_log.Log(gmLog.lInfo, 'no items in table [%s] ?!?' % src_table)
 				continue
 			elif len(item_ids) == 1:
-				cmd = "select * from %s where id=%%s order by modified_when" % table_name
+				cmd = "select * from %s where pk_item=%%s order by modified_when" % src_table
 				if not gmPG.run_query(curs, cmd, item_ids[0]):
-					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % table_name)
+					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			elif len(item_ids) > 1:
-				cmd = "select * from %s where id in %%s order by modified_when" % table_name
+				cmd = "select * from %s where pk_item in %%s order by modified_when" % src_table
 				if not gmPG.run_query(curs, cmd, item_ids):
-					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % table_name)
+					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			rows = curs.fetchall()
 			table_col_idx = gmPG.get_col_indices(curs)
 			# format per-table items
 			for row in rows:
-				id_item = row[table_col_idx['id']]
-				view_row = items_by_table[table_name][id_item]
+				# FIXME: make this get_pkey_name()
+				pk_item = row[table_col_idx['pk_item']]
+				view_row = items_by_table[src_table][pk_item]
 				age = view_row[view_col_idx['age']]
 				# format metadata
 				try:
@@ -292,7 +295,7 @@ class gmClinicalRecord:
 					emr_data[age].append(row[table_col_idx[col_name]])
 				emr_data[age].append(">>> %s from table %s <<<" % (
 					view_row[view_col_idx['modified_string']],
-					table_name
+					src_table
 				))
 		curs.close()
 		return emr_data
@@ -319,7 +322,7 @@ class gmClinicalRecord:
 		if remove_sensitivities:
 			col_idx = self.__db_cache['idx allergies']
 			for allergy in self.__db_cache['allergies']:
-				if allergy[col_idx['type']] == 'allergy':
+				if allergy[col_idx['id_type']] == 1:
 					data.append(allergy)
 		else:
 			data = self.__db_cache['allergies']
@@ -838,7 +841,7 @@ values (%s, %s, %s, %s, %s, %s)
 #------------------------------------------------------------
 if __name__ == "__main__":
 	_ = lambda x:x
-	record = gmClinicalRecord(aPKey = 9)
+	record = gmClinicalRecord(aPKey = 3)
 	dump = record.get_text_dump()
 	if dump is not None:
 		keys = dump.keys()
@@ -851,7 +854,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.41  2003-11-09 22:51:29  ncq
+# Revision 1.42  2003-11-11 18:20:58  ncq
+# - fix get_text_dump() to actually do what it suggests
+#
+# Revision 1.41  2003/11/09 22:51:29  ncq
 # - don't close cursor prematurely in get_text_dump()
 #
 # Revision 1.40  2003/11/09 16:24:03  ncq
