@@ -6,7 +6,7 @@
 # Changelog:
 # 30/01/03: inital version
 #====================================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
@@ -17,7 +17,6 @@ ID_MENU = wxNewId ()
 ID_EXIT = wxNewId ()
 #====================================================================
 
-# TODO - fixup so it is like previous version... stops at middle... scrolls more names
 class ScrollTxtWin (wxWindow):
 	"""
 	Scrolling Text!
@@ -30,7 +29,7 @@ class ScrollTxtWin (wxWindow):
 'Engelbert Gruber', 'Ian Haywood', 'Dr Richard Terry', 'Thierry Michel', 'Andreas Tille' ]
 
 	# initializations
-	__scroll_ctr=-230
+	__scroll_ctr=+230
 	__name_ctr=1
 	__delay_ctr=1
 
@@ -48,15 +47,15 @@ class ScrollTxtWin (wxWindow):
 		self.timer.Start(1./self.__scroll_speed)
 
 	def OnTimer(self, evt):
-		if(self.__scroll_ctr>-2 and self.__delay_ctr<self.__delay_ctr_reset):
+		if(self.__scroll_ctr<-2 and self.__delay_ctr<self.__delay_ctr_reset):
 			# pause at centre
 			self.__delay_ctr=self.__delay_ctr+1
 		else:
-			self.__scroll_ctr=self.__scroll_ctr+1
+			self.__scroll_ctr=self.__scroll_ctr-1
 			self.moving_txt.MoveXY(self.__scroll_ctr, 0)
-		if(self.__scroll_ctr>230):
+		if(self.__scroll_ctr<-230):
 			# reset counters
-			self.__scroll_ctr=-230
+			self.__scroll_ctr=+230
 			self.__delay_ctr=1
 
 			# get next name in dict.
@@ -70,7 +69,7 @@ class AboutFrame (wxFrame):
 	About GnuMed
 	"""
 
-	icon_gui_main='x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
+	icon_serpent='x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
 \xc1\x85\xd5\x98N5\xa5\xef?\xf5N\xd0\x8a\xdcA\xc2\xf7qw\x84\xdb\xfa\xb5\xcd\
 \xd4\xda;\xc9\x1a\xc8\xb6\xcd<\xb5\xa0\x85\x1e\xeb\xbc\xbc7b!\xf6\xdeHl\x1c\
 \x94\x073\xec<*\xf7\xbe\xf7\x99\x9d\xb21~\xe7.\xf5\x1f\x1c\xd3\xbdVlL\xc2\
@@ -82,7 +81,7 @@ class AboutFrame (wxFrame):
 		wxFrame.__init__(self, parent, ID, title, pos, size, style)
 
 		icon = wxEmptyIcon()
-		icon.CopyFromBitmap(wxBitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_gui_main))))
+		icon.CopyFromBitmap(wxBitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_serpent))))
 		self.SetIcon(icon)
 
 		box = wxBoxSizer(wxVERTICAL)
