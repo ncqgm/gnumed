@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.21 2004-06-17 11:36:13 ihaywood Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmForms.py,v 1.22 2004-06-18 13:32:37 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -162,24 +162,23 @@ class TextForm (gmFormEngine):
 	#--------------------------------------------------------
 	def process (self, params, escape='@'):
 		self.basic_params.update (params)
-		# FIXME: rewrite for @placeholder@ style
-                regex = "%s(.+)%s" % (escape, escape)
-                self.result = cStringIO.StringIO ()
-                self.params = self.basic_params
-                _subst = self.__subst   # scope hack
-                for line in self.template.split ('\n'):
-                        self.idx = 0
-                        self.start_list = 0
-                        self.stop_list = 0
-                        self.result.write (re.sub (regex, lambda x: _subst (x.group (1)), line) + '\n')
-                        if self.start_list:
-                                while not self.stop_list:
-                                        self.idx += 1
-                                        self.result.write (re.sub (regex, lambda x: _subst (x.group (1)), line) + '\n')
+		regex = "%s(.+)%s" % (escape, escape)
+		self.result = cStringIO.StringIO()
+		self.params = self.basic_params
+		_subst = self.__subst   # scope hack
+		for line in self.template.split('\n'):
+			self.idx = 0
+			self.start_list = 0
+			self.stop_list = 0
+			self.result.write(re.sub (regex, lambda x: _subst (x.group (1)), line) + '\n')
+			if self.start_list:
+				while not self.stop_list:
+					self.idx += 1
+					self.result.write (re.sub (regex, lambda x: _subst (x.group (1)), line) + '\n')
 
 		self.result.seek (0)
 		return self.result
-	
+	#--------------------------------------------------------
         def __subst (self, match):
                 """
                 Perform a substitution on the string using a parameters dictionary,
@@ -279,7 +278,7 @@ class LaTeXForm (TextForm):
 			stdin.close ()
 			dvips = os.system ("dvips texput.dvi -o texput.ps")
 			if dvips != 0:
-				raise FormError ('DVIPS returned error [%d]' % dvips) 
+				raise FormError ('DVIPS returned error [%d]' % dvips)
 		except EnvironmentError, e:
 			_log.Log (gmLog.lErr, e.strerror)
 			raise FormError (e.strerror)
@@ -350,14 +349,15 @@ def get_form(id):
 		cmd = 'select template, engine, flags, pk from form_defs where pk = %s'
 	except ValueError:
 		# it's a string, match to the form's name
+		# FIXME: can we somehow OR like this: where name_short=%s OR name_long=%s ?
 		cmd = 'select template, engine, flags, pk from form_defs where name_short = %s'
 	result = gmPG.run_ro_query ('reference', cmd, None, id)
 	if result is None:
 		_log.Log (gmLog.lErr, 'error getting form [%s]' % id)
-		raise gmExceptions.FormError ('Error getting form [%s]' % id)
+		raise gmExceptions.FormError ('error getting form [%s]' % id)
 	if len(result) == 0:
 		_log.Log (gmLog.lErr, 'no form [%s] found' % id)
-		raise gmExceptions.FormError ('No such form found [%s]' % id)
+		raise gmExceptions.FormError ('no such form found [%s]' % id)
 	if result[0][1] == 'L':
 		return LaTeXForm (result[0][3], result[0][0], result[0][2])
 	elif result[0][1] == 'T':
@@ -427,7 +427,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.21  2004-06-17 11:36:13  ihaywood
+# Revision 1.22  2004-06-18 13:32:37  ncq
+# - just some whitespace cleanup
+#
+# Revision 1.21  2004/06/17 11:36:13  ihaywood
 # Changes to the forms layer.
 # Now forms can have arbitrary Python expressions embedded in @..@ markup.
 # A proper forms HOWTO will appear in the wiki soon
