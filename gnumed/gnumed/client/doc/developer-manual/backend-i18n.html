@@ -82,16 +82,10 @@ CLASS="SECT2"
 CLASS="SECT2"
 ><A
 NAME="AEN233"
->3.7.1. Introduction</A
-></H2
-><P
->        In enumerations we often see fixed strings being stored in the backend.
-	    There's no good way a client can translate those to the local language.
-	    Nevertheless we need to provide a translation. Consider the following
-	    example:
-	    </P
-><P
->	    We want a table that enumerates family relations. The obvious table
+>3.7.1. Introduction</A></H2>
+
+<P>
+	    We want a table that enumerates family relations. The obvious table
 	    design would be
 	    </P
 ><TABLE
@@ -136,8 +130,8 @@ CLASS="SCREEN"
 ><P
 >	    will, however, always return the version that was put into the database in
 	    upon installation. Typically this would be done by statements such as
-	    </P
-><TABLE
+	    </P>
+<TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -158,85 +152,13 @@ CLASS="SCREEN"
 	    </P
 ><P
 >	    PostgreSQL does not directly support localization of database content.
-	    Therefor the following scheme has been devised:
-        </P
-><P
->	    At the top of your psql script schema definition files include the
-	    file gnumed/server/gmI18N.sql which provides a localization infrastructure.
-	    For your convenience, just copy/paste the following two lines:
-	    </P
-><TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->-- do fixed string i18n()ing
-\i gmI18N.sql
-	    </PRE
-></FONT
-></TD
-></TR
-></TABLE
-><P
->	    The database will then contain several new tables starting with i18n_* and
-	    a few functions.
-		</P
-><DIV
-CLASS="SECT3"
-><H3
-CLASS="SECT3"
-><A
-NAME="AEN247"
->3.7.1.1. i18n_curr_lang</A
-></H3
-><P
->        Here you can/should set the currently preferred language on a per-user
-        basis. Only one language per user is allowed at any one time. Switching
-        the language here will enable the user to see another translation (if
-        provided).
-		</P
-></DIV
-><DIV
-CLASS="SECT3"
-><H3
-CLASS="SECT3"
-><A
-NAME="AEN250"
->3.7.1.2. i18n_keys</A
-></H3
-><P
->        This is just a convenience table listing all the strings that need
-        translations. Dump this and give to translation teams. A tool will be
-        provided to make use of this table. It is of no importance to the
-        actual online translation process.
-		</P
-></DIV
-><DIV
-CLASS="SECT3"
-><H3
-CLASS="SECT3"
-><A
-NAME="AEN253"
->3.7.1.3. i18n_translations</A
-></H3
-><P
->        This is where translations actually live. As in gettext the original
-        string is used as the key and the language code (which should correspond
-        with those used in i18n_curr_lang) as a discrimator.
-		</P
-></DIV
-></DIV
-><DIV
-CLASS="SECT2"
-><H2
-CLASS="SECT2"
-><A
-NAME="AEN256"
+</P>
+
+<DIV CLASS="SECT3">
+<H3 CLASS="SECT3">
+
+<DIV CLASS="SECT2"><H2 CLASS="SECT2">
+<A NAME="AEN256"
 >3.7.2. How to translate strings</A
 ></H2
 ><P
