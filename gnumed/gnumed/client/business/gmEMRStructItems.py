@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -201,45 +201,45 @@ class cEncounter(gmClinItem.cClinItem):
 		
 #============================================================		
 class cProblem(gmClinItem.cClinItem):
-	""" Represents one problem: problems are the sum of issues w/o episodes,
-		issues w/ episodes and episodes w/o issues
+	"""Represents one problem.
+
+	problems are the aggregation of
+		issues w/o episodes,
+		issues w/ episodes and
+		episodes w/o issues
 	"""
-	_cmd_fetch_payload = ""
+	_cmd_fetch_payload = ''					# will get programmatically defined in __init__
 	_cmds_lock_rows_for_update = []
 	_cmds_store_payload = ["""select 1"""]
 	_updatable_fields = []
 	
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None):
+		"""Initialize.
+
+		aPK_obj must contain the keys
+			pk_patient
+			pk_episode
+			pk_health_issue
+		"""
 		if aPK_obj is None:
-				raise gmExceptions.ConstructorError, 'cannot instatiate cProblem for PK: [%s]' % (aPK_obj)
-		
+			raise gmExceptions.ConstructorError, 'cannot instatiate cProblem for PK: [%s]' % (aPK_obj)
 		# As problems are rows from a view from different emr struct items,
-		# the PK can't be a sinle field and, as some of the values of the
-		# composed PK may be None, the must be queried using 'is null',
-		# so we must programmatically construct the query sql command
+		# the PK can't be a single field and, as some of the values of the
+		# composed PK may be None, they must be queried using 'is null',
+		# so we must programmatically construct the sql query
 		where_parts = []
-		vals = {}
-		cont = 0				
-		cProblem._cmd_fetch_payload = """select * from v_problem_list where"""
-		for field_name in aPK_obj.keys():
-			if cont > 0:
-				where_parts.append(' and')
-			val = aPK_obj[field_name]			
+		pk = {}
+		for col_name in aPK_obj.keys():
+			val = aPK_obj[col_name]
 			if val is None:
-				where_parts.append(' %s is null' % field_name)
+				where_parts.append('%s is null' % col_name)
 			else:
-				where_parts.append( ' '+field_name+'= %('+field_name+')s' )
-				vals[field_name] = val
-			cont = cont +1				
-		cProblem._cmd_fetch_payload = cProblem._cmd_fetch_payload + string.join(where_parts)
-		
-		# PK containing non None values
-		pk = vals
-		
+				where_parts.append('%s=%%(%s)s' % (col_name, col_name))
+				pk[col_name] = val
+		cProblem._cmd_fetch_payload = """select * from v_problem_list where """ + ' and '.join(where_parts)
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
-			
 #============================================================
 # convenience functions
 #------------------------------------------------------------	
@@ -399,6 +399,15 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 
+	print "\nProblem test"
+	print "------------"
+	prob = cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': None})
+	print prob
+	fields = prob.get_fields()
+	for field in fields:
+		print field, ':', prob[field]
+	print "updatable:", prob.get_updatable_fields()
+
 	print "\nhealth issue test"
 	print "-----------------"
 	h_issue = cHealthIssue(aPK_obj=1)
@@ -448,7 +457,10 @@ if __name__ == '__main__':
 	    
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.29  2005-01-15 19:55:55  cfmoro
+# Revision 1.30  2005-01-15 20:24:35  ncq
+# - streamlined cProblem
+#
+# Revision 1.29  2005/01/15 19:55:55  cfmoro
 # Added problem support to emr
 #
 # Revision 1.28  2005/01/02 19:55:30  ncq
