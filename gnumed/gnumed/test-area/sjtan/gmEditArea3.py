@@ -42,7 +42,7 @@ sharedConnection = None
 
 backup_dbapi = PgSQL 
 
-backup_source = "localhost::gnumed2" 
+backup_source = "localhost::gnumed3" 
 
 re_table = re.compile("^create\s+(?P<type>table|view)\s+(?P<table>\w+)\s*.*", re.I)
 
@@ -365,9 +365,11 @@ class EditArea2(wxPanel):
 				statement = "alter table %s alter column id set default nextval('%s_id_seq')" % (tableName, tableName)
 				print statement
 				cu.execute(statement)
+				self.getConnection().commit()
 			except:
 				print sys.exc_info()[0], sys.exc_info()[1]
 				print_tb( sys.exc_info()[2])
+				cu = self.getConnection().cursor()
 			
 			
 
@@ -398,9 +400,11 @@ class EditArea2(wxPanel):
 	def clear(self):
 		for name, w in self.widgets.items():
 			type = self.getWidgetType(name)
+			if type == LAB:
+				continue
+
 			if type == CHBx or type == RBn:
 				w.SetValue(0)
-
 			else:
 				w.SetValue('')
 				if type == CMBx:
@@ -428,7 +432,7 @@ class EditArea2(wxPanel):
 		"""   
 		   
 		statement1 = self.statements[key1]
-		statement2 = self.statements[key2]
+		statement2 = self.statements.get(key2, "create table %s" % key2)
 		tablename1 = extractTablename(statement1)
 		tablename2 = extractTablename(statement2)
 		if tablename1 == tablename2:
@@ -691,8 +695,16 @@ class EditArea2(wxPanel):
 		self.updateParentAndChildSelections(  combo.GetName())
 
 	def updateParentAndChildSelections( self, widgetName):
+		self._checkSameTableFields(widgetName)
 		self._checkChildCaches(widgetName)
 		self._checkParentText(widgetName)
+		self._quietenDownPhraseWheelAnimals()
+
+	
+	def _checkSameTableFields(self, widgetName):
+		table = self.getTableFromWidget(widgetName)
+		self.updateWidgetsFromTarget(table ,  self.selectedIndex[table] )
+
 
 
 		
@@ -1202,7 +1214,10 @@ class EditArea2(wxPanel):
 				continue
 			fieldInfo =  indexMap.get(f, None)
 			if (str(fieldInfo[1]) == 'timestamp'):
-				value = time.strftime('%x', time.localtime(row[i]) )
+				try:
+					value = time.strftime('%x', time.localtime(row[i]) )
+				except:
+					value = str(row[i])
 				
 			elif (str(fieldInfo[1]) in [ 'bool', 'boolean'] ):
 				if  str(row[i])[0] in ['1', 't']:
@@ -1404,7 +1419,8 @@ class PastHistoryEditArea(EditArea2):
 	def __init__(self, parent, id):
 		EditArea2.__init__(self, parent, id)
 		#self.add("coding system", CMBx, newline = 1)
-		self.add("condition", PWh,  newline  = 1 )
+		self.add("condition", PWh, weight = 3,  newline  = 1 )
+		self.add("laterality", LAB)
 		self.add("left",  RBn)
 		self.add("right", RBn)
 		self.add("both",  RBn, newline = 1)
@@ -1560,24 +1576,78 @@ class DemographicEditArea(EditArea2):
 	def __init__(self, parent, id):
 		EditArea2.__init__(self, parent, id)
 
-		self.add("first names", weight = 2)
-		self.add("last names", weight = 2)
-		self.add("title", CMBx, newline = 1)
+		#need to have the ability for one-to-many relationships , in order to use current gnumed names table.
+
+
+		self.add("first names",  newline = 1)
+		self.add("last names" )
+		self.add("title", newline = 1)
 		self.add("birthdate")
-		self.add("sex", CMBx, newline =1 )
-		self.add("family", CMBx, newline = 1)
-		self.add("place", CMBx, newline = 1)
+		self.add("sex", newline =1 )
+	#	self.add("family", CMBx, newline = 1)
+	#	self.add("place", CMBx, newline = 1)
 		
-		self.add("street 1", newline=1)
+		self.add("street 1")
 		self.add("street 2", newline=1)
 		self.add("suburb", CMBx, newline = 1)
 		self.add("state", CMBx)
-		self.add("postcode", newline = 1)
-		self.add("medicare no", newline = 1)
+		self.add("postcode", CMBx, newline = 1)
+
+		self.add("home tel.")
+		self.add("work tel.", newline = 1)
+
+		self.add("medicare no")
 		self.add("DVA no", newline = 1)
-		self.add("health insurance no", weight = 2)
+		self.add("health insurance no" )
 		self.add("ins.company", newline = 1)
+
+		self.ddl("alt_names", "create table alt_names (id integer primary key,  firstnames varchar(250), lastnames varchar(250), title varchar(10) )")
+		self.map("first names", "alt_names.firstnames")
+		self.map("last names", "alt_names.lastnames")
+		self.map("title", "alt_names.title")
+	
+		self.ddl("demographic", "create table demographic( id integer primary key, birthdate timestamp, sex varchar(10) )")
+		self.map("birthdate", "demographic.birthdate")
+		self.map("sex", "demographic.sex")
+	
+		self.ddl("social_id", "create table social_id( id integer primary key, medicare_no varchar(30), dva_no varchar(30), health_ins varchar(30), company varchar(40)) ")
+		self.ddl("alt_address", "create table alt_address( id integer primary key,street1 varchar(100), street2 varchar(100))")
+		
+		self.ddl("alt_tel", "create table alt_tel( id integer primary key, home varchar(20), work varchar(20) )")	
+		self.map("street 1", "alt_address.street1")
+		self.map("street 2", "alt_address.street2")
+		
+		self.ddl("alt_urb", "create view alt_urb as select id, name as urb_name, postcode,  id_state from urb")
+		
+		self.ref("alt_address", "alt_urb")
+		self.map("suburb", "alt_urb.urb_name")
+		self.map("state", "state.name")
+		self.ref("alt_urb", "state")
+		self.map("postcode", "alt_urb.postcode")
+
+		self.map("home tel.", "alt_tel.home")
+		self.map("work tel.", "alt_tel.work")
+		
+		self.map("medicare no", "social_id.medicare_no")
+		self.map("DVA no", "social_id.dva_no")
+		self.map("health insurance no", "social_id.health_ins")
+		self.map("ins.company", "social_id.company")
+
+		self.ref("demographic", "alt_address")
+		self.ref("demographic", "alt_names")
+		self.ref("demographic", "social_id")
+		self.ref("demographic", "alt_tel")
+
+		self.ext_ref("demographic", "practice")
+		self.setExtRef("practice")
+		self.target("demographic")
+
+		self.browse( [ ("alt_names.lastnames", 150) , ("alt_names.firstnames", 150) , ("demographic.birthdate", 90), ("demographic.sex", 50), ("alt_address.street1", 200) , ("alt_urb.urb_name", 120), ("state.name", 100) , ("alt_urb.postcode",90 ) ] )
+		self.setExtRef("practice")
+
+		self.setExtRefId(1)
 		self.finish()
+		self.updateList()
 		
 		
 
@@ -1593,6 +1663,10 @@ if __name__=="__main__":
 		app.SetWidget( PastHistoryEditArea, -1)
 		app.MainLoop()
 
+	if sys.argv[len(sys.argv) -1] == 'iden':
+		app = wxPyWidgetTester( size=(500, 200) )
+		app.SetWidget( DemographicEditArea, -1)
+		app.MainLoop()
 
 	app = wxPyWidgetTester(size=(500,300) )
 	app.SetWidget( MedicationEditArea, -1)
@@ -1622,9 +1696,6 @@ if __name__=="__main__":
 	app.MainLoop()
 			
 
-	app = wxPyWidgetTester( size=(500, 200) )
-	app.SetWidget( DemographicEditArea, -1)
-	app.MainLoop()
 	
 		
 
