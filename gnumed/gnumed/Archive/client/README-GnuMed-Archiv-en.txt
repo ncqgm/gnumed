@@ -1,8 +1,8 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/client/Attic/README-GnuMed-Archiv-en.txt,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 #------------------------------------------------------------------------
 
-What GNUmedArchive is and what it is not.
+What GNUmedArchive is and what not.
 ------------------------------------------
 GNUmedArchive may be used to digitalize paper documents in a doctor's office
 Those documents can be viewed with a viewer program when neccessary.
@@ -52,7 +52,7 @@ on the client
 		other ) You may compile from source as well. The can be downloaded here :
 			http://www.python.org/ftp/python/2.2.1/Python-2.2.1.tgz
 
-	Windows ) On Windows OS there is a comfortablen installer you can pick up.
+	Windows ) On Windows OS there is a comfortable installer you can pick up.
 
 		http://www.python.org/ftp/python/2.2.1/Python-2.2.1.exe
 
@@ -95,7 +95,7 @@ on the client
 	Windows )On Windows there is a comfortable installer.
 		http://prdownloads.sourceforge.net/wxpython/wxPython-2.3.2.1-Py22.exe
 
-	Scanning device connection
+	Image scanner library
 	-----------------
 	Linux   - http://www.mostang.com/sane/        - scanning with Linux
 
@@ -136,7 +136,7 @@ Server
 
 	PosgreSQL-database
 	---------
-	Linux ) Suse 8.0 ) Off your distributions CD or the Internet (http://www.postgresql.org) get and install
+	Linux ) Suse 8.0 ) Off your distribution's CDs or the Internet (http://www.postgresql.org) get and install
 			the package 'postgresql'. I have installed the following packages :
 			postgresl-devel ; postgresql-libs ; postgresql-server
 
@@ -162,7 +162,7 @@ client
 ------
 	GNU/Linux )
 	Uncompress the archive 'gnumed-archive-client.tgz' to a directory of your choice.
-	You may then run the install script 'install.sh' aus.
+	You may then run the install script 'install.sh'.
 
 	Windows )
 	Just run 'setup.exe'.
@@ -213,19 +213,19 @@ server
 	You need to
 	a) supply new doc_types in English in 'german-doc_types.sql.
 
-	e.g.:
-	INSERT INTO doc_type(id, name) values(100, i18n('my new type'));
+		e.g.:
+		INSERT INTO doc_type(id, name) values(100, i18n('my new type'));
 
 	b) supply the translated string for your language
 
-	e.g.:
-	INSERT INTO i18n_translations (lang, orig, trans) values('de_DE', 'my new type','mein neuer Typ');
+		e.g.:
+		INSERT INTO i18n_translations (lang, orig, trans) values('de_DE', 'my new type','mein neuer Typ');
 
 	and so on.
 
-	The number (100 in above example) must be unique for each document type. This means you must not
+	The number (100 in above example) must be unique for each document type. This means you must not assign
 	one single number twice. User defined document types must only range between 100 and 200. This
-	guarantees you that these types never get overwritten. You could send your
+	guarantees you that these types never get overwritten. You may send your
 	individually defined document types to the developers of GnuMed/Archive so
 	they can be added to the standard document types.
 
@@ -259,7 +259,7 @@ client
 		'run-viewer.sh'
 
 	MS Windows(TM)
-		Im Startmenü wurden entsprechende Verknüpfungen angelegt
+		just pick the shortcut from the startmenu
 
 server
 ------
@@ -269,9 +269,9 @@ server
 	You can automize this job by creating a cron-job.
 
 ###############################
-4.  work it
+4.  work with it
 ###############################
-    The document archive consists of four parts.
+    GNUmedArchive consists of four parts.
     1) document scanning module
     2) document indexing module
     3) database import module
@@ -285,25 +285,25 @@ A pile of documents is aquired via a scanning device. Documents
 which consist of multiple pages keep their inherent structure.
 
 step 1: aquire one ore more pages. You can use any scanning device
-which is supported by either TWAIN under Microsoft Windows or SANE
-under GNU/Linux.
+	which is supported by either TWAIN under Microsoft Windows or SANE
+	under GNU/Linux.
 
-step 2: you could now chnage the order of the aquired pages.
-This is optional and only necessary if you aquired the pages in a
-different order than you would like them.
+step 2: you may now change the order of the aquired pages.
+	This is optional and only necessary if you aquired the pages in a
+	different order than you would like them.
 
-step 3: When all pages of a document have been aquired it
-is a good idea to save it. This creates a unique identifier for
-the document and shows it on your screen. You need to put this
-identifier on the physical document for indexing later on.This
-idientifier is the only connection between your physical and digital
-document
+step 3: When all pages of a document have been aquired, it
+	is a good idea to save them. This creates a unique identifier for
+	the document and diplays this identifier on your screen. You need to put this
+	identifier on the physical document for indexing later on.This
+	idientifier is the only connection between your physical and digital
+	document
 .
-In case you do not care about identifiers because you throw
-away paper documents you can turn off the display of the identifier
+In case you don't care about identifiers because you throw
+away paper documents anyway, you may turn off the display of the identifier
 in the config file.
 
-Having done that you can now digitalize the next paper document.
+Being done with step 1 to 3 that you can now digitalize the next paper document.
 
 GNUmedArchive's graphical user interface has been optimized for
 this workflow and therefore only contains essential controls.
@@ -317,55 +317,55 @@ This module is used to connect the digital documents to
 the patient. Most commercial practice software products
 do not allow external software to access their electronic patient
 record. In Germany there is a somewhat limited standardized
-interface to accomplish that. This interface is called GDT/BDT-
+interface to accomplish that. This interface is called xDT-
 interface. GnumedArchive is capable of communicating with the German
-commercial software package 'Turbomed' by using the BDT/GDT-interface
+commercial software package 'Turbomed' by using the xDT-interface
 When calling GNUmedArchive from within Turbomed it creates a BDT-file
 which contains information about the currently active patient.
-GNUmedArchive reads this file and automatically fills in all the
-demographic infos. Once GNUmed is ready this won't be necessary.
+GNUmedArchive will read this file and automatically fill in all the
+demographic information. Once GNUmed is ready this won't be necessary any longer.
 GNUmedArchive will directly communicate with GNUmed's patient object
 and electronic record because of GNUmed is Open Source.
 
 The indexing module follows a logical workflow as well.
 
 step 1: document loading via document identifier on the physical
-document. This identifier needs to be typed into the designated
-control in the left upper corner. Future versions will have the
-option of reading in the barcode by the means of a barcode reader.
-Typing the documnet identifier is very quick and comfortable even
-without a barcode reader. This is accomplished by the use of a smart
-control called 'phrase wheel'. When typing the first character this
-control automatically display all document idenfiers of documents
-thathave not yet been connected to a patient. Each following 
-characterreduces the number of items displayed. Any time you like
-you can pick the desired docoment from the displayed list. In most
-casesyou will only have to type two or three character to be able
-to select your desired identifier/document.
+	document. This identifier needs to be typed into the designated
+	control in the left upper corner. Future versions will have the
+	option of reading in the barcode by the means of a barcode reader.
+	Typing the documnet identifier is very quick and comfortable even
+	without a barcode reader. This is accomplished by the use of a smart
+	control called 'phrase wheel'. When typing the first character this
+	control automatically display all document idenfiers of documents
+	that have not yet been connected to a patient. Each following 
+	character reduces the number of items displayed. Any time you like
+	you can pick the desired docoment from the displayed list. In most
+	cases you will only have to type two or three character to be able
+	to select your desired identifier/document.
 
 step 2: After loading the document pages into the module you will
-have to supply some more info on the document. This includes the 
-document creation date, a short comment, the document type and an
-optional longer comment. The supply of the document type is of
-great importance. This type can be picked from a previously defined
-list. Any number of types can be added through the config file.
-This relatively unpleasant, time consuming specification will
-benefit you later on when viewing large sets of documents for
-one patient.
+	have to supply some more info on the document. This includes the 
+	document creation date, a short comment, the document type and an
+	optional longer comment. The supply of the document type is of
+	great importance. This type can be picked from a previously defined
+	list. Any number of types can be added through the config file.
+	This relatively unpleasant, time consuming specification will
+	benefit you later on when viewing large sets of documents for
+	one patient.
 
 step 3: When all required information as been supplied the document
-is saved once again and now connected to the patient. A script
-running on the server will then shovel these documents into the
-database. This is a background process and therefore does not
-require your presence. This has been the last step that requires
-human input. When indexing large numbers of documents
-one should consider scheduling the database import process at night
-when one is using the network and/or server. This way network
-load during office hours can be avoided and does not slow down
-your core work. There will be an option to digitally sign the
-newly indexed documenty by the use a digital notary service. You
-might be interested in a project called 'GNotary' when
-implementing this.
+	is saved once again and now connected to the patient. A script
+	running on the server will then shovel these documents into the
+	database. This is a background process and therefore does not
+	require your presence. This has been the last step that requires	
+	human input. When indexing large numbers of documents
+	one should consider scheduling the database import process at night
+	when one is using the network and/or server. This way network
+	load during office hours can be avoided and does not slow down
+	your core work. There will be an option to digitally sign the
+	newly indexed documenty by the use a digital notary service. You
+	might be interested in a project called 'GNotary' when
+	implementing this.
 
 Because GNUmedArchive is devided into 4 modules you can
 perform the digitalizing work asychronously and even on
@@ -376,18 +376,18 @@ part 3: daily use
 
 The document viewer (either called directly from GNUmed or
 any other commercial software ) shows all patient's documents
-in a tree structureabove. The actual display of an individual
-document page is handled by the OS itself. The viewer only sends
-the diplay command to the OS which in turn pick the applicable
-viewer and renders the image. This way GNUmedArchive is in no
-way limited to whatsoever document types.It only depends on the
-OS and its installed viewers if one actually gets tosee the
-content. Because of that the Archive can handle graphics file,
+in a tree structure. The actual display of an individual
+document page is handled by the OS itself. The xDT-viewer only sends
+the diplay command to the OS which in turn picks the applicable
+viewer and renders the image. This way GNUmedArchive is  not
+limited to whatsoever document types. It solel depends on the
+OS and its installed viewers whether one actually gets to see the
+content of a record. Because of that GNUmedArchive can handle graphics files,
 video files, audio files, text and even extraterrestrial content
-as long it can be stored in bits and bytes. The metadata supplied
-during the indexing process benefit you now. Documents can be grouped
-by type, creation date or date ranges or event searched for
-by the use of the supplied comments. It is easiely possible to find
+as long it can be stored in bits and bytes. 
+The metadata you supplied during the indexing process will benefit you now. 
+Documents can be grouped by type, date of creation, timespans or searched for
+by the use of the supplied comments. It is easily possible to find
 all ultrasound documents within a given range. This functionality
 is still under development. It certainly will be possible to
 export documents for the use in letters of referral and so on.
@@ -405,7 +405,10 @@ Windows
 
 #------------------------------------------------------------------------
 # $Log: README-GnuMed-Archiv-en.txt,v $
-# Revision 1.1  2003-04-18 16:24:43  ncq
+# Revision 1.2  2003-08-21 13:43:11  shilbert
+# - corrected spelling errors
+#
+# Revision 1.1  2003/04/18 16:24:43  ncq
 # - moved here from test_area
 #
 # Revision 1.4  2003/04/04 15:54:50  ncq
