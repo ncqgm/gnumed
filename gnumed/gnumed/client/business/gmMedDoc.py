@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.21 2004-03-20 11:16:16 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmMedDoc.py,v 1.22 2004-06-01 07:50:01 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -130,6 +130,7 @@ class cDocumentFolder:
 		return rows
 	#--------------------------------------------------------
 	def get_doc_list(self, doc_type = None):
+		"""return flat list of document IDs"""
 		if doc_type is None:
 			cmd = "select id from doc_med where patient_id=%(ID)s"
 			args = {'ID': self.id_patient}
@@ -151,11 +152,16 @@ class cDocumentFolder:
 					type=%(TYP)s
 				"""
 			args = {'ID': self.id_patient, 'TYP': doc_type}
-		docs = gmPG.run_ro_query('blobs', cmd, None, args)
-		if docs is None:
+		rows = gmPG.run_ro_query('blobs', cmd, None, args)
+		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load document list for patient [%s]' % self.id_patient)
 			return None
-		return docs
+		if len(rows) == 0:
+			return []
+		doc_ids = []
+		for row in rows:
+			doc_ids.append(row[0])
+		return doc_ids
 #============================================================
 class gmMedObj:
 	def __init__(self, aPKey):
@@ -239,10 +245,9 @@ class gmMedObj:
 		if self.__export (aFile, aChunkSize):
 			aFile.close ()
 			return fname
-		else:
-			aFile.close ()
-			return None
-
+		aFile.close ()
+		return None
+	#--------------------------------------------------------
 	def export_to_string (self, aChunkSize = 0):
 		"""
 		Returns the document as a Python string
@@ -253,11 +258,9 @@ class gmMedObj:
 			r = aFile.getvalue ()
 			aFile.close ()
 			return r
-		else:
-			aFile.close ()
-			return None
-	
-
+		aFile.close ()
+		return None
+	#--------------------------------------------------------
 	def __export (self, aFile, aChunkSize = 0):
 		"""
 		Internal helper, grabs data and writes it to
@@ -607,7 +610,11 @@ def create_object(doc_id):
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.21  2004-03-20 11:16:16  ncq
+# Revision 1.22  2004-06-01 07:50:01  ncq
+# - error checking, optimizing, cleanup
+# - adaptation to ClinItem pending
+#
+# Revision 1.21  2004/03/20 11:16:16  ncq
 # - v_18n_doc_type is no more, use _(doc_type.name)
 #
 # Revision 1.20  2004/03/07 23:49:54  ncq
