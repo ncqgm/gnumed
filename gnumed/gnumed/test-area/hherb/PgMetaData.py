@@ -9,11 +9,106 @@
 # @TODO: quick hack only, needs a lot of work
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/hherb/PgMetaData.py,v $      
-__version__ = "$Revision: 1.1 $"                                               
+__version__ = "$Revision: 1.2 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 import sys, string
 
 #==============================================================
+
+QDescribe = """
+SELECT DISTINCT tt.nspname AS "Schema", tt.name AS "Name", tt.object AS "Object", d.description AS "Description"
+FROM (
+  SELECT p.oid as oid, p.tableoid as tableoid,
+  n.nspname as nspname,
+  CAST(p.proname AS pg_catalog.text) as name,  CAST('aggregate' AS pg_catalog.text) as object
+  FROM pg_catalog.pg_proc p
+       LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
+  WHERE p.proisagg
+      AND pg_catalog.pg_function_is_visible(p.oid)
+      AND p.proname ~ '^%(object)s$'
+UNION ALL
+  SELECT p.oid as oid, p.tableoid as tableoid,
+  n.nspname as nspname,
+  CAST(p.proname AS pg_catalog.text) as name,  CAST('function' AS pg_catalog.text) as object
+  FROM pg_catalog.pg_proc p
+       LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
+  WHERE p.prorettype <> 'pg_catalog.cstring'::pg_catalog.regtype
+      AND p.proargtypes[0] <> 'pg_catalog.cstring'::pg_catalog.regtype
+      AND NOT p.proisagg
+      AND pg_catalog.pg_function_is_visible(p.oid)
+      AND p.proname ~ '^%(object)s$'
+UNION ALL
+  SELECT o.oid as oid, o.tableoid as tableoid,
+  n.nspname as nspname,
+  CAST(o.oprname AS pg_catalog.text) as name,  CAST('operator' AS pg_catalog.text) as object
+  FROM pg_catalog.pg_operator o
+       LEFT JOIN pg_catalog.pg_namespace n ON n.oid = o.oprnamespace
+WHERE pg_catalog.pg_operator_is_visible(o.oid)
+      AND o.oprname ~ '^%(object)s$'
+UNION ALL
+  SELECT t.oid as oid, t.tableoid as tableoid,
+  n.nspname as nspname,
+  pg_catalog.format_type(t.oid, NULL) as name,  CAST('data type' AS pg_catalog.text) as object
+  FROM pg_catalog.pg_type t
+       LEFT JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
+WHERE pg_catalog.pg_type_is_visible(t.oid)
+      AND pg_catalog.format_type(t.oid, NULL) ~ '^%(object)s$'
+UNION ALL
+  SELECT c.oid as oid, c.tableoid as tableoid,
+  n.nspname as nspname,
+  CAST(c.relname AS pg_catalog.text) as name,
+  CAST(
+    CASE c.relkind WHEN 'r' THEN 'table' WHEN 'v' THEN 'view' WHEN 'i' THEN 'index' WHEN 'S' THEN 'sequence' END  AS pg_catalog.text) as object
+  FROM pg_catalog.pg_class c
+       LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+  WHERE c.relkind IN ('r', 'v', 'i', 'S')
+      AND pg_catalog.pg_table_is_visible(c.oid)
+      AND c.relname ~ '^%(object)s$'
+UNION ALL
+  SELECT r.oid as oid, r.tableoid as tableoid,
+  n.nspname as nspname,
+  CAST(r.rulename AS pg_catalog.text) as name,  CAST('rule' AS pg_catalog.text) as object
+  FROM pg_catalog.pg_rewrite r
+       JOIN pg_catalog.pg_class c ON c.oid = r.ev_class
+       LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+  WHERE r.rulename != '_RETURN'
+      AND pg_catalog.pg_table_is_visible(c.oid)
+      AND r.rulename ~ '^%(object)s$'
+UNION ALL
+  SELECT t.oid as oid, t.tableoid as tableoid,
+  n.nspname as nspname,
+  CAST(t.tgname AS pg_catalog.text) as name,  CAST('trigger' AS pg_catalog.text) as object
+  FROM pg_catalog.pg_trigger t
+       JOIN pg_catalog.pg_class c ON c.oid = t.tgrelid
+       LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+WHERE pg_catalog.pg_table_is_visible(c.oid)
+      AND t.tgname ~ '^%(object)s$'
+) AS tt
+  JOIN pg_catalog.pg_description d ON (tt.oid = d.objoid and tt.tableoid = d.classoid and d.objsubid = 0)
+ORDER BY 1, 2, 3
+""" #needs tablename as param 'object'
+
+QForeignKeyDescription = """SELECT conname,
+  pg_catalog.pg_get_constraintdef(oid) as condef
+FROM pg_catalog.pg_constraint r
+WHERE r.conrelid = %s AND r.contype = 'f'""" #needs OID as param
+
+QIndexDefinition="""SELECT c2.relname, i.indisprimary, i.indisunique, pg_catalog.pg_get_indexdef(i.indexrelid)
+FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i
+WHERE c.oid = '%s' AND c.oid = i.indrelid AND i.indexrelid = c2.oid
+ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname""" #needs OID as param
+
+QOidAndNAmespace = """SELECT c.oid,
+  n.nspname,
+  c.relname
+FROM pg_catalog.pg_class c
+     LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+WHERE pg_catalog.pg_table_is_visible(c.oid)
+      AND c.relname ~ '^%s$'
+ORDER BY 2, 3;""" #needs table name as param
+
+
+
 
 #this query returns the primary key of a table (only parameter is table name)
 QTablePrimaryKey = """ 
@@ -41,7 +136,8 @@ WHERE
 
 #This query returns a list of all tables except for the system tables (no parameters)
 QTables = """
-SELECT tablename FROM pg_tables WHERE tablename NOT LIKE 'pg_%'"""
+SELECT tablename FROM pg_tables"""
+#SELECT tablename FROM pg_tables WHERE tablename NOT LIKE 'pg_%'"""
 
 #this query returns the comment of a column of a table.
 #First argument is the table name, second argument is the numeric
@@ -99,6 +195,8 @@ def get_foreign_keys(con, table):
 	for fk in fkresult:
 		#ugly hack to cope with the NULL characters in the array
 		fkarray = repr(fk[0])
+		print repr(fk[0])
+		print string.split(fkarray, '\\x00')
 		fkname, referencing_table, referenced_table, dummy, referencing_column, referenced_column, dummy2  = string.split(fkarray, '\\x00')
 		if referenced_table != table:
 			references[referencing_column] = (referenced_table, referenced_column)
@@ -163,7 +261,11 @@ def list_primary_key(con, table):
 	cursor.execute(QTablePrimaryKey % table)
 	pk = cursor.fetchone()
 	if pk is not None:
-		return int(pk[0])-1
+		try:
+			primkey=int(pk[0])
+		except:
+			primkey=tuple(string.split(pk[0], ' '))
+		return primkey
 	else:
 		return None
 		
@@ -245,8 +347,9 @@ if __name__ == "__main__":
 
 	import sys
 	import pyPgSQL.PgSQL as DB
-
-	dbname = sys.argv[1]
+	
+	dbname=sys.argv[1]
+	#dsn = "%s:%s:%s:%s:%s" % (host, str(port), dbname, user, pwd)
 	con = DB.connect(database=dbname)
 	all_tables = list_all_tables(con)
 		
@@ -264,8 +367,10 @@ if __name__ == "__main__":
 
 		print html_table_begin % (table, table, list_comment(con, table))
 		pk = list_primary_key(con, table)
-		if pk is not None:
-			print '<tr>\n\t<td bgcolor="#bdd5ff">primary key:</td>\n\t<td colspan=4>%s</td>\n</tr>' % columnlabel_from_index(con, table, pk)
+		if type(pk) is tuple:
+			print '<tr>\n\t<td bgcolor="#bdd5ff">primary key:</td>\n\t<td colspan=4>compound primary key (%s)</td>\n</tr>' % str(pk)
+		elif pk is not None:
+			print '<tr>\n\t<td bgcolor="#bdd5ff">primary key:</td>\n\t<td colspan=4>%s</td>\n</tr>' % columnlabel_from_index(con, table, int(pk)-1)
 
 		fks =''
 		fkdict = list_foreign_keys(con, table)
@@ -308,6 +413,9 @@ if __name__ == "__main__":
 	
 #==============================================================
 # $Log: PgMetaData.py,v $
-# Revision 1.1  2003-03-04 04:18:27  hherb
+# Revision 1.2  2003-04-02 11:53:47  hherb
+# API draft
+#
+# Revision 1.1  2003/03/04 04:18:27  hherb
 # quick hack demonstrating how to make use of Postgres meta data
 #
