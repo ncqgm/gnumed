@@ -174,7 +174,9 @@ create table address_external_ref (
 
 
 -- finds the state for a given postcode in a given country
+\unset ON_ERROR_STOP
 DROP function find_state(text, text);
+\set ON_ERROR_STOP 1
 CREATE FUNCTION find_state (text, text) RETURNS text AS '
 DECLARE
         pcode ALIAS FOR $1;	-- post code
@@ -253,7 +255,9 @@ where
 
 -- This function returns the id of street, BUT if the street does not
 -- exist, it is created.
+\unset ON_ERROR_STOP
 drop function find_street(text, integer);
+\set ON_ERROR_STOP 1
 CREATE FUNCTION find_street (text, integer) RETURNS integer AS '
 DECLARE
         s_name ALIAS FOR $1;
@@ -273,14 +277,16 @@ END;' LANGUAGE 'plpgsql';
 
 -- This function returns the id of a state, BUT if the state does not
 -- exist, it is created.
+\unset ON_ERROR_STOP
 drop function find_or_create_state(text, text);
+\set ON_ERROR_STOP 1
 CREATE FUNCTION find_or_create_state(text, text) RETURNS integer AS '
 DECLARE
         s_code ALIAS FOR $1;
         s_country ALIAS FOR $2;
         s RECORD;
 BEGIN
-        SELECT INTO s * FROM state 
+        SELECT INTO s * FROM state
 	WHERE code = s_code
 	AND country = s_country;
         IF FOUND THEN
@@ -295,7 +301,9 @@ END;' LANGUAGE 'plpgsql';
 
 -- This function returns the id of urb, BUT if the urb does not
 -- exist, it is created.
+\unset ON_ERROR_STOP
 drop function find_urb(text, text, text, text);
+\set ON_ERROR_STOP 1
 CREATE FUNCTION find_urb (text, text, text, text) RETURNS integer AS '
 DECLARE
         u_country ALIAS FOR $1;
@@ -323,8 +331,9 @@ END;' LANGUAGE 'plpgsql';
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+\unset ON_ERROR_STOP
 drop rule insert_address;
-
+\set ON_ERROR_STOP 1
 CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
         INSERT INTO address (street, number, addendum)
         VALUES (find_street (NEW.street, 
