@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docPatient.py,v $
-__version__	= "$Revision: 1.7 $"
+__version__	= "$Revision: 1.8 $"
 __author__	= "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, string, fileinput, sys
@@ -14,7 +14,7 @@ import gmLog
 _log = gmLog.gmDefLog
 
 if __name__ == "__main__":
-	import gmI18N
+	_ = lambda x:x
 
 # patient record fields
 dat2xdtID = {\

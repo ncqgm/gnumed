@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
-from docPatient import cPatient, gm2long_gender_map
+import docPatient
 from docDatabase import cDatabase
 import docMime, docDocument
 
@@ -123,10 +123,11 @@ class cDocTree(wxTreeCtrl):
 		for doc_id in self.doc_list.keys():
 			doc = self.doc_list[doc_id]
 			mdata = doc.getMetaData()
-			c = mdata['comment'] + " " * 25
-			r = mdata['reference'] + " " * 10
-			tmp = "%s | %s | %s"
-			label =  tmp % (mdata['date'][:10], c[:25], r[:10])
+			cmt = '"%s"' % mdata['comment'] + " " * 25
+			ref = mdata['reference'] + " " * 10
+			page_num = str(len(mdata['objects']))
+			tmp = _('%s %s (%s pages) [%s]')
+			label =  tmp % (mdata['date'][:10], cmt[:25], page_num, ref[:10])
 			doc_node = self.AppendItem(self.root, label)
 			self.SetItemBold(doc_node, bold=TRUE)
 			# we need to distinguish documents from objects in OnActivate
@@ -253,7 +254,7 @@ if __name__ == '__main__':
 			self.pat_panel = wxStaticText(
 				id = -1,
 				parent = self,
-				label = "%s %s (%s), %s" % (self.__patient.firstnames, self.__patient.lastnames, gm2long_gender_map[self.__patient.gender], self.__patient.dob),
+				label = "%s %s (%s), %s" % (self.__patient.firstnames, self.__patient.lastnames, docPatient.gm2long_gender_map[self.__patient.gender], self.__patient.dob),
 				style = wxALIGN_CENTER
 			)
 			self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
@@ -297,7 +298,7 @@ if __name__ == '__main__':
 			# FIXME: error checking
 			pat_file = os.path.abspath(os.path.expanduser(_cfg.get("viewer", "patient file")))
 			pat_format = _cfg.get("viewer", "patient file format")
-			self.__patient = cPatient()
+			self.__patient = docPatient.cPatient()
 			# get patient data from BDT file
 			if not self.__patient.loadFromFile(pat_format, pat_file):
 				_log.Log(gmLog.lErr, "problem with reading patient data from xDT file " + pat_file)
@@ -374,7 +375,10 @@ else:
 			return ('tools', _('&Show Documents'))
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.3  2002-12-27 14:40:47  ncq
+# Revision 1.4  2002-12-27 15:04:55  ncq
+# - display # of pages in doc nodes
+#
+# Revision 1.3  2002/12/27 14:40:47  ncq
 # - sort items by creation date/page index
 # - on startup expand first level only (documents yes, pages no)
 #

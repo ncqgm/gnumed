@@ -1,12 +1,12 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <sebastian.hilbert@gmx.net>, YEAR.
-# POT-Version: $Revision: 1.7 $
+# POT-Version: $Revision: 1.8 $
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumedarchiv 0.1\n"
-"POT-Creation-Date: Fri Dec 27 15:32:37 2002\n"
+"POT-Creation-Date: Fri Dec 27 15:58:44 2002\n"
 "PO-Revision-Date: 2002-09-16 23:53+0200\n"
 "Last-Translator: Sebastian Hilbert <sebastian.hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -180,12 +180,12 @@ msgstr ""
 "Format: JJJJ-MM-TT"
 
 #: ../dist/client/gmScanMedDocs.py:269 ../dist/client/gmScanMedDocs.py:284
-#: ../dist/client/gmShowMedDocs.py:228 ../dist/client/index-med_docs.py:515
+#: ../dist/client/gmShowMedDocs.py:229 ../dist/client/index-med_docs.py:515
 #: ../dist/client/index-med_docs.py:531
 msgid "displaying page"
 msgstr "Seite anzeigen"
 
-#: ../dist/client/gmShowMedDocs.py:147
+#: ../dist/client/gmShowMedDocs.py:148
 msgid "no comment available"
 msgstr "kein Kommentar gespeichert"
 
@@ -261,15 +261,15 @@ msgstr "gewählten Teil des Befunds anzeigen"
 msgid "page %s (%s in %s)"
 msgstr "Seite %s (%s in %s)"
 
-#: ../dist/client/gmShowMedDocs.py:118
-msgid "available documents (most recent on top)"
-msgstr "verfügbare Befunde (die jüngsten oben)"
+#: ../dist/client/gmShowMedDocs.py:129
+msgid "%s %s (%s pages) [%s]"
+msgstr "%s %s (%s Seiten) [%s]"
 
 #: ../dist/client/gmScanMedDocs.py:977
 msgid "&scan documents"
 msgstr "Befund scannen"
 
-#: ../dist/client/gmShowMedDocs.py:250
+#: ../dist/client/gmShowMedDocs.py:251
 msgid "stored medical documents"
 msgstr "gespeicherte medizinische Befunde"
 
@@ -277,7 +277,7 @@ msgstr "gespeicherte medizinische Befunde"
 msgid "GnuMed/Archiv: Associating documents with patients."
 msgstr "Gnumed/Archiv: Befunde einem Patienten zuordnen"
 
-#: ../dist/client/gmShowMedDocs.py:148
+#: ../dist/client/gmShowMedDocs.py:149
 msgid "page %s: \"%s\""
 msgstr "Seite %s: \"%s\""
 
@@ -310,7 +310,7 @@ msgstr ""
 msgid "show page"
 msgstr "Seite anzeigen"
 
-#: ../dist/client/gmShowMedDocs.py:374
+#: ../dist/client/gmShowMedDocs.py:375
 msgid "&Show Documents"
 msgstr "Befunde zeigen"
 
@@ -386,8 +386,8 @@ msgstr ""
 "Kann für diesen Patienten keine Dokumente finden.\n"
 "\"%s %s\""
 
-#: ../dist/client/modules/docPatient.py:37
-#: ../dist/server/modules/docPatient.py:37
+#: ../dist/client/modules/docPatient.py:38
+#: ../dist/server/modules/docPatient.py:38
 msgid "male"
 msgstr "männlich"
 
@@ -472,7 +472,7 @@ msgstr ""
 "Der aktuelle Befund erhält die Nummer \"%s\".\n"
 "Bitte bestätigen Sie die Nummer oder tippen Sie eine andere ein."
 
-#: ../dist/client/gmShowMedDocs.py:227
+#: ../dist/client/gmShowMedDocs.py:228
 msgid ""
 "Cannot display page.\n"
 "%s."
@@ -563,6 +563,10 @@ msgstr "Kann keine via SANE angebundenen Geräte finden."
 msgid "these pages make up the current document"
 msgstr "diese Seiten stellen den aktuellen Befund dar"
 
+#: ../dist/client/gmShowMedDocs.py:118
+msgid "available documents (most recent on top)"
+msgstr "verfügbare Befunde (die jüngsten oben)"
+
 #: ../dist/client/index-med_docs.py:179
 msgid "last name"
 msgstr "Nachname"
@@ -628,8 +632,8 @@ msgstr ""
 msgid "document date: month must be 2 digits"
 msgstr "Befunddatum: Monat muss aus zwei Ziffern bestehen"
 
-#: ../dist/client/modules/docPatient.py:38
-#: ../dist/server/modules/docPatient.py:38
+#: ../dist/client/modules/docPatient.py:39
+#: ../dist/server/modules/docPatient.py:39
 msgid "female"
 msgstr "weiblich"
 
@@ -639,6 +643,9 @@ msgid ""
 "\n"
 " forgot to load pages ? "
 msgstr ""
+"Seitenzahl 0 ?\n"
+"\n"
+" Haben Sie vergessen, Seiten zu laden ? "
 
 #: ../dist/client/index-med_docs.py:224
 msgid "short comment"
@@ -698,29 +705,3 @@ msgstr "bitte auswählen"
 msgid "move selected page within document"
 msgstr "Gewählte Seite im Befund verschieben"
 
-#~ msgid "available documents"
-#~ msgstr "verfügbare Befunde"
-
-#~ msgid "Can import neither TWAIN nor SANE scanner access library."
-#~ msgstr "Kann weder die TWAIN noch die SANE Scannerbibliothek importieren"
-
-#~ msgid "Scanning documents"
-#~ msgstr "Befunde scannen"
-
-#~ msgid ""
-#~ "Cannot display page %s. The file\n"
-#~ "[%s]\n"
-#~ "does not exist."
-#~ msgstr ""
-#~ "Kann Seite [%s] nicht anzeigen. Die Datei\n"
-#~ "[%s]\n"
-#~ "existiert nicht."
-
-#~ msgid "data error"
-#~ msgstr "Datenfehler"
-
-#~ msgid "Attention"
-#~ msgstr "Achtung"
-
-#~ msgid "You did not select a page"
-#~ msgstr "Sie haben keine Seite ausgewählt"
