@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.6 2003-11-17 10:56:35 sjtan Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmXdtObjects.py,v 1.7 2004-02-25 09:46:20 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ import os.path, sys, fileinput, string, md5, time, linecache, tempfile
 
 # access our modules
 if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'python-common'))
+	sys.path.append(os.path.join('..', 'pycommon'))
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -286,7 +286,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.6  2003-11-17 10:56:35  sjtan
+# Revision 1.7  2004-02-25 09:46:20  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.6  2003/11/17 10:56:35  sjtan
 #
 # synced and commiting.
 #

@@ -1,13 +1,13 @@
 """GnuMed simple EMR text dump plugin
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import sys
 if __name__ == "__main__":
 	sys.path.append('../business')
-	sys.path.append('../python-common')
+	sys.path.append('../pycommon')
 	sys.path.append('patient')
 
 import gmLog, gmPlugin
@@ -64,7 +64,10 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.2  2004-02-18 06:30:30  ihaywood
+# Revision 1.3  2004-02-25 09:46:22  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.2  2004/02/18 06:30:30  ihaywood
 # Demographics editor now can delete addresses
 # Contacts back up on screen.
 #

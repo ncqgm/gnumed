@@ -36,14 +36,14 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.15 2004-01-26 18:19:55 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmMedDoc.py,v 1.16 2004-02-25 09:46:20 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path
 
 if __name__ == '__main__':
-	sys.path.append(os.path.join('..', 'python-common'))
+	sys.path.append(os.path.join('..', 'pycommon'))
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -443,7 +443,10 @@ def create_object(doc_id):
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.15  2004-01-26 18:19:55  ncq
+# Revision 1.16  2004-02-25 09:46:20  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.15  2004/01/26 18:19:55  ncq
 # - missing :
 #
 # Revision 1.14  2004/01/18 21:42:17  ncq

@@ -6,14 +6,14 @@ This device is made by Bayer Diagnostics.
 """
 #========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/device-drivers/Clinitek50.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # stock python
 import sys, os.path, time, string
 
 if __name__ == '__main__':
-	sys.path.append('../client/python-common/')
+	sys.path.append('../client/pycommon/')
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -268,7 +268,10 @@ if __name__ == '__main__':
 
 #========================================================
 # $Log: Clinitek50.py,v $
-# Revision 1.5  2004-01-06 23:18:52  ncq
+# Revision 1.6  2004-02-25 09:46:35  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.5  2004/01/06 23:18:52  ncq
 # - fail on exception in device __init__, don't catch
 #
 # Revision 1.4  2003/11/21 16:00:15  ncq

@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.3 2003-11-17 10:56:34 sjtan Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmKVK.py,v 1.4 2004-02-25 09:46:20 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -15,7 +15,7 @@ import sys, os.path, fileinput, re, string
 
 # our modules
 if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'python-common'))
+	sys.path.append(os.path.join('..', 'pycommon'))
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -280,7 +280,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.3  2003-11-17 10:56:34  sjtan
+# Revision 1.4  2004-02-25 09:46:20  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.3  2003/11/17 10:56:34  sjtan
 #
 # synced and commiting.
 #

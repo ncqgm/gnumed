@@ -6,14 +6,14 @@ This is mainly used by GnuMed/Archive.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXmlDocDesc.py,v $
-# $Id: gmXmlDocDesc.py,v 1.2 2003-11-17 10:56:35 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmXmlDocDesc.py,v 1.3 2004-02-25 09:46:20 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os.path, fileinput, types, string
 
 if __name__ == '__main__':
-	sys.path.append(os.path.join('..', 'python-common'))
+	sys.path.append(os.path.join('..', 'pycommon'))
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -241,7 +241,10 @@ class xmlDocDesc:
 
 #============================================================
 # $Log: gmXmlDocDesc.py,v $
-# Revision 1.2  2003-11-17 10:56:35  sjtan
+# Revision 1.3  2004-02-25 09:46:20  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.2  2003/11/17 10:56:35  sjtan
 #
 # synced and commiting.
 #

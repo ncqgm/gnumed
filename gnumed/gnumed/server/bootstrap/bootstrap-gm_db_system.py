@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -42,19 +42,19 @@ if mydir:
 	os.chdir (mydir)
 if os.path.exists (os.path.join ('.', 'modules')):
 	sys.path.append(os.path.join('.', 'modules'))
-if os.path.exists ('/usr/share/gnumed/client/python-common'):
-	sys.path.append ('/usr/share/gnumed/client/python-common')
-if os.path.exists ('../../client/python-common'):
-	sys.path.append (os.path.abspath ('../../client/python-common'))
-if os.path.exists (os.path.expandvars ('$GNUMED_DIR/client/python-common')):
-	sys.path.append (os.path.expandvars ('$GNUMED_DIR/client/python-common'))
+if os.path.exists ('/usr/share/gnumed/client/pycommon'):
+	sys.path.append ('/usr/share/gnumed/client/pycommon')
+if os.path.exists ('../../client/pycommon'):
+	sys.path.append (os.path.abspath ('../../client/pycommon'))
+if os.path.exists (os.path.expandvars ('$GNUMED_DIR/client/pycommon')):
+	sys.path.append (os.path.expandvars ('$GNUMED_DIR/client/pycommon'))
 
 try:
 	import gmLog
 except ImportError:
 	print """
 Please make sure there's a link 'modules' pointing
-to client/python-common/ so that we can load GnuMed
+to client/pycommon/ so that we can load GnuMed
 Python modules.
 
 Good luck !
@@ -114,10 +114,11 @@ cached_host = None
 cached_passwd = {}
 
 #==================================================================
-
 pg_hba_sermon = """
-I have found a connection to the database, but I am forbidden to connect due to the settings in pg_hba.conf. This is
-a PostgreSQL configuration file that controls who can connect to the database.
+I have found a connection to the database, but I am forbidden
+to connect due to the settings in pg_hba.conf. This is a
+PostgreSQL configuration file that controls who can connect
+to the database.
 
 Depending on your setup, it can be found in
 /etc/postgresql/pg_hba.conf (Debian)
@@ -125,16 +126,18 @@ Depending on your setup, it can be found in
 FIXME: where do RedHat & friends put it
  or whichever directory your database files are located.
 
-For gnumed, pg_hba.conf must allow password authentication. For deveopment systems, I suggest the following
+For gnumed, pg_hba.conf must allow password authentication.
+For deveopment systems, I suggest the following
 
 local    template1 postgres                             ident sameuser
 local    gnumed    all                                  md5
 host     gnumed    all    127.0.0.1 255.255.255.255     md5
 
-For production systems, a different configuration will be required, but gnumed is not production ready.
+For production systems, a different configuration will be
+required, but gnumed is not production ready.
 There is also a pg_hba.conf.example in this directory.
 
-You must then restart your PostgreSQL server.
+You must then restart (or SIGHUP) your PostgreSQL server.
 """
 
 no_server_sermon = """
@@ -150,16 +153,18 @@ initdb
 cp pg_hba.conf.example $PGDATA/pg_hba.conf
 pg_ctl start 
 
-if none of these commands work, or you don't know what PostgreSQL is, go to the website to download for your
-OS: http://www.postgresql.org/
+if none of these commands work, or you don't know what PostgreSQL
+is, go to the website to download for your OS at:
 
-On the other hand, if you have a PostgreSQL server running somewhere strange, type hostname[:port] below,
-or press RETURN to quit.
+http://www.postgresql.org/
 
+On the other hand, if you have a PostgreSQL server
+running somewhere strange, type hostname[:port]
+below, or press RETURN to quit.
 """
 superuser_sermon = """
 I can't log on as the PostgreSQL database owner.
-Try running this script as the system adminstrator (user "root")
+Try running this script as the system administrator (user "root")
 to get the neccessary permissions.
 
 NOTE: I expect the PostgreSQL database owner to be called "%s"
@@ -172,22 +177,25 @@ Logging on the the PostgreSQL database returned this error
 %s
 on %s
 
-Please contact the GNUMed development team on gnumed-devel@gnu.org
+Please contact the GNUMed development team on gnumed-devel@gnu.org.
 Make sure you include this error message in your mail.
 """
 
-welcome = """
+welcome_sermon = """
 Welcome to the GNUMed server instllation script.
-You must have a PostgreSQL server running and adminstrator access
-Please select a database configuation from the list below
-"""
 
+You must have a PostgreSQL server running and
+administrator access.
+
+Please select a database configuation from the list below.
+"""
+#==================================================================
 def connect (host, port, db, user, passwd, superuser=0):
 	"""
 	This is a wrapper to the database connect function.
 	Will try to recover gracefully from connection errors where possible
 	"""
-        global cached_host
+	global cached_host
 	if len (host) == 0 or host == 'localhost':
             if cached_host:
                 host, port = cached_host
@@ -1336,6 +1344,7 @@ def become_pg_demon_user():
 		if os.getuid () == 0: # we are the super-user
 			try:
 				pg_demon_user_passwd_line = pwd.getpwnam ('postgres')
+				_cfg.set ('user postgres', 'name', 'postgres')
 			except KeyError:
 				try:
 					pg_demon_user_passwd_line = pwd.getpwnam ('pgsql')
@@ -1348,18 +1357,19 @@ def become_pg_demon_user():
 				os.setuid (pg_demon_user_passwd_line[2])
 		else:
 			if _interactive:
-				print "WARNING: This script may not work if not running as the system adminstrator."
+				print "WARNING: This script may not work if not running as the system administrator."
 	except ImportError:
 		_log.Log (gmLog.lWarn, "running on broken OS -- can't import pwd module")
 		return None
 #==============================================================================
-def nice_mode ():
-	print welcome
+def nice_mode():
+	print welcome_sermon
 	cfgs = []
 	n = 1
-	for i in glob.glob ('*.conf'):
-		cfg = gmCfg.cCfgFile (None, i)
-		if not cfg.get ('installation', 'guru_only') == '1':
+	for cfg_file in glob.glob('*.conf'):
+		cfg = gmCfg.cCfgFile(None, cfg_file)
+		# only offer those conf files that aren't reserved for gurus
+		if not cfg.get('installation', 'guru_only') == '1':
 			desc = cfg.get ('installation', 'description')
 			cfgs.append (cfg)
 			desc = string.join (desc,  '\n      ') # some indentation
@@ -1375,7 +1385,7 @@ if __name__ == "__main__":
 	global _cfg
 	if _cfg is None:
 		_log.Log(gmLog.lInfo, "No config file specified on command line. Entering Nice Mode")
-		_cfg = nice_mode ()
+		_cfg = nice_mode()
 
 	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
 
@@ -1434,7 +1444,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.48  2004-02-24 11:02:29  ihaywood
+# Revision 1.49  2004-02-25 09:46:36  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.48  2004/02/24 11:02:29  ihaywood
 # Nice mode added
 # If script started with no parameters, scans directory and presents menu of configs
 # Tries hard to connect to local database.

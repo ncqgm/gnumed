@@ -15,13 +15,13 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.9 2004-02-18 06:30:30 ihaywood Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmDemographics.py,v 1.10 2004-02-25 09:46:21 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
 	import sys
-	sys.path.extend( [ '../python-common', '../business'] )
+	sys.path.extend( [ '../pycommon', '../business'] )
 
 from wxPython.wx import *
 from mx import DateTime
@@ -698,7 +698,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.9  2004-02-18 06:30:30  ihaywood
+# Revision 1.10  2004-02-25 09:46:21  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.9  2004/02/18 06:30:30  ihaywood
 # Demographics editor now can delete addresses
 # Contacts back up on screen.
 #

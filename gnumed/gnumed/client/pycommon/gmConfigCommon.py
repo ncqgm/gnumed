@@ -15,13 +15,13 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types, pickle
 # location of our modules
 if __name__ == "__main__":
-	sys.path.append(os.path.join('..','python-common'))
+	sys.path.append(os.path.join('..','pycommon'))
 	#sys.path.append(os.path.join('..', '..', 'business'))
 	#sys.path.append(os.path.join('.','modules'))
 
@@ -898,8 +898,11 @@ def importDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
-# - moved here from python-common
+# Revision 1.2  2004-02-25 09:46:21  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
+# - moved here from py-common
 #
 # Revision 1.13  2004/01/06 23:44:40  ncq
 # - __default__ -> xxxDEFAULTxxx

@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.73 2004-02-18 15:25:20 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmClinicalRecord.py,v 1.74 2004-02-25 09:46:19 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ __license__ = "GPL"
 import sys, os.path, string, time, copy
 
 if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'python-common'))
+	sys.path.append(os.path.join('..', 'pycommon'))
 
 # start logging
 import gmLog
@@ -1421,7 +1421,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.73  2004-02-18 15:25:20  ncq
+# Revision 1.74  2004-02-25 09:46:19  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.73  2004/02/18 15:25:20  ncq
 # - rewrote encounter support
 #   - __init__() now initiates encounter
 #   - _encounter_soft/hard_ttl now global mx.DateTime.TimeDelta

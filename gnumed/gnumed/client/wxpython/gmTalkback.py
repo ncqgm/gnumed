@@ -11,7 +11,7 @@ Original code courtesy of David Guest.
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTalkback.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__  = "D. Guest <dguest@zeeclor.mine.nu>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -127,7 +127,7 @@ def run(aLogger):
 if __name__ == '__main__':
 	_ = lambda x:x
 	import sys
-	sys.path.append("../python-common/")
+	sys.path.append("../pycommon/")
 	import gmLog
 	email_logger = gmLog.cLogTargetEMail(gmLog.lData, aFrom = "GNUmed client <ncq>", aTo = ("",), anSMTPServer = "localhost")
 	gmLog.gmDefLog.AddTarget(email_logger)
@@ -135,7 +135,10 @@ if __name__ == '__main__':
 
 #=========================================================================
 # $Log: gmTalkback.py,v $
-# Revision 1.5  2003-11-17 10:56:39  sjtan
+# Revision 1.6  2004-02-25 09:46:22  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.5  2003/11/17 10:56:39  sjtan
 #
 # synced and commiting.
 #

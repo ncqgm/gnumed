@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
 	# manually extend our module search path
 	sys.path.append(os.path.join(appPath, 'wxpython'))
-	sys.path.append(os.path.join(appPath, 'python-common'))
+	sys.path.append(os.path.join(appPath, 'pycommon'))
 	sys.path.append(os.path.join(appPath, 'business'))
 
 	_log = None
@@ -266,7 +266,10 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.57  2004-02-05 23:52:37  ncq
+# Revision 1.58  2004-02-25 09:46:22  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.57  2004/02/05 23:52:37  ncq
 # - --slave/--port docstring
 #
 # Revision 1.56  2003/11/17 10:56:39  sjtan

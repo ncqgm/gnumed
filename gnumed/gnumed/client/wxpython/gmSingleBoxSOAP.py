@@ -7,14 +7,14 @@ typing clear-text clinical notes which are stored in clin_note.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.9 2004-02-05 23:49:52 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmSingleBoxSOAP.py,v 1.10 2004-02-25 09:46:22 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
 
 if __name__ == "__main__":
-	sys.path.append ("../python-common/")
+	sys.path.append ("../pycommon/")
 	import gmI18N
 
 import gmDispatcher, gmPatient, gmSignals
@@ -126,7 +126,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.9  2004-02-05 23:49:52  ncq
+# Revision 1.10  2004-02-25 09:46:22  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.9  2004/02/05 23:49:52  ncq
 # - use wxCallAfter()
 #
 # Revision 1.8  2003/11/09 14:29:11  ncq

@@ -6,7 +6,7 @@ __author__ = "S.Hilbert, K.Hilbert"
 import sys, os, string, types
 # location of our modules
 if __name__ == "__main__":
-	#sys.path.append(os.path.join('..', '..', 'python-common'))
+	#sys.path.append(os.path.join('..', '..', 'pycommon'))
 	#sys.path.append(os.path.join('..', '..', 'business'))
 	sys.path.append(os.path.join('.','modules'))
 
@@ -265,7 +265,10 @@ else:
 
 #===========================================
 # $Log: gmConfigeditor.py,v $
-# Revision 1.12  2003-04-16 14:31:26  ncq
+# Revision 1.13  2004-02-25 09:46:36  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.12  2003/04/16 14:31:26  ncq
 # - renamed some variables
 # - removed one level of option control dicts
 # - make lists/multiline controls work

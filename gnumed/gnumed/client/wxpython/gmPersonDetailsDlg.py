@@ -16,7 +16,7 @@
 ############################################################################
 if __name__ == "__main__":
 	import sys
-	sys.path.append('../python-common')
+	sys.path.append('../pycommon')
 	sys.path.append('../business')
 
 from wxPython.wx import *

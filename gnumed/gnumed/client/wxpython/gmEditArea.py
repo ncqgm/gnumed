@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.60 2004-02-05 23:49:52 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmEditArea.py,v 1.61 2004-02-25 09:46:22 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -13,7 +13,7 @@ import sys, traceback, time
 
 if __name__ == "__main__":
 	sys.path.append('.')
-	sys.path.append ("../python-common/")
+	sys.path.append ("../pycommon/")
 	sys.path.append ("../business/")
 
 import gmLog
@@ -2327,7 +2327,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.60  2004-02-05 23:49:52  ncq
+# Revision 1.61  2004-02-25 09:46:22  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.60  2004/02/05 23:49:52  ncq
 # - use wxCallAfter()
 #
 # Revision 1.59  2004/02/05 00:26:47  sjtan

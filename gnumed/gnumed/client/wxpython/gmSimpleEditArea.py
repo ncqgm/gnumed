@@ -19,8 +19,8 @@ LAB = 5		#Label
 
 #this does make this module dependent on a lot of other modules
 if __name__ == "__main__":
-	sys.path.append ("../python-common/")
-	sys.path.append ("../../client/python-common/")
+	sys.path.append ("../pycommon/")
+	sys.path.append ("../../client/pycommon/")
         
 from gmDateTimeInput import *
 

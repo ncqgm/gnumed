@@ -3,7 +3,7 @@ from gmListCtrlMapper import *
 try:
 	import gmLog
 except:
-	sys.path.append('../python-common')
+	sys.path.append('../pycommon')
 	import gmLog
 	
 Inboxdata = {

@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -19,10 +19,10 @@ import os.path, sys, os, re
 # location of our modules
 if __name__ == '__main__':
 	# CVS
-	sys.path.append(os.path.join('..', '..', 'python-common'))
+	sys.path.append(os.path.join('..', '..', 'pycommon'))
 	sys.path.append(os.path.join('..', '..', 'business'))
 	# UNIX installation
-	sys.path.append('/usr/share/gnumed/python-common')
+	sys.path.append('/usr/share/gnumed/pycommon')
 	sys.path.append('/usr/share/gnumed/business')
 	# Windows
 	sys.path.append(os.path.join('.', 'modules'))
@@ -661,7 +661,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.32  2004-01-06 23:19:52  ncq
+# Revision 1.33  2004-02-25 09:46:23  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.32  2004/01/06 23:19:52  ncq
 # - use whoami
 #
 # Revision 1.31  2003/11/17 10:56:40  sjtan

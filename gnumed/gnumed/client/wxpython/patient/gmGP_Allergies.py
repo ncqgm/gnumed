@@ -17,13 +17,13 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
 if __name__ == "__main__":
 	# FIXME: this will not work on other platforms
-	sys.path.append("../../python-common")
+	sys.path.append("../../pycommon")
 	sys.path.append("../../business")
 	sys.path.append("../")
 
@@ -227,7 +227,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.20  2004-02-05 23:51:01  ncq
+# Revision 1.21  2004-02-25 09:46:23  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.20  2004/02/05 23:51:01  ncq
 # - wxCallAfter() use
 #
 # Revision 1.19  2003/12/02 02:10:14  ncq

@@ -8,15 +8,15 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.24 2004-02-02 16:19:49 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmGP_Immunisation.py,v 1.25 2004-02-25 09:46:23 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
 
 if __name__ == "__main__":
 	# FIXME: this will not work on other platforms
-	sys.path.append("../../python-common")
+	sys.path.append("../../pycommon")
 	sys.path.append("../../business")
 	sys.path.append("../")
 	import gmI18N
@@ -284,7 +284,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.24  2004-02-02 16:19:49  ncq
+# Revision 1.25  2004-02-25 09:46:23  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.24  2004/02/02 16:19:49  ncq
 # - adapt to new indication-based views in missing vaccs list
 #
 # Revision 1.23  2004/01/26 22:07:45  ncq

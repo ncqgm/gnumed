@@ -11,7 +11,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -24,7 +24,7 @@ import os, time, shutil, os.path
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
 sys.path.append('../../client/business')
-sys.path.append('../../client/python-common')
+sys.path.append('../../client/pycommon')
 sys.path.append('../../client/wxpython')
 
 import gmLog
@@ -524,6 +524,7 @@ class indexPnl(wxPanel):
 			doc_types = []
 			cmd = "SELECT name FROM doc_type"
 			rows = gmPG.run_ro_query('blobs', cmd)
+			# FIXME: error handling
 			for row in rows:
 				doc_types.append(row[0])
 			self.valid_doc_types = doc_types
@@ -626,7 +627,7 @@ class indexPnl(wxPanel):
 			)
 			return None
 		return 1
-        #----------------------------------------
+	#----------------------------------------
 	def on_show_doc_dirs(self, event):
                 choices = []
                 doc_dirs = self.doc_id_wheel.get_choices( aRepository = self.repository)
@@ -738,14 +739,6 @@ class indexPnl(wxPanel):
 			self.TBOX_first_name.SetValue(self.__xdt_patient['first name'])
 			self.TBOX_last_name.SetValue(self.__xdt_patient['last name'])
 			self.TBOX_dob.SetValue("%s.%s.%s" % (self.__xdt_patient['dob day'], self.__xdt_patient['dob month'], self.__xdt_patient['dob year']))
-		#else:
-			# query GNUmed for active patient
-		#	curr_pat = gmPatient.gmCurrentPatient()
-		#	name = curr_pat['demographic record'].getActiveName()
-		#	self.TBOX_first_name.SetValue(name['first'])
-		#	self.TBOX_last_name.SetValue(name['last'])
-		#	dob = curr_pat['demographic record'].getDOB('YYYY-MM-DD')
-		#	self.TBOX_dob.SetValue(dob)
 	#----------------------------------------
 	def __keep_patient_file(self, aDir):
 		# keep patient file for import
@@ -1115,7 +1108,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_indexPnlBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.14  2004-01-17 10:32:45  shilbert
+# Revision 1.15  2004-02-25 09:46:19  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.14  2004/01/17 10:32:45  shilbert
 # - changed setScanWidget() to match recent Raise() syntax changes in gmPlugin
 #
 # Revision 1.13  2004/01/17 00:46:27  shilbert

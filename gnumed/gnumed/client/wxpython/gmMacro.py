@@ -4,13 +4,13 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random
 if __name__ == "__main__":
 	sys.path.append('.')
-	sys.path.append ("../python-common/")
+	sys.path.append ("../pycommon/")
 	sys.path.append ("../business/")
 
 import gmLog
@@ -78,7 +78,7 @@ class cMacroPrimitives:
 		return 0
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.6 $" % self.__class__.__name__
+		return "%s $Revision: 1.7 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -194,7 +194,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.6  2004-02-17 10:45:30  ncq
+# Revision 1.7  2004-02-25 09:46:22  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.6  2004/02/17 10:45:30  ncq
 # - return authentication cookie from attach()
 # - use that cookie in all RPCs
 # - add assume_staff_identity()

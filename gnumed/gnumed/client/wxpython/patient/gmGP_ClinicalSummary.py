@@ -10,7 +10,7 @@ try:
 except:
 	print  "import error"
 	sys.path.append('../')
-	sys.path.append('../../python-common')
+	sys.path.append('../../pycommon')
 	sys.path.append('../../business')
 	import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 	import gmGuiElement_AlertCaptionPanel          #panel to hold flashing

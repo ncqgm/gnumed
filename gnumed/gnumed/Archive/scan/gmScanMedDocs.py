@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -15,11 +15,11 @@ import sys, os.path, os, Image
 # location of our modules
 if __name__ == "__main__":
 	# standalone from within GnuMed once integrated
-	#sys.path.append(os.path.join('..', '..', 'python-common'))
+	#sys.path.append(os.path.join('..', '..', 'pycommon'))
 	# standalone from test_area CVS tree
 	sys.path.append(os.path.join('.', 'modules'))
 	sys.path.append('../../client/business')
-	sys.path.append('../../client/python-common')
+	sys.path.append('../../client/pycommon')
 	sys.path.append('../../client/wxpython')
 
 import gmLog
@@ -1062,7 +1062,10 @@ else:
 	
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.3  2003-11-09 16:15:34  shilbert
+# Revision 1.4  2004-02-25 09:46:19  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.3  2003/11/09 16:15:34  shilbert
 # - plugin makes use of GNUmed's toolbar and statusbar
 #
 # Revision 1.2  2003/05/06 13:04:42  ncq

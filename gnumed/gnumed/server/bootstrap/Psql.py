@@ -5,7 +5,7 @@
 # Licence: GPL
 
 import sys, os, string, re
-sys.path.append ('../../client/python-common')
+sys.path.append ('../../client/pycommon')
 import gmLog
 _log = gmLog.gmDefLog
 

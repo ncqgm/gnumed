@@ -148,7 +148,7 @@ def process (from, to):
 
 process ('doc', docdir)
 process ('man', mandir)
-for i in ['python-common', 'wxpython', 'wxpython', 'business', 'locale', 'bitmaps']:
+for i in ['pycommon', 'wxpython', 'wxpython', 'business', 'locale', 'bitmaps']:
     process (i, join (sharedir, i))
 
 print "=> done"

@@ -4,7 +4,7 @@ import gmMultiColumnList
 
 if __name__== "__main__":
 	sys.path.append('./patient')
-	sys.path.append('../python-common')
+	sys.path.append('../pycommon')
 
 #--------------------------------------------------------------------
 # A class for displaying patients active problems

@@ -9,14 +9,14 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.31 2004-01-12 13:14:39 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmPhraseWheel.py,v 1.32 2004-02-25 09:46:22 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
 
 if __name__ == "__main__":
-	sys.path.append ("../python-common/")
+	sys.path.append ("../pycommon/")
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -518,7 +518,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.31  2004-01-12 13:14:39  ncq
+# Revision 1.32  2004-02-25 09:46:22  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.31  2004/01/12 13:14:39  ncq
 # - remove dead code
 # - correctly calculate new pick list position: don't go to TOPLEVEL
 #   window but rather to immediate parent ...

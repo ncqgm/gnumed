@@ -16,7 +16,7 @@
 
 if __name__ == "__main__":
 	import sys
-	sys.path.append('../wxpython-common')
+	sys.path.append('../wxpycommon')
 from wxPython.wx import *
 #import gmSmartTextCtrl
 

@@ -7,15 +7,15 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.17 2004-02-18 06:36:04 ihaywood Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmPatient.py,v 1.18 2004-02-25 09:46:20 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, time, re, string
 
 if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'python-common'))
+	sys.path.append(os.path.join('..', 'pycommon'))
 
 # start logging
 import gmLog
@@ -798,7 +798,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.17  2004-02-18 06:36:04  ihaywood
+# Revision 1.18  2004-02-25 09:46:20  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.17  2004/02/18 06:36:04  ihaywood
 # bugfixes
 #
 # Revision 1.16  2004/02/17 10:38:27  ncq

@@ -29,7 +29,7 @@ setup(name="Gnumed",
       url="http://www.gnumed.org",
 
       packages=['gnumed', 'gnumed.client', 'gnumed.client.wxpython',
-                'gnumed.client.python-common', 'gnumed.client.business'],
+                'gnumed.client.pycommon', 'gnumed.client.business'],
 
       scripts=['gnumed/client/wxpython/gnumed.py'],
 

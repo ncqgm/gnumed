@@ -7,15 +7,15 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.20 2004-02-18 15:26:39 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmDemographicRecord.py,v 1.21 2004-02-25 09:46:20 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
 import sys, os.path, time
 
 if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'python-common'))
+	sys.path.append(os.path.join('..', 'pycommon'))
 
 # start logging
 import gmLog
@@ -600,7 +600,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.20  2004-02-18 15:26:39  ncq
+# Revision 1.21  2004-02-25 09:46:20  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.20  2004/02/18 15:26:39  ncq
 # - fix dob2medical_age()
 #
 # Revision 1.19  2004/02/18 06:36:04  ihaywood

@@ -2,12 +2,12 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
 if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'python-common'))
+	sys.path.append(os.path.join('..', 'pycommon'))
 
 import gmGuiBroker, gmGP_PatientPicture, gmPatientSelector
 import gmDispatcher, gmSignals, gmPatient, gmPG, gmGuiHelpers
@@ -338,7 +338,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.30  2004-02-18 14:03:37  ncq
+# Revision 1.31  2004-02-25 09:46:22  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.30  2004/02/18 14:03:37  ncq
 # - hardcode encounter type "chart review", too
 #
 # Revision 1.29  2004/02/12 23:58:17  ncq

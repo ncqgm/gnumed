@@ -11,14 +11,14 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
 import sys, os.path, string
 
 if __name__ == "__main__" :
-	sys.path.append(os.path.join('..', '..', 'client', 'python-common'))
+	sys.path.append(os.path.join('..', '..', 'client', 'pycommon'))
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -104,7 +104,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.2  2003-12-01 22:10:55  ncq
+# Revision 1.3  2004-02-25 09:46:36  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.2  2003/12/01 22:10:55  ncq
 # - typo
 #
 # Revision 1.1  2003/11/28 10:16:06  ncq

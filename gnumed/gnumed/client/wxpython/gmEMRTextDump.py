@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.7 2004-02-05 23:49:52 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmEMRTextDump.py,v 1.8 2004-02-25 09:46:22 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -11,7 +11,7 @@ import gmLog
 _log = gmLog.gmDefLog
 
 if __name__ == "__main__":
-	sys.path.append ("../python-common/")
+	sys.path.append ("../pycommon/")
 	import gmI18N
 
 import gmDispatcher, gmPatient, gmSignals
@@ -125,7 +125,10 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.7  2004-02-05 23:49:52  ncq
+# Revision 1.8  2004-02-25 09:46:22  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.7  2004/02/05 23:49:52  ncq
 # - use wxCallAfter()
 #
 # Revision 1.6  2003/11/17 10:56:37  sjtan

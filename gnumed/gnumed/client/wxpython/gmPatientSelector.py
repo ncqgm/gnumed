@@ -10,14 +10,14 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.29 2004-02-05 18:41:31 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmPatientSelector.py,v 1.30 2004-02-25 09:46:22 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, time, string, re
 if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'python-common'))
+	sys.path.append(os.path.join('..', 'pycommon'))
 	sys.path.append(os.path.join('..', 'business'))
 
 import gmLog
@@ -577,7 +577,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.29  2004-02-05 18:41:31  ncq
+# Revision 1.30  2004-02-25 09:46:22  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.29  2004/02/05 18:41:31  ncq
 # - make _on_patient_selected() thread-safe
 # - move SetActivePatient() logic into gmPatient
 #

@@ -23,7 +23,7 @@
 #if __name__=="__main__":
 #	import sys
 #	sys.path.append('../../wxpython')
-#	sys.path.append('../../python-common')
+#	sys.path.append('../../pycommon')
 	
 from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings

@@ -7,13 +7,13 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.7 2003-11-05 22:21:06 sjtan Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmDateTimeInput.py,v 1.8 2004-02-25 09:46:21 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, re, string
 if __name__ == "__main__":
-	sys.path.append ("../python-common/")
+	sys.path.append ("../pycommon/")
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -322,7 +322,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.7  2003-11-05 22:21:06  sjtan
+# Revision 1.8  2004-02-25 09:46:21  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.7  2003/11/05 22:21:06  sjtan
 #
 # let's gmDateInput specify id_callback in constructor list.
 #

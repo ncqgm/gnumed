@@ -8,7 +8,7 @@ __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 import sys, os, string,types
 # location of our modules
 if __name__ == "__main__":
-	sys.path.append(os.path.join('..', '..', 'python-common'))
+	sys.path.append(os.path.join('..', '..', 'pycommon'))
 	sys.path.append(os.path.join('..', '..', 'business'))
 	#sys.path.append(os.path.join('.','modules'))
 
@@ -538,7 +538,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.12  2004-01-06 23:44:40  ncq
+# Revision 1.13  2004-02-25 09:46:22  ncq
+# - import from pycommon now, not python-common
+#
+# Revision 1.12  2004/01/06 23:44:40  ncq
 # - __default__ -> xxxDEFAULTxxx
 #
 # Revision 1.11  2003/12/29 16:59:42  uid66147
