@@ -1,4 +1,5 @@
 """gmLoginDialog - This module provides a login dialog to GNUMed
+
 It features combo boxes which "remember" any number of previously entered settings
 """
 #############################################################################
@@ -7,35 +8,13 @@ It features combo boxes which "remember" any number of previously entered settin
 # ---------------------------------------------------------------------------
 # It features combo boxes which "remember" any number of previously entered settings
 #
-# @author: Dr. Horst Herb
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @change log:
-#	10.10.2001 hherb initial implementation, untested
-#	24.10.2001 hherb comments added
-#	24.10.2001 hherb LoginDialog class added,
-#	24.10.2001 hherb persistent changes across multiple processes enabled
-#	25.10.2001 hherb more flexible configuration options, more commenting
-#	07.02.2002 hherb saved parameters now showing corectly in combo boxes
-#   	05.09.2002 hberger moved options to own dialog
-#       06.09.2002 rterry simplified gui
-#                  -duplication and visual clutter removed
-#                   removed duplication of information in display
-#                   login gone from title bar , occurs once only now
-#                   visually highlighted in dark blue
-#                   login button title now 'ok' to conform to usual defaults of 
-#                   ok, cancel in most operating systems
-#                   reference to help removed (have help button for that)
-#                   date removed - can't see use of this in login - clutters
-#   	06.09.2002 hberger removed old code, fixed "login on close window" bug
-#       07.09.2002 rterry removed duplicated heading in advanced login options
-#
-# @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.39 2003-05-17 17:30:36 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmLoginDialog.py,v 1.40 2003-06-17 19:27:44 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib,types
@@ -44,11 +23,9 @@ import gmLoginInfo, gmGuiMain, gmGuiBroker, gmCfg, gmLog
 _cfg = gmCfg.gmDefCfgFile
 _log = gmLog.gmDefLog
 
-#############################################################################
-# dummy class, to be used as a structure for login parameters
-#############################################################################
+#====================================================
 class cLoginParamChoices:
-	"""dummy class, to be used as a structure for login parameters"""
+	"""dummy class, structure for login parameters"""
 	def __init__(self):
 		self.userlist = ['test-doc']
 		self.password = ''
@@ -57,9 +34,7 @@ class cLoginParamChoices:
 		self.portlist = ['5432']
 		self.backendoptionlist = ['']
 
-#############################################################################
-# GUI panel class that gets interactively Postgres login parameters
-#############################################################################
+#====================================================
 class LoginPanel(wxPanel):
 	"""GUI panel class that interactively gets Postgres login parameters"""
 
@@ -220,23 +195,23 @@ class LoginPanel(wxPanel):
 		self.loginparams = cLoginParamChoices()
 
 		tmp = _cfg.get('backend', 'logins')
-		if type(tmp) is types.ListType:
+		if type(tmp) is types.ListType and len(tmp) > 0:
 			self.loginparams.userlist = tmp
 
 		tmp = _cfg.get('backend', 'databases')
-		if type(tmp) is types.ListType:
+		if type(tmp) is types.ListType and len(tmp) > 0:
 			self.loginparams.databaselist = tmp
 
 		tmp = _cfg.get('backend', 'hosts')
-		if type(tmp) is types.ListType:
+		if type(tmp) is types.ListType and len(tmp) > 0:
 			self.loginparams.hostlist = tmp
 
 		tmp = _cfg.get('backend', 'ports')
-		if type(tmp) is types.ListType:
+		if type(tmp) is types.ListType and len(tmp) > 0:
 			self.loginparams.portlist = tmp
 
 		tmp = _cfg.get('backend', 'options')
-		if type(tmp) is types.ListType:
+		if type(tmp) is types.ListType and len(tmp) > 0:
 			self.loginparams.backendoptionlist = tmp
 	#----------------------------
 	def save_settings(self):
@@ -253,12 +228,12 @@ class LoginPanel(wxPanel):
 	def __cbox_to_list(self, aComboBox):
 		"""returns all items in a combo box as list; the value of the text box as first item."""
 
-		# get the current item in the text box first
+		# get the current items in the text box first
 		tmp = [ aComboBox.GetValue() ]
 		for idx in range(aComboBox.GetCount()):
 			s = aComboBox.GetString(idx)
 			# weed out duplicates and empty strings
-			if s is not None and s != '' and s not in tmp:
+			if s not in [None, ''] and s not in tmp:
 				tmp.append(s)
 		return tmp
 
@@ -267,11 +242,11 @@ class LoginPanel(wxPanel):
 #############################################################################
 
 	def GetLoginParams(self):
-		"Fetch login parameters from dialog widgets - return None if the user pressed the 'Cancel' button"
+		"""Fetch login parameters from dialog widgets - return None if the user pressed the 'Cancel' button"""
 		if not self.cancelled:
 			self.loginparams.userlist = self.__cbox_to_list(self.usercombo)
 			self.loginparams.password = self.GetPassword()
-    	    	    	# database, host, port and backend lists are updated by OptionWindow and should be up to date
+			# database, host, port and backend lists are updated by OptionWindow and should be up to date
 			return self.loginparams
 		else:
 			return None
@@ -335,7 +310,7 @@ class LoginPanel(wxPanel):
 	#----------------------------
 	def OnHelp(self, event):
 		tmp = _cfg.get('workplace', 'help desk')
-		if tmp == None:
+		if tmp is None:
 			print _("You need to set the option [workplace] -> <help desk> in the config file !")
 			tmp = "http://www.gnumed.org"
 
@@ -376,11 +351,9 @@ For assistance on using GnuMed please contact:
 		self.cancelled = true
 		self.parent.Close()
 
-########################################################################################
-# LoginDialog - window holding LoginPanel
-########################################################################################
-
+#====================================================
 class LoginDialog(wxDialog):
+	"""LoginDialog - window holding LoginPanel"""
 
 	icon_serpent='x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
 \xc1\x85\xd5\x98N5\xa5\xef?\xf5N\xd0\x8a\xdcA\xc2\xf7qw\x84\xdb\xfa\xb5\xcd\
@@ -402,12 +375,9 @@ class LoginDialog(wxDialog):
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
 
-
-########################################################################################
-#  Advanced options window
-########################################################################################
-
+#====================================================
 class OptionWindow(wxDialog, LoginDialog):
+	"""Advanced options window"""
 	def __init__(self, parent, id=wxNewId(), title=_("Advanced login options"),loginparams=None):
 		wxDialog.__init__(self, parent, id, title)
 		self.panel = OptionPanel(self, -1, isDialog=1,loginparams=loginparams)
@@ -420,9 +390,9 @@ class OptionWindow(wxDialog, LoginDialog):
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
 
-
+#====================================================
 class OptionPanel(wxPanel):
-	"GUI panel class that gets interactively advanced login parameters"
+	"""GUI panel class that gets interactively advanced login parameters
 
 	# constructor parameters:
 	#	loginparams: to override default login parameters 
@@ -430,7 +400,7 @@ class OptionPanel(wxPanel):
 	#	isDialog: if this panel is the main panel of a dialog, the panel will
 	#	          resize the dialog automatically to display everything neatly
 	#	          if isDialog is set to true
-
+	"""
 	def __init__(self, parent, id, pos = wxPyDefaultPosition, size = wxPyDefaultSize, style = wxTAB_TRAVERSAL,
 		loginparams = None,
 		isDialog = 0
@@ -575,11 +545,9 @@ Backend options: options passed through unparsed to the backend\n"))
 		self.cancelled = false
 		self.parent.Close()
 
-
-#############################################################################
-# test function for this module: simply run the module as "main"
-#############################################################################
-
+#====================================================
+# main
+#----------------------------------------------------
 if __name__ == '__main__':
 	gb = gmGuiBroker.GuiBroker()	
 	gb['gnumed_dir'] = os.curdir+'/..'
@@ -601,7 +569,11 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.39  2003-05-17 17:30:36  ncq
+# Revision 1.40  2003-06-17 19:27:44  ncq
+# - cleanup
+# - only use cfg file login params if not empty list
+#
+# Revision 1.39  2003/05/17 17:30:36  ncq
 # - just some cleanup
 #
 # Revision 1.38  2003/05/12 09:01:45  ncq
@@ -656,3 +628,22 @@ if __name__ == '__main__':
 # - fixed i18n glitch
 # - added note that _("") is invalid !!
 #
+# @change log:
+#	10.10.2001 hherb initial implementation, untested
+#	24.10.2001 hherb comments added
+#	24.10.2001 hherb LoginDialog class added,
+#	24.10.2001 hherb persistent changes across multiple processes enabled
+#	25.10.2001 hherb more flexible configuration options, more commenting
+#	07.02.2002 hherb saved parameters now showing corectly in combo boxes
+#   	05.09.2002 hberger moved options to own dialog
+#       06.09.2002 rterry simplified gui
+#                  -duplication and visual clutter removed
+#                   removed duplication of information in display
+#                   login gone from title bar , occurs once only now
+#                   visually highlighted in dark blue
+#                   login button title now 'ok' to conform to usual defaults of 
+#                   ok, cancel in most operating systems
+#                   reference to help removed (have help button for that)
+#                   date removed - can't see use of this in login - clutters
+#   	06.09.2002 hberger removed old code, fixed "login on close window" bug
+#       07.09.2002 rterry removed duplicated heading in advanced login options
