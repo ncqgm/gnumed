@@ -17,14 +17,16 @@
 -permission denied when click Manager in left hand menu.  Haven't set users-xml.xml with a role manager and manager in a user's roles? change it , and  Stop and Start tomcat to get rid of previous tomcat state. ?using the right user and password.
 
 
--pasting WEB-INF/context.xml  doesn't work ? using file:  before the full path to this file? ls the path correct? 'ls' the path used.
-Is the context.xml  docBase='path-to-test-struts-3' correct? 'ls' the docBase string.
+-pasting WEB-INF/context.xml  doesn't work ? 
+	using the url prefix "file:"  before the full path to this file ? 
+	ls the path correct? 'ls' the path used to see if it exists.
+	Is the context.xml  docBase='path-to-test-struts-3' correct? 'ls' the docBase string to see if exists and leads
+	to where the application home directory is.
 
 URL should be
 file:/${GNUMED_DIR}/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
 
 where GNUMED_DIR is the basedir where CVS checkout was done.
-
 
 
 -'deploy button' says already deployed. Undeploy, stop and start tomcat again. Try pasting context file again and depoloy.

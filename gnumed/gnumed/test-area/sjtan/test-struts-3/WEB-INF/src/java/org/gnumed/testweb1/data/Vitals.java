@@ -10,7 +10,7 @@ package org.gnumed.testweb1.data;
  *
  * @author  sjtan
  */
-public interface Vitals {
+public interface Vitals extends ClinRootItem {
     
     /**
      * Getter for property systolic.
@@ -64,37 +64,37 @@ public interface Vitals {
      * Getter for property temp.
      * @return Value of property temp.
      */
-    public float getTemp();
+    public double getTemp();
     
     /**
      * Setter for property temp.
      * @param temp New value of property temp.
      */
-    public void setTemp(float temp);
+    public void setTemp(double temp);
     
     /**
      * Getter for property weight.
      * @return Value of property weight.
      */
-    public float getWeight();
+    public double getWeight();
     
     /**
      * Setter for property weight.
      * @param weight New value of property weight.
      */
-    public void setWeight(float weight);
+    public void setWeight(double weight);
     
     /**
      * Getter for property height.
      * @return Value of property height.
      */
-    public float getHeight();
+    public double getHeight();
     
     /**
      * Setter for property height.
      * @param height New value of property height.
      */
-    public void setHeight(float height);
+    public void setHeight(double height);
     
     /**
      * Getter for property pefr.
@@ -112,13 +112,13 @@ public interface Vitals {
      * Getter for property rhytm.
      * @return Value of property rhytm.
      */
-    public String getRhytm();
+    public String getRhythm();
     
     /**
      * Setter for property rhytm.
      * @param rhytm New value of property rhytm.
      */
-    public void setRhytm(String rhytm);
+    public void setRhythm(String rhytm);
     
     /**
      * Getter for property postpefr.

@@ -12,7 +12,7 @@ package org.gnumed.testweb1.data;
  */
 public class VitalsImpl1 extends ClinRootItemImpl1 implements Vitals {
     private int diastolic,systolic, pr, rr, pefr,postpefr;
-    private float wt, ht, temp;
+    private double wt, ht, temp;
     private String rhythm;
     /** Creates a new instance of VitalsImpl1 */
     public VitalsImpl1() {
@@ -22,9 +22,9 @@ public class VitalsImpl1 extends ClinRootItemImpl1 implements Vitals {
         rr = 0;
         pefr = 0;
         postpefr = 0;
-        wt = (float)0.0;
-        ht = (float)0.0;
-        temp = (float)0.0;
+        wt =  0.0;
+        ht =  0.0;
+        temp =  0.0;
     }
     
     public int getDiastolic() {
@@ -32,7 +32,7 @@ public class VitalsImpl1 extends ClinRootItemImpl1 implements Vitals {
         
     }
     
-    public float getHeight() {
+    public double getHeight() {
         return ht;
     }
     
@@ -52,11 +52,11 @@ public class VitalsImpl1 extends ClinRootItemImpl1 implements Vitals {
         return systolic;
     }
     
-    public float getTemp() {
+    public double getTemp() {
         return temp;
     }
     
-    public float getWeight() {
+    public double getWeight() {
         return wt;
     }
     
@@ -64,8 +64,8 @@ public class VitalsImpl1 extends ClinRootItemImpl1 implements Vitals {
         this.diastolic = diastolic;
     }
     
-    public void setHeight(float height) {
-        this.ht = ht;
+    public void setHeight(double height) {
+        this.ht = height;
     }
     
     public void setPrepefr(int pefr) {
@@ -84,19 +84,20 @@ public class VitalsImpl1 extends ClinRootItemImpl1 implements Vitals {
         this.systolic = systolic;
     }
     
-    public void setTemp(float temp) {
+    public void setTemp(double temp) {
         this.temp = temp;
     }
     
-    public void setWeight(float weight) {
-        this.wt = wt;
+    public void setWeight(double weight) {
+        this.wt = weight;
+        
     }
     
-    public String getRhytm() {
+    public String getRhythm() {
         return rhythm;
     }
     
-    public void setRhytm(String rhytm) {
+    public void setRhythm(String rhytm) {
         this.rhythm = rhythm;
     }
     

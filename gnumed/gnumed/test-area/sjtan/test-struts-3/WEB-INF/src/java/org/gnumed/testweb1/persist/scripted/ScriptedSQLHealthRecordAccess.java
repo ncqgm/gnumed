@@ -5,25 +5,28 @@
  */
 
 package org.gnumed.testweb1.persist.scripted;
-import org.gnumed.testweb1.persist.HealthRecordAccess01;
-import org.gnumed.testweb1.persist.DataSourceUsing;
-import org.gnumed.testweb1.persist.DataObjectFactoryUsing;
-import org.gnumed.testweb1.data.*;
-import org.gnumed.testweb1.persist.DataSourceException;
-import org.gnumed.testweb1.global.Constants ;
-import org.gnumed.testweb1.global.Algorithms;
-import java.util.*;
-import java.sql.*;
-import org.apache.commons.logging.*;
 
+import java.sql.*;
+import java.util.*;
+import org.gnumed.testweb1.global.Constants.Schema;
+import org.gnumed.testweb1.persist.*;
+
+import javax.sql.DataSource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.gnumed.testweb1.data.*;
+import org.gnumed.testweb1.global.Algorithms;
+
+import java.lang.reflect.InvocationTargetException;
+import org.apache.commons.beanutils.PropertyUtils;
 /**
  *
  * @author  sjtan
  */
 public class ScriptedSQLHealthRecordAccess implements
 HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
-    javax.sql.DataSource dataSource;
-    org.gnumed.testweb1.data.DataObjectFactory factory;
+    DataSource dataSource;
+    DataObjectFactory factory;
     
     // THIS MIGHT NEED TO BE A SEPARATE SERVICE, in order for multi-thread to work.
     //
@@ -32,7 +35,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     /** change the fields for aliasing , if field names change
      */
     
-    private org.gnumed.testweb1.persist.ClinicalDataAccess clinicalDataAccess;
+    private ClinicalDataAccess clinicalDataAccess;
     
     private static final String HEALTH_ISSUE_ATTRIBUTES = "hi.id as id, hi.description as description ";
     private static final String CLIN_EPISODE_ATTRIBUTES = "id as id, modified_when as modified_when, description as description";
@@ -55,7 +58,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         return Collections.synchronizedMap(accessedRecords);
     }
     
-    public HealthRecord01 findHealthRecordByIdentityId(long patientId) throws org.gnumed.testweb1.persist.DataSourceException {
+    public HealthRecord01 findHealthRecordByIdentityId(long patientId) throws DataSourceException {
        /*
         Map accessedRecords = getAccessedRecords();
         if (accessedRecords.containsKey(new Long(patientId)) ) {
@@ -117,13 +120,13 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             return (HealthRecord01) accessedRecords.get(new Long(patientId));
             
         } catch (Exception e) {
-            throw new org.gnumed.testweb1.persist.DataSourceException(e);
+            throw new DataSourceException(e);
         } finally {
             if (conn != null) {
                 try {
                     conn.close();
                 } catch (SQLException se) {
-                    throw new org.gnumed.testweb1.persist.DataSourceException(se);
+                    throw new DataSourceException(se);
                 }
             }
             
@@ -131,7 +134,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         
     }
     
-    private Map getVaccineMap() throws org.gnumed.testweb1.persist.DataSourceException {
+    private Map getVaccineMap() throws DataSourceException {
         
         
         Map vaccMap = getClinicalDataAccess().getVaccineMap();
@@ -254,45 +257,45 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         return getRowsForIds(conn, "select * from clin_diag where fk_narrative in ",clin_narrative_ids);
     }
     
-    private ClinicalEncounter fromRow(java.sql.ResultSet rs) throws SQLException {
+    private ClinicalEncounter fromRow(ResultSet rs) throws SQLException {
         return null;
     }
     
     
     
-    public void save(org.gnumed.testweb1.data.HealthRecord01 healthRecord) throws org.gnumed.testweb1.persist.DataSourceException {
+    public void save(HealthRecord01 healthRecord) throws DataSourceException {
     }
     
     
     
-    public javax.sql.DataSource getDataSource() {
+    public DataSource getDataSource() {
         return dataSource;
     }
     
-    public void setDataSource(javax.sql.DataSource ds) {
+    public void setDataSource(DataSource ds) {
         this.dataSource = ds;
     }
     
-    public org.gnumed.testweb1.data.DataObjectFactory getDataObjectFactory() {
+    public DataObjectFactory getDataObjectFactory() {
         return factory;
     }
     
-    public void setDataObjectFactory(org.gnumed.testweb1.data.DataObjectFactory dataObjectFactory) {
+    public void setDataObjectFactory(DataObjectFactory dataObjectFactory) {
         this.factory = dataObjectFactory;
     }
     
-    public org.gnumed.testweb1.persist.ClinicalDataAccess getClinicalDataAccess() {
+    public ClinicalDataAccess getClinicalDataAccess() {
         return clinicalDataAccess;
     }
     
-    public void setClinicalDataAccess(org.gnumed.testweb1.persist.ClinicalDataAccess cda) {
+    public void setClinicalDataAccess(ClinicalDataAccess cda) {
         clinicalDataAccess = cda;
     }
     
     /** saves a clinical encounter and it's elements.
      *  ClinNarrative elements which have empty narrative fields are not saved.
      */
-    public void save(ClinicalEncounter encounter, HealthSummary01 summary) throws org.gnumed.testweb1.persist.DataSourceException {
+    public void save(ClinicalEncounter encounter, HealthSummary01 summary) throws DataSourceException {
         String s1 = "insert into clin_encounter (id, description, started, last_affirmed,  fk_patient) values (?, ?, ?,?,  ? )";
         
         
@@ -314,8 +317,8 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             PreparedStatement insertEncounter = conn.prepareStatement(s1);
             insertEncounter.setObject(1,idEncounter);
             insertEncounter.setString(2, encounter.getDescription());
-            insertEncounter.setTimestamp(3,  new java.sql.Timestamp(started.getTime()) );
-            insertEncounter.setTimestamp(4,new java.sql.Timestamp( affirmed.getTime()));
+            insertEncounter.setTimestamp(3,  new Timestamp(started.getTime()) );
+            insertEncounter.setTimestamp(4,new Timestamp( affirmed.getTime()));
             insertEncounter.setObject(5, summary.getIdentityId());
             insertEncounter.execute();
             
@@ -326,13 +329,12 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             
             
             List healthIssues = new ArrayList();
-          
             
-           ClinRootItem[] items=encounter.getRootItems();
-           
-           for( int i=0; i < items.length;++i) {
-                if (items[i].getNarrative() ==null || items[i].getEpisode().getDescription() ==null)
-                {
+            
+            ClinRootItem[] items=encounter.getRootItems();
+            
+            for( int i=0; i < items.length;++i) {
+                if (items[i].getNarrative() ==null || items[i].getEpisode().getDescription() ==null) {
                     log.info("null narrative or episode description: SKIPPING " + items[i]);
                     continue;
                 }
@@ -347,14 +349,14 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
                 ClinicalEpisode episode = findOrCreateEpisode( conn, issue, items[i].getEpisode() );
                 
                 items[i].setEpisode(episode);
-            }  
-           
-            List[] itemLists = new java.util.List[] {
+            }
+            
+            List[] itemLists = new List[] {
                 encounter.getNarratives(), encounter.getAllergies()
             };
             
             for (int j = 0; j < itemLists.length; ++j) {
-                for( java.util.ListIterator i = itemLists[j].listIterator(); i.hasNext(); ) {
+                for( ListIterator i = itemLists[j].listIterator(); i.hasNext(); ) {
                     ClinRootItem item = (ClinRootItem) i.next();
                     if (item.getNarrative() == null || item.getNarrative().trim().equals("") ||
                     item.getEpisode().getDescription() == null ) {
@@ -367,15 +369,24 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
                     }
                 }
             }
-                  
+            
             for( Iterator i = encounter.getNarratives().iterator(); i.hasNext(); ) {
                 ClinNarrative narrative = (ClinNarrative) i.next();
-                 
+                
                 saveNarrative(conn, narrative);
             }
             
+            conn.commit();
+            
+            
             for( Iterator i = encounter.getAllergies().iterator(); i.hasNext(); ) {
+                
                 saveAllergy(conn, (Allergy) i.next() );
+                
+            }
+            
+            for( Iterator i = encounter.getVitals().iterator(); i.hasNext(); ) {
+                saveVitals(conn, (EntryVitals) i.next() );
             }
             
             conn.commit();
@@ -388,7 +399,9 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
                 HealthIssue issue = (HealthIssue) k.next();
                 
                 if ( !hr.getHealthSummary().hasHealthIssue(issue) ) {
+                    
                     hr.getHealthSummary().addHealthIssue(issue);
+                    
                 }
             }
             
@@ -425,7 +438,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         
         String healthIssueName = item.getEpisode().getHealthIssue().getDescription();
         String newName = item.getNewHealthIssueName();
-       
+        
         healthIssueName = healthIssueName == null ? "" : healthIssueName;
         newName = ( newName == null ? "" : newName);
         
@@ -434,7 +447,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         }
         
         if (healthIssueName.equals("")) {
-            healthIssueName = Constants.Schema.DEFAULT_HEALTH_ISSUE_LABEL;
+            healthIssueName = Schema.DEFAULT_HEALTH_ISSUE_LABEL;
         }
         
         return healthIssueName;
@@ -546,7 +559,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         Integer id = getNextId(stmt.getConnection(), "clin_root_item_pk_item_seq");
         
         stmt.setInt(1, id.intValue());
-        stmt.setTimestamp(startIndex++, new java.sql.Timestamp( item.getClin_when().getTime() ));
+        stmt.setTimestamp(startIndex++, new Timestamp( item.getClin_when().getTime() ));
         stmt.setString(startIndex++, item.getNarrative() == null ? "": item.getNarrative() );
         
         
@@ -557,35 +570,45 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     }
     
     private void saveAllergy( Connection conn, Allergy allergy) throws DataSourceException, SQLException {
-        log.info( "SAVE ALLERGY" + allergy.getEncounter() +":"+allergy.getNarrative()+":" + allergy.getSubstance());
-       
-        if (allergy.getEncounter() == null || allergy.getEpisode() == null) {
-            log.info("DIDNot save");
-            return;
+        try {
+            log.info( "SAVE ALLERGY" + allergy.getEncounter() +":"+allergy.getNarrative()+":" + allergy.getSubstance());
+            
+            if (allergy.getEncounter() == null || allergy.getEpisode() == null) {
+                log.info("DIDNot save");
+                return;
+            }
+            String s5 = "insert into allergy(pk_item, definite, substance,id_type,   clin_when, narrative, soap_cat,  fk_encounter, fk_episode) " +
+            "values (?,  ? , ? , ?, ?, ? , ? , ?, ?)";
+            
+            log.info( "SAVE ALLERGY" + allergy.getEncounter() +":"+allergy.getNarrative()+":" + allergy.getSubstance());
+            
+            PreparedStatement stmt = conn.prepareStatement(s5);
+            
+            setClinRootItemStatement( stmt, allergy, 5);
+            
+            stmt.setInt(4,1); // id_type allergy
+            //  ** change **
+            
+            stmt.setString(3, allergy.getSubstance());
+            
+            stmt.setBoolean(2, allergy.isDefinite());
+            
+            log.info(s5);
+            stmt.execute();
+            conn.commit();
+            
+        } catch (Exception e) {
+            conn.rollback();
+            log.info(e,e);
         }
-        String s5 = "insert into allergy(pk_item, definite, substance,id_type,   clin_when, narrative, soap_cat,  fk_encounter, fk_episode) " +
-        "values (?,  ? , ? , ?, ?, ? , ? , ?, ?)";
         
-        log.info( "SAVE ALLERGY" + allergy.getEncounter() +":"+allergy.getNarrative()+":" + allergy.getSubstance());
-        
-        PreparedStatement stmt = conn.prepareStatement(s5);
-      
-        setClinRootItemStatement( stmt, allergy, 5);
-        
-        stmt.setInt(4,1); // id_type allergy 
-       //  ** change **
-        
-        stmt.setString(3, allergy.getSubstance());
-        
-        stmt.setBoolean(2, allergy.isDefinite());
-        
-        log.info(s5);
-        stmt.execute();
     }
     
-    private java.util.Date nullToNow(java.util.Date d) {
+    
+    
+    private java.util.Date nullToNow(java.util.Date   d) {
         if (d == null)
-            return new java.util.Date();
+            return new java.util. Date();
         return d;
         
     }
@@ -609,4 +632,113 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         
         stmt2.close();
     }
+    
+    
+    
+    private static Map codeMap = new HashMap();
+    
+    static {
+        final String[] propertyToCodeName = {
+            "diastolic", "dBP",
+            "height", "hght",
+            "pr", "PR",
+            "systolic", "sBP",
+            "temp", "T",
+            "weight", "wght",
+            "rr", "rr"
+        };
+        
+        for (int i = propertyToCodeName.length -1; i>=0; i -= 2) {
+            codeMap.put( propertyToCodeName[i-1], propertyToCodeName[i]);
+        }
+    }
+    
+    static Map getCodeMap() {
+        return Collections.unmodifiableMap(codeMap);
+    }
+    
+    private void saveVitals(Connection conn, EntryVitals v)
+    throws DataSourceException, SQLException {
+        
+        if (! v.isEntered() ) {
+            log.info("** " + v  + " HAS NOT BEEN ENTERED");
+            return;
+        }
+        
+        log.info("LOOKING TO SAVE" + v);
+        PreparedStatement stmt =null;
+        try {
+            
+            String s6 = "insert into test_result(pk_item, fk_type,  val_num, val_alpha,  clin_when, narrative, soap_cat,  fk_encounter, fk_episode) "
+            + "values (?, (select id from test_type where code=?) , ? , ?, ?, ? , ? , ?, ?)";
+            
+             stmt = conn.prepareStatement(s6);
+            
+            for ( Iterator i = getCodeMap().keySet().iterator(); i.hasNext(); ) {
+                String property = (String)i.next();
+                String code = (String) getCodeMap().get(property );
+                
+                if (!v.isSet(property)) {
+                    log.info("property= "+ property + " is not set. SKIPPING");
+                    continue;
+                }
+                log.info(s6);
+                setInsertStatementForVitalProperty(v, stmt, property, code);
+                try {
+                    stmt.execute();
+                    conn.commit();
+                } catch (Exception e) {
+                    log.info("saving "+v+" " + property+ "  got " +e,e);
+                    conn.rollback();
+                } finally {
+                     
+                }
+                
+            }
+            
+        } catch (Exception e) {
+            log.info("got an error");
+            log.info(e,e);
+             
+            
+        } finally {
+            stmt.close();
+        }
+    }
+    
+    /**
+     * @param v
+     * @param stmt
+     * @param property
+     * @param code
+     * @throws DataSourceException
+     * @throws SQLException
+     */
+    private void setInsertStatementForVitalProperty(Vitals v, PreparedStatement stmt, String property, String code) throws DataSourceException, SQLException {
+        
+        setClinRootItemStatement(stmt, v, 5 );
+        stmt.setString(2, code);
+        
+        stmt.setString(4, "");
+        
+        try {
+            log.info("Trying to get double from " + property);
+            double val = ((Number)PropertyUtils.getProperty(v, property)).doubleValue() ;
+            log.info("GOT this double" + val + " for " + v);
+            stmt.setDouble(3, val);
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
 }

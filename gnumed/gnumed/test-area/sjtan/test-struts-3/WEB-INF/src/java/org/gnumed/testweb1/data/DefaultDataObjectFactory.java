@@ -20,7 +20,7 @@ import org.apache.commons.logging.*;
 public class DefaultDataObjectFactory implements DataObjectFactory {
     static Log log = LogFactory.getLog(DefaultDataObjectFactory.class);
     
-    public static int nEntry = 20;
+    public static int nEntry =3;
     
     public final static String[] itemTypes = new String[] { "narrative", "medication", "vaccination", "allergy", "vital" };
     public final static String[] factoryMethods = new String[]

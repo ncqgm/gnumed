@@ -66,7 +66,9 @@ public class ClinicalUpdateForm extends ActionForm {
     /**
      * Holds value of property allergies.
      */
-    private java.util.List allergies = new java.util.ArrayList();
+    private java.util.List allergies  ;
+    
+    private java.util.List vitals;
     
     public ClinicalUpdateForm() {
         initVaccinations();
@@ -235,9 +237,9 @@ public class ClinicalUpdateForm extends ActionForm {
     public void linkObjects() {
         copyPreviousEpisodeForLinkedNarrative();
         
-        copyLinksToClinRootItems(getAllergies());
+        copyLinksToClinRootItems(getEncounter().getAllergies());
         
-        copyLinksToClinRootItems(getVitals());
+        copyLinksToClinRootItems(getEncounter().getVitals());
         
         
         alterAllergyMarkedNarratives();
@@ -258,6 +260,8 @@ public class ClinicalUpdateForm extends ActionForm {
     }
     
     void copyLinksToClinRootItems(java.util.List items) {
+        if (items == null)
+            return;
         for ( int i= 0; i < narratives.length; ++i ) {
             ClinRootItem n = (ClinRootItem) narratives[i];
             if ( i >= items.size()) { 
@@ -333,7 +337,7 @@ public class ClinicalUpdateForm extends ActionForm {
      * @return Value of property vitals.
      */
     public java.util.List getVitals() {
-        return new java.util.ArrayList();
+        return vitals;
     }
     
     /**
@@ -341,6 +345,7 @@ public class ClinicalUpdateForm extends ActionForm {
      * @param vitals New value of property vitals.
      */
     public void setVitals(java.util.List vitals) {
+        this.vitals = vitals;
     }
     
 }
