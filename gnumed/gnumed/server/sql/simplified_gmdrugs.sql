@@ -12,7 +12,7 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/simplified_gmdrugs.sql,v $
--- $Revision: 1.2 $ $Date: 2003-01-01 14:10:00 $ $Author: hherb $
+-- $Revision: 1.3 $ $Date: 2003-01-04 13:59:07 $ $Author: ncq $
 -- ============================================================
 
 \set ON_ERROR_STOP 1
@@ -423,4 +423,8 @@ create table drug_disease_interactions(
 comment on table drug_disease_interactions is
 'many to many pivot table linking interactions between drugs and diseases';
 
-
+-- =====================================================================
+-- $Log: simplified_gmdrugs.sql,v $
+-- Revision 1.3  2003-01-04 13:59:07  ncq
+-- - track changes
+--
