@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.13 2004-10-18 11:35:42 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmVaccination.py,v 1.14 2004-10-20 21:42:28 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -49,16 +49,22 @@ class cVaccination(gmClinItem.cClinItem):
 	def set_booster_status(self, is_booster=None):
 		if is_booster is None:
 			return False
-		self._idx['is_booster'] = len(self._payload)
-		self._payload.append(is_booster)
+		try:
+			self._payload[self._idx['is_booster']] = is_booster
+		except KeyError:
+			self._idx['is_booster'] = len(self._payload)
+			self._payload.append(is_booster)
 		if is_booster:
 			self.set_seq_no(seq_no = -1)
 		return True
 	#--------------------------------------------------------
 	def set_seq_no(self, seq_no=None):
 		int(seq_no)
-		self._idx['seq_no'] = len(self._payload)
-		self._payload.append(seq_no)
+		try:
+			self._payload[self._idx['seq_no']] = seq_no
+		except KeyError:
+			self._idx['seq_no'] = len(self._payload)
+			self._payload.append(seq_no)
 		if seq_no > 0:
 			self.set_booster_status(is_booster=False)
 		return True
@@ -368,7 +374,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.13  2004-10-18 11:35:42  ncq
+# Revision 1.14  2004-10-20 21:42:28  ncq
+# - fix faulty appending on repeated use of set_booster_status/set_seq_no()
+#
+# Revision 1.13  2004/10/18 11:35:42  ncq
 # - cleanup
 #
 # Revision 1.12  2004/10/12 11:16:22  ncq
