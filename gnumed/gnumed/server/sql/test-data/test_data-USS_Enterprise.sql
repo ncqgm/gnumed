@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -32,8 +32,8 @@ values (
 	'Gpt/l'
 );
 
-insert into test_type_uni
-	(fk_test_type, internal_code, internal_name)
+insert into test_type_local
+	(fk_test_type, local_code, local_name)
 values (
 	currval('test_type_id_seq'),
 	'WBC',
@@ -50,8 +50,8 @@ values (
 	'Tpt/l'
 );
 
-insert into test_type_uni
-	(fk_test_type, internal_code, internal_name)
+insert into test_type_local
+	(fk_test_type, local_code, local_name)
 values (
 	currval('test_type_id_seq'),
 	'RBC',
@@ -68,8 +68,8 @@ values (
 	'Gpt/l'
 );
 
-insert into test_type_uni
-	(fk_test_type, internal_code, internal_name)
+insert into test_type_local
+	(fk_test_type, local_code, local_name)
 values (
 	currval('test_type_id_seq'),
 	'PLT',
@@ -86,8 +86,8 @@ values (
 	'mg/l'
 );
 
-insert into test_type_uni
-	(fk_test_type, internal_code, internal_name)
+insert into test_type_local
+	(fk_test_type, local_code, local_name)
 values (
 	currval('test_type_id_seq'),
 	'CRP',
@@ -97,11 +97,15 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.5  2004-03-23 17:34:50  ncq
+-- Revision 1.6  2004-05-06 23:32:44  ncq
+-- - internal_name now local_name
+-- - technically_abnormal now text
+--
+-- Revision 1.5  2004/03/23 17:34:50  ncq
 -- - support and use optionally cross-provider unified test names
 --
 -- Revision 1.4  2004/03/19 11:56:59  ncq

@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.18 $
+-- $Revision: 1.19 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -192,7 +192,7 @@ insert into test_result (
 	'9.5',
 	'Gpt/l',
 	'4.4-11.3',
-	false,
+	'',
 	'EDTA blood'
 );
 
@@ -220,7 +220,7 @@ insert into test_result (
 	'4.40',
 	'Tpt/l',
 	'4.1-5.1',
-	false,
+	'',
 	'EDTA blood'
 );
 
@@ -248,7 +248,7 @@ insert into test_result (
 	'282',
 	'Gpt/l',
 	'150-450',
-	false,
+	'',
 	'EDTA blood'
 );
 
@@ -276,7 +276,7 @@ insert into test_result (
 	'17.3',
 	'mg/l',
 	'0.07-8',
-	true,
+	'++',
 	'Serum'
 );
 
@@ -426,11 +426,15 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.18 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.18  2004-05-02 19:26:31  ncq
+-- Revision 1.19  2004-05-06 23:32:44  ncq
+-- - internal_name now local_name
+-- - technically_abnormal now text
+--
+-- Revision 1.18  2004/05/02 19:26:31  ncq
 -- - add diagnoses
 --
 -- Revision 1.17  2004/04/17 11:54:16  ncq
