@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-01-11 22:03:30 $
-# @version $Revision: 1.55 $ $Date: 2003-01-11 22:03:30 $ $Author: hinnef $
+# @Date: $Date: 2003-01-12 01:46:57 $
+# @version $Revision: 1.56 $ $Date: 2003-01-12 01:46:57 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.55 $"
+__version__ = "$Revision: 1.56 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -66,7 +66,8 @@ ID_HELP = wxNewId ()
 ID_NOTEBOOK = wxNewId ()
 #==================================================
 class MainFrame(wxFrame):
-	"""GNUmed client's main windows frame
+	"""GNUmed client's main windows frame.
+
 	This is where it all happens. Avoid popping up any other windows.
 	Most user interaction should happen to and from widgets within this frame
 	"""
@@ -74,9 +75,15 @@ class MainFrame(wxFrame):
 	def __init__(self, parent, id, title, size=wxPyDefaultSize):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
-		wxFrame.__init__(self, parent, id, title, size, \
-		                  style = wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
-		self.SetAutoLayout( true )
+		wxFrame.__init__(
+			self,
+			parent,
+			id,
+			title,
+			size,
+			style = wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE
+		)
+		self.SetAutoLayout(true)
 		
 		#initialize the gui broker
 		self.guibroker = gmGuiBroker.GuiBroker()
@@ -113,7 +120,7 @@ class MainFrame(wxFrame):
                 ##self.guibroker['main.szr_main_container']=self.szr_main_container
 		#a top vertical box sizer for the main window
 		self.vbox = wxBoxSizer( wxVERTICAL)
-		self.guibroker['main.vbox']=self.vbox
+		self.guibroker['main.vbox'] = self.vbox
 
 		###-----------------------------------------------------------------------------
 		###create a horizontal sizer which will contain all windows at the top of the
@@ -472,7 +479,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.55  2003-01-11 22:03:30  hinnef
+# Revision 1.56  2003-01-12 01:46:57  ncq
+# - coding style cleanup
+#
+# Revision 1.55  2003/01/11 22:03:30  hinnef
 # removed gmConf
 #
 # Revision 1.54  2003/01/05 10:03:30  ncq
