@@ -10,10 +10,10 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-11-17 10:56:37 $
-# @version $Revision: 1.8 $ $Date: 2003-11-17 10:56:37 $ $Author: sjtan $
+# @Date: $Date: 2004-03-08 22:14:21 $
+# @version $Revision: 1.9 $ $Date: 2004-03-08 22:14:21 $ $Author: shilbert $
 # @change log:
-#	14.03.02 ihaywood inital version.
+#   14.03.02 ihaywood inital version.
 #      
 #               
 #
@@ -28,7 +28,8 @@ from wxPython.wx import *
 from wxPython.calendar import *
 from wxPython.grid import *
 import sys, time, os
-import gmGuiBroker, gmPG, gmSQLSimpleSearch
+from Gnumed.pycommon import gmGuiBroker, gmPG
+from Gnumed.wxpython import gmSQLSimpleSearch
 
 
 ID_ABOUT=101  
@@ -248,6 +249,6 @@ def run ():
 
 
 if __name__ == '__main__':
-	# text translation function for localization purposes
-	import gmI18N
+    # text translation function for localization purposes
+    import gmI18N
     run ()
