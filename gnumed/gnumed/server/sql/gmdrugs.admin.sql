@@ -21,9 +21,18 @@ create table users
 (
 	login name,
 	public_key text,
-	title varcher (100),
-	password_refresh date,
+	title varchar (100),
+	password_expiry date,
+	iso_countrycode char (2)
 );
+
+comment on table users is 'extra data about database users';
+comment on column users.public_key is 'armoured GPG public key of this user';
+comment on column users.title is 'full name and qualifications';
+comment on column users.password_expiry is 'the date the password expires';
+comment on column users.iso_countrycode is 'the users country';
+
+insert into users values ('ian', NULL, 'Dr. Ian Haywood, MBBS', '31 Dec 2002', 'au');
 
 create table audit
 (
@@ -57,33 +66,82 @@ comment on column audit.why is 'explanation of the change';
 --this is signed.
 
 --PL/Python trigger to update audit table.
+drop trigger element_trig on drug_element;
+drop function audit_func ();
+
 create function audit_func () returns opaque as '
-import pickle
+import StringIO
 import string
 if TD["event"] == "INSERT":
  action = "i"
- what = pickle.dumps (TD["new"])
- table_row = TD["new"]["id"]
+ row = TD["new"]
 elif TD["event"] == "UPDATE":
  action = "u"
- what = pickle.dumps (TD["new"])
- table_row = TD["new"]["id"]
+ row = TD["new"]
 elif TD["event"] == "DELETE":
  action = "d"
- table_row = TD["old"]["id"]
- what = pickle.dumps (TD["old"])
+ row = TD["old"]
 else:
  plpy.fatal ("unknown action")
-what = string.replace (what, "''", "''''")
+if row.has_key ("id"):
+ row_id = row["id"]
+else:
+ row_id = "NULL"
+# the description ("what" field) depends on the underlying table.
+# to make this meaningful, references must be looked up.
+# certain regularities in the way columns are named can be exploited to do this, this is not 
+# a graceful or complete solution, but better than any alternative I could think of.
+# what becomes a HTML table of field:value pairs.
+f = StringIO.StringIO()
+for field in row.keys ():
+ if field == "id_drug" or field == "id_component" or field == "id_compound" or field == "id_class" or field == "id_interacts_with":
+  value = plpy.execute ("select get_drug_name (%s) as foo" % row[field])[0]["foo"]
+  field = field[3:]
+ elif field == "id_route":
+  value = plpy.execute ("select description from drug_routes where id = %s" % row[field])[0]["description"]
+  field = field[3:]
+ elif field == "id_formulation":
+  value = plpy.execute ("select description from drug_formulations where id = %s" % row[field])[0]["description"]
+  field = field[3:]
+ elif field == "id_unit" or field == "id_packing_unit":
+  value = plpy.execute ("select description from drug_units where id = %s" % row[field])[0]["description"]
+  field = field[3:] 
+ elif field == "id_adverse_effect":
+  value = plpy.execute ("select description from adverse_effects where id = %s" % row[field])[0]["description"]
+  field = field[3:]
+ elif field == "id_code_system":
+  value = plpy.execute ("select name from code_systems where id = %s" % row[field])[0]["name"]
+  field = field[3:]
+ elif field == "id_info":
+  value = plpy.execute ("select title from drug_information di, information_topic it where di.id = %s and id_topic = it.id" % row[field])[0]["title"]
+  field = field[3:]
+ elif field == "id_interaction":
+  value = plpy.execute ("select description from interactions where id = %s" % row[field])[0]["description"]
+  field = field[3:]
+ elif field == "id_warning":
+  value = plpy.execute ("select details from drug_warning where id = %s" % row[field])[0]["details"]
+  field = field[3:]
+ elif field == "id_product":
+  product = plpy.execute ("select get_drug_name (id_drug) as drug_name, df.description as df from product, drug_formulations where id = %s and df.id = id_formulation" % row[field])[0]
+  value = "%(drug_name)s %(df)s" % product
+  field = field[3:]
+ elif field == "id_info_reference":
+  value = plpy.execute ("select description from info_reference where id = %s" % row[field])[0]["description"]
+  field = field[3:]
+ else:
+  value = row[field]
+ f.write ("<td>%s</td><td>%s</td>" % (field, value))
+what = f.getvalue ()
 table_name = plpy.execute ("select relname from pg_class where oid = %s" % TD["relid"])[0]["relname"]
-plpy.execute ("insert into audit (action, what, table_row, table_name, version) values (''%(action)s'', ''%(what)s'', %(table_row)s, ''%(table_name)s'', (select count (*)+1 from audit where table_name = ''%(table_name)s'' and table_row = %(table_row)s))" % vars ())
+plpy.execute ("insert into audit (action, what, table_row, table_name, version) values (''%(action)s'', ''%(what)s'', %(row_id)s, ''%(table_name)s'', (select count (*)+1 from audit where table_name = ''%(table_name)s'' and table_row = %(row_id)s))" % vars ())
 ' language 'plpython';
 
 comment on function audit_func () is 'Python trigger function to create audit entries';
 
-create trigger audit_trig after insert or update or delete on audited_table 
+create trigger element_trig after insert or update or delete on drug_element 
 for each row execute procedure audit_func ();
 
+insert into drug_element (description) values ('chop');
 
 -- groups of users
 create group contributors;
@@ -111,7 +169,7 @@ grant all on drug_information to group contributors;
 grant all on drug_element to group contributors;
 grant all on conditions to group contributors;
 grant all on available to group contributors;
-
+grant all on manufacturer to contributors;
 
 grant select on audit to group browsers;
 grant select on drug_dosage to group browsers;
@@ -135,6 +193,7 @@ grant select on drug_information to group browsers;
 grant select on drug_element to group browsers;
 grant select on conditions to group browsers;
 grant select on available to group browsers;
+grant select on manufacturer to browsers;
 
 grant select on adverse_effects to public;
 grant select on code_systems to public;
@@ -146,7 +205,6 @@ grant select on information_topic to public;
 grant select on interactions to public;
 grant select on info_reference to public;
 grant select on drug_warning_categories to public;
-grant select on manufacturer to public;
 grant select on subsidies to public;
 
 

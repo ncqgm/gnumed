@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.20 $ $Date: 2002-11-03 12:12:13 $ $Author: hherb $
+-- $Revision: 1.21 $ $Date: 2002-11-07 03:15:55 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.20  2002-11-03 12:12:13  hherb
+-- Revision 1.21  2002-11-07 03:15:55  ihaywood
+-- *** empty log message ***
+--
+-- Revision 1.20  2002/11/03 12:12:13  hherb
 -- typo causing error fixed
 --
 -- Revision 1.19  2002/10/28 10:02:52  ihaywood
@@ -55,16 +58,8 @@ comment on column info_reference.source_category is
 comment on column info_reference.description is
 'URL or address or similar informtion allowing to reproduce the source of information';
 
--- couple to examples
+-- couple of examples
 insert into info_reference (source_category, description) values ('i', 'Rang, Dale, and Ritter <i>Pharmacology</i>, 1999');
-
-create table audited_table
-(
-	id serial primary key
-);
-
-comment on table audited_table is 'ancestor table, inherited by all tables that need to be audited.';
-
 
 create table code_systems(
 	id serial primary key,
@@ -155,7 +150,7 @@ create table drug_element (
 	id serial primary key,
 	category char check (category in ('t', 'p', 's', 'c')),
 	description text
-);
+) inherits (audited_table);
 
 comment on table drug_element is 'collection of all drug elements: classes, compounds, and substances';
 
@@ -320,8 +315,8 @@ comment on column drug_dosage.dosage_hints is
 
 create table substance_dosage(
 	id serial primary key,
-	id_drug_dosage integer references drug_dosage (id), 
-	id_drug_units integer references drug_units (id),
+	id_dosage integer references drug_dosage (id), 
+	id_unit integer references drug_units (id),
 	id_component integer references drug_element (id), 
 	dosage_type char check (dosage_type in ('*', 'w', 's', 'a')),
 	dosage_start float,
@@ -444,9 +439,9 @@ comment on table link_drug_disease_interactions is
 
 create table product(
 	id serial primary key,
-	id_generic_drug integer references drug_element(id),
+	id_drug integer references drug_element(id),
 	id_formulation integer references drug_formulations(id),
-	packing_unit integer references drug_units(id),
+	id_packing_unit integer references drug_units(id),
 	id_route integer references drug_routes (id),
 	package_size float,
 	comment text
@@ -610,3 +605,4 @@ comment on table link_drug_indication is
 comment on column link_drug_indication.indication_code is
 'code of the disease/indication in the specified code system';
 comment on column link_drug_indication.line is 'the line (first-line, second-line) of this drug for this indication'; 
+
