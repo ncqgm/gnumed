@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.79 2004-10-11 19:54:38 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmEditArea.py,v 1.80 2004-12-15 22:00:12 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -111,9 +111,6 @@ PHX_OPERATION=wxNewId()
 PHX_CONFIDENTIAL=wxNewId()
 PHX_SIGNIFICANT=wxNewId()
 PHX_PROGRESSNOTES=wxNewId()
-
-wxID_BTN_OK = wxNewId()
-wxID_BTN_Clear = wxNewId()
 
 richards_blue = wxColour(0,0,131)
 richards_aqua = wxColour(0,194,197)
@@ -267,47 +264,27 @@ class cEditAreaField(wxTextCtrl):
 		wxTextCtrl.__init__(self,parent,id,"",pos, size ,wxSIMPLE_BORDER)
 		_decorate_editarea_field(self)
 #====================================================================
-#====================================================================
-
-class gmEditArea(wxPanel):
-	def __init__(self, parent, id, aType = None):
-		# sanity checks
-		if aType not in _known_edit_area_types:
-			_log.Log(gmLog.lErr, 'unknown edit area type: [%s]' % aType)
-			raise gmExceptions.ConstructorError, 'unknown edit area type: [%s]' % aType
-		self._type = aType
-
+class cEditArea(wxPanel):
+	def __init__(self, parent, id):
 		# init main background panel
 		wxPanel.__init__(self, parent, id, style = wxNO_BORDER | wxTAB_TRAVERSAL)
 		self.SetBackgroundColour(wxColor(222,222,222))
 
+		self.data = None
 		self.fields = {}
 		self.prompts = {}
+
+		self._wxID_BTN_OK = wxNewId()
+		self._wxID_BTN_Clear = wxNewId()
+
 		self.__do_layout()
 
-		self.input_fields = {}
-#		szr_prompts = self.__make_prompts(_prompt_defs[self._type])
-#		self.szr_editing_area = self.__make_editing_area()
-		# stack prompts and fields horizontally
-#		self.szr_main_panels = wxBoxSizer(wxHORIZONTAL)
-#		self.szr_main_panels.Add(szr_prompts, 11, wxEXPAND)
-#		self.szr_main_panels.Add(5, 0, 0, wxEXPAND)
-#		self.szr_main_panels.Add(self.szr_editing_area, 90, wxEXPAND)
+#		self.input_fields = {}
 
-		# use sizer for border around everything plus a little gap
-		# FIXME: fold into szr_main_panels ?
-#		self.szr_central_container = wxBoxSizer(wxHORIZONTAL)
-#		self.szr_central_container.Add(self.szr_main_panels, 1, wxEXPAND | wxALL, 5)
+#		self._postInit()
+#		self.old_data = {}
 
-#		self.SetSizer(self.szr_central_container)
-#		self.szr_central_container.Fit(self)
-#		self.SetAutoLayout(True)
-
-		self._postInit()
-		self.old_data = {} 
-
-		self.data = None
-		self.patient = gmPatient.gmCurrentPatient()
+		self._patient = gmPatient.gmCurrentPatient()
 		self.__register_events()
 		self.Show(True)
 	#----------------------------------------------------------------
@@ -334,9 +311,9 @@ class gmEditArea(wxPanel):
 		self.szr_central_container.Add(self.szr_main_panels, 1, wxEXPAND | wxALL, 5)
 
 		# and do the layouting
+		self.SetAutoLayout(True)
 		self.SetSizer(self.szr_central_container)
 		self.szr_central_container.Fit(self)
-		self.SetAutoLayout(True)
 	#----------------------------------------------------------------
 	def __generate_prompts(self):
 		if len(self.fields) != len(self.prompts):
@@ -397,7 +374,6 @@ class gmEditArea(wxPanel):
 		# put them on the panel
 		self.fields_pnl.SetSizer(vszr)
 		vszr.Fit(self.fields_pnl)
-		EVT_SIZE (self.fields_pnl, self.__on_resize_fields)
 
 		# make shadow below edit fields in gray
 		shadow_below_edit_fields = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
@@ -424,15 +400,6 @@ class gmEditArea(wxPanel):
 		hszr_edit_fields.Add(szr_shadow_rightof_edit_fields, 1, wxEXPAND)
 
 		return hszr_edit_fields
-	#----------------------------------------------------------------
-	def __on_resize_fields (self, event):
-		self.fields_pnl.Layout ()
-		# resize the prompts accordingly
-		for i in self.field_line_szr.keys():
-			# query the BoxSizer to find where the field line is
-			pos = self.field_line_szr[i].GetPosition ()
-			# and set the prompt lable to the same Y position
-			self.prompt_widget[i].SetPosition ((0, pos.y))
 	#---------------------------------------------------------------
 	def __make_prompt(self, parent, aLabel, aColor):
 		# FIXME: style for centering in vertical direction ?
@@ -448,9 +415,11 @@ class gmEditArea(wxPanel):
 	#----------------------------------------------------------------
 	# intra-class API
 	#----------------------------------------------------------------
-	def _add_prompt(self, line, label, color=richards_blue, weight=0):
-		"""
-		Add a new prompt line
+	def _add_prompt(self, line, label='missing label', color=richards_blue, weight=0):
+		"""Add a new prompt line.
+
+		To be used from _define_fields in child classes.
+
 		- label, the label text
 		- color
 		- weight, the weight given in sizing the various rows. 0 means the rwo
@@ -466,15 +435,21 @@ class gmEditArea(wxPanel):
 		self.fields[line][pos] = (widget, weight)
 	#----------------------------------------------------------------
 	def _define_fields(self, parent):
+		"""Defines the fields.
+
+		- override in child classes
+		- mostly uses _add_field()
+		"""
 		_log.Log(gmLog.lErr, 'missing override in [%s]' % self.__class__.__name__)
 	#----------------------------------------------------------------
 	def _define_prompts(self):
 		_log.Log(gmLog.lErr, 'missing override in [%s]' % self.__class__.__name__)
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self, parent):
-		self.btn_OK = wxButton(parent, wxID_BTN_OK, _("OK"))
+		"""Generates OK/CLEAR buttons for edit area."""
+		self.btn_OK = wxButton(parent, self._wxID_BTN_OK, _("OK"))
 		self.btn_OK.SetToolTipString(_('save entry into medical record'))
-		self.btn_Clear = wxButton(parent, wxID_BTN_Clear, _("Clear"))
+		self.btn_Clear = wxButton(parent, self._wxID_BTN_Clear, _("Clear"))
 		self.btn_Clear.SetToolTipString(_('initialize input fields for new entry'))
 
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
@@ -483,6 +458,110 @@ class gmEditArea(wxPanel):
 		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND | wxALL, 1)
 
 		return szr_buttons
+	#--------------------------------------------------------
+	def _pre_save_data(self):
+		pass
+	#--------------------------------------------------------
+	def _save_data(self):
+		_log.Log(gmLog.lErr, '[%s] programmer forgot to define _save_data()' % self.__class__.__name__)
+		_log.Log(gmLog.lInfo, 'child classes of cEditArea *must* override this function')
+		return False
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_events(self):
+		# connect standard buttons
+		EVT_BUTTON(self.btn_OK, self._wxID_BTN_OK, self._on_OK_btn_pressed)
+		EVT_BUTTON(self.btn_Clear, self._wxID_BTN_Clear, self._on_clear_btn_pressed)
+
+		EVT_SIZE (self.fields_pnl, self._on_resize_fields)
+
+		# client internal signals
+		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
+		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
+		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
+
+		return 1
+	#--------------------------------------------------------
+	# handlers
+	#--------------------------------------------------------
+	def _on_OK_btn_pressed(self, event):
+		# FIXME: this try: except: block seems to large
+		try:
+			event.Skip()
+			if self.data is None:
+				self._save_new_entry()
+				self.set_data()
+			else:
+				self._save_modified_entry()
+				self.set_data()
+		except gmExceptions.InvalidInputError, err:
+			# nasty evil popup dialogue box
+			# but for invalid input we want to interrupt user
+			try:
+				gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
+			except:
+				_log.LogException ('', sys.exc_info (), verbose = 0)
+		except:
+			gmLog.gmDefLog.LogException( "save data  problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
+	#--------------------------------------------------------
+	def _on_clear_btn_pressed(self, event):
+		# FIXME: check for unsaved data
+		self.set_data()
+		event.Skip()
+	#--------------------------------------------------------
+	def on_patient_selected( self, **kwds):
+		# remember to use wxCallAfter()
+		self.set_data()
+	#--------------------------------------------------------
+	def _on_application_closing(self, **kwds):
+		# remember wxCallAfter
+		if not self._patient.is_connected():
+			return True
+		if self._save_data():
+			return True
+		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
+		return False
+	#--------------------------------------------------------
+	def _on_activating_patient(self, **kwds):
+		# remember wxCallAfter
+		if not self._patient.is_connected():
+			return True
+		if self._save_data():
+			return True
+		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
+		return False
+	#--------------------------------------------------------
+	def _on_resize_fields (self, event):
+		self.fields_pnl.Layout()
+		# resize the prompts accordingly
+		for i in self.field_line_szr.keys():
+			# query the BoxSizer to find where the field line is
+			pos = self.field_line_szr[i].GetPosition()
+			# and set the prompt lable to the same Y position
+			self.prompt_widget[i].SetPosition((0, pos.y))
+#====================================================================
+class gmEditArea(cEditArea):
+	def __init__(self, parent, id, aType = None):
+		# sanity checks
+		if aType not in _known_edit_area_types:
+			_log.Log(gmLog.lErr, 'unknown edit area type: [%s]' % aType)
+			raise gmExceptions.ConstructorError, 'unknown edit area type: [%s]' % aType
+		self._type = aType
+
+		# init main background panel
+		cEditArea.__init__(self, parent, id)
+
+		self.input_fields = {}
+
+		self._postInit()
+		self.old_data = {}
+
+		self._patient = gmPatient.gmCurrentPatient()
+		self.Show(True)
+	#----------------------------------------------------------------
+	# internal helpers
+	#----------------------------------------------------------------
 	#----------------------------------------------------------------
 	# to be obsoleted
 	#----------------------------------------------------------------
@@ -579,120 +658,9 @@ class gmEditArea(wxPanel):
 		hszr_edit_fields.Add(szr_shadow_rightof_edit_fields, 1, wxEXPAND)
 
 		return hszr_edit_fields
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_events(self):
-		# connect standard buttons
-		EVT_BUTTON(self.btn_OK, wxID_BTN_OK, self._on_OK_btn_pressed)
-		EVT_BUTTON(self.btn_Clear, wxID_BTN_Clear, self._on_clear_btn_pressed)
-		#self._register_dirty_editarea_listener()
 
-		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._check_unsaved_data)
-		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._check_unsaved_data)
-		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
-
-		return 1
-	#--------------------------------------------------------
-	# handlers
-	#--------------------------------------------------------
-	def _on_OK_btn_pressed(self, event):
-		# FIXME: this try: except: block seems to large
-		try:
-			event.Skip()
-			if self.data is None:
-				self._save_new_entry()
-				self.set_data()
-			else:
-				self._save_modified_entry()
-				self.set_data()
-		except gmExceptions.InvalidInputError, err:
-			# nasty evil popup dialogue box
-			# but for invalid input we want to interrupt user
-			try:
-				gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
-			except:
-				_log.LogException ('', sys.exc_info (), verbose = 0)
-		except:
-			gmLog.gmDefLog.LogException( "save data  problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
-	#--------------------------------------------------------
-	def _on_clear_btn_pressed(self, event):
-		# FIXME: check for unsaved data
-		self.set_data()
-		event.Skip()
-	#--------------------------------------------------------
-	def on_patient_selected( self, **kwds):
-		# - check if patient is connected
-		# - check if we've got data to save
-		# - save it
-		# remember to use wxCallAfter()
-		self.set_data()
-
-
-
-
-#-------NOT USED , obsolete dirty check mechanism
-#-------------------------------------------------------------------------------------------------------------
-
-	def _register_dirty_editarea_listener(self):   # a different way of check dirty is to save the input field values
-		self.monitoring_dirty = 1
-		import inspect
-		for k, widget in self.input_fields.items():
-			#classes = inspect.getmro(widget)  # doesn't work because wx classes doesn't use mro scheme.
-			
-			#for c in classes:
-			#	if c.__name__ == 'wxTextCtrl':
-
-			if widget.__class__.__name__ in ['wxTextCtrl', 'cEditAreaField']:
-					EVT_TEXT( widget, widget.GetId(), self._mark_dirty)
-			if widget.__class__.__name__ in ['wxRadioButton']:
-					EVT_RADIOBUTTON(widget, widget.GetId(), self._mark_dirty)
-			if widget.__class__.__name__ in ['wxCheckBox' ]:
-					EVT_CHECKBOX(widget, widget.GetId(), self._mark_dirty)
-
-			
-	
-	def _mark_dirty(self, event):
-		event.Skip()
-		if self.monitoring_dirty:
-			self.dirty = 1
-		else:
-			pass
-
-#----------DIRTY DATA CHECK: checks original loaded data with current input values , and sets dirty if any changes
-#----------------------------------------------------------------------------------------------------------------------			
-
-	def _check_unsaved_data(self, **kwds):
-		# remember wxCallAfter
-		if not self.patient.is_connected():
-			return 1
-		try:
-			self._pre_save_data()
-			self._init_fields()
-		except StandardError:
-			_log.LogException('[%s] lossage' % self.__class__.__name__, sys.exc_info(), verbose=0)
-			return None
-		return 1
-
-	def _pre_save_data(self):
-		#if not self.__dict__.has_key('dirty') or self.dirty == 0:
-		if not self.is_dirty():
-			return
-		self._save_data()
-
-	
 	def set_old_data( self, map):
 		self.old_data = map
-	
-	def is_dirty(self):
-		map = self.getInputFieldValues()
-		dirty = 0
-		for k,v in map.items():
-			if self.old_data.get(k, None) <>  v:
-				dirty = 1
-				break
-		return dirty	
 
 	def _default_init_fields(self):
 		#self.dirty = 0  #this flag is for patient_activating event to save any unsaved entries
@@ -712,13 +680,6 @@ class gmEditArea(wxPanel):
 	#	_log.Log(gmLog.lErr, 'programmer forgot to define _init_fields() for [%s]' % self._type)
 	#	_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 	#	raise AttributeError
-	
-	#--------------------------------------------------------
-	
-	def _save_data(self):
-		_log.Log(gmLog.lErr, 'programmer forgot to define _save_data() for [%s] (%s)' % (self._type, self.__class__.__name__))
-		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
-		raise AttributeError
 #-------------------------------------------------------------------------------------------------------------
 	def _updateUI(self):
 		_log.Log(gmLog.lWarn, "you may want to override _updateUI for [%s]" % self.__class__.__name__)
@@ -913,12 +874,9 @@ class gmFamilyHxEditArea(gmEditArea):
 
 #====================================================================
 class gmPastHistoryEditArea(gmEditArea):
+
 	def __init__(self, parent, id):
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'past history')
-		except gmExceptions.ConstructorError:
-			_log.LogExceptions('cannot instantiate past Hx edit area', sys.exc_info())
-			raise
+		gmEditArea.__init__(self, parent, id, aType = 'past history')
 
 	def _define_prompts(self):
 		self._add_prompt(line = 1, label = _("When Noted"))
@@ -928,7 +886,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		self._add_prompt(line = 6, label = _("Status"))
 		self._add_prompt(line = 7, label = _("Progress Note"))
 		self._add_prompt(line = 8, label = '')
-
+	#--------------------------------------------------------
 	def _define_fields(self, parent):
 		# line 1
 		self.fld_date_noted = gmDateTimeInput.gmDateInput(
@@ -1043,13 +1001,13 @@ class gmPastHistoryEditArea(gmEditArea):
 			widget = self._make_standard_buttons(parent),
 			weight = 2
 		)
-
+	#--------------------------------------------------------
 	def  _postInit(self):
 		return
 		#handling of auto age or year filling.
 		EVT_KILL_FOCUS( self.fld_age_noted, self._ageKillFocus)
 		EVT_KILL_FOCUS( self.fld_date_noted, self._yearKillFocus)
-
+	#--------------------------------------------------------
 	def _ageKillFocus( self, event):	
 		# skip first, else later failure later in block causes widget to be unfocusable
 		event.Skip()	
@@ -1061,7 +1019,7 @@ class gmPastHistoryEditArea(gmEditArea):
 
 	def _getBirthYear(self):
 		try:
-			birthyear = int(str(self.patient.get_demographic_record().getDOB()).split('-')[0]) 
+			birthyear = int(str(self._patient.get_demographic_record().getDOB()).split('-')[0]) 
 		except:
 			birthyear = time.localtime()[0]
 		
@@ -1094,7 +1052,7 @@ class gmPastHistoryEditArea(gmEditArea):
 
 	def _getDefaultAge(self):
 		try:
-			return	time.localtime()[0] - self.patient.get_demographic_record().getBirthYear()
+			return	time.localtime()[0] - self._patient.get_demographic_record().getBirthYear()
 		except:
 			return 0
 
@@ -1105,7 +1063,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		
 		
 	def _save_data(self):
-		clinical = self.patient.get_clinical_record().get_past_history()
+		clinical = self._patient.get_clinical_record().get_past_history()
 		if self.getDataId() is None:
 			id = clinical.create_history( self.get_fields_formatting_values() )
 			self.setDataId(id)
@@ -1238,15 +1196,15 @@ class gmReferralEditArea(gmEditArea):
 		We are always saving a "new entry" here because data_ID is always None
 		"""
 		if not self.recipient:
-			raise gmExceptions.InvalidInputError (_('must have a recipient'))
-		if self.fld_address.GetSelection () == -1:
-			raise gmExceptions.InvalidInputError (_('must select address'))
-		channel, addr = self.fld_address.GetClientData (self.fld_address.GetSelection ())
-		text = self.fld_text.GetValue ()
+			raise gmExceptions.InvalidInputError(_('must have a recipient'))
+		if self.fld_address.GetSelection() == -1:
+			raise gmExceptions.InvalidInputError(_('must select address'))
+		channel, addr = self.fld_address.GetClientData (self.fld_address.GetSelection())
+		text = self.fld_text.GetValue()
 		flags = {}
-		flags['meds'] = self.fld_med.GetValue ()
-		flags['pasthx'] = self.fld_past.GetValue ()
-		if not gmReferral.create_referral (self.patient, self.recipient, channel, addr, text, flags):
+		flags['meds'] = self.fld_med.GetValue()
+		flags['pasthx'] = self.fld_past.GetValue()
+		if not gmReferral.create_referral (self._patient, self.recipient, channel, addr, text, flags):
 			raise gmExceptions.InvalidInputError('error sending form')
 
 #====================================================================
@@ -2002,18 +1960,47 @@ class EditArea(wxPanel):
 # main
 #--------------------------------------------------------------------
 if __name__ == "__main__":
+
+	#================================================================
+	class cTestEditArea(cEditArea):
+		def __init__(self, parent):
+			cEditArea.__init__(self, parent, -1)
+		def _define_prompts(self):
+			self._add_prompt(line=1, label='line 1')
+			self._add_prompt(line=2, label='buttons')
+		def _define_fields(self, parent):
+			# line 1
+			self.fld_substance = cEditAreaField(parent)
+			self._add_field(
+				line = 1,
+				pos = 1,
+				widget = self.fld_substance,
+				weight = 1
+			)
+			# line 2
+			self._add_field(
+				line = 2,
+				pos = 1,
+				widget = self._make_standard_buttons(parent),
+				weight = 1
+			)
+	#================================================================
 	app = wxPyWidgetTester(size = (400, 200))
-	app.SetWidget(gmVaccinationEditArea, -1)
+	app.SetWidget(cTestEditArea)
 	app.MainLoop()
 #	app = wxPyWidgetTester(size = (400, 200))
 #	app.SetWidget(gmFamilyHxEditArea, -1)
 #	app.MainLoop()
-	app = wxPyWidgetTester(size = (400, 200))
-	app.SetWidget(gmPastHistoryEditArea, -1)
-	app.MainLoop()
+#	app = wxPyWidgetTester(size = (400, 200))
+#	app.SetWidget(gmPastHistoryEditArea, -1)
+#	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.79  2004-10-11 19:54:38  ncq
+# Revision 1.80  2004-12-15 22:00:12  ncq
+# - cleaned up/improved version of edit area
+# - old version still works and emits a conversion incentive
+#
+# Revision 1.79  2004/10/11 19:54:38  ncq
 # - cleanup
 #
 # Revision 1.78  2004/07/18 20:30:53  ncq
