@@ -4,8 +4,8 @@ from wxPython.wx import *
 
 from gmGuiBroker import *
 class gmSelectPerson_handler_impl( gmSelectPerson_handler):
-	def __init__(self, panel = None):
-		gmSelectPerson_handler.__init__(self,panel)
+	def __init__(self, panel = None , model = None):
+		gmSelectPerson_handler.__init__(self,panel, model)
 		#self.set_impl( self)
 
 	def buttonSelect_button_clicked( self, event):
