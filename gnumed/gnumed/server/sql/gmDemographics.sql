@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.38 $
+-- $Revision: 1.39 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -337,7 +337,7 @@ comment on column names.preferred IS
 	'preferred first name, the name a person is usually called (nickname)';
 
 -- ==========================================================
-create table lnk_identity2comm_channel (
+create table lnk_identity2comm (
 	id serial primary key,
 	id_identity integer not null
 		references identity(id)
@@ -502,7 +502,7 @@ create table org (
 );
 
 -- ====================================================================
-create table lnk_org2comm_channel (
+create table lnk_org2comm (
 	id serial primary key,
 	id_org integer not null
 		references org(id)
@@ -530,14 +530,19 @@ create table lnk_org2ext_id (
 -- homologous to data_links in Richard's schema
 create table lnk_person_org_address (
 	id serial primary key,
-	id_identity integer references identity (id),
-	id_address integer references address (id),
-	id_type integer references address_type (id) default 1,
+	id_identity integer
+		references identity(id),
+	id_address integer
+		references address(id),
+	id_type integer
+		default 1
+		references address_type (id),
 	address_source text,
-	id_org integer references org (id),
+	id_org integer
+		references org (id),
 	unique(id_identity, id_address),
-	unique(id_org, id_address),
-	unique(id_identity, id_org, id_occupation)
+	unique(id_org, id_address)
+--	, unique(id_identity, id_org, id_occupation)
 );
 
 COMMENT ON TABLE lnk_person_org_address IS
@@ -559,11 +564,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.38 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.39 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.38  2004-12-20 19:04:37  ncq
+-- Revision 1.39  2004-12-21 09:59:40  ncq
+-- - comm_channel -> comm else too long on server < 7.3
+--
+-- Revision 1.38  2004/12/20 19:04:37  ncq
 -- - fixes by Ian while overhauling the demographics API
 --
 -- Revision 1.37  2004/12/15 09:33:16  ncq

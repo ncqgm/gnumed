@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -37,8 +37,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	address_info_id_seq,
 	lnk_person_org_address,
 	lnk_person_org_address_id_seq,
-	lnk_identity2comm_channel,
-	lnk_identity2comm_channel_id_seq,
+	lnk_identity2comm,
+	lnk_identity2comm_id_seq,
 	relation_types,
 	lnk_person2relative,
 	lnk_person2relative_id_seq,
@@ -49,8 +49,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	org_category,
 	org,
 	org_id_seq,
-	lnk_org2comm_channel,
-	lnk_org2comm_channel_id_seq,
+	lnk_org2comm,
+	lnk_org2comm_id_seq,
 	staff_role,
 	staff,
 	marital_status
@@ -58,7 +58,10 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.6  2004-12-20 19:04:37  ncq
+-- Revision 1.7  2004-12-21 09:59:40  ncq
+-- - comm_channel -> comm else too long on server < 7.3
+--
+-- Revision 1.6  2004/12/20 19:04:37  ncq
 -- - fixes by Ian while overhauling the demographics API
 --
 -- Revision 1.5  2004/07/20 07:12:16  ncq

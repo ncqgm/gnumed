@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.26 2004-12-20 19:04:37 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.27 2004-12-21 09:59:40 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -288,11 +288,11 @@ select distinct on (id_identity)
 	v4.url as workphone,
 	v5.url as mobile
 from
-	lnk_identity2comm_channel v1,
-	lnk_identity2comm_channel v2,
-	lnk_identity2comm_channel v3,
-	lnk_identity2comm_channel v4,
-	lnk_identity2comm_channel v5
+	lnk_identity2comm v1,
+	lnk_identity2comm v2,
+	lnk_identity2comm v3,
+	lnk_identity2comm v4,
+	lnk_identity2comm v5
 where
 	v1.id_identity = v2.id_identity
 	and v2.id_identity = v3.id_identity
@@ -330,11 +330,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.26 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.27 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.26  2004-12-20 19:04:37  ncq
+-- Revision 1.27  2004-12-21 09:59:40  ncq
+-- - comm_channel -> comm else too long on server < 7.3
+--
+-- Revision 1.26  2004/12/20 19:04:37  ncq
 -- - fixes by Ian while overhauling the demographics API
 --
 -- Revision 1.25  2004/12/15 09:30:48  ncq
