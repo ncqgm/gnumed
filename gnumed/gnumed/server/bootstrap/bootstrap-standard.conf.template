@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.16 $
+version = $Revision: 1.17 $
 
 #----------------------------------
 [installation]
@@ -103,6 +103,7 @@ sql/gmAudit.sql
 sql/gmCrossDB_FKs.sql
 sql/gmCrossDB_FK-views.sql
 sql/gmScoring.sql
+sql/gmNotifications.sql
 $schema$
 
 
@@ -258,7 +259,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.16  2003-11-02 12:48:55  ncq
+# Revision 1.17  2003-11-28 08:49:40  ncq
+# - add gmNotifications.sql
+#
+# Revision 1.16  2003/11/02 12:48:55  ncq
 # - add schema base directory option to config files
 # - hence we don't need the sql link anymore
 #
