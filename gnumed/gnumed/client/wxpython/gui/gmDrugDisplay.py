@@ -40,10 +40,7 @@ from wxPython.stc import *
 from wxPython.html import *
 import wxPython.lib.wxpTag
 import string
-import gettext
-_ = gettext.gettext
 from wxPython.lib.splashscreen import SplashScreen
-import gmPG, gmGuiBroker
 import keyword
 import time
 import pg
@@ -79,6 +76,11 @@ ID_BUTTON_DISPLAY = wxNewId()
 ID_BUTTON_PRINT = wxNewId()
 ID_BUTTON_BOOKMARK = wxNewId()
 
+MODE_BRAND = 0
+MODE_GENERIC = 1
+MODE_INDICATION = 2
+MODE_ANY = 3
+
 #=============================================================================
 # The frame is the window which pops up and contains the whole demo. Here I
 # have called if MyFrame, but you can call it what you want. Note that it has
@@ -93,6 +95,7 @@ class DrugDisplay(wxPanel):
 		style = wxTAB_TRAVERSAL ):
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		self.mancode = None
+		self.mode = MODE_BRAND
 		self.printer = wxHtmlEasyPrinting()          #printer object to print html page
 		#-------------------------------------------------------------
 		# These things build the physical window that you see when
@@ -131,8 +134,14 @@ class DrugDisplay(wxPanel):
 		EVT_BUTTON(self,ID_BUTTON_BOOKMARK, self.OnBookmark)
 #-----------------------------------------------------------------------------------------------------------------------
 	def OnDrugChoiceDblClick(self,event):
-		print self.listbox_drugchoice.GetString(self.listbox_drugchoice.GetSelection())
-		self.comboProduct.SetValue(self.listbox_drugchoice.GetString(self.listbox_drugchoice.GetSelection()).strip ())
+		mode, code = self.listbox_drugchoice.GetClientData (self.listbox_drugchoice.GetSelection ())
+		if mode == MODE_BRAND:
+			self.ToggleWidget ()
+			self.Display_PI (code)
+		elif mode == MODE_GENERIC:
+			self.Display_Generic (code)
+		elif mode == MODE_INDICATION:
+			pass
 		return
 	
 	def GetDrugIssue(self):
@@ -154,12 +163,12 @@ class DrugDisplay(wxPanel):
 		# 1)create the label 'Find' and the combo box the
 		#   user will type the name of drug into
 		#--------------------------------------------------
-		finddrug = wxStaticText( self, -1, "   Find   ", wxDefaultPosition, wxDefaultSize, 0 )
+		finddrug = wxStaticText( self, -1, _("   Find   "), wxDefaultPosition, wxDefaultSize, 0 )
 		finddrug.SetFont( wxFont( 14, wxSWISS, wxNORMAL, wxNORMAL ) )
 		self.comboProduct = wxComboBox( self, ID_COMBO_PRODUCT, "", wxDefaultPosition, wxSize(130,-1),
 			["Tenormin","Inderal"] , wxCB_DROPDOWN )
-		self.comboProduct.SetToolTip( wxToolTip("Enter the name of the drug you are interested in") )
-		self.btnBookmark = wxButton( self, ID_BUTTON_BOOKMARK, "&Bookmark", wxDefaultPosition, wxDefaultSize, 0 )
+		self.comboProduct.SetToolTip( wxToolTip(_("Enter the name of the drug you are interested in")) )
+		self.btnBookmark = wxButton( self, ID_BUTTON_BOOKMARK, _("&Bookmark"), wxDefaultPosition, wxDefaultSize, 0 )
 		#-----------------------------------------------------------
 		# create a sizer at topleft of screen to hold these controls
 		# and add them to it
@@ -186,16 +195,16 @@ class DrugDisplay(wxPanel):
 		# 2) add this to the sizerSearchBy sizer
 		# 3) Add four radio buttons to this sizer
 		#------------------------------------------------------------------------
-		sboxSearchBy = wxStaticBox( self, -1, "Search by" )
+		sboxSearchBy = wxStaticBox( self, -1, _("Search by") )
 		self.sizerSearchBy = wxStaticBoxSizer( sboxSearchBy, wxVERTICAL )
 		sboxSearchBy.SetFont( wxFont( 10, wxSWISS, wxNORMAL, wxNORMAL ) )
-		self.rbtnSearchAny = wxRadioButton( self, ID_RADIOBUTTON_BYANY, "Any", wxDefaultPosition, wxDefaultSize, 0 )
+		self.rbtnSearchAny = wxRadioButton( self, ID_RADIOBUTTON_BYANY, _("Any"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerSearchBy.AddWindow( self.rbtnSearchAny, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
-		self.rbtnSearchBrand = wxRadioButton( self, ID_RADIOBUTTON_BYBRAND, "Brand name", wxDefaultPosition, wxDefaultSize, 0 )
+		self.rbtnSearchBrand = wxRadioButton( self, ID_RADIOBUTTON_BYBRAND, _("Brand name"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerSearchBy.AddWindow( self.rbtnSearchBrand, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP, 1 )
-		self.rbtnSearchGeneric = wxRadioButton( self, ID_RADIOBUTTON_BYGENERIC, "Generic name", wxDefaultPosition, wxDefaultSize, 0 )
+		self.rbtnSearchGeneric = wxRadioButton( self, ID_RADIOBUTTON_BYGENERIC, _("Generic name"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerSearchBy.AddWindow( self.rbtnSearchGeneric, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
-		self.rbtnSearchIndication = wxRadioButton( self, ID_RADIOBUTTON_BYINDICATION, "Indication", wxDefaultPosition, wxDefaultSize, 0 )
+		self.rbtnSearchIndication = wxRadioButton( self, ID_RADIOBUTTON_BYINDICATION, _("Indication"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerSearchBy.AddWindow( self.rbtnSearchIndication, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
 		#-------------------------------------------------------------------------
 		# and the right hand side vertical side bar sizer
@@ -214,18 +223,18 @@ class DrugDisplay(wxPanel):
 		#    mimsannual text and add to the vertical side bar
 		#--------------------------------------------------------------------------
 		self.listbox_jumpto = wxListBox( self, ID_LISTBOX_JUMPTO, wxDefaultPosition, wxSize(150,100),
-			["Actions", "Adverse reactions","Composition","Contraindications","Description",
-			"Dose & administration", "Indications", "Interactions", "Precautions", "Presentation",  "Storage"] , wxLB_SINGLE )
+			[_("Actions"), _("Adverse reactions"),_("Composition"),_("Contraindications"),_("Description"),
+			_("Dose & administration"), _("Indications"), _("Interactions"), _("Precautions"), _("Presentation"),  _("Storage")] , wxLB_SINGLE )
 		self.sizerVInteractionSidebar.AddWindow( self.listbox_jumpto, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 10 )
 		#--------------------------------------------------------------------------
 		# 5) Add another spacer underneath this listbox
 		#--------------------------------------------------------------------------
 		self.sizerVInteractionSidebar.AddSpacer( 20, 10, 0, wxALIGN_CENTRE|wxALL, 1 )
-		self.btnPrescribe = wxButton( self, ID_BUTTON_PRESCRIBE, "&Prescribe", wxDefaultPosition, wxDefaultSize, 0 )
+		self.btnPrescribe = wxButton( self, ID_BUTTON_PRESCRIBE, _("&Prescribe"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerVInteractionSidebar.AddWindow( self.btnPrescribe, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
-		self.btnDisplay = wxButton( self, ID_BUTTON_DISPLAY, "&Display", wxDefaultPosition, wxDefaultSize, 0 )
+		self.btnDisplay = wxButton( self, ID_BUTTON_DISPLAY, _("&Display"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerVInteractionSidebar.AddWindow( self.btnDisplay, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
-		self.btnPrint = wxButton( self, ID_BUTTON_PRINT, "&Print", wxDefaultPosition, wxDefaultSize, 0 )
+		self.btnPrint = wxButton( self, ID_BUTTON_PRINT, _("&Print"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerVInteractionSidebar.AddWindow( self.btnPrint, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
 		#-----------------------------------------------
 		# finally create the main sizer to hold the rest
@@ -244,27 +253,30 @@ class DrugDisplay(wxPanel):
 	# methods for DrugDisplay
 	#--------------------------------
 	def OnBookmark(self,event):
-		self.listbox_drugchoice.Clear()
-		print 'starting to find brandname'
-		drugtofind = self.comboProduct.GetValue()
-		querytext = "select product, mancode from manxxdat where lower(product) like '" + drugtofind + "%'"  + " order by product ASC"
-		print drugtofind
-		query = self.db.query(querytext)
-		result = query.getresult()
-		for row in result:
-			insertstring =''
-			column = 0
-			for field in row:
-				insertstring = str(field)
-				if column == 0:
-					self.listbox_drugchoice.Append(insertstring+'\n')
-				elif column == 1:
-					self.mancode = field
-					print self.mancode
-				column = column + 1
-		#self.Display_PI()
+		pass
 	
-		return true
+	def Display_Generic (self, gencode):
+		#pdb.set_trace ()
+		querytext = "select manxxdat.product, manxxdat.mancode from manxxdat, gmman where gmman.gencode=%d and gmman.mancode = manxxdat.mancode" % gencode
+		query = self.db.query (querytext)
+		result = query.getresult ()
+		# one brand, so display PI
+		#pdb.set_trace ()
+		if len (result) == 1:
+			if self.whichWidget == 'listbox_drugchoice':
+				self.ToggleWidget ()
+			self.Display_PI (result[0][1])
+		else:
+			# multiple brands, display list
+			if self.whichWidget == 'html_viewer':
+				self.ToggleWidget ()
+			row_no = 0
+			self.listbox_drugchoice.Clear ()
+			for row in result:
+				self.listbox_drugchoice.Append (row[0] + '\n')
+				self.listbox_drugchoice.SetClientData (row_no, (MODE_BRAND, row[1])) # set data as type and database ID
+				row_no += 1
+					
 	
 #-----------------------------------------------------------------------------------------------------------------------------
 	def Drug_Find(self):
@@ -272,31 +284,52 @@ class DrugDisplay(wxPanel):
 		# using text in listbox_drugchoice find any similar drugs
 		#--------------------------------------------------------
 		
-		print 'starting to find brandname'
 		drugtofind = string.lower(self.comboProduct.GetValue())
-		querytext = "select product, mancode from manxxdat where lower(product) like '" + drugtofind + "%'"  + " order by product ASC"
-		print drugtofind
-		query = self.db.query(querytext)
-		result = query.getresult()
+		#pdb.set_trace ()
+		result = []
+		if self.mode == MODE_BRAND or self.mode == MODE_ANY:
+			querytext = "select %d, product, mancode from manxxdat where lower(product) like '%s%%' order by product ASC" % (MODE_BRAND, drugtofind)
+			query = self.db.query(querytext)
+			result.extend (query.getresult())
+		if self.mode == MODE_GENERIC or self.mode == MODE_ANY:
+			querytext = "select %d, tfgeneric, gencode from genman where lower (tfgeneric) like '%s%%' order by tfgeneric ASC" % (MODE_GENERIC, drugtofind)
+			query = self.db.query(querytext)
+			result.extend(query.getresult ())
+		if self.mode == MODE_INDICATION or self.mode == MODE_ANY:
+			# it is not obvious how to do this!
+			pass
 		if len (result) == 0:
 			if self.whichWidget == 'html_viewer':
 				self.ToggleWidget ()
 			self.listbox_drugchoice.Clear ()
 			self.listbox_drugchoice.Append ('No matching drugs funod!')
 		elif len (result) == 1:
-			if self.whichWidget == 'listbox_drugchoice':
-				self.ToggleWidget ()
-				self.Display_PI (result[0][0], result[0][1])
-				self.olddrug = result[0][1]
-			elif self.olddrug <> result[0][1]: # don't change unless different drug
-				self.Display_PI (result[0][0], result[0][1])
-				self.olddrug = result[0][1]
+			type = result[0][0]
+			name = result[0][1]
+			code = result[0][2]
+			if type == MODE_BRAND:
+				if self.whichWidget == 'listbox_drugchoice':
+					self.ToggleWidget ()
+					self.Display_PI (code)
+				elif self.mancode <> code: # don't change unless different drug
+					self.Display_PI (code)
+					self.mancode = code
+			elif type == MODE_GENERIC:
+				# find brands for this generic
+				self.Display_Generic (code)
+			elif type == MODE_INDICATION:
+				pass
+
+		# have more than one result
 		else:
 			if self.whichWidget == 'html_viewer':
 				self.ToggleWidget ()
 			self.listbox_drugchoice.Clear ()
+			row_no = 0
 			for row in result:
-				self.listbox_drugchoice.Append (row[0] + '\n')
+				self.listbox_drugchoice.Append (row[1] + '\n')
+				self.listbox_drugchoice.SetClientData (row_no, (row[0], row[2])) # set data as type and datbase ID
+				row_no += 1
 		return true
 #---------------------------------------------------------------------------------------------------------------------------
 	def ToggleWidget(self):
@@ -328,7 +361,7 @@ class DrugDisplay(wxPanel):
 	
 #-----------------------------------------------------------------------------------------------------------------------------
 
-	def Display_PI(self, drugname, mancode):
+	def Display_PI(self, mancode):
 		#-----------------------------------------------------------------
 		# Queries MimsAnnual database using the mancode to get all the
 		# fields needed to format a HTML output of the product information
@@ -346,7 +379,8 @@ class DrugDisplay(wxPanel):
 		#self.comboProduct.Append(drugname)
 		# this is to stop recursion!
 		self.inDisplay_PI = 1
-		self.comboProduct.SetValue(drugname.strip ())
+		self.mancode = mancode
+		self.comboProduct.SetValue(result[0]['product'])
 		self.inDisplay_PI = 0
 		#pdb.set_trace ()
 		#----------------------------------------------------------------------
@@ -463,16 +497,16 @@ class DrugDisplay(wxPanel):
 		pass
 
 	def OnSearchByIndication(self, event):
-		pass
+		self.mode = MODE_INDICATION
 
 	def OnSearchByGeneric(self, event):
-		pass
+		self.mode = MODE_GENERIC
 
 	def OnSearchByBrand(self, event):
-		pass
+		self.mode = MODE_BRAND
 
 	def OnSearchByAny(self, event):
-		pass
+		self.mode = MODE_ANY
 
 	# Rewrote this
 	def OnProductKeyPressed(self, event):
@@ -497,11 +531,22 @@ class DrugDisplay(wxPanel):
 		event.Skip(true)
 
 
+#==================================================
+
+if __name__ == "__main__":
+	_ = lambda x:x
+	app = wxPyWidgetTester(size = (400, 300))
+	app.SetWidget(DrugDisplay, -1)
+	app.MainLoop()
+
+
 #=================================================
 
 # make this into GNUMed plugin
 
 import gmPlugin
+import gmPG
+import gmI18N
 
 class gmDrugDisplay (gmPlugin.wxNotebookPlugin):
 
@@ -515,12 +560,7 @@ class gmDrugDisplay (gmPlugin.wxNotebookPlugin):
 		return DrugDisplay (parent, -1)
 
 
-#==================================================
 
-if __name__ == "__main__":
-	app = wxPyWidgetTester(size = (400, 300))
-	app.SetWidget(DrugDisplay, -1)
-	app.MainLoop()
 
 
 
