@@ -117,9 +117,9 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
 
         jPanel3.setLayout(new java.awt.GridBagLayout());
 
-        commencedSpinner1.setBorder(new javax.swing.border.TitledBorder(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("date_commenced_label")));
+        commencedSpinner1.setBorder(new javax.swing.border.TitledBorder(java.util.ResourceBundle.getBundle("SummaryTerms").getString("date_commenced_label")));
         commencedSpinner1.setModel(commencedSpinner1.getModel());
-        commencedSpinner1.setName(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("date_commenced_label"));
+        commencedSpinner1.setName(java.util.ResourceBundle.getBundle("SummaryTerms").getString("date_commenced_label"));
         commencedSpinner1.setPreferredSize(new java.awt.Dimension(15, 17));
         commencedSpinner1.setModel( new javax.swing.SpinnerDateModel());
         commencedSpinner1.setEditor( new javax.swing.JSpinner.DateEditor(commencedSpinner1, "dd/MM/yyyy"));
@@ -133,7 +133,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jPanel3.add(commencedSpinner1, gridBagConstraints);
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 18));
-        jLabel1.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("title_health_summary"));
+        jLabel1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("title_health_summary"));
         jLabel1.setPreferredSize(new java.awt.Dimension(15, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -145,7 +145,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
 
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
-        jLabel2.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("Category_label"));
+        jLabel2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("Category_label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         jPanel4.add(jLabel2, gridBagConstraints);
@@ -158,7 +158,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jLabel3.setDisplayedMnemonic('E');
         jLabel3.setFont(new java.awt.Font("Dialog", 0, 10));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel3.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("expiry_date"));
+        jLabel3.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("expiry_date"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -166,7 +166,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jPanel4.add(jLabel3, gridBagConstraints);
 
         jLabel4.setLabelFor(medicareField);
-        jLabel4.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("medicare"));
+        jLabel4.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("medicare"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         jPanel4.add(jLabel4, gridBagConstraints);
@@ -201,7 +201,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.ipadx = -30;
         jPanel4.add(medicareExpField, gridBagConstraints);
 
-        jLabel5.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("pen_dva"));
+        jLabel5.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("pen_dva"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         jPanel4.add(jLabel5, gridBagConstraints);
@@ -224,7 +224,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.ipadx = -30;
         jPanel4.add(pensionerExpField, gridBagConstraints);
 
-        jLabel6.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("health_care_card"));
+        jLabel6.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("health_care_card"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         jPanel4.add(jLabel6, gridBagConstraints);
@@ -247,7 +247,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.ipadx = -30;
         jPanel4.add(hccExpField8, gridBagConstraints);
 
-        jLabel7.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("health_fund"));
+        jLabel7.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("health_fund"));
         jPanel4.add(jLabel7, new java.awt.GridBagConstraints());
 
         fundComboBox1.setEditable(true);
@@ -264,7 +264,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
 
         jPanel5.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(1, 1, 1, 1)));
         surnameField.setText("jTextField5");
-        surnameField.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms2").getString("surname"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 10)));
+        surnameField.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms").getString("surname"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 10)));
         surnameField.setName("surname");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -276,7 +276,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jPanel5.add(surnameField, gridBagConstraints);
 
         recordNoField.setText("jTextField8");
-        recordNoField.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms2").getString("record_no"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 10)));
+        recordNoField.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms").getString("record_no"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 10)));
         recordNoField.setName("recordNumber");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
@@ -287,7 +287,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jPanel5.add(recordNoField, gridBagConstraints);
 
         givenNameField.setText("jTextField9");
-        givenNameField.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms2").getString("given_names"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 10)));
+        givenNameField.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms").getString("given_names"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 10)));
         givenNameField.setName("givenName");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
@@ -309,7 +309,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
-        birthdateSpinner2.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms2").getString("dob"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
+        birthdateSpinner2.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms").getString("dob"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
         birthdateSpinner2.setMinimumSize(new java.awt.Dimension(34, 45));
         birthdateSpinner2.setName("dob");
         birthdateSpinner2.setModel( new javax.swing.SpinnerDateModel());
@@ -321,7 +321,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
 
         sexComboBox2.setFont(new java.awt.Font("Dialog", 1, 10));
         sexComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "male", "female" }));
-        sexComboBox2.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms2").getString("sex"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
+        sexComboBox2.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms").getString("sex"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
         sexComboBox2.setMinimumSize(new java.awt.Dimension(34, 50));
         sexComboBox2.setName("sex");
         sexComboBox2.setPreferredSize(new java.awt.Dimension(73, 40));
@@ -331,7 +331,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jPanel2.add(sexComboBox2, gridBagConstraints);
 
         maritalComboBox3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "unknown", "single", "married", "widowed", "divorced", "de facto" }));
-        maritalComboBox3.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms2").getString("marital_status"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
+        maritalComboBox3.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms").getString("marital_status"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
         maritalComboBox3.setMinimumSize(new java.awt.Dimension(34, 50));
         maritalComboBox3.setName("maritalStatus");
         maritalComboBox3.addActionListener(new java.awt.event.ActionListener() {
@@ -349,7 +349,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
 
         jPanel6.setBorder(new javax.swing.border.TitledBorder(null, "Blood Group", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
         jPanel6.setMinimumSize(new java.awt.Dimension(34, 50));
-        jLabel9.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("ABO"));
+        jLabel9.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("ABO"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
         jPanel6.add(jLabel9, gridBagConstraints);
@@ -362,7 +362,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.weightx = 1.0;
         jPanel6.add(ABOComboBox4, gridBagConstraints);
 
-        jLabel10.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("rhesus"));
+        jLabel10.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("rhesus"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
         jPanel6.add(jLabel10, gridBagConstraints);
@@ -383,7 +383,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
 
         addressField.setText("jTextField10");
         addressField.setToolTipText("please separate by commas : no,street,suburb,state");
-        addressField.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms2").getString("address"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Dialog", 1, 10)));
+        addressField.setBorder(new javax.swing.border.TitledBorder(null, java.util.ResourceBundle.getBundle("SummaryTerms").getString("address"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Dialog", 1, 10)));
         addressField.setMinimumSize(new java.awt.Dimension(34, 50));
         addressField.setName("address");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -401,7 +401,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.weightx = 0.5;
         jPanel2.add(postcodeField11, gridBagConstraints);
 
-        jLabel11.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("country_of_birth"));
+        jLabel11.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("country_of_birth"));
         jPanel2.add(jLabel11, new java.awt.GridBagConstraints());
 
         countryOfBirthField12.setText("jTextField12");
@@ -410,10 +410,10 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel2.add(countryOfBirthField12, gridBagConstraints);
 
-        jLabel12.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("ethnicity"));
+        jLabel12.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("ethnicity"));
         jPanel7.add(jLabel12);
 
-        ATSICheckBox1.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("atsi"));
+        ATSICheckBox1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("atsi"));
         ATSICheckBox1.setName("atsi");
         jPanel7.add(ATSICheckBox1);
 
@@ -427,7 +427,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         jPanel2.add(jPanel7, gridBagConstraints);
 
         jLabel21.setLabelFor(nokTextFeld);
-        jLabel21.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("nok"));
+        jLabel21.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("nok"));
         jPanel2.add(jLabel21, new java.awt.GridBagConstraints());
 
         nokTextFeld.setText("jTextField21");
@@ -443,7 +443,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.weightx = 2.0;
         jPanel2.add(nokTextFeld, gridBagConstraints);
 
-        jLabel13.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("contact_nok"));
+        jLabel13.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("contact_nok"));
         jPanel2.add(jLabel13, new java.awt.GridBagConstraints());
 
         nokContactTextField14.setText("jTextField14");
@@ -467,7 +467,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.weightx = 1.0;
         jPanel9.add(jobTextField15, gridBagConstraints);
 
-        jLabel15.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("phone_work"));
+        jLabel15.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("phone_work"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
         jPanel9.add(jLabel15, gridBagConstraints);
@@ -490,7 +490,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         gridBagConstraints.weightx = 2.0;
         jPanel9.add(mobilePhoneTextField17, gridBagConstraints);
 
-        jLabel18.setText(java.util.ResourceBundle.getBundle("SummaryTerms2").getString("home"));
+        jLabel18.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("home"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
         jPanel9.add(jLabel18, gridBagConstraints);

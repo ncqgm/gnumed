@@ -45,7 +45,7 @@
         
         <hibernateTask destdir="${build.class.dir}" mergedir="${build.class.dir}" validating="false" verbose="true">
             <fileset dir="${src.home}">
-                <include name="**/*.java"/>
+                <include name="org/**/*.java"/>
              </fileset>
 	     <hibernate validateXML="true" version="2.0"/>
         </hibernateTask>
