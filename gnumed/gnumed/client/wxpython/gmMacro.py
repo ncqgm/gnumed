@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random
@@ -32,32 +32,32 @@ class cMacroPrimitives:
 	security and also thread safety handling.
 	"""
 	#-----------------------------------------------------------------
-	def __init__(self, a_cookie = None):
-		if a_cookie is None:
-			raise gmExceptions.ConstructorError, 'must specify cookie'
-		self.__attach_cookie = a_cookie
+	def __init__(self, personality = None):
+		if personality is None:
+			raise gmExceptions.ConstructorError, 'must specify personality'
+		self.__personality = personality
 		self.__attached = 0
-		self.__detach_cookie = None
+		self.__auth_cookie = None
 		self._get_source_personality = None
 	#-----------------------------------------------------------------
 	# public API
 	#-----------------------------------------------------------------
-	def attach(self, a_cookie = None):
+	def attach(self, personality = None):
 		if self.__attached:
-			_log.Log(gmLog.lErr, 'attach attempt with [%s] rejected, already serving a client')
-			return (0, _('attach attempt rejected, already serving a client'))
-		if a_cookie != self.__attach_cookie:
-			_log.Log(gmLog.lErr, 'rejecting attach() with cookie [%s], only servicing [%s]' % (a_cookie, self.__attach_cookie))
-			return (0, _('attach with cookie [%s] rejected') % a_cookie)
+			_log.Log(gmLog.lErr, 'attach with [%s] rejected, already serving a client' % personality)
+			return (0, _('attach rejected, already serving a client'))
+		if personality != self.__personality:
+			_log.Log(gmLog.lErr, 'rejecting attach with cookie [%s], only servicing [%s]' % (personality, self.__personality))
+			return (0, _('attach with cookie [%s] rejected') % personality)
 		self.__attached = 1
-		self.__detach_cookie = str(random.random())
-		return (1, self.__detach_cookie)
+		self.__auth_cookie = str(random.random())
+		return (1, self.__auth_cookie)
 	#-----------------------------------------------------------------
-	def detach(self, a_cookie=None):
+	def detach(self, auth_cookie=None):
 		if not self.__attached:
 			return 1
-		if a_cookie != self.__detach_cookie:
-			_log.Log(gmLog.lErr, 'rejecting detach() with cookie [%s]' % a_cookie)
+		if auth_cookie != self.__auth_cookie:
+			_log.Log(gmLog.lErr, 'rejecting detach() with cookie [%s]' % auth_cookie)
 			return 0
 		self.__attached = 0
 		return 1
@@ -78,36 +78,48 @@ class cMacroPrimitives:
 		return 0
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.5 $" % self.__class__.__name__
+		return "%s $Revision: 1.6 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
-	def raise_gnumed(self):
+	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
 		if not self.__attached:
 			return 0
+		if auth_cookie != self.__auth_cookie:
+			_log.Log(gmLog.lErr, 'non-authenticated raise_gnumed()')
+			return 0
 		return "cMacroPrimitives.raise_gnumed() not implemented"
 	#-----------------------------------------------------------------
-	def get_loaded_plugins(self):
+	def get_loaded_plugins(self, auth_cookie = None):
 		if not self.__attached:
+			return 0
+		if auth_cookie != self.__auth_cookie:
+			_log.Log(gmLog.lErr, 'non-authenticated get_loaded_plugins()')
 			return 0
 		gb = gmGuiBroker.GuiBroker()
 		return gb['modules.gui'].keys()
 	#-----------------------------------------------------------------
-	def raise_plugin(self, a_plugin = None):
+	def raise_plugin(self, auth_cookie = None, a_plugin = None):
 		"""Raise a notebook plugin within GnuMed."""
 		if not self.__attached:
+			return 0
+		if auth_cookie != self.__auth_cookie:
+			_log.Log(gmLog.lErr, 'non-authenticated raise_plugin()')
 			return 0
 		success = wx.wxCallAfter(gmPlugin.raise_plugin, a_plugin)
 		if not success:
 			return 0
 		return 1
 	#-----------------------------------------------------------------
-	def lock_into_patient(self, a_search_term = None):
+	def lock_into_patient(self, auth_cookie = None, a_search_term = None):
 		if not self.__attached:
 			return (0, _('request rejected, you are not attach()ed'))
+		if auth_cookie != self.__auth_cookie:
+			_log.Log(gmLog.lErr, 'non-authenticated lock_into_patient()')
+			return (0, _('rejected lock_into_patient(), not authenticated'))
 		pat = gmPatient.gmCurrentPatient()
 		if pat.is_locked():
-			_log.Log(gmLog.lErr, 'patient is already locked' % a_search_term)
-			return (0, _('already locked into a patient') % a_search_term)
+			_log.Log(gmLog.lErr, 'patient is already locked')
+			return (0, _('already locked into a patient'))
 		searcher = gmPatient.cPatientSearcher_SQL()
 		pat_id = searcher.get_patient_ids(a_search_term)
 		if pat_id is None:
@@ -123,9 +135,12 @@ class cMacroPrimitives:
 		self.__pat_lock_cookie = str(random.random())
 		return (1, self.__pat_lock_cookie)
 	#-----------------------------------------------------------------
-	def unlock_patient(self, unlock_cookie = None):
+	def unlock_patient(self, auth_cookie = None, unlock_cookie = None):
 		if not self.__attached:
 			return (0, _('request rejected, you are not attach()ed'))
+		if auth_cookie != self.__auth_cookie:
+			_log.Log(gmLog.lErr, 'non-authenticated unlock_patient()')
+			return (0, _('rejected unlock_patient, not authenticated'))
 		pat = gmPatient.gmCurrentPatient()
 		# we ain't locked anyways, so succeed
 		if not pat.is_locked():
@@ -133,9 +148,17 @@ class cMacroPrimitives:
 		# FIXME: ask user what to do about wrong cookie
 		if unlock_cookie != self.__pat_lock_cookie:
 			_log.Log(gmLog.lWarn, 'patient unlock request rejected due to wrong cookie [%s]' % unlock_cookie)
-			return (0, _('patient unlock request rejected, wrong cookie provided'))
+			return (0, 'patient unlock request rejected, wrong cookie provided')
 		pat.unlock()
 		return (1, '')
+	#-----------------------------------------------------------------
+	def assume_staff_identity(self, auth_cookie = None, staff_name = "Dr.Jekyll", staff_creds = None):
+		if not self.__attached:
+			return 0
+		if auth_cookie != self.__auth_cookie:
+			_log.Log(gmLog.lErr, 'non-authenticated select_identity()')
+			return 0
+		return "cMacroPrimitives.assume_staff_identity() not implemented"
 	#-----------------------------------------------------------------
 	# internal helpers
 	#-----------------------------------------------------------------
@@ -155,7 +178,8 @@ if __name__ == '__main__':
 	print s.raise_plugin('test plugin')
 	print s.lock_into_patient('kirk, james')
 	print s.unlock_patient()
-	print s.attach('unit test cookie')
+	attach = s.attach('unit test cookie')
+	print attach
 	print s.version()
 	print s.raise_gnumed()
 #	print s.raise_plugin('test plugin')
@@ -164,13 +188,18 @@ if __name__ == '__main__':
 	print s.unlock_patient('wrong cookie')
 	print s.unlock_patient(data[1])
 	print s.detach('wrong cookie')
-	print s.detach('unit test cookie')
+	print s.detach(attach[1])
 	del s
 
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.5  2004-02-12 23:57:22  ncq
+# Revision 1.6  2004-02-17 10:45:30  ncq
+# - return authentication cookie from attach()
+# - use that cookie in all RPCs
+# - add assume_staff_identity()
+#
+# Revision 1.5  2004/02/12 23:57:22  ncq
 # - now also use random cookie for attach/detach
 # - add force_detach() with user feedback
 # - add get_loaded_plugins()
