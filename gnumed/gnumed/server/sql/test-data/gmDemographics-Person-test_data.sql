@@ -4,7 +4,7 @@
 -- identity related test data
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/gmDemographics-Person-test_data.sql,v $
--- $Id: gmDemographics-Person-test_data.sql,v 1.2 2003-11-23 23:35:11 ncq Exp $
+-- $Id: gmDemographics-Person-test_data.sql,v 1.3 2004-01-08 22:58:28 ncq Exp $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -21,11 +21,15 @@ insert into v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Hi
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-test_data.sql,v $', '$Revision: 1.2 $');
+delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-test_data.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-test_data.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-test_data.sql,v $
--- Revision 1.2  2003-11-23 23:35:11  ncq
+-- Revision 1.3  2004-01-08 22:58:28  ncq
+-- - delete from gm_schema_revision
+--
+-- Revision 1.2  2003/11/23 23:35:11  ncq
 -- - names.title -> identity.title
 --
 -- Revision 1.1  2003/10/31 22:53:27  ncq
