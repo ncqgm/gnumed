@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.104 2003-06-17 22:30:41 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmGuiMain.py,v 1.105 2003-06-19 15:27:53 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -162,6 +162,8 @@ class MainFrame(wxFrame):
 		self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
 
 		# set event handlers
+		# - notebook page is about to change
+		EVT_NOTEBOOK_PAGE_CHANGING (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanging)
 		# - notebook page has been changed
 		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanged)
 		# - popup menu on right click in notebook
@@ -297,20 +299,40 @@ class MainFrame(wxFrame):
 
 		progress_bar.Destroy()
 	#----------------------------------------------
+	def OnNotebookPageChanging(self, event):
+		"""Called before notebook page change is processed.
+		"""
+		old_page_id = event.GetOldSelection()
+		# FIXME: this is the place to tell the old page to
+		# update its local on-disk cache or something,
+		# in general, call any "validators" for the
+		# old page here
+		new_page_id = event.GetSelection()
+		if new_page_id != old_page_id:
+			new_page = self.guibroker['main.notebook.plugins'][new_page_id]
+			if not new_page.can_receive_focus():
+				event.Veto()
+				return
+		else:
+			_log.Log(gmLog.lData, 'cannot check if page change needs to be veto()ed')
+		event.Skip() # required for MSW
+	#----------------------------------------------
 	def OnNotebookPageChanged(self, event):
 		"""Called when notebook changes.
 
 		FIXME: we can maybe change title bar information here
-		FIXME: we may want to veto() if no patient selected
 		"""
 		new_page_id = event.GetSelection()
-		#old_page_id = event.GetOldSelection()
+		old_page_id = event.GetOldSelection()
 		# get access to selected page
 		new_page = self.guibroker['main.notebook.plugins'][new_page_id]
+		# can we hand focus to new page ?
+		if not new_page.can_receive_focus():
+			# we can only hope things will work out anyways
+			_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows)")
+		new_page.ReceiveFocus()
 		# activate toolbar of new page
 		self.top_panel.ShowBar(new_page.internal_name())
-		# hand focus to new page
-		new_page.ReceiveFocus()
 		event.Skip() # required for MSW
 	#----------------------------------------------
 	def RegisterEvents(self):
@@ -635,7 +657,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.104  2003-06-17 22:30:41  ncq
+# Revision 1.105  2003-06-19 15:27:53  ncq
+# - also process EVT_NOTEBOOK_PAGE_CHANGING
+#   - veto() page change if can_receive_focus() is false
+#
+# Revision 1.104  2003/06/17 22:30:41  ncq
 # - some cleanup
 #
 # Revision 1.103  2003/06/10 09:55:34  ncq
