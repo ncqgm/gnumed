@@ -11,7 +11,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -212,38 +212,43 @@ class indexPnl(wxPanel):
 		)
 		self.lbl_left_header.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		#--- document ID phrase wheel ---------
-		self.lbl_doc_id_wheel = wxStaticText(
-			id =  -1,
-			name = 'lbl_doc_id_wheel',
-			parent = self.PNL_main,
-			label = _("document identifier")
-		)
-		#--------------------------------------
 		if __name__ == '__main__':
+			self.lbl_doc_id_wheel = wxStaticText(
+				id =  -1,
+				name = 'lbl_doc_id_wheel',
+				parent = self.PNL_main,
+				label = _("document identifier")
+			)
+			#--------------------------------------
+		
 			self.doc_id_wheel = cDocWheel(self.PNL_main)
 			self.doc_id_wheel.on_resize (None)
-		# -- load pages button ----------------
-		self.BTN_load_pages = wxButton(
-			id = wxID_BTN_load_pages,
-			name = 'BTN_load_pages',
-			parent = self.PNL_main,
-			label = _("load pages")
-		)
-		#--------------------------------------
-		self.staticText4 = wxStaticText(
-			id = -1,
-			name = 'staticText4',
-			parent = self.PNL_main,
-			label = _("or")
-		)
-		self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-		# -- select files button --------------
-		self.BTN_select_files = wxButton(
-			id = wxID_BTN_select_files,
-			name = 'BTN_select_files',
-			parent = self.PNL_main,
-			label = _("load fax document")
-		)
+			# -- load pages button ----------------
+			self.BTN_load_pages = wxButton(
+				id = wxID_BTN_load_pages,
+				name = 'BTN_load_pages',
+				parent = self.PNL_main,
+				label = _("load pages")
+			)
+			self.BTN_load_pages.SetToolTipString(_('load the pages of this document'))
+			EVT_BUTTON(self.BTN_load_pages, wxID_BTN_load_pages, self.on_load_pages)
+			#--------------------------------------
+			self.staticText4 = wxStaticText(
+				id = -1,
+				name = 'staticText4',
+				parent = self.PNL_main,
+				label = _("or")
+			)
+			self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+			# -- select files button --------------
+			self.BTN_select_files = wxButton(
+				id = wxID_BTN_select_files,
+				name = 'BTN_select_files',
+				parent = self.PNL_main,
+				label = _("load fax document")
+			)
+			self.BTN_select_files.SetToolTipString(_('currently non-functional: load a fax document'))
+			EVT_BUTTON(self.BTN_select_files, wxID_BTN_select_files, self.on_select_files)
 		#--------------------------------------
 		self.lbl_doc_pages = wxStaticText(
 			id = -1,
@@ -283,53 +288,60 @@ class indexPnl(wxPanel):
 		)
 		self.lbl_middle_header.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		#--------------------------------------
-		self.lbl_first_name = wxStaticText(
-			id = -1,
-			name = 'lbl_first_name',
-			parent = self.PNL_main,
-			label = _("first name")
-		)
-		# -- first name text box --------------
-		self.TBOX_first_name = wxTextCtrl(
-			id = wxID_TBOX_first_name,
-			name = 'TBOX_first_name',
-			parent = self.PNL_main,
-			value = _("loading ..."),
-			style=wxTE_READONLY
-		)
-		self.TBOX_first_name.Enable(false)
-		#--------------------------------------
-		self.lbl_last_name = wxStaticText(
-			id = -1,
-			name = 'lbl_last_name',
-			parent = self.PNL_main,
-			label = _("last name")
-		)
-		# -- last name text box ---------------
-		self.TBOX_last_name = wxTextCtrl(
-			id = wxID_TBOX_last_name,
-			name = 'TBOX_last_name',
-			parent = self.PNL_main,
-			value = _("loading ..."),
-			style=wxTE_READONLY
-		)
-		self.TBOX_last_name.Enable(false)
-		#--------------------------------------
-		self.lbl_dob = wxStaticText(
-			id = -1,
-			name = 'lbl_dob',
-			parent = self.PNL_main,
-			label = _("date of birth")
-		)
-		# -- dob text box ---------------------
-		self.TBOX_dob = wxTextCtrl(
-			id = wxID_TBOX_dob,
-			name = 'TBOX_dob',
-			parent = self.PNL_main,
-			value = _("loading ..."), 
-			style=wxTE_READONLY
-		)
-		self.TBOX_dob.Enable(false)
+		if __name__ == '__main__':
+			self.lbl_first_name = wxStaticText(
+				id = -1,
+				name = 'lbl_first_name',
+				parent = self.PNL_main,
+				label = _("first name")
+			)
+			# -- first name text box --------------
+			self.TBOX_first_name = wxTextCtrl(
+				id = wxID_TBOX_first_name,
+				name = 'TBOX_first_name',
+				parent = self.PNL_main,
+				value = _("loading ..."),
+				style=wxTE_READONLY
+			)
+			self.TBOX_first_name.Enable(false)
+			self.TBOX_first_name.SetBackgroundColour(wxColour(255, 255, 255))
+			self.TBOX_first_name.SetToolTipString(_('not editable, loaded from file'))
+			#--------------------------------------
+			self.lbl_last_name = wxStaticText(
+				id = -1,
+				name = 'lbl_last_name',
+				parent = self.PNL_main,
+				label = _("last name")
+			)
+			# -- last name text box ---------------
+			self.TBOX_last_name = wxTextCtrl(
+				id = wxID_TBOX_last_name,
+				name = 'TBOX_last_name',
+				parent = self.PNL_main,
+				value = _("loading ..."),
+				style=wxTE_READONLY
+			)
+			self.TBOX_last_name.Enable(false)
+			self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
+			self.TBOX_last_name.SetToolTipString(_('not editable, loaded from file'))
+			#--------------------------------------
+			self.lbl_dob = wxStaticText(
+				id = -1,
+				name = 'lbl_dob',
+				parent = self.PNL_main,
+				label = _("date of birth")
+			)
+			# -- dob text box ---------------------
+			self.TBOX_dob = wxTextCtrl(
+				id = wxID_TBOX_dob,
+				name = 'TBOX_dob',
+				parent = self.PNL_main,
+				value = _("loading ..."), 
+				style=wxTE_READONLY
+			)
+			self.TBOX_dob.Enable(false)
+			self.TBOX_dob.SetBackgroundColour(wxColour(255, 255, 255))
+			self.TBOX_dob.SetToolTipString(_('not editable, loaded from file'))
 		#--------------------------------------
 		self.lbl_doc_date = wxStaticText(
 			id =  -1,
@@ -413,30 +425,22 @@ class indexPnl(wxPanel):
 		self.SetTitle(_("GnuMed/Archiv: Associating documents with patients."))
 
 		self.PNL_main.SetBackgroundColour(wxColour(225, 225, 225))
-		self.TBOX_first_name.SetBackgroundColour(wxColour(255, 255, 255))
-		self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
-		self.TBOX_dob.SetBackgroundColour(wxColour(255, 255, 255))
-
-		self.BTN_load_pages.SetToolTipString(_('load the pages of this document'))
-		self.BTN_select_files.SetToolTipString(_('currently non-functional: load a fax document'))
+		
 		self.LBOX_doc_pages.SetToolTipString(_('these pages make up the current document'))
 		self.BTN_show_page.SetToolTipString(_('display selected part of the document'))
 		self.BTN_del_page.SetToolTipString(_('delete selected part of the document'))
-		self.TBOX_first_name.SetToolTipString(_('not editable, loaded from file'))
-		self.TBOX_last_name.SetToolTipString(_('not editable, loaded from file'))
-		self.TBOX_dob.SetToolTipString(_('not editable, loaded from file'))
+		
 		self.TBOX_doc_date.SetToolTipString(_('date of creation of the document content\nformat: YYYY-MM-DD'))
 		self.TBOX_desc_short.SetToolTipString(_('a short comment on the document content'))
 		self.SelBOX_doc_type.SetToolTipString(_('Document types are determined by the database.\nAsk your database administrator to add more types if needed.'))
 		self.BTN_save_data.SetToolTipString(_('save entered metadata with document'))
 		self.TBOX_desc_long.SetToolTipString(_('a summary or longer comment for this document'))
-
-		EVT_BUTTON(self.BTN_load_pages, wxID_BTN_load_pages, self.on_load_pages)
+		
 		EVT_BUTTON(self.BTN_show_page, wxID_BTN_show_page, self.on_show_page)
 		EVT_BUTTON(self.BTN_del_page, wxID_BTN_del_page, self.on_del_page)
 		EVT_BUTTON(self.BTN_save_data, wxID_BTN_save_data, self.on_save_data)
 		EVT_BUTTON(self.BTN_save_data, wxID_BTN_save_data, self.on_save_data)
-		EVT_BUTTON(self.BTN_select_files, wxID_BTN_select_files, self.on_select_files)
+		
 
 		self.LBOX_doc_pages.SetSelection(0)
 		self.SelBOX_doc_type.SetSelection(0)
@@ -451,9 +455,9 @@ class indexPnl(wxPanel):
 		if __name__ == '__main__':
 			szr_left.Add(self.lbl_doc_id_wheel, 0, wxLEFT|wxTOP, 5)
 			szr_left.Add(self.doc_id_wheel, 0, wxEXPAND|wxALL, 5)
-		szr_left.Add(self.BTN_load_pages, 1, wxEXPAND|wxALL, 5)
-		szr_left.Add(self.staticText4, 0, wxLEFT, 5)
-		szr_left.Add(self.BTN_select_files, 1, wxEXPAND|wxALL, 5)
+			szr_left.Add(self.BTN_load_pages, 1, wxEXPAND|wxALL, 5)
+			szr_left.Add(self.staticText4, 0, wxLEFT, 5)
+			szr_left.Add(self.BTN_select_files, 1, wxEXPAND|wxALL, 5)
 		szr_left.Add(self.lbl_doc_pages, 0, wxLEFT, 5)
 		szr_left.Add(self.LBOX_doc_pages, 1, wxEXPAND|wxALL, 5)
 		szr_left_btns = wxBoxSizer(wxHORIZONTAL)
@@ -464,12 +468,13 @@ class indexPnl(wxPanel):
 		# middle vertical column (2/3) in upper half of the screen
 		szr_middle = wxBoxSizer(wxVERTICAL)
 		szr_middle.Add(self.lbl_middle_header, 0, 0, 0)
-		szr_middle.Add(self.lbl_first_name, 0, wxLEFT|wxTOP, 5)
-		szr_middle.Add(self.TBOX_first_name, 0, wxEXPAND|wxALL, 5)
-		szr_middle.Add(self.lbl_last_name, 0, wxLEFT, 5)
-		szr_middle.Add(self.TBOX_last_name, 0, wxEXPAND|wxALL, 5)
-		szr_middle.Add(self.lbl_dob, 0, wxLEFT, 5)
-		szr_middle.Add(self.TBOX_dob, 0, wxEXPAND|wxALL, 5)
+		if __name__ == '__main__':
+			szr_middle.Add(self.lbl_first_name, 0, wxLEFT|wxTOP, 5)
+			szr_middle.Add(self.TBOX_first_name, 0, wxEXPAND|wxALL, 5)
+			szr_middle.Add(self.lbl_last_name, 0, wxLEFT, 5)
+			szr_middle.Add(self.TBOX_last_name, 0, wxEXPAND|wxALL, 5)
+			szr_middle.Add(self.lbl_dob, 0, wxLEFT, 5)
+			szr_middle.Add(self.TBOX_dob, 0, wxEXPAND|wxALL, 5)
 		szr_middle.Add(self.lbl_doc_date, 0, wxLEFT, 5)
 		szr_middle.Add(self.TBOX_doc_date, 0, wxEXPAND|wxALL, 5)
 		szr_middle.Add(self.lbl_desc_short, 0, wxLEFT, 5)
@@ -712,14 +717,14 @@ class indexPnl(wxPanel):
 			self.TBOX_first_name.SetValue(self.__xdt_patient['first name'])
 			self.TBOX_last_name.SetValue(self.__xdt_patient['last name'])
 			self.TBOX_dob.SetValue("%s.%s.%s" % (self.__xdt_patient['dob day'], self.__xdt_patient['dob month'], self.__xdt_patient['dob year']))
-		else:
+		#else:
 			# query GNUmed for active patient
-			curr_pat = gmPatient.gmCurrentPatient()
-			name = curr_pat['demographic record'].getActiveName()
-			self.TBOX_first_name.SetValue(name['first'])
-			self.TBOX_last_name.SetValue(name['last'])
-			dob = curr_pat['demographic record'].getDOB('YYYY-MM-DD')
-			self.TBOX_dob.SetValue(dob)
+		#	curr_pat = gmPatient.gmCurrentPatient()
+		#	name = curr_pat['demographic record'].getActiveName()
+		#	self.TBOX_first_name.SetValue(name['first'])
+		#	self.TBOX_last_name.SetValue(name['last'])
+		#	dob = curr_pat['demographic record'].getDOB('YYYY-MM-DD')
+		#	self.TBOX_dob.SetValue(dob)
 	#----------------------------------------
 	def __keep_patient_file(self, aDir):
 		# keep patient file for import
@@ -1051,7 +1056,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_indexPnlBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.11  2003-11-19 22:25:00  ncq
+# Revision 1.12  2003-11-29 23:57:51  shilbert
+# - GUI cleanup
+#
+# Revision 1.11  2003/11/19 22:25:00  ncq
 # - fixed list match provider now has setItems() so use it
 # - remove unneeded return from update_choices()
 #
