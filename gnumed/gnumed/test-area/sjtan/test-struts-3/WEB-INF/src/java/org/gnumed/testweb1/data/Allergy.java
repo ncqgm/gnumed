@@ -10,7 +10,7 @@ package org.gnumed.testweb1.data;
  *
  * @author  sjtan
  */
-public interface Allergy extends ClinRootItem , AllergyEntry {
+public interface Allergy extends ClinRootItem  {
    
     /**
      * Getter for property definite.

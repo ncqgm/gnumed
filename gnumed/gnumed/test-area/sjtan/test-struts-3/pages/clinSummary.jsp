@@ -47,7 +47,8 @@
     </table>
      
     
-    <h5>Allergies </h5>
+   <h5>
+        Allergies </h5>
     <table  border='1'>
         <%--   <thead><td><b>Substance</b></td> <td><b>is definite</b></td> <td> <b>description</b> </td> </thead>
         --%>
@@ -57,7 +58,9 @@
             >
             <tr>
             <td>
-                <bean:write name="allergy" property="substance"/>
+                <allergy> <%-- CSS tag --%>
+                    <bean:write name="allergy" property="substance"/>
+                    </allergy>
             </td>
             <td>
                 <logic:equal name="allergy" property="definite" value="true">

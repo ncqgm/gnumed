@@ -90,5 +90,6 @@ public class AllergyImpl1 extends ClinRootItemImpl1 implements Allergy {
         super.setNewHealthIssueName(newHealthIssueName);
     }
     
+    
 }
 

@@ -26,7 +26,32 @@ e.g. getNarrative(index) ...  id='narrative'
     <a name="encounterTop"/>
     
     <jsp:include page="./patient_detail_block.jsp"/>
-    
+    <%-- The Model used for this jsp are:
+         healthRecord and clinicalUpdateForm as session level attribute objects.
+
+         The Structure of healthRecord is 
+
+         healthRecord
+            healthSummary
+                encounterTypes
+                healthIssues   ...
+
+         clinicalUpdateForm
+            encounter
+                started
+                location
+                *narratives
+                    episode
+                        healthIssue
+            *allergyEntry
+           
+         clinicalUpdateForm is used to pass back the form data. Blank objects exist
+         at relevant levels for filling in by the form.
+         ( A issue is how to tell an unused blank object from one where some fields are allowed
+         to be not filled in, the former not being used during database update. )
+    --%>
+
+             
     
         <table>
             
@@ -36,10 +61,16 @@ e.g. getNarrative(index) ...  id='narrative'
                 <bean:message key="current.encounter"/>
             </td>
             
+            <%-- EDITS THE ENCOUNTER TIME--%>
             <td>
                 <bean:message key="encounter.time"/>
                 <bean:write name="clinicalUpdateForm" property="encounter.started"/>
             </td>
+            
+            <%-- EDITS THE ENCOUNTER LOCATION: 
+    use the information stored in healthRecord.healthSummary.encounterTypes list of
+    apache DynaBean objects converted from a result set of selecting the encounter_type
+    table.--%>
             <td>
                 <bean:message key="encounter.location"/>
                 <html:select  name="clinicalUpdateForm" property="encounter.location" >
@@ -55,10 +86,15 @@ e.g. getNarrative(index) ...  id='narrative'
         
         <table border='1' id='allNarrativeInput'>
         
+        <%-- iterate through all the clinicalUpdateForm.encounter.narratives objects,
+        each being called narrative 
+        --%>
         <logic:iterate id="narrative" name="clinicalUpdateForm" 
         property="encounter.narratives"   
          scope="request" indexId="index">
          <tr>
+         
+         <%-- a numbered anchor id , for this item's entry --%>
          <td>
           <a name='linkNarrative<%=index%>'> </a>
            <%=index.intValue()+1%>
@@ -68,10 +104,19 @@ e.g. getNarrative(index) ...  id='narrative'
             <table id='narrativeEntry<%=index%>' >
                 <tr>
                 
+              <%-- only show the linked checkbox if not the first entry --%>  
                 <td  >
                  <logic:greaterThan name="index" value="0">
                     link
                     
+             <%-- This checkbox updates the narrative.linkedToPreviousEpisode property,
+                narrative is actually a EntryClinNarrative object , and has presentation 
+                related fields but its class is derived from ClinNarrativeImpl.
+                
+                if the linked checkbox is checked, then HIDE all the entry fields for 
+                clinical issue and clinical episode description, because this item is 
+                linked to the previous item's episode. 
+                --%>
                     <html-el:checkbox  name="narrative" property="linkedToPreviousEpisode" indexed="true" 
                      onchange="if (this.checked) { 
                             document.getElementById('healthIssueInput${index}').style.display='none';
@@ -204,7 +249,7 @@ onchange=""
                     <td  >
                      <bean:message key="allergy"/> 
                     <html-el:checkbox styleId="isAllergy${index}" 
-                    name="clinicalUpdateForm" property="allergy[${index}]"     
+                    name="clinicalUpdateForm" property="allergyEntry[${index}].selected"     
                     onchange="if (this.checked) {
                         document.getElementById('allergyInput${index}').style.display='block'; 
                          

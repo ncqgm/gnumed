@@ -11,7 +11,7 @@ package org.gnumed.testweb1.data;
  * @author  sjtan
  */
 public class AllergyEntryImpl1 implements AllergyEntry {
-    private boolean definite;
+    private boolean definite, selected = false;
     private String substance;
     
     /** Creates a new instance of AllergyInputImpl1 */
@@ -32,6 +32,15 @@ public class AllergyEntryImpl1 implements AllergyEntry {
     
     public void setSubstance(String substance) {
         this.substance = substance;
+    }
+    
+    public boolean isSelected() {
+        return selected;
+        
+    }
+    
+    public void setSelected(boolean selected) {
+        this.selected= selected;
     }
     
 }

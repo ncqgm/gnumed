@@ -15,6 +15,7 @@ import org.gnumed.testweb1.global.Algorithms;
 import java.util.*;
 import java.sql.*;
 import org.apache.commons.logging.*;
+
 /**
  *
  * @author  sjtan
@@ -246,7 +247,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     
     
     private ResultSet getMedicationRS(Connection conn, long[] encounter_ids)throws SQLException {
-        return   getClinRootItemRS(conn,"curr_medication", encounter_ids);
+        return   getClinRootItemRS(conn,"clin_medication", encounter_ids);
     }
     
     private ResultSet getClinDiagRS( Connection conn, long[] clin_narrative_ids) throws SQLException {
@@ -325,24 +326,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             
             
             List healthIssues = new ArrayList();
-            
-            List[] itemLists = new java.util.List[] {
-                encounter.getNarratives(), encounter.getAllergies() 
-            };
-            for (int j = 0; j < itemLists.length; ++j) {
-            for( java.util.ListIterator i = itemLists[j].listIterator(); i.hasNext(); ) {
-                ClinRootItem item = (ClinRootItem) i.next();
-                if (item.getNarrative() == null || item.getNarrative().equals("") || 
-                item.getEpisode().getDescription() == null ) {
-                    // DONT SAVE EMPTY itemS
-                    log.info("** REMOVE ** " + item );
-                    log.info(" episode.description=" + item.getEpisode().getDescription());
-                    log.info("*********** has null narrative or null episode description");
-                    
-                    i.remove();
-                }
-            }
-            }
+          
             
            ClinRootItem[] items=encounter.getRootItems();
            
@@ -353,6 +337,9 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
                     continue;
                 }
                 
+                if (items[i].getNarrative().trim().equals("") )
+                    continue;
+                
                 String healthIssueName   =normalizeHealthIssueName( items[i]);
                 HealthIssue issue = findOrCreateHealthIssue(conn, healthIssueName, summary);
                 healthIssues.add(issue);
@@ -360,6 +347,25 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
                 ClinicalEpisode episode = findOrCreateEpisode( conn, issue, items[i].getEpisode() );
                 
                 items[i].setEpisode(episode);
+            }  
+           
+            List[] itemLists = new java.util.List[] {
+                encounter.getNarratives(), encounter.getAllergies()
+            };
+            
+            for (int j = 0; j < itemLists.length; ++j) {
+                for( java.util.ListIterator i = itemLists[j].listIterator(); i.hasNext(); ) {
+                    ClinRootItem item = (ClinRootItem) i.next();
+                    if (item.getNarrative() == null || item.getNarrative().trim().equals("") ||
+                    item.getEpisode().getDescription() == null ) {
+                        // DONT SAVE EMPTY itemS
+                        log.info("** REMOVE ** " + item );
+                        log.info(" episode.description=" + item.getEpisode().getDescription());
+                        log.info("*********** has null narrative or null episode description");
+                        
+                        i.remove();
+                    }
+                }
             }
                   
             for( Iterator i = encounter.getNarratives().iterator(); i.hasNext(); ) {
@@ -447,10 +453,10 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         
         
         
-        Integer id = getNextId(conn, "clin_episode_id_seq");
+        Integer id = getNextId(conn, "clin_episode_pk_seq");
         
         
-        String s3b = "insert into clin_episode( id, description, fk_health_issue) values( ? , ?, ?)";
+        String s3b = "insert into clin_episode( pk, description, fk_health_issue) values( ? , ?, ?)";
         PreparedStatement stmt = conn.prepareStatement(s3b);
         
         stmt.setInt( 1, id.intValue());

@@ -120,7 +120,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
             ClinicalEpisode ep = dof.createClinicalEpisode();
             ep.setDescription((String)b.get("description"));
             
-            ep.setId( new Long( ((Integer)b.get("id")).longValue()));
+            ep.setId( new Long( ((Integer)b.get("pk")).longValue()));
             
             ep.setModified_when( new java.util.Date( (long) ( (java.sql.Timestamp)b.get("modified_when")).getTime()));
             Long hiId = new Long(((Number)b.get("fk_health_issue")).longValue());
