@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -201,7 +201,7 @@ class cLogger:
 				tmp = aMsg
 			# cook it ?
 			if aRawnessFlag == lCooked:
-				msg = reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(tmp))))
+				msg = reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(tmp))), '')
 			else:
 				msg = tmp
 
@@ -260,7 +260,7 @@ class cLogger:
 				for line in traceback_stack:
 					self.__targets[key].writeMsg(level2, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
 				if verbose:
-					self.__targets[key].writeMsg(lData, "locals by frame, innermost frame last")
+					self.__targets[key].writeMsg(lData, "locals by frame, outmost frame first")
 					for frame in stack_of_frames:
 						self.__targets[key].writeMsg(lData, ">>> execution frame [%s] in [%s] at line %s <<<" % (
 							frame.f_code.co_name,
@@ -814,7 +814,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.44  2003-11-19 14:41:14  ncq
+# Revision 1.45  2003-11-19 18:09:33  ncq
+# - make "locals by frame" message less confusing
+#
+# Revision 1.44  2003/11/19 14:41:14  ncq
 # - somehow, the log keyword got dropped in the recent mess, re-add
 #
 #
