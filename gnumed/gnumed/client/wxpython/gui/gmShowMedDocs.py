@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -68,7 +68,8 @@ from wxPython.wx import *
 #        EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 
 [	wxID_PNL_main,
-] = map(lambda _init_ctrls: wxNewId(), range(1))
+	wxID_TB_BTN_show_page
+] = map(lambda _init_ctrls: wxNewId(), range(2))
 #================================================================
 class cDocTree(wxTreeCtrl):
 	"""This wxTreeCtrl derivative displays a tree view of stored medical documents.
@@ -94,7 +95,7 @@ class cDocTree(wxTreeCtrl):
 		self.root = None
 		self.doc_list = None
 		self.curr_pat = gmPatient.gmCurrentPatient()
-
+		_log.Log(gmLog.lData, self.curr_pat)
 		# connect handlers
 		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
 		EVT_TREE_ITEM_RIGHT_CLICK(self, self.GetId(), self.__on_right_click)
@@ -131,7 +132,7 @@ class cDocTree(wxTreeCtrl):
 		# read documents from database
 		doc_ids = self.curr_pat['document id list']
 		if doc_ids is None:
-			name = self.curr_pat['active name']
+			name = self.curr_pat['demographic record'].getActiveName()
 			gm_show_error(
 				aMessage = _('Cannot find any documents for patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading document list')
@@ -558,7 +559,7 @@ else:
 			pass
 
 	#------------------------------------------------------------
-	import gmPlugin
+	import gmPlugin, images_Archive_plugin, images_Archive_plugin1
 
 	class gmShowMedDocs(gmPlugin.wxNotebookPlugin):
 		tab_name = _("Documents")
@@ -586,6 +587,55 @@ else:
 			if not self._verify_patient_avail():
 				return None
 			return 1
+		def DoToolbar (self, tb, widget):
+		
+			#tool1 = tb.AddTool(
+			#	wxID_PNL_BTN_load_pages,
+			#	images_Archive_plugin.getcontentsBitmap(),
+			#	shortHelpString=_("load pages"),
+			#	isToggle=false
+			#)
+			#EVT_TOOL (tb, wxID_PNL_BTN_load_pages, widget.on_load_pages)
+
+			#tool1 = tb.AddTool(
+			#	wxID_PNL_BTN_save_data,
+			#	images_Archive_plugin.getsaveBitmap(),
+			#	shortHelpString=_("save document"),
+			#	isToggle=false
+			#)
+			#EVT_TOOL (tb, wxID_PNL_BTN_save_data, widget.on_save_data)
+			
+			#tool1 = tb.AddTool(
+			#	wxID_PNL_BTN_del_page,
+			#	images_Archive_plugin.getcontentsBitmap(),
+			#	shortHelpString=_("delete page"),
+			#	isToggle=false
+			#)
+			#EVT_TOOL (tb, wxID_PNL_BTN_del_page, widget.on_del_page)
+			
+			tool1 = tb.AddTool(
+				wxID_TB_BTN_show_page,
+				images_Archive_plugin.getreportsBitmap(),
+				shortHelpString=_("show document"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_TB_BTN_show_page, cDocTree.OnActivate)
+	
+			#tool1 = tb.AddTool(
+			#	wxID_PNL_BTN_select_files,
+			#	images_Archive_plugin1.getfoldersearchBitmap(),
+			#	shortHelpString=_("select files"),
+			#	isToggle=false
+			#)
+			#EVT_TOOL (tb, wxID_PNL_BTN_select_files, widget.on_select_files)
+		
+			tb.AddControl(wxStaticBitmap(
+				tb,
+				-1,
+				images_Archive_plugin.getvertical_separator_thinBitmap(),
+				wxDefaultPosition,
+				wxDefaultSize
+			))
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -612,7 +662,11 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.29  2003-10-26 01:36:14  ncq
+# Revision 1.30  2003-11-16 11:53:32  shilbert
+# - fixed stanalone mode
+# - makes use of toolbar
+#
+# Revision 1.29  2003/10/26 01:36:14  ncq
 # - gmTmpPatient -> gmPatient
 #
 # Revision 1.28  2003/08/27 12:31:41  ncq
