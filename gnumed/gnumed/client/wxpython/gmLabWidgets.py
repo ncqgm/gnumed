@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -795,10 +795,10 @@ class cLabDataGrid(wxGrid):
 				#test_count = {}
 				#test_types = self.__get_test_types(lab_ids)
 				#for id in test_types:
-				#	if test_types[id] in test_count.keys():
-				#		test_count[test_types[id]] = test_count[test_types[id]]+1
+				#	if test_types[pk] in test_count.keys():
+				#		test_count[test_types[pk]] = test_count[test_types[pk]]+1
 				#	else:
-				#		test_count[test_types[id]] = 1
+				#		test_count[test_types[pk]] = 1
 				# try to be smart, sort tests by usage
 				#sorted = self.sort_by_value(test_count)
 				#sorted.reverse()
@@ -930,7 +930,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.3  2004-07-18 20:30:53  ncq
+# Revision 1.4  2004-09-29 19:14:31  ncq
+# - id -> pk
+#
+# Revision 1.3  2004/07/18 20:30:53  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.2  2004/07/15 15:55:14  ncq
