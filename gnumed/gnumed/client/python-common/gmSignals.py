@@ -24,7 +24,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 
@@ -83,3 +83,9 @@ if __name__ == "__main__":
 	tw = TestWidget()
 	print "Sending signal %s with parameter %d" % (patient_selected(), the_id+1)
 	gmDispatcher.send(patient_selected(), id=the_id+1)
+
+#======================================================================
+# $Log: gmSignals.py,v $
+# Revision 1.3  2002-09-10 07:41:27  ncq
+# - added changelog keyword
+#

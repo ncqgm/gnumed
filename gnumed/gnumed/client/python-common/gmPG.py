@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -605,3 +605,9 @@ if __name__ == "__main__":
 	dbpool.StopListeningThread('config')	
 	print "Requesting write access connection:"
 	con = dbpool.GetConnection('config', readonly=0)
+
+#==================================================================
+# $Log: gmPG.py,v $
+# Revision 1.16  2002-09-10 07:44:29  ncq
+# - added changelog keyword
+#

@@ -11,7 +11,7 @@ Original code courtesy of David Guest.
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTalkback.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "D. Guest <dguest@zeeclor.mine.nu>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -120,3 +120,9 @@ if __name__ == '__main__':
 	email_logger = gmLog.cLogTargetEMail(gmLog.lData, aFrom = "GNUmed client <ncq>", aTo = ("",), anSMTPServer = "localhost")
 	gmLog.gmDefLog.AddTarget(email_logger)
 	run(email_logger)
+
+#=========================================================================
+# $Log: gmTalkback.py,v $
+# Revision 1.3  2002-09-10 07:46:56  ncq
+# - added changelog keyword
+#
