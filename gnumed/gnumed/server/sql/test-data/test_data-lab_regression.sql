@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -41,7 +41,7 @@ insert into clin_health_issue (id_patient)
 values (currval('identity_id_seq'));
 
 -- episode
-delete from clin_episode where id in (
+delete from clin_episode where pk in (
 	select pk_episode
 	from v_pat_episodes
 	where id_patient = currval('identity_id_seq')
@@ -79,7 +79,7 @@ insert into lab_request (
 	is_pending
 ) values (
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'used for anonymized import regression tests',
 	(select pk from test_org where internal_name='your own practice'),
 	'anon: sample ID',
@@ -90,11 +90,14 @@ insert into lab_request (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.6  2004-06-26 23:45:51  ncq
+-- Revision 1.7  2004-09-17 20:18:10  ncq
+-- - clin_episode_id_seq -> *_pk_seq
+--
+-- Revision 1.6  2004/06/26 23:45:51  ncq
 -- - cleanup, id_* -> fk/pk_*
 --
 -- Revision 1.5  2004/06/26 07:33:55  ncq

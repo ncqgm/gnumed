@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.33 $
+-- $Revision: 1.34 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -72,7 +72,7 @@ insert into clin_health_issue (id_patient)
 values (currval('identity_id_seq'));
 
 -- episode "knife cut"
-delete from clin_episode where id in (
+delete from clin_episode where pk in (
 	select pk_episode
 	from v_pat_episodes
 	where id_patient = currval('identity_id_seq')
@@ -112,7 +112,7 @@ insert into clin_narrative (
 ) values (
 	'2000-9-17 17:14:32',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'bleeding cut forearm L',
 	's',
 	'true'::boolean
@@ -128,7 +128,7 @@ insert into clin_narrative (
 ) values (
 	'2000-9-17 17:16:41',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'accid cut himself left forearm -2/24 w/ dirty
 blade rescuing self from being tentacled,
 extraterrest.envir.',
@@ -145,7 +145,7 @@ insert into clin_narrative (
 ) values (
 	'2000-9-17 17:20:59',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'left ulnar forearm; 6cm dirty laceration;
 skin/sc fat only; musc/tend not injured; no dist sens loss;
 pain/redness++; smelly secretion+; no pus',
@@ -162,7 +162,7 @@ insert into clin_narrative (
 ) values (
 	'2000-9-17 17:21:19',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'contam/infected knife cut left arm, ?extraterr. vector?, req ABs/surg/blood',
 	'a'
 );
@@ -177,7 +177,7 @@ insert into clin_narrative (
 ) values (
 	'2000-9-17 17:2',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'1) inflamm.screen/std ET serology
 2) debridement/loose adapt.; 10ml xylocitin sc; 00-Reprolene
 3) Pen 1.5 Mega 1-1-1
@@ -196,7 +196,7 @@ insert into clin_narrative (
 ) values (
 	'2000-9-17 17:14:32',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'?contaminated laceration L forearm',
 	'a',
 	'true'::boolean
@@ -245,7 +245,7 @@ insert into vaccination (
 	batch_no
 ) values (
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'prev booster > 7 yrs',
 	currval('identity_id_seq'),
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
@@ -286,7 +286,7 @@ insert into lab_request (
 ) values (
 	'2000-9-17 17:33',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'inflammation screen, possibly extraterrestrial contamination',
 	(select pk from test_org where internal_name='Enterprise Main Lab'),
 	'EML#SC937-0176-CEC#11',
@@ -313,7 +313,7 @@ insert into test_result (
 ) values (
 	'2000-9-17 18:17',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	(select id from test_type where code='WBC-EML'),
 	'9.5',
 	'Gpt/l',
@@ -341,7 +341,7 @@ insert into test_result (
 ) values (
 	'2000-9-17 18:17',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	(select id from test_type where code='RBC-EML'),
 	'4.40',
 	'Tpt/l',
@@ -369,7 +369,7 @@ insert into test_result (
 ) values (
 	'2000-9-17 18:17',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	(select id from test_type where code='PLT-EML'),
 	'282',
 	'Gpt/l',
@@ -397,7 +397,7 @@ insert into test_result (
 ) values (
 	'2000-9-17 18:23',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	(select id from test_type where code='CRP-EML'),
 	'17.3',
 	'mg/l',
@@ -439,7 +439,7 @@ insert into clin_narrative (
 ) values (
 	'2000-9-18 8:14:32',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'knife cut follow-up, pain/swelling',
 	's',
 	'true'::boolean
@@ -456,7 +456,7 @@ insert into clin_narrative (
 ) values (
 	'2000-9-18 8:17:32',
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'postop infected laceration L forearm',
 	'a',
 	'true'::boolean
@@ -510,7 +510,7 @@ insert into allergy (
 	narrative
 ) values (
 	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
+	currval('clin_episode_pk_seq'),
 	'Penicillin V Stada',
 	'Penicillin',
 	1,
@@ -605,11 +605,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.33 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.34 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.33  2004-09-02 00:43:20  ncq
+-- Revision 1.34  2004-09-17 20:18:10  ncq
+-- - clin_episode_id_seq -> *_pk_seq
+--
+-- Revision 1.33  2004/09/02 00:43:20  ncq
 -- - add Star Fleet Staff Code as external_id
 --
 -- Revision 1.32  2004/08/18 08:28:56  ncq
