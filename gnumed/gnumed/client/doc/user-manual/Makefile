@@ -1,7 +1,7 @@
 # Makefile to build several kinds of output for GnuMed user documentation
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/user-manual/Attic/Makefile,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 # license: GPL
 # author: Andreas Tille <tille@debian.org>
 
@@ -43,7 +43,7 @@ PS=$(SGMLTOOL) $(OPTPS)
 #	$(CHECK) $^ &> $@
 
 .sgml.info:
-	echo "Sorry. INFO format does not build yet.
+	echo "Sorry. INFO format does not build yet."
 	# $(INFO) $^
 
 .sgml.txt:
@@ -87,6 +87,9 @@ distclean:
 
 #==================================================================
 # $Log: Makefile,v $
-# Revision 1.1  2002-11-20 13:26:54  ncq
+# Revision 1.2  2004-02-21 07:08:53  dgrant
+# fixed syntax error
+#
+# Revision 1.1  2002/11/20 13:26:54  ncq
 # - Makefiles kindly contributed by Andreas of Debian-Med fame
 #
