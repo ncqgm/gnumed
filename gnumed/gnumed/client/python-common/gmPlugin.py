@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.65 2004-01-06 23:44:40 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmPlugin.py,v 1.66 2004-01-17 09:59:02 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -240,11 +240,21 @@ class wxNotebookPlugin (wxBasePlugin):
 		set_statustext(txt)
 		return 1
 	#-----------------------------------------------------
-	def Raise (self):
-		nbns = self.gb['main.notebook.plugins']
-		nb_no = nbns.index (self)
-		self.nb.SetSelection (nb_no)
+	def Raise (self, plugin_name = None):
+		"""plugin_name is a plugin internal name
+		"""
+		if plugin_name is None:
+			plugin_name = self.internal_name()
+		try:
+			plugin = self.gb['modules.gui'][plugin_name]
+		except KeyError:
+			_log.LogException("Cannot raise [%s], plugin not available" % plugin_name(), sys.exc_info(), verbose=0)
+			return (None, _('Cannot activate plugin [%s]. It is not loaded.') % plugin.name())
+		plugin_list = self.gb['main.notebook.plugins']
+		plugin_idx = plugin_list.index(plugin)
+		self.nb.SetSelection (plugin_idx)
 		self.tb_main.ShowBar(self.internal_name())
+		return (1, '')
 	#-----------------------------------------------------
 	def OnMenu (self, event):
 		self.Raise ()
@@ -492,7 +502,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.65  2004-01-06 23:44:40  ncq
+# Revision 1.66  2004-01-17 09:59:02  ncq
+# - enable Raise() to raise arbitrary plugins
+#
+# Revision 1.65  2004/01/06 23:44:40  ncq
 # - __default__ -> xxxDEFAULTxxx
 #
 # Revision 1.64  2003/12/29 16:33:23  uid66147
