@@ -7,15 +7,14 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
-# $Id: gmCalcPreg.py,v 1.10 2003-01-23 11:03:03 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmCalcPreg.py,v 1.11 2003-01-23 11:04:33 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "I.Haywood, M.Bonerti"
 
 from wxPython.wx import *
 from wxPython.calendar import *
 import math, zlib, cPickle
 import random
-#import images_gnuMedGP_Toolbar
 
 ID_LNMP = wxNewId ()
 ID_DUE = wxNewId ()
@@ -182,7 +181,10 @@ else:
 
 #=====================================================================
 # $Log: gmCalcPreg.py,v $
-# Revision 1.10  2003-01-23 11:03:03  ncq
+# Revision 1.11  2003-01-23 11:04:33  ncq
+# - don't need to import toolbar images anymore, they are included
+#
+# Revision 1.10  2003/01/23 11:03:03  ncq
 # - minor cleanups
 #
 # Revision 1.9  2003/01/23 07:34:47  michaelb
