@@ -13,22 +13,25 @@
 #
 # @TODO: Almost everything
 ############################################################################
+# This source code is protected by the GPL licensing scheme.
+# Details regarding the GPL are available at http://www.gnu.org
+# You may use and share it as long as you don't deny this right
+# to anybody else.
 """
 gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
-
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
 import sys, os
 # GNUmed modules
 import gmLog
-
+# ---------------------------------------------------------------------------
 if __name__ == "__main__":
 	"""Launch the gnumed wx GUI client."""
-	appPath = os.path.split(sys.argv[0])[0]
+	appPath = os.path.split(os.path.abspath(sys.argv[0]))[0]
 
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
