@@ -13,8 +13,8 @@ REL="PREVIOUS"
 TITLE='wxpython/patient - "patient page" plugin widgets'
 HREF="x213.htm"><LINK
 REL="NEXT"
-TITLE="GUI design"
-HREF="x223.htm"></HEAD
+TITLE="List of distributed database services"
+HREF="x251.htm"></HEAD
 ><BODY
 CLASS="CHAPTER"
 BGCOLOR="#FFFFFF"
@@ -56,7 +56,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x223.htm"
+HREF="x251.htm"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -80,11 +80,21 @@ CLASS="TOC"
 ><DT
 ><A
 HREF="c216.htm#AEN218"
->Database design</A
+>GNUMed Database Architecture</A
 ></DT
 ><DT
 ><A
-HREF="x223.htm"
+HREF="x251.htm"
+>List of distributed database services</A
+></DT
+><DT
+><A
+HREF="x377.htm"
+>FAQ</A
+></DT
+><DT
+><A
+HREF="x382.htm"
 >GUI design</A
 ></DT
 ></DL
@@ -94,66 +104,173 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="AEN218">Database design</H1
+NAME="AEN218">GNUMed Database Architecture</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN220">Client-Server architecture with optional middleware layers</H2
 ><P
->	    &#62; I would be interested in hearing about the database design 
-&#62; history and the purpose of the distributed database architecture
-&#62; that you have implemented, (smart, but possibly a little 
-&#62; over-kill I would have thought at first glance).
-    	    </P
+>    	    	GNUMed is designed as a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>client-server</I
+></SPAN
+> architecture with <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>optional middleware</I
+></SPAN
+> components.
+		The database backend is provided by PostgreSQL, a largely SQL-92 compliant  object-relational
+		database server. PostgreSQL is free software, obtainable at http://www.postgresql.org. 
+		It is portable, running on virtually all Posix compatible systems including Gnu/Linux, 
+		BSD Unix, Solaris, Mac OS/X. Although we do not recommend it, it can be run on Microsoft
+		Windows NT, 2000 and XP.
+    	    	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN225">Distribution of database services</H2
 ><P
->	    Horst Herb:The main reason why we had to split the monolithic backend up:
-- some countries provide centralized demographic information. It would 
-be inefficient and unreliable to try to copy such a centrally well 
-maintained demographic database. We should rather allow to tap into it 
-via distributed services.
-- some countries provide centralized pharmaceutical information
-- some countries provide centralized immunisation databases
-- some conutries centralize certain pathology results
-etc.
-
-Sometimes, this happens on a smaller scale like within a hospital where 
-hey already have successfully implemented some of these services, they 
-are running smoothly, and they find no reason to pull it apart again. 
-GNUMed will shine in such an environment because it will be far easier 
-to integrate into such existing solutions than other software.
-
-Thus we try to find out which "services" are relatively independent from 
-  others, and isolate them into particular "virtual" databases. That 
-way, it will be magnitudes easier to write simple wrappers for external 
-sources and use them.
-
-The main obstacle is tha Postgres in itself does not support 
-cross-database queries, and we have to take care of referential 
-integrity between external sources ourselves.
-
-Note: we should put in a description on how this is achieved now
-(client side) vs. how we would want this (either built into postgres
-or via a dedicated demon on the backend with listen/notify)
+>    	    	GNUMed allows distributions of database services. Closely related information like a person's
+		name and address are regarded as a "service", which may or may not be hosted on the same physical 
+		server as other services. Developers have to refer to the list of services when designing database 
+		queries. A <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>central pivot database</I
+></SPAN
+> provides information about the nature and whereabouts of 
+		distributed services. On the client side, distribution is made transparent to the developer
+		and end user through a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>"database service broker"</I
+></SPAN
+> object which not only hides information about
+		service distribution, but can also be used for load balancing , reusable connections and database
+		replication in future versions. 
+    	    	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN230">Normalization of data</H2
+><P
+>    	    	Tables are <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>normalized</I
+></SPAN
+> to the  3rd normal form as long as this does not deteriorate query performance
+		too much. In order to simplify client software development, a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>pseudo-denormalization</I
+></SPAN
+> is achieved through
+		updateable views. Foreign key constraints ensure <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>referential integrity</I
+></SPAN
+> of highly normalized data.
+		Reference counter tables keep track of <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>cross-database relational integrity</I
+></SPAN
+>, as PostgreSQL does not allow
+		(yet) cross-database constraints and queries.
+		</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN237">Audit trailing</H2
+><P
+>    	    	<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Trigger functions</I
+></SPAN
+> ensure business logic and <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>audit trailing</I
+></SPAN
+> . Deleting and updating of data is caught by
+		triggers, and copies of the originals are kept in audit trail tables at all times. Database programmers
+		need not to worry about this, as all audit trail related triggers and tables are generated automatically.
+		In order to achieve this, we do use postgres specific extensions such as table inheritance and built-in 
+		procedural languages such as pgsql, pgtcl and pgpython. Thus, gnumed can not be
+    	    	easily ported to a different database backend.
+    	    	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN242">Access control</H2
+><P
+>    	    	The PostgreSQL server supports <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>secure authentication protocols</I
+></SPAN
+> such as Kerberos as well as <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>secure
+		communication protocols</I
+></SPAN
+> between client and server(s) such as SSL. In addition, data of more strictly
+		confidential data wil be stored encrypted with arbitrary algorithms; although the cryptographic process
+		is performed on the client side, this is supported by the GNUMed server through a sophisticated key management.
+		A user hierarchy can be implemented, and access to tables and procedures can be regulated through this hierarchy
+		on the server side.
+    	    	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN247">Multigenerational concurrency control and backups</H2
+><P
+>    	    PostgreSQL uses a multigenerational concurrency control system. This not only avoids most locking situations,
+	    but also allows <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>life "snapshot" backups</I
+></SPAN
+> of the complete database system while the system is running even under
+	    full load.
 	    </P
-><P
->	    Karsten Hilbert: 
-There isn't really much choice: Doing everything in one
-monolithic database isn't quite flexible enough (distributed
-practices with a WAN link, remote clinical repository but
-local drug information data store). The difference between
-hardcoding 2 or 3 database and doing it the Right Way as we
-are trying to do now isn't very much of a difference. So there
-aren't really many steps inbetween "monolithic" and
-"distributed according to some configuration". Yes, it's a bit
-more complex but to the client side it shouldn't be any more
-complex than:
-
-dbbrooker.GetConnection('personalia')
-dbbrooker.GetConnection('BLOBS')
-
-If we then properly encapsulate accesses into objects we don't
-experience too much pain in using the distributed version.
-
-It does get a bit more involved with keeping strict
-referential integrity across databases but Horst can explain
-the issues better than me.
-    	    </P
+></DIV
 ></DIV
 ></DIV
 ><DIV
@@ -190,7 +307,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x223.htm"
+HREF="x251.htm"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -210,7 +327,7 @@ VALIGN="top"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->GUI design</TD
+>List of distributed database services</TD
 ></TR
 ></TABLE
 ></DIV

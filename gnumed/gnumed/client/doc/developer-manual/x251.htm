@@ -1,0 +1,540 @@
+<HTML
+><HEAD
+><TITLE
+>List of distributed database services</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="book1.htm"><LINK
+REL="UP"
+TITLE=" Design "
+HREF="c216.htm"><LINK
+REL="PREVIOUS"
+TITLE=" Design "
+HREF="c216.htm"><LINK
+REL="NEXT"
+TITLE="FAQ"
+HREF="x377.htm"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: Developers's Manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c216.htm"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Design</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x377.htm"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN251">List of distributed database services</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN253">Configuration - the service administering all other services</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN256">Person related services</H2
+><DIV
+CLASS="INFORMALTABLE"
+><A
+NAME="AEN258"><P
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="17%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Service name:</TD
+><TD
+WIDTH="83%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Personalia</TD
+></TR
+><TR
+><TD
+WIDTH="17%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Provides:</TD
+><TD
+WIDTH="83%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>    	    	                    All information directly related to a person's identity, biological and social relationships
+                    	    	    excluding confidential data (like credit card information) 
+				</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>    				    All geographical information, including  
+				</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>                		    Personal communication related information (phone numbers, fax, email, web sites, pagers) 
+				</P
+></LI
+></UL
+></TD
+></TR
+><TR
+><TD
+WIDTH="17%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Access level:</TD
+><TD
+WIDTH="83%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>all staff</TD
+></TR
+></TBODY
+></TABLE
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><TBODY
+><TR
+><TD
+WIDTH="20%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Related Scripts:</TD
+><TD
+WIDTH="20%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>gnumed.sql</TD
+><TD
+WIDTH="60%"
+ALIGN="LEFT"
+VALIGN="TOP"
+> priming of database (creation of procedural languages, basic access
+                                    permissions, audit trail priming)
+			    </TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+><TD
+WIDTH="20%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>gmgis.sql</TD
+><TD
+WIDTH="60%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>                            	    geographic information in the widest sense; streets, cities, states, nations,
+                            	    postcodes ...
+			    </TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+><TD
+WIDTH="20%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>gmidentity.sql</TD
+><TD
+WIDTH="60%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>                            	    a person's identity, names, relationships, and a many-to-many pivot table
+                            	    linking identities to addresses
+			    </TD
+></TR
+><TR
+><TD
+WIDTH="20%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&nbsp;</TD
+><TD
+WIDTH="20%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>gmcommunication.sql</TD
+><TD
+WIDTH="60%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>                            	    phone &#38; fax numbers, email addresses, web sites, pagers, etc. and a
+                            	    many-to-many pivot table linking identities to communication URLs
+			    </TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN300">Medical history related services</H2
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>		    past medical  history / diagnoses 
+		    </P
+></LI
+><LI
+><P
+>		    active medical problems
+		    </P
+></LI
+><LI
+><P
+>		    progress reports
+		    </P
+></LI
+><LI
+><P
+>		    social history 
+		    </P
+></LI
+><LI
+><P
+>		    family history 
+		    </P
+></LI
+><LI
+><P
+>		    substance abuse history 
+		    </P
+></LI
+><LI
+><P
+>		    allergies 
+		    </P
+></LI
+><LI
+><P
+>		    vaccinations
+		    </P
+></LI
+><LI
+><P
+>		    past medication &#38; current prescriptions
+		    </P
+></LI
+></OL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN321">External results</H2
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>		    pathology results 
+		    </P
+></LI
+><LI
+><P
+>		    imaging results
+		    </P
+></LI
+></OL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN328">Correspondence</H2
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>		    sent documents (referrals, certificates) 
+		    </P
+></LI
+><LI
+><P
+>		    received documents (discharge summaries, specialist reports)
+		    </P
+></LI
+></OL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN335">Pharmaceutical reference</H2
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>		    drug listing: generic and brand names 
+		    </P
+></LI
+><LI
+><P
+>		    drug properties 
+		    </P
+></LI
+><LI
+><P
+>		    consumer product information  
+		    </P
+></LI
+><LI
+><P
+>		    interactions
+		    </P
+></LI
+></OL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN346">General medical reference</H2
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>		    coding (i.e. LOINC, ICD-10)
+		    </P
+></LI
+></OL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN351">Decision support database</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN354">Large binary objects (BLOBS)</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN357">Accounting related</H2
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>		    billing 
+		    </P
+></LI
+><LI
+><P
+>		    tax related information 
+		    </P
+></LI
+><LI
+><P
+>		    stock tracking
+		    </P
+></LI
+><LI
+><P
+>		    ordering supplies
+		    </P
+></LI
+></OL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN368">Office related</H2
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>		    waiting room 
+		    </P
+></LI
+><LI
+><P
+>		    appointments 
+		    </P
+></LI
+><LI
+><P
+>		    recalls 
+		    </P
+></LI
+></OL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c216.htm"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.htm"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x377.htm"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Design</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c216.htm"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>FAQ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

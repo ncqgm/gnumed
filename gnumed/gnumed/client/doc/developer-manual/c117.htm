@@ -185,7 +185,8 @@ NAME="AEN127">gmConf.py</H2
 ><PRE
 CLASS="SCREEN"
 >Configuration model
-This duplicates some of Karsten's work, but a configuration tool is required that talks to the remote database
+This duplicates some of Karsten's work, but a configuration tool is required
+that talks to the remote database
 
 def GetAllConfigs ():
 def SetConfig (key, value):
@@ -275,7 +276,8 @@ class CachedDBObject
 		'callback' must not return anything
 
 	def queue_notification(self, queue=1):
-		simple helper mechanism to ensure only the most recent thread updates widgets on data change
+		simple helper mechanism to ensure only the most recent thread
+		updates widgets on data change
 		
 	def notify(self):
 		forces execution of all registered callback functions
@@ -402,33 +404,37 @@ class GuiBroker:
 	#query an instance of GuiBroker for it.
 
 	def addobject(self, widget, key=None):
-		"Add an object to the gnumed gui object dictionary"
+		Add an object to the gnumed gui object dictionary"
 
-		#An object can be anything (class, variable, widget)
-		#The "key" is a key expression (number, text) that
-		#allows you to retrieve the object.
-		#Convention for keys is the widget or variable name
-		#as a text string
-		#If key is not passed as parameter, a unique serial
-		#number is allocated as key and returned
+		An object can be anything (class, variable, widget)
+		The "key" is a key expression (number, text) that
+		allows you to retrieve the object.
+		Convention for keys is the widget or variable name
+		as a text string
+		If key is not passed as parameter, a unique serial
+		number is allocated as key and returned
 
 	def getobject(self, key):
-		"allows to retrieve a gnumed gui element; see addobject() regarding the key parameter"
+		allows to retrieve a gnumed gui element; see addobject()
+		regarding the key parameter
 
 	def keylist(self):
-		" returns a list of all keys; see documentation for the dictionary data type"
+		returns a list of all keys; see documentation for the
+		dictionary data type
 
 	def valuelist(self):
-		"returns a list of all values; see documentation for the dictionary data type"
+		returns a list of all values; see documentation for the
+		dictionary data type
 
 	def itemlist(self):
-		"returns a list of all key:value pairs; see documentation for the dictionary data type"
+		returns a list of all key:value pairs;
+		see documentation for the dictionary data type
 
 	def __getitem__(self, key):
-		"Allows retrieving the value via value = instance[key]"
+		Allows retrieving the value via value = instance[key]
 
 	def __setitem__(self, key, object):
-		"Allows access in the style of instance[key]=value"&#13;</PRE
+		Allows access in the style of instance[key]=value&#13;</PRE
 ></DIV
 ><DIV
 CLASS="SECT2"
@@ -438,7 +444,7 @@ CLASS="SECT2"
 NAME="AEN142">gmI18N.py</H2
 ><PRE
 CLASS="SCREEN"
->"""GNUmed client internationalization/localization.
+>GNUmed client internationalization/localization.
 
 All i18n/l10n issues should be handled through this modules.
 
@@ -528,7 +534,8 @@ some messages separate from others.
 
 Usage:
 1.) if desired create an instance of cLogger
-2.) create appropriate log targets and add them to the default logger or your own (from step 1)
+2.) create appropriate log targets and add them to the default logger or your 
+    own (from step 1)
 3.) call the cLogger.LogXXX() functions
 
 # log levels:
@@ -545,44 +552,47 @@ Usage:
 
 class cLogger:
 	def __init__(self, aTarget=None):
-		"""Open an instance of cLogger and initialize a target.
+		Open an instance of cLogger and initialize a target.
 		in case there's no target given open a dummy target
 
 	def close(self):
-		"""Close this logger and cleanly shutdown any open targets.
+		Close this logger and cleanly shutdown any open targets.
 
 	def AddTarget (self, aTarget):
-		"""Add another log target.
+		Add another log target.
 
 		- targets must be objects derived from cLogTarget
 		- ignores identical targets
 		- the number of concurrent targets is potentially unlimited
 
 	def RemoveTarget (self, anID):
-		"""Remove a log target by it's ID.
-		- clients have to track target ID's themselves if they want to remove targets
+		Remove a log target by it's ID.
+		- clients have to track target ID's themselves if they want to
+		  remove targets
 
 	def Log(self, aLogLevel, aMsg, aRawnessFlag = lUncooked):
-		"""Log a message.
+		Log a message.
 
 		- for a list of log levels see top of file
-		- messages above the currently active level of logging/verbosity are dropped silently
-		- if Rawness == lCooked non-printables &#60; 32 (space) will be mapped to their name in ASCII
+		- messages above the currently active level of logging/verbosity
+		  are dropped silently
+		- if Rawness == lCooked non-printables &#60; 32 (space) will be mapped to
+		  their name in ASCII
 		- FIXME: this should be a Unicode mapping
 
 	def LogDelimiter (self):
-		"""Write a horizontal delimiter to the log target.
+		Write a horizontal delimiter to the log target.
 
 	def LogException(self, aMsg, exception, fatal=1):
-		"""Log an exception.
+		Log an exception.
 		'exception' is a tuple as returned by sys.exc_info()
 
 	def SetAllLogLevels (self, aLogLevel = None):
-		"""Set a certain log level on all targets."""
+		Set a certain log level on all targets.
 
 private classes / methods:
 class cLogTarget:
-	"""Base class for actual log target implementations.
+	Base class for actual log target implementations.
 	- derive your targets from this class
 	- offers lots of generic functionality
 
@@ -701,9 +711,9 @@ class ConnectionPool:
 
 	def GetAvailableServices(self):
 
-		"""list all distributed services available on this system
+		list all distributed services available on this system
 
-		(according to configuration database)"""
+		(according to configuration database)
 
 
 	def Connected(self):
@@ -719,12 +729,12 @@ class ConnectionPool:
 #---------------------------------------------------
 def cursorIndex(cursor):
 
-	"""returns a dictionary of row atribute names and their row indices"""
+	returns a dictionary of row atribute names and their row indices
 
 
 def descriptionIndex(cursordescription):
 
-	"""returns a dictionary of row atribute names and their row indices"""
+	returns a dictionary of row atribute names and their row indices
 
 
 def dictResult(cursor, fetched=None):
@@ -759,9 +769,9 @@ def listSystemTables(service='default'):
 
 def quickROQuery(query, service='default'):
 
-	"""a quick read-only query that fetches all possible results at once
+	a quick read-only query that fetches all possible results at once
 
-	returns the tuple containing the fetched rows and the cursor 'description' object"""
+	returns the tuple containing the fetched rows and the cursor 'description' object
 
 
 def getBackendName():
@@ -772,14 +782,14 @@ def prompted_input(prompt, default=None):
 
 def inputTMLoginParams():
 
-	"""text mode input request of database login parameters"""
+	text mode input request of database login parameters
 
 
 def inputWXLoginParams():
 
-	"""GUI (wx) mode input request of database login parameters.
+	GUI (wx) mode input request of database login parameters.
 
-	Returns gmLoginInfo.LoginInfo object"""
+	Returns gmLoginInfo.LoginInfo object
 
 
 def inputLoginParams():
@@ -797,7 +807,7 @@ NAME="AEN154">gmPlugin.py</H2
 CLASS="SCREEN"
 >&#13;# gmPlugin - base classes for GNUMed's plugin architecture
 class gmPlugin:
-	"""base class for all gnumed plugins"""
+	base class for all gnumed plugins
 
 	def provides ():
 		Returns a list of services that the plugin provides
@@ -809,7 +819,7 @@ class gmPlugin:
 		satisfies the plugins' requirements
 
 	def description ():
-		"""Returns a brief description of the plugin.
+		Returns a brief description of the plugin.
 
 	def name (self):
 
@@ -819,7 +829,7 @@ class gmPlugin:
 
 class wxBasePlugin (gmPlugin):
 	
-	"""
+	
 	base class for all plugins providing wxPython widgets.
 	Plugins must have a class descending of this class in their file, which MUST HAVE THE SAME NAME AS THE FILE.
 	The file must be in a directory which is loaded by LoadPluginSet (gui/ for the moment, others may be added for different plugin types)
@@ -830,7 +840,7 @@ class wxBasePlugin (gmPlugin):
 	def __init__(self, guibroker=None, callbackbroker=None, dbbroker=None, params=None):
 
 	def GetIcon (self):
-		"""Return icon representing page on the toolbar.
+		Return icon representing page on the toolbar.
 		This is the default behaviour. GetIconData should return
 		pickled, compressed and escaped string with the icon data.
 
@@ -855,38 +865,38 @@ class wxBasePlugin (gmPlugin):
 		Return the widget to display
 
 	def MenuInfo (self):
-		"""Return tuple of (menuname, menuitem).
+		Return tuple of (menuname, menuitem).
 		menuname can be "tools", "view", "help", "file"
 
 	def Raise (self):
-		"""Raises this plugin to the top level if not visible.
+		Raises this plugin to the top level if not visible.
 
 	def Shown (self):
-		"""Called whenever this module is shown onscreen.
+		Called whenever this module is shown onscreen.
 
 class wxNotebookPlugin (wxBasePlugin):
-	"""
+	
 	Base plugin for plugins which provide a 'big page'
 	Either whole screen, or notebook if it exists
-	"""	
+		
 	def register (self):
-		"""Register ourselves with the main notebook widget."""
+		Register ourselves with the main notebook widget.
 
 	def unregister (self):
-		"""Remove ourselves."""
+		Remove ourselves.
 
 	def Raise (self):
 	def OnMenu (self, event):
 	def GetNotebookNumber (self):
 	def DoToolbar (self, tb, widget):
-		"""
+		
 		sets up the toolbar for this widget.
 		tb is the toolbar
 		widget is the widget returned by GetWidget () for connecting events
 
 
 class wxPatientPlugin (wxBasePlugin):
-	"""
+	
 	A 'small page', sits inside the patient view, with the side visible
 
 	def register (self)
@@ -896,7 +906,7 @@ class wxPatientPlugin (wxBasePlugin):
 
 
 def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
-	"""Loads a plugin from a package directory.
+	Loads a plugin from a package directory.
 
 	- "set" specifies the subdirectory in which to find the plugin
 	- this knows nothing of databases, all it does is load a named plugin
@@ -910,11 +920,11 @@ def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	FIXME: we should inform the user about failing plugins
 
 def GetAllPlugins (set):
-	"""
+	
 	Searches the directory for all plugins
 
 def UnloadPlugin (set, name):
-	"""
+	
 	Unloads the named plugin&#13;</PRE
 ></DIV
 ><DIV

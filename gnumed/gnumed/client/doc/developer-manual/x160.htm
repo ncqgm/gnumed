@@ -111,7 +111,7 @@ Command line arguments:
 
 
 def get_base_dir():
-	"""Retrieve the global base directory.
+	Retrieve the global base directory.
 
 	   The most preferable approach would be to just let
 	   the user specify the name of a config file on the
@@ -254,7 +254,7 @@ class MainFrame(wxFrame):
     	def OnClose(self,event):
 
 	def OnIdle(self, event):
-		"""Here we can process any background tasks
+		Here we can process any background tasks
 
 	def OnIconize(self, event):
 
@@ -270,7 +270,7 @@ class gmApp(wxApp):
 		# create the MainFrame		
 
 def main():
-	"""GNUmed client written in Python
+	GNUmed client written in Python
 	to run this application simply call main() or run the module as "main"
 	#create an instance of our GNUmed main application
 	#and enter the main event loop
@@ -311,14 +311,14 @@ Right clicking pops up a menu that allows to encrypt or decrypt
 the selected text segment.
 
 class gmTextctrlFileDropTarget(wxFileDropTarget):
-    """ a generic text control widget that accepts dropped files """
+     a generic text control widget that accepts dropped files 
 
     def __init__(self, textwindow):
     def OnDropFiles(self, x, y, filenames):
-        """inserts the dropped file(s) content(s) at the cursor position"""
+        inserts the dropped file(s) content(s) at the cursor position
 
 class gmCryptoText(wxTextCtrl):
-    """A special text widget that supports cryptography
+    A special text widget that supports cryptography
 
     A right mouse click pops up a manu that allows to encrypt
     or decrypt selected text segments.
@@ -329,7 +329,8 @@ class gmCryptoText(wxTextCtrl):
     def __init__(self, parent, id, size=wxPyDefaultSize, style=wxTE_MULTILINE|wxTE_RICH, defaulttext=None):
 
     def OnRightClick(self, event):
-        "A right mouse click triggers a popup menu for cryptographic functionality"
+        A right mouse click triggers a popup menu for cryptographic
+	functionality"
 
     def OnContextMenu(self, event):
 
@@ -339,27 +340,27 @@ class gmCryptoText(wxTextCtrl):
     def OnDecrypt(self, event):
     def OnSetPassphrase(self, event):
     def OnRightDown(self, event):
-        """dummy function; if this event was not intercepted, GTK would
-        clear the text selection the very moment the mouse button is clicked"""
+        dummy function; if this event was not intercepted, GTK would
+        clear the text selection the very moment the mouse button is clicked
 
     def AskForPassphrase(self):
-        """asks for a pass phrase and returns it"""
+        asks for a pass phrase and returns it
 
     def Encrypt(self, cleartext, key):
-        """override this function for your own crypto funcs"""
+        override this function for your own crypto funcs
 
     def Decrypt(self, ciphertext, key, identtag):
-        """override this function for your own crypto funcs"""
+        override this function for your own crypto funcs
 
     def StripIdentTag(self, text):
-        """Remove the 'ident tag' from text and return both tag and test"""
+        Remove the 'ident tag' from text and return both tag and test
     def GetIdentTag(self):
-        """This is a 'virtual' function which should be overridden to provide your own meaningful tag"""
+        This is a 'virtual' function which should be overridden to provide your own meaningful tag
 
     def SetFuzzyMargin(self, margin):
-        """The fuzzy margin is the number of characters on each side of the text selection
+        The fuzzy margin is the number of characters on each side of the text selection
         the decryption algorithm will search for correct delimiters. It should be at least as long as
-        the IdentTag is plus an extra 3 characters to allow for the crypto tag"""
+        the IdentTag is plus an extra 3 characters to allow for the crypto tag
 
     def FuzzyScanSelection(self, frompos, topos, margin):&#13;</PRE
 ></DIV

@@ -322,7 +322,8 @@ Limitations:
 </screen></sect2>
 <sect2><title>gmConf.py</title><screen>
 Configuration model
-This duplicates some of Karsten's work, but a configuration tool is required that talks to the remote database
+This duplicates some of Karsten's work, but a configuration tool is required
+that talks to the remote database
 
 def GetAllConfigs ():
 def SetConfig (key, value):
@@ -407,7 +408,8 @@ class CachedDBObject
 		'callback' must not return anything
 
 	def queue_notification(self, queue=1):
-		simple helper mechanism to ensure only the most recent thread updates widgets on data change
+		simple helper mechanism to ensure only the most recent thread
+		updates widgets on data change
 		
 	def notify(self):
 		forces execution of all registered callback functions
@@ -518,37 +520,41 @@ class GuiBroker:
 	#query an instance of GuiBroker for it.
 
 	def addobject(self, widget, key=None):
-		"Add an object to the gnumed gui object dictionary"
+		Add an object to the gnumed gui object dictionary"
 
-		#An object can be anything (class, variable, widget)
-		#The "key" is a key expression (number, text) that
-		#allows you to retrieve the object.
-		#Convention for keys is the widget or variable name
-		#as a text string
-		#If key is not passed as parameter, a unique serial
-		#number is allocated as key and returned
+		An object can be anything (class, variable, widget)
+		The "key" is a key expression (number, text) that
+		allows you to retrieve the object.
+		Convention for keys is the widget or variable name
+		as a text string
+		If key is not passed as parameter, a unique serial
+		number is allocated as key and returned
 
 	def getobject(self, key):
-		"allows to retrieve a gnumed gui element; see addobject() regarding the key parameter"
+		allows to retrieve a gnumed gui element; see addobject()
+		regarding the key parameter
 
 	def keylist(self):
-		" returns a list of all keys; see documentation for the dictionary data type"
+		returns a list of all keys; see documentation for the
+		dictionary data type
 
 	def valuelist(self):
-		"returns a list of all values; see documentation for the dictionary data type"
+		returns a list of all values; see documentation for the
+		dictionary data type
 
 	def itemlist(self):
-		"returns a list of all key:value pairs; see documentation for the dictionary data type"
+		returns a list of all key:value pairs;
+		see documentation for the dictionary data type
 
 	def __getitem__(self, key):
-		"Allows retrieving the value via value = instance[key]"
+		Allows retrieving the value via value = instance[key]
 
 	def __setitem__(self, key, object):
-		"Allows access in the style of instance[key]=value"
+		Allows access in the style of instance[key]=value
 
 </screen></sect2>
 <sect2><title>gmI18N.py</title><screen>
-"""GNUmed client internationalization/localization.
+GNUmed client internationalization/localization.
 
 All i18n/l10n issues should be handled through this modules.
 
@@ -634,7 +640,8 @@ some messages separate from others.
 
 Usage:
 1.) if desired create an instance of cLogger
-2.) create appropriate log targets and add them to the default logger or your own (from step 1)
+2.) create appropriate log targets and add them to the default logger or your 
+    own (from step 1)
 3.) call the cLogger.LogXXX() functions
 
 # log levels:
@@ -651,44 +658,47 @@ Usage:
 
 class cLogger:
 	def __init__(self, aTarget=None):
-		"""Open an instance of cLogger and initialize a target.
+		Open an instance of cLogger and initialize a target.
 		in case there's no target given open a dummy target
 
 	def close(self):
-		"""Close this logger and cleanly shutdown any open targets.
+		Close this logger and cleanly shutdown any open targets.
 
 	def AddTarget (self, aTarget):
-		"""Add another log target.
+		Add another log target.
 
 		- targets must be objects derived from cLogTarget
 		- ignores identical targets
 		- the number of concurrent targets is potentially unlimited
 
 	def RemoveTarget (self, anID):
-		"""Remove a log target by it's ID.
-		- clients have to track target ID's themselves if they want to remove targets
+		Remove a log target by it's ID.
+		- clients have to track target ID's themselves if they want to
+		  remove targets
 
 	def Log(self, aLogLevel, aMsg, aRawnessFlag = lUncooked):
-		"""Log a message.
+		Log a message.
 
 		- for a list of log levels see top of file
-		- messages above the currently active level of logging/verbosity are dropped silently
-		- if Rawness == lCooked non-printables < 32 (space) will be mapped to their name in ASCII
+		- messages above the currently active level of logging/verbosity
+		  are dropped silently
+		- if Rawness == lCooked non-printables < 32 (space) will be mapped to
+		  their name in ASCII
 		- FIXME: this should be a Unicode mapping
 
 	def LogDelimiter (self):
-		"""Write a horizontal delimiter to the log target.
+		Write a horizontal delimiter to the log target.
 
 	def LogException(self, aMsg, exception, fatal=1):
-		"""Log an exception.
+		Log an exception.
 		'exception' is a tuple as returned by sys.exc_info()
 
 	def SetAllLogLevels (self, aLogLevel = None):
-		"""Set a certain log level on all targets."""
+		Set a certain log level on all targets.
 
 private classes / methods:
 class cLogTarget:
-	"""Base class for actual log target implementations.
+	Base class for actual log target implementations.
 	- derive your targets from this class
 	- offers lots of generic functionality
 
@@ -763,8 +773,8 @@ class ConnectionPool:
 		"decrease reference counter of active connection"
 
 	def GetAvailableServices(self):
-		"""list all distributed services available on this system
-		(according to configuration database)"""
+		list all distributed services available on this system
+		(according to configuration database)
 
 	def Connected(self):
 
@@ -775,10 +785,10 @@ class ConnectionPool:
 # database helper functions
 #---------------------------------------------------
 def cursorIndex(cursor):
-	"""returns a dictionary of row atribute names and their row indices"""
+	returns a dictionary of row atribute names and their row indices
 
 def descriptionIndex(cursordescription):
-	"""returns a dictionary of row atribute names and their row indices"""
+	returns a dictionary of row atribute names and their row indices
 
 def dictResult(cursor, fetched=None):
 	"returns the all rows fetchable by the cursor as dictionary (attribute:value)"
@@ -799,19 +809,19 @@ def listSystemTables(service='default'):
 	"list the system tables of the specified service"
 
 def quickROQuery(query, service='default'):
-	"""a quick read-only query that fetches all possible results at once
-	returns the tuple containing the fetched rows and the cursor 'description' object"""
+	a quick read-only query that fetches all possible results at once
+	returns the tuple containing the fetched rows and the cursor 'description' object
 
 def getBackendName():
 
 def prompted_input(prompt, default=None):
 
 def inputTMLoginParams():
-	"""text mode input request of database login parameters"""
+	text mode input request of database login parameters
 
 def inputWXLoginParams():
-	"""GUI (wx) mode input request of database login parameters.
-	Returns gmLoginInfo.LoginInfo object"""
+	GUI (wx) mode input request of database login parameters.
+	Returns gmLoginInfo.LoginInfo object
 
 def inputLoginParams():
 	"input request for database backend login parameters. Try GUI dialog if available"
@@ -821,7 +831,7 @@ def inputLoginParams():
 
 # gmPlugin - base classes for GNUMed's plugin architecture
 class gmPlugin:
-	"""base class for all gnumed plugins"""
+	base class for all gnumed plugins
 
 	def provides ():
 		Returns a list of services that the plugin provides
@@ -833,7 +843,7 @@ class gmPlugin:
 		satisfies the plugins' requirements
 
 	def description ():
-		"""Returns a brief description of the plugin.
+		Returns a brief description of the plugin.
 
 	def name (self):
 
@@ -843,7 +853,7 @@ class gmPlugin:
 
 class wxBasePlugin (gmPlugin):
 	
-	"""
+	
 	base class for all plugins providing wxPython widgets.
 	Plugins must have a class descending of this class in their file, which MUST HAVE THE SAME NAME AS THE FILE.
 	The file must be in a directory which is loaded by LoadPluginSet (gui/ for the moment, others may be added for different plugin types)
@@ -854,7 +864,7 @@ class wxBasePlugin (gmPlugin):
 	def __init__(self, guibroker=None, callbackbroker=None, dbbroker=None, params=None):
 
 	def GetIcon (self):
-		"""Return icon representing page on the toolbar.
+		Return icon representing page on the toolbar.
 		This is the default behaviour. GetIconData should return
 		pickled, compressed and escaped string with the icon data.
 
@@ -879,38 +889,38 @@ class wxBasePlugin (gmPlugin):
 		Return the widget to display
 
 	def MenuInfo (self):
-		"""Return tuple of (menuname, menuitem).
+		Return tuple of (menuname, menuitem).
 		menuname can be "tools", "view", "help", "file"
 
 	def Raise (self):
-		"""Raises this plugin to the top level if not visible.
+		Raises this plugin to the top level if not visible.
 
 	def Shown (self):
-		"""Called whenever this module is shown onscreen.
+		Called whenever this module is shown onscreen.
 
 class wxNotebookPlugin (wxBasePlugin):
-	"""
+	
 	Base plugin for plugins which provide a 'big page'
 	Either whole screen, or notebook if it exists
-	"""	
+		
 	def register (self):
-		"""Register ourselves with the main notebook widget."""
+		Register ourselves with the main notebook widget.
 
 	def unregister (self):
-		"""Remove ourselves."""
+		Remove ourselves.
 
 	def Raise (self):
 	def OnMenu (self, event):
 	def GetNotebookNumber (self):
 	def DoToolbar (self, tb, widget):
-		"""
+		
 		sets up the toolbar for this widget.
 		tb is the toolbar
 		widget is the widget returned by GetWidget () for connecting events
 
 
 class wxPatientPlugin (wxBasePlugin):
-	"""
+	
 	A 'small page', sits inside the patient view, with the side visible
 
 	def register (self)
@@ -920,7 +930,7 @@ class wxPatientPlugin (wxBasePlugin):
 
 
 def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
-	"""Loads a plugin from a package directory.
+	Loads a plugin from a package directory.
 
 	- "set" specifies the subdirectory in which to find the plugin
 	- this knows nothing of databases, all it does is load a named plugin
@@ -934,11 +944,11 @@ def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	FIXME: we should inform the user about failing plugins
 
 def GetAllPlugins (set):
-	"""
+	
 	Searches the directory for all plugins
 
 def UnloadPlugin (set, name):
-	"""
+	
 	Unloads the named plugin
 
 </screen></sect2>
@@ -1045,7 +1055,7 @@ Command line arguments:
 
 
 def get_base_dir():
-	"""Retrieve the global base directory.
+	Retrieve the global base directory.
 
 	   The most preferable approach would be to just let
 	   the user specify the name of a config file on the
@@ -1183,7 +1193,7 @@ class MainFrame(wxFrame):
     	def OnClose(self,event):
 
 	def OnIdle(self, event):
-		"""Here we can process any background tasks
+		Here we can process any background tasks
 
 	def OnIconize(self, event):
 
@@ -1199,7 +1209,7 @@ class gmApp(wxApp):
 		# create the MainFrame		
 
 def main():
-	"""GNUmed client written in Python
+	GNUmed client written in Python
 	to run this application simply call main() or run the module as "main"
 	#create an instance of our GNUmed main application
 	#and enter the main event loop
@@ -1229,14 +1239,14 @@ Right clicking pops up a menu that allows to encrypt or decrypt
 the selected text segment.
 
 class gmTextctrlFileDropTarget(wxFileDropTarget):
-    """ a generic text control widget that accepts dropped files """
+     a generic text control widget that accepts dropped files 
 
     def __init__(self, textwindow):
     def OnDropFiles(self, x, y, filenames):
-        """inserts the dropped file(s) content(s) at the cursor position"""
+        inserts the dropped file(s) content(s) at the cursor position
 
 class gmCryptoText(wxTextCtrl):
-    """A special text widget that supports cryptography
+    A special text widget that supports cryptography
 
     A right mouse click pops up a manu that allows to encrypt
     or decrypt selected text segments.
@@ -1247,7 +1257,8 @@ class gmCryptoText(wxTextCtrl):
     def __init__(self, parent, id, size=wxPyDefaultSize, style=wxTE_MULTILINE|wxTE_RICH, defaulttext=None):
 
     def OnRightClick(self, event):
-        "A right mouse click triggers a popup menu for cryptographic functionality"
+        A right mouse click triggers a popup menu for cryptographic
+	functionality"
 
     def OnContextMenu(self, event):
 
@@ -1257,27 +1268,27 @@ class gmCryptoText(wxTextCtrl):
     def OnDecrypt(self, event):
     def OnSetPassphrase(self, event):
     def OnRightDown(self, event):
-        """dummy function; if this event was not intercepted, GTK would
-        clear the text selection the very moment the mouse button is clicked"""
+        dummy function; if this event was not intercepted, GTK would
+        clear the text selection the very moment the mouse button is clicked
 
     def AskForPassphrase(self):
-        """asks for a pass phrase and returns it"""
+        asks for a pass phrase and returns it
 
     def Encrypt(self, cleartext, key):
-        """override this function for your own crypto funcs"""
+        override this function for your own crypto funcs
 
     def Decrypt(self, ciphertext, key, identtag):
-        """override this function for your own crypto funcs"""
+        override this function for your own crypto funcs
 
     def StripIdentTag(self, text):
-        """Remove the 'ident tag' from text and return both tag and test"""
+        Remove the 'ident tag' from text and return both tag and test
     def GetIdentTag(self):
-        """This is a 'virtual' function which should be overridden to provide your own meaningful tag"""
+        This is a 'virtual' function which should be overridden to provide your own meaningful tag
 
     def SetFuzzyMargin(self, margin):
-        """The fuzzy margin is the number of characters on each side of the text selection
+        The fuzzy margin is the number of characters on each side of the text selection
         the decryption algorithm will search for correct delimiters. It should be at least as long as
-        the IdentTag is plus an extra 3 characters to allow for the crypto tag"""
+        the IdentTag is plus an extra 3 characters to allow for the crypto tag
 
     def FuzzyScanSelection(self, frompos, topos, margin):
 
@@ -1374,9 +1385,265 @@ should be del()ed after use, actually
     <chapter>
     	<title> Design </title>
 	<sect1>
-	    <title>Database design</title>
-	    <para>
-	    > I would be interested in hearing about the database design 
+	    <title>GNUMed Database Architecture</title>
+    	    <sect2>	
+    	    	<title>Client-Server architecture with optional middleware layers</title>
+    	    	<para>
+    	    	GNUMed is designed as a <emphasis>client-server</emphasis> architecture with <emphasis>optional middleware</emphasis> components.
+		The database backend is provided by PostgreSQL, a largely SQL-92 compliant  object-relational
+		database server. PostgreSQL is free software, obtainable at http://www.postgresql.org. 
+		It is portable, running on virtually all Posix compatible systems including Gnu/Linux, 
+		BSD Unix, Solaris, Mac OS/X. Although we do not recommend it, it can be run on Microsoft
+		Windows NT, 2000 and XP.
+    	    	</para> 
+    	    </sect2>
+            <sect2>
+	    	<title>Distribution of database services</title>
+    	    	<para>
+    	    	GNUMed allows distributions of database services. Closely related information like a person's
+		name and address are regarded as a "service", which may or may not be hosted on the same physical 
+		server as other services. Developers have to refer to the list of services when designing database 
+		queries. A <emphasis>central pivot database</emphasis> provides information about the nature and whereabouts of 
+		distributed services. On the client side, distribution is made transparent to the developer
+		and end user through a <emphasis>"database service broker"</emphasis> object which not only hides information about
+		service distribution, but can also be used for load balancing , reusable connections and database
+		replication in future versions. 
+    	    	</para>
+	    </sect2>
+    	    <sect2>
+	    	<title>Normalization of data</title>
+    	    	<para>
+    	    	Tables are <emphasis>normalized</emphasis> to the  3rd normal form as long as this does not deteriorate query performance
+		too much. In order to simplify client software development, a <emphasis>pseudo-denormalization</emphasis> is achieved through
+		updateable views. Foreign key constraints ensure <emphasis>referential integrity</emphasis> of highly normalized data.
+		Reference counter tables keep track of <emphasis>cross-database relational integrity</emphasis>, as PostgreSQL does not allow
+		(yet) cross-database constraints and queries.
+		</para>
+    	    </sect2>
+    	    <sect2>
+	    	<title>Audit trailing</title>
+    	    	<para>
+    	    	<emphasis>Trigger functions</emphasis> ensure business logic and <emphasis>audit trailing</emphasis> . Deleting and updating of data is caught by
+		triggers, and copies of the originals are kept in audit trail tables at all times. Database programmers
+		need not to worry about this, as all audit trail related triggers and tables are generated automatically.
+		In order to achieve this, we do use postgres specific extensions such as table inheritance and built-in 
+		procedural languages such as pgsql, pgtcl and pgpython. Thus, gnumed can not be
+    	    	easily ported to a different database backend.
+    	    	</para>
+    	    </sect2>
+    	    <sect2>
+	    	<title>Access control</title>
+    	    	<para>
+    	    	The PostgreSQL server supports <emphasis>secure authentication protocols</emphasis> such as Kerberos as well as <emphasis>secure
+		communication protocols</emphasis> between client and server(s) such as SSL. In addition, data of more strictly
+		confidential data wil be stored encrypted with arbitrary algorithms; although the cryptographic process
+		is performed on the client side, this is supported by the GNUMed server through a sophisticated key management.
+		A user hierarchy can be implemented, and access to tables and procedures can be regulated through this hierarchy
+		on the server side.
+    	    	</para>
+	    </sect2>	
+    	    <sect2>
+	    <title>Multigenerational concurrency control and backups</title>
+    	    <para>
+    	    PostgreSQL uses a multigenerational concurrency control system. This not only avoids most locking situations,
+	    but also allows <emphasis>life "snapshot" backups</emphasis> of the complete database system while the system is running even under
+	    full load.
+	    </para>
+	    </sect2>
+    	</sect1>
+
+
+	<sect1>
+	    <title>List of distributed database services</title>
+    	    <sect2>
+	    <title>Configuration - the service administering all other services</title>
+	    <para></para>
+	    </sect2>	
+
+    	    <sect2>
+    	    	<title>Person related services</title> 
+
+    	    	<informaltable frame=all>
+    	    	    <tgroup cols=2>
+    	    	    <colspec colwidth="1*">
+    	    	    <colspec colwidth="5*">
+    	    	    <tbody>
+    	    	    	<row><entry>Service name:</entry><entry>Personalia</entry></row>
+    	    	    	<row><entry>Provides:</entry>
+    	    	    	    <entry><itemizedlist mark=opencircle>
+    	    	    	    	<listitem><para>
+    	    	                    All information directly related to a person's identity, biological and social relationships
+                    	    	    excluding confidential data (like credit card information) 
+				</para></listitem>
+				<listitem><para>
+    				    All geographical information, including  
+				</para></listitem>
+				<listitem><para>
+                		    Personal communication related information (phone numbers, fax, email, web sites, pagers) 
+				</para>
+				</listitem>
+				</itemizedlist></entry></row>
+    	    	    	<row><entry>Access level:</entry><entry>all staff</entry></row>
+    	    	    </tbody>
+    	    	    </tgroup>
+		    <tgroup cols=3>
+			<colspec colwidth="1*">
+			<colspec colwidth="1*">
+			<colspec colwidth="3*">
+			<tbody>
+			    <row><entry>Related Scripts:</entry><entry>gnumed.sql</entry>
+			    <entry> priming of database (creation of procedural languages, basic access
+                                    permissions, audit trail priming)
+			    </entry></row>
+			    <row><entry></entry><entry>gmgis.sql</entry><entry>
+                            	    geographic information in the widest sense; streets, cities, states, nations,
+                            	    postcodes ...
+			    </entry></row>
+			    <row><entry></entry><entry>gmidentity.sql</entry><entry>
+                            	    a person's identity, names, relationships, and a many-to-many pivot table
+                            	    linking identities to addresses
+			    </entry></row>
+			    <row><entry></entry><entry>gmcommunication.sql</entry><entry>
+                            	    phone & fax numbers, email addresses, web sites, pagers, etc. and a
+                            	    many-to-many pivot table linking identities to communication URLs
+			    </entry></row>
+			</tbody>
+		    </tgroup>
+    	    	</informaltable>
+
+	    </sect2>	
+
+    	    <sect2>
+        	<title>Medical history related services</title>
+		<orderedlist numeration="arabic">
+		    <listitem><para>
+		    past medical  history / diagnoses 
+		    </para></listitem>
+		    <listitem><para>
+		    active medical problems
+		    </para></listitem>
+		    <listitem><para>
+		    progress reports
+		    </para></listitem>
+		    <listitem><para>
+		    social history 
+		    </para></listitem>
+		    <listitem><para>
+		    family history 
+		    </para></listitem>
+		    <listitem><para>
+		    substance abuse history 
+		    </para></listitem>
+		    <listitem><para>
+		    allergies 
+		    </para></listitem>
+		    <listitem><para>
+		    vaccinations
+		    </para></listitem>
+		    <listitem><para>
+		    past medication & current prescriptions
+		    </para></listitem>
+		</orderedlist>
+	    </sect2>	
+
+    	    <sect2>
+    	        <title>External results </title>
+		<orderedlist numeration="arabic">
+		    <listitem><para>
+		    pathology results 
+		    </para></listitem>
+		    <listitem><para>
+		    imaging results
+		    </para></listitem>
+		</orderedlist>
+	    </sect2>	
+
+    	    <sect2>
+    	        <title>Correspondence </title>
+		<orderedlist numeration="arabic">
+		    <listitem><para>
+		    sent documents (referrals, certificates) 
+		    </para></listitem>
+		    <listitem><para>
+		    received documents (discharge summaries, specialist reports)
+		    </para></listitem>
+		</orderedlist>
+	    </sect2>	
+
+    	    <sect2>
+    	        <title>Pharmaceutical reference </title>
+		<orderedlist numeration="arabic">
+		    <listitem><para>
+		    drug listing: generic and brand names 
+		    </para></listitem>
+		    <listitem><para>
+		    drug properties 
+		    </para></listitem>
+		    <listitem><para>
+		    consumer product information  
+		    </para></listitem>
+		    <listitem><para>
+		    interactions
+		    </para></listitem>
+		</orderedlist>
+	    </sect2>	
+    	    
+	    <sect2>
+    	    	<title>General medical reference </title>
+		<orderedlist numeration="arabic">
+		    <listitem><para>
+		    coding (i.e. LOINC, ICD-10)
+		    </para></listitem>
+		</orderedlist>
+	    </sect2>	
+
+    	    <sect2>
+    	    	<title>Decision support database </title>
+    	    	<para></para>
+	    </sect2>	
+    	    
+	    <sect2>
+    	        <title>Large binary objects (BLOBS)</title>
+    	    	<para></para>
+	    </sect2>	
+    	    
+	    <sect2>
+    	        <title>Accounting related services</title>
+		<orderedlist numeration="arabic">
+		    <listitem><para>
+		    billing 
+		    </para></listitem>
+		    <listitem><para>
+		    tax related information 
+		    </para></listitem>
+		    <listitem><para>
+		    stock tracking
+		    </para></listitem>
+		    <listitem><para>
+		    ordering supplies
+		    </para></listitem>
+		</orderedlist>
+	    </sect2>	
+    	    <sect2>
+    	       <title>Office related services</title>
+		<orderedlist numeration="arabic">
+		    <listitem><para>
+		    waiting room 
+		    </para></listitem>
+		    <listitem><para>
+		    appointments 
+		    </para></listitem>
+		    <listitem><para>
+		    recalls 
+		    </para></listitem>
+		</orderedlist>
+    	    </sect2>
+    	</sect1>	
+	
+	<sect1>
+	<title>FAQ</title>
+    	<para>
+> I would be interested in hearing about the database design 
 > history and the purpose of the distributed database architecture
 > that you have implemented, (smart, but possibly a little 
 > over-kill I would have thought at first glance).
