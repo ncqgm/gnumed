@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.108 $
+-- $Revision: 1.109 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -106,8 +106,10 @@ comment on table last_act_episode is
 -- encounter related tables
 -- -------------------------------------------------------------------
 create table encounter_type (
-	id serial primary key,
-	description varchar(32) unique not null
+	pk serial primary key,
+	description text
+		unique
+		not null
 );
 
 comment on TABLE encounter_type is
@@ -123,10 +125,18 @@ create table clin_encounter (
 		on delete restrict,
 	fk_location integer,
 	fk_provider integer,
-	fk_type integer not null references encounter_type(id) default 1,
-	description text default '',
-	started timestamp with time zone not null default CURRENT_TIMESTAMP,
-	last_affirmed timestamp with time zone not null default CURRENT_TIMESTAMP
+	fk_type integer
+		not null
+		default 1
+		references encounter_type(pk),
+	description text
+		default '',
+	started timestamp with time zone
+		not null
+		default CURRENT_TIMESTAMP,
+	last_affirmed timestamp with time zone
+		not null
+		default CURRENT_TIMESTAMP
 --	,state text default 'affirmed'
 );
 
@@ -177,10 +187,19 @@ comment on column curr_encounter."comment" is
 -- -------------------------------------------------------------------
 create table clin_root_item (
 	pk_item serial primary key,
-	clin_when timestamp with time zone not null default CURRENT_TIMESTAMP,
-	id_encounter integer not null references clin_encounter(id),
-	id_episode integer not null references clin_episode(id),
-	narrative text
+	clin_when timestamp with time zone
+		not null
+		default CURRENT_TIMESTAMP,
+	id_encounter integer
+		not null
+		references clin_encounter(id),
+	id_episode integer
+		not null
+		references clin_episode(id),
+	narrative text,
+	soap_cat text
+		default null
+		check(soap_cat in ('s', 'o', 'a', 'p'))
 ) inherits (audit_fields);
 
 comment on TABLE clin_root_item is
@@ -502,8 +521,9 @@ create table vaccination (
 select add_table_for_audit('vaccination');
 select add_table_for_notifies('vaccination', 'vacc');
 
--- remote foreign keys:
 select add_x_db_fk_def('vaccination', 'fk_provider', 'personalia', 'staff', 'pk');
+
+alter table vaccination alter column soap_cat set default 'p';
 
 comment on table vaccination is
 	'holds vaccinations actually given';
@@ -534,13 +554,15 @@ comment on column lnk_vacc2vacc_def.fk_vacc_def is
 -- allergies tables
 create table allergy_state (
 	id serial primary key,
-	id_patient integer
+	fk_patient integer
 		unique
 		not null
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
-	has_allergy integer default null check (has_allergy in (null, -1, 0, 1))
+	has_allergy integer
+		default null
+		check (has_allergy in (null, -1, 0, 1))
 ) inherits (audit_fields);
 
 select add_table_for_audit('allergy_state');
@@ -578,6 +600,8 @@ create table allergy (
 
 select add_table_for_audit('allergy');
 select add_table_for_notifies('allergy', 'allg');
+
+alter table allergy alter column soap_cat set default 'o';
 
 comment on table allergy is
 	'patient allergy details';
@@ -703,6 +727,8 @@ create table clin_working_diag (
 -- FIXME: trigger to insert/update/delete clin_aux_note fields on description update
 
 select add_table_for_audit('clin_working_diag');
+
+alter table clin_working_diag alter column soap_cat set default 'a';
 
 comment on table clin_working_diag is
 	'stores diagnoses attached to patients, may or may not be
@@ -862,11 +888,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.108 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.109 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.108  2004-05-22 11:54:18  ncq
+-- Revision 1.109  2004-05-30 21:02:14  ncq
+-- - some soap_cat defaults
+-- - encounter_type.id -> encounter_type.pk
+--
+-- Revision 1.108  2004/05/22 11:54:18  ncq
 -- - cleanup signal handling on allergy table
 --
 -- Revision 1.107  2004/05/08 17:37:08  ncq
