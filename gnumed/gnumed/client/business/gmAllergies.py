@@ -27,13 +27,18 @@ class gmAllergies( gmClinicalPart):
 		
 	def _load_allergies(self):
 		conn = self._backend.GetConnection('historica', readonly = 1)
-		statement = "select a.id, a.substance, a.generics,  a.allergene, a.id_type, a.reaction, a.generic_specific, a.definite from allergy a, clin_episode ce, clin_health_issue hi where a.id_episode = ce.id and ce.id_health_issue=hi.id and hi.id_patient = % d" % self.id_patient()
+		statement = """
+			select a.id, a.substance, a.generics,  a.allergene, a.id_type, a.narrative, a.generic_specific, a.definite
+			from allergy a, clin_episode ce, clin_health_issue hi
+			where
+				a.id_episode = ce.id and
+				ce.id_health_issue=hi.id and hi.id_patient = % d""" % self.id_patient()
 
 		cu = conn.cursor()
 		cu.execute(statement)
 		l = cu.fetchall()
 		print cu.description, " ******** ALLERGIES LOADED ", l
-		self.allergies = self.to_keyed_map(l, ['substance', 'generics', 'allergene', 'id_type', 'reaction', 'generic_specific', 'definite'])
+		self.allergies = self.to_keyed_map(l, ['substance', 'generics', 'allergene', 'id_type', 'narrative', 'generic_specific', 'definite'])
 		cu.close()
 		
 		for k in self.allergies.keys():
@@ -139,14 +144,17 @@ class gmAllergies( gmClinicalPart):
 	
 	def _create_allergy( self,conn, ( fields, formatting, values) ):
 		
-		cmd = "insert into allergy( id_encounter, id_episode, substance, generics, allergene, id_type, reaction, generic_specific, definite) values ( %d, %d, '%s', '%s', '%s', %d, '%s', %d=1, %d=1 )"
-		command =  cmd % tuple(self._get_params(values) )
+#		cmd = "insert into allergy( id_encounter, id_episode, substance, generics, allergene, id_type, narrative, generic_specific, definite) values ( %d, %d, '%s', '%s', '%s', %d, '%s', %d=1, %d=1 )"
+#		command =  cmd % tuple(self._get_params(values) )
 
-		cu = conn.cursor()
-		cu.execute( command )
+#		cu = conn.cursor()
+#		cu.execute( command )
 		
-		cu.execute("select currval('allergy_id_seq')")		
-		[id] = cu.fetchone()
+#		cu.execute("select currval('allergy_id_seq')")		
+#		[id] = cu.fetchone()
+
+		# FIXME: use business object
+		return -1
 
 		return id
 
@@ -195,7 +203,7 @@ class gmAllergies( gmClinicalPart):
 		"""convert to fragments in the set [field=value] x n  clause of update allergy statement"""
 		cmd = "update allergy set %s where id= %d"
 		values = self._get_params(values)[2:]
-		fields = "substance, generics, allergene, id_type, reaction, generic_specific, definite".split(', ')
+		fields = "substance, generics, allergene, id_type, narrative, generic_specific, definite".split(', ')
 		formatting = "'%s', '%s', '%s', %d, '%s', %d=1, %d=1".split(',')
 		frags = []
 		for i in xrange( 0, len(fields) ):
