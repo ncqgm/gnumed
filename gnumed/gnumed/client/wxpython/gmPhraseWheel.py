@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.13 2003-09-29 00:16:55 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmPhraseWheel.py,v 1.14 2003-09-29 23:11:58 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -50,7 +50,7 @@ class cMatchProvider:
 		self.enableLearning()
 		self.setThresholds()
 		self.setWordSeparators()
-		self.ignored_chars = cMatchProvider.default_ignored_chars
+		self.setIgnoredChars()
 	#--------------------------------------------------------
 	# actions
 	#--------------------------------------------------------
@@ -158,6 +158,17 @@ class cMatchProvider:
 			self.word_separators = re.compile(separators)
 		except:
 			_log.LogException('cannot compile word separators regex >>>%s<<<, keeping previous setting' % separators)
+			return None
+		return _true
+	#--------------------------------------------------------
+	def setIgnoredChars(self, ignored_chars = None):
+		if ignored_chars is None:
+			self.ignored_chars = cMatchProvider.default_ignored_chars
+			return 1
+		try:
+			self.ignored_chars = re.compile(ignored_chars)
+		except:
+			_log.LogException('cannot compile ignored_chars regex >>>%s<<<, keeping previous setting' % ignored_chars)
 			return None
 		return _true
 	#--------------------------------------------------------
@@ -384,6 +395,7 @@ class cMatchProvider_Date(cMatchProvider):
 		self.__display_format = _('%d.%b %Y (%a)')
 		self.__allow_past = allow_past
 		self.__expanders.append(self.__single_number)
+		self.__expanders.append(self.__explicit_offset)
 		cMatchProvider.__init__(self)
 	#--------------------------------------------------------
 	# internal matching algorithms
@@ -471,6 +483,45 @@ class cMatchProvider_Date(cMatchProvider):
 		# day of next week
 		return matches
 	#--------------------------------------------------------
+	def __explicit_offset(self, aFragment):
+		# "+/-XXd/w/m/t"
+		if not re.match("^(\s|\t)*(\+|-)?(\s|\t)*\d{1,2}(\s|\t)*[mMdDtTwW](\s|\t)*$", aFragment):
+			return None
+		print aFragment
+		# allow past ?
+		is_future = 1
+		if string.find(aFragment, '-') > -1:
+			is_future = None
+			if not self.__allow_past:
+				return None
+
+		val = int(re.search('\d{1,2}', aFragment).group())
+		print val
+		target_date = None
+		if re.search('[dDtT]', aFragment):
+			if is_future:
+				target_date = self.__now + mxDT.RelativeDateTime(days = val)
+			else:
+				target_date = self.__now - mxDT.RelativeDateTime(days = val)
+		elif re.search('[wW]', aFragment):
+			if is_future:
+				target_date = self.__now + mxDT.RelativeDateTime(weeks = val)
+			else:
+				target_date = self.__now - mxDT.RelativeDateTime(weeks = val)
+		elif re.search('[mM]', aFragment):
+			if is_future:
+				target_date = self.__now + mxDT.RelativeDateTime(months = val)
+			else:
+				target_date = self.__now - mxDT.RelativeDateTime(months = val)
+		if target_date is None:
+			return None
+		tmp = {
+			'value': target_date,
+			'label': target_date.strftime(self.__display_format),
+			'ID': 1
+		}
+		print tmp
+		return [tmp]
 	#--------------------------------------------------------
 #============================================================
 class cWheelTimer(wxTimer):
@@ -806,6 +857,7 @@ if __name__ == '__main__':
 					'limit': 25
 				}
 				mp2 = cMatchProvider_SQL([src])
+#				mp2.setIgnoredChars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
 				ww2 = cPhraseWheel(frame, clicked, pos = (50, 250), size = (180, 30), aMatchProvider=mp2)
 				ww2.on_resize (None)
 
@@ -817,7 +869,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.13  2003-09-29 00:16:55  ncq
+# Revision 1.14  2003-09-29 23:11:58  ncq
+# - add __explicit_offset() date expander
+#
+# Revision 1.13  2003/09/29 00:16:55  ncq
 # - added date match provider
 #
 # Revision 1.12  2003/09/21 10:55:04  ncq
