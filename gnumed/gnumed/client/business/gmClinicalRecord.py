@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.2 2003-05-01 14:59:24 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmClinicalRecord.py,v 1.3 2003-05-03 00:41:14 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -182,11 +182,13 @@ class gmClinicalRecord:
 				return data
 		for allergy in self.__db_cache['allergies']:
 			tmp = {}
-			tmp['id'] = allergy['id']
-			if allergy['allergene'] not in [None, '']:
-				tmp['name'] = allergy['allergene']
+			tmp['id'] = allergy[0]
+			# do we know the allergene ?
+			if allergy[6] not in [None, '']:
+				tmp['name'] = allergy[6]
+			# not but the substance
 			else:
-				tmp['name'] = allergy['substance']
+				tmp['name'] = allergy[3]
 			data.append(tmp)
 		return data
 	#--------------------------------------------------------
@@ -245,7 +247,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.2  2003-05-01 14:59:24  ncq
+# Revision 1.3  2003-05-03 00:41:14  ncq
+# - fetchall() returns list, not dict, so handle accordingly in "allergy names"
+#
+# Revision 1.2  2003/05/01 14:59:24  ncq
 # - listen on allergy add/delete in backend, invalidate cache and notify frontend
 # - "allergies", "allergy names" getters
 #
