@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-gmclinical.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 
 -- part of GnuMed
 -- GPL
@@ -9,7 +9,7 @@
 -- run this _after_ gmclinical.sql !
 -- =============================================
 -- do fixed string i18n()ing
-\i gmI18N.sql
+\i ../../gmI18N.sql
 
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -114,12 +114,15 @@ insert into i18n_translations(lang, orig, trans) values
 
 -- =============================================
 -- do simple revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-gmclinical.sql,v $', '$Revision: 1.2 $');
+\i ../../gmSchemaRevision.sql
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-gmclinical.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: german-gmclinical.sql,v $
--- Revision 1.2  2003-01-27 08:50:41  ncq
+-- Revision 1.3  2003-02-09 10:13:25  hinnef
+-- set correct path to gmI18N and gmSchemaRevision
+--
+-- Revision 1.2  2003/01/27 08:50:41  ncq
 -- - drug history -> Medikamentenanamnese
 --
 -- Revision 1.1  2003/01/27 01:36:12  ncq
