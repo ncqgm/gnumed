@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.42 2004-05-25 16:18:13 sjtan Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmDemographicRecord.py,v 1.43 2004-05-26 12:58:14 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -708,25 +708,26 @@ where
 		return '', ''
 	return data[0]
 #----------------------------------------------------------------
-def getPostcodeForUrbId( urb_id):
+def getPostcodeForUrbId(urb_id):
+	# FIXME: get from views
 	cmd = "select postcode from urb where id = %s"
 	data = gmPG.run_ro_query ('personalia', cmd, None, urb_id)
 	if data is None:
-		return ""
+		_log.Log(gmLog.lErr, 'cannot get postcode for urb [%s]' % urb_id)
+		return None
 	if len(data) == 0:
 		return ''
 	return data[0][0]
-
 #----------------------------------------------------------------
-def getUrbsForPostcode( pcode):
-	cmd = "select name from urb where postcode = %s"
+def getUrbsForPostcode(pcode=None):
+	cmd = "select name from urb where postcode=%s"
 	data = gmPG.run_ro_query('personalia', cmd, None, pcode)
 	if data is None:
-		return ""
+		_log.Log(gmLog.lErr, 'cannot get urbs from postcode [%s]' % pcode)
+		return None
 	if len(data) == 0:
-		return ""
-	return [ x[0] for x in data]
-	
+		return []
+	return [x[0] for x in data]
 #----------------------------------------------------------------
 class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 	"""Returns a list of valid postcodes,
@@ -840,51 +841,46 @@ class NameMP (gmMatchProvider.cMatchProvider_SQL):
 			'extra conditions':{'occupation':'exists (select 1 from lnk_job2person where id_occupation = %s and lnk_job2person.id_identity = names.id_identity)'}
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
-
-
 #------------------------------------------------------------
-
-def setPostcodeWidgetFromUrbId(postcodeWidget , id):
+def setPostcodeWidgetFromUrbId(postcodeWidget=None, id_urb=None):
 	"""convenience method for urb and postcode phrasewheel interaction"""
-	try:
-		postcodeWidget.SetValue( getPostcodeForUrbId(id )  )
-		postcodeWidget.input_was_selected= 1
-		return True
-	except:
-		gmLog.gmDefLog.LogException ('failed on set postcode', sys.exc_info (), verbose=0)
+	postcode = getPostcodeForUrbId(id_urb)
+	if postcode is None:
 		return False
-
+	if len(postcode) == 0:
+		return True 
+	postcodeWidget.SetValue(postcode)
+	postcodeWidget.input_was_selected= 1
+	return True
 #------------------------------------------------------------
-def setUrbPhraseWheelFromPostcode( pwheel, postcode):
+def setUrbPhraseWheelFromPostcode(pwheel=None, postcode=''):
 	"""convenience method for common postcode to urb phrasewheel collaboration"""
-	try:
-		#this checks for "clearing the postcode"
-		# as the gesture that unsets the urb widget's postcode
-		# context.
-		if postcode == "":
-			print "unset urb context"
-			pwheel.setContext("postcode", "%")
-			return
-		urbs = getUrbsForPostcode(postcode)
-		if urbs <> None and len(urbs)  > 0:
-			pwheel.SetValue( urbs[0])
-			pwheel.input_was_selected = 1
-		#FIXME: once the postcode context is set,
-		# the urb phrasewheel will only return urbs with
-		# the same postcode. These can be viewed by clearing
-		# the urb widget. ?How to unset the postcode context,
-		# some gui gesture ? clearing the postcode
-		#(To view all the urbs for a set context,
-		# put a "*" in the urb box and activate the picklist.
-		# THE PROBLEM WITH THIS IS IF THE USER CLEARS THE BOX AND SET CONTEXT IS RESET,
-		# then the "*" will try to pull all thousands of urb names, freezing the app.
-		# so needs a fixup (? have SQL select ... LIMIT n in Phrasewheel )
-
-		pwheel.setContext("postcode", postcode)
+	# clearing post code unsets target
+	# phrasewheel's postcode context
+	if postcode == '':
+		pwheel.setContext("postcode", "%")
 		return True
-	except:
-		gmLog.gmDefLog.LogException ('failed on set urb', sys.exc_info (), verbose=0)
+	urbs = getUrbsForPostcode(postcode)
+	if urbs is None:
 		return False
+	if len(urbs) == 0:
+		return True
+	pwheel.SetValue(urbs[0])
+	pwheel.input_was_selected = 1
+
+	# FIXME: once the postcode context is set,
+	# the urb phrasewheel will only return urbs with
+	# the same postcode. These can be viewed by clearing
+	# the urb widget. ?How to unset the postcode context,
+	# some gui gesture ? clearing the postcode
+	# (To view all the urbs for a set context,
+	# put a "*" in the urb box and activate the picklist.
+	# THE PROBLEM WITH THIS IS IF THE USER CLEARS THE BOX AND SET CONTEXT IS RESET,
+	# then the "*" will try to pull all thousands of urb names, freezing the app.
+	# so needs a fixup (? have SQL select ... LIMIT n in Phrasewheel )
+
+	pwheel.setContext("postcode", postcode)
+	return True
 #------------------------------------------------------------
 
 # FIXME: do we REALLY need this ?
@@ -934,7 +930,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.42  2004-05-25 16:18:13  sjtan
+# Revision 1.43  2004-05-26 12:58:14  ncq
+# - cleanup, error handling
+#
+# Revision 1.42  2004/05/25 16:18:13  sjtan
 #
 # move methods for postcode -> urb interaction to gmDemographics so gmContacts can use it.
 #
