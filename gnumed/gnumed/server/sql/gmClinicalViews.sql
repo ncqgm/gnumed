@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.80 2004-07-02 15:00:10 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.81 2004-07-03 17:17:41 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -16,8 +16,8 @@
 drop index idx_cri_encounter;
 drop index idx_cri_episode;
 
-drop index idx_clnote_encounter;
-drop index idx_clnote_episode;
+drop index idx_clnarr_encounter;
+drop index idx_clnarr_episode;
 
 drop index idx_clanote_encounter;
 drop index idx_clanote_episode;
@@ -91,6 +91,28 @@ create index idx_lreq_episode on lab_request(fk_episode);
 
 
 create index idx_episode_h_issue on clin_episode(fk_health_issue);
+
+-- =============================================
+-- narrative
+
+\unset ON_ERROR_STOP
+drop index idx_narr_soap on clin_narrative(soap_cat);
+drop index idx_narr_s on clin_narrative(soap_cat);
+drop index idx_narr_o on clin_narrative(soap_cat);
+drop index idx_narr_a on clin_narrative(soap_cat);
+drop index idx_narr_p on clin_narrative(soap_cat);
+drop index idx_narr_rfe on clin_narrative(is_rfe);
+drop index idx_narr_aoe on clin_narrative(is_aoe);
+
+create index idx_narr_soap on clin_narrative(soap_cat);
+create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='s';
+create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='o';
+create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='a';
+create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='p';
+create index idx_narr_rfe on clin_narrative(is_rfe) where is_rfe is true;
+create index idx_narr_aoe on clin_narrative(is_aoe) where is_aoe is true;
+
+\set ON_ERROR_STOP 1
 
 -- =============================================
 -- encounters
@@ -852,11 +874,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.80 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.81 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.80  2004-07-02 15:00:10  ncq
+-- Revision 1.81  2004-07-03 17:17:41  ncq
+-- - indexes on clin_narrative
+--
+-- Revision 1.80  2004/07/02 15:00:10  ncq
 -- - bring rfe/aoe/diag/coded_diag tables/views up to snuff and use them
 --
 -- Revision 1.79  2004/07/02 00:28:52  ncq
