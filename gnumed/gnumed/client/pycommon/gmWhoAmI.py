@@ -1,5 +1,5 @@
 #===================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 
@@ -63,7 +63,11 @@ class cWhoAmI(gmBorg.cBorg):
 			if tmp is None:
 				print _('You should name this workplace to better identify the machine !\nTo do this set the option "name" in the group [workplace] in the config file !')
 			else:
-				self._workplace = tmp
+				# if cfg returned a list type, use only first element
+				if type(tmp) == type([]):
+					self._workplace = tmp[0]
+				else:
+					self._workplace = tmp
 		return self._workplace
 	#-----------------------------------------------
 	def get_staff_ID(self):
@@ -120,7 +124,10 @@ if __name__ == '__main__':
 	print "staff name:", whoami.get_staff_name()
 #===================================================
 # $Log: gmWhoAmI.py,v $
-# Revision 1.3  2004-07-19 11:50:42  ncq
+# Revision 1.4  2004-08-11 16:56:04  hinnef
+# - fixed workplace bug when specifying a list in gnumed.conf
+#
+# Revision 1.3  2004/07/19 11:50:42  ncq
 # - cfg: what used to be called "machine" really is "workplace", so fix
 #
 # Revision 1.2  2004/04/10 01:48:31  ihaywood
