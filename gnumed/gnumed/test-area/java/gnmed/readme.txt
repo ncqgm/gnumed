@@ -32,13 +32,21 @@ the gnumed-test.properties gives the relative path to this file.
 postgres doesn't diagnose user authority problems.
 -  Message looks like "\N" unexpected end of input.
 
-re: importing drugref.data.dump
-why important? past history and drugs don't work without this data.
+I don't know which will work best: 
+using a sql dump is too slow.
 
-THE MOST IMPORTANT THING IS THE USER CONNECTION IDENTITY IN 
-THE START OF THE SCRIPT. EITHER CHANGE IHAYWOOD TO THE APPROPRIATE
-USER WITH GRANTED PERMISSIONS, OR CREATE THE USER IHAYWOOD WITH 
-GRANTED PERMISSIONS. 
+usually if the user is authorized, loading the complete dump including
+schema AFTER loading the gnmed hibernate schema mapping,  works.
+(drugref org table and column names are mapped the same names).
+
+It seems to be either a authorized user problem : 
+try creating user xxxxx and grant all on public schema to xxxx
+where xxxx is the user which connects near the top of the dump file.
+e.g. pgsql, hherb , ihaywood.
+
+in cygwin  psql interactive, and \i drugref.org.dump seems to work.
+
+
 
 
 3. can't connect to database.
