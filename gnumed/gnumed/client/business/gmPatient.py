@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.35 2004-03-23 15:04:59 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmPatient.py,v 1.36 2004-03-25 09:47:56 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -260,7 +260,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def export_data(self):
 		if self.patient is None:
 			return None
-	    return self.patient.export_data()
+		return self.patient.export_data()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
@@ -890,7 +890,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.35  2004-03-23 15:04:59  ncq
+# Revision 1.36  2004-03-25 09:47:56  ncq
+# - fix whitespace breakage
+#
+# Revision 1.35  2004/03/23 15:04:59  ncq
 # - merge Carlos' constraints into get_text_dump
 # - add gmPatient.export_data()
 #
