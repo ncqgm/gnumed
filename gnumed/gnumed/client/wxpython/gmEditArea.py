@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from wxPython.wx import *
+
 ID_PROGRESSNOTES = wxNewId()
 gmSECTION_SUMMARY = 1
 gmSECTION_DEMOGRAPHICS = 2
@@ -28,7 +29,32 @@ ID_REQUEST_BILL_wcover = wxNewId()
 ID_REQUEST_BILL_REBATE  = wxNewId()
 #---------------------------------------------
 gmSECTION_MEASUREMENTS = 10
+#---------------------------------------------
 gmSECTION_REFERRALS = 11
+ID_REFERRAL_CATEGORY        = wxNewId()
+ID_REFERRAL_NAME        = wxNewId()
+ID_REFERRAL_USEFIRSTNAME        = wxNewId()
+ID_REFERRAL_ORGANISATION        = wxNewId()
+ID_REFERRAL_HEADOFFICE        = wxNewId()
+ID_REFERRAL_STREET1       = wxNewId()
+ID_REFERRAL_STREET2        = wxNewId()
+ID_REFERRAL_STREET3       = wxNewId()
+ID_REFERRAL_SUBURB        = wxNewId()
+ID_REFERRAL_POSTCODE        = wxNewId()
+ID_REFERRAL_FOR        = wxNewId()
+ID_REFERRAL_WPHONE        = wxNewId()
+ID_REFERRAL_WFAX        = wxNewId()
+ID_REFERRAL_WEMAIL        = wxNewId()
+ID_REFERRAL_INCLUDE_MEDICATIONS        = wxNewId()
+ID_REFERRAL_INCLUDE_SOCIALHISTORY       = wxNewId()
+ID_REFERRAL_INCLUDE_FAMILYHISTORY        = wxNewId()
+ID_REFERRAL_INCLUDE_PASTPROBLEMS        = wxNewId()
+ID_REFERRAL_ACTIVEPROBLEMS       = wxNewId()
+ID_REFERRAL_HABITS        = wxNewId()
+ID_REFERRAL_INCLUDEALL        = wxNewId()
+ID_BTN_PREVIEW = wxNewId()
+ID_BTN_CLEAR = wxNewId()
+ID_REFERRAL_COPYTO = wxNewId()
 #----------------------------------------
 gmSECTION_RECALLS = 12
 ID_RECALLS_TOSEE  = wxNewId()
@@ -38,7 +64,14 @@ ID_RECALLS_CONTACTMETHOD = wxNewId()
 ID_RECALLS_APPNTLENGTH = wxNewId()
 ID_RECALLS_TXT_ADDTEXT  = wxNewId()
 ID_RECALLS_TXT_INCLUDEFORMS = wxNewId()
-#----------------------------------------
+ID_RECALLS_TOSEE  = wxNewId()
+ID_RECALLS_TXT_FOR  = wxNewId()
+ID_RECALLS_TXT_DATEDUE  = wxNewId()
+ID_RECALLS_CONTACTMETHOD = wxNewId()
+ID_RECALLS_APPNTLENGTH = wxNewId()
+ID_RECALLS_TXT_ADDTEXT  = wxNewId()
+ID_RECALLS_TXT_INCLUDEFORMS = wxNewId()
+
 richards_blue = wxColour(0,0,131)
 richards_aqua = wxColour(0,194,197)
 
@@ -50,7 +83,7 @@ class  EditAreaTextBox(wxTextCtrl):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPostion, wxDefaultSize,wxSIMPLE_BORDER)
 		#self.SetBackgroundColour(wxColor(255,194,197))
 		self.SetForegroundColour(wxColor(255,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
 
 #--------------------------------------------------
 #Class which shows a blue bold label left justified
@@ -58,7 +91,7 @@ class  EditAreaTextBox(wxTextCtrl):
 class EditAreaPromptLabel(wxStaticText):
 	def __init__(self, parent, id, prompt, aColor = richards_blue):
 		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT) 
-		self.SetFont(wxFont(10,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		self.SetFont(wxFont(10,wxSWISS,wxBOLD,wxBOLD,false,''))
 		self.SetForegroundColour(aColor)
 #------------------------------------------------------------
 #temporary Class which shoes a aqua bold label left justified
@@ -67,7 +100,7 @@ class EditAreaPromptLabel(wxStaticText):
 #class EditAreaPromptLabelAqua(wxStaticText):
 #	def __init__(self, parent, id, prompt):
 #		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT) 
-#		self.SetFont(wxFont(10,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+#		self.SetFont(wxFont(10,wxSWISS,wxBOLD,wxBOLD,false,''))
 #		self.SetForegroundColour()
 
 #--------------------------------------------------------------------------------
@@ -117,6 +150,8 @@ class EditTextBoxes(wxPanel):
 		self.sizer_line8 = wxBoxSizer(wxHORIZONTAL) 
 		self.sizer_line9 = wxBoxSizer(wxHORIZONTAL) 
 		self.sizer_line10 = wxBoxSizer(wxHORIZONTAL) 
+		self.sizer_line11 = wxBoxSizer(wxHORIZONTAL) 
+		self.sizer_line12 = wxBoxSizer(wxHORIZONTAL)
 		self.btnOK = wxButton(self,-1,"Ok")
 		self.btnClear = wxButton(self,-1,"Clear")
 		self.sizer_btnokclear = wxBoxSizer(wxHORIZONTAL)
@@ -381,9 +416,95 @@ class EditTextBoxes(wxPanel):
 	        elif section == gmSECTION_MEASUREMENTS:
 		      pass
 	        elif section == gmSECTION_REFERRALS:
-		      pass
+		      self.btnpreview = wxButton(self,-1,"Preview")
+		      self.sizer_btnpreviewok = wxBoxSizer(wxHORIZONTAL)
+		      #--------------------------------------------------------
+	              #editing area for referral letters, insurance letters etc
+		      #create textboxes, checkboxes etc
+		      #--------------------------------------------------------
+		      self.txt_referralcategory = EditAreaTextBox(self,ID_REFERRAL_CATEGORY,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralname = EditAreaTextBox(self,ID_REFERRAL_NAME,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralorganisation = EditAreaTextBox(self,ID_REFERRAL_ORGANISATION,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralstreet1 = EditAreaTextBox(self,ID_REFERRAL_STREET1,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralstreet2 = EditAreaTextBox(self,ID_REFERRAL_STREET2,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralstreet3 = EditAreaTextBox(self,ID_REFERRAL_STREET3,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralsuburb = EditAreaTextBox(self,ID_REFERRAL_SUBURB,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralpostcode = EditAreaTextBox(self,ID_REFERRAL_POSTCODE,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralfor = EditAreaTextBox(self,ID_REFERRAL_FOR,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralwphone= EditAreaTextBox(self,ID_REFERRAL_WPHONE,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralwfax= EditAreaTextBox(self,ID_REFERRAL_WFAX,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralwemail= EditAreaTextBox(self,ID_REFERRAL_WEMAIL,wxDefaultPosition,wxDefaultSize)
+		      #self.txt_referralrequests = EditAreaTextBox(self,ID_REFERRAL_REQUESTS,wxDefaultPosition,wxDefaultSize)
+		      #self.txt_referralnotes = EditAreaTextBox(self,ID_REFERRAL_FORMNOTES,wxDefaultPosition,wxDefaultSize)
+		      #self.txt_referralmedications = EditAreaTextBox(self,ID_REFERRAL_MEDICATIONS,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralcopyto = EditAreaTextBox(self,ID_REFERRAL_COPYTO,wxDefaultPosition,wxDefaultSize)
+		      self.txt_referralprogressnotes = EditAreaTextBox(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+		      self.lbl_referralwphone = EditAreaPromptLabel(self,-1,"  W Phone  ")
+		      self.lbl_referralwfax = EditAreaPromptLabel(self,-1,"  W Fax  ")
+		      self.lbl_referralwemail = EditAreaPromptLabel(self,-1,"  W Email  ")
+		      self.lbl_referralpostcode = EditAreaPromptLabel(self,-1,"  Postcode  ")
+		      self.chkbox_referral_usefirstname = wxCheckBox(self, -1, " Use Firstname ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      self.chkbox_referral_headoffice = wxCheckBox(self, -1, " Head Office ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      self.chkbox_referral_medications = wxCheckBox(self, -1, " Medications ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      self.chkbox_referral_socialhistory = wxCheckBox(self, -1, " Social History ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      self.chkbox_referral_familyhistory = wxCheckBox(self, -1, " Family History ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      self.chkbox_referral_pastproblems = wxCheckBox(self, -1, " Past Problems ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      self.chkbox_referral_activeproblems = wxCheckBox(self, -1, " Active Problems ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      self.chkbox_referral_habits = wxCheckBox(self, -1, " Habits ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      #self.chkbox_referral_Includeall = wxCheckBox(self, -1, " Include all of the above ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      #--------------------------------------------------------------
+                      #add controls to sizers where multiple controls per editor line
+		      #--------------------------------------------------------------
+		      self.sizer_line2.Add(self.txt_referralname,2,wxEXPAND) 
+		      self.sizer_line2.Add(self.chkbox_referral_usefirstname,2,wxEXPAND)
+		      self.sizer_line3.Add(self.txt_referralorganisation,2,wxEXPAND)
+		      self.sizer_line3.Add(self.chkbox_referral_headoffice,2, wxEXPAND)
+		      self.sizer_line4.Add(self.txt_referralstreet1,2,wxEXPAND)
+		      self.sizer_line4.Add(self.lbl_referralwphone,1,wxEXPAND)
+		      self.sizer_line4.Add(self.txt_referralwphone,1,wxEXPAND)
+		      self.sizer_line5.Add(self.txt_referralstreet2,2,wxEXPAND)
+		      self.sizer_line5.Add(self.lbl_referralwfax,1,wxEXPAND)
+		      self.sizer_line5.Add(self.txt_referralwfax,1,wxEXPAND)
+		      self.sizer_line6.Add(self.txt_referralstreet3,2,wxEXPAND)
+		      self.sizer_line6.Add(self.lbl_referralwemail,1,wxEXPAND)
+		      self.sizer_line6.Add(self.txt_referralwemail,1,wxEXPAND)
+		      self.sizer_line7.Add(self.txt_referralsuburb,2,wxEXPAND)
+		      self.sizer_line7.Add(self.lbl_referralpostcode,1,wxEXPAND)
+		      self.sizer_line7.Add(self.txt_referralpostcode,1,wxEXPAND)
+		      self.sizer_line10.Add(self.chkbox_referral_medications,1,wxEXPAND)
+	              self.sizer_line10.Add(self.chkbox_referral_socialhistory,1,wxEXPAND)
+		      self.sizer_line10.Add(self.chkbox_referral_familyhistory,1,wxEXPAND)
+		      self.sizer_line11.Add(self.chkbox_referral_pastproblems  ,1,wxEXPAND)
+		      self.sizer_line11.Add(self.chkbox_referral_activeproblems  ,1,wxEXPAND)
+		      self.sizer_line11.Add(self.chkbox_referral_habits  ,1,wxEXPAND)
+		      self.sizer_btnpreviewok.Add(self.btnpreview,0,wxEXPAND)
+		      self.sizer_btnokclear.Add(self.btnClear,0, wxEXPAND)
+		      
+		      #------------------------------------------------------------------
+		      #add either controls or sizers with controls to vertical grid sizer
+		      #------------------------------------------------------------------
+                      self.gs.Add(self.txt_referralcategory,0,wxEXPAND)               #e.g Othopaedic surgeon
+		      self.gs.Add(self.sizer_line2,0,wxEXPAND)                        #e.g Dr B Breaker
+		      self.gs.Add(self.sizer_line3,0,wxEXPAND)                        #e.g General Orthopaedic servies
+		      self.gs.Add(self.sizer_line4,0,wxEXPAND)                        #e.g street1
+		      self.gs.Add(self.sizer_line5,0,wxEXPAND)                        #e.g street2
+		      self.gs.Add(self.sizer_line6,0,wxEXPAND)                        #e.g street3
+		      self.gs.Add(self.sizer_line7,0,wxEXPAND)                        #e.g suburb and postcode
+		      self.gs.Add(self.txt_referralfor,0,wxEXPAND)                    #e.g Referral for an opinion
+		      self.gs.Add(self.txt_referralcopyto,0,wxEXPAND)                 #e.g Dr I'm All Heart, 120 Big Street Smallville
+		      self.gs.Add(self.txt_referralprogressnotes,0,wxEXPAND)          #emphasised to patient must return for results 
+		      self.gs.AddSizer(self.sizer_line10,0,wxEXPAND)                   #e.g check boxes to include medications etc
+		      self.gs.Add(self.sizer_line11,0,wxEXPAND)                       #e.g check boxes to include active problems etc
+		      #self.spacer = wxWindow(self,-1,wxDefaultPosition,wxDefaultSize)
+		      #self.spacer.SetBackgroundColour(wxColor(255,255,255))
+		      self.sizer_line12.Add(5,0,6)
+		      #self.sizer_line12.Add(self.spacer,6,wxEXPAND)
+		      self.sizer_line12.Add(self.btnpreview,1,wxEXPAND|wxALL,2)
+	              self.sizer_line12.Add(self.btnClear,1,wxEXPAND|wxALL,2)    
+	              self.gs.Add(self.sizer_line12,0,wxEXPAND)                       #btnpreview and btn clear
+		      
 		elif section == gmSECTION_RECALLS:
-		       #FIXME remove present options in this combo box	  #FIXME defaults need to be loaded from database	  
+		      #FIXME remove present options in this combo box	  #FIXME defaults need to be loaded from database	  
 		      self.combo_tosee = wxComboBox(self, ID_RECALLS_TOSEE, "", wxDefaultPosition,wxDefaultSize, ['Doctor1','Doctor2','Nurse1','Dietition'], wxCB_READONLY ) #wxCB_DROPDOWN)
 		      self.combo_tosee.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
 		      self.combo_tosee.SetForegroundColour(wxColor(255,0,0))
@@ -417,9 +538,9 @@ class EditTextBoxes(wxPanel):
 		      self.sizer_line8.Add(self.btnOK,1,wxEXPAND|wxALL,2)
 	              self.sizer_line8.Add(self.btnClear,1,wxEXPAND|wxALL,2)    
 		      self.gs.Add(self.sizer_line8,1,wxEXPAND)
-		     
+     
 		else:
-			      gmLog.gmDefLog.Log (gmLog.lData, "not section allergies")
+		      pass
 			      
 	        
 		self.szr_edit_area.Add(self.gs,1,wxEXPAND)
@@ -429,7 +550,7 @@ class EditTextBoxes(wxPanel):
 		self.Show(true)
 class EditArea(wxPanel):
 	def __init__(self,parent,id,editareaprompts,section):
-		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize,style = 0 )	
+		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize,style = wxNO_BORDER )	
 		self.SetBackgroundColour(wxColor(222,222,222))
 		#-----------------------
 		#create background sizer
@@ -504,19 +625,7 @@ class EditArea(wxPanel):
 		self.szr_main_container.Fit(self)             #set to minimum size as calculated by sizer
 		self.SetAutoLayout(true)                 #tell frame to use the sizer
 		self.Show(true)                          #show the panel 
-		
-        	
-	
-		
-		
-	
-	def ConstructSizers(self):	
-		pass
-	def ConstructAllergies(self):
-		#-------------------------------------------------------------------------
-		#now create the controls necessary to add to the edit area for allergies
-		#-------------------------------------------------------------------------
-		pass
+
 if __name__ == "__main__":
 	import sys
 	sys.path.append ("../python-common/")
