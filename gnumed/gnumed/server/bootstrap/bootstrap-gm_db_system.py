@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1244,30 +1244,40 @@ def show_msg(aMsg = None):
 		print aMsg
 	print "Please see log file for details."
 #------------------------------------------------------------------
-def set_user ():
-	"""
-	On UNIX type syatems, attempt to use setuid () to become the postgres user if
-	possible. This is so we can use the IDENT method to get to the database
-	(NB by default, at least on Debian and postgres source installs, this is the only way,
-	as the postgres userhas no password)
+def become_pg_demon_user():
+	"""Become "postgres" user.
+
+	On UNIX type systems, attempt to use setuid() to
+	become the postgres user if possible.
+
+	This is so we can use the IDENT method to get to
+	the database (NB by default, at least on Debian and
+	postgres source installs, this is the only way,
+	as the postgres user has no password [-- and TRUST
+	is not allowed -KH])
 	"""
 	postgres_passwd = None
 	try:
 		import pwd
-		if os.getuid () == 0: # we are the super-user
-			try:
-				postgres_passwd = pwd.getpwnam ('postgres')
-			except KeyError:
-				try:
-					postgres_passwd = pwd.getpwnam ('pgsql')
-				except KeyError:
-					_log.Log (gmLog.lWarn, 'can''t find postgres user')
-			if postgres_passwd:
-				_log.Log (gmLog.lInfo, 'switching to UNIX user [%s]' % postgres_passwd[0])
-				os.setuid (postgres_passwd[2])	   
 	except ImportError:
-		_log.Log (gmLog.lWarn, 'running on broken OS -- can''t change user')
+		_log.Log (gmLog.lWarn, "running on broken OS -- can't import pwd module")
+		return None
 
+	if os.getuid() != 0:
+		return None
+
+	# we are the super-user
+	pg_demon_user_passwd_line = None
+	try:
+		pg_demon_user_passwd_line = pwd.getpwnam('postgres')
+	except KeyError:
+		try:
+			pg_demon_user_passwd_line = pwd.getpwnam('pgsql')
+		except KeyError:
+			_log.Log(gmLog.lWarn, "can't find PostgreSQL demon user")
+	if pg_demon_user_passwd_line is not None:
+		_log.Log(gmLog.lInfo, 'switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
+		os.setuid(pg_demon_user_passwd_line[2])
 #==================================================================
 if __name__ == "__main__":
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
@@ -1277,7 +1287,7 @@ if __name__ == "__main__":
 
 	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
 
-	set_user ()
+	become_pg_demon_user()
 
 	print "Bootstrapping GnuMed database system..."
 
@@ -1332,7 +1342,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.46  2004-02-13 10:21:39  ihaywood
+# Revision 1.47  2004-02-22 11:19:22  ncq
+# - set_user() -> become_pg_demon_user()
+#
+# Revision 1.46  2004/02/13 10:21:39  ihaywood
 # Calls setuid () to postgres user if possible
 #
 # Revision 1.45  2004/01/14 10:47:43  ncq
