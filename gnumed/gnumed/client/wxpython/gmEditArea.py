@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.47 2003-12-01 01:04:01 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmEditArea.py,v 1.48 2003-12-02 02:01:24 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -548,8 +548,13 @@ class gmEditArea(wxPanel):
 	def _check_unsaved_data(self, **kwds):
 		if not self.patient.is_connected():
 			return 1
-		self._pre_save_data()
-		self._init_fields()
+		try:
+			self._pre_save_data()
+			self._init_fields()
+		except StandardError:
+			_log.LogException('lossage', verbose=0)
+			return None
+		return 1
 
 	def _pre_save_data(self):
 		#if not self.__dict__.has_key('dirty') or self.dirty == 0:
@@ -641,7 +646,7 @@ class gmEditArea(wxPanel):
 		self._init_fields()
 
 	def _updateUI(self):
-		_log.Log(gmLog.lWarn, "you may want to override _updateUI for " , self.__class__.__name__)
+		_log.Log(gmLog.lWarn, "you may want to override _updateUI for [%s]" % self.__class__.__name__)
 		
 
 	def _postInit(self):
@@ -2132,7 +2137,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.47  2003-12-01 01:04:01  ncq
+# Revision 1.48  2003-12-02 02:01:24  ncq
+# - cleanup
+#
+# Revision 1.47  2003/12/01 01:04:01  ncq
 # - remove excess verbosity
 #
 # Revision 1.46  2003/11/30 01:08:25  ncq
