@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.7 2005-02-01 10:16:07 ihaywood Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmHorstSpace.py,v 1.8 2005-02-01 19:20:23 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -61,8 +61,8 @@ class cHorstSpaceLayoutMgr(wxPanel):
 		# plugins
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__gb['horstspace.notebook'] = self.nb # FIXME: remove per Ian's API suggestion
+
 		# top panel
-		
 		#---------------------
 		# create the "top row"
 		#---------------------
@@ -248,7 +248,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.7  2005-02-01 10:16:07  ihaywood
+# Revision 1.8  2005-02-01 19:20:23  ncq
+# - just silly cleanup
+#
+# Revision 1.7  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace
