@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.5 2003-11-20 01:50:52 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmDemographicRecord.py,v 1.6 2003-11-20 01:52:03 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -152,8 +152,8 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 			return None
 		if len(data) == 0:
 			return {
-				'first': '',
-				'last': ''
+				'first': '**?**',
+				'last': '**?**'
 			}
 		return {
 			'first': data[0][idx['firstnames']],
@@ -545,7 +545,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.5  2003-11-20 01:50:52  ncq
+# Revision 1.6  2003-11-20 01:52:03  ncq
+# - actually, make that **?** for good measure
+#
+# Revision 1.5  2003/11/20 01:50:52  ncq
 # - return '?' for missing names in getActiveName()
 #
 # Revision 1.4  2003/11/18 16:44:24  ncq
