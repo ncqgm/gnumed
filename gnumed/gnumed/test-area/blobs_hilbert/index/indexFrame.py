@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/indexFrame.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 
 #Boa:Frame:indexFrame
 from wxPython.wx import *
@@ -11,7 +11,7 @@ import Image,os,time,ConfigParser,shutil
 import gettext,locale
 
 # location of our modules
-sys.path.append(os.path.join('..', 'modules'))
+sys.path.append(os.path.join('.', 'modules'))
 
 from docPatient import *
 from docDocument import cDocument
