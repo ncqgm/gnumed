@@ -32,14 +32,21 @@
 
 <revhistory>
       <revision>
+	<revnumber>0.1.3</revnumber>
+	<date>2002-08-09</date>
+	<authorinitials>gea</authorinitials>
+	<revremark>updated a few more requirements</revremark>
+      </revision>
+
+      <revision>
 	<revnumber>0.1.2</revnumber>
-	<date>2002-09-02</date>
+	<date>2002-08-02</date>
 	<authorinitials>gea</authorinitials>
 	<revremark>Intro.sgml converted into installation.sgml since each section will be a different file. also moved things about to make it clear and addded more hints in getting things running</revremark>
       </revision>
 	<revision>
 		<revnumber>0.1.1</revnumber>
-		<date>2002-09-01</date>
+		<date>2002-08-01</date>
 		<authorinitials>gea</authorinitials>
 		<revremark>Took into.sgml and modified.  Adding a section of thigs noted while trying to get GnuMed up and running	
 	</revremark>
@@ -222,13 +229,16 @@ packages to be installed before it can be run.</para>
 			<row>
 				<entry>Python Scripting Language</entry>
 				<entry><ulink url="http://www.python.org/"><citetitle>python.org</citetitle></ulink></entry>
-				<entry><filename>2.1</filename></entry>
+				<entry><filename>2.2, included with wxPython</filename></entry>
 			</row>
 
 			<row>
 				<entry>GTK libraries</entry>
 				<entry><ulink url="http://www.gtk.org/"><citetitle>gtk.org</citetitle></ulink></entry>
-				<entry><filename>1.2</filename></entry>
+		  <entry><filename>1.2</filename><footnote>
+		      <para>GTK now comes included with wxPython 2.3.2. You dont need to download this package</para>
+		    </footnote>
+</entry>
 			</row>
 
 			<row>
@@ -253,12 +263,16 @@ packages to be installed before it can be run.</para>
 				<entry><ulink url="http://www.wxwindows.org/dl_gtk.htm#dev">
 <citetitle>wxwindows web site</citetitle></ulink>,<ulink url="http://www.wxpython.org/download.php#binaries"><citetitle>wxpython (wxWindows for Python bindings)</citetitle></ulink></entry>
 
-				<entry>2.3.1 (both must be the same)</entry>
+		  <entry>2.3.2 <footnote>
+		      <para>wxPython includes GTK, so you only need to install WxPythin 2.3.2</para>
+		    </footnote>
+(both must be the same)</entry>
 			</row>
 		</tbody>
 	</tgroup>
 </table>
-</para>
+
+	  </para>
 
 <para>This list looks daunting, but Python and GTK libraries are
 almost invariably installed, and PostgreSQL, if not installed, will be
