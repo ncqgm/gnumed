@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.28 $
+-- $Revision: 1.29 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -307,7 +307,7 @@ comment on column names.preferred IS
 	'preferred first name, the name a person is usually called (nickname)';
 
 -- ==========================================================
-create table lnk_identity2comm_channel (
+create table lnk_identity2comm_chan (
 	id serial primary key,
 	id_identity integer not null references identity(id),
 	id_comm integer not null references comm_channel(id),
@@ -518,11 +518,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.28 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.29 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.28  2004-04-07 18:16:06  ncq
+-- Revision 1.29  2004-04-07 18:42:10  ncq
+-- - *comm_channel -> *comm_chan
+--
+-- Revision 1.28  2004/04/07 18:16:06  ncq
 -- - move grants into re-runnable scripts
 -- - update *.conf accordingly
 --

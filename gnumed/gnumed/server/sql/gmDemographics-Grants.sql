@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -27,7 +27,7 @@ GRANT SELECT ON
 	coordinate,
 	address_info,
 	lnk_person_org_address,
-	lnk_identity2comm_channel,
+	lnk_identity2comm_chan,
 	relation_types,
 	lnk_person2relative,
 	occupation,
@@ -62,8 +62,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	address_info_id_seq,
 	lnk_person_org_address,
 	lnk_person_org_address_id_seq,
-	lnk_identity2comm_channel,
-	lnk_identity2comm_channe_id_seq,
+	lnk_identity2comm_chan,
+	lnk_identity2comm_chan_id_seq,
 	lnk_person2relative,
 	lnk_person2relative_id_seq,
 	occupation,
@@ -78,6 +78,9 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.1  2004-04-07 18:29:28  ncq
+-- Revision 1.2  2004-04-07 18:42:10  ncq
+-- - *comm_channel -> *comm_chan
+--
+-- Revision 1.1  2004/04/07 18:29:28  ncq
 -- - split out grants
 --
