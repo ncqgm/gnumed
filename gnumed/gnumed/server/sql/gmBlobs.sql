@@ -4,7 +4,16 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.14 $ $Date: 2002-11-08 15:53:11 $ $Author: ncq $
+-- $Revision: 1.15 $ $Date: 2002-11-16 00:28:20 $ $Author: ncq $
+
+-- ===================================================================
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
+-- =============================================
+-- do simple schema revision tracking
+\i gmSchemaRevision.sql
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.15 $')
 
 -- =============================================
 CREATE TABLE "doc_type" (
