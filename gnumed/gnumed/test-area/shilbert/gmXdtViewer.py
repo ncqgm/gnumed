@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/shilbert/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.9 2003-08-24 10:16:45 shilbert Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmXdtViewer.py,v 1.10 2003-08-26 14:40:44 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, string, fileinput, linecache
@@ -284,7 +284,6 @@ def _preprocess_file(afile,aCfg,apatlst,apatdir):
 	# more than one patient
 	selected_pat_file = afile
 	if nr_pats > 1:
-		# standalone allows multiple-patient files
 		selected_pat_file = _split_and_select_pat(pats, afile, aCfg , apatlst, apatdir)
 		if selected_pat_file is None:
 			return None
@@ -397,33 +396,35 @@ if __name__ == '__main__':
 	# set up dummy app
 	class TestApp (wxApp):
 		def OnInit (self):
-			if not gmCLI.has_arg('--conf-file'):
-				gm_show_error (
-				_('No config file given on command line.\n\nFormat: --conf-file=<file>'),
-				_('loading config file'),
-				gmLog.lInfo
-				)
-				return 0
-			aCfg = gmCfg.gmDefCfgFile
-			# get export-dir
-			apatdir = aCfg.get("xdt-viewer", "export-dir")
-			pat_lst_fname = aCfg.get("xdt-viewer", "patient-list")
-			# is there a patient list already ?
-			apatlst = gmCfg.cCfgFile(aPath = apatdir ,aFile = pat_lst_fname, flags = 2)
 			# has the user manually supplied a config file on the command line ?
 			if not gmCLI.has_arg('--xdt-file'):
 				gm_show_error (
 					_('No XDT file given on command line.\n\nFormat: --xdt-file=<file>'),
 					_('XDT Viewer: loading XDT file'),
-					gmLog.lInfo
+					gmLog.lErr
 				)
 				return 0
-			# yes -> verify it
-			fname = _preprocess_file(gmCLI.arg['--xdt-file'],aCfg,apatlst,apatdir)
+
+			if not gmCLI.has_arg('--conf-file'):
+				gm_show_error (
+					_('No config file given on command line.\n\nFormat: --conf-file=<file>'),
+					_('XDT Viewer: loading config file'),
+					gmLog.lErr
+				)
+				return 0
+
+			cfg = gmCfg.gmDefCfgFile
+			# get export-dir
+			patdir = cfg.get("xdt-viewer", "export-dir")
+			pat_lst_fname = cfg.get("xdt-viewer", "patient-list")
+			# is there a patient list already ?
+			patlst = gmCfg.cCfgFile(aPath = patdir, aFile = pat_lst_fname, flags = 2)
+
+			# verify xdt file
+			fname = _preprocess_file(gmCLI.arg['--xdt-file'], cfg, patlst, patdir)
 			if fname is None:
-			
 				return None
-			# OK -> show it
+			# show xdt file
 			frame = wxFrame (
 				parent = NULL,
 				id = -1,
@@ -489,7 +490,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.9  2003-08-24 10:16:45  shilbert
+# Revision 1.10  2003-08-26 14:40:44  ncq
+# - some cleanup
+#
+# Revision 1.9  2003/08/24 10:16:45  shilbert
 # - now checks whether content is new or already exists as file from previuos sessions
 #
 # Revision 1.8  2003/08/24 09:24:13  ncq
