@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.59 2005-03-06 09:21:08 ihaywood Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmDemographics.py,v 1.60 2005-03-20 17:49:45 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "R.Terry, SJ Tan, I Haywood"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -252,6 +252,8 @@ class Demographics(wx.Panel):
 		self.main_splitWindow = wx.SplitterWindow( self, -1, point = wx.DefaultPosition,  size = wx.DefaultSize, style=wx.SP_3DSASH)
 		self.patientDetailWin = DemographicDetailWindow(self.main_splitWindow)
 		self.patientListWin = PatientListWindow(self.main_splitWindow, self, ID_LIST, on_click=self.patientDetailWin.load_identity)
+		self.main_splitWindow.SetMinimumPaneSize(20)
+		self.main_splitWindow.SplitHorizontally( self.patientListWin, self.patientDetailWin, 80)
 
 		self.main_splitWindow.SplitHorizontally( self.patientListWin, self.patientDetailWin)
 		# toolbar
@@ -562,7 +564,7 @@ class PatientListWindow(wx.ListCtrl):
 		self.ids_in_list = ids
 
 	def _form_name (self, i):
-		return _("%(lastnames)s, %(firstnames)s") % i
+		return "%(lastnames)s, %(firstnames)s" % i
 
 	def _form_home_address (self, i):
 		for a in i['addresses']:
@@ -1047,7 +1049,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.59  2005-03-06 09:21:08  ihaywood
+# Revision 1.60  2005-03-20 17:49:45  ncq
+# - improve split window handling, cleanup
+#
+# Revision 1.59  2005/03/06 09:21:08  ihaywood
 # stole a couple of icons from Richard's demo code
 #
 # Revision 1.58  2005/03/06 08:17:02  ihaywood
