@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.154 $
+-- $Revision: 1.155 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -401,7 +401,8 @@ comment on column lnk_code2narr.xfk_coding_system is
 	'the coding system used to code the narrative item';
 
 -- --------------------------------------------
-create table clin_hx_family (
+-- general FH storage
+create table hx_family_item (
 	pk serial primary key,
 	fk_narrative_condition integer
 		default null
@@ -413,26 +414,34 @@ create table clin_hx_family (
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete set null,
-	relationship text
-		not null
-		check (trim(relationship) != ''),
 	name_relative text
 		default null
 		check (coalesce(trim(name_relative), 'dummy') != ''),
 	dob_relative timestamp with time zone
 		default null,
+	condition text
+		default null
+		check (coalesce(trim(condition), 'dummy') != ''),
 	age_noted text,
 	age_of_death interval
 		default null,
 	is_cause_of_death boolean
 		not null
-		default false
-) inherits (clin_root_item);
+		default false,
+	unique (name_relative, dob_relative, condition),
+	unique (fk_relative, condition)
+) inherits (audit_fields);
 
-alter table clin_hx_family add constraint narrative_null_or_not_empty
-	check (coalesce(trim(narrative), 'dummy') != '');
+select add_table_for_audit('hx_family_item');
 
-alter table clin_hx_family add constraint link_or_know_relative
+alter table hx_family_item add constraint link_or_know_condition
+	check (
+		(fk_narrative_condition is not null and condition is null)
+			or
+		(fk_narrative_condition is null and condition is not null)
+	);
+
+alter table hx_family_item add constraint link_or_know_relative
 	check (
 		-- from linked narrative
 		(fk_narrative_condition is not null and fk_relative is null and name_relative is null and dob_relative is null)
@@ -444,19 +453,47 @@ alter table clin_hx_family add constraint link_or_know_relative
 		(fk_narrative_condition is null and fk_relative is null and name_relative is not null)
 	);
 
-alter table clin_hx_family add constraint link_or_know_condition
-	check (
-		(fk_narrative_condition is not null and narrative is null)
-			or
-		(fk_narrative_condition is null and narrative is not null)
-	);
+comment on table hx_family_item is
+	'stores family history items independant of the patient,
+	 this is out-of-EMR so that several patients can link to it';
+comment on column hx_family_item.fk_narrative_condition is
+	'can point to a narrative item of a relative if in database';
+comment on column hx_family_item.fk_relative is
+	'foreign key to relative if in database';
+comment on column hx_family_item.name_relative is
+	'name of the relative if not in database';
+comment on column hx_family_item.dob_relative is
+	'DOB of relative if not in database';
+comment on column hx_family_item.condition is
+	'narrative holding the condition the relative suffered from,
+	 must be NULL if fk_narrative_condition is not';
+comment on column hx_family_item.age_noted is
+	'at what age the relative acquired the condition';
+comment on column hx_family_item.age_of_death is
+	'at what age the relative died';
+comment on column hx_family_item.is_cause_of_death is
+	'whether relative died of this problem, Richard
+	 suggested to allow that several times per relative';
 
--- FIXME: constraint trigger fk_narrative -> has_type(fHx)
+
+-- patient linked FH
+create table clin_hx_family (
+	pk serial primary key,
+	fk_hx_family_item integer
+		not null
+		references hx_family_item(pk)
+		on update cascade
+		on delete restrict
+) inherits (clin_root_item);
+
+alter table clin_hx_family add constraint narrative_not_empty
+	check (coalesce(trim(narrative), '') != '');
+-- FIXME: constraint trigger has_type(fHx)
 
 select add_table_for_audit('clin_hx_family');
 
 comment on table clin_hx_family is
-	'stores family history items';
+	'stores family history for a given patient';
 comment on column clin_hx_family.clin_when is
 	'when the family history item became known';
 comment on column clin_hx_family.fk_encounter is
@@ -464,32 +501,10 @@ comment on column clin_hx_family.fk_encounter is
 comment on column clin_hx_family.fk_episode is
 	'episode to which family history item is of importance';
 comment on column clin_hx_family.narrative is
-	'fHx-typed narrative holding the condition
-	 the relative suffered from, must be NULL
-	 if fk_narrative_condition is not';
+	'how is the afflicted person related to the patient';
 comment on column clin_hx_family.soap_cat is
 	'as usual, must be NULL if fk_narrative_condition is not but
 	 this is not enforced and only done in the view';
-comment on column clin_hx_family.fk_narrative_condition is
-	'can point to a narrative item of a relative if in database';
-comment on column clin_hx_family.fk_relative is
-	'foreign key to relative if also in database';
-comment on column clin_hx_family.relationship is
-	'how is the afflicted person related to the patient,
-	 maybe make nullable later when fk_relative or
-	 fk_narrative_condition is not null and the relationship
-	 is defined there';
-comment on column clin_hx_family.name_relative is
-	'name of the relative if not also in database';
-comment on column clin_hx_family.dob_relative is
-	'DOB of relative if not also in database';
-comment on column clin_hx_family.age_noted is
-	'at what age the relative acquired the condition';
-comment on column clin_hx_family.age_of_death is
-	'at what age the relative died';
-comment on column clin_hx_family.is_cause_of_death is
-	'whether relative died of this problem, Richard
-	 suggested to allow that several times per relative';
 
 -- --------------------------------------------
 -- patient attached diagnoses
@@ -1184,11 +1199,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.154 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.155 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.154  2005-03-20 18:10:00  ncq
+-- Revision 1.155  2005-03-21 20:10:56  ncq
+-- - improved family history tables, getting close now
+--
+-- Revision 1.154  2005/03/20 18:10:00  ncq
 -- - vastly improve clin_hx_family
 -- - add source_timezone to clin_encounter
 --
