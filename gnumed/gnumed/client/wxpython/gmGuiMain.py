@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.71 2003-02-07 08:37:13 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmGuiMain.py,v 1.72 2003-02-07 08:57:39 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -495,7 +495,7 @@ class gmApp(wxApp):
 	#----------------------------------------------
 	def __set_db_lang(self):
 		if system_locale is None:
-			_log.Log(gmLog.lInfo, "system locale is undefined (probably meaning 'C')")
+			_log.Log(gmLog.lWarn, "system locale is undefined (probably meaning 'C')")
 			return 1
 
 		# get db conn
@@ -517,7 +517,7 @@ class gmApp(wxApp):
 			return None
 		result = curs.fetchone()
 		if result is not None:
-			db_lang = [0]
+			db_lang = result[0]
 		_log.Log(gmLog.lData, "current database locale: [%s]" % db_lang)
 
 		# identical ?
@@ -626,7 +626,10 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.71  2003-02-07 08:37:13  ncq
+# Revision 1.72  2003-02-07 08:57:39  ncq
+# - fixed type
+#
+# Revision 1.71  2003/02/07 08:37:13  ncq
 # - fixed some fallout from SJT's work
 # - don't die if select lang from i18n_curr_lang returns None
 #
