@@ -3,10 +3,10 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
-import types, sys
+import types, sys, string
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 from Gnumed.business import gmClinItem, gmClinNarrative
@@ -198,6 +198,48 @@ class cEncounter(gmClinItem.cClinItem):
 #			return False
 #		return True
 		pass
+		
+#============================================================		
+class cProblem(gmClinItem.cClinItem):
+	""" Represents one problem: problems are the sum of issues w/o episodes,
+		issues w/ episodes and episodes w/o issues
+	"""
+	_cmd_fetch_payload = ""
+	_cmds_lock_rows_for_update = []
+	_cmds_store_payload = ["""select 1"""]
+	_updatable_fields = []
+	
+	#--------------------------------------------------------
+	def __init__(self, aPK_obj=None):
+		if aPK_obj is None:
+				raise gmExceptions.ConstructorError, 'cannot instatiate cProblem for PK: [%s]' % (aPK_obj)
+		
+		# As problems are rows from a view from different emr struct items,
+		# the PK can't be a sinle field and, as some of the values of the
+		# composed PK may be None, the must be queried using 'is null',
+		# so we must programmatically construct the query sql command
+		where_parts = []
+		vals = {}
+		cont = 0				
+		cProblem._cmd_fetch_payload = """select * from v_problem_list where"""
+		for field_name in aPK_obj.keys():
+			if cont > 0:
+				where_parts.append(' and')
+			val = aPK_obj[field_name]			
+			if val is None:
+				where_parts.append(' %s is null' % field_name)
+			else:
+				where_parts.append( ' '+field_name+'= %('+field_name+')s' )
+				vals[field_name] = val
+			cont = cont +1				
+		cProblem._cmd_fetch_payload = cProblem._cmd_fetch_payload + string.join(where_parts)
+		
+		# PK containing non None values
+		pk = vals
+		
+		# instantiate class
+		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
+			
 #============================================================
 # convenience functions
 #------------------------------------------------------------	
@@ -406,7 +448,10 @@ if __name__ == '__main__':
 	    
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.28  2005-01-02 19:55:30  ncq
+# Revision 1.29  2005-01-15 19:55:55  cfmoro
+# Added problem support to emr
+#
+# Revision 1.28  2005/01/02 19:55:30  ncq
 # - don't need _xmins_refetch_col_pos anymore
 #
 # Revision 1.27  2004/12/20 16:45:49  ncq

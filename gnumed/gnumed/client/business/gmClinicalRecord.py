@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.152 2004-12-18 15:57:57 ncq Exp $
-__version__ = "$Revision: 1.152 $"
+# $Id: gmClinicalRecord.py,v 1.153 2005-01-15 19:55:55 cfmoro Exp $
+__version__ = "$Revision: 1.153 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -845,6 +845,38 @@ where
 		_log.Log(gmLog.lErr, 'cannot activate episode [%s], not found in list' % ep_name)
 		return False
 	#--------------------------------------------------------
+	# problems API
+	#--------------------------------------------------------
+	def get_problems(self):
+		"""
+		Retrieve patient's problems: problems are the sum of issues w/o episodes,
+		issues w/ episodes and episodes w/o issues
+		"""
+		try:
+			self.__db_cache['problems']
+		except KeyError:
+			self.__db_cache['problems'] = []
+			cmd= """select pk_health_issue, pk_episode from v_problem_list
+					where pk_patient=%s"""
+			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.id_patient)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot load problems for patient [%s]' % self.id_patient)
+				del self.__db_cache['problems']
+				return None
+			# Instantiate problem items
+			pk_args = {}
+			for row in rows:
+				pk_args['pk_health_issue'] = row[idx['pk_health_issue']]
+				pk_args['pk_episode'] = row[idx['pk_episode']]				
+				try:
+					problem = gmEMRStructItems.cProblem(aPK_obj=pk_args)
+					self.__db_cache['problems'].append(problem)
+				except gmExceptions.ConstructorError:
+					_log.LogException('problem error on [%s] for patient [%s]' % (row, self.id_patient), sys.exc_info(), verbose=0)
+					
+		return self.__db_cache['problems']
+		
+	#--------------------------------------------------------
 	# health issues API
 	#--------------------------------------------------------
 	def get_health_issues(self, id_list = None):
@@ -1533,6 +1565,12 @@ if __name__ == "__main__":
 	try:
 		emr = cClinicalRecord(aPKey = 12)
 
+		# problems
+		problems = emr.get_problems()
+		print 'Problems:'
+		for a_problem in problems:
+			print '    %s' % a_problem
+		
 		# Vacc regimes
 		vacc_regimes = emr.get_scheduled_vaccination_regimes(indications = ['tetanus'])
 		print '\nVaccination regimes: '
@@ -1611,7 +1649,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.152  2004-12-18 15:57:57  ncq
+# Revision 1.153  2005-01-15 19:55:55  cfmoro
+# Added problem support to emr
+#
+# Revision 1.152  2004/12/18 15:57:57  ncq
 # - Syan found a logging bug, which is now fixed
 # - eventually fix bug in use of create_encounter() that
 #   prevented gmSoapImporter from working properly
