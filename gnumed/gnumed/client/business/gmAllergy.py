@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.9 2004-06-08 00:41:38 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmAllergy.py,v 1.10 2004-06-09 14:32:24 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -104,7 +104,7 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	try:
 		allergy = cAllergy(aPK_obj = result[0][0])
 	except gmExceptions.ConstructorError:
-		_log.LogException('cannot instantiate allergy [%s]' % (result[0][0]), sys.exc_info(), verbose=0)
+		_log.LogException('cannot instantiate allergy [%s]' % result[0][0], sys.exc_info(), verbose=0)
 		return (None, _('internal error, check log'))
 	return (True, allergy)
 #============================================================
@@ -137,7 +137,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.9  2004-06-08 00:41:38  ncq
+# Revision 1.10  2004-06-09 14:32:24  ncq
+# - remove extraneous ()'s
+#
+# Revision 1.9  2004/06/08 00:41:38  ncq
 # - fix imports, cleanup, improved self-test
 #
 # Revision 1.8  2004/06/02 21:47:27  ncq
