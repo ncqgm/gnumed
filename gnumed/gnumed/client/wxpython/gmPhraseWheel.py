@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.41 2004-12-23 16:21:21 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmPhraseWheel.py,v 1.42 2004-12-27 16:23:39 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -428,7 +428,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.__picklist_pnl.SetSize (self._picklist.GetSize())
 		self.__picklist_win.SetSize (self.__picklist_pnl.GetSize())
 	#--------------------------------------------------------
-	def _on_timer_fired (self):
+	def _on_timer_fired(self, cookie):
 		"""Callback for delayed match retrieval timer.
 
 		if we end up here:
@@ -541,7 +541,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.41  2004-12-23 16:21:21  ncq
+# Revision 1.42  2004-12-27 16:23:39  ncq
+# - gmTimer callbacks take a cookie
+#
+# Revision 1.41  2004/12/23 16:21:21  ncq
 # - some cleanup
 #
 # Revision 1.40  2004/10/16 22:42:12  sjtan
