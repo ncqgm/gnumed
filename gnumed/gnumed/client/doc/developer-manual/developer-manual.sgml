@@ -155,7 +155,8 @@ chmod +x ~/bin/ssh_cvs
       </para>
       <para>To commit your changes, type:</para>
       <screen>cvs -z3 -ddude@subversions.gnu.org:/cvsroot/gnumed/ commit gnumed</screen>
-      <para>Remember that you will be asked for your passphrase. This is different from your password to savannah.gnu.org</para>
+      <para>Remember that you will be asked for your passphrase. This is different from 
+      your password to savannah.gnu.org</para>
     </sect1>
   </chapter>
 
@@ -167,6 +168,8 @@ chmod +x ~/bin/ssh_cvs
       <para>Always test before you check in (yes, I have been guilty of not heeding 
       my own advice, sorry)
       </para>
+      <para>Set the execute bit on those files only that are actually supposed 
+      to get executed directly.</para>
     </sect1>
 
     <sect1 id=documentation>
@@ -2888,6 +2891,277 @@ the issues better than me.
 	    
 	</sect1>
 
+	<sect1 id=EMR-design>
+	    <title>Gnumed EMR</title>
+
+    	    <sect2>
+		<title>Required reading</title>
+	    	<para>
+		Weed: the problem-oriented medical record (SOAP, POMR)
+		 use Google
+		</para><para>
+		Slee: loss-free entity coding in medicine
+		 (See <ulink url="http://www.tringa.com/index.php?submit=HCCC"><citetitle>http://www.tringa.com/index.php?submit=HCCC</citetitle></ulink>)
+		</para><para>
+		Dutch model: Episodes of Care
+		 (See <ulink url="http://www.phcsg.org.uk/conferences/cambridge1998/westerhof.htm"><citetitle>http://www.phcsg.org.uk/conferences/cambridge1998/westerhof.htm</citetitle></ulink>)
+		</para>
+	    </sect2>
+    	    <sect2>
+		<title>Structural considerations</title>
+
+    	    <sect3>
+		<title>Health Issue</title>
+	    	<para>
+		A Health Issue is a longer ranging medical condition associated with
+		a patient. There may be several episodes related with one health
+		issue and there must be at least one. At times a health issue will
+		first be appreciated by considering underlying similarities between
+		several medically related episodes. A health issue may have a finite
+		duration if the underlying medical condition is eventually fully
+		resolved. It may also span the entire life of the patient such as
+		in chronic or genetic ailments. Start and end are not directly
+		recorded but must be derived from the start of the earliest and
+		the end of the most recent associated episode.
+		</para>
+	    </sect3>
+    	    <sect3>
+		<title>Clinical Episode</title>
+	    	<para>
+		A Clinical Episode denotes a period of time during which the patient
+		was under care for one particular Health Issue (medical condition).
+		Several episodes (eg. progression, bouts, etc.) may be associated
+		with a particular health issue. There can be several encounters per
+		episode, there must be at least one. The start and end of an episode
+		isn't directly recorded but rather one can deduce that data from the
+		associated clinical items of which there will usually be several
+		(but at least one). Often, several providers will contribute to an
+		episode of care (via several encounters and items). One would think
+		that episodes can be deduced from clusters of closely related dates
+		of clinical encounters. While this is true it cannot be used reliably
+		in a programmatic way.
+		</para>
+		</sect3>
+    	    <sect3>
+		<title>Clinical Encounter</title>
+	    	<para>
+		A one-off contact between patient and health care system (or on behalf
+		of the patient) is called a "Clinical Encounter". An encounter is often
+		restricted to a given date but may span midnight and will thus refer to
+		two dates. The date itself is not directly stored in the encounter
+		table clin_encounter but must be determined from the commit timestamps
+		of the clinical items belonging to it. The encounter table records the
+		location, provider and subject of care as well as the type of encounter.
+		It really is more of an administrative than a purely clinical concept.
+		Note that it also does not fit hospital stays particularly well where
+		it is harder to define clean boundaries between encounters. One
+		encounter will often relate to more than one episode/health issue.
+		</para>
+	     </sect3>
+    	    <sect3>
+		<title>Clinical Item</title>
+	    	<para>
+		In GnuMed a medically meaningful piece of information is called "Clinical
+		Item". Such items are typically elements of the SOAP structure such as a
+		diagnosis, a history item, an assessment, a plan, etc. Several tables,
+		both specific and generic store such items. They all inherit from the
+		table clin_root_item which records the Clinical Encounter and Clinical
+		Episode this item belongs to. Virtue of inheriting from clin_root_item all
+		Clinical Item tables also have a generic "narrative" field for comments
+		and clinical narrative.
+		</para>
+	     </sect3>		
+    	    <sect3>
+		<title>Partial Contact</title>
+	    	<para>
+
+		This concept of the Dutch Episode Model is not directly
+		represented in the GnuMed clinical table structure. It is
+		easily derived from the existing data by aggregating all
+		Clinical Items that belong to the same Clinical Encounter
+		and the same Clinical Episode.
+		</para>
+	    </sect3>
+	    </sect2>
+	    
+    	    <sect2>
+		<title>Implementation considerations</title>
+
+    	    <sect3>
+		<title>Clinical narrative</title>
+	    	<para>
+		Due to the fact that clinical items are stored in several different
+		specific and non-specific tables it is difficult to do a full-text
+		search across the medical record of a patient. For this reason all
+		clinical narrative is aggregated in the clin_root_item table. All
+		tables providing clinical narrative are supposed to inherit from
+		this table. If more than one field for free text is needed in a
+		table links to entries in clin_note must be used additionally
+		to the inherited clin_root_item.narrative field.
+	    	</para>
+	    	<para>
+		The view v_patient_items provides an aggregation of clinical
+		items per patient. From this one can derive the item ID and source
+		table of individual items. It also provides the full text of the
+		clinical narrative for all tables that inherit from clinical item.
+		Only very few clinically relevant narrative strings are not stored
+		in such tables, namely comments on clin_episode, clin_encounter
+		and clin_health_issue rows.
+	    	</para>
+	    </sect3>
+	    
+    	    <sect3>
+		<title>View v_patient_episodes</title>
+	    	<para>
+		This view links episodes to patients.
+		</para>
+	    </sect3>
+    	    <sect3>
+		<title>View v_i18n_patient_encounters</title>
+	    	<para>
+		This view links encounters to patients and provides a translated
+		encounter type (if a translation is available).
+		</para>
+	    </sect3>
+    	    <sect3>
+		<title>Predefined data</title>
+	    	<para>
+		Wherever fixed strings are predefined for certain fields (such
+		as descriptions of encounter types or history item types) provisions
+		for translation of those strings via gmI18N.sql must be made. An
+		ID range for user-supplied additional strings must be defined. The
+		default language is English, other languages are handled via
+		translations. In appropriate cases views may facilitate easier
+		access to translated strings. Names of such views are to be
+		prepended by "v_i18n_".
+		</para>
+	    </sect3>
+
+    	    <sect3>
+		<title>Clinical items</title>
+	    	<para>
+		All tables holding clinical items must inherit from clin_root_item.
+		</para>
+	    </sect3>
+	    </sect2>
+	    
+    	    <sect2>
+		<title>Medical relation between entities</title>
+	    	<para>
+		<screen>
+health issue
+-> several episodes
+   -> several encounters
+      -> several partial contacts
+         -> several items
+		</screen></para>
+	    </sect2>
+	</sect1>
+
+
+	<sect1 id=auditing>
+	    <title>Table auditing</title>
+	    <para>
+
+	    From a medico-legal point of view it is important to track who
+	    changed what data when. GnuMed uses database level facilities
+	    to achieve that goal. Advantages are that SQL query parsing is
+	    left to the database engine, that the backend provides uniform
+	    auditing across any variety of client, and that data is moved
+	    locally which provides for reasonable speeds. Drawbacks are
+	    that audit trail data cannot be transferred remotely right away
+	    particularly conveniently and that this scheme is not foolproof
+	    against manipulation.
+
+    	    <sect2>
+		<title>INSERT</title>
+	    	<para>
+		On INSERT the committer and the current timestamp is added to
+		the table data. Row versioning is initialized to 0. No data
+		is transferred to the corresponding audit trail table.
+	    	</para>
+		</sect2>
+    	    <sect2>
+		<title>UPDATE/DELETE</title>
+	    	<para>
+		On any of those two operations the original row version, data,
+		committer, timestamp and table OID are logged in the audit trail
+		table. The current timestamp, committer and action (DELETE or
+		UPDATE) are added. For updates, the row version in the original
+		table is incremented and the timestamp and committer are
+		updated to the current values.
+	    	</para>
+		</sect2>
+		
+    	    <sect2>
+		<title>SELECT</title>
+	    	<para>
+		Currently SELECTs are not logged. While some legislation may
+		require this it does not make sense technically, will slow down
+		the database considerably and is better left to middleware
+		or frontend. The main argument against SELECT logging at the
+		database level is that the intended purpose of it would be to
+		enable later investigation of unauthorized disclosure. However,
+		a logged SELECT in no way proves any disclosure to any specific
+		target. A missing SELECT does not contribute any useful evidence
+		against disclosure either. Unauthorized disclosure is largely
+		a social-control/policy issue. There's no such thing as
+		"unauthorized access". If access occurred it was authorized
+		(barring any software bugs). Such security breaches must be
+		prevented by other means.
+	    	</para>
+		</sect2>
+
+    	    <sect2>
+		<title>How to add an audit trail to a table</title>
+	    	<para>
+		Any table that is supposed to be audited must inherit
+		from the audit marker table "audit_mark". In order for
+		auditing to actually work a corresponding audit trail
+		table must be created. Audit trail tables customarily
+		start with the prefix "log_" and must inherit from
+		the audit trail root table "audit_trail". Those
+		parameters are, of course, configurable. The audit
+		trail tables need not contain all the columns in the
+		audited table but they may not contain any additional
+		columns except for those inherited from the audit trail
+		root table.
+	    	</para>
+	    	<para>
+		During bootstrapping all marked tables that have a
+		corresponding audit trail table are prepared for
+		auditing. The necessary functions and triggers are
+		automatically generated and inserted into the database.
+		If you know of a dependable way of generating audit
+		trail tables from audited tables please contact the
+		author. Until then, audit trail tables must be pre-
+		defined just as the original tables but without any
+		constraints except for "not null" where appropriate.
+		There are some examples in server/sql/gmclinical.sql.
+	    	</para>
+	    	<para>
+		Please read the source in <filename>
+		server/bootstrap/gmAuditSchemaGenerator.py</filename> and
+		<filename>server/bootstrap/boostrap*.py</filename> to learn how to manually
+		create audit trails.
+	    	</para>
+		</sect2>
+
+    	    <sect2>
+		<title>Audit trail handling</title>
+	    	<para>
+		Over time the audit trail tables may grow quite large.
+		They may be dumped and cleaned out regularly. The
+		dump file should be notarized digitally and backed up.
+		Preferably an unsigned online copy of the audit trail
+		tables should be moved to another server. It is useful
+		to have the complete revision history online for
+		reference but this is not speed-critical.
+	    	</para>
+		</sect2>
+	    </sect1>
+
+
 	<sect1 id=gui-design>
 	    <title>GUI design</title>
 
@@ -3150,7 +3424,137 @@ the issues better than me.
 
     	    <sect2>
 	    <title>Internals / Additional Information</title>
+	    	    <orderedlist numeration="arabic">
+	    <listitem><para>
+	    Files: 
+	    </para><screen>
+	    gmDrugObject: 	query abstraction
+	    gmDrugView:	drug abstraction (hides index search, product info creation and
+			    so on)
+	    gmDrugDisplay:	frontend to display drug information
+
+	    ~/.gnumed/gnumed.conf (default config file)
+	    &lt;SOMEDIR&gt;/&lt;DATABASE_QUERY_DEFINITION_FILE&gt;
+	    </screen></listitem>
+
+	    <listitem>
+	    <para>Configuration</para>
+	    <itemizedlist>
+
+	    <listitem><para>
+	    Pointers to the default drug database used in 
+	    <filename>~/.gnumed/gnumed.conf</filename> (default config file):
+	    <screen>
+[DrugReferenceBrowser]                                                          
+drugDBname = &lt;dbname&gt;
+
+[&lt;dbname&gt;]
+configfile = &lt;PathToDrugDBConfigFile&gt;
+	    </screen>
+	    </para>
 	    <para>
+	    where dbname references  the path entry and the &lt;PathToDrugDBConfigFile&gt;
+	    points to a config file holding detailed information on queries, output formatting etc. 
+	    (There are two separate entries to allow for more than one drug database.)
+	    </para>
+	    </listitem>
+
+	   <listitem><para>
+	   in DrugDBConfigFile:
+	   </para>
+	   <para>
+	       There are two different types of entries : 
+	       <orderedlist>
+
+	       <listitem><para>
+	       Query definitions (defining queries that can be accessed via the query group name
+	       </para></listitem>
+	       
+	       <listitem><para>
+	       format definitions (defining formatting of fetched data in the product info widget of the drug reference browser
+	       </para></listitem>
+	       </orderedlist>
+	       
+	       <para>
+	       Query Definition:
+	       </para>
+	   <screen>
+    
+    [EntryGroupNameY]
+    type=query 			# type=query identifies queries 
+    querygroup=&lt;querygroupname&gt;	# identifies the query group the query belongs
+				# to. All queries belonging to one group are 
+                                # fetched at once by DrugObject.
+    query=$query$
+    &lt;here comes the query text, possibly containing %s to map variables&gt;
+    $query$
+    variables=&lt;variables returned in result dictionary as keys (column names)&gt;
+    mappings=&lt;variables mapped to query string in order of appearance&gt;
+	</screen>
+
+	<para>
+	Format Definition:
+    	</para>
+	<screen>
+    [EntryGroupNameX]
+    type=format			# identifies format information used by produc info
+    querygroup=&lt;query group&gt;	# querygroup holding parameters needed by this
+    				# part of product info
+    formattype=&lt;ftype&gt;		# one of single, heading, noheading and list
+    position=&lt;#num&gt;		# position of appearance in product info sheet	
+    usedvars=&lt;vars used&gt;	# should match format string mappings
+    heading=$heading$		# heading, needed if not ftype='noheadings'
+	&lt;heading&gt;
+    $heading$
+    format=$format$
+    &lt;e.g. %(presentation)s &gt;	# format string containing parameter names
+    				# that should be mapped from result dict
+                                # if all parameter in result are empty,
+                                # this text part will be ignored
+    $format$
+	</screen>
+	</itemizedlist>
+	</listitem>
+
+	<listitem><para>
+	Guide to configure the Drug Reference Browser for a particular database
+	</para>
+	<procedure>
+	<step><para>Create a &lt;DATABASE_QUERY_DEFINITION_FILE&gt; and configure your default gnumed config file accordingly (see above).</para></step>
+    	<step><para>create query definitions for all query groups and parameters needed. </para>
+	<para>
+      	You will at least need the query groups 
+	</para>
+	<itemizedlist>
+	<listitem><para>
+      	'brand_index_exact' : a index of brand products selected from a list by a at least partial name
+       (mapping : 'Key' - holding the name (or parts of it) to search for; 
+       parameters expected as result : a list of brand products identified by at least parameters 'id' and 'name', additional parameters will be displayed, too)
+	</para></listitem>
+	<listitem><para>'generic_index_exact' : a index of generic substances, see  'brand_index_exact' for details
+	</para></listitem>        
+       <listitem><para> 'product_info' : a group holding all details on a specific drug (brand product) selected by a unique ID (var 'ID') from the list of all drugs. 
+        This group should contain queries that select information from different
+        tables using only the drug ID. The number of queries is not limited.
+	</para></listitem>
+	</itemizedlist>
+	<para>
+        The data fetched by these queries must be processed by a format definition to be displayed in the product info widget. There is no 1:1 mapping between query definitions and format definitions (that is, both types access a pool of parameters that are supplied by the queries and processed by format definition, but you don't have to use all parameters fetched. You must, however, query all parameters you would like to display. :)
+	</para></step>
+	<step><para>
+    	Create format definitions for all sections you would like to display.
+	</para><para>
+    Every section consist of maximal two parts: a section heading and its content. Both types can be omitted (format type 'heading' takes only a heading and format type 'noheading' takes only content). Format type 'single' has a heading and expects a single result (i.e. no list). Format type 'list' had a heading and expects a variable containing a list.
+	</para><para>    All format types except 'heading' expect a list of parameters used in entry 'usedvars' (the same that are used in the format string) to check for empty parameter sets (One could extract those variables from the format string too. Currently, however, this is not supported). Empty parameter sets will not be displayed. That can be used to display information that is not present with all drugs in the database without printing only headings with empty paragraphs.
+	</para><para>    The parameters used will be mapped to the dictionary created by query group 'product_info'. 
+	</para><para>    Every entry must contain an unique positional index (entry 'position', non-negative integer) that defines the order of appearance of format strings in product info sheet.
+	</para></step>
+
+	<step><para>
+     	 Try it. If it fails, send me an email &lt;hilmar.berger@gmx.de&gt; or ask somebody else at the gnumed-devel list.
+	</para></step>
+	</procedure>
+	</orderedlist>
             </sect2>
     	</sect1>
 
@@ -3190,8 +3594,7 @@ the issues better than me.
 
     	    <sect2>
 	    <title>Internals / Additional Information</title>
-	    <para>
-	    </para>
+	    <para></para>
     	    </sect2>	    
     	</sect1>
 

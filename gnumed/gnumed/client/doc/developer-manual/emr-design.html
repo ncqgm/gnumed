@@ -1,0 +1,413 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Gnumed EMR</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE=" Design "
+HREF="design.html"><LINK
+REL="PREVIOUS"
+TITLE="FAQ"
+HREF="faq.html"><LINK
+REL="NEXT"
+TITLE="Table auditing"
+HREF="auditing.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: Developers's Manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="faq.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Design</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="auditing.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="EMR-DESIGN"
+>5.5. Gnumed EMR</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN735"
+>5.5.1. Required reading</A
+></H2
+><P
+>		Weed: the problem-oriented medical record (SOAP, POMR)
+		 use Google
+		</P
+><P
+>		Slee: loss-free entity coding in medicine
+		 (See <A
+HREF="http://www.tringa.com/index.php?submit=HCCC"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>http://www.tringa.com/index.php?submit=HCCC</I
+></A
+>)
+		</P
+><P
+>		Dutch model: Episodes of Care
+		 (See <A
+HREF="http://www.phcsg.org.uk/conferences/cambridge1998/westerhof.htm"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>http://www.phcsg.org.uk/conferences/cambridge1998/westerhof.htm</I
+></A
+>)
+		</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN744"
+>5.5.2. Structural considerations</A
+></H2
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN746"
+>5.5.2.1. Health Issue</A
+></H3
+><P
+>		A Health Issue is a longer ranging medical condition associated with
+		a patient. There may be several episodes related with one health
+		issue and there must be at least one. At times a health issue will
+		first be appreciated by considering underlying similarities between
+		several medically related episodes. A health issue may have a finite
+		duration if the underlying medical condition is eventually fully
+		resolved. It may also span the entire life of the patient such as
+		in chronic or genetic ailments. Start and end are not directly
+		recorded but must be derived from the start of the earliest and
+		the end of the most recent associated episode.
+		</P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN749"
+>5.5.2.2. Clinical Episode</A
+></H3
+><P
+>		A Clinical Episode denotes a period of time during which the patient
+		was under care for one particular Health Issue (medical condition).
+		Several episodes (eg. progression, bouts, etc.) may be associated
+		with a particular health issue. There can be several encounters per
+		episode, there must be at least one. The start and end of an episode
+		isn't directly recorded but rather one can deduce that data from the
+		associated clinical items of which there will usually be several
+		(but at least one). Often, several providers will contribute to an
+		episode of care (via several encounters and items). One would think
+		that episodes can be deduced from clusters of closely related dates
+		of clinical encounters. While this is true it cannot be used reliably
+		in a programmatic way.
+		</P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN752"
+>5.5.2.3. Clinical Encounter</A
+></H3
+><P
+>		A one-off contact between patient and health care system (or on behalf
+		of the patient) is called a "Clinical Encounter". An encounter is often
+		restricted to a given date but may span midnight and will thus refer to
+		two dates. The date itself is not directly stored in the encounter
+		table clin_encounter but must be determined from the commit timestamps
+		of the clinical items belonging to it. The encounter table records the
+		location, provider and subject of care as well as the type of encounter.
+		It really is more of an administrative than a purely clinical concept.
+		Note that it also does not fit hospital stays particularly well where
+		it is harder to define clean boundaries between encounters. One
+		encounter will often relate to more than one episode/health issue.
+		</P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN755"
+>5.5.2.4. Clinical Item</A
+></H3
+><P
+>		In GnuMed a medically meaningful piece of information is called "Clinical
+		Item". Such items are typically elements of the SOAP structure such as a
+		diagnosis, a history item, an assessment, a plan, etc. Several tables,
+		both specific and generic store such items. They all inherit from the
+		table clin_root_item which records the Clinical Encounter and Clinical
+		Episode this item belongs to. Virtue of inheriting from clin_root_item all
+		Clinical Item tables also have a generic "narrative" field for comments
+		and clinical narrative.
+		</P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN758"
+>5.5.2.5. Partial Contact</A
+></H3
+><P
+>&#13;		This concept of the Dutch Episode Model is not directly
+		represented in the GnuMed clinical table structure. It is
+		easily derived from the existing data by aggregating all
+		Clinical Items that belong to the same Clinical Encounter
+		and the same Clinical Episode.
+		</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN761"
+>5.5.3. Implementation considerations</A
+></H2
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN763"
+>5.5.3.1. Clinical narrative</A
+></H3
+><P
+>		Due to the fact that clinical items are stored in several different
+		specific and non-specific tables it is difficult to do a full-text
+		search across the medical record of a patient. For this reason all
+		clinical narrative is aggregated in the clin_root_item table. All
+		tables providing clinical narrative are supposed to inherit from
+		this table. If more than one field for free text is needed in a
+		table links to entries in clin_note must be used additionally
+		to the inherited clin_root_item.narrative field.
+	    	</P
+><P
+>		The view v_patient_items provides an aggregation of clinical
+		items per patient. From this one can derive the item ID and source
+		table of individual items. It also provides the full text of the
+		clinical narrative for all tables that inherit from clinical item.
+		Only very few clinically relevant narrative strings are not stored
+		in such tables, namely comments on clin_episode, clin_encounter
+		and clin_health_issue rows.
+	    	</P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN767"
+>5.5.3.2. View v_patient_episodes</A
+></H3
+><P
+>		This view links episodes to patients.
+		</P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN770"
+>5.5.3.3. View v_i18n_patient_encounters</A
+></H3
+><P
+>		This view links encounters to patients and provides a translated
+		encounter type (if a translation is available).
+		</P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN773"
+>5.5.3.4. Predefined data</A
+></H3
+><P
+>		Wherever fixed strings are predefined for certain fields (such
+		as descriptions of encounter types or history item types) provisions
+		for translation of those strings via gmI18N.sql must be made. An
+		ID range for user-supplied additional strings must be defined. The
+		default language is English, other languages are handled via
+		translations. In appropriate cases views may facilitate easier
+		access to translated strings. Names of such views are to be
+		prepended by "v_i18n_".
+		</P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN776"
+>5.5.3.5. Clinical items</A
+></H3
+><P
+>		All tables holding clinical items must inherit from clin_root_item.
+		</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN779"
+>5.5.4. Medical relation between entities</A
+></H2
+><P
+>		<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>health issue
+-&#62; several episodes
+   -&#62; several encounters
+      -&#62; several partial contacts
+         -&#62; several items
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="faq.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="auditing.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>FAQ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="design.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Table auditing</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

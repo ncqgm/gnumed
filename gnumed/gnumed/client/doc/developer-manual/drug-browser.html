@@ -1,3 +1,4 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML
 ><HEAD
 ><TITLE
@@ -36,7 +37,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: </TH
+>GNUMed: Developers's Manual</TH
 ></TR
 ><TR
 ><TD
@@ -73,16 +74,16 @@ CLASS="SECT1"
 CLASS="SECT1"
 ><A
 NAME="DRUG-BROWSER"
-></A
->5.8. Pharmaceutical Reference Browser</H1
+>5.10. Pharmaceutical Reference Browser</A
+></H1
 ><DIV
 CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN851"
-></A
->5.8.1. Short Description</H2
+NAME="AEN924"
+>5.10.1. Short Description</A
+></H2
 ><P
 >		Browser for Drug database.
 		</P
@@ -92,9 +93,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN854"
-></A
->5.8.2. Data Shown/Accessible</H2
+NAME="AEN927"
+>5.10.2. Data Shown/Accessible</A
+></H2
 ><P
 ></P
 ><UL
@@ -110,9 +111,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN859"
-></A
->5.8.3. Functionality</H2
+NAME="AEN932"
+>5.10.3. Functionality</A
+></H2
 ><P
 ></P
 ><UL
@@ -133,11 +134,242 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN866"
-></A
->5.8.4. Internals / Additional Information</H2
+NAME="AEN939"
+>5.10.4. Internals / Additional Information</A
+></H2
 ><P
->            </P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>	    Files: 
+	    </P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>	    gmDrugObject: 	query abstraction
+	    gmDrugView:	drug abstraction (hides index search, product info creation and
+			    so on)
+	    gmDrugDisplay:	frontend to display drug information
+
+	    ~/.gnumed/gnumed.conf (default config file)
+	    &#60;SOMEDIR&#62;/&#60;DATABASE_QUERY_DEFINITION_FILE&#62;
+	    </PRE
+></FONT
+></TD
+></TR
+></TABLE
+></LI
+><LI
+><P
+>Configuration</P
+><P
+></P
+><UL
+><LI
+><P
+>	    Pointers to the default drug database used in 
+	    <TT
+CLASS="FILENAME"
+>~/.gnumed/gnumed.conf</TT
+> (default config file):
+	    <TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>[DrugReferenceBrowser]                                                          
+drugDBname = &#60;dbname&#62;
+
+[&#60;dbname&#62;]
+configfile = &#60;PathToDrugDBConfigFile&#62;
+	    </PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	    </P
+><P
+>	    where dbname references  the path entry and the &#60;PathToDrugDBConfigFile&#62;
+	    points to a config file holding detailed information on queries, output formatting etc. 
+	    (There are two separate entries to allow for more than one drug database.)
+	    </P
+></LI
+><LI
+><P
+>	   in DrugDBConfigFile:
+	   </P
+><P
+>	       There are two different types of entries : 
+	       <P
+></P
+><OL
+TYPE="a"
+><LI
+><P
+>	       Query definitions (defining queries that can be accessed via the query group name
+	       </P
+></LI
+><LI
+><P
+>	       format definitions (defining formatting of fetched data in the product info widget of the drug reference browser
+	       </P
+></LI
+></OL
+>
+	       
+	       </P
+><P
+>	       Query Definition:
+	       </P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>    
+    [EntryGroupNameY]
+    type=query 			# type=query identifies queries 
+    querygroup=&#60;querygroupname&#62;	# identifies the query group the query belongs
+				# to. All queries belonging to one group are 
+                                # fetched at once by DrugObject.
+    query=$query$
+    &#60;here comes the query text, possibly containing %s to map variables&#62;
+    $query$
+    variables=&#60;variables returned in result dictionary as keys (column names)&#62;
+    mappings=&#60;variables mapped to query string in order of appearance&#62;
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>	Format Definition:
+    	</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>    [EntryGroupNameX]
+    type=format			# identifies format information used by produc info
+    querygroup=&#60;query group&#62;	# querygroup holding parameters needed by this
+    				# part of product info
+    formattype=&#60;ftype&#62;		# one of single, heading, noheading and list
+    position=&#60;#num&#62;		# position of appearance in product info sheet	
+    usedvars=&#60;vars used&#62;	# should match format string mappings
+    heading=$heading$		# heading, needed if not ftype='noheadings'
+	&#60;heading&#62;
+    $heading$
+    format=$format$
+    &#60;e.g. %(presentation)s &#62;	# format string containing parameter names
+    				# that should be mapped from result dict
+                                # if all parameter in result are empty,
+                                # this text part will be ignored
+    $format$
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></LI
+></UL
+></LI
+><LI
+><P
+>	Guide to configure the Drug Reference Browser for a particular database
+	</P
+><DIV
+CLASS="PROCEDURE"
+><OL
+TYPE="1"
+><LI
+><P
+>Create a &#60;DATABASE_QUERY_DEFINITION_FILE&#62; and configure your default gnumed config file accordingly (see above).</P
+></LI
+><LI
+><P
+>create query definitions for all query groups and parameters needed. </P
+><P
+>      	You will at least need the query groups 
+	</P
+><P
+></P
+><UL
+><LI
+><P
+>      	'brand_index_exact' : a index of brand products selected from a list by a at least partial name
+       (mapping : 'Key' - holding the name (or parts of it) to search for; 
+       parameters expected as result : a list of brand products identified by at least parameters 'id' and 'name', additional parameters will be displayed, too)
+	</P
+></LI
+><LI
+><P
+>'generic_index_exact' : a index of generic substances, see  'brand_index_exact' for details
+	</P
+></LI
+><LI
+><P
+> 'product_info' : a group holding all details on a specific drug (brand product) selected by a unique ID (var 'ID') from the list of all drugs. 
+        This group should contain queries that select information from different
+        tables using only the drug ID. The number of queries is not limited.
+	</P
+></LI
+></UL
+><P
+>        The data fetched by these queries must be processed by a format definition to be displayed in the product info widget. There is no 1:1 mapping between query definitions and format definitions (that is, both types access a pool of parameters that are supplied by the queries and processed by format definition, but you don't have to use all parameters fetched. You must, however, query all parameters you would like to display. :)
+	</P
+></LI
+><LI
+><P
+>    	Create format definitions for all sections you would like to display.
+	</P
+><P
+>    Every section consist of maximal two parts: a section heading and its content. Both types can be omitted (format type 'heading' takes only a heading and format type 'noheading' takes only content). Format type 'single' has a heading and expects a single result (i.e. no list). Format type 'list' had a heading and expects a variable containing a list.
+	</P
+><P
+>    All format types except 'heading' expect a list of parameters used in entry 'usedvars' (the same that are used in the format string) to check for empty parameter sets (One could extract those variables from the format string too. Currently, however, this is not supported). Empty parameter sets will not be displayed. That can be used to display information that is not present with all drugs in the database without printing only headings with empty paragraphs.
+	</P
+><P
+>    The parameters used will be mapped to the dictionary created by query group 'product_info'. 
+	</P
+><P
+>    Every entry must contain an unique positional index (entry 'position', non-negative integer) that defines the order of appearance of format strings in product info sheet.
+	</P
+></LI
+><LI
+><P
+>     	 Try it. If it fails, send me an email &#60;hilmar.berger@gmx.de&#62; or ask somebody else at the gnumed-devel list.
+	</P
+></LI
+></OL
+></DIV
+></LI
+></OL
 ></DIV
 ></DIV
 ><DIV

@@ -1,3 +1,4 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML
 ><HEAD
 ><TITLE
@@ -36,7 +37,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: </TH
+>GNUMed: Developers's Manual</TH
 ></TR
 ><TR
 ><TD
@@ -73,16 +74,16 @@ CLASS="SECT1"
 CLASS="SECT1"
 ><A
 NAME="BACKEND-I18N"
-></A
->3.7. Backend I18N for non-dynamic ("fixed") strings in the backend.</H1
+>3.7. Backend I18N for non-dynamic ("fixed") strings in the backend.</A
+></H1
 ><DIV
 CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN227"
-></A
->3.7.1. Introduction</H2
+NAME="AEN228"
+>3.7.1. Introduction</A
+></H2
 ><P
 >        In enumerations we often see fixed strings being stored in the backend.
 	    There's no good way a client can translate those to the local language.
@@ -190,9 +191,9 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN241"
-></A
->3.7.1.1. i18n_curr_lang</H3
+NAME="AEN242"
+>3.7.1.1. i18n_curr_lang</A
+></H3
 ><P
 >        Here you can/should set the currently preferred language on a per-user
         basis. Only one language per user is allowed at any one time. Switching
@@ -205,9 +206,9 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN244"
-></A
->3.7.1.2. i18n_keys</H3
+NAME="AEN245"
+>3.7.1.2. i18n_keys</A
+></H3
 ><P
 >        This is just a convenience table listing all the strings that need
         translations. Dump this and give to translation teams. A tool will be
@@ -220,9 +221,9 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN247"
-></A
->3.7.1.3. i18n_translations</H3
+NAME="AEN248"
+>3.7.1.3. i18n_translations</A
+></H3
 ><P
 >        This is where translations actually live. As in gettext the original
         string is used as the key and the language code (which should correspond
@@ -235,9 +236,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN250"
-></A
->3.7.2. How to translate strings</H2
+NAME="AEN251"
+>3.7.2. How to translate strings</A
+></H2
 ><P
 >        Make your string insertions aware of i18n issues. This is what the
         function i18n(text) is for. Regarding the above example insertions
@@ -308,9 +309,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN258"
-></A
->3.7.3. How to make your tables translate strings</H2
+NAME="AEN259"
+>3.7.3. How to make your tables translate strings</A
+></H2
 ><P
 >        Now that we have translations available in i18n_translations we
         can start making our tables aware of them. Unfortunately,
@@ -392,9 +393,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN268"
-></A
->3.7.4. How to make the frontend use translated strings</H2
+NAME="AEN269"
+>3.7.4. How to make the frontend use translated strings</A
+></H2
 ><P
 >        All the backend infrastructure is in place now so we
         can make frontends aware of translated strings. The first

@@ -1,3 +1,4 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML
 ><HEAD
 ><TITLE
@@ -36,7 +37,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: </TH
+>GNUMed: Developers's Manual</TH
 ></TR
 ><TR
 ><TD
@@ -73,8 +74,8 @@ CLASS="SECT1"
 CLASS="SECT1"
 ><A
 NAME="SIGNALS"
-></A
->5.3. List of GnuMed client internal signals</H1
+>5.3. List of GnuMed client internal signals</A
+></H1
 ><P
 >	    Supplied by Horst Herb
 	    </P
@@ -101,7 +102,7 @@ NAME="SIGNALS"
 >		<DIV
 CLASS="TABLE"
 ><A
-NAME="AEN638"
+NAME="AEN639"
 ></A
 ><P
 ><B
@@ -109,28 +110,25 @@ NAME="AEN638"
 ></P
 ><TABLE
 BORDER="1"
+FRAME="border"
 CLASS="CALSTABLE"
-><THEAD
+><COL
+WIDTH="1*"
+TITLE="C1"><COL
+WIDTH="1*"
+TITLE="C2"><COL
+WIDTH="1*"
+TITLE="C3"><COL
+WIDTH="1*"
+TITLE="C4"><THEAD
 ><TR
 ><TH
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Signal</TH
 ><TH
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Meaning</TH
 ><TH
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Parameter(s)</TH
 ><TH
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Origin</TH
 ></TR
 ></THEAD
@@ -139,27 +137,17 @@ VALIGN="TOP"
 ><TD
 COLSPAN="4"
 ALIGN="CENTER"
-VALIGN="TOP"
 ><EM
 >General messages</EM
 ></TD
 ></TR
 ><TR
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >popup_notice</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >A popup notice wants to be displayed (can be disabled if 
 			client does not want to be interrupted)</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 ><P
 ></P
 ><UL
@@ -176,27 +164,15 @@ STYLE="list-style-type: closedcircle"
 ></UL
 ></TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Frontend or Backend</TD
 ></TR
 ><TR
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >popup_alert</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >A popup alert wants to be displayed (high priority 
 			message - should not be disabled by the client)</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 ><P
 ></P
 ><UL
@@ -213,115 +189,65 @@ STYLE="list-style-type: closedcircle"
 ></UL
 ></TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Frontend or Backend</TD
 ></TR
 ><TR
 ><TD
 COLSPAN="4"
 ALIGN="CENTER"
-VALIGN="TOP"
 ><EM
 >"Current patient" related messages</EM
 ></TD
 ></TR
 ><TR
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >patient_selected</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >A patient has been selected within the client user interface. This 
 			 patient is now the "current" patient. All widgets displaying client data
 			 must update themselves accordingly</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >id_patient (ID of patient)</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Frontend</TD
 ></TR
 ><TR
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >patient_modified</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >A patient's demographic data has been updated. Widgets displaying a
 		      patient's demographic data must update themselves</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >id_patient (ID of patient)</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Frontend or Backend</TD
 ></TR
 ><TR
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >medication_modified</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >The current patient's medication has been modified. Medication related
 		      widgets have to update themselves. This can also be used for drug interaction
 		      checking, drug allergy checking etc. </TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >id_patient (ID of patient)</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Frontend or Backend</TD
 ></TR
 ><TR
 ><TD
 COLSPAN="4"
 ALIGN="CENTER"
-VALIGN="TOP"
 ><EM
 >Waiting room related</EM
 ></TD
 ></TR
 ><TR
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >waitingroom_added</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >A patient has been added to the waiting room</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 ><P
 ></P
 ><UL
@@ -338,26 +264,14 @@ STYLE="list-style-type: closedcircle"
 ></UL
 ></TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Frontend or Backend</TD
 ></TR
 ><TR
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >waitingroom_incons</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >A patient has entered a consultation (is seen by a doctor)</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 ><P
 ></P
 ><UL
@@ -374,26 +288,14 @@ STYLE="list-style-type: closedcircle"
 ></UL
 ></TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Frontend or Backend</TD
 ></TR
 ><TR
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >waitingroom_left</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >A patient has left the waitingroom (finished consultation)</TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 ><P
 ></P
 ><UL
@@ -410,9 +312,6 @@ STYLE="list-style-type: closedcircle"
 ></UL
 ></TD
 ><TD
-WIDTH="25%"
-ALIGN="LEFT"
-VALIGN="TOP"
 >Frontend or Backend</TD
 ></TR
 ></TBODY
