@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.1 2004-08-20 06:46:38 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPatSearchWidgets.py,v 1.2 2004-08-20 13:31:05 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -20,11 +20,13 @@ import sys, os.path, time, string, re
 #from wxPython.wx import *
 from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N, gmWhoAmI, gmCfg
 from Gnumed.business import gmPatient, gmKVK
 from Gnumed.wxpython import gmGuiHelpers
 
 _log = gmLog.gmDefLog
+_whoami = gmWhoAmI.cWhoAmI()
+
 _log.Log(gmLog.lInfo, __version__)
 
 ID_PatPickList = wx.wxNewId()
@@ -254,34 +256,41 @@ and hit <ENTER>
 		self._display_name()
 
 		# FIXME: set query generator
-		self.pat_searcher = gmPatient.cPatientSearcher_SQL()
+		self.__pat_searcher = gmPatient.cPatientSearcher_SQL()
 
 		# - retriever
 		try:
-			self.pat_expander = patient_expander[gmI18N.system_locale_level['full']]
+			self.__pat_expander = patient_expander[gmI18N.system_locale_level['full']]
 		except KeyError:
 			try:
-				self.pat_expander = patient_expander[gmI18N.system_locale_level['country']]
+				self.__pat_expander = patient_expander[gmI18N.system_locale_level['country']]
 			except KeyError:
 				try:
-					self.pat_expander = patient_expander[gmI18N.system_locale_level['language']]
+					self.__pat_expander = patient_expander[gmI18N.system_locale_level['language']]
 				except KeyError:
-					self.pat_expander = patient_expander['default']
+					self.__pat_expander = patient_expander['default']
 
 		# get connection
-		self.backend = gmPG.ConnectionPool()
-		self.conn = self.backend.GetConnection('personalia')
+		backend = gmPG.ConnectionPool()
+		self.__conn = backend.GetConnection('personalia')
 		# FIXME: error handling
 
-		self.prev_search_term = None
-		self.prev_pats = []
-		self.prev_col_order = []
-		
-		self.count = 0
-		
-		# set event handlers
-		self.__register_events()
+		self.__prev_search_term = None
+		self.__prev_pats = []
+		self.__pat_picklist_col_defs = []
 
+		self._lclick_count = 0
+
+		self.__always_dismiss_after_search = False
+		value, set = gmCfg.getDBParam (
+			workplace = _whoami.get_workplace(),
+			option = 'patient_search.always_dismiss_previous_patient'
+		)
+		if value is not None:
+			try: self.__always_dismiss_after_search = int(value)
+			except: pass
+		
+		self.__register_events()
 	#--------------------------------------------------------
 	def __register_events(self):
 		# - process some special chars
@@ -291,10 +300,9 @@ and hit <ENTER>
 		# - redraw the currently active name upon losing focus
 		#   (but see the caveat in the handler)
 		wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
-		# - user pressed <enter>
+
 		wx.EVT_TEXT_ENTER (self, self.GetId(), self._on_enter)
-		# - user single clicked left mouse button
-		wx.EVT_LEFT_UP (self, self._on_get_left_up)
+		wx.EVT_LEFT_UP (self, self._on_left_mousebutton_up)
 
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
@@ -312,14 +320,14 @@ and hit <ENTER>
 			return True
 
 		# only unique patients
-		for prev_pat in self.prev_pats:
+		for prev_pat in self.__prev_pats:
 			if prev_pat[0] == anID:
 				return True
-		self.prev_pats.append(data)
+		self.__prev_pats.append(data)
 
 		# and only 10 of them
-		if len(self.prev_pats) > 10:
-			self.prev_pats.pop(0)
+		if len(self.__prev_pats) > 10:
+			self.__prev_pats.pop(0)
 
 		return True
 	#--------------------------------------------------------
@@ -334,8 +342,8 @@ and hit <ENTER>
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
-	def _on_get_left_up(self, evt):
-		"""upon left click
+	def _on_left_mousebutton_up(self, evt):
+		"""upon left click release
 
 		- select all text in the field so that the next
 		  character typed will delete it
@@ -344,17 +352,16 @@ and hit <ENTER>
 		  clicks follow
 		"""
 		# unclicked , not highlighted
-		if self.count == 0:
-			# highlight text
-			self.SetSelection (-1,-1)
-			self.count = 1
+		if self._lclick_count == 0:
+			self.SetSelection (-1,-1)			# highlight entire text
+			self._lclick_count = 1
 			evt.Skip()
 			return None
 			
-		# has been clicked - should be highlighted
+		# has been clicked before - should be highlighted
 		start, end = self.GetSelection()
 		self.SetSelection(start, end)
-		self.count = 0
+		self._lclick_count = 0
 		evt.Skip()
 		return None
 	#--------------------------------------------------------
@@ -376,15 +383,15 @@ and hit <ENTER>
 
 		# remember fragment
 		curr_search_term = self.GetValue()
-		if self.IsModified() and not re.match("^(\s|\t)*$", curr_search_term):
-			self.prev_search_term = curr_search_term
+		if self.IsModified() and (curr_search_term.strip() != ''):
+			self.__prev_search_term = curr_search_term
 
 		# and display currently active patient
 		self._display_name()
 		# unset highlighting
 		self.SetSelection (0,0)
 		# reset highlight counter
-		self.count = 0
+		self._lclick_count = 0
 		
 		evt.Skip()
 	#--------------------------------------------------------
@@ -394,11 +401,11 @@ and hit <ENTER>
 		if evt.AltDown():
 			# ALT-L, ALT-P - list of previously active patients
 			if keycode in [ord('l'), ord('p')]:
-				if self.prev_pats == []:
+				if self.__prev_pats == []:
 					return True
 				# show list
 				dlg = cPatientPickList(parent = self)
-				dlg.SetItems(self.prev_pats, self.prev_col_order)
+				dlg.SetItems(self.__prev_pats, self.__pat_picklist_col_defs)
 				result = dlg.ShowModal()
 				dlg.Destroy()
 				# and process selection
@@ -437,8 +444,8 @@ and hit <ENTER>
 
 		# cycling through previous fragments
 		elif keycode == wx.WXK_UP:
-			if self.prev_search_term is not None:
-				self.SetValue(self.prev_search_term)
+			if self.__prev_search_term is not None:
+				self.SetValue(self.__prev_search_term)
 			return True
 		
 #		elif keycode == wx.WXK_DOWN:
@@ -448,60 +455,75 @@ and hit <ENTER>
 	#--------------------------------------------------------
 	def _on_enter(self, evt):
 		wx.wxBeginBusyCursor()
-		try:
-			curr_search_term = self.GetValue()
-			# remember fragment
-			if self.IsModified() and not re.match("^(\s|\t)*$", curr_search_term):
-				self.prev_search_term = curr_search_term
 
-			# get list of matching ids
-			start = time.time()
-			ids = self.pat_searcher.get_patient_ids(curr_search_term)
-			duration = time.time() - start
-			_log.Log (gmLog.lInfo, "%s patient ID(s) fetched in %3.3f seconds" % (len(ids), duration))
+		if self.__always_dismiss_after_search:
+			self.SetActivePatient(-1, None)
 
-			if ids is None or len(ids) == 0:
-				wx.wxEndBusyCursor()
-				gmGuiHelpers.gm_show_warning (
-					_('Cannot find ANY matching patients for search term\n"%s" !\nCurrently selected patient stays active.\n\n(We should offer to jump to entering a new patient from here.)' % curr_search_term),
-					_('selecting patient')
-				)
-				return True
-
-			curs = self.conn.cursor()
-			# only one matching patient
-			if len(ids) == 1:
-				# make our selection known to others
-				data, self.prev_col_order = self.pat_expander(curs, ids)
-				curs.close()
-				if len(data) == 0:
-					wx.wxEndBusyCursor()
-					return False
-				self.SetActivePatient(ids[0], data[0])
-				wx.wxEndBusyCursor()
-				return True
-
-			# more than one matching patient
-			start = time.time()
-			pat_list, self.prev_col_order = self.pat_expander(curs, ids)
-			duration = time.time() - start
-			_log.Log (gmLog.lInfo, "patient data fetched in %3.3f seconds" % duration)
-			curs.close()
-
-			# and let user select from pick list
-			dlg = cPatientPickList(parent = self)
-			dlg.SetItems(pat_list, self.prev_col_order)
+		curr_search_term = self.GetValue()
+		# do nothing on empty fragments
+		if curr_search_term.strip() == '':
 			wx.wxEndBusyCursor()
-			result = dlg.ShowModal()
-			wx.wxBeginBusyCursor()
-			dlg.Destroy()
-			for pat in pat_list:
-				if result == pat[0]:
-					self.SetActivePatient(result, pat)
-					break
-		except:
-			_log.LogException ("error selecting patient", sys.exc_info(), verbose=0)
+			return None
+
+		# remember fragment
+		if self.IsModified():
+			self.__prev_search_term = curr_search_term
+
+		# get list of matching ids
+		start = time.time()
+		ids = self.__pat_searcher.get_patient_ids(curr_search_term)
+		duration = time.time() - start
+		_log.Log (gmLog.lInfo, "%s patient ID(s) fetched in %3.3f seconds" % (len(ids), duration))
+
+		if ids is None:
+			wx.wxEndBusyCursor()
+			gmGuiHelpers.gm_show_error (
+				_('Error searching for matching patients.\n\nSearch term: "%s"' % curr_search_term),
+				_('selecting patient')
+			)
+			return None
+
+		if len(ids) == 0:
+			wx.wxEndBusyCursor()
+			gmGuiHelpers.gm_show_warning (
+				_('Cannot find any matching patients.\n\nSearch term: "%s"\n\n(We should offer to jump to entering a new patient from here.)' % curr_search_term),
+				_('selecting patient')
+			)
+			return None
+
+		curs = self.__conn.cursor()
+		# only one matching patient
+		if len(ids) == 1:
+			# make our selection known to others
+			pats_data, self.__pat_picklist_col_defs = self.__pat_expander(curs, ids)
+			curs.close()
+			if len(pats_data) == 0:
+				wx.wxEndBusyCursor()
+				return None
+			self.SetActivePatient(ids[0], pats_data[0])
+			wx.wxEndBusyCursor()
+			return None
+
+		# more than one matching patient
+		start = time.time()
+		pats_data, self.__pat_picklist_col_defs = self.__pat_expander(curs, ids)
+		duration = time.time() - start
+		_log.Log (gmLog.lInfo, "patient data fetched in %3.3f seconds" % duration)
+		curs.close()
+		# let user select from pick list
+		picklist = cPatientPickList(parent = self)
+		picklist.SetItems(pats_data, self.__pat_picklist_col_defs)
 		wx.wxEndBusyCursor()
+		result = picklist.ShowModal()
+		wx.wxBeginBusyCursor()
+		picklist.Destroy()
+		for pat in pats_data:
+			if result == pat[0]:
+				self.SetActivePatient(result, pat)
+				break
+
+		wx.wxEndBusyCursor()
+		return None
 #============================================================
 # main
 #------------------------------------------------------------
@@ -624,7 +646,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.1  2004-08-20 06:46:38  ncq
+# Revision 1.2  2004-08-20 13:31:05  ncq
+# - cleanup/improve comments/improve naming
+# - dismiss patient regardless of search result if so configured
+# - don't search on empty search term
+#
+# Revision 1.1  2004/08/20 06:46:38  ncq
 # - used to be gmPatientSelector.py
 #
 # Revision 1.45  2004/08/19 13:59:14  ncq
