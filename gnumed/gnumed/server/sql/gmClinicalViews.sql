@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.64 2004-05-07 14:27:46 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.65 2004-05-08 17:39:54 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -25,17 +25,6 @@ create index idx_episode_h_issue on clin_episode(id_health_issue);
 
 -- =============================================
 -- encounters
-\unset ON_ERROR_STOP
-drop view v_i18n_enum_encounter_type;
-\set ON_ERROR_STOP 1
-
-create view v_i18n_enum_encounter_type as
-select
-	_enum_encounter_type.id as id,
-	_(_enum_encounter_type.description) as description
-from
-	_enum_encounter_type
-;
 
 -- per patient
 \unset ON_ERROR_STOP
@@ -56,7 +45,7 @@ select
 	cle.fk_type as pk_type
 from
 	clin_encounter cle,
-	_enum_encounter_type et
+	encounter_type et
 where
 	cle.fk_type = et.id
 ;
@@ -79,7 +68,7 @@ select
 	cl_e.description as description
 from
 	clin_encounter cl_e,
-	_enum_encounter_type et,
+	encounter_type et,
 	curr_encounter cu_e
 where
 	et.id = cl_e.fk_type
@@ -105,7 +94,7 @@ select distinct on (last_affirmed)
 	ce1.fk_provider as pk_provider
 from
 	clin_encounter ce1,
-	_enum_encounter_type et
+	encounter_type et
 where
 	ce1.fk_type = et.id
 		and
@@ -216,43 +205,6 @@ order by
 
 -- ==========================================================
 -- tests stuff
-
---\unset ON_ERROR_STOP
---drop view v_test_result;
---\set ON_ERROR_STOP 1
-
---create view v_test_result as
---	select
---		tr.id as id_result,
---		vpep.id_patient as id_patient,
---		vpep.id_health_issue as id_health_issue,
---		tr.id_episode as id_episode,
---		tr.id_encounter as id_encounter,
---		tr.fk_type as pk_type,
---		tr.clin_when as result_when,
---		tt.code as test_code,
---		tt.name as test_name,
---		tr.val_num as value_num,
---		tr.val_alpha as value_alpha,
---		tr.val_unit as value_unit,
---		tr.technically_abnormal as technically_abnormal,
---		tr.val_normal_min as normal_min,
---		tr.val_normal_max as normal_max,
---		tr.val_normal_range as normal_range,
---		tr.note_provider as comment_provider,
---		tr.reviewed_by_clinician as reviewed,
---		tr.fk_reviewer as pk_reviewer,
---		tr.clinically_relevant as clinically_relevant,
---		tr.narrative as comment_doc
---	from
---		test_result tr,
---		test_type tt,
---		v_pat_episodes vpep
---	where
---		tr.fk_type = tt.id
---			AND
---		tr.id_episode = vpep.id_episode
---;
 
 \unset ON_ERROR_STOP
 drop view v_test_org_profile;
@@ -463,6 +415,7 @@ create view v_vacc_regimes as
 select
 	vreg.id as pk_regime,
 	vind.description as indication,
+	_(vind.description) as l10n_indication,
 	vreg.name as regime,
 	coalesce(vreg.comment, '') as reg_comment,
 	vdef.is_booster as is_booster,
@@ -528,32 +481,46 @@ drop view v_pat_missing_boosters;
 
 create view v_pat_missing_vaccs as
 select
-	vpv4i1.pk_patient as pk_patient,
-	vvr1.indication as indication,
-	vvr1.regime as regime,
-	vvr1.reg_comment as reg_comment,
-	vvr1.vacc_seq_no as seq_no,
-	vvr1.age_due_min as age_due_min,
-	vvr1.age_due_max as age_due_max,
-	vvr1.min_interval as min_interval,
-	vvr1.vacc_comment as vacc_comment,
-	vvr1.pk_indication as pk_indication,
-	vvr1.pk_recommended_by as pk_recommended_by
+	vpv4i0.pk_patient as pk_patient,
+	vvr0.indication as indication,
+	_(vvr0.indication) as l10n_indication,
+	vvr0.regime as regime,
+	vvr0.reg_comment as reg_comment,
+	vvr0.vacc_seq_no as seq_no,
+	case when vvr0.age_due_max is null
+		then (now() + coalesce(vvr0.min_interval, vvr0.age_due_min))
+		else ((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvr0.age_due_max)
+	end as latest_due,
+	-- note that time_left and amount_overdue are just the inverse of each other
+	case when vvr0.age_due_max is null
+		then coalesce(vvr0.min_interval, vvr0.age_due_min)
+		else (((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvr0.age_due_max) - now())
+	end as time_left,
+	case when vvr0.age_due_max is null
+		then coalesce(vvr0.min_interval, vvr0.age_due_min)
+		else (now() - ((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvr0.age_due_max))
+	end as amount_overdue,
+	vvr0.age_due_min as age_due_min,
+	vvr0.age_due_max as age_due_max,
+	vvr0.min_interval as min_interval,
+	vvr0.vacc_comment as vacc_comment,
+	vvr0.pk_indication as pk_indication,
+	vvr0.pk_recommended_by as pk_recommended_by
 from
-	v_pat_vacc4ind vpv4i1,
-	v_vacc_regimes vvr1
+	v_pat_vacc4ind vpv4i0,
+	v_vacc_regimes vvr0
 where
-	vvr1.is_booster = false
+	vvr0.is_booster = false
 		and
 	-- any vacc_def in regime where seq > ...
-	vvr1.vacc_seq_no > (
+	vvr0.vacc_seq_no > (
 		-- ... highest seq in given vaccs
 		select count(*)
-		from v_pat_vacc4ind vpv4i2
+		from v_pat_vacc4ind vpv4i1
 		where
-			vpv4i2.pk_patient = vpv4i1.pk_patient
+			vpv4i1.pk_patient = vpv4i0.pk_patient
 				and
-			vpv4i2.indication = vvr1.indication
+			vpv4i1.indication = vvr0.indication
 	)
 ;
 
@@ -561,6 +528,7 @@ create view v_pat_missing_boosters as
 select
 	vpv4i0.pk_patient as pk_patient,
 	vvr0.indication as indication,
+	_(vvr0.indication) as l10n_indication,
 	vvr0.regime as regime,
 	vvr0.reg_comment as reg_comment,
 	vvr0.vacc_seq_no as seq_no,
@@ -661,8 +629,6 @@ where
 	cwd.pk_item = vpi.id_item
 		and
 	cwd.fk_progress_note = cauxn.pk
---		and
---	cauxn.id_encounter = vpi.id_encounter
 ;
 
 -- =============================================
@@ -671,7 +637,7 @@ GRANT SELECT ON
 	clin_health_issue,
 	clin_episode,
 	last_act_episode,
-	_enum_encounter_type,
+	encounter_type,
 	clin_encounter,
 	curr_encounter,
 	clin_note,
@@ -698,40 +664,40 @@ GRANT SELECT ON
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
-	"clin_root_item",
-	"clin_root_item_pk_item_seq",
-	"clin_health_issue",
-	"clin_health_issue_id_seq",
-	"clin_episode",
-	"clin_episode_id_seq",
-	"last_act_episode",
-	"last_act_episode_id_seq",
-	"_enum_encounter_type",
-	"_enum_encounter_type_id_seq",
-	"clin_encounter",
-	"clin_encounter_id_seq",
-	"curr_encounter",
-	"curr_encounter_id_seq",
+	clin_root_item,
+	clin_root_item_pk_item_seq,
+	clin_health_issue,
+	clin_health_issue_id_seq,
+	clin_episode,
+	clin_episode_id_seq,
+	last_act_episode,
+	last_act_episode_id_seq,
+	encounter_type,
+	encounter_type_id_seq,
+	clin_encounter,
+	clin_encounter_id_seq,
+	curr_encounter,
+	curr_encounter_id_seq,
 	clin_note,
 	clin_note_id_seq,
 	clin_aux_note,
 	clin_aux_note_pk_seq,
-	"_enum_hx_type",
-	"_enum_hx_type_id_seq",
-	"_enum_hx_source",
-	"_enum_hx_source_id_seq",
-	"clin_history",
-	"clin_history_id_seq",
-	"clin_physical",
-	"clin_physical_id_seq",
-	"_enum_allergy_type",
-	"_enum_allergy_type_id_seq",
-	"allergy",
-	"allergy_id_seq",
-	"vaccination",
-	"vaccination_id_seq",
-	"vaccine",
-	"vaccine_id_seq"
+	_enum_hx_type,
+	_enum_hx_type_id_seq,
+	_enum_hx_source,
+	_enum_hx_source_id_seq,
+	clin_history,
+	clin_history_id_seq,
+	clin_physical,
+	clin_physical_id_seq,
+	_enum_allergy_type,
+	_enum_allergy_type_id_seq,
+	allergy,
+	allergy_id_seq,
+	vaccination,
+	vaccination_id_seq,
+	vaccine,
+	vaccine_id_seq
 	, vacc_def
 	, vacc_def_id_seq
 	, vacc_regime
@@ -784,8 +750,7 @@ grant select, insert, update, delete on
 to group "_gm-doctors";
 
 GRANT SELECT ON
-	v_i18n_enum_encounter_type
-	, v_pat_encounters
+	v_pat_encounters
 	, v_pat_episodes
 	, v_patient_items
 	, v_pat_allergies
@@ -803,11 +768,18 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.64 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.65 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.64  2004-05-07 14:27:46  ncq
+-- Revision 1.65  2004-05-08 17:39:54  ncq
+-- - remove v_i18n_enum_encounter_type
+-- - _enum_encounter_type -> encounter_type
+-- - add some _() uses
+-- - improve v_pat_missing_vaccs/v_pat_missing_boosters
+-- - cleanup/grants
+--
+-- Revision 1.64  2004/05/07 14:27:46  ncq
 -- - first cut at amount_overdue for missing boosters (eg,
 --   now() - (last_given + min_interval)) but doesn't work as
 --   expecte for last_given is null despite coalesce(..., min_interval)
