@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.6 2003-11-17 10:56:37 sjtan Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmEMRTextDump.py,v 1.7 2004-02-05 23:49:52 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -50,6 +50,9 @@ class gmEMRDumpPanel(wxPanel):
 		return 1
 	#--------------------------------------------------------
 	def _retrieve_EMR_text(self):
+		wxCallAfter(self.__retrieve_EMR_text)
+	#--------------------------------------------------------
+	def __retrieve_EMR_text(self):
 		pat = gmPatient.gmCurrentPatient()
 		# this should not really happen
 		if not pat.is_connected():
@@ -122,7 +125,10 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.6  2003-11-17 10:56:37  sjtan
+# Revision 1.7  2004-02-05 23:49:52  ncq
+# - use wxCallAfter()
+#
+# Revision 1.6  2003/11/17 10:56:37  sjtan
 #
 # synced and commiting.
 #

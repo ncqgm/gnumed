@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -213,14 +213,18 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			)
 	#----------------------------------------------
 	def _on_patient_selected(self, **kwargs):
+		# needed because GUI stuff can't be called from a thread (and that's
+		# where we are coming from via backend listener -> dispatcher)
+		wxCallAfter(self.__on_patient_selected, **kwargs)
+		wxCallAfter(self.__update_allergies, **kwargs)
+	#----------------------------------------------
+	def __on_patient_selected(self, **kwargs):
 		age = self.curr_pat['demographic record'].getMedicalAge ()
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
 		self.txt_age.SetValue(age)
 		name = self.curr_pat['demographic record'].getActiveName()
 		self.patient_selector.SetValue('%s, %s' % (name['last'], name['first']))
-
-		self._update_allergies()
 
 		# update episode selector
 		epr = self.curr_pat['clinical record']
@@ -234,6 +238,9 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		print "display patient demographic window now"
 	#-------------------------------------------------------
 	def _update_allergies(self, **kwargs):
+		wxCallAfter(self.__update_allergies)
+	#-------------------------------------------------------
+	def __update_allergies(self, **kwargs):
 		epr = self.curr_pat['clinical record']
 		allergy_names = epr.get_allergy_names(remove_sensitivities=1)
 		tmp = []
@@ -241,11 +248,9 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			tmp.append(allergy['name'])
 		data = string.join(tmp, ',')
 		if data == '':
-			# needed because GUI stuff can't be called from a thread (and that's
-			# where we are coming from via backend listener -> dispatcher)
-			wxCallAfter(self.txt_allergies.SetValue, _('no allergies recorded'))
+			self.txt_allergies.SetValue(_('no allergies recorded'))
 		else:
-			wxCallAfter(self.txt_allergies.SetValue, data)
+			self.txt_allergies.SetValue(data)
 	#-------------------------------------------------------
 	# remote layout handling
 	#-------------------------------------------------------
@@ -334,7 +339,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.27  2004-01-15 14:58:31  ncq
+# Revision 1.28  2004-02-05 23:49:52  ncq
+# - use wxCallAfter()
+#
+# Revision 1.27  2004/01/15 14:58:31  ncq
 # - activate episode selector
 #
 # Revision 1.26  2004/01/06 10:07:42  ncq

@@ -7,8 +7,8 @@ typing clear-text clinical notes which are stored in clin_note.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.8 2003-11-09 14:29:11 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmSingleBoxSOAP.py,v 1.9 2004-02-05 23:49:52 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -93,6 +93,9 @@ class gmSingleBoxSOAPPanel(wxPanel):
 	# internal helpers
 	#--------------------------------------------------------
 	def _save_note(self):
+		wxCallAfter(self.__save_note)
+	#--------------------------------------------------------
+	def __save_note(self):
 		# sanity checks
 		if self.__pat is None:
 			return 1
@@ -123,7 +126,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.8  2003-11-09 14:29:11  ncq
+# Revision 1.9  2004-02-05 23:49:52  ncq
+# - use wxCallAfter()
+#
+# Revision 1.8  2003/11/09 14:29:11  ncq
 # - new API style in clinical record
 #
 # Revision 1.7  2003/10/26 01:36:13  ncq

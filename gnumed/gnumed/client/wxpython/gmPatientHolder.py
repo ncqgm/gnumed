@@ -10,7 +10,7 @@ class PatientHolder:
 
 	def _setPatientModel( self, **kwds):
 		try:
-			self._updateUI()
+			wxCallAfter(self._updateUI)
 		except:
 			gmLog.gmDefLog.LogException( "updateUI problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
 

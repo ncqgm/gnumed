@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.59 2004-02-05 00:26:47 sjtan Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmEditArea.py,v 1.60 2004-02-05 23:49:52 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -615,6 +615,7 @@ class gmEditArea(wxPanel):
 		# - check if patient is connected
 		# - check if we've got data to save
 		# - save it
+		# remember to use wxCallAfter()
 		pass
 #		self._updateUI()
 #		self._init_fields()
@@ -654,6 +655,7 @@ class gmEditArea(wxPanel):
 #----------------------------------------------------------------------------------------------------------------------			
 
 	def _check_unsaved_data(self, **kwds):
+		# remember wxCallAfter
 		if not self.patient.is_connected():
 			return 1
 		try:
@@ -1095,7 +1097,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		
 	def _save_data(self):
 		clinical = self.patient.get_clinical_record().get_past_history()
-		if self.getDataId() == None:
+		if self.getDataId() is None:
 			id = clinical.create_history( self.get_fields_formatting_values() )
 			self.setDataId(id)
 			return
@@ -2325,7 +2327,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.59  2004-02-05 00:26:47  sjtan
+# Revision 1.60  2004-02-05 23:49:52  ncq
+# - use wxCallAfter()
+#
+# Revision 1.59  2004/02/05 00:26:47  sjtan
 #
 # converting gmPastHistory to _define.., _generate.. style.
 #
