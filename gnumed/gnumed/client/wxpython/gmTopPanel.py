@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib
@@ -227,14 +227,15 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	#-------------------------------------------------------
 	def _update_allergies(self):
 		epr = self.curr_pat['clinical record']
-		names = epr['allergy names']
-		tmp = ''
-		for name in names:
-			tmp = tmp + ',' + name
-		if tmp == '':
+		allergy_names = epr['allergy names']
+		tmp = []
+		for allergy in allergy_names:
+			tmp.append(allergy['name'])
+		data = string.join(tmp, ',')
+		if data == '':
 			self.txt_allergies.SetValue(_('no allergies recorded'))
 		else:
-			self.txt_allergies.SetValue(tmp)
+			self.txt_allergies.SetValue(data)
 	#-------------------------------------------------------
 	# remote layout handling
 	#-------------------------------------------------------
@@ -323,7 +324,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.5  2003-05-01 15:04:10  ncq
+# Revision 1.6  2003-05-03 00:43:14  ncq
+# - properly set allergies field on patient change
+# - hot update of allergies in DB needs testing
+#
+# Revision 1.5  2003/05/01 15:04:10  ncq
 # - connect allergies field to backend (need to filter out sensitivities, though)
 # - update allergies on patient selection
 # - listen to allergy change signal
