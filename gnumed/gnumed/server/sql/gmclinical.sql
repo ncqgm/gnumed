@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.23 $
+-- $Revision: 1.24 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -243,18 +243,17 @@ create table allergy (
 	id_clin_transaction integer references clin_transaction(id),
 
 	substance varchar(128) not null,
-	generic varchar(256) default null,
+	generics varchar(256) default null,
 	allergene varchar(256) default null,
 	atc_code varchar(32) default null,
 
 	type integer references _enum_allergy_type(id),
 	reaction text default '',
+	generic_specific boolean default false,
 	definate boolean default false,
 	had_hypo boolean default false,
 	"comment" text default ''
 ) inherits (audit_clinical);
-
--- we need some way of marking "inactive" allergies after hyposensibilization
 
 comment on table allergy is
 	'patient allergy details';
@@ -263,8 +262,8 @@ comment on column allergy.id_clin_transaction is
 
 comment on column allergy.substance is
 	'real-world name of substance the patient reacted to, brand name if drug';
-comment on column allergy.generic is
-	'if drug name of generic compound, brand names change/disappear, generic names do not';
+comment on column allergy.generics is
+	'names of generic compounds if drug; brand names change/disappear, generic names do not';
 comment on column allergy.allergene is
 	'name of allergenic ingredient in substance if known';
 comment on column allergy.atc_code is
@@ -274,6 +273,8 @@ comment on column allergy.type is
 	'allergy/sensitivity';
 comment on column allergy.reaction is
 	'description of reaction such as "difficulty breathing, "skin rash", "diarrhea" etc.';
+comment on column allergy.generic_specific is
+	'true: only applies to the generic named in allergene, false: applies to class the substance in allergene belongs to; if substance in allergene is not found in generics (eg. it is something else), then generic_specific has no meaning)';
 comment on column allergy.definate is
 	'true: definate, false: not definate';
 comment on column allergy.had_hypo is
@@ -406,11 +407,14 @@ comment on table enum_immunities is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.23 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.24 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.23  2003-04-09 13:50:29  ncq
+-- Revision 1.24  2003-04-09 14:47:17  ncq
+-- - further tweaks on allergies tables
+--
+-- Revision 1.23  2003/04/09 13:50:29  ncq
 -- - typos
 --
 -- Revision 1.22  2003/04/09 13:10:13  ncq
