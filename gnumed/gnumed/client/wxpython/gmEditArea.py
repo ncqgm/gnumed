@@ -165,9 +165,9 @@ class EditTextBoxes(wxPanel):
 		
 	        
 		elif section == gmSECTION_ALLERGIES:
-		      gmLog.gmDefLog.Log ( "section allergies")
+		      gmLog.gmDefLog.Log (gmLog.lData, "section allergies")
 		      #self.sizer = wxGridSizer (len(prompt_array),1,2,2)    
-		      gmLog.gmDefLog.Log ( len(editareaprompts))
+		      gmLog.gmDefLog.Log (gmLog.lData, len(editareaprompts))
 		      self.text1 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
 		      self.text2 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
 		      self.text3 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
@@ -194,7 +194,7 @@ class EditTextBoxes(wxPanel):
 		      self.gs.Add(self.text5,0,wxEXPAND)
 		      self.gs.Add(self.sizer_line6,0,wxEXPAND)				
 		elif section == gmSECTION_SCRIPT:
-		      gmLog.gmDefLog.Log ( "in script section now")
+		      gmLog.gmDefLog.Log (gmLog.lData, "in script section now")
 		      self.text1 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
 		      self.text2 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
 		      self.text3 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
@@ -261,7 +261,7 @@ class EditTextBoxes(wxPanel):
 		      pass
 		     
 		else:
-			      gmLog.gmDefLog.Log ( "not section allergies")
+			      gmLog.gmDefLog.Log (gmLog.lData, "not section allergies")
 			      
 	        
 		self.szr_edit_area.Add(self.gs,1,wxEXPAND)
