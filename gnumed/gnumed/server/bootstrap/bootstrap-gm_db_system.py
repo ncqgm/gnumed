@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1338,29 +1338,31 @@ def become_pg_demon_user():
 	as the postgres user has no password [-- and TRUST
 	is not allowed -KH])
 	"""
-	pg_demon_user_passwd_line = None
 	try:
 		import pwd
-		if os.getuid () == 0: # we are the super-user
-			try:
-				pg_demon_user_passwd_line = pwd.getpwnam ('postgres')
-				_cfg.set ('user postgres', 'name', 'postgres')
-			except KeyError:
-				try:
-					pg_demon_user_passwd_line = pwd.getpwnam ('pgsql')
-					# make sure we actually use this name to log in 
-					_cfg.set ('user postgres', 'name', 'pgsql')
-				except KeyError:
-					_log.Log (gmLog.lWarn, 'can''t find postgres user')
-			if pg_demon_user_passwd_line:
-				_log.Log (gmLog.lInfo, 'switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
-				os.setuid (pg_demon_user_passwd_line[2])
-		else:
-			if _interactive:
-				print "WARNING: This script may not work if not running as the system administrator."
 	except ImportError:
 		_log.Log (gmLog.lWarn, "running on broken OS -- can't import pwd module")
 		return None
+
+	pg_demon_user_passwd_line = None
+	if os.getuid () == 0: # we are the super-user
+		try:
+			pg_demon_user_passwd_line = pwd.getpwnam ('postgres')
+			_cfg.set ('user postgres', 'name', 'postgres')
+		except KeyError:
+			try:
+				pg_demon_user_passwd_line = pwd.getpwnam ('pgsql')
+				# make sure we actually use this name to log in 
+				_cfg.set ('user postgres', 'name', 'pgsql')
+			except KeyError:
+				_log.Log (gmLog.lWarn, 'can''t find postgres user')
+		if pg_demon_user_passwd_line:
+			_log.Log (gmLog.lInfo, 'switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
+			os.setuid (pg_demon_user_passwd_line[2])
+	else:
+		if _interactive:
+			print "WARNING: This script may not work if not running as the system administrator."
+
 #==============================================================================
 def nice_mode():
 	print welcome_sermon
@@ -1389,9 +1391,9 @@ if __name__ == "__main__":
 
 	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
 
-	become_pg_demon_user()
-
 	print "Bootstrapping GnuMed database system..."
+
+	become_pg_demon_user()
 
 	tmp = _cfg.get("installation", "interactive")
 	if tmp == "yes":
@@ -1444,7 +1446,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.50  2004-03-02 10:22:30  ihaywood
+# Revision 1.51  2004-03-04 19:40:50  ncq
+# - micro-optimize become_pg_demon_user()
+#
+# Revision 1.50  2004/03/02 10:22:30  ihaywood
 # support for martial status and occupations
 # .conf files now use host autoprobing
 #
