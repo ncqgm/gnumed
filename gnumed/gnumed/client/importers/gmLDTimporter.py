@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.16 2004-07-05 22:28:40 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmLDTimporter.py,v 1.17 2004-09-25 13:09:58 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -590,7 +590,7 @@ class cLDTImporter:
 		try:
 			tmp = gmXdtMappings.xdt_Teststatus_map[result_data['8418'][0].strip()]
 		except KeyError:
-			tmp = _('unknown test status [%s]' % result_data['8418'][0].strip())
+			tmp = _('unknown test status [%s]') % result_data['8418'][0].strip()
 		if self.__lab_result['note_provider'] is None:
 			self.__lab_result['note_provider'] = tmp
 		else:
@@ -776,7 +776,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.16 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.17 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -931,7 +931,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.16 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.17 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -965,7 +965,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.16  2004-07-05 22:28:40  ncq
+# Revision 1.17  2004-09-25 13:09:58  ncq
+# - fix logged string
+#
+# Revision 1.16  2004/07/05 22:28:40  ncq
 # - lab_request -> v_lab_request, therefore:
 #   - clin_when -> sampled_when
 #   - narrative -> progress_note
