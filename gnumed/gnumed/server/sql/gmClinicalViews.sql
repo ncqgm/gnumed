@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.22 2003-07-19 20:23:47 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.23 2003-08-03 14:06:45 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -139,6 +139,66 @@ where
 	et.id=ce.id_type
 ;
 
+-- ==========================================================
+\unset ON_ERROR_STOP
+drop view v_test_result;
+\set ON_ERROR_STOP 1
+
+create view v_test_result as
+	select
+		tr.id as id_result,
+		vpep.id_patient as id_patient,
+		vpep.id_health_issue as id_health_issue,
+		tr.id_episode as id_episode,
+		tr.id_encounter as id_encounter,
+		tr.id_type as id_type,
+		tr.val_when as result_when,
+		tt.code as test_code,
+		tt.name as test_name,
+		tr.val_num as value_num,
+		tr.val_alpha as value_alpha,
+		tr.val_unit as value_unit,
+		tr.technically_abnormal as technically_abnormal,
+		tr.val_normal_min as normal_min,
+		tr.val_normal_max as normal_max,
+		tr.val_normal_range as normal_range,
+		tr.note_provider as comment_provider,
+		tr.reviewed_by_clinician as seen_by_doc,
+		tr.id_clinician as id_doc_seen,
+		tr.clinically_relevant as clinically_relevant,
+		tr.narrative as comment_doc
+	from
+		test_result tr,
+		test_type tt,
+		v_patient_episodes vpep
+	where
+		tr.id_type = tt.id
+			AND
+		tr.id_episode = vpep.id_episode
+;
+
+-- ==========================================================
+\unset ON_ERROR_STOP
+drop view v_lab_result;
+\set ON_ERROR_STOP 1
+
+create view v_lab_result as
+	select
+		lr.id as id_lab_result,
+		vtr.*,
+		lr.sample_id,
+		lr.abnormal_tag,
+		lr.id_sampler,
+		tt.id_provider as id_lab
+	from
+		lab_result lr,
+		v_test_result vtr,
+		test_type tt
+	where
+		lr.id_result = vtr.id_result
+			AND
+		vtr.id_type = tt.id
+;
 -- ==========================================================
 -- health issues stuff
 \unset ON_ERROR_STOP
@@ -303,11 +363,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.22 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.23 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.22  2003-07-19 20:23:47  ncq
+-- Revision 1.23  2003-08-03 14:06:45  ncq
+-- - added measurements views
+--
+-- Revision 1.22  2003/07/19 20:23:47  ncq
 -- - add clin_root_item triggers
 -- - modify NOTIFY triggers so they include the patient ID
 --   as per Ian's suggestion
