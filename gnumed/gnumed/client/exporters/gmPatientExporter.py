@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.24 2004-08-09 18:41:08 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmPatientExporter.py,v 1.25 2004-08-11 09:45:28 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -436,30 +436,40 @@ class cEmrExport:
                     parent_encounter =  emr_tree.AppendItem(parent_episode, an_encounter['l10n_type'] + ': ' + \
                     an_encounter['started'].Format('%Y-%m-%d'))
                     emr_tree.SetPyData(parent_encounter, an_encounter)
+               emr_tree.SetPyData(parent_episode, an_episode)
+            emr_tree.SetPyData(parent_issue, h_issue) 
                     
     #--------------------------------------------------------  
-    def dump_encounter_info(self, encounter, left_margin = 0):
+    def dump_encounter_info(self, episode, encounter, left_margin = 0):
         """
         Dumps encounter specific data (title, rfe, aoe and soap)
                                                               
         """
+        emr = self.__patient.get_clinical_record()
         txt = ''
         # rfe
         rfes = encounter.get_rfes()
         for rfe in rfes:
             txt += left_margin *' ' + 'RFE: ' + rfe['clin_when'].Format('%Y-%m-%d %H:%M') + ', ' +  rfe['rfe'] + '\n'
-#        soap = encounter.get_soap()
-#        # soap
-#        soap_cats = ['s', 'o', 'a', 'p']
-#        for soap_cat in soap_cats:
-#            txt += left_margin *' ' +  string.upper(soap_cat) +':\n'
-#            if soap[soap_cat] is None:
-#                txt +='\n'
-#            else:
-#                for soap_entry in soap[soap_cat]:
-#                    soap_entry['narrative'] = string.replace(soap_entry['narrative'], '\n',
-#                        '\n'+(left_margin+3)*' ')
-#                    txt += (left_margin+3)*' ' + soap_entry['narrative'] + '\n'
+        
+        # soap
+        soap_cats = ['s', 'o', 'a', 'p']
+        soap_cat_narratives = []
+        for soap_cat in soap_cats:
+            soap_cat_narratives = emr.get_clin_narrative(
+                episodes = [episode['pk_episode']],
+                encounters = [encounter['pk_encounter']],
+                soap_cats = [soap_cat],
+                exclude_rfe_aoe = True
+            )
+            txt += left_margin *' ' +  string.upper(soap_cat) +':\n'
+            if soap_cat_narratives is None or len(soap_cat_narratives) == 0:
+                txt +=''
+            else:
+                for soap_entry in soap_cat_narratives:
+                    narrative_txt = string.replace(soap_entry['narrative'], '\n',
+                        '\n' + (left_margin+3)*' ')
+                    txt += (left_margin+3)*' ' + narrative_txt + '\n'
         # aoe
         aoes = encounter.get_aoes()            
         for aoe in aoes:
@@ -512,7 +522,7 @@ class cEmrExport:
                             an_encounter['description']
                         )
                     )
-                    self.__target.write(self.dump_encounter_info(an_encounter, 12))
+                    self.__target.write(self.dump_encounter_info(an_episode, an_encounter, 12))
     #--------------------------------------------------------
     def dump_clinical_record(self):
         """
@@ -764,7 +774,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.24  2004-08-09 18:41:08  ncq
+# Revision 1.25  2004-08-11 09:45:28  ncq
+# - format SOAP notes, too
+#
+# Revision 1.24  2004/08/09 18:41:08  ncq
 # - improved ASCII dump
 #
 # Revision 1.23  2004/07/26 00:02:30  ncq
