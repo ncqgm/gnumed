@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/patient_search/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.6 2003-03-25 19:44:38 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPatientSelector.py,v 1.7 2003-03-25 22:49:34 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -454,7 +454,7 @@ class cPatientSelector(wxTextCtrl):
 		self.conn = self.backend.GetConnection('personalia')
 		# FIXME: error handling
 
-		self.prev_fragment = None
+		self.prev_search_term = None
 		self.prev_pats = []
 		self.prev_col_order = []
 
@@ -568,9 +568,9 @@ class cPatientSelector(wxTextCtrl):
 		# certain vagaries of wxPython (see the Wiki)
 
 		# remember fragment
-		curr_fragment = self.GetValue()
-		if self.IsModified() and not re.match("^(\s|\t)*$", curr_fragment):
-			self.prev_fragment = curr_fragment
+		curr_search_term = self.GetValue()
+		if self.IsModified() and not re.match("^(\s|\t)*$", curr_search_term):
+			self.prev_search_term = curr_search_term
 
 		if gmTmpPatient.gmDefPatient is None:
 			self.SetValue(value = _('no active patient'))
@@ -611,8 +611,8 @@ class cPatientSelector(wxTextCtrl):
 
 		# cycling through previous fragments
 		elif keycode == WXK_UP:
-			if self.prev_fragment is not None:
-				self.SetValue(self.prev_fragment)
+			if self.prev_search_term is not None:
+				self.SetValue(self.prev_search_term)
 			return true
 		
 #		elif keycode == WXK_DOWN:
@@ -620,13 +620,13 @@ class cPatientSelector(wxTextCtrl):
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_enter(self, evt):
+		curr_search_term = self.GetValue()
 		# remember fragment
-		curr_fragment = self.GetValue()
-		if self.IsModified() and not re.match("^(\s|\t)*$", curr_fragment):
-			self.prev_fragment = curr_fragment
+		if self.IsModified() and not re.match("^(\s|\t)*$", curr_search_term):
+			self.prev_search_term = curr_search_term
 
 		# generate queries
-		queries = self.generate_queries(self.GetValue())
+		queries = self.generate_queries(curr_search_term)
 		#<DEBUG>
 		_log.Log(gmLog.lData, queries[1])
 		_log.Log(gmLog.lData, queries[2])
