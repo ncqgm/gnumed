@@ -12,7 +12,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -974,10 +974,6 @@ else:
 			return _("Index")
 
 		def GetWidget (self, parent):
-			# get current workplace name
-			#self.gb = gmGuiBroker.GuiBroker()
-			#workplace = self.gb['workplace_name']
-			#currUser = self.gb['currentUser']
 			self.panel = indexFrame(parent)
 			return self.panel
 
@@ -1001,7 +997,11 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.2  2003-11-08 18:11:13  ncq
+# Revision 1.3  2003-11-08 18:15:05  ncq
+# - name changed
+# - cleanup
+#
+# Revision 1.2  2003/11/08 18:11:13  ncq
 # - cleanup
 #
 # Revision 1.1  2003/11/08 12:07:43  shilbert
