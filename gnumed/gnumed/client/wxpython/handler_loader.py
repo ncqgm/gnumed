@@ -17,7 +17,7 @@ def configure_handlers():
 	gb['DlgSelectPerson_handler'] = gmSelectPerson_handler_impl()
 	handler = gmDemographics_mapping_handler(None)
 	try :
-		model = cPickle.load(file('gmDemographics', 'r'))
+		model = cPickle.load(open('gmDemographics', 'r'))
 	except:
 		model = {}
 		
@@ -36,7 +36,7 @@ def configure_handlers():
 def save_models():
 	gb = gmGuiBroker.GuiBroker()
 	
-	cPickle.dump(gb['models']['gmDemographics'] ,  file('gmDemographics', 'w'))
+	cPickle.dump(gb['models']['gmDemographics'] ,  open('gmDemographics', 'w'))
 
 def load_widget(widget, model):
 	if model <> None:

@@ -4,7 +4,7 @@ import os
 
 def gen_cmd( cmd, filename_out):
 	fin = os.popen(cmd)
-	f = file( filename_out, 'w')
+	f = open( filename_out, 'w')
 	f.writelines( fin.readlines())
 	f.close()
 	fin.close()
