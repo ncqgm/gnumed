@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.36 $ $Date: 2003-12-29 15:28:03 $ $Author: uid66147 $
+-- $Revision: 1.37 $ $Date: 2004-01-05 00:31:01 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -12,8 +12,8 @@
 
 -- =============================================
 CREATE TABLE "doc_type" (
-	"id" serial primary key,
-	"name" character varying(40) unique
+	id serial primary key,
+	name text unique
 );
 
 -- =============================================
@@ -32,9 +32,9 @@ CREATE TABLE "doc_med" (
 	"id" serial primary key,
 	"patient_id" integer references identity not null,
 	"type" integer references doc_type(id),
-	"comment" character varying(60),
+	comment text,
 	"date" timestamp with time zone default CURRENT_DATE,
-	"ext_ref" character varying (40)
+	ext_ref text
 );
 
 COMMENT ON TABLE "doc_med" IS
@@ -56,7 +56,7 @@ CREATE TABLE "doc_obj" (
 	"id" serial primary key,
 	"doc_id" integer references doc_med(id),
 	"seq_idx" integer,
-	"comment" character varying(30),
+	comment text,
 	"data" bytea
 );
 
@@ -96,7 +96,7 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.36 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.37 $');
 
 -- =============================================
 -- questions:
@@ -114,7 +114,10 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.36  2003-12-29 15:28:03  uid66147
+-- Revision 1.37  2004-01-05 00:31:01  ncq
+-- - prefer TEXT of VARCHAR
+--
+-- Revision 1.36  2003/12/29 15:28:03  uid66147
 -- - add default current_date to doc_med.date
 -- - remove doc_med_external_ref table, we use x_db_fk's now
 -- - add on delete/update rules
