@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.136 2005-03-31 17:46:00 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.137 2005-03-31 18:02:35 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1860,36 +1860,6 @@ comment on view v_emr_journal is
 	'patient narrative including health issue/episode/
 	 encounter descriptions, mainly for display as a journal';
 
-select i18n('health issue');
-select i18n('episode');
-select i18n('encounter');
-
-select i18n('vaccine');
-select i18n('batch no');
-select i18n('indication');
-select i18n('site');
-select i18n('notes');
-
-select i18n('allergene');
-select i18n('substance');
-select i18n('generic');
-select i18n('ATC code');
-select i18n('type');
-select i18n('reaction');
-
-select i18n('lab');
-select i18n('sample ID');
-select i18n('sample taken');
-select i18n('status');
-select i18n('notes');
-
-select i18n('code');
-select i18n('name');
-select i18n('value');
-
---select i18n('');
-
-
 -- =============================================
 -- tables
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -2008,11 +1978,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.136 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.137 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.136  2005-03-31 17:46:00  ncq
+-- Revision 1.137  2005-03-31 18:02:35  ncq
+-- - move strings to data
+--
+-- Revision 1.136  2005/03/31 17:46:00  ncq
 -- - cleanup, remove dead code
 -- - add v_emr_journal
 -- - enhance several views to include modified_when/modified_by for v_emr_journal
