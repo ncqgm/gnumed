@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -127,6 +127,10 @@ class cCfgFile:
 	def getCfg(self):
 		"""Return handle to entire config dict."""
 		return self._cfg_data
+	#----------------------------
+	def getGroups(self):
+		"""Return list of all groups in config dict."""
+		return self._cfg_data['groups'].keys()
 	#----------------------------
 	def get(self, aGroup = None, anOption = None):
 		if not self._cfg_data['groups'].has_key(aGroup):
@@ -526,7 +530,7 @@ if __name__ == "__main__":
 	print "file: %s" % myCfg.cfgName
 	if data.has_key('comment'):
 		print "comment: %s" % data['comment']
-	print "groups: %s" % str(data['groups'].keys())
+	print "groups: %s" % str(myCfg.getGroups())
 
 	for group in data['groups'].keys():
 		print "GROUP [%s]" % group
@@ -565,7 +569,10 @@ else:
 	gmDefCfgFile = _tmp
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.18  2002-10-19 19:30:13  ncq
+# Revision 1.19  2002-10-22 15:30:16  ncq
+# - added getGroups()
+#
+# Revision 1.18  2002/10/19 19:30:13  ncq
 # - on being imported always raise ImportError on failing to use default config file
 #
 # Revision 1.17  2002/10/19 19:24:37  ncq
