@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmClinical-Data.de.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 
 -- part of GnuMed
 -- GPL
@@ -144,6 +144,15 @@ insert into i18n_translations (lang, orig, trans) values
 	('de_DE', 'tick-borne meningoencephalitis', 'FSME');
 
 -- =============================================
+-- Status Laborergebnis
+insert into i18n_translations(lang, orig, trans) values
+	('de_DE', 'final', 'endgültig');
+insert into i18n_translations(lang, orig, trans) values
+	('de_DE', 'preliminary', 'vorläufig');
+insert into i18n_translations(lang, orig, trans) values
+	('de_DE', 'partial', 'unvollständig');
+
+-- =============================================
 -- description
 --insert into i18n_translations(lang, orig, trans) values
 --	('de_DE', '', '');
@@ -159,11 +168,15 @@ insert into i18n_translations (lang, orig, trans) values
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmClinical-Data.de.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmClinical-Data.de.sql,v $
--- Revision 1.6  2004-02-18 15:30:09  ncq
+-- Revision 1.7  2004-04-19 12:47:49  ncq
+-- - translate request_status
+-- - add housekeeping_todo.reported_to
+--
+-- Revision 1.6  2004/02/18 15:30:09  ncq
 -- - translate "chart review" encounter type
 --
 -- Revision 1.5  2004/01/22 23:49:46  ncq

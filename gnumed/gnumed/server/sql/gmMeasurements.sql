@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -247,12 +247,17 @@ create table lab_request (
 	request_status text
 		not null
 		default 'preliminary'
-		check (request_status in ('preliminary', 'final', 'complete', 'incomplete')),
+		check (request_status in ('preliminary', 'partial', 'final')),
 	is_pending boolean not null default true,
 	unique (fk_test_org, request_id)
 	-- FIXME: there really should be a constraint like that
 --	unique (fk_patient, request_id)
 ) inherits (clin_root_item);
+
+-- those are fixed strings, so we can translate them
+select i18n('preliminary');
+select i18n('partial');
+select i18n('final');
 
 comment on column lab_request.clin_when is
 	'when where the samples for this request taken';
@@ -271,7 +276,7 @@ comment on column lab_request.results_reported_when is
 	'when was the report on the result generated,
 	LDT: 8302';
 comment on column lab_request.request_status is
-	'final, preliminary, complete, incomplete, etc.
+	'final, preliminary, partial
 	 LDT: 8401';
 comment on column lab_request.is_pending is
 	'true if any (even partial) results are still pending';
@@ -324,11 +329,15 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.19 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.19  2004-04-16 00:36:23  ncq
+-- Revision 1.20  2004-04-19 12:47:49  ncq
+-- - translate request_status
+-- - add housekeeping_todo.reported_to
+--
+-- Revision 1.19  2004/04/16 00:36:23  ncq
 -- - cleanup, constraints
 --
 -- Revision 1.18  2004/04/07 18:16:06  ncq
