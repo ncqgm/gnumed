@@ -1,0 +1,21 @@
+
+1.create a test database
+
+2. run the dump file specifying the test database
+
+3. run gmGuiMain
+
+4. specify the test database instead of the main gnumed database
+
+
+e.g.
+
+createdb gnumedtest
+
+psql -f alldump.sql gnumedtest
+
+python gmGuiMain.py
+
+type gnumedtest inside the login screen for database
+
+

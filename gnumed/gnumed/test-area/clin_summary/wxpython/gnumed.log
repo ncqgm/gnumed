@@ -1,0 +1,108 @@
+2002-03-31 00:07:54 ------------------------------------------------------------
+2002-03-31 00:07:54 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 00:07:54 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 00:07:54 [INFO]  (gmGuiMain.py::Main:406): Starting up as main module.
+2002-03-31 00:07:54 [INFO]  (gmGuiMain.py::OnInit:359): set resource path to: /home/syan/gnumed/gnumed/client/wxpyt
+2002-03-31 00:07:54 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-03-31 00:07:59 [PANIC] (gmGuiMain.py::OnInit:366): Login attempt unsuccesful
+Can't run GNUMed without database connection
+2002-03-31 00:29:59 ------------------------------------------------------------
+2002-03-31 00:29:59 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 00:29:59 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 00:29:59 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 00:29:59 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/client
+2002-03-31 00:29:59 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-03-31 00:30:01 [PANIC] (gmGuiMain.py::OnInit:370): Login attempt unsuccesful
+Can't run GNUMed without database connection
+2002-03-31 00:39:56 ------------------------------------------------------------
+2002-03-31 00:39:56 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 00:39:56 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 00:39:56 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 00:39:56 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/client
+2002-03-31 00:39:56 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-03-31 00:40:36 ------------------------------------------------------------
+2002-03-31 00:40:36 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 00:40:36 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 00:40:36 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 00:40:36 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/client
+2002-03-31 00:40:36 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-03-31 00:43:04 ------------------------------------------------------------
+2002-03-31 00:43:04 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 00:43:04 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 00:43:04 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 00:43:18 ------------------------------------------------------------
+2002-03-31 00:43:18 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 00:43:18 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 00:43:18 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 00:43:49 ------------------------------------------------------------
+2002-03-31 00:43:49 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 00:43:49 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 00:43:49 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 00:43:49 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/client
+2002-03-31 00:43:49 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-03-31 00:43:53 [PANIC] (gmGuiMain.py::OnInit:370): Login attempt unsuccesful
+Can't run GNUMed without database connection
+2002-03-31 00:45:51 ------------------------------------------------------------
+2002-03-31 00:45:51 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 00:45:51 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 00:45:51 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 00:50:08 ------------------------------------------------------------
+2002-03-31 00:50:08 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 00:50:08 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 00:50:08 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 00:50:08 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/client
+2002-03-31 00:50:08 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-03-31 00:50:16 [PANIC] (gmGuiMain.py::OnInit:370): Login attempt unsuccesful
+Can't run GNUMed without database connection
+2002-03-31 01:01:37 ------------------------------------------------------------
+2002-03-31 01:01:37 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 01:01:37 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 01:01:37 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 01:01:37 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/client
+2002-03-31 01:01:37 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-03-31 01:01:46 [INFO]  (gmLogin.py::Login:54): backend connection successfully established
+2002-03-31 01:01:46 [INFO]  (gmGuiMain.py::SetupPlatformDependent:126): running on GTK (probably Linux)
+2002-03-31 02:13:47 ------------------------------------------------------------
+2002-03-31 02:13:47 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 02:13:47 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 02:13:47 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 02:13:47 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/client
+2002-03-31 02:13:47 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-03-31 02:13:52 [PANIC] (gmGuiMain.py::OnInit:370): Login attempt unsuccesful
+Can't run GNUMed without database connection
+2002-03-31 02:17:20 ------------------------------------------------------------
+2002-03-31 02:17:20 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 02:17:20 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 02:17:20 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 02:17:20 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/client
+2002-03-31 02:17:20 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-03-31 02:21:18 ------------------------------------------------------------
+2002-03-31 02:21:18 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-03-31 02:21:18 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-03-31 02:21:18 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-03-31 02:21:18 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/client
+2002-03-31 02:21:18 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-04-02 02:55:03 ------------------------------------------------------------
+2002-04-02 02:55:03 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-04-02 02:55:03 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-04-02 02:55:03 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-04-02 02:55:03 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/client
+2002-04-02 02:55:03 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-04-07 22:55:24 ------------------------------------------------------------
+2002-04-07 22:55:24 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-04-07 22:55:24 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-04-07 22:55:24 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-04-07 22:55:24 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/test-area/clin_summary
+2002-04-07 22:55:24 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-04-07 23:16:24 ------------------------------------------------------------
+2002-04-07 23:16:24 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-04-07 23:16:24 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-04-07 23:16:24 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-04-07 23:16:24 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/test-area/clin_summary
+2002-04-07 23:16:24 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3
+2002-04-07 23:21:14 ------------------------------------------------------------
+2002-04-07 23:21:14 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-04-07 23:21:14 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-04-07 23:21:14 [INFO]  (gmGuiMain.py::Main:410): Starting up as main module.
+2002-04-07 23:21:14 [INFO]  (gmGuiMain.py::OnInit:363): set resource path to: /home/syan/gnumed/gnumed/test-area/clin_summary
+2002-04-07 23:21:14 [INFO]  (gmLogin.py::Login:40): login attempt #0 of 3

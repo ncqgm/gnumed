@@ -1,0 +1,14 @@
+search with each letter stroke after first 1, in search box.
+selecting and double-clicking or enter on the name, changes to summary panel
+new and edit on person search panel buttons work. brings up simple entry dialog.
+NB mainstream person dialog respects gis integrity, and enforces integrity constraint on 
+localities (concept relation- (city, state, postcode, country) must exist in gis) 
+this person update  doesn't yet. 
+
+summary panel allows updating of past history and allergies , currently
+popup formatted full display of summary part e.g. for long histories, when mouse hovers
+above part for more then 0.5 seconds.
+popup disappears when moves out. A bit mouse dependent.
+ Key focus on part -not implemented yet - Could also respond to receiving focus? if just using keyboard.
+
+
