@@ -11,19 +11,20 @@
 
 <%@taglib uri="http://jakarta.apache.org/struts/tags-logic-el" prefix="logic-el"%>
 <html:base/>
-<html>
-    <head><title>JSP Page</title></head>
-    <body>
-     
-        <a name='pastNotes' >
+    
+        <a name='pastNotes'>
         <h2>Past Notes</h2>
         </a>
+        <table>
             <logic:iterate id="encounter"
             name="healthRecord"
             property="healthSummary.encounters"
             
             >
-            
+            <bean:size id="nEpisodes" name="encounter" property="narratives"/>
+            <logic:greaterThan name="nEpisodes" value="0" >
+            <tr>
+            <td>
               <b>
                     <bean:write name="encounter" property="started" format="dd/MM/yyyy hh:mm" />
              </b>   ,
@@ -40,10 +41,10 @@
                 </html:link>
             </small>
             --%>
-            <b>
+           
             <bean:define id="lastHealthIssueName" value="" type="java.lang.String"/>
             <bean:define id="lastEpisodeName" value=""  type="java.lang.String"/>
-            <table>
+            
             <logic:iterate id="narrative" 
                 name="encounter" property="narratives"
                 indexId="index">
@@ -107,11 +108,12 @@
                     </table>
                 </div>
             </logic:iterate>
-                       
-                 
-            </logic:iterate>
             
+            </td>
+            </tr> 
+            </logic:greaterThan>
+            </logic:iterate>
+        </table>
+        
         <a name='lastEntry'/>
-     
-    </body>
-</html>
+    

@@ -20,10 +20,7 @@ method.
     " Vaccination[] getVaccination(int index); "  will be usable as a readonly 
     method. So will " List getVaccination(int index); "
 --%>
-<html>
- 
-<head><title>JSP Page</title></head>
-<body>
+
 <h2> <bean:message key="vacc.entry.heading"/> </h2>
   
     <logic:present name="vaccines" scope="session">
@@ -36,7 +33,9 @@ method.
 
             <table border='1'>
                 <tr>
+                <td>
                 <bean:message key="vacc.entry.prompt"/>
+                </td>
                 </tr>
                 
                 <logic:iterate id="vaccination" name="clinicalUpdateForm" property="vaccinations" scope="request" >
@@ -82,14 +81,10 @@ method.
    --%>  
     </logic:present>
 
-</body>
-
 
 <%--
 <html:javascript formName="clinicalUpdateForm"
    dynamicJavascript="true" staticJavascript="false"/> 
 --%>
 <script  src="./staticJavascript.jsp"></script>
-   
-</html>
 

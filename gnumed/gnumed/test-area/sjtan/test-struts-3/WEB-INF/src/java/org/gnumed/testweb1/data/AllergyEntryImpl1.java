@@ -48,7 +48,7 @@ public class AllergyEntryImpl1 extends AllergyImpl1 implements AllergyEntry, Ent
 	 * @see org.gnumed.testweb1.data.AllergyEntry#isMarked()
 	 */
 	public boolean isMarked() {
-		// TODO Auto-generated method stub
+	 
 		return marked;
 	}
 
@@ -56,7 +56,7 @@ public class AllergyEntryImpl1 extends AllergyImpl1 implements AllergyEntry, Ent
 	 * @see org.gnumed.testweb1.data.AllergyEntry#setMarked(boolean)
 	 */
 	public void setMarked(boolean marked) {
-		// TODO Auto-generated method stub
+	 
 		this.marked = marked;
 	}
     

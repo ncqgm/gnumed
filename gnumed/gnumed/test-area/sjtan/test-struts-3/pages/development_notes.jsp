@@ -369,6 +369,22 @@ The extra slash makes the browser reload the page.
 cause - changing the medical record object from request to session.
 effect - during debugging, pages do not retain enough state to display properly if the servlet is restarted.
 
+<h2>TODO</h2>
+
+<ol>
+<li>
+Formatting by recursive tiles still may be difficult.
+In order to test tiles, e.g embedded page needs to be viewable from a test link.
+</li>
+<li>
+perhaps add a second presentation layer with xml and xslt
+? how 
+</li>
+<li> perhaps have a xml domain model. Significant changes though.
+</li>
+
+</ol>
+
 
 
 </body>

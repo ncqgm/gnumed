@@ -53,20 +53,17 @@
     </table>
         <hr>
     <table width='100%'>
-        <tr valign='top'>
-         <td valign=top width='60%'>
-            <table>
-            <tr valign='top'>
+        <tr >
+         <td width='60%'>
+            <table >
+            <tr >
             <td   > 
                
                 <div id="clinicalEntry">
                      <a name="encounterTop"/>
                     <tiles:insert name="leftTop"/>
                 </div>  
-            </td>     
-            </tr>
-            <tr>
-                    <td >   
+           
              
                         <div id="pastNotes" style='display:block'>
                             <tiles:insert name="leftBottom"/>
@@ -78,16 +75,11 @@
         </td>
 
         <td valign='top'> 
-            <table  >
-                <tr valign='top' >
+            <table>
+                <tr  >
                     <td valign='top'>
                         <tiles:insert name="rightTop"/>
-                    </td>
-               
-                </tr>
-           
-                 <tr>
-                     <td valign='top'>
+                  
                         <tiles:insert name="rightBottom"/>
                     </td>
                 </tr>

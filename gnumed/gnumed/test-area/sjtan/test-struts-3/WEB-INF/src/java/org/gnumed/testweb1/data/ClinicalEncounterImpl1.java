@@ -8,7 +8,6 @@ package org.gnumed.testweb1.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -236,8 +235,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
 	 * @see org.gnumed.testweb1.data.ClinicalEncounter#getVaccinations()
 	 */
 	public List getVaccinations() {
-		// TODO Auto-generated method stub
-		return vaccinations;
+			return vaccinations;
 		
 	}
     
@@ -316,8 +314,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
 	 * @see org.gnumed.testweb1.data.ClinicalEncounter#replaceMappedIssue(org.gnumed.testweb1.data.HealthIssue)
 	 */
 	public void replaceMappedIssue(HealthIssue hi) {
-		// TODO Auto-generated method stub
-		healthIssueMap.put(hi.getDescription() , hi);
+			healthIssueMap.put(hi.getDescription() , hi);
 		updateHealthIssueReferencesInMappedEpisodes();
 	}
 
@@ -326,7 +323,6 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
 	 * 
 	 */
 	private void updateHealthIssueReferencesInMappedEpisodes() {
-		// TODO Auto-generated method stub
 		Iterator i = getMappedEpisodes().iterator();
 		while (i.hasNext()) {
 			ClinicalEpisode ep = (ClinicalEpisode) i.next();

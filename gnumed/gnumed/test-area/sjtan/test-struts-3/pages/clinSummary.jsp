@@ -27,8 +27,13 @@
         </logic:equal>
             
             <td>
-                <i><bean:write name="healthIssue" property="earliestClinRootItem.clin_when" format="MMM yy" />
-                </i>
+    <%--    <bean:write name="tableCol"/> --%>
+    
+                <i>
+    
+    <bean:write name="healthIssue" property="earliestClinRootItem.clin_when" format="MMM yyyy" />
+       
+        </i>
                  <b>
                 <bean:write name="healthIssue" property="description" />
                 </b> 

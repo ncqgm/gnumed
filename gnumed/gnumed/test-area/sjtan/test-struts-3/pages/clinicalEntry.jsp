@@ -23,7 +23,5 @@
     </tr>
     </table>
     </html:form>
-
-</body>
-</html>
+ 
 
