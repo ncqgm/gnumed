@@ -1,10 +1,10 @@
 """GnuMed clinical narrative business object.
 
-license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.5 $"
-__author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
+__version__ = "$Revision: 1.6 $"
+__author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = 'GPL (for details see http://gnu.org)'
 
 import types, sys
 
@@ -17,7 +17,7 @@ _log.Log(gmLog.lInfo, __version__)
 #============================================================
 class cDiag(gmClinItem.cClinItem):
 	"""
-        Represents one real diagnosis
+		Represents one real diagnosis
 	"""
 	_cmd_fetch_payload = """
 		select * from v_pat_diag where pk_diag=%s"""
@@ -82,12 +82,12 @@ class cDiag(gmClinItem.cClinItem):
 		queries.append((cmd, [self._payload[self._idx['pk_diag']], code, coding_system]))
 		result, msg = gmPG.run_commit('historica', queries, True)
 		if result is None:
-		    return (False, msg)
+			return (False, msg)
 		return (True, msg)
 #============================================================
 class cNarrative(gmClinItem.cClinItem):
 	"""
-        Represents one clinical free text entry
+		Represents one clinical free text entry
 	"""
 	_cmd_fetch_payload = """
 		select * from clin_narrative where pk=%s"""
@@ -133,12 +133,12 @@ class cNarrative(gmClinItem.cClinItem):
 		queries.append((cmd, [self.pk_obj, code, coding_system]))
 		result, msg = gmPG.run_commit('historica', queries, True)
 		if result is None:
-		    return (False, msg)
+			return (False, msg)
 		return (True, msg)
 #============================================================
 class cRFE(gmClinItem.cClinItem):
 	"""
-        Represents one Reason For Encounter
+		Represents one Reason For Encounter
 	"""
 	_cmd_fetch_payload = """
 		select * from v_pat_rfe
@@ -159,7 +159,7 @@ class cRFE(gmClinItem.cClinItem):
 #============================================================
 class cAOE(gmClinItem.cClinItem):
 	"""
-        Represents one Assessment Of Encounter
+		Represents one Assessment Of Encounter
 
 	"""
 	_cmd_fetch_payload = """
@@ -180,43 +180,56 @@ class cAOE(gmClinItem.cClinItem):
 	]
 	#--------------------------------------------------------
 	def is_diagnosis(self):
-	    """
-            Checks if the AOE is a real diagosis
-	    """
-	    try:
-	        self.__diagnosis
-	    except:
-	        self.load_diagnosis()
-	    if  self.__diagnosis is None or len(self.__diagnosis) == 0:
-	        return False
-	    else:
-	        return True
+		"""
+			Checks if the AOE is a real diagosis
+		"""
+		# Note: caching is dangerous in absence of a cache invalidation mechanism
+		try:
+			self.__diagnosis
+			loaded = True
+		except:
+			loaded = self.__load_diagnosis()
+		if loaded:
+			return True
+		return False
 	#--------------------------------------------------------
 	def get_diagnosis(self):
-	    """
-            Returns diagnosis for this AOE
-	    """
-	    try:
-	        self.__diagnosis
-	    except:
-	        self.load_diagnosis()
-	    return self.__diagnosis
+		"""
+			Returns diagnosis for this AOE
+		"""
+		# Note: caching is dangerous in absence of a cache invalidation mechanism
+		try:
+			self.__diagnosis
+			loaded = True
+		except:
+			loaded = self.__load_diagnosis()
+		if loaded:
+			return self.__diagnosis
+		return None
 	#--------------------------------------------------------
-	def load_diagnosis(self):
-	    """
-            Fetches from backend diagnosis associated with this AOE
-	    """
-	    self.__diagnosis = []
-	    queries = []
-	    vals = {'pk_narrative': self['pk_narrative']}
-	    cmd = "select distinct on (diagnosis) * from v_pat_diag where pk_narrative=%(pk_narrative)s"
-	    rows = gmPG.run_ro_query('historica', cmd, None, vals)
-	    if rows is None:
-	        _log.Log(gmLog.lErr, 'cannot query diagnosis for aoe [%s]' % (self.pk_obj))
-	        del self.__diagnosis
-	        return
-	    if len(rows) > 0:
-	        self.__diagnosis = rows[0]
+	def __load_diagnosis(self):
+		"""
+			Fetches from backend diagnosis associated with this AOE
+		"""
+		self.__diagnosis = None
+		queries = []
+		vals = {'pk_narrative': self['pk_narrative']}
+		cmd = "select distinct on (diagnosis) pk_diag from v_pat_diag where pk_narrative=%(pk_narrative)s"
+		rows = gmPG.run_ro_query('historica', cmd, None, vals)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot get diagnosis for AOE [%s]' % self.pk_obj)
+			del self.__diagnosis
+			return False
+		if len(rows) > 0:
+			try:
+				self.__diagnosis = cDiag(aPK_obj = rows[0][0])
+				return True
+			except gmExceptions.ConstructorError:
+				_log.Log(gmLog.lErr, 'cannot instantiate diagnosis [%s] for AOE [%s]' % (rows[0][0], self.pk_obj))
+				del self.__diagnosis
+				return False
+		del self.__diagnosis
+		return None
 #============================================================
 # convenience functions
 #============================================================
@@ -233,8 +246,8 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the patient ?
 	cmd = """select id_patient from v_pat_episodes where pk_episode=%s 
-                 union 
-             select pk_patient from v_pat_encounters where pk_encounter=%s"""
+				 union 
+			 select pk_patient from v_pat_encounters where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
 	if (rows is None) or (len(rows) == 0):
 		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
@@ -286,7 +299,7 @@ if __name__ == '__main__':
 	#print "codes:", diagnose.get_codes()
 
 	print "\nnarrative test"
-	print   "--------------"
+	print	"--------------"
 	narrative = cNarrative(aPK_obj=7)
 	fields = narrative.get_fields()
 	for field in fields:
@@ -305,23 +318,26 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.5  2004-07-14 09:10:21  ncq
-# - Carlos' relentless work brings us get_codes(),
-#   get_possible_codes() and adjustions for the fact
-#   that we can now code any soap row
+# Revision 1.6  2004-07-25 23:23:39  ncq
+# - Carlos made cAOE.get_diagnosis() return a cDiag instead of a list
 #
-# Revision 1.4  2004/07/07 15:05:51  ncq
+# Revision 1.5	2004/07/14 09:10:21	 ncq
+# - Carlos' relentless work brings us get_codes(),
+#	get_possible_codes() and adjustions for the fact
+#	that we can now code any soap row
+#
+# Revision 1.4	2004/07/07 15:05:51	 ncq
 # - syntax fixes by Carlos
 # - get_codes(), get_possible_codes()
 # - talk to the right views
 #
-# Revision 1.3  2004/07/06 00:09:19  ncq
+# Revision 1.3	2004/07/06 00:09:19	 ncq
 # - Carlos added create_clin_narrative(), cDiag, cNarrative, and unit tests - nice work !
 #
-# Revision 1.2  2004/07/05 10:24:46  ncq
+# Revision 1.2	2004/07/05 10:24:46	 ncq
 # - use v_pat_rfe/aoe, by Carlos
 #
-# Revision 1.1  2004/07/04 13:24:31  ncq
+# Revision 1.1	2004/07/04 13:24:31	 ncq
 # - add cRFE/cAOE
 # - use in get_rfes(), get_aoes()
 #
