@@ -11,8 +11,8 @@ from wxPython.wx import *
 from wxPython.calendar import *
 import math
 import random
-import gettext
-_ = gettext.gettext
+
+import gmI18N
 
 ID_LNMP = wxNewId ()
 ID_DUE = wxNewId ()
@@ -101,6 +101,8 @@ if __name__ == '__main__':
             return 1
 
     def main ():
+		import gettext
+		_ = gettext.gettext
         gettext.textdomain ('gnumed')
         app = TestApp ()
         app.MainLoop ()
