@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -85,12 +85,12 @@ def get_base_dir():
 		# - note that it may still be the wrong directory
 		if os.path.exists(tmp):
 			return os.path.abspath(tmp)
-		print 'Environment variable GNUMED_DIR contains "%s".' % tmp
+		print 'Environment variable GNUMED_DIR contains [%s].' % tmp
 		print 'This is not a valid path, however.'
 	else:
 		print 'Environment variable GNUMED_DIR is not set.'
 
-	print 'Trying to fall back to system defaults.'
+	print 'Trying to use system defaults.'
 
 	# standard path
 	# - normalize and convert slahes to local filesystem convention
@@ -99,9 +99,10 @@ def get_base_dir():
 	if os.path.exists(tmp):
 		return os.path.abspath(tmp)
 
-	print 'Standard path "%s" does not exist.' % tmp
-	print 'Desperately trying to fall back to last resort measures.'
-	print 'This may be an indicator we are running on Windows, from CVS or something similar.'
+	print 'Standard path [%s] does not exist.' % tmp
+	print 'This may be an indicator we are running on Windows,'
+	print 'from a CVS tree or something similar.'
+	print 'Trying to fall back to last resort measures.'
 
 	# one level below path to binary
 	tmp = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -117,7 +118,7 @@ def get_base_dir():
 	return None
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-	"""Launch the gnumed wx GUI client."""
+	"""Launch the GnuMed wxPython GUI client."""
 
 	appPath = get_base_dir()
 	if appPath is None:
@@ -132,7 +133,7 @@ if __name__ == "__main__":
 		import gmLog
 		_log = gmLog.gmDefLog
 		import gmCLI
-	except ImportError:
+	except:
 		if _log is not None:
 			_log.LogException("Cannot import gmCLI.", sys.exc_info(), fatal=1)
 		sys.exit("""
@@ -145,7 +146,9 @@ Python modules installed.
 In rare situations it may be necessary to set the GNUMED_DIR
 environment variable.
 
-There may also be a log file to check for errors.""")
+There may also be a log file to check for errors. You
+can increase its log level with '--debug'.
+""")
 
 	if gmCLI.has_arg('--talkback'):
 		# email logger as a loop device
@@ -195,10 +198,11 @@ There may also be a log file to check for errors.""")
 		import gmI18N
 		import gmGuiBroker
 		import gmGuiMain
-	except ImportError:
+	except:
 		_log.LogException ("Exception: Cannot load modules.", sys.exc_info(), fatal=1)
 		sys.exit("""
-CRITICAL ERROR: Can't load gmI18N, gmGuiBroker or gmGuiMain ! - Program halted.
+CRITICAL ERROR: Can't load gmI18N, gmGuiBroker or gmGuiMain !
+                Program halted.
 
 Please check whether your PYTHONPATH environment variable is
 set correctly and whether you have all necessary third-party
@@ -207,8 +211,8 @@ Python modules installed.
 In rare situations it may be necessary to set the GNUMED_DIR
 environment variable.
 
-Please also make sure to check the log file for errors. You can
-increase its log level with '--debug'.
+Please also make sure to check the log file for errors. You
+can increase its log level with '--debug'.
 """)
 
 	gb = gmGuiBroker.GuiBroker ()
@@ -249,7 +253,10 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.46  2003-01-19 13:16:46  ncq
+# Revision 1.47  2003-01-20 08:25:15  ncq
+# - better error messages
+#
+# Revision 1.46  2003/01/19 13:16:46  ncq
 # - better instructions on failing starts
 #
 # Revision 1.45  2003/01/14 19:36:39  ncq
