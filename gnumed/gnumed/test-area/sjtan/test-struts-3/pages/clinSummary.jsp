@@ -50,8 +50,8 @@
     </table>
      
     
-   <h5>
-        Allergies </h5>
+   <b>
+        Allergies </b>
         
          <bean:size id="countAllergies"    
                 name="healthRecord" property="healthSummary.allergys"
@@ -65,7 +65,7 @@
                 <bean:message  key="allergies.not.listed"/>
              
         </logic:equal>  
-        <logic:notEqual name="countAllergies" value="0">
+   <logic:notEqual name="countAllergies" value="0">
      <table  border='1'>
         <%--   <thead><td><b></b></td> <td><b>is definite</b></td> <td> <b>description</b> </td> </thead>
         --%>
@@ -103,7 +103,8 @@
         </logic:iterate>
     </table>
     </logic:notEqual> 
-    <h5>Vaccinations </h5>
+    <br/>
+    <b>Vaccinations </b>
     <logic:present name="vaccines" scope="session">
      <bean:size id="countVaccs"    
                 name="healthRecord" property="healthSummary.vaccinations"

@@ -7,8 +7,11 @@
 package  org.gnumed.testweb1.data;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.gnumed.testweb1.global.Util;
 /**
  *
  * @author  sjtan
@@ -31,7 +34,7 @@ public class EntryVitalsImpl1 extends VitalsImpl1 implements EntryVitals {
                 Number n = (Number)o;
                 
                 double oldVal = n.doubleValue();
-                if (java.lang.Math.abs(val-oldVal) >(double) 0.000002 ) {
+                if (java.lang.Math.abs(val-oldVal) >(double) 0.001 ) {
                     log.info("**** THE PROPERTY "+ property + " changed.");
                     set.add(property);
                 }
@@ -48,7 +51,8 @@ public class EntryVitalsImpl1 extends VitalsImpl1 implements EntryVitals {
             try {
                 Object o = PropertyUtils.getProperty( v, property);
                 String s = (String)o;
-                if(value!= null && !value.equals(s)) {
+                value = Util.nullIsBlank(value);
+                if(!"".equals(value) && !value.equals(s)) {
                     set.add(property);
                 }
                 
@@ -191,8 +195,8 @@ public class EntryVitalsImpl1 extends VitalsImpl1 implements EntryVitals {
     
     
     /**
-     * Setter for property rhytm.
-     * @param rhytm New value of property rhytm.
+     * Setter for property rhythm.
+     * @param rhytm New value of property rhythm.
      */
     public void setRhythm(String rhythm) {
         set.add("rhythm", rhythm);

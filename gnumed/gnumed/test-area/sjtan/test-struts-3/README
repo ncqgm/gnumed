@@ -15,30 +15,53 @@ then add in the CVS/Entries file ( in test-area/sjtan/CVS ) D/test-struts-3/////
 
 Notes on Install:
 
+The following 4 links will be read by download.sh , and downloaded.
+
 The following steps were tested:
 
 
-Have a java sdk1.4.2  installed.   
+A.Have a java sdk1.4.2  installed.
 
-Have ant installed. 
+	http://mirror.aarnet.edu.au/pub/java-linux/JDK-1.4.2/i386/rc1/j2re-1.4.2-rc1-linux-i586-gcc2.95.bin
+
+(Change the above url to ...gcc3.2.bin  if wanting the gcc3.2 version.)
 
 
-1.
-get tomcat from 
-http://apache.planetmirror.com.au/dist/jakarta/tomcat-5/v5.0.28/bin/jakarta-tomcat-5.0.28.tar.gz
+B.Have ant installed.
+
+From
+	http://apache.planetmirror.com.au/dist/ant/binaries/apache-ant-1.6.2-bin.tar.bz2
+
+
+C.get a version of commons-lang
+
+	http://www.apache.org/dist/jakarta/commons/lang/binaries/commons-lang-2.0.tar.gz
+
+( This jar file went missing , so need it directly; copy it into the WEB-INF/lib directory)
+
+D. get tomcat from
+
+	http://apache.planetmirror.com.au/dist/jakarta/tomcat-5/v5.0.28/bin/jakarta-tomcat-5.0.28.tar.gz
 
 tar -zxvf xxx.tar.gz  to unpack.
 
-2.
-get struts from
-http://apache.planetmirror.com.au/dist/jakarta/struts/binaries/jakarta-struts-1.1.tar.gz
+E. get struts from
+	http://apache.planetmirror.com.au/dist/struts/library/jakarta-struts-1.2.4-lib.zip
+
+(this is the latest version)
+
+F. must also have a gnumed distribution installed a postgres directory.
+	The easiest thing is to ensure postgresql is installed , and then run the redo-max.sh script in gnumed/server/bootstrap
+(easy if you know the postgres user's  password)
 
 
-
-3.
-In order to compile, certain library files ( all file contents of {struts-basedir}/lib directory , and {tomcat-basedir}/commons/lib/servlet-api.jar )
-must be COPIED into  WEB-INF/lib/ of this directory
+In order to compile, certain library files must be COPIED into  WEB-INF/lib/ of this directory
 	Reason: these files need to be found by the build.xml  
+
+	look at copy_libs.sh which gives an example location of the necessary libs, and copies them.
+	* change the paths to the struts , tomcat, and commons-lang base directory if needed.
+
+
 
 
 

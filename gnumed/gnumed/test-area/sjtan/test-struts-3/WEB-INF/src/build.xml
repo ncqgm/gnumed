@@ -22,7 +22,7 @@
 
     <!-- classpath for Struts 1.1 -->
     <path id="compile.classpath">
-        <pathelement path="${lib.path}/commons-lang.jar"/>
+        <pathelement path="${lib.path}/commons-lang-2.0.jar"/>
         <pathelement path ="${lib.path}/commons-beanutils.jar"/>
         <pathelement path ="${lib.path}/commons-digester.jar"/>
         <pathelement path ="${lib.path}/struts.jar"/>
