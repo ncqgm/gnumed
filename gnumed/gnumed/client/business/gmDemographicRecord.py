@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.26 2004-03-03 23:53:22 ihaywood Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmDemographicRecord.py,v 1.27 2004-03-04 10:41:21 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -17,14 +17,13 @@ import sys, os.path, time
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'pycommon'))
 
-# start logging
-import gmLog
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N, gmMatchProvider
+from Gnumed.business import gmMedDoc
+
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
-
-import gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N, gmMatchProvider, gmPatient, gmMedDoc
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -237,15 +236,19 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 	#--------------------------------------------------------------------
 	def setCOB (self, cob):
 		cmd = "update identity set cob = country.code from country where identity.id = %s and country.name = %s"
-		conn = gmPG.ConnectionPool ().GetConnection ('personalia', readonly=0)
-		curs = conn.cursor ()
-		gmPG.run_commit (curs, [(cmd, [self.ID, cob])])
-		if curs.rowcount == 0:
+#		conn = gmPG.ConnectionPool().GetConnection ('personalia', readonly=0)
+#		curs = conn.cursor()
+#		gmPG.run_commit(curs, [(cmd, [self.ID, cob])])
+		success, err_msg = gmPG.run_commit('personalia', [(cmd, [self.ID, cob])], return_err_msg=1)
+		if not success:
+#		if curs.rowcount == 0:
 			# user probably gave us invalid country
-			gmDispatcher.send (gmSignals.user_error (), message = 'Country %s not valid' % cob)
-		curs.close ()
-		conn.commit ()
-		conn.close ()
+#			gmDispatcher.send (gmSignals.user_error(), message = 'Country %s not valid' % cob)
+			msg = '%s (%s)' % ((_('invalid country [%s]') % cob), err_msg)
+			return (None, msg)
+#		curs.close ()
+#		conn.commit ()
+#		conn.close ()
 	#----------------------------------------------------------------------
 	def getMaritalStatus (self):
 		cmd = "select name from marital_status, identity where marital_status.id = identity.id_marital_status and identity.id = %s"
@@ -324,8 +327,9 @@ where
 			} for r in data ]
 	#--------------------------------------------------------
 	def link_new_relative(self, rel_type = 'parent'):
+		from Gnumed.business.gmPatient import create_dummy_identity
 		# create new relative
-		id_new_relative = gmPatient.create_dummy_identity()
+		id_new_relative = create_dummy_identity()
 		relative = gmPerson(id_new_relative)
 		# pre-fill with data from ourselves
 		relative_demographics = relative.get_demographic_record()
@@ -540,24 +544,28 @@ where
 			return '??'
 		return dob2medical_age(dob)
 	#----------------------------------------------------------------------
-	def addExternalID(self, external_id, origin, comment = None):
+	def addExternalID(self, external_id = None, origin = 'DEFAULT', comment = None):
+		# FIXME: should we support named origins, too ?
+		if external_id is None:
+			_log.Log(gmLog.lErr, 'must have external ID to add it')
+			return None
 		args = {
 			'ID': self.ID,
 			'ext_ID': external_id,
 			'origin': origin,
-			'comment':comment,
+			'comment': comment,
 			}
 		if comment:
-			cmd1 = 'insert into ext_person_id (id_identity, external_id, origin, comment) values (%(ID)s, %(ext_ID)s, %(origin)s, %(comment)s)'
+			cmd1 = 'insert into ext_person_id (id_identity, external_id, fk_origin, comment) values (%(ID)s, %(ext_ID)s, %(origin)s, %(comment)s)'
 		else:
-			cmd1 = 'insert into ext_person_id (id_identity, external_id, origin) values (%(ID)s, %(ext_ID)s, %(origin)s)'
+			cmd1 = 'insert into ext_person_id (id_identity, external_id, fk_origin) values (%(ID)s, %(ext_ID)s, %(origin)s)'
 		cmd2 = "select currval('ext_person_id_id_seq')"
 		result = gmPG.run_commit('personalia', [
 			(cmd1, [args]),
 			(cmd2, [])
 		])
 		if result is None:
-			_log.Log(gmLog.lErr, 'cannot link external ID [%s - %s]' % (external_id, description))
+			_log.Log(gmLog.lErr, 'cannot link external ID [%s@%s] (%s)' % (external_id, origin, comment))
 			return None
 		return result[0][0]
 	#------------------------------------------------------------
@@ -574,11 +582,11 @@ where
 		- comment [a user comment]
 		- external_id [the actual external ID]
 		"""
-		cmd = "select id, origin, comment, external_id from ext_person_id where id_identity = %s"
-		r = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
-		if r is None:
+		cmd = "select id, fk_origin, comment, external_id from ext_person_id where id_identity = %s"
+		rows = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
+		if rows is None:
 			return []
-		return [{'id':row[0], 'origin':row[1], 'comment':row[2], 'external_id':row[3]} for row in r]
+		return [{'id':row[0], 'origin':row[1], 'comment':row[2], 'external_id':row[3]} for row in rows]
 #================================================================
 # convenience functions
 #================================================================
@@ -625,7 +633,8 @@ def getMaritalStatusTypes():
 def getExtIDTypes (context):
 	"""Gets list of [code, ID type] from the backend for the given context
 	"""
-	rl = gmPG.run_ro_query('personalia', "select id, name from enum_ext_id_types where context = %s", None, context)
+	# FIXME: error handling
+	rl = gmPG.run_ro_query('personalia', "select pk, name from enum_ext_id_types where context = %s", None, context)
 	if rl is None:
 		return []
 	return rl
@@ -809,7 +818,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.26  2004-03-03 23:53:22  ihaywood
+# Revision 1.27  2004-03-04 10:41:21  ncq
+# - comments, cleanup, adapt to minor schema changes
+#
+# Revision 1.26  2004/03/03 23:53:22  ihaywood
 # GUI now supports external IDs,
 # Demographics GUI now ALPHA (feature-complete w.r.t. version 1.0)
 # but happy to consider cosmetic changes
