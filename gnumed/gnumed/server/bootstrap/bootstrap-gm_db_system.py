@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -652,6 +652,15 @@ class database:
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
 		# get audit trail configuration
+
+		tmp = _cfg.get(self.section, 'audit disable')
+		# if this option is not given, assume we want auditing
+		if not tmp is None:
+		# if we don't want auditing on this tables, return without
+		# error
+			if int(tmp) == 1:
+				return 1
+
 		tmp = _cfg.get(self.section, 'audit marker table')
 		if tmp is None:
 			return None
@@ -1141,7 +1150,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.21  2003-08-17 00:09:37  ncq
+# Revision 1.22  2003-08-24 13:46:32  hinnef
+# added audit disable option to omit audit table generation
+#
+# Revision 1.21  2003/08/17 00:09:37  ncq
 # - add auto-generation of missing audit trail tables
 # - use that
 #
