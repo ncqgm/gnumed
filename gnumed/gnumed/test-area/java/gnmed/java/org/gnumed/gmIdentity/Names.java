@@ -74,9 +74,9 @@ public class Names {
 
    ///////////////////////////////////////
    // access methods for associations
-/**
- *@hibernate.many-to-one
- */
+///**
+// *@hibernate.many-to-one
+// */
     public identity getIdentity() {
         return identity;
     }

@@ -234,7 +234,7 @@ public class IdentityManager {
     
     public Iterator getIteratorIdentityByNames(Session sess, String lastnames, String firstnames) throws Exception {
    
-        return  sess.iterate("select i from identity i inner join i.namess n " +
+        return  sess.iterate("select i from search_identity i inner join i.namess n " +
         "where lower(n.lastnames) like ? and lower(n.firstnames) like ?" ,
         new Object[] { lastnames.toLowerCase()+"%", firstnames.toLowerCase() +"%" },
         new Type[] { Hibernate.STRING , Hibernate.STRING } );
@@ -390,14 +390,27 @@ public class IdentityManager {
     }
     
     public identity getIdentityById( Long id) {
-        identity iden = null;
+       return loadIdentity( getSession(), id);
+        
+    }
+    
+    
+    identity loadIdentity( Session sess,  Long id) {
+         identity iden = null;
+         
         try {
-            iden = (identity) getSession().load(identity.class, id);
+            iden = (identity)sess.load(identity.class, id);
+            
+//            Iterator j = sess.iterate("select i from identity i inner join i.social_identitys si "+
+//                " where i.id = ? ", id, Hibernate.LONG);
+//            if (j.hasNext()) {
+//                iden = (identity) j.next();
+//            }
+//            
         } catch (Exception e)  {
             e.printStackTrace();
         }
         return iden;
         
     }
-    
 }

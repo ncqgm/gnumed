@@ -138,7 +138,7 @@ public class FindIdentity extends javax.swing.JDialog {
         Object[] os = jList1.getSelectedValues();
         for ( int i = 0; i < os.length; ++i)  {
             Object o = os[i];
-            identity id = (identity) o;
+            identifiable id = (identifiable) o;
         }
     }//GEN-LAST:event_jList1MouseClicked
     
@@ -185,11 +185,11 @@ public class FindIdentity extends javax.swing.JDialog {
                                     jList1.repaint();
                                 }
                             } );
-                            try {
-                                Thread.sleep(10);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+//                            try {
+////                                Thread.sleep(10);
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
                         }
                         
                         
@@ -240,8 +240,8 @@ public class FindIdentity extends javax.swing.JDialog {
         Object oo[] = jList1.getSelectedValues();
         List list =new ArrayList();
         for (int i  = 0; i < oo.length; ++i) {
-            if (oo[i] instanceof identity) {
-                identity id = (identity) oo[i];
+            if (oo[i] instanceof identifiable) {
+                identifiable id = (identifiable) oo[i];
                 list.add(id.getId());
             }
         }

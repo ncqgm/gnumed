@@ -80,10 +80,10 @@ public class identities_addresses {
         this.address = _address;
     }
     
-      /**
-    *@hibernate.many-to-one
-     *  inverse="true"
-    */
+//      /**
+//    *@hibernate.many-to-one
+//     *  inverse="true"
+//    */
     public identity getIdentity() {
         return identity;
     }

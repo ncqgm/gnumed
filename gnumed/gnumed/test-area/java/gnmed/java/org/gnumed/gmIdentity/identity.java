@@ -27,7 +27,7 @@ import org.gnumed.gmGIS.telephone;
  * @hibernate.class
  *  proxy="org.gnumed.gmIdentity.identity"
  */
-public class identity {
+public class identity implements identifiable {
     
     
     ///////////////////////////////////////
@@ -136,6 +136,7 @@ public class identity {
      *@hibernate.set
      *    inverse="true"
      *    cascade="all"
+//     *    lazy="true"
      *@hibernate.collection-key
      *    column="identity"
      *@hibernate.collection-one-to-many
@@ -613,11 +614,11 @@ public class identity {
     
     
     
-    public String toString() {
+    protected static String toString(identifiable id) {
+        StringBuffer sb = new StringBuffer();
         
-        sb.delete(0, sb.length());
-        Names n =(Names) getNamess().iterator().next();
-        Iterator i =  getIdentities_addressess().iterator();
+        Names n =(Names) id.getNamess().iterator().next();
+        Iterator i =  id.getIdentities_addressess().iterator();
         
         identities_addresses ia = null;
         if (i.hasNext())
@@ -626,9 +627,9 @@ public class identity {
         if (n != null) {
             sb.append(n.toString());
             sb.append(", ").
-            append("XY".equals(getKaryotype()) ? "male ": "female ");
+            append("XY".equals(id.getKaryotype()) ? "male ": "female ");
             sb.
-            append( getDob() != null ?  dateFormat.format(getDob()) : "");
+            append( id.getDob() != null ?  dateFormat.format(id.getDob()) : "");
             if (ia != null && ia.getAddress() != null) {
                 try {
                     sb.append(" : ").append(ia.getAddress().getNumber());
@@ -646,8 +647,44 @@ public class identity {
             
             return sb.toString();
         }
+        return "UNKNOWN";
+    }
+    
+    public String toString() {
+        return toString(this);
+//        sb.delete(0, sb.length());
+//        Names n =(Names) getNamess().iterator().next();
+//        Iterator i =  getIdentities_addressess().iterator();
+//        
+//        identities_addresses ia = null;
+//        if (i.hasNext())
+//            ia =(identities_addresses )i.next();
+//        
+//        if (n != null) {
+//            sb.append(n.toString());
+//            sb.append(", ").
+//            append("XY".equals(getKaryotype()) ? "male ": "female ");
+//            sb.
+//            append( getDob() != null ?  dateFormat.format(getDob()) : "");
+//            if (ia != null && ia.getAddress() != null) {
+//                try {
+//                    sb.append(" : ").append(ia.getAddress().getNumber());
+//                    sb.append(",").append(ia.getAddress().getStreet().getName());
+//                    
+//                    sb.append(",").append(ia.getAddress().getStreet().getUrb().getName()).
+//                    append(",").append(ia.getAddress().getStreet().getUrb().getState().getName()).
+//                    append(",").
+//                    append(ia.getAddress().getStreet().getUrb().getPostcode()).
+//                    append(".");
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            
+//            return sb.toString();
+//        }
         
-        return super.toString();
+//        return super.toString();
     }
     
     /** Getter for property persister.
@@ -700,6 +737,7 @@ public class identity {
         getRoles().remove(role);
     }
     
+   
     // end setId
     
 } // end identity
