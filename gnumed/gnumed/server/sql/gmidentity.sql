@@ -214,12 +214,6 @@ COMMENT ON COLUMN identities_addresses.id_address IS
 COMMENT ON COLUMN identities_addresses.address_source IS
 'URL of some sort allowing to reproduce where the address is sourced from';
 
-create function new_pupic(text) returns text as '
--- TODO!!!!
-begin;
-	return $1;  -- just a dummy
-end;' language 'plpgsql';
-
 
 create view v_basic_person as
 select
@@ -282,3 +276,5 @@ END;' LANGUAGE 'plpgsql';
 
 CREATE TRIGGER t_delete_names BEFORE DELETE ON identity 
 FOR EACH ROW EXECUTE PROCEDURE delete_names (); 
+
+
