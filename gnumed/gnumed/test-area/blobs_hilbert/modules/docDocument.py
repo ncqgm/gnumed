@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -341,15 +341,15 @@ class cDocument:
 		# now read the xml file
 		for line in fileinput.input(aDescFile):
 			# is this a line we want ?
-			start_pos = string.find(line,'<image')
+			start_pos = string.find(line,'<object')
 			if start_pos == -1:
 				continue
 
 			# yes, so check for closing tag
-			end_pos = string.find(line,'</image>')
+			end_pos = string.find(line,'</object>')
 			if end_pos == -1:
 				# but we don't do multiline tags
-				__log__.Log (gmLog.lErr, "Incomplete <image></image> line. We don't do multiline tags. Sorry.")
+				__log__.Log (gmLog.lErr, "Incomplete <object></object> line. We don't do multiline tags. Sorry.")
 				return None
 
 			# extract filename
