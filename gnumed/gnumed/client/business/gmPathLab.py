@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.4 2004-04-18 18:50:36 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPathLab.py,v 1.5 2004-04-19 12:42:41 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types
@@ -57,16 +57,16 @@ class cLabRequest(gmClinItem.cClinItem):
 		where pk=%s"""
 
 	_cmds_store_payload = [
-		"""select 1 from lab_request where id=%(pk)s for update""",
+		"""select 1 from lab_request where pk=%(pk)s for update""",
 		"""update lab_request set
 				clin_when=%(clin_when)s,
 				narrative=%(narrative)s,
 				request_id=%(request_id)s,
 				lab_request_id=%(lab_request_id)s,
 				lab_rxd_when=%(lab_rxd_when)s,
-				results_reported_when=%(results_reported_when)s
+				results_reported_when=%(results_reported_when)s,
 				request_status=%(request_status)s,
-				is_pending=%(is_pending)s
+				is_pending=%(is_pending)s::bool
 			where pk=%(pk)s"""
 		]
 #--				id_encounter
@@ -116,28 +116,38 @@ class cLabRequest(gmClinItem.cClinItem):
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
-	import sys
+	def test_result():
+		lab_result = cLabResult(aPKey=1)
+		print lab_result
+		fields = lab_result.get_fields()
+		for field in fields:
+			print field, ':', lab_result[field]
+		print "updatable:", lab_result.get_updatable_fields()
+	#--------------------------------------------------------
+	def test_request():
+#		lab_req = cLabRequest(aPKey=1)
+#		lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab=2)
+		lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab='Enterprise Main Lab')
+		print lab_req
+		fields = lab_req.get_fields()
+		for field in fields:
+			print field, ':', lab_req[field]
+		print "updatable:", lab_req.get_updatable_fields()
+	#--------------------------------------------------------
 	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 
-	lab_result = cLabResult(aPKey=1)
-	print lab_result
-	fields = lab_result.get_fields()
-	for field in fields:
-		print field, ':', lab_result[field]
-	print "updatable:", lab_result.get_updatable_fields()
-
-	lab_req = cLabRequest(aPKey=1)
-	print lab_req
-	fields = lab_req.get_fields()
-	for field in fields:
-		print field, ':', lab_req[field]
-	print "updatable:", lab_req.get_updatable_fields()
+	test_result()
+	test_request()
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.4  2004-04-18 18:50:36  ncq
+# Revision 1.5  2004-04-19 12:42:41  ncq
+# - fix cLabRequest._cms_store_payload
+# - modularize testing
+#
+# Revision 1.4  2004/04/18 18:50:36  ncq
 # - override __init__() thusly removing the unholy _pre/post_init() business
 #
 # Revision 1.3  2004/04/12 22:59:38  ncq
