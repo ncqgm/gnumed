@@ -19,7 +19,7 @@ cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -45,9 +45,9 @@ WHERE pg_class.oid in (
 	WHERE inhparent = (
 		SELECT oid
 		FROM pg_class
-		WHERE relname = '%s'
+		WHERE relname = %s
 	)
-);"""
+)"""
 
 # return all attributes and their data types for a given table
 #	format_type(a.atttypid, a.atttypmod)
@@ -56,12 +56,12 @@ query_table_attributes = """SELECT
 FROM
 	pg_class pgc, pg_attribute pga
 WHERE
-	pgc.relname = '%s'
+	pgc.relname = %s
 		AND
 	pga.attnum > 0
 		AND
 	pga.attrelid = pgc.oid
-ORDER BY pga.attnum;"""
+ORDER BY pga.attnum"""
 
 query_pkey_name = """SELECT
 	pga.attname
@@ -72,7 +72,7 @@ WHERE
 		and
 	pgi.indisprimary is true
 		and
-	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = '%s');"""
+	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = %s);"""
 
 
 drop_trigger = "DROP TRIGGER %s ON %s ;"
@@ -81,17 +81,17 @@ drop_function = "DROP FUNCTION %s();"
 template_insert_trigger = """CREATE TRIGGER %s
 	BEFORE INSERT
 	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s();"""
+	FOR EACH ROW EXECUTE PROCEDURE %s()"""
 
 template_update_trigger = """CREATE TRIGGER %s
 	BEFORE UPDATE
 	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s();"""
+	FOR EACH ROW EXECUTE PROCEDURE %s()"""
 
 template_delete_trigger = """CREATE TRIGGER %s
 	BEFORE DELETE
 	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s();"""
+	FOR EACH ROW EXECUTE PROCEDURE %s()"""
 
 template_insert_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
@@ -99,7 +99,7 @@ BEGIN
 	NEW.modify_when := CURRENT_TIMESTAMP;
 	NEW.modify_by := CURRENT_USER;
 	return NEW;
-END;' LANGUAGE 'plpgsql';"""
+END;' LANGUAGE 'plpgsql'"""
 
 template_update_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
@@ -114,7 +114,7 @@ BEGIN
 		%s
 	);
 	return NEW;
-END;' LANGUAGE 'plpgsql';"""
+END;' LANGUAGE 'plpgsql'"""
 
 template_delete_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
@@ -126,7 +126,7 @@ BEGIN
 		%s
 	);
 	return OLD;
-END;' LANGUAGE 'plpgsql';"""
+END;' LANGUAGE 'plpgsql'"""
 
 #------------------------------------------------------------------
 def get_children(aCursor, aTable):
@@ -220,10 +220,11 @@ def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', aud
 
 	return schema
 #------------------------------------------------------------------
-def create_audit_schema(aCursor, audit_marker_table = 'audit_mark', audit_parent_table = 'audit_log', audit_prefix = 'log_'):
+def create_audit_schema(aCursor, marker_table = 'audit_mark', parent_table = 'audit_log', prefix = 'log_'):
 	# get list of all derived tables
-	tables2audit = get_children(aCursor, audit_marker_table)
-
+	tables2audit = get_children(aCursor, marker_table)
+	if tables2audit is None:
+		return None
 	# for each derived table
 	schema = []
 	for audited_table in tables2audit:
@@ -232,7 +233,13 @@ def create_audit_schema(aCursor, audit_marker_table = 'audit_mark', audit_parent
 			_log.Log(gmLog.lErr, 'cannot verify audit trail table existance on audited table [%s]' % audited_table[0])
 			return None
 		# create corresponding triggers
-		schema.extend(trigger_schema(aCursor, audited_table[0], audit_parent_table, audit_prefix))
+		schema.extend(trigger_schema(
+						aCursor,
+						audited_table[0],
+						parent_table,
+						prefix
+					)
+		)
 		schema.append('-- ----------------------------------------------')
 	return schema
 #==================================================================
@@ -262,7 +269,12 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.9  2003-06-26 21:44:25  ncq
+# Revision 1.10  2003-06-29 12:41:34  ncq
+# - remove excessive quoting
+# - check fail of get_children
+# - check for audit_mark/audit_fields split compliance
+#
+# Revision 1.9  2003/06/26 21:44:25  ncq
 # - %s; quoting bug, cursor(cmd, args) style
 #
 # Revision 1.8  2003/06/03 13:48:19  ncq
