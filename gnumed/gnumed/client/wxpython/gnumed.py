@@ -22,6 +22,8 @@ Command line arguments:
 --debug
  Be extra verbose and report nearly everything that's going
  on. Useful for, well, debugging :-)
+--profile=<file>
+ Activate profiling and write profile data to <file>.
 --talkback
  Run the client and upon exiting run a talkback client where
  you can enter a comment and send the log off to the bug hunters.
@@ -47,7 +49,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -278,7 +280,7 @@ if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
 	sys.exit(0)
 
 _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
-_log.Log(gmLog.lInfo, '%s on %s (%s)' % (sys.version, sys.platform, os.name))
+_log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.name))
 
 setup_cfg_file()
 
@@ -313,7 +315,13 @@ gb['resource dir'] = resPath
 # now actually run gnumed
 try:
 	from Gnumed.wxpython import gmGuiMain
-	gmGuiMain.main()
+	if gmCLI.has_arg('--profile'):
+		profile_file = gmCLI.arg['--profile']
+		_log.Log(gmLog.lInfo, 'writing profiling data into %s' % profile_file)
+		import profile
+		profile.run('gmGuiMain.main()', profile_file)
+	else:
+		gmGuiMain.main()
 # and intercept _almost_ all exceptions (but reraise them ...)
 except StandardError:
 	exc = sys.exc_info()
@@ -331,7 +339,10 @@ if gmCLI.has_arg('--talkback'):
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.63  2004-06-25 08:04:07  ncq
+# Revision 1.64  2004-06-25 12:31:36  ncq
+# - add profiling support via --profile=<file>
+#
+# Revision 1.63  2004/06/25 08:04:07  ncq
 # - missing ) found by epydoc
 #
 # Revision 1.62  2004/06/23 21:07:26  ncq
