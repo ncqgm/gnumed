@@ -29,9 +29,6 @@ import gmGuiElement_HeadingCaptionPanel        #panel class to display top headi
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 import gmEditArea                              #panel class holding editing
-from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
-import cPickle, zlib   
-
 import gmPlugin
 
 ID_SCRIPTICON = wxNewId ()
@@ -175,10 +172,12 @@ class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
 
     def MenuInfo (self):
          return ('view', '&Script')
-
-    def GetIcon (self):
-         return getpatient_prescriptionsBitmap()
-
+    def GetIconData(self):
+		return 'x\xda\xd3\xc8)0\xe4\nV74S\x00"c\x05Cu\xae\xc4`u=\x85d\x05e\x03 p\xb3\x00\
+\xf3#@|\x0b\x03\x10\x04\xf3\x15\x80|\xbf\xfc\xbcT(\x07\x15\xe0\x15\xd4\x83\
+\x00t\xc1\x08 \x80\x8a"\t\xc2I\xb2\x04\xc1 "\x82R\x8b\x80\x08UP\x01b,\xdc\
+\x9b\x10+\x14\xc0\xa6\xa2\xf9\x1d\xa8\x0eI;\x02DD\xe0\x0c%=\x00D|Hk'
+	   
     def GetWidget (self, parent):
          return  PrescriptionPanel (parent, -1)
 
@@ -188,20 +187,3 @@ if __name__ == "__main__":
 	app.SetWidget(ImmunisationPanel, -1)
 	app.MainLoop()
                
-
-#----------------------------------------------------------------------
-def getpatient_prescriptionsData():
-    return cPickle.loads(zlib.decompress(
-'x\xda\x8d\x8d\xbd\n\xc30\x0c\x84\xf7<\x85\xa0\x83\x0b\x06!w\xe8\xcf\x16\x08\
-d\xac\x87,\xb7\x96\xd2\xad\xd4}\xff\xa9\x96B\x12\x87\xb8\xb4\'c\xf8\xcew\xd6\
-\xfe\xf9\x0e\xcd\xe0\xc2\x91\xf29Qp\xcdmp-\xddi\xd7I\'"\xc6^\xb9W\x1d\x8cy\
-\xe6\xde8\x1a_t\x8c\xa1|\x16\x1dc\xca|M\xaf\x87A\x9a\xca2=r!\xa2\xc5\x04\xb0\
-5\xabI\xfe/\x99RN26&\x10\xa3-[%\xebu\x8c?\xac\xeb\xb5\xe4\xb7\xed\xd0\xbb0=\
-\xe0\xe1\xf5\xfc\xaa/\x9a\xcd\xb6\x90\x99\xfc\x01\xe6Ad\xdb' ))
-
-def getpatient_prescriptionsBitmap():
-    return wxBitmapFromXPMData(getpatient_prescriptionsData())
-
-def getpatient_prescriptionsImage():
-    return wxImageFromBitmap(getpatient_prescriptionsBitmap())
-
