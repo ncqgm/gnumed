@@ -11,7 +11,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -1109,13 +1109,16 @@ else:
 			EVT_TOOL (tb, wxID_TB_BTN_show_dirs_in_repository, widget.on_show_doc_dirs)#(doc_dirs = self.panel.repository))
 		# ---------------------------------------------
 		def SetScanWidget (self,parent):
-                        self.RaiseAPlugin(aPlugin = 'gmScanMedDocs')
+                        self.Raise(plugin_name = 'gmScanMedDocs')
 #======================================================
 # this line is a replacement for gmPhraseWheel just in case it doesn't work 
 #self.doc_id_wheel = wxTextCtrl(id = wxID_indexPnlBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.13  2004-01-17 00:46:27  shilbert
+# Revision 1.14  2004-01-17 10:32:45  shilbert
+# - changed setScanWidget() to match recent Raise() syntax changes in gmPlugin
+#
+# Revision 1.13  2004/01/17 00:46:27  shilbert
 # - two new features implemented
 #   on_show_doc_dirs()
 #   setScanWidget()
