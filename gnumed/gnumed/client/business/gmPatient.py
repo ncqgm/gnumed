@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.37 2004-03-25 11:03:23 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmPatient.py,v 1.38 2004-03-25 11:14:48 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -19,7 +19,7 @@ import sys, os.path, time, re, string
 #	sys.path.append(os.path.join('..', 'pycommon'))
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N
-from Gnumed.business import gmClinicalRecord, gmDemographicRecord
+from Gnumed.business import gmClinicalRecord, gmDemographicRecord, gmMedDoc
 
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
@@ -139,8 +139,10 @@ class gmPerson:
 		return self.__db_cache['demographic record']
 	#--------------------------------------------------------
 	def get_document_folder(self):
-		if self.__db_cache.has_key('document folder'):
+		try:
 			return self.__db_cache['document folder']
+		except KeyError:
+			pass
 		try:
 			# FIXME: we need some way of setting the type of backend such that
 			# to instantiate the correct type of document folder class
@@ -890,7 +892,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.37  2004-03-25 11:03:23  ncq
+# Revision 1.38  2004-03-25 11:14:48  ncq
+# - fix get_document_folder()
+#
+# Revision 1.37  2004/03/25 11:03:23  ncq
 # - getActiveName -> get_names
 #
 # Revision 1.36  2004/03/25 09:47:56  ncq
