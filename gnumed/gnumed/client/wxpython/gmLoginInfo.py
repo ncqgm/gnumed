@@ -11,6 +11,7 @@
 # @change log:
 #	01.06.2001 hherb initial implementation
 #	26.10.2001 hherb comments added
+#	08.02.2001 hherb made DB API 2.0 compatible
 #
 # @TODO:
 ############################################################################
@@ -49,6 +50,18 @@ class LoginInfo:
 	def GetInfo(self):
         	return self.GetUser(), self.GetPassword(), self.GetHost(), self.GetPort(), \
 		self.GetDatabase(), self.GetOptions(), self.GetTTY(), self.GetProfile()
+		
+		
+	def GetPGDB_DSN(self):
+
+	    dsn = "%s:%s:%s:%s:%s:%s" % (self.GetHost(), 
+	                                 self.GetDatabase(),
+					 self.GetUser(),
+					 self.GetPassword(),
+					 self.GetOptions(),
+					 self.GetTTY())
+	    host = "%s:%s" % (self.GetHost(), str(self.GetPort()))
+	    return dsn, host
 
 
     	def SetUser(self, user):

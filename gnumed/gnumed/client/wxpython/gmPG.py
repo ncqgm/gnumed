@@ -12,15 +12,33 @@
 #	25.10.2001 hherb first draft, untested
 #	29.10.2001 hherb crude functionality achieved (works ! (sortof))
 #	30.10.2001 hherb reference counting to prevent disconnection of active connections
+#	==========================================================================
+#	significant version change!
+#	==========================================================================
+#	08.02.2002 hherb made DB API 2.0 compatible.
 #
 # @TODO: Almost everything
 ############################################################################
 
-import string, gettext, copy, pg, gmLoginInfo
+#python standard modules
+import string, gettext, copy
+#3rd party dependencies
+import pgdb
+#gnumed specific modules
+import gmLoginInfo, gmLog, gmExceptions
 
+#take care of translating strings
 _ = gettext.gettext
 
-LIFE_CONNECTION_DELETE_ATTEMPT = _("attempt to teminate a database connection possibly still in use")
+#create an alias for our DB API adapter module to make code independend of the adapter used
+dbapi = pgdb
+__backend = 'Postgres'
+#check whether this adapter module suits our needs
+assert(float(dbapi.apilevel) >= 2.0)
+assert(dbapi.threadsafety > 0)
+assert(dbapi.paramstyle == 'pyformat') 
+
+
 
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
@@ -59,46 +77,57 @@ class ConnectionPool:
 
 		#try to establish connections to all servers we need
 		#according to configuration database
-		databases = cdb.query("select * from config where profile='%s'"
-		                      % login.GetProfile()).dictresult()
+		cursor = cdb.cursor()
+		cursor.execute("select * from config where profile='%s'" %
+		            login.GetProfile())
+		databases = cursor.fetchall()
+		dbidx = cursorIndex(cursor)
 
 		#for all configuration entries that match given user and profile
 		for db in databases:
 			###get the symbolic name of the distributed service
-			service = string.strip(cdb.query(
-			                       "select name from distributed_db where id = %d"
-			                       % db['ddb']).getresult()[0][0])
+			cursor.execute("select name from distributed_db where id = %d" %  db[dbidx['ddb']])
+			service = string.strip(cursor.fetchone()[0])
+			                       
+			                      
 			print "processing service " , service
 			###initialize our reference counter
 			ConnectionPool.__connections_in_use[service]=0
 			###try to get login information for a particular service
-			database = cdb.query("select name, host, port, opt, tty from db where id = %d"
-			                     % db['db']).dictresult()[0]
+			querystr = "select name, host, port, opt, tty from db where id = %d" % db[dbidx['db']]
+			print querystr
+			cursor.execute(querystr)
+			database = cursor.fetchone()
+			idx = cursorIndex(cursor)
 			###create a copy of the default login information, keeping user name and password
 			dblogin = copy.deepcopy(login)
 			###get the name of the distributed datbase service
 			try:
-				dblogin.SetDatabase(string.strip(database['name']))
-				print "service = ", service, "database = ", database['name']
+				dblogin.SetDatabase(string.strip(database[idx['name']]))
+				print "service = ", service, "database = ", database[idx['name']]
 			except: pass
 			###hostname of the distributed service
 			try:
-				dblogin.SetHost(string.strip(database['host']))
+				dblogin.SetHost(string.strip(database[idx['host']]))
 			except: pass
 			###port of the distributed service
 			try:
-				dblogin.SetPort(database['port'])
+				dblogin.SetPort(database[idx['port']])
 			except: pass
 			###backend options of the distributed service
 			try:
-				dblogin.SetOptions(string.strip(database['opt']))
+				dblogin.SetOptions(string.strip(database[idx['opt']]))
 			except: pass
 			###TTY option of the distributed service
 			try:
-				dblogin.SetTTY(string.strip(database['tty']))
+				dblogin.SetTTY(string.strip(database[idx['tty']]))
 			except:pass
 			#update 'Database Broker' dictionary
 			ConnectionPool.__databases[service] = self.__pgconnect(dblogin)
+		try:
+		    cursor.close()
+		except:
+		    pass
 
 		return ConnectionPool.__connected
 
@@ -107,33 +136,14 @@ class ConnectionPool:
 	### private method
 	def __pgconnect(self, login):
 		"connect to a postgres backend as specified by login object; return a connection object"
+		
+		dsn, hostport = login.GetPGDB_DSN()
 		try:
-			#print "Trying to connect:\n dbname = [%s]\nuser = [%s]\nPassword=[%s]\nHost=[%s]\nPort=[%d]\nOpt=[%s]\ntty=[%s]" \
-			#      % (login.GetDatabase(), login.GetUser(), login.GetPassword(), login.GetHost(), int(login.GetPort()), login.GetOptions(), login.GetTTY())
-			db = pg.connect(dbname=login.GetDatabase(),
-					host = login.GetHost(),
-					port = int(login.GetPort()),
-					opt = login.GetOptions(),
-					tty = login.GetTTY(),
-					user = login.GetUser(),
-					passwd = login.GetPassword())
-			#print "connected!", db
-			return db
-		except TypeError:
-			msg = _("Query failed when trying to connect to backend [%s]:\n \
-				Bad argument type, or too many arguments.") % login.GetDatabase()
-			self.LogError(msg)
-			return None
-		except SyntaxError:
-			msg =_("Query failed when trying to connect to backend [%s]:\n \
-			        Wrong syntax.") % login.GetDatabase()
-			self.LogError(msg)
-			return None
-		except pg.error:
-			msg = _("Query failed when trying to connect to backend [%s]:\n \
-			        Some error occurred during pg connection definition") % login.GetDatabase()
-			self.LogError(msg)
-			return None
+		    db = pgdb.connect(dsn, host=hostport)
+		    return db
+		except: 
+		    self.LogError("Connection to tabase failed. \nDSN was [%s], host:port was [%s]" % (dsn, hostport))
+		    return None
 
 
 
@@ -158,7 +168,8 @@ class ConnectionPool:
 				###unless we are really mean :-(((
 				if force_it == 0:
 					#let the end user know that shit is happening
-					raise LIFE_CONNECTION_DELETE_ATTEMPT
+					raise gmExceptions.ConnectionError, \
+					    _("Attempting to close a databse connectiuon that is still in use")
 			else:
 				###close the connection
 				ConnectionPool.__databases[key].close()
@@ -213,6 +224,105 @@ class ConnectionPool:
 		print msg
 
 
+### database helper functions
+
+def cursorIndex(cursor):
+    "returns a dictionary of row atribute names and their row indices"
+    i=0
+    dict={}
+    for d in cursor.description:
+	dict[d[0]] = i
+	i+=1
+    return dict
+    
+    
+def descriptionIndex(cursordescription):
+    "returns a dictionary of row atribute names and their row indices"
+    i=0
+    dict={}
+    for d in cursordescription:
+	dict[d[0]] = i
+	i+=1
+    return dict    
+
+
+
+def dictResult(cursor, fetched=None):
+    if fetched is None:
+	fetched = cursor.fetchall()
+    attr = fieldNames(cursor)
+    dictres = []
+    for f in fetched:
+	dict = {}
+	i=0
+	for a in attr:
+    	    dict[a]=f[i]
+	dictres.append(dict)
+	i+=1
+    return dictres
+	
+	
+	
+    
+def fieldNames(cursor):
+    "returns the attribute names of the fetched rows in natural sequence as a list"
+    names=[]    
+    for d in cursor.description:
+	names.append(d[0])
+    return names
+	
+    
+def listDatabases(service='default'):
+    assert(__backend == 'Postgres')
+    dbp = ConnectionPool()
+    con = dbp.GetConnection(service)
+    cur=con.cursor()
+    cur.execute("select * from pg_database")
+    return cur.fetchall(), cur.description
+    
+    
+def listUserTables(service='default'):
+    assert(__backend == 'Postgres')
+    dbp = ConnectionPool()
+    con = dbp.GetConnection(service)
+    cur=con.cursor()
+    cur.execute("select * from pg_tables where tablename not like 'pg_%'")
+    return cur.fetchall(), cur.description
+    
+    
+def listSystemTables(service='default'):
+    assert(__backend == 'Postgres')
+    dbp = ConnectionPool()
+    con = dbp.GetConnection(service)
+    cur=con.cursor()
+    cur.execute("select * from pg_tables where tablename like 'pg_%'")
+    return cur.fetchall(), cur.description    
+    
+    
+def listAllTables(service='default'):
+    assert(__backend == 'Postgres')
+    dbp = ConnectionPool()
+    con = dbp.GetConnection(service)
+    cur=con.cursor()
+    cur.execute("select * from pg_tables")
+    return cur.fetchall(), cur.description    
+    
+
+def quickROQuery(query, service='default'):
+    "a quick read only query"
+    dbp = ConnectionPool()
+    con = dbp.GetConnection(service)
+    cur=con.cursor()
+    cur.execute(query)
+    return cur.fetchall(), cur.description 
+    
+    
+def getBackendName():
+    return __backend
+    
+
+
+
 ### test function for this module: simple start as "main" module
 if __name__ == "__main__":
 	try:
@@ -232,6 +342,8 @@ if __name__ == "__main__":
 
 	### 1.) create a login information object
 	login = gmLoginInfo.LoginInfo(user=usr, passwd=pwd, database=db)
+	dsn, hp = login.GetPGDB_DSN()
+	print dsn, hp
 
 	### 2.) with this basic login information, log into the service pool
 	dbpool = ConnectionPool(login)
@@ -243,13 +355,17 @@ if __name__ == "__main__":
 		print service
 		dummy=dbpool.GetConnection(service)
 		print "Available tables within service: ", service
-		for table in dummy.query("select tablename, tableowner from pg_tables where tablename not like 'pg_%'").dictresult():
-			print "%s (owned by user %s)" % (table['tablename'], table['tableowner'])
+		tables, cd = listUserTables(service)
+		idx = descriptionIndex(cd)
+		for table in tables:
+			print "%s (owned by user %s)" % (table[idx['tablename']], table[idx['tableowner']])
 		print "\n.......................................\n"
 
 	### 4.) We have probably not distributed the services in full:
 	db = dbpool.GetConnection('config')
 	print "\n\nPossible services on any gnumed system:"
 	print '-----------------------------------------'
-	for service in  db.query("select name from distributed_db").getresult():
+	cursor = db.cursor()
+	cursor.execute("select name from distributed_db")
+	for service in  cursor.fetchall():
 		print service[0]

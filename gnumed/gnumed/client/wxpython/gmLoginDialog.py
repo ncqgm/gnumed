@@ -15,6 +15,7 @@
 #	24.10.2001 hherb LoginDialog class added,
 #	24.10.2001 hherb persistent changes across multiple processes enabled
 #	25.10.2001 hherb more flexible configuration options, more commenting
+#	07.02.2002 hherb saved parameters now showing corectly in combo boxes
 #
 # @TODO:
 ############################################################################
