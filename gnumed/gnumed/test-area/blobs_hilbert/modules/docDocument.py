@@ -33,7 +33,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -192,12 +192,12 @@ class cDocument:
 		# sanity checks
 		if aConn == None:
 			_log.Log(gmLog.lErr, 'Cannot import document without database connection.')
-			return (1==0)
+			return None
 
 		import docPatient
 		if not isinstance(aPatient, docPatient.cPatient):
 			_log.Log (gmLog.lErr, "The object '" + str(aPatient) + "' is not a cPatient instance !")
-			return (1==0)
+			return None
 		del docPatient
 
 		# start our transaction (done implicitely by defining a cursor)
@@ -205,12 +205,14 @@ class cDocument:
 
 		try:
 			# translate document type
-			cmd = "SELECT id FROM doc_type WHERE name='%s'" % (self.__metadata['type'])
+			cmd = "SELECT count(id) FROM doc_type WHERE name='%s'" % (self.__metadata['type'])
 			cursor.execute(cmd)
-			if cursor.rowcount != 1:
+			if cursor.fetchone()[0] != 1:
 				_log.Log(gmLog.lErr, 'Document type "%s" is not valid for this database !' % (self.__metadata['type']))
 				cursor.close()
-				return (1==0)
+				return None
+			cmd = "SELECT id FROM doc_type WHERE name='%s'" % (self.__metadata['type'])
+			cursor.execute(cmd)
 			type_id = cursor.fetchone()[0]
 
 			# insert main document record
@@ -237,13 +239,14 @@ class cDocument:
 				# and escape stuff so we can store it in a BYTEA field
 				#img_data = self.__escapeByteA(img_data)
 				img_obj = PgSQL.PgBytea(img_data)
-				del img_data
+				# FIXME:
+				#del img_data
 				# finally insert the data
-				cmd = "INSERT INTO doc_obj (doc_id, seq_idx, data) VALUES (currval('doc_med_id_seq'),'%s', '%s')" % (str(obj['index']), str(img_obj))
-				cursor.execute(cmd)
+				cmd = "INSERT INTO doc_obj (doc_id, seq_idx, data) VALUES (currval('doc_med_id_seq'), %s, %s)"
+				cursor.execute(cmd, obj['index'], img_obj)
 
 			# insert long document description if available
-			if self.__metadata['reference'] != None:
+			if self.__metadata.has_key('description'):
 				cmd = "INSERT INTO doc_desc (doc_id, text) VALUES (currval('doc_med_id_seq'), '%s')" % self.__metadata['description']
 				cursor.execute(cmd)
 
@@ -302,7 +305,8 @@ class cDocument:
 			# FIXME: pgdb, however, delivers type string which needs unescaping
 			# FIXME: a temporary workaround is to convert things to string and unescape anyways
 			# FIXME: this is, however, inefficient
-			aFile.write(self.__unescapeByteA(str(img_data)))
+			#aFile.write(self.__unescapeByteA(str(img_data)))
+			aFile.write(str(img_data))
 			aFile.close()
 
 		cursor.close()
@@ -692,7 +696,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.19  2002-10-01 09:47:36  ncq
+# Revision 1.20  2002-11-08 15:51:37  ncq
+# - make it work with pyPgSQL
+#
+# Revision 1.19  2002/10/01 09:47:36  ncq
 # - sync, should sort of work
 #
 # Revision 1.18  2002/09/17 01:07:27  ncq

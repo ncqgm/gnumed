@@ -14,7 +14,7 @@ search for FIXME to find places to fix
 #######################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/import/Attic/import-med_docs.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 
 # modules
 import os, fileinput, string, time, sys, os.path
@@ -74,7 +74,7 @@ def import_from_dir(aDir):
 	if not can_import(aDir):
 		return None
 
-	# get patient data from XML file
+	# get patient data from xDT file
 	tmp = _cfg.get("import", "patient file")
 	pat_file = os.path.abspath(os.path.join(aDir, tmp))
 	pat_format = "xdt"
@@ -111,7 +111,8 @@ def import_from_dir(aDir):
 def standalone():
 	REPOSITORIES = _cfg.get("import", "repositories")
 	for REPOSITORY in REPOSITORIES:
-		_log.Log (gmLog.lInfo, "importing from repository " + REPOSITORY)
+		_log.Log (gmLog.lInfo, "importing from repository [%s]" % REPOSITORY)
+		REPOSITORY = os.path.abspath(os.path.expanduser(REPOSITORY))
 		# get the list of document directories in the repository
 		dirlist = os.listdir (REPOSITORY)
 		# now handle one dir after another
@@ -120,7 +121,9 @@ def standalone():
 			import_from_dir(os.path.join(REPOSITORY, theDir))
 
 	# FIXME: update doc types
-#------- MAIN ----------------------
+#==========================================
+# MAIN
+#------------------------------------------
 _log.SetAllLogLevels(gmLog.lData)
 if _cfg == None:
 	_log.Log (gmLog.lPanic, "cannot run without config file")
@@ -156,6 +159,9 @@ sys.exit(0)
 
 #=========================================================
 # $Log: import-med_docs.py,v $
-# Revision 1.6  2002-10-01 09:47:36  ncq
+# Revision 1.7  2002-11-08 15:52:18  ncq
+# - make it work with pyPgSQL
+#
+# Revision 1.6  2002/10/01 09:47:36  ncq
 # - sync, should sort of work
 #
