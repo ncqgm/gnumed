@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.120 $
+-- $Revision: 1.121 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -221,8 +221,10 @@ comment on TABLE clin_root_item is
 	 text search, ancestor for all tables that want to store
 	 clinical free text';
 comment on COLUMN clin_root_item.pk_item is
-	'the primary key, not named "id" as usual since child tables
-	 will have "id" primary keys already';
+	'the primary key, not named "id" or "pk" as usual since child
+	 tables will have "id"/"pk"-named primary keys already and
+	 we would get duplicate columns while inheriting from this
+	 table';
 comment on column clin_root_item.clin_when is
 	'when this clinical item became known, can be different from
 	 when it was entered into the system (= audit_fields.modified_when)';
@@ -936,11 +938,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.120 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.121 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.120  2004-08-18 08:33:54  ncq
+-- Revision 1.121  2004-09-03 08:59:18  ncq
+-- - improved comments
+--
+-- Revision 1.120  2004/08/18 08:33:54  ncq
 -- - currently, our notify trigger generator can only deal with clin_root_item children
 --
 -- Revision 1.119  2004/08/16 19:26:45  ncq
