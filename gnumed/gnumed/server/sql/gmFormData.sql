@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmFormData.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -15,8 +15,13 @@
 create table form_instances (
 	id serial primary key,
 	id_transaction integer references clinical_transaction (id),
-	id_form integer references form_types (id)
+	id_form integer references form_types (id),
+	venue varchar(10)
 );
+
+-- should be normalized, really
+comment on column form_instance.venue is
+	'how did we use this form instance, eg. "not yet", "printed", "faxed", "emailed", "stored on smartcard", ...';
 
 -- ===================================================
 create table form_fields_filled (
@@ -29,10 +34,13 @@ create table form_fields_filled (
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmFormData.sql,v $', '$Revision: 1.1 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmFormData.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmFormData.sql,v $
--- Revision 1.1  2002-12-31 23:01:19  ncq
+-- Revision 1.2  2003-01-01 01:01:39  ncq
+-- - form_instances.venue added
+--
+-- Revision 1.1  2002/12/31 23:01:19  ncq
 -- - original check in
 --
