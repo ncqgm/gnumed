@@ -41,7 +41,7 @@
         <set
             name="identities_addressess"
             lazy="false"
-            inverse="true"
+            inverse="false"
             cascade="save-update"
             sort="unsorted"
         >
@@ -92,7 +92,7 @@
         <set
             name="namess"
             lazy="false"
-            inverse="true"
+            inverse="false"
             cascade="all"
             sort="unsorted"
         >
@@ -193,7 +193,7 @@
         <set
             name="roles"
             lazy="false"
-            inverse="false"
+            inverse="true"
             cascade="all"
             sort="unsorted"
         >

@@ -189,13 +189,25 @@ public class IdentityManager {
     public void save(identity id ) throws Exception  {
         Session sess = getSession();
         
-        if (id .getId() == null) {
-            sess.save(id );
-            Logger.global.fine("SAVED NEW ID ");
-            
-        }
-        else
-            sess.update(id );
+//        if (id .getId() == null) {
+//            sess.save(id );
+//            Logger.global.fine("SAVED NEW ID ");
+//            
+//        }
+//        else
+//            sess.update(id );
+        
+        // save non-bidirectional 
+        Iterator j = id.getNamess().iterator();
+        while (j.hasNext()) 
+            sess.saveOrUpdate(j.next());
+        
+        Iterator i = id.getIdentities_addressess().iterator();
+        while(i.hasNext()) 
+            sess.saveOrUpdate(i.next());
+        
+        sess.saveOrUpdate(id);
+        
         sess.flush();
         sess.connection().commit();
         sess.disconnect();

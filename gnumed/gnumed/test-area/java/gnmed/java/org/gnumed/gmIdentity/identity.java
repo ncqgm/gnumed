@@ -134,9 +134,9 @@ public class identity implements identifiable {
     
     /**
      *@hibernate.set
-     *    inverse="true"
      *    cascade="all"
-//     *    lazy="true"
+     *    inverse="true"
+      *    lazy="false"
      *@hibernate.collection-key
      *    column="identity"
      *@hibernate.collection-one-to-many
@@ -177,8 +177,8 @@ public class identity implements identifiable {
     
     /**
      *@hibernate.set
-     *  inverse="true"
      *  cascade="save-update"
+  // *  inverse="true"
      * @hibernate.collection-key
      *  column="identity"
      *@hibernate.collection-one-to-many
@@ -274,8 +274,8 @@ public class identity implements identifiable {
      *
      * @hibernate.set
      *      cascade="all"
-     *      inverse="true"
      *      lazy="false"
+// *      inverse="true"
      * @hibernate.collection-key
      *  column="identity"
      * @hibernate.collection-one-to-many
@@ -707,7 +707,8 @@ public class identity implements identifiable {
      * @return Value of property role.
      * @hibernate.set
      *      cascade="all"
-     *      inverse="false"
+     *      inverse="true"
+     *      lazy="false"
      * @hibernate.collection-key
      *      column="identity"
      * @hibernate.collection-one-to-many
