@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.20 2003-03-28 16:43:12 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmDemographics.py,v 1.21 2003-03-29 13:50:09 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -409,10 +409,10 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 	#--------------------------------------------------------
 	def register (self):
 		# first, set up the widgets on the top line of the toolbar
-		tb = self.gb['main.toolbar']
+		top_panel = self.gb['main.toolbar']
 
 		self.tb_patient_search = wxToolBar (
-			tb,
+			top_panel,
 			-1,
 			wxDefaultPosition,
 			wxDefaultSize,
@@ -426,7 +426,7 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		EVT_TOOL (self.tb_patient_search, ID_BUTTONFINDPATIENT, self.OnTool)
 
 		self.txt_findpatient = wxComboBox (
-			tb,
+			top_panel,
 			ID_TXTPATIENTFIND,
 			"",
 			wxDefaultPosition,
@@ -439,7 +439,7 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 
 		# age field
 		self.lbl_age = wxStaticText (
-			tb,
+			top_panel,
 			-1,
 			_("Age"),
 			wxDefaultPosition,
@@ -450,7 +450,7 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.lbl_age.SetForegroundColour (wxColour(0,0,131))
 		# FIXME: fixed size ?!?, non-editable
 		self.txt_age = wxTextCtrl (
-			tb,
+			top_panel,
 			ID_TXTPATIENTAGE,
 			"",
 			size = (40,-1)
@@ -459,7 +459,7 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 
 		# allergies field
 		self.lbl_allergies = wxStaticText (
-			tb,
+			top_panel,
 			-1,
 			_("Allergies"),
 			wxDefaultPosition,
@@ -469,13 +469,13 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 		self.lbl_allergies.SetForegroundColour(wxColour(255,0,0))
 
-		self.txt_allergies = wxTextCtrl(tb,ID_TXTPATIENTALLERGIES,"")
+		self.txt_allergies = wxTextCtrl(top_panel,ID_TXTPATIENTALLERGIES,"")
 		self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		self.txt_allergies.SetForegroundColour(wxColour(255,0,0))
 
 		# consultation type selector
 		self.combo_consultation_type = wxComboBox (
-			tb,
+			top_panel,
 			ID_COMBOCONSULTTYPE,
 			_("Surgery"),
 			wxDefaultPosition,
@@ -485,16 +485,16 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		)
 
 		# place them on the top toolbar
-		tb.toplinesizer.Add(self.tb_patient_search,0,wxEXPAND)
-		tb.toplinesizer.Add(self.txt_findpatient,5,wxEXPAND|wxALL,3)
-		tb.toplinesizer.Add(self.lbl_age,1,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
-		tb.toplinesizer.Add(self.txt_age,0,wxEXPAND|wxALL,3)
-		tb.toplinesizer.Add(self.lbl_allergies,0,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
-		tb.toplinesizer.Add(self.txt_allergies,6,wxEXPAND|wxALL,3)
+		top_panel.szr_top_tb.Add(self.tb_patient_search, 0 ,wxEXPAND)
+		top_panel.szr_top_tb.Add(self.txt_findpatient, 5, wxEXPAND|wxALL, 3)
+		top_panel.szr_top_tb.Add(self.lbl_age, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
+		top_panel.szr_top_tb.Add(self.txt_age, 1, wxEXPAND | wxALL, 3)
+		top_panel.szr_top_tb.Add(self.lbl_allergies, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
+		top_panel.szr_top_tb.Add(self.txt_allergies, 6, wxEXPAND|wxALL, 3)
 
 		# and register ourselves as a widget
 		self.gb['modules.patient'][self.name ()] = self
-		tb.AddWidgetRightBottom (self.combo_consultation_type)
+		top_panel.AddWidgetRightBottom (self.combo_consultation_type)
 		self.mwm = self.gb['patient.manager']
 		self.widget = PatientsPanel (self.mwm, self)
 		self.mwm.RegisterWholeScreen (self.name (), self.widget)
@@ -553,7 +553,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.20  2003-03-28 16:43:12  ncq
+# Revision 1.21  2003-03-29 13:50:09  ncq
+# - adapt to new "top row" panel
+#
+# Revision 1.20  2003/03/28 16:43:12  ncq
 # - some cleanup in preparation of inserting the patient searcher
 #
 # Revision 1.19  2003/02/09 23:42:50  ncq
