@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -8,7 +8,6 @@ immediately
 
 schema
 ------
-doc_med.date -> date !!!
 
 Conf/Doc
 --------
@@ -16,27 +15,30 @@ Conf/Doc
 scan
 ----
 - test consecutive IDs
-- quit button
+- cancel-quit button
 (- als jpg mit lossless-Kompression speichern)
 
 index
 -----
-- quit button
+- cancel-quit button
 
 import
 ------
 
 viewer
 ------
-(- sort objects by sequence index and date reverse-chron)
-- fail gracefully if no docs available
-- quit button
+- sort objects by sequence index and date
+(- quit button)
 
 =====================================================
 post-1.0
 ========
 - integrate as plugin with GnuMed
 - integrate into GnuMed messaging infrastructure
+
+schema
+------
+doc_med.date -> date !!!
 
 index
 -----
@@ -58,6 +60,8 @@ import
     - or perhaps use a binary cursor ?
 
 - investigate binary cursors
+
+- Benachrichtigung bei Importproblemen
 
 scan
 ----
@@ -114,7 +118,6 @@ Conf/Doc
  > 	sollte nicht der große hack sein; gibt es ansatzweise schon mitgeliefert bei 
  > 	python twainmodule
  > Einbau eines Hilfe-Browsers
--------------------------------------------------
 
 in GnuMed-Kartei nur auf Dokumente zeigen, nicht einzelne Seiten, dann
 Seitenzahl in Klammern angeben
