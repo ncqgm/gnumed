@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -596,7 +596,7 @@ def __open_default_logfile():
 		try:
 			os.mkdir(tmp)
 		except:
-			print "Cannot make directory [%s]." % tmp
+			print "Cannot make directory [%s] for log file." % tmp
 	if os.path.exists(tmp):
 		logName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
 		try:
@@ -761,7 +761,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.23  2002-11-03 14:11:19  ncq
+# Revision 1.24  2002-11-08 16:32:24  ncq
+# *** empty log message ***
+#
+# Revision 1.23  2002/11/03 14:11:19  ncq
 # - autocreate log file on failing to find one
 #
 # Revision 1.22  2002/09/26 13:21:37  ncq
