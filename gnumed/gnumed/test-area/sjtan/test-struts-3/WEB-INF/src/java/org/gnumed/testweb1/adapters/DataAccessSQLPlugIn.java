@@ -224,7 +224,7 @@ public class DataAccessSQLPlugIn extends BasicPlugin implements PlugIn {
         healthRecordAccess.setClinicalDataAccess(scriptedClinicalAccess);
         
         
-        String versionConfigClass = (String)dataAccessPluginConfig.getProperties().get(Constants.HEALTH_RECORD_VERISON_CONFIG);
+        String versionConfigClass = (String)dataAccessPluginConfig.getProperties().get(Constants.HEALTH_RECORD_VERSION_CONFIG);
         HealthRecordAccessConfiguration config = (HealthRecordAccessConfiguration) Class.forName(versionConfigClass).newInstance();
        config.configure(healthRecordAccess);
         

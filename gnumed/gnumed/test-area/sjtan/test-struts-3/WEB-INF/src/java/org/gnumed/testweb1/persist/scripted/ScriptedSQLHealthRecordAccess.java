@@ -960,14 +960,14 @@ throws SQLException, DataSourceException {
 	}
 	
 	public void setClinRootInsert( ClinRootInsert inserter) {
-		clinRootInsert = inserter;
+		this.clinRootInsert = inserter;
 	}
 	public ClinRootInsert getClinRootInsert() {
 		return clinRootInsert;
 	}
 	
 	public void setMedicationSave( MedicationSaveScript medSaveScript) {
-		medicationSaveScript = medSaveScript;
+		this.medicationSaveScript = medSaveScript;
 	}
 	
 	public MedicationSaveScript getMedicationSaveScript( ) {
