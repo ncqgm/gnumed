@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -215,15 +215,13 @@ class scanFrame(wxFrame):
 	# event handlers
 	#-----------------------------------
 	def on_acquire_page(self, event):
-		_log.Log(gmLog.lData, "trying to acquire image")
 		self.acquire_handler[scan_drv]()
 	#-----------------------------------
 	def on_show_page(self, event):
 		page_idx = self.LBOX_doc_pages.GetSelection()
 
 		if page_idx != -1:
-			page_data = self.LBOX_doc_pages.GetClientData(page_idx)
-			page_fname = page_data['file name']
+			page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
 
 			if not os.path.exists(page_fname):
 				_log.Log(gmLog.lErr, 'Cannot display page. File [%s] does not exist !' % page_fname)
