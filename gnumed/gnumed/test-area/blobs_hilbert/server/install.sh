@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/server/Attic/install.sh,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 echo "this must be run as root because we will put some links in /usr/bin/ and other places"
 
@@ -10,6 +10,8 @@ groupadd gnumed
 
 # boostrap database
 ./bootstrap-gm_db_system.py
+
+# install test users ...
 
 # install binaries
 install -v -g gnumed -m 0750 -b import-med_docs.py run-importer.sh /usr/bin/
@@ -42,6 +44,10 @@ echo "you should configure your system in /etc/gnumed/gnumed-archive.conf"
 
 #=============================================================
 # $Log: install.sh,v $
-# Revision 1.1  2002-11-29 15:17:02  ncq
+# Revision 1.2  2003-01-27 11:56:00  ncq
+# - update links (gmUserSetup.py deprecated)
+# - note about user setup in server/install.sh
+#
+# Revision 1.1  2002/11/29 15:17:02  ncq
 # - installation of GnuMed Archive Server
 #
