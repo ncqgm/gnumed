@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.153 2005-01-15 19:55:55 cfmoro Exp $
-__version__ = "$Revision: 1.153 $"
+# $Id: gmClinicalRecord.py,v 1.154 2005-01-29 19:14:00 cfmoro Exp $
+__version__ = "$Revision: 1.154 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -737,6 +737,9 @@ class cClinicalRecord:
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot create episode [%s::%s] for patient [%s] and health issue [%s]' % (soap_cat, episode_name, self.id_patient, pk_health_issue))
 			return None
+		
+		# update cache with the newly created episode
+		self.__db_cache['episodes'].append(episode)
 		return episode
 	#--------------------------------------------------------
 	def __load_last_active_episode(self):
@@ -1649,7 +1652,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.153  2005-01-15 19:55:55  cfmoro
+# Revision 1.154  2005-01-29 19:14:00  cfmoro
+# Added newly created episode to episode cache
+#
+# Revision 1.153  2005/01/15 19:55:55  cfmoro
 # Added problem support to emr
 #
 # Revision 1.152  2004/12/18 15:57:57  ncq
