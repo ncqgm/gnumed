@@ -45,7 +45,7 @@ Limitations:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCLI.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, getopt, string
@@ -141,3 +141,9 @@ if __name__ == '__main__':
 else:
 	(shorts, longs, opts) = _preparse_cmdline()
 	_parse_opts(shorts, longs, opts)
+
+#=====================================================================
+# $Log: gmCLI.py,v $
+# Revision 1.4  2002-09-08 15:57:42  ncq
+# - added log cvs keyword
+#

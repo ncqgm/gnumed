@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -532,3 +532,9 @@ if __name__ == '__main__':
 	myCfg.store()
 else:
 	gmDefCfgFile = cCfgFile()
+
+#=============================================================
+# $Log: gmCfg.py,v $
+# Revision 1.6  2002-09-08 15:55:47  ncq
+# - added log cvs keyword
+#
