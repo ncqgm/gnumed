@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.148 2004-10-20 21:50:29 ncq Exp $
-__version__ = "$Revision: 1.148 $"
+# $Id: gmClinicalRecord.py,v 1.149 2004-10-26 12:51:24 ncq Exp $
+__version__ = "$Revision: 1.149 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1431,15 +1431,20 @@ where pk_episode in %s and id_patient = %s"""
 				lim = "limit %s" % limit
 			else:
 				lim = ''
-		# FIXME: bulk loader
-		# get list of IDs
-		cmd = "select pk_result from v_results4lab_req where pk_patient=%%s %s" % lim
-		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+
+		cmd = """select * from v_results4lab_req where pk_patient=%%s %s""" % lim
+		rows, idx = gmPG.run_ro_query('historica', cmd, True, self.id_patient)
 		if rows is None:
 			return False
 		for row in rows:
+			lab_row = {
+				'pk_field': 'pk_result',
+				'idx': idx,
+				'data': row
+			}			
 			try:
-				self.__db_cache['lab results'].append(gmPathLab.cLabResult(aPK_obj=row[0]))
+				lab_result = gmPathLab.cLabResult(row=lab_row)
+				self.__db_cache['lab results'].append(lab_result)
 			except gmExceptions.ConstructorError:
 				_log.Log('lab result error', sys.exc_info())
 
@@ -1602,7 +1607,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.148  2004-10-20 21:50:29  ncq
+# Revision 1.149  2004-10-26 12:51:24  ncq
+# - Carlos: bulk load lab results
+#
+# Revision 1.148  2004/10/20 21:50:29  ncq
 # - return [] on no vacc regimes found
 # - in get_vaccinations() handle case where patient is not on any schedule
 #
