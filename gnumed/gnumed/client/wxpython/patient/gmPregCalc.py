@@ -6,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.1 2003-07-07 02:59:57 michaelb Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPregCalc.py,v 1.2 2003-07-07 03:35:43 michaelb Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -184,7 +184,7 @@ class PregnancyFrame (wxFrame):
 		#------------------------------
 		# sizer holding the 'newedc' stuff
 		#------------------------------
-		label1 = wxStaticText(self,-1,_("Date"),size = (25,20))
+		label1 = wxStaticText(self,-1,_("Scan Date"),size = (25,20))
 		label1.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label1.SetForegroundColour(wxColour(0,0,0))
   		self.txtdate = wxTextCtrl(self,-1,"",size=(25,20))
@@ -237,7 +237,7 @@ class PregnancyFrame (wxFrame):
 		#------------------------------
 		# sizer holding the new (or revised) 'EDC' stuff
 		#------------------------------
-		label = wxStaticText(self,-1,_("EDC"),size = (100,20))
+		label = wxStaticText(self,-1,_("Rev EDC"),size = (100,20))
 		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label.SetForegroundColour(wxColour(0,0,0))
 
@@ -468,7 +468,10 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.1  2003-07-07 02:59:57  michaelb
+# Revision 1.2  2003-07-07 03:35:43  michaelb
+# making changes Richard made (Made labels for revised EDC more explanatory)
+#
+# Revision 1.1  2003/07/07 02:59:57  michaelb
 # a new preg calc (obsoletes "gmCalcPreg.py"), developed in test-area/michaelb/, spelling fix in LMP wxToolTip
 #
 # Revision 1.8  2003/07/06 23:14:35  rterry
