@@ -47,7 +47,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.70 $"
+__version__ = "$Revision: 1.71 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -117,7 +117,7 @@ def setup_logging():
 
 	# Console Is Good(tm)
 	# ... but only for Panics and important messages
-	aLogTarget = gmLog.cLogTargetConsole(gmLog.lWarn)
+	aLogTarget = gmLog.cLogTargetConsole(gmLog.lErr)
 	_log.AddTarget(aLogTarget)
 
 	return 1
@@ -350,7 +350,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.70  2005-02-01 10:16:07  ihaywood
+# Revision 1.71  2005-02-03 20:35:41  ncq
+# - slightly silence the console
+#
+# Revision 1.70  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace
