@@ -34,7 +34,7 @@ class SchemaParser:
 	def get_fk_details(self):
 		"""gets table, keying attribute, foreign table, foreign key attr"""
 
-		c = pgdb.connect("credentials")
+		c = pgdb.connect(credentials)
 		cu = c.cursor()
 		cu.execute( """
 		select c1.relname,a1.attname, c2.relname, a2.attname from pg_class c1, pg_class c2, pg_constraint c3 , pg_attribute a1, pg_attribute a2 where c1.relfilenode = c3.conrelid and c2.relfilenode = c3.confrelid and c3.contype='f' and c3.conrelid = a1.attrelid and c3.conkey[1] = a1.attnum and c3.confkey[1] = a2.attnum and c3.confrelid = a2.attrelid

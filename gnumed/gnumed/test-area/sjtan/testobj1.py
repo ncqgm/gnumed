@@ -10,6 +10,10 @@ use case:
 """
 import testschema5 as testschema
 import pgdb
+
+#credentials = "localhost:gnumed:any-doc:any-doc"
+credentials = "hherb.com:gnumed:any-doc:any-doc"
+
 class Loader:
 
 	def __init__(self):
@@ -17,7 +21,7 @@ class Loader:
 		self.collections = {}
 		self.refs = {}
 		self.subclass = {}
-		self.conn = pgdb.connect("localhost:gnumed")
+		self.conn = pgdb.connect(credentials)
 		self.descriptions= {}
 		pass	
 
