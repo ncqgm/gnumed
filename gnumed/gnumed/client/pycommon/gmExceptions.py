@@ -33,7 +33,6 @@ class ConfigError(Exception):
 
 
 class NoGuiError(Exception):
-	#raised whenever the database backend connection fails
 	def __init__(self, errmsg):
 		self.errmsg=errmsg
 
@@ -52,7 +51,7 @@ class PureVirtualFunction(Exception):
 	def __str__(self):
 		return self.errmsg
 
-
+#------------------------------------------------------------
 class ConstructorError(Exception):
 	"""Raised when a constructor fails."""
 	def __init__(self, errmsg = None):
@@ -62,9 +61,19 @@ class ConstructorError(Exception):
 			self.errmsg = errmsg
 
 	def __str__(self):
-		return self.errmsg
+		return str(self.errmsg)
 
+class NoSuchClinItemError(ConstructorError):
+	"""Raised when a clinical item can not be found."""
+	def __init__(self, errmsg = None):
+		if errmsg is None:
+			self.errmsg = "no such clinical item found"
+		else:
+			self.errmsg = errmsg
 
+	def __str__(self):
+		return str(self.errmsg)
+#------------------------------------------------------------
 class InvalidInputError(Exception):
 	"""Raised by business layers when an attempt is made to input
 	invalid data"""
@@ -79,7 +88,10 @@ class InvalidInputError(Exception):
 
 #=====================================================================
 # $Log: gmExceptions.py,v $
-# Revision 1.3  2004-03-27 04:37:01  ihaywood
+# Revision 1.4  2004-05-08 17:31:31  ncq
+# - add NoSuchClinItemError
+#
+# Revision 1.3  2004/03/27 04:37:01  ihaywood
 # lnk_person2address now lnk_person_org_address
 # sundry bugfixes
 #
