@@ -1,7 +1,7 @@
 #!/bin/sh
 #----------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Archive/Attic/make-links.sh,v $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 # GPL
 # Karsten.Hilbert@gmx.net
 #----------------------------------
@@ -45,8 +45,8 @@ ln -vs ../modules client/modules
 
 # viewer
 ln -vs ../../../client/wxpython/gui/gmShowMedDocs.py client/gmShowMedDocs.py
-ln -vs ../viewer/run-viewer.sh client/run-viewer.sh
-ln -vs ../viewer/run-viewer.bat client/run-viewer.bat
+ln -vs ../../Archive/viewer/run-viewer.sh client/run-viewer.sh
+ln -vs ../../Archive/viewer/run-viewer.bat client/run-viewer.bat
 
 # docs
 ln -vs ../docs/sample.conf client/sample.conf
@@ -91,7 +91,7 @@ ln -vs ../../../Archive/import/run-importer.bat server/run-importer.bat
 
 # installation/bootstrapping
 ln -vs ../../../server/bootstrap/bootstrap-gm_db_system.py server/bootstrap-gm_db_system.py
-ln -vs ../../../server/bootstrap/bootstrap-archive.conf.sample server/bootstrap-archive.conf.sample
+ln -vs ../../../server/bootstrap/bootstrap-archive.conf server/bootstrap-archive.conf
 ln -vs ../../../Archive/server/gmArchiveAccounts.sql server/gmArchiveAccounts.sql
 ln -vs ../../../Archive/server/install.sh server/install.sh
 ln -vs ../../../Archive/server/dropBlobs.sql server/dropBlobs.sql
