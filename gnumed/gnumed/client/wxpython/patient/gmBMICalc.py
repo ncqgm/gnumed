@@ -16,17 +16,15 @@
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.2)
 #
-# @TODO: all testing and review
-#        bmi input boxes are not set to re-size
-#	 just about evrything
-#        this module is for GUI development/demonstration
+# @TODO:
+# - button QUIT
+# - patient related "normal" range
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
-#---------------------------------------------------------------------------
 from wxPython.wx import *
 
 #===========================================================================
@@ -466,7 +464,7 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 			"This text box needs to be replaced by a graph class....\n"
 			"which amongst other things could show this patients mass trends!!!!\n\n"
 			"The mass range on the green epilpse would be calculated for each patient...\n\n"
-		 	"Bye for now...\n\n",
+			"BTW, don't worry about your weight, the 'normal' range (63-79) is hardcoded."
 			size=(200, 100),
 			style = wxTE_MULTILINE | wxTE_READONLY
 		)
@@ -609,7 +607,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.26  2004-03-10 15:48:36  ncq
+# Revision 1.27  2004-03-12 13:25:43  ncq
+# - note on hardcoded normal range
+#
+# Revision 1.26  2004/03/10 15:48:36  ncq
 # - new import scheme
 #
 # Revision 1.25  2003/11/17 10:56:41  sjtan
