@@ -34,8 +34,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.32 2003-02-08 00:32:30 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmLoginDialog.py,v 1.33 2003-02-09 18:55:47 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 
 from wxPython.wx import *
 import os.path, time
@@ -605,8 +605,11 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.32  2003-02-08 00:32:30  ncq
-# - Syan, can you stop fucking up things that already worked !
+# Revision 1.33  2003-02-09 18:55:47  ncq
+# - make comment less angry
+#
+# Revision 1.32  2003/02/08 00:32:30  ncq
+# - fixed failure to detect config file
 #
 # Revision 1.31  2003/02/08 00:15:17  ncq
 # - cvs metadata keywords
