@@ -2,12 +2,13 @@
 
 Overview
 --------
-This class in many if not most cases wraps a denormalizing
-view which represents an entity that makes immediate business
-sense such as a vaccination or a medical document. The data
-in that view will in most cases, however, originate from
-several normalized tables. One instance of this class
-represents one row of the "main" source relation.
+This class wraps a source relation (table, view) which
+represents an entity that makes immediate business sense
+such as a vaccination or a medical document. In many if
+not most cases this source relation is a denormalizing
+view. The data in that view will in most cases, however,
+originate from several normalized tables. One instance
+of this class represents one row of said source relation.
 
 Note, however, that this class does not *always* simply
 wrap a single table or view. It can also encompass several
@@ -43,7 +44,10 @@ The class will in many cases be enhanced by accessors to
 related data that is not directly part of the business
 object itself but are closely related, such as codes
 linked to a clinical narrative entry (eg a diagnosis). Such
-accessors in most cases start with get_*.
+accessors in most cases start with get_*. Related setters
+start with set_*. The values can be accessed via the
+object['field'] syntax, too, but they will be cached
+independantly.
 
 Concurrency handling
 --------------------
@@ -53,18 +57,19 @@ GnuMed connections always run transactions in isolation level
 of them will abort with a concurrency error.
 
 However, another transaction may have updated our row between
-the time we first fetched the data and the time we start
-the update transaction. This is noticed by getting the XMIN
-system column for the row when fetching the data and using
-that value as a where condition value when locking the row
-for update. If the row was updated (xmin changed) or deleted
-(primary key disappeared) then getting the row lock will fail
-even if the query itself succeeds.
+the time we first fetched the data and the time we start the
+update transaction. This is noticed by getting the XMIN system
+column for the row when initially fetching the data and using
+that value as a where condition value when locking the row for
+update. If the row had been updated (xmin changed) or deleted
+(primary key disappeared) in the meantime then getting the row
+lock will touch zero rows even if the query itself formally
+succeeds.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.5 2004-12-17 16:15:36 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmBusinessDBObject.py,v 1.6 2004-12-20 16:46:55 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -104,11 +109,24 @@ class cBusinessDBObject:
 		self._is_modified = False
 		# check descendants
 		#<DEBUG>
-		self.__class__._cmd_fetch_payload			# must fetch xmin ! (and the view must support that ...)
-		self.__class__._cmds_lock_rows_for_update	# must do "select for update" and use xmin in where clause, each query must return exactly 1 row
+		self.__class__._cmd_fetch_payload
+			# must fetch xmin ! (and the view must support that ...)
+		self.__class__._cmds_lock_rows_for_update
+			# must do "select for update" and use xmin in where clause, each query must return exactly 1 row
 		self.__class__._cmds_store_payload
+			# one or multiple "update ... set ..." statements which
+			# actually update the database from the data in self._payload,
+			# the last query must refetch the XMIN values needed to detect
+			# concurrent updates
+		self.__class__._xmins_refetch_col_pos
+			# a dict mapping column names to positions for the last
+			# query in self.__class__._cmds_store_payload such that
+			# the XMIN fields in self._payload can be updated
 		self.__class__._updatable_fields
+			# a list of fields available to users via object['field']
 		self.__class__._service
+			# the service in which our source relation is found,
+			# this is used for establishing connections
 		#</DEBUG>
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
@@ -313,7 +331,7 @@ class cBusinessDBObject:
 				_log.Log(gmLog.lPanic, '[%s:%s]: integrity violation, more than one matching row' % (self.__class__.__name__, self.pk_obj))
 				_log.Log(gmLog.lPanic, 'HINT: shut down/investigate application/database immediately')
 				_log.Log(gmLog.lErr, query)
-				_log.Log(gmLog.lData, params)
+				_log.Log(gmLog.lErr, params)
 				return (False, (1, _('Database integrity violation detected. Immediate shutdown strongly advisable.')))
 		# successfully locked, now actually run update
 		queries = []
@@ -324,8 +342,26 @@ class cBusinessDBObject:
 			conn.rollback()
 			conn.close()
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
-			_log.Log(gmLog.lData, params)
+			_log.Log(gmLog.lErr, params)
 			return (False, data)
+		# update cached XMIN values
+		if data is None:
+			conn.rollback()
+			conn.close()
+			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, last query did not return XMIN values' % (self.__class__.__name__, self.pk_obj))
+			return (False, data)
+		row = data[0]
+		for key in self.__class__._xmins_refetch_col_pos.keys():
+			try:
+				self._payload[self._idx[key]] = row[self.__class__._xmins_refetch_col_pos[key]]
+			except KeyError:
+				conn.rollback()
+				conn.close()
+				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, XMIN refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
+				_log.Log(gmLog.lErr, 'payload keys: %s' % str(self._idx))
+				_log.Log(gmLog.lErr, 'XMIN refetch keys: %s' % str(self.__class__._xmins_refetch_col_pos.keys()))
+				_log.Log(gmLog.lErr, params)
+				return (False, data)
 		conn.commit()
 		conn.close()
 		self._is_modified = False
@@ -338,6 +374,7 @@ if __name__ == '__main__':
 		_cmd_fetch_payload = None
 		_cmds_lock_rows_for_update = None
 		_cmds_store_payload = None
+		_xmins_refetch_col_pos = None
 		_updatable_fields = []
 		_service = None
 		#----------------------------------------------------
@@ -358,7 +395,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.5  2004-12-17 16:15:36  ncq
+# Revision 1.6  2004-12-20 16:46:55  ncq
+# - improve docs
+# - close last known concurrency issue (reget xmin values after save)
+#
+# Revision 1.5  2004/12/17 16:15:36  ncq
 # - add extension method result caching as suggested by Ian
 # - I maintain a bad feeling due to cache eviction policy being murky at best
 #
