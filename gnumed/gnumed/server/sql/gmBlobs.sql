@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.30 $ $Date: 2003-01-24 23:30:52 $ $Author: ncq $
+-- $Revision: 1.31 $ $Date: 2003-02-08 00:12:09 $ $Author: ncq $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -82,6 +82,7 @@ CREATE TABLE "doc_med_external_ref" (
 
 -- =============================================
 CREATE TABLE "doc_obj" (
+	"id" serial primary key,
 	"doc_id" integer references doc_med(id),
 	"seq_idx" integer,
 	"comment" character varying(30),
@@ -95,6 +96,7 @@ COMMENT ON COLUMN doc_obj.data IS 'actual binary object data';
 
 -- =============================================
 CREATE TABLE "doc_desc" (
+	"id" serial primary key,
 	"doc_id" integer references doc_med(id),
 	"text" text
 );
@@ -113,7 +115,9 @@ TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"doc_desc",
-	"doc_obj",
+	"doc_desc_id_seq",
+	"doc_obj"
+	"doc_obj_id_seq",
 	"doc_med",
 	"doc_med_id_seq",
 	"doc_type",
@@ -124,7 +128,7 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.30 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.31 $');
 
 -- =============================================
 -- questions:
