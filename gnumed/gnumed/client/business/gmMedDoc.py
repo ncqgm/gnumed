@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.13 2003-12-29 16:20:28 uid66147 Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmMedDoc.py,v 1.14 2004-01-18 21:42:17 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path
@@ -261,9 +261,9 @@ class gmMedObj:
 		# actually set it in the DB
 		cmd =  "UPDATE doc_obj SET %s WHERE id=%(obj id)s" % set_clause
 		data['obj id'] = self.ID
-		result =  gmPG.run_commit(self.__rwconn, [
+		result = gmPG.run_commit(self.__rwconn, [
 			(cmd, [data])
-		]):
+		])
 		if result is None:
 			_log.Log(gmLog.lErr, 'cannot update metadata')
 			return None
@@ -443,7 +443,10 @@ def create_object(doc_id):
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.13  2003-12-29 16:20:28  uid66147
+# Revision 1.14  2004-01-18 21:42:17  ncq
+# - extra : removed
+#
+# Revision 1.13  2003/12/29 16:20:28  uid66147
 # - use gmPG.run_ro_query/run_commit instead of caching connections ourselves
 # - but do establish our own rw connection even for reads since escaping bytea
 #   over a client_encoding != C breaks transmitted binaries
