@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/server/Attic/install.sh,v $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 echo "this must be run as root because we will put some links in /usr/bin/ and other places"
 
@@ -12,12 +12,12 @@ groupadd gnumed
 # FIXME: check returned result: 1 == failed
 ./bootstrap-gm_db_system.py --conf-file=bootstrap-archive.conf
 
-# install binaries
-install -v -g gnumed -m 0750 -b import-med_docs.py run-importer.sh /usr/bin/
-
 # install modules
 install -v -g gnumed -m 0750 -d /usr/share/gnumed/modules/
 install -v -g gnumed -m 0660 -b modules/* /usr/share/gnumed/modules/
+
+# install binaries
+install -v -g gnumed -m 0750 -b import-med_docs.py run-importer.sh remove-imported_dirs.sh /usr/bin/
 
 # install message catalog
 echo "no need for message catalog installation"
@@ -46,7 +46,12 @@ echo "you should configure your system in /etc/gnumed/gnumed-archive.conf"
 
 #=============================================================
 # $Log: install.sh,v $
-# Revision 1.2  2003-04-13 15:06:45  ncq
+# Revision 1.3  2003-04-18 16:38:17  ncq
+# - better docs in remove*dirs
+# - install binaries on server
+# - text domain "gnumed" in run-viewer.bat
+#
+# Revision 1.2  2003/04/13 15:06:45  ncq
 # - added installation of modules
 #
 # Revision 1.1  2003/03/01 15:01:10  ncq

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/import/Attic/remove-imported_dirs.sh,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 # GnuMed, GPL, Karsten.Hilbert@gmx.net
 
 # this will delete/move data that has been successfully imported
@@ -15,10 +15,11 @@ DONEFILE="imported.txt"
 BACKUP="/somewhere/"
 
 for DIR in $REPOSITORY ; do
-	#echo $DIR
 	if test -f $DIR/$DONEFILE; then
 		# those are the ones we want deleted
-		#echo "this dir can be deleted"
+		echo $DIR
+		echo "this dir can be deleted"
+		echo "but you must manually activate that"
 
 		# kill 'em
 		#rm -f $DIR/* && rmdir -f $DIR
@@ -30,7 +31,12 @@ done
 
 #==============================================================
 # $Log: remove-imported_dirs.sh,v $
-# Revision 1.1  2003-03-01 15:39:49  ncq
+# Revision 1.2  2003-04-18 16:38:17  ncq
+# - better docs in remove*dirs
+# - install binaries on server
+# - text domain "gnumed" in run-viewer.bat
+#
+# Revision 1.1  2003/03/01 15:39:49  ncq
 # - moved here from test-area
 #
 # Revision 1.2  2002/12/25 16:03:51  ncq
