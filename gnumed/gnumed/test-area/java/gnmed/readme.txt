@@ -29,16 +29,19 @@ the gnumed-test.properties gives the relative path to this file.
 
 2. can't import drugref.data.dump
 
+
 postgres doesn't diagnose user authority problems.
 -  Message looks like "\N" unexpected end of input.
 
 re: importing drugref.data.dump
 why important? past history and drugs don't work without this data.
 
-THE MOST IMPORTANT THING IS THE USER CONNECTION IDENTITY IN 
-THE START OF THE SCRIPT. EITHER CHANGE IHAYWOOD TO THE APPROPRIATE
-USER WITH GRANTED PERMISSIONS, OR CREATE THE USER IHAYWOOD WITH 
-GRANTED PERMISSIONS. 
+Woops: in the end, it works by entering interactive psql and doing
+\i drugref.data.dump   ; doesn't work when running from command line
+? WHY 
+
+
+
 
 
 3. can't connect to database.
