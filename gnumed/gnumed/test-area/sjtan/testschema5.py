@@ -31,6 +31,19 @@ class SchemaParser:
 		r = cu.fetchall()
 		return r
 
+
+	def get_fk_details(self):
+		"""gets table, keying attribute, foreign table, foreign key attr"""
+
+		c = pgdb.connect("localhost:gnumed")
+		cu = c.cursor()
+		cu.execute( """
+		select c1.relname,a1.attname, c2.relname, a2.attname from pg_class c1, pg_class c2, pg_constraint c3 , pg_attribute a1, pg_attribute a2 where c1.relfilenode = c3.conrelid and c2.relfilenode = c3.confrelid and c3.contype='f' and c3.conrelid = a1.attrelid and c3.conkey[1] = a1.attnum and c3.confkey[1] = a2.attnum and c3.confrelid = a2.attrelid
+			""")
+		r = cu.fetchall()
+		return r
+		
+
 	def get_attributes(self, table, foreign_keys = 0):
 		if foreign_keys:
 			fk_cmp = ''
@@ -49,6 +62,15 @@ class SchemaParser:
 		l = [ x[0] for x in r]
 		return l
 		
+	def get_pk_attr( self):
+		stmt = """
+		select  c.relname, a.attname from pg_attribute a, pg_class c, pg_constraint pc where  a.attrelid = c.relfilenode and pc.contype= 'p' and pc.conrelid = a.attrelid and pc.conkey[1] = a.attnum
+
+		""" 
+		c = pgdb.connect("localhost:gnumed")
+		cu = c.cursor()
+		cu.execute(stmt)
+		return cu.fetchall()
 
 
 	def build(self):
@@ -96,6 +118,8 @@ class SchemaParser:
 			print
 			print
 
+	def getModelFor(self, k):
+		return self.model.get(k, {})
 
 	def getModel(self):
 		return self.model
@@ -155,17 +179,17 @@ class SchemaParser:
 			return
 		next_level = []
 		for x,tag in node_list:
-			print "checking x", x
+			#print "checking x", x
 			if self.is_suppressed('', x) and x <> self.target:
-				print "suppressing ", x
+			#	print "suppressing ", x
 				continue
 			if x in self.next_level_map.keys():
-				print x, "already in ", self.next_level_map.keys()
+			#	print x, "already in ", self.next_level_map.keys()
 				continue
 
-			#if self.is_type_table(x):
-			#	continue
-			print "searching x", x
+			if self.is_type_table(x):
+				continue
+			#print "searching x", x
 
 			next_level_for_x = self.find_next_level_nodes(x)
 			self.next_level_map[x] = next_level_for_x
@@ -356,7 +380,7 @@ roots:	identity, org, xlnk_identity, clin_root_item
 #hide:	xlnk_identity
 external_fk:	xlnk_identity.xfk_identity references identity
 link_tables:	lnk.*
-type_tables:	^.*enum.*,^.*type., ^.*category, occupation, marital_status, staff_role
+type_tables:	^.*enum.*, ^.*category, occupation, marital_status, staff_role
 
 suppress:	 xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode,  identity..org, vacc_def..xlnk_identity, xlnk_identity.test_org.test_type, org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan, 		clin_root_item.test_org.xlnk_identity, clin_root_item.test_result.xlnk_identity, clin_root_item.lab_request.xlnk_identity, clin_root_item.referral.xlnk_identity, clin_root_item.vaccination.xlnk_identity, clin_root_item..last_act_episode, clin_root_item.clin_health_issue.xlnk_identity
 
