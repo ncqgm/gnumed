@@ -6,7 +6,7 @@ This device is made by Bayer Diagnostics.
 """
 #========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/device-drivers/Clinitek50.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # stock python
@@ -210,11 +210,7 @@ class cClinitek50:
 #========================================================
 if __name__ == '__main__':
 	# try to init device
-#	try:
 	dev = cClinitek50(0)
-#	except:
-#		print "cannot init device"
-#		sys.exit()
 	err_cnt = 0
 	urin_file = open('clinitek50.dat', 'wb')
 	while 1:
@@ -272,7 +268,10 @@ if __name__ == '__main__':
 
 #========================================================
 # $Log: Clinitek50.py,v $
-# Revision 1.4  2003-11-21 16:00:15  ncq
+# Revision 1.5  2004-01-06 23:18:52  ncq
+# - fail on exception in device __init__, don't catch
+#
+# Revision 1.4  2003/11/21 16:00:15  ncq
 # - tested, works as advertised
 #
 # Revision 1.3  2003/11/20 01:37:41  ncq
