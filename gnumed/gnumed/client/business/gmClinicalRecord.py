@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.96 2004-05-18 20:33:40 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmClinicalRecord.py,v 1.97 2004-05-18 22:35:09 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -578,7 +578,7 @@ class cClinicalRecord:
 				return None
 			for row in rows:
 				try:
-					self.__db_cache['episodes'].append(gmEMRStrucItems.cEpisode(aPK_obj=row[0]))
+					self.__db_cache['episodes'].append(gmEMRStructItems.cEpisode(aPK_obj=row[0]))
 				except gmExceptions.ConstructorError, msg:
 					_log.LogException(str(msg), sys.exc_info(), verbose=0)
 
@@ -706,6 +706,17 @@ class cClinicalRecord:
 			self.health_issue = self.default_health_issue
 
 		return True
+	#--------------------------------------------------------
+	def set_active_episode(self, ep_name='xxxDEFAULTxxx'):
+		if self.get_episodes() is None:
+			_log.Log(gmLog.lErr, 'cannot activate episode [%s], cannot get episode list' % ep_name)
+			return False
+		for episode in self.__db_cache['episodes']:
+			if episode['episode'] == ep_name:
+				episode.set_active()
+				return True
+		_log.Log(gmLog.lErr, 'cannot activate episode [%s], not found in list' % ep_name)
+		return False
 	#--------------------------------------------------------
 	# health issues API
 	#--------------------------------------------------------
@@ -1211,7 +1222,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.96  2004-05-18 20:33:40  ncq
+# Revision 1.97  2004-05-18 22:35:09  ncq
+# - readd set_active_episode()
+#
+# Revision 1.96  2004/05/18 20:33:40  ncq
 # - fix call to create_encounter() in __initiate_active_encounter()
 #
 # Revision 1.95  2004/05/17 19:01:40  ncq
