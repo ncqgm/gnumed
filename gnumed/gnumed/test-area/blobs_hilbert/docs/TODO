@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -8,7 +8,6 @@ immediately
 
 Conf/Doc
 --------
-- useable docs
 
 scan
 ----
@@ -21,12 +20,13 @@ scan
 index
 -----
 - internationalize on Windows
+- quitibus
 
 import
 ------
 - handle date as date not string
 - doc_type_usr/_sys
-- fixup
+- general fixup
 
 viewer
 ------
@@ -105,6 +105,8 @@ viewer
 
 Conf/Doc
 --------
+- translate into English
+
  > Dau-Dokumentation erstellen
  > -werde ich machen, das braucht nicht soviel Zeit
 
