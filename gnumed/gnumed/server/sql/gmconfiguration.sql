@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -12,6 +12,11 @@
 
 -- last changes: 26.10.2001 hherb drastic simplification of entities and relationships
 -- introduction of the new services
+
+-- ===================================================================
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
 --=====================================================================
 CREATE TABLE db (
     id SERIAL PRIMARY KEY,
@@ -134,9 +139,17 @@ CREATE TABLE queries (
 --=====================================================================
 GRANT SELECT ON db, distributed_db, config TO GROUP "gm-public";
 
+-- =============================================
+-- do simple schema revision tracking
+\i gmSchemaRevision.sql
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.17 $')
+
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.16  2002-11-12 17:04:10  ncq
+-- Revision 1.17  2002-11-16 01:03:20  ncq
+-- - add simple revision tracking
+--
+-- Revision 1.16  2002/11/12 17:04:10  ncq
 -- - remove a ; in a '' since this currently foo-bars bootstrapping
 --
 -- Revision 1.15  2002/11/01 16:53:27  ncq

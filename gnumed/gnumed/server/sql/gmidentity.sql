@@ -20,9 +20,13 @@
 -- 07.03.2002:  (hherb) view "v_basic_person" added
 -- 09.03.2002:  (ihaywood) Rules for basic_person view.
 -- 08.04.2002:	 (hherb) service "personalia" related changes.
---                BRAKES BACKWARDS COMPATIBILITY!
--- ================================================
+--                BREAKS BACKWARDS COMPATIBILITY!
 
+-- ===================================================================
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
+-- ================================================
 -- any table that needs auditing MUST inherit audit_identity.
 -- A python script (gmhistorian.py) generates automatically all triggers
 -- and tables neccessary to allow versioning and audit trail keeping of
@@ -284,3 +288,8 @@ insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) valu
 insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Richard', 'Terry', '1/1/60', 'AU', 'm');
 insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Karsten', 'Hilbert', '23/10/74', 'DE', 'm');
 insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Mr.', 'Sebastian', 'Hilbert', '13/03/79', 'DE', 'm');
+
+-- =============================================
+-- do simple schema revision tracking
+\i gmSchemaRevision.sql
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.22 $')
