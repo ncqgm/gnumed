@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.26 2003-06-26 06:05:38 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmClinicalRecord.py,v 1.27 2003-06-26 21:24:49 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -117,8 +117,8 @@ class gmClinicalRecord:
 		- true/false/None
 		"""
 		curs = self._defconn_ro.cursor()
-		cmd = "select exists(select id from identity where id = %s)" % self.id_patient
-		if not gmPG.run_query(curs, cmd):
+		cmd = "select exists(select id from identity where id = %s );"
+		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
 			_log.Log(gmLog.lData, 'unable to check for patient [%s] existence' % self.id_patient)
 			return None
@@ -406,8 +406,8 @@ class gmClinicalRecord:
 		if not gmPG.run_query(rw_curs, cmd, self.id_patient):
 			_log.Log(gmLog.lWarn, 'cannot delete last active episode entry for patient [%s]' % (self.id_patient))
 			# try continuing anyways
-		cmd = "insert into last_act_episode (id_episode, id_patient) values (%s, %s);" % (id_episode, self.id_patient)
-		if not gmPG.run_query(rw_curs, cmd):
+		cmd = "insert into last_act_episode (id_episode, id_patient) values ( %s , %s );"
+		if not gmPG.run_query(rw_curs, cmd, id_episode, self.id_patient):
 			_log.Log(gmLog.lErr, 'cannot activate episode [%s] for patient [%s]' % (id_episode, self.id_patient))
 			rw_curs.close()
 			rw_conn.close()
@@ -718,7 +718,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.26  2003-06-26 06:05:38  ncq
+# Revision 1.27  2003-06-26 21:24:49  ncq
+# - cleanup re quoting + ";" and (cmd, arg) style
+#
+# Revision 1.26  2003/06/26 06:05:38  ncq
 # - always add ; at end of sql queries but have space after %s
 #
 # Revision 1.25  2003/06/26 02:29:20  ihaywood
