@@ -21,6 +21,7 @@ import sys, os
 from   wxPython.wx         import *
 from   wxPython.html       import *
 import wxPython.lib.wxpTag
+import gmGuiBroker
 
 manual_path = 'manual/index.html'
 
@@ -42,12 +43,11 @@ class ManualHtmlPanel(wxPanel):
         wxPanel.__init__(self, parent, -1)
         self.log = log
         self.frame = frame
-        self.cwd = os.path.split(sys.argv[0])[0]
-        if not self.cwd:
-            self.cwd = os.getcwd()
-
-
-
+        # CHANGED CODE Haywood 26/2/02
+        # get base directory for manuals from broker
+        # Ideally this should be something like "/usr/doc/gnumed/"
+        # for now just use the scripts directory
+        self.docdir = gmGuiBroker.GuiBroker ()['gnumed_dir']
         self.printer = wxHtmlEasyPrinting()
 
         self.box = wxBoxSizer(wxVERTICAL)
@@ -110,7 +110,7 @@ class ManualHtmlPanel(wxPanel):
         self.infoline.WriteText(title)
 
     def OnShowDefault(self, event):
-        name = os.path.join(self.cwd, manual_path)
+        name = os.path.join(self.docdir, manual_path)
         self.html.LoadPage(name)
 
 

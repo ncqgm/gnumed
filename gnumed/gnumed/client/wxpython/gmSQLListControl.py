@@ -112,6 +112,7 @@ class SQLListControl(wxListCtrl):
 		try:
 			print "running query on service ", self.__service
 			conn = gmPG.ConnectionPool().GetConnection(self.__service)
+			cursor = conn.cursor ()
 		except:
 			print "Exception thrown when trying to connect to backend in RunQuery()"
 			self.RestoreOutput()
@@ -124,15 +125,15 @@ class SQLListControl(wxListCtrl):
         	#time needed for database query
         	t1 = time.time()
 
-		query = conn.query(self.__querystr)
-		queryresult = query.getresult()
+		cursor.execute(self.__querystr)
+		queryresult = cursor.fetchall ()
 		t2 = time.time()
 		if self.__feedback:
 			print "Query [%s] returned %d tuples in %3.3f sec\n\n" % (self.__querystr, query.ntuples(), t2-t1)
 
 		#set list control labels depending on the returned fields, unless manually overridden
 		if len(self.__labels)<=0:
-			self.__labels = query.listfields()
+			self.__labels = [field[0] for field in cursor.description]
 		gmLabels.LabelListControl(self, self.__labels)
 		rowcount=0
 		for row in queryresult:
@@ -146,11 +147,11 @@ class SQLListControl(wxListCtrl):
             		rowcount +=1
 
 		#adjust column width according to the query results
-		for w in range(0, len(query.listfields())):
+		for w in range(0, len(cursor.description)):
 			self.SetColumnWidth(w, wxLIST_AUTOSIZE)
 
 		t2f = time.time()
-		self.__SetStatusText("%d records found; retrieved and displayed in %1.3f sec." % (query.ntuples(), t2f-t1f))
+		self.__SetStatusText("%d records found; retrieved and displayed in %1.3f sec." % (cursor.arraysize, t2f-t1f))
 		#restore standard output
 		self.RestoreOutput()
 

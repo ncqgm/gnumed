@@ -15,7 +15,8 @@
 ############################################################################
 
 from wxPython.wx import *
-import gmLoginDialog, gmPG
+import os.path
+import gmLoginDialog, gmPG, gmGuiBroker
 
 # text translation function for localization purposes
 import gettext
@@ -29,7 +30,10 @@ def Login(max_attempts=3):
 	attempts = 0
 	backend = None
 	#display the login dialog
-	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
+	broker = gmGuiBroker.GuiBroker ()
+	# CHANGED CODE Haywood 26/2/02
+	#: use global variable to find image file  
+	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = os.path.join (broker['gnumed_dir'], 'bitmaps/gnumedlogo.png'))
 	dlg.Centre(wxBOTH)
 	while not logged_in and attempts< max_attempts:
 		dlg.ShowModal()

@@ -17,6 +17,9 @@
 ############################################################################
 
 import gettext
+# ADDED CODE Haywood 26/2/02
+# set domain to 'gnumed' -- otherwise doesn't work on my setup
+gettext.textdomain ('gnumed')
 _ = gettext.gettext
 
 gmTimeformat = _("%Y-%m-%d  %H:%M:%S")

@@ -30,7 +30,7 @@ _ = gettext.gettext
 from wxPython.wx import *
 from wxPython.html import *
 from gmI18N import *
-import time, os
+import time, os, os.path, sys
 import gmLogFrame, gmGuiBroker, gmPG, gmmanual, gmSQLSimpleSearch
 
 # widget IDs
@@ -68,7 +68,9 @@ class MainFrame(wxFrame):
 
 		backend = gmPG.ConnectionPool()
 		db = backend.GetConnection('default')
-		user = db.query('select CURRENT_USER').getresult()[0][0];
+		cursor = db.cursor ()
+		cursor.execute('select CURRENT_USER')
+		user = cursor.fetchone ()[0]
 		self.SetTitle(_("You are logged in as [%s]") % user)
 
 		self.SetupPlatformDependent()
@@ -76,7 +78,7 @@ class MainFrame(wxFrame):
 		self.CreateMenu()
 		self.SetupAccelerators()
 		self.RegisterEvents()
-
+ 
 		#a top vertical box sizer for the main window
 		self.vbox = wxBoxSizer( wxVERTICAL)
 		self.guibroker['main.vbox']=self.vbox
@@ -323,15 +325,21 @@ class gmApp(wxApp):
 	__guibroker = None
 
 	def OnInit(self):
+		# create a static GUI element dictionary;
+		# will be static and alive as long as app runs
+		self.__guibroker = gmGuiBroker.GuiBroker()
+		# ADDED CODE: Haywood 26/2/02
+		# home directory for file resources, such
+		# as images. Sets to .../gnumed/gnumed/client Is this
+		# right?
+		self.__guibroker['gnumed_dir'] = os.path.abspath (os.path.split (sys.argv[0])[0])[:-9]
+		# END ADDED CODE
 		#login first!
 		import gmLogin
 		self.__backend = gmLogin.Login()
 		if self.__backend == None:
 			print _("Login attempt unsuccesful\nCan't run GNUMed without database connetcion")
 			return false
-		# create a static GUI element dictionary;
-		# will be static and alive as long as app runs
-		self.__guibroker = gmGuiBroker.GuiBroker()
 		#create the main window
 		frame = MainFrame(None, -1, _('GNUMed client'), size=(700,580))
 		frame.Maximize(true)
