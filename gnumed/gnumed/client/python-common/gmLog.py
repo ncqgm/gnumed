@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -213,29 +213,36 @@ class cLogger:
 		for key in self.__targets.keys():
 			self.__targets[key].writeDelimiter()
 	#---------------------------
-	def LogException(self, aMsg, exception, fatal=1):
+	def LogException(self, aMsg, exception, verbose=1, **kwargs):
 		"""Log an exception.
 
 		'exception' is a tuple as returned by sys.exc_info()
 		"""
-
+		# sanity check
+		if kwargs.has_key('fatal'):
+			notice = '(deprecated use of keyword arg "fatal")'
+			verbose = kwargs['fatal']
+		else:
+			notice = None
 		# avoid one level of indirection by not calling self.__Log such
 		# that the chances of succeeding shall be increased
 		if self.__targets is not None:
-			if fatal:
+			if verbose:
 				level1 = lPanic
 				level2 = lPanic
 			else:
 				level1 = lWarn
 				level2 = lData
 
-			t, v, tb = exception
-			tbs = traceback.format_exception(t, v, tb)
+			exc_type, exc_val, exc_traceback = exception
+			traceback_stack = traceback.format_exception(exc_type, exc_val, exc_traceback)
 			for key in self.__targets.keys():
 				self.__targets[key].writeMsg(level1, aMsg)
-				self.__targets[key].writeMsg(level1, "exception type : %s" % t)
-				self.__targets[key].writeMsg(level1, "exception value: %s" % v)
-				for line in tbs:
+				if notice is not None:
+					self.__targets[key].writeMsg(level2, notice)
+				self.__targets[key].writeMsg(level1, "exception type : %s" % exc_type)
+				self.__targets[key].writeMsg(level1, "exception value: %s" % exc_val)
+				for line in traceback_stack:
 					self.__targets[key].writeMsg(level2, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
 	#---------------------------
 	def SetInfoLevel(self):
@@ -768,7 +775,11 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.34  2003-05-27 13:13:23  ncq
+# Revision 1.35  2003-05-27 13:52:54  ncq
+# - made var names in LogException() more descriptive
+# - changed fatal to verbose in LogException(), but kept backward compat with deprec warning
+#
+# Revision 1.34  2003/05/27 13:13:23  ncq
 # - I must always nitpick on coding style :-)
 #
 # Revision 1.33  2003/05/27 13:00:41  sjtan
