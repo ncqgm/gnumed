@@ -13,8 +13,8 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.48 2003-04-05 01:09:03 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmPlugin.py,v 1.49 2003-04-09 13:06:03 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -151,8 +151,7 @@ class wxBasePlugin (gmPlugin):
 		in the guiBroker. The widget's map key is it's class name"""
 		_log.Log(gmLog.lInfo, "\n ********** gmBasePlugin.set_widget_reference() for %s\n" % self.__class__.__name__)
 		_log.Log(gmLog.lInfo,  " ***** widget class = %s \n" %widget.__class__.__name__ )
-		_log.Log(gmLog.lInfo, "attributes = %s \n**** \n"%widget.__dict__ )
-		
+		#_log.Log(gmLog.lInfo, "attributes = %s \n**** \n"%widget.__dict__ )
 
 		if not self.gb.has_key( 'widgets'):
 			self.gb['widgets'] = {}
@@ -161,9 +160,6 @@ class wxBasePlugin (gmPlugin):
 		widget.plugin = self
 		return
 
-			
-		
-		
 #------------------------------------------------------------------
 class wxNotebookPlugin (wxBasePlugin):
 	"""Base plugin for plugins which provide a 'big page'.
@@ -196,6 +192,7 @@ class wxNotebookPlugin (wxBasePlugin):
 			self.menu_id = wxNewId()
 			menu.Append (self.menu_id, menu_item, self.name())
 			EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
+
 		# so notebook can find this widget
 		self.gb['main.notebook.plugins'].append (self)
 
@@ -221,7 +218,6 @@ class wxNotebookPlugin (wxBasePlugin):
 		
 	#-----------------------------------------------------	
 	def Raise (self):
-		print "self.nb.SetSelection (nb_no)"
 		nbns = self.gb['main.notebook.plugins']
 		nb_no = nbns.index (self)
 		self.nb.SetSelection (nb_no)
@@ -513,7 +509,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.48  2003-04-05 01:09:03  ncq
+# Revision 1.49  2003-04-09 13:06:03  ncq
+# - some cleanup
+#
+# Revision 1.48  2003/04/05 01:09:03  ncq
 # - forgot that one in the big patient -> clinical clean up
 #
 # Revision 1.47  2003/02/24 12:35:55  ncq
