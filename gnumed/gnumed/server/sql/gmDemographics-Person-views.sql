@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.13 2004-03-27 18:35:56 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.14 2004-04-07 18:16:06 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -23,10 +23,10 @@ create index idx_names_firstnames on names(firstnames);
 -- ==========================================================
 -- rules/triggers/functions on table "names"
 
-\unset ON_ERROR_STOP
 -- allow only unique names
-drop index idx_uniq_active_name;
-create unique index idx_uniq_active_name on names(id_identity) where active;
+\unset ON_ERROR_STOP
+drop index idx_uniq_act_name;
+create unique index idx_uniq_act_name on names(id_identity) where active = true;
 \set ON_ERROR_STOP 1
 
 -- IH: 9/3/02
@@ -227,6 +227,8 @@ CREATE VIEW lnk_org2address AS
 	FROM lnk_person_org_address;
 
 -- ==========================================================
+-- permissions
+-- ==========================================================
 GRANT SELECT ON
 	v_basic_person,
 	v_staff,
@@ -240,11 +242,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.13  2004-03-27 18:35:56  ncq
+-- Revision 1.14  2004-04-07 18:16:06  ncq
+-- - move grants into re-runnable scripts
+-- - update *.conf accordingly
+--
+-- Revision 1.13  2004/03/27 18:35:56  ncq
 -- - cleanup
 --
 -- Revision 1.12  2004/03/27 04:37:01  ihaywood

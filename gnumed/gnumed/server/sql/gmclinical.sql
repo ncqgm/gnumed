@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.91 $
+-- $Revision: 1.92 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -818,91 +818,16 @@ comment on table clin_history_editarea is
 	'ui specific field storage, to avoid parsing of data when using past history editarea ui for clin_history';
 
 -- =============================================
-GRANT SELECT ON
-	clin_root_item,
-	clin_health_issue,
-	clin_episode,
-	last_act_episode,
-	"_enum_encounter_type",
-	clin_encounter,
-	curr_encounter,
-	clin_note,
-	clin_aux_note,
-	"_enum_hx_type",
-	_enum_hx_source,
-	clin_history,
-	clin_physical,
-	"_enum_allergy_type",
-	allergy,
-	vaccination,
-	vaccine,
-	vacc_def
-	, vacc_regime
-	, lnk_vacc2vacc_def
-	, clin_history_editarea
-	, xlnk_identity
-	, form_instances
-	, form_data
-TO GROUP "gm-doctors";
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON
-	"clin_root_item",
-	"clin_root_item_pk_item_seq",
-	"clin_health_issue",
-	"clin_health_issue_id_seq",
-	"clin_episode",
-	"clin_episode_id_seq",
-	"last_act_episode",
-	"last_act_episode_id_seq",
-	"_enum_encounter_type",
-	"_enum_encounter_type_id_seq",
-	"clin_encounter",
-	"clin_encounter_id_seq",
-	"curr_encounter",
-	"curr_encounter_id_seq",
-	"clin_note",
-	"clin_note_id_seq",
-	"clin_aux_note",
-	"clin_aux_note_id_seq",
-	"_enum_hx_type",
-	"_enum_hx_type_id_seq",
-	"_enum_hx_source",
-	"_enum_hx_source_id_seq",
-	"clin_history",
-	"clin_history_id_seq",
-	"clin_physical",
-	"clin_physical_id_seq",
-	"_enum_allergy_type",
-	"_enum_allergy_type_id_seq",
-	"allergy",
-	"allergy_id_seq",
-	"vaccination",
-	"vaccination_id_seq",
-	"vaccine",
-	"vaccine_id_seq"
-	, vacc_def
-	, vacc_def_id_seq
-	, vacc_regime
-	, vacc_regime_id_seq
-	, lnk_vacc2vacc_def
-	, lnk_vacc2vacc_def_pk_seq
-	, clin_history_editarea
-	, clin_history_editarea_id_seq
-	, xlnk_identity
-	, xlnk_identity_pk_seq
-	, form_instances
-	, form_instances_pk_seq
-	, form_data
-	, form_data_pk_seq
-TO GROUP "_gm-doctors";
-
--- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.91 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.92 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.91  2004-03-19 10:55:40  ncq
+-- Revision 1.92  2004-04-07 18:16:06  ncq
+-- - move grants into re-runnable scripts
+-- - update *.conf accordingly
+--
+-- Revision 1.91  2004/03/19 10:55:40  ncq
 -- - remove allergy.reaction -> use clin_root_item.narrative instead
 --
 -- Revision 1.90  2004/03/18 10:57:20  ncq

@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.17 $
+-- $Revision: 1.18 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -95,8 +95,8 @@ comment on column test_type."comment" is
 	'arbitrary comment on this type of measurement/test such
 	 as "outdated" or "only reliable when ..."';
 comment on column test_type.basic_unit is
-	'the basic (SI?) unit for this test type, used for comparing
-	 results delivered in differing units';
+	'the basic (SI?) unit for this test type, used for
+	 comparing results delivered in differing units';
 
 -- ====================================
 -- FIXME: run demon to make sure that internal_code is always
@@ -317,41 +317,17 @@ create table lnk_result2lab_req (
 --COMMENT ON TABLE lab_test IS 'to unify tests accross lab result providers with different names for the same test';
 
 -- =============================================
-grant select on
-	test_org
-	, test_type
-	, test_type_uni
-	, lnk_tst2norm
-	, test_result
-	, lab_request
-	, lnk_result2lab_req
-to group "gm-doctors";
-
-grant select, insert, update, delete on
-	test_org
-	, test_org_pk_seq
-	, test_type
-	, test_type_id_seq
-	, test_type_uni
-	, test_type_uni_pk_seq
-	, lnk_tst2norm
-	, lnk_tst2norm_id_seq
-	, test_result
-	, test_result_id_seq
-	, lab_request
-	, lab_request_pk_seq
-	, lnk_result2lab_req
-	, lnk_result2lab_req_pk_seq
-to group "_gm-doctors";
-
--- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.17 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.17  2004-03-23 17:34:49  ncq
+-- Revision 1.18  2004-04-07 18:16:06  ncq
+-- - move grants into re-runnable scripts
+-- - update *.conf accordingly
+--
+-- Revision 1.17  2004/03/23 17:34:49  ncq
 -- - support and use optionally cross-provider unified test names
 --
 -- Revision 1.16  2004/03/23 02:33:13  ncq

@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.1 $ $Date: 2004-03-03 15:47:32 $ $Author: ncq $
+-- $Revision: 1.2 $ $Date: 2004-04-07 18:16:06 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -83,6 +83,24 @@ where
 ;
 -- =============================================
 GRANT SELECT ON
+	doc_desc,
+	doc_obj,
+	doc_med,
+	doc_type
+TO GROUP "gm-doctors";
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON
+	doc_desc,
+	"doc_desc_id_seq",
+	"doc_obj",
+	"doc_obj_id_seq",
+	"doc_med",
+	"doc_med_id_seq",
+	"doc_type"
+TO GROUP "_gm-doctors";
+
+-- views
+GRANT SELECT ON
 	v_i18n_doc_type
 	, v_obj4doc
 	, v_latest_mugshot
@@ -91,10 +109,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmBlobViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.1  2004-03-03 15:47:32  ncq
+-- Revision 1.2  2004-04-07 18:16:06  ncq
+-- - move grants into re-runnable scripts
+-- - update *.conf accordingly
+--
+-- Revision 1.1  2004/03/03 15:47:32  ncq
 -- - collect blob views in their own file
 --

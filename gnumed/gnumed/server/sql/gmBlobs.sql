@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.40 $ $Date: 2004-03-03 15:47:31 $ $Author: ncq $
+-- $Revision: 1.41 $ $Date: 2004-04-07 18:16:06 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -103,26 +103,8 @@ COMMENT ON TABLE doc_desc is
 	 belong to one document object.';
 
 -- =============================================
-GRANT SELECT ON
-	doc_desc,
-	doc_obj,
-	doc_med,
-	doc_type
-TO GROUP "gm-doctors";
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON
-	"doc_desc",
-	"doc_desc_id_seq",
-	"doc_obj",
-	"doc_obj_id_seq",
-	"doc_med",
-	"doc_med_id_seq",
-	"doc_type"
-TO GROUP "_gm-doctors";
-
--- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.40 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.41 $');
 
 -- =============================================
 -- questions:
@@ -140,7 +122,11 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.40  2004-03-03 15:47:31  ncq
+-- Revision 1.41  2004-04-07 18:16:06  ncq
+-- - move grants into re-runnable scripts
+-- - update *.conf accordingly
+--
+-- Revision 1.40  2004/03/03 15:47:31  ncq
 -- - collect blob views in their own file
 --
 -- Revision 1.39  2004/03/03 05:24:01  ihaywood

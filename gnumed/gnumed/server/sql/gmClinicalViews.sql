@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.48 2004-03-23 17:34:49 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.49 2004-04-07 18:16:06 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -583,6 +583,111 @@ create trigger at_curr_encounter_upd
 -- should really be "for each statement" but that isn't supported yet by PostgreSQL
 -- =============================================
 GRANT SELECT ON
+	clin_root_item,
+	clin_health_issue,
+	clin_episode,
+	last_act_episode,
+	_enum_encounter_type,
+	clin_encounter,
+	curr_encounter,
+	clin_note,
+	clin_aux_note,
+	_enum_hx_type,
+	_enum_hx_source,
+	clin_history,
+	clin_physical,
+	_enum_allergy_type,
+	allergy,
+	vaccination,
+	vaccine,
+	vacc_def
+	, vacc_regime
+	, lnk_vacc2vacc_def
+	, clin_history_editarea
+	, xlnk_identity
+	, form_instances
+	, form_data
+TO GROUP "gm-doctors";
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON
+	"clin_root_item",
+	"clin_root_item_pk_item_seq",
+	"clin_health_issue",
+	"clin_health_issue_id_seq",
+	"clin_episode",
+	"clin_episode_id_seq",
+	"last_act_episode",
+	"last_act_episode_id_seq",
+	"_enum_encounter_type",
+	"_enum_encounter_type_id_seq",
+	"clin_encounter",
+	"clin_encounter_id_seq",
+	"curr_encounter",
+	"curr_encounter_id_seq",
+	"clin_note",
+	"clin_note_id_seq",
+	"clin_aux_note",
+	"clin_aux_note_id_seq",
+	"_enum_hx_type",
+	"_enum_hx_type_id_seq",
+	"_enum_hx_source",
+	"_enum_hx_source_id_seq",
+	"clin_history",
+	"clin_history_id_seq",
+	"clin_physical",
+	"clin_physical_id_seq",
+	"_enum_allergy_type",
+	"_enum_allergy_type_id_seq",
+	"allergy",
+	"allergy_id_seq",
+	"vaccination",
+	"vaccination_id_seq",
+	"vaccine",
+	"vaccine_id_seq"
+	, vacc_def
+	, vacc_def_id_seq
+	, vacc_regime
+	, vacc_regime_id_seq
+	, lnk_vacc2vacc_def
+	, lnk_vacc2vacc_def_pk_seq
+	, clin_history_editarea
+	, clin_history_editarea_id_seq
+	, xlnk_identity
+	, xlnk_identity_pk_seq
+	, form_instances
+	, form_instances_pk_seq
+	, form_data
+	, form_data_pk_seq
+TO GROUP "_gm-doctors";
+
+grant select on
+	test_org
+	, test_type
+	, test_type_uni
+	, lnk_tst2norm
+	, test_result
+	, lab_request
+	, lnk_result2lab_req
+to group "gm-doctors";
+
+grant select, insert, update, delete on
+	test_org
+	, test_org_pk_seq
+	, test_type
+	, test_type_id_seq
+	, test_type_uni
+	, test_type_uni_pk_seq
+	, lnk_tst2norm
+	, lnk_tst2norm_id_seq
+	, test_result
+	, test_result_id_seq
+	, lab_request
+	, lab_request_pk_seq
+	, lnk_result2lab_req
+	, lnk_result2lab_req_pk_seq
+to group "_gm-doctors";
+
+GRANT SELECT ON
 	v_i18n_enum_encounter_type,
 	v_patient_episodes,
 	v_patient_items,
@@ -612,11 +717,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.48 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.49 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.48  2004-03-23 17:34:49  ncq
+-- Revision 1.49  2004-04-07 18:16:06  ncq
+-- - move grants into re-runnable scripts
+-- - update *.conf accordingly
+--
+-- Revision 1.48  2004/03/23 17:34:49  ncq
 -- - support and use optionally cross-provider unified test names
 --
 -- Revision 1.47  2004/03/23 02:33:13  ncq

@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -85,13 +85,23 @@ insert into street (id_urb, name, postcode) values (
 	'04318'
 );
 
+insert into street (id_urb, name, postcode) values (
+	(select id from urb where name='Leipzig' limit 1),
+	'Eilenburger Straﬂe',
+	'04317'
+);
+
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: PLZ.sql,v $
--- Revision 1.1  2003-12-29 15:15:01  uid66147
+-- Revision 1.2  2004-04-07 18:16:06  ncq
+-- - move grants into re-runnable scripts
+-- - update *.conf accordingly
+--
+-- Revision 1.1  2003/12/29 15:15:01  uid66147
 -- - a few German post codes
 --
