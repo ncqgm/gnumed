@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.23 2004-01-26 22:07:45 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmGP_Immunisation.py,v 1.24 2004-02-02 16:19:49 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -202,42 +202,44 @@ class ImmunisationPanel(wxPanel):
 			label = _('ERROR: cannot retrieve due/overdue vaccinations')
 			self.LBOX_missing_shots.Append(label, None)
 		else:
-			booster = _('booster')
-			shot_template = _('shot %s')
 			# due
-			lbl_template = _('%.0d weeks left: %s for %s, due %s (%s)')
+			lbl_template = _('%.0d weeks left: shot %s for %s in %s, due %s (%s)')
 			for shot in missing_shots['due']:
-				if shot[3]:
-					shot_str = booster
-				else:
-					shot_str = shot_template % shot[2]
-				# time_left, seq_no, regime, latest_due, comment
+				# time_left, seq_no, regime, latest_due, vacc_comment
 				label = lbl_template % (
 					shot[5].days / 7,
-					shot_str,
+					shot[3],
+					shot[0],
 					shot[1],
 					shot[4].Format('%m/%Y'),
-					shot[7]
+					shot[6]
 				)
-				self.LBOX_missing_shots.Append(label, shot[0])	# pk_vacc_def
+				self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
+			# booster
+			lbl_template = _('due now: booster for %s in %s (%s)')
+			for shot in missing_shots['boosters']:
+				# indication, regime, vacc_comment
+				label = lbl_template % (
+					shot[0],
+					shot[1],
+					shot[3]
+				)
+				self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
 			# overdue
-			lbl_template = _('overdue %.0dyrs %.0dwks: %s for %s (%s)')
+			lbl_template = _('overdue %.0dyrs %.0dwks: shot %s for %s in %s (%s)')
 			for shot in missing_shots['overdue']:
-				if shot[3]:
-					shot_str = booster
-				else:
-					shot_str = shot_template % shot[2]
 				years, days_left = divmod(shot[4].days, 364.25)
 				weeks = days_left / 7
-				# amount_overdue, seq_no, regime, comment
+				# amount_overdue, seq_no, indication, regime, vacc_comment
 				label = lbl_template % (
 					years,
 					weeks,
-					shot_str,
+					shot[3],
+					shot[0],
 					shot[1],
-					shot[6]
+					shot[5]
 				)
-				self.LBOX_missing_shots.Append(label, shot[0])	# pk_vacc_def
+				self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
 	#----------------------------------------------------
 	def _on_patient_selected(self, **kwargs):
 		wxCallAfter(self.__reset_ui_content)
@@ -282,7 +284,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.23  2004-01-26 22:07:45  ncq
+# Revision 1.24  2004-02-02 16:19:49  ncq
+# - adapt to new indication-based views in missing vaccs list
+#
+# Revision 1.23  2004/01/26 22:07:45  ncq
 # - handling failure to retrieve vacc_ind into business object
 #
 # Revision 1.22  2004/01/26 21:53:39  ncq
