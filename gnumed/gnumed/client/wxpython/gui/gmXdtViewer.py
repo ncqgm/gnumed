@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.10 2004-03-18 09:43:02 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmXdtViewer.py,v 1.11 2004-03-19 08:27:50 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, fileinput, string
@@ -243,7 +243,7 @@ class gmXdtViewerPanel(wxPanel):
 # main
 #------------------------------------------------------
 if __name__ == '__main__':
-	import gmCLI
+	from Gnumed.pycommon import gmCLI, gmPyCompat
 	#---------------------
 	# set up dummy app
 	class TestApp (wxApp):
@@ -257,10 +257,10 @@ if __name__ == '__main__':
 				# file valid ?
 				if not os.path.exists(fname):
 					_log.Log(gmLog.lErr, "XDT file [%s] not found. Aborting." % fname)
-					return None
+					return False
 			else:
 				_log.Log(gmLog.lData, "No XDT file given on command line. Format: --xdt-file=<file>")
-				return None
+				return False
 
 			frame = wxFrame(
 				parent=NULL,
@@ -271,7 +271,7 @@ if __name__ == '__main__':
 			pnl = gmXdtViewerPanel(frame, fname)
 			pnl.Populate()
 			frame.Show(1)
-			return 1
+			return True
 	#---------------------
 	try:
 		app = TestApp ()
@@ -323,7 +323,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.10  2004-03-18 09:43:02  ncq
+# Revision 1.11  2004-03-19 08:27:50  ncq
+# - fix imports, return BOOL from OnInit
+#
+# Revision 1.10  2004/03/18 09:43:02  ncq
 # - import gmI18N if standalone
 #
 # Revision 1.9  2003/11/17 10:56:41  sjtan
