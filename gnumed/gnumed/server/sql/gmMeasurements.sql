@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 
 -- this belongs into the service clinical (historica)
 
@@ -15,32 +15,21 @@
 -- ====================================
 create table test_org (
 	id serial primary key,
-	id_practice integer unique not null,
+	id_org integer unique not null,
 	id_adm_contact integer default null,
 	id_med_contact integer default null,
 	"comment" text
 ) inherits (audit_mark, audit_fields);
 
 -- remote foreign keys
-insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
-values (
-	'test_org', 'id_practice', 'personalia', 'org', 'id'
-);
-
-insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
-values (
-	'test_org', 'id_adm_contact', 'personalia', 'identity', 'id'
-);
-
-insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
-values (
-	'test_org', 'id_med_contact', 'personalia', 'identity', 'id'
-);
+select add_x_db_fk_def('test_org', 'id_org', 'personalia', 'org', 'id');
+select add_x_db_fk_def('test_org', 'id_adm_contact', 'personalia', 'identity', 'id');
+select add_x_db_fk_def('test_org', 'id_med_contact', 'personalia', 'identity', 'id');
 
 COMMENT ON TABLE test_org IS
 	'organisation providing results';
-COMMENT ON COLUMN test_org.id_practice IS
-	'address or organisation';
+COMMENT ON COLUMN test_org.id_org IS
+	'link to organisation';
 COMMENT ON COLUMN test_org.id_adm_contact IS
 	'whom to call for admin questions (modem link, etc.)';
 COMMENT ON COLUMN test_org.id_med_contact IS
@@ -57,7 +46,7 @@ comment on column test_org."comment" is
 
 create table log_test_org (
 	id integer not null,
-	id_practice integer not null,
+	id_org integer not null,
 	id_adm_contact integer,
 	id_med_contact integer,
 	"comment" text
@@ -71,15 +60,17 @@ create table test_type (
 	coding_system text default null,
 	"name" text,
 	"comment" text,
+	basic_unit text not null,
 	unique (id_provider, code)
 ) inherits (audit_mark, audit_fields);
 
 -- remote foreign keys
-insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
-	values ('test_type', 'coding_system', 'reference', 'ref_source', 'name_short');
+select add_x_db_fk_def('test_type', 'coding_system', 'reference', 'ref_source', 'name_short');
 -- column "code" would have to be checked, too, but we don't
 -- know against which table in "reference" since that depends
--- on "coding_system" ...
+-- on "coding_system" ... unless we invent a mechanism to set
+-- a default "coding_system" ...
+select add_x_db_fk_def('test_type', 'basic_unit', 'reference', 'basic_unit', 'name_short');
 
 comment on table test_type is
 	'measurement type, like a "method" in a lab';
@@ -98,6 +89,9 @@ comment on column test_type."name" is
 comment on column test_type."comment" is
 	'arbitrary comment on this type of measurement/test such
 	 as "outdated" or "only reliable when ..."';
+comment on column test_type.basic_unit is
+	'the basic (SI?) unit for this test type, used for comparing
+	 results delivered in differing units';
 
 create table log_test_type (
 	id integer not null,
@@ -105,7 +99,8 @@ create table log_test_type (
 	code text not null,
 	coding_system text,
 	"name" text,
-	"comment" text
+	"comment" text,
+	basic_unit text not null
 ) inherits (audit_trail);
 
 -- ====================================
@@ -131,16 +126,9 @@ create table test_result (
 -- note_clinician provided as narrative by clin_root_item
 
 -- remote foreign keys
-insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
-values (
-	'test_result', 'val_unit', 'reference', 'unit', 'name_short'
-);
-
+select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_short');
 -- should actually point to identity.doctor.id
-insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
-values (
-	'test_result', 'id_clinician', 'personalia', 'identity', 'id'
-);
+select add_x_db_fk_def('test_result', 'id_clinician', 'personalia', 'identity', 'id');
 
 COMMENT ON TABLE test_result is 
 	'the results of a single measurement';
@@ -213,12 +201,7 @@ create table lab_result (
 	abnormal_tag character(5)
 ) inherits (audit_mark, clin_root_item);
 
-insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
-values (
-	'lab_result', 'id_sampler', 'personalia', 'identity', 'id'
-);
-
--- id_sampler -> identity.id
+select add_x_db_fk_def('lab_result', 'id_sampler', 'personalia', 'identity', 'id');
 
 comment on table lab_result is
 	'additional data for lab results';
@@ -270,11 +253,15 @@ create table log_lab_result (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.6  2003-08-03 14:41:01  ncq
+-- Revision 1.7  2003-08-10 01:01:01  ncq
+-- - use x_db_fk helper
+-- - test_type needs basic_unit ...
+--
+-- Revision 1.6  2003/08/03 14:41:01  ncq
 -- - clear up column naming confusion in x_db_fk, adapt users
 --
 -- Revision 1.5  2003/08/03 14:10:27  ncq
