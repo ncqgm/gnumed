@@ -9,17 +9,23 @@
 # if you need to set a special base directory for some reason
 #INDEX-MED_DOCS_DIR = ""
 
+CONF=/home/ncq/.gnumed/gnumed-archive.conf
+LOG=/var/log/gnumed/archive-index.log
+
 python ./index-med_docs.py \
-	--conf-file=/home/ncq/.gnumed/gnumed-archive.conf \
-	--text-domain=gnumed-archive \
-	--log-file=/var/log/gnumed/archive-index.log
+	--conf-file=$CONF \
+	--text-domain=gnumed \
+	--log-file=$LOG
 
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/run-indexer.sh,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 # $Log: run-indexer.sh,v $
-# Revision 1.1  2003-04-06 09:43:14  ncq
+# Revision 1.2  2003-04-20 15:31:06  ncq
+# - cleaner argument handling
+#
+# Revision 1.1  2003/04/06 09:43:14  ncq
 # - moved here from test-area/blobs_hilbert/
 #
 # Revision 1.3  2002/11/30 20:01:59  ncq
