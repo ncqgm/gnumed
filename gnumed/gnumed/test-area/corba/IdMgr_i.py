@@ -9,10 +9,12 @@ import PersonIdTraits
 from PlainConnectionProvider import *
 import HL7Version2_3
 
-import threading, thread, traceback, time
+import threading, thread, traceback, time, sys
 
 from  PersonIdTestUtils import *
 from SqlTraits import *
+global debug
+debug = '-debug' in sys.argv
 
 class IdMgr_i (PersonIdService__POA.IdMgr, StartIdentificationComponent):
 
@@ -38,6 +40,9 @@ class IdMgr_i (PersonIdService__POA.IdMgr, StartIdentificationComponent):
 		con.execute(self.prep_insert_an_id)
 
 	def find_or_register_ids(self, profiles):
+		if debug:
+			print "find_or_register_ids() got these:"
+			for p in profiles:print_brief_profile(p)
 		iperson = self._get_identify_person()
 		new_profiles = []
 		existing_ids = []
@@ -47,8 +52,12 @@ class IdMgr_i (PersonIdService__POA.IdMgr, StartIdentificationComponent):
 				new_profiles.append(p)
 			else:
 				existing_ids.append(candidateSeq[0].id)
-		new_ids = self.register_new_ids( new_profiles)
+		if debug:
+			print "\n\nfind_or_register_ids() found these existing profiles ", existing_ids, "\n\n"
+		new_ids = self._do_register_new_ids( new_profiles)
+
 		existing_ids.extend(new_ids)
+
 		return existing_ids
 
 	def register_new_ids(self, new_profiles):
@@ -56,10 +65,14 @@ class IdMgr_i (PersonIdService__POA.IdMgr, StartIdentificationComponent):
 		if violating_sequence_indexes <> [] :
 			raise PersonIdService.IdsExist(violating_sequence_indexes)
 
+		return self._do_register_new_ids(new_profiles)
+
+	def _do_register_new_ids(self, new_profiles):
 		con = self.connector.getConnection()
 		con.commit()
 		cursor = con.cursor()
 		new_ids = []
+
 		for profile in new_profiles:
 			# the strategy (aka hack) is to re-use doProfileUpdate method
 			# create a id first.
@@ -122,8 +135,8 @@ def get_existing_profile_seq_indexes( component, profiles):
 	return violating_sequence_indexes
 
 def getExistingCandidateSeq(component, p):
-	traitSelectorSeq = getTraitSelectorSeqFromProfile(p, defaultWeight=1.0)
+	traitSelectorSeq = getTraitSelectorSeqFromProfile(p, defaultWeight=0.2)
 	iperson = component._get_identify_person()
-	candidateSeq , iterator = iperson.find_candidates(traitSelectorSeq, [PersonIdService.PERMANENT], 0.5, 5,5, PersonIdService.SpecifiedTraits(PersonIdService.ALL_TRAITS, [] ) )
+	candidateSeq , iterator = iperson.find_candidates(traitSelectorSeq, [PersonIdService.PERMANENT], 0.5, 100, 10, PersonIdService.SpecifiedTraits(PersonIdService.ALL_TRAITS, [] ) )
 	return candidateSeq
 

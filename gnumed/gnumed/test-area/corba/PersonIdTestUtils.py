@@ -6,7 +6,7 @@ import HL7Version2_3
 import PersonIdTraits
 from SqlTraits import *
 import SqlTraits
-import inspect
+import inspect, traceback
 global hl7
 hl7 = HL7Version2_3
 
@@ -153,6 +153,8 @@ def get_random_profile(idMgr):
 	map = SqlTraits.get_trait_map(idMgr, name, '', surname,'',  str(street_no) +' '+ street,  '', city, state, str(postcode), country,
 dobDay=day, dobMonth=month, dobYear=yr, sex="?", phoneCountryCode=str(code), phoneNumber=str(phone) )
 	profile = trait_map_to_profile(map)
+	if debug:
+		print "\n\n ** RANDOM PROFILE = \n\t",[ t.value.value() for t in profile], "\n"
 	return profile
 
 def get_random_street():
@@ -257,6 +259,9 @@ def output_tagged_profile(tagged_profile):
 	print
 	print "id = ",tagged_profile.id, "; profile = ", [ ("x.name=",x.name," x.value.__methods__=", x.value.__methods__, " x.value.value()=",x.value.value()) for x in tagged_profile.profile]
 
+def print_brief_profile(profile):
+	print "\n PROFILE:", [ t.value.value() for t in filter( lambda(t): t.name in [hl7.PATIENT_NAME, hl7.PATIENT_ADDRESS, hl7.DATE_TIME_OF_BIRTH], profile)],"\n"
+	
 
 def get_profile_sequence_trait_count_range(result):
 	min = 1000
@@ -301,11 +306,17 @@ def getTraitSelectorSeqFromProfile( profile, specifiedTraits =PersonIdService.Sp
 
 	tSelSeq = []
 	for trait in filter( lambda(t): t.name in traitnames and t.value.typecode().kind() == CORBA.tk_string and t.value.value().strip() <> '' , profile ) :
-		weight = SqlTraits.default_weight_map.get(trait.name, defaultWeight)
-		tSelSeq.append(PersonIdService.TraitSelector( trait, weight))
+		tSelSeq.append(PersonIdService.TraitSelector( trait, defaultWeight))
 
 	return tSelSeq
 
+def catchExceptions (method, *params):
+	try:
+		method(*params)
+	except:
+		e = sys.exc_info()
+		print e[0], e[1]
+		traceback.print_tb(e[2])
 
 def trace_caller():
 	if '-params' in sys.argv:

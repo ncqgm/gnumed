@@ -79,15 +79,20 @@ hl7.PATIENT_DEATH_DATE_AND_TIME : 'deceased'
 }
 
 default_weight_map = {
-	hl7.SEX: 0.1 ,
-	hl7.NATIONALITY : 0.1,
-	hl7.DATE_TIME_OF_BIRTH: 0.9,
-	hl7.PATIENT_NAME: 0.9,
-	hl7.PATIENT_ADDRESS: 0.9,
-	hl7.PHONE_NUMBER_HOME : 0.9 }
-
+	'gender': 0.1 ,
+	'country_code' : 0.1,
+	'datetimeofbirth': 0.8,
+	'lastnames': 0.6,
+	'firstnames': 0.6,
+	'number':0.5,
+	'street':0.4,
+	'urb_name': 0.3,
+	'state': 0.1,
+	'postcode': 0.3,
+	'home_telephone' : 0.8
+	}
 global weight_OR_threshold
-weight_OR_threshold = 0.4
+weight_OR_threshold = 0.5
 
 global sql_identity
 
@@ -305,6 +310,13 @@ def get_field_weighted_value_map( traitSelectorSeq):
 		print trait.name, " fields = ", fields
 		l = [ x.strip() for x in v.value().split('^') ]
 		for i in xrange( 0, min( len(l), len(fields) )):
+			if l[i].strip() == '':
+				continue
+			weight_limit =default_weight_map.get(fields[i], 0.2)
+
+			if weight < weight_limit:
+				weight = weight_limit
+			print "field ", fields[i], "weight = ", weight, "weight_limit", weight_limit
 			field_value_map[fields[i]] = ( l[i], weight)
 
 	return field_value_map

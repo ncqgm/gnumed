@@ -16,7 +16,14 @@ import string
 
 
 class IdentifyPerson_i(PersonIdService__POA.IdentifyPerson, StartIdentificationComponent):
-	"an implementation of identifyPerson , using gnumed for a backend"
+	"""an implementation of identifyPerson , using gnumed for a backend.
+	This component has the main searching functionaliy , which uses
+	weights for traits, and threshold confidence levels.
+	The adhoc algorithm here was to use a default weight map as much
+	as possible e.g. home phone > datetimeofbirth > address number > lastnames > firstnames > gender; a weight threshold determines if attributes fall into a grouping of OR substring conditions (meaning these attributes are important ) or into an AND set of conditions ( meaning these attributes are weak selectors and depend on the other conditions being true) ; and for the rows selected,  to  calculate the profile confidence level as the
+	weighted  average of length matches ,
+	 multiplied by
+	the number of exact matches ( as 2 or more EXACT matches are worth quite a lot). """
 
 	def __init__(self, dsn=None, ProviderClass = PlainConnectionProvider, limit = MAX_TRAITS_RETURNED ):
 		self.connector = ProviderClass(dsn)
@@ -81,6 +88,7 @@ adherence. This is in part because fuzzy semantics cannot be measured.
 		"""
 
 		field_weighted_value_map = get_field_weighted_value_map(traitSelectorSeq)
+
 		if debug:
 			print "field_weighted_value_map = ",field_weighted_value_map
 		and_frags = []
@@ -121,13 +129,13 @@ adherence. This is in part because fuzzy semantics cannot be measured.
 
 		field_list, traits = get_field_list_and_traitname_list(specifiedTraits)
 
-		stmt = "select %s from (%s) as i where %s" % ( ",".join(field_list), sql_traits, condition  )
+		stmt = "select %s from (%s) as i where %s order by id desc" % ( ",".join(field_list), sql_traits, condition  )
 
 		con = self.connector.getConnection()
 		cursor = con.cursor()
 
 		#use a hash to make unique a prepared statements name
-		h = str ( abs(hash('_'.join(used_fields) ) ) )
+		h = abs(hash(condition ) )
 
 		# look for the prepared_statement and query for the prep statement in a cache
 		prep_stmt, qry_stmt = self.preparedStatements.get(h, (None, None))
@@ -136,8 +144,8 @@ adherence. This is in part because fuzzy semantics cannot be measured.
 			abbrev = [ x[0:2] for x in field_list]
 
 
-			prep_stmt = "prepare find_traits_%s(%s) as %s" % ( h, ','.join( ['text'] * frag_count), stmt)
-			qry_stmt ="execute find_traits_%s( %s)" % ( h , ', '.join(["'%s'"] * frag_count) )
+			prep_stmt = "prepare find_traits_%d(%s) as %s" % ( h, ','.join( ['text'] * frag_count), stmt)
+			qry_stmt ="execute find_traits_%d( %s)" % ( h , ', '.join(["'%s'"] * frag_count) )
 			try:
 				cursor.execute(prep_stmt)
 			except:
@@ -169,27 +177,45 @@ adherence. This is in part because fuzzy semantics cannot be measured.
 
 		return candidateSeq, None
 
+global show_confidence
+show_confidence = "-debug" in sys.argv or "-confidence" in sys.argv or "-stats" in sys.argv
 
 def calculate_confidence( profile, traitSelectorSeq):
-	print "TraitSelector values =   ", [ t.trait.value.value() for t in traitSelectorSeq ]
 
 	if len(profile) == 0:
 		return 0.0
 	map =  dict (  [ (tSel.trait.name, tSel) for tSel in traitSelectorSeq] )
-	ratios = []
+	weightings = []
+	full_matches = 0
+	total_data_len = 1
 	for  trait in profile:
 		if map.has_key(trait.name):
 			tSelector = map[trait.name]
-			v1, v2 =  tSelector.trait.value.value() , trait.value.value()
+			v1, v2 =  tSelector.trait.value.value().strip('^ ') , trait.value.value().strip('^ ')
 			if (v2.lower().find(v1.lower()) >= 0):
-				ratios.append(tSelector.weight)
-	if len(ratios) == 0: return 0.1
+				if len(v2) == 0:
+					ratios.append(0.0)
+				else:
+					if v1 == v2:
+						full_matches += 1
+					weightings.append(tSelector.weight * len(v2)  * len(v1) )
+					total_data_len += len(v2)
+	if len(weightings) < 0.05: return 0.1
 	def sum(x,y): return x + y
 	tot = reduce( sum, ratios)
-	return tot   / len(ratios)
+	confidence = tot    *  full_matches  / total_data_len / len(ratios) #* full_matches
+	if show_confidence:
+		print "\n***********\nconfidence for :"
+		print "\tSelector=", brief_selector(traitSelectorSeq)
+		print "\tCandidate=", brief_profile(profile)
+		print "\t\tconfidence = ", confidence,"\n************\n"
+	return confidence
 
+def brief_profile(profile):
+	return [    t.value.value() for t in filter(lambda (tr): tr.name in [ hl7.PATIENT_NAME, hl7.PATIENT_ADDRESS, hl7.DATE_TIME_OF_BIRTH], profile) ]
 
-
+def brief_selector(selectorSeq):
+	return [    sel.trait.value.value() for sel in filter(lambda (sel): sel.trait.name in [ hl7.PATIENT_NAME, hl7.PATIENT_ADDRESS, hl7.DATE_TIME_OF_BIRTH], selectorSeq) ]
 
 
 

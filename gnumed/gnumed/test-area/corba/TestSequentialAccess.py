@@ -21,8 +21,6 @@ def test():
         sxs = ids._get_sequential_access()
 	print "**************** TESTING SEQUENTIAL ACCESS"
 	print "sequential_access methods are:"
-        print sxs.__methods__
-
         _test_seq_access_id_count_per_state(sxs)
 
         _test_seq_access_get_all_ids_by_state(sxs)

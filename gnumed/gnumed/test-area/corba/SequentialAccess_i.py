@@ -84,7 +84,7 @@ class SequentialAccess_i(PersonIdService__POA.SequentialAccess, StartIdentificat
 		conn = self.connector.getConnection()
 		cursor = conn.cursor()
 		#cursor.execute("select %s from (%s ) as traits  where traits.id >= %s order by traits.id limit  %s offset %d " % ( ','.join(field_list), sql_traits , iid,  str(limit), offset  ) )
-		if limit == 'ALL':
+		if str(limit) == 'ALL':
 			cursor.execute("execute find_all_traits(%s, %d)" % (iid, offset) )
 		else:
 			cursor.execute("execute find_traits(%s, %s, %d)" % (iid, str(limit), offset) )

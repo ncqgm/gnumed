@@ -24,19 +24,15 @@ def test():
 
 	init_trait_spec(idMgr)
 
-	 
+
 
 	print type(idMgr)
 	print PersonIdService._tc_IdMgr.__methods__
-	if not idMgr._is_a(PersonIdService._tc_IdMgr.id()):
-		print "FAILED to get EXPECTED id mgr"
-	else:
-		print "got back a object whose _is_a method accepts PersonIdService._tc_IdMgr.id() "
-	_test_find_or_register_id(idMgr)
-	_test_register_new_ids(idMgr)
-	_test_register_these_ids(idMgr)
-	_test_merge_ids(idMgr)
-	_test_unmerge_ids(idMgr)
+	catchExceptions(_test_find_or_register_id, idMgr)
+	catchExceptions(_test_register_new_ids,idMgr)
+	catchExceptions(_test_register_these_ids,idMgr)
+	catchExceptions(_test_merge_ids,idMgr)
+	catchExceptions(_test_unmerge_ids,idMgr)
 
 def __getTestProfiles(idMgr):
 	# lastName^firstname^middlename^suffix
@@ -94,8 +90,13 @@ def _test_find_or_register_id(idMgr):
 		if (len(idList3) ==2 and idList3 <> idList4):
 			print "Different id set returned after repeating call to find_or_create_ids()"
 		print "FAIL** repeated operation of find_or_create_ids() failed"
+		ask_continue()
 
-
+def ask_continue():
+	if not '-manual' in sys.argv:
+		return
+	if raw_input("keep going?")[0] in ['n','N','q']:
+		sys.exit(0)
 
 
 def _test_register_new_ids(idMgr):
@@ -111,7 +112,7 @@ def _test_register_new_ids(idMgr):
 		idList5 = idMgr.register_new_ids( [profile, profile2])
 		print "registered these ids", idList5
 		print """FAIL: implementation of register_new_ids() does not check for ProfilesExist exception"""
-
+		ask_continue()
 	except:
 		print "sys.exc_info is "
 		for x in sys.exc_info():
@@ -143,6 +144,7 @@ def _test_register_new_ids(idMgr):
 		print sys.exc_info()[0], sys.exc_info()[1]
 		traceback.print_tb(sys.exc_info()[2])
 		print "FAIL: register_new_ids() failed to register random ids. "
+		ask_continue()
 		if 'debug' in sys.argv:
 			sys.exit(0)
 
@@ -204,7 +206,7 @@ def _test_register_these_ids(idMgr):
 		print "FAIL: "
 		print sys.exc_info()[0], sys.exc_info()[1]
 		traceback.print_tb(sys.exc_info()[2])
-
+		ask_continue()
 	# for _test_merge_ids to use
 	last_id =sid
 	print "last_id was set to ", sid
@@ -291,6 +293,7 @@ def _test_merge_ids(idMgr):
 
 	if not_found:
 		print "FAIL: the following ids were supposed to be in the deactivated all list", not_found_id
+		ask_continue()
 		print "THE sequential access list was ", all_deactive_ids
 	else:
 		print "PASS: merge_ids(", deactivated_ids, ")"

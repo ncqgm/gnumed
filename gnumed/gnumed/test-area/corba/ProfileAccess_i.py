@@ -14,9 +14,6 @@ from PlainConnectionProvider import *
 from StartIdentificationComponent import StartIdentificationComponent
 from SqlTraits import *
 
-global trait_view
-trait_view = "select i.id as id, n.lastnames , n.firstnames, n.title , i.dob, i.gender, i.cob, a1.no + ' ' + s1.name + '^' + u1.name + '^' + st1.name  from identity i, names n , lnk_identity2address la1,  address a1, street s1, urb u1, state st1"
-
 
 class ProfileAccess_i(PersonIdService__POA.ProfileAccess, StartIdentificationComponent):
 

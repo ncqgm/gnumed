@@ -22,7 +22,7 @@ class StartIdentificationComponent(PersonIdService__POA.IdentificationComponent)
 		self.addComponent('id_mgr', idMgr)
 
 	def addComponent(self, name, component):
-		self.components[name, component] = component
+		self.components[name] = component
 		self.components_this[name] = component._this()
 		component.root = self
 
@@ -52,4 +52,28 @@ class StartIdentificationComponent(PersonIdService__POA.IdentificationComponent)
 
 	def _get_supported_traits(self):
 		return SqlTraits.supported_traits
+
+
+if __name__ == "__main__":
+	import ResolveIdComponent, CosNaming
+	resolver = ResolveIdComponent.IDComponentResolver()
+
+	poa = resolver.getORB().resolve_initial_references("RootPOA")
+
+	pi = ResolveIdComponent.getStartIdentificationComponent()
+	po = pi._this()
+	name = [CosNaming.NameComponent("gnumed","")]
+	context = resolver.getInitialContext()
+	try:
+		context.bind(name, po)
+	except CosNaming.NamingContext.AlreadyBound:
+		context.rebind(name, po)
+
+	poaManager = poa._get_the_POAManager()
+	poaManager.activate()
+	if '-profile' in sys.argv:
+		import profile
+		profile.run('resolver.getORB().run()', 'profileAccess.prof')
+	else:
+		resolver.getORB().run()
 

@@ -17,7 +17,9 @@ For each time the server needs starting
 6. Run the PersonIdService.
 	a. run the gnumed PersonIdServiceWrapper server. 
 		Just run 
-		python ProfileAccess_i.py  
+		python StartIdentificationComponent.py 
+		
+		run help.py for parameters to server.
 	
 	(optionally)
 	b. the open emeds PIDS service.
@@ -25,12 +27,16 @@ For each time the server needs starting
 		- the following should be in the PIDS server 
 		log output.
 		INFO  gov.lanl.Utility.NameService  - us/nm/state/doh/Pilot Bound to NameService as us/nm/state/doh/Pilot
-		- if an exception occurs, this may be due to having
-		a dial-in internet connection running.
+		
+		- may have problems when connected to internet.
+		
 		
 		
 7. run 'python ResolveIdComponent.py -gnumed'
 		to test the gnumed PersonIdService.
+		This will go through the component tests,
+		in Test...  (SequentialAccess, IdentifyPerson, IdMgr, ProfileAccess so far done, except for IdMgr merge and unmerge ids function)
+		
 
 (optional) run 'python ResolveIdComponent.py' will attempt
 to connect to the open-emeds PIDS service if it is running.

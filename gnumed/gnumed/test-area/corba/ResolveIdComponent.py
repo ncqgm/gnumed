@@ -117,7 +117,6 @@ if __name__== "__main__":
 	debug = ( "-debug" in sys.argv)
 	resolver = IDComponentResolver()
 	ids = resolver.getIdentificationComponent()
-	print ids.__methods__
 	if '-profile' in sys.argv:
 		import profile
 		profile.run('testAttributes()')
