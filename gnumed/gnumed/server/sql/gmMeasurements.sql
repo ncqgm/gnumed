@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -142,8 +142,15 @@ create table test_result (
 	fk_type integer
 		not null
 		references test_type(id),
-	val_num float,
-	val_alpha text,
+	val_num float
+		default null
+		check (
+			((val_num is not null) or (val_alpha is not null))
+				or
+			((val_num is null) and (val_alpha != '') and (val_alpha is not null))
+		),
+	val_alpha text
+		default null,
 	val_unit text,
 	val_normal_min float,
 	val_normal_max float,
@@ -329,11 +336,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.20  2004-04-19 12:47:49  ncq
+-- Revision 1.21  2004-04-21 15:31:09  ncq
+-- - tighten constraints on test_result.val_num/alpha to require one or the other
+--
+-- Revision 1.20  2004/04/19 12:47:49  ncq
 -- - translate request_status
 -- - add housekeeping_todo.reported_to
 --
