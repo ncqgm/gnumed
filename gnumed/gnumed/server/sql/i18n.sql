@@ -1,7 +1,13 @@
+-- !!!!!!!!!!!!!!!!!!!!!!!!
+-- !! Do not use anymore !!
+-- !!!!!!!!!!!!!!!!!!!!!!!!
+
+-- It's only here for documentation purposes anymore.
+
 -- GnuMed database internationalisation support
 -- ============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/i18n.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 
 -- license: GPL
 -- author: Ian Haywood
