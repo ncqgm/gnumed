@@ -27,7 +27,7 @@
 """gmConnectionPool - Broker for Postgres distributed backend connections
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -131,7 +131,7 @@ class ConnectionPool:
 			except:
 				exc = sys.exc_info()
 				__log__.LogException("Exception: Cannot connect to databases without login information !", exc)
-				raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
+				raise gmExceptions.ConnectionError("Can't connect to database without login information!")
 
 		__log__.Log(gmLog.lData,login.GetInfoStr())
 
@@ -141,7 +141,7 @@ class ConnectionPool:
 		except:
 			exc = sys.exc_info()
 			__log__.LogException("Exception: Cannot connect to configuration database !", exc)
-			raise gmExceptions.ConnectionError(_("Could not connect to configuration database  backend!"))
+			raise gmExceptions.ConnectionError("Could not connect to configuration database  backend!")
 
 		ConnectionPool.__connected = 1
 
@@ -156,7 +156,7 @@ class ConnectionPool:
 			cursor.execute("select * from config where profile='%s'" % login.GetProfile())
 		except dbapi.OperationalError:
 			# this is the first query, give nicer error
-			raise gmExceptions.ConnectionError(_("Not GNUMed database"))
+			raise gmExceptions.ConnectionError("Not GNUMed database")
 		databases = cursor.fetchall()
 		dbidx = cursorIndex(cursor)
 
@@ -228,7 +228,7 @@ class ConnectionPool:
 		except: 
 			exc = sys.exc_info()
 			__log__.LogException("Exception: Connection to database failed. DSN was [%s]" % dsn, exc)
-			raise gmExceptions.ConnectionError, _("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport)
+			raise gmExceptions.ConnectionError, "Connection to database failed. \nDSN was [%s], host:port was [%s]" % (dsn, hostport)
 	#-----------------------------
 	def __decrypt(self, crypt_pwd, crypt_algo, pwd):
 		"""decrypt the encrypted password crypt_pwd using the stated algorithm
@@ -250,7 +250,7 @@ class ConnectionPool:
 				###unless we are really mean :-(((
 				if force_it == 0:
 					#let the end user know that shit is happening
-					raise gmExceptions.ConnectionError, _("Attempting to close a database connection that is still in use")
+					raise gmExceptions.ConnectionError, "Attempting to close a database connection that is still in use"
 			else:
 				###close the connection
 				ConnectionPool.__databases[key].close()
@@ -357,20 +357,24 @@ def inputTMLoginParams():
 		port = prompted_input("port [5432] : ", 5432)
 		login.SetInfo(user, password, dbname=database, host=host, port=port)
 	except:
-		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
+		raise gmExceptions.ConnectionError("Can't connect to database without login information!")
 	return login
 #---------------------------------------------------
 def inputWXLoginParams():
 	"""GUI (wx) mode input request of database login parameters.
 	Returns gmLoginInfo.LoginInfo object"""
 
-	import sys, wxPython.wx
+	try:
+		import wxPython.wx
+	except ImportError:
+		raise gmExceptions.NoGuiError("The wx GUI framework hasn't been initialized yet!")
+
 	#the next statement will raise an exception if wxPython is not loaded yet
 	sys.modules['wxPython']
 	#OK, wxPython was already loaded. But has the main Application instance been initialized already?
 	#if not, the exception will kick us out
 	if wxPython.wx.wxGetApp() is None:
-		raise gmExceptions.NoGuiError(_("The wx GUI framework hasn't been initialized yet!"))
+		raise gmExceptions.NoGuiError("The wx GUI framework hasn't been initialized yet!")
 
 	#Let's launch the login dialog
 	#if wx was not initialized /no main App loop, an exception should be raised anyway
@@ -380,7 +384,7 @@ def inputWXLoginParams():
 	login = dlg.panel.GetLoginInfo ()
 	#if user cancelled or something else went wrong, raise an exception
 	if login is None:
-		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
+		raise gmExceptions.ConnectionError("Can't connect to database without login information!")
 	#memory cleanup, shouldn't really be neccessary
 	dlg.Destroy()
 	return login
@@ -395,10 +399,9 @@ def inputLoginParams():
 #==================================================================
 # Main
 #==================================================================
-__log__.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
-
 if __name__ == "__main__":
 	__log__.SetAllLogLevels(gmLog.lData)
+	__log__.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 	_ = lambda x:x
 
 	dbpool = ConnectionPool()
@@ -439,3 +442,5 @@ if __name__ == "__main__":
 	print "\nResult attributes\n==================\n"
 	n = fieldNames(cursor)
 	print n
+else:
+	__log__.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
