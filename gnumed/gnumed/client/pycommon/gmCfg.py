@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -483,10 +483,6 @@ class cCfgFile:
 		parameters see above. Raises a ConfigError exception if
 		no config file could be found. 
 		"""
-		global _gmCLI
-		if _gmCLI is None:
-			import gmCLI as _gmCLI
-
 		self._cfg_data = {}
 		# get conf file name
 		if not self.__get_conf_name(aPath, aFile, flags):
@@ -714,6 +710,12 @@ class cCfgFile:
 
 		# did the user manually supply a config file on the command line ?
 		if not (flags & cfg_IGNORE_CMD_LINE):
+			# lazy import gmCLI
+			global _gmCLI
+			if _gmCLI is None:
+				import gmCLI
+				_gmCLI = gmCLI
+			# and check command line options
 			if _gmCLI.has_arg('--conf-file'):
 				self.cfgName = _gmCLI.arg['--conf-file']
 				# file valid ?
@@ -726,8 +728,7 @@ class cCfgFile:
 			else:
 				_log.Log(gmLog.lData, "No config file given on command line. Format: --conf-file=<config file>")
 		else:
-			if _gmCLI.has_arg('--conf-file'):
-				_log.Log(gmLog.lInfo, 'ignoring command line per cfg_IGNORE_CMD_LINE')
+			_log.Log(gmLog.lInfo, 'ignoring command line per cfg_IGNORE_CMD_LINE')
 
 		candidate_files = []
 
@@ -1212,7 +1213,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.2  2004-02-25 22:56:38  sjtan
+# Revision 1.3  2004-02-26 14:32:46  ncq
+# - fixed and lazied even more
+#
+# Revision 1.2  2004/02/25 22:56:38  sjtan
 #
 # probably a typo ; temp fix until authors see it.
 #
