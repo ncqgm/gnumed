@@ -11,7 +11,7 @@ for lazy programmers wanting to access GNUmed BLOBs.
 import gmPG, gmLog, gmLoginInfo
 
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 
 __log__ = gmLog.gmDefLog
 #-----------------------------------------------------------
@@ -23,14 +23,14 @@ class cDatabase:
 			return None
 		self.__cfg = aCfg
 	#------------------------------------------
-	def connect(self):
+	def connect(self, readonly_flag=1):
 		#get the login parameters
 		login = gmLoginInfo.LoginInfo('', '')
 		user = self.__cfg.get("database", "user")
 		passwd = self.__cfg.get("database", "password")
 		database = self.__cfg.get("database", "database")
 		host = self.__cfg.get("database", "host")
-		port = self.__cfg.getint("database", "port")
+		port = self.__cfg.get("database", "port")
 		login.SetInfo(user, passwd, dbname=database, host=host, port=port)
 
 		#now try to connect to the backend
@@ -43,13 +43,14 @@ class cDatabase:
 			return None
 
 		# FIXME: should be "personalia" and "blobs"
-		self.__conn = self.__backend.GetConnection('default')
+		self.__conn = self.__backend.GetConnection('default', readonly_flag)
 
 		return (1==1)
 	#------------------------------------------
 	def disconnect(self):
-		self.__backend.ReleaseConnection('personalia')
-		self.__backend.ReleaseConnection('blobs')
+		self.__backend.ReleaseConnection('default')
+		#self.__backend.ReleaseConnection('personalia')
+		#self.__backend.ReleaseConnection('blobs')
 		__log__.Log(gmLog.lInfo, "releasing befund database connection")
 	#------------------------------------------
 	def importDocument(self, aPatient, aDocument):
