@@ -1,0 +1,15 @@
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/README,v $
+# $Id: README,v 1.1 2003-01-30 22:22:02 ncq Exp $
+#=========================================
+This contains business objects written in Python.
+
+Once we have clients written in other languages we will
+have to reorganize the client/ directory somewhat but
+until then ...
+
+Happy coding
+#=========================================
+# $Log: README,v $
+# Revision 1.1  2003-01-30 22:22:02  ncq
+# - what's this ?
+#
