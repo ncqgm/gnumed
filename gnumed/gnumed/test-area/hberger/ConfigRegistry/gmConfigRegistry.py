@@ -539,3 +539,9 @@ else:
 		def ReceiveFocus(self):
 			self.panel.configTree.update()
 			return 1
+
+#------------------------------------------------------------                   
+# $Log: gmConfigRegistry.py,v $
+# Revision 1.2  2003-05-10 18:44:02  hinnef
+# added revision log keyword
+#
