@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.17 2003-02-09 11:57:42 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmDemographics.py,v 1.18 2003-02-09 12:05:02 sjtan Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -431,7 +431,7 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.widget = PatientsPanel (self.mwm, self)
 		self.mwm.RegisterWholeScreen (self.name (), self.widget)
 		self.RegisterInterests ()
-		wxBasePlugin.set_widget_reference(self, self.widget)
+		self.set_widget_reference(self.widget)
 		
 	def OnTool (self, event):
 		self.mwm.Display (self.name ())
@@ -485,6 +485,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.17  2003-02-09 11:57:42  ncq
+# Revision 1.18  2003-02-09 12:05:02  sjtan
+#
+#
+# wxBasePlugin is unnecessarily specific.
+#
+# Revision 1.17  2003/02/09 11:57:42  ncq
 # - cleanup, cvs keywords
 #
