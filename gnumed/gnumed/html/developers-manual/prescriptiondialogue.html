@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+<head>
+  <title>The Prescription Dialogue</title>
+</head>
+<body>
+  <h1>The Prescription Dialogue</h1>
+<hr>
+<p>
+The prescription dialogue pops up after selecting a drug from the drug selection list control,
+or after hiting the quick script button. If invoked from the quick script button, all details
+will be blank but the patient name and the prescription date. If invoked from the drug selection
+control, the drug details will be filled in as well.
+
+</p>
+<img src="snapshots/prescribe.png" alt="Prescription dialogue" width=796 height=398 border=0>
+<p>
+
+<b>The Rx combo box</b> shows the full text of the prescription item as selected from the drug
+selection control. It may be just a generic name or a brand name including formulation and
+strength. It responds to the following events in addition to the standard events:
+<ul>
+  <li>
+  <b>double click:</b> the drug selection control pops up and allows searching the full drug
+  data base <br>
+  </li>
+  <li>
+  <b>drop combo box:</b> a list with frequently prescribed drugs drops down for quick selection.
+  The number of drugs, the method of selection (automatic from prescription frequency or
+  manual list) and the current list contents are stored on the database backend for each user
+  separately. <br>
+  </li>
+</ul>
+</p>
+
+<p>
+<b>Quantity / Repeats</b> Obvious. Quantity and repeats / refills of the prescribed medication.
+Either select context sensitive choice from the combo drop down or enter arbitrary values at
+your own risk.
+</p>
+
+<p>
+<b>Refund radio buttons:</b> arbitrary number of radio buttons to allow for different
+pharmaceutical benefit schemes; the example shows the typical Australian configuration.
+</p>
+
+<p>
+<b>Patient name field:</b> although this dialogue is typically invoked from within GNUMed, and
+a patient is already preselected, this combo text control allows for entering a different name
+(which is consequently searched for in the database as soon as the control looses the focus).
+Purpose is to allow the user to write quick scripts for example when a consultatiion is interrupted
+by a phone call made by a different patient requesting an urgen script.
+</p>
+
+<p>
+<b>Date field:</b> Allows to manually override the default date which is the current date.
+Depending on regulations and certain situations, predated and "retrospective" script can be neccessary
+</p>
+
+<p>
+<b>Reason:</b> This field allows to connect one or more diagnoses to this medication. A double click
+allows to choose from the code browser dialogue (which lists the past and present diagnoses of this patient too).
+Dropping down the combo box reveals the active and long term problems of this patient.
+If free text is entered, the control searches the database for this diagnosis; if not found,
+the user is prompted for a code when the control ooses the focus. If more than one reason has to be entered,
+a comma separated free text will be accepted. Alternatively, a click with the right mouse button will
+present more options.
+</p>
+
+<p>
+<b>Include in summary</b>If unticked, this prescription will not be listed in teh patient's
+prescription summary. Default is on.
+</p>
+
+<p>
+<b>Strength</b>This combinations control consists in 3 elements. The first combo box allows
+to enter the strength as packed, the second combo box allows to modify this (like 25 mg strength,
+modification 1/2 tbl). The combo drop down of the stregth attribute is prefilled with the pre-packed
+alternative of the selected generic drug, but can be overridden manually.<br>
+The list box below simply lists more verbose the alternative strength available; if clicked, the
+selected option is pasted into the strength combo box. Single selection only.
+</p>
+
+<p>
+<b>Frequency:</b> the combo box is prefille with the recommended frequncies for the selected drug.
+The list box below displays common administration alternatives which are pasted into the combo box by
+clicking / selecting. Single selection only.
+</p>
+
+<p>
+<b>Instructions:</b> Free text field which allows to enter any length of custom instructions for
+this prescription.<br>
+The list box below lists common instructions which are pasted into the text field by clicking / selecting.
+Multiple selections are allowed.
+</p>
+
+<p>
+<b>Warning buttons:</b> They are dynamically coloured if any of the categories might have a relevance for
+this prescription. Ideally, they will be contect sensitive (aware of gender, age, pregnancy / lactation status
+and diseases. When a button is clicked, details are displayed. If the user has an aversion against up-poppiong
+warning dialog boxes, he can configure GNUMed so that the colour / flashing of the warning buttons will be the
+only warning he gets.
+</p>
+
+<p>
+<b>Bottom button row:</b>
+<ol>
+  <li><i>Once:</i>Depending on the instructions, the drug will be removed from the "current medication" list
+  when the medication has been taken. Stores all changes in the database. Adds the drug to the script printer
+  queue. Clears all modified fields to make the dialogue ready for the next script for the same patient
+  </li>
+  <li><i>Long term:</i>The medication is linked to the patient's medication list without expiration date.
+  Stores all changes in the database. Adds the drug to the script printer
+  queue. Clears all modified fields to make the dialogue ready for the next script for the same patient
+  </li>
+  <li><i>PI:</i>Product information (if available) will be displayed in a pop-up window.
+  </li>
+  <li><i>CPI:</i>Consumer product information (if available) will be displayed in a pop-up window.
+                 Of course, that window allows printing.
+  </li>
+  <li><i>Calculator:</i>Drug dosage calculator. If available from the patient's biometric records,
+                        body weight etc. is prefilled in the displayed dialogue.
+  </li>
+  <li><i>Quick print:</i>Prints the script(s) without further ado and closes the prescription
+  dialogue after saving all changed data. The print device depends on the settings in GNUMed.
+  Right clicking pops up a menu offering alternativ print devices (fax or email the script
+  or use alternative printers).
+  </li>
+  <li><i>Dig. signed:</i>Includes the prescribers digital signature on the script
+  </li>
+  </li>
+  <li><i>Cancel:</i>Quits the dialog.
+  </li>
+
+</ol>
+</p>
+
+</body>
+</html>
