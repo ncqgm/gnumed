@@ -1,0 +1,7 @@
+DB=gnumed6
+createdb $DB 
+psql -f gnumed.sql $DB 
+psql -f gmconfiguration.sql $DB 
+psql -f gmidentity.sql $DB 
+psql -f gmgis.sql $DB 
+psql -f country.specific/au/postcodes.au.sql $DB 
