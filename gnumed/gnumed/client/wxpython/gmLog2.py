@@ -1,16 +1,44 @@
 #! /usr/bin/python
-"""alternative GNUMed client log handling
+"""GNUMed client log handling.
 
 All error logging, user notification and otherwise unhandled 
 exception handling should go through classes or functions of 
 this module
+
+Theory of operation:
+
+A logger object is a unifying wrapper for an arbitrary number
+of log targets. A log target may be a file, syslog, the console,
+or an email address, or, in fact, any object derived from the
+class LogTarget. Log targets will only log messages with at least
+their own message priority level (log level). Each log target
+may have it's own log level.
+
+There's also a dummy log target that just drops messages to the floor.
+
+By importing gmLog into your code you'll immediately have
+access to a default logger: gmDefLog. Initially, the only log
+target is a dummy which is formally fully functional but does
+nothing. To turn on real logging you need to instantiate another
+log target such as a file and add that target to gmDefLog.
+
+By importing gmLog and logging to the default log your modules
+never need to worry about the real message destination or whether
+at any given instant there's a valid logger available. Your MAIN
+module simply adds real log targets to the default logger and
+all other modules will merrily and automagically start logging
+there.
+
+You can of course instantiate any number of additional loggers
+that log to different targets alltogether if you want to keep
+some messages separate from others.
 
 Usage:
 1.) create an instance of Logger
 2.) if neccessary, redirect your output to your output device/widget
 3.) call the Logger.Log() function
 
-@author: Karsten Hilbert
+@author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 @copyright: GPL
 """
 
@@ -30,9 +58,11 @@ import sys, time, traceback, os.path, syslog
 
 lPanic, lErr, lWarn, lInfo, lData = range(5)
 
+# process non-printable characters ?
 lUncooked = 0
 lCooked = 1
 
+# table used for cooking non-printables
 AsciiName = ['<#0-0x00-nul>',
              '<#1-0x01-soh>',
              '<#2-0x02-stx>',
@@ -69,27 +99,28 @@ AsciiName = ['<#0-0x00-nul>',
 	    ]
 
 class Logger:
-    # file(s), stdout/stderr, pipes, email, syslog, widget, you-name-it
+    # file(s)/pipes, stdout/stderr = console, email, syslog, widget, you-name-it
     # can be any arbitrary object derived from LogTarget (see below)
     __targets = {}
 
-    def __init__(self, aTarget):
+    def __init__(self, aTarget=None):
+	"""Open an instance of Logger and initialize a target.
+
+	in case there's no target given open a dummy target
 	"""
-	open an instance of Logger and initialize a target
-	"""
+	if aTarget == None:
+	    aTarget = LogTargetDummy()
 	self.AddTarget (aTarget)
-	
+
     def close(self):
-	"""
-	close this logger and cleanly shutdown any open targets
+	"""Close this logger and cleanly shutdown any open targets.
 	"""
 	for key in self.__targets.keys():
 	    self.__targets[key].flush()
 	    self.__targets[key].close()
 
     def AddTarget (self, aTarget):
-	"""
-	add another log target
+	"""Add another log target.
 
 	- targets must be objects derived from LogTarget
 	- ignores identical targets
@@ -97,7 +128,7 @@ class Logger:
 	"""
 
 	# log security warning
-	# (additional log targets are potential sourced of inadvertant disclosure)
+	# (additional log targets are potential sources of inadvertant disclosure)
 	self.Log(lInfo, 'SECURITY: adding log target "' + str(aTarget.getID()) + '"')
 
 	# FIXME - we need some assertions about the new target here !
@@ -107,9 +138,9 @@ class Logger:
 	    self.__targets[aTarget.getID()] = aTarget
 
     def RemoveTarget (self, anID):
-	"""
-	remove a log target by it's ID,
-	clients have to track target ID's themselves if they want to remove targets
+	"""Remove a log target by it's ID.
+
+	- clients have to track target ID's themselves if they want to remove targets
 	"""
 
 	if self.__targets.has_key(anID):
@@ -118,8 +149,7 @@ class Logger:
 	    del self.__targets[anID]
 
     def Log(self, aLogLevel, aMsg, aRawnessFlag = lUncooked):
-	"""
-	log a message
+	"""Log a message.
 
 	- for a list of log levels see top of file
 	- messages above the currently active level of logging/verbosity are dropped silently
@@ -129,7 +159,7 @@ class Logger:
 
 	# are we in for work ?
 	if self.__targets is not None:
-	    # shall we cook it ?
+	    # cook it ?
 	    if aRawnessFlag == lCooked:
 		msg = reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(aMsg))))
 	    else:
@@ -140,8 +170,7 @@ class Logger:
 		self.__targets[key].writeMsg(aLogLevel, msg)
 
     def LogDelimiter (self):
-	"""
-	write a horizontal line or something similar to the log target
+	"""Write a horizontal delimiter to the log target.
 	"""
 
 	for key in self.__targets.keys():
@@ -377,4 +406,4 @@ if __name__ == "__main__":
 
     print "Done."
 else:
-    gmDefLog = Logger(LogTargetDummy())
+    gmDefLog = Logger()
