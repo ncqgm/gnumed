@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -310,6 +310,20 @@ class cProblem(gmClinItem.cClinItem):
 		cProblem._cmd_fetch_payload = """select * from v_problem_list where """ + ' and '.join(where_parts)
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
+	#--------------------------------------------------------
+	def get_as_episode(self):
+		"""
+		Retrieve the cEpisode instance realted to the current problem.
+		The problem's type attribute must be 'episode'
+		"""		
+
+		type = self._payload[self._idx['type']]		
+		if type != 'episode':
+			_log.Log(gmLog.lErr, 'can not convert non episode problem as episode: [problem:"%s"] [type:%s]' % (self._payload[self._idx['problem']], type))
+			return None
+			
+		episode = cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
+		return episode
 #============================================================
 # convenience functions
 #------------------------------------------------------------	
@@ -457,12 +471,16 @@ if __name__ == '__main__':
 	def test_problem():
 		print "\nProblem test"
 		print "------------"
-		prob = cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': None})
+		prob = cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})
 		print prob
 		fields = prob.get_fields()
 		for field in fields:
 			print field, ':', prob[field]
-		print "updatable:", prob.get_updatable_fields()
+		print '\nupdatable:', prob.get_updatable_fields()
+		epi = prob.get_as_episode()
+		print '\nas episode:'
+		for field in epi.get_fields():
+			print '   .%s : %s' % (field, epi[field])
 	#--------------------------------------------------------
 	def test_health_issue():
 		print "\nhealth issue test"
@@ -569,11 +587,14 @@ if __name__ == '__main__':
 				print "   diagnosis: ", aoe.get_diagnosis()
 	#--------------------------------------------------------
 	# run them
-	test_episode()
+	test_problem()
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.39  2005-03-14 14:28:54  ncq
+# Revision 1.40  2005-03-16 19:10:06  cfmoro
+# Added cProblem.get_as_episode method
+#
+# Revision 1.39  2005/03/14 14:28:54  ncq
 # - id_patient -> pk_patient
 # - properly handle simplified episode naming in create_episode()
 #
