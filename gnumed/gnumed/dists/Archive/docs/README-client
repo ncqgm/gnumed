@@ -1,0 +1,21 @@
+run-*.bat/sh
+------------
+- these go into /usr/bin/ on UNIX
+- they stay here on Windows
+- they call the actual stuff in whatever way is appropriate
+
+gnumed-archiv.conf
+------------------
+- this goes into /etc/gnumed/ and optionally ~/gnumed/ on UNIX
+- stays here on Windows
+- this is handed over by the run-()ers via command line
+
+*.py
+----
+- these go into /usr/share/gnumedarchiv/ on UNIX
+- they stay here on Windows
+
+*.mo
+----
+- these go into /usr/share/locale/LC_MESSAGES/de_DE/ on UNIX
+- they stay here on Windows
