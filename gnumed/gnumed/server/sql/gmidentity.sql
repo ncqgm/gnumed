@@ -18,8 +18,9 @@
 --    in order to use GIS servers where available
 -- 07.03.2002:  (hherb) "title" attribute added to "names" table
 -- 07.03.2002:  (hherb) view "v_basic_person" added
--- 09.03.02 (ihaywood) Rules for basic_person view.
-
+-- 09.03.2002:  (ihaywood) Rules for basic_person view.
+-- 08.04.2002:	 (hherb) service "personalia" related changes.
+--                BRAKES BACKWARDS COMPATIBILITY!
 -- ================================================
 
 -- any table that needs auditing MUST inherit audit_identity.
@@ -199,7 +200,7 @@ create table identities_addresses (
 	id serial primary key,
 	id_identity integer references identity,
 	id_address integer references address,
-	addrtype int references address_type(id) default 1,
+	id_type int references address_type(id) default 1,
 ) inherits (audit_identity);
 
 COMMENT ON TABLE identities_addresses IS
@@ -211,9 +212,8 @@ COMMENT ON COLUMN identities_addresses.id_identity IS
 COMMENT ON COLUMN identities_addresses.id_address IS
 'address belonging to this identity';
 
-COMMENT ON COLUMN identities_addresses.address_source IS
-'URL of some sort allowing to reproduce where the address is sourced from';
-
+COMMENT ON COLUMN identities_addresses.id_type IS
+'type of this address (like home, work, parents, holidays ...)';
 
 create view v_basic_person as
 select
@@ -255,7 +255,7 @@ CREATE RULE r_update_basic_person1 AS ON UPDATE TO v_basic_person
     WHERE NEW.firstnames != OLD.firstnames OR NEW.lastnames != OLD.lastnames 
     OR NEW.title != OLD.title DO INSTEAD 
     INSERT INTO names (title, firstnames, lastnames, id_identity, active)
-     VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.id, 't'); 
+     VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.id, 't');
 
 -- rule for identity change
 -- yes, you would use this, think carefully.....
