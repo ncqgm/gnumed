@@ -9,6 +9,8 @@ package org.gnumed.testweb1.data;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -16,7 +18,7 @@ import java.util.List;
  * @author  sjtan
  */
 public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
-	
+	static Log log = LogFactory.getLog(ClinicalEpisodeImpl1.class);
 	  
     static long SAME_EPISODE_INTERVAL =  5 * 1000; // 5 seconds
     private boolean closed;
@@ -27,15 +29,33 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
     
     private java.util.List rootItems = new java.util.ArrayList();
     
-    public boolean equals( Object o ) {
-    	if (! (o instanceof ClinicalEpisode))
-    		return false;
-    	ClinicalEpisode e = (ClinicalEpisode) o;
-//version 0.1
-//    	return Algorithms.normaliseMatch(e.getDescription(),getDescription())
-//		&& isWithinEpisodeLimit(e);
-    	return isWithinEpisodeLimit(e);
-    	}
+// causes lost episode bug    
+//    public boolean equals( Object o ) {
+//    	if (! (o instanceof ClinicalEpisode))
+//    		return false;
+//    	ClinicalEpisode e = (ClinicalEpisode) o;
+////version 0.1
+////    	return Algorithms.normaliseMatch(e.getDescription(),getDescription())
+////		&& isWithinEpisodeLimit(e);
+//    	return isWithinEpisodeLimit(e);
+//    	}
+//  
+    
+  // another version
+    
+//   public boolean equals(Object o) {
+//   	if (! (o instanceof ClinicalEpisode))
+//		return false;
+//	ClinicalEpisode e = (ClinicalEpisode) o;
+////version 0.1
+////	return Algorithms.normaliseMatch(e.getDescription(),getDescription())
+////	&& isWithinEpisodeLimit(e);
+//	if (e.getHealthIssue() == null || getHealthIssue() == null)
+//	    return super.equals(o);
+//	return 
+//	isWithinEpisodeLimit(e) 
+//	&& e.getHealthIssue().getDescription().equals(getHealthIssue().getDescription());
+//	}
     
     protected boolean isWithinEpisodeLimit(ClinicalEpisode e ) {
     	return Math.abs( e.getModified_when().getTime() 
@@ -67,9 +87,12 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
             healthIssue.addClinicalEpisode(this);
         }
         this.hi = healthIssue; // out here because of nullHealthIssue object
+        // the bug causes unlinked episodes not to have
+        // a link to nullHealthIssue.
         // it's a problem with hasClinicalEpisode()
         // for some reason, nullHealthIssue may have an
-        // an unlinked episode. maybe it's the definition.
+        // an unlinked episode, and won't add it.
+        // maybe it's the definition.
         
         
     }
@@ -104,11 +127,14 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
         return rootItems.size();
     }
     
+    
+    
     public java.util.List getRootItems() {
         return rootItems;
     }
     
     public ClinRootItem getEarliestRootItem() {
+        log.info("For "+ this +"  rootItems.size=" + rootItems.size());
         java.util.Iterator i = rootItems.iterator();
         ClinRootItem earliest = null;
         while (i.hasNext()) {
@@ -120,7 +146,7 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
             }
             
         }
-        
+        log.info("earliest="+earliest);
         return ((earliest != null) ? earliest : NullRootItem.NullItem);
     }
 

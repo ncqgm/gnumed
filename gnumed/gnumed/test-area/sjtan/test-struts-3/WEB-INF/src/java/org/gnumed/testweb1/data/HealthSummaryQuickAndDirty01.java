@@ -178,6 +178,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
            
            log.info("Looking for fk_episode=" + fk_episode + " found " + episode);
            narrative.setEpisode(episode);
+           log.info("For "+episode+" episode.getRootItemCount()="+episode.getRootItemCount());
        }
         
     }
@@ -211,17 +212,19 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
                 
             } else {
                 if (issue != null) {
-                    log.info("*** Found episode with id" + id +
-                    " setting with issue" +issue +
+                    log.info("*** Found "+episode  + " with id" + id +
+                    " setting with issue " +issue +
                     " :description= " +
                     (issue != null? issue.getDescription() : "no description"));
                     episode.setHealthIssue(issue);
                     
                 } else {
+                    log.info("no health issue for for episode" + episode.getId());
                     episode.setHealthIssue(nullHealthIssue);
                     
                 }
             }
+            log.info(issue+ " "+issue.getDescription() + " has " + issue.getClinicalEpisodes().length + " episodes.");
         }
     }
 
@@ -501,7 +504,8 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
                 return -1;
             if (c2 == null)
                 return 1;
-            return c1.getClin_when().compareTo(c2.getClin_when());
+            
+            return(int) (c1.getClin_when().getTime() - c2.getClin_when().getTime());
         }
     }
 

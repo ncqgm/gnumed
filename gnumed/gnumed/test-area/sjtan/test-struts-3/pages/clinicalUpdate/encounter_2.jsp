@@ -1,13 +1,18 @@
 
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
-<%@taglib uri="http://struts.apache.org/tags-html" prefix="html"%>
+<%@taglib uri="http://struts.apache.org/tags-html"  prefix="html"%>
+
 <%@taglib uri="http://struts.apache.org/tags-bean" prefix="bean"%>
+
 <%@taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%>
 <%@taglib uri="http://struts.apache.org/tags-logic-el" prefix="logic-el"%>
 <%@taglib uri="http://struts.apache.org/tags-nested" prefix="nested"%>
 <%@taglib uri="http://struts.apache.org/tags-html-el" prefix='html-el'%>
 <%@taglib uri="http://struts.apache.org/tags-bean-el" prefix="bean-el"%>
+
+
+
 <%--  See vaccination regarding indexed properties for <logic:iterate>
  1. need a indexed getter method on the bean.  2. the id attribute of logic:iterate must
 be the name of the property targetted by the getter
@@ -128,6 +133,7 @@ e.g. getNarrative(index) ...  id='narrative'
 		}
      
     -->
+    
 <h3> <bean:message key="encounter.entry.title"/> </h3>
     <%-- <jsp:useBean id="beanInstanceName" scope="session" class="beanPackage.BeanClassName" /> --%>
     <%-- <jsp:getProperty name="beanInstanceName"  property="propertyName" /> --%>
@@ -137,13 +143,13 @@ e.g. getNarrative(index) ...  id='narrative'
         
         <%--
         <jsp:include page="/pages/common/debugAttributes.jsp"/>
-       	--%>
+        --%>
         
        	
         
         <%if (request.getAttribute(org.apache.struts.Globals.ERROR_KEY) !=null)
             out.println( request.getAttribute(org.apache.struts.Globals.ERROR_KEY) );%>
-     </div>
+    </div>
    
     <jsp:include page="./patient_detail_block.jsp"/>
     <%-- The Model used for this jsp are:
@@ -234,7 +240,7 @@ e.g. getNarrative(index) ...  id='narrative'
                     />
                 </div>   
            
-                   <div id="entryItem<%=index%>" 
+                <div id="entryItem<%=index%>" 
                     style="display:<%=((index.intValue() ==0)?"block":"none")%>" 
                     >
             
@@ -275,13 +281,13 @@ e.g. getNarrative(index) ...  id='narrative'
                                         style="display:block" >
                                         <bean:message key="new.health.issue"/>
                                         <html-el:text styleId="txtNewHI${index}" disabled="true"  name="narrative" property="newHealthIssueName" indexed="true"/>
-               							<html-el:text styleId="txtNewHIStart${index}" disabled="true" name="narrative" property="healthIssueStartString" indexed="true"/>
+                                        <html-el:text styleId="txtNewHIStart${index}" disabled="true" name="narrative" property="healthIssueStartString" indexed="true"/>
                                     </div>
                
                
                                 </td> 
-                                <td colspan='2' align=center id='episodeEntry<%=index%>'> <bean:message key="main.complaint" />
-                                    <html-el:text  name="narrative" property="episode.description" indexed="true" size="40"  />
+                                <td colspan='2' align=center id='episodeEntry<%=index%>'> <bean:message key="issue.or.episode.description" />
+                                    <html-el:textarea  name="narrative" property="episode.description" indexed="true" cols="30" rows="3"  />
                                 </td>
                             </tr>
                         </table>
@@ -318,10 +324,10 @@ e.g. getNarrative(index) ...  id='narrative'
                                 <html:text name="narrative" property="clinWhenString" size="30" indexed="true"/>       
                             </td>
                             <td> 
-                                <bean:message key="rfe"/> <html:radio name="narrative" property="rfe" indexed="true" value="false" />
+                                <bean:message key="rfe"/> <html:checkbox name="narrative" property="rfe" indexed="true" value="false" />
                             </td> 
                             <td>
-                                <bean:message key="aoe"/> <html:radio name="narrative" property="aoe" indexed="true" value="false"/>
+                                <bean:message key="aoe"/> <html:checkbox name="narrative" property="aoe" indexed="true" value="false"/>
                             </td>
                         </tr>
                         <tr>

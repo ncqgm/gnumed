@@ -16,7 +16,7 @@
         <h2>Past Notes</h2>
         </a>
        
-        <table>
+       
             <logic:iterate id="encounter"
             name="healthRecord"
             property="healthSummary.encounters"
@@ -35,7 +35,8 @@
             --%>
              
             <logic:greaterThan name="nEpisodes" value="0" >
-             
+             <hr>
+              <table>
             <tr>
             <td>
               <b>
@@ -85,8 +86,10 @@
                                 <a name="itemDetail<%=itemId%>"/>
                                 
                               <logic:notEqual name="narrative" property="episode.healthIssue.description" value="<%=lastHealthIssueName%>">
-                                
-                                   <td>
+                                </tr>
+                                <tr border=1> </tr>
+                                <tr>
+                                   <td >
                                     <b>
                                          <i>issue:</>
                                         <bean:write  name="narrative" property="episode.healthIssue.description" />
@@ -144,12 +147,12 @@
             </td>
             </tr> 
             
+
+	        </table>
           
             </logic:greaterThan>
 
             </logic:iterate>
-
-        </table>
           
         <a name='lastEntry'/>
     

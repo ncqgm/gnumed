@@ -16,9 +16,14 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.config.ModuleConfig;
 import org.apache.struts.config.PlugInConfig;
+import org.gnumed.testweb1.data.ClinNarrative;
 import org.gnumed.testweb1.persist.CredentialUsing;
 import org.gnumed.testweb1.persist.DemographicDataAccess;
 import org.gnumed.testweb1.persist.LoginInfoUsing;
@@ -287,6 +293,62 @@ public class Util {
            using.setCredential(request.getUserPrincipal());
       
    }
+
+public static List getSortedNarratives(List narratives) {
+    
+
+
+    Map episodeMap = new HashMap();
+    Iterator i = narratives.iterator();
+    while (i.hasNext()) {
+        ClinNarrative cn = (ClinNarrative) i.next();
+        if ( episodeMap.get(cn.getEpisode().getHealthIssue()) == null ) {
+            episodeMap.put(cn.getEpisode().getHealthIssue() , new ArrayList() );
+        }
+        List l = (List)episodeMap.get(cn.getEpisode().getHealthIssue());
+        l.add(cn);
+    }
+    
+    Iterator j = episodeMap.values().iterator();
+    while (j.hasNext() ) {
+        List l = (List)j.next();
+        Collections.sort(l, new Comparator() {
+
+            public int compare(Object arg0, Object arg1) {
+                ClinNarrative cn0 = (ClinNarrative) arg0;
+                ClinNarrative cn1 = (ClinNarrative) arg1;
+                return getRank(cn0.getSoapCat()) - getRank(cn1.getSoapCat());
+            }
+            
+            public int getRank(String code) {
+                code = code.toLowerCase();
+            
+                if ("s".equals(code))
+                    return 1;
+                if("o".equals(code))
+                    return 2;
+                if("a".equals(code)) 
+                    return 3;
+                if("p".equals(code))
+                    return 4;
+                return 5;
+                    
+            }
+        }
+        );
+    }
+    
+    List list = new ArrayList();
+    
+    Iterator k = episodeMap.values().iterator();
+    while (k.hasNext()) {
+        List l = (List) k.next();
+        list.addAll(l);
+        
+    }
+    
+    return list;
+}
 
    
 }

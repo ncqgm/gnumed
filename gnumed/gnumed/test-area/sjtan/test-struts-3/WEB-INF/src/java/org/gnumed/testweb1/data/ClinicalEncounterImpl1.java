@@ -8,7 +8,6 @@ package org.gnumed.testweb1.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,6 +18,7 @@ import java.util.TreeSet;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.gnumed.testweb1.global.Util;
 
 /**
  *
@@ -180,7 +180,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     
     public List getNarratives() {
      
-        return narratives;
+        return Util.getSortedNarratives(narratives);
     }
     
     public void sortRootItems(final java.util.Comparator comparator) {
@@ -318,15 +318,15 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
             item.setEpisode(mappedEpisode);
         }
     }
-
-
-    public void  updateItemEpisodeReferences() {
-		EntryClinRootItem[] items = getEntryRootItems();
-		for (int i = 0; i < items.length ; ++i ) {
-			items[i].setEpisode((ClinicalEpisode)episodeMap.get(items[i].getEpisode().getDescription()));
-			
-		}
-	}
+//
+//
+//    public void  updateItemEpisodeReferences() {
+//		EntryClinRootItem[] items = getEntryRootItems();
+//		for (int i = 0; i < items.length ; ++i ) {
+//			items[i].setEpisode((ClinicalEpisode)episodeMap.get(items[i].getEpisode().getDescription()));
+//			
+//		}
+//	}
 	
 	public Collection getMappedIssues() {
 		return healthIssueMap.values();

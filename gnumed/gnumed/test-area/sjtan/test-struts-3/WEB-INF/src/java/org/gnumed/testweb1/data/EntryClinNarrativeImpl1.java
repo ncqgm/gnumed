@@ -8,7 +8,8 @@ package org.gnumed.testweb1.data;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.gnumed.testweb1.global.Util;
+ 
 /**
  *
  * @author  sjtan

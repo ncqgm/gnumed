@@ -1,6 +1,7 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
-<%@ taglib uri="http://struts.apache.org/tag-bean" prefix="bean" %>
+
+<%@taglib uri="http://struts.apache.org/tags-bean" prefix="bean"%>
 <html>
 <head><title>JSP Page</title></head>
 <body>

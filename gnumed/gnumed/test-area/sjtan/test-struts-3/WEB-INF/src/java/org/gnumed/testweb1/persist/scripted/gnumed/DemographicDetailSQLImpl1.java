@@ -391,7 +391,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 	throws SQLException {
 	    try {
 	        //            PreparedStatement stmtAddress = conn.prepareStatement(
-	        //            "insert into v_basic_address( number, street, city, postcode,
+	        //            "insert into v_basic_address( number, street, urb, postcode,
 	        // state, country )" +
 	        //            "values ( ? , ? , ? , ?, ?, ?) ");
 	        //            stmtAddress.setString(1, detail.getStreetno());
@@ -477,7 +477,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 	}
 
 	final static String[] sqlToDetailsNameAddress = {
-			"pk_identity, firstnames, lastnames, title, dob, gender, number, street, city, postcode, state, country,"
+			"pk_identity, firstnames, lastnames, title, dob, gender, number, street, urb, postcode, state, country,"
 					,
 			"id, givenname, surname, title, birthdate, sex, streetno ,street, urb, postcode, state, countryCode, "
 				
@@ -1071,7 +1071,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 		List l = null;
 		try {
 			PreparedStatement stmt = conn
-					.prepareStatement("select v.pk_identity,  firstnames, lastnames , dob, gender , number, street, city, postcode, state, country "
+					.prepareStatement("select v.pk_identity,  firstnames, lastnames , dob, gender , number, street, urb, postcode, state, country "
 							+ "from  v_basic_person v left  join (select * from lnk_person_org_address l, v_basic_address a where l.id_address= a.id) as la on v.pk_identity=la.id_identity  "
 							+ " where "
 							+ " strpos( upper(firstnames), upper( ? ) ) > 0 "

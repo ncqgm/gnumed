@@ -11,12 +11,12 @@
 
 
 
-Country <%=Locale.getDefault().getDisplayCountry()%>
-Languge <%=Locale.getDefault().getDisplayLanguage()%>
+Country <%=java.util.Locale.getDefault().getDisplayCountry()%>
+Languge <%=java.util.Locale.getDefault().getDisplayLanguage()%>
 
-Variant <%=Locale.getDefault().getDisplayVariant()%>
+Variant <%=java.util.Locale.getDefault().getDisplayVariant()%>
 
-Name <%=Locale.getDefault().getDisplayName()%>
+Name <%=java.util.Locale.getDefault().getDisplayName()%>
 
 <b>
 <bean:message key="about.stuff"/>
