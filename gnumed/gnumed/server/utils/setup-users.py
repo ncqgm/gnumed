@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/setup-users.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -139,7 +139,7 @@ def create_superuser():
 	print "We need a password for the GnuMed standard superuser [%s]." % superuser
 	password = raw_input("Please type password: ")
 	try:
-		cursor.execute("CREATE USER %s WITH PASSWORD '%s' CREATEDB CREATEUSER;" % (superuser, password))
+		cursor.execute("CREATE USER %s WITH PASSWORD '%s' CREATEDB;" % (superuser, password))
 	except:
 		exc = sys.exc_info()
 		_log.LogException("Cannot create GnuMed standard superuser [%s]." % superuser, exc, fatal=1)
@@ -148,9 +148,9 @@ def create_superuser():
 	# paranoia is good
 	if user_exists(cursor, superuser):
 		cursor.close()
+		conn.commit()
 		return 1
 
-	cursor.execute("COMMIT")
 	cursor.close()
 	return None
 #==================================================================
@@ -172,6 +172,7 @@ if __name__ == "__main__":
 		sys.exit("Cannot install GnuMed database owner.\nPlease see log file for details.")
 
 	# insert groups
+	#if not create_groups():
 	# insert users
 	#  (pg_user, pg_shadow)
 
@@ -181,7 +182,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: setup-users.py,v $
-# Revision 1.3  2002-10-03 14:05:37  ncq
+# Revision 1.4  2002-10-03 14:51:46  ncq
+# - finally works
+#
+# Revision 1.3  2002/10/03 14:05:37  ncq
 # - actually create the gnumed superuser
 #
 # Revision 1.2  2002/10/03 00:16:20  ncq
