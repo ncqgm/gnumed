@@ -236,7 +236,9 @@ BEGIN
 	       session.id = list.session AND
 	       list.time = appt_time;
 	IF FOUND THEN
-	   RETURN ''FREE'';
+	   RETURN ''__FREE__'';
+	   -- NOTE: this a ''reserved name'' which the frontend must
+	   -- interpret. It is not NOT translated as it is not displayed.
 	ELSE
 	   RETURN NULL;
 	END IF;

@@ -26,7 +26,7 @@
 ############################################################################
 
 
-"""This module implements a "crypto" aware text widget
+"""This module implements a ""crypto"" aware text widget
 
 This text widget allows arbitrary text to be entered via keyboard,
 cut'n paste via clipboard, or text files via drag'n drop
