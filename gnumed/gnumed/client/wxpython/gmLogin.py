@@ -16,12 +16,7 @@
 
 from wxPython.wx import *
 import os.path
-import gmLoginDialog, gmPG, gmGuiBroker
-import gmLog, gmExceptions
-
-# text translation function for localization purposes
-import gettext
-_ = gettext.gettext
+import gmLoginDialog, gmPG, gmGuiBroker, gmLog, gmExceptions
 
 def Login(max_attempts=3):
 	"""Display the login dialog and try to log into the backend up to max_attempts times
@@ -66,5 +61,6 @@ def Login(max_attempts=3):
 myLog = gmLog.gmDefLog
 
 if __name__ == "__main__":
+	import gmI18N
 	myLog.Log (gmLog.lWarn, "This module needs a test function!  please write it")
 	print "This module needs a test function!  please write it"

@@ -5,7 +5,6 @@ A module to add shadowing to an arbitrary widget
 from wxPython.wx import *
 import gmConf
 
-
 class Shadow (wxPanel):
     def __init__(self, parent, id):
         wxPanel.__init__ (self, parent, id)

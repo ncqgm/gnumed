@@ -27,14 +27,9 @@
 #	- test function
 ############################################################################
 
-"gmLabels: labelling GNUMed's list box controls"
+"""gmLabels: labelling GNUMed's list box controls"""
 
 from wxPython.wx import *
-
-# text translation function for localization purposes
-import gettext
-_ = gettext.gettext
-
 
 Patients = (_("lastname"), _("firstnames"), _("called"), _("d.o.b"), _("street"), _("city"), _("urid"))
 Imphx = (_("date"), _("problem"), _("resolved"), _("treatment"))
@@ -63,4 +58,5 @@ def LabelListControl(listctrl, labellist):
 
 
 if __name__ == "__main__":
+	#import gmI18N
     print "This module has no test function yet. Please write it"

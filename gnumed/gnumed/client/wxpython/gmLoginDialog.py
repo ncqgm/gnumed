@@ -26,10 +26,8 @@ It features combo boxes which "remember" any number of previously entered settin
 
 from wxPython.wx import *
 
-import gmI18N, gmLoginInfo, gmGuiMain, gmGuiBroker
+import gmLoginInfo, gmGuiMain, gmGuiBroker
 
-import gettext
-_ = gettext.gettext
 import os.path
 
 #############################################################################
@@ -416,6 +414,8 @@ class LoginDialog(wxDialog):
 #############################################################################
 
 if __name__ == '__main__':
+	import gmI18N
+
 	app = wxPyWidgetTester(size = (400, 500))
 	#show the login panel in a main window
 	app.SetWidget(LoginPanel, -1)
@@ -430,5 +430,3 @@ if __name__ == '__main__':
 		wxMessageBox(_("You tried to log in as [%s] with password [%s]") % (lp.userlist[0], lp.password))
 	dlg.Destroy()
 	app.MainLoop()
-
-

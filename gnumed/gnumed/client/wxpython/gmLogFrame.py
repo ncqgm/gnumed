@@ -26,11 +26,6 @@
 
 from wxPython.wx import *
 
-import gettext
-_ = gettext.gettext
-
-
-
 class LogFrame(wxFrame):
 	"""The GNUMed log output goes here
 	EXAMPLE:
@@ -51,4 +46,3 @@ class LogFrame(wxFrame):
 
 	def GetLogWidget(self):
 		return self.txt
-
