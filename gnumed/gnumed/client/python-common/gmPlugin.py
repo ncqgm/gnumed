@@ -13,8 +13,8 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.50 2003-04-20 15:38:50 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmPlugin.py,v 1.51 2003-04-28 12:03:15 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -50,7 +50,11 @@ class gmPlugin:
 		pass
 	#-----------------------------------------------------
 	def name (self):
-		return ''
+		return 'plugin %s' % self.__class__.__name__
+	#-----------------------------------------------------
+	def internal_name (self):
+		"""Used for referencing a plugin by name."""
+		return self.__class__.__name__
 #------------------------------------------------------------------
 class wxBasePlugin (gmPlugin):
 	"""
@@ -137,21 +141,18 @@ class wxBasePlugin (gmPlugin):
 		"""call set_widget_reference AFTER the widget is 
 		created so it can be gotten from the global 
 		guiBroker object later."""
-		
-		
-		self.gb['modules.%s' % self.set][self.name()] = self
-		_log.Log(gmLog.lInfo, "loaded plugin %s/%s" % (self.set, self.name() ))
+	
+		self.gb['modules.%s' % self.set][self.internal_name()] = self
+		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.internal_name(), self.set))
 	#-----------------------------------------------------
 	def unregister(self):
-		del self.gb['modules.%s' % self.set][self.name ()]
-		_log.Log(gmLog.lInfo, "unloaded plugin %s/%s" % (self.set, self.name()))
+		del self.gb['modules.%s' % self.set][self.internal_name()]
+		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.internal_name(), self.set))
 	#-----------------------------------------------------
 	def set_widget_reference(self, widget):
 		"""puts a reference to widget in a map keyed as 'widgets'
 		in the guiBroker. The widget's map key is it's class name"""
-		_log.Log(gmLog.lInfo, "class name [%s]" % self.__class__.__name__)
-		_log.Log(gmLog.lInfo,  "widget class [%s]" % widget.__class__.__name__ )
-		#_log.Log(gmLog.lInfo, "attributes = %s \n**** \n"%widget.__dict__ )
+		_log.Log(gmLog.lData, "plugin class [%s], widget class [%s]" % (self.__class__.__name__, widget.__class__.__name__))
 
 		if not self.gb.has_key( 'widgets'):
 			self.gb['widgets'] = {}
@@ -173,28 +174,29 @@ class wxNotebookPlugin (wxBasePlugin):
 		self.nb = self.gb['main.notebook']
 		#nb_no = self.nb.GetPageCount ()
 		widget = self.GetWidget (self.nb)
-		self.nb.AddPage (widget, self.name ())
+		self.nb.AddPage (widget, self.name())
 		widget.Show (1)
 
 		# place ourselves in the main toolbar
 		# Pages that don't want a toolbar must install a blank one
 		# otherwise the previous page's toolbar would be visible
-		self.tbm = self.gb['main.toolbar']
-		tb = self.tbm.AddBar (self.name ())
-		self.gb['toolbar.%s' % self.name ()] = tb
+		self.tb_main = self.gb['main.toolbar']
+		tb = self.tb_main.AddBar(self.internal_name())
+		self.gb['toolbar.%s' % self.internal_name ()] = tb
 		self.DoToolbar (tb, widget)
-		tb.Realize ()
+		tb.Realize()
 
 		# and put ourselves into the menu structure if so
-		if self.MenuInfo ():
-			menu_name, menu_item = self.MenuInfo ()
-			menu = self.gb['main.%smenu' % menu_name]
+		if self.MenuInfo() is not None:
+			name_of_menu, menu_item_name = self.MenuInfo()
+			menu = self.gb['main.%smenu' % name_of_menu]
 			self.menu_id = wxNewId()
-			menu.Append (self.menu_id, menu_item, self.name())
+			# FIXME: this shouldn't be self.name() but rather self.menu_help_string()
+			menu.Append (self.menu_id, menu_item_name, self.name())			# (id, item name, help string)
 			EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
 
 		# so notebook can find this widget
-		self.gb['main.notebook.plugins'].append (self)
+		self.gb['main.notebook.plugins'].append(self)
 
 		# so event handlers can get at this widget
 		self.set_widget_reference(widget)
@@ -207,7 +209,7 @@ class wxNotebookPlugin (wxBasePlugin):
 			menu = self.gb['main.%smenu' % self.MenuInfo ()[0]]
 			menu.Delete (self.menu_id)
 		# delete toolbar
-		self.tbm.DeleteBar (self.name ())
+		self.tb_main.DeleteBar (self.internal_name())
 		# correct the number-plugin dictionary
 		nbns = self.gb['main.notebook.plugins']
 		nb_no = nbns.index (self)
@@ -221,7 +223,7 @@ class wxNotebookPlugin (wxBasePlugin):
 		nbns = self.gb['main.notebook.plugins']
 		nb_no = nbns.index (self)
 		self.nb.SetSelection (nb_no)
-		self.tbm.ShowBar (self.name ())
+		self.tb_main.ShowBar(self.internal_name())
 	#-----------------------------------------------------
 	def OnMenu (self, event):
 		self.Raise ()
@@ -257,13 +259,13 @@ class wxPatientPlugin (wxBasePlugin):
 			shadow = gmShadow.Shadow (self.mwm, -1)
 			widget = self.GetWidget (shadow)
 			shadow.SetContents (widget)
-			self.mwm.RegisterLeftSide (self.name (), shadow)
+			self.mwm.RegisterLeftSide (self.internal_name(), shadow)
 		else:
 			widget = self.GetWidget (self.mwm)
-			self.mwm.RegisterLeftSide (self.name (), self.GetWidget (self.mwm))
+			self.mwm.RegisterLeftSide (self.internal_name(), self.GetWidget (self.mwm))
 		icon = self.GetIcon ()
 		if icon is not None:
-			tb2 = self.gb['toolbar.%s' % _('Clinical')]
+			tb2 = self.gb['toolbar.%s' % 'gmClinicalWindowManager']
 			#tb2.AddSeparator()
 			self.tool_id = wxNewId ()
 			tool1 = tb2.AddTool(
@@ -281,23 +283,23 @@ class wxPatientPlugin (wxBasePlugin):
 	#-----------------------------------------------------        
 	def OnTool (self, event):
 		self.ReceiveFocus()
-		self.mwm.Display (self.name ())
+		self.mwm.Display (self.internal_name())
 		# reduntant as cannot access toolbar unless mwm raised
 		#self.gb['modules.gui']['Patient'].Raise ()
 	#-----------------------------------------------------
 	def Raise (self):
-		self.gb['modules.gui']['Patient'].Raise ()
-		self.mwm.Display (self.name ())
+		self.gb['modules.gui']['Patient'].Raise()
+		self.mwm.Display (self.internal_name())
 	#-----------------------------------------------------
 	def unregister (self):
 		wxBasePlugin.unregister (self)
-		self.mwm.Unregister (self.name ())
+		self.mwm.Unregister (self.internal_name())
 		menu = self.gb['main.submenu']
 		menu.Delete (menu_id)
 		if self.GetIcon () is not None:
-			tb2 = self.gb['toolbar.%s' % _('Clinical')]
+			tb2 = self.gb['toolbar.%s' % 'gmClinicalWindowManager']
 			tb2.DeleteTool (self.tool_id)
-		del self.gb['modules.patient'][self.name ()]
+		del self.gb['modules.patient'][self.internal_name()]
 	#-----------------------------------------------------
 	def Shown(self):
 		"""Called whenever this module receives focus and is thus shown onscreen.
@@ -509,7 +511,11 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.50  2003-04-20 15:38:50  ncq
+# Revision 1.51  2003-04-28 12:03:15  ncq
+# - introduced internal_name() helper, adapted to use thereof
+# - leaner logging
+#
+# Revision 1.50  2003/04/20 15:38:50  ncq
 # - clean out some excessive logging
 #
 # Revision 1.49  2003/04/09 13:06:03  ncq
