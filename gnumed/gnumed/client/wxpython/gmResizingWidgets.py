@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.14 2004-12-23 21:57:31 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmResizingWidgets.py,v 1.15 2004-12-25 18:52:44 cfmoro Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -283,7 +283,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		@type values: dictionary
 		@param values: keys are the labels, values are passed to SetValue()
 		"""
-		for widget_list in self.__lines:
+		for line in self.__lines:
 			for widget in line:
 				if values.has_key(widget['ID']):
 					if isinstance(widget['instance'], stc.wxStyledTextCtrl):
@@ -301,7 +301,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		"""
 		# FIXME: this does not detect ID collisions between lines
 		vals = {}
-		for widget_list in self.__lines:
+		for line in self.__lines:
 			for widget in line:
 				if widget['ID'] is not None:
 					if isinstance(widget['instance'], stc.wxStyledTextCtrl):
@@ -1004,7 +1004,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.14  2004-12-23 21:57:31  ncq
+# Revision 1.15  2004-12-25 18:52:44  cfmoro
+# Fixed var name in loop
+#
+# Revision 1.14  2004/12/23 21:57:31  ncq
 # - credit where credit is due, of course
 #
 # Revision 1.13  2004/12/23 16:22:52  ncq
