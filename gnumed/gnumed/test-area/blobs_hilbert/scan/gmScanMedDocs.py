@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -537,10 +537,14 @@ class ScanPanel(wxPanel):
 			# do we want progression ?
 			progression_flag = _cfg.get("scanning", "progressive JPEG")
 			# actually convert to JPEG
+			kwds = {}
+			kwds[quality] = quality_value
 			if progression_flag in ["yes", "on"]:
-				Image.open(bmp_name).save(jpg_name, quality = quality_value, optimize = 1, progression = 1)
-			else:
-				Image.open(bmp_name).save(jpg_name, quality = quality_value, optimize = 1)
+				kwds[progressive] = 1
+			try:
+				Image.open(bmp_name).save(jpg_name, optimize = 1, **kwds)
+			except IOError:
+				Image.open(bmp_name).save(jpg_name, **kwds)
 			# remove bitmap
 			os.remove(bmp_name)
 
@@ -984,7 +988,10 @@ else:
 			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.16  2002-12-28 21:40:17  ncq
+# Revision 1.17  2002-12-28 21:50:39  ncq
+# - work around failing PIL.jpeg.optimize on files larger than the buffer
+#
+# Revision 1.16  2002/12/28 21:40:17  ncq
 # - quality_value needs to be int()
 #
 # Revision 1.15  2002/12/27 11:17:00  ncq
