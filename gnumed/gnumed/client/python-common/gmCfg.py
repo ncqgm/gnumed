@@ -52,7 +52,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -367,6 +367,8 @@ class cCfgFile:
 		if not os.path.exists(self.cfgName):
 			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
 
+		_log.Log(gmLog.lData, "parsing config file [%s]" % self.cfgName)
+
 		self._cfg_data['groups'] = {}
 
 		curr_group = None
@@ -482,6 +484,7 @@ class cCfgFile:
 			else:
 				self._cfg_data['groups'][curr_group]['options'][curr_opt]['value'] = val
 
+		return 1
 #================================
 # main
 #================================
