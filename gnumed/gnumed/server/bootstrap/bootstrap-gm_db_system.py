@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -336,6 +336,14 @@ class db_server:
 
 		# get owner
 		if _dbowner is None:
+			print "We are about to create the database user who owns all GnuMed database objects."
+			print ""
+			print "Unless the password for this user is given in the"
+			print "config file you will be asked to provide it."
+			print "If you already ran the bootstrapping script previously"
+			print "please provide the same password again. Otherwise you"
+			print "you may get connection errors depending on whether the"
+			print "database user had been created previously."
 			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
 
 		if _dbowner is None:
@@ -1013,7 +1021,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.6  2003-04-03 13:24:43  ncq
+# Revision 1.7  2003-04-04 11:06:25  ncq
+# - explain what gm-dbowner is all about and what to provide for its password
+#
+# Revision 1.6  2003/04/03 13:24:43  ncq
 # - modified message about succeeding
 #
 # Revision 1.5  2003/03/23 21:04:44  ncq
