@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.6 2003-09-13 17:46:29 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPhraseWheel.py,v 1.7 2003-09-15 16:05:30 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 import string, types, time, sys, re
@@ -39,8 +39,8 @@ class cMatchProvider:
 	- in-memory list created on the fly
 	"""
 	__threshold = {}
-	default_word_separators = re.compile('[- \t=+&:_@]+')
-	default_ignored_chars = re.compile("""[?!."'\\(){}\[\]<>~#*$%^]+""")
+	default_word_separators = re.compile('[- \t=+&:@]+')
+	default_ignored_chars = re.compile("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
 	#--------------------------------------------------------
 	def __init__(self):
 		self.enableMatching()
@@ -82,12 +82,16 @@ class cMatchProvider:
 		lngFragment = len(tmpFragment)
 		# order is important !
 		if lngFragment >= self.__threshold['substring']:
+			print "doing in-string search"
 			return self.getMatchesBySubstr(tmpFragment)
 		elif lngFragment >= self.__threshold['word']:
+			print "doing in-phrase search"
 			return self.getMatchesByWord(tmpFragment)
 		elif lngFragment >= self.__threshold['phrase']:
+			print "doing phrase-start search"
 			return self.getMatchesByPhrase(tmpFragment)
 		else:
+			print "not doing any search for matches"
 			return (_false, [])
 	#--------------------------------------------------------
 	def getAllMatches(self):
@@ -268,8 +272,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 			return -1
 		else:
 			return 0
-#------------------------------------------------------------
-#------------------------------------------------------------
+#============================================================
 class cWheelTimer(wxTimer):
 	"""Timer for delayed fetching of matches.
 
@@ -298,8 +301,7 @@ class cWheelTimer(wxTimer):
 	#--------------------------------------------------------
 	def Notify(self):
 		self.__callback()
-#------------------------------------------------------------
-#------------------------------------------------------------
+#============================================================
 class cPhraseWheel (wxTextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface."""
 
@@ -328,7 +330,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
 
 		wxTextCtrl.__init__ (self, parent, id, "", pos, size)
-		# unneccsary as we are using styles
+		# unnecessary as we are using styles
 		#self.SetBackgroundColour (wxColour (200, 100, 100))
 		self.parent = parent
 
@@ -354,11 +356,34 @@ class cPhraseWheel (wxTextCtrl):
 	def __updateMatches(self):
 		"""Get the matches for the currently typed input fragment."""
 
+		entire_input = self.GetValue()
+#		print "---------------------"
+#		print "phrase wheel content:", entire_input
+		cursor_pos = self.GetInsertionPoint()
+#		print "cursor at position:", cursor_pos
+		left_part = entire_input[:cursor_pos]
+		right_part = entire_input[cursor_pos:]
+#		print "cursor in input: %s>>>CURSOR<<<%s" % (left_part, right_part)
+		# find last phrase separator before cursor position
+		left_boundary = self.phrase_separators.search(left_part)
+		if left_boundary is not None:
+#			print "left boundary span:", left_boundary.span()
+			phrase_start = left_boundary.end()
+		else:
+			phrase_start = 0
+#		print "phrase start:", phrase_start
+		# find next phrase separator after cursor position
+		right_boundary = self.phrase_separators.search(right_part)
+		if right_boundary is not None:
+#			print "right boundary span:", right_boundary.span()
+			phrase_end = cursor_pos + (right_boundary.start() - 1)
+		else:
+			phrase_end = len(entire_input) - 1
+#		print "phrase end:", phrase_end
+
 		# get current(ly relevant part of) input
-		relevant_input = self.GetValue()
-#		cursor_pos = self.GetInsertionPoint()
-		# find last phrase separator position before cursor position
-#		prev_pos = self.phrase_separators.##(relevant_input)
+		relevant_input = entire_input[phrase_start:phrase_end+1]
+#		print "relevant input:", relevant_input
 		# get all currently matching items
 		(matched, self.__currMatches) = self.__matcher.getMatches(relevant_input)
 		# and refill our picklist with them
@@ -550,7 +575,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.6  2003-09-13 17:46:29  ncq
+# Revision 1.7  2003-09-15 16:05:30  ncq
+# - allow several phrases to be typed in and only try to match
+#   the one the cursor is in at the moment
+#
+# Revision 1.6  2003/09/13 17:46:29  ncq
 # - pattern match word separators
 # - pattern match ignore characters as per Richard's suggestion
 # - start work on phrase separator pattern matching with extraction of
