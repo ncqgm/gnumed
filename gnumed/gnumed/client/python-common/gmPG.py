@@ -16,8 +16,10 @@
 #	significant version change!
 #	==========================================================================
 #	08.02.2002 hherb made DB API 2.0 compatible.
+#	01.09.2002 hherb pyPgSQL preferred adapter
+#	01.09.2002 hherb writeable connections, start work on asynchronous part
 #
-# @TODO: Almost everything
+# @TODO: testing
 ############################################################################
 # This source code is protected by the GPL licensing scheme.
 # Details regarding the GPL are available at http://www.gnu.org
@@ -27,30 +29,41 @@
 """gmConnectionPool - Broker for Postgres distributed backend connections
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
 import string, copy, os, sys
+import gmI18N
 
 #3rd party dependencies
-# first, do we have the best-of-breed POSIX psycopg library available ?
+# first, do we have the preferred postgres-python library available ?
 try:
-	import psycopg # try Zope library
-	dbapi = psycopg
+	import pyPgSQL.PgSQL # try preferred backend library
+	dbapi = pyPgSQL.PgSQL
 	_isPGDB = 0
-# nope
+	print 'USING PYPGSQL!!!'
 except ImportError:
-	# ah, maybe we are on Windows and it just has another name ?
 	try:
-		import pyPgSQL.PgSQL # try Windows bindings
-		dbapi = pyPgSQL.PgSQL
-		_isPGDB = 0
 	# well, well, no such luck - fall back to stock pgdb library
+		import psycopg # try Zope library
+		dbapi = psycopg
+		_isPGDB = 0
+		print 'USING PSYCOPG'
 	except ImportError:
-		import pgdb # try standard Postgres binding
-		dbapi = pgdb
-		_isPGDB = 1
+		try:
+			import pgdb # try standard Postgres binding
+			dbapi = pgdb
+			_isPGDB = 1
+		except ImportError:
+			print "Apparently there is no database adapter available! Program halted"
+			sys.exit(-1)
+		
+
+
+
+# nope
+
 
 # FIXME: DBMS should eventually be configurable
 __backend = 'Postgres'
@@ -67,11 +80,19 @@ __log__ = gmLog.gmDefLog
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
 
-	#a dictionary with lists of databases; dictionary key is the name of the database
+	#a dictionary with lists of databases; dictionary key is the name of the service
 	__databases = {}
+	#a dictionary mapping the physical databases to the services; key is service name
+	__service_mapping = {}
+	#number of connections in use for each service (for reference counting purposes)
 	__connections_in_use = {}
+	#variable used to check whether a first connection has been initialized yet or not  yet
 	__connected = None
+	#a dictionary mapping notification requests to physical databases
+	__listeners = {}
 	#-----------------------------
+	__login = None
+	
 	def __init__(self, login=None):
 		"""parameter login is of type gmLoginInfo.LoginInfo"""
 		if login is not None:
@@ -79,8 +100,14 @@ class ConnectionPool:
 		if ConnectionPool.__connected is None:
 			ConnectionPool.__connected = self.__connect(login)
 	#-----------------------------
-	def GetConnection(self, service):
+	
+	def GetConnection(self, service, readonly=1):
 		"if a distributed service exists, return it - otherwise return the default server"
+		if not readonly:
+			logininfo = self.GetLoginInfoFor(service)
+			logininfo.SetUser("_%s" % logininfo.GetUser())
+			return self.__pgconnect(logininfo)
+			
 		if ConnectionPool.__databases.has_key(service):
 			try:
 				ConnectionPool.__connections_in_use[service] += 1
@@ -95,6 +122,7 @@ class ConnectionPool:
 
 			return ConnectionPool.__databases['default']
 	#-----------------------------
+	
 	def ReleaseConnection(self, service):
 		"decrease reference counter of active connection"
 		if ConnectionPool.__databases.has_key(service):
@@ -107,18 +135,89 @@ class ConnectionPool:
 				ConnectionPool.__connections_in_use['default'] -= 1
 			except:
 				ConnectionPool.__connections_in_use['default'] = 0
+				
 	#-----------------------------
+	
+	def Listen(self, service, signal, receiver, callback):
+		id = ConnectionPool.service_mapping[service]
+		if id not in ConnectionPool.__listeners.keys():
+			StartListeningThread(service);
+		signals = ConnectionPool.__listeners[id]
+		if signal not in signals:
+			self._ListenTo(service, signal)
+		
+	#-----------------------------
+	
+	def _ListenTo(self, service, signal):
+		"Tell the backend to notify us asynchronously on 'signal'"
+		con= self.GetConnection(service)
+		cur= con.cursor()
+		cur.execute('listen %s' % signal)
+		
+	
+	def StartListeningThread(self, service):
+		pass
+	
+	def ListeningThread(self, service):
+		pass		
+		
+	#-----------------------------
+	
 	def GetAvailableServices(self):
 		"""list all distributed services available on this system
 		(according to configuration database)"""
 		return ConnectionPool.__databases.keys()
+	
 	#-----------------------------
+	
 	def Connected(self):
 		return ConnectionPool.__connected
+	
 	#-----------------------------
+	
 	def LogError(self, msg):
 		"This function must be overridden by GUI applications"
 		print msg
+
+	def GetLoginInfoFor(self, service, login=None):
+		"try to get login information for a particular service and return it"
+		if login is None:
+			login = ConnectionPool.__login
+		###create a copy of the default login information, keeping user name and password
+		dblogin = copy.deepcopy(login)
+		try:
+			querystr = "select name, host, port, opt, tty from db where id = %d" \
+				% ConnectionPool.__service_mapping[service]
+		except KeyError:
+			###if the requested service is not mapped, return default login information
+			return dblogin
+			
+		cursor.execute(querystr)
+		database = cursor.fetchone()
+		idx = cursorIndex(cursor)
+
+		###get the name of the distributed datbase service
+		try:
+			dblogin.SetDatabase(string.strip(database[idx['name']]))
+		except: pass
+		###hostname of the distributed service
+		try:
+			dblogin.SetHost(string.strip(database[idx['host']]))
+		except: pass
+		###port of the distributed service
+		try:
+			dblogin.SetPort(database[idx['port']])
+		except: pass
+		###backend options of the distributed service
+		try:
+			dblogin.SetOptions(string.strip(database[idx['opt']]))
+		except: pass
+		###TTY option of the distributed service
+		try:
+			dblogin.SetTTY(string.strip(database[idx['tty']]))
+		except:pass
+		return dblogin
+			
 	#-----------------------------
 	# private methods
 	#-----------------------------
@@ -128,12 +227,14 @@ class ConnectionPool:
 		if login==None and ConnectionPool.__connected is None:
 			try:
 				login = inputLoginParams()
+				print login.GetDBAPI_DSN()
 			except:
 				exc = sys.exc_info()
 				__log__.LogException("Exception: Cannot connect to databases without login information !", exc)
 				raise gmExceptions.ConnectionError("Can't connect to database without login information!")
 
 		__log__.Log(gmLog.lData,login.GetInfoStr())
+		ConnectionPool.__login = login
 
 		#first, connect to the configuration server
 		try:
@@ -166,52 +267,27 @@ class ConnectionPool:
 			###get the symbolic name of the distributed service
 			cursor.execute("select name from distributed_db where id = %d" %  db[dbidx['ddb']])
 			service = string.strip(cursor.fetchone()[0])
-			print "processing service " , service
+			#map the id of the real database to the service
+			ConnectionPool.__service_mapping[service] = db[dbidx['db']]
 
 			###initialize our reference counter
 			ConnectionPool.__connections_in_use[service]=0
-
-			###try to get login information for a particular service
-			querystr = "select name, host, port, opt, tty from db where id = %d" % db[dbidx['db']]
-			cursor.execute(querystr)
-			database = cursor.fetchone()
-			idx = cursorIndex(cursor)
-
-			###create a copy of the default login information, keeping user name and password
-			dblogin = copy.deepcopy(login)
-			###get the name of the distributed datbase service
-			try:
-				dblogin.SetDatabase(string.strip(database[idx['name']]))
-			except: pass
-			###hostname of the distributed service
-			try:
-				dblogin.SetHost(string.strip(database[idx['host']]))
-			except: pass
-			###port of the distributed service
-			try:
-				dblogin.SetPort(database[idx['port']])
-			except: pass
-			###backend options of the distributed service
-			try:
-				dblogin.SetOptions(string.strip(database[idx['opt']]))
-			except: pass
-			###TTY option of the distributed service
-			try:
-				dblogin.SetTTY(string.strip(database[idx['tty']]))
-			except:pass
+			dblogin = self.GetLoginInfoFor(login, service)
 			#update 'Database Broker' dictionary
 			ConnectionPool.__databases[service] = self.__pgconnect(dblogin)
 		try:
 			cursor.close()
 		except:
 			pass
-
 		return ConnectionPool.__connected
+	
 	#-----------------------------
+	
 	def __pgconnect(self, login):
 		"connect to a postgres backend as specified by login object; return a connection object"
 
 		dsn = ""
+		hostport = ""
 
 		if _isPGDB:
 			dsn, hostport = login.GetPGDB_DSN()
@@ -221,21 +297,27 @@ class ConnectionPool:
 
 		try:
 			if _isPGDB:
+				#print "trying PGDB"
 				db = dbapi.connect(dsn, host=hostport)
 			else:
+				#print "trying Non-PGDB"
 				db = dbapi.connect(dsn)
 			return db
-		except: 
+		except:
 			exc = sys.exc_info()
 			__log__.LogException("Exception: Connection to database failed. DSN was [%s]" % dsn, exc)
-			raise gmExceptions.ConnectionError, "Connection to database failed. \nDSN was [%s], host:port was [%s]" % (dsn, hostport)
+			raise gmExceptions.ConnectionError, _("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport)
+	
 	#-----------------------------
+	
 	def __decrypt(self, crypt_pwd, crypt_algo, pwd):
 		"""decrypt the encrypted password crypt_pwd using the stated algorithm
 		and the given password pwd"""
 		#TODO!!!
 		pass
+	
 	#-----------------------------
+	
 	def __disconnect(self, force_it=0):
 		"safe disconnect (respecting possibly active connections) unless the force flag is set"
 		###are we conected at all?
@@ -258,9 +340,11 @@ class ConnectionPool:
 		#clear the dictionary (would close all connections anyway)
 		ConnectionPool.__databases.clear()
 		ConnectionPool.__connected = None
+
 #---------------------------------------------------
 # database helper functions
 #---------------------------------------------------
+
 def cursorIndex(cursor):
 	"""returns a dictionary of row atribute names and their row indices"""
 	i=0
@@ -269,7 +353,9 @@ def cursorIndex(cursor):
 		dict[d[0]] = i
 		i+=1
 	return dict
+
 #---------------------------------------------------
+
 def descriptionIndex(cursordescription):
 	"""returns a dictionary of row atribute names and their row indices"""
 	i=0
@@ -278,7 +364,9 @@ def descriptionIndex(cursordescription):
 		dict[d[0]] = i
 		i+=1
 	return dict
+
 #---------------------------------------------------
+
 def dictResult(cursor, fetched=None):
 	"returns the all rows fetchable by the cursor as dictionary (attribute:value)"
 	if fetched is None:
@@ -293,33 +381,45 @@ def dictResult(cursor, fetched=None):
 			i+=1
 		dictres.append(dict)
 	return dictres
+
 #---------------------------------------------------
+
 def fieldNames(cursor):
 	"returns the attribute names of the fetched rows in natural sequence as a list"
 	names=[]
 	for d in cursor.description:
 		names.append(d[0])
 	return names
+
 #---------------------------------------------------
+
 def listDatabases(service='default'):
 	"list all accessible databases on the database backend of the specified service"
 	assert(__backend == 'Postgres')
 	return quickROQuery("select * from pg_database")
+
 #---------------------------------------------------
+
 def listUserTables(service='default'):
 	"list the tables except all system tables of the specified service"
 	assert(__backend == 'Postgres')
 	return quickROQuery("select * from pg_tables where tablename not like 'pg_%'", service)
+
 #---------------------------------------------------
+
 def listSystemTables(service='default'):
 	"list the system tables of the specified service"
 	assert(__backend == 'Postgres')
 	return quickROQuery("select * from pg_tables where tablename like 'pg_%'", service)
+
 #---------------------------------------------------
+
 def listTables(service='default'):
 	"list all tables available in the specified service"
 	return quickROQuery("select * from pg_tables", service)
+
 #---------------------------------------------------
+
 def quickROQuery(query, service='default'):
 	"""a quick read-only query that fetches all possible results at once
 	returns the tuple containing the fetched rows and the cursor 'description' object"""
@@ -331,9 +431,12 @@ def quickROQuery(query, service='default'):
 	return cur.fetchall(), cur.description
 
 #---------------------------------------------------
+
 def getBackendName():
 	return __backend
+
 #---------------------------------------------------
+
 def prompted_input(prompt, default=None):
 	try:
 		res = raw_input(prompt)
@@ -342,39 +445,37 @@ def prompted_input(prompt, default=None):
 	if res == '':
 		return default
 	return res
+
 #---------------------------------------------------
+
 def inputTMLoginParams():
 	"""text mode input request of database login parameters"""
 	login = gmLoginInfo.LoginInfo('', '')
 	try:
 		print "\nPlease enter the required login parameters:"
-		database = raw_input("database [gnumed] : ")
-		if database == '':
-			database = 'gnumed'
-		host = prompted_input("host [localhost] : ", 'localhost')
+		database = prompted_input("database [gnumed] : ", 'gnumed')
 		user = prompted_input("user name : ", '')
 		password = prompted_input("password : ",'')
+		host = prompted_input("host [localhost] : ", 'localhost')
 		port = prompted_input("port [5432] : ", 5432)
 		login.SetInfo(user, password, dbname=database, host=host, port=port)
 	except:
-		raise gmExceptions.ConnectionError("Can't connect to database without login information!")
+		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
 	return login
+
 #---------------------------------------------------
+
 def inputWXLoginParams():
 	"""GUI (wx) mode input request of database login parameters.
 	Returns gmLoginInfo.LoginInfo object"""
 
-	try:
-		import wxPython.wx
-	except ImportError:
-		raise gmExceptions.NoGuiError("The wx GUI framework hasn't been initialized yet!")
-
+	import sys, wxPython.wx
 	#the next statement will raise an exception if wxPython is not loaded yet
 	sys.modules['wxPython']
 	#OK, wxPython was already loaded. But has the main Application instance been initialized already?
 	#if not, the exception will kick us out
 	if wxPython.wx.wxGetApp() is None:
-		raise gmExceptions.NoGuiError("The wx GUI framework hasn't been initialized yet!")
+		raise gmExceptions.NoGuiError(_("The wx GUI framework hasn't been initialized yet!"))
 
 	#Let's launch the login dialog
 	#if wx was not initialized /no main App loop, an exception should be raised anyway
@@ -384,11 +485,13 @@ def inputWXLoginParams():
 	login = dlg.panel.GetLoginInfo ()
 	#if user cancelled or something else went wrong, raise an exception
 	if login is None:
-		raise gmExceptions.ConnectionError("Can't connect to database without login information!")
+		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
 	#memory cleanup, shouldn't really be neccessary
 	dlg.Destroy()
 	return login
+
 #---------------------------------------------------
+
 def inputLoginParams():
 	"input request for database backend login parameters. Try GUI dialog if available"
 	try:
@@ -396,10 +499,15 @@ def inputLoginParams():
 	except:
 		login = inputTMLoginParams()
 	return login
+
 #==================================================================
 # Main
 #==================================================================
+
+__log__.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
+
 if __name__ == "__main__":
+
 	__log__.SetAllLogLevels(gmLog.lData)
 	__log__.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 	_ = lambda x:x
@@ -441,6 +549,9 @@ if __name__ == "__main__":
 	print d
 	print "\nResult attributes\n==================\n"
 	n = fieldNames(cursor)
-	print n
-else:
+	
+	print "Requesting write access connection:"
+	con = dbpool.GetConnection('config', readonly=0)
+	
 	__log__.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
+
