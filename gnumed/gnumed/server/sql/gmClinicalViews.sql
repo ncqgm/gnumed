@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.111 2004-11-16 19:01:27 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.112 2004-11-21 21:02:48 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -202,7 +202,7 @@ select
 	cep.fk_patient as pk_patient,
 	cn.soap_cat as soap_cat,
 	cn.narrative as description,
-	cep.is_active as is_active,
+	cep.is_open as is_open,
 	cep.clinically_relevant as clinically_relevant,
 	cn.is_rfe as is_rfe,
 	cn.is_aoe as is_aoe,
@@ -231,7 +231,7 @@ select
 	vnep.pk_patient as id_patient,
 	vnep.soap_cat as soap_cat,
 	vnep.description as description,
-	vnep.is_active as episode_active,
+	vnep.is_open as episode_open,
 	vnep.clinically_relevant as episode_clinically_relevant,
 	null as health_issue,
 	null as issue_active,
@@ -254,10 +254,10 @@ select
 		then chi.description
 		else vnep.description
 	end as description,
-	vnep.is_active as episode_active,
+	vnep.is_open as episode_open,
 	vnep.clinically_relevant as episode_clinically_relevant,
 	chi.description as health_issue,
-	chi.is_active as issue_active,
+	chi.is_open as issue_open,
 	chi.clinically_relevant as issue_clinically_relevant,
 	vnep.pk_episode as pk_episode,
 	vnep.pk_health_issue as pk_health_issue,
@@ -1389,14 +1389,14 @@ select
 	vpep.id_patient as pk_patient,
 	vpep.description as problem,
 	'episode' as type,
-	vpep.episode_active as is_active,
+	vpep.episode_open as problem_active,
 	vpep.episode_clinically_relevant as clinically_relevant,
 	vpep.pk_episode as pk_episode,
 	vpep.pk_health_issue as pk_health_issue
 --	cep.fk_patient as pk_patient,
 --	cep.description as problem,
 --	'episode' as type,
---	cep.is_active as is_active,
+--	cep.is_open as problem_active,
 --	cep.clinically_relevant as clinically_relevant,
 --	cep.pk as pk_episode,
 --	cep.fk_health_issue as pk_health_issue
@@ -1410,7 +1410,7 @@ select
 	chi.id_patient as pk_patient,
 	chi.description as problem,
 	'issue' as type,
-	chi.is_active as is_active,
+	chi.is_active as problem_active,
 	chi.clinically_relevant as clinically_relevant,
 	null as pk_episode,
 	chi.id as pk_health_issue
@@ -1536,11 +1536,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.111 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.112 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.111  2004-11-16 19:01:27  ncq
+-- Revision 1.112  2004-11-21 21:02:48  ncq
+-- - episode: is_active -> is_open
+--
+-- Revision 1.111  2004/11/16 19:01:27  ncq
 -- - adjust to episode name now living in clin_narrative
 -- - v_named_episodes still needs work to properly account for
 --   erronously unnamed episodes

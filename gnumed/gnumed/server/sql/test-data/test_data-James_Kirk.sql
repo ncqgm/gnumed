@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.40 $
+-- $Revision: 1.41 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -102,7 +102,7 @@ delete from clin_episode where pk in (
 
 insert into clin_episode (
 	fk_health_issue,
-	is_active,
+	is_open,
 	clinically_relevant
 ) values (
 	currval('clin_health_issue_id_seq'),
@@ -636,11 +636,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.40 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.41 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.40  2004-11-16 18:59:57  ncq
+-- Revision 1.41  2004-11-21 21:01:44  ncq
+-- - episode: is_active -> is_open
+--
+-- Revision 1.40  2004/11/16 18:59:57  ncq
 -- - adjust to episode naming changes
 --
 -- Revision 1.39  2004/10/11 19:36:32  ncq
