@@ -32,7 +32,7 @@ from wxPython.stc import *
 import keyword
 import time
 import images #bitmaps for column headers of lists
-import gmPlugin
+import gmPlugin, gmShadow, gmConf
 import images_gnuMedGP_TabbedLists           #bitmaps for tabs on notebook
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin   
 scriptdata = {
@@ -182,8 +182,14 @@ class gmGP_TabbedLists (gmPlugin.wxBasePlugin):
 
     def register (self):
         mwm = self.gb['main.manager']
-        mwm.RegisterRightSide ('tabbed_lists', TabbedLists
-        (mwm, -1), position=1)
+        if gmConf.config['main.shadow']:
+            shadow = gmShadow.Shadow (mwm, -1)
+            tl = TabbedLists (shadow, -1)
+            shadow.SetContents (tl)
+            mwm.RegisterRightSide ('tabbed_lists', shadow, position=1)
+        else:
+            mwm.RegisterRightSide ('tabbed_lists', TabbedLists
+                                   (mwm, -1), position=1)
 
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 300))

@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-06-23 05:07:22 $
-# @version $Revision: 1.2 $ $Date: 2002-06-23 05:07:22 $ $Author: ihaywood $
+# @Date: $Date: 2002-06-26 04:53:02 $
+# @version $Revision: 1.3 $ $Date: 2002-06-26 04:53:02 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -29,7 +29,7 @@
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # text translation function for localization purposes
@@ -41,7 +41,7 @@ from wxPython.html import *
 from gmI18N import *
 
 import sys, time, os
-import gmLogFrame, gmGuiBroker, gmPG, gmmanual, gmSQLSimpleSearch, gmSelectPerson
+import gmLogFrame, gmGuiBroker, gmPG, gmmanual, gmSQLSimpleSearch, gmSelectPerson, gmConf
 import gmLog
 import gmPlugin
 import gmGP_MainWindowManager
@@ -59,6 +59,7 @@ from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 ID_ABOUT = wxNewId ()
 ID_EXIT = wxNewId ()
 ID_HELP = wxNewId ()
+ID_NOTEBOOK = wxNewId ()
  	
 
 
@@ -95,7 +96,6 @@ class MainFrame(wxFrame):
 		(user,) = cur.fetchone()
 
 		self.guibroker['main.SetWindowTitle']= self.SetTitle
-
 		self.SetTitle(_("You are logged in as [%s]") % user)
 
 		self.SetupPlatformDependent()
@@ -138,20 +138,27 @@ class MainFrame(wxFrame):
 		self.guibroker['main.patientpicture'] = self.patientpicture
 		self.guibroker['main.toolbar'] = self.tb
 		self.vbox.AddSizer(self.topbox, 1, wxEXPAND) #|wxALL, 1)
-                #self.SetupToolBar()
-		self.mwm = gmGP_MainWindowManager.MainWindowManager(self)
-		#self.nb.style = wxNB_BOTTOM
-		self.guibroker['main.manager']=self.mwm
-		gmPlugin.LoadPluginSet ('gui',
-					guibroker = self.guibroker,
-					dbbroker = backend,
-					defaults = ['gmGP_TabbedLists', 'gmGP_ScratchPadRecalls', 'gmPatientSearch', 'gmGP_ClinicalSummary', 'gmGP_Allergies', 'gmGP_Prescriptions', 'gmManual', 'gmSQL', 'gmCrypto', 'gmPython', 'gmSnellen', 'gmBMICalc', 'gmConsultType'])
-		self.mwm.SetDefault ('summary')
+		if gmConf.config ['main.use_notebook']:
+			# now set up the main notebook
+			self.nb = wxNotebook (self, ID_NOTEBOOK, style=wxNB_BOTTOM)
+			self.guibroker['main.notebook'] = self.nb
+			self.vbox.Add (self.nb, 10, wxEXPAND|wxALL, 1)
+			self.mwm = gmGP_MainWindowManager.MainWindowManager(self.nb)
+			self.nb.AddPage (self.mwm, "Patient")
+		else:
+			self.mwm = gmGP_MainWindowManager.MainWindowManager(self)
+			self.vbox.Add(self.mwm, 10, wxEXPAND|wxALL, 1)
+		#
+		self.guibroker['main.manager'] = self.mwm
+		for plugin in gmPlugin.GetAllPlugins ('gui'):
+			gmPlugin.LoadPlugin ('gui', plugin,
+						guibroker = self.guibroker,
+						dbbroker = backend)
+		self.mwm.SetDefault ('Clinical Summary')
 		self.mwm.Display (self.mwm.default)
 		# realize the toolbars
 		self.guibroker['main.top_toolbar'].Realize ()
 		self.guibroker['main.bottom_toolbar'].Realize ()
-		self.vbox.Add(self.mwm, 10, wxEXPAND|wxALL, 1)
 		self.SetStatusText(_("You are logged in as [%s]") % user)
 
 		self.SetSizer( self.vbox )

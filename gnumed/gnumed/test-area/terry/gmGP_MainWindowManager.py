@@ -15,8 +15,10 @@ hand column (note all of these plugins are visible at once)
 from wxPython.wx import *
 from gmLog import *
 log = gmDefLog.Log
+import gmConf
 import gmGuiBroker
 import gmDispatcher
+import gmShadow
 
 class MainWindowManager (wxPanel):
 
@@ -44,18 +46,18 @@ class MainWindowManager (wxPanel):
         """
         Recieves a wxPanel which is to fill the whole screen
         Client must NOT do Show () on the panel!
-        """
+        """ 
         self.wholescreen[name] = panel
-        panel.Show (0) # make sure all hidden
-        log (lInfo, "Registering %s as whole screen widget" % name)
+        panel_inst.Show (0) # make sure all hidden
+        #log (lInfo, "Registering %s as whole screen widget" % name)
 
     def RegisterLeftSide (self, name, panel):
         """
         Register for left side
         """
         self.lefthalf[name] = panel
-        panel.Show (0) # make sure all hidden
-        log (lInfo, "Registering %s left side" % name)
+        panel.Show (0)
+        
 
     def RegisterRightSide (self, name, panel, position =1):
         """
@@ -65,7 +67,7 @@ class MainWindowManager (wxPanel):
         """
         self.righthalf[name] = (panel, position)
         panel.Show (0)
-        log (lInfo, "Registering %s as right side widget" % name)
+        #log (lInfo, "Registering %s as right side widget" % name)
 
     def Unregister (self, name):
         if name == self.default:

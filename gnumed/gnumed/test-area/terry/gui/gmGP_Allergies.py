@@ -152,30 +152,22 @@ class AllergyPanel(wxPanel):
           self.SetAutoLayout(true)
           self.Show(true)
 
-class gmGP_Allergies (gmPlugin.wxBasePlugin):
+class gmGP_Allergies (gmPlugin.wxSmallPagePlugin):
     """
     Plugin to encapsulate the allergies window
     """
+    
     def name (self):
-        return 'AllergiesPlugin'
+           return 'Allergies Window'
 
-    def register (self):
-        self.mwm = self.gb['main.manager']
-        self.mwm.RegisterLeftSide ('allergies', AllergyPanel
-        (self.mwm, -1))
-        tb2 = self.gb['main.bottom_toolbar']
-        tb2.AddSeparator()
-	tool1 = tb2.AddTool(ID_ALLERGIES, images_gnuMedGP_Toolbar.getToolbar_AllergiesBitmap(), shortHelpString="Allergies")
-        EVT_TOOL (tb2, ID_ALLERGIES, self.OnAllergiesTool)
-        menu = self.gb['main.viewmenu']
-        menu.Append (ID_ALL_MENU, "&Allergies", "Allergies")
-        EVT_MENU (self.gb['main.frame'], ID_ALL_MENU, self.OnAllergiesTool)
+    def MenuInfo (self):
+           return ('view', '&Allergies')
 
+    def GetIcon (self):
+           return images_gnuMedGP_Toolbar.getToolbar_AllergiesBitmap()
 
-    def OnAllergiesTool (self, event):
-        self.mwm.Display ('allergies')
-
-
+    def GetWidget (self, parent):
+           return AllergyPanel (parent, -1)
 	  
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))

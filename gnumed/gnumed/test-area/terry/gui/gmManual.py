@@ -4,36 +4,19 @@ import gmPlugin
 import gmmanual
 import images_gnuMedGP_Toolbar
 
-ID_MANUAL = wxNewId ()
-ID_MANUALMENU = wxNewId ()
-
-class gmManual (gmPlugin.wxBasePlugin):
+class gmManual (gmPlugin.wxBigPagePlugin):
     """
     Plugin to encapsulate the manual window
     """
     def name (self):
-        return 'ManualPlugin'
+        return 'GNUMed online manual'
 
-    def register (self):
-         self.mwm = self.gb['main.manager']
-         self.mwm.RegisterLeftSide ('manual', gmmanual.ManualHtmlPanel
-                                    (self.mwm, self.gb['main.frame']))
-         tb2 = self.gb['main.bottom_toolbar']
-         tb2.AddSeparator()
-         tool1 = tb2.AddTool(ID_MANUAL,
-                             images_gnuMedGP_Toolbar.getToolbar_ManualBitmap(),
-                             shortHelpString="Online Manual")
-         EVT_TOOL (tb2, ID_MANUAL, self.OnManualTool)
-         menu = self.gb['main.helpmenu']
-         menu.Append (ID_MANUALMENU, "&Manual", "Online manual")
-         EVT_MENU (self.gb['main.frame'], ID_MANUALMENU, self.OnManualTool)
+    def MenuInfo (self):
+        return ('help', '&Manual')
 
-    def unregister (self):
-        tb2 = self.gb['main.bottom_toolbar']
-        tb2.DeleteTool (ID_MANUAL)
-        menu = self.gb['main.helpmenu']
-        menu.Delete (ID_MANUALMENU)
-        self.mwm.Unregister ('manual')
-        
-    def OnManualTool (self, event):
-        self.mwm.Display ('manual')
+    def GetIcon (self):
+        return images_gnuMedGP_Toolbar.getToolbar_ManualBitmap()
+
+    def GetWidget (self, parent):
+        return gmmanual.ManualHtmlPanel (parent, self.gb['main.frame'])
+

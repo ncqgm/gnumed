@@ -21,7 +21,15 @@ class ConnectionError(Exception):
 		self.errmsg=errmsg
 
 	def __str__(self):
-		return errmsg
+		return self.errmsg
+
+class ConfigError(Exception):
+	#raised whenever a configuration error occurs
+	def __init__(self, errmsg):
+		self.errmsg=errmsg
+
+	def __str__(self):
+		return self.errmsg
 
 
 
@@ -31,7 +39,7 @@ class NoGuiError(Exception):
 		self.errmsg=errmsg
 
 	def __str__(self):
-		return errmsg
+		return self.errmsg
 
 
 class PureVirtualFunction(Exception):
@@ -43,6 +51,6 @@ class PureVirtualFunction(Exception):
 			self.errmsg="Attempt to call a pure virtual function!"
 
 	def __str__(self):
-		return errmsg
+		return self.errmsg
 
 

@@ -172,31 +172,21 @@ class PrescriptionPanel (wxPanel):
           self.Show(true)
       
           
-class gmGP_Prescriptions (gmPlugin.wxBasePlugin):
+class gmGP_Prescriptions (gmPlugin.wxSmallPagePlugin):
     """
     Plugin to encapsulate the prescriptions window
     """
     def name (self):
-        return 'PrescriptionPlugin'
+         return 'Prescription writer'
 
-    def register (self):
-         self.mwm = self.gb['main.manager']
-         self.mwm.RegisterLeftSide ('prescriptions', PrescriptionPanel
-                                    (self.mwm, -1))
-         tb2 = self.gb['main.bottom_toolbar']
-         tb2.AddSeparator()
-         tool1 = tb2.AddTool(ID_SCRIPTICON,
-                             images_gnuMedGP_Toolbar.getToolbar_ScriptBitmap(),
-                             shortHelpString="Prescribing Pad")
-         EVT_TOOL (tb2, ID_SCRIPTICON, self.OnScriptTool)
-         menu = self.gb['main.viewmenu']
-         menu.Append (ID_SCRIPTMENU, "&pre&Scription", "Script Pad")
-         EVT_MENU (self.gb['main.frame'], ID_SCRIPTMENU, self.OnScriptTool)
-        
-    def OnScriptTool (self, event):
-        self.mwm.Display ('prescriptions')
+    def MenuInfo (self):
+         return ('view', '&Script')
 
+    def GetIcon (self):
+         return images_gnuMedGP_Toolbar.getToolbar_ScriptBitmap()
 
+    def GetWidget (self, parent):
+         return  PrescriptionPanel (parent, -1)
           
 class App(wxApp):
      def OnInit(self):

@@ -1,5 +1,5 @@
 from wxPython.wx import *
-import gmPlugin
+import gmPlugin, gmShadow, gmConf
 
 scratchpaddata = {
 1 : ("01/12/2001", "check BP next visit"),
@@ -93,8 +93,14 @@ class gmGP_ScratchPadRecalls (gmPlugin.wxBasePlugin):
 
     def register (self):
         mwm = self.gb['main.manager']
-        mwm.RegisterRightSide ('scratchpad_recalls', ScratchPadRecalls
-        (mwm, -1), position=2)
+        if gmConf.config['main.shadow']:
+            shadow = gmShadow.Shadow (mwm, -1)
+            spr = ScratchPadRecalls (shadow, -1)
+            shadow.SetContents (spr)
+            mwm.RegisterRightSide ('scratchpad_recalls', shadow, position=2)
+        else:
+            mwm.RegisterRightSide ('scratchpad_recalls', ScratchPadRecalls
+                                   (mwm, -1), position=2)
 
     
 if __name__ == "__main__":

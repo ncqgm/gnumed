@@ -94,29 +94,21 @@ class ClinicalSummary(wxPanel):
         self.SetAutoLayout(true)                 #tell frame to use the sizer
         self.Show(true) 
 
-class gmGP_ClinicalSummary (gmPlugin.wxBasePlugin):
+class gmGP_ClinicalSummary (gmPlugin.wxSmallPagePlugin):
     """
     Plugin to encapsulate the clinical summary
     """
     def name (self):
-        return 'ClinicalSummaryPlugin'
+        return 'Clinical Summary'
 
-    def register (self):
-        self.mwm = self.gb['main.manager']
-        self.mwm.RegisterLeftSide ('summary', ClinicalSummary
-        (self.mwm, -1))
-        tb2 = self.gb['main.bottom_toolbar']
-        tb2.AddSeparator()
-	tool1 = tb2.AddTool(ID_OVERVIEW, images_gnuMedGP_Toolbar.getToolbar_HomeBitmap(), shortHelpString="Overview of patients records")
-	#add a custom separator to the toolbar
-	tb2.AddControl(wxStaticBitmap(tb2, -1, images_gnuMedGP_Toolbar.getCustom_SeparatorBitmap(), wxDefaultPosition, wxDefaultSize))
-        EVT_TOOL (tb2, ID_OVERVIEW, self.OnSummaryTool)
-        menu = self.gb['main.viewmenu']
-        menu.Append (ID_OVERVIEWMENU, "S&ummary", "Clinical Summary")
-        EVT_MENU (self.gb['main.frame'], ID_OVERVIEWMENU, self.OnSummaryTool)
+    def MenuInfo (self):
+        return ('view', '&Summary')
 
-    def OnSummaryTool (self, event):
-        self.mwm.Display ('summary')
+    def GetIcon (self):
+        return images_gnuMedGP_Toolbar.getToolbar_HomeBitmap()
+
+    def GetWidget (self, parent):
+        return ClinicalSummary (parent, -1)
 
 
 if __name__ == "__main__":
