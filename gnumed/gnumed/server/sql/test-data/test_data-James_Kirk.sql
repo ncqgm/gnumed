@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.32 $
+-- $Revision: 1.33 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -30,6 +30,12 @@ values ('m', '1931-3-22+2:00', 'CA', 'Capt.');
 
 insert into names (id_identity, active, lastnames, firstnames)
 values (currval('identity_id_seq'), true, 'Kirk', 'James T.');
+
+insert into enum_ext_id_types (name, issuer, context)
+values ('Star Fleet Staff Code', 'Star Fleet Central Staff Office', 'o');
+
+insert into lnk_identity2ext_id (id_identity, external_id, fk_origin)
+values (currval('identity_id_seq'), 'SC937-0176-CEC', currval('enum_ext_id_types_pk_seq'));
 
 -- =============================================
 -- service historica
@@ -599,11 +605,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.32 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.33 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.32  2004-08-18 08:28:56  ncq
+-- Revision 1.33  2004-09-02 00:43:20  ncq
+-- - add Star Fleet Staff Code as external_id
+--
+-- Revision 1.32  2004/08/18 08:28:56  ncq
 -- - put Kirk on some vaccination schedules
 --
 -- Revision 1.31  2004/07/28 15:47:00  ncq
