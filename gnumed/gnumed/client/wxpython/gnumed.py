@@ -21,7 +21,7 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -114,7 +114,7 @@ def call_main():
 	# run gnumed and intercept _all_ exceptions (but reraise them ...)
 	try:
 		if with_email_log:
-			gmGuiMain.mainWithTalkback()
+			gmGuiMain.main_with_feedback()
 		else:
 			gmGuiMain.main()
 	except:
@@ -146,7 +146,7 @@ if __name__ == "__main__":
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	gmLog.gmDefLog.AddTarget(aLogTarget)
-	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module (version %s).' % __version__)
+	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 	#</DEBUG>
 
 	gmLog.gmDefLog.Log(gmLog.lData, "resource path: " + appPath)
