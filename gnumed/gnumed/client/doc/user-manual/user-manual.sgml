@@ -37,6 +37,13 @@
    </abstract>
 
 <revhistory>
+      <revision>
+	<revnumber>0.1.4.2.1</revnumber>
+	<date>2003-04-02</date>
+	<authorinitials>gea</authorinitials>
+	<revremark>added more config info, and started mandrake
+	installation, but needs more work</revremark>
+      </revision>
 
       <revision>
 	<revnumber>0.1.4.2</revnumber>
@@ -485,7 +492,285 @@ setting up the database (<xref linkend="pgsql">.)</para>
       </sect3>
 </sect2>
     </sect1>
+      
+<sect1 id="mandrake">
+	<title>Mandrake- GnuMed on Mandrake 9.1</title>
+	<para>GnuMed Install Instructions for Mandrake Linux 9.1
+by Michael Bonert</para>
+	<para><email>michael.bonert@utoronto.ca</email></para>
+	<para>Wed Apr  2 00:17:07 EST 2003</para>
+	<sect2>
+	  <title>Installation</title>
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+1. Install CVS (from the Mandrake CDs):
+	cvs-1.11.5-1mdk</para>
+	    </listitem>
+	    <listitem>
+	      <para>
+  2. Install postgresql (from the Mandrake CDs):
+		<footnote>
+		  <para>
+	NOTE: If the packages all show up when you do a
+	'remove software packages' (in 'mcc') they are all
+	installed.</para>
+		</footnote>
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <itemizedlist>
+		<listitem>
+		  <para>
+postgresql-7.3.2-5mdk</para>
+		</listitem>
+		<listitem>
+		  <para>
+postgresql-devel-7.3.2-5mdk</para>
+		</listitem>
+		<listitem>
+		  <para>
+postgresql-python-7.3.2-5mdk</para>
+		</listitem>
+		<listitem>
+		  <para>
+postgresql-server-7.3.2-5mdk</para>
+		</listitem>
+		<listitem>
+		  <para>
+postgresql-pl-7.3.2-5mdk</para>
+		</listitem>
+		<listitem>
+		  <para>
+pgaccess-0.98.8.20030117-2mdk		# nice to have</para>
+		</listitem>
+		<listitem>
+		  <para>
+postgresql-docs-7.3.2-5mdk		# nice to have</para>
+		</listitem>
+	      </itemizedlist>
+	    </listitem>
+	    <listitem>
+	      <para>
+3. Install wxPython -- (version used: wxPythonGTK-py2.2-2.4.0.1-1.i386.rpm)</para>
+	    </listitem>
+	    <listitem>
+	      <para>
+4. Install mx extenstion libraries -- (egenix-mx-base-2.0.4-py2.2_1.i386.rpm)</para>
+	    </listitem>
+	    <listitem>
+	      <para>
+5. Install pyPgSQL -- (pyPgSQL-2.3-1.src.rpm)</para>
+	    </listitem>
+	    <listitem>
+	      <para>
+Before building and installing pyPgSQL make sure you have the following
+		(from the Mandrake CDs):<emphasis>
+	libpython2.2-devel-2.2.2-6mdk</emphasis></para>
+	    </listitem>
+	  </itemizedlist>
 
+	  <screen>$ tar zxvf pyPgSQL-2.3.tar.gz<footnote>
+	      <para># gunzip + untar 'pyPgSQL-2.3.tar.gz'</para>
+	    </footnote></screen>
+	  <screen>
+$ cd pypgsql
+	  </screen>
+	  <para>
+Set include and library directories in "setup.py" with your favourite editor:</para>
+	  <para># Set this to 1 if you need to use your own
+	  settings</para>
+	  <screen>USE_CUSTOM = 1<footnote>
+	      <para># Don't forget to change this line!!!</para>
+	    </footnote>
+...
+
+if USE_CUSTOM:
+    include_dirs = ["/usr/include/pgsql"]
+    library_dirs = ["/usr/lib/pgsql"]</screen>
+	  <screen>
+$ python setup.py build
+	    $ python setup.py install<footnote>
+	      <para>
+NOTE: If the directory settings in 'setup.py' are wrong you get a misleading error about 'gcc'</para>
+	    </footnote></screen>
+
+	  <para>Testing pyPgSQL:</para>
+	  <screen>
+$ cd test<footnote>
+	      <para>
+# install directory: ../pypgsql/test</para>
+	    </footnote>
+$ python PgSQLTestCases.py
+	  </screen>
+
+
+
+
+
+	  <para>
+
+	    <screen>
+OUTPUT:
+	..................................................................
+	----------------------------------------------------------------------
+	Ran 66 tests in 1.090s
+
+	OK
+	    </screen>
+
+	  </para>
+	</sect2>
+
+	<sect2>
+	  <title>Get GnuMed source</title>
+	  <para>
+RECOMMENDATION: install gnumed in "/home/your_user_name/"
+	-- where 'your_user_name' is your favourite normal user - e.g. 'michael'
+	  </para>
+	  <screen>
+$ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
+$ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
+	  </screen>
+	</sect2>
+	<sect2>
+	  <title>Modify postgresql.conf</title>
+	  <screen>
+$ su
+# cd /var/lib/pgsql/data
+# vi postgresql.conf<footnote>
+	      <para>change '#tcpip_socket=false' to 'tcpip_socket=on'</para>
+	    </footnote></screen>
+	    </sect2>
+	<sect2>
+	  <title>Modify "pg_hba.conf" found in
+	  "/var/lib/pgsql/data"</title>
+	  <screen>
+# vi pg_hba.conf</screen>
+	  <para>
+last part of our "pg_hba.conf" should look like this:
+	    <screen>
+# Using sockets credentials for improved security. Not available everywhere,
+# but works on Linux, *BSD (and probably some others)
+
+#local  all     all     ident   sameuser
+local   all         all                                             trust
+host    all         all         127.0.0.1         255.255.255.255   trust
+	    </screen>
+	  </para>
+	</sect2>
+	<sect2>
+	  <title>Create db</title>
+	  <para>
+(see -- http://mail.gnu.org/archive/html/gnumed-devel/2003-02/msg00079.html)</para>
+	  <screen>
+$ su root
+	    # passwd postgres<footnote>
+	      <para># change password (I don't know what the default is</para>
+</footnote></screen>
+	  <caution>
+	    <para># you'll need this password later so remember it.</para>
+	  </caution>
+	  <screen>
+# su postgres
+$ createuser your_user_name	# in my case: "createuser michael"	(answer 'y' to both questions)
+$ createuser _your_user_name	# in my case: "createuser _michael"	(answer 'y' to both questions)
+	  </screen>
+
+	  <para>
+(as normal user)</para>
+	  <screen>
+$ cd /home/your_user_name/gnumed/gnumed/server/bootstrap
+$ cp bootstrap-standard-AU.conf.sample your_user_name-db.conf
+$ ln -s /home/your_user_name/gnumed/gnumed/client/python-common modules
+$ ln -s /home/your_user_name/gnumed/gnumed/server/sql/ sql
+	  </screen>
+	  <para>
+	At this point you may want to confirm that postgresql is
+	running:</para>
+	  <screen>
+$ mcc
+	  </screen>
+	  <para>click on 'System'</para>
+	  <para>click on 'DrakXServices...'</para>
+<para>'postgresql' should say 'running'</para>
+	  <screen>
+$ python bootstrap-gm_db_system.py
+	    --conf-file=your_user_name-db.conf</screen>
+	  <para>
+When prompted:
+	    <itemizedlist>
+	      <listitem>
+		<para>
+- yes</para>
+	      </listitem>
+	      <listitem>
+		<para>
+- give password</para>
+	      </listitem>
+	      <listitem>
+		<para>
+- give another password</para>
+	      </listitem>
+	    </itemizedlist></para>
+
+	  <para><emphasis>
+NOTE: If you have problems the log file is in: "/home/your_user_name/.bootstrap-gm_db_system"
+	    </emphasis></para>
+	</sect2>
+	<sect2>
+	  <title>Set 'GNUMED_DIR' variable</title>
+	  <screen>
+$ cd 			# cd to home
+$ vi .bash_profile	# or your favourite text editor
+	  </screen>
+	  <para>
+Add the following:</para>
+	  <screen>
+GNUMED_DIR=$GNUMED_DIR/home/your_user_name/gnumed/gnumed/client
+	  </screen>
+	</sect2>
+
+	<sect2>
+	  <title>Running GnuMed:</title>
+	  <screen>
+$ cd /home/your_user_name/gnumed/gnumed/client/wxpython
+$ python gnumed.py --debug
+	  </screen>
+<important>
+	    <para>
+Find something you don't like and fix it... ;O)
+	   
+---------------------------------------------------
+Karsten.Hilbert@gmx.net      2.4.2003
+
+there are two options for you:
+
+1) connect to the public database on my server for testing the frontend:
+   server: anubis.homeunix.com
+   database: gnumed-public
+   user/password: please write me a private mail
+
+
+2) on bootstrapping:
+
+To capture even the last bit of screen output do this:
+
+- go to the directory where you want to start bootstrap*
+- run the command "script -a bootstrapping.log"
+- run the bootstrapping as you did before
+	    - when finished, type <screen>"exit"</screen>y
+- now also send me the bootstrapping.log file
+
+Michael: Can we add the latter part to the installation
+instructions ? Thanks for your excellent work !
+
+--------------------------------------------------
+	  </para>
+	  </important>
+	</sect2>
+      </sect1>
+   
 
 <sect1 id="mac"><title>Mac - GnuMED on MacOSX 10.2</title>
 	<sect2>
@@ -865,6 +1150,107 @@ Click on the Python icon and type:
         </para>
 </sect1>
 
+
+
+      <sect1>
+	<title>Notes on configuration</title>
+	<para>
+Belongs into Admin->Config:
+	</para>
+	<para>
+Upon startup the client autoconfigures the language used
+in the database.
+	</para>
+	<para>
+The following things influence its decision:
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+The language is taken from the system locale in the environment
+variables checked for the GUI language by gmI18N.py.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+If there's no i18n_curr_lang table in the database the client
+assumes that no translations are wanted and tries to work
+without it. Same if other errors prevent normal operations - a
+warning is logged and things continue.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+If the language given in the database doesn't match the system
+locale the user is asked whether to update the database setting
+to that. One can influence the system locale setting in
+per-instance wrapper scripts if so desired.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+The database language setting is only updated if translations
+are actually available for the target language. Two levels of
+truncation of the system locale are used to find matching
+		translations:
+		<itemizedlist>
+		  <listitem>
+		    <para>
+1) full locale: 'de_DE@euro'
+		    </para>
+		  </listitem>
+		  <listitem>
+		    <para>
+2) no dialect:  'de_DE'
+		    </para>
+		  </listitem>
+		  <listitem>
+		    <para>
+3) no country:  'de'
+		    </para>
+		  </listitem>
+		</itemizedlist></para>
+	    </listitem>
+	  </itemizedlist></para>
+	<para>
+This allows for a missing Austrian translation to fall back to
+	  a general German (de_AT -> de) one, for example.
+<footnote>
+	    <para>
+I looked up the syntax in gmCfg.py, but could I suggest that a line be 
+inserted in the bootstrap_gm-db.py file which says something like
+	    </para>
+	    <para>
+#before running this script:
+#
+#-make sure you've installed the symbolic links as listed in make-links.sh
+# you can run this by typing sh make-links.sh
+#
+#-make sure you check the section: 
+#language library dirs = $language library dirs$
+#to make sure the pathways point to the pgsql libraries
+#
+#usage :
+# python bootstrap_gm-db.py --conf-file=yourconfigfilenamehere
+# e.g bootstrap_gm-db.py --conf-file=bootstrap-standard_AU.conf
+#
+	    </para>
+	    <para>
+Anyway, I can now get up the interface at work, so perhaps having struggled 
+twice to do this the third time (when I get my dead machine at home back) 
+it'll be relatively easy. when I do I'll keep a line by line instruction set 
+to add to the installation docs.
+
+Regards
+
+Richard
+
+	    </para>
+	  </footnote></para>
+      </sect1>
+ 
+
+
+
 <sect1 id="user-structure" xreflabel="DB user structure">
 <title>GnuMed database user structure</title>
 	<para>
@@ -978,8 +1364,8 @@ Click on the Python icon and type:
 <title>How to use GnuMed</title>
 	<chapter id="usage">
 		<title>How do I use GnuMed to make a cup of tea</title>
-	</chapter>
-</part>
-
+      <para>Ask Marvin</para>
+    </chapter>
+  </part>
 &gfdl;
 </book>
