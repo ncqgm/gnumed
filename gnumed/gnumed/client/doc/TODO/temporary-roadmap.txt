@@ -1,0 +1,83 @@
+GnuMed temporary roadmap
+========================
+$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/temporary-roadmap.txt,v $
+$Revision: 1.1 $
+-----------------------------------------------------------------
+This is the temporary roadmap. Please always include
+an URL to this document when discussing items on the list.
+-----------------------------------------------------------------
+
+patient input/search/modification
+ - no family relationship handling
+ - search done (or nearly, in top panel)
+ - mediocre attempt at input/modification available
+ - input needs considerably more smarts
+
+
+progress notes
+ - simple SOAP structured text input fields
+ - clin_note/clin_history/clin_physical rows
+ - optional, partially done
+
+
+export of progress notes
+ - per patient
+ - ASCII to text files for re-use
+ - constrainable by date, encounter, episode, health issue
+ - proof-of-intent for interoperability
+
+
+third-party application connectivity
+ - allow other apps to a GnuMed instance, lock it
+   into a patient and release that lock later on
+ - optional for Australia
+
+
+drug information browser if data is available locally
+ - PBS via drugref.org via XML-RPC, initially
+ - AMIS (German) to follow
+
+
+document archive
+ - optional
+ - nearly done
+
+
+simple ConfigRegistry
+ - complete default config data
+ - nearly done
+
+
+referrals handling
+ - referral form (Germany)
+ - accompanying referral letter
+
+
+prescription
+ - *very* complex to cover all cases (I can write a senior
+   year AP English essay on that if you want)
+ - start with simple, most common cases
+
+
+past history/problem list
+ - problem list only, really, since past history is either
+   covered by 2) or not yet wanted (paper record)
+ - problem list: some conceptual obfuscation as to how
+   episodes overlap with diagnoses and problem lists
+ - in a way, episode names *are* the problem list
+
+
+path results
+ - one excellently defined area of work
+ - high on my list as well
+ - easily assignable sub-project
+
+-----------------------------------------------------------------
+Old German first-off roadmap is here:
+ (http://mail.gnu.org/archive/html/gnumed-devel/2003-06/msg00045.html)
+
+-----------------------------------------------------------------
+$Log: temporary-roadmap.txt,v $
+Revision 1.1  2003-07-27 16:10:49  ncq
+- first version
+
