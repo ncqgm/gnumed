@@ -1,0 +1,62 @@
+//File: PersonIdTraits.idl
+
+#ifndef _PERSON_ID_TRAITS_IDL_
+#define _PERSON_ID_TRAITS_IDL_
+
+//#include <orb.idl>
+#include <PersonIdService.idl>
+
+#pragma prefix "omg.org"
+
+module PersonIdTraits
+{
+        const PersonIdService::TraitName NULL_TRAIT = "";
+        typedef any NullTraitType;  // set to tk_null
+        
+        const PersonIdService::TraitName INTERNAL_ID = "PIDS/InternalId";
+        typedef PersonIdService::PersonId InternalIdType;
+        
+        const PersonIdService::TraitName MERGED_IDS = "PIDS/MergedIds";
+        typedef PersonIdService::PersonIdSeq MergedIdsType;
+        
+        const PersonIdService::TraitName DUPLICATE_IDS = "PIDS/DuplicateIds";
+        typedef PersonIdService::PersonIdSeq DuplicateIdsType;
+        
+        const PersonIdService::TraitName CORRELATED_IDS = "PIDS/CorrelatedIds";
+        typedef PersonIdService::QualifiedPersonIdSeq CorrelatedIdsType;
+        
+        const PersonIdService::TraitName EXTERNAL_IDS = "PIDS/ExternalIds";
+        typedef PersonIdService::QualifiedPersonIdSeq ExternalIdsType;
+
+        const PersonIdService::TraitName NATIONAL_HEALTH_IDS = 
+                                          "PIDS/NationalHealthId";
+        struct NationalHealthIdStruct {
+                string country_code;
+                PersonIdService::PersonId id;
+        };
+        typedef sequence< NationalHealthIdStruct > NationalHealthIdStructSeq;
+        typedef NationalHealthIdStructSeq NationalHealthIdsType;
+
+        const PersonIdService::TraitName EXTERNAL_CODED_IDS = 
+					"PIDS/ExternalCodedIds";
+
+        typedef NamingAuthority::LocalName      ConceptCode;
+        typedef NamingAuthority::AuthorityId CodingSchemeId;
+
+        struct QualifiedCode {
+            CodingSchemeId coding_scheme_id;
+            ConceptCode a_code;
+        };
+        struct QualifiedPersonIdInfo {
+           QualifiedCode a_qualified_code;
+           PersonIdService::QualifiedPersonId id;
+        };
+        typedef sequence<QualifiedPersonIdInfo> QualifiedPersonIdInfoSeq;
+        typedef QualifiedPersonIdInfoSeq ExternalCodedIdsType;
+
+
+};
+
+
+#endif // _PERSON_ID_TRAITS_IDL_
+

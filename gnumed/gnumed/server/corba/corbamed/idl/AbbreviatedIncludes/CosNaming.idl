@@ -1,0 +1,16 @@
+// File: CosNaming.idl
+// This file contains an abbreviated set of definitions, only those
+// which are required by DsObservationAccess. 
+// Use this file only when the standard CosNaming module
+// is not available nor desired for compilation and runtime.
+
+#ifndef CosNaming_included
+#define CosNaming_included
+
+#pragma prefix "omg.org"
+
+module CosNaming
+{
+	interface NamingContext {};
+};
+#endif /* ifndef CosNaming_included */

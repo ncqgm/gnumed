@@ -1,0 +1,43 @@
+// File: TerminologyServices.idl
+// This file contains an abbreviated set of definitions, only those
+// which are required by DsObservationAccess. 
+// Use this file only when the standard Lexicon Query Service (LQS)
+// is not available nor desired for compilation and runtime.
+
+#ifndef _TERMINOLOGY_SERVICES_IDL_
+#define _TERMINOLOGY_SERVICES_IDL_
+
+#pragma prefix "omg.org"
+
+#include "NamingAuthority.idl"
+
+// ***************************************************************
+//       module:  TerminologyService
+// ***************************************************************
+module TerminologyServices {
+
+	typedef NamingAuthority::LocalName	ConceptCode;
+
+	typedef NamingAuthority::AuthorityId CodingSchemeId;
+		
+	struct QualifiedCode {	
+		CodingSchemeId	coding_scheme_id;
+		ConceptCode		a_code;
+	};
+	typedef sequence <QualifiedCode> QualifiedCodeSeq;
+
+	typedef ConceptCode LanguageId;   
+
+	typedef string VersionId;
+		
+	typedef string IntlString;
+
+	struct QualifiedCodeInfo {
+		QualifiedCode	a_qualified_code;
+		IntlString	preferred_text;
+	};
+
+	interface TerminologyService {};	
+};
+
+#endif  // _TERMINOLOGY_SERVICES_IDL_

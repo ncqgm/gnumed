@@ -1,0 +1,1170 @@
+// File: DsObservationAccess.idl
+#ifndef _DS_OBSERVATION_ACCESS_IDL_
+#define _DS_OBSERVATION_ACCESS_IDL_
+
+#pragma prefix "omg.org"
+
+#include "AbbreviatedIncludes/CosNaming.idl"
+#include "AbbreviatedIncludes/CosTrading.idl"
+#include "AbbreviatedIncludes/NamingAuthority.idl"
+#include "AbbreviatedIncludes/TerminologyServices.idl"
+#include "AbbreviatedIncludes/PersonIdService.idl"
+#include "AbbreviatedIncludes/CosEventComm.idl"
+#include "AbbreviatedIncludes/CosEventChannelAdmin.idl"
+
+//#include <orb.idl>
+
+module DsObservationAccess 
+{
+	//
+	// EXTERNAL TYPEDEFS
+	//
+	typedef PersonIdService::QualifiedPersonId ObservedSubjectId;
+	typedef TerminologyServices::QualifiedCode QualifiedCode;
+	typedef NamingAuthority::QualifiedNameStr QualifiedCodeStr;
+	typedef PersonIdService::DomainName IdDomainName;
+	typedef PersonIdService::IdentificationComponent IdentificationComponent;
+	typedef CosNaming::NamingContext NamingContext;
+	typedef CosTrading::TraderComponents TraderComponents;
+	typedef TerminologyServices::TerminologyService TerminologyService;
+	typedef CosEventComm::PushConsumer PushConsumer;
+	typedef CosEventComm::PushSupplier PushSupplier;
+	typedef CORBA::TypeCode TypeCode;
+	
+	//
+	// FORWARD DECLARATIONS
+	//
+	interface AbstractFactory;
+	interface AbstractManagedObject;
+	interface AccessComponent;
+	interface AsynchCallback;
+	interface AsynchAccess;
+	interface AtomicObservationRemote;
+	interface BrowseAccess;
+	interface CompositeObservationRemote;
+	interface ConsumerAccess;
+	interface ConstraintLanguageAccess;
+	interface EventConsumer;
+	interface EventSupplier;
+	interface ObservationDataIterator;
+	interface ObservationLoader;
+	interface ObservationRemote;
+	interface ObservationRemoteIterator;
+	interface ObservedSubject;
+	interface QualifiedCodeIterator;
+	interface QueryAccess;
+	interface SupplierAccess;
+
+	//
+	// STRUCTS
+	//
+	struct AccessComponentData
+	{
+		QueryAccess query_access;
+		BrowseAccess browse_access;
+		AsynchAccess asynch_access;
+		ConstraintLanguageAccess constraint_access;
+		ObservationLoader observation_loader;
+		ConsumerAccess consumer_access;
+		SupplierAccess supplier_access;
+	};
+	
+	struct AsynchException 
+	{
+		QualifiedCodeStr exception_name;
+		string message;
+	};
+	
+	struct ObservationDataStruct
+	{
+		QualifiedCodeStr code;
+		sequence<ObservationDataStruct> composite;
+		sequence<ObservationDataStruct> qualifiers;
+		sequence<any,1> value;
+	};
+	typedef any ObservationData;
+	typedef ObservationData ObservationQualifier;
+	
+	struct ObservationId 
+	{
+		QualifiedCodeStr code;
+		string opaque;
+	};
+	
+	struct NameValuePair 
+	{
+		QualifiedCodeStr name;
+		any value;
+	};
+	
+	struct Subscription 
+	{
+		sequence<ObservedSubjectId> who;
+		sequence<QualifiedCodeStr> what;
+		sequence<ObservationQualifier> qualifier;
+		sequence<NameValuePair> policy;
+	};
+	
+	typedef string TimeStamp; // ISO 8601 representation, with restrictions
+	struct TimeSpan 
+	{
+		TimeStamp start_time;
+		TimeStamp stop_time;
+	};
+
+	//
+	// CONSTANTS
+	//
+	// for TimeStamp fields
+    const string EARLIEST_TIME 	= "1582-10-15T00:00:00Z"; // beginning of Gregorian calendar
+	const string LATEST_TIME 	= "9999-12-31T23:59:59Z"; // max possible in ISO 8601 specification
+	const string TIME_WILDCARD 	= "?"; // replace individual digits
+    
+	const QualifiedCodeStr PARTIAL_RESULT			= "DNS:omg.org/DsObservationAccess/PARTIAL_RESULT";
+	const QualifiedCodeStr COMPLETING_RESULT		= "DNS:omg.org/DsObservationAccess/COMPLETING_RESULT";
+	const QualifiedCodeStr ASYNC_OBSERVATION_COUNT	= "DNS:omg.org/DsObservationAccess/ASYNC_OBSERVATION_COUNT";
+	typedef unsigned long ASYNC_OBSERVATION_COUNT_type;	
+
+	const QualifiedCodeStr EVENT_SOURCE_DOMAIN		= "DNS:omg.org/DsObservationAccess/EVENT_SOURCE_DOMAIN";
+	const QualifiedCodeStr EVENT_SOURCE_SERVER_NAME = "DNS:omg.org/DsObservationAccess/EVENT_SOURCE_SERVER_NAME";
+	const QualifiedCodeStr EVENT_NAME 				= "DNS:omg.org/DsObservationAccess/EVENT_NAME";
+	const QualifiedCodeStr TEST_EVENT 				= "DNS:omg.org/DsObservationAccess/TEST_EVENT";
+	typedef long TEST_EVENT_type;	
+
+	const QualifiedCodeStr TRADER_1_0_CONSTRAINT_LANGUAGE	= "DNS:omg.org/DsObservationAccess/TRADER_1_0_CONSTRAINT_LANGUAGE";
+	const QualifiedCodeStr OCL_1_1_CONSTRAINT_LANGUAGE		= "DNS:omg.org/DsObservationAccess/OCL1_1_CONSTRAINT_LANGUAGE";
+
+	const QualifiedCodeStr COAS_OBSERVATION_ID		= "DNS:omg.org/DsObservationAccess/COAS_OBSERVATION_ID";
+	typedef ObservationId COAS_OBSERVATION_ID_type;
+
+	//
+	// TYPEDEFS
+	//
+	typedef long EndpointId;
+	typedef string ConstraintExpression;
+	typedef QualifiedCodeStr ConstraintLanguage;
+	typedef NameValuePair QueryPolicy;
+	typedef long ServerCallId;
+	typedef long ClientCallId;
+
+	//
+	// SEQUENCES
+	//
+	typedef sequence<AtomicObservationRemote> AtomicObsRemoteSeq;
+	typedef sequence<ConstraintLanguage> ConstraintLanguageSeq;
+	typedef sequence<EndpointId> EndpointIdSeq;
+	typedef sequence<ObservationData> ObservationDataSeq;
+	typedef sequence<ObservationDataStruct>  ObservationDataStructSeq;
+	typedef sequence<ObservationId> ObservationIdSeq;
+	typedef sequence<ObservationQualifier> ObservationQualifierSeq;
+	typedef sequence<ObservationRemote> ObservationRemoteSeq;
+	typedef sequence<ObservedSubjectId> ObservedSubjectIdSeq;
+	typedef sequence<ObservedSubject> ObservedSubjectSeq;
+	typedef sequence<QualifiedCodeStr> QualifiedCodeStrSeq;
+	typedef sequence<QueryPolicy> QueryPolicySeq;
+	typedef sequence<Subscription> SubscriptionSeq;
+
+	//
+	// EXCEPTIONS
+	//
+	exception DuplicateCodes 
+	{
+		QualifiedCodeStrSeq codes;
+	};
+	
+	exception DuplicateIds 
+	{
+		ObservedSubjectIdSeq ids;
+	};
+	
+	exception DuplicateOids 
+	{
+		ObservationIdSeq oids;
+	};
+	
+	exception DuplicatePolicies 
+	{
+		QueryPolicySeq policies;
+	};
+	
+	exception DuplicateQualifiers 
+	{
+		ObservationQualifierSeq qualifiers;
+	};
+	
+	exception InvalidCodes 
+	{
+		QualifiedCodeStrSeq codes;
+	};
+
+	exception InvalidEndpointId 
+	{
+		EndpointIdSeq endpoint_ids;
+	};
+	
+	exception InvalidConstraint 
+	{
+		string constraint;
+	};
+	
+	exception InvalidIds 
+	{
+		ObservedSubjectIdSeq ids;
+	};
+	
+	exception InvalidOids 
+	{
+		ObservationIdSeq oids;
+	};
+	
+	exception InvalidPolicies 
+	{
+		QualifiedCodeStrSeq policies;
+	};
+	
+	exception InvalidQualifiers 
+	{
+		QualifiedCodeStrSeq qualifiers;
+	};
+	
+	exception InvalidTimeSpan 
+	{
+		TimeSpan span;
+	};
+	
+	exception MaxConnectionsExceeded 
+	{
+		unsigned long max_connections;
+	};
+	
+	exception NotImplemented 
+	{
+	};
+	
+	exception NoSubscription 
+	{
+	};
+
+	//
+	// INTERFACES
+	//
+	// ABSTRACT FACTORY INTERFACE
+	interface AbstractFactory
+	{
+		readonly attribute long max_connections;
+		readonly attribute EndpointIdSeq current_connections;
+	};
+
+	// ABSTRACT MANAGED OBJECT INTERFACE
+	interface AbstractManagedObject 
+	{
+		void done ( );
+	};
+
+	// ACCESS COMPONENT INTERFACE
+	interface AccessComponent 
+	{
+		readonly attribute string coas_version;
+		readonly attribute IdentificationComponent pid_service;
+		readonly attribute TerminologyService terminology_service;
+		readonly attribute TraderComponents trader_service;
+		readonly attribute NamingContext naming_service;
+		
+		AccessComponentData get_components ();
+		
+		QualifiedCodeStrSeq get_supported_codes 
+		(
+			in unsigned long max_sequence,
+			out QualifiedCodeIterator the_rest 
+		);
+		
+		QualifiedCodeStrSeq get_supported_qualifiers 
+		(
+			in QualifiedCodeStr code 
+		)
+		raises 
+		(
+			InvalidCodes,
+			NotImplemented 
+		);
+		
+		QualifiedCodeStrSeq get_supported_policies ();
+		
+		QueryPolicySeq get_default_policies ();
+		
+		TypeCode get_type_code_for_observation_type 
+		(
+			in QualifiedCodeStr observation_type
+		)
+		raises 
+		(
+			InvalidCodes,
+			NotImplemented 
+		);
+		
+		boolean are_iterators_supported ();
+		
+		TimeStamp get_current_time ();
+	};
+
+	// ASYNCH ACCESS INTERFACE
+	interface AsynchAccess : AccessComponent 
+	{
+		ServerCallId count_observations 
+		(
+			in ObservedSubjectIdSeq who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in QueryPolicySeq policy,
+			in ClientCallId client_call_id,
+			in AsynchCallback client_callback 
+		);
+		
+		ServerCallId get_observation
+		(
+			in ObservationId observation_id,
+			in ClientCallId client_call_id,
+			in AsynchCallback client_callback 
+		);
+		
+		ServerCallId get_observations 
+		(
+			in ObservationIdSeq observation_ids,
+			in ClientCallId client_call_id,
+			in AsynchCallback client_callback 
+		);
+		
+		ServerCallId get_observations_by_time 
+		(
+			in ObservedSubjectId who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in unsigned long max_sequence,
+			in ClientCallId client_call_id,
+			in AsynchCallback client_callback 
+		);
+		
+		ServerCallId get_observations_by_qualifier 
+		(
+			in ObservedSubjectIdSeq who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in unsigned long max_sequence,
+			in ClientCallId client_call_id,
+			in AsynchCallback client_callback 
+		);
+		
+		ServerCallId get_observations_with_policy 
+		(
+			in ObservedSubjectIdSeq who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in QueryPolicySeq policy,
+			in unsigned long max_sequence,
+			in ClientCallId client_call_id,
+			in AsynchCallback client_callback 
+		);
+		
+		void cancel_get
+		(
+			in ServerCallId server_call_id 
+		);
+	};
+
+	// ASYNCH CALLBACK INTERFACE
+	interface AsynchCallback 
+	{
+		void put_observations 
+		(
+			in ObservationDataSeq as_sequence,
+			in ObservationDataIterator as_iterator,
+			in ClientCallId client_call_id,
+			in QualifiedCodeStrSeq result_status 
+		);
+	
+		void put_exception 
+		(
+			in ClientCallId client_call_id,
+			in AsynchException the_exception 
+		);
+	};
+
+	// OBSERVATION REMOTE INTERFACE
+	interface ObservationRemote : AbstractManagedObject 
+	{
+		readonly attribute QualifiedCodeStr observation_code;
+	
+		TimeSpan get_observation_time ();
+	
+		ObservedSubject get_observed_subject ();
+	
+		ObservationRemote get_root_observation ();
+	
+		ObservationData get_path_from_root ();
+	
+		ObservationQualifierSeq get_all_qualifiers ();
+	
+		ObservationQualifierSeq get_qualifiers 
+		(
+			in QualifiedCodeStrSeq qualifier_names 
+		)
+		raises 
+		(
+			InvalidCodes 
+		);
+		
+		boolean is_this_root ();
+		
+		boolean is_this_atomic ();
+	};
+
+	// ATOMIC OBSERVATION REMOTE INTERFACE
+	interface AtomicObservationRemote : ObservationRemote 
+	{
+		ObservationData get_observation_data ();
+		
+		ObservationData get_observation_data_with_policy 
+		(
+			in QueryPolicySeq policy 
+		);
+	};
+
+	// BROWSE ACCESS INTERFACE
+	interface BrowseAccess : AccessComponent 
+	{
+		ObservedSubject get_observed_subject 
+		(
+			in ObservedSubjectId who 
+		)
+		raises 
+		(
+			InvalidIds 
+		);
+		
+		ObservedSubjectSeq get_observed_subjects 
+		(
+			in ObservedSubjectIdSeq who 
+		)
+		raises 
+		(
+			InvalidIds,
+			DuplicateIds 
+		);
+		
+		ObservedSubject get_observed_subject_for_observation_id 
+		(
+			in ObservationId observation_id 
+		)
+		raises 
+		(
+			InvalidOids 
+		);
+		
+		ObservedSubjectSeq get_observed_subjects_for_observation_ids 
+		(
+			in ObservationIdSeq observation_ids 
+		)
+		raises 
+		(
+			InvalidOids,
+			DuplicateOids 
+		);
+		
+		unsigned long count_observations 
+		(
+			in ObservedSubjectIdSeq who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in QueryPolicySeq policy 
+		)
+		raises 
+		(
+			InvalidIds,
+			DuplicateIds,
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers,
+			InvalidPolicies,
+			DuplicatePolicies 
+		);
+		
+		ObservationRemote get_observation 
+		(
+			in ObservationId observation_id 
+		)
+		raises 
+		(
+			InvalidOids 
+		);
+		
+		ObservationRemoteSeq get_observations 
+		(
+			in ObservationIdSeq observation_ids 
+		)
+		raises 
+		(
+			InvalidOids,
+			DuplicateOids 
+		);
+		
+		ObservationRemoteSeq get_observations_by_time 
+		(
+			in ObservedSubjectId who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidIds,
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan 
+		);
+		
+		ObservationRemoteSeq get_observations_by_qualifier 
+		(
+			in ObservedSubjectIdSeq who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidIds,
+			DuplicateIds,
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers 
+		);
+		
+		ObservationRemoteSeq get_observations_with_policy 
+		(
+			in ObservedSubjectIdSeq who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in QueryPolicySeq policy,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidIds,
+			DuplicateIds,
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers,
+			InvalidPolicies,
+			DuplicatePolicies 
+		);
+	};
+
+	// COMPOSITE OBSERVATION REMOTE INTERFACE
+	interface CompositeObservationRemote : ObservationRemote
+	{
+		unsigned long count_observations
+		(
+			in QueryPolicySeq search_depth_policy 
+		)
+		raises 
+		(
+			InvalidPolicies 
+		);
+		
+		ObservationRemoteSeq get_observations_by_time 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan 
+		);
+		
+		ObservationRemoteSeq get_observations_by_qualifier 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers 
+		);
+		
+		ObservationRemoteSeq get_observations_with_policy 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in QueryPolicySeq policy,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers,
+			InvalidPolicies,
+			DuplicatePolicies 
+		);
+		
+		AtomicObsRemoteSeq get_leaf_observations ();
+		
+		AtomicObsRemoteSeq get_leaf_observations_by_time 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan 
+		);
+		
+		AtomicObsRemoteSeq get_leaf_observations_by_qualifier 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers 
+		);
+		
+		AtomicObsRemoteSeq get_leaf_observations_with_policy 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in QueryPolicySeq policy,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers,
+			InvalidPolicies,
+			DuplicatePolicies 
+		);
+		
+		AtomicObsRemoteSeq get_leaf_observations_by_value_type 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in QualifiedCodeStr value_type,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers 
+		);
+		
+		ObservationDataSeq get_relations_toward_root 
+		(
+			in QualifiedCodeStrSeq relation_name 
+		);
+		
+		ObservationDataSeq get_relations_away_from_root 
+		(
+			in QualifiedCodeStrSeq relation_name 
+		);
+	};
+
+	// CONSTRAINT LANGUAGE ACCESS INTERFACE
+	interface ConstraintLanguageAccess : AccessComponent 
+	{
+		readonly attribute ConstraintLanguageSeq supported_languages;
+	
+		ObservationDataSeq get_by_constraint 
+		(
+			in ConstraintExpression constraint,
+			in QueryPolicySeq policy,
+			in unsigned long max_sequence,
+			out ObservationDataIterator the_rest 
+		)
+		raises 
+		(
+			InvalidConstraint,
+			InvalidPolicies,
+			DuplicatePolicies 
+		);
+	};
+
+	// CONSUMER ACCESS INTERFACE
+	interface ConsumerAccess : AbstractFactory, AccessComponent 
+	{
+		EventConsumer create_consumer ()
+		raises 
+		(
+			MaxConnectionsExceeded 
+		);
+	
+		EventConsumer get_consumer_by_id 
+		(
+			in EndpointId endpoint_id 
+		)
+		raises 
+		(
+			InvalidEndpointId 
+		);
+	};
+
+	// EVENT CONSUMER INTERFACE
+	interface EventConsumer : AbstractManagedObject, CosEventComm::PushConsumer 
+	{
+		readonly attribute EndpointId endpoint_id;
+	
+		SubscriptionSeq obtain_subscriptions ();
+	
+		void connect_push_supplier 
+		(
+			in PushSupplier push_supplier 
+		)
+		raises 
+		(
+			CosEventChannelAdmin::AlreadyConnected 
+		);
+	
+		PushSupplier get_connected_supplier ()
+		raises 
+		(
+			CosEventComm::Disconnected 
+		);
+	};
+
+	// EVENT SUPPLIER INTERFACE
+	interface EventSupplier : AbstractManagedObject, CosEventComm::PushSupplier 
+	{
+		readonly attribute EndpointId endpoint_id;
+
+		QualifiedCodeStrSeq obtain_offered_codes ();
+		
+		void connect_push_consumer 
+		(
+			in PushConsumer push_consumer 
+		)
+		raises 
+		(
+			CosEventChannelAdmin::AlreadyConnected 
+		);
+		
+		PushConsumer get_connected_consumer ()
+		raises 
+		(
+			CosEventComm::Disconnected 
+		);
+		
+		void subscribe 
+		(
+			in SubscriptionSeq subscriptions 
+		)
+		raises 
+		(
+			CosEventComm::Disconnected 
+		);
+		
+		SubscriptionSeq describe_subscriptions ()
+		raises 
+		(
+			NoSubscription 
+		);
+		
+		void generate_test_event 
+		(
+			in ClientCallId clientId 
+		)
+		raises 
+		(
+			CosEventComm::Disconnected 
+		);
+	};
+
+	// OBSERVATION DATA ITERATOR INTERFACE
+	interface ObservationDataIterator : AbstractManagedObject 
+	{
+		unsigned long max_left ();
+	
+		boolean next_n 
+		(
+			in unsigned long n,
+			out ObservationDataSeq observation_data_seq 
+		);
+	};
+
+	// OBSERVATION LOADER INTERFACE
+	interface ObservationLoader : AccessComponent 
+	{
+		void load_observations 
+		(
+			in ObservationDataSeq observations 
+		);
+	};
+
+	// OBSERVATION REMOTE INTERFACE
+	// This interface is defined after AsynchCallBack and before AtomicObservationRemote
+	// OBSERVATION REMOTE ITERATOR INTERFACE
+	interface ObservationRemoteIterator : AbstractManagedObject 
+	{
+		unsigned long max_left ();
+	
+		boolean next_n 
+		(
+			in unsigned long n,
+			out ObservationRemoteSeq observation_remote_seq 
+		);
+	};
+
+	// OBSERVED SUBJECT INTERFACE
+	interface ObservedSubject : AbstractManagedObject 
+	{
+		readonly attribute ObservedSubjectId observed_subject_id;
+	
+		unsigned long count_observations 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in QueryPolicySeq policy 
+			)
+			raises 
+			(
+				InvalidCodes,
+				DuplicateCodes,
+				InvalidTimeSpan,
+				InvalidQualifiers,
+				DuplicateQualifiers,
+				InvalidPolicies,
+				DuplicatePolicies 
+			);
+	
+		ObservationRemoteSeq get_observations_by_time 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+			)
+			raises 
+			(
+				InvalidCodes,
+				DuplicateCodes,
+				InvalidTimeSpan 
+			);
+	
+		ObservationRemoteSeq get_observations_by_qualifier 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers 
+		);
+	
+		ObservationRemoteSeq get_observations_with_policy 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in QueryPolicySeq policy,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers,
+			InvalidPolicies,
+			DuplicatePolicies 
+		);
+	
+		ObservationRemoteSeq get_root_observations 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan 
+		);
+	
+		AtomicObsRemoteSeq get_leaf_observations 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan 
+		);
+	
+		ObservationRemote get_any_observation 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan 
+		);
+	
+		ObservationRemote get_first_observation 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan 
+		);
+	
+		ObservationRemote get_last_observation 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan 
+		);
+	
+		ObservationRemoteSeq get_candidate_observations 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers 
+		);
+	
+		ObservationRemoteSeq get_exact_observation_types 
+		(
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in unsigned long max_sequence,
+			out ObservationRemoteIterator the_rest 
+		)
+		raises 
+		(
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan 
+		);
+	};
+
+	// QUALIFIED CODE ITERATOR INTERFACE
+	interface QualifiedCodeIterator : AbstractManagedObject 
+	{
+		unsigned long max_left ();
+	
+		boolean next_n 
+		(
+			in unsigned long n,
+			out QualifiedCodeStrSeq codes 
+		);
+	};
+
+	// QUERY ACCESS INTERFACE
+	interface QueryAccess : AccessComponent 
+	{
+		unsigned long count_observations 
+		(
+			in ObservedSubjectIdSeq who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in QueryPolicySeq policy 
+		)
+		raises 
+		(
+			InvalidIds,
+			DuplicateIds,
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers,
+			InvalidPolicies,
+			DuplicatePolicies 
+		);
+		
+		ObservationData get_observation 
+		(
+			in ObservationId observation_id 
+		)
+		raises 
+		(
+			InvalidOids 
+		);
+
+		ObservationDataSeq get_observations 
+		(
+			in ObservationIdSeq observation_ids 
+		)
+		raises 
+		(
+			InvalidOids,
+			DuplicateOids 
+		);
+		
+		ObservationDataSeq get_observations_by_time 
+		(
+			in ObservedSubjectId who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in unsigned long max_sequence,
+			out ObservationDataIterator the_rest 
+		)
+		raises 
+		(
+			InvalidIds,
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan 
+		);
+		
+		ObservationDataSeq get_observations_by_qualifier 
+		(
+			in ObservedSubjectIdSeq who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in unsigned long max_sequence,
+			out ObservationDataIterator the_rest 
+		)
+		raises 
+		(
+			InvalidIds,
+			DuplicateIds,
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers 
+		);
+		
+		ObservationDataSeq get_observations_with_policy 
+		(
+			in ObservedSubjectIdSeq who,
+			in QualifiedCodeStrSeq what,
+			in TimeSpan when,
+			in ObservationQualifierSeq qualifier,
+			in QueryPolicySeq policy,
+			in unsigned long max_sequence,
+			out ObservationDataIterator the_rest 
+		)
+		raises 
+		(
+			InvalidIds,
+			DuplicateIds,
+			InvalidCodes,
+			DuplicateCodes,
+			InvalidTimeSpan,
+			InvalidQualifiers,
+			DuplicateQualifiers,
+			InvalidPolicies,
+			DuplicatePolicies 
+		);
+	};
+
+	// SUPPLIER ACCESS INTERFACE
+	interface SupplierAccess : AbstractFactory, AccessComponent 
+	{
+		EventSupplier create_supplier ()
+		raises 
+		(
+			MaxConnectionsExceeded 
+		);
+	
+		EventSupplier get_supplier_by_id 
+		(
+			in EndpointId endpoint_id 
+		)
+		raises
+		(
+			InvalidEndpointId 
+		);
+	};
+};
+
+#endif // _DS_OBSERVATION_ACCESS_IDL_
