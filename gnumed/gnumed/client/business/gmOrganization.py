@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 
 if __name__ == "__main__":
 	print
@@ -136,7 +136,7 @@ class cOrgHelper:
 	def __init__(self):
 		pass
 
-	def getPk(self):
+	def getId(self):
 		pass
 
 	def set(self, name, office, department, address, memo, category, phone, fax, email,mobile):
@@ -183,7 +183,7 @@ class cOrgHelperImpl1(cOrgHelper):
 		self._address = {}
 		pass
 
-	def getPk(self):
+	def getId(self):
 		return self.pk
 
 	def setPk(self, pk):
@@ -286,9 +286,9 @@ class cOrgHelperImpl1(cOrgHelper):
 					
 		for url in existing_urls.keys():
 			(id_comm, id_type) = existing_urls[url]
-			cmds = [  (delete_link_cmd % (id_type, self.getPk()) ,[] ), 
+			cmds = [  (delete_link_cmd % (id_type, self.getId()) ,[] ), 
 				("""insert into lnk_org2comm_channel( id_comm, id_org)
-				values ( %d, %d ) """ % ( id_comm, self.getPk() ) , [] )
+				values ( %d, %d ) """ % ( id_comm, self.getId() ) , [] )
 				]
 		
 		for id_type, url in comm_changes.items():
@@ -297,7 +297,7 @@ class cOrgHelperImpl1(cOrgHelper):
 
 			if url.strip() == "":
 				cmds.append(
-					(delete_link_cmd %(id_type, self.getPk()) , [] )
+					(delete_link_cmd %(id_type, self.getId()) , [] )
 						)
 			else:
 					
@@ -308,7 +308,7 @@ class cOrgHelperImpl1(cOrgHelper):
 				cmds.append(
 					("""insert into lnk_org2comm_channel(id_comm, id_org)
 					values( currval('comm_channel_id_seq'), %d)""" %
-					 self.getPk()  ,[] )  )
+					 self.getId()  ,[] )  )
 		
 				
 		result = gmPG.run_commit('personalia',cmds)
@@ -360,7 +360,7 @@ class cOrgHelperImpl1(cOrgHelper):
 			where
 				id_org = %s 
 			"""
-		gmPG.run_commit ('personalia', [(cmd, [self.getPk()])])
+		gmPG.run_commit ('personalia', [(cmd, [self.getId()])])
 
 		# yes, address already there, just add the link
 		if len(data) > 0:
@@ -368,7 +368,7 @@ class cOrgHelperImpl1(cOrgHelper):
 			cmd = """
 				insert into lnk_person_org_address (id_org, id_address)
 				values (%d, %d)
-				""" % (self.getPk(), addr_id)
+				""" % (self.getId(), addr_id)
 			return gmPG.run_commit ("personalia", [ ( cmd,[]) ])
 
 		# no, insert new address and link it, too
@@ -379,7 +379,7 @@ class cOrgHelperImpl1(cOrgHelper):
 		cmd2 = """
 			insert into lnk_person_org_address (id_org, id_address)
 			values (%d, currval('address_id_seq'))
-			""" % self.getPk()
+			""" % self.getId()
 		return gmPG.run_commit ("personalia", [
 			(cmd1, (number, street, urb, postcode, state, country)),
 			(cmd2, [] )
@@ -436,7 +436,7 @@ class cOrgHelperImpl1(cOrgHelper):
 	
 	
 	def _load_comm_channels(self):
-		cmd = """select id_type, url from comm_channel c, lnk_org2comm_channel l where l.id_org = %d and c.id = l.id_comm""" % self.getPk() 
+		cmd = """select id_type, url from comm_channel c, lnk_org2comm_channel l where l.id_org = %d and c.id = l.id_comm""" % self.getId() 
 		result = gmPG.run_ro_query("personalia", cmd)
 		if result == None:
 			gmLog.gmDefLog.Log(gmLog.lInfo, "Unable to load comm channels for org" )
@@ -450,7 +450,7 @@ class cOrgHelperImpl1(cOrgHelper):
 		return True
 	
 	def _load_address(self):
-		pk = self.getPk()
+		pk = self.getId()
 		cmd = """select number, street, city, postcode, state, country from v_basic_address v , lnk_org2address l where v.addr_id = l.id_address and l.id_org = %d""" % pk
 		result = gmPG.run_ro_query( "personalia", cmd)
 		if result == None:
@@ -470,9 +470,9 @@ class cOrgHelperImpl1(cOrgHelper):
 	
 	def shallow_del(self):
 		cmds = [
-		 ("delete from lnk_person_org_address where id_org = %d"%self.getPk() , [] ),
-		 ("delete from lnk_org2comm_channel where id_org = %d"%self.getPk(),[] ),
-		 ("delete from org where id = %d"%self.getPk() , [] )
+		 ("delete from lnk_person_org_address where id_org = %d"%self.getId() , [] ),
+		 ("delete from lnk_org2comm_channel where id_org = %d"%self.getId(),[] ),
+		 ("delete from org where id = %d"%self.getId() , [] )
 		]
 
 		if (gmPG.run_commit('personalia',cmds) == None):
@@ -499,13 +499,13 @@ class cOrgHelperImpl1(cOrgHelper):
 			if result <> None and len(result) == 1:
 				self.setPk(result[0][0])
 				#<DEBUG>
-				#print "select id from org ->", self.getPk()
+				#print "select id from org ->", self.getId()
 				#</DEBUG>
 				return True
 			return False
 		self.setPk(result[0][0])
 		#<DEBUG>
-		#print "from select currval -> ", self.getPk()
+		#print "from select currval -> ", self.getId()
 		#</DEBUG>
 		return True
 	
@@ -518,24 +518,24 @@ class cOrgHelperImpl1(cOrgHelper):
 		if not m.has_key('name') or m['name'].strip() =='':
 			print "PLEASE ENTER ORG NAME" #change this
 			return False
-		print "self.Pk() = ", self.getPk() , " is None : ", self.getPk() is None
-		if self.getPk() is None:
+		print "self.Pk() = ", self.getId() , " is None : ", self.getId() is None
+		if self.getId() is None:
 			if not self._create():
 				gmLog.gmDefLog.Log(gmLog.lErr, "Cannot create org")
 				return False
-		if self.getPk() is None:
+		if self.getId() is None:
 				return False
 		if c.has_key('name') or c.has_key('category'):	
 			
-			#print "pk = ", self.getPk()
-			#org = cOrganization(str(self.getPk()))
+			#print "pk = ", self.getId()
+			#org = cOrganization(str(self.getId()))
 			cf = cCatFinder()
 			cmd = """
 				update org set description='%s' , 
 						id_category = %s where id = %s
 			 	""" % ( c['name'], 
 					str( cf.getId('org_category', c['category']) ),
-					str(self.getPk())  ) 
+					str(self.getId())  ) 
 			result = gmPG.run_commit( "personalia", [ (cmd,[]  ) ] )
 			if result is None:
 				gmLog.gmDefLog.Log(gmLog.lErr, "Cannot save org")
@@ -544,6 +544,10 @@ class cOrgHelperImpl1(cOrgHelper):
 		self._save_address()
 		self._save_comm_channels()
 		return True
+
+	def lnkPerson( self, demographicRecord): # demographicRecord is a cDemographicRecord
+		pass
+		
 
 #============================================================
 
@@ -569,10 +573,10 @@ def testOrg():
 	if not	h.save():
 		print "failed to save first time. Is an old test org needing manual removal?"
 		return False, h
-	print "saved pk =", h.getPk()
+	print "saved pk =", h.getId()
 
 	
-	pk = h.getPk()
+	pk = h.getId()
 	if h.shallow_del():
 		print "shallow deleted ", h['name']
 	else:
@@ -605,7 +609,7 @@ def testOrg():
 		print "continuing to reload"
 		
 	
-	if not h2.load(h.getPk()):
+	if not h2.load(h.getId()):
 		print "failed load"
 		return False, h
 	print "reloaded values"
@@ -661,12 +665,17 @@ if __name__== "__main__":
 	print """testing borg behaviour of cCatFinder"""
 
 	print c.getCategories("org_category")
-	
-	result, org = testOrg()
+	result = False
+	try:
+		result, org = testOrg()
+	except:
+		gmLog.gmDefLog.Log(gmLog.lInfo, "Fatal exception in testOrg()")
 
 	if not result:
 		print "trying cleanup"
 		if org.shallow_del(): print " 	may have succeeded"
+		else:
+			print "May need manual removal of org"
 	
 	
 			
@@ -674,7 +683,11 @@ if __name__== "__main__":
 	
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.5  2004-05-22 10:31:29  ncq
+# Revision 1.6  2004-05-23 11:26:19  sjtan
+#
+# getPk() now getId() , more consistent with other modules.
+#
+# Revision 1.5  2004/05/22 10:31:29  ncq
 # - == None -> is None
 #
 # Revision 1.4  2004/05/21 15:39:22  sjtan
