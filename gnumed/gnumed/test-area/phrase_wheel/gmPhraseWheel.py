@@ -20,7 +20,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 
 __log__ = gmLog.gmDefLog
 #============================================================
@@ -345,6 +345,11 @@ class cPhraseWheel (wxTextCtrl):
 	def __show_picklist(self):
 		"""Display the pick list."""
 
+		# if only one match and text == match
+		if (len(self.__currMatches) == 1) and (self.__currMatches[0]['label'] == self.GetValue()):
+			# don't display drop down list
+			return 1
+
 		# recalculate position
 		# FiXME: check for number of entries - shrink list windows
 		pos = self.ClientToScreen ((0,0))
@@ -360,6 +365,8 @@ class cPhraseWheel (wxTextCtrl):
 		# and show it
 		# FIXME: we should _update_ the list window instead of redisplaying it
 		self.__picklist_win.Popup()
+
+		return 1
 	#--------------------------------------------------------
 	def __hide_picklist(self):
 		"""Hide the pick list."""
@@ -445,7 +452,6 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	def __on_text_update (self, event):
 		"""Internal handler for EVT_TEXT (called when text has changed)"""
-		print "__on_text_update"
 
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
