@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.115 $
+-- $Revision: 1.116 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -273,6 +273,75 @@ comment on column clin_narrative.is_aoe is
 	 which also implies soap_cat = a';
 
 -- --------------------------------------------
+create table lnk_code2narr (
+	pk serial primary key,
+	fk_narrative integer
+		not null
+		references clin_narrative(pk)
+		on update cascade
+		on delete cascade,
+	code text
+		not null,
+	xfk_coding_system text
+		not null,
+	unique (fk_narrative, code, xfk_coding_system)
+) inherits (audit_fields);
+
+select add_table_for_audit('lnk_code2narr');
+select add_x_db_fk_def('lnk_code2narr', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
+
+comment on TABLE lnk_code2narr is
+	'links codes to narrative items';
+comment on column lnk_code2narr.code is
+	'the code in the coding system';
+comment on column lnk_code2narr.xfk_coding_system is
+	'the coding system used to code the narrative item';
+
+-- --------------------------------------------
+-- patient attached diagnoses
+create table clin_diag (
+	pk serial primary key,
+	fk_narrative integer
+		unique
+		not null
+		references clin_narrative(pk)
+		on update cascade
+		on delete restrict,
+	laterality char
+		default null
+		check ((laterality in ('l', 'r', 'b', '?')) or (laterality is null)),
+	is_chronic boolean
+		not null
+		default false,
+	is_active boolean
+		not null
+		default true
+		check (
+			(is_chronic = false)
+				or
+			((is_chronic = true) and (is_active = true))
+		),
+	is_definite boolean
+		not null
+		default false,
+	is_significant boolean
+		not null
+		default true
+		check (
+			(is_active = false)
+				or
+			((is_active = true) and (is_significant = true))
+		)
+) inherits (audit_fields);
+
+select add_table_for_audit('clin_diag');
+
+comment on table clin_diag is
+	'stores additional detail on those clin_narrative
+	 rows where soap_cat=a that are true diagnoses,
+	 true diagnoses DO have a code from one of the coding systems';
+
+-- --------------------------------------------
 create table clin_aux_note (
 	pk serial primary key
 ) inherits (clin_root_item);
@@ -280,52 +349,7 @@ create table clin_aux_note (
 select add_table_for_audit('clin_aux_note');
 
 comment on TABLE clin_aux_note is
-	'Other tables link here if they need more free text fields.';
-
--- --------------------------------------------
--- --------------------------------------------
---create table _enum_hx_type (
---	id serial primary key,
---	description varchar(128) unique not null
---);
-
---comment on TABLE _enum_hx_type is
---	'types of history taken during a clinical encounter';
-
--- --------------------------------------------
---create table _enum_hx_source (
---	id serial primary key,
---	description varchar(128) unique not null
---);
-
---comment on table _enum_hx_source is
---	'sources of clinical information: patient, relative, notes, correspondence';
-
--- --------------------------------------------
---create table clin_history (
---	id serial primary key,
---	id_type integer not null references _enum_hx_type(id),
---	id_source integer REFERENCES _enum_hx_source(id)
---) inherits (clin_root_item);
-
--- narrative provided by clin_root_item
-
---comment on TABLE clin_history is
---	'narrative details of history taken during a clinical encounter';
---comment on COLUMN clin_history.id_type is
---	'the type of history taken';
---comment on COLUMN clin_history.id_source is
---	'who provided the details of this entry';
-
--- --------------------------------------------
-create table clin_physical (
-	id serial primary key
-) inherits (clin_root_item);
-
--- narrative provided by clin_root_item
-
-comment on TABLE clin_physical is
-	'narrative details of physical exam during a clinical encounter';
+	'Other tables link to this if they need more free text fields.';
 
 -- ============================================
 -- vaccination tables
@@ -720,79 +744,6 @@ comment on column form_data.place_holder is
 comment on column form_data.value is
 	'the value to replace the place holder with';
 
--- ============================================
--- diagnosis tables
--- --------------------------------------------
--- patient attached diagnoses
-create table clin_diag (
-	pk serial primary key,
-	fk_narrative integer
-		unique
-		not null
-		references clin_narrative(pk)
-		on update cascade
-		on delete restrict,
-	laterality char
-		default null
-		check ((laterality in ('l', 'r', 'b', '?')) or (laterality is null)),
-	is_chronic boolean
-		not null
-		default false,
-	is_active boolean
-		not null
-		default true
-		check (
-			(is_chronic = false)
-				or
-			((is_chronic = true) and (is_active = true))
-		),
-	is_definite boolean
-		not null
-		default false,
-	is_significant boolean
-		not null
-		default true
-		check (
-			(is_active = false)
-				or
-			((is_active = true) and (is_significant = true))
-		)
-) inherits (audit_fields);
-
-select add_table_for_audit('clin_diag');
-
-comment on table clin_diag is
-	'stores additional detail on those clin_narrative
-	 rows where soap_cat=a that are true diagnoses,
-	 true diagnoses DO have a code from one of the coding systems';
-
-
--- "working set" of coded diagnoses
-create table lnk_code2diag (
-	pk serial primary key,
-	fk_diag integer
-		not null
-		references clin_diag(pk)
-		on update cascade
-		on delete cascade,
-	code text
-		not null,
-	xfk_coding_system text
-		not null,
-	unique (fk_diag, code, xfk_coding_system)
-) inherits (audit_fields);
-
-select add_table_for_audit('lnk_code2diag');
-select add_x_db_fk_def('lnk_code2diag', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
-
-comment on TABLE lnk_code2diag is
-	'diagnoses as used clinically in patient charts linked to codes';
-comment on column lnk_code2diag.code is
-	'the code in the coding system';
-comment on column lnk_code2diag.xfk_coding_system is
-	'the coding system used to code the diagnosis';
-
-
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
 -- -------------------------------------------------------------------
@@ -917,11 +868,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.115 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.116 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.115  2004-07-05 18:13:22  ncq
+-- Revision 1.116  2004-07-12 17:23:09  ncq
+-- - allow for coding any SOAP row
+-- - adjust views/tables to that
+--
+-- Revision 1.115  2004/07/05 18:13:22  ncq
 -- - fold tables into clin_narrative
 --
 -- Revision 1.114  2004/07/02 15:00:10  ncq

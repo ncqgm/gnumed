@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.90 2004-07-07 15:07:34 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.91 2004-07-12 17:23:09 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -21,12 +21,6 @@ drop index idx_clnarr_episode;
 
 drop index idx_clanote_encounter;
 drop index idx_clanote_episode;
-
-drop index idx_chist_encounter;
-drop index idx_chist_episode;
-
-drop index idx_cphys_encounter;
-drop index idx_cphys_episode;
 
 drop index idx_vacc_encounter;
 drop index idx_vacc_episode;
@@ -61,12 +55,6 @@ create index idx_clnarr_episode on clin_narrative(fk_episode);
 
 create index idx_clanote_encounter on clin_aux_note(fk_encounter);
 create index idx_clanote_episode on clin_aux_note(fk_episode);
-
---create index idx_chist_encounter on clin_history(fk_encounter);
---create index idx_chist_episode on clin_history(fk_episode);
-
-create index idx_cphys_encounter on clin_physical(fk_encounter);
-create index idx_cphys_episode on clin_physical(fk_episode);
 
 create index idx_vacc_encounter on vaccination(fk_encounter);
 create index idx_vacc_episode on vaccination(fk_episode);
@@ -697,7 +685,7 @@ create view v_pat_diag as
 select
 	vpi.id_patient as pk_patient,
 	cd.pk as pk_diag,
-	cd.fk_narrative as pk_diagnosis,
+	cd.fk_narrative as pk_narrative,
 	cn.clin_when as diagnosed_when,
 	cn.narrative as diagnosis,
 	cd.laterality as laterality,
@@ -730,13 +718,13 @@ create view v_pat_diag_codes as
 select
 	vpd.pk_diag as pk_diag,
 	vpd.diagnosis as diagnosis,
-	lc2d.code as code,
-	lc2d.xfk_coding_system as coding_system
+	lc2n.code as code,
+	lc2n.xfk_coding_system as coding_system
 from
 	v_pat_diag vpd,
-	lnk_code2diag lc2d
+	lnk_code2narr lc2n
 where
-	lc2d.fk_diag = vpd.pk_diag
+	lc2n.fk_narrative = vpd.pk_narrative
 ;
 
 -- this view is a lookup table for locally used
@@ -750,13 +738,13 @@ drop view v_codes4diag;
 create view v_codes4diag as
 select distinct on (diagnosis, code, xfk_coding_system)
 	vpd.diagnosis as diagnosis,
-	lc2d.code as code,
-	lc2d.xfk_coding_system as coding_system
+	lc2n.code as code,
+	lc2n.xfk_coding_system as coding_system
 from
 	v_pat_diag vpd,
-	lnk_code2diag lc2d
+	lnk_code2narr lc2n
 where
-	lc2d.fk_diag = vpd.pk_diag
+	lc2n.fk_narrative = vpd.pk_narrative
 ;
 
 
@@ -819,6 +807,8 @@ GRANT SELECT ON
 	, clin_encounter
 	, curr_encounter
 	, clin_narrative
+	, lnk_code2narr
+	, clin_diag
 	, clin_aux_note
 	, _enum_allergy_type
 	, allergy
@@ -831,7 +821,6 @@ GRANT SELECT ON
 	, xlnk_identity
 	, form_instances
 	, form_data
-	, clin_diag
 	, constituent
 	, curr_medication
 	, referral
@@ -851,9 +840,13 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	clin_encounter,
 	clin_encounter_id_seq,
 	curr_encounter,
-	curr_encounter_id_seq,
-	clin_narrative,
-	clin_narrative_pk_seq,
+	curr_encounter_id_seq
+	, clin_narrative
+	, clin_narrative_pk_seq
+	, lnk_code2narr
+	, lnk_code2narr_pk_seq
+	, clin_diag
+	, clin_diag_pk_seq,
 	clin_aux_note,
 	clin_aux_note_pk_seq,
 	_enum_allergy_type,
@@ -878,8 +871,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, form_instances_pk_seq
 	, form_data
 	, form_data_pk_seq
-	, clin_diag
-	, clin_diag_pk_seq
 	, referral
 	, referral_id_seq
 	, curr_medication
@@ -939,11 +930,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.90 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.91 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.90  2004-07-07 15:07:34  ncq
+-- Revision 1.91  2004-07-12 17:23:09  ncq
+-- - allow for coding any SOAP row
+-- - adjust views/tables to that
+--
+-- Revision 1.90  2004/07/07 15:07:34  ncq
 -- - v_pat_diag_codes
 -- - v_codes4diag
 --
