@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -20,8 +20,8 @@ gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 #</DEBUG>
 
 from docPatient import *
-from docDocument import cDocument
 from gmPhraseWheel import *
+import docDocument
 import gmCfg, gmI18N
 import docXML
 
@@ -642,7 +642,7 @@ class indexFrame(wxFrame):
 			return None
 
 		# actually get pages
-		self.myDoc = cDocument()
+		self.myDoc = docDocument.cDocument()
 		if not self.myDoc.loadImgListFromXML(fname, aDir):
 			_log.Log(gmLog.lErr, 'Cannot load image list from metadata file [%s].' % fname)
 			dlg = wxMessageDialog(self, 
@@ -889,7 +889,10 @@ if __name__ == '__main__':
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.13  2002-09-17 01:14:16  ncq
+# Revision 1.14  2002-09-17 01:44:06  ncq
+# - correctly import docDocument
+#
+# Revision 1.13  2002/09/17 01:14:16  ncq
 # - delete_page seems to work now
 #
 #
