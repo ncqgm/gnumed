@@ -9,16 +9,16 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.6 2004-03-08 13:06:15 ihaywood Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmForms.py,v 1.7 2004-03-09 07:50:56 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
 
 # access our modules
-#if __name__ == "__main__":
-sys.path.append('../..')
- 
+if __name__ == "__main__":
+	sys.path.append('../..')
+
 # start logging
 from Gnumed.pycommon import gmLog, gmPG
 _log = gmLog.gmDefLog
@@ -27,11 +27,11 @@ if __name__ == "__main__":
 _log.Log(gmLog.lData, __version__)
  
 from mx import DateTime
-#============================================================
 
+#============================================================
 class gmFormEngine:
-    """
-    Ancestor for forms
+    """Ancestor for forms.
+
     No real functionality as yet
     Descendants should override class variables country, type, electronic, date as neccessary
     """
@@ -62,6 +62,7 @@ class gmFormEngine:
         """
         return self.flags
 
+#============================================================
 class TextForm (gmFormEngine):
     """
     Takes a plain text form and subsitutes the fields
@@ -103,14 +104,11 @@ class TextForm (gmFormEngine):
                     result.write (re.sub (regex, lambda x: self.__subst (x.group (1)), line) + '\n')
         result.seek (0)
         return result
-                
-                
-        
-class LaTeXForm (TextForm):
-    """
-    A forms engine wrapping LaTeX
-    """
 
+#============================================================
+class LaTeXForm (TextForm):
+    """A forms engine wrapping LaTeX.
+    """
     def __texify (self, item):
         """
         Convience function to escape strings for TeX output
@@ -179,6 +177,9 @@ class LaTeXForm (TextForm):
         os.chdir (self.oldcwd)
         os.rmdir (self.tmp)
 
+#============================================================
+# convenience functions
+#------------------------------------------------------------
 def search_form (discipline, electronic=0):
     """
     Searches for available forms given the discipline and electronicity
@@ -190,7 +191,7 @@ def search_form (discipline, electronic=0):
         return []
     else:
         return [{'name_short':r[0], 'name_long':r[1], 'version':r[2], 'id':r[3]} for r in result]
-
+#------------------------------------------------------------
 def get_form (id):
     """
     Instantiates a FormEngine based on the form ID from the backend
@@ -203,20 +204,34 @@ def get_form (id):
     else:
         _log.Log (gmLog.lErr, 'no such form engine %s' % result[1])
         return None
-    
-
-
-
+#------------------------------------------------------------
 def test ():
-    f = file ('../../test-area/ian/terry-form.tex')
-    params = {'RECIPIENT':"Dr. R. Terry\n1 Main St\nNewcastle", 'DOCTORSNAME':'Ian Haywood', 'DOCTORSADDRESS':'1 Smith St\nMelbourne',
-              'PATIENTNAME':'Joe Bloggs', 'PATIENTADDRESS':'18 Fred St\nMelbourne', 'REQUEST':'ultrasound', 'THERAPY':'on warfarin',
-              'CLINICALNOTES':'heard new murmur', 'COPYADDRESS':'Karsten Hilbert\nLeipzig, Germany',
-              'ROUTINE':1, 'URGENT':0, 'FAX':1, 'PHONE':1, 'PENSIONER':1, 'VETERAN':0, 'PADS':0,
-              'INSTRUCTIONS':'Take the blue pill, Neo'}
-    form = LaTeXForm (f.read ())
+	f = file ('../../test-area/ian/terry-form.tex')
+	params = {
+		'RECIPIENT': "Dr. R. Terry\n1 Main St\nNewcastle",
+		'DOCTORSNAME': 'Ian Haywood',
+		'DOCTORSADDRESS': '1 Smith St\nMelbourne',
+		'PATIENTNAME':'Joe Bloggs',
+		'PATIENTADDRESS':'18 Fred St\nMelbourne',
+		'REQUEST':'ultrasound',
+		'THERAPY':'on warfarin',
+		'CLINICALNOTES':'heard new murmur',
+		'COPYADDRESS':'Karsten Hilbert\nLeipzig, Germany',
+		'ROUTINE':1,
+		'URGENT':0,
+		'FAX':1,
+		'PHONE':1,
+		'PENSIONER':1,
+		'VETERAN':0,
+		'PADS':0,
+		'INSTRUCTIONS':'Take the blue pill, Neo'
+	}
+    form = LaTeXForm (f.read())
     form.process (params)
     form.xdvi ()
     form.cleanup ()
 
-test ()
+#============================================================
+# main
+#------------------------------------------------------------
+test()
