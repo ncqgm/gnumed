@@ -43,6 +43,8 @@ def Login(max_attempts=3):
 		try:
 			backend = gmPG.ConnectionPool(login)
 			logged_in = true
+			# save the login settings for next login
+			dlg.panel.SaveSettings()
 			myLog.Log(gmLog.lInfo, "backend connection successfully established")
 		except gmExceptions.ConnectionError, e:
 			attempts += 1
