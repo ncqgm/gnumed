@@ -466,6 +466,10 @@ class gmSnellen (gmPlugin.wxBasePlugin):
         menu = self.gb['main.toolsmenu']
         menu.Append (ID_SNELLENMENU, "Snellen", "Snellen Chart")
         EVT_MENU (self.gb['main.frame'], ID_SNELLENMENU, self.OnSnellenTool)
+
+    def unregister (self):
+        menu = self.gb['main.toolsmenu']
+        menu.Delete (ID_SNELLENMENU)
         
     def OnSnellenTool (self, event):
         frame = SnellenDialogue (self.gb['main.frame'])

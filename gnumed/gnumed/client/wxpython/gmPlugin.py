@@ -18,13 +18,9 @@ import gmExceptions, os, sys, traceback
 from gmLog import *
 log = gmDefLog.Log
 from wxPython.wx import *
+import gmGuiBroker, gmPG
 
 class gmPlugin:
-	# these are class variables which provide clues to the
-	# configuration tool to make sure the set of plugins installed
-	# are valid (plugins have the plugins they rely on installed
-	# first, no conflict in installation occurs)
-
 	
 	"base class for all gnumed plugins"
 
@@ -72,6 +68,10 @@ class wxBasePlugin (gmPlugin):
 		self.gb = guibroker
 		self.cb = callbackbroker
 		self.db = dbbroker
+		if self.gb is None:
+			self.gb = gmGuiBroker.GuiBroker ()
+		if self.db is None:
+			self.db = gmPG.ConnectionPool ()
 
 	def GetConfigPanel (self):
 		"""
@@ -80,7 +80,7 @@ class wxBasePlugin (gmPlugin):
 		"""
 		return None
 
-def LoadPluginSet (set, guibroker, dbbroker, defaults):
+def LoadPluginSet (set, guibroker = None, dbbroker = None, defaults = []):
 	"""
 	Loads a set of plugins.
 	set is a string specifying the subdirectory in which to
@@ -93,6 +93,10 @@ def LoadPluginSet (set, guibroker, dbbroker, defaults):
 	(TODO: get plugin list from gmconfiguration for this user).
 	"""
 	toload = defaults
+	if guibroker is None:
+		guibroker = gmGuiBroker.GuiBroker ()
+	if dbbroker is None:
+		dbbroker = gmPG.ConnectionPool ()
 	# talk to database here instead
 	dict = {}
 	for name in toload:
@@ -112,6 +116,17 @@ def LoadPluginSet (set, guibroker, dbbroker, defaults):
 			log (lErr, "cannot load module %s/%s:\nException: %s\nFile: %s\nLine: %s\n" % (set, name, error, frame[0], frame[1]))
 	guibroker['modules.%s' % set] = dict
 	# keep a record of plugins
+
+
+def UnloadPlugin (set, name):
+	"""
+	Unloads the named plugin
+	"""
+	gb = gmGuiBroker.GuiBroker ()
+	plugin = gb['modules.%s' % set][name]
+	plugin.unregister ()
+	del gb['modules.%s' % set][name]
+	log (lInfo, "unloaded plugin %s/%s" % (set, name))
 
 
 #####################################################################

@@ -36,10 +36,10 @@ class SQLListControl(wxListCtrl):
 
 
 
-	def __init__(self, parent, id, pos=wxPyDefaultPosition, size=wxPyDefaultSize, style=wxLC_REPORT, feedback=true, hideid=true):
+	def __init__(self, parent, id, pos=wxPyDefaultPosition, size=wxPyDefaultSize, style=wxLC_REPORT, feedback=true, hideid=false):
 		wxListCtrl.__init__(self, parent, id, pos, size, style)
 		self.__feedback = feedback
-		self.__hide_id=true
+		self.__hide_id=hideid # first column is assumed to be id field
 
 
 	def SetMaxfetch(self, n):
@@ -149,18 +149,24 @@ class SQLListControl(wxListCtrl):
 
 		if len(self.__labels)<=0:
 			self.__labels = gmPG.fieldNames(cursor)
-
+			if self.__hide_id:
+				del self.__labels[0]
 
 		gmLabels.LabelListControl(self, self.__labels)
 		rowcount=0
 		for row in queryresult:
 			colcount = 0
+			if self.__hide_id:
+				id = row[0]
+				row = row[1:] # dont print ID column
 			for attr in row:
 				if colcount==0:
-					self.InsertStringItem(rowcount,str(attr))
+					item = self.InsertStringItem(rowcount,str(attr))
 				else:
 					self.SetStringItem(rowcount,colcount, str(attr))
                 		colcount +=1
+			if self.__hide_id:
+				self.SetItemData (item, id)
             		rowcount +=1
 
 		#adjust column width according to the query results

@@ -19,7 +19,7 @@ class ActiveProblems(wxPanel):
 	self.SetSizer(sizer)  #set the sizer 
 	sizer.Fit(self)             #set to minimum size as calculated by sizer
         self.SetAutoLayout(true)                 #tell frame to use the sizer
-        self.Show(true) 
+        #self.Show(true) 
 
 	
 if __name__ == "__main__":

@@ -36,7 +36,7 @@ class HabitsRiskFactors(wxPanel):
 	self.SetSizer(text_sizer)  #set the sizer 
 	text_sizer.Fit(self)             #set
 	self.SetAutoLayout(true)                 #tell frame to use the sizer
-        self.Show(true)
+        #self.Show(true)
 	
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 200))

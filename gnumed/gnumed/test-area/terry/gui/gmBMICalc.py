@@ -299,7 +299,7 @@ ID_BMITOOL = wxNewId ()
 
 class gmBMICalc (gmPlugin.wxBasePlugin):
     def name (self):
-        return 'SnellenPlugin'
+        return 'BMICalcPlugin'
 
     def register (self):
         menu = self.gb['main.toolsmenu']
@@ -308,6 +308,12 @@ class gmBMICalc (gmPlugin.wxBasePlugin):
 	tb = self.gb['main.bottom_toolbar']
 	tb.AddTool (ID_BMITOOL,images_gnuMedGP_Toolbar.getToolbar_BMICalcBitmap(),shortHelpString="Body Mass Index Calculator")
 	EVT_TOOL (tb, ID_BMITOOL, self.OnBMITool)
+
+    def unregister (self):
+        tb2 = self.gb['main.bottom_toolbar']
+        tb2.DeleteTool (ID_BMITOOL)
+        menu = self.gb['main.toolsmenu']
+        menu.Delete (ID_BMIMENU)
         
     def OnBMITool (self, event):
 	    frame = TestFrame(NULL, -1, "gnuMEdGP_PreAlphaGUI__gmBMICalc_V0.0.1", wxDefaultPosition, size = wxSize(800,600),style= wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)

@@ -27,6 +27,13 @@ class gmManual (gmPlugin.wxBasePlugin):
          menu = self.gb['main.helpmenu']
          menu.Append (ID_MANUALMENU, "&Manual", "Online manual")
          EVT_MENU (self.gb['main.frame'], ID_MANUALMENU, self.OnManualTool)
+
+    def unregister (self):
+        tb2 = self.gb['main.bottom_toolbar']
+        tb2.DeleteTool (ID_MANUAL)
+        menu = self.gb['main.helpmenu']
+        menu.Delete (ID_MANUALMENU)
+        self.mwm.Unregister ('manual')
         
     def OnManualTool (self, event):
         self.mwm.Display ('manual')

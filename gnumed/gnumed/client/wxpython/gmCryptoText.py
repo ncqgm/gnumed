@@ -155,7 +155,7 @@ class gmCryptoText(wxTextCtrl):
             self.passphrase = self.AskForPassphrase()
             if self.passphrase == None:
                 return
-
+    
         textselection, self.selectionStart, self.selectionEnd = \
             self.FuzzyScanSelection(self.selectionStart, self.selectionEnd, self.fuzzymargin)
         #is the selection tagged as encrypted ?
@@ -232,9 +232,11 @@ class gmCryptoText(wxTextCtrl):
         #search left margin
         start = frompos - margin
         if start < 0: start = 0
+        if frompos == 0: frompos = 1
         #search right margin
         finish = topos + margin
         if finish > len(fulltext): finish = len(fulltext)
+        if topos > len(fulltext)-2: topos = len (fulltext)-2
         try:
             left = string.rindex(fulltext, '<', start, frompos)
             right = string.index(fulltext, '>', topos, finish)+1

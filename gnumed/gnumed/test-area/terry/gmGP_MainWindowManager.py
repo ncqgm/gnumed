@@ -10,6 +10,8 @@ column becomes visible.
 hand column (note all of these plugins are visible at once)
 """
 
+
+
 from wxPython.wx import *
 from gmLog import *
 log = gmDefLog.Log
@@ -44,6 +46,7 @@ class MainWindowManager (wxPanel):
         Client must NOT do Show () on the panel!
         """
         self.wholescreen[name] = panel
+        panel.Show (0) # make sure all hidden
         log (lInfo, "Registering %s as whole screen widget" % name)
 
     def RegisterLeftSide (self, name, panel):
@@ -51,6 +54,7 @@ class MainWindowManager (wxPanel):
         Register for left side
         """
         self.lefthalf[name] = panel
+        panel.Show (0) # make sure all hidden
         log (lInfo, "Registering %s left side" % name)
 
     def RegisterRightSide (self, name, panel, position =1):
@@ -60,6 +64,7 @@ class MainWindowManager (wxPanel):
         automatcially displayed when a left-column plugin is displayed
         """
         self.righthalf[name] = (panel, position)
+        panel.Show (0)
         log (lInfo, "Registering %s as right side widget" % name)
 
     def Unregister (self, name):

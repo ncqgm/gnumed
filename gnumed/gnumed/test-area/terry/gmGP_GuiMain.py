@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-06-22 12:40:28 $
-# @version $Revision: 1.1 $ $Date: 2002-06-22 12:40:28 $ $Author: ihaywood $
+# @Date: $Date: 2002-06-23 05:07:22 $
+# @version $Revision: 1.2 $ $Date: 2002-06-23 05:07:22 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -29,7 +29,7 @@
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # text translation function for localization purposes
@@ -145,7 +145,8 @@ class MainFrame(wxFrame):
 		gmPlugin.LoadPluginSet ('gui',
 					guibroker = self.guibroker,
 					dbbroker = backend,
-					defaults = ['gmGP_TabbedLists', 'gmGP_ScratchPadRecalls', 'gmPatientSearch', 'gmGP_ClinicalSummary', 'gmGP_Allergies', 'gmGP_Prescriptions', 'gmManual', 'gmSQL', 'gmCrypto', 'gmPython', 'gmSnellen', 'gmBMICalc'])
+					defaults = ['gmGP_TabbedLists', 'gmGP_ScratchPadRecalls', 'gmPatientSearch', 'gmGP_ClinicalSummary', 'gmGP_Allergies', 'gmGP_Prescriptions', 'gmManual', 'gmSQL', 'gmCrypto', 'gmPython', 'gmSnellen', 'gmBMICalc', 'gmConsultType'])
+		self.mwm.SetDefault ('summary')
 		self.mwm.Display (self.mwm.default)
 		# realize the toolbars
 		self.guibroker['main.top_toolbar'].Realize ()

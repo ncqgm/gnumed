@@ -52,7 +52,7 @@ the tuples returned are all selected rows
 
 to get the attribute labels, call gmSQLWindow.GetLabels()"""
 
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -119,7 +119,7 @@ class SQLWindow(wxPanel):
 		self.staticFeedbackBox = wxStaticBox( self, -1, _("Tables in database  /  Feedback") )
 		self.feedbackHsizer = wxStaticBoxSizer( self.staticFeedbackBox, wxHORIZONTAL )
 		self.textQueryResults = wxTextCtrl( self, ID_TEXTCTRL_QUERYRESULTS, "", wxDefaultPosition, wxSize(-1,30), wxTE_MULTILINE|wxTE_READONLY )
-		self.listTables = gmSQLListControl.SQLListControl( self, -1, wxDefaultPosition, wxSize(-1,80), wxLC_REPORT|wxSUNKEN_BORDER)
+		self.listTables = gmSQLListControl.SQLListControl( self, -1, wxDefaultPosition, wxSize(-1,80), wxLC_REPORT|wxSUNKEN_BORDER, hideid=false)
 		self.stdout = RedirectToTextctrl(self.textQueryResults)
 		self.stderr = self.stdout
 

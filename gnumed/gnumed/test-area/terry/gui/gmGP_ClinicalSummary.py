@@ -111,7 +111,6 @@ class gmGP_ClinicalSummary (gmPlugin.wxBasePlugin):
 	#add a custom separator to the toolbar
 	tb2.AddControl(wxStaticBitmap(tb2, -1, images_gnuMedGP_Toolbar.getCustom_SeparatorBitmap(), wxDefaultPosition, wxDefaultSize))
         EVT_TOOL (tb2, ID_OVERVIEW, self.OnSummaryTool)
-        self.mwm.SetDefault ('summary')
         menu = self.gb['main.viewmenu']
         menu.Append (ID_OVERVIEWMENU, "S&ummary", "Clinical Summary")
         EVT_MENU (self.gb['main.frame'], ID_OVERVIEWMENU, self.OnSummaryTool)
