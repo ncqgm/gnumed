@@ -278,7 +278,7 @@ packages to be installed before it can be run.</para>
 <citetitle>wxwindows web site</citetitle></ulink>,<ulink url="http://www.wxpython.org/download.php#binaries"><citetitle>wxpython (wxWindows for Python bindings)</citetitle></ulink></entry>
 
 		  <entry>2.3.2 <footnote>
-		      <para>wxPython includes GTK, so you only need to install WxPythin 2.3.2</para>
+		      <para>wxPython includes GTK, so you only need to install wxPython 2.3.2</para>
 		    </footnote>
 (both must be the same)</entry>
 			</row>
@@ -378,7 +378,7 @@ setting up the database (<xref linkend="pgsql">.)</para>
       </sect2>
 
 <sect2>
-	<title>RunningGnuMed</title>
+	<title>Running GnuMed</title>
 	
 		<para>Simple I would have thought but to start Gnumed you must go all the way to</para>
 	<screen>~/gnumed/gnumed/client/wxpython</screen>
