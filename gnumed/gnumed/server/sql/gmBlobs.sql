@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.37 $ $Date: 2004-01-05 00:31:01 $ $Author: ncq $
+-- $Revision: 1.38 $ $Date: 2004-01-05 00:58:27 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -52,23 +52,23 @@ COMMENT ON COLUMN doc_med.ext_ref IS
 	'external reference string of physical document, original paper copy can be found with this';
 
 -- =============================================
-CREATE TABLE "doc_obj" (
-	"id" serial primary key,
-	"doc_id" integer references doc_med(id),
-	"seq_idx" integer,
+CREATE TABLE doc_obj (
+	id serial primary key,
+	doc_id integer references doc_med(id),
+	seq_idx integer,
 	comment text,
-	"data" bytea
+	data bytea
 );
 
-COMMENT ON TABLE "doc_obj" IS 'possibly several of these form a medical document such as multiple scanned pages/images';
+COMMENT ON TABLE doc_obj IS 'possibly several of these form a medical document such as multiple scanned pages/images';
 COMMENT ON COLUMN doc_obj.seq_idx IS 'index of this object in the sequence of objects for this document';
 COMMENT ON COLUMN doc_obj.comment IS 'optional tiny comment for this object, such as "page 1"';
 COMMENT ON COLUMN doc_obj.data IS 'actual binary object data';
 
 -- =============================================
-CREATE TABLE "doc_desc" (
-	"id" serial primary key,
-	"doc_id" integer references doc_med(id) on delete cascade on update cascade,
+CREATE TABLE doc_desc (
+	id serial primary key,
+	doc_id integer references doc_med(id) on delete cascade on update cascade,
 	"text" text
 );
 
@@ -96,7 +96,7 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.37 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.38 $');
 
 -- =============================================
 -- questions:
@@ -114,7 +114,10 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.37  2004-01-05 00:31:01  ncq
+-- Revision 1.38  2004-01-05 00:58:27  ncq
+-- - remove excessive quoting
+--
+-- Revision 1.37  2004/01/05 00:31:01  ncq
 -- - prefer TEXT of VARCHAR
 --
 -- Revision 1.36  2003/12/29 15:28:03  uid66147
