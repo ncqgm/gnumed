@@ -6,10 +6,10 @@
 #
 # Created:	  2002/11/20
 # Version:	  0.1
-# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.16 2004-12-31 16:44:21 cfmoro Exp $
+# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.17 2005-01-13 14:30:35 ncq Exp $
 # License:	  wxWindows licensie
 # GnuMed customization (Carlos): 
-#		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
+#		Disabled vertical MultiSizer and MultiCreator (cMultiSashLeaf)
 #		An instance of controller object is passed with DefaultChildClass,
 #		to allow problem and emr connection with each SOAP editor control,
 #		and also controlling duplicate entries per health issue.
@@ -28,17 +28,19 @@ import gmSoapWidgets
 #============================================================
 class cSOAPMultiSash(wxWindow):
 	"""
-	Main multisash widget. Dinamically displays a stack of child widgets,
+	Main multisash widget. Dynamically displays a stack of child widgets,
 	out SOAP input widgets.
 	"""
-	
 	def __init__(self, *_args,**_kwargs):
 		apply(wxWindow.__init__,(self,) + _args,_kwargs)
-		# SOAP input panel controller object
-		self.childController = None
-		self.child = None
-		self.child = wxMultiSplit(self,self,wxPoint(0,0),self.GetSize())
-		EVT_SIZE(self,self.OnMultiSize)
+		self.childController = None			# SOAP input panel controller object
+		self.splitter = cMultiSashSplitter (
+			multi_sash_win = self,
+			parent = self,
+			pos = wxPoint(0,0),
+			size = self.GetSize()
+		)
+		EVT_SIZE(self,self._on_size)
 
 	def SetController(self, childController):
 		"""
@@ -50,7 +52,7 @@ class cSOAPMultiSash(wxWindow):
 		@param childController: SOAP input panel controller object
 		"""
 		self.childController = childController
-		self.child.DefaultChildChanged()	
+		self.splitter.DefaultChildChanged()
 
 	def GetController(self):
 		"""
@@ -58,181 +60,213 @@ class cSOAPMultiSash(wxWindow):
 		"""
 		return self.childController
 
-	def OnMultiSize(self,evt):
-		self.child.SetSize(self.GetSize())
-
 	def UnSelect(self):
-		if not self.child is None:
-			self.child.UnSelect()
+		if self.splitter is not None:
+			self.splitter.UnSelect()
 
 	def Clear(self):
 		self.SetController(None)
-		old = self.child
-		self.child = wxMultiSplit(self,self,wxPoint(0,0),self.GetSize())
+		old = self.splitter
+		self.splitter = cMultiSashSplitter (
+			multi_sash_win = self,
+			parent = self,
+			pos = wxPoint(0,0),
+			size = self.GetSize()
+		)
 		old.Destroy()
-		self.child.OnSize(None)
+		self.splitter.OnSize(None)
 
-
+	def _on_size(self,evt):
+		self.splitter.SetSize(self.GetSize())
 #============================================================
-class wxMultiSplit(wxWindow):
+class cMultiSashSplitter(wxWindow):
 	"""
 	Basic split windows container of the multisash widget.
 	Has references to two leafs or splitted windows (SOAP input widgets)
 	"""
-	def __init__(self,multiView,parent,pos,size,view1 = None):
-		wxWindow.__init__(self,id = -1,parent = parent,pos = pos,size = size,
-						  style = wxCLIP_CHILDREN)
-						  
+	def __init__(self, multi_sash_win, parent, pos, size, prev_leaf = None):
+		wxWindow.__init__ (
+			self,
+			id = -1,
+			parent = parent,
+			pos = pos,
+			size = size,
+			style = wxCLIP_CHILDREN
+		)
 		# reference to main multisash widget
-		self.multiView = multiView
-		self.view2 = None
-		if view1:
-			self.view1 = view1
-			self.view1.Reparent(self)
-			self.view1.MoveXY(0,0)
+		self.MultiSashWin = multi_sash_win
+		self.leaf2 = None
+		if prev_leaf:
+			self.leaf1 = prev_leaf
+			self.leaf1.Reparent(self)
+			self.leaf1.MoveXY(0,0)
 		else:
-			self.view1 = wxMultiViewLeaf(self.multiView,self,
-										 wxPoint(0,0),self.GetSize())
+			self.leaf1 = cMultiSashLeaf (
+				multi_sash_win = self.MultiSashWin,
+				parent = self,
+				pos = wxPoint(0,0),
+				size = self.GetSize()
+			)
 		self.direction = None
-	
+
 		EVT_SIZE(self,self.OnSize)
 	
 	def UnSelect(self):
-		if self.view1:
-			self.view1.UnSelect()
-		if self.view2:
-			self.view2.UnSelect()
+		if self.leaf1:
+			self.leaf1.UnSelect()
+		if self.leaf2:
+			self.leaf2.UnSelect()
 
 	def DefaultChildChanged(self):
-		if not self.view2:
-			self.view1.DefaultChildChanged()
+		if not self.leaf2:
+			self.leaf1.DefaultChildChanged()
 
-	def AddLeaf(self,direction,caller,pos):
+	def AddLeaf(self, direction, caller, pos):
 		"""
 		Construct a new leaf (split window, SOAP input widget)
 		"""
-		print "Adding leaf %s %s %s"%(direction, caller, pos)		
+		print "Adding leaf %s %s %s" % (direction, caller, pos)		
 		# avoid creating duplicate SOAP input widgets for the same issue
 		# Leaf creation can be fired both by controller's new button or
 		# by leaf's creator element
-		if self.view1.detail.childController.get_selected_issue()[1] in \
-			self.view1.detail.childController.get_issues_with_soap():
+		if self.leaf1.content.childController.get_selected_episode() in self.leaf1.content.childController.get_managed_episodes():
 			print "Issue has already soap"
 			wx.wxMessageBox("The SOAP note can't be created.\nCurrently selected health issue has yet an associated SOAP note in this encounter.",
 				caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION,
 				parent = self)
 			return
-		if self.view2:
-			print "view2"
-			if caller == self.view1:
-					self.view1 = wxMultiSplit(self.multiView,self,
-											  caller.GetPosition(),
-											  caller.GetSize(),
-											  caller)											  
-					self.view1.AddLeaf(direction,caller,pos)
-			else:
-					self.view2 = wxMultiSplit(self.multiView,self,
-											  caller.GetPosition(),
-											  caller.GetSize(),
-											  caller)
-					self.view2.AddLeaf(direction,caller,pos)
-		else:		
-				if len(self.view1.detail.childController.get_issues_with_soap()) == 0:
-					return
-				self.direction = direction
-				w,h = self.GetSizeTuple()
-				if direction == MV_HOR:
-					x,y = (pos,0)
-					w1,h1 = (w-pos,h)
-					w2,h2 = (pos,h)
-				else:
-					x,y = (0,pos)
-					w1,h1 = (w,h-pos)
-					w2,h2 = (w,pos)
-				self.view2 = wxMultiViewLeaf(self.multiView,self,
-											 wxPoint(x,y),wxSize(w1,h1))
-				self.view1.SetSize(wxSize(w2,h2))
-				self.view2.OnSize(None)
-								
-				#if not self.view1.detail.childController is None:
-				#	self.view1.detail.childController.check_buttons()
+
+		if self.leaf2 is None:
+			if len(self.leaf1.content.childController.get_managed_episodes()) == 0:
+				return
+			self.direction = direction
+			w,h = self.GetSizeTuple()
+			if direction == MV_HOR:
+				x,y = (pos,0)
+				w1,h1 = (w-pos,h)
+				w2,h2 = (pos,h)
+#			else:
+#				x,y = (0,pos)
+#				w1,h1 = (w,h-pos)
+#				w2,h2 = (w,pos)
+
+			self.leaf2 = cMultiSashSplitter (
+				multi_sash_win = self.MultiSashWin,
+				parent = self,
+				pos = wxPoint(x,y),
+				size = wxSize(w1,h1)
+			)
+			self.leaf1.SetSize(wxSize(w2,h2))
+			self.leaf2.OnSize(None)
+							
+			return True
+
+		if self.leaf2:
+			print "leaf2 exists"
+			caller = cMultiSashSplitter (
+				multi_sash_win = self.MultiSashWin,
+				parent = self,
+				pos = caller.GetPosition(),
+				size = caller.GetSize(),
+				prev_leaf = caller
+			)
+			caller.AddLeaf(direction, caller, pos)
+#			if caller == self.leaf1:
+#				self.leaf1 = cMultiSashSplitter (
+#					multi_sash_win = self.MultiSashWin,
+#					parent = self,
+#					pos = caller.GetPosition(),
+#					size = caller.GetSize(),
+#					prev_leaf = caller
+#				)
+#				self.leaf1.AddLeaf(direction, caller, pos)
+#			else:
+#				self.leaf2 = cMultiSashSplitter (
+#					multi_sash_win = self.MultiSashWin,
+#					parent = self,
+#					pos = caller.GetPosition(),
+#					size = caller.GetSize(),
+#					prev_leaf = caller
+#				)
+#				self.leaf2.AddLeaf(direction, caller, pos)
+
 
 	def DestroyLeaf(self,caller):
 		"""
 		Destroys selected leaf, both by controller's remove button or by
 		leaf's destroyer element
 		"""
-		if not self.view2:			 
+		if not self.leaf2:			 
 			print "Removing first leaf"
 			# can't be sure is selected when user clicked destroyer element, so...
-			self.view1.detail.Select()
+			self.leaf1.content.Select()
 			# we just hide SOAP input widget's contents when removing unique leaf
-			soap_widget = self.view1.detail.child
-			soap_issue = soap_widget.GetHealthIssue()			
-			if len(self.view1.detail.childController.get_issues_with_soap()) > 0 and \
+			soap_widget = self.leaf1.content.soap_panel
+			soap_issue = soap_widget.GetProblem()			
+			if len(self.leaf1.content.childController.get_issues_with_soap()) > 0 and \
 				not soap_widget.IsSaved():
-				self.view1.detail.childController.get_issues_with_soap().remove(soap_issue[1])			
+				self.leaf1.content.childController.get_issues_with_soap().remove(soap_issue[1])			
 			soap_widget.ResetAndHide()
-			self.view1.creatorHor.Hide()
-			self.view1.closer.Hide()
-			if not self.view1.detail.childController is None:
-					self.view1.detail.childController.check_buttons()
+			self.leaf1.creatorHor.Hide()
+			self.leaf1.closer.Hide()
+			if not self.leaf1.content.childController is None:
+					self.leaf1.content.childController.check_buttons()
 			return					  # we need to destroy any
 		parent = self.GetParent()	   # Another splitview
-		if parent == self.multiView:	# We'r at the root
-			if caller == self.view1:
-				old = self.view1
-				self.view1 = self.view2
-				self.view2 = None
-				soap_issue = old.detail.child.GetHealthIssue()
-				if not old.detail.child.IsSaved():
-					old.detail.childController.get_issues_with_soap().remove(soap_issue[1])
-				old.UnSelect()
-				old.Destroy()
+		if parent == self.MultiSashWin:	# We'r at the root
+			if caller == self.leaf1:
+				old_leaf = self.leaf1
+				self.leaf1 = self.leaf2
+				self.leaf2 = None
+				soap_issue = old_leaf.content.soap_panel.GetProblem()
+				if not old_leaf.content.soap_panel.IsSaved():
+					old_leaf.content.childController.get_issues_with_soap().remove(soap_issue[1])
+				old_leaf.UnSelect()
+				old_leaf.Destroy()
 				print "1.1"
 			else:
-				soap_issue = self.view2.detail.child.GetHealthIssue()
-				if not self.view2.detail.child.IsSaved():
-					self.view2.detail.childController.get_issues_with_soap().remove(soap_issue[1])
-				self.view2.UnSelect()
-				self.view2.Destroy()
-				self.view2 = None
+				soap_issue = self.leaf2.content.soap_panel.GetProblem()
+				if not self.leaf2.content.soap_panel.IsSaved():
+					self.leaf2.content.childController.get_issues_with_soap().remove(soap_issue[1])
+				self.leaf2.UnSelect()
+				self.leaf2.Destroy()
+				self.leaf2 = None
 				print "1.2"
-			self.view1.SetSize(self.GetSize())
-			self.view1.Move(self.GetPosition())
+			self.leaf1.SetSize(self.GetSize())
+			self.leaf1.Move(self.GetPosition())
 		else:
 			w,h = self.GetSizeTuple()
 			x,y = self.GetPositionTuple()
-			if caller == self.view1:
-				if self == parent.view1:
-					parent.view1 = self.view2			
+			if caller == self.leaf1:
+				if self == parent.leaf1:
+					parent.leaf1 = self.leaf2			
 				else:
-					parent.view2 = self.view2			
-				self.view2.Reparent(parent)
-				self.view2.SetDimensions(x,y,w,h)
+					parent.leaf2 = self.leaf2			
+				self.leaf2.Reparent(parent)
+				self.leaf2.SetDimensions(x,y,w,h)
 				print "2.1"
-				soap_issue = self.view1.detail.child.GetHealthIssue()
-				if not self.view1.detail.child.IsSaved():
-					self.view1.detail.childController.get_issues_with_soap().remove(soap_issue[1])
+				soap_issue = self.leaf1.content.soap_panel.GetProblem()
+				if not self.leaf1.content.soap_panel.IsSaved():
+					self.leaf1.content.childController.get_issues_with_soap().remove(soap_issue[1])
 				print "Removing: %s"%(soap_issue[1])
 			else:
-				if self == parent.view1:
-					parent.view1 = self.view1
+				if self == parent.leaf1:
+					parent.leaf1 = self.leaf1
 				else:
-					parent.view2 = self.view1
-				self.view1.Reparent(parent)
-				self.view1.SetDimensions(x,y,w,h)
+					parent.leaf2 = self.leaf1
+				self.leaf1.Reparent(parent)
+				self.leaf1.SetDimensions(x,y,w,h)
 				print "1.2"				
-				soap_issue = self.view2.detail.child.GetHealthIssue()
-				if not self.view2.detail.child.IsSaved():
-					self.view2.detail.childController.get_issues_with_soap().remove(soap_issue[1])
+				soap_issue = self.leaf2.content.soap_panel.GetProblem()
+				if not self.leaf2.content.soap_panel.IsSaved():
+					self.leaf2.content.childController.get_issues_with_soap().remove(soap_issue[1])
 				print "Removing: %s"%(soap_issue[1])				
-			self.view1 = None
-			self.view2 = None
+			self.leaf1 = None
+			self.leaf2 = None
 		
 			self.Destroy()
 			
-		#self.multiView.GetController().check_buttons()
+		#self.MultiSashWin.GetController().check_buttons()
 
 	def CanSize(self,side,view):
 		if self.SizeTarget(side,view):
@@ -240,17 +274,17 @@ class wxMultiSplit(wxWindow):
 		return False
 
 	def SizeTarget(self,side,view):
-		if self.direction == side and self.view2 and view == self.view1:
+		if self.direction == side and self.leaf2 and view == self.leaf1:
 			return self
 		parent = self.GetParent()
-		if parent != self.multiView:
+		if parent != self.MultiSashWin:
 			return parent.SizeTarget(side,self)
 		return None
 
 	def SizeLeaf(self,leaf,pos,side):
 		if self.direction != side:
 			return
-		if not (self.view1 and self.view2):
+		if not (self.leaf1 and self.leaf2):
 			return
 		if pos < 10: return
 		w,h = self.GetSizeTuple()
@@ -259,21 +293,21 @@ class wxMultiSplit(wxWindow):
 		else:
 			if pos > h - 10: return
 		if side == MV_HOR:
-			self.view1.SetDimensions(0,0,pos,h)
-			self.view2.SetDimensions(pos,0,w-pos,h)
+			self.leaf1.SetDimensions(0,0,pos,h)
+			self.leaf2.SetDimensions(pos,0,w-pos,h)
 		else:
-			self.view1.SetDimensions(0,0,w,pos)
-			self.view2.SetDimensions(0,pos,w,h-pos)
+			self.leaf1.SetDimensions(0,0,w,pos)
+			self.leaf2.SetDimensions(0,pos,w,h-pos)
 
 	def OnSize(self,evt):
-		if not self.view2:
-			self.view1.SetSize(self.GetSize())
-			self.view1.OnSize(None)
+		if not self.leaf2:
+			self.leaf1.SetSize(self.GetSize())
+			self.leaf1.OnSize(None)
 			return
-		v1w,v1h = self.view1.GetSizeTuple()
-		v2w,v2h = self.view2.GetSizeTuple()
-		v1x,v1y = self.view1.GetPositionTuple()
-		v2x,v2y = self.view2.GetPositionTuple()
+		v1w,v1h = self.leaf1.GetSizeTuple()
+		v2w,v2h = self.leaf2.GetSizeTuple()
+		v1x,v1y = self.leaf1.GetPositionTuple()
+		v2x,v2y = self.leaf2.GetPositionTuple()
 		w,h = self.GetSizeTuple()
 
 		if v1x != v2x:
@@ -292,35 +326,33 @@ class wxMultiSplit(wxWindow):
 		else:
 			v1h = v2h = h
 
-		self.view1.SetDimensions(v1x,v1y,v1w,v1h)
-		self.view2.SetDimensions(v2x,v2y,v2w,v2h)
-		self.view1.OnSize(None)
-		self.view2.OnSize(None)
-
-
+		self.leaf1.SetDimensions(v1x,v1y,v1w,v1h)
+		self.leaf2.SetDimensions(v2x,v2y,v2w,v2h)
+		self.leaf1.OnSize(None)
+		self.leaf2.OnSize(None)
 #============================================================
-class wxMultiViewLeaf(wxWindow):
+class cMultiSashLeaf(wxWindow):
 	"""
 	A leaf represent a split window, one instance of our SOAP input widget.
 	"""
-	def __init__(self,multiView,parent,pos,size):
+	def __init__(self,multi_sash_win,parent,pos,size):
 		wxWindow.__init__(self,id = -1,parent = parent,pos = pos,size = size,
 						  style = wxCLIP_CHILDREN)
-						  
+
 		# reference to main multisash widget				  
-		self.multiView = multiView
-		# only horizontal sizer is allowed, to display leafs in a stack-like way		
-		self.sizerHor = MultiSizer(self,MV_HOR)		
-		self.detail = MultiClient(self, multiView.childController)
-		print "wxMultiViewLeaf.init: created detail: %s"%(self.detail)
+		self.MultiSashWin = multi_sash_win
+		# only horizontal sizer is allowed, to display leafs in a stack-like way
+		self.sizerHor = MultiSizer(self,MV_HOR)
+		self.content = cMultiSashLeafContent(self, self.MultiSashWin.childController)
+		print "cMultiSashLeaf.init: created content: %s" % (self.content)
 		# only horizontal creator is allowed
 		self.creatorHor = MultiCreator(self,MV_HOR)
 		self.closer = MultiCloser(self)
-		# hide creator and closer when a unique leaf is shown
-		if multiView.childController is None or \
-			len(multiView.childController.get_issues_with_soap()) == 0:
-			self.creatorHor.Hide()
-			self.closer.Hide()
+#		# hide creator and closer when a unique leaf is shown
+#		if self.MultiSashWin.childController is None or \
+#			len(self.MultiSashWin.childController.get_issues_with_soap()) == 0:
+#			self.creatorHor.Hide()
+#			self.closer.Hide()
 					
 		EVT_SIZE(self,self.OnSize)
 		
@@ -328,16 +360,16 @@ class wxMultiViewLeaf(wxWindow):
 		"""
 		Retrieve split window's SOAP input widget
 		"""
-		return self.detail.child
+		return self.content.soap_panel
 	
 	def UnSelect(self):
-		self.detail.UnSelect()
+		self.content.UnSelect()
 
 	def DefaultChildChanged(self):
 		"""
 		Set main controller
 		"""
-		self.detail.SetNewController(self.multiView.childController)
+		self.content.SetNewController(self.MultiSashWin.childController)
 
 	def AddLeaf(self,direction,pos):
 		if pos < 10: return
@@ -360,41 +392,46 @@ class wxMultiViewLeaf(wxWindow):
 	def OnSize(self,evt):
 		self.sizerHor.OnSize(evt)
 		self.creatorHor.OnSize(evt)	
-		self.detail.OnSize(evt)
+		self.content.OnSize(evt)
 		self.closer.OnSize(evt)
 
 #============================================================
-class MultiClient(wxWindow):
+# FIXME: can we maybe get rid of this class by moving it into
+# cMultiSashLeaf ?
+class cMultiSashLeafContent(wxWindow):
 	"""
-	Widget that encapsulate contents in a leaf or split window.
+	Widget that encapsulate contents of a leaf or split window.
 	We have one SOAP input widget and a reference to the controller
 	"""
-	def __init__(self,parent,childController):
+	def __init__(self, parent, childController):
 		w,h = self.CalcSize(parent)
 		wxWindow.__init__(self,id = -1,parent = parent,
 						  pos = wxPoint(0,0),
-						  size = wxSize(w,h),						  
+						  size = wxSize(w,h),
 						  style = wxCLIP_CHILDREN | wxSUNKEN_BORDER)
-			  
-		print "Creating soap input widget, controller (%s)"%(childController)
+
+		print "Creating soap input widget, controller (%s)" % childController
 		# ui initialized and some issue selection, create SOAP input for the issue
-		if not childController is None:
-			self.child = gmSoapWidgets.cSoapPanel(self)
-			self.child.SetHealthIssue(childController.get_selected_issue())
-			childController.get_issues_with_soap().append(childController.get_selected_issue()[1])
-		else:
-			# empty issue selection 
-			self.child = gmSoapWidgets.cSoapPanel(self)
-		
+		self.soap_panel = gmSoapWidgets.cResizingSoapPanel(parent=self, problem=childController.get_selected_episode())
+		# FIXME: should this really happen here ?
+		childController.get_managed_episodes().append(childController.get_selected_episode()['pk_episode'])
+#		if childController is not None:
+#			self.soap_panel = gmSoapWidgets.cResizingSoapPanel(self, problem = childController.get_selected_episode())
+#			self.soap_panel.SetHealthIssue(childController.get_selected_issue())
+#			childController.get_managed_episodes().append(childController.get_selected_episode()['pk_episode'])
+#		else:
+#			# empty issue selection
+#			self.soap_panel = gmSoapWidgets.cSoapPanel(self)
+
 		self.childController = childController
-		self.child.MoveXY(2,2)
+		self.soap_panel.MoveXY(2,2)
 		self.normalColour = self.GetBackgroundColour()
 		self.selected=False
 		self.Select()
 
-		# empty issue selection, ide unique SOAP input widget
-		if childController is None:
-			self.child.HideContents()
+#		# empty issue selection, ide unique SOAP input widget
+#		if childController is None:
+#			self.soap_panel.HideContents()
 
 		EVT_SET_FOCUS(self,self.OnSetFocus)
 		EVT_CHILD_FOCUS(self,self.OnChildFocus)
@@ -403,7 +440,7 @@ class MultiClient(wxWindow):
 		"""
 		Deselect currently selected leaf and reflect the change in controller.
 		"""
-		print "MultiClient.UnSelect" 
+		print "cMultiSashLeafContent.UnSelect"
 		if self.selected:
 			self.selected = False
 			if not self.childController is None:
@@ -412,17 +449,18 @@ class MultiClient(wxWindow):
 			self.SetBackgroundColour(self.normalColour)
 			self.Refresh()
 
-	def Select(self):	
+	def Select(self):
 		"""
 		Select leaf and reflect the change in controller.
 		"""		   
-		print "MultiClient.Select" 
-		self.GetParent().multiView.UnSelect()
+		print "cMultiSashLeafContent.Select"
+		self.GetParent().MultiSashWin.UnSelect()
 		self.selected = True
 		self.SetBackgroundColour(wxColour(255,255,0)) # Yellow
 		self.Refresh()
-		if not self.childController is None:
-			self.childController.set_selected_leaf(self.GetParent(), self.child)
+#		if not self.childController is None:
+#			self.childController.set_selected_leaf(self.GetParent(), self.soap_panel)
+		self.childController.set_selected_leaf(self.GetParent(), self.soap_panel)
 
 	def CalcSize(self,parent):
 		w,h = parent.GetSizeTuple()
@@ -434,7 +472,7 @@ class MultiClient(wxWindow):
 		w,h = self.CalcSize(self.GetParent())
 		self.SetDimensions(0,0,w,h)
 		w,h = self.GetClientSizeTuple()
-		self.child.SetSize(wxSize(w-4,h-4))
+		self.soap_panel.SetSize(wxSize(w-4,h-4))
 
 	def OnSetFocus(self,evt):
 		self.Select()
