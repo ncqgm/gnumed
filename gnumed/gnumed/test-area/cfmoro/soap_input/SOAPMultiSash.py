@@ -6,7 +6,7 @@
 #
 # Created:	  2002/11/20
 # Version:	  0.1
-# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.23 2005-01-28 18:37:17 cfmoro Exp $
+# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.24 2005-01-29 13:26:48 ncq Exp $
 # License:	  wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (cMultiSashLeaf)
@@ -129,11 +129,11 @@ class cMultiSashSplitter(wxWindow):
 		"""
 		Construct a new leaf (split window, SOAP input widget)
 		"""
-		
-		print "Adding leaf %s %s %s" % (direction, caller, pos)		
+		print "Adding leaf %s %s %s" % (direction, caller, pos)
 		# avoid creating duplicate SOAP input widgets for the same issue
 		# Leaf creation can be fired both by controller's new button or
 		# by leaf's creator element
+		# FIXME: should we not do this in the code *using* the multisash objects ?
 		if self.leaf1.content.childController.get_selected_episode() in self.leaf1.content.childController.get_managed_episodes():
 			print "Issue has already soap"
 			wx.wxMessageBox("The SOAP note can't be created.\nCurrently selected health issue has yet an associated SOAP note in this encounter.",
@@ -163,7 +163,7 @@ class cMultiSashSplitter(wxWindow):
 			)
 			self.leaf1.SetSize(wxSize(w2,h2))
 			self.leaf2.OnSize(None)
-							
+
 			return True
 
 		if self.leaf2:
@@ -849,3 +849,101 @@ def DrawSash(win,x,y,direction):
 		dc.DrawRectangle(x-2,y,4,h)
 
 	dc.EndDrawingOnTop()
+#============================================================
+# $Log: SOAPMultiSash.py,v $
+# Revision 1.24  2005-01-29 13:26:48  ncq
+# - some cleanup
+#
+#
+#----------------------------
+# revision 1.23
+# date: 2005/01/28 18:37:17;  author: cfmoro;  state: Exp;  lines: +2 -2
+# Removed idx problem number. Begin to link issues w/o episodes with episode selector
+#----------------------------
+# revision 1.22
+# date: 2005/01/18 19:51:13;  author: cfmoro;  state: Exp;  lines: +9 -4
+# UI improvements: resizing of the widget in LeafContent, yellow background while replacing the child widget
+#----------------------------
+# revision 1.21
+# date: 2005/01/18 19:23:16;  author: cfmoro;  state: Exp;  lines: +55 -44
+# More cleanup. Soap editor created on double click. Clear and remove funtions working
+#----------------------------
+# revision 1.20
+# date: 2005/01/17 19:56:10;  author: cfmoro;  state: Exp;  lines: +18 -2
+# Initial soap editor creation for a selected episode. No editors are until a problem is selected and new button is pressed
+#----------------------------
+# revision 1.19
+# date: 2005/01/16 20:30:54;  author: ncq;  state: Exp;  lines: +17 -11
+# - some reformatting
+#----------------------------
+# revision 1.18
+# date: 2005/01/15 20:37:17;  author: cfmoro;  state: Exp;  lines: +19 -10
+# Initial adaptation to cProblem. Some comments for development
+#----------------------------
+# revision 1.17
+# date: 2005/01/13 14:30:35;  author: ncq;  state: Exp;  lines: +226 -188
+#- lot's of renaming/cleanup
+#----------------------------
+# revision 1.16
+# date: 2004/12/31 16:44:21;  author: cfmoro;  state: Exp;  lines: +4 -4
+# Separation of classes in appropiate modules. Note categories are dynamic
+#----------------------------
+# revision 1.15
+# date: 2004/12/16 17:59:38;  author: cfmoro;  state: Exp;  lines: +719 -719
+# Encapsulation syntax fixed (_ replaced by __). Using tab indentation, in consistency with the rest of gnumed files
+#----------------------------
+# revision 1.14
+# date: 2004/12/03 16:34:44;  author: cfmoro;  state: Exp;  lines: +3 -1
+# Controlled destroying last split using closer element and code clean up
+#----------------------------
+# revision 1.13
+# date: 2004/12/03 16:22:25;  author: cfmoro;  state: Exp;  lines: +80 -76
+# Implemented save action. Tons of code cleans more...
+#----------------------------
+# revision 1.12
+# date: 2004/12/03 00:03:32;  author: cfmoro;  state: Exp;  lines: +188 -135
+# Code clean up and comments. Ready for begin  to join to cClinicalRecord
+#----------------------------
+# revision 1.11
+# date: 2004/11/27 21:16:25;  author: cfmoro;  state: Exp;  lines: +3 -3
+# Begin code clean and bu fixing stage
+#----------------------------
+# revision 1.10
+# date: 2004/11/27 20:42:48;  author: cfmoro;  state: Exp;  lines: +26 -4
+# Action buttons are logically enabled/disabled. Creator and closer are logically hidden/shown
+#----------------------------
+# revision 1.9
+# date: 2004/11/27 18:25:12;  author: cfmoro;  state: Exp;  lines: +27 -32
+# Alert dialogs when no problem/soap is selected and some action is fired. Some code clean. Minor ui improvements
+#----------------------------
+# revision 1.8
+# date: 2004/11/26 06:19:38;  author: cfmoro;  state: Exp;  lines: +12 -2
+# The user cannot entre more than one SOAP note per health issue. A warning is displayed
+#----------------------------
+# revision 1.7
+# date: 2004/11/24 22:46:52;  author: cfmoro;  state: Exp;  lines: +12 -4
+# UI improvements: auto-selection of new split window; fixed heading size of refresh
+#----------------------------
+# revision 1.6
+# date: 2004/11/23 00:26:25;  author: cfmoro;  state: Exp;  lines: +12 -4
+# Properly handled unique/none soap note
+#----------------------------
+# revision 1.5
+# date: 2004/11/21 20:10:14;  author: cfmoro;  state: Exp;  lines: +5 -14
+# Clearer way for obtaining selected leaf
+#----------------------------
+# revision 1.4
+# date: 2004/11/21 19:21:00;  author: cfmoro;  state: Exp;  lines: +26 -130
+# Code clean. Unique note management. Remove button functional
+#----------------------------
+# revision 1.3
+# date: 2004/11/21 16:53:04;  author: cfmoro;  state: Exp;  lines: +2 -1
+# Fixed selection enabled border layout after setting default child widget
+#----------------------------
+# revision 1.2
+# date: 2004/11/21 13:02:21;  author: cfmoro;  state: Exp;  lines: +12 -12
+# Using test-area imports. Action buttons configuration. Save and clear buttons being functional
+#----------------------------
+# revision 1.1
+# date: 2004/11/17 01:49:34;  author: cfmoro;  state: Exp;
+# Initial SOAP input control implementation. It is just a first try, lot of feedback,review and advice is really needed. Just hope can serve as starting point to a not far away satisfactory design and implementation. It is open to changes and contributions from everybody so... :)
