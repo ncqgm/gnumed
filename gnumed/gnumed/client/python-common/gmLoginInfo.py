@@ -60,9 +60,9 @@ class LoginInfo:
 	#------------------------------------------
 	def GetInfoStr(self):
 		# don't hand out passwords just like that
-		info = "host:port=%s:%d, db=%s, user=%s, pw=??, opts=%s, tty=%s" % (
+		info = "host:port=%s:%s, db=%s, user=%s, pw=??, opts=%s, tty=%s" % (
 					self.GetHost(),
-					self.GetPort(),
+					str(self.GetPort()),
 					self.GetDatabase(),
 					self.GetUser(),
 					self.GetOptions(),
@@ -85,7 +85,7 @@ class LoginInfo:
 	def GetDBAPI_DSN(self):
 		dsn = "%s:%s:%s:%s:%s:%s:%s" % (
 			self.GetHost(),
-			str (self.GetPort()),
+			str(self.GetPort()),
 			self.GetDatabase(),
 			self.GetUser(),
 			self.GetPassword(),
