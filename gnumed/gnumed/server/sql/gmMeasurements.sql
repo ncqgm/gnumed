@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -185,7 +185,7 @@ COMMENT ON TABLE test_result is
 	'the results of a single measurement';
 -- FIXME: housekeeping sanity script:
 comment on column test_result.clin_when is
-	'the time when this result was actually obtained,
+	'the time when this result was *actually* obtained,
 	 if this is a lab result this should be between
 	 lab_request.clin_when and lab_request.results_reported_when';
 comment on column test_result.narrative is
@@ -273,7 +273,7 @@ create table lab_request (
 		not null
 		default true,
 	unique (fk_test_org, request_id)
-	-- FIXME: there really should be a constraint like that
+	-- FIXME: there really ought to be a constraint like this:
 --	unique (fk_patient, request_id)
 ) inherits (clin_root_item);
 
@@ -283,7 +283,8 @@ select i18n('partial');
 select i18n('final');
 
 comment on column lab_request.clin_when is
-	'when where the samples for this request taken';
+	'the time the sample for this request was taken
+	 LDT: 8432:8433';
 comment on column lab_request.request_id IS
 	'ID this request had when sent to the lab
 	 LDT: 8310';
@@ -352,11 +353,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.25 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.26 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.25  2004-05-18 20:38:21  ncq
+-- Revision 1.26  2004-06-01 07:58:13  ncq
+-- - improve comments
+--
+-- Revision 1.25  2004/05/18 20:38:21  ncq
 -- - typo fix
 --
 -- Revision 1.24  2004/05/06 23:29:04  ncq
