@@ -5,7 +5,7 @@
 -- author: Ian Haywood <>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmFormDefs.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 
 -- Note: this is office related while gmFormData.sql is clinical content
 
@@ -59,16 +59,20 @@ insert into papersizes (name, size) values ('ledger', '(43.18, 27.94)');
 -- ===================================================
 create table form_types (
 	id serial primary key,
-	name_short varchar(10),
-	name_long varchar(60),
-	version varchar(30) unique not null,
-	in_use bool,
+	name_short text not null,
+	name_long text not null,
+	version text not null,
+	in_use bool not null default true,
 	deprecated date,
 	template text,
-	electronic bool, 
+	electronic bool not null default false,
 	engine char default 'T' not null check (engine in ('T', 'L')),
-	flags varchar (100) []
-);
+	flags varchar (100) [],
+	unique(name_short, name_long, version)
+) inherits (audit_fields);
+
+select add_table_for_audit('form_types');
+
 comment on table form_types is
 	'metadata on forms';
 
@@ -76,11 +80,11 @@ comment on column form_types.engine is
 'the business layer forms engine class to use for this form.
 Currently only T=plain text, and L=LaTeX are defined';
 
+-- ===================================================
 create lnk_form2discipline (
 	id_form integer references form_types (id),
 	discipline text
 );
-
 
 comment on table lnk_form2discipline is
 'the discipline which uses this form. This maps to
@@ -167,7 +171,7 @@ comment on column form_fields.is_editable is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- * do we need "form_types.iso_countrycode" ?
@@ -177,7 +181,10 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.
 
 -- =============================================
 -- $Log: gmFormDefs.sql,v $
--- Revision 1.5  2004-03-07 13:19:18  ihaywood
+-- Revision 1.6  2004-03-07 22:42:08  ncq
+-- - just some cleanup
+--
+-- Revision 1.5  2004/03/07 13:19:18  ihaywood
 -- more work on forms
 --
 -- Revision 1.4  2003/01/05 13:05:51  ncq
