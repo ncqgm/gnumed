@@ -8,8 +8,8 @@ run from cron.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/x_db_fk_verifier/Attic/verify_x_db_fks.py,v $
-# $Id: verify_x_db_fks.py,v 1.1 2003-08-17 17:53:45 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: verify_x_db_fks.py,v 1.2 2003-09-16 22:41:34 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os.path
@@ -76,7 +76,7 @@ def verify_fk(aSrcConn = None, anFK = None, aColIdx = None):
 	log_curs = aSrcConn.cursor()
 
 	# get name of pk attribute for this table
-	pk_name = gmPG.get_pkey(src_curs, anFK[aColIdx['fk_src_table']])
+	pk_name = gmPG.get_pkey_name(src_curs, anFK[aColIdx['fk_src_table']])
 	pk = ''
 	if pk_name not in [None, -1]:
 		pk = "%s, " % pk_name
@@ -208,7 +208,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: verify_x_db_fks.py,v $
-# Revision 1.1  2003-08-17 17:53:45  ncq
+# Revision 1.2  2003-09-16 22:41:34  ncq
+# - get_pkey_name renaming
+#
+# Revision 1.1  2003/08/17 17:53:45  ncq
 # - first check in
 # - run from cron
 #
