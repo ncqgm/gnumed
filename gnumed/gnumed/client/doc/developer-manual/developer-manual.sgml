@@ -155,34 +155,442 @@ chmod +x ~/bin/ssh_cvs
 
   <chapter id=guidelines>
     <title>Coding Guidelines</title>
-    <sect1 id=coding-guidelines>
-      <title>strings and translation</title>
-      <para>hardcoded error strings meant for developers / debugging are in English.All other strings MUST be translateable, that is called as a gettext 
-function. To achieve this, you do the following:
+    <sect1 id=documentation>
+      <title>Comments. Documenting Code</title>
+      <sect2>
+	<title>Module documention</title>
+      	    <para>Always insert some lines of description of the module, containing at least the author and one line of short explanation. Remember that a lot of people might have to read and understand your code. Document as much as possible. Add example code how to use the module where possible and necessary. 
+Please insert the following template at the beginning of the file:</para>
+    	    	<screen>
+#############################################################################
+# ModuleName - one line explanation             
+# verbose documentation, example code
+# @author: author name                                                       
+# @copyright: author                                                            
+# @license: GPL (details at http://www.gnu.org)                                 
+# @dependencies: any libs / program versions the module might depend on       
+#                                                                               
+# @TODO:        
+#############################################################################
+    	</screen>
+    	<para>
+	A changelog will be appended automatically to every file using comments supplied
+	when commiting changes to the CVS.
+    	</para>
+      </sect2>
+
+      <sect2>
+	<title>Docstring documention</title>
+      <para>Try to always insert at least one line of docstring 
+unless the function is no more than a couple of lines long and perfectly 
+self-explanatory.</para>
+      </sect2>
+
+      <sect2>
+	<title>COMMENTS</title>
+	<para>Mark places that need fixing with a comment like this:
+	  <screen>
+# FIXME: a comment on what should be fixed how
+... your code ...</screen>
+	</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id=cvs-guidelines>
+      <title>CVS Guidelines</title>
+      <para>Always test before you check in (yes, I have been guilty of not heeding 
+      my own advice, sorry)
       </para>
-      <para>If your modules can be called as a standalone script you
-should add this to your main part:
+    </sect1>
+
+    <sect1 id=debugging>
+        <title>DEBUGGING/LOGGING</title>
+    	<para>Place markers before/after logging statements that can be commented out
+	 once things work like this:
+<screen>
+#&lt;DEBUG&gt;
+gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log message")
+#&lt;/DEBUG&gt;
+</screen>
+    </sect1>
+
+    <sect1 id=configuration>
+        <title>Gnumed Configuration</title>
+    	<para>
+	Gnumed uses two sources of configuration information:
+	   - INI-style configuration files
+	   - database tables
+	After importing <link linkend=gmCfg>gmCfg.py</link> data stored in a standard configuration file at ~/.gnumed/gnumed.conf
+	is available. Information in this file is particularly important for all activity until a connection to the backend has 
+	been established. Once the backend available, configuration information stored in tables of the gnumed database can be used.
+	However, it is possible to force file or database accessat any time. 
+    	</para>
+	<sect2>
+	<title>Standard configuration file</title>
+    	<para>
+	Currently the default configuration file holds the following information:
 	<screen>
+# GnuMed client config file                                                     
+                                                                                
+[backend]                                                                       
+databases = $databases$                                                         
+gnumed                                                                          
+$databases$                                                                     
+ports = $ports$                                                                 
+5432                                                                            
+$ports$                                                                         
+hosts = $hosts$                                                                 
+localhost                                                                       
+127.0.0.1                                                                       
+$hosts$                                                                         
+options = $options$                                                             
+                                                                                
+$options$                                                                       
+logins = $logins$                                                               
+hinnef                                                                          
+guest                                                                           
+$logins$                                                                        
+
+[workplace]                                                                     
+# this is to identify the machine at a logical (business) level                 
+name = test                           
+	</screen>
+	</para>
+
+	</sect2>
+
+    	<sect2>
+	<title>Database configuration tables</title>
+    	<para>
+    	Table 'db' holds the information on databases known to gnumed. The database that has id=0 is always the default database,
+	that is the database used to log in to the backend at the start of gnumed (=the one the configuration tables are stored on).
+	If no entry for id=0 is present, the parameters passed on startup are used. Additional databases like demographic databases,
+	drug databases must therefore use id's >= 1.
+	</para>
+	<para><screen>
+CREATE TABLE db (
+id SERIAL PRIMARY KEY,
+name CHAR(35),	    	-- name of the database
+port INT DEFAULT 5432,  -- port number of server hosting this database
+host VARCHAR(255)DEFAULT 'localhost', -- host name of IP number of the server hosting the database
+opt varchar(255) DEFAULT '',	-- options passed to the database backend
+tty varchar(255) DEFAULT ''
+);
+	</screen>
+	</para>
+
+    	<para>
+    	Table 'ddb' holds the names assigned to services known to gnumed. Names and actual databases are linked via the table 
+	<link linkend=table-config>'config'</link>
+	</para>
+	<para><screen>
+CREATE TABLE distributed_db (
+	id SERIAL PRIMARY KEY,
+	name char(35)
+);
+    	</screen>
+	</para>
+	
+	<para>
+	The following services are predefined. Naming of additional services needs approval by gnumed administrators!
+    	<itemizedlist mark=opencircle>
+	<listitem><para>	
+    	'default' : this service contains at least the basic gnumed configuration
+    	</para></listitem>
+
+	<listitem><para>	
+    	'transactions' : this service may be used for external audit trails and replication issues
+    	</para></listitem>
+
+	<listitem><para>	
+    	'personalia' : this service contains all persoon and address related tables
+    	</para></listitem>
+
+	<listitem><para>	
+    	'historica' : this service contains patient's medical histories
+    	</para></listitem>
+
+	<listitem><para>	
+    	'extresults' : this service stores external downloadable results such as pathology
+    	</para></listitem>
+
+	<listitem><para>	
+    	'correspondence' -- this service contains all correspondence (letters, emails)
+    	</para></listitem>
+
+	<listitem><para>	
+    	'pharmaceutica' : this service provides all pharmaceutical information
+    	</para></listitem>
+
+	<listitem><para>	
+    	'reference' : this service provides "external" reead only information such as coding (ICD) and patient
+	 education material
+    	</para></listitem>
+
+	<listitem><para>	
+    	'blobs' : this service takes care of large (>= 2MB )binary objects
+    	</para></listitem>
+
+	<listitem><para>	
+    	'accounting'-- this services provides all tables for accounting purposes
+    	</para></listitem>
+
+	<listitem><para>	
+    	'office' : this servicecontains office related tables such as rosters and waiting room
+    	</para></listitem>
+
+	<listitem><para>	
+    	'modules' : this service allows to manage gnumed client modules
+    	</para></listitem>
+	</itemizedlist>
+	</para>
+	
+	<para id=table-config>
+	Table 'config' holds general information about available databases, services and users. 
+	</para>
+	<para>
+	<screen>
+    CREATE TABLE config (
+    id SERIAL PRIMARY KEY,
+    profile CHAR(25) DEFAULT 'default',     	    -- allows multiple profiles per user / pseudo user
+    	    	    	    	    	    	    -- one user may have different configuration profiles depending on role, need and location
+    username CHAR(25) DEFAULT CURRENT_USER, 	    -- user name as used within the gnumed system
+    ddb INT REFERENCES distributed_db DEFAULT NULL, -- reference to one of the allowed distrbuted servers
+    db INT REFERENCES db,   	    	    	    -- reference to the implementation details of the distributed server
+    crypt_pwd varchar(255) DEFAULT NULL,    	    -- password for user and database, encrypted
+    crypt_algo varchar(255) DEFAULT NULL,   	    -- encryption algorithm used for password encryption
+    pwd_hash varchar(255) DEFAULT NULL,     	    -- hash of the unencrypted password
+    hash_algo varchar(255) DEFAULT NULL     	    -- algorithm used for password hashing
+);
+    	</screen>
+	</para>
+    	</sect2>
+	
+	<sect2>	 
+	<title>Setting up a service</title>
+	<procedure>
+	    <step><para>
+	    Store the parameters to access the database in table 'db':</para>
+	    <para>
+<screen>
+insert into db VALUES (&lt;db_id&gt;,'database_name', &lt;port&gt; , &lt;host&gt; , &lt;opt&gt; , &lt;tty&gt;);
+</screen>
+	    </para>
+	    <para>
+	    where &lt;db_id&gt; is not 0 (0 is already assigned to the default database). The parameters 
+	    &lt;port&gt; , &lt;host&gt; , &lt;opt&gt; and &lt;tty&gt; can be omitted if the 
+	    backend is the same as for the default database.
+	    </para></step>
+	    
+	    <step><para>
+	    Store the parameters to access the database in table 'db':</para>
+	    <para>
+<screen>
+insert into config VALUES ('','','username', &lt;distributed_db_id&gt; , &lt;db_id&gt;) ;
+</screen>
+	    </para>
+	    <para>
+	    where &lt;distributed_db_id&gt; and  &lt; db_id &gt; reference entries  in tables 'db' and 'ddb'.
+	    If you add a new service, you will have to update table 'ddb' before. Please contact the gnumed admins before
+	    adding new services !
+	    </para></step>
+	</procedure>
+	</sect2>
+    </sect1>
+    
+    <sect1 id=I18N>
+      <title>Internationalization / Localization</title>
+
+	<para>
+	Supplied by Karsten Hilbert, &lt;Karsten.Hilbert@gmx.net&gt; GnuMed i18n/L10n coordinator
+	</para>
+	<para>
+	At this point in time GnuMed is only prepared for being translated
+	into foreign languages. This also only holds true for languages
+	that can be written left-to-right with "latin" characters. Very
+	little has been done to make GnuMed compatible with other aspects
+	of localization such as date/time/monetary/magnitude formatting
+	or icon meaning.
+	</para>
+
+	<sect2>
+	<title>date/time localization</title>
+	<para>
+	In gmI18N.py there's a string called gmTimeFormat which holds
+	the standard way of formatting a date as a string. The string
+	itself is marked for translation by gettext. Translators should
+	provide a translation that displays the parts of the date in
+	the order and with filling characters appropriate for their
+	language. This way gmTimeFormat can serve as a crude tool
+	for date/time display localization. Whenever programmers want
+	to display a complete date they should use gmTimeFormat as
+	the formatting string instead of hardcoding their own idea
+	of how a date should be displayed.
+	</para>
+	</sect2>
+	<sect2>
+	<title>icon localization</title>
+	<para>
+	Icon image data for plugins is located in the corresponding
+	plugin source file. The icon a user wants to load is referenced
+	by a string which acts as a key into the directory for the
+	icon data. If no key is given to the GetIconData() method
+	a hardcoded default key is used. This default key shall be
+	wrapped in _() to facilitate using an appropriate default
+	key per language. The key name should be of the form
+	"icon_XXXX_YYYY" where XXXX_YYYY give some indication of
+	the image shown on the icon (like ALT tags in HTML image
+	descriptions). This key will then show up in per-language
+	message catalogs and can be translated to suitable per-language
+	keys. The translation must, of course, name another existing
+	key/icon pair. If no translation is provided the gettext
+	system will fall back to the english key and thus load
+	the default icon.
+	</para>
+	</sect2>
+
+	<sect2>
+	<title>GUI text localization</title>
+	<para>
+	The GNU gettext system is used to provide a user interface
+	translated into the local language. Currently only the
+	original English version and a German translation exist.
+
+	NOTE: $LANG corresponds to the ISO code for your language
+	NOTE: Requires gettext tools to be installed.
+
+	Message catalogs, related files and useful shell scripts
+	live in the directories below gnumed/client/locale/ .
+	</para>
+	</sect2>
+
+	<sect2>
+	<title>How to translate the GnuMed UI</title>
+	<para>
+	Those are the rough steps to get GnuMed translated
+	into your language:
+
+	- create a *.po file containing all English
+	  message strings
+	- merge this file with preexisting translations
+	  for your language
+	- translate the remaining non-translated English
+	  program strings into your language
+	- compile a binary message catalog (*.mo file) from
+	  the translated messages
+	</para>
+	</sect2>
+
+	<sect2>
+	<title>Creating a *.po file</title>
+	<para>
+	With
+<screen>
+ &lt;create-gnumed_po.sh $LANG&gt;
+</screen>
+	you can rescan the Python source for strings that need
+	translation. The result is merged with the file $LANG.po
+	which serves as a repository of previously translated
+	strings. You can then edit this file adding in more
+	translations for message strings. For this you can use
+	a simple text editor or any tool you wish (such as EMACS
+	po mode or kbabel) as long as you keep a copy of your
+	final results in $LANG.po as a repository for future
+	translations.
+
+	If you execute this script for the first time you will
+	end up with a $LANG.po file without any previous translations.
+	In this case you need to edit a few metadata entries at the
+	very top of the $LANG.po file such as the character set you
+	are using.
+
+	Hints for translations:
+	 - look at translations in other languages to get an idea
+	 - look at the source and/or the running GnuMed to find good translations
+	 - keep exactly the same number of %s, %d etc in your translation,
+	   they are formatting placeholders and will be replaced with
+	   certain data (such as file names) dynamically at runtime
+	 - if the file asks you to translate the empty string ("")
+	   go into the python source and remove the _() around the
+	   empty string,
+	   the empty string cannot be translated and _will_ produce errors
+	   because it is used as the message string ID for po-file
+	   metadata
+	</para>
+	</sect2>
+
+	<sect2>
+	<title>Creating a *.mo file</title>
+	<para>
+	With 
+<screen>
+ &lt;create-gnumed_mo.sh $LANG&gt;
+</screen>
+	you can compile a *.mo file from the message catalog source.
+	You will end up with a $LANG-gnumed.mo file.
+	</para>
+	</sect2>
+
+	<sect2>
+	<title>Installation of translated messages</title>
+	<para>
+	On a POSIX system (Linux, BSD, MacOSX, CygWin) the
+	$LANG-gnumed.mo file should be moved into
+	 /usr/share/locale/$LANG/LC_MESSAGES/
+	or the corresponding standard place. Alternatively you
+	can make symlinks from there to
+	 /usr/share/gnumed/client/locale/$LANG.mo
+
+	You need to name either the copy or the symlink "gnumed.mo".
+
+	On MS Windows you must create the following directories:
+	client/
+	 client/wxpython/
+	 client/locale/
+	  client/locale/$LANG/
+	   client/locale/$LANG/LC_MESSAGES/
+
+	You then need to move the $LANG-gnumed.mo to the
+	appropriate LC_MESSAGES directory (or make a symlink)
+	again under the name of "gnumed.mo".
+	</para>
+	</sect2>
+
+	<sect2>
+	<title>Coding I18N</title>
+
+	      <para>Hardcoded error strings meant for developers / debugging are in English. All other 
+	      strings MUST be translateable, that is called as a gettext function. To achieve this, 
+	      you do the following:
+	      </para>
+	      <para>
+	      If your modules can be called as a standalone script you should add this to your main part:
+<screen>
 if name == '__main__':
 	import gettext
 	_ = gettext.gettext()
     # ... now on to other stuff
-	</screen>
-If your module is invoked from within the GNUmed framework the
-translation function _() is automatically defined for you.
-      </para>
-      <para>
-Now, whenever you use a string, do it like
-	<screen>
+</screen>
+
+	      If your module is invoked from within the GNUmed framework the translation function _() is 
+	      automatically defined for you.
+	      </para>
+	      <para>
+	      Now, whenever you use a string, do it like
+<screen>
 print _("this will be automatically translated")
 instead of
- print "this can't be translated and should thus not be written this way"
-	</screen>
-      </para>
+print "this can't be translated and should thus not be written this way"
+</screen>
+	      </para>
+	</sect2>
     </sect1>
 
     	<sect1 id=backend-interaction>
     	    <title>Interacting with the Backend</title>
+	    <para>
+	    Supplied by Horst Herb
+	    </para>
 	    <para>
 	    Most of the backend interaction happens through <ulink url="http://www.python.org/topics/database/DatabaseAPI-2.0.html">
 	    <citetitle>DB-API 2.0</citetitle></ulink> compliant database adapters. Since there are still a few ambiguities
@@ -291,6 +699,9 @@ result = cursor.fetchall()
 
     	<sect1 id=internal-messaging>
 	    <title>Internal Messenging and Signal Dispatching</title>
+	    <para>
+	    Supplied by: Horst Herb
+	    </para>
 
 	    <para>The gnumed client depends on two different types 
 	    of messages:</para>
@@ -438,62 +849,6 @@ far more control over what is actually happening to the widgets, though
 unfortunately a little bit more typing.</para>
 
     </sect1>
-
-    <sect1 id=documentation>
-      <title>Comments. Documenting Code</title>
-      <sect2>
-	<title>Module documention</title>
-      	    <para>Always insert some lines of description of the module, containing at least the author and one line of short explanation. Remember that a lot of people might have to read and understand your code. Document as much as possible. Add example code how to use the module where possible and necessary. 
-Please insert the following template at the beginning of the file:</para>
-    	    	<screen>
-#############################################################################
-# ModuleName - one line explanation             
-# verbose documentation, example code
-# @author: author name                                                       
-# @copyright: author                                                            
-# @license: GPL (details at http://www.gnu.org)                                 
-# @dependencies: any libs / program versions the module might depend on       
-#                                                                               
-# @TODO:        
-#############################################################################
-    	</screen>
-    	<para>
-	A changelog will be appended automatically to every file using comments supplied
-	when commiting changes.
-    	</para>
-      </sect2>
-
-      <sect2>
-	<title>Docstring documention</title>
-      <para>try to always insert at least one line of docstring 
-unless the function is no more than a couple of lines long and perfectly 
-self-explanatory</para>
-      </sect2>
-
-      <sect2>
-	<title>COMMENTS</title>
-	<para>mark places that need fixing with a comment like this:
-	  <screen>
-# FIXME: a comment on what should be fixed how
-... your code ...</screen>
-	</para>
-      </sect2>
-    </sect1>
-
-    <sect1 id=cvs-guidelines>
-      <title>CVS Guidelines</title>
-      <para>Always test before you check in (yes, I have been guilty of not
-  heeding my own advice, sorry)</para>
-    </sect1>
-
-    <sect1 id=debugging>
-      <title>DEBUGGING/LOGGING</title>
-      <para>Place markers before/after logging statements
-  that can be commented out once things work like this:
-	<screen>
-#&lt;DEBUG&gt;
-gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log message")
-#&lt;/DEBUG&gt;</screen>
     </chapter>
 
     <chapter id=modules>
@@ -542,6 +897,128 @@ Limitations:
     my-script --foo=bar
 
 </screen></sect2>
+
+<sect2 id=gmCfg><title>gmCfg.py</title>
+<screen>
+GNUmed configuration handling.
+
+Two sources of configuration information are supported:
+
+ - INI-style configuration files
+ - database tables
+
+Just import this module to have access to a default config file.
+
+Theory of operation:
+
+Upon importing this module a basic config file will be parsed. This
+file is registered at the default source for configuration information.
+
+The module will look for the config file in the following standard
+places:
+
+1) programmer supplied arguments
+2) user supplied command line (getopt style):	--conf-file=&lt;a file name&gt;
+3) user supplied GNUMED_DIR directory
+4) ~/.&lt;aDir&gt;/&lt;aName&gt;.conf
+5) ~/.&lt;aName&gt;.conf
+6) /etc/&lt;aDir&gt;/&lt;aName&gt;.conf
+7) /etc/&lt;aName&gt;.conf
+8) ./&lt;aName&gt;.conf		- last resort for DOS/Win
+
+&lt;aDir&gt; and &lt;aName&gt; will be derived automatically from the name of
+the main script.
+
+It is helpful to have a solid log target set up before importing this
+module in your code. This way you will be able to see even those log
+messages generated during module import.
+
+Once your software has established database connectivity it can call
+ activateDatabase()
+to switch on database access for configuration options.
+
+The default config data source is then switched to database access.
+
+At any time can you force file or database access for a particular
+configuration call via a parameter except before database access is
+activated in which case the module will always use file access.
+
+NOTE: DATABASE CONFIG DOES NOT WORK YET !
+
+class cCfgBase:
+	def __init__(self):
+		pass
+
+	def get(machine = None, user = None, cookie = None, option = None):
+		pass
+
+	def set(machine = None, user = None, cookie = None, option = None, value = None):
+		pass
+
+class cCfgFile:
+    	Handle common INI-style config files.
+
+	The INI file structure follows the common rules. Option values
+	can be strings or lists of strings. Lists are handled transparently.
+	The list format is as follows:
+
+	listname = $listname$ # comment
+	item 1
+	item 2
+	item 3
+	$listname$
+
+	Config data is cached in the following layout:
+
+	self._cfg_data	= {dict}
+	|
+	|-> 'comment'	= [list of strings]
+	`-> 'groups'	= {dict}
+	 |
+	 |-> group 1	= {dict}
+	 | ...
+	 `-> group n
+	  |
+	  |-> 'comment' = [list of strings]
+	  `-> 'options'	= {dict}
+	   |
+	   |-> option 1	= {dict}
+	   | ...
+	   `-> option n
+	    |
+		|-> 'comment' [list of strings]
+		`-> 'value'
+
+	def __init__(self, aPath = None, aFile = None):
+
+	def getCfg(self):
+		Return handle to entire config dict.
+
+	def get(self, aGroup = None, anOption = None):
+
+	def getComment(self, aGroup = None, anOption = None):
+
+	def set(self, aGroup = None, anOption = None, aValue = None, aComment = None):
+		Set an option to an arbitrary type.
+		This does not write the changed configuration to a file !
+
+	def store(self):
+		Store changed configuration in config file.
+		# FIXME: actually we need to reread the config file here before writing
+</screen></sect2>
+
+<sect2><title>gmConf.py</title><screen>
+Configuration model
+This duplicates some of Karsten's work, but a configuration tool is required
+that talks to the remote database
+
+def GetAllConfigs ():
+def SetConfig (key, value):
+# HACK FOR NOW
+config = {'main.use_notebook':1, 'main.shadow':1, 'main.shadow.colour':(131, 129, 131), 'main.shadow.width':10}
+
+</screen></sect2>
+
 <sect2><title>gmCachedAddress.py</title><screen>
 
  gmCachedAddress - data broker for a person's address
@@ -554,18 +1031,8 @@ Limitations:
 	def update_address_link(self, addressMap, db):
 	def dictresult(self, id=None):
 </screen></sect2>
-<sect2><title>gmConf.py</title><screen>
-Configuration model
-This duplicates some of Karsten's work, but a configuration tool is required
-that talks to the remote database
 
-def GetAllConfigs ():
-def SetConfig (key, value):
-# HACK FOR NOW
-config = {'main.use_notebook':1, 'main.shadow':1, 'main.shadow.colour':(131, 129, 131), 'main.shadow.width':10}
-
-</screen></sect2>
-<sect2><title>gmConf.py</title>
+<sect2><title>gmCachedDBObject.py</title>
 <screen>
 # gmCachedDBObject : abstraction and performance improvement for simple
 #                     database query result objects
@@ -1740,6 +2207,9 @@ should be del()ed after use, actually
     	<title> Design </title>
 	<sect1 id=db-architecture>
 	    <title>GNUMed Database Architecture</title>
+	    <para>
+	    Supplied by Horst Herb
+	    </para>
     	    <sect2>	
     	    	<title>Client-Server architecture with optional middleware layers</title>
     	    	<para>
@@ -1809,6 +2279,9 @@ should be del()ed after use, actually
 
 	<sect1 id=services>
 	    <title>List of distributed database services</title>
+	    <para>
+	    Supplied by Horst Herb
+	    </para>
     	    <sect2>
 	    <title>Configuration - the service administering all other services</title>
 	    <para></para>
@@ -1997,6 +2470,9 @@ should be del()ed after use, actually
 
     	<sect1 id=signals>
 	    <title>List of GnuMed client internal signals</title>
+	    <para>
+	    Supplied by Horst Herb
+	    </para>
                     
     	    <para>         
 	    All signals are defined in the module gmSignals.py, located in the source
@@ -2185,6 +2661,7 @@ the issues better than me.
     	    <sect2>
 		<title>General</title>
 	    	<para> (Taken from Richards Terry´s Design Philosophy at www.gnumed.net/rterry)</para>
+		<para>
 		<itemizedlist mark=opencircle>
 		   <listitem><para>Uncluttered screen without wasting screen real estate.</para></listitem>
 		   
@@ -2221,9 +2698,9 @@ the issues better than me.
 		    </para></listitem>
 
 		  </itemizedlist>
+    	    	<para>
 
-
-    	    	<sect3>
+    	    	<sect2>
 		    <title>Date Entry Paradigm - The Editing Area</title> 
 		    <para>Medical information usually can be presented as groups of 4-10 parameters. 
 		    It is therefore possible to come up with a gui design for data entry where 
@@ -2253,9 +2730,9 @@ the issues better than me.
 		      The graphical interface of GnuMed will be quite similiar to that of some of the examples shown.
 		      First examples of variations of the editing area, followed by screen 
 		      dumps of the whole program, accompanied by comments by Richard Terry.</para>
-    	    	</sect3>
+    	    	</sect2>
 		
-		<sect3>
+		<sect2>
 		    <title>Full Screen Design</title>
 		    <para>The following is the rough 
 		      template used for designing the whole screen. The proportions are roughly 
@@ -2290,8 +2767,7 @@ the issues better than me.
 		      the screen dumps shown on the following pages.</para>
 		    <screenshot><graphic fileref="snapshots/Full_screen-general_description.png"></graphic>
 		    </screenshot>		
-		</sect3>
-    	    </sect2>
+		</sect2>
 	</sect1>
 
     	<sect1 id=login-screen>
