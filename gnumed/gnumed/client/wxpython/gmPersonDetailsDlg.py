@@ -20,7 +20,7 @@ import gettext
 _ = gettext.gettext
 
 import gmPersonDetails, gmPlugin, gmCachedPerson, gmCachedAddress
-from PopupListChoiceWindow import *
+#from PopupListChoiceWindow import *
 import gmPG
 
 ID_BUTTON_SAVE = wxNewId()
