@@ -145,7 +145,6 @@ INSERT INTO address_type(id, name) values(5,'temporary');
 
 create table address (
         id serial primary key,
-        addrtype int references address_type(id) default 1,
         street int references street(id),
         number char(10),
         addendum text
@@ -197,7 +196,7 @@ create view v_basic_address as
 -- implement it as a real table and create rules / triggers for insert,
 -- update and delete that will update the underlying tables accordingly
 select
-	a.id as id,
+	a.id as addr_id,
         s.country as country,
         s.code as state,
         u.postcode as postcode,
@@ -256,10 +255,9 @@ END;' LANGUAGE 'plpgsql';
 drop rule insert_address;
 
 CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
-        INSERT INTO address (id, addrtype, street, number, addendum)
+        INSERT INTO address (id, street, number, addendum)
         VALUES ( nextval('address_id_seq'),
-		(select address_type.id from address_type where address_type.name = NEW.address_at),
-               find_street (NEW.street, (SELECT urb.id FROM urb, state WHERE
+                  find_street (NEW.street, (SELECT urb.id FROM urb, state WHERE
                            (urb.name = NEW.city) AND
                            (urb.postcode = NEW.postcode) AND
                            (urb.statecode = state.id) AND
@@ -268,67 +266,6 @@ CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
                NEW.number, NEW.street2);
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-create view v_home_address as
-select * from v_basic_address where address_at = 1;
-
-
---~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
--- increase the external reference counter for an address
-
-CREATE FUNCTION increase_refcount(INTEGER) RETURNS INTEGER AS'
-DECLARE
-        rc_id ALIAS FOR $1;
-	rc RECORD;
-	rcount INTEGER := 1;
-BEGIN
-	-- make sure this adddress really exists!
-	SELECT into rc id FROM address WHERE id = rc_id;
-	IF NOT found THEN
-		RAISE NOTICE ''Trying to increase external reference counter for non-existing address!'';
-		RETURN -1;
-	END IF;
-	-- now increase the old reference counter for this address
-        SELECT INTO rc * FROM address_external_ref WHERE id = rc.id;
-        IF found THEN
-		rcount := rc.refcounter+1;
-		UPDATE address_external_ref SET refcounter = rcount WHERE id = rc.id;
-	-- or create the reference counter if it didnt exist yet
-        ELSE
-		INSERT INTO address_external_ref(id, refcounter) VALUES (rc_id, 1);
-		rcount := 1;
-        END IF;
-	RETURN rcount;
-END;' LANGUAGE 'plpgsql';
-
-
---~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
--- decrease the external reference count for an address
-CREATE FUNCTION decrease_refcount(INTEGER) RETURNS INTEGER AS'
-DECLARE
-        rc_id ALIAS FOR $1;
-        rc RECORD;
-	rcount  INTEGER;
-BEGIN
-        SELECT INTO rc * FROM address_external_ref WHERE id = rc_id;
-
-        IF FOUND THEN
-		IF rc.refcounter > 0 THEN
-			rcount := rc.refcounter -1;
-			UPDATE address_external_ref SET refcounter = rcount WHERE id = rc_id;
-		ELSE
-			rcount := 0;
-		END IF;
-        ELSE
-		RAISE NOTICE ''Cannot find any external reference for record'';
-	        rcount := -1;
-        END IF;
-	RETURN rcount;
-END;' LANGUAGE 'plpgsql';
-
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -347,8 +284,7 @@ CREATE RULE delete_address AS ON DELETE TO v_basic_address DO INSTEAD
 
 CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
        UPDATE address
-       SET addrtype = (select address_type.id from address_type where address_type.name = NEW.address_at),
-       number = NEW.number, addendum = NEW.street2,
+       SET number = NEW.number, addendum = NEW.street2,
        street = find_street (NEW.street,
                   (SELECT urb.id FROM urb, state WHERE
                    urb.name = NEW.city AND

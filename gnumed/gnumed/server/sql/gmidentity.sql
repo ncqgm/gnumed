@@ -58,13 +58,13 @@ COMMENT ON COLUMN identity.gender is
 '(m)ale, (f)emale, (h)ermaphrodite, (tm)transsexual phaenotype male, (tf)transsexual phaenotype female, (?)unknown';
 
 COMMENT ON COLUMN identity.dob IS
-'date of birth';
+'date of birth in format yyyymmdd';
 
 COMMENT ON COLUMN identity.cob IS
 'country of birth as per date of birth, coded as 2 character ISO code';
 
 COMMENT ON COLUMN identity.deceased IS
-'date when a person has died (if)';
+'date when a person has died (if so), format yyyymmdd';
 
 
 -- ==========================================================
@@ -198,8 +198,8 @@ COMMENT ON COLUMN relation.ended IS
 create table identities_addresses (
 	id serial primary key,
 	id_identity integer references identity,
-	id_address integer, -- should be a foreign key, but might be "outsourced"
-	address_source char(80) default NULL
+	id_address integer references address,
+	addrtype int references address_type(id) default 1,
 ) inherits (audit_identity);
 
 COMMENT ON TABLE identities_addresses IS
@@ -225,6 +225,8 @@ from
 	identity i, names n
 where
 	i.deceased is NULL and n.id_identity=i.id and n.active=true;
+
+
 
 -- IH 9/3/02 Add some rules
 
@@ -274,7 +276,7 @@ BEGIN
 END;' LANGUAGE 'plpgsql';
 
 
-CREATE TRIGGER t_delete_names BEFORE DELETE ON identity 
+CREATE TRIGGER t_delete_names BEFORE DELETE ON identity
 FOR EACH ROW EXECUTE PROCEDURE delete_names (); 
 
 
