@@ -1,7 +1,7 @@
 -- Project: GnuMed - cross-database foreign key descriptions
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCrossDB_FKs.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -17,6 +17,7 @@
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
+-- remote foreign keys definition
 -- -------------------------------------------------------------------
 create table x_db_fk (
 	id serial primary key,
@@ -57,32 +58,85 @@ comment on column x_db_fk.last_checked is
 	 (used for efficiency)';
 
 -- ===================================================================
+\unset ON_ERROR_STOP
+drop function add_x_db_fk_def (name, name, text, name, name);
+\set ON_ERROR_STOP 1
+
+create function add_x_db_fk_def (name, name, text, name, name) returns unknown as '
+DECLARE
+	src_table ALIAS FOR $1;
+	src_col ALIAS FOR $2;
+	ext_srvc ALIAS FOR $3;
+	ext_tbl ALIAS FOR $4;
+	ext_column ALIAS FOR $5;
+	dummy RECORD;
+BEGIN
+	-- src table exists ?
+	select relname into dummy from pg_class where relname = src_table;
+	if not found then
+		raise exception ''add_x_db_fk_def: Source table [%] does not exist.'', src_table;
+		return false;
+	end if;
+	-- src column exists ?
+	select pgc.relname into dummy from pg_class pgc, pg_attribute pga where
+		pgc.relname = src_table
+			and
+		pga.attrelid = pgc.oid
+			and
+		pga.attname = src_col;
+	if not found then
+		-- FIXME: find out how to pass in table AND column
+		raise exception ''add_x_db_fk_def: Source column [%] not found.'', src_col;
+		return false;
+	end if;
+	-- add definition
+	insert into x_db_fk (
+		fk_src_table, fk_src_col, ext_service, ext_table, ext_col
+	) values (
+		src_table, src_col, ext_srvc, ext_tbl, ext_column
+	);
+	return true;
+END;' language 'plpgsql';
+
+comment on function add_x_db_fk_def (name, name, text, name, name) is
+	'sanity-checking convenience function for defining cross-database foreign keys';
+
+-- ===================================================================
 -- detected violations
 -- -------------------------------------------------------------------
 create table x_db_fk_violation (
 	id serial primary key,
-	id_fk integer references x_db_fk(id),
-	 -- this relies on the fact that we use
-	 -- integers for all our primary keys
+	id_fk_def integer references x_db_fk(id),
 	fk_table_pk integer not null,
-	-- value casted to text ...
 	fk_value text not null,
-	-- do not report the same violation (value)
-	-- in the same row (fk_table_pk) of the
-	-- same table (id_fk) more than once
-	unique (id_fk, fk_table_pk, fk_value)
+	description text,
+	-- do not report the same violation (value) in
+	-- the same row (fk_table_pk) of the same table
+	-- (id_fk_def->fk_src_table) more than once
+	unique (id_fk_def, fk_table_pk, fk_value)
 );
 
 comment on table x_db_fk_violation is
-	'describes cross-database (remote) foreign keys';
-comment on column x_db_fk_violation.id_fk is
-	'the foreign key this violation report refers to';
+	'lists cross-database (remote) foreign key referential integrity violations';
+comment on column x_db_fk_violation.id_fk_def is
+	'the foreign key definition this violation report refers to';
 comment on column x_db_fk_violation.fk_table_pk is
-	'the primary key of the row in which the value
-	 of the remote foreign key violates referential integrity';
+	'the primary key of the row in which the value of the
+	 remote foreign key violates referential integrity,
+	 depends on the fact that all our primary keys are
+	 named "id" and are of type "integer"';
 comment on column x_db_fk_violation.fk_value is
 	'the value of the remote foreign key violating
 	 referential integrity, casted to "text"';
+comment on column x_db_fk_violation.description is
+	'per remote FK constraint def:
+	 - referenced service not accessible
+	 - referenced schema does not exist
+	 - referenced table does not exist
+	 - referenced colum does not exist
+	 per remote FK value:
+	 - referenced value does not exist
+	 - referenced value not unique';
 
 -- =============================================
 -- no grants needed since the only one using
@@ -92,11 +146,14 @@ comment on column x_db_fk_violation.fk_value is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmCrossDB_FKs.sql,v $
--- Revision 1.5  2003-08-03 14:41:01  ncq
+-- Revision 1.6  2003-08-10 00:58:47  ncq
+-- - add stored procedure helper add_x_db_fk_def()
+--
+-- Revision 1.5  2003/08/03 14:41:01  ncq
 -- - clear up column naming confusion in x_db_fk, adapt users
 --
 -- Revision 1.4  2003/07/27 21:56:17  ncq
