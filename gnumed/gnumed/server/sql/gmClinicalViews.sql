@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.86 2004-07-04 16:31:09 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.87 2004-07-05 17:47:13 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -62,8 +62,8 @@ create index idx_clnarr_episode on clin_narrative(fk_episode);
 create index idx_clanote_encounter on clin_aux_note(fk_encounter);
 create index idx_clanote_episode on clin_aux_note(fk_episode);
 
-create index idx_chist_encounter on clin_history(fk_encounter);
-create index idx_chist_episode on clin_history(fk_episode);
+--create index idx_chist_encounter on clin_history(fk_encounter);
+--create index idx_chist_episode on clin_history(fk_episode);
 
 create index idx_cphys_encounter on clin_physical(fk_encounter);
 create index idx_cphys_episode on clin_physical(fk_episode);
@@ -738,7 +738,7 @@ where
 
 -- =============================================
 -- types of narrative
-create view v_rfe as
+create view v_pat_rfe as
 select
 	vpi.id_patient as pk_patient,
 	cn.pk as pk_narrative,
@@ -757,7 +757,7 @@ where
 	cn.pk_item = vpi.pk_item
 ;
 
-create view v_aoe as
+create view v_pat_aoe as
 select
 	vpi.id_patient as pk_patient,
 	cn.pk as pk_narrative,
@@ -788,8 +788,8 @@ GRANT SELECT ON
 	, clin_narrative
 	, clin_aux_note
 	, _enum_hx_type
-	, _enum_hx_source
-	, clin_history
+--	, _enum_hx_source
+--	, clin_history
 	, clin_physical
 	, _enum_allergy_type
 	, allergy
@@ -831,8 +831,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	_enum_hx_type_id_seq,
 	_enum_hx_source,
 	_enum_hx_source_id_seq,
-	clin_history,
-	clin_history_id_seq,
+--	clin_history,
+--	clin_history_id_seq,
 	clin_physical,
 	clin_physical_id_seq,
 	_enum_allergy_type,
@@ -909,19 +909,22 @@ GRANT SELECT ON
 	, v_test_org_profile
 	, v_pat_diag
 	, v_coded_diags
-	, v_rfe
-	, v_aoe
+	, v_pat_rfe
+	, v_pat_aoe
 TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.86 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.87 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.86  2004-07-04 16:31:09  ncq
+-- Revision 1.87  2004-07-05 17:47:13  ncq
+-- - v_rfe/aoe -> v_pat_rfe/aoe
+--
+-- Revision 1.86  2004/07/04 16:31:09  ncq
 -- - fix v_coded_diags: fk_diag=pk_diag
 --
 -- Revision 1.85  2004/07/04 16:14:41  ncq
