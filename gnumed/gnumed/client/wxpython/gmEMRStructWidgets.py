@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.1 2005-01-31 13:09:21 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmEMRStructWidgets.py,v 1.2 2005-01-31 18:51:08 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -119,9 +119,7 @@ class cEpisodePicker(wx.wxPanel):
 
 		# edited episodes' issue's PK
 		self.__pk_health_issue = pk_health_issue
-		pat = gmPerson.gmCurrentPatient()
-		# patient EMR
-		self.__emr = pat.get_clinical_record()
+		self.__pat = gmPerson.gmCurrentPatient()
 		# patient episodes
 		self.__episodes = None
 		# selected episode
@@ -173,7 +171,7 @@ class cEpisodePicker(wx.wxPanel):
 			-1,
 			style = wx.wxLC_REPORT | wx.wxSUNKEN_BORDER | wx.wxLC_SINGLE_SEL
 		)
-		self.__LST_episodes.InsertColumn(0, _('Start date'))
+		self.__LST_episodes.InsertColumn(0, _('Last renamed'))
 		self.__LST_episodes.InsertColumn(1, _('Description'), wx.wxLIST_FORMAT_RIGHT)
 		self.__LST_episodes.InsertColumn(2, _('Is open'))
 		self.__LST_episodes.SetColumnWidth(0, 100)
@@ -194,7 +192,6 @@ class cEpisodePicker(wx.wxPanel):
 		szr_main.Add(szr_list, 2, wx.wxEXPAND)		
 
 		self.SetSizerAndFit(szr_main)
-		
 	#--------------------------------------------------------
 	def __refresh_episode_list(self):
 		"""Update the table of episodes.
@@ -204,7 +201,8 @@ class cEpisodePicker(wx.wxPanel):
 		self.__BTN_action.Enable(False)
 
 		# populate table and cache episode list
-		episodes = self.__emr.get_episodes()
+		emr = self.__pat.get_clinical_record()
+		episodes = emr.get_episodes()
 		self.__episodes = {}
 		for idx in range(len(episodes)):
 			epi = episodes[idx]
@@ -214,7 +212,6 @@ class cEpisodePicker(wx.wxPanel):
 			self.__LST_episodes.SetStringItem(idx, 2, str(epi['episode_open']))
 			self.__episodes[idx] = epi
 			self.__LST_episodes.SetItemData(idx, idx)
-
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -289,7 +286,7 @@ class cEpisodePicker(wx.wxPanel):
 		
 		print 'Creating episode: %s , soap: %s' % (self.__PRW_description.GetValue(), self.__CHC_soap_cat.GetStringSelection())		
 		# FIXME 
-		self.__selected_episode = self.__emr.add_episode (
+		self.__selected_episode = self.__pat.get_clinical_record().add_episode (
 			episode_name = self.__PRW_description.GetValue(),
 			pk_health_issue = self.__pk_health_issue,
 			soap_cat = self.__CHC_soap_cat.GetStringSelection()
@@ -384,9 +381,7 @@ class cEpisodeEditor(wx.wxPanel):
 
 		# edited episodes' issue's PK
 		self.__pk_health_issue = pk_health_issue
-		pat = gmPerson.gmCurrentPatient()
-		# patient EMR
-		self.__emr = pat.get_clinical_record()
+		self.__pat = gmPerson.gmCurrentPatient()
 		# patient episodes
 		self.__episodes = None
 		# selected episode
@@ -477,7 +472,7 @@ class cEpisodeEditor(wx.wxPanel):
 		self.__LST_episodes.DeleteAllItems()
 
 		# populate table and cache episode list
-		episodes = self.__emr.get_episodes()
+		episodes = self.__pat.get_clinical_record().get_episodes()
 		self.__episodes = {}
 		for idx in range(len(episodes)):
 			epi = episodes[idx]
@@ -571,13 +566,13 @@ class cEpisodeEditor(wx.wxPanel):
 
 		if self.__selected_episode is None:
 			# on new episode
-			#self.__emr.add_episode(episode_name= , pk_health_issue=self.__pk_health_issue, soap_cat= self.__CHC_soap_cat.GetStringSelection())
+			#self.__pat.get_clinical_record().add_episode(episode_name= , pk_health_issue=self.__pk_health_issue, soap_cat= self.__CHC_soap_cat.GetStringSelection())
 			print 'Creating episode: %s , soap: %s' % (self.__PRW_description.GetValue(),self.__CHC_soap_cat.GetStringSelection())
 			# FIXME 
-			self.__selected_episode = self.__emr.add_episode (
-			episode_name = self.__PRW_description.GetValue(),
-			pk_health_issue = self.__pk_health_issue,
-			soap_cat = self.__CHC_soap_cat.GetStringSelection()
+			self.__selected_episode = self.__pat.get_clinical_record().add_episode (
+				episode_name = self.__PRW_description.GetValue(),
+				pk_health_issue = self.__pk_health_issue,
+				soap_cat = self.__CHC_soap_cat.GetStringSelection()
 			)			
 		else:
 			# on episode edition
@@ -632,16 +627,15 @@ if __name__ == '__main__':
 	
 				txt = wx.wxStaticText( frame, -1, _("Select desired test option from the 'File' menu"),
 				wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-				
+
 				# event handlers
 				wx.EVT_MENU(frame, ID_EPISODE_SELECTOR, self.OnEpisodeSelector)
 				wx.EVT_MENU(frame, ID_EPISODE_EDITOR, self.OnEpisodeEditor)
 				wx.EVT_MENU(frame, ID_EXIT, self.OnCloseWindow)
-												
+
 				# patient EMR
-				pat = gmPerson.gmCurrentPatient()
-				self.__emr = pat.get_clinical_record()
-				
+				self.__pat = gmPerson.gmCurrentPatient()
+
 				frame.Show(1)
 				return 1					
 				
@@ -650,7 +644,7 @@ if __name__ == '__main__':
 				"""
 				Test episode selector dialog
 				"""
-				pk_issue = self.__emr.get_health_issues()[0]['id']
+				pk_issue = self.__pat.get_clinical_record().get_health_issues()[0]['id']
 				episode_selector = cEpisodeSelectorDlg(
 					None,
 					-1,
@@ -674,7 +668,7 @@ if __name__ == '__main__':
 				"""
 				Test episode editor dialog
 				"""
-				pk_issue = self.__emr.get_health_issues()[0]['id']
+				pk_issue = self.__pat.get_clinical_record().get_health_issues()[0]['id']
 				episode_selector = cEpisodeEditorDlg(None, -1,
 				'Episode editor test', pk_health_issue = pk_issue)
 				retval = episode_selector.ShowModal() # Shows it
@@ -710,14 +704,14 @@ if __name__ == '__main__':
 		pool = gmPG.ConnectionPool()
 
 		# obtain patient
-		patient = askForPatient()
+		patient = gmPerson.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
 
 		# lauch emr dialogs test application
-		app = testapp (0)
-		app.MainLoop ()
+		app = testapp(0)
+		app.MainLoop()
 				
 		# clean up
 		if patient is not None:
@@ -738,7 +732,13 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.1  2005-01-31 13:09:21  ncq
+# Revision 1.2  2005-01-31 18:51:08  ncq
+# - caching emr = patient.get_clinical_record() locally is unsafe
+#   because patient can change but emr will stay the same (it's a
+#   local "pointer", after all, and not a singleton)
+# - adding episodes actually works now
+#
+# Revision 1.1  2005/01/31 13:09:21  ncq
 # - this is OK to go in
 #
 # Revision 1.9  2005/01/31 13:06:02  ncq
