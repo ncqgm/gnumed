@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.73 $"
+__version__ = "$Revision: 1.74 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -513,14 +513,9 @@ def listSystemTables(service='default'):
 	return data
 #---------------------------------------------------
 def listTables(service='default'):
-<<<<<<< gmPG.py
-	"list all tables available in the specified service"
-	return quickROQuery("select * from pg_tables", service)
-=======
 	"""list all tables available in the specified service"""
 	data, = run_ro_query(service, "select * from pg_tables", None)
 	return data
->>>>>>> 1.72
 #---------------------------------------------------
 def _import_listener_engine():
 	try:
@@ -860,7 +855,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.73  2003-09-23 06:41:27  ihaywood
+# Revision 1.74  2003-09-23 06:43:45  ihaywood
+# merging changes
+#
+# Revision 1.73  2003/09/23 06:41:27  ihaywood
 # merging overlapped changes
 #
 # Revision 1.72  2003/09/22 23:31:44  ncq
