@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/indexFrame.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 #Boa:Frame:indexFrame
@@ -53,20 +53,116 @@ class indexFrame(wxFrame):
 	# get name for xml-file ; filename is defined in conf-file
 	xml_file = __cfg__.get("metadata", "description")
 	import_ok_file = __cfg__.get("metadata", "checkpoint")
-	
+
 	# get valid document types from ini-file
-	validTypeList = string.split(__cfg__.get("doctypes", "metadata"),',')
+	validTypeList = string.split(__cfg__.get("metadata", "doctypes"),',')
 	#---------------------------------------------------------------------------
 	def __init__(self, parent):
 		# init ctrls
 		self._init_ctrls(parent)
-		
 		# items for phraseWheel
 		self.initgmPhraseWheel()
 	#---------------------------------------------------------------------------
+	def _init_ctrls(self, prnt):
+		wxFrame.__init__(self, id = wxID_INDEXFRAME, name = 'indexFrame', parent = prnt, pos = wxPoint(361, 150), size = wxSize(763, 616), style = wxDEFAULT_FRAME_STYLE, title = _('assign documents'))
+		self._init_utils()
+		self.SetClientSize(wxSize(763, 616))
+
+		self.panel1 = wxPanel(id = wxID_INDEXFRAMEPANEL1, name = 'panel1', parent = self, pos = wxPoint(0, 0), size = wxSize(763, 616), style = wxTAB_TRAVERSAL)
+		self.panel1.SetBackgroundColour(wxColour(225, 225, 225))
+		
+		self.getPicsButton = wxButton(id = wxID_INDEXFRAMEGETPICSBUTTON, label = _('load pages'), name = 'getPicsButton', parent = self.panel1, pos = wxPoint(48, 160), size = wxSize(176, 22), style = 0)
+		self.getPicsButton.SetToolTipString(_('go and get me the pages for this document'))
+		EVT_BUTTON(self.getPicsButton, wxID_INDEXFRAMEGETPICSBUTTON, self.OnGetpicsbuttonButton)
+		
+		self.readFaxButton = wxButton(id = wxID_INDEXFRAMEREADFAXBUTTON, label = _('load fax-document'), name = 'readFaxButton', parent = self.panel1, pos = wxPoint(48, 232), size = wxSize(176, 22), style = 0)
+
+		self.showPicButton = wxButton(id = wxID_INDEXFRAMESHOWPICBUTTON, label = _('show page'), name = 'showPicButton', parent = self.panel1, pos = wxPoint(48, 400), size = wxSize(95, 22), style = 0)
+		self.showPicButton.SetToolTipString(_('show page'))
+		EVT_BUTTON(self.showPicButton, wxID_INDEXFRAMESHOWPICBUTTON, self.OnShowpicbuttonButton)
+
+		self.delPicButton = wxButton(id = wxID_INDEXFRAMEDELPICBUTTON, label = _('delete page'), name = 'delPicButton', parent = self.panel1, pos = wxPoint(143, 400), size = wxSize(90, 22), style = 0)
+		EVT_BUTTON(self.delPicButton, wxID_INDEXFRAMEDELPICBUTTON, self.OnDelpicbuttonButton)
+
+		self.listBox1 = wxListBox(choices = [], id = wxID_INDEXFRAMELISTBOX1, name = 'listBox1', parent = self.panel1, pos = wxPoint(48, 288), size = wxSize(182, 94), style = 0, validator = wxDefaultValidator)
+
+		self.FirstnameBox = wxTextCtrl(id = wxID_INDEXFRAMEFIRSTNAMEBOX, name = 'FirstnameBox', parent = self.panel1, pos = wxPoint(304, 112), size = wxSize(152, 22), style = 0, value = self.Vorname)
+		self.FirstnameBox.SetToolTipString(_('firstname'))
+		self.FirstnameBox.Enable(false)
+		self.FirstnameBox.SetBackgroundColour(wxColour(255, 255, 255))
+
+		self.LastnameBox = wxTextCtrl(id = wxID_INDEXFRAMELASTNAMEBOX, name = 'LastnameBox', parent = self.panel1, pos = wxPoint(304, 160), size = wxSize(152, 22), style = 0, value = self.Nachname)
+		self.LastnameBox.SetBackgroundColour(wxColour(255, 255, 255))
+		self.LastnameBox.Enable(false)
+
+		self.DateOfBirthBox = wxTextCtrl(id = wxID_INDEXFRAMEDATEOFBIRTHBOX, name = 'DateOfBirthBox', parent = self.panel1, pos = wxPoint(304, 232), size = wxSize(152, 22), style = 0, value = self.Geburtsdatum)
+		self.DateOfBirthBox.SetToolTipString(_('date of birth'))
+		self.DateOfBirthBox.Enable(false)
+
+		self.BefundDate = wxTextCtrl(id = wxID_INDEXFRAMEBEFUNDDATE, name = 'BefundDate', parent = self.panel1, pos = wxPoint(304, 312), size = wxSize(152, 22), style = 0, value = _('please fill in'))
+
+		self.shortDecriptionBox = wxTextCtrl(id = wxID_INDEXFRAMESHORTDECRIPTIONBOX, name = 'shortDecriptionBox', parent = self.panel1, pos = wxPoint(304, 368), size = wxSize(152, 22), style = 0, value = _('please fill in'))
+
+		self.DescriptionChoiceBox = wxComboBox(choices = self.validTypeList, id = wxID_INDEXFRAMEDESCRIPTIONCHOICEBOX, name = 'DescriptionChoiceBox', parent = self.panel1, pos = wxPoint(304, 416), size = wxSize(152, 22), style = 0, validator = wxDefaultValidator, value = _('please choose'))
+		self.DescriptionChoiceBox.SetLabel('')
+
+		self.saveButton = wxButton(id = wxID_INDEXFRAMESAVEBUTTON, label = _('save document'), name = 'saveButton', parent = self.panel1, pos = wxPoint(544, 112), size = wxSize(144, 328), style = 0)
+		self.saveButton.SetToolTipString(_('save'))
+		EVT_BUTTON(self.saveButton, wxID_INDEXFRAMESAVEBUTTON, self.OnSavebuttonButton)
+
+		self.additionCommentBox = wxTextCtrl(id = wxID_INDEXFRAMEADDITIONCOMMENTBOX, name = 'additionCommentBox', parent = self.panel1, pos = wxPoint(48, 488), size = wxSize(640, 88), style = wxTE_MULTILINE, value = ' ')
+
+		self.staticText1 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT1, label = '1.', name = 'staticText1', parent = self.panel1, pos = wxPoint(48, 56), size = wxSize(19, 29), style = 0)
+		self.staticText1.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+
+		self.staticText2 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT2, label = '2.', name = 'staticText2', parent = self.panel1, pos = wxPoint(312, 56), size = wxSize(19, 29), style = 0)
+		self.staticText2.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+
+		self.staticText3 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT3, label = '3.', name = 'staticText3', parent = self.panel1, pos = wxPoint(560, 56), size = wxSize(19, 29), style = 0)
+		self.staticText3.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+
+		self.staticText4 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT4, label = _('or'), name = 'staticText4', parent = self.panel1, pos = wxPoint(48, 192), size = wxSize(49, 29), style = 0)
+		self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+
+		self.staticText5 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT5, label = _('document date (YYYY-MM-DD)'), name = 'staticText5', parent = self.panel1, pos = wxPoint(304, 288), size = wxSize(158, 16), style = 0)
+
+		self.staticText6 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT6, label = _('date of birth'), name = 'staticText6', parent = self.panel1, pos = wxPoint(304, 208), size = wxSize(152, 16), style = 0)
+
+		self.staticText7 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT7, label = _('string on document '), name = 'staticText7', parent = self.panel1, pos = wxPoint(48, 96), size = wxSize(176, 16), style = 0)
+
+		self.staticText8 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT8, label = _('pages'), name = 'staticText8', parent = self.panel1, pos = wxPoint(48, 264), size = wxSize(152, 16), style = 0)
+
+		self.staticText9 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT9, label = _('firstname'), name = 'staticText9', parent = self.panel1, pos = wxPoint(304, 96), size = wxSize(152, 16), style = 0)
+
+		self.staticText10 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT10, label = _('lastname'), name = 'staticText10', parent = self.panel1, pos = wxPoint(304, 144), size = wxSize(152, 16), style = 0)
+
+		self.staticText11 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT11, label = _('short comment'), name = 'staticText11', parent = self.panel1, pos = wxPoint(304, 352), size = wxSize(152, 16), style = 0)
+
+		self.staticText12 = wxStaticText(
+			id = wxID_INDEXFRAMESTATICTEXT12,
+			label = _('document type'),
+			name = 'staticText12',
+			parent = self.panel1,
+			pos = wxPoint(304, 400),
+			size = wxSize(152, 16),
+			style = 0
+		)
+
+		self.staticText13 = wxStaticText(
+			id = wxID_INDEXFRAMESTATICTEXT13,
+			label = _('additional comment'),
+			name = 'staticText13',
+			parent = self.panel1,
+			pos=wxPoint(48, 464),
+			size = wxSize(143, 16),
+			style = 0
+		)
+	#---------------------------------------------------------------------------
+	def _init_utils(self):
+		pass
+	#---------------------------------------------------------------------------
 	def clicked (data):
-			print "Selected :%s" % data
-			
+		print "Selected :%s" % data
 	#---------------------------------------------------------------------------
 	def show_pic(self,bild):
 		try:
@@ -79,7 +175,6 @@ class indexFrame(wxFrame):
 				dlg.ShowModal()
 			finally:
 				dlg.Destroy()
-	
 	#--------------------------------------------------------------------------
 	def readPatientDat(self):
 		# get patient data from BDT/XDT file
@@ -102,15 +197,14 @@ class indexFrame(wxFrame):
 			return None
 		self.Geburtsdatum = self.rawGeburtsdatum[:4]  + '-' + self.rawGeburtsdatum[4:6] + '-' + self.rawGeburtsdatum[-2:]
 		self.queryGeburtsdatum = self.rawGeburtsdatum
-		
 	#--------------------------------------------------------------------------
 	def initgmPhraseWheel(self):
 		# items for phraseWheel
 		# read all directory names in repository
-		repdirs = os.listdir(__cfg__.get("source", "repositories"))
+		repdirs = os.listdir(__cfg__.get("repositories", "scans"))
 		items = []
 		for i in range(len(repdirs)):
-			items = items + [    {'ID':1, 'label':repdirs[i], 	'weight':5}]
+			items = items + [{'ID':1, 'label': repdirs[i], 'weight':5}]
 			print items
 			mp = cMatchProvider_FixedList(items)
 			self.BefNrBox = cPhraseWheel(self.panel1, self.clicked, pos = (48, 112), size = (176, 22), aMatchProvider=mp, aDelay = 300)
@@ -256,8 +350,7 @@ class indexFrame(wxFrame):
 				dlg.ShowModal()
 			finally:
 				dlg.Destroy()
-				
-	#-------------------------------
+	#--------------------------------
 	def updateGUIonLoadRecords(self):
 		self.FirstnameBox.AppendText(self.Vorname)
 		self.LastnameBox.AppendText(self.Nachname)
@@ -271,94 +364,12 @@ class indexFrame(wxFrame):
 		self.DescriptionChoiceBox.SetSelection(index)
 		#if not self.Obj_Beschreibung_value =='':
 		self.additionCommentBox.AppendText(self.Obj_Beschreibung_value)
-		
-	def _init_utils(self):
-		pass
-	
-	def _init_ctrls(self, prnt):
-		wxFrame.__init__(self, id = wxID_INDEXFRAME, name = 'indexFrame', parent = prnt, pos = wxPoint(361, 150), size = wxSize(763, 616), style = wxDEFAULT_FRAME_STYLE, title = _('assign documents'))
-		self._init_utils()
-		self.SetClientSize(wxSize(763, 616))
 
-		self.panel1 = wxPanel(id = wxID_INDEXFRAMEPANEL1, name = 'panel1', parent = self, pos = wxPoint(0, 0), size = wxSize(763, 616), style = wxTAB_TRAVERSAL)
-		self.panel1.SetBackgroundColour(wxColour(225, 225, 225))
-		
-		self.getPicsButton = wxButton(id = wxID_INDEXFRAMEGETPICSBUTTON, label = _('load pages'), name = 'getPicsButton', parent = self.panel1, pos = wxPoint(48, 160), size = wxSize(176, 22), style = 0)
-		self.getPicsButton.SetToolTipString(_('go and get me the pages for this document'))
-		EVT_BUTTON(self.getPicsButton, wxID_INDEXFRAMEGETPICSBUTTON, self.OnGetpicsbuttonButton)
-		
-		self.readFaxButton = wxButton(id = wxID_INDEXFRAMEREADFAXBUTTON, label = _('load fax-document'), name = 'readFaxButton', parent = self.panel1, pos = wxPoint(48, 232), size = wxSize(176, 22), style = 0)
-
-		self.showPicButton = wxButton(id = wxID_INDEXFRAMESHOWPICBUTTON, label = _('show page'), name = 'showPicButton', parent = self.panel1, pos = wxPoint(48, 400), size = wxSize(95, 22), style = 0)
-		self.showPicButton.SetToolTipString(_('show page'))
-		EVT_BUTTON(self.showPicButton, wxID_INDEXFRAMESHOWPICBUTTON, self.OnShowpicbuttonButton)
-
-		self.delPicButton = wxButton(id = wxID_INDEXFRAMEDELPICBUTTON, label = _('delete page'), name = 'delPicButton', parent = self.panel1, pos = wxPoint(143, 400), size = wxSize(90, 22), style = 0)
-		EVT_BUTTON(self.delPicButton, wxID_INDEXFRAMEDELPICBUTTON, self.OnDelpicbuttonButton)
-
-		self.listBox1 = wxListBox(choices = [], id = wxID_INDEXFRAMELISTBOX1, name = 'listBox1', parent = self.panel1, pos = wxPoint(48, 288), size = wxSize(182, 94), style = 0, validator = wxDefaultValidator)
-
-		self.FirstnameBox = wxTextCtrl(id = wxID_INDEXFRAMEFIRSTNAMEBOX, name = 'FirstnameBox', parent = self.panel1, pos = wxPoint(304, 112), size = wxSize(152, 22), style = 0, value = self.Vorname)
-		self.FirstnameBox.SetToolTipString(_('firstname'))
-		self.FirstnameBox.Enable(false)
-		self.FirstnameBox.SetBackgroundColour(wxColour(255, 255, 255))
-
-		self.LastnameBox = wxTextCtrl(id = wxID_INDEXFRAMELASTNAMEBOX, name = 'LastnameBox', parent = self.panel1, pos = wxPoint(304, 160), size = wxSize(152, 22), style = 0, value = self.Nachname)
-		self.LastnameBox.SetBackgroundColour(wxColour(255, 255, 255))
-		self.LastnameBox.Enable(false)
-
-		self.DateOfBirthBox = wxTextCtrl(id = wxID_INDEXFRAMEDATEOFBIRTHBOX, name = 'DateOfBirthBox', parent = self.panel1, pos = wxPoint(304, 232), size = wxSize(152, 22), style = 0, value = self.Geburtsdatum)
-		self.DateOfBirthBox.SetToolTipString(_('date of birth'))
-		self.DateOfBirthBox.Enable(false)
-
-		self.BefundDate = wxTextCtrl(id = wxID_INDEXFRAMEBEFUNDDATE, name = 'BefundDate', parent = self.panel1, pos = wxPoint(304, 312), size = wxSize(152, 22), style = 0, value = _('please fill in'))
-
-		self.shortDecriptionBox = wxTextCtrl(id = wxID_INDEXFRAMESHORTDECRIPTIONBOX, name = 'shortDecriptionBox', parent = self.panel1, pos = wxPoint(304, 368), size = wxSize(152, 22), style = 0, value = _('please fill in'))
-
-		self.DescriptionChoiceBox = wxComboBox(choices = self.validTypeList, id = wxID_INDEXFRAMEDESCRIPTIONCHOICEBOX, name = 'DescriptionChoiceBox', parent = self.panel1, pos = wxPoint(304, 416), size = wxSize(152, 22), style = 0, validator = wxDefaultValidator, value = _('please choose'))
-		self.DescriptionChoiceBox.SetLabel('')
-
-		self.saveButton = wxButton(id = wxID_INDEXFRAMESAVEBUTTON, label = _('save document'), name = 'saveButton', parent = self.panel1, pos = wxPoint(544, 112), size = wxSize(144, 328), style = 0)
-		self.saveButton.SetToolTipString(_('save'))
-		EVT_BUTTON(self.saveButton, wxID_INDEXFRAMESAVEBUTTON, self.OnSavebuttonButton)
-
-		self.additionCommentBox = wxTextCtrl(id = wxID_INDEXFRAMEADDITIONCOMMENTBOX, name = 'additionCommentBox', parent = self.panel1, pos = wxPoint(48, 488), size = wxSize(640, 88), style = wxTE_MULTILINE, value = ' ')
-
-		self.staticText1 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT1, label = '1.', name = 'staticText1', parent = self.panel1, pos = wxPoint(48, 56), size = wxSize(19, 29), style = 0)
-		self.staticText1.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-
-		self.staticText2 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT2, label = '2.', name = 'staticText2', parent = self.panel1, pos = wxPoint(312, 56), size = wxSize(19, 29), style = 0)
-		self.staticText2.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-
-		self.staticText3 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT3, label = '3.', name = 'staticText3', parent = self.panel1, pos = wxPoint(560, 56), size = wxSize(19, 29), style = 0)
-		self.staticText3.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-
-		self.staticText4 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT4, label = _('or'), name = 'staticText4', parent = self.panel1, pos = wxPoint(48, 192), size = wxSize(49, 29), style = 0)
-		self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-
-		self.staticText5 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT5, label = _('document date (YYYY-MM-DD)'), name = 'staticText5', parent = self.panel1, pos = wxPoint(304, 288), size = wxSize(158, 16), style = 0)
-
-		self.staticText6 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT6, label = _('date of birth'), name = 'staticText6', parent = self.panel1, pos = wxPoint(304, 208), size = wxSize(152, 16), style = 0)
-
-		self.staticText7 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT7, label = _('string on document '), name = 'staticText7', parent = self.panel1, pos = wxPoint(48, 96), size = wxSize(176, 16), style = 0)
-
-		self.staticText8 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT8, label = _('pages'), name = 'staticText8', parent = self.panel1, pos = wxPoint(48, 264), size = wxSize(152, 16), style = 0)
-
-		self.staticText9 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT9, label = _('firstname'), name = 'staticText9', parent = self.panel1, pos = wxPoint(304, 96), size = wxSize(152, 16), style = 0)
-
-		self.staticText10 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT10, label = _('lastname'), name = 'staticText10', parent = self.panel1, pos = wxPoint(304, 144), size = wxSize(152, 16), style = 0)
-
-		self.staticText11 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT11, label = _('short comment'), name = 'staticText11', parent = self.panel1, pos = wxPoint(304, 352), size = wxSize(152, 16), style = 0)
-
-		self.staticText12 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT12, label = _('document type'), name = 'staticText12', parent = self.panel1, pos = wxPoint(304, 400), size = wxSize(152, 16), style = 0)
-
-		self.staticText13 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT13, label = _('additional comment'), name = 'staticText13', parent = self.panel1, pos = wxPoint(48, 464), size = wxSize(143, 16), style = 0)
-		
 	def OnGetpicsbuttonButton(self, event):
 		self.CompleteRefresh()
 		self.loadrecords()
 		self.updateGUIonLoadRecords()
-		
+
 	def OnShowpicbuttonButton(self, event):
 		self.BefValue=self.BefNrBox.GetLineText(0)
 		current_selection=self.listBox1.GetSelection()
