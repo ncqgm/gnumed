@@ -8215,7 +8215,6 @@ INSERT INTO urb(statecode, postcode, name) values (8, 6432, 'SOUTH BOULDER');
 INSERT INTO urb(statecode, postcode, name) values (8, 6432, 'VICTORY HEIGHTS');
 INSERT INTO urb(statecode, postcode, name) values (8, 6433, 'HANNANS');
 INSERT INTO urb(statecode, postcode, name) values (8, 6433, 'KALGOORLIE');
-INSERT INTO urb(statecode, postcode, name) values (8, 6433, 'KALGOORLIE');
 INSERT INTO urb(statecode, postcode, name) values (8, 6434, 'CUNDEELEE');
 INSERT INTO urb(statecode, postcode, name) values (8, 6434, 'FORREST');
 INSERT INTO urb(statecode, postcode, name) values (8, 6434, 'RAWLINNA');

@@ -53,6 +53,7 @@ ID_WA = offset+8
 
 states = { 'ACT':ID_ACT, 'NSW':ID_NSW, 'NT':ID_NT, 'SA':ID_SA, 'TAS':ID_TAS, 'QLD':ID_QLD, 'VIC':ID_VIC, 'WA':ID_WA }
 
+print "BEGIN WORK;"
 print "INSERT INTO state(id, code, country, name) VALUES (%d, 'ACT', 'AU', 'Australian Capital Territory');" % (ID_ACT)
 print "INSERT INTO state(id, code, country, name) VALUES (%d, 'NSW', 'AU', 'New South Wales');" % (ID_NSW)
 print "INSERT INTO state(id, code, country, name) VALUES (%d, 'NT', 'AU', 'Northern Territory');" % (ID_NT)
@@ -88,6 +89,7 @@ for line in lines:
 	count +=1
 	l = string.split(line, import_delimiter)
 	#get rid of the quotation marks of the imported fields
+	# FIXME: must get rid of duplicates !!!
 	print "INSERT INTO urb(statecode, postcode, name) values (%d, %s, '%s');" % (states[l[state][1:-1]], l[pcode][1:-1], safestr(l[locality][1:-1]) )
 if begun:
 	print "COMMIT WORK;"
