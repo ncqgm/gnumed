@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -449,6 +449,8 @@ def GetPluginLoadList(set):
 			aRWConn = rwconn
 		)
 		rwconn.close()
+	else:
+		p_list = None
 
 	return p_list
 #------------------------------------------------------------------
@@ -466,7 +468,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.33  2003-01-12 01:45:12  ncq
+# Revision 1.34  2003-01-12 17:30:19  ncq
+# - consistently return None if no plugins found by GetPluginLoadList()
+#
+# Revision 1.33  2003/01/12 01:45:12  ncq
 # - typo, "IS None" not "== None"
 #
 # Revision 1.32  2003/01/11 22:03:30  hinnef
