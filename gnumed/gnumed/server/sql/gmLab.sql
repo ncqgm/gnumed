@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmLab.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -103,10 +103,13 @@ COMMENT ON COLUMN lab_result.comment IS 'what WE think about this result';
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmLab.sql,v $', '$Revision: 1.3 $')
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmLab.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmLab.sql,v $
--- Revision 1.3  2002-11-16 01:08:03  ncq
+-- Revision 1.4  2002-12-01 13:53:09  ncq
+-- - missing ; at end of schema tracking line
+--
+-- Revision 1.3  2002/11/16 01:08:03  ncq
 -- - fixup, revision tracking
 --

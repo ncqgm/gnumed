@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.27 $ $Date: 2002-11-29 00:54:35 $ $Author: ihaywood $
+-- $Revision: 1.28 $ $Date: 2002-12-01 13:53:09 $ $Author: ncq $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.27  2002-11-29 00:54:35  ihaywood
+-- Revision 1.28  2002-12-01 13:53:09  ncq
+-- - missing ; at end of schema tracking line
+--
+-- Revision 1.27  2002/11/29 00:54:35  ihaywood
 -- *** empty log message ***
 --
 -- Revision 1.26  2002/11/25 01:13:26  ihaywood
@@ -674,7 +677,7 @@ comment on column link_drug_indication.line is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.27 $')
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.28 $');
 
 -- -----------------------------------------
 -- we need to be able to "lock" certain drugs from prescribing and such

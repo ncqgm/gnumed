@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- author: 
 
@@ -245,10 +245,13 @@ comment on table clinical_diagnosis_extra is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.5 $')
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.5  2002-11-23 13:18:09  ncq
+-- Revision 1.6  2002-12-01 13:53:09  ncq
+-- - missing ; at end of schema tracking line
+--
+-- Revision 1.5  2002/11/23 13:18:09  ncq
 -- - add "proper" metadata handling and schema revision tracking
 --

@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-doc_types.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 
 -- part of GnuMed
 -- GPL
@@ -29,10 +29,13 @@ INSERT INTO doc_type(id, name) values(113, 'Labor');
 
 -- do simple revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.2 $')
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: german-doc_types.sql,v $
--- Revision 1.2  2002-11-16 00:21:44  ncq
+-- Revision 1.3  2002-12-01 13:53:09  ncq
+-- - missing ; at end of schema tracking line
+--
+-- Revision 1.2  2002/11/16 00:21:44  ncq
 -- - add simplistic revision tracking
 --
