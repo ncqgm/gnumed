@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -218,6 +218,18 @@ class scanFrame(wxFrame):
 			page_data = self.LBOX_doc_pages.GetClientData(page_idx)
 			page_fname = page_data['file name']
 
+			if not os.path.exists(page_fname):
+				_log.Log(gmLog.lErr, 'Cannot display page. File [%s] does not exist !' % page_fname)
+				dlg = wxMessageDialog(
+					self,
+					_('Cannot display page %s. The file\n[%s]\ndoes not exist.' % (page_idx+1, page_fname)),
+					_('data error'),
+					wxOK | wxICON_ERROR
+				)
+				dlg.ShowModal()
+				dlg.Destroy()
+				return None
+
 			import docMime
 
 			mime_type = docMime.guess_mimetype(page_fname)
@@ -228,6 +240,7 @@ class scanFrame(wxFrame):
 				new_fname = docMime.get_win_fname(mime_type)
 				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, new_fname))
 				shutil.copyfile(page_fname, new_fname)
+				# FIXME: we should only do this on Windows !
 				os.startfile(new_fname)
 			else:
 				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, viewer_cmd))
@@ -484,7 +497,12 @@ class scanFrame(wxFrame):
 			devices = sane.get_devices()
 			if devices == []:
 				_log.Log (gmLog.lErr, "SANE did not find any devices")
-				dlg = wxMessageDialog(self, _('There is no scanner available'),_('Attention'), wxOK | wxICON_INFORMATION)
+				dlg = wxMessageDialog(
+					self,
+					_('Cannot find any SANE connected devices.'),
+					_('SANE device error'),
+					wxOK | wxICON_ERROR
+				)
 				dlg.ShowModal()
 				dlg.Destroy()
 				return None
@@ -507,6 +525,86 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	def on_save_doc(self, event):
 		return
+
+		# - anything to do ?
+		if len(self.acquired_images) == 0:
+			dlg = wxMessageDialog(
+				self,
+				_('You must acquire some images before\nyou can save them as a document !'),
+				_('missing images'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		# - make document reference string
+		# - make directory in to_index
+		# - move data file there
+		# - write XML meta file
+		# - write checkpoint file
+		# - clean up gui/acquired_images
+
+		if not self.__valid_input():
+			return None
+		else:
+			full_dir = os.path.join(self.repository, self.doc_id_wheel.GetLineText(0))
+			self.__dump_metadata_to_xml(full_dir)
+			self.__unlock_for_import(full_dir)
+			self.__clear_doc_fields()
+			self.doc_id_wheel.Clear()
+
+
+	def __dump_metadata_to_xml(self, aDir):
+
+		content = []
+
+		tag = __cfg__.get("metadata", "document_tag")
+		content.append('<%s>\n' % tag)
+
+		tag = __cfg__.get("metadata", "name_tag")
+		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.lastnames, tag))
+
+		tag = __cfg__.get("metadata", "firstname_tag")
+		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.firstnames, tag))
+
+		tag = __cfg__.get("metadata", "birth_tag")
+		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.dob, tag))
+
+		tag = __cfg__.get("metadata", "date_tag")
+		content.append('<%s>%s</%s>\n' % (tag, self.TBOX_doc_date.GetLineText(0), tag))
+
+		tag = __cfg__.get("metadata", "type_tag")
+		content.append('<%s>%s</%s>\n' % (tag, self.SelBOX_doc_type.GetStringSelection(), tag))
+
+		tag = __cfg__.get("metadata", "comment_tag")
+		content.append('<%s>%s</%s>\n' % (tag, self.TBOX_desc_short.GetLineText(0), tag))
+
+		tag = __cfg__.get("metadata", "aux_comment_tag")
+		content.append('<%s>%s</%s>\n' % (tag, self.TBOX_desc_long.GetValue(), tag))
+
+		tag = __cfg__.get("metadata", "ref_tag")
+		doc_ref = self.doc_id_wheel.GetLineText(0)
+		content.append('<%s>%s</%s>\n' % (tag, doc_ref, tag))
+
+		# FIXME: take reordering into account
+		tag = __cfg__.get("metadata", "obj_tag")
+		objLst = self.myDoc.getMetaData()['objects']
+		for object in objLst.values():
+			dirname, fname = os.path.split(object['file name'])
+			content.append('<%s>%s</%s>\n' % (tag, fname, tag))
+
+		content.append('</%s>\n' % __cfg__.get("metadata", "document_tag"))
+
+		# overwrite old XML metadata file and write new one
+		xml_fname = os.path.join(aDir, __cfg__.get("metadata", "description"))
+		os.remove(xml_fname)
+		xml_file = open(xml_fname, "w")
+		map(xml_file.write, content)
+		xml_file.close()
+	#----------------------------------------
+
+
 		if self.picList != []:
 			# create xml file
 			out_file = open(_cfg.get("tmpdir", "tmpdir") + _cfg.get("metadata", "description"),"w")
@@ -537,7 +635,7 @@ class scanFrame(wxFrame):
 			finally:
 				dlg.Destroy()
 		else:
-			dlg = wxMessageDialog(self, _('There is nothing to save on disk ? Please aquire images frst'),_('Attention'), wxOK | wxICON_INFORMATION)
+			dlg = wxMessageDialog(self, _('There is nothing to save on disk ? Please aquire images first'),_('Attention'), wxOK | wxICON_INFORMATION)
 			try:
 				dlg.ShowModal()
 			finally:
