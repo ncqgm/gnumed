@@ -13,8 +13,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.54 2004-11-24 21:16:33 hinnef Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmLoginDialog.py,v 1.55 2005-01-20 21:37:40 hinnef Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib, types
@@ -22,6 +22,7 @@ import os.path, time, cPickle, zlib, types
 from wxPython import wx
 
 from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmWhoAmI, gmI18N
+from Gnumed.wxpython import gmGuiHelpers
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -222,6 +223,7 @@ class LoginPanel(wx.wxPanel):
 		# check if there is a non-empty config file
 		
 		if str(_cfg.getCfg()) == "Null":
+			# this we probably never happen, as gmCfg creates an default config-file when no one was found
 			_log.Log(gmLog.lErr, _("No config file specified or config file empty. Falling back to local default profile."))
 			return self.loginparams
 
@@ -294,11 +296,22 @@ class LoginPanel(wx.wxPanel):
 		except:
 			# fall back to default values if any error ocurred
 			self.loginparams = cLoginParamChoices()
+			gmGuiHelpers.gm_show_error("""
+			No config file specified or config file did not contain profile information. 
+			This means that either your setup procedure is not complete or your config 
+			file is damaged. You might want to copy the example config file from 
+			<gnumed installation dir>/client/etc to <your homedir>/~.gnumed/.
+			Falling back now to local default profile.""",'No config file found')
 
 		# check if all profiles were deleted because of missing section or parameters
 		if self.loginparams.profilelist == []:
 			# fallback to default values. This will ignore login information specified in the config file.
 			self.loginparams = cLoginParamChoices()
+			gmGuiHelpers.gm_show_error("""
+			No valid profile information was found in your config file. Please refer
+			to the example config file at <gnumed installation dir>/client/etc for 
+			information how profiles should be specified.
+			Falling back now to local default profile.""",'No config file found',)
 
 		return self.loginparams
 
@@ -471,7 +484,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.54  2004-11-24 21:16:33  hinnef
+# Revision 1.55  2005-01-20 21:37:40  hinnef
+# - added error dialog when no profiles specified
+#
+# Revision 1.54  2004/11/24 21:16:33  hinnef
 # - fixed issue with missing profiles when writing to empty gnumed.conf. This lead to a crash when trying to load the invalid gnumed.conf. Now we just ignore this and fall back to defaults.
 #
 # Revision 1.53  2004/11/22 19:32:36  hinnef
