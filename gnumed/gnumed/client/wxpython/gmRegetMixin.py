@@ -23,8 +23,8 @@ be redrawn successfully.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.5 2004-10-17 00:05:36 sjtan Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmRegetMixin.py,v 1.6 2004-10-17 15:52:21 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -42,7 +42,6 @@ class cRegetOnPaintMixin:
 	_schedule_data_reget() at appropriate times.
 	"""
 	def __init__(self):
-		self.error_notice = None
 		self._data_stale = True
 		try:
 			wx.EVT_PAINT(self, self._on_paint_event)
@@ -55,8 +54,6 @@ class cRegetOnPaintMixin:
 		if self._data_stale:
 			self.__populate_with_data()
 		event.Skip()
-		
-			
 	#-----------------------------------------------------
 	def __populate_with_data(self):
 		if self._populate_with_data():
@@ -81,9 +78,13 @@ class cRegetOnPaintMixin:
 		"""
 		if self.GetUpdateRegion().IsEmpty() == 1:
 			self._data_stale = True
+			return True
 		else:
-			self.__populate_with_data()
-			self.Refresh()
+			if self.__populate_with_data():
+				self.Refresh()
+				return True
+			else:
+				return False
 
 #===========================================================================
 # main
@@ -93,7 +94,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.5  2004-10-17 00:05:36  sjtan
+# Revision 1.6  2004-10-17 15:52:21  ncq
+# - cleanup
+#
+# Revision 1.5  2004/10/17 00:05:36  sjtan
 #
 # fixup for paint event re-entry when notification dialog occurs over medDocTree graphics
 # area, and triggers another paint event, and another notification dialog , in a loop.
