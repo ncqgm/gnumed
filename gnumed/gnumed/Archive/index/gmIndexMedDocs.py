@@ -5,14 +5,13 @@
 #    * browse GnuMed patient database
 #    * allow patient data input
 #  - cancel-quit button
-#  - pluginize with GnuMed
 #  - load external file(s) (fax, digicam etc.)
 #  - wxDateEntry() mit ordentlichem Validator
 #  - Funktion Seiten umsortieren fertigstellen
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -976,38 +975,36 @@ else:
 	class gmIndexMedDocs(gmPlugin.wxNotebookPlugin):
 		def name (self):
 			return _("Index")
-
+		# ---------------------------------------------
 		def GetWidget (self, parent):
 			self.panel = indexFrame(parent)
 			return self.panel
-
+		# ---------------------------------------------
 		def MenuInfo (self):
 			return ('tools', _('&Index Documents'))
-		
+		# ---------------------------------------------
 		def ReceiveFocus(self):
 			self.panel.fill_pat_fields()
-			self.DoStatusText()
+			self._set_status_txt(_('steps: 1: select document | 2: describe it | 3: save it'))
 			# FIXME: register interest in patient_changed signal, too
 			#self.panel.tree.SelectItem(self.panel.tree.root)
 			return 1
-
+		# ---------------------------------------------
 		def can_receive_focus(self):
 			# need patient
 			if not self._verify_patient_avail():
-				return None
-			
+				return None			
 			return 1
-		
+		# ---------------------------------------------
 		def DoToolbar (self, tb, widget):
-	      		tool1 = tb.AddTool(
+			tool1 = tb.AddTool(
 				wxID_PNL_BTN_load_pages,
 				images_Archive_plugin.getcontentsBitmap(),
 				shortHelpString=_("load pages"),
 				isToggle=false
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_load_pages, widget.on_load_pages)
-			
-			# --------------------------------------------------------------
+
 			tool1 = tb.AddTool(
 				wxID_PNL_BTN_save_data,
 				images_Archive_plugin.getsaveBitmap(),
@@ -1016,7 +1013,6 @@ else:
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_save_data, widget.on_save_data)
 			
-			# -------------------------------------------------------------
 			tool1 = tb.AddTool(
 				wxID_PNL_BTN_del_page,
 				images_Archive_plugin.getcontentsBitmap(),
@@ -1025,7 +1021,6 @@ else:
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_del_page, widget.on_del_page)
 			
-			# -------------------------------------------------------------
 			tool1 = tb.AddTool(
 				wxID_PNL_BTN_show_page,
 				images_Archive_plugin.getreportsBitmap(),
@@ -1034,7 +1029,6 @@ else:
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_show_page, widget.on_show_page)
 	
-			# -------------------------------------------------------------
 			tool1 = tb.AddTool(
 				wxID_PNL_BTN_select_files,
 				images_Archive_plugin1.getfoldersearchBitmap(),
@@ -1043,27 +1037,22 @@ else:
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_select_files, widget.on_select_files)
 		
-			tb.AddControl(
-				wxStaticBitmap(
-					tb, 
-					-1, 
-					images_Archive_plugin.getvertical_separator_thinBitmap(), 
-					wxDefaultPosition, 
-					wxDefaultSize))
-			
-		def DoStatusText (self):
-			# FIXME: people want an optional beep and an optional red backgound here
-			txt = _('1:select document 2:describe 3:save')	
-			if not self._set_status_txt(txt):
-				return None
-			return 1
-		
+			tb.AddControl(wxStaticBitmap(
+				tb,
+				-1,
+				images_Archive_plugin.getvertical_separator_thinBitmap(),
+				wxDefaultPosition,
+				wxDefaultSize
+			))
 #======================================================
 # this line is a replacement for gmPhraseWheel just in case it doesn't work 
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.4  2003-11-09 15:42:27  shilbert
+# Revision 1.5  2003-11-09 16:01:16  ncq
+# - cleanup
+#
+# Revision 1.4  2003/11/09 15:42:27  shilbert
 # - plugin makes use of GNUmed's toolbar and statusbar
 #
 # Revision 1.3  2003/11/08 18:15:05  ncq
