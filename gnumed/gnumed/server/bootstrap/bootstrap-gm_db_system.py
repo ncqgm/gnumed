@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -656,7 +656,7 @@ class database:
 		# FIXME: we need to pull this nasty trick of ending and restarting
 		# the current transaction to work around pgSQL automatically associating
 		# cursors with transactions
-		cmd = "begin ; commit ; create database \"%s\" with encoding='unicode'; begin" % self.name
+		cmd = "commit; create database \"%s\" with encoding='unicode'; begin" % self.name
 
 		cursor = self.conn.cursor()
 		try:
@@ -1305,7 +1305,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.42  2004-01-05 00:56:12  ncq
+# Revision 1.43  2004-01-05 01:36:42  ncq
+# - "commit, create db, begin" is the correct sequence, don't start with an extra begin
+#
+# Revision 1.42  2004/01/05 00:56:12  ncq
 # - fixed typo, better feedback on console
 #
 # Revision 1.41  2003/12/29 15:20:42  uid66147
