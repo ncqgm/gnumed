@@ -61,14 +61,17 @@ class ConnectionPool:
 		"initialize connection to all neccessary servers"
 
 		if login==None and ConnectionPool.__connected is None:
-		    raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
+			try:
+				login = inputLoginParams()
+			except:
+				raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
 
 		#first, connect to the configuration server
 		try:
-		    cdb = self.__pgconnect(login)
+			cdb = self.__pgconnect(login)
 		except:
-		    raise gmExceptions.ConnectionError(_("Could not connect to configuration database  backend!"))
-		    
+			raise gmExceptions.ConnectionError(_("Could not connect to configuration database  backend!"))
+
 		ConnectionPool.__connected = 1
 
 		#this is the default gnumed server now!
@@ -198,6 +201,7 @@ class ConnectionPool:
 			return ConnectionPool.__databases['default']
 
 
+
 	def ReleaseConnection(self, service):
 		"decrease reference counter of active connection"
 		if ConnectionPool.__databases.has_key(service):
@@ -237,7 +241,7 @@ def cursorIndex(cursor):
 	i+=1
     return dict
     
-    
+
 def descriptionIndex(cursordescription):
     "returns a dictionary of row atribute names and their row indices"
     i=0
@@ -265,7 +269,7 @@ def dictResult(cursor, fetched=None):
 	
 	
 	
-    
+
 def fieldNames(cursor):
     "returns the attribute names of the fetched rows in natural sequence as a list"
     names=[]    
@@ -273,24 +277,24 @@ def fieldNames(cursor):
 	names.append(d[0])
     return names
 	
-    
+
 def listDatabases(service='default'):
     assert(__backend == 'Postgres')
     return quickROQuery("select * from pg_database")
-    
+
 def listUserTables(service='default'):
     assert(__backend == 'Postgres')
     return quickROQuery("select * from pg_tables where tablename not like 'pg_%'", service)
-    
-    
+
+
 def listSystemTables(service='default'):
     assert(__backend == 'Postgres')
     return quickROQuery("select * from pg_tables where tablename like 'pg_%'", service)
-    
-    
+
+
 def listTables(service='default'):
     return quickROQuery("select * from pg_tables", service)
-    
+
 
 def quickROQuery(query, service='default'):
     "a quick read-only query that fetches all possible results at once"
@@ -298,41 +302,68 @@ def quickROQuery(query, service='default'):
     con = dbp.GetConnection(service)
     cur=con.cursor()
     cur.execute(query)
-    return cur.fetchall(), cur.description 
-    
-    
+    return cur.fetchall(), cur.description
+
+
+
 def getBackendName():
     return __backend
-    
+
+
+
+def inputTMLoginParams():
+	"text mode input request of database login parameters"
+	login = gmLoginInfo.LoginInfo('', '')
+	try:
+		print "\nPlease enter the required login parameters:"
+		user = raw_input("user name : ")
+		password = raw_input("password : ")
+		database = raw_input("database [gnumed] : ")
+		if database == '': database = 'gnumed'
+		host = raw_input("host [localhost] : ")
+		if host == '': host = 'localhost'
+		port = raw_input("port [5432] : ")
+		if port == '':
+			port = 5432
+		else:
+			port = int(port)
+		login.SetInfo(user, password, dbname=database, host=host, port=port)
+	except:
+		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
+	return login
+
+
+
+def inputWXLoginParams():
+	"GUI (wx) mode input request of database login parameters"
+	import sys
+	#the next statement will raise an exception if wxPython is not loaded yet
+	sys.modules['wxPython']
+
+	import gmLoginDialog
+	dlg = gmLoginDialog.LoginDialog(NULL, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
+	dlg.ShowModal()
+	login = dlg.panel.GetLoginParams()
+	if login is None:
+		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
+	dlg.Destroy()
+	return login
+
+
+def inputLoginParams():
+	"input request for database backend login parameters. Try GUI dialog if available"
+	try:
+		login = inputWXLoginParams()
+	except:
+		login = inputTMLoginParams()
+	return login
 
 
 
 ### test function for this module: simple start as "main" module
 if __name__ == "__main__":
-	try:
-		db = raw_input("which database hosts the gnumed configuration? [gnumed]: ")
-	except:
-		db='gnumed'
-
-	try:
-		usr = raw_input("enter user name for database [admin]: ")
-	except:
-		usr='admin'
-
-	try:
-		pwd = raw_input("enter your database user password []: ")
-	except:
-		pwd=''
-
-	### 1.) create a login information object
-	login = gmLoginInfo.LoginInfo(user=usr, passwd=pwd, database=db)
-	dsn, hp = login.GetPGDB_DSN()
-	print dsn, hp
-
-	### 2.) with this basic login information, log into the service pool
-	dbpool = ConnectionPool(login)
-
-	### 3.) Let's see what services are distributed in this system:
+	dbpool = ConnectionPool()
+	### Let's see what services are distributed in this system:
 	print "\n\nServices available on this system:"
 	print '-----------------------------------------'
 	for service in dbpool.GetAvailableServices():
@@ -345,7 +376,7 @@ if __name__ == "__main__":
 			print "%s (owned by user %s)" % (table[idx['tablename']], table[idx['tableowner']])
 		print "\n.......................................\n"
 
-	### 4.) We have probably not distributed the services in full:
+	### We have probably not distributed the services in full:
 	db = dbpool.GetConnection('config')
 	print "\n\nPossible services on any gnumed system:"
 	print '-----------------------------------------'
@@ -353,7 +384,7 @@ if __name__ == "__main__":
 	cursor.execute("select name from distributed_db")
 	for service in  cursor.fetchall():
 		print service[0]
-		
+
 	print "\nTesting convenience funtions:\n============================\n"
 	print "Databases:\n============\n"
 	res, descr = listDatabases()
