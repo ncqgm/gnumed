@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.137 $
+-- $Revision: 1.138 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -85,7 +85,7 @@ create table clin_episode (
 		on delete restrict,
 --	description text
 --		default null,
-	is_active boolean
+	is_open boolean
 		default true,
 	clinically_relevant boolean
 		default true
@@ -120,16 +120,9 @@ comment on column clin_episode.fk_health_issue is
 --	'descriptive name of this episode, may change over time; if
 --	 "xxxDEFAULTxxx" applications should display the most recently
 --	 associated diagnosis/month/year plus some marker for "default"';
-comment on column clin_episode.is_active is
-	'whether the episode is still active,
-	 Prone to misinterpretation: Does TRUE mean that
-	 the episode is not yet "closed" in a temporal
-	 sense or does it mean that the health state
-	 which is defined by the description field still
-	 needs attention ? Eventually this will be resolved
-	 by making description a foreign key to a narrative
-	 row elsewhere which in turn can have further
-	 attributes instead of it being a field of this table.';
+comment on column clin_episode.is_open is
+	'whether the episode is open (eg. there is activity for it),
+	 means open in a temporal sense as in "not closed yet"';
 comment on column clin_episode.clinically_relevant is
 	'whether the condition used for naming the episode
 	 is clinically relevant, eventually this would become
@@ -258,7 +251,9 @@ create table clin_root_item (
 		default CURRENT_TIMESTAMP,
 	fk_encounter integer
 		not null
-		references clin_encounter(id),
+		references clin_encounter(id)
+		deferrable
+		initially deferred,
 	fk_episode integer
 		not null
 		references clin_episode(pk),
@@ -1083,11 +1078,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.137 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.138 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.137  2004-11-16 18:59:15  ncq
+-- Revision 1.138  2004-11-21 21:01:08  ncq
+-- - clin_episode.is_active -> clin_episode.is_open as per discussion on the list
+-- - make clin_root_item.fk_encounter deferrable and initially deferred
+--
+-- Revision 1.137  2004/11/16 18:59:15  ncq
 -- - as per recent discussion re episode/issue naming remove
 --   clin_episode.description and add clin_narrative.is_episode_name
 --
