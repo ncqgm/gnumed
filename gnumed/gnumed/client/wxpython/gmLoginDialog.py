@@ -34,33 +34,32 @@ It features combo boxes which "remember" any number of previously entered settin
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.35 2003-03-31 00:18:34 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmLoginDialog.py,v 1.36 2003-04-05 00:37:46 ncq Exp $
+__version__ = "$Revision: 1.36 $"
+__author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
+import os.path, time, cPickle, zlib
 from wxPython.wx import *
-import os.path, time
 import gmLoginInfo, gmGuiMain, gmGuiBroker, gmCfg, gmLog
-import cPickle, zlib
 _cfg = gmCfg.gmDefCfgFile
 _log = gmLog.gmDefLog
+
 #############################################################################
 # dummy class, to be used as a structure for login parameters
 #############################################################################
-
-class cLoginParameters:
+class cLoginParamChoices:
 	"""dummy class, to be used as a structure for login parameters"""
-
 	def __init__(self):
-		self.userlist = ['gnumed', 'guest']
+		self.userlist = ['test-doc']
 		self.password = ''
-		self.databaselist = ['gnumed', 'gm-archive']
+		self.databaselist = ['gnumed', 'gm-archive', 'gnumed-public']
 		self.hostlist= ['localhost', '127.0.0.1']
 		self.portlist = ['5432']
 		self.backendoptionlist = ['']
+
 #############################################################################
 # GUI panel class that gets interactively Postgres login parameters
 #############################################################################
-
 class LoginPanel(wxPanel):
 	"""GUI panel class that interactively gets Postgres login parameters"""
 
@@ -93,7 +92,7 @@ class LoginPanel(wxPanel):
 
 		# if no login params supplied get default ones or from config file
 		if loginparams is None:
-			self.__load_login_params()
+			self.__load_login_param_choices()
 		else:
 			self.loginparams = loginparams
 
@@ -216,9 +215,9 @@ class LoginPanel(wxPanel):
 	#----------------------------
 	# internal helper methods
 	#----------------------------
-	def __load_login_params(self):
+	def __load_login_param_choices(self):
 		"""Load parameter settings from standard configuration file"""
-		self.loginparams = cLoginParameters()
+		self.loginparams = cLoginParamChoices()
 
 		tmp = _cfg.get('backend', 'logins')
 		if tmp is not None:
@@ -602,7 +601,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.35  2003-03-31 00:18:34  ncq
+# Revision 1.36  2003-04-05 00:37:46  ncq
+# - renamed a few variables to reflect reality
+#
+# Revision 1.35  2003/03/31 00:18:34  ncq
 # - or so I thought
 #
 # Revision 1.34  2003/03/31 00:17:43  ncq
