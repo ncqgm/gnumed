@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-07 05:42:27 $
-# @version $Revision: 1.25 $ $Date: 2002-07-07 05:42:27 $ $Author: ihaywood $
+# @Date: $Date: 2002-07-10 19:16:49 $
+# @version $Revision: 1.26 $ $Date: 2002-07-10 19:16:49 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -29,21 +29,16 @@
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
-__version__ = "$Revision: 1.25 $"
+############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
+__version__ = "$Revision: 1.26 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
-
-# text translation function for localization purposes
-import gettext
-_ = gettext.gettext
 
 from wxPython.wx import *
 from wxPython.html import *
-from gmI18N import *
 
 import sys, time, os
-import gmLogFrame, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmConf
-import gmLog
-import gmPlugin
+import gmLogFrame, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmConf, gmLog, gmPlugin
 import images
 import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
 import images_gnuMedGP_TabbedLists             #bitmaps for tabs on notebook
@@ -53,6 +48,8 @@ import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert mes
 import gmGP_PatientPicture                     #panel to display patients picture 
 import gmGP_Toolbar                            #panel with two toolbars on top of the screen
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
+
+from gmI18N import gmTimeformat
 
 # widget IDs
 ID_ABOUT = wxNewId ()
@@ -102,7 +99,7 @@ class MainFrame(wxFrame):
 		self.CreateMenu()
 		self.SetupAccelerators()
 		self.RegisterEvents()
-                ###--------------------------------------------------------------------
+        ###--------------------------------------------------------------------
 		###now create the  the main sizer to contain all the others on the form
 		###this is same as Horst's vbox
 		###--------------------------------------------------------------------
@@ -164,15 +161,12 @@ class MainFrame(wxFrame):
 		if wxPlatform == '__WXMSW__':
 			#windoze specific stuff here
 			myLog.Log(gmLog.lInfo,'running on Microsoft Windows')
-			pass
 		elif wxPlatform == '__WXGTK__':
 			#GTK (Linux etc.) specific stuff here
 			myLog.Log(gmLog.lInfo,'running on GTK (probably Linux)')
-			pass
 		elif wxPlatform == '__WXMAC__':
 			#Mac OS specific stuff here
 			myLog.Log(gmLog.lInfo,'running on a Mac')
-			pass
 		else:
 			myLog.Log(gmLog.lInfo,'running on an unknown platform')
 
@@ -417,15 +411,8 @@ def mainWithTalkback ():
 #==================================================
 
 if __name__ == '__main__':
-	# we may want to reset the log level, so keep a global reference to the log target
-	# append only, log level "informational"
-	myLogFile = gmLog.cLogTargetFile(gmLog.lInfo, 'gnumed.log', 'a')
-	myLog.AddTarget(myLogFile)
-
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	myLog.AddTarget(aLogTarget)
-
 	myLog.Log(gmLog.lInfo, 'Starting up as main module.')
-
 	main()
