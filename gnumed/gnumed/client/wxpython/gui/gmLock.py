@@ -1,5 +1,7 @@
 """
 Implements a lock console function for those who need it
+
+Dare I say HIPAA ?
 """
 
 from wxPython.wx import *
