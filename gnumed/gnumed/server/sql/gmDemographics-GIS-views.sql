@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -229,12 +229,11 @@ drop view v_zip2street;
 
 create view v_zip2street as
 	select
-		str.postcode as zip,
+		coalesce (str.postcode, urb.postcode) as zip_street,
 		str.name as street,
 		stt.name as state,
 		stt.code as code_state,
 		urb.name as urb,
-		urb.postcode as urb_zip,
 		c.name as country,
 		stt.country as code_country
 	from
@@ -262,7 +261,7 @@ drop view v_zip2urb;
 
 create view v_zip2urb as
 	select
-		urb.postcode as zip,
+		urb.postcode as zip_urb,
 		urb.name as urb,
 		s.name as state,
 		s.code as code_state,
@@ -290,7 +289,7 @@ drop view v_uniq_zipped_urbs;
 
 create view v_uniq_zipped_urbs as
 	select
-		urb.postcode as zip,
+		urb.postcode as zip_urb,
 		urb.name as name
 	from
 		urb,
@@ -321,7 +320,7 @@ drop view v_zip2data;
 
 create view v_zip2data as
 	select
-		coalesce(zrows.zip, zrows.postcode) as zip,
+		coalesce(zrows.zip_street, zrows.zip_urb) as zip,
 		zrows.street,
 		coalesce(zrows.urb, zrows.name) as urb,
 		zrows.state,
@@ -333,7 +332,7 @@ create view v_zip2data as
 			full outer join
 		v_uniq_zipped_urbs
 			on
-		v_zip2street.zip=v_uniq_zipped_urbs.postcode) as zrows
+		v_zip2street.zip_street=v_uniq_zipped_urbs.zip_urb) as zrows
 ;
 
 comment on view v_zip2data is
@@ -341,11 +340,14 @@ comment on view v_zip2data is
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.4 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.3  2003-08-10 01:07:46  ncq
+-- Revision 1.4  2003-08-10 01:26:50  ncq
+-- - make v_zip2data compile again
+--
+-- Revision 1.3  2003/08/10 01:07:46  ncq
 -- - adapt to lnk_a2b table naming plan
 -- - add v_zip2... views
 --
