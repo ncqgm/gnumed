@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.136 2004-08-31 19:19:43 ncq Exp $
-__version__ = "$Revision: 1.136 $"
+# $Id: gmClinicalRecord.py,v 1.137 2004-09-06 18:54:31 ncq Exp $
+__version__ = "$Revision: 1.137 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -502,7 +502,6 @@ class cClinicalRecord:
 		order_by = 'order by src_table, age'
 		cmd = "%s where %s %s" % (select_from, where_clause, order_by)
 
-#		print "QUERY: " + cmd
 		rows, view_col_idx = gmPG.run_ro_query('historica', cmd, 1, params)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load item links for patient [%s]' % self.id_patient)
@@ -1235,7 +1234,7 @@ class cClinicalRecord:
 		if since is not None:
 			filtered_encounters = filter(lambda enc: enc['started'] >= since, filtered_encounters)
 		if until is not None:
-			filtered_encounters = filter(lambda enc: enc['last_affirmed'] <= until, filtered_encounters)			
+			filtered_encounters = filter(lambda enc: enc['last_affirmed'] <= until, filtered_encounters)
 		if issues is not None and len(issues) > 0:
 			if len(issues) == 1:		# work around pyPgSQL IN() bug with one-element-tuples
 				issues.append(issues[0])
@@ -1265,33 +1264,43 @@ where pk_episode in %s and id_patient = %s"""
 
 		return filtered_encounters
 	#--------------------------------------------------------		
-	def get_first_encounter(self, issue=None, episode=None):
+	def get_first_encounter(self, issue_id=None, episode_id=None):
 		"""
 			Retrieves first encounter for a particular issue and/or episode
 
-			issue - First encounter associated health issue
+			issue_id - First encounter associated health issue
 			episode - First encounter associated episode
 		"""
-		# fetch encounters and return the first one
-		encounters = self.get_encounters(issues=[issue], episodes=[episode])
+		h_iss = issue_id
+		epis = episode_id
+		if issue_id is not None:
+			h_iss = [issue_id]
+		if episode_id is not None:
+			epis = [episode_id]
+		encounters = self.get_encounters(issues=h_iss, episodes=epis)
 		if encounters is None or len(encounters) == 0:
-			_log.Log(gmLog.lErr, 'cannot retrieve first encounter for episodes [%s] + issues[%s] (patient ID [%s])' % (str(episodes), str(issues), self.id_patient))
+			_log.Log(gmLog.lErr, 'cannot retrieve first encounter for episodes [%s], issues [%s] (patient ID [%s])' % (str(episodes), str(issues), self.id_patient))
 			return None
 		# FIXME: this does not scale particularly well
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[0]
 	#--------------------------------------------------------		
-	def get_last_encounter(self, issue=None, episode=None):
+	def get_last_encounter(self, issue_id=None, episode_id=None):
 		"""
 			Retrieves last encounter for a concrete issue and/or episode
 			
-			issue - Last encounter associated health issue
-			episode - Last encounter associated episode
+			issue_id - Last encounter associated health issue
+			episode_id - Last encounter associated episode
 		"""
-		# fetch encounters and return the first one
-		encounters = self.get_encounters(issues=[issue], episodes=[episode])
+		h_iss = issue_id
+		epis = episode_id
+		if issue_id is not None:
+			h_iss = [issue_id]
+		if episode_id is not None:
+			epis = [episode_id]
+		encounters = self.get_encounters(issues=h_iss, episodes=epis)
 		if encounters is None or len(encounters) == 0:
-			_log.Log(gmLog.lErr, 'cannot retrieve last encounter for episodes [%s], issues[%s]. Patient ID [%s]' %(str(episodes), str(issues), self.id_patient))			
+			_log.Log(gmLog.lErr, 'cannot retrieve last encounter for episodes [%s], issues [%s]. Patient ID [%s]' %(str(episodes), str(issues), self.id_patient))			
 			return None		
 		# FIXME: this does not scale particularly well
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
@@ -1416,9 +1425,9 @@ if __name__ == "__main__":
 		emr = cClinicalRecord(aPKey = 12)
 
 		# first and last encounters
-		first_encounter = emr.get_first_encounter(issue = 1)
+		first_encounter = emr.get_first_encounter(issue_id = 1)
 		print '\nFirst encounter: ' + str(first_encounter)
-		last_encounter = emr.get_last_encounter(episode = 1)
+		last_encounter = emr.get_last_encounter(episode_id = 1)
 		print '\nLast encounter: ' + str(last_encounter)
 		print ''
 		
@@ -1472,7 +1481,13 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.136  2004-08-31 19:19:43  ncq
+# Revision 1.137  2004-09-06 18:54:31  ncq
+# - some cleanup
+# - in get_first/last_encounter we do need to check issue/episode for None so
+#   we won't be applying the "one-item -> two-duplicate-items for IN query" trick
+#   to "None" which would yield the wrong results
+#
+# Revision 1.136  2004/08/31 19:19:43  ncq
 # - Carlos added constraints to get_encounters()
 # - he also added get_first/last_encounter()
 #
