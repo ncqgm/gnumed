@@ -1,0 +1,615 @@
+/* File: PersonIdService.idl
+#include <orb.idl>
+#include "Notification.idl"
+ */
+
+// Authorship by omg.org; the understanding is that this idl file is freely
+// distributable according to the preface in omg document 01-04-04.pdf
+
+#ifndef  _PERSON_ID_SERVICE_IDL_
+#define  _PERSON_ID_SERVICE_IDL_
+#pragma  prefix "omg.org"
+
+#include "corbamed/idl/AbbreviatedIncludes/NamingAuthority.idl"
+#include "corbamed/idl/AbbreviatedIncludes/CosNaming.idl"
+#include "corbamed/idl/AbbreviatedIncludes/CosTrading.idl"
+#include "corbamed/idl/AbbreviatedIncludes/CosPropertyService.idl"
+#include "corbamed/idl/NamingAuthority.idl"
+module PersonIdService {
+interface Identity;
+interface IdentifyPerson;
+interface ProfileAccess;
+interface SequentialAccess;
+interface IdentityAccess;
+interface IdMgr;
+interface CorrelationMgr;
+
+/* ---------------------------------------------------------------
+Common Data Types */
+
+typedef NamingAuthority::AuthorityId DomainName;
+
+typedef sequence <DomainName> DomainNameSeq;
+
+typedef NamingAuthority::LocalName PersonId;
+
+typedef sequence <PersonId> PersonIdSeq;
+
+typedef NamingAuthority::LocalName ConceptCode;
+
+typedef NamingAuthority::AuthorityId CodingScheme;
+
+struct QualifiedCode {
+	CodingScheme coding_scheme;
+	ConceptCode concept_code;
+};
+
+struct QualifiedCodeId {
+	QualifiedCode code;
+	PersonId id;
+};
+
+typedef sequence <QualifiedCodeId> QualifiedCodeIdSeq;
+
+struct QualifiedPersonId {
+	/* DomainId domain; */
+	DomainName domain;
+	PersonId id;
+};
+
+typedef sequence <QualifiedPersonId> QualifiedPersonIdSeq;
+
+typedef any QualifiedId;
+
+typedef sequence <QualifiedId> QualifiedIdSeq;
+
+typedef NamingAuthority::QualifiedNameStr TraitName;
+
+typedef sequence <TraitName> TraitNameSeq;
+
+typedef any TraitValue;
+
+struct Trait {
+	TraitName name;
+	TraitValue value;
+};
+
+typedef sequence <Trait> TraitSeq;
+
+typedef TraitSeq Profile;
+
+typedef sequence <Profile> ProfileSeq;
+
+enum IdState {
+
+	UNKNOWN,
+	INVALID,
+	TEMPORARY,
+	PERMANENT,
+	DEACTIVATED	
+};
+
+typedef sequence <IdState> IdStateSeq;
+
+struct IdInfo {
+	PersonId id;
+	IdState state;
+	PersonId preferred_id;
+};
+
+typedef sequence <IdInfo> IdInfoSeq;
+
+/* ---------------------------------------------------------------
+Miscellaneous Data Types */
+
+typedef string ComponentVersion;
+
+struct ComponentName {
+	NamingAuthority::QualifiedName name;
+	ComponentVersion version;
+};
+
+struct TraitSpec {
+	TraitName trait;
+	boolean mandatory;
+	boolean read_only;
+	boolean searchable;
+};
+
+typedef sequence <TraitSpec> TraitSpecSeq;
+
+enum HowManyTraits {
+
+	NO_TRAITS,
+	SOME_TRAITS,
+	ALL_TRAITS	
+};
+
+union SpecifiedTraits switch(HowManyTraits) {
+	case SOME_TRAITS: TraitNameSeq traits;
+};
+
+struct TaggedProfile {
+	PersonId id;
+	Profile profile;
+};
+
+typedef sequence <TaggedProfile> TaggedProfileSeq;
+
+struct QualifiedTaggedProfile {
+	QualifiedPersonId id;
+	Profile profile;
+};
+
+typedef sequence <QualifiedTaggedProfile> QualifiedTaggedProfileSeq;
+
+struct ProfileUpdate {
+	PersonId id;
+	TraitNameSeq del_list;
+	TraitSeq modify_list;
+};
+
+typedef sequence <ProfileUpdate> ProfileUpdateSeq;
+
+struct MergeStruct {
+	PersonId id;
+	PersonId preferred_id;
+};
+
+typedef sequence <MergeStruct> MergeStructSeq;
+
+struct TraitSelector {
+	Trait trait;
+	float weight;
+};
+
+typedef sequence <TraitSelector> TraitSelectorSeq;
+
+struct Candidate {
+	PersonId id;
+	float confidence;
+	Profile profile;
+};
+
+typedef sequence <Candidate> CandidateSeq;
+
+interface CandidateIterator {
+	/* 
+	@roseuid 3EF9C2A1015C */
+	unsigned long max_left ();
+		
+	/* 
+	@roseuid 3EF9C2A1015F */
+	boolean next_n (
+		in unsigned long n,
+		out CandidateSeq ids
+		);
+		
+	/* 
+	@roseuid 3EF9C2A10163 */
+	void destroy ();
+		
+};
+
+typedef unsigned long Index;
+
+typedef sequence <Index> IndexSeq;
+
+enum ExceptionReason {
+
+	UNKNOWN_TRAITS,
+	DUPLICATE_TRAITS,
+	WRONG_TRAIT_FORMAT,
+	REQUIRED_TRAITS,
+	READONLY_TRAITS,
+	CANNOT_REMOVE,
+	MODIFY_OR_DELETE	
+};
+
+struct MultipleFailure {
+	Index the_index;
+	ExceptionReason reason;
+	TraitNameSeq traits;
+};
+
+typedef sequence <MultipleFailure> MultipleFailureSeq;
+
+/* ---------------------------------------------------------------
+Exceptions */
+
+exception InvalidId {
+	IdInfo id_info;
+};
+
+exception InvalidIds {
+	IdInfoSeq id_info;
+};
+
+exception DuplicateIds {
+	PersonIdSeq ids;
+};
+
+exception UnknownTraits {
+	TraitNameSeq traits;
+};
+
+exception DuplicateTraits {
+	TraitNameSeq traits;
+};
+
+exception WrongTraitFormat {
+	TraitNameSeq traits;
+};
+
+exception InvalidStates {
+};
+
+exception TooMany {
+	unsigned long estimated_max;
+};
+
+exception MultipleTraits {
+	MultipleFailureSeq failures;
+};
+
+exception ReadOnlyTraits {
+	TraitNameSeq traits;
+};
+
+exception CannotRemove {
+	TraitNameSeq traits;
+};
+
+exception ModifyOrDelete {
+	MultipleFailureSeq failures;
+};
+
+exception NotImplemented {
+};
+
+exception InvalidWeight {
+};
+
+exception CannotSearchOn {
+	TraitNameSeq traits;
+};
+
+exception IdsExist {
+	IndexSeq indices;
+};
+
+exception RequiredTraits {
+	TraitNameSeq traits;
+};
+
+exception ProfilesExist {
+	IndexSeq indices;
+};
+
+exception DuplicateProfiles {
+	IndexSeq indices;
+};
+
+exception DomainsNotKnown {
+	DomainNameSeq domain_names;
+};
+
+exception IdsNotKnown {
+	QualifiedPersonIdSeq ids;
+};
+
+typedef sequence <Identity> IdentitySeq;
+
+interface IdentificationComponent {
+	readonly attribute DomainName domain_name;
+	readonly attribute ComponentName component_name;
+	readonly attribute TraitSpecSeq supported_traits;
+	readonly attribute IdentifyPerson identify_person;
+	readonly attribute ProfileAccess profile_access;
+	readonly attribute SequentialAccess sequential_access;
+	readonly attribute IdentityAccess identity_access;
+	readonly attribute IdMgr id_mgr;
+	readonly attribute CorrelationMgr correlation_mgr;
+	/* readonly attribute Notification::EventComponent  event_component; */
+	
+	readonly attribute  CosNaming::NamingContext naming_context;
+	readonly attribute  CosTrading::TraderComponents trader_components;
+	
+	/* 
+	@roseuid 3EF9C2A40164 */
+	void get_supported_properties (
+		in TraitName name,
+		out CosPropertyService::Properties trait_defs
+		)		
+		raises (UnknownTraits);
+		
+};
+
+/* ---------------------------------------------------------------
+IdentifyPerson */
+
+interface IdentifyPerson : IdentificationComponent {
+	/* 
+	@roseuid 3EF9C2A401DF */
+	void find_candidates (
+		in TraitSelectorSeq profile_selector,
+		in IdStateSeq states_of_interest,
+		in float confidence_threshold,
+		in unsigned long sequence_max,
+		in unsigned long iterator_max,
+		in SpecifiedTraits traits_requested,
+		out CandidateSeq returned_sequence,
+		out CandidateIterator returned_iterator
+		)		
+		raises (TooMany,UnknownTraits,WrongTraitFormat,CannotSearchOn,DuplicateTraits,InvalidStates,InvalidWeight);
+		
+};
+
+/* ---------------------------------------------------------------
+ProfileAccess */
+
+interface ProfileAccess : IdentificationComponent {
+	/* 
+	@roseuid 3EF9C2A4023D */
+	TraitNameSeq get_traits_known (
+		in PersonId id
+		)		
+		raises (InvalidId);
+		
+	/* 
+	@roseuid 3EF9C2A40241 */
+	Profile get_profile (
+		in PersonId id,
+		in SpecifiedTraits traits_requested
+		)		
+		raises (InvalidId,UnknownTraits,DuplicateTraits);
+		
+	/* 
+	@roseuid 3EF9C2A40246 */
+	TaggedProfileSeq get_profile_list (
+		in PersonIdSeq ids,
+		in SpecifiedTraits traits_requested
+		)		
+		raises (TooMany,InvalidIds,DuplicateIds,UnknownTraits,DuplicateTraits);
+		
+	/* 
+	@roseuid 3EF9C2A4024B */
+	TaggedProfileSeq get_deactivated_profile_list (
+		in PersonIdSeq ids,
+		in SpecifiedTraits traits_requested
+		)		
+		raises (NotImplemented,InvalidIds,DuplicateIds,UnknownTraits,DuplicateTraits);
+		
+	/* 
+	@roseuid 3EF9C2A40251 */
+	void update_and_clear_traits (
+		in ProfileUpdateSeq profile_update_spec
+		)		
+		raises (InvalidIds,DuplicateIds,NotImplemented,MultipleTraits);
+		
+	/* 
+	@roseuid 3EF9C2A40254 */
+	IdInfoSeq get_id_info (
+		in PersonIdSeq ids
+		)		
+		raises (TooMany,DuplicateIds);
+		
+};
+
+/* ---------------------------------------------------------------
+SequentialAccess */
+
+interface SequentialAccess : IdentificationComponent {
+	/* 
+	@roseuid 3EF9C2A402AC */
+	unsigned long id_count_per_state (
+		in IdStateSeq states_of_interest
+		)		
+		raises (InvalidStates);
+		
+	/* 
+	@roseuid 3EF9C2A402B0 */
+	TaggedProfileSeq get_all_ids_by_state (
+		in SpecifiedTraits traits_requested,
+		in IdStateSeq states_of_interest
+		)		
+		raises (TooMany,UnknownTraits,DuplicateTraits,InvalidStates);
+		
+	/* 
+	@roseuid 3EF9C2A402B5 */
+	TaggedProfileSeq get_first_ids (
+		in unsigned long how_many,
+		in IdStateSeq states_of_interest,
+		in SpecifiedTraits traits_requested
+		)		
+		raises (TooMany,UnknownTraits,DuplicateTraits,InvalidStates);
+		
+	/* 
+	@roseuid 3EF9C2A402BC */
+	TaggedProfileSeq get_last_ids (
+		in unsigned long how_many,
+		in IdStateSeq states_of_interest,
+		in SpecifiedTraits traits_requested
+		)		
+		raises (TooMany,UnknownTraits,DuplicateTraits,InvalidStates);
+		
+	/* 
+	@roseuid 3EF9C2A402C2 */
+	TaggedProfileSeq get_next_ids (
+		in PersonId reference_id,
+		in unsigned long how_many,
+		in IdStateSeq states_of_interest,
+		in SpecifiedTraits traits_requested
+		)		
+		raises (TooMany,InvalidId,UnknownTraits,DuplicateTraits,InvalidStates);
+		
+	/* 
+	@roseuid 3EF9C2A402CA */
+	TaggedProfileSeq get_previous_ids (
+		in PersonId reference_id,
+		in unsigned long how_many,
+		in IdStateSeq states_of_interest,
+		in SpecifiedTraits traits_requested
+		)		
+		raises (TooMany,InvalidId,UnknownTraits,DuplicateTraits,InvalidStates);
+		
+};
+
+interface Identity {
+	readonly attribute IdentificationComponent source_component;
+	readonly attribute IdInfo id_info;
+	readonly attribute TraitNameSeq traits_with_values;
+	readonly attribute long trait_value_count;
+	
+	/* 
+	@roseuid 3EF9C2A50034 */
+	Trait get_trait (
+		in TraitName trait_requested
+		)		
+		raises (UnknownTraits);
+		
+	/* 
+	@roseuid 3EF9C2A50039 */
+	Profile get_profile (
+		in SpecifiedTraits traits_requested
+		)		
+		raises (UnknownTraits,DuplicateTraits);
+		
+	/* 
+	@roseuid 3EF9C2A5003E */
+	Profile get_deactivated_profile (
+		in SpecifiedTraits traits_requested
+		)		
+		raises (NotImplemented,UnknownTraits,DuplicateTraits);
+		
+	/* 
+	@roseuid 3EF9C2A50043 */
+	void update_and_clear_traits (
+		in ProfileUpdate profile_update_spec
+		)		
+		raises (NotImplemented,UnknownTraits,WrongTraitFormat,ModifyOrDelete,ReadOnlyTraits,CannotRemove,DuplicateTraits);
+		
+	/* 
+	@roseuid 3EF9C2A50048 */
+	void done ();
+		
+};
+
+/* ---------------------------------------------------------------
+IdentityAccess */
+
+interface IdentityAccess : IdentificationComponent {
+	/* 
+	@roseuid 3EF9C2A40327 */
+	Identity get_identity_object (
+		in PersonId id
+		)		
+		raises (InvalidId);
+		
+	/* 
+	@roseuid 3EF9C2A4032B */
+	IdentitySeq get_identity_objects (
+		in PersonIdSeq ids
+		)		
+		raises (InvalidIds);
+		
+};
+
+/* ---------------------------------------------------------------
+IdMgr */
+
+interface IdMgr : IdentificationComponent {
+	/* 
+	@roseuid 3EF9C2A5009E */
+	PersonIdSeq register_new_ids (
+		in ProfileSeq profiles_to_register
+		)		
+		raises (ProfilesExist,DuplicateProfiles,MultipleTraits);
+		
+	/* 
+	@roseuid 3EF9C2A500A2 */
+	PersonIdSeq find_or_register_ids (
+		in ProfileSeq profiles_to_register
+		)		
+		raises (DuplicateProfiles,MultipleTraits);
+		
+	/* 
+	@roseuid 3EF9C2A500A6 */
+	void register_these_ids (
+		in TaggedProfileSeq profiles_to_register
+		)		
+		raises (NotImplemented,IdsExist,DuplicateIds,ProfilesExist,DuplicateProfiles,MultipleTraits);
+		
+	/* 
+	@roseuid 3EF9C2A500AA */
+	PersonIdSeq create_temporary_ids (
+		in ProfileSeq profiles_to_register
+		)		
+		raises (MultipleTraits);
+		
+	/* 
+	@roseuid 3EF9C2A500AD */
+	PersonIdSeq make_ids_permanent (
+		in PersonIdSeq ids_to_modify
+		)		
+		raises (InvalidIds,DuplicateIds,RequiredTraits);
+		
+	/* 
+	@roseuid 3EF9C2A500B1 */
+	IdInfoSeq merge_ids (
+		in MergeStructSeq ids_to_merge
+		)		
+		raises (InvalidIds,DuplicateIds);
+		
+	/* 
+	@roseuid 3EF9C2A500B5 */
+	IdInfoSeq unmerge_ids (
+		in PersonIdSeq ids_to_unmerge
+		)		
+		raises (InvalidIds,DuplicateIds);
+		
+	/* 
+	@roseuid 3EF9C2A500B8 */
+	IdInfoSeq deprecate_ids (
+		in PersonIdSeq ids_to_deprecate
+		)		
+		raises (InvalidIds,DuplicateIds);
+		
+};
+
+/* ---------------------------------------------------------------
+CorrelationMgr */
+
+interface CorrelationMgr : IdentificationComponent {
+	readonly attribute DomainNameSeq source_domains;
+	
+	/* 
+	@roseuid 3EF9C2A5015F */
+	void load_profiles (
+		in QualifiedTaggedProfileSeq tagged_profiles
+		)		
+		raises (UnknownTraits,WrongTraitFormat,DomainsNotKnown);
+		
+	/* 
+	@roseuid 3EF9C2A50162 */
+	QualifiedPersonIdSeq get_corresponding_ids (
+		in QualifiedPersonId from_id,
+		in DomainNameSeq to_domains
+		)		
+		raises (DomainsNotKnown,IdsNotKnown);
+		
+	/* 
+	@roseuid 3EF9C2A50167 */
+	PersonIdSeq find_or_register_ids (
+		in QualifiedTaggedProfileSeq tagged_profiles
+		)		
+		raises (MultipleTraits,DomainsNotKnown,NotImplemented);
+		
+};
+
+};
+
+/* _PERSON_ID_SERVICE_IDL_ */
+
+#endif
+

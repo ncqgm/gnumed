@@ -1,0 +1,46 @@
+//File: vCardVersion2_1.idl
+/* Authorship by omg.org; the understanding is that this idl file is freely
+distributable according to the preface in omg document 01-04-04.pdf
+*/
+
+#ifndef _V_CARD_VERSION_2_1_IDL_
+#define _V_CARD_VERSION_2_1_IDL_
+
+//#include <orb.idl>
+#include <PersonIdService.idl>
+
+#pragma prefix "omg.org"
+    
+module vCardVersion2_1
+{
+    typedef PersonIdService::TraitName PropertyName;
+    typedef string PropertyValue;
+
+    const PropertyName FORMATTED_NAME           = "vCard/FN";      
+    const PropertyName NAME                     = "vCard/N";       
+    const PropertyName PHOTOGRAPH               = "vCard/PHOTO";   
+    const PropertyName BIRTHDAY                 = "vCard/BDAY";    
+    const PropertyName ADDRESS                  = "vCard/ADR";     
+    const PropertyName HOME_ADDRESS             = "vCard/ADR;HOME";
+    const PropertyName WORK_ADDRESS             = "vCard/ADR;WORK";
+    const PropertyName TELEPHONE                = "vCard/TEL";     
+    const PropertyName PREFERRED_TELEPHONE      = "vCard/TEL;PREF";
+    const PropertyName HOME_TELEPHONE           = "vCard/TEL;HOME";
+    const PropertyName WORK_TELEPHONE           = "vCard/TEL;WORK";
+    const PropertyName VOICE_TELEPHONE          = "vCard/TEL;VOICE";
+    const PropertyName FAX_TELEPHONE            = "vCard/TEL;FAX"; 
+    const PropertyName MESSAGE_TELEPHONE        = "vCard/TEL;MSG"; 
+    const PropertyName CELLULAR_TELEPHONE       = "vCard/TEL;CELL";
+    const PropertyName BULLETIN_BOARD_TELEPHONE = "vCard/TEL;BBS"; 
+    const PropertyName MODEM_TELEPHONE          = "vCard/TEL;MODEM";
+    const PropertyName CAR_TELEPHONE            = "vCard/TEL;CAR"; 
+    const PropertyName ELECTRONIC_MAIL          = "vCard/EMAIL";   
+    const PropertyName GEOGRAPHIC_POSITION      = "vCard/GEO";     
+    const PropertyName TITLE                    = "vCard/TITLE";   
+    const PropertyName ORGANIZATION             = "vCard/ORG";     
+    const PropertyName SOUND_ANNOTATION         = "vCard/SOUND";   
+    const PropertyName UNIFORM_RESOURCE_LOCATOR = "vCard/URL";     
+};
+    
+#endif //_V_CARD_VERSION_2_1_IDL_
+

@@ -1,0 +1,17 @@
+// File: CosTrading.idl
+// This file contains an abbreviated set of definitions, only those
+// which are required by DsObservationAccess. 
+// Use this file only when the standard Trading Service
+// is not available nor desired for compilation and runtime.
+
+
+#ifndef _TRADING_IDL_
+#define _TRADING_IDL_
+#pragma prefix "omg.org"
+
+module CosTrading 
+{
+	interface TraderComponents {};
+}; 
+
+#endif /* ifndef _TRADING_IDL_ */

@@ -1,0 +1,1194 @@
+//File: TerminologyServices.idl
+//
+#ifndef _TERMINOLOGY_SERVICES_IDL_
+#define _TERMINOLOGY_SERVICES_IDL_
+#pragma prefix "omg.org"
+//#include <orb.idl>
+#include "AbbreviatedIncludes/NamingAuthority.idl"
+
+// ***************************************************************
+//       module:  TerminologyService
+// ***************************************************************
+module TerminologyServices {
+
+
+//*****************************************************************
+//     Basic Terms
+//*****************************************************************
+
+typedef NamingAuthority::LocalName	ConceptCode;
+typedef sequence<ConceptCode> ConceptCodeSeq;
+
+typedef NamingAuthority::AuthorityId CodingSchemeId;
+typedef sequence<CodingSchemeId> CodingSchemeIdSeq;
+
+struct QualifiedCode {	
+	CodingSchemeId	coding_scheme_id;
+	ConceptCode		a_code;
+};
+typedef sequence <QualifiedCode> QualifiedCodeSeq;
+
+typedef string VersionId;
+typedef sequence<VersionId>	VersionIdSeq;
+const	VersionId defaultVersion = "";
+
+struct TerminologyServiceName {
+	NamingAuthority::QualifiedName  the_name;
+	VersionId						the_version;
+};
+
+//*****************************************************************
+//     Meta Types
+//     See the TerminolgyServiceValues module for consts
+//*****************************************************************
+
+typedef QualifiedCode AssociationQualifierId;
+typedef sequence<AssociationQualifierId> AssociationQualifierIdSeq;
+
+typedef QualifiedCode LexicalTypeId;
+typedef sequence<LexicalTypeId> LexicalTypeIdSeq;
+
+typedef QualifiedCode SourceId;
+typedef sequence<SourceId> SourceIdSeq;
+
+typedef QualifiedCode SourceTermUsageId;
+typedef sequence<SourceTermUsageId> SourceTermUsageIdSeq;
+
+typedef QualifiedCode SyntacticTypeId;
+typedef sequence<SyntacticTypeId> SyntacticTypeIdSeq;
+
+typedef QualifiedCode UsageContextId;
+typedef sequence<UsageContextId> UsageContextIdSeq;
+
+typedef ConceptCode AssociationId;
+typedef sequence<AssociationId> AssociationIdSeq;
+
+typedef ConceptCode LanguageId;   
+typedef sequence<LanguageId> LanguageIdSeq;
+
+typedef ConceptCode PresentationFormatId;
+typedef sequence<PresentationFormatId> PresentationFormatIdSeq;
+
+
+//*****************************************************************
+//     Coding Terms 
+//*****************************************************************
+interface LexExplorer;
+interface CodingSchemeLocator;
+interface ValueDomainLocator;
+interface CodingSchemeVersion;
+interface PresentationAccess;
+interface LinguisticGroupAccess;
+interface SystemizationAccess;
+interface AdvancedQueryAccess;
+interface Systemization;
+interface ValueDomainVersion;
+
+typedef string IntlString;
+typedef sequence<IntlString> OrderedIntlStringSeq;
+typedef sequence<IntlString> IntlStringSeq;
+typedef sequence<octet> Blob;
+enum Trinary { IS_FALSE, IS_TRUE, IS_UNKNOWN }; 
+typedef sequence<Trinary> TrinarySeq;
+typedef sequence<boolean> BooleanSeq;
+
+//***************************************************************
+//    Coding Scheme and Coded Concept Terms
+//***************************************************************
+typedef string PresentationId;
+typedef sequence<PresentationId> PresentationIdSeq;
+typedef string LinguisticGroupId;
+typedef string SystemizationId;
+typedef sequence<SystemizationId> SystemizationIdSeq;
+
+struct CodingSchemeInfo {
+	CodingSchemeId	scheme_id;
+	VersionId		version_id;
+	LanguageId		language_id;
+};
+
+struct CodingSchemeVersionRefs {
+	CodingSchemeId coding_scheme_id;
+	VersionId version_id;
+	LanguageId language_id;
+	boolean is_default_version;
+	boolean is_complete_scheme;
+	CodingSchemeVersion coding_scheme_version_if;
+	PresentationAccess presentation_if; 
+	LinguisticGroupAccess linguistic_group_if;
+	SystemizationAccess systemization_if;
+	AdvancedQueryAccess advanced_query_if;
+};
+
+struct ConceptInfo {
+	ConceptCode	a_code;
+	IntlString	preferred_text;
+};
+typedef sequence<ConceptInfo> ConceptInfoSeq;
+typedef sequence<ConceptInfoSeq> ConceptInfoSeqSeq;
+
+interface ConceptInfoIter {
+	unsigned long max_left();
+	boolean next_n(
+		in unsigned long n,
+		out ConceptInfoSeq concept_info_seq
+	);
+	void destroy();
+};
+
+struct QualifiedCodeInfo {
+	QualifiedCode	a_qualified_code;
+	IntlString	preferred_text;
+};
+typedef sequence<QualifiedCodeInfo> QualifiedCodeInfoSeq;
+
+struct Definition {
+	IntlString text;
+	boolean preferred;
+	LanguageId language_id;
+	SourceId source_id;
+};
+typedef sequence<Definition> DefinitionSeq;
+
+struct Comment {
+	IntlString text;
+	LanguageId language_id;
+	SourceId source_id;
+};
+typedef sequence<Comment> CommentSeq;
+
+struct Instruction {
+	IntlString text;
+	Blob formal_rules;
+	LanguageId language_id;
+	SourceId source_id;
+};
+typedef sequence<Instruction> InstructionSeq;
+
+struct SourceInfo {
+	SourceId source_id;
+	SourceTermUsageId usage_in_source;
+	QualifiedCode code_in_source;
+};
+typedef sequence<SourceInfo> SourceInfoSeq;
+
+struct PresentationInfo {
+	PresentationId presentation_id;
+	PresentationFormatId presentation_format_id;
+	LanguageId language_id;
+	LinguisticGroupId linguistic_group_id;
+};
+typedef sequence<PresentationInfo> PresentationInfoSeq;
+
+enum PresentationType {TEXT, BINARY};
+union PresentationValue switch(PresentationType) {
+	case TEXT : IntlString the_text;
+	case BINARY : Blob a_Blob;
+};
+
+struct Presentation {
+	PresentationId	  presentation_id;	
+	PresentationValue presentation_value;
+};
+typedef sequence<Presentation> PresentationSeq;
+
+
+struct PresentationUsage {
+	ConceptCode	concept;
+	PresentationId presentation_id;
+	boolean preferred_for_concept;
+	boolean preferred_for_linguistic_group;
+	SyntacticTypeIdSeq syntactic_type_ids;
+	UsageContextIdSeq usage_context_ids;
+	SourceInfoSeq source_infos;
+	LexicalTypeIdSeq lexical_type_ids;
+};
+typedef sequence<PresentationUsage> PresentationUsageSeq;
+
+struct LinguisticGroupInfo {
+	LinguisticGroupId linguistic_group_id;
+	LanguageId language_id;
+	PresentationIdSeq presentation_ids;
+};
+
+typedef float Weight;
+
+struct WeightedResult {
+	ConceptInfo	the_concept;
+	IntlString	matching_text;
+	Weight		the_weight;
+};
+typedef sequence<WeightedResult> WeightedResultSeq;
+
+interface WeightedResultsIter {
+	unsigned long max_left();
+	boolean next_n(
+		in unsigned long n,
+		out WeightedResultSeq weighted_results
+	);
+	void destroy();
+};
+
+//*******************************************************************
+//       Advanced Query Terms
+//*******************************************************************
+
+typedef string Constraint;
+typedef NamingAuthority::QualifiedNameStr ConstraintLanguageId;
+typedef sequence<ConstraintLanguageId> ConstraintLanguageIdSeq;
+typedef NamingAuthority::QualifiedNameStr PolicyName;
+typedef sequence<PolicyName> PolicyNameSeq;
+typedef any PolicyValue;
+
+struct Policy {
+	PolicyName name;
+	PolicyValue value;
+};
+typedef sequence<Policy> PolicySeq;
+ 
+//********************************************************
+//*           Systemization Terms
+//********************************************************
+
+typedef string RoleName;
+typedef string Characteristic;
+enum AssociationRole {SOURCE_ROLE, TARGET_ROLE};
+enum MinimumCardinality {OPTIONAL, MANDATORY};
+enum MaximumCardinality {SINGLE, MULTIPLE};
+struct Cardinality {
+	MinimumCardinality	minimum;
+	MaximumCardinality	maximum;
+};
+	
+enum ElementType {
+	EXTERNAL_CODE_TYPE,
+	LOCAL_CODE_TYPE,
+	CHARACTERISTIC_TYPE
+};
+
+union RestrictedTargetElement switch(ElementType) {
+	case EXTERNAL_CODE_TYPE:QualifiedCode	a_qualified_code;
+	case CHARACTERISTIC_TYPE:Characteristic	the_characteristic;
+};
+
+union AssociatableElement switch(ElementType) {
+	case EXTERNAL_CODE_TYPE:QualifiedCode	a_qualified_code;
+	case LOCAL_CODE_TYPE:ConceptCode		a_local_code;
+	case CHARACTERISTIC_TYPE:Characteristic	the_characteristic;
+};
+
+struct TargetElement {
+	AssociatableElement						target_element;
+	AssociationQualifierIdSeq				association_qualifiers;
+};
+typedef sequence<TargetElement> TargetElementSeq;
+typedef sequence<TargetElementSeq> TargetElementSeqSeq;
+interface TargetElementSeqIter {
+	unsigned long max_left();
+	boolean next_n(
+		in unsigned long n,
+		out TargetElementSeqSeq an_element_seq
+	);
+	void destroy();
+};
+
+typedef ConceptCode	AssociationBaseTypeId;
+
+typedef sequence<unsigned long> IndexList;
+struct GraphEntry {
+	TargetElement	an_entity;
+	IndexList		associated_nodes;
+};
+typedef sequence<GraphEntry> EntityGraph;
+
+
+struct AssociationDef {
+	AssociationId				association_id;
+	AssociationBaseTypeId		base_type;
+	RoleName					source_role;
+	Cardinality					source_cardinality;
+	RoleName					target_role;
+	Cardinality					target_cardinality;
+	boolean						target_is_set;
+	boolean						non_coded_allowed;
+	Trinary						transitive;
+	Trinary						symmetric;
+	Trinary						inherited;
+	Trinary						source_target_disjoint;
+};
+
+struct AssociationInstance {
+	AssociationId				association_id;
+	ConceptCode					source_concept;
+	TargetElementSeq			target_element_seq;
+};
+typedef sequence<AssociationInstance> AssociationInstanceSeq;
+
+interface AssociationInstanceIter {
+	unsigned long max_left();
+	boolean next_n(
+		in unsigned long n,
+		out AssociationInstanceSeq association_instance_seq
+	);
+	void destroy();
+};
+
+struct ValidationResult {
+	boolean is_valid;	
+  	AssociationQualifierId	validity_level;
+};
+
+
+// Constraint - the "any" below must be of type AttributeValuePair.  It
+// is "any" because IDL won't allow recursive struct definitions
+struct RelatedEntityExpression {
+	AssociatableElement			associated_element;
+	AssociationQualifierIdSeq	association_qualifiers;
+	any							base_qualifiers;
+};
+
+struct AttributeValuePair {
+	AssociationRole				element_role;
+	AssociationId				the_association_id;
+	RelatedEntityExpression		the_entity_expression;	
+};
+typedef sequence<AttributeValuePair> AttributeValuePairSeq;
+ 
+struct ConceptExpressionElement {
+	ConceptCode					base_code;
+	AttributeValuePairSeq		base_qualifiers;
+};
+typedef sequence<ConceptExpressionElement> ConceptExpression;
+typedef sequence<ConceptExpression> ConceptExpressionSeq;
+
+//*******************************************************************
+//       Value Domain Terms
+//*******************************************************************
+
+typedef QualifiedCode ValueDomainId;
+typedef sequence<ValueDomainId> ValueDomainIdSeq;
+
+interface ValueDomainIdIter {
+	unsigned long max_left();
+	boolean	next_n(
+		in unsigned long n,
+		out ValueDomainIdSeq value_domain_id_seq
+	);
+	void destroy();
+};
+
+struct PickListEntry {
+	QualifiedCode a_qualified_code;
+	IntlString	pick_text;
+	boolean	is_default;
+};
+typedef sequence<PickListEntry> PickListSeq;	// Ordered
+
+interface PickListIter {
+	unsigned long max_left();
+	boolean next_n(
+		in unsigned long n,
+		out PickListSeq pick_list
+	);
+	void destroy();
+};
+
+
+//**************************************************************
+//           TerminologyService Exceptions
+//**************************************************************
+
+//   Used in Multiple Interfaces 
+//       typically LexExplorer ++
+
+exception NotImplemented{
+};
+exception UnknownCode {
+	ConceptCode bad_code; 
+};
+exception UnknownCodingScheme{
+	CodingSchemeId bad_coding_scheme_id;
+};
+exception UnknownVersion{
+	VersionId bad_version_id;
+};
+exception UnknownValueDomain{
+	ValueDomainId bad_value_domain_id;
+};
+exception NoNativeCodingScheme {
+};
+exception TranslationNotAvailable {
+};
+exception TooManyToList {
+};
+exception NoPickListAvailable {
+};
+exception AssociationNotInSystemization{ 
+	AssociationId bad_association_id;
+};
+exception NoSystemizationForCodingScheme {
+};
+exception ParameterAlignmentError {
+};
+
+// CodingSchemeLocator Exceptions
+
+exception LanguageNotSupported { 
+	LanguageId bad_language_id;
+};
+
+// CodingSchemeVersion exceptions
+
+exception NoPreferredText{
+};
+exception NoTextLocated{
+};
+
+// PresentationAccess exceptions
+
+exception PresentationNotInCodingSchemeVersion{
+	PresentationId bad_presentation_id;
+};
+exception NoPreferredPresentation{
+};
+exception UnknownPresentationFormat{
+	PresentationFormatId bad_presentation_format_id;
+};
+exception NoPresentationLocated{
+};
+
+// LinguisticGroupAccess exceptions
+
+exception LinguisticGroupNotInCodingSchemeVersion{
+	LinguisticGroupId bad_linguistic_group_id;
+};
+
+// AdvancedQueryAccess exceptions
+
+exception IllegalConstraint { 
+	Constraint bad_constraint; 
+};
+exception IllegalPolicyName { 
+	PolicyName name; 
+};
+exception DuplicatePolicyName {
+	PolicyName name; 
+};
+exception PolicyTypeMismatch {
+	Policy bad_policy; 
+};
+
+// SystemizationAccess exceptions
+
+exception NoDefaultSystemization{
+};
+exception UnknownSystemization {
+	SystemizationId systemization_id;
+}; 
+
+// Systemization Exceptions
+
+exception ConceptNotExpandable {
+	ConceptCode the_concept;
+};
+exception NoCommonSubtype{
+};
+exception NoCommonSupertype{
+};
+exception InvalidExpression {
+	ConceptExpression the_expression;
+};
+exception UnableToEvaluate {
+	ConceptExpression the_expression;
+};
+
+// ***************************************************************
+//         Translation Library
+// ***************************************************************
+
+interface TranslationLibrary{
+
+	exception InvalidQualifiedName {
+	};
+
+	QualifiedCode	str_to_qualified_code(
+		in NamingAuthority::QualifiedNameStr qualified_name_str
+	) raises (
+		InvalidQualifiedName
+	);
+
+	NamingAuthority::QualifiedNameStr qualified_code_to_name_str(
+		in QualifiedCode qualified_code
+	);
+
+};
+
+// ***************************************************************
+//         TerminologyService
+// ***************************************************************
+
+interface TerminologyService{
+
+	readonly attribute TerminologyServiceName	terminology_service_name;
+
+	readonly attribute LexExplorer lex_explorer;
+	readonly attribute CodingSchemeLocator coding_scheme_locator;
+	readonly attribute ValueDomainLocator value_domain_locator;
+	
+	CodingSchemeIdSeq   get_coding_scheme_ids();
+
+	CodingSchemeInfo get_native_coding_scheme_info(
+	) raises( 
+		NoNativeCodingScheme 
+	);
+
+};
+
+// ***************************************************************
+//         LexExplorer
+// ***************************************************************
+
+interface LexExplorer : TerminologyService{
+
+	IntlString get_preferred_text(
+		in QualifiedCode a_qualified_code,
+		in UsageContextIdSeq context_ids
+	) raises ( 
+		UnknownCodingScheme, 
+		UnknownCode 
+	);	
+
+	IntlStringSeq get_preferred_text_for_concepts(
+		in QualifiedCodeSeq qualified_codes,
+		in UsageContextIdSeq context_ids
+	);
+
+	Definition get_preferred_definition(
+		in QualifiedCode qualified_code
+	) raises (
+		UnknownCodingScheme,
+		UnknownCode
+	);
+
+	ConceptInfoSeq	translate_code(
+		in QualifiedCode from_qualified_code,
+		in CodingSchemeId to_coding_schemeId
+	) raises (
+		UnknownCode,
+		UnknownCodingScheme,
+		TranslationNotAvailable
+	);
+
+	ConceptInfoSeqSeq translate_codes(
+		in QualifiedCodeSeq from_qualified_codes,
+		in CodingSchemeId to_coding_scheme_id
+	) raises (
+		UnknownCodingScheme
+	);
+
+	void list_concepts(in CodingSchemeId coding_scheme_id, 
+		in unsigned long how_many,
+		out ConceptInfoSeq concept_info_seq, 
+		out ConceptInfoIter concept_info_iter
+	) raises (
+		UnknownCodingScheme,
+		TooManyToList
+	);
+
+	void list_value_domain_ids(
+		in unsigned long how_many,
+		out ValueDomainIdSeq value_domain_ids,
+		out ValueDomainIdIter value_domain_id_iter
+	) raises (
+		TooManyToList
+	);
+
+	boolean is_concept_in_value_domain (
+		in QualifiedCode qualified_code,
+		in ValueDomainId value_domain_id
+	) raises (
+		UnknownValueDomain
+	);
+
+	TrinarySeq are_concepts_in_value_domains (
+		in QualifiedCodeSeq	qualified_codes,
+		in ValueDomainIdSeq value_domains
+	) raises (
+		ParameterAlignmentError
+	);
+
+	void get_pick_list(
+		in ValueDomainId value_domain_id, 
+		in UsageContextIdSeq context_ids,
+		out PickListSeq pick_list,
+		out PickListIter pick_list_iter
+	) raises (
+		TooManyToList,
+		UnknownValueDomain, 
+		NoPickListAvailable
+	);
+
+	Trinary association_exists(
+		in QualifiedCode		source_code,
+		in TargetElement		target_element,
+		in AssociationId		association_id,
+		in boolean				direct_only
+	) raises ( 
+		AssociationNotInSystemization,
+		NoSystemizationForCodingScheme,
+		UnknownCode
+	);
+
+	TrinarySeq associations_exist(
+		in QualifiedCodeSeq		source_codes,
+		in TargetElementSeq		target_elements,
+		in AssociationIdSeq		association_ids,
+		in boolean				direct_only
+	) raises (
+		ParameterAlignmentError
+	);
+		
+
+	void list_associated_target_elements (
+		in QualifiedCode			qualified_code,
+		in AssociationId			association_id,
+		in boolean					direct_only, 
+		in unsigned long			how_many,
+		out TargetElementSeqSeq		related_target_seq, 
+		out TargetElementSeqIter	related_target_iter
+	) raises (	
+		AssociationNotInSystemization,
+		NoSystemizationForCodingScheme,
+		UnknownCode
+	);
+
+	void list_associated_source_codes (
+		in RestrictedTargetElement		target_element,
+		in CodingSchemeId		source_coding_scheme_id,
+		in AssociationId		association_id,
+		in boolean				direct_only, 
+		in unsigned long		how_many,
+		out ConceptInfoSeq		concept_info_seq, 
+		out ConceptInfoIter		concept_info_iter
+	) raises (	
+		AssociationNotInSystemization,
+		NoSystemizationForCodingScheme,
+		UnknownCode
+	);
+};
+
+// ***************************************************************
+//         CodingSchemeLocator
+// ***************************************************************
+interface CodingSchemeLocator:TerminologyService{
+	  	
+	VersionIdSeq get_version_ids(
+		in CodingSchemeId coding_scheme_id
+	) raises ( 
+		UnknownCodingScheme 
+	);
+
+	LanguageIdSeq get_supported_languages(
+		in CodingSchemeId coding_scheme_id
+	) raises ( 
+		UnknownCodingScheme 
+	);
+
+	CodingSchemeVersionRefs get_coding_scheme_version(
+		in CodingSchemeId coding_scheme_id,
+		in VersionId version_id, 
+		in LanguageId language_id
+	) raises ( 
+		UnknownCodingScheme, 
+		UnknownVersion,
+		LanguageNotSupported 
+	);
+
+	CodingSchemeVersionRefs get_native_coding_scheme_version(
+	) raises( 
+		NoNativeCodingScheme 
+	);
+
+	VersionId get_last_valid_version(
+		in ConceptCode a_code
+	) raises (
+		UnknownCode
+	);
+
+};
+
+// ***************************************************************
+//         ValueDomainLocator
+// ***************************************************************
+
+interface ValueDomainLocator:TerminologyService {
+
+	void list_value_domain_ids(
+		in unsigned long how_many,
+		out ValueDomainIdSeq value_domain_ids,
+		out ValueDomainIdIter value_domain_id_iter
+	);
+
+	VersionIdSeq get_version_ids(
+		in ValueDomainId value_domain_id
+	) raises( 
+		UnknownValueDomain
+	);
+
+	ValueDomainVersion get_value_domain_version(
+		in ValueDomainId value_domain_id,
+		in VersionId version_id
+	) raises( 
+		UnknownValueDomain,
+		UnknownVersion
+	);
+
+	ValueDomainIdSeq get_value_domain_ids_for_concept(
+		in QualifiedCode qualified_code
+	);
+};
+
+	
+//***************************************************************
+//         CodingScheme interfaces
+//***************************************************************
+
+//***************************************************************
+// A coding scheme consists of the following interfaces
+//	   interface CodingSchemeVersion:CodingSchemeVersionAttributes
+//     interface PresentationAccess:CodingSchemeVersionAttributes
+//     interface LinguisticGroupAccess:CodingSchemeVersionAttributes
+//     interface SystemizationAccess:CodingSchemeVersionAttributes
+//     interface AdvancedQuery:CodingSchemeVersionAttributes
+//***************************************************************
+//***********************************************************
+//           interface CodingSchemeVersionAttributes
+//***********************************************************
+interface CodingSchemeVersionAttributes {
+	readonly attribute CodingSchemeId coding_scheme_id;
+	readonly attribute VersionId version_id;
+	readonly attribute LanguageId language_id;
+	readonly attribute boolean is_default_version;
+	readonly attribute boolean is_complete_scheme;
+	readonly attribute CodingSchemeVersion coding_scheme_version_if;
+	readonly attribute PresentationAccess presentation_if;
+	readonly attribute LinguisticGroupAccess linguistic_group_if;
+	readonly attribute SystemizationAccess systemization_if;
+	readonly attribute AdvancedQueryAccess advanced_query_if;
+		
+};
+
+
+//***********************************************************
+//           interface CodingSchemeVersion
+//***********************************************************
+
+interface CodingSchemeVersion : CodingSchemeVersionAttributes {
+
+	SyntacticTypeIdSeq get_syntactic_types();
+	SourceTermUsageIdSeq get_source_term_usages();
+	SourceIdSeq get_scheme_source_ids();
+	UsageContextIdSeq get_usage_contexts();
+
+	void list_concepts(
+		in unsigned long how_many,
+		out ConceptInfoSeq concept_info_seq,
+		out ConceptInfoIter concept_info_iter
+	);
+
+	boolean is_valid_concept(
+		in ConceptCode a_code
+	);
+
+	DefinitionSeq get_definitions(
+		in ConceptCode a_code
+	) raises( 
+		UnknownCode
+	);
+
+	Definition get_preferred_definition(
+		in ConceptCode a_code
+	) raises( 
+		UnknownCode
+	);
+
+	CommentSeq get_comments(
+		in ConceptCode a_code
+	) raises ( 
+		NotImplemented,
+	 	UnknownCode
+	);
+
+	InstructionSeq get_instructions(
+		in ConceptCode a_code
+	) raises ( 
+		NotImplemented,
+		UnknownCode
+	);
+
+	IntlStringSeq get_all_text(
+		in ConceptCode a_code
+	) raises (
+		UnknownCode
+	);
+
+	IntlString get_preferred_text(
+		in ConceptCode a_code
+	) raises ( 
+		UnknownCode,
+		NoPreferredText
+	);
+
+	IntlString get_text_for_context(
+		in ConceptCode a_code,
+		in UsageContextIdSeq context_ids
+	) raises ( 
+		UnknownCode,
+		NoTextLocated
+	);
+
+	ConceptCodeSeq get_concepts_by_text(
+		in string text
+	);
+
+	void match_concepts_by_string(
+		in IntlString match_string,
+		in unsigned long how_many,
+		out WeightedResultSeq weighted_results,
+		out WeightedResultsIter weighted_result_iter
+	) raises ( 
+		NotImplemented
+	);
+
+	void match_concepts_by_keywords(
+		in OrderedIntlStringSeq keywords,
+		in unsigned long how_many,
+		out WeightedResultSeq weighted_results,
+		out WeightedResultsIter weighted_results_iter
+	) raises( 
+		NotImplemented
+	);
+};
+
+//************************************************************
+//         PresentationAccess
+//************************************************************
+interface PresentationAccess : CodingSchemeVersionAttributes {
+
+	PresentationFormatIdSeq get_presentation_format_ids();
+
+	Presentation get_presentation(
+		in PresentationId presentation_id
+	) raises( 
+		PresentationNotInCodingSchemeVersion
+	);
+
+	PresentationInfo get_presentation_info(
+		in PresentationId presentation_id
+	) raises(
+		PresentationNotInCodingSchemeVersion
+	);
+
+	PresentationUsageSeq get_presentation_usages(
+		in PresentationId presentation_id
+	) raises( 
+		PresentationNotInCodingSchemeVersion
+	);
+
+	PresentationUsageSeq get_all_presentations_for_concept(
+		in ConceptCode a_code
+	) raises( 
+		UnknownCode
+	);
+
+	PresentationUsage get_preferred_presentation(
+		in ConceptCode a_code,
+		in PresentationFormatId presentation_format_id
+	) raises( 
+		UnknownPresentationFormat,
+		UnknownCode,
+		NoPreferredPresentation
+	);
+
+	PresentationUsage get_presentation_for_context(	
+		in ConceptCode a_code,
+		in UsageContextIdSeq context_ids,
+		in PresentationFormatId presentation_format_id
+	) raises (
+		UnknownPresentationFormat,
+		UnknownCode,
+		NoPresentationLocated
+	);
+
+	PresentationUsage get_all_presentations_for_context(
+		in ConceptCode a_code,
+		in UsageContextIdSeq context_ids,
+		in PresentationFormatId presentation_format_id
+	) raises (
+		UnknownPresentationFormat,
+		UnknownCode,
+		NoPresentationLocated
+	);
+
+};
+
+//************************************************************
+//       LinguisticGroupAccess
+//************************************************************
+interface LinguisticGroupAccess : CodingSchemeVersionAttributes {
+
+	LinguisticGroupInfo get_linguistic_group(
+		in LinguisticGroupId linguistic_group_id
+	) raises( 
+		LinguisticGroupNotInCodingSchemeVersion
+	);
+};
+
+//************************************************************
+//       AdvancedQueryAccess
+//************************************************************
+
+interface AdvancedQueryAccess : CodingSchemeVersionAttributes {
+	readonly attribute PolicyNameSeq supported_policies;
+	readonly attribute ConstraintLanguageIdSeq supported_constraint_languages;
+
+	struct query_policies {
+		unsigned long return_maximum;
+		boolean concept_as_source;
+		boolean concept_as_target;
+		boolean current_scheme_only;
+		boolean direct_associations_only;
+	};
+
+	void query (
+		in Constraint constr,
+		in PolicySeq search_policy,
+		in unsigned long how_many,
+		out WeightedResultSeq results,
+		out WeightedResultsIter results_iter
+	) raises (
+		IllegalConstraint,
+		IllegalPolicyName,
+		PolicyTypeMismatch,
+		DuplicatePolicyName
+	);		
+};
+
+//************************************************************
+//       SystemizationAccess
+//************************************************************
+interface SystemizationAccess : CodingSchemeVersionAttributes {
+	
+	SystemizationIdSeq get_systemization_ids();
+		
+	Systemization get_systemization(
+		in SystemizationId systemization_id
+	) raises( 
+		UnknownSystemization
+	);
+
+	Systemization get_default_systemization(
+	) raises( 
+		NoDefaultSystemization 
+	);
+
+};
+
+
+//************************************************************
+//         Systemization
+//************************************************************
+interface Systemization  {
+
+	readonly attribute SystemizationId systemization_id;
+	readonly attribute CodingSchemeVersion coding_scheme_version;
+							
+	AssociationIdSeq	get_association_ids();
+
+	AssociationDef get_association_definition(
+		in AssociationId	association_id
+	)	raises (
+		AssociationNotInSystemization
+	);
+
+	void list_all_association_instances(
+		in unsigned long how_many,
+		out AssociationInstanceSeq	association_instance_seq, 
+		out AssociationInstanceIter association_instance_iter
+	);
+		
+	Trinary are_entities_associated(
+		in ConceptCode			source_code,
+		in AssociatableElement	target_element,
+		in AssociationId		association_id,
+		in boolean				direct_only
+	) raises ( 
+		AssociationNotInSystemization
+	);
+
+	Trinary could_association_be_inferred(
+		in ConceptCode			source_code,
+		in AssociatableElement	target_element,
+		in AssociationId		association_id
+	) raises ( 
+		AssociationNotInSystemization,
+		NotImplemented
+	);
+		
+
+	void list_associated_target_entities (
+		in ConceptCode				source_code,
+		in AssociationId			association_id,
+		in boolean					direct_only, 
+		in unsigned long			how_many,
+		out TargetElementSeqSeq		related_elements, 
+		out TargetElementSeqIter	related_elements_iter
+	) raises (	
+		AssociationNotInSystemization
+	);
+
+	void list_associated_source_codes (
+		in AssociatableElement	target_element,
+		in AssociationId		association_id,
+		in boolean				direct_only, 
+		in unsigned long		how_many,
+		out ConceptInfoSeq		concept_info_seq, 
+		out ConceptInfoIter		concept_info_iter
+	) raises (	
+		AssociationNotInSystemization 
+	);
+
+	EntityGraph get_entity_graph (
+		in AssociatableElement	root_node,
+		in AssociationId		association_id,
+		in AssociationRole		node_one_role,
+		in boolean				direct_only
+	) raises (
+		AssociationNotInSystemization,
+		NotImplemented,
+		TooManyToList
+	);
+
+	AssociationIdSeq	get_associations_for_source (
+		in ConceptCode			source_code
+	);
+
+	AssociationIdSeq	get_associations_for_target (
+		in AssociatableElement		target_element
+	);
+
+	ValidationResult validate_concept_expression (
+		in ConceptExpression expression 
+	) raises ( 
+		InvalidExpression,
+		NotImplemented,
+		AssociationNotInSystemization
+	);
+
+	ConceptExpression get_simplest_form (
+		in ConceptExpression expression
+	) raises (	
+		InvalidExpression,
+		NotImplemented,
+		AssociationNotInSystemization
+	);
+
+	ConceptExpression expand_concept (
+		in ConceptCode concept,
+		in AssociationQualifierIdSeq association_qualifier_seq
+	) raises (
+		ConceptNotExpandable,
+		UnknownCodingScheme,
+		NotImplemented,
+		AssociationNotInSystemization
+	);
+
+
+	Trinary are_expressions_equivalent (
+		in ConceptExpression expression1,
+		in ConceptExpression expression2
+	) raises ( 
+		InvalidExpression,
+		UnknownCodingScheme,
+		AssociationNotInSystemization,
+		NotImplemented,
+		UnableToEvaluate
+	);
+
+	ConceptExpression are_expression_difference(
+		in ConceptExpression expression1,
+		in ConceptExpression expression2
+	) raises ( 
+		InvalidExpression,
+		UnknownCodingScheme,
+		AssociationNotInSystemization,
+		NotImplemented,
+		UnableToEvaluate
+	);
+
+	ConceptExpression minimal_common_supertype (
+		in ConceptExpressionSeq expressions
+	) raises (
+		InvalidExpression,
+		AssociationNotInSystemization,
+		NotImplemented,
+		NoCommonSupertype
+	);
+
+	ConceptExpression maximal_common_subtype (
+		in ConceptExpressionSeq expressions
+	) raises (
+		InvalidExpression,
+		AssociationNotInSystemization,
+		NotImplemented,
+		NoCommonSubtype
+	);
+					
+};
+
+//*********************************************
+// Value Domain Version
+//*********************************************
+
+interface ValueDomainVersion {
+	readonly attribute ValueDomainId value_domain_id;
+	readonly attribute VersionId value_domain_version_id;
+	readonly attribute boolean is_default_version;
+
+	CodingSchemeIdSeq get_schemes_with_extensions();
+
+	QualifiedCodeInfoSeq get_all_extensions();
+
+	ConceptInfoSeq get_extension_for_scheme(
+		in CodingSchemeId coding_scheme_id
+	) raises ( 
+		UnknownCodingScheme 
+	);
+	
+	boolean is_code_in_domain(
+		in QualifiedCode qualified_code
+	);
+
+	void get_pick_list(
+		in UsageContextIdSeq context_ids,
+		out PickListSeq pick_list,
+		out PickListIter pick_list_iter
+	) raises (
+		TooManyToList, 
+		NoPickListAvailable
+	);
+
+	void get_pick_list_for_scheme(
+		in CodingSchemeId coding_scheme_id,
+		in UsageContextIdSeq usage_context_ids,
+		out PickListSeq pick_list,
+		out PickListIter pick_list_iter
+	) raises( 
+		TooManyToList,
+		UnknownCodingScheme,
+		NoPickListAvailable 
+	);
+};
+};
+
+#endif /* _TERMINOLOGY_SERVICES_IDL_ */

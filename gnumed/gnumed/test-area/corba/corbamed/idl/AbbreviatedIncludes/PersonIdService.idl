@@ -1,0 +1,29 @@
+// File: PersonIdService.idl
+// This file contains an abbreviated set of definitions, only those
+// which are required by DsObservationAccess. 
+// Use this file only when the standard Person Identification Service (PIDS)
+// is not available nor desired for compilation and runtime.
+
+#ifndef _PERSON_ID_SERVICE_IDL_
+#define _PERSON_ID_SERVICE_IDL_
+
+#include "NamingAuthority.idl"
+
+#pragma prefix "omg.org"
+
+module PersonIdService
+{
+	typedef NamingAuthority::AuthorityId DomainName;
+
+	typedef NamingAuthority::LocalName PersonId;
+
+	interface IdentificationComponent{};	
+
+	struct QualifiedPersonId {
+		DomainName domain;
+		PersonId id;
+	};
+};
+
+
+#endif // _PERSON_ID_SERVICE_IDL_

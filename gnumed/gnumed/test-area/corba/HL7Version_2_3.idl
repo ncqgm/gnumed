@@ -1,0 +1,51 @@
+//File: HL7Version2_3.idl
+/* Authorship by omg.org; the understanding is that this idl file is freely
+distributable according to the preface in omg document 01-04-04.pdf
+*/
+
+#ifndef _HL7_VERSION_2_3_IDL_
+#define _HL7_VERSION_2_3_IDL_
+
+//#include <orb.idl>
+#include <PersonIdService.idl>
+
+#pragma prefix "omg.org"
+
+module HL7Version2_3 
+{
+    typedef PersonIdService::TraitName PIDFieldName;
+    typedef string PIDFieldValue;
+
+    const PIDFieldName PATIENT_NAME                = "HL7/PatientName";
+    const PIDFieldName MOTHERS_MAIDEN_NAME         = "HL7/MothersMaidenName";
+    const PIDFieldName DATE_TIME_OF_BIRTH          = "HL7/DateTimeofBirth";
+    const PIDFieldName SEX                         = "HL7/Sex";
+    const PIDFieldName PATIENT_ALIAS               = "HL7/PatientAlias";
+    const PIDFieldName RACE                        = "HL7/Race";
+    const PIDFieldName PATIENT_ADDRESS             = "HL7/PatientAddress";
+    const PIDFieldName COUNTY_CODE                 = "HL7/CountyCode";
+    const PIDFieldName PHONE_NUMBER_HOME           = "HL7/PhoneNumber_Home";
+    const PIDFieldName PHONE_NUMBER_BUSINESS       = "HL7/PhoneNumber_Business";
+    const PIDFieldName PRIMARY_LANGUAGE            = "HL7/PrimaryLanguage";
+    const PIDFieldName MARITAL_STATUS              = "HL7/MaritalStatus";
+    const PIDFieldName RELIGION                    = "HL7/Religion";
+    const PIDFieldName PATIENT_ACCOUNT_NUMBER      = "HL7/PatientAccountNumber";
+    const PIDFieldName SSN_NUMBER                  = "HL7/SSNNumber";
+    const PIDFieldName DRIVERS_LICENSE_NUMBER      = "HL7/DriversLicenseNumber";
+    const PIDFieldName MOTHERS_IDENTIFIER          = "HL7/MothersIdentifier";
+    const PIDFieldName ETHNIC_GROUP                = "HL7/EthnicGroup";
+    const PIDFieldName BIRTH_PLACE                 = "HL7/BirthPlace";
+    const PIDFieldName MULTIPLE_BIRTH_INDICATOR    = 
+"HL7/MultipleBirthIndicator";
+    const PIDFieldName BIRTH_ORDER                 = "HL7/BirthOrder";
+    const PIDFieldName CITIZENSHIP                 = "HL7/Citizenship";
+    const PIDFieldName VETERANS_MILITARY_STATUS    = 
+"HL7/VeteransMilitaryStatus";
+    const PIDFieldName NATIONALITY                 = "HL7/Nationality";
+    const PIDFieldName PATIENT_DEATH_DATE_AND_TIME = 
+"HL7/PatientDeathDateandTime";
+    const PIDFieldName PATIENT_DEATH_INDICATOR     = "HL7/PatientDeathIndicator";
+};
+
+#endif //_HL7_VERSION_2_3_IDL_
+
