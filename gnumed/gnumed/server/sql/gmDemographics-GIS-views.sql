@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -47,7 +47,7 @@ where
 
 create view v_home_address as
 select
-	pa.id_identity as id,
+	lp2a.id_identity as id,
 	s.country as country,
 	s.code as state,
 	coalesce (str.postcode, urb.postcode) as postcode,
@@ -60,7 +60,7 @@ from
 	state s,
 	urb,
 	street str,
-	person_addresses pa
+	lnk_person2address lp2a
 where
 	adr.id_street = str.id
 		and
@@ -68,9 +68,9 @@ where
 		and
 	urb.id_state = s.id
 		and
-	pa.id_address = adr.id
+	lp2a.id_address = adr.id
 		and
-	pa.id_type = 1; -- home address
+	lp2a.id_type = 1; -- home address
 
 
 -- ===================================================================
@@ -223,12 +223,133 @@ CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
 ;
 
 -- ===================================================================
+\unset ON_ERROR_STOP
+drop view v_zip2street;
+\set ON_ERROR_STOP 1
+
+create view v_zip2street as
+	select
+		str.postcode as zip,
+		str.name as street,
+		stt.name as state,
+		stt.code as code_state,
+		urb.name as urb,
+		urb.postcode as urb_zip,
+		c.name as country,
+		stt.country as code_country
+	from
+		street str,
+		urb,
+		state stt,
+		country c
+	where
+		str.postcode is not null
+			and
+		str.id_urb = urb.id
+			and
+		urb.id_state = stt.id
+			and
+		stt.country = c.code
+;
+
+comment on view v_zip2street is
+	'list known data for streets that have a zip code';
+
+-- ===================================================================
+\unset ON_ERROR_STOP
+drop view v_zip2urb;
+\set ON_ERROR_STOP 1
+
+create view v_zip2urb as
+	select
+		urb.postcode as zip,
+		urb.name as urb,
+		s.name as state,
+		s.code as code_state,
+		c.name as country,
+		s.country as code_country
+	from
+		urb,
+		state s,
+		country c
+	where
+		urb.postcode is not null
+			and
+		urb.id_state = s.id
+			and
+		s.country = c.code
+;
+
+comment on view v_zip2urb is
+	'list known data for urbs that have a zip code';
+
+-- ===================================================================
+\unset ON_ERROR_STOP
+drop view v_uniq_zipped_urbs;
+\set ON_ERROR_STOP 1
+
+create view v_uniq_zipped_urbs as
+	select
+		urb.postcode as zip,
+		urb.name as name
+	from
+		urb,
+		street
+	where
+		-- only those urbs with a ZIP
+		urb.postcode is not null
+			and
+		-- but ZIP not listed in street yet
+		(urb.postcode <> street.postcode
+			or
+		-- at least not for the same urb name
+		 urb.id <> street.id_urb)
+		-- FIXME: do we need to include those
+		-- urbs that ARE referenced from street
+		-- but DON'T have a ZIP code there ?
+;
+
+comment on view v_uniq_zipped_urbs is
+	'convenience view that selects those urbs which
+	 - have a zip code
+	 - are not referenced in street with that zip code';
+
+-- ===================================================================
+\unset ON_ERROR_STOP
+drop view v_zip2data;
+\set ON_ERROR_STOP 1
+
+create view v_zip2data as
+	select
+		coalesce(zrows.zip, zrows.postcode) as zip,
+		zrows.street,
+		coalesce(zrows.urb, zrows.name) as urb,
+		zrows.state,
+		zrows.code_state,
+		zrows.country,
+		zrows.code_country
+	from
+		(v_zip2street
+			full outer join
+		v_uniq_zipped_urbs
+			on
+		v_zip2street.zip=v_uniq_zipped_urbs.postcode) as zrows
+;
+
+comment on view v_zip2data is
+	'aggregates all known data per zip code';
+
+-- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.2  2003-08-02 13:15:42  ncq
+-- Revision 1.3  2003-08-10 01:07:46  ncq
+-- - adapt to lnk_a2b table naming plan
+-- - add v_zip2... views
+--
+-- Revision 1.2  2003/08/02 13:15:42  ncq
 -- - better table aliases in complex queries
 -- - a few more audit tables
 --
