@@ -25,7 +25,7 @@ from Gnumed.pycommon import gmPG, gmCfg, gmExceptions, gmWhoAmI, gmMatchProvider
 from Gnumed.business import gmPatient, gmClinicalRecord, gmPathLab
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.wxpython import checkboxOn, checkboxOff, imagestest
+from Gnumed.artwork import checkboxOn, checkboxOff
 # 3rd party
 from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
@@ -246,8 +246,13 @@ class cLabJournalNB(wxNotebook):
 
 		# image list for panel
 		self.il = wxImageList(16, 16)
-		self.smiles_bmp_idx = self.il.Add(imagestest.getSmilesBitmap())
-		self.sm_up = self.il.Add(imagestest.getSmallUpArrowBitmap())
+		self.images = {
+			#"smiley"	: self.il.Add(imagestest.getSmilesBitmap()),
+			#"up_arrow"	: self.il.Add(imagestest.getSmallUpArrowBitmap()),
+			"checkbox_on": self.il.Add(checkboxOn.getCheckboxOnBitmap()),
+			"checkbox_off": self.il.Add(checkboxOff.getCheckboxOffBitmap())
+			}
+
 		self.LstCtrl_unreviewed.SetImageList(self.il, wxIMAGE_LIST_SMALL)
 		
 		# layout review list 
@@ -310,6 +315,7 @@ class cLabJournalNB(wxNotebook):
 		self.fld_request_id.Clear()
 		self.lab_wheel.Clear()
 		self.lbox_pending.DeleteAllItems()
+		
 		#------ due PNL ------------------------------------
 		# FIXME: make limit configurable
 		too_many, pending_requests = gmPathLab.get_pending_requests(limit=250)
@@ -328,6 +334,7 @@ class cLabJournalNB(wxNotebook):
 			self.lbox_pending.SetStringItem(index = item_idx, col=3, label="%s %s (%s)" % (pat[2], pat[3], pat[4].date))
 			self.lbox_pending.SetStringItem(index = item_idx, col=4, label=_('pending'))
 			# FIXME: make use of rest data in patient via mouse over context
+		
 		#----- import errors PNL -----------------------
 		lab_errors = self.__get_import_errors()
 		for lab_error in lab_errors:
@@ -340,24 +347,18 @@ class cLabJournalNB(wxNotebook):
 			self.lbox_errors.SetStringItem(index = item_idx, col=2, label=lab_error[5])
 			# context
 			self.lbox_errors.SetStringItem(index = item_idx, col=3, label=lab_error[6])
+		
 		#------ unreviewed lab results PNL ------------------------------------
 		#t1 = time.time()
-		# FIXME: make configurable
+		# FIXME: make configurable, make use of count visible lines func of wxlistctrl
 		more_avail, data = gmPathLab.get_unreviewed_results(limit=50)
 		#t2 = time.time()
 		#print t2-t1
-		if more_avail is None:
-			item_idx = self.LstCtrl_unreviewed.InsertItem(info=wxListItem())
-			item = self.LstCtrl_unreviewed.GetItem(item_idx)
-			item.SetTextColour(wxRED)
-			self.LstCtrl_unreviewed.SetItem(item)
-			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=2, label=data)
-			return None
-
+		
 		for item_idx in range(len(data)):
 			result = data[item_idx]
 			# -- put checkbox in first column
-			self.LstCtrl_unreviewed.InsertImageItem(index = item_idx, imageIndex=self.smiles_bmp_idx)
+			self.LstCtrl_unreviewed.InsertImageItem(index = item_idx, imageIndex=self.images["checkbox_off"])
 			self.LstCtrl_unreviewed.SetColumnWidth(0, wxLIST_AUTOSIZE)
 
 			# abnormal ? -> display in red
@@ -450,7 +451,10 @@ class cLabJournalNB(wxNotebook):
 		
 	#------------------------------------------------
 	def on_select_all(self, event):
-		evt.Skip()
+		for item_idx in range(self.LstCtrl_unreviewed.GetItemCount()):
+			item = self.LstCtrl_unreviewed.GetItem(item_idx)
+			#self.LstCtrl_unreviewed.InsertImageItem(index = item_idx, imageIndex=self.images["checkbox_on"])
+			item.SetItem(m_image = self.images["checkbox_on"])
 	#------------------------------------------------
 	def on_mark_reviewed(self, event):
 		evt.Skip()
@@ -571,7 +575,11 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.18  2004-05-27 08:47:35  shilbert
+# Revision 1.19  2004-05-28 07:12:11  shilbert
+# - finally real artwork
+# - switched to new import regimen for artwork
+#
+# Revision 1.18  2004/05/27 08:47:35  shilbert
 # - listctrl item insertion bugfix
 #
 # Revision 1.17  2004/05/26 14:05:21  ncq
