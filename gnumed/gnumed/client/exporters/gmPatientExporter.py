@@ -1,28 +1,23 @@
 """GnuMed simple ASCII EMR export tool.
 
-TODO
-- two modes: GUI and scripted
-- scripted:
-  - first release
-  - define all parameters via config file
-- GUI:
+TODO:
+- GUI mode:
   - post-0.1 !
   - allow user to select patient
   - allow user to pick episodes/encounters/etc from list
 - output modes:
-  - ASCII - first release
   - HTML - post-0.1 !
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.15 2004-06-29 08:16:35 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmPatientExporter.py,v 1.16 2004-06-30 12:43:10 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
 import sys, traceback, string, types
 
-from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI
+from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI, gmCfg
 from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab, gmMedDoc
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -297,9 +292,9 @@ class gmEmrExport:
 	           encounters = self.get_encounters_for_items(emr, items)
 	           for an_encounter in encounters:
                     self.lab_new_encounter = True
-                    txt += '\n' + 9*' ' + 'Encounter: ' + an_encounter['started'].Format('%Y-%m-%d') + ' to ' + \
+                    txt += '\n' + 9*' ' + 'Encounter, ' + an_encounter['l10n_type'] + ': ' + an_encounter['started'].Format('%Y-%m-%d') + ' to ' + \
                     an_encounter['last_affirmed'].Format('%Y-%m-%d') + ' ' + \
-                    an_encounter['description'] + '\n'
+                    '"' + an_encounter['description'] + '"\n'
                     for an_item  in items:
                         if an_item['pk_encounter'] == an_encounter['pk_encounter']:
                             txt += self.get_item_output(an_item)
@@ -354,7 +349,7 @@ class gmEmrExport:
 	    """
 	    doc_folder = patient.get_document_folder()
 	    doc_ids = doc_folder.get_doc_list()
-	    txt = ''
+	    txt = '\n'
 	    txt += '4) Medical documents: (date) reference - type "comment"\n'
 	    txt += '                         object - comment'
 	    for doc_id in doc_ids:
@@ -384,7 +379,7 @@ class gmEmrExport:
 			))
 			return None
 
-		txt = '\nDemographics'
+		txt = '\n\n\nDemographics'
 		txt += '\n------------\n'
 		txt += '   Id: ' + str(dump['id']) + '\n'
 		for name in dump['names']:
@@ -407,31 +402,114 @@ class gmEmrExport:
 # main
 #------------------------------------------------------------
 def usage():
+	"""
+        Prints application usage options to stdout
+	"""
 	print 'usage: python gmPatientExporter [--fileout=<outputfilename>] [--conf-file=<file>]'
 	sys.exit(0)
-
-def process_cli(export_tool):
-	"""Processes command line arguments
+#------------------------------------------------------------
+def check_cli():
 	"""
+        Processes command line arguments for unrecognised options
+	"""
+	supported_opts = ['--fileout', '--conf-file', '--help']
 	for arg in gmCLI.arg.keys():
-		if arg == '--fileout' and len(gmCLI.arg['--fileout']) > 0:
-			export_tool.outFile = open(gmCLI.arg['--fileout'], 'w')
-		else:
-			print 'Unrecognized option: ' + arg + '\npython gmPatientExporter --help for supported options'
-			if export_tool.outFile is not None and not export_tool.outFile.closed:
-				export_tool.outFile.close()
+		if arg not in supported_opts:
+			print 'Unrecognized option: ' + arg
+			usage()
 			sys.exit(0)
 #------------------------------------------------------------
+def dump_constraint(first_constraint, export_tool, txt):
+    """
+        Dumps constraints info and header
+        
+        first_constraint - Flag indicating if we are dumping first constraint
+        export_tool - Main exporter object
+        txt - Constraint and value
+    """
+    if first_constraint:
+        head_txt = '\nDump constraints\n'
+        head_txt += '-'*(len(head_txt)-2)
+        print head_txt
+        export_tool.outFile.write(head_txt + '\n')
+    print txt
+    export_tool.outFile.write(txt)
+    return False
+#------------------------------------------------------------
+def process_cli(since, until, encounters, episodes, issues, export_tool):
+    """
+        Obtains, dumps and normalizes config file options
+        
+        since - constraing end date
+        until - constraint begin date
+        encounters - constraint encounters
+        episodes - constraint episodes
+        issues - constraint health issues
+        export_tool - Main exporter object
+    """
+    # Retrieve options
+    exporter_cfg = gmCfg.cCfgFile(aFile = gmCLI.arg['--conf-file'])
+    cfg_group = 'constraints'
+    since = exporter_cfg.get(cfg_group, 'since').strip()
+    until = exporter_cfg.get(cfg_group, 'until').strip()
+    encounters = exporter_cfg.get(cfg_group, 'encounters')
+    episodes = exporter_cfg.get(cfg_group, 'episodes')
+    issues = exporter_cfg.get(cfg_group, 'issues')
+    separator = ','
+    txt = ''
+    first_constraint = True
+    # Normalize them
+    if len(since) == 0:
+        since = None
+    elif export_tool.outFile is not None:
+        txt = 'Since: ' + since
+        first_constraint = dump_constraint(first_constraint, export_tool, txt)
+    if len(until) == 0:
+        until = None
+    elif export_tool.outFile is not None:
+        txt = 'Until: ' + until
+        first_constraint = dump_constraint(first_constraint, export_tool, txt)
+    if len(encounters) == 0:
+        encounters = None
+    elif export_tool.outFile is not None:
+        txt = 'Encounters: ' + separator.join(encounters)
+        first_constraint = dump_constraint(first_constraint, export_tool, txt)
+    if len(episodes) == 0:
+        episodes = None
+    elif export_tool.outFile is not None:
+        txt = 'Episodes: ' + separator.join(episodes)
+        first_constraint = dump_constraint(first_constraint, export_tool, txt)
+    if len(issues) == 0:
+        issues = None
+    elif export_tool.outFile is not None:
+        txt = 'Issues: ' + separator.join(issues)
+        first_constraint = check_first_constraint(first_constraint, export_tool)
+    return since, until, encounters, episodes, issues, export_tool
+    
+#------------------------------------------------------------		        
 def run():
+	"""
+        Main module application execution loop
+	"""
 	if gmCLI.has_arg('--fileout'):
-		fname = gmGLI.arg['--fileout']
+		fname = gmCLI.arg['--fileout']
 	else:
 		usage()
 	export_tool = gmEmrExport(fname)
 	patient = None
 	patient_id = None
 	patient_term = None
+	since = None
+	until = None
+	encounters = None
+	episodes = None
+	issues = None
+	
 	pat_searcher = gmPatient.cPatientSearcher_SQL()
+	if gmCLI.has_arg('--conf-file'):
+	   since, until, encounters, episodes, issues, export_tool = process_cli(since, until, encounters, episodes, issues, export_tool)
+	else:
+	    usage()
 
 	while patient_term != 'bye':
 		patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
@@ -445,37 +523,28 @@ def run():
 			prompted_input("Various patients match the query term. Press any key to continue.")
 			continue
 		patient_id = search_ids[0]
-		# FIXME retrieve options from cfg file
-		since = prompted_input("Since (eg. 2001-03-16): ")
-		until = prompted_input("Until (eg. 2003-03-16): ")
-		encounters = prompted_input("Encounters (eg. 1,2): ")
-		episodes = prompted_input("Episodes (eg. 3,4): ")
-		issues = prompted_input("Issues (eg. 5,6): ")
 		if not since is None:
 		    since = mxParser.DateFromString(since, formats= ['iso'])
 		if not until is None:
 		    until = mxParser.DateFromString(until, formats= ['iso'])
 		if not encounters is None:
-			encounters = string.split(encounters, ',')
 			encounters = map(lambda encounter: int(encounter), encounters)
 		if not episodes is None:
-			episodes = string.split(episodes, ',')
 			episodes = map(lambda episode: int(episode), episodes)
 		if not issues is None:
-			issues = string.split(issues,',')
 			issues = map(lambda issue: int(issue), issues)
 
 		patient = gmPatient.gmCurrentPatient(patient_id)
 		chunk = ''
 		chunk = export_tool.dump_demographic_record(True, patient)
 		if export_tool.outFile is not None:
-		    export_tool.outFile.write(chunk)
+		    export_tool.outFile.write('\n' + chunk)
 		chunk = export_tool.dump_clinical_record(patient, since_val=since, until_val=until ,encounters_val=encounters, episodes_val=episodes, issues_val=issues)
 		if export_tool.outFile is not None:
-		    export_tool.outFile.write(chunk)
+		    export_tool.outFile.write('\n' + chunk)
 		chunk = export_tool.dump_med_docs(patient)
 		if export_tool.outFile is not None:
-		    export_tool.outFile.write(chunk)
+		    export_tool.outFile.write('\n' + chunk)
 
 	export_tool.cleanup()
 	if patient is not None:
@@ -488,6 +557,7 @@ if __name__ == "__main__":
 	print "\n\nGnumed Simple EMR ASCII Export Tool"
 	print "==================================="
 
+	check_cli()
 	if gmCLI.has_arg('--help'):
 		usage()
 
@@ -508,7 +578,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.15  2004-06-29 08:16:35  ncq
+# Revision 1.16  2004-06-30 12:43:10  ncq
+# - read opts from config file, cleanup
+#
+# Revision 1.15  2004/06/29 08:16:35  ncq
 # - take output file from command line
 # - *search* for patients, don't require knowledge of their ID
 #
