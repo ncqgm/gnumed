@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.5 $
+$Revision: 1.6 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -9,3 +9,51 @@ Rules:
 - Please date it. Thanks
 - delete things if you incorporated them into the guide
 --------------------------------------------------------------
+Son 01 Sep 2002 17:01:57 CEST
+inter-module communications:
+
+Hilmar:
+> > Given the possible interaction of different modules, for instance to
+> > refer to patient data from modules other than 'patient' itself, what is
+> > the supposed way of communication ? How do modules refer to other modules
+> > and their data ?
+
+Karsten:
+> 1) for certain things such as widgets or directories we use the guibroker
+> 2) for notification as to changes in data we (will) use
+>    gmDispatcher.py
+
+> Example code on how to use the dispatcher has just
+> appeared in the CVS (should live in test_area, IMHO, though).
+
+Horst:
+To answer Hilmar's question:
+
+1.) any widget interested in particular data should register it's interest via 
+gmDispatcher.
+Example: A "person info" widget displaying name & address of the currently 
+active patient needs to know when the patient has been changed.
+Thus, it registers it's own callback function (which subsequently updates the 
+widget) with gmDispatcher.
+Any widget that changes the current patient, will must notify gmDispatcher, 
+who in turn will fire all the registered callback functions.
+For that purpose, we need a reference dictionary where developers can look up 
+which action should be named how.
+Since the gnumed website is now in CVS, I'd recommend to just create a new 
+HTML document where developers keep adding "message tags" for the dispatcher 
+along with a description what the message implies.
+Examples:
+
+Person.added	   a new "person" has been added to the database
+Patient.changed 	   the currently active patient has been changed
+Session.Save        all widgets have to save their configuration if applicable
+
+For the asynchronous backend notifications, exactly the same message tags will 
+be used.
+
+2.) In the rare instances where this messaging is impracticable, direct widget 
+access can be gained via the gui broker. This should be the rare exception 
+and has to be justified why the messaging has not been used instead!
+This direct widget access via gui broker is rather designed to allow "on the 
+fly" placement of new widgets and facilitates the plugin architecture.
+-------------------------------------------
