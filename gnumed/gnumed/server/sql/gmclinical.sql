@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.150 $
+-- $Revision: 1.151 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -327,7 +327,7 @@ create table clin_narrative (
 	is_aoe boolean
 		not null
 		default false,
-	unique(fk_encounter, narrative, soap_cat)
+	unique(fk_encounter, fk_episode, narrative, soap_cat)
 ) inherits (clin_root_item);
 
 alter table clin_narrative add constraint aoe_xor_rfe
@@ -1083,11 +1083,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.150 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.151 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.150  2005-02-13 14:46:12  ncq
+-- Revision 1.151  2005-02-21 18:36:31  ncq
+-- - in clin_narrative include fk_episode in unique constraint on field narrative
+--
+-- Revision 1.150  2005/02/13 14:46:12  ncq
 -- - make clin_root_item.soap_cat not null
 --
 -- Revision 1.149  2005/02/12 13:49:14  ncq
