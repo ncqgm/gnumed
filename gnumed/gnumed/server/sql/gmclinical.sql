@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.124 $
+-- $Revision: 1.125 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -413,24 +413,28 @@ create table clin_diag (
 		default false,
 	is_active boolean
 		not null
-		default true
-		check (
-			(is_chronic = false)
-				or
-			((is_chronic = true) and (is_active = true))
-		),
+		default true,
 	is_definite boolean
 		not null
 		default false,
 	is_significant boolean
 		not null
 		default true
-		check (
-			(is_active = false)
-				or
-			((is_active = true) and (is_significant = true))
-		)
 ) inherits (audit_fields);
+
+alter table add constraint if_active_then_significant
+	check (
+		(is_active = false)
+			or
+		((is_active = true) and (is_significant = true))
+	);
+-- not sure about that one:
+--alter table add constraint if_chronic_then_significant
+--	check (
+--		(is_chronic = false)
+--			or
+--		((is_chronic = true) and (is_significant = true))
+--	);
 
 select add_table_for_audit('clin_diag');
 
@@ -438,7 +442,19 @@ comment on table clin_diag is
 	'stores additional detail on those clin_narrative
 	 rows where soap_cat=a that are true diagnoses,
 	 true diagnoses DO have a code from one of the coding systems';
-
+comment on column clin_diag.is_chronic is
+	'whether this diagnosis is chronic, eg. no complete
+	 cure is to be expected, regardless of whether it is
+	 *active* right now (think of active/non-active phases
+	 of Multiple Sclerosis which is sure chronic)';
+comment on column clin_diag.is_active is
+	'whether diagnosis is currently active or dormant';
+comment on column clin_diag.is_significant is
+	'whether this diagnosis is considered clinically
+	 relevant, eg. significant;
+	 currently active diagnoses are considered to
+	 always be significant, while inactive ones may
+	 or may not be';
 -- --------------------------------------------
 create table clin_aux_note (
 	pk serial primary key
@@ -1035,11 +1051,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.124 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.125 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.124  2004-09-18 00:20:57  ncq
+-- Revision 1.125  2004-09-19 11:25:34  ncq
+-- - improved comments
+-- - loosened constraints on clin_diag, as found necessary by Jim
+--
+-- Revision 1.124  2004/09/18 00:20:57  ncq
 -- - add active/significant fields to episode/issue table
 -- - improve comments
 -- - tighten constraints on clin_episode
