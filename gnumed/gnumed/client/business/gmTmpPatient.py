@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.22 2003-06-01 13:34:38 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmTmpPatient.py,v 1.23 2003-06-01 14:34:47 sjtan Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -630,8 +630,8 @@ def create_patient(data):
 def _patient_selected(**kwargs):
 	print "received patient_selected notification"
 	print kwargs['kwds']
-	patient = gmCurrentPatient()
-#	adjust_data(kwargs)
+	patient = gmCurrentPatient(kwargs['kwds']['ID'])
+	#adjust_data(kwargs)
 
 def adjust_data(kwargs):
 	map = kwargs['kwds']
@@ -641,9 +641,10 @@ def adjust_data(kwargs):
 	datenums = str(datePart).split('-')
 	mxDob = mx.DateTime.DateTime( int(datenums[0]), int(datenums[1]), int(datenums[2]))
 
-#	map['medical age'] = get_medical_age(mxDob)
-#	map['clinical record'] = gmClinicalRecord.gmClinicalRecord(map['ID'])
+	map['medical age'] = get_medical_age(mxDob)
+	map['clinical record'] = gmClinicalRecord.gmClinicalRecord(map['ID'])
 
+gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 if __name__ == "__main__":
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
@@ -671,7 +672,15 @@ if __name__ == "__main__":
 			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.22  2003-06-01 13:34:38  ncq
+# Revision 1.23  2003-06-01 14:34:47  sjtan
+#
+# hopefully complies with temporary model; not using setData now ( but that did work).
+# Please leave a working and tested substitute (i.e. select a patient , allergy list
+# will change; check allergy panel allows update of allergy list), if still
+# not satisfied. I need a working model-view connection ; trying to get at least
+# a basically database updating version going .
+#
+# Revision 1.22  2003/06/01 13:34:38  ncq
 # - reinstate remote app locking
 # - comment out thread lock for now but keep code
 # - setting gmCurrentPatient is not how it is supposed to work (I think)

@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.13 2003-06-01 14:15:48 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmClinicalRecord.py,v 1.14 2003-06-01 14:34:47 sjtan Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -270,6 +270,23 @@ class gmClinicalRecord:
 			self.execute("rollback", "rolling back because of invalid encounter_id = 0")
 			return 0
 
+
+
+		# **** NB DEFINATE IS MISPELLED IN SQL SCRIPT : CHANGE IF THE WRONG SPELLING LATER 
+		# try both , depending on which sql script
+		
+		cmd_part = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, %s )"
+
+		value_part = " values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
+		try:
+			cmd = cmd_part % "definate"  + value_part
+			self.execute( cmd, "insert allergy failed with definate as definite", rollback = 0 )
+		except:
+			cmd = cmd_part % "definite"  + value_part
+			self.execute( cmd, "insert allergy failed with definate as definite", rollback = 1 )
+				
+			
+
 		cmd = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, definite ) values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
 		self.execute( cmd, "unable to create allergy entry ", rollback = 1)
 
@@ -452,7 +469,15 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.13  2003-06-01 14:15:48  ncq
+# Revision 1.14  2003-06-01 14:34:47  sjtan
+#
+# hopefully complies with temporary model; not using setData now ( but that did work).
+# Please leave a working and tested substitute (i.e. select a patient , allergy list
+# will change; check allergy panel allows update of allergy list), if still
+# not satisfied. I need a working model-view connection ; trying to get at least
+# a basically database updating version going .
+#
+# Revision 1.13  2003/06/01 14:15:48  ncq
 # - more comments
 #
 # Revision 1.12  2003/06/01 14:11:52  ncq

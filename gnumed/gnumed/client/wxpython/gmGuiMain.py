@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.101 2003-06-01 12:36:40 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmGuiMain.py,v 1.102 2003-06-01 14:34:47 sjtan Exp $
+__version__ = "$Revision: 1.102 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -328,13 +328,16 @@ class MainFrame(wxFrame):
 		pat = gmTmpPatient.gmCurrentPatient()
 
 		#<DEBUG>
-		_log.Log(gmLog.lData, "patient changed to [%s]" % pat)
-		_log.Log(gmLog.lData, pat.__dict__)
+		_log.Log(gmLog.lWarn, "patient changed to [%s]" % pat)
+		_log.Log(gmLog.lWarn, pat.__dict__)
 		#</DEBUG>
 
-		names = pat['active name']
-		patient = "%s %s %s (%s) #%d" % (pat['title'], names['first'], names['last'], pat['dob'], int(pat['ID']))
-		self.updateTitle(aPatient = patient)
+		try:
+			names = pat['active name']
+			patient = "%s %s %s (%s) #%d" % (pat['title'], names['first'], names['last'], pat['dob'], int(pat['ID']))
+			self.updateTitle(aPatient = patient)
+		except:
+			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
 	#----------------------------------------------
 	def OnAbout(self, event):
 		import gmAbout
@@ -643,7 +646,15 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.101  2003-06-01 12:36:40  ncq
+# Revision 1.102  2003-06-01 14:34:47  sjtan
+#
+# hopefully complies with temporary model; not using setData now ( but that did work).
+# Please leave a working and tested substitute (i.e. select a patient , allergy list
+# will change; check allergy panel allows update of allergy list), if still
+# not satisfied. I need a working model-view connection ; trying to get at least
+# a basically database updating version going .
+#
+# Revision 1.101  2003/06/01 12:36:40  ncq
 # - no way cluttering INFO level log files with arbitrary patient data
 #
 # Revision 1.100  2003/06/01 01:47:33  sjtan
