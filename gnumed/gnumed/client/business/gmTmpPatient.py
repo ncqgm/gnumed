@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.40 2003-09-24 08:45:40 ihaywood Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmTmpPatient.py,v 1.41 2003-10-19 10:42:57 ihaywood Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -188,6 +188,12 @@ class gmPerson:
 		}
 		return result
 	#--------------------------------------------------------
+	def setActiveName (self, firstnames, lastnames):
+		cmd = """
+update v_basic_person set firstnames = %s, lastnames = %s where i_id = %s
+"""
+		gmPG.run_commit ('personalia', [(cmd, [firstnames, lastnames, self.ID])])
+	#---------------------------------------------------------	
 	def _getTitle(self):
 		cmd = "select title from v_basic_person where i_id = %s"
 		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
@@ -196,6 +202,10 @@ class gmPerson:
 		if len(data) == 0:
 			return ''
 		return data[0][0]
+	#--------------------------------------------------------
+	def setTitle (self, title):
+		cmd = "update v_basic_person set title = %s where i_id = %s"
+		gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
 	#--------------------------------------------------------
 	def _getID(self):
 		return self.ID
@@ -210,34 +220,35 @@ class gmPerson:
 			return ''
 		return data[0][0]
 	#--------------------------------------------------------
-	def _get_addresses(self):
+	def setDOB (self, dob):
+		cmd = "update V_basic_person set dob = %s where i_id = %s"
+		gmPG.run_commit ('personalia', [(cmd, [dob, self.ID])])
+	#--------------------------------------------------------
+	def GetAddress (self, type):
 		cmd = """
 select
 	vba.addr_id,
-	at.name,
 	vba.number,
 	vba.street,
 	vba.city,
 	vba.postcode
 from
 	v_basic_address vba,
-	lnk_person2address lp2a,
-	address_type at
+	lnk_person2address lp2a
 where
 	lp2a.id_address = vba.addr_id
 	        and
-	at.id = lp2a.id_type
+	lp2a.id_type = %s
 		and
 	lp2a.id_identity = %s
 """
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, type, self.ID)
 		if rows is None:
 			return None
 		if len(rows) == 0:
 			return None
 		return [{
 			'ID':r[idx['addr_id']],
-			'type':r[idx['name']],
 			'number':r[idx['number']],
 			'street':r[idx['street']],
 			'urb':r[idx['city']],
@@ -281,17 +292,8 @@ where
 		return gmPG.run_ro_query('personalia', cmd, None, postcode)
 	#--------------------------------------------------------
 	def DeleteAddress (self, ID):
-		rwconn = self._backend.GetConnection('personalia', readonly=0)
-		rwcurs = rwconn.cursor()
 		cmd = "delete from lnk_person2address where id_identity = %s and id_address = %s"
-		if not gmPG.run_query(rwcurs, cmd, self.ID, ID):
-			rwcurs.close()
-			rwconn.close()
-			_log.Log(gmLog.lErr, 'cannot delete address [%s] for patient [%s]' % (ID, self.ID))
-			return None
-		rwconn.commit()
-		rwcurs.close()
-		rwconn.close()
+		gmPG.run_commit ('personalia', [(cmd, [self.ID, ID])])
 		return 1
 	#--------------------------------------------------------
 	def NewAddress (self, type, number, street, urb, postcode, state, country):
@@ -312,6 +314,11 @@ where
 		if data is None:
 			_log.Log(gmLog.lErr, 'cannot check for address existence')
 			return None
+		# delete any pre-existing link on this identity and address type
+		cmd = """
+delete from lnk_person2address where id_identity = %s and id_type = (select id from address_type where name = %s)
+"""
+		gmPG.run_commit ('personalia', [(cmd, [self.ID, type])]) 
 		# we have a matching address, just add the link
 		if len(data) > 0:
 			addr_id = data[0][0]
@@ -378,7 +385,6 @@ values (%s, currval ('address_id_seq'), (select id from address_type where name 
 	_get_handler['title'] = _getTitle
 	_get_handler['ID'] = _getID
 	_get_handler['dob'] = _getDOB
-	_get_handler['addresses'] = _get_addresses
 	_get_handler['medical age'] = _get_medical_age
 	_get_handler['clinical record'] = _get_clinical_record
 	_get_handler['API'] = _get_API
@@ -761,7 +767,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.40  2003-09-24 08:45:40  ihaywood
+# Revision 1.41  2003-10-19 10:42:57  ihaywood
+# extra functions
+#
+# Revision 1.40  2003/09/24 08:45:40  ihaywood
 # NewAddress now functional
 #
 # Revision 1.39  2003/09/23 19:38:03  ncq
