@@ -1,0 +1,26 @@
+Installation instructions
+-------------------------
+
+If you checked out GnuMed from CVS or downloaded the tarball
+there is nothing to install, really. Everything can be run
+right from the directory where you put the files.
+
+You need to make sure, however, that you have all the necessary
+3rd party components installed. For this use:
+
+	gnumed/check-prerequisites.sh
+
+You can bootstrap a database with help of the shell scripts in
+
+	gnumed/server/bootstrap/
+
+You can run the client with help of the shell scripts in
+
+	gnumed/client/
+
+If questions arise ask on the mailing list.
+
+
+Enjoy !
+
+Karsten Hilbert
