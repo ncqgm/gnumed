@@ -1,37 +1,19 @@
 #!/bin/sh
 
-cd ../../
-ln -vfsn client Gnumed
-cd -
 export PYTHONPATH="${PYTHONPATH}:../../"
 
 echo "re-bootstrapping maximum database"
-echo "dropping old database"
-dropdb -U postgres gnumed
-echo "---------------------------"
-echo "bootstrappping new database"
-rm -rf redo-max-core.log
-./bootstrap-gm_db_system.py --log-file=redo-max-core.log --conf-file=bootstrap-monolithic_core.conf
-echo "-------------------------"
-echo "adding data for locale DE"
-rm -rf redo-max-de.log
-./bootstrap-gm_db_system.py --log-file=redo-max-de.log --conf-file=bootstrap-de.conf
-echo "-------------------------"
-echo "adding data for locale AU"
-cd ../sql/country.specific/au/
-make-postcode-sql.sh
-cd -
-rm -rf redo-max-au.log
-./bootstrap-gm_db_system.py --log-file=redo-max-au.log --conf-file=bootstrap-au.conf
-echo "----------------"
-echo "adding test data"
-rm -rf redo-max-test_data.log
-./bootstrap-gm_db_system.py --log-file=redo-max-test_data.log --conf-file=bootstrap-test_data.conf
+
+./redo-public.sh
+
+echo "adding on to standard (public) database to reach maximum database level"
+echo "the following imports are likely to fail but are non-critical"
+
 echo "-------------------"
-echo "importing AMIS data"
+echo "importing AMIS drug data"
 ./install_AMIS_data.sh
 echo "--------------------"
-echo "importing some blobs"
+echo "importing some BLOBs"
 cd ~/Bilder/Vietnam/archive
 python import-test-blobs.py
 cd -
