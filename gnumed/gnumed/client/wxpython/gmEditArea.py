@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.76 2004-07-15 23:28:04 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmEditArea.py,v 1.77 2004-07-17 21:16:39 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -630,7 +630,7 @@ class gmEditArea(wxPanel):
 		# - check if we've got data to save
 		# - save it
 		# remember to use wxCallAfter()
-		self.set_data ()
+		self.set_data()
 
 
 
@@ -1116,190 +1116,6 @@ class gmPastHistoryEditArea(gmEditArea):
 
 		clinical.update_history( self.get_fields_formatting_values(), self.getDataId() )
 
-#========================================================
-class gmAllergyEditArea(gmEditArea):
-
-	def __init__(self, parent, id):
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'allergy')
-		except gmExceptions.ConstructorError:
-			_log.LogException('cannot instantiate allergy edit area', sys.exc_info(), verbose=1)
-			raise
-	#----------------------------------------------------
-	def _define_fields(self, parent):
-		# line 1
-		self.fld_date_noted = gmDateTimeInput.gmDateInput(
-			parent = parent,
-			id = -1,
-			style = wxSIMPLE_BORDER
-		)
-		self._add_field(
-			line = 1,
-			pos = 1,
-			widget = self.fld_date_noted,
-			weight = 1
-		)
-		# line 2
-		self.fld_substance = cEditAreaField(parent)
-		self._add_field(
-			line = 2,
-			pos = 1,
-			widget = self.fld_substance,
-			weight = 1
-		)
-		# line 3
-		self.fld_generic = cEditAreaField(parent)
-		self._add_field(
-			line = 3,
-			pos = 1,
-			widget = self.fld_generic,
-			weight = 6
-		)
-		self.fld_generic_specific = wxCheckBox(
-			parent,
-			-1,
-			_("generics specific"),
-			style = wxNO_BORDER
-		)
-		self._add_field(
-			line = 3,
-			pos = 2,
-			widget = self.fld_generic_specific,
-			weight = 0
-		)
-		# line 4
-		self.fld_drug_class = cEditAreaField(parent)
-		self._add_field(
-			line = 4,
-			pos = 1,
-			widget = self.fld_drug_class,
-			weight = 0
-		)
-		# line 5
-		# FIXME: add allergene, atc_code ?
-		self.fld_reaction = cEditAreaField(parent)
-		self._add_field(
-			line = 5,
-			pos = 1,
-			widget = self.fld_reaction,
-			weight = 1
-		)
-		# line 6
-		self.fld_progress_note = cEditAreaField(parent)
-		self._add_field(
-			line = 6,
-			pos = 1,
-			widget = self.fld_progress_note,
-			weight = 1
-		)
-		# line 7
-		self.fld_is_allergy = wxRadioButton(parent, -1, _("Allergy"))
-		self._add_field(
-			line = 7,
-			pos = 1,
-			widget = self.fld_is_allergy,
-			weight = 2
-		)
-		self.fld_is_sensitivity = wxRadioButton(parent, -1, _("Sensitivity"))
-		self._add_field(
-			line = 7,
-			pos = 2,
-			widget = self.fld_is_sensitivity,
-			weight = 2
-		)
-		self.fld_is_definite_allergy = wxCheckBox(
-			parent,
-			-1,
-			_("Definite"),
-			style = wxNO_BORDER
-		)
-		self._add_field(
-			line = 7,
-			pos = 3,
-			widget = self.fld_is_definite_allergy,
-			weight = 2
-		)
-		self._add_field(
-			line = 7,
-			pos = 4,
-			widget = self._make_standard_buttons(parent),
-			weight = 1
-		)
-	#----------------------------------------------------
-	def _define_prompts(self):
-		self._add_prompt(line = 1, label = _("Date Noted"))
-		self._add_prompt(line = 2, label = _("Brand/Substance"))
-		self._add_prompt(line = 3, label = _("Generic"))
-		self._add_prompt(line = 4, label = _("Drug Class"))
-		self._add_prompt(line = 5, label = _("Reaction"))
-		self._add_prompt(line = 6, label = _("Progress Note"))
-		self._add_prompt(line = 7, label = '')
-	#----------------------------------------------------
-	def _save_new_entry(self):
-		allergy = {}
-		allergy['date noted'] = self.fld_date_noted.GetValue()
-		allergy['substance'] = self.fld_substance.GetValue()
-		allergy['generic'] = self.fld_generic.GetValue()
-		allergy['is generic specific'] = self.fld_generic_specific.GetValue()
-		allergy['drug class'] = self.fld_drug_class.GetValue()
-		allergy['reaction'] = self.fld_reaction.GetValue()
-		allergy['progress note'] = self.fld_progress_note.GetValue()
-		allergy['is allergy'] = self.fld_is_allergy.GetValue()
-		allergy['is sensitivity'] = self.fld_is_sensitivity.GetValue()
-		allergy['is definite'] = self.fld_is_definite_allergy.GetValue()
-		# FIXME: validation
-		epr = self.patient.get_clinical_record()
-		if epr is None:
-			# FIXME: badder error message
-			wxBell()
-			_gb['main.statustext'](_('Cannot save allergy.'))
-			return None
-		status, data = epr.add_allergy(allergy)
-		if status is None:
-			wxBell()
-			_gb['main.statustext'](_('Cannot save allergy.'))
-			return None
-		_gb['main.statustext'](_('Allergy saved.'))
-		self.data = data
-		return 1
-	#----------------------------------------------------
-	def set_data(self, allergy = None):
-		try:
-			self.data = allergy['ID']
-		except KeyError:
-			_log.LogException('must have ID in allergy', sys.exc_info(), verbose=0)
-			return None
-		# defaults
-		if allergy is None:
-			self.fld_date_noted.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
-			self.fld_substance.SetValue('')
-			self.fld_generic.SetValue('')
-			self.fld_generic_specific.SetValue(0)
-			self.fld_drug_class.SetValue('')
-			self.fld_reaction.SetValue('')
-			self.fld_progress_note.SetValue('')
-			self.fld_is_allergy.SetValue(1)
-			self.fld_is_sensitivity.SetValue(0)
-			self.fld_is_definite_allergy.SetValue(1)
-			return 1
-		# or data
-		try: self.fld_date_noted.SetValue(allergy['date noted'])
-		except KeyError: pass
-		try: self.fld_substance.SetValue(allergy['substance'])
-		except KeyError: pass
-
-		try: self.fld_progress_note.SetValue(allergy['progress note'])
-		except KeyError: pass
-
-
-		try:
-			if allergy['is booster']:
-				self.fld_is_booster.SetValue(1)
-			else:
-				self.fld_is_booster.SetValue(0)
-		except KeyError: pass
-
-		return 1
 #====================================================================
 class gmReferralEditArea(gmEditArea):
 		
@@ -2200,7 +2016,14 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.76  2004-07-15 23:28:04  ncq
+# Revision 1.77  2004-07-17 21:16:39  ncq
+# - cleanup/refactor allergy widgets:
+#   - Horst space plugin added
+#   - Richard space plugin separated out
+#   - plugin independant GUI code aggregated
+#   - allergies edit area factor out from generic edit area file
+#
+# Revision 1.76  2004/07/15 23:28:04  ncq
 # - vaccinations edit area factored out
 #
 # Revision 1.75  2004/06/20 15:48:06  ncq
