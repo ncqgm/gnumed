@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -188,16 +188,6 @@ comment on column episode.name is
 	'descriptive name of this episode, may change over time';
 
 -- ============================================
-create table _enum_allergy_certainty (
-	id serial primary key,
-	value varchar(32) unique not null
-) ;
-
-create view vi18n_enum_allergy_certainty as
-	select _enum_allergy_certainty.id, _(_enum_allergy_certainty.value)
-	from _enum_allergy_certainty;
-
--- --------------------------------------------
 create table _enum_allergy_type (
 	id serial primary key,
 	value varchar(32) unique not null
@@ -212,16 +202,19 @@ create view vi18n_enum_allergy_type as
 create table allergy (
 	id serial primary key,
 	id_clinical_transaction integer references clinical_transaction(id),
+
 	substance varchar(128) not null,
+	generic varchar(256),
 	allergene varchar(256) default null,
+	atc_code varchar(32),
+
 	description text,
-	certainty integer references _enum_allergy_certainty(id),
+	definate boolean default 0,
 	type integer references _enum_allergy_type(id),
-	first_observed varchar(32),
-	code varchar(32)
+	last_observed varchar(32)
 ) inherits (audit_clinical);
 
---	certainty varchar(32) references vi18n_enum_allergy_certainty(value),
+-- we need some way of marking "inactive" allergies after hyposensibilization
 --	type varchar(32) references vi18n_enum_allergy_type(value),
 
 comment on table allergy is
@@ -229,19 +222,21 @@ comment on table allergy is
 comment on column allergy.id_clinical_transaction is
 	'link to transaction, provides: patient, recorded_when';
 comment on column allergy.substance is
-	'real-world name of substance the patient reacted to';
+	'real-world name of substance the patient reacted to, brand name if drug';
+comment on column allergy.generic is
+	'if drug name of generic compound, brand names change/disappear, generic names do not';
 comment on column allergy.allergene is
 	'name of allergenic ingredient in substance if known';
+comment on column allergy.atc_code is
+	'ATC code of allergene or substance if approprate, applicable for penicilline, not so for cat fur';
 comment on column allergy.description is
 	'free-text description of reaction such as "difficulty breathing, "skin rash", "diarrhea" etc.';
-comment on column allergy.certainty is
-	'definate/likely';
+comment on column allergy.definate is
+	'true: definate, false: not definate';
 comment on column allergy.type is
 	'allergy/sensitivity';
-comment on column allergy.first_observed is
-	'this has been observed when for the first time, if known';
-comment on column allergy.code is
-	'ATC code of allergene or subtance if approprate, applicable for penicilline, not so for cat fur';
+comment on column allergy.last_observed is
+	'when has this been observed for the last time';
 
 -- ============================================
 -- Drug related tables
@@ -369,11 +364,14 @@ comment on table enum_immunities is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.20  2003-04-06 15:18:21  ncq
+-- Revision 1.21  2003-04-07 12:28:24  ncq
+-- - allergies table updated according to comments on resmed-de and gm-dev
+--
+-- Revision 1.20  2003/04/06 15:18:21  ncq
 -- - can't reference _()ed fields in a view since it can't find the unique constraint in the underlying table
 --
 -- Revision 1.19  2003/04/06 15:10:05  ncq
