@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.9 $
+$Revision: 1.10 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -8,11 +8,4 @@ Rules:
 - leave behind an email address
 - Please date it. Thanks
 - delete things if you incorporated them into the guide
---------------------------------------------------------------
-Don 26 Sep 2002 15:34:21 CEST
-karsten.hilbert@gmx.net
-
-i18n addition:
- - "&" often refers to menu item shortcuts
- -> keep those but make them unique to the menu in your target language
 --------------------------------------------------------------
