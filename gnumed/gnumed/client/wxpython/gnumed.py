@@ -49,7 +49,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.66 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -301,20 +301,10 @@ gb = gmGuiBroker.GuiBroker()
 gb['gnumed_dir'] = appPath
 gb['resource dir'] = resPath
 
-	# FIXME: not sure anymore why we need this
-#try:
-	# change into our working directory
-	# this does NOT affect the cwd in the shell from where gnumed is started!
-	# FIXME: resPath ?
-#	os.chdir(appPath)
-#except:
-#	exc = sys.exc_info()
-#	_log.LogException('Exception: cannot change into resource directory ' + appPath, exc, verbose=0)
-	# let's try going on anyways
-
 # now actually run gnumed
 try:
 	from Gnumed.wxpython import gmGuiMain
+	# do we do profiling ?
 	if gmCLI.has_arg('--profile'):
 		profile_file = gmCLI.arg['--profile']
 		_log.Log(gmLog.lInfo, 'writing profiling data into %s' % profile_file)
@@ -322,13 +312,14 @@ try:
 		profile.run('gmGuiMain.main()', profile_file)
 	else:
 		gmGuiMain.main()
-# and intercept _almost_ all exceptions (but reraise them ...)
+# and intercept almost all exceptions
 except StandardError:
 	exc = sys.exc_info()
 	_log.LogException ("Exception: Unhandled exception encountered.", exc, verbose=1)
 	if gmCLI.has_arg('--talkback'):
 		import gmTalkback
 		gmTalkback.run(_email_logger)
+	# but reraise them ...
 	raise
 
 # do object refcounting
@@ -350,9 +341,9 @@ if gmCLI.has_arg('--debug'):
 		return pairs
 
 	rcfile = open('./gm-refcount.lst', 'wb')
-	for refcount, class_ in get_refcounts():
-		if not class_.__name__.startswith('wx'):
-			rcfile.write('%10d %s\n' % (refcount, class_.__name__))
+#	for refcount, class_ in get_refcounts():
+#		if not class_.__name__.startswith('wx'):
+#			rcfile.write('%10d %s\n' % (refcount, class_.__name__))
 	rcfile.close()
 
 # do we do talkback ?
@@ -364,7 +355,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.65  2004-06-26 23:10:18  ncq
+# Revision 1.66  2004-07-17 11:36:35  ncq
+# - comment out refcounting even on normal --debug runs
+#
+# Revision 1.65  2004/06/26 23:10:18  ncq
 # - add object refcounting when --debug
 #
 # Revision 1.64  2004/06/25 12:31:36  ncq
