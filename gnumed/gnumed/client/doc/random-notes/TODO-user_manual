@@ -1,0 +1,35 @@
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/random-notes/Attic/TODO-user_manual,v $
+# $Revision: 1.1 $
+---------------------------------------------------
+Rules:
+------
+- add material for the User Manual here if you don't want
+  to put it into the sgml code yourself
+- leave behind an email address
+- delete things if you incorporated them into the manual
+---------------------------------------------------
+Karsten.Hilbert@gmx.net
+
+platforms in use:
+
+> Karsten - SuSE
+> Ian     - Debian ?
+> David   - Windows NT (does it work yet ?)
+> Richard - Mandrake
+
+Horst:
+- RedHat,
+- Mandrake,
+- Gentoo,
+- Debian,
+- Solaris, (sporadically)
+- BSD, (sporadically)
+- e-smith (server side only)
+- Win98SE
+
+Tony Lemke: Mac OSX ?
+---------------------------------------------------
+Karsten.Hilbert@gmx.net
+
+split out chapters into files
+---------------------------------------------------
