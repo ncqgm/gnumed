@@ -1,39 +1,39 @@
-<!--
-PHP interface to gnumed drug database
-Copyright (C) 2002 Ian Haywood 
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-or see online at http://www.gnu.org/licenses/gpl.html
-!>
-
-
 <?php
+// PHP interface to gnumed drug database
+// Copyright (C) 2002 Ian Haywood 
+
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+// or see online at http://www.gnu.org/licenses/gpl.html
 
 // connect to the database, use fixed string for the moment
 $conn = pg_connect ("dbname=gmdrugs user=foo");
 // FUTURE CODE: this is the PHP magic for password protection
-// this is cleartext, we need some way of insisting SSL connection
+// this is cleartext, we need some way of insisting on SSL connection
+// if (_SERVER['SERVER_PORT'] != '443')
+//    {
+//      echo 'Only HTTPS access is allowed';
+//      exit;
+//    ]
 //  if (!isset($_SERVER['PHP_AUTH_USER'])) {
 //    header('WWW-Authenticate: Basic realm="GNU Free Pharmacopoeia"');
 //    header('HTTP/1.0 401 Unauthorized');
-//    echo 'Access is prohibited without authentication. Please contact ihaywood at gnu dot org for an account';
+//    echo 'Access is prohibited without authentication. Please contact gnumed-devel at gnu dot org for an account';
 //    exit;
 //  } else {
-//    $result = pg_query ("select password from user where login = {$_SERVER['PHP_AUTH_USER']}");
-//    $password  = pg_fetch_result ($result, 0, 0);
-//    if ( $password != crypt({$_SERVER['PHP_AUTH_PW']}, $password))
+//    $conn = pg_connect ("dbname=gmdrugs user={$_SERVER['PHP_AUTH_USER']} password={$_SERVER['PHP_AUTH_PW']}");
+//    if ( ! $conn)
 //      {
 //        header ("HTTP/1.0 403 Forbidden");
 //        echo "Wrong password";

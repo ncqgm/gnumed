@@ -1,26 +1,21 @@
-<!--
-PHP interface to gnumed drug database
-Copyright (C) 2002 Ian Haywood 
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-or see online at http://www.gnu.org/licenses/gpl.html
-!>
-
-
 <?php
+// PHP interface to gnumed drug database
+// Copyright (C) 2002 Ian Haywood 
 
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+// or see online at http://www.gnu.org/licenses/gpl.html
 // some useful functions for the product-related pages
 
 function print_product_row ($row)
@@ -57,10 +52,10 @@ function product_select ($id)
 {
   echo "<table><tr><th>Select</th><th>Route</th><th>Form</th><th>Dose</th><th>Package</th><th>Comment</th></tr>";
   // shows a table of selectable products for a drug
-  $result = pg_query ("select select df.description as df, du.unit as du, dr.description as dr, p.comment, package_size, p.id as id from product p, drug_formulations df, drug_routes dr, drug_units du where p.id_generic_drug = $id and dr.id = p.id_route and df.id = id_formulation and dr.id = packing_unit");
+  $result = pg_query ("select df.description as df, du.unit as du, p.comment, p.id, dr.description as dr, package_size from product p, drug_formulations df, drug_units du, drug_routes dr where p.id_generic_drug = $id and df.id = id_formulation and du.id = packing_unit and dr.id = id_route");
   while ($row = pg_fetch_array ($result))
     {
-      echo "<tr><td><input type=\"checkbox\" name=\"product\" value=\"{$row['id']}\"></td>";
+      echo "<tr><td><input type=\"checkbox\" name=\"products[{$row['id']}]\" value=\"1\" checked></td>";
       print_product_row ($row);
       echo "</tr>";
     }

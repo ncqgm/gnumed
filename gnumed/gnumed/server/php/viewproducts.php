@@ -1,25 +1,23 @@
-<!--
-PHP interface to gnumed drug database
-Copyright (C) 2002 Ian Haywood 
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-or see online at http://www.gnu.org/licenses/gpl.html
-!>
-
-
 <?php
+
+// PHP interface to gnumed drug database
+// Copyright (C) 2002 Ian Haywood 
+
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+// or see online at http://www.gnu.org/licenses/gpl.html
+
 
 if (! $conn)
      include ('connect.php');
@@ -59,6 +57,7 @@ if (isset ($available))
 ?>
 <html>
 <title>Products of <?= $drugname?><?=$compound ?></title>
+
 <body>
 <h1>Products of <?=$drugname?><?=$compound ?></h1>
 
@@ -70,11 +69,12 @@ if (isset ($available)) {
   echo "<th>Avail ($available)</th><th>Brands</th>";
 }
 if (isset ($subsidy)) {
-  echo "<th>$subsidy (Qty Rpt \$ Cndn)</th>";
+  $sub_name = pg_fetch_result (pg_query ("select name  from subsidies where id = $subsidy"), 0, 0);
+  echo "<th>$sub_name:</th><th>Qty</th><th>Rpt</th><th>\$</th><th>Cndn</th>";
+  // FIXME: How to we internationalise the dollar sign?
 }
 ?>
 <td></td></tr>
-
 <?php
 $result = pg_query ("select df.description as df, du.unit as du, p.comment, p.id, dr.description as dr, package_size from product p, drug_formulations df, drug_units du, drug_routes dr where p.id_generic_drug = $id and df.id = id_formulation and du.id = packing_unit and dr.id = id_route");
 while ($row = pg_fetch_array ($result))
@@ -100,25 +100,30 @@ while ($row = pg_fetch_array ($result))
       else
 	echo "No";
       echo "</td><td>";
-      $result2 = pg_query ("select lpm.brandname, m.code, m.id from link_product_manufacturer lpm, manufacturer m where lpm.id_product = {$row['id']} and m.id = lpm.id_manufacturer aand m.iso_countrycode = '$available'");
+      $result2 = pg_query ("select lpm.brandname, m.code, m.id from link_product_manufacturer lpm, manufacturer m where lpm.id_product = {$row['id']} and m.id = lpm.id_manufacturer and m.iso_countrycode = '$available'");
       while ($row2 = pg_fetch_row ($result2))
 	{
-	  echo "{$row2[0]}(<a href=\"mnfctr.php?id_man={$row2[2]}\">{$row2[1]}</a>)&nbsp;";
+	  echo "{$row2[0]}(<a href=\"edit_manu.php?id_manu={$row2[2]}\">{$row2[1]}</a>)&nbsp;";
 	}
     echo "</td>";
     }
   if (isset ($subsidy)) 
     {
+      echo "<td></td>"; // blank cell to match "$subname" header above
       $result2 = pg_query ("select * from subsidized_products where id_product = {$row['id']} and id_subsidy = $subsidy");
-      while ($row2 = pg_fetch_array ($result2))
+      if ($row2 = pg_fetch_array ($result2))
 	{
-	  echo "<td>{$row2['max_qty']}$nbsp;{$row2['max_rpt']}$nbsp;\${$row2['copayment']}";
+	  $copay = number_format ($row2['copayment'], 2);
+	  echo "<td>{$row2['max_qty']}</td><td>{$row2['max_rpt']}</td><td>$copay </td>";
 	  if ($row2['condition'])
-	    echo "&nbsp;<a href=\"show_condition.php?id_cond={$row2['condition']}\">*</a>";
-	  echo "</td>";
+	    echo "<td><a href=\"edit_cond.php?id_cond={$row2['condition']}\">*</a></td>";
+	  else
+	    echo "<td></td>";
 	}
+      else
+	echo "<td></td><td></td><td></td><td></td>";
     }
-  echo "<td><a onClick=\"return confirm(\"are you sure?\");\" href=\"del_product.php?id_prod={$row['id']}\">DELETE</a></td></tr>";
+  echo "<td><a onClick=\"return confirm ('Are you sure?')\" href=\"del_product.php?id_prod={$row['id']}&id=$id\"><small>DELETE</small></a></td></tr>";
 }
 ?>
 </table>
@@ -211,11 +216,13 @@ while ($row = pg_fetch_array ($result))
 {
   echo "<option value=\"{$row['id']}\">{$row['name']}";
 }
-?>
-
+?></select>
 <input type="hidden" name="id" value="<?= $id ?>">
 <input type="submit" value="go"></form><p>
 
-<a href="change_subsidies.php?id=<?=$id?>">Change Subsidies</a>
+<?php
+if (isset ($subsidy))
+     echo "<a href=\"change_subsidies.php?id=$id&subsidy=$subsidy\">Change Subsidies</a>";
+?>
 
 </body></html>
