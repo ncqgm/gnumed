@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.60 $
+-- $Revision: 1.61 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -330,8 +330,8 @@ select add_table_for_audit('vacc_appt');
 comment on table vacc_appt is
 	'defines when a certain vaccination is due';
 comment on column vacc_appt.fk_indication is
-	'indication that is satisfied by a vaccination
-	 satisfying this scheduled vaccination event';
+	'indication for which this vaccination
+	 event is scheduled';
 comment on column vacc_appt.seq_id is
 	'sequence number for this vaccination event
 	 within a particular schedule/regime,
@@ -340,6 +340,12 @@ comment on column vacc_appt.min_interval is
 	'minimum interval (relative to previous
 	 vaccination) after which this shot is due,
 	 minimum age if seq_id = 1';
+comment on column vacc_appt.max_interval is
+	'maximum interval (relative to previous
+	 vaccination) after which this shot is due,
+	 if seq_id = 1:
+	  - if max_interval = -1: no maximum age
+	  - else max_interval = maximum age';
 
 -- --------------------------------------------
 create table vaccination (
@@ -682,11 +688,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.60 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.61 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.60  2003-10-01 15:44:24  ncq
+-- Revision 1.61  2003-10-07 22:29:10  ncq
+-- - better comments on vacc_*
+--
+-- Revision 1.60  2003/10/01 15:44:24  ncq
 -- - add vaccination tables, use auditing record table
 --
 -- Revision 1.59  2003/08/27 00:35:32  ncq
