@@ -15,8 +15,8 @@ TODO
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.13 2004-06-28 15:52:00 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmPatientExporter.py,v 1.14 2004-06-28 16:15:56 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -291,9 +291,9 @@ class gmEmrExport:
 	    h_issues = emr.get_health_issues(id_list = filtered_issues)
 	    for h_issue in h_issues:
 	        txt += '\n' + 3*' ' + 'Health Issue: ' + h_issue['description'] + '\n'
-	        for an_episode in emr.get_episodes(id_list =filtered_episodes, issues = [h_issue['id']]):
+	        for an_episode in emr.get_episodes(id_list=filtered_episodes, issues = [h_issue['id']]):
 	           txt += '\n' + 6*' ' + 'Episode: ' + an_episode['description'] + '\n'
-	           items =  filter(lambda item: item['id_episode'] in [an_episode['id_episode']], filtered_items)
+	           items =  filter(lambda item: item['pk_episode'] in [an_episode['pk_episode']], filtered_items)
 	           encounters = self.get_encounters_for_items(emr, items)
 	           for an_encounter in encounters:
                     self.lab_new_encounter = True
@@ -483,7 +483,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.13  2004-06-28 15:52:00  ncq
+# Revision 1.14  2004-06-28 16:15:56  ncq
+# - still more faulty id_ found
+#
+# Revision 1.13  2004/06/28 15:52:00  ncq
 # - some comments
 #
 # Revision 1.12  2004/06/28 12:18:52  ncq
