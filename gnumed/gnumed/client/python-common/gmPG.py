@@ -26,11 +26,11 @@
 
 """gmConnectionPool - Broker for Postgres distributed backend connections
 """
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <@>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
-import string, gettext, copy, os, sys
+import string, copy, os, sys
 #3rd party dependencies
 # first, do we have the best-of-breed POSIX psycopg library available ?
 try:
@@ -53,10 +53,6 @@ except ImportError:
 
 #gnumed specific modules
 import gmLoginInfo, gmLog, gmExceptions
-
-#take care of translating strings
-_ = gettext.gettext
-
 
 __backend = 'Postgres'
 #check whether this adapter module suits our needs
@@ -428,6 +424,10 @@ def inputLoginParams():
 
 ### test function for this module: simple start as "main" module
 if __name__ == "__main__":
+
+	import gettext
+	_ = gettext.gettext
+
 	dbpool = ConnectionPool()
 	### Let's see what services are distributed in this system:
 	print "\n\nServices available on this system:"

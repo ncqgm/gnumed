@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-01 12:18:28 $
-# @version $Revision: 1.6 $ $Date: 2002-07-01 12:18:28 $ $Author: ihaywood $
+# @Date: $Date: 2002-07-10 19:03:47 $
+# @version $Revision: 1.7 $ $Date: 2002-07-10 19:03:47 $ $Author: ncq $
 # @change log:
 #	14.03.02 ihaywood inital version.
 #      
@@ -24,13 +24,9 @@
 A simple interface to the appointments book.
 """
 
-# text translation function for localization purposes
-import gettext
-_ = gettext.gettext
 from wxPython.wx import *
 from wxPython.calendar import *
 from wxPython.grid import *
-from gmI18N import *
 import sys, time, os
 import gmGuiBroker, gmPG, gmSQLSimpleSearch
 
@@ -252,10 +248,6 @@ def run ():
 
 
 if __name__ == '__main__':
+	# text translation function for localization purposes
+	import gmI18N
     run ()
-
-
-
-
-
-

@@ -37,12 +37,6 @@ the selected text segment.
 from wxPython.wx import *
 import string, rotor, binascii
 
-#function to allow easy text translation
-import gettext
-_ = gettext.gettext
-
-
-
 class gmTextctrlFileDropTarget(wxFileDropTarget):
     """ a generic text control widget that accepts dropped files """
 
@@ -124,8 +118,8 @@ class gmCryptoText(wxTextCtrl):
         event.Skip()
 
 
-    def OnContextMenu(self, event):
-	pass
+	def OnContextMenu(self, event):
+		pass
 
 
     def OnEncrypt(self, event):
@@ -252,6 +246,8 @@ class gmCryptoText(wxTextCtrl):
 # for options like encryption, decryption, and setting of passphrase
 #############################################################################
 if __name__ == '__main__':
+	import gmI18N
+
 	app = wxPyWidgetTester(size = (400, 400))
 	#show the login panel in a main window
 	app.SetWidget(gmCryptoText, -1)
