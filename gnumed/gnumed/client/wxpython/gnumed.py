@@ -21,7 +21,7 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -94,21 +94,22 @@ def get_base_dir():
 def call_main():
 	"""Call the appropriate main().
 	"""
-	cmd_line = []
-	known_opts = []
-	with_email_log = 0
 	# long options only !
+	cmd_line = []
 	try:
 		cmd_line = getopt.getopt(sys.argv[1:], '', ['email-log',])
 	except getopt.GetoptError:
 		pass
 
 	# 1) tuple(cmd_line) -> (known options, junk)
+	known_opts = []
 	if len(cmd_line) > 0:
 		known_opts = cmd_line[0]
 
 	if len(known_opts) > 0:
 		with_email_log = 1
+	else:
+		with_email_log = 0
 
 	# run gnumed and intercept _all_ exceptions (but reraise them ...)
 	try:
@@ -117,9 +118,9 @@ def call_main():
 		else:
 			gmGuiMain.main()
 	except:
-	    exc = sys.exc_info()
-	    gmLog.gmDefLog.LogException ("Exception: Unhandled exception encountered.", exc)
-	    raise
+		exc = sys.exc_info()
+		gmLog.gmDefLog.LogException ("Exception: Unhandled exception encountered.", exc)
+		raise
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
 	"""Launch the gnumed wx GUI client."""
