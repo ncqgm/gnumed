@@ -48,6 +48,11 @@ import keyword
 import time
 import pdb
 import re
+import os.path
+
+# location of our modules
+if __name__ == "__main__":
+	sys.path.append(os.path.join('.', 'modules'))
 
 import gmPG
 import gmLog
@@ -97,14 +102,13 @@ class DrugDisplay(wxPanel):
 	"displays drug information in a convenience widget"
 
 	def __init__(self, parent, id, pos = wxPyDefaultPosition, 
-	    	    	    size = wxPyDefaultSize, style = wxTAB_TRAVERSAL ):
-		
+				 size = wxPyDefaultSize, style = wxTAB_TRAVERSAL):
+
 		wxPanel.__init__(self, parent, id, pos, size, style)
-    	    	
 		self.mDrugView=gmDrugView.DrugView('amis')
 
 		self.mode = MODE_BRAND
-		self.printer = wxHtmlEasyPrinting()          #printer object to print html page
+		self.printer = wxHtmlEasyPrinting()		#printer object to print html page
 
 		#-------------------------------------------------------------
 		# These things build the physical window that you see when
@@ -146,23 +150,23 @@ class DrugDisplay(wxPanel):
 		finddrug = wxStaticText( self, -1, _("   Find   "), wxDefaultPosition, wxDefaultSize, 0 )
 		finddrug.SetFont( wxFont( 14, wxSWISS, wxNORMAL, wxNORMAL ) )
 		
-		self.comboProduct = wxComboBox( 
-		    self, 
-		    ID_COMBO_PRODUCT, 
-		    "", 
-		    wxDefaultPosition, 
-		    wxSize(130,-1),
-		    [] , 
-		    wxCB_DROPDOWN 
+		self.comboProduct = wxComboBox(
+			self,
+			ID_COMBO_PRODUCT, 
+			"", 
+			wxDefaultPosition, 
+			wxSize(130,-1),
+			[] , 
+			wxCB_DROPDOWN 
 		)
 		self.comboProduct.SetToolTip( wxToolTip(_("Enter the name of the drug you are interested in")) )
 		self.btnBookmark = wxButton( 
-		    self, 
-		    ID_BUTTON_BOOKMARK, 
-		    _("&Bookmark"), 
-		    wxDefaultPosition, 
-		    wxDefaultSize, 
-		    0 
+			self, 
+			ID_BUTTON_BOOKMARK, 
+			_("&Bookmark"), 
+			wxDefaultPosition, 
+			wxDefaultSize, 
+			0 
 		)
 		#-----------------------------------------------------------
 		# create a sizer at topleft of screen to hold these controls
@@ -262,8 +266,8 @@ class DrugDisplay(wxPanel):
 		return
 	
 	#----------------------------------------------------------------------------------------------------------------------
-    	def GetDrugIssue(self):
-    	    	# ?????
+	def GetDrugIssue(self):
+		# ?????
 		#self.SetStatusText(insertstring, 1)
 		gmLog.gmDefLog.Log (gmLog.lData, "got the issue date")
 		return true
@@ -305,7 +309,7 @@ class DrugDisplay(wxPanel):
 			self.sizer_left.Layout()
 			self.whichWidget="listbox_drugchoice"
 	
-    	#-----------------------------------------------------------------------------------------------------------------------------
+	#-----------------------------------------------------------------------------------------------------------------------------
 	def Drug_Find(self):
 		#--------------------------------------------------------
 		# using text in listbox_drugchoice find any similar drugs
@@ -324,14 +328,14 @@ class DrugDisplay(wxPanel):
 			if self.whichWidget == 'html_viewer':
 				self.ToggleWidget ()
 			self.listbox_drugchoice.Clear ()
-			self.listbox_drugchoice.Append ('No matching drugs found!')
+			self.listbox_drugchoice.Append(_('No matching drugs found!'))
 
-    	    	# found exactly one drug
+	   	# found exactly one drug
 		elif len(result['name']) == 1:
 #			type = result['type']
 			name = result['name']
 			id = result['id']
-   	    	# if we found a brand *product*, show the product info
+			# if we found a brand *product*, show the product info
 			if type == MODE_BRAND:
 				if self.whichWidget == 'listbox_drugchoice':
 					self.ToggleWidget ()
@@ -339,15 +343,14 @@ class DrugDisplay(wxPanel):
 				elif self.mId <> id: # don't change unless different drug
 					self.Display_PI (id)
 					self.mId = id
-   	    	# if we found a generic substance name, show all brands
+			# if we found a generic substance name, show all brands
 			# containing this generic
 			elif type == MODE_GENERIC:
 				self.Display_Generic (id)
 			# if we are browsing indications, show all generics + brands
 			# that match. Display Indication 
 			elif type == MODE_INDICATION:
-			    	self.Display_Indication(id)
-				
+				self.Display_Indication(id)
 
 		# we have more than one result
 		# -> display a list of all matching names
@@ -356,21 +359,22 @@ class DrugDisplay(wxPanel):
 				self.ToggleWidget ()
 			self.listbox_drugchoice.Clear ()
 			row_no = 0
-    	    	# create a list of all matching names
-    			for row_name in result['name']:
+			# create a list of all matching names
+			for row_name in result['name']:
 				self.listbox_drugchoice.Append (row_name + '\n')
-    	    	# set data as type and database ID
+		    	# set data as type and database ID
 				id = result['id'][row_no]
 #				type = result['type'][row_no]
-				self.listbox_drugchoice.SetClientData (row_no, (type, id)) 
+				self.listbox_drugchoice.SetClientData (row_no, (type, id))
 				row_no += 1
-		return true
 
-    	#---------------------------------------------------------------------------------------------------------------------------
+			return true
+
+	#---------------------------------------------------------------------------------------------------------------------------
 	def Display_Generic (self, aId):
 
 		brandsList=self.mDrugView.getBrandsForGeneric(aId)
-    	    	
+
 		# one brand, so display product information
 		if len (brandsList['name']) == 1:
 			if self.whichWidget == 'listbox_drugchoice':
@@ -382,16 +386,16 @@ class DrugDisplay(wxPanel):
 				self.ToggleWidget ()
 			row_no = 0
 			self.listbox_drugchoice.Clear ()
-    			for row_name in result['name']:
+			for row_name in result['name']:
 				self.listbox_drugchoice.Append (row_name + '\n')
-    	    	    	    	# set data as type and database ID
+				# set data as type and database ID
 				id = result['id'][row_no]
 				type = result['type'][row_no]
 				self.listbox_drugchoice.SetClientData (row_no, (type, id)) 
 				row_no += 1
 			return true
 					
-    	#-----------------------------------------------------------------------------------------------------------------------------
+	#-----------------------------------------------------------------------------------------------------------------------------
 	def Display_PI(self, aId=None):
 		#-----------------------------------------------------------------
 		# Queries database using the mancode to get all the
@@ -404,11 +408,11 @@ class DrugDisplay(wxPanel):
 			return None
 
 		self.mId = aId
-    	    	# getProductInfo returns a HTML-formatted page 
+		# getProductInfo returns a HTML-formatted page 
 		drugProductInfo=self.mDrugView.getProductInfo(aId)
 #		self.comboProduct.SetValue(result[0]['product'])
 		self.inDisplay_PI = 0
-		self.html_viewer.SetPage(drugProductInfo)	
+		self.html_viewer.SetPage(drugProductInfo)
 		return true
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
@@ -444,7 +448,7 @@ class DrugDisplay(wxPanel):
 
 	def OnJumpToSelected(self, event):
 		# can't figure out how to get this to work!
-		gmLog.gmDef.Log (gmLog.lData, "selection made")
+		gmLog.gmDefLog.Log (gmLog.lData, "selection made")
 		tagname = self.listbox_jumpto.GetString(self.listbox_jumpto.GetSelection())
 		print  tagname
 		self.html_viewer.LoadPage('#' + tagname)
@@ -466,9 +470,9 @@ class DrugDisplay(wxPanel):
 	def OnProductKeyPressed(self, event):
 		# first, do not recur when setting the box ourselves!
 		if not self.inDisplay_PI:
-		    	entry_string = self.comboProduct.GetValue()
-			if len(entry_string) >2:
-				self.Drug_Find ()
+			entry_string = self.comboProduct.GetValue()
+			if len(entry_string) > 2:
+				self.Drug_Find()
 
 
 	def OnProductSelected(self, event):
@@ -496,7 +500,6 @@ if __name__ == "__main__":
 
 else:
 	#=================================================
-
 	# make this into GNUMed plugin
 
 	import gmPlugin
@@ -513,10 +516,3 @@ else:
 
 		def GetWidget (self, parent):
 			return DrugDisplay (parent, -1)
-
-
-
-
-
-
-

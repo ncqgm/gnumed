@@ -1,6 +1,11 @@
 #! /usr/local/bin/python
 
-import sys, string, re, types
+import sys, string, re, types, os.path
+
+# location of our modules
+if __name__ == "__main__":
+	sys.path.append(os.path.join('.', 'modules'))
+
 import gmLog
 _log = gmLog.gmDefLog
 import gmCfg

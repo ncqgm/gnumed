@@ -15,10 +15,15 @@
 
 #==================================================================             
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/gmDrugObject.py,v $      
-__version__ = "$Revision: 1.5 $"                                               
+__version__ = "$Revision: 1.6 $"                                               
 __author__ = "Hilmar Berger <Hilmar.Berger@gmx.net>"
 
-import sys, string, types
+import sys, string, types, os.path
+
+# location of our modules
+if __name__ == "__main__":
+	sys.path.append(os.path.join('.', 'modules'))
+
 import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
@@ -26,9 +31,7 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmCfg
-import gmDbObject, gmPG
-import gmExceptions
+import gmCfg, gmDbObject, gmPG, gmExceptions
 #--------------------------------------------------------------------------
 class QueryGroup:
 	"""Object holding query strings and associated variable lists grouped together.
@@ -306,7 +309,7 @@ class QueryGroupHandler:
 #====================================================================================
 
 if __name__ == "__main__":
-    	import os.path
+	import os.path
 	tmp = os.path.join(os.path.expanduser("~"), ".gnumed", "amis.conf")
 	a = Drug(0, tmp)
 	x = a.GetData('brand')
@@ -324,7 +327,10 @@ if __name__ == "__main__":
 #	print len(x['brandname'])
 #====================================================================================
 # $Log: gmDrugObject.py,v $
-# Revision 1.5  2002-10-28 23:26:02  hinnef
+# Revision 1.6  2002-10-29 15:40:48  ncq
+# - first try at making this runnable standalone
+#
+# Revision 1.5  2002/10/28 23:26:02  hinnef
 # first partially functional DrugReferenceBrowser version
 #
 # Revision 1.4  2002/10/24 13:04:18  ncq
