@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.41 $
+-- $Revision: 1.42 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -102,12 +102,10 @@ delete from clin_episode where pk in (
 
 insert into clin_episode (
 	fk_health_issue,
-	is_open,
-	clinically_relevant
+	is_open
 ) values (
 	currval('clin_health_issue_id_seq'),
-	'false'::boolean,
-	'true'::boolean
+	'false'::boolean
 );
 --	'knife cut L arm 9/2000'
 
@@ -228,7 +226,7 @@ insert into clin_narrative (
 	'?contaminated laceration L forearm',
 	'a',
 	'true'::boolean,
-	'false'::boolean
+	'true'::boolean
 );
 
 
@@ -284,19 +282,6 @@ insert into vaccination (
 	'102041A'
 );
 
---insert into lnk_vacc2vacc_def (
---	fk_vaccination,
---	fk_vacc_def
---) values (
---	currval('vaccination_id_seq'),
---	(select id
---	 from vacc_def
---	 where
---	 	fk_regime=(select id from vacc_regime where name='Tetanus (STIKO)')
---			and
---		is_booster
---	)
---);
 
 -- blood sample drawn for screen/CRP
 insert into lab_request (
@@ -474,6 +459,10 @@ insert into clin_narrative (
 	'true'::boolean
 );
 
+update clin_narrative
+set is_episode_name = false
+where fk_episode = currval('clin_episode_pk_seq');
+
 -- AOE
 insert into clin_narrative (
 	clin_when,
@@ -636,11 +625,16 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.41 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.42 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.41  2004-11-21 21:01:44  ncq
+-- Revision 1.42  2004-11-24 15:42:00  ncq
+-- - need clin_narrative with is_episode_name *before* inserting clin_root_items
+--   which signal changes since the trigger crawls v_pat_episodes for the
+--   patient PK and unnamed episodes don't show up there
+--
+-- Revision 1.41  2004/11/21 21:01:44  ncq
 -- - episode: is_active -> is_open
 --
 -- Revision 1.40  2004/11/16 18:59:57  ncq
