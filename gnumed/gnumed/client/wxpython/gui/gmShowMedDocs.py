@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -278,6 +278,9 @@ class cDocTree(wxTreeCtrl):
 			# 1 MB
 			chunksize = 1 * 1024 * 1024
 
+		# make sure metadata is there
+		tmp = obj['metadata']
+
 		# retrieve object
 		if not obj.export_to_file(aTempDir = exp_base, aChunkSize = chunksize):
 			_log.Log(gmLog.lErr, "Cannot export object [%s] data from database !" % node_data['id'])
@@ -522,7 +525,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.12  2003-03-02 11:13:01  hinnef
+# Revision 1.13  2003-03-02 17:03:19  ncq
+# - make sure metadata is retrieved
+#
+# Revision 1.12  2003/03/02 11:13:01  hinnef
 # preliminary fix for crash on ReceiveFocus()
 #
 # Revision 1.11  2003/02/25 23:30:31  ncq
