@@ -243,7 +243,7 @@ class gmCryptoText(wxTextCtrl):
             wxLogMessage("FuzzyScan went wrong")
             return ''
         return fulltext[left:right], left,right
-
+ 
 #############################################################################
 # test function for this module: simply run the module as "main"
 # a text entry window will pop up. Write something, select arbitray
