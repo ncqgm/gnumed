@@ -1,0 +1,30 @@
+# hand this over as the first argument !
+
+# list of base directories, where patient directories are created,
+# multiple entries separated by blanks
+[source]
+repositories = /mnt/medituxarchiv/repository/
+
+[metadata]
+# if this exists import can proceed, eg. frontend work is assumed to be complete
+checkpoint = index.ok
+# read patient data from here
+patient = patient.dat
+# directory for above file
+location = 
+# read document metadata from here
+description = befunde.xml
+
+# XML tags for document metadata
+document_tag = Befund
+name_tag = Name
+firstname_tag = Vorname
+birth_tag = Geb_datum
+date_tag = Obj_Datum
+type_tag = Obj_Typ
+comment_tag = Obj_Name
+add_comment_tag = Obj_Beschreibung
+ref_tag = Obj_Referenz
+
+[doctypes]
+type = Entlassung Chirurgie,Entlassung Interne,Entlassung Psychatrie,Entlassung Reha,Entlassung Orthopädie,Labor,Arztbrief Chirurgie,Arztbrief Orthopädie,Arztbrief Innere,Arztbrief Neurologie,Arztbrief Psychotherapie,Arztbrief Radiologie,Arztbrief Umweltmedizin,Arztbrief Mikrobiologie
