@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -50,7 +50,7 @@ class cDocTree(wxTreeCtrl):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# connect handlers
-		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.__on_activate)
+		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self._on_activate)
 		EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self.__on_right_click)
 
 #		 EVT_TREE_ITEM_EXPANDED	 (self, tID, self.OnItemExpanded)
@@ -183,7 +183,7 @@ class cDocTree(wxTreeCtrl):
 		_log.Log(gmLog.lErr, 'do not know how to compare [%s] with [%s]' % (type(item1), type(item2)))
 		return None
 	#------------------------------------------------------------------------
-	def __on_activate (self, event):
+	def _on_activate (self, event):
 		node = event.GetItem()
 		node_data = self.GetPyData(node)
 
@@ -304,7 +304,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.6  2004-10-11 19:56:03  ncq
+# Revision 1.7  2004-10-14 12:11:50  ncq
+# - __on_activate -> _on_activate
+#
+# Revision 1.6  2004/10/11 19:56:03  ncq
 # - cleanup, robustify, attach doc/part VO directly to node
 #
 # Revision 1.5  2004/10/01 13:34:26  ncq
