@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.102 2003-06-01 14:34:47 sjtan Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmGuiMain.py,v 1.103 2003-06-10 09:55:34 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -42,7 +42,6 @@ _cfg = gmCfg.gmDefCfgFile
 from gmI18N import gmTimeformat, system_locale, system_locale_level
 
 import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmPlugin
-#import handler_loader
 #import images
 #import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
@@ -646,7 +645,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.102  2003-06-01 14:34:47  sjtan
+# Revision 1.103  2003-06-10 09:55:34  ncq
+# - don't import handler_loader anymore
+#
+# Revision 1.102  2003/06/01 14:34:47  sjtan
 #
 # hopefully complies with temporary model; not using setData now ( but that did work).
 # Please leave a working and tested substitute (i.e. select a patient , allergy list
