@@ -1,0 +1,30 @@
+Files changed or added are in gnumed/client/python-common , wxpython , wxpython/gui and wxpython/patient.
+This is a demo of using a local model for the user interface written by Richard Terry and Ian Heywood.
+The local model can have a proxy to provide functions such as locking with periodic
+local saving;  local model to database model translation and update.
+
+This model puts some functionality in the past history, allergies and scripts panels.
+
+The handler classes were written to expose the ui classes with minimal alteration to
+those classes and without subclassing. 
+
+In terms of model view controller ,  gmEditArea, the gmGP classes in gui and patient, 
+are the views,  handler_editarea_impl, handler_gmPersonSelect_impl are controller
+implementations, and models are in patient_model. 
+
+Domain specific features:
+
+icd9 search engine, for past_history and the prescription reason field in script.
+
+class drug consistency, in allergies and scripts.
+
+
+should be able to run if already installed a postgresql  database called gnumed,
+and can get past the login stuff.
+
+** running gmGuiMain.py will give debugging output back to the console.
+
+
+
+
+
