@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.83 2005-02-03 20:19:16 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmEditArea.py,v 1.84 2005-03-20 17:50:15 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -370,7 +370,10 @@ class cEditArea(wxPanel):
 			for pos in positions:
 				field, weight = self.fields[line][pos]
 				self.field_line_szr[line].Add(field, weight, wxEXPAND)
-			vszr.Add(self.field_line_szr[line], self.prompts[line][2], flag = wxEXPAND) # use same lineweight as prompts
+			try:
+				vszr.Add(self.field_line_szr[line], self.prompts[line][2], flag = wxEXPAND) # use same lineweight as prompts
+			except KeyError:
+				_log.Log(gmLog.lErr, "Error with line=%s, self.field_line_szr has key:%s; self.prompts has key: %s" % (line, self.field_line_szr.has_key(line), self.prompts.has_key(line) ) )
 		# put them on the panel
 		self.fields_pnl.SetSizer(vszr)
 		vszr.Fit(self.fields_pnl)
@@ -1996,7 +1999,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.83  2005-02-03 20:19:16  ncq
+# Revision 1.84  2005-03-20 17:50:15  ncq
+# - catch another exception on doing the layout
+#
+# Revision 1.83  2005/02/03 20:19:16  ncq
 # - get_demographic_record() -> get_identity()
 #
 # Revision 1.82  2005/01/31 10:37:26  ncq
