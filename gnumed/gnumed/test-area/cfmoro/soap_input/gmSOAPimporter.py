@@ -43,8 +43,8 @@ This script is designed for importing GnuMed SOAP input "bundle".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.5 2004-12-13 19:37:08 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmSOAPimporter.py,v 1.6 2004-12-16 17:59:38 cfmoro Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -81,7 +81,7 @@ class cSOAPImporter:
 	_key_pattern = "\[:.[^:\[\]]*:\]"	 
 	#-----------------------------------------------------------
 	def __init__(self):
-		self._pat = gmPatient.gmCurrentPatient()		
+		self.__pat = gmPatient.gmCurrentPatient()		
 	#-----------------------------------------------------------
 	# external API
 	#-----------------------------------------------------------
@@ -108,12 +108,12 @@ class cSOAPImporter:
 
 		# process each entry in soap bundle independantly
 		for soap_entry in bundle:
-			if not self._import_narrative(soap_entry):
+			if not self.__import_narrative(soap_entry):
 				_log.Log(gmLog.lErr, 'skipping soap entry')
 				continue
 			_log.Log(gmLog.lInfo, "soap narrative imported OK")
 
-			if not self._import_embedded_data(soap_entry):
+			if not self.__import_embedded_data(soap_entry):
 				_log.Log(gmLog.lErr, 'skipping soap entry')
 				continue
 			_log.Log(gmLog.lInfo, "embedded data imported OK")
@@ -122,7 +122,7 @@ class cSOAPImporter:
 	#-----------------------------------------------------------
 	# internal helpers
 	#-----------------------------------------------------------
-	def _import_narrative(self, soap_entry):
+	def __import_narrative(self, soap_entry):
 		"""Import soap entry into GnuMed backend.
 
 		@param soap_entry: dictionary containing information related to one
@@ -132,7 +132,7 @@ class cSOAPImporter:
 		FIXME: Later we may want to allow for explicitely setting a staff ID to be
 		FIXME: used for import. This would allow to import data "on behalf of" someone.
 		"""
-		if not self._verify_soap_entry(soap_entry=soap_entry):
+		if not self.__verify_soap_entry(soap_entry=soap_entry):
 			_log.Log(gmLog.lErr, 'cannot verify soap entry')
 			return False
 		# obtain clinical context information
@@ -140,7 +140,7 @@ class cSOAPImporter:
 		try:
 			enc_id = soap_entry[cSOAPImporter._clin_ctx_key][cSOAPImporter._encounter_id_key]
 		except KeyError:
-			emr = self._pat.get_clinical_record()
+			emr = self.__pat.get_clinical_record()
 			print emr
 			enc = emr.get_active_encounter()
 			print enc
@@ -164,13 +164,13 @@ class cSOAPImporter:
 
 		# attach types
 		if soap_entry.has_key(cSOAPImporter._types_key):
-			print "types    : %s" % soap_entry[cSOAPImporter._types_key]
+			print "types	: %s" % soap_entry[cSOAPImporter._types_key]
 #			for narr_type in soap_entry[cSOAPImporter._types_key]:
 #				narr.attach_type(item_type = narr_type)
 
 		return status
 	#-----------------------------------------------------------
-	def _verify_soap_entry(self, soap_entry):
+	def __verify_soap_entry(self, soap_entry):
 		"""
 		Perform basic integrity check of a supplied SOAP entry
 		
@@ -209,11 +209,11 @@ class cSOAPImporter:
 		try:
 			enc_id = soap_entry[cSOAPImporter._clin_ctx_key][cSOAPImporter._encounter_id_key]
 		except KeyError:
-			emr = self._pat.get_clinical_record()
+			emr = self.__pat.get_clinical_record()
 			enc_id = emr.get_active_encounter()['pk_encounter']
 
 		print "additional data"
-		print "type     : %s" % data[cSOAPImporter._type_key]
+		print "type	 : %s" % data[cSOAPImporter._type_key]
 		print "episode  : %s" % epi_id
 		print "encounter: %s" % enc_id
 		for key in data[cSOAPImporter._struct_data_key].keys():
@@ -225,7 +225,7 @@ class cSOAPImporter:
 		'allergy': __print_item
 	}
 	#-----------------------------------------------------------
-	def _import_embedded_data(self, soap_entry):
+	def __import_embedded_data(self, soap_entry):
 		# find embedded keys
 		narr = soap_entry[cSOAPImporter._text_key]
 		embedded_keys = re.findall(cSOAPImporter._key_pattern, narr)
@@ -410,7 +410,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.5  2004-12-13 19:37:08  ncq
+# Revision 1.6  2004-12-16 17:59:38  cfmoro
+# Encapsulation syntax fixed (_ replaced by __). Using tab indentation, in consistency with the rest of gnumed files
+#
+# Revision 1.5  2004/12/13 19:37:08  ncq
 # - cleanup after review by Carlos
 # - will be moved to main trunk RSN
 #
