@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.11 $
+$Revision: 1.12 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -9,26 +9,3 @@ Rules:
 - Please date it. Thanks
 - delete things if you incorporated them into the guide
 --------------------------------------------------------------
-Sam 16 Nov 2002 09:04:38 CET karsten.hilbert@gmx.net
-
-SQL hacking guidelines:
-
-- don't use "\copy from stdin"
-  reason: will kill server installation tools
-- don't use "COPY from 'a file' unless importing really
-  large datasets - and those should be imported entirely
-  separate from the schema definition import
-  reason: won't work non-local to the DB server
-- always include gmSchemaRevision.sql in your schema
-  definition files (see the file for instructions)
-- normalize
-- keep things generic
-- split things into general and country-specific parts
-
-database facts:
-
-Each GnuMed database has a table "schema_revision". Doing a
- select * from schema_revision
-will show you which version of which SQL file was imported
-into this database (as long as they adhere to the GnuMed
-SQL hacking guidelines).
