@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.6 2005-01-29 18:01:20 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmEMRStructWidgets.py,v 1.7 2005-01-29 19:12:19 cfmoro Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -575,6 +575,12 @@ class cEpisodeEditor(wx.wxPanel):
 			# on new episode
 			#self.__emr.add_episode(episode_name= , pk_health_issue=self.__pk_health_issue, soap_cat= self.__CHC_soap_cat.GetStringSelection())
 			print 'Creating episode: %s , soap: %s' % (self.__PRW_description.GetValue(),self.__CHC_soap_cat.GetStringSelection())
+			# FIXME 
+			self.__selected_episode = self.__emr.add_episode (
+			episode_name = self.__PRW_description.GetValue(),
+			pk_health_issue = self.__pk_health_issue,
+			soap_cat = self.__CHC_soap_cat.GetStringSelection()
+			)			
 		else:
 			# on episode edition
 			#self.__selected_episode['description'] = self.__PRW_description.GetValue()
@@ -774,7 +780,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.6  2005-01-29 18:01:20  ncq
+# Revision 1.7  2005-01-29 19:12:19  cfmoro
+# Episode creation on episode editor widget
+#
+# Revision 1.6  2005/01/29 18:01:20  ncq
 # - some cleanup
 # - actually create new episodes
 #
