@@ -316,7 +316,7 @@ CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
                    state.code = NEW.state AND
                    state.country = NEW.country))
         WHERE
-               NEW.id=OLD.id;
+               address.id=OLD.addr_id;
 
 -- =============================================
 
