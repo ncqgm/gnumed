@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types
@@ -135,17 +135,6 @@ def create_health_issue(patient_id=None, description='xxxDEFAULTxxx'):
 		return (True, h_issue)
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
-	# error or not found
-#	# sanity check for patient
-#	cmd = "select exists(select 1 from xlnk_identity where xfk_identity=%s)"
-#	valid = gmPG.run_ro_query('personalia', cmd, None, patient_id)
-#	if valid is None:
-#		_log.Log(gmLog.lErr, 'error checking patient [%s] consistency' % (patient_id))
-#		return (False, _('internal error, check log'))
-#	if not valid[0]:
-#		_log(gmLog.lErr, 'patient [%s] apparently does not exist in database' % (patient_id))
-#		return (False, _('consistency error, check log'))
-
 	# insert new health issue
 	queries = []
 	cmd = "insert into clin_health_issue (id_patient, description) values (%s, %s)"
@@ -170,7 +159,7 @@ def create_encounter(fk_patient=None, fk_location=-1, fk_provider=None, descript
 	fk_location - encounter location
 	fk_provider - who was the patient seen by
 	description - name or description for the encounter
-	fk_type - type of encounter
+	enc_type - type of encounter
 
 	FIXME: we don't deal with location yet
 	"""
@@ -187,7 +176,7 @@ def create_encounter(fk_patient=None, fk_location=-1, fk_provider=None, descript
 			insert into clin_encounter (
 				fk_patient, fk_location, fk_provider, description, fk_type
 			) values (
-				%s, -1, %s, %s,	(select id from encounter_type where description=%s)
+				%s, -1, %s, %s,	coalesce((select id from encounter_type where description=%s), 0)
 			)"""
 	else:
 		cmd = """
@@ -247,7 +236,10 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.5  2004-05-17 19:02:26  ncq
+# Revision 1.6  2004-05-18 20:35:42  ncq
+# - cleanup
+#
+# Revision 1.5  2004/05/17 19:02:26  ncq
 # - encounter.set_active()
 # - improve create_encounter()
 #
