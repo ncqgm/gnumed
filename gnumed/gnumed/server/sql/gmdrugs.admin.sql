@@ -38,6 +38,82 @@ comment on column users.password_expiry is 'the date the password expires';
 comment on column users.iso_countrycode is 'the users country';
 
 insert into users values ('ian', NULL, 'Dr. Ian Haywood, MBBS', '31 Dec 2002', 'au');
+insert into users values ('hherb', NULL, 'Dr. Horst Herb, MBBS', '31 Dec 2002', 'au');
+insert into users values ('dguest', NULL, 'Dr. David Guest', '31 Dec 2002', 'au');
+insert into users values ('ncq', NULL, 'Dr. Karsten Hibert, MBBS', '31 Dec 2002', 'de');
+insert into users values ('hilmar', NULL, 'Dr. Hilmar Berger, MBBS', '31 Dec 2002', 'de');
+insert into users values ('guest', NULL, 'Guest User (NOT Dr. David Guest)', NULL, '**');
+
+-- groups of users -- superuser must do this!
+--create group contributors;
+--create group browsers;
+
+grant all on drug_dosage to group contributors;
+grant all on generic_drug_name to group contributors;
+grant all on link_country_drug_name to group contributors;
+grant all on link_compound_generics to group contributors;
+grant all on link_drug_adverse_effects to group contributors;
+grant all on link_drug_class to group contributors;
+grant all on link_drug_disease_interactions to group contributors;
+grant all on link_drug_indication to group contributors;
+grant all on link_drug_information to group contributors;
+grant all on link_drug_interactions to group contributors;
+grant all on link_drug_warning to group contributors;
+grant all on link_flag_product to group contributors;
+grant all on link_product_component to group contributors;
+grant all on link_product_manufacturer to group contributors;
+grant all on product to group contributors;
+grant all on subsidized_products to group contributors;
+grant all on substance_dosage to group contributors;
+grant all on drug_warning to group contributors;
+grant all on drug_information to group contributors;
+grant all on drug_element to group contributors;
+grant all on conditions to group contributors;
+grant all on available to group contributors;
+grant all on manufacturer to group contributors;
+grant all on info_reference to group contributors;
+grant all on interactions to group contributors;
+grant all on adverse_effects to group contributors;
+grant all on package_size to group contributors;
+
+grant select on drug_dosage to group browsers;
+grant select on generic_drug_name to group browsers;
+grant link_country_drug_name to group browsers;
+grant select on link_compound_generics to group browsers;
+grant select on link_drug_adverse_effects to group browsers;
+grant select on link_drug_class to group browsers;
+grant select on link_drug_disease_interactions to group browsers;
+grant select on link_drug_indication to group browsers;
+grant select on link_drug_information to group browsers;
+grant select on link_drug_interactions to group browsers;
+grant select on link_drug_warning to group browsers;
+grant select on link_flag_product to group browsers;
+grant select on link_product_component to group browsers;
+grant select on link_product_manufacturer to group browsers;
+grant select on product to group browsers;
+grant select on subsidized_products to group browsers;
+grant select on substance_dosage to group browsers;
+grant select on drug_warning to group browsers;
+grant select on drug_information to group browsers;
+grant select on drug_element to group browsers;
+grant select on conditions to group browsers;
+grant select on available to group browsers;
+grant select on manufacturer to group browsers;
+grant select on info_reference to group browsers;
+grant select on interactions to group browsers;
+grant select on adverse_effects to group browsers;
+grant select on package_size to group browsers;
+
+grant select on disease_code to public;
+grant select on code_systems to public;
+grant select on drug_flags to public;
+grant select on drug_formulations to public;
+grant select on drug_routes to public;
+grant select on drug_units to public;
+grant select on information_topic to public;
+grant select on drug_warning_categories to public;
+grant select on subsidies to public;
+grant select on users to public;
 
 create table audit
 (
@@ -143,79 +219,7 @@ plpy.execute ("insert into audit (action, what, table_row, table_name, version) 
 
 comment on function audit_func () is 'Python trigger function to create audit entries';
 
-create trigger element_trig after insert or update or delete on drug_element 
-for each row execute procedure audit_func ();
-
--- groups of users -- superuser must do this!
---create group contributors;
---create group browsers;
-
-grant all on audit to group contributors;
-grant all on drug_dosage to group contributors;
-grant all on generic_drug_name to group contributors;
-grant all on link_compound_generics to group contributors;
-grant all on link_drug_adverse_effects to group contributors;
-grant all on link_drug_class to group contributors;
-grant all on link_drug_disease_interactions to group contributors;
-grant all on link_drug_indication to group contributors;
-grant all on link_drug_information to group contributors;
-grant all on link_drug_interactions to group contributors;
-grant all on link_drug_warning to group contributors;
-grant all on link_flag_product to group contributors;
-grant all on link_product_component to group contributors;
-grant all on link_product_manufacturer to group contributors;
-grant all on product to group contributors;
-grant all on subsidized_products to group contributors;
-grant all on substance_dosage to group contributors;
-grant all on drug_warning to group contributors;
-grant all on drug_information to group contributors;
-grant all on drug_element to group contributors;
-grant all on conditions to group contributors;
-grant all on available to group contributors;
-grant all on manufacturer to contributors;
-grant all on info_reference to contributors;
-grant all on interactions to contributors;
-grant all on adverse_effects to contributors;
-grant all on package_size to contributors;
-
-grant select on audit to group browsers;
-grant select on drug_dosage to group browsers;
-grant select on generic_drug_name to group browsers;
-grant select on link_compound_generics to group browsers;
-grant select on link_drug_adverse_effects to group browsers;
-grant select on link_drug_class to group browsers;
-grant select on link_drug_disease_interactions to group browsers;
-grant select on link_drug_indication to group browsers;
-grant select on link_drug_information to group browsers;
-grant select on link_drug_interactions to group browsers;
-grant select on link_drug_warning to group browsers;
-grant select on link_flag_product to group browsers;
-grant select on link_product_component to group browsers;
-grant select on link_product_manufacturer to group browsers;
-grant select on product to group browsers;
-grant select on subsidized_products to group browsers;
-grant select on substance_dosage to group browsers;
-grant select on drug_warning to group browsers;
-grant select on drug_information to group browsers;
-grant select on drug_element to group browsers;
-grant select on conditions to group browsers;
-grant select on available to group browsers;
-grant select on manufacturer to group browsers;
-grant select on info_reference to group browsers;
-grant select on interactions to group browsers;
-grant select on adverse_effects to group browsers;
-grant select on package_size to group browsers;
-
-grant select on disease_code to public;
-grant select on code_systems to public;
-grant select on drug_flags to public;
-grant select on drug_formulations to public;
-grant select on drug_routes to public;
-grant select on drug_units to public;
-grant select on information_topic to public;
-grant select on drug_warning_categories to public;
-grant select on subsidies to public;
-
-
+--create trigger element_trig after insert or update or delete on drug_element 
+--for each row execute procedure audit_func ();
 
 

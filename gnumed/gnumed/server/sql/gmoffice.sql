@@ -9,10 +9,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.1 $ $Date: 2002-12-03 02:50:19 $ $Author: ihaywood $
+-- $Revision: 1.2 $ $Date: 2002-12-06 08:50:52 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmoffice.sql,v $
--- Revision 1.1  2002-12-03 02:50:19  ihaywood
+-- Revision 1.2  2002-12-06 08:50:52  ihaywood
+-- SQL internationalisation, gmclinical.sql now internationalised.
+--
+-- Revision 1.1  2002/12/03 02:50:19  ihaywood
 -- new office schema: tables for printing forms
 --
 --
@@ -20,6 +23,14 @@
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- Forms
+--------
+-- These tables describe sets of SQL queries matched to x,y positions
+-- on a page, describing various forms such as prescriptions, path request 
+-- slips, WorkCover forms, etc.
 
 create table papersizes
 (
@@ -49,7 +60,7 @@ insert into papersizes (name, length, width) values ('B1', 70.6967 ,100.048);
 insert into papersizes (name, length, width) values ('B2',  50.0239,70.6967);
 insert into papersizes (name, length, width) values ('B3',  35.3483,50.0239);
 insert into papersizes (name, length, width) values ('B4',  25.0119,35.3483);
-insert into papersizes (name, length, width) values ( 'B5',  17.6742,25.0119);
+insert into papersizes (name, length, width) values ('B5',  17.6742,25.0119);
 insert into papersizes (name, length, width) values ('archA', 22.86,30.48);
 insert into papersizes (name, length, width) values ('archB', 30.48,45.72);
 insert into papersizes (name, length, width) values ('archC', 45.72,60.96);
@@ -147,6 +158,102 @@ create table formfield
 	wraparound integer
 );
 
-comment on column formfield.x is 'x-cordinate unit 720/inch';
-comment on column formfield.y is 'y-cordinate unit 720/inch';
+comment on column formfield.x is 'x-cordinate unit 720/inch, O left paper edge';
+comment on column formfield.y is 'y-cordinate unit 720/inch, o top paper edge';
 comment on column formfield.wraparound is 'wraparound for text, unit 720/inch';
+
+create table printers
+(
+	name varchar (50) unique,
+	x_offset integer,
+	y_offset integer,
+	x_scale float,
+	y_scale float
+);
+
+comment on table printers is
+'conversion parameters to adjust physical location of the form fields
+into logical units. Postscript tends to stick to 720/inch, counting from the 
+paper edges, but some printers seem to force a small offset.
+On Windows, of course, all bets are off!';
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-- Embryo of billing tables
+-- This is a highly classical accounting system, with medical-specific
+-- updatable views.
+
+create table schedule 
+(
+	id serial,
+	code varchar (20),
+	name varchar (100),
+	min_duration integer,
+	description text
+);
+
+create table billing_scheme
+(
+	id serial,
+	name varchar (100),
+	iso_countrycode char (2)
+);
+
+insert into billing_scheme (name, iso_countrycode) values ('Bulk-billed Medicare', 'au');
+insert into billing_scheme (name, iso_countrycode) values ('Private Billing', 'au');
+insert into billing_scheme (name, iso_countrycode) values ('Veteran''s Affairs', 'au');
+insert into billing_scheme (name, iso_countrycode) values ('WorkCover', 'au');
+
+create table prices
+(
+	id_consult integer schedule (id),
+	id_scheme integer billing_scheme (id),
+	patient float,
+	bulkbill float
+);
+ 
+comment on column patient is
+'the amount of money paid by the patient';
+ comment on column bulkbill is
+'the amount billed directly (bulk-billed) to the payor';
+
+create accounts
+(
+	id serial,
+	name varchar (50),
+	extra integer
+);
+
+alter table add column parent integer references accounts (id);
+-- Warning: translate, but DON'T alter the order!!!
+insert into accounts (name) values ('Assets');
+insert into accounts (name) values ('Liabilities');
+insert into accounts (parent, name) values (1, 'Accounts Recievable');
+insert into accounts (parent, name) values (2, 'Accounts Payable');
+insert into accounts (parent, name) values (2, 'Capital'); 
+insert into accounts (parent, name) values (3, 'Patients');
+insert into accounts (parent, name) values (4, 'Tax');
+insert into accounts (parent, name) values (4, 'Wages'); 
+insert into accounts (parent, name) values (1, 'Cash');
+insert into accounts (parent, name) values (1, 'Inventory');
+
+create table ledger
+(
+	stamp timestamp,
+	amount float,
+	debit integer references accounts (id),
+	credit integer references accounts (id)
+);
+
+create table consults
+(
+	start timestamp,
+	finish timestamp
+	id_location integer,
+	id_doctor integer,
+	id_patient integer,
+	id_type integer references schedule (id),
+	id_scheme integer references scheme (id)
+);
+
+

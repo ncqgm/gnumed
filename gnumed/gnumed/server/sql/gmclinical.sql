@@ -1,13 +1,16 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- license: GPL
 -- author: 
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- This database is internationalised!
+-- run i18n.sql before running this script. 
 
 create table audit_clinical (
 	audit_id serial
@@ -23,27 +26,27 @@ create table enum_clinical_encounters(
 
 
 INSERT INTO enum_clinical_encounters (description)
-	values ('surgery consultation');
+	values (_('surgery consultation'));
 INSERT INTO enum_clinical_encounters (description)
-	values ('phone consultation');
+	values (_('phone consultation'));
 INSERT INTO enum_clinical_encounters (description)
-	values ('fax consultation');
+	values (_('fax consultation'));
 INSERT INTO enum_clinical_encounters (description)
-	values ('home visit');
+	values (_('home visit'));
 INSERT INTO enum_clinical_encounters (description)
-	values ('nursing home visit');
+	values (_('nursing home visit'));
 INSERT INTO enum_clinical_encounters (description)
-	values ('repeat script');
+	values (_('repeat script'));
 INSERT INTO enum_clinical_encounters (description)
-	values ('hospital visit');
+	values (_('hospital visit'));
 INSERT INTO enum_clinical_encounters (description)
-	values ('video conference');
+	values (_('video conference'));
 INSERT INTO enum_clinical_encounters (description)
-	values ('proxy encounter');
+	values (_('proxy encounter'));
 INSERT INTO enum_clinical_encounters (description)
-	values ('emergency encounter');
+	values (_('emergency encounter'));
 INSERT INTO enum_clinical_encounters (description)
-	values ('other encounter');
+	values (_('other encounter'));
 
 COMMENT ON TABLE enum_clinical_encounters is
 'these are the types of encounter';
@@ -83,29 +86,29 @@ COMMENT ON TABLE enum_clinical_history is
 
 
 INSERT INTO enum_clinical_history (description)
-	values ('past');
+	values (_('past'));
 INSERT INTO enum_clinical_history (description)
-	values ('presenting complaint');
+	values (_('presenting complaint'));
 INSERT INTO enum_clinical_history (description)
-	values ('history of present illness');
+	values (_('history of present illness'));
 INSERT INTO enum_clinical_history (description)
-	values ('social');
+	values (_('social'));
 INSERT INTO enum_clinical_history (description)
-	values ('family');
+	values (_('family'));
 INSERT INTO enum_clinical_history (description)
-	values ('immunisation');
+	values (_('immunisation'));
 INSERT INTO enum_clinical_history (description)
-	values ('requests');
+	values (_('requests'));
 INSERT INTO enum_clinical_history (description)
-	values ('allergy');
+	values (_('allergy'));
 INSERT INTO enum_clinical_history (description)
-	values ('drug');
+	values (_('drug'));
 INSERT INTO enum_clinical_history (description)
-	values ('sexual');
+	values (_('sexual'));
 INSERT INTO enum_clinical_history (description)
-	values ('psychiatric');
+	values (_('psychiatric'));
 INSERT INTO enum_clinical_history (description)
-	values ('other');
+	values (_('other'));
 
 create table enum_info_sources
 (
@@ -116,12 +119,12 @@ create table enum_info_sources
 comment on table enum_info_sources is
 'sources of clinical information: patient, relative, notes, corresondence';
 
-insert into enum_info_sources (description) values ('patient');
-insert into enum_info_sources (description) values ('clinician');
-insert into enum_info_sources (description) values ('relative');
-insert into enum_info_sources (description) values ('carer');
-insert into enum_info_sources (description) values ('notes');
-insert into enum_info_sources (description) values ('correspondence');
+insert into enum_info_sources (description) values (_('patient'));
+insert into enum_info_sources (description) values (_('clinician'));
+insert into enum_info_sources (description) values (_('relative'));
+insert into enum_info_sources (description) values (_('carer'));
+insert into enum_info_sources (description) values (_('notes'));
+insert into enum_info_sources (description) values (_('correspondence'));
 
 create table clinical_history(
 	id SERIAL primary key,
@@ -154,21 +157,21 @@ COMMENT ON TABLE enum_coding_systems is
 'The various types of coding systems available';
 
 INSERT INTO enum_coding_systems (description)
-	values ('general');
+	values (_('general'));
 INSERT INTO enum_coding_systems (description)
-	values ('clinical');
+	values (_('clinical'));
 INSERT INTO enum_coding_systems (description)
-	values ('diagnosis');
+	values (_('diagnosis'));
 INSERT INTO enum_coding_systems (description)
-	values ('therapy');
+	values (_('therapy'));
 INSERT INTO enum_coding_systems (description)
-	values ('pathology');
+	values (_('pathology'));
 INSERT INTO enum_coding_systems (description)
-	values ('bureaucratic');
+	values (_('bureaucratic'));
 INSERT INTO enum_coding_systems (description)
-	values ('ean');
+	values (_('ean'));
 INSERT INTO enum_coding_systems (description)
-	values ('other');
+	values (_('other'));
 
 
 create table coding_systems (
@@ -217,19 +220,19 @@ comment on table enum_confidentiality_level is
 'Various levels of confidentialoty of a coded diagnosis, such as public, clinical staff, treating doctor, etc.';
 
 INSERT INTO enum_confidentiality_level (description)
-	values ('public');
+	values (_('public'));
 INSERT INTO enum_confidentiality_level (description)
-	values ('relatives');
+	values (_('relatives'));
 INSERT INTO enum_confidentiality_level (description)
-	values ('receptionist');
+	values (_('receptionist'));
 INSERT INTO enum_confidentiality_level (description)
-	values ('clinical staff');
+	values (_('clinical staff'));
 INSERT INTO enum_confidentiality_level (description)
-	values ('doctors');
+	values (_('doctors'));
 INSERT INTO enum_confidentiality_level (description)
-	values ('doctors of practice only');
+	values (_('doctors of practice only'));
 INSERT INTO enum_confidentiality_level (description)
-	values ('treating doctor');
+	values (_('treating doctor'));
 
 create table clinical_diagnosis_extra (
 	id SERIAL primary key,
@@ -259,11 +262,14 @@ comment on column episode.name is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.7 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.7  2002-12-05 12:45:43  ncq
+-- Revision 1.8  2002-12-06 08:50:51  ihaywood
+-- SQL internationalisation, gmclinical.sql now internationalised.
+--
+-- Revision 1.7  2002/12/05 12:45:43  ncq
 -- - added episode table, fixed typo
 --
 -- Revision 1.6  2002/12/01 13:53:09  ncq

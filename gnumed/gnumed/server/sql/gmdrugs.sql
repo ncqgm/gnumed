@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.28 $ $Date: 2002-12-01 13:53:09 $ $Author: ncq $
+-- $Revision: 1.29 $ $Date: 2002-12-06 08:50:52 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.28  2002-12-01 13:53:09  ncq
+-- Revision 1.29  2002-12-06 08:50:52  ihaywood
+-- SQL internationalisation, gmclinical.sql now internationalised.
+--
+-- Revision 1.28  2002/12/01 13:53:09  ncq
 -- - missing ; at end of schema tracking line
 --
 -- Revision 1.27  2002/11/29 00:54:35  ihaywood
@@ -127,6 +130,7 @@ comment on column drug_units.unit is
 insert into drug_units(unit) values('ml');
 insert into drug_units(unit) values('mg');
 insert into drug_units(unit) values('mg/ml');
+insert into drug_units(unit) values('mg/g');
 insert into drug_units(unit) values('U');
 insert into drug_units(unit) values('IU');
 insert into drug_units(unit) values('each');
@@ -430,7 +434,8 @@ create table link_drug_adverse_effects(
 	id_drug integer references drug_element(id),
 	id_adverse_effect integer references adverse_effects(id),
 	frequency char check(frequency in ('c', 'i', 'r')),
-	important boolean
+	important boolean,
+	comment text
 );
 comment on table link_drug_adverse_effects is
 'many to many pivot table linking drugs to adverse effects';
@@ -488,12 +493,17 @@ create table product(
 	id_formulation integer references drug_formulations(id),
 	id_packing_unit integer references drug_units(id),
 	id_route integer references drug_routes (id),
+	amount float default 1.0,
 	comment text
 );
 comment on table product is
 'dispensable form of a generic drug including strength, package size etc';
 comment on column product.id_packing_unit is
-'unit of drug "entities" as packed: for tablets and similar discrete formulations it should be the id of "each", for fized-course kits it should be the id of "day"';
+'unit of drug "entities" as packed: for tablets and similar discrete formulations it should be the id of "each", for fixed-course kits it should be the id of "day"';
+
+comment on column product.amount is 
+'for fluid drugs, the amount in each ampoule, syringe, etc. distinct of the 
+package size. For solid drugs (tablet, capsule), this is usually "1".';
 
 create table package_size
 (
@@ -611,33 +621,37 @@ create table conditions (
 	comment text,
 	title varchar (60),
 	id_subsidy integer references subsidies (id),
+	id_drug integer references drug_element (id),
 	authority boolean
 );
 
 comment on table conditions is 'normalised prescribing requirements for a drug or drugs';
 comment on column conditions.authority is 'true if prescriber must contact the third-party before approval';
-comment on column conditions.title is 'short summary for selection in the database.'; 
+comment on column conditions.title is 'short summary for selection in the database.';
+comment on column conditions.id_drug is 'the drug or class to which this
+cndition *universially* applies.'; 
 
 create table subsidized_products(
 	id_product integer references product(id),
 	id_subsidy integer references subsidies(id),
-	max_qty integer default 1,
+	quantity integer default 1,
 	max_rpt integer default 0,
 	copayment float default 0.0,
-	condition integer references conditions (id),
 	comment text
 );
 
 comment on table subsidized_products is
-'listing of drug products that may attract a subsidy';
-comment on column subsidized_products.max_qty is
-'maximum quantiy of packaged units dispensed under subsidy for any one prescription';
+'listing of drug products that may attract a subsidy. Drugs are ';
+comment on column subsidized_products.quantity is
+'quantity of packaged units dispensed under subsidy for any one prescription. 
+AU: this the maximum quantity in the Yellow Book. 
+DE: is the package size (N1, N2, N3), etc. 
+Drugs are explicitly permitted to have several entries in this table for 
+these different sizes. (DE only)';
 comment on column subsidized_products.max_rpt is
 'maximum number of repeat (refill) authorizations allowed on any one subsidised prescription (series)';
 comment on column subsidized_products.copayment is
 'patient co-payment under subsidy regulation; if this is absolute or percentage is regulation dependend and not specified here';
-comment on column subsidized_products.condition is
-'condition that must be fulfilled so that this subsidy applies';
 
 
 create table link_dosage_indication(
@@ -677,7 +691,7 @@ comment on column link_drug_indication.line is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.28 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.29 $');
 
 -- -----------------------------------------
 -- we need to be able to "lock" certain drugs from prescribing and such
