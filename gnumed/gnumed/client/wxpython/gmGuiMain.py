@@ -19,15 +19,14 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.139 2004-02-12 23:55:34 ncq Exp $
-__version__ = "$Revision: 1.139 $"
+# $Id: gmGuiMain.py,v 1.140 2004-02-18 14:00:56 ncq Exp $
+__version__ = "$Revision: 1.140 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 from wxPython.wx import *
-#from wxPython.html import *
 
 import sys, time, os, cPickle, zlib
 
@@ -383,57 +382,11 @@ class gmTopLevelFrame(wxFrame):
 	def __on_patient_selected(self, **kwargs):
 		pat = gmPatient.gmCurrentPatient()
 		try:
-			epr = pat['clinical record']
-			demos = pat['demographic record']
+			pat['clinical record']
+			pat['demographic record']
 		except:
 			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
 			return None
-
-		# make sure there's an encounter
-		status, encounter = epr.attach_to_encounter(forced = 0)
-
-		names = demos.getActiveName()
-		pat_string = "%s %s (%s)" % (names['first'], names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'))
-
-		# error ?
-		if status == -1:
-			msg = _(
-				'Can neither attach to an existing encounter\n'
-				'nor create a new one for patient\n'
-				'"%s".'
-			) % pat_string
-			gmGuiHelpers.gm_show_error(msg, _('recording patient encounter'))
-		# ambigous ?
-		elif status == 0:
-			# FIXME: better widget -> activate/new buttons
-			msg = _(
-				'There is a recent encounter recorded for\n'
-				'"%s".\n'
-				'started : %s\n'
-				'affirmed: %s\n'
-				'type    : %s\n'
-				'status  : %s\n'
-				'description: %s\n\n'
-				'Do you want to reactivate this encounter ?\n'
-				'Hitting "No" will start a new one.'
-			) % (pat_string, encounter['started'], encounter['affirmed'], encounter['type'], encounter['status'], encounter['comment'])
-			result = gmGuiHelpers.gm_show_question(msg, _('recording patient encounter'))
-			# attach to existing
-			if result == 1:
-				epr.attach_to_encounter(anID = encounter['ID'], forced = 1)
-			# create new one
-			else:
-				status, encounter = epr.attach_to_encounter(forced = 1)
-				if status == -1:
-					msg = _(
-						'Cannot create new encounter for patient\n'
-						'"%s".'
-					) % pat_string
-					gmGuiHelpers.gm_show_error(msg, _('recording patient encounter'))
-		#elif 1:
-			#success
-
-		# update window title
 		self.updateTitle()
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -817,7 +770,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.139  2004-02-12 23:55:34  ncq
+# Revision 1.140  2004-02-18 14:00:56  ncq
+# - moved encounter handling to gmClinicalRecord.__init__()
+#
+# Revision 1.139  2004/02/12 23:55:34  ncq
 # - different title bar on --slave
 #
 # Revision 1.138  2004/02/05 23:54:11  ncq
