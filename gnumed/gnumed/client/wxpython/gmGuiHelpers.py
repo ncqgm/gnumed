@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.11 2004-05-28 13:30:27 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmGuiHelpers.py,v 1.12 2004-08-18 10:18:42 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -56,7 +56,29 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
-	return 1
+	return True
+#-------------------------------------------------------------------------
+def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
+	if aMessage is None:
+		aMessage = _('programmer forgot to specify info message')
+
+	if aLogLevel is not None:
+		log_msg = string.replace(aMessage, '\015', ' ')
+		log_msg = string.replace(log_msg, '\012', ' ')
+		_log.Log(aLogLevel, log_msg)
+
+	if aTitle is None:
+		aTitle = _('generic info message dialog')
+
+	dlg = wxMessageDialog (
+		parent = NULL,
+		message = aMessage,
+		caption = aTitle,
+		style = wxOK | wxICON_INFORMATION
+	)
+	dlg.ShowModal()
+	dlg.Destroy()
+	return True
 #-------------------------------------------------------------------------
 def gm_show_question(aMessage = None, aTitle = None):
 	# sanity checks
@@ -75,9 +97,9 @@ def gm_show_question(aMessage = None, aTitle = None):
 	dlg.Destroy()
 
 	if btn_pressed == wxID_YES:
-		return 1
+		return True
 	else:
-		return 0
+		return False
 #-------------------------------------------------------------------------
 def gm_beep_statustext(aMessage, aLogLevel = None):
 	if aMessage is None:
@@ -105,7 +127,10 @@ def gm_beep_statustext(aMessage, aLogLevel = None):
 	return 1
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.11  2004-05-28 13:30:27  ncq
+# Revision 1.12  2004-08-18 10:18:42  ncq
+# - added gm_show_info()
+#
+# Revision 1.11  2004/05/28 13:30:27  ncq
 # - set_status_text -> _set_status_text so nobody
 #   gets the idea to use it directly
 #
