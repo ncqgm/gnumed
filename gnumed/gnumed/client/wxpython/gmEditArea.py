@@ -3,21 +3,23 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.74 2004-06-20 06:49:21 ihaywood Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmEditArea.py,v 1.75 2004-06-20 15:48:06 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
 #======================================================================
 
-import sys, traceback, time, gettext
-_ = gettext.gettext
+import sys, traceback, time
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmWhoAmI
 from Gnumed.business import gmPatient, gmDemographicRecord, gmForms
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 
 from wxPython.wx import *
+
+if __name__ == '__main__':
+	_ = lambda x:x
 
 _log = gmLog.gmDefLog
 _gb = gmGuiBroker.GuiBroker()
@@ -2408,7 +2410,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.74  2004-06-20 06:49:21  ihaywood
+# Revision 1.75  2004-06-20 15:48:06  ncq
+# - better please epydoc
+#
+# Revision 1.74  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.73  2004/05/27 13:40:22  ihaywood

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmAppoint - A simple interface to the appointments book.
@@ -9,10 +8,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2004-06-20 06:49:21 $
-# @version $Revision: 1.11 $ $Date: 2004-06-20 06:49:21 $ $Author: ihaywood $
-# @change log:
-#   14.03.02 ihaywood inital version.
+# @Date: $Date: 2004-06-20 15:46:20 $
+# @version $Revision: 1.12 $ $Date: 2004-06-20 15:46:20 $ $Author: ncq $
 #      
 #               
 #
@@ -23,15 +20,17 @@
 A simple interface to the appointments book.
 """
 
-import sys, time, os, gettext
-_ = gettext.gettext
+import sys, time, os
 
 from wxPython.wx import *
 from wxPython.calendar import *
 from wxPython.grid import *
+
 from Gnumed.pycommon import gmGuiBroker, gmPG
 from Gnumed.wxpython import gmSQLSimpleSearch
 
+if __name__ == '__main__':
+	_ = lambda x:x
 
 ID_ABOUT=101  
 ID_OPEN=102 
@@ -253,3 +252,13 @@ if __name__ == '__main__':
     # text translation function for localization purposes
     import gmI18N
     run ()
+
+#=================================================================
+# $Log: gmAppoint.py,v $
+# Revision 1.12  2004-06-20 15:46:20  ncq
+# - better please epydoc
+#
+
+#
+# @change log:
+#   14.03.02 ihaywood inital version.
