@@ -12,12 +12,12 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_PatientPlugin.py.template,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "you <you@yourdomain.org>"
 
 # import here whatever is needed
-#import gmLog
-#_log = gmLog.gmDefLog
+import gmLog
+_log = gmLog.gmDefLog
 #import gmCfg
 #_cfg = gmCfg.gmDefCfgFile
 
@@ -68,9 +68,14 @@ if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(XXXX_Panel, -1)
 	app.MainLoop()
+
+_log.Log(gmLog.lData, __version__)
 #======================================================================
 # $Log: gmGP_PatientPlugin.py.template,v $
-# Revision 1.2  2002-09-21 14:49:22  ncq
+# Revision 1.3  2002-09-26 13:29:53  ncq
+# - log version
+#
+# Revision 1.2  2002/09/21 14:49:22  ncq
 # - cleanup related to gmi18n
 #
 # Revision 1.1  2002/09/17 05:37:33  ncq
