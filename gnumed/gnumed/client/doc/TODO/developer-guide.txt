@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.12 $
+$Revision: 1.13 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -8,4 +8,64 @@ Rules:
 - leave behind an email address
 - Please date it. Thanks
 - delete things if you incorporated them into the guide
+--------------------------------------------------------------
+i18n - database - fixed strings (non-dynamic):
+
+-- Include this file at the top of your psql script schema definition files.
+-- For your convenience, just copy/paste the following two lines:
+-- do fixed string i18n()ing
+--\i gmI18N.sql
+
+-- This will allow for transparent translation of 'fixed'
+-- strings in the database. Simply switching the language in
+-- i18n_curr_lang will enable the user to see another language.
+
+-- For your database tables to take advantage of this you need to
+-- create views that pull translations from i18n_translations based
+-- on the original (English) string as the key, eg.
+
+-- Your table is:
+
+--	create table relations (
+--		id serial primary key,
+--		name varchar(10) unique
+--	);
+
+-- You would need to create a view like:
+
+--	create view v_i18n_relations as
+--		select
+--			rel.id, tr.trans as name
+--		from
+--			relations as rel,
+--			i18n_translations as tr,
+--			i18n_curr_lang as lcurr
+--		where
+--			lcurr.owner = CURRENT_USER::varchar
+--				and
+--			tr.lang = lcurr.lang
+--		;
+
+-- Now, if you want to support i18n()ed 'sisters':
+--  insert into relations (name) values (_('sister'));
+
+-- This will insert the original string into i18n_keys so translators
+-- know about all the strings to translate, it will also insert the
+-- original as it's own default translation into i18n_translations
+-- for the language setting en_GB. Which also means that original
+-- strings should be English. Sorry. (But they do not have too.)
+
+-- Thus you also need to insert a translation for, say, German:
+--  insert into i18n_translations (lang, orig, trans) values ('de_DE', 'sister', 'Schwester');
+
+-- Of course, the clients need to be aware of this fact and
+-- access the views instead of the actual tables.
+
+-- This i18n technique does not take care of strings that are inserted
+-- into the database dynamically (at runtime). It only makes sense for
+-- strings that are inserted once. Such strings are often used for
+-- enumerations.
+
+-- All this crap isn't necessary anymore once PostgreSQL supports
+-- native internationalization of 'fixed' strings.
 --------------------------------------------------------------

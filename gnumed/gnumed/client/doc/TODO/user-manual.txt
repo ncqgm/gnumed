@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 ---------------------------------------------------
 Rules:
 ------
@@ -9,4 +9,41 @@ Rules:
 - delete things if you incorporated them into the manual
 - please date it.
 Thanks
+---------------------------------------------------
+The plugin configuration is now implemented as follows:
+
+Upon startup GnuMed tries to read a list of which plugins to
+load. It looks in several places:
+
+1) in the database (the config tables in gmconfiguration.sql
+   need to be imported)
+   a) as the current user on the current machine
+   b) as the current user on the "default" machine
+   c) as the "default" user on the current machine
+   d) as the "default" user on the "default" machine
+2) in the file plugins.conf in the corresponding plugin
+   directory (note that the format changed - this is now
+   expected to be a standard gmCfg config file, group is
+   "plugins", the list option "load order")
+3) direct scan of the plugin directory
+
+If any of the stages one b-d finds corresponding data that
+configuration is saved specific to the current user/machine.
+
+If stage two finds a plugins.conf file it assumes that the
+admin has set up a default for all users of this machine and
+thus writes that configuration into the database specific to
+the current user/machine.
+
+Stage three will always load all available plugins. It will
+therefore write that configuration into the database specific
+to the machine but not specific to a user (eg. to the default
+user).
+
+Subsequent loading will thus find the configuration at earlier
+stages. Thusly the client should be autoconfiguring to a
+certain degree.
+
+I have not yet connected to the backend explicit add/drop of
+plugins via Ian's new popup menu. This will come next.
 ---------------------------------------------------
