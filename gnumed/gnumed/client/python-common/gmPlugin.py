@@ -13,11 +13,11 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.43 2003-02-11 12:27:07 sjtan Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmPlugin.py,v 1.44 2003-02-11 18:23:39 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
-import os, sys, re, traceback, cPickle, zlib
+import os, sys, re, cPickle, zlib
 
 from wxPython.wx import *
 
@@ -514,7 +514,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.43  2003-02-11 12:27:07  sjtan
+# Revision 1.44  2003-02-11 18:23:39  ncq
+# - removed unneeded import
+#
+# Revision 1.43  2003/02/11 12:27:07  sjtan
 #
 # suspect this is not the preferred way to get a handle on the plugin. Probably from guiBroker?
 #
