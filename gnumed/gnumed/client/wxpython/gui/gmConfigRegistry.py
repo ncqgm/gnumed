@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -284,7 +284,7 @@ class cConfTree(wxTreeCtrl):
 		elif type == 'defaultSubtree':
 			message=_("(Subtree root)")
 		elif type == 'root':
-			message=_("(Config parameter tree for current/default user and workplace)")
+			message=_("<Options for current/default user and workplace>")
 		# show message
 		self.paramTextCtrl.ShowMessage(message)
 		# expand/unexpand node if it has children
@@ -534,7 +534,10 @@ else:
 			return ('tools', _('&ConfigRegistry'))
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.25  2004-08-04 17:16:02  ncq
+# Revision 1.26  2004-09-25 13:11:40  ncq
+# - improve tree root node naming
+#
+# Revision 1.25  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
