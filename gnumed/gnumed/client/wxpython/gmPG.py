@@ -55,6 +55,7 @@ class ConnectionPool:
 
 		#this is the default gnumed server now!
 		ConnectionPool.__databases['config'] = cdb
+		ConnectionPool.__databases['default'] = cdb
 
 		#try to establish connections to all servers we need
 		#according to configuration database
