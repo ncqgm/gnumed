@@ -1,9 +1,9 @@
-
+# FIXME: make list window fit list ...
 
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/patient_search/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.4 2003-03-25 12:29:27 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPatientSelector.py,v 1.5 2003-03-25 16:52:46 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -16,6 +16,7 @@ import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+	import gmI18N
 
 import gmTmpPatient, gmDispatcher, gmSignals, gmPG
 
@@ -23,6 +24,42 @@ from wxPython.wx import *
 #------------------------------------------------------------
 ID_LISTCTRL = wxNewId()
 
+#============================================================
+# country-specific functions
+#------------------------------------------------------------
+def pat_expand_default(curs = None, anID = None):
+	if anID is None:
+		return {}
+
+	if curs is None:
+		return {}
+
+	# FIXME: add more data here
+	# - last visit
+	# - appointment
+	# - current waiting time
+	# - presence
+	# - KVK indicator
+	# - has been in this Quartal
+	# ...
+	cmd = "SELECT firstnames, lastnames, to_char(dob, 'DD.MM.YYYY') FROM v_basic_person WHERE id = '%s';" % anID
+	if not gmPG.run_query(curs, cmd):
+		_log.Log(gmLog.lErr, 'Cannot fetch patient data.')
+	else:
+		result = curs.fetchone()
+	data = {
+		'#': anID,
+		_('first name'): result[0],
+		_('last name'): result[1],
+		_('dob'): result[2]
+	}
+	labels = [_('last name'), _('first name'), _('dob')]
+	return data, labels
+#------------------------------------------------------------
+patient_expander = {
+	'default': pat_expand_default,
+	'de_DE@euro': pat_expand_default
+}
 #============================================================
 # write your own query generator and add it here
 #------------------------------------------------------------
@@ -152,8 +189,8 @@ def queries_default(raw = None):
 	return queries
 #------------------------------------------------------------
 query_generator = {
-'default': queries_default,
-'de_DE@euro': queries_default
+	'default': queries_default,
+	'de_DE@euro': queries_default
 }
 #============================================================
 class cPatientPickList(wxDialog):
@@ -210,9 +247,10 @@ class cPatientPickList(wxDialog):
 					_log.Log(gmLog.lData, "item keys: None")
 				_log.Log(gmLog.lData, "labels   : %s" % col_labels)
 			# subsequent columns
-			for label in col_labels[1:]:
+			for col_idx in range(1, len(col_labels)):
+			#for label in col_labels[1:]:
 				try:
-					self.listctrl.SetStringItem(row_idx, str(row[label]))
+					self.listctrl.SetStringItem(row_idx, col_idx, str(row[col_labels[col_idx]]))
 				except KeyError:
 					_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
 					if self.items != []:
@@ -224,14 +262,16 @@ class cPatientPickList(wxDialog):
 		# adjust column width
 		for col_idx in range(len(col_labels)):
 			self.listctrl.SetColumnWidth(col_idx, wxLIST_AUTOSIZE)
+
+		# and make ourselves just big enough
+		#self.szrMain.Fit(self)
+		self.Fit()
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_item_activated(self, evt):
-		idx = evt.m_itemIndex
-		print "user activated item %s (double left-click or enter)" % idx
-		item = self.items[idx]
-		# the key "patient ID" is assumed to always exist
+		item = self.items[evt.m_itemIndex]
+		# the key "#" is assumed to always exist
 		try:
 			self.EndModal(item['#'])
 		except KeyError:
@@ -239,7 +279,6 @@ class cPatientPickList(wxDialog):
 			self.EndModal(-1)
 	#--------------------------------------------------------
 	def _on_cancel(self, evt):
-		print "user cancelled dialog"
 		self.EndModal(-1)
 	#--------------------------------------------------------
 	# utility methods
@@ -253,7 +292,7 @@ class cPatientPickList(wxDialog):
 			id = ID_LISTCTRL,
 			pos = wxDefaultPosition,
 			size = wxSize(160,120),
-			style = wxLC_REPORT | wxLC_SINGLE_SEL | wxLC_VRULES | wxVSCROLL | wxHSCROLL | wxSUNKEN_BORDER
+			style = wxLC_REPORT | wxLC_SINGLE_SEL | wxVSCROLL | wxHSCROLL | wxSUNKEN_BORDER
 		)
 		# and place it
 		self.szrMain.AddWindow(self.listctrl, 1, wxGROW | wxALIGN_CENTER_VERTICAL, 5)
@@ -324,6 +363,7 @@ class cPatientSelector(wxTextCtrl):
 
 		# FIXME ! -> locale dependant
 		self.generate_queries = query_generator['default']
+		self.pat_expander = patient_expander['default']
 
 		# get connection
 		self.backend = gmPG.ConnectionPool()
@@ -331,7 +371,8 @@ class cPatientSelector(wxTextCtrl):
 		# FIXME: error handling
 
 		self.prev_fragment = None
-		self.prev_ids = []
+		self.prev_pats = []
+		self.prev_col_order = []
 
 		# set event handlers
 		# ------------------
@@ -347,7 +388,7 @@ class cPatientSelector(wxTextCtrl):
 		# evil user wants to resize widget
 		#EVT_SIZE (self, self.on_resize)
 	#--------------------------------------------------------
-	def SetActivePatient(self, anID = None):
+	def SetActivePatient(self, anID = None, data = None):
 		if anID is None:
 			return None
 
@@ -359,6 +400,18 @@ class cPatientSelector(wxTextCtrl):
 		gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
 		name = gmTmpPatient.gmDefPatient['active name']
 		self.SetValue(value = '%s, %s' % (name['last'], name['first']))
+
+		# remember patient
+		if data is not None:
+			# only unique patients
+			for prev_pat in self.prev_pats:
+				if prev_pat['#'] == anID:
+					return true
+			self.prev_pats.append(data)
+
+			# and only 10 of them
+			if len(self.prev_pats) > 10:
+				self.prev_pats.pop(0)
 
 	#--------------------------------------------------------
 	# utility methods
@@ -378,36 +431,38 @@ class cPatientSelector(wxTextCtrl):
 			_log.Log(gmLog.lErr, query_list)
 			return None
 
-		pat_data = []
-
+		pat_ids = []
 		curs = self.conn.cursor()
 
 		for cmd in query_list[1]:
 			if not gmPG.run_query(curs, cmd):
 				_log.Log(gmLog.lErr, 'Cannot fetch patient IDs.')
 			else:
-				data = curs.fetchall()
-				pat_data.extend(data)
+				rows = curs.fetchall()
+				for pat_id in rows:
+					pat_ids.extend(pat_id)
 
-		if len(pat_data) == 0:
+		if len(pat_ids) == 0:
 			for cmd in query_list[2]:
 				if not gmPG.run_query(curs, cmd):
 					_log.Log(gmLog.lErr, 'Cannot fetch patient IDs.')
 				else:
-					data = curs.fetchall()
-					pat_data.extend(data)
+					rows = curs.fetchall()
+					for pat_id in rows:
+						pat_ids.extend(pat_id)
 
-		if len(pat_data) == 0:
+		if len(pat_ids) == 0:
 			for cmd in query_list[3]:
 				if not gmPG.run_query(curs, cmd):
 					_log.Log(gmLog.lErr, 'Cannot fetch patient IDs.')
 				else:
-					data = curs.fetchall()
-					pat_data.extend(data)
+					rows = curs.fetchall()
+					for pat_id in rows:
+						pat_ids.extend(pat_id)
 
 		curs.close()
 
-		if len(pat_data) == 0:
+		if len(pat_ids) == 0:
 			dlg = wxMessageDialog(
 				NULL,
 				_('Cannot find ANY matching patients !\nCurrently selected patient stays active.\n\n(We should offer to jump to entering a new patient from here.)'),
@@ -417,7 +472,7 @@ class cPatientSelector(wxTextCtrl):
 			dlg.ShowModal()
 			dlg.Destroy()
 
-		return pat_data
+		return pat_ids
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -441,57 +496,43 @@ class cPatientSelector(wxTextCtrl):
 	#--------------------------------------------------------
 	def _on_char(self, evt):
 		keycode = evt.GetKeyCode()
-		if evt.AltDown():
 
-			# ALT-L, ALT-P - list of previously active patients
+		if evt.AltDown():
+		# ALT-L, ALT-P - list of previously active patients
 			if keycode in [ord('l'), ord('p')]:
-				if self.prev_ids == []:
+				if self.prev_pats == []:
 					return true
-				# generate item list
-				items = []
-				for ID in self.prev_ids:
-					row = {
-						'#': ID
-					}
-					items.append(row)
+				# show list
 				dlg = cPatientPickList(parent = self)
-				# define order of cols
-				labels = []
-				labels.append('#')
-				# set it
-				dlg.SetItems(items, labels)
-				# and show it
+				dlg.SetItems(self.prev_pats, self.prev_col_order)
 				result = dlg.ShowModal()
-				if result == -1:
-					print "user cancelled selection dialog"
-				else:
+				dlg.Destroy()
+				# and process selection
+				if result > 0:
 					# and make our selection known to others
 					self.SetActivePatient(result)
 				return true
 
-			# ALT-N
+		# ALT-N - enter new patient
 			if keycode == ord('n'):
 				print "ALT-N not implemented yet"
 				print "should immediately jump to entering a new patient"
 				return true
 
-			# ALT-K
+		# ALT-K - access chipcards
 			if keycode == ord('k'):
 				print "ALT-K not implemented yet"
 				print "should tell chipcard demon to read KVK and display list of cached KVKs"
 				return true
 
 		# cycling through previous fragments
-		#elif keycode == WXK_DOWN:
-			#print "<cursor-down> not implemented yet"
-			#print "should cycle through search fragment history"
 		elif keycode == WXK_UP:
-			#print "<cursor-up> not fully implemented yet"
-			#print "should cycle through search fragment history"
 			if self.prev_fragment is not None:
 				self.SetValue(self.prev_fragment)
 			return true
-
+		
+#		elif keycode == WXK_DOWN:
+#			pass
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_enter(self, evt):
@@ -502,30 +543,39 @@ class cPatientSelector(wxTextCtrl):
 
 		# generate queries
 		queries = self.generate_queries(self.GetValue())
-		print queries[1]
-		print queries[2]
-		print queries[3]
 
-		# get list of names
+		# get list of matching ids
 		ids = self._fetch_pat_ids(queries)
 		if ids is None or len(ids) == 0:
 			return true
 
+		curs = self.conn.cursor()
+		# only one matching patient
 		if len(ids) == 1:
 			# and make our selection known to others
-			self.SetActivePatient(ids[0][0])
-
-			# remember patient if not yet remembered
-			if ids[0][0] not in self.prev_ids:
-				self.prev_ids.append(ids[0][0])
-			# but only 10 of them
-			if len(self.prev_ids) > 10:
-				self.prev_ids.pop(0)
-
+			data, self.prev_col_order = self.pat_expander(curs, ids[0])
+			data['#'] = ids[0]
+			self.SetActivePatient(ids[0], data)
 		else:
-			print "several matching patients:"
-			print ids
-			print "trying to pop up list for selection"
+			# generate patient data to display from ID list
+			pat_list = []
+			for ID in ids:
+				data, self.prev_col_order = self.pat_expander(curs, ID)
+				data['#'] = ID
+				pat_list.append(data)
+			# generate list dialog
+			dlg = cPatientPickList(parent = self)
+			dlg.SetItems(pat_list, self.prev_col_order)
+			# and show it
+			result = dlg.ShowModal()
+			dlg.Destroy()
+			if result in ids:
+				# and make our selection known to others
+				for pat in pat_list:
+					if pat['#'] == result:
+						self.SetActivePatient(result, pat)
+						break
+		curs.close()
 #============================================================
 # main
 #------------------------------------------------------------
