@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/dist/Attic/make-links.sh,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 # GPL
 # Karsten.Hilbert@gmx.net
 
@@ -47,7 +47,7 @@ ln -vfs ../../../../server/sql/gmSchemaRevision.sql server/gmSchemaRevision.sql
 ln -vfs ../../../../server/utils/gmUserSetup.py server/gmUserSetup.py
 ln -vfs ~/.gnumed/gnumed-archive.conf server/gnumed-archive.conf
 ln -vfs ../../import/import-med_docs.py server/import-med_docs.py
-ln -vfs ../../import/remove-imported_dirs.sh client/remove-imported_dirs.sh
+ln -vfs ../../import/remove-imported_dirs.sh server/remove-imported_dirs.sh
 ln -vfs ../../server/install.sh server/install.sh
 ln -vfs ../../modules server/modules
 ln -vfs ../../server/README server/README
