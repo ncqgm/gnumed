@@ -38,7 +38,14 @@ http://apache.planetmirror.com.au/dist/jakarta/struts/binaries/jakarta-struts-1.
 3.
 In order to compile, certain library files ( all file contents of {struts-basedir}/lib directory , and {tomcat-basedir}/commons/lib/servlet-api.jar )
 must be COPIED into  WEB-INF/lib/ of this directory
-	Reason: these files need to be found by the build.xml   
+	Reason: these files need to be found by the build.xml  
+
+
+
+Because of need for struts taglib dynamic access to bean variables, 
+ALSO COPY 
+	
+	{struts-basedir}/contrib/lib/ contents to the WEB-INF/lib  directory. Actually, only struts-el.jar and html-el.tld is needed. 
 
 
 4.
@@ -93,7 +100,17 @@ In the box on the manager page which says: -
 Deploy directory or WAR file located on server
     XML Configuration file URL: [                       ]
 
-put the file:/home/john/projects/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
+e.g. put the URL as 
+	file:/home/john/projects/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
+
+this is mine:
+
+file:/home/sjtan/projects/gnumed3/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
+
+generally , it's 
+
+file:/${GNUMED_DIR}/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
+
 
 i.e whatever  is the URL file path to the file edited in step 6. ( note the single slashed file:/ as a url base)
 

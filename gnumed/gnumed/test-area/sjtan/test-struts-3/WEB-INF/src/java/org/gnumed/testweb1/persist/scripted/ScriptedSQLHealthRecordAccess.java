@@ -275,6 +275,9 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         clinicalDataAccess = cda;
     }
     
+    /** saves a clinical encounter and it's elements.
+     *  ClinNarrative elements which have empty narrative fields are not saved.
+     */
     public void save(ClinicalEncounter encounter, HealthSummary01 summary) throws org.gnumed.testweb1.persist.DataSourceException {
         String s1 = "insert into clin_encounter (id, description, started, last_affirmed,  fk_patient) values (?, ?, ?,?,  ? )";
         
@@ -304,7 +307,10 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             
             encounter.setId(new Long(idEncounter.longValue()));
             
+            
+            
             Iterator i = encounter.getNarratives().iterator();
+            
             
             List healthIssues = new ArrayList();
             
@@ -315,6 +321,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
                     // DONT SAVE EMPTY NARRATIVES
                     continue;
                 }
+                
                 String healthIssueName   =normalizeHealthIssueName( narrative);
                 HealthIssue issue = findOrCreateHealthIssue(conn, healthIssueName, summary);
                 healthIssues.add(issue);

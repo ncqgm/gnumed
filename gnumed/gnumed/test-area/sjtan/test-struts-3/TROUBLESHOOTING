@@ -20,6 +20,13 @@
 -pasting WEB-INF/context.xml  doesn't work ? using file:  before the full path to this file? ls the path correct? 'ls' the path used.
 Is the context.xml  docBase='path-to-test-struts-3' correct? 'ls' the docBase string.
 
+URL should be
+file:/${GNUMED_DIR}/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
+
+where GNUMED_DIR is the basedir where CVS checkout was done.
+
+
+
 -'deploy button' says already deployed. Undeploy, stop and start tomcat again. Try pasting context file again and depoloy.
 
 -not finding the application, at http:/localhost:8080/test-struts-3 , try clicking the hypertexted test-struts-3 at the manager screen.

@@ -15,6 +15,7 @@ public class ClinRootItemImpl1 implements ClinRootItem {
     ClinicalEpisode episode;
     ClinicalEncounter clinicalEncounter;
     Long id;
+    boolean isLinkedToPreviousEpisode = false;
     
     String narrative, healthIssueName, newHealthIssueName;
     String soapCat = "s";
@@ -97,6 +98,15 @@ public class ClinRootItemImpl1 implements ClinRootItem {
     
     public void setNewHealthIssueName(String newHealthIssueName) {
         this.newHealthIssueName = newHealthIssueName;
+    }
+    
+    public boolean isLinkedToPreviousEpisode() {
+        return isLinkedToPreviousEpisode;
+    }
+    
+    public void setLinkedToPreviousEpisode(boolean isLinkedToPreviousEpisode) {
+        
+        this.isLinkedToPreviousEpisode = isLinkedToPreviousEpisode;
     }
     
 }

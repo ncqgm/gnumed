@@ -1,11 +1,9 @@
-<%@page contentType="text/html"%>
-<%@page pageEncoding="UTF-8"%>
-<html>
-<head><title>JSP Page</title></head>
-<body>
+<%@ taglib uri="/tags/struts-logic" prefix="logic" %>
+<logic:redirect forward="welcomeLink"/>
 
-<%-- <jsp:useBean id="beanInstanceName" scope="session" class="beanPackage.BeanClassName" /> --%>
-<%-- <jsp:getProperty name="beanInstanceName"  property="propertyName" /> --%>
+<%--
 
-</body>
-</html>
+Redirect default requests to Welcome global ActionForward.
+By using a redirect, the user-agent will change address to match the path of our Welcome ActionForward. 
+
+--%>

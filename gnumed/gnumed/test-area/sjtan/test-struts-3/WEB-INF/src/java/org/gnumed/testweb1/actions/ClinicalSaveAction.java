@@ -87,6 +87,7 @@ public class ClinicalSaveAction extends Action {
 //            }
             
            
+            
             Map map = new java.util.HashMap();
             
             DataObjectFactory objFactory = (DataObjectFactory)
@@ -94,6 +95,8 @@ public class ClinicalSaveAction extends Action {
             getAttribute(Constants.Servlet.OBJECT_FACTORY);
             
             ClinicalUpdateForm cform = (ClinicalUpdateForm) form;
+              cform.copyPreviousEpisodeForLinkedNarrative();
+            
        //     log.info("TEST ATTRIBUTE FROM "+cform + " = "+cform.getTest());
             
             
@@ -129,7 +132,8 @@ public class ClinicalSaveAction extends Action {
             HealthRecordAccess01 access = 
             (HealthRecordAccess01) servlet.getServletContext().
                 getAttribute(Constants.Servlet.HEALTH_RECORD_ACCESS);
-            
+         
+          
             HealthRecord01 record = (HealthRecord01) request.getSession().getAttribute(Constants.Session.HEALTH_RECORD);
             access.save(cform.getEncounter() , record.getHealthSummary() );
             

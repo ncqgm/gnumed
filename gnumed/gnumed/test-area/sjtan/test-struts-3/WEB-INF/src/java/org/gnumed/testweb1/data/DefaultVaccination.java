@@ -159,5 +159,5 @@ public class DefaultVaccination extends ClinRootItemImpl1 implements Vaccination
         super.setClin_when(clin_when);
     }
      
-    
+   
 }

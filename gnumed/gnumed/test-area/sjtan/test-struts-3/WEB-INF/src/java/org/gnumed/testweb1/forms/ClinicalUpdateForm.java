@@ -45,9 +45,15 @@ public class ClinicalUpdateForm extends ActionForm {
      */
     private Integer patientId;
     
+    /**
+     * Holds value of property linkNarrative.
+     */
+    private boolean[] linkNarrative;
+    
     public ClinicalUpdateForm() {
         initVaccinations();
         setEncounter( factory.createEntryClinicalEncounter() );
+        
     }
     
     /** Creates a new instance of ClinicalUpdateForm */
@@ -65,6 +71,7 @@ public class ClinicalUpdateForm extends ActionForm {
         getNarratives().toArray(new ClinNarrative[0]);
     //    narratives = new ClinNarrative[nn.length];
     //    System.arraycopy(nn, 0, narratives, 0, nn.length);
+        
     }
     
     private void initVaccinations() {
@@ -178,4 +185,30 @@ public class ClinicalUpdateForm extends ActionForm {
         this.patientId = patientId;
     }
     
+    /**
+     * Indexed getter for property linkNarrative.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+    public boolean getLinkNarrative(int index) {
+        return this.linkNarrative[index];
+    }    
+    
+    /**
+     * Indexed setter for property linkNarrative.
+     * @param index Index of the property.
+     * @param linkNarrative New value of the property at <CODE>index</CODE>.
+     */
+    public void setLinkNarrative(int index, boolean linkNarrative) {
+        this.linkNarrative[index] = linkNarrative;
+    }    
+    
+    public void copyPreviousEpisodeForLinkedNarrative() {
+        for ( int i=1; i < narratives.length; ++i ) {
+           if ( narratives[i].isLinkedToPreviousEpisode() ) {
+               narratives[i].setNewHealthIssueName(narratives[i-1].getNewHealthIssueName());
+               narratives[i].setEpisode(narratives[i-1].getEpisode());
+           }
+        }
+    }
 }

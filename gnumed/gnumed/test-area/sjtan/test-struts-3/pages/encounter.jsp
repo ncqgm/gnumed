@@ -5,7 +5,7 @@
 <%@taglib uri="http://jakarta.apache.org/struts/tags-bean" prefix="bean"%>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-logic" prefix="logic"%>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-nested" prefix="nested"%>
-
+<%@taglib uri="../WEB-INF/lib/struts-html-el.tld" prefix='el'%>
 <%--  See vaccination regarding indexed properties for <logic:iterate>
  1. need a indexed getter method on the bean.  2. the id attribute of logic:iterate must
 be the name of the property targetted by the getter
@@ -85,15 +85,37 @@ e.g. getNarrative(index) ...  id='narrative'
         </td>
         </tr></table>
         
-  
+        <table border='1' id='allNarrativeInput'>
+        
         <logic:iterate id="narrative" name="clinicalUpdateForm" 
         property="encounter.narratives"   
          scope="request" indexId="index">
+         <tr>
+        <td>
             <a name='linkNarrative<%=index%>'> </a>
             Narrative <%=index%>
-            <table>
+            <table id='narrativeEntry<%=index%>' >
                 <tr>
                 
+                <td  >
+                 <logic:greaterThan name="index" value="0">
+                    link previous episode
+                    
+                    <el:checkbox  name="narrative" property="linkedToPreviousEpisode" indexed="true" 
+                     onchange="if (this.checked) { 
+                            document.getElementById('healthIssueInput${index}').style.display='none';
+                           document.getElementById('clinNarrative${index}').style.display='block'; 
+                        
+                            } else {
+                           document.getElementById('healthIssueInput${index}').style.display='block';
+                           }
+                           return true;
+                          "/>
+                 </logic:greaterThan>
+                </td>
+                <td>
+                <table id='healthIssueInput<%=index%>' >
+                <tr>
                 <td>
                     <bean:message key="health.issue"/>
                 </td>
@@ -116,7 +138,9 @@ e.g. getNarrative(index) ...  id='narrative'
                 <div id="sel<%=index%>">
                 
                   
-                <html:select name="narrative" property="healthIssueName" indexed="true"  >
+                <html:select name="narrative" property="healthIssueName" indexed="true"
+onchange=""  
+>
                       <html:option key="" value="">no issue selected</html:option>
                       <html:optionsCollection name="healthRecord" property="healthSummary.healthIssues" label="description"  value="description" />
                       
@@ -134,11 +158,13 @@ e.g. getNarrative(index) ...  id='narrative'
                 </div>
                 
                 </td>
-                   
-                
+                </tr>
+                </table>
+                 
+                 </td>
                 <td>
                 show 
-                <input type='checkbox' name="showNarrative<%=index%>" value='' 
+                <input type='checkbox'  name="showNarrative<%=index%>" value='' 
                     onchange="
                     if (this.checked) {
                         document.getElementById('clinNarrative<%=index%>').style.display='block'; 
@@ -192,8 +218,10 @@ e.g. getNarrative(index) ...  id='narrative'
                 </table>
             </div>
                     
-            
+            </td>
+            </tr>
         </logic:iterate>
+        </table>
         <%--
         <table>
             <td>
