@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.26 2004-05-04 08:43:28 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.27 2004-05-04 09:10:59 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -81,8 +81,8 @@ INSERT INTO enum_confidentiality_level (description) values (i18n('treating doct
 -- measurements stuff
 -- your own practice as a test-providing org
 insert into test_org (fk_org, internal_name, comment) values (
-	'your own practice',
 	-1,
+	'your own practice',
 	'for inhouse lab/tests'
 );
 
@@ -477,11 +477,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.26 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.27 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.26  2004-05-04 08:43:28  ncq
+-- Revision 1.27  2004-05-04 09:10:59  ncq
+-- - fix your own lab test org
+--
+-- Revision 1.26  2004/05/04 08:43:28  ncq
 -- - meaningful data for test_org "your own practice"
 --
 -- Revision 1.25  2004/04/30 12:22:31  ihaywood
