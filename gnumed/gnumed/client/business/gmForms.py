@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.30 2005-03-06 08:17:02 ihaywood Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmForms.py,v 1.31 2005-04-03 20:06:51 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -89,9 +89,10 @@ class gmFormEngine:
 		# some forms may not have values ...
 		if params is None:
 			params = {}
-		patient_clinical = self.patient.get_clinical_record ()
+		patient_clinical = self.patient.get_clinical_record()
 		encounter = patient_clinical.get_active_encounter()['pk_encounter']
-		episode = patient_clinical.get_active_episode()['pk_episode']
+		# FIXME: get_active_episode is no more
+		#episode = patient_clinical.get_active_episode()['pk_episode']
 		# generate "forever unique" name
 		cmd = "select name_short || ': <' || name_long || '::' || revision || '>' from form_defs where pk=%s";
 		rows = gmPG.run_ro_query('reference', cmd, None, self.pk_def)
@@ -466,7 +467,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.30  2005-03-06 08:17:02  ihaywood
+# Revision 1.31  2005-04-03 20:06:51  ncq
+# - comment on emr.get_active_episode being no more
+#
+# Revision 1.30  2005/03/06 08:17:02  ihaywood
 # forms: back to the old way, with support for LaTeX tables
 #
 # business objects now support generic linked tables, demographics
