@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.36 2004-08-16 13:32:19 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmDemographics.py,v 1.37 2004-08-18 08:15:21 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -233,8 +233,9 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		#--------------------------------------------------------
 		self.itemDataMap = PatientData
 		# Try and get the user's column width from the databse
-		self.patientcolumnslist = gmCfg.getFirstMatchingDBSet(option="widgets.demographics.patientlist.column_sizes")[0]
-		if len(self.patientcolumnslist) == 0:					# no values - use defaults
+		pat_cols_list = gmCfg.getFirstMatchingDBSet(option="widgets.demographics.patientlist.column_sizes")
+
+		if not pat_cols_list or len(pat_cols_list[0]) == 0:		# no values - use defaults
 			self.patientlist.SetColumnWidth(0, 100)
 			self.patientlist.SetColumnWidth(1, 100)
 			self.patientlist.SetColumnWidth(2, 250)
@@ -245,9 +246,9 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 			self.patientlist.SetColumnWidth(7,100)
 			# FIXME: save defaults ?
 		else:											# otherwise, set column widths
-			print self.patientcolumnslist
+			print pat_cols_list
 			for i in range (0,8):
-				self.patientlist.SetColumnWidth(i,int(self.patientcolumnslist[i]))
+				self.patientlist.SetColumnWidth(i,int(pat_cols_list[i]))
 		#----------------------------------------------------------------------------------------------------------------
 		#Now create the sizer to hold the patients photo and buttons. The photo will
 		#not resize as the form resizes
@@ -1030,7 +1031,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.36  2004-08-16 13:32:19  ncq
+# Revision 1.37  2004-08-18 08:15:21  ncq
+# - check if column size for patient list is missing
+#
+# Revision 1.36  2004/08/16 13:32:19  ncq
 # - rework of GUI layout by R.Terry
 # - save patient list column width from right click popup menu
 #
