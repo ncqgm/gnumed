@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -140,7 +140,12 @@ def reconnect_as_gm_owner():
 		gmUserSetup.dbowner["password"] = raw_input("Please type password: ")
 
 	# log in
-	dsn = "%s:%s:%s:%s:%s" % (core_server["host name"], core_server["port"], initial_database, gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"])
+	try:
+		dsn = "%s:%s:%s:%s:%s" % (core_server["host name"], core_server["port"], initial_database, gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"])
+	except:
+		_log.LogException("Cannot construct DSN !", sys.exc_info(), fatal=1)
+		return None
+
 	try:
 		conn = dbapi.connect(dsn)
 	except:
@@ -399,7 +404,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.5  2002-11-01 15:17:44  ncq
+# Revision 1.6  2002-11-03 15:03:07  ncq
+# - capture a little more info to hopefully catch the bug with DSN setup
+#
+# Revision 1.5  2002/11/01 15:17:44  ncq
 # - need to wrap "create database" in "commit; ...; begin;" to work
 #   around auto-transactions in pyPgSQL
 #
