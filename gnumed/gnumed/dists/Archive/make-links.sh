@@ -1,7 +1,7 @@
 #!/bin/sh
 #----------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Archive/Attic/make-links.sh,v $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 # GPL
 # Karsten.Hilbert@gmx.net
 #----------------------------------
@@ -31,6 +31,7 @@ ln -vs ../../../client/business/gmTmpPatient.py modules/gmTmpPatient.py
 ln -vs ../../../client/business/gmMedDoc.py modules/gmMedDoc.py
 ln -vs ../../../client/business/gmXdtObjects.py modules/gmXdtObjects.py
 ln -vs ../../../client/business/gmXdtMappings.py modules/gmXdtMappings.py
+ln -vs ../../../client/business/gmXmlDocDesc.py modules/gmXmlDocDesc.py
 
 ln -vs ../../../test-area/blobs_hilbert/modules/docPatient.py modules/docPatient.py
 ln -vs ../../../test-area/blobs_hilbert/modules/docDocument.py modules/docDocument.py
