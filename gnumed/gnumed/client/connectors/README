@@ -1,0 +1,22 @@
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/README,v $
+# $Id: README,v 1.1 2004-09-13 09:49:06 ncq Exp $
+# $Revision: 1.1 $
+
+This directory stores connectors specific to this client.
+
+Connectors are intermediate programs that 3rd party legacy
+applications can use to control a GnuMed instance.
+
+The one provided connector can be used by any practice
+management application in Germany that knows how to output
+GDT or BDT files. The connector reads the patient from
+the xDT file, attaches to GnuMed via XML-RPC, locks into
+that patient and raises a particular plugin (gmShowMedDocs
+in this case). If you want your xdt connector to do
+something different you can derive a class from the
+cXdtConnector class and override the run_script() method.
+
+The calls you can use on the controlled GnuMed instance are
+the methods provided by client/wxpython/gmMacro.py.
+
+Karsten
