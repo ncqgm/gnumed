@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.143 2004-03-12 13:22:02 ncq Exp $
-__version__ = "$Revision: 1.143 $"
+# $Id: gmGuiMain.py,v 1.144 2004-03-25 11:03:23 ncq Exp $
+__version__ = "$Revision: 1.144 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -505,7 +505,7 @@ class gmTopLevelFrame(wxFrame):
 		pat = gmPatient.gmCurrentPatient()
 		if pat.is_connected():
 			demos = pat.get_demographic_record()
-			names = demos.getActiveName()
+			names = demos.get_names()
 			fname = names['first'][:1]
 			pat_str = "%s %s.%s (%s) #%d" % (demos.getTitle()[:4], fname, names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'), int(pat['ID']))
 		else:
@@ -768,7 +768,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.143  2004-03-12 13:22:02  ncq
+# Revision 1.144  2004-03-25 11:03:23  ncq
+# - getActiveName -> get_names
+#
+# Revision 1.143  2004/03/12 13:22:02  ncq
 # - fix imports
 #
 # Revision 1.142  2004/03/04 19:46:54  ncq

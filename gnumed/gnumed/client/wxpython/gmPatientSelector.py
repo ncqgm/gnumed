@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.34 2004-03-20 19:48:07 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmPatientSelector.py,v 1.35 2004-03-25 11:03:23 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -323,7 +323,7 @@ and hit <ENTER>
 	#--------------------------------------------------------
 	def _display_name(self):
 		if self.curr_pat.is_connected():
-			name = self.curr_pat['demographic record'].getActiveName()
+			name = self.curr_pat['demographic record'].get_names()
 			self.SetValue('%s, %s' % (name['last'], name['first']))
 		else:
 			self.SetValue(_('no active patient'))
@@ -579,7 +579,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.34  2004-03-20 19:48:07  ncq
+# Revision 1.35  2004-03-25 11:03:23  ncq
+# - getActiveName -> get_names
+#
+# Revision 1.34  2004/03/20 19:48:07  ncq
 # - adapt to flat id list from get_patient_ids
 #
 # Revision 1.33  2004/03/12 13:23:41  ncq

@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -118,7 +118,7 @@ class cDocTree(wxTreeCtrl):
         # read documents from database
         doc_ids = self.curr_pat['document id list']
         if doc_ids is None:
-            name = self.curr_pat['demographic record'].getActiveName()
+            name = self.curr_pat['demographic record'].get_names()
             gmGuiHelpers.gm_show_error(
                 aMessage = _('Cannot find any documents for patient\n[%s %s].') % (name['first'], name['last']),
                 aTitle = _('loading document list')
@@ -623,7 +623,10 @@ else:
     pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.40  2004-03-20 19:48:07  ncq
+# Revision 1.41  2004-03-25 11:03:23  ncq
+# - getActiveName -> get_names
+#
+# Revision 1.40  2004/03/20 19:48:07  ncq
 # - adapt to flat id list from get_patient_ids
 #
 # Revision 1.39  2004/03/20 18:30:54  shilbert

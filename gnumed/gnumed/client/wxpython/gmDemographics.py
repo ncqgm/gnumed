@@ -14,8 +14,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.17 2004-03-15 15:43:17 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmDemographics.py,v 1.18 2004-03-25 11:03:23 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -694,8 +694,8 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		"""on patient_selected() signal handler , inherited from gmPatientHolder.PatientHolder"""
 		myPatient = self.patient.get_demographic_record()
 		m = self.input_fields
-		m['firstname'].SetValue( myPatient.getActiveName()['first'] )
-		m['surname'].SetValue( myPatient.getActiveName()['last'] )
+		m['firstname'].SetValue( myPatient.get_names()['first'] )
+		m['surname'].SetValue( myPatient.get_names()['last'] )
 		title = myPatient.getTitle()
 		if title == None:
 			title = ''
@@ -798,7 +798,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.17  2004-03-15 15:43:17  ncq
+# Revision 1.18  2004-03-25 11:03:23  ncq
+# - getActiveName -> get_names
+#
+# Revision 1.17  2004/03/15 15:43:17  ncq
 # - cleanup imports
 #
 # Revision 1.16  2004/03/09 07:34:51  ihaywood

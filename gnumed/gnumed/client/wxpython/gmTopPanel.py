@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -220,7 +220,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
 		self.txt_age.SetValue(age)
-		name = self.curr_pat['demographic record'].getActiveName()
+		name = self.curr_pat['demographic record'].get_names()
 		self.patient_selector.SetValue('%s, %s' % (name['last'], name['first']))
 
 		# update episode selector
@@ -336,7 +336,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.32  2004-03-04 19:47:07  ncq
+# Revision 1.33  2004-03-25 11:03:23  ncq
+# - getActiveName -> get_names
+#
+# Revision 1.32  2004/03/04 19:47:07  ncq
 # - switch to package based import: from Gnumed.foo import bar
 #
 # Revision 1.31  2004/02/25 09:46:22  ncq

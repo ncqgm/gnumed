@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.36 2004-03-25 09:47:56 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmPatient.py,v 1.37 2004-03-25 11:03:23 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -883,14 +883,17 @@ if __name__ == "__main__":
 		print "ID       ", myPatient['ID']
 		demos = myPatient['demographic record']
 		print "demogr.  ", demos
-		print "name     ", demos.getActiveName()
+		print "name     ", demos.get_names(1)
 		print "doc ids  ", myPatient['document id list']
 		emr = myPatient['clinical record']
 		print "EMR      ", emr
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.36  2004-03-25 09:47:56  ncq
+# Revision 1.37  2004-03-25 11:03:23  ncq
+# - getActiveName -> get_names
+#
+# Revision 1.36  2004/03/25 09:47:56  ncq
 # - fix whitespace breakage
 #
 # Revision 1.35  2004/03/23 15:04:59  ncq

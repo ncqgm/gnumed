@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 
 import string
 from wxPython.wx import *
@@ -108,7 +108,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 		#new_demographics = newPatient.get_demographic_record()
 		#old_demographics = patient.get_demographic_record()
 		#new_demographics.copyAddresses(old_demographics)
-		#new_demographics.setActiveName( "?", old_demographics.getActiveName()['last'])
+		#new_demographics.setActiveName( "?", old_demographics.get_names()['last'])
 		if newId == None:
 			print "GOT no new patient"
 			return
