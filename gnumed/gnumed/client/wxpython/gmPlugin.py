@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.15 2004-03-04 19:23:24 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmPlugin.py,v 1.16 2004-03-10 12:56:01 ihaywood Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -284,7 +284,7 @@ class wxPatientPlugin (wxBasePlugin):
 	def register (self):
 		wxBasePlugin.register (self)
 		self.mwm = self.gb['clinical.manager']
-		if gmGuiBroker.config['main.shadow']:
+		if 1: # FIXME: do proper config check for shadowing
 			shadow = gmShadow.Shadow (self.mwm, -1)
 			widget = self.GetWidget (shadow)
 			shadow.SetContents (widget)
@@ -515,7 +515,11 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.15  2004-03-04 19:23:24  ncq
+# Revision 1.16  2004-03-10 12:56:01  ihaywood
+# fixed sudden loss of main.shadow
+# more work on referrals,
+#
+# Revision 1.15  2004/03/04 19:23:24  ncq
 # - moved here from pycommon
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq

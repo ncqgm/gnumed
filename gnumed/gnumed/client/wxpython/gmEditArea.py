@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.63 2004-03-09 13:46:54 ihaywood Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmEditArea.py,v 1.64 2004-03-10 12:56:01 ihaywood Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -1618,7 +1618,7 @@ class gmReferralEditArea(gmEditArea):
 		self._add_prompt (line = 2, label = _ ("Name"))
 		self._add_prompt (line = 3, label = _ ("Address"))
 		self._add_prompt (line = 4, label = _ ("Options"))
-		self._add_prompt (line = 5, label = _("Text"), weight =3)
+		self._add_prompt (line = 5, label = _("Text"), weight =6)
 		self._add_prompt (line = 6, label = "")
 
 	def _define_fields (self, parent):
@@ -1638,7 +1638,7 @@ class gmReferralEditArea(gmEditArea):
 		self.fld_name = gmPhraseWheel.cPhraseWheel (
 			parent = parent,
 			id = -1,
-			aMatchProvider = gmDemographicRecord.OccupationMP (),
+			aMatchProvider = gmDemographicRecord.NameMP (),
 			style = wxSIMPLE_BORDER
 			)
 		#_decorate_editarea_field (self.fld_name)
@@ -2363,7 +2363,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.63  2004-03-09 13:46:54  ihaywood
+# Revision 1.64  2004-03-10 12:56:01  ihaywood
+# fixed sudden loss of main.shadow
+# more work on referrals,
+#
+# Revision 1.63  2004/03/09 13:46:54  ihaywood
 # edit area now has resizable lines
 # referrals loads with this feature
 # BUG: the first line is bigger than the rest: why??

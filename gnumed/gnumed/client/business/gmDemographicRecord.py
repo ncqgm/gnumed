@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.29 2004-03-10 00:09:51 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmDemographicRecord.py,v 1.30 2004-03-10 12:56:01 ihaywood Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -772,7 +772,22 @@ class OccupationMP (gmMatchProvider.cMatchProvider_SQL):
 			'limit':7
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
-		
+
+class NameMP (gmMatchProvider.cMatchProvider_SQL):
+	"""
+	List of names
+	"""
+	def __init__ (self):
+		source =[{
+			'service':'personalia',
+			'table':'names',
+			'pk':'id_identity',
+			'column':'lastnames',
+			'result':"lastnames || ', ' || firstnames",
+			'limit':5,
+			'extra conditions':{'occupation':'exists (select 1 from lnk_job2person where id_occupation = %s and lnk_job2person.id_identity = names.id_identity)'}
+			}]
+		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
 #------------------------------------------------------------
 # FIXME: do we REALLY need this ?
 def get_time_tuple(faultyMxDateObject):
@@ -819,7 +834,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.29  2004-03-10 00:09:51  ncq
+# Revision 1.30  2004-03-10 12:56:01  ihaywood
+# fixed sudden loss of main.shadow
+# more work on referrals,
+#
+# Revision 1.29  2004/03/10 00:09:51  ncq
 # - cleanup imports
 #
 # Revision 1.28  2004/03/09 07:34:51  ihaywood

@@ -19,8 +19,8 @@
 #      
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Referrals.py,v $
-# $Id: gmGP_Referrals.py,v 1.8 2004-03-09 07:34:51 ihaywood Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmGP_Referrals.py,v 1.9 2004-03-10 12:56:01 ihaywood Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "R.Terry"
 
 from wxPython.wx import *
@@ -32,22 +32,6 @@ from Gnumed.wxpython.gmPatientHolder import PatientHolder
 ID_REFERRALDATE = wxNewId ()
 ID_REFERRALTXT  = wxNewId()
 gmSECTION_REFERRALS = 11
-
-requestprompts = {
-1:("Category"),
-2:("Name"),
-3:("Organisation"),
-4:("Street1"),
-5:("Street2"),
-6:("Street3"),
-7:("Suburb"),		  
-8:("Referral For"),
-9:("Progress Notes"),
-10:("Copy to"),
-11:("Include"),
-12:(""),		
-13:("")
-}
 
 class ReferralsPanel (wxPanel, PatientHolder):
      def __init__(self,parent, id):
@@ -72,37 +56,8 @@ class ReferralsPanel (wxPanel, PatientHolder):
 		#---------------------------------------------
 		#now create the editarea specific for referrals
 		#---------------------------------------------
-#		self.editarea = gmEditArea.EditArea(self,-1,requestprompts,gmSECTION_REFERRALS)
 		self.editarea = gmEditArea.gmReferralEditArea(self, -1)
-		#-----------------------------------------------------------------
-		#add the divider headings for requests generated this consultation
-		#-----------------------------------------------------------------
-		self.referralsgenerated_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Referral letter details"))
-		self.sizer_referralsgenerated = wxBoxSizer(wxHORIZONTAL) 
-		self.sizer_referralsgenerated.Add(self.referralsgenerated_subheading,1, wxEXPAND)
-		#---------------------------------------------------------------------------------
-		#control to write referral letter (expands to full size on double click or preview
-		#FIXME ie someone should do this!
-		#---------------------------------------------------------------------------------
-		self.txt_referral_letter = wxTextCtrl(self, ID_REFERRALTXT,
-	                "The gmGP_Referrals.py gui is a little contentious as those on the gnumed developers list will "
-			"be aware. This is an interim version. The referral letter text would normally start here, not this"
-			"comment. E.G:\n\n"
-			"Thanks for assessing Bruce who has been complaining of severe retrosternal pains for 2 months, "
-			"and trouble swallowing. He seems to have lost about 10Kg in weight, and his vomiting of blood "
-			"would suggest possible carcinoma.\n \n"
-			"I've explained the dd and he is expecting the worst.\n\n"
-                        "Clicking the preview button would enlarge this text area to full left hand screen size"
-                        "and have the practice header, name of person being referred to etc, and would still be editable."
-                        "The letter is printed by clicking the currently non-existant print button on the menu bar above!" ,
-		wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
-		self.txt_referral_letter.SetInsertionPoint(0)
-		self.txt_referral_letter.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-		#----------------------------------------
-		#add an alert caption panel to the bottom
-		#----------------------------------------
-		self.alertpanel = gmGuiElement_AlertCaptionPanel.AlertCaptionPanel(self,-1,"  Alerts  ")
-		#---------------------------------------------                                                                               
+		#---------------------------------------------
 		#add all elements to the main background sizer
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
@@ -110,9 +65,6 @@ class ReferralsPanel (wxPanel, PatientHolder):
 		self.mainsizer.Add(0,5,0)
 		self.mainsizer.Add(self.sizer_top,0,wxEXPAND)
 		self.mainsizer.Add(self.editarea,10,wxEXPAND)
-		self.mainsizer.Add(self.referralsgenerated_subheading,0,wxEXPAND)
-		self.mainsizer.Add(self.txt_referral_letter,6,wxEXPAND)
-		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
 		self.SetSizer(self.mainsizer)
 		self.SetAutoLayout(true)
 		self.Show(true)
@@ -163,7 +115,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #==============================================================
 # $Log: gmGP_Referrals.py,v $
-# Revision 1.8  2004-03-09 07:34:51  ihaywood
+# Revision 1.9  2004-03-10 12:56:01  ihaywood
+# fixed sudden loss of main.shadow
+# more work on referrals,
+#
+# Revision 1.8  2004/03/09 07:34:51  ihaywood
 # reactivating plugins
 #
 # Revision 1.7  2003/11/17 10:56:42  sjtan

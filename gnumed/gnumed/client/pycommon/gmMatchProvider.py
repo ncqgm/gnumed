@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.1 2004-02-25 09:30:13 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmMatchProvider.py,v 1.2 2004-03-10 12:56:01 ihaywood Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -386,6 +386,7 @@ class cMatchProvider_SQL(cMatchProvider):
 		limit: the max. number of returned rows
 		extra conditions: a dictionary, where keys are context variables, values are
 		SQL expressions applying that context to the query
+		result: the result string where it differs from column
 		"""
 		self.dbpool = gmPG.ConnectionPool()
 
@@ -499,9 +500,11 @@ class cMatchProvider_SQL(cMatchProvider):
 				if src['extra conditions'].has_key('default'):
 					ctxt_where += " and (%s)" % src['extra conditions']['default']
 
+			if not src.has_key ('result'):
+				src['result'] = src['column'] 
 			cmd = "select %s, %s from %s where %s %s %%s %s" % (
 				src['pk'],
-				src['column'],
+				src['result'],
 				src['table'],
 				src['column'],
 				search_operator,
@@ -539,7 +542,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-03-10 12:56:01  ihaywood
+# fixed sudden loss of main.shadow
+# more work on referrals,
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.13  2004/01/12 13:10:27  ncq

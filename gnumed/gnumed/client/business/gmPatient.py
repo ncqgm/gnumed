@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.22 2004-03-10 00:09:51 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmPatient.py,v 1.23 2004-03-10 12:56:01 ihaywood Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -18,7 +18,7 @@ import sys, os.path, time, re, string
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'pycommon'))
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmI18N
 from Gnumed.business import gmClinicalRecord, gmDemographicRecord
 
 _log = gmLog.gmDefLog
@@ -812,7 +812,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.22  2004-03-10 00:09:51  ncq
+# Revision 1.23  2004-03-10 12:56:01  ihaywood
+# fixed sudden loss of main.shadow
+# more work on referrals,
+#
+# Revision 1.22  2004/03/10 00:09:51  ncq
 # - cleanup imports
 #
 # Revision 1.21  2004/03/09 07:34:51  ihaywood
