@@ -1,4 +1,4 @@
-"""This module encapsulates document level operations.
+"""This module encapsulates a document stored in a GnuMed database.
 
 metadata layout:
 
@@ -36,25 +36,20 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.8 2003-04-18 22:33:44 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmMedDoc.py,v 1.9 2003-04-20 15:32:15 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, tempfile, os, shutil
+import sys, tempfile, os, shutil, os.path
+
+if __name__ == '__main__':
+	sys.path.append(os.path.join('..', 'python-common'))
 
 import gmLog
 _log = gmLog.gmDefLog
 
 import gmPG
 from gmExceptions import ConstructorError
-#============================================================
-def __run_query(aCursor = None, aCmd = None):
-	if aCursor is None:
-		_log.Log(gmLog.lErr, 'need cursor to run query')
-		return None
-	if aQuery is None:
-		_log.Log(gmLog.lErr, 'need query to run it')
-		return None
 #============================================================
 class gmMedObj:
 	def __init__(self, aPKey):
@@ -544,80 +539,12 @@ def create_object(data):
 
 	return obj
 #============================================================
-def call_viewer_on_file(aFile = None):
-	"""Try to find an appropriate viewer with all tricks and call it."""
-
-	_log.Log(gmLog.lInfo, "Calling viewer on [%s]." % aFile)
-
-	if aFile is None:
-		msg = "No need to call viewer without file name."
-		_log.Log(gmLog.lErr, msg)
-		return None, msg
-
-	# does this file exist, actually ?
-	if not os.path.exists(aFile):
-		msg = _('File [%s] does not exist !') % aFile
-		_log.Log(gmLog.lErr, msg)
-		return None, msg
-
-	# sigh ! let's be off to work
-	try:
-		import gmMimeLib
-	except ImportError:
-		msg = _("Cannot import gmMimeLib.py !")
-		_log.LogException(msg, sys.exc_info(), fatal=0)
-		return None, msg
-
-	mime_type = gmMimeLib.guess_mimetype(aFile)
-	_log.Log(gmLog.lData, "mime type : %s" % mime_type)
-	viewer_cmd = gmMimeLib.get_viewer_cmd(mime_type, aFile)
-	_log.Log(gmLog.lData, "viewer cmd: '%s'" % viewer_cmd)
-
-	if viewer_cmd != None:
-		os.system(viewer_cmd)
-		return 1, ""
-
-	_log.Log(gmLog.lErr, "Cannot determine viewer via standard mailcap mechanism.")
-	if os.name == "posix":
-		_log.Log(gmLog.lErr, "You should add a viewer for this mime type to your mailcap file.")
-		msg = _("Unable to start viewer on file\n[%s]\nYou need to update your mailcap file.") % aFile
-		return None, msg
-	else:
-		_log.Log(gmLog.lWarn, "Let's see what the OS can do about that.")
-		# does the file already have an extension ?
-		(path_name, f_ext) = os.path.splitext(aFile)
-		# no
-		if f_ext == "":
-			# try to guess one
-			f_ext = gmMimeLib.guess_ext_by_mimetype(mime_type)
-			if f_ext is None:
-				_log.Log(gmLog.lErr, "Unable to guess file extension from mime type. Trying sheer luck.")
-				file_to_display = aFile
-				f_ext = ""
-			else:
-				file_to_display = aFile + f_ext
-				shutil.copyfile(aFile, file_to_display)
-		# yes
-		else:
-			file_to_display = aFile
-
-		_log.Log(gmLog.lData, "%s <%s> (%s) -> %s" % (aFile, mime_type, f_ext, file_to_display))
-		try:
-			os.startfile(file_to_display)
-		except:
-			msg = _("Unable to start viewer on file [%s].") % file_to_display		
-			_log.LogException(msg, sys.exc_info(), fatal=0)
-			return None, msg
-
-	# clean up if necessary
-	# don't kill the file from under the (async) viewer
-#	if file_to_display != aFile:
-#		os.remove(file_to_display)
-
-	return 1, ""
-#============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.8  2003-04-18 22:33:44  ncq
+# Revision 1.9  2003-04-20 15:32:15  ncq
+# - removed __run_query helper
+# - call_viewer_on_file moved to gmMimeLib
+#
+# Revision 1.8  2003/04/18 22:33:44  ncq
 # - load document descriptions from database
 #
 # Revision 1.7  2003/03/31 01:14:22  ncq
