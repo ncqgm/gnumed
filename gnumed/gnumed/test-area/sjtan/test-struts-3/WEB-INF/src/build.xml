@@ -1,4 +1,4 @@
-<project name="blank" basedir="../" default="compile">
+<project name="blank" basedir="../" default="all">
 
 	<property name="lib.path" value="./lib"/>
 

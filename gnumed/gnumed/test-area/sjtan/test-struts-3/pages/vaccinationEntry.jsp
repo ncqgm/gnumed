@@ -13,6 +13,9 @@
     
     2. The id attribute of the logic:iterate tag must also be the property name 
         (vaccination for getVaccination(index) ).
+    
+    3. There may be a bug, put the form itself may need to have the getVaccination(int index)
+method. 
 
     " Vaccination[] getVaccination(int index); "  will be usable as a readonly 
     method. So will " List getVaccination(int index); "
@@ -31,7 +34,7 @@
 --%>
         <%-- <html:text property="vaccinations"/> --%>
 
-            <table>
+            <table border='1'>
                 <tr>
                 <bean:message key="vacc.entry.prompt"/>
                 </tr>
@@ -45,23 +48,30 @@
                         <bean:message key="vacc.date.given"/>
                         <html:text name="vaccination" property="dateGivenString" indexed="true" size="8"/>
                     </td>
-                     <td><b><bean:message key="vaccine"/> </b>:</td>
                     <td>
+                    <table>
+                    <tr>
+                    <td><b><bean:message key="vaccine"/> </b>:</td>
+                    <td >
                    
                     <html:select name="vaccination" property="vaccineGiven" indexed="true"  >
                       <html:option key=" " value=" "/>
-                      <html:optionsCollection name="vaccines" label="descriptiveName" value="tradeName"   />
+                      <html:optionsCollection name="vaccines" label="descriptiveName" value="tradeName" />
                       
                     </html:select>
                     </td>
-                    <td>
+                    </tr>
+                    <tr>
+                    <td colspan='2'>
                         <bean:message key="vacc.batch.no"/>
                         <html:text name="vaccination" property="batchNo" indexed="true" size="6"/>
                     
                         <bean:message key="vacc.site.given"/>
                         <html:text name="vaccination" property="site" indexed="true" size="6"/>
                     </td>
-                   
+                   </tr>
+                    </table>
+                    </td>
                     </tr>
                 </logic:iterate>
             </table>     

@@ -4,7 +4,7 @@
  * Created on September 13, 2004, 9:55 PM
  */
 
-package java.org.gnumed.testweb1.data;
+package org.gnumed.testweb1.data;
 
 /**
  *

@@ -30,5 +30,7 @@ public interface HealthSummary01 {
      */
     public void setEncounters(List encounters);
     
+    public boolean hasHealthIssue(final HealthIssue issue);
+    public boolean addHealthIssue(  HealthIssue issue);
 }
     

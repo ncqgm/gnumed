@@ -158,5 +158,6 @@ public class DefaultVaccination extends ClinRootItemImpl1 implements Vaccination
     public void setClin_when(java.util.Date clin_when) {
         super.setClin_when(clin_when);
     }
+     
     
 }

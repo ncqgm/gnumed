@@ -108,4 +108,16 @@ public interface ClinRootItem {
      */
     public void setClin_when(java.util.Date clin_when);
     
+    /**
+     * Getter for property newHealthIssueName.
+     * @return Value of property newHealthIssueName.
+     */
+    public String getNewHealthIssueName();
+    
+    /**
+     * Setter for property newHealthIssueName.
+     * @param newHealthIssueName New value of property newHealthIssueName.
+     */
+    public void setNewHealthIssueName(String newHealthIssueName);
+    
 }

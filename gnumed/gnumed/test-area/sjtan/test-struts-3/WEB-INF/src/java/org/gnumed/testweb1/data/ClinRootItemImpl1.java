@@ -11,12 +11,12 @@ package org.gnumed.testweb1.data;
  * @author  sjtan
  */
 public class ClinRootItemImpl1 implements ClinRootItem {
-    java.util.Date clin_when;
+    java.util.Date clin_when = new java.util.Date();
     ClinicalEpisode episode;
     ClinicalEncounter clinicalEncounter;
     Long id;
-    char soapCat;
-    String narrative, healthIssueName;
+    char soapCat = 's';
+    String narrative, healthIssueName, newHealthIssueName;
     
     /** Creates a new instance of ClinRootItemImpl1 */
     public ClinRootItemImpl1() {
@@ -87,6 +87,14 @@ public class ClinRootItemImpl1 implements ClinRootItem {
     
     public void setClin_when(java.util.Date clin_when) {
         this.clin_when = clin_when;
+    }
+    
+    public String getNewHealthIssueName() {
+        return newHealthIssueName;
+    }
+    
+    public void setNewHealthIssueName(String newHealthIssueName) {
+        this.newHealthIssueName = newHealthIssueName;
     }
     
 }

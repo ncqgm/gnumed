@@ -29,6 +29,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     DataObjectFactory dof ;
     /** Creates a new instance of HealthSummaryQuickAndDirty01 */
     public HealthSummaryQuickAndDirty01(DataObjectFactory dof,
+    Long  patientId,
     Map vaccines,
     ResultSet healthIssuesRS,
     ResultSet episodesRS,
@@ -41,7 +42,9 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     ResultSet test_resultRS,
     ResultSet referralRS ) {
         this.dof = dof;
+        identityId =  patientId;
         try {
+            
             allergys = getResults(allergyRS);
             healthIssues = getResults(healthIssuesRS);
             episodes = getResults(episodesRS);
@@ -204,7 +207,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
             ClinicalEncounter ce1,ce2;
             ce1 = (ClinicalEncounter) obj;
             ce2 = (ClinicalEncounter) obj1;
-             if (ce1 == null) return -1;
+            if (ce1 == null) return -1;
             if (ce2 == null) return 1;
             return ce1.getStarted().compareTo(ce2.getStarted());
         }
@@ -314,6 +317,31 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     }
     
     public void setEncounters(List encounters) {
+    }
+    
+    public boolean hasHealthIssue(HealthIssue issue) {
+        Iterator j = healthIssues.iterator();
+        while (j.hasNext()) {
+            HealthIssue issue2 = (HealthIssue) j.next();
+            if (issue2.getId().equals(issue.getId() ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean addHealthIssue(HealthIssue issue) {
+        
+        addEpisodes( issue.getClinicalEpisodes() );
+        return healthIssues.add(issue);
+        
+    }
+    
+    public void addEpisodes( ClinicalEpisode[] es) {
+        for ( int i = 0; i < es.length; ++i ) {
+            getClinEpisodes().add(es[i]);
+        
+        }
     }
     
 }

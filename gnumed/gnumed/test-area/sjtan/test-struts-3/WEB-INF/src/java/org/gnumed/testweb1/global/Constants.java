@@ -44,14 +44,21 @@ public final class Constants {
         public final static String VACCINES= "vaccines";
         public final static String DEMOGRAPHIC_DETAILS="demographicDetails";
       
+        public static final String HEALTH_RECORD = "healthRecord";
+        
     }
     
      public static final  class Request {
         public final static String PATIENT_ID="id";
         public final static String DEMOGRAPHIC_DETAIL_DISPLAY = "detail";
         public final static String CLINICAL_UPDATE_FORM="clinicalUpdateForm";
-        public final static String HEALTH_RECORD_DISPLAY="healthRecord";
+    //    public final static String HEALTH_RECORD_DISPLAY="healthRecord";
         
+     }
+     
+     public static final class Schema {
+         public final static String DEFAULT_HEALTH_ISSUE_LABEL="xxxDEFAULTxxx";
+         
      }
     
 }

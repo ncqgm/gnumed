@@ -38,6 +38,7 @@ import org.gnumed.testweb1.data.DataObjectFactory;
 
 
 import org.gnumed.testweb1.persist.ClinicalDataAccess;
+import org.gnumed.testweb1.persist.DataSourceException;
 import org.gnumed.testweb1.persist.DemographicDataAccess;
 
 import org.gnumed.testweb1.persist.HealthRecordAccess01;
@@ -69,7 +70,7 @@ public class ClinicalEditAction extends Action {
     /** Creates a new instance of ClinicalEditAction */
     public ClinicalEditAction() {
     }
-     Log log = LogFactory.getFactory().getLog(this.getClass());
+     Log log = LogFactory.getLog(this.getClass());
     
     public ActionForward execute(ActionMapping mapping,
     ActionForm form,
@@ -79,55 +80,31 @@ public class ClinicalEditAction extends Action {
         ActionErrors errors = new ActionErrors();
         
         try {
+            
+            setVaccinesOnSession(request);
+             
+            Long id = getIdFromRequest(request);
+            
+            if (id != null && id.longValue() != (long) 0) {
+                setDemographicDetailOnSession(request, id);
+                 setHealthRecordOnSession(request, id);
+                  
+            }
+        	
             if (form == null) {
-                form = new ClinicalUpdateForm();
+            	DataObjectFactory factory =  
+            		(DataObjectFactory) servlet.getServletContext()
+					.getAttribute(Constants.Servlet.OBJECT_FACTORY);
+            	
+                form = new ClinicalUpdateForm(factory, new Integer( id.intValue()) );
+                
+                
             }
             
             log.info("FORM is " + form);
-            
-            ClinicalDataAccess dataAccess = (ClinicalDataAccess )
-            servlet.getServletContext().getAttribute( Constants.Servlet.CLINICAL_ACCESS);
-            
-            
-            
-            Long id = null;
-            
-            if (request.getSession().getAttribute(Constants.Session.VACCINES) == null) {
-                List vaccines = dataAccess.getVaccines();
-                
-                request.getSession().setAttribute(Constants.Session.VACCINES, vaccines);
-            }
-            
-            if (request.getParameter(Constants.Request.PATIENT_ID) != null)
-                id = new Long(Long.parseLong( request.getParameter(Constants.Request.PATIENT_ID) ));
-            
-            if (id != null && id.longValue() != (long) 0) {
-                DemographicDataAccess demoDataAccess = (DemographicDataAccess)
-                 servlet.getServletContext().getAttribute( 
-                    Constants.Servlet.DEMOGRAPHIC_ACCESS);
-            
-                DemographicDetail detail = demoDataAccess.findDemographicDetailById(id);
-                request.setAttribute(Constants.Request.DEMOGRAPHIC_DETAIL_DISPLAY, detail);
-                
-             
-                HealthRecordAccess01 healthRecordAccess = (HealthRecordAccess01)
-                servlet.getServletContext().getAttribute( 
-                    Constants.Servlet.HEALTH_RECORD_ACCESS);
-                
-                HealthRecord01 healthRecord = healthRecordAccess.findHealthRecordByIdentityId(id.longValue());
-                logHealthIssues(healthRecord);
-                request.setAttribute(Constants.Request.HEALTH_RECORD_DISPLAY, healthRecord);
-                
-              //  log.info("CLIN FORM ID IS " + BeanUtils.getSimpleProperty(form, "id"));
-                
-            }
+
             
             Util.setScopedMappingAttribute(request, mapping, form);
-            //request.setAttribute(Constants.Request.CLINICAL_UPDATE_FORM, form);
-            request.setAttribute("vaccinations", 
-                ((ClinicalUpdateForm)form).getVaccinations());
-           request.setAttribute("narratives",
-                ((ClinicalUpdateForm)form).getEncounter().getNarratives() );
            
             
         } catch (Exception e) {
@@ -143,7 +120,66 @@ public class ClinicalEditAction extends Action {
         return mapping.findForward("successLoadClinical");
     }
     
-    private void logHealthIssues(   HealthRecord01 healthRecord) {
+    /**
+	 * @param request
+	 * @param id
+	 * @return
+	 */
+	private Long getIdFromRequest(HttpServletRequest request ) {
+		Long id = null;
+		if (request.getParameter(Constants.Request.PATIENT_ID) != null)
+		    id = new Long(Long.parseLong( request.getParameter(Constants.Request.PATIENT_ID) ));
+		return id;
+	}
+
+	/**
+	 * @param request
+	 * @param id
+	 * @throws DataSourceException
+	 */
+	private void setHealthRecordOnSession(HttpServletRequest request, Long id) throws DataSourceException {
+		HealthRecordAccess01 healthRecordAccess = (HealthRecordAccess01)
+		servlet.getServletContext().getAttribute( 
+		    Constants.Servlet.HEALTH_RECORD_ACCESS);
+		
+		HealthRecord01 healthRecord = healthRecordAccess.findHealthRecordByIdentityId(id.longValue());
+		
+		request.getSession().setAttribute(Constants.Session.HEALTH_RECORD, healthRecord);
+		
+		logHealthIssues(healthRecord);
+		
+	}
+
+	/**
+	 * @param request
+	 * @param id
+	 * @throws DataSourceException
+	 */
+	private void setDemographicDetailOnSession(HttpServletRequest request, Long id) throws DataSourceException {
+		DemographicDataAccess demoDataAccess = (DemographicDataAccess)
+		 servlet.getServletContext().getAttribute( 
+		    Constants.Servlet.DEMOGRAPHIC_ACCESS);
+         
+		DemographicDetail detail = demoDataAccess.findDemographicDetailById(id);
+		request.setAttribute(Constants.Request.DEMOGRAPHIC_DETAIL_DISPLAY, detail);
+	}
+
+	/**
+	 * @param request
+	 * @throws DataSourceException
+	 */
+	private void setVaccinesOnSession(HttpServletRequest request) throws DataSourceException {
+		ClinicalDataAccess dataAccess = (ClinicalDataAccess )
+		servlet.getServletContext().getAttribute( Constants.Servlet.CLINICAL_ACCESS);
+		
+		if (request.getSession().getAttribute(Constants.Session.VACCINES) == null) {
+		    List vaccines = dataAccess.getVaccines();
+		    
+		    request.getSession().setAttribute(Constants.Session.VACCINES, vaccines);
+		}
+	}
+
+	private void logHealthIssues(   HealthRecord01 healthRecord) {
         List l = healthRecord.getHealthSummary().getHealthIssues();
         log.info("got health issues " + l + " size = " + ( (l == null)? "null" : Integer.toString(l.size())));
         

@@ -19,6 +19,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     Long id;
     String location;
     List narratives, medications, vaccinations, allergys;
+    Vitals vitals;
     
     /** Creates a new instance of ClinicalEncounterImpl1 */
     public ClinicalEncounterImpl1() {
@@ -150,6 +151,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     }
     
     public void setNarrative(int index, ClinNarrative narrative) {
+        narrative.setEncounter(this);
         set( narratives, index, narrative);
     }
     
@@ -160,6 +162,14 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     public void sortRootItems(final java.util.Comparator comparator) {
         java.util.Collections.sort( narratives, comparator);
         
+    }
+    
+    public Vitals getVitals() {
+        return vitals;
+    }
+    
+    public void setVitals(Vitals vitals) {
+        this.vitals = vitals;
     }
     
 }

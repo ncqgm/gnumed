@@ -54,5 +54,9 @@ public class AllergyImpl1 extends ClinRootItemImpl1 implements Allergy {
         super.setHealthIssueName(healthIssueName);
     }
     
+    public void setNewHealthIssueName(String newHealthIssueName) {
+        super.setNewHealthIssueName(newHealthIssueName);
+    }
+    
 }
 

@@ -43,14 +43,19 @@ import org.gnumed.testweb1.data.DataObjectFactory;
 import org.gnumed.testweb1.data.DemographicDetail;
 import org.gnumed.testweb1.data.Vaccination;
 import org.gnumed.testweb1.data.ClinNarrative;
+import org.gnumed.testweb1.data.HealthRecord01;
+import org.gnumed.testweb1.data.HealthSummary01;
 
 import org.gnumed.testweb1.persist.DemographicDataAccess;
+import org.gnumed.testweb1.persist.HealthRecordAccess01;
 
 import org.gnumed.testweb1.forms.ClinicalUpdateForm;
 
 import org.gnumed.testweb1.global.Constants;
 import org.gnumed.testweb1.global.Util;
 import java.util.List;
+
+
 /**
  *
  * @author  sjtan
@@ -89,7 +94,7 @@ public class ClinicalSaveAction extends Action {
             getAttribute(Constants.Servlet.OBJECT_FACTORY);
             
             ClinicalUpdateForm cform = (ClinicalUpdateForm) form;
-            log.info("TEST ATTRIBUTE FROM "+cform + " = "+cform.getTest());
+       //     log.info("TEST ATTRIBUTE FROM "+cform + " = "+cform.getTest());
             
             
             
@@ -120,6 +125,13 @@ public class ClinicalSaveAction extends Action {
                  log.info("Health issue name for " + n + " was " + n.getHealthIssueName());
             }
             
+            HealthRecordAccess01 access = 
+            (HealthRecordAccess01) servlet.getServletContext().
+                getAttribute(Constants.Servlet.HEALTH_RECORD_ACCESS);
+            
+            HealthRecord01 record = (HealthRecord01) request.getSession().getAttribute(Constants.Session.HEALTH_RECORD);
+            access.save(cform.getEncounter() , record.getHealthSummary() );
+            
             // logging
             //    org.gnumed.testweb1.global.Util.logBean(log, form);
             
@@ -132,21 +144,17 @@ public class ClinicalSaveAction extends Action {
             return mapping.findForward("success");
             
         } catch (Exception e)  {
-            log.error("error in " + this.toString() , e);
+              
             
-            errors.add(errors.GLOBAL_MESSAGE, new ActionError("errors.detailSave" , e , e.getCause() ) );
+            e.printStackTrace();
+            Util.setScopedMappingAttribute(request, mapping, form);
+            log.info(e);
+            ActionError error = new ActionError(e.toString(), e);
+            errors.add("failure in EditClinical", error);
+            saveErrors( request, errors);
+            return mapping.getInputForward();
         }
-        finally {
-            
-            
-        }
         
-        saveErrors(request, errors);
-        //   return  mapping.getInputForward();
-        
-        Util.setScopedMappingAttribute(request, mapping, form);
-        
-        return mapping.getInputForward();
     }
     
 }

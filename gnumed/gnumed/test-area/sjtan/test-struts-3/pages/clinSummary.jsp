@@ -19,7 +19,7 @@
     <logic:iterate   id="healthIssue" 
             name="healthRecord" 
             property="healthSummary.healthIssues"
-            scope="request">
+             >
             <tr>
             <td>
             <bean:write name="healthIssue" property="description" />
@@ -32,16 +32,18 @@
     <logic:iterate   id="episode" 
             name="healthRecord" 
             property="healthSummary.clinEpisodes"
-            scope="request">
+            >
             <tr>
             <td>
             <dt:format pattern="dd/mm/yy">
             <bean:write name="episode" property="modified_when" format="dd/mm/yyyy hh:mm" />
             </dt:format>
             </td>
-            <td><h6>
+            <td><b>
             <bean:write name="episode" property="description" />
-            </h6>
+            </b>
+            : issue is 
+            <bean:write name="episode" property="healthIssue.description"/>
             </td>
             </tr>
     </logic:iterate>
@@ -53,7 +55,7 @@
     <logic:iterate   id="allergy" 
             name="healthRecord" 
             property="healthSummary.allergys"
-            scope="request">
+             >
             <tr>
             <td>
             <bean:write name="allergy" property="substance"/>
@@ -76,7 +78,7 @@
     <logic:iterate id="vaccination"
                 name="healthRecord"
             property="healthSummary.vaccinations"
-            scope="request">
+             >
     <tr>
     <td>
     <bean:write name="vaccination" property="dateGivenString"/>
@@ -98,13 +100,13 @@
     
      </logic:present>
      
-     <h3>Past Notes</h3>
+     <h2>Past Notes</h2>
      
-    <table>
+    <table border='1'>
     <logic:iterate id="encounter"
                 name="healthRecord"
             property="healthSummary.encounters"
-            scope="request">
+              >
     <tr>
     <td>
     <h4>
@@ -126,15 +128,27 @@
                 <bean:write name="clin_narrative" property="clin_when" format="dd/mm/yyyy hh:mm"/>
             </td>
             <td>
-                <bean:write name="clin_narrative" property="episode.description"/>
+             <b>issue </b>
+             <bean:write name="clin_narrative" property="episode.healthIssue.description"/>
             </td>
         </tr>
         <tr>
         <td> 
+        <table><tr>
+       
+        <td>
         <b>
+        
         <bean:write name="clin_narrative" property="soapCat"/>
-        </b>
+        </b></td>
+        </tr><tr><td>
+            
+                <bean:write name="clin_narrative" property="episode.description"/>
+        
+        </td></tr></table>    
         </td>
+       
+        
         <td> 
         <bean:write name="clin_narrative" property="narrative"/>
         </td>

@@ -7,8 +7,9 @@
 <tiles-definitions>
 
 	<!-- DEFAULT MAIN TEMPLATE -->
-	
-        <definition name="template" page="/pages/main.jsp">
+
+        <definition name="template" page="/pages/main.jsp"  >
+        
                 <put name="support" value="/pages/support.jsp" type="page"/>
      	</definition>
         
@@ -41,8 +42,11 @@
             <put name="content" value="/pages/demographicEntry.jsp" type="page"/>
         </definition>
       
-        <definition name="clinicalentry" extends="template">
+        <definition name="clinicalentry" page="/pages/main_2.jsp">
             <put name="content" value="/pages/clinicalEntry.jsp" type="page"/>
+            
+            <put name="support" value="/pages/clinSummary.jsp" type="page"/>
+            
         </definition>
       
         

@@ -92,20 +92,49 @@ e.g. getNarrative(index) ...  id='narrative'
             </tr>
             
         </table>
-         
+        <h4><bean:message key="vitals"/></h4> 
+        <table width='80%' border='1'><tr> 
+        <td colspan='2'>BP <html:text name="clinicalUpdateForm" property="encounter.vitals.systolic" size="3" maxlength="4"/>
+        / <html:text name="clinicalUpdateForm" property="encounter.vitals.diastolic" size="2"  maxlength="4"/> mmHg
+        </td><td>PR <html:text name="clinicalUpdateForm" property="encounter.vitals.pr" size="3"  maxlength="4"/>bpm
+        </td>
+        <td>rhythm <html:text name="clinicalUpdateForm" property="encounter.vitals.rhytm" size="12" maxlength="8"/>
+        </td></tr>
+        <tr>
+        <td>T <html:text name="clinicalUpdateForm" property="encounter.vitals.temp" size="3" maxlength="4"/>c
+        </td>
+        <td>RR <html:text name="clinicalUpdateForm" property="encounter.vitals.rr" size="2" maxlength="4"/>kg
+        </td> 
+        <td>ht <html:text name="clinicalUpdateForm" property="encounter.vitals.height" size="4"/>m
+        </td>
+        <td>wt <html:text name="clinicalUpdateForm" property="encounter.vitals.height" size="4"/>kg
+        </td>
+        </tr>
+        <tr><td colspan='2'/>
+        <td>PEFR pre <html:text name="clinicalUpdateForm" property="encounter.vitals.prepefr" size="4"/>
+        </td>
+        <td>PEFR post <html:text name="clinicalUpdateForm" property="encounter.vitals.postpefr" size="4"/>
+        </td>
+        </tr></table>
+        
         <logic:iterate id="narrative" name="clinicalUpdateForm" 
         property="encounter.narratives"   
          scope="request" indexId="index">
             <a name='linkNarrative<%=index%>' </a>
+            Narrative <%=index%>
             <table>
                 <tr>
                 
                 <td>
                     <bean:message key="health.issue"/>
                 </td>
-                <td> <input type="checkbox" name="newHealthIssue<%=index%>" value=''
+                
+                <td> ( <bean:message key="new.health.issue"/>
+                    <input type="checkbox" name="newHealthIssue<%=index%>" value=''
                 onchange="if (this.checked) 
                             { 
+                                document.getElementById('sel<%=index%>').value='';
+                                document.getElementById('sel<%=index%>').selectedIndex='0';
                                 document.getElementById('sel<%=index%>').style.display='none';
                                 document.getElementById('txtNewHealthIssue<%=index%>').style.display='block';
                             } else {
@@ -113,25 +142,24 @@ e.g. getNarrative(index) ...  id='narrative'
                                 document.getElementById('txtNewHealthIssue<%=index%>').style.display='none';
                             }
                             return true;"
-                 value='1' title='create health issue'/></td>               
+                 value='1' title='create health issue'/> ) </td>               
                 <td>
                 <div id="sel<%=index%>">
                 
-                    <nested:select name="clinicalNarrative" property="healthIssueName" indexed="true" value="0"
-                        onchange=""
-                        >
-                        <html:option value="0">not selected</html:option>
-                        <html:option value="1">xxxDEFAULTxxx</html:option>
-                        <html:option value="2">asthma</html:option>
-                    </nested:select>
-                
+                  
+                <html:select name="narrative" property="healthIssueName" indexed="true"  >
+                      <html:option key="" value="">no issue selected</html:option>
+                      <html:optionsCollection name="healthRecord" property="healthSummary.healthIssues" label="description"  value="description" />
+                      
+                    </html:select>
                 
                 </div>
                 
+                
                 <div id="txtNewHealthIssue<%=index%>" style="display:none" >
                     
-                                New Health Issue:
-                                <html:text name="narrative" property="healthIssueName" indexed="true"/>
+                               :
+                                <html:text name="narrative" property="newHealthIssueName" indexed="true"/>
                         
                 
                 </div>
@@ -159,15 +187,35 @@ e.g. getNarrative(index) ...  id='narrative'
             <div id='clinNarrative<%=index%>' style='display:<%=(String)((index.intValue() == 0)? "block":"none")%>'  >   
               
                 <table> 
-                    
+                        <tr>
+                        <td colspan='3' > <bean:message key="main.complaint" />
+                           <html:text  name="narrative" property="episode.description" indexed="true" size="40"  />
+                        
+                        </td>
+                     </tr>  
                     <tr>
                         <td>
-                            <bean:message key="episode.notes" />
+                            <bean:message key="narrative.notes" />
                         </td>
+                        <td>
+                            <html:select name="narrative" property="soat_cat" value="s">
+                            <html:option key="s" value="s">S</html:option>
+                             <html:option key="o" value="o">O</html:option>
+                            <html:option key="a" value="a">A</html:option>
+                            <html:option key="p" value="p">P</html:option>
+                     
+                            </html:select>
+                        </td>
+                                
+                        <td> <bean:message key="rfe"/> <html:radio name="narrative" property="rfe" indexed="true" value="false" />
+                        </td> 
+                        <td><bean:message key="aoe"/> <html:radio name="narrative" property="aoe" indexed="true" value="false"/>
+                        </td>
+                               
                     </tr>
                     <tr>
-                    <td COLSPAN='2'>
-                        <html:textarea  name="narrative" property="narrative"  rows="6" cols="40" indexed="true" />
+                    <td COLSPAN='5'>
+                        <html:textarea  name="narrative" property="narrative"  rows="6" cols="80" indexed="true" />
                     
                     </td>
                     </tr>

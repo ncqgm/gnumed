@@ -33,6 +33,9 @@ public interface DataObjectFactory {
      public Medication createMedication();
      public HealthIssue createHealthIssue();
      public ClinicalEpisode createClinicalEpisode();
-     
+     public Vitals createVitals();
      HealthRecord01 createHealthRecord(HealthSummary01 hs);
+     
+     public ClinicalEncounter createEntryClinicalEncounter();
+     
 }

@@ -141,4 +141,17 @@ public interface ClinicalEncounter {
      */
     public void setNarrative(int index, ClinNarrative narrative);
     public void sortRootItems(final java.util.Comparator comparator) ;
+    
+    /**
+     * Getter for property vitals.
+     * @return Value of property vitals.
+     */
+    public Vitals getVitals();
+    
+    /**
+     * Setter for property vitals.
+     * @param vitals New value of property vitals.
+     */
+    public void setVitals(Vitals vitals);
+    
 }

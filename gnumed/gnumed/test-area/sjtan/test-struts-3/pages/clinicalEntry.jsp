@@ -14,9 +14,7 @@
 </b></p>
 </div>
 
-
-<jsp:include page="./clinSummary.jsp"/>
-
+ 
     <html:form action="/SaveClinical"> 
 
 

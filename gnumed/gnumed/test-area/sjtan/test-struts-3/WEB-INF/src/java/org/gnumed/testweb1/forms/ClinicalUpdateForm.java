@@ -5,18 +5,17 @@
  */
 
 package org.gnumed.testweb1.forms;
-import org.apache.struts.action.ActionForm;
-import java.util.List;
-import java.util.ArrayList;
-import org.gnumed.testweb1.data.Vaccination;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+
 import org.apache.commons.beanutils.BeanUtils;
-import org.gnumed.testweb1.data.DefaultVaccination;
-import org.gnumed.testweb1.data.ClinicalEncounterImpl1;
-import org.gnumed.testweb1.data.ClinicalEncounter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionForm;
 import org.gnumed.testweb1.data.ClinNarrative;
+import org.gnumed.testweb1.data.ClinicalEncounter;
+import org.gnumed.testweb1.data.ClinicalEncounterImpl1;
 import org.gnumed.testweb1.data.DataObjectFactory;
+import org.gnumed.testweb1.data.DefaultVaccination;
+import org.gnumed.testweb1.data.Vaccination;
 /**
  *
  * @author  sjtan
@@ -41,12 +40,25 @@ public class ClinicalUpdateForm extends ActionForm {
      */
     private ClinicalEncounter encounter;
     
-    /** Creates a new instance of ClinicalUpdateForm */
+    /**
+     * Holds value of property patientId.
+     */
+    private Integer patientId;
+    
     public ClinicalUpdateForm() {
         initVaccinations();
-        setEncounter( new ClinicalEncounterImpl1(10, 40, 10, 10, factory ));
+        setEncounter( factory.createEntryClinicalEncounter() );
+    }
+    
+    /** Creates a new instance of ClinicalUpdateForm */
+    public ClinicalUpdateForm(DataObjectFactory factory, Integer id) {
+        setPatientId(id);
+        initVaccinations();
+        setEncounter( factory.createEntryClinicalEncounter() );
+        
         
     }
+    
     
     private void initNarratives() {
          narratives =  (ClinNarrative[])getEncounter().
@@ -149,5 +161,21 @@ public class ClinicalUpdateForm extends ActionForm {
         }
          log.info("COPIED narratives="+ narratives[index]);
     }    
+    
+    /**
+     * Getter for property patientId.
+     * @return Value of property patientId.
+     */
+    public Integer getPatientId() {
+        return this.patientId;
+    }
+    
+    /**
+     * Setter for property patientId.
+     * @param patientId New value of property patientId.
+     */
+    public void setPatientId(Integer patientId) {
+        this.patientId = patientId;
+    }
     
 }
