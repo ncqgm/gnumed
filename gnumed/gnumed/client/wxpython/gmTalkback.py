@@ -11,12 +11,11 @@ Original code courtesy of David Guest.
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTalkback.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "D. Guest <dguest@zeeclor.mine.nu>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
-import gmLog
 
 #  talkback
 ID_BUTTON_CANCEL = wxNewId()
@@ -33,7 +32,7 @@ class cTalkbackFrame(wxFrame):
 		self.btn_SEND = wxButton(self, ID_BUTTON_SEND, _("Send"), size=(-1, -1))
 
 		self.szr_adr = wxBoxSizer(wxHORIZONTAL)
-		self.field_to = wxTextCtrl(self, -1, "bugs@gnumed.org", size=(-1, -1), style=0)
+		self.field_to = wxTextCtrl(self, -1, "fixme@gnumed.net", size=(-1, -1), style=0)
 		self.label_to = wxStaticText(self, -1, _("Send to"), size=(-1, -1), style=wxALIGN_RIGHT)
 		self.field_from = wxTextCtrl(self, -1, "", size=(-1, -1), style=0)
 		self.label_from = wxStaticText(self, -1, _("Your email address"), size=(-1, -1), style=wxALIGN_RIGHT)
@@ -114,6 +113,10 @@ def run(aLogger):
 	app.MainLoop()
 #=========================================================================
 if __name__ == '__main__':
-	email_logger = gmLog.cLogTargetEMail(level, aFrom = "GNUmed client <ncq>", aTo = ("ncq@localhost",), anSMTPServer = "localhost")
+	_ = lambda x:x
+	import sys
+	sys.path.append("../python-common/")
+	import gmLog
+	email_logger = gmLog.cLogTargetEMail(gmLog.lData, aFrom = "GNUmed client <ncq>", aTo = ("",), anSMTPServer = "localhost")
 	gmLog.gmDefLog.AddTarget(email_logger)
 	run(email_logger)
