@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmLab.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- =============================================
 CREATE TABLE lab (
 	practice_id INTEGER REFERENCES practice,
@@ -52,7 +52,7 @@ CREATE TABLE lab_result (
 	test_id INTEGER REFERENCES lab_test,
 	lab_id INTEGER REFERENCES lab,
 
-	sample_id CHARACTER VARYING(25) NOT NULL default 'not available'
+	sample_id CHARACTER VARYING(25) NOT NULL default 'not available',
 	sample_date DATE NOT NULL,
 	result_date DATE NOT NULL,
 	value CHARACTER(15) NOT NULL,

@@ -67,11 +67,6 @@ COMMENT ON COLUMN identity.cob IS
 COMMENT ON COLUMN identity.deceased IS
 'date when a person has died (if so), format yyyymmdd';
 
-
-GRANT SELECT ON identity TO PUBLIC;
-
--- ==========================================================
-
 -- as opposed to the versioning of all other tables, changed names
 -- should not be moved into the audit trail tables. Search functionality
 -- must be available at any time for all names a person ever had.
@@ -108,11 +103,6 @@ COMMENT ON COLUMN names.lastnames IS
 
 COMMENT ON COLUMN names.preferred IS
 'the preferred first name, the name a person is usually called (nickname)';
-
--- FIXME: until proper permissions system is developed,
--- otherwise new users  can spend hours wrestling with 
--- postgres permissions
-GRANT SELECT ON names TO PUBLIC;
 
 -- IH: 9/3/02
 -- trigger function to ensure one name is active.
@@ -203,7 +193,7 @@ COMMENT ON COLUMN relation.started IS
 COMMENT ON COLUMN relation.ended IS
 'date when this relationship ended. Biological relationships do not end!';
 
-
+-- ==========================================================
 create view v_basic_person as
 select
 	i.id as id,
@@ -215,11 +205,8 @@ from
 where
 	i.deceased is NULL and n.id_identity=i.id and n.active=true;
 
-GRANT SELECT ON v_basic_person TO PUBLIC;
-
-
+-- ==========================================================
 -- IH 9/3/02 Add some rules
-
 CREATE FUNCTION new_pupic () RETURNS char (24) AS '
 DECLARE
 BEGIN
@@ -267,9 +254,15 @@ END;' LANGUAGE 'plpgsql';
 
 
 CREATE TRIGGER t_delete_names BEFORE DELETE ON identity
-FOR EACH ROW EXECUTE PROCEDURE delete_names (); 
+FOR EACH ROW EXECUTE PROCEDURE delete_names ();
+-- ==========================================================
+-- FIXME: until proper permissions system is developed,
+-- otherwise new users  can spend hours wrestling with
+-- postgres permissions
+GRANT SELECT ON names, identity, v_basic_person TO GROUP "gm-doctors";
+GRANT SELECT INSERT, UPDATE, DELETE ON v_basic_person TO "_gm-doctors";
 
-
+-- ==========================================================
 -- insert some example people
 
 insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Mr.', 'Ian', 'Haywood', '19/12/77', 'UK', 'm');
@@ -277,3 +270,4 @@ insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) valu
 insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Horst', 'Herb', '1/1/70', 'DE', 'm');
 insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Richard', 'Terry', '1/1/60', 'AU', 'm');
 insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Karsten', 'Hilbert', '23/10/74', 'DE', 'm');
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Mr.', 'Sebastian', 'Hilbert', '13/03/79', 'DE', 'm');

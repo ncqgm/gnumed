@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.11 $ $Date: 2002-09-21 19:50:56 $ $Author: ncq $
+-- $Revision: 1.12 $ $Date: 2002-10-29 23:08:08 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -75,9 +75,12 @@ CREATE TABLE "doc_desc" (
 COMMENT ON TABLE "doc_desc" is 'A textual description of the content such as a result summary. Several of these may belong to one document object.';
 
 -- =============================================
+GRANT SELECT ON "doc_desc", "doc_obj", "doc_med", "doc_type", "doc_med_external_ref" TO GROUP "gm-doctors";
+GRANT SELECT, INSERT, UPDATE, DELETE ON "doc_desc", "doc_obj", "doc_med", "doc_type", "doc_med_external_ref" TO GROUP "_gm-doctors";
+
+-- =============================================
 -- questions:
 --  - do we need doc_desc linkeable to doc_obj, too ?
---  - do we need a "source" field in doc_desc so we can distinguish between "that's what the OCR software understood from this referral letter scan" vs "that's what the cardiologist thinks of this ECG"
 --  - how do we protect documents from being accessed by unauthorized users ?
 --    - on access search for the oid in gmCrypto tables for a matching key/PW hash record ??
 --  - should (potentially large) binary objects be moved to audit tables ?!?
@@ -88,3 +91,4 @@ COMMENT ON TABLE "doc_desc" is 'A textual description of the content such as a r
 --   - needs proper escaping of NUL, \ and ' (should go away once postgres 7.3 arrives)
 --   - has a 1 GB limit for data objects
 -- - we explicitely don't store MIME types etc. as selecting an appropriate viewer is a runtime issue
+-- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
