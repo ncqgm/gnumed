@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG, gmI18N, gmBorg
 from Gnumed.pycommon.gmPyCompat import *
@@ -373,6 +373,9 @@ class cOrgHelperImpl1(cOrgHelper):
 	
 	
 	def _load_comm_channels(self):
+		"""uses get_comm_channels_data_for_org_ids with only a singleton id list,
+		with the current id to be fetched, then convert to self._map so 
+		can be read from self.get() #returning a map of comm channel types vs urls"""
 		m = get_comm_channels_data_for_org_ids([ self.getId() ] )
 		if m == None:
 			return False
@@ -675,7 +678,6 @@ def _testOrgPersonRun(f1, a1, personList):
 		print "Unable to save org for person test"
 		h.shallow_del()
 		return False
-
 	# use gmDemographicRecord to convert person list
 	for lp in personList:
 		id = gmPatient.create_dummy_identity()
@@ -704,7 +706,13 @@ def _testOrgPersonRun(f1, a1, personList):
 					"work no=", r.getCommChannel(gmDemographicRecord.WORK_PHONE),
 					"mobile no=", r.getCommChannel(gmDemographicRecord.MOBILE)
 					] )
-		h.unlinkPerson(r)		
+		h.unlinkPerson(r)
+
+		result = deletePerson(r.getID())
+		if result == None:
+			gmLog.gmDefLog.Log(gmLog.lErr, "FAILED TO CLEANUP PERSON %d" %r.getID() )
+			
+			
 	
 	if h.shallow_del():
 		print "Managed to dispose of org"
@@ -713,6 +721,14 @@ def _testOrgPersonRun(f1, a1, personList):
 			
 	return True
 		
+def deletePerson(id):
+	cmds = [ ( "delete from lnk_identity2comm_chan where id_identity=%d"%id,[]),
+		("delete from names where id_identity=%d"%id,[]),
+		("delete from identity where id = %d"%id,[]) ]
+	result = gmPG.run_commit("personalia", cmds)
+	return result
+	
+	
 def testOrg():
 	"""runs a test of load, save , shallow_del  on items in from get_test_data"""
 	l = get_test_data()
@@ -1084,7 +1100,11 @@ Better to use error return values and log exceptions near where they occur, vs. 
 			break
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.14  2004-05-25 13:32:45  sjtan
+# Revision 1.15  2004-05-25 14:10:45  sjtan
+#
+# cleanup temp persons as well.
+#
+# Revision 1.14  2004/05/25 13:32:45  sjtan
 #
 # cleanup, obsolete removed.
 #
