@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.116 2004-06-13 07:55:00 ncq Exp $
-__version__ = "$Revision: 1.116 $"
+# $Id: gmClinicalRecord.py,v 1.117 2004-06-13 08:03:07 ncq Exp $
+__version__ = "$Revision: 1.117 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1218,18 +1218,6 @@ class cClinicalRecord:
 #============================================================
 # convenience functions
 #------------------------------------------------------------
-def get_vacc_regimes():
-	cmd = 'select name from vacc_regime'
-	rows = gmPG.run_ro_query('historica', cmd)
-	if rows is None:
-		return None
-	if len(rows) == 0:
-		return []
-	data = []
-	for row in rows:
-		data.extend(rows)
-	return data
-#------------------------------------------------------------
 def set_encounter_ttl(soft = None, hard = None):
 	if soft is not None:
 		global _encounter_soft_ttl
@@ -1289,7 +1277,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.116  2004-06-13 07:55:00  ncq
+# Revision 1.117  2004-06-13 08:03:07  ncq
+# - cleanup, better separate vaccination code from general EMR code
+#
+# Revision 1.116  2004/06/13 07:55:00  ncq
 # - create_allergy moved to gmAllergy
 # - get_indications moved to gmVaccinations
 # - many get_*()ers constrained by issue/episode/encounter

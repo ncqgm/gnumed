@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.6 2004-06-08 00:48:05 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmVaccination.py,v 1.7 2004-06-13 08:03:07 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types
@@ -148,6 +148,47 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 		return (None, _('internal error, check log'))
 
 	return (True, vacc)
+#--------------------------------------------------------
+def get_vacc_regimes():
+	cmd = 'select name from vacc_regime'
+	rows = gmPG.run_ro_query('historica', cmd)
+	if rows is None:
+		return None
+	if len(rows) == 0:
+		return []
+	data = []
+	for row in rows:
+		data.extend(rows)
+	return data
+#--------------------------------------------------------
+def get_indications_from_vaccinations(vaccinations=None):
+	"""Retrieves vaccination bundle indications list.
+
+		* vaccinations = list of any type of vaccination
+			- indicated
+			- due vacc
+			- overdue vaccs
+			- due boosters
+			- arbitrary
+	"""
+	# FIXME: can we not achieve this by:
+	# [lambda [vacc['indication'], ['l10n_indication']] for vacc in vaccination_list]
+	# I think we could, but we would be lacking error handling
+	if vaccinations is None:
+		_log.Log(gmLog.lErr, 'list of vaccinations must be supplied')
+		return (False, [['ERROR: list of vaccinations not supplied', _('ERROR: list of vaccinations not supplied')]])
+	if len(vaccinations) == 0:
+		return (True, [['empty list of vaccinations', _('empty list of vaccinations')]])
+	inds = []
+	for vacc in vaccinations:
+		try:
+			inds.append([vacc['indication'], vacc['l10n_indication']])
+		except KeyError:
+			try:
+				inds.append([vacc['indication'], vacc['indication']])
+			except KeyError:
+				inds.append(['vacc -> ind error: %s' % str(vacc), _('vacc -> ind error: %s') % str(vacc)])
+	return (True, inds)
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -214,7 +255,10 @@ if __name__ == '__main__':
 	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.6  2004-06-08 00:48:05  ncq
+# Revision 1.7  2004-06-13 08:03:07  ncq
+# - cleanup, better separate vaccination code from general EMR code
+#
+# Revision 1.6  2004/06/08 00:48:05  ncq
 # - cleanup
 #
 # Revision 1.5  2004/05/14 13:17:27  ncq
