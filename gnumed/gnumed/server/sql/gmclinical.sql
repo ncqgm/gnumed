@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.102 $
+-- $Revision: 1.103 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -213,7 +213,7 @@ create table clin_note (
 select add_table_for_audit('clin_note');
 
 comment on TABLE clin_note is
-	'Used to store clinical free text.';
+	'Used to store clinical free text *not* associated with any other table.';
 
 -- --------------------------------------------
 create table clin_aux_note (
@@ -662,9 +662,9 @@ comment on column form_data.value is
 -- patient attached diagnosis
 create table clin_working_diag (
 	pk serial primary key,
-	fk_aux_note integer
+	description text
 		default null
-		references clin_aux_note(pk)
+		references clin_aux_note(narrative)
 		on update cascade
 		on delete restrict,
 	laterality char
@@ -689,9 +689,16 @@ create table clin_working_diag (
 	unique (narrative, id_encounter)
 ) inherits (clin_root_item);
 
+-- FIXME: trigger to insert/update/delete clin_aux_note fields on description update
+
 select add_table_for_audit('clin_working_diag');
 
--- diagnosis name stored in clin_working_diag(clin_root_item).narrative
+comment on table clin_working_diag is
+	'stores diagnoses attached to patients, may or may not be
+	 linked to codes via lnk_diag2code';
+comment on column description is
+	'label of the diagnosis, foreign-keyed to clin_aux_note,
+	 inserts/updates/deletes ';
 
 
 -- "working set" of coded diagnoses
@@ -872,11 +879,15 @@ comment on column referral.narrative is
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.102 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.103 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.102  2004-04-29 13:17:48  ncq
+-- Revision 1.103  2004-04-29 14:12:50  ncq
+-- - add description to clin_working_diag and change meaning of clin_working_diag.narrative
+-- - TODO: add trigger to attach clin_aux_note to description field
+--
+-- Revision 1.102  2004/04/29 13:17:48  ncq
 -- - clin_diag -> clin_working_diag
 -- - add laterality as per Ian's suggestion
 --
