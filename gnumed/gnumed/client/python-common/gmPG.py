@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.79 $"
+__version__ = "$Revision: 1.80 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -595,7 +595,10 @@ def run_commit (service, queries):
 	The point is to handle errors so the calling code can
 	avoid the highly repetitive try..except bureaucracy.
 
-	Takes a list of (query, [args]) to execute as a single transaction
+	Takes a list of (query, [args]) to execute as a single transaction.
+
+	If the last query returned data (i.e. was a SELECT query), the
+	data will be returned.
 	"""
 	dbp = ConnectionPool ()
 	con = dbp.GetConnection (service, readonly = 0)
@@ -608,6 +611,11 @@ def run_commit (service, queries):
 			con.close()
 			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), sys.exc_info(), verbose = _query_logging_verbosity)
 			return None
+	# did we get result rows ?
+	if cur.description is None:
+		data = None
+	else:
+		data = cur.fetchall()
 	cur.close()
 	con.commit()
 	# FIXME:
@@ -626,7 +634,10 @@ def run_commit (service, queries):
 	#>     do_stuff()
 	#>     conn.commit()
 	con.close()
-	return 1
+	if data is None:
+		return 1
+	else:
+		return data
 #---------------------------------------------------
 def run_ro_query(aService = None, aQuery = None, get_col_idx = None, *args):
 	# sanity checks
@@ -1004,7 +1015,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.79  2003-10-19 12:13:24  ncq
+# Revision 1.80  2003-10-26 15:07:47  ncq
+# - in run_commit() if the last command returned rows (e.g. was a SELECT) return those rows to the caller
+#
+# Revision 1.79  2003/10/19 12:13:24  ncq
 # - add table_exists() helper
 #
 # Revision 1.78  2003/09/30 19:08:31  ncq
