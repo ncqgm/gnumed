@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.87 $"
+__version__ = "$Revision: 1.88 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -591,7 +591,7 @@ def run_query(aCursor = None, aQuery = None, *args):
 		return None
 	return 1
 #---------------------------------------------------
-def run_commit (link_obj = None, queries = None):
+def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	"""Convenience function for running a transaction
 	   that is supposed to get committed.
 
@@ -626,7 +626,9 @@ def run_commit (link_obj = None, queries = None):
 		pool = ConnectionPool()
 		conn = pool.GetConnection(link_obj, readonly = 0)
 		if conn is None:
-			_log.Log(gmLog.lErr, 'cannot get connection to service [%s]' % link_obj)
+			_log.Log(gmLog.lErr, 'cannot connect to service [%s]' % link_obj)
+			if return_err_msg:
+				return (None, _('cannot connect to service [%s]') % link_obj)
 			return None
 		curs = conn.cursor()
 		close_cursor = 1
@@ -640,7 +642,11 @@ def run_commit (link_obj = None, queries = None):
 				curs.close()
 			if close_conn:
 				conn.close()
-			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), sys.exc_info(), verbose = _query_logging_verbosity)
+			info = sys.exc_info()
+			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), info, verbose = _query_logging_verbosity)
+			if return_err_msg:
+				typ, val, tb = info
+				return (None, 'SQL %s' % val)
 			return None
 		if _query_logging_verbosity == 1:
 			_log.Log(gmLog.lData, '%s rows affected by >>>%s<<<' % (curs.rowcount, query))
@@ -675,9 +681,12 @@ def run_commit (link_obj = None, queries = None):
 	#>     do_stuff()
 	#>     conn.commit()
 	if data is None:
-		return 1
+		status = 1
 	else:
-		return data
+		status = data
+	if return_err_msg:
+		return (status, '')
+	return status
 #---------------------------------------------------
 def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 	# sanity checks
@@ -1066,7 +1075,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.87  2004-01-06 10:03:44  ncq
+# Revision 1.88  2004-01-09 23:50:25  ncq
+# - run_commit() now returns the database level error
+#   message if return_err_msg is true, default false
+#
+# Revision 1.87  2004/01/06 10:03:44  ncq
 # - don't log use of RO conns anymore
 #
 # Revision 1.86  2003/12/29 16:31:10  uid66147
