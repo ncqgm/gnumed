@@ -11,22 +11,27 @@ The manuals should reside where the manual_path points to
 @thanks: this code has been heavily "borrowed" from
          Robin Dunn's extraordinary wxPython sample
 """
+#----------------------------------------------------------------------
+__version__ = "$Revision: 1.4 $"
+__author__ = "H. Herb <hherb@gnumed.net>"
 
-# text translation function for localization purposes
-import gettext
-_ = gettext.gettext
+# standard modules
+import gettext, sys, os
 
-import sys, os
-
+# 3rd party modules
 from   wxPython.wx         import *
 from   wxPython.html       import *
 import wxPython.lib.wxpTag
+
+# GNUmed modules
 import gmGuiBroker
 
+
+# text translation function for localization purposes
+_ = gettext.gettext
+# FIXME: should be in config file
 manual_path = 'manual/gnumed/book1.html'
-
 #----------------------------------------------------------------------
-
 
 class ManualHtmlWindow(wxHtmlWindow):
     def __init__(self, parent, id, log):
@@ -47,6 +52,7 @@ class ManualHtmlPanel(wxPanel):
         # get base directory for manuals from broker
         # Ideally this should be something like "/usr/doc/gnumed/"
         # for now just use the scripts directory
+	# FIXME: shouldn't this rather come from a config repository ?
         self.docdir = gmGuiBroker.GuiBroker ()['gnumed_dir']
         self.printer = wxHtmlEasyPrinting()
 
