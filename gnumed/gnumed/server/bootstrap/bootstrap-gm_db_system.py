@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.55 $"
+__version__ = "$Revision: 1.56 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -195,70 +195,71 @@ def connect (host, port, db, user, passwd, superuser=0):
 	Will try to recover gracefully from connection errors where possible
 	"""
 	global cached_host
-	if len (host) == 0 or host == 'localhost':
-            if cached_host:
-                host, port = cached_host
-            else:
-                host = ''
-        if passwd == 'blank' or passwd is None or len (passwd) == 0:
-            if cached_passwd.has_key (user):
-                passwd = cached_passwd[user]
-            else:
-                passwd = ''
+	if len(host) == 0 or host == 'localhost':
+		if cached_host:
+			host, port = cached_host
+		else:
+			host = ''
+	if passwd == 'blank' or passwd is None or len(passwd) == 0:
+		if cached_passwd.has_key (user):
+			passwd = cached_passwd[user]
+		else:
+			passwd = ''
+
 	conn = None
-	dsn = dsn_format % (host, port, db, user , passwd)
-        try:
-            conn = dbapi.connect(dsn)
-            cached_host = (host, port) # learn from past successes
-            cached_passwd[user] = passwd
-            _log.Log (gmLog.lInfo, "SQL connection to %s on %s as %s" % (db, host or 'localhost', user))
-        except db_error, message:
-            m = str (message)
-            if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
-                # this pretty much means we're screwed
-                if _interactive:
-                    print pg_hba_sermon
-                _log.Log (gmLog.lErr, "rejected by pg_hba.conf with DSN [%s]" % dsn)
-            elif re.search ("no password supplied", m):
-                # didn't like blank password trick
-                _log.Log (gmLog.lWarn, "blank password failed -- retrying")
-                passwd = getpass.getpass ("I need the password for the GnuMed database user [%s].\nPlease type password: " % user)
-                conn = connect (host, port, db, user, passwd)
-            elif re.search ("^FATAL:.*Password authentication failed.*", m):
-                # didn't like supplied password
-                _log.Log (gmLog.lWarn, "password failed -- retrying")
-                passwd = getpass.getpass ("I need the correct password for the GnuMed database user [%s].\nPlease type password: " % user)
-                conn = connect (host, port, db, user, passwd)
-            elif re.search ("could not connect to server", m):
-                if len (host) == 0:
-                    # try again on TCP/IP loopback
-                    _log.Log (gmLog.lWarn , "UNIX socket connection failed, retrying on 127.0.0.1")
-                    conn = connect ("127.0.0.1", port, db, user, passwd)
-                else:
-                    _log.Log (gmLog.lWarn, "connection to host %s:%s failed" % (host, port))
-                    if _interactive:
-                        print no_server_sermon
-                        host = raw_input ("New host to connect to:")
-                        if len (host) > 0:
-                            host.split (':')
-                            if len (host) > 1:
-                                port = host[1]
-                                host = host[0]
-                            else:
-                                host = host[0]
-                                conn = connect (host, port, db, user, password)
-            elif re.search ("^FATAL:.*IDENT authentication failed.*", m):
-                if _interactive:
-                    if superuser:
-                        print superuser_sermon % user
-                    else:
-                        print pg_hba_sermon
-                    _log.Log (gmLog.lErr, "IDENT failed with DSM [%s]" % dsn)
-            else:
-                if _interactive:
-                    print no_clues % (message, sys.platform)
-                _log.Log (gmLog.lErr, message)
-        return conn
+	dsn = dsn_format % (host, port, db, user, passwd)
+	try:
+		conn = dbapi.connect(dsn)
+		cached_host = (host, port) # learn from past successes
+		cached_passwd[user] = passwd
+		_log.Log (gmLog.lInfo, "DB connection to %s on %s as %s" % (db, host or 'localhost', user))
+	except db_error, message:
+		m = str(message)
+		if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
+			# this pretty much means we're screwed
+			if _interactive:
+				print pg_hba_sermon
+			_log.Log (gmLog.lErr, "rejected by pg_hba.conf with DSN [%s]" % dsn)
+		elif re.search ("no password supplied", m):
+			# didn't like blank password trick
+			_log.Log (gmLog.lWarn, "blank password failed -- retrying")
+			passwd = getpass.getpass ("I need the password for the GnuMed database user [%s].\nPlease type password: " % user)
+			conn = connect (host, port, db, user, passwd)
+		elif re.search ("^FATAL:.*Password authentication failed.*", m):
+			# didn't like supplied password
+			_log.Log (gmLog.lWarn, "password failed -- retrying")
+			passwd = getpass.getpass ("I need the correct password for the GnuMed database user [%s].\nPlease type password: " % user)
+			conn = connect (host, port, db, user, passwd)
+		elif re.search ("could not connect to server", m):
+			if len (host) == 0:
+				# try again on TCP/IP loopback
+				_log.Log (gmLog.lWarn , "UNIX socket connection failed, retrying on 127.0.0.1")
+				conn = connect ("127.0.0.1", port, db, user, passwd)
+			else:
+				_log.Log (gmLog.lWarn, "connection to host %s:%s failed" % (host, port))
+				if _interactive:
+					print no_server_sermon
+					host = raw_input("New host to connect to:")
+					if len(host) > 0:
+						host.split(':')
+						if len(host) > 1:
+							port = host[1]
+							host = host[0]
+						else:
+							host = host[0]
+							conn = connect (host, port, db, user, password)
+		elif re.search ("^FATAL:.*IDENT authentication failed.*", m):
+			if _interactive:
+				if superuser:
+					print superuser_sermon % user
+				else:
+					print pg_hba_sermon
+			_log.Log (gmLog.lErr, "IDENT failed with DSN [%s]" % dsn)
+		else:
+			if _interactive:
+				print no_clues % (message, sys.platform)
+			_log.Log (gmLog.lErr, message)
+	return conn
 
 #==================================================================
 class user:
@@ -361,7 +362,7 @@ class db_server:
 		self.conn = connect (self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
 
 		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % self.template_db)
-		return self.conn and 1
+		return 1
 	#--------------------------------------------------------------
 	# procedural languages related
 	#--------------------------------------------------------------
@@ -1441,7 +1442,13 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.55  2004-05-24 14:07:59  ncq
+# Revision 1.56  2004-06-14 18:58:06  ncq
+# - cleanup
+# - fix "return self.conn and 1" in self.__connect_to_template()
+#   which in some Python versions doesn't evaluate to TRUE,
+#   bug reported by Michael Bonert
+#
+# Revision 1.55  2004/05/24 14:07:59  ncq
 # - after understanding Ian's clever hack with nice_mode()
 #   I renamed some methods and variables so people like me
 #   will hopefully stay clued in later on ;-)
