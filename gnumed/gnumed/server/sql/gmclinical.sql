@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.35 $
+-- $Revision: 1.36 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -220,7 +220,6 @@ create table allergy (
 	reaction text default '',
 	generic_specific boolean default false,
 	definate boolean default false,
-	had_hypo boolean default false,
 	id_comment integer references clin_narrative(id) default null
 ) inherits (audit_clinical);
 
@@ -253,14 +252,8 @@ comment on column allergy.generic_specific is
 	'true: only applies to the generic named in allergene, false: applies to class the substance in allergene belongs to; if substance in allergene is not found in generics (eg. it is something else), then generic_specific has no meaning)';
 comment on column allergy.definate is
 	'true: definate, false: not definate';
-comment on column allergy.had_hypo is
-	'true: has been treated with hyposensibilization, if true hypo data is recorded elsewhere';
 comment on column allergy.id_comment is
 	'free text comment, such as first/last time observed, etc.';
-
---create rule r_announce_new_allergy as
---	on insert to allergy do
---		notify "allergy_new_db";
 
 -- ===================================================================
 -- -------------------------------------------------------------------
@@ -499,11 +492,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.35 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.36 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.35  2003-05-02 15:08:55  ncq
+-- Revision 1.36  2003-05-03 00:44:40  ncq
+-- - remove had_hypo from allergies table
+--
+-- Revision 1.35  2003/05/02 15:08:55  ncq
 -- - episodes must have unique names (==description) per health issue
 -- - remove cruft
 -- - add not null to id_type in clin_encounter
