@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -248,8 +248,7 @@ class cDocTree(wxTreeCtrl):
 		if __name__ == "__main__":
 			tmp = "unknown_machine"
 		else:
-			gb = gmGuiBroker.GuiBroker()
-			tmp = gb['workplace_name']
+			tmp = _whoami.get_workplace()
 
 		exp_base = self.__dbcfg.get(
 			machine = tmp,
@@ -280,7 +279,7 @@ class cDocTree(wxTreeCtrl):
 		else:
 			gb = gmGuiBroker.GuiBroker()
 			chunksize = self.__dbcfg.get(
-				machine = gb['workplace_name'],
+				machine = _whoami.get_workplace(),
 				option = "doc export chunk size"
 			)
 		if chunksize is None:
@@ -587,8 +586,8 @@ else:
 			if not self._verify_patient_avail():
 				return None
 			return 1
+
 		def DoToolbar (self, tb, widget):
-		
 			#tool1 = tb.AddTool(
 			#	wxID_PNL_BTN_load_pages,
 			#	images_Archive_plugin.getcontentsBitmap(),
@@ -662,7 +661,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.31  2003-11-17 10:56:40  sjtan
+# Revision 1.32  2004-01-06 23:19:52  ncq
+# - use whoami
+#
+# Revision 1.31  2003/11/17 10:56:40  sjtan
 #
 # synced and commiting.
 #
