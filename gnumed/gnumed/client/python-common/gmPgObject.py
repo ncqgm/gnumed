@@ -15,68 +15,42 @@
 # - write queries / write access
 # - automatic child object creation for foreign keys
 ############################################################################
-
-
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.11 $"                                               
+__version__ = "$Revision: 1.12 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
-# $Log: gmPgObject.py,v $
-# Revision 1.11  2003-01-16 14:45:04  ncq
-# - debianized
-#
-# Revision 1.10  2002/10/26 04:43:06  hherb
-# Undo implemented for fetched rows modified before committtment
-# Manually enforced "save" implemented
-#
-# Revision 1.9  2002/10/26 04:32:32  hherb
-# minor code cleanup, comments added
-#
-# Revision 1.8  2002/10/26 04:14:24  hherb
-# when a newly created object (row) is first modified, it is saved to the backend and refreshed from the backend in order to load default values
-#
-# Revision 1.7  2002/10/26 02:47:08  hherb
-# object changes now saved to backend. Foreign key references now transparently dereferenced (write access untested)
-#
-# Revision 1.6  2002/10/25 13:04:15  hherb
-# API change: pgobject constructor takes now gmPG.ConnectionPool as argument insted of an open connection
-# Write functionality now enabled, quoting works for strings, some datatypes still will crash
-#
-# Revision 1.5  2002/10/24 21:41:40  hherb
-# quoting of strings in write queries
-#
-# Revision 1.4  2002/10/23 22:08:49  hherb
-# saving changes to backend partially implemented (query string generation); still needs quoting fixed
-#
-# Revision 1.3  2002/10/23 15:05:47  hherb
-# "Lazy fetch" now working when primary key passed as parameter to class constructor
-#
-# Revision 1.2  2002/10/23 15:01:24  hherb
-# meta data caching now working
-#
-# Revision 1.1  2002/10/23 14:34:43  hherb
-# database row abstraction layer
-#
 
 import string
 
+#==============================================================
+QTablePrimaryKey = """
+SELECT
+	indkey
+FROM
+	pg_index
+WHERE
+	indrelid =
+	(SELECT oid FROM pg_class WHERE relname = '%s');
+"""
 
-QTablePrimaryKey = """ SELECT indkey FROM pg_index WHERE indrelid =
-(SELECT oid FROM pg_class WHERE relname = '%s') """
 
-
-QTableForeignKeys = """SELECT pg_trigger.*, pg_proc.proname, pg_class.relname, pg_type.typname
-FROM pg_proc INNER JOIN pg_trigger ON pg_proc.oid = pg_trigger.tgfoid 
-INNER JOIN pg_class ON pg_trigger.tgrelid = pg_class.oid 
-INNER JOIN pg_type ON pg_trigger.tgtype = pg_type.oid 
-WHERE pg_class.relname = '%s'"""
+QTableForeignKeys = """
+SELECT
+	pg_trigger.*, pg_proc.proname, pg_class.relname, pg_type.typname
+FROM
+	pg_proc
+		INNER JOIN pg_trigger ON pg_proc.oid = pg_trigger.tgfoid 
+		INNER JOIN pg_class ON pg_trigger.tgrelid = pg_class.oid 
+		INNER JOIN pg_type ON pg_trigger.tgtype = pg_type.oid 
+WHERE
+	pg_class.relname = '%s';
+"""
 
 _cached_tables = []		
 _table_metadata = {}
 _column_indices = {}
 _primarykeys = {}
 _foreignkeys = {}
-
-
+#==============================================================
 def listForeignKeys(con, table):
 	"""returns a dictionary of referenced foreign keys:
 	key = column name of this table
@@ -108,7 +82,6 @@ def listForeignKeys(con, table):
 		references[referencing_column] = (referenced_table, referenced_column)
 	return references
 
-		
 def listPrimaryKey(con, table):
 	"""return the column index of the primary key of the stated table
 	con = open database connection (DBAPI 2.0)"""
@@ -117,9 +90,7 @@ def listPrimaryKey(con, table):
 	cursor.execute(QTablePrimaryKey % table)
 	pk = cursor.fetchone()
 	return int(pk[0])-1
-	
 
-	
 def cache_table_info(con, table, cursor=None):
 	"""cache all relevant metatdata of the stated table
 	if cursor is stated, use it otherwise a dummy query is executed
@@ -146,7 +117,7 @@ def cache_table_info(con, table, cursor=None):
 	_column_indices[table] = index
 	_cached_tables.append(table)
 	
-
+#==============================================================
 class pgobject:
 	
 	def __init__(self, db, table, primarykey=None):
@@ -362,8 +333,7 @@ class pgobject:
 		else:
 			print "Undo for new objects not impemented yet"
 		
-		
-				
+#==============================================================				
 if __name__ == "__main__":
 
 	import sys, gmPG, gmLoginInfo
@@ -435,4 +405,43 @@ if __name__ == "__main__":
 	dbo.undo()
 	print "Text after undo:", dbo['text']
 	
-	
+#==============================================================
+# $Log: gmPgObject.py,v $
+# Revision 1.12  2003-02-03 16:25:56  ncq
+# - coding style
+#
+# Revision 1.11  2003/01/16 14:45:04  ncq
+# - debianized
+#
+# Revision 1.10  2002/10/26 04:43:06  hherb
+# Undo implemented for fetched rows modified before committtment
+# Manually enforced "save" implemented
+#
+# Revision 1.9  2002/10/26 04:32:32  hherb
+# minor code cleanup, comments added
+#
+# Revision 1.8  2002/10/26 04:14:24  hherb
+# when a newly created object (row) is first modified, it is saved to the backend and refreshed from the backend in order to load default values
+#
+# Revision 1.7  2002/10/26 02:47:08  hherb
+# object changes now saved to backend. Foreign key references now transparently dereferenced (write access untested)
+#
+# Revision 1.6  2002/10/25 13:04:15  hherb
+# API change: pgobject constructor takes now gmPG.ConnectionPool as argument insted of an open connection
+# Write functionality now enabled, quoting works for strings, some datatypes still will crash
+#
+# Revision 1.5  2002/10/24 21:41:40  hherb
+# quoting of strings in write queries
+#
+# Revision 1.4  2002/10/23 22:08:49  hherb
+# saving changes to backend partially implemented (query string generation); still needs quoting fixed
+#
+# Revision 1.3  2002/10/23 15:05:47  hherb
+# "Lazy fetch" now working when primary key passed as parameter to class constructor
+#
+# Revision 1.2  2002/10/23 15:01:24  hherb
+# meta data caching now working
+#
+# Revision 1.1  2002/10/23 14:34:43  hherb
+# database row abstraction layer
+#
