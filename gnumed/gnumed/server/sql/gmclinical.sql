@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.127 $
+-- $Revision: 1.128 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -85,9 +85,7 @@ create table clin_episode (
 	is_active boolean
 		default true,
 	is_significant boolean
-		default true,
-	unique (fk_health_issue, description),
-	unique (fk_patient, description)
+		default true
 ) inherits (audit_fields);
 
 alter table clin_episode add constraint standalone_epi_needs_patient
@@ -1051,11 +1049,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.127 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.128 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.127  2004-09-20 21:14:11  ncq
+-- Revision 1.128  2004-09-20 23:46:37  ncq
+-- - as Syan noted the unique() constraints on clin_episode were plain wrong
+--
+-- Revision 1.127  2004/09/20 21:14:11  ncq
 -- - remove cruft, fix grants
 -- - retire lnk_vacc2vacc_def for now as we seem to not need it
 --
