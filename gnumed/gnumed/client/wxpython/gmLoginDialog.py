@@ -34,8 +34,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.38 2003-05-12 09:01:45 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmLoginDialog.py,v 1.39 2003-05-17 17:30:36 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib,types
@@ -277,8 +277,8 @@ class LoginPanel(wxPanel):
 			return None
 
 	def GetLoginInfo(self):
+		"""convenience function for compatibility with gmLoginInfo.LoginInfo"""
 		if not self.cancelled:
-			"convenience function for compatibility with gmLoginInfo.LoginInfo"
 			login = gmLoginInfo.LoginInfo(self.GetUser(), self.GetPassword())
 			login.SetDatabase(self.GetDatabase())
 			login.SetHost(self.GetHost())
@@ -293,7 +293,7 @@ class LoginPanel(wxPanel):
 #############################################################################
 
 	def GetUser(self):
-		"Get the selected user name from the text entry section of the user combo box"
+		"""Get the selected user name from the text entry section of the user combo box"""
 		return self.usercombo.GetValue()
 
 	def SetUser(self, user):
@@ -601,7 +601,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.38  2003-05-12 09:01:45  ncq
+# Revision 1.39  2003-05-17 17:30:36  ncq
+# - just some cleanup
+#
+# Revision 1.38  2003/05/12 09:01:45  ncq
 # - 1) type(tmp) is types.ListType implies tmp != None
 # - 2) check for ListType, not StringType
 #
