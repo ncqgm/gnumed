@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-28 12:23:16 $
-# @version $Revision: 1.32 $ $Date: 2002-07-28 12:23:16 $ $Author: ihaywood $
+# @Date: $Date: 2002-07-28 21:12:03 $
+# @version $Revision: 1.33 $ $Date: 2002-07-28 21:12:03 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -161,7 +161,7 @@ class MainFrame(wxFrame):
 		#do the platform dependent stuff
 		if wxPlatform == '__WXMSW__':
 			#windoze specific stuff here
-			myLog.Log(gmLog.lInfo,'running on Microsoft Windows')
+			pass
 		elif wxPlatform == '__WXGTK__':
 			#GTK (Linux etc.) specific stuff here
 			myLog.Log(gmLog.lInfo,'running on GTK (probably Linux)')
@@ -375,6 +375,13 @@ class gmApp(wxApp):
 	__guibroker = None
 
 	def OnInit(self):
+		#do platform dependent stuff
+		if wxPlatform == '__WXMSW__':
+			# windoze specific stuff here
+			myLog.Log(gmLog.lInfo,'running on Microsoft Windows')
+			# need to explicitely init image handlers on windows
+			wxInitAllImageHandlers()
+
 		# create a static GUI element dictionary;
 		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
