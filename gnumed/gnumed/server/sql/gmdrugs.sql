@@ -7,6 +7,8 @@ v-- structure of drug database for gnumed
 --	log into psql (database gnumed OR drugs)  as administrator
 --	run the script from the prompt with "\i drugs.sql"
 --
+-- changelog: 25.3.02: simplified to some tables for new
+-- attempt at PBS import
 -- changelog: 20.10.01 (suggestions by Ian Haywood)
 --		+ hierarchy of substance categories
 --		+ drug-drug interactions removed 
@@ -29,18 +31,18 @@ v-- structure of drug database for gnumed
 
 --=====================================================================
 
-CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS
-    '/usr/lib/pgsql/plpgsql.so' LANGUAGE 'C';
+--CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS
+--    '/usr/lib/pgsql/plpgsql.so' LANGUAGE 'C';
 
-CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
-    HANDLER plpgsql_call_handler
-    LANCOMPILER 'PL/pgSQL';
+--CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
+--    HANDLER plpgsql_call_handler
+--    LANCOMPILER 'PL/pgSQL';
 
 
 CREATE TABLE class (
        id SERIAL PRIMARY KEY,
        name varchar (60),
-	pharmacology TEXT,
+       pharmacology TEXT,
        superclass INTEGER REFERENCES class (id)
 );
 
@@ -76,7 +78,7 @@ CREATE TABLE obstetric_codes (
 
 -- =============================================
 
-CREATE TABLE amount_unit (
+CREATE TABLE smount_unit (
         id SERIAL PRIMARY KEY,
         description varchar(20)
 );
@@ -117,9 +119,7 @@ COMMENT ON table drug_route IS
 
 CREATE TABLE drug_presentation (
 	id SERIAL PRIMARY KEY,
-	name varchar (30),
-	route INTEGER REFERENCES drug_route (id),
-	amount_unit INTEGER REFERENCES amount_unit (id)
+	name varchar (30)
 );
 
 
@@ -130,10 +130,13 @@ CREATE TABLE drug_presentation (
 CREATE TABLE drug_package (
 	id SERIAL PRIMARY KEY,
 	presentation INTEGER REFERENCES drug_presentation (id),
+	route INTEGER REFERENCES drug_route (id),
+	amount_unit INTEGER REFERENCES amount_unit (id),
 	packsize INTEGER, -- no. of tabs, capsules, etc. in pack
 	amount FLOAT, -- actual 'amount' of drug, so 100 for 100mL bottle
 	max_rpts INTEGER, -- maximum repeats
-	description VARCHAR (100) -- extra description in source data
+	name VARCHAR (100), -- generic name(s) 
+	description VARCHAR (100) -- extra presentation description
 );
 
 
@@ -235,9 +238,11 @@ CREATE TABLE interaction (
 CREATE TABLE link_drug_interaction (
 	drug_id INTEGER NOT NULL,
 	class BOOL, -- 'true' for class, false for drug
-	interaction_id INTEGER NOT NULL REFERENCES interaction (id) ,
+	interaction_id INTEGER NOT NULL REFERENCES interaction (id),
         comment text
 );
+
+COMMENT ON COLUMN link_drug_interaction.drugid IS 'Index of class OR substance table';
 
 
 --=================================================
