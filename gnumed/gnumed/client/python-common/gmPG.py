@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.88 $"
+__version__ = "$Revision: 1.89 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -646,7 +646,10 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), info, verbose = _query_logging_verbosity)
 			if return_err_msg:
 				typ, val, tb = info
-				return (None, 'SQL %s' % val)
+				tmp = string.replace(str(val), 'ERROR:', '')
+				tmp = string.replace(tmp, 'ExecAppend:', '')
+				tmp = string.strip(tmp)
+				return (None, 'SQL: %s' % tmp)
 			return None
 		if _query_logging_verbosity == 1:
 			_log.Log(gmLog.lData, '%s rows affected by >>>%s<<<' % (curs.rowcount, query))
@@ -1075,7 +1078,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.88  2004-01-09 23:50:25  ncq
+# Revision 1.89  2004-01-12 13:12:07  ncq
+# - remove unhelpful phrases from PG < 7.4 error messages
+#
+# Revision 1.88  2004/01/09 23:50:25  ncq
 # - run_commit() now returns the database level error
 #   message if return_err_msg is true, default false
 #
