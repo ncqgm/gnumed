@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-chipcard.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 
 -- part of GnuMed
 -- license: GPL
@@ -10,10 +10,11 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+set client_encoding to 'LATIN1';
 -- ---------------------------------------------
 create table name_gender_map (
 	id serial primary key,
-	name = varchar(255) unique not null,
+	name varchar(255) unique not null,
 	gender character(1) check (gender in ('m', 'f'))
 );
 
@@ -87,11 +88,14 @@ create table de_zuzahlungsbefreiung (
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-chipcard.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-chipcard.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: german-chipcard.sql,v $
--- Revision 1.2  2003-05-12 12:43:40  ncq
+-- Revision 1.3  2003-06-11 14:03:44  ncq
+-- - set encoding
+--
+-- Revision 1.2  2003/05/12 12:43:40  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --

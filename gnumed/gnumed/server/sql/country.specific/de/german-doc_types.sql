@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-doc_types.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 
 -- part of GnuMed
 -- GPL
@@ -20,6 +20,7 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+set client_encoding to 'LATIN1';
 -- =============================================
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary internal', 'Entlassung Interne');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary surgical', 'Entlassung Chirurgie');
@@ -47,11 +48,14 @@ INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral repor
 --INSERT into _doc_type(name) values('Labor');
 
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: german-doc_types.sql,v $
--- Revision 1.10  2003-05-12 12:43:40  ncq
+-- Revision 1.11  2003-06-11 14:03:44  ncq
+-- - set encoding
+--
+-- Revision 1.10  2003/05/12 12:43:40  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --
