@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -124,6 +124,7 @@ class BMICalc_Panel(wxPanel):
 		# initializations
 		self.low_norm_mass=''	# mass for given height if BMI=20
 		self.upp_norm_mass=''	# mass for given height if BMI=25
+		self.focus=0		# set to avoid error on 'Reset'
 
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER | wxTAB_TRAVERSAL)
 		#------------------------------
@@ -616,7 +617,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.23  2003-04-28 04:32:44  michaelb
+# Revision 1.24  2003-05-12 01:39:27  michaelb
+# minor bug fix - hitting 'Reset' before a field was selected used to result in an error
+#
+# Revision 1.23  2003/04/28 04:32:44  michaelb
 # some minor clean-up (removal of note and spaces)
 #
 # Revision 1.21  2003/04/26 08:45:56  ncq
