@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 
 import string, gmDispatcher, gmSignals
 from wxPython.wx import *
@@ -39,7 +39,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 		style = wxTAB_TRAVERSAL, service = 'demographica' ):
 
 		SQLSimpleSearch.__init__(self, parent, id, pos, size, style, service)
-		gmDispatcher.connect(self.dummy, gmSignals.patient_selected())
+		#gmDispatcher.connect(self.dummy, gmSignals.patient_selected())
 
 		#add a bottom row sizer to hold a few buttons
 		self.__selectedPersonId=None
@@ -112,9 +112,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 
 	def dummy(self, **kwargs):
 		kwds = kwargs['kwds']
-		print "Notice from dummy:"
-		print "Selection: %(title)s %(firstnames)s %(lastnames)s, d.o.b. %(dob)s, ID=%(ID)d" % (kwds)
-
+		print "Notice from dummy: selected #%(ID)d" % (kwds)
 
 
 if __name__ == "__main__":
@@ -122,7 +120,7 @@ if __name__ == "__main__":
 	#define a callback function that shall be called whenever a patient is selected
 	def callback(**kwargs):
 		kwds = kwargs['kwds']
-		print "Selection: %(title)s %(firstnames)s %(lastnames)s, d.o.b. %(dob)s, ID=%(ID)d" % (kwds)
+		print "selected #%(ID)d" % (kwds)
 
 	#tell the dispatcher about this callback function and the event we are interested in
 	gmDispatcher.connect(callback, gmSignals.patient_selected())
