@@ -4,7 +4,7 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmAMIS.de.sql,v $
 -- author: Hilmar Berger, Karsten Hilbert
--- version: $Revision: 1.2 $
+-- version: $Revision: 1.3 $
 -- license: GPL
 -- TODO: further processing of the data (normalizing)
 
@@ -425,12 +425,7 @@ TO GROUP "gm-public";
 
 -- =============================================                                
 -- do simple schema revision tracking                                           
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAMIS.de.sql,v $', '$Revision: 1.2 $'); 
-
--- get the correct AMIS_PATH and process the template file 
-\set AMIS_PATH `./amis_get_dir.sh`
--- run the script created from template
-\i 'amis-import_data.sql'
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAMIS.de.sql,v $', '$Revision: 1.3 $'); 
 
 -- ==========================================================
 -- == changelog =============================================
@@ -438,7 +433,10 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAMIS.de.s
 --	30.11.2001: \set & \unset applied correctly
 --
 -- $Log: gmAMIS.de.sql,v $
--- Revision 1.2  2003-10-26 16:07:07  hinnef
+-- Revision 1.3  2003-10-26 18:10:06  ncq
+-- - separate schema and data better
+--
+-- Revision 1.2  2003/10/26 16:07:07  hinnef
 -- initial AMIS-schema and data import
 --
 -- Revision 1.1  2003/10/26 13:58:59  hinnef
