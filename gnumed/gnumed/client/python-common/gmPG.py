@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.76 $"
+__version__ = "$Revision: 1.77 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -327,7 +327,6 @@ class ConnectionPool:
 		ConnectionPool.__connected = 1
 
 		# this is the default gnumed server now
-#		ConnectionPool.__databases['config'] = cfg_db
 		ConnectionPool.__databases['default'] = cfg_db
 		
 		# preload all services with database id 0 (default)
@@ -540,8 +539,12 @@ def run_query(aCursor = None, aQuery = None, *args):
 	return 1
 #---------------------------------------------------
 def run_commit (service, queries):
-	"""
-	convience function for running a transaction.
+	"""Convenience function for running a transaction
+	   that is supposed to get committed.
+
+	The point is to handle errors so the calling code can
+	avoid the highly repetitive try..except bureaucracy.
+
 	Takes a list of (query, [args]) to execute as a single transaction
 	"""
 	dbp = ConnectionPool ()
@@ -551,16 +554,28 @@ def run_commit (service, queries):
 		try:
 			cur.execute (query, *args)
 		except:
+			cur.close()
+			con.close()
 			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), sys.exc_info(), verbose = _query_logging_verbosity)
-			return 0
-		# its worth pointing out here that the whole point of this function is to handle error conditions,
-		# so the calling code can avoid the highly repetitive try..except bureaucracy
-	cur.close ()
-	con.commit ()
-	con.close ()
+			return None
+	cur.close()
+	con.commit()
+	# FIXME:
 	# this is very wasteful, why can't we save this read-write connection
 	# for the next time it's used (I understand it can't be shared at once)
-	# dbp.ReleaseConnection (service)
+	#> def run_commit():
+	#>     conn = rw_conn_pool.get_cached()
+	#>     if conn is None:
+	#>       if rw_conn_pool.curr_size_per_service() > rw_conn_hard_limit_per_service:
+	#>           _log('insufficient connections, getting temporary one')
+	#>           conn = rw_conn_pool.establish_new(keep=false)
+	#>       else:
+	#>           _log('insufficient connections, increasing pool')
+	#>           conn = rw_conn_pool.establish_new(keep=true)
+	#>     ... error checking ...
+	#>     do_stuff()
+	#>     conn.commit()
+	con.close()
 	return 1
 #---------------------------------------------------
 def run_ro_query(aService = None, aQuery = None, get_col_idx = None, *args):
@@ -627,7 +642,8 @@ def get_col_indices(aCursor = None):
 		col_index += 1
 	return col_indices
 #---------------------------------------------------
-_query_pkey_name = """SELECT
+_query_pkey_name = """
+SELECT
 	pga.attname
 FROM
 	(pg_attribute pga inner join pg_index pgi on (pga.attrelid=pgi.indrelid))
@@ -863,7 +879,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.76  2003-09-23 12:09:27  ihaywood
+# Revision 1.77  2003-09-23 14:40:30  ncq
+# - just some comments
+#
+# Revision 1.76  2003/09/23 12:09:27  ihaywood
 # Karsten, we've been tripping over each other again
 #
 # Revision 1.75  2003/09/23 11:30:32  ncq
