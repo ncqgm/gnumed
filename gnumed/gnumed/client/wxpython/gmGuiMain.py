@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.73 2003-02-07 14:30:33 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmGuiMain.py,v 1.74 2003-02-07 22:57:59 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -513,7 +513,7 @@ class gmApp(wxApp):
 			# assuming the admin knows her stuff this means
 			# that language settings are not wanted
 			_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
-			_log.Log(gmLog.lInfo, 'assuming language settings are not wanted/needed' % cmd)
+			_log.Log(gmLog.lInfo, 'assuming language settings are not wanted/needed')
 			_log.LogException("Cannot get database language.", sys.exc_info(), fatal=0)
 			rocurs.close()
 			self.__backend.ReleaseConnection('default')
@@ -608,7 +608,10 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.73  2003-02-07 14:30:33  ncq
+# Revision 1.74  2003-02-07 22:57:59  ncq
+# - fixed extra (% cmd)
+#
+# Revision 1.73  2003/02/07 14:30:33  ncq
 # - setting the db language now works
 #
 # Revision 1.72  2003/02/07 08:57:39  ncq
