@@ -1,23 +1,81 @@
+-- project: GNUMed
+-- database: GIS
+-- purpose:  geographic information (mostly of type 'address')
+-- author: hherb
+-- copyright: Dr. Horst Herb, horst@hherb.com
+-- license: GPL (details at http://gnu.org)
+-- version: 0.3
+-- changelog:
+-- 17.11.2001:  (hherb) first useable version
+
+
+-- =============================================
+
+-- country codes as per ISO 3166-1
+-- no versioning / check sum neccessary, as this table
+-- only uses original ISO data (= reference verifiable any time)
+
 create table country (
 	code char(2) unique primary key,
 	name varchar(60),
-	deprecated date
+	deprecated date default NULL
 );
 
+COMMENT ON TABLE country IS
+'a countries name and international code';
+
+COMMENT ON COLUMN country.code IS
+'international two character country code as per ISO 3166-1';
+
+COMMENT ON COLUMN country.deprecated IS
+'date when this country ceased officially to exist (if applicable)';
+
+-- =============================================
+
+-- state codes. Any need for more than 3 characters?
+
 create table state (
-	code char(3) unique primary key,
+	id serial primary key,
+	code char(3),
+	country char(2) references country(code),
 	name varchar(60),
 	deprecated date
 );
 
+COMMENT ON TABLE state IS
+'state codes (country specific)';
+
+COMMENT ON COLUMN state.code IS
+'3 character long state code';
+
+COMMENT ON COLUMN state.country IS
+'2 character ISO 3166-1 country code';
+
+COMMENT ON COLUMN country.deprecated IS
+'date when this state ceased officially to exist (if applicable)';
+
+-- =============================================
 
 create table urb (
 	id serial primary key,
-	countrycode char(2),  -- for efficiency reasons NOT a reference to table country
-	statecode char(3), -- for efficiency reasons NOT a reference to table state
+	statecode int references state(id),
 	postcode char(8),
 	name varchar(60)
 );
+
+COMMENT ON TABLE urb IS
+'cities, towns, dwellings ...';
+
+COMMENT ON COLUMN urb.statecode IS
+'reference to information about country and state';
+
+COMMENT ON COLUMN urb.postcode IS
+'the postcode';
+
+COMMENT ON COLUMN urb.name IS
+'the name of the city/town/dwelling';
+
+-- =============================================
 
 create table street (
 	id serial primary key,
@@ -25,10 +83,93 @@ create table street (
 	name varchar(60)
 );
 
-create view basic_address as
-select u.countrycode as countrycode, u.postcode as postcode, u.name as suburb, s.name as street
-from street s, urb u where s.id_urb = u.id;
+COMMENT ON TABLE street IS
+'street names, specific for distinct "urbs"';
 
+COMMENT ON COLUMN street.id_urb IS
+'reference to information postcode, city, country and state';
+
+COMMENT ON COLUMN street.name IS
+'name of this city/town/dwelling';
+
+-- =============================================
+
+create table address_type (
+	id serial primary key,
+	name char(10) NOT NULL
+);
+
+
+INSERT INTO address_type values(1,'home');	-- do not alter the id of "home" !
+INSERT INTO address_type values(2,'work');
+INSERT INTO address_type values(3,'parents');
+INSERT INTO address_type values(4,'holidays');
+INSERT INTO address_type values(5,'temporary');
+
+
+-- =============================================
+
+create table address (
+	id serial primary key,
+	addrtype int references address_type(id) default 1,
+	street int references street(id),
+	number char(10),
+	addendum text
+);
+
+
+create view basic_address
+as
+select
+	s.country as country,
+	s.code as state,
+	u.postcode as postcode,
+	u.name as city,
+	a.number as number,
+	str.name as street,
+	a.addendum as street2,
+	t.address_type as address_type
+
+from
+	address a,
+	state s,
+	urb u,
+	street str,
+	address_type t
+where
+	a.street = s.id
+	and
+	a.addrtype = 1	-- home address
+	and
+	str.id_urb = u.id
+	and
+	u.statecode = s.id
+
+
+
+
+
+-- =============================================
+
+-- the following table still needs a lot of work.
+-- especially the GPS and map related information needs to be
+-- denormalized
+
+create table address_info (
+	address_id int references address(id),
+	gps char(30),
+	gps_grid char(30),
+	mapref char(30),
+	map char(30),
+	howto_get_there text,
+	comments text
+);
+-- =============================================
+
+
+
+-- =============================================
+-- Here come the ISO country codes ...
 
 COPY country FROM stdin;
 AF	AFGHANISTAN	\N

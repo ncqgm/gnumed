@@ -100,6 +100,12 @@ COMMENT ON COLUMN config.profile IS
 'one user may have different configuration profiles depending on role, need and location';
 
 
+CREATE TABLE queries (
+	id SERIAL PRIMARY KEY,
+	name char(40),
+	db INT REFERENCES DB,
+	query text
+)
 
 
 
