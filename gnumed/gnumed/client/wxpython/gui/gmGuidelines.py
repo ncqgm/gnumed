@@ -20,6 +20,7 @@ import wxPython.lib.wxpTag
 import gmGuiBroker
 import gmPlugin
 import gmLog
+import gmI18N
 
 #----------------------------------------------------------------------
 
@@ -145,15 +146,12 @@ class GuidelinesHtmlPanel(wxPanel):
 
 
 
-
-
-
 class gmGuidelines (gmPlugin.wxNotebookPlugin):
     """
     Plugin to encapsulate the manual window
     """
     def name (self):
-        return _('Guidelines')
+        return 'Guidelines'
 
     def MenuInfo (self):
         return ('view', _('&Guidelines'))

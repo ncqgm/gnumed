@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-12-26 15:50:39 $
-# @version $Revision: 1.52 $ $Date: 2002-12-26 15:50:39 $ $Author: ncq $
+# @Date: $Date: 2003-01-04 07:43:55 $
+# @version $Revision: 1.53 $ $Date: 2003-01-04 07:43:55 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -144,11 +144,12 @@ class MainFrame(wxFrame):
 		self.guibroker['main.notebook'] = self.nb
 		# set change in toolbar
 		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebook)
+		# add popup menu to notebook
+		EVT_RIGHT_UP(self.nb, self.OnNotebookPopup)
 		self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
-
+		#  this list relates plugins to the notebook
+		self.guibroker['main.notebook.numbers'] = []
 		# load plugins
-		#  this dictionary relates plugins to the notebook
-		self.guibroker['main.notebook.numbers'] = {}
 		self.LoadPlugins(backend)
 
 		self.SetStatusText(_("You are logged in as [%s]") % user)
@@ -164,6 +165,56 @@ class MainFrame(wxFrame):
 		self.Fit ()
 		self.Centre(wxBOTH)
 		self.Show(true)
+
+	#----------------------------------------------
+	def OnNotebookPopup(self, evt):
+		load_menu = wxMenu ()
+		show_menu = wxMenu ()
+		any_loadable = 0
+		any_showable = 0
+		for plugin_name in gmPlugin.GetAllPlugins ('gui'):
+			plugin = gmPlugin.InstPlugin ('gui', plugin_name, guibroker = self.guibroker)
+			if isinstance ( plugin, gmPlugin.wxNotebookPlugin): 
+				if not (plugin.name () in self.guibroker['modules.gui']):
+					id = wxNewId ()
+					# if not installed
+					load_menu.AppendItem(wxMenuItem (load_menu, id, plugin.name ()))
+					EVT_MENU (load_menu, id, plugin.OnLoad)
+					any_loadable = 1
+					# else
+				        #show_menu.AppendItem(wxMenuItem (show_menu, id, plugin.name ()))
+				        #EVT_MENU (show_menu, id, plugin.OnShow)
+				        #any_showable = 1
+				
+		menu = wxMenu()
+		ID_LOAD = wxNewId ()
+		ID_SHOW = wxNewId ()
+		ID_DROP = wxNewId ()
+		ID_HIDE = wxNewId ()
+		if any_loadable:
+			menu.AppendMenu(ID_LOAD, _("Load New"), load_menu)
+		if any_showable:
+			menu.AppendMenu (ID_SHOW, _("Show"), show_menu)
+		menu.AppendItem(wxMenuItem(menu, ID_DROP, "Drop Window"))
+		menu.AppendItem(wxMenuItem(menu, ID_HIDE, "Hide Window"))
+		EVT_MENU (menu, ID_DROP, self.OnPluginDrop)
+		EVT_MENU (menu, ID_HIDE, self.OnPluginHide)
+		self.PopupMenu(menu, evt.GetPosition())
+		menu.Destroy()
+		evt.Skip()
+		
+	def OnPluginDrop (self, evt):
+		# this dictionary links notebook page numbers to plugin objects
+		nbns = self.guibroker['main.notebook.numbers']
+		# get the widget of the currently selected window
+		nbns[self.nb.GetSelection ()].unregister ()
+		# FIXME:"dropping" means talking to configurator so not reloaded
+
+	def OnPluginHide (self, evt):
+		# this dictionary links notebook page numbers to plugin objects
+		nbns = self.guibroker['main.notebook.numbers']
+		# get the widget of the currently selected window
+		nbns[self.nb.GetSelection ()].unregister ()
 	#----------------------------------------------
 	def SetupPlatformDependent(self):
 		#do the platform dependent stuff
@@ -199,8 +250,10 @@ class MainFrame(wxFrame):
 				idx,
 				_("previous: %s - %s\ncurrent (%s/%s): %s") % (last_plugin, result, (idx+1), nr_plugins, curr_plugin)
 			)
-			if gmPlugin.LoadPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend):
+			p = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend)
+			if p:
 				result = _("success")
+				p.register ()
 			else:
 				myLog.Log(gmLog.lInfo,'failed to load plugin %s' % curr_plugin)
 				result = _("failed")
@@ -212,10 +265,11 @@ class MainFrame(wxFrame):
 		Called when notebook changes
 		"""
 		nb_no = event.GetSelection ()
+		nbns = self.guibroker['main.notebook.numbers']
 		# show toolbar
-		self.tb.ShowBar (nb_no)
+		self.tb.ShowBar (nbns[nb_no].name ())
 		# tell module it is shown
-		self.guibroker['main.notebook.numbers'][nb_no].Shown ()
+		nbns[nb_no].Shown ()
 	#----------------------------------------------
 	def RegisterEvents(self):
 		"""register events we want to react to"""
@@ -414,7 +468,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.52  2002-12-26 15:50:39  ncq
+# Revision 1.53  2003-01-04 07:43:55  ihaywood
+# Popup menus on notebook tabs
+#
+# Revision 1.52  2002/12/26 15:50:39  ncq
 # - title bar fine-tuning
 #
 # Revision 1.51  2002/11/30 11:09:55  ncq

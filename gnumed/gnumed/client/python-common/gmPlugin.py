@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -49,12 +49,6 @@ class gmPlugin:
 	#-----------------------------------------------------
 	def name (self):
 		return ''
-	#-----------------------------------------------------
-	def register(self):
-		raise gmExceptions.PureVirtualFunction()
-	#-----------------------------------------------------
-	def unregister(self):
-		raise gmExceptions.PureVirtualFunction()
 #------------------------------------------------------------------
 class wxBasePlugin (gmPlugin):
 	
@@ -66,7 +60,7 @@ class wxBasePlugin (gmPlugin):
 	"""
 	# NOTE: I anticipate that all plugins will in fact be derived
 	# from this class. Without the brokers a plugin is useless (IH)
-	def __init__(self, guibroker=None, callbackbroker=None, dbbroker=None, params=None):
+	def __init__(self, set='', guibroker=None, callbackbroker=None, dbbroker=None, params=None):
 		self.gb = guibroker
 		self.cb = callbackbroker
 		self.db = dbbroker
@@ -74,6 +68,7 @@ class wxBasePlugin (gmPlugin):
 			self.gb = gmGuiBroker.GuiBroker ()
 		if self.db is None:
 			self.db = gmPG.ConnectionPool ()
+		self.set = set
 	#-----------------------------------------------------
 	def GetIcon (self):
 		"""Return icon representing page on the toolbar.
@@ -127,6 +122,14 @@ class wxBasePlugin (gmPlugin):
 		"""Called whenever this module is shown onscreen.
 		"""
 		pass
+	#-----------------------------------------------------
+	def register(self):
+		self.gb['modules.%s' % self.set][self.name ()] = self
+		log (gmLog.lInfo, "loaded plugin %s/%s" % (self.set, self.name ()))
+	#-----------------------------------------------------
+	def unregister(self):
+		del self.gb['modules.%s' % self.set][self.name ()]
+		log (gmLog.lInfo, "unloaded plugin %s/%s" % (self.set, self.name()))
 #------------------------------------------------------------------
 class wxNotebookPlugin (wxBasePlugin):
 	"""
@@ -135,24 +138,27 @@ class wxNotebookPlugin (wxBasePlugin):
 	"""	
 	def register (self):
 		"""Register ourselves with the main notebook widget."""
-
+		wxBasePlugin.register (self)
 		# add ourselves to the main notebook
 		self.nb = self.gb['main.notebook']
-		self.nb_no = self.nb.GetPageCount ()
+		#nb_no = self.nb.GetPageCount ()
 		widget = self.GetWidget (self.nb)
 		self.nb.AddPage (widget, self.name ())
 		widget.Show (1)
 
 		# place ourselves in the main toolbar
-		# FIXME: this should be optional
+		# FIXED: this should be optional
+		# IH: No. Pages that don't want a toolbar must install a blank one
+		# otherwise the previous page's toolbar would be visible
 		self.tbm = self.gb['main.toolbar']
-		tb = self.tbm.AddBar (self.nb_no)
+		tb = self.tbm.AddBar (self.name ())
 		self.gb['toolbar.%s' % self.name ()] = tb
 		self.DoToolbar (tb, widget)
 		tb.Realize ()
 
 		# and put ourselves into the menu structure
-		# FIXME: this should be optional, too
+		# FIXED: this should be optional, too
+		# IH: It is, get MenuInfo () to return None 
 		if self.MenuInfo ():
 			menuset, menuname = self.MenuInfo ()
 			menu = self.gb['main.%smenu' % menuset]
@@ -160,16 +166,25 @@ class wxNotebookPlugin (wxBasePlugin):
 			menu.Append (self.menu_id, menuname, self.name ())
 			EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
 		# so notebook can find this widget
-		self.gb['main.notebook.numbers'][self.nb_no] = self
+		self.gb['main.notebook.numbers'].append (self)
 	#-----------------------------------------------------
 	def unregister (self):
 		"""Remove ourselves."""
-		menu = self.gb['main.%smenu' % self.MenuInfo ()[0]]
-		menu.Delete (self.menu_id)
-		nb = gb['main.notebook']
-		nb.DeletePage (self.nb_no)
-		self.tbm.DeleteBar (self.nb_no)
-		# FIXME: shouldn't we delete the menu item, too ?
+		wxBasePlugin.unregister (self)
+		# delete menu item
+		if self.MenuInfo ():
+			menu = self.gb['main.%smenu' % self.MenuInfo ()[0]]
+			menu.Delete (self.menu_id)
+		# delete toolbar
+		self.tbm.DeleteBar (self.name ())
+		# correct the number-plugin dictionary
+		nbns = self.gb['main.notebook.numbers']
+		nb_no = nbns.index (self)
+		del nbns[nb_no]
+		# delete notebook page
+		nb = self.gb['main.notebook']
+		nb.DeletePage (nb_no)
+		
 	#-----------------------------------------------------	
 	def Raise (self):
 		self.nb.SetSelection (self.nb_no)
@@ -188,12 +203,21 @@ class wxNotebookPlugin (wxBasePlugin):
 		widget is the widget returned by GetWidget () for connecting events
 		"""
 		pass
+	# -----------------------------------------------------
+	# event handlers for the popup window
+	def OnLoad (self, evt):
+		# FIXME: talk to the configurator so we're loaded next time
+		self.register ()
+	# =----------------------------------------------------
+	def OnShow (self, evt):
+		self.register () # register without changing configuration
 #------------------------------------------------------------------
 class wxPatientPlugin (wxBasePlugin):
 	"""
 	A 'small page', sits inside the patient view, with the side visible
 	"""
 	def register (self):
+		wxBasePlugin.register (self)
 		self.mwm = self.gb['patient.manager']
 		if gmConf.config['main.shadow']:
 			shadow = gmShadow.Shadow (self.mwm, -1)
@@ -227,15 +251,19 @@ class wxPatientPlugin (wxBasePlugin):
 		self.mwm.Display (self.name ())
 	#-----------------------------------------------------
 	def unregister (self):
+		wxBasePlugin.unregister (self)
 		self.mwm.Unregister (self.name ())
 		menu = self.gb['main.submenu']
 		menu.Delete (menu_id)
 		if self.GetIcon () is not None:
 			tb2 = self.gb['toolbar.Patient Window']
 			tb2.DeleteTool (self.tool_id)
+		del self.gb['modules.patient'][self.name ()]
 #------------------------------------------------------------------
-def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
-	"""Loads a plugin from a package directory.
+def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
+	"""Instantiates a plugin object from a package directory, return ing the
+	object.
+	NOTE: it does NOT called register () for you!!!! 
 
 	- "set" specifies the subdirectory in which to find the plugin
 	- this knows nothing of databases, all it does is load a named plugin
@@ -275,18 +303,15 @@ def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 		log (gmLog.lErr, "class %s is not a subclass of wxBasePlugin" % plugin_name)
 		return None
 
-	log (gmLog.lInfo, "registering plugin %s" % plugin_name)
+	log (gmLog.lInfo, "instantiating plugin %s" % plugin_name)
 	try:
-		plugin = plugin_class(guibroker = guibroker, dbbroker = dbbroker)
-		plugin.register ()
+		plugin = plugin_class(set = aPackage, guibroker = guibroker, dbbroker = dbbroker)
 	except:
 		exc = sys.exc_info()
-		gmLog.gmDefLog.LogException ('Cannot register module "%s.%s".' % (aPackage, plugin_name), exc)
+		gmLog.gmDefLog.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), exc)
 		return None
 
-	guibroker['modules.%s' % aPackage][plugin.name()] = plugin
-
-	return 1
+	return plugin
 #------------------------------------------------------------------
 # FIXME: get plugin list from gmconfiguration for this user
 # FIXME: step 1: use gmCfg.cCfgFile instead of arbitrary file
@@ -326,15 +351,16 @@ def UnloadPlugin (set, name):
 	gb = gmGuiBroker.GuiBroker ()
 	plugin = gb['modules.%s' % set][name]
 	plugin.unregister ()
-	del gb['modules.%s' % set][name]
-	log (gmLog.lInfo, "unloaded plugin %s/%s" % (set, name))
 #==================================================================
 # Main
 #------------------------------------------------------------------
 log(gmLog.lData, __version__)
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.27  2002-11-13 09:14:17  ncq
+# Revision 1.28  2003-01-04 07:43:55  ihaywood
+# Popup menus on notebook tabs
+#
+# Revision 1.27  2002/11/13 09:14:17  ncq
 # - document a few more todo's but don't do them before OSHCA
 #
 # Revision 1.26  2002/11/12 23:03:25  hherb

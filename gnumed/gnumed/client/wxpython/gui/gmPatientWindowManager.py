@@ -192,11 +192,19 @@ class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
         self.menu_id = wxNewId ()
         menu.AppendMenu (self.menu_id, '&Patient', ourmenu, self.name ())
         for plugin in gmPlugin.GetAllPlugins ('patient'):
-            gmPlugin.LoadPlugin ('patient', plugin,
+            p = gmPlugin.InstPlugin ('patient', plugin,
                                  guibroker = self.gb)
+            p.register ()
 	#self.pw.Show (0)
         self.pw.DisplayDefault ()
         self.gb['toolbar.%s' % self.name ()].Realize ()
+
+    def unregister (self):
+        # tidy up after ourselves
+        gmPlugin.wxNotebookPlugin.unregister (self)
+        menu = self.gb['main.viewmenu']
+        menu.Destroy (self.menu_id)
+        # FIXME: should we unregister () each of our sub-modules?
 
     def Shown (self):
         self.gb['modules.patient'][self.pw.GetVisible ()].Shown ()
