@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/shilbert/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.11 2003-08-27 15:05:47 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmXdtViewer.py,v 1.12 2003-08-28 18:50:42 shilbert Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, string, fileinput, linecache
@@ -269,7 +269,7 @@ def _preprocess_file(afile,aCfg,apatlst,apatdir):
 		)
 		return None
 	# check how many patients are in the file
-	pats = gmXdtToolsLib.xdt_get_pats(afile)
+	pats = gmXdtObjects.xdt_get_pats(afile)
 	nr_pats = len(pats)
 	# no patients
 	if nr_pats == 0:
@@ -322,7 +322,7 @@ def _split_and_select_pat(pats_in_file = None, afile = None , aCfg = None , apat
 
 	# user wants to split file by patient
 	
-	if not gmXdtToolsLib.split_xdt_file(afile,apatlst,aCfg):
+	if not gmXdtObjects.split_xdt_file(afile,apatlst,aCfg):
 		gm_show_error (
 			_('Cannot split XDT file [%s] by patient.\nShowing file as is.'),
 			_('parsing XDT file'),
@@ -331,7 +331,7 @@ def _split_and_select_pat(pats_in_file = None, afile = None , aCfg = None , apat
 		return 1
 
 	if pats_in_file is None:
-		pats_in_file = gmXdtToolsLib.xdt_get_pats(afile)
+		pats_in_file = gmXdtObjects.xdt_get_pats(afile)
 	pat_select_list = []
 	for pat_id in pats_in_file.keys():
 		pat_select_list.append('%s:%s' % (pat_id, pats_in_file[pat_id]))
@@ -352,7 +352,7 @@ def _split_and_select_pat(pats_in_file = None, afile = None , aCfg = None , apat
 	pat_selected = dlg.GetStringSelection()
 	_log.Log(gmLog.lData, 'selected [%s]' % pat_selected)
 	ID,name = string.split(pat_selected,':')
-	data = gmXdtToolsLib.get_pat_files(afile,ID,name,patdir = apatdir, patlst = apatlst)
+	data = gmXdtObjects.get_pat_files(afile,ID, name, patdir = apatdir, patlst = apatlst)
 	# how many records were obtained for this patient ?
 	path,files = data
 	# none
@@ -487,7 +487,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.11  2003-08-27 15:05:47  ncq
+# Revision 1.12  2003-08-28 18:50:42  shilbert
+# - corrected some minor glitches
+#
+# Revision 1.11  2003/08/27 15:05:47  ncq
 # - import gmXdtObjects
 #
 # Revision 1.10  2003/08/26 14:40:44  ncq

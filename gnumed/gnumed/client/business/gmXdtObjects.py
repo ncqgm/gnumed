@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.4 2003-08-27 14:58:58 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmXdtObjects.py,v 1.5 2003-08-28 18:54:32 shilbert Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -160,8 +160,8 @@ def xdt_get_pats(aFile):
 	_log.Log(gmLog.lData, "patients found: %s" % len(pat_ids))
 	return pats
 #==============================================================
-def get_pat_files(aFile, anID, name, patdir = None, patlst = None):
-	_log.Log(gmLog.lData, "getting files for patient [%s:%s]" % (anID, name))
+def get_pat_files(aFile, ID, name, patdir = None, patlst = None):
+	_log.Log(gmLog.lData, "getting files for patient [%s:%s]" % (ID, name))
 	files = patlst.get(aGroup = "%s:%s" % (ID, name), anOption = "files")
 	_log.Log(gmLog.lData, "%s => %s" % (patdir, files))
 	return [patdir, files]
@@ -286,7 +286,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.4  2003-08-27 14:58:58  ncq
+# Revision 1.5  2003-08-28 18:54:32  shilbert
+# - corrected some minor glitches
+#
+# Revision 1.4  2003/08/27 14:58:58  ncq
 # - added helpers written by shilbert for XdtViewer
 #
 # Revision 1.3  2003/04/19 22:56:03  ncq
