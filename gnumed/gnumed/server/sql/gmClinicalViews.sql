@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.133 2005-03-14 17:47:55 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.134 2005-03-20 18:07:47 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -478,6 +478,7 @@ create trigger TR_clin_item_mod
 -- protect from direct inserts/updates/deletes which the
 -- inheritance system can't handle properly
 \unset ON_ERROR_STOP
+drop function f_protect_clin_root_item();
 drop rule clin_ritem_no_ins on clin_root_item cascade;
 drop rule clin_ritem_no_ins;
 drop rule clin_ritem_no_upd on clin_root_item cascade;
@@ -486,19 +487,24 @@ drop rule clin_ritem_no_del on clin_root_item cascade;
 drop rule clin_ritem_no_del;
 \set ON_ERROR_STOP 1
 
--- FIXME: those should actually use PL/pgSQL and raise
---        an exception...
+create function f_protect_clin_root_item() returns opaque as '
+begin
+	raise exception ''INSERT/UPDATE/DELETE on <clin_root_item> not allowed.'';
+	return NULL;
+end;
+' language 'plpgsql';
+
 create rule clin_ritem_no_ins as
 	on insert to clin_root_item
-	do instead nothing;
+	do instead select f_protect_clin_root_item();
 
 create rule clin_ritem_no_upd as
 	on update to clin_root_item
-	do instead nothing;
+	do instead select f_protect_clin_root_item();
 
 create rule clin_ritem_no_del as
 	on delete to clin_root_item
-	do instead nothing;
+	do instead select f_protect_clin_root_item();
 
 -- ---------------------------------------------
 \unset ON_ERROR_STOP
@@ -1462,8 +1468,9 @@ comment on view v_compl_narrative is
 -- ---------------------------------------------
 -- custom referential integrity
 \unset ON_ERROR_STOP
+drop trigger tr_rfi_type2item on lnk_type2item cascade;
+drop trigger tr_rfi_type2item on lnk_type2item;
 drop function f_rfi_type2item();
-drop trigger tr_rfi_type2item;
 \set ON_ERROR_STOP 1
 
 create function f_rfi_type2item() returns opaque as '
@@ -1599,36 +1606,36 @@ from
 drop view v_hx_family;
 \set ON_ERROR_STOP 1
 
-create view v_hx_family as
-select
-	vbp.pk_identity as pk_patient,
-	vpn.soap_cat as soap_cat,
-	vpn.narrative as condition,
-	hxf.relationship as relationship,
-	_(hxf.relationship) as l10n_relationship,
-	case when hxf.fk_relative is null
-		then hxf.name_relative
-		else coalesce(vbp.lastnames, '') || ', ' || coalesce(vbp.firstnames, '')
-	end as name_relative,
-	case when hxf.fk_relative is null
-		then hxf.dob_relative
-		else vbp.dob
-	end as dob_relative,
-	hxf.age_noted as age_noted,
-	hxf.is_cause_of_death as is_cause_of_death,
-	hxf.age_of_death as age_of_death,
-	hxf.pk as pk_hx_family,
-	hxf.fk_narrative as pk_narrative,
-	hxf.fk_relative as pk_relative
-from
-	clin_hx_family hxf,
-	v_basic_person vbp,
-	v_pat_narrative vpn
-where
-	hxf.fk_narrative = vpn.pk_narrative
-		and
-	vpn.pk_patient = vbp.pk_identity
-;
+--create view v_hx_family as
+--select
+--	vbp.pk_identity as pk_patient,
+--	vpn.soap_cat as soap_cat,
+--	vpn.narrative as condition,
+--	hxf.relationship as relationship,
+--	_(hxf.relationship) as l10n_relationship,
+--	case when hxf.fk_relative is null
+--		then hxf.name_relative
+--		else coalesce(vbp.lastnames, '') || ', ' || coalesce(vbp.firstnames, '')
+--	end as name_relative,
+--	case when hxf.fk_relative is null
+--		then hxf.dob_relative
+--		else vbp.dob
+--	end as dob_relative,
+--	hxf.age_noted as age_noted,
+--	hxf.is_cause_of_death as is_cause_of_death,
+--	hxf.age_of_death as age_of_death,
+--	hxf.pk as pk_hx_family,
+--	hxf.fk_narrative as pk_narrative,
+--	hxf.fk_relative as pk_relative
+--from
+--	clin_hx_family hxf,
+--	v_basic_person vbp,
+--	v_pat_narrative vpn
+--where
+--	hxf.fk_narrative = vpn.pk_narrative
+--		and
+--	vpn.pk_patient = vbp.pk_identity
+--;
 
 -- =============================================
 -- problem list
@@ -1773,18 +1780,22 @@ grant select on
 	, v_types4item
 	, v_problem_list
 	, v_compl_narrative
-	, v_hx_family
+--	, v_hx_family
 to group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.133 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.134 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.133  2005-03-14 17:47:55  ncq
+-- Revision 1.134  2005-03-20 18:07:47  ncq
+-- - properly protect clin_root_item and be verbose about it
+-- - v_hx_family needs to be rewritten
+--
+-- Revision 1.133  2005/03/14 17:47:55  ncq
 -- - store time zone of insert into clin_encounter as a
 --   reasonable approximation for other timestamp time zones
 --
