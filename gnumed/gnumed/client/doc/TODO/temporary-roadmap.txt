@@ -1,10 +1,12 @@
 GnuMed temporary roadmap
 ========================
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/temporary-roadmap.txt,v $
-$Revision: 1.2 $
+$Revision: 1.3 $
 -----------------------------------------------------------------
-This is the temporary roadmap. Please always include
-an URL to this document when discussing items on the list.
+This is the temporary roadmap. Please always include the
+URL to this document when discussing items on the list:
+
+http://savannah.gnu.org/cgi-bin/viewcvs/gnumed/gnumed/gnumed/client/doc/TODO/temporary-roadmap.txt
 -----------------------------------------------------------------
 
 patient input/search/modification
@@ -19,25 +21,30 @@ progress notes
  - clin_note/clin_history/clin_physical rows
  - optional, partially done
  
-
+------------
 notes viewer
+------------
  - tree widget on the left side: health issues[1] and then episodes[2] in a hierarchy
  - drop down boxes across top for limiting by month/year etc.
  - display of clinical notes on the right
-1: an ongoing health problem: COPD, niddm, etc.
-2: a circumscribed clinical problem, may still span several consults: viz. infective exacerbation COPD
+1: an ongoing health problem: COPD, niddm, etc. ~= significant past history
+2: a circumscribed clinical problem, may still
+   span several consults: viz. infective exacerbation
+   of COPD ~= current problem list
 
+------------------------
 export of progress notes
+------------------------
  - per patient
  - ASCII to text files for re-use
  - constrainable by date, encounter, episode, health issue
- - proof-of-intent for interoperability
+ - just as proof-of-intent for interoperability
 
 
 third-party application connectivity
- - allow other apps to a GnuMed instance, lock it
+ - allow other apps to connect to a GnuMed instance, lock it
    into a patient and release that lock later on
- - optional for Australia
+ - OPTIONAL initially
 
 
 drug information browser if data is available locally
@@ -46,7 +53,7 @@ drug information browser if data is available locally
 
 
 document archive
- - optional
+ - OPTIONAL initially
  - nearly done
 
 
@@ -54,34 +61,51 @@ simple ConfigRegistry
  - complete default config data
  - nearly done
 
-
+------------------
 referrals handling
- - referral form (Germany), uses common forms engine with prescription
+------------------
+ - referral form (Germany)
+   - uses common forms engine with prescription
  - accompanying referral letter
+   - AbiWord IMHO for letters that need a little writing
+   - quick-pick lists+LaTeX+text editor for "rapid-letter" referrals
 
-
+------------
 prescription
- - *very* complex to cover all cases (I can write a senior
-   year AP English essay on that if you want)
- - start with simple, most common cases
-As a starter 4 fields:
-	- drug name, with auto-complete from database
-	- strengths, drop-down from the list in the database
-	- frequency. Recognises both "German"  and "Latin" notation. 
-German: 4 integers for the 4 times during the day, separated by slashes, so 4 times a day is "1/1/1/1", one 
-morning , 2 at night is "1/0/2/0"
-Latin: m=mane, i=midi n=nocte, b=BD t=TDS, q=QID. So "2m" is 2 tabs mane, "1q" is 1 tab QID, "2m+2.5i" is 
-2 mane and 2 & a half midi
-	- directions. Free comment fields, auto-translation to vernacular for standard Latin abbreviations: 
-PP, OU, AU, etc.
-FUTURE: remembers previous values for a particular drug 
-OPTIONAL: a "prescribing diagnosis" field which saves as an episode.
-Prints outs using "forms engine" to specific page points. Scripts will be lawful in Australia: name, address, Medicare number, prescriber, etc. 
+------------
+ - *very* complex to cover all cases
+ - start with simple, most common cases:
+ - print out using common forms engine
+ - 4 fields initially:
+   - drug name, auto-complete from database
+   - strengths, drop-down from list in database
+   - frequency, free-form for now, later recognize formats
+     - German: 4 integers for the 4 times during the day, separated by slashes,
+	   so 4 times a day is "1/1/1/1", one morning , 2 at night is "1/0/2/0"
+     - Latin: m=mane, i=midi n=nocte, b=BD t=TDS, q=QID.
+	   So "2m" is 2 tabs mane, "1q" is 1 tab QID, "2m+2.5i" is 2 mane and 2 & a half midi
+   - directions. Free comment fields, auto-translating to vernacular for
+     standard Latin abbreviations: PP, OU, AU, etc.
 
+ - FUTURE: remembers previous values for a particular drug
+   - should come automatically with XML forms proposal
+
+ - OPTIONAL: a "prescribing diagnosis" field which saves as an episode.
+
+ - Scripts will be lawful in Australia: name, address, Medicare number, prescriber, etc.
+
+------------
 path results
+------------
  - one excellently defined area of work
- - high on my list as well
+ - high on list for DE/AU
  - easily assignable sub-project
+ - import PIT path files, def: <URL missing>
+ - see gmMeasurement.sql
+ - need to add country-specific tables in sql/country.specific/*/
+
+ - optional: AU pathology request codes: <URL>
+ - future: LOINC/LDT
 
 -----------------------------------------------------------------
 Old German first-off roadmap is here:
@@ -89,7 +113,10 @@ Old German first-off roadmap is here:
 
 -----------------------------------------------------------------
 $Log: temporary-roadmap.txt,v $
-Revision 1.2  2003-07-27 21:26:26  ihaywood
+Revision 1.3  2003-07-27 23:05:13  ncq
+- refinements from list
+
+Revision 1.2  2003/07/27 21:26:26  ihaywood
 my changes, see post to gnumed-devel
 
 Revision 1.1  2003/07/27 16:10:49  ncq
