@@ -11,6 +11,7 @@ import sys, string, pgdb
 # the name of the table that has been created
 table="loinc1"
 create_table_sql = "create_table_loinc.sql"
+# This file can be downloaded from http://www.loinc.org/download/database/LOINCtab.zip
 loinc_txt_file = "LOINCDB.TXT"
 
 #check loinc_text_file exists
