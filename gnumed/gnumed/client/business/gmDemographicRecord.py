@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.35 2004-03-27 04:37:01 ihaywood Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmDemographicRecord.py,v 1.36 2004-04-07 18:43:47 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -28,9 +28,13 @@ _log.Log(gmLog.lData, __version__)
 import mx.DateTime as mxDT
 
 #============================================================
+# map gender abbreviations in a GnuMed demographic service
+# to a meaningful localised string
 map_gender_gm2long = {
 	'm': _('male'),
-	'f': _('female')
+	'f': _('female'),
+	'tf': _('transsexual, female phenotype'),
+	'tm': _('transsexual, male phenotype')
 }
 #============================================================
 # virtual ancestor class, SQL and LDAP descendants
@@ -503,7 +507,7 @@ where
 		# delete pre-existing link as required
 		cmd1 = """
 		delete from
-			lnk_identity2comm_channel
+			lnk_identity2comm_chan
 		where
 			id_identity = %s
 				and
@@ -512,7 +516,7 @@ where
 				from comm_channel cc
 				where cc.id_type = %s and cc.id = id_comm)"""
 		# creating new link
-		cmd2 = """insert into lnk_identity2comm_channel (id_identity, id_comm) values (%s, %s)"""
+		cmd2 = """insert into lnk_identity2comm_chan (id_identity, id_comm) values (%s, %s)"""
 		return gmPG.run_commit ('personalia', [
 			(cmd1, [self.ID, channel_type]),
 			(cmd2, [self.ID, id_channel])
@@ -525,7 +529,7 @@ where
 		"""
 		if channel:
 			data = gmPG.run_ro_query ('personalia', """
-			select cc.url from comm_channel cc, lnk_identity2comm_channel lp2cc where
+			select cc.url from comm_channel cc, lnk_identity2comm_chan lp2cc where
 			cc.id_type = %s and lp2cc.id_identity = %s and lp2cc.id_comm = cc.id
 			""", None, channel, self.ID)
 			return data and data[0][0]
@@ -534,7 +538,7 @@ where
 			select cc.id_type, cc.url
 			from
 			comm_channel cc,
-			lnk_identity2comm_channel lp2cc
+			lnk_identity2comm_chan lp2cc
 			where
 			cc.id = lp2cc.id_comm and lp2cc.id_identity = %s
 			""", None, self.ID)
@@ -835,7 +839,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.35  2004-03-27 04:37:01  ihaywood
+# Revision 1.36  2004-04-07 18:43:47  ncq
+# - more gender mappings
+# - *comm_channel -> comm_chan
+#
+# Revision 1.35  2004/03/27 04:37:01  ihaywood
 # lnk_person2address now lnk_person_org_address
 # sundry bugfixes
 #
