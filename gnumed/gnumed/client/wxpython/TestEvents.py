@@ -1,20 +1,18 @@
 
-from wxPython.wx import *
-#from PropertySupport import *
-if not "../business" in sys.path:
+import sys
+if __name__== "__main__":
+	# this will not work on other platforms
 	sys.path.append("../python-common")
 	sys.path.append("../business")
 
-sys.path.append("../python-common")
-import gmLog 
-import sys, traceback
-import gmTmpPatient
-
+import gmLog, gmTmpPatient
 # why do we need a special logger here ?
 logger = gmLog.cLogger( gmLog.cLogTargetConsole())
 #logger = gmLog.gmDefLog
-
 logger.SetInfoLevel()
+
+from wxPython.wx import *
+
 
 class TestEvents:
 
@@ -29,6 +27,7 @@ class TestEvents:
 		for k,v  in map.items():
 			# and then check k.__class__.__name__ or so ?
 			# as long as no subtypes. is there a isAssignableFrom(parent_class) function like java?
+			# if I knew what isAssignableFrom(parent_class) does I might be able to tell :-)
 			# test code: sort out later.
 			if k[0:2] == "cb":
 				EVT_CHECKBOX(v, v.GetId(),self.checkClicked)
@@ -76,10 +75,10 @@ class TestEvents:
 					
 
 
-if __name__=="__main__":
+if __name__== "__main__":
+	# you'll have to check in gmLog.py for that to work :-)
 	logger.Data("Information")
 	try:
 		a
-	except:	
+	except:
 		logger.LogException("TestException", sys.exc_info())
-	
