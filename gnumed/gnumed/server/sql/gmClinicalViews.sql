@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.106 2004-09-29 10:38:22 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.107 2004-09-29 19:17:24 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -361,7 +361,7 @@ drop view v_test_type_unified;
 
 create view v_test_type_unified as
 select
-	ttu0.pk_test_type as pk_test_type,
+	ttu0.pk as pk_test_type,
 	-- unified test_type
 	coalesce(ttu0.code_local, ttu0.code) as unified_code,
 	coalesce(ttu0.name_local, ttu0.name) as unified_name,
@@ -435,7 +435,6 @@ select
 	tr.id as pk_test_result,
 	-- unified
 	tr.clin_when,
-	tr.soap_cat,
 	vttu.unified_code,
 	vttu.unified_name,
 	case when coalesce(trim(both from tr.val_alpha), '') = ''
@@ -445,6 +444,7 @@ select
 			else tr.val_num::text || ' (' || tr.val_alpha || ')'
 		end
 	end as unified_val,
+	tr.soap_cat,
 	coalesce(tr.narrative, '') as comment,
 	-- test result data
 	tr.val_num,
@@ -548,7 +548,6 @@ select
 	lr.lab_rxd_when,
 	vtr.clin_when as val_when,
 	lr.results_reported_when as reported_when,
-	vtr.soap_cat,
 	vtr.unified_code,
 	vtr.unified_name,
 	vtr.code_tt as lab_code,
@@ -558,6 +557,7 @@ select
 	vtr.val_alpha,
 	vtr.val_unit,
 	vtr.conversion_unit,
+	vtr.soap_cat,
 	vtr.comment as progress_note_result,
 	coalesce(lr.narrative, '') as progress_note_request,
 	vtr.val_normal_range,
@@ -755,6 +755,7 @@ where
 -- -----------------------------------------------------
 \unset ON_ERROR_STOP
 drop view v_vacc_regimes cascade;
+drop view v_vacc_regimes;
 \set ON_ERROR_STOP 1
 
 create view v_vacc_regimes as
@@ -1425,6 +1426,8 @@ grant select, insert, update, delete on
 	, test_type_pk_seq
 	, test_type_local
 	, test_type_local_pk_seq
+	, lnk_ttype2local_type
+	, lnk_ttype2local_type_pk_seq
 	, lnk_tst2norm
 	, lnk_tst2norm_id_seq
 	, test_result
@@ -1471,11 +1474,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.106 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.107 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.106  2004-09-29 10:38:22  ncq
+-- Revision 1.107  2004-09-29 19:17:24  ncq
+-- - fix typos and grants
+--
+-- Revision 1.106  2004/09/29 10:38:22  ncq
 -- - measurement views rewritten to match current discussion
 --
 -- Revision 1.105  2004/09/28 12:29:29  ncq
