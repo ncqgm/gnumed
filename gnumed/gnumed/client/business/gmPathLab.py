@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.5 2004-04-19 12:42:41 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPathLab.py,v 1.6 2004-04-20 00:14:30 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types
@@ -113,6 +113,81 @@ class cLabRequest(gmClinItem.cClinItem):
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPKey=pk)
 #============================================================
+class cTestType(gmClinItem.cClinItem):
+	"""Represents one test result type."""
+
+	_cmd_fetch_payload = """select * from test_type where id=%s"""
+
+	_cmds_store_payload = [
+		"""select 1 from test_type where id=%(id)s for update""",
+		"""update test_type set
+				fk_test_org=%(fk_test_org)s,
+				code=%(code)s,
+				coding_system=%(coding_system)s,
+				name=%(name)s,
+				comment=%(comment)s,
+				basic_unit=%(basic_unit)s
+			where id=%(id)"""
+	]
+
+	_updatable_fields = [
+		'fk_test_org',
+		'code',
+		'coding_system',
+		'name',
+		'comment',
+		'basic_unit'
+	]
+	#--------------------------------------------------------
+	def __init__(self, aPKey=None, lab=None, code=None, name=None):
+		pk = aPKey
+		# no PK given, so find it from lab/code/name
+		if pk is None:
+			if lab is None:
+				raise gmExceptions.ConstructorError, 'need lab to find test type'
+			if (code is None) and (name is None):
+				raise gmExceptions.ConstructorError, 'need code and/or name to find test type'
+			where_snippets = []
+			vals = {}
+			if type(lab) == types.IntType:
+				where_snippets.append('fk_test_org=%(lab)s')
+				vals['lab'] = lab
+			else:
+				where_snippets.append('fk_test_org=(select pk from test_org where internal_name=%(lab)s)')
+				vals['lab'] = str(lab)
+			if code is not None:
+				where_snippets.append('code=%(code)s')
+				vals['code'] = code
+			if name is not None:
+				where_snippets.append('name=%(name)s')
+				vals['name'] = name
+			where_clause = ' and '.join(where_snippets)
+			cmd = "select id from test_type where %s" % where_clause
+			data = gmPG.run_ro_query('historica', cmd, None, vals)
+			# error
+			if data is None:
+				raise gmExceptions.ConstructorError, 'error getting test type for [%s:%s:%s]' % (lab, code, name)
+			# no such request
+			if len(data) == 0:
+				raise gmExceptions.ConstructorError, 'no test type for [%s:%s:%s]' % (lab, code, name)
+			pk = data[0][0]
+		# instantiate class
+		gmClinItem.cClinItem.__init__(self, aPKey=pk)
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		# find fk_test_org from name
+		if attribute == 'fk_test_org':
+			if type(value) != types.IntType:
+				cmd = "select pk from test_org where internal_name=%s"
+				data = gmPG.run_ro_query('historica', cmd, None, str(value))
+				# error
+				if data is None:
+					raise ValueError, '[%s]: error finding test org for [%s], cannot set <%s>' % (self.__class__.__name__, value, attribute)
+				if len(data) == 0:
+					raise ValueError, '[%s]: no test org for [%s], cannot set <%s>' % (self.__class__.__name__, value, attribute)
+				value = data[0][0]
+		gmClinItem.cClinItem.__setitem__(self, attribute, value)
+#============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
@@ -143,7 +218,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.5  2004-04-19 12:42:41  ncq
+# Revision 1.6  2004-04-20 00:14:30  ncq
+# - cTestType invented
+#
+# Revision 1.5  2004/04/19 12:42:41  ncq
 # - fix cLabRequest._cms_store_payload
 # - modularize testing
 #
