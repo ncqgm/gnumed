@@ -7,12 +7,15 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.19 2003-04-29 15:24:05 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmTmpPatient.py,v 1.20 2003-06-01 01:47:32 sjtan Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path
+import threading
+import time
+
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
@@ -27,6 +30,7 @@ import gmExceptions, gmPG, gmSignals, gmDispatcher, gmClinicalRecord
 
 # 3rd party
 import mx.DateTime as mxDateTime
+import mx.DateTime
 
 #============================================================
 gm2long_gender_map = {
@@ -34,6 +38,27 @@ gm2long_gender_map = {
 	'f': _('female')
 }
 #============================================================
+# utility function separate from db access logic
+def get_medical_age(dob):
+	"""utility function move out to global module for the moment"""
+	age = mxDateTime.Age(mxDateTime.now(), dob)
+
+	if age.years > 0:
+		return "%sy%sm" % (age.years, age.months)
+	if age.weeks > 4:
+		return "%sm%sw" % (age.months, age.weeks)
+	if age.weeks > 1:
+		return "%sd" % age.days
+	if age.days > 1:
+		return "%sd (%sh)" % (age.days, age.hours)
+	if age.hours > 3:
+		return "%sh" % age.hours
+	if age.hours > 0:
+		return "%sh%sm" % (age.hours, age.minutes)
+	if age.minutes > 5:
+		return "%sm" % (age.minutes)
+	return "%sm%ss" % (age.minutes, age.seconds)
+
 # may get preloaded by the waiting list
 class gmPerson:
 	"""Represents a patient that DOES EXIST in the database.
@@ -251,25 +276,8 @@ class gmPerson:
 
 		if data is None:
 			return '??'
+		get_medical_age(data[0])
 
-		dob = data[0]
-		age = mxDateTime.Age(mxDateTime.now(), dob)
-
-		if age.years > 0:
-			return "%sy%sm" % (age.years, age.months)
-		if age.weeks > 4:
-			return "%sm%sw" % (age.months, age.weeks)
-		if age.weeks > 1:
-			return "%sd" % age.days
-		if age.days > 1:
-			return "%sd (%sh)" % (age.days, age.hours)
-		if age.hours > 3:
-			return "%sh" % age.hours
-		if age.hours > 0:
-			return "%sh%sm" % (age.hours, age.minutes)
-		if age.minutes > 5:
-			return "%sm" % (age.minutes)
-		return "%sm%ss" % (age.minutes, age.seconds)
 	#--------------------------------------------------------
 	def _get_clinical_record(self):
 		if self.__db_cache.has_key('clinical record'):
@@ -318,13 +326,15 @@ class gmCurrentPatient(cBorg):
 		# share state among all instances ...
 		cBorg.__init__(self)
 
+		self.init_lock()
+
 		# make sure we do have a patient pointer even if it is None
 		if not self.__dict__.has_key('patient'):
 			self.patient = None
 
 		# set initial lock state
-		if not self.__dict__.has_key('locked'):
-			self.unlock()
+		#if not self.__dict__.has_key('locked'):
+		#	self.unlock()
 
 		# set up default data
 		if not self.__dict__.has_key('default_data'):
@@ -362,14 +372,38 @@ class gmCurrentPatient(cBorg):
 						_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['ID'], aPKey))
 
 		return None
+
+	def init_lock(self):
+		"""initializes a pthread lock. Doesn't matter if 
+		race of 2 threads in alock assignment, just use the 
+		last lock created ( unless both threads find no alock,
+		then one thread sleeps before self.alock = .. is completed ,
+		the other thread assigns a new RLock object, 
+		and begins immediately using it on a call to self.lock(),
+		and gets past self.alock.acquire()
+		before the first thread wakes up and assigns to self.alock 
+		, obsoleting
+		the already in use alock by the second thread )."""
+		try:
+			if  not self.__dict__.has_key('alock') :
+				self.alock = threading.RLock()
+		except:
+			_log.LogException("Cannot test/create lock", sys.exc_info()) 
+		
+		
+		
 	#--------------------------------------------------------
 	# patient change handling
 	#--------------------------------------------------------
 	def lock(self):
+		self.alock.acquire(blocking=1)
 		self.locked = 1
+		
 	#--------------------------------------------------------
 	def unlock(self):
 		self.locked = None
+		self.alock.release()
+
 	#--------------------------------------------------------
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
@@ -389,11 +423,20 @@ class gmCurrentPatient(cBorg):
 			return self.patient[aVar]
 		else:
 			return None
-#			try:
+
 #				return self.default_data[aVar]
 #			except KeyError:
 #				return None
+
+	def setData(self, data):
+		self.lock()
+		self.patient = data
+		self.unlock()
+
+
 #============================================================
+
+
 #------------------------------------------------------------
 def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
 	"""Get a list of matching patient IDs.
@@ -603,9 +646,25 @@ def create_patient(data):
 def _patient_selected(**kwargs):
 	print "received patient_selected notification"
 	print kwargs['kwds']
+	patient = gmCurrentPatient()
+	adjust_data(kwargs)
+	patient.setData(kwargs['kwds'])
+
+def adjust_data(kwargs):
+	map = kwargs['kwds']
+	map['active name']=  {'last':map['lastnames'], 'first': map['firstnames'] }
+	datePart = str(map['dob']).split(' ')[0]
+	_log.Info("date part = " + str(datePart))
+	datenums = str(datePart).split('-')
+	mxDob = mx.DateTime.DateTime( int(datenums[0]), int(datenums[1]), int(datenums[2]))
+
+	map['medical age'] = get_medical_age(mxDob)
+	map['clinical record'] = gmClinicalRecord.gmClinicalRecord(map['ID'])
+
+gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 if __name__ == "__main__":
-	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
+#	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 	while 1:
 		pID = raw_input('a patient ID: ')
 		try:
@@ -630,7 +689,11 @@ if __name__ == "__main__":
 			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.19  2003-04-29 15:24:05  ncq
+# Revision 1.20  2003-06-01 01:47:32  sjtan
+#
+# starting allergy connections.
+#
+# Revision 1.19  2003/04/29 15:24:05  ncq
 # - add _get_clinical_record handler
 # - add _get_API API discovery handler
 #

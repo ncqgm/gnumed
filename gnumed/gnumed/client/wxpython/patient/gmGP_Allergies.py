@@ -17,11 +17,19 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
+import sys
 from wxPython.wx import *
-import gmDispatcher, gmSignals, gmPG
+try:
+	import gmDispatcher, gmSignals, gmPG
+except:
+	sys.path.append("../../python-common")
+	sys.path.append("../../business")
+	sys.path.append("../")
+	import gmDispatcher, gmSignals, gmPG
+
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
@@ -172,7 +180,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.9  2003-05-21 14:11:26  ncq
+# Revision 1.10  2003-06-01 01:47:33  sjtan
+#
+# starting allergy connections.
+#
+# Revision 1.9  2003/05/21 14:11:26  ncq
 # - much needed rewrite/cleanup of gmEditArea
 # - allergies/family history edit area adapted to new gmEditArea code
 # - old code still there for non-converted edit areas

@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.6 2003-05-27 13:00:41 sjtan Exp $
+# $Id: gmClinicalWindowManager.py,v 1.7 2003-06-01 01:47:33 sjtan Exp $
 # license: GPL
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -212,7 +212,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 			try:
 				p.register()
 			except:
-				_log.LogException("file [%s] doesn't seem to be a plugin" % (plugin), sys.exc_info() , fatal=3)
+				_log.LogException("file [%s] doesn't seem to be a plugin" % (plugin), sys.exc_info() , 4)
 		#self.panel.Show (0)
 		self.panel.DisplayDefault()
 		self.gb['toolbar.%s' % self.internal_name()].Realize()
@@ -228,7 +228,11 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		self.gb['modules.patient'][self.panel.GetVisiblePlugin()].Shown()
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.6  2003-05-27 13:00:41  sjtan
+# Revision 1.7  2003-06-01 01:47:33  sjtan
+#
+# starting allergy connections.
+#
+# Revision 1.6  2003/05/27 13:00:41  sjtan
 #
 # removed redundant property support, read directly from __dict__
 #

@@ -7,12 +7,13 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.6 2003-05-17 17:23:43 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmClinicalRecord.py,v 1.7 2003-06-01 01:47:32 sjtan Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, string
+import time
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
@@ -54,6 +55,10 @@ class gmClinicalRecord:
 		if not self._register_interests():
 			raise gmExceptions.ConstructorError, "cannot register signal interests"
 
+
+		self.ensure_current_clinical_encounter()
+		self.init_issue_episodes()
+
 		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.id_patient)
 	#--------------------------------------------------------
 	def __del__(self):
@@ -84,16 +89,27 @@ class gmClinicalRecord:
 
 		- true/false/None
 		"""
-		curs = self._defconn_ro.cursor()
-		cmd = "select exists(select id from identity where id = %s);"
+		#curs = self._defconn_ro.cursor()
+		#cmd = "select exists(select id from identity where id = %s)" % self.id_patient
+		cmd = "select id from identity where id = %s" % self.id_patient
 		try:
-			curs.execute(cmd, self.id_patient)
+			rows = self.execute(cmd, "Unable to check existence of id %s in identity" % self.id_patient)
 		except:
-			curs.close()
-			_log.LogException('>>>%s<<< failed' % (cmd % self.id_patient), sys.exc_info(), fatal=0)
+			pass
+		#------------------------------------	
+		# still has bug about portal closed.
+		# REMOVE when bug sorted out
+		if (rows == None or len(rows) == 0):		
+			try:
+				rows, description = gmPG.quickROQuery( cmd)
+			except:
+				_log.LogException('>>>%s<<< failed' % cmd , sys.exc_info(), 4)
+			#curs.close()
 			return None
-		res = curs.fetchone()[0]
-		curs.close()
+		#row = curs.fetchone()
+		_log.Info("result of id check = " + str(rows) )
+		res = rows[0][0]
+		#curs.close()
 		return res
 	#--------------------------------------------------------
 	# messaging
@@ -171,6 +187,7 @@ class gmClinicalRecord:
 		rows = curs.fetchall()
 		curs.close()
 		self.__db_cache['allergies'] = rows
+		_log.Info("gmClinicalRecord.db_cache['allergies'] set to "+str(rows))	
 		return self.__db_cache['allergies']
 	#--------------------------------------------------------
 	def _get_allergy_names(self):
@@ -179,6 +196,7 @@ class gmClinicalRecord:
 			self.__db_cache['allergies']
 		except KeyError:
 			if not self._get_allergies():
+				_log.Log(gmLog.lErr, "Could not load allergies")
 				return data
 		for allergy in self.__db_cache['allergies']:
 			tmp = {}
@@ -188,7 +206,7 @@ class gmClinicalRecord:
 				tmp['name'] = allergy[10]
 			# not but the substance
 			else:
-				tmp['name'] = allergy[7]
+				tmp['name'] = allergy[6]
 			data.append(tmp)
 		return data
 	#--------------------------------------------------------
@@ -202,8 +220,8 @@ class gmClinicalRecord:
 		transactions = string.join(self['clinical transaction IDs'], ',')
 		if transactions == '':
 			return self.__db_cache['allergy IDs']
-		curs = self._defconn_ro.cursor()
 		cmd = "select id from v_i18n_allergy where id_clin_transaction in (%s);" % transactions
+		curs = self._defconn_ro.cursor()
 		if not gmPG.run_query(curs, cmd):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load list of allergies for patient [%s]' % self.id_patient)
@@ -213,6 +231,130 @@ class gmClinicalRecord:
 		for row in rows:
 			self.__db_cache['allergy IDs'].extend(row)
 		return self.__db_cache['allergy IDs']
+	#------------------------------------------------------------------
+	# trial 
+	def create_allergy(self, map):
+		"""tries to add allergy to database : CUrrently id_type is not reading checkbox states (allergy or sensitivity)."""
+
+		issue_id = self.ensure_health_issue_exists("allergy")
+		cmd = "commit"
+		episode_id = self.get_or_create_episode_for_issue(issue_id)
+		
+		if episode_id == 0:
+			self.execute("rollback", "rolling back because of invalid episode_id = 0")
+			return 0
+
+		encounter_id = self.ensure_current_clinical_encounter()
+		if encounter_id == 0:
+			self.execute("rollback", "rolling back because of invalid encounter_id = 0")
+			return 0
+
+
+
+		# **** NB DEFINATE IS MISPELLED IN SQL SCRIPT : CHANGE IF THE WRONG SPELLING LATER 
+		cmd = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, definate ) values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
+		self.execute( cmd, "unable to create allergy entry ", rollback = 1)
+
+		self.execute("commit", "unable to commit ", rollback = 1)
+		return 1
+		
+
+	def ensure_health_issue_exists(self, issue):
+		"""ensure that the  health issue exists for this patient_id"""
+		
+		cmd = "select id from clin_health_issue where id_patient=%s and description='%s'" % (self.id_patient, issue)
+
+		rows = self.execute(cmd, "Unable to select for %s health issue for id_patient=%s " % (issue, self.id_patient ))
+
+		if (rows <> None and len(rows) == 0):
+			cmd2 = "insert into clin_health_issue ( id_patient, description) values ( %s, '%s')" %( self.id_patient, issue)
+			self.execute(cmd2, "can't insert issue %s" % issue)
+			rows = self.execute(cmd, "not finding clin_issue %s" % issue )
+		
+		if (rows <> None and len(rows) == 1):
+			return rows[0][0]
+		
+		return 0
+
+#------------ deal with clin episodes for health issues ------------------------	
+	def init_issue_episodes(self):
+		self.issue_episodes={}
+	
+	def has_episode_for_issue(self, issue_id):
+		return  self.issue_episodes.has_key(issue_id)
+
+	def get_episode_for_issue(self, issue_id):
+		if self.has_episode_for_issue(issue_id):
+			return self.issue_episodes[issue_id]
+		return 0
+	
+	def create_episode_for_issue(self, issue_id):
+		marker  = time.asctime()
+		cmd = "insert into clin_episode( id_health_issue, description ) values ( %d , '%s')" % (issue_id, marker)
+		if self.execute(cmd, "unable to create issue") == None:
+			return 0
+		cmd = "select id from clin_episode where id_health_issue=%d  and description='%s'" %(issue_id, marker)
+		rows = self.execute(cmd, "unable to find most recent episode insertion")
+		if rows == None or len(rows) > 1:
+			_log.Log(gmLog.lErr, "rows not valid. Should be only one row : rows="+str(rows) )
+			return 0
+		
+		episode_id = rows[0][0]
+		self.issue_episodes[issue_id]= episode_id
+		return episode_id
+
+
+	def get_or_create_episode_for_issue(self, issue_id):
+		if self.has_episode_for_issue(issue_id):
+			return self.get_episode_for_issue(issue_id)
+		return self.create_episode_for_issue(issue_id)
+
+#---------------------------------------------------------------------------------
+
+
+#------------ deal with clinical encounter id ---------------------------------
+	def ensure_current_clinical_encounter(self):
+		if self.__dict__.has_key('clin_encounter'):
+			return self.clin_encounter
+
+		marker = time.asctime()
+		cmd = "insert into clin_encounter( id_location, id_provider, id_type, description ) values(0 , 0, 1, '%s' ) " % marker
+		if self.execute(cmd, "unable to create clin encounter") == None:
+			return 0
+		cmd = "select id  from clin_encounter where description = '%s'" % marker
+		rows = self.execute(cmd, "unable to select recently created encounter")
+		if rows == None:
+			return 0
+		if len (rows) <> 1 :
+			_log.Log(gmLog.lErr, "there are %d rows with marker %s. Row should be unique" %(len(rows), marker) )
+		self.clin_encounter = rows[0][0]
+		return rows[0][0]	
+		
+
+
+#-------------- convenience sql call interface ----------------------------------------
+	def execute(self, cmd, error_msg, rollback = 0):
+		_log.Info("Running query : %s" % cmd)
+		curs = self._defconn_ro.cursor()
+		if not gmPG.run_query(curs, cmd):
+			if rollback and not gmPG.run_query(curs, "rollback"):
+				_log.Log(gm.lErr, "*****   Unable to rollback", sys.exc_info() )
+			curs.close()
+			_log.Log(gmLog.lErr, error_msg)
+			return None
+
+		if self.is_update_command(cmd):
+			return []  # don't fetch from cursor	
+		rows = curs.fetchall()
+		curs.close()
+		return rows
+
+	def is_update_command(self, cmd):
+		return  string.find(string.lower(cmd), "insert") >= 0 or\
+		string.find(string.lower(cmd), "update") >= 0 or\
+		string.find(string.lower(cmd), "delete") >= 0  or  \
+		string.find(string.lower(cmd), "commit") >= 0;
+	
 	#--------------------------------------------------------
 	def _get_clinical_transactions_list(self):
 		curs = self._defconn_ro.cursor()
@@ -253,7 +395,11 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.6  2003-05-17 17:23:43  ncq
+# Revision 1.7  2003-06-01 01:47:32  sjtan
+#
+# starting allergy connections.
+#
+# Revision 1.6  2003/05/17 17:23:43  ncq
 # - a little more testing in main()
 #
 # Revision 1.5  2003/05/05 00:06:32  ncq

@@ -25,6 +25,7 @@ import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea
+#from gmEditArea import *
 import gmPlugin, gmLog
 
 ID_MEMBERCONDITIONSLIST = wxNewId()
@@ -54,6 +55,7 @@ class FamilyHistoryPanel(wxPanel):
 		self.FamilyHistoryPanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,"  FAMILY AND SOCIAL HISTORY  ")
 		# editarea
 		self.editarea = gmEditArea.gmFamilyHxEditArea(self, -1)
+		#self.editarea = gmFamilyHxEditArea(self, -1)
 		#-----------------------------------------------
 		#add the divider headings below the editing area
 		#-----------------------------------------------

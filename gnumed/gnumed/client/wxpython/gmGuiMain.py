@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.99 2003-05-12 09:13:31 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmGuiMain.py,v 1.100 2003-06-01 01:47:33 sjtan Exp $
+__version__ = "$Revision: 1.100 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -333,8 +333,10 @@ class MainFrame(wxFrame):
 	#----------------------------------------------
 	def OnPatientChanged(self, **kwargs):
 		pat = gmTmpPatient.gmCurrentPatient()
+		_log.Info("Patient changed to "+str(pat) +"\n"+str(pat.__dict__) )
+
 		names = pat['active name']
-		patient = "%s %s %s (%s) #%d" % (pat['title'], names['first'], names['last'], pat['dob'], pat['ID'])
+		patient = "%s %s %s (%s) #%d" % (pat['title'], names['first'], names['last'], pat['dob'], int(pat['ID'])) 
 		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -644,7 +646,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.99  2003-05-12 09:13:31  ncq
+# Revision 1.100  2003-06-01 01:47:33  sjtan
+#
+# starting allergy connections.
+#
+# Revision 1.99  2003/05/12 09:13:31  ncq
 # - SQL ends with ";", cleanup
 #
 # Revision 1.98  2003/05/10 18:47:08  hinnef

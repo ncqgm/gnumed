@@ -16,11 +16,14 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 
 import string, gmDispatcher, gmSignals
 from wxPython.wx import *
 from gmSQLSimpleSearch import SQLSimpleSearch
+import gmLog
+_log = gmLog.gmDefLog
+
 
 ID_BUTTON_SELECT = wxNewId()
 ID_BUTTON_ADD = wxNewId()
@@ -98,6 +101,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 		for i in range(len(data)):
 			item = self.listctrlSearchResults.GetItem(index,i)
 			kwargs[data[i]] = item.GetText()
+		_log.Info("kwargs for PATIENT = " + str(kwargs))	
 		kwargs['signal']= gmSignals.patient_selected()
 		kwargs['sender'] = 'patient.selector'
 		gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)

@@ -3,15 +3,14 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.30 2003-05-27 16:02:03 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmEditArea.py,v 1.31 2003-06-01 01:47:33 sjtan Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "R.Terry, K.Hilbert"
 #====================================================================
 import sys, traceback
 
 if __name__ == "__main__":
 	sys.path.append ("../python-common/")
-
 import gmLog
 _log = gmLog.gmDefLog
 
@@ -191,16 +190,6 @@ class gmEditArea( wxPanel):
 		self.SetName(self._type)
 #		self.SetBackgroundColour(wxColor(222,222,222))
 
-		# set up links between edit fields and business objects
-#		PropertySupport.PropertySupported.__init__(self)
-
-#		self.listener = PropertySupport.TestPropertyListener("EDITAREA TEST  listener")
-#		self.addPropertyListener( self.listener)
-
-#		self.testEventListener = gmTestEvent.TestEventListener()
-#		self.addPropertyListener( self.testEventListener)
-		# refactor: pull-up this to base class
-
 		self.input_fields = {}
 
 		# make prompts
@@ -213,12 +202,6 @@ class gmEditArea( wxPanel):
 		self.test_handler = TestEvents.TestEvents()
 		self.test_handler.test_checkbox(self)
 
-		# FIXME: Sian, do we still need this ?
-		# added this so PropertySupport can notify Listeners of  the component map
-		# temporary hack for testing purposes
-#		x = self.input_fields
-#		self.input_fields = None
-#		self.input_fields = x 
 		
 		# stack prompts and fields horizontally
 		self.szr_main_panels = wxBoxSizer(wxHORIZONTAL)
@@ -394,6 +377,8 @@ class gmAllergyEditArea(gmEditArea):
 		self.RBtn_is_allergy = wxRadioButton(parent, -1, _("Allergy"), wxDefaultPosition,wxDefaultSize)
 		self.RBtn_is_sensitivity = wxRadioButton(parent, -1, _("Sensitivity"), wxDefaultPosition,wxDefaultSize)
 		self.cb_is_definite_allergy = wxCheckBox(parent, -1, _("Definate"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+
+		self.input_fields['definite'] = self.cb_is_definite_allergy
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.Add(5, 0, 0)
 		szr.Add(self.RBtn_is_allergy, 2, wxEXPAND)
@@ -409,7 +394,7 @@ class gmFamilyHxEditArea(gmEditArea):
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'family history')
 		except gmExceptions.ConstructorError:
-			_log.LogExceptions('cannot instantiate family Hx edit area', sys.exc_info())
+			_log.LogExceptions('cannot instantiate family Hx edit area', sys.exc_info(),4)
 			raise
 	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
@@ -546,10 +531,6 @@ class gmPastHistoryEditArea(gmEditArea):
 		szr8.Add(self._make_standard_buttons(parent), 0, wxEXPAND)
 		lines.append(szr8)
 
-#		fields = [ self.txt_condition, self.txt_notes1, self.txt_notes2, self.txt_agenoted, self.txt_yearnoted, self.txt_progressnotes, self.cb_active, self.cb_operation, self.cb_confidential, self.cb_significant ]
-
-#		past_history_input_field_keys = [ "condition", "notes1", "notes2", "age", "year",  "progress", "active", "operation", "confidential", "significant" ]
-#		i = 0
 
 		self.input_fields = {
 			"condition": self.txt_condition,
@@ -563,20 +544,8 @@ class gmPastHistoryEditArea(gmEditArea):
 			"confidential": self.cb_confidential,
 			"significant": self.cb_significant
 		}
-#		for k in past_history_input_field_keys:
-#			self.input_fields[k] = fields[i]
-#			i = i + 1
 
 		return lines
-#		self.gszr.Add(szr1,0,wxEXPAND)
-#		self.gszr.Add(self.txt_notes1,0,wxEXPAND)
-#		self.gszr.Add(self.txt_notes2,0,wxEXPAND)
-#		self.gszr.Add(szr4,0,wxEXPAND)
-#		self.gszr.Add(szr5,0,wxEXPAND)
-#		self.gszr.Add(szr6,0,wxEXPAND)
-#		self.gszr.Add(self.txt_progressnotes,0,wxEXPAND)
-#		self.gszr.Add(szr8,0,wxEXPAND)
-		#self.anylist = wxListCtrl(self, -1,  wxDefaultPosition,wxDefaultSize,wxLC_REPORT|wxLC_LIST|wxSUNKEN_BORDER)
 
 #====================================================================
 #====================================================================
@@ -1125,7 +1094,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.30  2003-05-27 16:02:03  ncq
+# Revision 1.31  2003-06-01 01:47:33  sjtan
+#
+# starting allergy connections.
+#
+# Revision 1.30  2003/05/27 16:02:03  ncq
 # - some comments, some cleanup; I like the direction we are heading
 #
 # Revision 1.29  2003/05/27 14:08:51  sjtan

@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -210,7 +210,7 @@ can increase its log level with '--debug'.
 		import gmGuiBroker
 		import gmGuiMain
 	except:
-		_log.LogException ("Exception: Cannot load modules.", sys.exc_info(), fatal=1)
+		_log.LogException ("Exception: Cannot load modules.", sys.exc_info(), 4)
 		sys.exit("""
 CRITICAL ERROR: Can't load gmI18N, gmGuiBroker or gmGuiMain !
                 Program halted.
@@ -266,7 +266,11 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.52  2003-04-02 13:31:57  ncq
+# Revision 1.53  2003-06-01 01:47:33  sjtan
+#
+# starting allergy connections.
+#
+# Revision 1.52  2003/04/02 13:31:57  ncq
 # - turn Mandrake Python 2.3 True/False DeprecationWarning exceptions back into simple Warnings
 #
 # Revision 1.51  2003/03/30 00:24:00  ncq
