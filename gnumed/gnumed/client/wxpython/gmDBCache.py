@@ -15,7 +15,11 @@
 # @TODO: Almost everything
 ############################################################################
 
+# standard Python modules
 import copy
+
+# GNUmed modules
+import gmLog
 
 class CachedDBObject:
 
@@ -49,6 +53,11 @@ class CachedDBObject:
 		if not lazy and self.__buffer is not None:
 			self.__query()
 
+		_myLog.Log(gmLog.lData, "Instantiated. ID='" + str(self.__id) +
+					"' DB='" + str(self.__db) +
+					"' query='" + str(self.__querystr) +
+					"' lazy='" + str(self.__lazy) +
+					"' expiry='" + str(self.__expiry) + "'")
 
 	def reset(self):
 		"force a re-query of buffer on next data access attempt"
@@ -59,6 +68,7 @@ class CachedDBObject:
 		if CachedDBObject.__querystr != querystr :
 			CachedDBObject.__querystr = querystr
 			self.reset
+			_myLog.Log(gmLog.lData, "changing query to SQL>>>" + str(querystr) + "<<<SQL")
 
 	def getQueryStr(self):
 		return copy.copy(CachedDBObject.__querystr)
@@ -94,7 +104,7 @@ class CachedDBObject:
 
 	def notify_me(self, who, callback=None):
 		"""Register function 'callback' for caller 'who'
-		This function will be called whenever the buffer changes
+
 		If callback is None, the callback for caller 'who'
 		will be removed (if exists)
 		'callback' is a function that accepts two parameters:
@@ -111,12 +121,15 @@ class CachedDBObject:
 
 
 	def notify(self):
-		"forces execution of all registered callback functions"
+		"""forces execution of all registered callback functions
+
+		This function will be called whenever the buffer changes
+		"""
 		for caller in CachedDBObject.__notify.keys():
 			CachedDBObject.__notify[caller](caller, CachedDBObject.__id)
 
 	def attributes(self):
-		"returns row attributes ('field names')"
+		"""returns row attributes ('column/field names')"""
 		return CachedDBObject.__attributes
 
 
@@ -125,7 +138,8 @@ class CachedDBObject:
 		assert (CachedDBObject.__db is not None)
 		assert (CachedDBObject.__querystr is not None)
 		cursor = CachedDBObject.__db.cursor()
-		print "Executing %s\n" % CachedDBObject.__querystr
+		#print "Executing %s\n" % CachedDBObject.__querystr
+		_myLog.Log(gmLog.lData, "Executing " + str(CachedDBObject.__querystr))
 		cursor.execute(CachedDBObject.__querystr)
 		CachedDBObject.__buffer = cursor.fetchall()
 		CachedDBObject.__attributes = gmPG.fieldNames(cursor)
@@ -134,8 +148,13 @@ class CachedDBObject:
 
 
 ##############################################################
+# convenience only, really
+_myLog = gmLog.gmDefLog
 
 if __name__ == "__main__":
+
+	aHandle = gmLog.LogTargetConsole(gmLog.lData)
+	_myLog.AddTarget(aHandle)
 
 	def callback(who, id):
 		print ">>> Here I am, the callback function! <<<"
@@ -154,5 +173,3 @@ if __name__ == "__main__":
 		for a in d:
 			print str(a) + "\t",
 		print "\n"
-
-
