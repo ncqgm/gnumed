@@ -15,8 +15,6 @@
 # @copyright: authors
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.2)
-# @change log:
-#      
 #
 # @TODO: all testing and review
 #        bmi input boxes are not set to re-size
@@ -24,14 +22,12 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
 #---------------------------------------------------------------------------
 from wxPython.wx import *
-#from wxPython.lib.wxPlotCanvas import *
-#from wxPython.lib              import wxPlotCanvas  #insert these modules once graph active
 
 #===========================================================================
 # we need the icon data for standalone and plugin use, so we might
@@ -541,12 +537,8 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 
 #== if run as standalone =======================================================
 if __name__ == '__main__':
-	# enable us to find our modules
 	import sys, cPickle, zlib
-	sys.path.append('modules')
-	sys.path.append('..')
-
-	import gmI18N
+	from Gnumed.pycommon import gmI18N
 	#---------------------
 	# set up dummy app
 	class TestApp (wxApp):
@@ -568,7 +560,7 @@ if __name__ == '__main__':
 	app.MainLoop()
 #== if run as plugin ===========================================================
 else:
-	import gmPlugin
+	from Gnumed.wxpython import gmPlugin
 
 	ID_BMIMENU = wxNewId ()
 	ID_BMITOOL = wxNewId ()
@@ -617,7 +609,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.25  2003-11-17 10:56:41  sjtan
+# Revision 1.26  2004-03-10 15:48:36  ncq
+# - new import scheme
+#
+# Revision 1.25  2003/11/17 10:56:41  sjtan
 #
 # synced and commiting.
 #
