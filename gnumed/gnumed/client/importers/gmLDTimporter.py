@@ -20,16 +20,18 @@ Hilbert office is as follows:
 - retain unmapped records until next time around
 
 copyright: authors
+
+FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.12 2004-06-13 22:09:12 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmLDTimporter.py,v 1.13 2004-06-18 13:39:00 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
 # stdlib
-import glob, os.path, sys, tempfile, fileinput, time, copy, random
+import glob, os.path, sys, tempfile, fileinput, time, copy, random, shutil
 
 from Gnumed.pycommon import gmLog, gmCLI
 if __name__ == '__main__':
@@ -77,6 +79,7 @@ class cLDTImporter:
 
 		# verify header of LDT file
 		if not self.__verify_file_header(self.ldt_filename):
+			_log.Log(gmLog.lInfo, 'cannot verify file header on [%s]' % self.ldt_filename)
 			return False
 
 		# verify base working directory
@@ -98,34 +101,30 @@ class cLDTImporter:
 		if source_files is None:
 			_log.Log(gmLog.lErr, 'cannot split LDT file [%s]' % self.ldt_filename)
 			return False
-		if len(source_files['data']) == 0:
-			_log.Log(gmLog.lData, 'skipping empty LDT file [%s]' % self.ldt_filename)
-			return True
 
 		# import requested results
-		target_files = {
-			'header': source_files['header'],
-			'data': [],
-			'trailer': source_files['trailer']
-		}
-		tmp_src_files = copy.copy(source_files['data'])
-		for request_file in tmp_src_files:
-			_log.Log(gmLog.lInfo, 'importing request file [%s]' % request_file)
-			if self.__import_request_file(request_file):
-				target_files['data'].append(request_file)
-				source_files['data'].remove(request_file)
-			else:
-				_log.Log(gmLog.lErr, 'cannot import request file [%s]' % request_file)
-
-		print "left over request files:", source_files['data']
-		print "target files to pass on:", target_files['data']
-
-		# reassemble file if anything left
 		if len(source_files['data']) > 0:
-			pass
+			tmp_src_files = copy.copy(source_files['data'])
+			for request_file in tmp_src_files:
+				_log.Log(gmLog.lInfo, 'importing request file [%s]' % request_file)
+				if self.__import_request_file(request_file):
+					source_files['data'].remove(request_file)
+					_log.Log(gmLog.lErr, 'success importing request file\n')
+				else:
+					_log.Log(gmLog.lErr, 'cannot import request file [%s]\n' % request_file)
+		else:
+			_log.Log(gmLog.lData, 'skipping empty LDT file [%s]' % self.ldt_filename)
 
-		# clean up
+		# cleanup work area
+		try:
+			shutil.rmtree(path=self.work_dir, ignore_errors=True)
+		except:
+			_log.LogException('cannot cleanup work dir [%s]' % self.work_dir, sys.exc_info(), verbose=0)
 
+		# anything left ?
+		if len(source_files['data']) > 0:
+			# keep source file for next time
+			return False
 		return True
 	#-----------------------------------------------------------
 	# internal helpers
@@ -270,6 +269,8 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	def __xform_8302(self, request_data):
 		"""8302: Berichtsdatum"""
+		if self.__request['results_reported_when'] is None:
+			self.__request['results_reported_when'] = mxDT.now()
 		self.__request['results_reported_when'] = mxDT.strptime(
 			request_data['8302'][0].strip(),
 			'%d%m%Y',
@@ -279,6 +280,8 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	def __xform_8303(self, request_data):
 		"""8303: Berichtszeit"""
+		if self.__request['results_reported_when'] is None:
+			self.__request['results_reported_when'] = mxDT.now()
 		self.__request['results_reported_when'] = mxDT.strptime(
 			request_data['8303'][0].strip(),
 			'%H%M',
@@ -318,9 +321,9 @@ class cLDTImporter:
 			req_stat = 'preliminary'
 		# sanity check
 		if (not self.__request['is_pending']) and (req_stat != 'final'):
-			prob = 'kein Befund für [%s] mehr erwartet, aber Befund mit Status [%s] erhalten)' % (request['request_id'], request['request_status'])
+			prob = 'kein Befund für [%s] mehr erwartet, aber Befund mit Status [%s] erhalten)' % (self.__request['request_id'], req_stat)
 			sol = 'Befund wird trotzdem importiert. Bitte Befunde auf Duplikate überprüfen.'
-			ctxt = 'Patient: %s, Labor [%s], LDT-Datei [%s], Probe [%s], (Feld 8401, Regel 135)' % (request.get_patient(), self.__lab_name, self.ldt_filename, request['request_id'])
+			ctxt = 'Patient: %s, Labor [%s], LDT-Datei [%s], Probe [%s], (Feld 8401, Regel 135)' % (self.__request.get_patient(), self.__lab_name, self.ldt_filename, self.__request['request_id'])
 			add_todo(problem=prob, solution=sol, context=ctxt)
 			_log.Log(gmLog.lWarn, prob)
 			_log.Log(gmLog.lWarn, ctxt)
@@ -436,12 +439,13 @@ class cLDTImporter:
 					name = gmXdtMappings.xdt_id_map[line_type]
 				except KeyError:
 					name = '?'
-				_log.Log(gmLog.lInfo, 'skipping line [%s] (%s)' % (line_type, name))
+				_log.Log(gmLog.lData, 'skipping [%s] (%s)' % (line_type, name))
 				continue
 			# handle line
 			line_data = handle_line(self, request_data)
 			if line_data is False:
 				# FIXME: todo item
+				_log.Log(gmLog.lErr, 'handling line [%s] failed' %  line_type)
 				return False
 			try:
 				self.__request[cLDTImporter._map_820xline2req_field[line_type]] = line_data
@@ -512,6 +516,7 @@ class cLDTImporter:
 			else:
 				reqid = str(random.randrange(sys.maxint))
 			request = emr.add_lab_request(lab=self.__lab_name, req_id=reqid)
+			pat.cleanup()
 			if request is None:
 				_log.Log(gmLog.lErr, 'cannot auto-create lab request with [%s:%s]' % (self.__lab_name, reqid))
 				return None
@@ -525,6 +530,7 @@ class cLDTImporter:
 			sol = 'Zuordnungen überprüfen. Systembetreuer verständigen. Details im Log.'
 			ctxt = 'Labor [%s], LDT-Datei [%s]' % (self.__lab_name, self.ldt_filename)
 			add_todo(problem=prob, solution=sol, context=ctxt)
+			_log.Log(gmLog.lErr, 'cannot find lab request matching data derived from 8201 record')
 			return False
 
 		# update fields in request from request_data
@@ -541,12 +547,13 @@ class cLDTImporter:
 					name = gmXdtMappings.xdt_id_map[line_type]
 				except KeyError:
 					name = '?'
-				_log.Log(gmLog.lInfo, 'skipping line [%s] (%s)' % (line_type, name))
+				_log.Log(gmLog.lData, 'skipping [%s] (%s)' % (line_type, name))
 				continue
 			# handle line
 			line_data = handle_line(self, request_data)
 			if line_data is False:
 				# FIXME: todo item
+				_log.Log(gmLog.lErr, 'failed to handle [%s] line' % line_type)
 				return False
 			try:
 				self.__request[cLDTImporter._map_820xline2req_field[line_type]] = line_data
@@ -678,6 +685,9 @@ class cLDTImporter:
 		return True
 	#-----------------------------------------------------------
 	__8410line_handler = {
+		'5001': None,
+		'8404': None,
+		'8406': None,				# Kosten Cent
 		'8410': None,				# don't update code
 		'8411': None,				# don't update name
 		'8412': None,				# Abrechnungskennung
@@ -706,40 +716,51 @@ class cLDTImporter:
 			if (result_data.has_key('8410') and			# code
 				result_data.has_key('8411') and			# name
 				result_data.has_key('8412')):			# Abrechnungskennung
+				_log.Log(gmLog.lInfo, 'skipping billing-only record')
 				return True
-		# essential fields
+		# verify essential fields
+		# - numeric result
 		try:
 			vnum = '\n'.join(result_data['8420'])
 		except KeyError:
 			vnum = None
+		# - alphanumeric result
 		try:
 			valpha = '\n'.join(result_data['8480'])
 		except KeyError:
 			valpha = None
+		if (valpha is None) and (vnum is None):
+			valpha = ''
+		# - code
 		try:
-			if (vnum is None) and (valpha) is None:
-				raise KeyError
-			a = result_data['8410'][0]		# code
-			a = result_data['8411'][0]		# name
-			a = result_data['8421'][0]		# unit
+			vcode = result_data['8410'][0]
 		except KeyError:
-			_log.Log(gmLog.lErr, 'result record does not contain minimum data for import')
-			_log.Log(gmLog.lData, 'result: %s' % str(result_data))
-			return False
-		# - verify/create test type
+			_log.Log(gmLog.lWarn, 'adding default test type code')
+		# - name
+		try:
+			vname = result_data['8411'][0]
+		except KeyError:
+			_log.Log(gmLog.lWarn, 'adding default test type name')
+		# - unit
+		try:
+			vunit = result_data['8421'][0]
+		except KeyError:
+			vunit = ''
+		# verify/create test type
 		status, ttype = gmPathLab.create_test_type(
 			lab=self.__lab_name,
-			code=result_data['8410'][0],
-			name=result_data['8411'][0],
-			unit=result_data['8421'][0]
+			code=vcode,
+			name=vname,
+			unit=vunit
 		)
 		if status in [False, None]:
+			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.12 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.13 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
-		# - try to create test row
-		whenfield = 'lab_rxd_when'			# FIXME: make this configurable
+		# try to create test result row
+		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
 		status, self.__lab_result = gmPathLab.create_lab_result(
 			patient_id = self.__request.get_patient()[0],
 			when_field = whenfield,
@@ -747,16 +768,16 @@ class cLDTImporter:
 			test_type = ttype['id'],
 			val_num = vnum,
 			val_alpha = valpha,
-			unit = result_data['8421'][0],
+			unit = vunit,
 			request = self.__request
 		)
 		if status is False:
 			_log.Log(gmLog.lErr, 'cannot create result record')
-			_log.Log(gmLog.lData, str(result_data))
+			_log.Log(gmLog.lInfo, str(result_data)[:500])
 			return False
 		# FIXME: make this configurable (whether skipping or duplicating)
 		if status is None:
-			_log.Log(gmLog.lWarn, 'skipping duplicate lab result on import')
+			_log.Log(gmLog.lData, 'skipping duplicate lab result on import')
 			_log.Log(gmLog.lData, 'in file: %s' % str(result_data))
 			return True
 		# update result record from dict
@@ -780,9 +801,16 @@ class cLDTImporter:
 				continue
 			if handle_line(self, result_data) is False:
 				# FIXME: todo item
+				_log.Log(gmLog.lErr, 'cannot handle [%s] line' % line_type)
 				return False
-		self.__lab_result.save_payload()
+		if (self.__lab_result['val_alpha'] is None) and (self.__lab_result['val_num'] is None):
+			_log.Log(gmLog.lWarn, 'both result fields empty, setting alphanumeric default')
+			valpha = ''
+		saved, msg = self.__lab_result.save_payload()
 		del self.__lab_result
+		if not saved:
+			_log.Log(gmLog.lErr, 'kann Laborwert (8410) nicht importieren')
+			return False
 		_log.Log(gmLog.lInfo, 'Laborwert (8410) erfolgreich importiert')
 		return True
 	#-----------------------------------------------------------
@@ -809,12 +837,12 @@ class cLDTImporter:
 					try:
 						handle_chunk = cLDTImporter.__chunk_handler[chunk_type]
 					except KeyError:
-						_log.Log(gmLog.lErr, 'kein Handler für Satztyp [%s] verfügbar' % chunk_type)
 						fileinput.close()
 						if self.__request is not None:
 							self.__request['request_status'] = 'partial'
 							self.__request['is_pending'] = 'true'
 							self.__request.save_payload()
+						_log.Log(gmLog.lErr, 'kein Handler für Satztyp [%s] verfügbar' % chunk_type)
 						return False
 					# handle chunk
 					if not handle_chunk(self, chunk):
@@ -823,6 +851,7 @@ class cLDTImporter:
 							self.__request['is_pending'] = 'true'
 							self.__request.save_payload()
 						fileinput.close()
+						_log.Log(gmLog.lErr, 'cannot handle [%s] chunk' % chunk_type)
 						return False
 				# start new chunk
 				chunk = {}
@@ -834,15 +863,6 @@ class cLDTImporter:
 		fileinput.close()
 		return True
 #===============================================================
-def verify_next_in_chain():
-	tmp = _cfg.get('target', 'repository')
-	if tmp is None:
-		return False
-	target_dir = os.path.abspath(os.path.expanduser(tmp))
-	if not os.access(target_dir, os.W_OK):
-		_log.Log(gmLog.lErr, 'cannot write to target repository [%s]' % target_dir)
-		return False
-	return True
 #---------------------------------------------------------------
 # LDT functions
 #---------------------------------------------------------------
@@ -855,34 +875,46 @@ def verify_next_in_chain():
 #	return True
 #---------------------------------------------------------------
 def run_import():
-	# make sure files can be made available to TurboMed
-	if not verify_next_in_chain():
+	# make sure files can moved to the target repository
+	target_dir = _cfg.get('target', 'repository')
+	if target_dir is None:
+		return False
+	target_dir = os.path.abspath(os.path.expanduser(target_dir))
+	if not (os.access(target_dir, os.W_OK) and os.path.isdir(target_dir)):
+		_log.Log(gmLog.lErr, 'cannot write to target repository [%s]\n' % target_dir)
 		return False
 	# get import files
 	import_dir = _cfg.get('import', 'repository')
 	if import_dir is None:
+		_log.Log(gmLog.lErr, 'no import dir found\n')
 		return False
 	import_dir = os.path.abspath(os.path.expanduser(import_dir))
 	filename_pattern = _cfg.get('import', 'file pattern')
 	if filename_pattern is None:
+		_log.Log(gmLog.lErr, 'no import file name pattern found\n')
 		return False
 	import_file_pattern = os.path.join(import_dir, filename_pattern)
 	files2import = glob.glob(import_file_pattern)
+	# now import
 	importer = cLDTImporter(cfg=_cfg)
-	# loop over files
 	for ldt_file in files2import:
 		_log.Log(gmLog.lInfo, 'importing LDT file [%s]' % ldt_file)
 		if not importer.import_file(ldt_file):
-			_log.Log(gmLog.lErr, 'cannot import LDT file')
+			_log.Log(gmLog.lErr, 'cannot import LDT file\n')
 		else:
-			_log.Log(gmLog.lData, 'success importing LDT file')
+			_log.Log(gmLog.lInfo, 'success importing LDT file\n')
+			try:
+				shutil.copy(ldt_file, target_dir)
+				os.remove(ldt_file)
+			except:
+				_log.LogException('cannot move [%s] to [%s]\n' % (ldt_file, target_dir))
 	return True
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	rep_by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.12 $'
-	recvr = 'user'
-	gmPG.add_housekeeping_todo(reporter=rep_by, receiver=recvr, problem=problem, solution=solution, context=context, category=cat)
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.13 $'
+	rcvr = 'user'
+	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
 # main
 #---------------------------------------------------------------
@@ -913,7 +945,18 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.12  2004-06-13 22:09:12  ncq
+# Revision 1.13  2004-06-18 13:39:00  ncq
+# - semantically seems to import everything correctly
+# - now handles input files on failure/success correctly,
+#   eg moves to target repository
+# - change of concept: don't assemble parts that have been
+#   imported into new files, rather all or nothing: either
+#   file imported successfully or file stays in queue, this
+#   is safe as we now safely detect duplicates (which would,
+#   in the worst case, duplicate data for what it's worth)
+# - adjust logging to saner levels
+#
+# Revision 1.12  2004/06/13 22:09:12  ncq
 # - don't verify LDT version, try to import regardless
 # - 8303/8302/8403/8407/8609
 #
