@@ -12,13 +12,14 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.33 2004-07-20 01:01:46 ihaywood Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmDemographics.py,v 1.34 2004-07-26 12:04:44 sjtan Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
-from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals
+from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCharacterValidator
 from Gnumed.business import gmDemographicRecord, gmPatient
+
 
 from mx import DateTime
 from wxPython.wx import *
@@ -520,9 +521,22 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		#self.Show(False)
 
 		self.__create_input_field_map()
-
+		self.__add_character_validators()
 		self.__connect_commands()
 
+
+	def __add_character_validators(self):
+		self.validator = gmCharacterValidator.CharValidator()
+		m = self.input_fields
+		for k in ['firstname', 'surname', 'preferred']:
+			self.validator.setCapitalize(m[k])
+		for k in ['urb', 'country']:
+			self.validator.setUpperAlpha(m[k])
+		
+		for k in ['mobile', 'fax', 'homephone', 'workphone']: # in AU only ? , 'postcode']:
+			self.validator.setDigits(m[k])
+
+			
 
 
 	def __connect_commands(self):
@@ -785,7 +799,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.33  2004-07-20 01:01:46  ihaywood
+# Revision 1.34  2004-07-26 12:04:44  sjtan
+#
+# character level immediate validation , as per Richard's suggestions.
+#
+# Revision 1.33  2004/07/20 01:01:46  ihaywood
 # changing a patients name works again.
 # Name searching has been changed to query on names rather than v_basic_person.
 # This is so the old (inactive) names are still visible to the search.
