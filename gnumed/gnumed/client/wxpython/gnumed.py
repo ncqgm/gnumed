@@ -21,7 +21,7 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 	#</DEBUG>
 
 	gmLog.gmDefLog.Log(gmLog.lData, "set resource path to: " + appPath)
-	gmLog.gmDefLog.Log(gmLog.lData, "module search path is now: " + sys.path)
+	gmLog.gmDefLog.Log(gmLog.lData, "module search path is now: " + str(sys.path))
 
 	gb = gmGuiBroker.GuiBroker ()
 	gb['gnumed_dir'] = appPath # EVERYONE must use this!
