@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.3 2003-02-16 13:54:47 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmXdtViewer.py,v 1.4 2003-02-19 12:42:38 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys,os,fileinput,string,linecache
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
-from gmXdtMappings import xdt_id_map, xdt_packet_type_map
+from gmXdtMappings import xdt_id_map, xdt_map_of_content_maps
 #=============================================================================
 class gmXdtListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
 	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
@@ -130,13 +130,10 @@ class gmXdtViewerPanel(wxPanel):
 			line = string.replace(line,'\012','') 
 			length ,ID, content = line[:3], line[3:7], line[7:]
 
-			if ID == '8000':
-				tmp = xdt_packet_type_map[content]
-				content = tmp
 			try:
+				items[i] = (xdt_id_map[ID], xdt_map_of_content_maps[ID][content])
+			except KeyError:
 				items[i] = (xdt_id_map[ID], content)
-			except:
-				pass
 			i = i + 1
 
 		fileinput.close()
@@ -319,7 +316,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.3  2003-02-16 13:54:47  ncq
+# Revision 1.4  2003-02-19 12:42:38  ncq
+# - further dict()ified __decode_xdt()
+#
+# Revision 1.3  2003/02/16 13:54:47  ncq
 # - renamed command line option to --xdt-file=
 #
 # Revision 1.2  2003/02/15 15:33:58  ncq
