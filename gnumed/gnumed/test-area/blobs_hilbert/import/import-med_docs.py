@@ -25,7 +25,7 @@ from docDocument import cDocument
 from docDatabase import cDatabase
 #######################################################
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 
 __log__ = gmLog.gmDefLog
 __cfg__ = gmCfg.gmDefCfg
@@ -44,17 +44,13 @@ def import_from_dir(aDir):
 	# get patient data from BDT file
 	pat_file = __cfg__.get("metadata", "patient")
 	aPatient = cPatient()
-	try:
-		aPatient.getFromXDT(os.path.join(aDir, pat_file))
-	except:
-		exc = sys.exc_info()
-		__log__.LogException ("Exception: skipping " + aDir + " - problem with reading patient data from xDT file" + pat_file, exc)
+	if not aPatient.loadFromFile("xdt", os.path.join(aDir, pat_file)):
+		__log__.Log(gmLog.lErr, "Skipping \"%s\": problem with reading patient data from xDT file \"%s\"" % (aDir, pat_file))
 		return None
 
 	# setup document object
-	try:
-		aDoc = cDocument()
-	except IOError:
+	aDoc = cDocument()
+	if aDoc == None:
 		__log__.Log(gmLog.lErr, "cannot instantiate document object")
 		return None
 
@@ -81,6 +77,7 @@ def standalone():
 		dirlist = os.listdir (REPOSITORY)
 		# now handle one dir after another
 		for theDir in dirlist:
+			# we don't check for errors here since we just move on to the next dir
 			import_from_dir(os.path.join(REPOSITORY, theDir))
 #------- MAIN ----------------------
 if __cfg__ == None:
