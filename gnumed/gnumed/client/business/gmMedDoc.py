@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.6 2003-03-30 00:18:32 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmMedDoc.py,v 1.7 2003-03-31 01:14:22 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil
@@ -384,7 +384,7 @@ class gmMedDoc:
 		# get object level metadata for all objects of this document
 		cmd = "SELECT id, comment, seq_idx, octet_length(data) FROM doc_obj WHERE doc_id = %s;"
 		try:
-			cursor.execute(cmd, self.metadata['id'])
+			cursor.execute(cmd, self.ID)
 		except:
 			cursor.close()
 			_log.LogException('Cannot load document [%s] metadata.' % self.ID, sys.exc_info())
@@ -595,7 +595,10 @@ def call_viewer_on_file(aFile = None):
 	return 1, ""
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.6  2003-03-30 00:18:32  ncq
+# Revision 1.7  2003-03-31 01:14:22  ncq
+# - fixed KeyError on metadata[]
+#
+# Revision 1.6  2003/03/30 00:18:32  ncq
 # - typo
 #
 # Revision 1.5  2003/03/25 12:37:20  ncq
