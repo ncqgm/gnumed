@@ -28,12 +28,13 @@
 
 """gmConnectionPool - Broker for Postgres distributed backend connections
 """
+
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
-import string, copy, os, sys
+import string, copy, os, sys, select, threading
 import gmI18N
 
 #3rd party dependencies
@@ -55,6 +56,7 @@ except ImportError:
 			import pgdb # try standard Postgres binding
 			dbapi = pgdb
 			_isPGDB = 1
+			print 'USING PGDB'
 		except ImportError:
 			print "Apparently there is no database adapter available! Program halted"
 			sys.exit(-1)
@@ -138,13 +140,23 @@ class ConnectionPool:
 				
 	#-----------------------------
 	
-	def Listen(self, service, signal, receiver, callback):
+	def Listen(self, service, signal, callback):
+		"""Listen to 'signal' from backend in an asynchronous thread.
+		If 'signal' is received from database 'service', activate
+		the 'callback' function"""
+		
+		### check what physical database the service belongs to
 		id = ConnectionPool.service_mapping[service]
+		### since we need only one listening thread per database
 		if id not in ConnectionPool.__listeners.keys():
 			StartListeningThread(service);
 		signals = ConnectionPool.__listeners[id]
+		### no point in listening more than once per signal
+		### (backend would rejecy the request anyway)
 		if signal not in signals:
 			self._ListenTo(service, signal)
+		### hook up our internal message dispatching system with the signal
+		gmDispatcher.connect(callback, signal)
 		
 	#-----------------------------
 	
@@ -158,8 +170,24 @@ class ConnectionPool:
 	def StartListeningThread(self, service):
 		pass
 	
-	def ListeningThread(self, service):
-		pass		
+	def ListeningThread(self, cnx, service, lock):
+		while 1:
+			ready_sockets = select.select([cnx.socket], [], [], 1.0)[0]
+			if len(ready_sockets):
+				cnx.consumeInput()
+				note = cnx.notifies()
+				while note:
+					sys.stdout.flush()
+					sys.stdout.write(
+						"ASYNC NOTICE of '%s' from backend pid %d recieved\n" %
+						(note.relname, note.be_pid))
+					lock.acquire()
+					try:
+						gmDispatcher.send(note.relname, sender=service)
+					finally:
+						lock.release()
+					note = cnx.notifies()
+
 		
 	#-----------------------------
 	
