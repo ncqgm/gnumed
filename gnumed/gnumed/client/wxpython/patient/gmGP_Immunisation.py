@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.18 2003-12-02 02:12:06 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmGP_Immunisation.py,v 1.19 2003-12-29 17:10:59 uid66147 Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -41,6 +41,9 @@ ID_VaccinatedRegimesList = wxNewId()
 ID_VaccinationsPerRegimeList = wxNewId()
 ID_MissingShots = wxNewId()
 
+#======================================================================
+class cVacc:
+	pass
 #======================================================================
 class ImmunisationPanel(wxPanel):
 
@@ -131,7 +134,7 @@ class ImmunisationPanel(wxPanel):
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		# behaves just like patient_selected, really
-		gmDispatcher.connect(signal=gmSignals.vaccination_updated(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._on_patient_selected)
 	#----------------------------------------------------
 	# event handlers
 	#----------------------------------------------------
@@ -140,10 +143,26 @@ class ImmunisationPanel(wxPanel):
 		self.mainsizer.SetDimension (0, 0, w, h)
 	#----------------------------------------------------
 	def on_given_shot_selected(self, event):
-		print "now editing previous shot:", event.GetSelection(), event.GetString(), event.IsSelection(), event.GetClientData()
+		id_vacc = event.GetClientData()
+		epr = self.patient.get_clinical_record()
+		shot,idx = epr.get_vaccinations(ID = id_vacc)
+		vacc = {}
+		vacc['ID'] = shot[idx['pk_vaccination']]
+		vacc['disease schedule'] = shot[idx['regime']]
+		vacc['vaccine'] = shot[idx['vaccine']]
+		vacc['date given'] = shot[idx['date']].Format('%Y-%m-%d')
+		vacc['seq no'] = str(shot[idx['seq_no']])
+		vacc['is booster'] = shot[idx['is_booster']]
+		vacc['batch no'] = shot[idx['batch_no']]
+		vacc['site given'] = shot[idx['site']]
+#		vacc['progress_note'] = shot[idx['comment']]
+		vacc['progress_note'] = 'needs to be linked'
+		self.editarea.set_data(vacc)
 	#----------------------------------------------------
 	def on_missing_shot_selected(self, event):
 		print "now editing missing shot:", event.GetSelection(), event.GetString(), event.IsSelection(), event.GetClientData()
+		id_vacc = event.GetClientData()
+		epr = self.patient.get_clinical_record()
 	#----------------------------------------------------
 	def on_vaccinated_regime_selected(self, event):
 		"""Update right hand middle list to show vaccinations given for selected schedule."""
@@ -188,9 +207,9 @@ class ImmunisationPanel(wxPanel):
 			# overdue
 			for shot in missing_shots['overdue']:
 				if shot[3]:
-					shot_str = 'booster'
+					shot_str = _('booster')
 				else:
-					shot_str = 'shot %s' % shot[2]
+					shot_str = _('shot %s') % shot[2]
 				years, days_left = divmod(shot[4].days, 364.25)
 				weeks = days_left / 7
 				# amount_overdue, seq_no, regime, comment
@@ -206,9 +225,9 @@ class ImmunisationPanel(wxPanel):
 			for shot in missing_shots['due']:
 				_log.Log(gmLog.lData, shot)
 				if shot[3]:
-					shot_str = 'booster'
+					shot_str = _('booster')
 				else:
-					shot_str = 'shot %s' % shot[2]
+					shot_str = _('shot %s') % shot[2]
 				# time_left, seq_no, regime, latest_due, comment
 				label = _('%.0d weeks left: %s for %s, due %s (%s)') % (
 					shot[5].days / 7,
@@ -256,7 +275,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.18  2003-12-02 02:12:06  ncq
+# Revision 1.19  2003-12-29 17:10:59  uid66147
+# - upon selection transfer given_vaccination into edit area for modification
+#
+# Revision 1.18  2003/12/02 02:12:06  ncq
 # - further cleanups
 # - lower list: format dates sanely, hook up double-click
 # - only edit area workup left
