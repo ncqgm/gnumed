@@ -74,7 +74,8 @@ class PastHistoryPanel(wxPanel):
 		#--------------------------------------------------
 		#now create the editarea specific for past history
 		#-------------------------------------------------
-		self.editarea = gmEditArea.EditArea(self,-1,pasthistoryprompts,gmSECTION_PASTHISTORY)
+		#self.editarea = gmEditArea.EditArea(self,-1,pasthistoryprompts,gmSECTION_PASTHISTORY)
+		self.editarea = gmEditArea.gmPastHistoryEditArea(self,-1)
 		self.dummypanel2 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
 		self.dummypanel2.SetBackgroundColour(wxColor(222,222,222))
 		#-----------------------------------------------

@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.23 2003-05-26 14:16:16 sjtan Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmEditArea.py,v 1.24 2003-05-26 15:14:36 sjtan Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "R.Terry, K.HIlbert"
 #====================================================================
 import sys
@@ -25,6 +25,7 @@ from PropertySupport import *
 from wxPython.wx import *
 
 from  gmTestEvent import *
+import traceback
 
 ID_PROGRESSNOTES = wxNewId()
 gmSECTION_SUMMARY = 1
@@ -127,7 +128,8 @@ richards_coloured_gray = wxColor(131,129,131)
 
 _known_edit_area_types = [
 	'allergy',
-	'family history'
+	'family history',
+	'past history'
 ]
 
 allergyDate = "Date"
@@ -151,6 +153,14 @@ _prompt_defs = {
 		_("Significance"),
 		_("Progress Notes"),
 		""
+	],
+	'past history': [
+		_("Condition"),
+		_("Notes"),
+		_("More Notes"),
+		_("Age"),
+		_("Year"), "" ,
+		_("Progress Notes") , ""
 	]
 }
 
@@ -457,6 +467,86 @@ class gmFamilyHxEditArea(gmEditArea):
 		lines.append(szr)
 
 		return lines
+
+
+class gmPastHistoryEditArea(gmEditArea):
+	def __init__(self, parent, id):
+		try:
+			gmEditArea.__init__(self, parent, id, aType = 'past history')
+		except gmExceptions.ConstructorError:
+			traceback.print_exc()
+			_log.LogExceptions('cannot instantiate past Hx edit area', sys.exc_info())
+			raise
+	#----------------------------------------------------------------
+	def _make_edit_lines(self, parent):
+		_log.Log(gmLog.lData,	"making past Hx lines")
+		lines = []
+		#self.gszr = wxGridSizer( 8, 1, 2, 2)
+		self.txt_condition = cEditAreaField(parent, PHX_CONDITION,wxDefaultPosition,wxDefaultSize)
+		self.rb_sideleft = wxRadioButton(parent, PHX_LEFT, _(" (L) "), wxDefaultPosition,wxDefaultSize)
+		self.rb_sideright = wxRadioButton(parent,  PHX_RIGHT, _("(R)"), wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
+		self.rb_sideboth = wxRadioButton(parent,  PHX_BOTH, _("Both"), wxDefaultPosition,wxDefaultSize)
+		rbsizer = wxBoxSizer(wxHORIZONTAL)
+		rbsizer.Add(self.rb_sideleft,1,wxEXPAND)
+		rbsizer.Add(self.rb_sideright,1,wxEXPAND) 
+		rbsizer.Add(self.rb_sideboth,1,wxEXPAND)
+		szr1 = wxBoxSizer(wxHORIZONTAL)
+		szr1.Add(self.txt_condition, 4, wxEXPAND)
+		szr1.Add(rbsizer, 3, wxEXPAND)
+		lines.append(szr1)
+#			self.sizer_line1.Add(self.rb_sideleft,1,wxEXPAND|wxALL,2)
+#			self.sizer_line1.Add(self.rb_sideright,1,wxEXPAND|wxALL,2)
+#			self.sizer_line1.Add(self.rb_sideboth,1,wxEXPAND|wxALL,2)
+		# line 2A
+		
+		self.txt_notes1 = cEditAreaField(parent, PHX_NOTES,wxDefaultPosition,wxDefaultSize)
+		lines.append(self.txt_notes1)
+		# line 3
+		self.txt_notes2= cEditAreaField(parent, PHX_NOTES2,wxDefaultPosition,wxDefaultSize)
+		lines.append(self.txt_notes2)
+		# line 4
+		self.txt_agenoted = cEditAreaField(parent,  PHX_AGE, wxDefaultPosition, wxDefaultSize)
+		szr4 = wxBoxSizer(wxHORIZONTAL)
+		szr4.Add(self.txt_agenoted, 1, wxEXPAND)
+		szr4.Add(5, 0, 5)
+		lines.append(szr4)
+		# line 5
+		self.txt_yearnoted  = cEditAreaField(parent, PHX_YEAR,wxDefaultPosition,wxDefaultSize)
+		szr5 = wxBoxSizer(wxHORIZONTAL)
+		szr5.Add(self.txt_yearnoted, 1, wxEXPAND)
+		szr5.Add(5, 0, 5)
+		lines.append(szr5)
+		# line 6
+		self.cb_active = wxCheckBox(parent,  PHX_ACTIVE, _("Active"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		self.cb_operation = wxCheckBox(parent,  PHX_OPERATION, _("Operation"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		self.cb_confidential = wxCheckBox(parent,  PHX_CONFIDENTIAL , _("Confidential"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		self.cb_significant = wxCheckBox(parent,  PHX_SIGNIFICANT, _("Significant"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		szr6 = wxBoxSizer(wxHORIZONTAL)
+		szr6.Add(self.cb_active, 1, wxEXPAND)
+		szr6.Add(self.cb_operation, 1, wxEXPAND)
+		szr6.Add(self.cb_confidential, 1, wxEXPAND)
+		szr6.Add(self.cb_significant, 1, wxEXPAND)
+		lines.append(szr6)
+		# line 7
+		self.txt_progressnotes  = cEditAreaField(parent, PHX_PROGRESSNOTES ,wxDefaultPosition,wxDefaultSize)
+		lines.append(self.txt_progressnotes)
+		# line 8
+		szr8 = wxBoxSizer(wxHORIZONTAL)
+		szr8.Add(5, 0, 6)
+		szr8.Add(self._make_standard_buttons(parent), 0, wxEXPAND)
+		lines.append(szr8)
+		return lines
+		self.gszr.Add(szr1,0,wxEXPAND)
+		self.gszr.Add(self.txt_notes1,0,wxEXPAND)
+		self.gszr.Add(self.txt_notes2,0,wxEXPAND)
+		self.gszr.Add(szr4,0,wxEXPAND)
+		self.gszr.Add(szr5,0,wxEXPAND)
+		self.gszr.Add(szr6,0,wxEXPAND)
+		self.gszr.Add(self.txt_progressnotes,0,wxEXPAND)
+		self.gszr.Add(szr8,0,wxEXPAND)
+		#self.anylist = wxListCtrl(self, -1,  wxDefaultPosition,wxDefaultSize,wxLC_REPORT|wxLC_LIST|wxSUNKEN_BORDER)
+
+
 #====================================================================
 #====================================================================
 #Class which shows a blue bold label left justified
@@ -508,6 +598,7 @@ class EditTextBoxes(wxPanel):
 		elif section == gmSECTION_FAMILYHISTORY:
 			pass
 		elif section == gmSECTION_PASTHISTORY:
+			pass
 			# line 1
 			
 			self.txt_condition = cEditAreaField(self,PHX_CONDITION,wxDefaultPosition,wxDefaultSize)
@@ -996,9 +1087,16 @@ if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 200))
 	app.SetWidget(gmFamilyHxEditArea, -1)
 	app.MainLoop()
+	app = wxPyWidgetTester(size = (400, 200))
+	app.SetWidget(gmPastHistoryEditArea, -1)
+	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.23  2003-05-26 14:16:16  sjtan
+# Revision 1.24  2003-05-26 15:14:36  sjtan
+#
+# ok , following the class style of gmEditArea refactoring.
+#
+# Revision 1.23  2003/05/26 14:16:16  sjtan
 #
 # now trying to use the global capitalized ID  to differentiate fields through one
 # checkbox, text control , button event handlers. Any controls without ID need
