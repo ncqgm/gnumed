@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -962,6 +962,10 @@ def show_msg(aMsg = None):
 #==================================================================
 if __name__ == "__main__":
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
+	if _cfg is None:
+		_log.Log(gmLog.lPanic, "Cannot work without config file.")
+		exit_with_msg("Cannot find config file.\nFormat is --conf-file=<file name>.")
+
 	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
 
 	print "Bootstrapping GnuMed database system..."
@@ -1009,7 +1013,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.3  2003-02-27 09:20:58  ncq
+# Revision 1.4  2003-03-23 03:51:27  ncq
+# - fail gracefully on missing config file
+#
+# Revision 1.3  2003/02/27 09:20:58  ncq
 # - added TODO
 #
 # Revision 1.2  2003/02/25 08:29:25  ncq
