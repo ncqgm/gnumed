@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.36 2004-09-18 13:51:56 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmPathLab.py,v 1.37 2004-09-29 10:25:04 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -211,18 +211,18 @@ class cLabRequest(gmClinItem.cClinItem):
 class cTestType(gmClinItem.cClinItem):
 	"""Represents one test result type."""
 
-	_cmd_fetch_payload = """select * from test_type where id=%s"""
+	_cmd_fetch_payload = """select * from test_type where pk=%s"""
 
 	_cmds_store_payload = [
-		"""select 1 from test_type where id=%(id)s for update""",
+		"""select 1 from test_type where pk=%(pk)s for update""",
 		"""update test_type set
 				fk_test_org=%(fk_test_org)s,
 				code=%(code)s,
 				coding_system=%(coding_system)s,
 				name=%(name)s,
 				comment=%(comment)s,
-				basic_unit=%(basic_unit)s
-			where id=%(id)s"""
+				conversion_unit=%(conversion_unit)s
+			where pk=%(pk)s"""
 	]
 
 	_updatable_fields = [
@@ -231,7 +231,7 @@ class cTestType(gmClinItem.cClinItem):
 		'coding_system',
 		'name',
 		'comment',
-		'basic_unit'
+		'conversion_unit'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, lab=None, code=None, name=None):
@@ -257,7 +257,7 @@ class cTestType(gmClinItem.cClinItem):
 				where_snippets.append('name=%(name)s')
 				vals['name'] = name
 			where_clause = ' and '.join(where_snippets)
-			cmd = "select id from test_type where %s" % where_clause
+			cmd = "select pk from test_type where %s" % where_clause
 			data = gmPG.run_ro_query('historica', cmd, None, vals)
 			# error
 			if data is None:
@@ -309,7 +309,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.36 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.37 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -340,7 +340,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	val_snippets.append('%(code)s')
 	vals['code'] = code
 	# unit
-	cols.append('basic_unit')
+	cols.append('conversion_unit')
 	val_snippets.append('%(unit)s')
 	vals['unit'] = unit
 	# name
@@ -354,7 +354,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	queries = []
 	cmd = "insert into test_type(%s) values (%s)" % (col_clause, val_clause)
 	queries.append((cmd, [vals]))
-	cmd = "select currval('test_type_id_seq')"
+	cmd = "select currval('test_type_pk_seq')"
 	queries.append((cmd, []))
 	# insert new
 	result, err = gmPG.run_commit('historica', queries, True)
@@ -392,7 +392,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.36 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.37 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -631,7 +631,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.36  2004-09-18 13:51:56  ncq
+# Revision 1.37  2004-09-29 10:25:04  ncq
+# - basic_unit->conversion_unit
+#
+# Revision 1.36  2004/09/18 13:51:56  ncq
 # - support val_target_*
 #
 # Revision 1.35  2004/07/02 00:20:54  ncq
