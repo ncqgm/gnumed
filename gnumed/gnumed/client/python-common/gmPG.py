@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.78 $"
+__version__ = "$Revision: 1.79 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -209,11 +209,10 @@ class ConnectionPool:
 		return conn
 	#-----------------------------
 	def GetConnectionUnchecked(self, service = "default", readonly = 1, encoding = None):
-		"""if a distributed service exists, return it - otherwise return the default server"""
 		_log.Log(gmLog.lErr, 'use of GetConnectionUnchecked() deprecated')
 	#-----------------------------
 	def ReleaseConnection(self, service):
-		"decrease reference counter of active connection"
+		"""decrease reference counter of active connection"""
 		if ConnectionPool.__databases.has_key(service):
 			try:
 				ConnectionPool.__connections_in_use[service] -= 1
@@ -755,6 +754,47 @@ def get_fkey_defs(source, table):
 
 	return references
 #---------------------------------------------------
+def table_exists(source, table):
+	"""Returns false or true.
+
+	source: cursor, connection or GnuMed service name
+	"""
+	manage_connection = 0
+	close_cursor = 1
+	# is it a cursor ?
+	if hasattr(source, 'fetchone') and hasattr(source, 'description'):
+		close_cursor = 0
+		curs = source
+	# is it a connection ?
+	elif (hasattr(source, 'commit') and hasattr(source, 'cursor')):
+		curs = source.cursor()
+	# take it to be a service name then
+	else:
+		manage_connection = 1
+		pool = ConnectionPool()
+		conn = pool.GetConnection(source)
+		if conn is None:
+			_log.Log(gmLog.lErr, 'cannot check for table [%s] in source [%s]' % (table, source))
+			return None
+		curs = conn.cursor()
+
+	cmd = "SELECT exists(select oid FROM pg_class where relname = %s)"
+	if not run_query(curs, cmd, table):
+		if close_cursor:
+			curs.close()
+		if manage_connection:
+			pool.ReleaseConnection(source)
+		_log.Log(gmLog.lErr, 'cannot check for table [%s] in source [%s]' % (table, source))
+		return None
+
+	exists = curs.fetchone()[0]
+	if close_cursor:
+		curs.close()
+	if manage_connection:
+		pool.ReleaseConnection(source)
+
+	return exists
+#---------------------------------------------------
 def getBackendName():
 	return __backend
 #---------------------------------------------------
@@ -964,7 +1004,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.78  2003-09-30 19:08:31  ncq
+# Revision 1.79  2003-10-19 12:13:24  ncq
+# - add table_exists() helper
+#
+# Revision 1.78  2003/09/30 19:08:31  ncq
 # - add helper get_fkey_defs()
 #
 # Revision 1.77  2003/09/23 14:40:30  ncq
