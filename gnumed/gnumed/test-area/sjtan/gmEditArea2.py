@@ -859,10 +859,22 @@ class EditArea2(wxPanel):
 		return s
 
 	def _getTargetFields(self, target):
+		print "mappings for target", self.mapping
 		fields = []
+		traceField = {}
 		for (widgetName, v) in self.mapping.items():
 			(table, field) = v.split('.')
-			if table == target or self.isWriteMapping( widgetName, field,  target):
+			if table == target :
+				fields.append( (field, self.getWidgetByName(widgetName)) )
+				traceField[widgetName] = len(fields) -1
+
+		print "write mappings are", self.writeMapping
+		for (widgetName, v) in self.writeMapping.items():
+			(table, field) = v.split('.')
+			if self.isWriteMapping( widgetName, field,  target):
+				print "appending write mapping", target, field, " for ", widgetName
+				if widgetName in traceField:
+					del fields[traceField[widgetName]]
 				fields.append( (field, self.getWidgetByName(widgetName)) )
 		return fields
 
@@ -878,6 +890,8 @@ class EditArea2(wxPanel):
 			fieldTrace[field] = table
 
 		#write mappings need to be overlayed
+		print "write mappings are", self.writeMapping
+
 		for widgetName in self.getWidgetNames():
 			(table, field) = self.writeMapping.get(widgetName, ".").split(".")
 			if (table ==""):
@@ -923,7 +937,7 @@ class EditArea2(wxPanel):
 
 		
 		fields = self._getTargetFields(target)	
-		print "fields = ", fields
+		print "_getTargetFields(fields) = ", fields
 		
 		fieldList = []
 		valueList = []
@@ -1282,8 +1296,8 @@ class MedicationEditArea(EditArea2):
 		self.map("veteran", "prescription.veteran")
 		self.map("reg 24", "prescription.reg_24")
 		self.map("direction", "prescription.direction")
-		self.map("for", "disease_code.description")
-		self.map("for", "prescription.for_condition", order=1)
+		self.map("for", "disease_code.description", order = 0)
+		self.map("for", "prescription.for_condition", order = 1)
 		self.map("usual", "prescription.usual")
 
 		self.ext_ref("prescription", "identity")
