@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.33 $
+-- $Revision: 1.34 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -103,7 +103,7 @@ comment on column test_type.conversion_unit is
 	 order to be comparable to OTHER results';
 
 -- ====================================
-create table test_type_local (
+create table test_type_unified (
 	pk serial primary key,
 	code text
 		not null,
@@ -115,7 +115,7 @@ create table test_type_local (
 	unique (code, name)
 );
 
-comment on table test_type_local is
+comment on table test_type_unified is
 	'this table merges test types from various test orgs
 	 which are intended to measure the same value but have
 	 differing names into one logical test type,
@@ -123,16 +123,16 @@ comment on table test_type_local is
 	 semantically different test types into "profiles"';
 
 -- ====================================
-create table lnk_ttype2local_type (
+create table lnk_ttype2unified_type (
 	pk serial primary key,
 	fk_test_type integer
 		not null
 		references test_type(pk)
 		on update cascade
 		on delete cascade,
-	fk_test_type_local integer
+	fk_test_type_unified integer
 		not null
-		references test_type_local(pk)
+		references test_type_unified(pk)
 		on update cascade
 		on delete restrict
 );
@@ -166,6 +166,7 @@ create table test_result (
 		not null
 		references test_type(pk),
 	val_num numeric
+--	val_num float
 		default null
 		check (
 			((val_num is not null) or (val_alpha is not null))
@@ -380,11 +381,15 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.33 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.34 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.33  2004-10-17 16:27:15  ncq
+-- Revision 1.34  2005-02-07 13:09:48  ncq
+-- - test_type_local -> test_type_unified as discussed on list
+-- - lnk_ttype2local_type -> lnk_ttype2unified_type
+--
+-- Revision 1.33  2004/10/17 16:27:15  ncq
 -- - val_num: float -> numeric + fix views
 -- - clin_when::date in prescribed_after_started constraint
 --
