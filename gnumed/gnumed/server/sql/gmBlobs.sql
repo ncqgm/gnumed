@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.29 $ $Date: 2003-01-24 14:32:27 $ $Author: ncq $
+-- $Revision: 1.30 $ $Date: 2003-01-24 23:30:52 $ $Author: ncq $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -25,6 +25,7 @@ INSERT into doc_type(name) values(i18n('discharge summary psychiatric'));
 INSERT into doc_type(name) values(i18n('discharge summary neurological'));
 INSERT into doc_type(name) values(i18n('discharge summary orthopaedic'));
 INSERT into doc_type(name) values(i18n('discharge summary other'));
+INSERT into doc_type(name) values(i18n('discharge summary rehabilitation'));
 
 INSERT into doc_type(name) values(i18n('referral report internal'));
 INSERT into doc_type(name) values(i18n('referral report surgical'));
@@ -123,7 +124,7 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.29 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.30 $');
 
 -- =============================================
 -- questions:
