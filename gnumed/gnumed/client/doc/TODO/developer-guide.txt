@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.21 $
+$Revision: 1.22 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -237,10 +237,4 @@ addition to CVS guidelines:
 
 set the execute bit on those files only that are actually
 supposed to get executed directly
---------------------------------------------------------------
-Sam 05 Jul 2003 16:50:49 CEST  Karsten.Hilbert@gmx.net
-
-Section "Logging in" (2.2.4.1) in the Dev Guide:
-
-Move to User Manual
 ---------------------------------------------------
