@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.123 2005-01-31 19:42:53 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.124 2005-01-31 19:49:39 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -206,7 +206,7 @@ begin
 			-- get it from attached health issue
 			select into patient_id id_patient
 				from clin_health_issue
-				where pk = OLD.fk_health_issue;
+				where id = OLD.fk_health_issue;
 		else
 			patient_id := OLD.fk_patient;
 		end if;
@@ -216,7 +216,7 @@ begin
 			-- get it from attached health issue
 			select into patient_id id_patient
 				from clin_health_issue
-				where pk = NEW.fk_health_issue;
+				where id = NEW.fk_health_issue;
 		else
 			patient_id := NEW.id_patient;
 		end if;
@@ -1644,11 +1644,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.123 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.124 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.123  2005-01-31 19:42:53  ncq
+-- Revision 1.124  2005-01-31 19:49:39  ncq
+-- - clin_health_issue does not yet follow primary key == pk
+--
+-- Revision 1.123  2005/01/31 19:42:53  ncq
 -- - add 2 missing "end if;"
 --
 -- Revision 1.122  2005/01/31 19:12:26  ncq
