@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.56 $
+-- $Revision: 1.57 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -389,13 +389,15 @@ comment on table drug_routes is
 comment on column drug_routes.description is
 'administration route of a drug like "oral", "sublingual", "intravenous" ...';
 
-create table drugchart
-(
+-- --------------------------------------------
+-- IMHO this needs considerably more thought
+create table curr_medication (
 	id serial primary key,
-	started date,
-	last_prescribed date,
-	brandname varchar (200) default 'GENERIC',
-	directions text,
+	-- administrative data
+	started date not null,
+	last_prescribed date not null,
+	-- medical data
+	brandname text default 'GENERIC',
 	adjuvant text,
 	db_xref varchar (128) not null,
 	atc_code varchar (32),
@@ -404,6 +406,7 @@ create table drugchart
 	packsize integer,
 	id_route integer references drug_routes (id) not null,
 	id_form integer references drug_formulations (id) not null,
+	directions text,
 	prn boolean,
 	weekly float,
 	mane float,
@@ -411,8 +414,9 @@ create table drugchart
 	vesper float,
 	nocte float
 ) inherits (clin_root_item);
+-- needs to inherit from audit_mark for auditing when stabilized
 
-comment on table drugchart is
+comment on table curr_medication is
 'Representing what the patient is taking *now*, not a simple log
 of prescriptions. The forms engine will record each script and all its fields
 The audit mechanism will record all changes to this table.
@@ -424,25 +428,35 @@ Applications should try in this order:
 - ATC code
 - generic name(s) (in constituents)
 ';
-comment on column drugchart.last_prescribed is
-'date last script written, for compliance checking';
-comment on column drugchart.fluid_amount is 'for fluid drugs, the amount of fluid in each bottle/tube, etc. Otherwise 1.0. The total amount dispensed is always fluid_amount*packsize';
-comment on column drugchart.prn is 'true if "pro re nata" (= as required)';
-comment on column drugchart.directions is 'free text for directions, such as ''with food'' etc';
-comment on column drugchart.adjuvant is 'free text describing adjuvants, such as ''orange-flavoured'' etc.';
-comment on column drugchart.weekly is 'for drugs taken one/tweice a twice, such as bisphosphonates, metotrexate, etc., NULL otherwise. If non-NULL, overrides other dosing fields.';
-comment on column drugchart.mane is 'amount taken in the morning.';
-comment on column drugchart.midi is 'midday';
-comment on column drugchart.vesper is 'evening';
-comment on column drugchart.nocte is 'nighttime';
+comment on column curr_medication.started is
+	'- when did patient start to take this medication
+	 - in most cases the date of the first prescription
+	   but not always
+	 - for newly prescribed drugs identical to last_prescribed';
+comment on column curr_medication.last_prescribed is
+	'date last script written, for compliance checking';
+comment on column curr_medication.fluid_amount is
+	'for fluid drugs, the amount of fluid in each bottle/tube,
+	 etc. Otherwise 1.0. The total amount dispensed is always
+	 fluid_amount*packsize';
+comment on column curr_medication.prn is 'true if "pro re nata" (= as required)';
+comment on column curr_medication.directions is 'free text for directions, such as ''with food'' etc';
+comment on column curr_medication.adjuvant is 'free text describing adjuvants, such as ''orange-flavoured'' etc.';
+comment on column curr_medication.weekly is 'for drugs taken one/tweice a twice, such as bisphosphonates, metotrexate, etc., NULL otherwise. If non-NULL, overrides other dosing fields.';
+comment on column curr_medication.mane is 'amount taken in the morning.';
+comment on column curr_medication.midi is 'midday';
+comment on column curr_medication.vesper is 'evening';
+comment on column curr_medication.nocte is 'nighttime';
 
+-- --------------------------------------------
+-- IMHO this does not belong in here
 create table constituents
 (
 	id serial primary key,
 	genericname varchar (100),
 	dose float,
 	dose_unit integer references drug_units (id),
-	id_drug integer references drugchart (id)
+	id_drug integer references curr_medication (id)
 );
 
 comment on table constituents is
@@ -531,11 +545,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.56 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.57 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.56  2003-08-10 07:43:11  ihaywood
+-- Revision 1.57  2003-08-13 14:30:29  ncq
+-- - drugchart -> curr_medication
+-- - cleanup
+--
+-- Revision 1.56  2003/08/10 07:43:11  ihaywood
 -- new drug tables
 --
 -- Revision 1.55  2003/07/27 22:01:05  ncq
