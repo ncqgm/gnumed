@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -145,7 +145,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 
 		# - stack them atop each other
 		self.szr_stacked_rows = wxBoxSizer(wxVERTICAL)
-		self.szr_stacked_rows.Add(1, 3, 0, wxEXPAND)	# ??? (IMHO: space is at too much of a premium for such padding)
+		self.szr_stacked_rows.Add((1, 3), 0, wxEXPAND)	# ??? (IMHO: space is at too much of a premium for such padding)
 		self.szr_stacked_rows.Add(self.szr_top_row, 1, wxEXPAND)
 		self.szr_stacked_rows.Add(self.szr_bottom_row, 1, wxEXPAND | wxALL, 2)
 
@@ -344,7 +344,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.38  2004-05-18 22:39:15  ncq
+# Revision 1.39  2004-05-28 09:03:54  shilbert
+# - fix sizer setup to enable it on wxMac
+#
+# Revision 1.38  2004/05/18 22:39:15  ncq
 # - work with episode objects now
 #
 # Revision 1.37  2004/05/18 20:43:17  ncq
