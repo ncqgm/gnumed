@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.113 2004-06-02 22:18:14 ncq Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmClinicalRecord.py,v 1.114 2004-06-08 00:43:26 ncq Exp $
+__version__ = "$Revision: 1.114 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -988,6 +988,7 @@ class cClinicalRecord:
 			patient_id = self.id_patient,
 			episode_id = self.__episode['id_episode'],
 			encounter_id = self.__encounter['pk_encounter'],
+			staff_id = _whoami.get_staff_ID(),
 			vaccine = vaccine
 		)
 	#------------------------------------------------------------------
@@ -1221,7 +1222,6 @@ insert into allergy (
 	def get_past_history(self):
 		if not self.__dict__.has_key('past_history'):
 			from gmPastHistory import gmPastHistory
-#			from gmEditAreaFacade import gmPHxEditAreaDecorator
 			phx  = gmPastHistory(self._backend, self)
 			self.past_history = gmPHxEditAreaDecorator(phx)
 		return self.past_history
@@ -1313,7 +1313,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.113  2004-06-02 22:18:14  ncq
+# Revision 1.114  2004-06-08 00:43:26  ncq
+# - add staff_id to add_allergy, unearthed by unittest
+#
+# Revision 1.113  2004/06/02 22:18:14  ncq
 # - fix my broken streamlining
 #
 # Revision 1.112  2004/06/02 22:11:47  ncq
