@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-02-01 11:57:56 $
-# @version $Revision: 1.64 $ $Date: 2003-02-01 11:57:56 $ $Author: ncq $
+# @Date: $Date: 2003-02-01 21:59:42 $
+# @version $Revision: 1.65 $ $Date: 2003-02-01 21:59:42 $ $Author: michaelb $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.64 $"
+__version__ = "$Revision: 1.65 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -63,7 +63,6 @@ ID_ABOUT = wxNewId ()
 ID_EXIT = wxNewId ()
 ID_HELP = wxNewId ()
 ID_NOTEBOOK = wxNewId ()
-ID_MENU = wxNewId ()
 #==================================================
 class MainFrame(wxFrame):
 	"""GNUmed client's main windows frame.
@@ -314,14 +313,15 @@ class MainFrame(wxFrame):
 
 		# intra-client signals
 		gmDispatcher.connect(self.OnPatientChanged, gmSignals.patient_selected())
-	#----------------------------------------------		
+	#----------------------------------------------
 	def OnPatientChanged(self, **kwargs):
 		kwds = kwargs['kwds']
 		patient = "%(title)s %(firstnames)s %(lastnames)s (%(dob)10.10s) #%(ID)d" % (kwds)
 		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
 	def OnAbout(self, event):
-		gmAbout = AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wxMAXIMIZE_BOX)
+		import gmAbout
+		gmAbout=gmAbout.AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wxMAXIMIZE_BOX)
 		gmAbout.Centre(wxBOTH)
 		MainFrame.otherWin = gmAbout
 		gmAbout.Show(true)
@@ -347,11 +347,11 @@ class MainFrame(wxFrame):
 		t = time.localtime(time.time())
 		st = time.strftime(gmTimeformat, t)
 		self.SetStatusText(st,1)
-	#----------------------------------------------	
+	#----------------------------------------------
 	def CreateMenu(self):
 		"""Create the main menu entries. Individual entries are
 		farmed out to the modules"""
- 			
+
 		self.mainmenu = wxMenuBar()
 		self.guibroker['main.mainmenu']=self.mainmenu
 		self.menu_file = wxMenu()
@@ -372,7 +372,7 @@ class MainFrame(wxFrame):
 		self.mainmenu.Append(self.menu_tools, "&Tools");
 		self.mainmenu.Append(self.menu_help, "&Help");
 		self.SetMenuBar(self.mainmenu)
-	#---------------------------------------------- 		 
+	#----------------------------------------------
 	def Lock(self):
 		"Lock GNUmed client against unauthorized access"
 		#TODO
@@ -457,110 +457,6 @@ class MainFrame(wxFrame):
 		icon = wxEmptyIcon()
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
-#==================================================
-class AboutFrame (wxFrame, MainFrame):
-	"""
-	About GnuMed
-	"""
-	
-	__scroll_ctr=0
-	__scroll_list=['z', 'e', 'a', 'n', 'r', 'A', ' ', 'o', 'd', 'r', 'a', 'r', 'e', 'G', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '', '', '', '', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '', '', '', '', '', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', '', '', 'r', 'e', 'g', 'r', 'e', 'B', ' ', 'r', 'a', 'm', 'l', 'i', 'H',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 't', 'r', 'e', 'n', 'o', 'B', ' ', 'l',
-'e', 'a', 'h', 'c', 'i', 'M', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-'', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'd', 'd',
-'o', 'D', ' ', 'h', 't', 'e', 'b', 'a', 'z', 'i', 'l', 'E', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-'', '', '', '', '', '', 'r', 'e', 'b', 'u', 'r', 'G', ' ', 't', 'r', 'e', 'b', 'l', 'e', 'g', 'n', 'E', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'd', 'o', 'o', 'w', 'y', 'a', 'H',
-' ', 'n', 'a', 'I', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-'', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'y', 'r', 'r', 'e', 'T',
-' ', 'd', 'r', 'a', 'h', 'c', 'i', 'R', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-'', '', '', '', '', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-' ', ' ', ' ', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-'', 'l', 'e', 'h', 'c', 'i', 'M', ' ', 'y', 'r', 'r', 'e', 'i', 'h', 'T', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', '', '', '', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', 'e', 'l', 'l', 'i', 'T', ' ', 's', 'a', 'e', 'r', 'd', 'n', 'A', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '', '', '', '', '', '',
-'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-
-
-	def __init__(self, parent, ID, title, pos=wxDefaultPosition, size=wxDefaultSize, style=wxDEFAULT_FRAME_STYLE):
-		wxFrame.__init__(self, parent, ID, title, pos, size, style)
-
-		icon = wxEmptyIcon()
-		icon.CopyFromBitmap(wxBitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_gui_main))))
-		self.SetIcon(icon)
-
-		box = wxBoxSizer(wxVERTICAL)
-		box.Add(0,0, 2)
-		box.Add(wxStaticText(self, -1, _("Monty the Serpent && the FSF Present")), 0, wxALIGN_CENTRE)
-		box.Add(0,0, 3)
-		txt=wxStaticText(self, -1, _("GnuMed"))
-		txt.SetFont(wxFont(30, wxSWISS, wxNORMAL, wxNORMAL))
-		box.Add(txt, 0, wxALIGN_CENTRE)
-		box.Add(wxStaticText(self, -1, _("Free eMedicine")), 0, wxALIGN_CENTRE)
-		box.Add(0,0, 4)
-		box.Add(wxStaticText(self, -1, _("Version [CVS %s] brought to you by") % __version__ ), 0, wxALIGN_CENTRE)
-		box.Add(wxStaticText(self, -1, _("Drs Horst Herb && Karsten Hilbert")), 0, wxALIGN_CENTRE)
-
-		self.changing_txt=wxTextCtrl(self, -1, "", size=(230,20))
-		box.Add(self.changing_txt, 0, wxALIGN_CENTRE)
-		box.Add(0,0, 1)
-		box.Add(wxStaticText(self, -1, _("Please visit http://www.gnumed.org/ for more info")), 0, wxALIGN_CENTRE)
-		box.Add(0,0, 1)
-
-		btn = wxButton(self, ID_MENU , _("Close"))
-		box.Add(btn,0, wxALIGN_CENTRE)
-		box.Add(0,0, 1)
-		EVT_BUTTON(btn, ID_MENU, self.OnClose)
-
-		EVT_TIMER(self, -1, self.OnTimer)
-		self.timer = wxTimer(self, -1)
-		self.timer.Start(40)
-
-		self.SetAutoLayout(true)
- 		self.SetSizer(box)
- 		self.Layout()
-
-	def OnClose (self, event):
-		self.timer.Stop ()
-		self.Destroy ()
-
-	def OnTimer(self, evt):
-		self.changing_txt.Replace(0,0,self.__scroll_list[self.__scroll_ctr])	# some trickery here
-		self.__scroll_ctr=self.__scroll_ctr+1
-		if(self.__scroll_ctr>1147):
-			self.__scroll_ctr=0
 
 #==================================================
 class gmApp(wxApp):
@@ -618,7 +514,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.64  2003-02-01 11:57:56  ncq
+# Revision 1.65  2003-02-01 21:59:42  michaelb
+# moved 'About GnuMed' into module; gmGuiMain version no longer displayed in about box
+#
+# Revision 1.64  2003/02/01 11:57:56  ncq
 # - display gmGuiMain version in About box
 #
 # Revision 1.63  2003/02/01 07:10:50  michaelb
