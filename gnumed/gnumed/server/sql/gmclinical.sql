@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.152 $
+-- $Revision: 1.153 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -83,9 +83,9 @@ create table clin_episode (
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
-	fk_clin_narrative integer
-		unique
-		default null,
+	description text
+		not null
+		check (trim(description) != ''),
 	is_open boolean
 		default true
 ) inherits (audit_fields);
@@ -108,10 +108,8 @@ comment on column clin_episode.fk_patient is
 	'patient this episode belongs to,
 	 may only be set if fk_health_issue is Null
 	 thereby removing redundancy';
-comment on column clin_episode.fk_clin_narrative is
-	'narrative row naming this episode,
-	 the foreign key constraint is added later
-	 (after creating the clin_narrative table)';
+comment on column clin_episode.description is
+	'description/name of this episode';
 comment on column clin_episode.is_open is
 	'whether the episode is open (eg. there is activity for it),
 	 means open in a temporal sense as in "not closed yet"';
@@ -304,9 +302,10 @@ create table lnk_type2item (
 		on delete cascade,
 	fk_item integer
 		not null
-		references clin_root_item(pk_item)
-		on update cascade
-		on delete cascade,
+--		references clin_root_item(pk_item)
+--		on update cascade
+--		on delete cascade
+		,
 	unique (fk_type, fk_item)
 ) inherits (audit_fields);
 
@@ -314,6 +313,13 @@ select add_table_for_audit('lnk_type2item');
 
 comment on table lnk_type2item is
 	'allow to link many-to-many between clin_root_item and clin_item_type';
+comment on column lnk_type2item.fk_item is
+	'the item this type is linked to,
+	 since PostgreSQL apparently cannot reference a value
+	 inserted from a child table (?) we must simulate
+	 referential integrity checks with a custom trigger,
+	 this, however, does not deal with update/delete
+	 cascading :-(';
 
 -- ============================================
 -- specific EMR content tables: SOAP++
@@ -337,7 +343,7 @@ alter table clin_narrative add constraint rfe_is_subj
 alter table clin_narrative add constraint aoe_is_assess
 	check ((is_aoe is false) or (is_aoe is true and soap_cat='a'));
 alter table clin_narrative add constraint narrative_not_empty
-	check (coalesce(narrative, '') != '');
+	check (coalesce(trim(narrative), '') != '');
 
 select add_table_for_audit('clin_narrative');
 
@@ -355,15 +361,15 @@ comment on column clin_narrative.is_aoe is
 	'if TRUE the narrative stores an Assessment of Encounter
 	 which also implies soap_cat = a';
 
-alter table clin_episode
-add constraint rfi_fk_clin_narrative
-	foreign key (fk_clin_narrative)
-		references clin_narrative(pk)
-		on update cascade
-		on delete restrict
-		deferrable
-		initially deferred
-;
+--alter table clin_episode
+--add constraint rfi_fk_clin_narrative
+--	foreign key (fk_clin_narrative)
+--		references clin_narrative(pk)
+--		on update cascade
+--		on delete restrict
+--		deferrable
+--		initially deferred
+--;
 
 -- --------------------------------------------
 create table lnk_code2narr (
@@ -389,6 +395,66 @@ comment on column lnk_code2narr.code is
 	'the code in the coding system';
 comment on column lnk_code2narr.xfk_coding_system is
 	'the coding system used to code the narrative item';
+
+-- --------------------------------------------
+create table clin_hx_family (
+	pk serial primary key,
+	fk_narrative integer
+		unique
+		not null
+		references clin_narrative(pk)
+		on update cascade
+		on delete restrict,
+	relationship text
+		not null,
+	name_relative text
+		default null,
+	dob_relative timestamp with time zone
+		default null,
+	fk_relative integer
+		default null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete set null,
+	age_noted text,
+	age_of_death interval
+		default null,
+	is_cause_of_death boolean
+		not null
+		default false
+) inherits (audit_fields);
+
+alter table clin_hx_family add constraint either_fk_or_name_and_dob
+	check (
+		(fk_relative is not null and name_relative is null and dob_relative is null)
+			or
+		(fk_relative is null and coalesce(trim(name_relative), '') != '')
+	);
+
+-- FIXME: constraint trigger fk_narrative -> has_type(fHx)
+
+select add_table_for_audit('clin_hx_family');
+
+comment on table clin_hx_family is
+	'used to store family history items';
+comment on column clin_hx_family.fk_narrative is
+	'link to FHx-typed clin_narrative holding the
+	 condition the relative suffered from';
+comment on column clin_hx_family.relationship is
+	'how is the afflicted person related to the patient';
+comment on column clin_hx_family.name_relative is
+	'name of the relative if not also in database';
+comment on column clin_hx_family.dob_relative is
+	'DOB of relative if not also in database';
+comment on column clin_hx_family.fk_relative is
+	'foreign key to relative if also in database';
+comment on column clin_hx_family.age_noted is
+	'at what age the relative acquired the condition';
+comment on column clin_hx_family.age_of_death is
+	'at what age the relative died';
+comment on column clin_hx_family.is_cause_of_death is
+	'whether relative died of this problem, Richard
+	 suggested to allow that several times per relative';
 
 -- --------------------------------------------
 -- patient attached diagnoses
@@ -1083,11 +1149,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.152 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.153 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.152  2005-03-01 20:38:19  ncq
+-- Revision 1.153  2005-03-14 14:42:00  ncq
+-- - simplified episode naming
+-- - add clin_hx_family but not entirely happy with it yet
+--
+-- Revision 1.152  2005/03/01 20:38:19  ncq
 -- - varchar -> text
 --
 -- Revision 1.151  2005/02/21 18:36:31  ncq
