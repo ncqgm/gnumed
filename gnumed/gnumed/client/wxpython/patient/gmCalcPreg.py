@@ -7,15 +7,13 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Ian Haywood"
 
 from wxPython.wx import *
 from wxPython.calendar import *
 import math, zlib, cPickle
 import random
-
-import gmI18N
 
 ID_LNMP = wxNewId ()
 ID_DUE = wxNewId ()
