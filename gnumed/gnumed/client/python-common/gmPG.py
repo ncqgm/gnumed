@@ -11,11 +11,11 @@
 # to anybody else.
 #=======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
-import string, copy, os, sys, select, threading, time
+import string, copy, os, sys, time
 
 #gnumed specific modules
 import gmLog
@@ -262,7 +262,7 @@ class ConnectionPool:
 
 		if login is None and ConnectionPool.__connected is None:
 			try:
-				login = inputLoginParams()
+				login = request_login_params()
 			except:
 				_log.LogException("Exception: Cannot connect to databases without login information !", sys.exc_info(), fatal=1)
 				raise gmExceptions.ConnectionError("Can't connect to database without login information!")
@@ -495,70 +495,75 @@ def getBackendName():
 	return __backend
 #===================================================
 def prompted_input(prompt, default=None):
-	try:
-		res = raw_input(prompt)
-	except:
+	usr_input = raw_input(prompt)
+	if usr_input == '':
 		return default
-	if res == '':
-		return default
-	return res
-
+	return usr_input
 #---------------------------------------------------
-
-def inputTMLoginParams():
-	"""text mode input request of database login parameters"""
+def request_login_params_tui():
+	"""text mode request of database login parameters
+	"""
+	import getpass
 	login = gmLoginInfo.LoginInfo('', '')
+
+	print "\nPlease enter the required login parameters:"
 	try:
-		print "\nPlease enter the required login parameters:"
-		database = prompted_input("database [gnumed] : ", 'gnumed')
-		user = prompted_input("user name : ", '')
-		password = prompted_input("password : ",'')
-		host = prompted_input("host [localhost] : ", 'localhost')
-		port = prompted_input("port [5432] : ", 5432)
-		login.SetInfo(user, password, dbname=database, host=host, port=port)
-	except:
+		database = prompted_input("database [gnumed]: ", 'gnumed')
+		user = prompted_input("user name: ", '')
+		password = getpass.getpass("password (not shown): ")
+		host = prompted_input("host [localhost]: ", 'localhost')
+		port = prompted_input("port [5432]: ", 5432)
+	except KeyboardInterrupt:
+		_log.Log(gmLog.lWarn, "user cancelled text mode login dialog")
+		print "user cancelled text mode login dialog"
 		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
+
+	login.SetInfo(user, password, dbname=database, host=host, port=port)
 	return login
-
 #---------------------------------------------------
+def request_login_params_gui_wx():
+	"""GUI (wx) input request for database login parameters.
 
-def inputWXLoginParams():
-	"""GUI (wx) mode input request of database login parameters.
-	Returns gmLoginInfo.LoginInfo object"""
-
-	import sys, wxPython.wx
-	#the next statement will raise an exception if wxPython is not loaded yet
+	Returns gmLoginInfo.LoginInfo object
+	"""
+	import wxPython.wx
+	# the next statement will raise an exception if wxPython is not loaded yet
 	sys.modules['wxPython']
-	#OK, wxPython was already loaded. But has the main Application instance been initialized already?
-	#if not, the exception will kick us out
+	# OK, wxPython was already loaded. But has the main Application instance
+	# been initialized yet ? if not, the exception will kick us out
 	if wxPython.wx.wxGetApp() is None:
 		raise gmExceptions.NoGuiError(_("The wx GUI framework hasn't been initialized yet!"))
 
-	#Let's launch the login dialog
-	#if wx was not initialized /no main App loop, an exception should be raised anyway
+	# Let's launch the login dialog
+	# if wx was not initialized /no main App loop, an exception should be raised anyway
 	import gmLoginDialog
 	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
 	dlg.ShowModal()
 	login = dlg.panel.GetLoginInfo ()
+	dlg.Destroy()
+	del gmLoginDialog
+
 	#if user cancelled or something else went wrong, raise an exception
 	if login is None:
 		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
-	#memory cleanup, shouldn't really be neccessary
-	dlg.Destroy()
 
-	del gmLoginDialog
 	return login
-
 #---------------------------------------------------
-
-def inputLoginParams():
-	"input request for database backend login parameters. Try GUI dialog if available"
-	try:
-		login = inputWXLoginParams()
-	except:
-		login = inputTMLoginParams()
+def request_login_params():
+	"""Request login parameters for database connection.
+	"""
+	# are we inside X ?
+	if os.environ.has_key('DISPLAY'):
+		# try GUI
+		try:
+			login = request_login_params_gui_wx()
+			return login
+		except:
+			pass
+	# well, either we are on the console or
+	# wxPython does not work, use text mode
+	login = request_login_params_tui()
 	return login
-
 #==================================================================
 # Main
 #==================================================================
@@ -620,7 +625,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.35  2003-03-27 21:11:26  ncq
+# Revision 1.36  2003-04-07 00:40:45  ncq
+# - now finally also support running on the console (not within a terminal window inside X)
+#
+# Revision 1.35  2003/03/27 21:11:26  ncq
 # - audit for connection object leaks
 #
 # Revision 1.34  2003/02/24 23:17:32  ncq
