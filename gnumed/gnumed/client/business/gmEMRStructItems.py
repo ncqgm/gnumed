@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -20,15 +20,15 @@ _log.Log(gmLog.lInfo, __version__)
 class cHealthIssue(gmClinItem.cClinItem):
 	"""Represents one health issue.
 	"""
-	_cmd_fetch_payload = """select * from clin_health_issue where id=%s"""
-
+	_cmd_fetch_payload = """select *, xmin from clin_health_issue where id=%s"""
+	_cmds_lock_rows_for_update = [
+		"""select 1 from clin_health_issue where id=%(id)s and xmin=%(xmin)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from clin_health_issue where id=%(id)s for update""",
 		"""update clin_health_issue set
 				description=%(description)s
 			where id=%(id)s"""
-		]
-
+	]
 	_updatable_fields = [
 		'description'
 	]
@@ -52,15 +52,17 @@ class cHealthIssue(gmClinItem.cClinItem):
 class cEpisode(gmClinItem.cClinItem):
 	"""Represents one clinical episode.
 	"""
-	_cmd_fetch_payload = """select * from v_pat_episodes where pk_episode=%s"""
+	_cmd_fetch_payload = """select *, xmin_clin_episode from v_pat_episodes where pk_episode=%s"""
+	_cmds_lock_rows_for_update = [
+		"""select 1 from clin_episode where pk=%(pk)s and xmin=%(xmin_clin_episode)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from clin_episode where pk=%(pk)s for update""",
 		"""update clin_episode set
 				description=%(description)s,
 				fk_health_issue=%(pk_health_issue)s,
 				fk_patient=%(pk_patient)s
 			where pk=%(pk)s"""
-		]
+	]
 	_updatable_fields = [
 		'description',
 		'pk_health_issue',
@@ -104,11 +106,12 @@ class cEncounter(gmClinItem.cClinItem):
 	"""Represents one encounter.
 	"""
 	_cmd_fetch_payload = """
-		select * from v_pat_encounters
-		where pk_encounter=%s
-		"""
+		select *, xmin_clin_encounter from v_pat_encounters
+		where pk_encounter=%s"""
+	_cmds_lock_rows_for_update = [
+		"""select 1 from clin_encounter where id=%(pk_encounter)s and xmin=%(xmin_clin_encounter)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from clin_encounter where id=%(pk_encounter)s for update""",
 		"""update clin_encounter set
 				description=%(description)s,
 				started=%(started)s,
@@ -117,8 +120,7 @@ class cEncounter(gmClinItem.cClinItem):
 				pk_provider=%(pk_provider)s,
 				pk_type=%(pk_type)s
 			where id=%(pk_encounter)s"""
-		]
-
+	]
 	_updatable_fields = [
 		'description',
 		'started',
@@ -359,7 +361,10 @@ if __name__ == '__main__':
 	    
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.23  2004-09-19 15:02:29  ncq
+# Revision 1.24  2004-11-03 22:32:34  ncq
+# - support _cmds_lock_rows_for_update in business object base class
+#
+# Revision 1.23  2004/09/19 15:02:29  ncq
 # - episode: id -> pk, support fk_patient
 # - no default name in create_health_issue
 #

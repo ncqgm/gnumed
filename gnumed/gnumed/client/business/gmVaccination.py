@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.15 2004-10-27 12:11:59 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmVaccination.py,v 1.16 2004-11-03 22:32:34 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -21,12 +21,13 @@ class cVaccination(gmClinItem.cClinItem):
 	"""Represents one vaccination event.
 	"""
 	_cmd_fetch_payload = """
-		select *, NULL as is_booster, -1 as seq_no from v_pat_vacc4ind
+		select *, NULL as is_booster, -1 as seq_no, xmin_vaccination from v_pat_vacc4ind
 		where pk_vaccination=%s
 		order by date desc"""
-
+	_cmds_lock_rows_for_update = [
+		"""select 1 from vaccination where id=%(pk_vaccination)s and xmin=%(xmin_vaccination)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from vaccination where id=%(pk_vaccination)s for update""",
 		"""update vaccination set
 				clin_when=%(date)s,
 				narrative=%(narrative)s,
@@ -36,7 +37,6 @@ class cVaccination(gmClinItem.cClinItem):
 				batch_no=%(batch_no)s
 			where id=%(pk_vaccination)s"""
 		]
-
 	_updatable_fields = [
 		'date',
 		'narrative',
@@ -121,9 +121,8 @@ class cMissingVaccination(gmClinItem.cClinItem):
 					and
 				seq_no=%(seq_no)s		
 			order by amount_overdue)"""
-
+	_cmds_lock_rows_for_update = []
 	_cmds_store_payload = []
-
 	_updatable_fields = []
 	#--------------------------------------------------------
 	def is_overdue(self):
@@ -147,40 +146,35 @@ class cMissingBooster(gmClinItem.cClinItem):
 				and
 			indication=%(indication)s
 		order by amount_overdue"""
+	_cmds_lock_rows_for_update = []
 	_cmds_store_payload = []
-
 	_updatable_fields = []
 #============================================================
 class cScheduledVaccination(gmClinItem.cClinItem):
 	"""Represents one vaccination scheduled following a regime.
 	"""
-	_cmd_fetch_payload = """
-			select *
-			from v_vaccs_scheduled4pat
-			where pk_vacc_def=%s"""
-
+	_cmd_fetch_payload = """select * from v_vaccs_scheduled4pat where pk_vacc_def=%s"""
+	_cmds_lock_rows_for_update = []
 	_cmds_store_payload = []
-
 	_updatable_fields = []
-
 #============================================================
 class cVaccinationRegime(gmClinItem.cClinItem):
 	"""Represents one vaccination regime.
 	"""
 	_cmd_fetch_payload = """
-		select * from v_vacc_regimes
+		select *, xmin_vacc_regime from v_vacc_regimes
 		where pk_regime=%s"""
-
+	_cmds_lock_rows_for_update = [
+		"""select 1 from vacc_regime where id=%(pk_regime)s and xmin=%(xmin_vacc_regime)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from vacc_regime where id=%(pk_regime)s for update""",
 		"""update vacc_regime set
 				name=%(regime)s,
 				fk_recommended_by=%(pk_recommended_by)s,
 				fk_indication=(select id from vacc_indication where description=%(indication)s),
 				comment=%(comment)s
 			where id=%(pk_regime)s"""
-		]
-
+	]
 	_updatable_fields = [
 		'regime',
 		'pk_recommended_by',
@@ -378,7 +372,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.15  2004-10-27 12:11:59  ncq
+# Revision 1.16  2004-11-03 22:32:34  ncq
+# - support _cmds_lock_rows_for_update in business object base class
+#
+# Revision 1.15  2004/10/27 12:11:59  ncq
 # - add is_booster/seq_no as pseudo columns to _cmd_fetch_payload so
 #   __init_from_pk() automagically creates all the right things
 # - enhance _init_from_row_data() to construct those fields if need be

@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.41 2004-10-18 09:48:20 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmPathLab.py,v 1.42 2004-11-03 22:32:34 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -26,11 +26,12 @@ class cLabResult(gmClinItem.cClinItem):
 	"""Represents one lab result."""
 
 	_cmd_fetch_payload = """
-		select * from v_results4lab_req
+		select *, xmin_rest_result from v_results4lab_req
 		where pk_result=%s"""
-
+	_cmds_lock_rows_for_update = [
+		"""select 1 from test_result where id=%(pk_result)s and xmin=%(xmin_test_result)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from test_result where id=%(pk_result)s for update""",
 		"""update test_result set
 				clin_when=%(val_when)s,
 				narrative=%(progress_note_result)s,
@@ -141,11 +142,12 @@ class cLabRequest(gmClinItem.cClinItem):
 	"""Represents one lab request."""
 
 	_cmd_fetch_payload = """
-		select * from v_lab_requests
+		select *, xmin_lab_request from v_lab_requests
 		where pk_request=%s"""
-
+	_cmds_lock_rows_for_update = [
+		"""select 1 from lab_request where pk=%(pk_request)s and xmin=%(xmin_lab_request)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from lab_request where pk=%(pk_request)s for update""",
 		"""update lab_request set
 				request_id=%(request_id)s,
 				lab_request_id=%(lab_request_id)s,
@@ -156,8 +158,7 @@ class cLabRequest(gmClinItem.cClinItem):
 				is_pending=%(is_pending)s::bool,
 				narrative=%(progress_note)s
 			where pk=%(pk_request)s"""
-		]
-
+	]
 	_updatable_fields = [
 		'request_id',
 		'lab_request_id',
@@ -229,10 +230,11 @@ class cLabRequest(gmClinItem.cClinItem):
 class cTestType(gmClinItem.cClinItem):
 	"""Represents one test result type."""
 
-	_cmd_fetch_payload = """select * from test_type where pk=%s"""
-
+	_cmd_fetch_payload = """select *, xmin from test_type where pk=%s"""
+	_cmds_lock_rows_for_update = [
+		"""select 1 from test_type where pk=%(pk)s and xmin=%(xmin)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from test_type where pk=%(pk)s for update""",
 		"""update test_type set
 				fk_test_org=%(fk_test_org)s,
 				code=%(code)s,
@@ -242,7 +244,6 @@ class cTestType(gmClinItem.cClinItem):
 				conversion_unit=%(conversion_unit)s
 			where pk=%(pk)s"""
 	]
-
 	_updatable_fields = [
 		'fk_test_org',
 		'code',
@@ -346,7 +347,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.41 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.42 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -429,7 +430,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.41 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.42 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -685,7 +686,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.41  2004-10-18 09:48:20  ncq
+# Revision 1.42  2004-11-03 22:32:34  ncq
+# - support _cmds_lock_rows_for_update in business object base class
+#
+# Revision 1.41  2004/10/18 09:48:20  ncq
 # - must have been asleep at the keyboard
 #
 # Revision 1.40  2004/10/18 09:46:02  ncq

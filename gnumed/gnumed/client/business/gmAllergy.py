@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.14 2004-10-11 19:42:32 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmAllergy.py,v 1.15 2004-11-03 22:32:34 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -21,11 +21,12 @@ class cAllergy(gmClinItem.cClinItem):
 	"""Represents one allergy event.
 	"""
 	_cmd_fetch_payload = """
-		select * from v_pat_allergies
+		select *, xmin_allergy from v_pat_allergies
 		where pk_allergy=%s"""
-
+	_cmds_lock_rows_for_update = [
+		"""select 1 from allergy where id=%(id)s and xmin=%(xmin_allergy)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from allergy where id=%(id)s for update""",
 		"""update allergy set
 				clin_when=%(date)s,
 				substance=%(substance)s,
@@ -38,8 +39,7 @@ class cAllergy(gmClinItem.cClinItem):
 				definite=%(definite)s::boolean,
 				narrative=%(reaction)s
 			where id=%(pk_allergy)s"""
-		]
-
+	]
 	_updatable_fields = [
 		'date',
 		'substance',
@@ -134,7 +134,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.14  2004-10-11 19:42:32  ncq
+# Revision 1.15  2004-11-03 22:32:34  ncq
+# - support _cmds_lock_rows_for_update in business object base class
+#
+# Revision 1.14  2004/10/11 19:42:32  ncq
 # - add license
 # - adapt field names
 # - some cleanup

@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.24 2004-10-11 19:46:52 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmMedDoc.py,v 1.25 2004-11-03 22:32:34 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -183,18 +183,19 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			doc_comment,
 			obj_comment,
 			pk_doc,
-			pk_type
+			pk_type,
+			xmin_doc_obj
 		from v_obj4doc
 		where pk_obj=%s"""
-
+	_cmds_lock_rows_for_update = [
+		"""select 1 from doc_obj where id=%(pk_obj)s and xmin=%(xmin_doc_obj)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from doc_obj where id=%(pk_obj)s for update""",
 		"""update doc_obj set
 				seq_idx=%(seq_idx)s,
 				comment=%(obj_comment)s
 			where pk=%(pk_doc)s"""
-		]
-
+	]
 	_updatable_fields = [
 		'seq_idx',
 		'obj_comment'
@@ -379,10 +380,13 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 
 	_service = 'blobs'
 
-	_cmd_fetch_payload = "select * from v_doc_med where pk_doc=%s"
+	_cmd_fetch_payload = """select *, xmin_doc_med from v_doc_med where pk_doc=%s"""
+
+	_cmds_lock_rows_for_update = [
+		"""select 1 from doc_med where id=%(pk_doc)s and xmin=%(xmin_doc_med)s for update"""
+	]
 
 	_cmds_store_payload = [
-		"""select 1 from doc_med where id=%(pk_doc)s for update""",
 		"""update doc_med set
 				type=%(pk_type)s,
 				comment=%(comment)s,
@@ -534,7 +538,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.24  2004-10-11 19:46:52  ncq
+# Revision 1.25  2004-11-03 22:32:34  ncq
+# - support _cmds_lock_rows_for_update in business object base class
+#
+# Revision 1.24  2004/10/11 19:46:52  ncq
 # - properly VOify deriving from cBusinessDBObject
 # - cMedObj -> cMedDocPart
 # - cDocumentFolder.get_documents()

@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -16,13 +16,14 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 #============================================================
 class cDiag(gmClinItem.cClinItem):
+	"""Represents one real diagnosis.
 	"""
-		Represents one real diagnosis
-	"""
-	_cmd_fetch_payload = """
-		select * from v_pat_diag where pk_diag=%s"""
+	_cmd_fetch_payload = """select *, xmin_clin_diag, xmin_clin_narrative from v_pat_diag where pk_diag=%s"""
+	_cmds_lock_rows_for_update = [
+		"""select 1 from clin_diag where pk=%(pk_diag)s and xmin=%(xmin_clin_diag)s for update""",
+		"""select 1 from clin_narrative where pk=%(pk_diagnosis)s and xmin=%(xmin_clin_narrative)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from clin_diag where pk=%(pk_diag)s for update""",
 		"""update clin_diag set
 				laterality=%()s,
 				laterality=%(laterality)s,
@@ -31,7 +32,6 @@ class cDiag(gmClinItem.cClinItem):
 				is_definite=%(is_definite)s::boolean,
 				clinically_relevant=%(clinically_relevant)s::boolean
 			where pk=%(pk_diag)s""",
-		"""select 1 from clin_narrative where pk=%(pk_diagnosis)s for update""",
 		"""update clin_narrative set
 				narrative=%(diagnosis)s
 			where pk=%(pk_diagnosis)s"""
@@ -90,9 +90,11 @@ class cNarrative(gmClinItem.cClinItem):
 		Represents one clinical free text entry
 	"""
 	_cmd_fetch_payload = """
-		select * from v_pat_narrative where pk_narrative=%s"""
+		select *, xmin_clin_narrative from v_pat_narrative where pk_narrative=%s"""
+	_cmds_lock_rows_for_update = [
+		"""select 1 from clin_narrative where pk=%(pk)s and xmin=%(xmin_clin_narrative)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from clin_narrative where pk=%(pk)s for update""",
 		"""update clin_narrative set
 				narrative=%(narrative)s,
 				clin_when=%(date)s,
@@ -137,43 +139,40 @@ class cNarrative(gmClinItem.cClinItem):
 		return (True, msg)
 #============================================================
 class cRFE(gmClinItem.cClinItem):
-	"""
-		Represents one Reason For Encounter
+	"""Represents one Reason For Encounter.
 	"""
 	_cmd_fetch_payload = """
-		select * from v_pat_rfe
-		where pk_narrative=%s
-		"""
+		select *, xmin_clin_narrative from v_pat_rfe
+		where pk_narrative=%s"""
+	_cmds_lock_rows_for_update = [
+		"""select 1 from clin_narrative where pk=%(pk_narrative)s and xmin=%(xmin_clin_narrative)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from clin_narrative where pk=%(pk_narrative)s for update""",
 		"""update clin_narrative set
 				narrative=%(narrative)s,
 				clin_when=%(clin_when)s
 			where pk=%(pk_narrative)s"""
-		]
-
+	]
 	_updatable_fields = [
 		'narrative',
 		'clin_when'
 	]
 #============================================================
 class cAOE(gmClinItem.cClinItem):
-	"""
-		Represents one Assessment Of Encounter
-
+	"""Represents one Assessment Of Encounter.
 	"""
 	_cmd_fetch_payload = """
-		select * from v_pat_aoe
-		where pk_narrative=%s
-		"""
+		select *, xmin_clin_narrative from v_pat_aoe
+		where pk_narrative=%s"""
+	_cmds_lock_rows_for_update = [
+		"""select 1 from clin_narrative where pk=%(pk_narrative)s and xmin=%(xmin_clin_narrative)s for update"""
+	]
 	_cmds_store_payload = [
-		"""select 1 from clin_narrative where pk=%(pk_narrative)s for update""",
 		"""update clin_narrative set
 				narrative=%(narrative)s,
 				clin_when=%(clin_when)s
 			where pk=%(pk_narrative)s"""
-		]
-
+	]
 	_updatable_fields = [
 		'narrative',
 		'clin_when'
@@ -318,7 +317,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.8  2004-09-25 13:26:35  ncq
+# Revision 1.9  2004-11-03 22:32:34  ncq
+# - support _cmds_lock_rows_for_update in business object base class
+#
+# Revision 1.8  2004/09/25 13:26:35  ncq
 # - is_significant -> clinically_relevant
 #
 # Revision 1.7  2004/08/11 09:42:50  ncq
