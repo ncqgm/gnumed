@@ -3,19 +3,18 @@ import re
 import sys
 
 
+credentials = "hherb.com:gnumed:any-doc:any-doc"
+#credentials = "localhost:gnumed:any-doc:any-doc"
+
 class SchemaParser:
-
-
 	
 	def __init__(self, config):
 		self.config = config
 		self.build()
-		
-	
 
 	def get_inherits(self):
 
-		c = pgdb.connect("localhost:gnumed")
+		c = pgdb.connect(credentials)
 		cu = c.cursor()
 		cu.execute("""
 		select c1.relname, c2.relname from pg_class c1, pg_class c2, pg_inherits c3
@@ -24,7 +23,7 @@ class SchemaParser:
 
 	def get_fk_list(self):
 		"""get a foreign key list from pg_constraint"""
-		c = pgdb.connect("localhost:gnumed")
+		c = pgdb.connect(credentials)
 		cu = c.cursor()
 		cu.execute("""
 		select c1.relname, c2.relname from pg_class c1, pg_class c2, pg_constraint c3 where c1.relfilenode = c3.conrelid and c2.relfilenode = c3.confrelid and c3.contype='f'""")
@@ -35,7 +34,7 @@ class SchemaParser:
 	def get_fk_details(self):
 		"""gets table, keying attribute, foreign table, foreign key attr"""
 
-		c = pgdb.connect("localhost:gnumed")
+		c = pgdb.connect("credentials")
 		cu = c.cursor()
 		cu.execute( """
 		select c1.relname,a1.attname, c2.relname, a2.attname from pg_class c1, pg_class c2, pg_constraint c3 , pg_attribute a1, pg_attribute a2 where c1.relfilenode = c3.conrelid and c2.relfilenode = c3.confrelid and c3.contype='f' and c3.conrelid = a1.attrelid and c3.conkey[1] = a1.attnum and c3.confkey[1] = a2.attnum and c3.confrelid = a2.attrelid
@@ -50,7 +49,7 @@ class SchemaParser:
 		else:
 			fk_cmp = 'not'
 
-		c = pgdb.connect("localhost:gnumed")
+		c = pgdb.connect(credentials)
 		cu = c.cursor()
 		cu.execute("""
 		select attname from pg_attribute a, pg_class c where c.relfilenode = a.attrelid
@@ -67,7 +66,7 @@ class SchemaParser:
 		select  c.relname, a.attname from pg_attribute a, pg_class c, pg_constraint pc where  a.attrelid = c.relfilenode and pc.contype= 'p' and pc.conrelid = a.attrelid and pc.conkey[1] = a.attnum
 
 		""" 
-		c = pgdb.connect("localhost:gnumed")
+		c = pgdb.connect(credentials)
 		cu = c.cursor()
 		cu.execute(stmt)
 		return cu.fetchall()
@@ -407,3 +406,31 @@ if __name__ == '__main__':
 	s = SchemaParser(configObject)
 	
 
+#=========================================================================
+# BUGFIX:
+#
+# if your pgdb shows this behaviour:
+#
+#Traceback (most recent call last):
+#  File "testschema5.py", line 410, in ?
+#    s = SchemaParser(configObject)
+#  File "testschema5.py", line 15, in __init__
+#    self.build()
+#  File "testschema5.py", line 101, in build
+#    self.fks = self.get_fk_list()
+#  File "testschema5.py", line 32, in get_fk_list
+#    cu.execute("""
+#  File "/usr/lib/python2.2/site-packages/pgdb.py", line 189, in execute
+#    self.executemany(operation, (params,))
+#  File "/usr/lib/python2.2/site-packages/pgdb.py", line 221, in executemany
+#    desc = typ[1:2]+self.__cache.getdescr(typ[2])
+#  File "/usr/lib/python2.2/site-packages/pgdb.py", line 149, in getdescr
+#    self.__source.execute(
+#_pg.error: ERROR:  column "typprtlen" does not exist
+#
+# you need to patch $PYTHONPATH/pgdb.py like this:
+#
+# - in pgdb.py find the method getdescr()
+# - find the line with "typprtlen"
+# - replace "typprtlen" with -1
+#=========================================================================
