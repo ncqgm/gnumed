@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -147,6 +147,7 @@ comment on table cfg_type_enum is
 
 INSERT INTO cfg_type_enum VALUES ('string');
 INSERT INTO cfg_type_enum VALUES ('numeric');
+INSERT INTO cfg_type_enum VALUES ('str_array');
 
 -- ======================================================
 create table cfg_template (
@@ -201,6 +202,12 @@ create table cfg_numeric (
 	value numeric not null
 );
 
+-- ======================================================
+create table cfg_str_array (
+	id_item integer references cfg_item (id),
+	value text[] not null
+);
+
 --=====================================================================
 GRANT SELECT ON
 	db,
@@ -223,11 +230,14 @@ to group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.19 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.20 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.19  2002-12-01 13:53:09  ncq
+-- Revision 1.20  2002-12-26 15:44:42  ncq
+-- - added string array
+--
+-- Revision 1.19  2002/12/01 13:53:09  ncq
 -- - missing ; at end of schema tracking line
 --
 -- Revision 1.18  2002/11/28 11:53:44  ncq
