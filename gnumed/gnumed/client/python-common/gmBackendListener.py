@@ -2,7 +2,7 @@
 
 """GnuMed database backend listener.
 
-This module implements listening for asynchroneous
+This module implements listening for asynchronuous
 notifications from the database backend.
 
 NOTE !  This is specific to the DB adapter pyPgSQL and
@@ -10,7 +10,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -74,7 +74,7 @@ class BackendListener:
 				note = self._cnx.notifies()
 				while note:
 					sys.stdout.flush()
-					print '+'
+					#print '+'
 					gmDispatcher.send(note.relname, sender=self._service)
 					note = self._cnx.notifies()
 					if self._quit:
@@ -174,7 +174,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.3  2002-09-08 20:58:46  ncq
+# Revision 1.4  2002-09-08 21:22:36  ncq
+# - removed one debugging level print()
+#
+# Revision 1.3  2002/09/08 20:58:46  ncq
 # - made comments more useful
 # - added some more metadata to get in line with GnuMed coding standards
 #
