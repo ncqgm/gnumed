@@ -35,7 +35,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -679,89 +679,18 @@ class cPatientDocumentList:
 
 		return tmp.getMetaData()
 #============================================================
-def call_viewer_on_file(aFile = None):
-	"""Try to find an appropriate viewer with all tricks and call it."""
-
-	_log.Log(gmLog.lInfo, "Calling viewer on [%s]." % aFile)
-
-	if aFile == None:
-		msg = "No need to call viewer without file name."
-		_log.Log(gmLog.lErr, msg)
-		return None, msg
-
-	# does this file exist, actually ?
-	if not os.path.exists(aFile):
-		msg = _('File [%s] does not exist !') % aFile
-		_log.Log(gmLog.lErr, msg)
-		return None, msg
-
-	# sigh ! let's be off to work
-	try:
-		import docMime
-	except ImportError:
-		exc = sys.exc_info()
-		msg = _("Cannot import docMime.py !")
-		_log.LogException(msg, exc, fatal=0)
-		return None, msg
-
-	mime_type = docMime.guess_mimetype(aFile)
-	_log.Log(gmLog.lData, "mime type : %s" % mime_type)
-	viewer_cmd = docMime.get_viewer_cmd(mime_type, aFile)
-	_log.Log(gmLog.lData, "viewer cmd: '%s'" % viewer_cmd)
-
-	if viewer_cmd != None:
-		os.system(viewer_cmd)
-		return 1, ""
-
-	_log.Log(gmLog.lErr, "Cannot determine viewer via standard mailcap mechanism.")
-	if os.name == "posix":
-		_log.Log(gmLog.lErr, "You should add a viewer for this mime type to your mailcap file.")
-		msg = _("Unable to start viewer on file\[%s]\nYou need to update your mailcap file.") % aFile
-		return None, msg
-	else:
-		_log.Log(gmLog.lWarn, "Let's see what the OS can do about that.")
-		# does the file already have an extension ?
-		(path_name, f_ext) = os.path.splitext(aFile)
-		# no
-		if f_ext == "":
-			# try to guess one
-			f_ext = docMime.guess_ext_by_mimetype(mime_type)
-			if f_ext is None:
-				_log.Log(gmLog.lErr, "Unable to guess file extension from mime type. Trying sheer luck.")
-				file_to_display = aFile
-				f_ext = ""
-			else:
-				file_to_display = aFile + f_ext
-				shutil.copyfile(aFile, file_to_display)
-		# yes
-		else:
-			file_to_display = aFile
-
-		_log.Log(gmLog.lData, "%s <%s> (%s) -> %s" % (aFile, mime_type, f_ext, file_to_display))
-		try:
-			os.startfile(file_to_display)
-		except:
-			msg = _("Unable to start viewer on file [%s].") % file_to_display		
-			_log.LogException(msg, sys.exc_info(), fatal=0)
-			return None, msg
-
-	# clean up if necessary
-	# don't kill the file from under the (async) viewer
-	#if file_to_display != aFile:
-		#os.remove(file_to_display)
-
-	return 1, ""
-#============================================================
 # Main
 #============================================================
 if __name__ == '__main__':
 	_ = lambda x:x
 	_log.SetAllLogLevels(gmLog.lData)
-	call_viewer_on_file(sys.argv[1])
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.35  2003-02-14 00:23:53  ncq
+# Revision 1.36  2003-04-20 15:40:18  ncq
+# - remove call_viewer
+#
+# Revision 1.35  2003/02/14 00:23:53  ncq
 # - things folded into GnuMed proper
 #
 # Revision 1.34  2003/02/03 11:04:00  ncq
