@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.84 2004-04-15 09:46:56 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmClinicalRecord.py,v 1.85 2004-04-17 11:54:16 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -606,7 +606,7 @@ class cClinicalRecord:
 		except KeyError:
 			pass
 		self.__db_cache['episodes'] = {}
-		cmd = "select id_episode, episode from v_patient_episodes where id_patient=%s"
+		cmd = "select id_episode, episode from v_pat_episodes where id_patient=%s"
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load episodes for patient [%s]' % self.id_patient)
@@ -625,7 +625,7 @@ class cClinicalRecord:
 			# if name not given assume default episode
 			if episode_name is None:
 				episode_name = 'xxxDEFAULTxxx'
-			cmd = "select id_episode from v_patient_episodes where id_patient=%s and episode=%s limit 1"
+			cmd = "select id_episode from v_pat_episodes where id_patient=%s and episode=%s limit 1"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, episode_name)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot check for episode [%s] existence' % episode_name)
@@ -637,7 +637,7 @@ class cClinicalRecord:
 				episode_id = rows[0][0]
 		# - or check if id exists
 		else:
-			cmd = "select exists(select episode from v_patient_episodes where id_patient=%s and id_episode=%s)"
+			cmd = "select exists(select episode from v_pat_episodes where id_patient=%s and id_episode=%s)"
 			result = gmPG.run_ro_query('historica', cmd, None, self.id_patient, episode_id)
 			if result is None:
 				_log.Log(gmLog.lErr, 'cannot check for episode [%s] existence' % episode_id)
@@ -649,7 +649,7 @@ class cClinicalRecord:
 		self.id_episode = episode_id
 
 		# 2) load corresponding health issue
-		cmd = "select id_health_issue from v_patient_episodes where id_episode=%s"
+		cmd = "select id_health_issue from v_pat_episodes where id_episode=%s"
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_episode)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot find health issue linked from episode [%s] (%s), using default' % (episode_name, self.id_episode))
@@ -681,7 +681,7 @@ class cClinicalRecord:
 		- adds default episode if no name given
 		"""
 		# anything to do ?
-		cmd = "select id_episode from v_patient_episodes where id_patient=%s and episode=%s limit 1"
+		cmd = "select id_episode from v_pat_episodes where id_patient=%s and episode=%s limit 1"
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, episode_name)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot check if episode [%s] exists for patient [%s]' % (episode_name, self.id_patient))
@@ -776,7 +776,7 @@ class cClinicalRecord:
 
 		self.id_episode = id_episode
 		# load corresponding health issue
-		cmd = "select id_health_issue from v_patient_episodes where id_episode=%s"
+		cmd = "select id_health_issue from v_pat_episodes where id_episode=%s"
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_episode)
 		if rows is None:
 			self.id_health_issue = self.id_default_health_issue
@@ -1638,7 +1638,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.84  2004-04-15 09:46:56  ncq
+# Revision 1.85  2004-04-17 11:54:16  ncq
+# - v_patient_episodes -> v_pat_episodes
+#
+# Revision 1.84  2004/04/15 09:46:56  ncq
 # - cleanup, get_lab_data -> get_lab_results
 #
 # Revision 1.83  2004/04/14 21:06:10  ncq

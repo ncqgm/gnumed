@@ -3032,7 +3032,7 @@ the issues better than me.
 	    </sect3>
 	    
     	    <sect3>
-		<title>View v_patient_episodes</title>
+		<title>View v_pat_episodes</title>
 	    	<para>
 		This view links episodes to patients.
 		</para>

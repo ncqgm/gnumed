@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -43,7 +43,7 @@ values (currval('identity_id_seq'));
 -- episode "knive cut"
 delete from clin_episode where id in (
 	select id_episode
-	from v_patient_episodes
+	from v_pat_episodes
 	where id_patient = currval('identity_id_seq')
 );
 
@@ -372,11 +372,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.16 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.16  2004-03-23 17:34:50  ncq
+-- Revision 1.17  2004-04-17 11:54:16  ncq
+-- - v_patient_episodes -> v_pat_episodes
+--
+-- Revision 1.16  2004/03/23 17:34:50  ncq
 -- - support and use optionally cross-provider unified test names
 --
 -- Revision 1.15  2004/03/23 02:34:17  ncq

@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.49 2004-04-07 18:16:06 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.50 2004-04-17 11:54:16 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -106,10 +106,10 @@ where
 ;
 -- =============================================
 \unset ON_ERROR_STOP
-drop view v_patient_episodes;
+drop view v_pat_episodes;
 \set ON_ERROR_STOP 1
 
-create view v_patient_episodes as
+create view v_pat_episodes as
 select
 	chi.id_patient as id_patient,
 	cep.id as id_episode,
@@ -142,7 +142,7 @@ begin
 	end if;
 	-- track back to patient ID
 	select into patient_id id_patient
-		from v_patient_episodes vpep
+		from v_pat_episodes vpep
 		where vpep.id_episode = episode_id
 		limit 1;
 	-- now, execute() the NOTIFY
@@ -180,7 +180,7 @@ select
 	cri.narrative as narrative,
 	sys.relname as src_table
 from
-	clin_root_item cri, v_patient_episodes vpep, pg_class sys
+	clin_root_item cri, v_pat_episodes vpep, pg_class sys
 where
 	vpep.id_episode=cri.id_episode
 		and
@@ -222,7 +222,7 @@ order by
 --	from
 --		test_result tr,
 --		test_type tt,
---		v_patient_episodes vpep
+--		v_pat_episodes vpep
 --	where
 --		tr.fk_type = tt.id
 --			AND
@@ -296,7 +296,7 @@ from
 	(lnk_result2lab_req lr2lr inner join test_result tr1 on (lr2lr.fk_result=tr1.id)) tr
 		inner join
 	lab_request lr on (tr.fk_request=lr.pk),
-	v_patient_episodes vpep,
+	v_pat_episodes vpep,
 	(test_type tt1 left outer join test_type_uni ttu1 on (tt1.id=ttu1.fk_test_type)) ttu
 where
 	lr.is_pending=false
@@ -363,7 +363,7 @@ begin
 	end if;
 	-- track back to patient ID
 	select into patient_id id_patient
-		from v_patient_episodes vpep
+		from v_pat_episodes vpep
 		where vpep.id_episode = episode_id
 		limit 1;
 	-- now, execute() the NOTIFY
@@ -406,7 +406,7 @@ select
 from
 	allergy a,
 	_enum_allergy_type at,
-	v_patient_episodes vpep
+	v_pat_episodes vpep
 where
 	vpep.id_episode=a.id_episode
 		and
@@ -689,7 +689,7 @@ to group "_gm-doctors";
 
 GRANT SELECT ON
 	v_i18n_enum_encounter_type,
-	v_patient_episodes,
+	v_pat_episodes,
 	v_patient_items,
 	v_i18n_patient_allergies,
 	v_vacc_regimes
@@ -703,7 +703,7 @@ TO GROUP "gm-doctors";
 
 --GRANT SELECT, INSERT, UPDATE, DELETE ON
 --	"v_i18n_enum_encounter_type",
---	"v_patient_episodes",
+--	"v_pat_episodes",
 --	"v_patient_items",
 --	"v_i18n_curr_encounters",
 --	"v_i18n_patient_allergies",
@@ -717,11 +717,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.49 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.50 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.49  2004-04-07 18:16:06  ncq
+-- Revision 1.50  2004-04-17 11:54:16  ncq
+-- - v_patient_episodes -> v_pat_episodes
+--
+-- Revision 1.49  2004/04/07 18:16:06  ncq
 -- - move grants into re-runnable scripts
 -- - update *.conf accordingly
 --

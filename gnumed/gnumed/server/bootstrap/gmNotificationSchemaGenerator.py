@@ -11,7 +11,7 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -44,7 +44,7 @@ begin
 	end if;
 	-- backtrack to patient ID
 	select into patient_id id_patient
-		from v_patient_episodes vpep
+		from v_pat_episodes vpep
 		where vpep.id_episode = episode_id
 		limit 1;
 	-- now, execute() the NOTIFY
@@ -104,7 +104,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.3  2004-02-25 09:46:36  ncq
+# Revision 1.4  2004-04-17 11:54:16  ncq
+# - v_patient_episodes -> v_pat_episodes
+#
+# Revision 1.3  2004/02/25 09:46:36  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.2  2003/12/01 22:10:55  ncq
