@@ -1,6 +1,10 @@
 #change the 2 environment variables base_struts, base_tomcat to point to the local locations.
-base_struts=$HOME/downloads/jakarta-struts-1.2.4
-base_tomcat=$HOME/jakarta-tomcat-5.0.19
+if ! -d $HOME ;then HOME=/home/$USER; fi
+base_struts=`find $HOME -type d -name "jakarta-struts-1.2*" | head -n1`
+base_tomcat=`find $HOME -maxdepth 3 -type d -name "jakarta-tomcat-5.*" | head -n1`
+
+echo base_struts is $base_struts
+echo base_tomcat is $base_tomcat
 #commons_lang=$HOME/downloads/jakarta-commons/lang/commons-lang-2.0/commons-lang-2.0.jar
 
 cp -u $base_struts/lib/* WEB-INF/lib
