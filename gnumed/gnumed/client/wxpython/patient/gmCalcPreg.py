@@ -7,7 +7,7 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Ian Haywood"
 
 from wxPython.wx import *
@@ -34,7 +34,6 @@ class PregnancyDialogue (wxFrame):
 	"""
 	Dialogue class to show dates.
 	"""
-
 	__icons = {
 """icon_Preg_calc""": 'x\xdaMP1\x0e\x830\x0c\xdcy\x85\xa5\x0et\xb2`h\x95\xb9H\xac\x0c,^\x11c\x91\
 \xdc\xffO\xbd\xb3C\xc0\xb1\x02w\xf1]\xec<\x8f\xdf\xd8\xad\xfd\xf8\x16\xe4K\
@@ -50,7 +49,7 @@ class PregnancyDialogue (wxFrame):
 
 		icon=wxEmptyIcon()
 		icon.CopyFromBitmap(self.getBitmap())
-        	self.SetIcon(icon)
+		self.SetIcon(icon)
 
 		vbox = wxBoxSizer (wxVERTICAL)
 		vbox.Add (wxStaticText (self, -1, _('LNMP')), 0, wxALL, 5)
@@ -98,13 +97,17 @@ class PregnancyDialogue (wxFrame):
 		due = LNMP + GESTATION
 		gest = today - LNMP
 		if gest < 0:
-			wxMessageDialog (self, _('LNMP is into the future!'), style = wxICON_ERROR | wxOK).ShowModal ()
+			wxMessageDialog (
+				self,
+				_('LNMP is into the future!'),
+				style = wxICON_ERROR | wxOK
+			).ShowModal()
 		else:
-			self.gest_week_ctrl.SetValue (gest / WEEK)
-			self.gest_day_ctrl.SetValue ((gest % WEEK) / DAY)
-			duedate = wxDateTime ()
-			duedate.SetTimeT (due)
-			self.due_cal.SetDate (duedate)
+			self.gest_week_ctrl.SetValue(gest / WEEK)
+			self.gest_day_ctrl.SetValue((gest % WEEK) / DAY)
+			duedate = wxDateTime()
+			duedate.SetTimeT(due)
+			self.due_cal.SetDate(duedate)
 
 	def OnCalcByGest (self, event):
 		day = self.gest_day_ctrl.GetValue ()
@@ -124,7 +127,7 @@ if __name__ == '__main__':
 	# set up dummy app
 	class TestApp (wxApp):
 		def OnInit (self):
-			frame = PregnancyDialogue (None)
+			frame = PregnancyDialogue(None)
 			frame.Show (1)
 			return 1
 	#---------------------
@@ -136,7 +139,6 @@ if __name__ == '__main__':
 else:
 	# plugin()ize
 	import gmPlugin
-	#import images_gnuMedGP_Toolbar
 
 	class gmCalcPreg (gmPlugin.wxBasePlugin, PregnancyDialogue): # Inherit 'PregnancyDialogue' so 'getBitmap()' is available
 		def name (self):
@@ -162,7 +164,10 @@ else:
 
 #=====================================================================
 # $Log: gmCalcPreg.py,v $
-# Revision 1.7  2003-01-04 19:42:22  michaelb
+# Revision 1.8  2003-01-06 13:47:47  ncq
+# - a bit of code cleanup
+#
+# Revision 1.7  2003/01/04 19:42:22  michaelb
 # FIXED - shortHelpString = "Pregnancy caclulator")
 # i18n text + the Preg Calc icon -- "icon_Preg_calc"
 # removed dependence on 'images_gnuMedGP_Toolbar.py'
