@@ -1,7 +1,7 @@
 """
 	GnuMed multisash notes input panel
 	
-	Health issues are selected in a list.
+	Health problems are selected in a list.
 	The user can split new soap windows, which are disposed
 	in stack.
 	Usability is provided by:
@@ -13,7 +13,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -23,11 +23,11 @@ from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals, gmWhoAmI
 from Gnumed.business import gmEMRStructItems, gmPatient, gmSOAPimporter
-from Gnumed.wxpython import gmRegetMixin, gmResizingWidgets
+from Gnumed.wxpython import gmRegetMixin, gmResizingWidgets, gmSoapWidgets
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 
-import SOAPMultiSash, gmSoapWidgets
+import SOAPMultiSash
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -40,9 +40,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	"""
 	Basic multi-sash based note input panel.
 	Currently, displays a dynamic stack of note input widgets on the left
-	and the helth issues list on the right.
+	and the health problems list on the right.
 	"""
-	
 	#--------------------------------------------------------
 	def __init__(self, parent, id):
 		"""
@@ -65,15 +64,15 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		
 		# business objects setup
 		# active patient
-		self.__patient = gmPatient.gmCurrentPatient()
+		self.__pat = gmPatient.gmCurrentPatient()
 		# active patient's emr
-		self.__emr = self.__patient.get_clinical_record()
-		# store the currently selected SOAP input widget on health issues list
+		self.__emr = self.__pat.get_clinical_record()
+		# store the currently selected SOAP input widget on health problems list
 		# in the form of a two element list [issue index in list : health issue vo]
 		self.__selected_issue = []
-		# store the health issues wich has an associated SOAP note created.
+		# store the health problems wich has an associated SOAP note created.
 		# Useful to avoid duplicate SOAP notes for the same health issue
-		self.__issues_with_soap = []
+		self.__problems_with_soap = []
 		# multisash's selected leaf		
 		self.__selected_leaf = None
 		# multisash's selected soap widget
@@ -88,89 +87,99 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	def __do_layout(self):
 		"""
 		Arrange SOAP input panel widgets
-		"""		
-		
+		"""
 		# SOAP input panel main splitter window
-		self.__soap_emr_splitter = wx.wxSplitterWindow(self, -1)
+		self.__splitter = wx.wxSplitterWindow(self, -1)
 
-		# SOAP input widget's (left) panel
-		self.__soap_panel = wx.wxPanel(self.__soap_emr_splitter,-1)
-		# SOAP multisash
-		self.__soap_multisash = SOAPMultiSash.cSOAPMultiSash(self.__soap_panel, -1)
-		# SOAP action buttons, disabled at startup
-		self.__save_button = wx.wxButton(self.__soap_panel, -1, "&Save")
-		self.__save_button.Disable()
-		self.__clear_button = wx.wxButton(self.__soap_panel, -1, "&Clear")
-		self.__clear_button.Disable()
-		self.__new_button = wx.wxButton(self.__soap_panel, -1, "&New")
-		self.__new_button.Disable()
-		self.__remove_button = wx.wxButton(self.__soap_panel, -1, "&Remove")
-		self.__remove_button.Disable()
+		# left hand side
+		# - soap inputs panel
+		PNL_soap = wx.wxPanel(self.__splitter, -1)
+		self.__soap_multisash = SOAPMultiSash.cSOAPMultiSash(PNL_soap, -1)
+		# - buttons
+		# FIXME: tooltips
+		self.__BTN_save = wx.wxButton(PNL_soap, -1, "&Save")
+		self.__BTN_save.Disable()
+		self.__BTN_clear = wx.wxButton(PNL_soap, -1, "&Clear")
+		self.__BTN_clear.Disable()
+		self.__BTN_new = wx.wxButton(PNL_soap, -1, "&New")
+		self.__BTN_new.Disable()
+		self.__BTN_remove = wx.wxButton(PNL_soap, -1, "&Remove")
+		self.__BTN_remove.Disable()
+		# - arrange widgets
+		szr_btns_left = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		szr_btns_left.Add(self.__BTN_save, 0, wx.wxSHAPED)
+		szr_btns_left.Add(self.__BTN_clear, 0, wx.wxSHAPED)
+		szr_btns_left.Add(self.__BTN_new, 0, wx.wxSHAPED)
+		szr_btns_left.Add(self.__BTN_remove, 0, wx.wxSHAPED)
+		szr_left = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_left.Add(self.__soap_multisash, 1, wx.wxEXPAND)
+		szr_left.Add(szr_btns_left)
+		PNL_soap.SetSizerAndFit(szr_left)
 
-		# health issues list (right) panel
-		self.__issues_panel = wx.wxPanel(self.__soap_emr_splitter,-1)
-		self.__health_issues_list = wx.wxListBox(
-			self.__issues_panel,
+		# right hand side
+		# - problem list
+#		PNL_problems = wx.wxPanel(self.__splitter, -1)
+		self.__problem_list = wx.wxListBox (
+			self.__splitter,
+#			PNL_problems,
 			-1,
 			style= wx.wxNO_BORDER
-		)			
-		
-		# action buttons sizer
-		self.__soap_actions_sizer = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.__soap_actions_sizer.Add(self.__save_button, 0,wx.wxSHAPED)
-		self.__soap_actions_sizer.Add(self.__clear_button, 0,wx.wxSHAPED)
-		self.__soap_actions_sizer.Add(self.__new_button, 0,wx.wxSHAPED)
-		self.__soap_actions_sizer.Add(self.__remove_button, 0,wx.wxSHAPED)
-		# SOAP area main sizer
-		self.__soap_panel_sizer = wx.wxBoxSizer(wx.wxVERTICAL)
-		self.__soap_panel_sizer.Add(self.__soap_multisash, 1, wx.wxEXPAND)		
-		self.__soap_panel_sizer.Add(self.__soap_actions_sizer)
-		self.__soap_panel.SetSizerAndFit(self.__soap_panel_sizer)		
-		
-		# health issues list area main sizer
-		self.__issues_panel_sizer = wx.wxBoxSizer(wx.wxVERTICAL)	
-		self.__issues_panel_sizer.Add(self.__health_issues_list, 1, wx.wxEXPAND)
-		self.__issues_panel.SetSizerAndFit(self.__issues_panel_sizer)		
-				
-		# SOAP - issues list splitter basic configuration
-		self.__soap_emr_splitter.SetMinimumPaneSize(20)
-		self.__soap_emr_splitter.SplitVertically(self.__soap_panel, self.__issues_panel)
-		
-		# SOAP input panel main sizer
-		self.__main_sizer = wx.wxBoxSizer(wx.wxVERTICAL)
-		self.__main_sizer.Add(self.__soap_emr_splitter, 1, wx.wxEXPAND, 0)
-		self.SetSizerAndFit(self.__main_sizer)
+		)
+#		# - arrange widgets
+#		szr_right = wx.wxBoxSizer(wx.wxVERTICAL)
+#		szr_right.Add(self.__problem_list, 1, wx.wxEXPAND)
+#		PNL_problems.SetSizerAndFit(szr_right)
+
+		# arrange widgets
+		self.__splitter.SetMinimumPaneSize(20)
+#		self.__splitter.SplitVertically(PNL_soap, PNL_problems)
+		self.__splitter.SplitVertically(PNL_soap, self.__problem_list)
+
+		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_main.Add(self.__splitter, 1, wx.wxEXPAND, 0)
+		self.SetSizerAndFit(szr_main)
 
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
+		"""Configure enabled event signals
 		"""
-		Configure enabled event signals
-		"""
-		# wx.wxPython events
-		wx.EVT_LISTBOX(self.__health_issues_list, self.__health_issues_list.GetId(),
-			self.__on_health_issue_selected)
-		wx.EVT_BUTTON(self.__save_button, self.__save_button.GetId(), self.__on_save)
-		wx.EVT_BUTTON(self.__clear_button, self.__clear_button.GetId(),
-			self.__on_clear)
-		wx.EVT_BUTTON(self.__new_button, self.__new_button.GetId(), self.__on_new)
-		wx.EVT_BUTTON(self.__remove_button, self.__remove_button.GetId(),
-			self.__on_remove)
-					
+		# wxPython events
+		wx.EVT_LISTBOX(self.__problem_list, self.__problem_list.GetId(), self.__on_problem_selected)
+		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
+		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
+		wx.EVT_BUTTON(self.__BTN_new, self.__BTN_new.GetId(), self.__on_new)
+		wx.EVT_BUTTON(self.__BTN_remove, self.__BTN_remove.GetId(), self.__on_remove)
+
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.patient_selected(),
-			receiver=self.__on_patient_selected)
-		
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self.__on_patient_selected)
+	#--------------------------------------------------------
+	def __on_problem_selected(self, event):
+		"""
+		When the user changes health issue selection, update selected issue
+		reference and update buttons according its input status.
+		"""
+		issue_idx = self.__problem_list.GetSelection()
+		self.__selected_issue = [
+			issue_idx,
+			self.__problem_list.GetClientData(issue_idx)
+		]
+		#print 'Selected: %s'%(self.__selected_issue)
+
+		#if not self.__BTN_new.IsEnabled():
+		#	self.__BTN_new.Enable(True)
+
+		self.check_buttons()
 	#--------------------------------------------------------
 	def __on_save(self, event):
 		"""
 		Obtain SOAP data from selected editor and dump to backend
 		"""
 		# security check
-		if not self.__allow_perform_action(self.__save_button.GetId()):
+		if not self.__allow_perform_action(self.__BTN_save.GetId()):
 			return
-	
+
 		#FIXME initial development implementation. Refactor and update
 		vepisode_id = self.__emr.get_active_episode()['pk_episode']
 		vencounter_id = self.__emr.get_active_episode()['pk_episode']
@@ -212,7 +221,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		
 		# security check
-		if not self.__allow_perform_action(self.__clear_button.GetId()):
+		if not self.__allow_perform_action(self.__BTN_clear.GetId()):
 			return
 
 		print "Clear SOAP"
@@ -225,13 +234,13 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 
 		# security check
-		if not self.__allow_perform_action(self.__new_button.GetId()):
+		if not self.__allow_perform_action(self.__BTN_new.GetId()):
 			return
 			
 		print "New SOAP"		
 		# first SOAP input widget is displayed by showing an empty hidden one
 		if not self.__selected_soap is None and not self.__selected_soap.IsContentShown():
-			self.__issues_with_soap.append(self.__selected_issue[1])
+			self.__problems_with_soap.append(self.__selected_issue[1])
 			self.__selected_soap.SetHealthIssue(self.__selected_issue)
 			self.__selected_leaf.GetSOAPPanel().Show()
 			self.__selected_leaf.detail.Select()
@@ -243,7 +252,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			# FIXME: programmatically calculate height
 			self.__selected_leaf.AddLeaf(SOAPMultiSash.MV_VER, 130)
 
-		print "Issues with soap: %s"%(self.__issues_with_soap)
+		print "problems with soap: %s"%(self.__problems_with_soap)
 		
 		
 	#--------------------------------------------------------
@@ -253,21 +262,21 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 
 		# security check
-		if not self.__allow_perform_action(self.__remove_button.GetId()):
+		if not self.__allow_perform_action(self.__BTN_remove.GetId()):
 			return
 			
 		print "Remove SOAP"		
 		self.__selected_leaf.DestroyLeaf()
 
-		print "Issues with soap: %s"%(self.__issues_with_soap)
+		print "problems with soap: %s"%(self.__problems_with_soap)
 		# there's no leaf selected after deletion, so disable all buttons
-		self.__save_button.Disable()
-		self.__clear_button.Disable()
-		self.__remove_button.Disable()
+		self.__BTN_save.Disable()
+		self.__BTN_clear.Disable()
+		self.__BTN_remove.Disable()
 		# enable new button is soap stack is empty
 		#selected_leaf = self.__soap_multisash.GetSelectedLeaf()
 		#if self.__selected_soap.GetHealthIssue() is None:
-		#	self.__new_button.Enable(True)
+		#	self.__BTN_new.Enable(True)
 		
 	#--------------------------------------------------------	
 	def __on_patient_selected(self):
@@ -275,22 +284,6 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Current patient changed
 		"""
 		self.__schedule_data_reget()
-		
-	#--------------------------------------------------------
-	def __on_health_issue_selected(self, event):
-		"""
-		When the user changes health issue selection, update selected issue
-		reference and update buttons according its input status.
-		"""		
-		self.__selected_issue = [self.__health_issues_list.GetSelection(),
-			self.__health_issues_list.GetClientData(self.__health_issues_list.GetSelection())]
-		#print 'Selected: %s'%(self.__selected_issue)
-		
-		#if not self.__new_button.IsEnabled():
-		#	self.__new_button.Enable(True)
-
-		self.check_buttons()	
-
 	#--------------------------------------------------------	
 	def check_buttons(self):
 		"""
@@ -303,33 +296,33 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		if self.__selected_soap is None:
 			print "Selected soap NONE"
 		if len(self.__selected_issue)==0 is None:
-			print "Selected issues 0"									
+			print "Selected problems 0"									
 		if self.__selected_leaf is None or self.__selected_soap is None or len(self.__selected_issue)==0:
 			print "Won't check buttons for None leaf/soap/selected_issue"
 			return
 		
 		# if soap stack is empty, disable save, clear and remove buttons
-		print "Health issues: %s"%(self.__selected_soap.GetHealthIssue())
+		print "Health problems: %s"%(self.__selected_soap.GetHealthIssue())
 		if self.__selected_soap.GetHealthIssue() is None or self.__selected_soap.IsSaved():
-			self.__save_button.Enable(False)
-			self.__clear_button.Enable(False)
-			self.__remove_button.Enable(False)
+			self.__BTN_save.Enable(False)
+			self.__BTN_clear.Enable(False)
+			self.__BTN_remove.Enable(False)
 		else:
-			self.__save_button.Enable(True)
-			self.__clear_button.Enable(True)
-			self.__remove_button.Enable(True)
+			self.__BTN_save.Enable(True)
+			self.__BTN_clear.Enable(True)
+			self.__BTN_remove.Enable(True)
 		
 		# allow new when soap stack is empty
 		# avoid enabling new button to create more than one soap per issue.		
-		if self.__selected_issue[1] in self.__issues_with_soap:
-			self.__new_button.Enable(False)
+		if self.__selected_issue[1] in self.__problems_with_soap:
+			self.__BTN_new.Enable(False)
 		else:
-			self.__new_button.Enable(True)
+			self.__BTN_new.Enable(True)
 			
 		# disabled save button when soap was dumped to backend
 		#print "Saved: %s"%(self.__selected_soap.IsSaved())
 		if self.__selected_soap.IsSaved():
-			self.__remove_button.Enable(True)
+			self.__BTN_remove.Enable(True)
 
 	#--------------------------------------------------------	
 	def __allow_perform_action(self, action_id):
@@ -339,15 +332,15 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		@param action_id: ui widget wich fired the action
 		"""
 		if (self.__selected_leaf is None or \
-			len(self.__issues_with_soap) == 0) and \
-			action_id != self.__new_button.GetId():
+			len(self.__problems_with_soap) == 0) and \
+			action_id != self.__BTN_new.GetId():
 			wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.",
 				caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION,
 				parent = self)
 			return False
 
 		if (self.__selected_issue is None or len(self.__selected_issue) == 0) \
-			and action_id == self.__new_button.GetId():
+			and action_id == self.__BTN_new.GetId():
 			wx.wxMessageBox("There is not any problem selected.\nA problem must be selected to create a new SOAP note.",
 				caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION,
 				parent = self)
@@ -364,18 +357,18 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		# FIXME: called on resize
 		self.reset_ui_content()
-		if self.__refresh_issues_list():
+		if self.__refresh_problems_list():
 			return True
 		return False
 		
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------		
-	def get_issues_with_soap(self):
+	def get_problems_with_soap(self):
 		"""
-		Retrieve health issues for wich a SOAP note is created
+		Retrieve health problems for wich a SOAP note is created
 		"""
-		return self.__issues_with_soap
+		return self.__problems_with_soap
 		
 	#--------------------------------------------------------		
 	def get_selected_issue(self):
@@ -403,21 +396,21 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.check_buttons()
 					
 	#--------------------------------------------------------
-	def __refresh_issues_list(self):
+	def __refresh_problems_list(self):
 		"""
-		Updates health issues list
+		Updates health problems list
 		"""
 		# FIXME remove
-		if self.__health_issues_list.GetCount() > 0:
+		if self.__problem_list.GetCount() > 0:
 			return False
 		cont = 0
-		for a_health_issue in self.__emr.get_health_issues():			
+		for a_health_issue in self.__emr.get_health_problems():			
 			cont = cont+1
 			a_key = '#%s %s'%(cont,a_health_issue['description'])
-			self.__health_issues_list.Append(a_key,a_health_issue)
+			self.__problem_list.Append(a_key,a_health_issue)
 			
 		# Set sash position
-		self.__soap_emr_splitter.SetSashPosition(self.__soap_emr_splitter.GetSizeTuple()[0]/2, True)
+		self.__splitter.SetSashPosition(self.__splitter.GetSizeTuple()[0]/2, True)
 
 		return True
 
@@ -429,8 +422,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Clear all information from input panel
 		"""
 		self.__selected_issue = []
-		self.__issues_with_soap = []
-		self.__health_issues_list.Clear()
+		self.__problems_with_soap = []
+		self.__problem_list.Clear()
 		self.__soap_multisash.Clear()
 		self.__soap_multisash.SetController(self)
 		
