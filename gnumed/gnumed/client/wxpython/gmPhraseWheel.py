@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.30 2004-01-06 10:06:02 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmPhraseWheel.py,v 1.31 2004-01-12 13:14:39 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -57,16 +57,6 @@ class cWheelTimer(wxTimer):
 
 	def Notify(self):
 		self.__callback()
-#============================================================
-class cPickList(wxListBox):
-	def __init__(self, parent, id = -1):
-		wxListBox.__init__(self, parent, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
-#============================================================
-class cPickListWin(wxWindow):
-	def __init__(self, *kwds, **kwargs):
-		wxWindow.__init__(self, *kwds, **kwargs)
-		self.panel = wxPanel(self, -1)
-		self._picklist = cPickList(self.panel)
 #============================================================
 class cPhraseWheel (wxTextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface."""
@@ -121,14 +111,14 @@ class cPhraseWheel (wxTextCtrl):
 		EVT_KILL_FOCUS (self, self.on_kill_focus)
 
 		tmp = kwargs.copy()
-		width, height = kwargs['size']
-		x, y = kwargs['pos']
+		width, height = self.GetSize()
+		x, y = self.GetPosition()
 		tmp['pos'] = (x, y + height)
 		tmp['size'] = (width, height*6)
 		tmp['id'] = -1
 		self.__picklist_win = wxWindow(*args, **tmp)
-		self.panel = wxPanel(self.__picklist_win, -1)
-		self._picklist = wxListBox(self.panel, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
+		self.__picklist_pnl = wxPanel(self.__picklist_win, -1)
+		self._picklist = wxListBox(self.__picklist_pnl, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
 		self._picklist.Clear()
 		self.__picklist_win.Hide ()
 		self.__picklist_visible = _false
@@ -263,15 +253,12 @@ class cPhraseWheel (wxTextCtrl):
 				return 1
 
 		# recalculate position
-		# FiXME: check for number of entries - shrink list windows
-		(x,y) = self.ClientToScreenXY(0,0)
-		win = self
-		while not win.IsTopLevel():
-			win = win.GetParent()
-		(toplevel_x, toplevel_y) = win.ClientToScreenXY(0,0)
-
-		dim = self.GetSize()
-		self.__picklist_win.MoveXY(x - toplevel_x, y - toplevel_y + dim.height)
+		(self_x, self_y) = self.ClientToScreenXY(0,0)
+		(parent_x, parent_y) = self.GetParent().ClientToScreenXY(0,0)
+		sz = self.GetSize()
+		new_x = self_x - parent_x
+		new_y = self_y - parent_y + sz.height
+		self.__picklist_win.MoveXY(new_x, new_y)
 
 		# select first value
 		self._picklist.SetSelection(0)
@@ -407,15 +394,16 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	def on_resize (self, event):
 		sz = self.GetSize()
-		rows = len (self.__currMatches)
+		# resize: as wide as the textctrl, and 1-10 times the height
+		rows = len(self.__currMatches)
 		if rows == 0:
 			rows = 1
 		if rows > 10:
 			rows = 10
-		self._picklist.SetSize ((sz.width, sz.height*rows))
-		# as wide as the textctrl, and 6 times the height
-		self.panel.SetSize (self._picklist.GetSize ())
-		self.__picklist_win.SetSize (self.panel.GetSize())
+		new_size = (sz.width, sz.height*rows)
+		self._picklist.SetSize(new_size)
+		self.__picklist_pnl.SetSize (self._picklist.GetSize())
+		self.__picklist_win.SetSize (self.__picklist_pnl.GetSize())
 	#--------------------------------------------------------
 	def _on_timer_fired (self):
 		"""Callback for delayed match retrieval timer.
@@ -530,7 +518,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.30  2004-01-06 10:06:02  ncq
+# Revision 1.31  2004-01-12 13:14:39  ncq
+# - remove dead code
+# - correctly calculate new pick list position: don't go to TOPLEVEL
+#   window but rather to immediate parent ...
+#
+# Revision 1.30  2004/01/06 10:06:02  ncq
 # - make SQL based phrase wheel test work again
 #
 # Revision 1.29  2003/11/19 23:42:00  ncq
