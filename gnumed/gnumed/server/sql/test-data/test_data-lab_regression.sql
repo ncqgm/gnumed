@@ -4,20 +4,13 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
 -- identity
--- name
---delete from names where
---	firstnames = 'Laborata'
---		and
---	lastnames = 'Testwoman';
-
--- this should cascade to the names table
 delete from identity where
 	gender = 'f'
 		and
@@ -67,6 +60,8 @@ delete from clin_episode where pk in (
 	where id_patient = currval('identity_id_seq')
 );
 
+commit;
+begin;
 
 insert into clin_episode (
 	fk_patient,
@@ -91,6 +86,7 @@ insert into clin_narrative (
 update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
 where pk = currval('clin_episode_pk_seq');
 
+commit;
 
 -- lab request
 insert into lab_request (
@@ -114,11 +110,15 @@ insert into lab_request (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%test_data-lab_regression.sql%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.10  2004-11-28 14:38:18  ncq
+-- Revision 1.11  2004-12-06 21:11:12  ncq
+-- - properly insert episode, alas, Psql.py does not support that
+--   yet, psql, however, does
+--
+-- Revision 1.10  2004/11/28 14:38:18  ncq
 -- - some more deletes
 -- - use new method of episode naming
 -- - this actually bootstraps again
