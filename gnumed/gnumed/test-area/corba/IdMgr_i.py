@@ -46,19 +46,24 @@ class IdMgr_i (PersonIdService__POA.IdMgr, StartIdentificationComponent):
 		iperson = self._get_identify_person()
 		new_profiles = []
 		existing_ids = []
+		i = 0
+		ids = []
 		for p in profiles:
-			candidateSeq = getExistingCandidateSeq(self, p)
+			candidateSeq = getExistingCandidateSeq(self, p, 0.9)
+			if debug:
+				print "\nFor profile ", brief_profile(p),  " ALTERNATIVES WERE",
+				for c in candidateSeq:
+					brief_profile(c.profile)
 			if candidateSeq ==[]:
-				new_profiles.append(p)
+				[new_id] = self._do_register_new_ids( [p])
+				ids.append(new_id)
 			else:
-				existing_ids.append(candidateSeq[0].id)
-		if debug:
-			print "\n\nfind_or_register_ids() found these existing profiles ", existing_ids, "\n\n"
-		new_ids = self._do_register_new_ids( new_profiles)
-
-		existing_ids.extend(new_ids)
-
-		return existing_ids
+				max_conf, theOne = 0.0, None
+				for c in candidateSeq:
+					if c.confidence > max_conf:
+						theOne , max_conf = c, c.confidence
+				ids.append( theOne)
+		return ids
 
 	def register_new_ids(self, new_profiles):
 		violating_sequence_indexes = get_existing_profile_seq_indexes( self, new_profiles)
@@ -134,9 +139,10 @@ def get_existing_profile_seq_indexes( component, profiles):
 		i += 1
 	return violating_sequence_indexes
 
-def getExistingCandidateSeq(component, p):
+
+def getExistingCandidateSeq(component, p, confidence_threshold = 0.9):
 	traitSelectorSeq = getTraitSelectorSeqFromProfile(p, defaultWeight=0.2)
 	iperson = component._get_identify_person()
-	candidateSeq , iterator = iperson.find_candidates(traitSelectorSeq, [PersonIdService.PERMANENT], 0.5, 100, 10, PersonIdService.SpecifiedTraits(PersonIdService.ALL_TRAITS, [] ) )
+	candidateSeq , iterator = iperson.find_candidates(traitSelectorSeq, [PersonIdService.PERMANENT], confidence_threshold , 100, 10, PersonIdService.SpecifiedTraits(PersonIdService.ALL_TRAITS, [] ) )
 	return candidateSeq
 

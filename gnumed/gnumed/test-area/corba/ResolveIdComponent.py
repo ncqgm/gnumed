@@ -90,10 +90,6 @@ def testProfileAccess():
 	TestProfileAccess.debug = debug
 	TestProfileAccess.test()
 
-def testIdentifyPerson():
-	import TestIdentifyPerson
-	global debug
-	TestIdentifyPerson.test()
 
 def getStartIdentificationComponent():
 	from IdentifyPerson_i import IdentifyPerson_i

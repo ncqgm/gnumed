@@ -69,7 +69,7 @@ def _test_find_candidates_spec(idp , specTraits):
 		if debug:
 			print "got back candidates :"
 			for c in candidates:
-				print  c.id, [ t.value.value() for t in c.profile]
+				print  c.id, c.confidence, [ t.value.value() for t in c.profile]
 
 		for candidate in candidates:
 			if candidate.id == tprofile.id:

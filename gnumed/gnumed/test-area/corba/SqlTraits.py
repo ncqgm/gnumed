@@ -14,6 +14,8 @@ BUSINESS_PHONE_TYPE =2
 
 MAX_TRAITS_RETURNED  = 10000
 
+NO_DEFAULTS_CONFIDENCE_THRESHOLD = 0.8
+
 global hl7
 hl7 = HL7Version2_3
 
@@ -57,10 +59,10 @@ to_trait_map = { 'id': (s[0], 0),
 		'datetimeofbirth': (s[3], 0),
 		'number': (s[4], 0),
 		'street' : (s[4], 1),
-		'urb_name': (s[4], 2),
-		'postcode': (s[4], 4),
-		'state' : (s[4], 3),
-		'country_code': (s[4], 5),
+		'urb_name': (s[4], 3), # 2 is other_designation , which is not mapped in gnumed.
+		'postcode': (s[4], 5),
+		'state' : (s[4], 4),
+		'country_code': (s[4], 6),
 		'telephone_home': (s[5], 0),
 		'telephone_business': (s[6], 0),
 		'cob': (s[7],0),
@@ -84,7 +86,7 @@ default_weight_map = {
 	'datetimeofbirth': 0.8,
 	'lastnames': 0.6,
 	'firstnames': 0.6,
-	'number':0.5,
+	'number':0.6,
 	'street':0.4,
 	'urb_name': 0.3,
 	'state': 0.1,
@@ -168,7 +170,7 @@ def get_trait_map(idComponent, firstname, middle, lastname,suffix,  street, othe
 
 	n= '^'.join( [lastname, firstname, middle, suffix,'',''])
 	a='^'.join([street, otherDesignation, city, state, postcode, country,' ',' '])
-	b=''.join([str(dobYear), str(dobMonth), str(dobDay) ])
+	b= ''.join([string.zfill(dobYear,4), string.zfill(dobMonth,2), string.zfill( dobDay,2)]  ) + '0' * 6
 	s= sex
 	p='^'.join([phoneCountryCode, phoneNumber])
 	return get_trait_map_nabsp(idComponent, n,a ,b ,s, p)
@@ -296,7 +298,7 @@ def get_field_list_and_traitname_list(specifiedTraits):
 		print "field_list is ", field_list
 	return field_list, traits
 
-def get_field_weighted_value_map( traitSelectorSeq):
+def get_field_weighted_value_map( traitSelectorSeq, confidence_threshold = 0.8):
 	"""gets a map of sql field name: (value, weight for value) from a traitSelectorSeq, which is a sequence of (trait, weight) """
 	field_value_map = {}
 	for traitSelector in traitSelectorSeq:
@@ -312,10 +314,16 @@ def get_field_weighted_value_map( traitSelectorSeq):
 		for i in xrange( 0, min( len(l), len(fields) )):
 			if l[i].strip() == '':
 				continue
-			weight_limit =default_weight_map.get(fields[i], 0.2)
 
-			if weight < weight_limit:
+			if weight < 0.05 : # exclude non weights
+				continue
+			weight_limit =default_weight_map.get(fields[i], 0.1)
+			# FIXME: this will mask out low weightings for normally high
+			# weighting conditions, unless the confidence_threshold is high ( >= 0.8)
+			if weight < weight_limit and confidence_threshold <= NO_DEFAULTS_CONFIDENCE_THRESHOLD:
 				weight = weight_limit
+
+
 			print "field ", fields[i], "weight = ", weight, "weight_limit", weight_limit
 			field_value_map[fields[i]] = ( l[i], weight)
 
@@ -405,8 +413,24 @@ def do_profile_update(pu, conn):
 				statements.append("update identity set title = '%s' where id = %s" % ( l[4], pu.id))
 
 		elif trait.name == hl7.PATIENT_ADDRESS:
-			if l[1] == '' or l[2] =='' or l[3] =='' or (l[4] =='' and l[5] ==''):
+			# optional last is country
+			# other designation used to be position after street
+			# hl7 might not parse street into number and street
+			# this means , l[0] = street, l[1] = other designation,
+			#  		l[2] = urb, l[3]  = state, l[4] = postcode
+			l = preprocess_address(l)
+
+			#from here, l[0] = number, l[1] = street, l[2] = other designation,
+			#l[3] urb, l[4] = state , l[5] = postcode, l[6] = country_code
+
+			# precondition needs street , urb, ( state or postcode) ,
+
+			if l[0] == '' or l[1] == '' or l[3] == ''  or ( l[4]  == '' and l[5] == '' ):
+				print "** ADDRESS UPDATE ABORTED, INSUFFICIENT FIELDS "
 				continue
+
+			#"select gis database on l[5]"
+
 			s1 = "delete from lnk_person2address where id_identity = %s and id_type = 1"
 			s2_findUrb = "select urb.id from urb, state where state.id = urb.id_state and urb.name = '%s' and (urb.postcode = '%s' or state.code = '%s'  or state.name='%s' )"
 
@@ -421,14 +445,14 @@ def do_profile_update(pu, conn):
 			s4b2_selectNewAddress = "select currval('address_id_seq')"
 
 			cursor.execute(s1 % pu.id)
-			cursor.execute(s2_findUrb % (l[2] ,l[4] ,l[3], l[3]) )
+			cursor.execute(s2_findUrb % (l[3] ,l[5] ,l[4], l[4]) )
 			res = cursor.fetchall()
 			if (len(res) == 0):
 				urb_id = 0
 			else:
 				urb_id = res[0][0]
 
-			cursor.execute(s3_findStreet % ( l[1] ,urb_id,l[4], l[4], l[3] ))
+			cursor.execute(s3_findStreet % ( l[1] ,urb_id,l[5], l[5], l[4] ))
 			res = cursor.fetchall()
 
 
@@ -441,7 +465,7 @@ def do_profile_update(pu, conn):
 				[street_id] = cursor.fetchone()
 
 			else:
-				print "Unable to find with ", s2_findUrb % (l[2] ,l[4] ,l[3])
+				print "Unable to find with ", s2_findUrb % (l[3] ,l[5] ,l[4], l[4])
 				raise PersonIdService.ModifyOrDelete
 
 			cursor.execute(s4_selectAddress % (l[0], street_id))
@@ -555,4 +579,49 @@ select id_comm from lnk_person2comm_channel l, comm_channel c where  id_identity
 		cursor.execute(s)
 
 	return
+
+
+
+
+def is_mostly_numeric(s):
+	numbers , letters = 0, 0
+	for c in s:
+		if c in string.digits:
+			numbers += 1
+		else:
+			if c in string.letters:
+				letters += 1
+	return numbers > letters
+
+def has_no_numbers(s):
+	for c in s:
+		if c in string.digits:
+			return 0
+	return 1
+
+
+def isCapitalized(s):
+	return s[0] in string.ascii_uppercase
+
+def preprocess_address( l):
+	l = filter( lambda(x): x <> '' , l)
+	if len( l) < 5:
+		l.extend( [''] * (len(l) -5))
+	if not is_mostly_numeric( l[0] ):
+		i = 0
+		for w in l[0].split(' '):
+			if is_mostly_numeric(w):
+				last_mostly_numeric = i
+			i += 1
+		words = l[0].split(' ')
+		number = ' '.join( words [: last_mostly_numeric + 1])
+		street = ' '.join(words[last_mostly_numeric + 1:])
+		urb , state, postcode = l[1:4]
+		rest = l[4]
+	else:
+		number = l[0]
+		[street, urb, state, postcode] = l[1:5]
+		rest = l[5:]
+	return [number, street,'', urb, state, postcode] + list(rest)
+
 

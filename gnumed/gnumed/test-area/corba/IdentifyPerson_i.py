@@ -87,7 +87,7 @@ adherence. This is in part because fuzzy semantics cannot be measured.
 	queries and cache their plans. This speeds up the query, once it is first executed.
 		"""
 
-		field_weighted_value_map = get_field_weighted_value_map(traitSelectorSeq)
+		field_weighted_value_map = get_field_weighted_value_map(traitSelectorSeq, confidence_threshold)
 
 		if debug:
 			print "field_weighted_value_map = ",field_weighted_value_map
@@ -105,6 +105,8 @@ adherence. This is in part because fuzzy semantics cannot be measured.
 				continue
 
 			frag = "strpos(%s, $%d) > 0" % (field, i )
+			if debug:
+				print "weight , threshold ", weight, SqlTraits.weight_OR_threshold
 			if weight < SqlTraits.weight_OR_threshold:
 				and_frags.append(frag)
 			else:
@@ -163,17 +165,17 @@ adherence. This is in part because fuzzy semantics cannot be measured.
 		for r in result:
 			tprofile = get_tagged_profile_from_row( r, cursor.description )
 			if confidence_threshold > 0.1:
-				confidence = calculate_confidence( tprofile.profile, traitSelectorSeq)
-				confidences.append(confidence)
-				if confidence < confidence_threshold:
+				confidence, full_match_ratio = calculate_confidence( tprofile.profile, traitSelectorSeq)
+				confidences.append( (confidence, full_match_ratio ))
+				if confidence < confidence_threshold and full_match_ratio -  confidence_threshold > 0.1:
 					continue
-			candidate = PersonIdService.Candidate(tprofile.id, confidence, tprofile.profile)
+			candidate = PersonIdService.Candidate(tprofile.id,     max( confidence , full_match_ratio ), tprofile.profile)
 			candidateSeq.append(candidate)
 
 		print "number of screened candidates", len(candidateSeq)
 
 		if '-stats' in sys.argv:
-			print "The confidences found were : " ,[ c for c in confidences]
+			print "The confidences found were : " ,[ (c,m) for c,m in confidences]
 
 		return candidateSeq, None
 
@@ -188,34 +190,30 @@ def calculate_confidence( profile, traitSelectorSeq):
 	weightings = []
 	full_matches = 0
 	total_data_len = 1
+	total_weight = 0.0
 	for  trait in profile:
 		if map.has_key(trait.name):
 			tSelector = map[trait.name]
 			v1, v2 =  tSelector.trait.value.value().strip('^ ') , trait.value.value().strip('^ ')
-			if (v2.lower().find(v1.lower()) >= 0):
-				if len(v2) == 0:
-					weightings.append(0.0)
-				else:
-					if v1 == v2:
-						full_matches += 1
-					weightings.append(tSelector.weight * len(v2)  * len(v1) )
-					total_data_len += len(v2)
-	if len(weightings) == 0: return 0.1
+			if len(v1) > 0 and (v2.lower().find(v1.lower()) >= 0):
+
+				if v1 == v2:
+					full_matches += 1
+				weightings.append(tSelector.weight * float(len(v1) / len(v2)))
+				total_weight += tSelector.weight
+			total_data_len += len(v2)
+	if len(weightings) == 0: return 0.05, 0.05
 	def sum(x,y): return x + y
 	tot = reduce( sum, weightings)
-	confidence = tot    *  full_matches  / total_data_len / len(weightings) #* full_matches
+	if total_weight < 0.05 :
+		total_weight = 1.0
+ 	confidence = tot #* full_matches ? don't need full_matches because accounted for length ratio .
 	if show_confidence:
 		print "\n***********\nconfidence for :"
 		print "\tSelector=", brief_selector(traitSelectorSeq)
 		print "\tCandidate=", brief_profile(profile)
 		print "\t\tconfidence = ", confidence,"\n************\n"
-	return confidence
-
-def brief_profile(profile):
-	return [    t.value.value() for t in filter(lambda (tr): tr.name in [ hl7.PATIENT_NAME, hl7.PATIENT_ADDRESS, hl7.DATE_TIME_OF_BIRTH], profile) ]
-
-def brief_selector(selectorSeq):
-	return [    sel.trait.value.value() for sel in filter(lambda (sel): sel.trait.name in [ hl7.PATIENT_NAME, hl7.PATIENT_ADDRESS, hl7.DATE_TIME_OF_BIRTH], selectorSeq) ]
+	return confidence, full_matches / len(weightings)
 
 
 

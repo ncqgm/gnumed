@@ -22,6 +22,9 @@ global debug
 debug = "-debug" in sys.argv
 
 def init_trait_spec(idComponent):
+	"""this must be run before using some of the trait moving routine here.
+	The idea is that the server provides the supported traits.
+	"""
 	global spec, debug, specMap
 	specMap = {}
 	spec = idComponent._get_supported_traits()
@@ -131,17 +134,18 @@ def find_id_state_like(text):
 	[state] = filter( lambda(state): str(state).find(text) >= 0, PersonIdService.IdState._items)
 	return state
 
-def get_random_profile(idMgr):
+def get_random_profile(idMgr, seed = 12113):
 	"""creates a random profile.
 	"""
 	r = random.Random()
+	r.seed()
 	yr = 1900 + r.randint(0, 99)
 	month = r.randint(1, 12)
 	day = r.randint(1, 28)
-	surname = get_random_surname()
-	name = r.choice(["Jane", "Mary", "Susan", "Bob", "Tom", "Dick", "Harry"] )
+	surname = get_random_surname(seed)
+	name = r.choice(["Anwyn", "Anna", "Beryl", "Betty", "Joelle","Sara", "Martin", "Andrew", "Patrick", "Jim", "Ben", "Ernest", "Diane", "John", "Lillian", "Sharon" ,"Jane", "Mary", "Susan", "Bob", "Tom", "Dick", "Harry" ])
 	street_no = r.randint(1, 120)
-	street = get_random_street()
+	street = get_random_street(seed)
 #	city = r.choice(["Sydney", "Hong Kong", "Amsterdam", "Istanbul"])
 #	state = r.choice(["Victoria", "Wales", "Yorkshire"])
 #	postcode = r.randint(1000, 9000)
@@ -158,12 +162,13 @@ dobDay=day, dobMonth=month, dobYear=yr, sex="?", phoneCountryCode=str(code), pho
 
 def get_random_street(seed = time.time()):
 	r = random.Random(seed)
+	r.seed()
 	street = r.choice(["Bell st", "Red rd", "Blue Ave", "Black Boulevard"])
 	return street
 
-def get_random_surname():
-	r = random.Random()
-	surname = random.choice(["Smith", "Jones", "Green", "Barnaby", "Williams", "McDonald" ])
+def get_random_surname(seed = 23427):
+	r = random.Random(seed)
+	surname = random.choice(["Ali", "Gebray", "Ooi", "Chan", "Tanaka", "Kim", "Park", "Marceau", "Marriot", "Catalano", "Lee", "Hunter", "Richards", "Smith", "Jones", "Green", "Barnaby", "Williams", "McDonald" ])
 	return surname
 
 global test_locations
@@ -325,3 +330,10 @@ def trace_caller():
 				argmap[k] = v
 
 		print s[1][3]," ** CALLED FROM", inspect.getframeinfo(f[0])[0:3], argmap
+
+def brief_profile(profile):
+	return [    t.value.value() for t in filter(lambda (tr): tr.name in [ hl7.PATIENT_NAME, hl7.PATIENT_ADDRESS, hl7.DATE_TIME_OF_BIRTH], profile) ]
+
+def brief_selector(selectorSeq):
+	return [    sel.trait.value.value() for sel in filter(lambda (sel): sel.trait.name in [ hl7.PATIENT_NAME, hl7.PATIENT_ADDRESS, hl7.DATE_TIME_OF_BIRTH], selectorSeq) ]
+
