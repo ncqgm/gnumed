@@ -40,7 +40,7 @@ _whoami = gmWhoAmI.cWhoAmI()
 ] = map(lambda _init_ctrls: wxNewId(), range(6))
 #================================================================
 
-class cDocWheel(gmPhraseWheel.cPhraseWheel):
+class cLabWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, parent):
 		query = """
 			select
@@ -51,7 +51,7 @@ class cDocWheel(gmPhraseWheel.cPhraseWheel):
 			"""
 		self.mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
 		self.mp.setThresholds(aWord=2, aSubstring=4)
-		
+
 		gmPhraseWheel.cPhraseWheel.__init__(
 			self,
 			parent = parent,
@@ -69,43 +69,44 @@ class cLabJournalNB(wxNotebook):
 	def __init__(self, parent, id):
 		"""Set up our specialised notebook.
 		"""
-		# get connection
-		self.__backend = gmPG.ConnectionPool()
-		self.__defconn = self.__backend.GetConnection('blobs')
-		if self.__defconn is None:
-			_log.Log(gmLog.lErr, "Cannot retrieve lab data without database connection !")
-			raise gmExceptions.ConstructorError, "cLabJournalNB.__init__(): need db conn"
-
 		# connect to config database
+		pool = gmPG.ConnectionPool()
 		self.__dbcfg = gmCfg.cCfgSQL(
-			aConn = self.__backend.GetConnection('default'),
+			aConn = pool.GetConnection('default'),
 			aDBAPI = gmPG.dbapi
 		)
-		
+
 		wxNotebook.__init__(
 			self,
 			parent,
 			id,
 			wxDefaultPosition,
 			wxDefaultSize,
-			0 
-			)
-			
+			0
+		)
+		# tab with pending requests
 		self.PNL_due_tab = wxPanel( self, -1 )
+		szr_due = self.__init_SZR_due()
+
+		self.PNL_due_tab.SetAutoLayout( True )
+		self.PNL_due_tab.SetSizer( szr_due )
+		szr_due.Fit( self.PNL_due_tab )
+		szr_due.SetSizeHints( self.PNL_due_tab )
+
+		self.AddPage( self.PNL_due_tab, _("pending lab results"))
+
+		# tab with errors
 		self.PNL_error_tab = wxPanel( self, -1)
-		self.AddPage( self.PNL_due_tab, _("pending results"))
-		self.AddPage( self.PNL_error_tab, _("error log"))
-		
-		self.__init_PNL_due()
-		
+		self.AddPage( self.PNL_error_tab, _("lab errors"))
+
 		self.curr_pat = gmPatient.gmCurrentPatient()
 	#------------------------------------------------------------------------
-	def __init_PNL_due (self, call_fit = True, set_sizer = True ):
-	
-		item0 = wxBoxSizer( wxVERTICAL )
-		item1 = cDocWheel(self.PNL_due_tab)
-		item1.on_resize (None)
-		#item1 = wxTextCtrl( 
+	def __init_SZR_due (self, call_fit = True, set_sizer = True ):
+
+		vbszr_main = wxBoxSizer( wxVERTICAL )
+		lab_wheel = cLabWheel(self.PNL_due_tab)
+		lab_wheel.on_resize (None)
+		#lab_wheel = wxTextCtrl( 
 			#self.PNL_due_tab,
 			#wxID_PHRWH_labs,
 			#"", 
@@ -113,9 +114,9 @@ class cLabJournalNB(wxNotebook):
 			#wxSize(80,-1),
 			#0
 			#)
-		
-		item0.AddWindow( item1, 0, wxALIGN_CENTER|wxALL, 5 )
-	
+
+		vbszr_main.AddWindow(lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
+
 		item2 = wxTextCtrl(
 			self.PNL_due_tab,
 			wxIS_PHRWH_ids,
@@ -124,22 +125,23 @@ class cLabJournalNB(wxNotebook):
 			wxSize(80,-1),
 			0
 			)
-		
-		item0.AddWindow( item2, 0, wxALIGN_CENTER|wxALL, 5 )
-	
+
+		vbszr_main.AddWindow( item2, 0, wxALIGN_CENTER|wxALL, 5 )
+
 		# -- "submit lab id" button -----------
 		self.BTN_submit_Lab_ID = wxButton(
 			name = 'BTN_submit_Lab_ID',
 			parent = self.PNL_due_tab,
 			id = wxID_BTN_submit_Lab_ID,
-			label = _("submit lab id")
+			label = _("save request ID")
 		)
-		self.BTN_submit_Lab_ID.SetToolTipString(_('associate chosen lab/id with current patient'))
+		self.BTN_submit_Lab_ID.SetToolTipString(_('associate chosen lab and ID with current patient'))
 		EVT_BUTTON(self.BTN_submit_Lab_ID, wxID_BTN_submit_Lab_ID, self.on_submit_ID)
-		
-		item0.AddWindow( self.BTN_submit_Lab_ID, 0, wxALIGN_CENTER|wxALL, 5 )
-		
-		item4 = wxListBox( 
+
+		vbszr_main.AddWindow( self.BTN_submit_Lab_ID, 0, wxALIGN_CENTER|wxALL, 5 )
+
+		# maybe have a look at MultiColumnList
+		lbox_pending = wxListBox( 
 			self.PNL_due_tab,
 			wxID_LBOX_pending_results,
 			wxDefaultPosition,
@@ -147,17 +149,9 @@ class cLabJournalNB(wxNotebook):
 			["ListItem"] ,
 			wxLB_SINGLE 
 			)
-		
-		item0.AddWindow( item4, 0, wxALIGN_CENTER|wxALL, 5 )
-	
-		if set_sizer == True:
-			self.PNL_due_tab.SetAutoLayout( True )
-			self.PNL_due_tab.SetSizer( item0 )
-			if call_fit == True:
-				item0.Fit( self.PNL_due_tab )
-				item0.SetSizeHints( self.PNL_due_tab )
-		
-		return item0
+
+		vbszr_main.AddWindow( lbox_pending, 0, wxALIGN_CENTER|wxALL, 5 )
+		return vbszr_main
 
 	#------------------------------------------------------------------------
 	def OnLeftDClick(self, evt):
@@ -173,14 +167,15 @@ class cLabJournalNB(wxNotebook):
 				aTitle = _('loading lab journal')
 			)
 			return None
-			
+
 		if self.__populate_notebook() is None:
 			return None
 		return 1
-		
 	#------------------------------------------------------------------------
 	def __populate_notebook(self):
-		
+		# Unfug
+		# populate phrase_wheel on receive_focus
+		# get_last_id() on wheel.lose_focus
 		self.last_id = {}
 		labs = self.__get_all_labs()
 		for lab in labs:
@@ -205,40 +200,24 @@ class cLabJournalNB(wxNotebook):
 			
 	#------------------------------------------------------------------------
 	def __get_all_labs(self):
-		query = """
-			select
-				pk,
-				internal_name
-			from
-				test_org
-			"""
-		labs = gmPG.run_ro_query(link_obj = 'historica', aQuery = query, get_col_idx = None)
+		query = """select pk, internal_name from test_org"""
+		labs = gmPG.run_ro_query('historica', query)
 		return labs
 	#------------------------------------------------------------------------
-	def __get_last_used_ID(self,lab_name):
+	def __get_last_used_ID(self, lab_name):
 		query = """
-			select 
-				request_id 
-			from 
-				lab_request lr0 
-			where 
-				lr0.clin_when = ( 
-				select 
-					max(lr1.clin_when) 
-				from 
-					lab_request lr1 
-				where 
-					lr1.fk_test_org = ( 
-					select 
-						pk 
-					from 
-						test_org 
-					where 
-						internal_name=%s 
-					) 
-				) 
-			"""
-		last_id = gmPG.run_ro_query('historica', query,None, lab_name)
+			select request_id 
+			from lab_request lr0 
+			where lr0.clin_when = (
+				select max(lr1.clin_when)
+				from lab_request lr1 
+				where lr1.fk_test_org = ( 
+					select pk 
+					from test_org 
+					where internal_name=%s 
+				)
+			)"""
+		last_id = gmPG.run_ro_query('historica', query, None, lab_name)
 		return last_id
 	#-----------------------------------
 	# event handlers
@@ -257,134 +236,136 @@ class cLabJournalNB(wxNotebook):
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
-	from Gnumed.pycommon import gmLoginInfo
-	from Gnumed.business import gmXdtObjects, gmXdtMappings, gmDemographicRecord
+	print "let's work on the plugin version only for now"
 
-	wxID_btn_quit = wxNewId()
+#	from Gnumed.pycommon import gmLoginInfo
+#	from Gnumed.business import gmXdtObjects, gmXdtMappings, gmDemographicRecord
 
-	class cStandalonePanel(wxPanel):
+#	wxID_btn_quit = wxNewId()
 
-		def __init__(self, parent, id):
-			# get patient from file
-			if self.__get_pat_data() is None:
-				raise gmExceptions.ConstructorError, "Cannot load patient data."
+#	class cStandalonePanel(wxPanel):
+
+#		def __init__(self, parent, id):
+#			# get patient from file
+#			if self.__get_pat_data() is None:
+#				raise gmExceptions.ConstructorError, "Cannot load patient data."
 
 			# set up database connectivity
-			auth_data = gmLoginInfo.LoginInfo(
-				user = _cfg.get('database', 'user'),
-				passwd = _cfg.get('database', 'password'),
-				host = _cfg.get('database', 'host'),
-				port = _cfg.get('database', 'port'),
-				database = _cfg.get('database', 'database')
-			)
-			backend = gmPG.ConnectionPool(login = auth_data)
+#			auth_data = gmLoginInfo.LoginInfo(
+#				user = _cfg.get('database', 'user'),
+#				passwd = _cfg.get('database', 'password'),
+#				host = _cfg.get('database', 'host'),
+#				port = _cfg.get('database', 'port'),
+#				database = _cfg.get('database', 'database')
+#			)
+#			backend = gmPG.ConnectionPool(login = auth_data)
 
 			# mangle date of birth into ISO8601 (yyyymmdd) for Postgres
-			cooked_search_terms = {
+#			cooked_search_terms = {
 				#'dob': '%s%s%s' % (self.__xdt_pat['dob year'], self.__xdt_pat['dob month'], self.__xdt_pat['dob day']),
-				'lastnames': self.__xdt_pat['last name'],
-				'firstnames': self.__xdt_pat['first name'],
-				'gender': self.__xdt_pat['gender']
-			}
-			print cooked_search_terms
+#				'lastnames': self.__xdt_pat['last name'],
+#				'firstnames': self.__xdt_pat['first name'],
+#				'gender': self.__xdt_pat['gender']
+#			}
+#			print cooked_search_terms
 			# find matching patient IDs
-			searcher = gmPatient.cPatientSearcher_SQL()
-			patient_ids = searcher.get_patient_ids(search_dict = cooked_search_terms)
-			if patient_ids is None or len(patient_ids)== 0:
-				gmGuiHelpers.gm_show_error(
-					aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
-					aTitle = _('searching patient')
-				)
-				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-				raise gmExceptions.ConstructorError, "Patient from XDT file does not exist in database."
+#			searcher = gmPatient.cPatientSearcher_SQL()
+#			patient_ids = searcher.get_patient_ids(search_dict = cooked_search_terms)
+#			if patient_ids is None or len(patient_ids)== 0:
+#				gmGuiHelpers.gm_show_error(
+#					aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
+#					aTitle = _('searching patient')
+#				)
+#				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
+#				raise gmExceptions.ConstructorError, "Patient from XDT file does not exist in database."
 
 			# ambigous ?
-			if len(patient_ids) != 1:
-				gmGuiHelpers.gm_show_error(
-					aMessage = _('Data in xDT file matches more than one patient in database !'),
-					aTitle = _('searching patient')
-				)
-				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-				raise gmExceptions.ConstructorError, "Problem getting patient ID from database. Aborting."
+#			if len(patient_ids) != 1:
+#				gmGuiHelpers.gm_show_error(
+#					aMessage = _('Data in xDT file matches more than one patient in database !'),
+#					aTitle = _('searching patient')
+#				)
+#				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
+#				raise gmExceptions.ConstructorError, "Problem getting patient ID from database. Aborting."
 
-			try:
-				gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0])
-			except:
+#			try:
+#				gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0])
+#			except:
 				# this is an emergency
-				gmGuiHelpers.gm_show_error(
-					aMessage = _('Cannot load patient from database !\nAborting.'),
-					aTitle = _('searching patient')
-				)
-				_log.Log(gmLog.lPanic, 'Cannot access patient [%s] in database.' % patient_ids[0])
-				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-				raise
+#				gmGuiHelpers.gm_show_error(
+#					aMessage = _('Cannot load patient from database !\nAborting.'),
+#					aTitle = _('searching patient')
+#				)
+#				_log.Log(gmLog.lPanic, 'Cannot access patient [%s] in database.' % patient_ids[0])
+#				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
+#				raise
 
 			# make main panel
-			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
-			self.SetTitle(_("lab journal"))
+#			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
+#			self.SetTitle(_("lab journal"))
 
 			# make patient panel
-			gender = gmDemographicRecord.map_gender_gm2long[gmXdtMappings.map_gender_xdt2gm[self.__xdt_pat['gender']]]
-			self.pat_panel = wxStaticText(
-				id = -1,
-				parent = self,
-				label = "%s %s (%s), %s.%s.%s" % (self.__xdt_pat['first name'], self.__xdt_pat['last name'], gender, self.__xdt_pat['dob day'], self.__xdt_pat['dob month'], self.__xdt_pat['dob year']),
-				style = wxALIGN_CENTER
-			)
-			self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
+#			gender = gmDemographicRecord.map_gender_gm2long[gmXdtMappings.map_gender_xdt2gm[self.__xdt_pat['gender']]]
+#			self.pat_panel = wxStaticText(
+#				id = -1,
+#				parent = self,
+#				label = "%s %s (%s), %s.%s.%s" % (self.__xdt_pat['first name'], self.__xdt_pat['last name'], gender, self.__xdt_pat['dob day'], self.__xdt_pat['dob month'], self.__xdt_pat['dob year']),
+#				style = wxALIGN_CENTER
+#			)
+#			self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
 
 			# make lab journal notebook 
-			self.nb = cLabJournalNB(self, -1)
-			self.nb.update()
+#			self.nb = cLabJournalNB(self, -1)
+#			self.nb.update()
 
 			# buttons
-			btn_quit = wxButton(
-				parent = self,
-				id = wxID_btn_quit,
-				label = _('Quit')
-			)
-			EVT_BUTTON (btn_quit, wxID_btn_quit, self.__on_quit)
+#			btn_quit = wxButton(
+#				parent = self,
+#				id = wxID_btn_quit,
+#				label = _('Quit')
+#			)
+#			EVT_BUTTON (btn_quit, wxID_btn_quit, self.__on_quit)
 			
-			szr_buttons = wxBoxSizer(wxHORIZONTAL)
-			szr_buttons.Add(btn_quit, 0, wxALIGN_CENTER_VERTICAL, 1)
+#			szr_buttons = wxBoxSizer(wxHORIZONTAL)
+#			szr_buttons.Add(btn_quit, 0, wxALIGN_CENTER_VERTICAL, 1)
 
-			szr_main = wxBoxSizer(wxVERTICAL)
-			szr_main.Add(self.pat_panel, 0, wxEXPAND, 1)
-			szr_nb = wxNotebookSizer( self.nb )
+#			szr_main = wxBoxSizer(wxVERTICAL)
+#			szr_main.Add(self.pat_panel, 0, wxEXPAND, 1)
+#			szr_nb = wxNotebookSizer( self.nb )
 			
-			szr_main.Add(szr_nb, 1, wxEXPAND, 9)
-			szr_main.Add(szr_buttons, 0, wxEXPAND, 1)
+#			szr_main.Add(szr_nb, 1, wxEXPAND, 9)
+#			szr_main.Add(szr_buttons, 0, wxEXPAND, 1)
 
-			self.SetAutoLayout(1)
-			self.SetSizer(szr_main)
-			szr_main.Fit(self)
-			self.Layout()
+#			self.SetAutoLayout(1)
+#			self.SetSizer(szr_main)
+#			szr_main.Fit(self)
+#			self.Layout()
 		#--------------------------------------------------------
-		def __get_pat_data(self):
+#		def __get_pat_data(self):
 			"""Get data of patient for which to retrieve documents.
 
 			"""
 			# FIXME: error checking
-			pat_file = os.path.abspath(os.path.expanduser(_cfg.get("viewer", "patient file")))
+#			pat_file = os.path.abspath(os.path.expanduser(_cfg.get("viewer", "patient file")))
 			# FIXME: actually handle pat_format, too
-			pat_format = _cfg.get("viewer", "patient file format")
+#			pat_format = _cfg.get("viewer", "patient file format")
 
 			# get patient data from BDT file
-			try:
-				self.__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
-			except:
-				_log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
-				gmGuiHelpers.gm_show_error(
-					aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
-					aTitle = _('loading patient from xDT file')
-				)
-				return None
+#			try:
+#				self.__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
+#			except:
+#				_log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
+#				gmGuiHelpers.gm_show_error(
+#					aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
+#					aTitle = _('loading patient from xDT file')
+#				)
+#				return None
 
-			return 1
+#			return 1
 		#--------------------------------------------------------
-		def __on_quit(self, evt):
-			app = wxGetApp()
-			app.ExitMainLoop()
+#		def __on_quit(self, evt):
+#			app = wxGetApp()
+#			app.ExitMainLoop()
 
 #== classes for plugin use ======================================
 else:
@@ -486,6 +467,9 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.1  2004-04-28 07:20:00  shilbert
+# Revision 1.2  2004-04-28 16:12:02  ncq
+# - cleanups, as usual
+#
+# Revision 1.1  2004/04/28 07:20:00  shilbert
 # - initial release after name change, lacks features
 #
