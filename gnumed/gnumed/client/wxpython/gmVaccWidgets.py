@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.1 2004-07-15 23:16:20 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmVaccWidgets.py,v 1.2 2004-07-17 21:11:47 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -16,12 +16,7 @@ import sys, time
 from wxPython.wx import *
 import mx.DateTime as mxDT
 
-# FIXME: Gnumed.wxpython.gmTerryGui
-from Gnumed.wxpython.gmGuiElement_HeadingCaptionPanel import HeadingCaptionPanel
-from Gnumed.wxpython.gmGuiElement_DividerCaptionPanel import DividerCaptionPanel
-from Gnumed.wxpython.gmGuiElement_AlertCaptionPanel import AlertCaptionPanel
-
-from Gnumed.wxpython import gmEditArea, gmPhraseWheel
+from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts
 from Gnumed.business import gmPatient
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmExceptions, gmMatchProvider
 
@@ -250,15 +245,15 @@ class cImmunisationsPanel(wxPanel):
 		#-----------------------------------------------
 		# top part
 		#-----------------------------------------------
-		pnl_UpperCaption = HeadingCaptionPanel (self, -1, _("  IMMUNISATIONS  "))
+		pnl_UpperCaption = gmTerryGuiParts.cHeadingCaption(self, -1, _("  IMMUNISATIONS  "))
 		self.editarea = cVaccinationEditArea(self, -1)
 
 		#-----------------------------------------------
 		# middle part
 		#-----------------------------------------------
 		# divider headings below editing area
-		indications_heading = DividerCaptionPanel(self, -1, _("Indications"))
-		vaccinations_heading = DividerCaptionPanel(self, -1, _("Vaccinations"))
+		indications_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Indications"))
+		vaccinations_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Vaccinations"))
 		szr_MiddleCap = wxBoxSizer(wxHORIZONTAL)
 		szr_MiddleCap.Add(indications_heading, 1, wxEXPAND)
 		szr_MiddleCap.Add(vaccinations_heading, 1, wxEXPAND)
@@ -289,7 +284,7 @@ class cImmunisationsPanel(wxPanel):
 		#---------------------------------------------
 		# bottom part
 		#---------------------------------------------
-		pnl_MiddleCaption3 = DividerCaptionPanel(self, -1, _("Missing Immunisations"))
+		pnl_MiddleCaption3 = gmTerryGuiParts.cDividerCaption(self, -1, _("Missing Immunisations"))
 		self.LBOX_missing_shots = wxListBox(
 			parent = self,
 			id = ID_MissingShots,
@@ -299,7 +294,7 @@ class cImmunisationsPanel(wxPanel):
 		)
 		self.LBOX_missing_shots.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		# alert caption
-		pnl_BottomCaption = AlertCaptionPanel(self, -1, _("  Alerts  "))
+		pnl_BottomCaption = gmTerryGuiParts.cAlertCaption(self, -1, _('  Alerts  '))
 
 		#---------------------------------------------
 		# add all elements to the main background sizer
@@ -368,7 +363,7 @@ class cImmunisationsPanel(wxPanel):
 		if emr is None:
 			# FIXME: error message
 			return None
-		shots = emr.get_vaccinations(indication_list = [ind])
+		shots = emr.get_vaccinations(indications = [ind])
 		# FIXME: use Set() for entire array (but problem with client_data)
 		for shot in shots:
 			label = '%s: %s' % (shot['date'].Format('%m/%Y'), shot['vaccine'])
@@ -468,7 +463,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.1  2004-07-15 23:16:20  ncq
+# Revision 1.2  2004-07-17 21:11:47  ncq
+# - use gmTerryGuiParts
+#
+# Revision 1.1  2004/07/15 23:16:20  ncq
 # - refactor vaccinations GUI code into
 #   - gmVaccWidgets.py: layout manager independant widgets
 #   - gui/gmVaccinationsPlugins.py: Horst space notebook plugin

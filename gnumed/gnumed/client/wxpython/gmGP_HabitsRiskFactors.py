@@ -6,8 +6,8 @@ class HabitsRiskFactors(wxPanel):
 	sizer = wxBoxSizer(wxVERTICAL)
 	
 	#captions for the two columns
-	#habit_caption = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Habits")
-	#risk_caption =gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Risk Factors")
+	#habit_caption = gmTerryGuiParts..cDividerCaption(self,-1,"Habits")
+	#risk_caption = gmTerryGuiParts.cDividerCaption(self,-1,"Risk Factors")
 	
 	#text controls for each column      
 	txt_habits = wxTextCtrl(self, 30,

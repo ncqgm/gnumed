@@ -1,8 +1,7 @@
 from wxPython.wx import *
-#from wxPython.stc import *
 try:
-	import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
-	import gmGuiElement_AlertCaptionPanel          #panel to hold flashing
+	import cDividerCaption        #panel class to display sub-headings or divider headings
+	import cAlertCaption          #panel to hold flashing
 	import gmPlugin_Patient
 	from gmPatientHolder import PatientHolder
 	import gmDispatcher, gmSignals
