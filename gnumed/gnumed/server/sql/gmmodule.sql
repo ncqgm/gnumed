@@ -8,7 +8,10 @@
 -- changelog:
 -- 15.5.02:  (ihaywood) first version
 
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
 
+-- =============================================
 
 -- different clients
 CREATE TABLE client (

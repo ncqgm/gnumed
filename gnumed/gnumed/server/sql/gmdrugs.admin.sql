@@ -17,6 +17,11 @@
 
 -- NOT FINISHED, don't use use yet.
 
+-- ===================================================================
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
+
 create table users 
 (
 	login name,

@@ -3,6 +3,11 @@
 -- Interface needs to be written.
 -- PHP interface for Web: good idea?
 
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
+-- ===================================================================
+
 
 CREATE TABLE enum_stafftype (
 	id serial primary key,

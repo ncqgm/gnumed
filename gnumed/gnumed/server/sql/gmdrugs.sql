@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.22 $ $Date: 2002-11-11 03:17:43 $ $Author: ihaywood $
+-- $Revision: 1.23 $ $Date: 2002-11-17 14:57:27 $ $Author: ncq $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.22  2002-11-11 03:17:43  ihaywood
+-- Revision 1.23  2002-11-17 14:57:27  ncq
+-- - force on_error_stop for all scripts such that interactive fails, too
+--
+-- Revision 1.22  2002/11/11 03:17:43  ihaywood
 -- id fields for some columns
 --
 -- Revision 1.21  2002/11/07 03:15:55  ihaywood
@@ -47,6 +50,8 @@
 -- facilities for internationalization.
 --
 
+-- ===================================================================
+-- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 create table info_reference(
@@ -613,3 +618,5 @@ comment on column link_drug_indication.indication_code is
 'code of the disease/indication in the specified code system';
 comment on column link_drug_indication.line is 'the line (first-line, second-line) of this drug for this indication'; 
 
+-- -----------------------------------------
+-- we need to be able to "lock" certain drugs from prescribing and such

@@ -12,6 +12,11 @@
 -- TODO: further processing of the data (normalizing)
 -- ===============================================
 
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
+-- =============================================
+
 \unset ON_ERROR_STOP
 drop table pbsimport;
 \set ON_ERROR_STOP 1

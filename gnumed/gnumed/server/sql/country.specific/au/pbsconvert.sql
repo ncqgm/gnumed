@@ -1,7 +1,10 @@
 -- Script to help convert from PBS tables to gmdrugs.sql tables
 -- Ian Haywood 1/11/01
 
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
 
+-- =============================================
 
 COPY "amount_unit"  FROM stdin;
 2	mL

@@ -1,5 +1,10 @@
 -- $REVISION=1.0$
 
+-- ===================================================================
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
+
 create table enum_clinical_encounters(
 	id SERIAL primary key,
 	description text

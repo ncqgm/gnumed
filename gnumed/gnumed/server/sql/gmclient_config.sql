@@ -6,6 +6,11 @@
 -- dialogues on the fly
 -- author: Ian Haywood
 
+-- ===================================================================
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
+
 CREATE TABLE config_type (
        id SERIAL PRIMARY KEY,
        name VARCHAR (20)
