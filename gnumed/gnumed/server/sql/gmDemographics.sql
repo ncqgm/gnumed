@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.18 $
+-- $Revision: 1.19 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -445,19 +445,12 @@ comment on column staff.sign is
 -- organisation related tables
 -- ===================================================================
 create table org_address (
-	id serial primary key,
-	id_address integer not null references address(id),
-	is_head_office bool not null default true,
 	is_postal_address bool not null default true,
-	unique (id_address, is_head_office, is_postal_address)
-) ;
+	id integer unique not null default nextval ('address_id_seq')
+) inherits (address);
 
 comment on table org_address is
 	'tailors the standard address table for use by organisations';
-comment on column org_address.id_address is
-	'points to the address row belonging to this org';
-comment on column org_address.is_head_office is
-	'whether the head office is at this address';
 comment on column org_address.is_postal_address is
 	'whether this is the address to send snail mail to';
 
@@ -471,10 +464,17 @@ create table org_category (
 -- measurements will link to this, for example
 create table org (
 	id serial primary key,
+	id_org integer references org (id),
 	id_category integer not null references org_category(id),
 	description text not null,
+	memo text,
 	unique(id_category, description)
 );
+
+comment on column org.id_org is 
+'the super-organisation in the hierarchy of branches/offices. head offices have NULL here.';
+comment on column org.memo is
+'a short note regarding the organisation.';
 
 -- ===================================================================
 create table lnk_org2address (
@@ -483,6 +483,15 @@ create table lnk_org2address (
 	id_address integer not null references org_address(id),
 	unique (id_org, id_address)
 );
+
+-- ====================================================================
+create table lnk_org2comm (
+	id serial primary key,
+	id_org integer not null references org (id),
+	id_comm_channel integer not null references comm_channel (id),
+	unique (id_org, id_comm_channel)
+);
+
 
 -- ===================================================================
 -- permissions
@@ -512,6 +521,7 @@ GRANT SELECT ON
 	org_category,
 	org,
 	lnk_org2address,
+	lnk_org2comm,
 	staff_role,
 	staff
 TO GROUP "gm-doctors";
@@ -547,16 +557,21 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	org,
 	org_id_seq,
 	lnk_org2address,
-	lnk_org2address_id_seq
+	lnk_org2address_id_seq,
+	lnk_org2comm,
+	lnk_org2comm_id_seq
 TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.18 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.19 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.18  2003-12-29 15:36:50  uid66147
+-- Revision 1.19  2004-02-18 06:37:47  ihaywood
+-- extra organisation table to represent comm channels
+--
+-- Revision 1.18  2003/12/29 15:36:50  uid66147
 -- - add staff tables
 --
 -- Revision 1.17  2003/12/01 22:12:41  ncq
