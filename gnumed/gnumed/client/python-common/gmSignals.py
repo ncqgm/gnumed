@@ -23,7 +23,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -58,6 +58,19 @@ def health_issue_change_db():
 def health_issue_updated():
 	"""Announce health issue cache update within frontend."""
 	return 'health_issue_updated'
+
+
+def item_change_db():
+	"""Backend modification to clin_root_item.
+
+	- directly or indirectly
+	- the actual signal name is appended with the relevant patient ID
+	"""
+	return 'item_change_db'
+
+def clin_item_updated():
+	"""Frontend signal for clin_root_item cache update."""
+	return 'clin_item_updated'
 #-------------------------------------------------------------
 def patient_selected():
 	"the currently active patient displayed by the client has been selected"
@@ -121,7 +134,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.10  2003-07-09 16:22:04  ncq
+# Revision 1.11  2003-07-19 20:19:19  ncq
+# - add clin_root_item signals
+#
+# Revision 1.10  2003/07/09 16:22:04  ncq
 # - add health issue signals
 #
 # Revision 1.9  2003/06/25 22:47:23  ncq
