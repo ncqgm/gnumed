@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui-de/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.4 2003-02-15 12:17:28 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmXdtViewer.py,v 1.5 2003-02-15 13:52:08 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys,os,fileinput,string,linecache
@@ -34,8 +34,10 @@ import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-
 _log.Log(gmLog.lData, __version__)
+
+if __name__ == "__main__":
+	import gmI18N
 
 from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
@@ -299,9 +301,6 @@ if __name__ == '__main__':
 			frame.Show(1)
 			return 1
 	#---------------------
-	import gettext
-	_ = gettext.gettext
-	gettext.textdomain ('gnumed')
 	try:
 		app = TestApp ()
 		app.MainLoop ()
@@ -312,18 +311,46 @@ if __name__ == '__main__':
 else:
 	import gmPlugin
 
-	class gmBDT(gmPlugin.wxNotebookPlugin):
+	class gmXdtViewer(gmPlugin.wxNotebookPlugin):
 		def name (self):
-			return _("BDT")
+			return _("XDT")
 
 		def GetWidget (self, parent):
-			return gmBDT (parent)
+			self.viewer = gmXdtViewerPanel(parent)
+			return self.viewer
 
 		def MenuInfo (self):
-			return ('tools', _('&show BDT'))
+			return ('tools', _('&show XDT'))
+
+		def ReceiveFocus(self):
+			# get file name
+			# - via file select dialog
+			aWildcard = "%s (*.bdt)|*.bdt|%s (*.*)|*.*" % (_("xDT file"), _("all files"))
+			dlg = wxFileDialog(
+				parent = NULL,
+				message = _("Choose an xDT file"),
+				defaultDir = "",
+				defaultFile = "",
+				wildcard = aWildcard,
+				style = wxOPEN | wxFILE_MUST_EXIST
+			)
+			if dlg.ShowModal() == wxID_OK:
+				fname = dlg.GetPath()
+			dlg.Destroy()
+			_log.Log(gmLog.lData, 'selected [%s]' % fname)
+
+			# - via currently selected patient -> XDT files
+			# ...
+
+			self.viewer.filename = fname
+			self.viewer.Populate()
+			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.4  2003-02-15 12:17:28  ncq
+# Revision 1.5  2003-02-15 13:52:08  ncq
+# - hey, works as a plugin too, now :-))
+#
+# Revision 1.4  2003/02/15 12:17:28  ncq
 # - much better suited for plugin use
 #
 # Revision 1.3  2003/02/15 10:53:10  ncq
