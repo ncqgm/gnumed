@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.13 2003-06-29 14:08:02 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmPatientSelector.py,v 1.14 2003-07-03 15:22:19 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -961,6 +961,10 @@ if __name__ == "__main__":
 
 # search case sensitive by default, switch to insensitive if not found ?
 
+# accent insensitive search:
+#  select * from * where to_ascii(column, 'encoding') like '%test%';
+# may not work with Unicode
+
 # phrase wheel is most likely too slow
 
 # extend search fragment history
@@ -984,7 +988,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.13  2003-06-29 14:08:02  ncq
+# Revision 1.14  2003-07-03 15:22:19  ncq
+# - removed unused stuff
+#
+# Revision 1.13  2003/06/29 14:08:02  ncq
 # - extra ; removed
 # - kvk/incoming/ as default KVK dir
 #
