@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
 
-usagestr = """\n\nCreates an import script for relevant post code data
+usagestr = """
+
+Creates an import script for relevant post code data
 from the CSV file provided by Australia post
 (http://www.auspost.com.au/postcodes/)into gnumeds database
 
@@ -90,9 +92,7 @@ for line in lines:
 	l = string.split(line, import_delimiter)
 	#get rid of the quotation marks of the imported fields
 	# FIXME: must get rid of duplicates !!!
-	print "INSERT INTO urb(id_state, postcode, name) values (%d, %s, '%s');" % (states[l[state][1:-1]], l[pcode][1:-1], safestr(l[locality][1:-1]) )
+	print "INSERT INTO urb(id_state, postcode, name) values (%d, %s, '%s');" % (states[l[state][1:-1]], l[pcode][1:-1], safestr(l[locality][1:-1]))
+
 if begun:
 	print "COMMIT WORK;"
-
-
-
