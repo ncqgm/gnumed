@@ -2,7 +2,7 @@
 
 # license GPL
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/tools/Attic/transferDBset.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 #=====================================================
@@ -62,7 +62,7 @@ else:
 	machine = gmCfg.cfg_DEFAULT
 	machine2display = "DEFAULT MACHINE"
 
-print "Trying to access DB set for user %s, machine %s.\nConfig file: %s." % (user2display, machine2display, filename)
+print "User: %s\tMachine %s.\nConfig file: %s." % (user2display, machine2display, filename)
 
 # import 
 if gmCLI.has_arg('-i'):
@@ -86,7 +86,10 @@ else:
 sys.exit(0)
 #=====================================================
 # $Log: transferDBset.py,v $
-# Revision 1.2  2003-10-26 21:17:39  hinnef
+# Revision 1.3  2003-10-26 21:34:45  hinnef
+# - more clean up
+#
+# Revision 1.2  2003/10/26 21:17:39  hinnef
 # - code clean up
 #
 # Revision 1.1  2003/10/02 20:03:16  hinnef
