@@ -51,9 +51,11 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
+# don't use gmCLI in here since that would give a circular reference
+# use getopt directly, instead
 import sys, time, traceback, os.path, atexit, os, string, getopt
 
 # safely import SYSLOG, currently POSIX only
