@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-03-28 14:33:47 $
-# @version $Revision: 1.13 $ $Date: 2002-03-28 14:33:47 $ $Author: hherb $
+# @Date: $Date: 2002-04-01 02:30:51 $
+# @version $Revision: 1.14 $ $Date: 2002-04-01 02:30:51 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -289,6 +289,7 @@ class MainFrame(wxFrame):
 
 
 	def OnFileExit(self, event):
+		self.timer.Stop ()
 		self.Close()
 
 
