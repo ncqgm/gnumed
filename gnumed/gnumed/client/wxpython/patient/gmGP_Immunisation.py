@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.29 2004-05-13 19:27:10 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmGP_Immunisation.py,v 1.30 2004-05-18 20:43:17 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -145,6 +145,9 @@ class ImmunisationPanel(wxPanel):
 		"""
 		id_vacc = event.GetClientData()
 		epr = self.patient.get_clinical_record()
+		if epr is None:
+			# FIXME: error message
+			return None
 		self.editarea.set_data(epr.get_vaccinations(ID = id_vacc))
 	#----------------------------------------------------
 	def on_missing_shot_selected(self, event):
@@ -157,10 +160,13 @@ class ImmunisationPanel(wxPanel):
 		ind_list = event.GetEventObject()
 		selected_item = ind_list.GetSelection()
 		ind = ind_list.GetClientData(selected_item)
-		epr = self.patient.get_clinical_record()
-		shots = epr.get_vaccinations(indication_list = [ind])
 		# clear list
 		self.LBOX_given_shots.Set([])
+		epr = self.patient.get_clinical_record()
+		if epr is None:
+			# FIXME: error message
+			return None
+		shots = epr.get_vaccinations(indication_list = [ind])
 		# FIXME: use Set() for entire array (but problem with client_data)
 		for shot in shots:
 			label = '%s: %s' % (shot['date'].Format('%m/%Y'), shot['vaccine'])
@@ -177,6 +183,9 @@ class ImmunisationPanel(wxPanel):
 
 		# populate vaccinated-indications list
 		epr = self.patient.get_clinical_record()
+		if epr is None:
+			# FIXME: error message
+			return None
 		status, indications = epr.get_vaccinated_indications()
 		# FIXME: would be faster to use Set() but can't
 		# use Set(labels, client_data), and have to know
@@ -274,7 +283,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.29  2004-05-13 19:27:10  ncq
+# Revision 1.30  2004-05-18 20:43:17  ncq
+# - check get_clinical_record() return status
+#
+# Revision 1.29  2004/05/13 19:27:10  ncq
 # - dealing with VOs now, not dicts anymore, when calling get_missing_vaccinations()
 #
 # Revision 1.28  2004/05/13 00:07:35  ncq

@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.71 2004-05-16 14:32:51 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmEditArea.py,v 1.72 2004-05-18 20:43:17 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -1246,6 +1246,11 @@ class gmAllergyEditArea(gmEditArea):
 		allergy['is definite'] = self.fld_is_definite_allergy.GetValue()
 		# FIXME: validation
 		epr = self.patient.get_clinical_record()
+		if epr is None:
+			# FIXME: badder error message
+			wxBell()
+			_gb['main.statustext'](_('Cannot save allergy.'))
+			return None
 		status, data = epr.add_allergy(allergy)
 		if status is None:
 			wxBell()
@@ -1439,6 +1444,11 @@ class gmVaccinationEditArea(gmEditArea):
 	def _save_new_entry(self):
 		# FIXME: validation ?
 		epr = self.patient.get_clinical_record()
+		if epr is None:
+			# FIXME: badder error message
+			wxBell()
+			_gb['main.statustext'](_('Cannot save vaccination: %s') % data)
+			return None
 		# create new vaccination
 		status, data = epr.add_vaccination(self.fld_vaccine.GetValue())
 		if status is None:
@@ -2396,7 +2406,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.71  2004-05-16 14:32:51  ncq
+# Revision 1.72  2004-05-18 20:43:17  ncq
+# - check get_clinical_record() return status
+#
+# Revision 1.71  2004/05/16 14:32:51  ncq
 # - cleanup
 #
 # Revision 1.70  2004/04/27 18:43:03  ncq

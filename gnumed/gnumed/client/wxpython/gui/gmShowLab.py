@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -133,6 +133,9 @@ class cLabDataGrid(wxGrid):
 	def __populate_grid(self):
 		# FIXME: check if patient changed at all
 		emr = self.curr_pat.get_clinical_record()
+		if emr is None:
+			# FIXME: error message
+			return None
 		# FIXME: there might be too many results to handle in memory
 		lab = emr.get_lab_results()
 
@@ -369,7 +372,7 @@ if __name__ == '__main__':
 
 			# make main panel
 			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
-			self.SetTitle(_("stored lab data"))
+			self.SetTitle(_("Stored lab data"))
 
 			# make patient panel
 			gender = gmDemographicRecord.map_gender_gm2long[gmXdtMappings.map_gender_xdt2gm[self.__xdt_pat['gender']]]
@@ -582,7 +585,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.6  2004-04-20 00:15:36  ncq
+# Revision 1.7  2004-05-18 20:43:17  ncq
+# - check get_clinical_record() return status
+#
+# Revision 1.6  2004/04/20 00:15:36  ncq
 # - slight deuglification
 #
 # Revision 1.5  2004/04/16 22:28:07  shilbert

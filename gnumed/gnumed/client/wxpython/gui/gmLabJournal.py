@@ -163,7 +163,7 @@ class cLabJournalNB(wxNotebook):
 
 		self.lbox_pending.InsertColumn(0, _("date"))
 		self.lbox_pending.InsertColumn(1, _("lab"))
-		self.lbox_pending.InsertColumn(2, _("id"))
+		self.lbox_pending.InsertColumn(2, _("sample id"))
 		self.lbox_pending.InsertColumn(3, _("patient"))
 		self.lbox_pending.InsertColumn(4, _("status"))
 		
@@ -183,7 +183,7 @@ class cLabJournalNB(wxNotebook):
 		
 		vbszr.AddWindow(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
 
-		self.lbox_errors.InsertColumn(0, _("when"))
+		self.lbox_errors.InsertColumn(0, _("noticed when"))
 		self.lbox_errors.InsertColumn(1, _("problem"))
 		self.lbox_errors.InsertColumn(2, _("solution"))
 		return vbszr
@@ -204,7 +204,7 @@ class cLabJournalNB(wxNotebook):
 		self.review_Ctrl.InsertColumn(0, _("patient name"))
 		self.review_Ctrl.InsertColumn(1, _("dob"))
 		self.review_Ctrl.InsertColumn(2, _("date"))
-		self.review_Ctrl.InsertColumn(3, _("test"))
+		self.review_Ctrl.InsertColumn(3, _("analysis"))
 		self.review_Ctrl.InsertColumn(4, _("result"))
 		self.review_Ctrl.InsertColumn(5, _("info provided by lab"))
 
@@ -285,7 +285,7 @@ class cLabJournalNB(wxNotebook):
 			if not result[5] is None:
 				self.review_Ctrl.SetStringItem(index = idx, col=5, label=result[5])
 			else :
-				self.review_Ctrl.SetStringItem(index = idx, col=5, label=_('None'))
+				self.review_Ctrl.SetStringItem(index = idx, col=5, label=_('missing label'))
 	#-------------------------------------------------------------------------
 	def get_patient_for_lab_request(self,req_id,lab):
 		lab_req = gmPathLab.cLabRequest(req_id=req_id, lab=lab)
@@ -348,6 +348,9 @@ class cLabJournalNB(wxNotebook):
 		req_id = self.fld_request_id.GetValue()
 		if not req_id is None or req_id == '':
 			emr = self.curr_pat.get_clinical_record()
+			if emr is None:
+				# FIXME: error message
+				return None
 			test = gmPathLab.create_lab_request(lab=self.lab_name[0][0], req_id = req_id, pat_id = self.curr_pat['ID'], encounter_id = emr.id_encounter, episode_id= emr.id_episode)
 			#test = gmPathLab.create_lab_request(req_id='ML#SC937-0176-CEC#11', lab='Enterprise Main Lab', encounter_id = emr.id_encounter, episode_id= emr.id_episode)
 			# react on succes or failure of save_request
@@ -612,7 +615,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.10  2004-05-18 19:38:54  shilbert
+# Revision 1.11  2004-05-18 20:43:17  ncq
+# - check get_clinical_record() return status
+#
+# Revision 1.10  2004/05/18 19:38:54  shilbert
 # - gui enhancements (wxExpand)
 #
 # Revision 1.9  2004/05/08 17:43:55  ncq

@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -201,6 +201,8 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	#----------------------------------------------
 	def _on_episode_selected(self, evt):
 		epr = self.curr_pat.get_clinical_record()
+		if epr is None:
+			return None
 		ep_name = evt.GetString()
 		if not epr.set_active_episode(ep_name):
 			gmGuiHelpers.gm_show_error (
@@ -225,8 +227,10 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		self.patient_selector.SetValue('%s, %s' % (name['last'], name['first']))
 
 		# update episode selector
-		epr = self.curr_pat['clinical record']
 		self.combo_episodes.Clear()
+		epr = self.curr_pat['clinical record']
+		if epr is None:
+			return None
 		episodes = epr.get_episodes()
 		for key in episodes.keys():
 			self.combo_episodes.Append(episodes[key], key)
@@ -340,7 +344,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.36  2004-05-16 14:32:51  ncq
+# Revision 1.37  2004-05-18 20:43:17  ncq
+# - check get_clinical_record() return status
+#
+# Revision 1.36  2004/05/16 14:32:51  ncq
 # - cleanup
 #
 # Revision 1.35  2004/05/08 17:34:15  ncq
