@@ -30,11 +30,12 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
 import string, copy, os, sys, select, threading, time
+
 #gnumed specific modules
 import gmI18N, gmLog, gmLoginInfo, gmExceptions, gmBackendListener
 _log = gmLog.gmDefLog
@@ -45,20 +46,26 @@ try:
 	import pyPgSQL.PgSQL # try preferred backend library
 	dbapi = pyPgSQL.PgSQL
 	_isPGDB = 0
+	#<DEBUG>
 	print 'USING PYPGSQL!!!'
+	#</DEBUG>
 except ImportError:
 	try:
 	# well, well, no such luck - fall back to stock pgdb library
 		import psycopg # try Zope library
 		dbapi = psycopg
 		_isPGDB = 0
+		#<DEBUG>
 		print 'USING PSYCOPG'
+		#</DEBUG>
 	except ImportError:
 		try:
 			import pgdb # try standard Postgres binding
 			dbapi = pgdb
 			_isPGDB = 1
+			#<DEBUG>
 			print 'USING PGDB'
+			#</DEBUG>
 		except ImportError:
 			print "Apparently there is no database adapter available! Program halted"
 			sys.exit(-1)
@@ -614,7 +621,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.22  2002-09-30 15:48:16  ncq
+# Revision 1.23  2002-09-30 16:20:30  ncq
+# - wrap printk()s in <DEBUG>
+#
+# Revision 1.22  2002/09/30 15:48:16  ncq
 # - fix dumb bug regarding assignment of local variable logininfo
 #
 # Revision 1.21  2002/09/30 08:26:57  ncq
