@@ -505,7 +505,7 @@ class gmDemographics (gmPlugin.wxBasePlugin):
 		tb = self.gb['main.toolbar']
 		self.pt_search_button = wxBitmapButton (tb, ID_BUTTONFINDPATIENT, bitmap= images_gnuMedGP_Toolbar.getToolbar_FindPatientBitmap())
 		self.pt_search_button.SetToolTip (wxToolTip ('Find Patient'))
-		self.txt_findpatient = wxTextCtrl(tb,ID_TXTPATIENTFIND,"Frederick Nerk 153 Maybury St REDHEAD 2290")
+	      	self.txt_findpatient = wxComboBox(tb, ID_TXTPATIENTFIND, "Joe Bloggs", wxDefaultPosition,wxDefaultSize,[], wxCB_DROPDOWN)
 	    	self.txt_findpatient.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
 	      	self.lbl_age =wxStaticText(tb,-1," Age ",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL) 
 	      	self.lbl_age.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
