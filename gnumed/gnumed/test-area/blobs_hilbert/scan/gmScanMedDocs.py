@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -536,17 +536,22 @@ class ScanPanel(wxPanel):
 					quality_value = 75
 			# do we want progression ?
 			progression_flag = _cfg.get("scanning", "progressive JPEG")
-			# actually convert to JPEG
+			_log.Log(gmLog.lData, "JPEG conversion: quality level: %s, progression: %s" % (quality_level, progression_flag))
 			kwds = {}
 			kwds[quality] = quality_value
 			if progression_flag in ["yes", "on"]:
 				kwds[progressive] = 1
+			# actually convert to JPEG
 			try:
 				Image.open(bmp_name).save(jpg_name, optimize = 1, **kwds)
 			except IOError:
+				_log.LogException("optimized JPEG write failed, turning off optimization", sys.exc_info(), fatal=0)
 				Image.open(bmp_name).save(jpg_name, **kwds)
-			# remove bitmap
-			os.remove(bmp_name)
+			# remove bitmap (except Windows can't do that sometimes :-(
+			try:
+				os.remove(bmp_name)
+			except:
+				_log.LogException("Can't remove bitmap.", sys.exc_info(), fatal=0)
 
 		# hide the scanner user interface again
 		self.TwainScanner.HideUI()
@@ -988,7 +993,10 @@ else:
 			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.17  2002-12-28 21:50:39  ncq
+# Revision 1.18  2002-12-28 22:10:21  ncq
+# - Windows can't remove files sometimes
+#
+# Revision 1.17  2002/12/28 21:50:39  ncq
 # - work around failing PIL.jpeg.optimize on files larger than the buffer
 #
 # Revision 1.16  2002/12/28 21:40:17  ncq
