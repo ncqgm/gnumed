@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -10,6 +10,7 @@ import sys, os.path, cPickle, zlib, string
 from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
 from Gnumed.business import gmPatient
 from Gnumed.wxpython import gmGP_PatientPicture, gmPatientSelector, gmGuiHelpers
+from Gnumed.pycommon.gmPyCompat import *
 
 from wxPython.wx import *
 
@@ -339,7 +340,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.35  2004-05-08 17:34:15  ncq
+# Revision 1.36  2004-05-16 14:32:51  ncq
+# - cleanup
+#
+# Revision 1.35  2004/05/08 17:34:15  ncq
 # - v_i18n_enum_encounter_type is gone, use _(encounter_type)
 #
 # Revision 1.34  2004/04/20 00:17:55  ncq

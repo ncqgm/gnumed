@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.70 2004-04-27 18:43:03 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmEditArea.py,v 1.71 2004-05-16 14:32:51 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -957,7 +957,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		)
 		
 		# line 2
-		self.fld_laterality_none= wxRadioButton(parent, -1, _("None"))
+		self.fld_laterality_none= wxRadioButton(parent, -1, _("N/A"))
 		self.fld_laterality_left= wxRadioButton(parent, -1, _("L"))
 		self.fld_laterality_right= wxRadioButton(parent, -1, _("R"))
 		self.fld_laterality_both= wxRadioButton(parent, -1, _("both"))
@@ -2396,7 +2396,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.70  2004-04-27 18:43:03  ncq
+# Revision 1.71  2004-05-16 14:32:51  ncq
+# - cleanup
+#
+# Revision 1.70  2004/04/27 18:43:03  ncq
 # - fix _check_unsaved_data()
 #
 # Revision 1.69  2004/04/24 12:59:17  ncq
