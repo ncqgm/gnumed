@@ -164,38 +164,37 @@ class PrescriptionPanel (wxPanel):
 	  
 	def OnRightClickUp(self, event):
 		"""A right mouse click triggers a popup menu for the list script"""
-		#-------------------
-		#create a popup menu
-		#-------------------
-		self.menu = wxMenu()
-		self.menu.Append(0,"Authority Indications")
-		self.menu.Append(1,"Interactions")
-		self.menu.Append(2, "Pregnancy Information")
-		self.menu.Append(3,"Resticted use Information")
-		self.menu.AppendSeparator()
-		self.menu.Append(4, "Edit Item")
-		self.menu.Append(5,"Delete Item")
-		self.menu.Append(6, "Delete all Items")
-		self.menu.Append(7,"Make Item Reg 24")
-		self.menu.AppendSeparator()
-		self.menu.Append(8, "Brief Product Information")
-		self.menu.Append(9,"Full Product Information")
-		self.menu.AppendSeparator()
-		self.menu.Append(10, "Print Single Item")
-		self.menu.Append(11,"Print All Items")
-		self.menu.AppendSeparator()
-		self.menu.Append(12,"Reprint Item")
-		self.menu.Append(13,"Reprint All Items")
-		self.menu.AppendSeparator()
-		self.menu.Append(14,"Save Item no print")
-		self.menu.Append(15,"Save All Items no printt")
-		self.menu.AppendSeparator()
-		self.menu.Append(16,"Change Font")
-		self.menu.Append(17,"Save list layout")
-		self.menu.AppendSeparator()
-		self.menu.Append(18,"Help")
-		self.menu.AppendSeparator()
-		self.menu.Append(19,"Exit")
+
+		# create a temporary local popup menu
+		aMenu = wxMenu()
+		aMenu.Append(0, _("Authority Indications"))
+		aMenu.Append(1, _("Interactions"))
+		aMenu.Append(2, _("Pregnancy Information"))
+		aMenu.Append(3, _("Resticted use Information"))
+		aMenu.AppendSeparator()
+		aMenu.Append(4, _("Edit Item"))
+		aMenu.Append(5, _("Delete Item"))
+		aMenu.Append(6, _("Delete all Items"))
+		aMenu.Append(7, _("Make Item Reg 24"))
+		aMenu.AppendSeparator()
+		aMenu.Append(8, _("Brief Product Information"))
+		aMenu.Append(9, _("Full Product Information"))
+		aMenu.AppendSeparator()
+		aMenu.Append(10, _("Print Single Item"))
+		aMenu.Append(11, _("Print All Items"))
+		aMenu.AppendSeparator()
+		aMenu.Append(12, _("Reprint Item"))
+		aMenu.Append(13, _("Reprint All Items"))
+		aMenu.AppendSeparator()
+		aMenu.Append(14, _("Save Item no print"))
+		aMenu.Append(15, _("Save All Items no print"))
+		aMenu.AppendSeparator()
+		aMenu.Append(16, _("Change Font"))
+		aMenu.Append(17, _("Save list layout"))
+		aMenu.AppendSeparator()
+		aMenu.Append(18, _("Help"))
+		aMenu.AppendSeparator()
+		aMenu.Append(19, _("Exit"))
 
 		##connect the events to event handler functions
 		#EVT_MENU(self, 0, self.OnEncrypt)
@@ -203,20 +202,19 @@ class PrescriptionPanel (wxPanel):
 		#EVT_MENU(self, 1, self.OnDecrypt)
 		#EVT_MENU(self, 2, self.OnSetPassphrase)
 
-		#------------
-		#show the menu 
-		#-------------
-		popup = self.list_script.PopupMenu(self.menu,event.GetPosition()) 
+		# show the menu 
+		self.PopupMenu(aMenu, event.GetPosition())
+		#popup = self.list_script.PopupMenu(aMenu,event.GetPosition()) 
 		# whatever the user selected in the menu will have
 		# been handled already virtue of the MENU events
 		# created above
 
-		#free resources
-		self.menu.Destroy()
+		# free resources
+		aMenu.Destroy()
 
-		#anybody else needs to intercept right click events?
+		# anybody else needs to intercept right click events?
 		event.Skip()
-
+#--------------------------------------------------------------------
 class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
 	"""
 	Plugin to encapsulate the prescriptions window
