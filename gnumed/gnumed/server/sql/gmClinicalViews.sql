@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.61 2004-04-30 12:22:31 ihaywood Exp $
+-- $Id: gmClinicalViews.sql,v 1.62 2004-05-02 19:25:21 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -545,7 +545,9 @@ from
 where
 	vvr1.is_booster = false
 		and
+	-- any vacc_def in regime where seq > ...
 	vvr1.vacc_seq_no > (
+		-- ... highest seq in given vaccs
 		select count(*)
 		from v_pat_vacc4ind vpv4i2
 		where
@@ -632,13 +634,13 @@ create view v_pat_diag as
 select
 	cwd.pk as pk_diagnosis,
 	vpi.id_patient as pk_patient,
-	cauxn.narrative as diagnosis,
+	cwd.narrative as diagnosis,
 	cwd.laterality as laterality,
 	cwd.is_chronic as is_chronic,
 	cwd.is_active as is_active,
 	cwd.is_definite as is_definite,
 	cwd.is_significant as is_significant,
-	cwd.narrative as comment,
+	cauxn.narrative as comment,
 	cwd.id_encounter as pk_encounter,
 	cwd.id_episode as pk_episode
 from
@@ -646,13 +648,14 @@ from
 	v_patient_items vpi,
 	clin_aux_note cauxn
 where
-	cwd.id_encounter = vpi.id_encounter
+	cwd.pk_item = vpi.id_item
 		and
-	cwd.fk_description = cauxn.pk
+	cwd.fk_progress_note = cauxn.pk
+--		and
+--	cauxn.id_encounter = vpi.id_encounter
 ;
 
 -- =============================================
-
 GRANT SELECT ON
 	clin_root_item,
 	clin_health_issue,
@@ -790,11 +793,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.61 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.62 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.61  2004-04-30 12:22:31  ihaywood
+-- Revision 1.62  2004-05-02 19:25:21  ncq
+-- - adapt to progress_note <-> description reversal in clin_working_diag
+--
+-- Revision 1.61  2004/04/30 12:22:31  ihaywood
 -- new referral table
 -- some changes to old medications tables, but still need more work
 --
