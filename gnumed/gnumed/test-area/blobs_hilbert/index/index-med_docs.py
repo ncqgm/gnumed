@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -883,16 +883,19 @@ if __name__ == '__main__':
 		_log.LogException('Unhandled exception.', exc, fatal=1)
 		# FIXME: remove pending indexing locks
 		raise
+	# FIXME: remove pending indexing locks
 
 #======================================================
 # this line is a replacement for gmPhraseWhell just in case it doesn't work 
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.14  2002-09-17 01:44:06  ncq
+# Revision 1.15  2002-09-22 18:37:58  ncq
+# - minor cleanups
+#
+# Revision 1.14  2002/09/17 01:44:06  ncq
 # - correctly import docDocument
 #
 # Revision 1.13  2002/09/17 01:14:16  ncq
 # - delete_page seems to work now
-#
 #
