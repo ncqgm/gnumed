@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.50 $
+-- $Revision: 1.51 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -539,26 +539,11 @@ insert into allergy_state (
 
 -- =============================================
 -- family history
-insert into clin_narrative (
+insert into clin_hx_family (
 	fk_encounter,
 	fk_episode,
 	soap_cat,
-	narrative
-) values (
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
-	's',
-	'Denevan neural parasite infection'
-);
-
-insert into lnk_type2item (fk_type, fk_item) values (
-	(select pk from clin_item_type where code = 'fHx'),
-	currval('clin_root_item_pk_item_seq')
---	(select pk_item from clin_root_item where narrative = 'brother: Denevan neural parasite infection')
-);
-
-insert into clin_hx_family (
-	fk_narrative,
+	narrative,
 	relationship,
 	name_relative,
 	dob_relative,
@@ -566,13 +551,22 @@ insert into clin_hx_family (
 	age_of_death,
 	is_cause_of_death
 ) values (
-	currval('clin_narrative_pk_seq'),
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_pk_seq'),
+	's',
+	'Denevan neural parasite infection',
 	'brother',
 	'George Samuel Kirk',
 	'1928-7-19+2:00',
 	'37 years (2267, Stardate 3287)',
 	'37 years',
 	true
+);
+
+insert into lnk_type2item (fk_type, fk_item) values (
+	(select pk from clin_item_type where code = 'fHx'),
+	currval('clin_root_item_pk_item_seq')
+--	(select pk_item from clin_root_item where narrative = 'brother: Denevan neural parasite infection')
 );
 
 -- =============================================
@@ -653,11 +647,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.50 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.51 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.50  2005-03-14 14:47:37  ncq
+-- Revision 1.51  2005-03-20 18:10:30  ncq
+-- - adjust family history
+--
+-- Revision 1.50  2005/03/14 14:47:37  ncq
 -- - adjust to id_patient -> pk_patient
 -- - add family history on Kirk's brother
 --
