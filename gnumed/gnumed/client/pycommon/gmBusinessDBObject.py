@@ -54,7 +54,10 @@ Concurrency handling
 GnuMed connections always run transactions in isolation level
 "serializable". This prevents transactions happening at the
 *very same time* to overwrite each other's data. All but one
-of them will abort with a concurrency error.
+of them will abort with a concurrency error (eg if a transaction
+runs a select-for-update later than another one it will hang
+until the first transaction ends. Then it will suceed or fail
+depending on what the first transaction did).
 
 However, another transaction may have updated our row between
 the time we first fetched the data and the time we start the
@@ -65,11 +68,23 @@ update. If the row had been updated (xmin changed) or deleted
 (primary key disappeared) in the meantime then getting the row
 lock will touch zero rows even if the query itself formally
 succeeds.
+
+When detecting a change in a row due to XMIN being different
+one needs to be careful how to represent that to the user.
+The row may simply have changed but it also might have been
+deleted and a completely new and unrelated row which happens
+to have the same primary key might have been created ! This
+row might relate to a totally different context (eg. patient,
+episode, encounter).
+
+For discussion on this see the thread starting at:
+
+http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.8 2005-01-02 19:58:02 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmBusinessDBObject.py,v 1.9 2005-01-19 06:52:24 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -393,7 +408,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.8  2005-01-02 19:58:02  ncq
+# Revision 1.9  2005-01-19 06:52:24  ncq
+# - improved docstring
+#
+# Revision 1.8  2005/01/02 19:58:02  ncq
 # - remove _xmins_refetch_col_pos
 #
 # Revision 1.7  2005/01/02 16:16:52  ncq
