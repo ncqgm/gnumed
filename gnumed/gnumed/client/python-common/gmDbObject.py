@@ -1,5 +1,28 @@
+#!/usr/bin/python
+#############################################################################
+#
+# gmDbObject : base class for generic database objects
+#              this base class should provide a higher level database API      
+#              to the client programmers, since it takes care of
+#              some error handling and handles the differences
+#              between read-only and read/write connections
+#
+# ---------------------------------------------------------------------------
+#
+# @author: Dr. Horst Herb
+# @copyright: author
+# @license: GPL (details at http://www.gnu.org)
+# @dependencies: gmPG
+# @TODO: Almost everything
+############################################################################
+
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmDbObject.py,v $
+__version__ = "$Revision: 1.2 $"
+__author__  = "H. Herb <hherb@gnumed.net>"
+
+
 class DBObject:
-	"""Base class for all gnumed database objects"""
+	"""High level DB-API based base class for all gnumed database objects"""
 	
 	def __init__(self, dbbroker, service='default', select_query=None):
 		"""dbbroker: database broker as in gmPG.py
