@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.66 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -980,17 +980,17 @@ def create_default_cfg_file():
 	_log.Log(gmLog.lErr, 'Created empty config file [%s].' % tmp)
 	print "Had to create empty (default) config file [%s].\nPlease check the docs for possible settings." % tmp
 	return 1
-
-#=============================================================
-
+#-------------------------------------------------------------
 def getFirstMatchingDBSet(machine = cfg_DEFAULT, cookie = cfg_DEFAULT, option = None):
-	"""
-	Convenience funtion to get config value from database. This will 
-	search in descending order from CURRENT_USER_CURRENT_MACHINE to 
-	DEFAULT_USER_DEFAULT_MACHINE. It will not try to find entries for other
-	than the current user.
-	We assume that the config tables are found on service "default". That
-	way we can handle the db connection inside this function.
+	"""Convenience function to get config value from database.
+
+	This will search in descending order from CURRENT_USER_CURRENT_MACHINE
+	to DEFAULT_USER_DEFAULT_MACHINE. It will not try to find entries for
+	other than the current user.
+
+	We assume that the config tables are found on service "default".
+	That way we can handle the db connection inside this function.
+
 	Returns value and position of first match.
 	"""
 
@@ -1026,29 +1026,26 @@ def getFirstMatchingDBSet(machine = cfg_DEFAULT, cookie = cfg_DEFAULT, option = 
 #DEBUG
 #		_log.Log(gmLog.lData, 'Set [%s@%s]: %s' % (user, machine, result))
 
-		if not result is None:
+		if result is not None:
 			matchingSet = set[0]
 			break
 
 	db.ReleaseConnection(service = "default")
 
 	return (result,matchingSet)
-
-#=============================================================
-
+#-------------------------------------------------------------
 def setDBParam(machine = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT, option = None, value = None):
-	"""
-	Convenience funtion to store config values in the database for the 
-	current user.
-	We assume that the config tables are found on service "default". That
-	way we can handle the db connection inside this function.
-	Returns 1 if everything went all right.
-	"""
+	"""Convenience function to store config values in database for the current user.
 
+	We assume that the config tables are found on service "default".
+	That way we can handle the db connection inside this function.
+
+	Returns 1 if everything went allright.
+	"""
+	# sanity check
 	if option is None or value is None:
-		_log.Log(gmLog.lWarn, 'No option name or value specified for setDBParam')
+		_log.Log(gmLog.lWarn, 'no option name or value specified')
 		return 0
-
 	# connect to database
 	db = gmPG.ConnectionPool()
 	conn = db.GetConnection(service = "default")
@@ -1056,11 +1053,12 @@ def setDBParam(machine = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT, 
 		aConn = conn,
 		aDBAPI = gmPG.dbapi
 	)
-
 	rwconn = db.GetConnection(service = "default", readonly = 0)
 	if rwconn is None:
 		_log.Log(gmLog.lWarn, 'Could not get a rw connection for [%s@%s].' % (user, machine))
+		db.ReleaseConnection(service = "default")
 		return 0
+	# set value
 	dbcfg.set(
 		machine = machine,
 		user = user,
@@ -1070,9 +1068,8 @@ def setDBParam(machine = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT, 
 	)
 	rwconn.close()
 	db.ReleaseConnection(service = "default")
-	
-	return 1
 
+	return 1
 #=============================================================
 # main
 #=============================================================
@@ -1196,7 +1193,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.65  2003-10-22 21:37:04  hinnef
+# Revision 1.66  2003-10-22 22:05:18  ncq
+# - cleanup, coding style
+#
+# Revision 1.65  2003/10/22 21:37:04  hinnef
 # added convenience function setDBParam() to reduce redundant code on setting backend parameters
 #
 # Revision 1.64  2003/10/02 20:01:15  hinnef
