@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.11 2004-01-12 16:21:03 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmPatient.py,v 1.12 2004-01-18 21:43:00 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -117,8 +117,10 @@ class gmPerson:
 		return docs
 	#----------------------------------------------------------
 	def get_clinical_record(self):
-		if self.__db_cache.has_key('clinical record'):
+		try:
 			return self.__db_cache['clinical record']
+		except KeyError:
+			pass
 		try:
 			self.__db_cache['clinical record'] = gmClinicalRecord.gmClinicalRecord(aPKey = self.__ID)
 		except StandardError:
@@ -331,7 +333,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.11  2004-01-12 16:21:03  ncq
+# Revision 1.12  2004-01-18 21:43:00  ncq
+# - speed up get_clinical_record()
+#
+# Revision 1.11  2004/01/12 16:21:03  ncq
 # - _get_clini* -> get_clini*
 #
 # Revision 1.10  2003/11/20 01:17:14  ncq
