@@ -28,13 +28,10 @@ from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-import gmEditArea             #panel class holding editing prompts
-                                 #and text boxes
+import gmEditArea                              #panel class holding editing
+from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
+import cPickle, zlib   
 
-import gmEditArea             #panel class holding editing
-                                   #prompts and text boxes
-
-import images_gnuMedGP_Toolbar
 import gmPlugin
 
 ID_SCRIPTICON = wxNewId ()
@@ -139,8 +136,6 @@ class PrescriptionPanel (wxPanel):
 	  items = scriptdata.items()
 	  for x in range(len(items)):
 	      key, data = items[x]
-	      #print items[x]
-	      #print x, data[0],data[1],data[2]
 	      self.list_script.InsertStringItem(x, data[0])
 	      self.list_script.SetStringItem(x, 1, data[1])
 	      self.list_script.SetStringItem(x, 2, data[2])
@@ -161,14 +156,12 @@ class PrescriptionPanel (wxPanel):
           self.mainsizer.Add(self.scriptpanelheading,0,wxEXPAND)
           self.mainsizer.Add(self.sizer_authority,2,wxEXPAND)
           self.mainsizer.Add(self.editarea,10,wxEXPAND)
-          #self.mainsizer.Add(self.dummypanel2,0,wxEXPAND)
           self.mainsizer.Add(self.sizer_divider_interaction_text,0,wxEXPAND)
        	  self.mainsizer.Add(self.interactiontxt,4,wxEXPAND)
           self.mainsizer.Add(self.itemsprescribedheading,0,wxEXPAND)
 	  self.mainsizer.Add(self.list_script,4,wxEXPAND)
           self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
           self.SetSizer(self.mainsizer)
-          # self.mainsizer.Fit
           self.SetAutoLayout(true)
           self.Show(true)
       
@@ -184,24 +177,31 @@ class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
          return ('view', '&Script')
 
     def GetIcon (self):
-         return images_gnuMedGP_Toolbar.getToolbar_ScriptBitmap()
+         return getpatient_prescriptionsBitmap()
 
     def GetWidget (self, parent):
          return  PrescriptionPanel (parent, -1)
 
 
-          
-class App(wxApp):
-     def OnInit(self):
-         #frame = MyFrame(NULL,-1,"Allergies")
-         frame = MyFrame(NULL, -1, "gnuMEdGP_PreAlphaGUI__ScriptPanel_V0.0.2", 
-		                           wxDefaultPosition, size = wxSize(600,500),
-		                           style= wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
-         frame.Show (true)
-         self.SetTopWindow(frame)
-         return true
-    
 if __name__ == "__main__":
-    app = App(0)
-    app.MainLoop()#!/usr/bin/python
+	app = wxPyWidgetTester(size = (600, 600))
+	app.SetWidget(ImmunisationPanel, -1)
+	app.MainLoop()
+               
+
+#----------------------------------------------------------------------
+def getpatient_prescriptionsData():
+    return cPickle.loads(zlib.decompress(
+'x\xda\x8d\x8d\xbd\n\xc30\x0c\x84\xf7<\x85\xa0\x83\x0b\x06!w\xe8\xcf\x16\x08\
+d\xac\x87,\xb7\x96\xd2\xad\xd4}\xff\xa9\x96B\x12\x87\xb8\xb4\'c\xf8\xcew\xd6\
+\xfe\xf9\x0e\xcd\xe0\xc2\x91\xf29Qp\xcdmp-\xddi\xd7I\'"\xc6^\xb9W\x1d\x8cy\
+\xe6\xde8\x1a_t\x8c\xa1|\x16\x1dc\xca|M\xaf\x87A\x9a\xca2=r!\xa2\xc5\x04\xb0\
+5\xabI\xfe/\x99RN26&\x10\xa3-[%\xebu\x8c?\xac\xeb\xb5\xe4\xb7\xed\xd0\xbb0=\
+\xe0\xe1\xf5\xfc\xaa/\x9a\xcd\xb6\x90\x99\xfc\x01\xe6Ad\xdb' ))
+
+def getpatient_prescriptionsBitmap():
+    return wxBitmapFromXPMData(getpatient_prescriptionsData())
+
+def getpatient_prescriptionsImage():
+    return wxImageFromBitmap(getpatient_prescriptionsBitmap())
 
