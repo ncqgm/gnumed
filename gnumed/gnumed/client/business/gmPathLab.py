@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.13 2004-05-04 07:55:00 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmPathLab.py,v 1.14 2004-05-06 23:37:19 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types,sys
@@ -25,31 +25,82 @@ class cLabResult(gmClinItem.cClinItem):
 		where pk_result=%s"""
 
 	_cmds_store_payload = [
-		"""select 1"""
-#		"""select 1 from vaccination where id=%(pk_vaccination)s for update""",
-#		"""update vaccination set
-#				clin_when=%(date)s,
-#--				id_encounter
-#--				id_episode
-#				narrative=%(narrative)s,
-#--				fk_patient
-#				fk_provider=%(pk_provider)s,
-#				fk_vaccine=(select id from vaccine where trade_name=%(vaccine)s),
-#				site=%(site)s,
-#				batch_no=%(batch_no)s
-#			where id=%(pk_vaccination)s"""
+		"""select 1 from test_result where id=%(pk_result)s for update""",
+		"""update test_result set
+				clin_when=%(val_when)s,
+				narrative=%(progress_note_result)s,
+				fk_type=%(pk_test_type)s,
+				val_num=%(val_num)s,
+				val_alpha=%(val_alpha)s,
+				val_unit=%(val_unit)s,
+				val_normal_min=%(val_normal_min)s,
+				val_normal_max=%(val_normal_max)s,
+				val_normal_range=%(val_normal_range)s,
+				technically_abnormal=%(abnormal)s,
+				norm_ref_group=%(ref_group)s,
+				note_provider=%(note_provider)s,
+				material=%(material)s,
+				material_detail=%(material_detail)s,
+				reviewed_by_clinician=%(reviewed)s::bool,
+				fk_reviewer=%(pk_reviewer)s,
+				clinically_relevant=%(relevant)s::bool
+			where id=%(pk_result)s"""
 		]
 
-# remember ::bool on boolean fields ...
-
 	_updatable_fields = [
-#		'date',
-#		'narrative',
-#		'pk_provider',
-#		'vaccine',
-#		'site',
-#		'batch_no'
+		'val_when',
+		'progress_note_result',
+		'val_num',
+		'val_alpha',
+		'val_unit',
+		'val_normal_min',
+		'val_normal_max',
+		'val_normal_range',
+		'abnormal',
+		'ref_group',
+		'note_provider',
+		'material',
+		'material_detail',
+		'reviewed',
+		'pk_reviewer',
+		'relevant'
 	]
+	#--------------------------------------------------------
+	def __init__(self, aPKey=None, patient_id=None, when_field=None, when=None, test_type=None, val_num=None, val_alpha=None, unit=None):
+		pk = aPKey
+		if pk is None:
+			# sanity checks
+			if None in [patient_id, when, when_field, test_type, unit]:
+				raise gmExceptions.ConstructorError, 'parameter error: pat=%s %s=%s test_type=%s val_num=%s val_alpha=%s unit=%s' % (patient_id, when_field, when, test_type, val_num, val_alpha, unit)
+			if (val_num is None) and (val_alpha is None):
+				raise gmExceptions.ConstructorError, 'parameter error: val_num and val_alpha cannot both be None'
+			# get PK
+			params = {
+				'pat_id': patient_id,
+				'type': test_type,
+				'valn': val_num,
+				'vala': val_alpha,
+				'when': when,
+				'unit': unit
+			}
+			where_snippets = [
+				'pk_patient=%(pat_id)s',
+				'pk_test_type=%(type)s',
+				'val_num=%(valn)s::float',
+				'val_alpha=%(vala)s',
+				'%s=%%(when)s' % when_field,
+				'val_unit=%(unit)s'
+			]
+			where_clause = ' and '.join(where_snippets)
+			cmd = "select pk_result from v_results4lab_req where %s" % where_clause
+			data = gmPG.run_ro_query('historica', cmd, None, params)
+			if data is None:
+				raise gmExceptions.ConstructorError, 'error getting lab result for: pat=%s %s=%s test_type=%s val_num=%s val_alpha=%s unit=%s' % (patient_id, when_field, when, test_type, val_num, val_alpha, unit)
+			if len(data) == 0:
+				raise gmExceptions.ConstructorError, 'no lab result for: pat=%s %s=%s test_type=%s val_num=%s val_alpha=%s unit=%s' % (patient_id, when_field, when, test_type, val_num, val_alpha, unit)
+			pk = data[0][0]
+		# instantiate class
+		gmClinItem.cClinItem.__init__(self, aPKey=pk)
 	#--------------------------------------------------------
 	def get_patient(self):
 		cmd = """
@@ -238,7 +289,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.13 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.14 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -310,6 +361,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	except gmExceptions.ConstructorError, msg:
 		# either not found or operational error
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		# FIXME: use specific exception instead of testing for data !
 		if not str(msg).startswith('no lab request'):
 			return (False, msg)
 	# found ?
@@ -318,7 +370,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.13 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.14 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -347,6 +399,44 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		return (False, msg)
 	return (True, req)
 #============================================================
+def create_test_result(patient_id=None, when_field=None, when=None, test_type=None, val_num=None, val_alpha=None, unit=None, encounter_id=None, episode_id=None):
+	tres = None
+	try:
+		tres = cLabResult(
+			patient_id = patient_id,
+			when_field=when_field,
+			when=when,
+			test_type=test_type,
+			val_num=val_num,
+			val_alpha=val_alpha,
+			unit=unit
+		)
+	except gmExceptions.ConstructorError, msg:
+		# either not found or operational error
+		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		# FIXME: use specific exception instead of testing for data !
+		if not str(msg).startswith('no lab result'):
+			return (False, msg)
+	# found ?
+	if tres is not None:
+		return (True, tres)
+	# not found
+	queries = []
+	cmd = "insert into test_result (id_encounter, id_episode, fk_type, val_num, val_alpha, val_unit) values (%s, %s, %s, %s, %s, %s)"
+	queries.append((cmd, [encounter_id, episode_id, test_type, val_num, val_alpha, unit]))
+	cmd = "select currval('test_result_id_seq')"
+	queries.append((cmd, []))
+	# insert new
+	result, err = gmPG.run_commit('historica', queries, True)
+	if result is None:
+		return (False, err)
+	try:
+		tres = cLabResult(aPKey=result[0][0])
+	except gmExceptions.ConstructorError, msg:
+		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		return (False, msg)
+	return (True, tres)
+#============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
@@ -363,7 +453,7 @@ if __name__ == '__main__':
 #			lab_req = cLabRequest(aPKey=1)
 #			lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab=2)
 			lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab='Enterprise Main Lab')
-		except gmExceptions.ConstructorError, msg
+		except gmExceptions.ConstructorError, msg:
 			print "no such lab request:", msg
 			return
 		print lab_req
@@ -373,17 +463,28 @@ if __name__ == '__main__':
 		print "updatable:", lab_req.get_updatable_fields()
 		print lab_req.get_patient()
 	#--------------------------------------------------------
+	def test_create_result():
+#		data = create_test_result(patient_id=12, when_field='lab_rxd_when', when='2000-09-17 15:40', test_type=6, val_num=9.5, unit='Gpt/l')
+		print data[0]
+		print data[1]
+	#--------------------------------------------------------
 	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 
 #	test_result()
-	test_request()
+#	test_request()
+##	test_create_result()
 
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.13  2004-05-04 07:55:00  ncq
+# Revision 1.14  2004-05-06 23:37:19  ncq
+# - lab result _update_payload update
+# - lab result.__init__ now supports values other than the PK
+# - add create_test_result()
+#
+# Revision 1.13  2004/05/04 07:55:00  ncq
 # - correctly detect "no such lab request" condition in create_lab_request()
 # - fail gracefully in test_request()
 #
