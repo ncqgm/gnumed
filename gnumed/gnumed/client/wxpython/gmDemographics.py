@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.7 2004-01-04 09:33:32 ihaywood Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmDemographics.py,v 1.8 2004-01-18 21:49:18 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -684,23 +684,23 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		"""on patient_selected() signal handler , inherited from gmPatientHolder.PatientHolder"""
 		myPatient = self.patient.get_demographic_record()
 		
-		print self, "GOT THIS"
-		print "ID       ", myPatient.getID ()
-                print "name     ", myPatient.getActiveName ()
-                print "title    ", myPatient.getTitle ()
-                print "dob      ", myPatient.getDOB (aFormat = 'DD.MM.YYYY')
-                print "med age  ", myPatient.getMedicalAge()
-                adr_types = gmDemographicRecord.getAddressTypes()
-                print "adr types", adr_types
-                for type_name in adr_types:
-                        print "adr (%s)" % type_name, myPatient.getAddresses(type_name)
+#		print self, "GOT THIS"
+#		print "ID       ", myPatient.getID ()
+ #               print "name     ", myPatient.getActiveName ()
+  #              print "title    ", myPatient.getTitle ()
+   #             print "dob      ", myPatient.getDOB (aFormat = 'DD.MM.YYYY')
+    #            print "med age  ", myPatient.getMedicalAge()
+     #           adr_types = gmDemographicRecord.getAddressTypes()
+      #          print "adr types", adr_types
+       #         for type_name in adr_types:
+        #                print "adr (%s)" % type_name, myPatient.getAddresses(type_name)
 
-		try:
-			print "relations ", myPatient.get_relatives()
-		except:
-			gmLog.gmDefLog.LogException("relations ", sys.exc_info(), verbose= 1)
-			pass
-                print "--------------------------------------"
+#		try:
+#			print "relations ", myPatient.get_relatives()
+#		except:
+#			gmLog.gmDefLog.LogException("relations ", sys.exc_info(), verbose= 1)
+#			pass
+#                print "--------------------------------------"
 
 		m = self.input_fields
 
@@ -738,8 +738,9 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		pat_dob = self.patientslist.GetItem (index, 3).GetText ()
 		# load the demographic text controls
 		# send a signal to other objects
-		kwds = {'title':pat_title, 'firstnames':pat_fname, 'lastnames':pat_lname, 'dob':pat_dob, 'ID':pat_id}
-		gmDispatcher.send (gmSignals.patient_selected (), sender='Terry Patient Selector', kwds=kwds )
+		# no, you need to set gmCurrentPatient()
+#		kwds = {'title':pat_title, 'firstnames':pat_fname, 'lastnames':pat_lname, 'dob':pat_dob, 'ID':pat_id}
+#		gmDispatcher.send (gmSignals.patient_selected (), sender='Terry Patient Selector', kwds=kwds )
 
 	def FindPatient (self, name):
 		self.patientslist.SetQueryStr (gmPatientNameQuery.MakeQuery (name), service='personalia')
@@ -819,7 +820,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.7  2004-01-04 09:33:32  ihaywood
+# Revision 1.8  2004-01-18 21:49:18  ncq
+# - comment out debugging code
+#
+# Revision 1.7  2004/01/04 09:33:32  ihaywood
 # minor bugfixes, can now create new patients, but doesn't update properly
 #
 # Revision 1.6  2003/11/22 14:47:24  ncq
