@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.45 2003-11-29 01:32:55 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmEditArea.py,v 1.46 2003-11-30 01:08:25 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -291,23 +291,6 @@ _known_edit_area_types.extend(_prompt_defs.keys() )
 #	'vaccination'
 #	]
 
-# the following lines should be removed
-#f = file('editarea.yaml', 'w')
-#f.write('---\n')
-#f.close()
-#
-# The following will read the editarea.yaml file after all the editareas are constructed
-#
-#import yaml
-#for k,v in   list( yaml.load( "".join(file("../editarea.yaml")) ) )[0].items(): 
-#						#the file is at ../ to this dir,wxpython
-#	_print( k, v)
-
-
-def stacktrace():
-		print sys.exc_info()[0], sys.exc_info()[1]
-		traceback.print_tb(sys.exc_info()[2])
-
 def setValueStyle( control):
 		control.SetForegroundColour(wxColor(255, 0, 0))
 		control.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
@@ -479,22 +462,6 @@ class gmEditArea(wxPanel):
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		return []
 	#----------------------------------------------------------------
-
-# the following lines should be removed
-#	def _out_yaml(self):
-#		_print( "appending to editarea.yaml")
-#		f = file('editarea.yaml','a')
-#		list = []
-#		list.extend(self.input_fields.keys())
-#		list.sort()
-#		f.write( self._type)
-#		f.write(":\n")
-#		for x in list:
-#			f.write( "".join( ["        -" , x , '\n' ] ) )
-#		f.write('\n')
-#		f.close()
-		
-
 	def __make_editing_area(self):
 		# make edit fields
 		fields_pnl = wxPanel(self, -1, wxDefaultPosition, wxDefaultSize, style = wxRAISED_BORDER | wxTAB_TRAVERSAL)
@@ -1248,12 +1215,8 @@ class gmVaccinationEditArea(gmEditArea):
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'vaccination')
 		except gmExceptions.ConstructorError:
-			stacktrace()
-
-			_log.LogExceptions('cannot instantiate Vaccination edit area', sys.exc_info(),4)
+			_log.LogException('cannot instantiate Vaccination edit area', sys.exc_info(),verbose=1)
 			raise
-
-
 	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
 		_log.Log(gmLog.lData, "making vaccine lines")
@@ -2205,7 +2168,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.45  2003-11-29 01:32:55  ncq
+# Revision 1.46  2003-11-30 01:08:25  ncq
+# - removed dead yaml code
+#
+# Revision 1.45  2003/11/29 01:32:55  ncq
 # - fix no-exit-without-patient error
 # - start cleaning up the worst mess
 #
