@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.3 2003-02-08 00:09:46 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmTmpPatient.py,v 1.4 2003-02-09 23:38:21 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -23,7 +23,7 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmExceptions, gmPG, gmSignals
+import gmExceptions, gmPG, gmSignals, gmDispatcher
 
 gmDefPatient = None
 #============================================================
@@ -120,7 +120,6 @@ class gmPatient:
 			signal = "%s.%s" % (gmSignals.patient_modified(), self.ID),
 			callback = self.__patient_modified
 		)
-		# frontend
 	#--------------------------------------------------------
 	def __patient_modified(self):
 		# uh, oh, cache may have been modified ...
@@ -178,6 +177,13 @@ class gmPatient:
 			result = format.replace('$first$', data[0])
 			result = result.replace('$last$', data[1])
 			return result
+	#--------------------------------------------------------
+	def commit(self):
+		"""Do cleanups before dying.
+
+		- note that this may be called in a thread
+		"""
+		print "committing patient data"
 #============================================================
 def get_patient():
 	"""Get a patient object.
@@ -188,6 +194,16 @@ def get_patient():
 	not None - patient object
 	exception - failure
 	"""
+#------------------------------------------------------------
+def _patient_selected(**kwargs):
+	global gmDefPatient
+	if not gmDefPatient is None:
+		gmDefPatient.commit()
+	gmDefPatient = None
+	try:
+		gmDefPatient = gmPatient(aPKey = kwargs['kwds']['ID'])
+	except:
+		_log.LogException('Cannot change to patient [%s].' % str(kwargs), sys.exc_info())
 #============================================================
 if __name__ == "__main__":
 	while 1:
@@ -201,13 +217,14 @@ if __name__ == "__main__":
 		print "patient", pID, "exists"
 		print myPatient.getMedDocsList()
 else:
-	# shock and horror
-	myPatient = gmPatient(aPKey = 8)
-	gmDefPatient = myPatient
-	_log.Log(gmLog.lData, myPatient.getActiveName())
+	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.3  2003-02-08 00:09:46  ncq
+# Revision 1.4  2003-02-09 23:38:21  ncq
+# - now actually listens patient selectors, commits old patient and
+#   inits the new one if possible
+#
+# Revision 1.3  2003/02/08 00:09:46  ncq
 # - finally starts being useful
 #
 # Revision 1.2  2003/02/06 15:40:58  ncq
