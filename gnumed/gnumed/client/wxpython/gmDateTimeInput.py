@@ -4,12 +4,15 @@ All GnuMed date input should happen via classes in
 this module. Initially this is just a plain text box
 but using this throughout GnuMed will allow us to
 transparently add features.
+
+@copyright: author(s)
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.10 2004-07-18 20:30:53 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmDateTimeInput.py,v 1.11 2004-12-23 16:20:15 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
+__licence__ = "GPL (details at http://www.gnu.org)"
 
 import re, string
 
@@ -319,7 +322,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.10  2004-07-18 20:30:53  ncq
+# Revision 1.11  2004-12-23 16:20:15  ncq
+# - add licence
+#
+# Revision 1.10  2004/07/18 20:30:53  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.9  2004/03/05 11:22:35  ncq

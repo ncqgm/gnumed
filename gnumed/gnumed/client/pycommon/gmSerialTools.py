@@ -5,10 +5,12 @@ These functions are complementing pySerial.
 @license: GPL (details at http://www.gnu.org)
 @copyright: author
 """
-#---------------------------------------------------------------------------
+#===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmSerialTools.py,v $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmSerialTools.py,v 1.2 2004-12-23 16:19:34 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+__licence__ = "GPL (details at http://www.gnu.org)"
 
 import time, string
 
@@ -93,7 +95,10 @@ def wait_for_data(aDrv = None, aTimeout = 2500):
 	return 0
 #========================================================
 # $Log: gmSerialTools.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-12-23 16:19:34  ncq
+# - add licence
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.3  2003/11/21 15:59:47  ncq
