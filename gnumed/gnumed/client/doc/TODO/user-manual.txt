@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 ---------------------------------------------------
 Rules:
 ------
@@ -10,7 +10,15 @@ Rules:
 - please date it.
 Thanks
 ---------------------------------------------------
+Karsten.Hilbert@gmx.net Mon 06 Jan 2003 09:24:15 CET
+
 The plugin configuration is now implemented as follows:
+
+IMHO this is GnuMed configuration information. Actually it
+should live in an Administrators Guide as discussed recently
+on the list but for now we can share admin and user staff
+in the User Manual since we don't have much user level
+information yet...
 
 Upon startup GnuMed tries to read a list of which plugins to
 load. It looks in several places:
