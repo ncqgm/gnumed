@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
 
@@ -1660,6 +1660,31 @@ if __name__ == '__main__':
 		change to gnumed/client directory , then
 
 		export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py
+
+			--clean	, cleans the test data and categories
+
+			--gui 	sets up as for no arguments, then runs the client.
+			 	on normal exit of client, normal tests run, and
+				then cleanup of entered data.
+		
+			using the gui,
+
+			the 'list organisations' toolbar button , loads all organisations
+			in the database, and display suborgs and persons associated
+			with each organisation.
+
+			the 'add organisation' button will add a top-level organisation.
+			the 'add branch/division' button will work when the last selected
+			org was a top level org.
+
+			the 'add person M|F' button works if an org is selected.
+			
+			the save button works when entry is finished.
+
+			selecting on an item, will bring it into the editing area.
+			
+			No test yet for dirtied edit data, to query whether to
+			save or discard. (30/5/2004)
 		"""
 		print
 		print "In the connection query, please enter"
@@ -1740,13 +1765,13 @@ if __name__ == '__main__':
 		- test data won't go away :
 		- 'hospital' category in org_category : the test case failed in a previous run
 		and the test data was left there; now the test case won't try to delete it
-		because it exists as a pre-existing category, so manually delete with psql.
+		because it exists as a pre-existing category;
+			soln : run with  --clean  option
+			
 
 		- test-case failed unexpectedly, or break key was hit in the middle of a test-case run.
 			Soln: run with --clean option,
-				then delete temporary org_category  entries with psql.
 
-		- remote/local mixup: as above
 
 		"""
 
@@ -1863,7 +1888,11 @@ if __name__ == '__main__':
 			clean_org_categories(adminlogin)
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.23  2004-05-30 11:08:17  sjtan
+# Revision 1.24  2004-05-30 13:02:49  sjtan
+#
+# test help; need drag and drop to correct erroneous person-org relationships.
+#
+# Revision 1.23  2004/05/30 11:08:17  sjtan
 #
 # fixup clean_test_org to include delete from lnk_job2person ...
 #
