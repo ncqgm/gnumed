@@ -60,7 +60,7 @@ public interface  Medication extends ClinRootItem {
      
      public String getAmountUnit();
      public void setAmountUnit(String unit);
-     
+    
      public int getQty();
      public void setQty(int qty);
      
@@ -78,4 +78,16 @@ public interface  Medication extends ClinRootItem {
      
      public void setPresentation( String presentation);
      public String getPresentation();
+     
+     
+     public String getConvertedAmountUnit();
+     public void setConvertedAmountUnit(String convertedUnit);
+     
+     public double getConvertedDose();
+     public void setConvertedDose(double dose);
+     public void setConversionFactor(double factor);
+     public double getConversionFactor();
+     public void setPeriodString(String periodString);
+     public String getPeriodString();
 }
+     

@@ -108,7 +108,8 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
             }
             
         }
-        return earliest != null ? earliest : NullRootItem.NullItem;
+        
+        return ((earliest != null) ? earliest : NullRootItem.NullItem);
     }
     
 }

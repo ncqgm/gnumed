@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -180,6 +181,13 @@ public class Util {
     	return s.trim();
     }
     
+   public Date getRelativeDate( int years, int month, int daysAhead ) {
+       Calendar c = Calendar.getInstance();
+       c.set(Calendar.YEAR, c.get(Calendar.YEAR) + years);
+       c.set(Calendar.MONTH, c.get( Calendar.MONTH)+month);
+       c.set(Calendar.DATE, c.get(Calendar.DATE) + daysAhead);
+       return c.getTime();
+   }
    
-
+   
 }

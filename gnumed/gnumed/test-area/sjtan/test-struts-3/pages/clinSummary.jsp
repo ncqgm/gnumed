@@ -48,8 +48,49 @@
     </logic:notEqual>
     
     </table>
-     
-    
+  
+  <b> Medications </b>
+   <bean:size id="countMedications"
+   name="healthRecord" property="healthSummary.medications"/>
+   <logic:equal name="countMedications" value="0">
+            
+                <bean:message  key="medications.not.listed"/>
+             
+        </logic:equal>  
+      <logic:notEqual name="countMedications" value="0">
+     <table  border='1'>
+    		  <th>
+            <td>brandname</td>
+            <td>directions</td>
+            <td>started</td>
+            <td>last</td>
+            <td>atc code</td>
+            </th>
+            <logic:iterate   id="medication" 
+            name="healthRecord" 
+            property="healthSummary.medications"
+            >
+           
+            <tr>
+            <td>
+            </td>
+             <td>
+             <b><bean:write name="medication" property="brandname" /> </b>
+            </td>
+             <td><bean:write name="medication" property="directions" />
+            </td>
+            <td><bean:write name="medication" property="started" format="dd/MM/yy"/>
+            </td>
+    		<td><bean:write name="medication" property="last_prescribed" format="dd/MM/yy"/>
+            </td>
+           
+            <td> <bean:write name="medication" property="atc_code"/>
+            </td>
+           
+            </tr>
+            </logic:iterate>
+        </table>
+      </logic:notEqual>      
    <b>
         Allergies </b>
         
@@ -67,13 +108,8 @@
         </logic:equal>  
    <logic:notEqual name="countAllergies" value="0">
      <table  border='1'>
-        <%--   <thead><td><b></b></td> <td><b>is definite</b></td> <td> <b>description</b> </td> </thead>
-        --%>
-         
-            
-      
-           
-        <logic:iterate   id="allergy" 
+        
+           <logic:iterate   id="allergy" 
             name="healthRecord" 
             property="healthSummary.allergys"
             >

@@ -18,13 +18,14 @@ public class MedicationImpl1 extends ClinRootItemImpl1 implements Medication {
     private String brand, generic, shortDescription;
     private java.util.Date last, start, discontinued;
     private int period, qty, repeats, max_repeats;
-    private double dose;
+    private double dose, convertedDose, conversionFactor =1.0;
     private boolean prn, sr ,subsidized;
     private String DB_drug_id, DB_origin;
     private String directions;
     private String ATC, subsidyScheme;
+    
 
-    private String amountUnit, form, presentation;
+    private String amountUnit, form, presentation, periodString, convertedUnit;
     
     /** Creates a new instance of MedicationImpl1 */
     public MedicationImpl1() {
@@ -312,6 +313,64 @@ public class MedicationImpl1 extends ClinRootItemImpl1 implements Medication {
 	 */
 	public String getPresentation() {
 		 return presentation;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#getConvertedAmountUnit()
+	 */
+	public String getConvertedAmountUnit() {
+		// TODO Auto-generated method stub
+		return convertedUnit;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setConvertedAmountUnit(java.lang.String)
+	 */
+	public void setConvertedAmountUnit(String convertedUnit) {
+		this.convertedUnit = convertedUnit;
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setPeriodString(java.lang.String)
+	 */
+	public void setPeriodString(String periodString) {
+		this.periodString = periodString;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#getPeriodString()
+	 */
+	public String getPeriodString() {
+	  return periodString;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#getConvertedDose()
+	 */
+	public double getConvertedDose() {
+		return convertedDose;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setConvertedDose(double)
+	 */
+	public void setConvertedDose(double dose) {
+		convertedDose = dose;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setConversionFactor(double)
+	 */
+	public void setConversionFactor(double factor) {
+		conversionFactor = factor;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#getConversionFactor()
+	 */
+	public double getConversionFactor() {
+		return conversionFactor;
 	}
 	
     

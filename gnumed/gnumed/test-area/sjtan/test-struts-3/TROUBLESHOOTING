@@ -14,7 +14,8 @@
 
 -can't get to http://localhost:8080 when tomcat is running: url is right?
 
--permission denied when click Manager in left hand menu.  Haven't set users-xml.xml with a role manager and manager in a user's roles? change it , and  Stop and Start tomcat to get rid of previous tomcat state. ?using the right user and password.
+-permission denied when click Manager in left hand menu. 
+ Haven't set users-xml.xml with a role manager and manager in a user's roles? change it , and  Stop and Start tomcat to get rid of previous tomcat state. ?using the right user and password.
 
 
 -pasting WEB-INF/context.xml  doesn't work ? 
@@ -22,6 +23,13 @@
 	ls the path correct? 'ls' the path used to see if it exists.
 	Is the context.xml  docBase='path-to-test-struts-3' correct? 'ls' the docBase string to see if exists and leads
 	to where the application home directory is.
+
+If using the war file, make sure the webapps/gnumed-test-war/META-INF/context.xml
+has the docPath="./gnumed-test-war"; if it doesn't change it,
+then delete the conf/Catalina/localhost/gnumed-test-war.xml
+which is cached copy of the previous context.xml, if it exists.
+
+ 
 
 URL should be
 file:/${GNUMED_DIR}/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
@@ -69,5 +77,12 @@ INFO: got java.sql.SQLException: ERROR:  link_product_manufacturer: permission d
 
 This could be a table granularity access error. The view may be accessible but the user
 is not allowed to reference the underlying tables.
-
+	-got rid of the view , now a prepared select statement
+	still need permission to read tables, so
+	run set_perms_drugreg.sh after editing for users.
+	
+	
+	
+	
+	
 

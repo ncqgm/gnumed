@@ -74,6 +74,9 @@ public class HealthIssueImpl1 implements HealthIssue {
 			}
 		}
 
+                if (early == null) {
+                    early = NullRootItem.NullItem;
+                }
 		return early;
 
 	}

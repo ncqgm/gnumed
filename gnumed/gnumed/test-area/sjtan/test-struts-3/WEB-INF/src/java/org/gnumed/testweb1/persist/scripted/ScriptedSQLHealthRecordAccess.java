@@ -542,15 +542,24 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			HealthSummary01 summary, List nonFatalExceptions, Connection conn,
 			int itemsAttached) {
 		for (Iterator i = encounter.getMedications().iterator(); i.hasNext();) {
+                    EntryMedication med=null;
 			try {
-				EntryMedication v = (EntryMedication) i.next();
-				if (v.isEntered()) {
-					linkRootItem(conn, v, summary);
-					saveMedication(conn, v, summary);
-					itemsAttached++;
-				}
+				med = (EntryMedication) i.next();
+				if (med.isEntered()) {
+					
+					
+					med.updateDirections(); // parsed data added to directions
+					// one way of storing qty and repeats on clin_medication
+					med.setNarrative(med.getNarrative() + "\n\nscript:"+med.getDirections());
+					linkRootItem(conn, med, summary);
+					saveMedication(conn, med, summary);
+					itemsAttached++ ;
+				} else {
+                                    log.info("Medication "+ med.toString() +" name:"+ med.getBrandName() + " WAS NOT SAVED DUE TO ENTERED=FALSE");
+                                }
 			} catch (Exception e) {
 				nonFatalExceptions.add(e);
+                                log.info("Error in saving?" + med.getBrandName() , e);
 			}
 		}
 		return itemsAttached;
@@ -584,18 +593,20 @@ throws SQLException, DataSourceException {
 		stmt.setString(3, med.getATC_code());
 		stmt.setString(4, med.getDB_origin());
 		stmt.setString(5, med.getDB_drug_id());
-		stmt.setString(6, "");
-		stmt.setDouble(7, med.getDose());
+		stmt.setString(6, med.getConvertedAmountUnit());
+		stmt.setDouble(7, med.getConvertedDose());
 		stmt.setInt(8, med.getPeriod());
-		stmt.setString(9, "form");
+		stmt.setString(9, med.getForm());
 		stmt.setString(10, med.getDirections());
 		stmt.setBoolean( 11, med.isPRN());
 		stmt.setBoolean(12, med.isSR());
 		stmt.setDate(13, new java.sql.Date(med.getStart().getTime()));
 		stmt.setDate(14, new java.sql.Date(med.getLast().getTime()));
-		stmt.setDate(15, new java.sql.Date(med.getDiscontinued().getTime()));
-		
-		
+		stmt.setDate(15,med.getDiscontinued() == null? null: new java.sql.Date( med.getDiscontinued().getTime()));
+		stmt.setString(18, "p");
+                stmt.execute();
+                conn.commit();
+                
 	}
 
 	/** gets the next id from the sequence named */
@@ -768,8 +779,8 @@ throws SQLException, DataSourceException {
 		stmt.setInt(1, id.intValue());
 		stmt.setTimestamp(startIndex++, new Timestamp(item.getClin_when()
 				.getTime()));
-		stmt.setString(startIndex++, item.getNarrative() == null ? "" : item
-				.getNarrative());
+		stmt.setString(startIndex++, ( item.getNarrative() == null ? "" : item
+				.getNarrative() ) );
 
 		stmt.setString(startIndex++, item.getSoapCat().substring(0, 1));
 		stmt.setInt(startIndex++, item.getEncounter().getId().intValue());

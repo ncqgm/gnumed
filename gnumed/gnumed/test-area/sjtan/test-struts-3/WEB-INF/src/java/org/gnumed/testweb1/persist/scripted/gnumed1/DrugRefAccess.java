@@ -27,10 +27,11 @@ public interface DrugRefAccess extends DataSourceUsing, DataObjectFactoryUsing {
     
     final static String ID_PRODUCT="id_product", ID_PRODUCT2="id_product2", BRAND_NAME="brandname", 
 	ATC_CODE="atc_code", ATC_NAME="atc_name", PKG_SIZE="pkg_size",
-	DRUG_UNITS="drug_units", ROUTE_LONG="route_description" , ROUTE_SHORT="route_abbrev",
+	 ROUTE_LONG="route_description" , ROUTE_SHORT="route_abbrev",
 	SUBSIDIZIED_QTY="subsidized_qty", MAX_RPT="max_rpt", COPAYMENT="copayment", 
 	SUBSIDY_SCHEME = "sub_scheme", COUNTRY_CODE="country_code",
-	DRUG_SHORT_DESCRIPTION="drug_description", DRUG_FORMULATION="drug_formulation";
+	DRUG_SHORT_DESCRIPTION="drug_description", DRUG_FORMULATION="drug_formulation",
+        AMOUNT_UNIT="amount_unit";
     
     final static String[] TABLES= { "atc", "link_product_manufacturer", "drug_formulations",
     "package_size", "drug_units", "drug_routes",  "drug_element", 
@@ -57,7 +58,7 @@ public interface DrugRefAccess extends DataSourceUsing, DataObjectFactoryUsing {
     final static String SELECT_PRODUCTS_DRUGREF=	"select distinct(p.id) as "+ID_PRODUCT2+",  lpm.brandname as "+ BRAND_NAME+", "+
     	"atc.code as "+ATC_CODE +", atc.text as "+ATC_NAME + ", " +
 		"pkgsz.size as " +PKG_SIZE + " , " + "form.description as "+ DRUG_FORMULATION +", "+
-    		"du.unit as "+ DRUG_UNITS + " , dr.description as "+ ROUTE_LONG + ", " +
+    		"du.unit as "+ AMOUNT_UNIT + " , dr.description as "+ ROUTE_LONG + ", " +
     		"dr.abbreviation as " + ROUTE_SHORT + ", p.comment as " + DRUG_SHORT_DESCRIPTION +
 			" from link_product_manufacturer lpm," +
     		" atc, product p, drug_formulations form, package_size pkgsz, " +
@@ -72,14 +73,19 @@ public interface DrugRefAccess extends DataSourceUsing, DataObjectFactoryUsing {
     		" su.iso_countrycode as "+COUNTRY_CODE+"  from  " +
     		"subsidized_products sp, subsidies su  " +
     		"where sp.id_subsidy = su.id order by sp.id_product";
-    
-    final static String VIEW_NAME = "v_drugref1";
-    
-    final static String CREATE_VIEW_DRUGS = "create view "+VIEW_NAME+" as select * from ( "
-    	+SELECT_PRODUCTS_DRUGREF+") as products " +
-    			"left outer join (" + SELECT_SUBSIDIES_DRUGREF +
-				") as subsidy on (subsidy."+ID_PRODUCT+"=products."+ID_PRODUCT2+") ";
-	
+//    
+//    final static String VIEW_NAME = "v_drugref1";
+//    
+//    final static String CREATE_VIEW_DRUGS = "create view "+VIEW_NAME+" as select * from ( "
+//    	+SELECT_PRODUCTS_DRUGREF+") as products " +
+//    			"left outer join (" + SELECT_SUBSIDIES_DRUGREF +
+//				") as subsidy on (subsidy."+ID_PRODUCT+"=products."+ID_PRODUCT2+") ";
+
+   final static String SELECT_DRUGREF = 
+   "select * from ("+SELECT_PRODUCTS_DRUGREF+") as products " +
+   		"left outer join (" + SELECT_SUBSIDIES_DRUGREF+
+                ") as subsidy" +
+                " on (subsidy."+ID_PRODUCT+"=products."+ID_PRODUCT2+") ";
    
   
 }

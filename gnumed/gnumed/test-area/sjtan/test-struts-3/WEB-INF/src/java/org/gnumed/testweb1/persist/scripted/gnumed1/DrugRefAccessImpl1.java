@@ -36,11 +36,12 @@ public class DrugRefAccessImpl1 implements DrugRefAccess {
         if ("".equals(name))
             return  new org.gnumed.testweb1.data.DrugRef[0];
         
-        String s2 = "select * from " + VIEW_NAME + " where "+
-        BRAND_NAME + " ilike '"+name+"%' or " + ATC_NAME + " ilike '"+name+"%'";
+        String s2 =  SELECT_DRUGREF + " where position ( lower( ? ) in lower("+
+        BRAND_NAME + ") ) > 0 or position ( lower( ? ) in lower(" +  ATC_NAME + ") ) > 0";
         Connection conn = getDataSource().getConnection();
         PreparedStatement stmt = conn.prepareStatement(s2);
-        
+        stmt.setString(1, name);
+        stmt.setString(2, name);
         stmt.execute();
         
         ResultSet rs = stmt.getResultSet();
@@ -57,7 +58,8 @@ public class DrugRefAccessImpl1 implements DrugRefAccess {
             rs.getInt(MAX_RPT),
             rs.getInt(PKG_SIZE),
             rs.getString(SUBSIDY_SCHEME),
-            rs.getString(DRUG_FORMULATION)
+            rs.getString(DRUG_FORMULATION),
+            rs.getString(AMOUNT_UNIT)
             );
             l.add(drugRef);
             
@@ -76,29 +78,29 @@ public class DrugRefAccessImpl1 implements DrugRefAccess {
     
     public void load() throws java.sql.SQLException {
         
-        Connection conn = getDataSource().getConnection();
-        
-        Statement stmt = conn.createStatement();
-        
-        conn.rollback();
-//        for (int k = 0; k < 3; ++k ) {
-            boolean denied = false;
-            try {
-                stmt.executeUpdate(CREATE_VIEW_DRUGS);
-                conn.commit();
-            } catch (Exception e){
-                if (e.toString().indexOf("permission denied") >= 0)
-                    denied = true;
-            }
-            try {
-                stmt.execute( "select * from " +VIEW_NAME +" limit 1");
-                conn.commit();
-//                break;
-            } catch(Exception e) {
-                log.info("got " + e + " when SELECT FROM" + VIEW_NAME);
-                if (e.toString().indexOf("permission denied") >= 0)
-                    denied = true;
-            }
+//        Connection conn = getDataSource().getConnection();
+//        
+//        Statement stmt = conn.createStatement();
+//        
+//        conn.rollback();
+////        for (int k = 0; k < 3; ++k ) {
+//            boolean denied = false;
+//            try {
+//                stmt.executeUpdate(CREATE_VIEW_DRUGS);
+//                conn.commit();
+//            } catch (Exception e){
+//                if (e.toString().indexOf("permission denied") >= 0)
+//                    denied = true;
+//            }
+//            try {
+//                stmt.execute( "select * from " +VIEW_NAME +" limit 1");
+//                conn.commit();
+////                break;
+//            } catch(Exception e) {
+//                log.info("got " + e + " when SELECT FROM" + VIEW_NAME);
+//                if (e.toString().indexOf("permission denied") >= 0)
+//                    denied = true;
+//           }
 //            if (denied) {
 //                GrantSetupDialog dialog = new GrantSetupDialog(new java.awt.Frame(), true);
 //                dialog.setLogin(this);
@@ -133,9 +135,9 @@ public class DrugRefAccessImpl1 implements DrugRefAccess {
 //            }
 //            
 //        }
-        stmt.close();
-        conn.close();
-        
+//        stmt.close();
+//        conn.close();
+//        
     }
     
     

@@ -15,7 +15,7 @@ public class DrugRefImpl1 implements DrugRef, DrugRefConstructed {
 	int subsidizedRepeats, subsidizedQty, packageSize;
 	Integer id;
 	String routeAbbrev;
-	String scheme, form;
+	String scheme, form, amountUnit;
 	 
 	/* (non-Javadoc)
 	 * @see org.gnumed.testweb1.data.DrugRef#getBrandName()
@@ -107,7 +107,7 @@ public class DrugRefImpl1 implements DrugRef, DrugRefConstructed {
         /* (non-Javadoc)
 	 * @see org.gnumed.testweb1.data.DrugRefConstructed#setAttributes(java.lang.Integer, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, int, int)
 	 */
-	public void setAttributes(Integer id, String brandName, String atc, String atc_code, String description, int qty, int rpts, int pkg_size, String scheme, String form) {
+	public void setAttributes(Integer id, String brandName, String atc, String atc_code, String description, int qty, int rpts, int pkg_size, String scheme, String form,  String amountUnit) {
 		this.id = id;
 		this.brandName = brandName;
 		this.atc_code = atc_code;
@@ -117,6 +117,11 @@ public class DrugRefImpl1 implements DrugRef, DrugRefConstructed {
 		this.subsidizedRepeats = rpts;
 		this.scheme = scheme;
                 this.form = form;
+                this.amountUnit = amountUnit;
 	}
+        
+        public String getAmountUnit() {
+            return amountUnit;
+        }
         
 }

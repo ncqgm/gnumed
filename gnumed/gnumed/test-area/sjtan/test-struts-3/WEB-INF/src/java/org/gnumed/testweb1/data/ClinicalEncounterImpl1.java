@@ -42,7 +42,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
         
     }
     
-    
+     
     public ClinicalEncounterImpl1( int nn, int nm, int nv, int na, DataObjectFactory f) {
         this();
         load( narratives, nn, f.createClinNarrative() );
@@ -50,7 +50,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
         load( vaccinations, nv, f.createVaccination() );
         //load( allergys, na, f.createAllergy() );
     }
-    
+     
     private void load(List l, int n, Object o) {
         System.err.println("l , n, o" + l + n + o);
         try {
@@ -201,6 +201,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
         l.addAll(getAllergies());
         l.addAll(getVaccinations());
         l.addAll(getVitals());
+        l.addAll(getMedications());
         return (ClinRootItem[]) l.toArray( new ClinRootItem[0]);
     }    
      
