@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.15 2003-07-07 08:34:31 ihaywood Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmPatientSelector.py,v 1.16 2003-09-21 07:52:57 ihaywood Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -52,16 +52,16 @@ def _normalize_soundalikes(aString = None, aggressive = 0):
 		return aString
 	else:
 		# umlauts
-		normalized =    aString.replace('Ä', '(Ä|AE|Ae|E)')
-		normalized = normalized.replace('Ö', '(Ö|OE|Oe)')
-		normalized = normalized.replace('Ü', '(Ü|UE|Ue)')
-		normalized = normalized.replace('ä', '(ä|ae|e)')
-		normalized = normalized.replace('ö', '(ö|oe)')
-		normalized = normalized.replace('ü', '(ü|ue|y)')
-		normalized = normalized.replace('ß', '(ß|sz|ss)')
+		normalized =    aString.replace(u'Ä', u'(Ä|AE|Ae|E)')
+		normalized = normalized.replace(u'Ö', u'(Ö|OE|Oe)')
+		normalized = normalized.replace(u'Ü', u'(Ü|UE|Ue)')
+		normalized = normalized.replace(u'ä', u'(ä|ae|e)')
+		normalized = normalized.replace(u'ö', u'(ö|oe)')
+		normalized = normalized.replace(u'ü', u'(ü|ue|y)')
+		normalized = normalized.replace(u'ß', u'(ß|sz|ss)')
 		# common soundalikes
 		# - René, Desiré, ...
-		normalized = normalized.replace('é', '(é|e)')
+		normalized = normalized.replace(u'é', u'(é|e)')
 		# FIXME: how to sanely replace t -> th ?
 		normalized = normalized.replace('Th', '(Th|T)')
 		normalized = normalized.replace('th', '(th|t)')
@@ -988,7 +988,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.15  2003-07-07 08:34:31  ihaywood
+# Revision 1.16  2003-09-21 07:52:57  ihaywood
+# those bloody umlauts killed by python interpreter!
+#
+# Revision 1.15  2003/07/07 08:34:31  ihaywood
 # bugfixes on gmdrugs.sql for postgres 7.3
 #
 # Revision 1.14  2003/07/03 15:22:19  ncq

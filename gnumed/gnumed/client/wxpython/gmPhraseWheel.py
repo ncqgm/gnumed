@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.10 2003-09-17 05:54:32 ihaywood Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmPhraseWheel.py,v 1.11 2003-09-21 07:52:57 ihaywood Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -554,13 +554,12 @@ class cPhraseWheel (wxTextCtrl):
 			# tell the input field about it
 			self.OnSelected()
 	#--------------------------------------------------------
-	def __on_down_arrow(self):
+	def __on_down_arrow(self, key):
+		import pdb
+		pdb.set_trace ()
 		# if we already have a pick list go to next item
 		if self.__picklist_visible:
-			selected = self.__picklist.GetSelection()
-			# but only if not at end of list already
-			if selected < (self.__picklist.GetCount() - 1):
-				self.__picklist.SetSelection(selected + 1)
+			self.__picklist.ProcessEvent (key)
 
 		# if we don't yet have a pick list
 		# - open new pick list
@@ -576,7 +575,7 @@ class cPhraseWheel (wxTextCtrl):
 			if len(self.__currMatches) > 0:
 				self.__show_picklist()
 	#--------------------------------------------------------
-	def __on_up_arrow(self):
+	def __on_up_arrow(self, key):
 		if self.__picklist_visible:
 			selected = self.__picklist.GetSelection()
 			# select previous item if available
@@ -595,11 +594,11 @@ class cPhraseWheel (wxTextCtrl):
 		"""Is called when a key is pressed."""
 		# user moved down
 		if key.GetKeyCode() == WXK_DOWN:
-			self.__on_down_arrow()
+			self.__on_down_arrow(key)
 			return
 		# user moved up
 		if key.GetKeyCode() == WXK_UP:
-			self.__on_up_arrow()
+			self.__on_up_arrow(key)
 			return
 		# FIXME: need PAGE UP/DOWN//POS1/END here
 
@@ -675,7 +674,8 @@ if __name__ == '__main__':
 						{'ID':3, 'label':"Jones",  	'weight':3},
 						{'ID':4, 'label':"Judson", 	'weight':2},
 						{'ID':5, 'label':"Jacobs", 	'weight':1},
-						{'ID':6, 'label':"Judson-Jacobs",'weight':5}
+						{'ID':6, 'label':"Judson-Jacobs",'weight':5},
+					
 					]
 			mp1 = cMatchProvider_FixedList(items)
 
@@ -709,7 +709,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.10  2003-09-17 05:54:32  ihaywood
+# Revision 1.11  2003-09-21 07:52:57  ihaywood
+# those bloody umlauts killed by python interpreter!
+#
+# Revision 1.10  2003/09/17 05:54:32  ihaywood
 # phrasewheel box size now approximate to length of search results
 #
 # Revision 1.8  2003/09/16 22:25:45  ncq
