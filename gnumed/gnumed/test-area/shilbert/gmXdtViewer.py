@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/shilbert/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.5 2003-08-21 19:35:02 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmXdtViewer.py,v 1.6 2003-08-21 21:36:42 shilbert Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, string, fileinput, linecache
@@ -318,10 +318,10 @@ def _split_and_select_pat(pats_in_file = None, afile = None):
 	choice = dlg.GetStringSelection()
 	_log.Log(gmLog.lData, 'multiple patients in file: %s' % choice)
 	if choice == do_not_split:
-		return 1
+		return afile
 
 	# user wants to split file by patient
-	if not gmXdtToolsLib.split_xdt_file(aFile):
+	if not gmXdtToolsLib.split_xdt_file(afile):
 		gm_show_error (
 			_('Cannot split XDT file [%s] by patient.\nShowing file as is.'),
 			_('parsing XDT file'),
@@ -380,7 +380,7 @@ def _split_and_select_pat(pats_in_file = None, afile = None):
 	rec_selected = dlg.GetStringSelection()
 	_log.Log(gmLog.lData, 'selected [%s]' % rec_selected)
 	afile = path + '/' + rec_selected
-	return 1
+	return afile
 #======================================================
 # main
 #------------------------------------------------------
@@ -469,7 +469,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.5  2003-08-21 19:35:02  ncq
+# Revision 1.6  2003-08-21 21:36:42  shilbert
+# - make it work again after heavy refactoring by ncq
+#
+# Revision 1.5  2003/08/21 19:35:02  ncq
 # - factor out splitting
 #
 # Revision 1.4  2003/08/20 22:59:53  shilbert

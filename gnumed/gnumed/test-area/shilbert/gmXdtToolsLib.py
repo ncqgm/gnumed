@@ -5,7 +5,7 @@ This lib provides functions for working with XDT-files.
 MERGE INTO business/gmXdtObjects.py !!
 """
 #==============================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -52,16 +52,12 @@ def xdt_get_pats(aFile):
 #=================================================================
 def get_pat_data(aFile,ID,name):
 	_log.Log(gmLog.lData, "looking for patient: %s" % ID+':'+name)
-	split2singleRecords(aFile,ID,name)
-	_patlst.store()
 	# return list of filenames for selected patient
 	data = [pat_dir,_patlst.get(aGroup=ID+':'+name,anOption="files")]
 	_log.Log(gmLog.lData, "data: %s" % data)
 	return data
 #=================================================================
-def split2singleRecords(aFile,ID,name):
-	idflag='false'
-	nameflag='false'
+def split_xdt_file(aFile):
 	content=[]
 	lineno = []
 	aline = '0'
@@ -88,49 +84,31 @@ def split2singleRecords(aFile,ID,name):
 		# do we care about this line ?
 		field = strippedline[3:7]
 		# extract patient id
-		if field == '3000':
-			# clear idflag
-			idflag='false' 
-			#if len(content)== 0:	
-			apatientID = strippedline[7:]
-			if apatientID == ID:
-				idflag = 'true'
-				_log.Log(gmLog.lData, "id matches")
-				# check the name
-				line = linecache.getline(aFile,aline+3)
-				# remove trailing CR and/or LF
-				strippedline = string.replace(line,'\015','')
-				strippedline = string.replace(strippedline,'\012','')
-				# do we care about this line ?
-				field = strippedline[3:7]
-				if field == '3101':
-					pat_name = strippedline [7:]
-					if pat_name == name:
-						nameflag = 'true'
-						_log.Log(gmLog.lData, "name matches")
-						# both match , will add all lines between two 'Satzidentifikationen' (8000)
-						_log.Log(gmLog.lData, len(lineno))
-						#for i in range(len(lineno)-1):
-						startline=aline
-						endline=lineno[lineno.index(aline)+1]
-						_log.Log(gmLog.lData, "reading from%s" %str(startline)+' '+str(endline) )
-						for tmp in range(startline,endline):							
-								content.append(linecache.getline(aFile,tmp))
-								_log.Log(gmLog.lData, "reading %s"%tmp )
-						dump2individualFile(content,ID,name)
-						content = []
-					else:
-						continue
-				else:
-					continue
-					
-			else:
-				continue
+		if field == '3000':	
+			ID = strippedline[7:]
+			line = linecache.getline(aFile,aline+3)
+			# remove trailing CR and/or LF
+			strippedline = string.replace(line,'\015','')
+			strippedline = string.replace(strippedline,'\012','')
+			# do we care about this line ?
+			field = strippedline[3:7]
+			if field == '3101':
+				name = strippedline [7:]
+			startline=aline
+			endline=lineno[lineno.index(aline)+1]
+			_log.Log(gmLog.lData, "reading from%s" %str(startline)+' '+str(endline) )
+			for tmp in range(startline,endline):							
+				content.append(linecache.getline(aFile,tmp))
+				_log.Log(gmLog.lData, "reading %s"%tmp )
+			aRecord = dump2individualFile(content)
+			check_for_previous_records(ID,name,aRecord) 
+			content = []
 		else:
 			continue
-	
 	# cleanup
 	fileinput.close()
+	_patlst.store()
+	return 1
 #====================================================================
 def get_random_ID(aDir):
 	# set up temp file environment for creating unique random directory
@@ -142,7 +120,7 @@ def get_random_ID(aDir):
 	path, doc_ID = os.path.split(tmpname)
 	return doc_ID
 #====================================================================
-def dump2individualFile(content,ID,name):
+def dump2individualFile(content):
 	fname = []
 	# write record for this patient to new file
 	pat_dir=_cfg.get("xdt-viewer", "export-dir")
@@ -154,9 +132,7 @@ def dump2individualFile(content,ID,name):
 	map(pat_file.write,content)
 	# done
 	pat_file.close()
-	# file has been written , we need to add it to the patient list
-	aRecord = fname
-	check_for_previous_records(ID,name,aRecord)
+	return fname
 #=====================================================================
 def check_for_previous_records(ID,name,aRecord):
 	anIdentity = str(ID)+':'+str(name)
@@ -178,7 +154,10 @@ def check_for_previous_records(ID,name,aRecord):
 	return 1
 #==============================================================
 # $Log: gmXdtToolsLib.py,v $
-# Revision 1.4  2003-08-20 22:57:11  shilbert
+# Revision 1.5  2003-08-21 21:38:11  shilbert
+# - make it work again after heavy refactoring by ncq
+#
+# Revision 1.4  2003/08/20 22:57:11  shilbert
 # - removed junk comments
 # - basically cleanup
 #
