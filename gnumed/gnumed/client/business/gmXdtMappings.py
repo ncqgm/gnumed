@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.19 2004-05-11 08:06:49 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmXdtMappings.py,v 1.20 2004-05-18 20:37:03 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -934,18 +934,20 @@ xdt_Befundstatus_map = {
 }
 
 map_Befundstatus_xdt2gm = {
-	'E': 'final',
-	'T': 'partial',
-	'V': 'preliminary',
-	'A': 'final',
-	'N': 'final'
+	'E': _('final'),
+	'T': _('partial'),
+	'V': _('preliminary'),
+	'A': _('final'),
+	'N': _('final')
 }
 
 # Teststatus : 8418
 xdt_Teststatus_map = {
-	'B':'bereits berichtet',
-	'K':'Korrigierter Wert oder fehlt'
+	'B': _('already reported'),
+	'K': _('corrected result'),
+	'F': _('missing, reported later')
 }
+
 # Resistenzmethode
 xdt_Resistenzmethode_map = {
 	'1':'Agardiffusion',
@@ -1339,7 +1341,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.19  2004-05-11 08:06:49  ncq
+# Revision 1.20  2004-05-18 20:37:03  ncq
+# - update befundstatus/teststatus maps
+#
+# Revision 1.19  2004/05/11 08:06:49  ncq
 # - xdt_8date2iso()
 #
 # Revision 1.18  2004/04/21 15:27:38  ncq
