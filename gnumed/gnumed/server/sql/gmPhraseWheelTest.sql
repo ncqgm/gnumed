@@ -1,7 +1,7 @@
 -- Project: GnuMed - public database table for phrase wheel SQL test
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPhraseWheelTest.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -18,14 +18,31 @@
 \unset ON_ERROR_STOP
 drop table gmpw_sql_test;
 drop sequence gmpw_sql_test_id_seq;
+drop table score_gmpw_sql_test;
+drop sequence score_gmpw_sql_test_id_seq;
 \set ON_ERROR_STOP 1
 
 create table gmpw_sql_test (
 	id serial primary key,
-	phrase text not null,
-	gmpw_user name not null default CURRENT_USER,
-	gmpw_score bigint not null default 0
+	phrase text not null
 );
+
+create table score_gmpw_sql_test (
+	id serial primary key,
+	fk_gmpw_sql_test integer not null references gmpw_sql_test(id),
+	"user" name not null default CURRENT_USER,
+	score bigint not null default 0
+);
+
+GRANT all on
+	gmpw_sql_test,
+	score_gmpw_sql_test
+to "any-doc";
+
+GRANT all on
+	gmpw_sql_test,
+	score_gmpw_sql_test
+to "_any-doc";
 
 -- ===================================================================
 insert into gmpw_sql_test(phrase) values ('Sepsis acutissima hyperergica fulminans');
@@ -228,10 +245,14 @@ insert into gmpw_sql_test(phrase) values ('Nervenhyperregeneration [Narbenneurom
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmPhraseWheelTest.sql,v $';
-insert into gm_schema_revision (filename, version) VALUES('$RCSfile: gmPhraseWheelTest.sql,v $', '$Revision: 1.1 $');
+insert into gm_schema_revision (filename, version) VALUES('$RCSfile: gmPhraseWheelTest.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================================
 -- $Log: gmPhraseWheelTest.sql,v $
--- Revision 1.1  2003-09-16 21:55:32  ncq
+-- Revision 1.2  2003-10-07 22:27:27  ncq
+-- - grants
+-- - separate scoring table
+--
+-- Revision 1.1  2003/09/16 21:55:32  ncq
 -- - test data for phrase wheel test
 --
