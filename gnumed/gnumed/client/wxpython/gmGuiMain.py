@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.98 2003-05-10 18:47:08 hinnef Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmGuiMain.py,v 1.99 2003-05-12 09:13:31 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -127,10 +127,10 @@ class MainFrame(wxFrame):
 		backend = gmPG.ConnectionPool()
 		db = backend.GetConnection('default')
 		curs = db.cursor()
-		curs.execute('select CURRENT_USER')
+		curs.execute('select CURRENT_USER;')
 		(user,) = curs.fetchone()
 		curs.close()
-                self.guibroker['currentUser'] = user                            
+		self.guibroker['currentUser'] = user
 		#  set it
 		self.updateTitle(anActivity = _("idle"), aPatient = _("no patient"), aUser = user)
 		#  let others have access, too
@@ -644,7 +644,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.98  2003-05-10 18:47:08  hinnef
+# Revision 1.99  2003-05-12 09:13:31  ncq
+# - SQL ends with ";", cleanup
+#
+# Revision 1.98  2003/05/10 18:47:08  hinnef
 # - set 'currentUser' in GuiBroker-dict
 #
 # Revision 1.97  2003/05/03 14:16:33  ncq
