@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random
@@ -47,19 +47,22 @@ class cMacroPrimitives:
 			return (0, _('attach with cookie [%s] rejected') % a_cookie)
 		# FIXME: ask user what to do
 		if self.__attached:
-			_log.Log(gmLog.lErr, 'a [%s] client already attached' % a_cookie)
+			_log.Log(gmLog.lErr, 'a [%s] client is already attached' % a_cookie)
 			return (0, _('attach with [%s] rejected, already serving a client') % a_cookie)
 		self.__attached = 1
 		return (1, '')
 	#-----------------------------------------------------------------
-	def detach(self):
+	def detach(self, a_cookie):
+		if a_cookie != self.__attach_cookie:
+			_log.Log(gmLog.lErr, 'rejecting detach() with cookie [%s], only servicing [%s]' % (a_cookie, self.__attach_cookie))
+			return 0
 		self.__attached = 0
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
 		if not self.__attached:
 			return 0
-		return "%s $Revision: 1.2 $" % self.__class__.__name__
+		return "%s $Revision: 1.3 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self):
 		"""Raise ourselves to the top of the desktop."""
@@ -105,6 +108,7 @@ class cMacroPrimitives:
 			return (1, '')
 		# FIXME: ask user what to do about wrong cookie
 		if unlock_cookie != self.__pat_lock_cookie:
+			_log.Log(gmLog.lWarn, 'patient unlock request rejected due to wrong cookie [%s]' % unlock_cookie)
 			return (0, _('patient unlock request rejected, wrong cookie provided'))
 		pat.unlock()
 		return (1, '')
@@ -135,12 +139,17 @@ if __name__ == '__main__':
 	print data
 	print s.unlock_patient('wrong cookie')
 	print s.unlock_patient(data[1])
+	print s.detach('wrong cookie')
+	print s.detach('unit test cookie')
 	del s
 
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.2  2004-02-05 20:40:34  ncq
+# Revision 1.3  2004-02-05 20:46:18  ncq
+# - require attach() cookie for detach(), too
+#
+# Revision 1.2  2004/02/05 20:40:34  ncq
 # - added attach()
 # - only allow attach()ed clients to call methods
 # - introduce patient locking/unlocking cookie
