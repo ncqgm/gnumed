@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
@@ -34,18 +34,22 @@ class BackendListener:
 		self._conn = self.__connect(database, user, password, host, port)
 		# lock for access to connection object
 		self._conn_lock = threading.Lock()
-		# a pointer to out thread
-		self._thread = None
+		self._listener_thread = None
 	#-------------------------------
 	def __del__(self):
-		# allow listener thread to acquire quit lock
 		try:
 			self._quit_lock.release()
+		except:
+			pass
+		try:
 			for notification in self._intercepted_notifications:
 				self.__unlisten_notification(notification)
+		except:
+			pass
+		try:
 			# give the thread time to terminate
-			if self._thread is not None:
-				self._thread.join(self._poll_interval+2)
+			if self._listener_thread is not None:
+				self._listener_thread.join(self._poll_interval+2)
 		except:
 			pass
 	#-------------------------------
@@ -76,7 +80,7 @@ class BackendListener:
 			self._intercepted_notifications.append(aSignal)
 		# connect signal with callback function
 		gmDispatcher.connect(receiver = aCallback, signal = aSignal, sender = self._service)
-		if self._thread is None:
+		if self._listener_thread is None:
 			if not self.__start_thread():
 				return None
 		return 1
@@ -90,8 +94,19 @@ class BackendListener:
 		gmDispatcher.disconnect(receiver = aCallback, signal = aSignal, sender = self._service)
 		return 1
 	#-------------------------------
-	def tell_thread_to_stop(self):
+	def stop_thread(self):
+		if self._listener_thread is None:
+			return 1
 		self._quit_lock.release()
+		# give the thread time to terminate
+		self._listener_thread.join(self._poll_interval+2.0)
+		try:
+			if self._listener_thread.isAlive():
+				_log.Log(gmLog.lErr, 'listener thread still alive after join()')
+				_log.Log(gmLog.lData, 'active threads: %s' % threading.enumerate())
+		except:
+			pass
+		return 1
 	#-------------------------------
 	# internal helpers
 	#-------------------------------
@@ -140,8 +155,8 @@ class BackendListener:
 			_log.Log(gmLog.lErr, "Can't start thread. No connection to backend available.")
 			return None
 		try:
-			self._thread = threading.Thread(target = self._process_notifications)
-			self._thread.start()
+			self._listener_thread = threading.Thread(target = self._process_notifications)
+			self._listener_thread.start()
 		except StandardError:
 			_log.LogException("Can't start thread.", sys.exc_info())
 			return None
@@ -150,55 +165,48 @@ class BackendListener:
 	# the actual thread code
 	#-------------------------------
 	def _process_notifications(self):
-		while 1:
+		notification = None
+		_have_quit_lock = None
+		while not _have_quit_lock:
 			if self._quit_lock.acquire(0):
 				break
-			time.sleep(0.35)					# give others time to acquire lock
-			if self._quit_lock.acquire(0):
-				break
+			# wait at most self._poll_interval for new data
 			self._conn_lock.acquire(1)
-			ready_input_sockets = select.select([self._conn.socket], [], [], 1.0)[0]
+			ready_input_sockets = select.select([self._conn.socket], [], [], self._poll_interval)[0]
 			self._conn_lock.release()
-			if self._quit_lock.acquire(0):
-				break
 			# any input available ?
-			if len(ready_input_sockets) != 0:
-				# grab what came in
+			if len(ready_input_sockets) == 0:
+				# no, select.select() timed out
+				continue
+			# grab what came in
+			self._conn_lock.acquire(1)
+			self._conn.consumeInput()
+			notification = self._conn.notifies()
+			self._conn_lock.release()
+			# any notifications ?
+			while notification is not None:
+				# if self._quit_lock can be acquired we may be in
+				# __del__ in which case gmDispatcher is not
+				# guarantueed to exist anymore
+				if self._quit_lock.acquire(0):
+					_have_quit_lock = 1
+					break
+				# try sending intra-client signal
+				try:
+					results = gmDispatcher.send(signal = notification.relname, sender = self._service, sending_backend_pid = notification.be_pid)
+				except:
+					print "problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (notification.relname, notification.be_pid)
+					print sys.exc_info()
+				# there *may* be more pending notifications but do we care ?
+				if self._quit_lock.acquire(0):
+					_have_quit_lock = 1
+					break
 				self._conn_lock.acquire(1)
 				self._conn.consumeInput()
-				note = self._conn.notifies()
-				self._conn_lock.release()
-				# any notifications ?
-				while note:
-					# if self._quit is true we may be in __del__ in which case
-					# gmDispatcher isn't guarantueed to exist anymore
-					if not self._quit_lock.acquire(0):
-						try:
-							gmDispatcher.send(signal = note.relname, sender = self._service, sending_backend_pid = note.be_pid)
-						except:
-							print "problem routing notification [%s] from [%s] to intra-client dispatcher" % (note.relname, note.be_pid)
-					if self._quit_lock.acquire(0):
-						break
-					time.sleep(0.25)
-					if self._quit_lock.acquire(0):
-						break
-					self._conn_lock.acquire(1)
-					note = self._conn.notifies()
-					self._conn_lock.release()
-			else:
-				# don't sleep waiting for input if we plan on quitting anyways
-				if self._quit_lock.acquire(0):
-					break
-				# let others acquire lock
-				time.sleep(0.35)
-				if self._quit_lock.acquire(0):
-					break
-				# wait at most self.__poll_interval for new data
-				self._conn_lock.acquire(1)
-				select.select([self._conn.socket], [], [], self._poll_interval)
+				notification = self._conn.notifies()
 				self._conn_lock.release()
 
-		self._thread = None
+		self._listener_thread = None
 #=====================================================================
 # main
 #=====================================================================
@@ -275,11 +283,19 @@ if __name__ == "__main__":
 	except KeyboardInterrupt:
 		print "cancelled by user"
 
-	listener.tell_thread_to_stop()
+	listener.stop_thread()
 	listener.unregister_callback('patient_changed', OnPatientModified)
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.3  2004-06-01 23:42:53  ncq
+# Revision 1.4  2004-06-09 14:42:05  ncq
+# - cleanup, clarification
+# - improve exception handling in __del__
+# - tell_thread_to_stop() -> stop_thread(), uses self._listener_thread.join()
+#   now, hence may take at max self._poll_interval+2 seconds longer but is
+#   considerably cleaner/safer
+# - vastly simplify threaded notification handling loop
+#
+# Revision 1.3  2004/06/01 23:42:53  ncq
 # - improve error message from failed notify dispatch attempt
 #
 # Revision 1.2  2004/04/21 14:27:15  ihaywood
