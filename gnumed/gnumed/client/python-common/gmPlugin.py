@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -297,13 +297,22 @@ def GetAllPlugins (set):
 	dir = gb['gnumed_dir']
 	# FIXME: in future versions we will ask the backend where plugins are
 	dir = os.path.join (dir, 'wxpython', set)
-	
-	files = os.listdir (dir)
+	config_fname = os.path.join(dir, 'plugins.cfg')
+	#see whether we shall only load specific plugins in a specific order
+	try:
+		f = open(config_fname)
+		filesCR = f.readlines()
+		files=[]
+		for file in filesCR:
+			files.append(file[:-1])
+	except:
+		files = os.listdir (dir)
 	ret = []
 	for f in files:
 		if re.compile ('.+\.py$').match (f) and f != '__init__.py':
 			ret.append (f[:-3])
 	return ret
+	
 #------------------------------------------------------------------
 def UnloadPlugin (set, name):
 	"""
@@ -320,7 +329,10 @@ def UnloadPlugin (set, name):
 log(gmLog.lData, __version__)
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.24  2002-09-26 13:10:43  ncq
+# Revision 1.25  2002-11-12 20:30:10  hherb
+# Uses an optional config file in each plugin directory determining the order plugins are loaded as well as which plugins are loaded
+#
+# Revision 1.24  2002/09/26 13:10:43  ncq
 # - silly ommitance
 #
 # Revision 1.23  2002/09/26 13:08:51  ncq
