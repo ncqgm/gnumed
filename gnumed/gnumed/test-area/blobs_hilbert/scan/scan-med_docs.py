@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -17,7 +17,7 @@ _log = gmLog.gmDefLog
 _log.SetAllLogLevels(gmLog.lData)
 
 import gmCfg, gmI18N
-_cfg = gmCfg.gmDefCfg
+_cfg = gmCfg.gmDefCfgFile
 
 try:
 	import twain
