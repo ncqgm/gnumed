@@ -43,10 +43,21 @@ related environment variables (in this order):
 
 @license: GPL (details at http://www.gnu.org)
 @copyright: author
+
+NOTE:
+There's a problem on certain version of Windows (now, who would've
+thought that) in that they don't throw an exception on not finding
+an appropriate message catalog. This is known behaviour at least on
+Windows ME and Windows 98 SE. Things work correctly on Win2k, though.
+
+One potential workaround would be to hunt around for the message
+catalog ourselves first but that would require us to reliably detect
+the locale setting the user wants. And that's another can of worms
+entirely.
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -92,7 +103,9 @@ def install_domain():
 	else:
 		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
+	# search for message catalog
 	log.Log(gmLog.lData, 'Searching message catalog file.')
+
 	# now we can install this text domain
 	# 1) try standard places first
 	log.Log(gmLog.lData, 'Looking in standard POSIX locations (see Python Manual).')
@@ -188,7 +201,10 @@ log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.16  2002-09-22 18:38:58  ncq
+# Revision 1.17  2002-09-23 02:23:16  ncq
+# - comment on why it fails on some version of Windows
+#
+# Revision 1.16  2002/09/22 18:38:58  ncq
 # - added big comment on gmTimeFormat
 #
 # Revision 1.15  2002/09/10 07:52:29  ncq
