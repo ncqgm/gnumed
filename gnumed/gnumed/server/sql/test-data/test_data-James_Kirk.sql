@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -54,7 +54,7 @@ values (
 	'knive cut left forearm 9/2000'
 );
 
--- encounter
+-- encounter: first, for knive cut
 insert into clin_encounter (
 	fk_patient,
 	fk_location,
@@ -69,6 +69,7 @@ insert into clin_encounter (
 	'first for this RFE'
 );
 
+-- given Td booster shot
 insert into vaccination (
 	id_encounter,
 	id_episode,
@@ -97,9 +98,52 @@ insert into vaccination (
 	'102041A'
 );
 
+-- encounter
+insert into clin_encounter (
+	fk_patient,
+	fk_location,
+	fk_provider,
+	fk_type,
+	description
+) values (
+	(select i_id from v_basic_person where firstnames='James T.' and lastnames='Kirk' and dob='1931-3-22'),
+	-1,
+	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
+	(select id from _enum_encounter_type where description='in surgery'),
+	'second for this RFE'
+);
+
+-- wound infected, penicillin had been prescribed, developed urticaria
+insert into allergy (
+	id_encounter,
+	id_episode,
+	substance,
+	allergene,
+	id_type,
+	reaction
+) values (
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'Penicillin V Stada',
+	'Penicillin',
+	1,
+	'developed urticaria/dyspnoe this morning, eg. 12h after first tablet'
+);
+
+insert into allergy_state (
+	id_patient,
+	has_allergy
+) values (
+	(select i_id from v_basic_person where firstnames='James T.' and lastnames='Kirk' and dob='1931-3-22'),
+	1
+);
+
 commit;
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.1  2003-10-31 22:53:27  ncq
+-- Revision 1.2  2003-11-09 17:58:46  ncq
+-- - add an allergy
+--
+-- Revision 1.1  2003/10/31 22:53:27  ncq
 -- - started collection of test data
 --
