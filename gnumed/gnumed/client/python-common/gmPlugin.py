@@ -111,7 +111,9 @@ class wxNotebookPlugin (wxBasePlugin):
 		# add ourselves to the main notebook
 		self.nb = self.gb['main.notebook']
 		self.nb_no = self.nb.GetPageCount ()
-		self.nb.AddPage (self.GetWidget (self.nb), self.name ())
+		widget = self.GetWidget (self.nb)
+		self.nb.AddPage (widget, self.name ())
+		widget.Show ()
 
 		# place ourselves in the main toolbar
 		# FIXME: this should be optional
@@ -160,8 +162,11 @@ class wxPatientPlugin (wxBasePlugin):
 			widget = self.GetWidget (shadow)
 			shadow.SetContents (widget)
 			self.mwm.RegisterLeftSide (self.name (), shadow)
+			shadow.Show ()
 		else:
+			widget = self.GetWidget (self.mwm)
 			self.mwm.RegisterLeftSide (self.name (), self.GetWidget (self.mwm))
+			widget.Show ()
 		icon = self.GetIcon ()
 		if icon is not None:
 			tb2 = self.gb['toolbar.Patient']
