@@ -348,7 +348,12 @@ def inputWXLoginParams():
 	import sys
 	#the next statement will raise an exception if wxPython is not loaded yet
 	sys.modules['wxPython']
-	#OK, wxPython was already loaded. Let's launch the login dialog
+	#OK, wxPython was already loaded. But has the main Application instance been initialized already?
+	#if not, the exception will kick us out
+	if wxgetApp() is None:
+		raise gmExceptions.NoGuiError(_("The wx GUI framework hasn't been initialized yet!"))
+
+	#Let's launch the login dialog
 	#if wx was not initialized /no main App loop, an exception should be raised anyway
 	import gmLoginDialog
 	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
@@ -412,3 +417,6 @@ if __name__ == "__main__":
 	cursor.execute("select * from db")
 	d = dictResult(cursor)
 	print d
+	print "\nResult attributes\n==================\n"
+	n = fieldNames(cursor)
+	print n
