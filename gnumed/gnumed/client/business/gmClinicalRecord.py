@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.14 2003-06-01 14:34:47 sjtan Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmClinicalRecord.py,v 1.15 2003-06-01 14:45:31 sjtan Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -280,15 +280,15 @@ class gmClinicalRecord:
 		value_part = " values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
 		try:
 			cmd = cmd_part % "definate"  + value_part
-			self.execute( cmd, "insert allergy failed with definate as definite", rollback = 0 )
+			self.execute( cmd, "insert allergy failed with definAte ", rollback = 0 )
 		except:
 			cmd = cmd_part % "definite"  + value_part
-			self.execute( cmd, "insert allergy failed with definate as definite", rollback = 1 )
+			self.execute( cmd, "insert allergy failed with definIte as definite", rollback = 1 )
 				
 			
 
-		cmd = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, definite ) values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
-		self.execute( cmd, "unable to create allergy entry ", rollback = 1)
+		#cmd = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, definite ) values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
+		#self.execute( cmd, "unable to create allergy entry ", rollback = 1)
 
 		#idiosyncratic bug.
 		#seems like calling commit by sql doesn't commit the
@@ -469,7 +469,11 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.14  2003-06-01 14:34:47  sjtan
+# Revision 1.15  2003-06-01 14:45:31  sjtan
+#
+# definite and definate databases catered for, temporarily.
+#
+# Revision 1.14  2003/06/01 14:34:47  sjtan
 #
 # hopefully complies with temporary model; not using setData now ( but that did work).
 # Please leave a working and tested substitute (i.e. select a patient , allergy list
