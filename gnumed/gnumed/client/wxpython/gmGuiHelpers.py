@@ -11,19 +11,19 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.16 2004-12-21 21:00:35 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmGuiHelpers.py,v 1.17 2005-03-06 09:21:08 ihaywood Exp $
+__version__ = "$Revision: 1.17 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, string
+import sys, string, os
 
 if __name__ == '__main__':
 	sys.exit("This is not intended to be run standalone !")
 
 from wxPython.wx import *
 
-from Gnumed.pycommon import gmLog
+from Gnumed.pycommon import gmLog, gmGuiBroker
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
@@ -138,7 +138,6 @@ def gm_beep_statustext(aMessage=None, aLogLevel=None):
 	# is sufficiently initialized
 	global _set_status_text
 	if _set_status_text is None:
-		from Gnumed.pycommon import gmGuiBroker
 		try:
 			_set_status_text = gmGuiBroker.GuiBroker()['main.statustext']
 		except KeyError:
@@ -148,9 +147,21 @@ def gm_beep_statustext(aMessage=None, aLogLevel=None):
 
 	_set_status_text(aMessage)
 	return 1
+#------------------------------------------------------------------------
+def gm_icon (name):
+	"""
+	Returns a icon based on the name
+	Hint: run names through gettext ()
+	"""
+	fname = os.path.join(gmGuiBroker.GuiBroker ()['gnumed_dir'], 'bitmaps', '%s.png' % name)
+	img = wxImage(fname, wxBITMAP_TYPE_ANY)
+	return wxBitmapFromImage(img)
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.16  2004-12-21 21:00:35  ncq
+# Revision 1.17  2005-03-06 09:21:08  ihaywood
+# stole a couple of icons from Richard's demo code
+#
+# Revision 1.16  2004/12/21 21:00:35  ncq
 # - if no status text handler available, dump to stdout
 #
 # Revision 1.15  2004/12/21 19:40:56  ncq

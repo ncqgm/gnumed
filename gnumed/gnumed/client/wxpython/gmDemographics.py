@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.58 2005-03-06 08:17:02 ihaywood Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmDemographics.py,v 1.59 2005-03-06 09:21:08 ihaywood Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "R.Terry, SJ Tan, I Haywood"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -22,8 +22,8 @@ import wx
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
 # GnuMed specific
-from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator
-from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N
+from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator, gmGuiHelpers
+from Gnumed.pycommon import  gmGuiBroker,  gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 # constant defs
@@ -259,13 +259,10 @@ class Demographics(wx.Panel):
 		self.id_search = wx.TextCtrl (self.toolbar, ID_TOOL_TEXT, style=wx.TE_PROCESS_ENTER )
 		self.toolbar.AddControl (self.id_search)
 		#  - details button
-		fname = os.path.join(self.gb['gnumed_dir'], 'bitmaps', 'binoculars_form.png')
-		img = wx.Image(fname, wx.BITMAP_TYPE_ANY)
-		search_bitmap = wx.BitmapFromImage(img)
-		self.toolbar.AddLabelTool (ID_TOOL_FIND, _("Find"), search_bitmap, shortHelp = _("Find a person in the database"))
+		self.toolbar.AddLabelTool (ID_TOOL_FIND, _("Find"), gmGuiHelpers.gm_icon (_('binoculars_form')), shortHelp = _("Find a person in the database"))
 		self.toolbar.AddSeparator ()
-		self.toolbar.AddLabelTool (ID_TOOL_NEW, _("New"), search_bitmap, shortHelp = _("Create a new patient"))
-		self.toolbar.AddLabelTool (ID_TOOL_SAVE, _("Save"), search_bitmap, shortHelp = _("Save the current patient"))
+		self.toolbar.AddLabelTool (ID_TOOL_NEW, _("New"), gmGuiHelpers.gm_icon (_('oneperson')), shortHelp = _("Create a new patient"))
+		self.toolbar.AddLabelTool (ID_TOOL_SAVE, _("Save"), gmGuiHelpers.gm_icon (_('save')), shortHelp = _("Save the current patient"))
 		# FIXME: add other toolbar items here
 		self.sizer_main = wx.BoxSizer(wx.VERTICAL)
 		self.sizer_main.Add (self.toolbar, 0, wx.EXPAND)
@@ -1050,7 +1047,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.58  2005-03-06 08:17:02  ihaywood
+# Revision 1.59  2005-03-06 09:21:08  ihaywood
+# stole a couple of icons from Richard's demo code
+#
+# Revision 1.58  2005/03/06 08:17:02  ihaywood
 # forms: back to the old way, with support for LaTeX tables
 #
 # business objects now support generic linked tables, demographics
