@@ -1,421 +1,179 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR ORGANIZATION
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# FIRST AUTHOR <sebastian.hilbert@gmx.net>, YEAR.
+# POT-Version: $Revision: 1.2 $
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 1\n"
-"POT-Creation-Date: Thu Sep 12 23:05:26 2002\n"
-"PO-Revision-Date: EAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: ULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: ANGUAGE <LL@li.org>\n"
+"Project-Id-Version: gnumedarchiv 0.1\n"
+"POT-Creation-Date: Mon Sep 16 23:52:16 2002\n"
+"PO-Revision-Date: 2002-09-16 23:53+0200\n"
+"Last-Translator: Sebastian Hilbert <sebastian.hilbert@gmx.net>\n"
+"Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
-"Content-Transfer-Encoding: NCODING\n"
-"Generated-By: pygettext.py 1.3\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.4\n"
+"X-Generator: KBabel 0.9.6\n"
 
-#: dist/client/index-med_docs.py:304
-msgid "or"
-msgstr "oder"
+#: ../dist/client/index-med_docs.py:90
+msgid "GnuMed/Archiv: Associating documents with patients."
+msgstr "Gnumed/Archiv: Befunde einem Patienten zuordnen"
 
-#: dist/client/index-med_docs.py:261
-msgid "save data"
-msgstr "abspeichern"
+#: ../dist/client/index-med_docs.py:109
+msgid "load pages"
+msgstr "Seiten laden "
 
-#: dist/client/index-med_docs.py:633
-msgid ""
-"Cannot access metadata file\n"
-"[%s].\n"
-"Please see error log for details."
-msgstr ""
-"Kann Datei mit Metadaten nicht öffnen[%s].\n"
-"Details im Fehlerprotokoll."
+#: ../dist/client/index-med_docs.py:116
+msgid "load the pages of this document"
+msgstr "Seiten für diesen Befund laden"
 
-#: dist/client/scan-med_docs.py:285
-#, fuzzy
-msgid ""
-"Cannot delete page (file %s).\n"
-"See log for details."
-msgstr ""
-"Kann Datei mit Metadaten nicht öffnen[%s].\n"
-"Details im Fehlerprotokoll."
+#: ../dist/client/index-med_docs.py:122
+msgid "load fax document"
+msgstr "Befundfax laden"
 
-#: dist/client/index-med_docs.py:373
-msgid "additional comment"
-msgstr "zusätzliche Beschreibung"
+#: ../dist/client/index-med_docs.py:129
+msgid "currently non-functional: load a fax document"
+msgstr "derzeit nicht funktional: ein Befundfax laden"
 
-#: dist/client/scan-med_docs.py:625
-msgid "opening scanner"
-msgstr ""
+#: ../dist/client/index-med_docs.py:142 ../dist/client/scan-med_docs.py:133
+msgid "these pages make up the current document"
+msgstr "diese Seiten stellen den aktuellen Befund dar"
 
-#: dist/client/index-med_docs.py:731
-msgid "document date: no future !"
-msgstr ""
+#: ../dist/client/index-med_docs.py:147 ../dist/client/scan-med_docs.py:138
+msgid "show page"
+msgstr "Seite anzeigen"
 
-#: dist/client/index-med_docs.py:875
-msgid ""
-"I am afraid I was not able to delete the page from disk because it was not "
-"there"
-msgstr ""
+#: ../dist/client/index-med_docs.py:154 ../dist/client/scan-med_docs.py:145
+msgid "display selected part of the document"
+msgstr "gewählten Teil des Befunds anzeigen"
 
-#: dist/client/scan-med_docs.py:685 dist/client/scan-med_docs.py:728
-#, fuzzy
-msgid "document ID"
-msgstr "Dokumententyp"
-
-#: dist/client/index-med_docs.py:343
-msgid "last name"
-msgstr "Nachname"
-
-#: dist/client/index-med_docs.py:333
-msgid "first name"
-msgstr "Vorname"
-
-#: dist/client/index-med_docs.py:518
-msgid ""
-"Cannot display page %s. The file\n"
-"[%s]\n"
-"does not exist."
-msgstr ""
-
-#: dist/client/index-med_docs.py:307
-msgid "date (YYYY-MM-DD)"
-msgstr "Datum (JJJJ-MM-TT)"
-
-#: dist/client/modules/docDocument.py:590
-#: dist/server/modules/docDocument.py:590
-msgid "Cannot import docMime.py !"
-msgstr ""
-
-#: dist/client/index-med_docs.py:160 dist/client/scan-med_docs.py:164
+#: ../dist/client/index-med_docs.py:160 ../dist/client/scan-med_docs.py:164
 msgid "delete page"
 msgstr "Seite löschen"
 
-#: dist/client/index-med_docs.py:741
-msgid "You must type in a short document comment."
-msgstr "Sie müssen einen kurzen Kommentar zum Dokument eingeben."
-
-#: dist/client/index-med_docs.py:662 dist/client/scan-med_docs.py:436
-msgid "page %s (%s in %s)"
-msgstr "Seite %s (%s in %s)"
-
-#: dist/client/index-med_docs.py:468
-msgid ""
-"Cannot lock document directory for indexing.\n"
-"(%s)\n"
-"\n"
-"Please consult the error log for details."
-msgstr ""
-
-#: dist/client/index-med_docs.py:273
-msgid "1) select"
-msgstr "1) wählen"
-
-#: dist/client/scan-med_docs.py:510
-msgid "Cannot connect to TWAIN source (scanner or camera)."
-msgstr ""
-"Kann keine Verbindung zur TWAIN-Quelle (Scanner oder Kamera) herstellen."
-
-#: dist/client/index-med_docs.py:242 dist/client/index-med_docs.py:621
-msgid "choose document type"
-msgstr "Typ wählen"
-
-#: dist/client/modules/gmPG.py:349 dist/server/modules/gmPG.py:349
-msgid ""
-"Connection to database failed. \n"
-"DSN was [%s], host:port was [%s]"
-msgstr ""
-
-#: dist/client/index-med_docs.py:179 dist/client/index-med_docs.py:192
-#: dist/client/index-med_docs.py:205
+#: ../dist/client/index-med_docs.py:179 ../dist/client/index-med_docs.py:192
+#: ../dist/client/index-med_docs.py:205
 msgid "not editable, loaded from file"
-msgstr "nicht editierbar, aus Datei geladen"
+msgstr "nicht änderbar, aus der Datei geladen"
 
-#: dist/client/index-med_docs.py:572
-msgid ""
-"Cannot delete page %s. The file\n"
-"[%s]\n"
-"does not exist."
-msgstr ""
-
-#: dist/client/index-med_docs.py:218
+#: ../dist/client/index-med_docs.py:218
 msgid ""
 "date of creation of the document content\n"
 "format: YYYY-MM-DD"
 msgstr ""
+"Befund erstellt am \n"
+"Format: JJJJ-MM-TT"
 
-#: dist/client/scan-med_docs.py:231 dist/client/scan-med_docs.py:246
-msgid "displaying page"
-msgstr ""
-
-#: dist/client/index-med_docs.py:323 dist/client/scan-med_docs.py:189
-msgid "document pages"
-msgstr "Seiten des Dokuments"
-
-#: dist/client/index-med_docs.py:363
-msgid "document type"
-msgstr "Dokumententyp"
-
-#: dist/client/modules/docDocument.py:627
-#: dist/server/modules/docDocument.py:627
-msgid "Unable to start viewer on file [%s]."
-msgstr ""
-
-#: dist/client/scan-med_docs.py:359 dist/client/scan-med_docs.py:400
-#: dist/client/scan-med_docs.py:796 dist/client/scan-med_docs.py:811
-#: dist/client/scan-med_docs.py:827 dist/client/scan-med_docs.py:843
-#, fuzzy
-msgid "saving document"
-msgstr "ein Fax laden"
-
-#: dist/client/index-med_docs.py:735
-msgid "document date: day must be 2 digits"
-msgstr ""
-
-#: dist/client/index-med_docs.py:256
-msgid "a summary or longer comment for this document"
-msgstr ""
-"eine inhaltliche Zusammenfassung oder ein längerer Kommentar zu diesem "
-"Dokument"
-
-#: dist/client/scan-med_docs.py:778
-msgid ""
-"The configured target repository is not accessible.\n"
-"[%s]"
-msgstr ""
-
-#: dist/client/index-med_docs.py:481
-msgid ""
-"Cannot load document object file list from xDT file.\n"
-"\n"
-"Please consult the error log for details."
-msgstr ""
-
-#: dist/client/index-med_docs.py:601
-#, fuzzy
-msgid ""
-"Cannot load patient from %s file\n"
-"[%s]\n"
-"Please consult the error log for details."
-msgstr ""
-"Kann Datei mit Metadaten nicht öffnen[%s].\n"
-"Details im Fehlerprotokoll."
-
-#: dist/client/index-med_docs.py:725
-msgid ""
-"document date: invalid format\n"
-"\n"
-"valid format: YYYY-MM-DD"
-msgstr ""
-"Dokumentendatum: ungültiges Format\n"
-"Format: YYYY-MM-DD"
-
-#: dist/client/index-med_docs.py:545 dist/client/index-med_docs.py:558
-#: dist/client/index-med_docs.py:862 dist/client/index-med_docs.py:875
-msgid "Attention"
-msgstr "Achtung"
-
-#: dist/client/index-med_docs.py:646
-msgid ""
-"Cannot load image list from metadata file\n"
-"[%s].\n"
-"\n"
-"Please see error log for details."
-msgstr ""
-
-#: dist/client/show-med_docs.py:195
-msgid "stored medical documents"
-msgstr ""
-
-#: dist/client/scan-med_docs.py:119
-msgid "acquire the next image from the image source"
-msgstr "hole das nächste Bild von der Bildquelle"
-
-#: dist/client/scan-med_docs.py:245
-msgid ""
-"Cannot display page %s.\n"
-"%s"
-msgstr ""
-
-#: dist/client/show-med_docs.py:122
-msgid "page %s: \"%s\""
-msgstr "Seite %s: \"%s\""
-
-#: dist/client/index-med_docs.py:739
-msgid "document date: day must be 1 to 31"
-msgstr ""
-
-#: dist/client/scan-med_docs.py:112
-msgid "acquire image"
-msgstr "Bild holen"
-
-#: dist/client/modules/docDocument.py:581
-#: dist/server/modules/docDocument.py:581
-msgid "File [%s] does not exist !"
-msgstr ""
-
-#: dist/client/scan-med_docs.py:177
-msgid "save document"
-msgstr ""
-
-#: dist/client/scan-med_docs.py:399
-msgid ""
-"Cannot copy page to target directory\n"
-"(%s -> %s)."
-msgstr ""
-
-#: dist/client/index-med_docs.py:147 dist/client/scan-med_docs.py:138
-msgid "show page"
-msgstr "Seite anzeigen"
-
-#: dist/client/index-med_docs.py:454
-msgid "missing document ID"
-msgstr ""
-
-#: dist/client/index-med_docs.py:544 dist/client/scan-med_docs.py:230
-msgid "You must select a page before you can view it."
-msgstr ""
-
-#: dist/client/index-med_docs.py:519 dist/client/index-med_docs.py:573
-#, fuzzy
-msgid "data error"
-msgstr "Eingabefehler"
-
-#: dist/client/scan-med_docs.py:151
-msgid "move page"
-msgstr "Seite verschieben"
-
-#: dist/client/scan-med_docs.py:558
-msgid "Cannot connect to SANE source (scanner or camera)."
-msgstr ""
-
-#: dist/client/scan-med_docs.py:34
-msgid "Can import neither TWAIN nor SANE scanner access library."
-msgstr ""
-
-#: dist/client/scan-med_docs.py:184
-msgid "save all currently acquired pages as one document"
-msgstr ""
-
-#: dist/client/index-med_docs.py:228 dist/client/index-med_docs.py:619
-#: dist/client/index-med_docs.py:620 dist/client/index-med_docs.py:720
-#: dist/client/index-med_docs.py:740
+#: ../dist/client/index-med_docs.py:228 ../dist/client/index-med_docs.py:619
+#: ../dist/client/index-med_docs.py:620 ../dist/client/index-med_docs.py:720
+#: ../dist/client/index-med_docs.py:740
 msgid "please fill in"
 msgstr "bitte ausfüllen"
 
-#: dist/client/modules/gmPG.py:521 dist/server/modules/gmPG.py:521
-msgid "The wx GUI framework hasn't been initialized yet!"
-msgstr ""
+#: ../dist/client/index-med_docs.py:230
+msgid "a short comment on the document content"
+msgstr "kurze Beschreibung des Befundinhalts "
 
-#: dist/client/scan-med_docs.py:842
-msgid ""
-"Cannot lock target directory !\n"
-"checkpoint file: %s."
-msgstr ""
+#: ../dist/client/index-med_docs.py:242 ../dist/client/index-med_docs.py:621
+msgid "choose document type"
+msgstr "Befundtyp auswählen"
 
-#: dist/client/index-med_docs.py:419
-msgid "Information"
-msgstr "Information"
-
-#: dist/client/index-med_docs.py:154 dist/client/scan-med_docs.py:145
-msgid "display selected part of the document"
-msgstr "gewählten Teil des Dokuments anzeigen."
-
-#: dist/client/modules/docPatient.py:37 dist/server/modules/docPatient.py:37
-msgid "male"
-msgstr "männlich"
-
-#: dist/client/modules/gmI18N.py:179 dist/server/modules/gmI18N.py:179
-msgid "%Y-%m-%d  %H:%M:%S"
-msgstr "%Y-%m-%d  %H:%M:%S"
-
-#: dist/client/index-med_docs.py:245
+#: ../dist/client/index-med_docs.py:245
 msgid ""
 "Document types are determined by the database.\n"
 "Ask your database administrator to add more types if needed."
 msgstr ""
-"Es hängt von der Datenbank ab, welche Dokumententypen verfügbar\n"
-"sind. Neue Typen kann der Administrator hinzufügen."
+"Befundtypen werden von der Datenbank festgelegt.\n"
+"Lassen Sie Ihren Datenbankadmin gegebenenfalls weitere Typen hinzufügen"
 
-#: dist/client/show-med_docs.py:94
-msgid "available documents"
-msgstr ""
+#: ../dist/client/index-med_docs.py:256
+msgid "a summary or longer comment for this document"
+msgstr "Zusammenfassung oder längerer Kommentar für diesen Befund"
 
-#: dist/client/index-med_docs.py:313
-msgid "document identifier"
-msgstr "Paginiernummer"
+#: ../dist/client/index-med_docs.py:261
+msgid "save data"
+msgstr "Daten speichern"
 
-#: dist/client/index-med_docs.py:743
-msgid "You must select a document type."
-msgstr "Sie müssen einen Dokumententyp wählen."
+#: ../dist/client/index-med_docs.py:268
+msgid "save entered metadata with document"
+msgstr "eingegebene Metadaten mit diesem Befund speichern"
 
-#: dist/client/index-med_docs.py:862
-msgid "You did not select a page"
-msgstr ""
+#: ../dist/client/index-med_docs.py:273
+msgid "1) select"
+msgstr "1) auswählen"
 
-#: dist/client/index-med_docs.py:295
-msgid "3) save"
-msgstr "3) speichern"
-
-#: dist/client/scan-med_docs.py:795
-msgid ""
-"The subdirectory [%s] already exists in the repository [%s].\n"
-"Cannot save current document there."
-msgstr ""
-
-#: dist/client/index-med_docs.py:723
-msgid "document date: must be 10 characters long"
-msgstr ""
-
-#: dist/client/scan-med_docs.py:301 dist/client/scan-med_docs.py:317
-#, fuzzy
-msgid "moving page"
-msgstr "Seite verschieben"
-
-#: dist/client/index-med_docs.py:116
-msgid "load the pages of this document"
-msgstr "die Seiten dieses Dokuments laden"
-
-#: dist/client/scan-med_docs.py:810
-msgid ""
-"Cannot create the target repository subdirectory.\n"
-"(%s)"
-msgstr ""
-
-#: dist/client/scan-med_docs.py:684
-msgid ""
-"The most recently used document ID was \"%s\".\n"
-"We would use the ID \"%s\" for the current document.\n"
-"Please confirm the ID or type in a new numeric ID.\n"
-"\n"
-"You should also write down this ID on the documents themselves."
-msgstr ""
-
-#: dist/client/index-med_docs.py:436
-msgid ""
-"the document identifier is usually written or stamped onto the physical "
-"pages of the document"
-msgstr "Die Paginiernummer steht normalerweise auf dem Originaldokument."
-
-#: dist/client/index-med_docs.py:469 dist/client/index-med_docs.py:482
-#: dist/client/index-med_docs.py:602 dist/client/index-med_docs.py:634
-#: dist/client/index-med_docs.py:647
-msgid "Error"
-msgstr "Fehler"
-
-#: dist/client/index-med_docs.py:284
+#: ../dist/client/index-med_docs.py:284
 msgid "2) describe"
 msgstr "2) beschreiben"
 
-#: dist/client/index-med_docs.py:721
-msgid "document date: missing"
+#: ../dist/client/index-med_docs.py:295
+msgid "3) save"
+msgstr "3) speichern"
+
+#: ../dist/client/index-med_docs.py:304
+msgid "or"
+msgstr "oder"
+
+#: ../dist/client/index-med_docs.py:307
+msgid "date (YYYY-MM-DD)"
+msgstr "Datum (JJJJ-MM-TT)"
+
+#: ../dist/client/index-med_docs.py:309
+msgid "date of birth"
+msgstr "Geburtsdatum"
+
+#: ../dist/client/index-med_docs.py:313
+msgid "document identifier"
+msgstr "Befundkürzel"
+
+#: ../dist/client/index-med_docs.py:323 ../dist/client/scan-med_docs.py:189
+msgid "document pages"
+msgstr "Befundseiten"
+
+#: ../dist/client/index-med_docs.py:333
+msgid "first name"
+msgstr "Vorname"
+
+#: ../dist/client/index-med_docs.py:343
+msgid "last name"
+msgstr "Nachname"
+
+#: ../dist/client/index-med_docs.py:353
+msgid "short comment"
+msgstr "Kurzkommentar"
+
+#: ../dist/client/index-med_docs.py:363
+msgid "document type"
+msgstr "Befundtyp"
+
+#: ../dist/client/index-med_docs.py:373
+msgid "additional comment"
+msgstr "Zusatzkommentar"
+
+#: ../dist/client/index-med_docs.py:418
+msgid ""
+"There are no documents in the repository.\n"
+"(%s)\n"
+"\n"
+"Seems like there's nothing to do today."
 msgstr ""
+"Es sind keine Befunde im Archiv.\n"
+"(%s)\n"
+"\n"
+"Sieht so aus, als gäbe es heute nichts zu tun"
 
-#: dist/client/index-med_docs.py:557 dist/client/scan-med_docs.py:259
-msgid "You must select a page before you can delete it."
-msgstr "Sie müssen eine Seite wählen, um diese zu löschen."
+#: ../dist/client/index-med_docs.py:419
+msgid "Information"
+msgstr "Information"
 
-#: dist/client/index-med_docs.py:453
+#: ../dist/client/index-med_docs.py:436
+msgid ""
+"the document identifier is usually written or stamped onto the physical "
+"pages of the document"
+msgstr "Das Befundkürzel ist meistens auf den Befundblättern aufgedruckt"
+
+#: ../dist/client/index-med_docs.py:453
 msgid ""
 "You must type in a document ID !\n"
 "\n"
@@ -423,35 +181,400 @@ msgid ""
 "the physical sheet of paper. There should be only one\n"
 "per document even if there are multiple pages."
 msgstr ""
+"Sie müssen ein Befundkürzel eingeben!\n"
+"\n"
+"Gewöhnlich steht das Befundkürzel auf\n"
+"den Befundoriginalen. Es sollte nur ein Kürzel pro\n"
+"Befund geben - auch wenn dieser aus mehreren Blaettern\n"
+"besteht."
 
-#: dist/client/scan-med_docs.py:300
-msgid "You must select a page before you can move it around."
-msgstr ""
+#: ../dist/client/index-med_docs.py:454
+msgid "missing document ID"
+msgstr "Befundkürzel fehlt"
 
-#: dist/client/index-med_docs.py:122
-msgid "load fax document"
-msgstr "ein Fax laden"
-
-#: dist/client/index-med_docs.py:753
-msgid "data input error"
-msgstr "Eingabefehler"
-
-#: dist/client/scan-med_docs.py:826
+#: ../dist/client/index-med_docs.py:468
 msgid ""
-"You must specify a checkpoint file for indexing in the config file.\n"
-"Use option <can_index> in group [metadata]."
+"Cannot lock document directory for indexing.\n"
+"(%s)\n"
+"\n"
+"Please consult the error log for details."
 msgstr ""
+"Kann das Befundverzeichnis nicht exklusiv sperren.\n"
+"(%s)\n"
+"\n"
+"Bitte konsultieren Sie das Fehlerlog für Details"
 
-#: dist/client/modules/gmPG.py:506 dist/client/modules/gmPG.py:531
-#: dist/server/modules/gmPG.py:506 dist/server/modules/gmPG.py:531
+#: ../dist/client/index-med_docs.py:469 ../dist/client/index-med_docs.py:482
+#: ../dist/client/index-med_docs.py:602 ../dist/client/index-med_docs.py:634
+#: ../dist/client/index-med_docs.py:647
+msgid "Error"
+msgstr "Fehler"
+
+#: ../dist/client/index-med_docs.py:481
+msgid ""
+"Cannot load document object file list from xDT file.\n"
+"\n"
+"Please consult the error log for details."
+msgstr ""
+"Kann Dateiliste der Objekte dieses Befunds nicht aus der xDT Datei laden\n"
+"Bitte konsultieren Sie das Fehlerlog für Details"
+
+#: ../dist/client/index-med_docs.py:518
+msgid ""
+"Cannot display page %s. The file\n"
+"[%s]\n"
+"does not exist."
+msgstr ""
+"Kann Seite [%s] nicht anzeigen. Die Datei\n"
+"[%s]\n"
+"existiert nicht."
+
+#: ../dist/client/index-med_docs.py:519 ../dist/client/index-med_docs.py:573
+msgid "data error"
+msgstr "Datenfehler"
+
+#: ../dist/client/index-med_docs.py:544 ../dist/client/scan-med_docs.py:230
+msgid "You must select a page before you can view it."
+msgstr "Sie müssen eine Seite auswählen bevor Sie die Seite ansehen können."
+
+#: ../dist/client/index-med_docs.py:545 ../dist/client/index-med_docs.py:558
+#: ../dist/client/index-med_docs.py:862 ../dist/client/index-med_docs.py:875
+msgid "Attention"
+msgstr "Achtung"
+
+#: ../dist/client/index-med_docs.py:557 ../dist/client/scan-med_docs.py:259
+msgid "You must select a page before you can delete it."
+msgstr "Sie müssen eine Seite auswählen bevor Sie die Seite löschen können."
+
+#: ../dist/client/index-med_docs.py:572
+msgid ""
+"Cannot delete page %s. The file\n"
+"[%s]\n"
+"does not exist."
+msgstr ""
+"Kann Seite %s nicht löschen. Die Datei\n"
+"[%s]\n"
+"existiert nicht."
+
+#: ../dist/client/index-med_docs.py:601
+msgid ""
+"Cannot load patient from %s file\n"
+"[%s]\n"
+"Please consult the error log for details."
+msgstr ""
+"Kann Patientendaten nicht aus der Datei %s laden\n"
+"[%s]\n"
+"Bitte konsultieren Sie das Fehlerlog wegen Details."
+
+#: ../dist/client/index-med_docs.py:633
+msgid ""
+"Cannot access metadata file\n"
+"[%s].\n"
+"Please see error log for details."
+msgstr ""
+"Kann nicht auf die Metadaten zugreifen\n"
+"[%s].\n"
+"Bitte konsultieren Sie das Fehlerlog wegen Details."
+
+#: ../dist/client/index-med_docs.py:646
+msgid ""
+"Cannot load image list from metadata file\n"
+"[%s].\n"
+"\n"
+"Please see error log for details."
+msgstr ""
+"Kann die Bilderliste nicht aus der Metadatendatei extrahieren\n"
+"[%s].\n"
+"\n"
+"Bitte konsultieren Sie das Fehlerlog wegen Details."
+
+#: ../dist/client/index-med_docs.py:662 ../dist/client/scan-med_docs.py:436
+msgid "page %s (%s in %s)"
+msgstr "Seite %s (%s in %s)"
+
+#: ../dist/client/index-med_docs.py:721
+msgid "document date: missing"
+msgstr "Befunddatum: fehlt"
+
+#: ../dist/client/index-med_docs.py:723
+msgid "document date: must be 10 characters long"
+msgstr "Befunddatum: muss 10 Zeichen lang sein"
+
+#: ../dist/client/index-med_docs.py:725
+msgid ""
+"document date: invalid format\n"
+"\n"
+"valid format: YYYY-MM-DD"
+msgstr ""
+"Befunddatum: ungültiges Format\n"
+"\n"
+"gültiges Format: JJJJ-MM-TT"
+
+#: ../dist/client/index-med_docs.py:727
+msgid "document date: year must be 4 digits"
+msgstr "Befunddatum: Jahr muss 4 Ziffern lang sein"
+
+#: ../dist/client/index-med_docs.py:729
+msgid ""
+"document date: document from before 1900 ?!?\n"
+"\n"
+"I want a copy !"
+msgstr ""
+"Befunddatum: Befund von vor 1900 ?!?\n"
+"\n"
+"Davon hätte ich gern eine Kopie !"
+
+#: ../dist/client/index-med_docs.py:731
+msgid "document date: no future !"
+msgstr "Befunddatum: bitte nicht vordatieren"
+
+#: ../dist/client/index-med_docs.py:733
+msgid "document date: month must be 2 digits"
+msgstr "Befunddatum: Monat muss aus zwei Ziffern bestehen"
+
+#: ../dist/client/index-med_docs.py:735
+msgid "document date: day must be 2 digits"
+msgstr "Befunddatum: Tag besteht aus zwei Ziffern"
+
+#: ../dist/client/index-med_docs.py:737
+msgid "document date: month must be 1 to 12"
+msgstr "Befunddatum: Monat muss zwischen 1 und 12 sein"
+
+#: ../dist/client/index-med_docs.py:739
+msgid "document date: day must be 1 to 31"
+msgstr "Befunddatum: Tag muss zwischen 1 und 31 sein"
+
+#: ../dist/client/index-med_docs.py:741
+msgid "You must type in a short document comment."
+msgstr "Sie müssen ein kurzen Befundkommentar angeben"
+
+#: ../dist/client/index-med_docs.py:743
+msgid "You must select a document type."
+msgstr "Sie müssen dem Befund einen Typ zuweisen"
+
+#: ../dist/client/index-med_docs.py:752
+msgid ""
+"The data you entered about the current document\n"
+"is not complete. Please enter the missing information.\n"
+"\n"
+"%s"
+msgstr ""
+"Die zum aktuellen Befund eingegebenen Daten sind\n"
+"nicht komplett. Bitte vervollständigen.\n"
+"\n"
+"%s"
+
+#: ../dist/client/index-med_docs.py:753
+msgid "data input error"
+msgstr "Dateneingabefehler"
+
+#: ../dist/client/index-med_docs.py:862
+msgid "You did not select a page"
+msgstr "Sie haben keine Seite ausgewählt"
+
+#: ../dist/client/index-med_docs.py:875
+msgid ""
+"I am afraid I was not able to delete the page from disk because it was not "
+"there"
+msgstr ""
+"Ich befürchte, ich konnte die Seite nicht von der Festplatte löschen weil "
+"sie nicht auf der Platte war."
+
+#: ../dist/client/modules/docDocument.py:581
+#: ../dist/server/modules/docDocument.py:581
+msgid "File [%s] does not exist !"
+msgstr "Datei [%s] existiert nicht !"
+
+#: ../dist/client/modules/docDocument.py:590
+#: ../dist/server/modules/docDocument.py:590
+msgid "Cannot import docMime.py !"
+msgstr "Kann docMime nicht importieren !"
+
+#: ../dist/client/modules/docDocument.py:627
+#: ../dist/server/modules/docDocument.py:627
+msgid "Unable to start viewer on file [%s]."
+msgstr " Kann Betrachter nicht mit der Datei [%s] starten."
+
+#: ../dist/client/modules/docPatient.py:37
+#: ../dist/server/modules/docPatient.py:37
+msgid "male"
+msgstr "männlich"
+
+#: ../dist/client/modules/docPatient.py:38
+#: ../dist/server/modules/docPatient.py:38
+msgid "female"
+msgstr "weiblich"
+
+#: ../dist/client/modules/gmI18N.py:179 ../dist/server/modules/gmI18N.py:179
+msgid "%Y-%m-%d  %H:%M:%S"
+msgstr "%Y-%m-%d  %H:%M:%S"
+
+#: ../dist/client/modules/gmPG.py:360 ../dist/server/modules/gmPG.py:360
+msgid ""
+"Connection to database failed. \n"
+"DSN was [%s], host:port was [%s]"
+msgstr ""
+"Verbindung zur Datenbank fehlgeschlagen. \n"
+"DSN war [%s], Gegenstelle:Port war [%s]"
+
+#: ../dist/client/modules/gmPG.py:517 ../dist/client/modules/gmPG.py:542
+#: ../dist/server/modules/gmPG.py:517 ../dist/server/modules/gmPG.py:542
 msgid "Can't connect to database without login information!"
+msgstr "Kann ohne Benutzerinformation keine Verbindung zur Datenbank herstellen "
+
+#: ../dist/client/modules/gmPG.py:532 ../dist/server/modules/gmPG.py:532
+msgid "The wx GUI framework hasn't been initialized yet!"
+msgstr "Das wx GUI framework wurde noch nicht initialisiert!"
+
+#: ../dist/client/scan-med_docs.py:34
+msgid "Can import neither TWAIN nor SANE scanner access library."
+msgstr "Kann weder die TWAIN noch die SANE Scannerbibliothek importieren"
+
+#: ../dist/client/scan-med_docs.py:92
+msgid "Scanning documents"
+msgstr "Befunde scannen"
+
+#: ../dist/client/scan-med_docs.py:112
+msgid "acquire image"
+msgstr "Bild holen"
+
+#: ../dist/client/scan-med_docs.py:119
+msgid "acquire the next image from the image source"
+msgstr "nächstes Bild von der Quelle holen"
+
+#: ../dist/client/scan-med_docs.py:151
+msgid "move page"
+msgstr "verschiebe Seite"
+
+#: ../dist/client/scan-med_docs.py:158
+msgid "move selected page within document"
+msgstr "Gewählte Seite im Befund verschieben"
+
+#: ../dist/client/scan-med_docs.py:171
+msgid "delete selected page from document"
+msgstr "Seite aus dem Befund löschen"
+
+#: ../dist/client/scan-med_docs.py:177
+msgid "save document"
+msgstr "Befund speichern"
+
+#: ../dist/client/scan-med_docs.py:184
+msgid "save all currently acquired pages as one document"
+msgstr "alle aktuellen Bilder als ein Befund speichern "
+
+#: ../dist/client/scan-med_docs.py:199
+msgid "1) scan"
+msgstr "1) einscannen"
+
+#: ../dist/client/scan-med_docs.py:210
+msgid "2) save"
+msgstr "2) speichern"
+
+#: ../dist/client/scan-med_docs.py:231 ../dist/client/scan-med_docs.py:246
+msgid "displaying page"
+msgstr "Seite anzeigen"
+
+#: ../dist/client/scan-med_docs.py:245
+msgid ""
+"Cannot display page %s.\n"
+"%s"
 msgstr ""
+"Kann Seite %s nicht anzeigen.\n"
+"%s"
 
-#: dist/client/index-med_docs.py:109
-msgid "load pages"
-msgstr "Seiten laden"
+#: ../dist/client/scan-med_docs.py:260 ../dist/client/scan-med_docs.py:286
+msgid "deleting page"
+msgstr "lösche Seite"
 
-#: dist/client/scan-med_docs.py:727
+#: ../dist/client/scan-med_docs.py:285
+msgid ""
+"Cannot delete page (file %s).\n"
+"See log for details."
+msgstr ""
+"Kann Seite (Datei %s) nicht löschen.\n"
+"Siehe Log fuer Details"
+
+#: ../dist/client/scan-med_docs.py:300
+msgid "You must select a page before you can move it around."
+msgstr "Sie müssen ein Seite wählen bevor Sie sie verschieben können."
+
+#: ../dist/client/scan-med_docs.py:301 ../dist/client/scan-med_docs.py:317
+msgid "moving page"
+msgstr "verschiebe Seite"
+
+#: ../dist/client/scan-med_docs.py:316
+msgid ""
+"Moving original page %s.\n"
+"(file %s in %s)\n"
+"\n"
+"Please enter the new position for the page !"
+msgstr ""
+"Verschieben der Seite %s.\n"
+"(Datei %s in %s)\n"
+"\n"
+"Bitte geben Sie die neue Position der Seite an !"
+
+#: ../dist/client/scan-med_docs.py:358
+msgid ""
+"You must acquire some images before\n"
+"you can save them as a document !"
+msgstr ""
+"Sie müssen erst Seiten einscanen bevor\n"
+"Sie sie als Befund speichern können !"
+
+#: ../dist/client/scan-med_docs.py:359 ../dist/client/scan-med_docs.py:400
+#: ../dist/client/scan-med_docs.py:796 ../dist/client/scan-med_docs.py:811
+#: ../dist/client/scan-med_docs.py:827 ../dist/client/scan-med_docs.py:843
+msgid "saving document"
+msgstr "speichere den Befund"
+
+#: ../dist/client/scan-med_docs.py:399
+msgid ""
+"Cannot copy page to target directory\n"
+"(%s -> %s)."
+msgstr ""
+"Kann die Seite nicht ins Zielverzeichnis kopieren\n"
+"(%s -> %s)."
+
+#: ../dist/client/scan-med_docs.py:510
+msgid "Cannot connect to TWAIN source (scanner or camera)."
+msgstr "Kann nicht auf die TWAIN-Quelle zugreifen (Scanner oder Kamera)."
+
+#: ../dist/client/scan-med_docs.py:511 ../dist/client/scan-med_docs.py:559
+msgid "acquiring page"
+msgstr "hole Seite"
+
+#: ../dist/client/scan-med_docs.py:558
+msgid "Cannot connect to SANE source (scanner or camera)."
+msgstr "Kann nicht auf die SANE-Quelle zugreifen (Scanner oder Kamera)."
+
+#: ../dist/client/scan-med_docs.py:624
+msgid "Cannot find any SANE connected devices."
+msgstr "Kann keine via SANE angebundenen Geräte finden."
+
+#: ../dist/client/scan-med_docs.py:625
+msgid "opening scanner"
+msgstr "öffne Scanner"
+
+#: ../dist/client/scan-med_docs.py:684
+msgid ""
+"The most recently used document ID was \"%s\".\n"
+"We would use the ID \"%s\" for the current document.\n"
+"Please confirm the ID or type in a new numeric ID.\n"
+"\n"
+"You should also write down this ID on the documents themselves."
+msgstr ""
+"Das zuletzt erzeugte Befundkürzel war \"%s\".\n"
+"Der aktuelle Befund erhält das Kürzel \"%s\".\n"
+"Bitte bestätigen Sie das Kürzel oder tippen Sie ein Neues ein.\n"
+"\n"
+"Sie sollten das Befundkuerzel auf das Original schreiben."
+
+#: ../dist/client/scan-med_docs.py:685 ../dist/client/scan-med_docs.py:728
+msgid "document ID"
+msgstr "Befundkürzel"
+
+#: ../dist/client/scan-med_docs.py:727
 msgid ""
 "This is the reference ID for the current document:\n"
 "<%s>\n"
@@ -460,140 +583,75 @@ msgid ""
 "If you don't care about the ID you can switch off this\n"
 "message in the config file."
 msgstr ""
+"Das ist das Befundkürzel für das aktuelle Dokument:\n"
+"<%s>\n"
+"Sie sollten es auf den Originalbefund schreiben.\n"
+"\n"
+"Wenn Sie keinen Wert auf das Kürzel legen, können Sie\n"
+"diese Nachricht in der Konfigurationsdatei abschalten."
 
-#: dist/client/scan-med_docs.py:624
-msgid "Cannot find any SANE connected devices."
-msgstr ""
-
-#: dist/client/index-med_docs.py:142 dist/client/scan-med_docs.py:133
-msgid "these pages make up the current document"
-msgstr ""
-
-#: dist/client/scan-med_docs.py:765
+#: ../dist/client/scan-med_docs.py:765
 msgid "Cannot get target repository from config file."
-msgstr ""
+msgstr "Kann das Zielarchiv nicht aus der Konfigurationsdatei ermitteln"
 
-#: dist/client/scan-med_docs.py:358
-msgid ""
-"You must acquire some images before\n"
-"you can save them as a document !"
-msgstr ""
-
-#: dist/client/scan-med_docs.py:511 dist/client/scan-med_docs.py:559
-#, fuzzy
-msgid "acquiring page"
-msgstr "Bild holen"
-
-#: dist/client/index-med_docs.py:309
-msgid "date of birth"
-msgstr "Geburtsdatum"
-
-#: dist/client/scan-med_docs.py:171
-msgid "delete selected page from document"
-msgstr ""
-
-#: dist/client/index-med_docs.py:90
-msgid "GnuMed/Archiv: Associating documents with patients."
-msgstr ""
-
-#: dist/client/index-med_docs.py:268
-msgid "save entered metadata with document"
-msgstr ""
-
-#: dist/client/index-med_docs.py:727
-msgid "document date: year must be 4 digits"
-msgstr ""
-
-#: dist/client/index-med_docs.py:230
-msgid "a short comment on the document content"
-msgstr "ein kurzer Kommentar zum Dokument"
-
-#: dist/client/scan-med_docs.py:316
-msgid ""
-"Moving original page %s.\n"
-"(file %s in %s)\n"
-"\n"
-"Please enter the new position for the page !"
-msgstr ""
-
-#: dist/client/scan-med_docs.py:766 dist/client/scan-med_docs.py:779
+#: ../dist/client/scan-med_docs.py:766 ../dist/client/scan-med_docs.py:779
 msgid "invalid configuration"
-msgstr ""
+msgstr "ungültige Konfiguration"
 
-#: dist/client/scan-med_docs.py:92
-msgid "Scanning documents"
-msgstr ""
-
-#: dist/client/index-med_docs.py:733
-msgid "document date: month must be 2 digits"
-msgstr ""
-
-#: dist/client/scan-med_docs.py:260 dist/client/scan-med_docs.py:286
-#, fuzzy
-msgid "deleting page"
-msgstr "Seite löschen"
-
-#: dist/client/modules/docPatient.py:38 dist/server/modules/docPatient.py:38
-msgid "female"
-msgstr "weiblich"
-
-#: dist/client/index-med_docs.py:353
-msgid "short comment"
-msgstr "Kurzkommentar"
-
-#: dist/client/index-med_docs.py:418
+#: ../dist/client/scan-med_docs.py:778
 msgid ""
-"There are no documents in the repository.\n"
-"(%s)\n"
-"\n"
-"Seems like there's nothing to do today."
+"The configured target repository is not accessible.\n"
+"[%s]"
 msgstr ""
+"Auf das konfigurierte Zielarchiv kann nicht zugegriffen werden.\n"
+"[%s]"
 
-#: dist/client/index-med_docs.py:729
+#: ../dist/client/scan-med_docs.py:795
 msgid ""
-"document date: document from before 1900 ?!?\n"
-"\n"
-"I want a copy !"
+"The subdirectory [%s] already exists in the repository [%s].\n"
+"Cannot save current document there."
 msgstr ""
+"Das Unterverzeichnis [%s] existiert bereits im Archiv [%s].\n"
+"Kann den aktuellen Befund dort nicht speichern."
 
-#: dist/client/index-med_docs.py:737
-msgid "document date: month must be 1 to 12"
-msgstr ""
-
-#: dist/client/index-med_docs.py:129
-msgid "currently non-functional: load a fax document"
-msgstr ""
-
-#: dist/client/index-med_docs.py:752
+#: ../dist/client/scan-med_docs.py:810
 msgid ""
-"The data you entered about the current document\n"
-"is not complete. Please enter the missing information.\n"
-"\n"
-"%s"
+"Cannot create the target repository subdirectory.\n"
+"(%s)"
 msgstr ""
+"Kann das Archiv-Zielverzeichnis nicht erstellen.\n"
+"(%s)"
 
-#: dist/client/scan-med_docs.py:158
-msgid "move selected page within document"
-msgstr "gewählte Seite innerhalb des Dokuments verschieben"
+#: ../dist/client/scan-med_docs.py:826
+msgid ""
+"You must specify a checkpoint file for indexing in the config file.\n"
+"Use option <can_index> in group [metadata]."
+msgstr ""
+"Sie müssen in der Konfigurationsdatei eine Checkpoint-Datei für\n"
+"die Zuordnung festlegen.\n"
+"Der Eintrag <can_index> in der Gruppe [metadata] ist dafür zuständig."
 
-#: dist/client/show-med_docs.py:104
+#: ../dist/client/scan-med_docs.py:842
+msgid ""
+"Cannot lock target directory !\n"
+"checkpoint file: %s."
+msgstr ""
+"Kann das Zielverzeichnis nicht sperren !\n"
+"Checkpoint-Datei: %s."
+
+#: ../dist/client/show-med_docs.py:94
+msgid "available documents"
+msgstr "verfügbare Befunde"
+
+#: ../dist/client/show-med_docs.py:104
 msgid "date: %s | comment: %s | reference: %s"
-msgstr ""
+msgstr "Datum: %s | Kommentar: %s | Kuerzel: %s"
 
-#~ msgid "new page number"
-#~ msgstr "neue Nummer der Seite"
+#: ../dist/client/show-med_docs.py:122
+msgid "page %s: \"%s\""
+msgstr "Seite %s: \"%s\""
 
-#~ msgid "TWAIN source error"
-#~ msgstr "Fehler der TWAIN-Quelle"
+#: ../dist/client/show-med_docs.py:195
+msgid "stored medical documents"
+msgstr "gespeicherte medizinische Befunde"
 
-#~ msgid "SANE source error"
-#~ msgstr "Fehler der SANE-Quelle"
-
-#~ msgid "Please select a document for this patient."
-#~ msgstr "Bitte ordnen Sie diesem Patienten Dokumente zu."
-
-#~ msgid "delete"
-#~ msgstr "löschen"
-
-#~ msgid "page"
-#~ msgstr "Seite"
