@@ -13,7 +13,6 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.gnumed.testweb1.data.DemographicDetail;
-import org.gnumed.testweb1.global.Util;
 import org.gnumed.testweb1.persist.DataSourceException;
 import org.gnumed.testweb1.persist.DataSourceUsing;
 import org.gnumed.testweb1.persist.DemographicDataAccess;
@@ -106,10 +105,7 @@ public class ScriptedSQLDemographicDataAccess implements DemographicDataAccess, 
             return detail;
         } catch (Exception e) {
             
-            //throw new DataSourceException(Util.getStaceTraceN(e, 12 ));
-	    //
-	    throw new DataSourceException(e);
-		  
+            throw new DataSourceException(e);//Util.getStaceTraceN(e, 12 ));
             
         }
     }

@@ -93,7 +93,7 @@ public class FindIdentityAction extends Action  {
         } catch (DataSourceException e) {
             log.error("error during setting DEMOGRAPHIC_DETAILS" , e);
             
-            errors.add(getClass().toString(), new ActionMessage("errors.find.demographics", e));
+            errors.add(getClass().toString(), new ActionMessage("errors.find.demographics", e.getCause()));
             
         }
         

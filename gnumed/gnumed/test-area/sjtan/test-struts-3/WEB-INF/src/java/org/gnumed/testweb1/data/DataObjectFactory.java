@@ -43,6 +43,7 @@ public interface DataObjectFactory {
      public ClinNarrative createEntryClinNarrative();
      public AllergyEntry createEntryAllergy();
      public EntryVitals createEntryVitals();
+     public EntryMedication createEntryMedication();
      
      public void setBundle(ResourceBundle bundle);
      public ResourceBundle getBundle();

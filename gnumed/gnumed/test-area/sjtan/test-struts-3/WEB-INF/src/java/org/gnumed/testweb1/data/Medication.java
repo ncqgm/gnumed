@@ -6,8 +6,6 @@
 
 package org.gnumed.testweb1.data;
 
-import java.util.Date;
-
 /**
  *
  * @author  sjtan
@@ -23,22 +21,5 @@ public interface  Medication extends ClinRootItem {
      public void setStart(java.util.Date  s);
      public java.util.Date getLast();
      public void setLast(java.util.Date l );
-     public String getATC_code();
-     public void setATC_code(String code);
-     public String getDB_origin();
-     public void setDB_origin(String origin);
-     public String getDB_drug_id();
-     public void setDB_drug_id(String id);
-     public String getDirections();
-     public void setDirections(String directions);
-     public boolean isSR();
-     public void setSR(boolean slowRelease);
-     public boolean isPRN();
-     public void setPRN(boolean PRN);
-     public double getDose();
-     public void setDose(double dose);
-     public int getPeriod();
-     public void setPeriod(int period);
-     public Date getDiscontinued();
-     public void setDiscontinued(Date d);
+     
 }

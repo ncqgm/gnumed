@@ -13,8 +13,8 @@ import java.util.List;
  *
  * @author  sjtan
  */
-//public class DataSourceException extends org.apache.commons.lang.exception.NestableException {
-public class DataSourceException extends Exception {
+public class DataSourceException extends //org.apache.commons.lang.exception.NestableException
+Exception {
     String msg;
     /**
      * Creates a new instance of <code>DataSourceException</code> without detail message.

@@ -70,18 +70,13 @@ public class HealthIssueImpl1 implements HealthIssue {
 			ClinicalEpisode en = (ClinicalEpisode) ei.next();
 
 			ClinRootItem n = en.getEarliestRootItem();
-                        
-			if (n != null && (early == null
+
+			if (early == null
 					|| n.getClin_when().getTime() < early.getClin_when()
-							.getTime()) ){
+							.getTime()) {
 				early = n;
 			}
 		}
-                
-                if (early == null) {
-                    early = new ClinRootItemImpl1();
-                    early.setClin_when(new java.util.Date());
-                }
 
 		return early;
 

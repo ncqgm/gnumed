@@ -23,7 +23,7 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     
     public final static String[] itemTypes = new String[] { "narrative", "medication", "vaccination", "allergy", "vital" };
     public final static String[] factoryMethods = new String[]
-    { "createEntryClinNarrative", "createMedication",
+    { "createEntryClinNarrative", "createEntryMedication",
       "createEntryVaccination", "createEntryAllergy",
       "createEntryVitals"
     };
@@ -168,25 +168,45 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     
     public EntryVaccination createEntryVaccination () {
     	EntryVaccination v = new EntryVaccinationImpl1();
-    	v.setEpisode(createEntryClinicalEpisode());
-    	
     	String issue = getBundle().getString(Constants.Schema.DEFAULT_VACCINATION_HEALTH_ISSUE_RESOURCE_KEY);
-		HealthIssue healthIssue = v.getEpisode().getHealthIssue();
-		healthIssue.setDescription(issue);
-		String defaultEpisodeName = getBundle().getString(Constants.Schema.DEFAULT_VACCINATION_EPISODE_RESOURCE_KEY);
-    	v.getEpisode().setDescription(defaultEpisodeName);
+    	String defaultEpisodeName = getBundle().getString(Constants.Schema.DEFAULT_VACCINATION_EPISODE_RESOURCE_KEY);
     	String defaultNarrative = getBundle().getString(Constants.Schema.DEFAULT_VACCINATION_NARRATIVE_RESOURCE_KEY);
-    	v.setNarrative(defaultNarrative);
+    	
+    	
+    	configureEntryItem(v, issue, defaultEpisodeName, defaultNarrative);
     	
     	return v;
     }
+
+	/**
+	 * @param v
+	 * @param issue
+	 * @param defaultEpisodeName
+	 * @param defaultNarrative
+	 */
+	private void configureEntryItem(EntryClinRootItem v, String issue, String defaultEpisodeName, String defaultNarrative) {
+		v.setEpisode(createEntryClinicalEpisode());
+    	
+    	HealthIssue healthIssue = v.getEpisode().getHealthIssue();
+		healthIssue.setDescription(issue);
+		v.getEpisode().setDescription(defaultEpisodeName);
+    	v.setNarrative(defaultNarrative);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.gnumed.testweb1.data.DataObjectFactory#getResourceString(java.lang.String)
 	 */
 	public String getResourceString(String key) {
-		// TODO Auto-generated method stub
 		return getBundle().getString(key);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.DataObjectFactory#createEntryMedication()
+	 */
+	public EntryMedication createEntryMedication() {
+		EntryMedication m = new EntryMedicationImpl1();
+		configureEntryItem(m, "prescription", "script", "medication done"	);
+		return m;
 	}
     
     

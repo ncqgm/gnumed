@@ -2,6 +2,6 @@
 <!DOCTYPE attributes PUBLIC "-//NetBeans//DTD DefaultAttributes 1.0//EN" "http://www.netbeans.org/dtds/attributes-1_0.dtd">
 <attributes version="1.0">
     <fileobject name="ClinicalUpdateForm.java">
-        <attr name="class_dependency_org.apache.struts.action.ActionForm" stringvalue="ClinicalUpdateForm"/>
+        <attr name="class_dependency_org.apache.struts.validator.ValidatorActionForm" stringvalue="ClinicalUpdateForm"/>
     </fileobject>
 </attributes>

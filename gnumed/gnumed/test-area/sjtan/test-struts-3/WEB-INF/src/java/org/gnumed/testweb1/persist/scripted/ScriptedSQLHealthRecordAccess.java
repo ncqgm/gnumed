@@ -6,22 +6,50 @@
 
 package org.gnumed.testweb1.persist.scripted;
 
-import java.sql.*;
-import java.util.*;
-
-import org.gnumed.testweb1.global.Constants.Schema;
-
-import org.gnumed.testweb1.persist.*;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
+
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.gnumed.testweb1.data.*;
+import org.gnumed.testweb1.data.Allergy;
+import org.gnumed.testweb1.data.AllergyEntry;
+import org.gnumed.testweb1.data.ClinNarrative;
+import org.gnumed.testweb1.data.ClinRootItem;
+import org.gnumed.testweb1.data.ClinicalEncounter;
+import org.gnumed.testweb1.data.ClinicalEpisode;
+import org.gnumed.testweb1.data.DataObjectFactory;
+import org.gnumed.testweb1.data.EntryClinNarrative;
+import org.gnumed.testweb1.data.EntryClinRootItem;
+import org.gnumed.testweb1.data.EntryMedication;
+import org.gnumed.testweb1.data.EntryVaccination;
+import org.gnumed.testweb1.data.EntryVitals;
+import org.gnumed.testweb1.data.HealthIssue;
+import org.gnumed.testweb1.data.HealthRecord01;
+import org.gnumed.testweb1.data.HealthSummary01;
+import org.gnumed.testweb1.data.HealthSummaryQuickAndDirty01;
+import org.gnumed.testweb1.data.Vaccination;
+import org.gnumed.testweb1.data.Vitals;
 import org.gnumed.testweb1.global.Algorithms;
-
-import java.util.*;
-import java.lang.reflect.InvocationTargetException;
-import org.apache.commons.beanutils.PropertyUtils;
+import org.gnumed.testweb1.global.Constants.Schema;
+import org.gnumed.testweb1.persist.ClinicalDataAccess;
+import org.gnumed.testweb1.persist.DataObjectFactoryUsing;
+import org.gnumed.testweb1.persist.DataSourceException;
+import org.gnumed.testweb1.persist.DataSourceUsing;
+import org.gnumed.testweb1.persist.HealthRecordAccess01;
 
 /**
  * 
@@ -346,7 +374,7 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 
 			itemsAttached = saveVaccinationsCollection(encounter, summary,
 					nonFatalExceptions, conn, itemsAttached);
-
+			
 			if (itemsAttached == 0) {
 				conn.rollback();
 				Statement stmt = conn.createStatement();
@@ -505,6 +533,46 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			}
 		}
 		return itemsAttached;
+	}
+	
+	private int saveMedicationCollection(ClinicalEncounter encounter,
+			HealthSummary01 summary, List nonFatalExceptions, Connection conn,
+			int itemsAttached) {
+		for (Iterator i = encounter.getMedications().iterator(); i.hasNext();) {
+			try {
+				EntryMedication v = (EntryMedication) i.next();
+				if (v.isEntered()) {
+					linkRootItem(conn, v, summary);
+					saveMedication(conn, v, summary);
+					itemsAttached++;
+				}
+			} catch (Exception e) {
+				nonFatalExceptions.add(e);
+			}
+		}
+		return itemsAttached;
+	}
+
+
+	/**
+	 * @param conn
+	 * @param v
+	 * @param summary
+	 */
+	private void saveMedication(Connection conn, EntryMedication v, HealthSummary01 summary) {
+		// TODO Auto-generated method stub
+		String s9 = "insert into clin_medication(pk_item, " +
+				"brandname, atc_code, " +
+				"db_origin, db_drug_id," +
+				" amount_unit, dose, period," +
+				" form, directions, " +
+				"prn, sr , " +
+				"started, last_prescribed, discontinued," +
+				" clin_when, narrative, soap_cat,  fk_encounter, fk_episode) "
+			+ "values (?,  ? , ? , ?, ?," +
+					" ? , ? , ? , ? , ?" +
+					", ? , ? , ? , ? , ?" +
+					" , ? , ? , ? , ? , ?)";
 	}
 
 	/** gets the next id from the sequence named */

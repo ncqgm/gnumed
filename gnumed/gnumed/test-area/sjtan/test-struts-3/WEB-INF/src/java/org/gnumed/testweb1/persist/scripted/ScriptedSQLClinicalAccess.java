@@ -7,7 +7,6 @@
 package org.gnumed.testweb1.persist.scripted;
 import   org.gnumed.testweb1.persist.ClinicalDataAccess;
 import org.gnumed.testweb1.persist.scripted.ClinicalSQL;
-import org.gnumed.testweb1.global.Util;
 import org.gnumed.testweb1.persist.DataSourceException;
 
 import javax.sql.DataSource;
@@ -34,15 +33,12 @@ public class ScriptedSQLClinicalAccess implements ClinicalDataAccess {
             conn = getDataSource().getConnection();
             return sqlProvider.getVaccines(conn);
         } catch (Exception e) {
-            //throw new DataSourceException( Util.getStaceTraceN(e, 8));
-	    throw new DataSourceException(e);
-
+            throw new DataSourceException( e);//Util.getStaceTraceN(e, 8));
         } finally {
             try {
                 conn.close();
             }catch (Exception e) {
-            // throw new DataSourceException( Util.getStaceTraceN(e, 8));
-	    	throw new DataSourceException(e);
+             throw new DataSourceException(e); //Util.getStaceTraceN(e, 8));
         }
         }
         

@@ -135,6 +135,8 @@ public interface ClinicalEncounter {
     public ClinNarrative getNarrative(int index);
     
     public List getVaccinations();
+
+    public List getMedications();
     
     public List getNarratives();
     /**

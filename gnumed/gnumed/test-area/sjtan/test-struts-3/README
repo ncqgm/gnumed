@@ -31,8 +31,6 @@ then add in the CVS/Entries file ( in test-area/sjtan/CVS ) D/test-struts-3/////
 
 
 
-
-
 Notes on Install:
 
 The following 4 links will be read by download.sh , and downloaded.
@@ -40,13 +38,7 @@ The following 4 links will be read by download.sh , and downloaded.
 The following steps were tested:
 
 
-A.Have a java sdk1.4.2  installed.   
 
-
-http://mirror.aarnet.edu.au/pub/java-linux/JDK-1.4.2/i386/rc1/j2re-1.4.2-rc1-linux-i586-gcc2.95.bin
-(Change the above url to ...gcc3.2.bin  if wanting the gcc3.2 version.)
-
-=======
 A.Have a java sdk1.4.2  installed.
 
 	http://mirror.aarnet.edu.au/pub/java-linux/JDK-1.4.2/i386/rc1/j2re-1.4.2-rc1-linux-i586-gcc2.95.bin
@@ -149,16 +141,17 @@ eg. from context.xml
       <value>test-doc</value>
     </parameter>
 
-e.g. change  _test-doc , and password 'test-doc' to local write-enabled user and password
-if this will work on your local  gnumed install,
-but if username and password is changed,  * please change *  
-	 	./war-context.xml   
-	as well if the postgres config parameters are changed, 
-	as this allows the war packed application to work when dropped into ${your-tomcat-base-directory}/webapps.
+e.g. change to _test-doc , and password 'test-doc' to local write-enabled users
+if this will work on the gnumed install.
+
+** Please change 
+	** ./war-context.xml **  
+as well if the postgres config parameters are changed, 
+as this allows the war packed application to work when
+dropped into ${your-tomcat-base-directory}/webapps. ( i.e. no manager config)
   
 
 7. compile by changing to /WEB-INF/src where the build.xml file is , and typing 'ant'.
-
 
 8a. (If not using war drop-in)  Set the right context path in the  META-INF/context.xml  configuration file.
 
@@ -176,7 +169,6 @@ hint: test that it is the path by selecting the docBase string, and then on the 
 
 9. start tomcat, by going to {tomcat-basedir}/bin/   and typing 'catalina.sh debug' , followed by 'run' at the '>' prompt.
 
-
 10. go to http://localhost:8080  to see if tomcat ran.
 
 11 
@@ -185,11 +177,12 @@ a. if using war drop-in, then the manager config can be skipped.
 b.(if not using war drop-in)
 	i. go to http://localhost:8080/manager ; if step 5. works, then the user name 'tomcat', password 'tomcat' should give
 the manager page.
-
 	ii. Point tomcat to the context.xml file of step 6.
 
 		In the box on the manager page which says: -
 
+12. Point tomcat to the context.xml file of step 6.
+In the box on the manager page which says: -
 		Deploy directory or WAR file located on server
 		    XML Configuration file URL: [                       ]
 
@@ -201,7 +194,7 @@ the manager page.
 
 		file:/${GNUMED_DIR}/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
 
-		i.e whatever  is the URL file path to the file edited in step 6. ( note the single slashed file:/ as a url base)
+		i.e whatever  is the URL file path to the file edited in step 8b. ( note the single slashed file:/ as a url base)
 
 		When the deploy button is pressed, there should be an OK - gnumed-test-web deployed message, 
 
@@ -229,6 +222,5 @@ or
 
 			- health Summary of previous encounters are on the right,
 			the entry part is top left, and the previous past notes are in the bottom left.
-
 
 

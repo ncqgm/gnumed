@@ -73,6 +73,8 @@
       description="Prepare for clean build">
       <delete dir="classes"/>
       <mkdir  dir="classes"/>
+      <delete dir="../dist"/>
+    	<mkdir dir="../dist"/>
     </target>
 
 
@@ -102,16 +104,11 @@
 
     <!-- Create binary distribution -->
     <target name="dist"
-        description="Create binary distribution">
+	    description="Create binary distribution">
 
+      <delete dir="${distpath.project}"/>
       <mkdir
         dir="${distpath.project}"/>
-      <jar
-        jarfile="${distpath.project}/${project.distname}.jar"
-        basedir="./classes"/>
-      <copy
-        file="${distpath.project}/${project.distname}.jar"
-        todir="${distpath.project}"/>
       <copy
 	file="../META-INF/context.xml"
 	tofile="../backup-context.xml"/>
@@ -132,6 +129,12 @@
 	file="../backup-context.xml"
 	tofile="../META-INF/context.xml"
 	/>
+      <jar
+        jarfile="${distpath.project}/${project.distname}.jar"
+        basedir="./classes"/>
+      <copy
+        file="${distpath.project}/${project.distname}.jar"
+        todir="${distpath.project}"/>
        
     </target>
 

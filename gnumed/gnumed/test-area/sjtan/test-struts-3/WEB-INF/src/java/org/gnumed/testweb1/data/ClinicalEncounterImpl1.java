@@ -235,7 +235,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
 	 * @see org.gnumed.testweb1.data.ClinicalEncounter#getVaccinations()
 	 */
 	public List getVaccinations() {
-			return vaccinations;
+		return vaccinations;
 		
 	}
     
@@ -329,6 +329,14 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
 			ep.setHealthIssue( (HealthIssue) healthIssueMap.get(ep.getHealthIssue().getDescription()));
 			
 		}
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.ClinicalEncounter#getMedications()
+	 */
+	public List getMedications() {
+		return medications;
 	}
 	
 	
