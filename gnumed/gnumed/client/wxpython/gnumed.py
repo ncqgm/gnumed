@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -216,6 +216,7 @@ can increase its log level with '--debug'.
 """)
 
 	gb = gmGuiBroker.GuiBroker ()
+
 	gb['gnumed_dir'] = appPath # EVERYONE must use this!
 
 	try:
@@ -254,7 +255,11 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.48  2003-02-03 14:29:08  ncq
+# Revision 1.49  2003-02-07 21:06:02  sjtan
+#
+# refactored edit_area_gen_handler to handler_generator and handler_gen_editarea. New handler for gmSelectPerson
+#
+# Revision 1.48  2003/02/03 14:29:08  ncq
 # - finally fixed that annoying Pseudo error exception.SystemExit on login dialog cancellation
 #
 # Revision 1.47  2003/01/20 08:25:15  ncq

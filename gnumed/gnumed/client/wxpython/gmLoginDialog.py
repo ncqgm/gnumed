@@ -94,8 +94,10 @@ class LoginPanel(wxPanel):
 		#get some default login parameter settings in case the configuration file is empty
 		self.loginparams = loginparams or LoginParameters()
 		#if we didn't override the standard parameters, load them from the configuration file
+		
 		if loginparams==None:
-			self.__log_settings()
+			#	self.__log_settings()
+			pass
 
 		self.topsizer = wxBoxSizer(wxVERTICAL)
 
@@ -108,7 +110,9 @@ class LoginPanel(wxPanel):
 		except:
 			self.topsizer.Add(wxStaticText (self, -1, _("Cannot find image") + bitmap, style=wxALIGN_CENTRE), 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
 
-		tmp = _cfg.get('workplace', 'name')
+		
+	#	tmp = _cfg.get('workplace', 'name')
+		tmp = None
 		if tmp is None:
 			print _('You should name this workplace to better identify the machine !\nTo do this set the option "name" in the group [workplace] in the config file !')
 			tmp = _("<no workplace name set in config file>")
@@ -242,6 +246,7 @@ class LoginPanel(wxPanel):
 			self.loginparams.backendoptionlist = ['']
 	#----------------------------
 	def save_settings(self):
+		return
 		"""Save parameter settings to standard configuration file"""
 
 		_cfg.set('backend', 'logins', self.__cbox_to_list(self.usercombo))
@@ -583,11 +588,14 @@ Backend options: options passed through unparsed to the backend\n"))
 #############################################################################
 
 if __name__ == '__main__':
+	gb = gmGuiBroker.GuiBroker()	
+	gb['gnumed_dir'] = os.curdir+'/..'
+
 	app = wxPyWidgetTester(size = (300,400))
 	#show the login panel in a main window
 	app.SetWidget(LoginPanel, -1)
 	#and pop the login dialog up modally
-	dlg = LoginDialog(NULL, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
+	dlg = LoginDialog(NULL, -1) #, png_bitmap = 'bitmaps/gnumedlogo.png')
 	dlg.ShowModal()
 	#demonstration how to access the login dialog values
 	lp = dlg.panel.GetLoginParams()
@@ -600,7 +608,11 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.29  2003-02-02 07:38:29  michaelb
+# Revision 1.30  2003-02-07 21:06:02  sjtan
+#
+# refactored edit_area_gen_handler to handler_generator and handler_gen_editarea. New handler for gmSelectPerson
+#
+# Revision 1.29  2003/02/02 07:38:29  michaelb
 # set serpent as window icon - login dialog & option dialog
 #
 # Revision 1.28  2003/01/16 09:22:28  ncq
