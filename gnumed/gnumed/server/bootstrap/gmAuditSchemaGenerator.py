@@ -16,7 +16,7 @@ not have any constraints.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -75,22 +75,22 @@ WHERE
 drop_trigger = "DROP TRIGGER %s ON %s;"
 drop_function = "DROP FUNCTION %s();"
 
-trigger_insert = """CREATE TRIGGER %s
+template_insert_trigger = """CREATE TRIGGER %s
 	BEFORE INSERT
 	ON %s
 	FOR EACH ROW EXECUTE PROCEDURE %s();"""
 
-trigger_update = """CREATE TRIGGER %s
+template_update_trigger = """CREATE TRIGGER %s
 	BEFORE UPDATE
 	ON %s
 	FOR EACH ROW EXECUTE PROCEDURE %s();"""
 
-trigger_delete = """CREATE TRIGGER %s
+template_delete_trigger = """CREATE TRIGGER %s
 	BEFORE DELETE
 	ON %s
 	FOR EACH ROW EXECUTE PROCEDURE %s();"""
 
-function_insert = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
+template_insert_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
 	NEW.row_version := 0;
 	NEW.modify_when := CURRENT_TIMESTAMP;
@@ -98,7 +98,7 @@ BEGIN
 	return NEW;
 END;' LANGUAGE 'plpgsql';"""
 
-function_update = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
+template_update_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
 	NEW.row_version := OLD.row_version + 1;
 	NEW.modify_when := CURRENT_TIMESTAMP;
@@ -113,7 +113,7 @@ BEGIN
 	return NEW;
 END;' LANGUAGE 'plpgsql';"""
 
-function_delete = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
+template_delete_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
 	INSERT INTO %s (
 		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
@@ -136,12 +136,12 @@ def get_children(aCursor, aTable):
 	rows = aCursor.fetchall()
 	return rows
 #------------------------------------------------------------------
-def get_attributes(aCursor, aTable):
+def get_columns(aCursor, aTable):
 	"""Return column attributes of table
 	"""
 	cmd = query_table_attributes % aTable
 	if not gmPG.run_query(aCursor, cmd):
-		_log.Log(gmLog.lErr, 'cannot get column attributes for table %s' % aTable)
+		_log.Log(gmLog.lErr, 'cannot get columns for table [%s]' % aTable)
 		return None
 	data = aCursor.fetchall()
 	rows = []
@@ -149,106 +149,100 @@ def get_attributes(aCursor, aTable):
 		rows.append(row[0])
 	return rows
 #------------------------------------------------------------------
-def create_logging_table(aCursor, aTable):
-	logging_table = 'log_%s' % aTable
-	schema = []
+def audit_trail_table_exists(aCursor, table2audit, audit_prefix = 'log_'):
+	audit_trail_table = '%s%s' % (audit_prefix, table2audit)
 
-	#check first whether the audit table exists, and create it if not
-	cmd = "SELECT exists(select oid FROM pg_class where relname = '%s');" % logging_table
+	# does the audit trail target table exist ?
+	cmd = "SELECT exists(select oid FROM pg_class where relname = '%s');" % audit_trail_table
 	if not gmPG.run_query(aCursor, cmd):
-		_log.Log(gmLog.lErr, 'cannot check existance of table %s' % logging_table)
+		_log.Log(gmLog.lErr, 'cannot check existance of table %s' % audit_trail_table)
 		return None
 	result = aCursor.fetchone()
-	if not result[0]:
-		schema.append('CREATE TABLE "%s" () INHERITS (audit_log);' % logging_table)
-		schema.append('')
-	return schema
+	return result[0]
 #------------------------------------------------------------------
-def create_trigfunc(aCursor, aChildTable, aParentTable = 'audit_mark', audit_prefix = 'log_'):
-	logged_table = aChildTable
-	logging_table = '%s%s' % (audit_prefix, logged_table)
+def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', audit_prefix = 'log_'):
+	audit_trail_table = '%s%s' % (audit_prefix, audited_table)
 
-	attributes = get_attributes(aCursor, logging_table)
-	skip_attributes = get_attributes(aCursor, aParentTable)
-	fields = []
+	target_columns = get_columns(aCursor, audit_trail_table)
+	columns2skip = get_columns(aCursor, audit_parent_table)
+	columns = []
 	values = []
-	for attribute in attributes:
-		if attribute in skip_attributes:
+	for column in target_columns:
+		if column in columns2skip:
 			continue
-		fields.append(attribute)
-		values.append('OLD.%s' % attribute)
-	fields_clause = string.join(fields, ', ')
+		columns.append(column)
+		values.append('OLD.%s' % column)
+	columns_clause = string.join(columns, ', ')
 	values_clause = string.join(values, ', ')
 
 	schema = []
 
 	# insert
-	func_name_insert = 'f_ins_%s' % (logged_table)
-	trigger_name_insert = 't_ins_%s' % (logged_table)
+	func_name_insert = 'f_ins_%s' % (audited_table)
+	trigger_name_insert = 't_ins_%s' % (audited_table)
 
 	schema.append(drop_function % func_name_insert)
-	schema.append(function_insert % (func_name_insert))
+	schema.append(template_insert_function % (func_name_insert))
 	schema.append('')
 
-	schema.append(drop_trigger % (trigger_name_insert, logged_table))
-	schema.append(trigger_insert % (trigger_name_insert, logged_table, func_name_insert))
+	schema.append(drop_trigger % (trigger_name_insert, audited_table))
+	schema.append(template_insert_trigger % (trigger_name_insert, audited_table, func_name_insert))
 	schema.append('')
 
 	# update
-	func_name_update = 'f_upd_%s' % (logged_table)
-	trigger_name_update = 't_upd_%s' % (logged_table)
+	func_name_update = 'f_upd_%s' % (audited_table)
+	trigger_name_update = 't_upd_%s' % (audited_table)
 
 	schema.append(drop_function % func_name_update)
-	schema.append(function_update % (func_name_update, logging_table, fields_clause, values_clause))
+	schema.append(template_update_function % (func_name_update, audit_trail_table, columns_clause, values_clause))
 	schema.append('')
 
-	schema.append(drop_trigger % (trigger_name_update, logged_table))
-	schema.append(trigger_update % (trigger_name_update, logged_table, func_name_update))
+	schema.append(drop_trigger % (trigger_name_update, audited_table))
+	schema.append(template_update_trigger % (trigger_name_update, audited_table, func_name_update))
 	schema.append('')
 
 	# delete
-	func_name_delete = 'f_del_%s' % (logged_table)
-	trigger_name_delete = 't_del_%s' % (logged_table)
+	func_name_delete = 'f_del_%s' % (audited_table)
+	trigger_name_delete = 't_del_%s' % (audited_table)
 
 	schema.append(drop_function % func_name_delete)
-	schema.append(function_delete % (func_name_delete, logging_table, fields_clause, values_clause))
+	schema.append(template_delete_function % (func_name_delete, audit_trail_table, columns_clause, values_clause))
 	schema.append('')
 
-	schema.append(drop_trigger % (trigger_name_delete, logged_table))
-	schema.append(trigger_delete % (trigger_name_delete, logged_table, func_name_delete))
+	schema.append(drop_trigger % (trigger_name_delete, audited_table))
+	schema.append(template_delete_trigger % (trigger_name_delete, audited_table, func_name_delete))
 	schema.append('')
 
 	# disallow delete/update on auditing table
 
 	return schema
 #------------------------------------------------------------------
-def create_audit_schema(aCursor, aTable):
-	# get a list of all derived tables
-	children = get_children(aCursor, aTable)
+def create_audit_schema(aCursor, audit_marker_table = 'audit_mark', audit_parent_table = 'audit_log'):
+	# get list of all derived tables
+	tables2audit = get_children(aCursor, audit_marker_table)
 
 	# for each derived table
 	schema = []
-	for child_table in children:
-		# create logging table
-		data = create_logging_table(aCursor, child_table[0])
-		if data is None:
+	for audited_table in tables2audit:
+		# fail if corresponding audit trail table does not exist
+		if not audit_trail_table_exists(aCursor, audited_table[0]):
 			return None
-		schema.extend(data)
-		# create trigger
-		schema.extend(create_trigfunc(aCursor, child_table[0]))
+		# create corresponding triggers
+		schema.extend(trigger_schema(aCursor, audited_table[0], audit_parent_table))
 		schema.append('-- ----------------------------------------------')
 	return schema
 #==================================================================
 # main
 #------------------------------------------------------------------
 if __name__ == "__main__" :
-	parent_table = raw_input("name of parent table: ")
+	audit_marker_table = raw_input("name of audit marker table   : ")
+	audit_parent_table = raw_input("name of auditing parent table: ")
 
 	dbpool = gmPG.ConnectionPool()
 	conn = dbpool.GetConnection('default')
 	curs = conn.cursor()
 
-	schema = create_audit_schema(curs, parent_table)
+	schema = create_audit_schema(curs, audit_marker_table)
 
 	curs.close()
 	conn.close()
@@ -264,7 +258,12 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.3  2003-05-13 14:55:43  ncq
+# Revision 1.4  2003-05-14 22:03:28  ncq
+# - better names for template definitions and lots of other items
+# - attributes -> columns
+# - check whether target table exists, fail if not
+#
+# Revision 1.3  2003/05/13 14:55:43  ncq
 # - take list of columns to be audited from target audit table,
 #   not from source table, this implies that the target table MUST exist
 #   prior to running this script
