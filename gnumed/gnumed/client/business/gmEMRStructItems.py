@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -105,56 +105,49 @@ class cEpisode(gmClinItem.cClinItem):
 			_log.Log(gmLog.lErr, str(msg))
 			return False
 		return True
-	#--------------------------------------------------------	
+	#--------------------------------------------------------
 	def rename(self, description=None, soap_cat=None, encounter = None):
-		"""
-		Method for episode edition, that is, episode renaming.
-		
+		"""Method for episode editing, that is, episode renaming.
+
 		@param description - The new descriptive name for the encounter
 		@type description -
 		   * Attaching the episode to an existing narrative: an instance 
 			 of cClinNarrative
 		   * Creating a new narrative which the episode will be attached to: the
 			 new narrarive text. In this case, soap category must be supplied.
-		
+
 		@param soap_cat - The soap category for the new narrative to be created
 		   and attatched to the episode.
 		@type soap_cat - any of 's','o','a','p' valid categories
-		
+
 		@param encounter - The encounter for the new narrative to be created
 		   and attatched to the episode.
 		@type encounter - An instance of cEpisode
 		"""
-		
-		if not isinstance(description, gmClinNarrative.cNarrative):
-			# sanity check
-			if description is None or len(description) == 0 or\
-			   soap_cat is None or len(soap_cat) == 0 or\
-			   encounter is None or not isinstance(encounter, cEncounter):
-			   	_log.Log(gmLog.lErr, 'Unable to rename episode. Cannot create narrative for encounter:description:soap_cat [%s:%s:%s]' % (encounter,description,soap_cat))
-			   	return False
-			# create new narrative
-			result, description = gmClinNarrative.create_clin_narrative(narrative = description,
-			soap_cat = soap_cat, episode_id = self._payload[self._idx['pk_episode']],
-			encounter_id= encounter['pk_encounter'])
-			if not result:
-				_log.Log(gmLog.lErr, 'Unable to rename episode. An error happended while creating narrative for encounter:description:soap_cat [%s:%s:%s]' % (encounter,description,soap_cat) )
-				return False
-				
-		# sanity check
-		if description is None or not isinstance(description, gmClinNarrative.cNarrative):
-			_log.Log(gmLog.lErr, 'Unable to rename episode. Cannot attach episode [%s] to narrative [%s]' % (self,description))
-			return False			
-		# reattach the episode to the previously existing or newly created narrative
-		try:
-			self._payload[self._idx['pk_narrative']] = description['pk_narrative']
-			self._savepayload()
-		except:
-			_log.Log(gmLog.lErr, 'Unable to rename episode. Could not attach episode [%s] to narrative [%s]' % (self,description))
+		if description is None:
+			_log.Log(gmLog.lErr, '<description> must be a string or a cNarrative instance')
 			return False
-						
+		# does the caller want us to create a new narrative ?
+		if not isinstance(description, gmClinNarrative.cNarrative):
+			description = str(description)
+			if (description.strip() == '' or soap_cat not in 'soapSOAP' or not isinstance(encounter, cEncounter)):
+				_log.Log(gmLog.lErr, 'parameter error: description::soap_cat::encounter: [%s::%s::%s]' % (description, soap_cat, encounter))
+				return False
+			successful, description = gmClinNarrative.create_clin_narrative (
+				narrative = description,
+				soap_cat = soap_cat,
+				episode_id = self._payload[self._idx['pk_episode']],
+				encounter_id= encounter['pk_encounter']
+			)
+			if not successful:
+				_log.Log(gmLog.lErr, 'cannot create new narrative to rename episode' % (encounter,description,soap_cat))
+				return False
+		# reattach episode to existing or newly created narrative
+		self._payload[self._idx['pk_narrative']] = description['pk_narrative']
+		if not self._save_payload():
+			_log.Log(gmLog.lErr, 'cannot rename episode [%s] with [%s]' % (self, description))
+			return False
 		return True
-		
 #============================================================
 class cEncounter(gmClinItem.cClinItem):
 	"""Represents one encounter.
@@ -512,7 +505,10 @@ if __name__ == '__main__':
 		
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.31  2005-01-25 01:36:19  cfmoro
+# Revision 1.32  2005-01-25 17:24:57  ncq
+# - streamlined cEpisode.rename()
+#
+# Revision 1.31  2005/01/25 01:36:19  cfmoro
 # Added cEpisode.rename method
 #
 # Revision 1.30  2005/01/15 20:24:35  ncq
