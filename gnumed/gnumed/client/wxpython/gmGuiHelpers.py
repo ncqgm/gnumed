@@ -11,16 +11,15 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.8 2004-04-10 01:48:31 ihaywood Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmGuiHelpers.py,v 1.9 2004-04-11 10:10:56 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import sys, string
 
 if __name__ == '__main__':
-	print "This is not intended to be run standalone !"
-	sys.exit(-1)
+	sys.exit("This is not intended to be run standalone !")
 
 from wxPython.wx import *
 
@@ -106,7 +105,10 @@ def gm_beep_statustext(aMessage, aLogLevel = None):
 	return 1
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.8  2004-04-10 01:48:31  ihaywood
+# Revision 1.9  2004-04-11 10:10:56  ncq
+# - cleanup
+#
+# Revision 1.8  2004/04/10 01:48:31  ihaywood
 # can generate referral letters, output to xdvi at present
 #
 # Revision 1.7  2004/03/04 19:46:54  ncq

@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.67 2004-04-10 01:48:31 ihaywood Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmEditArea.py,v 1.68 2004-04-11 10:10:56 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -597,6 +597,7 @@ class gmEditArea(wxPanel):
 	# handlers
 	#--------------------------------------------------------
 	def _on_OK_btn_pressed(self, event):
+		# FIXME: this try: except: block seems to large
 		try:
 			event.Skip()
 			if self.data_ID is None:
@@ -2395,7 +2396,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.67  2004-04-10 01:48:31  ihaywood
+# Revision 1.68  2004-04-11 10:10:56  ncq
+# - cleanup
+#
+# Revision 1.67  2004/04/10 01:48:31  ihaywood
 # can generate referral letters, output to xdvi at present
 #
 # Revision 1.66  2004/03/28 11:09:04  ncq
