@@ -1,6 +1,6 @@
 # A Python class to replace the PSQL command-line interpreter
 # NOTE: his is not a full replacement for the interpeter, merely
-# enough functionality to run gnukmed installation scripts
+# enough functionality to run gnumed installation scripts
 # Copyright (C) 2003 GNUMed developers
 # Licence: GPL
 

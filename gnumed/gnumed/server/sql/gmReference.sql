@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -123,8 +123,18 @@ comment on column papersizes.size is '(cm, cm)';
 
 -- =============================================
 -- form templates
+
+create table form_types (
+	pk serial primary key,
+	name text
+);
+
+comment on table form_types is 'types of forms which are available,
+gnerally by purpose (radilogy, pathology, sick leave, etc.)';
+
 create table form_defs (
 	pk serial primary key,
+	fk_type integer references form_types (pk),
 	name_short text not null,
 	name_long text not null,
 	revision text not null,
@@ -206,17 +216,21 @@ GRANT SELECT ON
 	, basic_unit
 	, test_norm
 	, papersizes
+        , form_types
 	, form_defs
 	, form_print_defs
 TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.9  2004-04-07 18:16:06  ncq
+-- Revision 1.10  2004-06-17 11:32:08  ihaywood
+-- bugfixes
+--
+-- Revision 1.9  2004/04/07 18:16:06  ncq
 -- - move grants into re-runnable scripts
 -- - update *.conf accordingly
 --
