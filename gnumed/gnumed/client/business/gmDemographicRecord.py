@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.31 2004-03-15 15:35:45 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmDemographicRecord.py,v 1.32 2004-03-20 17:53:15 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -19,7 +19,6 @@ if __name__ == "__main__":
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider
 from Gnumed.business import gmMedDoc
-from Gnumed.pycommon import *
 
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
@@ -834,7 +833,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.31  2004-03-15 15:35:45  ncq
+# Revision 1.32  2004-03-20 17:53:15  ncq
+# - cleanup
+#
+# Revision 1.31  2004/03/15 15:35:45  ncq
 # - optimize getCommChannel() a bit
 #
 # Revision 1.30  2004/03/10 12:56:01  ihaywood
