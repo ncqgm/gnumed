@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.37 $
+-- $Revision: 1.38 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -159,7 +159,7 @@ comment on column lnk_tst2norm.id_norm is
 	'the norm to apply to the linked test';
 
 -- ====================================
-create table unmatched_test_result (
+create table test_result_unmatched (
 	pk serial primary key,
 	fk_patient_candidates integer[],
 	request_id text,
@@ -172,34 +172,34 @@ create table unmatched_test_result (
 	data text		-- bytea, perhaps ?
 ) inherits (audit_fields);
 
-select add_table_for_audit('unmatched_test_result');
+select add_table_for_audit('test_result_unmatched');
 
-comment on table unmatched_test_result is
+comment on table test_result_unmatched is
 	'this table holds test results that could not be matched
 	 to one single patient automatically, it is intended to
 	 facilitate manual matching,
 
 	 - use "modified_when" for import time';
-comment on column unmatched_test_result.fk_patient_candidates is
+comment on column test_result_unmatched.fk_patient_candidates is
 	'a matching algorithm can be applied to produce
 	 a list of likely candidate patients, the question
 	 remains whether this should not be done at runtime';
-comment on column unmatched_test_result.request_id is
+comment on column test_result_unmatched.request_id is
 	'request ID as found in <data>';
-comment on column unmatched_test_result.firstnames is
+comment on column test_result_unmatched.firstnames is
 	'first names as found in <data>';
-comment on column unmatched_test_result.lastnames is
+comment on column test_result_unmatched.lastnames is
 	'last names as found in <data>';
-comment on column unmatched_test_result.dob is
+comment on column test_result_unmatched.dob is
 	'date of birth as found in <data>';
-comment on column unmatched_test_result.postcode is
+comment on column test_result_unmatched.postcode is
 	'postcode as found in <data>';
-comment on column unmatched_test_result.other_info is
+comment on column test_result_unmatched.other_info is
 	'other identifying information as found in <data>';
-comment on column unmatched_test_result.type is
+comment on column test_result_unmatched.type is
 	'the type of <data>, eg HL7, LDT, ...,
 	 useful for selecting an importer';
-comment on column unmatched_test_result.data is
+comment on column test_result_unmatched.data is
 	'the raw data';
 
 -- ====================================
@@ -425,11 +425,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.37 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.38 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.37  2005-02-08 07:22:42  ncq
+-- Revision 1.38  2005-02-13 19:18:40  ncq
+-- - Jim wanted test_result_unmatched rather than the other way round
+--
+-- Revision 1.37  2005/02/08 07:22:42  ncq
 -- - missing "," and wrong table name used
 --
 -- Revision 1.36  2005/02/08 07:07:40  ncq
