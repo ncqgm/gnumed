@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -650,7 +650,8 @@ def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1, extra_ve
 			* True - if all queries succeeded (also if there were 0 queries)
 			* False - if *any* error occurred
 		- <data> if <status> is True:
-			* fetchall() result (if any) of last query else None
+			* "None" if last query did not return rows
+			* "fetchall() result" if last query returned any rows
 		- <data> if <status> is False:
 			* a tuple (error, message) where <error> can be:
 			* 1: unspecified error
@@ -1183,7 +1184,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.36 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.37 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1401,7 +1402,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.36  2004-11-24 16:00:43  ncq
+# Revision 1.37  2004-12-20 16:48:00  ncq
+# - minor improvement to inline docs
+#
+# Revision 1.36  2004/11/24 16:00:43  ncq
 # - we need to import into the module global namespace, however
 #
 # Revision 1.35  2004/11/24 15:56:39  ncq
