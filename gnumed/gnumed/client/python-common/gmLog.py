@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -623,7 +623,7 @@ def __open_default_logfile():
 			(tmp1,tmp2) = option.split('=')
 			(ldir, lname) = os.path.split(tmp2)
 			if ldir == '':
-				ldir = base_dir
+				ldir = '.'
 			if lname == '':
 				lname = base_name
 			logName = os.path.abspath(os.path.expanduser(os.path.join(ldir, lname)))
@@ -633,7 +633,9 @@ def __open_default_logfile():
 				return loghandle
 			except:
 				print "command line log file [%s] cannot be opened" % logName
-				pass
+				exc_type, exc_val, exc_traceback = sys.exc_info()
+				print exc_type
+				print exc_val
 
 	# else look in standard locations
 	# /var/log/base_dir/base_name.log
@@ -812,7 +814,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.40  2003-09-30 19:02:28  ncq
+# Revision 1.41  2003-10-31 08:48:17  ncq
+# - PSU: --log-file=test.log should of course use test.log in the current directory
+#
+# Revision 1.40  2003/09/30 19:02:28  ncq
 # - added try: except: on write errors to log targets ...
 #
 # Revision 1.39  2003/09/22 23:19:58  ncq
