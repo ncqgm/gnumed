@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.84 $"
+__version__ = "$Revision: 1.85 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -598,7 +598,10 @@ def run_commit (service, queries):
 	The point is to handle errors so the calling code can
 	avoid the highly repetitive try..except bureaucracy.
 
-	Takes a list of (query, [args]) to execute as a single transaction
+	Takes a list of (query, [args]) to execute as a single transaction.
+
+	If the last query returned data (i.e. was a SELECT query), the
+	data will be returned.
 	"""
 	dbp = ConnectionPool ()
 	con = dbp.GetConnection (service, readonly = 0)
@@ -611,6 +614,11 @@ def run_commit (service, queries):
 			con.close()
 			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), sys.exc_info(), verbose = _query_logging_verbosity)
 			return None
+	# did we get result rows ?
+	if cur.description is None:
+		data = None
+	else:
+		data = cur.fetchall()
 	cur.close()
 	con.commit()
 	# FIXME:
@@ -629,6 +637,10 @@ def run_commit (service, queries):
 	#>     do_stuff()
 	#>     conn.commit()
 	con.close()
+	if data is None:
+		return 1
+	else:
+		return data
 	return 1
 #---------------------------------------------------
 def run_ro_query(aService = None, aQuery = None, get_col_idx = None, *args):
@@ -1007,7 +1019,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.84  2003-11-17 20:22:59  ncq
+# Revision 1.85  2003-11-20 00:48:45  ncq
+# - re-added run_commit() returning rows if last DML returned rows
+#
+# Revision 1.84  2003/11/17 20:22:59  ncq
 # - remove print()
 #
 # Revision 1.83  2003/11/17 10:56:36  sjtan
