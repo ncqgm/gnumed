@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -545,19 +545,30 @@ if __name__ == "__main__":
 	myCfg.set("date", "modified", "right now", ["should always be rather current"])
 	myCfg.store()
 else:
+	# - we are being imported
+
 	# have a sane pointer even if we fail on import (in
 	# case the caller ignores the exception)
 	gmDefCfgFile = None
-	# - we are being imported
+
 	# - if we don't find any config file we raise an exception
 	# - IF the called really knows what she does she can handle
 	#   that exception in her own code
-	_tmp = cCfgFile()
+	try:
+		_tmp = cCfgFile()
+	except Exception, msg:
+		exc = sys.exc_info()
+		_log.LogException('unhandled exception', exc, fatal=1)
+		raise ImportError, msg
+
 	# we only get here if we DON'T throw an exception
 	gmDefCfgFile = _tmp
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.17  2002-10-19 19:24:37  ncq
+# Revision 1.18  2002-10-19 19:30:13  ncq
+# - on being imported always raise ImportError on failing to use default config file
+#
+# Revision 1.17  2002/10/19 19:24:37  ncq
 # - fixed some whitespace breakage
 # - raise error on failing to parse default config file, if you really want
 #   to override this you should handle that exception in your own code
