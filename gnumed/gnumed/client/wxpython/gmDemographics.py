@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.47 2004-10-19 21:34:25 sjtan Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmDemographics.py,v 1.48 2004-10-20 11:20:10 sjtan Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -22,9 +22,9 @@ from wxPython import wx
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
 # GnuMed specific
-from client.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator
-from client.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N
-from client.business import gmDemographicRecord, gmPatient
+from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator
+from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N
+from Gnumed.business import gmDemographicRecord, gmPatient
 
 # constant defs
 _log = gmLog.gmDefLog
@@ -1275,13 +1275,16 @@ class PatientDetailWindow(wx.wxPanel):
 
 #============================================================
 if __name__ == "__main__":
-	from client.pycommon import gmGuiBroker
+	from Gnumed.pycommon import gmGuiBroker
 	app = wx.wxPyWidgetTester(size = (800, 600))
 	app.SetWidget(PatientsPanel, -1)
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.47  2004-10-19 21:34:25  sjtan
+# Revision 1.48  2004-10-20 11:20:10  sjtan
+# restore imports.
+#
+# Revision 1.47  2004/10/19 21:34:25  sjtan
 # dir is direction, and this is checked
 #
 # Revision 1.46  2004/10/19 21:29:25  sjtan
