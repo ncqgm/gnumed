@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -552,11 +552,10 @@ if __name__ == "__main__":
 else:
 	# - we are being imported
 
-	# have a sane pointer even if we fail on import (in
-	# case the caller ignores the exception)
+	# have a sane pointer even if we fail
 	gmDefCfgFile = None
 
-	# - if we don't find any config file we raise an exception
+	# - if we don't find any config file we return None
 	# - IF the called really knows what she does she can handle
 	#   that exception in her own code
 	try:
@@ -566,7 +565,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.21  2002-11-03 13:21:05  ncq
+# Revision 1.22  2002-11-03 14:11:19  ncq
+# - autocreate log file on failing to find one
+#
+# Revision 1.21  2002/11/03 13:21:05  ncq
 # - phase 1: error levels more suitable
 #
 # Revision 1.20  2002/10/22 21:11:44  ncq

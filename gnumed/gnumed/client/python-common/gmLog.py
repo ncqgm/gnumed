@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -711,8 +711,8 @@ else:
 	# register application specific default log file
 	target = __open_default_logfile()
 	if not target:
-		raise ImportError, "Cannot open any log target. Falling back to dummy log target."
 		gmDefLog = cLogger(aTarget = None)
+		raise ImportError, "Cannot open any log target. Falling back to dummy log target."
 	else:
 		gmDefLog = cLogger(target)
 		
@@ -761,7 +761,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.22  2002-09-26 13:21:37  ncq
+# Revision 1.23  2002-11-03 14:11:19  ncq
+# - autocreate log file on failing to find one
+#
+# Revision 1.22  2002/09/26 13:21:37  ncq
 # - log version
 #
 # Revision 1.21  2002/09/14 09:10:52  ncq
