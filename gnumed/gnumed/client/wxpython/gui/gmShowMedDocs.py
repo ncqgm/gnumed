@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -420,7 +420,7 @@ if __name__ == '__main__':
 			try:
 				self.__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
 			except:
-				_log.LogException('Cannot read patient from xDT file [%s].' % pat_file)
+				_log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
 				self.__show_error(
 					aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
 					aTitle = _('loading patient from xDT file')
@@ -521,7 +521,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.10  2003-02-24 23:14:53  ncq
+# Revision 1.11  2003-02-25 23:30:31  ncq
+# - need sys.exc_info() in LogException
+#
+# Revision 1.10  2003/02/24 23:14:53  ncq
 # - adapt to get_patient_ids actually returning a flat list of IDs now
 #
 # Revision 1.9  2003/02/21 13:54:17  ncq
