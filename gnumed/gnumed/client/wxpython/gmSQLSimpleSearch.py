@@ -15,8 +15,12 @@
 #	 a context menu (right click) for most common actions (like delete row)
 ############################################################################
 
-""" gmSQLSimpleSearch - a widget for simple database search & selection interaction"""
+"""
+gmSQLSimpleSearch - a widget for simple database search & selection interaction
+"""
 
+import gettext
+_ = gettext.gettext
 
 from wxPython.wx import *
 from Gnumed.wxpython import gmSQLListControl
@@ -27,8 +31,11 @@ ID_CHECKBOX_CASEINSENSITIVE = wxNewId()
 ID_LISTCTRL = wxNewId()
 
 class SQLSimpleSearch(wxPanel):
-	""" gmSQLSimpleSearch - a widget for simple database search & selection interaction"""
-
+	"""
+	gmSQLSimpleSearch - a widget for simple database
+	search & selection interaction
+	"""
+	
 	def __init__(self, parent, id,
 		pos = wxPyDefaultPosition, size = wxPyDefaultSize,
 		style = wxTAB_TRAVERSAL, service = 'default' ):

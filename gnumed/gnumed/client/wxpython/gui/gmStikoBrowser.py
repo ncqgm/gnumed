@@ -15,11 +15,12 @@
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
-import sys, os, os.path
+import sys, os, os.path, gettext
+_ = gettext.gettext
 
 from   wxPython.wx         import *
 from   wxPython.html       import *
@@ -244,7 +245,10 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.9  2004-06-13 22:31:49  ncq
+# Revision 1.10  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.9  2004/06/13 22:31:49  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

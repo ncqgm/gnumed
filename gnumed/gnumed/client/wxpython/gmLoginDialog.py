@@ -13,11 +13,13 @@ It features combo boxes which "remember" any number of previously entered settin
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.47 2004-05-28 13:06:41 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmLoginDialog.py,v 1.48 2004-06-20 06:49:21 ihaywood Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
-import os.path, time, cPickle, zlib,types
+import os.path, time, cPickle, zlib, types, gettext
+_ = gettext.gettext
+
 from wxPython.wx import *
 from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmWhoAmI
 _log = gmLog.gmDefLog
@@ -583,7 +585,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.47  2004-05-28 13:06:41  ncq
+# Revision 1.48  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.47  2004/05/28 13:06:41  ncq
 # - improve faceName/Mac OSX fix
 #
 # Revision 1.46  2004/05/28 09:09:34  shilbert

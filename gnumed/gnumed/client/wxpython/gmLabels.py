@@ -29,6 +29,8 @@
 
 """gmLabels: labelling GNUMed's list box controls"""
 
+import gettext
+_ = gettext.gettext
 from wxPython.wx import *
 
 Patients = (_("lastname"), _("firstnames"), _("called"), _("d.o.b"), _("street"), _("city"), _("urid"))

@@ -18,12 +18,13 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.17 2004-06-13 22:31:48 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.18 2004-06-20 06:49:21 ihaywood Exp $
 # license: GPL
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ =	"I.Haywood"
 
-import sys
+import sys, gettext
+_ = gettext.gettext
 
 from wxPython.wx import *
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmDispatcher
@@ -238,7 +239,10 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.17  2004-06-13 22:31:48  ncq
+# Revision 1.18  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.17  2004/06/13 22:31:48  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

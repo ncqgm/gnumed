@@ -7,12 +7,13 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.47 2004-06-17 11:36:12 ihaywood Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmDemographicRecord.py,v 1.48 2004-06-20 06:49:21 ihaywood Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
-import sys, os.path, time
+import sys, os.path, time, gettext
+_ = gettext.gettext
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider
 from Gnumed.business import gmMedDoc
@@ -631,6 +632,16 @@ where
 			return []
 		return [{'id':row[0], 'origin':row[1], 'comment':row[2], 'external_id':row[3]} for row in rows]
 	#----------------------------------------------------------------
+	def getExternalID (self, type):
+		"""
+		Gets an external ID by name
+		"""
+		cmd = "select external_id from lnk_identity2ext_id, enum_ext_id_types where enum_ext_id_types.name = %s and enum_ext_id_types.pk = lnk_identity2ext_id.fk_type and id_identity = %s"
+		rows = gmPG.run_ro_query ("personalia", cmd, None, type, self.ID)
+		if rows:
+			return rows[0][0]
+		else:
+			return None
 #================================================================
 # convenience functions
 #================================================================
@@ -903,7 +914,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.47  2004-06-17 11:36:12  ihaywood
+# Revision 1.48  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.47  2004/06/17 11:36:12  ihaywood
 # Changes to the forms layer.
 # Now forms can have arbitrary Python expressions embedded in @..@ markup.
 # A proper forms HOWTO will appear in the wiki soon

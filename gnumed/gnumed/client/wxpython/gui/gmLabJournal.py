@@ -2,11 +2,12 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
-import os.path, sys, os, re
+import os.path, sys, os, re, gettext
+_ = gettext.gettext
 # FIXME: debugging
 import time
 
@@ -730,7 +731,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.26  2004-06-13 22:31:49  ncq
+# Revision 1.27  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.26  2004/06/13 22:31:49  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

@@ -11,10 +11,11 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
-import os.path, sys, os, re
+import os.path, sys, os, re, gettext
+_ = gettext.gettext
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -626,7 +627,10 @@ else:
     pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.45  2004-06-17 11:43:18  ihaywood
+# Revision 1.46  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.45  2004/06/17 11:43:18  ihaywood
 # Some minor bugfixes.
 # My first experiments with wxGlade
 # changed gmPhraseWheel so the match provider can be added after instantiation

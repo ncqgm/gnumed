@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.147 2004-06-13 22:31:48 ncq Exp $
-__version__ = "$Revision: 1.147 $"
+# $Id: gmGuiMain.py,v 1.148 2004-06-20 06:49:21 ihaywood Exp $
+__version__ = "$Revision: 1.148 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -30,7 +30,7 @@ from wxPython.wx import *
 import sys, time, os, cPickle, zlib
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
-from Gnumed.wxpython import gmSQLSimpleSearch, gmSelectPerson, gmGuiHelpers, gmTopPanel, gmPlugin
+from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmTopPanel, gmPlugin
 from Gnumed.business import gmPatient
 
 _cfg = gmCfg.gmDefCfgFile
@@ -767,7 +767,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.147  2004-06-13 22:31:48  ncq
+# Revision 1.148  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.147  2004/06/13 22:31:48  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

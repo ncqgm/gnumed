@@ -3,17 +3,18 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.73 2004-05-27 13:40:22 ihaywood Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmEditArea.py,v 1.74 2004-06-20 06:49:21 ihaywood Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
 #======================================================================
 
-import sys, traceback, time
+import sys, traceback, time, gettext
+_ = gettext.gettext
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmWhoAmI
-from Gnumed.business import gmPatient, gmDemographicRecord, gmForms, gmReferral
+from Gnumed.business import gmPatient, gmDemographicRecord, gmForms
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 
 from wxPython.wx import *
@@ -2407,7 +2408,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.73  2004-05-27 13:40:22  ihaywood
+# Revision 1.74  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.73  2004/05/27 13:40:22  ihaywood
 # more work on referrals, still not there yet
 #
 # Revision 1.72  2004/05/18 20:43:17  ncq

@@ -6,14 +6,14 @@ includes dialogues for printer calibration, etc.
 and new form wizard.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormPrinter.py,v $
-# $Id: gmFormPrinter.py,v 1.3 2003-11-17 10:56:38 sjtan Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmFormPrinter.py,v 1.4 2004-06-20 06:49:21 ihaywood Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Ian Haywood"
 
 
 from wxPython.wx import *
 import string, gettext
-import gmPG, gmCfg, gmLog, gmI18N
+from Gnumed.pycommon import gmPG, gmCfg, gmLog, gmI18N
 _ = lambda x: x
 
 cache_form = 0 # cached variables to allow repeat of last form

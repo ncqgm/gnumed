@@ -10,12 +10,13 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.38 2004-06-04 16:27:12 shilbert Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmPatientSelector.py,v 1.39 2004-06-20 06:49:21 ihaywood Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
-import sys, os.path, time, string, re
+import sys, os.path, time, string, re, gettext
+_ = gettext.gettext
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N
 from Gnumed.business import gmPatient, gmKVK
@@ -615,7 +616,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.38  2004-06-04 16:27:12  shilbert
+# Revision 1.39  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.38  2004/06/04 16:27:12  shilbert
 # - giving focus highlights the text and lets you replace it
 #
 # Revision 1.37  2004/03/27 18:24:11  ncq

@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 from wxPython.wx import *
@@ -33,7 +33,8 @@ from wxPython.html import *
 import wxPython.lib.wxpTag
 from wxPython.lib.splashscreen import SplashScreen
 
-import string
+import string, gettext
+_ = gettext.gettext
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -625,7 +626,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.17  2004-03-19 08:25:06  ncq
+# Revision 1.18  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.17  2004/03/19 08:25:06  ncq
 # - display message if drug database not specified
 #
 # Revision 1.16  2004/03/12 22:42:09  ncq

@@ -8,6 +8,9 @@ Status: blank screen
 
 # make this into GNUMed plugin
 
+import gettext
+_ = gettext.gettext
+
 from Gnumed.wxpython import gmPlugin
 from wxPython.wx import *
 

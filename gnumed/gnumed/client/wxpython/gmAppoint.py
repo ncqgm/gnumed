@@ -9,8 +9,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2004-03-12 13:21:27 $
-# @version $Revision: 1.10 $ $Date: 2004-03-12 13:21:27 $ $Author: ncq $
+# @Date: $Date: 2004-06-20 06:49:21 $
+# @version $Revision: 1.11 $ $Date: 2004-06-20 06:49:21 $ $Author: ihaywood $
 # @change log:
 #   14.03.02 ihaywood inital version.
 #      
@@ -23,10 +23,12 @@
 A simple interface to the appointments book.
 """
 
+import sys, time, os, gettext
+_ = gettext.gettext
+
 from wxPython.wx import *
 from wxPython.calendar import *
 from wxPython.grid import *
-import sys, time, os
 from Gnumed.pycommon import gmGuiBroker, gmPG
 from Gnumed.wxpython import gmSQLSimpleSearch
 

@@ -5,10 +5,14 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.23 2004-06-18 13:34:58 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmXdtMappings.py,v 1.24 2004-06-20 06:49:21 ihaywood Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
+
+# to please epydoc
+import gettext
+_ = gettext.gettext
 
 #==============================================================
 xdt_id_map = {
@@ -1347,7 +1351,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.23  2004-06-18 13:34:58  ncq
+# Revision 1.24  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.23  2004/06/18 13:34:58  ncq
 # - map a few more line types
 #
 # Revision 1.22  2004/06/09 14:36:17  ncq

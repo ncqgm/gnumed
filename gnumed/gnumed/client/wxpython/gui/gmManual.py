@@ -12,11 +12,12 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.18 2004-06-13 22:31:49 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmManual.py,v 1.19 2004-06-20 06:49:21 ihaywood Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
-import os
+import os, gettext
+_ = gettext.gettext
 
 from   wxPython.wx		   import *
 from   wxPython.html	   import *
@@ -248,7 +249,10 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.18  2004-06-13 22:31:49  ncq
+# Revision 1.19  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.18  2004/06/13 22:31:49  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

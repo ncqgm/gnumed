@@ -1,9 +1,11 @@
 """GnuMed single box SOAP notes plugin.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSingleBoxSoapPlugin.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
+import gettext
+_ = gettext.gettext
 from Gnumed.pycommon import gmLog
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython.gmSingleBoxSOAP import gmSingleBoxSOAPPanel
@@ -47,7 +49,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmSingleBoxSoapPlugin.py,v $
-# Revision 1.7  2004-06-13 22:31:49  ncq
+# Revision 1.8  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.7  2004/06/13 22:31:49  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

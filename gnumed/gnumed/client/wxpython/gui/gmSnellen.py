@@ -1,12 +1,13 @@
 #!/usr/bin/python
+"""
+Tool to emulate a Snellen chart onscreen
+author: Ian Haywood
+licence: GPL
+"""
 
-# Tool to emulate a Snellen chart onscreen
-# author: Ian Haywood
-# licence: GPL
-# Changelog:
-# 21/6/02: inital version
-
-import math, random
+import math, random, gettext
+import gettext
+_ = gettext.gettext
 
 from wxPython.wx import *
 

@@ -2,11 +2,12 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
-import os.path, sys, os, re, string, random
+import os.path, sys, os, re, string, random, gettext
+_ = gettext.gettext
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -590,7 +591,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.9  2004-06-13 22:31:49  ncq
+# Revision 1.10  2004-06-20 06:49:21  ihaywood
+# changes required due to Epydoc's OCD
+#
+# Revision 1.9  2004/06/13 22:31:49  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()
