@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gnumed.sh,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 # start kvkd
 # FIXME: needs logic to prevent more than one kvkd from running
@@ -10,6 +10,7 @@
 #export GNUMED_DIR=/foo/bar
 
 # maybe force some locale setting here
+#export LANG=fr
 
 # start GnuMed
 python gnumed.py --debug
