@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.89 2003-03-30 00:24:00 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmGuiMain.py,v 1.90 2003-04-01 12:26:04 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -147,7 +147,7 @@ class MainFrame(wxFrame):
                 ##self.guibroker['main.szr_main_container']=self.szr_main_container
 		# a vertical box sizer for the main window
 		self.vbox = wxBoxSizer(wxVERTICAL)
-		self.vbox.SetMinSize(wxSize(320,240))
+		#self.vbox.SetMinSize(wxSize(320,240))
 		self.guibroker['main.vbox'] = self.vbox
 
 		# create the "top row"
@@ -162,7 +162,7 @@ class MainFrame(wxFrame):
 		self.vbox.Add (self.top_panel, 0, wxEXPAND, 1)
 
 		# now set up the main notebook
-		self.nb = wxNotebook (self, ID_NOTEBOOK, style = wxNB_BOTTOM)
+		self.nb = wxNotebook (self, ID_NOTEBOOK, size = wxSize(320,240), style = wxNB_BOTTOM)
 		self.guibroker['main.notebook'] = self.nb
 		# add to main windows sizer
 		self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
@@ -364,28 +364,44 @@ class MainFrame(wxFrame):
 		self.SetStatusText(st,1)
 	#----------------------------------------------
 	def CreateMenu(self):
-		"""Create the main menu entries. Individual entries are
-		farmed out to the modules"""
+		"""Create the main menu entries.
 
+		Individual entries are farmed out to the modules.
+		"""
+		# create main menu
 		self.mainmenu = wxMenuBar()
-		self.guibroker['main.mainmenu']=self.mainmenu
+		self.guibroker['main.mainmenu'] = self.mainmenu
+		# menu "File"
 		self.menu_file = wxMenu()
-		self.guibroker['main.filemenu']=self.menu_file
 		self.menu_file.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GnuMed client'))
 		EVT_MENU(self, ID_EXIT, self.OnFileExit)
+		self.guibroker['main.filemenu'] = self.menu_file
+		# FIXME: this isn't really appropriate
+		self.mainmenu.Append(self.menu_file, _("&File"));
+		# menu "View"
 		self.menu_view = wxMenu()
-		self.guibroker['main.viewmenu']=self.menu_view
+		self.guibroker['main.viewmenu'] = self.menu_view
+		self.mainmenu.Append(self.menu_view, _("&View"));
+
+		# menu "Tools"
 		self.menu_tools = wxMenu()
-		self.guibroker['main.toolsmenu']=self.menu_tools
+		self.guibroker['main.toolsmenu'] = self.menu_tools
+		self.mainmenu.Append(self.menu_tools, _("&Tools"));
+
+		# menu "Reference"
+		self.menu_reference = wxMenu()
+		self.guibroker['main.referencemenu'] = self.menu_reference
+		self.mainmenu.Append(self.menu_reference, _("&Reference"));
+
+		# menu "Help"
 		self.menu_help = wxMenu()
-		self.guibroker['main.helpmenu']=self.menu_help
 		self.menu_help.Append(ID_ABOUT, _("About GnuMed"), "")
 		EVT_MENU (self, ID_ABOUT, self.OnAbout)
 		self.menu_help.AppendSeparator()
-		self.mainmenu.Append(self.menu_file, "&File");
-		self.mainmenu.Append(self.menu_view, "&View");
-		self.mainmenu.Append(self.menu_tools, "&Tools");
+		self.guibroker['main.helpmenu'] = self.menu_help
 		self.mainmenu.Append(self.menu_help, "&Help");
+
+		# and activate menu structure
 		self.SetMenuBar(self.mainmenu)
 	#----------------------------------------------
 	def Lock(self):
@@ -616,7 +632,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.89  2003-03-30 00:24:00  ncq
+# Revision 1.90  2003-04-01 12:26:04  ncq
+# - add menu "Reference"
+#
+# Revision 1.89  2003/03/30 00:24:00  ncq
 # - typos
 # - (hopefully) less confusing printk()s at startup
 #
