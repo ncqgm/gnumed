@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.40 2003-11-20 01:37:09 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmEditArea.py,v 1.41 2003-11-20 22:43:24 hinnef Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -1025,6 +1025,9 @@ class gmFamilyHxEditArea(gmEditArea):
 
 		return lines
 
+	def _save_data(self):
+		_print( "saving family history data")
+		return 1
 
 #====================================================================
 class gmPastHistoryEditArea(gmEditArea):
@@ -1310,6 +1313,11 @@ class gmVaccinationEditArea(gmEditArea):
 		values['id_vaccination'] = self.getDataId()
 		return fields, formatting, values
 
+	def _save_data(self):
+		_print( "saving vaccination data")
+		return 1
+
+
 #====================================================================
 class gmMeasurementEditArea(gmEditArea):
 
@@ -1367,6 +1375,10 @@ class gmMeasurementEditArea(gmEditArea):
 		formatting =  { c.T:s, c.D:s, c.V:n, c.C:s, c.P:s }
 		values['id_measurement'] = self.getDataId()
 		return fields, formatting, values
+
+	def _save_data(self):
+		_print( "saving measurement data")
+		return 1
 
 
 #====================================================================
@@ -1430,6 +1442,11 @@ class gmPrescriptionEditArea(gmEditArea):
 
 #gmPrescriptionEditArea.extraColumns = [  basicPrescriptionExtra ]
 gmPrescriptionEditArea.extraColumns = [  auPrescriptionExtra ]
+	
+	
+	def _save_data(self):
+		_print( "saving prescription data")
+		return 1
 	
 
 #====================================================================
@@ -1502,6 +1519,10 @@ class gmReferralEditArea(gmEditArea):
 		#return lines
 		return self._makeExtraColumns( parent, lines)
 
+	def _save_data(self):
+		_print( "saving referral data")
+		return 1
+
 
 #====================================================================
 class gmRecallEditArea(gmEditArea):
@@ -1563,6 +1584,10 @@ class gmRecallEditArea(gmEditArea):
 		weightMap = {self.txt_testType : ( 1, 2) }
 
 		return self._makeExtraColumns( parent, lines, weightMap)
+
+	def _save_data(self):
+		_print( "saving recall data")
+		return 1
 
 
 class gmRequestEditArea(gmEditArea):
@@ -1643,6 +1668,11 @@ class gmRequestEditArea(gmEditArea):
 
 gmRequestEditArea.billingChoices = auBillingChoices
 	
+	
+	def _save_data(self):
+		_print( "saving request data")
+		return 1
+
 #====================================================================
 # old style stuff below
 #====================================================================
@@ -2186,7 +2216,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.40  2003-11-20 01:37:09  ncq
+# Revision 1.41  2003-11-20 22:43:24  hinnef
+# added save_data() methods to prevent hanging up on exit
+#
+# Revision 1.40  2003/11/20 01:37:09  ncq
 # - no code in gmEditArea has any business of calling
 #   gmCurrentPatient() with an explicit ID
 #
