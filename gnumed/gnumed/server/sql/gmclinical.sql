@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.125 $
+-- $Revision: 1.126 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -422,7 +422,7 @@ create table clin_diag (
 		default true
 ) inherits (audit_fields);
 
-alter table add constraint if_active_then_significant
+alter table clin_diag add constraint if_active_then_significant
 	check (
 		(is_active = false)
 			or
@@ -1051,11 +1051,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.125 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.126 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.125  2004-09-19 11:25:34  ncq
+-- Revision 1.126  2004-09-19 17:16:28  ncq
+-- - alter table <> add constraint <> needs table name
+--
+-- Revision 1.125  2004/09/19 11:25:34  ncq
 -- - improved comments
 -- - loosened constraints on clin_diag, as found necessary by Jim
 --
