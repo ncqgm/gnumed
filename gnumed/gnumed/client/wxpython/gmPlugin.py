@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.37 2004-10-14 12:14:51 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmPlugin.py,v 1.38 2004-11-21 20:56:14 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -60,8 +60,6 @@ class cNotebookPlugin:
 		self.gb['toolbar.%s' % self.__class__.__name__] = tb
 		# add ourselves to the main notebook
 		nb.AddPage(widget, self.name())
-		# FIXME: really use Show() here ?
-#		widget.Show(True)
 		# and put ourselves into the menu structure if so
 		if menu_info is not None:
 			name_of_menu, menu_item_name = menu_info
@@ -333,7 +331,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.37  2004-10-14 12:14:51  ncq
+# Revision 1.38  2004-11-21 20:56:14  ncq
+# - remove cruft
+#
+# Revision 1.37  2004/10/14 12:14:51  ncq
 # - rearrange register() internally so we won't end up with
 #   half-baked but registered plugins
 #
