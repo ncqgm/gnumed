@@ -34,8 +34,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.37 2003-05-10 18:48:09 hinnef Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmLoginDialog.py,v 1.38 2003-05-12 09:01:45 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib,types
@@ -220,23 +220,23 @@ class LoginPanel(wxPanel):
 		self.loginparams = cLoginParamChoices()
 
 		tmp = _cfg.get('backend', 'logins')
-		if tmp is not None and type(tmp)==types.StringType:
+		if type(tmp) is types.ListType:
 			self.loginparams.userlist = tmp
 
 		tmp = _cfg.get('backend', 'databases')
-		if tmp is not None and type(tmp)==types.StringType:
+		if type(tmp) is types.ListType:
 			self.loginparams.databaselist = tmp
 
 		tmp = _cfg.get('backend', 'hosts')
-		if tmp is not None and type(tmp)==types.StringType:
+		if type(tmp) is types.ListType:
 			self.loginparams.hostlist = tmp
 
 		tmp = _cfg.get('backend', 'ports')
-		if tmp is not None and type(tmp)==types.StringType:
+		if type(tmp) is types.ListType:
 			self.loginparams.portlist = tmp
 
 		tmp = _cfg.get('backend', 'options')
-		if tmp is not None and type(tmp)==types.StringType:
+		if type(tmp) is types.ListType:
 			self.loginparams.backendoptionlist = tmp
 	#----------------------------
 	def save_settings(self):
@@ -601,7 +601,11 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.37  2003-05-10 18:48:09  hinnef
+# Revision 1.38  2003-05-12 09:01:45  ncq
+# - 1) type(tmp) is types.ListType implies tmp != None
+# - 2) check for ListType, not StringType
+#
+# Revision 1.37  2003/05/10 18:48:09  hinnef
 # - added stricter type checks when reading from cfg-file
 #
 # Revision 1.36  2003/04/05 00:37:46  ncq
