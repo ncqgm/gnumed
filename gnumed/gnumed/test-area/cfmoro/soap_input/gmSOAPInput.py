@@ -2,7 +2,7 @@
 	GnuMed SOAP input panel
 """
 #================================================================
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -11,7 +11,6 @@ import os.path, sys
 from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
-from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPatient
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.pycommon.gmPyCompat import *
@@ -155,7 +154,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		
 		# business objects setup
 		self.patient = gmPatient.gmCurrentPatient()
-		self.exporter = gmPatientExporter.cEmrExport(patient = self.patient)
+		self.emr = self.patient.get_clinical_record()
 		self.selected_issue = None		
 		
 		# ui contruction and event interests
@@ -188,11 +187,17 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# EMR tree
 		self.emr_panel = wx.wxPanel(self.soap_emr_splitter,-1)
-		self.emr_tree = wx.wxTreeCtrl (
+		#self.health_issues_list = wx.wxTreeCtrl (
+		#	self.emr_panel,
+		#	-1,
+		#	style=wx.wxTR_HAS_BUTTONS | wx.wxNO_BORDER
+		#)
+		# FIXME currently only single selection is supported
+		self.health_issues_list = wx.wxListBox(
 			self.emr_panel,
 			-1,
-			style=wx.wxTR_HAS_BUTTONS | wx.wxNO_BORDER
-		)		
+			style= wx.wxNO_BORDER
+		)
 			
 		# action buttons sizer
 		self.soap_actions_sizer = wx.wxBoxSizer(wx.wxHORIZONTAL)
@@ -209,7 +214,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		
 		# EMR area main sizer
 		self.emr_panel_sizer = wx.wxBoxSizer(wx.wxVERTICAL)	
-		self.emr_panel_sizer.Add(self.emr_tree, 1, wx.wxEXPAND)
+		self.emr_panel_sizer.Add(self.health_issues_list, 1, wx.wxEXPAND)
 		self.emr_panel.SetSizerAndFit(self.emr_panel_sizer)		
 		
 		
@@ -234,7 +239,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Configures enabled event signals
 		"""
 		# wx.wxPython events
-		wx.EVT_TREE_SEL_CHANGED(self.emr_tree,self.emr_tree.GetId(), self.on_tree_item_selected)
+		wx.EVT_LISTBOX(self.health_issues_list,self.health_issues_list.GetId(), self.on_health_issue_selected)
 		wx.EVT_BUTTON(self.save_button, self.save_button.GetId(), self.on_save)
 		wx.EVT_BUTTON(self.clear_button, self.clear_button.GetId(), self.on_clear)
 		wx.EVT_BUTTON(self.new_button, self.new_button.GetId(), self.on_new)
@@ -293,18 +298,19 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Current patient changed
 		"""
-		self.exporter.set_patient(self.patient)
 		self._schedule_data_reget()
 	#--------------------------------------------------------
-	def on_tree_item_selected(self, event):
+	def on_health_issue_selected(self, event):
 		"""
 		Displays information for a selected tree node
-		"""
-		sel_item = event.GetItem()
-		sel_item_obj = self.emr_tree.GetPyData(sel_item)
+		"""		
+		self.selected_issue = self.health_issues_list.GetClientData(self.health_issues_list.GetSelection())
+		print 'Selected: %s'%(self.selected_issue)
+		#sel_item = event.GetItem()
+		#sel_item_obj = self.health_issues_list.GetPyData(sel_item)
 
-		if (isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue)):
-			self.selected_issue = sel_item_obj				
+		#if (isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue)):
+		#	self.selected_issue = sel_item_obj				
 
 	#--------------------------------------------------------
 	# reget mixin API
@@ -332,16 +338,15 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Updates EMR browser data
 		"""
 		# EMR tree root item
-		demographic_record = self.patient.get_demographic_record()
-		names = demographic_record.get_names()
-		root_item = self.emr_tree.AddRoot(_('%s %s EMR') % (names['first'], names['last']))
-
-		# Obtain all the tree from exporter
-		self.exporter.get_historical_tree(self.emr_tree)
-
-		# Expand root node and display patient summary info
-		self.emr_tree.Expand(root_item)
-
+		#demographic_record = self.patient.get_demographic_record()
+		#names = demographic_record.get_names()
+		#root_item = self.health_issues_list.AddRoot(_('%s %s EMR') % (names['first'], names['last']))
+		cont = 0
+		for a_health_issue in self.emr.get_health_issues():			
+			cont = cont+1
+			a_key = '#%s %s'%(cont,a_health_issue['description'])
+			self.health_issues_list.Append(a_key,a_health_issue)
+			
 		# Set sash position
 		self.soap_emr_splitter.SetSashPosition(self.soap_emr_splitter.GetSizeTuple()[0]/2, True)
 
@@ -355,7 +360,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Clear all information displayed in browser (tree and details area)
 		"""
-		self.emr_tree.DeleteAllItems()
+		#self.health_issues_list.DeleteAllItems()
 		
 
 #== Module convenience functions (for standalone use) =======================
@@ -379,7 +384,7 @@ def askForPatient():
 	# Variable initializations
 	pat_searcher = gmPatient.cPatientSearcher_SQL()
 
-	# Ask patient to dump and set in exporter object
+	# Ask patient
 	patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
 	if patient_term == 'bye':
 		return None
