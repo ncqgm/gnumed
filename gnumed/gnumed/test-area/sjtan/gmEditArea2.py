@@ -868,11 +868,28 @@ class EditArea2(wxPanel):
 
 	def _getReverseMapping(self):
 		map = {}
+		fieldTrace = {}
 		for (widgetName, v) in self.mapping.items():
 			(table,field) = v.split('.')
 			fmap = map.get(table, {})
 			fmap[field] = widgetName
 			map[table] = fmap
+			
+			fieldTrace[field] = table
+
+		#write mappings need to be overlayed
+		for widgetName in self.getWidgetNames():
+			(table, field) = self.writeMapping.get(widgetName, ".").split(".")
+			if (table ==""):
+				continue
+			key = fieldTrace.get(field, "")
+			fieldMap = map.get(key, {})
+			if field in fieldMap:
+				del fieldMap[field]
+			map[table][field] = widgetName
+			
+
+		
 		return map
 
 	def getDescription(self, target):
@@ -1064,6 +1081,7 @@ class EditArea2(wxPanel):
 
 
 		rMap = self._getReverseMapping()
+		print "reverse mapping = ", rMap
 		fieldWidgetMap = rMap.get(target, {})
 		self._updateWidgetsFromRow( fieldWidgetMap, cu.description , row)
 
@@ -1104,8 +1122,8 @@ class EditArea2(wxPanel):
 			
 			w = self.getWidgetByName(widgetName)
 			w.SetValue(value)
-			if self.getWidgetType(widgetName) == CMBx:
-				self._actionForTextEntered(w)
+			#if self.getWidgetType(widgetName) == CMBx:
+			#	self._actionForTextEntered(w)
 				
 				
 				
@@ -1275,7 +1293,7 @@ class MedicationEditArea(EditArea2):
 
 		self.target("prescription")
 
-		self.browse( [ ("drug.name",180 ),  ( "prescription.direction", 60), ("prescription.quantity", 60) , ( "prescription.repeats",60 ) , ( "prescription.date", 60) , ("prescription.veteran" , 20 )  ])
+		self.browse( [ ("drug.name",180 ),  ( "prescription.direction", 60), ("prescription.quantity", 60) , ( "prescription.repeats",60 ) , ( "prescription.date", 90) , ("prescription.veteran" , 20 )  ])
 
 		
 		self.finish()
