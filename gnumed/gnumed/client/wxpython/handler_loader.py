@@ -1,4 +1,6 @@
 """loads handler onto widgets stored in widget map of guiBroker."""
+import handler_all_gen
+handler_all_gen.main()
 import gmGuiBroker 
 import EditAreaHandler
 from handler_gmSelectPersonImpl import *
@@ -13,7 +15,7 @@ def configure_handlers():
 
 	gb = gmGuiBroker.GuiBroker()
 	gb['DlgSelectPerson_handler'] = gmSelectPerson_handler_impl()
-	handler = gmDemographics_handler(None)
+	handler = gmDemographics_mapping_handler(None)
 	try :
 		model = cPickle.load(file('gmDemographics', 'r'))
 	except:
@@ -80,7 +82,6 @@ def init_handlers():
 	load_handlers()	
 
 def main():
-	import handler_all_gen
 	handler_all_gen.main()
 	init_handlers()
 

@@ -294,14 +294,28 @@ class base_handler:
 
 		
 	""" 
-
+	
 	def print_class(self, name):
+	
+		print """
+class %s_funcs:
+		""" % name
+		
+		for i in self.funcs:
+			print """
+	def %s_%s( self, event):
+		pass
+	""" %( i[0], i[1] )
+	
+
+		
 		print"""
-class %s_handler(base_handler):
+class %s_handler(base_handler, %s_funcs):
+	
 	
 	def __init__(self, panel, model = None, impl = None):
 		base_handler.__init__(self, panel, model, impl)
-		""" % name
+		""" % (name, name)
 		
 	
 		print """
@@ -309,11 +323,11 @@ class %s_handler(base_handler):
 		map = {}
 		"""
 		for i in self.funcs:
-			name, prefix = self.get_parts_name( i[0] )
+			name_comp, prefix = self.get_parts_name( i[0] )
 			print""" 
 		comp_map = { 'component': self.get_valid_component('%s') ,\n\t\t\t'comp_name' : '%s','setter_name' :  '%s' } 
 		map['%s'] = comp_map
-		""" % (  i[0], i[0],  i[3] , name) 
+		""" % (  i[0], i[0],  i[3] , name_comp) 
 
 		print """
 		self.name_map = map
@@ -335,12 +349,19 @@ class %s_handler(base_handler):
 			print"""
 		%s""" % i
 			
+
+		print """
+class %s_mapping_handler(%s_handler):
+	def __init__(self, panel, model = None, impl = None):
+		%s_handler.__init__(self, panel, model, impl)
 		
-		
+	""" % (name, name, name)
 
 		for i in self.funcs:
 			print """
+		
 	def %s_%s( self, event): 
+
 		if self.impl <> None:
 			self.impl.%s_%s(self, event) 
 			""" % (i[0], i[1] ,i[0],i[1])
