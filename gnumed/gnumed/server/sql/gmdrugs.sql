@@ -45,6 +45,8 @@ CREATE TABLE entity (
 	compound BOOL -- true for compound. No significance if class is true
 );
 
+-- dump file in gmdrugs.dump.sql
+
 COMMENT ON TABLE entity IS
 'Pharmacologic entity: class, compound or substance.';
 
@@ -136,8 +138,6 @@ CREATE TABLE indication (
 -- drugs removed a priori. The prescriber could click on one to these to
 -- bring up the prescription dialogue, pre-loaded with the drug.
 -- paediatric dosing can be automatically calculated.
--- Obviously this does not preclude some more advanced drug-choosing 
--- system that Horst may have in mind.
 -- =============================================
 
 
@@ -169,11 +169,14 @@ CREATE TABLE amount_units (
         description varchar(20)
 );
 
-
 COMMENT ON TABLE amount_units IS
 'Example: ml, each, ..';
 
-
+COPY "amount_units"  FROM stdin;
+2	mL
+1	each
+3	g
+\.
 
 -- =============================================
 
@@ -189,9 +192,15 @@ COMMENT ON COLUMN drug_units.is_SI IS
 COMMENT ON TABLE drug_units IS
 'true if it is a System International (SI) compliant unit';
 
+COPY "drug_units"  FROM stdin;
+1	t	mg
+2	t	mL
+3	t	g
+4	t	cm
+5	f	unit
+\.
 
 -- =============================================
-
 
 CREATE TABLE drug_route (
 	id SERIAL PRIMARY KEY,
@@ -201,6 +210,26 @@ CREATE TABLE drug_route (
 COMMENT ON table drug_route IS
 'Examples: oral, i.m., i.v., s.c.';
 
+COPY "drug_route"  FROM stdin;
+1	intravenous
+2	intramuscular
+3	subcutaneous
+4	oral
+5	suppository
+6	peissary
+7	opthalmological
+8	otological
+9	dermatological
+10	otological/opthalmological
+11	inhalant
+\.
+
+-- =============================================
+
+CREATE TABLE presentation (
+	id SERIAL PRIMARY KEY,
+	name varchar (30)
+);
 
 -- =============================================
 -- This describes the physical form of the drug, distingushing between liquid
@@ -214,22 +243,60 @@ CREATE TABLE drug_form (
 	amount_unit INTEGER REFERENCES amount_units(id), 
 	-- "divisor" of the unit -- "each" for tabs/capsules, most likely
 	-- mL for liquid drugs, and grams for powders
-	presentation varchar (30),
-	pbs_mask varchar (100), -- mask for PBS field of form description
+	presentation INTEGER REFERENCES presentation (id)
+};
+
+
+COPY "drug_form"  FROM stdin;
+7	11	1	2	1
+10	4	3	3	1
+12	4	1	1	1
+15	4	1	1	1
+17	1	5	2	1
+13	4	1	3	1
+9	4	3	3	1
+6	1	1	2	1
+5	4	1	1	1
+4	4	1	2	1
+3	4	1	1	1
+2	4	1	1	1
+1	4	1	1	1
+8	7	1	3	1
+11	4	3	3	1
+14	4	1	3	1
+16	1	3	2	1
+\.
+
+-- temporary table to match pbs formandstrength with drug_form
+
+CREATE TABLE pbs_xref (
+	drug_form_id INTEGER,
+	pbs_regex varchar (100), -- RE for PBS field of form description
 	pbs_scanf varchar (100) -- scanf () string to grab dose from PBS field
 );
 
  select formandstrength from pbsimport except select pbsimport.formandstrength from pbsimport, drug_form where  
-pbsimport.formandstrength like drug_form.pbs_mask;
+pbsimport.formandstrength ~ drug_form.pbs_regex;
 
-
-COPY drug_form FROM stdin delimiters '|';
-1|3|1|1|tablet|Tablet % mg %|Tablet %d
-2|3|1|1|capsule|Capsule % mg|Capsule %d
-3|3|1|1|effervenscent tablet|Effervescent tablet % mg %|Effervescent tablet %d
-4|3|1|2|oral suspension|Oral suspension % mg % mL|Oral suspension %d
-5|3|1|1|wafer|Wafer % mg|Wafer %d
-6|1|1|2|injection|I.V. injection % mg in % mL|I.V. injection %d
+COPY "pbs_xref"  FROM stdin;
+7	Solution for inhalation [0-9]+ mg.*	Solution for inhalation %d
+10	Infant formula, powder.*	Infant formula, powder %d
+12	Chewable tablet [0-9]+ mg	Chewable tablet %d
+15	Lozenge [0-9]+ mg.*	Lozenge %d
+17	Injection [0-9]+ unit%	Injection %d
+13	Powder for syrup [0-9]+ mg	Powder for syrup %d
+9	Powder [0-9]+ g.*	Powder %d
+6	Injection [0-9]+ mg.*	Injection %d
+5	Wafer [0-9]+ mg.*	Wafer %d
+4	Oral suspension [0-9]+ mg.*	Oral suspension %d
+3	Capsule [0-9]+ mg.*	Capsule %d
+2	Effervescent tablet [0-9]+ mg.*	Effervescent tablet %d
+1	Tablet [0-9]+ mg.*	Tablet %d
+8	Eye ointment [0-9]+ mg.*	Eye ointment %d
+11	Sachet containing oral powder [0-9]+ g	Sachet containing oral powder %d
+14	Powder for paediatric oral drops [0-9]+ mg.*	Powder for paediatric oral drops %d
+16	Injection [0-9]+ g.*	Injection %d
+18	Injection set	Injection set	
 \.
 
 
