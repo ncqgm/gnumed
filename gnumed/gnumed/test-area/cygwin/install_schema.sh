@@ -24,6 +24,7 @@ for  x in `cat filelist`;do
 	cat $sql_path/$x >> all
 done
 
+#some of the country specific data is needed, such as enum_ext_id_types
 sh append_local_schema.sh
 
 x=all
@@ -31,5 +32,6 @@ echo psql -Ugm-dbowner -f $x -h127.0.0.1 gnumed
 echo **  enter password for gm-dbowner
 psql -f$x -Ugm-dbowner -h127.0.0.1 gnumed 2>> err
 
-#some of the country specific data is needed, such as enum_ext_id_types
+
+sh append_test_data.sh
 

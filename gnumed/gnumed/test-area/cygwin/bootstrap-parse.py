@@ -12,10 +12,11 @@ for l in file(sys.argv[1]):
 		print l
 		section = res.group(1)
 		w  = section.split(' ')
+		service_name=' '.join(w[1:])
 		is_typed_section= w[0] in ['service', 'database']
 		if is_typed_section:
 			m[w[0]] = m.get(w[0], {})
-			m[w[0]][w[1]] = {}
+			m[w[0]][service_name] = {}
 
 		
 	else:
@@ -27,8 +28,8 @@ for l in file(sys.argv[1]):
 			if not inList:
 		
 				if is_typed_section:
-					m[w[0]][w[1]] =m[w[0]].get(w[1],{})
-					m[w[0]][w[1]][key]= list
+					m[w[0]][service_name] =m[w[0]].get(service_name,{})
+					m[w[0]][service_name][key]= list
 				else:
 					m[section]=m.get(section,{}) 
 					m[section][key] = list
