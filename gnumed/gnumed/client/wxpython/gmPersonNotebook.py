@@ -18,7 +18,7 @@
 ############################################################################
 
 from wxPython.wx import *
-import gmSelectPerson, gmPersonDetailsDlg, gmCachedPerson, gmSQLSimpleSearch
+import gmSelectPerson, gmPersonDetailsDlg, gmCachedPerson, gmSQLSimpleSearch, gmGuiBroker
 import gettext
 _ = gettext.gettext
 
@@ -27,6 +27,9 @@ ID_NOTEBOOK=wxNewId()
 class PersonNotebook(wxPanel):
 	def __init__(self, parent, id):
 		wxPanel.__init__(self, parent, id)
+
+		self.__guibroker = gmGuiBroker.GuiBroker()
+
 		self.__sizer = wxBoxSizer( wxVERTICAL )
 		#resize the panel depending on it's widgets
 		self.SetAutoLayout( true )
@@ -62,6 +65,10 @@ class PersonNotebook(wxPanel):
 		personId = self.SearchPersonDlg.GetSelectedPersonId()
 		print "Person selected!", personId
 		self.__person.setId(personId)
+		p = self.__person.dictresult()
+		if p is not None:
+			self.__guibroker["main.SetWindowTitle"]("GNUMed: %s %s" % (p["firstnames"], p["lastnames"]) )
+
 
 
 	def OnPageChanged(self, evt):

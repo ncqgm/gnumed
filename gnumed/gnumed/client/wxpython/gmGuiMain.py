@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-03-28 13:59:07 $
-# @version $Revision: 1.12 $ $Date: 2002-03-28 13:59:07 $ $Author: hherb $
+# @Date: $Date: 2002-03-28 14:33:47 $
+# @version $Revision: 1.13 $ $Date: 2002-03-28 14:33:47 $ $Author: hherb $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -77,6 +77,8 @@ class MainFrame(wxFrame):
 		cur = db.cursor()
 		cur.execute('select CURRENT_USER')
 		(user,) = cur.fetchone()
+
+		self.guibroker['main.SetWindowTitle']= self.SetTitle
 
 		self.SetTitle(_("You are logged in as [%s]") % user)
 
