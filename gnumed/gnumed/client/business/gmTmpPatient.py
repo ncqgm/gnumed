@@ -7,14 +7,12 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.21 2003-06-01 13:20:32 sjtan Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmTmpPatient.py,v 1.22 2003-06-01 13:34:38 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
-import sys, os.path
-import threading
-import time
+import sys, os.path, time
 
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
@@ -29,7 +27,6 @@ _log.Log(gmLog.lData, __version__)
 import gmExceptions, gmPG, gmSignals, gmDispatcher, gmClinicalRecord
 
 # 3rd party
-import mx.DateTime as mxDateTime
 import mx.DateTime
 
 #============================================================
@@ -40,8 +37,9 @@ gm2long_gender_map = {
 #============================================================
 # utility function separate from db access logic
 def get_medical_age(dob):
-	"""utility function move out to global module for the moment"""
-	age = mxDateTime.Age(mxDateTime.now(), dob)
+	"""format patient age in a hopefully meaningful way"""
+
+	age = mx.DateTime.Age(mx.DateTime.now(), dob)
 
 	if age.years > 0:
 		return "%sy%sm" % (age.years, age.months)
@@ -59,6 +57,7 @@ def get_medical_age(dob):
 		return "%sm" % (age.minutes)
 	return "%sm%ss" % (age.minutes, age.seconds)
 
+#============================================================
 # may get preloaded by the waiting list
 class gmPerson:
 	"""Represents a patient that DOES EXIST in the database.
@@ -276,8 +275,7 @@ class gmPerson:
 
 		if data is None:
 			return '??'
-		get_medical_age(data[0])
-
+		return get_medical_age(data[0])
 	#--------------------------------------------------------
 	def _get_clinical_record(self):
 		if self.__db_cache.has_key('clinical record'):
@@ -326,19 +324,15 @@ class gmCurrentPatient(cBorg):
 		# share state among all instances ...
 		cBorg.__init__(self)
 
-		self.init_lock()
-
 		# make sure we do have a patient pointer even if it is None
 		if not self.__dict__.has_key('patient'):
 			self.patient = None
 
-		# set initial lock state
-		#if not self.__dict__.has_key('locked'):
-		#	self.unlock()
-
-		# set up default data
-		if not self.__dict__.has_key('default_data'):
-			self.default_data = {}
+		# set initial lock state,
+		# this lock protects against activating another patient
+		# when we are controlled from a remote application
+		if not self.__dict__.has_key('locked'):
+			self.unlock()
 
 		# user wants to init or change us
 		if aPKey is not None:
@@ -346,13 +340,14 @@ class gmCurrentPatient(cBorg):
 			if self.patient is None:
 				try:
 					self.patient = gmPerson(aPKey)
+					# if init()ed initial state is unlocked, remote app must lock explicitly
 					self.unlock()
 					self.__send_selection_notification()
 				except:
 					_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
 			# change
 			else:
-				# are we really to become someone else ?
+				# are we really supposed to become someone else ?
 				if self.patient['ID'] != aPKey:
 					# yes, but CAN we ?
 					if self.locked is None:
@@ -372,38 +367,33 @@ class gmCurrentPatient(cBorg):
 						_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['ID'], aPKey))
 
 		return None
-
-	def init_lock(self):
-		"""initializes a pthread lock. Doesn't matter if 
-		race of 2 threads in alock assignment, just use the 
-		last lock created ( unless both threads find no alock,
-		then one thread sleeps before self.alock = .. is completed ,
-		the other thread assigns a new RLock object, 
-		and begins immediately using it on a call to self.lock(),
-		and gets past self.alock.acquire()
-		before the first thread wakes up and assigns to self.alock 
-		, obsoleting
-		the already in use alock by the second thread )."""
-		try:
-			if  not self.__dict__.has_key('alock') :
-				self.alock = threading.RLock()
-		except:
-			_log.LogException("Cannot test/create lock", sys.exc_info()) 
-		
-		
-		
+	#--------------------------------------------------------
+# this MAY eventually become useful when we start
+# using more threads in the frontend
+#	def init_lock(self):
+#		"""initializes a pthread lock. Doesn't matter if 
+#		race of 2 threads in alock assignment, just use the 
+#		last lock created ( unless both threads find no alock,
+#		then one thread sleeps before self.alock = .. is completed ,
+#		the other thread assigns a new RLock object, 
+#		and begins immediately using it on a call to self.lock(),
+#		and gets past self.alock.acquire()
+#		before the first thread wakes up and assigns to self.alock 
+#		, obsoleting
+#		the already in use alock by the second thread )."""
+#		try:
+#			if  not self.__dict__.has_key('alock') :
+#				self.alock = threading.RLock()
+#		except:
+#			_log.LogException("Cannot test/create lock", sys.exc_info()) 
 	#--------------------------------------------------------
 	# patient change handling
 	#--------------------------------------------------------
 	def lock(self):
-		self.alock.acquire(blocking=1)
 		self.locked = 1
-		
 	#--------------------------------------------------------
 	def unlock(self):
 		self.locked = None
-		self.alock.release()
-
 	#--------------------------------------------------------
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
@@ -424,16 +414,10 @@ class gmCurrentPatient(cBorg):
 		else:
 			return None
 
-#				return self.default_data[aVar]
-#			except KeyError:
-#				return None
-
-	def setData(self, data):
-		self.lock()
-		self.patient = data
-		self.unlock()
-
-
+#	def setData(self, data):
+#		self.lock()
+#		self.patient = data
+#		self.unlock()
 #============================================================
 
 
@@ -647,8 +631,7 @@ def _patient_selected(**kwargs):
 	print "received patient_selected notification"
 	print kwargs['kwds']
 	patient = gmCurrentPatient()
-	adjust_data(kwargs)
-	patient.setData(kwargs['kwds'])
+#	adjust_data(kwargs)
 
 def adjust_data(kwargs):
 	map = kwargs['kwds']
@@ -658,13 +641,12 @@ def adjust_data(kwargs):
 	datenums = str(datePart).split('-')
 	mxDob = mx.DateTime.DateTime( int(datenums[0]), int(datenums[1]), int(datenums[2]))
 
-	map['medical age'] = get_medical_age(mxDob)
-	map['clinical record'] = gmClinicalRecord.gmClinicalRecord(map['ID'])
+#	map['medical age'] = get_medical_age(mxDob)
+#	map['clinical record'] = gmClinicalRecord.gmClinicalRecord(map['ID'])
 
-gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 if __name__ == "__main__":
-#	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
+	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 	while 1:
 		pID = raw_input('a patient ID: ')
 		try:
@@ -689,7 +671,12 @@ if __name__ == "__main__":
 			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.21  2003-06-01 13:20:32  sjtan
+# Revision 1.22  2003-06-01 13:34:38  ncq
+# - reinstate remote app locking
+# - comment out thread lock for now but keep code
+# - setting gmCurrentPatient is not how it is supposed to work (I think)
+#
+# Revision 1.21  2003/06/01 13:20:32  sjtan
 #
 # logging to data stream for debugging. Adding DEBUG tags when work out how to use vi
 # with regular expression groups (maybe never).
