@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.93 $
+-- $Revision: 1.94 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -601,6 +601,8 @@ comment on column allergy.generic_specific is
 	 2) false: applies to drug class of "substance";';
 comment on column allergy.definite is
 	'true: definite, false: not definite';
+comment on column allergy.narrative is
+	'used as field "reaction"';
 
 -- ============================================
 -- form instance tables
@@ -833,11 +835,14 @@ comment on table clin_history_editarea is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.93 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.94 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.93  2004-04-11 10:08:36  ncq
+-- Revision 1.94  2004-04-12 22:49:41  ncq
+-- - comments
+--
+-- Revision 1.93  2004/04/11 10:08:36  ncq
 -- - tighten check constraints on intervals
 --
 -- Revision 1.92  2004/04/07 18:16:06  ncq
