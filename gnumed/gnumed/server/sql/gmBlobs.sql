@@ -3,7 +3,7 @@
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
--- $Revision: 1.2 $ $Date: 2002-03-09 13:16:56 $ $Author: ncq $
+-- $Revision: 1.3 $ $Date: 2002-03-24 10:36:42 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -23,15 +23,17 @@ INSERT INTO doc_type(id, name) values(6,'neuro exam');
 -- =============================================
 CREATE TABLE "doc_med" (
     "patient_id" integer primary key references identity,
-    "type" integer references doc_type(id),
+    "type" integer references doc_type(id) not null,
     "comment" character varying(60) not null,
-    "date" character varying(20)
+    "date" character varying(20) not null,
+    "ext_ref" character varying (40) not null,
 );
 
 COMMENT ON TABLE "doc_med" IS 'a medical document object possibly containing several data objects such as several pages of a paper document';
 COMMENT ON COLUMN doc_med.type IS 'semantic type of document (not type of file or mime type), such as "ultrasound", referral letter, "discharge summary", etc.';
 COMMENT ON COLUMN doc_med.comment IS 'additional short comment such as "abdominal", "ward 3, Dr. Stein", etc.';
 COMMENT ON COLUMN doc_med.date IS 'date of document content creation (such as exam date), NOT date of document creation or date of import; may be imprecise such as "7/99"';
+COMMENT ON COLUMN doc_med.ext_ref IS 'external reference string of physical document, original can be found with this';
 
 -- =============================================
 CREATE TABLE "doc_med_external_ref" (
@@ -55,7 +57,7 @@ CREATE TABLE "doc_desc" (
     "text" text
 );
 
-COMMENT ON TABLE "doc_desc" is 'a textual description of the content such as a result summary, several of these may belong to one document object';
+COMMENT ON TABLE "doc_desc" is 'A textual description of the content such as a result summary. Several of these may belong to one document object.';
 
 -- =============================================
 
