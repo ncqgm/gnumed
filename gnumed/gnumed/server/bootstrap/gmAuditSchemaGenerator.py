@@ -19,7 +19,7 @@ cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -36,6 +36,8 @@ if __name__ == "__main__" :
 import gmPG
 
 #==================================================================
+# convenient queries
+#------------------------------------------------------------------
 # return all tables inheriting from another table
 query_table_descendants = """SELECT relname, oid
 FROM pg_class
@@ -74,22 +76,16 @@ WHERE
 		and
 	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = %s)"""
 
-
+#==================================================================
+# SQL statements for auditing setup script
+# - remember to keep ";"s at the end !
+#------------------------------------------------------------------
 drop_trigger = "DROP TRIGGER %s ON %s ;"
 drop_function = "DROP FUNCTION %s();"
 
+# insert
 template_insert_trigger = """CREATE TRIGGER %s
 	BEFORE INSERT
-	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s();"""
-
-template_update_trigger = """CREATE TRIGGER %s
-	BEFORE UPDATE
-	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s();"""
-
-template_delete_trigger = """CREATE TRIGGER %s
-	BEFORE DELETE
 	ON %s
 	FOR EACH ROW EXECUTE PROCEDURE %s();"""
 
@@ -100,6 +96,12 @@ BEGIN
 	NEW.modify_by := CURRENT_USER;
 	return NEW;
 END;' LANGUAGE 'plpgsql';"""
+
+# update
+template_update_trigger = """CREATE TRIGGER %s
+	BEFORE UPDATE
+	ON %s
+	FOR EACH ROW EXECUTE PROCEDURE %s();"""
 
 template_update_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
@@ -115,6 +117,12 @@ BEGIN
 	);
 	return NEW;
 END;' LANGUAGE 'plpgsql';"""
+
+# delete
+template_delete_trigger = """CREATE TRIGGER %s
+	BEFORE DELETE
+	ON %s
+	FOR EACH ROW EXECUTE PROCEDURE %s();"""
 
 template_delete_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
@@ -269,7 +277,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.11  2003-07-05 12:26:01  ncq
+# Revision 1.12  2003-07-05 12:29:57  ncq
+# - just a bit of cleanup
+#
+# Revision 1.11  2003/07/05 12:26:01  ncq
 # - need ; at end of chained SQL statements !
 #
 # Revision 1.10  2003/06/29 12:41:34  ncq
