@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -90,7 +90,7 @@ class cDocTree(wxTreeCtrl):
 		docs_folder = self.__pat.get_document_folder()
 		docs = docs_folder.get_documents()
 		if docs is None:
-			name = self.__pat['demographic record'].get_names()
+			name = self.__pat.get_identity().get_names()
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Error searching documents for patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading document list')
@@ -308,7 +308,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.10  2005-01-31 10:37:26  ncq
+# Revision 1.11  2005-03-06 14:54:19  ncq
+# - szr.AddWindow() -> Add() such that wx2.5 works
+# - 'demographic record' -> get_identity()
+#
+# Revision 1.10  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.9  2004/10/17 15:57:36  ncq

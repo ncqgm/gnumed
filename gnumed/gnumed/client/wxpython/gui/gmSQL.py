@@ -54,7 +54,7 @@ to get the attribute labels, call gmSQLWindow.GetLabels()"""
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSQL.py,v $
 
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -102,19 +102,19 @@ class SQLWindow(wxPanel):
         self.topHsizer.AddSizer( self.serviceHsizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 )
 
         self.choiceService = wxChoice( self, ID_CHOICE_SERVICE, wxDefaultPosition, wxSize(80,-1), choices = ['config'])
-        self.serviceHsizer.AddWindow( self.choiceService, 1, wxALIGN_CENTRE|wxALL, 5 )
+        self.serviceHsizer.Add( self.choiceService, 1, wxALIGN_CENTRE|wxALL, 5 )
 
         self.staticQueryBox = wxStaticBox( self, -1, _("Query") )
         self.inputHsizer = wxStaticBoxSizer( self.staticQueryBox, wxHORIZONTAL )
 
         self.comboQueryInput = wxComboBox( self, ID_COMBO_QUERY, "", wxDefaultPosition, wxSize(200,-1), [], wxCB_DROPDOWN )
-        self.inputHsizer.AddWindow( self.comboQueryInput, 1, wxALIGN_CENTRE|wxALL, 5 )
+        self.inputHsizer.Add( self.comboQueryInput, 1, wxALIGN_CENTRE|wxALL, 5 )
 
         self.buttonRunQuery = wxButton( self, ID_BUTTON_RUNQUERY, _("&Run query"), wxDefaultPosition, wxDefaultSize, 0 )
-        self.inputHsizer.AddWindow( self.buttonRunQuery, 0, wxALIGN_CENTRE|wxALL, 5 )
+        self.inputHsizer.Add( self.buttonRunQuery, 0, wxALIGN_CENTRE|wxALL, 5 )
 
         self.buttonClearQuery = wxButton( self, ID_BUTTON_CLEARQUERY, _("&Clear query"), wxDefaultPosition, wxDefaultSize, 0 )
-        self.inputHsizer.AddWindow( self.buttonClearQuery, 0, wxALIGN_CENTRE|wxALL, 5 )
+        self.inputHsizer.Add( self.buttonClearQuery, 0, wxALIGN_CENTRE|wxALL, 5 )
         self.topHsizer.AddSizer( self.inputHsizer, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 )
 
         self.staticFeedbackBox = wxStaticBox( self, -1, _("Tables in database  /  Feedback") )
@@ -125,15 +125,15 @@ class SQLWindow(wxPanel):
         self.stderr = self.stdout
 
         self.listTables.SetRedirectedOutput(self.stderr)
-        self.feedbackHsizer.AddWindow( self.listTables, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-        self.feedbackHsizer.AddWindow( self.textQueryResults, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 )
+        self.feedbackHsizer.Add( self.listTables, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+        self.feedbackHsizer.Add( self.textQueryResults, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 )
 
         self.staticResultsBox = wxStaticBox( self, -1, _("Results") )
         self.resultsVsizer = wxStaticBoxSizer( self.staticResultsBox, wxVERTICAL )
         self.listQueryResults = gmSQLListControl.SQLListControl( self, ID_LISTCTRLQUERYRESULT, wxDefaultPosition, wxSize(-1,90), wxLC_REPORT|wxSUNKEN_BORDER )
         self.listQueryResults.SetRedirectedOutput(self.stderr, self.stdout)
         self.listQueryResults.SetStatusFunc(self.broker['main.statustext'])
-        self.resultsVsizer.AddWindow( self.listQueryResults, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+        self.resultsVsizer.Add( self.listQueryResults, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
         self.topsizer.AddSizer( self.topHsizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 )
         self.topsizer.AddSizer( self.feedbackHsizer, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 )

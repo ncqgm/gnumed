@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 
 import string
 from wxPython.wx import *
@@ -51,19 +51,19 @@ class DlgSelectPerson(SQLSimpleSearch):
 		self.sizerButtons = wxBoxSizer( wxHORIZONTAL )
 		#add a "select patient" button
 		self.buttonSelect = wxButton( self, ID_BUTTON_SELECT, _("&Select"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerButtons.AddWindow( self.buttonSelect, 0, wxALIGN_CENTRE|wxALL, 2 )
+		self.sizerButtons.Add( self.buttonSelect, 0, wxALIGN_CENTRE|wxALL, 2 )
 		#edit this patient
 		self.buttonEdit = wxButton( self, ID_BUTTON_EDIT, _("&Edit"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerButtons.AddWindow( self.buttonEdit, 0, wxALIGN_CENTRE|wxALL, 2 )
+		self.sizerButtons.Add( self.buttonEdit, 0, wxALIGN_CENTRE|wxALL, 2 )
 		#add a new patient
 		self.buttonNew = wxButton( self, ID_BUTTON_NEW, _("&New"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerButtons.AddWindow( self.buttonNew, 0, wxALIGN_CENTRE|wxALL, 2 )
+		self.sizerButtons.Add( self.buttonNew, 0, wxALIGN_CENTRE|wxALL, 2 )
 		#add patient to this family / address button
 		self.buttonAdd = wxButton( self, ID_BUTTON_ADD, _("&Add"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerButtons.AddWindow( self.buttonAdd, 0, wxALIGN_CENTRE|wxALL, 2 )
+		self.sizerButtons.Add( self.buttonAdd, 0, wxALIGN_CENTRE|wxALL, 2 )
 		#merge two or more atient entries into one
 		self.buttonMerge = wxButton( self, ID_BUTTON_MERGE, _("&Merge"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerButtons.AddWindow( self.buttonMerge, 0, wxALIGN_CENTRE|wxALL, 2 )
+		self.sizerButtons.Add( self.buttonMerge, 0, wxALIGN_CENTRE|wxALL, 2 )
 
 		self.sizerTopVertical.AddSizer( self.sizerButtons, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2 )
 

@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -443,7 +443,7 @@ class gmConfigEditorPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 							size = wxSize(250,100),
 							style = wxTE_READONLY | wxLB_SINGLE,
 							value ="" )
-		self.configEntryDescriptionBoxSizer.AddWindow( self.configEntryDescription, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
+		self.configEntryDescriptionBoxSizer.Add( self.configEntryDescription, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
 # static box for config tree
 		self.configTreeBox = wxStaticBox( self, ConfigTreeBoxID, _("Config Options") )
 		self.configTreeBoxSizer = wxStaticBoxSizer( self.configTreeBox, wxHORIZONTAL )
@@ -460,11 +460,11 @@ class gmConfigEditorPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 						paramWidgets=(self.configEntryParamCtrl,self.configEntryDescription)
 						)
 		self.configTree.SetFocus()
-		self.configTreeBoxSizer.AddWindow( self.configTree, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 5 )
+		self.configTreeBoxSizer.Add( self.configTree, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 5 )
 
-		self.paramCtrlSizer.AddWindow(self.configEntryParamCtrl,1,wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
-		self.paramButtonSizer.AddWindow(self.buttonApply,1,wxALIGN_LEFT|wxALL|wxEXPAND, 2 )
-		self.paramButtonSizer.AddWindow(self.buttonRevert,1,wxALIGN_RIGHT|wxALL|wxEXPAND, 2 )
+		self.paramCtrlSizer.Add(self.configEntryParamCtrl,1,wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
+		self.paramButtonSizer.Add(self.buttonApply,1,wxALIGN_LEFT|wxALL|wxEXPAND, 2 )
+		self.paramButtonSizer.Add(self.buttonRevert,1,wxALIGN_RIGHT|wxALL|wxEXPAND, 2 )
 		self.paramCtrlSizer.Add(self.paramButtonSizer,0,wxALIGN_BOTTOM, 2 )
 		self.configEntryParamBoxSizer.Add(self.paramCtrlSizer , 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
 
@@ -534,7 +534,11 @@ else:
 			return ('tools', _('&ConfigRegistry'))
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.26  2004-09-25 13:11:40  ncq
+# Revision 1.27  2005-03-06 14:54:19  ncq
+# - szr.AddWindow() -> Add() such that wx2.5 works
+# - 'demographic record' -> get_identity()
+#
+# Revision 1.26  2004/09/25 13:11:40  ncq
 # - improve tree root node naming
 #
 # Revision 1.25  2004/08/04 17:16:02  ncq

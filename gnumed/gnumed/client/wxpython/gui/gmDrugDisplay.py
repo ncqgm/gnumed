@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 from wxPython.wx import *
@@ -193,9 +193,9 @@ class DrugDisplay(wxPanel):
 		# and add them to it
 		#-----------------------------------------------------------
 		self.sizertopleft = wxBoxSizer(wxHORIZONTAL)
-		self.sizertopleft.AddWindow( finddrug, 0, wxALIGN_CENTER_VERTICAL, 5 )
-		self.sizertopleft.AddWindow( self.comboProduct, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
-		self.sizertopleft.AddWindow( self.btnBookmark, 0, wxALIGN_CENTER_VERTICAL, 5 )
+		self.sizertopleft.Add( finddrug, 0, wxALIGN_CENTER_VERTICAL, 5 )
+		self.sizertopleft.Add( self.comboProduct, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
+		self.sizertopleft.Add( self.btnBookmark, 0, wxALIGN_CENTER_VERTICAL, 5 )
 		#---------------------------------------------------------------
 		# next create the left sizer which will hold the drug list box 
 		# and the html viewer
@@ -221,13 +221,13 @@ class DrugDisplay(wxPanel):
 		sboxSearchBy.SetFont( wxFont( 10, wxSWISS, wxNORMAL, wxNORMAL ) )
 		
 		self.rbtnSearchAny = wxRadioButton( self, ID_RADIOBUTTON_BYANY, _("Any"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchBy.AddWindow( self.rbtnSearchAny, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
+		self.sizerSearchBy.Add( self.rbtnSearchAny, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
 		self.rbtnSearchBrand = wxRadioButton( self, ID_RADIOBUTTON_BYBRAND, _("Brand name"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchBy.AddWindow( self.rbtnSearchBrand, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP, 1 )
+		self.sizerSearchBy.Add( self.rbtnSearchBrand, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP, 1 )
 		self.rbtnSearchGeneric = wxRadioButton( self, ID_RADIOBUTTON_BYGENERIC, _("Generic name"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchBy.AddWindow( self.rbtnSearchGeneric, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
+		self.sizerSearchBy.Add( self.rbtnSearchGeneric, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
 		self.rbtnSearchIndication = wxRadioButton( self, ID_RADIOBUTTON_BYINDICATION, _("Indication"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchBy.AddWindow( self.rbtnSearchIndication, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
+		self.sizerSearchBy.Add( self.rbtnSearchIndication, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
 		#-------------------------------------------------------------------------
 		# and the right hand side vertical side bar sizer
 		# 1) add a space at top to make the static text box even with the top
@@ -246,17 +246,17 @@ class DrugDisplay(wxPanel):
 		#--------------------------------------------------------------------------
 		self.listbox_jumpto = wxListBox( self, ID_LISTBOX_JUMPTO, wxDefaultPosition, wxSize(150,100),
 			[] , wxLB_SINGLE )
-		self.sizerVInteractionSidebar.AddWindow( self.listbox_jumpto, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 10 )
+		self.sizerVInteractionSidebar.Add( self.listbox_jumpto, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 10 )
 		#--------------------------------------------------------------------------
 		# 5) Add another spacer underneath this listbox
 		#--------------------------------------------------------------------------
 		self.sizerVInteractionSidebar.AddSpacer( 20, 10, 0, wxALIGN_CENTRE|wxALL, 1 )
 		self.btnPrescribe = wxButton( self, ID_BUTTON_PRESCRIBE, _("&Prescribe"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerVInteractionSidebar.AddWindow( self.btnPrescribe, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
+		self.sizerVInteractionSidebar.Add( self.btnPrescribe, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
 		self.btnDisplay = wxButton( self, ID_BUTTON_DISPLAY, _("&Display"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerVInteractionSidebar.AddWindow( self.btnDisplay, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
+		self.sizerVInteractionSidebar.Add( self.btnDisplay, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
 		self.btnPrint = wxButton( self, ID_BUTTON_PRINT, _("&Print"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerVInteractionSidebar.AddWindow( self.btnPrint, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
+		self.sizerVInteractionSidebar.Add( self.btnPrint, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
 		#-----------------------------------------------
 		# finally create the main sizer to hold the rest
 		# and all the sizers to the main sizer
@@ -317,7 +317,7 @@ class DrugDisplay(wxPanel):
 				self.sizer_left.Remove(self.listctrl_drugchoice)
 				self.listctrl_drugchoice = None
 			self.html_viewer = wxHtmlWindow(self, -1, size=(400, 200))			
-			self.sizer_left.AddWindow( self.html_viewer, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
+			self.sizer_left.Add( self.html_viewer, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
 			self.sizer_left.Layout()
 			self.whichWidget="html_viewer"
 		else:
@@ -327,7 +327,7 @@ class DrugDisplay(wxPanel):
 				self.sizer_left.Remove(self.html_viewer)
 				self.html_viewer = None
 			self.listctrl_drugchoice = wxListCtrl(self, ID_LISTCTRL_DRUGCHOICE, wxDefaultPosition, wxSize(400,200), style=wxLC_SINGLE_SEL | wxLC_REPORT )
-			self.sizer_left.AddWindow( self.listctrl_drugchoice, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
+			self.sizer_left.Add( self.listctrl_drugchoice, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
 			self.sizer_left.Layout()
 			self.whichWidget="listctrl_drugchoice"
 	
@@ -626,7 +626,11 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.23  2004-08-20 13:34:48  ncq
+# Revision 1.24  2005-03-06 14:54:19  ncq
+# - szr.AddWindow() -> Add() such that wx2.5 works
+# - 'demographic record' -> get_identity()
+#
+# Revision 1.23  2004/08/20 13:34:48  ncq
 # - getFirstMatchingDBSet() -> getDBParam()
 #
 # Revision 1.22  2004/08/04 17:16:02  ncq

@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.56 2005-01-22 22:26:06 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmLoginDialog.py,v 1.57 2005-03-06 14:54:19 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -118,7 +118,7 @@ class LoginPanel(wx.wxPanel):
 		# PROFILE COMBO
 		label = wx.wxStaticText( self, -1, _("Profile"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
 		label.SetForegroundColour(wx.wxColour(35, 35, 142))
-		self.pboxgrid.AddWindow( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		self.pboxgrid.Add(label, 0, wx.wxALIGN_CENTER_VERTICAL | wx.wxALL, 5)
 		self.profilecombo = wx.wxComboBox(
 			self,
 			-1,
@@ -128,12 +128,12 @@ class LoginPanel(wx.wxPanel):
 			self.loginparams.profilelist,
 			wx.wxCB_READONLY
 		)
-		self.pboxgrid.AddWindow( self.profilecombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		self.pboxgrid.Add (self.profilecombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
 
 		# USER NAME COMBO
 		label = wx.wxStaticText( self, -1, _("Username"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
 		label.SetForegroundColour(wx.wxColour(35, 35, 142))
-		self.pboxgrid.AddWindow( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		self.pboxgrid.Add( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
 		self.usercombo = wx.wxComboBox(
 			self,
 			-1,
@@ -143,16 +143,16 @@ class LoginPanel(wx.wxPanel):
 			self.loginparams.userlist,
 			wx.wxCB_DROPDOWN
 		)
-		self.pboxgrid.AddWindow( self.usercombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		self.pboxgrid.Add( self.usercombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
 
 		#PASSWORD TEXT ENTRY
 		label = wx.wxStaticText( self, -1, _("Password"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
 		label.SetForegroundColour(wx.wxColour(35, 35, 142))
-		self.pboxgrid.AddWindow( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		self.pboxgrid.Add( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
 		self.pwdentry = wx.wxTextCtrl( self, 1, '', wx.wxDefaultPosition, wx.wxSize(80,-1), wx.wxTE_PASSWORD )
 		# set focus on password entry
 		self.pwdentry.SetFocus()
-		self.pboxgrid.AddWindow( self.pwdentry, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		self.pboxgrid.Add( self.pwdentry, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
 		
 		
 		#----------------------------------------------------------------------
@@ -456,7 +456,11 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.56  2005-01-22 22:26:06  ncq
+# Revision 1.57  2005-03-06 14:54:19  ncq
+# - szr.AddWindow() -> Add() such that wx2.5 works
+# - 'demographic record' -> get_identity()
+#
+# Revision 1.56  2005/01/22 22:26:06  ncq
 # - a bunch of cleanups
 # - i18n
 #

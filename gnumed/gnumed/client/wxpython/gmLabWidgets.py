@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -179,7 +179,6 @@ class cLabJournalNB(wxNotebook):
 		szr_page = wxBoxSizer(wxVERTICAL)
 #		szr_page.Add(hbszr,0, wxALIGN_LEFT | wxALL, 5)
 #		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
-#		szr_page.AddWindow(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 
 		pnl_page.SetAutoLayout(True)
 		pnl_page.SetSizer(szr_page)
@@ -237,10 +236,10 @@ class cLabJournalNB(wxNotebook):
 		)
 		self.BTN_save_request_ID.SetToolTipString(_('associate chosen lab and ID with current patient'))
 
-		hbszr.AddWindow(lab_label, 0, wxALIGN_CENTER | wxALL, 5)
-		hbszr.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
-		hbszr.AddWindow(req_id_label, 0, wxALIGN_CENTER | wxALL, 5)
-		hbszr.AddWindow(self.fld_request_id, 0, wxALIGN_CENTER| wxALL, 5)
+		hbszr.Add(lab_label, 0, wxALIGN_CENTER | wxALL, 5)
+		hbszr.Add(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
+		hbszr.Add(req_id_label, 0, wxALIGN_CENTER | wxALL, 5)
+		hbszr.Add(self.fld_request_id, 0, wxALIGN_CENTER| wxALL, 5)
 		hbszr.Add(self.BTN_save_request_ID, 0, wxALIGN_CENTER | wxALL, 5)
 
 		# -- add list of pending requests --
@@ -260,7 +259,7 @@ class cLabJournalNB(wxNotebook):
 		szr_page = wxBoxSizer(wxVERTICAL)
 		szr_page.Add(hbszr,0, wxALIGN_LEFT | wxALL, 5)
 		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
-#		szr_page.AddWindow(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+#		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 
 		pnl_page.SetAutoLayout(True)
 		pnl_page.SetSizer(szr_page)
@@ -285,7 +284,7 @@ class cLabJournalNB(wxNotebook):
 
 		szr_page = wxBoxSizer(wxVERTICAL)
 		szr_page.Add(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
-#		szr_page.AddWindow(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
+#		szr_page.Add(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
 
 		pnl_page.SetAutoLayout(True)
 		pnl_page.SetSizer(szr_page)
@@ -357,7 +356,7 @@ class cLabJournalNB(wxNotebook):
 
 		# -- do layout --
 		szr_page = wxBoxSizer(wxVERTICAL)
-		szr_page.AddWindow(self.__grid_unreviewed_results, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+		szr_page.Add(self.__grid_unreviewed_results, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 		szr_page.Add(szr_buttons, 0, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 
 		pnl_page.SetAutoLayout(True)
@@ -758,7 +757,7 @@ class cLabDataGrid(wxGrid):
 		# FIXME: there might be too many results to handle in memory
 		results = emr.get_lab_results()
 		if results is None:
-			name = self.__pat['demographic record'].get_names()
+			name = self.__pat.get_identity().get_names()
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error loading lab data for patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading lab data')
@@ -865,7 +864,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.9  2005-02-15 18:33:08  ncq
+# Revision 1.10  2005-03-06 14:54:19  ncq
+# - szr.AddWindow() -> Add() such that wx2.5 works
+# - 'demographic record' -> get_identity()
+#
+# Revision 1.9  2005/02/15 18:33:08  ncq
 # - identity.id -> pk
 #
 # Revision 1.8  2005/01/31 10:37:26  ncq
