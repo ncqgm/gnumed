@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __license__ = "GPL"
 __author__ = "\
 	Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
@@ -39,7 +39,6 @@ except ImportError:
 ] = map(lambda _init_ctrls: wxNewId(), range(9))
 #==================================================
 class scanFrame(wxFrame):
-	picList = []
 	page = 0
 	selected_pic = ''
 	# a dict holding our objects
@@ -68,6 +67,7 @@ class scanFrame(wxFrame):
 		if tmp != None:
 			if os.path.exists(tmp):
 				tempfile.tempdir = tmp
+				_log.Log(gmLog.lData, 'using tmp dir [%s]' % tmp)
 		# temp files shall start with "obj-"
 		tempfile.template = "obj-"
 	#----------------------------------------------
@@ -445,16 +445,18 @@ class scanFrame(wxFrame):
 			page_fname = page_data['file name']
 			page_seq_ID = page_data['index']
 
+			# 1) del item from self.acquired_pages
+			#  - move trailing items forward one position
+			for idx in range(page_seq_ID, len(self.acquired_pages)):
+				self.acquired_pages[idx] = self.acquired_pages[idx+1]
+			#  - remove last item
+			del self.acquired_pages[len(self.acquired_pages)]
 
-#			if viewer_cmd == None:
-#				_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
-#				new_fname = docMime.get_win_fname(mime_type)
-#				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, new_fname))
-#				shutil.copyfile(page_fname, new_fname)
-#				os.startfile(new_fname)
-#			else:
-#				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, viewer_cmd))
-#				os.system(viewer_cmd)
+			# 2) reload list box
+			self.__reload_LBOX_doc_pages()
+
+			# 3) kill file in os
+			os.remove(page_fname)
 		else:
 			dlg = wxMessageDialog(
 				self,
