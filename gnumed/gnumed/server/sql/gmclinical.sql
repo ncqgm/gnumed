@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.17 $
+-- $Revision: 1.18 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -29,29 +29,6 @@ create table enum_clinical_encounters(
 	description text
 )inherits (audit_clinical);
 
-INSERT INTO enum_clinical_encounters (description)
-	values (i18n('surgery consultation'));
-INSERT INTO enum_clinical_encounters (description)
-	values (i18n('phone consultation'));
-INSERT INTO enum_clinical_encounters (description)
-	values (i18n('fax consultation'));
-INSERT INTO enum_clinical_encounters (description)
-	values (i18n('home visit'));
-INSERT INTO enum_clinical_encounters (description)
-	values (i18n('nursing home visit'));
-INSERT INTO enum_clinical_encounters (description)
-	values (i18n('repeat script'));
-INSERT INTO enum_clinical_encounters (description)
-	values (i18n('hospital visit'));
-INSERT INTO enum_clinical_encounters (description)
-	values (i18n('video conference'));
-INSERT INTO enum_clinical_encounters (description)
-	values (i18n('proxy encounter'));
-INSERT INTO enum_clinical_encounters (description)
-	values (i18n('emergency encounter'));
-INSERT INTO enum_clinical_encounters (description)
-	values (i18n('other encounter'));
-
 COMMENT ON TABLE enum_clinical_encounters is
 'these are the types of encounter';
 
@@ -63,12 +40,12 @@ create table clinical_encounter (
 -- -------------------------------------------------------------------
 create table clinical_transaction (
 	id serial primary key,
-	stamp timestamp with time zone,
-	duration interval,
 	id_location int,
-	id_provider int,  
-	id_patient int, 
-	id_enum_clinical_encounters int REFERENCES enum_clinical_encounters (id)
+	id_provider int,
+	id_patient int,
+	id_enum_clinical_encounters int REFERENCES enum_clinical_encounters (id),
+	stamp timestamp with time zone,
+	duration interval
 ) inherits (audit_clinical);
 
 COMMENT ON TABLE clinical_transaction is
@@ -95,32 +72,6 @@ create table enum_clinical_history(
 COMMENT ON TABLE enum_clinical_history is
 'types of history taken during a clinical encounter';
 
-
-INSERT INTO enum_clinical_history (description)
-	values (i18n('past'));
-INSERT INTO enum_clinical_history (description)
-	values (i18n('presenting complaint'));
-INSERT INTO enum_clinical_history (description)
-	values (i18n('history of present illness'));
-INSERT INTO enum_clinical_history (description)
-	values (i18n('social'));
-INSERT INTO enum_clinical_history (description)
-	values (i18n('family'));
-INSERT INTO enum_clinical_history (description)
-	values (i18n('immunisation'));
-INSERT INTO enum_clinical_history (description)
-	values (i18n('requests'));
-INSERT INTO enum_clinical_history (description)
-	values (i18n('allergy'));
-INSERT INTO enum_clinical_history (description)
-	values (i18n('drug'));
-INSERT INTO enum_clinical_history (description)
-	values (i18n('sexual'));
-INSERT INTO enum_clinical_history (description)
-	values (i18n('psychiatric'));
-INSERT INTO enum_clinical_history (description)
-	values (i18n('other'));
-
 -- -------------------------------------------------------------------
 create table enum_info_sources
 (
@@ -130,13 +81,6 @@ create table enum_info_sources
 
 comment on table enum_info_sources is
 'sources of clinical information: patient, relative, notes, correspondence';
-
-insert into enum_info_sources (description) values (i18n('patient'));
-insert into enum_info_sources (description) values (i18n('clinician'));
-insert into enum_info_sources (description) values (i18n('relative'));
-insert into enum_info_sources (description) values (i18n('carer'));
-insert into enum_info_sources (description) values (i18n('notes'));
-insert into enum_info_sources (description) values (i18n('correspondence'));
 
 -- -------------------------------------------------------------------
 create table clinical_history(
@@ -168,23 +112,6 @@ create table enum_coding_systems (
 
 COMMENT ON TABLE enum_coding_systems is
 'The various types of coding systems available';
-
-INSERT INTO enum_coding_systems (description)
-	values (i18n('general'));
-INSERT INTO enum_coding_systems (description)
-	values (i18n('clinical'));
-INSERT INTO enum_coding_systems (description)
-	values (i18n('diagnosis'));
-INSERT INTO enum_coding_systems (description)
-	values (i18n('therapy'));
-INSERT INTO enum_coding_systems (description)
-	values (i18n('pathology'));
-INSERT INTO enum_coding_systems (description)
-	values (i18n('bureaucratic'));
-INSERT INTO enum_coding_systems (description)
-	values (i18n('ean'));
-INSERT INTO enum_coding_systems (description)
-	values (i18n('other'));
 
 -- -------------------------------------------------------------------
 create table coding_systems (
@@ -234,21 +161,6 @@ create table enum_confidentiality_level (
 comment on table enum_confidentiality_level is
 'Various levels of confidentialoty of a coded diagnosis, such as public, clinical staff, treating doctor, etc.';
 
-INSERT INTO enum_confidentiality_level (description)
-	values (i18n('public'));
-INSERT INTO enum_confidentiality_level (description)
-	values (i18n('relatives'));
-INSERT INTO enum_confidentiality_level (description)
-	values (i18n('receptionist'));
-INSERT INTO enum_confidentiality_level (description)
-	values (i18n('clinical staff'));
-INSERT INTO enum_confidentiality_level (description)
-	values (i18n('doctors'));
-INSERT INTO enum_confidentiality_level (description)
-	values (i18n('doctors of practice only'));
-INSERT INTO enum_confidentiality_level (description)
-	values (i18n('treating doctor'));
-
 -- -------------------------------------------------------------------
 create table clinical_diagnosis_extra (
 	id serial primary key,
@@ -275,6 +187,58 @@ comment on column episode.id_patient is
 comment on column episode.name is
 	'descriptive name of this episode, may change over time';
 
+-- ============================================
+create table _enum_allergy_certainty (
+	id serial primary key,
+	value varchar(32)
+) ;
+
+create view vi18n_enum_allergy_certainty as
+	select _enum_allergy_certainty.id, _(_enum_allergy_certainty.value)
+	from _enum_allergy_certainty;
+
+-- --------------------------------------------
+create table _enum_allergy_type (
+	id serial primary key,
+	value varchar(32)
+) ;
+
+create view vi18n_enum_allergy_type as
+	select _enum_allergy_type.id, _(_enum_allergy_type.value)
+	from _enum_allergy_type;
+
+-- --------------------------------------------
+-- IMHO this is non-episode-related data
+create table allergy (
+	id serial primary key,
+	id_clinical_transaction integer references clinical_transaction(id),
+	substance varchar(128) not null,
+	allergene varchar(256) default null,
+	description text,
+	certainty varchar(32) references vi18n_enum_allergy_certainty(name),
+	type varchar(32) references vi18n_enum_allergy_type(name),
+	first_observed varchar(32),
+	code varchar(32)
+) inherits (audit_clinical);
+
+comment on table allergy is
+	'patient allergy details';
+comment on column allergy.id_clinical_transaction is
+	'link to transaction, provides: patient, recorded_when';
+comment on column allergy.substance is
+	'real-world name of substance the patient reacted to';
+comment on column allergy.allergene is
+	'name of allergenic ingredient in substance if known';
+comment on column allergy.description is
+	'free-text description of reaction such as "difficulty breathing, "skin rash", "diarrhea" etc.';
+comment on column allergy.certainty is
+	'definate/likely';
+comment on column allergy.type is
+	'allergy/sensitivity';
+comment on column allergy.first_observed is
+	'this has been observed when for the first time, if known';
+comment on column allergy.code is
+	'ATC code of allergene or subtance if approprate, applicable for penicilline, not so for cat fur';
 
 -- ============================================
 -- Drug related tables
@@ -291,17 +255,7 @@ comment on table drug_units is
 '(SI) units used to quantify/measure drugs';
 comment on column drug_units.unit is
 '(SI) units used to quantify/measure drugs like "mg", "ml"';
-insert into drug_units(unit) values('ml');
-insert into drug_units(unit) values('mg');
-insert into drug_units(unit) values('mg/ml');
-insert into drug_units(unit) values('mg/g');
-insert into drug_units(unit) values('U');
-insert into drug_units(unit) values('IU');
-insert into drug_units(unit) values('each');
-insert into drug_units(unit) values('mcg');
-insert into drug_units(unit) values('mcg/ml');
-insert into drug_units(unit) values('IU/ml');
-insert into drug_units(unit) values('day');
+
 
 create table drug_formulations(
 	id serial primary key,
@@ -312,20 +266,6 @@ comment on table drug_formulations is
 'presentations or formulations of drugs like "tablet", "capsule" ...';
 comment on column drug_formulations.description is
 'the formulation of the drug, such as "tablet", "cream", "suspension"';
-
---I18N!
-insert into drug_formulations(description) values ('tablet');
-insert into drug_formulations(description) values ('capsule');
-insert into drug_formulations(description) values ('syrup');
-insert into drug_formulations(description) values ('suspension');
-insert into drug_formulations(description) values ('powder');
-insert into drug_formulations(description) values ('cream');
-insert into drug_formulations(description) values ('ointment');
-insert into drug_formulations(description) values ('lotion');
-insert into drug_formulations(description) values ('suppository');
-insert into drug_formulations(description) values ('solution');
-insert into drug_formulations(description) values ('dermal patch');
-insert into drug_formulations(description) values ('kit');
 
 
 create table drug_routes (
@@ -339,19 +279,6 @@ comment on table drug_routes is
 comment on column drug_routes.description is
 'administration route of a drug like "oral", "sublingual", "intravenous" ...';
 
---I18N!
-insert into drug_routes(description, abbreviation) values('oral', 'o.');
-insert into drug_routes(description, abbreviation) values('sublingual', 's.l.');
-insert into drug_routes(description, abbreviation) values('nasal', 'nas.');
-insert into drug_routes(description, abbreviation) values('topical', 'top.');
-insert into drug_routes(description, abbreviation) values('rectal', 'rect.');
-insert into drug_routes(description, abbreviation) values('intravenous', 'i.v.');
-insert into drug_routes(description, abbreviation) values('intramuscular', 'i.m.');
-insert into drug_routes(description, abbreviation) values('subcutaneous', 's.c.');
-insert into drug_routes(description, abbreviation) values('intraarterial', 'art.');
-insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.');
-
-
 create table databases
 (
 	id serial primary key,
@@ -359,13 +286,8 @@ create table databases
 	published date
 );
 
-insert into databases (name, published) values ('MIMS', '1/1/02');
-insert into databases (name, published) values ('AMIS', '1/1/02');
-insert into databases (name, published) values ('AMH', '1/1/02');
-
 comment on table databases is
 'different drug databases';
-
 
 
 create table script_drug
@@ -441,17 +363,18 @@ create table enum_immunities
 comment on table enum_immunities is
 'list of diseases to which patients may have immunity. Same table must exist in gmdrugs';
 
-insert into enum_immunities (name) values ('tetanus');
-
-
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.17 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.17  2003-04-02 13:37:56  ncq
+-- Revision 1.18  2003-04-06 14:51:40  ncq
+-- - more cleanly separated data and schema
+-- - first draft of allergies table
+--
+-- Revision 1.17  2003/04/02 13:37:56  ncq
 -- - fixed a few more missing "primary key" on referenced "id serial"s
 --
 -- Revision 1.16  2003/04/02 12:31:07  ncq
