@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.12 2003-04-09 16:20:19 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmPatientSelector.py,v 1.13 2003-06-29 14:08:02 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -95,7 +95,7 @@ def pat_expand_default(curs = None, ID_list = None):
 	# - has been in this Quartal
 	# ...
 	# Note: this query must ALWAYS return the ID in field 0
-	cmd = "SELECT i_id, n_id, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY') FROM v_basic_person WHERE i_id in (%s) and n_id in (%s);" % \
+	cmd = "SELECT i_id, n_id, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY') FROM v_basic_person WHERE i_id in (%s) and n_id in (%s)" % \
 		(string.join(map(lambda x:str(x[0]), ID_list), ','), string.join(map(lambda x:str(x[1]), ID_list), ','))
 
 	if not gmPG.run_query(curs, cmd):
@@ -132,8 +132,8 @@ def _make_simple_query(raw):
 	if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
 		tmp = raw.replace(' ', '')
 		tmp = tmp.replace('\t', '')
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%';" % tmp)
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s');" % raw)
+		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp)
+		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw)
 		return queries
 
 	# "#<ZIFFERN>" - patient ID
@@ -142,15 +142,15 @@ def _make_simple_query(raw):
 		tmp = tmp.replace('\t', '')
 		tmp = tmp.replace('#', '')
 		# this seemingly stupid query ensures the id actually exists
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%';" % tmp)
+		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp)
 		return queries
 
 	# "<Z I  FF ERN>" - DOB or patient ID
 	if re.match("^(\d|\s|\t)+$", raw):
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s');" % raw)
+		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw)
 		tmp = raw.replace(' ', '')
 		tmp = tmp.replace('\t', '')
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%';" % tmp)
+		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp)
 		return queries
 
 	# "<Z(.|/|-/ )I  FF ERN>" - DOB
@@ -160,14 +160,14 @@ def _make_simple_query(raw):
 		# apparently not needed due to PostgreSQL smarts...
 		#tmp = tmp.replace('-', '.')
 		#tmp = tmp.replace('/', '.')
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s');" % tmp)
+		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp)
 		return queries
 
 	# "*|$<...>" - DOB
 	if re.match("^(\s|\t)*(\*|\$).+$", raw):
 		tmp = raw.replace('*', '')
 		tmp = tmp.replace('$', '')
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s');" % tmp)
+		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp)
 		return queries
 
 	return None
@@ -205,13 +205,13 @@ def queries_de(raw = None):
 		# there's no intermediate whitespace due to the regex
 		tmp = no_umlauts.strip()
 		# assumption: this is a last name
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~ '^%s';" % _sensitize(tmp)])
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~* '^%s';" % tmp])
+		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~ '^%s'" % _sensitize(tmp)])
+		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~* '^%s'" % tmp])
 		# assumption: this is a first name
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s';" % _sensitize(tmp)])
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s';" % tmp])
+		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s'" % _sensitize(tmp)])
+		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s'" % tmp])
 		# name parts anywhere in name
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s';" % tmp])
+		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s'" % tmp])
 		return queries
 
 	# try to split on (major) part separators
@@ -241,22 +241,22 @@ def queries_de(raw = None):
 				# assumption: first last
 				queries.append(
 					[
-					 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s';" % (_sensitize(name_parts[0]), _sensitize(name_parts[1]))
+					 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (_sensitize(name_parts[0]), _sensitize(name_parts[1]))
 					]
 				)
 				queries.append([
-					 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s';" % (name_parts[0], name_parts[1])
+					 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
 				])
 				# assumption: last first
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s';" % (_sensitize(name_parts[1]), _sensitize(name_parts[0]))
+					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (_sensitize(name_parts[1]), _sensitize(name_parts[0]))
 				])
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s';" % (name_parts[1], name_parts[0])
+					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
 				])
 				# name parts anywhere in name - third order query ...
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s';" % (name_parts[0], name_parts[1])
+					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s'" % (name_parts[0], name_parts[1])
 				])
 				return queries
 			# FIXME: either "name date" or "date date"
@@ -269,21 +269,21 @@ def queries_de(raw = None):
 			if date_count == 1:
 				# assumption: first, last, dob - first order
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (_sensitize(name_parts[0]), _sensitize(name_parts[1]), date_part)
+					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (_sensitize(name_parts[0]), _sensitize(name_parts[1]), date_part)
 				])
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part)
+					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
 				])
 				# assumption: last, first, dob - second order query
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (_sensitize(name_parts[1]), _sensitize(name_parts[0]), date_part)
+					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (_sensitize(name_parts[1]), _sensitize(name_parts[0]), date_part)
 				])
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[1], name_parts[0], date_part)
+					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[1], name_parts[0], date_part)
 				])
 				# name parts anywhere in name - third order query ...
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part)
+					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
 				])
 				return queries
 			# FIXME: "name name name" or "name date date"
@@ -425,7 +425,7 @@ def queries_de(raw = None):
 		for where_clause in wheres:
 			if len(where_clause) > 0:
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE %s;" % string.join(where_clause, ' AND ')
+					"SELECT i_id, n_id FROM v_basic_person WHERE %s" % string.join(where_clause, ' AND ')
 				])
 			else:
 				queries.append([])
@@ -789,7 +789,7 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 			# ALT-K - access chipcards
 			if keycode in [ord('k'), ord('c')]:
 				# FIXME: make configurable !!
-				kvks = gmKVK.get_available_kvks('~/gnumed/kvks/')
+				kvks = gmKVK.get_available_kvks('~/gnumed/kvk/incoming/')
 				if kvks is None:
 					print "No KVKs available !"
 					# show some message here ...
@@ -984,7 +984,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.12  2003-04-09 16:20:19  ncq
+# Revision 1.13  2003-06-29 14:08:02  ncq
+# - extra ; removed
+# - kvk/incoming/ as default KVK dir
+#
+# Revision 1.12  2003/04/09 16:20:19  ncq
 # - added set selection on get focus -- but we don't tab in yet !!
 # - can now set title on pick list
 # - added KVK handling :-)
