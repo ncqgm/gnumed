@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 
 if __name__ == "__main__":
 			
@@ -111,7 +111,6 @@ class cCatFinder(gmBorg.cBorg):
 		if not self.categories.has_key(categoryType):
 			self.categories[categoryType] = {'toId': {}, 'toDescription': {} }
 			self.reload(categoryType)
-		
 		
 
 	def reload(self, categoryType):
@@ -512,7 +511,8 @@ class cOrgHelperImpl1(cOrgHelper):
 		#<DEBUG>
 		#print "in _create"
 		#</DEBUG>
-		cmd = ("""insert into org (description, id_category) values('xxxDefaultxxx', 1)""", [])
+		
+		cmd = ("""insert into org (description, id_category) values('xxxDefaultxxx', ( select  id from org_category limit 1) )""", [])
 		cmd2 = ("""select currval('org_id_seq')""", [])
 		result = gmPG.run_commit('personalia', [cmd, cmd2])
 		if result is None:
@@ -777,19 +777,80 @@ if __name__== "__main__":
 		l2.append((x, c.getId("enum_comm_types", x)))
 	print l2
 
-	
-				
-	
-
 	print """testing borg behaviour of cCatFinder"""
 
 	print c.getCategories("org_category")
-	results = [] 
+
+	print """
+	Pre-requisite data in database is :
+	gnumed=# select * from org_category ;
+	 id | description
+	 ----+-------------
+	   1 | hospital
+	   (1 row)
+
+	gnumed=# select * from enum_comm_types ;
+	 id | description
+	----+-------------
+	  1 | email
+	  2 | fax
+	  3 | homephone
+	  4 | workphone
+	  5 | mobile
+	  6 | web
+	  7 | jabber
+	  (7 rows)
+	  """
+	tmp_category = False  
+	if not "hospital" in c.getCategories("org_category") :
+		print "FAILED in prerequisite for org_category : test categories are not present."
+
+		tmp_category = True
+	
+	if tmp_category:
+		print """You will need to switch login identity to database administrator in order
+			to have permission to write to the org_category table, 
+			and then switch back to the ordinary write-enabled user in order
+			to run the test cases.
+			Finally you will need to switch back to administrator login to 
+			remove the temporary org_categories.
+			"""
+		
+		print "NEED TO CREATE TEMPORARY ORG_CATEGORY.\n\n ** PLEASE ENTER administrator login  : e.g  user 'gm-dbowner' and  his password"
+		tmplogin = gmPG.request_login_params()
+		p = gmPG.ConnectionPool( tmplogin) 
+		conn = p.GetConnection("personalia")
+		
+		cursor = conn.cursor()
+		cursor.execute( "insert into org_category(description) values('hospital')")
+		cursor.execute("select id from org_category where description in ('hospital')")
+		result =  cursor.fetchone()
+		if result == None or len(result) == 0:
+			print "Unable to create temporary org_category. Test aborted"
+			import sys
+			sys.exit(-1)
+	
+		conn.commit()
+		
 	try:
+		if tmp_category:		
+			print "succeeded in creating temporary org_category"	
+			print 
+			print "** Now ** RESUME LOGIN **  of write-enabled user (e.g. _test-doc) "
+			conn = None
+			p.ReleaseConnection("personalia")
+			login2 = gmPG.request_login_params()
+			gmPG.ConnectionPool( login2)
+			
+			c.reload("org_category")
+
+		
+		results = [] 
 		results = testOrg()
 	except:
 		import  sys
-		gmLog.gmDefLog.LogException( "Fatal exception in testOrg()", sys.exc_info(),1)
+		print sys.exc_info()[0], sys.exc_info()[1]
+		gmLog.gmDefLog.LogException( "Fatal exception", sys.exc_info(),1)
 
 	for (result , org) in results:
 		if not result:
@@ -799,14 +860,53 @@ if __name__== "__main__":
 				print "May need manual removal of org id =", org.getId()
 				
 				
-	
+	if tmp_category:
+		while(1):
+			try:
+				print """Test completed. The temporary category(s) will now
+				need to be removed under an administrator login
+				e.g. gm-dbowner
+				Please enter login for administrator:
+				"""
+				
+		
+				tmplogin = gmPG.request_login_params()
+				p = gmPG.ConnectionPool(tmplogin)
+
+				conn = p.GetConnection("personalia")
+
+				
+				cursor = conn.cursor()
+				cursor.execute( "delete from  org_category where description in ('hospital')")
+				conn.commit()
+				cursor.execute("select id from org_category where description in ('hospital')")
+			except:
+				import sys
+				print sys.exc_info()[0], sys.exc_info()[1]
+				continue
+
+			if cursor.fetchone() == None:
+				
+				print "Succeeded in removing temporary org_category"
+			else:
+				print "*** Unable to remove temporary org_category"
+
+			conn = None
+			p.ReleaseConnection('personalia')
+			break
+			
+		
 	
 			
 	
 	
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.7  2004-05-23 13:27:51  sjtan
+# Revision 1.8  2004-05-23 15:22:41  sjtan
+#
+# allow Unit testcase to run in naive database, by allowing temporary org_category creation/deletion.
+#
+# Revision 1.7  2004/05/23 13:27:51  sjtan
 #
 # refactored so getting n orgs using a finder operation will make 3 sql calls
 # instead of n x 3 calls (reduce network traffic). Test case expanded, and
