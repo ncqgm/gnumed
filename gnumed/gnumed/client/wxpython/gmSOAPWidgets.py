@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.14 2005-03-04 19:44:28 cfmoro Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmSOAPWidgets.py,v 1.15 2005-03-09 19:41:18 cfmoro Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -85,8 +85,14 @@ class cResizingSoapPanel(wx.wxPanel):
 	and a staticText that displays which health problem its current note is related to.
 	"""
 	#--------------------------------------------------------
-	def __init__(self, parent, problem=None, input_defs=None, default_labels = None):
-		"""Construct a new SOAP input widget
+	def __init__(self, parent, problem=None, input_defs=None):
+		"""
+		Construct a new SOAP input widget.
+		Can work as:
+			a) Progress note creation: displays an empty set of soap entries to
+			create a new soap note for the given problem.
+			b) Progress note editor: displays the narrative entries (format and
+			narrative text) encapsulated in each element of input_defs.
 
 		@param parent: the parent widget
 
@@ -95,32 +101,14 @@ class cResizingSoapPanel(wx.wxPanel):
 		a health problem.
 		@type problem gmEMRStructItems.cProblem instance
 
-		@param input_defs: can be either the input lines definitions
-		(dictionary) or the encounter (instance) from which they
-		will be retrieved.
-		@type input_defs: either a dictionary or a
-		gmEMRStructItems.cEncounter instance.
+		@param input_defs: the display and associated data for each displayed narrative
+		@type input_defs: a list of cSOAPLineDef instances
 
-		@param default_labels: The user customized labels for each of
-		soap categories.
-		@type default_labels: A dictionary instance the keys of which
-		are soap categories.
 		"""
 		# sanity check
 		if not isinstance(problem, gmEMRStructItems.cProblem):
 			raise gmExceptions.ConstructorError, 'cannot make progress note editor for health problem [%s]' % str(problem)
 		self.__problem = problem
-
-		# if encounter given, obtain input lines definitions from it
-		if isinstance(input_defs, gmEMRStructItems.cEncounter):
-			if default_labels is None:
-				default_labels = {
-					's': _('History Taken'),
-					'o': _('Findings'),
-					'a': _('Assessment'),
-					'p': _('Plan')
-			}
-			input_defs = self.__get_narrative(encounter = input_defs, default_labels = default_labels)
 
 		# do layout
 		wx.wxPanel.__init__ (self,
@@ -227,47 +215,10 @@ class cResizingSoapPanel(wx.wxPanel):
 		Check  SOAP input widget saved (dumped to backend) state
 		"""
 		return self.__is_saved
+		
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
-	def __get_narrative(self, encounter=None, default_labels=None):
-		"""
-		Retrieve the soap editor input lines definitions built from
-		all the narratives for the given problem along a specific
-		encounter.
-
-		@param encounter The encounter to obtain the narrative for.
-		@type A gmEMRStructItems.cEncounter instance.
-
-		@param default_labels: The user customized labels for each
-		soap category.
-		@type default_labels: A dictionary instance which keys are
-		soap categories.
-		"""
-		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_clinical_record()
-		soap_lines = []
-		# for each soap cat
-		for soap_cat in gmSOAPimporter.soap_bundle_SOAP_CATS:
-			# retrieve narrative for given problem/encounter
-			narr_items =  emr.get_clin_narrative (
-				encounters = [encounter['pk_encounter']],
-				issues = [self.__problem['pk_health_issue']],
-				soap_cats = [soap_cat]
-			)
-			for narrative in narr_items:
-				try:
-					# FIXME: add more data such as doctor sig
-					label_txt = default_labels[narrative['soap_cat']]
-				except:
-					label_txt = narrative['soap_cat']				
-				line = cSOAPLineDef()
-				line.label = label_txt
-				line.text = narrative['narrative']
-				line.data['narrative instance'] = narrative
-				soap_lines.append(line)
-		return soap_lines
-	#--------------------------------------------------------	
 	def __set_heading(self, txt):
 		"""Configure SOAP widget's heading title
 
@@ -278,7 +229,7 @@ class cResizingSoapPanel(wx.wxPanel):
 		size = self.__soap_heading.GetBestSize()
 		self.__szr_main.SetItemMinSize(self.__soap_heading, size.width, size.height)
 		self.Layout()
-#============================================================
+		
 #============================================================
 class cSingleBoxSOAP(wx.wxTextCtrl):
 	"""if we separate it out like this it can transparently gain features"""
@@ -386,6 +337,58 @@ if __name__ == "__main__":
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 
+	def get_narrative(pk_encounter=None, pk_health_issue = None, default_labels=None):
+		"""
+		Retrieve the soap editor input lines definitions built from
+		all the narratives for the given issue along a specific
+		encounter.
+		
+		@param pk_health_issue The id of the health issue to obtain the narratives for.
+		@param pk_health_issue An integer instance
+
+		@param pk_encounter The id of the encounter to obtain the narratives for.
+		@type A gmEMRStructItems.cEncounter instance.
+
+		@param default_labels: The user customized labels for each
+		soap category.
+		@type default_labels: A dictionary instance which keys are
+		soap categories.
+		"""
+		
+		# custom labels
+		if default_labels is None:
+			default_labels = {
+				's': _('History Taken'),
+				'o': _('Findings'),
+				'a': _('Assessment'),
+				'p': _('Plan')
+		}		
+		
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_clinical_record()
+		soap_lines = []
+		# for each soap cat
+		for soap_cat in gmSOAPimporter.soap_bundle_SOAP_CATS:
+			# retrieve narrative for given problem/encounter
+			narr_items =  emr.get_clin_narrative (
+				encounters = [pk_encounter],
+				issues = [pk_health_issue],
+				soap_cats = [soap_cat]
+			)
+			for narrative in narr_items:
+				try:
+					# FIXME: add more data such as doctor sig
+					label_txt = default_labels[narrative['soap_cat']]
+				except:
+					label_txt = narrative['soap_cat']				
+				line = cSOAPLineDef()
+				line.label = label_txt
+				line.text = narrative['narrative']
+				line.data['narrative instance'] = narrative
+				soap_lines.append(line)
+		return soap_lines
+
+
 	def create_widget_on_test_kwd1(*args, **kwargs):
 		print "test keyword must have been typed..."
 		print "actually this would have to return a suitable wxWindow subclass instance"
@@ -418,10 +421,11 @@ if __name__ == "__main__":
 			sys.exit(0)
 		
 		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})
-		encounter = gmEMRStructItems.cEncounter(aPK_obj=1)		
+		encounter = gmEMRStructItems.cEncounter(aPK_obj=1)
+		narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = problem['pk_health_issue'])
 		default_labels = {'s':'Subjective', 'o':'Objective', 'a':'Assesment', 'p':'Plan'}
-		app = wx.wxPyWidgetTester(size=(300,500))
-		app.SetWidget(cResizingSoapPanel, problem, encounter, default_labels)
+		app = wx.wxPyWidgetTester(size=(300,500))		
+		app.SetWidget(cResizingSoapPanel, problem, narrative)
 		app.MainLoop()
 		del app		
 		
@@ -440,7 +444,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.14  2005-03-04 19:44:28  cfmoro
+# Revision 1.15  2005-03-09 19:41:18  cfmoro
+# Decoupled cResizingSoapPanel from editing problem-encounter soap notes use case
+#
+# Revision 1.14  2005/03/04 19:44:28  cfmoro
 # Minor fixes from unit test
 #
 # Revision 1.13  2005/03/03 21:12:49  ncq
