@@ -14,14 +14,12 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback
 
 from wxPython.wx import *
-
-#from gmLog import *
 
 import gmExceptions, gmGuiBroker, gmPG, gmConf, gmShadow, gmLog
 log = gmLog.gmDefLog.Log
@@ -91,6 +89,8 @@ class wxBasePlugin (gmPlugin):
 	#-----------------------------------------------------
 	def MenuInfo (self):
 		"""Return tuple of (menuname, menuitem).
+
+		menuname can be "tools", "view", "help", "file"
 		"""
 		raise gmExceptions.PureVirtualFunction()
 	#-----------------------------------------------------
