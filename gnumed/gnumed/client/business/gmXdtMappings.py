@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.14 2003-11-17 10:56:34 sjtan Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmXdtMappings.py,v 1.15 2003-11-19 12:30:22 shilbert Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -136,7 +136,7 @@ xdt_id_map = {
 	'2780':'Revisionseingriff erforderlich',
 	'2781':'Histologie',
 	'2782':'Stationäre Weiterbehandlung erforderlich',
-	 #Patientennummer/Patientenkennung
+	#Patientennummer/Patientenkennung
 	'3000':'Patientennummer',
 	#Namenszusatz/Vorsatzwort des Patienten
 	'3100':'Namenszusatz',
@@ -147,7 +147,7 @@ xdt_id_map = {
 	#Geburstdatum des Patienten
 	'3103':'Geburstdatum des Patienten', 
 	#Titel des Patienten 
-	'3104':'Tietel des Patienten',
+	'3104':'Titel des Patienten',
 	#Versichertennummer des Patienten
 	'3105':'Versichertennummer des Patienten',
 	#Wohnort des Patienten
@@ -1314,7 +1314,10 @@ xdt_map_of_content_maps = {
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.14  2003-11-17 10:56:34  sjtan
+# Revision 1.15  2003-11-19 12:30:22  shilbert
+# - corrected typos
+#
+# Revision 1.14  2003/11/17 10:56:34  sjtan
 #
 # synced and commiting.
 #
