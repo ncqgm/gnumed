@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -125,7 +125,7 @@ insert into lab_request (
 	request_status,
 	is_pending
 ) values (
-	'2000-9-17',
+	'2000-9-17 17:33',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
 	'inflammation screen, possibly extraterrestrial contamination',
@@ -133,8 +133,8 @@ insert into lab_request (
 	'EML#SC937-0176-CEC#11',
 	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'::timestamp),
 	'SC937-0176-CEC#15034',
-	'2000-9-17',
-	'2000-9-17',
+	'2000-9-17 17:40',
+	'2000-9-17 18:10',
 	'final',
 	false
 );
@@ -153,7 +153,7 @@ insert into test_result (
 	technically_abnormal,
 	material
 ) values (
-	'2000-9-17',
+	'2000-9-17 18:10',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
 	(select id from test_type where code='WBC'),
@@ -176,7 +176,7 @@ insert into test_result (
 	technically_abnormal,
 	material
 ) values (
-	'2000-9-17',
+	'2000-9-17 18:10',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
 	(select id from test_type where code='RBC'),
@@ -199,7 +199,7 @@ insert into test_result (
 	technically_abnormal,
 	material
 ) values (
-	'2000-9-17',
+	'2000-9-17 18:10',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
 	(select id from test_type where code='PLT'),
@@ -222,7 +222,7 @@ insert into test_result (
 	technically_abnormal,
 	material
 ) values (
-	'2000-9-17',
+	'2000-9-17 18:10',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
 	(select id from test_type where code='CRP'),
@@ -255,7 +255,7 @@ insert into allergy (
 	substance,
 	allergene,
 	id_type,
-	reaction
+	narrative
 ) values (
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
@@ -353,11 +353,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.13  2004-03-18 18:33:05  ncq
+-- Revision 1.14  2004-03-19 10:56:46  ncq
+-- - allergy now has reaction -> narrative
+--
+-- Revision 1.13  2004/03/18 18:33:05  ncq
 -- - added some lab results
 --
 -- Revision 1.12  2004/03/18 11:07:56  ncq
