@@ -23,7 +23,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -45,6 +45,19 @@ def allergy_add_del_db():
 def allergy_updated():
 	"""Announce allergy cache update to interested parties."""
 	return 'allergy_updated'
+
+def health_issue_change_db():
+	"""Announce health issue row insert/update/delete in backend.
+
+	- there's only very few health issue rows per patient and they
+	  are rarely accessed so efficiency does not make it necessary to
+	  have separate signals for insert/delete and update
+	"""
+	return 'health_issue_change_db'
+
+def health_issue_updated():
+	"""Announce health issue cache update within frontend."""
+	return 'health_issue_updated'
 #-------------------------------------------------------------
 def patient_selected():
 	"the currently active patient displayed by the client has been selected"
@@ -108,7 +121,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.9  2003-06-25 22:47:23  ncq
+# Revision 1.10  2003-07-09 16:22:04  ncq
+# - add health issue signals
+#
+# Revision 1.9  2003/06/25 22:47:23  ncq
 # - added application_closing() (I seem to keep adding stuff Sian proposed earlier)
 #
 # Revision 1.8  2003/06/22 16:19:09  ncq
