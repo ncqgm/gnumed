@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.22 2004-01-26 21:53:39 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmGP_Immunisation.py,v 1.23 2004-01-26 22:07:45 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -187,18 +187,14 @@ class ImmunisationPanel(wxPanel):
 
 		# populate vaccinated-indications list
 		epr = self.patient.get_clinical_record()
-		indications = epr.get_vaccinated_indications()
-		if indication is None:
-			label = _('ERROR: cannot retrieve vaccinated indications')
-			self.LBOX_vaccinated_indications.Append(label, None)
-		else:
-			# FIXME: would be faster to use Set() but can't
-			# use Set(labels, client_data), and have to know
-			# line position in SetClientData :-(
-			for indication in indications:
-				self.LBOX_vaccinated_indications.Append(indication[1], indication[0])
-#			self.LBOX_vaccinated_indications.Set(lines)
-#			self.LBOX_vaccinated_indications.SetClientData(data)
+		status, indications = epr.get_vaccinated_indications()
+		# FIXME: would be faster to use Set() but can't
+		# use Set(labels, client_data), and have to know
+		# line position in SetClientData :-(
+		for indication in indications:
+			self.LBOX_vaccinated_indications.Append(indication[1], indication[0])
+#		self.LBOX_vaccinated_indications.Set(lines)
+#		self.LBOX_vaccinated_indications.SetClientData(data)
 
 		# populate missing-shots list
 		missing_shots = epr.get_due_vaccinations()
@@ -286,7 +282,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.22  2004-01-26 21:53:39  ncq
+# Revision 1.23  2004-01-26 22:07:45  ncq
+# - handling failure to retrieve vacc_ind into business object
+#
+# Revision 1.22  2004/01/26 21:53:39  ncq
 # - gracefully handle failure to retrieve vaccinated indications list
 #
 # Revision 1.21  2004/01/18 21:54:39  ncq
