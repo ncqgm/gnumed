@@ -1,5 +1,6 @@
 """
 Module to run a LaTeX session, using the a4form.cls to recieve forms data
+Stil under active development, watch out!
 """
 
 import re, types, string, tempfile, os, os.path
@@ -49,8 +50,10 @@ class LaTeX:
         self.stub, ext = os.path.splitext (os.path.basename (self.latex))
         os.chdir (self.tmp) # move to the playground
         # run latex as a co-process
-        stdin, stdout = popen4 ("latex %s" % self.latex, "w", 2048)
-        for line in stdout.xreadlines ():
+        stdin, stdout = os.popen4 ("latex %s" % self.latex, "w", 2048)
+        oldlines = []
+        line = stdout.readline ()
+        while line:
             # script requests a field value
             m = re.match ("^:F(.*)=$", line)
             if m:
@@ -69,6 +72,11 @@ class LaTeX:
                     stdin.write ("0\n")
             if re.match ("^!.*", line): # we have an LaTeX error
                 stdin.write ("X\n") # causes LaTeX to quit gracefully
+                print line
+                print oldlines
+                return
+            oldlines.append (line.strip ())
+            line = stdout.readline ()
         stdin.close ()
         stdout.close ()
 
@@ -134,10 +142,10 @@ Bluebridge 2675""",
           'disease_list':[
     ['Congestive cardiac failure'],
     ['Ischaemic heart disease']
-    ]
+    ],
           'main_text':"""
           Thankyou for seeing this patient. No reason in particular
-          """
+          """,
           'salutation':'Dear Richard,',
           'closing':'Yours sincerely,'}
 
@@ -162,13 +170,13 @@ script = {'doctor_name':'Ian Haywood',
           'prescriber_number':'2197115',
           'provider_number':'2465641J',
           'address':"""2/74 Haines St
-North Melbourne 3052"""
+North Melbourne 3052""",
           'drugs':[['Frusemide', '80mg', 'BD'],
                    ['Atenolol', '20mg', 'OD']
                    ],
           'patient_name':'Joe Bloggs',
           'patient_address':"""20 Smith St
-          North Melbourne 3052"""
+          North Melbourne 3052""",
           'medicare_number':'11111111'
           }
             

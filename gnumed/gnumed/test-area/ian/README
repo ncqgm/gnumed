@@ -1,0 +1,3 @@
+The file a4form.cls is a LaTeX class file. Put it in the TeX search
+path (on Debian /usr/local/share/texmf/tex/latex/a4form/) then run
+"texhash" as root. 

@@ -30,7 +30,7 @@
 \setlength{\textwidth}{210mm}
 \setlength{\textheight}{295mm}
 
-# our environment is really a picture environment covering the entire page
+% our environment is really a picture environment covering the entire page
 \newenvironment{page}{\setlength{\unitlength}{1mm} \begin{picture}(210,295)(0,-295)}{\end{picture}}
 
 % horiztional lines. Note Y is negative so coordinates are ``right''
