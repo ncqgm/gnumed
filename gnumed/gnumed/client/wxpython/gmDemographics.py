@@ -12,8 +12,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.30 2004-06-29 22:48:47 shilbert Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmDemographics.py,v 1.31 2004-06-30 15:09:47 shilbert Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -502,12 +502,18 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.btn_save = b1
 		self.btn_del = b2
 		self.btn_new = b3
-		self.leftside.Add (1,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.leftside.Add ((1,0),1)
+		else:
+			self.leftside.Add (1,0,1)
 		self.leftside.Add(sizer_control)	
 
 		self.mainsizer = wxBoxSizer(wxHORIZONTAL)
 		self.mainsizer.AddSizer(self.leftside,10,wxEXPAND|wxALL,5)
-		self.mainsizer.Add(1,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.mainsizer.Add((1,0),1)
+		else:
+			self.mainsizer.Add(1,0,1)
 		self.mainsizer.AddSizer(self.rightside,10,wxEXPAND|wxALL,5)
 		self.SetSizer(self.mainsizer)
 		self.SetAutoLayout(true)
@@ -778,7 +784,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.30  2004-06-29 22:48:47  shilbert
+# Revision 1.31  2004-06-30 15:09:47  shilbert
+# - more wxMAC fixes
+#
+# Revision 1.30  2004/06/29 22:48:47  shilbert
 # - one more wxMAC fix
 #
 # Revision 1.29  2004/06/27 13:42:26  ncq
