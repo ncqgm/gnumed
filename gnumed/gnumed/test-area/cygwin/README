@@ -22,9 +22,12 @@ from the bootstrap-monolithic_core.conf  file in server/bootstrap
 
 install-schema.sh 
 This uses bootstrap_parse.py  to create the gnumed database.
-Both should be put in the sql directory , 
-then 
+they are set to run in this directory relative to the sql directory
+as downloaded from the cvs.
+
 	sh install-schema.sh 
+
+Reason for writing yet another install script:
 
 redo-max.sh doesn't run in cygwin for some reason ;
 this is a temporary workaround to get things running on cygwin.
