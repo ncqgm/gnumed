@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.20 2004-03-07 23:49:54 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmMedDoc.py,v 1.21 2004-03-20 11:16:16 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -449,20 +449,19 @@ class gmMedDoc:
 	def get_metadata(self):
 		"""Document meta data loader for GnuMed compatible database."""
 		cmd = """
-SELECT
-	dm.patient_id,
-	dm.type,
-	dm.comment,
-	dm.date,
-	dm.ext_ref,
-	vdt.name
-FROM
-	doc_med dm,
-	v_i18n_doc_type vdt
-WHERE
-	dm.id=%s and
-	vdt.id = dm.type
-"""
+			SELECT
+				dm.patient_id,
+				dm.type,
+				dm.comment,
+				dm.date,
+				dm.ext_ref,
+				_(dt.name)
+			FROM
+				doc_med dm,
+				doc_type dt
+			WHERE
+				dm.id=%s and
+				dt.id = dm.type"""
 		rows = gmPG.run_ro_query('blobs', cmd, None, self.ID)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load document [%s] metadata' % self.ID)
@@ -608,7 +607,10 @@ def create_object(doc_id):
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.20  2004-03-07 23:49:54  ncq
+# Revision 1.21  2004-03-20 11:16:16  ncq
+# - v_18n_doc_type is no more, use _(doc_type.name)
+#
+# Revision 1.20  2004/03/07 23:49:54  ncq
 # - add cDocumentFolder
 #
 # Revision 1.19  2004/03/04 19:46:53  ncq
