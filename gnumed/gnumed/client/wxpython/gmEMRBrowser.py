@@ -2,13 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.23 2005-04-03 09:15:39 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmEMRBrowser.py,v 1.24 2005-04-03 20:10:51 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 # std lib
-import sys, types
+import sys, types, os.path
 
 # 3rd party
 from wxPython import wx
@@ -22,6 +22,49 @@ from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+#============================================================
+def export_emr_to_ascii(parent=None):
+	"""
+	Dump the patient's EMR from GUI client
+	@param parent - The parent widget
+	@type parent - A wxWindow instance
+	"""
+	# sanity checks
+	pat = gmPerson.gmCurrentPatient()
+	if not pat.is_connected():
+		gmGuiHelpers.gm_beep_statustext(_('Cannot export EMR. No active patient.'), gmLog.lErr)
+		return False
+	if parent is None:
+		_log.Log(gmLog.lErr, 'cannot dump emr in gui mode without parent widget')
+		return False
+	# get file name
+	aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
+	aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
+	ident = pat.get_identity()
+	fname = '%s-%s_%s.txt' % (_('emr-export'), ident['lastnames'], ident['firstnames'])
+	dlg = wx.wxFileDialog (
+		parent = parent,
+		message = _("Save patient's EMR as..."),
+		defaultDir = aDefDir,
+		defaultFile = fname,
+		wildcard = aWildcard,
+		style = wx.wxSAVE
+	)
+	choice = dlg.ShowModal()
+	fname = dlg.GetPath()
+	dlg.Destroy()
+	if choice == wx.wxID_OK:
+		_log.Log(gmLog.lData, 'exporting EMR to [%s]' % fname)
+		output_file = open(fname, 'wb')
+		# instantiate exporter
+		exporter = gmPatientExporter.cEmrExport(patient = pat)
+		exporter.set_output_file(output_file)
+		exporter.dump_constraints()
+		exporter.dump_demographic_record(True)
+		exporter.dump_clinical_record()
+		exporter.dump_med_docs()
+		output_file.close()
+		gmGuiHelpers.gm_show_info('EMR successfully exported to file: %s' % fname, _('emr_dump'), gmLog.lInfo)
 #============================================================
 class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
@@ -619,7 +662,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.23  2005-04-03 09:15:39  ncq
+# Revision 1.24  2005-04-03 20:10:51  ncq
+# - add export_emr_to_ascii()
+#
+# Revision 1.23  2005/04/03 09:15:39  ncq
 # - roll back EMR export button
 #   - my suggestion to place it there wasn't logically sound
 #     and it screwed up changing the right hand window, too
