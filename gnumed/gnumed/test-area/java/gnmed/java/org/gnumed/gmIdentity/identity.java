@@ -551,7 +551,7 @@ public class identity {
         
         Names names = null;
         Iterator j = getNamess().iterator();
-        for (int i = 0; i < n + 1; ++i)
+        for (int i = 0;j.hasNext() && i < n + 1; ++i)
             names = (Names) j.next();
         return names;
     }

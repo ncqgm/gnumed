@@ -269,6 +269,9 @@ public class IdentityManager {
     }
     
     final static Type[] twoStringTypes =  new Type[] {Hibernate.STRING  , Hibernate.STRING } ;
+    
+    /** finds providers given names or roles. If no roles are given a name search should be done.
+     */
     public List findProviders( String last, String first, identity_role[] roles) throws Exception {
         FlushMode oldMode =  getSession().getFlushMode();
         try {
@@ -284,7 +287,7 @@ public class IdentityManager {
             "where r.identity_role.name  like ? ";
             
             String query2 = "select i from identity i inner join i.roles r inner join i.namess n "+
-            "where n.lastnames like ? and n.firstnames like ? ";
+            "where lower(n.lastnames) like ? and lower(n.firstnames) like ? ";
             
             Set set = new HashSet();
             if ( roles.length == 0  ) {

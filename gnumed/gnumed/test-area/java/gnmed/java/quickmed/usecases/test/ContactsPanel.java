@@ -355,8 +355,14 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
             }
         });
         findjTree2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                findjTree2MouseClicked(evt);
+            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 findByRoleMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                findjTree2MouseReleased(evt);
             }
         });
 
@@ -495,6 +501,9 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 checkForPopup(evt);
             }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jTree3MouseReleased(evt);
+            }
         });
 
         jScrollPane4.setViewportView(jTree3);
@@ -598,6 +607,21 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
 
     }//GEN-END:initComponents
 
+    private void jTree3MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTree3MouseReleased
+        // Add your handling code here:
+        checkForPopup(evt);
+    }//GEN-LAST:event_jTree3MouseReleased
+
+    private void findjTree2MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_findjTree2MouseReleased
+        // Add your handling code here:
+        findByRoleMousePressed(evt);
+    }//GEN-LAST:event_findjTree2MouseReleased
+
+    private void findjTree2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_findjTree2MouseClicked
+        // Add your handling code here:
+        findByRoleMousePressed(evt);
+    }//GEN-LAST:event_findjTree2MouseClicked
+
     private void findByRoleMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_findByRoleMousePressed
         // Add your handling code here:
          if (evt.isPopupTrigger()) {
@@ -620,7 +644,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         // Add your handling code here:
         if (evt.getClickCount() == 2)  
             addSelectedRoleInTreeToList();
-        
+        checkForPopup(evt);
     }//GEN-LAST:event_roleTreeClicked
 
     private void clearRoleTreeSelection(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearRoleTreeSelection

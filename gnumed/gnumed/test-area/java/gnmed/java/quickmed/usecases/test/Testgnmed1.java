@@ -54,7 +54,6 @@ public class Testgnmed1 extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         referraljMenuItem2 = new javax.swing.JMenuItem();
         windowMenu = new javax.swing.JMenu();
-        contactsjMenuItem2 = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         contentMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
@@ -134,9 +133,6 @@ public class Testgnmed1 extends javax.swing.JFrame {
         menuBar.add(jMenu1);
 
         windowMenu.setText("Window");
-        contactsjMenuItem2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("contacts"));
-        windowMenu.add(contactsjMenuItem2);
-
         menuBar.add(windowMenu);
 
         helpMenu.setText("Help");
@@ -249,7 +245,6 @@ public class Testgnmed1 extends javax.swing.JFrame {
   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
-    private javax.swing.JMenuItem contactsjMenuItem2;
     private javax.swing.JMenuItem contentMenuItem;
     private javax.swing.JMenuItem copyMenuItem;
     private javax.swing.JMenuItem cutMenuItem;

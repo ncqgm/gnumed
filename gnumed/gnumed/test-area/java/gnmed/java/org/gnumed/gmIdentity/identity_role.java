@@ -132,6 +132,8 @@ public class identity_role {
         }
     }
     
+     /** sees if the argument role is a subtype of this role.
+     */
     public boolean isSubType( identity_role role) {
         Iterator j = getSubTypes().iterator();
         while (j.hasNext()) {
@@ -164,6 +166,13 @@ public class identity_role {
     
     public String toString() {
         return getName();
+    }
+    /** sees if the argument role is a supertype of this role.
+     */
+    public boolean isSuperType(final identity_role role) {
+        if (role == null)
+            return false;
+        return role.isSubType(this);
     }
     
 }

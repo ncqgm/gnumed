@@ -81,7 +81,7 @@ public class identity_role_info {
     }
     
     public String toString() {
-        StringBuffer sb = new StringBuffer( getIdentity_role().getName());
+       StringBuffer sb = new StringBuffer( getIdentity_role().getName());
         if (getComments() != null )
             sb.append(":  ").append(getComments());
         return sb.toString();
