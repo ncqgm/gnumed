@@ -15,7 +15,7 @@
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -24,13 +24,13 @@ import sys, os, os.path
 from   wxPython.wx         import *
 from   wxPython.html       import *
 import wxPython.lib.wxpTag
+
 from Gnumed.pycommon import gmGuiBroker, gmLog
-from Gnumed.wxpython import gmPlugin
+from Gnumed.wxpython import gmPlugin, images_for_gnumed_browser16_16, images_gnuMedGP_Toolbar
+if __name__ == '__main__':
+	from Gnumed.pycommon import gmI18N
 
 stiko_path = os.path.join("doc", "medical_knowledge", "de", "STIKO", "STI_NEU.htm")
-
-import images_for_gnumed_browser16_16
-import images_gnuMedGP_Toolbar
 
 [
 ID_STIKOCONTENTS,
@@ -244,7 +244,10 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.7  2004-03-09 08:03:26  ncq
+# Revision 1.8  2004-03-18 09:43:02  ncq
+# - import gmI18N if standalone
+#
+# Revision 1.7  2004/03/09 08:03:26  ncq
 # - cleanup
 #
 # Revision 1.6  2004/03/08 23:17:29  shilbert

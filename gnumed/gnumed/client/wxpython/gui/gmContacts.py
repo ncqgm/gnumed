@@ -8,13 +8,16 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
 
 from wxPython.wx import *
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
+
+if __name__ == '__main__':
+	from Gnumed.pycommon import gmI18N
 
 DISPLAYPERSON = 0
 organisationsdata = {
@@ -397,7 +400,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.13  2004-03-09 07:58:26  ncq
+# Revision 1.14  2004-03-18 09:43:02  ncq
+# - import gmI18N if standalone
+#
+# Revision 1.13  2004/03/09 07:58:26  ncq
 # - cleanup
 #
 # Revision 1.12  2004/03/08 23:55:40  shilbert

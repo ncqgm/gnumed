@@ -20,28 +20,25 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.9 2003-11-17 10:56:41 sjtan Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmXdtViewer.py,v 1.10 2004-03-18 09:43:02 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
-import sys,os,fileinput,string,linecache
-# location of our modules
-if __name__ == "__main__":
-	sys.path.append(os.path.join('.', 'modules'))
-
-import gmLog
-_log = gmLog.gmDefLog
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-_log.Log(gmLog.lData, __version__)
-
-if __name__ == "__main__":
-	import gmI18N
+import sys, os, fileinput, string
 
 from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
-from gmXdtMappings import xdt_id_map, xdt_map_of_content_maps
+from Gnumed.pycommon import gmLog
+from Gnumed.business.gmXdtMappings import xdt_id_map, xdt_map_of_content_maps
+if __name__ == "__main__":
+	from Gnumed.pycommon import gmI18N
+
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lInfo, __version__)
+if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
+
 #=============================================================================
 class gmXdtListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
 	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
@@ -326,7 +323,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.9  2003-11-17 10:56:41  sjtan
+# Revision 1.10  2004-03-18 09:43:02  ncq
+# - import gmI18N if standalone
+#
+# Revision 1.9  2003/11/17 10:56:41  sjtan
 #
 # synced and commiting.
 #

@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.16 2004-03-12 13:25:15 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmManual.py,v 1.17 2004-03-18 09:43:02 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -24,6 +24,9 @@ import wxPython.lib.wxpTag
 
 from Gnumed.pycommon import gmLog, gmGuiBroker
 from Gnumed.wxpython import gmPlugin, images_for_gnumed_browser16_16, images_gnuMedGP_Toolbar
+
+if __name__ == '__main__':
+	from Gnumed.pycommon import gmI18N
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -241,7 +244,10 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.16  2004-03-12 13:25:15  ncq
+# Revision 1.17  2004-03-18 09:43:02  ncq
+# - import gmI18N if standalone
+#
+# Revision 1.16  2004/03/12 13:25:15  ncq
 # - import, cleanup
 #
 # Revision 1.15  2004/03/02 10:21:10  ihaywood

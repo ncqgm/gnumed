@@ -21,8 +21,8 @@ import wxPython.lib.wxpTag
 from Gnumed.wxpython import gmPlugin
 from Gnumed.pycommon import gmLog, gmGuiBroker
 
-if __name__ == "__main__":
-	_ = lambda x:x
+if __name__ == '__main__':
+	from Gnumed.pycommon import gmI18N
 
 #----------------------------------------------------------------------
 class GuidelinesHtmlWindow(wxHtmlWindow):

@@ -7,9 +7,13 @@
 # 21/6/02: inital version
 
 import math, random
+
 from wxPython.wx import *
+
 from Gnumed.pycommon import gmLog
 from Gnumed.wxpython import gmPlugin
+if __name__ == '__main__':
+	from Gnumed.pycommon import gmI18N
 
 ID_SNELLENMENU = wxNewId ()
 ID_SNELLENBUTTON= wxNewId ()
