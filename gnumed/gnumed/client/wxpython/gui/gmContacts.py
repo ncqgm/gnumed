@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -241,7 +241,7 @@ class ContactsPanel(wxPanel):
 	  self.sizer_line9 = wxBoxSizer(wxHORIZONTAL)
 	  self.sizer_line10 = wxBoxSizer(wxHORIZONTAL)
 	  self.sizer_line11 = wxBoxSizer(wxHORIZONTAL)
-	  self.sizer_line0.Add(0,10,1)
+	  self.sizer_line0.Add((0,10),1)
 	  #--------------------------------------
 	  #Heading at top of the left hand column
 	  #--------------------------------------
@@ -931,7 +931,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.28  2004-05-31 14:24:19  sjtan
+# Revision 1.29  2004-06-01 07:18:36  ncq
+# - simple Mac fix
+#
+# Revision 1.28  2004/05/31 14:24:19  sjtan
 #
 # intra-list cut and paste implemented. Not using wxClipboard ( could paste textified person
 # into clipboard ). Now the GP can be moved out of the Engineering department , but he may not be happy ;)
