@@ -187,8 +187,8 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		queries = []
 	
 		if self.personId == None or self.personId == -1:
-				queries.append( """insert into v_basic_person ( lastnames, firstnames,  gender, dob, cob )
-					values ('%(Surnames)s', '%(Given Names)s',  '%(Gender)s', '%(Dob)s', '%(Cob)s')"""%personMap)
+				queries.append( """insert into v_basic_person ( title,lastnames, firstnames,  gender, dob, cob )
+					values ('%(Title)s', '%(Surnames)s', '%(Given Names)s',  '%(Gender)s', '%(Dob)s', '%(Cob)s')"""%personMap)
 
 				
 				queries.append( """insert into v_basic_address(number, street, street2, city, state,  country, postcode, address_at )
@@ -231,7 +231,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 				
 			
 		else:
-			queries.append("""update v_basic_person set lastnames='%(Surnames)s', firstnames='%(Given Names)s',
+			queries.append("""update v_basic_person set title='%(Title)s',  lastnames='%(Surnames)s', firstnames='%(Given Names)s',
 						gender= '%(Gender)s',  dob='%(Dob)s', cob ='%(Cob)s' where id=%(id)d""" %personMap )
 
 			
@@ -280,7 +280,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
                                         db.commit()
                                         self.__person.reset()
                                         self.__address.reset()
-                                        self.OnDataUpdate(None, a)
+                                        self.OnDataUpdate(None, self.personId) 
 
                         except Exception, errorStr:
                                         db.rollback()
@@ -435,7 +435,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
                                 else:
                                         ctrl.SetValue( data[name].strip())
                         except Exception, errorStr:
-                                print "error in setting data = ", data, " in setting ", x ,errorStr
+                                print "error in setting  ", x ,errorStr
 
 
 	def SetPersonData(self, person=None):
@@ -443,10 +443,13 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 			self.ClearPersonData()
 			return
 		
-		self.__setPersonId(person['id'])
 		mapping = self.__GetPersonMapping()
 
 		self.SetViaMapping( person, mapping)
+		self.__setPersonId(person['id'])
+
+		#p = person
+		#self.comboTitle.SetValue(p["title"])
 		
 		#self.tcGivenNames.SetValue(p["firstnames"])
 
@@ -456,7 +459,6 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		#self.chGender.SetStringSelection(p["gender"])
 		#self.tcDob.SetValue(p["dob"])
 		#self.cbCob.SetSelection(0)
-		#self.comboTitle.SetValue(p["title"])
 		
 		
 
@@ -496,7 +498,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 
 	def OnDataUpdate(self, updater, id):
 		#<DEBUG>
-		#print "On data update, Person ID =", id
+		print "On data update, Person ID =", id
 		#</DEBUG>
 		self.SetPersonData(self.__person.dictresult(id))
 		addresslist = self.__person.addresses(id)
