@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.86 2003-03-24 17:15:05 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmGuiMain.py,v 1.87 2003-03-29 13:48:42 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -55,7 +55,6 @@ import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-import gmGP_PatientPicture                     #panel to display patients picture
 import gmGP_Toolbar                            #panel with two toolbars on top of the screen
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 
@@ -136,79 +135,67 @@ class MainFrame(wxFrame):
 		self.guibroker['main.SetWindowTitle'] = self.updateTitle
 
 		self.SetupPlatformDependent()
-
 		self.CreateMenu()
 		self.SetupAccelerators()
 		self.RegisterEvents()
+
         ###--------------------------------------------------------------------
 		###now create the  the main sizer to contain all the others on the form
 		###this is same as Horst's vbox
 		###--------------------------------------------------------------------
 		##self.szr_main_container = wxBoxSizer(wxVERTICAL)
                 ##self.guibroker['main.szr_main_container']=self.szr_main_container
-		#a top vertical box sizer for the main window
-		self.vbox = wxBoxSizer( wxVERTICAL)
+		# a vertical box sizer for the main window
+		self.vbox = wxBoxSizer(wxVERTICAL)
 		self.guibroker['main.vbox'] = self.vbox
 
-		###-----------------------------------------------------------------------------
-		###create a horizontal sizer which will contain all windows at the top of the
-		###screen (ie menu's and picture panel - which are on sub sizers)
-		###add a wxPanel to this sizer which sits on the left and occupies 90% of width
-		###followed by panel for the patients picture which occupies 10%. Add labels for
-		###demo patients
-		###-----------------------------------------------------------------------------
-		##self.szr_top_panel = wxBoxSizer(wxHORIZONTAL)
-		##self.guibroker['main.szr_top_panel']=self.szr_top_panel
-		##toolbars = ToolBar_Panel(self,-1)
-		##self.szr_top_panel.Add(toolbars,1,wxEXPAND)
-		##self.szr_main_container.AddSizer(self.szr_top_panel, 0, wxEXPAND|wxALL, 1)
-
-		# the "top row", where all important patient data is always on display
-		#self.toprowpanel = gmtoprow.gmTopRow(self, 1)
-		self.topbox = wxBoxSizer( wxHORIZONTAL)
-		self.patientpicture = gmGP_PatientPicture.PatientPicture(self,-1)
-		self.tb = gmGP_Toolbar.Toolbar(self,-1)
-		self.topbox.Add(self.patientpicture,1,wxEXPAND)
-		self.topbox.Add(self.tb,12,wxEXPAND)
-		self.guibroker['main.topbox']=self.topbox
-		self.guibroker['main.patientpicture'] = self.patientpicture
-		self.guibroker['main.toolbar'] = self.tb
-		self.vbox.AddSizer(self.topbox, 1, wxEXPAND) #|wxALL, 1)
+		# create the "top row"
+		# important patient data is always there
+		# - top panel with toolbars
+		self.top_panel = gmGP_Toolbar.cMainTopPanel(self, -1)
+		self.guibroker['main.toolbar'] = self.top_panel
+		# add to main windows sizer
+		# problem:
+		# - we want this to NOT grow vertically, hence proportion = 0
+		# - but then proprotion 10 for the notebook does not mean anything
+		self.vbox.Add (self.top_panel, 0, wxEXPAND, 1)
 
 		# now set up the main notebook
-		self.nb = wxNotebook (self, ID_NOTEBOOK, style=wxNB_BOTTOM)
+		self.nb = wxNotebook (self, ID_NOTEBOOK, style = wxNB_BOTTOM)
 		self.guibroker['main.notebook'] = self.nb
+		# add to main windows sizer
+		self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
 
-		# set change in toolbar
+		# set event handlers
+		# - notebook page has been changed
 		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanged)
-
-		# add popup menu to notebook
+		# - popup menu on right click in notebook
 		EVT_RIGHT_UP(self.nb, self.OnNotebookPopup)
 
-		self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
+		# now load the plugins
 		# this list relates plugins to the notebook
-		# used to be called 'main.notebook.numbers'
-		self.guibroker['main.notebook.plugins'] = []
-		# load plugins
+		self.guibroker['main.notebook.plugins'] = []	# (used to be called 'main.notebook.numbers')
 		self.LoadPlugins(backend)
 
 		# signal any other modules requireing init.
 		#gmDispatcher.send( gmSignals.application_init())
 
-		self.SetStatusText(_("You are logged in as [%s]") % user)
-		self.tb.ReFit ()
-		self.SetSizer( self.vbox )
-		self.vbox.Fit( self )
+		self.SetStatusText(_("You are logged in as [%s].") % user)
+		self.top_panel.ReFit()
+		self.SetSizer(self.vbox)
+		self.vbox.Fit(self)
 		#don't let the window get too small
 		# FIXME: should load last used size here
 		# setsizehints only allows minimum size, therefore window can't become small enough
 		# effectively we need the font size to be configurable according to screen size
 		#self.vbox.SetSizeHints(self)
-		#position the Window on the desktop
-		self.Fit ()
+
+		# position and show ourselves
+		self.Fit()
 		self.Centre(wxBOTH)
 		self.Show(true)
-
+	#----------------------------------------------
+	# event handlers
 	#----------------------------------------------
 	def OnNotebookPopup(self, evt):
 		load_menu = wxMenu()
@@ -265,13 +252,13 @@ class MainFrame(wxFrame):
 		#do the platform dependent stuff
 		if wxPlatform == '__WXMSW__':
 			#windoze specific stuff here
-			pass
+			_log.Log(gmLog.lInfo,'running on MS Windows')
 		elif wxPlatform == '__WXGTK__':
 			#GTK (Linux etc.) specific stuff here
 			_log.Log(gmLog.lInfo,'running on GTK (probably Linux)')
 		elif wxPlatform == '__WXMAC__':
 			#Mac OS specific stuff here
-			_log.Log(gmLog.lInfo,'running on a Mac')
+			_log.Log(gmLog.lInfo,'running on Mac OS')
 		else:
 			_log.Log(gmLog.lInfo,'running on an unknown platform (%s)' % wxPlatform)
 	#----------------------------------------------
@@ -322,13 +309,11 @@ class MainFrame(wxFrame):
 		"""
 		new_page_id = event.GetSelection()
 		#old_page_id = event.GetOldSelection()
-
 		# get access to selected page
 		new_page = self.guibroker['main.notebook.plugins'][new_page_id]
-
-		# show toolbar
-		self.tb.ShowBar(new_page.name())
-		# hand focus to plugin page
+		# activate toolbar of new page
+		self.top_panel.ShowBar(new_page.name())
+		# hand focus to new page
 		new_page.ReceiveFocus()
 		event.Skip() # required for MSW
 	#----------------------------------------------
@@ -350,7 +335,7 @@ class MainFrame(wxFrame):
 	#----------------------------------------------
 	def OnAbout(self, event):
 		import gmAbout
-		gmAbout=gmAbout.AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wxMAXIMIZE_BOX)
+		gmAbout = gmAbout.AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wxMAXIMIZE_BOX)
 		gmAbout.Centre(wxBOTH)
 		MainFrame.otherWin = gmAbout
 		gmAbout.Show(true)
@@ -630,7 +615,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.86  2003-03-24 17:15:05  ncq
+# Revision 1.87  2003-03-29 13:48:42  ncq
+# - cleanup, clarify, improve sizer use
+#
+# Revision 1.86  2003/03/24 17:15:05  ncq
 # - slightly speed up startup by using pre-calculated system_locale_level dict
 #
 # Revision 1.85  2003/03/23 11:46:14  ncq
