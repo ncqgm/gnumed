@@ -7,8 +7,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.1 2003-05-23 14:05:01 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmDateTimeInput.py,v 1.2 2003-08-10 00:57:15 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -67,7 +67,12 @@ if __name__ == '__main__':
 	app.SetWidget(gmTimeInput, -1)
 	app.MainLoop()
 #==================================================
+# - free text input: start string with "
+#==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.1  2003-05-23 14:05:01  ncq
+# Revision 1.2  2003-08-10 00:57:15  ncq
+# - add TODO item
+#
+# Revision 1.1  2003/05/23 14:05:01  ncq
 # - first implementation
 #
