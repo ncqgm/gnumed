@@ -11,7 +11,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -80,8 +80,9 @@ class indexFrame(wxPanel):
 		self._init_ctrls(parent)
 
 		# items for phraseWheel
-		if not self._init_phrase_wheel():
-			return -1
+		if __name__ == '__main__':
+			if not self._init_phrase_wheel():
+				return -1
 
 		self.__set_properties()
 		self.__do_layout()
@@ -329,7 +330,8 @@ class indexFrame(wxPanel):
 		self.SelBOX_doc_type.SetToolTipString(_('Document types are determined by the database.\nAsk your database administrator to add more types if needed.'))
 		self.BTN_save_data.SetToolTipString(_('save entered metadata with document'))
 		self.TBOX_desc_long.SetToolTipString(_('a summary or longer comment for this document'))
-		self.doc_id_wheel.SetToolTipString(_('the document identifier is usually written or stamped onto the physical pages of the document'))
+		if __name__ == '__main__':
+			self.doc_id_wheel.SetToolTipString(_('the document identifier is usually written or stamped onto the physical pages of the document'))
 
 		EVT_BUTTON(self.BTN_load_pages, wxID_BTN_load_pages, self.on_load_pages)
 		EVT_BUTTON(self.BTN_show_page, wxID_BTN_show_page, self.on_show_page)
@@ -349,7 +351,8 @@ class indexFrame(wxPanel):
 		szr_left = wxBoxSizer(wxVERTICAL)
 		szr_left.Add(self.lbl_left_header, 0, 0, 0)
 		szr_left.Add(self.lbl_doc_id_wheel, 0, wxLEFT|wxTOP, 5)
-		szr_left.Add(self.doc_id_wheel, 0, wxEXPAND|wxALL, 5)
+		if __name__ == '__main__':
+			szr_left.Add(self.doc_id_wheel, 0, wxEXPAND|wxALL, 5)
 		szr_left.Add(self.BTN_load_pages, 1, wxEXPAND|wxALL, 5)
 		szr_left.Add(self.staticText4, 0, wxLEFT, 5)
 		szr_left.Add(self.BTN_select_files, 1, wxEXPAND|wxALL, 5)
@@ -407,23 +410,22 @@ class indexFrame(wxPanel):
 		self.Layout()
 	#--------------------------------
 	def _init_phrase_wheel(self):
-		"""Set up phrase wheel.
-		"""
-		phrase_wheel_choices = self.__get_phrasewheel_choices()
+		"""Set up phrase wheel."""
+		phrase_wheel_choices = self.get_phrasewheel_choices()
 
 		# FIXME: we need to set this to non-learning mode
 		self.mp = gmMatchProvider.cMatchProvider_FixedList(phrase_wheel_choices)
 		self.mp.setWordSeparators(separators = '[ \t=+&:@]+')
+		# running standalone ? -> phrasewheel appears on PNL_main
 		self.doc_id_wheel = cPhraseWheel(
-				parent = self.PNL_main,
-				id = -1,
-				aMatchProvider = self.mp,
-				size=(180,30),
-				pos=(-1,-1)
-				#self.wheel_callback,
-				)
+					parent = self.PNL_main,
+					id = -1,
+					aMatchProvider = self.mp,
+					size=wxDefaultSize,
+					pos=wxDefaultPosition
+					#self.wheel_callback,
+					)
 		self.doc_id_wheel.on_resize (None)
-
 		return 1
 	#--------------------------------
 	def __get_valid_doc_types(self):
@@ -458,7 +460,7 @@ class indexFrame(wxPanel):
 			self.repository = '/home/basti/gnumed/repository'
 
 	#--------------------------------
-	def __get_phrasewheel_choices(self):
+	def get_phrasewheel_choices(self):
 		"""Return a list of dirs that can be indexed.
 
 		- directory names in self.repository correspond to identification
@@ -555,7 +557,7 @@ class indexFrame(wxPanel):
 			self.__unlock_for_import(full_dir)
 			self.__clear_doc_fields()
 			self.doc_id_wheel.Clear()
-			doc_dirs = self.__get_phrasewheel_choices()
+			doc_dirs = self.get_phrasewheel_choices()
 			self.mp.setItems(doc_dirs)
 	#----------------------------------------
 	def on_show_page(self, event):
@@ -987,6 +989,7 @@ else:
 			self._set_status_txt(_('steps: 1: select document | 2: describe it | 3: save it'))
 			# FIXME: register interest in patient_changed signal, too
 			#self.panel.tree.SelectItem(self.panel.tree.root)
+			self._update_doc_id_wheel()
 			return 1
 		# ---------------------------------------------
 		def can_receive_focus(self):
@@ -995,7 +998,37 @@ else:
 				return None
 			return 1
 		# ---------------------------------------------
+		def _update_doc_id_wheel(self):
+			self.doc_id_wheel.Clear()
+			phrase_wheel_choices = self.panel.get_phrasewheel_choices()
+			#self.mp.setItems(phrase_wheel_choices)
+		# ---------------------------------------------
+		def _init_phrase_wheel(self):
+			"""Set up phrase wheel."""
+			phrase_wheel_choices = self.panel.get_phrasewheel_choices()
+			# FIXME: we need to set this to non-learning mode
+			self.mp = gmMatchProvider.cMatchProvider_FixedList(phrase_wheel_choices)
+			self.mp.setWordSeparators(separators = '[ \t=+&:@]+')
+			return 1
+		
+		# ---------------------------------------------
 		def DoToolbar (self, tb, widget):
+			
+			self._init_phrase_wheel()
+			self.doc_id_wheel = cPhraseWheel(
+					parent = tb,
+					id = -1,
+					aMatchProvider = self.mp,
+					size=wxDefaultSize,
+					pos=wxDefaultPosition
+					#self.wheel_callback,
+					)
+			self.doc_id_wheel.on_resize (None)
+			self.doc_id_wheel.SetToolTipString(_('the document identifier is usually written or stamped onto the physical pages of the document'))	
+			#self._update_doc_id_wheel()
+			
+			tool1 = tb.AddControl(self.doc_id_wheel)
+			
 			tool1 = tb.AddTool(
 				wxID_PNL_BTN_load_pages,
 				images_Archive_plugin.getcontentsBitmap(),
@@ -1048,7 +1081,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.6  2003-11-18 14:12:23  ncq
+# Revision 1.7  2003-11-19 00:33:53  shilbert
+# - added phrase_wheel to toolbar
+#
+# Revision 1.6  2003/11/18 14:12:23  ncq
 # - cleanup
 #
 # Revision 1.5  2003/11/09 16:01:16  ncq
