@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.17 2003-06-01 16:25:51 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmClinicalRecord.py,v 1.18 2003-06-02 20:58:32 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -59,11 +59,18 @@ class gmClinicalRecord:
 		if not self._register_interests():
 			raise gmExceptions.ConstructorError, "cannot register signal interests"
 
-		# what episode did we work on last time we saw this patient ?
-#		self.__get_last_episode()
+		# make sure we have a __default__ health issue
+		self.id_default_health_issue = None
+		if not self.__load_default_health_issue():
+			raise gmExceptions.ConstructorError, "cannot activate default health issue for patient [%s]" % aPKey
 
-		self.ensure_current_clinical_encounter()
-		self.init_issue_episodes()
+		# what episode did we work on last time we saw this patient ?
+		self.id_episode = None
+		if not self.__load_most_recent_episode():
+			raise gmExceptions.ConstructorError, "cannot activate an episode for patient [%s]" % aPKey
+
+#		self.ensure_current_clinical_encounter()
+#		self.init_issue_episodes()
 
 		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.id_patient)
 	#--------------------------------------------------------
@@ -196,11 +203,9 @@ class gmClinicalRecord:
 			return self.__db_cache['allergies']
 		except:
 			pass
-			
-		#curs = self._defconn_ro.cursor()
+		curs = self._defconn_ro.cursor()
 		# the connection can become stale
-		curs = self.getCursor()
-		
+#		curs = self.getCursor()
 		cmd = "select * from v_i18n_patient_allergies where id_patient='%s';" % self.id_patient
 		if not gmPG.run_query(curs, cmd):
 			curs.close()
@@ -242,9 +247,8 @@ class gmClinicalRecord:
 			pass
 		self.__db_cache['allergy IDs'] = []
 		cmd = "select id from v_i18n_patient_allergies where id_patient='%s';" % self.id_patient
-		# connection can become stale !
-		#curs = self._defconn_ro.cursor()
-		curs = self.getCursor()
+		curs = self._defconn_ro.cursor()
+#		curs = self.getCursor()
 		if not gmPG.run_query(curs, cmd):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load list of allergies for patient [%s]' % self.id_patient)
@@ -255,11 +259,56 @@ class gmClinicalRecord:
 			self.__db_cache['allergy IDs'].extend(row)
 		return self.__db_cache['allergy IDs']
 	#------------------------------------------------------------------
+	# health issue related helpers
 	#------------------------------------------------------------------
-	def __get_last_active_episode(self):
+	def __load_default_health_issue(self):
+		self.id_default_health_issue = self._create_health_issue()
+		if self.id_default_health_issue is None:
+			_log.Log(gmLog.lErr, 'cannot load default health issue for patient [%s]' % self.id_patient)
+			return None
+		return 1
+	#------------------------------------------------------------------
+	def _create_health_issue(self, health_issue_name = '__default__'):
+		curs = self._defconn_ro.cursor()
+		cmd = "select id from clin_health_issue where id_patient='%s' and description='%s';" % (self.id_patient, health_issue_name)
+		if not gmPG.run_query(curs, cmd):
+			curs.close()
+			_log.Log(gmLog.lErr, 'cannot check if health issue [%s] exists for patient [%s]' % (health_issue_name, self.id_patient))
+			return None
+		row = curs.fetchone()
+		curs.close()
+		# issue exists already
+		if row is not None:
+			return row[0]
+		# issue does not exist yet so create it
+		rw_conn = self._backend.GetConnection('historica', readonly = 0)
+		curs = rw_conn.cursor()
+		cmd = "insert into clin_health_issue (id_patient, description) values (%d, '%s');" % (self.id_patient, health_issue_name)
+		if not gmPG.run_query(curs, cmd):
+			curs.close()
+			rw_conn.close()
+			_log.Log(gmLog.lErr, 'cannot insert health issue [%s] for patient [%s]' % (health_issue_name, self.id_patient))
+			return None
+		# get id for it
+		cmd = "select currval('clin_health_issue_id_seq');"
+		if not gmPG.run_query(curs, cmd):
+			curs.close()
+			rw_conn.close()
+			_log.Log(gmLog.lErr, 'cannot obtain id of last health issue insertion')
+			return None
+		id_issue = curs.fetchone()[0]
+		# and commit our work
+		rw_conn.commit()
+		curs.close()
+		rw_conn.close()
+		return id_issue
+	#------------------------------------------------------------------
+	# episode related helpers
+	#------------------------------------------------------------------
+	def __load_most_recent_episode(self):
 		# check if there's an active episode
 		curs = self._defconn_ro.cursor()
-		cmd = "select id_episode from last_active_episode where id_patient='%s';" % self.id_patient
+		cmd = "select id_episode from last_active_episode where id_patient='%s' limit 1;" % self.id_patient
 		if not gmPG.run_query(curs, cmd):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
@@ -269,85 +318,85 @@ class gmClinicalRecord:
 		# no: should only happen in new patients
 		if row is None:
 			# try to set one to active or create default one
-			id_episode = self._set_active_episode()
-			if id_episode is None:
-				_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
+			if not self._set_active_episode():
+				_log.Log(gmLog.lErr, 'cannot activate default episode for patient [%s]' % self.id_patient)
 				return None
 		else:
-			id_episode = row[0]
-		self.id_episode = id_episode
-		return id_episode
+			self.id_episode = row[0]
+		return 1
 	#------------------------------------------------------------------
 	def _set_active_episode(self, episode_name = '__default__'):
 		ro_curs = self._defconn_ro.cursor()
+		# does this episode exist at all ?
+		# (else we can't activate it in the first place)
 		cmd = "select id_episode from v_patient_episodes where id_patient='%s' and episode='%s' limit 1;" % (self.id_patient, episode_name)
 		if not gmPG.run_query(ro_curs, cmd):
 			ro_curs.close()
 			_log.Log(gmLog.lErr, 'cannot load episode [%s] for patient [%s]' % (episode_name, self.id_patient))
 			return None
 		row = ro_curs.fetchone()
-		if row is None:
-			ro_curs.close()
-			_log.Log(gmLog.lInfo, 'patient [%s] has no episode [%s]' % (self.id_patient, episode_name))
-			return None
-		id_episode = row[0]
-
-
-
-
-
-		if episode_name == '__default__':
-			# if only one episode available but none active
-			# set that one to active
-			ro_curs = self._defconn_ro.cursor()
-			cmd = "select count(id) from clin_episode where id_patient='%s';" % self.id_patient
-			if not gmPG.run_query(ro_curs, cmd):
-				_log.Log(gmLog.lErr, 'cannot get count of episodes for patient [%s]' % self.id_patient)
-				row = [0]
-			else:
-				row = ro_curs.fetchone()
-			# no episode so far
-			if row[0] == 0:
-				ro_curs.close()
-				# create default episode
-				return self.__create_episode()
-			# just one
-			elif row[0] == 1:
-				# activate that one
-				cmd = "select id from clin_episode where id_patient='%s';" % self.id_patient
-				if not gmPG.run_query(ro_curs, cmd):
-					ro_curs.close()
-					_log.Log(gmLog.lErr, 'cannot load episode for patient [%s]' % self.id_patient)
-					return None
-				row = ro_curs.fetchone()
-				ro_curs.close()
-				if row is None:
-					return None
-				return row[0]
-			# more than one
-			else:
-				# any of them the default one ?
-				cmd = "select id from clin_episode where id_patient='%s' and description='%s';" % (self.id_patient, '__default__')
-				if not gmPG.run_query(ro_curs, cmd):
-					ro_curs.close()
-					_log.Log(gmLog.lErr, 'cannot load __default__ episode for patient [%s]' % self.id_patient)
-				row = ro_curs.fetchone()
-				# no default episode
-				if row is None:
-					ro_curs.close()
-					_log.Log(gmLog.lErr, 'patient [%s] does not have a __default__ episode' % self.id_patient)
-					# create default episode
-					return self.__create_episode()
-
-					return row[0]
-
-
-
 		ro_curs.close()
+		# no
+		if row is None:
+			# if __default__ then create it
+			if episode_name == '__default__':
+				id_episode = self._create_episode()
+				# unless that fails
+				if id_episode is None:
+					return None
+			# else fail
+			else:
+				_log.Log(gmLog.lErr, 'patient [%s] has no episode [%s]' % (self.id_patient, episode_name))
+				return None
+		# yes
+		else:
+			id_episode = row[0]
+
+		# eventually activate it
+		rw_conn = self._backend.GetConnection('historica', readonly = 0)
+		rw_curs = rw_conn.cursor()
+		# delete old entry
+		cmd = "delete from last_active_episode where id_patient='%s';" % self.id_patient
+		if not gmPG.run_query(rw_curs, cmd):
+			_log.Log(gmLog.lWarn, 'cannot delete last active episode entry for patient [%s]' % (self.id_patient))
+			# try continuing anyways
+		cmd = "insert into last_active_episode (id_episode, id_patient) values (%d, %d);" % (id_episode, self.id_patient)
+		if not gmPG.run_query(rw_curs, cmd):
+			_log.Log(gmLog.lErr, 'cannot activate episode [%s] for patient [%s]' % (id_episode, self.id_patient))
+			rw_curs.close()
+			rw_conn.close()
+			return None
+		# seems we succeeded
+		rw_conn.commit()
+		rw_curs.close()
+		rw_conn.close()
+		self.id_episode = id_episode
+		return 1
+	#------------------------------------------------------------------
+	def _create_episode(self, episode_name = '__default__'):
+		ro_curs = self._defconn_ro.cursor()
+		# anything to do ?
+		cmd = "select id_episode from v_patient_episodes where id_patient='%s' and episode='%s' limit 1;" % (self.id_patient, episode_name)
+		if not gmPG.run_query(ro_curs, cmd):
+			ro_curs.close()
+			_log.Log(gmLog.lErr, 'cannot check if episode [%s] exists for patient [%s]' % (episode_name, self.id_patient))
+			return None
+		row = ro_curs.fetchone()
+		ro_curs.close()
+		# episode already exists
+		if row is not None:
+			return row[0]
+		# episode does not exist yet so create it
+		rw_conn = self._backend.GetConnection('historica', readonly = 0)
+		rw_curs = rw_conn.cursor()
+		# by default new episodes belong to the __default__ health issue
+		# FIXME: finish
+#		cmd = "insert into "
+	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	# trial 
 	def create_allergy(self, map):
-		"""tries to add allergy to database : CUrrently id_type is not reading checkbox states (allergy or sensitivity)."""
+		"""tries to add allergy to database : Currently id_type is not reading checkbox states (allergy or sensitivity)."""
 
 		self.beginTransaction()
 		
@@ -564,7 +613,10 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.17  2003-06-01 16:25:51  ncq
+# Revision 1.18  2003-06-02 20:58:32  ncq
+# - nearly finished with default episode/health issue stuff
+#
+# Revision 1.17  2003/06/01 16:25:51  ncq
 # - preliminary code for episode handling
 #
 # Revision 1.16  2003/06/01 15:00:31  sjtan
