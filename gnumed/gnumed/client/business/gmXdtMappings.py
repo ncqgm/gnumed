@@ -5,15 +5,15 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.21 2004-05-27 13:40:21 ihaywood Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmXdtMappings.py,v 1.22 2004-06-09 14:36:17 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
 #==============================================================
 xdt_id_map = {
-	#Turbomed fehlerhafte Feldkennungen :
-	#sind nicht definiert nach BDT2/94, aber nach KVDT
+	# Turbomed fehlerhafte Feldkennungen ?
+	# (sind nicht definiert nach BDT2/94, aber nach KVDT !)
 	# '0215':'PLZ',
 	# '0216':'Ort',
 	# '3112':'PLZ',
@@ -1342,7 +1342,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.21  2004-05-27 13:40:21  ihaywood
+# Revision 1.22  2004-06-09 14:36:17  ncq
+# - cleanup
+#
+# Revision 1.21  2004/05/27 13:40:21  ihaywood
 # more work on referrals, still not there yet
 #
 # Revision 1.20  2004/05/18 20:37:03  ncq
