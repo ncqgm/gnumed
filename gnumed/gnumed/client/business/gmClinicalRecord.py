@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.149 2004-10-26 12:51:24 ncq Exp $
-__version__ = "$Revision: 1.149 $"
+# $Id: gmClinicalRecord.py,v 1.150 2004-10-27 12:09:28 ncq Exp $
+__version__ = "$Revision: 1.150 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1005,22 +1005,21 @@ where
 					vaccs_by_ind[vacc['indication']].append(vacc)
 				except KeyError:
 					vaccs_by_ind[vacc['indication']] = [vacc]
-				vacc.set_booster_status(is_booster=False)
-				vacc.set_seq_no(seq_no=-1)
 
 			# calculate sequence number and is_booster
 			for ind in vaccs_by_ind.keys():
 				vacc_regimes = self.get_scheduled_vaccination_regimes(indications = [ind])
-				if (vacc_regimes is None) or (len(vacc_regimes) == 0):
-					continue
 				for vacc in vaccs_by_ind[ind]:
 					# due to the "order by indication, date" the vaccinations are in the
 					# right temporal order inside the indication-keyed dicts
 					seq_no = vaccs_by_ind[ind].index(vacc) + 1
+					vacc['seq_no'] = seq_no
+					# if no active schedule for indication we cannot
+					# check for booster status (eg. seq_no > max_shot)
+					if (vacc_regimes is None) or (len(vacc_regimes) == 0):
+						continue
 					if seq_no > vacc_regimes[0]['shots']:
-						vacc.set_booster_status(True)
-					else:
-						vacc.set_seq_no(seq_no=seq_no)
+						vacc['is_booster'] = True
 			del vaccs_by_ind
 
 		# ok, let's constrain our list
@@ -1141,7 +1140,7 @@ where
 				filtered_shots['boosters'].append(due_shot)
 		return filtered_shots
 	#--------------------------------------------------------
-	def add_vaccination(self, vaccine):
+	def add_vaccination(self, vaccine=None):
 		"""Creates a new vaccination entry in backend."""
 		return gmVaccination.create_vaccination (
 			patient_id = self.id_patient,
@@ -1607,7 +1606,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.149  2004-10-26 12:51:24  ncq
+# Revision 1.150  2004-10-27 12:09:28  ncq
+# - properly set booster/seq_no in the face of the patient
+#   not being on any vaccination schedule
+#
+# Revision 1.149  2004/10/26 12:51:24  ncq
 # - Carlos: bulk load lab results
 #
 # Revision 1.148  2004/10/20 21:50:29  ncq
