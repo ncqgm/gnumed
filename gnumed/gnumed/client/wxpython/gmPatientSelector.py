@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.37 2004-03-27 18:24:11 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmPatientSelector.py,v 1.38 2004-06-04 16:27:12 shilbert Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -280,7 +280,9 @@ and hit <ENTER>
 		self.prev_search_term = None
 		self.prev_pats = []
 		self.prev_col_order = []
-
+		
+		self.count = 0
+		
 		# set event handlers
 		self.__register_events()
 
@@ -295,7 +297,9 @@ and hit <ENTER>
 		EVT_KILL_FOCUS (self, self._on_loose_focus)
 		# - user pressed <enter>
 		EVT_TEXT_ENTER (self, self.GetId(), self._on_enter)
-
+		# - user single clicked left mouse button
+		EVT_LEFT_UP (self, self._on_get_left_up)
+		
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 	#----------------------------------------------
@@ -330,6 +334,30 @@ and hit <ENTER>
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
+	def _on_get_left_up(self, evt):
+		"""upon left click
+
+		- select all text in the field so that the next
+		  character typed will delete it
+		
+		- or set cursor to text position in case more left
+		  clicks follow
+		"""
+		# unclicked , not highlighted
+		if self.count == 0:
+			# highlight text
+			self.SetSelection (-1,-1)
+			self.count = 1
+			evt.Skip()
+			return None
+			
+		# has been clicked - should be highlighted
+		start, end = self.GetSelection()
+		self.SetSelection(start, end)
+		self.count = 0
+		evt.Skip()
+		return None
+	#--------------------------------------------------------
 	def _on_get_focus(self, evt):
 		"""upon tabbing in
 
@@ -353,6 +381,11 @@ and hit <ENTER>
 
 		# and display currently active patient
 		self._display_name()
+		# unset highlighting
+		self.SetSelection (0,0)
+		# reset highlight counter
+		self.count = 0
+		
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_char(self, evt):
@@ -582,7 +615,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.37  2004-03-27 18:24:11  ncq
+# Revision 1.38  2004-06-04 16:27:12  shilbert
+# - giving focus highlights the text and lets you replace it
+#
+# Revision 1.37  2004/03/27 18:24:11  ncq
 # - Ian and I fixed the same bugs again :)
 #
 # Revision 1.36  2004/03/27 04:37:01  ihaywood
