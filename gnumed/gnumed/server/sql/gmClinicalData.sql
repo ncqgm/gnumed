@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.3 2003-04-09 13:50:29 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.4 2003-04-12 15:43:17 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -29,26 +29,26 @@ INSERT INTO _enum_encounter_type (description) values (i18n('emergency encounter
 INSERT INTO _enum_encounter_type (description) values (i18n('other encounter'));
 
 -- ===================================================================
-INSERT INTO enum_clin_history (description) values (i18n('past'));
-INSERT INTO enum_clin_history (description) values (i18n('presenting complaint'));
-INSERT INTO enum_clin_history (description) values (i18n('history of present illness'));
-INSERT INTO enum_clin_history (description) values (i18n('social'));
-INSERT INTO enum_clin_history (description) values (i18n('family'));
-INSERT INTO enum_clin_history (description) values (i18n('immunisation'));
-INSERT INTO enum_clin_history (description) values (i18n('requests'));
-INSERT INTO enum_clin_history (description) values (i18n('allergy'));
-INSERT INTO enum_clin_history (description) values (i18n('drug'));
-INSERT INTO enum_clin_history (description) values (i18n('sexual'));
-INSERT INTO enum_clin_history (description) values (i18n('psychiatric'));
-INSERT INTO enum_clin_history (description) values (i18n('other'));
+INSERT INTO _enum_hx_type (description) values (i18n('past'));
+INSERT INTO _enum_hx_type (description) values (i18n('presenting complaint'));
+INSERT INTO _enum_hx_type (description) values (i18n('history of present illness'));
+INSERT INTO _enum_hx_type (description) values (i18n('social'));
+INSERT INTO _enum_hx_type (description) values (i18n('family'));
+INSERT INTO _enum_hx_type (description) values (i18n('immunisation'));
+INSERT INTO _enum_hx_type (description) values (i18n('requests'));
+INSERT INTO _enum_hx_type (description) values (i18n('allergy'));
+INSERT INTO _enum_hx_type (description) values (i18n('drug'));
+INSERT INTO _enum_hx_type (description) values (i18n('sexual'));
+INSERT INTO _enum_hx_type (description) values (i18n('psychiatric'));
+INSERT INTO _enum_hx_type (description) values (i18n('other'));
 
 -- ===================================================================
-insert into enum_info_sources (description) values (i18n('patient'));
-insert into enum_info_sources (description) values (i18n('clinician'));
-insert into enum_info_sources (description) values (i18n('relative'));
-insert into enum_info_sources (description) values (i18n('carer'));
-insert into enum_info_sources (description) values (i18n('notes'));
-insert into enum_info_sources (description) values (i18n('correspondence'));
+insert into _enum_hx_source (description) values (i18n('patient'));
+insert into _enum_hx_source (description) values (i18n('clinician'));
+insert into _enum_hx_source (description) values (i18n('relative'));
+insert into _enum_hx_source (description) values (i18n('carer'));
+insert into _enum_hx_source (description) values (i18n('notes'));
+insert into _enum_hx_source (description) values (i18n('correspondence'));
 
 -- ===================================================================
 INSERT INTO enum_coding_systems (description) values (i18n('general'));
@@ -121,11 +121,14 @@ insert into enum_immunities (name) values ('tetanus');
 -- ===================================================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.3  2003-04-09 13:50:29  ncq
+-- Revision 1.4  2003-04-12 15:43:17  ncq
+-- - adapted to new gmclinical.sql
+--
+-- Revision 1.3  2003/04/09 13:50:29  ncq
 -- - typos
 --
 -- Revision 1.2  2003/04/09 13:08:21  ncq
