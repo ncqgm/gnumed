@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -531,6 +531,8 @@ def inputWXLoginParams():
 		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
 	#memory cleanup, shouldn't really be neccessary
 	dlg.Destroy()
+
+	del gmLoginDialog
 	return login
 
 #---------------------------------------------------
