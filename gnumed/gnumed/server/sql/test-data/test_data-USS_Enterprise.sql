@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -13,6 +13,7 @@
 -- =============================================
 -- vaccination related data
 
+delete from vaccine where comment = 'Starfleet Central Medical Supplies';
 ---------------------
 -- Tetanus vaccine --
 ---------------------
@@ -28,7 +29,6 @@ insert into vaccine (
 	'Tetasorbat (SFCMS)',
 	'Tetanus',
 	false,
-	-- FIXME: check this
 	'1 year'::interval,
 	'Starfleet Central Medical Supplies'
 );
@@ -300,11 +300,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.13  2004-12-18 10:05:36  ncq
+-- Revision 1.14  2004-12-18 10:13:03  ncq
+-- - cleanup
+--
+-- Revision 1.13  2004/12/18 10:05:36  ncq
 -- - id -> pk
 --
 -- Revision 1.12  2004/12/18 09:57:17  ncq
