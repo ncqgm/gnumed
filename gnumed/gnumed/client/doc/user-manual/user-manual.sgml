@@ -1071,6 +1071,8 @@ and then a clinical screen.
 </para><para>
 Don't get too excited - wxPython on MacOSX  is slooooow, and somewhat 
 unstable, and there is nothing much to do in gnumed ...... yet.
+</para>
+</listitem>
 </orderedlist>
 </sect1>
 
