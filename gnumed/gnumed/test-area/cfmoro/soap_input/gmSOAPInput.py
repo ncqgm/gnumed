@@ -2,7 +2,7 @@
 	GnuMed SOAP input panel
 """
 #================================================================
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -24,6 +24,7 @@ _log.Log(gmLog.lInfo, __version__)
 #============================================================
 
 # FIXME attribute encapsulation and private methods
+# FIXME i18n
 
 # Auto-completion test words
 # FIXME currently copied form SOAP2.py
@@ -160,7 +161,8 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# business objects setup
 		self.patient = gmPatient.gmCurrentPatient()
 		self.emr = self.patient.get_clinical_record()
-		self.selected_issue = None		
+		self.selected_issue = None
+		self.issues_with_soap = []
 		
 		# ui contruction and event interests
 		self.do_layout()
@@ -285,10 +287,17 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			selected_leaf.GetSOAPPanel().SetHealthIssue(self.selected_issue)
 			selected_leaf.GetSOAPPanel().Show()
 			selected_leaf.detail.Select()
+			self.issues_with_soap.append(self.selected_issue)
 			
 		else:
-			# FIXME calculate height
-			selected_leaf.AddLeaf(SOAPMultiSash.MV_VER, 130)
+			if self.selected_issue in self.issues_with_soap:
+				print "Issue has already soap"
+				wx.wxMessageBox("The SOAP note can't be created.\nCurrently selected health issue has yet an associated SOAP note in this encounter.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
+			else:
+				# FIXME calculate height
+				selected_leaf.AddLeaf(SOAPMultiSash.MV_VER, 130)
+
+		print "Issues with soap: %s"%(self.issues_with_soap)
 		
 	#--------------------------------------------------------
 	def on_remove(self, event):
@@ -298,7 +307,8 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		print "Remove SOAP"
 		selected_leaf = self.soap_multisash.GetSelectedLeaf()
 		selected_leaf.DestroyLeaf()
-		
+
+		print "Issues with soap: %s"%(self.issues_with_soap)
 	#--------------------------------------------------------	
 	def on_patient_selected(self):
 		"""
@@ -312,11 +322,6 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""		
 		self.selected_issue = self.health_issues_list.GetClientData(self.health_issues_list.GetSelection())
 		print 'Selected: %s'%(self.selected_issue)
-		#sel_item = event.GetItem()
-		#sel_item_obj = self.health_issues_list.GetPyData(sel_item)
-
-		#if (isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue)):
-		#	self.selected_issue = sel_item_obj				
 
 	#--------------------------------------------------------
 	# reget mixin API
@@ -333,6 +338,13 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------		
+
+	def get_issues_with_soap(self):
+		"""
+		Retrieves EMR tree's health issues for wich a soap note is created
+		"""
+		return self.issues_with_soap
+		
 	def get_selected_issue(self):
 		"""
 		Retrieves EMR tree's selected health issue

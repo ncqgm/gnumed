@@ -6,7 +6,7 @@
 #
 # Created:      2002/11/20
 # Version:      0.1
-# RCS-ID:       $Id: SOAPMultiSash.py,v 1.7 2004-11-24 22:46:52 cfmoro Exp $
+# RCS-ID:       $Id: SOAPMultiSash.py,v 1.8 2004-11-26 06:19:38 cfmoro Exp $
 # License:      wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -129,11 +129,13 @@ class wxMultiSplit(wxWindow):
 
     def DestroyLeaf(self,caller):
         if not self.view2:              # We will only have 2 windows if
-            print "Removing first leaf" 
+            print "Removing first leaf"
+	    soap_issue = self.view1.detail.child.GetHealthIssue()
 	    self.view1.detail.child.SetHealthIssue(None)
 	    self.view1.detail.child.ClearSOAP()	    
 	    self.view1.detail.UnSelect()
 	    self.view1.detail.child.Hide()
+	    self.view1.detail.childController.get_issues_with_soap().remove(soap_issue)
 	    
 	    
 	    return                      # we need to destroy any
@@ -143,9 +145,13 @@ class wxMultiSplit(wxWindow):
                 old = self.view1
                 self.view1 = self.view2
                 self.view2 = None
+	        soap_issue = self.old.detail.child.GetHealthIssue()
+	        self.old.detail.childController.get_issues_with_soap().remove(soap_issue)
                 old.Destroy()
 		print "1.1"
             else:
+	        soap_issue = self.view2.detail.child.GetHealthIssue()
+	        self.view2.detail.childController.get_issues_with_soap().remove(soap_issue)
                 self.view2.Destroy()
                 self.view2 = None
 		print "1.2"
@@ -172,6 +178,7 @@ class wxMultiSplit(wxWindow):
 		print "1.2"
             self.view1 = None
             self.view2 = None
+	    
             self.Destroy()
 
     def CanSize(self,side,view):
@@ -303,12 +310,15 @@ class MultiClient(wxWindow):
                           pos = wxPoint(0,0),
                           size = wxSize(w,h),                          
                           style = wxCLIP_CHILDREN | wxSUNKEN_BORDER)
+			  
         print "Creating view object  (%s), controller (%s)"%(childCls,childController)
         if not childController is None:
                 self.child = childCls(self)
 		self.child.SetHealthIssue(childController.get_selected_issue())
+		childController.get_issues_with_soap().append(childController.get_selected_issue())
         else:
                 self.child = childCls(self)
+		
         self.childController = childController
         self.child.MoveXY(2,2)
         self.normalColour = self.GetBackgroundColour()
