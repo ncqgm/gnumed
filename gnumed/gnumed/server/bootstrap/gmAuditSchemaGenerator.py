@@ -19,7 +19,7 @@ cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -231,7 +231,7 @@ def create_audit_schema(aCursor, audit_marker_table = 'audit_mark', audit_parent
 	for audited_table in tables2audit:
 		# fail if corresponding audit trail table does not exist
 		if not audit_trail_table_exists(aCursor, audited_table[0]):
-			_log.Log(gmLog.lErr, 'cannot verify audit trail table [%s]' % audited_table[0])
+			_log.Log(gmLog.lErr, 'cannot verify audit trail table existance on audited table [%s]' % audited_table[0])
 			return None
 		# create corresponding triggers
 		schema.extend(trigger_schema(aCursor, audited_table[0], audit_parent_table, audit_prefix))
@@ -264,7 +264,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.7  2003-05-22 12:54:48  ncq
+# Revision 1.8  2003-06-03 13:48:19  ncq
+# - clarify log message
+#
+# Revision 1.7  2003/05/22 12:54:48  ncq
 # - update comments
 # - make audit prefix configurable
 #
