@@ -3,20 +3,22 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmClinical.de.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+reset client_encoding;
 -- =============================================
 CREATE TABLE lab_test_GNR (
 	id serial primary key,
 	id_test integer not null references test_type(id)
+) inherits (audit_fields);
+
 --	EBM character(6) references ebm(gnr),
 --	GOA_88 character(6) references goae_88.gnr,
 --	GOA_96 character(6) references goae_96.gnr
 --	UVT_GOA character(6) references bg_goae(gnr)
-) inherits (audit_fields);
 
 select add_table_for_audit('lab_test_gnr');
 
@@ -42,11 +44,15 @@ COMMENT ON COLUMN lab_test_GNR.id_test IS
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.10 $');
+delete from gm_schema_revision where filename='$RCSfile: gmClinical.de.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmClinical.de.sql,v $
--- Revision 1.10  2003-12-29 16:01:54  uid66147
+-- Revision 1.11  2004-01-09 02:59:28  ncq
+-- - reset client encoding
+--
+-- Revision 1.10  2003/12/29 16:01:54  uid66147
 -- - umlauts breakage
 --
 -- Revision 1.9  2003/11/05 23:02:38  hinnef
