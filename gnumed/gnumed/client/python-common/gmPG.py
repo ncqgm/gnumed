@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.85 $"
+__version__ = "$Revision: 1.86 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -36,7 +36,7 @@ del gmCLI
 # first, do we have the preferred postgres-python library available ?
 try:
 	import pyPgSQL
-	_log.Log(gmLog.lData, pyPgSQL.__version__)
+	_log.Log(gmLog.lData, 'pyPgSQL version: %s' % pyPgSQL.__version__)
 	del pyPgSQL
 	import pyPgSQL.PgSQL # try preferred backend library
 	dbapi = pyPgSQL.PgSQL
@@ -443,10 +443,10 @@ class ConnectionPool:
 		# set the default characteristics of our sessions
 		curs = conn.cursor()
 		# - client encoding
-		if encoding is None:
+		if encoding in (None, ''):
 			_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
 		else:
-			cmd = "set client_encoding='%s'" % encoding
+			cmd = "set client_encoding to '%s'" % encoding
 			if not run_query(curs, cmd):
 				_log.Log(gmLog.lWarn, 'cannot set client_encoding on connection to [%s]' % encoding)
 				_log.Log(gmLog.lWarn, 'not setting this may in some cases lead to data corruption')
@@ -591,7 +591,7 @@ def run_query(aCursor = None, aQuery = None, *args):
 		return None
 	return 1
 #---------------------------------------------------
-def run_commit (service, queries):
+def run_commit (link_obj = None, queries = None):
 	"""Convenience function for running a transaction
 	   that is supposed to get committed.
 
@@ -603,24 +603,62 @@ def run_commit (service, queries):
 	If the last query returned data (i.e. was a SELECT query), the
 	data will be returned.
 	"""
-	dbp = ConnectionPool ()
-	con = dbp.GetConnection (service, readonly = 0)
-	cur = con.cursor ()
+	# sanity checks
+	if link_obj is None:
+		raise TypeError, 'gmPG.run_commit(): link_obj must be of type service name, connection or cursor'
+	if queries is None:
+		raise TypeError, 'gmPG.run_commit(): forgot to pass in queries'
+	if len(queries) == 0:
+		_log.Log(gmLog.lWarn, 'no queries to execute ?!?')
+		return 1
+
+	close_cursor = 0
+	close_conn = 0
+	# is it a cursor ?
+	if hasattr(link_obj, 'fetchone') and hasattr(link_obj, 'description'):
+		curs = link_obj
+	# is it a connection ?
+	elif (hasattr(link_obj, 'commit') and hasattr(link_obj, 'cursor')):
+		curs = link_obj.cursor()
+		close_cursor = 1
+	# take it to be a service name then
+	else:
+		pool = ConnectionPool()
+		conn = pool.GetConnection(link_obj, readonly = 0)
+		if conn is None:
+			_log.Log(gmLog.lErr, 'cannot get connection to service [%s]' % link_obj)
+			return None
+		curs = conn.cursor()
+		close_cursor = 1
+		close_conn = 1
+	# run queries
 	for query, args in queries:
 		try:
-			cur.execute (query, *args)
+			curs.execute (query, *args)
 		except:
-			cur.close()
-			con.close()
+			if close_cursor:
+				curs.close()
+			if close_conn:
+				conn.close()
 			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), sys.exc_info(), verbose = _query_logging_verbosity)
 			return None
-	# did we get result rows ?
-	if cur.description is None:
+		if _query_logging_verbosity == 1:
+			_log.Log(gmLog.lData, '%s rows affected by >>>%s<<<' % (curs.rowcount, query))
+	# did we get result rows in the last query ?
+	if curs.description is None:
 		data = None
+		if _query_logging_verbosity == 1:
+			_log.Log(gmLog.lData, 'last query did not return rows')
 	else:
-		data = cur.fetchall()
-	cur.close()
-	con.commit()
+		data = curs.fetchall()
+		if _query_logging_verbosity == 1:
+			_log.Log(gmLog.lData, 'last query returned %s rows' % curs.rowcount)
+	# clean up
+	if close_cursor:
+		curs.close()
+	conn.commit()
+	if close_conn:
+		conn.close()
 	# FIXME:
 	# this is very wasteful, why can't we save this read-write connection
 	# for the next time it's used (I understand it can't be shared at once)
@@ -636,60 +674,69 @@ def run_commit (service, queries):
 	#>     ... error checking ...
 	#>     do_stuff()
 	#>     conn.commit()
-	con.close()
 	if data is None:
 		return 1
 	else:
 		return data
-	return 1
 #---------------------------------------------------
-def run_ro_query(aService = None, aQuery = None, get_col_idx = None, *args):
+def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 	# sanity checks
-	if aService is None:
-		_log.Log(gmLog.lErr, 'need service name to run query')
-		if get_col_idx is None:
-			return None
-		else:
-			return None, None
+	if link_obj is None:
+		raise TypeError, 'gmPG.run_ro_query(): link_obj must be of type service name, connection or cursor'
 	if aQuery is None:
-		_log.Log(gmLog.lErr, 'need query to run it')
-		if get_col_idx is None:
-			return None
-		else:
-			return None, None
+		raise TypeError, 'gmPG.run_ro_query(): forgot to pass in aQuery'
 
-	# connect read only
-	pool = ConnectionPool()
-	conn = pool.GetConnection(aService, readonly = 1)
-	if conn is None:
-		_log.Log(gmLog.lErr, 'cannot get connection to service [%s]' % aService)
-		if get_col_idx is None:
-			return None
-		else:
-			return None, None
-	curs = conn.cursor()
-
+	close_cursor = 0
+	close_conn = 0
+	# is it a cursor ?
+	if hasattr(link_obj, 'fetchone') and hasattr(link_obj, 'description'):
+		curs = link_obj
+	# is it a connection ?
+	elif (hasattr(link_obj, 'commit') and hasattr(link_obj, 'cursor')):
+		curs = link_obj.cursor()
+		close_cursor = 1
+	# take it to be a service name then
+	else:
+		pool = ConnectionPool()
+		conn = pool.GetConnection(link_obj, readonly = 1)
+		if conn is None:
+			_log.Log(gmLog.lErr, 'cannot get connection to service [%s]' % link_obj)
+			if get_col_idx is None:
+				return None
+			else:
+				return None, None
+		curs = conn.cursor()
+		close_cursor = 1
+		close_conn = 1
 	# run the query
 	try:
 		curs.execute(aQuery, *args)
 	except:
-		curs.close()
-		pool.ReleaseConnection(aService)
-		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on service [%s]" % (aQuery, args, aService), sys.exc_info(), verbose = _query_logging_verbosity)
+		if close_cursor:
+			curs.close()
+		if close_conn:
+			pool.ReleaseConnection(link_obj)
+		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on service [%s]" % (aQuery, args, link_obj), sys.exc_info(), verbose = _query_logging_verbosity)
 		if get_col_idx is None:
 			return None
 		else:
 			return None, None
-
 	# and return the data, possibly including the column index
-	data = curs.fetchall()
-	pool.ReleaseConnection (aService)
+	if curs.description is None:
+		data = None
+		_log.Log(gmLog.lErr, 'query did not return rows !')
+	else:
+		data = curs.fetchall()
+	if close_conn:
+		pool.ReleaseConnection (link_obj)
 	if get_col_idx:
 		col_idx = get_col_indices(curs)
-		curs.close ()
+		if close_cursor:
+			curs.close ()
 		return data, col_idx
 	else:
-		curs.close ()
+		if close_cursor:
+			curs.close ()
 		return data
 #---------------------------------------------------
 def get_col_indices(aCursor = None):
@@ -1019,7 +1066,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.85  2003-11-20 00:48:45  ncq
+# Revision 1.86  2003-12-29 16:31:10  uid66147
+# - better logging, cleanup, better encoding handling
+# - run_commit/ro_query() now accept either cursor, connection or service name
+# - run_ro_query() now sanity checks if the query returned rows before calling fetchall()
+#
+# Revision 1.85  2003/11/20 00:48:45  ncq
 # - re-added run_commit() returning rows if last DML returned rows
 #
 # Revision 1.84  2003/11/17 20:22:59  ncq
