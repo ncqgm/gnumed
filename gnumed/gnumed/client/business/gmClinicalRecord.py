@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.30 2003-07-03 15:20:55 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmClinicalRecord.py,v 1.31 2003-07-05 13:44:12 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -245,7 +245,7 @@ class gmClinicalRecord:
 			'age',
 			"to_char(modified_when, 'YYYY-MM-DD @ HH24:MI') as modified_when",
 			'modified_by',
-			"case is_modified when false then '%s' else '%s' end as modify_string" % (_('original entry'), _('modified entry')),
+			"case is_modified when false then '%s' else '%s' end as modified_string" % (_('original entry'), _('modified entry')),
 			'id_item',
 			'id_encounter',
 			'id_episode',
@@ -329,7 +329,7 @@ class gmClinicalRecord:
 					col_data.append("%s: %s" % (col_name, row[table_col_idx[col_name]]))
 				emr_data[age].append(">>> %s (%s from table %s)" % (
 					string.join(col_data, ' | '),
-					view_row[view_col_idx['modify_string']],
+					view_row[view_col_idx['modified_string']],
 					table_name
 				))
 		return emr_data
@@ -861,7 +861,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.30  2003-07-03 15:20:55  ncq
+# Revision 1.31  2003-07-05 13:44:12  ncq
+# - modify -> modified
+#
+# Revision 1.30  2003/07/03 15:20:55  ncq
 # - lots od cleanup, some nice formatting for text dump of EMR
 #
 # Revision 1.29  2003/06/27 22:54:29  ncq

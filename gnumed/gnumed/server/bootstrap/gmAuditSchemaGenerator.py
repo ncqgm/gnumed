@@ -19,7 +19,7 @@ cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -91,8 +91,8 @@ template_insert_trigger = """CREATE TRIGGER %s
 template_insert_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
 	NEW.row_version := 0;
-	NEW.modify_when := CURRENT_TIMESTAMP;
-	NEW.modify_by := CURRENT_USER;
+	NEW.modified_when := CURRENT_TIMESTAMP;
+	NEW.modified_by := CURRENT_USER;
 	return NEW;
 END;' LANGUAGE 'plpgsql'"""
 
@@ -105,13 +105,13 @@ template_update_trigger = """CREATE TRIGGER %s
 template_update_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
 	NEW.row_version := OLD.row_version + 1;
-	NEW.modify_when := CURRENT_TIMESTAMP;
-	NEW.modify_by := CURRENT_USER;
+	NEW.modified_when := CURRENT_TIMESTAMP;
+	NEW.modified_by := CURRENT_USER;
 	INSERT INTO %s (
 		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
 		%s
 	) VALUES (
-		OLD.row_version, OLD.modify_when, OLD.modify_by, TG_RELID, TG_OP,
+		OLD.row_version, OLD.modified_when, OLD.modified_by, TG_RELID, TG_OP,
 		%s
 	);
 	return NEW;
@@ -129,7 +129,7 @@ BEGIN
 		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
 		%s
 	) VALUES (
-		OLD.row_version, OLD.modify_when, OLD.modify_by, TG_RELID, TG_OP,
+		OLD.row_version, OLD.modified_when, OLD.modified_by, TG_RELID, TG_OP,
 		%s
 	);
 	return OLD;
@@ -276,7 +276,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.13  2003-07-05 12:53:29  ncq
+# Revision 1.14  2003-07-05 13:45:49  ncq
+# - modify -> modified
+#
+# Revision 1.13  2003/07/05 12:53:29  ncq
 # - actually use ";"s correctly (verified)
 #
 # Revision 1.12  2003/07/05 12:29:57  ncq
