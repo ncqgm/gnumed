@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.13 $
+version = $Revision: 1.14 $
 
 #----------------------------------
 [installation]
@@ -89,9 +89,6 @@ server alias = local host
 # setting this to 1 will disable creation of any
 # auditing related tables, triggers, and functions
 audit disable = 0
-# name of table that all audited table inherit from, this
-# is used as a marker for audit trail schema generation
-audit marker table = audit_mark
 # all audit trail tables inherit from this table
 audit trail parent table = audit_trail
 # all audit trail tables start with this prefix
@@ -263,7 +260,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.13  2003-08-26 14:11:13  ncq
+# Revision 1.14  2003-10-01 15:59:20  ncq
+# - remove now-obsolete audit_mark defines
+#
+# Revision 1.13  2003/08/26 14:11:13  ncq
 # - add option to disable checking for proc lang library files on remote machines
 #
 # Revision 1.12  2003/08/26 13:05:04  ncq
