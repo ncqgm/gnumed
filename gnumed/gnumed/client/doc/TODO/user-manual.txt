@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.21 $
+# $Revision: 1.22 $
 ---------------------------------------------------
 Rules:
 ------
@@ -43,7 +43,4 @@ translations:
 
 This allows for a missing Austrian translation to fall back to
 a general German (de_AT -> de) one, for example.
-
-Note: The code is all in place. For some strange reason it seems to
-not work although I cannot find the problem.
 ---------------------------------------------------
