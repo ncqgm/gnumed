@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.75 2004-06-20 15:48:06 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmEditArea.py,v 1.76 2004-07-15 23:28:04 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -1300,216 +1300,6 @@ class gmAllergyEditArea(gmEditArea):
 		except KeyError: pass
 
 		return 1
-#========================================================
-class gmVaccinationEditArea(gmEditArea):
-	
-	"""
-	- warn on apparent duplicates
-	- ask if "missing" (= previous, non-recorded) vaccinations
-	  should be estimated and saved (add note "auto-generated")
-	"""
-	def __init__(self, parent, id):
-		pass
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'vaccination')
-		except gmExceptions.ConstructorError:
-			_log.LogException('cannot instantiate vaccination edit area', sys.exc_info(), verbose=1)
-			raise
-		
-	#----------------------------------------------------
-	def _define_fields(self, parent):
-#		# regime/disease
-#		query = """
-#			select distinct on (regime)
-#				pk_regime,
-#				regime || ' - ' || _(indication)
-#			from
-#				v_vacc_regimes
-#			where
-#				regime || ' ' || _(indication) %(fragment_condition)s
-#			limit 25"""
-
-		# vaccine
-		# FIXME: move to gmClinicalRecord or gmVaccination
-		query = """
-			select
-				id,
-				trade_name
-			from
-				vaccine
-			where
-				short_name || ' ' || trade_name %(fragment_condition)s
-			limit 25"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
-		mp.setThresholds(aWord=2, aSubstring=4)
-		self.fld_vaccine = gmPhraseWheel.cPhraseWheel(
-			parent = parent
-			, id = -1
-			, aMatchProvider = mp
-			, style = wxSIMPLE_BORDER
-		)
-		_decorate_editarea_field(self.fld_vaccine)
-		self._add_field(
-			line = 1,
-			pos = 1,
-			widget = self.fld_vaccine,
-			weight = 3
-		)
-
-		# FIXME: gmDateTimeInput
-		self.fld_date_given = cEditAreaField(parent)
-		self._add_field(
-			line = 2,
-			pos = 1,
-			widget = self.fld_date_given,
-			weight = 2
-		)
-
-		# Batch No (http://www.fao.org/docrep/003/v9952E12.htm)
-		self.fld_batch_no = cEditAreaField(parent)
-		self._add_field(
-			line = 3,
-			pos = 1,
-			widget = self.fld_batch_no,
-			weight = 1
-		)
-
-		# site given
-		query = """
-			select distinct on (tmp.site)
-				tmp.id, tmp.site
-			from (
-				select id, site
-				from vaccination
-				group by id, site
-				order by count(site)
-			) as tmp
-			where
-				tmp.site %(fragment_condition)s
-			limit 10"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
-		mp.setThresholds(aWord=1, aSubstring=3)
-		self.fld_site_given = gmPhraseWheel.cPhraseWheel(
-			parent = parent
-			, id = -1
-			, aMatchProvider = mp
-			, style = wxSIMPLE_BORDER
-		)
-		_decorate_editarea_field(self.fld_site_given)
-		self._add_field(
-			line = 4,
-			pos = 1,
-			widget = self.fld_site_given,
-			weight = 1
-		)
-
-		# progress note
-		query = """
-			select distinct on (narrative)
-				id, narrative
-			from
-				vaccination
-			where
-				narrative %(fragment_condition)s
-			limit 30"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
-		mp.setThresholds(aWord=3, aSubstring=5)
-		self.fld_progress_note = gmPhraseWheel.cPhraseWheel(
-			parent = parent
-			, id = -1
-			, aMatchProvider = mp
-			, style = wxSIMPLE_BORDER
-		)
-		_decorate_editarea_field(self.fld_progress_note)
-		self._add_field(
-			line = 5,
-			pos = 1,
-			widget = self.fld_progress_note,
-			weight = 1
-		)
-
-		self._add_field(
-			line = 6,
-			pos = 1,
-			widget = self._make_standard_buttons(parent),
-			weight = 1
-		)
-		return 1
-	#----------------------------------------------------
-	def _define_prompts(self):
-		self._add_prompt(line = 1, label = _("Vaccine"))
-		self._add_prompt(line = 2, label = _("Date given"))
-		self._add_prompt(line = 3, label = _("Serial #"))
-		self._add_prompt(line = 4, label = _("Site injected"))
-		self._add_prompt(line = 5, label = _("Progress Note"))
-		self._add_prompt(line = 6, label = '')
-	#----------------------------------------------------
-	def _save_new_entry(self):
-		# FIXME: validation ?
-		epr = self.patient.get_clinical_record()
-		if epr is None:
-			# FIXME: badder error message
-			wxBell()
-			_gb['main.statustext'](_('Cannot save vaccination: %s') % data)
-			return None
-		# create new vaccination
-		status, data = epr.add_vaccination(self.fld_vaccine.GetValue())
-		if status is None:
-			wxBell()
-			_gb['main.statustext'](_('Cannot save vaccination: %s') % data)
-			return None
-		# update it with known data
-		data['pk_provider'] = _whoami.get_staff_ID()
-		data['date'] = self.fld_date_given.GetValue()
-		data['narrative'] = self.fld_progress_note.GetValue()
-		data['site'] = self.fld_site_given.GetValue()
-		data['batch_no'] = self.fld_batch_no.GetValue()
-		status, err = data.save_payload()
-		if status is None:
-			wxBell()
-			_gb['main.statustext'](_('Cannot save vaccination: %s') % err)
-			return None
-		_gb['main.statustext'](_('Vaccination saved.'))
-		self.data = data
-		return 1
-	#----------------------------------------------------
-	def _save_modified_entry(self):
-		"""Update vaccination object and persist to backend.
-		"""
-		self.data['vaccine'] = self.fld_vaccine.GetValue()
-		self.data['batch_no'] = self.fld_batch_no.GetValue()
-		self.data['date'] = self.fld_date_given.GetValue()
-		self.data['site'] = self.fld_site_given.GetValue()
-		self.data['narrative'] = self.fld_progress_note.GetValue()
-		status, data = self.data.save_payload()
-		if status is None:
-			wxBell()
-			_gb['main.statustext'](_('Cannot update vaccination: %s') % data)
-			return False
-		_gb['main.statustext'](_('Vaccination updated.'))
-		return True
-	#----------------------------------------------------
-	def set_data(self, aVacc = None):
-		"""Set edit area fields with vaccination object data.
-
-		- set defaults if no object is passed in, this will
-		  result in a new object being created upon saving
-		"""
-		self.data = None
-		if aVacc is None:
-			self.fld_vaccine.SetValue('')
-			self.fld_batch_no.SetValue('')
-			self.fld_date_given.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
-			self.fld_site_given.SetValue(_('left/right deltoid'))
-			self.fld_progress_note.SetValue('')
-			return 1
-		self.data = aVacc
-		self.fld_vaccine.SetValue(aVacc['vaccine'])
-		self.fld_batch_no.SetValue(aVacc['batch_no'])
-		self.fld_date_given.SetValue(aVacc['date'])
-		self.fld_site_given.SetValue(aVacc['site'])
-		self.fld_progress_note.SetValue(aVacc['narrative'])
-		return 1
 #====================================================================
 class gmReferralEditArea(gmEditArea):
 		
@@ -2410,7 +2200,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.75  2004-06-20 15:48:06  ncq
+# Revision 1.76  2004-07-15 23:28:04  ncq
+# - vaccinations edit area factored out
+#
+# Revision 1.75  2004/06/20 15:48:06  ncq
 # - better please epydoc
 #
 # Revision 1.74  2004/06/20 06:49:21  ihaywood
