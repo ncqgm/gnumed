@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.86 2004-04-20 00:17:55 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmClinicalRecord.py,v 1.87 2004-04-20 12:56:58 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -536,7 +536,7 @@ class cClinicalRecord:
  			self.__db_cache['allergies']
  		except KeyError:
  			self.__db_cache['allergies'] = []
-			id_list = self._get_allergies_list():
+			id_list = self._get_allergies_list()
 			had_errors = False
 			for allg_id in id_list:
 				try:
@@ -566,7 +566,7 @@ class cClinicalRecord:
 		curs = self._ro_conn_clin.cursor()
 		cmd = "select id from v_pat_allergies where id_patient=%s"
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
-		if rows is None
+		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load list of allergies for patient [%s]' % self.id_patient)
 			del self.__db_cache['allergy IDs']
 			return None
@@ -1046,59 +1046,6 @@ class cClinicalRecord:
 				[_('error loading due boosters'), '', '', -1, '', -1, -1, -1, -1, -1]
 			]
 		self.__db_cache['due vaccinations']['boosters'].extend(vaccs)
-		return self.__db_cache['due vaccinations']
-	#--------------------------------------------------------
-	def get_due_vaccs(self):
-		# FIXME: be smarter about boosters !
-		try:
-			return self.__db_cache['due vaccinations']
-		except KeyError:
-			pass
-		self.__db_cache['due vaccinations'] = {}
-		# due
-		cmd = """
-select
-	pk_vacc_def,
-	regime,
-	seq_no,
-	is_booster,
-	latest_due,
-	time_left,
-	min_interval,
-	comment
-from v_pat_due_vaccs
-where pk_patient = %s
-order by time_left
-"""
-		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
-		if rows is None:
-			return None
-		self.__db_cache['due vaccinations']['due'] = []
-		if len(rows) != 0:
-			self.__db_cache['due vaccinations']['due'].extend(rows)
-
-		# overdue
-		cmd = """
-select
-	pk_vacc_def,
-	regime,
-	seq_no,
-	is_booster,
-	amount_overdue,
-	min_interval,
-	comment
-from v_pat_overdue_vaccs
-where pk_patient = %s
-order by amount_overdue
-"""
-		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
-		if rows is None:
-			return None
-
-		self.__db_cache['due vaccinations']['overdue'] = []
-		if len(rows) != 0:
-			self.__db_cache['due vaccinations']['overdue'].extend(rows)
-
 		return self.__db_cache['due vaccinations']
 	#--------------------------------------------------------
 	def add_vaccination(self, aVacc = None):
@@ -1583,7 +1530,7 @@ if __name__ == "__main__":
 	lab_file.close()
 #	emr = record.get_text_dump()
 #	print emr
-#	vaccs = record.get_due_vaccs()
+#	vaccs = record.get_due_vaccinations()
 #	print vaccs['overdue']
 #	print vaccs['boosters']
 #	dump = record.get_text_dump()
@@ -1614,7 +1561,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.86  2004-04-20 00:17:55  ncq
+# Revision 1.87  2004-04-20 12:56:58  ncq
+# - remove outdated get_due_vaccs(), use get_due_vaccinations() now
+#
+# Revision 1.86  2004/04/20 00:17:55  ncq
 # - allergies API revamped, kudos to Carlos
 #
 # Revision 1.85  2004/04/17 11:54:16  ncq
