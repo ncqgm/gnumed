@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.49 2004-08-18 10:16:03 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmTopPanel.py,v 1.50 2004-08-20 06:48:31 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ from wxPython.wx import *
 
 from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
 from Gnumed.business import gmPatient
-from Gnumed.wxpython import gmPatientSelector, gmGuiHelpers, gmBMIWidgets, gmPregWidgets, gmPatPicWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmBMIWidgets, gmPregWidgets, gmPatPicWidgets, gmPatSearchWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
@@ -89,7 +89,7 @@ class cMainTopPanel(wxPanel):
 		self.btn_pat_demographics.SetToolTip(wxToolTip(_("display patient demographics")))
 		self.szr_top_row.Add (self.btn_pat_demographics, 0, wxEXPAND | wxBOTTOM, 3)
 		#  - patient selector
-		self.patient_selector = gmPatientSelector.cPatientSelector(self, -1)
+		self.patient_selector = gmPatSearchWidgets.cPatientSelector(self, -1)
 		if gmCLI.has_arg('--slave'):
 			self.patient_selector.SetEditable(0)
 			self.patient_selector.SetToolTip(None)
@@ -215,7 +215,8 @@ class cMainTopPanel(wxPanel):
 
 		# create patient picture
 		self.patient_picture = gmPatPicWidgets.cPatientPicture(self, -1)
-#		self.__gb['main.patient_picture'] = self.patient_picture
+		tt = wxToolTip(_('Patient picture.\nRight-click for context menu.'))
+		self.patient_picture.SetToolTip(tt)
 
 		# create main sizer
 		self.szr_main = wxBoxSizer(wxHORIZONTAL)
@@ -447,7 +448,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.49  2004-08-18 10:16:03  ncq
+# Revision 1.50  2004-08-20 06:48:31  ncq
+# - import gmPatSearchWidgets
+#
+# Revision 1.49  2004/08/18 10:16:03  ncq
 # - import patient picture code from Richard's improved gmPatPicWidgets
 #
 # Revision 1.48  2004/08/09 00:05:15  ncq
