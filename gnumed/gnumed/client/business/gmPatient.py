@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.1 2003-10-26 01:26:45 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPatient.py,v 1.2 2003-10-26 01:38:06 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -620,7 +620,7 @@ def _make_where_from_cooked(cooked_search_terms = None):
 	return ' AND '.join((where_fname, where_lname, where_dob, where_gender))
 #------------------------------------------------------------
 def create_patient(data):
-	"""Create or load and return gmTmpPatient object.
+	"""Create or load and return gmPatient object.
 
 	- not None: either newly created patient or existing patient
 	- None: failure
@@ -771,7 +771,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.1  2003-10-26 01:26:45  ncq
+# Revision 1.2  2003-10-26 01:38:06  ncq
+# - gmTmpPatient -> gmPatient, cleanup
+#
+# Revision 1.1  2003/10/26 01:26:45  ncq
 # - now go live, this is for real
 #
 # Revision 1.41  2003/10/19 10:42:57  ihaywood

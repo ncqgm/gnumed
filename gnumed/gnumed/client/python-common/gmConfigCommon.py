@@ -15,7 +15,7 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types, pickle
@@ -816,7 +816,7 @@ def exportDBSet(filename,aUser = None, aMachine = '__default__'):
 		file.write( "[%s]\ntype = %s\ndescription = %s\nvalue = %s\n\n" % \
 			(param,cType,description,value))
 	return len(paramList)
-	
+#-------------------------------------------------------------------------
 def importDBSet(filename,aUser = None, aMachine = '__default__'):
 	"""get config definitions from a file exported with 
 	   exportDBSet()."""
@@ -887,7 +887,10 @@ def importDBSet(filename,aUser = None, aMachine = '__default__'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.7  2003-10-22 21:35:51  hinnef
+# Revision 1.8  2003-10-26 01:38:06  ncq
+# - gmTmpPatient -> gmPatient, cleanup
+#
+# Revision 1.7  2003/10/22 21:35:51  hinnef
 # - fixed a bug in CastType that prevented numeric values to be written as such
 #
 # Revision 1.6  2003/10/13 21:02:55  hinnef

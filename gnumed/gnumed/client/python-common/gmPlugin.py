@@ -5,15 +5,15 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.57 2003-09-24 10:32:54 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmPlugin.py,v 1.58 2003-10-26 01:38:06 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
 
 from wxPython.wx import *
 
-import gmExceptions, gmGuiBroker, gmPG, gmShadow, gmLog, gmCfg, gmTmpPatient
+import gmExceptions, gmGuiBroker, gmPG, gmShadow, gmLog, gmCfg, gmPatient
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
@@ -228,7 +228,7 @@ class wxNotebookPlugin (wxBasePlugin):
 		- convenience method for your can_receive_focus() handlers
 		"""
 		# fail if no patient selected
-		pat = gmTmpPatient.gmCurrentPatient()
+		pat = gmPatient.gmCurrentPatient()
 		if not pat.is_connected():
 			# FIXME: people want an optional beep and an optional red backgound here
 			set_statustext = self.gb['main.statustext']
@@ -489,7 +489,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.57  2003-09-24 10:32:54  ncq
+# Revision 1.58  2003-10-26 01:38:06  ncq
+# - gmTmpPatient -> gmPatient, cleanup
+#
+# Revision 1.57  2003/09/24 10:32:54  ncq
 # - whitespace cleanup
 #
 # Revision 1.56  2003/09/03 17:31:05  hinnef
