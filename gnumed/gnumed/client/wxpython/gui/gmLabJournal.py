@@ -123,12 +123,30 @@ class cLabJournalNB(wxNotebook):
 	def __init_SZR_due (self):
 
 		vbszr = wxBoxSizer( wxVERTICAL )
+		
+		self.lab_label = wxStaticText(
+			name = 'lablabel',
+			parent = self.PNL_due_tab,
+			id = -1,
+			label = _("processing laboratory")
+		)
+		
+		# available labs go here
 		self.lab_wheel = cLabWheel(self.PNL_due_tab)
 		self.lab_wheel.on_resize (None)
 		self.lab_wheel.addCallback(self.on_lab_selected)
-		
-		vbszr.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
 
+		vbszr.AddWindow(self.lab_label, 0, wxALIGN_CENTER | wxALL, 5)
+		vbszr.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
+		
+		self.req_id_label = wxStaticText(
+			name = 'req_id_label',
+			parent = self.PNL_due_tab,
+			id = -1,
+			label = _("request id for above laboratory")
+		)
+		
+		# request_id field
 		self.fld_request_id = wxTextCtrl(
 			self.PNL_due_tab,
 			wxID_TXTCTRL_ids,
@@ -138,7 +156,8 @@ class cLabJournalNB(wxNotebook):
 			0
 			)
 
-		vbszr.AddWindow( self.fld_request_id, 0, wxALIGN_CENTER|wxALL, 5 )
+		vbszr.AddWindow(self.req_id_label, 0, wxALIGN_CENTER | wxALL, 5)
+		vbszr.AddWindow(self.fld_request_id, 0, wxALIGN_CENTER| wxALL, 5 )
 
 		# -- "save request id" button -----------
 		self.BTN_save_request_ID = wxButton(
@@ -186,6 +205,7 @@ class cLabJournalNB(wxNotebook):
 		self.lbox_errors.InsertColumn(0, _("noticed when"))
 		self.lbox_errors.InsertColumn(1, _("problem"))
 		self.lbox_errors.InsertColumn(2, _("solution"))
+		self.lbox_errors.InsertColumn(3, _("context"))
 		return vbszr
 
 	def __init_SZR_review_status (self):
@@ -206,7 +226,8 @@ class cLabJournalNB(wxNotebook):
 		self.review_Ctrl.InsertColumn(2, _("date"))
 		self.review_Ctrl.InsertColumn(3, _("analysis"))
 		self.review_Ctrl.InsertColumn(4, _("result"))
-		self.review_Ctrl.InsertColumn(5, _("info provided by lab"))
+		self.review_Ctrl.InsertColumn(5, _("range"))
+		self.review_Ctrl.InsertColumn(6, _("info provided by lab"))
 
 		return vbszr
 	#------------------------------------------------------------------------
@@ -262,6 +283,8 @@ class cLabJournalNB(wxNotebook):
 			self.lbox_errors.SetStringItem(index = idx, col=1, label=lab_error[4])
 			# -- how can we fix it ---
 			self.lbox_errors.SetStringItem(index = idx, col=2, label=lab_error[5])
+			# -- context --
+			self.lbox_errors.SetStringItem(index = idx, col=3, label=lab_error[6])
 		
 		#------ unreviewed lab results PNL ------------------------------------
 		unreviewed_results = self.__get_unreviewed_results()
@@ -269,6 +292,13 @@ class cLabJournalNB(wxNotebook):
 		for result in unreviewed_results:
 			self.idx = self.review_Ctrl.InsertItem(info=wxListItem())
 			idx=self.idx
+			# result abnormal ? --> change font color to red
+			if not result[7] is None:
+				print 'bla'
+				print result
+				self.review_Ctrl.SetTextColour(wxRED)
+			else:
+				self.review_Ctrl.SetTextColour(wxBLACK)
 			# FIXME: return some string instead of None if no data avail 
 			# -- display  patient name ------------------- 
 			id = result[0]
@@ -281,11 +311,14 @@ class cLabJournalNB(wxNotebook):
 			self.review_Ctrl.SetStringItem(index = idx, col=3, label=result[2])
 			# -- result including unit
 			self.review_Ctrl.SetStringItem(index = idx, col=4, label=result[3]+result[4])
+			# -- val normal range
+			if not result[6] is None:
+				self.review_Ctrl.SetStringItem(index = idx, col=5, label=result[6])
 			# -- notes from provider 
 			if not result[5] is None:
-				self.review_Ctrl.SetStringItem(index = idx, col=5, label=result[5])
+				self.review_Ctrl.SetStringItem(index = idx, col=6, label=result[5])
 			else :
-				self.review_Ctrl.SetStringItem(index = idx, col=5, label=_('missing label'))
+				self.review_Ctrl.SetStringItem(index = idx, col=6, label=_('no message'))
 	#-------------------------------------------------------------------------
 	def get_patient_for_lab_request(self,req_id,lab):
 		lab_req = gmPathLab.cLabRequest(req_id=req_id, lab=lab)
@@ -333,7 +366,7 @@ class cLabJournalNB(wxNotebook):
 			return None
 	#--------------------------------------------------------------------------
 	def __get_unreviewed_results(self):
-		query = """select pk_patient, lab_rxd_when, lab_name,unified_val, val_unit, note_provider from v_results4lab_req where reviewed='f'"""
+		query = """select pk_patient, lab_rxd_when, lab_name, unified_val, val_unit, note_provider, val_normal_range, abnormal from v_results4lab_req where reviewed='f'"""
 		unreviewed_results = gmPG.run_ro_query('historica', query)
 		return unreviewed_results
 	#--------------------------------------------------------------------------
@@ -615,7 +648,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.11  2004-05-18 20:43:17  ncq
+# Revision 1.12  2004-05-22 23:29:09  shilbert
+# - gui updates (import error context , ctrl labels )
+#
+# Revision 1.11  2004/05/18 20:43:17  ncq
 # - check get_clinical_record() return status
 #
 # Revision 1.10  2004/05/18 19:38:54  shilbert
