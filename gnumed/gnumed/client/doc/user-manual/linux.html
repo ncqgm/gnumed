@@ -4,7 +4,8 @@
 >Linux Installation</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
 REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
@@ -36,7 +37,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: </TH
+>GNUMed: User's Manual</TH
 ></TR
 ><TR
 ><TD
@@ -72,26 +73,20 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="LINUX"
-></A
->2.2. Linux Installation</H1
+NAME="LINUX">2.2. Linux Installation</H1
 ><DIV
 CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN69"
-></A
->2.2.1. Distrubutions 'supported'</H2
+NAME="AEN69">2.2.1. Distrubutions 'supported'</H2
 ><P
 >GnuMed is known being actively developed on:</P
 ><P
 >		<DIV
 CLASS="TABLE"
 ><A
-NAME="AEN73"
-></A
-><P
+NAME="AEN73"><P
 ><B
 >Table 2-1. "Supported" Distributions</B
 ></P
@@ -370,9 +365,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN148"
-></A
->2.2.2. Requirements</H2
+NAME="AEN148">2.2.2. Requirements</H2
 ><P
 >GNUMed has run successfully on Linux. It requires a number of
 packages to be installed before it can be run.</P
@@ -382,9 +375,7 @@ packages to be installed before it can be run.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN153"
-></A
-><P
+NAME="AEN153"><P
 ><B
 >Table 2-2. Requirements</B
 ></P
@@ -457,10 +448,7 @@ CLASS="FILENAME"
 ><A
 NAME="AEN176"
 HREF="#FTN.AEN176"
-><SPAN
-CLASS="footnote"
->[a]</SPAN
-></A
+>[a]</A
 ></TD
 ></TR
 ><TR
@@ -506,10 +494,7 @@ CLASS="CITETITLE"
 					<A
 NAME="AEN190"
 HREF="#FTN.AEN190"
-><SPAN
-CLASS="footnote"
->[b]</SPAN
-></A
+>[b]</A
 >
 				</TD
 ><TD
@@ -547,18 +532,12 @@ VALIGN="TOP"
           <A
 NAME="AEN201"
 HREF="#FTN.AEN201"
-><SPAN
-CLASS="footnote"
->[c]</SPAN
-></A
+>[c]</A
 >
             <A
 NAME="AEN203"
 HREF="#FTN.AEN203"
-><SPAN
-CLASS="footnote"
->[d]</SPAN
-></A
+>[d]</A
 >
 			</TD
 ></TR
@@ -656,23 +635,79 @@ CLASS="CITETITLE"
 >mirror</I
 ></A
 ></P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN220">2.2.2.1. Debian specific requirements</H3
+><P
+>This is what is known to work on Debian as of late</P
+><P
+>Son 01 Dez 2002 11:54:06 CET  <TT
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:gouchi@altern.org"
+>gouchi@altern.org</A
+>&#62;</TT
+></P
+><P
+>I have reinstalled Gnumed on Debian Woody (2.4.18-bf2.4), and this the list of package, I have installed, if he can help:
+	    <P
+></P
+><UL
+><LI
+><P
+>egenix-mx-base-2.0.4.tar.gz</P
+></LI
+><LI
+><P
+>libwxgtk2.3-python_2.3.3.2_i386.deb</P
+></LI
+><LI
+><P
+>libwxgtk2.3_2.3.3.2_i386.deb</P
+></LI
+><LI
+><P
+>postgresql-7.2.3.tar.gz</P
+></LI
+><LI
+><P
+>pypgsql-2.1.tar.gz</P
+></LI
+><LI
+><P
+>python2.2-dev_2.2.1-4_i386.deb</P
+></LI
+><LI
+><P
+>python2.2-egenix-mxdatetime_2.0.3-3.2_i386.deb</P
+></LI
+><LI
+><P
+>python2.2-egenix-mxtools_2.0.3-3.2_i386.deb</P
+></LI
+><LI
+><P
+>python2.2_2.2.1-4_i386.deb</P
+></LI
+></UL
+></P
+></DIV
 ></DIV
 ><DIV
 CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN220"
-></A
->2.2.3. Postgresql</H2
+NAME="AEN245">2.2.3. Postgresql</H2
 ><DIV
 CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN222"
-></A
->2.2.3.1. Creating a database with PostgresQL</H3
+NAME="AEN247">2.2.3.1. Creating a database with PostgresQL</H3
 ><P
 >This may be too simplistic but there a few things that need to be cleared up. The first is that when <EM
 >postgresQL</EM
@@ -755,9 +790,7 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN235"
-></A
->2.2.3.2. Configuring PostgreSQL (quoting Steven Duffy)</H3
+NAME="AEN260">2.2.3.2. Configuring PostgreSQL (quoting Steven Duffy)</H3
 ><P
 > Some steps are required to get the <SPAN
 CLASS="APPLICATION"
@@ -862,9 +895,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN263"
-></A
->2.2.4. Running GnuMed</H2
+NAME="AEN288">2.2.4. Running GnuMed</H2
 ><P
 >Simple I would have thought but to start Gnumed you must go all the way to</P
 ><TABLE
@@ -914,9 +945,7 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN271"
-></A
->2.2.4.1. Logging in</H3
+NAME="AEN296">2.2.4.1. Logging in</H3
 ><P
 >You will then be faced with login parameters. If you have set up the postgresql correctly, you only need to fill in the follow parameters.</P
 ><P
