@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.19 2004-01-10 01:29:25 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.20 2004-01-22 23:44:39 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -218,6 +218,7 @@ insert into vacc_indication (description) values (i18n('influenza'));
 insert into vacc_indication (description) values (i18n('hepatitis A'));
 insert into vacc_indication (description) values (i18n('pneumococcus'));
 insert into vacc_indication (description) values (i18n('meningococcus C'));
+insert into vacc_indication (description) values (i18n('tick-borne meningoencephalitis'));
 
 -- ===================================================================
 -- vaccination indication to disease code links
@@ -517,11 +518,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.19 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.19  2004-01-10 01:29:25  ncq
+-- Revision 1.20  2004-01-22 23:44:39  ncq
+-- - add FSME
+--
+-- Revision 1.19  2004/01/10 01:29:25  ncq
 -- - add test data for test-nurse, test-doctor
 --
 -- Revision 1.18  2003/12/29 15:29:45  uid66147
