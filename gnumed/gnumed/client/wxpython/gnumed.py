@@ -49,7 +49,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.66 $"
+__version__ = "$Revision: 1.67 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -125,8 +125,8 @@ def setup_logging():
 	return 1
 #==========================================================
 def setup_cfg_file():
-	from Gnumed.pycommon import gmCfg
-	if gmCfg.gmDefCfgFile is None:
+	from Gnumed.pycommon import gmCfg, gmNull
+	if isinstance(gmCfg.gmDefCfgFile, gmNull.cNull):
 		if gmCfg.create_default_cfg_file():
 			# now that we got the file we can reopen it as a config file :-)
 			try:
@@ -355,7 +355,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.66  2004-07-17 11:36:35  ncq
+# Revision 1.67  2004-08-16 11:59:10  ncq
+# - fix existence check for config file (eg. test for Null instance, not None)
+#
+# Revision 1.66  2004/07/17 11:36:35  ncq
 # - comment out refcounting even on normal --debug runs
 #
 # Revision 1.65  2004/06/26 23:10:18  ncq
