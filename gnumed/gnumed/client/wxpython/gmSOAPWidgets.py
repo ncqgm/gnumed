@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.23 2005-03-16 17:47:30 cfmoro Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmSOAPWidgets.py,v 1.24 2005-03-16 19:29:22 cfmoro Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -705,14 +705,20 @@ class cResizingSoapPanel(wx.wxPanel):
 
 		@param episode: the episode to create the SOAP editor for.
 		@type episode gmEMRStructItems.cEpisode instance or None (to create an
-		unassociated progress note).
+		unassociated progress note). A gmEMRStructItems.cProblem instance is 
+		also allowed to be passed, as the widget will obtain the related cEpisode.
 
 		@param input_defs: the display and associated data for each displayed narrative
 		@type input_defs: a list of cSOAPLineDef instances
 
 		"""
-		# sanity check
-		if not isinstance(episode, (gmEMRStructItems.cEpisode, types.NoneType)):
+		# sanity check and problem -> episode conversion
+		if isinstance(episode, gmEMRStructItems.cProblem) and episode['type'] == 'episode':
+			episode = episode.get_as_episode()
+			if episode is None:
+				raise gmExceptions.ConstructorError, '''cannot make progress note editor for problem: [problem:"%s"]
+				[type:"%s"] [pk_episode:"%s"] ''' % (episode['problem'], episode['type'], episode['pk_episode'])
+		elif not isinstance(episode, (gmEMRStructItems.cEpisode, types.NoneType)):
 			raise gmExceptions.ConstructorError, 'cannot make progress note editor for episode [%s]' % str(episode)
 		self.__episode = episode
 		# do layout
@@ -1084,12 +1090,14 @@ if __name__ == "__main__":
 			sys.exit(0)
 	
 		# multisash soap
+		print 'testing multisashed soap input...'
 		application = wx.wxPyWidgetTester(size=(800,500))
 		soap_input = cMultiSashedProgressNoteInputPanel(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
 				
 		# soap widget displaying all narratives for an issue along an encounter
+		print 'testing soap editor for encounter narratives...'
 		episode = gmEMRStructItems.cEpisode(aPK_obj=1)
 		encounter = gmEMRStructItems.cEncounter(aPK_obj=1)
 		narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
@@ -1100,18 +1108,29 @@ if __name__ == "__main__":
 		del app				
 		
 		# soap progress note for episode
+		print 'testing soap editor for episode...'
 		app = wx.wxPyWidgetTester(size=(300,300))
 		app.SetWidget(cResizingSoapPanel, episode)
 		app.MainLoop()
 		del app
 		
+		# soap progress note for problem
+		print 'testing soap editor for problem...'
+		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})		
+		app = wx.wxPyWidgetTester(size=(300,300))
+		app.SetWidget(cResizingSoapPanel, problem)
+		app.MainLoop()
+		del app		
+		
 		# unassociated soap progress note
+		print 'testing unassociated soap editor...'
 		app = wx.wxPyWidgetTester(size=(300,300))
 		app.SetWidget(cResizingSoapPanel, None)
 		app.MainLoop()
 		del app		
 		
 		# unstructured progress note
+		print 'testing unstructured progress note...'
 		app = wx.wxPyWidgetTester(size=(600,600))
 		app.SetWidget(cSingleBoxSOAPPanel, -1)
 		app.MainLoop()
@@ -1123,7 +1142,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.23  2005-03-16 17:47:30  cfmoro
+# Revision 1.24  2005-03-16 19:29:22  cfmoro
+# cResizingSoapPanel accepting cProblem instance of type episode
+#
+# Revision 1.23  2005/03/16 17:47:30  cfmoro
 # Minor fixes after moving the file. Restored test harness
 #
 # Revision 1.22  2005/03/15 08:07:52  ncq
