@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.18 2005-03-30 18:14:56 cfmoro Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmEMRBrowser.py,v 1.19 2005-03-30 18:59:03 cfmoro Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -133,7 +133,24 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __on_dump_emr(self, event):
 		"""Dump EMR to file."""
-		gmGuiHelpers.gm_show_info('EMR dump code coming soon...', _('emr dump'), gmLog.lWarn)
+		# get file name
+		# - via file select dialog		
+		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("ascii files"), _("all files"))
+		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
+		dlg = wx.wxFileDialog(
+			parent = self,
+			message = _("Save patient's EMR as..."),
+			defaultDir = aDefDir,
+			defaultFile = '%s.txt' % self.__pat.get_identity()['description'],
+			wildcard = aWildcard,
+			style = wx.wxSAVE
+		)
+		choice = dlg.ShowModal()
+		fname = dlg.GetPath()
+		dlg.Destroy()
+		if choice == wx.wxID_OK:
+			_log.Log(gmLog.lData, 'selected [%s]' % fname)
+			gmGuiHelpers.gm_show_info('EMR dump code coming soon...', _('emr dump'), gmLog.lWarn)
 	#--------------------------------------------------------
 	def _on_patient_selected(self):
 		"""Patient changed."""
@@ -171,8 +188,8 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			txt = self.__exporter.dump_encounter_info(episode=epi, encounter=sel_item_obj)
 
 		else:
-			label = _('Progress Notes')
-			txt = self.__exporter.dump_summary_info()
+			label = _('Summary')
+			txt = self.__exporter.dump_summary_info(0)
 
 		header = header = '%s\n%s\n\n' % (label, ('=' * len(label)))
 		self.__narr_TextCtrl.Clear()
@@ -631,7 +648,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.18  2005-03-30 18:14:56  cfmoro
+# Revision 1.19  2005-03-30 18:59:03  cfmoro
+# Added file selector dialog to emr dump callback function
+#
+# Revision 1.18  2005/03/30 18:14:56  cfmoro
 # Added emr export button
 #
 # Revision 1.17  2005/03/29 07:27:14  ncq
