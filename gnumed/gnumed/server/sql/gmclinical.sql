@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.142 $
+-- $Revision: 1.143 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -86,8 +86,6 @@ create table clin_episode (
 	fk_clin_narrative integer
 		unique
 		default null,
---	description text
---		default null,
 	is_open boolean
 		default true
 --	clinically_relevant boolean
@@ -112,10 +110,6 @@ comment on column clin_episode.fk_patient is
 	 thereby removing redundancy';
 comment on column clin_episode.fk_health_issue is
 	'health issue this episode belongs to';
---comment on column clin_episode.description is
---	'descriptive name of this episode, may change over time; if
---	 "xxxDEFAULTxxx" applications should display the most recently
---	 associated diagnosis/month/year plus some marker for "default"';
 comment on column clin_episode.is_open is
 	'whether the episode is open (eg. there is activity for it),
 	 means open in a temporal sense as in "not closed yet"';
@@ -601,7 +595,7 @@ create table vacc_regime (
 select add_table_for_audit('vacc_regime');
 
 -- remote foreign keys:
-select add_x_db_fk_def('vacc_regime', 'fk_recommended_by', 'reference', 'ref_source', 'id');
+select add_x_db_fk_def('vacc_regime', 'fk_recommended_by', 'reference', 'ref_source', 'pk');
 
 comment on table vacc_regime is
 	'holds vaccination schedules/regimes/target diseases';
@@ -1077,11 +1071,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.142 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.143 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.142  2004-12-06 21:10:16  ncq
+-- Revision 1.143  2004-12-18 09:56:02  ncq
+-- - cleanup
+-- - id -> pk fix
+--
+-- Revision 1.142  2004/12/06 21:10:16  ncq
 -- - cleanup
 --
 -- Revision 1.141  2004/11/28 14:35:03  ncq
