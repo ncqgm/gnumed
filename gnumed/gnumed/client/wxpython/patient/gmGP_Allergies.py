@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -164,29 +164,28 @@ class AllergyPanel(wxPanel , PatientHolder ):
 		
 
 	def UpdateAllergies(self, **kwargs):
-		try:
+#		try:
 			#epr = self.__pat['clinical record']
 			#allergies = epr['allergies']
-			allergy_map = self.get_allergies().get_allergy_items()
+#			allergy_map = self.get_allergies()
 			# { 941: map_values, 2: map_values }
 			
-			
-		except:
-			_log.LogException( "problem getting allergy list", sys.exc_info(), 4)
-			return None
+#		except:
+#			_log.LogException( "problem getting allergy list", sys.exc_info(), 4)
+#			return None
 
-		_log.Data("Allergies " + str(allergy_map))
+#		_log.Data("Allergies " + str(allergy_map))
 
-		i = 0
-		self.list_allergy.DeleteAllItems()
-		self._constructListColumns()
+#		i = 0
+#		self.list_allergy.DeleteAllItems()
+#		self._constructListColumns()
 		
-		for id, val_map in allergy_map.items():
-			self._update_list_row(i, id, val_map)
-			i = i + 1
+#		for id, val_map in allergy_map.items():
+#			self._update_list_row(i, id, val_map)
+#			i = i + 1
 			
-		for column in range(0,3):
-			self.list_allergy.SetColumnWidth(column, wxLIST_AUTOSIZE)
+#		for column in range(0,3):
+#			self.list_allergy.SetColumnWidth(column, wxLIST_AUTOSIZE)
 
 		return 1
 
@@ -227,7 +226,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.18  2003-11-23 13:59:10  sjtan
+# Revision 1.19  2003-12-02 02:10:14  ncq
+# - comment out stuff so it won't complain, rewrite cleanly eventually !
+#
+# Revision 1.18  2003/11/23 13:59:10  sjtan
 #
 # _print removed from base class, so remove debugging calls to it.
 #
