@@ -6,7 +6,7 @@ This module implements functions a macro can legally use.
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -37,6 +37,8 @@ class cMacroPrimitives:
 		self.__attached = 0
 		self.__auth_cookie = None
 		self._get_source_personality = None
+		self.__user_done = False
+		self.__pat = gmPatient.gmCurrentPatient()
 	#-----------------------------------------------------------------
 	# public API
 	#-----------------------------------------------------------------
@@ -45,8 +47,8 @@ class cMacroPrimitives:
 			_log.Log(gmLog.lErr, 'attach with [%s] rejected, already serving a client' % personality)
 			return (0, _('attach rejected, already serving a client'))
 		if personality != self.__personality:
-			_log.Log(gmLog.lErr, 'rejecting attach with cookie [%s], only servicing [%s]' % (personality, self.__personality))
-			return (0, _('attach with cookie [%s] rejected') % personality)
+			_log.Log(gmLog.lErr, 'rejecting attach to personality [%s], only servicing [%s]' % (personality, self.__personality))
+			return (0, _('attach to personality [%s] rejected') % personality)
 		self.__attached = 1
 		self.__auth_cookie = str(random.random())
 		return (1, self.__auth_cookie)
@@ -63,20 +65,13 @@ class cMacroPrimitives:
 	def force_detach(self):
 		if not self.__attached:
 			return 1
-		msg = _(
-			'Someone tries to forcibly break the existing\n'
-			'controlling connection. This may or may not\n'
-			'have legitimate reasons.\n\n'
-			'Do you want to allow breaking the connection ?'
-		)
-		can_break_conn = wx.wxCallAfter(gmGuiHelpers.gm_show_question, msg, _('forced detach attempt'))
-		if can_break_conn:
-			self.__attached = 0
-			return 1
-		return 0
+		self.__user_done = False
+		# FIXME: use self.__sync_cookie for syncing with user interaction
+		wx.wxCallAfter(self._force_detach)
+		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.14 $" % self.__class__.__name__
+		return "%s $Revision: 1.15 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -103,9 +98,8 @@ class cMacroPrimitives:
 		if auth_cookie != self.__auth_cookie:
 			_log.Log(gmLog.lErr, 'non-authenticated raise_notebook_plugin()')
 			return 0
-		success = wx.wxCallAfter(gmPlugin.raise_notebook_plugin, a_plugin)
-		if not success:
-			return 0
+		# FIXME: use semaphore
+		wx.wxCallAfter(gmPlugin.raise_notebook_plugin, a_plugin)
 		return 1
 	#-----------------------------------------------------------------
 	def lock_into_patient(self, auth_cookie = None, search_params = None):
@@ -114,8 +108,7 @@ class cMacroPrimitives:
 		if auth_cookie != self.__auth_cookie:
 			_log.Log(gmLog.lErr, 'non-authenticated lock_into_patient()')
 			return (0, _('rejected lock_into_patient(), not authenticated'))
-		pat = gmPatient.gmCurrentPatient()
-		if pat.is_locked():
+		if self.__pat.is_locked():
 			_log.Log(gmLog.lErr, 'patient is already locked')
 			return (0, _('already locked into a patient'))
 		searcher = gmPatient.cPatientSearcher_SQL()
@@ -132,7 +125,7 @@ class cMacroPrimitives:
 			return (0, _('several matching patients found for [%s]/%s') % (search_term, search_dict))
 		if not gmPatient.set_active_patient(pat_id[0]):
 			return (0, _('cannot activate patient [%s] (%s/%s)') % (pat_id[0], search_term, search_dict))
-		pat.lock()
+		self.__pat.lock()
 		self.__pat_lock_cookie = str(random.random())
 		return (1, self.__pat_lock_cookie)
 	#-----------------------------------------------------------------
@@ -142,15 +135,14 @@ class cMacroPrimitives:
 		if auth_cookie != self.__auth_cookie:
 			_log.Log(gmLog.lErr, 'non-authenticated unlock_patient()')
 			return (0, _('rejected unlock_patient, not authenticated'))
-		pat = gmPatient.gmCurrentPatient()
 		# we ain't locked anyways, so succeed
-		if not pat.is_locked():
+		if not self.__pat.is_locked():
 			return (1, '')
 		# FIXME: ask user what to do about wrong cookie
 		if unlock_cookie != self.__pat_lock_cookie:
 			_log.Log(gmLog.lWarn, 'patient unlock request rejected due to wrong cookie [%s]' % unlock_cookie)
 			return (0, 'patient unlock request rejected, wrong cookie provided')
-		pat.unlock()
+		self.__pat.unlock()
 		return (1, '')
 	#-----------------------------------------------------------------
 	def assume_staff_identity(self, auth_cookie = None, staff_name = "Dr.Jekyll", staff_creds = None):
@@ -161,11 +153,34 @@ class cMacroPrimitives:
 			return 0
 		return "cMacroPrimitives.assume_staff_identity() not implemented"
 	#-----------------------------------------------------------------
-	def wait_until_user_done():
-		return 0
+	def get_user_answer(self):
+		if not self.__user_done:
+			return (0, 'still waiting')
+		self.__user_done = False
+		return (1, self.__user_answer)
 	#-----------------------------------------------------------------
-	# internal helpers
+	# internal API
 	#-----------------------------------------------------------------
+	def _force_detach(self):
+		msg = _(
+			'Someone tries to forcibly break the existing\n'
+			'controlling connection. This may or may not\n'
+			'have legitimate reasons.\n\n'
+			'Do you want to allow breaking the connection ?'
+		)
+		can_break_conn = gmGuiHelpers.gm_show_question(
+			aMessage=msg,
+			aTitle=_('forced detach attempt')
+		)
+		if can_break_conn:
+			self.__user_answer = 1
+		else:
+			self.__user_answer = 0
+		self.__user_done = True
+		if can_break_conn:
+			self.__pat.unlock()
+			self.__attached = 0
+		return 1
 #=====================================================================
 # main
 #=====================================================================
@@ -201,7 +216,11 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.14  2004-07-24 17:13:25  ncq
+# Revision 1.15  2004-09-13 09:38:29  ncq
+# - allow to wait for user interaction in controlled GnuMed instance
+#   despite having to use wxCallAfter by waiting on a semaphore
+#
+# Revision 1.14  2004/07/24 17:13:25  ncq
 # - main.plugins.gui now horstspace.notebook.gui
 #
 # Revision 1.13  2004/06/25 13:28:00  ncq
