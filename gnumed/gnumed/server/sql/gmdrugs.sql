@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.29 $ $Date: 2002-12-06 08:50:52 $ $Author: ihaywood $
+-- $Revision: 1.30 $ $Date: 2003-01-01 09:21:30 $ $Author: hherb $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.29  2002-12-06 08:50:52  ihaywood
+-- Revision 1.30  2003-01-01 09:21:30  hherb
+-- ATC codes implemented
+--
+-- Revision 1.29  2002/12/06 08:50:52  ihaywood
 -- SQL internationalisation, gmclinical.sql now internationalised.
 --
 -- Revision 1.28  2002/12/01 13:53:09  ncq
@@ -118,7 +121,20 @@ create table disease_code (
 comment on table disease_code is
 'holds actual coding systems';
 
+create table ATC (
+	code char(8) primary key,
+	src char check (src in ('p', 's')),
+	description text
+);
 
+comment on table ATC is
+'ATC coding of drugs ("nordic system") as maintained by the WHO';
+comment on column ATC.code is
+'The original ATC code';
+comment on column ATC.src is
+'p=primary source, s=secondary source';
+comment on column ATC.description is
+'clear text description of the ATC code';
 create table drug_units (
 	id serial primary key,
 	unit varchar(30)
@@ -190,7 +206,8 @@ insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.'
 
 create table drug_element (
 	id serial primary key,
-	category char check (category in ('t', 'p', 's', 'c'))
+	category char check (category in ('t', 'p', 's', 'c')),
+	description text
 );
 
 comment on table drug_element is 'collection of all drug elements: classes, compounds, and substances';
@@ -203,6 +220,13 @@ comment on view drug_class is
 comment on column drug_class.category is
 'category of this class (t = therapeutic class, s = substance class)';
 
+create table link_drug_atc (
+	drug_id integer references drug_element(id),
+	atccode char(8) references ATC(code)
+);
+
+comment on table link_drug_atc is
+'many to many pivot table associating drug elements and ATC codes';
 
 create table drug_warning_categories(
 	id serial primary key,
@@ -272,7 +296,7 @@ comment on column drug_information.info is
 'the drug product information in HTML format';
 
 
-create view generic_drug as select id, 
+create view generic_drug as select id,
 	category = 'c' as is_compound from drug_element where category = 'c' or category = 's';
 comment on view generic_drug is
 'A generic drug, either single substance or compound';
@@ -314,12 +338,12 @@ comment on table link_country_drug_name is
 
 create function get_drug_name (integer) returns varchar (60) as
 'select coalesce (
-(select name from generic_drug_name, link_country_drug_name where 
-	iso_countrycode = ''**'' and 
-	id_drug_name = generic_drug_name.id and 
-	id_drug = $1), 
-(select name from generic_drug_name where 
-id_drug = $1 and 
+(select name from generic_drug_name, link_country_drug_name where
+	iso_countrycode = ''**'' and
+	id_drug_name = generic_drug_name.id and
+	id_drug = $1),
+(select name from generic_drug_name where
+id_drug = $1 and
 not exists (select * from link_country_drug_name where id_drug_name = generic_drug_name.id)),
 (select name from generic_drug_name where id_drug = $1),
 ''NONAME'')' language 'sql';
@@ -344,7 +368,7 @@ comment on column drug_dosage.dosage_hints is
 
 create table substance_dosage(
 	id serial primary key,
-	id_dosage integer references drug_dosage (id), 
+	id_dosage integer references drug_dosage (id),
 	id_unit integer references drug_units (id),
 	id_component integer references drug_element (id), 
 	dosage_type char check (dosage_type in ('*', 'w', 's', 'a')),
@@ -498,11 +522,12 @@ create table product(
 );
 comment on table product is
 'dispensable form of a generic drug including strength, package size etc';
+
 comment on column product.id_packing_unit is
 'unit of drug "entities" as packed: for tablets and similar discrete formulations it should be the id of "each", for fixed-course kits it should be the id of "day"';
 
-comment on column product.amount is 
-'for fluid drugs, the amount in each ampoule, syringe, etc. distinct of the 
+comment on column product.amount is
+'for fluid drugs, the amount in each ampoule, syringe, etc. distinct of the
 package size. For solid drugs (tablet, capsule), this is usually "1".';
 
 create table package_size
@@ -510,6 +535,7 @@ create table package_size
 	id_product integer references product (id),
 	size float
 );
+
 
 comment on table package_size is
 'the various packing sizes available for this product';
@@ -523,7 +549,7 @@ create table link_product_component
 	id_unit integer references drug_units (id)
 );
 
-comment on table link_product_component  is 
+comment on table link_product_component  is
 'many-to-many pivot table linking products with their components';
 
 
@@ -691,7 +717,7 @@ comment on column link_drug_indication.line is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.29 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.30 $');
 
 -- -----------------------------------------
 -- we need to be able to "lock" certain drugs from prescribing and such
