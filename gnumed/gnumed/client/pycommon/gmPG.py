@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -600,6 +600,27 @@ def _import_listener_engine():
 	_listener_api = gmBackendListener
 	return 1
 #---------------------------------------------------
+def __log_PG_settings(curs=None):
+	if _query_logging_verbosity < 1:
+		return 1
+	if curs is None:
+		_log.Log(gmLog.lErr, 'need cursor to log PG settings')
+		return None
+	# don't use any of the run_*()s since that might
+	# create a loop if we fail here
+	try:
+		curs.execute('show all')
+	except:
+		_log.LogException("cannot log PG settings (>>>show all<<< failed)", sys.exc_info(), verbose = 0)
+		return None
+	settings = curs.fetchall()
+	if settings is None:
+		_log.Log(gmLog.lErr, 'cannot log PG settings (>>>show all<<< did not return rows)')
+		return None
+	for setting in settings:
+		_log.Log(gmLog.lData, "PG option [%s]: %s" % (setting[0], setting[1]))
+	return 1
+#---------------------------------------------------
 def run_query(aCursor = None, aQuery = None, *args):
 	# sanity checks
 	if aCursor is None:
@@ -689,10 +710,11 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 			curs.execute (query, *args)
 		except:
 			rollback()
-			close_cursor()
-			close_conn()
 			exc_info = sys.exc_info()
 			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), exc_info, verbose = _query_logging_verbosity)
+			__log_PG_settings(curs)
+			close_cursor()
+			close_conn()
 			if return_err_msg:
 				typ, val, tb = exc_info
 				tmp = string.replace(str(val), 'ERROR:', '')
@@ -777,9 +799,10 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 	try:
 		curs.execute(aQuery, *args)
 	except:
+		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (aQuery, args, link_obj), sys.exc_info(), verbose = _query_logging_verbosity)
+		__log_PG_settings(curs)
 		close_cursor()
 		close_conn(link_obj)
-		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (aQuery, args, link_obj), sys.exc_info(), verbose = _query_logging_verbosity)
 		if get_col_idx is None:
 			return None
 		else:
@@ -920,7 +943,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.15 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.16 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1148,7 +1171,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.15  2004-04-27 22:03:27  ncq
+# Revision 1.16  2004-04-27 22:43:28  ncq
+# - with PG versions that support it failing queries now log the PG settings if --debug
+#
+# Revision 1.15  2004/04/27 22:03:27  ncq
 # - we now set the datestyle to ISO on a hard connect()
 #
 # Revision 1.14  2004/04/26 21:59:46  ncq
