@@ -30,8 +30,10 @@ _ = gettext.gettext
 from wxPython.wx import *
 from wxPython.html import *
 from gmI18N import *
-import time, os, os.path, sys
-import gmLogFrame, gmGuiBroker, gmPG, gmmanual, gmSQLSimpleSearch
+
+import sys, time, os
+import gmLogFrame, gmGuiBroker, gmPG, gmmanual, gmSQLSimpleSearch, gmSelectPerson
+
 
 # widget IDs
 exitID = wxNewId()
@@ -68,9 +70,11 @@ class MainFrame(wxFrame):
 
 		backend = gmPG.ConnectionPool()
 		db = backend.GetConnection('default')
-		cursor = db.cursor ()
-		cursor.execute('select CURRENT_USER')
-		user = cursor.fetchone ()[0]
+
+		cur = db.cursor()
+		cur.execute('select CURRENT_USER')
+		(user,) = cur.fetchone()
+
 		self.SetTitle(_("You are logged in as [%s]") % user)
 
 		self.SetupPlatformDependent()
@@ -78,7 +82,7 @@ class MainFrame(wxFrame):
 		self.CreateMenu()
 		self.SetupAccelerators()
 		self.RegisterEvents()
- 
+
 		#a top vertical box sizer for the main window
 		self.vbox = wxBoxSizer( wxVERTICAL)
 		self.guibroker['main.vbox']=self.vbox
@@ -92,6 +96,7 @@ class MainFrame(wxFrame):
 		self.nb = self.CreateNotebook(self)
 		self.guibroker['main.notebook']=self.nb
 		self.vbox.Add(self.nb, 1, wxEXPAND|wxALL, 1)
+		self.SetStatusText(_("You are logged in as [%s]") % user)
 
 		self.SetSizer( self.vbox )
 		self.SetAutoLayout( true )
@@ -176,7 +181,7 @@ class MainFrame(wxFrame):
 		nbs = wxNotebookSizer(nb)
 
 		#Search Patient dialog
-		self.SearchPatientWindow = gmSQLSimpleSearch.SQLSimpleSearch(nb, -1)
+		self.SearchPatientWindow = gmSelectPerson.DlgSelectPerson(nb, -1)
 		nb.AddPage(self.SearchPatientWindow, _("Patient"))
 
 		#Drug information
@@ -191,7 +196,9 @@ class MainFrame(wxFrame):
 		pnl = gmmanual.ManualHtmlPanel(nb, self, self.log)
 		nb.AddPage(pnl, _("Manual"))
 
+		print "import gmSQLWindow"
 		import gmSQLWindow
+		print "self.SQLWindow = gmSQLWindow.SQLWindow(nb, -1)"
 		self.SQLWindow = gmSQLWindow.SQLWindow(nb, -1)
 		nb.AddPage(self.SQLWindow, _("SQL"))
 
