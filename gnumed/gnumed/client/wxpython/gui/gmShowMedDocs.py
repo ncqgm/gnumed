@@ -11,15 +11,16 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
 
 # location of our modules
 if __name__ == '__main__':
-	sys.path.append(os.path.join('..', '..', 'python-common'))
-	sys.path.append(os.path.join('..', '..', 'business'))
+	#sys.path.append(os.path.join('..', '..', 'python-common'))
+	#sys.path.append(os.path.join('..', '..', 'business'))
+	sys.path.append(os.path.join('.', 'modules'))
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -30,11 +31,13 @@ _log.Log(gmLog.lData, __version__)
 
 if __name__ == "__main__":
 	import gmI18N
+else:
+	import gmGuiBroker
 
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
-import gmPG, gmGuiBroker
+import gmPG
 import gmTmpPatient, gmMedDoc
 from gmExceptions import ConstructorError
 
@@ -235,9 +238,14 @@ class cDocTree(wxTreeCtrl):
 		obj_id = node_data['id']
 		_log.Log(gmLog.lData, "User selected object [%s]" % obj_id)
 
-		gb = gmGuiBroker.GuiBroker()
+		if __name__ == "__main__":
+			tmp = "no idea"
+		else:
+			gb = gmGuiBroker.GuiBroker()
+			tmp = gb['workplace_name']
+
 		exp_base = self.__dbcfg.get(
-			machine = gb['workplace_name'],
+			machine = tmp,
 			option = "doc export dir"
 		)
 		if exp_base is None:
@@ -256,10 +264,14 @@ class cDocTree(wxTreeCtrl):
 			_log.LogException('Cannot instantiate object [%s]' % obj_id, sys.exc_info())
 			return None
 
-		chunksize = self.__dbcfg.get(
-			machine = gb['workplace_name'],
-			option = "doc export chunk size"
-		)
+		if __name__ == "__main__":
+			chunksize = None
+		else:
+			gb = gmGuiBroker.GuiBroker()
+			chunksize = self.__dbcfg.get(
+				machine = gb['workplace_name'],
+				option = "doc export chunk size"
+			)
 		if chunksize is None:
 			# 1 MB
 			chunksize = 1 * 1024 * 1024
@@ -307,7 +319,6 @@ if __name__ == '__main__':
 
 			# find matching patient IDs
 			patient_ids = gmTmpPatient.get_patient_ids(cooked_search_terms)
-			print patient_ids
 			if patient_ids is None:
 				dlg = wxMessageDialog(
 					parent,
@@ -451,7 +462,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.6  2003-02-18 02:45:21  ncq
+# Revision 1.7  2003-02-19 15:19:43  ncq
+# - remove extra print()
+#
+# Revision 1.6  2003/02/18 02:45:21  ncq
 # - almost fixed standalone mode again
 #
 # Revision 1.5  2003/02/17 16:10:50  ncq
