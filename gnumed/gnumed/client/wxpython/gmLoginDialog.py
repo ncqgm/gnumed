@@ -13,8 +13,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.43 2004-03-04 19:47:06 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmLoginDialog.py,v 1.44 2004-04-24 12:46:35 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib,types
@@ -248,9 +248,8 @@ class LoginPanel(wxPanel):
 	def GetLoginInfo(self):
 		"""convenience function for compatibility with gmLoginInfo.LoginInfo"""
 		if not self.cancelled:
-			login = gmLoginInfo.LoginInfo(self.GetUser(), self.GetPassword())
+			login = gmLoginInfo.LoginInfo(user=self.GetUser(), passwd=self.GetPassword(), host=self.GetHost())
 			login.SetDatabase(self.GetDatabase())
-			login.SetHost(self.GetHost())
 			login.SetPort(self.GetPort())
 			login.SetOptions(self.GetBackendOptions())
 			return login
@@ -563,7 +562,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.43  2004-03-04 19:47:06  ncq
+# Revision 1.44  2004-04-24 12:46:35  ncq
+# - logininfo() needs host=
+#
+# Revision 1.43  2004/03/04 19:47:06  ncq
 # - switch to package based import: from Gnumed.foo import bar
 #
 # Revision 1.42  2003/12/29 16:58:52  uid66147
