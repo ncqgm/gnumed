@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.56 2004-01-26 18:25:07 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmEditArea.py,v 1.57 2004-01-26 22:15:32 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -1344,28 +1344,15 @@ class gmVaccinationEditArea(gmEditArea):
 		)
 
 		# Batch No (http://www.fao.org/docrep/003/v9952E12.htm)
-		self.fld_batch_no_lbl = wxStaticText(
-			parent,
-			-1,
-			_("  Serial # "),
-			style = wxALIGN_CENTER_VERTICAL
-		)
-		self._add_field(
-			line = 3,
-			pos = 1,
-			widget = self.fld_batch_no_lbl,
-			weight = 0
-		)
 		self.fld_batch_no = cEditAreaField(parent)
 		self._add_field(
 			line = 3,
-			pos = 2,
+			pos = 1,
 			widget = self.fld_batch_no,
 			weight = 1
 		)
 
 		# site given
-		# FIXME: context -> vaccine
 		query = """
 			select distinct on (tmp.site)
 				tmp.id, tmp.site
@@ -2334,7 +2321,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.56  2004-01-26 18:25:07  ncq
+# Revision 1.57  2004-01-26 22:15:32  ncq
+# - don't duplicate "Serial #" label
+#
+# Revision 1.56  2004/01/26 18:25:07  ncq
 # - some attribute names changed in the backend
 #
 # Revision 1.55  2004/01/24 10:24:17  ncq
