@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.10 2003-02-19 15:57:57 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmXdtMappings.py,v 1.11 2003-03-24 23:49:34 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -23,39 +23,7 @@ xdt_id_map = {
 		 '6297':'??',
 		 '6298':'??',
 		 '6299':'??',
-		#check for sending physician's id 
-		 '9100':'Arztnummer des Absenders',
-			
-		 '9103':'Datum der Erstellung',
 
-		 '9105':'Lfd.Nr. Datentraeger im Paket',
-			
-		 '9106':'Zeichencode',
-		#--------------------------------------------------
-		#data package header
-		#--------------------------------------------------
-		#ADT-version
-		 '9210':'Version ADT-Satzbeschreibung',
-		 '9213':'Version_BDT',
-		#way data is archived
-		#1 = storage as a whole
-		#2 = storage arbitrary timeframe
-		#3 = storage in quarters of a year
-		 '9600':'Archivierungsart',
-		#storage timeframe
-		 '9601':'Zeitraum der Speicherung',
-		#time of transfer start
-		 '9602':'Beginn der Uebertragung',
-		#--------------------------------------------------
-		#data package header end
-		#--------------------------------------------------
-		#full length of data package 
-		 '9202':'Gesamtlänge Datenpaket',
-		#number of media for this data package     
-		 '9203':'Anzahl Datenträger im Paket',
-		#-------------------------------------------------
-		#practice data
-		#-------------------------------------------------
 		#KBV-Pruefnummer 
 		 '0101':'KBV-Pruefnummer',
 		#responsible software vendor 
@@ -64,6 +32,20 @@ xdt_id_map = {
 		 '0103':'Software',
 		#PC hardware 
 		 '0104':'Hardware',
+		 '0105':'KBV-Pruefnummer',
+		 '0111':'Email-Adresse des SV',
+		 '0121':'Strasse des SV',
+		 '0122':'PLZ des SV',
+		 '0123':'Ort des SV',
+		 '0124':'Telefonnummer des SV',
+		 '0125':'Telefaxnummer des SV',
+		 '0126':'Regionaler Systembetreuer (SB)',
+		 '0127':'Strasse des SB',
+		 '0128':'PLZ des SB',
+		 '0129':'Ort des SB',
+		 '0130':'Telfonnummer des SB',
+		 '0131':'Telefaxnummer des SB',
+		 '0132':'Release-Stand der Software',
 		#Arztnummer 
 		 '0201':'Arztnummer',
 		#Praxistyp 
@@ -73,7 +55,7 @@ xdt_id_map = {
 		#Arztgruppe verbal 
 		 '0204':'Arztgruppe verbal',
 		#street
-		 '0205':'Strasse',
+		 '0205':'Strasse der Praxisadresse',
 		#postcode and city
 		 '0206':'PLZ Ort',
 		#Arzt und Leistungskennzeichen
@@ -81,19 +63,63 @@ xdt_id_map = {
 		#phone
 		 '0208':'Telefonnummer',
 		#fax
-		 '0209':'Telefaxnmmer',
+		 '0209':'Telefaxnummer',
 		#modem
 		 '0210':'Modemnummer',
+		 '0211':'Arztname fuer Leistungsdifferenzierung',
+		 '0213':'Leistungskennzeichen',
+		 '0214':'Erlaeuterung zum Leistungskennzeichen',
+		 '0215':'PLZ der Praxisadresse',
+		 '0216':'Ort der Praxisadresse',
 		#number of doctors
 		 '0225':'Anzahl der Aerzte',
 		#name of first free category
 		 '0250':'Name erste freie Kategorie',
 		#content of first free category
 		 '0251':'Inhalt erste freie Kategorie',
-		#-------------------------------------------------
-		#medical treatment
-		#-------------------------------------------------
-		#Pattientennummer/Patientenkennung
+		 '2700':'IK des Krankenhauses',
+		 '2701':'Fachgebiet laut LKA',
+		 '2702':'Arztnummer des Anaesthesisten',
+		 '2706':'Indikationsschluessel',
+		 '2709':'Lfd. OP-Nummer',
+		 '2710':'Lfd. OP-Nummer',
+		 '2711':'OP-Datum',
+		 '2720':'Blutung',
+		 '2721':'Narkosezwischenfall',
+		 '2722':'Pneumonie',
+		 '2723':'Wundinfektion',
+		 '2724':'Gefaess- oder Nervenlaesion',
+		 '2725':'Lagerungsschaeden',
+		 '2726':'Venenthrombose',
+		 '2727':'Komplikation',
+		 '2728':'Erfolgsbeurteilung im Hinblick auf Indikationsstellung',
+		 '2729':'Erfolgsbeurteilung im Hinblick auf Histologie',
+		 '2730':'Revisionseingriff',
+		 '2731':'Stationaere Aufnahme',
+		 '2732':'Angaben zu implantierten Materialien',
+		 '2740':'Art der Operation',
+		 '2741':'Dauer der Operation',
+		 '2742':'Operierte Seite',
+		 '2743':'Art der Anaesthesie',
+		 '2744':'Art der Anaesthesie gemaess Klassifikation Strukturvertrag',
+		 '2750':'Operateur hat Facharztstatus',
+		 '2751':'Anzahl aerztl. Assistenten bei OP',
+		 '2752':'(Ein)OP-Assistent hat Facharztstatus',
+		 '2753':'Anzahl nichtaerzticher Assistenten bei Operation',
+		 '2760':'Art der Anaesthesie',
+		 '2761':'Aaesthesie erbracht',
+		 '2762':'Dauer der Anaesthesie',
+		 '2770':'Blutung',
+		 '2771':'Narkosezwischenfall',
+		 '2772':'Pneumonie',
+		 '2773':'Wundinfektion',
+		 '2774':'Gefaess- oder Nervenlaesion',
+		 '2775':'Lagerungsschaeden',
+		 '2776':'Venenthrombose',
+		 '2780':'Revisionseingriff erforderlich',
+		 '2781':'Histologie',
+		 '2782':'Stationaere Weiterbehandlung erforderlich',
+		 #Patientennummer/Patientenkennung
 		 '3000':'Patientennummer',
 		#Namenszusatz/Vorsatzwort des Patienten
 		 '3100':'Namenszusatz',
@@ -115,11 +141,17 @@ xdt_id_map = {
 		 '3108':'Versichertenart MFR',
 		#Geschlecht des Patienten
 		 '3110':'Geschlecht des Patienten',
+		 '3111':'Geburtsjahr des Patienten',
+		 '3112':'PLZ des Patienten',
+		 '3113':'Wohnort des Patienten',
+		 '3114':'Wohnsitzlaendercode',
+		 '3116':'KV-Bereich',
 		#Arbeitgeber -- nur bei header 0191 --
 		 '3150':'Arbeitgeber',
 		#Bezeichnung des Unfallversicherungstraegers -- nur bei header 0191 --
 		 '3152':'Unfallversicherungstraeger',
 		#Name des Hauptversicherten
+		 '3200':'Namenszusatz/Vorsatzwort des Hauptversicherten',
 		 '3201':'Name des Hauptversicherten',
 		#Vorname des Hauptversicherten
 		 '3202':'Vorname des Hauptversicherten',
@@ -129,8 +161,11 @@ xdt_id_map = {
 		 '3204':'Wohnort des Hauptversicherten',
 		#Strasse des Hauptversicherten
 		 '3205':'Strasse des Hauptversicherten',
+		 '3206':'Titel des Hauptversicherten',
+		 '3207':'PLZ des Hauptversicherten',
 		#Telefonnummer des Verletzten -- nur bei header 0191 -- 
 		 '3208':'Telefonnummer des Verletzten',
+		 '3209':'Wohnort des Hauptversicherten',
 		#Geschlecht des Hauptversicherten -- nur bei header 0190 --
 		 '3210':'Geschlecht des Hauptversicherten',
 		#Roentgennummer -- nur bei header 6100 --
@@ -207,7 +242,7 @@ xdt_id_map = {
 		#Gueltigkeitsdatum
 		 '4103':'Gueltigkeitsdatum',
 		#VKNR- Vertragskassenarztnummer
-		 '4104':'VKNR',
+		 '4104':'Abrechnungs-VKNR',
 		#Geschaeftsstelle
 		 '4105':'Geschaeftsstelle',
 		#Kostentraegergruppe
@@ -215,21 +250,25 @@ xdt_id_map = {
 		#Abrechnungsart
 		 '4107':'Abrechnungsart',
 		#letzter Einlesetag der VK im Quartal TTMMJJ
-		 '4109':'letzter Einlesetag der VK im Quartal',
+		 '4109':'letzter Einlesetag der KVK im Quartal',
 		#Bis-Datum der Gueltigkeit MMJJ
 		 '4110':'Bis-Datum der Gueltigigkeit',
 		#Krankenkassennummer
 		 '4111':'Krankenkassennummer',
 		#Versichertenstatus VK
 		 '4112':'Versichertenstatus VK',
-		#Ost/West-Status VK
+		#2#'4113':'Statusergaenzung/DMP-Kennzeichnung',
 		 '4113':'Ost/West-Status VK',
 		#Gebuehrenordnung
 		 '4121':'Gebuehrenordnung',
 		#Abrechnungsgebiet
 		 '4122':'Abrechnungsgebiet',
+		 '4123':'Personenkreis/Untersuchungskategorie',
+		 '4124':'SKT-Zusatzangaben',
+		 '4125':'Gueltigkeitszeitraum von ... bis ...',
 		#Ursache des Leidens 
 		 '4201':'Ursache des Leidens',
+		 '4202':'Unfall, Unfallfolgen',
 		#mutmasslicher Tag der Entbindung
 		 '4206':'mutmasslicher Tag der Entbindung',
 		#Diagnose/Verdacht -- nur bei header 0102 --
@@ -245,11 +284,18 @@ xdt_id_map = {
 		#Ankreuzfeld AK  -- nur bei header 0102 --
 		 '4213':'Ankreuzfeld AK',
 		#Ueberweisung von Arztnummer  -- nur bei header 0102 --
+		 '4217':'Vertragsarzt-Nr. des Erstveranlassers',
 		 '4218':'Ueberweisung von Arztnummer',
 		#Ueberweisung an  -- nur bei header 0102 --
+		 '4219':'Ueberweisung von anderen Aerzten',
 		 '4220':'Ueberweisung an',
+		 '4221':'Kurativ / Praeventiv / Sonstige Hilfen / bei belegaerztlicher Behandlung',
+		 '4222':'Kennziffer OI./O.II.',
+		 '4223':'Kennziffer OIII.',
 		#stationaere Behandlung von bis -- nur bei header 0103/0190 --
 		 '4233':'stationaere Behandlung von bis',
+		 '4234':'anerkannte Psychotherapie',
+		 '4235':'Datum des Anerkennungsbescheides',
 		#Klasse bei stationaerer Behandlung -- nur bei header 0190 --
 		 '4236':'Klasse bei Behandlung',
 		#Krankenhausname -- nur bei header 0190 --
@@ -260,6 +306,17 @@ xdt_id_map = {
 		 '4239':'Scheinuntergruppe',
 		#weiterbehandelnder Arzt -- nur bei header 0104 --
 		 '4243':'weiterbehandelnder Arzt',
+		 '4261':'Kurart',
+		 '4262':'Durchfuehrung als Kompaktkur',
+		 '4263':'genehmigte Kurdauer in Wochen',
+		 '4264':'Anreisetag',
+		 '4265':'Abreisetag',
+		 '4266':'Kurabbruch am',
+		 '4267':'Bewilligte Kurverlaengerung in Wochen',
+		 '4268':'Bewilligungsdatum Kurverlaengerung',
+		 '4269':'Verhaltenspraeventive Massnahmen angeregt',
+		 '4270':'Verhaltenspraeventive Massnahmen durchgefuehrt',
+		 '4271':'Kompaktkur nicht moeglich',
 		#Unfalltag -- nur bei header 0191 --
 		 '4500':'Unfalltag',
 		#Uhrzeit des Unfalls -- nur bei header 0191 --
@@ -377,21 +434,25 @@ xdt_id_map = {
 		#DKM=Doppelkilometer
 		 '5008':'Doppel-KM',
 		#freier Begruendungstext
-		 '5009':'freie Begruendung',
+		 '5009':'freier Begruendungstext',
 		#Medikament als Begruendung -- nur bei header 0190 --
 		 '5010':'Medikament als Begruendung',
 		#Sachkosten-Bezeichnung
 		 '5011':'Sachkosten-Bezeichnung',
 		#Sachkosten/Materialkosten (Dpf)
-		 '5012':'Sachkosten/Materialkosten',
+		 '5012':'Sachkosten/Materialkosten in Cent',
 		#Prozent der Leistung
 		 '5013':'Prozent der Leistung',
 		#Organ
 		 '5015':'Organ',
+		 '5016':'Name des Arztes',
 		#Besuchsort bei Hausbesuchen
 		 '5017':'Besuchsort bei Hausbesuchen',
 		#Zone bei Besuchen
 		 '5018':'Zone bei Besuchen',
+		 '5019':'Erbringungsort,Standort des Geraetes',
+		 '5023':'GO-Nummern-Zusatz',
+		 '5024':'GNR-Zusatzkennzeichen fuer poststationaer erbrachte Leistungen',
 		#Beschreibung der GNR -- nur bei header 0190 --
 		 '5060':'Beschreibung der GNR',
 		#Gebuehr -- nur bei header 0190 --
@@ -410,6 +471,10 @@ xdt_id_map = {
 		 '6000':'Abrechnungsdiagnosen',
 		#ICD-Schluessel
 		 '6001':'ICD-Schluessel',
+		 '6003':'Diagnosensicherheit',
+		 '6004':'Seitenlokalisation',
+		 '6005':'Histologischer Befund bei Malignitaet',
+		 '6006':'Diagnosenerlaeuterung',
 		#Tag der Speicherung von Behandlungsdaten -- nur bei header 6200 --
 		 '6200':'gespeichert am',
 		#aktuelle Diagnose -- nur bei header 6200 --
@@ -543,6 +608,35 @@ xdt_id_map = {
 		 '8490':'Abschluss-Zeile',
 		#Signatur -- nur bei header 6200 --
 		 '8990':'Signatur',
+		#check for sending physician's id 
+		 '9100':'Arztnummer des Absenders',
+		 '9102':'Empfaenger',
+		 '9103':'Erstellungsdatum',
+		 '9105':'Lfd.Nr. Datentraeger im Paket',	
+		 '9106':'verwendeter Zeichensatz',
+		 '9115':'Erstellungsdatum ADT-Datenpaket',
+		 '9116':'Erstellungsdatum KADT-Datenpaket',
+		 '9117':'Erstellungsdatum AODT-Datenpaket',
+		 '9118':'Erstellungsdatum STDT-Datenpaket',
+		 '9132':'enthaltene Datenpakete dieser Datei',
+		 #full length of data package 
+		 '9202':'Gesamtlänge Datenpaket',
+		#number of media for this data package     
+		 '9203':'Anzahl Datenträger im Paket',
+		 '9204':'Abrechnungsquartal',
+		#ADT-version
+		 '9210':'Version ADT-Satzbeschreibung',
+		 '9212':'Version der Satzbeschreibung',
+		 '9213':'Version BDT',
+		 '9233':'GO-Stammdatei-Version',
+		#way data is archived
+		 '9600':'Archivierungsart',
+		#storage timeframe
+		 '9601':'Zeitraum der Speicherung',
+		#time of transfer start
+		 '9602':'Beginn der Uebertragung',
+		 '9901':'Systeminterner Parameter'
+		 #84
 	    }
 #--------------------------------------------------------------
 
@@ -602,7 +696,9 @@ xdt_Praxistyp_map = {
 	'2':'Gemeinschaftspraxis',
 	'3':'Fachuebergreifende GP',
 	'4':'Praxisgemeinschaft',
-	'5':'Fachuebergreifende GP ohne Kennzeichen Leistung'
+	'5':'Fachuebergreifende GP ohne Kennzeichen Leistung',
+	'6':'ermaechtigter Arzt',
+	'7':'Krankenhaus oder aerztlich geleitete Einrichtung'
 }
 # Versichertenart MFR : 3108
 xdt_Versichertenart_map = {
@@ -823,7 +919,10 @@ xdt_map_of_content_maps = {
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.10  2003-02-19 15:57:57  ncq
+# Revision 1.11  2003-03-24 23:49:34  ncq
+# - a huge heap of new mappings by Basti
+#
+# Revision 1.10  2003/02/19 15:57:57  ncq
 # - better strings
 #
 # Revision 1.9  2003/02/19 15:23:44  ncq
