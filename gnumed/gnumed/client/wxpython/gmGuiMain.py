@@ -10,6 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
+# @Date: $Date: 2002-03-09 08:52:00 $
+# @version $Revision: 1.11 $ $Date: 2002-03-09 08:52:00 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -381,18 +383,15 @@ def main():
 # just for convenience, really
 myLog = gmLog.gmDefLog
 
-# we may want to reset the log level, so keep a global reference to the log target
-# append only, log level "informational"
-myLogFile = gmLog.LogTargetFile('gnumed.log', 'a', gmLog.lInfo)
-myLog.AddTarget(myLogFile)
-
-# console is Good(tm)
-aLogTarget = gmLog.LogTargetConsole(gmLog.lInfo)
-myLog.AddTarget(aLogTarget)
-
 if __name__ == '__main__':
+	# we may want to reset the log level, so keep a global reference to the log target
+	# append only, log level "informational"
+	myLogFile = gmLog.LogTargetFile('gnumed.log', 'a', gmLog.lInfo)
+	myLog.AddTarget(myLogFile)
+
+	# console is Good(tm)
+	aLogTarget = gmLog.LogTargetConsole(gmLog.lInfo)
+	myLog.AddTarget(aLogTarget)
+
 	myLog.Log(gmLog.lInfo, 'Starting up as main module.')
 	main()
-
-# clean up
-# myLog.Close()
