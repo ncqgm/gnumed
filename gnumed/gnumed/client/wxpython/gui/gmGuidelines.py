@@ -156,7 +156,7 @@ class gmGuidelines (gmPlugin.wxNotebookPlugin):
         return _('Guidelines')
 
     def MenuInfo (self):
-        return (_('view'), _('&Guidelines'))
+        return ('view', _('&Guidelines'))
 
     def GetWidget (self, parent):
         return GuidelinesHtmlPanel (parent, self.gb['main.frame'])
