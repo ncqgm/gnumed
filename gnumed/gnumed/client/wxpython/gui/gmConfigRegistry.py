@@ -6,9 +6,9 @@ __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 import sys, os, string,types
 # location of our modules
 if __name__ == "__main__":
-	#sys.path.append(os.path.join('..', '..', 'python-common'))
+	sys.path.append(os.path.join('..', '..', 'python-common'))
 	#sys.path.append(os.path.join('..', '..', 'business'))
-	sys.path.append(os.path.join('.','modules'))
+	#sys.path.append(os.path.join('.','modules'))
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -25,15 +25,14 @@ _cfg = gmCfg.gmDefCfgFile
 
 from wxPython.wx import *
 
-[
-ConfigTreeCtrlID,
-ConfigTreeBoxID,
-ParamBoxID,
-ConfigEntryParamCtrlID,
-ButtonParamApplyID,
-ButtonParamRevertID,
-DescriptionBoxID,
-ConfigDescriptionTextID
+[	ConfigTreeCtrlID,
+	ConfigTreeBoxID,
+	ParamBoxID,
+	ConfigEntryParamCtrlID,
+	ButtonParamApplyID,
+	ButtonParamRevertID,
+	DescriptionBoxID,
+	ConfigDescriptionTextID
 ] = map(lambda _init_ctrls: wxNewId(), range(8))
 
 #================================================================
@@ -867,7 +866,7 @@ class gmConfigEditorPanel(wxPanel):
 if __name__ == '__main__':
 	import gmPG
 	import gmPlugin, gmGuiBroker
-	_log.Log (gmLog.lInfo, "starting display handler")
+	_log.Log (gmLog.lInfo, "starting config browser")
 
 	if _cfg is None:
 		_log.Log(gmLog.lErr, "Cannot run without config file.")
@@ -884,7 +883,7 @@ if __name__ == '__main__':
 		# but re-raise them
 		raise
 
-	_log.Log (gmLog.lInfo, "closing display handler")
+	_log.Log (gmLog.lInfo, "closing config browser")
 
 else:
 	import gmPlugin, gmGuiBroker,gmPG
@@ -892,7 +891,7 @@ else:
 
 	class gmConfigRegistry(gmPlugin.wxNotebookPlugin):
 		def name (self):
-			return _("ConfigRegistry")
+			return _("Setup")
 
 		def GetWidget (self, parent):
 			# get current workplace name
@@ -912,7 +911,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.1  2003-06-03 21:50:44  hinnef
+# Revision 1.2  2003-06-10 09:56:31  ncq
+# - coding style, comments, tab name
+#
+# Revision 1.1  2003/06/03 21:50:44  hinnef
 # - now we can store changed values to file/backend
 #
 # Revision 1.7  2003/05/22 21:19:21  ncq
