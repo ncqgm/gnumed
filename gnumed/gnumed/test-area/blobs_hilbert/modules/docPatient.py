@@ -5,13 +5,13 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docPatient.py,v $
-__version__	= "$Revision: 1.4 $"
+__version__	= "$Revision: 1.5 $"
 __author__	= "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
-import os.path, string, fileinput
+import os.path, string, fileinput, sys
 
 import gmLog
-__log__		= gmLog.gmDefLog
+_log		= gmLog.gmDefLog
 
 _ = lambda x:x
 
@@ -64,11 +64,11 @@ class cPatient:
 		"""
 		# sanity checks
 		if not self.__file_reader.has_key(aType):
-			__log__.Log(gmLog.lErr, 'No handler for file type \"%s\" available.' % aType)
-			__log__.Log(gmLog.lErr, 'Cannot retrieve patient from file \"%s\".' % aFileName)
+			_log.Log(gmLog.lErr, 'No handler for file type \"%s\" available.' % aType)
+			_log.Log(gmLog.lErr, 'Cannot retrieve patient from file \"%s\".' % aFileName)
 			return None
 		if not os.path.exists (aFileName):
-			__log__.Log(gmLog.lErr, "patient data file \"%s\" (type \"%s\") not found" % (aFileName, aType))
+			_log.Log(gmLog.lErr, "patient data file \"%s\" (type \"%s\") not found" % (aFileName, aType))
 			return None
 
 		return self.__file_reader[aType](aFileName)
@@ -95,7 +95,7 @@ class cPatient:
 				# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
 				if line[3:7] == dat2xdtID[field]:
 					tmpPat[field] = line[7:]
-					__log__.Log(gmLog.lData, "found item [" + field + "]: " + tmpPat[field])
+					_log.Log(gmLog.lData, "found item [" + field + "]: " + tmpPat[field])
 					data_found = data_found + 1
 					# leave this loop
 					break
@@ -104,9 +104,9 @@ class cPatient:
 
 		# looped over all lines or found all data
 		if data_found != len(xdt_pat_fields):
-			__log__.Log(gmLog.lErr, "could not find sufficient patient data in xDT file " + str(anXdtFile))
-			__log__.Log(gmLog.lErr, "found only " + str(data_found) + " items:")
-			__log__.Log(gmLog.lErr, str(aPatient))
+			_log.Log(gmLog.lErr, "could not find sufficient patient data in xDT file " + str(anXdtFile))
+			_log.Log(gmLog.lErr, "found only " + str(data_found) + " items:")
+			_log.Log(gmLog.lErr, str(aPatient))
 			return None
 
 		# now normalize what we got
@@ -115,19 +115,19 @@ class cPatient:
 
 		# mangle date of birth into ISO8601 (yyyymmdd) for Postgres
 		if tmpPat.has_key('date of birth') != 1:
-			__log__.Log(gmLog.lErr,'patient has no "date of birth" field')
+			_log.Log(gmLog.lErr,'patient has no "date of birth" field')
 			return None
 		else:
 			self.dob = tmpPat['date of birth'][4:] + tmpPat['date of birth'][2:4] + tmpPat['date of birth'][:2]
 
 		# mangle gender
 		if tmpPat.has_key('gender') != 1:
-			__log__.Log(gmLog.lErr,'patient has no "gender" field')
+			_log.Log(gmLog.lErr,'patient has no "gender" field')
 			return None
 		else:
 			self.gender = xdt2gm_gender_map[tmpPat['gender']]
 
-		__log__.Log(gmLog.lData, self.toString())
+		_log.Log(gmLog.lData, self.toString())
 
 		# all is well, so return true
 		return (1==1)
@@ -141,11 +141,11 @@ class cPatient:
 		This is not a complete import. It just imports the data
 		necessary for relating BLOBs to patients.
 		"""
-		__log__.Log(gmLog.lInfo, 'importing patient into GNUmed compatible database')
+		_log.Log(gmLog.lInfo, 'importing patient into GNUmed compatible database')
 
 		# sanity check
 		if aConn == None:
-			__log__.Log(gmLog.lErr, 'Cannot import patient without connection object.')
+			_log.Log(gmLog.lErr, 'Cannot import patient without connection object.')
 			return (1==0)
 
 		# start our transaction (done implicitely by defining a cursor)
@@ -154,33 +154,45 @@ class cPatient:
 		# first check out whether the patient is already in the database
 		#cmd = "SELECT id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND dob='%s' AND gender='%s' LIMIT 2" % (self.firstnames, self.lastnames, self.dob, self.gender)
 		cmd = "SELECT id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND dob='%s' AND gender='%s'" % (self.firstnames, self.lastnames, self.dob, self.gender)
-		cursor.execute(cmd)
+		try:
+			cursor.execute(cmd)
+		except:
+			_log.LogException(">>>[%s]<<< failed" % cmd, sys.exc_info(), fatal=0)
+			raise
 		pat_ids = cursor.fetchall()
-		__log__.Log(gmLog.lData, "matching patient ID(s): " + str(pat_ids))
+		_log.Log(gmLog.lData, "matching patient ID(s): " + str(pat_ids))
 
 		# patient already there
 		if len(pat_ids) == 1:
 			(self.ID,) = pat_ids[0]
-			__log__.Log(gmLog.lData, "patient already in database: " + str(pat_ids))
+			_log.Log(gmLog.lData, "patient already in database: " + str(pat_ids))
 			return (1==1)
 		# more than one patient matching - die
 		elif len(pat_ids) > 1:
-			__log__.Log(gmLog.lErr, "More than one patient matched - ambiguity - integrity at stake - aborting. " + str(pat_ids))
+			_log.Log(gmLog.lErr, "More than one patient matched - ambiguity - integrity at stake - aborting. " + str(pat_ids))
 			return (1==0)
 		# not in there yet
 		elif len(pat_ids) == 0:
-			__log__.Log(gmLog.lData, "patient not yet in database")
+			_log.Log(gmLog.lData, "patient not yet in database")
 
 		cmd = "INSERT INTO v_basic_person (firstnames, lastnames, dob, cob, gender) VALUES ('%s', '%s', '%s', '%s', '%s');" % (self.firstnames, self.lastnames, self.dob, self.cob, self.gender)
-		cursor.execute(cmd)
+		try:
+			cursor.execute(cmd)
+		except:
+			_log.LogException(">>>[%s]<<< failed" % cmd, sys.exc_info(), fatal=0)
+			raise
 		cmd = "SELECT last_value FROM identity_id_seq"
-		cursor.execute(cmd)
+		try:
+			cursor.execute(cmd)
+		except:
+			_log.LogException(">>>[%s]<<< failed" % cmd, sys.exc_info(), fatal=0)
+			raise
 		self.ID = cursor.fetchone()[0]
 
 		aConn.commit()
 		cursor.close()
 
-		__log__.Log(gmLog.lData, "patient ID: " + str(self.ID))
+		_log.Log(gmLog.lData, "patient ID: " + str(self.ID))
 		return (1==1)
 	#-----------------------------------
 	def getIDfromGNUmed(self, aConn = None):
@@ -193,14 +205,14 @@ class cPatient:
 
 		FIXME: what happens if there's insufficient descriptive data ?
 		"""
-		__log__.Log(gmLog.lInfo, 'getting patient ID from GNUmed compatible database')
+		_log.Log(gmLog.lInfo, 'getting patient ID from GNUmed compatible database')
 
 		if self.ID != None:
 			return ((1==1), self.ID)
 
 		# sanity check
 		if aConn == None:
-			__log__.Log(gmLog.lErr, 'Cannot retrieve patient ID without connection object.')
+			_log.Log(gmLog.lErr, 'Cannot retrieve patient ID without connection object.')
 			return ((1==0), None)
 
 		# start our transaction (done implicitely by defining a cursor)
@@ -210,7 +222,7 @@ class cPatient:
 		cmd = "SELECT id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND dob='%s' AND gender='%s'" % (self.firstnames, self.lastnames, self.dob, self.gender)
 		cursor.execute(cmd)
 		pat_ids = cursor.fetchall()
-		__log__.Log(gmLog.lData, "matching patient ID(s): " + str(pat_ids))
+		_log.Log(gmLog.lData, "matching patient ID(s): " + str(pat_ids))
 		aConn.commit()
 		cursor.close()
 
@@ -220,14 +232,14 @@ class cPatient:
 			return ((1==1), self.ID)
 		# more than one patient matching
 		elif len(pat_ids) > 1:
-			__log__.Log(gmLog.lWarn, "More than one patient matched.")
+			_log.Log(gmLog.lWarn, "More than one patient matched.")
 			return ((1==0), pat_ids)
 		# not in there
 		elif len(pat_ids) == 0:
-			__log__.Log(gmLog.lData, "No matching patient(s).")
+			_log.Log(gmLog.lData, "No matching patient(s).")
 			return ((1==0), None)
 		else:
-			__log__.Log(gmLog.lErr, "This should not happen.")
+			_log.Log(gmLog.lErr, "This should not happen.")
 			return ((1==0), None)
 	#-----------------------------------
 	def getDocsFromGNUmed(self, aConn = None):
@@ -235,15 +247,15 @@ class cPatient:
 
 		Note that we DON'T keep a list of those documents local to cPatient !
 		"""
-		__log__.Log(gmLog.lInfo, 'getting documents from GNUmed compatible database')
+		_log.Log(gmLog.lInfo, 'getting documents from GNUmed compatible database')
 
 		# sanity check
 		if aConn == None:
-			__log__.Log(gmLog.lErr, 'Cannot load documents without connection object.')
+			_log.Log(gmLog.lErr, 'Cannot load documents without connection object.')
 			return None
 
 		if self.ID == None:
-			__log__.Log(gmLog.lErr, "Cannot associate a patient with her documents without a patient ID.")
+			_log.Log(gmLog.lErr, "Cannot associate a patient with her documents without a patient ID.")
 			return None
 
 		import docDocument
@@ -257,10 +269,10 @@ class cPatient:
 		matching_rows = cursor.fetchall()
 
 		if cursor.rowcount == 0:
-			__log__.Log(gmLog.lErr, "No documents found (%s) for patient with ID %s." % (matching_rows, self.ID))
+			_log.Log(gmLog.lErr, "No documents found (%s) for patient with ID %s." % (matching_rows, self.ID))
 			return None
 
-		__log__.Log(gmLog.lData, "document IDs: %s" % matching_rows)
+		_log.Log(gmLog.lData, "document IDs: %s" % matching_rows)
 
 		# and load docs
 		docs = {}
@@ -275,13 +287,13 @@ class cPatient:
 	def setID (self, anID = None):
 		# sanity checks
 		if anID == None:
-			__log__.Log(gmLog.lErr, "Cannot associate a patient with her documents without a patient ID.")
+			_log.Log(gmLog.lErr, "Cannot associate a patient with her documents without a patient ID.")
 			return None
 
 		if self.ID != None:
-			__log__.Log(gmLog.lErr, "Patient already has an associated ID (%s). It is not safe to change it arbitrarily." % self.ID)
+			_log.Log(gmLog.lErr, "Patient already has an associated ID (%s). It is not safe to change it arbitrarily." % self.ID)
 
-		__log__.Log(gmLog.lData, "Setting patient ID to %s." % anID)
+		_log.Log(gmLog.lData, "Setting patient ID to %s." % anID)
 
 		self.ID = anID
 #-----------------------------------
@@ -289,11 +301,11 @@ class cPatient:
 #-----------------------------------
 if __name__ == "__main__":
 	# test framework if run by itself
-	__log__.SetAllLogLevels(gmLog.lData)
+	_log.SetAllLogLevels(gmLog.lData)
 
 	import sys
 	patfile = sys.argv[1]
-	__log__.Log(gmLog.lInfo, "reading patient data from xDT file " + patfile)
+	_log.Log(gmLog.lInfo, "reading patient data from xDT file " + patfile)
 
 	aPatient = cPatient()
 	if aPatient.loadFromFile("xdt", patfile):
