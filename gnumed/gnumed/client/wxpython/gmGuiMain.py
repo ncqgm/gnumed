@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-04-08 13:28:53 $
-# @version $Revision: 1.16 $ $Date: 2002-04-08 13:28:53 $ $Author: sjtan $
+# @Date: $Date: 2002-04-08 13:59:03 $
+# @version $Revision: 1.17 $ $Date: 2002-04-08 13:59:03 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -20,10 +20,17 @@
 # @TODO: all testing, most of the implementation
 #
 ############################################################################
+# This source code is protected by the GPL licensing scheme.
+# Details regarding the GPL are available at http://www.gnu.org
+# You may use and share it as long as you don't deny this right
+# to anybody else.
+
 """GNUMed GUI client
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
+__version__ = "$Revision: 1.17 $"
+__author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # text translation function for localization purposes
 import gettext
@@ -392,8 +399,8 @@ myLog = gmLog.gmDefLog
 if __name__ == '__main__':
 	# we may want to reset the log level, so keep a global reference to the log target
 	# append only, log level "informational"
-	#myLogFile = gmLog.LogTargetFile('gnumed.log', 'a', gmLog.lInfo)
-	#$myLog.AddTarget(myLogFile)
+	myLogFile = gmLog.cLogTargetFile('gnumed.log', 'a', gmLog.lInfo)
+	myLog.AddTarget(myLogFile)
 
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
