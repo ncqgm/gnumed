@@ -23,6 +23,9 @@
 --                BREAKS BACKWARDS COMPATIBILITY!
 
 -- ===================================================================
+-- do fixed string i18n()ing
+\i gmI18N.sql
+
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
@@ -84,7 +87,7 @@ create table names (
 	lastnames varchar (80) not null,
 	firstnames varchar(255) not null,
 	preferred varchar(80),
-	title varchar(80) --yes, there are some incredible rants of titles ...
+	title varchar(80) -- yes, there are some incredible rants of titles ...
 ) inherits (audit_identity);
 
 COMMENT ON TABLE names IS
@@ -111,8 +114,11 @@ CREATE FUNCTION check_active_name () RETURNS OPAQUE AS '
 DECLARE
 BEGIN
 	IF NEW.active THEN
-	   UPDATE names SET active=''f'' WHERE id_identity = NEW.id_identity
-	   AND active;
+		UPDATE names SET active=''f''
+		WHERE
+			id_identity = NEW.id_identity
+				AND
+			active;
 	END IF;
 	RETURN NEW;
 END;' LANGUAGE 'plpgsql';
@@ -150,20 +156,19 @@ COMMENT ON COLUMN relation_types.biol_verified IS
 COMMENT ON COLUMN relation_types.description IS
 'plain text description of relationship';
 
---!!I18N!!
 -- TRANSLATORS: please do NOT alter the sequence or insert anything; just translate!
 -- Only that way we will be able to exchange relationship details between multilingual
 -- databases. Hopefully, we will soon have an ontology taking care of this problem.
 
-insert into relation_types(biological, description) values(true, 'parent');				-- <i18n>
-insert into relation_types(biological, description) values(true, 'sibling');			-- <i18n>
-insert into relation_types(biological, description) values(true, 'halfsibling');		-- <i18n>
-insert into relation_types(biological, description) values(false, 'stepparent');		-- <i18n>
-insert into relation_types(biological, description) values(false, 'married');			-- <i18n>
-insert into relation_types(biological, description) values(false, 'defacto');			-- <i18n>
-insert into relation_types(biological, description) values(false, 'divorced');			-- <i18n>
-insert into relation_types(biological, description) values(false, 'separated');			-- <i18n>
-insert into relation_types(biological, description) values(false, 'legal_guardian');	-- <i18n>
+insert into relation_types(biological, description) values(true,  i18n('parent'));
+insert into relation_types(biological, description) values(true,  i18n('sibling'));
+insert into relation_types(biological, description) values(true,  i18n('halfsibling'));
+insert into relation_types(biological, description) values(false, i18n('stepparent'));
+insert into relation_types(biological, description) values(false, i18n('married'));
+insert into relation_types(biological, description) values(false, i18n('de facto'));
+insert into relation_types(biological, description) values(false, i18n('divorced'));
+insert into relation_types(biological, description) values(false, i18n('separated'));
+insert into relation_types(biological, description) values(false, i18n('legal guardian'));
 
 -- ==========================================================
 
@@ -286,4 +291,4 @@ insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) valu
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.28 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.29 $');
