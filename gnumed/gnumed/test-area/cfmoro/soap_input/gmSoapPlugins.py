@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -159,7 +159,6 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		selected_soap = self.__soap_multisash.get_focussed_leaf().get_content()
 		# if soap stack is empty, disable save, clear and remove buttons		
 		if isinstance(selected_soap, multisash.cEmptyChild) or selected_soap.IsSaved():
-			print("AAAAA")
 			self.__BTN_save.Enable(False)
 			self.__BTN_clear.Enable(False)
 			self.__BTN_remove.Enable(False)
@@ -352,12 +351,11 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			gmGuiHelpers.gm_show_error(msg, _('progress note editor'), gmLog.lErr)
 			_log.Log(gmLog.lErr, 'invalid problem type [%s]' % type(problem))
 			return False
-		
-		print self.__selected_episode
+				
 		episode_name = self.__selected_episode['description']
 		if episode_name not in self.__get_displayed_episodes():
 			focused_widget = self.__soap_multisash.get_focussed_leaf().get_content()
-			if isinstance(focused_widget, gmSOAPWidgets.cResizingSoapPanel) and focused_widget.GetEpisode() is None and focused_widget.GetHeadingTxt().strip() == '':
+			if isinstance(focused_widget, gmSOAPWidgets.cResizingSoapPanel) and (focused_widget.GetEpisode() is None or focused_widget.GetEpisode() == gmSOAPWidgets.NOTE_SAVED) and focused_widget.GetHeadingTxt().strip() == '':
 				# configure episode name in unassociated progress note
 				focused_widget = self.__soap_multisash.get_focussed_leaf().get_content()		
 				focused_widget.SetHeadingTxt(self.__selected_episode['description'])
@@ -604,7 +602,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.28  2005-03-14 18:22:22  cfmoro
+# Revision 1.29  2005-03-14 20:55:25  cfmoro
+# Let saved unassociated note be reused on new problem activation. Minot clean ups
+#
+# Revision 1.28  2005/03/14 18:22:22  cfmoro
 # Passing episodes instead of problems to soap editor. Clean ups
 #
 # Revision 1.27  2005/03/14 14:49:05  ncq
