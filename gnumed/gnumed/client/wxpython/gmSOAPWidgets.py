@@ -4,29 +4,226 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.1 2005-01-10 16:14:35 ncq Exp $
-__version__ = "$Revision: 1.1 $"
-__author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+# $Id: gmSOAPWidgets.py,v 1.2 2005-01-10 17:48:03 ncq Exp $
+__version__ = "$Revision: 1.2 $"
+__author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import sys, string
-
-from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N
-from Gnumed.business import gmPatient
-from Gnumed.pycommon.gmExceptions import ConstructorError
-
+# 3rd party
 from wxPython import wx
+
+# GnuMed
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions
+from Gnumed.pycommon.gmPyCompat import *
+from Gnumed.wxpython import gmRegetMixin, gmResizingWidgets
+from Gnumed.business import gmPatient
+
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lInfo, __version__)
+
+# FIXME attribute encapsulation and private methods
+# FIXME i18n
 #============================================================
+class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 
+	def __init__(self, parent, size, input_defs=None):
+		"""Resizing SOAP note input editor.
 
+		Labels and categories are customizable.
+
+		@param input_defs: note's labels and categories
+		@type input_defs: dictionary of pairs of input label:category
+		"""
+		if input_defs is None or len(input_defs) == 0:
+			raise gmExceptions.ConstructorError, 'cannot generate note with field defs [%s]' % (input_defs)
+		self.__input_defs = input_defs
+
+		gmResizingWidgets.cResizingWindow.__init__(self, parent, id= -1, size=size)
+	#--------------------------------------------------------
+	def DoLayout(self):
+		"""Visually display input note, according to user defined labels.
+		"""
+		input_fields = []			# temporary cache of input fields
+		# add fields to edit widget
+		for input_label in self.__input_defs.keys():
+			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = self.__input_defs[label])
+			self.AddWidget (widget=input_field, label=input_label)
+			self.Newline()
+			input_fields.append(input_field)
+		# tab navigation between input fields
+		for field_idx in range(len(input_fields)):
+			# previous
+			try:
+				input_fields[field_idx].prev_in_tab_order = input_fields[field_idx-1]
+			except IndexError:
+				input_fields[field_idx].prev_in_tab_order = None
+			# next
+			try:
+				input_fields[field_idx].next_in_tab_order = input_fields[field_idx+1]
+			except IndexError:
+				input_fields[field_idx].next_in_tab_order = None
+		# FIXME: PENDING keywords set up
+		#kwds = {}
+		#kwds['$test_keyword'] = {'widget_factory': create_widget_on_test_kwd2}
+		#self.input2.set_keywords(popup_keywords=kwds)
+		# FIXME: pending matcher setup
 
 #============================================================
-class gmSingleBoxSOAP(wx.wxTextCtrl):
+class cResizingSoapPanel(wx.wxPanel):
+	"""
+	Basic note panel. It provides gmResizingWindows based editor
+	and a staticText that displays the which problem its current note is related to.
+	"""
+	#--------------------------------------------------------
+	def __init__(self, parent, problem=None):
+		"""Construct a new SOAP input widget
+
+		@param parent: the parent widget
+		problem:
+			health problem name, may be issue or episode name,
+			for clarity let's assume there cannot be a SOAP editor w/o a problem
+		"""
+		if problem is None or len(problem) == 0:
+			raise gmExceptions.ConstructorError, 'invalid health problem [%s]' % str(problem)
+		self.__problem = problem
+		# do layout
+		wx.wxPanel.__init__ (self,
+			parent,
+			-1,
+			wx.wxPyDefaultPosition,
+			wx.wxPyDefaultSize,
+			wx.wxNO_BORDER
+		)
+		self.__soap_heading = wx.wxStaticText(self, -1, 'error: no problem given')
+		self.__soap_text_editor = cSoapWin (
+			self,
+			size = wx.wxSize (300, 150),
+			# FIXME obtain cats from user preferences
+			input_defs = {
+				'Subjective':'s',
+				'Objective':'o',
+				'Assessment':'a',
+				'Plan':'p'
+			}
+		)
+		self.__soap_control_sizer = wx.wxBoxSizer(wx.wxVERTICAL)
+		self.__soap_control_sizer.Add(self.__soap_heading)
+		self.__soap_control_sizer.Add(self.__soap_text_editor)
+		self.SetSizerAndFit(self.__soap_control_sizer)
+
+		# display health problem
+		txt = '#%s: %s'%(self.__problem[0]+1, self.__problem[1]['description'])
+		self.__set_heading(txt)
+
+		# flag indicating saved state
+		self.__is_saved = False
+	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------
+#	def SetHealthIssue(self, selected_issue):
+#		"""
+#		Set the related health issue for this SOAP input widget.
+#		Update heading label with health issue data.
+#		
+#		@type selected_issue: gmEMRStructItems.cHealthIssue
+#		@param selected_issue: SOAP input widget's related health issue
+#		"""
+#		self.__problem = selected_issue
+#		if self.__problem is None or len(self.__problem) == 0:
+#			self.__soap_heading.SetLabel("Select issue and press 'New'")
+#		else:
+#			txt = '%s# %s'%(self.__problem[0]+1,self.__problem[1]['description'])
+#			# update staticText content and recalculate sizer internal values
+#			self.__set_heading(txt)
+#		self.ShowContents()
+	#--------------------------------------------------------
+	def GetProblem(self):
+		"""
+		Retrieve the related health problem for this SOAP input widget.
+		"""
+		return self.__problem
+	#--------------------------------------------------------
+	def GetSOAP(self):
+		"""
+		Retrieves widget's SOAP text editor
+		"""
+		return self.__soap_text_editor
+	#--------------------------------------------------------
+	def Clear(self):
+		"""Clear any entries in widget's SOAP text editor
+		"""
+		self.__soap_text_editor.Clear()
+	#--------------------------------------------------------
+	# FIXME: what is this used for ?
+	def HideContents(self):
+		"""
+		Hide widget's components (health problem heading and SOAP text editor)
+		"""
+		self.__soap_heading.Hide()
+		self.__soap_text_editor.Hide()
+	#--------------------------------------------------------
+	def ShowContents(self):
+		"""
+		Show widget's components (health problem heading and SOAP text editor)
+		"""
+		self.__soap_heading.Show(True)
+		self.__soap_text_editor.Show(True)
+	#--------------------------------------------------------
+	def IsContentShown(self):
+		"""
+		Check if contents are being shown
+		"""
+		return self.__soap_heading.IsShown()
+	#--------------------------------------------------------
+	def SetSaved(self, is_saved):
+		"""
+		Set SOAP input widget saved (dumped to backend) state
+
+		@param is_saved: Flag indicating wether the SOAP has been dumped to
+						 persistent backend
+		@type is_saved: boolean
+		"""
+		self.__is_saved = is_saved
+		if is_saved:
+			self.__set_heading(self.__soap_heading.GetLabel() + '. SAVED')
+	#--------------------------------------------------------
+	def IsSaved(self):
+		"""
+		Check  SOAP input widget saved (dumped to backend) state
+		"""
+		return self.__is_saved
+	#--------------------------------------------------------
+	# FIXME: what is this used for ?
+	def ResetAndHide(self):
+		"""
+		Reset all data and hide contents
+		"""
+#		self.SetHealthIssue(None)
+		self.SetSaved(False)
+		self.ClearSOAP()		
+		self.HideContents()
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __set_heading(self, txt):
+		"""Configure SOAP widget's heading title
+
+		@param txt: New widget's heading title to set
+		@type txt: string
+		"""
+		self.__soap_heading.SetLabel(txt)
+		size = self.__soap_heading.GetBestSize()
+		self.__soap_control_sizer.SetItemMinSize(self.__soap_heading, size.width, size.height)
+		self.Layout()
+
+#============================================================
+#============================================================
+class cSingleBoxSOAP(wx.wxTextCtrl):
 	"""if we separate it out like this it can transparently gain features"""
 	def __init__(self, *args, **kwargs):
 		wx.wxTextCtrl.__init__(self, *args, **kwargs)
 #============================================================
-class gmSingleBoxSOAPPanel(wx.wxPanel):
+class cSingleBoxSOAPPanel(wx.wxPanel):
 	"""Single Box free text SOAP input.
 
 	This widget was suggested by David Guest on the mailing
@@ -39,11 +236,11 @@ class gmSingleBoxSOAPPanel(wx.wxPanel):
 		self.__do_layout()
 		self.__pat = gmPatient.gmCurrentPatient()
 		if not self.__register_events():
-			raise ConstructorError, 'cannot register interests'
+			raise gmExceptions.ConstructorError, 'cannot register interests'
 	#--------------------------------------------------------
 	def __do_layout(self):
 		# large box for free-text clinical notes
-		self.__soap_box = gmSingleBoxSOAP (
+		self.__soap_box = cSingleBoxSOAP (
 			self,
 			-1,
 			'',
@@ -104,7 +301,7 @@ class gmSingleBoxSOAPPanel(wx.wxPanel):
 		if not self.__soap_box.IsModified():
 			return True
 		note = self.__soap_box.GetValue()
-		if string.strip(note) == '':
+		if note.strip() == '':
 			return True
 		# now save note
 		emr = self.__pat.get_clinical_record()
@@ -120,13 +317,28 @@ class gmSingleBoxSOAPPanel(wx.wxPanel):
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
-	app = wx.wxPyWidgetTester(size = (600, 600))
-	app.SetWidget(gmSingleBoxSOAPPanel, -1)
-	app.MainLoop()
+
+	_log.SetAllLogLevels(gmLog.lData)
+
+	try:
+		app = wx.wxPyWidgetTester(size=(600,600))
+		app.SetWidget(cResizingSoapPanel, app.frame, 'cold/cough')
+#		soap_input = cSoapPanel(app.frame)
+		app.frame.Show(True)
+		app.MainLoop()
+		app.SetWidget(cSingleBoxSOAPPanel, -1)
+		app.MainLoop()
+	except StandardError:
+		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+		# but re-raise them
+		raise
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.1  2005-01-10 16:14:35  ncq
+# Revision 1.2  2005-01-10 17:48:03  ncq
+# - all of test_area/cfmoro/soap_input/gmSoapWidgets.py moved here
+#
+# Revision 1.1  2005/01/10 16:14:35  ncq
 # - soap widgets independant of the backend (gmPG) live in here
 #
 # Revision 1.13	 2004/06/30 20:33:41  ncq
