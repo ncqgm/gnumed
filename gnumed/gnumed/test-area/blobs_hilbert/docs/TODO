@@ -1,0 +1,103 @@
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
+# $Revision: 1.1 $
+-------------------------------------------------
+Erledigte Dinge löschen !
+
+immediately
+===========
+
+Conf/Doc
+--------
+
+
+viewer
+------
+ internationalize
+ > Windoof-Test mit Win-Standard-Programm und Irfanview
+ > sort objects by sequence index
+
+import
+------
+ > handle date as date not string
+
+scan
+----
+ > derzeit Konzentration auf scannen unter Windows
+ > vorerst via Twain gui
+ > Funktion Seiten umsortieren fertigstellen
+ internationalize
+
+index
+-----
+ Funktion Seiten umsortieren fertigstellen
+ internationalize
+
+=====================================================
+post-1.0
+========
+
+import
+------
+- profile download vs. unescaping to speed up retrieval
+    - on a 33 KB image download takes less than 1s over 100 MBit ethernet
+    - unescaping takes 14s on a 266 MHz Mobile Pentium MMX with 64 MB RAM
+    - nothing much can be done about this at present, I guess
+    - even unescaping in memory it takes _way_ longer than the download
+    - guess we'll have to wait for binary safe transfer
+    - or perhaps use a binary cursor ?
+
+- investigate binary cursors
+
+- move/remove succesfully imported files
+    - make this an option
+
+scan
+----
+ > hack zum Ermitteln der scanner-Parameter 
+ > Funktionalität einbauen die unterschiedliche Dokumente mit unterschiedlichen 
+ > Scan-Parametern verknüpft
+
+viewer
+------
+ > eventuell irgendwo in conf-Datei einen präferierten viewer eintragen 
+ > (Möglichkeit schaffen) weil oft unter Windoof die mime-Verknüpfung
+ > auf einem suboptimalen Programm liegt --> photopaint (braucht ewig beim 
+ > Starten) - ist aber meist verknüpft
+ Man kann wohl eigene mailcap-Dateien mit verwenden. Mm, oder
+ doch nicht.
+
+ > Datum : Schrift dick
+ Wie geht das ?
+
+ bessere Darstellung der Felder eines Entry
+
+ > sort docs by date reverse-chron
+
+ > Typen-Filterung einbauen
+ > testen ob es vom speed her möglich ist, die Seiten im Tree (Unterpunkte) erst 
+ > anzuzeigen wenn man auf dem Namen steht
+  Geht, aber will man das wirklich ?
+
+ > - in Gunmed einbauen
+
+ mehrere Versionen (Funktionalität)
+
+ Menü on Right-Click
+
+ - progress bar on download/unescape
+
+Conf/Doc
+--------
+ > Dau-Dokumentation erstellen
+ > -werde ich machen, das braucht nicht soviel Zeit
+
+ > Zusatzprogramme :
+ > extra Webseite einrichten
+ > Konfigurationseditor für DAUs
+ > Konfigurationseditor für Scannereinstellungen
+ > 	ist nicht nur Kosmetik; minimiert Fehler und optimiert Einbinden von allerlei 		
+ > 	WIn-Scannern/Lin-Scannern.
+ > 	sollte nicht der große hack sein; gibt es ansatzweise schon mitgeliefert bei 
+ > 	python twainmodule
+ > Einbau eines Hilfe-Browsers
+-------------------------------------------------
