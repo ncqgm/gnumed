@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.22 $ $Date: 2003-01-16 13:16:22 $ $Author: ncq $
+-- $Revision: 1.23 $ $Date: 2003-01-17 00:23:09 $ $Author: ncq $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -44,15 +44,16 @@ INSERT into doc_type(name) values(_('referral report psychotherapy'));
 -- =============================================
 create view v_i18n_doc_type as
 	select
-		dt.id, tr.trans as name
+		doc_type.id,
+		i18n_translations.trans as name
 	from
-		"doc_type" as dt,
-		i18n_translations as tr,
-		i18n_curr_lang as lcurr
-	where
-		lcurr.owner = CURRENT_USER::varchar
-			and
-		tr.lang = lcurr.lang
+		doc_type,
+		i18n_translations
+	where (
+		i18n_translations.lang = (select lang from i18n_curr_lang where owner = CURRENT_USER::varchar)
+	) and (
+		doc_type.name = i18n_translations.orig
+	)
 	;
 
 -- =============================================
@@ -128,7 +129,7 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.22 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.23 $');
 
 -- =============================================
 -- questions:
