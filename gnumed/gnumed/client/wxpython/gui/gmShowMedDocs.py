@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -491,9 +491,10 @@ else:
 				_log.Log(gmLog.lErr, "Cannot work without patient object.")
 				#raise ConstructorError, "cPluginTreePanel.__init__(): need patient object"
 			# FIXME: register interest in patient_changed signal, too
-
-			self.panel.tree.update(self.__pat)
-			self.panel.tree.SelectItem(self.panel.tree.root)
+			else:
+				self.panel.tree.update(self.__pat)
+				# FIXME: we should handle errors in tree.update here (e.g. tree=None)
+				self.panel.tree.SelectItem(self.panel.tree.root)
 
 #================================================================
 # MAIN
@@ -521,7 +522,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.11  2003-02-25 23:30:31  ncq
+# Revision 1.12  2003-03-02 11:13:01  hinnef
+# preliminary fix for crash on ReceiveFocus()
+#
+# Revision 1.11  2003/02/25 23:30:31  ncq
 # - need sys.exc_info() in LogException
 #
 # Revision 1.10  2003/02/24 23:14:53  ncq
