@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -59,7 +59,7 @@ class cEpisode(gmClinItem.cClinItem):
 	_cmds_store_payload = [
 		"""select 1 from clin_episode where id=%(id)s for update""",
 		"""update clin_episode set
-				description=%(episode)s,
+				description=%(description)s,
 				id_health_issue=%(id_health_issue)s
 			where id=%(id)s"""
 		]
@@ -306,7 +306,11 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.13  2004-06-02 13:18:48  sjtan
+# Revision 1.14  2004-06-02 13:45:19  sjtan
+#
+# episode->description for update statement as well.
+#
+# Revision 1.13  2004/06/02 13:18:48  sjtan
 #
 # revert, as backend view definition was changed yesterday to be more consistent.
 #
