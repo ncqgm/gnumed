@@ -23,8 +23,8 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.11 2004-05-25 00:22:26 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmLDTimporter.py,v 1.12 2004-06-13 22:09:12 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -42,6 +42,8 @@ from Gnumed.pycommon import gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.business import gmPathLab, gmXdtMappings, gmPatient
 
+import mx.DateTime as mxDT
+
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
 #===============================================================
@@ -51,7 +53,6 @@ class cLDTImporter:
 	_map_820xline2req_field = {
 		'8311': 'lab_request_id',
 		'8301': 'lab_rxd_when',
-		'8302': 'results_reported_when',
 		'8401': 'request_status',
 		'8405': 'narrative'
 	}
@@ -146,12 +147,12 @@ class cLDTImporter:
 		return True
 	#-----------------------------------------------------------
 #	def _verify_9211(self, a_line, field_data):
-#		if field_data not in ['09/95']:
-#			_log.Log(gmLog.lWarn, 'not sure I can handle LDT version [%s], will try' % field_data)
+#		_log.Log(gmLog.lInfo, 'LDT version [%s]' % field_data)
 #		return True
 	#-----------------------------------------------------------
 	_map_field2verifier = {
 		'8300': _verify_8300
+#		'9211': _verify_9211
 		}
 	#-----------------------------------------------------------
 	def __verify_file_header(self, filename):
@@ -268,7 +269,22 @@ class cLDTImporter:
 		return gmXdtMappings.xdt_8date2iso(request_data['8301'][0].strip())
 	#-----------------------------------------------------------
 	def __xform_8302(self, request_data):
-		return gmXdtMappings.xdt_8date2iso(request_data['8302'][0].strip())
+		"""8302: Berichtsdatum"""
+		self.__request['results_reported_when'] = mxDT.strptime(
+			request_data['8302'][0].strip(),
+			'%d%m%Y',
+			self.__request['results_reported_when']
+		)
+		return None
+	#-----------------------------------------------------------
+	def __xform_8303(self, request_data):
+		"""8303: Berichtszeit"""
+		self.__request['results_reported_when'] = mxDT.strptime(
+			request_data['8303'][0].strip(),
+			'%H%M',
+			self.__request['results_reported_when']
+		)
+		return None
 	#-----------------------------------------------------------
 	def __xform_3103(self, request_data):
 		tmp = gmXdtMappings.xdt_8date2iso(request_data['3103'][0])
@@ -366,7 +382,7 @@ class cLDTImporter:
 					self.__ref_group_str = "!!!*** Im Labor wurde vermutlich eine falsche Referenzgruppe verwendet (Alter/Geschlecht). ***!!!\n%s" % self.__ref_group_str
 		return None
 	#-----------------------------------------------------------
-	__8202line_handler = {
+	__820xline_handler = {
 		'0020': None,
 		'9105': None,
 		'8000': None,
@@ -375,14 +391,17 @@ class cLDTImporter:
 		'8311': __xform_8311,
 		'8301': __xform_8301,
 		'8302': __xform_8302,
+		'8303': __xform_8303,
 		'3100': None,
 		'3101': None,
 		'3102': None,
 		'3103': __xform_3103,
 		'3104': None,
 		'8401': __xform_8401,
+		'8403': None,			# Gebührenordnung
 		'8405': __xform_8405,
-		'8407': __xform_8407
+		'8407': __xform_8407,
+		'8609': None			# Gebührenordnung
 	}
 	#-----------------------------------------------------------
 	def __handle_8202(self, request_data):
@@ -407,12 +426,17 @@ class cLDTImporter:
 		for line_type in request_data.keys():
 			# get handler
 			try:
-				handle_line = cLDTImporter.__8202line_handler[line_type]
+				handle_line = cLDTImporter.__820xline_handler[line_type]
 			except KeyError:
-				_log.LogException('no handler for line [%s] in [8000:8202] record' % line_type, sys.exc_info(), verbose=0)
+				_log.LogException('no handler for line [%s:%s] in [8000:8201] record' % (line_type, request_data[line_type]), sys.exc_info(), verbose=0)
 				continue
 			# ignore line
 			if handle_line is None:
+				try:
+					name = gmXdtMappings.xdt_id_map[line_type]
+				except KeyError:
+					name = '?'
+				_log.Log(gmLog.lInfo, 'skipping line [%s] (%s)' % (line_type, name))
 				continue
 			# handle line
 			line_data = handle_line(self, request_data)
@@ -507,12 +531,17 @@ class cLDTImporter:
 		for line_type in request_data.keys():
 			# get handler
 			try:
-				handle_line = cLDTImporter.__8202line_handler[line_type]
+				handle_line = cLDTImporter.__820xline_handler[line_type]
 			except KeyError:
-				_log.LogException('no handler for line [%s] in [8000:8201] record' % line_type, sys.exc_info(), verbose=0)
+				_log.LogException('no handler for line [%s:%s] in [8000:8201] record' % (line_type, request_data[line_type]), sys.exc_info(), verbose=0)
 				continue
 			# ignore line
 			if handle_line is None:
+				try:
+					name = gmXdtMappings.xdt_id_map[line_type]
+				except KeyError:
+					name = '?'
+				_log.Log(gmLog.lInfo, 'skipping line [%s] (%s)' % (line_type, name))
 				continue
 			# handle line
 			line_data = handle_line(self, request_data)
@@ -588,18 +617,18 @@ class cLDTImporter:
 		return True
 	#-----------------------------------------------------------
 	def __xform_8432(self, result_data):
-		self.__request['req_when'] = mxDT.strptime(
+		self.__request['clin_when'] = mxDT.strptime(
 			result_data['8432'][0],
 			'%d%m%Y',
-			self.__request['req_when']
+			self.__request['clin_when']
 			)
 		self.__request.save_payload()
 	#-----------------------------------------------------------
 	def __xform_8433(self, result_data):
-		self.__request['req_when'] = mxDT.strptime(
+		self.__request['clin_when'] = mxDT.strptime(
 			result_data['8433'][0],
 			'%H%M',
-			self.__request['req_when']
+			self.__request['clin_when']
 			)
 		self.__request.save_payload()
 	#-----------------------------------------------------------
@@ -707,7 +736,7 @@ class cLDTImporter:
 		if status in [False, None]:
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.11 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.12 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# - try to create test row
 		whenfield = 'lab_rxd_when'			# FIXME: make this configurable
@@ -719,9 +748,7 @@ class cLDTImporter:
 			val_num = vnum,
 			val_alpha = valpha,
 			unit = result_data['8421'][0],
-			encounter_id = self.__request['id_encounter'],
-			episode_id = self.__request['id_episode'],
-			request_id = self.__request['pk']
+			request = self.__request
 		)
 		if status is False:
 			_log.Log(gmLog.lErr, 'cannot create result record')
@@ -853,7 +880,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	rep_by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.11 $'
+	rep_by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.12 $'
 	recvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=rep_by, receiver=recvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -879,12 +906,18 @@ if __name__ == '__main__':
 		run_import()
 	except:
 		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
+		backend.StopListeners()
 		sys.exit('aborting')
+	backend.StopListeners()
 	sys.exit(0)
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.11  2004-05-25 00:22:26  ncq
+# Revision 1.12  2004-06-13 22:09:12  ncq
+# - don't verify LDT version, try to import regardless
+# - 8303/8302/8403/8407/8609
+#
+# Revision 1.11  2004/05/25 00:22:26  ncq
 # - imports nearly everything thrown at it now
 #
 # Revision 1.10  2004/05/17 23:53:10  ncq
