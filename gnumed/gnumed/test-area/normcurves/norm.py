@@ -4,10 +4,10 @@
 # Author:       Christof Meigen (christof@nicht-ich.de)
 # Copyright:    author
 # License:      GPL
-# Last Changed: 01 sep 2002
+# Last Changed: 02 sep 2002
 ###############################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/normcurves/norm.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 
 '''Classes and routines for medical normcurves.'''
 
@@ -66,7 +66,8 @@ class ConstantCurve(Curve):
 
 
 class PiecewiseCurve(Curve):
-    '''defined by pieces which are siigned to certain X-Values'''
+    '''defined by pieces which are assigned to certain X-Values
+    or intervalls'''
     def __init__(self, points):
         self.points=points[:]
 
@@ -116,8 +117,8 @@ class PolygonCurve(PiecewiseCurve):
 class SplineCurve(PiecewiseCurve):
     '''A Curve defined by a list of lists:
     (xmin, xmax, coefficients ....)
-    where coefficients define a polynom of x, whith
-    the coefficient for the hihest power first'''
+    where coefficients define a polynom of x, with
+    the coefficient for the highest power first'''
 
     def getValue(self, x):
         pos=self.getPos(x)
@@ -134,7 +135,7 @@ class SplineCurve(PiecewiseCurve):
 class Norm:
     '''A norm is the most abstract thing that can check
     values. A check returns a dictionary that has
-    always an Element "landmark" as explained below.
+    always an Element "landmark" as explained above.
     It may have elements "centile" and "sds" containing
     the individual centile and sds of the value in question
     and it may also have elements "above_centile" and
@@ -222,7 +223,7 @@ class SdsNorm(Norm):
         '''This function converts a given centile (btween 0 and 100) to an
         standard deviation score. sds higher than 4 or lower than -4 are
         cut to these values. This function is not highly accurate, but
-        you can on rely on the first three digits.
+        you can on rely on the first three digits (for the centile).
 
         More detailed: The chebychevs are for the intervalls between the
         centile for sds 0-1, 1-2 etc. centile values in these intervalls
@@ -283,7 +284,9 @@ class SdsNorm(Norm):
             while ((pos<len(self.LandmarkSds)) and
                    (check['sds']>self.LandmarkSds[pos])):
                 pos +=1
-            check['landmark']=pos-len(self.LandmarkSds)
+            if (pos>4):
+                pos-=1
+            check['landmark']=pos-(len(self.LandmarkSds)/2)
         return check
         
     def availableCentiles(self):
@@ -391,11 +394,11 @@ class SelectedCurves(Norm):
     def __init__(self, ListOfCurves):
 
         '''The ListOfCurves is a List of dictionaries, each containing
-        a 'curve', a 'landmark', possibly a 'centile'.
+        a "curve", a "landmark", possibly a "centile".
 
         It makes perfect sense give just one curve. For a positive
         landmark, all values below that curve are normal, for
-        a negative landmark, all values obove that curve are normal.
+        a negative landmark, all values above that curve are normal.
         
         It is not allowed to mix centile / non-centile curves!
         The values of the Curves have to be in ascending order and
@@ -452,7 +455,10 @@ class SelectedCurves(Norm):
         return check
 
 
+
     def availableStuff(self, what):
+        '''This and the next function are like "private", they
+        generalize the availableCentiles, avaliableLandmarks etc.'''
         c=[]
         for curve in ListOfCurves:
             try:
@@ -472,6 +478,8 @@ class SelectedCurves(Norm):
         if (pos == len(self.listofcurves)):
             raise ValueError, "No such centile or landmark"
         return self.listofcurves[pos]['curve'].getValue(x)
+
+
     
     def availableCentiles(self):
         return self.availableStuff('centile')
@@ -485,7 +493,6 @@ class SelectedCurves(Norm):
     def valueOfLandmark(self, lm, x=None):
         return self.valueOfStuff('landmark', lm, x)
 
-
     def getRange(self):
         '''FIXME: All curves have to have the same range'''
         return self.listofcurves[0]['curve'].getRange()
@@ -496,9 +503,6 @@ class SelectedCurves(Norm):
 
 
 if __name__=="__main__":
-
-
-
 
     female_height_mean = PolygonCurve([
         [0    ,   49.9    ],   
