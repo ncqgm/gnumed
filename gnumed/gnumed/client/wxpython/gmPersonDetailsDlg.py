@@ -368,7 +368,16 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 			for x in self.countriesAll:
 				if (x[0] == value):
 					choice.SetStringSelection(x[1])
-		return choice.GetStringSelection()
+			return choice.GetStringSelection()
+		else: 
+			#return a abbreviated value
+			long_name = choice.GetStringSelection()
+			result = self.__GetCountries()
+			for x in result:
+				if x[1] == long_name:
+					return x[0]	#country code
+			return choice.GetStringSelection()				
+					
 
 	def getInvisible( self, name, value = None):
 		"""sets and gets hidden attributes"""
