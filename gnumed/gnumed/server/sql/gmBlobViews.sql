@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.6 $ $Date: 2004-10-10 13:13:51 $ $Author: ihaywood $
+-- $Revision: 1.7 $ $Date: 2004-10-11 19:29:13 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -12,18 +12,40 @@
 
 -- =============================================
 \unset ON_ERROR_STOP
-drop view v_i18n_doc_type;
+drop view v_doc_type;
 \set ON_ERROR_STOP 1
 
-create view v_i18n_doc_type as
-	select
-		doc_type.id,
-		_(doc_type.name)
-	from
-		doc_type
-	;
+create view v_doc_type as
+select
+	dt.pk as pk_doc_type,
+	dt.name as type,
+	_(dt.name) as l10n_type
+from
+	doc_type dt
+;
 
--- this should include: distinct on _(doc_type.name) or some such
+-- =============================================
+\unset ON_ERROR_STOP
+drop view v_doc_med;
+\set ON_ERROR_STOP 1
+
+create view v_doc_med as
+select
+	dm.patient_id as pk_patient,
+	dm.id as pk_doc,
+	dm.date as date,
+	vdt.type as type,
+	vdt.l10n_type as l10n_type,
+	dm.ext_ref as ext_ref,
+	dm.comment as comment,
+	dm.type as pk_type
+from
+	doc_med dm,
+	v_doc_type vdt
+where
+	vdt.pk_doc_type = dm.type
+;
+
 -- =============================================
 \unset ON_ERROR_STOP
 drop view v_obj4doc;
@@ -31,26 +53,24 @@ drop view v_obj4doc;
 
 create view v_obj4doc as
 select
-	dm.patient_id as pk_patient,
+	vdm.pk_patient as pk_patient,
 	dobj.id as pk_obj,
-	dt.name as type,
-	_(dt.name) as l10n_type,
-	dm.comment as doc_comment,
-	dm.date as date_generated,
-	dm.ext_ref as ext_ref,
 	dobj.seq_idx as seq_idx,
+	vdm.date as date_generated,
+	vdm.type as type,
+	vdm.l10n_type as l10n_type,
+	vdm.ext_ref as ext_ref,
+	octet_length(coalesce(dobj.data, '')) as size,
+	vdm.comment as doc_comment,
 	dobj.comment as obj_comment,
-	dm.id as pk_doc,
-	dm.type as pk_type,
-	dobj.data as object
+	dobj.data as object,
+	vdm.pk_doc as pk_doc,
+	vdm.pk_type as pk_type
 from
-	doc_med dm,
-	doc_obj dobj,
-	doc_type dt
+	v_doc_med vdm,	
+	doc_obj dobj
 where
-	dm.type=dt.id
-		and
-	dobj.doc_id=dm.id
+	vdm.pk_doc = dobj.doc_id
 ;
 
 -- =============================================
@@ -116,11 +136,13 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, doc_med
 	, doc_med_id_seq
 	, doc_type
+	, doc_type_pk_seq
 TO GROUP "gm-doctors";
 
 -- views
 GRANT SELECT ON
-	v_i18n_doc_type
+	v_doc_type
+	, v_doc_med
 	, v_obj4doc
 	, v_latest_mugshot
 TO GROUP "gm-doctors";
@@ -128,11 +150,15 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmBlobViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.6  2004-10-10 13:13:51  ihaywood
+-- Revision 1.7  2004-10-11 19:29:13  ncq
+-- - v_i18n_doc_type -> v_doc_type
+-- - v_doc_med
+--
+-- Revision 1.6  2004/10/10 13:13:51  ihaywood
 -- example of views to emulate the gmMeasurements tables
 --
 -- Revision 1.5  2004/09/20 21:12:42  ncq
