@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -913,6 +913,26 @@ def table_exists(source, table):
 
 	return exists
 #---------------------------------------------------
+def add_housekeeping_todo(
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.14 $',
+	receiver='DEFAULT',
+	problem='lazy programmer',
+	solution='lazy programmer',
+	context='lazy programmer',
+	category='lazy programmer'
+):
+	queries = []
+	cmd = "insert into housekeeping_todo (reported_by, reported_to, problem, solution, context, category) values (%s, %s, %s, %s, %s, %s)"
+	queries.append((cmd, [reporter, receiver, problem, solution, context, category]))
+	cmd = "select currval('housekeeping_todo_pk_seq')"
+	queries.append((cmd, []))
+	result, err = run_commit('historica', queries, 1)
+	if result is None:
+		_log.Log(gmLog.lErr, err)
+		return (None, err)
+	return (1, result[0][0])
+#---------------------------------------------------
+#---------------------------------------------------
 def getBackendName():
 	return __backend
 #---------------------------------------------------
@@ -1122,7 +1142,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.13  2004-04-24 13:17:02  ncq
+# Revision 1.14  2004-04-26 21:59:46  ncq
+# - add_housekeeping_todo()
+#
+# Revision 1.13  2004/04/24 13:17:02  ncq
 # - logininfo() needs host= in request_login_params_tui()
 #
 # Revision 1.12  2004/04/22 13:14:38  ncq
