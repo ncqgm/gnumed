@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.14 2004-02-05 18:38:56 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmPatient.py,v 1.15 2004-02-14 00:37:10 ihaywood Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -735,6 +735,10 @@ def create_dummy_identity():
 		_log.Log(gmLog.lPanic, 'failed to create dummy identity')
 		return None
 	return data[0][0]
+#=============================================================
+def create_new_patient (id):
+	cmd = "insert into xlnk_identity (xfk_identity, pupic) values (%s, %s)"
+	gmPG.run_commit ('historica', [(cmd, [id, str(id)])])
 #============================================================
 def set_active_patient(anID = None):
 	# argument error
@@ -799,7 +803,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.14  2004-02-05 18:38:56  ncq
+# Revision 1.15  2004-02-14 00:37:10  ihaywood
+# Bugfixes
+# 	- weeks = days / 7
+# 	- create_new_patient to maintain xlnk_identity in historica
+#
+# Revision 1.14  2004/02/05 18:38:56  ncq
 # - add .get_ID(), .is_locked()
 # - set_active_patient() convenience function
 #

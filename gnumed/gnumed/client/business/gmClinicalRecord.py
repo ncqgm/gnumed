@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.70 2004-02-12 23:39:33 ihaywood Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmClinicalRecord.py,v 1.71 2004-02-14 00:37:10 ihaywood Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -87,7 +87,7 @@ class gmClinicalRecord:
 		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.id_patient)
 		self._backend.Unlisten(service = 'historica', signal = sig, callback = self._health_issues_modified)
 		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.id_patient)
-		self._backend.Unlisten(service = 'historica', signal = sig, callback = self._vaccinations_modified)
+		self._backend.Unlisten(service = 'historica', signal = sig, callback = self.db_cb_vaccinations_modified)
 
 		self._backend.Unlisten(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted)
 
@@ -139,7 +139,8 @@ class gmClinicalRecord:
 			return None
 		if not self._backend.Listen(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted):
 			return None
-		if not self._backend.Listen(service = 'historica', signal = gmSignals.health_issue_change_db(), callback = self._health_issues_modified):
+		sig = "%s:%s" % (gmSignals.health_issue_change_db (), self.id_patient)
+		if not self._backend.Listen(service = 'historica', signal = sig, callback = self._health_issues_modified):
 			return None
 		sig = "%s:%s" % (gmSignals.item_change_db(), self.id_patient)
 		if not self._backend.Listen(service = 'historica', signal = sig, callback = self._clin_item_modified):
@@ -1330,7 +1331,12 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.70  2004-02-12 23:39:33  ihaywood
+# Revision 1.71  2004-02-14 00:37:10  ihaywood
+# Bugfixes
+# 	- weeks = days / 7
+# 	- create_new_patient to maintain xlnk_identity in historica
+#
+# Revision 1.70  2004/02/12 23:39:33  ihaywood
 # fixed parse errors on vaccine queries (I'm using postgres 7.3.3)
 #
 # Revision 1.69  2004/02/02 23:02:40  ncq

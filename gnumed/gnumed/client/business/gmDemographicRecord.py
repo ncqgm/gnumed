@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.15 2003-12-01 01:01:41 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmDemographicRecord.py,v 1.16 2004-02-14 00:37:10 ihaywood Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -430,13 +430,11 @@ def dob2medical_age(dob):
 
 	if age.years > 0:
 		return "%sy%sm" % (age.years, age.months)
-	try:
-		if age.weeks > 4:
-			return "%sm%sw" % (age.months, age.weeks)
-		if age.weeks > 1:
-			return "%sd" % age.days
-	except:
-		_log.LogException("age.weeks error", sys.exc_info())
+	weeks = age.days / 7
+	if weeks > 4:
+		return "%sm%sw" % (age.months, age.weeks)
+	if weeks > 1:
+		return "%sd" % age.days
 	if age.days > 1:
 		return "%sd (%sh)" % (age.days, age.hours)
 	if age.hours > 3:
@@ -596,7 +594,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.15  2003-12-01 01:01:41  ncq
+# Revision 1.16  2004-02-14 00:37:10  ihaywood
+# Bugfixes
+# 	- weeks = days / 7
+# 	- create_new_patient to maintain xlnk_identity in historica
+#
+# Revision 1.15  2003/12/01 01:01:41  ncq
 # - get_medical_age -> dob2medical_age
 #
 # Revision 1.14  2003/11/30 01:06:21  ncq
