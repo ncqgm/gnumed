@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Leonard_McCoy.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -16,9 +16,26 @@ values ('m', '1920-1-20', 'US', 'Dr.');
 insert into names (id_identity, active, lastnames, firstnames)
 values (currval('identity_id_seq'), true, 'McCoy', 'Leonard');
 
+insert into staff (fk_identity, fk_role, db_user, sign, comment)
+values (
+	currval('identity_id_seq'),
+	(select pk from staff_role where name='doctor'),
+	'any-doc',
+	'LMcC',
+	'Star Trek Lead Consultant'
+);
+
+-- =============================================
+-- do simple schema revision tracking
+delete from gm_schema_revision where filename like '%a-Leonard_McCoy%';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.4 $');
+
 -- =============================================
 -- $Log: test_data-Leonard_McCoy.sql,v $
--- Revision 1.3  2003-11-23 23:35:11  ncq
+-- Revision 1.4  2003-12-29 16:07:19  uid66147
+-- - institute as staff member
+--
+-- Revision 1.3  2003/11/23 23:35:11  ncq
 -- - names.title -> identity.title
 --
 -- Revision 1.2  2003/11/09 14:55:39  ncq
