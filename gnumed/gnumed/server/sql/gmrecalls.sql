@@ -6,12 +6,15 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmrecalls.sql,v $
--- $Id: gmrecalls.sql,v 1.1 2003-01-09 14:53:33 hherb Exp $
--- $Revision: 1.1 $ $Date: 2003-01-09 14:53:33 $ $Author: hherb $
+-- $Id: gmrecalls.sql,v 1.2 2004-03-18 09:44:31 ncq Exp $
+-- $Revision: 1.2 $ $Date: 2004-03-18 09:44:31 $ $Author: ncq $
 --
 -- =============================================
 -- $Log: gmrecalls.sql,v $
--- Revision 1.1  2003-01-09 14:53:33  hherb
+-- Revision 1.2  2004-03-18 09:44:31  ncq
+-- - removed spurious \i
+--
+-- Revision 1.1  2003/01/09 14:53:33  hherb
 -- first draft
 --
 -- =============================================
@@ -187,5 +190,4 @@ comment on column recall_managed.recorded_by is
 
 
 -- do simple schema revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmrecalls.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmrecalls.sql,v $', '$Revision: 1.2 $');
