@@ -1,0 +1,7 @@
+All the message catalogs live here.
+
+On a POSIX system file from here should be moved into
+/usr/share/locale/... or the corresponding standard place.
+
+On Windows they must live right here relative to ../wxpython/
+so that gmI18N can find them regardless.
