@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __license__ = "GPL"
 __author__ = "\
 	Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
@@ -441,7 +441,8 @@ class scanFrame(wxFrame):
 
 	#-----------------------------------
 	#-----------------------------------
-	def OnBTN_del_pageButton(self, event):
+	def on_del_page(self, event):
+		return
 		current_selection=self.LBOX_doc_pages.GetSelection()
 		if current_selection == -1:
 			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
@@ -487,7 +488,8 @@ class scanFrame(wxFrame):
 					self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_LBOX_doc_pages, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
 				self.UpdatePicList()	
 	#-----------------------------------	
-	def OnBTN_save_docButton(self, event):
+	def on_save_doc(self, event):
+		return
 		if self.picList != []:
 			# create xml file
 			out_file = open(_cfg.get("tmpdir", "tmpdir") + _cfg.get("metadata", "description"),"w")
@@ -524,7 +526,7 @@ class scanFrame(wxFrame):
 			finally:
 				dlg.Destroy()
 	#-----------------------------------
-	def OnBTN_move_pageButton(self, event):
+	def on_move_page(self, event):
 		pass
 		##current_selection=self.LBOX_doc_pages.GetSelection()
 		##if not current_selection == -1:
