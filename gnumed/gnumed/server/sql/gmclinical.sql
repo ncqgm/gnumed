@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.75 $
+-- $Revision: 1.76 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -365,7 +365,7 @@ create table vacc_def (
 	is_booster boolean not null default false,
 	seq_no integer not null,
 	min_age_due interval not null,
-	max_age_due interval,
+	max_age_due interval default null,
 	min_interval interval not null,
 	comment text,
 	unique(fk_regime, seq_no)
@@ -749,11 +749,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.75 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.76 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.75  2003-11-28 10:08:38  ncq
+-- Revision 1.76  2003-12-01 22:13:19  ncq
+-- - default null on max_age_due
+--
+-- Revision 1.75  2003/11/28 10:08:38  ncq
 -- - fix typos
 --
 -- Revision 1.74  2003/11/28 01:03:21  ncq
