@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.9 2003-02-19 15:23:44 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmXdtMappings.py,v 1.10 2003-02-19 15:57:57 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -488,7 +488,7 @@ xdt_id_map = {
 		#--------------------------------------------------------
 		# more free categories
 		#Satzidentifikation
-		 '8000':'Satzidentifikation',
+		 '8000':'Satzidentifikation >>===============',
 		#Satzlaenge
 		 '8100':'Satzlaenge',
 		#Befundart -- nur bei header 6200 --
@@ -633,7 +633,7 @@ xdt_Ost_West_Status_map = {
 	'9':'Ost'
 }
 # Gebuehrenordnung : 4121
-xdt_Gebuehrenordung_map = {
+xdt_Gebuehrenordnung_map = {
 	'1':'BMA',
 	'2':'E-GO',
 	'3':'GOA'
@@ -823,7 +823,10 @@ xdt_map_of_content_maps = {
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.9  2003-02-19 15:23:44  ncq
+# Revision 1.10  2003-02-19 15:57:57  ncq
+# - better strings
+#
+# Revision 1.9  2003/02/19 15:23:44  ncq
 # - a whole bunch of new mappings by Basti
 #
 # Revision 1.8  2003/02/19 12:27:42  ncq
