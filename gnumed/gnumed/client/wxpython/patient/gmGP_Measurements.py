@@ -22,7 +22,7 @@
 #      
 ############################################################################
 
-import gmsyspath
+
 from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings

@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.33 2003-09-21 00:16:44 sjtan Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmEditArea.py,v 1.34 2003-09-21 00:24:19 sjtan Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -125,8 +125,7 @@ richards_coloured_gray = wxColor(131,129,131)
 _known_edit_area_types = [
 	'allergy',
 	'family history',
-	'past history',
-	'vaccination history'
+	'past history'
 ]
 
 _prompt_defs = {
@@ -156,16 +155,7 @@ _prompt_defs = {
 		"" ,
 		_("Progress Notes") ,
 		""
-	],
-	'vaccination history': [
-		_('target disease'),
-		_('vaccine'),
-		_('date given'),
-		_('site given'),
-		_('progress Notes')
 	]
-
-
 }
 
 
@@ -352,15 +342,6 @@ class gmEditArea( wxPanel):
 		hszr_edit_fields.Add(szr_shadow_rightof_edit_fields, 1, wxEXPAND)
 
 		return hszr_edit_fields
-
-
-	def AddLine(self,lines ,name,  widget):
-		boxsizer = wxBoxSizer(wxHORIZONTAL)
-		boxsizer.Add(widget)
-		lines.append(boxsizer)
-		if name <> None:
-			self.input_fields[name]=widget
-
 #====================================================================
 class gmAllergyEditArea(gmEditArea):
 	def __init__(self, parent, id):
@@ -481,45 +462,11 @@ class gmFamilyHxEditArea(gmEditArea):
 
 		return lines
 #====================================================================
-class  gmVaccinationEditArea( gmEditArea):
-
+class gmPastHistoryEditArea(gmEditArea):
 	def __init__(self, parent, id):
 		try:
-			gmEditArea.__init__(self, parent, id, aType = 'vaccination history')
+			gmEditArea.__init__(self, parent, id, aType = 'past history')
 		except gmExceptions.ConstructorError:
-			print "ERROR"
-			_log.LogExceptions('cannot instantiate vaccination edit area', sys.exc_info())
-			
-	
-	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making vaccination lines")
-		lines = []
-		self.txt_targetdisease = cEditAreaField(parent,-1,wxDefaultPosition,wxDefaultSize)
-		self.txt_vaccine = cEditAreaField(parent,-1,wxDefaultPosition,wxDefaultSize)
-		self.txt_dategiven= cEditAreaField(parent,-1,wxDefaultPosition,wxDefaultSize)
-		self.txt_serialno = cEditAreaField(parent,-1,wxDefaultPosition,wxDefaultSize)
-		self.txt_sitegiven  = cEditAreaField(parent,-1,wxDefaultPosition,wxDefaultSize)
-		self.txt_progressnotes  = cEditAreaField(parent ,-1,wxDefaultPosition,wxDefaultSize)
-		boxsizer = wxBoxSizer(wxHORIZONTAL)
-		boxsizer.Add(5,0,6)
-		self.AddLine( lines, "targetdisease",	self.txt_targetdisease)
-		self.AddLine( lines, "vaccine",	self.txt_vaccine)
-		self.AddLine( lines, "dategiven",	self.txt_dategiven)
-		self.AddLine( lines, "sitegiven",	self.txt_sitegiven)
-		self.AddLine( lines, "progressnotes",	self.txt_progressnotes)
-		boxsizer.Add(self._make_standard_buttons(parent), 0, wxEXPAND)
-		self.AddLine( lines, None, boxsizer)
-		return lines
-		
-		
-
-
-#====================================================================
-class gmPastHistoryEditArea(gmEditArea):
-        def __init__(self, parent, id):
-	    try:
-		gmEditArea.__init__(self, parent, id, aType = 'past history')
-	    except gmExceptions.ConstructorError:
 			_log.LogExceptions('cannot instantiate past Hx edit area', sys.exc_info())
 			raise
 	#----------------------------------------------------------------
@@ -713,62 +660,10 @@ class EditTextBoxes(wxPanel):
 			self.gszr.Add(szr8,0,wxEXPAND)
 			#self.anylist = wxListCtrl(self, -1,  wxDefaultPosition,wxDefaultSize,wxLC_REPORT|wxLC_LIST|wxSUNKEN_BORDER)
 
+		elif section == gmSECTION_VACCINATION:
+			pass
 		elif section == gmSECTION_SCRIPT:
-		      gmLog.gmDefLog.Log (gmLog.lData, "in script section now")
-		      self.text1_prescription_reason = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text2_drug_class = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text3_generic_drug = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text4_brand_drug = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text5_strength = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text6_directions = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text7_for_duration = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text8_prescription_progress_notes = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text9_quantity = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-		      lbl_veterans = cPrompt_edit_area(self,-1,"  Veteran  ")
-		      lbl_reg24 = cPrompt_edit_area(self,-1,"  Reg 24  ")
-		      lbl_quantity = cPrompt_edit_area(self,-1,"  Quantity  ")
-		      lbl_repeats = cPrompt_edit_area(self,-1,"  Repeats  ")
-		      lbl_usualmed = cPrompt_edit_area(self,-1,"  Usual  ")
-		      self.cb_veteran  = wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		      self.cb_reg24 = wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		      self.cb_usualmed = wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		      self.sizer_auth_PI = wxBoxSizer(wxHORIZONTAL)
-		      self.btn_authority = wxButton(self,-1,">Authority")     #create authority script
-		      self.btn_briefPI   = wxButton(self,-1,"Brief PI")       #show brief drug product information
-		      self.sizer_auth_PI.Add(self.btn_authority,1,wxEXPAND|wxALL,2)  #put authority button and PI button
-		      self.sizer_auth_PI.Add(self.btn_briefPI,1,wxEXPAND|wxALL,2)    #on same sizer
-		      self.text10_repeats  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.sizer_line3.Add(self.text3_generic_drug,5,wxEXPAND)
-		      self.sizer_line3.Add(lbl_veterans,1,wxEXPAND)
-	      	      self.sizer_line3.Add(self.cb_veteran,1,wxEXPAND)
-		      self.sizer_line4.Add(self.text4_brand_drug,5,wxEXPAND)
-		      self.sizer_line4.Add(lbl_reg24,1,wxEXPAND)
-	       	      self.sizer_line4.Add(self.cb_reg24,1,wxEXPAND)
-		      self.sizer_line5.Add(self.text5_strength,5,wxEXPAND)
-		      self.sizer_line5.Add(lbl_quantity,1,wxEXPAND)
-	       	      self.sizer_line5.Add(self.text9_quantity,1,wxEXPAND)
-		      self.sizer_line6.Add(self.text6_directions,5,wxEXPAND)
-		      self.sizer_line6.Add(lbl_repeats,1,wxEXPAND)
-       		      self.sizer_line6.Add(self.text10_repeats,1,wxEXPAND)
-		      self.sizer_line7.Add(self.text7_for_duration,5,wxEXPAND)
-		      self.sizer_line7.Add(lbl_usualmed,1,wxEXPAND)
-	       	      self.sizer_line7.Add(self.cb_usualmed,1,wxEXPAND)
-		      self.sizer_line8.Add(5,0,0)
-		      self.sizer_line8.Add(self.sizer_auth_PI,2,wxEXPAND)
-		      self.sizer_line8.Add(5,0,2)
-		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
-		      self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)
-		      self.gszr.Add(self.text1_prescription_reason,1,wxEXPAND) #prescribe for
-		      self.gszr.Add(self.text2_drug_class,1,wxEXPAND) #prescribe by class
-		      self.gszr.Add(self.sizer_line3,1,wxEXPAND) #prescribe by generic, lbl_veterans, cb_veteran
-		      self.gszr.Add(self.sizer_line4,1,wxEXPAND) #prescribe by brand, lbl_reg24, cb_reg24
-		      self.gszr.Add(self.sizer_line5,1,wxEXPAND) #drug strength, lbl_quantity, text_quantity 
-		      self.gszr.Add(self.sizer_line6,1,wxEXPAND) #txt_directions, lbl_repeats, text_repeats 
-		      self.gszr.Add(self.sizer_line7,1,wxEXPAND) #text_for,lbl_usual,chk_usual
-		      self.gszr.Add(self.text8_prescription_progress_notes,1,wxEXPAND)            #text_progressNotes
-		      self.gszr.Add(self.sizer_line8,1,wxEXPAND)
-		      
-		      
+			pass
 		elif section == gmSECTION_REQUESTS:
 			pass
 		elif section == gmSECTION_MEASUREMENTS:
@@ -799,11 +694,11 @@ class EditTextBoxes(wxPanel):
 		lines = []
 		self.input_fields = {}
 		# line 1
-		eaf1 = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(eaf1)
+		self.input_fields['date recorded'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
+		lines.append(self.input_fields['date recorded'])
 		# line 2
-		eaf2= cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(eaf2)
+		self.input_fields['substance'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
+		lines.append(self.input_fields['substance'])
 		# FIXME: add substance_code
 		# line 3
 		self.input_fields['generic'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
@@ -830,8 +725,6 @@ class EditTextBoxes(wxPanel):
 		szr.Add(self.cb_is_definite_allergy, 2, wxEXPAND)
 		szr.Add(self._make_standard_buttons(), 0, wxEXPAND)
 		lines.append(szr)
-		self.input_fields['date recorded'] = eaf1
-		self.input_fields['substance'] = eaf2
 
 		return lines
 #====================================================================
@@ -905,8 +798,81 @@ class EditArea(wxPanel):
 #--------------------------------------------------------------------
 
 
+#		elif section == gmSECTION_VACCINATION:
+#		      self.txt_targetdisease = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_vaccine = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_dategiven= cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_serialno = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_sitegiven  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#	              self.txt_progressnotes  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#	              self.gszr.Add(self.txt_targetdisease,0,wxEXPAND)
+#		      self.gszr.Add(self.txt_vaccine,0,wxEXPAND)
+#		      self.gszr.Add(self.txt_dategiven,0,wxEXPAND)
+#		      self.gszr.Add(self.txt_serialno,0,wxEXPAND)
+#		      self.gszr.Add(self.txt_sitegiven,0,wxEXPAND)
+#		      self.gszr.Add(self.txt_progressnotes,0,wxEXPAND)
+#		      self.sizer_line6.Add(5,0,6)
+#		      self.sizer_line6.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#	              self.sizer_line6.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)    
+#		      self.gszr.Add(self.sizer_line6,1,wxEXPAND)
 
 
+#		elif section == gmSECTION_SCRIPT:
+#		      gmLog.gmDefLog.Log (gmLog.lData, "in script section now")
+#		      self.text1_prescription_reason = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text2_drug_class = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text3_generic_drug = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text4_brand_drug = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text5_strength = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text6_directions = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text7_for_duration = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text8_prescription_progress_notes = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text9_quantity = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      lbl_veterans = cPrompt_edit_area(self,-1,"  Veteran  ")
+#		      lbl_reg24 = cPrompt_edit_area(self,-1,"  Reg 24  ")
+#		      lbl_quantity = cPrompt_edit_area(self,-1,"  Quantity  ")
+#		      lbl_repeats = cPrompt_edit_area(self,-1,"  Repeats  ")
+#		      lbl_usualmed = cPrompt_edit_area(self,-1,"  Usual  ")
+#		      self.cb_veteran  = wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.cb_reg24 = wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.cb_usualmed = wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+#		      self.sizer_auth_PI = wxBoxSizer(wxHORIZONTAL)
+#		      self.btn_authority = wxButton(self,-1,">Authority")     #create authority script
+#		      self.btn_briefPI   = wxButton(self,-1,"Brief PI")       #show brief drug product information
+#		      self.sizer_auth_PI.Add(self.btn_authority,1,wxEXPAND|wxALL,2)  #put authority button and PI button
+#		      self.sizer_auth_PI.Add(self.btn_briefPI,1,wxEXPAND|wxALL,2)    #on same sizer
+#		      self.text10_repeats  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.sizer_line3.Add(self.text3_generic_drug,5,wxEXPAND)
+#		      self.sizer_line3.Add(lbl_veterans,1,wxEXPAND)
+ #       	      self.sizer_line3.Add(self.cb_veteran,1,wxEXPAND)
+#		      self.sizer_line4.Add(self.text4_brand_drug,5,wxEXPAND)
+#		      self.sizer_line4.Add(lbl_reg24,1,wxEXPAND)
+ #       	      self.sizer_line4.Add(self.cb_reg24,1,wxEXPAND)
+#		      self.sizer_line5.Add(self.text5_strength,5,wxEXPAND)
+#		      self.sizer_line5.Add(lbl_quantity,1,wxEXPAND)
+ #       	      self.sizer_line5.Add(self.text9_quantity,1,wxEXPAND)
+#		      self.sizer_line6.Add(self.text6_directions,5,wxEXPAND)
+#		      self.sizer_line6.Add(lbl_repeats,1,wxEXPAND)
+ #       	      self.sizer_line6.Add(self.text10_repeats,1,wxEXPAND)
+#		      self.sizer_line7.Add(self.text7_for_duration,5,wxEXPAND)
+#		      self.sizer_line7.Add(lbl_usualmed,1,wxEXPAND)
+ #       	      self.sizer_line7.Add(self.cb_usualmed,1,wxEXPAND)
+#		      self.sizer_line8.Add(5,0,0)
+#		      self.sizer_line8.Add(self.sizer_auth_PI,2,wxEXPAND)
+#		      self.sizer_line8.Add(5,0,2)
+#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)
+#		      self.gszr.Add(self.text1_prescription_reason,1,wxEXPAND) #prescribe for
+#		      self.gszr.Add(self.text2_drug_class,1,wxEXPAND) #prescribe by class
+#		      self.gszr.Add(self.sizer_line3,1,wxEXPAND) #prescribe by generic, lbl_veterans, cb_veteran
+#		      self.gszr.Add(self.sizer_line4,1,wxEXPAND) #prescribe by brand, lbl_reg24, cb_reg24
+#		      self.gszr.Add(self.sizer_line5,1,wxEXPAND) #drug strength, lbl_quantity, text_quantity 
+#		      self.gszr.Add(self.sizer_line6,1,wxEXPAND) #txt_directions, lbl_repeats, text_repeats 
+#		      self.gszr.Add(self.sizer_line7,1,wxEXPAND) #text_for,lbl_usual,chk_usual
+#		      self.gszr.Add(self.text8_prescription_progress_notes,1,wxEXPAND)            #text_progressNotes
+#		      self.gszr.Add(self.sizer_line8,1,wxEXPAND)
+		      
+		      
 #	        elif section == gmSECTION_REQUESTS:
 #		      #----------------------------------------------------------------------------- 	
 	              #editing area for general requests e.g pathology, radiology, physiotherapy etc
@@ -1130,9 +1096,9 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.33  2003-09-21 00:16:44  sjtan
+# Revision 1.34  2003-09-21 00:24:19  sjtan
 #
-# cleaner, no frills version. Laziness rules.
+# rollback.
 #
 # Revision 1.32  2003/06/24 12:58:15  ncq
 # - added TODO item
