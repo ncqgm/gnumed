@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.33 2004-03-20 13:31:18 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmPatient.py,v 1.34 2004-03-20 19:44:50 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -18,18 +18,12 @@ import sys, os.path, time, re, string
 #if __name__ == "__main__":
 #	sys.path.append(os.path.join('..', 'pycommon'))
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N
 from Gnumed.business import gmClinicalRecord, gmDemographicRecord
 
-# if we just import gmI18N again we'd
-# re-install the _() wrapper
-from Gnumed.pycommon.gmI18N import system_locale_level
-
 _log = gmLog.gmDefLog
-
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-	_ = lambda x:x
 
 _log.Log(gmLog.lData, __version__)
 
@@ -126,7 +120,7 @@ class gmPerson:
 		except KeyError:
 			pass
 		try:
-			self.__db_cache['clinical record'] = gmClinicalRecord.gmClinicalRecord(aPKey = self.__ID)
+			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self.__ID)
 		except StandardError:
 			_log.LogException('cannot instantiate clinical record for person [%s]', sys.exc_info())
 			return None
@@ -138,7 +132,7 @@ class gmPerson:
 		try:
 			# FIXME: we need some way of setting the type of backend such that
 			# to instantiate the correct type of demographic record class
-			self.__db_cache['demographic record'] = gmDemographicRecord.gmDemographicRecord_SQL(aPKey = self.__ID)
+			self.__db_cache['demographic record'] = gmDemographicRecord.cDemographicRecord_SQL(aPKey = self.__ID)
 		except StandardError:
 			_log.LogException('cannot instantiate demographic record for person [%s]' % self.__ID, sys.exc_info())
 			return None
@@ -171,9 +165,9 @@ class gmPerson:
 		return API
 	#--------------------------------------------------------
 	# set up handler map
-	_get_handler['document id list'] = _getMedDocsList
 	_get_handler['demographic record'] = get_demographic_record
 	_get_handler['clinical record'] = get_clinical_record
+	_get_handler['document folder'] = get_document_folder
 	_get_handler['API'] = _get_API
 	_get_handler['ID'] = getID
 
@@ -332,13 +326,13 @@ class cPatientSearcher_SQL:
 		# set locale dependant query handlers
 		# - generator
 		try:
-			self.__generate_queries = self.__query_generators[system_locale_level['full']]
+			self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['full']]
 		except KeyError:
 			try:
-				self.__generate_queries = self.__query_generators[system_locale_level['country']]
+				self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['country']]
 			except KeyError:
 				try:
-					self.__generate_queries = self.__query_generators[system_locale_level['language']]
+					self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['language']]
 				except KeyError:
 					self.__generate_queries = self.__query_generators['default']
 		# make a cursor
@@ -408,7 +402,10 @@ class cPatientSearcher_SQL:
 			if len(pat_ids) > 0:
 				break
 
-		return pat_ids
+		pat_id_list = []
+		for row in pat_ids:
+			pat_id_list.append(row[0])
+		return pat_id_list
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -473,8 +470,8 @@ class cPatientSearcher_SQL:
 		if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
 			tmp = raw.replace(' ', '')
 			tmp = tmp.replace('\t', '')
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw])
 			return queries
 
 		# "#<ZIFFERN>" - patient ID
@@ -483,16 +480,16 @@ class cPatientSearcher_SQL:
 			tmp = tmp.replace('\t', '')
 			tmp = tmp.replace('#', '')
 			# this seemingly stupid query ensures the id actually exists
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE i_id = '%s'" % tmp])
-#			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id = '%s'" % tmp])
+#			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
 			return queries
 
 		# "<Z I  FF ERN>" - DOB or patient ID
 		if re.match("^(\d|\s|\t)+$", raw):
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw])
 			tmp = raw.replace(' ', '')
 			tmp = tmp.replace('\t', '')
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
 			return queries
 
 		# "<Z(.|/|-/ )I  FF ERN>" - DOB
@@ -502,14 +499,14 @@ class cPatientSearcher_SQL:
 			# apparently not needed due to PostgreSQL smarts...
 			#tmp = tmp.replace('-', '.')
 			#tmp = tmp.replace('/', '.')
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp])
 			return queries
 
 		# "*|$<...>" - DOB
 		if re.match("^(\s|\t)*(\*|\$).+$", raw):
 			tmp = raw.replace('*', '')
 			tmp = tmp.replace('$', '')
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp])
 			return queries
 
 		return None
@@ -556,7 +553,7 @@ class cPatientSearcher_SQL:
 		# shall we mogrify name parts ? probably not
 
 		queries = []
-		queries.append(['select i_id, n_id from v_basic_person where %s' % ' and '.join(where_snippets)])
+		queries.append(['select i_id from v_basic_person where %s' % ' and '.join(where_snippets)])
 		return queries
 	#--------------------------------------------------------
 	# queries for DE
@@ -582,13 +579,13 @@ class cPatientSearcher_SQL:
 			# there's no intermediate whitespace due to the regex
 			tmp = no_umlauts.strip()
 			# assumption: this is a last name
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~* '^%s'" % tmp])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE lastnames  ~* '^%s'" % tmp])
 			# assumption: this is a first name
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s'" % tmp])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s'" % tmp])
 			# name parts anywhere in name
-			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s'" % tmp])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s'" % tmp])
 			return queries
 
 		# try to split on (major) part separators
@@ -618,22 +615,22 @@ class cPatientSearcher_SQL:
 					# assumption: first last
 					queries.append(
 						[
-						 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
+						 "SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
 						]
 					)
 					queries.append([
-						 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
+						 "SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
 					])
 					# assumption: last first
 					queries.append([
-						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
+						"SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
 					])
 					queries.append([
-						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
+						"SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
 					])
 					# name parts anywhere in name - third order query ...
 					queries.append([
-						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s'" % (name_parts[0], name_parts[1])
+						"SELECT i_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s'" % (name_parts[0], name_parts[1])
 					])
 					return queries
 				# FIXME: either "name date" or "date date"
@@ -646,21 +643,21 @@ class cPatientSearcher_SQL:
 				if date_count == 1:
 					# assumption: first, last, dob - first order
 					queries.append([
-						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
+						"SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
 					])
 					queries.append([
-						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
+						"SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
 					])
 					# assumption: last, first, dob - second order query
 					queries.append([
-						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
+						"SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
 					])
 					queries.append([
-						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[1], name_parts[0], date_part)
+						"SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[1], name_parts[0], date_part)
 					])
 					# name parts anywhere in name - third order query ...
 					queries.append([
-						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
+						"SELECT i_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
 					])
 					return queries
 				# FIXME: "name name name" or "name date date"
@@ -802,7 +799,7 @@ class cPatientSearcher_SQL:
 			for where_clause in wheres:
 				if len(where_clause) > 0:
 					queries.append([
-						"SELECT i_id, n_id FROM v_basic_person WHERE %s" % string.join(where_clause, ' AND ')
+						"SELECT i_id FROM v_basic_person WHERE %s" % string.join(where_clause, ' AND ')
 					])
 				else:
 					queries.append([])
@@ -867,7 +864,7 @@ if __name__ == "__main__":
 		if p_data == '-1':
 			break
 		try:
-			myPatient = gmCurrentPatient(p_ids[0][0])
+			myPatient = gmCurrentPatient(p_ids[0])
 		except:
 			_log.LogException('Unable to set up patient with ID [%s]' % p_ids, sys.exc_info())
 			print "patient", p_ids, "can not be set up"
@@ -882,7 +879,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.33  2004-03-20 13:31:18  ncq
+# Revision 1.34  2004-03-20 19:44:50  ncq
+# - do import gmI18N
+# - only fetch i_id in queries
+# - revert to returning flat list of ids from get_patient_ids, must have been Syan fallout, I assume
+#
+# Revision 1.33  2004/03/20 13:31:18  ncq
 # - PostgreSQL has date_trunc, not datetrunc
 #
 # Revision 1.32  2004/03/20 13:14:36  ncq
