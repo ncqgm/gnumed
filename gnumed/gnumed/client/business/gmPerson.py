@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.6 2005-02-01 19:27:56 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPerson.py,v 1.7 2005-02-02 23:03:17 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -39,7 +39,7 @@ class cPerson:
 			identity = cIdentity (aPK_obj = int(identity))
 
 		self.__ID = identity['id']  	# == identity.id == primary key
-		self.__db_cache = {'demographic record': identity}
+		self.__db_cache = {'identity': identity}
 
 		# register backend notification interests ...
 		if not self._register_interests():
@@ -56,9 +56,9 @@ class cPerson:
 		if self.__db_cache.has_key('clinical record'):
 			self.__db_cache['clinical record'].cleanup()
 			del self.__db_cache['clinical record']
-		if self.__db_cache.has_key('demographic record'):
-			self.__db_cache['demographic record'].cleanup()
-			del self.__db_cache['demographic record']
+		if self.__db_cache.has_key('identity'):
+			self.__db_cache['identity'].cleanup()
+			del self.__db_cache['identity']
 		# FIXME: document folder
 	#--------------------------------------------------------
 	# internal helper
@@ -124,9 +124,9 @@ class cPerson:
 		print "get_clinical_record() took %s seconds" % duration
 		return self.__db_cache['clinical record']
 	#--------------------------------------------------------
-	def get_demographic_record(self):
+	def get_identity(self):
 		# because we are instantiated with it, it always exists
-		return self.__db_cache['demographic record']
+		return self.__db_cache['identity']
 	#--------------------------------------------------------
 	def get_document_folder(self):
 		try:
@@ -244,8 +244,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def get_clinical_record(self):
 		return self._person.get_clinical_record()
 	#--------------------------------------------------------
-	def get_demographic_record(self):
-		return self._person.get_demographic_record()
+	def get_identity(self):
+		return self._person.get_identity()
 	#--------------------------------------------------------
 	def get_document_folder(self):
 		return self._person.get_document_folder()
@@ -354,17 +354,14 @@ class cPatientSearcher_SQL:
 	# public API
 	#--------------------------------------------------------
 	def get_persons(self, search_term = None, a_locale = None, search_dict = None):
-		identities = self.get_demos(search_term, a_locale, search_dict)
+		identities = self.get_identities(search_term, a_locale, search_dict)
 		if identities is None:
 			return None
 		else:
 			return [cPerson(identity = ident) for ident in identities]
 	#--------------------------------------------------------
-	def get_demos(self, search_term = None, a_locale = None, search_dict = None):
-		"""Get patient demographic objects for given parameters.
-
-		These are actually demographic objects now,
-		but the caller shouldn't really care
+	def get_identities(self, search_term = None, a_locale = None, search_dict = None):
+		"""Get patient identity objects for given parameters.
 
 		- either search term or search dict
 		- search dict contains structured data that doesn't need to be parsed
@@ -413,17 +410,16 @@ class cPatientSearcher_SQL:
 			# if we got patients don't try more query levels
 			if len(pat_ids) > 0:
 				break
-		pat_demos = []
+		pat_identities = []
 		try:
 			for rows, idx in pat_ids:
-				pat_demos.extend(
-					[ gmDemographicRecord.cIdentity (
-						row={'pk_field': 'id', 'data': row, 'idx': idx}
-					) for row in rows ]
+				pat_identities.extend (
+					[ gmDemographicRecord.cIdentity(row={'pk_field': 'id', 'data': row, 'idx': idx})
+						for row in rows ]
 				)
 		except:
-			_log.LogException ("cannot create patient demographic objects", sys.exc_info (), verbose=0)
-		return pat_demos
+			_log.LogException ("cannot create patient identity objects", sys.exc_info (), verbose=0)
+		return pat_identities
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -954,10 +950,10 @@ if __name__ == "__main__":
 		if myPatient is None:
 			break
 		print "ID       ", myPatient['id']
-		demos = myPatient.get_demographic_record()
-		print "demogr.  ", demos
+		identity = myPatient.get_identity()
+		print "identity  ", identity
 		print "get_names() apparently missing ?"
-#		print "name     ", demos.get_names(1)
+#		print "name     ", identity.get_names(1)
 		print "doc ids  ", myPatient['document id list']
 		emr = myPatient.get_clinical_record()
 		print "EMR      ", emr
@@ -965,7 +961,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.6  2005-02-01 19:27:56  ncq
+# Revision 1.7  2005-02-02 23:03:17  ncq
+# - change "demographic record" to "identity"
+# - dependant files still need being changed
+#
+# Revision 1.6  2005/02/01 19:27:56  ncq
 # - more renaming, I think we are getting there, if you think about it it
 #   seems "demographic record" really is "identity"
 #
