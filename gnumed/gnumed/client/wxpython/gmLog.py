@@ -42,7 +42,14 @@ Usage:
 @copyright: GPL
 """
 
-import sys, time, traceback, os.path, syslog, atexit
+import sys, time, traceback, os.path, atexit
+
+try:
+	import syslog
+	__use_syslog=1
+else:
+	__use_syslog=0
+
 #-------------------------------------------
 
 # log levels:
@@ -324,6 +331,7 @@ class LogTargetConsole(LogTarget):
 #---------------------------------------------------------------
 class LogTargetSyslog(LogTarget):
     def __init__ (self, aLogLevel = lErr):
+    	assert(__use_syslog==1)
 	# call inherited
 	LogTarget.__init__(self, aLogLevel)
 	# do our extra work
@@ -394,9 +402,10 @@ if __name__ == "__main__":
     log.Log (lInfo, "this should show up both on console and in the log file")
 
     # syslog is cool, too
-    print "adding syslog logging"
-    sysloghandle = LogTargetSyslog (lWarn)
-    log.AddTarget (sysloghandle)
+    if __use_syslog:
+    	print "adding syslog logging"
+    	sysloghandle = LogTargetSyslog (lWarn)
+    	log.AddTarget (sysloghandle)
 
     log.Log (lData, "the logger object uncooked: " + str(log))
     log.Log (lInfo, "and now cooked with some non-printables appended:")
