@@ -43,10 +43,10 @@ Limitations:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCLI.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, getopt, string
+import sys, getopt, string, re
 import gmLog
 
 _log = gmLog.gmDefLog
@@ -62,15 +62,28 @@ def _preparse_cmdline():
 	- this is needed to tell getopt which options to get
 	- ALL logging in here is lData level noise
 	"""
+	# contract "option = value" to "option=value"
+#	cmd_line = re.sub('(\s|\t)*=(\s|\t)*', '=', string.join(sys.argv[1:]))
+#	_log.Log(gmLog.lData, "normalized command line is >>%s<<" % cmd_line)
+#	arg_list = map(lambda x: '-%s' % x, re.split('[\s\t]+-', cmd_line))
 	_log.Log(gmLog.lData, "unparsed command line is >>%s<<" % string.join(sys.argv))
-
 	opts = []
 	short_opt_names = ""
 	long_opt_names = []
-	for arg in sys.argv[1:]:
+	arg_list = sys.argv[1:]
+	for arg in arg_list:
+		# long option with value:
+#		if re.match('--.*=', arg):
+		# long option without value
+#		elif re.match('--', arg):
+#			long_opt_names.append(arg[2:])
+		# short option
+#		elif re.match('-', arg):
+
 		# is this an option ?
 		if arg[0:1] == "-":
 			# yes it is
+
 			# strip trailing values (=...)
 			val_pos = string.find(arg, "=")
 			if val_pos != -1:
@@ -78,6 +91,7 @@ def _preparse_cmdline():
 				opt = arg[:val_pos+1]
 			else:
 				opt = arg
+
 			# strip leading slashes
 			if arg[1:2] != "-":
 				opt = opt[1:2]
@@ -151,7 +165,10 @@ else:
 
 #=====================================================================
 # $Log: gmCLI.py,v $
-# Revision 1.9  2003-06-26 21:28:34  ncq
+# Revision 1.10  2003-10-01 22:08:04  ncq
+# - toss around some ideas re better option parsing
+#
+# Revision 1.9  2003/06/26 21:28:34  ncq
 # - fatal->verbose
 #
 # Revision 1.8  2002/11/18 09:41:25  ncq
