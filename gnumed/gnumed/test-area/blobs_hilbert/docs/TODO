@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -100,6 +100,9 @@ viewer
 
  - export selektierter dokumente/objekte
 
+ - config: expand pages below documents ?
+   -> no -> show nr of pages in doc node
+
 Conf/Doc
 --------
 - translate into English
@@ -117,3 +120,6 @@ Conf/Doc
  > 	python twainmodule
  > Einbau eines Hilfe-Browsers
 -------------------------------------------------
+
+in GnuMed-Kartei nur auf Dokumente zeigen, nicht einzelne Seiten, dann
+Seitenzahl in Klammern angeben

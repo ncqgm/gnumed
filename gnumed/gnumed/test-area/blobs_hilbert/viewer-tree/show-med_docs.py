@@ -11,11 +11,10 @@ hand it over to an appropriate viewer.
 For that it relies on mime types.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
-from wxPython.wx import *
 
 # location of our modules
 if __name__ == '__main__':
@@ -23,9 +22,12 @@ if __name__ == '__main__':
 
 import gmLog
 _log = gmLog.gmDefLog
-
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
+
+_log.Log(gmLog.lData, __version__)
+
+if __name__ == "__main__":
 	import gmI18N
 
 import gmCfg
@@ -34,6 +36,8 @@ _cfg = gmCfg.gmDefCfgFile
 from docPatient import cPatient, gm2long_gender_map
 from docDatabase import cDatabase
 import docMime, docDocument
+
+from wxPython.wx import *
 #----------------------------------------------------------------------
 #        self.tree = MyTreeCtrl(self, tID, wxDefaultPosition, wxDefaultSize,
 #                               wxTR_HAS_BUTTONS | wxTR_EDIT_LABELS# | wxTR_MULTIPLE
@@ -102,9 +106,10 @@ class cDocTree(wxTreeCtrl):
 			mdata = doc.getMetaData()
 			c = mdata['comment'] + " " * 25
 			r = mdata['reference'] + " " * 10
-			tmp = _("date: %s | comment: %s | reference: %s")
+			tmp = _("%s | %s | %s")
 			label =  tmp % (mdata['date'][:10], c[:25], r[:10])
 			doc_node = self.AppendItem(self.root, label)
+			self.SetItemBold(doc_node, bold=TRUE)
 			# we need to distinguish documents from objects in OnActivate
 			# this is ugly
 			data = {'doc_id': doc_id,
@@ -171,7 +176,7 @@ class cDocTree(wxTreeCtrl):
 		if not result:
 			dlg = wxMessageDialog(
 				self,
-				_('Cannot display page.\n%s') % msg,
+				_('Cannot display page.\n%s.') % msg,
 				_('displaying page'),
 				wxOK | wxICON_ERROR
 			)
@@ -286,16 +291,6 @@ else:
 			# FIXME: return service handle
 			#self.DB.disconnect()
 			pass
-#------------------------------------------------------------------
-#class MyApp(wxApp):
-#	"""This class is even less interesting than cTreePanel."""
-
-#	def OnInit(self):
-#		"""OnInit. Boring, boring, boring!"""
-#		panel = cTreePanel()
-#		panel.Show(TRUE)
-#		self.SetTopWindow(panel)
-#		return TRUE
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -310,8 +305,7 @@ if __name__ == '__main__':
 	application.SetWidget(cStandalonePanel,-1)
 	application.MainLoop()
 
-	#app = MyApp(0)
-	#app.MainLoop()
+	_log.Log (gmLog.lInfo, "closing display handler")
 else:
 	import gmPlugin
 
@@ -325,11 +319,12 @@ else:
 
 		def MenuInfo (self):
 			return ('tools', '&Show Documents')
-
-_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: show-med_docs.py,v $
-# Revision 1.10  2002-12-05 22:43:51  ncq
+# Revision 1.11  2002-12-13 11:22:34  ncq
+# - further pluginification and cleanup
+#
+# Revision 1.10  2002/12/05 22:43:51  ncq
 # - changed to sizers
 # - prepared for plugin()
 #
