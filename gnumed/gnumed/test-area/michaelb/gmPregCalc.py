@@ -6,9 +6,9 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/michaelb/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.2 2003-07-04 06:56:32 rterry Exp $
+# $Id: gmPregCalc.py,v 1.3 2003-07-04 14:48:23 michaelb Exp $
 # Michael I have cut and pasted all my code - hope doesn't stuff up your stuff
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -29,6 +29,7 @@ GESTATION = 24192000
 # ideally, tool should query backend for parity, race, etc. for exact measurement
 WEEK = 604800
 DAY = 86400
+US18_52=18*7*24*60*60	# 18 weeks in seconds (for 18/52 Ultrasound)
 #====================================================================
 
 _icons = {"""icon_Preg_calc""":
@@ -47,7 +48,8 @@ class PregnancyFrame (wxFrame):
 	"""
 
 	def __init__ (self, parent):
-		myStyle = wxMINIMIZE_BOX | wxSYSTEM_MENU | wxCAPTION | wxALIGN_CENTER | wxALIGN_CENTER_VERTICAL | wxTAB_TRAVERSAL | wxSTAY_ON_TOP
+		myStyle = wxMINIMIZE_BOX | wxSYSTEM_MENU | wxCAPTION | wxALIGN_CENTER | \
+			wxALIGN_CENTER_VERTICAL | wxTAB_TRAVERSAL | wxSTAY_ON_TOP
 		wxFrame.__init__(self, parent, -1, _("Pregnancy Calculator"), style=myStyle)
 
 		icon = wxEmptyIcon()
@@ -238,21 +240,23 @@ class PregnancyFrame (wxFrame):
 		# Add calendar (stuff on the left)
 		#------------------------------
 		self.LNMPcal = wxCalendarCtrl (self, ID_LNMP,style = wxRAISED_BORDER)
+		EVT_CALENDAR_SEL_CHANGED(self.LNMPcal, ID_LNMP, self.OnCalcByLNMP)
+
 		szr_main_lf = wxBoxSizer(wxVERTICAL)
-		
 		szr_main_lf.Add(self.LNMPcal,0,wxALIGN_CENTRE_HORIZONTAL)
 		btn_reset = wxButton(self, 1010, _('&Reset'))       
 		#szr_main_lf.Add(5,0,5)
 		szr_main_lf.Add(btn_reset,0,wxEXPAND)               
+
 		#--------------------------------------
-		# Super-sizer holds all the stuff above 
+		# Super-sizer holds all the stuff above
 		#--------------------------------------
 		szr_main_top= wxBoxSizer(wxHORIZONTAL)
 		szr_main_top.Add(szr_main_lf,0,0)
 		szr_main_top.Add(15,0,0,0)
 		szr_main_top.Add(szr_main_rt,0,0)
 		#szr_main_top.Add(15,1,0,0)
-		
+
 		#------------------------------
 		# Put everything together in one big sizer
 		#------------------------------
@@ -266,9 +270,50 @@ class PregnancyFrame (wxFrame):
 		self.Show(1)
 
 	#-----------------------------------------
+	def OnCalcByLNMP (self, event):
+		# we do this the "UNIX Way" -- all dates are converted into seconds
+		# since midnight 1 Jan, 1970.
+		# .GetDate().GetTicks() returns time at 5AM.  The -18000 second correction adjusts LNMP to 12AM
+		#	??? NOT NEEDED - BUG IN wxPython Day Light Savings/Standard Time Calc?
+
+		#LNMP = self.LNMPcal.GetDate ().GetTicks () - 18000 	# Standard Time Fix (?)
+		LNMP = self.LNMPcal.GetDate ().GetTicks ()		# Day Light Savings Problem
+		today = wxGetCurrentTime ()
+		due = LNMP + GESTATION
+		gest = today - LNMP
+		ultrasound18_52 = LNMP + US18_52
+
+		"""
+		print LNMP
+		print today
+		print due
+		print gest
+		"""
+		LNMPtxt = wxDateTime()			# FIXME - remove time from date, change format of date (?)
+		LNMPtxt.SetTimeT(LNMP)
+		self.txtlnmp.SetValue(str(LNMPtxt))
+
+		edctxt = wxDateTime()
+		edctxt.SetTimeT(due)
+		self.txtedc.SetValue(str(edctxt))
+
+		ustxt = wxDateTime()
+		ustxt.SetTimeT(ultrasound18_52)
+		self.txtdue.SetValue(str(ustxt))
+
+		#TODO
+		# change "Gest."  split into days and weeks (?)	-- make with spin dials (similar to Ian's Preg Calc)?
+		# remove time from txtlnmp, txtedc, txtdue
+		# enlarge 'Date' field for when Ultrasound Scan was performed (?) OR rearrange fields (?)
+		# add tooltips to wxTextCtrl fields to describe what they are and how to use the calculator
+		#	e.g. "LNMP - Last Normal Menstral Period. Click on LNMP date in calendar to specify."
+
+	#-----------------------------------------
 	def EvtReset(self, event):
 		# reset variables
-		pass					# TODO
+		self.txtlnmp.SetValue("")
+		self.txtedc.SetValue("")
+		self.txtdue.SetValue("")		# TO COMPLETE
 
 	#-----------------------------------------
 	def EvtPrint(self, event):
@@ -335,9 +380,13 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.2  2003-07-04 06:56:32  rterry
+# Revision 1.3  2003-07-04 14:48:23  michaelb
+# some parts of the calculation is functional + some TODO notes added
+#
+# Revision 1.2  2003/07/04 06:56:32  rterry
 # richards latest gui improvement to pregcalc
 #
 # Revision 1.1  2003/07/01 06:35:09  michaelb
 # a new pregnancy calc
 #
+
