@@ -46,7 +46,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -176,12 +176,22 @@ else:
 install_domain()
 
 # we can now safely set up a bunch of variables
+
+# gmTimeFormat is used to define a standard way of
+# displaying a date as a string,
+# this is marked for translation by _(),
+# this way this variable can be used as a crude
+# means of date formatting localization
 gmTimeformat = _("%Y-%m-%d  %H:%M:%S")
+
 log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.15  2002-09-10 07:52:29  ncq
+# Revision 1.16  2002-09-22 18:38:58  ncq
+# - added big comment on gmTimeFormat
+#
+# Revision 1.15  2002/09/10 07:52:29  ncq
 # - increased log level of gmTimeFormat
 #
 # Revision 1.14  2002/09/08 15:57:42  ncq
