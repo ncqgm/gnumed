@@ -19,7 +19,7 @@ cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -75,7 +75,7 @@ WHERE
 	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = '%s');"""
 
 
-drop_trigger = "DROP TRIGGER %s ON %s;"
+drop_trigger = "DROP TRIGGER %s ON %s ;"
 drop_function = "DROP FUNCTION %s();"
 
 template_insert_trigger = """CREATE TRIGGER %s
@@ -132,8 +132,7 @@ END;' LANGUAGE 'plpgsql';"""
 def get_children(aCursor, aTable):
 	"""Return all descendants of aTable.
 	"""
-	cmd = query_table_descendants % aTable
-	if not gmPG.run_query(aCursor, cmd):
+	if not gmPG.run_query(aCursor, query_table_descendants, aTable):
 		_log.Log(gmLog.lErr, 'cannot get children of table %s' % aTable)
 		return None
 	rows = aCursor.fetchall()
@@ -142,8 +141,7 @@ def get_children(aCursor, aTable):
 def get_columns(aCursor, aTable):
 	"""Return column attributes of table
 	"""
-	cmd = query_table_attributes % aTable
-	if not gmPG.run_query(aCursor, cmd):
+	if not gmPG.run_query(aCursor, query_table_attributes, aTable):
 		_log.Log(gmLog.lErr, 'cannot get columns for table [%s]' % aTable)
 		return None
 	data = aCursor.fetchall()
@@ -156,8 +154,8 @@ def audit_trail_table_exists(aCursor, table2audit, audit_prefix = 'log_'):
 	audit_trail_table = '%s%s' % (audit_prefix, table2audit)
 
 	# does the audit trail target table exist ?
-	cmd = "SELECT exists(select oid FROM pg_class where relname = '%s');" % audit_trail_table
-	if not gmPG.run_query(aCursor, cmd):
+	cmd = "SELECT exists(select oid FROM pg_class where relname = %s );"
+	if not gmPG.run_query(aCursor, cmd, audit_trail_table):
 		_log.Log(gmLog.lErr, 'cannot check existance of table %s' % audit_trail_table)
 		return None
 	result = aCursor.fetchone()
@@ -264,7 +262,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.8  2003-06-03 13:48:19  ncq
+# Revision 1.9  2003-06-26 21:44:25  ncq
+# - %s; quoting bug, cursor(cmd, args) style
+#
+# Revision 1.8  2003/06/03 13:48:19  ncq
 # - clarify log message
 #
 # Revision 1.7  2003/05/22 12:54:48  ncq
