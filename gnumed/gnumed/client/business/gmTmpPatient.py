@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.34 2003-09-21 12:46:30 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmTmpPatient.py,v 1.35 2003-09-22 23:29:30 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -111,7 +111,7 @@ class gmPerson:
 		- true/false/None
 		"""
 		cmd = "select exists(select id from identity where id = %s)"
-		res = gmPG.run_ro_query('personalia', cmd, self.ID)
+		res, = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 		if res is None:
 			_log.Log(gmLog.lErr, 'check for person ID [%s] existence failed' % self.ID)
 			return None
@@ -179,25 +179,23 @@ class gmPerson:
 	#--------------------------------------------------------
 	def _getActiveName(self):
 		cmd = "select firstnames, lastnames from v_basic_person where i_id = %s"
-		data = gmPG.run_ro_query('personalia', cmd, self.ID)
+		data, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
 		if data is None:
 			return None
 		result = {
-			'first': data[0][0],
-			'last': data[0][1]
+			'first': data[0][idx['firstnames']],
+			'last': data[0][idx['lastnames']]
 		}
 		return result
 	#--------------------------------------------------------
 	def _getTitle(self):
 		cmd = "select title from v_basic_person where i_id = %s"
-		data = gmPG.run_ro_query('personalia', cmd, self.ID)
+		data, = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 		if data is None:
 			return ''
-		else:
-			if data[0][0] is None:
-				return ''
-			else:
-				return data[0][0]
+		if data[0][0] is None:
+			return ''
+		return data[0][0]
 	#--------------------------------------------------------
 	def _getID(self):
 		return self.ID
@@ -205,7 +203,7 @@ class gmPerson:
 	def _getDOB(self):
 		# FIXME: invent a mechanism to set the desired format
 		cmd = "select to_char(dob, 'DD.MM.YYYY') from v_basic_person where i_id = %s"
-		data = gmPG.run_ro_query('personalia', cmd, self.ID)
+		data, = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 		if data is None:
 			return ''
 		if data[0] is None:
@@ -232,8 +230,15 @@ where
 		and
 	lp2a.id_identity = %s
 """
-		data = gmPG.run_ro_query('personalia', cmd, self.ID)
-		return [{'ID':i[0], 'type':i[1], 'number':i[2], 'street':i[3], 'urb':i[4], 'postcode':i[5]} for i in data]
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
+		return [{
+			'ID':r[idx['addr_id']],
+			'type':r[idx['name']],
+			'number':r[idx['number']],
+			'street':r[idx['street']],
+			'urb':r[idx['city']],
+			'postcode':r[idx['postcode']]
+		} for r in rows]
 	#--------------------------------------------------------
 	def GuessPostcode (self, urb, street = None):
 		"""
@@ -251,7 +256,7 @@ where
 				cmd = "select street.postcode from urb, street where street.name = %s and urb.name = %s and street.id_urb = urb.id and street.postcode is not null"
 				curs.execute (cmd, street, urb)
 				if curs.rowcount == 0:
-					# street.postcode full of NULLs (i.e. we are in the wrong juridiction
+					# street.postcode full of NULLs (i.e. we are in the wrong jurisdiction
 					# for this type of search, client has called in error
 					cmd =  "select postcode from urb where name = %s"
 					curs.execute (cmd, urb)
@@ -269,7 +274,7 @@ where
 		if postcode is None or len (postcode) == 0:
 			return [] # cope with empty postcode name
 		cmd = "select street from v_zip2street where postcode = %s"
-		data = gmPG.run_ro_query('personalia', cmd, postcode)
+		data, = gmPG.run_ro_query('personalia', cmd, None, postcode)
 		return data
 	#--------------------------------------------------------
 	def DeleteAddress (self, ID):
@@ -288,7 +293,7 @@ where
 	#--------------------------------------------------------
 	def _get_medical_age(self):
 		cmd = "select dob from identity where id = %s"
-		data = gmPG.run_ro_query('personalia', cmd, self.ID)
+		data, = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 
 		if data is None:
 			return '??'
@@ -703,7 +708,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.34  2003-09-21 12:46:30  ncq
+# Revision 1.35  2003-09-22 23:29:30  ncq
+# - new style run_ro_query()
+#
+# Revision 1.34  2003/09/21 12:46:30  ncq
 # - switched most ro queries to run_ro_query()
 #
 # Revision 1.33  2003/09/21 10:37:20  ncq
