@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.17 2004-06-27 02:39:46 sjtan Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.18 2004-06-28 12:16:19 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -234,6 +234,9 @@ CREATE VIEW lnk_org2address AS
 -- ==========================================================
 \unset ON_ERROR_STOP
 drop view v_person_comms cascade;
+drop view v_person_comms;			-- cascade doesn't work on 7.1
+drop view v_person_comms_flat cascade;
+drop view v_person_comms_flat;
 \set ON_ERROR_STOP 1
 
 create view v_person_comms as
@@ -294,11 +297,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.17 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.17  2004-06-27 02:39:46  sjtan
+-- Revision 1.18  2004-06-28 12:16:19  ncq
+-- - drop ... cascade; doesn't work on 7.1
+--
+-- Revision 1.17  2004/06/27 02:39:46  sjtan
 --
 -- fix-up for lots of empty rows.
 --
