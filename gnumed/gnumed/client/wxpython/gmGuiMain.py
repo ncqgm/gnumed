@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.90 2003-04-01 12:26:04 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmGuiMain.py,v 1.91 2003-04-01 15:55:24 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -528,7 +528,7 @@ class gmApp(wxApp):
 			_log.Log(gmLog.lWarn, "system locale is undefined (probably meaning 'C')")
 			return 1
 
-		db_lang = '??_??@????'
+		db_lang = None
 
 		# get read-only connection
 		roconn = self.__backend.GetConnection(service = 'default')
@@ -554,27 +554,31 @@ class gmApp(wxApp):
 		rocurs.close()
 		self.__backend.ReleaseConnection('default')
 
-		if result is not None:
+		if result is None:
+			msg = _("Currently there is no language selected in the database.\nYour system language is currently set to [%s].\n\nDo you want to set the database language to '%s' ?")  % (system_locale, system_locale)
+			_log.Log(gmLog.lData, "database locale currently not set")
+		else:
+			msg = _("The currently selected database language ('%s') does not match\nthe current system language ('%s').\n\nDo you want to set the database language to '%s' ?") % (db_lang, system_locale, system_locale)
 			db_lang = result[0]
-		_log.Log(gmLog.lData, "current database locale: [%s]" % db_lang)
+			_log.Log(gmLog.lData, "current database locale: [%s]" % db_lang)
 
-		# check if system and db language are different
-		if db_lang == system_locale_level['full']:
-			_log.Log(gmLog.lData, 'Database locale (%s) up to date.' % db_lang)
-			return 1
-		if db_lang == system_locale_level['country']:
-			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at country level.' % (db_lang, system_locale))
-			return 1
-		if db_lang == system_locale_level['language']:
-			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at language level.' % (db_lang, system_locale))
-			return 1
+			# check if system and db language are different
+			if db_lang == system_locale_level['full']:
+				_log.Log(gmLog.lData, 'Database locale (%s) up to date.' % db_lang)
+				return 1
+			if db_lang == system_locale_level['country']:
+				_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at country level.' % (db_lang, system_locale))
+				return 1
+			if db_lang == system_locale_level['language']:
+				_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at language level.' % (db_lang, system_locale))
+				return 1
 
-		# no match: ask user
-		_log.Log(gmLog.lWarn, 'Database locale [%s] does not match system locale [%s]. Asking user what to do.' % (db_lang, system_locale))
+			# no match: ask user
+			_log.Log(gmLog.lWarn, 'Database locale [%s] does not match system locale [%s]. Asking user what to do.' % (db_lang, system_locale))
 
 		dlg = wxMessageDialog(
 			parent = None,
-			message = _("The currently selected database language ('%s') does not match\nthe current system language ('%s').\n\nDo you want to set the database language to '%s' ?") % (db_lang, system_locale, system_locale),
+			message = msg,
 			caption = _('checking database language settings'),
 			style = wxYES_NO | wxCENTRE | wxICON_QUESTION
 		)
@@ -590,9 +594,9 @@ class gmApp(wxApp):
 		# set up 'read-write' cursor
 		rwcurs = rwconn.cursor()
 
-		# try setting database language
+		# try setting database language (only possible if translations exist)
 		cmd = "select set_curr_lang(%s);"
-		for lang in [system_locale, no_variant, no_country]:
+		for lang in [system_locale_level['full'], system_locale_level['country'], system_locale_level['language']]:
 			try:
 				rwcurs.execute(cmd, lang)
 			except:
@@ -632,7 +636,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.90  2003-04-01 12:26:04  ncq
+# Revision 1.91  2003-04-01 15:55:24  ncq
+# - fix setting of db lang, better message if no lang set yet
+#
+# Revision 1.90  2003/04/01 12:26:04  ncq
 # - add menu "Reference"
 #
 # Revision 1.89  2003/03/30 00:24:00  ncq
