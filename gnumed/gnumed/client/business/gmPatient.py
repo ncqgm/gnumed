@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.6 2003-11-09 16:39:34 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPatient.py,v 1.7 2003-11-16 10:58:36 shilbert Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -307,7 +307,7 @@ if __name__ == "__main__":
 			print "patient", pID, "can not be set up"
 			continue
 		print "ID       ", myPatient['ID']
-		demos = myPatient['demographics']
+		demos = myPatient['demographic record']
 		print "demogr.  ", demos
 		print "name     ", demos.getActiveName()
 		print "doc ids  ", myPatient['document id list']
@@ -321,7 +321,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.6  2003-11-09 16:39:34  ncq
+# Revision 1.7  2003-11-16 10:58:36  shilbert
+# - corrected typo
+#
+# Revision 1.6  2003/11/09 16:39:34  ncq
 # - get handler now 'demographic record', not 'demographics'
 #
 # Revision 1.5  2003/11/04 00:07:40  ncq
