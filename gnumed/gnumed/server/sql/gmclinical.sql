@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -216,6 +216,7 @@ create table allergy (
 	id serial primary key,
 	id_clin_transaction integer references clin_transaction(id),
 	substance varchar(128) not null,
+	id_substance varchar(256) default null,
 	generics varchar(256) default null,
 	allergene varchar(256) default null,
 	atc_code varchar(32) default null,
@@ -233,6 +234,10 @@ comment on column allergy.id_clin_transaction is
 	'link to transaction, provides: patient, recorded_when';
 comment on column allergy.substance is
 	'real-world name of substance the patient reacted to, brand name if drug';
+comment on column allergy.id_substance is
+	'data source specific opaque product identifier; must provide a link
+	 to a unique product/substance in the database in use; should follow
+	 the parseable convention of "<source>::<source version>::<identifier>"';
 comment on column allergy.generics is
 	'names of generic compounds if drug; brand names change/disappear, generic names do not';
 comment on column allergy.allergene is
@@ -441,11 +446,14 @@ comment on table enum_immunities is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.25 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.26 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.25  2003-04-12 15:34:49  ncq
+-- Revision 1.26  2003-04-17 20:20:11  ncq
+-- - add source specific opaque substance/product identifier in table allergy
+--
+-- Revision 1.25  2003/04/12 15:34:49  ncq
 -- - include the concept of aggregated clinical narrative
 -- - consolidate history/physical exam tables
 --
