@@ -17,14 +17,18 @@ cd /usr/bin
 import-med_docs.py \
  --conf-file=$CFG \
  --log-file=$LOG
+remove-imported_dirs.sh
 cd -
 
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/import/Attic/run-importer.sh,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 # $Log: run-importer.sh,v $
-# Revision 1.1  2003-03-01 15:39:49  ncq
+# Revision 1.2  2003-03-30 11:27:09  ncq
+# - add call to remove-imported_dirs.sh
+#
+# Revision 1.1  2003/03/01 15:39:49  ncq
 # - moved here from test-area
 #
 # Revision 1.2  2003/02/23 20:39:12  ncq
