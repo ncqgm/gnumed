@@ -5,42 +5,41 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
 import gmLog
-import docPatient
 
-__log__ = gmLog.gmDefLog
+_log = gmLog.gmDefLog
 #=======================================================================================
 class cDocument:
 
 	def __init__(self):
-		__log__.Log(gmLog.lData, "Instantiated.")
+		_log.Log(gmLog.lData, "Instantiated.")
 		self.__metadata = {}
 	#-----------------------------------
 	def loadMetaDataFromXML(self, aBaseDir = None, aCfg = None, aSection = None):
 		"""Load document metadata from XML file."""
 		# sanity checks
 		if aCfg == None:
-			__log__.Log(gmLog.lErr, "Parameter aCfg must point to a config parser object.")
+			_log.Log(gmLog.lErr, "Parameter aCfg must point to a config parser object.")
 			return None
 
 		if not type(aSection) == type('a string'):
-			__log__.Log(gmLog.lErr, "Parameter aSection must be a string.")
+			_log.Log(gmLog.lErr, "Parameter aSection must be a string.")
 			return None
 
 		if not os.path.exists (aBaseDir):
-			__log__.Log(gmLog.lErr, "The directory '" + str(aBaseDir) + "' does not exist !")
+			_log.Log(gmLog.lErr, "The directory '" + str(aBaseDir) + "' does not exist !")
 			return None
 		else:
-			__log__.Log(gmLog.lData, "working from directory '" + str(aBaseDir) + "'")
+			_log.Log(gmLog.lData, "working from directory '" + str(aBaseDir) + "'")
 
 		# check for Befund description file
 		desc_file_name = aCfg.get(aSection, "description")
 		if not os.path.exists (os.path.join(aBaseDir, desc_file_name)):
-			__log__.Log (gmLog.lErr, "skipping " + aBaseDir + "- no description file (" + desc_file_name + ") found")
+			_log.Log (gmLog.lErr, "skipping " + aBaseDir + "- no description file (" + desc_file_name + ") found")
 			return None
 		else:
 			DescFile = os.path.join(aBaseDir, desc_file_name)
@@ -50,50 +49,50 @@ class cDocument:
 		# document type
 		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "type_tag"), anXMLfile = DescFile)
 		if tmp == None:
-			__log__.Log(gmLog.lErr, "Cannot load document type.")
+			_log.Log(gmLog.lErr, "Cannot load document type.")
 			return None
 		else:
 			self.__metadata['type'] = string.join(tmp)
-			__log__.Log(gmLog.lData, "Document type: " + str(self.__metadata['type']))
+			_log.Log(gmLog.lData, "Document type: " + str(self.__metadata['type']))
 
 		# document comment
 		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "comment_tag"), anXMLfile = DescFile)
 		if tmp == None:
-			__log__.Log(gmLog.lErr, "Cannot load document comment.")
+			_log.Log(gmLog.lErr, "Cannot load document comment.")
 			return None
 		else:
 			self.__metadata['comment'] = string.join(tmp)
-			__log__.Log(gmLog.lData, "Document comment: " + str(self.__metadata['comment']))
+			_log.Log(gmLog.lData, "Document comment: " + str(self.__metadata['comment']))
 
 		# document reference date
 		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "date_tag"), anXMLfile = DescFile)
 		if tmp == None:
-			__log__.Log(gmLog.lErr, "Cannot load document reference date.")
+			_log.Log(gmLog.lErr, "Cannot load document reference date.")
 			return None
 		else:
 			self.__metadata['date'] = string.join(tmp)
-			__log__.Log(gmLog.lData, "document reference date: " + str(self.__metadata['date']))
+			_log.Log(gmLog.lData, "document reference date: " + str(self.__metadata['date']))
 
 		# external reference string
 		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "ref_tag"), anXMLfile = DescFile)
 		if tmp == None:
-			__log__.Log(gmLog.lErr, "Cannot load document reference string.")
+			_log.Log(gmLog.lErr, "Cannot load document reference string.")
 			return None
 		else:
 			self.__metadata['reference'] = string.join(tmp)
-			__log__.Log(gmLog.lData, "document reference string: " + str(self.__metadata['reference']))
+			_log.Log(gmLog.lData, "document reference string: " + str(self.__metadata['reference']))
 
 		# document description
 		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "desc_tag"), anXMLfile = DescFile)
 		if tmp == None:
-			__log__.Log(gmLog.lErr, "Cannot load long document description.")
+			_log.Log(gmLog.lErr, "Cannot load long document description.")
 		else:
 			self.__metadata['description'] = string.join(tmp)
-			__log__.Log(gmLog.lData, "long document description: " + str(self.__metadata['description']))
+			_log.Log(gmLog.lData, "long document description: " + str(self.__metadata['description']))
 
 		# list of data files
 		if not self.__read_img_list(DescFile, aBaseDir):
-			__log__.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
+			_log.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
 			return None
 
 		return 1
@@ -101,7 +100,7 @@ class cDocument:
 	def loadImgListFromXML(self, aDescFile = None, aBaseDir = None):
 		# list of data files
 		if not self.__read_img_list(aDescFile, aBaseDir):
-			__log__.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
+			_log.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
 			return None
 		else:
 			return 1
@@ -110,15 +109,15 @@ class cDocument:
 		"""Document meta data loader for GNUmed compatible database."""
 		# FIXME: error handling !
 
-		__log__.Log(gmLog.lInfo, 'loading stage 1 (document) metadata from GNUmed compatible database')
+		_log.Log(gmLog.lInfo, 'loading stage 1 (document) metadata from GNUmed compatible database')
 
 		# sanity checks
 		if aConn == None:
-			__log__.Log(gmLog.lErr, 'Cannot load metadata without database connection.')
+			_log.Log(gmLog.lErr, 'Cannot load metadata without database connection.')
 			return (1==0)
 
 		if aDocumentID == None:
-			__log__.Log(gmLog.lErr, 'Cannot load document metadata without a document ID.')
+			_log.Log(gmLog.lErr, 'Cannot load document metadata without a document ID.')
 			return (1==0)
 
 		self.__metadata = {}
@@ -149,7 +148,7 @@ class cDocument:
 			self.__metadata['objects'][oid] = tmp
 
 		cursor.close()
-		__log__.Log(gmLog.lData, 'Meta data: %s' % self.__metadata)
+		_log.Log(gmLog.lData, 'Meta data: %s' % self.__metadata)
 
 		return (1==1)
 	#-----------------------------------
@@ -158,16 +157,18 @@ class cDocument:
 		return self.__metadata
 	#-----------------------------------
 	def importIntoGNUmed(self, aConn = None, aPatient = None):
-		__log__.Log(gmLog.lInfo, 'importing document into GNUmed compatible database')
+		_log.Log(gmLog.lInfo, 'importing document into GNUmed compatible database')
 
 		# sanity checks
 		if aConn == None:
-			__log__.Log(gmLog.lErr, 'Cannot import document without database connection.')
+			_log.Log(gmLog.lErr, 'Cannot import document without database connection.')
 			return (1==0)
 
+		import docPatient
 		if not isinstance(aPatient, docPatient.cPatient):
-			__log__.Log (gmLog.lErr, "The object '" + str(aPatient) + "' is not a cPatient instance !")
+			_log.Log (gmLog.lErr, "The object '" + str(aPatient) + "' is not a cPatient instance !")
 			return (1==0)
+		del docPatient
 
 		# start our transaction (done implicitely by defining a cursor)
 		cursor = aConn.cursor()
@@ -177,7 +178,7 @@ class cDocument:
 			cmd = "SELECT id FROM doc_type WHERE name='%s'" % (self.__metadata['type'])
 			cursor.execute(cmd)
 			if cursor.rowcount != 1:
-				__log__.Log(gmLog.lErr, 'Document type "%s" is not valid for this database !' % (self.__metadata['type']))
+				_log.Log(gmLog.lErr, 'Document type "%s" is not valid for this database !' % (self.__metadata['type']))
 				cursor.close()
 				return (1==0)
 			type_id = cursor.fetchone()[0]
@@ -217,14 +218,14 @@ class cDocument:
 			# make permanent what we got so far
 			aConn.commit()
 			cursor.close()
-			__log__.Log(gmLog.lInfo, "document successfully imported")
+			_log.Log(gmLog.lInfo, "document successfully imported")
 			return (1==1)
 
 		except:
 			aConn.rollback()
 			cursor.close()
 			exc = sys.exc_info()
-			__log__.LogException ("Exception: Cannot import document.", exc)
+			_log.LogException ("Exception: Cannot import document.", exc)
 			return (1==0)
 	#-----------------------------------
 	def exportDocFromGNUmed(self, aConn = None, aTempDir = None):
@@ -238,15 +239,15 @@ class cDocument:
 		  list of object IDs
 		- this will usually be accomplished by a previous call to loadMetaDataFromGNUmed()
 		"""
-		__log__.Log(gmLog.lInfo, 'exporting document from GNUmed compatible database')
+		_log.Log(gmLog.lInfo, 'exporting document from GNUmed compatible database')
 
 		# sanity checks
 		if aConn == None:
-			__log__.Log(gmLog.lErr, 'Cannot export document without database connection.')
+			_log.Log(gmLog.lErr, 'Cannot export document without database connection.')
 			return (1==0)
 
 		if not self.__metadata.has_key('objects'):
-			__log__.Log(gmLog.lErr, 'Cannot export document without object IDs')
+			_log.Log(gmLog.lErr, 'Cannot export document without object IDs')
 			return (1==0)
 
 		# if None -> use tempfile module default, else use that path as base directory for temp files
@@ -274,7 +275,7 @@ class cDocument:
 
 		cursor.close()
 
-		__log__.Log(gmLog.lData, 'Meta data: %s' % self.__metadata)
+		_log.Log(gmLog.lData, 'Meta data: %s' % self.__metadata)
 		return (1==1)
 	#-----------------------------------
 	def exportObjFromGNUmed(self, aConn = None, aTempDir = None, anObjID = None):
@@ -284,23 +285,23 @@ class cDocument:
 		  list of object IDs
 		- this will usually be accomplished by a previous call to loadMetaDataFromGNUmed()
 		"""
-		__log__.Log(gmLog.lInfo, 'exporting object from GNUmed compatible database')
+		_log.Log(gmLog.lInfo, 'exporting object from GNUmed compatible database')
 
 		# sanity checks
 		if aConn == None:
-			__log__.Log(gmLog.lErr, 'Cannot export object without database connection.')
+			_log.Log(gmLog.lErr, 'Cannot export object without database connection.')
 			return None
 
 		if anObjID == None:
-			__log__.Log(gmLog.lErr, 'Cannot export object without an object ID.')
+			_log.Log(gmLog.lErr, 'Cannot export object without an object ID.')
 			return None
 
 		if not self.__metadata.has_key('objects'):
-			__log__.Log(gmLog.lErr, 'Cannot export object without object IDs.')
+			_log.Log(gmLog.lErr, 'Cannot export object without object IDs.')
 			return None
 
 		if not self.__metadata['objects'].has_key(anObjID):
-			__log__.Log(gmLog.lErr, 'Cannot export object (%s). It does not seem to belong to this document (%d).' % (anObjID, self.__metadata['id']))
+			_log.Log(gmLog.lErr, 'Cannot export object (%s). It does not seem to belong to this document (%d).' % (anObjID, self.__metadata['id']))
 			return None
 
 		# if None -> use tempfile module default, else use that path as base directory for temp files
@@ -323,7 +324,7 @@ class cDocument:
 		# close our connection
 		cursor.close()
 
-		__log__.Log(gmLog.lData, 'Meta data: %s' % self.__metadata)
+		_log.Log(gmLog.lData, 'Meta data: %s' % self.__metadata)
 		return (1==1)
 	#-----------------------------------
 	def __read_img_list(self, aDescFile = None, aBaseDir = None):
@@ -349,7 +350,7 @@ class cDocument:
 			end_pos = string.find(line,'</object>')
 			if end_pos == -1:
 				# but we don't do multiline tags
-				__log__.Log (gmLog.lErr, "Incomplete <object></object> line. We don't do multiline tags. Sorry.")
+				_log.Log (gmLog.lErr, "Incomplete <object></object> line. We don't do multiline tags. Sorry.")
 				return None
 
 			# extract filename
@@ -370,23 +371,23 @@ class cDocument:
 		fileinput.close()
 
 		if len(self.__metadata['objects'].keys()) == 0:
-			__log__.Log (gmLog.lErr, "no files found for import")
+			_log.Log (gmLog.lErr, "no files found for import")
 			return None
 
-		__log__.Log(gmLog.lData, "document data files to be processed: " + str(self.__metadata['objects']))
+		_log.Log(gmLog.lData, "document data files to be processed: " + str(self.__metadata['objects']))
 
 		return 1
 	#-----------------------------------
 	def __get_from_xml(self, aTag = None, anXMLfile = None):
 		# sanity
 		if type(aTag) != types.StringType:
-			__log__.Log(gmLog.lErr, "Argument aTag (" + str(aTag) + ") is not a string.")
+			_log.Log(gmLog.lErr, "Argument aTag (" + str(aTag) + ") is not a string.")
 			return None
 
 		TagStart = "<" + aTag + ">"
 		TagEnd = "</" + aTag + ">"
 
-		__log__.Log(gmLog.lInfo, "Retrieving " + TagStart + "content" + TagEnd + ".")
+		_log.Log(gmLog.lInfo, "Retrieving " + TagStart + "content" + TagEnd + ".")
 
 		inTag = 0
 		content = []
@@ -399,7 +400,7 @@ class cDocument:
 				inTag = 1
 				# strip junk left of <tag>
 				(junk, good_stuff) = string.split (tmp, TagStart, 1)
-				__log__.Log(gmLog.lData, "Found tag start in line: junk='%s' content='%s'" % (junk, good_stuff))
+				_log.Log(gmLog.lData, "Found tag start in line: junk='%s' content='%s'" % (junk, good_stuff))
 				tmp = good_stuff
 
 			# this line ends a description
@@ -408,7 +409,7 @@ class cDocument:
 				if inTag == 1:
 					# strip junk right of </tag>
 					(good_stuff, junk) = string.split (tmp, TagEnd, 1)
-					__log__.Log(gmLog.lData, "Found tag end in line: junk='%s' content='%s'" % (junk, good_stuff))
+					_log.Log(gmLog.lData, "Found tag end in line: junk='%s' content='%s'" % (junk, good_stuff))
 					content.append(good_stuff)
 					# shortcut out of for loop
 					break
@@ -422,7 +423,7 @@ class cDocument:
 
 		# looped over all lines
 		if len(content) > 0:
-			__log__.Log (gmLog.lData, "%s tag content succesfully read: %s" % (TagStart, str(content)))
+			_log.Log (gmLog.lData, "%s tag content succesfully read: %s" % (TagStart, str(content)))
 			return content
 		else:
 			return None
@@ -434,7 +435,7 @@ class cDocument:
 		ASCII 39 ==>	\'  or  \\047
 		ASCII 92 ==>	\\\\    or  \\134
 		"""
-		__log__.Log(gmLog.lInfo, "starting")
+		_log.Log(gmLog.lInfo, "starting")
 		tmp = ""
 		c = 0
 		for aChar in aString:
@@ -457,11 +458,11 @@ class cDocument:
 			else:
 				tmp = tmp + aChar
 
-		__log__.Log(gmLog.lData, "done: %d total, %d escaped" % (len(aString), c))
+		_log.Log(gmLog.lData, "done: %d total, %d escaped" % (len(aString), c))
 		return tmp
 	#-----------------------------------
 	def __unescapeByteA(self, aByteA):
-		__log__.Log(gmLog.lInfo, "starting")
+		_log.Log(gmLog.lInfo, "starting")
 		c = 0
 		tmp = str(aByteA)
 		# first replace all """\ooo""""
@@ -487,17 +488,17 @@ class cDocument:
 						self.__i += 1
 						c += 1
 					else:
-						__log__.Log(gmLog.lErr, "Escape logic ambiguity detected. Aborting unescaping.")
+						_log.Log(gmLog.lErr, "Escape logic ambiguity detected. Aborting unescaping.")
 						return aByteA
 				else:
-					__log__.Log(gmLog.lErr, "Trailing single backslash detected. Returning last character unchanged.")
+					_log.Log(gmLog.lErr, "Trailing single backslash detected. Returning last character unchanged.")
 					tmp1 = tmp1 + tmp[self.__i]
 			else:
 				tmp1 = tmp1 + tmp[self.__i]
 			# and point to next char
 			self.__i += 1
 
-		__log__.Log(gmLog.lData, "unescaped %s escaped characters" % c)
+		_log.Log(gmLog.lData, "unescaped %s escaped characters" % c)
 		return tmp1
 #-----------------------------------
 class cPatientDocumentList:
@@ -507,10 +508,10 @@ class cPatientDocumentList:
 	"""
 	#-----------------------------------
 	def __init__(self, aConn = None):
-		__log__.Log(gmLog.lData, "Instantiated.")
+		_log.Log(gmLog.lData, "Instantiated.")
 		# sanity checks
 		if aConn == None:
-			__log__.Log(gmLog.lErr, 'Cannot get meta data without database connection.')
+			_log.Log(gmLog.lErr, 'Cannot get meta data without database connection.')
 			return None
 		self.__conn = aConn
 	#-----------------------------------
@@ -518,7 +519,7 @@ class cPatientDocumentList:
 		"""Build a complete list of metadata for all documents of our patient."""
 		# sanity checks
 		if aPatientID == None:
-			__log__.Log(gmLog.lErr, "Cannot associate a patient with her documents without a patient ID.")
+			_log.Log(gmLog.lErr, "Cannot associate a patient with her documents without a patient ID.")
 			return (1==0)
 
 		cursor = self.__conn.cursor()
@@ -544,24 +545,102 @@ class cPatientDocumentList:
 		"""
 		# sanity checks
 		if aDocumentID == None:
-			__log__.Log(gmLog.lErr, "Cannot load document without document ID.")
+			_log.Log(gmLog.lErr, "Cannot load document without document ID.")
 			return (1==0)
 		else:
-			__log__.Log(gmLog.lData, "Trying to load document with id %s" % aDocumentID)
+			_log.Log(gmLog.lData, "Trying to load document with id %s" % aDocumentID)
 
 		if (aTempDir == None) or (not os.path.exists (aTempDir)):
-			__log__.Log(gmLog.lErr, "The directory '%s' does not exist ! Falling back to default temporary directory." % aTempDir) # which is tempfile.tempdir == None == use system defaults
+			_log.Log(gmLog.lErr, "The directory '%s' does not exist ! Falling back to default temporary directory." % aTempDir) # which is tempfile.tempdir == None == use system defaults
 		else:
-			__log__.Log(gmLog.lData, "working into directory '%s'" % aTempDir)
+			_log.Log(gmLog.lData, "working into directory '%s'" % aTempDir)
 
 		tmp = cDocument()
 		if not tmp.loadMetaDataFromGNUmed(self.__conn, aDocumentID):
-			__log__.Log(gmLog.lErr, "Cannot load metadata from database !")
+			_log.Log(gmLog.lErr, "Cannot load metadata from database !")
 			return (1==0)
 
 		if not tmp.exportDocFromGNUmed(self.__conn, aTempDir):
-			__log__.Log(gmLog.lErr, "Cannot export object data from database !")
+			_log.Log(gmLog.lErr, "Cannot export object data from database !")
 			return (1==0)
 
 		return tmp.getMetaData()
-#----------------------------------------------------------------------------
+#============================================================
+def call_viewer_on_file(aFile = None):
+	"""Try to find an appropriate viewer with all tricks and call it."""
+
+	_log.Log(gmLog.lInfo, "Calling viewer on [%s]." % aFile)
+
+	if aFile == None:
+		msg = "No need to call viewer without file name."
+		_log.Log(gmLog.lErr, msg)
+		return None, msg
+
+	# does this file exist, actually ?
+	if not os.path.exists(aFile):
+		msg = _('File [%s] does not exist !') % aFile
+		_log.Log(gmLog.lErr, msg)
+		return None, msg
+
+	# sigh ! let's be off to work
+	try:
+		import docMime
+	except ImportError:
+		exc = sys.exc_info()
+		msg = _("Cannot import docMime.py !")
+		_log.LogException(msg, exc, fatal=0)
+		return None, msg
+
+	mime_type = docMime.guess_mimetype(aFile)
+	_log.Log(gmLog.lData, "mime type : %s" % mime_type)
+	viewer_cmd = docMime.get_viewer_cmd(mime_type, aFile)
+	_log.Log(gmLog.lData, "viewer cmd: '%s'" % viewer_cmd)
+
+	if viewer_cmd != None:
+		os.system(viewer_cmd)
+		return 1
+
+	_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
+	# does the file already have an extension ?
+	(path_name, f_ext) = os.path.splitext(aFile)
+	# no
+	if f_ext == "":
+		# try to guess one
+		f_ext = docMime.guess_ext_by_mimetype(mime_type)
+		if not f_ext:
+			_log.Log(gmLog.lErr, "Unable to guess file extension from mime type. Trying sheer luck.")
+			file_to_display = aFile
+			f_ext = ""
+		else:
+			file_to_display = aFile + f_ext						
+			shutil.copyfile(aFile, file_to_display)
+	# yes
+	else:
+		file_to_display = aFile
+
+	_log.Log(gmLog.lData, "%s <%s> (%s) -> %s" % (aFile, mime_type, f_ext, file_to_display))
+	# FIXME: we should only do this on Windows !
+	try:
+		os.startfile(file_to_display)
+	except:
+		exc = sys.exc_info()
+		msg = _("Unable to start viewer on file [%s].") % file_to_display
+		_log.LogException(msg, exc, fatal=0)
+		return None, msg
+
+	# clean up if necessary
+	if file_to_display != aFile:
+		os.remove(file_to_display)
+#============================================================
+# Main
+#============================================================
+if __name__ == '__main__':
+	_ = lambda x:x
+	_log.SetAllLogLevels(gmLog.lData)
+	call_viewer_on_file(sys.argv[1])
+
+#============================================================
+# $Log: docDocument.py,v $
+# Revision 1.15  2002-09-12 20:34:41  ncq
+# - added helper call_viewer_on_file()
+#
