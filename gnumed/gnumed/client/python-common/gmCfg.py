@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -618,6 +618,8 @@ class cCfgFile:
 		candidate_files = []
 
 		# now make base path components
+		base_name = None
+		base_dir = None
 		# 1) get base name:
 		if aName is None:
 			# - from name of script if no file name given
@@ -649,8 +651,7 @@ class cCfgFile:
 		# if the programmer specified a filename and 
 		# does NOT want to search standard dirs then only try
 		# to find that very location (i.e. skip std dir generation)
-		
-		if (flags & cfg_SEARCH_STD_DIRS) or aDir is None:
+		if (flags & cfg_SEARCH_STD_DIRS) or aName is None:
 			# create list of standard config file locations
 			std_dirs = []
 			# - $(<script-name>_DIR)/etc/
@@ -1042,7 +1043,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.61  2003-09-21 08:37:47  ihaywood
+# Revision 1.62  2003-09-24 10:32:13  ncq
+# - in _get_conf_name() we need to make std_dirs when aName is None,
+#   not aDir, also init base_name/base_dir to a known state
+#
+# Revision 1.61  2003/09/21 08:37:47  ihaywood
 # database code now properly escaped
 #
 # Revision 1.60  2003/08/24 13:36:39  hinnef
