@@ -3,7 +3,7 @@
 """
 This is patient EMR pat history/notes viewer
 """
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "cfmoro1976@yahoo.es"
 #================================================================
 import os.path, sys
@@ -104,11 +104,14 @@ if __name__ == '__main__':
             """
             Displays information for a selected tree node
             """
-            item = event.GetItem()
-            itemData = self.__emr_tree.GetPyData(item)
-            if isinstance(itemData, gmEMRStructItems.cEncounter):
-                self.notes_text_ctrl.Clear()
-                self.notes_text_ctrl.WriteText(self.__exporter.dump_encounter_info(itemData))
+            # FIXME display info for issue and episode items
+            sel_item = event.GetItem()
+            sel_item_obj = self.__emr_tree.GetPyData(sel_item)
+            self.notes_text_ctrl.Clear()
+            if(isinstance(sel_item_obj, gmEMRStructItems.cEncounter)):
+                episode = self.__emr_tree.GetPyData(self.__emr_tree.GetItemParent(sel_item))
+                self.notes_text_ctrl.WriteText(self.__exporter.dump_encounter_info(
+                    episode, sel_item_obj, 0))
 #== for plugin use ======================================
 else:
     # FIXME pending
@@ -203,7 +206,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.2  2004-07-26 00:09:27  ncq
+# Revision 1.3  2004-08-11 09:46:24  ncq
+# - now that EMR exporter supports SOAP notes - display them
+#
+# Revision 1.2  2004/07/26 00:09:27  ncq
 # - Carlos brings us data display for the encounters - can REALLY browse EMR now !
 #
 # Revision 1.1  2004/07/21 12:30:25  ncq
