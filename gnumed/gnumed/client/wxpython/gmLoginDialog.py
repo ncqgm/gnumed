@@ -386,7 +386,7 @@ class LoginPanel(wxPanel):
 #############################################################################
 
 	def OnHelp(self, event):
-		wxMessageBox("Sorry, not implemented yet!")
+		wxMessageBox(_("Sorry, not implemented yet!"))
 
 
 	def OnSaveConfiguration(self, event):
@@ -425,9 +425,9 @@ if __name__ == '__main__':
 	#demonstration how to access the login dialog values
 	lp = dlg.panel.GetLoginParams()
 	if lp is None:
-		wxMessageBox("Dialog was cancelled by user")
+		wxMessageBox(_("Dialog was cancelled by user"))
 	else:
-		wxMessageBox("You tried to log in as [%s] with password [%s]" % (lp.userlist[0], lp.password))
+		wxMessageBox(_("You tried to log in as [%s] with password [%s]") % (lp.userlist[0], lp.password))
 	dlg.Destroy()
 	app.MainLoop()
 
