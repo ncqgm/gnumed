@@ -1,0 +1,67 @@
+From Karsten.Hilbert@gmx.net Fri Jun 28 17:15:32 2002
+Date: Fri, 28 Jun 2002 17:15:32 +0200
+From: Karsten Hilbert <Karsten.Hilbert@gmx.net>
+To: GNUmed list <Gnumed-devel@gnu.org>
+Subject: Re: [Gnumed-devel] 3 infrastructure problems
+Message-ID: <20020628171532.E709@hermes.hilbert.loc>
+Mail-Followup-To: GNUmed list <Gnumed-devel@gnu.org>
+References: <20020627110202.D674@hermes.hilbert.loc> <20020627201147.195149cf.i.haywood@ugrad.unimelb.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020627201147.195149cf.i.haywood@ugrad.unimelb.edu.au>
+User-Agent: Mutt/1.3.22.1i
+Re-X-turn-receipt-to: Karsten.Hilbert@gmx.net
+Di-X-sposition-Notification-To: Karsten.Hilbert@gmx.net
+X-Confi-X-rm-Reading-To: Karsten.Hilbert@gmx.net
+X-Pri-X-ority: 2 (High)
+Status: RO
+Content-Length: 1546
+Lines: 45
+
+>> 2) on-site module install position
+>>  - where to put modules on deployment sites
+> As the number of .py files grows, some structure show be imposed
+> As a start:
+> 
+> backend/  -- backend support like gmPG, gmExceptions, gmConf etc.
+> gui/      -- common gui stuff, gmGuiMain, etc.
+> plugin/gui  -- gui plugins
+> plugin/filter -- import/export filters
+
+Consulting our "inofficial packaging manager" (Andreas Tille)
+revealed that "binaries" should live under /usr/share/gnumed/
+
+There I suggest ./images/ ./python-modules/ and various ./*client*/
+subdirectories - one for each client. General (non
+client-specific python modules (such as gmLog) should live in
+./python-modules/ whereas client specific ones should live
+side by side with the client itself (or a subdirectory thereof
+as is the case now with ./gui/ in ./test-area/terry/
+
+There should be a symlink from /usr/bin/gnumed to
+/usr/share/gnumed/my-preferred-client/gnumed-n.mm.py
+
+For other operating systems I don't have such a clear vision,
+unfortunately. One should probably hang everything off of one
+directory such as <drive>:\gnumed\ or some such (which
+directory can easily be detected automatically at runtime so
+that the user can choose freely).
+
+This structure should be "mirrored" in CVS and put in place
+during some sort of install procedure of a gnumed.rpm|deb|tgz.
+
+Developers can just symlink into the appropriate dirs of their
+local CVS copy.
+
+Comments ?
+
+Horst ?
+
+
+Karsten
+-- 
+GPG key ID E4071346 @ wwwkeys.pgp.net
+E167 67FD A291 2BEA 73BD  4537 78B9 A9F9 E407 1346
+
+
