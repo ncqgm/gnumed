@@ -8,11 +8,17 @@ variables needed for a gnumed GUI client interface
 @version: 0.2
 @copyright: GPL
 """
+#-----------------------------------------------------------
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmGuiBroker.py,v $
+__version__ = "$Revision: 1.3 $"
+__author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
+#===========================================================
 
 # FIXME !!! hack moved here from gmConf. This definitely must be replaced by some 
 # structure getting data from the backend
 config = {'main.use_notebook':1, 'main.shadow':1, 'main.shadow.colour':(131, 129, 131), 'main.shadow.width':10}
 
+#===========================================================
 class GuiBroker:
 	"Wrapper for global objects needed by GNUMmed GUI clients"
 
@@ -87,7 +93,7 @@ class GuiBroker:
 		"Allows access in the style of instance[key]=value"
 		return self.addobject(object, key)
 
-
+#===========================================================
 # you can test this module by invoking it as main program
 if __name__ == "__main__":
     print '>>> gmGuiBroker.GuiBroker test'
@@ -138,7 +144,7 @@ if __name__ == "__main__":
     print var, "\n"
 
     print '>>> try: test.addobject["duplicate key", 3]'
-    print '>>> except KeyError: print "Ducplicate keys not allowed!"'
+    print '>>> except KeyError: print "Duplicate keys not allowed!"'
     try: test["duplicate key", 3]
     except KeyError: print "Duplicate keys not allowed!"
 
@@ -146,4 +152,8 @@ if __name__ == "__main__":
     test['key']='value'
     print test['key']
 
-
+#===========================================================
+# $Log: gmGuiBroker.py,v $
+# Revision 1.3  2003-01-12 00:17:44  ncq
+# - fixed typo, added CVS keywords
+#
