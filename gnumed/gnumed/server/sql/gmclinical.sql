@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.71 $
+-- $Revision: 1.72 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -490,7 +490,7 @@ comment on column allergy.atc_code is
 comment on column allergy.id_type is
 	'allergy/sensitivity';
 comment on column allergy.reaction is
-	'description of reaction such as "difficulty breathing, "skin rash", "diarrhea" etc.';
+	'description of reaction such as "difficulty breathing", "skin rash", "diarrhea" etc.';
 comment on column allergy.generic_specific is
 	'only meaningful for *drug*/*generic* reactions:
 	 1) true: applies to one in "generics" forming "substance",
@@ -627,8 +627,8 @@ comment on column curr_medication.fluid_amount is
 	 etc. Otherwise 1.0. The total amount dispensed is always
 	 fluid_amount*packsize';
 comment on column curr_medication.prn is 'true if "pro re nata" (= as required)';
-comment on column curr_medication.directions is 'free text for directions, such as ''with food'' etc';
-comment on column curr_medication.adjuvant is 'free text describing adjuvants, such as ''orange-flavoured'' etc.';
+comment on column curr_medication.directions is 'free text for directions, such as "with food" etc';
+comment on column curr_medication.adjuvant is 'free text describing adjuvants, such as "orange-flavoured" etc.';
 comment on column curr_medication.weekly is 'for drugs taken one/tweice a twice, such as bisphosphonates, metotrexate, etc., NULL otherwise. If non-NULL, overrides other dosing fields.';
 comment on column curr_medication.mane is 'amount taken in the morning.';
 comment on column curr_medication.midi is 'midday';
@@ -664,25 +664,28 @@ create table enum_immunities
 comment on table enum_immunities is
 'list of diseases to which patients may have immunity. Same table must exist in gmdrugs';
 
-
 -- =============================================
-create table clin_history_editarea(
-                                id serial primary key,
-                                id_clin_history integer references clin_history on delete cascade,
-                                condition text,
-                                age varchar(20),
-                                "year" varchar(20),
-                                "left" integer,
-                                "right" integer, "both" integer, "none" integer,
-                                active integer,
-                                significant integer,
-                                confidential integer,
-                                operation integer,
-                                notes1 text, notes2 text , progress text);
+create table clin_history_editarea (
+	id serial primary key,
+	id_clin_history integer references clin_history on delete cascade,
+	condition text,
+	age varchar(20),
+	"year" varchar(20),
+	"left" integer,
+	"right" integer,
+	"both" integer,
+	"none" integer,
+	active integer,
+	significant integer,
+	confidential integer,
+	operation integer,
+	notes1 text,
+	notes2 text,
+	progress text
+);
 
 comment on table clin_history_editarea is 
-'ui specific field storage, to avoid parsing of data when using past history editarea ui for clin_history';
-
+	'ui specific field storage, to avoid parsing of data when using past history editarea ui for clin_history';
 
 -- =============================================
 GRANT SELECT ON
@@ -701,13 +704,13 @@ GRANT SELECT ON
 	"clin_physical",
 	"_enum_allergy_type",
 	"allergy",
-	vaccination,
-	vaccine,
-	vacc_def,
-	clin_history_editarea
+	"vaccination",
+	"vaccine",
+	"vacc_def"
+	, "clin_history_editarea"
 TO GROUP "gm-doctors";
 
-GRANT SELECT, INSERT, UPDATE, DELETE
+GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"clin_root_item",
 	"clin_root_item_pk_item_seq",
 	"clin_health_issue",
@@ -738,23 +741,26 @@ GRANT SELECT, INSERT, UPDATE, DELETE
 	"_enum_allergy_type_id_seq",
 	"allergy",
 	"allergy_id_seq",
-	vaccination,
-	vaccination_id_seq,
-	vaccine,
-	vaccine_id_seq,
-	vacc_def,
-	vacc_def_id_seq,
-	clin_history_editarea,  
-	clin_history_editarea_id_seq
+	"vaccination",
+	"vaccination_id_seq",
+	"vaccine",
+	"vaccine_id_seq",
+	"vacc_def",
+	"vacc_def_id_seq"
+	, "clin_history_editarea"
+	, "clin_history_editarea_id_seq"
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.71 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.72 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.71  2003-11-22 15:36:47  ncq
+-- Revision 1.72  2003-11-22 16:52:01  ncq
+-- - missing ON in grants
+--
+-- Revision 1.71  2003/11/22 15:36:47  ncq
 -- - fix name clin history editarea id seq
 --
 -- Revision 1.70  2003/11/17 20:14:45  ncq
