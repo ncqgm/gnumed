@@ -1,0 +1,11 @@
+adt-01_99-bdt-02_94.bdt
+-----------------------
+An example BDT file as used in Germany to transmit
+patient data. This file contains a dummy patient.
+
+
+========================================
+> $Log: README,v $
+> Revision 1.1  2005-03-20 15:55:04  ncq
+> - sample BDT file
+>
