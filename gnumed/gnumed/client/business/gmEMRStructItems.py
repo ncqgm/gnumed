@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -54,15 +54,17 @@ class cEpisode(gmClinItem.cClinItem):
 	"""
 	_cmd_fetch_payload = """select * from v_pat_episodes where pk_episode=%s"""
 	_cmds_store_payload = [
-		"""select 1 from clin_episode where id=%(id)s for update""",
+		"""select 1 from clin_episode where pk=%(pk)s for update""",
 		"""update clin_episode set
 				description=%(description)s,
-				fk_health_issue=%(pk_health_issue)s
-			where id=%(id)s"""
+				fk_health_issue=%(pk_health_issue)s,
+				fk_patient=%(pk_patient)s
+			where pk=%(pk)s"""
 		]
 	_updatable_fields = [
 		'description',
-		'pk_health_issue'
+		'pk_health_issue',
+		'fk_patient'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx'):
@@ -192,7 +194,7 @@ class cEncounter(gmClinItem.cClinItem):
 #============================================================
 # convenience functions
 #------------------------------------------------------------	
-def create_health_issue(patient_id=None, description='xxxDEFAULTxxx'):
+def create_health_issue(patient_id=None, description=None):
 	"""Creates a new health issue for a given patient.
 
 	patient_id - given patient PK
@@ -236,10 +238,10 @@ def create_episode(id_patient = None, pk_health_issue = None, episode_name='xxxD
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 	# insert new episode
 	queries = []
-	cmd = "insert into clin_episode (fk_health_issue, description) values (%s, %s)"
-	queries.append((cmd, [pk_health_issue, episode_name]))
+	cmd = "insert into clin_episode (fk_patient, fk_health_issue, description) values (%s, %s, %s)"
+	queries.append((cmd, [id_patient, pk_health_issue, episode_name]))
 	# get PK of inserted row
-	cmd = "select currval('clin_episode_id_seq')"
+	cmd = "select currval('clin_episode_pk_seq')"
 	queries.append((cmd, []))
 	result, msg = gmPG.run_commit('historica', queries, True)
 	if result is None:
@@ -357,7 +359,11 @@ if __name__ == '__main__':
 	    
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.22  2004-07-05 10:24:46  ncq
+# Revision 1.23  2004-09-19 15:02:29  ncq
+# - episode: id -> pk, support fk_patient
+# - no default name in create_health_issue
+#
+# Revision 1.22  2004/07/05 10:24:46  ncq
 # - use v_pat_rfe/aoe, by Carlos
 #
 # Revision 1.21  2004/07/04 15:09:40  ncq
