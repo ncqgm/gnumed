@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -228,6 +228,7 @@ class ConnectionPool:
 			srvc_id = ConnectionPool.__service2db_map[service]
 		except KeyError:
 			return dblogin
+		
 		# a service in the default database
 		if srvc_id == 0:
 			return dblogin
@@ -242,7 +243,6 @@ class ConnectionPool:
 			_log.Log(gmLog.lWarn, 'trying to make do with default login parameters')
 			return dblogin
 		auth_data = cursor.fetchone()
-		cursor.close()
 		# substitute values into default login data
 		idx = cursorIndex(cursor)
 		try: # db name
@@ -261,6 +261,7 @@ class ConnectionPool:
 			dblogin.SetTTY(string.strip(auth_data[idx['tty']]))
 		except:pass
 		# and return what we thus got - which may very well be identical to the default login ...
+		cursor.close()
 		return dblogin			
 	#-----------------------------
 	# private methods
@@ -388,6 +389,10 @@ def cursorIndex(cursor):
 	"""returns a dictionary of row atribute names and their row indices"""
 	i=0
 	dict={}
+    
+	if cursor.description is None:
+		return None
+        
 	for d in cursor.description:
 		dict[d[0]] = i
 		i+=1
@@ -690,7 +695,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.43  2003-05-03 14:15:31  ncq
+# Revision 1.44  2003-05-05 14:08:19  hinnef
+# bug fixes in cursorIndex and getLoginInfo
+#
+# Revision 1.43  2003/05/03 14:15:31  ncq
 # - sync and stop threads in __del__
 #
 # Revision 1.42  2003/05/01 15:01:10  ncq
