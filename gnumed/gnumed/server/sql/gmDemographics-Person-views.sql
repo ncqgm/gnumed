@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.6 2003-11-23 14:05:38 sjtan Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.7 2003-11-23 23:37:09 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -23,6 +23,16 @@ create index idx_names_firstnames on names(firstnames);
 -- ==========================================================
 -- rules/triggers/functions on table "names"
 
+\unset ON_ERROR_STOP
+drop rule uniq_active_name;
+\set ON_ERROR_STOP 1
+
+--create rule uniq_active_name as
+--	on update to names where NEW.active = true DO INSTEAD (
+--		update names set active = false where id_identity = NEW.id_identity;
+--		update names set active = true where id = NEW.id;
+--	);
+
 -- IH: 9/3/02
 -- trigger function to ensure only one name is active
 -- it's behaviour is to set all other names to inactive when
@@ -34,16 +44,19 @@ drop function F_uniq_active_name();
 
 create FUNCTION F_uniq_active_name() RETURNS OPAQUE AS '
 DECLARE
+--	tmp text;
 BEGIN
-	IF NEW.active and NEW.active = true THEN
-		-- for the observant: yes this trigger is recursive, but only once
-		UPDATE names SET active = false	WHERE id_identity = NEW.id_identity AND active;
-	END IF;
-	RETURN NEW;
+--	tmp := ''identity:'' || NEW.id_identity || '',id:'' || NEW.id || '',name:'' || NEW.firstnames || '' '' || NEW.lastnames;
+--	raise notice ''uniq_active_name: [%]'', tmp;
+	if NEW.active = true then
+		update names set active = false where id_identity = NEW.id_identity and active = true;
+		return NEW;
+	end if;
+	return NEW;
 END;' LANGUAGE 'plpgsql';
 
 create TRIGGER TR_uniq_active_name
-	BEFORE INSERT OR UPDATE ON names
+	BEFORE insert or update ON names
 	FOR EACH ROW EXECUTE PROCEDURE F_uniq_active_name();
 
 -- FIXME: we don't actually want this to be available
@@ -71,33 +84,28 @@ drop function add_name(integer, text, text, bool);
 
 create function add_name(integer, text, text, bool) returns integer as '
 DECLARE
-        identity_id alias for $1;
-        first alias for $2;
-        last alias for $3;
-        activated alias for $4;
+	identity_id alias for $1;
+	first alias for $2;
+	last alias for $3;
+	activated alias for $4;
 
-        n_rec record;
+	n_rec record;
 BEGIN
-        select into n_rec * from names where id_identity = identity_id and firstnames = first and lastnames = last;
-        -- exists already
-        if FOUND then
-                -- set the desired activation state, but first inactivate triggers by setting active=false
-                update names set active = false where id = n_rec.id;
-                update names set active = activated where id = n_rec.id;
-                if FOUND then
-                        return n_rec.id;
-                end if;
-                return NULL;
-        end if;
-        -- new name, in an inactivated state so triggers are not fired.
-        insert into names (id_identity, firstnames, lastnames, active) values (identity_id, first, last, false);
-        if FOUND then
-                select into n_rec id from names where id_identity = identity_id and firstnames = first and lastnames = last;
-		-- now set the desired activation state on the inactivated name, so triggers are not fired.
-                update names set active = activated where id = n_rec.id;
-                return n_rec.id;
-        end if;
-        return NULL;
+	-- name already there for this identity ?
+	select into n_rec * from names where id_identity = identity_id and firstnames = first and lastnames = last;
+	if FOUND then
+		update names set active = activated where id = n_rec.id;
+		if FOUND then
+			return n_rec.id;
+		end if;
+		return NULL;
+	end if;
+	-- no, insert new name
+	insert into names (id_identity, firstnames, lastnames, active) values (identity_id, first, last, activated);
+	if FOUND then
+		return n_rec.id;
+	end if;
+	return NULL;
 END;' language 'plpgsql';
 
 -- ==========================================================
@@ -120,7 +128,7 @@ drop view v_basic_person;
 create view v_basic_person as
 select
 	i.id as id, i.id as i_id, n.id as n_id,
-	n.title as title, n.firstnames as firstnames, n.lastnames as lastnames,
+	i.title as title, n.firstnames as firstnames, n.lastnames as lastnames,
 	--n.aka as aka,
 	i.dob as dob, i.cob as cob, i.gender as gender
 from
@@ -134,10 +142,10 @@ where
 -- create new name and new identity
 create RULE r_insert_basic_person AS
 	ON INSERT TO v_basic_person DO INSTEAD (
-		INSERT INTO identity (pupic, gender, dob, cob)
-					values (new_pupic(), NEW.gender, NEW.dob, NEW.cob);
-		INSERT INTO names (title, firstnames, lastnames, id_identity)
-					VALUES (NEW.title, NEW.firstnames, NEW.lastnames, currval ('identity_id_seq'));
+		INSERT INTO identity (pupic, gender, dob, cob, title)
+					values (new_pupic(), NEW.gender, NEW.dob, NEW.cob, NEW.title);
+		INSERT INTO names (firstnames, lastnames, id_identity)
+					VALUES (NEW.firstnames, NEW.lastnames, currval('identity_id_seq'));
 	)
 ;
 
@@ -145,8 +153,8 @@ create RULE r_insert_basic_person AS
 create RULE r_update_basic_person1 AS ON UPDATE TO v_basic_person 
     WHERE NEW.firstnames != OLD.firstnames OR NEW.lastnames != OLD.lastnames 
     OR NEW.title != OLD.title DO INSTEAD 
-    INSERT INTO names (title, firstnames, lastnames, id_identity, active)
-     VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.i_id, 't');
+    INSERT INTO names (firstnames, lastnames, id_identity, active)
+     VALUES (NEW.firstnames, NEW.lastnames, NEW.i_id, true);
 
 -- rule for identity change
 -- yes, you would use this, think carefully.....
@@ -170,11 +178,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.6  2003-11-23 14:05:38  sjtan
+-- Revision 1.7  2003-11-23 23:37:09  ncq
+-- - names.title -> identity.title
+-- - yet another go at uniq_active_name triggers
+--
+-- Revision 1.6  2003/11/23 14:05:38  sjtan
 --
 -- slight debugging of add_names: start off with active=false, and then other attributes won't be affected
 -- by trigger side effects.
