@@ -7,9 +7,9 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
-# $Id: gmCalcPreg.py,v 1.11 2003-01-23 11:04:33 ncq Exp $
-__version__ = "$Revision: 1.11 $"
-__author__ = "I.Haywood, M.Bonerti"
+# $Id: gmCalcPreg.py,v 1.12 2003-01-24 05:28:15 michaelb Exp $
+__version__ = "$Revision: 1.12 $"
+__author__ = "I.Haywood, M.Bonert"
 
 from wxPython.wx import *
 from wxPython.calendar import *
@@ -50,8 +50,10 @@ class PregnancyFrame (wxFrame):
 		self.SetIcon(icon)
 
 		self.dyntxt = wxStaticText (self, -1, _('LNMP'),(5,5))
+		self.handle4dyntxt=self.dyntxt
+
 		vbox = wxBoxSizer (wxVERTICAL)
-		vbox.Add (wxStaticText (self, -1,' '), 0, wxALL, 5)
+		vbox.Add (self.dyntxt, 0, wxALL, 5)
 		self.LNMPcal = wxCalendarCtrl (self, ID_LNMP)
 		vbox.Add (self.LNMPcal, 0, wxALL, 10)
 
@@ -63,7 +65,7 @@ class PregnancyFrame (wxFrame):
 		self.gest_day_ctrl = wxSpinCtrl (self, ID_DAY, value = "0", min = 0, max = 6)
 		hbox.Add (self.gest_day_ctrl, 1, wxALIGN_CENTRE, 15)
 		vbox.Add (hbox, 0, wxALL, 10)
-
+		
 		vbox.Add (wxStaticText (self, -1, _('Due date')), 0, wxALL, 5)
 		self.due_cal = wxCalendarCtrl (self, ID_DUE)
 		vbox.Add (self.due_cal, 0, wxALL, 10)
@@ -97,9 +99,9 @@ class PregnancyFrame (wxFrame):
 		due = LNMP + GESTATION
 		gest = today - LNMP
 		if gest < 0:
-			self.dyntxt.SetLabel(_('Future LNMP'))
+			self.handle4dyntxt.SetLabel(_('Future LNMP'))
 
-			day =- round(1.*( (LNMP - today) % WEEK ) / DAY)
+			day =- math.ceil(1.*( (LNMP - today) % WEEK ) / DAY)
 			if(day== -7):
 				self.gest_week_ctrl.SetValue( -( (LNMP  - today) / WEEK) - 1 )
 				self.gest_day_ctrl.SetValue(0)
@@ -112,7 +114,7 @@ class PregnancyFrame (wxFrame):
 			self.due_cal.SetDate(duedate)
 
 		else:
-			self.dyntxt.SetLabel(_('LNMP'))
+			self.handle4dyntxt.SetLabel(_('LNMP'))
 
 			self.gest_week_ctrl.SetValue(gest / WEEK)
 			self.gest_day_ctrl.SetValue((gest % WEEK) / DAY)
@@ -181,7 +183,10 @@ else:
 
 #=====================================================================
 # $Log: gmCalcPreg.py,v $
-# Revision 1.11  2003-01-23 11:04:33  ncq
+# Revision 1.12  2003-01-24 05:28:15  michaelb
+# fixed text display, fixed a bug in the gestation calculation (for Future LNMP values)
+#
+# Revision 1.11  2003/01/23 11:04:33  ncq
 # - don't need to import toolbar images anymore, they are included
 #
 # Revision 1.10  2003/01/23 11:03:03  ncq
