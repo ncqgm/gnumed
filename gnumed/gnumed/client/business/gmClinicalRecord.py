@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.103 2004-05-27 13:40:21 ihaywood Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmClinicalRecord.py,v 1.104 2004-05-28 15:11:32 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -210,7 +210,7 @@ class cClinicalRecord:
 			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
 			return 1
 		cmd = "insert into clin_note(id_encounter, id_episode, narrative) values (%s, %s, %s)"
-		return gmPG.run_commit('historica', [(cmd, [self.encounter['id'], self.episode['id'], note])])
+		return gmPG.run_commit('historica', [(cmd, [self.__encounter['id'], self.episode['id'], note])])
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -945,7 +945,7 @@ class cClinicalRecord:
 		return gmVaccination.create_vaccination(
 			patient_id = self.id_patient,
 			episode_id = self.episode['id'],
-			encounter_id = self.encounter['id'],
+			encounter_id = self.__encounter['id'],
 			vaccine = vaccine
 		)
 	#------------------------------------------------------------------
@@ -965,7 +965,7 @@ class cClinicalRecord:
 		)
 		if result is False:
 			return False
-		self.encounter = result
+		self.__encounter = result
 		return True
 	#------------------------------------------------------------------
 	def __activate_very_recent_encounter(self):
@@ -995,11 +995,11 @@ class cClinicalRecord:
 			return False
 		# attach to existing
 		try:
-			self.encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
+			self.__encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
 		except gmExceptions.ConstructorError, msg:
 			_log.LogException(str(msg), sys.exc_info(), verbose=0)
 			return False
-		self.encounter.set_active(staff_id = _whoami.get_staff_ID())
+		self.__encounter.set_active(staff_id = _whoami.get_staff_ID())
 		return True
 	#------------------------------------------------------------------
 	def __activate_fairly_recent_encounter(self):
@@ -1072,9 +1072,12 @@ class cClinicalRecord:
 		if not attach:
 			return False
 		# attach to existing
-		self.encounter = encounter
-		self.encounter.set_active(staff_id = _whoami.get_staff_ID())
+		self.__encounter = encounter
+		self.__encounter.set_active(staff_id = _whoami.get_staff_ID())
 		return True
+	#------------------------------------------------------------------
+	def get_active_encounter(self):
+		return self.__encounter
 	#------------------------------------------------------------------
 	def attach_to_encounter(self, anID = None):
 		"""Attach to an encounter but do not activate it.
@@ -1088,7 +1091,7 @@ class cClinicalRecord:
 		if not gmPG.run_commit('historica', [(cmd, [_whoami.get_staff_ID(), anID])]):
 			_log.Log(gmLog.lWarn, 'cannot attach to encounter [%s]' % anID)
 			return None
-		self.id_encounter = anID
+#		self.id_encounter = anID
 		return 1
 	#------------------------------------------------------------------
 	# lab data API
@@ -1125,7 +1128,7 @@ class cClinicalRecord:
 	#------------------------------------------------------------------
 	def add_lab_request(self, lab=None, req_id=None, encounter_id=None, episode_id=None):
 		if encounter_id is None:
-			encounter_id = self.encounter['id']
+			encounter_id = self.__encounter['id']
 		if episode_id is None:
 			episode_id = self.episode['id']
 		status, data = gmPathLab.create_lab_request(
@@ -1159,7 +1162,7 @@ insert into allergy (
 	%s, %s, %s, %s, %s, %s
 )
 """
-		gmPG.run_query (rw_curs, cmd, 1, self.encounter['id'], self.episode['id'], allergy["substance"], allergy["reaction"], allergy["definite"])
+		gmPG.run_query (rw_curs, cmd, 1, self.__encounter['id'], self.episode['id'], allergy["substance"], allergy["reaction"], allergy["definite"])
 		rw_curs.close()
 		rw_conn.commit()
 		rw_conn.close()
@@ -1169,7 +1172,7 @@ insert into allergy (
 	def get_past_history(self):
 		if not self.__dict__.has_key('past_history'):
 			from gmPastHistory import gmPastHistory
-			from gmEditAreaFacade import gmPHxEditAreaDecorator
+#			from gmEditAreaFacade import gmPHxEditAreaDecorator
 			phx  = gmPastHistory(self._backend, self)
 			self.past_history = gmPHxEditAreaDecorator(phx)
 		return self.past_history
@@ -1185,7 +1188,7 @@ insert into allergy (
 		%s, %s, %s, %s
 		)
 		"""
-		return gmPG.run_commit (cursor, [(cmd, [self.encounter['id'], self.episode['id'], text, form_id])])
+		return gmPG.run_commit (cursor, [(cmd, [self.__encounter['id'], self.episode['id'], text, form_id])])
 
 #============================================================
 # convenience functions
@@ -1261,7 +1264,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.103  2004-05-27 13:40:21  ihaywood
+# Revision 1.104  2004-05-28 15:11:32  ncq
+# - get_active_encounter()
+#
+# Revision 1.103  2004/05/27 13:40:21  ihaywood
 # more work on referrals, still not there yet
 #
 # Revision 1.102  2004/05/24 21:13:33  ncq
