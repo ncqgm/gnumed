@@ -20,7 +20,7 @@ from   wxPython.html       import *
 import wxPython.lib.wxpTag
 import gmGuiBroker, gmPlugin, gmLog
 
-manual_path = 'doc/gnumed/book1.html'
+manual_path = 'doc/user-manual/book1.html'
 
 
 import images_for_gnumed_browser16_16
