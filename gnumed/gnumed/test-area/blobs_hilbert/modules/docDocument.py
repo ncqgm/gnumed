@@ -6,7 +6,7 @@
 """
 #=======================================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 
 import os.path, fileinput, string, types, sys, tempfile, os
 import gmLog
@@ -224,7 +224,7 @@ class cDocument:
 
 	# if None -> use tempfile module default, else use that path as base directory for temp files
 	tempfile.tempdir = aTempDir
-	tempfile.template = "doc-"
+	tempfile.template = "obj-"
 
 	# start our transaction (done implicitely by defining a cursor)
 	cursor = aConn.cursor()
@@ -244,7 +244,7 @@ class cDocument:
 	__log__.Log(gmLog.lData, 'Meta data: %s' % self.__metadata)
 	return (1==1)
     #-----------------------------------
-    def exportObjFromGNUmed(self, aConn = None, aTempDir = None, anObjID):
+    def exportObjFromGNUmed(self, aConn = None, aTempDir = None, anObjID = None):
 	"""Export object into local file.
 
 	- self.__metadata['objects'] must hold a (potentieally empty)
@@ -256,6 +256,10 @@ class cDocument:
 	# sanity checks
 	if aConn == None:
 	    __log__.Log(gmLog.lErr, 'Cannot export object without database connection.')
+	    return None
+
+	if anObjID == None:
+	    __log__.Log(gmLog.lErr, 'Cannot export object without an object ID.')
 	    return None
 
 	if not self.__metadata.has_key('objects'):
@@ -512,7 +516,7 @@ class cPatientDocumentList:
 	    __log__.Log(gmLog.lErr, "Cannot load metadata from database !")
 	    return (1==0)
 
-	if not tmp.exportDataFromGNUmed(self.__conn, aTempDir):
+	if not tmp.exportDocFromGNUmed(self.__conn, aTempDir):
 	    __log__.Log(gmLog.lErr, "Cannot export object data from database !")
 	    return (1==0)
 
