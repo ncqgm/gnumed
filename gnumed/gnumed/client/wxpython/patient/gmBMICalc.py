@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -373,25 +373,24 @@ class BMI_Frame(wxFrame):
 #== if run as standalone =======================================================
 if __name__ == '__main__':
 	# enable us to find our modules
-	import sys
+	import sys, cPickle, zlib
 	sys.path.append('modules')
 	sys.path.append('..')
 
 	import gmI18N
-	import cPickle, zlib
-
-	# get icon
-	try:
-		icon_xpm_data = cPickle.loads(zlib.decompress(_icons[_("""icon_BMI_calc""")]))
-	except KeyError:
-		icon_xpm_data = cPickle.loads(zlib.decompress(_icons["""icon_BMI_calc"""]))
-	icon = wxEmptyIcon()
-	icon.CopyFromBitmap(wxBitmapFromXPMData(icon_xpm_data))	# this causes a segmentation fault on my machine (michaelb)
-
+	#---------------------
 	# set up dummy app
 	class TestApp (wxApp):
 		def OnInit (self):
 			frame = BMI_Frame(None)
+			# get icon
+			try:
+				icon_xpm_data = cPickle.loads(zlib.decompress(_icons[_("""icon_BMI_calc""")]))
+			except KeyError:
+				icon_xpm_data = cPickle.loads(zlib.decompress(_icons["""icon_BMI_calc"""]))
+			icon_bmp_data = wxBitmapFromXPMData(icon_xpm_data)
+			icon = wxEmptyIcon()
+			icon.CopyFromBitmap(icon_bmp_data)		# Michael, still seg'ing ?
 			frame.SetIcon(icon)
 			frame.Show(1)
 			return true
@@ -435,9 +434,9 @@ else:
 		def OnBMITool (self, event):
 			# FIXME: update patient ID
 			frame = BMI_Frame(self.gb['main.frame'])
-			icon_xpm_data = self.GetIcon()
+			icon_bmp_data = self.GetIcon()
 			icon = wxEmptyIcon()
-			icon.CopyFromBitmap(icon_xpm_data)
+			icon.CopyFromBitmap(icon_bmp_data)
 			frame.SetIcon(icon)
 			frame.Show (1)
 		#---------------------
@@ -451,7 +450,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.14  2003-04-14 04:04:41  michaelb
+# Revision 1.15  2003-04-14 07:35:54  ncq
+# - moved standalone icon acquision inside OnInit to alleviate segfault
+#
+# Revision 1.14  2003/04/14 04:04:41  michaelb
 # changed 'weight' to 'mass' in most places, calculation now partially functional
 #
 # Revision 1.13  2003/04/05 00:39:23  ncq
