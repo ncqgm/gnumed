@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-# $Id: gmDemographicsEditor.py,v 1.11 2004-10-16 22:42:12 sjtan Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmDemographicsEditor.py,v 1.12 2005-02-18 11:16:41 ihaywood Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL'
 
@@ -23,7 +23,7 @@ class gmDemographicsEditor(gmPlugin.cNotebookPluginOld):
 
 	def GetWidget (self, parent):
 		try:
-			self._widget = gmDemographics.PatientsPanel( parent, -1)
+			self._widget = gmDemographics.DemographicDetailWindow( parent, -1, True)
 		except:
 			gmLog.gmDefLog.LogException("failed to instantiate gmDemographics.PatientsPanel", sys.exc_info(), verbose=1)
 			return None
@@ -56,7 +56,12 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.11  2004-10-16 22:42:12  sjtan
+# Revision 1.12  2005-02-18 11:16:41  ihaywood
+# new demographics UI code won't crash the whole client now ;-)
+# still needs much work
+# RichardSpace working
+#
+# Revision 1.11  2004/10/16 22:42:12  sjtan
 #
 # script for unitesting; guard for unit tests where unit uses gmPhraseWheel; fixup where version of wxPython doesn't allow
 # a child widget to be multiply inserted (gmDemographics) ; try block for later versions of wxWidgets that might fail

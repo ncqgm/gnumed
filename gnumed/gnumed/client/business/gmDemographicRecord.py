@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.59 2005-02-13 15:46:46 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmDemographicRecord.py,v 1.60 2005-02-18 11:16:41 ihaywood Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -87,7 +87,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				vba.number,
 				vba.addendum, 
 				vba.street,
-				vba.city,
+				vba.urb,
 				vba.postcode,
 				at.name
 			from
@@ -105,8 +105,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		elif len(rows) == 0:
 			return []
 		else:
-			return [{'id':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'city':i[4], 'postcode':i[5],
-				 'type':i[6]} for i in rows]
+			return [{'id':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'urb':i[4], 'postcode':i[5], 'type':i[6]} for i in rows]
 	#--------------------------------------------------------------------
 	def get_members (self):
 		"""
@@ -154,9 +153,12 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	#------------------------------------------------------------
 	def set_member (self, person, address):
 		"""
-		Binds a person to this organisation at this address
+		Binds a person to this organisation at this address.
+		person is a cIdentity object
+		address is a dict of {'number', 'street', 'addendum', 'city', 'postcode', 'type'}
+		type is one of the IDs returned by getAddressTypes
 		"""
-		cmd = "insert into lnk_person_org_address (id_type, id_address, id_org, id_identity) values ((select id from address_types where type=%(type)s), create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(org_id)s, %(pk_identity)s)"
+		cmd = "insert into lnk_person_org_address (id_type, id_address, id_org, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(org_id)s, %(pk_identity)s)"
 		address['pk_identity'] = person['pk_identity']
 		address['org_id'] = self['id']
 		if not id_addr:
@@ -173,20 +175,19 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	#------------------------------------------------------------
 	def get_ext_ids (self):
 		"""
-		Returns a list of dictionaries of external IDs
+		Returns a list
 		Fields:
-		- origin [the origin]
+		- origin [the origin ID]
 		- comment [a user comment]
 		- external_id [the actual external ID]
 		"""
 		cmd = """select
-		eeidt.name, comment, external_id
-		from lnk_%s2ext_id, enum_external_id_types eeidt where id_%s = %%s and
-		eeidt.id = fk_origin""" % (self._table, self._table)
+		fk_origin, comment, external_id
+		from lnk_%s2ext_id where id_%s = %%s and""" % (self._table, self._table)
 		rows = gmPG.run_ro_query ('personalia', cmd, None, self['id'])
 		if rows is None:
-			return []
-		return [{'origin':row[0], 'comment':row[1], 'external_id':row[2]} for row in rows]
+			return {}
+		return [{'fk_origin':row[0], 'comment':row[1], 'external_id':row[2]} for row in rows]
 	#----------------------------------------------------------------
 	def set_ext_id (self, fk_origin, ext_id, comment=None):
 		"""
@@ -211,31 +212,32 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 			cmd = """insert into lnk_%s2ext_id (id_%s, fk_origin, external_id, comment)
 			values (%%s, %%s, %%s)""" % (self._table, self._table)
 			to_commit.append ((cmd, [self.__cache['id'], fk_origin, ext_id, comment]))
+		del self._ext_cache['ext_ids']
 		return gmPG.run_commit2 ('personalia', to_commit)
 	#-------------------------------------------------------
 	def delete_ext_id (self, fk_origin, comment=None):
 		self.set_ext_id (fk_origin, None, comment)
 	#-------------------------------------------------------	
 	def get_comms (self):
-		"""A list of ways to communicate"""
+		"""A list of ways to communicate
+		List if dicts, keys 'id_type' 'url' 'is_confidential'
+		"""
 		cmd = """select
-				ect.descripton,
+				lcc.id_type,
 				lcc.url,
 				lcc.is_confidential
 			from
-				lnk_%s_comm_channel lcc,
-				enum_comm_types ect
+				lnk_%s_comm_channel lcc
 			where
-				lcc.id_%s = %%s and
-				lcc.id_type = ect.id
+				lcc.id_%s = %%s
 				""" (self._table, self._table)
 		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['id'])
 		if rows is None:
-			return []
+			return {}
 		elif len(rows) == 0:
-			return []
+			return {}
 		else:
-			return [{'url':i[1],'type':i[0], 'is_confidential':[2]} for i in rows]
+			return [{'id_type':i[0], 'url':i[1],'is_confidential':[2]} for i in rows]
 	#--------------------------------------------------------------
 	def set_comm (self, id_type, url, is_confidential):
 		"""
@@ -245,11 +247,13 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		id_%s = %%s and url = %%s""" % (self._table, self._table)
 		cmd2 = """insert into lnk_%s2ext_id (id_%s, id_type, url, is_confidential)
 		values (%%s, %%s, %%s, %%s)""" % (self._table, self._table)
+		del self._ext_cache['comms']
 		return gmPG.run_commit2 ('personalia', [(cm1, [self['id'], url]), (cm2, [self['id'], id_type, url, is_confidential])])
 	#-------------------------------------------------------
 	def delete_comm (self, url):
 		cmd = """delete from lnk_%s2comm_channel where
 		id_%s = %%s and url = %%s""" % (self._table, self._table)
+		del self._ext_cache['comms']
 		return gmPG.run_commit2 ('personalia', [(cmd, [self['id'], url])])
 #==============================================================================
 class cIdentity (cOrg):
@@ -272,18 +276,18 @@ class cIdentity (cOrg):
 	#--------------------------------------------------------
 	def get_all_names(self):
 		cmd = """
-				select n.firstnames, n.lastnames, i.title
+				select n.firstnames, n.lastnames, i.title, n.preferred
 				from names n, identity i
 				where n.id_identity=%s and i.pk=%s"""
 		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self._cache['id'], self.__cache['id'])
 		if rows is None:
 			return None
 		if len(rows) == 0:
-			return [{'first': '**?**', 'last': '**?**', 'title': '**?**'}]
+			return [{'first': '**?**', 'last': '**?**', 'title': '**?**', 'preferred':'**?**'}]
 		else:
 			names = []
 			for row in rows:
-				names.append({'first': row[0], 'last': row[1], 'title': row[2]})
+				names.append({'first': row[0], 'last': row[1], 'title': row[2], 'preferred':row[3]})
 			return names
 	#--------------------------------------------------------
 	def get_description (self):
@@ -310,7 +314,7 @@ class cIdentity (cOrg):
 		"""
 		Binds an address to this person
 		"""
-		cmd = "insert into lnk_person_org_address ((select id from address_types where type = %s), id_address, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(pk_identity)s)"
+		cmd = "insert into lnk_person_org_address (id_type, id_address, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(urb)s, %(postcode)s), %(pk_identity)s)"
 		address["pk_identity"] = self['id']
 		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
 	#---------------------------------------------------------------------
@@ -420,7 +424,7 @@ def dob2medical_age(dob):
 	return "%sm%ss" % (age.minutes, age.seconds)
 #----------------------------------------------------------------
 def getAddressTypes():
-	"""Gets a dictionary mapping address type names to the ID"""
+	"""Gets a dict matching address types to thier ID"""
 	row_list = gmPG.run_ro_query('personalia', "select name, id from address_type")
 	if row_list is None:
 		return {}
@@ -454,56 +458,38 @@ def getCommChannelTypes():
 	if len (row_list) == 0:
 		return None
 	return dict(row_list)
-
-EMAIL=1
-FAX=2
-HOME_PHONE=3
-WORK_PHONE=4
-MOBILE=5
-WEB=6
-JABBER=7
 #----------------------------------------------------------------
-
-def guess_state_country( urb, postcode):
-	"""parameters are urb.name, urb.postcode;
-	   outputs are urb.id_state,  country.code"""
-
-	cmd = """
-select state.code, state.country
-from urb, state
-where
-	lower(urb.name) = lower(%s) and
-	upper(urb.postcode) = upper(%s) and
-	urb.id_state = state.id
-"""
-	data = gmPG.run_ro_query ('personalia', cmd, None,  urb, postcode)
-	if data is None:
-		return "", ""
-	if len(data) == 0:
-		return '', ''
-	return data[0]
-#----------------------------------------------------------------
-def getPostcodeForUrbId(urb_id):
-	# FIXME: get from views
-	cmd = "select postcode from urb where id = %s"
-	data = gmPG.run_ro_query ('personalia', cmd, None, urb_id)
-	if data is None:
-		_log.Log(gmLog.lErr, 'cannot get postcode for urb [%s]' % urb_id)
+def getRelationshipTypes():
+	"""Gets a dictionary of relationship types to internal id"""
+	row_list = gmPG.run_ro_query('personalia', "select description, id from relation_types")
+	if row_list is None:
 		return None
-	if len(data) == 0:
-		return ''
-	return data[0][0]
-#----------------------------------------------------------------
-def getUrbsForPostcode(pcode=None):
-	cmd = "select name from urb where postcode=%s"
-	data = gmPG.run_ro_query('personalia', cmd, None, pcode)
-	if data is None:
-		_log.Log(gmLog.lErr, 'cannot get urbs from postcode [%s]' % pcode)
+	if len (row_list) == 0:
 		return None
-	if len(data) == 0:
-		return []
-	return [x[0] for x in data]
+	return dict(row_list)
+
 #----------------------------------------------------------------
+def getUrb (id_urb):
+	row_list = gmPG.run_ro_query('personalia', "select state.name, urb.postcode from urb,state where urb.id = %s and urb.id_state = state.id", None, id_urb)
+	if not row_list:
+		return None
+	else:
+		return (row_list[0][0], row_list[0][1])
+
+def getStreet (id_street):
+	row_list = gmPG.run_ro_query('personalia', "select state.name, coalesce (street.postcode, urb.postcode), urb.name from urb,state,street where street.id = %s and street.id_urb = urb.id and urb.id_state = state.id", None, id_street)
+	if not row_list:
+		return None
+	else:
+		return (row_list[0][0], row_list[0][1], row_list[0][2])
+
+def getCountry (country_code):
+	row_list = gmPG.run_ro_query('personalia', "select name from country where code = %s", None, country_code)
+	if not row_list:
+		return None
+	else:
+		return row_list[0][0]
+#-------------------------------------------------------------------------------
 class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 	"""Returns a list of valid postcodes,
 	Accepts two contexts : "urb" and "street" being the **IDs** of urb and street
@@ -549,6 +535,7 @@ class StreetMP (gmMatchProvider.cMatchProvider_SQL):
 		source = [{
 			'service': 'personlia',
 			'table': 'street',
+			'pk':'id',
 			'column': 'name',
 			'limit': 10,
 			'extra conditions': {
@@ -558,18 +545,36 @@ class StreetMP (gmMatchProvider.cMatchProvider_SQL):
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
 #------------------------------------------------------------
+
+class StateMP (gmMatchProvider.cMatchProvider_SQL):
+					
+	"""
+	"""
+	def __init__ (self):
+		source = [{
+			'service': 'personlia',
+			'table': 'state',
+			'pk':'id',
+			'column': 'name',
+			'limit': 10,
+			'extra conditions': {}
+			}]
+		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
+#-----------------------------------------------------------
 class MP_urb_by_zip (gmMatchProvider.cMatchProvider_SQL):
 	"""Returns a list of urbs
 
-	accepts "postcode" context
+	accepts "postcode" and "state" contexts
 	"""
 	def __init__ (self):
 		source = [{
 			'service': 'personalia',
 			'table': 'urb',
+			'pk':'id',
 			'column': 'name',
 			'limit': 15,
-			'extra conditions': {'postcode': '(postcode = %s or postcode is null)'}
+			'extra conditions': {'postcode': '(postcode = %s or postcode is null)',
+					     'state':'(id_state = %s)'}
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
 
@@ -660,7 +665,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.59  2005-02-13 15:46:46  ncq
+# Revision 1.60  2005-02-18 11:16:41  ihaywood
+# new demographics UI code won't crash the whole client now ;-)
+# still needs much work
+# RichardSpace working
+#
+# Revision 1.59  2005/02/13 15:46:46  ncq
 # - trying to keep up to date with schema changes but may conflict with Ian
 #
 # Revision 1.58  2005/02/12 14:00:21  ncq

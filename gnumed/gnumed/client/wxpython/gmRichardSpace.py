@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmRichardSpace.py,v $
-# $Id: gmRichardSpace.py,v 1.1 2005-02-01 10:16:07 ihaywood Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmRichardSpace.py,v 1.2 2005-02-18 11:16:41 ihaywood Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 K. Hilbert <Karsten.Hilbert@gmx.net>,\
 I. Haywood <ihaywood@gnu.org>>\
@@ -33,7 +33,7 @@ _log.Log(gmLog.lInfo, __version__)
 _whoami = gmWhoAmI.cWhoAmI()
 		  
 #==============================================================================
-class cHorstSpaceLayoutMgr(wx.Panel):
+class cLayoutMgr(wx.Panel):
 	"""GnuMed inner-frame layout manager.
 
 	This implements a wx.Listbook based layout manager.
@@ -45,8 +45,8 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			self,
 			parent = parent,
 			id = id,
-			pos = wx.PyDefaultPosition,
-			size = wx.PyDefaultSize,
+			pos = wx.DefaultPosition,
+			size = wx.DefaultSize,
 			style = wx.NO_BORDER,
 			name = 'RichardSpace.LayoutMgrPnl'
 		)
@@ -60,16 +60,16 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		)
 		# plugins
 		self.__gb = gmGuiBroker.GuiBroker()
-		self.__gb['richardspace.notebook'] = self.nb			# FIXME: remove per Ian's API suggestion
+		self.__gb['richardspace.notebook'] = self.nb # FIXME: remove per Ian's API suggestion
 		self.__load_plugins()
 		
 		# layout handling
-		self.main_szr = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.main_szr.Add(nb_szr, 1, wx.wxEXPAND)
+		self.main_szr = wx.BoxSizer(wx.HORIZONTAL)
+		self.main_szr.Add(self.nb, 1, wx.EXPAND)
 		self.SetSizer(self.main_szr)
 #		self.SetSizerAndFit(self.main_szr)
 #		self.Layout()
-#		self.Show(True)
+		self.Show(True)
 
 		self.__register_events()
 	#----------------------------------------------
@@ -82,7 +82,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	#----------------------------------------------
 	def __load_plugins(self):
 		# get plugin list
-		plugin_list = gmPlugin.GetPluginLoadList('terry_layout.plugins', defaults = ['Gnumed.wxpython.gmDemographics.cPatientsPanel'])
+		plugin_list = gmPlugin.GetPluginLoadList('terry_layout.plugins', defaults = ['Gnumed.wxpython.gmDemographics.Demographics'])
 		if plugin_list is None:
 			_log.Log(gmLog.lWarn, "no plugins to load")
 			return True
@@ -103,9 +103,10 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			progress_bar.Update(result, curr_plugin)
 			try:
 				l = curr_plugin.split (".")
-				plugin_module = __import__ ("Gnumed.wxpython.%s" % (".".join (l[:-1])))
-				plugin_class = getattr (plugin_module, l[-1])
-				inst = plugin_class (self.nb)
+				p = __import__ (".".join (l[:-1]))
+				for i in l[1:]:
+					p = getattr (p, i)
+				inst = p(self.nb)
 				self.plugins.append (inst)
 				self.map_plugins[curr_plugin] = inst
 				result = 1
@@ -117,16 +118,13 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		imagelist = wx.ImageList (32, 32)
 		default_bitmap = None
 		for i in self.plugins:
-			png_fname = os.path.join(gb['gnumed_dir'], 'bitmaps', '%s.png' % getattr (i, "icon", i.__class__.__name__))
-			icon = wxEmptyIcon()
+			png_fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', '%s.png' % getattr (i, "icon", i.__class__.__name__))
+			icon = wx.EmptyIcon()
 			if not os.access (png_fname, os.R_OK):
-				png_fname = os.path.join(gb['gnumed_dir'], 'bitmaps', 'default.png')
-			try:
-				icon.LoadFile(png_fname, wxBITMAP_TYPE_PNG)
-			except:
-				_log.Log(gmLog.lWarn, 'wxIcon.LoadFile() not supported')
-			imagelist.AddIcon (i.icon)
-		self.nb.SetImageList (imagelist)
+				png_fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'default.png')
+			icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
+			imagelist.AddIcon (icon)
+		self.nb.AssignImageList (imagelist)
 		for i in range (0, len (self.plugins)):
 			self.nb.AddPage (self.plugins[i], getattr (self.plugins[i], 'name', self.plugins[i].__class__.__name__), 0, i)
 		wx.EndBusyCursor()
@@ -137,7 +135,12 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 
 #==============================================================================
 # $Log: gmRichardSpace.py,v $
-# Revision 1.1  2005-02-01 10:16:07  ihaywood
+# Revision 1.2  2005-02-18 11:16:41  ihaywood
+# new demographics UI code won't crash the whole client now ;-)
+# still needs much work
+# RichardSpace working
+#
+# Revision 1.1  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace
