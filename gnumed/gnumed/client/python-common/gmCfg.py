@@ -47,7 +47,7 @@ permanent you need to call store() on the file object.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -113,8 +113,9 @@ class cCfgSQL:
 		where_cookie = " and cfg_item.cookie like '%s'" % cookie
 
 		# if no user given: current db user
+		# but check for "_user", too, due to ro/rw conn interaction
 		if user is None:
-			where_user = ' and cfg_item.owner like CURRENT_USER'
+			where_user = " and (cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER)"
 		else:
 			where_user = " and cfg_item.owner like '%s'" % user
 
@@ -157,7 +158,7 @@ class cCfgSQL:
 
 		# if no user given: current db user
 		if user is None:
-			where_user = ' and cfg_item.owner like CURRENT_USER'
+			where_user = " and (cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER)"
 		else:
 			where_user = " and cfg_item.owner like '%s'" % user
 
@@ -921,7 +922,13 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.33  2003-01-05 09:56:58  ncq
+# Revision 1.34  2003-01-12 11:53:58  ncq
+# - fixed subtle bug resulting from ro/rw connections:
+#  - set() would request a rw conn thus CURRENT_USER = "_user"
+#  - get() would use a ro conn, thus CURRENT_USER == "user"
+#  - there'd never be a match and the items would keep proliferating
+#
+# Revision 1.33  2003/01/05 09:56:58  ncq
 # - ironed out some bugs in the array handling
 # - streamlined code
 # - have cfg.set() explicitely use rw conn to DB only when needed
