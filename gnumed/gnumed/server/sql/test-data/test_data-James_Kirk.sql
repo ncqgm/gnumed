@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -155,7 +155,7 @@ insert into test_result (
 	'2000-9-17 18:17',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	(select id from test_type where code='WBC'),
+	(select id from test_type where code='WBC-EML'),
 	'9.5',
 	'Gpt/l',
 	'4.4-11.3',
@@ -183,7 +183,7 @@ insert into test_result (
 	'2000-9-17 18:17',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	(select id from test_type where code='RBC'),
+	(select id from test_type where code='RBC-EML'),
 	'4.40',
 	'Tpt/l',
 	'4.1-5.1',
@@ -211,7 +211,7 @@ insert into test_result (
 	'2000-9-17 18:17',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	(select id from test_type where code='PLT'),
+	(select id from test_type where code='PLT-EML'),
 	'282',
 	'Gpt/l',
 	'150-450',
@@ -239,7 +239,7 @@ insert into test_result (
 	'2000-9-17 18:23',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	(select id from test_type where code='CRP'),
+	(select id from test_type where code='CRP-EML'),
 	'17.3',
 	'mg/l',
 	'0.07-8',
@@ -372,11 +372,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.15  2004-03-23 02:34:17  ncq
+-- Revision 1.16  2004-03-23 17:34:50  ncq
+-- - support and use optionally cross-provider unified test names
+--
+-- Revision 1.15  2004/03/23 02:34:17  ncq
 -- - fix dates on test results
 -- - link test results to lab requests
 --

@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.47 2004-03-23 02:33:13 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.48 2004-03-23 17:34:49 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -265,8 +265,10 @@ select
 	lr.lab_rxd_when,
 	tr.clin_when as val_when,
 	lr.results_reported_when as reported_when,
-	tt.code,
-	tt.name,
+	coalesce(ttu.internal_code, '') as unified_code,
+	coalesce(ttu.internal_name, '') as unified_name,
+	ttu.code as lab_code,
+	ttu.name as lab_name,
 	tr.val_num,
 	tr.val_alpha,
 	tr.val_unit,
@@ -295,13 +297,13 @@ from
 		inner join
 	lab_request lr on (tr.fk_request=lr.pk),
 	v_patient_episodes vpep,
-	test_type tt
+	(test_type tt1 left outer join test_type_uni ttu1 on (tt1.id=ttu1.fk_test_type)) ttu
 where
 	lr.is_pending=false
 		and
 	vpep.id_episode=lr.id_episode
 		and
-	tt.id=tr.fk_type
+	ttu.id=tr.fk_type
 ;
 
 -- ==========================================================
@@ -610,11 +612,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.47 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.48 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.47  2004-03-23 02:33:13  ncq
+-- Revision 1.48  2004-03-23 17:34:49  ncq
+-- - support and use optionally cross-provider unified test names
+--
+-- Revision 1.47  2004/03/23 02:33:13  ncq
 -- - comments/constraints/references on test_result, also result_when -> clin_when
 -- - v_results4lab_req, v_test_org_profile, grants
 --

@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -97,6 +97,25 @@ comment on column test_type."comment" is
 comment on column test_type.basic_unit is
 	'the basic (SI?) unit for this test type, used for comparing
 	 results delivered in differing units';
+
+-- ====================================
+-- FIXME: run demon to make sure that internal_code is always
+-- associated with the same internal_name
+create table test_type_uni (
+	pk serial primary key,
+	fk_test_type integer
+		unique
+		not null
+		references test_type(id)
+		on update cascade
+		on delete cascade,
+	internal_code text not null,
+	internal_name text not null
+);
+
+comment on table test_type_uni is
+	'this table merges test types from various test orgs
+	 into one logical test type (mainly for display)';
 
 -- ====================================
 create table lnk_tst2norm (
@@ -301,6 +320,7 @@ create table lnk_result2lab_req (
 grant select on
 	test_org
 	, test_type
+	, test_type_uni
 	, lnk_tst2norm
 	, test_result
 	, lab_request
@@ -312,6 +332,8 @@ grant select, insert, update, delete on
 	, test_org_pk_seq
 	, test_type
 	, test_type_id_seq
+	, test_type_uni
+	, test_type_uni_pk_seq
 	, lnk_tst2norm
 	, lnk_tst2norm_id_seq
 	, test_result
@@ -320,16 +342,19 @@ grant select, insert, update, delete on
 	, lab_request_pk_seq
 	, lnk_result2lab_req
 	, lnk_result2lab_req_pk_seq
-to group "gm-doctors";
+to group "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.16 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.16  2004-03-23 02:33:13  ncq
+-- Revision 1.17  2004-03-23 17:34:49  ncq
+-- - support and use optionally cross-provider unified test names
+--
+-- Revision 1.16  2004/03/23 02:33:13  ncq
 -- - comments/constraints/references on test_result, also result_when -> clin_when
 -- - v_results4lab_req, v_test_org_profile, grants
 --
