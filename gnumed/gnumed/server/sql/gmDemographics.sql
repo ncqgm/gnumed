@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.31 $
+-- $Revision: 1.32 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -351,6 +351,10 @@ comment on column relation_types.description IS
 	'plain text description of relationship';
 
 -- ==========================================================
+-- this is consistent with what Aldfaer uses for genealogical
+-- data and is said to be plenty fast
+-- FIXME: it might be useful to CLUSTER ON id_identity ?
+
 create table lnk_person2relative (
 	id serial primary key,
 	id_identity integer not null references identity,
@@ -367,9 +371,9 @@ comment on table lnk_person2relative IS
 comment on column lnk_person2relative.id_identity IS
 	'primary identity to whom the relationship applies';
 comment on column lnk_person2relative.id_relative IS
-	'referred identity of this relationship (e.g. "child"
-	if id_identity points to the father and id_relation_type
-	points to "parent")';
+	'referred-to identity of this relationship (e.g. "child"
+	 if id_identity points to the father and id_relation_type
+	 points to "parent")';
 comment on column lnk_person2relative.started IS
 	'date when this relationship began';
 comment on column lnk_person2relative.ended IS
@@ -531,11 +535,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.31 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.32 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.31  2004-07-22 02:23:58  ihaywood
+-- Revision 1.32  2004-08-18 08:28:14  ncq
+-- - improve comments on Knot system
+--
+-- Revision 1.31  2004/07/22 02:23:58  ihaywood
 -- Jim's new comments for comm_channel
 --
 -- Revision 1.30  2004/05/30 21:01:11  ncq
