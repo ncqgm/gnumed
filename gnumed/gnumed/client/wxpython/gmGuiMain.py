@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-08-08 10:11:52 $
-# @version $Revision: 1.37 $ $Date: 2002-08-08 10:11:52 $ $Author: ncq $
+# @Date: $Date: 2002-08-08 11:02:32 $
+# @version $Revision: 1.38 $ $Date: 2002-08-08 11:02:32 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,11 +31,10 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
-			   D. Guest <dguest@zeeclor.mine.nu>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 from wxPython.wx import *
@@ -63,9 +62,6 @@ ID_ABOUT = wxNewId ()
 ID_EXIT = wxNewId ()
 ID_HELP = wxNewId ()
 ID_NOTEBOOK = wxNewId ()
-#  talkback
-ID_BUTTON_CANCEL = wxNewId()
-ID_BUTTON_SEND = wxNewId()
 #==================================================
 class MainFrame(wxFrame):
 	"""GNUmed client's main windows frame
@@ -311,88 +307,12 @@ class MainFrame(wxFrame):
 		myLog.Log(gmLog.lInfo, 'OnIconify')
 
 
-
 	def OnMaximize(self, event):
 		myLog.Log(gmLog.lInfo,'OnMaximize')
 
 
-
 	def OnPageChanged(self, event):
 		myLog.Log(gmLog.lInfo, "Notebook page changed - need code here!")
-
-
-###########################################################################
-class cTalkbackFrame(wxFrame):
-	def __init__(self, *args, **kwds):
-		kwds["style"] = wxCAPTION|wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wxSYSTEM_MENU|wxRESIZE_BORDER
-		wxFrame.__init__(self, *args, **kwds)
-		self.szr_main = wxBoxSizer(wxVERTICAL)
-
-		self.szr_btns = wxBoxSizer(wxHORIZONTAL)
-		self.btn_CANCEL = wxButton(self, ID_BUTTON_CANCEL, _("Don't send"), size=(-1, -1))
-		self.btn_SEND = wxButton(self, ID_BUTTON_SEND, _("Send"), size=(-1, -1))
-
-		self.szr_adr = wxBoxSizer(wxHORIZONTAL)
-		self.field_to = wxTextCtrl(self, -1, "bugs@gnumed.org", size=(-1, -1), style=0)
-		self.label_to = wxStaticText(self, -1, _("Send to"), size=(-1, -1), style=wxALIGN_RIGHT)
-		self.field_from = wxTextCtrl(self, -1, "", size=(-1, -1), style=0)
-		self.label_from = wxStaticText(self, -1, _("Your email address"), size=(-1, -1), style=wxALIGN_RIGHT)
-
-		self.szr_desc = wxBoxSizer(wxHORIZONTAL)
-		self.field_desc = wxTextCtrl(self, -1, _("I hit the big red button and ..."), size=(-1, -1), style=wxTE_MULTILINE)
-		self.label_desc = wxStaticText(self, -1, _("Description/  \nComment  "), size=(-1, -1), style=wxALIGN_RIGHT)
-
-		self.szr_hint = wxBoxSizer(wxHORIZONTAL)
-		self.label_hint = wxStaticText(self, -1, _("An error occured in GNUmed. You can send a bug report from the window below."), size=(-1, -1), style=wxALIGN_CENTER)
-
-		self.szr_title = wxBoxSizer(wxHORIZONTAL)
-		self.label_title = wxStaticText(self, -1, _("GNUmed Talkback Facility"), size=(-1, -1), style=wxALIGN_CENTER)
-
-		EVT_BUTTON(self, ID_BUTTON_CANCEL, self.onNoSend)
-		EVT_BUTTON(self, ID_BUTTON_SEND, self.onSend)
-
-		self.__set_properties()
-		self.__do_layout()
-    #-----------------------------------------------
-	def __set_properties(self):
-		self.SetTitle(_("GNUmed Talkback"))
-		self.label_title.SetFont(wxFont(16, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
-    #-----------------------------------------------
-	def __do_layout(self):
-		self.szr_title.Add(self.label_title, 1, wxBOTTOM|wxRIGHT|wxTOP|wxALIGN_CENTER_HORIZONTAL|wxLEFT|wxALIGN_CENTER_VERTICAL, 5)
-		self.szr_main.Add(self.szr_title, 1, wxALIGN_CENTER_HORIZONTAL, 0)
-
-		self.szr_hint.Add(self.label_hint, 0, wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxLEFT|wxALIGN_CENTER_VERTICAL, 6)
-		self.szr_main.Add(self.szr_hint, 1, wxEXPAND, 0)
-
-		self.szr_desc.Add(self.label_desc, 0, wxALIGN_RIGHT|wxLEFT, 6)
-		self.szr_desc.Add(self.field_desc, 3, wxBOTTOM|wxRIGHT|wxEXPAND, 8)
-		self.szr_main.Add(self.szr_desc, 3, wxEXPAND, 0)
-
-		self.szr_adr.Add(self.label_from, 0, wxRIGHT|wxALIGN_RIGHT|wxLEFT, 5)
-		self.szr_adr.Add(self.field_from, 1, 0, 0)
-		self.szr_adr.Add(self.label_to, 0, wxRIGHT|wxLEFT, 5)
-		self.szr_adr.Add(self.field_to, 2, wxRIGHT, 8)
-		self.szr_main.Add(self.szr_adr, 1, wxEXPAND, 0)
-
-		self.szr_btns.Add(self.btn_CANCEL, 0, wxALIGN_CENTER_HORIZONTAL, 0)
-		self.szr_btns.Add(20, 20, 0, wxEXPAND, 0)
-		self.szr_btns.Add(self.btn_SEND, 0, 0, 0)
-		self.szr_main.Add(self.szr_btns, 1, wxALIGN_CENTER_HORIZONTAL, 0)
-
-		self.SetAutoLayout(1)
-		self.SetSizer(self.szr_main)
-		self.szr_main.Fit(self)
-    #-----------------------------------------------	
-	def onNoSend(self,event):
-		self.Close(true)
-    #-----------------------------------------------
-	def onSend(self, event):
-		email_logger.setFrom (self.field_from.GetValue ())
-		email_logger.setTo (self.field_to.GetValue())
-		email_logger.setComment (self.field_desc.GetValue())		
-		email_logger.flush ()
-		self.Close(true)
 #==================================================
 class gmApp(wxApp):
 
@@ -432,43 +352,6 @@ def main():
 	#create an instance of our GNUmed main application
 	app = gmApp(0)
 	#and enter the main event loop
-	app.MainLoop()
-
-#=================================================
-def main_with_talkback():
-	"""Alternative main() method to run talkback logger.
-	"""
-
-	# "bug-gnumed@gnu.org", anSMTPServer = "fencepost.gnu.org"
-	# aTo = ("gnumed-bugs@gmx.net",), anSMTPServer = "mail.gmx.net"
-
-	if gmCLI.has_arg('--debug'):
-		level = gmLog.lData
-	else:
-		level = gmLog.lInfo
-
-	global email_logger
-	email_logger = gmLog.cLogTargetEMail(level, aFrom = "GNUmed client", aTo = ("ncq@localhost",), anSMTPServer = "localhost")
-	myLog.AddTarget (email_logger)
-
-	# run normal main() but catch all exceptions and reraise them
-	try:
-		main()
-	except:
-		exc = sys.exc_info()
-		myLog.LogException("Unhandled Exception caught !", exc)
-
-	#---------------------------------------------
-	class cTalkbackApp(wxApp):
-		def OnInit(self):
-			frame = cTalkbackFrame(NULL, -1, "GNUmed Talks Back", wxDefaultPosition, size=wxSize(-1,-1), style= wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
-			frame.Show (true)
-			self.SetTopWindow(frame)
-			return true
-	#---------------------------------------------
-
-	# run email logger window
-	app = cTalkbackApp(0)
 	app.MainLoop()
 #==================================================
 # Main
