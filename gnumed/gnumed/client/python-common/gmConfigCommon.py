@@ -15,7 +15,7 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types, pickle
@@ -111,7 +111,7 @@ class ConfigSource:
 			if not type(eval(aValue)) in (types.IntType, types.FloatType, types.LongType):
 				castedVal = None
 			else:
-				castedVal = aValue
+				castedVal = eval(aValue)
 		elif castType == 'string':
 			castedVal = str(aValue)
 
@@ -551,9 +551,11 @@ class ConfigDataDB(ConfigData):
 		# check if we have a cookie
 		if pNameParts[-1][0] == '_':
 			cookie = pNameParts[-1][1:]
+			option = string.join(pNameParts[:-1],".")
 		else:
 			cookie = None
-		option = string.join(pNameParts[:-1],".")
+			option = aParameterName
+			
 #		print "[%s, %s]" % (cookie, option)		
 		if option is None:
 			return None
@@ -816,7 +818,7 @@ def exportDBSet(filename,aUser = None, aMachine = '__default__'):
 		file.write( "[%s]\ntype = %s\ndescription = %s\nvalue = %s\n\n" % \
 			(param,cType,description,value))
 	return len(paramList)
-	
+#-------------------------------------------------------------------------
 def importDBSet(filename,aUser = None, aMachine = '__default__'):
 	"""get config definitions from a file exported with 
 	   exportDBSet()."""
@@ -843,6 +845,7 @@ def importDBSet(filename,aUser = None, aMachine = '__default__'):
 	groups = importFile.getGroups()
 	# every group holds one parameter description
 	# group name = parameter name
+	successfully_stored = 0
 	for paramName in groups:
 		# ignore empty parameter names
 		if paramName == "":
@@ -863,7 +866,7 @@ def importDBSet(filename,aUser = None, aMachine = '__default__'):
 			continue
 		else:
 			if paramType in ['string','numeric','str_array']:
-				paramValue = eval(paramValueStr)
+				paramValue = eval(repr(paramValueStr))
 			else:
 				paramValue = pickle.loads(paramValueStr)
 		# TODO: check if the parameter already exists with different type
@@ -877,19 +880,26 @@ def importDBSet(filename,aUser = None, aMachine = '__default__'):
 			else:
 				# same type -> store new value	
 				s=importConfigSource.setConfigData(paramName,paramValue)
+				if s is None:
+					_log.Log(gmLog.lWarn, 
+						"Cannot store config parameter [%s] to set [%s@%s]." % (paramName,aUser,aMachine))
+				else:
+					successfully_stored = successfully_stored + 1
+				
 		else:
 			# add new entry to parameter definition dictionary
 			s=importConfigSource.addConfigParam(paramName,paramType,paramValue,paramDescription)
 			if s is None:
 				_log.Log(gmLog.lWarn, 
-					"Cannot store config parameter [%s] to set [%s@%s]." % (paramName,aUser,aMachine))		
-	return len(groups)
+					"Cannot store config parameter [%s] to set [%s@%s]." % (paramName,aUser,aMachine))
+			else:
+				successfully_stored = successfully_stored + 1	
+	return successfully_stored
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.11  2003-11-17 10:56:35  sjtan
-#
-# synced and commiting.
+# Revision 1.12  2003-11-18 18:54:06  hinnef
+# rollback of errorneous commit
 #
 # Revision 1.10  2003/11/07 07:48:27  hinnef
 # changed path to configfiles so that they will be found in client/etc/...
@@ -899,7 +909,9 @@ def importDBSet(filename,aUser = None, aMachine = '__default__'):
 #
 # Revision 1.8  2003/10/26 01:38:06  ncq
 # - gmTmpPatient -> gmPatient, cleanup
-# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.7  2003/10/22 21:35:51  hinnef
+# - fixed a bug in CastType that prevented numeric values to be written as such
 #
 # Revision 1.6  2003/10/13 21:02:55  hinnef
 # - added GPL statement
