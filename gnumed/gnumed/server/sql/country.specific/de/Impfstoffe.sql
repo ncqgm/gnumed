@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -25,7 +25,7 @@ insert into vaccine (
 ) values (
 	(select id from vacc_route where abbreviation='i.m.'),
 	'Tetasorbat SSW',
-	'Tetasorbat',
+	'Tetanus',
 	false,
 	true,
 	-- FIXME: check this
@@ -48,7 +48,7 @@ insert into vaccine (
 ) values (
 	(select id from vacc_route where abbreviation='i.m.'),
 	'Td-pur',
-	'Td-pur',
+	'Td',
 	false,
 	true,
 	'6 years'::interval,
@@ -77,7 +77,7 @@ insert into vaccine (
 ) values (
 	(select id from vacc_route where abbreviation='i.m.'),
 	'Havrix 720 Kinder',
-	'Havrix 7 K',
+	'HAV',
 	false,
 	true,
 	'1 year'::interval,
@@ -130,7 +130,7 @@ insert into vaccine (
 ) values (
 	(select id from vacc_route where abbreviation='i.m.'),
 	'InfectoVac Flu 2003/2004',
-	'InfectoVac Flu 2003',
+	'Flu 03',
 	false,
 	true,
 	'6 months'::interval,
@@ -159,7 +159,32 @@ insert into vaccine (
 	false,
 	true,
 	'2 months'::interval,
-	'mit Tetanus-Toxoid konjugiert, nicht mit Diphtherie-Toxoid'
+	'mit Tetanus-Toxoid konjugiert'
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='meningococcus C'));
+
+---------------
+-- Menjugate --
+---------------
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	is_licensed,
+	min_age,
+	comment
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'Menjugate, Meningokokken-C-Konjugat',
+	'Menjugate',
+	false,
+	true,
+	'2 months'::interval,
+	'mit Diphtherie-Toxoid konjugiert, Chiron Behring'
 );
 
 -- link to indications
@@ -169,11 +194,15 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.5  2003-12-29 15:59:24  uid66147
+-- Revision 1.6  2004-01-12 13:31:34  ncq
+-- - better short_name(s)
+-- - add Menjugate
+--
+-- Revision 1.5  2003/12/29 15:59:24  uid66147
 -- - NeisVac C
 --
 -- Revision 1.4  2003/11/30 10:34:35  ncq
