@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.23 $
+-- $Revision: 1.24 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -99,9 +99,9 @@ comment on column test_type.basic_unit is
 	 comparing results delivered in differing units';
 
 -- ====================================
--- FIXME: run demon to make sure that internal_code is always
--- associated with the same internal_name
-create table test_type_uni (
+-- FIXME: run demon to make sure that local_code is always
+-- associated with the same local_name
+create table test_type_local (
 	pk serial primary key,
 	fk_test_type integer
 		unique
@@ -109,11 +109,11 @@ create table test_type_uni (
 		references test_type(id)
 		on update cascade
 		on delete cascade,
-	internal_code text not null,
-	internal_name text not null
+	local_code text not null,
+	local_name text not null
 );
 
-comment on table test_type_uni is
+comment on table test_type_local is
 	'this table merges test types from various test orgs
 	 into one logical test type (mainly for display)';
 
@@ -155,19 +155,25 @@ create table test_result (
 	val_normal_min float,
 	val_normal_max float,
 	val_normal_range text,
-	technically_abnormal bool not null,
+	technically_abnormal text
+		default null
+		check (
+			(reviewed_by_clinician is false)
+				or
+			(reviewed_by_clinician is true) and (technically_abnormal is not null)
+		),
 	norm_ref_group text,
 	note_provider text,
 	material text,
 	material_detail text,
-	reviewed_by_clinician bool
+	reviewed_by_clinician boolean
 		not null
 		default false,
 	fk_reviewer integer
 		default null
 		references xlnk_identity(xfk_identity)
 		check(((reviewed_by_clinician is false) and (fk_reviewer is null)) or (fk_reviewer is not null)),
-	clinically_relevant bool
+	clinically_relevant boolean
 		default null
 		check (((reviewed_by_clinician=false) and (clinically_relevant is null)) or (clinically_relevant is not null))
 ) inherits (clin_root_item);
@@ -287,7 +293,7 @@ comment on column lab_request.lab_request_id is
 	'ID this request had internally at the lab
 	 LDT: 8311';
 comment on column lab_request.lab_rxd_when is
-	'when did the lab receive the request+request
+	'when did the lab receive the request+sample
 	 LDT: 8301';
 comment on column lab_request.results_reported_when is
 	'when was the report on the result generated,
@@ -346,11 +352,16 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.23 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.24 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.23  2004-05-04 08:14:26  ncq
+-- Revision 1.24  2004-05-06 23:29:04  ncq
+-- - rename test_type_uni to test_type_local
+-- - test_type_local.internal_name/code -> *.local_name/code
+-- - test_result.technically_abnormal: bool -> text
+--
+-- Revision 1.23  2004/05/04 08:14:26  ncq
 -- - check constraint on lab_request.request_id disallowing empty request ids
 --
 -- Revision 1.22  2004/05/02 22:52:47  ncq
