@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.4 $ $Date: 2004-07-17 20:57:53 $ $Author: ncq $
+-- $Revision: 1.5 $ $Date: 2004-09-20 21:12:42 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -31,10 +31,8 @@ drop view v_obj4doc;
 
 create view v_obj4doc as
 select
-	dm.id as pk_doc,
-	dobj.id as pk_obj,
 	dm.patient_id as pk_patient,
-	dm.type as pk_type,
+	dobj.id as pk_obj,
 	dt.name as type,
 	_(dt.name) as l10n_type,
 	dm.comment as doc_comment,
@@ -42,13 +40,16 @@ select
 	dm.ext_ref as ext_ref,
 	dobj.seq_idx as seq_idx,
 	dobj.comment as obj_comment,
+	dm.id as pk_doc,
+	dm.type as pk_type,
 	dobj.data as object
 from
 	doc_med dm,
 	doc_obj dobj,
 	doc_type dt
 where
-	dm.type=dt.id and
+	dm.type=dt.id
+		and
 	dobj.doc_id=dm.id
 ;
 
@@ -63,22 +64,23 @@ select
 	vo4d.doc_comment as doc_comment,
 	vo4d.date_generated as date_taken,
 	vo4d.ext_ref as ext_ref,
+	vo4d.seq_idx as obj_seq_idx,
 	vo4d.obj_comment as obj_comment,
-	vo4d.object as image,
-	dd.text as description,
 	vo4d.pk_doc as pk_doc,
 	vo4d.pk_obj as pk_obj,
-	dd.id as pk_desc
+	vo4d.object as image
 from
-	v_obj4doc vo4d,
-	doc_desc dd
+	v_obj4doc vo4d
 where
-	vo4d.type='patient photo' and
-	dd.doc_id=vo4d.pk_doc and
-	vo4d.seq_idx=(
-		select max(seq_idx)
+	vo4d.type = 'patient photograph'
+		and
+	vo4d.seq_idx = (
+		select max(vo4d1.seq_idx)
 		from v_obj4doc vo4d1
-		where vo4d1.pk_patient=vo4d.pk_patient
+		where
+			vo4d1.pk_patient = vo4d.pk_patient
+				and
+			vo4d1.type = 'patient photograph'
 	)
 ;
 -- =============================================
@@ -103,11 +105,16 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmBlobViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.4  2004-07-17 20:57:53  ncq
+-- Revision 1.5  2004-09-20 21:12:42  ncq
+-- - constraint on doc_desc
+-- - improve v_obj4doc
+-- - fix v_latest_mugshot
+--
+-- Revision 1.4  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --

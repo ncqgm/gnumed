@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.41 $ $Date: 2004-04-07 18:16:06 $ $Author: ncq $
+-- $Revision: 1.42 $ $Date: 2004-09-20 21:12:42 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -47,7 +47,7 @@ CREATE TABLE doc_med (
 	ext_ref text
 );
 
-COMMENT ON TABLE "doc_med" IS
+COMMENT ON TABLE doc_med IS
 	'a medical document object possibly containing several
 	 data objects such as several pages of a paper document';
 COMMENT ON COLUMN doc_med.patient_id IS
@@ -94,7 +94,8 @@ CREATE TABLE doc_desc (
 		references doc_med(id)
 		on delete cascade
 		on update cascade,
-	"text" text
+	"text" text,
+	unique(doc_id, "text")
 );
 
 COMMENT ON TABLE doc_desc is
@@ -104,7 +105,7 @@ COMMENT ON TABLE doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.41 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.42 $');
 
 -- =============================================
 -- questions:
@@ -122,7 +123,12 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.41  2004-04-07 18:16:06  ncq
+-- Revision 1.42  2004-09-20 21:12:42  ncq
+-- - constraint on doc_desc
+-- - improve v_obj4doc
+-- - fix v_latest_mugshot
+--
+-- Revision 1.41  2004/04/07 18:16:06  ncq
 -- - move grants into re-runnable scripts
 -- - update *.conf accordingly
 --
