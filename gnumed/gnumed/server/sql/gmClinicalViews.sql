@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.108 2004-10-11 19:32:19 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.109 2004-10-12 09:50:21 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -764,6 +764,7 @@ select
 	vind.description as indication,
 	_(vind.description) as l10n_indication,
 	vreg.name as regime,
+	(select max(vdef.seq_no) from vacc_def vdef where vreg.id = vdef.fk_regime) as shots,
 	coalesce(vreg.comment, '') as comment,
 	vreg.fk_indication as pk_indication,
 	vreg.fk_recommended_by as pk_recommended_by
@@ -1474,11 +1475,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.108 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.109 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.108  2004-10-11 19:32:19  ncq
+-- Revision 1.109  2004-10-12 09:50:21  ncq
+-- - enhance v_vacc_regimes -> add "shots" field holding number of shots for regime
+--
+-- Revision 1.108  2004/10/11 19:32:19  ncq
 -- - clean up v_pat_allergies
 --
 -- Revision 1.107  2004/09/29 19:17:24  ncq
