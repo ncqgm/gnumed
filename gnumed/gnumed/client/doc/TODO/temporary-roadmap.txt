@@ -1,7 +1,7 @@
 GnuMed temporary roadmap
 ========================
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/temporary-roadmap.txt,v $
-$Revision: 1.3 $
+$Revision: 1.4 $
 -----------------------------------------------------------------
 This is the temporary roadmap. Please always include the
 URL to this document when discussing items on the list:
@@ -10,13 +10,19 @@ http://savannah.gnu.org/cgi-bin/viewcvs/gnumed/gnumed/gnumed/client/doc/TODO/tem
 -----------------------------------------------------------------
 
 patient input/search/modification
+---------------------------------
+maintainer:
+hackers:
  - no family relationship handling
  - search done (or nearly, in top panel)
  - mediocre attempt at input/modification available
  - input needs considerably more smarts
 
-
-progress notes
+--------------------
+progress notes input
+--------------------
+maintainer: Karsten Hilbert
+hackers:
  - simple SOAP structured text input fields
  - clin_note/clin_history/clin_physical rows
  - optional, partially done
@@ -24,6 +30,8 @@ progress notes
 ------------
 notes viewer
 ------------
+maintainer:
+hackers:
  - tree widget on the left side: health issues[1] and then episodes[2] in a hierarchy
  - drop down boxes across top for limiting by month/year etc.
  - display of clinical notes on the right
@@ -35,35 +43,52 @@ notes viewer
 ------------------------
 export of progress notes
 ------------------------
+maintainer:
+hackers:
  - per patient
  - ASCII to text files for re-use
  - constrainable by date, encounter, episode, health issue
  - just as proof-of-intent for interoperability
 
-
+------------------------------------
 third-party application connectivity
+------------------------------------
+maintainer:
+hackers:
  - allow other apps to connect to a GnuMed instance, lock it
    into a patient and release that lock later on
  - OPTIONAL initially
 
-
-drug information browser if data is available locally
+------------------------
+drug information browser
+------------------------
+maintainer: RMIT
+hackers:
+ - if data is available locally
  - PBS via drugref.org via XML-RPC, initially
  - AMIS (German) to follow
 
-
+----------------
 document archive
+----------------
+maintainer: Hilbert
+hackers:
  - OPTIONAL initially
  - nearly done
 
-
+---------------------
 simple ConfigRegistry
+---------------------
+maintainer: Hilmar Berger
+hackers:
  - complete default config data
  - nearly done
 
 ------------------
 referrals handling
 ------------------
+maintainer:
+hackers:
  - referral form (Germany)
    - uses common forms engine with prescription
  - accompanying referral letter
@@ -73,6 +98,8 @@ referrals handling
 ------------
 prescription
 ------------
+maintainer:
+hackers:
  - *very* complex to cover all cases
  - start with simple, most common cases:
  - print out using common forms engine
@@ -97,6 +124,8 @@ prescription
 ------------
 path results
 ------------
+maintainer:
+hackers: Karsten Hilbert, 
  - one excellently defined area of work
  - high on list for DE/AU
  - easily assignable sub-project
@@ -113,7 +142,10 @@ Old German first-off roadmap is here:
 
 -----------------------------------------------------------------
 $Log: temporary-roadmap.txt,v $
-Revision 1.3  2003-07-27 23:05:13  ncq
+Revision 1.4  2003-07-28 22:49:56  ncq
+- added maintainer fields
+
+Revision 1.3  2003/07/27 23:05:13  ncq
 - refinements from list
 
 Revision 1.2  2003/07/27 21:26:26  ihaywood
@@ -121,4 +153,3 @@ my changes, see post to gnumed-devel
 
 Revision 1.1  2003/07/27 16:10:49  ncq
 - first version
-
