@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.88 2004-07-05 18:46:51 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.89 2004-07-05 22:47:34 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -726,6 +726,7 @@ drop view v_coded_diags;
 
 create view v_coded_diags as
 select
+	vpd.pk_diag as pk_diag,
 	vpd.diagnosis as diagnosis,
 	lc2d.code as code,
 	lc2d.xfk_coding_system as coding_system
@@ -738,6 +739,10 @@ where
 
 -- =============================================
 -- types of narrative
+\unset ON_ERROR_STOP
+drop view v_pat_rfe;
+\set ON_ERROR_STOP 1
+
 create view v_pat_rfe as
 select
 	vpi.id_patient as pk_patient,
@@ -756,6 +761,11 @@ where
 		and
 	cn.pk_item = vpi.pk_item
 ;
+
+
+\unset ON_ERROR_STOP
+drop view v_pat_aoe;
+\set ON_ERROR_STOP 1
 
 create view v_pat_aoe as
 select
@@ -917,11 +927,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.88 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.89 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.88  2004-07-05 18:46:51  ncq
+-- Revision 1.89  2004-07-05 22:47:34  ncq
+-- - added pk_diag to v_coded_diag
+--
+-- Revision 1.88  2004/07/05 18:46:51  ncq
 -- - fix grants
 --
 -- Revision 1.87  2004/07/05 17:47:13  ncq
