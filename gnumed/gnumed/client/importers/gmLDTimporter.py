@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.13 2004-06-18 13:39:00 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmLDTimporter.py,v 1.14 2004-06-20 17:26:13 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -337,10 +337,13 @@ class cLDTImporter:
 		return req_stat
 	#-----------------------------------------------------------
 	def __xform_8405(self, request_data):
-		tmp = self.__request['narrative']
-		if tmp is not None:
-			request_data['8405'].insert(0, str(tmp))
-		return '\n'.join(request_data['8405'])
+		new_comment = '\n'.join(request_data['8405'])
+		old_narrative = self.__request['narrative']
+		if old_narrative is None:
+			return new_comment
+		if old_narrative.find(new_comment) == -1:
+			old_narrative = old_narrative + '\n' + new_comment
+		return old_narrative
 	#-----------------------------------------------------------
 	def __xform_8407(self, request_data):
 		tmp = request_data['8407'][0]
@@ -680,8 +683,15 @@ class cLDTImporter:
 		return True
 	#-----------------------------------------------------------
 	def __xform_8490(self, result_data):
-		self.__request['narrative'] = '\n'.join(result_data['8490'])
-		self.__request.save_payload()
+		new_comment = '\n'.join(result_data['8490'])
+		old_narrative = self.__request['narrative']
+		if old_narrative is None:
+			self.__request['narrative'] = new_comment
+			self.__request.save_payload()
+			return True
+		if old_narrative.find(new_comment) == -1:
+			self.__request['narrative'] = old_narrative + '\n' + new_comment
+			self.__request.save_payload()
 		return True
 	#-----------------------------------------------------------
 	__8410line_handler = {
@@ -757,7 +767,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.13 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.14 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -805,7 +815,7 @@ class cLDTImporter:
 				return False
 		if (self.__lab_result['val_alpha'] is None) and (self.__lab_result['val_num'] is None):
 			_log.Log(gmLog.lWarn, 'both result fields empty, setting alphanumeric default')
-			valpha = ''
+			self.__lab_result['val_alpha'] = ''
 		saved, msg = self.__lab_result.save_payload()
 		del self.__lab_result
 		if not saved:
@@ -912,7 +922,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.13 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.14 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -945,7 +955,11 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.13  2004-06-18 13:39:00  ncq
+# Revision 1.14  2004-06-20 17:26:13  ncq
+# - don't overwrite previous narrative but don't create duplicates either
+# - correctly handle val_num/val_alpha both being NULL
+#
+# Revision 1.13  2004/06/18 13:39:00  ncq
 # - semantically seems to import everything correctly
 # - now handles input files on failure/success correctly,
 #   eg moves to target repository
