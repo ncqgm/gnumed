@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
 
@@ -82,7 +82,7 @@ class cCatFinder(gmBorg.cBorg):
 	
 #cCatFinder('org_category')
 #cCatFinder('enum_comm_types')
-cCatFinder('occupation', 'id', 'name')
+#cCatFinder('occupation', 'id', 'name')
 
 DEPARTMENT = 1
 
@@ -1962,9 +1962,74 @@ if __name__ == '__main__':
 				pass
 			clean_test_org()
 			clean_org_categories(adminlogin)
+
+
+
+def setPostcodeWidgetFromUrbId(postcodeWidget, id_urb):
+         """convenience method for urb and postcode phrasewheel interaction.
+            never called without both arguments, but need to check that id_urb
+            is not invalid"""
+         #TODO type checking that the postcodeWidget is a phrasewheel configured
+         # with a postcode matcher
+         if  postcodeWidget is None or id_urb is None:
+                 return False
+         postcode = getPostcodeForUrbId(id_urb)
+         if postcode is None:
+                 return False
+         if len(postcode) == 0:
+                 return True
+         postcodeWidget.SetValue(postcode)
+         postcodeWidget.input_was_selected= 1
+         return True
+
+ #------------------------------------------------------------
+
+def setUrbPhraseWheelFromPostcode(pwheel, postcode):
+         """convenience method for common postcode to urb phrasewheel collaboration.
+            there is no default args for these utility functions,
+            This function is never called without both arguments, otherwise
+            there is no intention (= modify the urb phrasewheel with postcode value).
+         """
+         # TODO type checking that the pwheel is a urb phrasewheel with a urb matcher
+         # clearing post code unsets target
+         # phrasewheel's postcode context
+         if pwheel is None:
+                 return False
+         if postcode == '':
+                 pwheel.setContext("postcode", "%")
+                 return True
+         urbs = getUrbsForPostcode(postcode)
+         if urbs is None:
+                 return False
+         if len(urbs) == 0:
+                 return True
+         pwheel.SetValue(urbs[0])
+         pwheel.input_was_selected = 1
+
+         # FIXME: once the postcode context is set,
+         # the urb phrasewheel will only return urbs with
+         # the same postcode. These can be viewed by clearing
+         # the urb widget. ?How to unset the postcode context,
+         # some gui gesture ? clearing the postcode
+         # (To view all the urbs for a set context,
+         # put a "*" in the urb box and activate the picklist.
+         # THE PROBLEM WITH THIS IS IF THE USER CLEARS THE BOX AND SET CONTEXT IS RESET,
+         # then the "*" will try to pull all thousands of urb names, freezing the app.
+         # so needs a fixup (? have SQL select ... LIMIT n in Phrasewheel )
+
+         pwheel.setContext("postcode", postcode)
+         return True
+
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.27  2004-06-01 15:11:56  sjtan
+# Revision 1.28  2004-06-21 14:48:26  sjtan
+#
+# restored some methods that gmContacts depends on, after they were booted
+# out from gmDemographicRecord with no home to go , works again ;
+# removed cCatFinder('occupation') instantiating in main module scope
+# which was a source of complaint , as it still will lazy load anyway.
+#
+# Revision 1.27  2004/06/01 15:11:56  sjtan
 #
 # cut ctrl-x and paste ctrl-v, works through clipboard, so can paste name/address info onto
 # text editors (oowriter, kwrite tried out). Drag and drop doesn't work to outside apps.

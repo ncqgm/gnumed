@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.49 2004-06-20 15:38:00 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmDemographicRecord.py,v 1.50 2004-06-21 14:48:25 sjtan Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -882,7 +882,6 @@ class OrgCategoryMP (gmMatchProvider.cMatchProvider_SQL):
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
 #------------------------------------------------------------
 
-
 #============================================================
 # callbacks
 #------------------------------------------------------------
@@ -914,7 +913,14 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.49  2004-06-20 15:38:00  ncq
+# Revision 1.50  2004-06-21 14:48:25  sjtan
+#
+# restored some methods that gmContacts depends on, after they were booted
+# out from gmDemographicRecord with no home to go , works again ;
+# removed cCatFinder('occupation') instantiating in main module scope
+# which was a source of complaint , as it still will lazy load anyway.
+#
+# Revision 1.49  2004/06/20 15:38:00  ncq
 # - remove import gettext/_ = gettext.gettext
 # - import gmI18N handles that if __main__
 # - else the importer of gmDemographicRecord has

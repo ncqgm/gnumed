@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -20,8 +20,8 @@ import wx
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.business import gmDemographicRecord
-from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP, setPostcodeWidgetFromUrbId  , OrgCategoryMP
-from Gnumed.business.gmOrganization import cOrgHelperImpl1,  cOrgHelperImpl2, cOrgHelperImpl3, cCatFinder
+from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP, OrgCategoryMP
+from Gnumed.business.gmOrganization import cOrgHelperImpl1,  cOrgHelperImpl2, cOrgHelperImpl3, cCatFinder, setPostcodeWidgetFromUrbId  
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 
@@ -496,7 +496,7 @@ class ContactsPanel(wxPanel):
 	  EVT_LIST_ITEM_SELECTED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
 
 	def __urb_selected(self, id):
-		self.input_field['postcode'].SetValue (gmDemographicRecord.getPostcodeForUrbId(id))
+		self.input_field['postcode'].SetValue (gmOrganization.getPostcodeForUrbId(id))
 		self.input_field['postcode'].input_was_selected= 1
 
        	def get_address_values(self):
@@ -1006,7 +1006,14 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.32  2004-06-17 11:43:16  ihaywood
+# Revision 1.33  2004-06-21 14:48:26  sjtan
+#
+# restored some methods that gmContacts depends on, after they were booted
+# out from gmDemographicRecord with no home to go , works again ;
+# removed cCatFinder('occupation') instantiating in main module scope
+# which was a source of complaint , as it still will lazy load anyway.
+#
+# Revision 1.32  2004/06/17 11:43:16  ihaywood
 # Some minor bugfixes.
 # My first experiments with wxGlade
 # changed gmPhraseWheel so the match provider can be added after instantiation

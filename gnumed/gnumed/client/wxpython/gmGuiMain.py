@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.149 2004-06-20 16:01:05 ncq Exp $
-__version__ = "$Revision: 1.149 $"
+# $Id: gmGuiMain.py,v 1.150 2004-06-21 14:48:26 sjtan Exp $
+__version__ = "$Revision: 1.150 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -32,6 +32,7 @@ import sys, time, os, cPickle, zlib
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker
 from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmTopPanel, gmPlugin
 from Gnumed.business import gmPatient
+from Gnumed.pycommon import gmI18N
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
@@ -769,7 +770,14 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.149  2004-06-20 16:01:05  ncq
+# Revision 1.150  2004-06-21 14:48:26  sjtan
+#
+# restored some methods that gmContacts depends on, after they were booted
+# out from gmDemographicRecord with no home to go , works again ;
+# removed cCatFinder('occupation') instantiating in main module scope
+# which was a source of complaint , as it still will lazy load anyway.
+#
+# Revision 1.149  2004/06/20 16:01:05  ncq
 # - please epydoc more carefully
 #
 # Revision 1.148  2004/06/20 06:49:21  ihaywood
