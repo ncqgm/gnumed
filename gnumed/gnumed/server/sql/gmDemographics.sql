@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -199,7 +199,7 @@ select add_table_for_audit('address_info');
 create table identity (
 	id serial primary key,
 	pupic char(24),
-	gender varchar(2) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?', 'N/A')),
+	gender varchar(3) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?', 'N/A')),
 	karyotype character(10) default null,
 	dob timestamp with time zone not null,
 	cob char(2),
@@ -504,11 +504,15 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.13 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.12  2003-11-02 10:17:02  ihaywood
+-- Revision 1.13  2003-11-20 00:38:43  ncq
+-- - if we want to allow "N/A" in identity.gender we better make it
+--   varchar(3) not (2) :-)       found by Syan
+--
+-- Revision 1.12  2003/11/02 10:17:02  ihaywood
 -- fixups that crash psql.py
 --
 -- Revision 1.11  2003/10/31 23:29:38  ncq
