@@ -17,14 +17,14 @@ signal indicating a change in the backend.
 
 The _populate_with_data() method must be overriden in the
 including class and must return True if the contents was
-be redrawn successfully.
+redrawn successfully.
 
 @copyright: authors
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.6 2004-10-17 15:52:21 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmRegetMixin.py,v 1.7 2005-01-13 14:27:33 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -94,7 +94,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.6  2004-10-17 15:52:21  ncq
+# Revision 1.7  2005-01-13 14:27:33  ncq
+# - grammar fix
+#
+# Revision 1.6  2004/10/17 15:52:21  ncq
 # - cleanup
 #
 # Revision 1.5  2004/10/17 00:05:36  sjtan
