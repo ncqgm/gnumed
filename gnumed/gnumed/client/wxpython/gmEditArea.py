@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.72 2004-05-18 20:43:17 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmEditArea.py,v 1.73 2004-05-27 13:40:22 ihaywood Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -13,7 +13,7 @@ __author__ = "R.Terry, K.Hilbert"
 import sys, traceback, time
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmWhoAmI
-from Gnumed.business import gmPatient, gmDemographicRecord, gmForms
+from Gnumed.business import gmPatient, gmDemographicRecord, gmForms, gmReferral
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 
 from wxPython.wx import *
@@ -816,8 +816,8 @@ class gmEditArea(wxPanel):
 	def getDataId(self):
 		return self.data 
 
-#	def setDataId(self, id):
-#		self.data = id
+	def setDataId(self, id):
+		self.data = id
 	
 
 	def _getInputFieldValues(self):
@@ -1640,7 +1640,8 @@ class gmReferralEditArea(gmEditArea):
 		flags = {}
 		flags['meds'] = self.fld_med.GetValue ()
 		flags['pasthx'] = self.fld_past.GetValue ()
-		gmForms.send_referral (self.recipient, channel, addr, text, flags)
+		if not gmReferral.create_referral (self.patient, self.recipient, channel, addr, text, flags):
+			raise gmExceptions.InvalidInputError('error sending form')
 
 #====================================================================
 #====================================================================
@@ -2406,7 +2407,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.72  2004-05-18 20:43:17  ncq
+# Revision 1.73  2004-05-27 13:40:22  ihaywood
+# more work on referrals, still not there yet
+#
+# Revision 1.72  2004/05/18 20:43:17  ncq
 # - check get_clinical_record() return status
 #
 # Revision 1.71  2004/05/16 14:32:51  ncq

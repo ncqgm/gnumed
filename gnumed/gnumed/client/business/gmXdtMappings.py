@@ -1,11 +1,12 @@
+# -*- encoding: latin-1 -*-
 """GnuMed German XDT mapping data.
 
 This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.20 2004-05-18 20:37:03 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmXdtMappings.py,v 1.21 2004-05-27 13:40:21 ihaywood Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -1341,7 +1342,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.20  2004-05-18 20:37:03  ncq
+# Revision 1.21  2004-05-27 13:40:21  ihaywood
+# more work on referrals, still not there yet
+#
+# Revision 1.20  2004/05/18 20:37:03  ncq
 # - update befundstatus/teststatus maps
 #
 # Revision 1.19  2004/05/11 08:06:49  ncq

@@ -1,16 +1,13 @@
 # -*- coding: latin-1 -*-
 """GnuMed forms classes
 Business layer for printing all manner of forms, letters, scripts etc.
-
-This code is PROOF OF CONCEPT only
-I give no warrant that it will work, or even compile
  
 license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.16 2004-04-21 22:26:48 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmForms.py,v 1.17 2004-05-27 13:40:21 ihaywood Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -74,7 +71,12 @@ class gmFormEngine:
 		"""
 		return self.flags
 	#--------------------------------------------------------
-	def store(self, params=None):
+	def store(self, episode, encounter, params=None, curs='historica'):
+		"""
+		Stores the parameters in the backend
+		Accept a backend cursor, so we can do this as one transaction
+		with other tables (see gmReferral.send_referral ())
+		"""
 		# some forms may not have values ...
 		if params is None:
 			params = {}
@@ -94,8 +96,8 @@ class gmFormEngine:
 		# in one transaction
 		queries = []
 		# - store form instance in form_instance
-		cmd = "insert into form_instances(fk_form_def, form_name) values (%s, %s);"
-		queries.append((cmd, [self.pk_def, form_name]))
+		cmd = "insert into form_instances(fk_form_def, form_name, id_episode, id_encounter) values (%s, %s, %s, %s);"
+		queries.append((cmd, [self.pk_def, form_name, episode, encounter]))
 		# - store params in form_data
 		for key in params.keys():
 			cmd = """
@@ -103,11 +105,11 @@ class gmFormEngine:
 				values ((select currval('form_instances_pk_seq')), %s, %s::text)
 			"""
 			queries.append((cmd, [key, params[key]]))
-		status, err = gmPG.run_commit('historica', queries, True)
+		status, err = gmPG.run_commit(curs, queries, True)
 		if status is None:
 			_log.Log(gmLog.lErr, 'failed to store form [%s] (%s): %s' % (self.pk_def, form_name, err))
-			return False
-		return True
+			return None
+		return gmPG.run_ro_query (curs, "select currval ('form_instances_pk_seq')", None)[0][0]
 #============================================================
 class TextForm (gmFormEngine):
 	"""
@@ -207,19 +209,24 @@ class LaTeXForm (TextForm):
 		return item
 
 	def process (self, params):
-		params = self.__texify (params)
-		latex = TextForm.process (self, params)
-		# create a 'sandbox' directory for LaTeX to play in
-		self.tmp = tempfile.mktemp ()
-		os.makedirs (self.tmp)
-		self.oldcwd = os.getcwd ()
-		os.chdir (self.tmp)
-		stdin = os.popen ("latex", "w", 2048)
-		stdin.write (latex.getvalue ()) # send text. LaTeX spits it's output into stdout.
-		# FIXME: send LaTeX	 output to the logger
-		stdin.close ()
-		os.system ("dvips texput.dvi -o texput.ps")
-		return file ("texput.ps")
+		try:
+			params = self.__texify (params)
+			latex = TextForm.process (self, params)
+			# create a 'sandbox' directory for LaTeX to play in
+			self.tmp = tempfile.mktemp ()
+			os.makedirs (self.tmp)
+			self.oldcwd = os.getcwd ()
+			os.chdir (self.tmp)
+			stdin = os.popen ("latex", "w", 2048)
+			stdin.write (latex.getvalue ()) # send text. LaTeX spits it's output into stdout.
+			# FIXME: send LaTeX output to the logger
+			stdin.close ()
+			if os.system ("dvips texput.dvi -o texput.ps") != 0:
+				raise gmExceptions.InvalidInputError ('DVIPS returned error') 
+		except EnvironmentError, e:
+			_log.Log (gmLog.lErr, '' % e.strerror)
+			raise gmExceptions.InvalidInputError ('Form printing failed because [%s]' % e.strerror)
+		return 1
 
 	def xdvi (self):
 		"""
@@ -232,7 +239,10 @@ class LaTeXForm (TextForm):
 			command.replace ("%F", "texput.ps")
 		else:
 			command	 = "%s < texput.ps" % command
-		os.system (command)
+		if os.system (command) != 0:
+			_log.Log (gmLog.lErr, "external command %s returned non-zero" % command)
+			return False
+		return True
 
 	def cleanup (self):
 		for i in os.listdir ('.'):
@@ -262,7 +272,7 @@ def get_form(id):
 	try:
 		# it's a number: match to form ID
 		id = int (id)
-		cmd	 = 'select template, engine, flags, pk from form_defs where pk = %s'
+		cmd = 'select template, engine, flags, pk from form_defs where pk = %s'
 	except ValueError:
 		# it's a string, match to the form's name
 		cmd = 'select template, engine, flags, pk from form_defs where name_short = %s'
@@ -272,70 +282,15 @@ def get_form(id):
 		raise gmExceptions.InvalidInputError ('Error getting form [%s]' % id)
 	if len(result) == 0:
 		_log.Log (gmLog.lErr, 'no form [%s] found' % id)
-		raise gmExceptions.InvalidInputError ('No such form found: [%s]' % id)
+		raise gmExceptions.InvalidInputError ('No such form found [%s]' % id)
 	if result[0][1] == 'L':
 		return LaTeXForm (result[0][3], result[0][0], result[0][2])
-	elif result[1] == 'T':
+	elif result[0][1] == 'T':
 		return TextForm (result[0][3], result[0][0], result[0][2])
 	else:
-		_log.Log (gmLog.lErr, 'no form engine [%s] for form [%s]' % (result[1], id))
-		raise gmExceptions.InvalidInputError ('no engine [%s] for form [%s]' % (result[1], id))
-#------------------------------------------------------------
-def send_referral (recipient, channel, addr, text, flags):
-	whoami = gmWhoAmI.cWhoAmI ()
-	sender = gmDemographicRecord.cDemographicRecord_SQL (whoami.get_staff_identity ())
-	machine = whoami.get_workplace ()
-	patient = gmPatient.gmCurrentPatient ()
-	patient_demo = patient.get_demographic_record ()
-	params = {}
-	sname = sender.get_names()
-	params['SENDER'] = '%s %s %s' % (sname['title'], sname['first'], sname['last'])
-	pname = patient_demo.get_names()
-	params['PATIENTNAME'] = '%s %s %s' % (pname['title'], pname['first'], pname['last'])
-	rname = recipient.get_names()
-	params['RECIPIENT'] = '%s %s %s' % (rname['title'], rname['first'], rname['last'])
-	params['DOB'] = patient_demo.getDOB ().Format ('%x')
-	params['PATIENTADDRESS'] = _("%(number)s %(street)s, %(urb)s %(postcode)s") % patient_demo.getAddresses ('home', 1)
-	params['TEXT'] = text
-	params['INCLUDEMEDS'] = flags['meds']
-	# FUTURE
-	# params['MEDLIST'] = patient_epr.getMedicationsList ()
-	params['INCLUDEPASTHX'] = flags['pasthx']
-	#F FUTURE
-	# params['PASTHXLIST'] = patient_epr.getPastHistory ()
-	
-	if channel == 'post':
-		params['RECIPIENTADDRESS'] = _('%(number)s %(street)s\n%(urb)s %(postcode)s') % addr
-		sndr_addr = sender.getAddresses ('work', 1)
-		if sndr_addr:
-			params['SENDERADDRESS'] = _('%(number)s %(street)s\n%(urb)s %(postcode)s') % sender.getAddresses('work', 1)
-		else:
-			params['SENDERADDRESS'] = _('No address')
-		form_name, set1 = gmCfg.getFirstMatchingDBSet(machine = machine, option = 'main.comms.paper_referral')
-		command, set1 = gmCfg.getFirstMatchingDBSet (machine = machine, option = 'main.comms.print')
-	if channel == 'fax':
-		params['RECIPIENTADDRESS'] = _('FAX: %s') % addr
-		sender_addr = sender.getAddresses('work', 1)
-		if sender_addr:
-			sender_addr['fax'] = sender.getCommChannel (gmDemographicRecord.FAX)
-			params['SENDERADDRESS'] = _('%(number)s %(street)s\n%(urb)s %(postcode)s\nFAX: %(fax)s' % sender_addr)
-		else:
-			params['SENDERADDRESS'] = _('No address')
-		form_name, set1 = gmCfg.getFirstMatchingDBSet(machine = machine, option = 'main.comms.paper_referral')
-		command, set1 = gmCfg.getFirstMatchingDBSet (machine = machine, option = 'main.comms.fax')
-		command.replace ("%N", addr)   # substitute the %N for the number we need to fax to in the command
-	if channel == 'email':
-		params['RECIPIENTADDRESS'] = addr
-		params['SENDERADDRESS'] = sender.getCommChannel (gmDemographicRecord.EMAIL)
-		form_name, set1 = gmCfg.getFirstMatchingDBSet(machine = machine, option = 'main.comms.email_referral')
-		command, set1 = gmCfg.getFirstMatchingDBSet (machine = machine, option = 'main.comms.email')
-		command.replace ("%R", addr) # substitute recipients email address
-		command.replace ("%S", params['SENDERADDRESS']) # substitute senders email address
-	form = get_form (form_name)
-	form.process (params)
-	form.exe (command)
-	form.cleanup ()
-				
+		_log.Log (gmLog.lErr, 'no form engine [%s] for form [%s]' % (result[0][1], id))
+		raise gmExceptions.InvalidInputError ('no engine [%s] for form [%s]' % (result[0][1], id))
+		
 #-------------------------------------------------------------
 def test_au():
 		f = open('../../test-area/ian/terry-form.tex')
@@ -389,7 +344,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.16  2004-04-21 22:26:48  ncq
+# Revision 1.17  2004-05-27 13:40:21  ihaywood
+# more work on referrals, still not there yet
+#
+# Revision 1.16  2004/04/21 22:26:48  ncq
 # - it is form_data.place_holder, not placeholder
 #
 # Revision 1.15  2004/04/21 22:05:28  ncq

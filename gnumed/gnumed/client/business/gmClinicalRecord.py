@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.102 2004-05-24 21:13:33 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmClinicalRecord.py,v 1.103 2004-05-27 13:40:21 ihaywood Exp $
+__version__ = "$Revision: 1.103 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1165,6 +1165,28 @@ insert into allergy (
 		rw_conn.close()
 
 		return 1
+	#------------------------------------------------------------------
+	def get_past_history(self):
+		if not self.__dict__.has_key('past_history'):
+			from gmPastHistory import gmPastHistory
+			from gmEditAreaFacade import gmPHxEditAreaDecorator
+			phx  = gmPastHistory(self._backend, self)
+			self.past_history = gmPHxEditAreaDecorator(phx)
+		return self.past_history
+        #-------------------------------------------------------------------
+        def store_referral (self, cursor, text, form_id):
+		"""
+		Stores a referral in the clinical narrative
+		"""
+		cmd = """
+		insert into referral (
+		id_encounter, id_episode,  narrative, fk_form
+		) values (
+		%s, %s, %s, %s
+		)
+		"""
+		return gmPG.run_commit (cursor, [(cmd, [self.encounter['id'], self.episode['id'], text, form_id])])
+
 #============================================================
 # convenience functions
 #------------------------------------------------------------
@@ -1239,7 +1261,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.102  2004-05-24 21:13:33  ncq
+# Revision 1.103  2004-05-27 13:40:21  ihaywood
+# more work on referrals, still not there yet
+#
+# Revision 1.102  2004/05/24 21:13:33  ncq
 # - return better from add_lab_request()
 #
 # Revision 1.101  2004/05/24 20:52:18  ncq

@@ -14,8 +14,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.23 2004-05-25 16:18:12 sjtan Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmDemographics.py,v 1.24 2004-05-27 13:40:22 ihaywood Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -671,11 +671,14 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		if self.addr_cache:
 			self._update_address_list_display()
 		else: # we have no addresses
-			self.txt_number.Clear ()
-			self.txt_street.Clear ()
-			self.txt_postcode.Clear ()
-			self.txt_urb.Clear ()
 			self.addresslist.Clear ()
+		self.txt_number.Clear ()
+		self.txt_street.Clear ()
+		self.txt_postcode.Clear ()
+		self.txt_urb.Clear ()
+		self.combo_address_type.SetValue ('')
+		
+			
 
 	def __update_nok(self):
 		"""this function is disabled until further notice. see l = []"""
@@ -798,7 +801,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.23  2004-05-25 16:18:12  sjtan
+# Revision 1.24  2004-05-27 13:40:22  ihaywood
+# more work on referrals, still not there yet
+#
+# Revision 1.23  2004/05/25 16:18:12  sjtan
 #
 # move methods for postcode -> urb interaction to gmDemographics so gmContacts can use it.
 #
