@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -58,6 +58,13 @@ class scanFrame(wxFrame):
 			'wintwain': self.__acquire_from_twain,
 			'linsane': self.__acquire_from_sane
 		}
+		if scan_drv == 'wintwain':
+			self.twain_event_handler = {
+				twain.MSG_XFERREADY: self.__twain_handle_transfer,
+				twain.MSG_CLOSEDSREQ: self.__twain_close_datasource,
+				twain.MSG_CLOSEDSOK: self.__twain_save_state,
+				twain.MSG_DEVICEEVENT: self.__twain_handle_src_event
+			}
 
 		# get temp dir path from config file
 		self.scan_tmp_dir = None
@@ -212,7 +219,7 @@ class scanFrame(wxFrame):
 	# event handlers
 	#-----------------------------------
 	def on_acquire_page(self, event):
-		self.acquire_handler[scan_drv]()
+		return self.acquire_handler[scan_drv]()
 	#-----------------------------------
 	def on_show_page(self, event):
 		# did user select a page ?
@@ -230,68 +237,18 @@ class scanFrame(wxFrame):
 
 		# now, which file was that again ?
 		page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
-		# does this file exist, actually
-		if not os.path.exists(page_fname):
-			_log.Log(gmLog.lErr, 'Cannot display page. File [%s] does not exist !' % page_fname)
+
+		(result, msg) = docDocument.call_viewer_on_file(page_fname)
+		if not result:
 			dlg = wxMessageDialog(
 				self,
-				_('Cannot display page %s. The file\n[%s]\ndoes not exist.' % (page_idx+1, page_fname)),
+				_('Cannot display page %s.\n%s') % (page_idx+1, msg),
 				_('displaying page'),
 				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
 			return None
-
-		# sigh ! let's be off to work
-		import docMime
-		# FIXME: what about "not found" ?
-		mime_type = docMime.guess_mimetype(page_fname)
-		viewer_cmd = docMime.get_viewer_cmd(mime_type, page_fname)
-
-		if viewer_cmd != None:
-			_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, viewer_cmd))
-			os.system(viewer_cmd)
-			return 1
-
-		_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
-		# does the file already have an extension ?
-		(path_name, f_ext) = os.path.splitext(page_fname)
-		# no
-		if f_ext == "":
-			# try to guess one
-			f_ext = docMime.guess_ext_by_mimetype(mime_type)
-			if not f_ext:
-				_log.Log(gmLog.lErr, "I am completely unable to guess the viewer. Trying our luck.")
-				file_to_display = page_fname
-				f_ext = ""
-			else:
-				file_to_display = page_fname + f_ext						
-				shutil.copyfile(page_fname, file_to_display)
-		else:
-			file_to_display = page_fname
-
-		_log.Log(gmLog.lData, "%s -> %s (%s) -> %s" % (page_fname, mime_type, f_ext, file_to_display))
-		# FIXME: we should only do this on Windows !
-		try:
-			os.startfile(file_to_display)
-		except:
-			exc = sys.exc_info()
-			_log.LogException("Unable to start file viewer.", exc, fatal=0)
-			dlg = wxMessageDialog(
-				self,
-				_('Cannot display page %s. No viewer found.\n[%s]') % (page_idx+1, file_to_display),
-				_('displaying page'),
-				wxOK | wxICON_ERROR
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return None
-
-		# clean up if necessary
-		if file_to_display != page_fname:
-			os.remove(file_to_display)
-
 		return 1
 	#-----------------------------------
 	def on_del_page(self, event):
@@ -310,21 +267,34 @@ class scanFrame(wxFrame):
 			page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
 
 			# 1) del item from self.acquired_pages
-			tmp = self.acquired_pages[:page_idx] + self.acquired_pages[(page_idx+1):]
-			self.acquired_pages = tmp
+			self.acquired_pages[page_idx:(page_idx+1)] = []
+			#tmp = self.acquired_pages[:page_idx] + self.acquired_pages[(page_idx+1):]
+			#self.acquired_pages = tmp
 
 			# 2) reload list box
 			self.__reload_LBOX_doc_pages()
 
 			# 3) kill file in the file system
-			os.remove(page_fname)
+			try:
+				os.remove(page_fname)
+			except:
+				exc = sys.exc_info()
+				_log.LogException("Cannot delete file.", exc, fatal=0)
+				dlg = wxMessageDialog(
+					self,
+					_('Cannot delete page (file %s).\nSee log for details.') % page_fname,
+					_('deleting page'),
+					wxOK | wxICON_INFORMATION
+				)
+				dlg.ShowModal()
+				dlg.Destroy()
 
 			return 1
 	#-----------------------------------
 	def on_move_page(self, event):
 		# 1) get page
-		page_idx = self.LBOX_doc_pages.GetSelection()
-		if page_idx == -1:
+		old_page_idx = self.LBOX_doc_pages.GetSelection()
+		if old_page_idx == -1:
 			dlg = wxMessageDialog(
 				self,
 				_('You must select a page before you can move it around.'),
@@ -335,7 +305,7 @@ class scanFrame(wxFrame):
 			dlg.Destroy()
 			return None
 
-		page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
+		page_fname = self.LBOX_doc_pages.GetClientData(old_page_idx)
 		path, name = os.path.split(page_fname)
 
 		# 2) ask for new position
@@ -343,9 +313,9 @@ class scanFrame(wxFrame):
 		while new_page_idx == -1:
 			dlg = wxTextEntryDialog(
 				parent = self,
-				message = _('Moving original page %s.\n(file %s in %s)\n\nPlease enter the new position for the page !') % ((page_idx+1), name, path),
+				message = _('Moving original page %s.\n(file %s in %s)\n\nPlease enter the new position for the page !') % ((old_page_idx+1), name, path),
 				caption = _('moving page'),
-				defaultValue = str(page_idx+1)
+				defaultValue = str(old_page_idx+1)
 			)
 			btn = dlg.ShowModal()
 			dlg.Destroy()
@@ -365,9 +335,12 @@ class scanFrame(wxFrame):
 					continue
 
 				# 3) move pages after the new position
-				head = self.acquired_pages[:new_page_idx]
-				tail = self.acquired_pages[(new_page_idx+1):]
-				self.acquired_pages = head + (page_fname,) + tail
+				self.acquired_pages[old_page_idx:(old_page_idx+1)] = []
+				self.acquired_pages[new_page_idx:(new_page_idx+1)] = [page_fname]
+
+				#head = self.acquired_pages[:new_page_idx]
+				#tail = self.acquired_pages[(new_page_idx+1):]
+				#self.acquired_pages = head + [page_fname] + tail
 
 				# 5) update list box
 				self.__reload_LBOX_doc_pages()
@@ -413,7 +386,7 @@ class scanFrame(wxFrame):
 			return None
 
 		# copy data files there
-		for i in self.acquired_pages:
+		for i in range(len(self.acquired_pages)):
 			old_name = self.acquired_pages[i]
 			new_name = os.path.join(doc_dir, os.path.basename(old_name))
 			try:
@@ -436,7 +409,7 @@ class scanFrame(wxFrame):
 			return None
 
 		# remove old data files
-		for i in self.acquired_pages:
+		for i in range(len(self.acquired_pages)):
 			old_name = self.acquired_pages[i]
 			try:
 				os.remove(old_name)
@@ -449,12 +422,14 @@ class scanFrame(wxFrame):
 		self.__reload_LBOX_doc_pages()
 
 		# finally show doc ID for copying down on paper
+
+		return 1
 	#-----------------------------------
 	# internal methods
 	#-----------------------------------
 	def __reload_LBOX_doc_pages(self):
-		if len(self.acquired_pages) > 0:
-			self.LBOX_doc_pages.Clear()
+		self.LBOX_doc_pages.Clear()
+		if len(self.acquired_pages) > 0:	
 			for i in range(len(self.acquired_pages)):
 				fname = self.acquired_pages[i]
 				path, name = os.path.split(fname)
@@ -462,52 +437,12 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	# TWAIN related scanning code
 	#-----------------------------------
-	def __acquire_from_twain(self):
-		_log.Log(gmLog.lInfo, "scanning with TWAIN source")
-		# open scanner on demand
-		if not self.TwainScanner:
-			if not self.__open_twain_scanner():
-				dlg = wxMessageDialog(
-					self,
-					_('Cannot connect to TWAIN source (scanner or camera).'),
-					_('acquiring page'),
-					wxOK | wxICON_ERROR
-				)
-				dlg.ShowModal()
-				dlg.Destroy()
-				return None
-
-		self.TwainScanner.RequestAcquire()
+	def twain_event_callback(self, twain_event):
+		_log.Log(gmLog.lData, 'notification of TWAIN event <%s>' % str(twain_event))
+		return self.twain_event_handler[twain_event]()
 	#-----------------------------------
-	def __open_twain_scanner(self):
-		# did we open the scanner before ?
-		if not self.TwainSrcMngr:
-			#_log.Log(gmLog.lData, "TWAIN version: %s" % twain.Version())
-			# no, so we need to open it now
-			# TWAIN talks to us via MS-Windows message queues so we
-			# need to pass it a handle to ourselves
-			self.TwainSrcMngr = twain.SourceManager(self.GetHandle())
-			if not self.TwainSrcMngr:
-				_log.Log(gmLog.lData, "cannot get a handle for the TWAIN source manager")
-				return None
-
-			# TWAIN will notify us when the image is scanned
-			self.TwainSrcMngr.SetCallback(self.on_twain_event)
-
-			_log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(self.TwainSrcMngr.GetIdentity()))
-
-		if not self.TwainScanner:
-			self.TwainScanner = self.TwainSrcMngr.OpenSource()
-			if not self.TwainScanner:
-				_log.Log(gmLog.lData, "cannot open the scanner via the TWAIN source manager")
-				return None
-
-			_log.Log(gmLog.lData, "TWAIN data source: %s" % self.TwainScanner.GetSourceName())
-			_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.TwainScanner.GetIdentity()))
-		return 1
-	#-----------------------------------
-	def on_twain_event(self, event):
-		_log.Log(gmLog.lData, 'notification of pending image from TWAIN manager')
+	def __twain_handle_transfer(self):
+		_log.Log(gmLog.lInfo, 'receiving image')
 		_log.Log(gmLog.lData, 'image info: %s' % self.TwainScanner.GetImageInfo())
 
 		# get from source
@@ -546,15 +481,68 @@ class scanFrame(wxFrame):
 		twain.GlobalHandleFree(external_data_handle)
 		# hide the scanner user interface again
 		self.TwainScanner.HideUI()
-
 		# and keep a reference
 		self.acquired_pages.append(fname)
 		#update list of pages in GUI
 		self.__reload_LBOX_doc_pages()
+		# FIXME: if more_images_pending:
+		return 1
+	#-----------------------------------
+	def __twain_close_datasource(self):
+		_log.Log(gmLog.lData, "being asked to close data source")
+		return 1
+	#-----------------------------------
+	def __twain_save_state(self):
+		_log.Log(gmLog.lData, "being asked to save application state")
+		return 1
+	#-----------------------------------
+	def __twain_handle_src_event(self):
+		_log.Log(gmLog.lInfo, "being asked to handle device specific event")
+		return 1
+	#-----------------------------------
+	def __acquire_from_twain(self):
+		_log.Log(gmLog.lInfo, "scanning with TWAIN source")
+		# open scanner on demand
+		if not self.TwainScanner:
+			if not self.__open_twain_scanner():
+				dlg = wxMessageDialog(
+					self,
+					_('Cannot connect to TWAIN source (scanner or camera).'),
+					_('acquiring page'),
+					wxOK | wxICON_ERROR
+				)
+				dlg.ShowModal()
+				dlg.Destroy()
+				return None
 
-		# FIXME:
-		#if more_images_pending:
+		self.TwainScanner.RequestAcquire()
+		return 1
+	#-----------------------------------
+	def __open_twain_scanner(self):
+		# did we open the scanner before ?
+		if not self.TwainSrcMngr:
+			#_log.Log(gmLog.lData, "TWAIN version: %s" % twain.Version())
+			# no, so we need to open it now
+			# TWAIN talks to us via MS-Windows message queues so we
+			# need to pass it a handle to ourselves
+			self.TwainSrcMngr = twain.SourceManager(self.GetHandle())
+			if not self.TwainSrcMngr:
+				_log.Log(gmLog.lData, "cannot get a handle for the TWAIN source manager")
+				return None
 
+			# TWAIN will notify us when the image is scanned
+			self.TwainSrcMngr.SetCallback(self.twain_event_callback)
+
+			_log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(self.TwainSrcMngr.GetIdentity()))
+
+		if not self.TwainScanner:
+			self.TwainScanner = self.TwainSrcMngr.OpenSource()
+			if not self.TwainScanner:
+				_log.Log(gmLog.lData, "cannot open the scanner via the TWAIN source manager")
+				return None
+
+			_log.Log(gmLog.lData, "TWAIN data source: %s" % self.TwainScanner.GetSourceName())
+			_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.TwainScanner.GetIdentity()))
 		return 1
 	#-----------------------------------
 	# SANE related scanning code
@@ -608,6 +596,8 @@ class scanFrame(wxFrame):
 
 		# update list of pages in GUI
 		self.__reload_LBOX_doc_pages()
+
+		return 1
 	#-----------------------------------
 	def __open_sane_scanner(self):
 		# did we open the scanner before ?
@@ -717,15 +707,14 @@ class scanFrame(wxFrame):
 
 		return new_ID
 	#-----------------------------------
-	def __get_random_ID(self, target_repository):
+	def __get_random_ID(self, aTarget):
 		# set up temp file environment for creating unique random directory
-		tempfile.tempdir = target_repository
+		tempfile.tempdir = aTarget
 		tempfile.template = ""
 		# create temp dir name
-		dirname = tempfile.mktemp(time.strftime("-%Y%m%d_%H%M%S", time.localtime()))
+		dirname = tempfile.mktemp(suffix = time.strftime(".%Y%m%d_%H%M%S", time.localtime()))
 		# extract name for dir
-		tmp = os.path.commonprefix(target_repository, dirname)
-		doc_ID = tmp.replace(target_repository, '')
+		path, doc_ID = os.path.split(dirname)
 
 		show_ID = _cfg.get('scanning', 'show_document_ID')
 		if show_ID == None:
@@ -735,7 +724,7 @@ class scanFrame(wxFrame):
 		if show_ID != "no":
 			dlg = wxMessageDialog(
 				self,
-				_("This is the reference ID for the current document:\n%s\nYou should write this down on the original documents.\n\nIf you don't care about the ID you can switch off this\nmessage in the config file." % doc_ID),
+				_("This is the reference ID for the current document:\n<%s>\nYou should write this down on the original documents.\n\nIf you don't care about the ID you can switch off this\nmessage in the config file.") % doc_ID,
 				_('document ID'),
 				wxOK | wxICON_INFORMATION
 			)
@@ -780,7 +769,6 @@ class scanFrame(wxFrame):
 			dlg.ShowModal()
 			dlg.Destroy()
 			return None
-		tmp = os.path.abspath(os.path.expanduser(tmp))
 
 		# valid dir ?
 		if not os.path.exists(tmp):
@@ -886,7 +874,11 @@ if __name__ == '__main__':
 
 #======================================================
 # $Log: scan-med_docs.py,v $
-# Revision 1.24  2002-09-10 21:18:12  ncq
+# Revision 1.25  2002-09-12 20:42:22  ncq
+# - fix double scan bug
+# - move call_viewer into docDocument
+#
+# Revision 1.24  2002/09/10 21:18:12  ncq
 # - saving/displaying now works
 #
 # Revision 1.23  2002/09/10 17:50:26  ncq
