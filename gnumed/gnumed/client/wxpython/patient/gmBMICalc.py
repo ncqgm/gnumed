@@ -24,16 +24,11 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
 #---------------------------------------------------------------------------
-if __name__ == '__main__':
-	import sys
-	sys.path.append('modules')
-	sys.path.append('..')
-
 from wxPython.wx import *
 #from wxPython.lib.wxPlotCanvas import *
 #from wxPython.lib              import wxPlotCanvas  #insert these modules once graph active
@@ -336,14 +331,19 @@ class BMI_Frame(wxFrame):
 		self.Destroy()
 #== if run as standalone =======================================================
 if __name__ == '__main__':
+	# enable us to find our modules
+	import sys
+	sys.path.append('modules')
+	sys.path.append('..')
+
 	import gmI18N
 	import cPickle, zlib
 
+	# get icon
 	try:
 		icon_xpm_data = cPickle.loads(zlib.decompress(_icons[_("""icon_BMI_calc""")]))
 	except KeyError:
 		icon_xpm_data = cPickle.loads(zlib.decompress(_icons["""icon_BMI_calc"""]))
-
 	icon = wxEmptyIcon()
 	icon.CopyFromBitmap(wxBitmapFromXPMData(icon_xpm_data))
 
@@ -408,7 +408,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.9  2003-01-12 02:14:06  ncq
+# Revision 1.10  2003-01-12 17:13:54  ncq
+# - streamlined import based on invocation
+#
+# Revision 1.9  2003/01/12 02:14:06  ncq
 # - CVS keywords
 # - clean separation in standalone and plugin
 #
