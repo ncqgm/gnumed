@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -156,11 +156,9 @@ class cEpisode(gmClinItem.cClinItem):
 					_log.Log(gmLog.lErr, 'cannot create new narrative to rename episode: %s, %s, %s' % (encounter, description, soap_cat))
 					return False
 				narrative_is_new = True
-		print description
 		# reattach episode to existing or newly created narrative
 		old_narrative = self._payload[self._idx['pk_narrative']]
 		self['pk_narrative'] = description['pk_narrative']
-		print "attaching to pk_narrative =", description['pk_narrative']
 		successful, data = self.save_payload()
 		if not successful:
 			_log.Log(gmLog.lErr, 'cannot rename episode [%s] with [%s]' % (self, description))
@@ -170,37 +168,6 @@ class cEpisode(gmClinItem.cClinItem):
 				self._payload[self._idx['pk_narrative']] = old_narrative
 			return False
 		return True
-	#--------------------------------------------------------
-	def save_payload_faulty(self):
-		print "in episode.save_payload()"
-		# episodes connected to a health issue may not have a patient PK
-		pk_issue = self._payload[self._idx['pk_health_issue']]
-		if pk_issue is not None:
-			# however, only allow dropping the directly attached patient in
-			# favour of the patient in the health issue if they are the same ...
-			old_patient = self._payload[self._idx['id_patient']]
-			if old_patient is not None:
-				print "checking issue <-> patient"
-				print "issue", pk_issue
-				print "patient", old_patient
-				cmd = """select id_patient from clin_health_issue where id=%s"""
-				rows = gmPG.run_ro_query('historica', cmd, None, pk_issue)
-				if rows is None:
-					msg = 'error getting patient from health issue [%s]' % pk_issue
-					_log.Log(gmLog.lErr, msg)
-					return (False, (1, msg))
-				if len(rows) == 0:
-					msg = 'no health issue [%s] ?!?' % pk_issue
-					_log.Log(gmLog.lErr, msg)
-					return (False, (1, msg))
-				new_patient = rows[0][0]
-				if new_patient != old_patient:
-					msg = 'setting the health issue to [%s] would change the patient from [%s] to [%s], this is not allowed' % (pk_issue, old_patient, new_patient)
-					_log.Log(gmLog.lErr, msg)
-					return (False, (3, msg))
-				self['id_patient'] = None
-		print "calling cClinItem.save_payload()"
-		return gmClinItem.cClinItem.save_payload(self)
 #============================================================
 class cEncounter(gmClinItem.cClinItem):
 	"""Represents one encounter.
@@ -429,11 +396,7 @@ def create_episode(pk_health_issue=None, episode_name=None, soap_cat=None, encou
 	# 3) retrieve PK of newly created row
 	cmd = "select currval('clin_episode_pk_seq')"
 	queries.append((cmd, []))
-	success, data = gmPG.run_commit2 (
-		link_obj = 'historica',
-		queries = queries,
-		extra_verbose = True
-	)
+	success, data = gmPG.run_commit2(link_obj = 'historica', queries = queries)
 	if not success:
 		_log.Log(gmLog.lErr, 'cannot create episode: %s' % data)
 		err, msg = data
@@ -538,46 +501,50 @@ if __name__ == '__main__':
 		print "updatable:", episode.get_updatable_fields()
 		raw_input('ENTER to continue')
 
-		print "renaming by string for new narrative"
 		old_narrative = episode.get_description()
 		old_enc = cEncounter(aPK_obj = old_narrative['pk_encounter'])
-		if not episode.rename (
-			description = '1-%s' % episode['description'],
+
+		desc = '1-%s' % episode['description']
+		print "==> renaming to", desc
+		successful = episode.rename (
+			description = desc,
 			soap_cat = 'a',
 			encounter = old_enc
-		):
-			print "error"
-		else:
-			for field in fields:
-				print field, ':', episode[field]
-		raw_input('ENTER to continue')
-
-		print "renaming by cNarrative instance"
-		episode['pk_narrative'] = old_narrative['pk_narrative']
-		successful, data = episode.save_payload()
+		)
 		if not successful:
-			print "error:", data
-		else:
-			for field in fields:
-				print field, ':', episode[field]
-		raw_input('ENTER to continue')
-
-		print "renaming by string again for new narrative"
-		old_narrative = episode.get_description()
-		if not episode.rename (
-			description = '2-%s' % episode['description'],
-			soap_cat = 'a',
-			encounter = old_enc
-		):
 			print "error"
 		else:
 			for field in fields:
 				print field, ':', episode[field]
 		raw_input('ENTER to continue')
 
-		print "renaming by clin_narrative PK"
+		print "==> renaming to", old_narrative
+		successful = episode.rename (description = old_narrative)
+		if not successful:
+			print "error"
+		else:
+			for field in fields:
+				print field, ':', episode[field]
+		raw_input('ENTER to continue')
+
+		desc = '2-%s' % episode['description']
+		print "==> renaming to", desc
+		successful = episode.rename (
+			description = desc,
+			soap_cat = 'a',
+			encounter = old_enc
+		)
+		if not successful:
+			print "error"
+		else:
+			for field in fields:
+				print field, ':', episode[field]
+		raw_input('ENTER to continue')
+
+		desc = old_narrative['pk_narrative']
+		print "renaming to", desc
 		if not episode.rename (
-			description = old_narrative['pk_narrative'],
+			description = desc,
 			soap_cat = 'a',
 			encounter = old_enc
 		):
@@ -622,7 +589,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.34  2005-01-31 09:35:28  ncq
+# Revision 1.35  2005-01-31 12:58:24  ncq
+# - episode.rename() finally works
+#
+# Revision 1.34  2005/01/31 09:35:28  ncq
 # - add episode.get_description() to return clin_narrative row
 # - improve episode.rename() - works for adding new narrative now
 # - improve create_episode() - revise later
