@@ -19,10 +19,13 @@
 
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.2 $"                                               
+__version__ = "$Revision: 1.3 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 # $Log: gmPgObject.py,v $
-# Revision 1.2  2002-10-23 15:01:24  hherb
+# Revision 1.3  2002-10-23 15:05:47  hherb
+# "Lazy fetch" now working when primary key passed as parameter to class constructor
+#
+# Revision 1.2  2002/10/23 15:01:24  hherb
 # meta data caching now working
 #
 # Revision 1.1  2002/10/23 14:34:43  hherb
@@ -133,7 +136,7 @@ class pgobject:
 		#the primary key of the last row that has been fetched
 		self._fetched = None
 		if primarykey is not None:
-			self._fetch(primarykey)
+			self.fetch(primarykey)
 	
 		
 	def __getitem__(self, key):
