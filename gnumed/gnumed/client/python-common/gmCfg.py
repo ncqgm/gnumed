@@ -47,7 +47,7 @@ permanent you need to call store() on the file object.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -129,6 +129,7 @@ class cCfgSQL:
 		result = curs.fetchone()
 		if result is None:
 			curs.close()
+			_log.Log(gmLog.lWarn, 'option [%s] not in config database' % cache_key)
 			return None
 		(item_id, value_type) = result
 
@@ -141,6 +142,7 @@ class cCfgSQL:
 
 		if result is None:
 			_log.Log(gmLog.lWarn, 'option [%s] not in config database' % cache_key)
+			return None
 		else:
 			self.cache[cache_key] = result[0]
 
@@ -303,7 +305,7 @@ class cCfgSQL:
 		return '%s-%s-%s-%s' % (machine, user, cookie, option)
 	#----------------------------
 	def __run_query(self, aCursor, aQuery, *args):
-		_log.Log(gmLog.lData, "running >>>%s<<< " % aQuery)
+		#_log.Log(gmLog.lData, "running >>>%s<<< " % aQuery)
 		try:
 			if len(args) == 0:
 				aCursor.execute(aQuery)
@@ -922,7 +924,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.37  2003-02-09 09:48:28  ncq
+# Revision 1.38  2003-02-11 16:52:36  ncq
+# - log one more failing corner case
+#
+# Revision 1.37  2003/02/09 09:48:28  ncq
 # - revert breakage created by sjtan
 #
 # Revision 1.36  2003/02/09 02:02:30  sjtan
