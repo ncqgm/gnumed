@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -32,7 +32,7 @@ insert into cfg_str_array
 	(id_item, value)
 values (
 	currval('cfg_item_id_seq'),
-	'{"gmManual","gmConfigRegistry","gmDemographicsEditor","gmShowLab","gmLabJournal","gmShowMedDocs","gmEMRBrowserPlugin"}'
+	'{"gmManual","gmDemographicsEditor","gmEMRBrowserPlugin","gmMultiSashedProgressNoteInputPlugin","gmShowLab","gmLabJournal","gmShowMedDocs","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Labor
@@ -181,11 +181,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.7  2005-03-08 13:33:35  ncq
+-- Revision 1.8  2005-03-20 18:08:37  ncq
+-- - add multisashed progress note input to "Release 0.1" as notebook plugin
+--
+-- Revision 1.7  2005/03/08 13:33:35  ncq
 -- - added workplace "Release 0.1"
 --
 -- Revision 1.6  2005/01/09 19:49:39  ncq
