@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 
 -- this belongs into the service clinical (historica)
 
@@ -101,6 +101,29 @@ create table log_test_type (
 	"name" text,
 	"comment" text,
 	basic_unit text not null
+) inherits (audit_trail);
+
+-- ====================================
+create table lnk_tst2norm (
+	id serial primary key,
+	id_test integer not null references test_type(id),
+	id_norm integer not null,
+	unique (id_test, id_norm)
+) inherits (audit_mark, audit_fields);
+
+select add_x_db_fk_def ('lnk_tst2norm', 'id_norm', 'reference', 'test_norm', 'id');
+
+comment on table lnk_tst2norm is
+	'links test result evaluation norms to tests';
+comment on column lnk_tst2norm.id_test is
+	'which test does the linked norm apply to';
+comment on column lnk_tst2norm.id_norm is
+	'the norm to apply to the linked test';
+
+create table log_lnk_tst2norm (
+	id integer not null,
+	id_test integer not null,
+	id_norm integer not null
 ) inherits (audit_trail);
 
 -- ====================================
@@ -253,11 +276,14 @@ create table log_lab_result (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.7  2003-08-10 01:01:01  ncq
+-- Revision 1.8  2003-08-13 21:10:21  ncq
+-- - add lnk_tst2norm table
+--
+-- Revision 1.7  2003/08/10 01:01:01  ncq
 -- - use x_db_fk helper
 -- - test_type needs basic_unit ...
 --
