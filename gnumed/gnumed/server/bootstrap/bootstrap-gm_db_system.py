@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -504,10 +504,6 @@ class database:
 		_bootstrapped_dbs[aDB_alias] = self
 
 		return None
-	#--------------------------------------------------------------
-	def __del__(self):
-		if self.conn is not None:
-			self.conn.close()
 	#--------------------------------------------------------------
 	def __bootstrap(self):
 		global _dbowner
@@ -1261,7 +1257,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.36  2003-11-02 12:48:55  ncq
+# Revision 1.37  2003-11-02 13:29:49  ncq
+# - don't close connections that are gone already in __del__
+#
+# Revision 1.36  2003/11/02 12:48:55  ncq
 # - add schema base directory option to config files
 # - hence we don't need the sql link anymore
 #
