@@ -1,12 +1,12 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <sebastian.hilbert@gmx.net>, YEAR.
-# POT-Version: $Revision: 1.6 $
+# POT-Version: $Revision: 1.7 $
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumedarchiv 0.1\n"
-"POT-Creation-Date: Thu Dec 26 17:10:48 2002\n"
+"POT-Creation-Date: Fri Dec 27 15:32:37 2002\n"
 "PO-Revision-Date: 2002-09-16 23:53+0200\n"
 "Last-Translator: Sebastian Hilbert <sebastian.hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -45,7 +45,7 @@ msgstr "Befunde scannen"
 msgid "additional comment"
 msgstr "Zusatzkommentar"
 
-#: ../dist/client/gmScanMedDocs.py:672
+#: ../dist/client/gmScanMedDocs.py:688
 msgid "opening scanner"
 msgstr "aktiviere Scanner"
 
@@ -53,15 +53,15 @@ msgstr "aktiviere Scanner"
 msgid "document date: no future !"
 msgstr "Befunddatum: bitte nicht vordatieren"
 
-#: ../dist/client/gmScanMedDocs.py:771 ../dist/client/gmScanMedDocs.py:817
+#: ../dist/client/gmScanMedDocs.py:787 ../dist/client/gmScanMedDocs.py:833
 msgid "document ID"
 msgstr "Befundreferenz"
 
-#: ../dist/client/gmScanMedDocs.py:852
+#: ../dist/client/gmScanMedDocs.py:868
 msgid "Cannot get target repository from config file."
 msgstr "Kann das Zielarchiv nicht aus der Konfigurationsdatei ermitteln"
 
-#: ../dist/client/gmScanMedDocs.py:955
+#: ../dist/client/gmScanMedDocs.py:971
 msgid "Scan"
 msgstr "Scannen"
 
@@ -133,7 +133,7 @@ msgstr "gewählten Teil des Befunds löschen"
 msgid "1) select"
 msgstr "1) auswählen"
 
-#: ../dist/client/gmScanMedDocs.py:552
+#: ../dist/client/gmScanMedDocs.py:568
 msgid "Cannot connect to TWAIN source (scanner or camera)."
 msgstr "Kann nicht auf die TWAIN-Quelle zugreifen (Scanner oder Kamera)."
 
@@ -180,12 +180,12 @@ msgstr ""
 "Format: JJJJ-MM-TT"
 
 #: ../dist/client/gmScanMedDocs.py:269 ../dist/client/gmScanMedDocs.py:284
-#: ../dist/client/gmShowMedDocs.py:199 ../dist/client/index-med_docs.py:515
+#: ../dist/client/gmShowMedDocs.py:228 ../dist/client/index-med_docs.py:515
 #: ../dist/client/index-med_docs.py:531
 msgid "displaying page"
 msgstr "Seite anzeigen"
 
-#: ../dist/client/gmShowMedDocs.py:146
+#: ../dist/client/gmShowMedDocs.py:147
 msgid "no comment available"
 msgstr "kein Kommentar gespeichert"
 
@@ -211,8 +211,8 @@ msgid "Unable to start viewer on file [%s]."
 msgstr " Kann Betrachter nicht mit der Datei [%s] starten."
 
 #: ../dist/client/gmScanMedDocs.py:391 ../dist/client/gmScanMedDocs.py:441
-#: ../dist/client/gmScanMedDocs.py:883 ../dist/client/gmScanMedDocs.py:898
-#: ../dist/client/gmScanMedDocs.py:914 ../dist/client/gmScanMedDocs.py:930
+#: ../dist/client/gmScanMedDocs.py:899 ../dist/client/gmScanMedDocs.py:914
+#: ../dist/client/gmScanMedDocs.py:930 ../dist/client/gmScanMedDocs.py:946
 msgid "saving document"
 msgstr "speichere den Befund"
 
@@ -224,7 +224,7 @@ msgstr "Befunddatum: Tag besteht aus zwei Ziffern"
 msgid "a summary or longer comment for this document"
 msgstr "Zusammenfassung oder längerer Kommentar für diesen Befund"
 
-#: ../dist/client/gmScanMedDocs.py:913
+#: ../dist/client/gmScanMedDocs.py:929
 msgid ""
 "You must specify a checkpoint file for indexing in the config file.\n"
 "Use option <can index> in group [index]."
@@ -261,11 +261,15 @@ msgstr "gewählten Teil des Befunds anzeigen"
 msgid "page %s (%s in %s)"
 msgstr "Seite %s (%s in %s)"
 
-#: ../dist/client/gmScanMedDocs.py:961
+#: ../dist/client/gmShowMedDocs.py:118
+msgid "available documents (most recent on top)"
+msgstr "verfügbare Befunde (die jüngsten oben)"
+
+#: ../dist/client/gmScanMedDocs.py:977
 msgid "&scan documents"
 msgstr "Befund scannen"
 
-#: ../dist/client/gmShowMedDocs.py:221
+#: ../dist/client/gmShowMedDocs.py:250
 msgid "stored medical documents"
 msgstr "gespeicherte medizinische Befunde"
 
@@ -273,7 +277,7 @@ msgstr "gespeicherte medizinische Befunde"
 msgid "GnuMed/Archiv: Associating documents with patients."
 msgstr "Gnumed/Archiv: Befunde einem Patienten zuordnen"
 
-#: ../dist/client/gmShowMedDocs.py:147
+#: ../dist/client/gmShowMedDocs.py:148
 msgid "page %s: \"%s\""
 msgstr "Seite %s: \"%s\""
 
@@ -306,7 +310,7 @@ msgstr ""
 msgid "show page"
 msgstr "Seite anzeigen"
 
-#: ../dist/client/gmShowMedDocs.py:345
+#: ../dist/client/gmShowMedDocs.py:374
 msgid "&Show Documents"
 msgstr "Befunde zeigen"
 
@@ -340,7 +344,7 @@ msgstr ""
 "[%s].\n"
 "Bitte konsultieren Sie das Fehlerlog wegen Details."
 
-#: ../dist/client/gmScanMedDocs.py:605
+#: ../dist/client/gmScanMedDocs.py:621
 msgid "Cannot connect to SANE source (scanner or camera)."
 msgstr "Kann nicht auf die SANE-Quelle zugreifen (Scanner oder Kamera)."
 
@@ -358,7 +362,7 @@ msgstr "bitte ausfüllen"
 msgid "3) save"
 msgstr "3) speichern"
 
-#: ../dist/client/gmScanMedDocs.py:929
+#: ../dist/client/gmScanMedDocs.py:945
 msgid ""
 "Cannot lock target directory !\n"
 "checkpoint file: %s."
@@ -398,10 +402,6 @@ msgid ""
 msgstr ""
 "Befundtypen werden von der Datenbank festgelegt.\n"
 "Lassen Sie Ihren Datenbankadmin gegebenenfalls weitere Typen hinzufügen"
-
-#: ../dist/client/gmShowMedDocs.py:118
-msgid "available documents"
-msgstr "verfügbare Befunde"
 
 #: ../dist/client/index-med_docs.py:453
 msgid ""
@@ -446,7 +446,7 @@ msgstr "nächstes Bild von der Quelle holen"
 msgid "moving page"
 msgstr "verschiebe Seite"
 
-#: ../dist/client/gmScanMedDocs.py:882
+#: ../dist/client/gmScanMedDocs.py:898
 msgid ""
 "The subdirectory [%s] already exists in the repository [%s].\n"
 "Cannot save current document there."
@@ -462,7 +462,7 @@ msgstr "Befunddatum: muss 10 Zeichen lang sein"
 msgid "load the pages of this document"
 msgstr "Seiten für diesen Befund laden"
 
-#: ../dist/client/gmScanMedDocs.py:770
+#: ../dist/client/gmScanMedDocs.py:786
 msgid ""
 "The most recently used document ID was <%s>.\n"
 "We would use the ID <%s> for the current document.\n"
@@ -472,7 +472,7 @@ msgstr ""
 "Der aktuelle Befund erhält die Nummer \"%s\".\n"
 "Bitte bestätigen Sie die Nummer oder tippen Sie eine andere ein."
 
-#: ../dist/client/gmShowMedDocs.py:198
+#: ../dist/client/gmShowMedDocs.py:227
 msgid ""
 "Cannot display page.\n"
 "%s."
@@ -538,7 +538,7 @@ msgstr ""
 msgid "load pages"
 msgstr "Seiten laden "
 
-#: ../dist/client/gmScanMedDocs.py:816
+#: ../dist/client/gmScanMedDocs.py:832
 msgid ""
 "This is the reference ID for the current document:\n"
 "<%s>\n"
@@ -554,7 +554,7 @@ msgstr ""
 "Wenn Sie keinen Wert auf die Nummer legen, können Sie\n"
 "diese Nachricht in der Konfigurationsdatei abschalten."
 
-#: ../dist/client/gmScanMedDocs.py:671
+#: ../dist/client/gmScanMedDocs.py:687
 msgid "Cannot find any SANE connected devices."
 msgstr "Kann keine via SANE angebundenen Geräte finden."
 
@@ -575,8 +575,8 @@ msgstr ""
 "Sie müssen erst Seiten einscanen bevor\n"
 "Sie sie als Befund speichern können !"
 
-#: ../dist/client/gmScanMedDocs.py:240 ../dist/client/gmScanMedDocs.py:553
-#: ../dist/client/gmScanMedDocs.py:606
+#: ../dist/client/gmScanMedDocs.py:240 ../dist/client/gmScanMedDocs.py:569
+#: ../dist/client/gmScanMedDocs.py:622
 msgid "acquiring page"
 msgstr "hole Seite"
 
@@ -612,11 +612,11 @@ msgstr "1) einscannen"
 msgid "a short comment on the document content"
 msgstr "kurze Beschreibung des Befundinhalts "
 
-#: ../dist/client/gmScanMedDocs.py:853 ../dist/client/gmScanMedDocs.py:866
+#: ../dist/client/gmScanMedDocs.py:869 ../dist/client/gmScanMedDocs.py:882
 msgid "invalid configuration"
 msgstr "ungültige Konfiguration"
 
-#: ../dist/client/gmScanMedDocs.py:897
+#: ../dist/client/gmScanMedDocs.py:913
 msgid ""
 "Cannot create the target repository subdirectory.\n"
 "(%s)"
@@ -648,7 +648,7 @@ msgstr "Kurzkommentar"
 msgid "document pages"
 msgstr "Befundseiten"
 
-#: ../dist/client/gmScanMedDocs.py:865
+#: ../dist/client/gmScanMedDocs.py:881
 msgid ""
 "The configured target repository is not accessible.\n"
 "[%s]"
@@ -697,6 +697,9 @@ msgstr "bitte auswählen"
 #: ../dist/client/gmScanMedDocs.py:130 ../dist/client/gmScanMedDocs.py:173
 msgid "move selected page within document"
 msgstr "Gewählte Seite im Befund verschieben"
+
+#~ msgid "available documents"
+#~ msgstr "verfügbare Befunde"
 
 #~ msgid "Can import neither TWAIN nor SANE scanner access library."
 #~ msgstr "Kann weder die TWAIN noch die SANE Scannerbibliothek importieren"

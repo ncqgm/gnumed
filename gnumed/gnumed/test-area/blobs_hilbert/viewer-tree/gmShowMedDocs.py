@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -115,7 +115,7 @@ class cDocTree(wxTreeCtrl):
 		wxTreeCtrl.__init__(self, parent, id, style=wxTR_NO_BUTTONS)
 
 		# build tree from document list
-		self.root = self.AddRoot(_("available documents"), -1, -1)
+		self.root = self.AddRoot(_("available documents (most recent on top)"), -1, -1)
 		self.SetPyData(self.root, None)
 		self.SetItemHasChildren(self.root, TRUE)
 
@@ -132,7 +132,8 @@ class cDocTree(wxTreeCtrl):
 			# we need to distinguish documents from objects in OnActivate
 			# this is ugly
 			data = {'doc_id': doc_id,
-					'id'	: doc_id}
+					'id'	: doc_id,
+					'date'	: mdata['date']}
 			self.SetPyData(doc_node, data)
 			self.SetItemHasChildren(doc_node, TRUE)
 
@@ -140,24 +141,52 @@ class cDocTree(wxTreeCtrl):
 			i = 1
 			for oid in mdata['objects'].keys():
 				obj = mdata['objects'][oid]
-				p = str(i) +  " "
+				p = str(obj['index']) +  " "
 				c = str(obj['comment'])
 				if c == "None":
 					c = _("no comment available")
 				tmp = _('page %s: \"%s\"')
 				label = tmp % (p[:2], c)
 				obj_node = self.AppendItem(doc_node, label)
-				data = {'doc_id': doc_id,
-						'id': oid}
+				data = {'doc_id'	: doc_id,
+						'id'		: oid,
+						'seq_idx'	: obj['index']}
 				self.SetPyData(obj_node, data)
 				i += 1
 			# and expand
-			self.Expand(doc_node)
+			#self.Expand(doc_node)
 
 		# and uncollapse
 		self.Expand(self.root)
 
 		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
+	#------------------------------------------------------------------------
+	def OnCompareItems (self, item1, item2):
+		"""Used in sorting items.
+
+		-1 - 1 < 2
+		 0 - 1 = 2
+		 1 - 1 > 2
+		"""
+		data1 = self.GetPyData(item1)
+		data2 = self.GetPyData(item2)
+
+		# doc node
+		if data1['id'] == data1['doc_id']:
+			# compare dates
+			if data1['date'] > data2['date']:
+				return -1
+			elif data1['date'] == data2['date']:
+				return 0
+			return 1
+		# object node
+		else:
+			# compare sequence IDs (= "page number")
+			if data1['seq_idx'] < data2['seq_idx']:
+				return -1
+			elif data1['seq_idx'] == data2['seq_idx']:
+				return 0
+			return 1
 	#------------------------------------------------------------------------
 	def OnActivate (self, event):
 		item = event.GetItem()
@@ -345,7 +374,11 @@ else:
 			return ('tools', _('&Show Documents'))
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.2  2002-12-25 14:29:29  ncq
+# Revision 1.3  2002-12-27 14:40:47  ncq
+# - sort items by creation date/page index
+# - on startup expand first level only (documents yes, pages no)
+#
+# Revision 1.2  2002/12/25 14:29:29  ncq
 # - inform user if patient not in database or no documents available
 #
 # Revision 1.1  2002/12/25 13:17:45  ncq

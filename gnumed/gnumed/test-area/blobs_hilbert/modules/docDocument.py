@@ -33,7 +33,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -168,14 +168,14 @@ class cDocument:
 		self.__metadata['reference'] = result[4]
 
 		# get object level metadata for all objects of this document
-		cmd = "SELECT oid, comment FROM doc_obj WHERE doc_id='%s'" % (self.__metadata['id'])
+		cmd = "SELECT oid, comment, seq_idx FROM doc_obj WHERE doc_id='%s'" % (self.__metadata['id'])
 		cursor.execute(cmd)
 		matching_rows = cursor.fetchall()
 		self.__metadata['objects'] = {}
 		for row in matching_rows:
 			oid = row[0]
-			tmp = {'comment': row[1]}
-			# cDocument.metadata->objects->oid->comment
+			# cDocument.metadata->objects->oid->comment/index
+			tmp = {'comment': row[1], 'index': row[2]}
 			self.__metadata['objects'][oid] = tmp
 
 		cursor.close()
@@ -698,7 +698,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.23  2002-12-24 14:18:40  ncq
+# Revision 1.24  2002-12-27 14:40:47  ncq
+# - sort items by creation date/page index
+# - on startup expand first level only (documents yes, pages no)
+#
+# Revision 1.23  2002/12/24 14:18:40  ncq
 # - handle more exceptions gracefully
 #
 # Revision 1.22  2002/11/30 22:48:13  ncq

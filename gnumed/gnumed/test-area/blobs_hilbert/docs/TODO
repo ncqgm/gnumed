@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -26,8 +26,7 @@ import
 
 viewer
 ------
-- sort objects by sequence index and date
-(- quit button)
+- quit button
 
 =====================================================
 post-1.0
@@ -70,6 +69,12 @@ scan
 - Paginiernummer aufdrucken
 - Barcode aufdrucken: Name/dob/Paginiernummer
 - ADF
+
+- rechts buttonleiste:
+  - scan
+  - quit/cancel
+  - konfigurierbare buttons mit maximum, aus conf file
+    laden, für dokumententypabhängige einstellungen
 
 viewer
 ------
