@@ -18,9 +18,10 @@ The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
 ############################################################################
+#<<<<<<< gmGuiMain.py
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.2 2003-10-27 14:01:26 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmGuiMain.py,v 1.6 2003-11-04 00:32:33 sjtan Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -384,7 +385,11 @@ class gmTopLevelFrame(wxFrame):
 
 		# make sure there's an encounter
 		status, encounter = epr.attach_to_encounter(forced = 0)
-		patient = "%s %s (%s)" % (names['first'], names['last'], pat['dob'])
+#<<<<<<< gmGuiMain.py
+#		patient = "%s %s (%s)" % (names['first'], names['last'], pat['dob'])
+#=======
+		patient = "%s %s (%s)" % (names['first'], names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'))
+#>>>>>>> 1.120
 		# error ?
 		if status == -1:
 			msg = _(
@@ -426,7 +431,11 @@ class gmTopLevelFrame(wxFrame):
 		fname = names['first']
 		if len(fname) > 0:
 			fname = fname[:1]
-		patient = "%s %s.%s (%s) #%d" % (pat['title'], fname, names['last'], pat['dob'], int(pat['ID']))
+#<<<<<<< gmGuiMain.py
+#		patient = "%s %s.%s (%s) #%d" % (pat['title'], fname, names['last'], pat['dob'], int(pat['ID']))
+#=======
+		patient = "%s %s.%s (%s) #%d" % (demos.getTitle(), fname, names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'), int(pat['ID']))
+#>>>>>>> 1.120
 		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -844,7 +853,18 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.2  2003-10-27 14:01:26  sjtan
+# Revision 1.6  2003-11-04 00:32:33  sjtan
+#
+# should be able to swap to different patients; only saves on activating patient when any editarea data is different.
+#
+# Revision 1.120  2003/10/27 15:53:10  ncq
+# - getDOB has changed
+#
+# Revision 1.119  2003/10/26 17:39:00  ncq
+# - cleanup
+#
+# Revision 1.118  2003/10/26 11:27:10  ihaywood
+# gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
 #
 # syncing with main tree.
 #

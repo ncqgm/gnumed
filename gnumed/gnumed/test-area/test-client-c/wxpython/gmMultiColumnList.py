@@ -53,12 +53,25 @@ class MultiColumnList( wxGrid):
 	
 	def _getLongestItem(self, list):
 		l = 0
-		item = None
+		item = 'AAAAAAAAAAAA    ' 
 		for x in list:
 			if len(x) > l:
 				l = len(x)
 				item = x
 		return  item		
+
+	def _ensureStringList(self, list):
+		alist = []
+		for x in list:
+			if type(x) == type(''):
+				alist.append(x)
+			if type(x) in (type( () ), type( [] ) ):
+				l = []
+				for f in x:
+					l.append(str(f))
+					
+				alist.append("  ".join(l) )
+		return alist		
 
 	def _getPredictedRows(self, map):
 		(w,h) = self.GetClientSize()
@@ -66,8 +79,8 @@ class MultiColumnList( wxGrid):
 		if predictedRows == 0: 
 			predictedRows = 4
 		predictedCols = len(map) / predictedRows
-		
-		(x,y ) = self.GetTextExtent(self._getLongestItem(map.values())[1] ) 
+
+		(x,y ) = self.GetTextExtent(self._getLongestItem(self._ensureStringList(map.values()) ))
 		maxCols = w / (x + EXTRA_ROW_SPACE)
 		if maxCols == 0:
 			maxCols = 1
@@ -82,7 +95,9 @@ class MultiColumnList( wxGrid):
 	def SetData( self, map,  maxRows = 8 , fitClientSize = 0):
 
 		self.GetTable().SetValue(0,0, 'AAAAAAAAAAAAAAAA')
-		if fitClientSize:
+		if len(map) == 0:
+			map = {'0': ("") }
+		if fitClientSize :
 			predictedRows = self._getPredictedRows(map)
 		else:
 			predictedRows = maxRows

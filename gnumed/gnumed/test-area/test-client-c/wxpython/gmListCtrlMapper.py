@@ -23,7 +23,7 @@ class gmListCtrlMapper:
 	    self.list.InsertStringItem(x, data[0])
             self.list.SetItemData(x, key)
 	    for row in range( 1, len(data)):
-		    self.list.SetStringItem(x, row, data[row])
+		    self.list.SetStringItem(x, row, str(data[row]))
 
     def GetData(self):
 	map = {}

@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.8 2003-10-27 15:20:49 sjtan Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmEditArea.py,v 1.9 2003-11-01 13:49:39 sjtan Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -671,11 +671,6 @@ class gmEditArea( wxPanel):
 		return newlines	
 		
 
-	def _getInputFieldValues(self):
-		values = {}
-		for k,v  in self.input_fields.items():
-			values[k] = v.GetValue()
-		return values	
 
 	def setInputFieldValues(self, map, id ):
 		for k,v in map.items():
@@ -690,11 +685,28 @@ class gmEditArea( wxPanel):
 				except:
 					
 					print "field ", k, ":", sys.exc_info()[0]
-
-		self.dataId = id	
+		self.setDataId(id)
 	
 	def getDataId(self):
 		return self.dataId 
+
+	def setDataId(self, id):
+		self.dataId = id
+
+	def _getInputFieldValues(self):
+		values = {}
+		for k,v  in self.input_fields.items():
+			values[k] = v.GetValue()
+		return values	
+
+	def getInputFieldValues(self, fields):
+		values = {}
+		for f in fields:
+			try:
+				values[f] = self.input_fields[f].GetValue()
+			except:
+				pass
+		return values		
 				
 
 
@@ -835,6 +847,8 @@ class gmFamilyHxEditArea(gmEditArea):
 		lines.append(szr)
 
 		return lines
+
+
 #====================================================================
 class gmPastHistoryEditArea(gmEditArea):
 	def __init__(self, parent, id):
@@ -954,6 +968,43 @@ class gmPastHistoryEditArea(gmEditArea):
 		except:
 			print "failed to get age from year"
 
+	def get_fields_formatting_values(self):
+		fields = [	"condition", 
+				"notes1", 
+				"notes2", 
+				"age", 
+				"year", 
+				"progress", 
+				"active", 
+				"operation", 
+				"confidential", 
+				"significant", 
+				"both", 
+				"left", 
+				"right", 
+				"none"  ]
+				
+		values = self.getInputFieldValues(fields)
+		values['clin_history_id'] = self.getDataId()
+		s= "'%s'"
+		n = "%d"
+		formatting = {	"condition":s,
+				"notes1":s, 
+				"notes2":s, 
+				"age":s, 
+				"year":s, 
+				"progress":s, 
+				"active":n, 
+				"operation":n, 
+				"confidential":n, 
+				"significant":n, 
+				"both":n, 
+				"left":n, 
+				"right":n, 
+				"none":n  }
+
+		return fields,  formatting, values
+		
 
 	
 	def _init_fields(self):
@@ -972,6 +1023,7 @@ class gmPastHistoryEditArea(gmEditArea):
 			"left": 0,
 			"right": 0,
 			"none" : 1
+
 		}
 		for k,v in values.items():
 			self.input_fields[k].SetValue(v)
@@ -979,18 +1031,25 @@ class gmPastHistoryEditArea(gmEditArea):
 		self.dataId = None
 		
 	def _save_data(self):
-		if self.dataId == None:
-			self.patient.get_clinical_record().create_history( self._getInputFieldValues() )
+		clinical = self.patient.get_clinical_record().get_past_history()
+		if self.getDataId() == None:
+			clinical.create_history( self.get_fields_formatting_values() )
+			print "called clinical.create_history"	
 			return
 
-		print "please implement update"
-		clinical = self.patient.get_clinical_record()
-		clinical.update_history( self._getInputFieldValues(), self.getDataId() )
+		clinical.update_history( self.get_fields_formatting_values(), self.getDataId() )
 
 		
 
 		
 class gmVaccinationEditArea(gmEditArea):
+	TD = 'target_disease'
+	V = 'vaccine'
+	D = 'date_given'
+	SN = 'serial_no'
+	SG = 'site_given'
+	P = 'progress_notes'
+	
 	def __init__(self, parent, id):
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'vaccination')
@@ -1023,19 +1082,43 @@ class gmVaccinationEditArea(gmEditArea):
 		
 		lines.append(self.txt_progressnotes)
 		lines.append(self._make_standard_buttons(parent))
+		c = gmVaccinationEditArea
 		self.input_fields = {
-			"target disease": self.txt_targetdisease,
-			"vaccine": self.txt_vaccine,
-			"date given": self.txt_dategiven,
-			"serial no": self.txt_serialno,
-			"site given": self.txt_sitegiven,
-			"progress notes": self.txt_progressnotes
+			c.TD: self.txt_targetdisease,
+			c.V: self.txt_vaccine,
+			c.D: self.txt_dategiven,
+			c.SN: self.txt_serialno,
+			c.SG: self.txt_sitegiven,
+			c.P: self.txt_progressnotes
 		}
 
 		return lines
 
+	def get_fields_formatting_values(self):
+		c = gmVaccinationEditArea
+		fields = [ c.TD, c.V, c.D, c.SN, c.SG, c.P , 'id_vaccination']
+		s = "'%s'"
+		n = '%d'
+		formatting = { 	c.TD : s,
+				c.V : s, 
+				c.D : s,
+				c.SN : s,
+				c.SG : s, 
+				c.P : s
+			    }
+			    
+		values = self.getInputFieldValues(self, fields)
+		values['id_vaccination'] = self.getDataId()
+		return fields, formatting, values
+
 #====================================================================
 class gmMeasurementEditArea(gmEditArea):
+
+	T= 'type'
+	D= 'date'
+	V= 'value'
+	C= 'comment'
+	P= 'progress_notes'
 	def __init__(self, parent, id):
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'measurement')
@@ -1066,16 +1149,25 @@ class gmMeasurementEditArea(gmEditArea):
 		lines.append(self.txt_comment)
 		lines.append(self.txt_progressnotes)
 		lines.append(self._make_standard_buttons(parent))
+		c = gmMeasurementEditArea
 		self.input_fields = {
-			"type": self.txt_type,
-				 
-			"date": self.txt_date ,
-			"value": self.txt_value,
-			"comment": self.txt_comment,
-			"progress notes": self.txt_progressnotes
+			c.T : self.txt_type,
+			c.D : self.txt_date ,
+			c.V : self.txt_value,
+			c.C : self.txt_comment,
+			c.P : self.txt_progressnotes
 		}
 
 		return lines
+
+	def get_field_formatting_values(self):
+		c = gmMeasurementEditArea
+		fields = [ c.T, c.D, c.V, c.C, c.P , 'id_measurement']
+		values = self.getInputFieldValues(fields)
+		s , n = "'%s'", "%d"
+		formatting =  { c.T:s, c.D:s, c.V:n, c.C:s, c.P:s }
+		values['id_measurement'] = self.getDataId()
+		return fields, formatting, values
 
 
 #====================================================================
@@ -1891,9 +1983,9 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.8  2003-10-27 15:20:49  sjtan
+# Revision 1.9  2003-11-01 13:49:39  sjtan
 #
-# multi-list selection item goes back into editarea.
+# using backup gui specific tables for editarea, as well as trying to input into current server tables.
 #
 # Revision 1.6  2003/10/26 00:58:53  sjtan
 #
