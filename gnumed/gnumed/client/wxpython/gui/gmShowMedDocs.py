@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -299,24 +299,24 @@ class cDocTree(wxTreeCtrl):
 			)
 			return None
 		return 1
-		#--------------------------------------------------------
-		def __show_error(self, aMessage = None, aTitle = ''):
-			# sanity checks
-			tmp = aMessage
-			if aMessage is None:
-				tmp = _('programmer forgot to specify error message')
+	#--------------------------------------------------------
+	def __show_error(self, aMessage = None, aTitle = ''):
+		# sanity checks
+		tmp = aMessage
+		if aMessage is None:
+			tmp = _('programmer forgot to specify error message')
 
-			tmp = tmp + _("\n\nPlease consult the error log for further information !")
+		tmp = tmp + _("\n\nPlease consult the error log for further information !")
 
-			dlg = wxMessageDialog(
-				NULL,
-				tmp,
-				aTitle,
-				wxOK | wxICON_ERROR
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return 1
+		dlg = wxMessageDialog(
+			NULL,
+			tmp,
+			aTitle,
+			wxOK | wxICON_ERROR
+		)
+		dlg.ShowModal()
+		dlg.Destroy()
+		return 1
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
@@ -522,7 +522,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.14  2003-03-23 02:38:46  ncq
+# Revision 1.15  2003-03-25 19:57:09  ncq
+# - add helper __show_error()
+#
+# Revision 1.14  2003/03/23 02:38:46  ncq
 # - updated Hilmar's fix
 #
 # Revision 1.13  2003/03/02 17:03:19  ncq
