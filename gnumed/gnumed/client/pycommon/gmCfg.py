@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -67,8 +67,6 @@ _log = gmLog.gmDefLog
 _gmPG = None
 _gmCLI = None
 
-_log.Log(gmLog.lInfo, __version__)
-
 # flags for __get_conf_name
 cfg_SEARCH_STD_DIRS = 1
 cfg_IGNORE_CMD_LINE = 2
@@ -76,6 +74,10 @@ cfg_IGNORE_CMD_LINE = 2
 # don't change this without knowing what you do as
 # it will already be in many databases
 cfg_DEFAULT = "xxxDEFAULTxxx"
+
+_log.Log(gmLog.lInfo, __version__)
+
+gmDefCfgFile = gmNull.cNull()	# default config file initializes to Null object
 #================================
 class cCfgBase:
 	def __init__(self):
@@ -1117,12 +1119,8 @@ def setDBParam(workplace = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT
 #=============================================================
 # main
 #=============================================================
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-
-_log.Log(gmLog.lData, __version__)
-
 if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
 	if len(sys.argv) > 1:
 		try:
 			myCfg = cCfgFile(aFile = sys.argv[1])
@@ -1225,10 +1223,6 @@ if __name__ == "__main__":
 else:
 	# - we are being imported
 
-	# have a sane pointer even if we fail
-	gmDefCfgFile = gmNull.cNull()
-
-	# - if we don't find any config file we return None
 	# - IF the caller really knows what she does she can handle
 	#   that exception in her own code
 	try:
@@ -1238,7 +1232,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.17  2004-08-16 12:06:50  ncq
+# Revision 1.18  2004-08-16 12:15:20  ncq
+# - don't hide module global gmDefCfgFile inside "if __name__ == '__main__'" so
+#   that epydoc picks it up properly for documentation
+#
+# Revision 1.17  2004/08/16 12:06:50  ncq
 # - hopefully improve docstring by including import example
 #
 # Revision 1.16  2004/08/11 11:07:33  ncq
