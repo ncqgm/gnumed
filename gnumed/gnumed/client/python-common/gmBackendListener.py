@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -47,18 +47,18 @@ class BackendListener:
 		# if not listening to that signal yet, do so now
 		if aSignal not in self._intercepted_notifications:
 			cmd = 'LISTEN "%s";' % aSignal
+			self._conn_lock.acquire(blocking = 1)
 			try:
-				self._conn_lock.acquire(blocking = 1)
 				res = self._conn.query(cmd)
-				self._conn_lock.release()
 			except StandardError:
 				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
 				_log.LogException('cannot register backend callback', sys.exc_info())
 				try:
 					self._conn_lock.release()
-				except:
-					_log.LogException("must have passed lock release, or not acquired lock at all", sys.exc_info())
+				except StandardError:
+					_log.LogException('this should never happen: we have the lock but cannot release it', verbose=0)
 				return None
+			self._conn_lock.release()
 			if res.resultType == libpq.RESULT_ERROR:
 				_log.Log(gmLog.lErr, 'cannot register backend callback')
 				_log.Log(gmLog.lErr, ">>>%s<<< failed" % cmd)
@@ -264,7 +264,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.13  2003-05-27 14:38:22  sjtan
+# Revision 1.14  2003-05-27 15:23:48  ncq
+# - Sian found a uncleanliness in releasing the lock
+#   during notification registration, clean up his fix
+#
+# Revision 1.13  2003/05/27 14:38:22  sjtan
 #
 # looks like was intended to be caught if throws exception here.
 #
