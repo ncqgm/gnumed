@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.72 2003-02-07 08:57:39 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmGuiMain.py,v 1.73 2003-02-07 14:30:33 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -498,51 +498,53 @@ class gmApp(wxApp):
 			_log.Log(gmLog.lWarn, "system locale is undefined (probably meaning 'C')")
 			return 1
 
-		# get db conn
-		conn = self.__backend.GetConnection(service = 'default', readonly = 0)
-		curs = conn.cursor()
+		db_lang = '??_??@????'
 
-		# check if system and db language are different
-		db_lang = '??_??@??'
+		# get read-only connection
+		roconn = self.__backend.GetConnection(service = 'default')
+		# set up 'read-only' cursor
+		rocurs = roconn.cursor()
+
+		# get current database locale
 		cmd = "select lang from i18n_curr_lang where owner = CURRENT_USER limit 1;"
 		try:
-			curs.execute(cmd)
+			rocurs.execute(cmd)
 		except:
 			# assuming the admin knows her stuff this means
 			# that language settings are not wanted
 			_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
+			_log.Log(gmLog.lInfo, 'assuming language settings are not wanted/needed' % cmd)
 			_log.LogException("Cannot get database language.", sys.exc_info(), fatal=0)
-			curs.close()
-			conn.close()
+			rocurs.close()
+			self.__backend.ReleaseConnection('default')
 			return None
-		result = curs.fetchone()
+		result = rocurs.fetchone()
+
+		# release read-only connection
+		rocurs.close()
+		self.__backend.ReleaseConnection('default')
+
 		if result is not None:
 			db_lang = result[0]
 		_log.Log(gmLog.lData, "current database locale: [%s]" % db_lang)
 
-		# identical ?
+		# check if system and db language are different
 		if db_lang == system_locale:
 			_log.Log(gmLog.lData, 'Database locale (%s) up to date.' % db_lang)
-			curs.close()
-			conn.close()
 			return 1
 		# trim '@variant' part
 		no_variant = system_locale.split('@', 1)[0]
 		if db_lang == no_variant:
 			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at lang_COUNTRY(@variant) level.' % (db_lang, system_locale))
-			curs.close()
-			conn.close()
 			return 1
 		# trim '_LANG@variant' part
 		no_country = system_locale.split('_', 1)[0]
 		if db_lang == no_country:
 			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at lang(_COUNTRY@variant) level.' % (db_lang, system_locale))
-			curs.close()
-			conn.close()
 			return 1
 
 		# no match: ask user
-		_log.Log(gmLog.lWarn, 'Database locale (%s) does not match system locale (%s). Asking user what to do.' % (db_lang, system_locale))
+		_log.Log(gmLog.lWarn, 'Database locale [%s] does not match system locale [%s]. Asking user what to do.' % (db_lang, system_locale))
 
 		dlg = wxMessageDialog(
 			parent = None,
@@ -555,51 +557,31 @@ class gmApp(wxApp):
 
 		if result == wxID_NO:
 			_log.Log(gmLog.lInfo, 'User did not want to set database locale. Good luck.')
-			curs.close()
-			conn.close()
 			return 1
 
-		# try setting to "lang_COUNTRY@variant"
-		cmd = "select set_curr_lang('%s');" % system_locale
-		try:
-			curs.execute(cmd)
-			_log.Log(gmLog.lData, "Successfully set database language to [%s]." % system_locale)
-		except:
-			_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
-			_log.LogException("Cannot set database language at 'lang_COUNTRY@variant' level.", sys.exc_info(), fatal=0)
-			# try setting to "lang_COUNTRY"
-			cmd = "select set_curr_lang('%s');" % no_variant
+		# get read-write connection
+		rwconn = self.__backend.GetConnection(service = 'default', readonly = 0)
+		# set up 'read-write' cursor
+		rwcurs = rwconn.cursor()
+
+		# try setting database language
+		cmd = "select set_curr_lang(%s);"
+		for lang in [system_locale, no_variant, no_country]:
 			try:
-				curs.execute(cmd)
-				_log.Log(gmLog.lData, "Successfully set database language to [%s]." % no_variant)
+				rwcurs.execute(cmd, lang)
 			except:
-				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
-				_log.LogException("Cannot set database language at 'lang_COUNTRY' level.", sys.exc_info(), fatal=0)
-				# try setting to "lang"
-				cmd = "select set_curr_lang('%s');" % no_country
-				try:
-					curs.execute(cmd)
-					_log.Log(gmLog.lData, "Successfully set database language to [%s]." % no_country)
-				except:
-					_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
-					_log.LogException("Cannot set database language at 'lang' level.", sys.exc_info(), fatal=0)
-					curs.close
-					conn.close()
-					return None
+				_log.LogException(">>>%s<<< failed." % (cmd % lang), sys.exc_info(), fatal=0)
+				rwconn.rollback()
+				continue
+			_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
+			rwconn.commit()
+			rwcurs.close()
+			rwconn.close()
+			return 1
 
-		conn.commit()
-
-#		cmd = "select * from i18n_curr_lang;"
-#		try:
-#			curs.execute(cmd)
-#			_log.Log(gmLog.lData, curs.fetchall())
-#		except:
-#			_log.LogException('>>>%s<<< failed' % cmd, sys.exc_info(), fatal=0)
-
-		curs.close()
-		conn.close()
-
-		return 1
+		rwcurs.close()
+		rwconn.close()
+		return None
 #=================================================
 def main():
 	"""GNUmed client written in Python.
@@ -626,7 +608,10 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.72  2003-02-07 08:57:39  ncq
+# Revision 1.73  2003-02-07 14:30:33  ncq
+# - setting the db language now works
+#
+# Revision 1.72  2003/02/07 08:57:39  ncq
 # - fixed type
 #
 # Revision 1.71  2003/02/07 08:37:13  ncq
