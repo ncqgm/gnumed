@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -598,7 +598,7 @@ def call_viewer_on_file(aFile = None):
 
 	if viewer_cmd != None:
 		os.system(viewer_cmd)
-		return 1
+		return 1, ""
 
 	_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
 	# does the file already have an extension ?
@@ -631,6 +631,8 @@ def call_viewer_on_file(aFile = None):
 	# clean up if necessary
 	if file_to_display != aFile:
 		os.remove(file_to_display)
+
+	return 1, ""
 #============================================================
 # Main
 #============================================================
@@ -641,6 +643,9 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.15  2002-09-12 20:34:41  ncq
+# Revision 1.16  2002-09-12 21:39:55  ncq
+# - several tweaks for displaying files
+#
+# Revision 1.15  2002/09/12 20:34:41  ncq
 # - added helper call_viewer_on_file()
 #

@@ -6,7 +6,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docMime.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #=======================================================================================
@@ -40,10 +40,9 @@ def guess_mimetype(aFileName = None):
 
 	if ret_code == None and tmp != "":
 		mime_type = string.replace(tmp, "\n", "")
-		__log__.Log(gmLog.lData, "%s -> %s" % (aFileName, mime_type))
 	else:
 		__log__.Log(gmLog.lErr, "Something went awry while calling `%s`." % mime_guesser_cmd)
-		__log__.Log(gmLog.lErr, "%s (%s): [%s] %s" % (os.name, sys.platform, ret_code, tmp))
+		__log__.Log(gmLog.lErr, '%s (%s): exit(%s) -> <%s>' % (os.name, sys.platform, ret_code, tmp))
 
 	# if we still have "application/octet-stream" we either
 	# have an insufficient systemwide magic number file or we
@@ -51,12 +50,14 @@ def guess_mimetype(aFileName = None):
 	# it can't get much worse if we try ourselves
 	if mime_type == desperate_guess:
 		__log__.Log(gmLog.lInfo, "OS level mime detection failed, falling back to built-in.")
+
 		# we must trade speed vs. RAM now by loading a data file
 		try:
 			import docMagic
 		except ImportError:
-			__log__.Log(gmLog.lErr, "Cannot import internal magic data file !")
-
+			exc = sys.exc_info()
+			__log__.LogException("Cannot import internal magic data file.", exc, fatal=0)
+			return None
 		tmp = docMagic.file(aFileName)
 		# save ressources
 		del docMagic
@@ -64,6 +65,7 @@ def guess_mimetype(aFileName = None):
 		if not tmp == None:
 			mime_type = tmp
 
+	__log__.Log(gmLog.lData, '"%s" -> <%s>' % (aFileName, mime_type))
 	return mime_type
 #-----------------------------------------------------------------------------------
 def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
@@ -87,20 +89,38 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 	#if (cmd == None) and ()
 	return cmd
 #-----------------------------------------------------------------------------------
-def get_win_fname(aMimeType = None):
-	"""Return file name suitable for a given file type in Windows and other inferior OS."""
-
+def guess_ext_by_mimetype(aMimeType = None):
+	"""Return file extension based on what the OS thinks a file of this mimetype should end in."""
 	# sanity checks
 	if aMimeType == None:
 		__log__.Log(gmLog.lErr, "Cannot determine file name if I don't have a mime type.")
 		return None
 
+	# FIXME: does this screw up with scope of binding vs. scope of import ?
 	import mimetypes
 	f_ext = mimetypes.guess_extension(aMimeType)
+	if f_ext == None:
+		__log__.Log(gmLog.lErr, "The system does not know the file extension for the mimetype <%s>." % aMimeType)
 
-	import tempfile
-	tempfile.template = "obj-"
-	return os.path.normpath(tempfile.mktemp(f_ext))
+	return f_ext
+#-----------------------------------------------------------------------------------
+#def get_win_fname(aMimeType = None):
+	"""Return file name suitable for a given file type in Windows and other inferior OS."""
+
+	# sanity checks
+#	if aMimeType == None:
+#		__log__.Log(gmLog.lErr, "Cannot determine file name if I don't have a mime type.")
+#		return None
+
+#	import mimetypes
+#	f_ext = mimetypes.guess_extension(aMimeType)
+#	if f_ext == None:
+#		__log__.Log(gmLog.lErr, "The system does not know the file extension for the mimetype <%s>." % aMimeType)
+#		f_ext = ""
+
+#	import tempfile
+#	tempfile.template = "obj-"
+#	return os.path.normpath(tempfile.mktemp(f_ext))
 #-----------------------------------------------------------------------------------
 if __name__ == "__main__":
 	import sys
