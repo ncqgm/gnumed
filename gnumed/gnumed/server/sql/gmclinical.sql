@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.98 $
+-- $Revision: 1.99 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -611,7 +611,10 @@ comment on column allergy.narrative is
 -- --------------------------------------------
 create table form_instances (
 	pk serial primary key,
-	fk_form_def integer not null references form_defs(pk),
+	fk_form_def integer
+		references form_defs(pk)
+		on update cascade
+		on delete set null,
 	form_name text not null
 	-- clin_root_item.narrative used as status field
 ) inherits (clin_root_item);
@@ -827,11 +830,14 @@ comment on column referral.narrative is
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.98 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.99 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.98  2004-04-21 20:36:07  ncq
+-- Revision 1.99  2004-04-22 13:15:45  ncq
+-- - fk update/delete actions on form_instances.fk_form_def
+--
+-- Revision 1.98  2004/04/21 20:36:07  ncq
 -- - cleanup/comments on referral
 -- - don't inherit audit_fields in vaccination, those fields are pulled in
 --   via clin_root_item already
