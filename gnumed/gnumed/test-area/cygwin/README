@@ -1,0 +1,33 @@
+The following scripts do the following:
+
+cygwin.ed , cygwin_path.sh cygwin_restore.sh, cygwin_remove.sh
+
+This group of files gets around the symlink problem with cygwin.
+(python in cygwin doesn't follow the Gnumed symlink).
+
+cygwin_path.sh changes all the import from Gnumed.. lines in
+the .py files to import from client..  ; the old files 
+are put as .pybak files.
+
+cygwin_restore.sh undoes those changes.
+
+cygwin_remove.sh removes the .pybak files.
+
+----------------------------------------------------
+
+bootstrap_parse.py
+
+This generates the order of installation for the sql files
+from the bootstrap-monolithic_core.conf  file in server/bootstrap
+
+install-schema.sh 
+This uses bootstrap_parse.py  to create the gnumed database.
+Both should be put in the sql directory , 
+then 
+	sh install-schema.sh 
+
+redo-max.sh doesn't run in cygwin for some reason ;
+this is a temporary workaround to get things running on cygwin.
+
+
+
