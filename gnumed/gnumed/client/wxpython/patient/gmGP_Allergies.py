@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -168,7 +168,7 @@ class AllergyPanel(wxPanel , PatientHolder ):
 	def UpdateAllergies(self, **kwargs):
 		# remember wxCallAfter
 #		try:
-			#epr = self.__pat['clinical record']
+			#epr = self.__pat.get_clinical_record()
 			#allergies = epr['allergies']
 #			allergy_map = self.get_allergies()
 			# { 941: map_values, 2: map_values }
@@ -229,7 +229,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.23  2004-06-25 13:28:00  ncq
+# Revision 1.24  2004-07-15 23:30:16  ncq
+# - 'clinical_record' -> get_clinical_record()
+#
+# Revision 1.23  2004/06/25 13:28:00  ncq
 # - logically separate notebook and clinical window plugins completely
 #
 # Revision 1.22  2004/03/19 21:07:35  shilbert

@@ -7,17 +7,13 @@ typing clear-text clinical notes which are stored in clin_narrative.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.13 2004-06-30 20:33:41 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmSingleBoxSOAP.py,v 1.14 2004-07-15 23:30:15 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
 
-if __name__ == "__main__":
-    sys.path.append ("../pycommon/")
-    import gmI18N
-
-from Gnumed.pycommon import gmDispatcher, gmSignals
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N
 from Gnumed.business import gmPatient 
 from Gnumed.pycommon.gmExceptions import ConstructorError
 
@@ -106,7 +102,7 @@ class gmSingleBoxSOAPPanel(wxPanel):
         if string.strip(note) == '':
             return 1
         # now save note
-        emr = self.__pat['clinical record']
+        emr = self.__pat.get_clinical_record()
         if emr is None:
             _log.Log(gmLog.lErr, 'cannot access clinical record of patient')
             return None
@@ -127,7 +123,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.13  2004-06-30 20:33:41  ncq
+# Revision 1.14  2004-07-15 23:30:15  ncq
+# - 'clinical_record' -> get_clinical_record()
+#
+# Revision 1.13  2004/06/30 20:33:41  ncq
 # - add_clinical_note() -> add_clin_narrative()
 #
 # Revision 1.12  2004/03/09 07:54:32  ncq

@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.45 2004-07-05 22:26:24 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmPatient.py,v 1.46 2004-07-15 23:30:11 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -918,13 +918,16 @@ if __name__ == "__main__":
 		print "demogr.  ", demos
 		print "name     ", demos.get_names(1)
 		print "doc ids  ", myPatient['document id list']
-		emr = myPatient['clinical record']
+		emr = myPatient.get_clinical_record()
 		print "EMR      ", emr
 		print "--------------------------------------"
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.45  2004-07-05 22:26:24  ncq
+# Revision 1.46  2004-07-15 23:30:11  ncq
+# - 'clinical_record' -> get_clinical_record()
+#
+# Revision 1.45  2004/07/05 22:26:24  ncq
 # - do some timings to find patient change time sinks
 #
 # Revision 1.44  2004/06/15 19:14:30  ncq
