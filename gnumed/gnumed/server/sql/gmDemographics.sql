@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.34 $
+-- $Revision: 1.35 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -238,13 +238,21 @@ select add_table_for_audit('address_info');
 create table identity (
 	id serial primary key,
 	pupic char(24),
-	gender varchar(2) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
-	karyotype character(10) default null,
-	dob timestamp with time zone not null,
-	id_marital_status integer references marital_status (id) not null default 1, 
+	gender varchar(2)
+		default '?'
+		check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
+	karyotype text
+		default null,
+	dob timestamp with time zone
+		not null,
+	id_marital_status integer
+		not null
+		default 1
+		references marital_status(id),
 	cob char(2),
-	-- FIXME: constraint: deceased > dob
-	deceased timestamp with time zone default null,
+	deceased timestamp with time zone
+		default null
+		check ((deceased is null) or (deceased >= dob)),
 	-- yes, there are some incredible rants of titles ...
 	title text
 ) inherits (audit_fields);
@@ -261,7 +269,8 @@ comment on column identity.gender is
 	 (h)ermaphrodite,
 	 tm - (t)ranssexual phenotype (m)ale,
 	 tf - (t)ranssexual phenotype (f)emale,
-	 ? - unknown';
+	 ? - unknown
+	 FIXME: cross-check with CDA:administrative-gender-code';
 comment on column identity.dob IS
 	'date/time of birth';
 comment on column identity.cob IS
@@ -284,13 +293,13 @@ comment on table enum_ext_id_types is
 	'a list of all bureaucratic IDs/serial numbers/3rd party primary keys, etc.';
 comment on column enum_ext_id_types.issuer is
 	'the authority/system issuing the number';
--- FIXME: is context really a property of *type* ?
 comment on column enum_ext_id_types.context is
 	'the context in which this number is used
 		- p for ordinary persons
 		- o for organisations
 		- c for clinicians
-		- s for staff in this clinic';
+		- s for staff in this clinic
+	 FIXME: is context really a property of *type* ?';
 
 -- ==========================================================
 create table lnk_identity2ext_id (
@@ -566,11 +575,15 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.34 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.35 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.34  2004-09-10 10:57:02  ncq
+-- Revision 1.35  2004-09-17 20:16:35  ncq
+-- - cleanup, improve comments
+-- - tighten identity constraints
+--
+-- Revision 1.34  2004/09/10 10:57:02  ncq
 -- - re discussion with Jim et al on urb/suburb/address problem
 --   in CA/AU/DE added aux_street/subunit to address, see inline
 --   docs for explanations
