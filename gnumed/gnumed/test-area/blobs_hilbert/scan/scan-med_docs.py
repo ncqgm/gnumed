@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -712,7 +712,7 @@ class scanFrame(wxFrame):
 		tempfile.tempdir = aTarget
 		tempfile.template = ""
 		# create temp dir name
-		dirname = tempfile.mktemp(suffix = time.strftime(".%Y%m%d_%H%M%S", time.localtime()))
+		dirname = tempfile.mktemp(suffix = time.strftime(".%Y%m%d-%H%M%S", time.localtime()))
 		# extract name for dir
 		path, doc_ID = os.path.split(dirname)
 
@@ -874,7 +874,10 @@ if __name__ == '__main__':
 
 #======================================================
 # $Log: scan-med_docs.py,v $
-# Revision 1.27  2002-09-12 23:51:15  ncq
+# Revision 1.28  2002-09-13 10:46:04  ncq
+# - change _ to - in random ID mode
+#
+# Revision 1.27  2002/09/12 23:51:15  ncq
 # - close last known bug on moving pages - cannot move to end of list
 #
 # Revision 1.26  2002/09/12 20:43:42  ncq
