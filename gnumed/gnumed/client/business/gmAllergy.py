@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.10 2004-06-09 14:32:24 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmAllergy.py,v 1.11 2004-06-14 08:22:10 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -35,8 +35,8 @@ class cAllergy(gmClinItem.cClinItem):
 				allergene=%(allergene)s,
 				atc_code=%(atc_code)s,
 				id_type=%(id_type)s,
-				generic_specific=%(generic_specific)s,
-				definite=%(definite)s,
+				generic_specific=%(generic_specific)s::boolean,
+				definite=%(definite)s::boolean,
 				narrative=%(reaction)s
 			where id=%(id)s"""
 		]
@@ -137,7 +137,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.10  2004-06-09 14:32:24  ncq
+# Revision 1.11  2004-06-14 08:22:10  ncq
+# - cast to boolean in save payload
+#
+# Revision 1.10  2004/06/09 14:32:24  ncq
 # - remove extraneous ()'s
 #
 # Revision 1.9  2004/06/08 00:41:38  ncq
