@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.8 2004-04-19 12:41:30 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmClinItem.py,v 1.9 2004-04-20 13:32:33 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -51,7 +51,9 @@ class cClinItem:
 				_log.Log(gmLog.lData, self._payload)
 	#--------------------------------------------------------
 	def __str__(self):
-		return str(self._payload)
+		tmp = []
+		[tmp.append('%s: %s' % (attr, self._payload[self._idx[attr]])) for attr in self._idx.keys()]
+		return str(tmp)
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
 		try:
@@ -119,7 +121,10 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.8  2004-04-19 12:41:30  ncq
+# Revision 1.9  2004-04-20 13:32:33  ncq
+# - improved __str__ output
+#
+# Revision 1.8  2004/04/19 12:41:30  ncq
 # - self-check in __del__
 #
 # Revision 1.7  2004/04/18 18:50:36  ncq

@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.4 2004-04-20 00:17:55 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmAllergy.py,v 1.5 2004-04-20 13:32:33 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 from Gnumed.pycommon import gmLog
@@ -67,12 +67,15 @@ if __name__ == '__main__':
 #	for field in fields:
 #		print field, ':', allg[field]
 	print "updatable:", allg.get_updatable_fields()
-	allg['reaction'] = 'hehehe'
-	print allg
-	allg.save_payload()
+#	allg['reaction'] = 'hehehe'
+#	print allg
+#	allg.save_payload()
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.4  2004-04-20 00:17:55  ncq
+# Revision 1.5  2004-04-20 13:32:33  ncq
+# - improved __str__ output
+#
+# Revision 1.4  2004/04/20 00:17:55  ncq
 # - allergies API revamped, kudos to Carlos
 #
 # Revision 1.3  2004/04/16 16:17:33  ncq
