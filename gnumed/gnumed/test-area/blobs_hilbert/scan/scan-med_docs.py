@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __license__ = "GPL"
 __author__ = "\
 	Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 	Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
-#import Image,
-import string, time, shutil, os, sys, os.path
+import string, time, shutil, os, sys, os.path, tempfile
 
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
@@ -439,8 +438,32 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	#-----------------------------------
 	def on_del_page(self, event):
-#		page_idx = self.LBOX_doc_pages.GetSelection()
-#		page_data = 
+		page_idx = self.LBOX_doc_pages.GetSelection()
+
+		if page_idx != -1:
+			page_data = self.LBOX_doc_pages.GetClientData(page_idx)
+			page_fname = page_data['file name']
+			page_seq_ID = page_data['index']
+
+
+#			if viewer_cmd == None:
+#				_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
+#				new_fname = docMime.get_win_fname(mime_type)
+#				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, new_fname))
+#				shutil.copyfile(page_fname, new_fname)
+#				os.startfile(new_fname)
+#			else:
+#				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, viewer_cmd))
+#				os.system(viewer_cmd)
+		else:
+			dlg = wxMessageDialog(
+				self,
+				_('You must select a page before you can delete it.'),
+				_('Attention'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
 
 
 		return
