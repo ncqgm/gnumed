@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.44 $
+-- $Revision: 1.45 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -249,9 +249,15 @@ comment on column enum_ext_id_types.context is
 -- ==========================================================
 create table lnk_identity2ext_id (
 	id serial primary key,
-	id_identity integer not null references identity(pk),
+	id_identity integer
+		not null
+		references identity(pk)
+		on update cascade
+		on delete cascade,
 	external_id text not null,
-	fk_origin integer not null references enum_ext_id_types(pk),
+	fk_origin integer
+		not null references
+		enum_ext_id_types(pk),
 	comment text,
 	unique (id_identity, external_id, fk_origin)
 ) inherits (audit_fields);
@@ -532,11 +538,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.44 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.45 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.44  2005-03-14 14:40:35  ncq
+-- Revision 1.45  2005-03-31 17:48:41  ncq
+-- - missing on update/delete clauses on FKs
+--
+-- Revision 1.44  2005/03/14 14:40:35  ncq
 -- - improved comments on name fields
 --
 -- Revision 1.43  2005/03/01 20:38:19  ncq
