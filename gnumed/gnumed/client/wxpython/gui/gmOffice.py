@@ -14,13 +14,13 @@ from wxPython import wx
 
 class gmOffice (gmPlugin.cNotebookPluginOld):
 
-    tab_name = _("Office")
+	tab_name = _("Office")
 
-    def name (self):
-        return gmOffice.tab_name
+	def name (self):
+		return gmOffice.tab_name
 
-    def MenuInfo (self):
-        return ("view", _("&Office"))
+	def MenuInfo (self):
+		return ("view", _("&Office"))
 
-    def GetWidget (self, parent):
-        return wx.wxPanel(parent, -1)
+	def GetWidget (self, parent):
+		return wx.wxPanel(parent, -1)
