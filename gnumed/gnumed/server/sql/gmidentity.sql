@@ -41,13 +41,12 @@ COMMENT ON TABLE audit_identity IS
 
 
 -- ==========================================================
-
 create table identity (
 	id serial primary key,
 	pupic char(24),
 	gender character(2) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
 	karyotype character(10) DEFAULT NULL,
-	dob char(10),  -- consider changeing this to a date type, otherwise let it take dd/mm/yyyy 10 chars
+	dob timestamp with time zone,
 	cob char(2),
 	deceased date default NULL
 ) inherits (audit_identity);
@@ -63,7 +62,7 @@ COMMENT ON COLUMN identity.gender is
 '(m)ale, (f)emale, (h)ermaphrodite, (tm)transsexual phaenotype male, (tf)transsexual phaenotype female, (?)unknown';
 
 COMMENT ON COLUMN identity.dob IS
-'date of birth in format yyyymmdd';
+'date/time of birth';
 
 COMMENT ON COLUMN identity.cob IS
 'country of birth as per date of birth, coded as 2 character ISO code';
@@ -282,14 +281,14 @@ TO GROUP "_gm-doctors";
 -- ==========================================================
 -- insert some example people
 
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Mr.', 'Ian', 'Haywood', '19/12/77', 'UK', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Ms.', 'Cilla', 'Raby', '1/3/79', 'AU', 'f');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Horst', 'Herb', '1/1/70', 'DE', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Richard', 'Terry', '1/1/60', 'AU', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Karsten', 'Hilbert', '23/10/74', 'DE', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Mr.', 'Sebastian', 'Hilbert', '13/03/79', 'DE', 'm');
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Mr.', 'Ian', 'Haywood', '1977-12-19', 'UK', 'm');
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Ms.', 'Cilla', 'Raby', '1979-3-1', 'AU', 'f');
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Horst', 'Herb', '1970-1-1', 'DE', 'm');
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Richard', 'Terry', '1960-1-1', 'AU', 'm');
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Karsten', 'Hilbert', '1974-10-23', 'DE', 'm');
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Mr.', 'Sebastian', 'Hilbert', '1979-3-13', 'DE', 'm');
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.22 $')
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.23 $')
