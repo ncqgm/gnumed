@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.5 2003-11-22 12:29:16 sjtan Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmDemographics.py,v 1.6 2003-11-22 14:47:24 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -546,7 +546,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 			
 		myPatient = self.get_demographic_record()
 
-		myPatient.setActiveName(m['firstname'].strip(), m['surname'].strip())		
+		myPatient.addName(m['firstname'].strip(), m['surname'].strip(), activate=1)
 		myPatient.setGender( m['sex'] )
 		myPatient.setDOB( m['birthdate'])
 		myPatient.setTitle( m['title'])
@@ -820,7 +820,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.5  2003-11-22 12:29:16  sjtan
+# Revision 1.6  2003-11-22 14:47:24  ncq
+# - use addName instead of setActiveName
+#
+# Revision 1.5  2003/11/22 12:29:16  sjtan
 #
 # minor debugging; remove _newPatient flag attribute conflict with method name newPatient.
 #
