@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.27 $
+# $Revision: 1.28 $
 ---------------------------------------------------
 Rules:
 ------
@@ -272,3 +272,9 @@ $ python gnumed.py --debug
 Find something you don't like and fix it... ;O)
 
 --------------------------------------------------
+
+
+NOTE: I added the above sections but did not delete it because I am not sure if it was placed correctly, so I wanted to save an untouched copy of what I inserted
+
+Wed Apr  2 20:49:53 PST 2003 Gerardo Arnaez
+--------------------------------------------
