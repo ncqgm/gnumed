@@ -1,0 +1,47 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<!DOCTYPE KDevPrjSession>
+<KDevPrjSession>
+ <LastCompileConfig>(Default)</LastCompileConfig>
+ <Mainframe MaximizeMode="1" />
+ <DocsAndViews NumberOfDocuments="13" >
+  <Doc0 CursorPosLine="0" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="0" FileName="/home/sjtan/projects/n1/homebusiness/homebusiness/ordermainadapter.h" >
+   <View0 Top="26" Width="400" Attach="1" Height="300" Left="3" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc0>
+  <Doc1 CursorPosLine="66" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="50" FileName="/home/sjtan/projects/n1/homebusiness/homebusiness/mergecustomerdialog.ui.h" >
+   <View0 Top="50" Width="654" Attach="1" Height="403" Left="27" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc1>
+  <Doc2 CursorPosLine="0" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="0" FileName="/home/sjtan/projects/n1/homebusiness/homebusiness/ordermainadapter.cpp" >
+   <View0 Top="74" Width="656" Attach="1" Height="403" Left="51" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc2>
+  <Doc3 CursorPosLine="90" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="28" FileName="/home/sjtan/projects/n1/homebusiness/homebusiness/Containers.h" >
+   <View0 Top="98" Width="656" Attach="1" Height="403" Left="75" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc3>
+  <Doc4 CursorPosLine="18" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="59" FileName="/home/sjtan/projects/n1/homebusiness/homebusiness/Containers.cpp" >
+   <View0 Top="96" Width="660" Attach="1" Height="432" Left="96" Focus="1" Type="KWriteView" MinMaxMode="2" />
+  </Doc4>
+  <Doc5 CursorPosLine="0" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="0" FileName="/home/sjtan/projects/n1/homebusiness/README" >
+   <View0 Top="146" Width="654" Attach="1" Height="403" Left="123" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc5>
+  <Doc6 CursorPosLine="0" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="0" FileName="/home/sjtan/projects/n1/homebusiness/INSTALL" >
+   <View0 Top="170" Width="654" Attach="1" Height="404" Left="147" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc6>
+  <Doc7 CursorPosLine="0" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="0" FileName="/home/sjtan/projects/n1/homebusiness/COPYING" >
+   <View0 Top="194" Width="654" Attach="1" Height="404" Left="171" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc7>
+  <Doc8 CursorPosLine="0" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="0" FileName="/home/sjtan/projects/n1/homebusiness/AUTHORS" >
+   <View0 Top="218" Width="654" Attach="1" Height="404" Left="195" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc8>
+  <Doc9 CursorPosLine="0" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="0" FileName="/home/sjtan/projects/n1/homebusiness/homebusiness/application1.h" >
+   <View0 Top="242" Width="654" Attach="1" Height="404" Left="219" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc9>
+  <Doc10 CursorPosLine="0" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="0" FileName="/home/sjtan/projects/n1/homebusiness/homebusiness/homebusinessdoc.h" >
+   <View0 Top="266" Width="654" Attach="1" Height="403" Left="243" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc10>
+  <Doc11 CursorPosLine="0" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="0" FileName="/home/sjtan/projects/n1/homebusiness/homebusiness/homebusiness.h" >
+   <View0 Top="290" Width="654" Attach="1" Height="403" Left="267" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc11>
+  <Doc12 CursorPosLine="0" Type="KWriteDoc" NumberOfViews="1" CursorPosCol="0" FileName="/home/sjtan/projects/n1/homebusiness/homebusiness/datadef.sql" >
+   <View0 Top="314" Width="654" Attach="1" Height="403" Left="291" Focus="0" Type="KWriteView" MinMaxMode="0" />
+  </Doc12>
+ </DocsAndViews>
+</KDevPrjSession>

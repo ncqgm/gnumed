@@ -1,0 +1,466 @@
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<class>MergeCustomerDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>MergeCustomerDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>612</width>
+            <height>617</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Merge customers</string>
+    </property>
+    <property name="sizeGripEnabled">
+        <bool>true</bool>
+    </property>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>Layout1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>50</x>
+                <y>530</y>
+                <width>476</width>
+                <height>33</height>
+            </rect>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
+                <number>0</number>
+            </property>
+            <property name="spacing">
+                <number>6</number>
+            </property>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>buttonHelp</cstring>
+                </property>
+                <property name="text">
+                    <string>&amp;Help</string>
+                </property>
+                <property name="accel">
+                    <string>F1</string>
+                </property>
+                <property name="autoDefault">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <spacer>
+                <property name="name">
+                    <cstring>Horizontal Spacing2</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>20</height>
+                    </size>
+                </property>
+            </spacer>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>buttonOk</cstring>
+                </property>
+                <property name="text">
+                    <string>&amp;OK</string>
+                </property>
+                <property name="accel">
+                    <string></string>
+                </property>
+                <property name="autoDefault">
+                    <bool>true</bool>
+                </property>
+                <property name="default">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>buttonCancel</cstring>
+                </property>
+                <property name="text">
+                    <string>&amp;Cancel</string>
+                </property>
+                <property name="accel">
+                    <string></string>
+                </property>
+                <property name="autoDefault">
+                    <bool>true</bool>
+                </property>
+            </widget>
+        </hbox>
+    </widget>
+    <widget class="QButtonGroup">
+        <property name="name">
+            <cstring>buttonGroup1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>20</y>
+                <width>130</width>
+                <height>150</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>keep which?</string>
+        </property>
+        <widget class="QRadioButton">
+            <property name="name">
+                <cstring>radioButton2</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>20</x>
+                    <y>110</y>
+                    <width>105</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>keep 2nd</string>
+            </property>
+        </widget>
+        <widget class="QRadioButton">
+            <property name="name">
+                <cstring>radioButton1</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>20</x>
+                    <y>20</y>
+                    <width>106</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>keep 1st</string>
+            </property>
+            <property name="checked">
+                <bool>true</bool>
+            </property>
+        </widget>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel1_3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>200</y>
+                <width>73</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>last name</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel2_3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>270</x>
+                <y>200</y>
+                <width>72</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>first name</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>180</y>
+                <width>133</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>find 2nd customer</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel2_2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>180</x>
+                <y>150</y>
+                <width>105</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>customer name</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel4</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>150</x>
+                <y>100</y>
+                <width>116</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>second customer</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>nameEdit2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>290</x>
+                <y>150</y>
+                <width>270</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="readOnly">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel1_2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>200</x>
+                <y>130</y>
+                <width>90</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>id customer</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>idEdit1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>290</x>
+                <y>30</y>
+                <width>142</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="readOnly">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>nameEdit1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>290</x>
+                <y>60</y>
+                <width>270</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="readOnly">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>190</x>
+                <y>40</y>
+                <width>90</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>id customer</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel5</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>170</x>
+                <y>10</y>
+                <width>93</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>first customer</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>170</x>
+                <y>60</y>
+                <width>105</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>customer name</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>idEdit2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>290</x>
+                <y>120</y>
+                <width>142</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="readOnly">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>findLastNameEdit</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>100</x>
+                <y>200</y>
+                <width>150</width>
+                <height>24</height>
+            </rect>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>findFirstNameEdit</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>340</x>
+                <y>200</y>
+                <width>160</width>
+                <height>24</height>
+            </rect>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>pushButton4</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>510</x>
+                <y>200</y>
+                <width>99</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>find</string>
+        </property>
+    </widget>
+    <widget class="QListBox">
+        <item>
+            <property name="text">
+                <string>New Item</string>
+            </property>
+        </item>
+        <property name="name">
+            <cstring>customerListBox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>20</x>
+                <y>240</y>
+                <width>570</width>
+                <height>270</height>
+            </rect>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>buttonOk</sender>
+        <signal>clicked()</signal>
+        <receiver>MergeCustomerDialog</receiver>
+        <slot>confirmMerge()</slot>
+    </connection>
+    <connection>
+        <sender>buttonCancel</sender>
+        <signal>clicked()</signal>
+        <receiver>MergeCustomerDialog</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>pushButton4</sender>
+        <signal>clicked()</signal>
+        <receiver>MergeCustomerDialog</receiver>
+        <slot>findSecondCustomer()</slot>
+    </connection>
+    <connection>
+        <sender>customerListBox</sender>
+        <signal>clicked(QListBoxItem*)</signal>
+        <receiver>MergeCustomerDialog</receiver>
+        <slot>handleCustomerSelection(QListBoxItem*)</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">mergecustomerdialog.ui.h</include>
+</includes>
+<slots>
+    <slot>findSecondCustomer()</slot>
+    <slot>handleCustomerSelection( QListBoxItem * item )</slot>
+    <slot>confirmMerge()</slot>
+</slots>
+<functions>
+    <function>setFirstCustomerDetails( ulong id, const QString &amp; name )</function>
+    <function>setSecondCustomerDetails( ulong id, const QString &amp; name )</function>
+</functions>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

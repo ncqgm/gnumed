@@ -1,0 +1,33 @@
+
+This is an example of using STL, C++, and QT for a database application using
+the technique taught in a basic java course : make an application ,
+provide a console user interface to test and drive the application,
+and then  re-use the tested application in a graphical user interface
+
+1. console to graphical application:
+  - the application was developed as a text console app,
+  and was later adapted for a particular UI library (qt).
+
+2. layering:
+  the "layers" are a domain layer in Customer.h,
+  a persistence layer in Containers.h which uses the pq postgres driver library,
+  and a application layer , initially in application1.h for the console version,
+  and later as QT dialogs and ordermainadapter.h
+    ordermainadapter.h converts between the standard C++ types/STL,
+    and QT types.
+
+3. the initial console application was  plain c functions but was later changed
+into a C++ class.
+
+
+The domain layer consists of classes Customer, Order, Product, ProductOffer,
+OrderItem, and later Discountable and Discount were added, where Order and
+OrderItem inherited from Discountable so they could have discounts applied
+either at the individual order item level or the order level.
+Discount is either a PercentDiscount or an AmountDiscount.
+
+There is also a Money class with an AUMoney subclass with dollars and cents.
+Perhaps other Money classes can be created.
+
+
+   
