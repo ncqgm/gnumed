@@ -167,7 +167,7 @@ class EditTextBoxes(wxPanel):
 		elif section == gmSECTION_ALLERGIES:
 		      gmLog.gmDefLog.Log (gmLog.lData, "section allergies")
 		      #self.sizer = wxGridSizer (len(prompt_array),1,2,2)    
-		      gmLog.gmDefLog.Log (gmLog.lData, len(editareaprompts))
+		      #gmLog.gmDefLog.Log (gmLog.lData, len(editareaprompts))
 		      self.text1 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
 		      self.text2 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
 		      self.text3 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
