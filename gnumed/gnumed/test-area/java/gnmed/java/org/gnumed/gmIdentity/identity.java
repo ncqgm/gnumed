@@ -134,7 +134,6 @@ public class identity {
     
     /**
      *@hibernate.set
-     * //     *      lazy="true"
      *    inverse="true"
      *    cascade="all"
      *@hibernate.collection-key
