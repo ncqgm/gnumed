@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/client/Attic/README,v $
-$Revision: 1.1 $
+$Revision: 1.2 $
 
 run-*.bat/sh
 ------------
@@ -9,7 +9,7 @@ run-*.bat/sh
 
 gnumed-archiv.conf
 ------------------
-- this goes into /etc/gnumed/ and optionally ~/gnumed/ on UNIX
+- this goes into ~/.gnumed/ on UNIX
 - stays here on Windows
 - this is handed over by the run-()ers via command line
 
