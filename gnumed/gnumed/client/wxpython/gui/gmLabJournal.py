@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -226,8 +226,17 @@ class cLabJournalNB(wxNotebook):
 		return vbszr
 
 	def __init_SZR_review_status (self):
-		vbszr = wxBoxSizer( wxVERTICAL )
+	
 		tID = wxNewId()
+		
+		# image list for panel
+		self.il = wxImageList(16, 16)
+		self.images = {
+			#"smiley"	: self.il.Add(imagestest.getSmilesBitmap()),
+			#"up_arrow"	: self.il.Add(imagestest.getSmallUpArrowBitmap()),
+			"checkbox_off": self.il.Add(checkboxOff.getCheckboxOffBitmap()),
+			"checkbox_on": self.il.Add(checkboxOn.getCheckboxOnBitmap())
+			}
 		
 		# set up review list
 		self.LstCtrl_unreviewed = gmLabIDListCtrl(
@@ -236,20 +245,14 @@ class cLabJournalNB(wxNotebook):
 			size=wxDefaultSize,
 			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
 		)
+		EVT_LIST_KEY_DOWN(self, tID, self.__on_key_pressed)
+		EVT_LIST_ITEM_ACTIVATED(self, tID, self.OnItemSelected)
 		
-		vbszr.AddWindow(self.LstCtrl_unreviewed, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
-
-		# image list for panel
-		self.il = wxImageList(16, 16)
-		self.images = {
-			#"smiley"	: self.il.Add(imagestest.getSmilesBitmap()),
-			#"up_arrow"	: self.il.Add(imagestest.getSmallUpArrowBitmap()),
-			"checkbox_on": self.il.Add(checkboxOn.getCheckboxOnBitmap()),
-			"checkbox_off": self.il.Add(checkboxOff.getCheckboxOffBitmap())
-			}
-
 		self.LstCtrl_unreviewed.SetImageList(self.il, wxIMAGE_LIST_SMALL)
 		
+		vbszr = wxBoxSizer( wxVERTICAL )
+		vbszr.AddWindow(self.LstCtrl_unreviewed, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+
 		# layout review list 
 		self.LstCtrl_unreviewed.InsertColumn(0, _('reviewed'))
 		self.LstCtrl_unreviewed.InsertColumn(1, _("patient name"))
@@ -259,6 +262,7 @@ class cLabJournalNB(wxNotebook):
 		self.LstCtrl_unreviewed.InsertColumn(5, _("result"))
 		self.LstCtrl_unreviewed.InsertColumn(6, _("range"))
 		self.LstCtrl_unreviewed.InsertColumn(7, _("info provided by lab"))
+		self.LstCtrl_unreviewed.InsertColumn(8, _("request id"))
 		
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
 		
@@ -287,10 +291,7 @@ class cLabJournalNB(wxNotebook):
 		vbszr.Add(szr_buttons, 0, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 		
 		return vbszr
-	#------------------------------------------------------------------------
-	def OnLeftDClick(self, evt):
-		pass
-		
+	
 	#------------------------------------------------------------------------
 	def update(self):
 		if self.curr_pat['ID'] is None:
@@ -330,7 +331,7 @@ class cLabJournalNB(wxNotebook):
 			self.lbox_pending.SetStringItem(index = item_idx, col=3, label="%s %s (%s)" % (pat[2], pat[3], pat[4].date))
 			self.lbox_pending.SetStringItem(index = item_idx, col=4, label=_('pending'))
 			# FIXME: make use of rest data in patient via mouse over context
-		
+			
 		#----- import errors PNL -----------------------
 		lab_errors = self.__get_import_errors()
 		
@@ -355,6 +356,7 @@ class cLabJournalNB(wxNotebook):
 		#t2 = time.time()
 		#print t2-t1
 		
+		self.dict_req_unreviewed = {}
 		# clear list
 		self.LstCtrl_unreviewed.DeleteAllItems()
 		# populate list
@@ -390,7 +392,13 @@ class cLabJournalNB(wxNotebook):
 				self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=7, label='')
 			else:
 				self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=7, label=result['note_provider'])
-
+			# req id
+			self.LstCtrl_unreviewed.SetStringItem(index = item_idx, col=8, label=result['lab_request_id'])
+			# we need to track the request to be able to identify the request later
+			self.dict_req_unreviewed[item_idx] = result
+			self.LstCtrl_unreviewed.SetItemData(item_idx, item_idx)	
+			#print req_dict
+			
 		# we show 50 items at once , notify user if there are more
 		if more_avail:
 			gmGuiHelpers.gm_beep_statustext(_('More unreviewed results available. Review some to see more.'))
@@ -405,9 +413,42 @@ class cLabJournalNB(wxNotebook):
 		query= """select internal_name from test_org where pk=%s"""
 		labs = gmPG.run_ro_query('historica', query, None, data)
 		return labs
+
 	#-----------------------------------
 	# event handlers
-	#-----------------------------------
+	#------------------------------------------------------------------------
+	#def getColumnText(self, index, col):
+	#	item = self.LstCtrl_unreviewed.GetItem(index, col)
+	#	return item.GetText()
+	#------------------------------------------------------------------------
+	#def OnLeftDClick(self, evt):
+	#	pass
+	#------------------------------------------------------------------------
+	def OnItemSelected(self, event):
+		self.currentItem = event.m_itemIndex
+		
+		"""print ("OnItemSelected: %s, %s, %s, %s\n" %
+							(self.currentItem,
+							self.LstCtrl_unreviewed.GetItem(self.currentItem),
+							self.getColumnText(self.currentItem, 1),
+							self.getColumnText(self.currentItem, 2)))
+		"""					
+		# toggle between checked / unchecked
+		image = event.GetImage()
+		if image == 0:
+			item = self.LstCtrl_unreviewed.GetItem(self.currentItem, 0)
+			item.SetMask(wxLIST_MASK_IMAGE)
+			item.SetImage(self.images["checkbox_on"])
+			self.LstCtrl_unreviewed.SetItem(item)
+		if image == 1:
+			item = self.LstCtrl_unreviewed.GetItem(self.currentItem, 0)
+			item.SetMask(wxLIST_MASK_IMAGE)
+			item.SetImage(self.images["checkbox_off"])
+			self.LstCtrl_unreviewed.SetItem(item)
+		
+		event.Skip()
+		
+	# -------------------------------------------------
 	def on_save_request_ID(self, event):
 		req_id = self.fld_request_id.GetValue()
 		if not req_id is None or req_id.strip() == '':
@@ -415,6 +456,7 @@ class cLabJournalNB(wxNotebook):
 			if emr is None:
 				# FIXME: error message
 				return None
+
 			test = gmPathLab.create_lab_request(
 				lab=int(self.lab),
 				req_id = req_id,
@@ -423,6 +465,7 @@ class cLabJournalNB(wxNotebook):
 				episode_id = emr.get_active_episode()['id_episode']
 			)
 			# FIXME : react on succes or failure of save_request
+			
 		else :
 			_log.Log(gmLog.lErr, 'No request ID typed in yet !')
 			gmExceptions.gm_show_error (
@@ -438,28 +481,73 @@ class cLabJournalNB(wxNotebook):
 	def on_select_all(self, event):
 		for item_idx in range(self.LstCtrl_unreviewed.GetItemCount()):
 			item = self.LstCtrl_unreviewed.GetItem(item_idx)
-			#self.LstCtrl_unreviewed.InsertImageItem(index = item_idx, imageIndex=self.images["checkbox_on"])
-			item.SetItem(m_image = self.images["checkbox_on"])
+			item.SetImage(self.images["checkbox_on"])
+			self.LstCtrl_unreviewed.SetItem(item)
+	
 	#------------------------------------------------
 	def on_mark_reviewed(self, event):
-		evt.Skip()
+		# look for checkmark
+		reviewed_req = []
+		for item_idx in range(self.LstCtrl_unreviewed.GetItemCount()):
+			item = self.LstCtrl_unreviewed.GetItem(item_idx, 0)
+			if item.GetImage() == 1:
+				# look up associated request
+				reviewed_req.append(self.dict_req_unreviewed[self.LstCtrl_unreviewed.GetItemData(item_idx)])
+		for req in reviewed_req:
+			req['reviewed'] = 't'
+			#print type(req), req
+			status, error = req.save_payload()
+			# repopulate
+			if status:
+				self.__populate_notebook()
+			else:
+				_log.Log(gmLog.lErr, 'setting request status to reviewed failed %s' % error)
+				gmGuiHelpers.gm_show_error(
+					aMessage = _('Cannot change request status to reviewed.'),
+				aTitle = _('update request status')
+			)
+			return None
+			
+		event.Skip()
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
-		#pass
-		evt.Skip()
+		event.Skip()
+	#-------------------------------------------------------
+	def __on_key_pressed (self, key):
+		"""Is called when a key is pressed."""
+		#key.Skip()
+
+		# user moved down
+		if key.GetKeyCode() == WXK_DOWN:
+			key.Skip()
+			#self.__on_down_arrow(key)
+			return
+		# user moved up
+		if key.GetKeyCode() == WXK_UP:
+			key.Skip()
+			#self.__on_up_arrow(key)
+			return
+
+		# FIXME: need PAGE UP/DOWN//POS1/END here
+			
+		#user pressed <SPACE>
+		if key.GetKeyCode() == WXK_SPACE:
+			self.OnItemSelected(key)
+			return
 	#-------------------------------------------------------
 	def on_lab_selected(self,data):
 		if data is None:
 			self.fld_request_id.SetValue('')
 			return None
-		# get last used id for lab
-		self.lab =  data
-		#guess next id
-		nID = gmPathLab.get_next_request_ID(int(self.lab))
+		# propose new request id
+		nID = gmPathLab.get_next_request_ID(int(data))
 		if not nID is None:
 			# set field to that
 			self.fld_request_id.SetValue(nID)
-#== classes for standalone use ==================================
+		# FIXME : this is needed so save_request_ID knows about the lab
+		self.lab =  data
+		
+#== classes for plugin use ==================================
 if __name__ != '__main__':
 	class cPluginPanel(wxPanel):
 		def __init__(self, parent, id):
@@ -558,7 +646,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.21  2004-05-29 10:22:10  ncq
+# Revision 1.22  2004-05-29 20:20:30  shilbert
+# - review stuff finally works
+#
+# Revision 1.21  2004/05/29 10:22:10  ncq
 # - looking good, just some cleanup/comments as usual
 #
 # Revision 1.20  2004/05/28 21:11:56  shilbert
