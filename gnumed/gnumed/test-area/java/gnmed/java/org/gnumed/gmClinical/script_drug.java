@@ -82,6 +82,9 @@ public class script_drug {
     /** Holds value of property id. */
     private Long id;    
 
+    /** Holds value of property qty. */
+    private Double qty;
+    
    ///////////////////////////////////////
    // access methods for associations
 
@@ -280,6 +283,22 @@ public class script_drug {
      */
     public void setId(Long id) {
         this.id = id;
+    }
+    
+    /** Getter for property qty.
+     * @return Value of property qty.
+     * @hibernate.property
+     */
+    public Double getQty() {
+        return this.qty;
+    }
+    
+    /** Setter for property qty.
+     * @param qty New value of property qty.
+     *
+     */
+    public void setQty(Double qty) {
+        this.qty = qty;
     }
     
  // end setAdjuvant        

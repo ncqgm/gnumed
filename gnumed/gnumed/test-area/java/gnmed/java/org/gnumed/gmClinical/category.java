@@ -103,7 +103,13 @@ public class category {
  */
     public void setId(Long _id) {        
         id = _id;
-    } // end setId        
+    }
+    
+    public String toString() {
+        return getName();
+    }
+    
+ // end setId        
 
 } // end category
 

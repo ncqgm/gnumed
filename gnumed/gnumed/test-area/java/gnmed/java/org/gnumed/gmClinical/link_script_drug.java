@@ -31,7 +31,7 @@ public class link_script_drug {
  * Represents ...
  * </p>
  */
-    private int repeats; 
+    private Integer repeats; 
 
    ///////////////////////////////////////
    // associations
@@ -94,7 +94,7 @@ public class link_script_drug {
  *
  *@hibernate.property
  */
-    public int getRepeats() {        
+    public Integer getRepeats() {        
         return repeats;
     } // end getRepeats        
 
@@ -103,7 +103,7 @@ public class link_script_drug {
  * Represents ...
  * </p>
  */
-    public void setRepeats(int _repeats) {        
+    public void setRepeats(Integer _repeats) {        
         repeats = _repeats;
     } // end setRepeats        
 

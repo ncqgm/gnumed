@@ -41,7 +41,7 @@ public class HibernateInit {
     };
     
     public static Session openSession() throws Exception {
-        if (sessions == null) 
+        if (sessions == null)
             initAll();
         Session s =  sessions.openSession();
         oldSessions.put(s, new Integer(1) );
@@ -82,7 +82,7 @@ public class HibernateInit {
         ds.addClass(identity.class)
         .addClass(Names.class);
         
-         ds.addClass( enum_social_id.class);
+        ds.addClass( enum_social_id.class);
         ds.addClass(social_identity.class);
         
         ds.addClass(identities_addresses.class).
@@ -95,7 +95,7 @@ public class HibernateInit {
         ds.addClass(telephone.class);
         
         ds.addClass(enum_telephone_role.class);
-       
+        
         
         
     }
@@ -111,7 +111,7 @@ public class HibernateInit {
         addClass(clin_root_item.class).
         addClass(enum_encounter_type.class).
         addClass(curr_encounter.class).
-  //      addClass(script.class).
+        //      addClass(script.class).
         
         addClass(enum_allergy_type.class).
         addClass(enum_hx_source.class).
@@ -159,6 +159,8 @@ public class HibernateInit {
     }
     
     public static void initAll() throws Exception {
+        if (sessions != null)
+            return;
         HibernateInit.init();
         HibernateInit.initGmIdentity();
         HibernateInit.initGmClinical();
@@ -167,23 +169,27 @@ public class HibernateInit {
         HibernateInit.exportDatabase();
     }
     
+    static int checkCount = 0;
     private static void checkAccess() throws Exception {
-        int result = javax.swing.JOptionPane.showConfirmDialog( null, "ARE YOU SURE YOU WISH TO RE_INIT THE DATABASE (AND LOSE ALL CURRENT DATA) ?" , "WARNING", javax.swing.JOptionPane.YES_NO_OPTION);
+        int result = javax.swing.JOptionPane.showConfirmDialog( new javax.swing.JFrame(), "ARE YOU SURE YOU WISH TO RE_INIT THE DATABASE (AND LOSE ALL CURRENT DATA) ?" , "WARNING", javax.swing.JOptionPane.YES_NO_OPTION);
         if (result == javax.swing.JOptionPane.YES_OPTION) {
-            checkAccess();
+            if (++checkCount < 2)
+                checkAccess();
+            checkCount = 0;
             return;
         }
         throw new Exception("DENIED RE-CREATION OF DATABASE");
         
-            
+        
     }
     
     public static void exportDatabase() throws Exception {
+        
         //        new net.sf.hibernate.tool.hbm2ddl.SchemaExport(ds).create(true, true);
         String exported = TestProperties.properties.getProperty(SCHEMA_FLAG);
         System.out.println("****    TestProperties.exported="+exported);
-        if ( exported == null ||  !exported.toLowerCase().equals("true") )
-        {
+        if ( exported == null ||  !exported.toLowerCase().equals("true") ) {
+            checkAccess();
             new net.sf.hibernate.tool.hbm2ddl.SchemaExport(ds).create(true, true);
             
             // additional setup to fit drugref database in.
@@ -193,7 +199,7 @@ public class HibernateInit {
             c.close();
             return;
         }
-//        new net.sf.hibernate.tool.hbm2ddl.SchemaUpdate(ds).execute(true);
+        //        new net.sf.hibernate.tool.hbm2ddl.SchemaUpdate(ds).execute(true);
         //        if ( TestProperties.prop.getProperty("exported" ).equals(null) ||
         //        TestProperties.prop.getProperty("exported", "false").equals("false")) {
         //            new net.sf.hibernate.tool.hbm2ddl.SchemaExport(ds).drop(true, true);
