@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -443,29 +443,46 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	names_id_seq,
 	identity_id_seq,
 	urb,
+	urb_id_seq,
 	country,
 	street,
+	street_id_seq,
 	address,
+	address_id_seq,
 	address_external_ref,
+	address_external_ref_id_seq,
 	comm_channel,
+	comm_channel_id_seq,
 	coordinate,
+	coordinate_id_seq,
 	address_info,
+	address_info_id_seq,
 	lnk_person2address,
+	lnk_person2address_id_seq,
 	lnk_person2comm_channel,
+	lnk_person2comm_channel_id_seq,
 	lnk_person2relative,
+	lnk_person2relative_id_seq,	
 	lnk_job2person,
+	lnk_job2person_id_seq,
 	org_address,
+	org_address_id_seq,
 	org,
-	lnk_org2address
+	org_id_seq,
+	lnk_org2address,
+	lnk_org2address_id_seq
 TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.8 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.7  2003-09-21 06:10:06  ihaywood
+-- Revision 1.8  2003-09-21 06:54:13  ihaywood
+-- sane permissions
+--
+-- Revision 1.7  2003/09/21 06:10:06  ihaywood
 -- sane permissions for gmDemographics
 --
 -- Revision 1.6  2003/08/17 00:23:22  ncq

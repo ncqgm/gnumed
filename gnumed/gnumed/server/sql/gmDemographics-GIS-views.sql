@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -25,14 +25,12 @@ select
 	urb.name as city,
 	adr.number as number,
 	str.name as street,
-	adr.addendum as street2,
-	typ.name as address_at
+	adr.addendum as street2
 from
 	address adr,
 	state s,
 	urb,
-	street str,
-	address_type typ
+	street str
 where
 	adr.id_street = str.id
 		and
@@ -355,13 +353,29 @@ create view v_zip2data as
 comment on view v_zip2data is
 	'aggregates all known data per zip code';
 
+GRANT select ON
+	v_basic_address,
+	v_home_address,
+	v_zip2street,
+	v_zip2urb,
+	v_zip2data
+TO GROUP "gm-doctors";
+
+GRANT select, delete, update ON
+	v_basic_address
+TO GROUP "_gm-doctors";
+
+
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.6 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.5  2003-08-10 15:18:22  ncq
+-- Revision 1.6  2003-09-21 06:54:13  ihaywood
+-- sane permissions
+--
+-- Revision 1.5  2003/08/10 15:18:22  ncq
 -- - eventually make the zip2data view work with help from Mike Mascari (pgsql-general)
 --
 -- Revision 1.4  2003/08/10 01:26:50  ncq
