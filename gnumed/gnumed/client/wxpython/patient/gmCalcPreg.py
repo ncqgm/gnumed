@@ -7,8 +7,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
-# $Id: gmCalcPreg.py,v 1.12 2003-01-24 05:28:15 michaelb Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmCalcPreg.py,v 1.13 2003-02-03 16:32:34 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "I.Haywood, M.Bonert"
 
 from wxPython.wx import *
@@ -49,8 +49,8 @@ class PregnancyFrame (wxFrame):
 		icon.CopyFromBitmap(self.getBitmap())
 		self.SetIcon(icon)
 
+		# create the text label 'LNMP' 
 		self.dyntxt = wxStaticText (self, -1, _('LNMP'),(5,5))
-		self.handle4dyntxt=self.dyntxt
 
 		vbox = wxBoxSizer (wxVERTICAL)
 		vbox.Add (self.dyntxt, 0, wxALL, 5)
@@ -99,7 +99,7 @@ class PregnancyFrame (wxFrame):
 		due = LNMP + GESTATION
 		gest = today - LNMP
 		if gest < 0:
-			self.handle4dyntxt.SetLabel(_('Future LNMP'))
+			self.dyntxt.SetLabel(_('Future LNMP'))
 
 			day =- math.ceil(1.*( (LNMP - today) % WEEK ) / DAY)
 			if(day== -7):
@@ -114,7 +114,7 @@ class PregnancyFrame (wxFrame):
 			self.due_cal.SetDate(duedate)
 
 		else:
-			self.handle4dyntxt.SetLabel(_('LNMP'))
+			self.dyntxt.SetLabel(_('LNMP'))
 
 			self.gest_week_ctrl.SetValue(gest / WEEK)
 			self.gest_day_ctrl.SetValue((gest % WEEK) / DAY)
@@ -183,7 +183,10 @@ else:
 
 #=====================================================================
 # $Log: gmCalcPreg.py,v $
-# Revision 1.12  2003-01-24 05:28:15  michaelb
+# Revision 1.13  2003-02-03 16:32:34  ncq
+# - cleaned up handling of self.dyntxt vs. self.handle4dyntxt
+#
+# Revision 1.12  2003/01/24 05:28:15  michaelb
 # fixed text display, fixed a bug in the gestation calculation (for Future LNMP values)
 #
 # Revision 1.11  2003/01/23 11:04:33  ncq
