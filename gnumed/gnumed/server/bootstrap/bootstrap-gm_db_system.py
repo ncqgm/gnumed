@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -824,7 +824,7 @@ class gmService:
 		# now check if the according database is already known to gnumed
 		# no need to store the core database definition
 		if self.db is coreDB:
-			_log.Log(gmLog.lInfo, "Service [%s] resides on core database." % self.name)
+			_log.Log(gmLog.lInfo, "Service [%s] resides in core database." % self.name)
 			_log.Log(gmLog.lInfo, "It will be automatically recognized by GnuMed.")
 			curs.close()
 			return 1
@@ -1082,7 +1082,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.13  2003-05-26 13:53:28  ncq
+# Revision 1.14  2003-06-03 13:47:38  ncq
+# - fix grammar
+#
+# Revision 1.13  2003/05/26 13:53:28  ncq
 # - slightly changed semantics for passwords:
 #   - no option: ask user or die
 #   - option set to empty: assume NONE password for IDENT/TRUST connect
