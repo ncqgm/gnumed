@@ -20,7 +20,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 
 __log__ = gmLog.gmDefLog
 #============================================================
@@ -246,6 +246,14 @@ class cMatchProvider_FixedList(cMatchProvider):
 
 		matches.sort(self.__cmp_items)
 		return (1, matches)
+	#--------------------------------------------------------
+	def setItems(self, aSeq = None):
+		"""Set the item list."""
+		if aSeq is None:
+			return None
+		if type(aSeq) != types.ListType:
+			return None
+		self.__items = aSeq
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
 		"""Compare items based on weight."""
