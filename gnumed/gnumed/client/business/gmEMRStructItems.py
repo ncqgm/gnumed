@@ -3,13 +3,13 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions
-from Gnumed.business import gmClinItem
+from Gnumed.business import gmClinItem, gmClinNarrative
 from Gnumed.pycommon.gmPyCompat import *
 
 import mx.DateTime as mxDT
@@ -146,27 +146,37 @@ class cEncounter(gmClinItem.cClinItem):
 			return False
 		return True
 	#--------------------------------------------------------
-	def get_RFEs(self, episodes=None):
-		"""Get RFEs pertinent to this encounter.
-
-		episodes: list of episodes to filter by
+	def get_rfes(self):
+		"""
+            Get RFEs pertinent to this encounter.
 		"""
 		vals = {'enc': self.pk_obj}
-		if episodes is None:
-			cmd = """select narrative from clin_rfe where fk_encounter=%(enc)s"""
-		else:
-			# ugly hack
-			if len(episodes) == 1:
-				cmd = """select narrative from clin_rfe where fk_encounter=%(enc)s and fk_episode=%(epi)s"""
-				vals['epi'] = episodes[0]
-			else:
-				cmd = """select narrative from clin_rfe where fk_encounter=%(enc)s and fk_episode in %(epi)s"""
-				vals['epi'] = episodes
-		data = gmPG.run_ro_query('historica', cmd, None, vals)
-		if data is None:
-			_log.Log(gmLog.lErr, 'cannot get RFEs for encounter [%s] (episodes: [%s]' % (self.pk_obj, episodes))
+		# FIXME: from v_rfe
+		cmd = """select pk from clin_narrative where fk_encounter=%(enc)s and is_rfe=true"""
+		rows = gmPG.run_ro_query('historica', cmd, None, vals)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot get RFEs for encounter [%s]' % (self.pk_obj))
 			return None
-		return data
+		rfes = []
+		for row in rows:
+		    rfes.append(cRFE(aPK_obj=row[0]))
+		return rfes
+	#--------------------------------------------------------
+	def get_aoes(self):
+		"""
+            Get AOEs pertinent to this encounter.
+		"""
+		vals = {'enc': self.pk_obj}
+		# FIXME: from v_aoe
+		cmd = """select pk from clin_narrative where fk_encounter=%(enc)s and is_aoe=true"""
+		rows = gmPG.run_ro_query('historica', cmd, None, vals)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot get AOEs for encounter [%s]' % (self.pk_obj))
+			return None
+		aoes = []
+		for row in rows:
+		  aoes.append(cAOE(aPK_obj=row[0]))
+		return aoes
 	#--------------------------------------------------------
 	def set_attached_to(self, staff_id=None):
 #		"""Attach staff/provider to the encounter.
@@ -300,7 +310,7 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 
-	print "health issue test"
+	print "\nhealth issue test"
 	print "-----------------"
 	h_issue = cHealthIssue(aPK_obj=1)
 	print h_issue
@@ -310,7 +320,7 @@ if __name__ == '__main__':
 	print "updatable:", h_issue.get_updatable_fields()
 	
 
-	print "episode test"
+	print "\nepisode test"
 	print "------------"
 	episode = cEpisode(aPK_obj=1)
 	print episode
@@ -319,7 +329,7 @@ if __name__ == '__main__':
 		print field, ':', episode[field]
 	print "updatable:", episode.get_updatable_fields()
 
-	print "encounter test"
+	print "\nencounter test"
 	print "--------------"
 	encounter = cEncounter(aPK_obj=1)
 	print encounter
@@ -327,9 +337,33 @@ if __name__ == '__main__':
 	for field in fields:
 		print field, ':', encounter[field]
 	print "updatable:", encounter.get_updatable_fields()
+	rfes = encounter.get_rfes()
+	print "rfes: "
+	for rfe in rfes:
+	    print "\n   rfe test"
+	    print "   --------"
+	    for field in rfe.get_fields():
+	        print '  ', field, ':', rfe[field]
+	    print "   updatable:", rfe.get_updatable_fields()
+	    
+	aoes = encounter.get_aoes()
+	for aoe in aoes:
+	    print "\n   aoe test"
+	    print "   --------"
+	    for field in aoe.get_fields():
+	        print '  ', field, ':', aoe[field]
+	    print "   updatable:", aoe.get_updatable_fields()
+	    print "   is diagnosis: " , aoe.is_diagnosis()
+	    if aoe.is_diagnosis():
+	        print "   diagnosis: ", aoe.get_diagnosis()
+	    
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.19  2004-06-30 20:34:37  ncq
+# Revision 1.20  2004-07-04 13:24:31  ncq
+# - add cRFE/cAOE
+# - use in get_rfes(), get_aoes()
+#
+# Revision 1.19  2004/06/30 20:34:37  ncq
 # - cEncounter.get_RFEs()
 #
 # Revision 1.18  2004/06/26 23:45:50  ncq
