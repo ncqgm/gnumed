@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.134 2004-01-04 09:33:32 ihaywood Exp $
-__version__ = "$Revision: 1.134 $"
+# $Id: gmGuiMain.py,v 1.135 2004-01-06 10:05:21 ncq Exp $
+__version__ = "$Revision: 1.135 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -406,11 +406,12 @@ class gmTopLevelFrame(wxFrame):
 				'"%s".\n'
 				'started : %s\n'
 				'affirmed: %s\n'
-				'type: %s\tstatus: %s\n'
+				'type    : %s\n'
+				'status  : %s\n'
 				'description: %s\n\n'
 				'Do you want to reactivate this encounter ?\n'
 				'Hitting "No" will start a new one.'
-			) % (pat_string, encounter['type'], encounter['started'], encounter['affirmed'], encounter['status'], encounter['comment'])
+			) % (pat_string, encounter['started'], encounter['affirmed'], encounter['type'], encounter['status'], encounter['comment'])
 			result = gmGuiHelpers.gm_show_question(msg, _('recording patient encounter'))
 			# attach to existing
 			if result == 1:
@@ -740,6 +741,7 @@ class gmApp(wxApp):
 		cmd = "select set_curr_lang(%s) "
 		for lang in [system_locale_level['full'], system_locale_level['country'], system_locale_level['language']]:
 			if len (lang) > 0:
+				# FIXME: we would need to run that on all databases we connect to ...
 				result = gmPG.run_commit('default', [
 					(cmd, [lang])
 					])
@@ -769,7 +771,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.134  2004-01-04 09:33:32  ihaywood
+# Revision 1.135  2004-01-06 10:05:21  ncq
+# - question dialog on continuing previous encounter was incorrect
+#
+# Revision 1.134  2004/01/04 09:33:32  ihaywood
 # minor bugfixes, can now create new patients, but doesn't update properly
 #
 # Revision 1.133  2003/12/29 23:32:56  ncq
