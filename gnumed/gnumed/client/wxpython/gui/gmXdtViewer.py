@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.12 2004-03-19 10:20:29 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmXdtViewer.py,v 1.13 2004-03-19 10:22:12 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, fileinput, string
@@ -258,13 +258,13 @@ if __name__ == '__main__':
 				# file valid ?
 				if not os.access(fname, R_OK):
 					title = _('Opening xDT file')
-					msg = _('Error opening xDT file. Aborting\n'
+					msg = _('Cannot open xDT file.\n'
 							'[%s]') % fname
 					gmGuiHelpers.gm_show_error(msg, title, gmLog.lErr)
 					return False
 			else:
 				title = _('Opening xDT file')
-				msg = _('No xDT file given on command line.\n'
+				msg = _('You must provide an xDT file on the command line.\n'
 						'Format: --xdt-file=<file>')
 				gmGuiHelpers.gm_show_error(msg, title, gmLog.lWarn)
 				return False
@@ -330,7 +330,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.12  2004-03-19 10:20:29  ncq
+# Revision 1.13  2004-03-19 10:22:12  ncq
+# - even better help
+#
+# Revision 1.12  2004/03/19 10:20:29  ncq
 # - in standalone, display nice message upon xdt file load errors
 #
 # Revision 1.11  2004/03/19 08:27:50  ncq
