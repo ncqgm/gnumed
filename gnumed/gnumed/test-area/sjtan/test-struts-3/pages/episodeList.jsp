@@ -22,6 +22,8 @@
             property="healthSummary.clinEpisodes"
             indexId="index"
             >
+	    <bean:size id="sizeItems" name="episode" property="rootItems"/>
+	    <logic:greaterThan name="sizeItems" value="0">
             <tr>
             <td>
              
@@ -56,6 +58,7 @@
                 </nested:iterate>
             </td>
             </tr>
+	    </logic:greaterThan>
         </logic:iterate>
     </table>
     <a name="episodeListLast"/>
