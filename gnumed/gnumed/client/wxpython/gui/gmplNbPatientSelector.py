@@ -23,8 +23,10 @@ class gmplNbPatientSelector(gmPlugin.wxNotebookPlugin):
 	"""
 	Plugin to encapsulate a patient selection panel
 	"""
+	tab_name = _('Pat Selector')
+
 	def name (self):
-		return 'Patient Selector'
+		return gmplNbPatientSelector.tab_name
 
 	def description(self):
 		return __doc__
