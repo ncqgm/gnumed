@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.5 2003-03-25 12:37:20 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmMedDoc.py,v 1.6 2003-03-30 00:18:32 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil
@@ -558,7 +558,7 @@ def call_viewer_on_file(aFile = None):
 	_log.Log(gmLog.lErr, "Cannot determine viewer via standard mailcap mechanism.")
 	if os.name == "posix":
 		_log.Log(gmLog.lErr, "You should add a viewer for this mime type to your mailcap file.")
-		msg = _("Unable to start viewer on file\[%s]\nYou need to update your mailcap file.") % aFile
+		msg = _("Unable to start viewer on file\n[%s]\nYou need to update your mailcap file.") % aFile
 		return None, msg
 	else:
 		_log.Log(gmLog.lWarn, "Let's see what the OS can do about that.")
@@ -595,7 +595,10 @@ def call_viewer_on_file(aFile = None):
 	return 1, ""
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.5  2003-03-25 12:37:20  ncq
+# Revision 1.6  2003-03-30 00:18:32  ncq
+# - typo
+#
+# Revision 1.5  2003/03/25 12:37:20  ncq
 # - use gmPG helpers
 # - clean up code
 # - __update_data/metadata - this worked for moving between databases !
