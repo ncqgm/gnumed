@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.41 2004-01-26 18:26:04 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.42 2004-01-26 20:08:16 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -339,7 +339,7 @@ select
 	vdef.min_interval as min_interval,
 	coalesce(vdef.comment, '') as vacc_comment,
 	vind.id as pk_indication,
-	vreg.pk_recommended_by
+	vreg.fk_recommended_by as pk_recommended_by
 from
 	vacc_regime vreg,
 	vacc_indication vind,
@@ -601,11 +601,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.41 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.42 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.41  2004-01-26 18:26:04  ncq
+-- Revision 1.42  2004-01-26 20:08:16  ncq
+-- - fk_recommended_by as pk_recommended_by
+--
+-- Revision 1.41  2004/01/26 18:26:04  ncq
 -- - add/rename some FKs in views
 --
 -- Revision 1.40  2004/01/18 21:56:38  ncq
