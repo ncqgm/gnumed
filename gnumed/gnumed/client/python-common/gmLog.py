@@ -51,7 +51,7 @@ Usage:
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 import sys, time, traceback, os.path, atexit, os, string, getopt
@@ -427,6 +427,7 @@ class cLogTargetEMail(cLogTarget):
 		# do our extra work
 		self.__from = str(aFrom)
 		self.__to = string.join(aTo, ", ")
+		self.__comment = ""
 
 		import smtplib
 		print anSMTPServer
@@ -441,6 +442,12 @@ class cLogTargetEMail(cLogTarget):
 	def close(self):
 		cLogTarget.close(self)
 		self.__smtpd.close()
+	#---------------------------
+	def setFrom (self, aFrom):
+		self.__from = str(aFrom)
+	#---------------------------
+	def setComment (self, aComment):
+		self.__comment = str(aComment)
 	#---------------------------
 	def setSysDump (self, aFlag):
 		"""Whether to include various system info when flush()ing.
@@ -470,7 +477,8 @@ class cLogTargetEMail(cLogTarget):
 			return (1==1)
 		# any message larger than max_line_size is truncated
 		if len(aMsg) > self.__max_line_size:
-			aMsg[self.__max_line_size:] = " [...]\n"
+			tmp = aMsg[:self.__max_line_size]
+			aMsg = tmp = " [...]\n"
 		# drop oldest msg from buffer if buffer full
 		if len(self.__msg_buffer) >= self.__max_buf_len:
 			self.__msg_buffer.pop(0)
@@ -478,14 +486,18 @@ class cLogTargetEMail(cLogTarget):
 		self.__msg_buffer.append(aTimeStamp + aPrefix + aLocation + aMsg)
 	#---------------------------
 	def flush(self):
-		# create mail header
+		# create mail headers
 		msg = ''
 		msg = msg + 'From: %s\n' % self.__from
 		msg = msg + 'To: %s\n' % self.__to
 		msg = msg + 'Date: %s\n' % time.strftime("%a, %d %b %Y %H:%M:%S %Z", time.localtime(time.time()))
 		msg = msg + 'Subject: gmLog error log demon\n'
 		msg = msg + '\n'
+
 		# create mail body
+		# - dump comment
+		msg = msg + self.__comment
+
 		# - dump system info
 		if self.__dump_sys_info:
 			msg = msg + 'sys.version : %s\n' % sys.version
