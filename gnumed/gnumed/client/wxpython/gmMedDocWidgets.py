@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -39,7 +39,6 @@ class cDocTree(wxTreeCtrl):
 		"""
 		wxTreeCtrl.__init__(self, parent, id, style=wxTR_NO_BUTTONS)
 		self.root = None
-		self.__doc_list = None
 		self.__pat = gmPatient.gmCurrentPatient()
 
 		self.__register_events()
@@ -51,15 +50,14 @@ class cDocTree(wxTreeCtrl):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# connect handlers
-		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
-		EVT_TREE_ITEM_RIGHT_CLICK(self, self.GetId(), self.__on_right_click)
+		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.__on_activate)
+		EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self.__on_right_click)
 
 #		 EVT_TREE_ITEM_EXPANDED	 (self, tID, self.OnItemExpanded)
 #		 EVT_TREE_ITEM_COLLAPSED (self, tID, self.OnItemCollapsed)
 #		 EVT_TREE_SEL_CHANGED	 (self, tID, self.OnSelChanged)
 #		 EVT_TREE_BEGIN_LABEL_EDIT(self, tID, self.OnBeginEdit)
 #		 EVT_TREE_END_LABEL_EDIT (self, tID, self.OnEndEdit)
-#		 EVT_TREE_ITEM_ACTIVATED (self, tID, self.OnActivate)
 
 #		 EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 	#--------------------------------------------------------
@@ -70,9 +68,6 @@ class cDocTree(wxTreeCtrl):
 				gmLog.lErr
 			)
 			return False
-
-		if self.__doc_list is not None:
-			del self.__doc_list
 
 		if not self.__populate_tree():
 			return False
@@ -93,8 +88,8 @@ class cDocTree(wxTreeCtrl):
 
 		# read documents from database
 		docs_folder = self.__pat.get_document_folder()
-		doc_ids = docs_folder.get_doc_list()
-		if doc_ids is None:
+		docs = docs_folder.get_documents()
+		if docs is None or len(docs) == 0:
 			name = self.__pat['demographic record'].get_names()
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Cannot find any documents for patient\n[%s %s].') % (name['first'], name['last']),
@@ -106,116 +101,107 @@ class cDocTree(wxTreeCtrl):
 		self.SetItemHasChildren(self.root, True)
 
 		# add our documents as first level nodes
-		self.__doc_list = {}
-		for doc_id in doc_ids:
-			try:
-				doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
-			except:
-				continue
+		for doc in docs:
+			if doc['comment'] is not None:
+				cmt = '"%s"' % doc['comment']
+			else:
+				cmt = _('no comment available')
 
-			self.__doc_list[doc_id] = doc
-			mdata = doc.get_metadata()
-			# FIXME: rework !! display "doc error" on error
-			date = '%10s' % mdata['date'] + " " * 10
-			typ = '%s' % mdata['type'] + " " * 25
-			if mdata['comment'] is not None:
-				cmt = '"%s"' % mdata['comment'] + " " * 25
+			parts = doc.get_parts()
+			page_num = len(parts)
+
+			if doc['ext_ref'] is not None:
+				ref = '>%s<' % doc['ext_ref']
 			else:
-				cmt = ' ' * 25
-			if mdata['reference'] is not None:
-				ref = mdata['reference'] + " " * 15
-			else:
-				ref = ' ' * 15
-			page_num = str(len(mdata['objects']))
-			tmp = _('%s %s: %s (%s pages, %s)')
-			# FIXME: handle date correctly
-			label =	 tmp % (date[:10], typ[:25], cmt[:25], page_num, ref[:15])
+				ref = _('no reference ID found')
+
+			label = _('%10s %25s: %s (%s page(s), %s)') % (
+				doc['date'].Format('%Y-%m-%d').ljust(10),
+				doc['l10n_type'].ljust(25),
+				cmt,
+				page_num,
+				ref
+			)
+
 			doc_node = self.AppendItem(self.root, label)
 			self.SetItemBold(doc_node, bold=True)
-			# id: doc_med.id for access
-			# date: for sorting
-			data = {
-				'type': 'document',
-				'id': doc_id,
-				'date': mdata['date']
-			}
-			self.SetPyData(doc_node, data)
-			self.SetItemHasChildren(doc_node, True)
+			self.SetPyData(doc_node, doc)
+			if len(parts) > 0:
+				self.SetItemHasChildren(doc_node, True)
 
-			# now add objects as child nodes
-			for obj_id in mdata['objects'].keys():
-				obj = mdata['objects'][obj_id]
-				p = str(obj['index']) +	 " "
-				c = str(obj['comment'])
-				s = str(obj['size'])
-				if c == "None":
+			# now add parts as child nodes
+			for part in parts:
+				p = _('page %2s') % part['seq_idx']
+
+				if part['obj_comment'] is None:
 					c = _("no comment available")
-				tmp = _('page %s: \"%s\" (%s bytes)')
-				label = tmp % (p[:2], c, s)
-				obj_node = self.AppendItem(doc_node, label)
-				# id = doc_med.id for retrival
-				# seq_idx for sorting
-				data = {
-					'type': 'object',
-					'id': obj_id,
-					'seq_idx': obj['index']
-				}
-				self.SetPyData(obj_node, data)
+				else:
+					c = part['obj_comment']
+
+				if part['size'] == 0:
+					s = _('0 bytes - data missing')
+				else:
+					s = _('%s bytes') % part['size']
+
+				label = _('%s: "%s" (%s)') % (p, c, s)
+
+				part_node = self.AppendItem(doc_node, label)
+				self.SetPyData(part_node, part)
 
 		# and uncollapse
 		self.Expand(self.root)
 
 		return True
 	#------------------------------------------------------------------------
-	def OnCompareItems (self, item1, item2):
+	def OnCompareItems (self, node1=None, node2=None):
 		"""Used in sorting items.
 
-		-1 - 1 < 2
-		 0 - 1 = 2
-		 1 - 1 > 2
+		-1: 1 < 2
+		 0: 1 = 2
+		 1: 1 > 2
 		"""
-		data1 = self.GetPyData(item1)
-		data2 = self.GetPyData(item2)
+		item1 = self.GetPyData(node1)
+		item2 = self.GetPyData(node2)
 
 		# doc node
-		if data1['type'] == 'document':
+		if isinstance(item1, gmMedDoc.cMedDoc):
 			# compare dates
-			if data1['date'] > data2['date']:
+			if item1['date'] > item2['date']:
 				return -1
-			elif data1['date'] == data2['date']:
+			if item1['date'] == item2['date']:
 				return 0
 			return 1
-		# object node
-		elif data1['type'] == 'object':
+		# part node
+		if isinstance(item1, gmMedDoc.cMedDocPart):
 			# compare sequence IDs (= "page" numbers)
-			if data1['seq_idx'] < data2['seq_idx']:
+			if item1['seq_idx'] < item2['seq_idx']:
 				return -1
-			elif data1['seq_idx'] == data2['seq_idx']:
+			if item1['seq_idx'] == item2['seq_idx']:
 				return 0
 			return 1
+		# error out
+		_log.Log(gmLog.lErr, 'do not know how to compare [%s] with [%s]' % (type(item1), type(item2)))
+		return None
 	#------------------------------------------------------------------------
-	def OnActivate (self, event):
-		item = event.GetItem()
-		node_data = self.GetPyData(item)
+	def __on_activate (self, event):
+		node = event.GetItem()
+		node_data = self.GetPyData(node)
 
 		# exclude pseudo root node
 		if node_data is None:
 			return None
 
 		# do nothing with documents yet
-		if node_data['type'] == 'document':
+		if isinstance(node_data, gmMedDoc.cMedDoc):
 			return None
 
-		# but do everything with objects
-		obj_id = node_data['id']
-		_log.Log(gmLog.lData, "User selected object [%s]" % obj_id)
-
+		# but do everything with parts
 		if __name__ == "__main__":
 			tmp = "unknown_workplace"
 		else:
 			tmp = _whoami.get_workplace()
 
-		exp_base, set = gmCfg.setDBParam (
+		exp_base, set = gmCfg.getDBParam (
 			workplace = tmp,
 			option = "doc export dir"
 		)
@@ -228,13 +214,10 @@ class cDocTree(wxTreeCtrl):
 		else:
 			_log.Log(gmLog.lData, "working into directory [%s]" % exp_base)
 
-		# instantiate object
-		try:
-			obj = gmMedDoc.gmMedObj(aPKey = obj_id)
-		except:
-			_log.LogException('Cannot instantiate object [%s]' % obj_id, sys.exc_info())
+		if node_data['size'] == 0:
+			_log.Log(gmLog.lErr, 'cannot display part [%s] - 0 bytes' % node_data['pk_obj'])
 			gmGuiHelpers.gm_show_error(
-				aMessage = _('Document part does not seem to exist in database !!'),
+				aMessage = _('Document part does not seem to exist in database !'),
 				aTitle = _('showing document')
 			)
 			return None
@@ -242,8 +225,7 @@ class cDocTree(wxTreeCtrl):
 		if __name__ == "__main__":
 			chunksize = None
 		else:
-			gb = gmGuiBroker.GuiBroker()
-			chunksize, set = gmCfg.setDBParam (
+			chunksize, set = gmCfg.getDBParam (
 				workplace = _whoami.get_workplace(),
 				option = "doc export chunk size"
 			)
@@ -251,13 +233,10 @@ class cDocTree(wxTreeCtrl):
 			# 1 MB
 			chunksize = 1 * 1024 * 1024
 
-		# make sure metadata is there
-		tmp = obj.get_metadata()
-
-		# retrieve object
-		fname = obj.export_to_file(aTempDir = exp_base, aChunkSize = chunksize)
+		# retrieve doc part
+		fname = node_data.export_to_file(aTempDir = exp_base, aChunkSize = chunksize)
 		if fname is None:
-			_log.Log(gmLog.lErr, "Cannot export object [%s] data from database !" % node_data['id'])
+			_log.Log(gmLog.lErr, "cannot export doc part [%s] data from database" % node_data['pk_obj'])
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Cannot export document part from database to file.'),
 				aTitle = _('showing document')
@@ -267,42 +246,32 @@ class cDocTree(wxTreeCtrl):
 		(result, msg) = gmMimeLib.call_viewer_on_file(fname)
 		if not result:
 			gmGuiHelpers.gm_show_error(
-				aMessage = _('Cannot display object.\n%s.') % msg,
+				aMessage = _('Cannot display document part:\n%s') % msg,
 				aTitle = _('displaying page')
 			)
 			return None
 		return 1
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
-		item = evt.GetItem()
-		node_data = self.GetPyData(item)
+		node = evt.GetItem()
+		node_data = self.GetPyData(node)
 
 		# exclude pseudo root node
 		if node_data is None:
 			return None
 
-		# objects
-		if node_data['type'] == 'object':
-			self.__handle_obj_context(node_data)
-
 		# documents
-		if node_data['type'] == 'document':
-			self.__handle_doc_context(node_data)
+		if isinstance(node_data, gmMedDoc.cMedDoc):
+			self.__handle_doc_context(doc=node_data)
 
+		# parts
+		if isinstance(node_data, gmMedDoc.cMedDocPart):
+			self.__handle_part_context(node_data)
 		evt.Skip()
 	#--------------------------------------------------------
-	def __handle_doc_context(self, data):
-		doc_id = data['id']
-		try:
-			doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
-		except:
-			_log.LogException('Cannot init document [%s]' % doc_id, sys.exc_info())
-			# FIXME: message box
-			return None
-
-		descriptions = doc['descriptions']
-
+	def __handle_doc_context(self, doc=None):
 		# build menu
+		descriptions = doc.get_descriptions()
 		wxIDs_desc = []
 		desc_menu = wxMenu()
 		for desc in descriptions:
@@ -310,7 +279,7 @@ class cDocTree(wxTreeCtrl):
 			wxIDs_desc.append(d_id)
 			# contract string
 			tmp = re.split('\r\n+|\r+|\n+|\s+|\t+', desc)
-			tmp = string.join(tmp, ' ')
+			tmp = ' '.join(tmp)
 			# but only use first 30 characters
 			tmp = "%s ..." % tmp[:30]
 			desc_menu.AppendItem(wxMenuItem(desc_menu, d_id, tmp))
@@ -325,8 +294,8 @@ class cDocTree(wxTreeCtrl):
 	def __show_description(self, evt):
 		print "showing description"
 	#--------------------------------------------------------
-	def __handle_obj_context(self, data):
-		print "handling object context menu"
+	def __handle_part_context(self, data):
+		print "handling doc part context menu"
 #============================================================
 # main
 #------------------------------------------------------------
@@ -335,7 +304,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.5  2004-10-01 13:34:26  ncq
+# Revision 1.6  2004-10-11 19:56:03  ncq
+# - cleanup, robustify, attach doc/part VO directly to node
+#
+# Revision 1.5  2004/10/01 13:34:26  ncq
 # - don't fail to display just because some metadata is missing
 #
 # Revision 1.4  2004/09/19 15:10:44  ncq
