@@ -224,6 +224,9 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
 	 * @see org.gnumed.testweb1.data.DataObjectFactory#getResourceString(java.lang.String)
 	 */
 	public String getResourceString(String key) {
+	    if ( getBundle() == null) {
+	        log.info("WARNING: no bundler found in "+this);
+	    }
 		return getBundle().getString(key);
 	}
 

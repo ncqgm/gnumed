@@ -1,8 +1,7 @@
 /*
  * Created on 21-Oct-2004
  *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * field names for gnumed schema mapped to string names.
  */
 package org.gnumed.testweb1.persist.scripted.gnumed.medication;
 

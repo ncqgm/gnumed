@@ -25,13 +25,19 @@ public class BasicPlugin {
 	Log log = LogFactory.getLog(this.getClass());
 	protected ResourceBundle getResourceBundle(org.apache.struts.config.ModuleConfig moduleConfig) {
 		ResourceBundle bundle = null;
+		String resourceParameter =null;
 		try {
-		    String resourceParameter = moduleConfig.findMessageResourcesConfig("org.apache.struts.action.MESSAGE").getParameter();
+		    resourceParameter = moduleConfig.findMessageResourcesConfig("org.apache.struts.action.MESSAGE").getParameter();
 		    
 		    bundle = PropertyResourceBundle.getBundle(resourceParameter);
+		    if (bundle == null) {
+		        log.error("CANNOT FIND RESOURCE BUNDLE FROM " + resourceParameter + " from moduleConfig.findMessageResourcesConfig(\"org.apache.struts.action.MESSAGE\").getParameter()");
+		    }
 		} catch (Exception e) {
 		    log.error(e);
 		}
+		
+		log.info( "RETURNING BUNDLE FOR " + bundle + " using " + resourceParameter);
 		return bundle;
 	}
 }

@@ -13,6 +13,7 @@ package org.gnumed.testweb1.actions;
  */
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -55,14 +56,7 @@ public class ClinicalSaveAction extends Action {
 		ActionMessages messages = new ActionMessages();
 
 		try {
-			//            Enumeration en1 = request.getSession().getAttributeNames() ;
-			//            while(en1.hasMoreElements()) {
-			//                log.info("Session has attribute " + en1.nextElement());
-			//            }
-			//            String[] ss = request.getSession().getValueNames();
-			//            for (int i =0; i < ss.length; ++i) {
-			//                log.info("And object value names = " + ss[i]);
-			//            }
+			debugRequestAttributes(request);
 
 			Map map = new java.util.HashMap();
 
@@ -73,48 +67,9 @@ public class ClinicalSaveAction extends Action {
 			ClinicalUpdateForm cform = (ClinicalUpdateForm) form;
 			cform.linkObjects();
 
-			//     log.info("TEST ATTRIBUTE FROM "+cform + " = "+cform.getTest());
+			debugVaccinations(cform);
 
-			List l = cform.getVaccinations();
-
-			Iterator i = l.iterator();
-                        // logging exceptional event : no vaccinations
-			if (!i.hasNext()) {
-				log.info("****");
-				log.info("No Vaccinations found.");
-				log.info("****");
-			}
-                        
-                        // logging which vaccinations present
-			while (i.hasNext()) {
-				Vaccination v = (Vaccination) i.next();
-				if (v.getVaccineGiven() == null
-						|| v.getVaccineGiven().trim().equals("")) {
-					log.info("GOT " + v + " which was empty");
-				} else {
-					log.info("GOT vaccineGiven" + v.getVaccineGiven() + " on "
-							+ v.getDateGivenString() + " batch no ="
-							+ v.getBatchNo() + " , and site given = "
-							+ v.getSite());
-				}
-			}
-
-			List l2 = cform.getNarratives();
-			if (l2.equals(cform.getEncounter().getNarratives())) {
-				log.info("The narratives are the same in the form");
-			}
-			System.err.println("There are " + l2.size() + "NARRATIVES");
-			Iterator j = l2.iterator();
-			int ix = 0;
-			while (j.hasNext()) {
-				ClinNarrative n = (ClinNarrative) j.next();
-				log.info("narrative #" + ix + "found with text "
-						+ n.getNarrative() + ">");
-				log.info("Health issue name for " + n + " was "
-						+ n.getHealthIssueName());
-				log.info("Narrative SOAP CAT " + n.getSoapCat());
-				++ix;
-			}
+			debugNarratives(cform);
 
 			HealthRecordAccess01 access = (HealthRecordAccess01) servlet
 					.getServletContext().getAttribute(
@@ -154,6 +109,73 @@ public class ClinicalSaveAction extends Action {
 			return mapping.getInputForward();
 		}
 
+	}
+
+	/**
+	 * @param request
+	 */
+	private void debugRequestAttributes(HttpServletRequest request) {
+		Enumeration en1 = request.getSession().getAttributeNames() ;
+		while(en1.hasMoreElements()) {
+		    log.info("Session has attribute " + en1.nextElement());
+		}
+		String[] ss = request.getSession().getValueNames();
+		for (int i =0; i < ss.length; ++i) {
+		    log.info("And object value names = " + ss[i]);
+		}
+	}
+
+	/**
+	 * @param cform
+	 */
+	private void debugVaccinations(ClinicalUpdateForm cform) {
+		//     log.info("TEST ATTRIBUTE FROM "+cform + " = "+cform.getTest());
+
+		List l = cform.getVaccinations();
+
+		Iterator i = l.iterator();
+		// logging exceptional event : no vaccinations
+		if (!i.hasNext()) {
+			log.info("****");
+			log.info("No Vaccinations found.");
+			log.info("****");
+		}
+
+		// logging which vaccinations present
+		while (i.hasNext()) {
+			Vaccination v = (Vaccination) i.next();
+			if (v.getVaccineGiven() == null
+					|| v.getVaccineGiven().trim().equals("")) {
+				log.info("GOT " + v + " which was empty");
+			} else {
+				log.info("GOT vaccineGiven" + v.getVaccineGiven() + " on "
+						+ v.getDateGivenString() + " batch no ="
+						+ v.getBatchNo() + " , and site given = "
+						+ v.getSite());
+			}
+		}
+	}
+
+	/**
+	 * @param cform
+	 */
+	private void debugNarratives(ClinicalUpdateForm cform) {
+		List l2 = cform.getNarratives();
+		if (l2.equals(cform.getEncounter().getNarratives())) {
+			log.info("The narratives are the same in the form");
+		}
+		System.err.println("There are " + l2.size() + "NARRATIVES");
+		Iterator j = l2.iterator();
+		int ix = 0;
+		while (j.hasNext()) {
+			ClinNarrative n = (ClinNarrative) j.next();
+			log.info("narrative #" + ix + "found with text "
+					+ n.getNarrative() + ">");
+			log.info("Health issue name for " + n + " was "
+					+ n.getHealthIssueName());
+			log.info("Narrative SOAP CAT " + n.getSoapCat());
+			++ix;
+		}
 	}
 
 }

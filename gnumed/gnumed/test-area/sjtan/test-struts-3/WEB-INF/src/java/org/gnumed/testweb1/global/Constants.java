@@ -81,7 +81,7 @@ public final class Constants {
         public final static String DEFAULT_VACCINATION_NARRATIVE_RESOURCE_KEY="vaccination.default.narrative";
         public final static String DEFAULT_EPISODE_DESCRIPTION_KEY="default.episode.description";
         public final static String DRUGREF_NAME="drugref";
-        
+        public final static String SOAP_CAT_FOR_CLINROOT_SORT="soap";
         public static final class Medication {
         	private static  Map drugRefToGnumedFormMap = null;
             static Log log = LogFactory.getLog(Medication.class);

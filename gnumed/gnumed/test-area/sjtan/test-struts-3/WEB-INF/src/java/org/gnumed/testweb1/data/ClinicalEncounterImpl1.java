@@ -8,11 +8,13 @@ package org.gnumed.testweb1.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
@@ -174,7 +176,10 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     }
     
     public List getNarratives() {
-        return narratives;
+        Collection sorted = new TreeSet(narratives);
+        
+        log.info("Returning " + sorted + " after sorting narratives");
+        return new ArrayList(sorted);
     }
     
     public void sortRootItems(final java.util.Comparator comparator) {

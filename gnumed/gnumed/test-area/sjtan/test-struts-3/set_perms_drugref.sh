@@ -1,28 +1,43 @@
 #use this script to set the permissions for the users and the databases from the owner of the databases
 
-read_users="_test-doc"
+read_users="any-doc"
+read_groups="gm-doctors"
 #read_databases="drugref gnumed"
 read_databases="drugref"
-
+superuser=postgres
+params=" -U $superuser -h 127.0.0.1"
+pwd_prompt="enter password for $superuser"
 #write_users="_test-doc"
 #write_databases="gnumed"
 
 
 for db in $read_databases ; do
 	echo "get tables"
-	tables=`psql -t -c "select tablename from pg_tables where not tablename like 'pg%';" $db`
+	echo $pwd_prompt
+	tables=`psql -t -c "select tablename from pg_tables where not tablename like 'pg%';" $params $db`
 	echo "get views"
-	views=`psql -t -c "select viewname from pg_views where viewname not like 'pg%';" $db`
+	echo $pwd_prompt
+	views=`psql -t -c "select viewname from pg_views where viewname not like 'pg%';" $params $db`
 
 
-	for user in $read_users; do
-		lines=`
-		for x in $tables $views ; do 
-			echo "grant select , references on $x to \"$user\";"
-		done;`
-	done;
-	echo "granting read rights"
-	echo $lines | psql  $db 
+	lines=`
+		for user in $read_users; do
+			for x in $tables $views ; do 
+				echo "grant select , references on $x to \"$user\";"
+			done;
+		done;
+
+		for group in $read_groups; do		
+			for x in $tables $views; do
+				echo "grant select, references on $x to group \"$group\";"
+			done;
+		done;	
+		
+		`
+	echo "granting read rights on " $db
+	echo "lines are " $lines
+	echo $pwd_prompt
+	echo $lines | psql  $params $db 
 done	
 
 

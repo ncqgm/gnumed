@@ -371,20 +371,29 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			//       };
 			//       removeEmptyNarratives(itemLists);
 			int itemsAttached = 0;
-			itemsAttached = saveNarrativesCollection(encounter, summary,
-					nonFatalExceptions, conn, itemsAttached);
+			itemsAttached += saveNarrativesCollection(encounter, summary,
+					nonFatalExceptions, conn);
 
-			itemsAttached = saveAllergiesCollection(encounter, summary,
-					nonFatalExceptions, conn, itemsAttached);
+			itemsAttached += saveAllergiesCollection(encounter, summary,
+					nonFatalExceptions, conn);
 
-			itemsAttached = saveVitalsCollection(encounter, summary,
-					nonFatalExceptions, conn, itemsAttached);
+			itemsAttached += saveVitalsCollection(encounter, summary,
+					nonFatalExceptions, conn);
 
-			itemsAttached = saveVaccinationsCollection(encounter, summary,
-					nonFatalExceptions, conn, itemsAttached);
+			itemsAttached += saveVaccinationsCollection(encounter, summary,
+					nonFatalExceptions, conn);
 			
-			itemsAttached = saveMedicationCollection(encounter, summary,
-					nonFatalExceptions, conn, itemsAttached);
+			itemsAttached += saveMedicationCollection(encounter, summary,
+					nonFatalExceptions, conn);
+			
+			if (nonFatalExceptions.size() > 0 ) {
+			    Iterator i = nonFatalExceptions.iterator();
+			    while (i.hasNext()) {
+			        Exception exc = (Exception) i.next();
+			        log.info("non fatal exception", exc);
+			        
+			    }
+			}
 			
 			if (itemsAttached == 0) {
 				conn.rollback();
@@ -446,12 +455,11 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	 * @param encounter
 	 * @param nonFatalExceptions
 	 * @param conn
-	 * @param itemsAttached
 	 * @return
 	 */
 	private int saveNarrativesCollection(ClinicalEncounter encounter,
-			HealthSummary01 summary, List nonFatalExceptions, Connection conn,
-			int itemsAttached) {
+			HealthSummary01 summary, List nonFatalExceptions, Connection conn) {
+	    int itemsAttached = 0;
 		for (Iterator i = encounter.getNarratives().iterator(); i.hasNext();) {
 			EntryClinNarrative narrative = (EntryClinNarrative) i.next();
 			if (!narrative.isEntered())
@@ -473,12 +481,11 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	 * @param summary
 	 * @param nonFatalExceptions
 	 * @param conn
-	 * @param itemsAttached
 	 * @return
 	 */
 	private int saveAllergiesCollection(ClinicalEncounter encounter,
-			HealthSummary01 summary, List nonFatalExceptions, Connection conn,
-			int itemsAttached) {
+			HealthSummary01 summary, List nonFatalExceptions, Connection conn) {
+	    int itemsAttached =0;
 		for (Iterator i = encounter.getAllergies().iterator(); i.hasNext();) {
 			try {
 
@@ -500,12 +507,11 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	 * @param summary
 	 * @param nonFatalExceptions
 	 * @param conn
-	 * @param itemsAttached
 	 * @return
 	 */
 	private int saveVitalsCollection(ClinicalEncounter encounter,
-			HealthSummary01 summary, List nonFatalExceptions, Connection conn,
-			int itemsAttached) {
+			HealthSummary01 summary, List nonFatalExceptions, Connection conn) {
+	    int itemsAttached =0;
 		for (Iterator i = encounter.getVitals().iterator(); i.hasNext();) {
 			try {
 				EntryVitals entryVitals = (EntryVitals) i.next();
@@ -525,12 +531,11 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	 * @param encounter
 	 * @param summary
 	 * @param nonFatalExceptions
-	 * @param itemsAttached
 	 * @return
 	 */
 	private int saveVaccinationsCollection(ClinicalEncounter encounter,
-			HealthSummary01 summary, List nonFatalExceptions, Connection conn,
-			int itemsAttached) {
+			HealthSummary01 summary, List nonFatalExceptions, Connection conn) {
+	    int itemsAttached =0;
 		for (Iterator i = encounter.getVaccinations().iterator(); i.hasNext();) {
 			try {
 				EntryVaccination v = (EntryVaccination) i.next();
@@ -547,8 +552,8 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	}
 	
 	private int saveMedicationCollection(ClinicalEncounter encounter,
-			HealthSummary01 summary, List nonFatalExceptions, Connection conn,
-			int itemsAttached) {
+			HealthSummary01 summary, List nonFatalExceptions, Connection conn) {
+	    int itemsAttached =0;
 		for (Iterator i = encounter.getMedications().iterator(); i.hasNext();) {
                     EntryMedication med=null;
 			try {
@@ -598,17 +603,21 @@ throws SQLException, DataSourceException {
 	private ClinicalEpisode findOrCreateEpisode(Connection conn,
 			HealthIssue issue, ClinicalEpisode candidateEpisode)
 			throws DataSourceException, SQLException {
-		if ("".equals(candidateEpisode.getDescription())) {
-			candidateEpisode.setDescription(factory.getResourceString(Schema.DEFAULT_EPISODE_DESCRIPTION_KEY));
-		}
-		
+// don't need description checks after version 0.1	    
+	    
+//		if ("".equals(candidateEpisode.getDescription())) {
+//			candidateEpisode.setDescription(factory.getResourceString(Schema.DEFAULT_EPISODE_DESCRIPTION_KEY));
+//		}
+//		
 		ClinicalEpisode[] episodes = issue.getClinicalEpisodes();
 		ClinicalEpisode theEpisode = null;
 
 		for (int i = 0; i < episodes.length; ++i) {
-			log.info("episodes[i].description=" + episodes[i].getDescription()
-					+ "   candidateEpisodes="
-					+ candidateEpisode.getDescription());
+//		  don't need description checks after version 0.1	    
+			 
+//			log.info("episodes[i].description=" + episodes[i].getDescription()
+//					+ "   candidateEpisodes="
+//					+ candidateEpisode.getDescription());
 			if (episodes[i].equals(candidateEpisode)) {
 
 				theEpisode = episodes[i];
@@ -641,13 +650,22 @@ throws SQLException, DataSourceException {
 		if (theEpisode == null || theEpisode.getId() == null) {
 
 			Integer id = getNextId(conn, "clin_episode_pk_seq");
+//version 0.1
+//			String s3b = "insert into clin_episode( pk, description, fk_health_issue) values( ? , ?, ?)";
+//			PreparedStatement stmt = conn.prepareStatement(s3b);
+//
+//			stmt.setInt(1, id.intValue());
+//			stmt.setString(2, candidateEpisode.getDescription());
+//			stmt.setInt(3, issue.getId().intValue());
 
-			String s3b = "insert into clin_episode( pk, description, fk_health_issue) values( ? , ?, ?)";
+//version 0.2			
+			String s3b = "insert into clin_episode( pk, fk_health_issue) values( ? ,  ?)";
+			
 			PreparedStatement stmt = conn.prepareStatement(s3b);
 
 			stmt.setInt(1, id.intValue());
-			stmt.setString(2, candidateEpisode.getDescription());
-			stmt.setInt(3, issue.getId().intValue());
+//			stmt.setString(2, candidateEpisode.getDescription());
+			stmt.setInt(2, issue.getId().intValue());
 
 			stmt.execute();
 

@@ -15,17 +15,15 @@
     </parameter>
     <parameter>
       <name>url</name>
-      <value>jdbc:postgresql://hherb.com:5432/gnumed</value>
+      <value>jdbc:postgresql://locahost:5432/gnumed</value>
     </parameter>
     <parameter>
       <name>username</name>
-      <!--   <value>sjtan</value> -->
-      <value>_any-doc</value> 
+       <value>any-doc</value> 
     </parameter>
     <parameter>
       <name>password</name>
-      <!-- <value>monica</value> -->
-      <value>any-doc</value>
+        <value>any-doc</value>
     </parameter>
     <parameter>
       <name>maxActive</name>
@@ -74,12 +72,12 @@
     <parameter>
       <name>username</name>
       <!--   <value>sjtan</value> -->
-      <value>_test-doc</value>
+      <value>any-doc</value>
     </parameter>
     <parameter>
       <name>password</name>
       <!-- <value>monica</value> -->
-      <value>test-doc</value>
+      <value>any-doc</value>
     </parameter>
     <parameter>
       <name>maxActive</name>

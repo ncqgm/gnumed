@@ -6,15 +6,26 @@
 
 package org.gnumed.testweb1.data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.gnumed.testweb1.global.Util;
 import org.gnumed.testweb1.global.Constants.Schema;
 
 /**
- *
+ * The base class for  clinical items such as narratives, vaccinations, medications, lab requests.
  * @author  sjtan
  */
-public class ClinRootItemImpl1 implements ClinRootItem {
-     
+public class ClinRootItemImpl1 implements ClinRootItem, Comparable {
+    static Map soapOrder;
+    static {
+           soapOrder = new HashMap();
+           String soap = Schema.SOAP_CAT_FOR_CLINROOT_SORT;
+           for (int i = 0; i < soap.length(); ++i) {
+               String cat = soap.substring( i, i+1);
+               soapOrder.put(cat, new Integer(i));
+           }
+    };
     java.util.Date clin_when = new java.util.Date();
     ClinicalEpisode episode;
     ClinicalEncounter clinicalEncounter;
@@ -123,5 +134,45 @@ public class ClinRootItemImpl1 implements ClinRootItem {
         setNewHealthIssueName("");
         setHealthIssueName(healthIssueName);
          
+    }
+
+    /** this method sorts ClinRootItems according to their soap category.
+     * 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    public int compareTo(Object o) {
+       // System.err.println("Comparing " + o + " with " + this);
+        if (o == null)
+            return -1;
+        
+        if ( !ClinRootItem.class.isAssignableFrom(o.getClass())) {
+            return -1;
+        }
+        
+        ClinRootItem other = (ClinRootItem)o;
+        
+        
+        
+//      System.err.println("Comparing " + getSoapCat() + " with " + other.getSoapCat());
+        Integer otherRank = (Integer)soapOrder.get(other.getSoapCat());
+        Integer rank = (Integer)soapOrder.get(getSoapCat());
+        
+        if (otherRank == null)
+            return -1;
+        if (rank == null)
+            return 1;
+//      System.err.println("returning comparison of " + rank + " with " + otherRank);
+        int result = rank.intValue() - otherRank.intValue();
+        if (result != 0)
+            return result;
+        
+        if (other.getClin_when().after(getClin_when())) {
+            return -1;
+        }
+        if (other.getClin_when().before(getClin_when()) ){
+            return 1;
+        }
+        
+        return 0;
     }
 }

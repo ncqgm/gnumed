@@ -28,9 +28,10 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
     	if (! (o instanceof ClinicalEpisode))
     		return false;
     	ClinicalEpisode e = (ClinicalEpisode) o;
-    	
-    	return Algorithms.normaliseMatch(e.getDescription(),getDescription())
-		&& isWithinEpisodeLimit(e);
+//version 0.1
+//    	return Algorithms.normaliseMatch(e.getDescription(),getDescription())
+//		&& isWithinEpisodeLimit(e);
+    	return isWithinEpisodeLimit(e);
     	}
     
     protected boolean isWithinEpisodeLimit(ClinicalEpisode e ) {

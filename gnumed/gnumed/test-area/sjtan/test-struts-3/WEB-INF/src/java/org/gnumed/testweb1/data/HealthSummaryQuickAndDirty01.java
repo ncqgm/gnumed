@@ -7,7 +7,6 @@
 package org.gnumed.testweb1.data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.apache.commons.beanutils.BasicDynaBean;
 import org.apache.commons.beanutils.BasicDynaClass;
@@ -164,7 +164,8 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
         while (i.hasNext()) {
             DynaBean b = (DynaBean) i.next();
             ClinicalEpisode ep = dof.createClinicalEpisode();
-            ep.setDescription((String)b.get("description"));
+//     version 0.1
+//            ep.setDescription((String)b.get("description"));
             
             ep.setId( new Long( ((Integer)b.get("pk")).longValue()));
             
@@ -208,7 +209,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     }
     
     void constructNarratives() {
-        List newNarratives = new ArrayList();
+        java.util.Collection newNarratives = new ArrayList();
         Iterator j = narratives.iterator();
         int i2 = 0;
         while (j.hasNext()) {
@@ -230,7 +231,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
             
         }
         
-        narratives = newNarratives;
+        narratives = new ArrayList(newNarratives);
         
         
         

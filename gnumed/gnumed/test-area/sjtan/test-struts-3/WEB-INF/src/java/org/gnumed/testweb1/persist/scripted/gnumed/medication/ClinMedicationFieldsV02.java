@@ -9,8 +9,7 @@ package org.gnumed.testweb1.persist.scripted.gnumed.medication;
 /**
  * @author sjtan
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * medication table fields as string variables for compiler checking.
  */
 public interface ClinMedicationFieldsV02 extends ClinMedicationFields {
 	static String

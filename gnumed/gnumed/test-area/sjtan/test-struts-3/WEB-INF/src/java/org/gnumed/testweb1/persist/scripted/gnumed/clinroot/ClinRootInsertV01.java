@@ -20,8 +20,9 @@ import org.gnumed.testweb1.persist.scripted.gnumed.ClinRootInsert;
 /**
  * @author sjtan
  * 
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
+ * this sets the common insert fields for a preparedStatement which inserts
+ * into a table inheriting from clinRootItem. 
+ * The common fields are in clin_root_fields.
  */
 public class ClinRootInsertV01 implements ClinRootInsert {
 	static String clin_root_fields = " clin_when, narrative, soap_cat,  fk_encounter, fk_episode";
@@ -57,9 +58,10 @@ public class ClinRootInsertV01 implements ClinRootInsert {
 	}
 
 	/**
+	 * gets the next sequence value 
 	 * @param connection
-	 * @param string
-	 * @return
+	 * @param seqName , the name of the sequence
+	 * @return an Integer, the next sequence value
 	 * @throws SQLException
 	 * @throws DataSourceException
 	 */
