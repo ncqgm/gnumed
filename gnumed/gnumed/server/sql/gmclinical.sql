@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.117 $
+-- $Revision: 1.118 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -333,7 +333,7 @@ create table lnk_code2narr (
 select add_table_for_audit('lnk_code2narr');
 select add_x_db_fk_def('lnk_code2narr', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
 
-comment on TABLE lnk_code2narr is
+comment on table lnk_code2narr is
 	'links codes to narrative items';
 comment on column lnk_code2narr.code is
 	'the code in the coding system';
@@ -911,11 +911,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.117 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.118 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.117  2004-07-18 11:50:20  ncq
+-- Revision 1.118  2004-08-04 10:06:49  ncq
+-- - typo
+--
+-- Revision 1.117  2004/07/18 11:50:20  ncq
 -- - added arbitrary typing of clin_root_items
 --
 -- Revision 1.116  2004/07/12 17:23:09  ncq
