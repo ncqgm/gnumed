@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmFormData.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -34,11 +34,14 @@ create table form_fields_filled (
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmFormData.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormData.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmFormData.sql,v $
--- Revision 1.2  2003-01-01 01:01:39  ncq
+-- Revision 1.3  2003-01-05 13:05:51  ncq
+-- - schema_revision -> gm_schema_revision
+--
+-- Revision 1.2  2003/01/01 01:01:39  ncq
 -- - form_instances.venue added
 --
 -- Revision 1.1  2002/12/31 23:01:19  ncq

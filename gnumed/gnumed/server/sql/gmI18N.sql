@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.2 2003-01-04 10:30:26 ncq Exp $
+-- $Id: gmI18N.sql,v 1.3 2003-01-05 13:05:51 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -119,11 +119,14 @@ comment on function _ (text) is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.2  2003-01-04 10:30:26  ncq
+-- Revision 1.3  2003-01-05 13:05:51  ncq
+-- - schema_revision -> gm_schema_revision
+--
+-- Revision 1.2  2003/01/04 10:30:26  ncq
 -- - better documentation
 -- - insert default english "translation" into i18n_translations
 --

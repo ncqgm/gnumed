@@ -291,4 +291,4 @@ insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) valu
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.26 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.27 $');

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- license: GPL
 -- author: 
 
@@ -417,11 +417,14 @@ comment on table link_script_drug is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.11  2002-12-22 01:26:16  ncq
+-- Revision 1.12  2003-01-05 13:05:51  ncq
+-- - schema_revision -> gm_schema_revision
+--
+-- Revision 1.11  2002/12/22 01:26:16  ncq
 -- - id_doctor -> id_provider + comment, typo fix
 --
 -- Revision 1.10  2002/12/14 08:55:17  ihaywood

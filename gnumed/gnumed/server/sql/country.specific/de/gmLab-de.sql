@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmLab-de.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- =============================================
 
 -- force terminate + exit(3) on errors if non-interactive
@@ -28,10 +28,13 @@ COMMENT ON COLUMN lab_test_GNR.BG_GOA is "GNR according to GOAe (GebuehrenOrdnun
 -- =============================================
 -- do simple revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmLab-de.sql,v $', '$Revision: 1.2 $')
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmLab-de.sql,v $', '$Revision: 1.3 $')
 
 -- =============================================
 -- $Log: gmLab-de.sql,v $
--- Revision 1.2  2002-11-16 01:09:57  ncq
+-- Revision 1.3  2003-01-05 13:05:53  ncq
+-- - schema_revision -> gm_schema_revision
+--
+-- Revision 1.2  2002/11/16 01:09:57  ncq
 -- - revision tracking
 --

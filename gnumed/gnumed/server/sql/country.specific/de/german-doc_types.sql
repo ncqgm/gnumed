@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-doc_types.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 
 -- part of GnuMed
 -- GPL
@@ -40,11 +40,14 @@ INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral repor
 
 -- do simple revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: german-doc_types.sql,v $
--- Revision 1.5  2003-01-01 17:42:59  ncq
+-- Revision 1.6  2003-01-05 13:05:53  ncq
+-- - schema_revision -> gm_schema_revision
+--
+-- Revision 1.5  2003/01/01 17:42:59  ncq
 -- - changed for new i18n
 --
 -- Revision 1.4  2002/12/26 15:52:28  ncq

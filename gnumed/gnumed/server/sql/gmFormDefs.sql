@@ -5,7 +5,7 @@
 -- author: Ian Haywood <>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmFormDefs.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 
 -- Note: this is office related while gmFormData.sql is clinical content
 
@@ -149,7 +149,7 @@ comment on column form_fields.is_editable is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- * do we need "form_types.iso_countrycode" ?
@@ -159,7 +159,10 @@ INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql
 
 -- =============================================
 -- $Log: gmFormDefs.sql,v $
--- Revision 1.3  2003-01-01 13:36:56  ncq
+-- Revision 1.4  2003-01-05 13:05:51  ncq
+-- - schema_revision -> gm_schema_revision
+--
+-- Revision 1.3  2003/01/01 13:36:56  ncq
 -- - in queries: string constants must be quoted by ''s
 --
 -- Revision 1.2  2003/01/01 00:21:25  ncq

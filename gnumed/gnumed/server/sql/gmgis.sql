@@ -5,7 +5,7 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.30 $
+-- $Revision: 1.31 $
 -- changelog:
 -- 17.11.2001:  (hherb) first useable version
 -- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
@@ -421,4 +421,4 @@ create table address_info (
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.30 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.31 $');

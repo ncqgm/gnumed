@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -215,11 +215,14 @@ comment on column measurement_result_lab.abnormal_tag IS
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.2  2003-01-01 18:10:23  ncq
+-- Revision 1.3  2003-01-05 13:05:51  ncq
+-- - schema_revision -> gm_schema_revision
+--
+-- Revision 1.2  2003/01/01 18:10:23  ncq
 -- - changed to new i18n
 -- - some field names more precise
 --
