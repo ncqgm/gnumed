@@ -27,8 +27,8 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.8 2003-01-25 23:02:53 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmGP_TabbedLists.py,v 1.9 2003-01-28 06:47:43 michaelb Exp $
+__version__ = "$Revision: 1.9 $"
 
 from wxPython.wx import *
 #from wxPython.gizmos import *
@@ -37,8 +37,10 @@ import keyword
 import time
 import images #bitmaps for column headers of lists
 import gmPlugin, gmShadow, gmLog
-import images_gnuMedGP_TabbedLists           #bitmaps for tabs on notebook
-#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin   
+#import images_gnuMedGP_TabbedLists           #bitmaps for tabs on notebook
+#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
+import zlib, cPickle
+
 
 scriptdata = {
 1 : ("Adalat Oris", "30mg","1 mane","21/01/2002", "Hypertension","30 Rpt5","29/02/2000"),
@@ -49,6 +51,43 @@ scriptdata = {
 
 #=====================================================================
 class TabbedLists(wxPanel): #, wxColumnSorterMixin):
+
+    __icons = {"""icon_Rx_symbol""": 'x\xda\xd3\xc8)0\xe4\nV74S\x00"c\x05Cu\xae\xc4`u=\x85d\x05e\x03 p\xb3\x00\
+\xf3#@|\x0b\x03\x10\x04\xf3\x15\x80|\xbf\xfc\xbcT(\x07\x15\xe0\x15\xd4\x83\
+\x00t\xc1\x08 \x80\x8a"\t\xc2I\xb2\x04\xc1 "\x82R\x8b\x80\x08UP\x01b,\xdc\
+\x9b\x10+\x14\xc0\xa6\xa2\xf9\x1d\xa8\x0eI;\x02DD\xe0\x0c%=\x00D|Hk'
+, """icon_blood_sample""": "x\xdau\x8f\xbd\n\xc3 \x10\x80\xf7<\xc5A\x94\x14\x04Qh\x89c0\xe0\x98\x1b\xb2\
+\xb8\x96\xd2\xad\xf4\xfa\xfeS\x8d?\xe0\x05r\xdb\xf7\xdd\xff\xed\xf3\xb3\xc3>\
+\xd9;\xd8\x07X\x03v\x1a\x9e\xfb$\xe1\x05cp&Ef<\xd8;\xbfz\x97y<xv\xf3Z\xf3K\
+\xa9\x0f\x8d!\xf1F\xdfw\x06\xdd\x86\x85\xd2\x1cK\xb31sa\xd5\x9ak^\xb4|\x1dFm\
+Y\xad\x07\x16'\xa5\xf5YE\x9d\x1cS\x84xR\x84JE\xa6R\r\x12\x1bO\xb8(b\x1b\x93\
+\xc1\x91\x1dABJ\xc1\xee\xeaLU\xbd\xa9\xaa7M\tq\xf9\xe3\xb5\xd2\x7fZ\x8fVi"
+, """icon_writing_pen""": "x\xda\x8d\x901\x0b\xc3 \x10F\xf7\xfc\n\xa1\x83\x85\xc0\x87Y\xa2\xb3B\xc6:d\
+\xb95\x84N\r\xb5\xff\x7f\xaa9-\xd4K\xa1\x11\x11\xde\xbb\xe7\xa0\xd7\xed5t\
+\xb3\x1eF\x95w>t\xb7\xcc\x1ajU~[\xd6\x07S\x9f\xe9\xe2\x9d\x0f\xde1\xc7\x9d'7\
+\x05c\x98U\xe6[z\xde\x19\xd2>\xb4\xce\x98:\xa4\xc26XW\xe3v\x9d\x93\x00\x0e\
+\x92\x90\x12\xa4D\x04HHB\xa4\xc3u\xc4\x1e$d\t\x85,a+k\xd8\xca\x1aJ\xc9\xa1\
+\x90\x80\xfa!\xbf\xde\x8e\xcf\xfa\xf3Kx\x03\x0b\xf8P\xa7"
+, """icon_Set_Square""": 'x\xda\xd3\xc8)0\xe4\nV74S\x00"S\x05Cu\xae\xc4`\xf5|\x85d\x05\xa7\x9c\xc4\
+\xe4l0O\x0f\xc8S6\xb70w60\x00\xf3#@|7\x0b7\x18_\x01\xc8\xf7\xcb\xcfK\x05s\
+\xfca\x8a\xcd-\xa0\x92\n\nz\x11\x11z\nP\x80,\x98\x8fEP/\x9f\xb0\xca|4\x00qe\
+\x04*\x84\n\xa2\x02\xdc\x82\xfe@\x90\xaf\xa7\x97\xef\x0f\x05\xd4p\'\xf5U\xea\
+\x01\x00\xd2 _\x1b'
+, """icon_talking_head""": 'x\xda\x8d\x8f1\x0b\xc3 \x10\x85\xf7\xfc\x8a\x83\x0e\x16\x041K\xe3\xac\xe0\
+\xd8\x0cYn\r\xa1SC\xed\xff\x9fzw\x1a\x8b\xa6C\x1f"\xbc\xef\xde\xdd\xe9u\x7f\
+\x8f\xc3\xa2\xc6\x1b\xd0\xa1K\r\xeb\xa2\x006\xf0\xfb\xba=\xc5%r\x17\xef|\xf0\
+N\xbcf?\xb9)X+~foI1\xd7\r\xf9{z=\xc4 \x17\xa3\x8b\xa1\x14\xe1\x90\xc9ja\xc1=\
+\x84\xbf b:Ad\xd8\xcd$\x86\xd0mg\x04-\xe4\x18\xcem;\x16\xfd\x86\t\xfa\xf6\
+\xfc"\xad\xeb\xa2\xda\xad\xcfI\x8a\xd5$Oc\x81\x04\xbf\x8b\x8e\x8fS\x90\xa1\
+\xf9\x00[x_\x8e'
+, """icon_inbox""": "x\xda\x85\xd01\x0e\xc20\x0c\x05\xd0\xbd\xa7\x88\xc4\x10&+\x19\x80\xcc e\xac\
+\x87.^\xab\x8a\x89\ns\xff\t\xc7Nh2\xf1UU\xfdOv#\xe5\xbc\x7f\xe2\xb4\xf8xu\
+\xf2\\\\\xf4\xd3\xbaxv\x9b\xbb\xef\xeb\xf6\xd2\xe6\xa4\xcd\xfc~jA)\xa7\x10\
+\xf2#'\xedTzN\xbf\x0e\xa5\xdfR\x90\xd4\xe5\x12\x00 \xfb\xfa\x83,\xc84\"S\x99\
+4m\xc8\xa4hZQ\xe7\xa0\xcd\x1a\xca\x9c)\x11\x8aVd\xac\xeb\xc8\x07\x92\xaa\xce\
+uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
+\x10\xbe\xb8\xbej\xdf"}
+
     def __init__(self, parent,id):
 	wxPanel.__init__(self, parent, id)
 	self.SetAutoLayout(true)
@@ -71,12 +110,12 @@ class TabbedLists(wxPanel): #, wxColumnSorterMixin):
 	#-------------------------------------------------------------------------
 	tabimage_Script = tabimage_Requests = tabimage_Requests = tabimage_Requests = tabimage_Requests = tabimage_Requests = -1
         self.notebook1.il = wxImageList(16, 16)
-        tabimage_Script = self.notebook1.il.Add(images_gnuMedGP_TabbedLists.getTab_ScriptBitmap())
-        tabimage_Requests = self.notebook1.il.Add(images_gnuMedGP_TabbedLists.getTab_RequestsBitmap())
-	tabimage_Measurements = self.notebook1.il.Add(images_gnuMedGP_TabbedLists.getTab_MeasurementsBitmap())
-	tabimage_Referrals = self.notebook1.il.Add(images_gnuMedGP_TabbedLists.getTab_ReferralsBitmap())
-	tabimage_Recalls = self.notebook1.il.Add(images_gnuMedGP_TabbedLists.getTab_RecallsBitmap())
-	tabimage_Inbox = self.notebook1.il.Add(images_gnuMedGP_TabbedLists.getTab_Letters_ReceivedBitmap())
+	tabimage_Script = self.notebook1.il.Add(self.getBitmap(_("""icon_Rx_symbol""")))
+	tabimage_Requests = self.notebook1.il.Add( self.getBitmap(_("""icon_blood_sample""")))
+	tabimage_Measurements = self.notebook1.il.Add( self.getBitmap(_("""icon_Set_Square""")))
+	tabimage_Referrals = self.notebook1.il.Add( self.getBitmap(_("""icon_writing_pen""")))
+	tabimage_Recalls = self.notebook1.il.Add(self.getBitmap(_("""icon_talking_head""")))
+	tabimage_Inbox = self.notebook1.il.Add(self.getBitmap(_("""icon_inbox""")))
 	self.notebook1.SetImageList(self.notebook1.il)
 	szr_notebook = wxNotebookSizer(self.notebook1)
 	#----------------------------------------------------------------------------------
@@ -86,13 +125,13 @@ class TabbedLists(wxPanel): #, wxColumnSorterMixin):
 	ListScript_ID = wxNewId()                                                         #can use wxLC_VRULES to put faint cols in list
        	self.List_Script = wxListCtrl(self.notebook1, ListScript_ID,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxSUNKEN_BORDER)
         szr_script_page.Add(self.List_Script,100,wxEXPAND)
-        self.List_Script.SetForegroundColour(wxColor(131,129,131))	
+        self.List_Script.SetForegroundColour(wxColor(131,129,131))
 	self.List_Requests = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
 	self.List_Measurements = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
 	self.List_Referrals = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
 	self.List_Recalls = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
 	self.List_Inbox = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
-	
+
 	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Script, pPage = self.List_Script, strText = '')
 	#self.notebook1.AddPage(bSelect = true, imageId = tabimage_Inbox, pPage = szr_script_page, strText = '')
 	self.notebook1.AddPage(bSelect = true, imageId = tabimage_Requests, pPage = self.List_Requests, strText = '')
@@ -115,11 +154,11 @@ class TabbedLists(wxPanel): #, wxColumnSorterMixin):
 	info.m_text = _("Drug")
 	self.List_Script.InsertColumnInfo(0, info)
 
-	
+
 	info.m_format = wxLIST_FORMAT_LEFT
 	info.m_text = _("Dose")
 	self.List_Script.InsertColumnInfo(1, info)
-	
+
 	info.m_format = wxLIST_FORMAT_RIGHT
 	info.m_text = _("Instructions")
 	self.List_Script.InsertColumnInfo(2, info)
@@ -127,17 +166,17 @@ class TabbedLists(wxPanel): #, wxColumnSorterMixin):
 	info.m_format = wxLIST_FORMAT_RIGHT
 	info.m_text = _("Last Date")
 	self.List_Script.InsertColumnInfo(3, info)
-	
+
 	info.m_format = wxLIST_FORMAT_RIGHT
 	info.m_text = _("Prescribed For")
 	self.List_Script.InsertColumnInfo(4, info)
-	
-	
+
+
 	info.m_format = wxLIST_FORMAT_RIGHT
 	info.m_text = _("Quantity")
 	self.List_Script.InsertColumnInfo(5, info)
-	
-	
+
+
 	info.m_format = 0
 	info.m_text = _("First Date")
 	self.List_Script.InsertColumnInfo(6, info)
@@ -165,9 +204,9 @@ class TabbedLists(wxPanel): #, wxColumnSorterMixin):
 	#note the number pased to the wxColumnSorterMixin must be
 	#the 1 based count of columns
 	#--------------------------------------------------------
-        self.itemDataMap = scriptdata        
+        self.itemDataMap = scriptdata
         #wxColumnSorterMixin.__init__(self, 5)              #I excluded first date as it didn't sort
-	
+
 	self.List_Script.SetColumnWidth(0, wxLIST_AUTOSIZE)
         self.List_Script.SetColumnWidth(1, wxLIST_AUTOSIZE)
 	self.List_Script.SetColumnWidth(2, wxLIST_AUTOSIZE)
@@ -176,10 +215,14 @@ class TabbedLists(wxPanel): #, wxColumnSorterMixin):
 	self.List_Script.SetColumnWidth(5, wxLIST_AUTOSIZE)
         self.List_Script.SetColumnWidth(6, 150)
 	sizer.AddSizer(szr_notebook,40,wxEXPAND)
-	self.SetSizer(sizer)  #set the sizer 
+	self.SetSizer(sizer)  #set the sizer
 	sizer.Fit(self)             #set to minimum size as calculated by sizer
         self.SetAutoLayout(true)                 #tell frame to use the sizer
         self.Show(true)
+
+    def getBitmap (self,__icon_name):
+        # loads tab images from '__icon'
+	return wxBitmapFromXPMData(cPickle.loads(zlib.decompress( self.__icons[__icon_name] )))
 
 #=====================================================================
 class gmGP_TabbedLists (gmPlugin.wxBasePlugin):
@@ -204,6 +247,9 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.8  2003-01-25 23:02:53  ncq
+# Revision 1.9  2003-01-28 06:47:43  michaelb
+# removed dependence on "images_gnuMedGP_TabbedLists.py", changed drugs tab icon to 'Rx'
+#
+# Revision 1.8  2003/01/25 23:02:53  ncq
 # - cvs keywords/metadata
 #
