@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -294,7 +294,7 @@ class cProblem(gmClinItem.cClinItem):
 		"""
 		if aPK_obj is None:
 			raise gmExceptions.ConstructorError, 'cannot instatiate cProblem for PK: [%s]' % (aPK_obj)
-		# As problems are rows from a view from different emr struct items,
+		# As problems are rows from a view of different emr struct items,
 		# the PK can't be a single field and, as some of the values of the
 		# composed PK may be None, they must be queried using 'is null',
 		# so we must programmatically construct the sql query
@@ -313,15 +313,15 @@ class cProblem(gmClinItem.cClinItem):
 	#--------------------------------------------------------
 	def get_as_episode(self):
 		"""
-		Retrieve the cEpisode instance realted to the current problem.
+		Retrieve the cEpisode instance equivalent to this problem.
 		The problem's type attribute must be 'episode'
-		"""		
 
-		type = self._payload[self._idx['type']]		
-		if type != 'episode':
-			_log.Log(gmLog.lErr, 'can not convert non episode problem as episode: [problem:"%s"] [type:%s]' % (self._payload[self._idx['problem']], type))
+		FIXME: add a cast method problem2episode() to cClinicalRecord, too,
+		FIXME: which could use the cache and hence be faster
+		"""
+		if self._payload[self._idx['type']] != 'episode':
+			_log.Log(gmLog.lErr, 'cannot convert non episode problem to episode: problem [%s] type [%s]' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
 			return None
-			
 		episode = cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
 		return episode
 #============================================================
@@ -362,38 +362,25 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None):
 	pk_health_issue - given health issue PK
 	episode_name - name of episode
 	"""
-#	# get patient ID from encounter if needed
-#	if pk_health_issue is None:
-#		cmd = "select fk_patient from clin_encounter where id=%s"
-#		rows = gmPG.run_ro_query('historica', cmd, None, encounter_id)
-#		if (rows is None) or (len(rows) == 0):
-#			_log.Log(gmLog.lErr, 'cannot determine patient from encounter [%s]' % encounter_id)
-#			return (False, 'unable to create episode')
-#		patient_id = rows[0][0]
 	# already there ?
 	try:
 		episode = cEpisode(id_patient=patient_id, name=episode_name)
 		return (True, episode)
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException('%s, will create new episode' % str(msg), sys.exc_info(), verbose=0)
-	# 1) insert naked episode record
+	# generate queries
 	queries = []
+	# insert episode
 	if patient_id is None:
 		cmd = """insert into clin_episode (fk_health_issue, description) values (%s, %s)"""
 		queries.append((cmd, [pk_health_issue, episode_name]))
 	else:
 		cmd = """insert into clin_episode (fk_health_issue, fk_patient, description) values (%s, %s, %s)"""
 		queries.append((cmd, [pk_health_issue, patient_id, episode_name]))
-#	# 2) link to clin_narrative
-#	cmd = """insert into clin_narrative (fk_encounter, fk_episode, soap_cat, narrative)
-#			 values (%s, currval('clin_episode_pk_seq'), %s, %s)"""
-#	queries.append((cmd, [encounter_id, soap_cat, episode_name]))
-#	cmd = """update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
-#			 where pk = currval('clin_episode_pk_seq')"""
-#	queries.append((cmd, []))
-	# 3) retrieve PK of newly created row
+	# retrieve PK
 	cmd = "select currval('clin_episode_pk_seq')"
 	queries.append((cmd, []))
+	# run queries
 	success, data = gmPG.run_commit2(link_obj = 'historica', queries = queries)
 	if not success:
 		_log.Log(gmLog.lErr, 'cannot create episode: %s' % str(data))
@@ -423,7 +410,7 @@ def create_encounter(fk_patient=None, fk_location=-1, fk_provider=None, descript
 	# sanity check:
 	if description is None:
 		description = 'auto-created %s' % mxDT.today().Format('%A %Y-%m-%d %H:%M')
-	# FIXME: look for MRU/MCU encounter type here
+	# FIXME: look for MRU/MCU encounter type config here
 	if enc_type is None:
 		enc_type = 'chart review'
 	# insert new encounter
@@ -591,7 +578,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.40  2005-03-16 19:10:06  cfmoro
+# Revision 1.41  2005-03-17 13:35:52  ncq
+# - cleanup and streamlining
+#
+# Revision 1.40  2005/03/16 19:10:06  cfmoro
 # Added cProblem.get_as_episode method
 #
 # Revision 1.39  2005/03/14 14:28:54  ncq
