@@ -276,7 +276,7 @@ roots:	identity, org, xlnk_identity, form_instances, vacc_def
 external_fk:	xlnk_identity.xfk_identity references identity
 link_tables:	lnk.*
 type_tables:	^.*enum.*,^.*type., ^.*category, occupation, marital_status, staff_role
-suppress:	xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode, xlnk_identity.clin_root_item.clin_episode, identity..org, vacc_def..xlnk_identity
+suppress:	xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode, xlnk_identity.clin_root_item.clin_episode, identity..org, vacc_def..xlnk_identity, xlnk_identity.test_org.test_type
 
 """
 	l = config.split("\n")
