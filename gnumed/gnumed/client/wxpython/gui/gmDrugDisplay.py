@@ -18,6 +18,7 @@
 # @change log:
 #       04.12.2001 hherb initial implementation, untested, uncomplete
 #	08.12.2001 rterry minor revisions to screen design, commenting
+#	05.09.2002 hherb DB-API 2.0 compliance
 #
 #
 # @TODO: all testing and review by hhorst
@@ -164,8 +165,7 @@ class DrugDisplay(wxPanel):
 		#--------------------------------------------------
 		finddrug = wxStaticText( self, -1, _("   Find   "), wxDefaultPosition, wxDefaultSize, 0 )
 		finddrug.SetFont( wxFont( 14, wxSWISS, wxNORMAL, wxNORMAL ) )
-		self.comboProduct = wxComboBox( self, ID_COMBO_PRODUCT, "", wxDefaultPosition, wxSize(130,-1),
-			["Tenormin","Inderal"] , wxCB_DROPDOWN )
+		self.comboProduct = wxComboBox( self, ID_COMBO_PRODUCT, "", wxDefaultPosition, wxSize(130,-1),[] , wxCB_DROPDOWN )
 		self.comboProduct.SetToolTip( wxToolTip(_("Enter the name of the drug you are interested in")) )
 		self.btnBookmark = wxButton( self, ID_BUTTON_BOOKMARK, _("&Bookmark"), wxDefaultPosition, wxDefaultSize, 0 )
 		#-----------------------------------------------------------
@@ -257,8 +257,9 @@ class DrugDisplay(wxPanel):
 	def Display_Generic (self, gencode):
 		#pdb.set_trace ()
 		querytext = "select manxxdat.product, manxxdat.mancode from manxxdat, gmman where gmman.gencode=%d and gmman.mancode = manxxdat.mancode" % gencode
-		query = self.db.query (querytext)
-		result = query.getresult ()
+		cursor = self.db.cursor()
+		cursor.execute(querytext)
+		result = query.fetchall ()
 		# one brand, so display PI
 		#pdb.set_trace ()
 		if len (result) == 1:
@@ -288,15 +289,15 @@ class DrugDisplay(wxPanel):
 		result = []
 		if self.mode == MODE_BRAND or self.mode == MODE_ANY:
 			querytext = "select %d, product, mancode from manxxdat where lower(product) like '%s%%' order by product ASC" % (MODE_BRAND, drugtofind)
-			query = self.db.query(querytext)
-			result.extend (query.getresult())
-		if self.mode == MODE_GENERIC or self.mode == MODE_ANY:
+		elif self.mode == MODE_GENERIC or self.mode == MODE_ANY:
 			querytext = "select %d, tfgeneric, gencode from genman where lower (tfgeneric) like '%s%%' order by tfgeneric ASC" % (MODE_GENERIC, drugtofind)
-			query = self.db.query(querytext)
-			result.extend(query.getresult ())
-		if self.mode == MODE_INDICATION or self.mode == MODE_ANY:
+			#result.extend(query.getresult ())
+		elif self.mode == MODE_INDICATION or self.mode == MODE_ANY:
 			# it is not obvious how to do this!
 			pass
+		cursor=self.db.cursor()
+		cursor.execute(querytext)
+		result = cursor.fetchall()
 		if len (result) == 0:
 			if self.whichWidget == 'html_viewer':
 				self.ToggleWidget ()
@@ -366,11 +367,12 @@ class DrugDisplay(wxPanel):
 		# fields needed to format a HTML output of the product information
 		#-----------------------------------------------------------------
 		querytext = "Select DISTINCT * from manxxdat where mancode = " + str(mancode)
-		gmLog.gmDefLog.Log (gmLog.lData,  'starting to read database.....')
-		gmLog.gmDefLog.Log (gmLog.lData,  'sending query.....')
+		#gmLog.gmDefLog.Log (gmLog.lData,  'starting to read database.....')
+		#gmLog.gmDefLog.Log (gmLog.lData,  'sending query.....')
 		gmLog.gmDefLog.Log (gmLog.lData,  querytext)
-		query = self.db.query(querytext)
-		result = query.dictresult()
+		cursor=self.db.cursor()
+		cursor.execute(querytext)
+		result = cursor.fetchall()
 		gmLog.gmDefLog.Log (gmLog.lData,  'results obtained')
 		#----------------------------------------------------------------------
 		# Set this drug name to the combobox text, and add it to the combo list
