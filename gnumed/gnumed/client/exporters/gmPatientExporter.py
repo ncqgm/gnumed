@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.33 2004-10-12 10:52:40 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmPatientExporter.py,v 1.34 2004-10-20 11:14:55 sjtan Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -433,12 +433,16 @@ class cEmrExport:
             encounters=self.__constraints['encounters'],
             episodes=self.__constraints['episodes'],
             issues=self.__constraints['issues']))
-        filtered_items.extend(emr.get_vaccinations(
-            since=self.__constraints['since'],
-            until=self.__constraints['until'],
-            encounters=self.__constraints['encounters'],
-            episodes=self.__constraints['episodes'],
-            issues=self.__constraints['issues']))
+	try:
+		filtered_items.extend(emr.get_vaccinations(
+		    since=self.__constraints['since'],
+		    until=self.__constraints['until'],
+		    encounters=self.__constraints['encounters'],
+		    episodes=self.__constraints['episodes'],
+		    issues=self.__constraints['issues']))
+	except:
+		_log.Error("vaccination error? outside regime")
+
         filtered_items.extend(emr.get_lab_results(
             since=self.__constraints['since'],
             until=self.__constraints['until'],
@@ -533,9 +537,10 @@ class cEmrExport:
         # variable initialization
         self.__get_filtered_emr_data()
         emr = self.__patient.get_clinical_record()
+	print "*"*100, "filtered issues ", self.__filtered_issues
         h_issues = emr.get_health_issues(id_list = self.__filtered_issues)
         root_node = emr_tree.GetRootItem()
-
+	print "*"* 100, h_issues
         # build the tree
         for issue in h_issues:
             issue_node =  emr_tree.AppendItem(root_node, issue['description'])
@@ -944,7 +949,12 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.33  2004-10-12 10:52:40  ncq
+# Revision 1.34  2004-10-20 11:14:55  sjtan
+# restored import for unix. get_historical_tree may of changed, but mainly should
+# be guards in gmClinicalRecord for changing [] to None when functions expecting None, and client
+# functions passing [].
+#
+# Revision 1.33  2004/10/12 10:52:40  ncq
 # - improve vaccinations handling
 #
 # Revision 1.32  2004/10/11 19:53:41  ncq
