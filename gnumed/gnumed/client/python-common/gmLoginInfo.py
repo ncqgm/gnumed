@@ -83,9 +83,15 @@ class LoginInfo:
 		return dsn, host
 	#------------------------------------------
 	def GetDBAPI_DSN(self):
+		if self.GetHost () == "unix": # the virtual host "unix" is for UNIX socket connection
+			host = ""
+			port = "" # the port setting is ignored
+		else:
+			host = self.GetHost ()
+			port = str (GetPort ())
 		dsn = "%s:%s:%s:%s:%s:%s:%s" % (
-			self.GetHost(),
-			str(self.GetPort()),
+			host,
+			port,
 			self.GetDatabase(),
 			self.GetUser(),
 			self.GetPassword(),
