@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.7 2003-06-01 01:47:33 sjtan Exp $
+# $Id: gmClinicalWindowManager.py,v 1.8 2003-06-01 12:52:26 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -212,7 +212,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 			try:
 				p.register()
 			except:
-				_log.LogException("file [%s] doesn't seem to be a plugin" % (plugin), sys.exc_info() , 4)
+				_log.LogException("file [%s] doesn't seem to be a plugin" % (plugin), sys.exc_info(), verbose = 1)
 		#self.panel.Show (0)
 		self.panel.DisplayDefault()
 		self.gb['toolbar.%s' % self.internal_name()].Realize()
@@ -228,7 +228,10 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		self.gb['modules.patient'][self.panel.GetVisiblePlugin()].Shown()
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.7  2003-06-01 01:47:33  sjtan
+# Revision 1.8  2003-06-01 12:52:26  ncq
+# - "verbose" != "verbosity"
+#
+# Revision 1.7  2003/06/01 01:47:33  sjtan
 #
 # starting allergy connections.
 #
