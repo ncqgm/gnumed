@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.7 2003-02-17 16:16:13 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmTmpPatient.py,v 1.8 2003-02-18 02:41:54 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -27,6 +27,11 @@ import gmExceptions, gmPG, gmSignals, gmDispatcher
 
 gmDefPatient = None
 #============================================================
+gm2long_gender_map = {
+	'm': _('male'),
+	'f': _('female')
+}
+
 # may get preloaded by the waiting list
 class gmPatient:
 	"""Represents a patient that DOES EXIST in the database.
@@ -49,7 +54,6 @@ class gmPatient:
 		self.ID = aPKey			# == identity.id == primary key
 		if not self.__pkey_exists():
 			raise gmExceptions.ConstructorError, "No patient with ID [%s] in database." % aPKey
-
 
 		self.PUPIC = ""
 		self.OID = None
@@ -77,7 +81,7 @@ class gmPatient:
 		- note that this may be called in a thread
 		"""
 		# unlisten to signals
-		print "committing patient data"
+		print "unimplemented: committing patient data"
 	#--------------------------------------------------------
 	def setQueryTree(self, aCol, aQueryTree = None):
 		if aQueryTree is None:
@@ -222,11 +226,88 @@ def get_patient():
 	not None - patient object
 	exception - failure
 	"""
+	pass
+#------------------------------------------------------------
+def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
+	"""Get a list of matching patient IDs.
+
+	None		- no match
+	not None	- list of IDs
+	exception	- failure
+	"""
+	if cooked_search_terms is not None:
+		data = cooked_search_terms
+
+		if data['case sensitive'] is None:
+			like = 'ilike'
+		else:
+			like = 'like'
+
+		if data['globbing'] is None:
+			wildcard = ''
+		else:
+			wildcard = '%s'
+
+		# set up query
+		if data['first name'] is None:
+			where_fname = ''
+		else:
+			where_fname = "firstnames %s '%s%s%s'" % (like, wildcard, data['first name'], wildcard)
+
+		if data['last name'] is None:
+			where_lname = ''
+		else:
+			where_lname = "lastnames %s '%s%s%s'" % (like, wildcard, data['last name'], wildcard)
+
+		if data['dob'] is None:
+			where_dob = ''
+		else:
+			where_dob = "dob = (select to_timestamp('%s', 'YYYYMMDD'))" % data['dob']
+
+		if data['gender'] is None:
+			where_gender = ''
+		else:
+			where_gender = "gender = '%s'" % data['gender']
+
+		where_clause = ' AND '.join((where_fname, where_lname, where_dob, where_gender))
+
+		# get connection
+		backend = gmPG.ConnectionPool()
+		conn = backend.GetConnection('personalia')
+
+		# start our transaction (done implicitely by defining a cursor)
+		cursor = conn.cursor()
+		cmd = "SELECT id FROM v_basic_person WHERE %s;" % where_clause
+		try:
+			cursor.execute(cmd)
+		except:
+			_log.LogException('>>>%s<<< failed' % (cmd % where_clause), sys.exc_info())
+			cursor.close()
+			backend.ReleaseConnection('personalia')
+			raise
+		pat_ids = cursor.fetchall()
+		cursor.close()
+		backend.ReleaseConnection('personalia')
+
+		if pat_ids is None:
+			_log.Log(gmLog.lInfo, "No matching patients.")
+		else:
+			_log.Log(gmLog.lData, "matching patient IDs: [%s]" % pat_ids)
+
+		return pat_ids
+
+	if raw_search_terms is not None:
+		_log.Log(gmLog.lErr, 'getting patient IDs by raw search terms not implemented yet')
+		return None
+
+	_log.Log(gmLog.lErr, 'Cannot get patient IDs with neither raw nor cooked search terms !')
+	return None
 #------------------------------------------------------------
 def _patient_selected(**kwargs):
 	global gmDefPatient
-	if not gmDefPatient is None:
+	if gmDefPatient is not None:
 		gmDefPatient.commit()
+
 	try:
 		tmp = gmPatient(aPKey = kwargs['kwds']['ID'])
 	except:
@@ -251,7 +332,10 @@ else:
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.7  2003-02-17 16:16:13  ncq
+# Revision 1.8  2003-02-18 02:41:54  ncq
+# - helper function get_patient_ids, only structured search term search implemented so far
+#
+# Revision 1.7  2003/02/17 16:16:13  ncq
 # - document list -> document id list
 #
 # Revision 1.6  2003/02/11 18:21:36  ncq
