@@ -21,16 +21,17 @@
 #	- write cmEditArea.py
 #	- decide on type of list and text control to use
 #       - someone smart to fix the code (simplify for same result)
-#      
+#
 ############################################################################
 
 from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
-import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
+import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 import gmEditArea                              #panel class holding editing
 import gmPlugin
 import gmLog
+import gmI18N
 
 ID_SCRIPTICON = wxNewId ()
 ID_SCRIPTLIST = wxNewId()
@@ -241,12 +242,12 @@ class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
 				return self.__icons[anIconID]
 			else:
 				return self.__icons["""Rx symbol"""]
-	   
+
 	def GetWidget (self, parent):
 		return  PrescriptionPanel (parent, -1)
 
 
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
-	app.SetWidget(ImmunisationPanel, -1)
+	app.SetWidget(PrescriptionPanel, -1)
 	app.MainLoop()
