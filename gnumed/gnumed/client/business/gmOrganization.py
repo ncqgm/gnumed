@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
 
@@ -15,8 +15,6 @@ from Gnumed.business import gmPatient
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-
-print "Please enter a write-enabled user e.g. _test-doc "
 
 from Gnumed.pycommon import gmPG
 
@@ -767,6 +765,9 @@ def get_org_data_for_org_ids(idList):
 #
 #
 
+if __name__ == '__main__':
+	print "Please enter a write-enabled user e.g. _test-doc "
+
 def testListOrgs():
 	print "running test listOrg"
 	for (f,a) in get_test_data():
@@ -1396,7 +1397,11 @@ if __name__ == "__main__":
 			clean_org_categories(adminlogin)
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.18  2004-05-28 04:29:53  sjtan
+# Revision 1.19  2004-05-28 13:19:23  ncq
+# - Syan, can't we move all test related code
+#   into if __name__ == '__main__' ?
+#
+# Revision 1.18  2004/05/28 04:29:53  sjtan
 #
 # gui test case option; should setup/teardown ok if correct logins.
 #
