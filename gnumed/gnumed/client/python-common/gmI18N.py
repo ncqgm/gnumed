@@ -46,7 +46,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -92,10 +92,13 @@ def install_domain():
 	else:
 		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
+	log.Log(gmLog.lData, 'Searching message catalog file.')
 	# now we can install this text domain
 	# 1) try standard places first
+	log.Log(gmLog.lData, 'Looking in standard POSIX locations (see Python Manual).')
 	try:
 		gettext.install(text_domain)
+		log.Log(gmLog.lData, 'Found message catalog.')
 		return 1
 	except IOError:
 		# most likely we didn't have a .mo file
@@ -104,18 +107,21 @@ def install_domain():
 
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
+	log.Log(gmLog.lData, 'Looking behind environment variable $(%s).' % env_key)
 	if os.environ.has_key(env_key):
 		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], "locale"))
+		log.Log(gmLog.lData, '$(%s) = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
 		if os.path.exists(loc_dir):
 			try:
 				gettext.install(text_domain, loc_dir)
+				log.Log(gmLog.lData, 'Found message catalog.')
 				return 1
 			except IOError:
 				# most likely we didn't have a .mo file
 				exc = sys.exc_info()
-				log.LogException('Cannot install textdomain from custom location "%s=%s".' % (env_key, loc_dir), exc)
+				log.LogException('Cannot install textdomain from custom location [%s].' % (loc_dir), exc)
 		else:
-			log.Log(gmLog.lWarn, 'Custom location "%s=%s" does not exist. Cannot install textdomain from there.' % (loc_dir, env_key))
+			log.Log(gmLog.lWarn, 'Custom location [%s] does not exist. Cannot install textdomain from there.' % (loc_dir))
 	else:
 		log.Log(gmLog.lInfo, "Environment variable %s is not set." % env_key)
 
@@ -124,10 +130,12 @@ def install_domain():
 	#    strip one directory level
 	#    this is a rather neat trick :-)
 	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
+	log.Log(gmLog.lData, 'Looking in application level directory [%s].' % loc_dir)
 	#    sanity check (paranoia rulez)
 	if os.path.exists(loc_dir):
 		try:
 			gettext.install(text_domain, loc_dir)
+			log.Log(gmLog.lData, 'Found message catalog.')
 			return 1
 		except IOError:
 			# most likely we didn't have a .mo file
@@ -138,10 +146,12 @@ def install_domain():
 
 	# 4) in path to binary
 	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
+	log.Log(gmLog.lData, 'Looking in application level directory [%s].' % loc_dir)
 	#    sanity check (paranoia rulez)
 	if os.path.exists(loc_dir):
 		try:
 			gettext.install(text_domain, loc_dir)
+			log.Log(gmLog.lData, 'Found message catalog.')
 			return 1
 		except IOError:
 			# most likely we didn't have a .mo file
@@ -151,7 +161,8 @@ def install_domain():
 		log.Log(gmLog.lWarn, "The application level locale directory [%s] does not exist. Cannot install textdomain from there." % (loc_dir))
 
 	# 5) install a dummy translation class
-	log.Log(gmLog.lWarn, "Falling back to NullTranslations class in despair.")
+	log.Log(gmLog.lWarn, "Giving up and falling back to NullTranslations() class in despair.")
+	# this shouldn't fail
 	dummy = gettext.NullTranslations()
 	dummy.install()
 #---------------------------------------------------------------------------
