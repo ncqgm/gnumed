@@ -1,3 +1,12 @@
+#====================================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/ian/SOAP2.py,v $
+# $Id: SOAP2.py,v 1.6 2004-11-09 11:19:47 ncq Exp $
+__version__ = "$Revision: 1.6 $"
+__author__ = "Ian Haywood"
+__license__ = 'Ian, please add license'
+
+print __license__
+
 from wxPython.wx import *
 from wxPython.stc import *
 import string
@@ -252,6 +261,8 @@ class ResizingSTC (wxStyledTextCtrl):
     """
     
     def __init__ (self, parent, id, pos=wxDefaultPosition, size= wxDefaultSize, style=0):
+        if not isinstance(parent, ResizingWindow):
+             raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
         wxStyledTextCtrl.__init__ (self, parent, id, pos, size, style)
         self.parent = parent
         self_id = self.GetId ()
@@ -259,7 +270,7 @@ class ResizingSTC (wxStyledTextCtrl):
         self.StyleSetSpec (STYLE_ERROR, "fore:#7F11010,bold")
         self.StyleSetSpec (STYLE_EMBED, "fore:#4040B0")
         self.StyleSetChangeable (STYLE_EMBED, 0)
-        self.StyleSetHotSpot (STYLE_EMBED, 1)
+#        self.StyleSetHotSpot (STYLE_EMBED, 1)
         self.SetEOLMode (wxSTC_EOL_LF)
         self.SetModEventMask (wxSTC_MOD_INSERTTEXT | wxSTC_MOD_DELETETEXT | wxSTC_PERFORMED_USER)
         EVT_STC_MODIFIED (self, self_id, self.__OnChange)
@@ -520,3 +531,44 @@ if __name__ == '__main__':
 
     app = testApp (0)
     app.MainLoop ()
+
+#================================================================
+# $Log: SOAP2.py,v $
+# Revision 1.6  2004-11-09 11:19:47  ncq
+# - if we know that parent of ResizingSTC must be
+#   ResizingWindow we can test for it
+# - added some CVS keywords
+# - this should not be a physical replacement for the edit
+#   area, just a logical one where people want to use it !
+#   IOW we will keep gmEditArea around as it IS a good design !
+#
+#
+#
+#----------------------------
+# revision 1.5
+# date: 2004/11/09 02:05:20;  author: ihaywood;  state: Exp;  lines: +106 -100
+# crashes less often now, the one stickler is clicking on the
+# auto-completion list causes a segfault.
+#
+# This is becoming a candidate replacement for cEditArea
+# ----------------------------
+# revision 1.4
+# date: 2004/11/08 09:36:28;  author: ihaywood;  state: Exp;  lines: +86 -77
+# fixed the crashing bu proper use of wxSize.SetItemMinSize (when all else
+# fails, read the docs ;-)
+# ----------------------------
+# revision 1.3
+# date: 2004/11/08 07:07:29;  author: ihaywood;  state: Exp;  lines: +108 -22
+# more fun with semicolons
+# popups too: having a lot of trouble with this, many segfaults.
+# ----------------------------
+# revision 1.2
+# date: 2004/11/02 11:55:59;  author: ihaywood;  state: Exp;  lines: +198 -19
+# more feaures, including completion box (unfortunately we can't use the
+# one included with StyledTextCtrl)
+# ----------------------------
+# revision 1.1
+# date: 2004/10/24 13:01:15;  author: ihaywood;  state: Exp;
+# prototypical SOAP editor, secondary to Sebastian's comments:
+#	- Now shrinks as well as grows boxes
+#	- TAB moves to next box, Shift-TAB goes back
