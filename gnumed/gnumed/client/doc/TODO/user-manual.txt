@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.18 $
+# $Revision: 1.19 $
 ---------------------------------------------------
 Rules:
 ------
@@ -59,7 +59,7 @@ Karsten.Hilbert@gmx.net    Mit 08 Jan 2003 12:06:34 CET
 
 pyPgSQL v2.3 is needed for db config string list support.
 
-Note: 2.3beta does NOT work yet
+Note: 2.3beta does NOT work !
 ---------------------------------------------------
 Karsten.Hilbert@gmx.net		Son 12 Jan 2003 20:25:27 CET
 
@@ -98,4 +98,75 @@ gmPG will return read-only connections by default. If a read-write
 connection is requested  by means of setting read_only = 0 a new
 connection to the service is instantiated for the user "_CURRENT_USER".
 Read-only connections are cached and shared, read-write ones are not.
----------------------------------------------------
+-------------------------------------------------------
+Karsten.Hilbert@gmx.net    Mon 27 Jan 2003 03:08:59 CET
+
+Replace 2.5 with the following:
+
+2.5. Configuring PostgreSQL for GnuMed
+
+This section applies distribution/OS independent.
+
+GnuMed database 101
+-------------------
+GnuMed does not simply store all of it's data in a monolithic database.
+It rather uses the concept of a service. A service is a set of tables
+relating to a semantically reasonably distinct part of the data. It's
+probably easiest to understand via the example of the "blobs" service.
+This service stores medical documents relating to patients. These can
+be scans of referral letters or discharge summaries, paper-based lab
+results or incoming faxes. Any aggregate of diverse medical data on a
+patient that's not easily split up and stored.
+
+Other services include "default" (the core database tables that tell
+your client software which service is to be found where), "personalia"
+(holding all the patient demographics), and various clinical services
+for drug data, clinical history, etc. The authoritative list of services
+is found in server/sql/gmconfiguration.sql. Any service living in the
+same database as the "default" service does not need to be mapped
+explicitely (but it can). If there's no mapping it is assumed that
+a service lives in the "default" service's database.
+
+Services can coexist in one and the same database on a single server
+or be spread out across several databases or even servers both on-site
+and off-site. However, non-monolithic services have not been tested
+well yet and will require the non-standard dblink PostgreSQL extension
+(found in contrib/ in the PostgreSQL source tree). Until further notice
+it is recommended to stick to non-distribution of services via
+monolithic databases except for services that don't require
+cross-database referential integrity links such as a drug database
+for informational purposes. What has been tested successfully, however,
+is access to GnuMed databases over WAN links, including via internet
+from arbitrary locations.
+
+Database setup
+--------------
+The theory roughly goes like this:
+
+- create databases
+- import all the necessary tables for the services you
+  want to support
+- import any necessary translation files for the languages
+  you wish to support
+- grant appropriate access rights
+- set up service-to-database/server mappings
+
+All of this is handled automatically by the script bootstrap-gm_db_system.py
+living in server/utils/. This script does not yet set up mappings of
+services to their databases/servers (although in theory it can install
+services on remote servers already). As this is not yet fully supported by
+GnuMed anyways (due to dblink being non-standard) one should stick
+to a monolithic service layout. Several sample config files for
+bootstrapping are supplied in server/utils/. They can be used by calling
+the script like this:
+ bootstrap-gm_db_system.py --conf-file=<a config file>
+To set up a straightforward monolithic system on the local machine use
+the config file localhost-monolithic.conf.sample.
+
+Make sure to remove test accounts and to set up your own config file
+if you want to go life.
+
+If you want to tweak things by hand read the config files and the source
+of the bootstrapping scripts. All the config file parameters are documented
+in bootstrap-gm_db_system.conf.sample
+----------------------------------------------------------
