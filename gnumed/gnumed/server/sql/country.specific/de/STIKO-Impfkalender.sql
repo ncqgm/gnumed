@@ -9,7 +9,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -192,7 +192,7 @@ insert into vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
 	currval('vacc_regime_id_seq'),
-	-1,
+	null,
 	'5 years'::interval,
 	'10 years'::interval,
 	true,
@@ -253,7 +253,7 @@ insert into vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
 	currval('vacc_regime_id_seq'),
-	-1,
+	null,
 	'5 years'::interval,
 	'10 years'::interval,
 	true,
@@ -464,7 +464,7 @@ insert into vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
 	currval('vacc_regime_id_seq'),
-	-1,
+	null,
 	'18 years'::interval,
 	'-1'::interval,
 	true,
@@ -490,7 +490,7 @@ insert into vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
 	currval('vacc_regime_id_seq'),
-	-1,
+	null,
 	'18 years'::interval,
 	'-1'::interval,
 	true,
@@ -555,11 +555,14 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename='$RCSfile: STIKO-Impfkalender.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.10  2003-12-29 16:01:21  uid66147
+-- Revision 1.11  2004-03-18 09:58:50  ncq
+-- - removed is_booster reference where is false
+--
+-- Revision 1.10  2003/12/29 16:01:21  uid66147
 -- - use lnk_vacc2vacc_def
 -- - add STIKO gmReference entry
 -- - more appropriate vacc_regime.name values

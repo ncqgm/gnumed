@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Influenza.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -22,24 +22,26 @@ values (
 
 -- Impfzeitpunkte definieren
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, is_booster, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, min_interval, comment)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'6 months'::interval,
-	false,
-	'4 weeks'::interval,
+	'9 months'::interval,
 	'nie zuvor geimpfte Kinder 4 Wo danach boostern'
 );
 
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfplan-Influenza.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Influenza.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Influenza.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: Impfplan-Influenza.sql,v $
--- Revision 1.3  2003-12-29 15:57:58  uid66147
+-- Revision 1.4  2004-03-18 09:58:50  ncq
+-- - removed is_booster reference where is false
+--
+-- Revision 1.3  2003/12/29 15:57:58  uid66147
 -- - name cleanup
 --
 -- Revision 1.2  2003/12/01 22:13:57  ncq
