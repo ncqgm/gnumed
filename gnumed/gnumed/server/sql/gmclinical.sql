@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.51 $
+-- $Revision: 1.52 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -118,6 +118,27 @@ comment on column clin_encounter.description is
 -- about the only reason for this table to exist is the id_type
 -- field, otherwiese one could just store the data in clin_root_item
 
+create table curr_encounter (
+	id serial primary key,
+	id_encounter integer not null references clin_encounter(id),
+	id_patient integer unique not null,
+	started timestamp with time zone not null default CURRENT_TIMESTAMP,
+	last_affirmed timestamp with time zone not null default CURRENT_TIMESTAMP,
+	"comment" varchar(128) default 'affirmed'
+);
+
+comment on table curr_encounter is
+	'currently ongoing encounters are stored in this table,
+	 clients are supposed to check this table or create a
+	 new encounter if appropriate';
+comment on column curr_encounter.last_affirmed is
+	'clients are supposed to update this field when appropriate
+	 such that the encounter detection heuristics in other clients
+	 has something to work with';
+comment on column curr_encounter."comment" is
+	'clients may save an arbitrary comment here when
+	 updating last_affirmed, useful for later perusal';
+
 -- ===================================================================
 -- EMR item root with narrative aggregation
 -- -------------------------------------------------------------------
@@ -166,10 +187,21 @@ create table clin_note (
 ) inherits (audit_mark, clin_root_item);
 
 comment on TABLE clin_note is
-	'Other tables link to rows in this table if they need
-	 more than their one inherted narrative field for free text.';
+	'Used to store clinical free text.';
 
 create table log_clin_note (
+	id integer not null
+) inherits (audit_trail, log_dummy_clin_root_item);
+
+-- --------------------------------------------
+create table clin_aux_note (
+	id serial primary key
+) inherits (audit_mark, clin_root_item);
+
+comment on TABLE clin_aux_note is
+	'Other tables link here if they need more free text fields.';
+
+create table log_clin_aux_note (
 	id integer not null
 ) inherits (audit_trail, log_dummy_clin_root_item);
 
@@ -473,6 +505,8 @@ GRANT SELECT ON
 	"clin_encounter",
 	"clin_note",
 	"log_clin_note",
+	"clin_aux_note",
+	"log_clin_aux_note",
 	"_enum_hx_type",
 	"_enum_hx_source",
 	"clin_history",
@@ -497,6 +531,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"clin_encounter_id_seq",
 	"clin_note",
 	"clin_note_id_seq",
+	"clin_aux_note",
+	"clin_aux_note_id_seq",
 	"_enum_hx_type",
 	"_enum_hx_type_id_seq",
 	"_enum_hx_source",
@@ -521,11 +557,18 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.51 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.52 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.51  2003-06-03 13:49:50  ncq
+-- Revision 1.52  2003-06-22 16:22:37  ncq
+-- - add curr_encounter for tracking active encounters
+-- - split clin_aux_note from clin_note so we can cleanly separate
+--   deliberate free text from referenced free text (when building EHR
+--   views, that is)
+-- - grants
+--
+-- Revision 1.51  2003/06/03 13:49:50  ncq
 -- - last_active_episode -> last_act_episode + grants on it
 --
 -- Revision 1.50  2003/06/02 21:03:41  ncq
