@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -102,6 +102,31 @@ insert into vaccine (
 -- link to indications
 insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
 values (currval('vaccine_id_seq'), (select id from vacc_indication where description='hepatitis A'));
+
+-----------------
+-- Hepatitis B --
+-----------------
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	max_age,
+	comment
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'HBVAXPRO',
+	'HBVAXPRO',
+	false,
+	'0 years'::interval,
+	'15 years'::interval,
+	'Aventis'
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='hepatitis B'));
 
 ------------------
 -- Pneumokokken --
@@ -378,11 +403,14 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.13  2004-04-19 09:27:34  ncq
+-- Revision 1.14  2004-04-27 17:06:46  ncq
+-- - HBVAXPRO
+--
+-- Revision 1.13  2004/04/19 09:27:34  ncq
 -- - add PentaVac
 --
 -- Revision 1.12  2004/04/14 13:33:04  ncq
