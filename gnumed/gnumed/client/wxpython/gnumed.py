@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-#############################################################################
+################################################################
 # gnumed - launcher for the main gnumed GUI client module
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------
 #
 # @copyright: author
-############################################################################
+################################################################
 # This source code is protected by the GPL licensing scheme.
 # Details regarding the GPL are available at http://www.gnu.org
 # You may use and share it as long as you don't deny this right
@@ -45,20 +45,155 @@ Command line arguments:
 
 License: GPL (details at http://www.gnu.org)
 """
+#==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
 import sys, os, os.path
 
+if __name__ != "__main__":
+	print "This shouldn't be used as a module !"
+	print "------------------------------------"
+	print __doc__
+	sys.exit(1)
+#==========================================================
 # Python 2.3 on Mandrake seems to turn True/False deprecation warnings
-# into exceptions, revert them to warnings again
+# into exceptions, so revert them to warnings again
 import warnings
 warnings.filterwarnings("default", "Use\sPython.s\sFalse\sinstead", DeprecationWarning)
 warnings.filterwarnings("default", "Use\sPython.s\sTrue\sinstead", DeprecationWarning)
 
-# ---------------------------------------------------------------------------
+import_error_sermon = """
+CRITICAL ERROR: Cannot load GnuMed Python modules ! - Program halted.
+
+Please make sure you have:
+
+- the required third-party Python modules installed
+- the GnuMed Python modules installed in site-packages/
+- your PYTHONPATH environment variable set up correctly
+
+If you still encounter errors after checking the above
+rquirements please ask on the mailing list.
+"""
+_log = None
+_cfg = None
+_email_logger = None
+gmLog = None
+#==========================================================
+def setup_logging():
+	try:
+		from Gnumed.pycommon import gmLog as _gmLog
+		from Gnumed.pycommon import gmCLI as _gmCLI
+	except ImportError:
+		sys.exit(import_error_sermon)
+
+	global gmLog
+	gmLog = _gmLog
+	global _log
+	_log = gmLog.gmDefLog
+	global gmCLI
+	gmCLI = _gmCLI
+
+	# talkback mode ?
+	if gmCLI.has_arg('--talkback'):
+		# email logger as a loop device
+		global _email_logger
+		_email_logger = gmLog.cLogTargetEMail(gmLog.lInfo, aFrom = "GnuMed client", aTo = ("fixme@gnumed.net",), anSMTPServer = "mail.best1-host.com")
+		_log.AddTarget (_email_logger)
+
+	# debug level logging ?
+	if gmCLI.has_arg("--debug"):
+		print "Activating verbose log level for debugging."
+		_log.SetAllLogLevels(gmLog.lData)
+	elif gmCLI.has_arg ("--quiet"):
+		_log.SetAllLogLevels(gmLog.lErr)
+	else:
+		_log.SetAllLogLevels(gmLog.lInfo)
+
+	# Console Is Good(tm)
+	# ... but only for Panics and important messages
+	aLogTarget = gmLog.cLogTargetConsole(gmLog.lPanic)
+	_log.AddTarget(aLogTarget)
+
+	return 1
+#==========================================================
+def setup_cfg_file():
+	from Gnumed.pycommon import gmCfg
+	if gmCfg.gmDefCfgFile is None:
+		if gmCfg.create_default_cfg_file():
+			# now that we got the file we can reopen it as a config file :-)
+			try:
+				f = gmCfg.cCfgFile()
+			except:
+				print "Cannot open or create config file by any means."
+				print "Please see the log for details."
+				_log.LogException('unhandled exception', sys.exc_info(), verbose=0)
+				sys.exit(0)
+			gmCfg.gmDefCfgFile = f
+		else:
+			print "Cannot open or create config file by any means.\nPlease see the log for details."
+			sys.exit(0)
+	global _cfg
+	_cfg = gmCfg.gmDefCfgFile
+#==========================================================
+def get_resource_dir():
+	"""Detect resource directory base.
+
+	1) resource directory defined in config file
+	  - this will allow people to start GNUmed from any
+	    dir they want on any OS they happen to run
+    2) assume /usr/share/gnumed/ as resource dir
+	  - this will work on POSIX/LSB systems and may work
+	    on Cygwin systems
+	  - this is the no-brainer for stock UN*X
+    3) finally try one level below path to binary
+      - last resort for lesser systems
+	  - this is the no-brainer for DOS/Windows
+	  - it also allows running from a local CVS copy
+	"""
+	print "Determining GnuMed resource directory ..."
+	# config file
+	candidate = _cfg.get('client', 'resource directory')
+	if candidate not in [None, '']:
+		# expand ~/... and ~*/...
+		# normalize case
+		# connect to / dir
+		tmp = os.path.normcase(os.path.abspath(os.path.expanduser(candidate)))
+		if os.access(tmp, os.R_OK):
+			return tmp
+		print "- resource path [%s] not accessible" % tmp
+		print '- adjust [client] -> "resource directory"'
+		print "  in the config file"
+		return None
+
+	# - normalize and convert slashes to local filesystem convention
+	tmp = os.path.normcase('/usr/share/gnumed/')
+	if os.access(tmp, os.R_OK):
+		return tmp
+
+	print '- standard resource path [%s] not accessible' % tmp
+	print '- seems like we are running from an arbitrary'
+	print '  directory (like a CVS tree or on Windows)'
+
+	# get path to binary
+	tmp = os.path.abspath(os.path.dirname(sys.argv[0]))
+	# strip one directory level
+	# this is a rather neat trick :-)
+	tmp = os.path.normpath(os.path.join(tmp, '..'))
+	# sanity check (paranoia rulez)
+	if os.access(tmp, os.R_OK):
+		return tmp
+
+	print '- resource path [%s] not accessible' % tmp
+	print ''
+	print 'Something is really rotten here. We better'
+	print 'fail gracefully ! Please ask your administrator'
+	print 'for help.'
+
+	return None
+#----------------------------------------------------------
 def get_base_dir():
 	"""Retrieve the global base directory.
 
@@ -127,146 +262,83 @@ def get_base_dir():
 
 	return None
 # ---------------------------------------------------------------------------
-if __name__ == "__main__":
-	"""Launch the GnuMed wxPython GUI client."""
+#==========================================================
+# main - launch the GnuMed wxPython GUI client
+#----------------------------------------------------------
+setup_logging()
 
-	appPath = get_base_dir()
-	if appPath is None:
-		sys.exit("CRITICAL ERROR: Cannot determine base path.")
+# help requested ?
+if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
+	print "help requested"
+	print "--------------"
+	print __doc__
+	sys.exit(0)
 
-	# manually extend our module search path
-	sys.path.append(os.path.join(appPath, 'wxpython'))
-	sys.path.append(os.path.join(appPath, 'pycommon'))
-	sys.path.append(os.path.join(appPath, 'business'))
+_log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 
-	_log = None
-	try:
-		import gmLog
-		_log = gmLog.gmDefLog
-		import gmCLI
-	except:
-		if _log is not None:
-			_log.LogException("Cannot import gmCLI.", sys.exc_info(), verbose=1)
-		sys.exit("""
-CRITICAL ERROR: Can't load gmLog or gmCLI ! - Program halted.
+setup_cfg_file()
 
-Please check whether your PYTHONPATH environment variable is
-set correctly and whether you have all necessary third-party
-Python modules installed.
+appPath = get_base_dir()
+if appPath is None:
+	sys.exit("CRITICAL ERROR: Cannot determine base path.")
+_log.Log(gmLog.lData, "old-style resource path: %s" % appPath)
 
-In rare situations it may be necessary to set the GNUMED_DIR
-environment variable.
+resPath = get_resource_dir()
+if resPath is None:
+	sys.exit("CRITICAL ERROR: Cannot determine resouce path.")
+_log.Log(gmLog.lData, "new-style resource path: %s" % resPath)
 
-There may also be a log file to check for errors. You
-can increase its log level with '--debug'.
-""")
+# import more of our stuff
+from Gnumed.pycommon import gmI18N, gmGuiBroker
 
-	if gmCLI.has_arg('--talkback'):
-		# email logger as a loop device
-		email_logger = gmLog.cLogTargetEMail(gmLog.lInfo, aFrom = "GnuMed client", aTo = ("fixme@gnumed.net",), anSMTPServer = "mail.best1-host.com")
-		_log.AddTarget (email_logger)
+gb = gmGuiBroker.GuiBroker()
+gb['gnumed_dir'] = appPath
+gb['resource dir'] = resPath
 
-	if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
-		print "help requested"
-		print "--------------"
-		print __doc__
-		sys.exit(0)
+	# FIXME: not sure why we need this
+#try:
+	# change into our working directory
+	# this does NOT affect the cwd in the shell from where gnumed is started!
+	# FIXME: resPath ?
+#	os.chdir(appPath)
+#except:
+#	exc = sys.exc_info()
+#	_log.LogException('Exception: cannot change into resource directory ' + appPath, exc, verbose=0)
+	# let's try going on anyways
 
-	if gmCLI.has_arg("--debug"):
-		print "Activating verbose log level for debugging."
-		_log.SetAllLogLevels(gmLog.lData)
-	elif gmCLI.has_arg ("--quiet"):
-		_log.SetAllLogLevels(gmLog.lErr)
-	else:
-		_log.SetAllLogLevels(gmLog.lInfo)
-
-	# console is Good(tm)
-	# ... but only for Panics and important messages
-	aLogTarget = gmLog.cLogTargetConsole(gmLog.lPanic)
-	_log.AddTarget(aLogTarget)
-
-	_log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
-	_log.Log(gmLog.lData, "resource path: " + appPath)
-	_log.Log(gmLog.lData, "module search path: " + str(sys.path))
-
-	# force import of gmCfg so we can check if we need to create a config file
-	import gmCfg
-	_cfg = gmCfg.gmDefCfgFile
-	if _cfg is None:
-		if gmCfg.create_default_cfg_file():
-			# now that we got the file we can reopen it as a config file :-)
-			try:
-				f = gmCfg.cCfgFile()
-			except:
-				print "Cannot open or create config file by any means.\nPlease see the log for details."
-				_log.LogException('unhandled exception', sys.exc_info(), verbose=0)
-				raise
-
-			gmCfg.gmDefCfgFile = f
-			_cfg = gmCfg.gmDefCfgFile
-
-	try:
-		import gmI18N
-		import gmGuiBroker
-		import gmGuiMain
-	except:
-		_log.LogException ("Exception: Cannot load modules.", sys.exc_info(), verbose=1)
-		sys.exit("""
-CRITICAL ERROR: Can't load gmI18N, gmGuiBroker or gmGuiMain !
-                Program halted.
-
-Please check whether your PYTHONPATH environment variable is
-set correctly and whether you have all necessary third-party
-Python modules installed.
-
-In rare situations it may be necessary to set the GNUMED_DIR
-environment variable.
-
-Please also make sure to check the log file for errors. You
-can increase its log level with '--debug'.
-""")
-
-	gb = gmGuiBroker.GuiBroker ()
-
-	gb['gnumed_dir'] = appPath # EVERYONE must use this!
-
-	try:
-		# change into our working directory
-		# this does NOT affect the cwd in the shell from where gnumed is started!
-		os.chdir(appPath)
-	except:
-		exc = sys.exc_info()
-		_log.LogException('Exception: cannot change into resource directory ' + appPath, exc, verbose=0)
-		# let's try going on anyways
-
-	# run gnumed
-	try:
-		gmGuiMain.main()
-	# and intercept _almost_ all exceptions (but reraise them ...)
-	except StandardError:
-		exc = sys.exc_info()
-		_log.LogException ("Exception: Unhandled exception encountered.", exc, verbose=1)
-		if gmCLI.has_arg('--talkback'):
-			import gmTalkback
-			gmTalkback.run(email_logger)
-		raise
-
-	#<DEBUG>
-	_log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
-	#</DEBUG>
-
+# now actually run gnumed
+try:
+	from Gnumed.wxpython import gmGuiMain
+	gmGuiMain.main()
+# and intercept _almost_ all exceptions (but reraise them ...)
+except StandardError:
+	exc = sys.exc_info()
+	_log.LogException ("Exception: Unhandled exception encountered.", exc, verbose=1)
 	if gmCLI.has_arg('--talkback'):
 		import gmTalkback
-		gmTalkback.run(email_logger)
+		gmTalkback.run(_email_logger)
+	raise
 
-else:
-	print "This shouldn't be used as a module !"
-	print "------------------------------------"
-	print __doc__
+_log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
+
+if gmCLI.has_arg('--talkback'):
+	import gmTalkback
+	gmTalkback.run(_email_logger)
+
+#==========================================================
+	# manually extend our module search path
+#	sys.path.append(os.path.join(appPath, 'wxpython'))
+#	sys.path.append(os.path.join(appPath, 'pycommon'))
+#	sys.path.append(os.path.join(appPath, 'business'))
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.58  2004-02-25 09:46:22  ncq
+# Revision 1.59  2004-03-04 19:45:51  ncq
+# - add get_resource_path()
+# - reorder main() flow
+# - switch to from Gnumed.* import *
+#
+# Revision 1.58  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.57  2004/02/05 23:52:37  ncq
