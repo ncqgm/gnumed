@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.97 2004-05-18 22:35:09 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmClinicalRecord.py,v 1.98 2004-05-22 11:46:15 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -91,7 +91,7 @@ class cClinicalRecord:
 		self._backend.Unlisten(service = 'historica', signal = sig, callback = self._health_issues_modified)
 		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.id_patient)
 		self._backend.Unlisten(service = 'historica', signal = sig, callback = self.db_callback_vaccs_modified)
-		sig = "%s:%s" % (gmSignals.allergy_add_del_db(), self.id_patient)
+		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.id_patient)
 		self._backend.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_allg_modified)
 
 		self._backend.ReleaseConnection('historica')
@@ -142,7 +142,8 @@ class cClinicalRecord:
 		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.id_patient)
 		if not self._backend.Listen('historica', sig, self.db_callback_vaccs_modified):
 			return None
-		if not self._backend.Listen(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._db_callback_allg_modified):
+		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.id_patient)
+		if not self._backend.Listen(service = 'historica', signal = sig, callback = self._db_callback_allg_modified):
 			return None
 		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.id_patient)
 		if not self._backend.Listen(service = 'historica', signal = sig, callback = self._health_issues_modified):
@@ -265,12 +266,14 @@ class cClinicalRecord:
 			items_by_table[src_table][id_item] = item
 
 		# get mapping for issue/episode IDs
-		issue_map = self.get_health_issue_names()
-		if issue_map is None:
-			issue_map = {}
-		episode_map = self.get_episodes()
-		if episode_map is None:
-			episode_map = {}
+		issues = self.get_health_issues()
+		issue_map = {}
+		for issue in issues:
+			issue_map[issue['id']] = issue['description']
+		episodes = self.get_episodes()
+		episode_map = {}
+		for episode in episodes:
+			episode_map[episode['id_episode']] = episode['episode']
 		emr_data = {}
 		# get item data from all source tables
 		for src_table in items_by_table.keys():
@@ -430,12 +433,14 @@ class cClinicalRecord:
 			items_by_table[src_table][id_item] = item
 
 		# get mapping for issue/episode IDs
-		issue_map = self.get_health_issue_names()
-		if issue_map is None:
-			issue_map = {}
-		episode_map = self.get_episodes()
-		if episode_map is None:
-			episode_map = {}
+		issues = self.get_health_issues()
+		issue_map = {}
+		for issue in issues:
+			issue_map[issue['id']] = issue['description']
+		episodes = self.get_episodes()
+		episode_map = {}
+		for episode in episodes:
+			episode_map[episode['id_episode']] = episode['episode']
 		emr_data = {}
 		# get item data from all source tables
 		curs = self._ro_conn_clin.cursor()
@@ -1222,7 +1227,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.97  2004-05-18 22:35:09  ncq
+# Revision 1.98  2004-05-22 11:46:15  ncq
+# - some cleanup re allergy signal handling
+# - get_health_issue_names doesn't exist anymore, so use get_health_issues
+#
+# Revision 1.97  2004/05/18 22:35:09  ncq
 # - readd set_active_episode()
 #
 # Revision 1.96  2004/05/18 20:33:40  ncq
