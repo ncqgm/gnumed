@@ -31,6 +31,8 @@ if __name__ == "__main__":
 import gmDateTimeInput
 from gmDateTimeInput import *
 
+import gmPG
+
 GMDI = 6
 PWh = 7
 
@@ -39,12 +41,13 @@ COMBO_MAX_LIST= 60
 COMBO_MAX_CACHE=4
 
 sharedConnection = None
-
+dbpool = None
 backup_dbapi = PgSQL 
 
 backup_source = "localhost::gnumed4" 
 
 re_table = re.compile("^create\s+(?P<type>table|view)\s+(?P<table>\w+)\s*.*", re.I)
+
 
 def setSharedConnection( conn):
 	sharedConnection = conn
@@ -54,6 +57,17 @@ def setBackupConnectionSource( dbapi = PgSQL , source = "localhost::gnumed"):
 	backup_source = source
 
 def getBackupConnection():
+	global dbpool
+	try:
+		if dbpool == None:
+			dbpool = gmPG.ConnectionPool()
+		conn = dbpool.getConnection('default', readonly = 0)	
+		return conn
+	except:
+		print sys.exc_info()[0], sys.exc_info()[1]
+		print_tb(sys.exc_info()[2])
+		pass
+
 	return backup_dbapi.connect(backup_source)
 
 def extractTablename(statement):
@@ -1709,12 +1723,14 @@ if __name__=="__main__":
 	print "sys.argv[1] == ", sys.argv[len(sys.argv) -1]
 
 
-	if sys.argv[len(sys.argv) -1] == 'past':
+	#if sys.argv[len(sys.argv) -1] == 'past':
+	if 1:
 		app = wxPyWidgetTester(size=(500,300) )
 		app.SetWidget( PastHistoryEditArea, -1)
 		app.MainLoop()
 
-	if sys.argv[len(sys.argv) -1] == 'iden':
+	#if sys.argv[len(sys.argv) -1] == 'iden':
+	if 1:
 		app = wxPyWidgetTester( size=(500, 200) )
 		app.SetWidget( DemographicEditArea, -1)
 		app.MainLoop()
