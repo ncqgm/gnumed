@@ -1,7 +1,7 @@
 GnuMed temporary roadmap
 ========================
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/temporary-roadmap.txt,v $
-$Revision: 1.9 $
+$Revision: 1.10 $
 -----------------------------------------------------------------
 
 This is now hosted here:
@@ -92,9 +92,9 @@ progress notes input
 maintainer: Karsten Hilbert
 hackers:
  - simple SOAP structured text input fields
- - clin_note/clin_history/clin_physical rows
+ - clin_narrative rows
  - partially done
- 
+
 ------------
 notes viewer
 ------------
@@ -186,7 +186,10 @@ Old German first-off roadmap is here:
 
 -----------------------------------------------------------------
 $Log: temporary-roadmap.txt,v $
-Revision 1.9  2004-03-15 13:27:16  ncq
+Revision 1.10  2004-07-18 19:41:42  ncq
+- remove some stuff
+
+Revision 1.9  2004/03/15 13:27:16  ncq
 - is now in Wiki, please remove duplicate content
 
 Revision 1.8  2004/03/09 11:01:36  ncq
