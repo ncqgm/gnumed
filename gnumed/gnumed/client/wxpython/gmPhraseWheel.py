@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.34 2004-03-05 11:22:35 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmPhraseWheel.py,v 1.35 2004-05-01 10:27:47 shilbert Exp $
+__version__ = "$Revision: 1.35 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -236,7 +236,7 @@ class cPhraseWheel (wxTextCtrl):
 		self._picklist.Clear()
 		if matched:
 			for item in self.__currMatches:
-				self._picklist.Append(item['label'], clientData = item['data'])
+				self._picklist.Append(str(item['label']), clientData = str(item['data']))
 	#--------------------------------------------------------
 	def __show_picklist(self):
 		"""Display the pick list."""
@@ -522,7 +522,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.34  2004-03-05 11:22:35  ncq
+# Revision 1.35  2004-05-01 10:27:47  shilbert
+# - self._picklist.Append() needs string or unicode object
+#
+# Revision 1.34  2004/03/05 11:22:35  ncq
 # - import from Gnumed.<pkg>
 #
 # Revision 1.33  2004/03/02 10:21:10  ihaywood
