@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-09-30 10:57:56 $
-# @version $Revision: 1.47 $ $Date: 2002-09-30 10:57:56 $ $Author: ncq $
+# @Date: $Date: 2002-11-09 18:14:38 $
+# @version $Revision: 1.48 $ $Date: 2002-11-09 18:14:38 $ $Author: hherb $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -101,7 +101,7 @@ class MainFrame(wxFrame):
 		#self.SetTitle(_("You are logged in as [%s]") % user)
 
 		self.SetupPlatformDependent()
-		
+
 		self.CreateMenu()
 		self.SetupAccelerators()
 		self.RegisterEvents()
@@ -114,7 +114,7 @@ class MainFrame(wxFrame):
 		#a top vertical box sizer for the main window
 		self.vbox = wxBoxSizer( wxVERTICAL)
 		self.guibroker['main.vbox']=self.vbox
-	
+
 		###-----------------------------------------------------------------------------
 		###create a horizontal sizer which will contain all windows at the top of the
 		###screen (ie menu's and picture panel - which are on sub sizers)
@@ -122,16 +122,16 @@ class MainFrame(wxFrame):
 		###followed by panel for the patients picture which occupies 10%. Add labels for
 		###demo patients
 		###-----------------------------------------------------------------------------
-		##self.szr_top_panel = wxBoxSizer(wxHORIZONTAL) 
+		##self.szr_top_panel = wxBoxSizer(wxHORIZONTAL)
 		##self.guibroker['main.szr_top_panel']=self.szr_top_panel
 		##toolbars = ToolBar_Panel(self,-1)
 		##self.szr_top_panel.Add(toolbars,1,wxEXPAND)
 		##self.szr_main_container.AddSizer(self.szr_top_panel, 0, wxEXPAND|wxALL, 1)
-		
+
 		# the "top row", where all important patient data is always on display
 		#self.toprowpanel = gmtoprow.gmTopRow(self, 1)
 		self.topbox = wxBoxSizer( wxHORIZONTAL)
-		self.patientpicture = gmGP_PatientPicture.PatientPicture(self,-1)	
+		self.patientpicture = gmGP_PatientPicture.PatientPicture(self,-1)
 		self.tb = gmGP_Toolbar.Toolbar(self,-1)
 		self.topbox.Add(self.patientpicture,1,wxEXPAND)
 		self.topbox.Add(self.tb,12,wxEXPAND)
@@ -149,31 +149,7 @@ class MainFrame(wxFrame):
 		# load plugins
 		#  this dictionary relates plugins to the notebook
 		self.guibroker['main.notebook.numbers'] = {}
-		plugin_list = gmPlugin.GetAllPlugins('gui')
-		nr_plugins = len(plugin_list)
-		#  set up a progress bar
-		progress_bar = wxProgressDialog(
-			title = _("GnuMed: loading %s plugins") % nr_plugins,
-			message = _("loading list of plugins                    "),
-			maximum = nr_plugins,
-			parent = self,
-			style = wxPD_APP_MODAL | wxPD_ELAPSED_TIME
-			)
-		#  and load them
-		last_plugin = ""
-		result = ""
-		for idx in range(len(plugin_list)):
-			curr_plugin = plugin_list[idx]
-			progress_bar.Update(
-				idx,
-				_("previous: %s - %s\ncurrent (%s/%s): %s") % (last_plugin, result, (idx+1), nr_plugins, curr_plugin)
-			)
-			if gmPlugin.LoadPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend):
-				result = _("success")
-			else:
-				result = _("failed")
-			last_plugin = curr_plugin
-		progress_bar.Destroy()
+		self.LoadPlugins(backend)
 
 		self.SetStatusText(_("You are logged in as [%s]") % user)
 		self.tb.ReFit ()
@@ -188,7 +164,7 @@ class MainFrame(wxFrame):
 		self.Fit ()
 		self.Centre(wxBOTH)
 		self.Show(true)
-	
+
 	def SetupPlatformDependent(self):
 		#do the platform dependent stuff
 		if wxPlatform == '__WXMSW__':
@@ -202,6 +178,35 @@ class MainFrame(wxFrame):
 			myLog.Log(gmLog.lInfo,'running on a Mac')
 		else:
 			myLog.Log(gmLog.lInfo,'running on an unknown platform')
+
+
+	def LoadPlugins(self, backend):
+		plugin_list = gmPlugin.GetAllPlugins('gui')
+		nr_plugins = len(plugin_list)
+		#  set up a progress bar
+		progress_bar = wxProgressDialog(
+			title = _("GnuMed: loading %s plugins") % nr_plugins,
+			message = _("loading list of plugins                    "),
+			maximum = nr_plugins,
+			parent = None,
+			style = wxPD_ELAPSED_TIME
+			)
+		#  and load them
+		last_plugin = ""
+		result = ""
+		for idx in range(len(plugin_list)):
+			curr_plugin = plugin_list[idx]
+			progress_bar.Update(
+				idx,
+				_("previous: %s - %s\ncurrent (%s/%s): %s") % (last_plugin, result, (idx+1), nr_plugins, curr_plugin)
+			)
+			if gmPlugin.LoadPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend):
+				result = _("success")
+			else:
+				myLog.Log(gmLog.lInfo,'failed to load plugin %s' % curr_plugin)
+				result = _("failed")
+			last_plugin = curr_plugin
+		progress_bar.Destroy()
 
 
 	def OnNotebook (self, event):
@@ -365,7 +370,7 @@ class gmApp(wxApp):
 			myLog.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GnuMed without database connection")
 			return false
 		#create the main window
-		frame = MainFrame(None, -1, _('GnuMed client'), size=(300,200))
+		frame = MainFrame(None, -1, _('GnuMed client'), size=(600,440))
 		self.SetTopWindow(frame)
 		#frame.Unlock()
 		frame.Maximize(true)
@@ -395,7 +400,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.47  2002-09-30 10:57:56  ncq
+# Revision 1.48  2002-11-09 18:14:38  hherb
+# Errors / delay caused by loading plugin progess bar fixed
+#
+# Revision 1.47  2002/09/30 10:57:56  ncq
 # - make GnuMed consistent spelling in user-visible strings
 #
 # Revision 1.46  2002/09/26 13:24:15  ncq
