@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.8 2003-02-19 12:27:42 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmXdtMappings.py,v 1.9 2003-02-19 15:23:44 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -764,6 +764,11 @@ xdt_Befundart_map = {
 	'V':'(kompletter) Vorbefund',
 	'A':'Archivbefund'
 }
+# Teststatus : 8418
+xdt_Teststatus_map = {
+	'B':'bereits berichtet',
+	'K':'Korrigierter Wert oder fehlt'
+}
 # Resistenzmethode
 xdt_Resistenzmethode_map = {
 	'1':'Agardiffusion',
@@ -782,11 +787,46 @@ xdt_Resistenzinterpretation_map = {
 #--------------------------------------------------------------
 xdt_map_of_content_maps = {
 	'8000': xdt_packet_type_map,
-	'9106': xdt_character_code_map
+	'9106': xdt_character_code_map,
+	'9600': xdt_Archivierungsart_map,
+	'0202': xdt_Praxistyp_map,
+	'3108': xdt_Versichertenart_map,
+	'3110': xdt_gmgender_map,
+	'4106': xdt_Kostentraegeruntergruppe_map,
+	'4107': xdt_Abrechnungsart_map,
+	'4113': xdt_Ost_West_Status_map,
+	'4121': xdt_Gebuehrenordnung_map,
+	'4122': xdt_Abrechnungsgebiet_map,
+	'4201': xdt_Ursache_des_Leidens_map,
+	'4210': xdt_Ankreuzfeld_map,
+	'4211': xdt_Ankreuzfeld_map,
+	'4212': xdt_Ankreuzfeld_map,
+	'4213': xdt_Ankreuzfeld_map,
+	'4239': xdt_Scheinuntergruppe_map,
+	'4230': xdt_gesetzlicher_Abzug_map,
+	'4236': xdt_Klasse_stationaere_Behandlung_map,
+	'4580': xdt_Rechnungsart_map,
+	'4608': xdt_Abdingungserklaerung_map,
+	'4613': xdt_Anlage_erforderlich_map,
+	'4520': xdt_Alkoholeinfluss_map,
+	'4522': xdt_Blutentnahme_map,
+	'4554': xdt_Arbeitsunfall_map,
+	'4560': xdt_arbeitsfaehig_map,
+	'4570': xdt_Heilbehandlung_erforderlich_map,
+	'4571': xdt_Besondere_Heilbehandlung_durch_map,
+	'4581': xdt_Allgemeine_Heilbehandlung_durch_map,
+	'4582': xdt_AU_3Tage_map,
+	'8401': xdt_Befundart_map,
+	'8418': xdt_Teststatus_map,
+	'8443': xdt_Resistenzmethode_map,
+	'8447': xdt_Resistenzinterpretation_map
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.8  2003-02-19 12:27:42  ncq
+# Revision 1.9  2003-02-19 15:23:44  ncq
+# - a whole bunch of new mappings by Basti
+#
+# Revision 1.8  2003/02/19 12:27:42  ncq
 # - map_of_maps -> map_of_content_maps
 #
 # Revision 1.7  2003/02/19 12:26:47  ncq
