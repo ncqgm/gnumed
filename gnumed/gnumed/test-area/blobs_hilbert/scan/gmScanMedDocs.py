@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -542,13 +542,14 @@ class ScanPanel(wxPanel):
 			kwds = {}
 			kwds['quality'] = quality_value
 			if progression_flag in ["yes", "on"]:
+				kwds['optimize'] = 1
 				kwds['progressive'] = 1
 			# actually convert to JPEG
 			try:
-				Image.open(bmp_name).save(jpg_name, optimize = 1, **kwds)
+				Image.open(bmp_name).save(jpg_name, **kwds)
 			except:
 				_log.LogException("optimized JPEG write failed, turning off optimization", sys.exc_info(), fatal=0)
-				Image.open(bmp_name).save(jpg_name, **kwds)
+				Image.open(bmp_name).save(jpg_name)
 			# remove bitmap (except Windows can't do that sometimes :-(
 			try:
 				os.remove(bmp_name)
@@ -995,7 +996,10 @@ else:
 			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.19  2002-12-28 23:06:15  ncq
+# Revision 1.20  2003-01-06 13:51:57  ncq
+# - jpeg.progression seems to only work if jpeg.optimize works, too
+#
+# Revision 1.19  2002/12/28 23:06:15  ncq
 # - *_name -> fname, various typos
 #
 # Revision 1.18  2002/12/28 22:10:21  ncq
