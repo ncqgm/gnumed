@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmReference.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -169,7 +169,7 @@ insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type
 
 
 insert into form_defs (fk_type, country, name_short, name_long, revision, engine, template) values (
-	select pk from form_defs where name='request',
+	(select pk from form_types where name='request'),
 	'AU',
 	'Basic request',
 	'A proof-of-concept basic request form',
