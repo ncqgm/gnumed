@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.1 2003-04-09 16:15:24 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmKVK.py,v 1.2 2003-04-19 22:53:46 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -174,7 +174,7 @@ def get_available_kvks (aDir = None):
 
 	basedir = os.path.abspath(os.path.expanduser(aDir))
 	if not os.path.exists(basedir):
-		_log.Log(gmLog.lErr, 'kvkd repository directory [%s] is not valid')
+		_log.Log(gmLog.lErr, 'kvkd repository directory [%s] is not valid' % basedir)
 		return None
 
 	# filter out our files
@@ -280,6 +280,9 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.1  2003-04-09 16:15:24  ncq
+# Revision 1.2  2003-04-19 22:53:46  ncq
+# - missing parameter for %s
+#
+# Revision 1.1  2003/04/09 16:15:24  ncq
 # - KVK classes and helpers
 #
