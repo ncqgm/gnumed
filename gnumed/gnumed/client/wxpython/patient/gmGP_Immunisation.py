@@ -9,8 +9,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.13 2003-10-26 01:36:14 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmGP_Immunisation.py,v 1.14 2003-11-09 14:53:53 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -158,6 +158,7 @@ class ImmunisationPanel(wxPanel):
 		#--------------------------------------------------------------------------------------
 		pnl_MiddleCaption3 = DividerCaptionPanel(self, -1, _("Missing Immunisations"))
 		epr = self.pat['clinical record']
+#		missing_shots = epr.get_missing_vaccinations()
 #		missing_shots = epr['vaccination status']
 		# FIXME: get list of due vaccs, too, and highlight those
 		self.LBOX_missing_shots = wxListBox(
@@ -231,7 +232,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.13  2003-10-26 01:36:14  ncq
+# Revision 1.14  2003-11-09 14:53:53  ncq
+# - work on backend link
+#
+# Revision 1.13  2003/10/26 01:36:14  ncq
 # - gmTmpPatient -> gmPatient
 #
 # Revision 1.12  2003/10/19 12:25:07  ncq
