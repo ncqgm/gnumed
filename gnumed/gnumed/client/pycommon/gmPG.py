@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -936,7 +936,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.24 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.25 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -980,10 +980,10 @@ def __request_login_params_tui():
 
 	print "\nPlease enter the required login parameters:"
 	try:
+		host = __prompted_input("host [localhost]: ", 'localhost')
 		database = __prompted_input("database [gnumed]: ", 'gnumed')
 		user = __prompted_input("user name: ", '')
 		password = getpass.getpass("password (not shown): ")
-		host = __prompted_input("host [localhost]: ", 'localhost')
 		port = __prompted_input("port [5432]: ", 5432)
 	except KeyboardInterrupt:
 		_log.Log(gmLog.lWarn, "user cancelled text mode login dialog")
@@ -1164,7 +1164,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.24  2004-07-17 20:54:50  ncq
+# Revision 1.25  2004-09-01 22:00:10  ncq
+# - prompt for host first in textmode login dialog
+#
+# Revision 1.24  2004/07/17 20:54:50  ncq
 # - remove user/_user workaround
 #
 # Revision 1.23  2004/06/20 16:54:55  ncq
