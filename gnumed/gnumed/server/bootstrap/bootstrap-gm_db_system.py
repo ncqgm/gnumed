@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -664,7 +664,7 @@ class database:
 		tmp = _cfg.get(self.section, 'audit disable')
 		# if this option is not given, assume we want auditing
 		if tmp is not None:
-			# if we don't want auditing on this tables, return without error
+			# if we don't want auditing on these tables, return without error
 			if int(tmp) == 1:
 				return 1
 
@@ -707,6 +707,13 @@ class database:
 	#--------------------------------------------------------------
 	def bootstrap_scoring(self):
 		# get configuration
+		tmp = _cfg.get(self.section, 'scoring disable')
+		# if this option is not given, assume we want scoring
+		if tmp is not None:
+			# if we don't want scoring on these tables, return without error
+			if int(tmp) == 1:
+				return 1
+
 		tmp = _cfg.get(self.section, 'scoring table prefix')
 		if tmp is None:
 			return None
@@ -1200,7 +1207,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.28  2003-10-19 12:30:02  ncq
+# Revision 1.29  2003-10-19 12:57:19  ncq
+# - add scoring schema generator and use it
+#
+# Revision 1.28  2003/10/19 12:30:02  ncq
 # - add score schema generation
 # - remove generated schema files after successful import
 #
