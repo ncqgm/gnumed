@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.21 2003-07-09 16:23:21 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.22 2003-07-19 20:23:47 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -55,6 +55,41 @@ where
 ;
 
 -- =============================================
+-- clin_root_item stuff
+\unset ON_ERROR_STOP
+drop trigger TR_clin_item_mod on clin_root_item;
+drop function F_announce_clin_item_mod();
+\set ON_ERROR_STOP 1
+
+create function F_announce_clin_item_mod() returns opaque as '
+declare
+	episode_id integer;
+	patient_id integer;
+begin
+	-- get episode ID
+	if TG_OP = ''DELETE'' then
+		episode_id := OLD.id_episode;
+	else
+		episode_id := NEW.id_episode;
+	end if;
+	-- track back to patient ID
+	select into patient_id id_patient
+		from v_patient_episodes vpep
+		where vpep.id_episode = episode_id
+		limit 1;
+	-- now, execute() the NOTIFY
+	execute ''notify "item_change_db:'' || patient_id || ''"'';
+	return NULL;
+end;
+' language 'plpgsql';
+
+create trigger TR_clin_item_mod
+	after insert or delete or update
+	on clin_root_item
+	for each row
+		execute procedure F_announce_clin_item_mod()
+;
+
 \unset ON_ERROR_STOP
 drop view v_patient_items;
 \set ON_ERROR_STOP 1
@@ -107,41 +142,70 @@ where
 -- ==========================================================
 -- health issues stuff
 \unset ON_ERROR_STOP
-drop trigger zzt_h_issues_modified on clin_health_issue;
-drop function f_announce_h_issue_mod();
+drop trigger TR_h_issues_modified on clin_health_issue;
+drop function F_announce_h_issue_mod();
 \set ON_ERROR_STOP 1
 
-create function f_announce_h_issue_mod() returns opaque as '
+create function F_announce_h_issue_mod() returns opaque as '
+declare
+	patient_id integer;
 begin
-	notify "health_issue_change_db";
-	return NEW;
+	-- get patient ID
+	if TG_OP = ''DELETE'' then
+		patient_id := OLD.id_patient;
+	else
+		patient_id := NEW.id_patient;
+	end if;
+	-- now, execute() the NOTIFY
+	execute ''notify "health_issue_change_db:'' || patient_id || ''"'';
+	return NULL;
 end;
 ' language 'plpgsql';
 
-create trigger zzt_h_issues_modified
-	after insert or delete or update on clin_health_issue
-	for each row execute procedure f_announce_h_issue_mod()
+create trigger TR_h_issues_modified
+	after insert or delete or update
+	on clin_health_issue
+	for each row
+		execute procedure F_announce_h_issue_mod()
 ;
 
 -- ==========================================================
 -- allergy stuff
 \unset ON_ERROR_STOP
-drop trigger zzt_allergy_add_del on allergy;
-drop function f_announce_allergy_add_del();
+drop trigger TR_allergy_add_del on allergy;
+drop function F_announce_allergy_add_del();
 \set ON_ERROR_STOP 1
 
-create function f_announce_allergy_add_del() returns opaque as '
+create function F_announce_allergy_add_del() returns opaque as '
+declare
+	episode_id integer;
+	patient_id integer;
 begin
-	notify "allergy_add_del_db";
-	return NEW;
+	-- get episode ID
+	if TG_OP = ''INSERT'' then
+		episode_id := NEW.id_episode;
+	else
+		episode_id := OLD.id_episode;
+	end if;
+	-- track back to patient ID
+	select into patient_id id_patient
+		from v_patient_episodes vpep
+		where vpep.id_episode = episode_id
+		limit 1;
+	-- now, execute() the NOTIFY
+	execute ''notify "allergy_add_del_db:'' || patient_id || ''"'';
+	return NULL;
 end;
 ' language 'plpgsql';
 
-create trigger zzt_allergy_add_del
-	after insert or delete on allergy
-	for each row execute procedure f_announce_allergy_add_del()
+create trigger TR_allergy_add_del
+	after insert or delete
+	on allergy
+	for each row
+		execute procedure F_announce_allergy_add_del()
 ;
 -- should really be "for each statement" but that isn't supported yet by PostgreSQL
+-- or maybe not since then we won't be able to separate affected patients in UPDATEs
 
 \unset ON_ERROR_STOP
 drop view v_i18n_patient_allergies;
@@ -239,11 +303,16 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.21 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.22 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.21  2003-07-09 16:23:21  ncq
+-- Revision 1.22  2003-07-19 20:23:47  ncq
+-- - add clin_root_item triggers
+-- - modify NOTIFY triggers so they include the patient ID
+--   as per Ian's suggestion
+--
+-- Revision 1.21  2003/07/09 16:23:21  ncq
 -- - add clin_health_issue triggers and functions
 --
 -- Revision 1.20  2003/06/29 15:24:22  ncq
