@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -313,11 +313,13 @@ class ConnectionPool:
 		#try to establish connections to all servers we need
 		#according to configuration database
 		cursor = cdb.cursor()
+		query = "select * from config where profile='%s'" % login.GetProfile()
 		try:
-			cursor.execute("select * from config where profile='%s'" % login.GetProfile())
-		except dbapi.OperationalError:
-			# this is the first query, give nicer error
-			raise gmExceptions.ConnectionError("Not GNUMed database")
+			cursor.execute(query)
+		except:
+			_log.Log(gmLog.lErr, ">>>[%s]<<<" % query)
+			_log.LogException("Cannot select user profile from database !", sys.exc_info(), fatal=1)
+			raise
 		databases = cursor.fetchall()
 		dbidx = cursorIndex(cursor)
 
@@ -631,7 +633,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.26  2002-10-26 02:45:52  hherb
+# Revision 1.27  2002-10-26 16:17:13  ncq
+# - more explicit error reporting
+#
+# Revision 1.26  2002/10/26 02:45:52  hherb
 # error in name mangling for writeable connections fixed (persisting "_" prepended to user name when connection reused)
 #
 # Revision 1.25  2002/10/25 13:02:35  hherb
