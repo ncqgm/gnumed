@@ -7,8 +7,8 @@
 # @copyright: author
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmVaccinationsPlugin.py,v $
-# $Id: gmVaccinationsPlugin.py,v 1.3 2004-08-04 17:16:02 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmVaccinationsPlugin.py,v 1.4 2004-09-18 13:56:34 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -43,7 +43,7 @@ Mc4\x85\x9f%\xfc\xae\x93!\xd5K_\xd4\x86\xf8\xa1?\x88\x12\xf9\x00 =F\x87'
 		return self._widget
 
 	def MenuInfo (self):
-		return ('view', '&Vaccinations')
+		return ('view', _('&Vaccinations'))
 
 	def can_receive_focus(self):
 		# need patient
@@ -60,7 +60,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccinationsPlugin.py,v $
-# Revision 1.3  2004-08-04 17:16:02  ncq
+# Revision 1.4  2004-09-18 13:56:34  ncq
+# - translate tab label
+#
+# Revision 1.3  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
