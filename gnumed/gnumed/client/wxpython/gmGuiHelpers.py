@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.10 2004-05-26 23:23:35 shilbert Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmGuiHelpers.py,v 1.11 2004-05-28 13:30:27 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -27,7 +27,7 @@ from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
-set_status_text = None
+_set_status_text = None
 # ========================================================================
 def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	if aMessage is None:
@@ -92,20 +92,24 @@ def gm_beep_statustext(aMessage, aLogLevel = None):
 
 	# only now and here can we assume that wxWindows
 	# is sufficiently initialized
-	global set_status_text
-	if set_status_text is None:
-		from Gnumed.pycommon import gmGuiBroker as gb
+	global _set_status_text
+	if _set_status_text is None:
+		from Gnumed.pycommon import gmGuiBroker
 		try:
-			set_status_text = gb.GuiBroker()['main.statustext']
+			_set_status_text = gmGuiBroker.GuiBroker()['main.statustext']
 		except KeyError:
 			_log.LogException('called too early, cannot set status text')
 			raise
 
-	set_status_text(aMessage)
+	_set_status_text(aMessage)
 	return 1
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.10  2004-05-26 23:23:35  shilbert
+# Revision 1.11  2004-05-28 13:30:27  ncq
+# - set_status_text -> _set_status_text so nobody
+#   gets the idea to use it directly
+#
+# Revision 1.10  2004/05/26 23:23:35  shilbert
 # - import statement fixed
 #
 # Revision 1.9  2004/04/11 10:10:56  ncq
