@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -88,8 +88,7 @@ class cEpisode(gmClinItem.cClinItem):
 		return self._payload[self._idx['pk_patient']]
 	#--------------------------------------------------------
 	def get_description(self):
-		return gmClinNarrative.cNarrative(aPK_obj = self._payload[self._idx['pk_narrative']])
-		# FIXME: error handling (concurrency)
+		return self._payload[self._idx['description']]
 	#--------------------------------------------------------
 	def set_active(self):
 		# if no patient get it from health issue
@@ -115,64 +114,26 @@ class cEpisode(gmClinItem.cClinItem):
 			return False
 		return True
 	#--------------------------------------------------------
-	def rename(self, description=None, soap_cat=None, encounter=None):
+	def rename(self, description=None):
 		"""Method for episode editing, that is, episode renaming.
 
 		@param description
 			- the new descriptive name for the encounter
 		@type description
-			- an instance of cClinNarrative to attach to
-			- a string to create a new clin_narrative row
-			  from (soap_cat must be provided)
-			- an integer assumed to be the PK of a clin_narrative
-			  row to attach to
-
-		@param soap_cat
-			- The soap category for the new narrative to be
-			  created and attatched to the episode.
-		@type soap_cat - any of 's','o','a','p'
-
-		@param encounter
-			- The encounter for the new narrative to be
-			  created and attached to the episode.
-		@type encounter - cEpisode instance
+			- a string instance
 		"""
-		if description is None:
-			_log.Log(gmLog.lErr, '<description> must be a string, int (eg pk of narrative) or a cNarrative instance')
+		# sanity check
+		if not isinstance(description, types.StringType) or description.strip() == '':
+			_log.Log(gmLog.lErr, '<description> must be a non empty string instance')
 			return False
-		# does the caller want us to create a new narrative ?
-		narrative_is_new = False
-		if not isinstance(description, gmClinNarrative.cNarrative):
-			# is description an int (eg PK) ?
-			try:
-				# FIXME: this will yield unexpected results when description = '1' (a numeral in a string)
-				description = {'pk_narrative': int(description)}
-			except ValueError, TypeError:
-				# must be string then
-				description = str(description)
-				if (description.strip() == '' or soap_cat not in 'soapSOAP' or not isinstance(encounter, cEncounter)):
-					_log.Log(gmLog.lErr, 'parameter error: [description:"%s"] [soap_cat:%s] [encounter:%s]' % (description, soap_cat, encounter))
-					return False
-				successful, description = gmClinNarrative.create_clin_narrative (
-					narrative = description,
-					soap_cat = soap_cat,
-					episode_id = self._payload[self._idx['pk_episode']],
-					encounter_id= encounter['pk_encounter']
-				)
-				if not successful:
-					_log.Log(gmLog.lErr, 'cannot create new narrative to rename episode: %s, %s, %s' % (encounter, description, soap_cat))
-					return False
-				narrative_is_new = True
-		# reattach episode to existing or newly created narrative
-		old_narrative = self._payload[self._idx['pk_narrative']]
-		self['pk_narrative'] = description['pk_narrative']
+		# update the episode description
+		old_description = self._payload[self._idx['description']]
+		self._payload[self._idx['description']] = description
 		successful, data = self.save_payload()
 		if not successful:
 			_log.Log(gmLog.lErr, 'cannot rename episode [%s] with [%s]' % (self, description))
 			# clean up
-			if narrative_is_new:
-				gmClinNarrative.delete_clin_narrative(description['pk_narrative'])
-				self._payload[self._idx['pk_narrative']] = old_narrative
+			self._payload[self._idx['description']] = old_description
 			return False
 		return True
 #============================================================
@@ -491,58 +452,22 @@ if __name__ == '__main__':
 		print "updatable:", episode.get_updatable_fields()
 		raw_input('ENTER to continue')
 
-		old_narrative = episode.get_description()
-		old_enc = cEncounter(aPK_obj = old_narrative['pk_encounter'])
+		old_description = episode.get_description()
+		old_enc = cEncounter(aPK_obj = 1)
 
 		desc = '1-%s' % episode['description']
 		print "==> renaming to", desc
 		successful = episode.rename (
-			description = desc,
-			soap_cat = 'a',
-			encounter = old_enc
+			description = desc
 		)
 		if not successful:
 			print "error"
 		else:
+			print "success"
 			for field in fields:
 				print field, ':', episode[field]
 		raw_input('ENTER to continue')
 
-		print "==> renaming to", old_narrative
-		successful = episode.rename (description = old_narrative)
-		if not successful:
-			print "error"
-		else:
-			for field in fields:
-				print field, ':', episode[field]
-		raw_input('ENTER to continue')
-
-		desc = '2-%s' % episode['description']
-		print "==> renaming to", desc
-		successful = episode.rename (
-			description = desc,
-			soap_cat = 'a',
-			encounter = old_enc
-		)
-		if not successful:
-			print "error"
-		else:
-			for field in fields:
-				print field, ':', episode[field]
-		raw_input('ENTER to continue')
-
-		desc = old_narrative['pk_narrative']
-		print "renaming to", desc
-		if not episode.rename (
-			description = desc,
-			soap_cat = 'a',
-			encounter = old_enc
-		):
-			print "error"
-		else:
-			for field in fields:
-				print field, ':', episode[field]
-		raw_input('ENTER to continue')
 	#--------------------------------------------------------
 	def test_encounter():
 		print "\nencounter test"
@@ -575,11 +500,15 @@ if __name__ == '__main__':
 				print "   diagnosis: ", aoe.get_diagnosis()
 	#--------------------------------------------------------
 	# run them
-	test_problem()
+	test_episode()
+	#test_problem()
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.42  2005-03-17 21:14:45  cfmoro
+# Revision 1.43  2005-03-17 21:46:23  cfmoro
+# Simplified cEpisode.rename function
+#
+# Revision 1.42  2005/03/17 21:14:45  cfmoro
 # Improved exception handling in get_as_episode.
 #
 # Revision 1.41  2005/03/17 13:35:52  ncq
