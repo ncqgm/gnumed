@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 """This module encapsulates document level operations.
 
 metadata layout:
@@ -37,7 +35,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -335,11 +333,11 @@ class cDocument:
 		_log.Log(gmLog.lInfo, 'exporting object from GnuMed compatible database')
 
 		# sanity checks
-		if aConn == None:
+		if aConn is None:
 			_log.Log(gmLog.lErr, 'Cannot export object without database connection.')
 			return None
 
-		if anObjID == None:
+		if anObjID is None:
 			_log.Log(gmLog.lErr, 'Cannot export object without an object ID.')
 			return None
 
@@ -763,7 +761,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.34  2003-02-03 11:04:00  ncq
+# Revision 1.35  2003-02-14 00:23:53  ncq
+# - things folded into GnuMed proper
+#
+# Revision 1.34  2003/02/03 11:04:00  ncq
 # - fix type mismatch on max_chunk_size
 #
 # Revision 1.33  2003/01/31 00:03:31  ncq
