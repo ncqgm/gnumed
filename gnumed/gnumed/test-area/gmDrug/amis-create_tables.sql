@@ -4,7 +4,7 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/amis-create_tables.sql,v $
 -- author: Horst Herb, Hilmar Berger, Karsten Hilbert
--- version: $Revision: 1.2 $
+-- version: $Revision: 1.3 $
 -- license: GPL
 -- TODO: further processing of the data (normalizing)
 
@@ -399,10 +399,6 @@ create table amis_interaction_text (
 --select distinct p.genericname, a.text, m.name
 --from pbsimport p, atc a, manufacturer m
 --where p.atccode=a.code and p.manufacturercode = m.code limit 20;
-create index connection_id_index_praep ON amis_praeparate (connection_id);
-create index substance_id_index ON amis_substances (id);
-CREATE INDEX substance_name_index ON amis_substances_names (substance_name);
-create index amis_drug_description_index on amis_drug_description (text_key);
 
 -- =====================================================================================
 -- grant appropriate rights
@@ -439,7 +435,10 @@ TO "gm-public";
 --	30.11.2001: \set & \unset applied correctly
 --
 -- $Log: amis-create_tables.sql,v $
--- Revision 1.2  2002-10-29 23:15:29  ncq
+-- Revision 1.3  2002-10-29 23:18:11  ncq
+-- - ha! remove creation of indices - this only makes sense after importing the data
+--
+-- Revision 1.2  2002/10/29 23:15:29  ncq
 -- - cleanup, ACL structure
 --
 -- Revision 1.1  2002/10/24 12:56:38  ncq
