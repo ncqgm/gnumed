@@ -7,8 +7,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.3 2003-09-30 18:47:47 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmDateTimeInput.py,v 1.4 2003-10-02 20:51:12 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, re, string
@@ -46,7 +46,6 @@ class cMatchProvider_Date(gmPhraseWheel.cMatchProvider):
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 		self.__now = mxDT.now()
-		print "now:", self.__now
 		matches = []
 		for expander in self.__expanders:
 			items = expander(aFragment)
@@ -104,7 +103,6 @@ class cMatchProvider_Date(gmPhraseWheel.cMatchProvider):
 		# X weeks from now (if <5)
 		if val < 7:
 			target_date = self.__now + mxDT.RelativeDateTime(weeks = val)
-			print "target:", target_date, '(that many weeks from today)'
 			tmp = {
 				'data': target_date,
 				'label': _('in %d weeks (a %s)') % (val, target_date.strftime('%A'))
@@ -112,15 +110,12 @@ class cMatchProvider_Date(gmPhraseWheel.cMatchProvider):
 			matches.append(tmp)
 		# day of this week
 		# day of next week
-		for match in matches:
-			print match
 		return matches
 	#--------------------------------------------------------
 	def __explicit_offset(self, aFragment):
 		# "+/-XXd/w/m/t"
 		if not re.match("^(\s|\t)*(\+|-)?(\s|\t)*\d{1,2}(\s|\t)*[mdtw](\s|\t)*$", aFragment):
 			return None
-		print aFragment
 		# allow past ?
 		is_future = 1
 		if string.find(aFragment, '-') > -1:
@@ -129,7 +124,6 @@ class cMatchProvider_Date(gmPhraseWheel.cMatchProvider):
 				return None
 
 		val = int(re.search('\d{1,2}', aFragment).group())
-		print val
 		target_date = None
 		if re.search('[dt]', aFragment):
 			if is_future:
@@ -158,7 +152,6 @@ class cMatchProvider_Date(gmPhraseWheel.cMatchProvider):
 			'data': target_date,
 			'label': label
 		}
-		print tmp
 		return [tmp]
 #==================================================
 class gmDateInput(gmPhraseWheel.cPhraseWheel):
@@ -178,18 +171,91 @@ class gmDateInput(gmPhraseWheel.cPhraseWheel):
 		self.__default_text = _('enter date here')
 
 		self.SetValue(self.__default_text)
+		self.SetSelection (-1,-1)
+
+		EVT_CHAR(self, self.__on_char)
+		#EVT_KEY_DOWN (self, self.__on_key_pressed)
+
+		self.__tooltip = _(
+"""------------------------------------------------------------------------------
+Date input field
+
+ <ALT-v/g/h/m/ü>: vorgestern/gestern/heute/morgen/übermorgen
+ <ALT-K>:         Kalender
+ +/- X d/w/m:     X days/weeks/months ago/from now
+------------------------------------------------------------------------------
+""")
+		self.SetToolTip(wxToolTip(self.__tooltip))
 	#----------------------------------------------
 	def on_list_item_selected (self):
 		"""Gets called when user selected a list item."""
-		self.__hide_picklist()
+		self._hide_picklist()
 
-		selection_idx = self.__picklist.GetSelection()
-		data = self.__picklist.GetClientData(selection_idx)
+		selection_idx = self._picklist.GetSelection()
+		data = self._picklist.GetClientData(selection_idx)
 
 		self.SetValue(data.strftime(self.__display_format))
 
 		if self.notify_caller is not None:
 			self.notify_caller (data)
+	#----------------------------------------------
+	# event handlers
+	#----------------------------------------------
+	def __on_char(self, evt):
+		keycode = evt.GetKeyCode()
+
+		if evt.AltDown():
+			if keycode in [ord('h'), ord('H')]:
+				date = mxDT.now()
+				self.SetValue(date.strftime(self.__display_format))
+				return true
+			if keycode in [ord('m'), ord('M')]:
+				date = mxDT.now() + mxDT.RelativeDateTime(days = 1)
+				self.SetValue(date.strftime(self.__display_format))
+				return true
+			if keycode in [ord('g'), ord('G')]:
+				date = mxDT.now() - mxDT.RelativeDateTime(days = 1)
+				self.SetValue(date.strftime(self.__display_format))
+				return true
+			if keycode in [ord('ü'), ord('Ü')]:
+				date = mxDT.now() + mxDT.RelativeDateTime(days = 2)
+				self.SetValue(date.strftime(self.__display_format))
+				return true
+			if keycode in [ord('v'), ord('V')]:
+				date = mxDT.now() - mxDT.RelativeDateTime(days = 2)
+				self.SetValue(date.strftime(self.__display_format))
+				return true
+			if keycode in [ord('k'), ord('K')]:
+				print "Kalender noch nicht implementiert"
+				return true
+
+		evt.Skip()
+	#----------------------------------------------
+	def __on_key_pressed (self, key):
+		"""Is called when a key is pressed."""
+		print "on key pressed"
+		if key.GetKeyCode in (ord('h'), ord('H')):
+			date = mxDT.now()
+			self.SetValue(date.strftime(self.__display_format))
+			return
+		if key.GetKeyCode in (ord('m'), ord('M')):
+			date = mxDT.now() + mxDT.RelativeDateTime(days = 1)
+			self.SetValue(date.strftime(self.__display_format))
+			return
+		if key.GetKeyCode in (ord('g'), ord('G')):
+			date = mxDT.now() - mxDT.RelativeDateTime(days = 1)
+			self.SetValue(date.strftime(self.__display_format))
+			return
+		if key.GetKeyCode in (ord('ü'), ord('Ü')):
+			date = mxDT.now() + mxDT.RelativeDateTime(days = 2)
+			self.SetValue(date.strftime(self.__display_format))
+			return
+		if key.GetKeyCode in (ord('v'), ord('V')):
+			date = mxDT.now() - mxDT.RelativeDateTime(days = 2)
+			self.SetValue(date.strftime(self.__display_format))
+			return
+
+		key.Skip()
 	#----------------------------------------------
 	def __selected(self, data):
 		pass
@@ -255,7 +321,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.3  2003-09-30 18:47:47  ncq
+# Revision 1.4  2003-10-02 20:51:12  ncq
+# - add alt-XX shortcuts, move __* to _*
+#
+# Revision 1.3  2003/09/30 18:47:47  ncq
 # - converted date time input field into phrase wheel descendant
 #
 # Revision 1.2  2003/08/10 00:57:15  ncq

@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.15 2003-09-30 18:52:40 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmPhraseWheel.py,v 1.16 2003-10-02 20:51:12 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -466,8 +466,8 @@ class cPhraseWheel (wxTextCtrl):
 		tmp['id'] = -1
 		self.__picklist_win = wxWindow(*args, **tmp)
 		self.panel = wxPanel(self.__picklist_win, -1)
-		self.__picklist = wxListBox(self.panel, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
-		self.__picklist.Clear()
+		self._picklist = wxListBox(self.panel, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
+		self._picklist.Clear()
 		self.__picklist_win.Hide ()
 		self.__picklist_visible = _false
 
@@ -517,10 +517,10 @@ class cPhraseWheel (wxTextCtrl):
 		# get all currently matching items
 		(matched, self.__currMatches) = self.__matcher.getMatches(relevant_input)
 		# and refill our picklist with them
-		self.__picklist.Clear()
+		self._picklist.Clear()
 		if matched:
 			for item in self.__currMatches:
-				self.__picklist.Append(item['label'], clientData = item['data'])
+				self._picklist.Append(item['label'], clientData = item['data'])
 	#--------------------------------------------------------
 	def __show_picklist(self):
 		"""Display the pick list."""
@@ -528,7 +528,7 @@ class cPhraseWheel (wxTextCtrl):
 		# if only one match and text == match
 #		if (len(self.__currMatches) == 1) and (self.__currMatches[0]['label'] == self.GetValue()):
 			# don't display drop down list
-#			self.__hide_picklist()
+#			self._hide_picklist()
 #			return 1
 
 		# recalculate position
@@ -538,7 +538,7 @@ class cPhraseWheel (wxTextCtrl):
 		#self.__picklist_win.Position(pos, (0, dim.height))
 
 		# select first value
-		self.__picklist.SetSelection(0)
+		self._picklist.SetSelection(0)
 
 		# remember that we have a list window
 		self.__picklist_visible = _true
@@ -546,9 +546,9 @@ class cPhraseWheel (wxTextCtrl):
 		# and show it
 		# FIXME: we should _update_ the list window instead of redisplaying it
 		self.__picklist_win.Show()
-		self.__picklist.Show()
+		self._picklist.Show()
 	#--------------------------------------------------------
-	def __hide_picklist(self):
+	def _hide_picklist(self):
 		"""Hide the pick list."""
 		if self.__picklist_visible:
 			self.__picklist_win.Hide()		# dismiss the dropdown list window
@@ -558,18 +558,18 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	def on_list_item_selected (self):
 		"""Gets called when user selected a list item."""
-		self.__hide_picklist()
+		self._hide_picklist()
 
-		selection_idx = self.__picklist.GetSelection()
+		selection_idx = self._picklist.GetSelection()
 		if self.__handle_multiple_phrases:
-			self.SetValue('%s%s%s' % (self.left_part, self.__picklist.GetString(selection_idx), self.right_part))
+			self.SetValue('%s%s%s' % (self.left_part, self._picklist.GetString(selection_idx), self.right_part))
 		else:
-			self.SetValue(self.__picklist.GetString(selection_idx))
+			self.SetValue(self._picklist.GetString(selection_idx))
 
 		# and tell our parent about the user's selection
 		if self.notify_caller is not None:
 			# get data associated with selected item
-			data = self.__picklist.GetClientData(selection_idx)
+			data = self._picklist.GetClientData(selection_idx)
 			self.notify_caller (data)
 	#--------------------------------------------------------
 	# individual key handlers
@@ -589,7 +589,10 @@ class cPhraseWheel (wxTextCtrl):
 #		pdb.set_trace ()
 		# if we already have a pick list go to next item
 		if self.__picklist_visible:
-			self.__picklist.ProcessEvent (key)
+#			self._picklist.ProcessEvent (key)
+			selected = self._picklist.GetSelection()
+			if selected < (len(self.__currMatches) - 1):
+				self._picklist.SetSelection(selected+1)
 
 		# if we don't yet have a pick list
 		# - open new pick list
@@ -607,10 +610,10 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	def __on_up_arrow(self, key):
 		if self.__picklist_visible:
-			selected = self.__picklist.GetSelection()
+			selected = self._picklist.GetSelection()
 			# select previous item if available
 			if selected > 0:
-				self.__picklist.SetSelection(selected-1)
+				self._picklist.SetSelection(selected-1)
 			else:
 				# FIXME: return to input field and close pick list ?
 				pass
@@ -645,7 +648,7 @@ class cPhraseWheel (wxTextCtrl):
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
 		if len(self.GetValue()) == 0:
-			self.__hide_picklist()
+			self._hide_picklist()
 			# and kill timer lest there be a zombie of it running
 			self.__timer.Stop()
 		else:
@@ -659,9 +662,9 @@ class cPhraseWheel (wxTextCtrl):
 			rows = 1
 		if rows > 10:
 			rows = 10
-		self.__picklist.SetSize ((sz.width, sz.height*rows))
+		self._picklist.SetSize ((sz.width, sz.height*rows))
 		# as wide as the textctrl, and 6 times the height
-		self.panel.SetSize (self.__picklist.GetSize ())
+		self.panel.SetSize (self._picklist.GetSize ())
 		self.__picklist_win.SetSize (self.panel.GetSize())
 	#--------------------------------------------------------
 	def _on_timer_fired (self):
@@ -688,7 +691,7 @@ class cPhraseWheel (wxTextCtrl):
 			# we may have had a pick list window so we
 			# need to dismiss that since we don't have
 			# more than one item anymore
-			self.__hide_picklist()
+			self._hide_picklist()
 #--------------------------------------------------------
 # MAIN
 #--------------------------------------------------------
@@ -755,7 +758,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.15  2003-09-30 18:52:40  ncq
+# Revision 1.16  2003-10-02 20:51:12  ncq
+# - add alt-XX shortcuts, move __* to _*
+#
+# Revision 1.15  2003/09/30 18:52:40  ncq
 # - factored out date input wheel
 #
 # Revision 1.14  2003/09/29 23:11:58  ncq
