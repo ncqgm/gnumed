@@ -4,16 +4,20 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.8 2004-06-02 21:47:27 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmAllergy.py,v 1.9 2004-06-08 00:41:38 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
-import types
+import types, sys
 
-from Gnumed.pycommon import gmLog, gmPG
+from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 from Gnumed.business import gmClinItem
+from Gnumed.pycommon.gmPyCompat import *
 
-gmLog.gmDefLog.Log(gmLog.lInfo, __version__)
+_log = gmLog.gmDefLog
+if __name__ == '__main__':
+	_log.SetAllLogLevels(gmLog.lData)
+_log.Log(gmLog.lInfo, __version__)
 #============================================================
 class cAllergy(gmClinItem.cClinItem):
 	"""Represents one allergy event.
@@ -94,39 +98,49 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	# get PK of inserted row
 	cmd = "select currval('allergy_id_seq')"
 	queries.append((cmd, []))
-
 	result, msg = gmPG.run_commit('historica', queries, True)
 	if result is None:
 		return (None, msg)
-
 	try:
 		allergy = cAllergy(aPK_obj = result[0][0])
 	except gmExceptions.ConstructorError:
-		_log.LogException('cannot instantiate allergy [%s]' % (result[0][0]), sys.exc_info, verbose=0)
+		_log.LogException('cannot instantiate allergy [%s]' % (result[0][0]), sys.exc_info(), verbose=0)
 		return (None, _('internal error, check log'))
-
 	return (True, allergy)
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
 	import sys
+	from Gnumed.pycommon import gmPG, gmI18N
+
 	_log = gmLog.gmDefLog
 	_log.SetAllLogLevels(gmLog.lData)
-	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 	allg = cAllergy(aPK_obj=1)
 	print allg
-#	fields = allg.get_fields()
-#	for field in fields:
-#		print field, ':', allg[field]
+	fields = allg.get_fields()
+	for field in fields:
+		print field, ':', allg[field]
 	print "updatable:", allg.get_updatable_fields()
-#	allg['reaction'] = 'hehehe'
-#	print allg
-#	allg.save_payload()
+	enc_id = allg['id_encounter']
+	epi_id = allg['id_episode']
+	status, allg = create_allergy (
+		substance = 'test substance',
+		allg_type=1,
+		episode_id = epi_id,
+		encounter_id = enc_id
+	)
+	print allg
+	allg['reaction'] = 'hehehe'
+	allg.save_payload()
+	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.8  2004-06-02 21:47:27  ncq
+# Revision 1.9  2004-06-08 00:41:38  ncq
+# - fix imports, cleanup, improved self-test
+#
+# Revision 1.8  2004/06/02 21:47:27  ncq
 # - improved sanity check in create_allergy() contributed by Carlos
 #
 # Revision 1.7  2004/05/30 18:33:28  ncq
