@@ -5,7 +5,7 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.33 $
+-- $Revision: 1.34 $
 -- changelog:
 -- 17.11.2001:  (hherb) first useable version
 -- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
@@ -77,7 +77,7 @@ create table urb (
 	statecode int references state(id),
 	postcode char(8),
 	name varchar(60),
-	constraint unique (statecode, postcode, name)
+	unique (statecode, postcode, name)
 ) inherits (audit_gis);
 
 -- this does not work in the UK! Seperate postcodes for each street
@@ -412,4 +412,4 @@ create table address_info (
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.33 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.34 $');
