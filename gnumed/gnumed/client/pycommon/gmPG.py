@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -461,7 +461,7 @@ class ConnectionPool:
 
 		# set the default characteristics of our sessions
 		curs = conn.cursor()
-		# 1) client encoding
+		# - client encoding
 		if encoding in (None, ''):
 			_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
 		else:
@@ -469,13 +469,19 @@ class ConnectionPool:
 			if not run_query(curs, cmd):
 				_log.Log(gmLog.lWarn, 'cannot set client_encoding on connection to [%s]' % encoding)
 				_log.Log(gmLog.lWarn, 'not setting this may in some cases lead to data corruption')
-		# 2) client time zone
+		# - client time zone
 #		cmd = "set session time zone interval '%s'" % _default_time_zone
 		cmd = "set time zone '%s'" % _default_time_zone
 		if not run_query(curs, cmd):
 			_log.Log(gmLog.lErr, 'cannot set client time zone to [%s]' % _default_time_zone)
 			_log.Log(gmLog.lWarn, 'not setting this will lead to incorrect dates/times')
-		# 3) transaction isolation level
+		# - datestyle
+		# FIXME: add DMY/YMD handling
+		cmd = "set datestyle to 'ISO'"
+		if not run_query(curs, cmd):
+			_log.Log(gmLog.lErr, 'cannot set client date style to ISO')
+			_log.Log(gmLog.lWarn, 'you better use other means to make your server deliver valid ISO timestamps with time zone')
+		# - transaction isolation level
 		if readonly:
 			isolation_level = 'READ COMMITTED'
 		else:
@@ -914,7 +920,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.14 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.15 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1142,7 +1148,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.14  2004-04-26 21:59:46  ncq
+# Revision 1.15  2004-04-27 22:03:27  ncq
+# - we now set the datestyle to ISO on a hard connect()
+#
+# Revision 1.14  2004/04/26 21:59:46  ncq
 # - add_housekeeping_todo()
 #
 # Revision 1.13  2004/04/24 13:17:02  ncq
