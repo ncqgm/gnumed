@@ -34,7 +34,7 @@ import gmLog
 import gmI18N
 
 ID_SCRIPTICON = wxNewId ()
-ID_SCRIPTLIST = wxNewId()
+ID_SCRIPTLIST = wxNewId ()
 ID_SCRIPTMENU = wxNewId ()
 gmSECTION_SCRIPT = 8
 #------------------------------------
