@@ -1,40 +1,37 @@
-############################################################################
-# gmDemographics
-# ----------------------------------
-#
-# This panel will hold all the patients details
-#
-# @copyright: authorcd
-# @license: GPL (details at http://www.gnu.org)
-# @dependencies: wxPython (>= version 2.3.1)
-# @change log:
-#	    10.06.2002 rterry initial implementation, untested
-#           30.07.2002 rterry images put in file
-############################################################################
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.35 2004-07-30 13:43:33 sjtan Exp $
-__version__ = "$Revision: 1.35 $"
-__author__ = "R.Terry, SJ Tan"
+"""gmDemographics
 
-from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
-from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals
-from Gnumed.wxpython import gmCharacterValidator
+ This panel will hold all the patients details
+
+ @copyright: authors
+ @dependencies: wxPython (>= version 2.3.1)
+	28.07.2004 rterry gui-rewrite to include upper patient window
+"""
+#============================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
+# $Id: gmDemographics.py,v 1.36 2004-08-16 13:32:19 ncq Exp $
+__version__ = "$Revision: 1.36 $"
+__author__ = "R.Terry, SJ Tan"
+__license__ = 'GPL (details at http://www.gnu.org)'
+
+# standard library
+import cPickle, zlib, shutil, time
+from string import *			# FIXME
+
+# 3rd party
+from mx import DateTime
+from wxPython.wx import *		# FIXME
+from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
+
+# GnuMed specific
+from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel
+from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCharacterValidator, gmCfg, gmWhoAmI, gmI18N
 from Gnumed.business import gmDemographicRecord, gmPatient
 
-
-from mx import DateTime
-from wxPython.wx import *
-
-import cPickle, zlib, shutil, time
-from string import *
-
-from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
-from Gnumed.business.gmDemographicRecord import MP_urb_by_zip , PostcodeMP, StreetMP, OccupationMP, CountryMP 
-
+# constant defs
 _log = gmLog.gmDefLog
+_whoami = gmWhoAmI.cWhoAmI()
 
-if __name__ == '__main__':
-	from Gnumed.pycommon import gmI18N
+gmSECTION_PATIENT = 5
 
 ID_PATIENT = wxNewId()
 ID_PATIENTSLIST = wxNewId()
@@ -42,7 +39,6 @@ ID_ALL_MENU  = wxNewId()
 ID_ADDRESSLIST = wxNewId()
 ID_NAMESLIST = wxNewId()
 ID_CURRENTADDRESS = wxNewId()
-gmSECTION_PATIENT = 5
 ID_COMBOTITLE = wxNewId()
 ID_COMBOSEX = wxNewId()
 ID_COMBOMARITALSTATUS = wxNewId()
@@ -67,9 +63,10 @@ ID_TXTMOBILE = wxNewId()
 ID_TXTMEMO = wxNewId()
 ID_LISTADDRESSES = wxNewId()
 ID_BUTTONBROWSENOK = wxNewId()
-ID_BUTTONPHOTOAQUIRE = wxNewId()
+ID_BUTTONAQUIRE = wxNewId()
 ID_BUTTONPHOTOEXPORT = wxNewId()
 ID_BUTTONPHOTOIMPORT = wxNewId()
+ID_BUTTONPHOTODELETE = wxNewId()
 ID_CHKBOXRESIDENCE = wxNewId()
 ID_CHKBOXPOSTAL = wxNewId()
 ID_CHKBOXPREFERREDALIAS = wxNewId()
@@ -77,16 +74,18 @@ ID_BUTTONFINDPATIENT = wxNewId()
 ID_TXTPATIENTFIND = wxNewId()
 ID_TXTPATIENTAGE = wxNewId()
 ID_TXTPATIENTALLERGIES  = wxNewId()
+ID_TXTNOK =wxNewId()
 
-#--------------------------------------------------
-#Class which shows a blue bold label left justified
-#--------------------------------------------------
-class BlueLabel(wxStaticText):
-	def __init__(self, parent, id, prompt):
-		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT)
-		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,False,''))
-		self.SetForegroundColour(wxColour(0,0,131))
-#------------------------------------------------------------
+ID_PUP_ITEM_SaveDisplayLayout = wxNewId()
+
+PatientData = {
+1 : ("Macks", "Jennifer","Flat9/128 Brook Rd","NEW LAMBTON HEIGHTS", "2302","19/01/2003","M"," 02 49 5678890"),
+2 : ("Smith","Michelle", "Flat9/128 Brook Rd","ELERMORE VALE", "2302","23/02/1973","F", "02 49564320"),
+3 : ("Smitt", "Francis","29 Willandra Crescent", "WINDALE"," 2280","18/08/1952","M","02 7819292"),
+4 : ("Smythe-Briggs", "Elizabeth","129 Flat Rd", "SMITHS LAKE","2425","04/12/1918","F","02 4322222"),
+}
+
+#-----------------------------------------------------------
 #text control class to be later replaced by the gmPhraseWheel
 #------------------------------------------------------------
 class TextBox_RedBold(wxTextCtrl):
@@ -94,51 +93,31 @@ class TextBox_RedBold(wxTextCtrl):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(255,0,0))
 		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
+class BlueLabel_Normal(wxStaticText):
+	def __init__(self, parent, id, prompt, text_alignment):
+		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,text_alignment)
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
+		self.SetForegroundColour(wxColour(0,0,131))
+class BlueLabel_Bold(wxStaticText):
+	def __init__(self, parent, id, prompt, text_alignment):
+		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,text_alignment)
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,False,''))
+		#self.SetForegroundColour(wxColour(0,0,131))
+		self.SetForegroundColour (wxColour(0,0,255))
 class TextBox_BlackNormal(wxTextCtrl):
 	def __init__ (self, parent, id): #, wxDefaultPosition, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(0,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
-#--------------------------------------------------------------------------------
-
+		#self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 
 class ExtIDPanel:
 	def __init__ (self, parent, sizer, context = 'p'):
-		self.combo_type = wxComboBox(parent, 500, "", wxDefaultPosition,wxDefaultSize, [], wxCB_READONLY)
-		self.map = {}
-		for code, name in gmDemographicRecord.getExtIDTypes (context):
-			self.combo_type.Append (name, code)
-			self.map[code] = name
-		self.txt_ext_id = TextBox_BlackNormal (parent, -1)
-		self.txt_comment = TextBox_BlackNormal (parent, -1)
-		self.btn_add = wxButton (parent, -1, _("Add"))
-		self.btn_del = wxButton (parent, -1, _("Del"))
-		self.list = wxListBox (parent, -1, size=wxDefaultSize, style=wxLB_SINGLE)
-		#self.list.InsertColumn (0, _("Type"))
-		#self.list.InsertColumn (1, _("ID"))
-		#self.list.InsertColumn (2, _("Comment"))
-		
-		sizer1 = wxBoxSizer (wxHORIZONTAL)
-		sizer1.Add (self.combo_type, 2, wxEXPAND)
-		sizer1.Add (self.txt_ext_id, 2, wxEXPAND)
-		sizer1.Add (self.txt_comment, 2, wxEXPAND)
-		sizer2 = wxBoxSizer (wxHORIZONTAL)
-		sizer2.Add (self.btn_add, 2, wxEXPAND)
-		sizer2.Add (self.btn_del, 2, wxEXPAND)
-		sizer.Add (sizer1, 0, wxEXPAND|wxALL, 1)
-		sizer.Add (sizer2, 0, wxEXPAND|wxALL, 1)
-		sizer.Add (self.list, 1, wxEXPAND|wxALL, 1)
+
 
 		self.demo = None
 
-		EVT_BUTTON (self.btn_add, self.btn_add.GetId (), self.on_add)
-		EVT_BUTTON (self.btn_del, self.btn_del.GetId (), self.on_del)
 
-	def Clear (self):
-		self.list.Clear ()
-		self.txt_ext_id.SetValue ('')
-		self.txt_comment.SetValue ('')
-		self.combo_type.SetSelection (0)
 
 	def setDemo (self, demo):
 		"""
@@ -186,9 +165,19 @@ class ExtIDPanel:
 		except:
 			_log.LogException ('failed to delete ext. ID', sys.exc_info (), verbose= 0)
 		
-#------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+# This visually consists of:
+#
+#	Upper listbox - self.patientslist containing one or more patient names and addresses
+#	To the right of this panel containing patients photo, with aquire/delete/import/export buttons
+#		- These two elements sit on a wxBoxSizer(wxHORIZONTAL) self.sizer_for_patientlist_and_photo
+#	Underneath this all the textboxes for data entry
+#		- These are loaded into a gridsizer self.gs
+#	Both these sizers sit on self.sizer_main.
+#		- self.sizer_for_patientlist_and_photo expands vertically and horizontally
+#		- self.gs expands horizontally but not vertically
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
 class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
-	#def __init__(self, parent, plugin, id=wxNewId ()):
 	def __init__(self, parent, id= -1):
 		wxPanel.__init__(self, parent, id ,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER|wxTAB_TRAVERSAL)
 		gmPatientHolder.PatientHolder.__init__(self)
@@ -199,365 +188,584 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 			self.mwm = {}
 		self.to_delete = []
 		self.addr_cache = []
-		self.gendermap = {'m':_('Male'), 'f':_("Female"), '?':_("Unknown"), 'tm':_('Trans. Male'), 'tf':_('Trans. Female'), 'h':_('Hermaphrodite')}
+		self.gendermap = {'m':_('Male'), 'f':_("Female"), '?':_("Unknown"), 'tm':_('Trans. Male'), 'tf':_('Trans. Female'), 									'h':_('Hermaphrodite')}
 		self.comm_channel_names = gmDemographicRecord.getCommChannelTypes ()
 		self.marital_status_types = gmDemographicRecord.getMaritalStatusTypes ()
-		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,[],wxLB_SINGLE)
-		self.addresslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
-		self.addresslist.SetForegroundColour(wxColor(180,182,180))
-		self.lbl_surname = BlueLabel(self,-1,"Surname")
-		self.lbl_firstname = BlueLabel(self,-1,"Firstname")
-		self.lbl_preferredname = BlueLabel(self,-1,"Salutation")
-		self.lbl_title = BlueLabel(self,-1,"Title")
-		self.lbl_sex = BlueLabel(self,-1,"Sex")
-		self.lbl_street = BlueLabel(self,-1,"Street")
-		self.lbl_urb = BlueLabel(self,-1,"Suburb")
-		self.lbl_postcode = BlueLabel(self,-1,"Postcode")
-		self.lbl_address_s = BlueLabel(self,-1,"Address")
-		self.lbl_birthdate = BlueLabel(self,-1,"Birthdate")
-		self.lbl_maritalstatus = BlueLabel(self,-1,"Marital Status")
-		self.lbl_occupation = BlueLabel(self,-1,"Occupation")
-		self.lbl_birthplace = BlueLabel(self,-1,"Born In")
-		self.lbl_nextofkin = BlueLabel(self,-1,"")
-		self.lbl_addressNOK = BlueLabel(self,-1,"Next of Kin")
-		self.lbl_relationship = BlueLabel(self,-1,"Relationship")
-		self.lbl_homephone = BlueLabel(self,-1,self.comm_channel_names[gmDemographicRecord.HOME_PHONE])
-		self.lbl_workphone = BlueLabel(self,-1,self.comm_channel_names[gmDemographicRecord.WORK_PHONE])
-		self.lbl_fax = BlueLabel(self,-1,self.comm_channel_names[gmDemographicRecord.FAX])
-		self.lbl_email = BlueLabel(self,-1,self.comm_channel_names[gmDemographicRecord.EMAIL])
-		self.lbl_web = BlueLabel(self,-1,self.comm_channel_names[gmDemographicRecord.WEB])
-		self.lbl_mobile = BlueLabel(self,-1, self.comm_channel_names[gmDemographicRecord.MOBILE])
-		self.lbl_line6gap = BlueLabel(self,-1,"")
-		self.titlelist = ['Mr', 'Mrs', 'Miss', 'Mst', 'Ms', 'Dr', 'Prof']
-          	self.combo_relationship = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize, ['Father','Mother'], wxCB_DROPDOWN)
+		self._cfg = gmCfg.gmDefCfgFile
+		#self.db = gmCfg.setDBParam()
+		self._whoami = gmWhoAmI.cWhoAmI()
+		#create the sizer to hold patient list and photo
+		self.sizer_for_patientlist_and_photo = wxBoxSizer(wxHORIZONTAL)
+		#------------------------------------------------------------------------
+		#create patient list, add column headers and data
+		#-----------------------------------------------------------------------
+		patientlist_ID = wxNewId()
+		self.patientlist = wxListCtrl(self,patientlist_ID,wxDefaultPosition,size=(400,10),style=wxLC_REPORT | wxSUNKEN_BORDER   | 					wxLC_VRULES|wxLC_HRULES)
+		self.patientlist.InsertColumn(0, "Name")
+		self.patientlist.InsertColumn(1, "")
+		self.patientlist.InsertColumn(2, "Street")
+		self.patientlist.InsertColumn(4, "Suburb")
+		self.patientlist.InsertColumn(5, "Postcode",wxLIST_FORMAT_CENTRE)
+		self.patientlist.InsertColumn(6, "Date of Birth", wxLIST_FORMAT_CENTRE)
+		self.patientlist.InsertColumn(7, "Sex", wxLIST_FORMAT_CENTRE)
+		self.patientlist.InsertColumn(8, "Home Phone", wxLIST_FORMAT_CENTRE)
+		#-------------------------------------------------------------
+		#loop through the PatientData array and add to the list control
+		#note the different syntax for the first coloum of each row
+		#i.e. here > self.patientlist.InsertStringItem(x, data[0])!!
+		#-------------------------------------------------------------
+		items = PatientData.items()
+		for x in range(len(items)):
+			key, data = items[x]
+			print x, data[0],data[1],data[2],data[3],data[4],data[5]
+			self.patientlist.InsertStringItem(x, data[0])
+			self.patientlist.SetStringItem(x, 1, data[1])
+			self.patientlist.SetStringItem(x, 2, data[2])
+			self.patientlist.SetStringItem(x, 3, data[3])
+			self.patientlist.SetStringItem(x, 4, data[4])
+			self.patientlist.SetStringItem(x, 5, data[5])
+			self.patientlist.SetStringItem(x, 6, data[6])
+			self.patientlist.SetStringItem(x, 7, data[7])
+			self.patientlist.SetItemData(x, key)
+		#--------------------------------------------------------
+		#note the number passed to the wxColumnSorterMixin must be
+		#the 1 based count of columns
+		#--------------------------------------------------------
+		self.itemDataMap = PatientData
+		# Try and get the user's column width from the databse
+		self.patientcolumnslist = gmCfg.getFirstMatchingDBSet(option="widgets.demographics.patientlist.column_sizes")[0]
+		if len(self.patientcolumnslist) == 0:					# no values - use defaults
+			self.patientlist.SetColumnWidth(0, 100)
+			self.patientlist.SetColumnWidth(1, 100)
+			self.patientlist.SetColumnWidth(2, 250)
+			self.patientlist.SetColumnWidth(3, 200)
+			self.patientlist.SetColumnWidth(4, 60)
+			self.patientlist.SetColumnWidth(5, 100)
+			self.patientlist.SetColumnWidth(6, 50)
+			self.patientlist.SetColumnWidth(7,100)
+			# FIXME: save defaults ?
+		else:											# otherwise, set column widths
+			print self.patientcolumnslist
+			for i in range (0,8):
+				self.patientlist.SetColumnWidth(i,int(self.patientcolumnslist[i]))
+		#----------------------------------------------------------------------------------------------------------------
+		#Now create the sizer to hold the patients photo and buttons. The photo will
+		#not resize as the form resizes
+		#---------------------------------------------------------------------------------------------------------------
+		self.sizer_photo = wxBoxSizer(wxVERTICAL)
+		self.lbl_photo = BlueLabel_Bold(self,-1,"Photo",wxALIGN_CENTRE)
+		self.photopanel = wxPanel (self,-1,size= (100,100), style = wxSUNKEN_BORDER)
+		self.sizer_photo.Add(self.lbl_photo,0,wxSHAPED|wxALIGN_CENTRE|wxALL,2)
+		self.sizer_photo.Add(self.photopanel,0,wxSHAPED|wxALIGN_CENTRE|wxALL,2)
+		self.sizer_photo.Add(0,5,0)
+		self.sizer_photo.Add(0,0,1,wxEXPAND)
+		self.sizer_for_patientlist_and_photo.Add(self.patientlist,
+					5,						#any non-zero value = make vertically stretchable
+					wxEXPAND				#make grow as sizer grows (vertical + horizontal)
+					|wxTOP|wxLEFT|wxBOTTOM,	#the top, left, bottom edges
+					2)						#by a 10 pixel border
+		self.sizer_for_patientlist_and_photo.Add(self.sizer_photo,1,wxEXPAND|wxALL,5)
+
+		self.lbl_space = BlueLabel_Normal(self,-1,"",wxLEFT) #This lbl_space is used as a spacer between label
+		#-------------------------------------------------------------------
+		#Add surname, firstname, title, sex, salutation
+		#-------------------------------------------------------------------
+		self.lbl_surname = BlueLabel_Normal(self,-1,"Surname",wxLEFT)
 		self.txt_surname = TextBox_RedBold(self,-1)
+		self.lbl_title = BlueLabel_Normal(self,-1,"Title",wxALIGN_CENTRE)
+		self.titlelist = ['Mr', 'Mrs', 'Miss', 'Mst', 'Ms', 'Dr', 'Prof']
 		self.combo_title = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,self.titlelist, wxCB_DROPDOWN)
+		self.lbl_firstname = BlueLabel_Normal(self,-1,"Firstname",wxLEFT)
 		self.txt_firstname = TextBox_RedBold(self,-1)
-		self.combo_sex = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize, self.gendermap.values (), wxCB_DROPDOWN)
-		self.cb_preferredname = wxCheckBox(self, -1, _("Preferred Name"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		self.txt_preferred = TextBox_RedBold(self,-1)
-		#self.txt_address = wxTextCtrl(self, 30, "",
-		#			      wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
-		#self.txt_address.SetInsertionPoint(0)
-		#self.txt_address.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
-		
-		self.txt_number= wxTextCtrl( self, 30, "")
-		self.txt_number.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
-		self.txt_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wxDefaultPosition, size=wxDefaultSize )
-		self.txt_street.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
-
-		self.txt_urb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
-
-		self.txt_postcode  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize)
-		self.txt_postcode.setDependent (self.txt_urb, 'postcode')
-
-		self.txt_birthdate = TextBox_BlackNormal(self,-1)
-		self.combo_maritalstatus = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,
-						      self.marital_status_types, wxCB_DROPDOWN | wxCB_READONLY)
-		self.txt_occupation = cPhraseWheel (parent=self, id = -1, aMatchProvider = OccupationMP (), pos = wxDefaultPosition, size=wxDefaultSize)
-		self.txt_country = cPhraseWheel (parent=self, id = -1, aMatchProvider = CountryMP (), pos = wxDefaultPosition, size=wxDefaultSize)
-		self.btn_browseNOK = wxButton(self,-1,"Browse NOK") #browse database to pick next of Kin
-		self.lb_nameNOK = wxListBox( self, 30)
+		self.lbl_sex = BlueLabel_Normal(self,-1,"Sex",wxALIGN_CENTRE)
+		self.combo_sex = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize, self.gendermap.values (), 	    									wxCB_DROPDOWN)
+		self.lbl_preferredname =  BlueLabel_Normal(self,-1,"Salutation",wxLEFT)
+		self.txt_preferredname = TextBox_RedBold(self,-1)
+		#-----------------------------------------------------------------------------------
+		#now add gui-elements to sizers for surname to salutation
+		#each line has several (up to 4 elements
+		# e.g surname <textbox> title <textbox> etc
+		#-----------------------------------------------------------------------------------
+		self.sizer_line1 = wxBoxSizer(wxHORIZONTAL)  		 #holds surname label + textbox, title label and combobox
+		self.sizer_line1.Add(self.lbl_surname,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_line1.Add(self.txt_surname,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_line1.Add(self.lbl_title,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_line1.Add(self.combo_title,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_line2 = wxBoxSizer(wxHORIZONTAL)  		#holds firstname label + textbox, sex label + combobox
+		self.sizer_line2.Add(self.lbl_firstname,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_line2.Add(self.txt_firstname,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_line2.Add(self.lbl_sex,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_line2.Add(self.combo_sex,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_line3 = wxBoxSizer(wxHORIZONTAL)		#holds preferredname label and textbox
+		self.sizer_line3.Add(self.lbl_preferredname,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_line3.Add(self.txt_preferredname,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_line3.Add(self.lbl_space,8,wxEXPAND|wxTOP|wxBOTTOM,1)
+		#--------------------------------------------------------------------------
+		#The heading for 'Address, sits on its own box sizer
+		#--------------------------------------------------------------------------
+		self.lbl_heading_address = BlueLabel_Bold(self,-1,"Address",wxALIGN_CENTRE)
+		self.sizer_lbl_heading_address = wxBoxSizer(wxHORIZONTAL)   #holds address heading
+		self.sizer_lbl_heading_address.Add(self.lbl_space,1,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_lbl_heading_address.Add(self.lbl_space,1,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_lbl_heading_address.Add(self.lbl_heading_address,1,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_lbl_heading_address.Add(self.lbl_space,1,wxEXPAND|wxTOP|wxBOTTOM,1)
+		#------------------------------------------------------------------------------
+		#Next add street label + 3 line size textbox for street
+		#------------------------------------------------------------------------------
+		self.sizer_street = wxBoxSizer(wxHORIZONTAL)
+		self.lbl_street = BlueLabel_Normal(self,-1,"Street",wxLEFT)
+		self.txt_street = wxTextCtrl(self, 30, "",wxDefaultPosition, size=(1,50),style=wxTE_MULTILINE)
+		self.sizer_street.Add(self.lbl_street,3,wxEXPAND)
+		self.sizer_street.Add(self.txt_street,13, wxEXPAND)
+		#------------------------------------------------
+		#suburb on one line
+		#------------------------------------------------
+		self.sizer_suburb = wxBoxSizer(wxHORIZONTAL)
+		self.lbl_suburb = BlueLabel_Normal(self,-1,"Suburb",wxLEFT)
+		self.txt_suburb = gmPhraseWheel.cPhraseWheel( parent = self,id = -1 , aMatchProvider= gmDemographicRecord.MP_urb_by_zip(), selection_only = 1, pos = 								wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
+		self.sizer_suburb.Add(self.lbl_suburb,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_suburb.Add(self.txt_suburb,13,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_stateandpostcode = wxBoxSizer(wxHORIZONTAL)
+		#-----------------------------------------------------------
+		#state and postcode on next line on sizer
+		#-----------------------------------------------------------
+		self.lbl_state = BlueLabel_Normal(self,-1,"State",wxLEFT)
+		self.txt_state = TextBox_BlackNormal(self,-1)
+		self.lbl_postcode = BlueLabel_Normal(self,-1,"Postcode",wxALIGN_CENTRE)
+  		self.txt_postcode  = gmPhraseWheel.cPhraseWheel( parent = self,id = -1 , aMatchProvider= gmDemographicRecord.PostcodeMP(), selection_only = 1,  pos = 							wxDefaultPosition, size=wxDefaultSize)
+		self.txt_postcode.setDependent (self.txt_suburb, 'postcode')
+		self.sizer_stateandpostcode.Add(self.lbl_state,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_stateandpostcode.Add(self.txt_state,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_stateandpostcode.Add(self.lbl_postcode,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_stateandpostcode.Add(self.txt_postcode,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		#Next line = Type of address (e.g home, work, parents - any one of which could be a 'postal address'
+		self.sizer_addresstype_chkpostal = wxBoxSizer(wxHORIZONTAL)
+		self.lbl_addresstype = BlueLabel_Normal(self,-1,"Type",wxLEFT)
+		self.combo_address_types = ['Home', 'Work', 'Parents','Post Office Box']
+		self.combo_address_type = wxComboBox(self, -1, "",wxDefaultPosition,wxDefaultSize, self.combo_address_types,	 	     					wxCB_DROPDOWN |wxCB_READONLY)
+		self.chk_addresspostal = wxCheckBox(self, -1, "Postal Address ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		self.chk_addresspostal.SetForegroundColour(wxColour(0,0,131))
+		self.sizer_addresstype_chkpostal.Add(self.lbl_addresstype,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_addresstype_chkpostal.Add(self.combo_address_type,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_addresstype_chkpostal.Add(self.lbl_space,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_addresstype_chkpostal.Add(self.chk_addresspostal,5,wxEXPAND|wxBOTTOM,1)
+		#----------------------------------------------------------------------------------------------------------------------
+		#Contact details - phone work, home,fax,mobile,internet and email
+		#-----------------------------------------------------------------------------------------------------------------------
+		self.sizer_contacts_line1 = wxBoxSizer(wxHORIZONTAL)
+		self.sizer_contacts_line2 = wxBoxSizer(wxHORIZONTAL)
+		self.sizer_contacts_line3 = wxBoxSizer(wxHORIZONTAL)
+		self.sizer_contacts_line4 = wxBoxSizer(wxHORIZONTAL)
+		self.lbl_contact_heading = BlueLabel_Bold(self,-1,"Contact Details",wxLEFT)
+		self.lbl_homephone = BlueLabel_Normal(self,-1,"Home Phone",wxLEFT)
+		self.lbl_workphone = BlueLabel_Normal(self,-1,"Work Phone",wxLEFT)
+		self.lbl_mobile = BlueLabel_Normal(self,-1,"Mobile",wxLEFT)
+		self.lbl_fax = BlueLabel_Normal(self,-1,"Fax",wxALIGN_CENTRE)
+		self.lbl_email = BlueLabel_Normal(self,-1,"Email",wxALIGN_CENTRE)
+		self.lbl_web = BlueLabel_Normal(self,-1,"Web",wxALIGN_CENTRE)
 		self.txt_homephone = TextBox_BlackNormal(self,-1)
 		self.txt_workphone = TextBox_BlackNormal(self,-1)
+		self.txt_mobile = TextBox_BlackNormal(self,-1)
 		self.txt_fax = TextBox_BlackNormal(self,-1)
-
 		self.txt_email = TextBox_BlackNormal(self,-1)
 		self.txt_web = TextBox_BlackNormal(self,-1)
-		self.txt_mobile = TextBox_BlackNormal(self,-1)
-
-                #----------------------
-		#create the check boxes
-		#----------------------
-		self.cb_addressresidence = wxCheckBox(self, -1, " Residence ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		self.cb_addresspostal = wxCheckBox(self, -1, " Postal ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		#--------------------
-		# create the buttons
-		#--------------------
-		self.btn_photo_import= wxButton(self,-1,"Import")
-		self.btn_photo_export = wxButton(self,-1,"Export")
-		#self.btn_photo_acquire = wxButton(self,-1,"Acquire")
-
-		
-		#-------------------------------------------------------
-		#Add the each line of controls to a horizontal box sizer
-		#-------------------------------------------------------
-		self.sizer_line0_left = wxBoxSizer(wxHORIZONTAL)
-		#line one:surname, title
-		self.sizer_line1_left = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line1_left.Add(self.lbl_surname,3, wxGROW|wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line1_left.Add(self.txt_surname,7,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line1_left.Add(wxSize(0,0), 1)
-		else:
-			self.sizer_line1_left.Add(0,0, 1)
-		self.sizer_line1_left.Add(self.lbl_title,2,wxALIGN_CENTER_VERTICAL, 5)
-		self.sizer_line1_left.Add(self.combo_title,4,wxEXPAND)
-		#line two:firstname, sex
-		self.sizer_line2_left = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line2_left.Add(self.lbl_firstname,3,wxGROW|wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line2_left.Add(self.txt_firstname,7,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line2_left.Add(wxSize(0,0), 1)
-		else:
-			self.sizer_line2_left.Add(0,0, 1)
-		self.sizer_line2_left.Add(self.lbl_sex,2,wxGROW|wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line2_left.Add(self.combo_sex,4,wxEXPAND)
-		#line three:preferred salutation
-		self.sizer_line3_left = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line3_left.Add(self.lbl_preferredname,3,wxGROW|wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line3_left.Add(self.txt_preferred,7,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line3_left.Add(wxSize(1,0), 7)
-		else:
-			self.sizer_line3_left.Add(1,0, 7)
-		#line four: preferred alias
-		self.sizer_line4_left = wxBoxSizer(wxHORIZONTAL)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line4_left.Add(wxSize(1,0), 3)
-		else:
-			self.sizer_line4_left.Add(1,0, 3)
-		self.sizer_line4_left.Add(self.cb_preferredname,7,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line4_left.Add(wxSize(1,0), 7)
-		else:
-			self.sizer_line4_left.Add(1,0, 7)
-		#line6 on this left side is blank
-		self.sizer_line6_left = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line6_left.Add(self.lbl_line6gap,1,wxEXPAND)
-		#----------------
-		#3:street details
-		#c) residence or postal address
-		#------------------------------
-		sizer_respostal = wxBoxSizer(wxHORIZONTAL)
-		sizer_respostal.Add(self.cb_addressresidence,1,wxEXPAND)
-		sizer_respostal.Add(self.cb_addresspostal,1,wxEXPAND)
-
-		self.sizer_line7_left = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line7_left.Add(self.lbl_street,3,wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line7_left.Add(self.txt_number,2,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line7_left.Add(wxSize(0,0), 1)
-		else:
-			self.sizer_line7_left.Add(0,0, 1)
-		self.sizer_line7_left.Add(self.txt_street,4,wxEXPAND)
-		self.sizer_line7_left.Add(sizer_respostal,6,wxEXPAND)
-		#--------------------------
-		# create the suburb details
-		#--------------------------
-		self.sizer_line8_left = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line8_left.Add(self.lbl_urb,3,wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line8_left.Add(self.txt_urb,7,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line8_left.Add(wxSize(0,0), 1)
-		else:
-			self.sizer_line8_left.Add(0,0, 1)
-		self.sizer_line8_left.Add(self.lbl_postcode,3,wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line8_left.Add(self.txt_postcode,3,wxEXPAND)
-
-		#--------------------------
-		# create address editing
-		#-------------------------
-		sizer_line8b_left = wxBoxSizer(wxHORIZONTAL)
-		label_addr_type = BlueLabel( self, -1, _('address type') )
-		self.combo_address_type = wxComboBox(self, -1, choices=gmDemographicRecord.getAddressTypes (), style=wxCB_READONLY)
-		sizer_line8b_left.Add(label_addr_type, 0, wxALIGN_CENTER_VERTICAL, 5)
-		sizer_line8b_left.Add(self.combo_address_type, 2, wxEXPAND)
-		self.btn_add_address = wxButton(self, -1, _('add address'))
-		self.btn_del_address= wxButton(self, -1, _('delete'))
-		sizer_line8b_left.Add( self.btn_add_address, 1, wxEXPAND)
-		sizer_line8b_left.Add( self.btn_del_address, 1, wxEXPAND)
-		#--------------------------------
-		# create the multiple address box
-		#--------------------------------
-		self.sizer_line9_left = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line9_left.Add(self.lbl_address_s,3,wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line9_left.Add(self.addresslist,14,wxEXPAND)
-		#-------------------------------------------------------------------------
-		#now add all the left hand line sizers to the one left hand vertical sizer
-		#-------------------------------------------------------------------------
-		self.leftside = wxBoxSizer(wxVERTICAL)
-		self.leftside.Add(self.sizer_line1_left,0,wxEXPAND|wxALL,1)
-		self.leftside.Add(self.sizer_line2_left,0,wxEXPAND|wxALL,1)
-		self.leftside.Add(self.sizer_line3_left,0,wxEXPAND|wxALL,1)
-		self.leftside.Add(self.sizer_line4_left,0,wxEXPAND|wxALL,1)
-		self.leftside.Add(self.sizer_line6_left,0,wxEXPAND|wxALL,1)
-		self.leftside.Add(self.sizer_line7_left,0,wxEXPAND|wxALL,1)
-		self.leftside.Add(self.sizer_line8_left,0,wxEXPAND|wxALL,1)
-		self.leftside.Add(sizer_line8b_left,0,wxEXPAND|wxALL,1)
-		self.leftside.Add(self.sizer_line9_left,0,wxEXPAND|wxALL,1)
-		#---------------------------------------------------
-		#now add textboxes etc to the right hand line sizers
-		#---------------------------------------------------
-		self.sizer_line0_right = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line1_right = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line2_right = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line3_right = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line4_right = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line5_right = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line6_right = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line7_right = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line8_right = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line9_right = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line10_right = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line11_right = wxBoxSizer(wxHORIZONTAL)
-		#line1 _ birthdate, maritial status
-		self.sizer_line1_right.Add(self.lbl_birthdate,2,wxALIGN_CENTER_VERTICAL,0)
-		self.sizer_line1_right.Add(self.txt_birthdate,2,wxALIGN_LEFT)
-		self.sizer_line1_right.Add(self.lbl_maritalstatus,2,wxALIGN_CENTRE,0)
-		self.sizer_line1_right.Add(self.combo_maritalstatus, 2, wxALIGN_CENTER_VERTICAL,0)
-		#line2 - occupation (use word wheel later in place of text box)
-		self.sizer_line2_right.Add(self.lbl_occupation,2,wxALIGN_CENTER_VERTICAL,0)
-		self.sizer_line2_right.Add(self.txt_occupation,6,wxEXPAND)
-		#line3 - country of birth (use word wheel later)
-		self.sizer_line3_right.Add(self.lbl_birthplace,2,wxALIGN_CENTER_VERTICAL,0)
-		self.sizer_line3_right.Add(self.txt_country,6,wxEXPAND)
-		#line 4 - next of kin + browse for next of kin
-		self.sizer_line4_right.Add(self.lbl_nextofkin, 2,wxALIGN_CENTER_VERTICAL,0)
-		self.sizer_line4_right.Add(self.btn_browseNOK,2, wxALIGN_CENTER_VERTICAL)
-#		if wxPlatform == '__WXMAC__':
-#			self.sizer_line4_right.Add(wxSize(0,0), 1)
-#		else:
-#			self.sizer_line4_right.Add(0,0, 1)
-		self.sizer_line4_right.Add(self.lbl_relationship,2, wxALIGN_CENTER_VERTICAL,0)
-		self.sizer_line4_right.Add(self.combo_relationship,2,wxEXPAND)
-		#name of next of kin
-		self.sizer_gap_vertical =wxBoxSizer(wxVERTICAL)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_gap_vertical.Add((1,47),1)
-		else:
-			self.sizer_gap_vertical.Add(1,47,1)
-		self.sizer_line5_right.Add(self.lbl_addressNOK,2,wxEXPAND)
-		self.sizer_line5_right.Add(self.lb_nameNOK, 6,wxEXPAND)
-		self.sizer_line5_right.AddSizer(self.sizer_gap_vertical)
-		#----------------------------------------------------------------------------
-		# Contact numbers are on their own separate vertical sizer as the photo sits
-		# next to this
-		#----------------------------------------------------------------------------
-		self.sizer_contacts = wxBoxSizer(wxVERTICAL)
-		self.sizer_line6_right.Add(self.lbl_homephone, 3,wxALIGN_CENTRE,0)
-		self.sizer_line6_right.Add(self.txt_homephone, 5,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line6_right.Add(wxSize(0,0), 1)
-		else:
-			self.sizer_line6_right.Add(0,0, 1)
-		self.sizer_contacts.Add(self.sizer_line6_right,0,wxEXPAND)
-		self.sizer_line7_right.Add(self.lbl_workphone,3,wxALIGN_CENTRE,0)
-		self.sizer_line7_right.Add(self.txt_workphone, 5,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line7_right.Add(wxSize(0,0), 1)
-		else:
-			self.sizer_line7_right.Add(0,0, 1)
-		self.sizer_contacts.Add(self.sizer_line7_right,0,wxEXPAND)
-		self.sizer_line8_right.Add(self.lbl_fax,3,wxALIGN_CENTRE,0)
-		self.sizer_line8_right.Add(self.txt_fax, 5,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line8_right.Add(wxSize(0,0), 1)
-		else:
-			self.sizer_line8_right.Add(0,0, 1)
-		self.sizer_contacts.Add(self.sizer_line8_right,0,wxEXPAND)
-		self.sizer_line9_right.Add(self.lbl_email,3,wxALIGN_CENTRE,0)
-		self.sizer_line9_right.Add(self.txt_email, 5,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line9_right.Add(wxSize(0,0), 1)
-		else:
-			self.sizer_line9_right.Add(0,0, 1)
-		self.sizer_contacts.Add(self.sizer_line9_right,0,wxEXPAND)
-		self.sizer_line10_right.Add(self.lbl_web,3,wxALIGN_CENTRE,0)
-		self.sizer_line10_right.Add(self.txt_web, 5,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line10_right.Add(wxSize(0,0), 1)
-		else:
-			self.sizer_line10_right.Add(0,0, 1)
-		self.sizer_contacts.Add(self.sizer_line10_right,0,wxEXPAND)
-		self.sizer_line11_right.Add(self.lbl_mobile,3,wxALIGN_CENTRE,0)
-		self.sizer_line11_right.Add(self.txt_mobile, 5,wxEXPAND)
-		if wxPlatform == '__WXMAC__':
-			self.sizer_line11_right.Add(wxSize(0,0), 1)
-		else:
-			self.sizer_line11_right.Add(0,0, 1)
-		self.sizer_contacts.Add(self.sizer_line11_right,0,wxEXPAND)
-		self.sizer_photo = wxBoxSizer(wxVERTICAL)
-		self.patientpicture = gmGP_PatientPicture.cPatientPicture(self, -1)
-		self.sizer_photo.Add(self.patientpicture,3,wxALIGN_CENTER_HORIZONTAL,0)
-		#self.sizer_photo.Add(self.btn_photo_acquire,1,wxALIGN_CENTER_HORIZONTAL,0)
-		self.sizer_photo.Add(self.btn_photo_export,1,wxALIGN_CENTER_HORIZONTAL,0)
-		self.sizer_photo.Add(self.btn_photo_import,1,wxALIGN_CENTER_HORIZONTAL,0)
-		self.sizer_contactsandphoto  = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_contactsandphoto.AddSizer(self.sizer_contacts,6,wxALIGN_CENTER_VERTICAL,0)
-		self.sizer_contactsandphoto.AddSizer(self.sizer_photo,2,wxALIGN_CENTER_VERTICAL,0)
-		self.rightside = wxBoxSizer(wxVERTICAL)
-		self.rightside.Add(self.sizer_line1_right,0,wxEXPAND|wxALL,1)
-		self.rightside.Add(self.sizer_line2_right,0,wxEXPAND|wxALL,1)
-		self.rightside.Add(self.sizer_line3_right,0,wxEXPAND|wxALL,1)
-		self.rightside.Add(self.sizer_line4_right,0,wxEXPAND|wxALL,1)
-		self.rightside.Add(self.sizer_line5_right,0,wxEXPAND|wxALL,1)
-		self.rightside.Add(self.sizer_contactsandphoto,0,wxEXPAND|wxALL,1)
-		self.ext_id_panel = ExtIDPanel (self, self.rightside)
-		sizer_control = wxBoxSizer(wxHORIZONTAL)
-		b1 = wxButton( self, -1, _("SAVE"))
-		b2 = wxButton( self, -1, _("CANCEL"))
-		b3 = wxButton( self, -1, _("NEW"))
-		sizer_control.Add( b1, 0, wxEXPAND)
-		sizer_control.Add( b2, 0, wxEXPAND)
-		sizer_control.Add( b3, 0, wxEXPAND)
-		self.btn_save = b1
-		self.btn_del = b2
-		self.btn_new = b3
-		if wxPlatform == '__WXMAC__':
-			self.leftside.Add ((1,0),1)
-		else:
-			self.leftside.Add (1,0,1)
-		self.leftside.Add(sizer_control)	
-
-		self.mainsizer = wxBoxSizer(wxHORIZONTAL)
-		self.mainsizer.AddSizer(self.leftside,10,wxEXPAND|wxALL,5)
-		if wxPlatform == '__WXMAC__':
-			self.mainsizer.Add((1,0),1)
-		else:
-			self.mainsizer.Add(1,0,1)
-		self.mainsizer.AddSizer(self.rightside,10,wxEXPAND|wxALL,5)
-		self.SetSizer(self.mainsizer)
-		self.SetAutoLayout(True)
-		#self.Show(False)
+		self.sizer_contacts_line1 .Add(self.lbl_space,1,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line1 .Add(self.lbl_space,1,wxEXPAND)
+		self.sizer_contacts_line1 .Add(self.lbl_contact_heading,1,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line1 .Add(self.lbl_space,1,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line2 .Add(self.lbl_homephone,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line2 .Add(self.txt_homephone,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line2 .Add(self.lbl_fax,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line2 .Add(self.txt_fax,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line3 .Add(self.lbl_workphone,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line3 .Add(self.txt_workphone,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line3 .Add(self.lbl_email,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line3 .Add(self.txt_email,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line4 .Add(self.lbl_mobile,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line4 .Add(self.txt_mobile,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line4 .Add(self.lbl_web,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts_line4 .Add(self.txt_web,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_contacts =wxBoxSizer(wxVERTICAL)
+		#------------------------------------------------------
+		#Design the right hand side of screen
+		#Date of Birth, Marital Status
+		#-----------------------------------------------------
+		self.sizer_birthdatemarital = wxBoxSizer(wxHORIZONTAL)
+		self.lbl_birthdate = BlueLabel_Normal(self,-1,"Birthdate",wxLEFT)
+		self.txt_birthdate = TextBox_BlackNormal(self,-1)
+		self.lbl_maritalstatus = BlueLabel_Normal(self,-1,"Marital Status",wxALIGN_CENTRE)
+		self.marital_status_types = ['Married', 'Single', 'Defacto']
+		self.combo_maritalstatus = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,
+						      self.marital_status_types, wxCB_DROPDOWN | wxCB_READONLY)
+		self.sizer_birthdatemarital.Add(self.lbl_birthdate,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_birthdatemarital.Add(self.txt_birthdate,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_birthdatemarital.Add(self.lbl_maritalstatus,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_birthdatemarital.Add(self.combo_maritalstatus,5,wxEXPAND|wxTOP|wxBOTTOM,1)
+		#-----------------------------
+		#Patients occupation
+		#-----------------------------
+		self.sizer_occupation = wxBoxSizer(wxHORIZONTAL)
+		self.lbl_occupation = BlueLabel_Normal(self,-1,"Occupation",wxLEFT)
+		self.txt_occupation = gmPhraseWheel.cPhraseWheel(
+			parent=self,
+			id = -1,
+			aMatchProvider = gmDemographicRecord.OccupationMP(),
+			pos = wxDefaultPosition,
+			size=wxDefaultSize
+		)
+		self.sizer_occupation.Add(self.lbl_occupation,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_occupation.Add(self.txt_occupation,13,wxEXPAND|wxTOP|wxBOTTOM,1)
+		#-----------------------------------
+		#patients country of birth
+		#-----------------------------------
+		self.sizer_countryofbirth = wxBoxSizer(wxHORIZONTAL)
+		self.lbl_countryofbirth = BlueLabel_Normal(self,-1,"Born In",wxLEFT)
+		self.txt_countryofbirth = gmPhraseWheel.cPhraseWheel (parent=self, id = -1, aMatchProvider = gmDemographicRecord.CountryMP (), pos = wxDefaultPosition, 						size=wxDefaultSize)
+		self.sizer_countryofbirth.Add(self.lbl_countryofbirth,3,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_countryofbirth.Add(self.txt_countryofbirth,13,wxEXPAND|wxTOP|wxBOTTOM,1)
+		#-----------------------------------------------------------
+		#Now add heading for next of kin section
+		#-----------------------------------------------------------
+		self.lbl_heading_nok = BlueLabel_Bold(self,-1,"Next of Kin",wxALIGN_CENTRE)
+		self.sizer_heading_nok = wxBoxSizer(wxHORIZONTAL)   #holds address heading
+		self.sizer_heading_nok.Add(self.lbl_space,1,wxEXPAND)
+		self.sizer_heading_nok.Add(self.lbl_space,1,wxEXPAND)
+		self.sizer_heading_nok.Add(self.lbl_heading_nok,1,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_heading_nok.Add(self.lbl_space,1,wxEXPAND)
+		#--------------------------------------------------------------------------------------------------------
+		#Next of Kin Information in multi-line textbox(will include name/address)
+		#--------------------------------------------------------------------------------------------------------
+		self.sizer_patientnameaddressNOK= wxBoxSizer(wxHORIZONTAL)
+		self.lbl_nextofkin = BlueLabel_Normal(self,-1,"Details",wxLEFT)
+		self.txt_nameaddressnok = wxTextCtrl(self, ID_TXTNOK, ""
+				,wxDefaultPosition
+				, size=(1,50)				 # note 1=arbitary,  50 needed to allow it to expand, otherwise is small
+				,style = wxTE_MULTILINE)
+		self.sizer_patientnameaddressNOK.Add(self.lbl_nextofkin,3,wxEXPAND)
+		self.sizer_patientnameaddressNOK.Add(self.txt_nameaddressnok,13,wxEXPAND)
+		#----------------------------------------------------------------------------------------------------------------------
+		#next of kin ancilliary information - relationship, contact phone, browse database
+		#-----------------------------------------------------------------------------------------------------------------------
+		self.sizer_nok_relationship =wxBoxSizer(wxHORIZONTAL)
+		self.lbl_relationshipNOK = BlueLabel_Normal(self,-1,"Relationship",wxLEFT)
+		self.cmb_relationshipNOK= wxComboBox(self, -1, "", wxDefaultPosition,wxDefaultSize,
+		['Father','Mother','Daughter','Son','Aunt','Uncle','Unknown'], wxCB_DROPDOWN)
+		self.sizer_nok_relationship.Add(self.lbl_relationshipNOK,3,wxEXPAND)
+		self.sizer_nok_relationship.Add(self.cmb_relationshipNOK,13,wxEXPAND)
+		self.sizer_search_nok  = wxBoxSizer(wxHORIZONTAL)
+		self.btn_browseNOK = wxButton(self,-1,"Browse Database for Next Of Kin Details")
+		self.sizer_search_nok.Add(self.lbl_space,3,wxEXPAND)
+		self.sizer_search_nok.Add(self.btn_browseNOK,13, wxEXPAND|wxTOP,5)
+		self.sizer_all_nokstuff = wxBoxSizer(wxVERTICAL)
+		self.sizer_all_nokstuff.Add(self.sizer_nok_relationship,0,wxEXPAND)
+		self.sizer_all_nokstuff.Add(self.sizer_search_nok,0,wxEXPAND|wxTOP|wxBOTTOM,5)
+		#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+		#This section undecided - in AU example need medicare/repatriation/pharmaceutical benefits
+		# Liz Dodd says: DVA-Gold DVA-White(specified illness) DVA-RED/ORANGE (medications only)
+		#	Health care card/Seniors Health Care Card Pension Card Pharmaceutical Benefits Safety Net Number
+		#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+		self.lbl_Identity_numbers =BlueLabel_Bold(self,-1,"Card Numbers",wxLEFT)
+		self.sizer_idnumbers_line1 = wxBoxSizer(wxHORIZONTAL)
+		self.sizer_idnumbers_line1.Add(self.lbl_space,1,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_idnumbers_line1.Add(self.lbl_space,1,wxEXPAND)
+		self.sizer_idnumbers_line1.Add(self.lbl_Identity_numbers,1,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_idnumbers_line1.Add(self.lbl_space,1,wxEXPAND|wxTOP|wxBOTTOM,1)
+		self.sizer_all_nokstuff.Add(self.sizer_idnumbers_line1,0,wxEXPAND|wxTOP|wxBOTTOM,1)
+		#------------------------------------------------------------------------------------------------------------------------
+		#Now add all the lines for the left side of the screen on their sizers to sizer_leftside
+		#i.e Patient Names through to their contact details
+		#------------------------------------------------------------------------------------------------------------------------
+		self.sizer_leftside = wxBoxSizer(wxVERTICAL)
+		self.sizer_leftside.Add(0,10,0)
+		self.sizer_leftside.Add(self. sizer_line1,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_leftside.Add(self.sizer_line2,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_leftside.Add(self. sizer_line3,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_leftside.Add(self. sizer_lbl_heading_address,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_leftside.Add(self. sizer_street  ,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_leftside.Add(self. sizer_suburb  ,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_leftside.Add(self. sizer_stateandpostcode,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_leftside.Add(self. sizer_addresstype_chkpostal,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_leftside.Add(self. sizer_contacts_line1,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_leftside.Add(self. sizer_contacts_line2,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_leftside.Add(self. sizer_contacts_line3,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_leftside.Add(self. sizer_contacts_line4,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		#------------------------------------------------------------------------------------------------------------------------
+		#Now add all the lines for the right side of the screen on their sizers to sizer_leftside
+		#is Date of Birth through to card numbers
+		#------------------------------------------------------------------------------------------------------------------------
+		self.sizer_rightside = wxBoxSizer(wxVERTICAL)
+		self.sizer_rightside.Add(0,10,0)
+		self.sizer_rightside.Add(self.sizer_birthdatemarital,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_rightside.Add(self.sizer_occupation ,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_rightside.Add(self.sizer_countryofbirth ,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_rightside.Add(self.sizer_heading_nok ,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_rightside.Add(self.sizer_patientnameaddressNOK ,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_rightside.Add(self.sizer_nok_relationship ,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_rightside.Add(self.sizer_search_nok ,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		self.sizer_rightside.Add(self.sizer_idnumbers_line1,0,wxEXPAND|wxLEFT|wxRIGHT,20)
+		#---------------------------------------------------------------------------------------------------------------------------------------------------
+		#Now add the left and right hand screen sizers to a container sizer (sizer_bottom_patient_dataentry)
+		#---------------------------------------------------------------------------------------------------------------------------------------------------
+		self.sizer_bottom_patient_dataentry = wxBoxSizer(wxHORIZONTAL)
+		self.sizer_bottom_patient_dataentry.Add(self.sizer_leftside,1,wxEXPAND) #|wxLEFT|wxRIGHT,20)
+		self.sizer_bottom_patient_dataentry.Add(self.sizer_rightside,1,wxEXPAND)# wxLEFT|wxRIGHT,20)
+		#self.ext_id_panel = ExtIDPanel (self, self.gs)
+		#------------------------------------------------------------------------------------------------------------------------------------------
+		#add the top sizer with patient list + photo, and the bottom sizer with data-entry to main sizer
+		#------------------------------------------------------------------------------------------------------------------------------------------
+		self.sizer_main = wxBoxSizer(wxVERTICAL)
+		self.sizer_main.Add (self.sizer_for_patientlist_and_photo,1,wxEXPAND)
+		self.sizer_main.Add(self.sizer_bottom_patient_dataentry,0,wxEXPAND|wxBOTTOM,20)
 
 		self.__create_input_field_map()
 		self.__add_character_validators()
-		self.__connect_commands()
+#		self.__connect_commands()
+		self.__register_events()
+
+		# adjust layout
+		self.SetSizer(self.sizer_main)
+		self.SetAutoLayout(True)
+		self.sizer_main.Fit(self)
+#		self.Show(True)
+
+	def __register_events(self):
+		# patient list popup menu
+		EVT_RIGHT_UP(self.patientlist, self.OnRightClick_patientlist)
+		EVT_MENU(self, ID_PUP_ITEM_SaveDisplayLayout, self.OnPopupSaveDisplayLayout)
+		# patient photo
+		EVT_RIGHT_UP(self.photopanel, self.OnRightClick_photo)
+
+	def OnRightClick_photo(self, event):
+		if not hasattr(self, "popupID15"):
+			self.popupID15 = wxNewId()
+			self.popupID16 = wxNewId()
+			EVT_MENU(self, self.popupID15, self.OnPopupFifteen)
+			EVT_MENU(self, self.popupID16, self.OnPopupSixteen)
+		self.menu_patientphoto = wxMenu()
+		self.menu_patientphoto.Append(self.popupID15, "Aquire Photo")
+		self.menu_patientphoto.Append(self.popupID16, "Import Photo")
+		self.menu_patientphoto.Append(self.popupID15, "Export Photo")
+		self.menu_patientphoto.Append(self.popupID16, "Delete Photo")
+
+		self.PopupMenu(self.menu_patientphoto, event.GetPosition())
+		self.menu_patientphoto.Destroy()
+
+	def OnRightClick_patientlist(self, event):
+# 		Maximise Viewing Area
+# 		Minimise Viewing Area
+# 		---------------------
+# 		Add Person
+# 		Add Address for person
+# 		Add Family Member
+# 		--------------------------
+# 		Delete Person
+# 		Delete Address for person
+# 		Undo Delete
+# 		------------------------------------
+# 		Sort A_Z
+# 		Sort Z_A
+# 		--------------
+# 		Change Font
+# 		Save Display Layout
+# 		--------------------------
+# 		Build SQL
+# 		-------------------
+# 		Help
+# 		----------------
+# 		Exit
+
+		#self.log.WriteText("OnRightClick\n")
+
+		# only do this part the first time so the events are only bound once
+		if not hasattr(self, "popupID1"):
+			self.popupID1 = wxNewId()
+			self.popupID2 = wxNewId()
+			self.popupID3 = wxNewId()
+			self.popupID4 = wxNewId()
+			self.popupID5 = wxNewId()
+			self.popupID6 = wxNewId()
+			self.popupID7 = wxNewId()
+			self.popupID8 = wxNewId()
+			self.popupID9 = wxNewId()
+			self.popupID11 = wxNewId()
+			self.popupID12 = wxNewId()
+			self.popupID13 = wxNewId()
+			self.popupID14 = wxNewId()
+
+			EVT_MENU(self, self.popupID1, self.OnPopupOne)
+			EVT_MENU(self, self.popupID2, self.OnPopupTwo)
+			EVT_MENU(self, self.popupID3, self.OnPopupThree)
+			EVT_MENU(self, self.popupID4, self.OnPopupFour)
+			EVT_MENU(self, self.popupID5, self.OnPopupFive)
+			EVT_MENU(self, self.popupID6, self.OnPopupSix)
+			EVT_MENU(self, self.popupID7, self.OnPopupSeven)
+			EVT_MENU(self, self.popupID8, self.OnPopupEIght)
+			EVT_MENU(self, self.popupID9, self.OnPopupNine)
+			EVT_MENU(self, self.popupID11, self.OnPopupEleven)
+			EVT_MENU(self, self.popupID12, self.OnPopupTwelve)
+			EVT_MENU(self, self.popupID13, self.OnPopupThirteen)
+			EVT_MENU(self, self.popupID14, self.OnPopupFourteen)
+
+		#-----------------------------------------------------------------
+		# make a menu to popup over the patient list
+		#-----------------------------------------------------------------
 
 
-	def __add_character_validators(self):
-		self.validator = gmCharacterValidator.CharValidator()
-		m = self.input_fields
-		for k in ['firstname', 'surname', 'preferred']:
-			self.validator.setCapitalize(m[k])
-		for k in ['urb', 'country']:
-			self.validator.setUpperAlpha(m[k])
-		
-		for k in ['mobile', 'fax', 'homephone', 'workphone']: # in AU only ? , 'postcode']:
-			self.validator.setDigits(m[k])
+		self.menu_patientlist = wxMenu()
+		#Trigger routine to clear all textboxes to add entirely new person
+		item = wxMenuItem(self.menu_patientlist, self.popupID1,"Add Person")
+		item.SetBitmap(images_patient_demographics.getperson_addBitmap())
+		self.menu_patientlist.AppendItem(item)
 
-			
+		#Trigger routine to clear all address textboxes only to add another address
+		item = wxMenuItem(self.menu_patientlist, self.popupID2, "Add Address for person")
+		item.SetBitmap(images_patient_demographics.getbranch_addBitmap())
+		self.menu_patientlist.AppendItem(item)
+		#Trigger routine to clear person details, leave address, home phone
+		item = wxMenuItem(self.menu_patientlist, self.popupID3,"Add Family Member")
+		item.SetBitmap(images_patient_demographics.getemployeesBitmap())
+		self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
+		#Trigger routine to delete a person
+		item = wxMenuItem(self.menu_patientlist, self.popupID4,"Delete Person")
+		item.SetBitmap(images_patient_demographics.getcutBitmap())
+		self.menu_patientlist.AppendItem(item)
+
+		#Trigger routine to delete an address (if > 1) for a person
+		self.menu_patientlist.Append(self.popupID5, "Delete Address for person")
+		self.menu_patientlist.AppendSeparator()
+
+		#Trigger nested undo-deletes
+		self.menu_patientlist.Append(self.popupID6, "Undo Delete")
+		#self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
+		#trigger routine to sort visible patient lists by surname A_Z
+		item = wxMenuItem(self.menu_patientlist, self.popupID7,"Sort A_Z")
+		item.SetBitmap(images_patient_demographics.getsort_A_ZBitmap())
+		self.menu_patientlist.AppendItem(item)
+
+		item = wxMenuItem(self.menu_patientlist, self.popupID8,"Sort Z_A")
+		item.SetBitmap(images_patient_demographics.getsort_Z_ABitmap())
+		self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
+
+		self.menu_patientlist.Append(self.popupID9, "Change Font")
+
+		self.menu_patientlist.Append(ID_PUP_ITEM_SaveDisplayLayout, "Save Display Layout")
+		#self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
+		#Save search query to database as user defined query
+		item = wxMenuItem(self.menu_patientlist, self.popupID11, "Build SQL")
+		item.SetBitmap(images_patient_demographics.getsqlBitmap())
+		self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
+		#Jump to help for patients_list
+		item = wxMenuItem(self.menu_patientlist, self.popupID12,  "Help")
+		item.SetBitmap(images_patient_demographics.gethelpBitmap())
+		self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
 
 
-	def __connect_commands(self):
-		b = self.btn_add_address
-		EVT_BUTTON(b, b.GetId() , self._add_address_pressed)
-		b = self.btn_del_address
-		EVT_BUTTON(b, b.GetId() ,  self._del_address_pressed)
+		# Popup the menu.  If an item is selected then its handler
+		# will be called before PopupMenu returns.
+		self.PopupMenu(self.menu_patientlist, event.GetPosition())
+		self.menu_patientlist.Destroy()
 
-		b = self.btn_save
-		EVT_BUTTON(b, b.GetId(), self._save_btn_pressed)
-		EVT_BUTTON(self.btn_del, self.btn_del.GetId (), self._del_button_pressed)
-		EVT_BUTTON(self.btn_new, self.btn_new.GetId (), self._new_button_pressed)
 
-		l = self.addresslist
-		EVT_LISTBOX_DCLICK(l, l.GetId(), self._address_selected)
+	def OnPopupOne(self, event):
+	       print self.patientlist.GetColumnWidth(0)
+		#self.log.WriteText("Popup one\n")
 
-		EVT_BUTTON(self.btn_photo_import, self.btn_photo_import.GetId (), self._photo_import)
-		EVT_BUTTON(self.btn_photo_export, self.btn_photo_export.GetId (), self._photo_export)
+	def OnPopupTwo(self, event):
+		self.log.WriteText("Popup two\n")
+
+	def OnPopupThree(self, event):
+		self.log.WriteText("Popup three\n")
+
+	def OnPopupFour(self, event):
+		self.log.WriteText("Popup four\n")
+
+	def OnPopupFive(self, event):
+		self.log.WriteText("Popup five\n")
+
+	def OnPopupSix(self, event):
+		self.log.WriteText("Popup six\n")
+
+	def OnPopupSeven(self, event):
+		self.log.WriteText("Popup seven\n")
+
+	def OnPopupEIght(self, event):
+		self.log.WriteText("Popup eight\n")
+
+	def OnPopupNine(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	def OnPopupSaveDisplayLayout(self, event):
+		pat_cols_list = []
+		# get widths of columns
+		for col in range (0,self.patientlist.GetColumnCount()):
+			pat_cols_list.append(self.patientlist.GetColumnWidth(col))
+		# set the value for the current user/workplace
+		gmCfg.setDBParam (
+			user = _whoami.get_db_account(),
+			option = "widgets.demographics.patientlist.column_sizes",
+			value = pat_cols_list
+		)
+
+	def OnPopupEleven(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	def OnPopupTwelve(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	def OnPopupThirteen(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	def OnPopupFourteen(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	def OnPopupFifteen(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	def OnPopupSixteen(self, event):
+		self.log.WriteText("Popup nine\n")
+#
+ 	def __add_character_validators(self):
+		return
+ 		 #IAN TO RECONNECT - this routine bombs on my machine- RT
+# 		self.validator = gmCharacterValidator.CharValidator()
+# 		m = self.input_fields
+# 		for k in ['firstname', 'surname', 'preferred']:
+# 			self.validator.setCapitalize(m[k])
+# 		for k in ['urb', 'country']:
+# 			self.validator.setUpperAlpha(m[k])
+#
+# 		for k in ['mobile', 'fax', 'homephone', 'workphone']: # in AU only ? , 'postcode']:
+# 			self.validator.setDigits(m[k])
+	
+
+
+# 	def __connect_commands(self):
+# 		return
+	 #IAN TO RECONNECT TO TOP MENU/OR POPUP MENU OVER PATIENTSLIST
+# 		b = self.btn_add_address
+# 		EVT_BUTTON(b, b.GetId() , self._add_address_pressed)
+# 		b = self.btn_del_address
+# 		EVT_BUTTON(b, b.GetId() ,  self._del_address_pressed)
+#
+# 		b = self.btn_save
+# 		EVT_BUTTON(b, b.GetId(), self._save_btn_pressed)
+# 		EVT_BUTTON(self.btn_del, self.btn_del.GetId (), self._del_button_pressed)
+# 		EVT_BUTTON(self.btn_new, self.btn_new.GetId (), self._new_button_pressed)
+#
+# 		l = self.addresslist
+# 		EVT_LISTBOX_DCLICK(l, l.GetId(), self._address_selected)
+#
+# 		EVT_BUTTON(self.btn_photo_import, self.btn_photo_import.GetId (), self._photo_import)
+# 		EVT_BUTTON(self.btn_photo_export, self.btn_photo_export.GetId (), self._photo_export)
 
 	def __urb_selected(self, id):
+		 #IAN TO RECONNECT
 		if id:
 			try:
 				self.txt_postcode.SetValue (gmDemographicRecord.getPostcodeForUrbId(id))
@@ -566,9 +774,11 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 				gmLog.gmDefLog.LogException( "select urb problem", sys.exc_info(), verbose=0)
 
 	def _address_selected( self, event):
-		self._update_address_fields_on_selection()
+		 #IAN TO RECONNECT
+ 		self._update_address_fields_on_selection()
 
 	def _update_address_fields_on_selection(self):
+		#IAN TO RECONNECT
 		i = self.addresslist.GetSelection()
 		data = self.addr_cache[i]
 		m = self.input_fields
@@ -578,6 +788,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 				m[k].SetValue(v)
 
 	def _save_addresses(self):
+		 #IAN TO RECONNECT
 		myPatient = self.patient.get_demographic_record()
 		for data in self.addr_cache:
 			if data.has_key('dirty'):
@@ -586,12 +797,14 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 			myPatient.unlinkAddress (ID)
 
 	def _save_btn_pressed(self, event):
+		 #IAN TO RECONNECT
 		try:
 			self._save_data()
 		except:
 			_log.LogException ('failed on save data', sys.exc_info (), verbose=0)
 
 	def _photo_import (self, event):
+		 #IAN TO RECONNECT
 		try:
 			dialogue = wxFileDialog (self, style=wxOPEN | wxFILE_MUST_EXIST, wildcard = "*.bmp|*.png|*.jpg|*.jpeg|*.pnm|*.xpm")
 			if dialogue.ShowModal () == wxID_OK:
@@ -605,6 +818,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 			_log.LogException ('failed to import photo', sys.exc_info (), verbose= 0)
 
 	def _photo_export (self, event):
+		 #IAN TO RECONNECT
 		try:
 			dialogue = wxFileDialog (self, style=wxSAVE)
 			if dialogue.ShowModal () == wxID_OK:
@@ -613,16 +827,20 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 			_log.LogException ('failed to export photo', sys.exc_info (), verbose= 0)
 
 	def setNewPatient(self, isNew):
+		#IAN TO RECONNECT
 		self._newPatient = isNew
 
 	def _new_button_pressed(self, event):
+		 #IAN TO RECONNECT
+
 		self.setNewPatient(1)
 		self.__init_data()
 		id = gmPatient.create_dummy_identity()
 		gmPatient.gmCurrentPatient(id)
 	
 	def __init_data(self):
-		for k, w in self.input_fields.items(): 
+		 #IAN TO RECONNECT
+		for k, w in self.input_fields.items():
 			try:
 				w.SetValue('') # just looking at this makes my eyes water (IH)
 			except:
@@ -636,18 +854,22 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.ext_id_panel.Clear ()
 
 	def get_input_value_map(self):
+ 		 #IAN TO RECONNECT
 		m = {}
 		for k, v in self.input_fields.items():
 			m[k] = v.GetValue()
-		return m	
+		return m
 
 	def validate_fields(self):
+		 #IAN TO RECONNECT
+
 		nameFields = [ self.value_map['firstname'].strip() , self.value_map['surname'].strip() ]
 		if "" in nameFields or "?" in nameFields:
 			raise Error("firstname and surname are required fields for identity")
 
 	
 	def _save_data(self):
+		 #IAN TO RECONNECT
 		m = self.input_fields
 		self.value_map = self.get_input_value_map ()
 		self.validate_fields()
@@ -666,29 +888,32 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		if m['birthdate'].IsModified ():
 			myPatient.setDOB( self.value_map['birthdate'])
 		if m['country'].IsModified ():
-			myPatient.setCOB (self.value_map['country'])	
+			myPatient.setCOB (self.value_map['country'])
 		if self.value_map['title'] != self.old_title:
 			myPatient.setTitle( self.value_map['title'])
 		for str, const in [('fax', gmDemographicRecord.FAX), ('homephone', gmDemographicRecord.HOME_PHONE), ('workphone', gmDemographicRecord.WORK_PHONE), ('mobile', gmDemographicRecord.MOBILE), ('web', gmDemographicRecord.WEB), ('email', gmDemographicRecord.EMAIL)]:
 			if m[str].IsModified ():
 				myPatient.linkCommChannel (const, self.value_map[str])
 		self.setNewPatient(0)
-		
+
 	def _del_button_pressed (self, event):
+		 #IAN TO RECONNECT
 		# do we really want this?
 		pass
-	
+
 
 	def _add_address_pressed(self, event):
+		 #IAN TO RECONNECT
 		try:
 			data = self._get_address_data()
 			data['dirty'] = 1
-			self.addr_cache.append (data)	
+			self.addr_cache.append (data)
 			self._update_address_list_display()
 		except:
 			_log.LogException ('failed on add address', sys.exc_info (), verbose=0)
-			
+
 	def _del_address_pressed(self, event):
+		 #IAN TO RECONNECT
 		try:
 			i = self.addresslist.GetSelection ()
 			if self.addr_cache[i].has_key('ID'):
@@ -697,9 +922,10 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 			self._update_address_list_display()
 		except:
 			_log.LogException ('failed on delete address', sys.exc_info (), verbose=0)
-		
-	def _get_address_data(self):	
-		m = self.input_fields
+
+	def _get_address_data(self):
+		 #IAN TO RECONNECT
+ 		m = self.input_fields
 		data = {}
 		for f in ['number', 'street', 'urb', 'postcode']:
 		 	data[f] = m[f].GetValue()
@@ -707,6 +933,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		return data
 
 	def _update_address_list_display(self):
+		#IAN TO RECONNECT
 		self.addresslist.Clear()
 		for data in self.addr_cache:
 			s = '%-10s - %s,%s,%s' % ( data['type'],  data['number'], data['street'], data['urb'])
@@ -714,6 +941,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 
 
 	def __create_input_field_map(self):
+		 #IAN TO RECONNECT
 		prefixes = [ 'txt_', 'cb_', 'combo_' ]
 		map = {}
 		for k,v in self.__dict__.items():
@@ -723,13 +951,13 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 					map[ k[len(prefix):] ] = v
 
 		#print "INPUT MAP FOR ", self, " = " , map
-
 		self.input_fields = map
-			
-	
+
+
 	def __update_addresses(self):
+		 #IAN TO RECONNECT
 		myPatient = self.patient.get_demographic_record()
-		try: 
+		try:
 			self.addr_cache = myPatient.getAddresses (None)
 		except:
 			_log.LogException ('failed to get addresses', sys.exc_info (), verbose=0)
@@ -737,15 +965,16 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 			self._update_address_list_display()
 		else: # we have no addresses
 			self.addresslist.Clear ()
-		self.txt_number.Clear ()
+		#self.txt_number.Clear ()
 		self.txt_street.Clear ()
 		self.txt_postcode.Clear ()
-		self.txt_urb.Clear ()
+		self.txt_suburb.Clear ()
 		self.combo_address_type.SetValue ('')
-		
-			
+
+
 
 	def __update_nok(self):
+		 #IAN TO RECONNECT
 		"""this function is disabled until further notice. see l = []"""
 		myPatient = self.patient.get_demographic_record ()
 		#l = myPatient.get_relatives()
@@ -753,12 +982,13 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		l2 = []
 		for m in l:
 			s = """%-12s   - %s %s, %s, %s %s""" % (m['description'], m['firstnames'], m['lastnames'], m['gender'], _('born'), time.strftime('%d/%m/%Y', get_time_tuple(m['dob']) )  )
-			l2.append( {'str':s, 'id':m['id'] } ) 
+			l2.append( {'str':s, 'id':m['id'] } )
 		self.lb_nameNOK.Clear()
-		for data in l2:	
+		for data in l2:
 			self.lb_nameNOK.Append( data['str'], data['id'] )
-	
+
 	def _updateUI(self):
+		 #IAN TO RECONNECT
 		"""on patient_selected() signal handler , inherited from gmPatientHolder.PatientHolder"""
 		myPatient = self.patient.get_demographic_record()
 		m = self.input_fields
@@ -798,9 +1028,13 @@ if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (800, 600))
 	app.SetWidget(PatientsPanel, -1)
 	app.MainLoop()
-#----------------------------------------------------------------------
+#============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.35  2004-07-30 13:43:33  sjtan
+# Revision 1.36  2004-08-16 13:32:19  ncq
+# - rework of GUI layout by R.Terry
+# - save patient list column width from right click popup menu
+#
+# Revision 1.35  2004/07/30 13:43:33  sjtan
 #
 # update import
 #
@@ -980,3 +1214,6 @@ if __name__ == "__main__":
 # Revision 1.17  2003/02/09 11:57:42  ncq
 # - cleanup, cvs keywords
 #
+# old change log:
+#	10.06.2002 rterry initial implementation, untested
+#	30.07.2002 rterry images put in file
