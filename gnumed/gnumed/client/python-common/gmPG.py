@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -435,10 +435,10 @@ class ConnectionPool:
 		#clear the dictionary (would close all connections anyway)
 		ConnectionPool.__databases.clear()
 		ConnectionPool.__connected = None
+
 #---------------------------------------------------
 # database helper functions
 #---------------------------------------------------
-
 def cursorIndex(cursor):
 	"""returns a dictionary of row atribute names and their row indices"""
 	i=0
@@ -453,7 +453,6 @@ def cursorIndex(cursor):
 	return dict
 
 #---------------------------------------------------
-
 def descriptionIndex(cursordescription):
 	"""returns a dictionary of row atribute names and their row indices"""
 	i=0
@@ -464,7 +463,6 @@ def descriptionIndex(cursordescription):
 	return dict
 
 #---------------------------------------------------
-
 def dictResult(cursor, fetched=None):
 	"returns the all rows fetchable by the cursor as dictionary (attribute:value)"
 	if fetched is None:
@@ -481,7 +479,6 @@ def dictResult(cursor, fetched=None):
 	return dictres
 
 #---------------------------------------------------
-
 def fieldNames(cursor):
 	"returns the attribute names of the fetched rows in natural sequence as a list"
 	names=[]
@@ -490,34 +487,29 @@ def fieldNames(cursor):
 	return names
 
 #---------------------------------------------------
-
 def listDatabases(service='default'):
 	"list all accessible databases on the database backend of the specified service"
 	assert(__backend == 'Postgres')
 	return quickROQuery("select * from pg_database")
 
 #---------------------------------------------------
-
 def listUserTables(service='default'):
 	"list the tables except all system tables of the specified service"
 	assert(__backend == 'Postgres')
 	return quickROQuery("select * from pg_tables where tablename not like 'pg_%'", service)
 
 #---------------------------------------------------
-
 def listSystemTables(service='default'):
 	"list the system tables of the specified service"
 	assert(__backend == 'Postgres')
 	return quickROQuery("select * from pg_tables where tablename like 'pg_%'", service)
 
 #---------------------------------------------------
-
 def listTables(service='default'):
 	"list all tables available in the specified service"
 	return quickROQuery("select * from pg_tables", service)
 
 #---------------------------------------------------
-
 def quickROQuery(query, service='default'):
 	"""a quick read-only query that fetches all possible results at once
 	returns the tuple containing the fetched rows and the cursor 'description' object"""
@@ -558,6 +550,21 @@ def run_query(aCursor = None, aQuery = None, *args):
 		_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), verbose = log_much)
 		return None
 	return 1
+#---------------------------------------------------
+def get_col_indices(aCursor = None):
+	# sanity checks
+	if aCursor is None:
+		_log.Log(gmLog.lErr, 'need cursor to run query')
+		return None
+	if aCursor.description is None:
+		_log.Log(gmLog.lErr, 'no result description available: cursor unused or last query did not select rows')
+		return None
+	col_indices = {}
+	col_index = 0
+	for col_desc in aCursor.description:
+		col_indices[col_desc[0]] = col_index
+		col_index += 1
+	return col_indices
 #---------------------------------------------------
 def getBackendName():
 	return __backend
@@ -761,7 +768,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.61  2003-06-26 21:37:00  ncq
+# Revision 1.62  2003-06-27 16:05:22  ncq
+# - get_col_indices() helper to be used after a select
+#
+# Revision 1.61  2003/06/26 21:37:00  ncq
 # - fatal->verbose, curs(cmd, arg) style
 #
 # Revision 1.60  2003/06/26 04:18:40  ihaywood
