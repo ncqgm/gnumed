@@ -18,7 +18,7 @@
 
 import sys, time
 from wxPython.wx import *
-import gmPG, gmLabels
+import gmPG, gmLabels, gmLog
 
 class SQLListControl(wxListCtrl):
 	"Intelligent list control able to display SQL query results in a formatted way"
@@ -181,3 +181,4 @@ class SQLListControl(wxListCtrl):
 
 if __name__ == "__main__":
 	print "test function needs to be written! Please do it."
+	print "make sure you can import gmLog !!"
