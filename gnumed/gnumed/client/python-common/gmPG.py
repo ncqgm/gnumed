@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.66 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -64,8 +64,10 @@ assert(float(dbapi.apilevel) >= 2.0)
 assert(dbapi.threadsafety > 0)
 assert(dbapi.paramstyle == 'pyformat')
 
-listener_api = None
-default_client_encoding = None
+_listener_api = None
+
+# default encoding for connections
+_default_client_encoding = None
 #======================================================================
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
@@ -82,8 +84,6 @@ class ConnectionPool:
 	__listeners = {}
 	#gmLoginInfo.LoginInfo instance
 	__login = None
-	# default encoding for connections
-	__encoding = default_client_encoding
 	#-----------------------------
 	def __init__(self, login=None, encoding=None):
 		"""parameter login is of type gmLoginInfo.LoginInfo"""
@@ -91,7 +91,9 @@ class ConnectionPool:
 			self.__disconnect()
 		if ConnectionPool.__connected is None:
 			self.SetFetchReturnsList()
-			ConnectionPool.__encoding = encoding
+			# only change encoding when also setting up connections
+			if encoding is not None:
+				_default_client_encoding = encoding
 			ConnectionPool.__connected = self.__setup_default_ro_conns(login)
 	#-----------------------------
 	def __del__(self):
@@ -105,14 +107,14 @@ class ConnectionPool:
 		"""Get a connection."""
 		# use default encoding if none given
 		if encoding is None:
-			encoding = ConnectionPool.__encoding
-#		conn =  self.GetConnectionUnchecked(service, readonly, encoding)
+			encoding = _default_client_encoding
+
 		logininfo = self.GetLoginInfoFor(service)
 
 		# either get brand-new read-write connection
 		if not readonly:
 			_log.Log(gmLog.lData, "requesting RW connection to service [%s]" % service)
-			conn = self.__pgconnect(logininfo, readonly = 0, encoding)
+			conn = self.__pgconnect(logininfo, readonly = 0, encoding = encoding)
 		# or a cached read-only connection
 		else:
 			_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
@@ -123,7 +125,7 @@ class ConnectionPool:
 					ConnectionPool.__connections_in_use[service] = 1
 				conn = ConnectionPool.__databases[service]
 			else:
-				_log.Log(gmLog.lInfo, 'service [%s] not explicitely configured, connecting to service [default] instead' % service)
+				_log.Log(gmLog.lData, 'using service [default] instead of [%s]' % service)
 				try:
 					ConnectionPool.__connections_in_use['default'] += 1
 				except KeyError:
@@ -211,7 +213,7 @@ class ConnectionPool:
 		# FIXME: error handling
 
 		# lazy import of gmBackendListener
-		if listener_api is None:
+		if _listener_api is None:
 			if not _import_listener_engine():
 				_log.Log(gmLog.lErr, 'cannot load backend listener code')
 				return None
@@ -226,7 +228,7 @@ class ConnectionPool:
 		# but only one per physical database
 		if backend not in ConnectionPool.__listeners.keys():
 			auth = self.GetLoginInfoFor(service)
-			listener = listener_api.BackendListener(
+			listener = _listener_api.BackendListener(
 				service,
 				auth.GetDatabase(),
 				auth.GetUser(readonly=1),
@@ -341,7 +343,7 @@ class ConnectionPool:
 		ConnectionPool.__login = login
 
 		# connect to the configuration server
-		cfg_db = self.__pgconnect(login, readonly=1, encoding=ConnectionPool.__encoding)
+		cfg_db = self.__pgconnect(login, readonly=1, encoding=_default_client_encoding)
 		if cfg_db is None:
 			raise gmExceptions.ConnectionError, _('Cannot connect to configuration database with:\n\n[%s]') % login.GetInfoStr()
 
@@ -383,7 +385,7 @@ class ConnectionPool:
 			ConnectionPool.__connections_in_use[service] = 0
 			dblogin = self.GetLoginInfoFor(service, login)
 			# update 'Database Broker' dictionary
-			conn = self.__pgconnect(dblogin, readonly=1, encoding=ConnectionPool.__encoding)
+			conn = self.__pgconnect(dblogin, readonly=1, encoding=_default_client_encoding)
 			if conn is None:
 				raise gmExceptions.ConnectionError, _('Cannot connect to database with:\n\n[%s]') % login.GetInfoStr()
 			ConnectionPool.__databases[service] = conn
@@ -572,8 +574,8 @@ def _import_listener_engine():
 	except ImportError:
 		_log.LogException('cannot import gmBackendListener')
 		return None
-	global listener_api
-	listener_api = gmBackendListener
+	global _listener_api
+	_listener_api = gmBackendListener
 	return 1
 #---------------------------------------------------
 def run_query(aCursor = None, aQuery = None, *args):
@@ -609,6 +611,14 @@ def get_col_indices(aCursor = None):
 #---------------------------------------------------
 def getBackendName():
 	return __backend
+#---------------------------------------------------
+def set_default_client_encoding(encoding = None):
+	if encoding is not None:
+		_log.Log(gmLog.lInfo, 'setting default client encoding to [%s]' % encoding)
+		global _default_client_encoding
+		_default_client_encoding = encoding
+		return 1
+	return None
 #===================================================
 def prompted_input(prompt, default=None):
 	usr_input = raw_input(prompt)
@@ -808,7 +818,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.65  2003-07-21 19:21:22  ncq
+# Revision 1.66  2003-07-21 20:55:39  ncq
+# - add helper set_default_client_encoding()
+#
+# Revision 1.65  2003/07/21 19:21:22  ncq
 # - remove esc(), correct quoting needs to be left to DB-API module
 # - set client_encoding on connections
 # - consolidate GetConnection()/GetConnectionUnchecked()
