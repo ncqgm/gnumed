@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -43,7 +43,7 @@ import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
 import gmPG
-import gmTmpPatient, gmMedDoc
+import gmTmpPatient, gmMedDoc, gmMimeLib
 from gmExceptions import ConstructorError
 
 from wxPython.wx import *
@@ -297,7 +297,7 @@ class cDocTree(wxTreeCtrl):
 			return None
 
 		fname = obj['filename']
-		(result, msg) = gmMedDoc.call_viewer_on_file(fname)
+		(result, msg) = gmMimeLib.call_viewer_on_file(fname)
 		if not result:
 			self.__show_error(
 				aMessage = _('Cannot display object.\n%s.') % msg,
@@ -599,7 +599,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.21  2003-04-19 15:01:33  ncq
+# Revision 1.22  2003-04-20 15:39:36  ncq
+# - call_viewer was moved to gmMimeLib
+#
+# Revision 1.21  2003/04/19 15:01:33  ncq
 # - we need import re both standalone and plugin
 #
 # Revision 1.20  2003/04/18 22:34:44  ncq
