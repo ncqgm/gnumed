@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-02-06 12:44:06 $
-# @version $Revision: 1.68 $ $Date: 2003-02-06 12:44:06 $ $Author: ncq $
+# @Date: $Date: 2003-02-06 14:02:47 $
+# @version $Revision: 1.69 $ $Date: 2003-02-06 14:02:47 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.68 $"
+__version__ = "$Revision: 1.69 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -500,7 +500,7 @@ class gmApp(wxApp):
 			return 1
 
 		# get db conn
-		conn = self.__backend.GetConnection(readonly=0)
+		conn = self.__backend.GetConnection(service = 'default', readonly = 0)
 		curs = conn.cursor()
 
 		# check if system and db language are different
@@ -510,6 +510,7 @@ class gmApp(wxApp):
 		except:
 			# assuming the admin knows her stuff this means
 			# that language settings are not wanted
+			_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
 			_log.LogException("Cannot get database language.", sys.exc_info(), fatal=0)
 			curs.close()
 			conn.close()
@@ -562,6 +563,7 @@ class gmApp(wxApp):
 			curs.execute(cmd)
 			_log.Log(gmLog.lData, "Successfully set database language to [%s]." % system_locale)
 		except:
+			_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
 			_log.LogException("Cannot set database language at 'lang_COUNTRY@variant' level.", sys.exc_info(), fatal=0)
 			# try setting to "lang_COUNTRY"
 			cmd = "select set_curr_lang('%s');" % no_variant
@@ -569,6 +571,7 @@ class gmApp(wxApp):
 				curs.execute(cmd)
 				_log.Log(gmLog.lData, "Successfully set database language to [%s]." % no_variant)
 			except:
+				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
 				_log.LogException("Cannot set database language at 'lang_COUNTRY' level.", sys.exc_info(), fatal=0)
 				# try setting to "lang"
 				cmd = "select set_curr_lang('%s');" % no_country
@@ -576,20 +579,21 @@ class gmApp(wxApp):
 					curs.execute(cmd)
 					_log.Log(gmLog.lData, "Successfully set database language to [%s]." % no_country)
 				except:
+					_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
 					_log.LogException("Cannot set database language at 'lang' level.", sys.exc_info(), fatal=0)
 					curs.close
 					conn.close()
 					return None
 
+		conn.commit()
+
 		cmd = "select * from i18n_curr_lang;"
 		try:
 			curs.execute(cmd)
-			result = curs.fetchall()
-			_log.Log(gmLog.lData, str(result))
+			_log.Log(gmLog.lData, curs.fetchall())
 		except:
-			_log.LogException("Cannot get database language.", sys.exc_info(), fatal=0)
+			_log.LogException('>>>%s<<< failed' % cmd, sys.exc_info(), fatal=0)
 
-		conn.commit()
 		curs.close()
 		conn.close()
 
@@ -618,7 +622,10 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.68  2003-02-06 12:44:06  ncq
+# Revision 1.69  2003-02-06 14:02:47  ncq
+# - some more logging to catch the set_db_lang problem
+#
+# Revision 1.68  2003/02/06 12:44:06  ncq
 # - curr_locale -> system_locale
 #
 # Revision 1.67  2003/02/05 12:15:01  ncq
