@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.109 2004-06-01 08:21:56 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmClinicalRecord.py,v 1.110 2004-06-01 23:51:33 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -238,7 +238,7 @@ class cClinicalRecord:
 			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
 			return 1
 		cmd = "insert into clin_note(id_encounter, id_episode, narrative) values (%s, %s, %s)"
-		return gmPG.run_commit('historica', [(cmd, [self.__encounter['id'], self.__episode['id'], note])])
+		return gmPG.run_commit('historica', [(cmd, [self.__encounter['pk_encounter'], self.__episode['id_episode'], note])])
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -301,7 +301,7 @@ class cClinicalRecord:
 		episodes = self.get_episodes()
 		episode_map = {}
 		for episode in episodes:
-			episode_map[episode['id_episode']] = episode['episode']
+			episode_map[episode['id_episode']] = episode['description']
 		emr_data = {}
 		# get item data from all source tables
 		for src_table in items_by_table.keys():
@@ -468,7 +468,7 @@ class cClinicalRecord:
 		episodes = self.get_episodes()
 		episode_map = {}
 		for episode in episodes:
-			episode_map[episode['id_episode']] = episode['episode']
+			episode_map[episode['id_episode']] = episode['description']
 		emr_data = {}
 		# get item data from all source tables
 		curs = self._ro_conn_clin.cursor()
@@ -584,9 +584,9 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	def add_allergy(self, substance=None, allg_type=None, encounter_id=None, episode_id=None):
 		if encounter_id is None:
-			encounter_id = self.__encounter['id']
+			encounter_id = self.__encounter['pk_encounter']
 		if episode_id is None:
-			episode_id = self.__episode['id']
+			episode_id = self.__episode['id_episode']
 		status, data = gmAllergy.create_allergy(
 			substance=substance,
 			allg_type=allg_type,
@@ -650,7 +650,7 @@ class cClinicalRecord:
 			id_health_issue = self.health_issue['ID']
 		# already there ?
 		for episode in self.__db_cache['episodes']:
-			if episode['episode'] == episode_name:
+			if episode['description'] == episode_name:
 				if episode['id_health_issue'] == id_health_issue:
 					return episode
 				else:
@@ -752,7 +752,7 @@ class cClinicalRecord:
 			_log.Log(gmLog.lErr, 'cannot activate episode [%s], cannot get episode list' % ep_name)
 			return False
 		for episode in self.__db_cache['episodes']:
-			if episode['episode'] == ep_name:
+			if episode['description'] == ep_name:
 				episode.set_active()
 				return True
 		_log.Log(gmLog.lErr, 'cannot activate episode [%s], not found in list' % ep_name)
@@ -982,8 +982,8 @@ class cClinicalRecord:
 		"""Creates a new vaccination entry in backend."""
 		return gmVaccination.create_vaccination(
 			patient_id = self.id_patient,
-			episode_id = self.__episode['id'],
-			encounter_id = self.__encounter['id'],
+			episode_id = self.__episode['id_episode'],
+			encounter_id = self.__encounter['pk_encounter'],
 			vaccine = vaccine
 		)
 	#------------------------------------------------------------------
@@ -1173,9 +1173,9 @@ class cClinicalRecord:
 	#------------------------------------------------------------------
 	def add_lab_request(self, lab=None, req_id=None, encounter_id=None, episode_id=None):
 		if encounter_id is None:
-			encounter_id = self.__encounter['id']
+			encounter_id = self.__encounter['pk_encounter']
 		if episode_id is None:
-			episode_id = self.__episode['id']
+			episode_id = self.__episode['id_episode']
 		status, data = gmPathLab.create_lab_request(
 			lab=lab,
 			req_id=req_id,
@@ -1207,7 +1207,7 @@ insert into allergy (
 	%s, %s, %s, %s, %s, %s
 )
 """
-		gmPG.run_query (rw_curs, cmd, 1, self.__encounter['id'], self.__episode['id'], allergy["substance"], allergy["reaction"], allergy["definite"])
+		gmPG.run_query (rw_curs, cmd, 1, self.__encounter['pk_encounter'], self.__episode['id_episode'], allergy["substance"], allergy["reaction"], allergy["definite"])
 		rw_curs.close()
 		rw_conn.commit()
 		rw_conn.close()
@@ -1233,7 +1233,7 @@ insert into allergy (
 		%s, %s, %s, %s
 		)
 		"""
-		return gmPG.run_commit (cursor, [(cmd, [self.__encounter['id'], self.__episode['id'], text, form_id])])
+		return gmPG.run_commit (cursor, [(cmd, [self.__encounter['pk_encounter'], self.__episode['id_episode'], text, form_id])])
 
 #============================================================
 # convenience functions
@@ -1309,7 +1309,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.109  2004-06-01 08:21:56  ncq
+# Revision 1.110  2004-06-01 23:51:33  ncq
+# - id_episode/pk_encounter
+#
+# Revision 1.109  2004/06/01 08:21:56  ncq
 # - default limit to all on get_lab_results()
 #
 # Revision 1.108  2004/06/01 08:20:14  ncq
