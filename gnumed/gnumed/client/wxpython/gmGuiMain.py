@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.171 2004-09-05 14:47:24 ncq Exp $
-__version__ = "$Revision: 1.171 $"
+# $Id: gmGuiMain.py,v 1.172 2004-09-06 22:21:08 ncq Exp $
+__version__ = "$Revision: 1.172 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -100,12 +100,18 @@ class gmTopLevelFrame(wx.wxFrame):
 			)
 
 		# get Terry style horizontal ratio
-		self.bar_width, set1 = gmCfg.getDBParam(
-			workplace = _whoami.get_workplace (),
+		# FIXME: this belongs into Terry layout manager
+		self.bar_width, set1 = gmCfg.getDBParam (
+			workplace = _whoami.get_workplace(),
 			option = 'main.window.sidebar_width'
 		)
 		if set1 is None:
  			self.bar_width = 210 # about 1/3 of our hardcoded efault screen-width
+			gmCfg.setDBParam (
+				workplace = _whoami.get_workplace(),
+				option = 'main.window.sidebar_width',
+				value = 210
+			)
 
 		self.SetupStatusBar()
 		self.SetStatusText(_("You are logged in as [%s].") % _whoami.get_db_account())
@@ -211,37 +217,38 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.Show(True)
 	#----------------------------------------------
 	def __set_GUI_size(self):
-		# try to get previous window size from the backend
- 		def_width, def_height = (640,480)
+		"""Try to get previous window size from backend."""
 
-		# FIXME: add in user
+ 		def_width, def_height = (640,480)
+		# width
  		prev_width, set1 = gmCfg.getDBParam( 
 			workplace = _whoami.get_workplace(),
  			option = 'main.window.width'
 		)
- 		prev_height, set2 = gmCfg.getDBParam( 
- 			workplace = _whoami.get_workplace(),
- 			option = 'main.window.height'
- 		)
-		if set1 is not None:
-			desired_width = int(prev_width)
-		else:
+		if set1 is None:
 			desired_width = def_width
-			gmCfg.setDBParam(
+			gmCfg.setDBParam (
 				workplace = _whoami.get_workplace(),
 				option = 'main.window.width',
 				value = desired_width
 			)
-
-		if set2 is not None:
-			desired_height = int(prev_height)
 		else:
+			desired_width = int(prev_width)
+
+		# height
+ 		prev_height, set1 = gmCfg.getDBParam( 
+ 			workplace = _whoami.get_workplace(),
+ 			option = 'main.window.height'
+ 		)
+		if set1 is None:
  			desired_height = def_height
 			gmCfg.setDBParam(
 				workplace = _whoami.get_workplace(),
 				option = 'main.window.height',
 				value = desired_height
 			)
+		else:
+			desired_height = int(prev_height)
 
 		_log.Log(gmLog.lData, 'setting GUI size to [%s:%s]' % (desired_width, desired_height))
  		self.SetClientSize(wxSize(desired_width, desired_height))
@@ -791,7 +798,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.171  2004-09-05 14:47:24  ncq
+# Revision 1.172  2004-09-06 22:21:08  ncq
+# - properly use setDBParam()
+# - store sidebar.width if not found
+#
+# Revision 1.171  2004/09/05 14:47:24  ncq
 # - fix setDBParam() calls
 #
 # Revision 1.170  2004/08/20 13:34:48  ncq
