@@ -7,7 +7,9 @@ v-- structure of drug database for gnumed
 --	log into psql (database gnumed OR drugs)  as administrator
 --	run the script from the prompt with "\i drugs.sql"
 --
--- changelog: 25.3.02: simplified to some tables for new
+-- changelog:
+-- 7.6.02: extensions for complex packages (i.e Losec HP7) 
+-- 25.3.02: simplified to some tables for new
 -- attempt at PBS import
 -- changelog: 20.10.01 (suggestions by Ian Haywood)
 --		+ hierarchy of substance categories
@@ -78,7 +80,7 @@ CREATE TABLE obstetric_codes (
 
 -- =============================================
 
-CREATE TABLE smount_unit (
+CREATE TABLE amount_unit (
         id SERIAL PRIMARY KEY,
         description varchar(20)
 );
@@ -129,20 +131,31 @@ CREATE TABLE drug_presentation (
 
 CREATE TABLE drug_package (
 	id SERIAL PRIMARY KEY,
-	presentation INTEGER REFERENCES drug_presentation (id),
-	route INTEGER REFERENCES drug_route (id),
-	amount_unit INTEGER REFERENCES amount_unit (id),
-	packsize INTEGER, -- no. of tabs, capsules, etc. in pack
-	amount FLOAT, -- actual 'amount' of drug, so 100 for 100mL bottle
 	max_rpts INTEGER, -- maximum repeats
 	name VARCHAR (100), -- generic name(s) 
 	description VARCHAR (100) -- extra presentation description
 );
 
 
--- Here's the money. Links substances to packages. Obvious package can
--- have several drugs (hence compounds)
-CREATE TABLE link_subst_package (
+-- most packages are homogenous: all tablets are of the same type, so
+-- this table has one-to-one with the previous.
+-- some drug 'packs', notably Losec HP7, and triphasic contraceptives,
+-- have several tablet types within the one packet, so several entries
+-- in this table for one in drug_package.
+CREATE TABLE drug_collection
+(
+	id SERIAL,
+	package INTEGER REFERENCES drug_package (id),	
+	presentation INTEGER REFERENCES drug_presentation (id),
+	route INTEGER REFERENCES drug_route (id),
+	amount_unit INTEGER REFERENCES amount_unit (id),
+	packsize INTEGER, -- no. of tabs, capsules, etc. in pack
+	amount FLOAT, -- actual 'amount' of drug, so 100 for 100mL bottle
+);
+
+-- Here's the money. Links substances to drugs. Obviously a drug can
+-- have several substancss (hence compounds)
+CREATE TABLE link_subst_drug (
        package INTEGER REFERENCES drug_package (id),
        substance INTEGER REFERENCES substance (id),
        unit INTEGER REFERENCES drug_unit (id),
@@ -166,7 +179,7 @@ CREATE TABLE brand (
         brand_name varchar(60)
 );
 
-CREATE TABLE link_brand_drug (
+CREATE TABLE link_brand_package (
        brand_id INTEGER REFERENCES brand (id),
        drug_id INTEGER REFERENCES drug_package (id),
        price MONEY	       
@@ -181,12 +194,13 @@ CREATE TABLE drug_flags (
 );
 
 COMMENT ON TABLE drug_flags IS
-'important searchable information relating to a drug such as sugar free, gluten free, ...';
+'important searchable information relating to a drug such as sugar
+free, gluten free, orange-floavoured, ...';
 
 -- sugqestion:
-CREATE TABLE link_flag_package (
+CREATE TABLE link_flag_collection (
        flag_id INTEGER REFERENCES drug_flags(id),
-       pack_id INTEGER REFERENCES drug_package (id)
+       pack_id INTEGER REFERENCES drug_collection (id)
 );
 
 -- ==============================================
@@ -197,10 +211,9 @@ CREATE TABLE payor (
        id SERIAL,
        country CHAR (2), -- Internet two-letter code
        name VARCHAR (50),
-       state BOOL -- true if State-owned
 );
 
--- restirction on a substance imposed by a payor
+-- restriction on a substance imposed by a payor
 CREATE TABLE restriction (
        drug_id INTEGER REFERENCES substance (id),
        payor_id INTEGER REFERENCES payor (id),
@@ -235,14 +248,30 @@ CREATE TABLE interaction (
 -- interactions involving drugs or classes of drugs
 -- if the interaction is only known for a compound, link both substances in
 
-CREATE TABLE link_drug_interaction (
-	drug_id INTEGER NOT NULL,
-	class BOOL, -- 'true' for class, false for drug
+CREATE TABLE link_subst_interaction (
+	subst_id INTEGER NOT NULL REFERENCES substance (id),
 	interaction_id INTEGER NOT NULL REFERENCES interaction (id),
+	action CHAR DEFAULT NULL check (action in (NULL, 'S', 'I',
+	'D')),
+	-- this is for interactions mediated by enzymes or the like
+	-- S= Substrate of the enzyme 
+	-- I = Inhibits the enzyme
+	-- D = inDuces the enzyme 
         comment text
 );
 
-COMMENT ON COLUMN link_drug_interaction.drugid IS 'Index of class OR substance table';
+COMMENT ON COLUMN link_subst_interaction.subst_id IS 'Index of substance table';
+
+
+REATE TABLE link_class_interaction (
+	class_id INTEGER NOT NULL REFERENCES class (id),
+	interaction_id INTEGER NOT NULL REFERENCES interaction (id),
+	action CHAR DEFAULT NULL check (action in (NULL, 'S', 'I',
+	'D')),
+        comment text
+);
+
+COMMENT ON COLUMN link_class_interaction.class_id IS 'Index of class table';
 
 
 --=================================================
@@ -260,29 +289,90 @@ COMMENT ON COLUMN disease.ICD10 IS 'ICD-10 code, if applicable';
 
 
 -- =============================================
--- alternative to therapeutic classes, just a thought
+-- Proposed mechanism for therapeutic guidelines.
 
 
-CREATE TABLE indication (
-       id SERIAL PRIMARY KEY,
-       drug INTEGER REFERENCES drug_package (id),
+
+-- therapeutic option: such as 'SSRI antidepressant', for which
+-- several entries may exist in prescription.
+CREATE TABLE therapy (
+       id SERIAL,
+       indication INTEGER REFERENCES disease (id),
+       line INTEGER, -- 1=first line, 2=second line, etc.
+       comment TEXT, -- short text to decide which therapy amongst several
+       handout TEXT, -- longer explanation for non-pharmacological
+       -- therapies, such as the Hallpike manoeuvre.
+       referral_specialty VARCHAR (10), -- the specialty, mainly if a
+       -- procedural therapy
+);
+       
+
+CREATE TABLE prescription (
+       id SERIAL,
+       therapy_id INTEGER REFERENCES therapy (id),
+       adjunct INTEGER REFERENCES prescription (id),
+       -- adjunct to another drug (compound drugs, e.g. co-amoxyclav) 
+       -- NULL for the 'main' drug 
+       drug INTEGER REFERENCES substance (id), -- use multiple entries
        course INTEGER, -- in days, 1 for stat dose, 0 if continuing
-	frequency character(5) DEFAULT 'mane' check (frequency in ('mane', 'nocte', 'bd', 'tds', 'qid')),
-	-- For non-med people: these are Latin expressions for prescribing
+       frequency VARCHAR(5) DEFAULT 'mane' check (frequency in ('mane', 'nocte', 'bd', 'tds', 'qid')),
+	-- Latin expressions for prescribing
 	-- mane='morning', nocte='night', bd=twice daily, tds=three times daily
-	-- qid=four times day.
-       paed_dose FLOAT, -- paediatric dose, units/kg
-       min_dose FLOAT, -- adult minimum dose
-       max_dose FLOAT, -- adult maximum dose
-       comment TEXT,
-       line INTEGER -- 1=first-line, 2=second-line, etc.
+	-- qid=four times day. Are other times needed?
+
+       dose FLOAT,
+       drug_unit INTEGER REFERENCES drug_unit (id),
+
+       dose_denominator CHAR DEFAULT 'A' check (dose_denominator in
+       ('A', 'W', 'S', 'G')),
+       -- A=absolute 
+       -- W=by weight (kg)
+       -- S=by computed surface area (m^2)
+       -- G=by GFR (ml/min). This option may be useful for some drugs
+       -- heavily dependent on renal function. GFR could be derived
+       -- from age-weight norms, or from the most recent U&E result.
+
+       max_dose FLOAT, -- absolute maximum. For many drugs the
+       -- 'paediatric' dose may be encoded above as 'by weight', 
+       -- and the adult dose can be placed here. Smaller adults may
+       -- get the calculated paediatric dose: probably a good thing.    
+
+       elderly_dose FLOAT, -- some drugs (like tricyclics) reduced
+       -- dose recommended in elderly 
 );
 
 -- with this table, a list of indicated drugs would appear in a sidebox
 -- when a diagnosis was entered, with interacting/contraindicated/allergic
 -- drugs removed a priori. The prescriber could click on one to these to
 -- bring up the prescription dialogue, pre-loaded with the drug.
--- paediatric dosing can be automatically calculated.		          
+-- paediatric dosing can be automatically calculated.
+
+
+-- ===============================================
+
+CREATE TABLE drug_monitoring (
+       id SERIAL,
+       subst_id INTEGER substance (id),
+       test varchar (10), -- needs to be some agreed code for path. results
+       max_result FLOAT,
+       min_result FLOAT,
+       frequency INTEGER, -- length between tests, in days.
+);		          
+
+-- for drugs such as warfarin, clozapine, gentamycin, allows
+-- auto-checking of the monitoring tests.
+
+-- for warfarin and gentamycin, there are set methods for adjusting
+-- the dose based on results:
+CREATE TABLE dose_adjustment
+(
+	subst_id INTEGER REFERENCES substance (id),
+	test VARCHAR (10),
+	script TEXT -- a Python script
+);
+-- the script has a set of variables, containing the test results, the 
+-- current dose, patient age/sex etc. and returns a suggested new dose.
+
 
 --=============================================
 -- link diseases to interactions -- i.e contraindications
