@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.14 2005-02-13 15:28:07 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmPatSearchWidgets.py,v 1.15 2005-02-20 10:33:26 sjtan Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -376,7 +376,9 @@ and hit <ENTER>
 		wx.EVT_SET_FOCUS (self, self._on_get_focus)
 		# - redraw the currently active name upon losing focus
 		#   (but see the caveat in the handler)
-		wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
+
+		#FIXME  causes core dump, in a version of wxPython
+		#wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
 
 		wx.EVT_TEXT_ENTER (self, self.GetId(), self._on_enter)
 		wx.EVT_LEFT_UP (self, self._on_left_mousebutton_up)
@@ -465,8 +467,9 @@ and hit <ENTER>
 		self.SetSelection (0,0)
 		# reset highlight counter
 		self._lclick_count = 0
-		
+	
 		evt.Skip()
+
 	#--------------------------------------------------------
 	def _on_char(self, evt):
 		keycode = evt.GetKeyCode()
@@ -706,7 +709,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.14  2005-02-13 15:28:07  ncq
+# Revision 1.15  2005-02-20 10:33:26  sjtan
+#
+# disable lose focus to prevent core dumping in a wxPython version.
+#
+# Revision 1.14  2005/02/13 15:28:07  ncq
 # - v_basic_person.i_pk -> pk_identity
 #
 # Revision 1.13  2005/02/12 13:59:11  ncq
