@@ -15,11 +15,16 @@
 #
 # @TODO: Almost everything
 ############################################################################
-
 import gettext
+import gmLog
+
 # ADDED CODE Haywood 26/2/02
 # set domain to 'gnumed' -- otherwise doesn't work on my setup
 gettext.textdomain ('gnumed')
+gmLog.gmDefLog.Log(gmLog.lInfo, 'gettext.textdomain set to \"gnumed\"')
+
+# define a convenience macro that also simplifies working with gettext tools
 _ = gettext.gettext
 
 gmTimeformat = _("%Y-%m-%d  %H:%M:%S")
+gmLog.gmDefLog.Log(gmLog.lInfo, 'local time format set to \" ' + gmTimeformat + ' \"')

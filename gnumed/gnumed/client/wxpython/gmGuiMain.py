@@ -115,12 +115,15 @@ class MainFrame(wxFrame):
 		#do the platform dependent stuff
 		if wxPlatform == '__WXMSW__':
 			#windoze specific stuff here
+			myLog.Log(gmLog.lInfo,'running on Microsoft Windows')
 			pass
 		elif wxPlatform == '__WXGTK__':
 			#GTK (Linux etc.) specific stuff here
+			myLog.Log(gmLog.lInfo,'running on GTK (probably Linux)')
 			pass
 		elif wxPlatform == '__WXMAC__':
 			#Mac OS specific stuff here
+			myLog.Log(gmLog.lInfo,'running on a Mac')
 			pass
 
 
@@ -379,8 +382,8 @@ def main():
 myLog = gmLog.gmDefLog
 
 # we may want to reset the log level, so keep a global reference to the log target
-# append only, log level "Warnings"
-myLogFile = gmLog.LogTargetFile('gnumed.log', 'a', gmLog.lWarn)
+# append only, log level "informational"
+myLogFile = gmLog.LogTargetFile('gnumed.log', 'a', gmLog.lInfo)
 myLog.AddTarget(myLogFile)
 
 # console is Good(tm)

@@ -352,10 +352,11 @@ class LogTargetDummy(LogTarget):
 	pass
 #---------------------------------------------------------------
 def myExitFunc():
+    pass
     # FIXME - do something useful
     #sys.exitfunc = oldExitFunc
 
-    gmDefLog.close()
+    #gmDefLog.close()
 
     # should close other loggers, too, but I need to keep track of them first
 #------- MAIN -------------------------------------------------------
