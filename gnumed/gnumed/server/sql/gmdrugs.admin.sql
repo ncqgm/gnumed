@@ -78,7 +78,7 @@ grant all on package_size to group contributors;
 
 grant select on drug_dosage to group browsers;
 grant select on generic_drug_name to group browsers;
-grant link_country_drug_name to group browsers;
+grant select on link_country_drug_name to group browsers;
 grant select on link_compound_generics to group browsers;
 grant select on link_drug_adverse_effects to group browsers;
 grant select on link_drug_class to group browsers;
@@ -115,111 +115,38 @@ grant select on drug_warning_categories to public;
 grant select on subsidies to public;
 grant select on users to public;
 
-create table audit
+create table comments
 (
 	id serial primary key,
 	table_name name,
 	table_row integer,
 	stamp datetime default current_timestamp,
 	who name default current_user,
-	why text, -- general comment on the change
-	what text, -- pickled contents of the row
-	-- (this is of course a ridiculously inefficient means of storage.)
-	action char check (action in ('i', 'u', 'd', 'v')),
-	-- i=insert, u=update, d=delete, v=validate
-	version integer,
+	comment text,
 	source integer references info_reference (id),
 	signature text 
 );
 
-comment on table audit is 'this is a master table of all changes to the database.'; 
 
-comment on column audit.what is 'pickled contents of the row after change made.';
+create table changelog
+(
+	id serial primary key,
+	id_drug integer references drug_element (id),
+	stamp timestamp default current_timestamp,
+	who name default current_user,
+	comment text,
+	revert text
+);
 
-comment on column audit.action is 'action performed on row';
-comment on column audit.source is 'source of information for this change';
-comment on column audit.signature is 'GPG signature of the what field';
-comment on column audit.why is 'explanation of the change';
+comment on table changelog is
+'changelog for the whole database';
+comment on column changelog.id_drug is
+'reference to drug, if relevant'; 
+comment on column changelog.comment is
+'auto-generated description of the change'; 
+comment on column changelog.revert is
+'semicolon-separated list of SQL commands to undo the 
+changes so described.';  
 
---A Note on Signatures
---SQL rows cannot be signed, only 'documents': i.e ASCII strings, can be.
---So PL/Python is used to form a pickled dictionary of the row, and 
---this is signed.
-
---PL/Python trigger to update audit table.
---drop trigger element_trig on drug_element;
---drop function audit_func ();
-
-create function audit_func () returns opaque as '
-import StringIO
-import string
-if TD["event"] == "INSERT":
- action = "i"
- row = TD["new"]
-elif TD["event"] == "UPDATE":
- action = "u"
- row = TD["new"]
-elif TD["event"] == "DELETE":
- action = "d"
- row = TD["old"]
-else:
- plpy.fatal ("unknown action")
-if row.has_key ("id"):
- row_id = row["id"]
-else:
- row_id = "NULL"
-# the description ("what" field) depends on the underlying table.
-# to make this meaningful, references must be looked up.
-# certain regularities in the way columns are named can be exploited to do this, this is not 
-# a graceful or complete solution, but better than any alternative I could think of.
-# what becomes a HTML table of field:value pairs.
-f = StringIO.StringIO()
-for field in row.keys ():
- if field == "id_drug" or field == "id_component" or field == "id_compound" or field == "id_class" or field == "id_interacts_with":
-  value = plpy.execute ("select get_drug_name (%s) as foo" % row[field])[0]["foo"]
-  field = field[3:]
- elif field == "id_route":
-  value = plpy.execute ("select description from drug_routes where id = %s" % row[field])[0]["description"]
-  field = field[3:]
- elif field == "id_formulation":
-  value = plpy.execute ("select description from drug_formulations where id = %s" % row[field])[0]["description"]
-  field = field[3:]
- elif field == "id_unit" or field == "id_packing_unit":
-  value = plpy.execute ("select description from drug_units where id = %s" % row[field])[0]["description"]
-  field = field[3:] 
- elif field == "id_adverse_effect":
-  value = plpy.execute ("select description from adverse_effects where id = %s" % row[field])[0]["description"]
-  field = field[3:]
- elif field == "id_code_system":
-  value = plpy.execute ("select name from code_systems where id = %s" % row[field])[0]["name"]
-  field = field[3:]
- elif field == "id_info":
-  value = plpy.execute ("select title from drug_information di, information_topic it where di.id = %s and id_topic = it.id" % row[field])[0]["title"]
-  field = field[3:]
- elif field == "id_interaction":
-  value = plpy.execute ("select description from interactions where id = %s" % row[field])[0]["description"]
-  field = field[3:]
- elif field == "id_warning":
-  value = plpy.execute ("select details from drug_warning where id = %s" % row[field])[0]["details"]
-  field = field[3:]
- elif field == "id_product":
-  product = plpy.execute ("select get_drug_name (id_drug) as drug_name, df.description as df from product, drug_formulations where id = %s and df.id = id_formulation" % row[field])[0]
-  value = "%(drug_name)s %(df)s" % product
-  field = field[3:]
- elif field == "id_info_reference":
-  value = plpy.execute ("select description from info_reference where id = %s" % row[field])[0]["description"]
-  field = field[3:]
- else:
-  value = row[field]
- f.write ("<td>%s</td><td>%s</td>" % (field, value))
-what = f.getvalue ()
-table_name = plpy.execute ("select relname from pg_class where oid = %s" % TD["relid"])[0]["relname"]
-plpy.execute ("insert into audit (action, what, table_row, table_name, version) values (''%(action)s'', ''%(what)s'', %(row_id)s, ''%(table_name)s'', (select count (*)+1 from audit where table_name = ''%(table_name)s'' and table_row = %(row_id)s))" % vars ())
-' language 'plpython';
-
-comment on function audit_func () is 'Python trigger function to create audit entries';
-
---create trigger element_trig after insert or update or delete on drug_element 
---for each row execute procedure audit_func ();
 
 

@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.32 $ $Date: 2003-01-05 13:05:52 $ $Author: ncq $
+-- $Revision: 1.33 $ $Date: 2003-01-06 05:01:40 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.32  2003-01-05 13:05:52  ncq
+-- Revision 1.33  2003-01-06 05:01:40  ihaywood
+-- resolved merge conflict
+--
+-- Revision 1.32  2003/01/05 13:05:52  ncq
 -- - schema_revision -> gm_schema_revision
 --
 -- Revision 1.31  2003/01/01 12:06:09  ncq
@@ -221,14 +224,20 @@ insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.'
 -- ===========================================
 create table drug_element (
 	id serial primary key,
-	category char check (category in ('t', 'p', 's', 'c')),
+	category char check (category in ('t', 'p', 's', 'c', 'k')),
 	description text
 );
 
 comment on table drug_element is 'collection of all drug elements: classes, compounds, and substances';
 
-comment on column drug_element.category is 't = therapeutic class, p = pharmaceutical class, s = substance, c = compound';
+comment on column drug_element.category is 't = therapeutic class, p = pharmaceutical class, s = substance, c = compound, k= category';
 create view drug_class as select * from drug_element where category = 't' or category = 'p';
+
+create table link_drug_atc
+(
+	code varchar (7),
+	id_drug integer references drug_element (id)
+);
 
 comment on view drug_class is
 	'drug classes of specified categories';
@@ -327,7 +336,7 @@ comment on column generic_drug.is_compound is
 create table generic_drug_name(
 	id serial primary key,
 	id_drug integer references drug_element (id),
-	name varchar(60) unique,
+	name varchar(100),
 	comment text
 );
 comment on table generic_drug_name is
@@ -362,16 +371,16 @@ comment on table link_country_drug_name is
 drop function get_drug_name (integer);
 \set ON_ERROR_STOP 1
 
-create function get_drug_name (integer) returns varchar (60) as
+create function get_drug_name (integer) returns varchar (100) as
 'select coalesce (
-(select name from generic_drug_name, link_country_drug_name where
-	iso_countrycode = ''**'' and
-	id_drug_name = generic_drug_name.id and
-	id_drug = $1),
-(select name from generic_drug_name where
-id_drug = $1 and
-not exists (select * from link_country_drug_name where id_drug_name = generic_drug_name.id)),
-(select name from generic_drug_name where id_drug = $1),
+(select name from generic_drug_name, link_country_drug_name where 
+	iso_countrycode = ''**'' and 
+	id_drug_name = generic_drug_name.id and 
+	id_drug = $1 limit 1), 
+(select name from generic_drug_name where 
+id_drug = $1 and 
+not exists (select * from link_country_drug_name where id_drug_name = generic_drug_name.id) limit 1),
+(select name from generic_drug_name where id_drug = $1 limit 1),
 ''NONAME'')' language 'sql';
 
 comment on function get_drug_name (integer) is
@@ -704,22 +713,26 @@ comment on column conditions.id_drug is
 
 -- ===========================================
 create table subsidized_products(
+	id serial,
 	id_product integer references product(id),
 	id_subsidy integer references subsidies(id),
 	quantity integer default 1,
 	max_rpt integer default 0,
 	copayment float default 0.0,
-	comment text
+	comment text,
+	restriction text
 );
 
 comment on table subsidized_products is
 	'listing of drug products that may attract a subsidy. Drugs are ';
 comment on column subsidized_products.quantity is
-	'quantity of packaged units dispensed under subsidy for any one prescription. 
-	AU: this the maximum quantity in the Yellow Book. 
-	DE: is the package size (N1, N2, N3), etc. 
-	Drugs are explicitly permitted to have several entries in this table for 
-	these different sizes. (DE only)';
+'quantity of packaged units dispensed under subsidy for any one prescription. 
+AU: this the maximum quantity in the Yellow Book. 
+DE: is the package size (N1, N2, N3), etc. 
+Drugs are explicitly permitted to have several entries in this table for 
+these different sizes. (DE only)';
+comment on column subsidized_products.restriction is
+'restriction applied only to this subsidy, not to the drug in general';
 comment on column subsidized_products.max_rpt is
 	'maximum number of repeat (refill) authorizations allowed on any one subsidised prescription (series)';
 comment on column subsidized_products.copayment is
@@ -765,7 +778,7 @@ comment on column link_drug_indication.line is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.32 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.33 $');
 
 -- -----------------------------------------
 -- we need to be able to "lock" certain drugs from prescribing and such
