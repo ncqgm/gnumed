@@ -18,6 +18,10 @@
 #	
 #      
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Referrals.py,v $
+# $Id: gmGP_Referrals.py,v 1.6 2003-02-02 13:34:28 ncq Exp $
+__version__ = "$Revision: 1.6 $"
+__author__ = "R.Terry"
 
 from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
@@ -113,7 +117,7 @@ class ReferralsPanel (wxPanel):
 		self.SetAutoLayout(true)
 		self.Show(true)
 	
-		
+#==============================================================		
 class gmGP_Referrals (gmPlugin.wxPatientPlugin):
 	"""
 	Plugin to encapsulate the referrals window
@@ -152,8 +156,13 @@ C\x96[C\xe8\xd4P\xfb\xff\xa7\x1a\xb5P/\x85\xf6!\xc2\xf7\xdd\xbbA\xcf\xdbs\
 	def GetWidget (self, parent):
 		return  ReferralsPanel (parent, -1)
 
-
+#==============================================================
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(ReferralsPanel, -1)
 	app.MainLoop()
+#==============================================================
+# $Log: gmGP_Referrals.py,v $
+# Revision 1.6  2003-02-02 13:34:28  ncq
+# - cvs keyword metadata
+#
