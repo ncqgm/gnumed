@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -131,7 +131,7 @@ insert into lab_request (
 	'inflammation screen, possibly extraterrestrial contamination',
 	(select pk from test_org where internal_name='Enterprise Main Lab'),
 	'EML#SC937-0176-CEC#11',
-	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
+	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'::timestamp),
 	'SC937-0176-CEC#15034',
 	'2000-9-17',
 	'2000-9-17',
@@ -262,11 +262,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.11  2004-03-18 10:57:20  ncq
+-- Revision 1.12  2004-03-18 11:07:56  ncq
+-- - fix integrity violations
+--
+-- Revision 1.11  2004/03/18 10:57:20  ncq
 -- - several fixes to the data
 -- - better constraints on vacc.seq_no/is_booster
 --
