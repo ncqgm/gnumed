@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -982,7 +982,7 @@ if __name__ == "__main__":
 		exit_with_msg("Cannot bootstrap services.")
 
 	_log.Log(gmLog.lInfo, "shutdown")
-	print "Done bootstrapping."
+	print "Done bootstrapping: We probably succeeded."
 else:
 	print "This currently is not intended to be used as a module."
 
@@ -1013,7 +1013,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.5  2003-03-23 21:04:44  ncq
+# Revision 1.6  2003-04-03 13:24:43  ncq
+# - modified message about succeeding
+#
+# Revision 1.5  2003/03/23 21:04:44  ncq
 # - fixed faulty English
 #
 # Revision 1.4  2003/03/23 03:51:27  ncq
