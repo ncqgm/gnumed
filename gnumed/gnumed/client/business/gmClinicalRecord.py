@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.16 2003-06-01 15:00:31 sjtan Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmClinicalRecord.py,v 1.17 2003-06-01 16:25:51 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -58,6 +58,9 @@ class gmClinicalRecord:
 		# register backend notification interests ...
 		if not self._register_interests():
 			raise gmExceptions.ConstructorError, "cannot register signal interests"
+
+		# what episode did we work on last time we saw this patient ?
+#		self.__get_last_episode()
 
 		self.ensure_current_clinical_encounter()
 		self.init_issue_episodes()
@@ -251,6 +254,96 @@ class gmClinicalRecord:
 		for row in rows:
 			self.__db_cache['allergy IDs'].extend(row)
 		return self.__db_cache['allergy IDs']
+	#------------------------------------------------------------------
+	#------------------------------------------------------------------
+	def __get_last_active_episode(self):
+		# check if there's an active episode
+		curs = self._defconn_ro.cursor()
+		cmd = "select id_episode from last_active_episode where id_patient='%s';" % self.id_patient
+		if not gmPG.run_query(curs, cmd):
+			curs.close()
+			_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
+			return None
+		row = curs.fetchone()
+		curs.close()
+		# no: should only happen in new patients
+		if row is None:
+			# try to set one to active or create default one
+			id_episode = self._set_active_episode()
+			if id_episode is None:
+				_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
+				return None
+		else:
+			id_episode = row[0]
+		self.id_episode = id_episode
+		return id_episode
+	#------------------------------------------------------------------
+	def _set_active_episode(self, episode_name = '__default__'):
+		ro_curs = self._defconn_ro.cursor()
+		cmd = "select id_episode from v_patient_episodes where id_patient='%s' and episode='%s' limit 1;" % (self.id_patient, episode_name)
+		if not gmPG.run_query(ro_curs, cmd):
+			ro_curs.close()
+			_log.Log(gmLog.lErr, 'cannot load episode [%s] for patient [%s]' % (episode_name, self.id_patient))
+			return None
+		row = ro_curs.fetchone()
+		if row is None:
+			ro_curs.close()
+			_log.Log(gmLog.lInfo, 'patient [%s] has no episode [%s]' % (self.id_patient, episode_name))
+			return None
+		id_episode = row[0]
+
+
+
+
+
+		if episode_name == '__default__':
+			# if only one episode available but none active
+			# set that one to active
+			ro_curs = self._defconn_ro.cursor()
+			cmd = "select count(id) from clin_episode where id_patient='%s';" % self.id_patient
+			if not gmPG.run_query(ro_curs, cmd):
+				_log.Log(gmLog.lErr, 'cannot get count of episodes for patient [%s]' % self.id_patient)
+				row = [0]
+			else:
+				row = ro_curs.fetchone()
+			# no episode so far
+			if row[0] == 0:
+				ro_curs.close()
+				# create default episode
+				return self.__create_episode()
+			# just one
+			elif row[0] == 1:
+				# activate that one
+				cmd = "select id from clin_episode where id_patient='%s';" % self.id_patient
+				if not gmPG.run_query(ro_curs, cmd):
+					ro_curs.close()
+					_log.Log(gmLog.lErr, 'cannot load episode for patient [%s]' % self.id_patient)
+					return None
+				row = ro_curs.fetchone()
+				ro_curs.close()
+				if row is None:
+					return None
+				return row[0]
+			# more than one
+			else:
+				# any of them the default one ?
+				cmd = "select id from clin_episode where id_patient='%s' and description='%s';" % (self.id_patient, '__default__')
+				if not gmPG.run_query(ro_curs, cmd):
+					ro_curs.close()
+					_log.Log(gmLog.lErr, 'cannot load __default__ episode for patient [%s]' % self.id_patient)
+				row = ro_curs.fetchone()
+				# no default episode
+				if row is None:
+					ro_curs.close()
+					_log.Log(gmLog.lErr, 'patient [%s] does not have a __default__ episode' % self.id_patient)
+					# create default episode
+					return self.__create_episode()
+
+					return row[0]
+
+
+
+		ro_curs.close()
 	#------------------------------------------------------------------
 	# trial 
 	def create_allergy(self, map):
@@ -471,7 +564,10 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.16  2003-06-01 15:00:31  sjtan
+# Revision 1.17  2003-06-01 16:25:51  ncq
+# - preliminary code for episode handling
+#
+# Revision 1.16  2003/06/01 15:00:31  sjtan
 #
 # works with definite, maybe note definate.
 #
