@@ -9,7 +9,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -50,13 +50,12 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'11 months'::interval,
-	'14 months'::interval,
-	'4 weeks'::interval
+	'14 months'::interval
 );
 
 insert into vacc_def
@@ -83,13 +82,12 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'11 months'::interval,
-	'14 months'::interval,
-	'4 weeks'::interval
+	'14 months'::interval
 );
 
 insert into vacc_def
@@ -116,13 +114,12 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'11 months'::interval,
-	'14 months'::interval,
-	'4 weeks'::interval
+	'14 months'::interval
 );
 
 insert into vacc_def
@@ -149,13 +146,12 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'2 months'::interval,
-	'2 months'::interval,
-	'4 weeks'::interval
+	'2 months'::interval
 );
 
 insert into vacc_def
@@ -214,9 +210,9 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values
-	(currval('vacc_regime_id_seq'), 1, '2 months'::interval, '2 months'::interval, '4 weeks'::interval);
+	(currval('vacc_regime_id_seq'), 1, '2 months'::interval, '2 months'::interval);
 
 insert into vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
@@ -275,9 +271,9 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values
-	(currval('vacc_regime_id_seq'), 1, '2 months'::interval, '2 months'::interval, '4 weeks'::interval);
+	(currval('vacc_regime_id_seq'), 1, '2 months'::interval, '2 months'::interval);
 
 insert into vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
@@ -319,13 +315,12 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'2 months'::interval,
-	'2 months'::interval,
-	'4 weeks'::interval
+	'2 months'::interval
 );
 
 insert into vacc_def
@@ -364,13 +359,12 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'2 months'::interval,
-	'2 months'::interval,
-	'4 weeks'::interval
+	'2 months'::interval
 );
 
 insert into vacc_def
@@ -408,13 +402,12 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'2 months'::interval,
-	'2 months'::interval,
-	'4 weeks'::interval
+	'2 months'::interval
 );
 
 insert into vacc_def
@@ -513,13 +506,12 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'2 months'::interval,
-	'12 months'::interval,
-	'2 months'::interval
+	'12 months'::interval
 );
 
 insert into vacc_def
@@ -544,22 +536,24 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
-	'12 months'::interval,
-	'2 months'::interval
+	'12 months'::interval
 );
 
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename='$RCSfile: STIKO-Impfkalender.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.11  2004-03-18 09:58:50  ncq
+-- Revision 1.12  2004-04-14 13:33:04  ncq
+-- - need to adjust min_interval for seq_no=1 after tightening interval checks
+--
+-- Revision 1.11  2004/03/18 09:58:50  ncq
 -- - removed is_booster reference where is false
 --
 -- Revision 1.10  2003/12/29 16:01:21  uid66147

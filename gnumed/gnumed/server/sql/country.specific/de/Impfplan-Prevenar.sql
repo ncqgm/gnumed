@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Prevenar.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -28,13 +28,12 @@ values (
 
 -- Impfzeitpunkte definieren
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, comment)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'2 months'::interval,
 	'6 months'::interval,
-	'4 weeks'::interval,
 	'<6 Monate, Hersteller'
 );
 
@@ -85,13 +84,12 @@ values (
 
 -- Impfzeitpunkte definieren
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, comment)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'7 months'::interval,
 	'11 months'::interval,
-	'4 weeks'::interval,
 	'7-11 Monate, Hersteller'
 );
 
@@ -131,13 +129,12 @@ values (
 
 -- Impfzeitpunkte definieren
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, comment)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'12 months'::interval,
 	'23 months'::interval,
-	'2 month'::interval,
 	'12-23 Monate, Hersteller'
 );
 
@@ -155,11 +152,14 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename like '%Impfplan-Prevenar%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: Impfplan-Prevenar.sql,v $
--- Revision 1.7  2004-03-18 09:56:12  ncq
+-- Revision 1.8  2004-04-14 13:33:04  ncq
+-- - need to adjust min_interval for seq_no=1 after tightening interval checks
+--
+-- Revision 1.7  2004/03/18 09:56:12  ncq
 -- - is_booster removal
 --
 -- Revision 1.6  2003/12/29 15:58:32  uid66147

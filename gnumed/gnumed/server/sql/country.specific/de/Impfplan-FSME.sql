@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-FSME.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -22,13 +22,12 @@ values (
 
 -- Impfzeitpunkte definieren
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'12 months'::interval,
-	'12 years'::interval,
-	'1 month'::interval
+	'12 years'::interval
 );
 
 insert into vacc_def
@@ -64,13 +63,12 @@ values (
 
 -- Impfzeitpunkte definieren
 insert into vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
 	currval('vacc_regime_id_seq'),
 	1,
 	'12 months'::interval,
-	'12 years'::interval,
-	'1 month'::interval
+	'12 years'::interval
 );
 
 insert into vacc_def
@@ -98,10 +96,13 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfplan-FSME.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-FSME.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-FSME.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: Impfplan-FSME.sql,v $
--- Revision 1.1  2004-03-27 18:38:55  ncq
+-- Revision 1.2  2004-04-14 13:33:04  ncq
+-- - need to adjust min_interval for seq_no=1 after tightening interval checks
+--
+-- Revision 1.1  2004/03/27 18:38:55  ncq
 -- - FSME schedule
 --
