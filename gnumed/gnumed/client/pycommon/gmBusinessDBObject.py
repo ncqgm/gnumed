@@ -1,12 +1,21 @@
 """GnuMed database object business class.
 
-This class in most cases wraps a denormalizing view which
-represents an entity that makes immediate business sense
-such as a vaccination or a medical document. The data in
-that view will in most cases, however, originate from
+Overview
+--------
+This class in many if not most cases wraps a denormalizing
+view which represents an entity that makes immediate business
+sense such as a vaccination or a medical document. The data
+in that view will in most cases, however, originate from
 several normalized tables. One instance of this class
-represents one row of the "main" source (eg. mostly view).
+represents one row of the "main" source relation.
 
+Note, however, that this class does not *always* simply
+wrap a single table or view. It can also encompass several
+relations (views, tables, sequences etc) that taken together
+form an object meaningful to *business* logic.
+
+Initialization
+--------------
 There are two ways to initialize an instance with values.
 One way is to pass a "primary key equivalent" object into
 __init__(). Refetch_payload() will then pull the data from
@@ -15,6 +24,8 @@ the instance and pass it in via the <row> argument. In that
 case the instance will not initially connect to the databse
 which may offer a great boost to performance.
 
+Values API
+----------
 Field values are cached for later access. They can be accessed
 by a dictionary API, eg:
 
@@ -22,8 +33,8 @@ by a dictionary API, eg:
 	object['field'] = new_value
 
 The field names correspond to the respective column names
-in the "main" source. Accessing non-existant field names
-will raise an error, so does trying to set fields not
+in the "main" source relation. Accessing non-existant field
+names will raise an error, so does trying to set fields not
 listed in self.__class__._updatable_fields. To actually
 store updated values in the database one must explicitely
 call save_payload().
@@ -34,19 +45,30 @@ object itself but are closely related, such as codes
 linked to a clinical narrative entry (eg a diagnosis). Such
 accessors in most cases start with get_*.
 
-Note that this class does not always simply wrap a single
-table or view, however. It can also encompass several
-relations (views, tables, sequences etc) that taken together
-form an object meaningful to *business* logic.
+Concurrency handling
+--------------------
+GnuMed connections always run transactions in isolation level
+"serializable". This prevents transactions happening at the
+*very same time* to overwrite each other's data. All but one
+of them will abort with a concurrency error.
+
+However, another transaction may have updated our row between
+the time we first fetched the data and the time we start
+the update transaction. This is noticed by getting the XMIN
+system column for the row when fetching the data and using
+that value as a where condition value when locking the row
+for update. If the row was updated (xmin changed) or deleted
+(primary key disappeared) then getting the row lock will fail
+even if the query itself succeeds.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.3 2004-10-27 12:13:37 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmBusinessDBObject.py,v 1.4 2004-11-03 22:30:35 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import sys
+import sys, copy
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
 from Gnumed.pycommon.gmPyCompat import *
@@ -66,6 +88,14 @@ class cBusinessDBObject:
 	- does NOT verify FK target existence
 	- does NOT create new entries in the database
 	- does NOT lazy-fetch fields on access
+
+	Class scope SQL commands:
+	<_cmd_fetch_payload>
+		- must return exactly one row
+		- where clause argument values are expected
+		  in self._pk_obj (taken from __init__(aPK_obj))
+		- must return xmin of all rows that _cmds_store_payload
+		  will be updating
 	"""
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
@@ -74,11 +104,14 @@ class cBusinessDBObject:
 		self._is_modified = False
 		# check descendants
 		#<DEBUG>
-		self.__class__._cmd_fetch_payload
+		self.__class__._cmd_fetch_payload			# must fetch xmin ! (and the view must support that ...)
+		self.__class__._cmds_lock_rows_for_update	# must do "select for update" and use xmin in where clause, each query must return exactly 1 row
 		self.__class__._cmds_store_payload
 		self.__class__._updatable_fields
 		self.__class__._service
 		#</DEBUG>
+		self._payload = []
+		self._idx = {}
 		if aPK_obj is not None:
 			self.__init_from_pk(aPK_obj=aPK_obj)
 		else:
@@ -182,7 +215,6 @@ class cBusinessDBObject:
 		if self._is_modified:
 			_log.Log(gmLog.lPanic, '[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
 			return False
-		self._payload = None
 		data, self._idx = gmPG.run_ro_query (
 			self.__class__._service,
 			self.__class__._cmd_fetch_payload,
@@ -201,21 +233,71 @@ class cBusinessDBObject:
 	def save_payload(self):
 		"""Store updated values (if any) in database.
 
-		- returns a tuple (<True|False>, err_msg)
+		- returns a tuple (<True|False>, <data>)
+		- True: success
+		- False: an error occurred
+			* data is (error, message)
+			* for error meanings see gmPG.run_commit2()
 		"""
 		if not self._is_modified:
 			return (True, None)
+
 		params = {}
 		for field in self._idx.keys():
 			params[field] = self._payload[self._idx[field]]
+
+		conn = gmPG.GetConnection(self.__class__._service, readonly=0)
+		if conn is None:
+			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
+			return (False, (1, _('Cannot connect to database.')))
+
+		# try to lock rows
+		for query in self.__class__._cmds_lock_rows_for_update:
+			successful, data = gmPG.run_commit2(link_obj = conn, queries = [(query, [params])])
+			# error
+			if not successful:
+				conn.rollback()
+				conn.close()
+				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, error locking row' % (self.__class__.__name__, self.pk_obj))
+				return (False, data)
+			# query succeeded but failed to find the row to lock
+			# because another transaction committed a change or
+			# delete *before* we attempted to lock it ...
+			if len(data) == 0:
+				conn.rollback()
+				conn.close()
+				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, concurrency conflict' % (self.__class__.__name__, self.pk_obj))
+				# store current content so user can still play with it ...
+				self.modified_payload = params
+				# update from backend
+				self._is_modified = False
+				if self.refetch_payload():
+					return (False, (2, 'c'))
+				else:
+					return (False, (2, 'd'))
+			# uh oh
+			if len(data) > 1:
+				conn.rollback()
+				conn.close()
+				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, deep sh*t' % (self.__class__.__name__, self.pk_obj))
+				_log.Log(gmLog.lPanic, '[%s:%s]: integrity violation, more than one matching row' % (self.__class__.__name__, self.pk_obj))
+				_log.Log(gmLog.lPanic, 'HINT: shut down/investigate application/database immediately')
+				_log.Log(gmLog.lErr, query)
+				_log.Log(gmLog.lData, params)
+				return (False, (1, _('Database integrity violation detected. Immediate shutdown strongly advisable.')))
+		# successfully locked, now actually run update
 		queries = []
 		for query in self.__class__._cmds_store_payload:
 			queries.append((query, [params]))
-		status, err = gmPG.run_commit(self.__class__._service, queries, True)
-		if status is None:
+		successful, data = gmPG.run_commit2(link_obj = conn, queries = queries)
+		if not successful:
+			conn.rollback()
+			conn.close()
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			_log.Log(gmLog.lData, params)
-			return (False, err)
+			return (False, data)
+		conn.commit()
+		conn.close()
 		self._is_modified = False
 		return (True, None)
 #============================================================
@@ -224,7 +306,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.3  2004-10-27 12:13:37  ncq
+# Revision 1.4  2004-11-03 22:30:35  ncq
+# - improved docs
+# - introduce class level SQL query _cmds_lock_rows_for_update
+# - rewrite save_payload() to use that via gmPG.run_commit2()
+# - report concurrency errors from save_payload()
+#
+# Revision 1.3  2004/10/27 12:13:37  ncq
 # - __init_from_row_data -> _init_from_row_data so we can override it
 # - more sanity checks
 #
