@@ -8,18 +8,18 @@ The manuals should reside where the manual_path points to.
 
 @copyright: GPL
 @thanks: this code has been heavily "borrowed" from
-         Robin Dunn's extraordinary wxPython sample
+		 Robin Dunn's extraordinary wxPython sample
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.10 2003-02-15 14:39:59 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmManual.py,v 1.11 2003-02-15 14:55:55 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import sys, os
 
-from   wxPython.wx         import *
-from   wxPython.html       import *
+from   wxPython.wx		   import *
+from   wxPython.html	   import *
 import wxPython.lib.wxpTag
 
 if __name__ == "__main__":
@@ -53,80 +53,86 @@ ID_MANUALRELOAD = wxNewId()
 ID_VIEWSOURCE  = wxNewId()
 #===========================================================
 class ManualHtmlWindow(wxHtmlWindow):
-    def __init__(self, parent, id):
-        wxHtmlWindow.__init__(self, parent, id)
-        self.parent = parent
+	def __init__(self, parent, id):
+		wxHtmlWindow.__init__(self, parent, id)
+		self.parent = parent
 
-    def OnSetTitle(self, title):
-        self.parent.ShowTitle(title)
+	def OnSetTitle(self, title):
+		self.parent.ShowTitle(title)
 #===========================================================
 class ManualHtmlPanel(wxPanel):
-    def __init__(self, parent, frame):
-        wxPanel.__init__(self, parent, -1)
-        self.frame = frame
-        # get base directory for manuals from broker
-        # Ideally this should be something like "/usr/doc/gnumed/"
-        self.docdir = gmGuiBroker.GuiBroker ()['gnumed_dir']
-        self.printer = wxHtmlEasyPrinting()
+	def __init__(self, parent, frame):
+		wxPanel.__init__(self, parent, -1)
+		self.frame = frame
+		# get base directory for manuals from broker
+		# Ideally this should be something like "/usr/doc/gnumed/"
+		self.docdir = gmGuiBroker.GuiBroker ()['gnumed_dir']
+		self.printer = wxHtmlEasyPrinting()
 
-        self.box = wxBoxSizer(wxVERTICAL)
+		self.box = wxBoxSizer(wxVERTICAL)
 
-        infobox = wxBoxSizer(wxHORIZONTAL)
-        n = wxNewId()
-        self.infoline = wxTextCtrl(self, n, style=wxTE_READONLY)
-        self.infoline.SetBackgroundColour(wxLIGHT_GREY)
-        infobox.Add(self.infoline, 1, wxGROW|wxALL)
-        self.box.Add(infobox, 0, wxGROW)
+		infobox = wxBoxSizer(wxHORIZONTAL)
+		n = wxNewId()
+		self.infoline = wxTextCtrl(self, n, style=wxTE_READONLY)
+		self.infoline.SetBackgroundColour(wxLIGHT_GREY)
+		infobox.Add(self.infoline, 1, wxGROW|wxALL)
+		self.box.Add(infobox, 0, wxGROW)
 
-        self.html = ManualHtmlWindow(self, -1)
-        self.html.SetRelatedFrame(frame, "")
-        self.html.SetRelatedStatusBar(0)
-        self.box.Add(self.html, 1, wxGROW)
+		self.html = ManualHtmlWindow(self, -1)
+		self.html.SetRelatedFrame(frame, "")
+		self.html.SetRelatedStatusBar(0)
+		self.box.Add(self.html, 1, wxGROW)
 
-        self.SetSizer(self.box)
-        self.SetAutoLayout(true)
+		self.SetSizer(self.box)
+		self.SetAutoLayout(true)
 
+		self.already_loaded = None
 
-    def ShowTitle(self, title):
-        self.infoline.Clear()
-        self.infoline.WriteText(title)
+	def FirstLoad(self):
+		if not self.already_loaded:
+			self.already_loaded = 1
+			self.OnShowDefault(None)
 
-    def OnShowDefault(self, event):
-        name = os.path.join(self.docdir, _manual_path)
-        if os.access (name, os.F_OK):
-            self.html.LoadPage(name)
-        else:
-            _log.Log (gmLog.lErr, "cannot load document %s" % name)
+	def ShowTitle(self, title):
+		self.infoline.Clear()
+		self.infoline.WriteText(title)
 
-
-    def OnLoadFile(self, event):
-        dlg = wxFileDialog(self, wildcard = '*.htm*', style=wxOPEN)
-        if dlg.ShowModal():
-            path = dlg.GetPath()
-            self.html.LoadPage(path)
-        dlg.Destroy()
+	def OnShowDefault(self, event):
+		name = os.path.join(self.docdir, _manual_path)
+		if os.access (name, os.F_OK):
+			self.html.LoadPage(name)
+		else:
+			_log.Log (gmLog.lErr, "cannot load document %s" % name)
 
 
-    def OnBack(self, event):
-        if not self.html.HistoryBack():
-            _log.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
+	def OnLoadFile(self, event):
+		dlg = wxFileDialog(self, wildcard = '*.htm*', style=wxOPEN)
+		if dlg.ShowModal():
+			path = dlg.GetPath()
+			self.html.LoadPage(path)
+		dlg.Destroy()
 
 
-    def OnForward(self, event):
-        if not self.html.HistoryForward():
-            _log.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
+	def OnBack(self, event):
+		if not self.html.HistoryBack():
+			_log.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
 
 
-    def OnViewSource(self, event):
-        from wxPython.lib.dialogs import wxScrolledMessageDialog
-        source = self.html.GetParser().GetSource()
-        dlg = wxScrolledMessageDialog(self, source, _('HTML Source'))
-        dlg.ShowModal()
-        dlg.Destroy()
+	def OnForward(self, event):
+		if not self.html.HistoryForward():
+			_log.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
 
 
-    def OnPrint(self, event):
-        self.printer.PrintFile(self.html.GetOpenedPage())
+	def OnViewSource(self, event):
+		from wxPython.lib.dialogs import wxScrolledMessageDialog
+		source = self.html.GetParser().GetSource()
+		dlg = wxScrolledMessageDialog(self, source, _('HTML Source'))
+		dlg.ShowModal()
+		dlg.Destroy()
+
+
+	def OnPrint(self, event):
+		self.printer.PrintFile(self.html.GetOpenedPage())
 #===========================================================
 class gmManual (gmPlugin.wxNotebookPlugin):
 	"""
@@ -143,7 +149,7 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 		return self.HtmlPanel
 
 	def ReceiveFocus(self):
-		self.HtmlPanel.OnShowDefault(None)
+		self.HtmlPanel.FirstLoad()
 
 	def DoToolbar (self, tb, widget):
 		tool1 = tb.AddTool(
@@ -237,17 +243,20 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 			shortHelpString = _("Print Manual Page"),
 			isToggle=true
 		)
-		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint)	
+		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.10  2003-02-15 14:39:59  ncq
+# Revision 1.11  2003-02-15 14:55:55  ncq
+# - whitespace fixup, dynamic loading sped up
+#
+# Revision 1.10	 2003/02/15 14:39:59  ncq
 # - cleanup
 # - comment out a few "un-needed" buttons
 #
-# Revision 1.9  2003/02/15 14:21:49  ncq
+# Revision 1.9	2003/02/15 14:21:49	 ncq
 # - on demand loading of Manual
 # - further pluginization of showmeddocs
 #
-# Revision 1.8  2003/02/13 17:38:35  ncq
+# Revision 1.8	2003/02/13 17:38:35	 ncq
 # - cvs keywords, cleanup
 #
