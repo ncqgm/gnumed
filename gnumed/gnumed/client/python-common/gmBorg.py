@@ -1,8 +1,8 @@
 #===================================================
 # Thanks to Python Patterns !
 # ---------------------------
-# $Id: gmBorg.py,v 1.2 2003-11-17 10:56:35 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmBorg.py,v 1.3 2003-12-29 16:21:51 uid66147 Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -11,7 +11,7 @@ class cBorg:
 	"""A generic Borg mixin.
 
 	- mixin this class with your class' ancestors to borg it
-	- call Borg.__init__(self) right away in your own __init__()
+	- call cBorg.__init__(self) right away in your own __init__()
 
 	- there may be many instances of this but they all share state
 	"""
@@ -23,7 +23,10 @@ class cBorg:
 
 #===================================================
 # $Log: gmBorg.py,v $
-# Revision 1.2  2003-11-17 10:56:35  sjtan
+# Revision 1.3  2003-12-29 16:21:51  uid66147
+# - spelling fix
+#
+# Revision 1.2  2003/11/17 10:56:35  sjtan
 #
 # synced and commiting.
 #
