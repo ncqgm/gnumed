@@ -21,7 +21,7 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -39,13 +39,12 @@ def get_base_dir():
 	   duplicate the entire config file infrastructure
 	   right here.
 
-	   1) regardless of OS if the environment variable GMED_DIR
+	   1) regardless of OS if the environment variable GNUMED_DIR
 		  is set this directory will be tried as a base dir
 		  - this will allow people to start GNUmed from any dir
 		    they want on any OS they happen to run
 		  - the variable name has been chosen to be descriptive
 		    but still not waste too many resources
-		  - the FSF will kill me, I know
 	   2) assume /usr/share/gnumed/ as base dir
 		  - this will work on POSIX systems and may work on
 		    Cygwin systems
@@ -56,8 +55,8 @@ def get_base_dir():
 		  - it also allows running from a local CVS copy
 	"""
 	# environment variable
-	if os.environ.has_key('GMED_DIR'):
-		tmp = os.environ['GMED_DIR']
+	if os.environ.has_key('GNUMED_DIR'):
+		tmp = os.environ['GNUMED_DIR']
 	else:
 		tmp = ""
 	# however, we don't want any random rogue to throw us off
@@ -66,7 +65,7 @@ def get_base_dir():
 	if os.path.exists(tmp):
 		return os.path.abspath(tmp)
 
-	print 'Environment variable GMED_DIR contains "%s".' % tmp
+	print 'Environment variable GNUMED_DIR contains "%s".' % tmp
 	print 'This is not a valid path, however.'
 	print 'Trying to fall back to system defaults.'
 
@@ -114,7 +113,7 @@ if __name__ == "__main__":
 		#exc = sys.exc_info()
 		#gmLog.gmDefLog.LogException ("Exception: Cannot load modules.", exc)
 		sys.exit("CRITICAL ERROR: Can't find modules to load ! - Program halted\n \
-				Please check whether your PYTHONPATH and GMED_DIR environment variables\n \
+				Please check whether your PYTHONPATH and GNUMED_DIR environment variables\n \
 				are set correctly")
 
 	gb = gmGuiBroker.GuiBroker ()
