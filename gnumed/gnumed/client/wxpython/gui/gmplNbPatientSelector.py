@@ -1,4 +1,3 @@
-# a simple wrapper for the cryptowidget
 from wxPython.wx import *
 import gmPlugin
 import gmSelectPerson
@@ -17,13 +16,18 @@ Once a patient selection has been activated, the signal
 gmSignals.patient_selected() will be sent to the dispatcher.
 Keyword arguments passed to the dispatcher contain not only the 
 patient's ID, but also all fields of the view v_basic_person,
-accessible via the field names"""
+accessible via the field names
+
+FIXME: This should evolve into a comprehensive patient
+demographics/family relations/genealogy widget. Rename
+accordingly...
+"""
 
 class gmplNbPatientSelector(gmPlugin.wxNotebookPlugin):
 	"""
 	Plugin to encapsulate a patient selection panel
 	"""
-	tab_name = _('Pat Selector')
+	tab_name = _('Demographics')
 
 	def name (self):
 		return gmplNbPatientSelector.tab_name
@@ -38,7 +42,7 @@ class gmplNbPatientSelector(gmPlugin.wxNotebookPlugin):
 		try:
 			pnl = gmSelectPerson.DlgSelectPerson(parent)
 		except:
-			print "********** \n\n   Failed to load patient selection panel ( H**E**L***L***O ) \n\n*********************"
+			print "Failed to load patient selection panel"
 			return None
 		return pnl
 
