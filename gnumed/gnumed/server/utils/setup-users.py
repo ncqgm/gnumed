@@ -30,11 +30,11 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/setup-users.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
-import sys
+import sys, string
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -108,9 +108,9 @@ def verify_db():
 		print "Installed PostgreSQL does not have minimum required version !"
 		return None
 
-	_log.Log(gmLog.lInfo, "installed PostgreSQL version: %s - this is OK for us" % conn.version)
+	_log.Log(gmLog.lInfo, "installed PostgreSQL version: %s - this is fine with me" % conn.version)
 	return 1
-#------------------------------------------------------------------
+#==================================================================
 # user related
 #------------------------------------------------------------------
 def user_exists(aCursor, aUser):
@@ -156,6 +156,58 @@ def create_superuser():
 	cursor.close()
 	return None
 #------------------------------------------------------------------
+def create_user(aCursor, aUser):
+	# does this group already exist ?
+	if user_exists(aCursor, aUser):
+		return 1
+
+	valid_until = _cfg.get(aUser, "valid until")
+	if not valid_until:
+		_log.Log(gmLog.lErr, "Cannot load account expiration date for GnuMed user [%s] from config file." % aUser)
+		return None
+
+	groups = _cfg.get(aUser, "groups")
+	if not groups:
+		_log.Log(gmLog.lWarn, "GnuMed user [%s] does not seem to belong to any GnuMed groups." % aUser)
+		group_cmd = ""
+	else:
+		group_cmd = ' IN GROUP "' + string.join(groups, '", "') + '"'
+		_log.Log(gmLog.lWarn, "GnuMed user [%s] belongs to GnuMed groups [%s]." % (aUser, group_cmd))
+
+	# get password for user
+	print "We need a password for the GnuMed user [%s]." % aUser
+	password = raw_input("Please type password: ")
+
+	try:
+		aCursor.execute("CREATE USER \"%s\" WITH PASSWORD '%s' %s VALID UNTIL '%s';" % (aUser, password, group_cmd, valid_until))
+	except:
+		exc = sys.exc_info()
+		_log.LogException("Cannot create GnuMed user [%s]." % aUser, exc, fatal=1)
+		return None
+
+	# paranoia is good
+	if user_exists(aCursor, aUser):
+		return 1
+
+	return None
+#------------------------------------------------------------------
+def create_users():
+	users = _cfg.get("standards", "users")
+	if not users:
+		_log.Log(gmLog.lErr, "Cannot load GnuMed user names from config file.")
+		return None
+
+	cursor = conn.cursor()
+
+	for user in users:
+		if not create_user(cursor, user):
+			cursor.close()
+			return None
+
+	conn.commit()
+	cursor.close()
+	return 1
+#==================================================================
 # group related
 #------------------------------------------------------------------
 def group_exists(aCursor, aGroup):
@@ -230,7 +282,9 @@ if __name__ == "__main__":
 		sys.exit("Cannot create GnuMed groups.\nPlease see log file for details.")
 
 	# insert users
-	#  (pg_user, pg_shadow)
+	if not create_users():
+		conn.close()
+		sys.exit("Cannot create GnuMed users.\nPlease see log file for details.")
 
 	conn.close()
 	_log.Log(gmLog.lInfo, "shutdown")
@@ -238,7 +292,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: setup-users.py,v $
-# Revision 1.5  2002-10-04 15:49:52  ncq
+# Revision 1.6  2002-10-08 14:08:37  ncq
+# - seems to fully work now
+#
+# Revision 1.5  2002/10/04 15:49:52  ncq
 # - creating groups now works, users is next
 #
 # Revision 1.4  2002/10/03 14:51:46  ncq
