@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -345,22 +345,26 @@ and cfg_template.id = cfg_item.id_template limit 1;
 			from Gnumed.pycommon import gmPG
 			_gmPG = gmPG
 
-		where_args = []
 		# if no workplace given: any workplace (= cfg_DEFAULT)
-		where_workplace = "cfg_item.workplace like %s"
-		where_args.append(workplace)
+		where_snippets = [
+			'cfg_template.id=cfg_item.id_template',
+			'cfg_item.workplace=%(wplace)s'
+		]
+		where_args = {'wplace': workplace}
 
 		# if no user given: current db user
 		if user is None:
-			where_user = "cfg_item.owner like CURRENT_USER"
+			where_snippets.append('cfg_item.owner=CURRENT_USER')
 		else:
-			where_user = "cfg_item.owner like %s"
-			where_args.append(user)
-			where_args.append(user)
+			where_snippets.append('cfg_item.owner=%(usr)s')
+			where_args['usr'] = user
 
-		cmd =	("select name, cookie, owner, type, description "
-				"from cfg_template, cfg_item "
-				"where cfg_template.id = cfg_item.id_template and %s and %s" % (where_workplace, where_user))
+		where_clause = ' and '.join(where_snippets)
+
+		cmd = """
+select name, cookie, owner, type, description
+from cfg_template, cfg_item
+where %s""" % where_clause
 
 		curs = self.conn.cursor()
 
@@ -1229,7 +1233,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.13  2004-07-19 13:53:35  ncq
+# Revision 1.14  2004-07-24 17:10:09  ncq
+# - fix getAllParams()
+#
+# Revision 1.13  2004/07/19 13:53:35  ncq
 # - some cleanup re setDBParam()/getFirstMatchingDBset()
 #
 # Revision 1.12  2004/07/19 11:50:42  ncq
