@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.22 $
+# $Revision: 1.23 $
 ---------------------------------------------------
 Rules:
 ------
@@ -44,3 +44,34 @@ translations:
 This allows for a missing Austrian translation to fall back to
 a general German (de_AT -> de) one, for example.
 ---------------------------------------------------
+I looked up the syntax in gmCfg.py, but could I suggest that a line be 
+inserted in the bootstrap_gm-db.py file which says something like
+
+#before running this script:
+#
+#-make sure you've installed the symbolic links as listed in make-links.sh
+# you can run this by typing sh make-links.sh
+#
+#-make sure you check the section: 
+#language library dirs = $language library dirs$
+#to make sure the pathways point to the pgsql libraries
+#
+#usage :
+# python bootstrap_gm-db.py --conf-file=yourconfigfilenamehere
+# e.g bootstrap_gm-db.py --conf-file=bootstrap-standard_AU.conf
+#
+
+Anyway, I can now get up the interface at work, so perhaps having struggled 
+twice to do this the third time (when I get my dead machine at home back) 
+it'll be relatively easy. when I do I'll keep a line by line instruction set 
+to add to the installation docs.
+
+Regards
+
+Richard
+
+
+_______________________________________________
+Gnumed-devel mailing list
+Gnumed-devel@gnu.org
+http://mail.gnu.org/mailman/listinfo/gnumed-devel
