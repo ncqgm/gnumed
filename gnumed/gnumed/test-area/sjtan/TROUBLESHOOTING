@@ -1,0 +1,63 @@
+
+
+-ant not found . - download ant binary package from apache and add as root, a soft link as /usr/bin/ant	
+			e.g. if ant downloaded to /home/john/downloada/ant-1.5 then ln -s /home/john/downloads/ant-1.5/bin/ant /usr/bin/ant
+			and  'export ANT_HOME=/home/john/downloads/ant-1.5'  shows up with env.
+
+-no javac, java found - should load jdk1.5 
+
+
+-running ant says no build file ; change dir to test-struts-3/WEB-INF/src
+-running ant  comes up with 100 errors. ls test-struts-3/WEB-INF/lib  and see if any files. copy struts/lib/* to test-struts-3/WEB-INF/lib .
+-running ant comes up with 20 errors.  copy tomcat/commons/lib/servlet-api.jar to test-struts-3/WEB-INF/lib .
+
+-can't run tomcat. jdk present?
+
+-can't get to http://localhost:8080 when tomcat is running: url is right?
+
+-permission denied when click Manager in left hand menu.  Haven't set users-xml.xml with a role manager and manager in a user's roles? change it , and  Stop and Start tomcat to get rid of previous tomcat state. ?using the right user and password.
+
+
+---entry 14/10/2004
+
+wrong context.xml ? - this seems to be the latest common problem.
+
+Normally, an application's context.xml file specifies configuration like name, path to application, 
+database connection information.
+It is normally loaded from META-INF/context.xml  , and renamed  {webappName}.xml and put in
+tomcat/conf/Catalina/localhost/ directory.  
+If the docPath is absolute, any change to the WEB-INF/classes  class files by recompilation will make
+tomcat reload the application.
+If he docPath is relative, it is relative to webapps as the base directory , so the path "./{webappName}" should work,
+ where webappName is the unpacked base directory of the application in tomcat/webapps.
+With a relative path, dropping a new war file into webapps will usually redeploy the application.
+
+gnumed-test-web  has 2 context.xml files, one for relative path webapps for debugging, 
+and one for putting in a droppable war file, which is war-context.xml  ; the ant build script saves
+the relative context.xml file, and copies war-context.xml as context.xml when building a war file.
+
+
+	the context.xml has the path to the application, the postgres connections info
+the one used is in tomcat/conf/Catalina/localhost/{name-of-app}.xml  i.e gnumed-test-web.xml or gnumed-test-war.xml
+gnumed-test-web.xml gives a absolute file path,  and should be changed in the WEB-INF/context.xml of the source directory
+before running ant and compiling. gnumed-test-war.xml gives a relative path and is put in the war file.
+gnumed-test-web.xml is useful when debugging, as any recompilations will make tomcat reload the application.
+
+A problem may arise where the context.xml is suspect, so it might pay to 
+1) undeploy it in the manager tomcat application,
+
+2) delete it in the tomcat/conf/Catalina/localhost directory if it is still there
+3) remove the webapps directory, and also the war file , if any in the webapps directory.
+4) re-run tomcat, and see if hasn't manage to find another context.xml somewhere and put it back as tomcat/conf/Catalina/localhost/{webappname}.xml
+
+---
+
+
+
+
+   
+
+
+
+
+

@@ -3,7 +3,6 @@
 <!-- change the path below to the correct docBase for the installation e.g /home/myhome/testweb/test-struts-3 -->
 <Context crossContext="true" debug="5" docBase="/home/sjtan/projects/gnumed3/gnumed/gnumed/test-area/sjtan/test-struts-3" path="/gnumed-test-web" reloadable="true" scope="session">
   <Logger className="org.apache.catalina.logger.FileLogger" prefix="localhost_DBTest_log." suffix=".txt" timestamp="true"/>
-
   <Resource auth="Container" name="jdbc/gnumed" type="javax.sql.DataSource"/>
   <ResourceParams name="jdbc/gnumed">
     <parameter>
@@ -14,9 +13,11 @@
       <name>driverClassName</name>
       <value>org.postgresql.Driver</value>
     </parameter>
-     <parameter>
-      <name>url</name>
-      <value>jdbc:postgresql://hherb.com:5432/gnumed</value>
+    <parameter>
+	    <name>url</name>
+	    
+	    <!-- <value>jdbc:postgresql://127.0.0.1:5432/gnumed</value> -->
+		<value>jdbc:postgresql://hherb.com:5432/gnumed</value>
     </parameter>
     <parameter>
       <name>username</name>
@@ -24,9 +25,12 @@
       <value>_any-doc</value> 
     </parameter>
     <parameter>
-      <name>password</name>
-      <!-- <value>monica</value> -->
-      <value>any-doc</value>
+	    <name>password</name>
+
+	    <!-- <value>monica</value> -->
+	    
+	    <!-- <value>test-doc</value>-->
+      		<value>any-doc</value>
     </parameter>
     <parameter>
       <name>maxActive</name>
@@ -56,7 +60,9 @@
       <value>true</value>
     </parameter>
   </ResourceParams>
-  <Resource auth="Container" name="jdbc/drugref" type="javax.sql.DataSource"/>
+  
+   <Resource auth="Container" name="jdbc/drugref" type="javax.sql.DataSource"/>
+  
   <ResourceParams name="jdbc/drugref">
     <parameter>
       <name>factory</name>
@@ -82,11 +88,11 @@
     </parameter>
     <parameter>
       <name>maxActive</name>
-      <value>20</value>
+      <value>10</value>
     </parameter>
     <parameter>
       <name>maxIdle</name>
-      <value>10</value>
+      <value>5</value>
     </parameter>
     <parameter>
       <name>maxWait</name>
@@ -107,7 +113,6 @@
       <name>logAbandoned</name>
       <value>true</value>
     </parameter>
-  </ResourceParams>
+    </ResourceParams>
 
-   
 </Context>
