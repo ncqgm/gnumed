@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.9 2003-06-01 13:20:32 sjtan Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmClinicalRecord.py,v 1.10 2003-06-01 13:53:55 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -209,7 +209,7 @@ class gmClinicalRecord:
 		curs.close()
 		self.__db_cache['allergies'] = rows
 		#<DEBUG>
-		_log.Data("gmClinicalRecord.db_cache['allergies'] set to "+str(rows))	
+		_log.Data("gmClinicalRecord.db_cache['allergies']: %s" % str(rows))
 		#</DEBUG>
 		return self.__db_cache['allergies']
 	#--------------------------------------------------------
@@ -227,26 +227,22 @@ class gmClinicalRecord:
 			# do we know the allergene ?
 			if allergy[10] not in [None, '']:
 				tmp['name'] = allergy[10]
-			# not but the substance
+			# no but the substance
 			else:
 				tmp['name'] = allergy[6]
 			data.append(tmp)
 		return data
 	#--------------------------------------------------------
 	def _get_allergies_list(self):
-		"""Return list of IDs in v_i18n_allergy for this patient."""
+		"""Return list of IDs in v_i18n_patient_allergies for this patient."""
 		try:
 			return self.__db_cache['allergy IDs']
 		except KeyError:
 			pass
 		self.__db_cache['allergy IDs'] = []
-		transactions = string.join(self['clinical transaction IDs'], ',')
-		if transactions == '':
-			return self.__db_cache['allergy IDs']
-		cmd = "select id from v_i18n_allergy where id_clin_transaction in (%s);" % transactions
+		cmd = "select id from v_i18n_patient_allergies where id_patient='%s';" % self.id_patient
+		# connection can become stale !
 		#curs = self._defconn_ro.cursor()
-		# connection can become stale
-
 		curs = self.getCursor()
 		if not gmPG.run_query(curs, cmd):
 			curs.close()
@@ -279,7 +275,7 @@ class gmClinicalRecord:
 
 
 		# **** NB DEFINATE IS MISPELLED IN SQL SCRIPT : CHANGE IF THE WRONG SPELLING LATER 
-		cmd = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, definate ) values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
+		cmd = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, definite ) values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
 		self.execute( cmd, "unable to create allergy entry ", rollback = 1)
 
 		#idiosyncratic bug.
@@ -303,7 +299,7 @@ class gmClinicalRecord:
 		# send signal to update listeners
 		#gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
 		return 1
-		
+
 
 	def ensure_health_issue_exists(self, issue):
 		"""ensure that the  health issue exists for this patient_id"""
@@ -333,7 +329,7 @@ class gmClinicalRecord:
 		if self.has_episode_for_issue(issue_id):
 			return self.issue_episodes[issue_id]
 		return 0
-	
+
 	def create_episode_for_issue(self, issue_id):
 		marker  = time.asctime()
 		cmd = "insert into clin_episode( id_health_issue, description ) values ( %d , '%s')" % (issue_id, marker)
@@ -374,9 +370,7 @@ class gmClinicalRecord:
 		if len (rows) <> 1 :
 			_log.Log(gmLog.lErr, "there are %d rows with marker %s. Row should be unique" %(len(rows), marker) )
 		self.clin_encounter = rows[0][0]
-		return rows[0][0]	
-		
-
+		return rows[0][0]
 
 #-------------- convenience sql call interface ----------------------------------------
 	def execute(self, cmd, error_msg, rollback = 0):
@@ -427,28 +421,11 @@ class gmClinicalRecord:
 		string.find(string.lower(cmd), "commit") >= 0;
 	
 	#--------------------------------------------------------
-	def _get_clinical_transactions_list(self):
-		#curs = self._defconn_ro.cursor()
-		# the above connection can die.
-		curs = self.getCursor()
-		cmd = "select id_transaction from v_patient_transactions where id_patient='%s';" % self.id_patient
-		if not gmPG.run_query(curs, cmd):
-			curs.close()
-			_log.Log(gmLog.lErr, 'cannot load list of transactions for patient [%s]' % self.id_patient)
-			return None
-		rows = curs.fetchall()
-		curs.close()
-		tx_list = []
-		for row in rows:
-			tx_list.extend(row)
-		return tx_list
-	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['patient ID'] = _get_patient_ID
 #	_get_handler['allergy IDs'] = _get_allergies_list
 	_get_handler['allergy names'] = _get_allergy_names
 	_get_handler['allergies'] = _get_allergies
-	_get_handler['clinical transaction IDs'] = _get_clinical_transactions_list
 #============================================================
 # main
 #------------------------------------------------------------
@@ -468,7 +445,12 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.9  2003-06-01 13:20:32  sjtan
+# Revision 1.10  2003-06-01 13:53:55  ncq
+# - typo fixes, cleanup, spelling definate -> definite
+# - fix my obsolote handling of patient allergies tables
+# - remove obsolete clin_transaction stuff
+#
+# Revision 1.9  2003/06/01 13:20:32  sjtan
 #
 # logging to data stream for debugging. Adding DEBUG tags when work out how to use vi
 # with regular expression groups (maybe never).
