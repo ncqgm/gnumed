@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui-de/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.3 2003-02-15 10:53:10 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmXdtViewer.py,v 1.4 2003-02-15 12:17:28 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys,os,fileinput,string,linecache
@@ -48,43 +48,48 @@ class gmXdtListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
 		wxListCtrlAutoWidthMixin.__init__(self)
 #=============================================================================
 class gmXdtViewerPanel(wxPanel):
-	def __init__(self, parent):
+	def __init__(self, parent, aFileName = None):
 		wxPanel.__init__(self, parent, -1, style=wxWANTS_CHARS)
 
+		# our actual list
 		tID = wxNewId()
-
 		self.list = gmXdtListCtrl(
 			self,
 			tID,
-			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES)#|wxLC_HRULES)
+			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
+		)#|wxLC_HRULES)
 
-		self.PopulateList()
+		self.list.InsertColumn(0, _("XDT field"))
+		self.list.InsertColumn(1, _("XDT field content"))
 
+		self.filename = aFileName
+
+		# set up events
 		EVT_SIZE(self, self.OnSize)
+
 		EVT_LIST_ITEM_SELECTED(self, tID, self.OnItemSelected)
 		EVT_LIST_ITEM_DESELECTED(self, tID, self.OnItemDeselected)
 		EVT_LIST_ITEM_ACTIVATED(self, tID, self.OnItemActivated)
 		EVT_LIST_DELETE_ITEM(self, tID, self.OnItemDelete)
+
 		EVT_LIST_COL_CLICK(self, tID, self.OnColClick)
 		EVT_LIST_COL_RIGHT_CLICK(self, tID, self.OnColRightClick)
-		EVT_LIST_COL_BEGIN_DRAG(self, tID, self.OnColBeginDrag)
-		EVT_LIST_COL_DRAGGING(self, tID, self.OnColDragging)
-		EVT_LIST_COL_END_DRAG(self, tID, self.OnColEndDrag)
+#		EVT_LIST_COL_BEGIN_DRAG(self, tID, self.OnColBeginDrag)
+#		EVT_LIST_COL_DRAGGING(self, tID, self.OnColDragging)
+#		EVT_LIST_COL_END_DRAG(self, tID, self.OnColEndDrag)
 
 		EVT_LEFT_DCLICK(self.list, self.OnDoubleClick)
 		EVT_RIGHT_DOWN(self.list, self.OnRightDown)
 
-		# for wxMSW
-		EVT_COMMAND_RIGHT_CLICK(self.list, tID, self.OnRightClick)
+		if wxPlatform == '__WXMSW__':
+			EVT_COMMAND_RIGHT_CLICK(self.list, tID, self.OnRightClick)
+		elif wxPlatform == '__WXGTK__':
+			EVT_RIGHT_UP(self.list, self.OnRightClick)
 
-		# for wxGTK
-		EVT_RIGHT_UP(self.list, self.OnRightClick)
 	#-------------------------------------------------------------------------
-	def PopulateList(self):
-		# for normal, simple columns, you can add them like this:
-		self.list.InsertColumn(0, "Feldart")
-		self.list.InsertColumn(1, "Feldinhalt")
+	def Populate(self):
 
+		# populate list
 		items = self.__decode_xdt()
 		for item_idx in range(len(items),0,-1):
 			data = items[item_idx]
@@ -93,6 +98,7 @@ class gmXdtViewerPanel(wxPanel):
 			self.list.SetStringItem(index=idx, col=1, label=data[1])
 			#self.list.SetItemData(item_idx, item_idx)
 
+		# reaspect
 		self.list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.list.SetColumnWidth(1, wxLIST_AUTOSIZE)
 
@@ -110,21 +116,11 @@ class gmXdtViewerPanel(wxPanel):
 		self.currentItem = 0
 	#-------------------------------------------------------------------------
 	def __decode_xdt(self):
-		cfgName = ""
-		# has the user manually supplied a config file on the command line ?
-		if gmCLI.has_arg('--file'):
-			cfgName = gmCLI.arg['--file']
-			_log.Log(gmLog.lData, '--file=%s' % cfgName)
-			# file valid ?
-			if os.path.exists(cfgName):
-				_log.Log(gmLog.lData, 'Found file [%s].' % cfgName)
-			else:
-				_log.Log(gmLog.lErr, "file [%s] not found. Aborting." % cfgName)
-		else:
-			_log.Log(gmLog.lData, "No config file given on command line. Format: --file=<file>")
+		if self.filename is None:
+			_log.Log(gmLog.lErr, "Need name of file to parse !")
 			return None
 
-		xDTFile = fileinput.input(cfgName)
+		xDTFile = fileinput.input(self.filename)
 		items = {}
 		i = 1
 		for line in xDTFile:
@@ -164,8 +160,8 @@ class gmXdtViewerPanel(wxPanel):
 		item = evt.GetItem()
 
 		# Show how to reselect something we don't want deselected
-		if evt.m_itemIndex == 11:
-			wxCallAfter(self.list.SetItemState, 11, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED)
+#		if evt.m_itemIndex == 11:
+#			wxCallAfter(self.list.SetItemState, 11, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED)
 	#-------------------------------------------------------------------------
 	def OnItemActivated(self, event):
 		self.currentItem = event.m_itemIndex
@@ -179,17 +175,14 @@ class gmXdtViewerPanel(wxPanel):
 	def OnColRightClick(self, event):
 		item = self.list.GetColumn(event.GetColumn())
 	#-------------------------------------------------------------------------
-	def OnColBeginDrag(self, event):
-		pass
-		## Show how to not allow a column to be resized
-		#if event.GetColumn() == 0:
-		#    event.Veto()
+#	def OnColBeginDrag(self, event):
+#		pass
 	#-------------------------------------------------------------------------
-	def OnColDragging(self, event):
-		pass
+#	def OnColDragging(self, event):
+#		pass
 	#-------------------------------------------------------------------------
-	def OnColEndDrag(self, event):
-		pass
+#	def OnColEndDrag(self, event):
+#		pass
 	#-------------------------------------------------------------------------
 	def OnDoubleClick(self, event):
 		event.Skip()
@@ -277,14 +270,45 @@ class gmBDT(wxPanel):
 #------------------------------------------------------
 if __name__ == '__main__':
 	import gmCLI
+	#---------------------
+	# set up dummy app
+	class TestApp (wxApp):
+		def OnInit (self):
+
+			fname = ""
+			# has the user manually supplied a config file on the command line ?
+			if gmCLI.has_arg('--file'):
+				fname = gmCLI.arg['--file']
+				_log.Log(gmLog.lData, 'XDT file is [%s]' % fname)
+				# file valid ?
+				if not os.path.exists(fname):
+					_log.Log(gmLog.lErr, "XDT file [%s] not found. Aborting." % fname)
+					return None
+			else:
+				_log.Log(gmLog.lData, "No XDT file given on command line. Format: --file=<file>")
+				return None
+
+			frame = wxFrame(
+				parent=NULL,
+				id = -1,
+				title = _("XDT Viewer"),
+				size = wxSize(800,600)
+			)
+			pnl = gmXdtViewerPanel(frame, fname)
+			pnl.Populate()
+			frame.Show(1)
+			return 1
+	#---------------------
+	import gettext
+	_ = gettext.gettext
+	gettext.textdomain ('gnumed')
 	try:
-		application = wxPyWidgetTester(size=(800,600))
-		application.SetWidget(gmXdtViewerPanel)
-		application.MainLoop()
-	except:
-		exc = sys.exc_info()
-		_log.LogException('Unhandled exception.', exc, fatal=1)
+		app = TestApp ()
+		app.MainLoop ()
+	except StandardError:
+		_log.LogException('Unhandled exception.', sys.exc_info(), fatal=1)
 		raise
+
 else:
 	import gmPlugin
 
@@ -299,7 +323,10 @@ else:
 			return ('tools', _('&show BDT'))
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.3  2003-02-15 10:53:10  ncq
+# Revision 1.4  2003-02-15 12:17:28  ncq
+# - much better suited for plugin use
+#
+# Revision 1.3  2003/02/15 10:53:10  ncq
 # - works standalone
 #
 # Revision 1.2  2003/02/13 15:51:09  ncq
