@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.51 2004-09-13 09:26:16 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmTopPanel.py,v 1.52 2004-10-14 12:13:58 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -372,27 +372,31 @@ class cMainTopPanel(wxPanel):
 		"""
 		self.szr_bottom_row.Prepend(widget, 0, wxALL, 0)
 	#-------------------------------------------------------
-	def AddBar (self, key):
+	def CreateBar(self):
+		"""Creates empty toolbar suited for adding to top panel."""
+		bar = wxToolBar (
+			self.pnl_bottom_row,
+			-1,
+			size = self.pnl_bottom_row.GetClientSize(),
+			style = wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT
+		)
+		return bar
+	#-------------------------------------------------------
+	def AddBar(self, key=None, bar=None):
 		"""Creates and returns a new empty toolbar, referenced by key.
 
 		Key should correspond to the notebook page number as defined
 		by the notebook (see gmPlugin.py), so that gmGuiMain can
 		display the toolbar with the notebook
 		"""
-		self.subbars[key] = wxToolBar (
-			self.pnl_bottom_row,
-			-1,
-			size = self.pnl_bottom_row.GetClientSize(),
-			style=wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT
-		)
-
-		self.subbars[key].SetToolBitmapSize((16,16))
+		bar.SetToolBitmapSize((16,16))
+		self.subbars[key] = bar
 		if len(self.subbars) == 1:
-			self.subbars[key].Show(1)
+			bar.Show(1)
 			self.__current = key
 		else:
-			self.subbars[key].Hide()
-		return self.subbars[key]
+			bar.Hide()
+		return True
 	#-------------------------------------------------------
 	def ReFit (self):
 		"""Refits the toolbar after its been changed
@@ -448,7 +452,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.51  2004-09-13 09:26:16  ncq
+# Revision 1.52  2004-10-14 12:13:58  ncq
+# - factor out toolbar creation from toolbar registering
+#
+# Revision 1.51  2004/09/13 09:26:16  ncq
 # - --slave -> 'main.slave_mode'
 #
 # Revision 1.50  2004/08/20 06:48:31  ncq
