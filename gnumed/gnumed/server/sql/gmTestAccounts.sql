@@ -8,7 +8,7 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmTestAccounts.sql,v $
--- $Id: gmTestAccounts.sql,v 1.8 2003-06-14 11:42:45 ncq Exp $
+-- $Id: gmTestAccounts.sql,v 1.9 2003-10-07 11:14:25 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
@@ -23,11 +23,14 @@
 -- or wrap in pl/pgsql function with execute()
 
 -- ===================================================
+drop user "test-doc";
 CREATE USER "test-doc"
 	WITH PASSWORD 'test-doc'
 	IN GROUP "gm-doctors", "gm-public"
 	VALID UNTIL '2003-12-31'
 ;
+
+drop user "_test-doc";
 CREATE USER "_test-doc"
 	WITH PASSWORD 'test-doc'
 	IN GROUP "gm-doctors", "_gm-doctors", "gm-public"
@@ -35,11 +38,14 @@ CREATE USER "_test-doc"
 ;
 
 -- ===================================================
+drop user "test-nurse";
 CREATE USER "test-nurse"
 	WITH PASSWORD 'test-nurse'
 	IN GROUP "gm-staff_medical", "gm-public"
 	VALID UNTIL '2003-12-31'
 ;
+
+drop user "_test-nurse";
 CREATE USER "_test-nurse"
 	WITH PASSWORD 'test-nurse'
 	IN GROUP "gm-staff_medical", "_gm-staff_medical", "gm-public"
@@ -47,11 +53,14 @@ CREATE USER "_test-nurse"
 ;
 
 -- ===================================================
+drop user "test-secretary";
 CREATE USER "test-secretary"
 	WITH PASSWORD 'test-secretary'
 	IN GROUP "gm-staff_office", "gm-public"
 	VALID UNTIL '2003-12-31'
 ;
+
+drop user "_test-secretary";
 CREATE USER "_test-secretary"
 	WITH PASSWORD 'test-secretary'
 	IN GROUP "gm-staff_office", "_gm-staff_office", "gm-public"
@@ -59,18 +68,14 @@ CREATE USER "_test-secretary"
 ;
 
 -- ===================================================
--- cannot do revision tracking here since this script is (for now)
--- imported at the server level whereas revision tracking is
--- instantiated at the database level or IOW *after* this script
-
--- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmTestAccounts.sql,v $', '$Revision: 1.8 $');
-
 \set ON_ERROR_STOP 1
 
 -- ===================================================
 -- $Log: gmTestAccounts.sql,v $
--- Revision 1.8  2003-06-14 11:42:45  ncq
+-- Revision 1.9  2003-10-07 11:14:25  ncq
+-- - try to make Debian happy
+--
+-- Revision 1.8  2003/06/14 11:42:45  ncq
 -- - note on VALID UNTIL
 -- - bump up VALID UNTIL to 2003-12-31
 --
