@@ -191,7 +191,8 @@ class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
         menu = self.gb['main.viewmenu']
         self.menu_id = wxNewId ()
         menu.AppendMenu (self.menu_id, '&Patient', ourmenu, self.name ())
-        for plugin in gmPlugin.GetAllPlugins ('patient'):
+        plugin_list = gmPlugin.GetPluginLoadList('patient')
+        for plugin in plugin_list:
             p = gmPlugin.InstPlugin ('patient', plugin,
                                  guibroker = self.gb)
             p.register ()
