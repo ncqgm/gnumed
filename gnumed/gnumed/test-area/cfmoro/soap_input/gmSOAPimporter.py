@@ -1,10 +1,10 @@
 """GnuMed SOAP importer (specification by Karsten Hilbert <Karsten.Hilbert@gmx.net>)
 
-This script is designed for importing GnuMed SOAP input "bundle". 
+This script is designed for importing GnuMed SOAP input "bundle".
 
 	- "bundle" is list of dicts. Each "bundle" is processed one by one. The dicts
 	  in the list are INDEPENDANT of each other, so every dict is then taken apart
-	  
+
 	- each bundle contain information for:
 		- a new clin_narrative row 
 		- optionally, additionally data, marked by keys "embedded" into the
@@ -15,7 +15,7 @@ This script is designed for importing GnuMed SOAP input "bundle".
 		  additional data. The most likely reason for this to happen is the user
 		  manually editing the [:...:] embedded strings in 'text' while still
 		  in the soap input widget.
-	  
+
 	- each dict has the keys: 'soap', 'types', 'text', 'struct_data', 'clin_context'
 		- 'soap':			 
 			- relates to clin_narrative.soap_cat
@@ -43,8 +43,8 @@ This script is designed for importing GnuMed SOAP input "bundle".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.6 2004-12-16 17:59:38 cfmoro Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmSOAPimporter.py,v 1.7 2004-12-18 16:00:37 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -280,54 +280,48 @@ class cSOAPImporter:
 #				soap_entry)
 #				return False
 #		return True
-
-
-#== Module convenience functions (for standalone use) =======================
-def prompted_input(prompt, default=None):
-	"""
-	Obtains entry from standard input
-	
-	promp - Promt text to display in standard output
-	default - Default value (for user to press only intro)
-	"""
-	usr_input = raw_input(prompt)
-	if usr_input == '':
-		return default
-	return usr_input
-	
-#------------------------------------------------------------				  
-def askForPatient():
-	"""
-		Main module application patient selection function.
-	"""
-	
-	# Variable initializations
-	pat_searcher = gmPatient.cPatientSearcher_SQL()
-
-	# Ask patient
-	patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
-	
-	if patient_term == 'bye':
-		return None
-	search_ids = pat_searcher.get_patient_ids(search_term = patient_term)
-	if search_ids is None or len(search_ids) == 0:
-		prompted_input("No patient matches the query term. Press any key to continue.")
-		return None
-	elif len(search_ids) > 1:
-		prompted_input("Various patients match the query term. Press any key to continue.")
-		return None
-	patient_id = search_ids[0]
-	patient = gmPatient.gmCurrentPatient(patient_id)
-	
-	return patient
 	
 #================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	
 	from Gnumed.pycommon import gmCfg
+	#------------------------------------------------------------
+	def prompted_input(prompt, default=None):
+		"""Obtains entry from standard input.
 
+		prompt - Promt text to display in standard output
+		default - Default value (for user to press only intro)
+		"""
+		usr_input = raw_input(prompt)
+		if usr_input == '':
+			return default
+		return usr_input
+	#------------------------------------------------------------
+	def askForPatient():
+		"""Main module application patient selection function.
+		"""
+
+		# Variable initializations
+		pat_searcher = gmPatient.cPatientSearcher_SQL()
+
+		# Ask patient
+		patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
+
+		if patient_term == 'bye':
+			return None
+		search_ids = pat_searcher.get_patient_ids(search_term = patient_term)
+		if search_ids is None or len(search_ids) == 0:
+			prompted_input("No patient matches the query term. Press any key to continue.")
+			return None
+		elif len(search_ids) > 1:
+			prompted_input("Various patients match the query term. Press any key to continue.")
+			return None
+		patient_id = search_ids[0]
+		patient = gmPatient.gmCurrentPatient(patient_id)
+
+		return patient
+	#------------------------------------------------------------
 	_log.SetAllLogLevels(gmLog.lData)
 	_log.Log (gmLog.lInfo, "starting SOAP importer...")
 
@@ -410,7 +404,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.6  2004-12-16 17:59:38  cfmoro
+# Revision 1.7  2004-12-18 16:00:37  ncq
+# - final touch up before moving over
+#
+# Revision 1.6  2004/12/16 17:59:38  cfmoro
 # Encapsulation syntax fixed (_ replaced by __). Using tab indentation, in consistency with the rest of gnumed files
 #
 # Revision 1.5  2004/12/13 19:37:08  ncq
