@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.39 2003-09-23 19:38:03 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmTmpPatient.py,v 1.40 2003-09-24 08:45:40 ihaywood Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -328,7 +328,7 @@ values (%s, %s, %s, %s, %s, %s)
 """
 		cmd2 = """
 insert into lnk_person2address (id_identity, id_address, id_type)
-values (%s, curr_val (address_id_seq), (select id from address_type where name = %s))
+values (%s, currval ('address_id_seq'), (select id from address_type where name = %s))
 """
 		gmPG.run_commit ("personalia", [
 			(cmd1, (number, street, urb, postcode, state, country)),
@@ -761,7 +761,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.39  2003-09-23 19:38:03  ncq
+# Revision 1.40  2003-09-24 08:45:40  ihaywood
+# NewAddress now functional
+#
+# Revision 1.39  2003/09/23 19:38:03  ncq
 # - cleanup
 # - moved GetAddressesType out of patient class - it's a generic function
 #
