@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -340,14 +340,52 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
 values (currval('vaccine_id_seq'), (select id from vacc_indication where description='haemophilus influenzae b'));
 
+--------------
+-- Pentavac --
+--------------
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	max_age
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'Pentavac',
+	'Pentavac',
+	false,
+	'2 months'::interval,
+	'5 years'::interval
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='tetanus'));
+
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='diphtheria'));
+
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='pertussis'));
+
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='poliomyelitis'));
+
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='haemophilus influenzae b'));
+
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.12  2004-04-14 13:33:04  ncq
+-- Revision 1.13  2004-04-19 09:27:34  ncq
+-- - add PentaVac
+--
+-- Revision 1.12  2004/04/14 13:33:04  ncq
 -- - need to adjust min_interval for seq_no=1 after tightening interval checks
 --
 -- Revision 1.11  2004/03/27 18:36:28  ncq
