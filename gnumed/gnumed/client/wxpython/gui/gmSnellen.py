@@ -369,12 +369,12 @@ class SnellenChart (wxFrame):
         self.Destroy ()
    
     def __init__(self, sizeX, sizeY,
-                 alpha = symbol, mirr = 0):
+                 alpha = symbol, mirr = 0, parent = NULL):
         """
         Initialise. sizeX and sizeY define the physical size of the
         CRT in cm.
         """
-        wxFrame.__init__ (self, NULL, -1, _("Snellen Chart"))
+        wxFrame.__init__ (self, parent, -1, _("Snellen Chart"))
         EVT_CLOSE (self, self.OnClose)
         # sizeX/Y is screen size (X/Y in cm)
         # distance is distance in metres between CRT and the "average" patient
@@ -440,6 +440,7 @@ double-click ends""")), 0, wxALL, 15)
         EVT_BUTTON (cancel, wxID_CANCEL, self.OnCancel)
         EVT_CLOSE (self, self.OnClose )
         self.Show(1)
+        self.parent = parent
 
     def OnClose (self, event):
         self.Destroy ()
@@ -457,7 +458,7 @@ double-click ends""")), 0, wxALL, 15)
             sizeY = self.sizeY_ctrl.GetValue ()
             sizeX = self.sizeX_ctrl.GetValue ()
             frame = SnellenChart (sizeX, sizeY, alpha
-        = alpha, mirr = self.mirror_ctrl.GetValue ())
+        = alpha, mirr = self.mirror_ctrl.GetValue (), parent = self.parent)
             frame.Show (1)
             self.Destroy ()
 
