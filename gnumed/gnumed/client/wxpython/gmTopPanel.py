@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib
@@ -142,14 +142,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		age = self.curr_pat['medical age']
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
-		print type(age), age, str(age)
-		print age.__dict__
-		try:
-			print age.day, age.hour, age.minute, age.second
-		except: pass
-		age_val = age.strftime('%H %M %S')
-		print age_val
-		self.txt_age.SetValue(age_val)
+		self.txt_age.SetValue(age)
 		print "should also update allergies now"
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
@@ -247,7 +240,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.1  2003-04-08 21:24:14  ncq
+# Revision 1.2  2003-04-19 15:00:30  ncq
+# - display age, finally
+#
+# Revision 1.1  2003/04/08 21:24:14  ncq
 # - renamed gmGP_Toolbar -> gmTopPanel
 #
 # Revision 1.13  2003/04/04 20:43:01  ncq
