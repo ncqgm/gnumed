@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.36 $
+-- $Revision: 1.37 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -24,7 +24,7 @@ comment on table audit_clinical is
 	'ancestor table for auditing. Marks tables for automatic audit trigger generation';
 
 -- ===================================================================
--- clinical narrative aggregation
+-- clinical narrative aggregation, this is a generic table for SOAP
 -- -------------------------------------------------------------------
 create table clin_narrative (
 	id serial primary key,
@@ -32,9 +32,6 @@ create table clin_narrative (
 	src_table name,					-- references pg_class(relname) ??
 	value text
 ) inherits (audit_clinical);
-
-create index idx_narrative_patient on clin_narrative(id_patient);
-create index idx_narrative_src_table on clin_narrative(src_table);
 
 comment on table clin_narrative is
 	'contains all the clinical narrative aggregated for full text search';
@@ -79,12 +76,17 @@ comment on table clin_episode is
 comment on column clin_episode.id_health_issue is
 	'health issue this episode is part of';
 comment on column clin_episode.description is
-	'descriptive name of this episode, may change over time';
+	'descriptive name of this episode, may change over time; if
+	 "__default__" applications should display the most recently
+	 associated diagnosis/month/year plus some marker for "default"';
 comment on column clin_episode.id_comment is
-	'link to some note for this episode, such as when the episode started before the first transaction, etc.';
+	'link to a comment for this episode';
 
--- start/end to be calculated from commit times of corresponding transactions
--- unique names (descriptions) for episodes per health issue (e.g. per patient)
+-- unique names (descriptions) for episodes per health issue (e.g. per patient),
+-- about the only reason for this table to exist is the description field such
+-- as to allow arbitrary names for episodes, another reason is that explicit
+-- recording of episodes removes the ambiguity that results from basing them
+-- on start/end dates of bouts of care,
 
 -- -------------------------------------------------------------------
 create table _enum_encounter_type (
@@ -94,10 +96,6 @@ create table _enum_encounter_type (
 
 comment on TABLE _enum_encounter_type is
 	'these are the types of encounter';
-
-create view vi18n_enum_encounter_type as
-	select _enum_encounter_type.id, _(_enum_encounter_type.description) as description
-	from _enum_encounter_type;
 
 -- -------------------------------------------------------------------
 create table clin_encounter (
@@ -111,37 +109,55 @@ create table clin_encounter (
 comment on table clin_encounter is
 	'a clinical encounter between a person and the health care system';
 comment on COLUMN clin_encounter.id_location is
-	'Location ID';
+	'ID of location *of care*, e.g. where the provider is at';
 comment on COLUMN clin_encounter.id_provider is
-	'ID of doctor/nurse/patient/';
+	'ID of (main) provider of care';
 comment on COLUMN clin_encounter.id_type is
 	'ID of encounter type of this encounter';
 comment on column clin_encounter.id_comment is
 	'link to some note for this encounter';
 
 -- about the only reason for this table to exist is the id_type
--- field, otherwiese one could just store the data in clin_transaction
+-- field, otherwiese one could just store the data in clin_item
 
 -- -------------------------------------------------------------------
-create table clin_transaction (
-	id serial primary key,
-	id_encounter integer not null references clin_encounter(id),
-	id_episode integer not null references clin_episode(id),
-	committed timestamp with time zone default CURRENT_TIMESTAMP
-) inherits (audit_clinical);
+--create table clin_transaction (
+--	id serial primary key,
+--	id_encounter integer not null references clin_encounter(id),
+--	id_episode integer not null references clin_episode(id),
+--	unique (id_encounter, id_episode)
+--) inherits (audit_clinical);
 
-comment on TABLE clin_transaction is
-	'unique identifier for clinical transaction';
-comment on COLUMN clin_transaction.id_encounter is
-	'ID of encounter this transaction belongs to';
-comment on COLUMN clin_transaction.id_episode is
-	'ID of episode this transaction belongs to';
-comment on COLUMN clin_transaction.committed is
-	'when has this transaction been committed, may not be necessary depending on auditing';
+--comment on TABLE clin_transaction is
+--	'aggregate of clinical items pertaining to one encounter and one episode (hence
+--	 a partial contact) but not necessarily committed at the exact same wall time';
+--comment on COLUMN clin_transaction.id is
+--	'unique identifier for clinical transaction';
+--comment on COLUMN clin_transaction.id_encounter is
+--	'ID of encounter this transaction belongs to';
+--comment on COLUMN clin_transaction.id_episode is
+--	'ID of episode this transaction belongs to';
 
 -- durations of office visits should be stored in other tables
--- or computed from the commit timestamps of transactions with
--- identical encounter IDs :-)
+-- or computed from the commit timestamps of clinical items with
+-- identical transaction (== encounter) IDs :-)
+
+-- -------------------------------------------------------------------
+create table clin_item (
+	item_pkey serial primary key,
+	id_encounter integer not null references clin_encounter(id),
+	id_episode integer not null references clin_episode(id),
+	commit_when timestamp with time zone not null default CURRENT_TIMESTAMP,
+	commit_who name not null default CURRENT_USER
+);
+
+comment on TABLE clin_item is
+	'ancestor table for clinical items of any kind';
+comment on COLUMN clin_item.commit_when is
+	'when has this item been committed';
+comment on COLUMN clin_item.commit_who is
+	'by whom has this particular item been committed, need not
+	 correspond to the provider in clin_encounter';
 
 -- ============================================
 -- specific EMR content structure: SOAP++
@@ -166,16 +182,13 @@ comment on table _enum_hx_source is
 -- --------------------------------------------
 create table clin_history (
 	id serial primary key,
-	id_clin_transaction integer REFERENCES clin_transaction(id),
 	id_type integer REFERENCES _enum_hx_type(id),
 	id_source integer REFERENCES _enum_hx_source(id),
-	id_text integer references clin_narrative(id) unique not null
-) inherits (audit_clinical);
+	id_text integer unique not null references clin_narrative(id)
+) inherits (clin_item);
 
 comment on TABLE clin_history is
 	'narrative details of history taken during a clinical encounter';
-comment on COLUMN clin_history.id_clin_transaction is
-	'The transaction during which this history was taken';
 comment on COLUMN clin_history.id_type is
 	'the type of history taken';
 comment on COLUMN clin_history.id_source is
@@ -186,14 +199,11 @@ comment on COLUMN clin_history.id_text is
 -- --------------------------------------------
 create table clin_physical (
 	id serial primary key,
-	id_clin_transaction integer references clin_transaction (id),
 	id_text integer references clin_narrative(id) unique not null
-) inherits (audit_clinical);
+) inherits (clin_item);
 
 comment on TABLE clin_physical is
 	'narrative details of physical exam during a clinical encounter';
-comment on COLUMN clin_physical.id_clin_transaction is
-	'the transaction during which this physical was done';
 comment on COLUMN clin_physical.id_text is
 	'link to the text typed by the doctor';
 
@@ -210,7 +220,6 @@ create table _enum_allergy_type (
 -- --------------------------------------------
 create table allergy (
 	id serial primary key,
-	id_clin_transaction integer not null references clin_transaction(id),
 	substance varchar(128) not null,
 	substance_code varchar(256) default null,
 	generics varchar(256) default null,
@@ -221,15 +230,10 @@ create table allergy (
 	generic_specific boolean default false,
 	definate boolean default false,
 	id_comment integer references clin_narrative(id) default null
-) inherits (audit_clinical);
-
-create index idx_allergy_transaction on allergy(id_clin_transaction);
-create index idx_allergy_comment on allergy(id_comment);
+) inherits (clin_item);
 
 comment on table allergy is
 	'patient allergy details';
-comment on column allergy.id_clin_transaction is
-	'link to transaction, provides: patient, recorded_when';
 comment on column allergy.substance is
 	'real-world name of substance the patient reacted to, brand name if drug';
 comment on column allergy.substance_code is
@@ -280,7 +284,6 @@ comment on table coding_systems is
 -- -------------------------------------------------------------------
 create table clin_diagnosis (
 	id serial primary key,
-	id_clin_transaction int  REFERENCES clin_transaction (id),
 	approximate_start text DEFAULT null,
 	code char(16),
 	id_coding_systems int REFERENCES coding_systems (id),
@@ -289,8 +292,6 @@ create table clin_diagnosis (
 
 comment on TABLE clin_diagnosis is
 	'Coded clinical diagnoses assigned to patient, in addition to history';
-comment on column clin_diagnosis.id_clin_transaction is
-	'the transaction in which this diagnosis was made.';
 comment on column clin_diagnosis.approximate_start is
 	'around the time at which this diagnosis was made';
 comment on column clin_diagnosis.code is
@@ -412,8 +413,7 @@ comment on column constituents.dose is
  
 create table script
 (
-	id serial primary key,
-	id_transaction integer references clin_transaction (id)
+	id serial primary key
 );
 
 comment on table script is
@@ -447,15 +447,13 @@ GRANT SELECT ON
 	"clin_health_issue",
 	"clin_episode",
 	"_enum_encounter_type",
-	"vi18n_enum_encounter_type",
 	"clin_encounter",
-	"clin_transaction",
+	"clin_item",
 	"_enum_hx_type",
 	"_enum_hx_source",
 	"clin_history",
 	"clin_physical",
 	"_enum_allergy_type",
---	"vi18n_enum_allergy_type",
 	"allergy"
 TO GROUP "gm-doctors";
 
@@ -469,11 +467,10 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"clin_episode_id_seq",
 	"_enum_encounter_type",
 	"_enum_encounter_type_id_seq",
-	"vi18n_enum_encounter_type",
 	"clin_encounter",
 	"clin_encounter_id_seq",
-	"clin_transaction",
-	"clin_transaction_id_seq",
+	"clin_item",
+	"clin_item_item_pkey_seq",
 	"_enum_hx_type",
 	"_enum_hx_type_id_seq",
 	"_enum_hx_source",
@@ -484,7 +481,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"clin_physical_id_seq",
 	"_enum_allergy_type",
 	"_enum_allergy_type_id_seq",
---	"vi18n_enum_allergy_type",
 	"allergy",
 	"allergy_id_seq"
 TO GROUP "_gm-doctors";
@@ -492,11 +488,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.36 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.37 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.36  2003-05-03 00:44:40  ncq
+-- Revision 1.37  2003-05-04 23:35:59  ncq
+-- - major reworking to follow the formal EMR structure writeup
+--
+-- Revision 1.36  2003/05/03 00:44:40  ncq
 -- - remove had_hypo from allergies table
 --
 -- Revision 1.35  2003/05/02 15:08:55  ncq

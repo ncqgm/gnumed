@@ -1,11 +1,11 @@
--- project: GNUMed
+-- project: GnuMed
 
 -- purpose: views for easier clinical data access
 -- author: Karsten Hilbert
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.7 2003-05-03 00:44:05 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.8 2003-05-04 23:35:59 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -16,32 +16,82 @@
 
 -- =============================================
 \unset ON_ERROR_STOP
+drop index idx_item_encounter;
+drop index idx_item_episode;
+drop index idx_narrative_patient;
+drop index idx_narrative_src_table;
+drop index idx_episode_h_issue;
+drop index idx_allergy_comment;
+\set ON_ERROR_STOP 1
+
+create index idx_item_encounter on clin_item(id_encounter);
+create index idx_item_episode on clin_item(id_episode);
+create index idx_narrative_patient on clin_narrative(id_patient);
+create index idx_narrative_src_table on clin_narrative(src_table);
+create index idx_episode_h_issue on clin_episode(id_health_issue);
+create index idx_allergy_comment on allergy(id_comment);
+
+-- =============================================
+\unset ON_ERROR_STOP
 drop view v_patient_episodes;
 \set ON_ERROR_STOP 1
 
 create view v_patient_episodes as
 select
 	chi.id_patient as id_patient,
-	cep.id as id_episode
+	cep.id as id_episode,
+	chi.id as id_health_issue,
+	cep.description as episode,
+	cn.value as episode_comment,
+	chi.description as health_issue
 from
-	clin_health_issue chi, clin_episode cep
+	(clin_episode cep left outer join clin_narrative cn on (cep.id_comment=cn.id)), clin_health_issue chi
 where
-	cep.id_health_issue = chi.id
+	cep.id_health_issue=chi.id
 ;
 
 -- =============================================
 \unset ON_ERROR_STOP
-drop view v_patient_transactions;
+drop view v_patient_items;
 \set ON_ERROR_STOP 1
 
-create view v_patient_transactions as
+create view v_patient_items as
 select
+	ci.item_pkey as item_pkey,
+	ci.id_encounter as id_encounter,
+	ci.id_episode as id_episode,
 	vpep.id_patient as id_patient,
-	tx.id as id_transaction
+	vpep.id_health_issue as id_health_issue,
+	pgc.relname as src_table
 from
-	clin_transaction tx, v_patient_episodes vpep
+	clin_item ci, v_patient_episodes vpep, pg_class pgc
 where
-	vpep.id_episode = tx.id_episode
+	vpep.id_episode=ci.id_episode
+		and
+	ci.tableoid=pgc.oid
+;
+
+-- =============================================
+\unset ON_ERROR_STOP
+drop view v_i18n_patient_encounters;
+\set ON_ERROR_STOP 1
+
+create view v_i18n_patient_encounters as
+select distinct on (vpi.id_encounter)
+	ce.id as id_encounter,
+	ce.id_location as id_location,
+	ce.id_provider as id_provider,
+	vpi.id_patient as id_patient,
+	_(et.description) as type,
+	cn.value as "comment"
+from
+	(clin_encounter ce left outer join clin_narrative cn on (ce.id_comment=cn.id)),
+	(clin_encounter inner join v_patient_items vpi on (clin_encounter.id=vpi.id_encounter)),
+	_enum_encounter_type et
+where
+--	vpi.id_encounter=ce.id
+--		and
+	et.id=ce.id_type
 ;
 
 -- ==========================================================
@@ -62,7 +112,7 @@ create trigger t_allergy_add_del
 	after insert or delete on allergy
 	for each row execute procedure f_announce_allergy_add_del()
 ;
--- should really be "for each statement" but that isn't supported yet
+-- should really be "for each statement" but that isn't supported yet by PostgreSQL
 
 \unset ON_ERROR_STOP
 drop view v_i18n_patient_allergies;
@@ -71,8 +121,11 @@ drop view v_i18n_patient_allergies;
 create view v_i18n_patient_allergies as
 select
 	a.id as id,
-	vpt.id_patient as id_patient,
-	a.id_clin_transaction as id_clin_transaction,
+	a.item_pkey as item_pkey,
+	vpep.id_patient as id_patient,
+	vpep.id_health_issue as id_health_issue,
+	a.id_episode as id_episode,
+	a.id_encounter as id_encounter,
 	a.substance as substance,
 	a.substance_code as substance_code,
 	a.generics as generics,
@@ -81,12 +134,13 @@ select
 	a.reaction as reaction,
 	a.generic_specific as generic_specific,
 	a.definate as definate,
+	a.id_type as id_type,
 	_(at.value) as type,
 	cn.value as "comment"
 from
-	(allergy a left outer join clin_narrative cn on (a.id_comment=cn.id)), _enum_allergy_type at, v_patient_transactions vpt
+	(allergy a left outer join clin_narrative cn on (a.id_comment=cn.id)), _enum_allergy_type at, v_patient_episodes vpep
 where
-	vpt.id_transaction=a.id_clin_transaction
+	vpep.id_episode=a.id_episode
 		and
 	at.id=a.id_type
 ;
@@ -94,24 +148,34 @@ where
 -- =============================================
 GRANT SELECT ON
 	"v_patient_episodes",
-	"v_patient_transactions",
+	"v_patient_items",
+	"v_i18n_patient_encounters",
 	"v_i18n_patient_allergies"
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"v_patient_episodes",
-	"v_patient_transactions",
+	"v_patient_items",
+	"v_i18n_patient_encounters",
 	"v_i18n_patient_allergies"
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.7 $');
+
+\unset ON_ERROR_STOP
+delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
+\set ON_ERROR_STOP 1
+
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.7  2003-05-03 00:44:05  ncq
+-- Revision 1.8  2003-05-04 23:35:59  ncq
+-- - major reworking to follow the formal EMR structure writeup
+--
+-- Revision 1.7  2003/05/03 00:44:05  ncq
 -- - make patient allergies view work
 --
 -- Revision 1.6  2003/05/02 15:06:19  ncq
