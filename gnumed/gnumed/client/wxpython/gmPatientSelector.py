@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.44 2004-08-18 08:18:35 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmPatientSelector.py,v 1.45 2004-08-19 13:59:14 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -301,25 +301,25 @@ and hit <ENTER>
 		wx.wxCallAfter(self._display_name)
 	#--------------------------------------------------------
 	def SetActivePatient(self, anID = None, data = None):
-		wx.wxBeginBusyCursor()
 		if not gmPatient.set_active_patient(anID):
 			_log.Log (gmLog.lErr, 'cannot change active patient')
-			wx.wxEndBusyCursor()
 			return None
 
-		# remember patient
-		if data is not None:
-			# only unique patients
-			for prev_pat in self.prev_pats:
-				if prev_pat[0] == anID:
-					wx.wxEndBusyCursor()
-					return True
-			self.prev_pats.append(data)
+		# remember patient ?
+		if data is None:
+			return True
 
-			# and only 10 of them
-			if len(self.prev_pats) > 10:
-				self.prev_pats.pop(0)
-		wx.wxEndBusyCursor()
+		# only unique patients
+		for prev_pat in self.prev_pats:
+			if prev_pat[0] == anID:
+				return True
+		self.prev_pats.append(data)
+
+		# and only 10 of them
+		if len(self.prev_pats) > 10:
+			self.prev_pats.pop(0)
+
+		return True
 	#--------------------------------------------------------
 	# utility methods
 	#--------------------------------------------------------
@@ -402,7 +402,9 @@ and hit <ENTER>
 				# and process selection
 				if result > 0:
 					# and make our selection known to others
+					wx.wxBeginBusyCursor()
 					self.SetActivePatient(result)
+					wx.wxEndBusyCursor()
 				return True
 
 			# ALT-N - enter new patient
@@ -443,6 +445,7 @@ and hit <ENTER>
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_enter(self, evt):
+		wx.wxBeginBusyCursor()
 		try:
 			curr_search_term = self.GetValue()
 			# remember fragment
@@ -456,43 +459,47 @@ and hit <ENTER>
 			_log.Log (gmLog.lInfo, "%s patient ID(s) fetched in %3.3f seconds" % (len(ids), duration))
 
 			if ids is None or len(ids) == 0:
-				# FIXME: gmGuiHelpers
-				dlg = wx.wxMessageDialog(
-					self,
+				wx.wxEndBusyCursor()
+				gmGuiHelpers.gm_show_warning (
 					_('Cannot find ANY matching patients for search term\n"%s" !\nCurrently selected patient stays active.\n\n(We should offer to jump to entering a new patient from here.)' % curr_search_term),
-					_('selecting patient'),
-					wx.wxOK | wx.wxICON_EXCLAMATION
-					)
-				dlg.ShowModal()
-				dlg.Destroy()
+					_('selecting patient')
+				)
 				return True
 
 			curs = self.conn.cursor()
 			# only one matching patient
 			if len(ids) == 1:
-				# and make our selection known to others
+				# make our selection known to others
 				data, self.prev_col_order = self.pat_expander(curs, ids)
 				curs.close()
+				if len(data) == 0:
+					wx.wxEndBusyCursor()
+					return False
 				self.SetActivePatient(ids[0], data[0])
-			else:
-				# get corresponding patient data
-				start = time.time()
-				pat_list, self.prev_col_order = self.pat_expander(curs, ids)
-				duration = time.time() - start
-				_log.Log (gmLog.lInfo, "patient data fetched in %3.3f seconds" % duration)
-				curs.close()
+				wx.wxEndBusyCursor()
+				return True
+
+			# more than one matching patient
+			start = time.time()
+			pat_list, self.prev_col_order = self.pat_expander(curs, ids)
+			duration = time.time() - start
+			_log.Log (gmLog.lInfo, "patient data fetched in %3.3f seconds" % duration)
+			curs.close()
 
 			# and let user select from pick list
-				dlg = cPatientPickList(parent = self)
-				dlg.SetItems(pat_list, self.prev_col_order)
-				result = dlg.ShowModal()
-				dlg.Destroy()
-				for pat in pat_list:
-					if result == pat[0]:
-						self.SetActivePatient(result, pat)
-						break
+			dlg = cPatientPickList(parent = self)
+			dlg.SetItems(pat_list, self.prev_col_order)
+			wx.wxEndBusyCursor()
+			result = dlg.ShowModal()
+			wx.wxBeginBusyCursor()
+			dlg.Destroy()
+			for pat in pat_list:
+				if result == pat[0]:
+					self.SetActivePatient(result, pat)
+					break
 		except:
-			_log.LogException ("select patient", sys.exc_info (), verbose=0)
+			_log.LogException ("error selecting patient", sys.exc_info(), verbose=0)
+		wx.wxEndBusyCursor()
 #============================================================
 # main
 #------------------------------------------------------------
@@ -615,7 +622,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.44  2004-08-18 08:18:35  ncq
+# Revision 1.45  2004-08-19 13:59:14  ncq
+# - streamline/cleanup
+# - Busy Cursor according to Richard
+#
+# Revision 1.44  2004/08/18 08:18:35  ncq
 # - later wxWidgets version don't support parent=NULL anymore
 #
 # Revision 1.43  2004/08/02 18:53:36  ncq
