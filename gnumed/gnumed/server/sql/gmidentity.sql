@@ -23,7 +23,7 @@
 --                BREAKS BACKWARDS COMPATIBILITY!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmidentity.sql,v $
--- $Id: gmidentity.sql,v 1.33 2003-03-30 23:16:07 ncq Exp $
+-- $Id: gmidentity.sql,v 1.34 2003-03-31 23:43:48 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -196,7 +196,7 @@ COMMENT ON COLUMN relation.ended IS
 -- ==========================================================
 create view v_basic_person as
 select
-	i.id as id,
+	i.id as i_id, n.id as n_id,
 	n.title as title, n.firstnames as firstnames, n.lastnames as lastnames,
 	--n.aka as aka,
 	i.dob as dob, i.cob as cob, i.gender as gender
@@ -278,11 +278,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.33 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.34 $');
 
 -- =============================================
 -- $Log: gmidentity.sql,v $
--- Revision 1.33  2003-03-30 23:16:07  ncq
+-- Revision 1.34  2003-03-31 23:43:48  ncq
+-- - slightly change v_basic_person to allow for massive speedup of selects
+--
+-- Revision 1.33  2003/03/30 23:16:07  ncq
 -- - make proper index on firstnames/lastnames
 --
 -- Revision 1.32  2003/03/27 17:51:58  ncq
