@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -79,8 +79,8 @@ from Gnumed.pycommon.gmPyCompat import *
 # local imports
 import gmAuditSchemaGenerator
 aud_gen = gmAuditSchemaGenerator
-import gmScoringSchemaGenerator
-score_gen = gmScoringSchemaGenerator
+#import gmScoringSchemaGenerator
+#score_gen = gmScoringSchemaGenerator
 import gmNotificationSchemaGenerator
 notify_gen = gmNotificationSchemaGenerator
 
@@ -796,53 +796,53 @@ class database:
 			_log.LogException('cannot remove audit trail schema file [/tmp/audit-trail-schema.sql]', sys.exc_info(), verbose = 0)
 		return 1
 	#--------------------------------------------------------------
-	def bootstrap_scoring(self):
-		# get configuration
-		tmp = _cfg.get(self.section, 'scoring disable')
-		# if this option is not given, assume we want scoring
-		if tmp is not None:
-			# if we don't want scoring on these tables, return without error
-			if int(tmp) == 1:
-				return 1
-
-		tmp = _cfg.get(self.section, 'scoring table prefix')
-		if tmp is None:
-			return None
-		score_gen.scoring_table_prefix = tmp
-
-		tmp = _cfg.get(self.section, 'scoring fields table')
-		if tmp is None:
-			return None
-		score_gen.scoring_fields_table = tmp
-		# create scoring schema
-		curs = self.conn.cursor()
-		scoring_schema = score_gen.create_scoring_schema(curs)
-		curs.close()
-		if scoring_schema is None:
-			_log.Log(gmLog.lErr, 'cannot generate scoring schema for GnuMed database [%s]' % self.name)
-			return None
-
-		# write schema to file
-		file = open ('/tmp/scoring-schema.sql', 'wb')
-		for line in scoring_schema:
-			file.write("%s;\n" % line)
-		file.close()
-
-		# import scoring schema
-#		if not _import_schema_file(anSQL_file = '/tmp/scoring-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
-		psql = gmPsql.Psql (self.conn)
-		if psql.run('/tmp/scoring-schema.sql') != 0:
-			_log.Log(gmLog.lErr, "cannot import scoring schema definition for database [%s]" % (self.name))
-			return None
-
-		if _keep_temp_files:
-			return 1
-
-		try:
-			os.remove('/tmp/scoring-schema.sql')
-		except StandardError:
-			_log.LogException('cannot remove scoring schema file [/tmp/scoring-schema.sql]', sys.exc_info(), verbose = 0)
-		return 1
+#	def bootstrap_scoring(self):
+#		# get configuration
+#		tmp = _cfg.get(self.section, 'scoring disable')
+#		# if this option is not given, assume we want scoring
+#		if tmp is not None:
+#			# if we don't want scoring on these tables, return without error
+#			if int(tmp) == 1:
+#				return 1
+#
+#		tmp = _cfg.get(self.section, 'scoring table prefix')
+#		if tmp is None:
+#			return None
+#		score_gen.scoring_table_prefix = tmp
+#
+#		tmp = _cfg.get(self.section, 'scoring fields table')
+#		if tmp is None:
+#			return None
+#		score_gen.scoring_fields_table = tmp
+#		# create scoring schema
+#		curs = self.conn.cursor()
+#		scoring_schema = score_gen.create_scoring_schema(curs)
+#		curs.close()
+#		if scoring_schema is None:
+#			_log.Log(gmLog.lErr, 'cannot generate scoring schema for GnuMed database [%s]' % self.name)
+#			return None
+#
+#		# write schema to file
+#		file = open ('/tmp/scoring-schema.sql', 'wb')
+#		for line in scoring_schema:
+#			file.write("%s;\n" % line)
+#		file.close()
+#
+#		# import scoring schema
+#if not _import_schema_file(anSQL_file = '/tmp/scoring-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
+#		psql = gmPsql.Psql (self.conn)
+#		if psql.run('/tmp/scoring-schema.sql') != 0:
+#			_log.Log(gmLog.lErr, "cannot import scoring schema definition for database [%s]" % (self.name))
+#			return None
+#
+#		if _keep_temp_files:
+#			return 1
+#
+#		try:
+#			os.remove('/tmp/scoring-schema.sql')
+#		except StandardError:
+#			_log.LogException('cannot remove scoring schema file [/tmp/scoring-schema.sql]', sys.exc_info(), verbose = 0)
+#		return 1
 	#--------------------------------------------------------------
 	def bootstrap_notifications(self):
 		# get configuration
@@ -1147,7 +1147,7 @@ def bootstrap_services():
 		exit_with_msg("Service list empty. Nothing to do here.")
 	# run through services
 	for service_alias in services:
-		print "==> bootstrapping service [%s] (= %s) ..." % (_cfg.get('service %s' % service_alias, 'name'), service_alias)
+		print '==> bootstrapping "%s" ...' % service_alias
 		service = gmService(service_alias)
 		if not service.bootstrap():
 			return None
@@ -1163,13 +1163,13 @@ def bootstrap_auditing():
 			return None
 	return 1
 #--------------------------------------------------------------
-def bootstrap_scoring():
-	"""bootstrap scoring in all bootstrapped databases"""
-	for db_key in _bootstrapped_dbs.keys():
-		db = _bootstrapped_dbs[db_key]
-		if not db.bootstrap_scoring():
-			return None
-	return 1
+#def bootstrap_scoring():
+#	"""bootstrap scoring in all bootstrapped databases"""
+#	for db_key in _bootstrapped_dbs.keys():
+#		db = _bootstrapped_dbs[db_key]
+#		if not db.bootstrap_scoring():
+#			return None
+#	return 1
 #--------------------------------------------------------------
 def bootstrap_notifications():
 	"""bootstrap notification in all bootstrapped databases"""
@@ -1199,7 +1199,7 @@ def ask_for_confirmation():
 		db_name = _cfg.get("database %s" % db_alias, "name")
 		srv_alias = _cfg.get("database %s" % db_alias, "server alias")
 		srv_name = _cfg.get("server %s" % srv_alias, "name")
-		print "part [%s] (service [%s] - database [%s] - server [%s])" % (service, service_name, db_name, srv_name)
+		print 'part "%s" (service <%s> in <%s> on <%s>)' % (service, service_name, db_name, srv_name)
 	print "-------------------------------------------------------"
 	desc = _cfg.get("installation", "description")
 	if desc is not None:
@@ -1358,7 +1358,7 @@ def become_pg_demon_user():
 		os.setuid(pg_demon_user_passwd_line[2])
 	else:
 		_log.Log(gmLog.lWarn, 'not running as root, cannot become postmaster demon user')
-		_log.Log(gmLog.lWarn, 'may have trouble connecting as gm-dbo if IDENT auth forced on us')
+		_log.Log(gmLog.lWarn, 'may have trouble connecting as gm-dbo if IDENT auth is forced upon us')
 		if _interactive:
 			print "WARNING: This script may not work if not running as the system administrator."
 
@@ -1381,31 +1381,26 @@ def get_cfg_in_nice_mode():
 		return None
 	return cfgs[choice]
 #==================================================================
-if __name__ == "__main__":
-	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
-	if _cfg is None:
-		_log.Log(gmLog.lInfo, "No config file specified on command line. Getting it in nice mode.")
-		_cfg = get_cfg_in_nice_mode()
-		if _cfg is None:
-			print "bye"
-			sys.exit(0)
-
+def handle_cfg():
 	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
 
-	print "Bootstrapping GnuMed database system..."
+	print "Using config file [%s]." % _cfg.cfgName
 
 	become_pg_demon_user()
 
 	tmp = _cfg.get("installation", "interactive")
 	if tmp == "yes":
+		global _interactive
 		_interactive = 1
 
 	tmp = _cfg.get('installation', 'keep temp files')
 	if tmp == "yes":
+		global _keep_temp_files
 		_keep_temp_files = True
 
 	if not ask_for_confirmation():
-		exit_with_msg("Bootstrapping aborted by user.")
+		print "Bootstrapping aborted by user."
+		return
 
 	if not bootstrap_services():
 		exit_with_msg("Cannot bootstrap services.")
@@ -1413,11 +1408,34 @@ if __name__ == "__main__":
 	if not bootstrap_auditing():
 		exit_with_msg("Cannot bootstrap audit trail.")
 
-	if not bootstrap_scoring():
-		exit_with_msg("Cannot bootstrap scoring tables.")
+#	if not bootstrap_scoring():
+#		exit_with_msg("Cannot bootstrap scoring tables.")
 
 	if not bootstrap_notifications():
 		exit_with_msg("Cannot bootstrap notification tables.")
+
+	print "Done with config file [%s]." % _cfg.cfgName
+#==================================================================
+if __name__ == "__main__":
+	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
+	if _cfg is None:
+		_log.Log(gmLog.lInfo, "No config file specified on command line. Switching to nice mode.")
+		_cfg = get_cfg_in_nice_mode()
+		if _cfg is None:
+			print "bye"
+			sys.exit(0)
+
+	print "======================================="
+	print "Bootstrapping GnuMed database system..."
+	print "======================================="
+
+	cfg_files = _cfg.get('installation', 'config files')
+	if cfg_files is None:
+		handle_cfg()
+	else:
+		for cfg_file in cfg_files:
+			_cfg = gmCfg.cCfgFile(None, cfg_file, flags = gmCfg.cfg_IGNORE_CMD_LINE)
+			handle_cfg()
 
 	_log.Log(gmLog.lInfo, "shutdown")
 	print "Done bootstrapping: We probably succeeded."
@@ -1451,7 +1469,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.4  2005-03-31 20:07:58  ncq
+# Revision 1.5  2005-04-02 22:08:00  ncq
+# - comment out scoring bootstrapping
+# - bootstrap several conf files in one go
+#
+# Revision 1.4  2005/03/31 20:07:58  ncq
 # - slightly improved wording
 #
 # Revision 1.3  2005/01/24 17:22:15  ncq
