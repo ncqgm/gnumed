@@ -52,7 +52,7 @@ class PatientWindow (wxPanel):
         Client must NOT do Show () on the panel!
         """ 
         self.wholescreen[name] = panel
-        panel_inst.Show (0) # make sure all hidden
+        panel.Show (0) # make sure all hidden
         #log (lInfo, "Registering %s as whole screen widget" % name)
 
     def RegisterLeftSide (self, name, panel):
