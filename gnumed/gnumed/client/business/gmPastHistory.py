@@ -93,7 +93,8 @@ class gmPastHistory(gmClinicalPart):
 		if  age > 0:
 			return self._getBirthYear() + map['age']
 
-		return ''
+		# FIXME: this is crap
+		return 0
 
 	def _history_input_to_store(self, map):
 		map['laterality'] = self._getLaterality( map)
