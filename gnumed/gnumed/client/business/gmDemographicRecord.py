@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.10 2003-11-22 14:40:59 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmDemographicRecord.py,v 1.11 2003-11-22 14:44:17 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -189,15 +189,15 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 		return data[0][0]
 	#--------------------------------------------------------
 	def setTitle (self, title):
-<<<<<<< gmDemographicRecord.py
+		# only set title on active name
 		cmd = "update names set title = %s where id_identity = %s and active = true"
 		return gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
-=======
-		# empirically, this works; updating the name twice, then setting it active. 
-		cmd = "update names set title = %s  where id = (select max(id) from names where id_identity = %s)"
-		cmd2 = "update names set active = true where id = (select max(id) from names where id_identity = %s)"
-		gmPG.run_commit ('personalia', [(cmd, [title, self.ID]), (cmd, [title, self.ID]),  (cmd2, [self.ID])])
->>>>>>> 1.9
+
+		# keep until above is proven
+		# empirically, this works; updating the name twice, then setting it active.
+#		cmd = "update names set title = %s  where id = (select max(id) from names where id_identity = %s)"
+#		cmd2 = "update names set active = true where id = (select max(id) from names where id_identity = %s)"
+#		gmPG.run_commit ('personalia', [(cmd, [title, self.ID]), (cmd, [title, self.ID]),  (cmd2, [self.ID])])
 	#--------------------------------------------------------
 	def getID(self):
 		return self.ID
@@ -567,7 +567,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.10  2003-11-22 14:40:59  ncq
+# Revision 1.11  2003-11-22 14:44:17  ncq
+# - setTitle now only operates on active names and also doesn't set the name
+#   to active which would trigger the trigger
+#
+# Revision 1.10  2003/11/22 14:40:59  ncq
 # - setActiveName -> addName
 #
 # Revision 1.9  2003/11/22 12:53:48  sjtan
