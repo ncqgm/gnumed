@@ -10,8 +10,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSchemaRevisionCheck.py,v $
-# $Id: gmSchemaRevisionCheck.py,v 1.1 2003-11-27 18:16:55 hinnef Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmSchemaRevisionCheck.py,v 1.2 2003-11-28 07:57:20 hinnef Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Hilmar Berger <ju0815nk@gmx.net>"
 
 # access our modules
@@ -115,7 +115,7 @@ class gmSchemaRevisionChecker:
 
 		# extract schema and revision from stored strings
 		schemaPattern = re.compile("\$RCSfile: (\S+).sql")
-		versionPattern = re.compile("\$Revision: 1.1 $")
+		versionPattern = re.compile("\$Revisi..: (\d+.\d+)")
 		for entry in result:
 			version = '?'
 			schema = '?'
@@ -131,7 +131,7 @@ class gmSchemaRevisionChecker:
 				_log.Log(gmLog.lData, 'malformed schema entry found : %s %s' % (entry[0],entry[1])) 
 			else:
 				gmSchemaRevisionChecker._revisions[schema] = version
-		
+		print 	gmSchemaRevisionChecker._revisions	
 		# mark _revisions as initialized
 		gmSchemaRevisionChecker._initialized = 1
 
@@ -147,6 +147,9 @@ if __name__ == "__main__":
 	print a.checkSchemaRevision('gmconfiguration',float(x)+0.1,exact = 1), " should be 0"
 
 # $Log: gmSchemaRevisionCheck.py,v $
-# Revision 1.1  2003-11-27 18:16:55  hinnef
+# Revision 1.2  2003-11-28 07:57:20  hinnef
+# - corrected revision match pattern that had been overwritten by cvs
+#
+# Revision 1.1  2003/11/27 18:16:55  hinnef
 # - initial checkin
 #
