@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.33 $
+-- $Revision: 1.34 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -115,27 +115,42 @@ comment on column street.suburb is
 -- ===================================================================
 create table address (
 	id serial primary key,
-	-- indirectly references urb(id)
 	id_street integer
 		not null
 		references street(id)
 		on update cascade
 		on delete restrict,
+	aux_street text default null,
 	number text not null,
-	addendum text
+	subunit text default null,
+	addendum text default null,
+	unique(id_street, aux_street, number, subunit, addendum)
 ) inherits (audit_fields);
+
+-- FIXME: should be unique(coalesce(field, '')) for aux_street, subunit, addendum !
 
 select add_table_for_audit('address');
 
 comment on table address is
 	'an address aka a location, void of attached meaning such as type of address';
 comment on column address.id_street is
-	'the street this address is at, from
-	 whence the urb is to be found';
+	'the street this address is at from
+	 whence the urb is to be found, it
+	 thus indirectly references urb(id)';
+comment on column address.aux_street is
+	'additional street-level information which
+	 formatters would usually put on lines directly
+	 below the street line of an address, such as
+	 postal box directions in CA';
 comment on column address.number is
 	'number of the house';
+comment on column address.subunit is
+	'directions *below* the unit (eg.number) level,
+	 such as appartment number, room number, level,
+	 entrance or even verbal directions';
 comment on column address.addendum is
-	'eg. appartment number, room number, level, entrance';
+	'any additional information that
+	 did not fit anywhere else';
 
 -- ===================================================================
 create table address_type (
@@ -551,11 +566,16 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.33 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.34 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.33  2004-09-02 00:44:43  ncq
+-- Revision 1.34  2004-09-10 10:57:02  ncq
+-- - re discussion with Jim et al on urb/suburb/address problem
+--   in CA/AU/DE added aux_street/subunit to address, see inline
+--   docs for explanations
+--
+-- Revision 1.33  2004/09/02 00:44:43  ncq
 -- - move suburb field from address to street
 -- - improve comments
 -- - add on update/cascade clauses
