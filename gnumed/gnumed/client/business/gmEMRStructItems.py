@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -349,19 +349,20 @@ def create_episode(pk_health_issue=None, episode_name=None, soap_cat=None, encou
 		id_patient = rows[0][0]
 	# already there ?
 	if episode_name is not None:
+		episode_name = str(episode_name)
 		try:
 			episode = cEpisode(id_patient=id_patient, name=episode_name)
 			return (True, episode)
 		except gmExceptions.ConstructorError, msg:
-			_log.LogException(str(msg), sys.exc_info(), verbose=0)
-
+			_log.LogException('%s, will create new episode' % str(msg), sys.exc_info(), verbose=0)
 	# 1) insert naked episode record
 	queries = []
 	cmd = """insert into clin_episode (fk_health_issue, fk_patient) values (%s, %s)"""
 	queries.append((cmd, [pk_health_issue, id_patient]))
-	# 2) if not linked to health issue
-	if pk_health_issue is None:
-		# link to narrative entry
+	# 2) link to clin_narrative
+	#    - not strictly necessary if health_issue not None
+	#      but principle of least surprise applies
+	if episode_name is not None:
 		cmd = """insert into clin_narrative (fk_encounter, fk_episode, soap_cat, narrative)
 				 values (%s, currval('clin_episode_pk_seq'), %s, %s)"""
 		queries.append((cmd, [encounter_id, soap_cat, episode_name]))
@@ -371,17 +372,22 @@ def create_episode(pk_health_issue=None, episode_name=None, soap_cat=None, encou
 	# 3) retrieve PK of newly created row
 	cmd = "select currval('clin_episode_pk_seq')"
 	queries.append((cmd, []))
-	success, data = gmPG.run_commit2('historica', queries)
-	if not success or (data[0] == None and len(data[1])== 0):
+	success, data = gmPG.run_commit2 (
+		link_obj = 'historica',
+		queries = queries,
+		extra_verbose = True
+	)
+	if not success:
+		_log.Log(gmLog.lErr, 'cannot create episode: %s' % data)
 		err, msg = data
 		return (False, msg)
 	# now there ?
 	rows, idx = data
-	row = rows[0]
+	pk = rows[0][0]
 	try:
-		episode = cEpisode(aPK_obj = row[0])
+		episode = cEpisode(aPK_obj = pk)
 	except gmExceptions.ConstructorError:
-		_log.LogException('cannot instantiate episode [%s]' % (result[0][0]), sys.exc_info, verbose=0)
+		_log.LogException('cannot instantiate episode [%s]' % pk, sys.exc_info, verbose=0)
 		return (False, _('internal error, check log'))
 	return (True, episode)
 #-----------------------------------------------------------
@@ -505,7 +511,10 @@ if __name__ == '__main__':
 		
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.32  2005-01-25 17:24:57  ncq
+# Revision 1.33  2005-01-29 17:53:57  ncq
+# - debug/enhance create_episode
+#
+# Revision 1.32  2005/01/25 17:24:57  ncq
 # - streamlined cEpisode.rename()
 #
 # Revision 1.31  2005/01/25 01:36:19  cfmoro
