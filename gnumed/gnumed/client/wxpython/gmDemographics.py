@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.11 2004-03-02 10:21:10 ihaywood Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmDemographics.py,v 1.12 2004-03-02 23:57:59 ihaywood Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -126,7 +126,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 			self.mwm = {}
 		self.to_delete = []
 		self.addr_cache = []
-		self.gendermap = {'m':_('Male'), 'f':_("Female"), '?':_("Unknown")}
+		self.gendermap = {'m':_('Male'), 'f':_("Female"), '?':_("Unknown"), 'tm':_('Trans. Male'), 'tf':_('Trans. Female'), 'h':_('Hermaphrodite')}
 		self.comm_channel_names = gmDemographicRecord.getCommChannelTypes ()
 		self.marital_status_types = gmDemographicRecord.getMaritalStatusTypes ()
 		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,[],wxLB_SINGLE)
@@ -160,7 +160,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.txt_surname = TextBox_RedBold(self,-1)
 		self.combo_title = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,self.titlelist, wxCB_DROPDOWN)
 		self.txt_firstname = TextBox_RedBold(self,-1)
-		self.combo_sex = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize, ['M','F'], wxCB_DROPDOWN)
+		self.combo_sex = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize, self.gendermap.values (), wxCB_DROPDOWN)
 		self.cb_preferredname = wxCheckBox(self, -1, _("Preferred Name"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 		self.txt_preferred = TextBox_RedBold(self,-1)
 		#self.txt_address = wxTextCtrl(self, 30, "",
@@ -491,8 +491,9 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		myPatient = self.patient.get_demographic_record()
 		if m['firstname'].IsModified () or m['surname'].IsModified ():
 			myPatient.addName(self.value_map['firstname'].strip(), self.value_map['surname'].strip(), activate=1)
-		if self.value_map['sex'] != self.old_gender:
-			myPatient.setGender( self.value_map['sex'] )
+		for key, value in self.gendermap.items (): # find the backend code for selected gender
+			if value == self.value_map['sex'] and key != self.old_gender: # has it changed?
+				myPatient.setGender(key)
 		if m['occupation'].IsModified ():
 			myPatient.setOccupation (self.value_map['occupation'])
 		if self.old_status != self.value_map['maritalstatus']:
@@ -623,7 +624,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		m['maritalstatus'].SetSelection (m['maritalstatus'].FindString (self.old_status))
 		m['occupation'].SetValue (myPatient.getOccupation () or '')
 		self.old_gender = myPatient.getGender ()
-		m['sex'].SetValue( self.old_gender )
+		m['sex'].SetSelection (m['sex'].FindString (self.gendermap[self.old_gender]))
 		m['email'].SetValue (myPatient.getCommChannel (gmDemographicRecord.EMAIL) or '')
 		m['fax'].SetValue (myPatient.getCommChannel (gmDemographicRecord.FAX) or '')
 		m['homephone'].SetValue (myPatient.getCommChannel (gmDemographicRecord.HOME_PHONE) or '')
@@ -708,7 +709,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.11  2004-03-02 10:21:10  ihaywood
+# Revision 1.12  2004-03-02 23:57:59  ihaywood
+# Support for full range of backend genders
+#
+# Revision 1.11  2004/03/02 10:21:10  ihaywood
 # gmDemographics now supports comm channels, occupation,
 # country of birth and martial status
 #
