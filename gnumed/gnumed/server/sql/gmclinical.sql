@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.129 $
+-- $Revision: 1.130 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -887,49 +887,67 @@ comment on column form_data.value is
 -- medication tables
 create table clin_medication (
 	pk serial primary key,
-	started date
-		not null,
+	-- administrative
 	last_prescribed date
 		not null
 		default CURRENT_DATE,
+	fk_last_script integer
+		default null
+		references form_instances(pk)
+		on update cascade
+		on delete set null,
 	discontinued date
 		default null,
+	-- identification
 	brandname text
 		default null,
+	generic text
+		default null,
 	adjuvant text,
-	db_origin text
+	dosage_form text
+		not null, --check (form in ('spray', 'cap', 'tab', 'inh', 'neb', 'cream', 'syrup', 'lotion', 'drop', 'inj', 'oral liquid'))
+	ufk_drug text
 		not null,
-	db_drug_id text
+	drug_db text
 		not null,
 	atc_code text
 		not null,
-
-	amount_unit varchar(7)
+	-- medical application
+	dosage numeric[]
+		not null,
+	period interval
 		not null
-		check (amount_unit in ('g', 'each', 'ml')),
-
-	dose float,
-	period integer not null,
-	form varchar (20) not null check (form in 
-			('spray', 'cap', 'tab', 'inh', 'neb', 'cream', 'syrup', 'lotion', 'drop', 'inj', 'oral liquid')), 
-	directions text,
-	prn boolean,
-	SR boolean
+		default '24 hours'::interval,
+	dosage_unit text
+		not null
+		check (dosage_unit in ('g', 'each', 'ml')),
+	directions text
+		default null,
+	is_prn boolean
+		default false
+--	is_SR boolean	-- ???
 ) inherits (clin_root_item);
 
 select add_table_for_audit ('clin_medication');
 
 alter table clin_medication add constraint medication_is_plan
 	check (soap_cat='p');
+alter table clin_medication add constraint brand_or_generic_required
+	check ((brandname is not null) or (generic is not null));
 alter table clin_medication add constraint prescribed_after_started
-	check (last_prescribed >= started);
+	check (last_prescribed >= clin_when);
 alter table clin_medication add constraint discontinued_after_prescribed
 	check (discontinued >= last_prescribed);
 
 comment on table clin_medication is
-	'Representing what the patient is taking *now*, not a simple log
-	of prescriptions. The forms engine will record each script and all its fields
-	The audit mechanism will record all changes to this table.
+	'Representing what the patient is taking *now*, eg. a medication
+	 status (similar to vaccination status). Not a log of prescriptions.
+	 If drug was prescribed by brandname it may span several (unnamed
+	 or listed) generics. If generic substances were prescribed there
+	 would be one row per substance in this table.
+
+	- forms engine will record each script and its fields
+	- audit mechanism will record all changes to this table
 
 Note the multiple redundancy of the stored drug data.
 Applications should try in this order:
@@ -937,55 +955,59 @@ Applications should try in this order:
 - brandname
 - ATC code
 - generic name(s) (in constituents)
+
+	- clin_root_item.clin_when == "started":
+	  * when did patient start to take this medication
+	  * in most cases date of first prescription - but not always
+	  * for newly prescribed drugs identical to last_prescribed
+
+	- clin_root_item.narrative == "prescribed_for":
+	  * use to specify intent beyond treating issue at hand
 ';
-comment on column clin_medication.started is
-	'- when did patient start to take this medication
-	 - in most cases the date of the first prescription
-	   but not always
-	 - for newly prescribed drugs identical to last_prescribed';
 comment on column clin_medication.last_prescribed is
 	'date last script written for this medication';
+comment on column clin_medication.fk_last_script is
+	'link to the most recent script by which this drug
+	 was prescribed';
 comment on column clin_medication.discontinued is
 	'date at which medication was *discontinued*,
 	 note that the date when a script *expires*
 	 should be calculatable';
 comment on column clin_medication.brandname is
 	'the brand name of this drug under which it is
-	 marketed by the manufacturer,
-	 NULL if generic rather than brand prescribed';
+	 marketed by the manufacturer';
+comment on column clin_medication.generic is
+	'the generic name of the active substance';
 comment on column clin_medication.adjuvant is
 	'free text describing adjuvants, such as "orange-flavoured" etc.';
-comment on column clin_medication.db_origin is
-	'the drug database used to populate this entry';
-comment on column clin_medication.db_drug_id is
+comment on column clin_medication.dosage_form is
+	'the form the drug is delivered in, eg liquid, cream, table, etc.';
+comment on column clin_medication.ufk_drug is
 	'the identifier for this drug in the source database,
 	 may or may not be an opaque value as regards GnuMed';
+comment on column clin_medication.drug_db is
+	'the drug database used to populate this entry';
 comment on column clin_medication.atc_code is
-	'the Anatomic Therapeutic Chemical code for this drug';
-
-
-comment on column clin_medication.prn is
-	'true if "pro re nata" (= as required)';
-comment on column clin_medication.directions is
-	'free text for directions, such as "with food" etc';
-
-
-
-comment on column clin_medication.amount_unit is
-	'the unit the dose is measured in.
-	 "each" for discrete objects like tablets';
-comment on column clin_medication.dose is
-	'an array of doses describing how 
-	 the drug is taken over the dosing cycle, for example 2 mane 2.5 nocte would be 
-	 [2, 2.5], period=24. 2 one and 2.5 the next would be [2, 2.5] with 
-	 period=48. Once a week would be [1] with period=168';
+	'the Anatomic Therapeutic Chemical code for this drug,
+	 used to compute possible substitutes';
+comment on column clin_medication.dosage is
+	'an array of doses describing how the drug is taken
+	 over the dosing cycle, for example:
+	  - 2 mane 2.5 nocte would be [2, 2.5], period=24
+	  - 2 one and 2.5 the next would be [2, 2.5], period=48
+	  - once a week would be [1] with period=168';
 comment on column clin_medication.period is
 	'the length of the dosing cycle, in hours';
-comment on column clin_medication.SR is
-	'true if the slow-release preparation is used';
-comment on column clin_medication.form is
-	'the general form of the drug. Some approximation may be required from the manufacturers description';
-
+comment on column clin_medication.dosage_unit is
+	'the unit the dosages are measured in,
+	 "each" for discrete objects like tablets';
+comment on column clin_medication.directions is
+	'free text for patient/pharmacist directions,
+	 such as "with food" etc';
+comment on column clin_medication.is_prn is
+	'true if "pro re nata" (= as required)';
+--comment on column clin_medication.is_SR is
+--	'true if the slow-release preparation is used';
 
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
@@ -1049,11 +1071,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.129 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.130 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.129  2004-09-25 13:25:56  ncq
+-- Revision 1.130  2004-10-14 14:56:43  ncq
+-- - work on clin_medication to reflect recent discussion
+--
+-- Revision 1.129  2004/09/25 13:25:56  ncq
 -- - is_significant -> clinically_relevant
 --
 -- Revision 1.128  2004/09/20 23:46:37  ncq
