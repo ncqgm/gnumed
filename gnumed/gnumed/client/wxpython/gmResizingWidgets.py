@@ -3,8 +3,8 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.2 2004-12-06 20:46:49 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmResizingWidgets.py,v 1.3 2004-12-07 21:54:56 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -383,6 +383,10 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 	#------------------------------------------------
 	def __on_STC_modified(self, event):
 		event.Skip()
+		# - is current string in keyword dict ?
+		# - if so execute action defined there and return
+		# - is timeout gone ?
+		# - if so get matches and popup select list
 		if self.no_list:
 			return
 		length = self.GetLength()
@@ -528,7 +532,10 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 
 #====================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.2  2004-12-06 20:46:49  ncq
+# Revision 1.3  2004-12-07 21:54:56  ncq
+# - add some comments on proposed plan
+#
+# Revision 1.2  2004/12/06 20:46:49  ncq
 # - a bit of cleanup
 #
 # Revision 1.1  2004/12/06 20:36:48  ncq
