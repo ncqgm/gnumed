@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.45 2004-10-17 23:49:21 sjtan Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmDemographics.py,v 1.46 2004-10-19 21:29:25 sjtan Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -22,9 +22,9 @@ from wxPython import wx
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
 # GnuMed specific
-from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator
-from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N
-from Gnumed.business import gmDemographicRecord, gmPatient
+from client.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator
+from client.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N
+from client.business import gmDemographicRecord, gmPatient
 
 # constant defs
 _log = gmLog.gmDefLog
@@ -281,8 +281,7 @@ class PatientsPanel(wx.wxPanel):
 		
 		
 		diff = targetPos - self.main_splitWindow.GetSashPosition()
-		dir = diff/abs(diff)
-
+		
 		if self.lastDir and dir <> self.lastDir:
 			self.lastDir = dir
 			self.timer.Start(self.delay) 
@@ -1272,13 +1271,16 @@ class PatientDetailWindow(wx.wxPanel):
 
 #============================================================
 if __name__ == "__main__":
-	from Gnumed.pycommon import gmGuiBroker
+	from client.pycommon import gmGuiBroker
 	app = wx.wxPyWidgetTester(size = (800, 600))
 	app.SetWidget(PatientsPanel, -1)
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.45  2004-10-17 23:49:21  sjtan
+# Revision 1.46  2004-10-19 21:29:25  sjtan
+# remove division by zero problem, statement occurs later after check for non-zero.
+#
+# Revision 1.45  2004/10/17 23:49:21  sjtan
 #
 # the timer autoscroll idea.
 #
