@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.31 2004-03-20 13:05:20 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmPatient.py,v 1.32 2004-03-20 13:14:36 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -529,12 +529,12 @@ class cPatientSearcher_SQL:
 		where_snippets = []
 		try:
 			data['firstnames']
-			where_snippets.append('firstnames=%(fname)s')
+			where_snippets.append('firstnames=%(firstnames)s')
 		except KeyError:
 			pass
 		try:
 			data['lastnames']
-			where_snippets.append('lastnames=%(lname)s')
+			where_snippets.append('lastnames=%(lastnames)s')
 		except KeyError:
 			pass
 		try:
@@ -882,7 +882,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.31  2004-03-20 13:05:20  ncq
+# Revision 1.32  2004-03-20 13:14:36  ncq
+# - sync data dict and named substs in __generate_queries_generic
+#
+# Revision 1.31  2004/03/20 13:05:20  ncq
 # - we of course need to return results from __generate_queries_generic
 #
 # Revision 1.30  2004/03/20 12:49:55  ncq
