@@ -16,7 +16,7 @@ not have any constraints.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -168,12 +168,12 @@ def create_trigfunc(aCursor, aChildTable, aParentTable = 'audit_mark', audit_pre
 	logged_table = aChildTable
 	logging_table = '%s%s' % (audit_prefix, logged_table)
 
-	attributes = get_attributes(aCursor, logged_table)
-	audit_attributes = get_attributes(aCursor, aParentTable)
+	attributes = get_attributes(aCursor, logging_table)
+	skip_attributes = get_attributes(aCursor, aParentTable)
 	fields = []
 	values = []
 	for attribute in attributes:
-		if attribute in audit_attributes:
+		if attribute in skip_attributes:
 			continue
 		fields.append(attribute)
 		values.append('OLD.%s' % attribute)
@@ -264,7 +264,12 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.2  2003-05-13 14:39:11  ncq
+# Revision 1.3  2003-05-13 14:55:43  ncq
+# - take list of columns to be audited from target audit table,
+#   not from source table, this implies that the target table MUST exist
+#   prior to running this script
+#
+# Revision 1.2  2003/05/13 14:39:11  ncq
 # - separate triggers/functions for insert/update/delete
 # - seems to work now
 #
