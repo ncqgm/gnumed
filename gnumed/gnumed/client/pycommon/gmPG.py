@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -384,7 +384,6 @@ class ConnectionPool:
 				raise gmExceptions.ConnectionError("Can't connect to database without login information!")
 
 		_log.Log(gmLog.lData, login.GetInfoStr())
-		print login.GetHost ()
 		ConnectionPool.__login = login
 
 		# connect to the configuration server
@@ -1124,7 +1123,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.11  2004-04-21 14:27:15  ihaywood
+# Revision 1.12  2004-04-22 13:14:38  ncq
+# - cleanup
+#
+# Revision 1.11  2004/04/21 14:27:15  ihaywood
 # bug preventing backendlistener working on local socket connections
 #
 # Revision 1.10  2004/04/19 12:46:24  ncq
