@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.15 2004-11-03 22:32:34 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmAllergy.py,v 1.16 2004-12-15 21:52:05 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -130,11 +130,16 @@ if __name__ == '__main__':
 	)
 	print allg
 	allg['reaction'] = 'hehehe'
-	allg.save_payload()
+	status, data = allg.save_payload()
+	print 'status:', status
+	print 'data:', data
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.15  2004-11-03 22:32:34  ncq
+# Revision 1.16  2004-12-15 21:52:05  ncq
+# - improve unit test
+#
+# Revision 1.15  2004/11/03 22:32:34  ncq
 # - support _cmds_lock_rows_for_update in business object base class
 #
 # Revision 1.14  2004/10/11 19:42:32  ncq
