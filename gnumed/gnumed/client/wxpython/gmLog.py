@@ -354,7 +354,6 @@ class LogTargetDummy(LogTarget):
 def myExitFunc():
     # FIXME - do something useful
     #sys.exitfunc = oldExitFunc
-    print "exiting gmLog.py"
 
     gmDefLog.close()
 

@@ -33,6 +33,7 @@ from gmI18N import *
 
 import sys, time, os
 import gmLogFrame, gmGuiBroker, gmPG, gmmanual, gmSQLSimpleSearch, gmSelectPerson
+import gmLog
 
 
 # widget IDs
@@ -340,12 +341,14 @@ class gmApp(wxApp):
 		# as images. Sets to .../gnumed/gnumed/client Is this
 		# right?
 		self.__guibroker['gnumed_dir'] = os.path.abspath (os.path.split (sys.argv[0])[0])[:-9]
+		myLog.Log(gmLog.lInfo, _("set resource path to: ") + self.__guibroker['gnumed_dir'])
 		# END ADDED CODE
 		#login first!
 		import gmLogin
 		self.__backend = gmLogin.Login()
 		if self.__backend == None:
-			print _("Login attempt unsuccesful\nCan't run GNUMed without database connetcion")
+			#print _("Login attempt unsuccesful\nCan't run GNUMed without database connetcion")
+			myLog.Log(gmLog.lPanic, _("Login attempt unsuccesful\nCan't run GNUMed without database connection"))
 			return false
 		#create the main window
 		frame = MainFrame(None, -1, _('GNUMed client'), size=(700,580))
@@ -372,6 +375,21 @@ def main():
 
 
 #==================================================
+# just for convenience, really
+myLog = gmLog.gmDefLog
+
+# we may want to reset the log level, so keep a global reference to the log target
+# append only, log level "Warnings"
+myLogFile = gmLog.LogTargetFile('gnumed.log', 'a', gmLog.lWarn)
+myLog.AddTarget(myLogFile)
+
+# console is Good(tm)
+aLogTarget = gmLog.LogTargetConsole(gmLog.lInfo)
+myLog.AddTarget(aLogTarget)
 
 if __name__ == '__main__':
+	myLog.Log(gmLog.lInfo, 'Starting up as main module.')
 	main()
+
+# clean up
+myLog.Close()
