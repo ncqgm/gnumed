@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmClinical-Data.de.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 
 -- part of GnuMed
 -- GPL
@@ -51,6 +51,8 @@ insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'proxy encounter', 'indirekt');
 insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'emergency encounter', 'Notfall');
+insert into i18n_translations(lang, orig, trans) values
+	('de_DE', 'chart review', 'Akteneinsicht');
 insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'other encounter', 'anderer Kontakt'); -- such as at the mall :-))
 
@@ -157,11 +159,14 @@ insert into i18n_translations (lang, orig, trans) values
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmClinical-Data.de.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmClinical-Data.de.sql,v $
--- Revision 1.5  2004-01-22 23:49:46  ncq
+-- Revision 1.6  2004-02-18 15:30:09  ncq
+-- - translate "chart review" encounter type
+--
+-- Revision 1.5  2004/01/22 23:49:46  ncq
 -- - FSME
 --
 -- Revision 1.4  2004/01/12 17:16:19  ncq
