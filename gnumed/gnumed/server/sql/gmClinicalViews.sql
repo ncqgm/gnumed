@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.83 2004-07-04 16:10:29 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.84 2004-07-04 16:12:44 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -96,13 +96,13 @@ create index idx_episode_h_issue on clin_episode(fk_health_issue);
 -- narrative
 \unset ON_ERROR_STOP
 
-drop index idx_narr_soap on clin_narrative(soap_cat);
-drop index idx_narr_s on clin_narrative(soap_cat);
-drop index idx_narr_o on clin_narrative(soap_cat);
-drop index idx_narr_a on clin_narrative(soap_cat);
-drop index idx_narr_p on clin_narrative(soap_cat);
-drop index idx_narr_rfe on clin_narrative(is_rfe);
-drop index idx_narr_aoe on clin_narrative(is_aoe);
+drop index idx_narr_soap;
+drop index idx_narr_s;
+drop index idx_narr_o;
+drop index idx_narr_a;
+drop index idx_narr_p;
+drop index idx_narr_rfe;
+drop index idx_narr_aoe;
 
 create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='s';
 create index idx_narr_o on clin_narrative(soap_cat) where soap_cat='o';
@@ -915,11 +915,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.83 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.84 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.83  2004-07-04 16:10:29  ncq
+-- Revision 1.84  2004-07-04 16:12:44  ncq
+-- - DROP INDEX cannot have ON clause, duh
+--
+-- Revision 1.83  2004/07/04 16:10:29  ncq
 -- - add v_aoe/v_rfe
 --
 -- Revision 1.82  2004/07/03 17:24:08  ncq
