@@ -5,9 +5,9 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.1 2003-02-17 23:33:14 ncq Exp $
-__version__ = "$Revision: 1.1 $"
-__author__ = "S.Hilbert"
+# $Id: gmXdtObjects.py,v 1.2 2003-02-18 02:43:16 ncq Exp $
+__version__ = "$Revision: 1.2 $"
+__author__ = "K.Hilbert"
 __license__ = "GPL"
 
 import os.path, sys, fileinput, string
@@ -77,7 +77,6 @@ class xdtPatient:
 			return None
 
 		# now normalize what we got
-		#  mangle date of birth into ISO8601 (yyyymmdd) for Postgres
 		if not self.__data.has_key('date of birth'):
 			_log.Log(gmLog.lErr, 'patient has no "date of birth" field')
 			return None
@@ -102,15 +101,17 @@ class xdtPatient:
 	# attribute handler
 	#--------------------------------------------------------
 	def __getitem__(self, item):
-		try:
-			return self.__data[item]
-		except KeyError:
-			_log.LogException('[%s] not cached in self.__data', sys.exc_info())
 
 		if item == 'filename':
 			return self.filename
 		if item == 'all':
 			return self.__data
+
+		try:
+			return self.__data[item]
+		except KeyError:
+			_log.LogException('[%s] not cached in self.__data', sys.exc_info())
+			return None
 
 #==============================================================
 # main
@@ -133,6 +134,9 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.1  2003-02-17 23:33:14  ncq
+# Revision 1.2  2003-02-18 02:43:16  ncq
+# - rearranged __getitem__ to check self.__data last
+#
+# Revision 1.1  2003/02/17 23:33:14  ncq
 # - first version
 #
