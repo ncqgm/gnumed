@@ -46,15 +46,27 @@ COMMENT ON TABLE enum_clinical_encounters is
 
 create table clinical_transaction(
 	id SERIAL primary key,
-	gmt_time timestamp,
-	location_ID int,
-	doctor_ID int,
-	patient_ID int,
-	enum_clinical_encounters_ID int REFERENCES enum_clinical_encounters (id)
+	stamp timestamp with time zone,
+	id_location int,
+	id_doctor int,  
+	id_patient int, 
+	id_enum_clinical_encounters int REFERENCES enum_clinical_encounters (id)
 ) inherits (audit_clinical);
 
 COMMENT ON TABLE clinical_transaction is
 'unique identifier for clinical encounter';
+
+COMMENT ON COLUMN clinical_transaction.stamp is 
+'Date, time and timezone of the transaction.'; 
+
+COMMENT ON COLUMN clinical_transaction.id_location is 
+'Location ID, in ?? gmoffice';
+
+COMMENT ON COLUMN clinical_transaction.id_doctor is 
+'Doctor''s ID, in ?? gmoffice';
+
+COMMENT ON COLUMN clinical_transaction.id_patient is 
+'Patient''s ID, in gmidentity';
 
 create table enum_clinical_history(
 	id SERIAL primary key,
@@ -90,21 +102,51 @@ INSERT INTO enum_clinical_history (description)
 INSERT INTO enum_clinical_history (description)
 	values ('other');
 
+create table enum_info_sources
+(
+	id serial,
+	description varchar (100)
+);
+
+comment on table enum_info_sources is
+'sources of clinical information: patient, relative, notes, corresondence';
+
+insert into enum_info_sources (description) values ('patient');
+insert into enum_info_sources (description) values ('clinician');
+insert into enum_info_sources (description) values ('relative');
+insert into enum_info_sources (description) values ('carer');
+insert into enum_info_sources (description) values ('notes');
+insert into enum_info_sources (description) values ('correspondence');
+
 create table clinical_history(
 	id SERIAL primary key,
-	enum_clinical_history_ID int REFERENCES enum_clinical_history (id),
-	clinical_transaction_ID int  REFERENCES clinical_transaction (id),
+	id_enum_clinical_history int REFERENCES enum_clinical_history (id),
+	id_clinical_transaction int  REFERENCES clinical_transaction (id),
+	id_info_sources int REFERENCES enum_info_sources (id),
 	text text
 )inherits (audit_clinical);
 
 COMMENT ON TABLE clinical_history is
 'narrative details of history taken during a clinical encounter';
 
+COMMENT ON COLUMN clinical_history.id_enum_clinical_history is
+'the type of history taken';
+
+COMMENT ON COLUMN clinical_history.id_clinical_transaction is
+'The transaction during which this history was taken';
+
+COMMENT ON COLUMN clinical_history.text is
+'The text typed by the doctor';
+
+
 create table enum_coding_systems (
 	id SERIAL primary key,
 	description text
 )inherits (audit_clinical);
 
+
+COMMENT ON TABLE enum_coding_systems is
+'The various types of coding systems available';
 
 INSERT INTO enum_coding_systems (description)
 	values ('general');
@@ -126,28 +168,48 @@ INSERT INTO enum_coding_systems (description)
 
 create table coding_systems (
 	id SERIAL primary key,
-	enum_coding_systems_ID int REFERENCES enum_coding_systems (id),
+	id_enum_coding_systems int REFERENCES enum_coding_systems (id),
 	description text,
 	version char(6),
 	deprecated timestamp
 )inherits (audit_clinical);
 
+comment on table coding_systems is
+'The coding systems in this database.';
 
 create table clinical_diagnosis (
 	id SERIAL primary key,
-	clinical_transaction_ID int  REFERENCES clinical_transaction (id),
+	id_clinical_transaction int  REFERENCES clinical_transaction (id),
 	approximate_start text DEFAULT null,
 	code char(16),
-	coding_systems_ID int REFERENCES coding_systems (id),
+	id_coding_systems int REFERENCES coding_systems (id),
 	text text
 )inherits (audit_clinical);
 
+COMMENT ON TABLE clinical_diagnosis is
+'Coded clinical diagnoses assigned to patient, in addition to history';
+
+comment on column clinical_diagnosis.id_clinical_transaction is
+'the transaction in which this diagnosis was made.';
+
+comment on column clinical_diagnosis.approximate_start is
+'around the time at which this diagnosis was made';
+
+comment on column clinical_diagnosis.code is
+'the code';
+comment on column clinical_diagnosis.id_coding_systems is
+'the coding system used to code the diagnosis';
+
+comment on column clinical_diagnosis.text is
+'extra notes on the diagnosis';
 
 create table enum_confidentiality_level (
 	id SERIAL primary key,
 	description text
 )inherits (audit_clinical);
 
+comment on table enum_confidentiality_level is
+'Various levels of confidentialoty of a coded diagnosis, such as public, clinical staff, treating docotr, etc.';
 
 INSERT INTO enum_confidentiality_level (description)
 	values ('public');
@@ -166,11 +228,12 @@ INSERT INTO enum_confidentiality_level (description)
 
 create table clinical_diagnosis_extra (
 	id SERIAL primary key,
-	clinical_diagnosis_ID int REFERENCES clinical_diagnosis (id),
-	confidential int
+	id_clinical_diagnosis int REFERENCES clinical_diagnosis (id),
+	id_enum_confidentiality_level int REFERENCES enum_confidentiality_level (id)
 
 )inherits (audit_clinical);
 
-COMMENT ON TABLE clinical_diagnosis is
-'Coded clinical diagnoses assigned to patient, in addition to history';
+comment on table clinical_diagnosis_extra is
+'Extra information about a diagnosis, just the confidentiality level at present.';
+
 
