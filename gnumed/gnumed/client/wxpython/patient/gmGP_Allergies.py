@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -164,6 +164,7 @@ class AllergyPanel(wxPanel , PatientHolder ):
 		
 
 	def UpdateAllergies(self, **kwargs):
+		# remember wxCallAfter
 #		try:
 			#epr = self.__pat['clinical record']
 			#allergies = epr['allergies']
@@ -226,7 +227,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.19  2003-12-02 02:10:14  ncq
+# Revision 1.20  2004-02-05 23:51:01  ncq
+# - wxCallAfter() use
+#
+# Revision 1.19  2003/12/02 02:10:14  ncq
 # - comment out stuff so it won't complain, rewrite cleanly eventually !
 #
 # Revision 1.18  2003/11/23 13:59:10  sjtan

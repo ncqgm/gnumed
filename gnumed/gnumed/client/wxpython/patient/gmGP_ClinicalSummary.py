@@ -100,6 +100,7 @@ class ClinicalSummary(wxPanel, PatientHolder):
 		self._updateActiveProblemsUI()
 
 	def	_updateActiveProblemsUI(self):
+		# remember wxCallAfter
 		clinical = self.patient.get_clinical_record().get_past_history()
 		list = clinical.get_active_history()
 		newList = []
