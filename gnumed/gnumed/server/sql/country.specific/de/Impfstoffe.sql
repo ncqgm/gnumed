@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.18 $
+-- $Revision: 1.19 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -170,6 +170,28 @@ insert into vaccine (
 	false,
 	'6 months'::interval,
 	'nur gültig Halbjahr 2003/2004'
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='influenza'));
+
+
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	comment
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'InfectoVac Flu 2004/2005',
+	'Flu 04',
+	false,
+	'6 months'::interval,
+	'- nur gültig Halbjahr 2004/2005,
+	 - Kinder zwischen 6 und 35 Monaten mit 0.25ml impfen'
 );
 
 -- link to indications
@@ -523,11 +545,14 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.18 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.18  2004-09-10 10:57:45  ncq
+-- Revision 1.19  2004-10-01 11:44:51  ncq
+-- - InfectoVac Flu 2004/2005
+--
+-- Revision 1.18  2004/09/10 10:57:45  ncq
 -- - IPV Merieux
 --
 -- Revision 1.17  2004/08/04 10:05:43  ncq
