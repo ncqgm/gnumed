@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -872,7 +872,16 @@ class gmService:
 			_log.Log(gmLog.lErr, "Cannot load minimum required PostgreSQL version from config file.")
 			return None
 
-		existing_version = self.db.conn.version
+		try:
+			existing_version = self.db.conn.version
+		except:
+			existing_version = None
+
+		if existing_version is None:
+			_log.Log(gmLog.lWarn, 'DB adapter does not support version checking')
+			_log.Log(gmLog.lWarn, 'assuming installed PostgreSQL server is compatible with required version %s' % required_version)
+			return 1
+
 		if existing_version < required_version:
 			_log.Log(gmLog.lErr, "Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (existing_version, required_version))
 			return None
@@ -1207,7 +1216,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.29  2003-10-19 12:57:19  ncq
+# Revision 1.30  2003-10-25 08:13:01  ncq
+# - conn.version() is non-standard, fix for non-providers
+#
+# Revision 1.29  2003/10/19 12:57:19  ncq
 # - add scoring schema generator and use it
 #
 # Revision 1.28  2003/10/19 12:30:02  ncq
