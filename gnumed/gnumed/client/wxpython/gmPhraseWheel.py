@@ -9,23 +9,22 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.37 2004-06-17 11:43:15 ihaywood Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmPhraseWheel.py,v 1.38 2004-06-25 12:30:52 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmMatchProvider
+from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
+_log.Log(gmLog.lInfo, __version__)
+
 from wxPython.wx import *
-
-_true = (1==1)
-_false = (1==0)
-
 #============================================================
 class cWheelTimer(wxTimer):
 	"""Timer for delayed fetching of matches.
@@ -63,7 +62,7 @@ class cPhraseWheel (wxTextCtrl):
 		self, parent=None, id=-1, value="",
 		aMatchProvider = None,
 		aDelay = 300,
-		selection_only = _false,
+		selection_only = False,
 		*args,
 		**kwargs):
 
@@ -76,13 +75,13 @@ class cPhraseWheel (wxTextCtrl):
 		self.allow_multiple_phrases()
 		self.input2match = ''
 		self.data = None
-		self.input_was_selected = _false
+		self.input_was_selected = False
 		self.selection_only = selection_only
-		self._has_focus = _false
-		self._is_modified  = _false
+		self._has_focus = False
+		self._is_modified  = False
 
 		self.listener_callbacks = []
-		self.notified_listeners = _false
+		self.notified_listeners = False
 
 		if kwargs.has_key('id_callback'):
 			self.addCallback(kwargs['id_callback'])
@@ -112,12 +111,12 @@ class cPhraseWheel (wxTextCtrl):
 		self._picklist = wxListBox(self.__picklist_pnl, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
 		self._picklist.Clear()
 		self.__picklist_win.Hide ()
-		self.__picklist_visible = _false
+		self.__picklist_visible = False
 
 		self.left_part = ''
 		self.right_part = ''
 	#--------------------------------------------------------
-	def allow_multiple_phrases(self, state = _true):
+	def allow_multiple_phrases(self, state = True):
 		self.__handle_multiple_phrases = state
 	#--------------------------------------------------------
 	def setMatchProvider (self, mp):
@@ -140,7 +139,7 @@ class cPhraseWheel (wxTextCtrl):
 	#---------------------------------------------------------
 	def SetValue (self, value):
 		wxTextCtrl.SetValue (self, value)
-		self._is_modified = _false
+		self._is_modified = False
 	#-------------------------------------------------------
 	def IsModified (self):
 		return wxTextCtrl.IsModified (self) or self._is_modified
@@ -170,7 +169,7 @@ class cPhraseWheel (wxTextCtrl):
 #		if len (matches) == 1:
 #			self.data = matches[0]['data']
 #			self.SetValue (matches[0]['label'])
-#			self.input_was_selected = _true
+#			self.input_was_selected = True
 #			for notify_listener in self.listener_callbacks:
 				# get data associated with selected item
 #				notify_listener(self.data)
@@ -272,7 +271,7 @@ class cPhraseWheel (wxTextCtrl):
 		self._picklist.SetSelection(0)
 
 		# remember that we have a list window
-		self.__picklist_visible = _true
+		self.__picklist_visible = True
 
 		# and show it
 		# FIXME: we should _update_ the list window instead of redisplaying it
@@ -283,7 +282,7 @@ class cPhraseWheel (wxTextCtrl):
 		"""Hide the pick list."""
 		if self.__picklist_visible:
 			self.__picklist_win.Hide()		# dismiss the dropdown list window
-		self.__picklist_visible = _false
+		self.__picklist_visible = False
 	#--------------------------------------------------------
 	# specific event handlers
 	#--------------------------------------------------------
@@ -297,7 +296,7 @@ class cPhraseWheel (wxTextCtrl):
 			wxTextCtrl.SetValue (self, '%s%s%s' % (self.left_part, self._picklist.GetString(selection_idx), self.right_part))
 		else:
 			wxTextCtrl.SetValue(self, self._picklist.GetString(selection_idx))
-		self._is_modified = _true
+		self._is_modified = True
 		# get data associated with selected item
 		self.data = self._picklist.GetClientData(selection_idx)
 		# and tell the listeners about the user's selection
@@ -306,7 +305,7 @@ class cPhraseWheel (wxTextCtrl):
 		# remember that we did so
 		self.notified_listeners = 1
 		# remember that the current value was selected from the list
-		self.input_was_selected = _true
+		self.input_was_selected = True
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
@@ -381,7 +380,7 @@ class cPhraseWheel (wxTextCtrl):
 		"""Internal handler for EVT_TEXT (called when text has changed)"""
 
 		# dirty "selected" flag
-		self.input_was_selected = _false
+		self.input_was_selected = False
 
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
@@ -390,7 +389,7 @@ class cPhraseWheel (wxTextCtrl):
 			self.__timer.Stop()
 		else:
 			# start timer for delayed match retrieval
-			self.__timer.Start(oneShot = _true)
+			self.__timer.Start(oneShot = True)
 
 		if self.notified_listeners:
 			# Aargh! we told the listeners that we selected "foo"
@@ -398,7 +397,7 @@ class cPhraseWheel (wxTextCtrl):
 			self.data = None
 			for notify_listener in self.listener_callbacks:
 				notify_listener(None)
-			self.notified_listeners = _false
+			self.notified_listeners = False
 	#--------------------------------------------------------
 	def on_resize (self, event):
 		sz = self.GetSize()
@@ -440,7 +439,7 @@ class cPhraseWheel (wxTextCtrl):
 			self._hide_picklist()
 	#--------------------------------------------------------
 	def on_set_focus(self, event):
-		self._has_focus = _true
+		self._has_focus = True
 		event.Skip()
 	#--------------------------------------------------------
 	def on_kill_focus(self, event):
@@ -452,7 +451,7 @@ class cPhraseWheel (wxTextCtrl):
 			if not self.input_was_selected:
 				# FIXME: if len(matches) == 1 -> select
 				self.Clear()
-		self._has_focus = _false
+		self._has_focus = False
 		event.Skip()
 #--------------------------------------------------------
 # MAIN
@@ -526,7 +525,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.37  2004-06-17 11:43:15  ihaywood
+# Revision 1.38  2004-06-25 12:30:52  ncq
+# - use True/False
+#
+# Revision 1.37  2004/06/17 11:43:15  ihaywood
 # Some minor bugfixes.
 # My first experiments with wxGlade
 # changed gmPhraseWheel so the match provider can be added after instantiation
