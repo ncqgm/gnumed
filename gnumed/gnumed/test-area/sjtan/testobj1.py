@@ -1,20 +1,10 @@
 
 """Operations are Load, Create, Update, Find.
 use case:
-	load an existing identity.
+	load an existing identity using the information in testschema.
 
-	let x = identity
-
-	load x attributes.
-
-	for y in fk(x):
-		load y
-		store y by pk(y) in x under fk
-		
 	
-	for y in fkTo(x):
-		load y
-		store y by pk(y) in x under fkTo
+	
 
 
 """
@@ -26,6 +16,9 @@ class Loader:
 		self.values = {}
 		self.collections = {}
 		self.refs = {}
+		self.subclass = {}
+		self.conn = pgdb.connect("localhost:gnumed")
+		self.descriptions= {}
 		pass	
 
 	def setSchema(self, s):
@@ -44,27 +37,41 @@ class Loader:
 			self.values[name] = {}
 		
 	def assertCollections(self, name,  id):
-		if not self.collections.has_key(name):
-			self.collections[name] = {}
-		if not self.collections[name].has_key(id):
-			self.collections[name][id] = {}
+		self._assertExists(self.collections, name, id)
 	
 	def assertRef( self,name, id):
-		if not self.refs.has_key(name):
-			self.refs[name] = {}
+		self._assertExists(self.refs, name, id)
+
+	def assertSubClass(self, name, id):
+		self._assertExists(self.subclass, name, id)
+
+	
+	def _assertExists(self, map, name, id):
+		if not map.has_key(name):
+			map[name] = {}
 		
-		if not self.refs[name].has_key(id):
-			self.refs[name][id] = {}
-			
+		if not map[name].has_key(id):
+			map[name][id] = {}
+		
 	
 	def loadSimpleAttributes (self, name, id):
+		"""
+		@type name: string
+		@param name: the name of the table to load attributes from.
+		@type id : int
+		@param id: the primary key value which selects the row of the table from which to load attributes
+
+		uses schema.get_attributes(tablename) to get filtered attributes (
+		excluding infrastructure fields e.g. fields for auditing ;  postgres fields, 
+		negatively numbered in pg_attribute; foreign key fields.
+		"""
 		attrs = self.schema.get_attributes(name)
 		pk = self.pks[name]
 		stmt = "select %s from %s where %s=%d" % ( ', '.join(attrs), name, pk, id)
 		self.assertValues(name)	
 		l = self.execute(stmt)
 		if len (l) > 0:
-			self.values[name][id] = self.execute(stmt)[0]
+			self.values[name][id] = self.execute(stmt, name)[0]
 		
 		
 
@@ -125,23 +132,34 @@ class Loader:
 		
 	def loadRefAttribute(self, name, id, childName, childMap):
 		stmt = self.getSelectRefPk( name, childName)
-		pk = self.execute(stmt % id)[0][0] or None
+		l = self.execute(stmt % id)
+		if (len(l) == 0):
+			return
+		pk = l[0][0] 
 		self.loadById(childName, childMap, pk)
 		self.assertRef(name, id)
 		self.refs[name][id][childName] = pk
 		
 		
-	def execute(self, stmt):
-		c = pgdb.connect("localhost:gnumed")
-		cu = c.cursor() 
+	def execute(self, stmt, label = 'last'):
+		cu = self.conn.cursor() 
 		cu.execute(stmt)
 		l = cu.fetchall()
-		self.lastDescription = cu.description
+		if not self.descriptions.has_key(label):
+			self.descriptions[label] = cu.description
 		cu.close()
 		return l
 
 	def loadSubClass (self, name, id, childName, childMap):
-		pass		
+		stmt = "select %s from %s where %s = %%d" % ( self.pks[childName], childName, self.pks[name] )
+
+		l = self.execute(stmt % id)
+		if len(l) > 0:
+			id2 = l[0][0]
+			self.assertSubClass(name, id)
+			self.subclass[name][id][childName] =id2
+			print "found subclass id", childName, id2
+			self.loadById(childName, childMap, id2)
 
 	def showRoot( self, name, id):
 		id = int(id)
@@ -174,10 +192,35 @@ class Loader:
 				if self.refs[name][id].has_key(k):	
 					self.showById(  k, map, self.refs[name][id][k], tabs+1)
 			elif tag == '<-':
-				pass	
+				if self.subclass[name][id].has_key(k):
+					self.showById( k, map, self.subclass[name][id][k], tabs+1)
 		
 
-		
+	def printState(self):
+		print 'descriptions\t'*5
+		for k,v in self.descriptions.items():
+			print k, ':',  [x[0] for x in v]
+			print
+		print
+
+		print 'values\t'*5
+		for k,v in self.values.items():
+			print '\t',k
+			for k2, v2 in v.items():
+				print '\t'*2, k2, v2
+			
+		print	
+		print 'collections\t' * 5	
+		for k,v in self.collections.items():
+			print '\t', k
+			for k2, v2 in v.items():
+				print '\t'* 2, k2
+				for k3, v3 in v2.items():
+					print '\t' * 3, k3, v3
+						
+		print
+		print
+
 	
 
 if __name__ == '__main__':
@@ -197,20 +240,4 @@ if __name__ == '__main__':
 
 		print '-' * 50
 		if raw_input('Debug values, collections (y/n) ? ')[0] == 'y':
-			print 'values\t'*5
-			for k,v in l.values.items():
-				print '\t',k
-				for k2, v2 in v.items():
-					print '\t'*2, k2, v2
-				
-			print	
-			print 'collections\t' * 5	
-			for k,v in l.collections.items():
-				print '\t', k
-				for k2, v2 in v.items():
-					print '\t'* 2, k2
-					for k3, v3 in v2.items():
-						print '\t' * 3, k3, v3
-							
-			print
-			print
+			l.printState()
