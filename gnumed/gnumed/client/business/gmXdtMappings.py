@@ -1,12 +1,12 @@
 """GnuMed German XDT mapping data.
 
-This maps XDT field IDs to verbose names.
+This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.5 2003-02-14 01:49:17 ncq Exp $
-__version__ = "$Revision: 1.5 $"
-__author__ = "S.Hilbert"
+# $Id: gmXdtMappings.py,v 1.6 2003-02-17 23:31:02 ncq Exp $
+__version__ = "$Revision: 1.6 $"
+__author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
 #==============================================================
@@ -557,13 +557,38 @@ xdt_packet_type_map = {
 	'0104': "========<< Fall: Notfall/Dienst/Vertretung >>========",
 	'0190': "========<< Fall: Privat >>========",
 	'0191': "========<< Fall: BG >>========",
-	'0199': "========<< Fall: unstrukturierte >>========",
+	'0199': "========<< Fall: unstrukturiert >>========",
 	'6100': "========<< Patientenstamm >>========",
 	'6200': "========<< Behandlungsdaten >>========"
 }
+#--------------------------------------------------------------
+# XDT:
+# dob: ddmmyyyy
+# gender: 1 - male, 2 - female
+
+# patient record fields
+name_xdtID_map = {
+	'last name': '3101',
+	'first name': '3102',
+	'date of birth': '3103',
+	'gender': '3110'
+}
+#    'city': '3106',\
+#    'street': '3107',\
+
+# sort of GnuMed compatible
+xdt_gmgender_map = {
+	'1': 'm',
+	'2': 'f',
+	'm': 'm',
+	'f': 'f'
+}
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.5  2003-02-14 01:49:17  ncq
+# Revision 1.6  2003-02-17 23:31:02  ncq
+# - added some patient related mappings
+#
+# Revision 1.5  2003/02/14 01:49:17  ncq
 # - better strings
 #
 # Revision 1.4  2003/02/13 15:42:54  ncq
