@@ -4,8 +4,7 @@
 >Linux Installation</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
-"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
@@ -16,8 +15,8 @@ REL="PREVIOUS"
 TITLE="Obtaining Gnumed software"
 HREF="optaining-gnumed.html"><LINK
 REL="NEXT"
-TITLE="Mandrake- GnuMed on Mandrake 9.1"
-HREF="mandrake.html"></HEAD
+TITLE="Debian specific requirements"
+HREF="debian.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -37,7 +36,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: User's Manual</TH
+>GNUMed: </TH
 ></TR
 ><TR
 ><TD
@@ -59,7 +58,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="mandrake.html"
+HREF="debian.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,20 +72,26 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="LINUX">2.2. Linux Installation</H1
+NAME="LINUX"
+></A
+>2.2. Linux Installation</H1
 ><DIV
 CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN86">2.2.1. Distrubutions 'supported'</H2
+NAME="AEN86"
+></A
+>2.2.1. Distrubutions 'supported'</H2
 ><P
 >GnuMed is known being actively developed on:</P
 ><P
 >		<DIV
 CLASS="TABLE"
 ><A
-NAME="AEN90"><P
+NAME="AEN90"
+></A
+><P
 ><B
 >Table 2-1. "Supported" Distributions</B
 ></P
@@ -365,7 +370,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN165">2.2.2. Requirements</H2
+NAME="AEN165"
+></A
+>2.2.2. Requirements</H2
 ><P
 >GNUMed has run successfully on Linux. It requires a number of
 packages to be installed before it can be run.</P
@@ -375,7 +382,9 @@ packages to be installed before it can be run.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN170"><P
+NAME="AEN170"
+></A
+><P
 ><B
 >Table 2-2. Requirements</B
 ></P
@@ -420,7 +429,7 @@ ALIGN="LEFT"
 VALIGN="TOP"
 ><TT
 CLASS="FILENAME"
->2.2, included with wxPython</TT
+>2.2</TT
 ></TD
 ></TR
 ><TR
@@ -445,10 +454,6 @@ VALIGN="TOP"
 ><TT
 CLASS="FILENAME"
 >1.2</TT
-><A
-NAME="AEN193"
-HREF="#FTN.AEN193"
->[a]</A
 ></TD
 ></TR
 ><TR
@@ -492,15 +497,18 @@ CLASS="CITETITLE"
 ></A
 >
 					<A
-NAME="AEN207"
-HREF="#FTN.AEN207"
->[b]</A
+NAME="AEN205"
+HREF="#FTN.AEN205"
+><SPAN
+CLASS="footnote"
+>[a]</SPAN
+></A
 >
 				</TD
 ><TD
 ALIGN="LEFT"
 VALIGN="TOP"
->7.0</TD
+>7.2</TD
 ></TR
 ><TR
 ><TD
@@ -510,36 +518,41 @@ VALIGN="TOP"
 ><TD
 ALIGN="LEFT"
 VALIGN="TOP"
-><A
+>                <A
 HREF="http://www.wxwindows.org/dl_gtk.htm#dev"
 TARGET="_top"
 ><I
 CLASS="CITETITLE"
 >wxwindows web site</I
 ></A
->,<A
+>
+                </TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.4</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>wxPython</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>    			<A
 HREF="http://www.wxpython.org/download.php#binaries"
 TARGET="_top"
 ><I
 CLASS="CITETITLE"
->wxpython (wxWindows for Python bindings)</I
+>wxpython.org</I
 ></A
-></TD
+>
+				</TD
 ><TD
 ALIGN="LEFT"
 VALIGN="TOP"
->2.3.2 (both must be the same)
-          <A
-NAME="AEN218"
-HREF="#FTN.AEN218"
->[c]</A
->
-            <A
-NAME="AEN220"
-HREF="#FTN.AEN220"
->[d]</A
->
-			</TD
+>2.4</TD
 ></TR
 ><TR
 ><TD
@@ -564,26 +577,10 @@ VALIGN="TOP"
 ><TD
 COLSPAN="3"
 >Notes:<BR><A
-NAME="FTN.AEN193"
+NAME="FTN.AEN205"
 >a. </A
->GTK now comes included with wxPython 2.3.2. You dont need to download this package<BR><A
-NAME="FTN.AEN207"
->b. </A
->Don't forget to include the Python interface libraries.<BR><A
-NAME="FTN.AEN218"
->c. </A
->wxPython includes GTK, so you only need to install wxPython 2.3.2<BR><A
-NAME="FTN.AEN220"
->d. </A
->On Debian,<A
-HREF="http://packages.debian.org/cgi-bin/search_packages.pl?keywords=libwx&searchon=names&subword=1&version=unstable&release=all"
-TARGET="_top"
-><I
-CLASS="CITETITLE"
->try this link</I
-></A
-> for a current package containing wxWindows.
-              <BR></TD
+>						Don't forget to include the Python interface libraries.
+					<BR></TD
 ></TR
 ></TABLE
 ></DIV
@@ -635,178 +632,70 @@ CLASS="CITETITLE"
 >mirror</I
 ></A
 ></P
-><DIV
-CLASS="SECT3"
-><H3
-CLASS="SECT3"
-><A
-NAME="AEN237">2.2.2.1. Debian specific requirements</H3
-><P
->This is what is known to work on Debian as of late</P
-><P
->Son 01 Dez 2002 11:54:06 CET  <TT
-CLASS="EMAIL"
->&#60;<A
-HREF="mailto:gouchi@altern.org"
->gouchi@altern.org</A
->&#62;</TT
-></P
-><P
->I have reinstalled Gnumed on Debian Woody (2.4.18-bf2.4), and this the list of package, I have installed, if he can help:
-	    <P
-></P
-><UL
-><LI
-><P
->egenix-mx-base-2.0.4.tar.gz</P
-></LI
-><LI
-><P
->libwxgtk2.3-python_2.3.3.2_i386.deb</P
-></LI
-><LI
-><P
->libwxgtk2.3_2.3.3.2_i386.deb</P
-></LI
-><LI
-><P
->postgresql-7.2.3.tar.gz</P
-></LI
-><LI
-><P
->pypgsql-2.3.tar.gz</P
-></LI
-><LI
-><P
->python2.2-dev_2.2.1-4_i386.deb</P
-></LI
-><LI
-><P
->python2.2-egenix-mxdatetime_2.0.3-3.2_i386.deb</P
-></LI
-><LI
-><P
->python2.2-egenix-mxtools_2.0.3-3.2_i386.deb</P
-></LI
-><LI
-><P
->python2.2_2.2.1-4_i386.deb</P
-></LI
-></UL
-></P
-></DIV
 ></DIV
 ><DIV
 CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN262">2.2.3. Postgresql</H2
+NAME="AEN233"
+></A
+>2.2.3. Postgresql</H2
 ><DIV
 CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN264">2.2.3.1. Creating a database with PostgresQL</H3
+NAME="AEN235"
+></A
+>2.2.3.1. Configuring PostgreSQL (quoting Steven Duffy)</H3
 ><P
->This may be too simplistic but there a few things that need to be cleared up. The first is that when <EM
->postgresQL</EM
-> gets installed, <EM
->postgresQL</EM
-> will create a user called <EM
->postgres</EM
->. This user <EM
->postgres</EM
-> can only create other users.  I suggest you create another user with the same name as you normally use to login.</P
-><P
->So to create another user to create the database you would first <TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->su root</PRE
-></FONT
-></TD
-></TR
-></TABLE
-> then you would <TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->su postgres</PRE
-></FONT
-></TD
-></TR
-></TABLE
-> then you would type <TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->createuser $USER</PRE
-></FONT
-></TD
-></TR
-></TABLE
-> where $USER is whatever login name you normally use. Be sure to let this new created user make new databases.
-	  </P
-><P
->Once you have created this second user, which you allow to create databases, you then would type, as this new user, ie first you would login back as a normal user and type <TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->createdb gnumed</PRE
-></FONT
-></TD
-></TR
-></TABLE
->.
-	    </P
-></DIV
-><DIV
-CLASS="SECT3"
-><H3
-CLASS="SECT3"
-><A
-NAME="AEN277">2.2.3.2. Configuring PostgreSQL (quoting Steven Duffy)</H3
-><P
-> Some steps are required to get the <SPAN
+> Usually PostgresSQL should be started automatically at bootup. Most modern
+        distributions configure PostgresSQL correctly to do so. If you installed the package
+        from sources, some steps may be required to get the <SPAN
 CLASS="APPLICATION"
 >PostgreSQL</SPAN
 >
-database system running.</P
+        database system running.</P
 ><P
->First, make sure you have the PostgreSQL server daemon running.
-Check under <TT
+>First, make sure you have the PostgreSQL server daemon running. Just enter
+        the following lines on the command line:</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>$ ps ax | grep "postmaster"
+
+ this should print something like 
+
+ 212  ?  S    0:00 /usr/local/pgsql/bin/postmaster -i -o -F -D/usr/local/pgsql/...
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+> You might as well check under <TT
 CLASS="FILENAME"
 >/etc/rc.d/</TT
->, or run <SPAN
+>, or
+         run <SPAN
 CLASS="APPLICATION"
 >Linuxconf</SPAN
->. If isn't you can set it up with these commands as root:
-<TABLE
+> or whatever your distribution offers.</P
+><P
+>         If <SPAN
+CLASS="APPLICATION"
+>postmaster</SPAN
+> isn't running you can set it up 
+         with these commands as root:
+		<TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -818,14 +707,20 @@ COLOR="#000000"
 CLASS="SCREEN"
 >su - postgres
 initdb -D ~postgres/data
-postmaster -D ~postgres/data &#62;logfile 2&#62;&#38;1 &#38;</PRE
+postmaster [-i] -D ~postgres/data &#62;logfile 2&#62;&#38;1 &#38;
+		</PRE
 ></FONT
 ></TD
 ></TR
 ></TABLE
 ></P
 ><P
->One minor issue has been overlooked so far, this is TCP/IP access to the database. In order to do this:</P
+>		You should enable TCP/IP access to the database. In order to do this you can either 
+        add the '-i' option when starting <SPAN
+CLASS="APPLICATION"
+>postmaster</SPAN
+> (see above and below) or do the following:
+        </P
 ><DIV
 CLASS="PROCEDURE"
 ><OL
@@ -857,34 +752,38 @@ CLASS="APPLICATION"
 ></OL
 ></DIV
 ><P
->This can also be accomplished by passing the <B
-CLASS="COMMAND"
->-i</B
->
-option to 
-the postmaster upon execution. If your distribution uses as postgresql 
-script to start the server, it is likely the <B
+>If you'd rather like to add the '-i' option and don't know where 
+        <SPAN
+CLASS="APPLICATION"
+>postmaster</SPAN
+> is started:</P
+><P
+>		If your distribution uses as <SPAN
+CLASS="APPLICATION"
+>postgresql</SPAN
+> 
+		script to start the server, it is likely the <B
 CLASS="COMMAND"
 >pg_ctl</B
 > 
-is used to run postmaster. In this case, find where
-<B
+		is used to run postmaster. In this case, find where
+		<B
 CLASS="COMMAND"
 >pg_ctl</B
 > 
-is executed and add<B
+		is executed and add<B
 CLASS="COMMAND"
 > insert -o \"-i\"</B
 > as one of
-the 
-options to pg_ctl. Otherwise, find the script from which postmaster is 
-executed and simply add <B
+		the options to pg_ctl. Otherwise, find the script from which postmaster is 
+		executed and simply add <B
 CLASS="COMMAND"
 >-i</B
-> as an argument.</P
+> as an argument.
+		</P
 ><P
 >Once PostgreSQL is set up, go to the section on
-setting up the database (<A
+		setting up the database (<A
 HREF="pgsql.html"
 >SQL Setup</A
 >.)</P
@@ -895,10 +794,23 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN305">2.2.4. Running GnuMed</H2
+NAME="AEN270"
+></A
+>2.2.4. Running GnuMed</H2
 ><P
->Simple I would have thought but to start Gnumed you must go all the way to</P
-><TABLE
+>To start Gnumed you must go the the <TT
+CLASS="FILENAME"
+>client/wxpython</TT
+> 
+        directory of the <SPAN
+CLASS="APPLICATION"
+>gnumed</SPAN
+>-CVS tree. If you 
+        installed <SPAN
+CLASS="APPLICATION"
+>gnumed</SPAN
+> in your homedir this should be:
+		<TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -908,13 +820,14 @@ WIDTH="100%"
 COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
->~/gnumed/gnumed/client/wxpython</PRE
+>cd ~/gnumed/gnumed/client/wxpython</PRE
 ></FONT
 ></TD
 ></TR
 ></TABLE
+></P
 ><P
->And one you are here, you should type: <TABLE
+>Now type<TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -931,35 +844,42 @@ CLASS="SCREEN"
 ></TABLE
 ></P
 ><P
->Do not be surprised with a multitude of [WARN} and [INFO] the the python interpreter will spew out. With any luck you will see a login gui</P
+>Do not be surprised with a multitude of [WARN} and [INFO] the the python 
+        interpreter will spew out. With any luck you will see a login gui</P
 ><P
->    When running from the client/wxpython/ directory of a normal
-    CVS tree it shouldn't be necessary at all to set GNUMED_DIR.                
-    Actually, the combination of _setting_ GNUMED_DIR and a
-    subsequent failure on import of GnuMed modules hints towards
-    an incorrectly set GNUMED_DIR. If at all it needs to be set to
-    the directory where your python-common/ subdir resides in the tree.
-    </P
+>        When running from the client/wxpython/ directory of a normal
+        CVS tree it shouldn't be necessary at all to set GNUMED_DIR.                
+        Actually, the combination of _setting_ GNUMED_DIR and a
+        subsequent failure on import of GnuMed modules hints towards
+        an incorrectly set GNUMED_DIR. If at all it needs to be set to
+        the directory where your python-common/ subdir resides in the tree.
+        </P
 ><DIV
 CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN313">2.2.4.1. Logging in</H3
+NAME="AEN281"
+></A
+>2.2.4.1. Logging in</H3
 ><P
->You will then be faced with login parameters. If you have set up the postgresql correctly, you only need to fill in the follow parameters.</P
+>You will then be faced with login parameters. If you have set up the 
+         postgresql correctly, you only need to fill in the following parameters.</P
 ><P
->For <EM
->Login</EM
-> you enter in the usernamem you used to create the database.</P
+>	     Enter 'test-doc' for login and password as those are the predefined test accounts.
+         </P
 ><P
->For <EM
->database</EM
-> enter in <EM
->gnumed</EM
->. Remember this is the database name you created initally. <EM
->If</EM
-> all goes well, you will see a very nice GUIm with that appears to be the picture of someone's mom.</P
+>         Pressing the button 'options' you can change the parameters used to connect to the
+         database. These should normally be set up correctly so you usually don't have to 
+         change anything there.
+         </P
+><P
+>         After pressing the 'Ok' button there should appear a progress bar showing the 
+         modules being loaded. Finally the <SPAN
+CLASS="APPLICATION"
+>gnumed</SPAN
+>-GUI will appear.
+         </P
 ></DIV
 ></DIV
 ></DIV
@@ -997,7 +917,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="mandrake.html"
+HREF="debian.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -1021,7 +941,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Mandrake- GnuMed on Mandrake 9.1</TD
+>Debian specific requirements</TD
 ></TR
 ></TABLE
 ></DIV

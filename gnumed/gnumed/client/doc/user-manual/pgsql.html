@@ -4,8 +4,7 @@
 >Configuring PostgreSQL for GnuMed</TITLE
 ><META
 NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
-"><LINK
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
@@ -16,8 +15,8 @@ REL="PREVIOUS"
 TITLE="Configuration"
 HREF="configuration.html"><LINK
 REL="NEXT"
-TITLE="Notes on configuration"
-HREF="x598.html"></HEAD
+TITLE="Language configuration"
+HREF="confignotes.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -37,7 +36,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: User's Manual</TH
+>GNUMed: </TH
 ></TR
 ><TR
 ><TD
@@ -59,7 +58,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x598.html"
+HREF="confignotes.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,7 +72,9 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="PGSQL">3.1. Configuring <SPAN
+NAME="PGSQL"
+></A
+>3.1. Configuring <SPAN
 CLASS="APPLICATION"
 >PostgreSQL</SPAN
 > for GnuMed</H1
@@ -84,7 +85,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN575">3.1.1. GnuMed database 101</H2
+NAME="AEN573"
+></A
+>3.1.1. GnuMed database 101</H2
 ><P
 >        GnuMed does not simply store all of it's data in a monolithic database.
         It rather uses the concept of a service. A service is a set of tables
@@ -124,7 +127,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN580">3.1.2. Database setup</H2
+NAME="AEN578"
+></A
+>3.1.2. Database setup</H2
 ><P
 >        The theory roughly goes like this:
         </P
@@ -170,8 +175,37 @@ STYLE="list-style-type: opencircle"
         services on remote servers already). As this is not yet fully supported by
         GnuMed anyways (due to dblink being non-standard) one should stick
         to a monolithic service layout. Several sample config files for
-        bootstrapping are supplied in server/utils/. They can be used by calling
-        the script like this:
+        bootstrapping are supplied in server/utils/. </P
+><P
+>        Before running the bootstrap script make sure you've installed the symbolic links 
+        to <TT
+CLASS="LITERAL"
+>modules</TT
+> and <TT
+CLASS="LITERAL"
+>sql</TT
+>. You can do this
+        by typing 
+        <TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>sh make-links.sh
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+        </P
+><P
+>		Now use a sample config file by calling the script like this:
 		<TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
@@ -189,8 +223,62 @@ CLASS="SCREEN"
 ></TR
 ></TABLE
 >
-        To set up a straightforward monolithic system on the local machine use
-        the config file localhost-monolithic.conf.sample.
+        </P
+><P
+>You should see some line like
+        <TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>Done bootstrapping: We probably succeeded.	
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+	     at the end of the output if everything went right.
+         </P
+><P
+>Make sure you check the following section in your config file 
+        points to the pgsql libraries.
+		<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>language library dirs = $language library dirs$
+/usr/lib/postgresql/                                                            
+/usr/lib/postgresql/lib/                                                        
+/usr/lib/pgsql/                                                                 
+/usr/local/pgsql/lib                                                            
+$language library dirs$ 
+		</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+        Many known locations are already listed so you might not have to 
+        change anything.
+        </P
+><P
+>        To set up a straightforward monolithic system on the local machine use
+        the config file <TT
+CLASS="LITERAL"
+>localhost-monolithic.conf.sample</TT
+>.
         </P
 ><P
 >        Make sure to remove test accounts and to set up your own config file
@@ -199,7 +287,10 @@ CLASS="SCREEN"
 ><P
 >        If you want to tweak things by hand read the config files and the source
         of the bootstrapping scripts. All the config file parameters are documented
-        in bootstrap-gm_db_system.conf.sample
+        in <TT
+CLASS="LITERAL"
+>bootstrap-gm_db_system.conf.sample</TT
+>.
         </P
 ></DIV
 ></DIV
@@ -237,7 +328,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x598.html"
+HREF="confignotes.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -261,7 +352,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Notes on configuration</TD
+>Language configuration</TD
 ></TR
 ></TABLE
 ></DIV

@@ -279,16 +279,13 @@ packages to be installed before it can be run.</para>
 			<row>
 				<entry>Python Scripting Language</entry>
 				<entry><ulink url="http://www.python.org/"><citetitle>python.org</citetitle></ulink></entry>
-				<entry><filename>2.2, included with wxPython</filename></entry>
+				<entry><filename>2.2</filename></entry>
 			</row>
 
 			<row>
 				<entry>GTK libraries</entry>
 				<entry><ulink url="http://www.gtk.org/"><citetitle>gtk.org</citetitle></ulink></entry>
-		  <entry><filename>1.2</filename><footnote>
-		      <para>GTK now comes included with wxPython 2.3.2. You dont need to download this package</para>
-		    </footnote>
-</entry>
+		  <entry><filename>1.2</filename></entry>
 			</row>
 
 			<row>
@@ -299,30 +296,31 @@ packages to be installed before it can be run.</para>
 			<row>
 				<entry>PostgreSQL Database server</entry>
 				<entry><ulink url="http://www.postgresql.org/"><citetitle>postgresql.org</citetitle></ulink>
-					<footnote>
-						<para>Don't forget to include the Python interface libraries.</para>
-					</footnote>
+					<footnote><para>
+						Don't forget to include the Python interface libraries.
+					</para></footnote>
 				</entry>
 
-				<entry>7.0</entry>
+				<entry>7.2</entry>
 			</row>
 
 			<row>
 				<entry>wxWindows windowing library</entry>
-				<entry><ulink url="http://www.wxwindows.org/dl_gtk.htm#dev">
-<citetitle>wxwindows web site</citetitle></ulink>,<ulink url="http://www.wxpython.org/download.php#binaries"><citetitle>wxpython (wxWindows for Python bindings)</citetitle></ulink></entry>
-
-		  <entry>2.3.2 (both must be the same)
-          <footnote>
-		      <para>wxPython includes GTK, so you only need to install wxPython 2.3.2</para>
-		    </footnote>
-            <footnote>
-		      <para>On Debian,<ulink  url="http://packages.debian.org/cgi-bin/search_packages.pl?keywords=libwx&amp;searchon=names&amp;subword=1&amp;version=unstable&amp;release=all"><citetitle>try this link</citetitle></ulink> for a current package containing wxWindows.
-              </para>
-		    </footnote>
-			</entry>
+				<entry>
+                <ulink url="http://www.wxwindows.org/dl_gtk.htm#dev"><citetitle>wxwindows web site</citetitle></ulink>
+                </entry>
+				<entry>2.4</entry>
 			</row>
+			<row>
+				<entry>wxPython</entry>
+				<entry>
+    			<ulink url="http://www.wxpython.org/download.php#binaries"><citetitle>wxpython.org</citetitle></ulink>
+				</entry>
+		  		<entry>2.4</entry>
+			</row>
+
 		<row>
+	
 		  <!-- one of (ENTRYTBL ENTRY) -->
 		  
 		  <entry>PyPgSQL</entry>
@@ -363,8 +361,104 @@ the web. Here is a
 <citetitle>mirror</citetitle></ulink></para> 
 
 
+      </sect2>
+
+
+      <sect2>
+	<title>Postgresql</title>
+
 	<sect3>
-	  <title>Debian specific requirements</title>
+	<title>Configuring PostgreSQL (quoting Steven Duffy)</title>
+		<para> Usually PostgresSQL should be started automatically at bootup. Most modern
+        distributions configure PostgresSQL correctly to do so. If you installed the package
+        from sources, some steps may be required to get the <application>PostgreSQL</application>
+        database system running.</para>
+        <para>First, make sure you have the PostgreSQL server daemon running. Just enter
+        the following lines on the command line:</para>
+        <screen>
+$ ps ax | grep "postmaster"
+
+ this should print something like 
+
+ 212  ?  S    0:00 /usr/local/pgsql/bin/postmaster -i -o -F -D/usr/local/pgsql/...
+		</screen>
+		<para> You might as well check under <filename>/etc/rc.d/</filename>, or
+         run <application>Linuxconf</application> or whatever your distribution offers.</para>
+		<para>
+         If <application>postmaster</application> isn't running you can set it up 
+         with these commands as root:
+		<screen>
+su - postgres
+initdb -D ~postgres/data
+postmaster [-i] -D ~postgres/data >logfile 2>&1 &
+		</screen></para>
+
+		<para>
+		You should enable TCP/IP access to the database. In order to do this you can either 
+        add the '-i' option when starting <application>postmaster</application> (see above and below) or do the following:
+        </para>
+		<procedure>
+		<step><para>find and open <filename>/etc/postgresql/postgresql.conf</filename></para></step>
+		<step><para>change <command>tcpip_socket = false</command> to <command>tcpip_socket = on</command></para></step>
+		<step><para>save changes and restart <application>PostgreSQL</application></para></step>
+		</procedure>
+        <para>If you'd rather like to add the '-i' option and don't know where 
+        <application>postmaster</application> is started:</para>
+		<para>
+		If your distribution uses as <application>postgresql</application> 
+		script to start the server, it is likely the <command>pg_ctl</command> 
+		is used to run postmaster. In this case, find where
+		<command>pg_ctl</command> 
+		is executed and add<command> insert -o \&quot;-i\&quot;</command> as one of
+		the options to pg_ctl. Otherwise, find the script from which postmaster is 
+		executed and simply add <command>-i</command> as an argument.
+		</para>
+
+		<para>Once PostgreSQL is set up, go to the section on
+		setting up the database (<xref linkend="pgsql">.)</para>
+		</sect3>
+      </sect2>
+
+<sect2>
+	<title>Running GnuMed</title>
+		<para>To start Gnumed you must go the the <filename>client/wxpython</filename> 
+        directory of the <application>gnumed</application>-CVS tree. If you 
+        installed <application>gnumed</application> in your homedir this should be:
+		<screen>cd ~/gnumed/gnumed/client/wxpython</screen></para>
+	    <para>Now type<screen>python gnumed.py</screen></para>
+
+	    <para>Do not be surprised with a multitude of [WARN} and [INFO] the the python 
+        interpreter will spew out. With any luck you will see a login gui</para>
+	    <para>
+        When running from the client/wxpython/ directory of a normal
+        CVS tree it shouldn't be necessary at all to set GNUMED_DIR.                
+        Actually, the combination of _setting_ GNUMED_DIR and a
+        subsequent failure on import of GnuMed modules hints towards
+        an incorrectly set GNUMED_DIR. If at all it needs to be set to
+        the directory where your python-common/ subdir resides in the tree.
+        </para>
+
+      <sect3>
+	     <title>Logging in</title>
+	     <para>You will then be faced with login parameters. If you have set up the 
+         postgresql correctly, you only need to fill in the following parameters.</para>
+         <para>
+	     Enter 'test-doc' for login and password as those are the predefined test accounts.
+         </para>
+         <para>
+         Pressing the button 'options' you can change the parameters used to connect to the
+         database. These should normally be set up correctly so you usually don't have to 
+         change anything there.
+         </para><para>
+         After pressing the 'Ok' button there should appear a progress bar showing the 
+         modules being loaded. Finally the <application>gnumed</application>-GUI will appear.
+         </para>
+      </sect3>
+</sect2>
+    </sect1>
+
+<sect1 id="debian">
+	<title>Debian specific requirements</title>
 	  <para>This is what is known to work on Debian as of late</para>
 	  <para>Son 01 Dez 2002 11:54:06 CET  <email>gouchi@altern.org</email></para>
 	  <para>I have reinstalled Gnumed on Debian Woody (2.4.18-bf2.4), and this the list of package, I have installed, if he can help:
@@ -407,91 +501,7 @@ python2.2-egenix-mxtools_2.0.3-3.2_i386.deb</para>
 python2.2_2.2.1-4_i386.deb</para>
 	      </listitem>
 	    </itemizedlist></para>
-	</sect3>
-
-
-
-      </sect2>
-
-
-
-
-
-      <sect2>
-	<title>Postgresql</title>
-
-	<sect3>
-	  <title>Creating a database with PostgresQL</title>
-	  <para>This may be too simplistic but there a few things that need to be cleared up. The first is that when <emphasis>postgresQL</emphasis> gets installed, <emphasis>postgresQL</emphasis> will create a user called <emphasis>postgres</emphasis>. This user <emphasis>postgres</emphasis> can only create other users.  I suggest you create another user with the same name as you normally use to login.</para>
-	  <para>So to create another user to create the database you would first <screen>su root</screen> then you would <screen>su postgres</screen> then you would type <screen>createuser $USER</screen> where $USER is whatever login name you normally use. Be sure to let this new created user make new databases.
-	  </para>
-	  <para>Once you have created this second user, which you allow to create databases, you then would type, as this new user, ie first you would login back as a normal user and type <screen>createdb gnumed</screen>.
-	    </para>
-	</sect3>
-
-
-	<sect3>
-	<title>Configuring PostgreSQL (quoting Steven Duffy)</title>
-<para> Some steps are required to get the <application>PostgreSQL</application>
-database system running.</para>
-<para>First, make sure you have the PostgreSQL server daemon running.
-Check under <filename>/etc/rc.d/</filename>, or run <application>Linuxconf</application>. If isn't you can set it up with these commands as root:
-<screen>
-su - postgres
-initdb -D ~postgres/data
-postmaster -D ~postgres/data >logfile 2>&1 &
-</screen></para>
-<para>
-One minor issue has been overlooked so far, this is TCP/IP access to the database. In order to do this:</para>
-<procedure>
-<step><para>find and open <filename>/etc/postgresql/postgresql.conf</filename></para></step>
-<step><para>change <command>tcpip_socket = false</command> to <command>tcpip_socket = on</command></para></step>
-<step><para>save changes and restart <application>PostgreSQL</application></para></step>
-</procedure>
-<para>
-This can also be accomplished by passing the <command>-i</command>
-option to 
-the postmaster upon execution. If your distribution uses as postgresql 
-script to start the server, it is likely the <command>pg_ctl</command> 
-is used to run postmaster. In this case, find where
-<command>pg_ctl</command> 
-is executed and add<command> insert -o \&quot;-i\&quot;</command> as one of
-the 
-options to pg_ctl. Otherwise, find the script from which postmaster is 
-executed and simply add <command>-i</command> as an argument.
-</para>
-
-<para>Once PostgreSQL is set up, go to the section on
-setting up the database (<xref linkend="pgsql">.)</para>
-	</sect3>
-      </sect2>
-
-<sect2>
-	<title>Running GnuMed</title>
-	
-		<para>Simple I would have thought but to start Gnumed you must go all the way to</para>
-	<screen>~/gnumed/gnumed/client/wxpython</screen>
-	<para>And one you are here, you should type: <screen>python gnumed.py</screen></para>
-
-	<para>Do not be surprised with a multitude of [WARN} and [INFO] the the python interpreter will spew out. With any luck you will see a login gui</para>
-	<para>
-    When running from the client/wxpython/ directory of a normal
-    CVS tree it shouldn't be necessary at all to set GNUMED_DIR.                
-    Actually, the combination of _setting_ GNUMED_DIR and a
-    subsequent failure on import of GnuMed modules hints towards
-    an incorrectly set GNUMED_DIR. If at all it needs to be set to
-    the directory where your python-common/ subdir resides in the tree.
-    </para>
-
-      <sect3>
-	<title>Logging in</title>
-	<para>You will then be faced with login parameters. If you have set up the postgresql correctly, you only need to fill in the follow parameters.</para>
-
-	<para>For <emphasis>Login</emphasis> you enter in the usernamem you used to create the database.</para>
-	<para>For <emphasis>database</emphasis> enter in <emphasis>gnumed</emphasis>. Remember this is the database name you created initally. <emphasis>If</emphasis> all goes well, you will see a very nice GUIm with that appears to be the picture of someone's mom.</para>
-      </sect3>
-</sect2>
-    </sect1>
+</sect1>
       
 <sect1 id="mandrake">
 	<title>Mandrake- GnuMed on Mandrake 9.1</title>
@@ -500,126 +510,180 @@ by Michael Bonert</para>
 	<para><email>michael.bonert@utoronto.ca</email></para>
 	<para>Wed Apr  2 00:17:07 EST 2003</para>
 	<sect2>
-	  <title>Installation</title>
-	  <itemizedlist>
+	  <title>Package Installation</title>
+	  <orderedlist>
 	    <listitem>
 	      <para>
-1. Install CVS (from the Mandrake CDs):
-	cvs-1.11.5-1mdk</para>
+		  Install CVS (from the Mandrake CDs):
+		  cvs-1.11.5-1mdk</para>
 	    </listitem>
 	    <listitem>
-	      <para>
-  2. Install postgresql (from the Mandrake CDs):
-		<footnote>
-		  <para>
-	NOTE: If the packages all show up when you do a
-	'remove software packages' (in 'mcc') they are all
-	installed.</para>
-		</footnote>
-	      </para>
+			<para>
+			Install postgresql (from the Mandrake CDs):
+			<footnote>
+				<para>
+	            NOTE: If the packages all show up when you do a
+	            'remove software packages' (in 'mcc') they are all
+	            installed.</para>
+			</footnote>
+	     	</para>
 	    </listitem>
-	    <listitem>
+	    
+        <listitem>
+        <para>
+        Install Postgresql-7.3:
+        </para>
 	      <itemizedlist>
 		<listitem>
 		  <para>
-postgresql-7.3.2-5mdk</para>
+			postgresql-7.3.2-5mdk</para>
 		</listitem>
 		<listitem>
 		  <para>
-postgresql-devel-7.3.2-5mdk</para>
+			postgresql-devel-7.3.2-5mdk</para>
 		</listitem>
 		<listitem>
 		  <para>
-postgresql-python-7.3.2-5mdk</para>
+			postgresql-python-7.3.2-5mdk</para>
 		</listitem>
 		<listitem>
 		  <para>
-postgresql-server-7.3.2-5mdk</para>
+			postgresql-server-7.3.2-5mdk</para>
 		</listitem>
 		<listitem>
 		  <para>
-postgresql-pl-7.3.2-5mdk</para>
+			postgresql-pl-7.3.2-5mdk</para>
 		</listitem>
 		<listitem>
 		  <para>
-pgaccess-0.98.8.20030117-2mdk		# nice to have</para>
+			pgaccess-0.98.8.20030117-2mdk		# nice to have</para>
 		</listitem>
 		<listitem>
 		  <para>
-postgresql-docs-7.3.2-5mdk		# nice to have</para>
+			postgresql-docs-7.3.2-5mdk		# nice to have</para>
 		</listitem>
 	      </itemizedlist>
 	    </listitem>
-	    <listitem>
+	    
+        <listitem>
 	      <para>
-3. Install wxPython -- (version used: wxPythonGTK-py2.2-2.4.0.1-1.i386.rpm)</para>
+			Install wxPython -- (version used: wxPythonGTK-py2.2-2.4.0.1-1.i386.rpm)</para>
 	    </listitem>
-	    <listitem>
+	    
+        <listitem>
 	      <para>
-4. Install mx extenstion libraries -- (egenix-mx-base-2.0.4-py2.2_1.i386.rpm)</para>
+			Install mx extenstion libraries -- (egenix-mx-base-2.0.4-py2.2_1.i386.rpm)</para>
 	    </listitem>
-	    <listitem>
+	    
+        <listitem>
 	      <para>
-5. Install pyPgSQL -- (pyPgSQL-2.3-1.src.rpm)</para>
-	    </listitem>
-	    <listitem>
-	      <para>
-Before building and installing pyPgSQL make sure you have the following
-		(from the Mandrake CDs):<emphasis>
-	libpython2.2-devel-2.2.2-6mdk</emphasis></para>
-	    </listitem>
-	  </itemizedlist>
-
-	  <screen>$ tar zxvf pyPgSQL-2.3.tar.gz<footnote>
-	      <para># gunzip + untar 'pyPgSQL-2.3.tar.gz'</para>
-	    </footnote></screen>
-	  <screen>
-$ cd pypgsql
-	  </screen>
-	  <para>
-Set include and library directories in "setup.py" with your favourite editor:</para>
-	  <para># Set this to 1 if you need to use your own
-	  settings</para>
-	  <screen>USE_CUSTOM = 1<footnote>
-	      <para># Don't forget to change this line!!!</para>
-	    </footnote>
-...
-
-if USE_CUSTOM:
-    include_dirs = ["/usr/include/pgsql"]
-    library_dirs = ["/usr/lib/pgsql"]</screen>
-	  <screen>
-$ python setup.py build
-	    $ python setup.py install<footnote>
-	      <para>
-NOTE: If the directory settings in 'setup.py' are wrong you get a misleading error about 'gcc'</para>
-	    </footnote></screen>
-
-	  <para>Testing pyPgSQL:</para>
-	  <screen>
-$ cd test<footnote>
-	      <para>
-# install directory: ../pypgsql/test</para>
-	    </footnote>
+			Install pyPgSQL</para>
+			<para>
+	        This package can be installed either from source or from a RPM.
+	        Email me (bonerti AT mie DOT utoronto DOT ca) for the RPM.</para>
+	    	<itemizedlist>	    
+				<listitem>
+               	<para>
+	            If you install the RMP:
+		         </para>
+		         <para>
+	             Before installing pyPgSQL make sure you have the following
+	             (from the Mandrake CDs): 
+                 </para><para><emphasis>
+	             libpython2.2-devel-2.2.2-6mdk
+                </emphasis></para>
+                 <para>
+	             Install the rpm and check that everything went right:
+                 </para>
+				<para>
+			    <screen>
+$ su root
+# su postgres		# trick to avoid having to know the postgres passwd
+$ cd /usr/share/doc/pyPgSQL-2.3/test
 $ python PgSQLTestCases.py
-	  </screen>
 
+this should print:
 
-
-
-
-	  <para>
-
-	    <screen>
-OUTPUT:
 	..................................................................
 	----------------------------------------------------------------------
 	Ran 66 tests in 1.090s
 
 	OK
-	    </screen>
+		    </screen>
 
-	  </para>
+				  </para>
+
+				<para>
+				IMPORTANT NOTE:
+			    </para>
+			    <para>
+				A database user with your user name has to exist for the test to work
+	            properly if you are testing as a normal user.  See step #10
+	            for how	to create database users.
+	            </para>
+				</listitem>
+                
+                <listitem>
+                <para>
+                If you would like to install from sources:
+                </para>
+
+	            <para>
+	            Before building and installing pyPgSQL make sure you have the following
+	            (from the Mandrake CDs):<emphasis>
+	            libpython2.2-devel-2.2.2-6mdk</emphasis></para>
+
+	              <screen>$ tar zxvf pyPgSQL-2.3.tar.gz<footnote>
+	                  <para>gunzip + untar 'pyPgSQL-2.3.tar.gz'</para>
+	                </footnote>
+$ cd pypgsql
+				 </screen>
+	              <para>
+            Set include and library directories in "setup.py" with your favourite editor:</para>
+	              <screen>
+# Set this to 1 if you need to use your own settings
+USE_CUSTOM = 1
+                  <footnote><para>
+					Don't forget to change this line!!!
+				 </para></footnote>
+            ...
+
+if USE_CUSTOM:
+    include_dirs = ["/usr/include/pgsql"]
+    library_dirs = ["/usr/lib/pgsql"]</screen>
+      <para>
+      Now build pyPgSQL and install it:
+      </para>
+      <screen>
+$ python setup.py build
+	    $ python setup.py install
+        <footnote><para>
+NOTE: If the directory settings in 'setup.py' are wrong you will 
+get a misleading error about 'gcc'
+		</para></footnote>
+        
+      </screen>
+
+	  <para>Testing pyPgSQL:</para>
+
+	  <screen>
+$ cd test<footnote>
+	      <para>
+install directory: ../pypgsql/test</para>
+	    </footnote>
+$ python PgSQLTestCases.py
+
+ this should print:
+
+	..................................................................
+	----------------------------------------------------------------------
+	Ran 66 tests in 1.090s
+
+	OK
+	    	</screen>
+		</itemizedlist>
+        </listitem>
+       </orderedlist>
 	</sect2>
 
 	<sect2>
@@ -671,14 +735,12 @@ $ su root
 	  <caution>
 	    <para># you'll need this password later so remember it.</para>
 	  </caution>
-	  <screen>
-# su postgres
-$ createuser your_user_name	# in my case: "createuser michael"	(answer 'y' to both questions)
-$ createuser _your_user_name	# in my case: "createuser _michael"	(answer 'y' to both questions)
-	  </screen>
+      <para>If you wish to create a user for gnumed please change 
+      <filename>sql/gmTestAccounts.sql</filename>. Creating them at the command
+      line is not recommended.</para>
 
 	  <para>
-(as normal user)</para>
+	  Now change back to your normal account and bootstrap the gnumed database.</para>
 	  <screen>
 $ cd /home/your_user_name/gnumed/gnumed/server/bootstrap
 $ cp bootstrap-standard-AU.conf.sample your_user_name-db.conf
@@ -737,37 +799,6 @@ GNUMED_DIR=$GNUMED_DIR/home/your_user_name/gnumed/gnumed/client
 $ cd /home/your_user_name/gnumed/gnumed/client/wxpython
 $ python gnumed.py --debug
 	  </screen>
-<important>
-	    <para>
-Find something you don't like and fix it... ;O)
-	   
----------------------------------------------------
-Karsten.Hilbert@gmx.net      2.4.2003
-
-there are two options for you:
-
-1) connect to the public database on my server for testing the frontend:
-   server: anubis.homeunix.com
-   database: gnumed-public
-   user/password: please write me a private mail
-
-
-2) on bootstrapping:
-
-To capture even the last bit of screen output do this:
-
-- go to the directory where you want to start bootstrap*
-- run the command "script -a bootstrapping.log"
-- run the bootstrapping as you did before
-	    - when finished, type <screen>"exit"</screen>y
-- now also send me the bootstrapping.log file
-
-Michael: Can we add the latter part to the installation
-instructions ? Thanks for your excellent work !
-
---------------------------------------------------
-	  </para>
-	  </important>
 	</sect2>
       </sect1>
    
@@ -895,20 +926,8 @@ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
 	<sect2>
         <title>Configuring postgres for Gnumed</title>
 		<para>
-		 From your home directory, go to the directory gnumed/gnumed/server/sql
-<screen>
-cd ~/gnumed/gnumed/server/sql
-su postgres
-</screen>
-Enter your postgres password.
-<screen>
-createdb gnumed
-</screen>
-</para>
-<para>
-Instructions on initialising the gnumed databases will follow - when 
-they are ready.
-</para>
+        See (<xref linkend="pgsql">).
+		</para>
 </sect2>
 
 </sect1>
@@ -1131,13 +1150,47 @@ Click on the Python icon and type:
         services on remote servers already). As this is not yet fully supported by
         GnuMed anyways (due to dblink being non-standard) one should stick
         to a monolithic service layout. Several sample config files for
-        bootstrapping are supplied in server/utils/. They can be used by calling
-        the script like this:
+        bootstrapping are supplied in server/utils/. </para>
+
+        <para>
+        Before running the bootstrap script make sure you've installed the symbolic links 
+        to <literal>modules</literal> and <literal>sql</literal>. You can do this
+        by typing 
+        <screen>
+sh make-links.sh
+		</screen>
+        </para>
+
+		<para>
+		Now use a sample config file by calling the script like this:
 		<screen>
          bootstrap-gm_db_system.py --conf-file=&lt;a config file&gt;
 		</screen>
+        </para>
+
+		<para>You should see some line like
+        <screen>
+Done bootstrapping: We probably succeeded.	
+		</screen>
+	     at the end of the output if everything went right.
+         </para>
+            
+		<para>Make sure you check the following section in your config file 
+        points to the pgsql libraries.
+		<screen>
+language library dirs = $language library dirs$
+/usr/lib/postgresql/                                                            
+/usr/lib/postgresql/lib/                                                        
+/usr/lib/pgsql/                                                                 
+/usr/local/pgsql/lib                                                            
+$language library dirs$ 
+		</screen>
+        Many known locations are already listed so you might not have to 
+        change anything.
+        </para>
+        <para>
         To set up a straightforward monolithic system on the local machine use
-        the config file localhost-monolithic.conf.sample.
+        the config file <literal>localhost-monolithic.conf.sample</literal>.
         </para>
         <para>
         Make sure to remove test accounts and to set up your own config file
@@ -1146,17 +1199,14 @@ Click on the Python icon and type:
         <para>
         If you want to tweak things by hand read the config files and the source
         of the bootstrapping scripts. All the config file parameters are documented
-        in bootstrap-gm_db_system.conf.sample
+        in <literal>bootstrap-gm_db_system.conf.sample</literal>.
         </para>
 </sect1>
 
 
 
-      <sect1>
-	<title>Notes on configuration</title>
-	<para>
-Belongs into Admin->Config:
-	</para>
+      <sect1 id="confignotes">
+	<title>Language configuration</title>
 	<para>
 Upon startup the client autoconfigures the language used
 in the database.
@@ -1214,42 +1264,8 @@ truncation of the system locale are used to find matching
 	<para>
 This allows for a missing Austrian translation to fall back to
 	  a general German (de_AT -> de) one, for example.
-<footnote>
-	    <para>
-I looked up the syntax in gmCfg.py, but could I suggest that a line be 
-inserted in the bootstrap_gm-db.py file which says something like
-	    </para>
-	    <para>
-#before running this script:
-#
-#-make sure you've installed the symbolic links as listed in make-links.sh
-# you can run this by typing sh make-links.sh
-#
-#-make sure you check the section: 
-#language library dirs = $language library dirs$
-#to make sure the pathways point to the pgsql libraries
-#
-#usage :
-# python bootstrap_gm-db.py --conf-file=yourconfigfilenamehere
-# e.g bootstrap_gm-db.py --conf-file=bootstrap-standard_AU.conf
-#
-	    </para>
-	    <para>
-Anyway, I can now get up the interface at work, so perhaps having struggled 
-twice to do this the third time (when I get my dead machine at home back) 
-it'll be relatively easy. when I do I'll keep a line by line instruction set 
-to add to the installation docs.
-
-Regards
-
-Richard
-
-	    </para>
-	  </footnote></para>
       </sect1>
  
-
-
 
 <sect1 id="user-structure" xreflabel="DB user structure">
 <title>GnuMed database user structure</title>
