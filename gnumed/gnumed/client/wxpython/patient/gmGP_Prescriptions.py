@@ -203,8 +203,8 @@ class PrescriptionPanel (wxPanel):
 		#EVT_MENU(self, 2, self.OnSetPassphrase)
 
 		# show the menu 
-		self.PopupMenu(aMenu, event.GetPosition())
-		#popup = self.list_script.PopupMenu(aMenu,event.GetPosition()) 
+		#self.PopupMenu(aMenu, event.GetPosition())
+		self.list_script.PopupMenu(aMenu,event.GetPosition()) 
 		# whatever the user selected in the menu will have
 		# been handled already virtue of the MENU events
 		# created above
