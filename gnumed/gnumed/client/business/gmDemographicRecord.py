@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.4 2003-11-18 16:44:24 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmDemographicRecord.py,v 1.5 2003-11-20 01:50:52 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -150,11 +150,15 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 		data, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
 		if data is None:
 			return None
-		result = {
+		if len(data) == 0:
+			return {
+				'first': '',
+				'last': ''
+			}
+		return {
 			'first': data[0][idx['firstnames']],
 			'last': data[0][idx['lastnames']]
 		}
-		return result
 	#--------------------------------------------------------
 	def setActiveName (self, firstnames, lastnames):
 		cmd = "update v_basic_person set firstnames = %s, lastnames = %s where i_id = %s"
@@ -442,7 +446,6 @@ class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 	"""Returns a list of valid postcodes,
 	Accepts two contexts : "urb" and "street" being the **IDs** of urb and street
 	"""
-
 	def __init__ (self):
 		# we search two tables here, as in some jurisdictions (UK, Germany, US)
 		# postcodes are tied to streets or small groups of streets,
@@ -454,8 +457,7 @@ class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 			'table':'urb',
 			'extra conditions':{'urb':'id = %s', 'default':'postcode is not null'}
 			, 'service': 'demographica'
-			},
-			{
+			},{
 			'column':'postcode',
 			'table':'street',
 			'limit':10,
@@ -468,39 +470,36 @@ class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 #----------------------------------------------------------------
 class StreetMP (gmMatchProvider.cMatchProvider_SQL):
 	"""Returns a list of streets
+
 	accepts "urb" and "postcode" contexts
 	"""
-
 	def __init__ (self):
 		source = [{
-			'column':'name',
-			'pk':'id',
-			'limit':10,
-			'table':'street',
-			'extra conditions':{'urb': 'id_urb = %s', 'postcode':'postcode = %s or postcode is null'}
-			,'service' : 'demographica'
-
+			'service': 'demographica',
+			'table': 'street',
+			'column': 'name',
+			'limit': 10,
+			'extra conditions': {
+				'urb': 'id_urb = %s',
+				'postcode': 'postcode = %s or postcode is null'
+				}
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
-
 #------------------------------------------------------------
+class MP_urb_by_zip (gmMatchProvider.cMatchProvider_SQL):
+	"""Returns a list of urbs
 
-class UrbMP (gmMatchProvider.cMatchProvider_SQL):
-	"""Returns a list of streets
 	accepts "postcode" context
 	"""
-
 	def __init__ (self):
 		source = [{
-			'column':'name',
-			'pk':'id',
-			'limit':10,
-			'table':'urb',
-			'extra conditions':{'postcode':'(postcode = %s or postcode is null)'}
-			,'service' : 'demographica'
+			'service': 'demographica',
+			'table': 'urb',
+			'column': 'name',
+			'limit': 15,
+			'extra conditions': {'postcode': '(postcode = %s or postcode is null)'}
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
-		
 #------------------------------------------------------------
 def get_time_tuple( faultyMxDateObject):
 		list = [0,0,0,   0, 0, 0,   0, 0, 0]
@@ -546,7 +545,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.4  2003-11-18 16:44:24  ncq
+# Revision 1.5  2003-11-20 01:50:52  ncq
+# - return '?' for missing names in getActiveName()
+#
+# Revision 1.4  2003/11/18 16:44:24  ncq
 # - getAddress -> getAddresses
 # - can't verify mxDateTime bug with missing time tuple
 # - remove getBirthYear, do getDOB() -> mxDateTime -> format
