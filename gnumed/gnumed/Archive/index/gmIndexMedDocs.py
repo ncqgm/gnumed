@@ -12,7 +12,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -53,14 +53,18 @@ from gmGuiHelpers import gm_show_error
 	wxID_BTN_save_data,
 	wxID_BTN_show_page,
 	wxID_BTN_load_pages,
+	wxID_PNL_BTN_del_page,
+	wxID_PNL_BTN_select_files,
+	wxID_PNL_BTN_save_data,
+	wxID_PNL_BTN_show_page,
+	wxID_PNL_BTN_load_pages,
 	wxID_SelBOX_doc_type,
 	wxID_TBOX_first_name,
 	wxID_TBOX_last_name,
 	wxID_LBOX_doc_pages,
 	wxID_TBOX_desc_short,
 	wxID_PNL_main
-] = map(lambda _init_ctrls: wxNewId(), range(16))
-
+] = map(lambda _init_ctrls: wxNewId(), range(21))
 #====================================
 class indexFrame(wxPanel):
 
@@ -967,8 +971,8 @@ if __name__ == '__main__':
 # == classes for plugin use ===========================
 else:
 
-	import gmPlugin, gmGuiBroker ,gmPG
-
+	import gmPlugin, gmGuiBroker ,gmPG, images_Archive_plugin, images_Archive_plugin1
+	
 	class gmIndexMedDocs(gmPlugin.wxNotebookPlugin):
 		def name (self):
 			return _("Index")
@@ -982,6 +986,7 @@ else:
 		
 		def ReceiveFocus(self):
 			self.panel.fill_pat_fields()
+			self.DoStatusText()
 			# FIXME: register interest in patient_changed signal, too
 			#self.panel.tree.SelectItem(self.panel.tree.root)
 			return 1
@@ -990,14 +995,78 @@ else:
 			# need patient
 			if not self._verify_patient_avail():
 				return None
+			
 			return 1
-
+		
+		def DoToolbar (self, tb, widget):
+	      		tool1 = tb.AddTool(
+				wxID_PNL_BTN_load_pages,
+				images_Archive_plugin.getcontentsBitmap(),
+				shortHelpString=_("load pages"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_PNL_BTN_load_pages, widget.on_load_pages)
+			
+			# --------------------------------------------------------------
+			tool1 = tb.AddTool(
+				wxID_PNL_BTN_save_data,
+				images_Archive_plugin.getsaveBitmap(),
+				shortHelpString=_("save document"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_PNL_BTN_save_data, widget.on_save_data)
+			
+			# -------------------------------------------------------------
+			tool1 = tb.AddTool(
+				wxID_PNL_BTN_del_page,
+				images_Archive_plugin.getcontentsBitmap(),
+				shortHelpString=_("delete page"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_PNL_BTN_del_page, widget.on_del_page)
+			
+			# -------------------------------------------------------------
+			tool1 = tb.AddTool(
+				wxID_PNL_BTN_show_page,
+				images_Archive_plugin.getreportsBitmap(),
+				shortHelpString=_("show page"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_PNL_BTN_show_page, widget.on_show_page)
+	
+			# -------------------------------------------------------------
+			tool1 = tb.AddTool(
+				wxID_PNL_BTN_select_files,
+				images_Archive_plugin1.getfoldersearchBitmap(),
+				shortHelpString=_("select files"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_PNL_BTN_select_files, widget.on_select_files)
+		
+			tb.AddControl(
+				wxStaticBitmap(
+					tb, 
+					-1, 
+					images_Archive_plugin.getvertical_separator_thinBitmap(), 
+					wxDefaultPosition, 
+					wxDefaultSize))
+			
+		def DoStatusText (self):
+			# FIXME: people want an optional beep and an optional red backgound here
+			txt = _('1:select document 2:describe 3:save')	
+			if not self._set_status_txt(txt):
+				return None
+			return 1
+		
 #======================================================
 # this line is a replacement for gmPhraseWheel just in case it doesn't work 
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.3  2003-11-08 18:15:05  ncq
+# Revision 1.4  2003-11-09 15:42:27  shilbert
+# - plugin makes use of GNUmed's toolbar and statusbar
+#
+# Revision 1.3  2003/11/08 18:15:05  ncq
 # - name changed
 # - cleanup
 #
