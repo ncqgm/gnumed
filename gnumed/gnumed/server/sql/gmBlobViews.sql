@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.7 $ $Date: 2004-10-11 19:29:13 $ $Author: ncq $
+-- $Revision: 1.8 $ $Date: 2004-10-29 22:37:02 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -38,7 +38,8 @@ select
 	vdt.l10n_type as l10n_type,
 	dm.ext_ref as ext_ref,
 	dm.comment as comment,
-	dm.type as pk_type
+	dm.type as pk_type,
+	dm.xmin as xmin_doc_med
 from
 	doc_med dm,
 	v_doc_type vdt
@@ -65,7 +66,8 @@ select
 	dobj.comment as obj_comment,
 	dobj.data as object,
 	vdm.pk_doc as pk_doc,
-	vdm.pk_type as pk_type
+	vdm.pk_type as pk_type,
+	dobj.xmin as xmin_doc_obj
 from
 	v_doc_med vdm,	
 	doc_obj dobj
@@ -150,11 +152,16 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmBlobViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.7  2004-10-11 19:29:13  ncq
+-- Revision 1.8  2004-10-29 22:37:02  ncq
+-- - propagate xmin to the relevant views to business classes can
+--   use it for concurrency conflict detection
+-- - fix v_problem_list to properly display a patient's problems
+--
+-- Revision 1.7  2004/10/11 19:29:13  ncq
 -- - v_i18n_doc_type -> v_doc_type
 -- - v_doc_med
 --

@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.109 2004-10-12 09:50:21 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.110 2004-10-29 22:37:02 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -125,7 +125,8 @@ select
 	cle.last_affirmed as last_affirmed,
 	cle.fk_location as pk_location,
 	cle.fk_provider as pk_provider,
-	cle.fk_type as pk_type
+	cle.fk_type as pk_type,
+	cle.xmin as xmin_clin_encounter
 from
 	clin_encounter cle,
 	encounter_type et
@@ -182,7 +183,7 @@ where
 \unset ON_ERROR_STOP
 drop index idx_episode_issue;
 drop index idx_episode_valid_issue;
-create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_health_issue is not None;
+create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_health_issue is not null;
 \set ON_ERROR_STOP 1
 create index idx_episode_issue on clin_episode(fk_health_issue);
 
@@ -202,13 +203,14 @@ select
 	null as issue_clinically_relevant,
 	cep.pk as pk_episode,
 	null as pk_health_issue,
-	cep.modified_when as episode_modified_when
+	cep.modified_when as episode_modified_when,
+	cep.xmin as xmin_clin_episode
 from
 	clin_episode cep
 where
 	cep.fk_health_issue is null
 
-		union
+		UNION ALL
 
 select
 	chi.id_patient as id_patient,
@@ -223,11 +225,12 @@ select
 	chi.clinically_relevant as issue_clinically_relevant,
 	cep.pk as pk_episode,
 	cep.fk_health_issue as pk_health_issue,
-	cep.modified_when as episode_modified_when
+	cep.modified_when as episode_modified_when,
+	cep.xmin as xmin_clin_episode
 from
 	clin_episode cep, clin_health_issue chi
 where
-	-- this should exclude all fk_health_issue=Null ?
+	-- this should exclude all (fk_health_issue is Null) ?
 	cep.fk_health_issue=chi.id
 ;
 
@@ -481,6 +484,7 @@ select
 	-- test_result
 	tr.fk_type as pk_test_type,
 	tr.fk_reviewer as pk_reviewer,
+	tr.xmin as xmin_test_result,
 	-- v_test_type_unified
 	vttu.pk_test_org,
 	vttu.pk_test_type_local,
@@ -523,7 +527,8 @@ select
 	lr.fk_requestor as pk_requestor,
 	lr.fk_encounter as pk_encounter,
 	lr.fk_episode as pk_episode,
-	lr.pk_item as pk_item
+	lr.pk_item as pk_item,
+	lr.xmin as xmin_lab_request
 from
 	lab_request lr,
 	test_org torg
@@ -583,7 +588,8 @@ select
 	lr.fk_requestor as pk_requestor,
 	vtr.pk_health_issue,
 	vtr.pk_encounter,
-	vtr.pk_episode
+	vtr.pk_episode,
+	vtr.xmin_test_result as xmin_test_result
 -- additional fields to carry over
 --	, vtr.coding_system_tt,
 --	vtr.comment_tt,
@@ -739,7 +745,8 @@ select
 	a.clin_when as date,
 	vpep.pk_health_issue as pk_health_issue,
 	a.fk_episode as pk_episode,
-	a.fk_encounter as pk_encounter
+	a.fk_encounter as pk_encounter,
+	a.xmin as xmin_allergy
 from
 	allergy a,
 	_enum_allergy_type at,
@@ -767,7 +774,8 @@ select
 	(select max(vdef.seq_no) from vacc_def vdef where vreg.id = vdef.fk_regime) as shots,
 	coalesce(vreg.comment, '') as comment,
 	vreg.fk_indication as pk_indication,
-	vreg.fk_recommended_by as pk_recommended_by
+	vreg.fk_recommended_by as pk_recommended_by,
+	vreg.xmin as xmin_vacc_regime
 from
 	vacc_regime vreg,
 	vacc_indication vind
@@ -895,7 +903,8 @@ select
 	vcine.id as pk_vaccine,
 	vpep.pk_health_issue as pk_health_issue,
 	v.fk_episode as pk_episode,
-	v.fk_encounter as pk_encounter
+	v.fk_encounter as pk_encounter,
+	v.xmin as xmin_vaccination
 from
 	vaccination v,
 	vaccine vcine,
@@ -1093,7 +1102,9 @@ select
 	cd.is_definite as is_definite,
 	cd.clinically_relevant as clinically_relevant,
 	cn.fk_encounter as pk_encounter,
-	cn.fk_episode as pk_episode
+	cn.fk_episode as pk_episode,
+	cd.xmin as xmin_clin_diag,
+	cn.xmin as xmin_clin_narrative
 from
 	clin_diag cd,
 	clin_narrative as cn,
@@ -1163,7 +1174,8 @@ select
 	cn.narrative as rfe,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode,
-	cn.pk_item as pk_item
+	cn.pk_item as pk_item,
+	cn.xmin as xmin_clin_narrative
 from
 	clin_narrative cn,
 	v_patient_items vpi
@@ -1187,7 +1199,8 @@ select
 	cn.narrative as aoe,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode,
-	cn.pk_item as pk_item
+	cn.pk_item as pk_item,
+	cn.xmin as xmin_clin_narrative
 from
 	clin_narrative cn,
 	v_patient_items vpi
@@ -1214,7 +1227,8 @@ select
 	cn.pk as pk_narrative,
 	vpi.pk_health_issue as pk_health_issue,
 	cn.fk_episode as pk_episode,
-	cn.fk_encounter as pk_encounter
+	cn.fk_encounter as pk_encounter,
+	cn.xmin as xmin_clin_narrative
 from
 	clin_narrative cn,
 	v_patient_items vpi
@@ -1334,29 +1348,39 @@ drop view v_problem_list;
 \set ON_ERROR_STOP 1
 
 create view v_problem_list as
+-- all the episodes
 select
-	cep.fk_patient as pk_patient,
-	cep.description as problem,
-	cep.is_active as is_active,
-	cep.clinically_relevant as clinically_relevant,
-	cep.pk as pk_episode,
-	null as pk_health_issue
+	vpep.id_patient as pk_patient,
+	vpep.description as problem,
+	'episode' as type,
+	vpep.episode_active as is_active,
+	vpep.episode_clinically_relevant as clinically_relevant,
+	vpep.pk_episode as pk_episode,
+	vpep.pk_health_issue as pk_health_issue
+--	cep.fk_patient as pk_patient,
+--	cep.description as problem,
+--	'episode' as type,
+--	cep.is_active as is_active,
+--	cep.clinically_relevant as clinically_relevant,
+--	cep.pk as pk_episode,
+--	cep.fk_health_issue as pk_health_issue
 from
-	clin_episode cep
-where
-	cep.fk_health_issue is null
+--	clin_episode cep
+	v_pat_episodes vpep
 
-		union
+union
 
 select
 	chi.id_patient as pk_patient,
 	chi.description as problem,
+	'issue' as type,
 	chi.is_active as is_active,
 	chi.clinically_relevant as clinically_relevant,
 	null as pk_episode,
 	chi.id as pk_health_issue
 from
 	clin_health_issue chi
+
 ;
 
 -- =============================================
@@ -1475,11 +1499,16 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.109 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.110 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.109  2004-10-12 09:50:21  ncq
+-- Revision 1.110  2004-10-29 22:37:02  ncq
+-- - propagate xmin to the relevant views to business classes can
+--   use it for concurrency conflict detection
+-- - fix v_problem_list to properly display a patient's problems
+--
+-- Revision 1.109  2004/10/12 09:50:21  ncq
 -- - enhance v_vacc_regimes -> add "shots" field holding number of shots for regime
 --
 -- Revision 1.108  2004/10/11 19:32:19  ncq
