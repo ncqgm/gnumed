@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.82 2004-07-03 17:24:08 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.83 2004-07-04 16:10:29 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -94,7 +94,6 @@ create index idx_episode_h_issue on clin_episode(fk_health_issue);
 
 -- =============================================
 -- narrative
-
 \unset ON_ERROR_STOP
 
 drop index idx_narr_soap on clin_narrative(soap_cat);
@@ -105,7 +104,6 @@ drop index idx_narr_p on clin_narrative(soap_cat);
 drop index idx_narr_rfe on clin_narrative(is_rfe);
 drop index idx_narr_aoe on clin_narrative(is_aoe);
 
-create index idx_narr_soap on clin_narrative(soap_cat);
 create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='s';
 create index idx_narr_o on clin_narrative(soap_cat) where soap_cat='o';
 create index idx_narr_a on clin_narrative(soap_cat) where soap_cat='a';
@@ -114,6 +112,8 @@ create index idx_narr_rfe on clin_narrative(is_rfe) where is_rfe is true;
 create index idx_narr_aoe on clin_narrative(is_aoe) where is_aoe is true;
 
 \set ON_ERROR_STOP 1
+
+create index idx_narr_soap on clin_narrative(soap_cat);
 
 -- =============================================
 -- encounters
@@ -737,6 +737,46 @@ where
 ;
 
 -- =============================================
+-- types of narrative
+create view v_rfe as
+select
+	vpi.id_patient as pk_patient,
+	cn.pk as pk_narrative,
+	cn.clin_when as clin_when,
+	cn.soap_cat as soap_cat,
+	cn.narrative as rfe,
+	cn.fk_encounter as pk_encounter,
+	cn.fk_episode as pk_episode,
+	cn.pk_item as pk_item
+from
+	clin_narrative cn,
+	v_patient_items vpi
+where
+	cn.is_rfe is true
+		and
+	cn.pk_item = vpi.pk_item
+;
+
+create view v_aoe as
+select
+	vpi.id_patient as pk_patient,
+	cn.pk as pk_narrative,
+	cn.clin_when as clin_when,
+	cn.soap_cat as soap_cat,
+	cn.narrative as aoe,
+	cn.fk_encounter as pk_encounter,
+	cn.fk_episode as pk_episode,
+	cn.pk_item as pk_item
+from
+	clin_narrative cn,
+	v_patient_items vpi
+where
+	cn.is_aoe is true
+		and
+	cn.pk_item = vpi.pk_item
+;
+
+-- =============================================
 GRANT SELECT ON
 	clin_root_item
 	, clin_health_issue
@@ -875,11 +915,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.82 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.83 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.82  2004-07-03 17:24:08  ncq
+-- Revision 1.83  2004-07-04 16:10:29  ncq
+-- - add v_aoe/v_rfe
+--
+-- Revision 1.82  2004/07/03 17:24:08  ncq
 -- - can't name all indexes the same :-)
 --
 -- Revision 1.81  2004/07/03 17:17:41  ncq
