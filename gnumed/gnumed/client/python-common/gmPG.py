@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -74,7 +74,7 @@ class ConnectionPool:
 			self.__disconnect()
 		if ConnectionPool.__connected is None:
 			self.SetFetchReturnsList()
-			ConnectionPool.__connected = self.__connect(login)
+			ConnectionPool.__connected = self.__setup_default_ro_conns(login)
 	#-----------------------------
 	def __del__(self):
 		for backend in ConnectionPool.__listeners.keys():
@@ -86,33 +86,14 @@ class ConnectionPool:
 	def GetConnection(self, service = "default", readonly = 1):
 		"""if a distributed service exists, return it - otherwise return the default server"""
 
-		# make sure we use "_user" for read-write connections
+		logininfo = self.GetLoginInfoFor(service)
+
+		# get new read-write connection
 		if not readonly:
-			logininfo = self.GetLoginInfoFor(service)
-			user = logininfo.GetUser()
-			if user[0] != '_':
-				user = "_%s" % logininfo.GetUser()
-				logininfo.SetUser(user)
-			#<DEBUG>
-			_log.Log(gmLog.lData, "requesting RW connection to service [%s] for %s" % (service, user))
-			#</DEBUG>
-			# and actually get a new connections
-			conn = self.__pgconnect(logininfo, readonly)
-			if conn is None:
-				_log.Log(gmLog.lErr, "Cannot open RW connection to service [%s] for %s." % (service, user))
-				return None
-		# make sure we use "user" for read-only connections
-		else:
-			logininfo = self.GetLoginInfoFor(service)
-			user = logininfo.GetUser()
-			if user[0] == '_':
-				logininfo.SetUser(user[1:])
+			return self.__pgconnect(logininfo, readonly = 0)
 
-		#<DEBUG>
+		# return a cached read-only connection
 		_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
-		#</DEBUG>
-
-		# just reeturn a cached (read-only) connection
 		if ConnectionPool.__databases.has_key(service):
 			try:
 				ConnectionPool.__connections_in_use[service] += 1
@@ -163,7 +144,7 @@ class ConnectionPool:
 			listener = gmBackendListener.BackendListener(
 				service,
 				auth.GetDatabase(),
-				auth.GetUser(),
+				auth.GetUser(readonly=1),
 				auth.GetPassword(),
 				auth.GetHost(),
 				int(auth.GetPort())
@@ -227,7 +208,6 @@ class ConnectionPool:
 			srvc_id = ConnectionPool.__service2db_map[service]
 		except KeyError:
 			return dblogin
-		
 		# a service in the default database
 		if srvc_id == 0:
 			return dblogin
@@ -265,7 +245,7 @@ class ConnectionPool:
 	#-----------------------------
 	# private methods
 	#-----------------------------
-	def __connect(self, login):
+	def __setup_default_ro_conns(self, login):
 		"""Initialize connections to all servers."""
 
 		if login is None and ConnectionPool.__connected is None:
@@ -275,12 +255,12 @@ class ConnectionPool:
 				_log.LogException("Exception: Cannot connect to databases without login information !", sys.exc_info(), fatal=1)
 				raise gmExceptions.ConnectionError("Can't connect to database without login information!")
 
-		_log.Log(gmLog.lData,login.GetInfoStr())
+		_log.Log(gmLog.lData, login.GetInfoStr())
 		ConnectionPool.__login = login
 
 		# connect to the configuration server
 		try:
-			cfg_db = self.__pgconnect(login)
+			cfg_db = self.__pgconnect(login, readonly=1)
 		except StandardError:
 			raise gmExceptions.ConnectionError, _('Cannot connect to configuration database with:\n\n[%s]') % login.GetInfoStr()
 
@@ -320,24 +300,24 @@ class ConnectionPool:
 
 			# init ref counter
 			ConnectionPool.__connections_in_use[service] = 0
-			dblogin = self.GetLoginInfoFor(service,login)
+			dblogin = self.GetLoginInfoFor(service, login)
 			# update 'Database Broker' dictionary
-			conn = self.__pgconnect(dblogin)
+			conn = self.__pgconnect(dblogin, readonly=1)
 			if conn is None:
 				raise gmExceptions.ConnectionError, _('Cannot connect to database with:\n\n[%s]') % login.GetInfoStr()
 			ConnectionPool.__databases[service] = conn
 		cursor.close()
 		return ConnectionPool.__connected
-	#-----------------------------	
-	def __pgconnect(self, login, readonly=1):
+	#-----------------------------
+	def __pgconnect(self, login, readonly=2):
 		"""connect to a postgres backend as specified by login object; return a connection object"""
 		dsn = ""
 		hostport = ""
 
 		if _isPGDB:
-			dsn, hostport = login.GetPGDB_DSN()
+			dsn, hostport = login.GetPGDB_DSN(readonly)
 		else:
-			dsn = login.GetDBAPI_DSN()
+			dsn = login.GetDBAPI_DSN(readonly)
 			hostport = "0"
 
 		try:
@@ -363,10 +343,11 @@ class ConnectionPool:
 			access_mode = 'READ ONLY'
 		else:
 			access_mode = 'READ WRITE'
-		cmd2 = 'set session characteristics as transaction %s;' % access_mode
-
-		if not run_query(curs, cmd2):
-			_log.Log(gmLog.lErr, 'cannot set connection characteristics to "read write" or "read only"')
+		_log.Log(gmLog.lData, "setting session to [%s] for %s@%s:%s" % (access_mode, login.GetUser(readonly), login.GetHost(), login.GetDatabase()))
+		cmd = 'set session characteristics as transaction %s;' % access_mode
+		# activate when 7.4 is common
+#		if not run_query(curs, cmd):
+#			_log.Log(gmLog.lErr, 'cannot set connection characteristics to [%s]' % access_mode)
 			# FIXME: once 7.4 is minimum, close connection and return None here
 
 		conn.commit()
@@ -566,7 +547,7 @@ def request_login_params_gui_wx():
 	import gmLoginDialog
 	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
 	dlg.ShowModal()
-	login = dlg.panel.GetLoginInfo ()
+	login = dlg.panel.GetLoginInfo()
 	dlg.Destroy()
 	del gmLoginDialog
 
@@ -720,7 +701,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.46  2003-05-17 09:49:10  ncq
+# Revision 1.47  2003-05-17 17:29:28  ncq
+# - teach it new-style ro/rw connection handling, mainly __pgconnect()
+#
+# Revision 1.46  2003/05/17 09:49:10  ncq
 # - set default transaction isolation level to serializable
 # - prepare for 7.4 read-only/read-write support on connections
 #
