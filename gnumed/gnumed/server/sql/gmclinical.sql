@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.153 $
+-- $Revision: 1.154 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -160,7 +160,6 @@ create table clin_encounter (
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
-	fk_location integer,
 	fk_provider integer,
 	fk_type integer
 		not null
@@ -168,6 +167,8 @@ create table clin_encounter (
 		references encounter_type(pk)
 		on update cascade
 		on delete restrict,
+	fk_location integer,
+	source_time_zone interval,
 	description text
 		default null,
 	started timestamp with time zone
@@ -186,12 +187,15 @@ comment on table clin_encounter is
 	'a clinical encounter between a person and the health care system';
 comment on COLUMN clin_encounter.fk_patient is
 	'PK of subject of care, should be PUPIC, actually';
-comment on COLUMN clin_encounter.fk_location is
-	'PK of location *of care*, e.g. where the provider is at';
 comment on COLUMN clin_encounter.fk_provider is
 	'PK of (main) provider of care';
 comment on COLUMN clin_encounter.fk_type is
 	'PK of type of this encounter';
+comment on COLUMN clin_encounter.fk_location is
+	'PK of location *of care*, e.g. where the provider is at';
+comment on column clin_encounter.source_time_zone is
+	'time zone of location, used to approximate source time
+	 zone for all timestamps in this encounter';
 comment on column clin_encounter.description is
 	'descriptive name of this encounter, may change over time;
 	 could be RFE, if "xxxDEFAULTxxx" applications should
@@ -399,36 +403,52 @@ comment on column lnk_code2narr.xfk_coding_system is
 -- --------------------------------------------
 create table clin_hx_family (
 	pk serial primary key,
-	fk_narrative integer
-		unique
-		not null
+	fk_narrative_condition integer
+		default null
 		references clin_narrative(pk)
 		on update cascade
 		on delete restrict,
-	relationship text
-		not null,
-	name_relative text
-		default null,
-	dob_relative timestamp with time zone
-		default null,
 	fk_relative integer
 		default null
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete set null,
+	relationship text
+		not null
+		check (trim(relationship) != ''),
+	name_relative text
+		default null
+		check (coalesce(trim(name_relative), 'dummy') != ''),
+	dob_relative timestamp with time zone
+		default null,
 	age_noted text,
 	age_of_death interval
 		default null,
 	is_cause_of_death boolean
 		not null
 		default false
-) inherits (audit_fields);
+) inherits (clin_root_item);
 
-alter table clin_hx_family add constraint either_fk_or_name_and_dob
+alter table clin_hx_family add constraint narrative_null_or_not_empty
+	check (coalesce(trim(narrative), 'dummy') != '');
+
+alter table clin_hx_family add constraint link_or_know_relative
 	check (
-		(fk_relative is not null and name_relative is null and dob_relative is null)
+		-- from linked narrative
+		(fk_narrative_condition is not null and fk_relative is null and name_relative is null and dob_relative is null)
 			or
-		(fk_relative is null and coalesce(trim(name_relative), '') != '')
+		-- from linked relative
+		(fk_narrative_condition is null and fk_relative is not null and name_relative is null and dob_relative is null)
+			or
+		-- from name
+		(fk_narrative_condition is null and fk_relative is null and name_relative is not null)
+	);
+
+alter table clin_hx_family add constraint link_or_know_condition
+	check (
+		(fk_narrative_condition is not null and narrative is null)
+			or
+		(fk_narrative_condition is null and narrative is not null)
 	);
 
 -- FIXME: constraint trigger fk_narrative -> has_type(fHx)
@@ -436,18 +456,33 @@ alter table clin_hx_family add constraint either_fk_or_name_and_dob
 select add_table_for_audit('clin_hx_family');
 
 comment on table clin_hx_family is
-	'used to store family history items';
-comment on column clin_hx_family.fk_narrative is
-	'link to FHx-typed clin_narrative holding the
-	 condition the relative suffered from';
+	'stores family history items';
+comment on column clin_hx_family.clin_when is
+	'when the family history item became known';
+comment on column clin_hx_family.fk_encounter is
+	'encounter during which family history item became known';
+comment on column clin_hx_family.fk_episode is
+	'episode to which family history item is of importance';
+comment on column clin_hx_family.narrative is
+	'fHx-typed narrative holding the condition
+	 the relative suffered from, must be NULL
+	 if fk_narrative_condition is not';
+comment on column clin_hx_family.soap_cat is
+	'as usual, must be NULL if fk_narrative_condition is not but
+	 this is not enforced and only done in the view';
+comment on column clin_hx_family.fk_narrative_condition is
+	'can point to a narrative item of a relative if in database';
+comment on column clin_hx_family.fk_relative is
+	'foreign key to relative if also in database';
 comment on column clin_hx_family.relationship is
-	'how is the afflicted person related to the patient';
+	'how is the afflicted person related to the patient,
+	 maybe make nullable later when fk_relative or
+	 fk_narrative_condition is not null and the relationship
+	 is defined there';
 comment on column clin_hx_family.name_relative is
 	'name of the relative if not also in database';
 comment on column clin_hx_family.dob_relative is
 	'DOB of relative if not also in database';
-comment on column clin_hx_family.fk_relative is
-	'foreign key to relative if also in database';
 comment on column clin_hx_family.age_noted is
 	'at what age the relative acquired the condition';
 comment on column clin_hx_family.age_of_death is
@@ -1149,11 +1184,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.153 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.154 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.153  2005-03-14 14:42:00  ncq
+-- Revision 1.154  2005-03-20 18:10:00  ncq
+-- - vastly improve clin_hx_family
+-- - add source_timezone to clin_encounter
+--
+-- Revision 1.153  2005/03/14 14:42:00  ncq
 -- - simplified episode naming
 -- - add clin_hx_family but not entirely happy with it yet
 --
