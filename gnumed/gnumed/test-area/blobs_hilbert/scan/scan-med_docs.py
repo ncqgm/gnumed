@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -196,7 +196,7 @@ class scanFrame(wxFrame):
 
 		self.staticText2 = wxStaticText(
 			id = -1,
-			label = '1) scan',
+			label = _('1) scan'),
 			name = 'staticText2',
 			parent = self.PNL_main,
 			pos = wxPoint(56, 32),
@@ -207,7 +207,7 @@ class scanFrame(wxFrame):
 
 		self.staticText3 = wxStaticText(
 			id = -1,
-			label = '2) save',
+			label = _('2) save'),
 			name = 'staticText3',
 			parent = self.PNL_main,
 			pos = wxPoint(408, 32),
@@ -874,7 +874,10 @@ if __name__ == '__main__':
 
 #======================================================
 # $Log: scan-med_docs.py,v $
-# Revision 1.28  2002-09-13 10:46:04  ncq
+# Revision 1.29  2002-09-16 23:20:58  ncq
+# - added missing _()
+#
+# Revision 1.28  2002/09/13 10:46:04  ncq
 # - change _ to - in random ID mode
 #
 # Revision 1.27  2002/09/12 23:51:15  ncq
