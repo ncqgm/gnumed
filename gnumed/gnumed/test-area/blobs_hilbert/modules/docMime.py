@@ -9,7 +9,7 @@ import os, mailcap, string
 import gmLog
 
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 
 __log__ = gmLog.gmDefLog
 #=======================================================================================
@@ -46,7 +46,7 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 	aFileName = """%s"""
 
     mailcaps = mailcap.getcaps()
-    (cmd, junk) = mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = aFileName)
+    (cmd, junk) = mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = "\'%s\'" % aFileName)
     # FIXME: actually we should check for "x-token" flags such as x-docsys
     return cmd
 #-----------------------------------------------------------------------------------
