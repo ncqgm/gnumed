@@ -20,6 +20,8 @@ import sys, time
 from wxPython.wx import *
 import gmPG, gmLabels, gmLog
 
+_log = gmLog.gmDefLog
+
 class SQLListControl(wxListCtrl):
 	"Intelligent list control able to display SQL query results in a formatted way"
 
@@ -85,12 +87,12 @@ class SQLListControl(wxListCtrl):
 			if self.__stderr is not None:
 				sys.stderr = self.__stderr
 		except:
-			gmLog.gmDefLog.Log (gmLog.lData,  "can't redirect stderr")
+			_log.Log (gmLog.lData,  "can't redirect stderr")
 		try:
 			if self.__stdout is not None:
 				sys.stdout = self.__stdout
 		except:
-			gmLog.gmDefLog.Log (gmLog.lData,  "can't redirect stdout")
+			_log.Log (gmLog.lData,  "can't redirect stdout")
 
 
 
@@ -116,12 +118,12 @@ class SQLListControl(wxListCtrl):
 			#no need to process an empty query
 			return
 		self.RedirectOutput()
-		try:
-			gmLog.gmDefLog.Log (gmLog.lData,  "running query on service %s" % self.__service)
+		_log.Log (gmLog.lData,  "running query on service %s" % self.__service, gmLog.lCooked)
+		try:	
 			conn = gmPG.ConnectionPool().GetConnection(self.__service)
 			cursor = conn.cursor ()
 		except:
-			gmLog.gmDefLog.Log (gmLog.lErr,  "Exception thrown when trying to connect to backend in RunQuery()")
+			_log.LogException("Cannot connect to backend.", sys.exc_info(), fatal=0)
 			self.RestoreOutput()
 			return
 
@@ -143,7 +145,7 @@ class SQLListControl(wxListCtrl):
 
 		t2 = time.time()
 		if self.__feedback:
-			gmLog.gmDefLog.Log (gmLog.lData,  "Query [%s] returned %d tuples in %3.3f sec\n\n" % (self.__querystr, cursor.rowcount, t2-t1))
+			_log.Log (gmLog.lData,  "Query [%s] returned %d tuples in %3.3f sec\n\n" % (self.__querystr, cursor.rowcount, t2-t1))
 
 		#set list control labels depending on the returned fields, unless manually overridden
 
