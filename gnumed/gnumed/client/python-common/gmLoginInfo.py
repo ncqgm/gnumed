@@ -15,6 +15,10 @@
 #
 # @TODO:
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLoginInfo.py,v $
+# $Id: gmLoginInfo.py,v 1.7 2003-01-04 09:05:17 ncq Exp $
+__version__ = "$Revision: 1.7 $"
+__author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 #====================================================================
 class LoginInfo:
@@ -166,3 +170,9 @@ class LoginInfo:
 #====================================================================
 if __name__ == "__main__" :
 	print "Please somebody write a module test function here!"
+
+#====================================================================
+# $Log: gmLoginInfo.py,v $
+# Revision 1.7  2003-01-04 09:05:17  ncq
+# - added CVS tracking keywords
+#
