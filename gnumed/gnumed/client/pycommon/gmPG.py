@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -275,7 +275,7 @@ class ConnectionPool:
 		try:
 			backend = self.__service2db_map[service]
 		except KeyError:
-			_log.Log(gmLog.lWarn, 'cannot stop listener on backend [%s]' % backend)
+			_log.Log(gmLog.lWarn, 'cannot stop listener on backend')
 			return None
 		try:
 			ConnectionPool.__listeners[backend].stop_thread()
@@ -606,7 +606,7 @@ def run_query(aCursor=None, verbosity=None, aQuery=None, *args):
 #	print t2-t1, aQuery
 	return 1
 #---------------------------------------------------
-def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1):
+def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1, extra_verbose=False):
 	"""Convenience function for running a transaction
 	   that is supposed to get committed.
 
@@ -629,11 +629,11 @@ def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1):
 		  transaction
 		- if <link_obj> is a service name the transaction is
 		  always finalized regardless of what <end_tx> says
-		- if link_obj is a connection or a cursor then
-		  <end_tx> will default to False unless it is
-		  explicitely set to True which is taken to mean
-		  "yes, you do have full control over the transaction"
-		  in which case the transaction is properly finalized
+		- if link_obj is a connection then <end_tx> will
+		  default to False unless it is explicitely set to
+		  True which is taken to mean "yes, you do have full
+		  control over the transaction" in which case the
+		  transaction is properly finalized
 
 	<max_tries>
 		- controls the number of times a transaction is retried
@@ -651,11 +651,215 @@ def run_commit2(link_obj=None, queries=None, end_tx=False, max_tries=1):
 		- <data> if <status> is True:
 			* fetchall() result (if any) of last query else None
 		- <data> if <status> is False:
-			* a tuple (error, message)
-			* <error> = 1: unspecified error
-			* <error> = 2: concurrency error
+			* a tuple (error, message) where <error> can be:
+			* 1: unspecified error
+			* 2: concurrency error
+			* 3: constraint violation (non-primary key)
+			* 4: access violation
 	"""
-	pass
+	# sanity checks
+	if queries is None:
+		return (False, (1, 'forgot to pass in queries'))
+	if len(queries) == 0:
+		return (True, 'no queries to execute')
+
+	# check link_obj
+	# is it a cursor ?
+	if hasattr(link_obj, 'fetchone') and hasattr(link_obj, 'description'):
+		return __commit2cursor(cursor=link_obj, queries=queries, extra_verbose=extra_verbose)
+	# is it a connection ?
+	if (hasattr(link_obj, 'commit') and hasattr(link_obj, 'cursor')):
+		return __commit2conn(conn=link_obj, queries=queries, end_tx=end_tx, extra_verbose=extra_verbose)
+	# take it to be a service name then
+	return __commit2service(service=link_obj, queries=queries, max_tries=max_tries, extra_verbose=extra_verbose)
+#---------------------------------------------------
+def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=False):
+	# sanity checks
+	try: int(max_tries)
+	except ValueEror: max_tries = 1
+	if max_tries > 4:
+		max_tries = 4
+	if max_tries < 1:
+		max_tries = 1
+	# get cursor
+	pool = ConnectionPool()
+	conn = pool.GetConnection(str(service), readonly = 0)
+	if conn is None:
+		return (False, (1, _('cannot connect to service [%s]') % service))
+	curs = conn.cursor()
+	for attempt in range(1, max_tries):
+		if extra_verbose:
+			_log.Log(gmLog.lData, 'attempt %s' % attempt)
+		# run queries
+		for query, args in queries:
+			if extra_verbose:
+				t1 = time.time()
+			try:
+				curs.execute(query, *args)
+			except:
+				if extra_verbose:
+					duration = time.time() - t1
+					_log.Log(gmLog.lData, 'query took %3.3f seconds' % duration)
+				conn.rollback()
+				exc_info = sys.exc_info()
+				typ, val, tb = exc_info
+				_serialize_failure = "not serialize access due to concurrent update"
+				if str(val).find(_serialize_failure) > 0:
+					_log.Log(gmLog.lData, 'concurrency conflict detected')
+					if attempt < max_tries:
+						# jump to next full attempt
+						continue
+					curs.close()
+					conn.close()
+					return (False, (2, _('Cannot save data. Database (row) locked by another user.')))
+				# FIXME: handle more types of errors
+				_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], service), exc_info)
+				if extra_verbose:
+					__log_PG_settings(curs)
+				curs.close()
+				conn.close()
+				tmp = str(val).replace('ERROR:', '')
+				tmp = tmp.replace('ExecAppend:', '')
+				tmp = tmp.strip()
+				return (False, (1, _('SQL: %s') % tmp))
+			# apparently succeeded
+			if extra_verbose:
+				duration = time.time() - t1
+				_log.Log(gmLog.lData, 'query >>>%s<<< with args >>>%s<<< succeeded on link [%s]' % (query[:250], str(args)[:250], service))
+				_log.Log(gmLog.lData, '%s rows affected/returned in %3.3f seconds' % (curs.rowcount, duration))
+		# done with queries
+		break # out of retry loop
+	# done with attempt(s)
+	# did we get result rows in the last query ?
+	data = None
+	# now, the DB-API is ambigous about whether cursor.description
+	# and cursor.rowcount apply to the most recent query in a cursor
+	# (does this statement make any sense in the first place ?) or
+	# to the entire lifetime of said cursor, pyPgSQL thinks the
+	# latter, hence we need to catch exceptions when there's no
+	# data from the *last* query
+	try:
+		data = curs.fetchall()
+	except:
+		if extra_verbose:
+			_log.Log(gmLog.lData, 'fetchall(): last query did not return rows')
+		# should be None if no rows were returned ...
+		if curs.description is not None:
+			_log.Log(gmLog.lData, 'there seem to be rows but fetchall() failed -- DB API violation ?')
+			_log.Log(gmLog.lData, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
+	conn.commit()
+	curs.close()
+	conn.close()
+	return (True, data)
+#---------------------------------------------------
+def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False):
+	# get cursor
+	curs = conn.cursor()
+
+	# run queries
+	for query, args in queries:
+		if extra_verbose:
+			t1 = time.time()
+		try:
+			curs.execute(query, *args)
+		except:
+			if extra_verbose:
+				duration = time.time() - t1
+				_log.Log(gmLog.lData, 'query took %3.3f seconds' % duration)
+			conn.rollback()
+			exc_info = sys.exc_info()
+			typ, val, tb = exc_info
+			_serialize_failure = "not serialize access due to concurrent update"
+			if str(val).find(_serialize_failure) > 0:
+				_log.Log(gmLog.lData, 'concurrency conflict detected')
+				curs.close()
+				return (False, (2, _('Cannot save data. Database (row) locked by another user.')))
+			# FIXME: handle more types of errors
+			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], conn), exc_info)
+			if extra_verbose:
+				__log_PG_settings(curs)
+			curs.close()
+			tmp = str(val).replace('ERROR:', '')
+			tmp = tmp.replace('ExecAppend:', '')
+			tmp = tmp.strip()
+			return (False, (1, _('SQL: %s') % tmp))
+		# apparently succeeded
+		if extra_verbose:
+			duration = time.time() - t1
+			_log.Log(gmLog.lData, 'query >>>%s<<< with args >>>%s<<< succeeded on link [%s]' % (query[:250], str(args)[:250], conn))
+			_log.Log(gmLog.lData, '%s rows affected/returned in %3.3f seconds' % (curs.rowcount, duration))
+
+	# did we get result rows in the last query ?
+	data = None
+	# now, the DB-API is ambigous about whether cursor.description
+	# and cursor.rowcount apply to the most recent query in a cursor
+	# (does this statement make any sense in the first place ?) or
+	# to the entire lifetime of said cursor, pyPgSQL thinks the
+	# latter, hence we need to catch exceptions when there's no
+	# data from the *last* query
+	try:
+		data = curs.fetchall()
+	except:
+		if extra_verbose:
+			_log.Log(gmLog.lData, 'fetchall(): last query did not return rows')
+		# should be None if no rows were returned ...
+		if curs.description is not None:
+			_log.Log(gmLog.lData, 'there seem to be rows but fetchall() failed -- DB API violation ?')
+			_log.Log(gmLog.lData, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
+	if end_tx:
+		conn.commit()
+	curs.close()
+	return (True, data)
+#---------------------------------------------------
+def __commit2cursor(cursor=None, queries=None, extra_verbose=False):
+	# run queries
+	for query, args in queries:
+		if extra_verbose:
+			t1 = time.time()
+		try:
+			curs.execute(query, *args)
+		except:
+			if extra_verbose:
+				duration = time.time() - t1
+				_log.Log(gmLog.lData, 'query took %3.3f seconds' % duration)
+			exc_info = sys.exc_info()
+			typ, val, tb = exc_info
+			_serialize_failure = "not serialize access due to concurrent update"
+			if str(val).find(_serialize_failure) > 0:
+				_log.Log(gmLog.lData, 'concurrency conflict detected')
+				return (False, (2, _('Cannot save data. Database (row) locked by another user.')))
+			# FIXME: handle more types of errors
+			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], cursor), exc_info)
+			if extra_verbose:
+				__log_PG_settings(curs)
+			tmp = str(val).replace('ERROR:', '')
+			tmp = tmp.replace('ExecAppend:', '')
+			tmp = tmp.strip()
+			return (False, (1, _('SQL: %s') % tmp))
+		# apparently succeeded
+		if extra_verbose:
+			duration = time.time() - t1
+			_log.Log(gmLog.lData, 'query >>>%s<<< with args >>>%s<<< succeeded on link [%s]' % (query[:250], str(args)[:250], cursor))
+			_log.Log(gmLog.lData, '%s rows affected/returned in %3.3f seconds' % (curs.rowcount, duration))
+
+	# did we get result rows in the last query ?
+	data = None
+	# now, the DB-API is ambigous about whether cursor.description
+	# and cursor.rowcount apply to the most recent query in a cursor
+	# (does this statement make any sense in the first place ?) or
+	# to the entire lifetime of said cursor, pyPgSQL thinks the
+	# latter, hence we need to catch exceptions when there's no
+	# data from the *last* query
+	try:
+		data = curs.fetchall()
+	except:
+		if extra_verbose:
+			_log.Log(gmLog.lData, 'fetchall(): last query did not return rows')
+		# should be None if no rows were returned ...
+		if curs.description is not None:
+			_log.Log(gmLog.lData, 'there seem to be rows but fetchall() failed -- DB API violation ?')
+			_log.Log(gmLog.lData, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
+	return (True, data)
 #---------------------------------------------------
 def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	"""Convenience function for running a transaction
@@ -977,7 +1181,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.31 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.32 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1195,7 +1399,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.31  2004-11-01 23:21:30  ncq
+# Revision 1.32  2004-11-02 21:04:40  ncq
+# - checked in first cut at run_commit2()
+# - next step is to make __commit2service/conn() use __commit2cursor()
+#
+# Revision 1.31  2004/11/01 23:21:30  ncq
 # - remove some cruft
 # - add stub for run_commit() so people can comment
 #   (run_commit() started to smell rotten so let's try to
