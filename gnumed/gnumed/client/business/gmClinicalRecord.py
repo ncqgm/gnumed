@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.10 2003-06-01 13:53:55 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmClinicalRecord.py,v 1.11 2003-06-01 14:07:42 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -59,7 +59,6 @@ class gmClinicalRecord:
 		if not self._register_interests():
 			raise gmExceptions.ConstructorError, "cannot register signal interests"
 
-
 		self.ensure_current_clinical_encounter()
 		self.init_issue_episodes()
 
@@ -69,14 +68,13 @@ class gmClinicalRecord:
 		self._backend.Unlisten(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted)
 		if self.__dict__.has_key('_backend'):
 			self._backend.ReleaseConnection('historica')
-	
+	#--------------------------------------------------------
+	# FIXME: temporary hack for dropping connections (?)
 	def getConnection(self):
 		return gmPG.ConnectionPool().GetConnection("historica")
-
+	#--------------------------------------------------------
 	def getCursor(self):
 		return self.getConnection().cursor()
-
-	
 	#--------------------------------------------------------
 	# cache handling
 	#--------------------------------------------------------
@@ -113,7 +111,7 @@ class gmClinicalRecord:
 		#------------------------------------	
 		# still has bug about portal closed.
 		# REMOVE when bug sorted out
-		if (rows == None or len(rows) == 0):		
+		if (rows is None or len(rows) == 0):		
 			try:
 				rows, description = gmPG.quickROQuery( cmd)
 			except:
@@ -333,11 +331,11 @@ class gmClinicalRecord:
 	def create_episode_for_issue(self, issue_id):
 		marker  = time.asctime()
 		cmd = "insert into clin_episode( id_health_issue, description ) values ( %d , '%s')" % (issue_id, marker)
-		if self.execute(cmd, "unable to create issue") == None:
+		if self.execute(cmd, "unable to create issue") is None:
 			return 0
 		cmd = "select id from clin_episode where id_health_issue=%d  and description='%s'" %(issue_id, marker)
 		rows = self.execute(cmd, "unable to find most recent episode insertion")
-		if rows == None or len(rows) > 1:
+		if rows is None or len(rows) > 1:
 			_log.Log(gmLog.lErr, "rows not valid. Should be only one row : rows="+str(rows) )
 			return 0
 		
@@ -361,11 +359,11 @@ class gmClinicalRecord:
 
 		marker = time.asctime()
 		cmd = "insert into clin_encounter( id_location, id_provider, id_type, description ) values(0 , 0, 1, '%s' ) " % marker
-		if self.execute(cmd, "unable to create clin encounter") == None:
+		if self.execute(cmd, "unable to create clin encounter") is None:
 			return 0
 		cmd = "select id  from clin_encounter where description = '%s'" % marker
 		rows = self.execute(cmd, "unable to select recently created encounter")
-		if rows == None:
+		if rows is None:
 			return 0
 		if len (rows) <> 1 :
 			_log.Log(gmLog.lErr, "there are %d rows with marker %s. Row should be unique" %(len(rows), marker) )
@@ -378,7 +376,7 @@ class gmClinicalRecord:
 		_log.Data("Running query : %s" % cmd)
 		#</DEBUG>
 		curs = self.getTransactionCursor()
-		if curs == None:
+		if curs is None:
 			curs = self.getCursor()
 		if not gmPG.run_query(curs, cmd):
 			if rollback and not gmPG.run_query(curs, "rollback"):
@@ -390,7 +388,7 @@ class gmClinicalRecord:
 		if self.is_update_command(cmd):
 			return []  # don't fetch from cursor	
 		rows = curs.fetchall()
-		if self.getTransactionCursor() == None:
+		if self.getTransactionCursor() is None:
 			curs.close()
 		
 		return rows
@@ -415,10 +413,12 @@ class gmClinicalRecord:
 
 
 	def is_update_command(self, cmd):
-		return  string.find(string.lower(cmd), "insert") >= 0 or\
-		string.find(string.lower(cmd), "update") >= 0 or\
-		string.find(string.lower(cmd), "delete") >= 0  or  \
-		string.find(string.lower(cmd), "commit") >= 0;
+		if 	string.find(string.lower(cmd), "insert") >= 0 or \
+			string.find(string.lower(cmd), "update") >= 0 or \
+			string.find(string.lower(cmd), "delete") >= 0 or \
+			string.find(string.lower(cmd), "commit") >= 0 or \
+			string.find(string.lower(cmd), "select into") >= 0:
+				return 1
 	
 	#--------------------------------------------------------
 	# set up handler map
@@ -445,7 +445,10 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.10  2003-06-01 13:53:55  ncq
+# Revision 1.11  2003-06-01 14:07:42  ncq
+# - "select into" is an update command, too
+#
+# Revision 1.10  2003/06/01 13:53:55  ncq
 # - typo fixes, cleanup, spelling definate -> definite
 # - fix my obsolote handling of patient allergies tables
 # - remove obsolete clin_transaction stuff
