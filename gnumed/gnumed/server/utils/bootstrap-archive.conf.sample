@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-archive.conf.sample,v $
-version = $Revision: 1.4 $
+version = $Revision: 1.5 $
 
 #----------------------------------
 [installation]
@@ -29,6 +29,7 @@ $services$
 language library dirs = $language library dirs$
 /usr/lib/postgresql/lib/
 /usr/lib/pgsql/
+/usr/local/pgsql/lib
 $language library dirs$
 
 #----------------------------------
@@ -76,7 +77,11 @@ postgres version = 7.1
 registration database = gm-archive
 schema = $schema$
 sql/gmidentity.sql
+sql/gmIdentityData.sql
+sql/gmIdentityTestData.sql
 sql/gmgis.sql
+sql/gmGisData.sql
+sql/country.specific/de/german-family_relations.sql
 $schema$
 
 [service documents]
@@ -136,7 +141,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-archive.conf.sample,v $
-# Revision 1.4  2003-02-09 11:46:11  ncq
+# Revision 1.5  2003-02-17 13:57:41  ncq
+# - updated
+#
+# Revision 1.4  2003/02/09 11:46:11  ncq
 # - added core database option for registering services
 # - convenience function _run_query()
 #
