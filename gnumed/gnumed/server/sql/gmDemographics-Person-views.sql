@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.4 2003-11-23 00:02:47 sjtan Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.5 2003-11-23 12:53:20 sjtan Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -90,7 +90,8 @@ BEGIN
 	-- new name
 	insert into names (id_identity, firstnames, lastnames, active) values (identity_id, first, last, activated);
 	if FOUND then
-		select id from names where id_identity = identity_id and firstnames = first and lastnames = last;
+		select into n_rec id from names where id_identity = identity_id and firstnames = first and lastnames = last;
+		return n_rec.id;
 	end if;
 	return NULL;
 END;' language 'plpgsql';
@@ -165,11 +166,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.4  2003-11-23 00:02:47  sjtan
+-- Revision 1.5  2003-11-23 12:53:20  sjtan
+-- *** empty log message ***
+--
+-- Revision 1.4  2003/11/23 00:02:47  sjtan
 --
 -- NEW.active is not the same as NEW.active = true; does it mean 'is there a NEW.active' ?
 -- the syntax for n_id variable didn't seem to work; this works?
