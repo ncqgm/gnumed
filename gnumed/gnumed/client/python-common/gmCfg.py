@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #==================================================================
-"""GNUmed configuration handling.
+"""GnuMed configuration handling.
 
 Two sources of configuration information are supported:
 
@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -543,7 +543,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.14  2002-09-26 13:21:37  ncq
+# Revision 1.15  2002-09-30 10:58:27  ncq
+# - consistently spell GnuMed
+#
+# Revision 1.14  2002/09/26 13:21:37  ncq
 # - log version
 #
 # Revision 1.13  2002/09/12 23:11:14  ncq
