@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -257,7 +257,7 @@ comment on column lnk_person2id.description is
 create table names (
 	id serial primary key,
 	id_identity integer references identity,
-	active boolean default 't',
+	active boolean default false,
 	lastnames text not null,
 	firstnames text not null,
 	preferred text,
@@ -504,11 +504,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.14 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.15 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.14  2003-11-20 02:08:20  ncq
+-- Revision 1.15  2003-11-22 14:55:15  ncq
+-- - default names.active to false, thereby fixing various side effects
+--
+-- Revision 1.14  2003/11/20 02:08:20  ncq
 -- - we decided to drop N/A from identity.gender, hence make it varchar(2) again
 --
 -- Revision 1.13  2003/11/20 00:38:43  ncq
