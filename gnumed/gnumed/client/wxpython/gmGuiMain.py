@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.158 2004-07-15 07:57:20 ihaywood Exp $
-__version__ = "$Revision: 1.158 $"
+# $Id: gmGuiMain.py,v 1.159 2004-07-15 14:02:43 ncq Exp $
+__version__ = "$Revision: 1.159 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -105,20 +105,27 @@ class gmTopLevelFrame(wxFrame):
 		self.guibroker = gmGuiBroker.GuiBroker()
 		self.guibroker['EmergencyExit'] = self._clean_exit
 		self.guibroker['main.frame'] = self
-
-		self.mode, set1 = gmCfg.getFirstMatchingDBSet(machine = _whoami.get_workplace (),
-							      option = 'main.window.mode')
+		# get plugin layout style
+		self.layout_style, set1 = gmCfg.getFirstMatchingDBSet(
+			machine = _whoami.get_workplace(),
+			option = 'main.window.layout_style'
+		)
 		if set1 is None:
- 			self.mode = 'status_quo'
- 			gmCfg.setDBParam(machine = _whoami.get_workplace(),
-					 user = _whoami.get_db_account(),
-					 option = 'main.window.mode',
-					 value = self.mode )
-
-		self.bar_width, set1 = gmCfg.getFirstMatchingDBSet(machine = _whoami.get_workplace (),
-							      option = 'main.window.sidebar_width')
+ 			self.layout_style = 'status_quo'
+ 			gmCfg.setDBParam(
+				machine = _whoami.get_workplace(),
+				user = _whoami.get_db_account(),
+				option = 'main.window.layout_style',
+				value = self.layout_style
+			)
+		# get Terry style horizontal ratio
+		self.bar_width, set1 = gmCfg.getFirstMatchingDBSet(
+			machine = _whoami.get_workplace (),
+			option = 'main.window.sidebar_width'
+		)
 		if set1 is None:
  			self.bar_width = 210 # about 1/3 of our hardcoded efault screen-width
+
 		self.SetupStatusBar()
 		self.SetStatusText(_("You are logged in as [%s].") % _whoami.get_db_account())
 		self.guibroker['main.statustext'] = self.SetStatusText
@@ -158,12 +165,23 @@ class gmTopLevelFrame(wxFrame):
 		# - but then proportion 10 for the notebook does not mean anything
 		self.vbox.Add (self.top_panel, 0, wxEXPAND, 1)
 
-		if self.mode == 'status_quo':
+		################################################################
+		# one should try to factor out the parts between the #==========
+		# into their own container (?frame, ?sizer, ?panel) and then
+		# do generic interaction with that container only
+		# layout specific interaction should be done inside that
+		# container IMO
+		################################################################
+
+		if self.layout_style == 'status_quo':
+			#==========
 			# now set up the main notebook
 			self.nb = wxNotebook (self, ID_NOTEBOOK, size = wxSize(320,240), style = wxNB_BOTTOM)
+			#==========
 			self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
-		elif self.mode == 'terry':
-			# set up the Terry-style split screen 
+		elif self.layout_style == 'terry':
+			#==========
+			# set up the Terry-style split screen
 			self.mainpanel = wxPanel (self, -1)
 			self.imagelist = wxImageList (16, 16)
 			self.nb = wxNotebook (self.mainpanel, ID_NOTEBOOK, size = wxSize(320,240))
@@ -176,65 +194,73 @@ class gmTopLevelFrame(wxFrame):
 			self.leftbox.SetSashVisible(wxSASH_LEFT, True)
 			EVT_SIZE (self.mainpanel, self.OnPanelSize)
 			EVT_SASH_DRAGGED (self.leftbox, ID_LEFTBOX, self.OnSashDrag)
+			#==========
 			self.vbox.Add (self.mainpanel, 10, wxEXPAND | wxALL, 1)
-			
+
 		self.guibroker['main.notebook'] = self.nb
-		# this list relates plugins to the notebook
-		self.plugins = {}
 		self.__register_events()
+		# this flag prevents pointless repaeated reloading of accelerator table during startup
 		self.dont_touch_accels = 1
+		self.plugins = {}				# relates plugins to the notebook
 		self.__load_plugins()
-		self.__setup_accelerators ()
-		self.dont_touch_accels = 0 # his flag prevents pointless repaeated reloading of accelerator table during startup
+		self.__setup_accelerators()
+		self.dont_touch_accels = 0
 		# size, position and show ourselves
 		self.top_panel.ReFit()
 		self.SetAutoLayout(true)
 		self.SetSizer(self.vbox)
 		self.vbox.Fit(self)
-		#don't let the window get too small
-		# FIXME: should load last used size here
+
+		# don't allow the window to get too small
 		# setsizehints only allows minimum size, therefore window can't become small enough
 		# effectively we need the font size to be configurable according to screen size
 		#self.vbox.SetSizeHints(self)
 
-		# try to get last window size from the backend
- 		defaultWidth, defaultHeight = (640,480)
- 		
- 		width, set1 = gmCfg.getFirstMatchingDBSet( 
+		self.__set_GUI_size()
+
+		self.Centre(wxBOTH)
+		self.Show(true)
+	#----------------------------------------------
+	def __set_GUI_size(self):
+		# try to get previous window size from the backend
+ 		def_width, def_height = (640,480)
+
+		# FIXME: add in user
+ 		prev_width, set1 = gmCfg.getFirstMatchingDBSet( 
 			machine = _whoami.get_workplace(),
  			option = 'main.window.width'
 		)
- 		height, set2 = gmCfg.getFirstMatchingDBSet( 
+ 		prev_height, set2 = gmCfg.getFirstMatchingDBSet( 
  			machine = _whoami.get_workplace(),
  			option = 'main.window.height'
  		)
  		# FIXME: Why does gmCfg return an instance type for numeric types ??
  		# i.e. which is the object it returns ??
- 		if not set1 is None:
- 			currentWidth = int(width)
+		if not set1 is None:
+			desired_width = int(prev_width)
 		else:
- 			currentWidth = defaultWidth
- 			gmCfg.setDBParam(machine = _whoami.get_workplace(),
- 				user = _whoami.get_db_account(),
- 				option = 'main.window.width',
- 				value = currentWidth )
-				 				
- 		if not set2 is None:
- 			currentHeight = int(height)
- 		else:
- 			currentHeight = defaultHeight
- 			gmCfg.setDBParam(machine = _whoami.get_workplace(),
+			desired_width = def_width
+			gmCfg.setDBParam(
+				machine = _whoami.get_workplace(),
+				user = _whoami.get_db_account(),
+				option = 'main.window.width',
+				value = desired_width
+			)
+
+		if not set2 is None:
+			desired_height = int(prev_height)
+		else:
+ 			desired_height = def_height
+			gmCfg.setDBParam(
+				machine = _whoami.get_workplace(),
 				user = _whoami.get_db_account(),
 				option = 'main.window.height',
- 				value = currentHeight )
- 
- 		_log.Log(gmLog.lInfo, 'currSize [%s,%s]' % (currentWidth,currentHeight))
+				value = desired_height
+			)
 
- 		self.SetClientSize(wxSize(currentWidth,currentHeight))
-# Fit() will re-shrink the window
-#		self.Fit()
-		self.Centre(wxBOTH)
-		self.Show(true)
+ 		_log.Log(gmLog.lInfo, 'desired GUI size: [%s:%s]' % (desired_width, desired_height))
+
+ 		self.SetClientSize(wxSize(desired_width, desired_height))
 	#----------------------------------------------
 	def __setup_platform(self):
 		#do the platform dependent stuff
@@ -359,21 +385,21 @@ class gmTopLevelFrame(wxFrame):
 		gmDispatcher.connect(self.on_new_notebook, gmSignals.new_notebook ())
 		gmDispatcher.connect(self.on_unload_plugin, gmSignals.unload_plugin ())
 		gmDispatcher.connect(self.SetNotebook, gmSignals.wish_display_plugin ())
-		if self.mode == 'terry':
+		if self.layout_style == 'terry':
 			gmDispatcher.connect (self.on_new_sidebar, gmSignals.new_sidebar ())
 	#----------------------------------------------
 	def OnNotebookPageChanging(self, event):
 		"""Called before notebook page change is processed.
 		"""
-		old_page_id = event.GetOldSelection()
 		# FIXME: this is the place to tell the old page to
 		# make it's state permanent somehow,
 		# in general, call any "validators" for the
 		# old page here
-		new_page_id = event.GetSelection()
-		if new_page_id != old_page_id:
-			for key, item in self.plugins.items ():
-				if item['n'] == new_page_id:
+		id_old_page = event.GetOldSelection()
+		id_new_page = event.GetSelection()
+		if id_new_page != id_old_page:
+			for key, item in self.plugins.items():
+				if item['n'] == id_new_page:
 					ret = gmDispatcher.send (gmSignals.display_plugin (), sender=self, name=key)
 					break
 			for receiver, response in ret:
@@ -384,25 +410,25 @@ class gmTopLevelFrame(wxFrame):
 			_log.Log(gmLog.lData, 'cannot check if page change needs to be veto()ed')
 		event.Skip() # required for MSW
 	#----------------------------------------------
-	def SetNotebook (self, new_page_id=-1, name=""):
+	def SetNotebook (self, id_new_page=-1, name=""):
 		"""Programmatic version of the above
 		Is also the handler for wish_display_plugin
 		"""
-		old_page_id = self.nb.GetSelection ()
-		if new_page_id > -1:
+		id_old_page = self.nb.GetSelection ()
+		if id_new_page > -1:
 			for key, item in self.plugins.items ():
-				if item['n'] == new_page_id:
+				if item['n'] == id_new_page:
 					name=key
 					break
 		else:
-			new_page_id = self.plugins[name]['n']
+			id_new_page = self.plugins[name]['n']
 
-		if new_page_id != old_page_id:
+		if id_new_page != id_old_page:
 			ret = gmDispatcher.send (gmSignals.display_plugin (), sender=self, name=key)
 			for receiver, response in ret:
 				if response == 'veto':
 					return
-			self.nb.SetSelection (new_page_id)
+			self.nb.SetSelection (id_new_page)
 		else:
 			_log.Log(gmLog.lData, 'cannot check if page change needs to be veto()ed')
 
@@ -412,7 +438,7 @@ class gmTopLevelFrame(wxFrame):
 		A plugin has asked to be displayed by the new method
 		"""
 		widget = kwargs['widget'] (self.nb)
-		if self.mode =='terry' and kwargs['icon']:
+		if self.layout_style =='terry' and kwargs['icon']:
 			im_n = self.imagelist.AddIcon (kwargs['icon'])
 			self.nb.AddPage (widget, "", im_n)
 		else:
@@ -466,7 +492,7 @@ class gmTopLevelFrame(wxFrame):
 	def __on_patient_selected(self, **kwargs):
 		pat = gmPatient.gmCurrentPatient()
 		try:
-			pat['clinical record']
+			pat.get_clinical_record()
 			pat['demographic record']
 		except:
 			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
@@ -871,7 +897,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.158  2004-07-15 07:57:20  ihaywood
+# Revision 1.159  2004-07-15 14:02:43  ncq
+# - refactored out __set_GUI_size() from TopLevelFrame.__init__()
+#   so cleanup will be easier
+# - added comment on layout managers
+#
+# Revision 1.158  2004/07/15 07:57:20  ihaywood
 # This adds function-key bindings to select notebook tabs
 # (Okay, it's a bit more than that, I've changed the interaction
 # between gmGuiMain and gmPlugin to be event-based.)
