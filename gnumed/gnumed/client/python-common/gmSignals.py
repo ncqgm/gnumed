@@ -24,10 +24,10 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
-
+#=============================================================
 def popup_notice():
 	"a notice of general interest has been received"
 	return 'popup_notice'
@@ -35,11 +35,11 @@ def popup_notice():
 def popup_alert():
 	"an important notice of general ineterest has been received"
 	return 'popup_alert'
-	
+#-------------------------------------------------------------
 def patient_selected():
 	"the current active patient displayed by the client has been selected"
 	return 'patient_selected'
-	
+
 def patient_modified():
 	"the current patients demographic data has been modified"
 	return 'patient_modified'
@@ -47,7 +47,7 @@ def patient_modified():
 def medication_modified():
 	"the current patient's medication has been modified"
 	return 'medication_modified'
-	
+#-------------------------------------------------------------
 def waitingroom_added():
 	"a patient has been added to the waiting room"
 	return 'waitingroom_added'
@@ -60,7 +60,7 @@ def waitingroom_left():
 	"a aptient has left the waiting room, finished his consultation"
 	return 'waitingroom_left'
 	
-	
+#=============================================================	
 if __name__ == "__main__":
 
 	import gmDispatcher
@@ -86,6 +86,9 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.3  2002-09-10 07:41:27  ncq
+# Revision 1.4  2002-11-30 11:07:50  ncq
+# - just a bit of cleanup
+#
+# Revision 1.3  2002/09/10 07:41:27  ncq
 # - added changelog keyword
 #
