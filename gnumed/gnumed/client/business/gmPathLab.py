@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.23 2004-05-24 23:34:53 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmPathLab.py,v 1.24 2004-05-25 00:07:31 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -109,13 +109,15 @@ class cLabResult(gmClinItem.cClinItem):
 	#--------------------------------------------------------
 	def get_patient(self):
 		cmd = """
-			select vpi.id_patient, vbp.title, vbp.firstnames, vbp.lastnames, vbp.dob
-			from v_patient_items vpi, test_result tr, v_basic_person vbp
-			where
-				vpi.id_item=tr.pk_item
-					and
-				vbp.i_id=vpi.id_patient"""
-		pat = gmPG.run_ro_query('historica', cmd)
+			select
+				%s,
+				vbp.title,
+				vbp.firstnames,
+				vbp.lastnames,
+				vbp.dob
+			from v_basic_person vbp
+			where vbp.i_id=%%s""" % self._payload[self._idx['pk_patient']]
+		pat = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_patient']])
 		return pat[0]
 #============================================================
 class cLabRequest(gmClinItem.cClinItem):
@@ -292,7 +294,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.23 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.24 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -372,7 +374,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.23 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.24 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -493,6 +495,8 @@ def get_pending_requests(limit=250):
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
+	import time
+
 	def test_result():
 		lab_result = cLabResult(aPK_obj=29)
 		print lab_result
@@ -500,6 +504,9 @@ if __name__ == '__main__':
 		for field in fields:
 			print field, ':', lab_result[field]
 		print "updatable:", lab_result.get_updatable_fields()
+		print time.time()
+		print lab_result.get_patient()
+		print time.time()
 	#--------------------------------------------------------
 	def test_request():
 		try:
@@ -514,7 +521,9 @@ if __name__ == '__main__':
 		for field in fields:
 			print field, ':', lab_req[field]
 		print "updatable:", lab_req.get_updatable_fields()
+		print time.time()
 		print lab_req.get_patient()
+		print time.time()
 	#--------------------------------------------------------
 	def test_create_result():
 #		data = create_test_result(patient_id=12, when_field='lab_rxd_when', when='2000-09-17 15:40', test_type=6, val_num=9.5, unit='Gpt/l')
@@ -535,16 +544,19 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 
-#	test_result()
-#	test_request()
+	test_result()
+	test_request()
 #	test_create_result()
 #	test_unreviewed()
-	test_pending()
+#	test_pending()
 
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.23  2004-05-24 23:34:53  ncq
+# Revision 1.24  2004-05-25 00:07:31  ncq
+# - speed up get_patient in test_result
+#
+# Revision 1.23  2004/05/24 23:34:53  ncq
 # - optimize get_patient in cLabRequest()
 #
 # Revision 1.22  2004/05/24 14:59:45  ncq
