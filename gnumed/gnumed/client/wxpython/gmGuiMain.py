@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.87 2003-03-29 13:48:42 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmGuiMain.py,v 1.88 2003-03-29 14:12:35 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -147,6 +147,7 @@ class MainFrame(wxFrame):
                 ##self.guibroker['main.szr_main_container']=self.szr_main_container
 		# a vertical box sizer for the main window
 		self.vbox = wxBoxSizer(wxVERTICAL)
+		self.vbox.SetMinSize(wxSize(320,240))
 		self.guibroker['main.vbox'] = self.vbox
 
 		# create the "top row"
@@ -615,7 +616,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.87  2003-03-29 13:48:42  ncq
+# Revision 1.88  2003-03-29 14:12:35  ncq
+# - set minimum size to 320x240
+#
+# Revision 1.87  2003/03/29 13:48:42  ncq
 # - cleanup, clarify, improve sizer use
 #
 # Revision 1.86  2003/03/24 17:15:05  ncq
