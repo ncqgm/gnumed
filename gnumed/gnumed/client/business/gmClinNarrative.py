@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -50,7 +50,7 @@ class cDiag(gmClinItem.cClinItem):
 		"""
 			Retrieves codes linked to *this* diagnosis
 		"""
-		# Note: caching won't work without a having a mechanism
+		# Note: caching won't work without having a mechanism
 		# to evict the cache when the backend changes
 		cmd = "select code, coding_system from v_pat_diag_codes where pk_diag=%s"
 		rows = gmPG.run_ro_query('historica', cmd, None, self.pk_obj)
@@ -65,7 +65,7 @@ class cDiag(gmClinItem.cClinItem):
 		"""
 		# Note: caching won't work without a having a mechanism
 		# to evict the cache when the backend changes
-		cmd = "select code, coding_system from v_codes4diag where diagnosis=%(diagnosis)s"
+		cmd = "select code, coding_system from v_codes4diag where diagnosis=%s"
 		rows = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['diagnosis']])
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot get codes for diagnosis [%s]' % self._payload[self._idx['diagnosis']])
@@ -109,6 +109,32 @@ class cNarrative(gmClinItem.cClinItem):
 		'is_aoe',
 		'soap_cat'
 	]
+	#--------------------------------------------------------
+	def get_codes(self):
+		"""
+			Retrieves codes linked to *this* narrative
+		"""
+		# Note: caching won't work without having a mechanism
+		# to evict the cache when the backend changes
+		cmd = "select code, xfk_coding_system from lnk_code2narr where fk_narrative=%s"
+		rows = gmPG.run_ro_query('historica', cmd, None, self.pk_obj)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot get codes linked to narrative [%s]' % self.pk_obj)
+			return []
+		return rows
+	#--------------------------------------------------------
+	def add_code(self, code=None, coding_system=None):
+		"""
+			Associates a code (from coding system) with this narrative.
+		"""
+		# insert new code
+		queries = []
+		cmd = """insert into lnk_code2narr (fk_narrative, code, xfk_coding_system) values (%s, %s, %s)"""
+		queries.append((cmd, [self.pk_obj, code, coding_system]))
+		result, msg = gmPG.run_commit('historica', queries, True)
+		if result is None:
+		    return (False, msg)
+		return (True, msg)
 #============================================================
 class cRFE(gmClinItem.cClinItem):
 	"""
@@ -183,7 +209,7 @@ class cAOE(gmClinItem.cClinItem):
 	    self.__diagnosis = []
 	    queries = []
 	    vals = {'pk_narrative': self['pk_narrative']}
-	    cmd = "select distinct on (diagnosis, code, coding_system) * from v_pat_diag where pk_diagnosis=%(pk_narrative)s"
+	    cmd = "select distinct on (diagnosis) * from v_pat_diag where pk_narrative=%(pk_narrative)s"
 	    rows = gmPG.run_ro_query('historica', cmd, None, vals)
 	    if rows is None:
 	        _log.Log(gmLog.lErr, 'cannot query diagnosis for aoe [%s]' % (self.pk_obj))
@@ -254,17 +280,22 @@ if __name__ == '__main__':
 		print field, ':', diagnose[field]
 	print "updatable:", diagnose.get_updatable_fields()
 	print "codes:", diagnose.get_codes()
+	print "possible codes:", diagnose.get_possible_codes()
 	#print "adding code..."
 	#diagnose.add_code('Test code', 'Test coding system')
 	#print "codes:", diagnose.get_codes()
 
 	print "\nnarrative test"
 	print   "--------------"
-	narrative = cNarrative(aPK_obj=1)
+	narrative = cNarrative(aPK_obj=7)
 	fields = narrative.get_fields()
 	for field in fields:
 		print field, ':', narrative[field]
 	print "updatable:", narrative.get_updatable_fields()
+	print "codes:", narrative.get_codes()
+	#print "adding code..."
+	#narrative.add_code('Test code', 'Test coding system')
+	#print "codes:", diagnose.get_codes()
 	
 	#print "creating narrative..."
 	#status, new_narrative = create_clin_narrative(narrative = 'Test narrative', soap_cat = 'a', episode_id=1, encounter_id=2)
@@ -274,7 +305,12 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.4  2004-07-07 15:05:51  ncq
+# Revision 1.5  2004-07-14 09:10:21  ncq
+# - Carlos' relentless work brings us get_codes(),
+#   get_possible_codes() and adjustions for the fact
+#   that we can now code any soap row
+#
+# Revision 1.4  2004/07/07 15:05:51  ncq
 # - syntax fixes by Carlos
 # - get_codes(), get_possible_codes()
 # - talk to the right views
