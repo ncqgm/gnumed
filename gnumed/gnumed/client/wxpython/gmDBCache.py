@@ -70,7 +70,9 @@ class DBcache:
 		self.querylock = threading.Lock()	#for multithreaded applications:
 		                                        #to prevent dirty buffer reads
 		self.notifylock = threading.Lock()	#for multithreaded applications:
-		                                        #to prevent unneccessary buffer reads
+		                                        #to prevent dirty widget updates
+		self.notifyqueue = 0	#for multithreaded applications:
+		                        #to prevent unneccessary widget updates
 
 
 class CachedDBObject:
@@ -137,10 +139,10 @@ class CachedDBObject:
 		return self.cache.id
 
 
-	def get(self, id=None, copy=1):
+	def get(self, id=None, by_reference=0):
 		"""returns the buffer. If id is not None and not in cache,
 		the backend will be queried.
-		If copy is not zero, a copy of the buffer instead of a reference
+		If by_reference is not zero, a copy of the buffer instead of a reference
 		to it will be returned.
 		When using multiple threads to access the data,
 		always use copies of the buffer!
@@ -156,14 +158,13 @@ class CachedDBObject:
 			self.__query()
 		#make sure we are not accessing the buffer while a query modifies it
 		self.cache.querylock.acquire(1)
-		if copy:
-			try:
+		try: #make sure the lock is released, no matter what
+			if not by_reference:
 				buf = copy.deepcopy(self.cache.buffer)
-			except:
+			else:
 				buf = self.cache.buffer
-		else:
-			buf = self.cache.buffer
-		self.cache.querylock.release()
+		finally: #make sure the lock is released, no matter what
+			self.cache.querylock.release()
 		return buf
 
 
@@ -186,28 +187,44 @@ class CachedDBObject:
 			self.who = who	#remember who I am
 			self.cache.notify[who] = callback
 
+	def queue_notification(self, queue=1):
+		"simple helper mechanism to ensure only the most recent thread updates widgets on data change"
+		self.cache.notifylock.acquire(1)
+		if queue==1:
+			notifyqueue = self.cache.notifyqueue + 1
+		else:
+			#reset the queue
+			notifyqueue = 0
+		self.cache.notifyqueue = notifyqueue
+		self.cache.notifylock.release()
+		return notifyqueue
+
 
 	def notify(self):
 		"""forces execution of all registered callback functions
 		This function will be called whenever the buffer changes
 		"""
 		#prevent multiple threads from messing up
-		self.cache.notifylock.acquire(1)
+		#this is a nasty lock which might block
+		nq= self.queue_notification()
 		#make sure we release the lock even if something goes wrong
-		try:
-			for caller in self.cache.notify.keys():
-				#do not notify me if I triggered the query myself
-				if caller != self.who:
-					#first parameter to callback function is the
-					#identity of the class triggering the callbacks,
-					#second parameter is the buffer id
-					self.cache.notify[caller](self.who, self.cache.id)
-				#<DEBUG>
-				#else:
-				#	print "Callback function skipped for [%s]" % self.who
-				#</DEBUG>
-		finally:
-			self.cache.notifylock.release()
+		for caller in self.cache.notify.keys():
+			if self.cache.notifyqueue>nq:
+				#another thread has made a newer buffer modification,
+				#let it do the job instead
+				return
+			#do not notify me if I triggered the query myself
+			if caller != self.who:
+				#first parameter to callback function is the
+				#identity of the class triggering the callbacks,
+				#second parameter is the buffer id
+				self.cache.notify[caller](self.who, self.cache.id)
+			#<DEBUG>
+			#else:
+			#	print "Callback function skipped for [%s]" % self.who
+			#</DEBUG>
+		nq = self.queue_notification(0) #finished notifying, we can reset the queue
+
 
 
 	def attributes(self):
@@ -216,7 +233,7 @@ class CachedDBObject:
 
 	def pprint(self):
 		"format buffer content in printable form"
-		buf = self.get(copy=0)
+		buf = self.get(by_reference=0)
 		#labels = self.attributes()
 		pstr=''
 		for row in buf:
@@ -246,7 +263,8 @@ class CachedDBObject:
 			#print "Executing %s\n" % self.cache.querystr
 			#</DEBUG>
 			cursor.execute(self.cache.querystr)
-			self.cache.buffer = cursor.fetchall()
+			print "filling buffer"
+			self.cache.buffer = copy.deepcopy(cursor.fetchall())
 			self.cache.attributes = gmPG.fieldNames(cursor)
 		finally:
 			self.cache.querylock.release()
@@ -312,6 +330,11 @@ if __name__ == "__main__":
 		for a in d:
 			print str(a) + "\t",
 		print "\n"
+	dblist2 = databases.get()
+	if dblist is dblist2:
+		print "Something went wrong!\nReference instead of copy returned for shared buffer"
+		import sys
+		sys.exit(1)
 
 	print "List of tables in curent database:"
 	print "-----------------------------------------------------"
