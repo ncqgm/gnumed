@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-04-08 13:59:03 $
-# @version $Revision: 1.17 $ $Date: 2002-04-08 13:59:03 $ $Author: ncq $
+# @Date: $Date: 2002-04-09 09:03:17 $
+# @version $Revision: 1.18 $ $Date: 2002-04-09 09:03:17 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -29,7 +29,7 @@
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # text translation function for localization purposes
@@ -399,7 +399,7 @@ myLog = gmLog.gmDefLog
 if __name__ == '__main__':
 	# we may want to reset the log level, so keep a global reference to the log target
 	# append only, log level "informational"
-	myLogFile = gmLog.cLogTargetFile('gnumed.log', 'a', gmLog.lInfo)
+	myLogFile = gmLog.cLogTargetFile(gmLog.lInfo, 'gnumed.log', 'a')
 	myLog.AddTarget(myLogFile)
 
 	# console is Good(tm)
