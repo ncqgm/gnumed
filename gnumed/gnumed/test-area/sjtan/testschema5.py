@@ -18,6 +18,7 @@ class SchemaParser:
 	def __init__(self, config):
 		self.config = config
 
+		self.global_implied_attrs = ['modified_by', 'modified_when', 'pk_audit', 'row_version']
 		self.create_regex()
 		#self.create_alias_sets()
 		self.model = {}
@@ -25,14 +26,26 @@ class SchemaParser:
 		self.type_tables = {} 
 		self.parents = {}
 		self.global_visited = {}
-		self.formList = {}
+		self.forms = {}
 		self.conn = pgdb.connect(credentials)
 		self.fks = self.get_fk_list()
 		self.inherits = self.get_inherits()
+		self.childParentsMap = self.makeParentLists()
+		print "child parent list = ",self.childParentsMap
+		self.attr_types = {}
 
 		self.build()
-		
+	
+	def makeParentLists(self):
+		m = {}
+		for c, p in self.inherits:
+			m[c] = m.get(c, [])
+			m[c].append(p)
+	
+		return m
+
 	def isDirectChild(self, child, parent):
+		
 		for c, p in self.inherits:
 			if  c== child and p == parent:
 				return 1
@@ -74,16 +87,54 @@ class SchemaParser:
 			fk_cmp = 'not'
 
 		cu = self.conn.cursor()
-		cu.execute("""
-		select attname from pg_attribute a, pg_class c where c.relfilenode = a.attrelid
-		and c.relname = '%s' and a.attnum > 0
-		and  a.attnum %s in ( select  pc.conkey[1] from pg_constraint pc where pc.contype='f' and pc.conrelid = c.relfilenode) 
-		and a.attname not in %s 
-		""" % (table, fk_cmp, str(tuple(['modified_by', 'modified_when', 'pk_audit', 'row_version']) )))
-		r = cu.fetchall()
+		tables_checked_for_fk = [table] + self.get_ancestors(table)
+		clause = """select attname from pg_attribute , pg_class, pg_constraint   where relfilenode = attrelid and relname = '%s' and pg_constraint.conrelid = relfilenode and pg_constraint.contype ='f' and conkey[1] = attnum"""
+		l_fk = []
+		for x in tables_checked_for_fk:
+			l_fk.extend([ x[0] for x in self.execute(clause % x)] )
+			
+		
+	#	cu.execute("""
+	#	select attname from pg_attribute a, pg_class c where c.relfilenode = a.attrelid
+	#	and c.relname = '%s' and a.attnum > 0
+	#	and  a.attnum %s in ( select  pc.conkey[1] from pg_constraint pc where pc.contype='f' and pc.conrelid = c.relfilenode) 
+	#	and a.attname not in %s 
+	#	""" % (table, fk_cmp, str(tuple( ['modified_by', 'modified_when', 'pk_audit', 'row_version']) )))
+	#	r = cu.fetchall()
+
+		l = self.global_implied_attrs + l_fk
+		excludes = ', '.join ( [ ''.join(["'",x,"'"]) for x in l ] ) 
+		r = self.execute("""
+		select attname from pg_attribute a, pg_class c where c.relfilenode = a.attrelid and
+		c.relname = '%s' and attnum > 0 and a.attname %s in ( %s ) """ % ( table, fk_cmp, excludes) ) 
 		l = [ x[0] for x in r]
 		return l
+
+	def get_attribute_type(self, table, attr):
+		if not self.attr_types.has_key(table):
+			r = self.execute("""
+		select attname, typname from pg_type t, pg_attribute a, pg_class c where c.relfilenode = a.attrelid and c.relname = '%s'  and a.atttypid = t.oid
+			""" % ( table) )
+			self.attr_types[table]  = dict([ (x[0],x[1]) for x in r] )
+
+		return self.attr_types[table].get(attr,'text') 
 		
+	def get_ancestors( self,  child):
+		parents = self.childParentsMap.get(child, [])
+		#print "PARENTS=", parents
+		ancestors = []
+		for x in parents:
+			ancestors = parents + self.get_ancestors(x)
+		return ancestors
+
+	def execute(self,stmt):
+		cu = self.conn.cursor()
+		cu.execute(stmt)
+		r = cu.fetchall()
+		cu.close()
+		return r
+		
+	
 	def get_pk_attr( self):
 		stmt = """
 		select  c.relname, a.attname from pg_attribute a, pg_class c, pg_constraint pc where  a.attrelid = c.relfilenode and pc.contype= 'p' and pc.conrelid = a.attrelid and pc.conkey[1] = a.attnum
@@ -348,37 +399,52 @@ class SchemaParser:
 				
 			
 	def get_forms( self, printForms = 0):
+		"""
+		the structure of self.form is 
+		a map[root] = ( attributes, listOfFormsInRoot)
+
+		Each item  in listOfFormsInRoot , the structure is :-
+			( nodeName, 			
+			
+		"""
 		for k in self.config.roots:
 			map = self.model[k]
 			a = [] 
 			self.get_flat_attributes(a, k, map)
 			allForms = []
 			self.get_collection_forms( allForms, map)
-			self.formList[k] = allForms
+			self.forms[k] = [(k, a +[ allForms]) ]
 
 			if printForms:
+				print
 				print "-" * 30
-				print "For root = ", k, " the flat attribute was: "
-				for k2 in self.sort_pk_first(a):
-					print '\t', k2
-					
-				print "Other forms collected within ", k  ," are:-"
-				self.print_form_list( allForms, 1)
+				print "Form  ", k  ," is:-"
+				self.print_form_list( self.forms[k], 0)
+		
+		return self.forms
 
-	def print_form_list(self, list, tab):		
-			for k, v in list:
-				print "\t" * tab , "For collection item ", k
+	def print_form_list(self, list, tab):	
+		"""list is a list of a pair tuple (x, l) 
+		where 	x is nodeName, 
+			l is a list of  node.attribute or a list of pair tuple(x,l) as above.
+			if l has no node.attribute items, it is a subclass list.
+		"""	
+		for (k, a) in list:
+			print "\t" * tab , "For collection item ", k
 
-				if filter(lambda(x): type(x) <> type([]), v) == []:
+			if filter(lambda(x): type(x) <> type([]), a) == []:
+				#if a == []:
 					print "collection subtypes are:"
-				else:	
-					print "\t" * tab , "attributes are :"
+			else:	
+				print "\t" * tab , "attributes are :"
 
-				for k2 in self.sort_pk_first(v):
-					if type(k2) == type([]):
-						self.print_form_list(k2, tab+1)
-					else:
-						print "\t" * (tab + 1), k2
+			for k2 in self.sort_pk_first(a):
+				if type(k2) == type([]):
+					self.print_form_list(k2, tab+1)
+				else:
+					print "\t" * (tab + 1), k2
+			#self.print_form_list(subList, tab+1)
+
 
 	def sort_pk_first( self, l):
 		def sort_path(k1, k2):
@@ -399,6 +465,7 @@ class SchemaParser:
 	
 		
 	def mergeParentAttributes( self, attributes, parent_attrs):
+		print "*** Merging parent attributes ", parent_attrs
 		for node, x in [z.split('.') for z in parent_attrs]:	
 			skip = 0
 			for n, a in [y.split('.') for y in attributes]:
@@ -410,25 +477,27 @@ class SchemaParser:
 	
 	def get_collection_forms(self, allForms, map, parent_attrs = []):
 
-			for k2, (tag, map2) in map.items():
-				if tag == '-*' or tag == '<-':
-					a2 = []
-					self.get_flat_attributes( a2, k2, map2)
+		for k2, (tag, map2) in map.items():
+			if tag == '-*' or tag == '<-':
+				a2 = []
+				self.get_flat_attributes( a2, k2, map2)
 
-					if tag == '<-':
-						self.mergeParentAttributes(a2, parent_attrs)
+				if tag == '<-':
+					self.mergeParentAttributes(a2, parent_attrs)
 						#a2.extend( parent_attrs )
 
-					if '<-' in [ tag for k,(tag,m) in map2.items() ]:
-						inc_parent_attrs = a2
-						a2 = []
-					else:
-						inc_parent_attrs = []
+				if '<-' in [ tag for k,(tag,m) in map2.items() ]:
+					inc_parent_attrs = a2
+					a2 = []
+				else:
+					inc_parent_attrs = []
 
-					forms = []
-					self.get_collection_forms(forms , map2, inc_parent_attrs)
+				forms = []
+				self.get_collection_forms(forms , map2, inc_parent_attrs)
+				if forms <> []:
 					a2.append(forms)
-					allForms.append( (k2, a2))
+				#print "appending ", k2, (a2, forms)
+				allForms.append( (k2, a2 ))
 							
 				
 					
@@ -549,7 +618,7 @@ reversed_link:	xlnk_identity.allergy_state, clin_root_item.lnk_type2item, clin_n
 
 type_tables:	^.*enum.*, ^.*category,  marital_status, staff_role, clin_item_type
 
-suppress:	 xlnk_identity.test_result, xlnk_identity.lab_request, xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode, xlnk_identity.clin_encounter.curr_encounter, xlnk_identity.test_type.test_result,  identity..org,  xlnk_identity.test_org.test_type, xlnk_identity.form_instances.referral,  org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan, identity.occupation.lnk_job2person
+suppress:	xlnk_identity.xlnk_identity.referral,  xlnk_identity.xlnk_identity.test_org,xlnk_identity.clin_encounter.clin_root_item,xlnk_identity.test_result, xlnk_identity.lab_request, xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode, xlnk_identity.clin_encounter.curr_encounter, xlnk_identity.test_type.test_result,  identity..org,  xlnk_identity.test_org.test_type, xlnk_identity.form_instances.referral,  org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan, identity.occupation.lnk_job2person
 
 double_linked:	xlnk_identity.referral.xlnk_identity, identity.lnk_person2relative.identity, identity.lnk_job2person.occupation, xlnk_identity.lnk_result2lab_req.test_result, 	xlnk_identity.clin_root_item.clin_episode, xlnk_identity.test_result.xlnk_identity, xlnk_identity.lab_request.xlnk_identity
 

@@ -13,7 +13,6 @@ import pgdb
 import traceback,sys
 
 #credentials = "localhost:gnumed:any-doc:any-doc"
-credentials = "hherb.com:gnumed:any-doc:any-doc"
 
 class Loader:
 
@@ -22,7 +21,7 @@ class Loader:
 		self.collections = {}
 		self.refs = {}
 		self.subclass = {}
-		self.conn = pgdb.connect(credentials)
+		self.conn = pgdb.connect(testschema.credentials)
 		self.descriptions= {}
 		pass	
 
@@ -313,5 +312,5 @@ if __name__ == '__main__':
 			traceback.print_tb(sys.exc_info()[2])
 
 		print '-' * 50
-		if raw_input('Debug values, collections (y/n) ? ')[0] == 'y':
+		if raw_input('Debug values, collections (y/n) ? ') == 'y':
 			l.printState()
