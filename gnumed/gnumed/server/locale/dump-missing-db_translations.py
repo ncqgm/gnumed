@@ -7,19 +7,17 @@ for which no translation is given.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/locale/dump-missing-db_translations.py,v $
-# $Id: dump-missing-db_translations.py,v 1.2 2004-01-12 17:15:18 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: dump-missing-db_translations.py,v 1.3 2004-05-22 11:50:55 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
-# go find our modules
-sys.path.append ("./modules/")
 
-import gmLog
+from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 _log.SetAllLogLevels(gmLog.lData)
 
-import gmPG
+from Gnumed.pycommon import gmPG
 # FIXME:
 gmPG.set_default_client_encoding('latin1')
 
@@ -54,7 +52,10 @@ if __name__ == '__main__':
 	print "done"
 #============================================================
 # $Log: dump-missing-db_translations.py,v $
-# Revision 1.2  2004-01-12 17:15:18  ncq
+# Revision 1.3  2004-05-22 11:50:55  ncq
+# - fix imports
+#
+# Revision 1.2  2004/01/12 17:15:18  ncq
 # - removed extra "values" in SQL template
 #
 # Revision 1.1  2003/12/29 14:57:37  uid66147
