@@ -1,0 +1,7 @@
+#========================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/README,v $
+# $Id: README,v 1.1 2003-02-15 17:14:32 ncq Exp $
+
+Subdirectories in here hold files relevant to packaging
+GnuMed or parts thereof for various purposes.
+
