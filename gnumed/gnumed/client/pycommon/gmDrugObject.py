@@ -13,21 +13,19 @@
 
 #==================================================================             
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDrugObject.py,v $      
-# $Id: gmDrugObject.py,v 1.2 2005-01-19 11:15:41 ncq Exp $
-__version__ = "$Revision: 1.2 $"                                               
+# $Id: gmDrugObject.py,v 1.3 2005-03-17 20:32:14 hinnef Exp $
+__version__ = "$Revision: 1.3 $"                                               
 __author__ = "Hilmar Berger <Hilmar.Berger@gmx.net>"
 
 import sys, string, types, os.path
 
-# FIXME: import is broken
-import gmLog
+import gmLog,gmCfg, gmPG
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	# running standalone means diagnostics by definition, hehe
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmCfg, gmDbObject, gmPG
 from gmExceptions import *
 
 #--------------------------------------------------------------------------
@@ -73,16 +71,6 @@ class cDrug:
 		self.__mQueryGroups = {}
 		self.__mQueryGroupHandlers = {}
 		self.__fastInit=0
-
-		# get static database handle if not already initialized by other instance of Drug object
-		if Drug._db is None:
-			try:
-				Drug._db = gmPG.ConnectionPool()
-			except:
-				exc = sys.exc_info()
-				_log.LogException("Failed to initialize ConnectionPool handle.", exc, verbose = 0)
-				# reraise the exception here
-				raise
 
 		# get queries from configuration source (currently only files are supported)
 		if queryCfgSource is None:
@@ -179,7 +167,7 @@ class cDrug:
 
 			# add new query group to QueryGroups dictionary
 			if not self.__mQueryGroups.has_key(qname):
-				self.__mQueryGroups[qname] = QueryGroup()
+				self.__mQueryGroups[qname] = cQueryGroup()
 			self.__mQueryGroups[qname].addEntry(entry_group)
 
 			# set the parameters read from config file				
@@ -195,7 +183,7 @@ class cDrug:
 
 		# initialize new QueryGroupHandler objects using configuration data
 		for so in self.__mQueryGroups.keys():
-			self.__mQueryGroupHandlers[so] = QueryGroupHandler(self, so, self.__mQueryGroups[so])
+			self.__mQueryGroupHandlers[so] = cQueryGroupHandler(self, so, self.__mQueryGroups[so])
 
 		return 1
 #--------------------------------------------------------------------------
@@ -204,14 +192,13 @@ class cQueryGroupHandler:
 
 	used to access the backend to fetch all those items at once
 
-	# FiXME: rework to not need gmDbObject
     """
     #--------------------------------------------------------------------------
 	def __init__(self, aParent=None, aName=None, aQueryGroup=None):
 		self.__mParent		= None			# points to the parent Drug object, used to access mVars
 		self.__mDBObject	= None			# reference to DBObject
 		self.__mObjectName	= None			# this DrugQueryGroupHandler's name
-		self.__mQueries		= QueryGroup()	# a QueryGroup holding queries to get the data for this QueryGroupHandlers.
+		self.__mQueries		= cQueryGroup()	# a QueryGroup holding queries to get the data for this QueryGroupHandlers.
 		self.__mData		= {}			# a dictionary holding all items belonging to this QueryGroupHandler
 
 		if aParent != None:
@@ -241,9 +228,6 @@ class cQueryGroupHandler:
 	#--------------------------------------------------------------------------
 	def __fetchBackendData(self):
 		"""try to fetch data from backend"""
-		# if no DBObject has been initialized so far, do it now
-		if self.__mDBObject is None:
-			self.__mDBObject = gmDbObject.DBObject(Drug._db,'pharmaceutica')
 
 		# cycle through query strings and get data
 		for queryName in self.__mQueries.mQueryStrings.keys():
@@ -262,11 +246,9 @@ class cQueryGroupHandler:
 			else:
 				querystring = self.__mQueries.mQueryStrings[queryName]
 
-			_log.Log(gmLog.lInfo, "Running query: %s" % querystring)
-			self.__mDBObject.SetSelectQuery(querystring)
-			# do the query
+#			_log.Log(gmLog.lInfo, "Running query: %s" % querystring)
 			try:
-				result = self.__mDBObject.Select(listonly=0)
+				result = gmPG.run_ro_query('pharmaceutica',querystring)
 			except:
 				_log.Log(gmLog.lWarn, "Query failed.")
 				
@@ -319,7 +301,7 @@ class cQueryGroupHandler:
 if __name__ == "__main__":
 	import os.path
 	tmp = os.path.join(os.path.expanduser("~"), ".gnumed", "amis.conf")
-	a = Drug(0, tmp)
+	a = cDrug(0, tmp)
 	x = a.GetData('brand')
 	if x:
 		print x
@@ -335,7 +317,10 @@ if __name__ == "__main__":
 #	print len(x['brandname'])
 #====================================================================================
 # $Log: gmDrugObject.py,v $
-# Revision 1.2  2005-01-19 11:15:41  ncq
+# Revision 1.3  2005-03-17 20:32:14  hinnef
+# -fixed module dependencies
+#
+# Revision 1.2  2005/01/19 11:15:41  ncq
 # - lots of FIXME stuff and some cleanup
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq

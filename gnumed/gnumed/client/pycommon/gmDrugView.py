@@ -49,7 +49,7 @@ class DrugView:
 			raise gmExceptions.ConstructorError,"No DrugDB config file specified."
 
 		try:
-			self.mDrugInterface = gmDrugObject.Drug(queryCfgSource = self.dbConfFile)
+			self.mDrugInterface = gmDrugObject.cDrug(queryCfgSource = self.dbConfFile)
 		except:
 			_log.LogException("Unhandled exception while opening config file", sys.exc_info(), verbose = 0)
 			raise gmExceptions.ConstructorError,"Couldn't initialize drug object for DB %s" % aDatabaseName
@@ -248,6 +248,9 @@ class DrugView:
 				text = "<A NAME=\"" + heading + "\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>" + heading + "</B></FONT><BR>"
 			else:
 				text = ''
+			
+			if format_type == "heading":
+				return text
 		        
 		if format_type == 'single':
 			formattedInfo = self.__mFormatString[pos] % queryResult
@@ -280,10 +283,10 @@ class DrugView:
 			if resultTotalLen > 0:
 				text += '<ul>' + tmpText + '</ul>'				
 			else:
-				text = ''
+				text = ''		
 		else:
 			# unhandled format type, shouldn't happen
-			_log.Log(gmLog.lWarn, "Unknown format type: %s" % format_type)
+			_log.Log(gmLog.lWarn, "Unknown format type: [%s]" % format_type)
 			text = ''
 
 		return text            	
@@ -382,6 +385,9 @@ def translateASCII2HTML(aString = None):
 	subst=re.sub('<',"&lt;",subst)
 	subst=re.sub('>',"&gt;",subst)
 	subst=re.sub("\xa7","<br>",subst)
+	subst=re.sub('ä','&aauml;',subst)
+	subst=re.sub('ö','&oauml;',subst)	
+	subst=re.sub('ü','&uauml;',subst)
 	return subst
  
 if __name__ == "__main__":
@@ -389,7 +395,10 @@ if __name__ == "__main__":
 
 #========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.5  2004-09-18 13:52:41  ncq
+# Revision 1.6  2005-03-17 20:32:14  hinnef
+# -fixed module dependencies
+#
+# Revision 1.5  2004/09/18 13:52:41  ncq
 # - properly use setDBParam()
 #
 # Revision 1.4  2004/08/20 13:34:48  ncq
