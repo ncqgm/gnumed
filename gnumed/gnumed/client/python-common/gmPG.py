@@ -11,7 +11,7 @@
 # to anybody else.
 #=======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -74,7 +74,7 @@ class ConnectionPool:
 	__connected = None
 	
 	#a dictionary mapping all backend listening threads to database id
-	__threads = {}
+	__listeners = {}
 	
 	#gmLoginInfo.LoginInfo instance
 	__login = None
@@ -156,8 +156,8 @@ class ConnectionPool:
 		except KeyError:
 			id = 0
 		### since we need only one listening thread per database
-		if id not in ConnectionPool.__threads.keys():
-			ConnectionPool.__threads[id] = self._StartListeningThread(service);
+		if id not in ConnectionPool.__listeners.keys():
+			ConnectionPool.__listeners[id] = self._StartListeningThread(service);
 		self._ListenTo(service, signal, callback)
 	#-----------------------------
 	def _ListenTo(self, service, signal, callback):
@@ -166,8 +166,8 @@ class ConnectionPool:
 			id = ConnectionPool.__service_mapping[service]
 		except KeyError:
 			id = 0
-		backendlistener = ConnectionPool.__threads[id]
-		backendlistener.RegisterCallback(callback, signal)
+		listener = ConnectionPool.__listeners[id]
+		listener.register_callback(signal, callback)
 	#-----------------------------
 	def _StartListeningThread(self, service):
 		try:
@@ -175,9 +175,9 @@ class ConnectionPool:
 		except KeyError:
 			backend=0
 		l = self.GetLoginInfoFor(service)
-		if backend not in self.__threads.keys():
-			backend = gmBackendListener.BackendListener(service, l.GetDatabase(), l.GetUser(), l.GetPassword(), l.GetHost(), l.GetPort())
-			return backend
+		if backend not in self.__listeners.keys():
+			listener = gmBackendListener.BackendListener(service, l.GetDatabase(), l.GetUser(), l.GetPassword(), l.GetHost(), l.GetPort())
+			return listener
 	#-----------------------------
 	def StopListeningThread(self, service):
 		try:
@@ -185,7 +185,7 @@ class ConnectionPool:
 		except KeyError:
 			backend = 0
 		try:
-			self.__threads[backend].Stop()
+			self.__listeners[backend].tell_thread_to_stop()
 		except:
 			pass
 	#-----------------------------
@@ -365,8 +365,8 @@ class ConnectionPool:
 			ConnectionPool.__databases.clear()
 			return
 		#stop all background threads
-		for backend in self.__threads.keys():
-			self.__threads[backend].Stop()
+		for backend in self.__listeners.keys():
+			self.__listeners[backend].tell_thread_to_stop()
 		###disconnect from all databases
 		for key in ConnectionPool.__databases.keys():
 			### check whether this connection might still be in use ...
@@ -579,7 +579,7 @@ if __name__ == "__main__":
 	print '-----------------------------------------'
 	for service in dbpool.GetAvailableServices():
 		print service
-		dummy=dbpool.GetConnection(service)
+		dummy = dbpool.GetConnection(service)
 		print "Available tables within service: ", service
 		tables, cd = listUserTables(service)
 		idx = descriptionIndex(cd)
@@ -610,10 +610,10 @@ if __name__ == "__main__":
 	print d
 	print "\nResult attributes\n==================\n"
 	n = fieldNames(cursor)
-
+	#-------------------------------
 	def TestCallback():
 		print "[Backend notification received!]"
-		
+	#-------------------------------
 	print "\n-------------------------------------"
 	print "Testing asynchronous notification for approx. 20 seconds"
 	print "start psql in another window connect to gnumed"
@@ -627,7 +627,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.37  2003-04-08 08:58:00  ncq
+# Revision 1.38  2003-04-25 13:02:10  ncq
+# - cleanup and adaptation to cleaned up backend listener code
+#
+# Revision 1.37  2003/04/08 08:58:00  ncq
 # - added comment
 #
 # Revision 1.36  2003/04/07 00:40:45  ncq
