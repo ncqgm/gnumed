@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.8 2004-09-18 13:55:28 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmVaccWidgets.py,v 1.9 2004-10-01 11:50:45 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -326,9 +326,6 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 #		EVT_RIGHT_UP(self.lb1, self.EvtRightButton)
 
 		# client internal signals
-#		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
-		# behaves just like patient_selected, really
-#		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._on_vaccinations_updated)
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
 		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._schedule_data_reget)
 	#----------------------------------------------------
@@ -472,7 +469,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.8  2004-09-18 13:55:28  ncq
+# Revision 1.9  2004-10-01 11:50:45  ncq
+# - cleanup
+#
+# Revision 1.8  2004/09/18 13:55:28  ncq
 # - cleanup
 #
 # Revision 1.7  2004/09/13 19:19:41  ncq
