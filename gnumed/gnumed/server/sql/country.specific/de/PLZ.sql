@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -43,9 +43,15 @@ insert into urb (id_state, postcode, name) values (
 );
 
 -- streets
-insert into street (id_urb, name, postcode) values (
+insert into street (
+	id_urb,
+	name,
+	suburb,
+	postcode
+) values (
 	(select id from urb where name='Leipzig' limit 1),
 	'Zum Kleingartenpark',
+	'Sellerhausen',
 	'04318'
 );
 
@@ -67,9 +73,15 @@ insert into street (id_urb, name, postcode) values (
 	'04299'
 );
 
-insert into street (id_urb, name, postcode) values (
+insert into street (
+	id_urb,
+	name,
+	suburb,
+	postcode
+) values (
 	(select id from urb where name='Leipzig' limit 1),
 	'Schildberger Weg',
+	'Mockau',
 	'04357'
 );
 
@@ -79,9 +91,15 @@ insert into street (id_urb, name, postcode) values (
 	'04315'
 );
 
-insert into street (id_urb, name, postcode) values (
+insert into street (
+	id_urb,
+	name,
+	suburb,
+	postcode
+) values (
 	(select id from urb where name='Leipzig' limit 1),
 	'Wurzener Straﬂe',
+	'Sellerhausen',
 	'04318'
 );
 
@@ -94,11 +112,14 @@ insert into street (id_urb, name, postcode) values (
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: PLZ.sql,v $
--- Revision 1.2  2004-04-07 18:16:06  ncq
+-- Revision 1.3  2004-09-20 21:17:39  ncq
+-- - add a few suburbs
+--
+-- Revision 1.2  2004/04/07 18:16:06  ncq
 -- - move grants into re-runnable scripts
 -- - update *.conf accordingly
 --
