@@ -3,8 +3,8 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.10 2004-12-21 18:22:26 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmResizingWidgets.py,v 1.11 2004-12-23 14:11:55 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -406,7 +406,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 #		"""
 #		pass
 
-#==========================================================
+#====================================================================
 class cResizingSTC (stc.wxStyledTextCtrl):
 	"""
 	A StyledTextCrl that monitors the size of its internal text and
@@ -478,7 +478,7 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		self.no_list = 1
 		self.ReplaceText (self.fragment_start, self.fragment_end, text+';', STYLE_EMBED, 1)
 		self.GotoPos (self.fragment_start+len (text)+1)
-		self.SetFocus ()
+		self.SetFocus()
 		if data:
 			self.__embed[text] = data
 		self.no_list = 0
@@ -494,8 +494,28 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		self.SetTargetEnd (end)
 		self.ReplaceTarget ('')
 	#------------------------------------------------
-	def SetFocus (self):
+	def SetFocus(self, x=None, line=None):
+		"""Set focus to current position in STC.
+
+		- make sure that's visible, too
+		"""
 		stc.wxStyledTextCtrl.SetFocus(self)
+		# goto first line ?
+		if line == 1:
+			if x is None:
+				x = 0
+			self.GotoPos(self.PositionFromPoint(wx.wxPoint(x,0)))
+			return
+		# goto last line ?
+		if line == -1:
+			last_char_pos = self.GetLength()
+			if x is None:
+				self.GotoPos(last_char_pos)
+				return
+			y = self.PointFromPosition(last_char_pos).y
+			self.GotoPos(self.PositionFromPoint(wx.wxPoint(x,y)))
+			return
+		# goto last current position
 		cur = self.PointFromPosition(self.GetCurrentPos())
 		self.__parent.EnsureVisible (self, cur.x, cur.y)
 	#------------------------------------------------
@@ -580,25 +600,32 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 
 		# <DOWN>
 		# - if in list: scroll list
+		# - if in last line: goto first line, same character, in next_in_tab_order
 		# - else standard behaviour
-		# NOTE: we discuss whether to move to next in tab
-		# NOTE: order from last line
 		if event.KeyCode() == wx.WXK_DOWN:
 #			if (self.list is not None) and self.list.alive:
 #				self.list.Down()
 #				return
-			pass
+#			print "arrow down @ %s (line %s of %s)" % (curs_pos, self.LineFromPosition(curs_pos), self.GetLineCount())
+			if self.LineFromPosition(curs_pos)+1 == self.GetLineCount():
+				if self.next_in_tab_order is not None:
+					curs_coords = self.PointFromPosition(curs_pos)
+					self.next_in_tab_order.SetFocus(x=curs_coords.x, line=1)
+					return
 
 		# <UP>
 		# - if in list: scroll list
+		# - if in first line: goto last line, same character, in prev_in_tab_order
 		# - else standard behaviour
-		# NOTE: we discuss whether to move to prev in tab
-		# NOTE: order from first
 		if event.KeyCode() == wx.WXK_UP:
 #			if (self.list is not None) and self.list.alive:
 #				self.list.Up()
 #				return
-			pass
+			if self.LineFromPosition(curs_pos) == 0:
+				if self.prev_in_tab_order is not None:
+					curs_coords = self.PointFromPosition(curs_pos)
+					self.prev_in_tab_order.SetFocus(x=curs_coords.x, line=-1)
+					return
 
 		# <TAB> key
 		# - move to next/prev_in_tab_order
@@ -848,13 +875,27 @@ if __name__ == '__main__':
 #	from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 #	from Gnumed.pycommon import gmI18N
 
-	def create_widget_on_test_kwd(*args, **kwargs):
+	def create_widget_on_test_kwd1(*args, **kwargs):
 		print "test keyword must have been typed..."
 		print "actually this would have to return a suitable wxWindow subclass instance"
 		print "args:", args
 		print "kwd args:"
 		for key in kwargs.keys():
 			print key, "->", kwargs[key]
+	#================================================================
+	def create_widget_on_test_kwd2(*args, **kwargs):
+		msg = (
+			"test keyword must have been typed...\n"
+			"actually this would have to return a suitable wxWindow subclass instance\n"
+		)
+		for arg in args:
+			msg = msg + "\narg ==> %s" % arg
+		for key in kwargs.keys():
+			msg = msg + "\n%s ==> %s" % (key, kwargs[key])
+		gmGuiHelpers.gm_show_info (
+			aMessage = msg,
+			aTitle = 'msg box on create_widget from test_keyword'
+		)
 	#================================================================
 	class cSoapWin (cResizingWindow):
 		def DoLayout(self):
@@ -876,7 +917,7 @@ if __name__ == '__main__':
 			self.AddWidget (widget=self.input3, label="A+P")
 
 			kwds = {}
-			kwds['$test_keyword'] = {'widget_factory': create_widget_on_test_kwd}
+			kwds['$test_keyword'] = {'widget_factory': create_widget_on_test_kwd2}
 			self.input2.set_keywords(popup_keywords=kwds)
 	#================================================================
 	class cSoapPanel(wx.wxPanel):
@@ -961,7 +1002,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.10  2004-12-21 18:22:26  ncq
+# Revision 1.11  2004-12-23 14:11:55  ncq
+# - scroll across STCs with Arrow-UP/DOWN as discussed with Richard
+#
+# Revision 1.10  2004/12/21 18:22:26  ncq
 # - add test code and start handling a test keyword
 #
 # Revision 1.9  2004/12/21 17:20:24  ncq
