@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -172,21 +172,14 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	def __load_consultation_types(self):
 		cmd = "SELECT description from v_i18n_enum_encounter_type"
 		result = gmPG.run_ro_query('historica', cmd, None)
-		if result is None:
+		if (result is None) or (len(result) == 0):
 			_log.Log(gmLog.lWarn, 'cannot load consultation types from backend')
-			self.__consultation_types = [_('in surgery')]
+			self.__consultation_types = [_('in surgery'), _('chart review')]
 			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
 			gmGuiHelpers.gm_show_error (
-				_('Cannot load consultation types from backend.\nConsequently, the only available type is:\n[%s]') % self.__consultation_types[0],
-				_('loading consultation types'),
-				gmLog.lWarn
-			)
-			return None
-		if len(result) == 0:
-			self.__consultation_types = [_('in surgery')]
-			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
-			gmGuiHelpers.gm_show_error (
-				_('Cannot load consultation types from backend.\nConsequently, the only available type is:\n[%s]') % self.__consultation_types[0],
+				_('Cannot load consultation types from backend.\n'
+				  'Consequently, the only available type are:\n'
+				  '%s') % self.__consultation_types,
 				_('loading consultation types'),
 				gmLog.lWarn
 			)
@@ -212,7 +205,8 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		ep_name = evt.GetString()
 		if not epr.set_active_episode(ep_name):
 			gmGuiHelpers.gm_show_error (
-				_('Cannot activate episode [%s].\nLeaving previous one activated.' % ep_name),
+				_('Cannot activate episode [%s].\n'
+				  'Leaving previous one activated.' % ep_name),
 				_('selecting active episode'),
 				gmLog.lErr
 			)
@@ -344,7 +338,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.29  2004-02-12 23:58:17  ncq
+# Revision 1.30  2004-02-18 14:03:37  ncq
+# - hardcode encounter type "chart review", too
+#
+# Revision 1.29  2004/02/12 23:58:17  ncq
 # - disable editing of patient selector when --slave()d
 #
 # Revision 1.28  2004/02/05 23:49:52  ncq
