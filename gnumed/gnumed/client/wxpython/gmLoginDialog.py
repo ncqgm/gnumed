@@ -13,8 +13,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.52 2004-09-13 08:57:33 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmLoginDialog.py,v 1.53 2004-11-22 19:32:36 hinnef Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib, types
@@ -32,11 +32,11 @@ _whoami = gmWhoAmI.cWhoAmI()
 class cLoginParamChoices:
 	"""dummy class, structure for login parameters"""
 	def __init__(self):
-		self.userlist = ['test-doc', 'any-doc']
+		"""init parmeters with reasonable defaults"""
+		self.userlist = ['any-doc']
 		self.password = ''
-		self.databaselist = ['gnumed', 'gm-archive']
-		self.hostlist= ['localhost', '127.0.0.1']
-		self.portlist = ['5432']
+		self.profilelist = ['local']
+		self.profiles={'local':{'host':'localhost','port':5432,'database':'gnumed'}}
 
 #====================================================
 class LoginPanel(wx.wxPanel):
@@ -86,10 +86,11 @@ class LoginPanel(wx.wxPanel):
 		except:
 			self.topsizer.Add(wx.wxStaticText (self, -1, _("Cannot find image") + bitmap, style=wx.wxALIGN_CENTRE), 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 10)
 
-		if self.gb['main.slave_mode']:
+		if self.gb.has_key('main.slave_mode') and self.gb['main.slave_mode']:
 			paramsbox_caption = _("Slave Login - %s" % _whoami.get_workplace())
 		else:
 			paramsbox_caption = _("Login - %s" % _whoami.get_workplace())
+
 		#why doesn't this align in the centre ?
 		self.paramsbox = wx.wxStaticBox( self, -1, paramsbox_caption, style = wx.wxALIGN_CENTRE_HORIZONTAL)
 		self.paramsboxsizer = wx.wxStaticBoxSizer( self.paramsbox, wx.wxVERTICAL )
@@ -116,8 +117,25 @@ class LoginPanel(wx.wxPanel):
 		self.pboxgrid = wx.wxFlexGridSizer( 4, 2, 5, 5 )
 		self.pboxgrid.AddGrowableCol( 1 )
 
+		#PROFILE COMBO
+		label = wx.wxStaticText( self, -1, _("Profile"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
+		label.SetForegroundColour(wx.wxColour(35, 35, 142))
+		self.pboxgrid.AddWindow( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		self.profilecombo = wx.wxComboBox(
+			self,
+			-1,
+			self.loginparams.profilelist[0],
+			wx.wxDefaultPosition,
+			wx.wxSize(150,-1),
+			self.loginparams.profilelist,
+			wx.wxCB_READONLY
+		)
+		self.pboxgrid.AddWindow( self.profilecombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+
+
 		#USER NAME COMBO
-		label = wx.wxStaticText( self, -1, _("user"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
+		label = wx.wxStaticText( self, -1, _("Username"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
+		label.SetForegroundColour(wx.wxColour(35, 35, 142))
 		self.pboxgrid.AddWindow( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
 		self.usercombo = wx.wxComboBox(
 			self,
@@ -131,10 +149,14 @@ class LoginPanel(wx.wxPanel):
 		self.pboxgrid.AddWindow( self.usercombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
 
 		#PASSWORD TEXT ENTRY
-		label = wx.wxStaticText( self, -1, _("password"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
+		label = wx.wxStaticText( self, -1, _("Password"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
+		label.SetForegroundColour(wx.wxColour(35, 35, 142))
 		self.pboxgrid.AddWindow( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
 		self.pwdentry = wx.wxTextCtrl( self, 1, '', wx.wxDefaultPosition, wx.wxSize(80,-1), wx.wxTE_PASSWORD )
+		# set focus on password entry
+		self.pwdentry.SetFocus()
 		self.pboxgrid.AddWindow( self.pwdentry, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		
 		
 		#----------------------------------------------------------------------
 		#new button code inserted rterry 06Sept02
@@ -148,25 +170,21 @@ class LoginPanel(wx.wxPanel):
 		#this eliminates the heavy border when you use the default 
 		#?is the default word needed for any other reason?
 		#----------------------------------------------------------------------
-		self.button_gridsizer = wx.wxGridSizer(1,4,0,0)
+		self.button_gridsizer = wx.wxGridSizer(1,3,0,0)
 		#---------------------
 		#3:create login ok button
 		#---------------------
 		ID_BUTTON_LOGIN = wx.wxNewId()
 		button_login_ok = wx.wxButton(self, ID_BUTTON_LOGIN, _("&Ok"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
 		button_login_ok.SetToolTip(wx.wxToolTip(_("Proceed with login.")) )
+		button_login_ok.SetDefault()
+
 		#---------------------
 		#3:create cancel button
 		#---------------------
 		ID_BUTTON_CANCEL = wx.wxNewId()
 		button_cancel = wx.wxButton(self, ID_BUTTON_CANCEL, _("&Cancel"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
 		button_cancel.SetToolTip(wx.wxToolTip(_("Cancel Login.")) )
-		#-------------------
-		#1:create option button
-		#-------------------
-		ID_BUTTON_OPTIONS = wx.wxNewId()
-		button_option = wx.wxButton(self, ID_BUTTON_OPTIONS, _("&Options"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-		button_option.SetToolTip( wx.wxToolTip(_("Set advanced options like database, host, port etc.")) )
 		#---------------------
 		#2:create Help button
 		#---------------------
@@ -176,14 +194,12 @@ class LoginPanel(wx.wxPanel):
 		#----------------------------
 		#Add buttons to the gridsizer
 		#----------------------------
-		self.button_gridsizer.Add (button_option,0,wx.wxEXPAND|wx.wxALL,5)
 		self.button_gridsizer.Add (button_help,0,wx.wxEXPAND|wx.wxALL,5)
 		self.button_gridsizer.Add (button_login_ok,0,wx.wxEXPAND|wx.wxALL,5)
 		self.button_gridsizer.Add (button_cancel,0,wx.wxEXPAND|wx.wxALL,5)
                
 		self.paramsboxsizer.AddSizer(self.pboxgrid, 1, wx.wxGROW|wx.wxALL, 10)
 		self.topsizer.AddSizer(self.paramsboxsizer, 1, wx.wxGROW|wx.wxALL, 10)
-		#old code:self.topsizer.AddSizer(self.infoboxsizer, 0,wx.wxGROW|wx.wxALL, 10)
 		self.topsizer.AddSizer( self.button_gridsizer, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
 
 		self.SetAutoLayout(True)
@@ -193,7 +209,6 @@ class LoginPanel(wx.wxPanel):
 			self.topsizer.SetSizeHints(parent)
 
 		wx.EVT_BUTTON(self, ID_BUTTON_HELP, self.OnHelp)
-		wx.EVT_BUTTON(self, ID_BUTTON_OPTIONS, self.OnOptions)
 		wx.EVT_BUTTON(self, ID_BUTTON_LOGIN, self.OnLogin)
 		wx.EVT_BUTTON(self, ID_BUTTON_CANCEL, self.OnCancel)
 
@@ -202,32 +217,92 @@ class LoginPanel(wx.wxPanel):
 	#----------------------------
 	def __load_login_param_choices(self):
 		"""Load parameter settings from standard configuration file"""
+		# initialize login parameters
 		self.loginparams = cLoginParamChoices()
+		# check if there is a non-empty config file
+		
+		if str(_cfg.getCfg()) == "Null":
+			_log.Log(gmLog.lErr, _("No config file specified or config file empty. Falling back to local default profile."))
+			return self.loginparams
 
-		tmp = _cfg.get('backend', 'logins')
-		if type(tmp) is types.ListType and len(tmp) > 0:
-			self.loginparams.userlist = tmp
+		# try to read login options from gnumed config file
+		try:
+			# login (user) names
+			tmp = _cfg.get('backend', 'logins')
+			if type(tmp) is types.ListType and len(tmp) > 0:
+				self.loginparams.userlist = tmp
+			else:
+				_log.Log(gmLog.lErr, _("No logins specified in config file or option is not a list"))
+				# we don't stop if no logins are specified as we can still enter them in the dialog
 
-		tmp = _cfg.get('backend', 'databases')
-		if type(tmp) is types.ListType and len(tmp) > 0:
-			self.loginparams.databaselist = tmp
+			# profile names
+			tmp = _cfg.get('backend', 'profiles')
+			if type(tmp) is types.ListType and len(tmp) > 0:
+				self.loginparams.profilelist = tmp
+			else:
+				_log.Log(gmLog.lErr, _("No profiles specified in config file or option is not a list"))
+				raise TypeError 
+				
+			# for every profile, read profile details
+			for profile in self.loginparams.profilelist:
+				# profile sections are denoted by leading "profile "
+				profile_label = "profile %s" % profile
+				database = None
+				host = None
+				port = None
+			
+				if not profile_label in _cfg.getGroups():
+					_log.Log(gmLog.lErr, _("Section [%s] not found in config file") % profile_label)
+					del self.loginparams.profilelist[self.loginparams.profilelist.index(profile)]
+					continue
+				
+				# read database name; go to next profile if missing
+				tmp = _cfg.get(profile_label, 'database')
+				if type(tmp) is types.StringType and not tmp == "" and not tmp=="Null":
+					database = tmp
+				else:
+					# ignore this profile
+					_log.Log(gmLog.lErr, _("No database specified in profile %s in config file or option is not a string") % profile)
+					del self.loginparams.profilelist[self.loginparams.profilelist.index(profile)]
+					continue
 
-		tmp = _cfg.get('backend', 'hosts')
-		if type(tmp) is types.ListType and len(tmp) > 0:
-			self.loginparams.hostlist = tmp
+				# read host name; go to next profile if missing
+				tmp = _cfg.get(profile_label, 'host')
+				if type(tmp) is types.StringType and not tmp == "" and not tmp=="Null":
+					host = tmp
+				else:
+					# ignore this profile
+					_log.Log(gmLog.lErr, _("No host specified in profile %s in config file or option is not a string") % profile)
+					del self.loginparams.profilelist[self.loginparams.profilelist.index(profile)]
+					continue
 
-		tmp = _cfg.get('backend', 'ports')
-		if type(tmp) is types.ListType and len(tmp) > 0:
-			self.loginparams.portlist = tmp
+				# read port number, assume default postgres port if missing
+				tmp = _cfg.get(profile_label, 'port')
+				try:
+					p = int(tmp)
+				except:
+					# set port to default postgres port if missing
+					p = 5432
+				if not p is None and p > 0:
+					port = p
+
+				# set profile details
+				self.loginparams.profiles[profile]={
+					'host':host,
+					'database':database,
+					'port':port}
+		except:
+			# fall back to default values if any error ocurred
+			self.loginparams = cLoginParamChoices()
+			
+		return self.loginparams
 
 	#----------------------------
 	def save_settings(self):
 		"""Save parameter settings to standard configuration file"""
 
 		_cfg.set('backend', 'logins', self.__cbox_to_list(self.usercombo))
-		_cfg.set('backend', 'databases', self.loginparams.databaselist)
-		_cfg.set('backend', 'hosts', self.loginparams.hostlist)
-		_cfg.set('backend', 'ports', self.loginparams.portlist)
+		_cfg.set('backend', 'profiles', self.__cbox_to_list(self.profilecombo))
 
 		_cfg.store()
 	#----------------------------
@@ -247,19 +322,9 @@ class LoginPanel(wx.wxPanel):
 # Retrieve current settings from user interface widgets
 #############################################################################
 
-	def GetLoginParams(self):
-		"""Fetch login parameters from dialog widgets - return None if the user pressed the 'Cancel' button"""
-		if not self.cancelled:
-			self.loginparams.userlist = self.__cbox_to_list(self.usercombo)
-			self.loginparams.password = self.GetPassword()
-			# database, host, port and backend lists are updated by OptionWindow and should be up to date
-			return self.loginparams
-		else:
-			return None
-
 	def GetLoginInfo(self):
 		"""convenience function for compatibility with gmLoginInfo.LoginInfo"""
-		if not self.cancelled:
+		if not self.cancelled:			
 			login = gmLoginInfo.LoginInfo(user=self.GetUser(), passwd=self.GetPassword(), host=self.GetHost())
 			login.SetDatabase(self.GetDatabase())
 			login.SetPort(self.GetPort())
@@ -286,23 +351,29 @@ class LoginPanel(wx.wxPanel):
 		self.pwdentry.SetValue(pwd)
 
 	def GetDatabase(self):
-		return self.loginparams.databaselist[0]
+		return self.loginparams.profiles[self.GetProfile()]['database']
 
 	def SetDatabase(self, db):
-		self.loginparams.databaselist[0]
+		# setting a database name is only possible through config file
+		pass
 
 	def GetHost(self):
-		return self.loginparams.hostlist[0]
+		return self.loginparams.profiles[self.GetProfile()]['host']
 
 	def SetHost(self, host):
-		self.loginparams.hostlist[0]
+		# setting a host name is only possible through config file
+		pass
 
 	def GetPort(self):
-		return self.loginparams.portlist[0]
+		return self.loginparams.profiles[self.GetProfile()]['port']
 
 	def SetPort(self, port):
-		self.loginparams.portlist[0]
-
+		# setting a port name is only possible through config file
+		pass
+		
+	def GetProfile(self):
+		return self.loginparams.profilelist[0]
+		
 	#----------------------------
 	# event handlers
 	#----------------------------
@@ -331,16 +402,12 @@ button HELP:
 
 For assistance on using GnuMed please contact:
  %s""") % tmp)
-	#----------------------------
-	def OnOptions(self, event):
-		self.optionwindow = OptionWindow(self,wx.wxNewId(),loginparams=self.loginparams)
-		self.optionwindow.ShowModal()
-		if not self.optionwindow.panel.cancelled: 
-		    self.loginparams.databaselist = self.__cbox_to_list(self.optionwindow.panel.dbcombo)
-		    self.loginparams.hostlist = self.__cbox_to_list(self.optionwindow.panel.hostcombo)
-		    self.loginparams.portlist = self.__cbox_to_list(self.optionwindow.panel.portcombo)
+
 	#----------------------------		
 	def OnLogin(self, event):
+		self.loginparams.profilelist=self.__cbox_to_list(self.profilecombo)
+		self.loginparams.userlist = self.__cbox_to_list(self.usercombo)
+		self.loginparams.password = self.GetPassword()
 		self.cancelled = False
 		self.parent.Close()
 	#----------------------------
@@ -372,170 +439,7 @@ class LoginDialog(wx.wxDialog):
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
 
-#====================================================
-#class OptionWindow(wx.wxDialog, LoginDialog):
-class OptionWindow(wx.wxDialog):
-	"""Advanced options window"""
 
-	icon_serpent='x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
-\xc1\x85\xd5\x98N5\xa5\xef?\xf5N\xd0\x8a\xdcA\xc2\xf7qw\x84\xdb\xfa\xb5\xcd\
-\xd4\xda;\xc9\x1a\xc8\xb6\xcd<\xb5\xa0\x85\x1e\xeb\xbc\xbc7b!\xf6\xdeHl\x1c\
-\x94\x073\xec<*\xf7\xbe\xf7\x99\x9d\xb21~\xe7.\xf5\x1f\x1c\xd3\xbdVlL\xc2\
-\xcf\xf8ye\xd0\x00\x90\x0etH \x84\x80B\xaa\x8a\x88\x85\xc4(U\x9d$\xfeR;\xc5J\
-\xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
-\xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec'
-
-	def __init__(self, parent, id=wx.wxNewId(), title=_("Advanced login options"),loginparams=None):
-		wx.wxDialog.__init__(self, parent, id, title)
-		self.panel = OptionPanel(self, -1, isDialog=1,loginparams=loginparams)
-		self.Fit () # needed for Windoze.
-		self.Centre()
-		
-		# set window icon
-		icon_bmp_data = wx.wxBitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_serpent)))
-		icon = wx.wxEmptyIcon()
-		icon.CopyFromBitmap(icon_bmp_data)
-		self.SetIcon(icon)
-
-#====================================================
-class OptionPanel(wx.wxPanel):
-	"""GUI panel class that gets interactively advanced login parameters
-
-	# constructor parameters:
-	#	loginparams: to override default login parameters 
-	#	             see class "LoginParameters" in this module
-	#	isDialog: if this panel is the main panel of a dialog, the panel will
-	#	          resize the dialog automatically to display everything neatly
-	#	          if isDialog is set to True
-	"""
-	def __init__(self, parent, id, pos = wx.wxPyDefaultPosition, size = wx.wxPyDefaultSize, style = wx.wxTAB_TRAVERSAL,
-		loginparams = None,
-		isDialog = 0
-	):
-
-		wx.wxPanel.__init__(self, parent, id, pos, size, style)
-		self.parent = parent
-
-		#True if dialog was cancelled by user
-		self.cancelled = False
-
-		#True if this panel is displayed within a dialog (will resize the dialog automatically then)
-		self.isDialog = isDialog
-
-		#login parameter settings should have been initialized by the parent window
-		self.loginparams = loginparams
-
-		self.topsizer = wx.wxBoxSizer(wx.wxVERTICAL)
-
-		# FIXME: either no title as in "" or a title with i_18_n as in _("a title")
-		# BUT NOT no title with i_18_n as in _("")
-		self.paramsbox = wx.wxStaticBox( self, -1, "")
-		self.paramsboxsizer = wx.wxStaticBoxSizer( self.paramsbox, wx.wxVERTICAL )
-
-		self.pboxgrid = wx.wxFlexGridSizer( 4, 2, 5, 0 )
-		self.pboxgrid.AddGrowableCol( 1 )
-
-		#DATABASE COMBO
-		label_db = wx.wxStaticText( self, -1, _("database"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-		self.pboxgrid.AddWindow( label_db, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
-		self.dbcombo = wx.wxComboBox( 
-		    	self, 
-			-1, 
-			self.loginparams.databaselist[0],
-			wx.wxDefaultPosition,
-			wx.wxSize(100,-1),
-			self.loginparams.databaselist ,
-			wx.wxCB_DROPDOWN )
-		self.pboxgrid.AddWindow( self.dbcombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
-
-		#HOST NAME / IP NUMBER COMBO
-		label_host = wx.wxStaticText( self, -1, _("host"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-		self.pboxgrid.AddWindow( label_host, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
-		self.hostcombo = wx.wxComboBox( 
-		    	self, 
-			-1, 
-			self.loginparams.hostlist[0], 
-			wx.wxDefaultPosition, wx.wxSize(100,-1),
-			self.loginparams.hostlist , 
-			wx.wxCB_DROPDOWN 
-		)
-		self.pboxgrid.AddWindow( self.hostcombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
-
-		#PORT NUMBER COMBO
-		label_port = wx.wxStaticText( self, -1, _("port"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-		self.pboxgrid.AddWindow( label_port, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
-		self.portcombo = wx.wxComboBox( 
-		    	self, 
-			-1, 
-			self.loginparams.portlist[0], 
-			wx.wxDefaultPosition, 
-			wx.wxSize(100,-1),
-			self.loginparams.portlist , 
-			wx.wxCB_DROPDOWN 
-		)
-		self.pboxgrid.AddWindow( self.portcombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
-
-		self.button_gridsizer = wx.wxGridSizer(1,3,0,0)
-
-		#---------------------
-		# create options ok button
-		#---------------------
-		ID_BUTTON_OK = wx.wxNewId()
-		button_ok = wx.wxButton( self, ID_BUTTON_OK, _("&Ok"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-#		button_ok.SetDefault()
-		#---------------------
-		# create options help button
-		#---------------------
-		ID_BUTTON_HELP = wx.wxNewId()
-		button_help = wx.wxButton( self, ID_BUTTON_HELP, _("&Help"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-		#---------------------
-		# create options cancel button
-		#---------------------
-		ID_BUTTON_CANCEL = wx.wxNewId()
-		button_cancel = wx.wxButton( self, ID_BUTTON_CANCEL, _("&Cancel"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-
-		#----------------------------
-		#Add buttons to the gridsizer
-		#----------------------------
-		self.button_gridsizer.AddWindow( button_help, 0, wx.wxALIGN_CENTRE|wx.wxALL, 5 )
-		self.button_gridsizer.AddWindow( button_ok, 0, wx.wxALIGN_CENTRE|wx.wxALL, 5 )
-		self.button_gridsizer.AddWindow( button_cancel, 0, wx.wxALIGN_CENTRE|wx.wxALL, 5 )
-
-    	    	# add all sub-sizers to the topsizer
-		self.paramsboxsizer.AddSizer(self.pboxgrid, 1, wx.wxGROW|wx.wxALL, 10)
-		self.topsizer.AddSizer(self.paramsboxsizer, 1, wx.wxGROW|wx.wxALL, 10)
-		self.topsizer.AddSizer( self.button_gridsizer, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
-
-		self.SetAutoLayout(True)
-		self.SetSizer( self.topsizer)
-		self.topsizer.Fit( self )
-		if self.isDialog:
-			self.topsizer.SetSizeHints( parent )
-
-		wx.EVT_BUTTON(self, ID_BUTTON_HELP, self.OnHelp)
-		wx.EVT_BUTTON(self, ID_BUTTON_OK, self.OnOK)
-		wx.EVT_BUTTON(self, ID_BUTTON_CANCEL, self.OnCancel)
-
-
-#############################################################################
-# GUI action functions from here on
-#############################################################################
-
-	def OnCancel(self, event):
-		self.cancelled = True
-		self.parent.Close()
-
-	def OnHelp(self, event):
-		wx.wxMessageBox(_("\
-Advanced backend options: \n\
-\n\
-Database: name of GnuMed database\n\
-Host: name of database server\n\
-Port: port number of database server"))
-		
-	def OnOK(self, event):
-		self.cancelled = False
-		self.parent.Close()
 
 #====================================================
 # main
@@ -546,22 +450,26 @@ if __name__ == '__main__':
 
 	app = wx.wxPyWidgetTester(size = (300,400))
 	#show the login panel in a main window
-	app.SetWidget(LoginPanel, -1)
+#	app.SetWidget(LoginPanel, -1)
 	#and pop the login dialog up modally
-	dlg = LoginDialog(NULL, -1) #, png_bitmap = 'bitmaps/gnumedlogo.png')
+	dlg = LoginDialog(None, -1) #, png_bitmap = 'bitmaps/gnumedlogo.png')
 	dlg.ShowModal()
 	#demonstration how to access the login dialog values
-	lp = dlg.panel.GetLoginParams()
+	lp = dlg.panel.GetLoginInfo()
 	if lp is None:
 		wx.wxMessageBox(_("Dialog was cancelled by user"))
 	else:
-		wx.wxMessageBox(_("You tried to log in as [%s] with password [%s].") % (lp.userlist[0], lp.password))
+		wx.wxMessageBox(_("You tried to log in as [%s] with password [%s].\nHost:%s, DB: %s, Port: %s") % (lp.GetUser(),lp.GetPassword(),lp.GetHost(),lp.GetDatabase(),lp.GetPort()))
 	dlg.Destroy()
-	app.MainLoop()
+#	app.MainLoop()
+
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.52  2004-09-13 08:57:33  ncq
+# Revision 1.53  2004-11-22 19:32:36  hinnef
+# new login dialog with profiles
+#
+# Revision 1.52  2004/09/13 08:57:33  ncq
 # - losts of cleanup
 # - opt/tty not used in DSN anymore
 # - --slave -> gb['main.slave_mode']
