@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 
 import string, gmDispatcher, gmSignals
 from wxPython.wx import *
@@ -112,6 +112,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 		if newId == None:
 			print "GOT no new patient"
 			return
+		# FIXME: are we sure of the ramifications here ?
 		gmPatient.gmCurrentPatient(newId)
 		x = self.__getDemographicsWidget()
 		x.Raise()
