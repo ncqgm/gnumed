@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.29 2003-07-19 20:18:28 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmTmpPatient.py,v 1.30 2003-09-17 03:00:59 ihaywood Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -24,7 +24,7 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmExceptions, gmPG, gmSignals, gmDispatcher, gmClinicalRecord
+import gmExceptions, gmPG, gmSignals, gmDispatcher, gmClinicalRecord, gmI18N
 
 # 3rd party
 import mx.DateTime
@@ -241,6 +241,64 @@ class gmPerson:
 		else:
 			return data[0]
 	#--------------------------------------------------------
+	def _get_addresses(self):
+		curs = self._defconn_ro.cursor()
+		cmd = """
+select vba.addr_id, vba.address_at, vba.number, vba.street, vba.city, vba.postcode
+from v_basic_address vba, lnk_person2address lp2a
+where lp2a.id_address = vba.addr_id and lp2a.id_identity = %s
+"""
+		try:
+			curs.execute(cmd, self.ID)
+		except:
+			curs.close()
+			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
+			return None
+		data = curs.fetchall()
+		curs.close()
+		return [{'ID':i[0], 'type':i[1], 'number':i[2], 'street':i[3], 'urb':i[4], 'postcode':i[5]} for i in data]
+
+	def GuessPostcode (self, urb, street = None):
+		"""
+		Returns a list of valid postcodes given a urb and street
+		"""
+		curs = self._defconn_ro.cursor ()
+		try:
+			if street is None:
+				cmd = "select postcode from urb where name = %s"
+				curs.execute (cmd, urb)
+			else:
+				cmd = "select street.postcode from urb, street where street.name = %s and urb.name = %s and street.id_urb = urb.id and street.postcode is not null"
+				curs.execute (cmd, street, urb)
+				if curs.rowcount == 0:
+					# street.postcode full of NULLs (i.e. we are in the wrong juridiction
+					# for this type of search, client has called in error
+					cmd =  "select postcode from urb where name = %s"
+					curs.execute (cmd, urb)
+					curs.execute(cmd, self.ID)
+		except:
+			curs.close()
+			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
+			return None
+		data = curs.fetchall ()
+		curs.close ()
+		return data
+		
+
+	def DeleteAddress (self, ID):
+		rwconn = self._backend.GetConnection('personaliaa', readonly=0)
+		rwcurs = rwconn.cursor()
+		cmd = "delete from lnk_person2address where id_identity = %d and id_address = %d"
+		if not gmPG.run_query(rwcurs, cmd, self.ID, ID):
+			rwcurs.close()
+			rwconn.close()
+			_log.Log(gmLog.lErr, 'cannot delete address')
+			return None
+		rwconn.commit()
+		rwcurs.close()
+		rwconn.close()
+		return 1
+	#--------------------------------------------------------
 	def _get_medical_age(self):
 		curs = self._defconn_ro.cursor()
 		cmd = "select dob from identity where id = %s"
@@ -289,6 +347,7 @@ class gmPerson:
 	_get_handler['title'] = _getTitle
 	_get_handler['ID'] = _getID
 	_get_handler['dob'] = _getDOB
+	_get_handler['addresses'] = _get_addresses
 	_get_handler['medical age'] = _get_medical_age
 	_get_handler['clinical record'] = _get_clinical_record
 	_get_handler['API'] = _get_API
@@ -662,7 +721,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.29  2003-07-19 20:18:28  ncq
+# Revision 1.30  2003-09-17 03:00:59  ihaywood
+# support for local inet connections
+#
+# Revision 1.29  2003/07/19 20:18:28  ncq
 # - code cleanup
 # - explicitely cleanup EMR when cleaning up patient
 #

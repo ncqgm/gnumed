@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.14 2003-08-17 17:58:09 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmLoginInfo.py,v 1.15 2003-09-17 03:00:59 ihaywood Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -84,7 +84,8 @@ class LoginInfo:
 		host = self.GetHost()
 		port = str(self.GetPort())
 		# for local UNIX domain sockets connections: leave host/port empty
-		if host in ['', 'localhost', '127.0.0.1']:
+		# IH: *PLEASE* option of local TCP/IP connection must be available
+		if host in ['', 'localhost']:
 			host = ""
 			port = ""
 		dsn = "%s:%s:%s:%s:%s:%s" % (
@@ -220,7 +221,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.14  2003-08-17 17:58:09  ncq
+# Revision 1.15  2003-09-17 03:00:59  ihaywood
+# support for local inet connections
+#
+# Revision 1.14  2003/08/17 17:58:09  ncq
 # - whitespace fix
 #
 # Revision 1.13  2003/06/26 02:31:23  ihaywood
