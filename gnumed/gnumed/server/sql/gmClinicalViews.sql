@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.63 2004-05-06 23:34:52 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.64 2004-05-07 14:27:46 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -559,33 +559,43 @@ where
 
 create view v_pat_missing_boosters as
 select
-	vpv4i1.pk_patient as pk_patient,
-	vvr1.indication as indication,
-	vvr1.regime as regime,
-	vvr1.reg_comment as reg_comment,
-	vvr1.vacc_seq_no as seq_no,
-	vvr1.age_due_min as age_due_min,
-	vvr1.age_due_max as age_due_max,
-	vvr1.min_interval as min_interval,
-	vvr1.vacc_comment as vacc_comment,
-	vvr1.pk_indication as pk_indication,
-	vvr1.pk_recommended_by as pk_recommended_by
-from
-	v_pat_vacc4ind vpv4i1,
-	v_vacc_regimes vvr1
-where
-	vvr1.is_booster = true
-		and
-	vvr1.min_interval < age (
-		(select max(vpv4i2.date)
-		 from v_pat_vacc4ind vpv4i2
-		 where
-			vpv4i2.pk_patient = vpv4i1.pk_patient
+	vpv4i0.pk_patient as pk_patient,
+	vvr0.indication as indication,
+	vvr0.regime as regime,
+	vvr0.reg_comment as reg_comment,
+	vvr0.vacc_seq_no as seq_no,
+	-- FIXME: the following line does not deliver
+	coalesce((now() - vvr0.min_interval -
+		(select max(vpv4i12.date)
+		from v_pat_vacc4ind vpv4i12
+		where
+			vpv4i12.pk_patient = vpv4i0.pk_patient
 				and
-			vpv4i2.indication = vpv4i1.indication
+			vpv4i12.indication = vpv4i0.indication)
+	), vvr0.min_interval) as amount_overdue,
+	vvr0.age_due_min as age_due_min,
+	vvr0.age_due_max as age_due_max,
+	vvr0.min_interval as min_interval,
+	vvr0.vacc_comment as vacc_comment,
+	vvr0.pk_indication as pk_indication,
+	vvr0.pk_recommended_by as pk_recommended_by
+from
+	v_pat_vacc4ind vpv4i0,
+	v_vacc_regimes vvr0
+where
+	vvr0.is_booster is true
+		and
+	vvr0.min_interval < age (
+		(select max(vpv4i11.date)
+		 from v_pat_vacc4ind vpv4i11
+		 where
+			vpv4i11.pk_patient = vpv4i0.pk_patient
+				and
+			vpv4i11.indication = vpv4i0.indication
 		)
 	)
 ;
+
 -- ==========================================================
 -- current encounter stuff
 \unset ON_ERROR_STOP
@@ -793,11 +803,16 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.63 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.64 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.63  2004-05-06 23:34:52  ncq
+-- Revision 1.64  2004-05-07 14:27:46  ncq
+-- - first cut at amount_overdue for missing boosters (eg,
+--   now() - (last_given + min_interval)) but doesn't work as
+--   expecte for last_given is null despite coalesce(..., min_interval)
+--
+-- Revision 1.63  2004/05/06 23:34:52  ncq
 -- - test_type_uni -> test_type_local
 --
 -- Revision 1.62  2004/05/02 19:25:21  ncq
