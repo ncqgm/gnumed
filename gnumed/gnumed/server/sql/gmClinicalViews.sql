@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.9 2003-05-05 00:19:12 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.10 2003-05-05 00:27:34 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -38,8 +38,8 @@ drop view v_i18n_enum_encounter_type;
 
 create view v_i18n_enum_encounter_type as
 select
-	_enum_encounter_type.id,
-	_(_enum_encounter_type.description)
+	_enum_encounter_type.id as id,
+	_(_enum_encounter_type.description) as description
 from
 	_enum_encounter_type
 ;
@@ -181,11 +181,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.9  2003-05-05 00:19:12  ncq
+-- Revision 1.10  2003-05-05 00:27:34  ncq
+-- - add as to encounter types
+--
+-- Revision 1.9  2003/05/05 00:19:12  ncq
 -- - we do need the v_i18n_ on encounter types
 --
 -- Revision 1.8  2003/05/04 23:35:59  ncq
