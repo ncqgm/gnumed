@@ -12,7 +12,9 @@ class BoaApp(wxApp):
 		wxInitAllImageHandlers()
 		self.main = indexFrame.create(None)
 		#workaround for running in wxProcess
-		self.main.Show();self.main.Hide();self.main.Show() 
+		#self.main.Show();self.main.Hide();self.main.Show()
+		self.main.Centre(wxBOTH)
+		self.main.Show(true)
 		self.SetTopWindow(self.main)
 		return true
 
