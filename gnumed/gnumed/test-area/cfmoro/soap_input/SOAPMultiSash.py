@@ -6,7 +6,7 @@
 #
 # Created:      2002/11/20
 # Version:      0.1
-# RCS-ID:       $Id: SOAPMultiSash.py,v 1.6 2004-11-23 00:26:25 cfmoro Exp $
+# RCS-ID:       $Id: SOAPMultiSash.py,v 1.7 2004-11-24 22:46:52 cfmoro Exp $
 # License:      wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -131,8 +131,10 @@ class wxMultiSplit(wxWindow):
         if not self.view2:              # We will only have 2 windows if
             print "Removing first leaf" 
 	    self.view1.detail.child.SetHealthIssue(None)
-	    self.view1.detail.child.Hide()
+	    self.view1.detail.child.ClearSOAP()	    
 	    self.view1.detail.UnSelect()
+	    self.view1.detail.child.Hide()
+	    
 	    
 	    return                      # we need to destroy any
         parent = self.GetParent()       # Another splitview
@@ -142,9 +144,11 @@ class wxMultiSplit(wxWindow):
                 self.view1 = self.view2
                 self.view2 = None
                 old.Destroy()
+		print "1.1"
             else:
                 self.view2.Destroy()
                 self.view2 = None
+		print "1.2"
             self.view1.SetSize(self.GetSize())
             self.view1.Move(self.GetPosition())
         else:
@@ -152,11 +156,12 @@ class wxMultiSplit(wxWindow):
             x,y = self.GetPositionTuple()
             if caller == self.view1:
                 if self == parent.view1:
-                    parent.view1 = self.view2
+                    parent.view1 = self.view2		    
                 else:
-                    parent.view2 = self.view2
+                    parent.view2 = self.view2		    
                 self.view2.Reparent(parent)
                 self.view2.SetDimensions(x,y,w,h)
+		print "2.1"
             else:
                 if self == parent.view1:
                     parent.view1 = self.view1
@@ -164,6 +169,7 @@ class wxMultiSplit(wxWindow):
                     parent.view2 = self.view1
                 self.view1.Reparent(parent)
                 self.view1.SetDimensions(x,y,w,h)
+		print "1.2"
             self.view1 = None
             self.view2 = None
             self.Destroy()
@@ -307,6 +313,8 @@ class MultiClient(wxWindow):
         self.child.MoveXY(2,2)
         self.normalColour = self.GetBackgroundColour()
         self.selected = False
+	if not childController is None:	
+		self.Select()
 
         EVT_SET_FOCUS(self,self.OnSetFocus)
         EVT_CHILD_FOCUS(self,self.OnChildFocus)

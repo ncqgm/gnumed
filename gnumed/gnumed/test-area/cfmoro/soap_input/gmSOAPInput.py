@@ -2,7 +2,7 @@
 	GnuMed SOAP input panel
 """
 #================================================================
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -110,7 +110,12 @@ class cSOAPControl(wx.wxPanel):
 		if self.health_issue is None:
 			self.soap_label.SetLabel("Select issue and press 'New'")
 		else:
-			self.soap_label.SetLabel(health_issue['description'])
+			self.soap_label.SetLabel(health_issue['description'] )
+			size = self.soap_label.GetBestSize()
+			self.soap_control_sizer.SetItemMinSize(self.soap_label, size.width, size.height)
+			self.Layout()
+			
+
 		
 	def GetHealthIssue(self):
 		"""
@@ -279,10 +284,11 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		#selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
 			selected_leaf.GetSOAPPanel().SetHealthIssue(self.selected_issue)
 			selected_leaf.GetSOAPPanel().Show()
+			selected_leaf.detail.Select()
 			
 		else:
 			# FIXME calculate height
-			selected_leaf.AddLeaf(SOAPMultiSash.MV_VER, 200)
+			selected_leaf.AddLeaf(SOAPMultiSash.MV_VER, 130)
 		
 	#--------------------------------------------------------
 	def on_remove(self, event):
