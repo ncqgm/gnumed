@@ -4,13 +4,16 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
 -- identity
+
+begin;
+
 delete from identity where
 	gender = 'f'
 		and
@@ -110,11 +113,16 @@ insert into lab_request (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%test_data-lab_regression.sql%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.11  2004-12-06 21:11:12  ncq
+-- Revision 1.12  2004-12-14 01:44:50  ihaywood
+-- gmPsql now supports BEGIN..COMMIT. Note that without a "begin" it reverts
+-- to the old one-line-one-transaction mode, so a lone commit is useless
+-- (this is the change to test_data-lab_regression)
+--
+-- Revision 1.11  2004/12/06 21:11:12  ncq
 -- - properly insert episode, alas, Psql.py does not support that
 --   yet, psql, however, does
 --

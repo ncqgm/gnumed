@@ -1,14 +1,14 @@
 # A Python class to replace the PSQL command-line interpreter
-# NOTE: his is not a full replacement for the interpeter, merely
+# NOTE: this is not a full replacement for the interpeter, merely
 # enough functionality to run gnumed installation scripts
-# Copyright (C) 2003 GNUMed developers
+# Copyright (C) 2003, 2004 GNUMed developers
 # Licence: GPL
 
 import sys, os, string, re, urllib2
 
 import gmLog
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, '$Revision: 1.1 $')
+_log.Log(gmLog.lInfo, '$Revision: 1.2 $')
 
 #===================================================================
 def shellrun (cmd):
@@ -75,6 +75,8 @@ class Psql:
 		self.filename = filename
 		instring = 0
 		bracketlevel = 0
+		curs = self.conn.cursor ()
+		commit_mode = 0
 		for self.line in self.file.readlines():
 			if len (self.line) > 0:
 				# process \ commands
@@ -151,10 +153,27 @@ class Psql:
 							bracketlevel -= 1
 						if not instring and bracketlevel == 0 and i == ";":
 							try:
-								curs = self.conn.cursor ()
-								curs.execute (self.cmd)
-								self.conn.commit ()
-								curs.close ()
+								if self.cmd.strip ().upper () == 'COMMIT':
+									if commit_mode == 1:
+										self.conn.commit ()
+										curs.close ()
+										curs = self.conn.cursor ()
+										_log.Log (gmLog.lData, self.fmt_msg ("transaction committed"))
+									else:
+										_log.Log (gmLog.lWarn, self.fmt_msg ("COMMIT without BEGIN: no actual transaction happened!"))
+									commit_mode = 0
+								elif self.cmd.strip ().upper () == 'BEGIN':
+									if commit_mode == 1:
+										_log.Log (gmLog.lWarn, self.fmt_msg ("BEGIN inside transaction"))
+									else:
+										commit_mode = 1
+										_log.Log (gmLog.lData, self.fmt_msg ("starting transaction"))
+								else:	       
+									curs.execute (self.cmd)
+									if commit_mode == 0:
+										self.conn.commit ()
+										curs.close ()
+										curs = self.conn.cursor ()
 							except StandardError, error:
 								_log.Log (gmLog.lData, self.cmd)
 								if re.match (r"^NOTICE:.*", str(error)):
@@ -170,6 +189,8 @@ class Psql:
 							self.cmd += i
 						i = next
 			self.lineno += 1
+		self.conn.commit ()
+		curs.close ()
 		return 0
 
 
