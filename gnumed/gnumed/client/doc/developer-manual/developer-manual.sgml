@@ -33,6 +33,13 @@
 
 <revhistory>
       <revision>
+	<revnumber>0.1.2</revnumber>
+	<date>2002-09-09</date>
+	<authorinitials>hb</authorinitials>
+	<revremark>Further inclusion of gnumed whitepapers.</revremark>
+      </revision>
+
+      <revision>
 	<revnumber>0.1.1</revnumber>
 	<date>2002-08-12</date>
 	<authorinitials>hb</authorinitials>
@@ -425,13 +432,17 @@ class CachedDBObject
 
 </screen>
 </sect2>
-<sect2><title>gmDispatcher.py</title><screen>
+<sect2 id=gmDispatcher><title>gmDispatcher.py</title><screen>
 
      Provides global signal dispatching services.
 
 class DispatcherError(exceptions.Exception)
 
 class _Any:
+    	# Helper class
+	
+Methods provided by gmDispatcher:
+
      def connect(receiver, signal=Any, sender=Any, weak=1)
 	Connect receiver to sender for signal
 
@@ -755,7 +766,7 @@ class LoginInfo:
 		"clears all connection information regarding user, password etc."
 
 </screen></sect2>
-<sect2><title>gmPG.py</title><screen>
+<sect2 id=gmPG><title>gmPG.py</title><screen>
 # gmConnectionPool - Broker for Postgres distributed backend connections
 
 as of 09.08.2002 tries to handle psycopg (Zope), PyPGSql and pgdb
@@ -1021,7 +1032,43 @@ class dbf:
 
 </screen>
 </sect2>
+
+<sect2 id=gmSignals><title>gmSignals.py</title>
+<screen>
+# gmSignals.py
+
+gmSignals - factory functions returning GnuMed internal signal strings. 
+This helps to avoid that  simple typographic mistakes result in messages
+not being dispatched. It would allow to do messenging house keeping as well.
+
+def popup_notice():
+	a notice of general interest has been received
+
+def popup_alert():
+	an important notice of general ineterest has been received
+	
+def patient_selected():
+	the current active patient displayed by the client has been selected
+	
+def patient_modified():
+	the current patients demographic data has been modified
+	
+def medication_modified():
+	the current patient's medication has been modified
+	
+def waitingroom_added():
+	a patient has been added to the waiting room
+	
+def waitingroom_incons():
+	a patient has started his consultation with the doctor
+	
+def waitingroom_left():
+	a aptient has left the waiting room, finished his consultation
+
+</screen>
+</sect2>
 </sect1>
+
 <sect1><title>wxpython</title>
 <sect2><title>gnumed.py</title><screen>
 main wrapper setting up global brokers, logging, command line argument handling, i18n, etc.
@@ -1641,6 +1688,266 @@ should be del()ed after use, actually
     	</sect1>	
 
 
+    	<sect1>
+	    <title>Internal Messenging and Signal Dispatching</title>
+
+
+	    <sect2>
+		<title>Internal Messenging and Signal Dispatching</title>
+
+	    <para>The gnumed client depends on two different types 
+	    of messages:</para>
+
+	    <orderedlist numeration="arabic">
+		<listitem><para>Messages coming form the backend. Example: &nbsp;a receptionist queues 
+	     patients as they arrive into a waiting room widget. On the doctors screen 
+	     there should be a small widget informing him about the number of patients 
+	     waiting for him. This is achieved through asynchronous messages from the backend.</para></listitem>
+		<listitem><para>Client-internal messages. They allow widgets to communicate. Example: 
+	     One widget allows the doctor to select the active patient. This widget, after 
+	     selection, has to notify other widgets depending on this information (like 
+	     widgets displaying the patients past medical history, his allergies etc.) 
+	      to update themselves.</para></listitem>
+
+	    </orderedlist><para>
+	     Both types of messages are handled via a global dispatcher module called 
+	    <link linkend=gmDispatcher> gmDispatcher.py </link>
+	     The module <link linkend=gmPG>gmPG.py </link>
+    	    takes care of handling the asynchronous messages from the backend 
+	    via a separate background thread.</para><para>
+	     </para><para>
+	     Procedure changing "global" data that may affect any other widget, must
+	    post a message through gmDispatcher.</para><para>
+	     </para><para>
+	     Widgets depending on backend data must register their interest through gmDispatcher.</para><para>
+	     </para><para>
+	     A  table listing all available message labels
+	      ("signals") and their meanings can be found <link linkend=signals>here.</link>
+	      However, these message strings should never be hardcoded. Developers must 
+	    instead use the embedding variables as listed in the module <link linkend=gmSignals>gmSignals.py </link>.</para><para>
+	     </para><para>
+	     Developers writing code that creates new signals must
+	     update this webpage via CVS.</para><para>
+	     </para><para>
+
+	    <emphasis>Examples:</emphasis>
+
+	    <orderedlist numeration="arabic">
+	    	<listitem><para>A widget allows to select the current patient.
+	     	    <orderedlist numeration="arabic">
+		    <listitem><para>It first registers it's interest in all patients added, modified
+		    or deleted with the backend as it should always be able to display the most
+		    current status of the backend data. For that purpose, it defines a callback
+		    function "self.OnDemographicsUpdated()".</para></listitem>
+    		    
+		    <listitem><para>Then, it registers this callback function with the dispatcher for
+		    all signals that would modify the patient database.  </para><para>
+		    If anybody within a gnumed system modifies demographic information, this
+		    widget would be automatically notified about this.  </para><para>
+		    </para></listitem>
+		    
+		    <listitem><para>Once the user has interactively selected a patient, it has to alert
+		    all other widgets that this has happened. For that purpose, the event handler
+		    reacting to a patient being selected notifies the gmDispatcher about this. 
+		    </para><para>
+    	    	    	<screen>
+     def __init__(self):
+
+         #register our interest in the&nbsp;patients stored on the backend
+
+         gmDispatcher.connect(self.OnDemographicsUpdated, gmSignals.demographics_updated())
+
+        	     	</screen>
+    	    	    	<screen>        	     
+    def OnDemographicsUpdated(self, id):
+	"when the patients have changed on the backed, update the ones we display"
+
+        #id is irrelevant here; we just update the whole displayed list
+
+        self.UpdatePatientList()
+        	        </screen>
+        	     
+    	    	    	<screen>        	     
+    def UpdatePatientList(self):
+	"Update the displayed list of patients from the backend"
+
+      #request a backend connection
+
+      db = gmPG.ConnectionPool().GetConnection('demographica')
+
+      cursor = db.cursor()
+
+      #query patients to be displayed
+
+      cursor.execute(....)
+
+      result = cursor.fetchall()
+
+      #display the result
+    	    	    	</screen>
+        		  
+        	       
+        	     	<screen>
+     def OnPatientSelected(self, id):
+	 """When a patient has been selected by the user, call this function     
+	 id is the primary key identifying the selected patient"""     
+
+    	 gmDispatcher.send(gmSignals.patient_selected(), id=id)
+    	    	    	</screen>    	       
+        	     
+		 </para></listitem>
+
+	      </orderedlist>
+	      </para></listitem>
+	      <listitem><para>Another widget displays the current (active) patient's name.&nbsp;
+
+	      <orderedlist numeration="arabic">
+
+		<listitem><para>Thus, it has to register it's interest in the event the current patient
+	    changes. The registered callback could query the database directly. However,
+	    data that is likely to be shared among many widgets, should be cached to
+	    avoid unneccessary backend traffic and to improve client performance. Thus,
+	    it requests the data from the gmCachedPerson.CachedPerson object:
+      <screen>
+      def __init__(self):
+        #code to display and place the widget
+        # now register our callback function with the dispatcher
+        gmDispatcher.connect(self.Update, gmSignals.patient_selected())
+      </screen>
+
+      <screen>
+      def Update(self, id_patient):
+        "show the currently selected patient"
+        patient = gmCachedPerson.CachedPerson.dictresult()
+        self.TxtctrlSurname.SetValue(patient['surname']
+        ....
+      </screen>
+		</para></listitem>
+	      </orderedlist>
+    	      </para></listitem>
+	    </orderedlist>
+
+    	</sect1>
+
+
+    	<sect1 id=signals>
+	    <title>List of GnuMed client internal signals</title>
+                    
+    	    <para>         
+	    All signals are defined in the module gmSignals.py, located in the source
+	    tree under gnumed/client/python-common.</para>
+	    <para>
+	    Developers never should use these signal strings directly, but always refer
+	    to the signal strings via their factory functions in the module gmSignals.</para>
+	    <para>
+	    The name of the factory function is identical with the signal it represents:
+	    gmSignals.popup_notice() would thus return the string 'popup_notice'.
+	    </para>
+	    <para>
+	    However, these factory functions <emphasis>may</emphasis> do more than just that; they
+	    can also trigger a 'listen' signal for asynchronous backend notifications,
+	    and they can do some house keeping in order to avoid that the same callback
+	    is triggered multiple times unneccessarily.
+	    </para>
+
+    	    <para>
+		<table frame=all>
+		<title>Signals</title>
+		<tgroup cols=4>
+		    <colspec colname=c1>
+		    <colspec colname=c2>
+		    <colspec colname=c3>
+		    <colspec colname=c4>
+		    <spanspec spanname=hspan namest=c1 nameend=c4 align=center>
+		    <thead>
+			<row>
+			    <entry>Signal</entry>
+			    <entry>Meaning</entry>
+			    <entry>Parameter(s)</entry>
+			    <entry>Origin</entry>
+			</row>
+		    </thead>
+	      	    <tbody>
+
+		    <row><entry spanname=hspan><emphasis>General messages</emphasis></entry></row>
+    	    	    <row>
+			<entry>popup_notice</entry>
+        		<entry>A popup notice wants to be displayed (can be disabled if 
+			client does not want to be interrupted)</entry>
+        		<entry><itemizedlist mark=closedcircle>
+		    	    <listitem><para>id_sender (ID of sender)</para></listitem>
+		    	    <listitem><para>id_recipients ( IDs of recipients  as list (-1 = broadcast message))</para></listitem>
+			</itemizedlist></entry>
+        		<entry>Frontend or Backend</entry>
+		    </row>
+        	    <row>
+        	    	<entry>popup_alert</entry>
+        	    	<entry>A popup alert wants to be displayed (high priority 
+			message - should not be disabled by the client)</entry>
+        	    	<entry><itemizedlist mark=closedcircle>
+			    <listitem><para>id_sender (ID of sender) id_recipients</para></listitem>
+			    <listitem><para>( IDs of recipients  as list (-1 = broadcast message))</para></listitem>
+			    </itemizedlist></entry>
+        	    	<entry>Frontend or Backend</entry>
+		    </row>
+
+		    <row><entry spanname=hspan><emphasis>"Current patient" related messages</emphasis></entry></row>
+		    <row>
+        		<entry>patient_selected</entry>
+        		<entry>A patient has been selected within the client user interface. This 
+			 patient is now the "current" patient. All widgets displaying client data
+			 must update themselves accordingly</entry>
+        		 <entry>id_patient (ID of patient)</entry>
+        		 <entry>Frontend</entry>
+		   </row>
+		   <row>
+        	     <entry>patient_modified</entry>
+        	     <entry>A patient's demographic data has been updated. Widgets displaying a
+		      patient's demographic data must update themselves</entry>
+        	     <entry>id_patient (ID of patient)</entry>
+        	     <entry>Frontend or Backend</entry>
+		   </row>
+		   <row>
+        	     <entry>medication_modified</entry>
+        	     <entry>The current patient's medication has been modified. Medication related
+		      widgets have to update themselves. This can also be used for drug interaction
+		      checking, drug allergy checking etc. </entry>
+        	     <entry>id_patient (ID of patient)</entry>
+        	     <entry>Frontend or Backend</entry>
+		   </row>
+    	    	    
+		    <row><entry spanname=hspan><emphasis>Waiting room related</emphasis></entry></row>
+		   <row>
+        	     <entry>waitingroom_added</entry>
+        	     <entry>A patient has been added to the waiting room</entry>
+        	     <entry><itemizedlist mark=closedcircle>
+			    <listitem><para>id_patient (ID of patient)</para></listitem>
+			    <listitem><para>id_doctor (ID of doctor to see patient)</para></listitem>
+	    	     </itemizedlist></entry>
+        	     <entry>Frontend or Backend</entry>
+		   </row>
+		   <row>
+        	     <entry>waitingroom_incons</entry>
+        	     <entry>A patient has entered a consultation (is seen by a doctor)</entry>
+        	     <entry><itemizedlist mark=closedcircle>
+			    <listitem><para>id_patient (ID of patient)</para></listitem>
+			    <listitem><para>id_doctor (ID of doctor to see patient)</para></listitem>
+		     </itemizedlist></entry>
+        	     <entry>Frontend or Backend</entry>
+		   </row>
+		   <row>
+        	     <entry>waitingroom_left</entry>
+        	     <entry>A patient has left the waitingroom (finished consultation)</entry>
+        	     <entry><itemizedlist mark=closedcircle>
+			    <listitem><para>id_patient (ID of patient)</para></listitem>
+			    <listitem><para>id_doctor (ID of doctor to see patient)</para></listitem>
+		     </itemizedlist></entry>
+        	     <entry>Frontend or Backend</entry>
+		   </row>
+		</tbody>
+        	</tgroup>
+		</table>
+    	</sect1>
 
 	<sect1>
 	<title>FAQ</title>
@@ -1816,7 +2123,7 @@ the issues better than me.
 		      which uses the whole of this left hand pane.</para>
 		    <para>The best way to see how this all works is to view 
 		      the screen dumps shown on the following pages.</para>
-		    <screenshot><graphic fileref="snapshots/Full%20screen%20-%20general%20description.png"></graphic>
+		    <screenshot><graphic fileref="snapshots/Full_screen-general_description.png"></graphic>
 		    </screenshot>		
 		</sect3>
     	    </sect2>

@@ -1,0 +1,432 @@
+<HTML
+><HEAD
+><TITLE
+>Internal Messenging and Signal Dispatching</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE=" Design "
+HREF="c224.html"><LINK
+REL="PREVIOUS"
+TITLE="List of distributed database services"
+HREF="x259.html"><LINK
+REL="NEXT"
+TITLE="List of GnuMed client internal signals"
+HREF="signals.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x259.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Design</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="signals.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN385"
+></A
+>5.3. Internal Messenging and Signal Dispatching</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN387"
+></A
+>5.3.1. Internal Messenging and Signal Dispatching</H2
+><P
+>The gnumed client depends on two different types 
+	    of messages:</P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>Messages coming form the backend. Example:  a receptionist queues 
+	     patients as they arrive into a waiting room widget. On the doctors screen 
+	     there should be a small widget informing him about the number of patients 
+	     waiting for him. This is achieved through asynchronous messages from the backend.</P
+></LI
+><LI
+><P
+>Client-internal messages. They allow widgets to communicate. Example: 
+	     One widget allows the doctor to select the active patient. This widget, after 
+	     selection, has to notify other widgets depending on this information (like 
+	     widgets displaying the patients past medical history, his allergies etc.) 
+	      to update themselves.</P
+></LI
+></OL
+><P
+>	     Both types of messages are handled via a global dispatcher module called 
+	    <A
+HREF="x124.html#GMDISPATCHER"
+> gmDispatcher.py </A
+>
+	     The module <A
+HREF="x124.html#GMPG"
+>gmPG.py </A
+>
+    	    takes care of handling the asynchronous messages from the backend 
+	    via a separate background thread.</P
+><P
+>	     </P
+><P
+>	     Procedure changing "global" data that may affect any other widget, must
+	    post a message through gmDispatcher.</P
+><P
+>	     </P
+><P
+>	     Widgets depending on backend data must register their interest through gmDispatcher.</P
+><P
+>	     </P
+><P
+>	     A  table listing all available message labels
+	      ("signals") and their meanings can be found <A
+HREF="signals.html"
+>here.</A
+>
+	      However, these message strings should never be hardcoded. Developers must 
+	    instead use the embedding variables as listed in the module <A
+HREF="x124.html#GMSIGNALS"
+>gmSignals.py </A
+>.</P
+><P
+>	     </P
+><P
+>	     Developers writing code that creates new signals must
+	     update this webpage via CVS.</P
+><P
+>	     </P
+><P
+>&#13;	    <EM
+>Examples:</EM
+>
+
+	    <P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>A widget allows to select the current patient.
+	     	    <P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>It first registers it's interest in all patients added, modified
+		    or deleted with the backend as it should always be able to display the most
+		    current status of the backend data. For that purpose, it defines a callback
+		    function "self.OnDemographicsUpdated()".</P
+></LI
+><LI
+><P
+>Then, it registers this callback function with the dispatcher for
+		    all signals that would modify the patient database.  </P
+><P
+>		    If anybody within a gnumed system modifies demographic information, this
+		    widget would be automatically notified about this.  </P
+><P
+>		    </P
+></LI
+><LI
+><P
+>Once the user has interactively selected a patient, it has to alert
+		    all other widgets that this has happened. For that purpose, the event handler
+		    reacting to a patient being selected notifies the gmDispatcher about this. 
+		    </P
+><P
+>    	    	    	<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>     def __init__(self):
+
+         #register our interest in the patients stored on the backend
+
+         gmDispatcher.connect(self.OnDemographicsUpdated, gmSignals.demographics_updated())
+
+        	     	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+    	    	    	<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>        	     
+    def OnDemographicsUpdated(self, id):
+	"when the patients have changed on the backed, update the ones we display"
+
+        #id is irrelevant here; we just update the whole displayed list
+
+        self.UpdatePatientList()
+        	        </PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+        	     
+    	    	    	<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>        	     
+    def UpdatePatientList(self):
+	"Update the displayed list of patients from the backend"
+
+      #request a backend connection
+
+      db = gmPG.ConnectionPool().GetConnection('demographica')
+
+      cursor = db.cursor()
+
+      #query patients to be displayed
+
+      cursor.execute(....)
+
+      result = cursor.fetchall()
+
+      #display the result
+    	    	    	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+        		  
+        	       
+        	     	<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>     def OnPatientSelected(self, id):
+	 """When a patient has been selected by the user, call this function     
+	 id is the primary key identifying the selected patient"""     
+
+    	 gmDispatcher.send(gmSignals.patient_selected(), id=id)
+    	    	    	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>    	       
+        	     
+		 </P
+></LI
+></OL
+>
+	      </P
+></LI
+><LI
+><P
+>Another widget displays the current (active) patient's name. 
+
+	      <P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>Thus, it has to register it's interest in the event the current patient
+	    changes. The registered callback could query the database directly. However,
+	    data that is likely to be shared among many widgets, should be cached to
+	    avoid unneccessary backend traffic and to improve client performance. Thus,
+	    it requests the data from the gmCachedPerson.CachedPerson object:
+      <TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>      def __init__(self):
+        #code to display and place the widget
+        # now register our callback function with the dispatcher
+        gmDispatcher.connect(self.Update, gmSignals.patient_selected())
+      </PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+
+      <TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="90%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>      def Update(self, id_patient):
+        "show the currently selected patient"
+        patient = gmCachedPerson.CachedPerson.dictresult()
+        self.TxtctrlSurname.SetValue(patient['surname']
+        ....
+      </PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+		</P
+></LI
+></OL
+>
+    	      </P
+></LI
+></OL
+>
+
+    	</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x259.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="signals.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>List of distributed database services</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c224.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>List of GnuMed client internal signals</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,784 @@
+<HTML
+><HEAD
+><TITLE
+>wxpython</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE=" Modules "
+HREF="c122.html"><LINK
+REL="PREVIOUS"
+TITLE="python-common"
+HREF="x124.html"><LINK
+REL="NEXT"
+TITLE='wxpython/gui - "whole page" plugin widgets regarding the notebook'
+HREF="x215.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x124.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 4. Modules</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x215.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN168"
+></A
+>4.2. wxpython</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN170"
+></A
+>4.2.1. gnumed.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>main wrapper setting up global brokers, logging, command line argument handling, i18n, etc.
+GNUmed
+======
+This is the launcher for the main GNUmed GUI client. It is
+intended to be used as a standalone program.
+
+Command line arguments:
+
+--quiet
+ Be extra quiet and show only _real_ errors in the log.
+--debug
+ Be extra verbose and report nearly everything that's going
+ on. Useful for, well, debugging :-)
+--talkback
+ Run the client and upon exiting run a talkback client where
+ you can enter a comment and send the log off to the bug hunters.
+ Very useful when used in conjunction with --debug.
+--text-domain=&#60;&#60; a_text_domain &#62; Set this to change the name of the language file to be loaded.
+ Note, this does not change the directory the file is searched in,
+ only the name of the file where messages are loaded from. The
+ standard textdomain is, of course, "gnumed.mo".
+--log-file=&#60; a_log_file&#62; &#62; Use this to change the name of the log file.
+ See gmLog.py to find out where the standard log file would
+ end up.
+--help, -h, or -?
+ Well, show this help.
+
+
+def get_base_dir():
+	Retrieve the global base directory.
+
+	   The most preferable approach would be to just let
+	   the user specify the name of a config file on the
+	   command line but for that we'd have to load some
+	   non-standard modules already unless we want to
+	   duplicate the entire config file infrastructure
+	   right here.
+
+	   1) regardless of OS if the environment variable GNUMED_DIR
+		  is set this directory will be tried as a base dir
+		  - this will allow people to start GNUmed from any dir
+		    they want on any OS they happen to run
+		  - the variable name has been chosen to be descriptive
+		    but still not waste too many resources
+	   2) assume /usr/share/gnumed/ as base dir
+		  - this will work on POSIX systems and may work on
+		    Cygwin systems
+		  - this is the no-brainer for stock UN*X
+	   3) finally try one level below path to binary
+	      - last resort for lesser systems
+		  - this is the no-brainer for DOS/Windows
+		  - it also allows running from a local CVS copy
+
+
+further action:
+- import gmLog, gmCLI
+- import gmI18N, gmGuiBroker, gmGuiMain
+- import gmTalkback if necessary
+
+jump to gmGuiMain.main()&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN173"
+></A
+>4.2.2. gmGuiMain.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>&#13;GNUMed GUI client
+The application framework and main window of the
+all signing all dancing GNUMed reference client.
+
+from wxPython.wx import *
+from wxPython.html import *
+
+import gmLogFrame, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmConf, gmLog, gmPlugin
+import images
+import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
+import images_gnuMedGP_TabbedLists             #bitmaps for tabs on notebook
+import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
+import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
+import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
+import gmGP_PatientPicture                     #panel to display patients picture 
+import gmGP_Toolbar                            #panel with two toolbars on top of the screen
+
+from gmI18N import gmTimeformat
+
+class MainFrame(wxFrame):
+	GNUmed client's main windows frame
+	This is where it all happens. Avoid popping up any other windows.
+	Most user interaction should happen to and from widgets within this frame
+
+	def __init__(self, parent, id, title, size=wxPyDefaultSize):
+		You'll have to browse the source to understand what the constructor does
+
+		# initialize the gui broker
+		# allow access to a safe exit function for all modules in case of "emergencies"
+		# setup status bar
+		# allow all modules to access our status bar
+    	    	
+		# connect to backend
+
+    	    	# get current user and display it
+
+    	    	# setup platform dependent data
+		# create menus
+		# setup accelerators
+		# register events
+
+		# create the  the main sizer to contain all the others on the form
+		# create a top vertical box sizer for the main window
+	
+		# create a horizontal sizer which will contain all windows at the top of the
+		# screen (ie menu's and picture panel - which are on sub sizers)
+		# add a wxPanel to this sizer which sits on the left and occupies 90% of width
+		# followed by panel for the patients picture which occupies 10%. Add labels for
+		# demo patients
+
+		# setup the "top row", where all important patient data is always on display
+		# set up the main notebook (gmNotebook)
+		# relate plugins to the notebook (via gmPlugin.GetAllPlugins ('gui'))
+		# position the Window on the desktop and show it
+
+
+	def SetupPlatformDependent(self):
+		#do the platform dependent stuff
+
+	def OnNotebook (self, event):
+		Called when notebook changes
+
+	def RegisterEvents(self):
+		#register events we want to react to
+
+	def OnAbout(self, event):
+		" A simple 'about' dialog box"
+
+	def SetupAccelerators(self):
+	def SetupStatusBar(self):
+		#add time and date display to the right corner of the status bar
+		#update every second
+
+	def Notify(self):
+		Displays date and local time in the second slot of the status bar"
+
+	def CreateMenu(self):
+		Create the main menu entries. Individual entries are
+		farmed out to the modules
+
+	def Lock(self):
+		Lock GNUmed client against unauthorized access"
+
+	def Unlock(self):
+		Unlock the main notebook widgets
+		As long as we are not logged into the database backend,
+		all pages but the 'login' page of the main notebook widget
+		are locked; i.e. not accessible by the user
+
+		#unlock notebook pages
+		# go straight to patient selection
+
+	def OnFileExit(self, event):
+
+	def CleanExit(self):
+		This function should ALWAYS be called when this
+		program is to be terminated.
+		ANY code that should be executed before a regular shutdown
+		should go in here
+    
+    	def OnClose(self,event):
+
+	def OnIdle(self, event):
+		Here we can process any background tasks
+
+	def OnIconize(self, event):
+
+	def OnMaximize(self, event):
+
+	def OnPageChanged(self, event):
+
+class gmApp(wxApp):
+	def OnInit(self):
+		# do platform dependent stuff
+		# create a static GUI element dictionary;
+    	    	# show the login window
+		# create the MainFrame		
+
+def main():
+	GNUmed client written in Python
+	to run this application simply call main() or run the module as "main"
+	#create an instance of our GNUmed main application
+	#and enter the main event loop
+
+gnumed.py calls gmGuiMain.main() 
+gmGuiMain.main() creates gmApp
+gmApp creates MainFrame
+MainFrame sets up the toolbar, top row, Menus (items will be added by the plugins)
+main sizers and loads all plugins in directory wxpython/gui
+
+gmApp enters wx event loop, waiting for some action
+&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN176"
+></A
+>4.2.3. gmAppoint.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+># gmAppoint - A simple interface to the appointments book.
+#             INCOMPLETE, do not link in to rest of app.&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN179"
+></A
+>4.2.4. gmCryptoWidget.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>&#13;This module implements a ""crypto"" aware text widget
+
+This text widget allows arbitrary text to be entered via keyboard,
+cut'n paste via clipboard, or text files via drag'n drop
+Right clicking pops up a menu that allows to encrypt or decrypt
+the selected text segment.
+
+class gmTextctrlFileDropTarget(wxFileDropTarget):
+     a generic text control widget that accepts dropped files 
+
+    def __init__(self, textwindow):
+    def OnDropFiles(self, x, y, filenames):
+        inserts the dropped file(s) content(s) at the cursor position
+
+class gmCryptoText(wxTextCtrl):
+    A special text widget that supports cryptography
+
+    A right mouse click pops up a manu that allows to encrypt
+    or decrypt selected text segments.
+    You can drag and drop any number of text files into the text
+    widget, and that text will be inserted at the current cursor
+    position
+
+    def __init__(self, parent, id, size=wxPyDefaultSize, style=wxTE_MULTILINE|wxTE_RICH, defaulttext=None):
+
+    def OnRightClick(self, event):
+        A right mouse click triggers a popup menu for cryptographic
+	functionality"
+
+    def OnContextMenu(self, event):
+
+    def OnEncrypt(self, event):
+        triggered by popup contect menu event
+
+    def OnDecrypt(self, event):
+    def OnSetPassphrase(self, event):
+    def OnRightDown(self, event):
+        dummy function; if this event was not intercepted, GTK would
+        clear the text selection the very moment the mouse button is clicked
+
+    def AskForPassphrase(self):
+        asks for a pass phrase and returns it
+
+    def Encrypt(self, cleartext, key):
+        override this function for your own crypto funcs
+
+    def Decrypt(self, ciphertext, key, identtag):
+        override this function for your own crypto funcs
+
+    def StripIdentTag(self, text):
+        Remove the 'ident tag' from text and return both tag and test
+    def GetIdentTag(self):
+        This is a 'virtual' function which should be overridden to provide your own meaningful tag
+
+    def SetFuzzyMargin(self, margin):
+        The fuzzy margin is the number of characters on each side of the text selection
+        the decryption algorithm will search for correct delimiters. It should be at least as long as
+        the IdentTag is plus an extra 3 characters to allow for the crypto tag
+
+    def FuzzyScanSelection(self, frompos, topos, margin):&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN182"
+></A
+>4.2.5. gmEditArea.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>The classes in this file are not used until now. 
+
+class  EditAreaTextBox(wxTextCtrl):
+#text control class to be later replaced by the gmPhraseWheel
+	def __init__ (self, parent, id, wxDefaultPostion, wxDefaultSize):
+
+class EditAreaPromptLabel(wxStaticText):
+#Class which shows a blue bold label left justified
+	def __init__(self, parent, id, prompt, aColor = richards_blue):
+
+class EditAreaPrompts(wxPanel):
+#create the editorprompts class which expects a dictionary of labels passed to it
+#with prompts relevent to the editing area.
+	def __init__(self,parent,id,prompt_array):
+
+class EditTextBoxes(wxPanel):
+#Class central to gnumed data input
+#allows data entry of multiple different types.e.g scripts,
+#referrals, measurements, recalls etc
+#section = calling section eg allergies, script
+
+have a look at the source code if you want to know what it is doing.&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN185"
+></A
+>4.2.6. gmGuiElement_AlertCaptionPanel.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>base classes for captioned alert divider on left hand side of
+notebook page "patient"</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN188"
+></A
+>4.2.7. gmGuiElement_DividerCaptionPanel.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>base classes for captioned dividers on left hand side of
+notebook page "patient"</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN191"
+></A
+>4.2.8. gmGuiElement_HeadingCaptionPanel.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>base classes for captioned heading divider on left hand side of
+notebook page "patient"
+
+gmGuiMain.py
+- inits wxPython GUI framework&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN194"
+></A
+>4.2.9. gmLogFrame.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>not used anymore, really&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN197"
+></A
+>4.2.10. gmLoginDialog.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>encapsulates the first dialog, the login window.
+should be del()ed after use, actually&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN200"
+></A
+>4.2.11. gmLogin.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>- encapsulates the login information as a python object&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN203"
+></A
+>4.2.12. gmMDWImporter.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>- not related to framework
+- implements data import from on commercial australian medical
+  software&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN206"
+></A
+>4.2.13. gmShadow.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>- encapsulates custom widget shadow object to be used on all
+  Richard-Terry-Style widgets (possibly more)&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN209"
+></A
+>4.2.14. gmTalkback.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>- encapsulates talkback app&#13;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN212"
+></A
+>4.2.15. gmUserAdmin.py</H2
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>- unrelated to framework as of now</PRE
+></FONT
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x124.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x215.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>python-common</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c122.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>wxpython/gui - "whole page" plugin widgets regarding the notebook</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,7 +1,7 @@
 <HTML
 ><HEAD
 ><TITLE
->wxpython/gui-de - same as ../gui for Germany (AMIS-browser should life here)</TITLE
+>strings and translation</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
@@ -9,14 +9,14 @@ REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
 REL="UP"
-TITLE=" Modules "
-HREF="c122.html"><LINK
+TITLE="Coding Guidelines"
+HREF="c85.html"><LINK
 REL="PREVIOUS"
-TITLE='wxpython/gui - "whole page" plugin widgets regarding the notebook'
-HREF="x215.html"><LINK
+TITLE="Coding Guidelines"
+HREF="c85.html"><LINK
 REL="NEXT"
-TITLE='wxpython/patient - "patient page" plugin widgets'
-HREF="x221.html"></HEAD
+TITLE="Database Guidelines"
+HREF="x94.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -44,7 +44,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x215.html"
+HREF="c85.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -52,13 +52,13 @@ ACCESSKEY="P"
 WIDTH="80%"
 ALIGN="center"
 VALIGN="bottom"
->Chapter 4. Modules</TD
+>Chapter 3. Coding Guidelines</TD
 ><TD
 WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x221.html"
+HREF="x94.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -72,11 +72,61 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="AEN218"
+NAME="AEN87"
 ></A
->4.4. wxpython/gui-de - same as ../gui for Germany (AMIS-browser should life here)</H1
+>3.1. strings and translation</H1
 ><P
->TODO</P
+>hardcoded error strings meant for developers / debugging are in English.All other strings MUST be translateable, that is called as a gettext 
+function. To achieve this, you do the following:
+      </P
+><P
+>If your modules can be called as a standalone script you
+should add this to your main part:
+	<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>if name == '__main__':
+	import gettext
+	_ = gettext.gettext()
+    # ... now on to other stuff
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+If your module is invoked from within the GNUmed framework the
+translation function _() is automatically defined for you.
+      </P
+><P
+>Now, whenever you use a string, do it like
+	<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>print _("this will be automatically translated")
+instead of
+ print "this can't be translated and should thus not be written this way"
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+      </P
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
@@ -94,7 +144,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x215.html"
+HREF="c85.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -112,7 +162,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x221.html"
+HREF="x94.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -122,13 +172,13 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->wxpython/gui - "whole page" plugin widgets regarding the notebook</TD
+>Coding Guidelines</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c122.html"
+HREF="c85.html"
 ACCESSKEY="U"
 >Up</A
 ></TD
@@ -136,7 +186,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->wxpython/patient - "patient page" plugin widgets</TD
+>Database Guidelines</TD
 ></TR
 ></TABLE
 ></DIV

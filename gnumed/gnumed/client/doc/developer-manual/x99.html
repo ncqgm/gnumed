@@ -1,7 +1,7 @@
 <HTML
 ><HEAD
 ><TITLE
->wxpython/gui-de - same as ../gui for Germany (AMIS-browser should life here)</TITLE
+>Widgets</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
@@ -9,14 +9,14 @@ REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
 REL="UP"
-TITLE=" Modules "
-HREF="c122.html"><LINK
+TITLE="Coding Guidelines"
+HREF="c85.html"><LINK
 REL="PREVIOUS"
-TITLE='wxpython/gui - "whole page" plugin widgets regarding the notebook'
-HREF="x215.html"><LINK
+TITLE="Database Guidelines"
+HREF="x94.html"><LINK
 REL="NEXT"
-TITLE='wxpython/patient - "patient page" plugin widgets'
-HREF="x221.html"></HEAD
+TITLE="Comments. Documenting Code"
+HREF="x102.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -44,7 +44,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x215.html"
+HREF="x94.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -52,13 +52,13 @@ ACCESSKEY="P"
 WIDTH="80%"
 ALIGN="center"
 VALIGN="bottom"
->Chapter 4. Modules</TD
+>Chapter 3. Coding Guidelines</TD
 ><TD
 WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x221.html"
+HREF="x102.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -72,11 +72,17 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="AEN218"
+NAME="AEN99"
 ></A
->4.4. wxpython/gui-de - same as ../gui for Germany (AMIS-browser should life here)</H1
+>3.3. Widgets</H1
 ><P
->TODO</P
+>When trying to map database results to widgets, remember that not all 
+widgets can use the same functions (like SetValue()) under all 
+circumstances to set their properties. Notable examples for exceptions are 
+"choice boxes" and "combo boxes". It might be preferrable to have a 
+function SetData(), UpdateData(), ClearData() for each dialog instead - 
+far more control over what is actually happening to the widgets, though 
+unfortunately a little bit more typing.</P
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
@@ -94,7 +100,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x215.html"
+HREF="x94.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -112,7 +118,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x221.html"
+HREF="x102.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -122,13 +128,13 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->wxpython/gui - "whole page" plugin widgets regarding the notebook</TD
+>Database Guidelines</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c122.html"
+HREF="c85.html"
 ACCESSKEY="U"
 >Up</A
 ></TD
@@ -136,7 +142,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->wxpython/patient - "patient page" plugin widgets</TD
+>Comments. Documenting Code</TD
 ></TR
 ></TABLE
 ></DIV

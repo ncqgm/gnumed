@@ -1,7 +1,7 @@
 <HTML
 ><HEAD
 ><TITLE
->Widgets</TITLE
+>Database Guidelines</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
@@ -10,13 +10,13 @@ TITLE="GNUMed"
 HREF="index.html"><LINK
 REL="UP"
 TITLE="Coding Guidelines"
-HREF="c80.html"><LINK
+HREF="c85.html"><LINK
 REL="PREVIOUS"
-TITLE="Database Guidelines"
-HREF="x89.html"><LINK
+TITLE="strings and translation"
+HREF="x87.html"><LINK
 REL="NEXT"
-TITLE="Comments. Documenting Code"
-HREF="x97.html"></HEAD
+TITLE="Widgets"
+HREF="x99.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -44,7 +44,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x89.html"
+HREF="x87.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -58,7 +58,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x97.html"
+HREF="x99.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -74,15 +74,23 @@ CLASS="SECT1"
 ><A
 NAME="AEN94"
 ></A
->3.3. Widgets</H1
+>3.2. Database Guidelines</H1
 ><P
->When trying to map database results to widgets, remember that not all 
-widgets can use the same functions (like SetValue()) under all 
-circumstances to set their properties. Notable examples for exceptions are 
-"choice boxes" and "combo boxes". It might be preferrable to have a 
-function SetData(), UpdateData(), ClearData() for each dialog instead - 
-far more control over what is actually happening to the widgets, though 
-unfortunately a little bit more typing.</P
+>When doing database work, NEVER rely on a table being present in the "default" database. Lookup the appropriate service 
+(as listed in http://gnumed.net/whitepapers/serviceslist.html) and use it 
+accordingly - for example ALL person and address related details are 
+available via the service "personalia" now.</P
+><P
+>Whether "personalia" is actually implemented in "default" or on some other 
+server in a completely different database should not matter to client 
+programmers. Just request the right service from the database broker 
+object, and that's it - should work.</P
+><P
+>In order to make this testable, you must set up your configuration tables 
+in the default database accordingly
+(database name in "db", service in "distributed_db", reference to db and 
+distributed_db in "config" attributes "db" and "ddb")
+      </P
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
@@ -100,7 +108,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x89.html"
+HREF="x87.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -118,7 +126,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x97.html"
+HREF="x99.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -128,13 +136,13 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Database Guidelines</TD
+>strings and translation</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c80.html"
+HREF="c85.html"
 ACCESSKEY="U"
 >Up</A
 ></TD
@@ -142,7 +150,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Comments. Documenting Code</TD
+>Widgets</TD
 ></TR
 ></TABLE
 ></DIV

@@ -1,7 +1,7 @@
 <HTML
 ><HEAD
 ><TITLE
->wxpython/gui-de - same as ../gui for Germany (AMIS-browser should life here)</TITLE
+>DEBUGGING/LOGGING</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
@@ -9,14 +9,14 @@ REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
 REL="UP"
-TITLE=" Modules "
-HREF="c122.html"><LINK
+TITLE="Coding Guidelines"
+HREF="c85.html"><LINK
 REL="PREVIOUS"
-TITLE='wxpython/gui - "whole page" plugin widgets regarding the notebook'
-HREF="x215.html"><LINK
+TITLE="CVS Guidelines"
+HREF="x115.html"><LINK
 REL="NEXT"
-TITLE='wxpython/patient - "patient page" plugin widgets'
-HREF="x221.html"></HEAD
+TITLE=" Modules "
+HREF="c122.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -44,7 +44,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x215.html"
+HREF="x115.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -52,13 +52,13 @@ ACCESSKEY="P"
 WIDTH="80%"
 ALIGN="center"
 VALIGN="bottom"
->Chapter 4. Modules</TD
+>Chapter 3. Coding Guidelines</TD
 ><TD
 WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x221.html"
+HREF="c122.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -72,11 +72,31 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="AEN218"
+NAME="AEN118"
 ></A
->4.4. wxpython/gui-de - same as ../gui for Germany (AMIS-browser should life here)</H1
+>3.6. DEBUGGING/LOGGING</H1
 ><P
->TODO</P
+>Place markers before/after logging statements
+  that can be commented out once things work like this:
+	<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>#&#60;DEBUG&#62;
+gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log message")
+#&#60;/DEBUG&#62;</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+    </P
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
@@ -94,7 +114,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x215.html"
+HREF="x115.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -112,7 +132,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x221.html"
+HREF="c122.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -122,13 +142,13 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->wxpython/gui - "whole page" plugin widgets regarding the notebook</TD
+>CVS Guidelines</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c122.html"
+HREF="c85.html"
 ACCESSKEY="U"
 >Up</A
 ></TD
@@ -136,7 +156,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->wxpython/patient - "patient page" plugin widgets</TD
+>Modules</TD
 ></TR
 ></TABLE
 ></DIV

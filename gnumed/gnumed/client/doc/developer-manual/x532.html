@@ -1,0 +1,202 @@
+<HTML
+><HEAD
+><TITLE
+>FAQ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE=" Design "
+HREF="c224.html"><LINK
+REL="PREVIOUS"
+TITLE="List of GnuMed client internal signals"
+HREF="signals.html"><LINK
+REL="NEXT"
+TITLE="GUI design"
+HREF="x537.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="signals.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Design</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x537.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN532"
+></A
+>5.5. FAQ</H1
+><P
+>&#62; I would be interested in hearing about the database design 
+&#62; history and the purpose of the distributed database architecture
+&#62; that you have implemented, (smart, but possibly a little 
+&#62; over-kill I would have thought at first glance).
+    	    </P
+><P
+>	    Horst Herb:The main reason why we had to split the monolithic backend up:
+- some countries provide centralized demographic information. It would 
+be inefficient and unreliable to try to copy such a centrally well 
+maintained demographic database. We should rather allow to tap into it 
+via distributed services.
+- some countries provide centralized pharmaceutical information
+- some countries provide centralized immunisation databases
+- some conutries centralize certain pathology results
+etc.
+
+Sometimes, this happens on a smaller scale like within a hospital where 
+they already have successfully implemented some of these services, they 
+are running smoothly, and they find no reason to pull it apart again. 
+GNUMed will shine in such an environment because it will be far easier 
+to integrate into such existing solutions than other software.
+
+Thus we try to find out which "services" are relatively independent from 
+others, and isolate them into particular "virtual" databases. That 
+way, it will be magnitudes easier to write simple wrappers for external 
+sources and use them.
+
+The main obstacle is tha Postgres in itself does not support 
+cross-database queries, and we have to take care of referential 
+integrity between external sources ourselves.
+
+Note: we should put in a description on how this is achieved now
+(client side) vs. how we would want this (either built into postgres
+or via a dedicated demon on the backend with listen/notify)
+	    </P
+><P
+>	    Karsten Hilbert: 
+There isn't really much choice: Doing everything in one
+monolithic database isn't quite flexible enough (distributed
+practices with a WAN link, remote clinical repository but
+local drug information data store). The difference between
+hardcoding 2 or 3 database and doing it the Right Way as we
+are trying to do now isn't very much of a difference. So there
+aren't really many steps inbetween "monolithic" and
+"distributed according to some configuration". Yes, it's a bit
+more complex but to the client side it shouldn't be any more
+complex than:
+
+dbbrooker.GetConnection('personalia')
+dbbrooker.GetConnection('BLOBS')
+
+If we then properly encapsulate accesses into objects we don't
+experience too much pain in using the distributed version.
+
+It does get a bit more involved with keeping strict
+referential integrity across databases but Horst can explain
+the issues better than me.
+    	    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="signals.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x537.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>List of GnuMed client internal signals</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c224.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>GUI design</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

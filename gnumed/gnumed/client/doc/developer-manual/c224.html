@@ -1,0 +1,359 @@
+<HTML
+><HEAD
+><TITLE
+> Design </TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE='wxpython/patient - "patient page" plugin widgets'
+HREF="x221.html"><LINK
+REL="NEXT"
+TITLE="GNUMed Database Architecture"
+HREF="x226.html"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x221.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x226.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="AEN224"
+></A
+>Chapter 5.  Design </H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+>5.1. <A
+HREF="x226.html"
+>GNUMed Database Architecture</A
+></DT
+><DD
+><DL
+><DT
+>5.1.1. <A
+HREF="x226.html#AEN228"
+>Client-Server architecture with optional middleware layers</A
+></DT
+><DT
+>5.1.2. <A
+HREF="x226.html#AEN233"
+>Distribution of database services</A
+></DT
+><DT
+>5.1.3. <A
+HREF="x226.html#AEN238"
+>Normalization of data</A
+></DT
+><DT
+>5.1.4. <A
+HREF="x226.html#AEN245"
+>Audit trailing</A
+></DT
+><DT
+>5.1.5. <A
+HREF="x226.html#AEN250"
+>Access control</A
+></DT
+><DT
+>5.1.6. <A
+HREF="x226.html#AEN255"
+>Multigenerational concurrency control and backups</A
+></DT
+></DL
+></DD
+><DT
+>5.2. <A
+HREF="x259.html"
+>List of distributed database services</A
+></DT
+><DD
+><DL
+><DT
+>5.2.1. <A
+HREF="x259.html#AEN261"
+>Configuration - the service administering all other services</A
+></DT
+><DT
+>5.2.2. <A
+HREF="x259.html#AEN264"
+>Person related services</A
+></DT
+><DT
+>5.2.3. <A
+HREF="x259.html#AEN308"
+>Medical history related services</A
+></DT
+><DT
+>5.2.4. <A
+HREF="x259.html#AEN329"
+>External results</A
+></DT
+><DT
+>5.2.5. <A
+HREF="x259.html#AEN336"
+>Correspondence</A
+></DT
+><DT
+>5.2.6. <A
+HREF="x259.html#AEN343"
+>Pharmaceutical reference</A
+></DT
+><DT
+>5.2.7. <A
+HREF="x259.html#AEN354"
+>General medical reference</A
+></DT
+><DT
+>5.2.8. <A
+HREF="x259.html#AEN359"
+>Decision support database</A
+></DT
+><DT
+>5.2.9. <A
+HREF="x259.html#AEN362"
+>Large binary objects (BLOBS)</A
+></DT
+><DT
+>5.2.10. <A
+HREF="x259.html#AEN365"
+>Accounting related services</A
+></DT
+><DT
+>5.2.11. <A
+HREF="x259.html#AEN376"
+>Office related services</A
+></DT
+></DL
+></DD
+><DT
+>5.3. <A
+HREF="x385.html"
+>Internal Messenging and Signal Dispatching</A
+></DT
+><DT
+>5.4. <A
+HREF="signals.html"
+>List of GnuMed client internal signals</A
+></DT
+><DT
+>5.5. <A
+HREF="x532.html"
+>FAQ</A
+></DT
+><DT
+>5.6. <A
+HREF="x537.html"
+>GUI design</A
+></DT
+><DT
+>5.7. <A
+HREF="x585.html"
+>Login Screen</A
+></DT
+><DD
+><DL
+><DT
+>5.7.1. <A
+HREF="x585.html#AEN587"
+>Short description</A
+></DT
+><DT
+>5.7.2. <A
+HREF="x585.html#AEN590"
+>Data Shown/Accessible</A
+></DT
+><DT
+>5.7.3. <A
+HREF="x585.html#AEN605"
+>Functionality</A
+></DT
+><DT
+>5.7.4. <A
+HREF="x585.html#AEN616"
+>Internals / Additional Information</A
+></DT
+></DL
+></DD
+><DT
+>5.8. <A
+HREF="x621.html"
+>Main Toolbar</A
+></DT
+><DD
+><DL
+><DT
+>5.8.1. <A
+HREF="x621.html#AEN623"
+>Short Description</A
+></DT
+><DT
+>5.8.2. <A
+HREF="x621.html#AEN626"
+>Data Shown/Accessible</A
+></DT
+><DT
+>5.8.3. <A
+HREF="x621.html#AEN635"
+>Functionality</A
+></DT
+><DT
+>5.8.4. <A
+HREF="x621.html#AEN642"
+>Internals / Additional Information</A
+></DT
+></DL
+></DD
+><DT
+>5.9. <A
+HREF="x652.html"
+>Appointment book</A
+></DT
+><DD
+><DL
+><DT
+>5.9.1. <A
+HREF="x652.html#AEN654"
+>Functionality</A
+></DT
+><DT
+>5.9.2. <A
+HREF="x652.html#AEN667"
+>The "schedule widget"</A
+></DT
+><DT
+>5.9.3. <A
+HREF="x652.html#AEN675"
+>Calendar navigation</A
+></DT
+><DT
+>5.9.4. <A
+HREF="x652.html#AEN682"
+>Context sensitive popup menus</A
+></DT
+><DT
+>5.9.5. <A
+HREF="x652.html#AEN688"
+>TO DO:</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x221.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x226.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>wxpython/patient - "patient page" plugin widgets</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>GNUMed Database Architecture</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
