@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.37 $
+-- $Revision: 1.38 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -55,7 +55,7 @@ create table clin_health_issue (
 comment on table clin_health_issue is
 	'long-ranging, underlying health issue such as "mild immunodeficiency", "diabetes type 2"';
 comment on column clin_health_issue.id_patient is
-	'id of patient this health issue relates to';
+ 	'id of patient this health issue relates to';
 comment on column clin_health_issue.description is
 	'descriptive name of this health issue, may change over time';
 
@@ -358,39 +358,35 @@ comment on table drug_routes is
 comment on column drug_routes.description is
 'administration route of a drug like "oral", "sublingual", "intravenous" ...';
 
-create table databases
-(
-	id serial primary key,
-	name varchar (50),
-	published date
-);
-
-comment on table databases is
-'different drug databases';
-
-
 create table script_drug
 (
 	id serial primary key,
-	name varchar (200) default 'GENERIC',
+	brandname varchar (200) default 'GENERIC',
 	directions text,
 	adjuvant text,
-	xref_id varchar (100),
-	source integer references databases (id),
-	fluid_amount float,
+	db_xref varchar (128) not null,
+	atc_code varchar (32),
+	total_amount float,
+	dose_amount float,
 	amount_unit integer references drug_units (id),
-	amount integer,
-	id_route integer references drug_routes (id),
-	id_form integer references drug_formulations (id),
+	packsize integer,
+	id_route integer references drug_routes (id) not null,
+	id_form integer references drug_formulations (id) not null,
 	prn boolean,
-	frequency integer
+	frequency integer not null
 );
 
 comment on table script_drug is
-'table for different prexcriptions';
+'table for different prescriptions. Note the multiple redundancy of the stored drug data.
+Applications should try in this order:
+- internal database code
+- brandname
+- ATC code
+- generic name(s) (in constituents)
+';
 comment on column script_drug.xref_id is 'ID of the source database';
-comment on column script_drug.fluid_amount is 'if a fluid, the amount in each bottle/ampoule, etc.';
-comment on column script_drug.amount is 'for solid object (tablets, capsules) the number of objects, for fluids, the number of separate containers';
+comment on column script_drug.total_amount is 'the total amount to be dispensed';
+comment on column script_drug.dose_amount is 'the amount to be consumed at each dose';
 comment on column script_drug.prn is 'true if "pro re nata" (= as required)';
 comment on column script_drug.directions is 'free text for directions, such as ''nocte'' etc';
 comment on column script_drug.adjuvant is 'free text describing adjuvants, such as ''orange-flavoured'' etc.';
@@ -398,14 +394,14 @@ comment on column script_drug.adjuvant is 'free text describing adjuvants, such 
 create table constituents
 (
 	id serial primary key,
-	name varchar (100),
+	genericname varchar (100),
 	dose float,
 	dose_unit integer references drug_units (id),
 	id_drug integer references script_drug (id)
 );
 
 comment on table constituents is
-'the constituent substances of the various drugs';
+'the constituent substances of the various drugs (normalised out to support compound drugs like Augmentin)';
 comment on column constituents.name is
 'the English IUPHARM standard name, as a base, with no adjuvant, in capitals. So MORPHINE. not Morphine, not MORPHINE SULPHATE, not MORPHINIUM';
 comment on column constituents.dose is
@@ -488,11 +484,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.37 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.38 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.37  2003-05-04 23:35:59  ncq
+-- Revision 1.38  2003-05-05 10:02:10  ihaywood
+-- minor updates
+--
+-- Revision 1.37  2003/05/04 23:35:59  ncq
 -- - major reworking to follow the formal EMR structure writeup
 --
 -- Revision 1.36  2003/05/03 00:44:40  ncq

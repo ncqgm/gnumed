@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.34 $ $Date: 2003-04-19 06:25:12 $ $Author: ihaywood $
+-- $Revision: 1.35 $ $Date: 2003-05-05 10:02:10 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.34  2003-04-19 06:25:12  ihaywood
+-- Revision 1.35  2003-05-05 10:02:10  ihaywood
+-- minor updates
+--
+-- Revision 1.34  2003/04/19 06:25:12  ihaywood
 -- bugfixes
 --
 -- Revision 1.33  2003/01/06 05:01:40  ihaywood
@@ -184,7 +187,8 @@ insert into drug_units(unit) values('mcg');
 insert into drug_units(unit) values('mcg/ml');
 insert into drug_units(unit) values('IU/ml');
 insert into drug_units(unit) values('day');
-
+insert into drug_units(unit) values ('dose');
+insert into drug_units(unit) values ('g');
 -- ===========================================
 create table drug_formulations(
 	id serial primary key,
@@ -209,6 +213,19 @@ insert into drug_formulations(description) values ('suppository');
 insert into drug_formulations(description) values ('solution');
 insert into drug_formulations(description) values ('dermal patch');
 insert into drug_formulations(description) values ('kit');
+insert into drug_formulations(description) values ('stick');
+insert into drug_formulations(description) values ('disc');
+insert into drug_formulations(description) values ('film');
+insert into drug_formulations(description) values ('shampoo');
+insert into drug_formulations(description) values ('spray');
+insert into drug_formulations(description) values ('wafer');
+insert into drug_formulations(description) values ('paste');
+insert into drug_formulations(description) values ('implant');
+insert into drug_formulations(description) values ('insert');
+insert into drug_formulations(description) values ('other');
+insert into drug_formulations(description) values ('bandage');
+insert into drug_formulations(description) values ('dressing');
+insert into drug_formulations(description) values ('foam');
 
 -- ===========================================
 create table drug_routes (
@@ -233,6 +250,8 @@ insert into drug_routes(description, abbreviation) values('intramuscular', 'i.m.
 insert into drug_routes(description, abbreviation) values('subcutaneous', 's.c.');
 insert into drug_routes(description, abbreviation) values('intraarterial', 'art.');
 insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.');
+insert into drug_routes(description, abbreviation) values('inhaled', 'inh.');
+insert into drug_routes(description, abbreviation) values('iv/im/sc', 'iv/im/sc');
 
 -- ===========================================
 create table drug_element (
@@ -253,7 +272,7 @@ comment on column drug_class.category is
 
 -- ===========================================
 create table link_drug_atc (
-	drug_id integer references drug_element(id),
+	id_drug integer references drug_element(id),
 	atccode varchar(8) references ATC(code)
 ) inherits (audit_drugs);
 
@@ -790,7 +809,7 @@ comment on column link_drug_indication.line is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.34 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.35 $');
 
 -- -----------------------------------------
 -- we need to be able to "lock" certain drugs from prescribing and such
