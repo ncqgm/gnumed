@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.54 2003-06-29 14:20:45 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmPlugin.py,v 1.55 2003-07-21 20:57:42 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -353,7 +353,7 @@ def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 		plugin_module_name = mod_from_pkg.__dict__[plugin_name]
 		# 2) get class name
 		plugin_class = plugin_module_name.__dict__[plugin_name]
-	except:
+	except ImportError:
 		_log.LogException ('Cannot __import__() module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), verbose=0)
 		return None
 
@@ -522,7 +522,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.54  2003-06-29 14:20:45  ncq
+# Revision 1.55  2003-07-21 20:57:42  ncq
+# - cleanup
+#
+# Revision 1.54  2003/06/29 14:20:45  ncq
 # - added TODO item
 #
 # Revision 1.53  2003/06/26 21:35:23  ncq
