@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -36,11 +36,14 @@ _whoami = gmWhoAmI.cWhoAmI()
 	wxID_NB_LabJournal,
 	wxID_LBOX_pending_results,
 	wxID_PHRWH_labs,
-	wxID_TXTCTRL_ids,
+	wxID_TextCtrl_req_id,
 	wxID_BTN_save_request_ID,
 	wxID_BTN_select_all,
-	wxID_BTN_mark_reviewed
-] = map(lambda _init_ctrls: wxNewId(), range(8))
+	wxID_BTN_mark_reviewed,
+	wxID_pending_requests,
+	wxID_lbox_errors,
+	wxID_grid_unreviewed_results
+] = map(lambda _init_ctrls: wxNewId(), range(11))
 #=========================================================
 class cLabDataGridCellRenderer(wxPyGridCellRenderer):
     def __init__(self):
@@ -116,7 +119,7 @@ class cLabReviewGrid(wxGrid):
 			pos = wxDefaultPosition,
 			size = wxDefaultSize,
 			style= wxWANTS_CHARS
-			)
+		)
 #=========================================================
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, parent):
@@ -139,8 +142,8 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 #=========================================================
 # FIXME: is this really lab specific ?
 class cLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
-	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
-		wxListCtrl.__init__(self, parent, ID, pos, size, style)
+	def __init__(self, parent, id, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
+		wxListCtrl.__init__(self, parent, id, pos, size, style)
 		wxListCtrlAutoWidthMixin.__init__(self)
 
 #=========================================================
@@ -158,103 +161,94 @@ class cLabJournalNB(wxNotebook):
 			wxDefaultSize,
 			0
 		)
-		# tab with pending requests
-		self.PNL_due_tab = wxPanel( self, -1 )
-		szr_due = self.__init_SZR_due()
 
-		self.PNL_due_tab.SetAutoLayout( True )
-		self.PNL_due_tab.SetSizer( szr_due )
-		szr_due.Fit( self.PNL_due_tab )
-		szr_due.SetSizeHints(self.PNL_due_tab)
+		self.__pat = gmPatient.gmCurrentPatient()
 
-		self.AddPage( self.PNL_due_tab, _("add | view pending requests"))
+		self.__do_layout_requests_page()
+		self.__do_layout_errors_page()
+		self.__do_layout_review_page()
+		self.__do_layout_config_page()
 
-		# tab with errors
-		self.PNL_errors_tab = wxPanel( self, -1)
-		szr_errors = self.__init_SZR_import_errors()
-
-		self.PNL_errors_tab.SetAutoLayout( True )
-		self.PNL_errors_tab.SetSizer( szr_errors )
-		szr_errors.Fit( self.PNL_errors_tab )
-		szr_errors.SetSizeHints( self.PNL_errors_tab )
-
-		self.AddPage( self.PNL_errors_tab, _("lab errors"))
-		
-		# tab with unreviewed lab results
-		self.PNL_review_tab = wxPanel( self, -1)
-		szr_review = self.__init_SZR_review_status()
-
-		self.PNL_review_tab.SetAutoLayout( True )
-		self.PNL_review_tab.SetSizer( szr_review )
-		szr_review.Fit( self.PNL_review_tab )
-		szr_review.SetSizeHints( self.PNL_review_tab )
-
-		self.AddPage( self.PNL_review_tab, _("unreviewed results"))
-		
-		self.curr_pat = gmPatient.gmCurrentPatient()
+		self.__register_events()
 	#------------------------------------------------------------------------
-	def __init_SZR_due (self):
+	def __do_layout_config_page(self):
+		pnl_page = wxPanel(self, -1)
 
-		vbszr = wxBoxSizer( wxVERTICAL )
-		hbszr = wxStaticBoxSizer(wxStaticBox(self.PNL_due_tab, -1, _("add new request for current patient")), wxHORIZONTAL)
-		
-		self.lab_label = wxStaticText(
+
+
+		szr_page = wxBoxSizer(wxVERTICAL)
+#		szr_page.Add(hbszr,0, wxALIGN_LEFT | wxALL, 5)
+#		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+#		szr_page.AddWindow(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+
+		pnl_page.SetAutoLayout(True)
+		pnl_page.SetSizer(szr_page)
+		szr_page.Fit(pnl_page)
+		szr_page.SetSizeHints(pnl_page)
+
+		self.AddPage(pnl_page, _("lab config"))
+	#------------------------------------------------------------------------
+	def __do_layout_requests_page(self):
+		# notebook tab with pending requests
+		pnl_page = wxPanel(self, -1)
+
+		# -- add request area --
+		hbszr = wxStaticBoxSizer(
+			wxStaticBox(
+				pnl_page,
+				-1,
+				_("add new request for current patient")
+			),
+			wxHORIZONTAL
+		)
+		# label
+		lab_label = wxStaticText(
 			name = 'lablabel',
-			parent = self.PNL_due_tab,
+			parent = pnl_page,
 			id = -1,
 			label = _('Lab')
 		)
-		
-		# available labs go here
-		self.lab_wheel = cLabWheel(self.PNL_due_tab)
+		# phrase wheel
+		self.lab_wheel = cLabWheel(pnl_page)
 		self.lab_wheel.on_resize (None)
 		self.lab_wheel.addCallback(self.on_lab_selected)
-
-		hbszr.AddWindow(self.lab_label, 0, wxALIGN_CENTER | wxALL, 5)
-		hbszr.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
-
-		#vbszr.Add(hbszr, 0, wxALIGN_LEFT | wxALL, 5)
-
-		self.req_id_label = wxStaticText(
+		# label
+		req_id_label = wxStaticText(
 			name = 'req_id_label',
-			parent = self.PNL_due_tab,
+			parent = pnl_page,
 			id = -1,
 			label = _("Specimen ID")
 		)
-		
 		# request_id field
-		self.fld_request_id = wxTextCtrl(
-			self.PNL_due_tab,
-			wxID_TXTCTRL_ids,
+		self.fld_request_id = wxTextCtrl (
+			pnl_page,
+			wxID_TextCtrl_req_id,
 			"",
-			wxDefaultPosition,
+			wxPyDefaultPosition,
 			wxSize(80,-1),
 			0
-			)
-		
-		hbszr.AddWindow(self.req_id_label, 0, wxALIGN_CENTER | wxALL, 5)
-		hbszr.AddWindow(self.fld_request_id, 0, wxALIGN_CENTER| wxALL, 5 )
-
-		# -- "save request id" button -----------
+		)
+		# "save request id" button
 		self.BTN_save_request_ID = wxButton(
 			name = 'BTN_save_request_ID',
-			parent = self.PNL_due_tab,
+			parent = pnl_page,
 			id = wxID_BTN_save_request_ID,
-			label = _("save request ID")
+			label = _("save lab request")
 		)
 		self.BTN_save_request_ID.SetToolTipString(_('associate chosen lab and ID with current patient'))
-		EVT_BUTTON(self.BTN_save_request_ID, wxID_BTN_save_request_ID, self.on_save_request_ID)
 
-		hbszr.Add(self.BTN_save_request_ID, 0, wxALIGN_CENTER|wxALL, 5 )
-		vbszr.Add(hbszr,0, wxALIGN_LEFT | wxALL, 5)
-		
-		# our actual list
-		tID = wxNewId()
+		hbszr.AddWindow(lab_label, 0, wxALIGN_CENTER | wxALL, 5)
+		hbszr.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
+		hbszr.AddWindow(req_id_label, 0, wxALIGN_CENTER | wxALL, 5)
+		hbszr.AddWindow(self.fld_request_id, 0, wxALIGN_CENTER| wxALL, 5)
+		hbszr.Add(self.BTN_save_request_ID, 0, wxALIGN_CENTER | wxALL, 5)
+
+		# -- add list of pending requests --
 		self.lbox_pending = cLabIDListCtrl(
-			self.PNL_due_tab,
-			tID,
-			size=wxDefaultSize,
-			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
+			pnl_page,
+			wxID_pending_requests,
+			size = wxPyDefaultSize,
+			style = wxLC_REPORT | wxSUNKEN_BORDER | wxLC_VRULES
 		)
 
 		self.lbox_pending.InsertColumn(0, _("date"))
@@ -262,112 +256,129 @@ class cLabJournalNB(wxNotebook):
 		self.lbox_pending.InsertColumn(2, _("sample id"))
 		self.lbox_pending.InsertColumn(3, _("patient"))
 		self.lbox_pending.InsertColumn(4, _("status"))
-		
-		vbszr.AddWindow( self.lbox_pending, 1, wxEXPAND|wxALIGN_CENTER|wxALL, 5 )
-		return vbszr
 
-	def __init_SZR_import_errors (self):
-		vbszr = wxBoxSizer( wxVERTICAL )
+		szr_page = wxBoxSizer(wxVERTICAL)
+		szr_page.Add(hbszr,0, wxALIGN_LEFT | wxALL, 5)
+		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+#		szr_page.AddWindow(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 
-		tID = wxNewId()
-		self.lbox_errors = cLabIDListCtrl(
-			self.PNL_errors_tab,
-			tID,
-			size=wxDefaultSize,
-			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
+		pnl_page.SetAutoLayout(True)
+		pnl_page.SetSizer(szr_page)
+		szr_page.Fit(pnl_page)
+		szr_page.SetSizeHints(pnl_page)
+
+		self.AddPage(pnl_page, _("pending requests"))
+	#------------------------------------------------------------------------
+	def __do_layout_errors_page(self):
+		pnl_page = wxPanel( self, -1)
+
+		self.lbox_errors = cLabIDListCtrl (
+			parent = pnl_page,
+			id = wxID_lbox_errors,
+			size = wxPyDefaultSize,
+			style = wxLC_REPORT | wxSUNKEN_BORDER | wxLC_VRULES
 		)
-
-		vbszr.AddWindow(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
-
 		self.lbox_errors.InsertColumn(0, _("noticed when"))
 		self.lbox_errors.InsertColumn(1, _("problem"))
 		self.lbox_errors.InsertColumn(2, _("solution"))
 		self.lbox_errors.InsertColumn(3, _("context"))
-		return vbszr
 
-	def __init_SZR_review_status (self):
-	
-		tID = wxNewId()
-		vbszr = wxBoxSizer( wxVERTICAL )
-		
-		# create new grid		
-		self.DataGrid = cLabReviewGrid(
-				self.PNL_review_tab,
-				tID
-				)
-				
-		EVT_GRID_CELL_LEFT_CLICK(self.DataGrid, self.OnLeftSClick)
-		EVT_GRID_CELL_LEFT_DCLICK(self.DataGrid, self.OnLeftDClick)
-		#EVT_GRID_SELECT_CELL(self.DataGrid, self.OnSelectCell)
-		EVT_KEY_UP(self.DataGrid, self.OnKeyPressed)
-		
-		self.DataGrid.CreateGrid(0, 8, wxGrid.wxGridSelectCells )
-		self.DataGrid.SetDefaultCellAlignment(wxALIGN_LEFT,wxALIGN_CENTRE)
+		szr_page = wxBoxSizer(wxVERTICAL)
+		szr_page.Add(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
+#		szr_page.AddWindow(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
+
+		pnl_page.SetAutoLayout(True)
+		pnl_page.SetSizer(szr_page)
+		szr_page.Fit(pnl_page)
+		szr_page.SetSizeHints(pnl_page)
+
+		self.AddPage(pnl_page, _("lab errors"))
+	#------------------------------------------------------------------------
+	def __do_layout_review_page(self):
+		pnl_page = wxPanel( self, -1)
+
+		# -- create new grid --
+		self.__grid_unreviewed_results = cLabReviewGrid(
+			pnl_page,
+			wxID_grid_unreviewed_results
+		)
+		self.__grid_unreviewed_results.CreateGrid(0, 8, wxGrid.wxGridSelectCells)
+		self.__grid_unreviewed_results.SetDefaultCellAlignment(wxALIGN_LEFT, wxALIGN_CENTRE)
+		# there is a bug in wxGTK for this method...
+		self.__grid_unreviewed_results.AutoSizeColumns(True)
+		self.__grid_unreviewed_results.AutoSizeRows(True)
+		# what is this supposed to do ?!?
 		renderer = apply(cLabJournalCellRenderer, ())
-		self.DataGrid.SetDefaultRenderer(renderer)
-
-		# There is a bug in wxGTK for this method...
-		self.DataGrid.AutoSizeColumns(True)
-		self.DataGrid.AutoSizeRows(True)
+		self.__grid_unreviewed_results.SetDefaultRenderer(renderer)
 		# attribute objects let you keep a set of formatting values
 		# in one spot, and reuse them if needed
-		font = self.GetFont()
-		font.SetWeight(wxNORMAL)
-		attr = wxGridCellAttr()
-		attr.SetFont(font)
-		
+#		font = self.GetFont()
+#		font.SetWeight(wxNORMAL)
+#		attr = wxGridCellAttr()
+#		attr.SetFont(font)
 		#attr.SetBackgroundColour(wxLIGHT_GREY)
-		attr.SetReadOnly(True)
+#		attr.SetReadOnly(True)
 		#attr.SetAlignment(wxRIGHT, -1)
-		self.DataGrid.SetLabelFont(font)
-
+#		self.__grid_unreviewed_results.SetLabelFont(font)
 		# layout review grid
-		self.DataGrid.SetColLabelValue(0, _('reviewed'))
-		self.DataGrid.SetColLabelValue(1, _('relevant'))
-		self.DataGrid.SetColLabelValue(2, _('patient'))
-		self.DataGrid.SetColLabelValue(3, _('facility'))
-		self.DataGrid.SetColLabelValue(4, _('analysis'))
-		self.DataGrid.SetColLabelValue(5, _('result'))
-		self.DataGrid.SetColLabelValue(6, _('range'))
-		self.DataGrid.SetColLabelValue(7, _('info provided by lab'))
-		
+		self.__grid_unreviewed_results.SetColLabelValue(0, _('reviewed'))
+		self.__grid_unreviewed_results.SetColLabelValue(1, _('relevant'))
+		self.__grid_unreviewed_results.SetColLabelValue(2, _('patient'))
+		self.__grid_unreviewed_results.SetColLabelValue(3, _('facility'))
+		self.__grid_unreviewed_results.SetColLabelValue(4, _('analysis'))
+		self.__grid_unreviewed_results.SetColLabelValue(5, _('result'))
+		self.__grid_unreviewed_results.SetColLabelValue(6, _('range'))
+		self.__grid_unreviewed_results.SetColLabelValue(7, _('info provided by lab'))
 		# turn row labels off
-		self.DataGrid.SetRowLabelSize(0)
-		
-		self.DataGrid.AutoSize()
-		vbszr.AddWindow(self.DataGrid, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
-		
-		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		
-		# -- "select all requests" button -----------
+		self.__grid_unreviewed_results.SetRowLabelSize(0)
+		self.__grid_unreviewed_results.AutoSize()
+
+		# -- add buttons --
+		# "select all requests"
 		self.BTN_select_all = wxButton(
 			name = 'BTN_select_all',
-			parent = self.PNL_review_tab,
+			parent = pnl_page,
 			id = wxID_BTN_select_all,
 			label = _("select all requests")
 		)
 		self.BTN_select_all.SetToolTipString(_('select all requests'))
-		EVT_BUTTON(self.BTN_select_all, wxID_BTN_select_all, self.on_select_all)
-		szr_buttons.Add(self.BTN_select_all, 0, wxALIGN_CENTER_VERTICAL, 1)
-
-		# -- "mark selected as reviewed" button -----------
+		# "mark selected as reviewed"
 		self.BTN_mark_reviewed = wxButton(
 			name = 'BTN_mark_reviewed',
-			parent = self.PNL_review_tab,
+			parent = pnl_page,
 			id = wxID_BTN_mark_reviewed,
 			label = _("mark selected requests as reviewed")
 		)
 		self.BTN_mark_reviewed.SetToolTipString(_('mark selected requests as reviewed'))
-		EVT_BUTTON(self.BTN_mark_reviewed, wxID_BTN_mark_reviewed, self.on_mark_reviewed)
+
+		szr_buttons = wxBoxSizer(wxHORIZONTAL)
+		szr_buttons.Add(self.BTN_select_all, 0, wxALIGN_CENTER_VERTICAL, 1)
 		szr_buttons.Add(self.BTN_mark_reviewed, 0, wxALIGN_CENTER_VERTICAL, 1)
-		
-		vbszr.Add(szr_buttons, 0, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
-		
-		return vbszr
-	
+
+		# -- do layout --
+		szr_page = wxBoxSizer(wxVERTICAL)
+		szr_page.AddWindow(self.__grid_unreviewed_results, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+		szr_page.Add(szr_buttons, 0, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+
+		pnl_page.SetAutoLayout(True)
+		pnl_page.SetSizer(szr_page)
+		szr_page.Fit(pnl_page)
+		szr_page.SetSizeHints(pnl_page)
+
+		self.AddPage(pnl_page, _("unreviewed results"))
+	#------------------------------------------------------------------------
+	def __register_events(self):
+		EVT_BUTTON(self.BTN_save_request_ID, wxID_BTN_save_request_ID, self.on_save_request_ID)
+		EVT_BUTTON(self.BTN_select_all, wxID_BTN_select_all, self.on_select_all)
+		EVT_BUTTON(self.BTN_mark_reviewed, wxID_BTN_mark_reviewed, self._on_mark_reviewed)
+
+		EVT_GRID_CELL_LEFT_CLICK(self.__grid_unreviewed_results, self.OnLeftSClick)
+		EVT_GRID_CELL_LEFT_DCLICK(self.__grid_unreviewed_results, self.OnLeftDClick)
+		#EVT_GRID_SELECT_CELL(self.__grid_unreviewed_results, self.OnSelectCell)
+		EVT_KEY_UP(self.__grid_unreviewed_results, self.OnKeyPressed)
 	#------------------------------------------------------------------------
 	def update(self):
-		if self.curr_pat['ID'] is None:
+		if self.__pat['ID'] is None:
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Cannot load lab journal.\nYou first need to select a patient.'),
 				aTitle = _('loading lab journal')
@@ -421,88 +432,83 @@ class cLabJournalNB(wxNotebook):
 			self.lbox_errors.SetStringItem(index = item_idx, col=3, label=lab_error[6])
 		
 		#------ unreviewed lab results PNL ------------------------------------
-		#t1 = time.time()
 		# FIXME: make configurable, make use of count visible lines func of wxlistctrl
-		more_avail, data = gmPathLab.get_unreviewed_results(limit=50)
-		#t2 = time.time()
-		#print t2-t1
-		
-		self.dict_req_unreviewed = {}
-		# clear grid
-		self.DataGrid.ClearGrid()
-		# add rows
-		if self.DataGrid.GetNumberRows() == 0:
-			self.DataGrid.AppendRows(len(data))
-		# populate grid
-		for item_idx in range(len(data)):
-			result = data[item_idx]
+		more_avail, self.dict_unreviewed_results = gmPathLab.get_unreviewed_results(limit=50)
 
-			# -- chose boolean renderer for first and second column
+		# FIXME: react to errors
+
+		# clear grid
+		self.__grid_unreviewed_results.ClearGrid()
+		# set number of rows
+		if self.__grid_unreviewed_results.GetNumberRows() == 0:
+			self.__grid_unreviewed_results.AppendRows(len(self.dict_unreviewed_results))
+		# populate grid
+		for item_idx in range(len(self.dict_unreviewed_results)):
+			result = self.dict_unreviewed_results[item_idx]
+
+			# boolean renderer for first and second column
 			renderer = apply(wxGridCellBoolRenderer, ())
-			self.DataGrid.SetCellRenderer(item_idx, 0 , renderer)
-			self.DataGrid.SetCellRenderer(item_idx, 1 , renderer)
+			self.__grid_unreviewed_results.SetCellRenderer(item_idx, 0 , renderer)
+			self.__grid_unreviewed_results.SetCellRenderer(item_idx, 1 , renderer)
 			# set all cells read only
-			self.DataGrid.SetReadOnly(item_idx, 0, 1)
-			self.DataGrid.SetReadOnly(item_idx, 1, 1)
-			#self.DataGrid.SetReadOnly(item_idx, 2, True)
-			# turn off grid
-			self.DataGrid.EnableGridLines(0)
-	
-			# -- put reviewed status checkbox in first column
+			self.__grid_unreviewed_results.SetReadOnly(item_idx, 0, 1)
+			self.__grid_unreviewed_results.SetReadOnly(item_idx, 1, 1)
+			#self.__grid_unreviewed_results.SetReadOnly(item_idx, 2, True)
+			self.__grid_unreviewed_results.EnableGridLines(0)
+			# "reviewed" checkbox in first column
 			try:
-				self.DataGrid.SetColSize(0, self.DataGrid.GetColMinimalAcceptableWidth())
+				self.__grid_unreviewed_results.SetColSize(0, self.__grid_unreviewed_results.GetColMinimalAcceptableWidth())
 			except AttributeError:
 				pass
-			self.DataGrid.SetCellValue(item_idx, 0, '1')
-			# -- put relevant status checkbox in second column
+			self.__grid_unreviewed_results.SetCellValue(item_idx, 0, '0')
+			# "relevant" checkbox in second column
 			try:
-				self.DataGrid.SetColSize(1, self.DataGrid.GetColMinimalAcceptableWidth())
+				self.__grid_unreviewed_results.SetColSize(1, self.__grid_unreviewed_results.GetColMinimalAcceptableWidth())
 			except AttributeError:
 				pass
-			self.DataGrid.SetCellValue(item_idx, 0, '0')
-			# -- abnormal ? -> display in red
+			self.__grid_unreviewed_results.SetCellValue(item_idx, 1, '0')
+			# abnormal ? -> display in red
 			if (result['abnormal'] is not None) and (result['abnormal'].strip() != ''):
-				self.DataGrid.SetCellTextColour(item_idx,2,wxRED)
-				self.DataGrid.SetCellTextColour(item_idx,3,wxRED)
-				self.DataGrid.SetCellTextColour(item_idx,4,wxRED)
-				self.DataGrid.SetCellTextColour(item_idx,5,wxRED)
-				self.DataGrid.SetCellTextColour(item_idx,6,wxRED)
-				self.DataGrid.SetCellTextColour(item_idx,7,wxRED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,2,wxRED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,3,wxRED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,4,wxRED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,5,wxRED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,6,wxRED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,7,wxRED)
 				# abnormal status from lab
 				info = '(%s)' % result['abnormal']
 				# technically abnormal -> defaults to relevant = true
-				self.DataGrid.SetCellValue(item_idx, 1, '1')
+				self.__grid_unreviewed_results.SetCellValue(item_idx, 1, '1')
 			else:
 				info = ''
 				# technically normal -> defaults to relevant = False
-				self.DataGrid.SetCellValue(item_idx, 1, '0')
-			# -- patient
+				self.__grid_unreviewed_results.SetCellValue(item_idx, 1, '0')
+			# patient
 			pat = result.get_patient()
-			self.DataGrid.SetCellValue(item_idx, 2, "%s %s (%s)" % (pat[2], pat[3] ,pat[4].date ))
-			self.DataGrid.SetColSize(2,200)
-			# -- rxd when
-			self.DataGrid.SetCellValue(item_idx, 3, result['lab_rxd_when'].date)
-			self.DataGrid.SetColSize(3,80)
-			# -- test name
-			self.DataGrid.SetCellValue(item_idx, 4, result['unified_name'])
-			self.DataGrid.SetColSize(4,100)
-			# -- result including unit
+			self.__grid_unreviewed_results.SetCellValue(item_idx, 2, "%s %s (%s)" % (pat[2], pat[3], pat[4].date))
+			self.__grid_unreviewed_results.SetColSize(2,200)
+			# rxd when
+			self.__grid_unreviewed_results.SetCellValue(item_idx, 3, result['lab_rxd_when'].date)
+			self.__grid_unreviewed_results.SetColSize(3,80)
+			# test name
+			self.__grid_unreviewed_results.SetCellValue(item_idx, 4, result['unified_name'])
+			self.__grid_unreviewed_results.SetColSize(4,100)
+			# result including unit
 			# FIXME: what about val_unit empty ?
-			self.DataGrid.SetCellValue(item_idx, 5, '%s %s' % (result['unified_val'], info))
-			self.DataGrid.SetColSize(5,80)
-			# -- normal range
+			self.__grid_unreviewed_results.SetCellValue(item_idx, 5, '%s %s' % (result['unified_val'], info))
+			self.__grid_unreviewed_results.SetColSize(5,80)
+			# normal range
 			if result['val_normal_range'] is None:
-				self.DataGrid.SetCellValue(item_idx, 6, '')
+				self.__grid_unreviewed_results.SetCellValue(item_idx, 6, '')
 			else:
-				self.DataGrid.SetCellValue(item_idx, 6, '%s %s' % (result['val_normal_range'], result['val_unit']))
-			self.DataGrid.SetColSize(6,80)
-			# -- notes from provider 
+				self.__grid_unreviewed_results.SetCellValue(item_idx, 6, '%s %s' % (result['val_normal_range'], result['val_unit']))
+			self.__grid_unreviewed_results.SetColSize(6,80)
+			# FIXME: target range
+			# notes from provider
 			if result['note_provider'] is None:
-				self.DataGrid.SetCellValue(item_idx, 7, '')
+				self.__grid_unreviewed_results.SetCellValue(item_idx, 7, '')
 			else:
-				self.DataGrid.SetCellValue(item_idx, 7, result['note_provider'])
-			# we need to track the request to be able to identify the request later
-			self.dict_req_unreviewed[item_idx] = result
+				self.__grid_unreviewed_results.SetCellValue(item_idx, 7, result['note_provider'])
 
 		# we show 50 items at once , notify user if there are more
 		if more_avail:
@@ -533,33 +539,30 @@ class cLabJournalNB(wxNotebook):
 	def CrosscheckRelevant(self):
 		# reviewed checked -> check relevant if result is abnormal
 		#if (result['abnormal'] is not None) and (result['abnormal'].strip() != ''):
-		#	self.DataGrid.SetCellValue(row, col, '1')
+		#	self.__grid_unreviewed_results.SetCellValue(row, col, '1')
 		print "only stub for Crosscheck - please fix"
 	#------------------------------------------------------------------------
-	def OnSelectCell(self,event,selector=None):
+	def OnSelectCell(self, event, selector=None):
 		if selector is None:
-			event.Skip()
+#			event.Skip()
 			return None
-		if selector in ['SelKEY','LDClick']: 
+
+		if selector in ['SelKEY', 'LDClick']: 
 			#print 'key pressed %s' %selector
-			col = self.DataGrid.GetGridCursorCol()
-			row = self.DataGrid.GetGridCursorRow()
-			sel = True
+			col = self.__grid_unreviewed_results.GetGridCursorCol()
+			row = self.__grid_unreviewed_results.GetGridCursorRow()
 		if selector in ['LSClick']:
 			#print 'key pressed %s' %selector
 			col = event.GetCol()
 			row = event.GetRow()
-			sel = True
-		if sel:
-			if col == 0 or 1:
-				if self.DataGrid.GetCellValue(row,col) == '1':
-					self.DataGrid.SetCellValue(row,col,'0')
-				else:
-					self.DataGrid.SetCellValue(row,col,'1')
-					self.CrosscheckRelevant()
-			else:
-				event.Skip()
-		pass
+
+		if col in [0,1]:
+			if self.__grid_unreviewed_results.GetCellValue(row,col) == '1':		# if set
+				self.__grid_unreviewed_results.SetCellValue(row,col, '0')		# then unset
+			else:																# if unset
+				self.__grid_unreviewed_results.SetCellValue(row,col,'1')		# then set
+				self.CrosscheckRelevant()
+			event.Skip()
 	#-------------------------------------------------------
 	def OnKeyPressed (self, key):
 		"""Is called when a key is pressed."""
@@ -585,78 +588,62 @@ class cLabJournalNB(wxNotebook):
 	# -------------------------------------------------
 	def on_save_request_ID(self, event):
 		req_id = self.fld_request_id.GetValue()
-		if not req_id is None or req_id.strip() == '':
-			emr = self.curr_pat.get_clinical_record()
-			if emr is None:
-				# FIXME: error message
-				return None
-
-			test = gmPathLab.create_lab_request(
-				lab=int(self.lab),
-				req_id = req_id,
-				pat_id = self.curr_pat['ID'],
-				encounter_id = emr.get_active_encounter()['pk_encounter'],
-				episode_id = emr.get_active_episode()['pk_episode']
-			)
-			# FIXME : react on succes or failure of save_request
-			
-		else :
-			_log.Log(gmLog.lErr, 'No request ID typed in yet !')
-			gmExceptions.gm_show_error (
+		if (req_id is None) or (req_id.strip() == ''):
+			gmGuiHelpers.gm_show_error (
 				_('You must type in a request ID !\n\nUsually you will find the request ID written on\nthe barcode sticker on your probe container.'),
 				_('saving request id')
 			)
 			return None
+		emr = self.__pat.get_clinical_record()
+		request = emr.add_lab_request(lab=int(self.lab), req_id = req_id)
+		if request is None:
+			gmGuiHelpers.gm_beep_statustext(_('Cannot save lab request.'))
+			return None
+
 		# FIXME: maybe populate request list only ?
 		# btw, we can make the sub-notebook tabs load data on-demand just
 		# like the main notebook tabs :-)
 		self.__populate_notebook()
 	#------------------------------------------------
 	def on_select_all(self, event):
-		for item_idx in range(self.DataGrid.GetNumberRows()):
-			self.DataGrid.SetCellValue(item_idx,0,'1')
+		for item_idx in range(self.__grid_unreviewed_results.GetNumberRows()):
+			self.__grid_unreviewed_results.SetCellValue(item_idx, 0, '1')
 	#------------------------------------------------
-	def on_mark_reviewed(self, event):
-		# look for checkmark
-		reviewed_req = []
-		for row in range(self.DataGrid.GetNumberRows()):
-			if self.DataGrid.GetCellValue(row,0) == '1':
+	def _on_mark_reviewed(self, event):
+		reviewed_results = []
+		for row in range(self.__grid_unreviewed_results.GetNumberRows()):
+			if self.__grid_unreviewed_results.GetCellValue(row, 0) == '1':
 				# look up associated request
-				req=self.dict_req_unreviewed[row]
-				# check relevant status
-				relevant = self.DataGrid.GetCellValue(row,1)
-				if relevant =='1':
-					req['relevant'] = 'true'
+				result = self.dict_unreviewed_results[row]
+				reviewed_results.append(result)
+				# update "relevant" status
+				relevant = self.__grid_unreviewed_results.GetCellValue(row, 1)
+				if relevant == '1':
+					result['relevant'] = 'true'
 				else:
-					req['relevant'] = 'False'
-					
-				reviewed_req.append(req)
-		
-		if len(reviewed_req) == 0:
-			gmGuiHelpers.gm_show_error(
-				aMessage = _("Unable to comply with your request.\nYou didn't mark any result as reviewed."),
-				aTitle = _('setting request status to reviewed')
-			)
+					result['relevant'] = 'false'
+
+		if len(reviewed_results) == 0:
+			gmGuiHelpers.beep_status_text(_('No results marked as reviewed.'))
+			event.Skip()
 			return None
 		
-		for req in reviewed_req:
-			req['reviewed'] = 'true'
-			req['pk_reviewer'] = _whoami.get_staff_ID()
-			
-			if not req['abnormal']:
-				req['abnormal'] =''
-			status, error = req.save_payload()
+		for result in reviewed_results:
+			result['reviewed'] = 'true'
+			result['pk_reviewer'] = _whoami.get_staff_ID()
+			if not result['abnormal']:
+				result['abnormal'] = ''
+			status, error = result.save_payload()
 			# repopulate
 			if status:
 				self.__populate_notebook()
-				
 			else:
-				_log.Log(gmLog.lErr, 'setting request status to reviewed failed %s' % error)
-				gmGuiHelpers.gm_show_error(
-					aMessage = _('Cannot change request status to reviewed.'),
-				aTitle = _('update request status')
-			)
-			return None
+				_log.Log(gmLog.lErr, 'setting result status to reviewed failed %s' % error)
+				gmGuiHelpers.gm_show_error (
+					aMessage = _('Cannot mark results as "reviewed":\n%s') % error,
+					aTitle = _('update result status')
+				)
+				return None
 			
 		event.Skip()
 	#--------------------------------------------------------
@@ -704,12 +691,12 @@ class cLabDataGrid(wxGrid):
 			style= wxWANTS_CHARS
 			)
 		
-		self.curr_pat = gmPatient.gmCurrentPatient()
+		self.__pat = gmPatient.gmCurrentPatient()
 
 		#EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
 		
 		# create new grid
-		self.DataGrid = self.CreateGrid(0, 0, wxGrid.wxGridSelectCells )
+		self.__grid_unreviewed_results = self.CreateGrid(0, 0, wxGrid.wxGridSelectCells )
 		self.SetDefaultCellAlignment(wxALIGN_RIGHT,wxALIGN_CENTRE)
 		#renderer = apply(wxGridCellStringRenderer, ())
 		renderer = apply(cLabDataGridCellRenderer, ())
@@ -739,7 +726,7 @@ class cLabDataGrid(wxGrid):
 
 	#------------------------------------------------------------------------
 	def update(self):
-		if self.curr_pat['ID'] is None:
+		if self.__pat['ID'] is None:
 			_log.Log(gmLog.lErr, 'need patient for update')
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Cannot load lab data.\nYou first need to select a patient.'),
@@ -754,128 +741,82 @@ class cLabDataGrid(wxGrid):
 		
 	#------------------------------------------------------------------------
 	def __populate_grid(self):
-		# FIXME: check if patient changed at all
-		emr = self.curr_pat.get_clinical_record()
-		if emr is None:
-			# FIXME: error message
-			return None
+		"""Fill grid with data.
+
+		sorting:
+			1) check user's preferred way of sorting
+				none defaults to smart sorting
+			2) check if user defined lab profiles
+				- add a notebook tab for each profile
+				- postpone profile dependent stats until tab is selected
+			sort modes :
+				1: no profiles -> smart sorting only
+				2: profile -> smart sorting first
+				3: profile -> user defined profile order
+		"""
+		emr = self.__pat.get_clinical_record()
 		# FIXME: there might be too many results to handle in memory
-		lab = emr.get_lab_results()
-
-		if lab is None or len(lab)==0:
-			name = self.curr_pat['demographic record'].get_names()
-			gmGuiHelpers.gm_show_error(
-				aMessage = _('Cannot find any lab data for patient\n[%s %s].') % (name['first'], name['last']),
-				aTitle = _('loading lab record list')
-				)
+		results = emr.get_lab_results()
+		if results is None:
+			name = self.__pat['demographic record'].get_names()
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error loading lab data for patient\n[%s %s].') % (name['first'], name['last']),
+				aTitle = _('loading lab data')
+			)
+			return None
+		if len(results) == 0:
+			gmGuiHelpers.gm_beep_statustext(_('No lab data available.'))
 			return None
 			
-		else:
-			dates, test_names = self.__compile_stats(lab)
-			# sort tests before pushing onto the grid 
-			"""	
-				1) check user's preferred way of sorting
-					none defaults to smart sorting
-				2) check if user defined lab profiles
-					- add a notebook tab for each profile
-					- postpone profile dependent stats until tab is selected
-				sort modes :
-					1: no profiles -> smart sorting only
-					2: profile -> smart sorting first
-					3: profile -> user defined profile order
+		dates, test_names = self.__compile_stats(results)
+		# sort tests before pushing onto the grid 
+		#sort_mode = gmPatient.getsort_mode() # yet to be written
+		sort_mode = 1 # get real here :-)
 			
+		if sort_mode == 1:
 			"""
-			#sort_mode = gmPatient.getsort_mode() # yet to be written
-			sort_mode = 1 # get real here :-)
-			
-			if sort_mode == 1:
-				"""
-				2) look at the the most recent date a test was performed on
-					move these tests to the top
-			
-				3) sort by runs starting with most recent date
-					a run is a series of consecutive dates a particular test was done on
-					sort by length of the runs
-					longest run will move to the top
-				"""
-				#test_count = {}
-				#test_types = self.__get_test_types(lab_ids)
-				#for id in test_types:
-				#	if test_types[pk] in test_count.keys():
-				#		test_count[test_types[pk]] = test_count[test_types[pk]]+1
-				#	else:
-				#		test_count[test_types[pk]] = 1
-				# try to be smart, sort tests by usage
-				#sorted = self.sort_by_value(test_count)
-				#sorted.reverse()
-				pass
-			else :
-				"""
-				set up notebook tab
-				"""
-				pass
-			
-			if sort_mode == 2:
-				"""
-				start with smart sorting tab
-				"""
-				pass
-			
-			if sort_mode == 3:
-				"""
-				get first user defined tab
-				"""
-				pass
-			
-			
-			# clear grid
-			self.ClearGrid()
-			# now add columns
-			if self.GetNumberCols() == 0:
-				self.AppendCols(len(dates))
-			
-				# set column labels
-				for i in range(len(dates)):
-					self.SetColLabelValue(i, dates[i])
-			
-			# add rows
-			if self.GetNumberRows() == 0:
-				self.AppendRows(len(test_names))
-			
-				# add labels
-				for i in range(len(test_names)):
-					self.SetRowLabelValue(i, test_names[i])
-			
-			#push data onto the grid
-			cells = []
-			for item in lab:
-				data = str(item['val_num'])
-				unit = str(item['val_unit'])
-				# get  x,y position for data item
-				x,y = self.__GetDataCell(item, xorder=dates, yorder=test_names)
-				tuple = []
-				tuple.append(str(x)+','+str(y))
-				if tuple in cells:
-					celldata = self.GetCellValue(int(x), int(y))
-					data = celldata+'\n'+ data + unit
-					self.SetCellValue(int(x), int(y), data)
-				
-				# you can set cell attributes for the whole row (or column)
-				#self.SetRowAttr(int(y), attr)
-				#self.SetColAttr(int(x), attr)
-				#self.SetCellRenderer(int(x), int(y), renderer)
-				else:
-					self.SetCellValue(int(x), int(y), data+unit)
-					"""same test might have been issued multiple times (same day)
-					 we keep reference of used cells 
-					 if a cell needs to be filled but already contains data we get the data and join the values
-					 this is crap but I don't know a better solution"""
-					cells.append(tuple)
+			2) look at the the most recent date a test was performed on
+				move these tests to the top
+			3) sort by runs starting with most recent date
+				a run is a series of consecutive dates a particular test was done on
+				sort by length of the runs
+				longest run will move to the top
+			"""
+			pass
 
-				self.AutoSize() 
-			return 1
-	
-	#------------------------------------------------------------------------		
+		# clear grid
+		self.ClearGrid()
+		# add columns
+		if self.GetNumberCols() == 0:
+			self.AppendCols(len(dates))
+			# set column labels
+			for i in range(len(dates)):
+				self.SetColLabelValue(i, dates[i])
+		# add rows
+		if self.GetNumberRows() == 0:
+			self.AppendRows(len(test_names))
+			# add labels
+			for i in range(len(test_names)):
+				self.SetRowLabelValue(i, test_names[i])
+		# push data onto grid
+		cells = []
+		for result in results:
+			# get  x,y position for result
+			x = dates.index(result['val_when'].date)
+			y = test_names.index(result['unified_name'])
+			cell_data = self.GetCellValue(x, y)
+			if cell_data == '':
+				self.SetCellValue(x, y, '%s %s' % (result['unified_val'], result['val_unit']))
+			else:
+				self.SetCellValue(x, y, '%s\n%s %s' % (cell_data, result['unified_val'], result['val_unit']))
+			# you can set cell attributes for the whole row (or column)
+			#self.SetRowAttr(int(y), attr)
+			#self.SetColAttr(int(x), attr)
+			#self.SetCellRenderer(int(x), int(y), renderer)
+
+		self.AutoSize()
+		return 1
+	#------------------------------------------------------------------------
 	def __compile_stats(self, lab_results=None):
 		# parse record for dates and tests
 		dates = []
@@ -889,11 +830,6 @@ class cLabDataGrid(wxGrid):
 		
 		return dates, test_names
 	#------------------------------------------------------------------------
-	def __GetDataCell(self, item=None, xorder=None, yorder=None):
-		x = xorder.index(item['val_when'].date)
-		y= yorder.index(item['unified_name'])
-		return (y,x)
-	#------------------------------------------------------------------------
 	#def sort_by_value(self, d=None):
 	#    """ Returns the keys of dictionary d sorted by their values """
 	#    items=d.items()
@@ -905,13 +841,6 @@ class cLabDataGrid(wxGrid):
 	def __on_right_click(self, evt):
 		pass
 		#evt.Skip()
-	#--------------------------------------------------------
-	#def __show_description(self, evt):
-	#    print "showing description"
-	#--------------------------------------------------------
-	#def __handle_obj_context(self, data):
-	#    print "handling object context menu"
-	#--------------------------------------------------------
 
 #=========================================================
 # MAIN
@@ -936,7 +865,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.5  2004-10-01 13:33:41  ncq
+# Revision 1.6  2004-10-20 21:47:24  ncq
+# - cleanup, improve variable naming/error handling
+# - in LabJournal consolidate layouting
+#
+# Revision 1.5  2004/10/01 13:33:41  ncq
 # - older wxPythons don't have grid.GetColMinimalAcceptableWidth so do try: except:
 #
 # Revision 1.4  2004/09/29 19:14:31  ncq
