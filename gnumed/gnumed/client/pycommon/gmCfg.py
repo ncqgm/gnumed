@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -723,7 +723,7 @@ class cCfgFile:
 			# lazy import gmCLI
 			global _gmCLI
 			if _gmCLI is None:
-				from Gnumed.pycommon import gmCLI
+				import gmCLI
 				_gmCLI = gmCLI
 			# and check command line options
 			if _gmCLI.has_arg('--conf-file'):
@@ -1227,7 +1227,13 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.7  2004-07-06 00:25:17  ncq
+# Revision 1.8  2004-07-12 02:44:12  ihaywood
+# it should not be neccessary to specify the full path when
+# importing from the same package.
+# It makes the file gratutiously dependent on being in the gnumed
+# directory structure.
+#
+# Revision 1.7  2004/07/06 00:25:17  ncq
 # - assign Null design pattern instance if no default cfg file found
 #
 # Revision 1.6  2004/06/28 22:36:33  hinnef
