@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -17,6 +17,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	urb,
 	urb_id_seq,
 	country,
+	state,
 	street,
 	street_id_seq,
 	address,
@@ -57,7 +58,10 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.3  2004-07-17 20:57:53  ncq
+-- Revision 1.4  2004-07-20 00:02:54  ihaywood
+-- grant the user access to the "state" table
+--
+-- Revision 1.3  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --
