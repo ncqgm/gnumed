@@ -191,38 +191,44 @@ class LoginPanel(wxPanel):
 		self.pboxgrid = wxFlexGridSizer( 4, 2, 5, 5 )
 		self.pboxgrid.AddGrowableCol( 1 )
 
+		#USER NAME COMBO
 		label = wxStaticText( self, -1, _("user"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		self.usercombo = wxComboBox( self, -1, "", wxDefaultPosition, wxSize(150,-1),
+		self.usercombo = wxComboBox( self, -1, self.loginparams.userlist[0], wxDefaultPosition, wxSize(150,-1),
 			self.loginparams.userlist , wxCB_DROPDOWN )
 		self.pboxgrid.AddWindow( self.usercombo, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
+		#PASSWORD TEXT ENTRY
 		label = wxStaticText( self, -1, _("password"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 		self.pwdentry = wxTextCtrl( self, 1, '', wxDefaultPosition, wxSize(80,-1), wxTE_PASSWORD )
 		self.pboxgrid.AddWindow( self.pwdentry, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
+		#DATABASE COMBO
 		label = wxStaticText( self, -1, _("database"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		self.dbcombo = wxComboBox( self, -1, '', wxDefaultPosition, wxSize(100,-1),
+		self.dbcombo = wxComboBox( self, -1, self.loginparams.databaselist[0], wxDefaultPosition, wxSize(100,-1),
 			self.loginparams.databaselist , wxCB_DROPDOWN )
 		self.pboxgrid.AddWindow( self.dbcombo, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
+		#HOST NAME / IP NUMBER COMBO
 		label = wxStaticText( self, -1, _("host"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		self.hostcombo = wxComboBox( self, -1, "", wxDefaultPosition, wxSize(100,-1),
+		self.hostcombo = wxComboBox( self, -1, self.loginparams.hostlist[0], wxDefaultPosition, wxSize(100,-1),
 			self.loginparams.hostlist , wxCB_DROPDOWN )
 		self.pboxgrid.AddWindow( self.hostcombo, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
+		#PORT NUMBER COMBO
 		label = wxStaticText( self, -1, _("port"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		self.portcombo = wxComboBox( self, -1, "", wxDefaultPosition, wxSize(100,-1),
+		self.portcombo = wxComboBox( self, -1, self.loginparams.portlist[0], wxDefaultPosition, wxSize(100,-1),
 			self.loginparams.portlist , wxCB_DROPDOWN )
 		self.pboxgrid.AddWindow( self.portcombo, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
+		#DATABASE BACKEND OPTIONS COMBO
 		label = wxStaticText( self, -1, _("backend options"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		self.beoptioncombo= wxComboBox( self, -1, "", wxDefaultPosition, wxSize(100,-1),
+		self.beoptioncombo= wxComboBox( self, -1, self.loginparams.backendoptionlist[0], wxDefaultPosition, wxSize(100,-1),
 			self.loginparams.backendoptionlist , wxCB_DROPDOWN )
 		self.pboxgrid.AddWindow( self.beoptioncombo, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
