@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.43 2003-11-25 16:38:46 hinnef Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmEditArea.py,v 1.44 2003-11-28 16:20:31 hinnef Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -291,9 +291,10 @@ _known_edit_area_types.extend(_prompt_defs.keys() )
 #	'vaccination'
 #	]
 
-f = file('editarea.yaml', 'w')
-f.write('---\n')
-f.close()
+# the following lines should be removed
+#f = file('editarea.yaml', 'w')
+#f.write('---\n')
+#f.close()
 #
 # The following will read the editarea.yaml file after all the editareas are constructed
 #
@@ -480,18 +481,19 @@ class gmEditArea( wxPanel):
 		return []
 	#----------------------------------------------------------------
 
-	def _out_yaml(self):
-		_print( "appending to editarea.yaml")
-		f = file('editarea.yaml','a')
-		list = []
-		list.extend(self.input_fields.keys())
-		list.sort()
-		f.write( self._type)
-		f.write(":\n")
-		for x in list:
-			f.write( "".join( ["        -" , x , '\n' ] ) )
-		f.write('\n')
-		f.close()
+# the following lines should be removed
+#	def _out_yaml(self):
+#		_print( "appending to editarea.yaml")
+#		f = file('editarea.yaml','a')
+#		list = []
+#		list.extend(self.input_fields.keys())
+#		list.sort()
+#		f.write( self._type)
+#		f.write(":\n")
+#		for x in list:
+#			f.write( "".join( ["        -" , x , '\n' ] ) )
+#		f.write('\n')
+#		f.close()
 		
 
 	def __make_editing_area(self):
@@ -1912,6 +1914,7 @@ class EditArea(wxPanel):
 		self.szr_central_container.Fit(self)
 		self.SetAutoLayout(true)
 		self.Show(true)
+
 #====================================================================
 # old stuff still needed for conversion
 #--------------------------------------------------------------------
@@ -2212,7 +2215,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.43  2003-11-25 16:38:46  hinnef
+# Revision 1.44  2003-11-28 16:20:31  hinnef
+# - commented out all yaml code; this code should be removed lateron
+#
+# Revision 1.43  2003/11/25 16:38:46  hinnef
 # - adjust field sizes in requests, measurements and vaccinations
 #
 # Revision 1.42  2003/11/22 02:02:53  ihaywood
