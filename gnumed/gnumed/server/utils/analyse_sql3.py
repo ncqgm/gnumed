@@ -19,24 +19,41 @@ import re
 
 stack = []
 _port = 9000
+_dns = "::gnumed"
 
 from getopt import *
-optlist,remaining = getopt( sys.argv[1:], "h")
+optlist,remaining_args = getopt( sys.argv[1:], "hp:c:")
 for (opt, value) in optlist:
-	print "option ", opt, value
+	sys.stderr.write( "option %s=%s\n" % (opt, value))
 	if opt == '-h':
 		print """
 	USAGE:
-		python analyse_sql3.py  filename  > server.py    
-	
-		where filename is  the sql file or path to file: e.g ../sql/gmclinical.sql
+		python analyse_sql3.py  -p port -c connect_string  filename  > server.py    
+
+		where 
+			port : the port number for the xmlrpc server (default is 9000)
+			
+			connect_string: the string used for database connection (default '::gnumed')
+			
+			filename :  the sql file or path to file: e.g ../sql/gmclinical.sql
+
 		output is to stdout so in the above example
 		server.py will contain the server code . 
 		Note some output is directed to stderr as part
 		of feedback for debugging.
+
+		EXAMPLE:
+			python2.2 analyse_sql3.py  -p9001 -c'localhost::gnumed' ../sql/gmdrugs.sql
 		
 		"""
 		sys.exit(0)
+	if opt == '-p':
+		_port = int(value)
+		sys.stderr.write("*** server port set to %d\n" % _port)
+	
+	if opt == '-c':
+		_dns = value
+	
 
 
 "do some processing on the line. Accumulate results in state variables."
@@ -401,14 +418,14 @@ def print_notify_change( tablename, primary_key ):
 	"""	
 
 	
-def print_start_server( tablename, dns, port):
-	print "server = SimpleXMLRPCServer( ('localhost', %d))"%(port)
+def print_start_server( tablename, host = 'localhost', dns ='::gnumed', port = 9000):
+	print "server = SimpleXMLRPCServer( ('%s' , %d))"%(host, port)
 	print "impl = %s_server( '%s')" % ( tablename, dns)
 	print "server.register_instance(impl)"
 	print "server.serve_forever()"
 
 
-def gen_xmlrpc_server_class( name):
+def gen_xmlrpc_server_class( name ):
 	print "\nclass "+name+"_server( ExportFunc):"
 	print "\tdef __init__(self, dns):"
 	print "\t\tExportFunc.__init__(self, dns)"
@@ -422,22 +439,23 @@ def gen_xmlrpc_server_func( tablename, primary_key, data_fields):
 	print_delete_by_pk( tablename, primary_key)
 	print_describe_fields(tablename)
 
-def gen_xmlrpc_server_main( name, dns="localhost::gnumed"):
-	print_start_server( name, dns , _port)
+def gen_xmlrpc_server_main( name, host , dns ,  port ):
+	print_start_server( name, host, dns, port )
 	
 
 def gen_simple_servers( struct_map):
 	name = "simple_tables"
-	gen_xmlrpc_server_handler_base( )
+	gen_xmlrpc_server_handler_base()
 	gen_xmlrpc_server_class(name)
 	for k,v in struct_map.items():
 		gen_xmlrpc_server_func( k, v[0], v[1] )
-	gen_xmlrpc_server_main(name)	
+	gen_xmlrpc_server_main(name,host = 'localhost',  dns = _dns,  port = _port)	
 
 
 lines=[]
 import fileinput
-for line in fileinput.input():
+
+for line in fileinput.input(remaining_args):
 	lines.append(line)
 
 print """#Create one large string from string lines from fileinput."""

@@ -2,15 +2,53 @@ from xmlrpclib import *
 import time
 import os
 import sys
-s = Server( "http://localhost.localdomain:9000")
 tablename = "enum_confidentiality_level"
-count = 30
+count = 20
 
-if len(sys.argv) == 1:
-	print "\n\nUSAGE  python test_rpc_client n_clients\n\n\t  where n_clients is number of child processes running calls to xmlrpc server"
+
+def usage():	
+	print """
+	
+	USAGEi:  
+		python test_rpc_client -h -c n_clients -p port -s url-string 
+	
+		where 
+			-h	this help
+			
+			n_clients : number of child processes running calls to xmlrpc server
+			
+			port : sets the url string to "http://localhost:[port]"
+
+			url-string: sets the url to the given url string including port.
+
+			"""
+
 	sys.exit(0)
 
-count = int(sys.argv[1])	
+from getopt import *
+
+optlist, remaining_args = getopt(sys.argv[1:], 'hc:s:p:')
+
+if len(optlist) == 0:
+	usage()
+
+for opt, value in optlist:
+	if opt == '-h':
+		usage()
+
+	url = "http://localhost.localdomain:9001"
+	if opt == '-s':
+		url = value
+
+	if opt == '-p':
+		url = 'http://localhost.localdomain:'+value
+		
+	if opt == '-c':
+		count = int(value)
+		
+		
+s = Server( url)
+
 for x in xrange(0, count):
 	f = os.fork()
 	if f in (-1, 0):
