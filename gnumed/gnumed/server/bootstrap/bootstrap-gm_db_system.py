@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -73,6 +73,7 @@ except ImportError:
 	raise
 from Gnumed.pycommon import gmCfg, gmPsql
 from Gnumed.pycommon.gmExceptions import ConstructorError
+from Gnumed.pycommon.gmPyCompat import *
 
 # local imports
 import gmAuditSchemaGenerator
@@ -1447,7 +1448,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.60  2004-11-24 15:37:12  ncq
+# Revision 1.61  2004-11-24 16:03:58  ncq
+# - need True/False from gmPyCompat, too
+#
+# Revision 1.60  2004/11/24 15:37:12  ncq
 # - honor option "keep temp files"
 #
 # Revision 1.59  2004/06/28 13:31:17  ncq
