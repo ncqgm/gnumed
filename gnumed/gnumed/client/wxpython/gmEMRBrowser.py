@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.17 2005-03-29 07:27:14 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmEMRBrowser.py,v 1.18 2005-03-30 18:14:56 cfmoro Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -68,16 +68,28 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# popup menu
 		self.popup = gmPopupMenuEMRBrowser(self)
 		
-		# narrative details text control
+		# right hand side
+		PNL_emr_dump = wx.wxPanel(self.__tree_narr_splitter, -1)		
+		# emr dump text control
 		self.__narr_TextCtrl = wx.wxTextCtrl (
-			self.__tree_narr_splitter,
+			PNL_emr_dump,
 			-1,
 			style = wx.wxTE_MULTILINE | wx.wxTE_READONLY | wx.wxTE_DONTWRAP
 		)
+		# - dump button
+		self.__BTN_dump_emr = wx.wxButton(PNL_emr_dump, -1, _('&Export EMR to file'))
+		# - arrange widgets
+		szr_emr_dump = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_emr_dump.Add(self.__narr_TextCtrl,1 , wx.wxEXPAND)
+		szr_btns_emr_dump = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		szr_btns_emr_dump.Add(self.__BTN_dump_emr, 0)
+		szr_emr_dump.Add(szr_btns_emr_dump, 0, wx.wxALIGN_CENTER)
+		PNL_emr_dump.SetSizerAndFit(szr_emr_dump)
+		
 		# set up splitter
 		# FIXME: read/save value from/into backend
 		self.__tree_narr_splitter.SetMinimumPaneSize(20)
-		self.__tree_narr_splitter.SplitVertically(self.__emr_tree, self.__narr_TextCtrl)
+		self.__tree_narr_splitter.SplitVertically(self.__emr_tree, PNL_emr_dump)
 
 		self.__szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
 		self.__szr_main.Add(self.__tree_narr_splitter, 1, wx.wxEXPAND, 0)
@@ -114,9 +126,14 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# wx.wxPython events
 		wx.EVT_TREE_SEL_CHANGED(self.__emr_tree, self.__emr_tree.GetId(), self._on_tree_item_selected)
 		wx.EVT_TREE_ITEM_RIGHT_CLICK(self.__emr_tree, self.__emr_tree.GetId(), self.__on_tree_item_right_clicked)
+		wx.EVT_BUTTON(self.__BTN_dump_emr, self.__BTN_dump_emr.GetId(), self.__on_dump_emr)
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self.__on_episodes_modified)
+	#--------------------------------------------------------
+	def __on_dump_emr(self, event):
+		"""Dump EMR to file."""
+		gmGuiHelpers.gm_show_info('EMR dump code coming soon...', _('emr dump'), gmLog.lWarn)
 	#--------------------------------------------------------
 	def _on_patient_selected(self):
 		"""Patient changed."""
@@ -614,7 +631,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.17  2005-03-29 07:27:14  ncq
+# Revision 1.18  2005-03-30 18:14:56  cfmoro
+# Added emr export button
+#
+# Revision 1.17  2005/03/29 07:27:14  ncq
 # - add missing argument
 #
 # Revision 1.16  2005/03/11 22:52:54  ncq
