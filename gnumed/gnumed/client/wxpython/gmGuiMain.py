@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-20 08:09:15 $
-# @version $Revision: 1.29 $ $Date: 2002-07-20 08:09:15 $ $Author: ihaywood $
+# @Date: $Date: 2002-07-24 16:01:37 $
+# @version $Revision: 1.30 $ $Date: 2002-07-24 16:01:37 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -52,6 +52,7 @@ import gmGP_Toolbar                            #panel with two toolbars on top o
 from gmI18N import gmTimeformat
 
 myLog = gmLog.gmDefLog
+_email_logger = None
 
 # widget IDs
 ID_ABOUT = wxNewId ()
@@ -311,10 +312,63 @@ class MainFrame(wxFrame):
 
 
 ###########################################################################
+class feedbackFrame(wxFrame):
+	def __init__(self):
+		# set up frame
+		wxFrame.__init__(self, NULL, -1, _("GNUmed error reporting"), wxDefaultPosition, wxSize(300,300))
 
+		# run our dialog
+		dialog = wxDialog (None, -1, "GNUMed Bug Report")
+		vbox = wxBoxSizer (wxVERTICAL)
+		text = wxStaticText (dialog, -1 , _("GNUMed had an error. You can file a bug report here via e-mail."))
+		vbox.Add (text, 0, wxALL, 5)
+		pboxgrid = wxFlexGridSizer( 4, 2, 5, 5 )
+		pboxgrid.AddGrowableCol( 1 )
 
+		label = wxStaticText( self, -1, _("your e-mail"), wxDefaultPosition, wxDefaultSize, 0 )
+		pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		email = wxTextCtrl( dialog, -1, "", size = wxSize (100, -1))
+		pboxgrid.AddWindow( email, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+
+		label = wxStaticText( dialog, -1, _("comment"))
+		pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		comment = wxTextCtrl( dialog, -1, "", size = wxSize (100, -1))
+		pboxgrid.AddWindow( email, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+
+		buttonsizer = wxBoxSizer( wxHORIZONTAL )
+
+		button = wxButton( dialog, wxID_OK, _("OK"))
+		button.SetDefault()
+		buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
+
+		button = wxButton( dialog, wxID_CANCEL, _("Cancel"))
+		buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
+
+		vbox.AddSizer(pboxgrid, 1, wxGROW|wxALL, 10)
+		dialog.SetAutoLayout( true )
+		dialog.SetSizer( vbox)
+		vbox.Fit( dialog )
+		vbox.SetSizeHints( dialog )
+
+		EVT_BUTTON(self, wxID_OK, self.OnOK)
+		EVT_BUTTON(self, wxID_CANCEL, self.OnCancel)
+
+		if dialog.ShowModal() == wxID_OK:
+			print "user clicked OK"
+			_email_logger.setComment (comment.GetValue ())
+			_email_logger.setFrom (email.GetValue ())
+			_email_logger.flush ()
+		else:
+			print "user clicked CANCEL"
+
+		dialog.Destroy()
+
+	def OnOK(self):
+		pass
+
+	def OnCancel(self):
+		pass
 #==================================================
-
 class gmApp(wxApp):
 
 	__backend = None
@@ -343,67 +397,41 @@ def main():
 	"""GNUMed client written in Python
 	to run this application simply call main() or run the module as "main"
 	"""
-
 	#create an instance of our GNUMed main application
 	app = gmApp(0)
-
 	#and enter the main event loop
 	app.MainLoop()
 
 #=================================================
-def mainWithTalkback():
+def main_with_feedback():
+	"""Alternative main() method to run talkback logger.
 	"""
-	Alternative main () method to run tablkback logger
-	"""
-	#emailLogger = gmLog.cLogTargetEmail (gmLog.lErr, aFrom = "GNUMed client", aTo = "bug-gnumed@gnu.org", anSMTPServer = "fencepost.gnu.org")
-	emailLogger = gmLog.cLogTargetEMail (gmLog.lErr, aFrom = "GNUMed client", aTo = "gnumed-bugs@gmx.net", anSMTPServer = "mail.gmx.net")
-	myLog.AddTarget (emailLogger)
+	#---------------------------------------------
+	class feedbackApp(wxApp):
+		def OnInit(self):
+			# main frame
+			frame = feedbackFrame()
+			self.SetTopWindow(frame)
+			frame.Maximize(true)
+			frame.CentreOnScreen(wxBOTH)
+			frame.Show(true)
+			return true
+	#---------------------------------------------
 
-	main()
+	# "bug-gnumed@gnu.org", anSMTPServer = "fencepost.gnu.org"
+	_email_logger = gmLog.cLogTargetEMail (gmLog.lErr, aFrom = "GNUMed client", aTo = "gnumed-bugs@gmx.net", anSMTPServer = "mail.gmx.net")
+	myLog.AddTarget (_email_logger)
 
-	if emailLogger.hasLogged ():
-		dialog = wxDialog (None, "GNUMed Bug Report")
-		vbox = wxBoxSizer (wxVERTICAL)
-		text = wxStaticText (dialog, -1 , _("GNUMed had an error. You can make a bug report to the developers here via e-mail."))
-		vbox.Add (text, 0, wxALL, 5)
-		pboxgrid = wxFlexGridSizer( 4, 2, 5, 5 )
-		pboxgrid.AddGrowableCol( 1 )
+	# run normal main() but catch all exceptions and reraise them
+	try:
+		main()
+	except:
+		exc = sys.exc_info()
+		myLog.LogException("Unhandled Exception caught !", exc)
 
-		label = wxStaticText( self, -1, _("your e-mail"), wxDefaultPosition, wxDefaultSize, 0 )
-		pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		email = wxTextCtrl( dialog, -1, "", size = wxSize (100, -1))
-		pboxgrid.AddWindow( email, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-
-		label = wxStaticText( dialog, -1, _("comment"))
-		pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		comment = wxTextCtrl( dialog, -1, "", size = wxSize (100, -1))
-		pboxgrid.AddWindow( email, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-
-		buttonsizer = wxBoxSizer( wxHORIZONTAL )
-
-		button = wxButton( dialog, wxID_OK, _("OK"))
-		button.SetDefault()
-		buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
-
-		button = wxButton( dialog, wxID_CANCEL, _("Cancel"))
-		buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
-
-
-		vbox.AddSizer(self.pboxgrid, 1, wxGROW|wxALL, 10)
-		dialog.SetAutoLayout( true )
-		dialog.SetSizer( vbox)
-		vbox.Fit( dialog )
-		vbox.SetSizeHints( dialog )
-
-		EVT_BUTTON(self, wxID_OK, self.OnOK)
-		EVT_BUTTON(self, wxID_CANCEL, self.OnCancel)
-		if dialog.ShowModal () == wxID_OK:
-			emailLogger.setComment (comment.GetValue ())
-			emailLogger.setFrom (email.GetValue ())
-			emailLogger.flush ()
-	else:
-		print "nothing logged"
-
+	# run email logger window
+	app = feedbackApp(0)
+	app.MainLoop()
 #==================================================
 # Main
 #==================================================
