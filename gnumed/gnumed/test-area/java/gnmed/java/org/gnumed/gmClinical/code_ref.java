@@ -32,7 +32,7 @@ public class code_ref {
     public coding_systems coding_systems; 
 
     /** Holds value of property id. */
-    private Integer id;
+    private Long id;
     
  // of type immunity
 
@@ -40,9 +40,11 @@ public class code_ref {
    ///////////////////////////////////////
    // access methods for associations
 
-//    /**
-//     *@hibernate.many-to-one
-//     */
+    /**
+     *
+     *@hibernate.many-to-one
+     *  cascade="none"
+     */
     public disease_code getDisease_code() {
         return disease_code;
     }
@@ -68,10 +70,11 @@ public class code_ref {
     }
     /** Getter for property id.
      * @return Value of property id.
+     *
     * @hibernate.id
      *  generator-class="hilo"
      */
-    public Integer getId() {
+    public Long getId() {
         return this.id;
     }    
     
@@ -79,7 +82,7 @@ public class code_ref {
      * @param id New value of property id.
      *
      */
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }    
    

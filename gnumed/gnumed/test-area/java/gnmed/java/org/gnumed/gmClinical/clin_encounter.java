@@ -13,6 +13,9 @@ import org.gnumed.gmIdentity.identity;
  *
  * </p>
  * @hibernate.class
+ *      proxy="org.gnumed.gmClinical.clin_encounter"
+// *      dynamic_update="true"
+// *      dynamic_insert="true"
  */
 public class clin_encounter {
     
@@ -32,7 +35,7 @@ public class clin_encounter {
      * Represents ...
      * </p>
      */
-    private Integer id;
+    private Long id;
     
     ///////////////////////////////////////
     // associations
@@ -74,11 +77,14 @@ public class clin_encounter {
      */
     public script script;
     
+    /** Holds value of property identity. */
+    private org.gnumed.gmIdentity.identity identity;    
     
     ///////////////////////////////////////
     // access methods for associations
     /**
      * @hibernate.many-to-one
+     *  cascade="none"
      */
     public address getLocation() {
         return location;
@@ -89,6 +95,7 @@ public class clin_encounter {
     
     /**
      *@hibernate.many-to-one
+     *  cascade="none"
      */
     public identity getProvider() {
         return provider;
@@ -129,7 +136,7 @@ public class clin_encounter {
      *
      * @hibernate.set
      *      cascade="all"
-     *      lazy="true"
+     *      lazy="false"
      * @hibernate.collection-key
      *      column="clin_encounter"
      *@hibernate.collection-one-to-many
@@ -157,18 +164,18 @@ public class clin_encounter {
         if (removed) _clin_root_item.setClin_encounter((clin_encounter)null);
     }
     
-    /**
-     *@hibernate.many-to-one
-     */
-    public script getScript() {
-        return script;
-    }
-    public void setScript(script _script) {
-        if (this.script != _script) {
-            this.script = _script;
-            if (_script != null) _script.setClin_encounter(this);
-        }
-    }
+//    /**
+//     *@hibernate.many-to-one
+//     */
+//    public script getScript() {
+//        return script;
+//    }
+//    public void setScript(script _script) {
+//        if (this.script != _script) {
+//            this.script = _script;
+//            if (_script != null) _script.setClin_encounter(this);
+//        }
+//    }
     
     
     ///////////////////////////////////////
@@ -203,7 +210,7 @@ public class clin_encounter {
      * @hibernate.id
      *      generator-class="hilo"
      */
-    public Integer getId() {
+    public Long getId() {
         return id;
     } // end getId
     
@@ -212,11 +219,32 @@ public class clin_encounter {
      * Represents ...
      * </p>
      */
-    public void setId(Integer _id) {
+    public void setId(Long _id) {
         id = _id;
     }
     
+    /** Getter for property identity.
+     * @return Value of property identity.
+     *
+     * @hibernate.many-to-one
+     *  cascade="none"
+     */
+    public org.gnumed.gmIdentity.identity getIdentity() {
+        return this.identity;
+    }    
     
+    /** Setter for property identity.
+     * @param identity New value of property identity.
+     *
+     */
+    public void setIdentity(org.gnumed.gmIdentity.identity identity) {
+        if (this.identity != identity) {
+             if (this.identity != null) this.identity.removeClin_encounter(this);
+            this.identity = identity;
+            if (this.identity != null) identity.addClin_encounter(this);
+        }
+        this.identity = identity;
+    }    
     
     // end setId
     

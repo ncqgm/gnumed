@@ -1,3 +1,4 @@
+
 /** Java class "script_drug.java" generated from Poseidon for UML.
  *  Poseidon for UML is developed by <A HREF="http://www.gentleware.com">Gentleware</A>.
  *  Generated with <A HREF="http://jakarta.apache.org/velocity/">velocity</A> template engine.
@@ -6,12 +7,13 @@ package  org.gnumed.gmClinical;
 
 import java.util.*;
 import org.drugref.product;
+import org.gnumed.gmIdentity.identity;
 
 /**
  * <p>
  * 
  * </p>
-  * @hibernate.class
+ * @hibernate.class
  */
 public class script_drug {
 
@@ -54,6 +56,7 @@ public class script_drug {
  */
     private Boolean prn; 
 
+    private Boolean _current;
    ///////////////////////////////////////
    // associations
 
@@ -68,18 +71,22 @@ public class script_drug {
  * 
  * </p>
  */
-    public Collection link_script_drug = new java.util.HashSet();
-    
-    /** Holds value of property id. */
-    private Integer id;
-    
- // of type link_script_drug
+    public Collection link_script_drug = new java.util.HashSet(); // of type link_script_drug
+/**
+ * <p>
+ * 
+ * </p>
+ */
+    public identity identity; 
 
+    /** Holds value of property id. */
+    private Long id;    
 
    ///////////////////////////////////////
    // access methods for associations
 
     /**
+     *
      *@hibernate.many-to-one
      */
     public product getProduct() {
@@ -88,25 +95,22 @@ public class script_drug {
     public void setProduct(product _product) {
         if (this.product != _product) {
             this.product = _product;
-            if (_product != null) _product.setScript_drug(this);
+//            if (_product != null) _product.setScript_drug(this);
         }
     }
+    
     /**
-     *@hibernate.one-to-many
-     *  class="link_script_drugs"
+     *
+     *@hibernate.set
+     *  cascade="none"
+     *@hibernate.collection-key
+     *  column="link_script_drug"
+     *@hibernate.collection-one-to-many
+     *  class="org.gnumed.gmClinical.link_script_drug"
      */
     public Collection getLink_script_drugs() {
         return link_script_drug;
     }
-    
-     /** Setter for property link_script_drugs.
-     * @param link_script_drugs New value of property link_script_drugs.
-     *
-     */
-    public void setLink_script_drugs(Collection link_script_drugs) {
-    link_script_drug = link_script_drugs;
-    }
-    
     public void addLink_script_drug(link_script_drug _link_script_drug) {
         if (! this.link_script_drug.contains(_link_script_drug)) {
             this.link_script_drug.add(_link_script_drug);
@@ -116,6 +120,29 @@ public class script_drug {
     public void removeLink_script_drug(link_script_drug _link_script_drug) {
         boolean removed = this.link_script_drug.remove(_link_script_drug);
         if (removed) _link_script_drug.setScript_drug((script_drug)null);
+    }
+    
+      /** Setter for property link_script_drugs.
+     * @param link_script_drugs New value of property link_script_drugs.
+     *
+     */
+    public void setLink_script_drugs(Collection link_script_drugs) {
+    link_script_drug = link_script_drugs;
+    }
+    
+    /** 
+     *
+     *@hibernate.many-to-one
+     */
+    public identity getIdentity() {
+        return identity;
+    }
+    public void setIdentity(identity _identity) {
+        if (this.identity != _identity) {
+            if (this.identity != null) this.identity.removeScript_drug(this);
+            this.identity = _identity;
+            if (_identity != null) _identity.addScript_drug(this);
+        }
     }
 
 
@@ -127,7 +154,7 @@ public class script_drug {
  * <p>
  * Represents ...
  * </p>
- *@hibernate.property
+ * @hibernate.property
  */
     public String getDirections() {        
         return directions;
@@ -146,7 +173,7 @@ public class script_drug {
  * <p>
  * Represents ...
  * </p>
- *@hibernate.property
+ * @hibernate.property
  */
     public Double getDose_amount() {        
         return dose_amount;
@@ -165,7 +192,7 @@ public class script_drug {
  * <p>
  * Represents ...
  * </p>
- *@hibernate.property
+ * @hibernate.property
  */
     public int getFrequency() {        
         return frequency;
@@ -184,6 +211,7 @@ public class script_drug {
  * <p>
  * Represents ...
  * </p>
+ *
  *@hibernate.property
  */
     public Boolean getPrn() {        
@@ -205,7 +233,7 @@ public class script_drug {
  * </p>
  * @hibernate.property
  */
-     public String getAdjuvant() {        
+    public String getAdjuvant() {        
         return adjuvant;
     } // end getAdjuvant        
 
@@ -218,29 +246,45 @@ public class script_drug {
         adjuvant = _adjuvant;
     }
     
+    /** Getter for property current.
+     * @return Value of property current.
+     *
+     *
+     *@hibernate.property
+     */
+    public Boolean getCurrent() {
+        return _current;
+    }    
+  
+    /** Setter for property current.
+     * @param current New value of property current.
+     *
+     */
+    public void setCurrent(Boolean current) {
+        _current = current;
+    }
+    
     /** Getter for property id.
      * @return Value of property id.
      *
      * @hibernate.id
      *  generator-class="hilo"
      */
-    public Integer getId() {
+    public Long getId() {
         return this.id;
-    }    
-   
+    }
+    
     /** Setter for property id.
      * @param id New value of property id.
      *
      */
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
     
  // end setAdjuvant        
 
 } // end script_drug
-
-
 
 
 

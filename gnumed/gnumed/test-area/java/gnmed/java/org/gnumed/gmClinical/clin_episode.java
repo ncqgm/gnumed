@@ -31,7 +31,7 @@ public class clin_episode {
  * Represents ...
  * </p>
  */
-    private Integer id; 
+    private Long id; 
 
    ///////////////////////////////////////
    // associations
@@ -73,9 +73,9 @@ public class clin_episode {
         }
     }
     
-    /**
-     *@hibernate.one-to-one
-     */
+//    /**
+//     *@hibernate.one-to-one
+//     */
     public last_act_episode getLast_act_episode() {
         return last_act_episode;
     }
@@ -144,7 +144,7 @@ public class clin_episode {
  * @hibernate.id
  *      generator-class="hilo"
  */
-    public Integer getId() {        
+    public Long getId() {        
         return id;
     } // end getId        
 
@@ -153,7 +153,7 @@ public class clin_episode {
  * Represents ...
  * </p>
  */
-    public void setId(Integer _id) {        
+    public void setId(Long _id) {        
         id = _id;
     }
     

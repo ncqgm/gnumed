@@ -36,33 +36,6 @@ public class clin_diagnosis extends clin_issue_component {
    ///////////////////////////////////////
    // associations
 
-/**
- * <p>
- * 
- * </p>
- */
-    public code_ref code_ref; 
-
-
-   ///////////////////////////////////////
-   // access methods for associations
-
-    /** 
-     *
-     *@hibernate-many-to-one
-     *  cascade="all"
-     */
-    public code_ref getCode_ref() {
-        return code_ref;
-    }
-    public void setCode_ref(code_ref _code_ref) {
-        if (this.code_ref != _code_ref) {
-       //    if (this.code_ref != null) this.code_ref.removeClin_diagnosis(this);
-            this.code_ref = _code_ref;
-       //     if (_code_ref != null) _code_ref.addClin_diagnosis(this);
-        }
-    }
-
 
   ///////////////////////////////////////
   // operations

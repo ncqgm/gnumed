@@ -31,7 +31,7 @@ public class clin_health_issue {
      * Represents ...
      * </p>
      */
-    private Integer id;
+    private Long id;
     
     ///////////////////////////////////////
     // associations
@@ -72,37 +72,42 @@ public class clin_health_issue {
             if (_identity != null) _identity.addClin_health_issue(this);
         }
     }
-//    
-//    /**
-//     * @hibernate.collection-one-to-many
-//     *  class="org.gnumed.clin_episode"
-//     */
-//    public Collection getClin_episodes() {
-//        return clin_episode;
-//    }
-//    /** Setter for property clin_episodes.
-//     * @param clin_episodes New value of property clin_episodes.
-//     *
-//     */
-//    public void setClin_episodes(Collection clin_episodes) {
-//        clin_episode=clin_episodes;
-//    }
-//    
-//    public void addClin_episode(clin_episode _clin_episode) {
-//        if (! this.clin_episode.contains(_clin_episode)) {
-//            this.clin_episode.add(_clin_episode);
-//            _clin_episode.setClin_health_issue(this);
-//        }
-//    }
-//    public void removeClin_episode(clin_episode _clin_episode) {
-//        boolean removed = this.clin_episode.remove(_clin_episode);
-//        if (removed) _clin_episode.setClin_health_issue((clin_health_issue)null);
-//    }
+    
+    /**
+     * @hibernate.set
+     *  cascade="all"
+     * @hibernate.collection-key
+     *  column="clin_health_issue"
+     * @hibernate.collection-one-to-many
+     *  class="org.gnumed.gmClinical.clin_episode"
+     */
+    public Collection getClin_episodes() {
+        return clin_episode;
+    }
+    /** Setter for property clin_episodes.
+     * @param clin_episodes New value of property clin_episodes.
+     *
+     */
+    public void setClin_episodes(Collection clin_episodes) {
+        clin_episode=clin_episodes;
+    }
+    
+    public void addClin_episode(clin_episode _clin_episode) {
+        if (! this.clin_episode.contains(_clin_episode)) {
+            this.clin_episode.add(_clin_episode);
+            _clin_episode.setClin_health_issue(this);
+        }
+    }
+    public void removeClin_episode(clin_episode _clin_episode) {
+        boolean removed = this.clin_episode.remove(_clin_episode);
+        if (removed) _clin_episode.setClin_health_issue((clin_health_issue)null);
+    }
     
     /**
      *
      *@hibernate.set
-     *  cascade="delete"
+     *  cascade="all"
+     *  inverse="true"
      *@hibernate.collection-key
      *  column="clin_health_issue"
      *@hibernate.collection-one-to-many
@@ -162,7 +167,7 @@ public class clin_health_issue {
      * @hibernate.id
      *      generator-class="hilo"
      */
-    public Integer getId() {
+    public Long getId() {
         return id;
     } // end getId
     
@@ -171,7 +176,7 @@ public class clin_health_issue {
      * Represents ...
      * </p>
      */
-    public void setId(Integer _id) {
+    public void setId(Long _id) {
         id = _id;
     }
     

@@ -26,7 +26,7 @@ public class clin_issue_component {
  * Represents ...
  * </p>
  */
-    private Integer id; 
+    private Long id; 
 
    ///////////////////////////////////////
    // associations
@@ -38,9 +38,34 @@ public class clin_issue_component {
  */
     public clin_health_issue clin_health_issue; 
 
+/**
+ * <p>
+ * 
+ * </p>
+ */
+    public code_ref code_ref; 
+
 
    ///////////////////////////////////////
    // access methods for associations
+
+    /** 
+     *
+     *@hibernate.many-to-one
+     *  cascade="all"
+     */
+    public code_ref getCode_ref() {
+        return code_ref;
+    }
+    public void setCode_ref(code_ref _code_ref) {
+        if (this.code_ref != _code_ref) {
+     //if (this.code_ref != null) this.code_ref.setClin_diagnosis(this);
+            this.code_ref = _code_ref;
+   //  if (_code_ref != null) _code_ref.addClin_diagnosis(this);
+        }
+    }
+
+
 /** @hibernate.many-to-one
  */
     public clin_health_issue getClin_health_issue() {
@@ -66,7 +91,7 @@ public class clin_issue_component {
  * @hibernate.id
  *  generator-class="hilo"
  */
-    public Integer getId() {        
+    public Long getId() {        
         return id;
     } // end getId        
 
@@ -75,7 +100,7 @@ public class clin_issue_component {
  * Represents ...
  * </p>
  */
-    public void setId(Integer _id) {        
+    public void setId(Long _id) {        
         id = _id;
     } // end setId        
 

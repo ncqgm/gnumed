@@ -1,8 +1,9 @@
+
 /** Java class "link_script_drug.java" generated from Poseidon for UML.
  *  Poseidon for UML is developed by <A HREF="http://www.gentleware.com">Gentleware</A>.
  *  Generated with <A HREF="http://jakarta.apache.org/velocity/">velocity</A> template engine.
  */
-package org.gnumed.gmClinical;
+package  org.gnumed.gmClinical;
 
 import java.util.*;
 
@@ -10,7 +11,7 @@ import java.util.*;
  * <p>
  * 
  * </p>
-  * @hibernate.class
+ * @hibernate.class
  */
 public class link_script_drug {
 
@@ -30,7 +31,7 @@ public class link_script_drug {
  * Represents ...
  * </p>
  */
-    private Integer repeats; 
+    private int repeats; 
 
    ///////////////////////////////////////
    // associations
@@ -51,11 +52,11 @@ public class link_script_drug {
 
    ///////////////////////////////////////
    // access methods for associations
-
-    
-    /**
-     *@hibernate.many-to-one
-     */
+/**
+ *
+ *@hibernate.many-to-one
+ *  cascade="none"
+ */
     public script_drug getScript_drug() {
         return script_drug;
     }
@@ -67,9 +68,9 @@ public class link_script_drug {
         }
     }
     
-   /**
-    *@hibernate.many-to-one
-    */
+    /**
+     *@hibernate.many-to-one
+     */
     public script getScript() {
         return script;
     }
@@ -90,9 +91,10 @@ public class link_script_drug {
  * <p>
  * Represents ...
  * </p>
- * @hibernate.property
+ *
+ *@hibernate.property
  */
-    public Integer getRepeats() {        
+    public int getRepeats() {        
         return repeats;
     } // end getRepeats        
 
@@ -101,21 +103,22 @@ public class link_script_drug {
  * Represents ...
  * </p>
  */
-    public void setRepeats(Integer _repeats) {        
+    public void setRepeats(int _repeats) {        
         repeats = _repeats;
     } // end setRepeats        
 
 /**
-     * <p>
-     * Represents ...
-     * </p>
-     * @hibernate.id
-     *  generator-class="hilo"
-     */
-    public Integer getId() {
+ * <p>
+ * Represents ...
+ * </p>
+ *
+ *@hibernate.id
+ *  generator-class="hilo"
+ */
+    public Integer getId() {        
         return id;
-    } // end getId
-  
+    } // end getId        
+
 /**
  * <p>
  * Represents ...
@@ -126,8 +129,6 @@ public class link_script_drug {
     } // end setId        
 
 } // end link_script_drug
-
-
 
 
 

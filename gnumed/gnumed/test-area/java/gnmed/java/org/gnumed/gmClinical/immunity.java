@@ -15,34 +15,25 @@ import java.util.*;
  */
 public class immunity extends clin_issue_component {
    
-    ///////////////////////////////////////
-    // associations
-    
-    /**
-     * <p>
+    /** Holds value of property notes. */
+    private String notes;    
+
+    /** Getter for property notes.
+     * @return Value of property notes.
      *
-     * </p>
+     * @hibernate.property
      */
-    public code_ref code_ref;
-    
-    
-    ///////////////////////////////////////
-    // access methods for associations
-    /** 
+    public String getNotes() {
+        return this.notes;
+    }    
+        
+    /** Setter for property notes.
+     * @param notes New value of property notes.
      *
-     *@hibernate.many-to-one
      */
-    public code_ref getCode_ref() {
-        return code_ref;
-    }
-    public void setCode_ref(code_ref _code_ref) {
-        if (this.code_ref != _code_ref) {
-        //    if (this.code_ref != null) this.code_ref.removeImmunity(this);
-            this.code_ref = _code_ref;
-         //   if (_code_ref != null) _code_ref.addImmunity(this);
-        }
-    }
-    
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }    
   
     
 } // end immunity

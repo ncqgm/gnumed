@@ -13,6 +13,10 @@ import org.gnumed.audit.audit_fields;
  * </p>
  *  @hibernate.class
  *  discriminator-value="R"
+ * @hibernate.discriminator
+ *  column="TYPE"
+ *  type="string"
+ *  length="2"
  */
 public class clin_root_item {
 
@@ -32,7 +36,7 @@ public class clin_root_item {
  * Represents ...
  * </p>
  */
-    private Integer id; 
+    private Long id; 
 
    ///////////////////////////////////////
    // associations
@@ -89,9 +93,9 @@ public class clin_root_item {
         }
     }
     
-    /**
-     *@hibernate.one-to-one
-     */
+//    /**
+//     *@hibernate.one-to-one
+//     */
     public audit_fields getAudit_fields() {
         return audit_fields;
     }
@@ -134,7 +138,7 @@ public class clin_root_item {
  * @hibernate.id
  *  generator-class="hilo"
  */
-    public Integer getId() {        
+    public Long getId() {        
         return id;
     } // end getId        
 
@@ -143,7 +147,7 @@ public class clin_root_item {
  * Represents ...
  * </p>
  */
-    public void setId(Integer _id) {        
+    public void setId(Long _id) {        
         id = _id;
     } // end setId        
 
