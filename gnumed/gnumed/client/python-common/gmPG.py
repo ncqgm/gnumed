@@ -27,7 +27,7 @@
 """gmConnectionPool - Broker for Postgres distributed backend connections
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -351,9 +351,9 @@ def inputTMLoginParams():
 		database = raw_input("database [gnumed] : ")
 		if database == '':
 			database = 'gnumed'
+		host = prompted_input("host [localhost] : ", 'localhost')
 		user = prompted_input("user name : ", '')
 		password = prompted_input("password : ",'')
-		host = prompted_input("host [localhost] : ", 'localhost')
 		port = prompted_input("port [5432] : ", 5432)
 		login.SetInfo(user, password, dbname=database, host=host, port=port)
 	except:
