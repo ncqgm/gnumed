@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.18 $
+-- $Revision: 1.19 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -190,7 +190,7 @@ comment on column episode.name is
 -- ============================================
 create table _enum_allergy_certainty (
 	id serial primary key,
-	value varchar(32)
+	value varchar(32) unique not null
 ) ;
 
 create view vi18n_enum_allergy_certainty as
@@ -200,7 +200,7 @@ create view vi18n_enum_allergy_certainty as
 -- --------------------------------------------
 create table _enum_allergy_type (
 	id serial primary key,
-	value varchar(32)
+	value varchar(32) unique not null
 ) ;
 
 create view vi18n_enum_allergy_type as
@@ -215,8 +215,8 @@ create table allergy (
 	substance varchar(128) not null,
 	allergene varchar(256) default null,
 	description text,
-	certainty varchar(32) references vi18n_enum_allergy_certainty(name),
-	type varchar(32) references vi18n_enum_allergy_type(name),
+	certainty varchar(32) references vi18n_enum_allergy_certainty(value),
+	type varchar(32) references vi18n_enum_allergy_type(value),
 	first_observed varchar(32),
 	code varchar(32)
 ) inherits (audit_clinical);
@@ -366,11 +366,14 @@ comment on table enum_immunities is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.18 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.18  2003-04-06 14:51:40  ncq
+-- Revision 1.19  2003-04-06 15:10:05  ncq
+-- - added some missing unique constraints
+--
+-- Revision 1.18  2003/04/06 14:51:40  ncq
 -- - more cleanly separated data and schema
 -- - first draft of allergies table
 --
