@@ -13,8 +13,8 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.45 2003-02-13 12:58:05 sjtan Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmPlugin.py,v 1.46 2003-02-17 16:18:29 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -380,9 +380,8 @@ def GetPluginLoadList(set):
 		aDBAPI = gmPG.dbapi
 	)
 
-
 	# search database
-	# for this user on this machine	
+	#  for this user on this machine	
 	p_list = dbcfg.get(
 		machine = gb['workplace_name'],
 		option = 'plugin load order',
@@ -392,7 +391,7 @@ def GetPluginLoadList(set):
 		db.ReleaseConnection(service = "default")
 		return p_list
 
-	# for this user on default machine
+	#  for this user on default machine
 	p_list = dbcfg.get(
 		option = 'plugin load order',
 		cookie = str(set)
@@ -410,7 +409,7 @@ def GetPluginLoadList(set):
 		db.ReleaseConnection(service = "default")
 		return p_list
 
-	# for default user on this machine
+	#  for default user on this machine
 	p_list = dbcfg.get(
 		machine = gb['workplace_name'],
 		user = '__default__',
@@ -430,7 +429,7 @@ def GetPluginLoadList(set):
 		db.ReleaseConnection(service = "default")
 		return p_list
 
-	# for default user on default machine
+	#  for default user on default machine
 	p_list = dbcfg.get(
 		user = '__default__',
 		option = 'plugin load order',
@@ -514,7 +513,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.45  2003-02-13 12:58:05  sjtan
+# Revision 1.46  2003-02-17 16:18:29  ncq
+# - fix whitespace on comments
+#
+# Revision 1.45  2003/02/13 12:58:05  sjtan
 #
 # remove unneded import.
 #
