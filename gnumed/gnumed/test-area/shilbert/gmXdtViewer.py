@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/shilbert/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.6 2003-08-21 21:36:42 shilbert Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmXdtViewer.py,v 1.7 2003-08-23 13:23:29 shilbert Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, string, fileinput, linecache
@@ -38,6 +38,8 @@ _log.Log(gmLog.lData, __version__)
 if __name__ == "__main__":
 	import gmI18N
 	import gmXdtToolsLib
+	import gmCfg
+	_cfg = gmCfg.gmDefCfgFile
 
 import gmExceptions
 
@@ -49,6 +51,11 @@ from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidt
 from gmXdtMappings import xdt_id_map, xdt_map_of_content_maps
 from gmXdtObjects import xdtPatient
 
+# get export-dir
+pat_dir = _cfg.get("xdt-viewer", "export-dir")
+pat_lst_fname = _cfg.get("xdt-viewer", "patient-list")
+# is there a patient list already ?
+_patlst = gmCfg.cCfgFile(aPath = pat_dir ,aFile = pat_lst_fname, flags = 2)
 #=============================================================================
 class gmXdtListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
 	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
@@ -287,6 +294,8 @@ def _preprocess_file(afile):
 	return selected_pat_file
 #---------------------
 def _split_and_select_pat(pats_in_file = None, afile = None):
+	patlst = _patlst
+	cfg = _cfg
 	# plugin handles single-patient files only
 	if __name__ != '__main__':
 		gm_show_error (
@@ -321,7 +330,8 @@ def _split_and_select_pat(pats_in_file = None, afile = None):
 		return afile
 
 	# user wants to split file by patient
-	if not gmXdtToolsLib.split_xdt_file(afile):
+	
+	if not gmXdtToolsLib.split_xdt_file(afile,patlst,cfg):
 		gm_show_error (
 			_('Cannot split XDT file [%s] by patient.\nShowing file as is.'),
 			_('parsing XDT file'),
@@ -351,7 +361,7 @@ def _split_and_select_pat(pats_in_file = None, afile = None):
 	pat_selected = dlg.GetStringSelection()
 	_log.Log(gmLog.lData, 'selected [%s]' % pat_selected)
 	ID,name = string.split(pat_selected,':')
-	data = gmXdtToolsLib.get_pat_data(afile, ID, name)
+	data = gmXdtToolsLib.get_pat_data(afile,ID,name,patdir = pat_dir, patlst = _patlst)
 	# how many records were obtained for this patient ?
 	path,files = data
 	# none
@@ -469,7 +479,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.6  2003-08-21 21:36:42  shilbert
+# Revision 1.7  2003-08-23 13:23:29  shilbert
+# - adapted some functions so that gmXdtToolsLib is no longer dependent on gmCfg
+#
+# Revision 1.6  2003/08/21 21:36:42  shilbert
 # - make it work again after heavy refactoring by ncq
 #
 # Revision 1.5  2003/08/21 19:35:02  ncq
