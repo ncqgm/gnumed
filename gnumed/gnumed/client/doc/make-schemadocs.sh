@@ -1,16 +1,22 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
 export PGUSER="gm-dbo"
 /usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t html
+/usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t dot
+/usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t dia
+/usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t zigzag.dia
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.7  2005-01-19 09:27:59  ncq
+# Revision 1.8  2005-01-25 17:35:03  ncq
+# - Thilo wanted the other formats, too, so here it is ...
+#
+# Revision 1.7  2005/01/19 09:27:59  ncq
 # - let callers deal with output, don't predefine target as file (cron mails it)
 #
 # Revision 1.6  2005/01/12 14:47:48  ncq
