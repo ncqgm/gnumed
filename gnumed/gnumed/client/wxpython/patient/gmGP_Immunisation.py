@@ -15,23 +15,27 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.9 2003-02-07 14:29:32 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmGP_Immunisation.py,v 1.10 2003-09-21 00:16:44 sjtan Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "R.Terry, S.J.Tan"
 
 from wxPython.wx import *
+import getbasedir
+getbasedir.syspath(getbasedir.getbasedir())
+
 
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea             				#panel class holding editing prompts and text boxes
 import gmPlugin
-
 import gmLog
+
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
+
 
 
 ID_IMMUNISATIONLIST = wxNewId()
@@ -78,7 +82,7 @@ class ImmunisationPanel(wxPanel):
 		#--------------------------------------------------
 		#now create the editarea specific for immunisations
 		#--------------------------------------------------
-		self.editarea = gmEditArea.EditArea(self,-1,immunisationprompts,gmSECTION_IMMUNISATIONS)
+		self.editarea = gmEditArea.gmVaccinationEditArea(self,-1)
 		#-----------------------------------------------
 		#add the divider headings below the editing area
 		#-----------------------------------------------
@@ -210,7 +214,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.9  2003-02-07 14:29:32  ncq
+# Revision 1.10  2003-09-21 00:16:44  sjtan
+#
+# cleaner, no frills version. Laziness rules.
+#
+# Revision 1.9  2003/02/07 14:29:32  ncq
 # - == None -> is None
 #
 # Revision 1.8  2003/02/07 12:18:14  ncq
