@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -30,11 +30,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	enum_ext_id_types,
 	lnk_identity2ext_id,
 	lnk_identity2ext_id_id_seq,
-	mapbook,
-	coordinate,
-	coordinate_id_seq,
-	address_info,
-	address_info_id_seq,
 	lnk_person_org_address,
 	lnk_person_org_address_id_seq,
 	lnk_identity2comm,
@@ -58,7 +53,11 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.7  2004-12-21 09:59:40  ncq
+-- Revision 1.8  2005-01-24 17:57:43  ncq
+-- - cleanup
+-- - Ian's enhancements to address and forms tables
+--
+-- Revision 1.7  2004/12/21 09:59:40  ncq
 -- - comm_channel -> comm else too long on server < 7.3
 --
 -- Revision 1.6  2004/12/20 19:04:37  ncq

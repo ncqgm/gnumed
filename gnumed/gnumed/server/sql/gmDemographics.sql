@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.39 $
+-- $Revision: 1.40 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -56,8 +56,8 @@ create table urb (
 		references state(id)
 		on update cascade
 		on delete restrict,
-	postcode text
-		not null,
+	postcode text not null,
+	lat_lon point,
 	name text
 		not null,
 	unique (id_state, postcode, name)
@@ -84,7 +84,8 @@ COMMENT ON COLUMN urb.postcode IS
 	 also useful as a default when adding new streets to an urb';
 COMMENT ON COLUMN urb.name IS
 	'the name of the city/town/dwelling';
-
+COMMENT ON COLUMN urb.lat_lon is
+	'the location of the urb, as lat/long co-ordinates. Ideally this would be NOT NULL';
 -- ===================================================================
 create table street (
 	id serial primary key,
@@ -96,6 +97,7 @@ create table street (
 	name text not null,
 	postcode text,
 	suburb text default null,
+	lat_lon point,
 	unique(id_urb, name, postcode)
 ) inherits (audit_fields);
 
@@ -111,7 +113,8 @@ COMMENT ON COLUMN street.postcode IS
 	'postcode for systems (such as UK Royal Mail) which specify the street';
 comment on column street.suburb is
 	'the suburb this street is in (if any)';
-
+comment on column street.lat_lon is
+'the approximate location of the street, as lat/long co-ordinates';
 -- ===================================================================
 create table address (
 	id serial primary key,
@@ -124,6 +127,7 @@ create table address (
 	number text not null,
 	subunit text default null,
 	addendum text default null,
+	lat_lon point default null,
 	unique(id_street, aux_street, number, subunit, addendum)
 ) inherits (audit_fields);
 
@@ -151,6 +155,8 @@ comment on column address.subunit is
 comment on column address.addendum is
 	'any additional information that
 	 did not fit anywhere else';
+comment on column address.lat_lon is
+	'the exact location of this address in latitude-longtitude';
 
 -- ===================================================================
 create table address_type (
@@ -171,51 +177,6 @@ create table enum_comm_types (
 	id serial primary key,
 	description text unique not null
 );
-
--- ===================================================================
-
--- the following table still needs a lot of work.
--- especially the GPS and map related information needs to be
--- normalized
-
--- added IH 8/3/02
--- table for street civilian type maps, i.e Melways
-create table mapbook (
-       id serial primary key,
-       name char (30)
-);
-
--- ===================================================================
--- table for co-ordinate systems, such at latitude-longitude
--- there are others, military, aviation and country-specific.
--- GPS handsets can display several.
-create table coordinate (
-      id serial primary key,
-      name varchar (30),
-      scale float
-);
-      -- NOTE: this converts distances from the co-ordinate units to
-      -- kilometres.
-      -- theoretically this may be problematic with some systems due to the
-      -- ellipsoid nature of the Earth, but in reality it is unlikely to matter
-
--- ===================================================================
-create table address_info (
-        id serial primary key,
-        id_address integer references address(id),
-        location point,
-        id_coord integer references coordinate (id),
-        mapref char(30),
-        id_map integer references mapbook (id),
-        howto_get_there text,
-        comments text
-) inherits (audit_fields);
-
-select add_table_for_audit('address_info');
-
--- this refers to a SQL point type. This would allow us to do
--- interesting queries, like, how many patients live within
--- 10kms of the clinic.
 
 -- ===================================================================
 -- person related tables
@@ -564,11 +525,15 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.39 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.40 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.39  2004-12-21 09:59:40  ncq
+-- Revision 1.40  2005-01-24 17:57:43  ncq
+-- - cleanup
+-- - Ian's enhancements to address and forms tables
+--
+-- Revision 1.39  2004/12/21 09:59:40  ncq
 -- - comm_channel -> comm else too long on server < 7.3
 --
 -- Revision 1.38  2004/12/20 19:04:37  ncq

@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -24,7 +24,8 @@ select
 	urb.name as city,
 	adr.number as number,
 	str.name as street,
-	adr.addendum as addendum
+	adr.addendum as addendum,
+	coalesce (adr.lat_lon, str.lat_lon, urb.lat_lon) as lat_lon
 from
 	address adr,
 	state s,
@@ -251,11 +252,15 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.14 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.15 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.14  2004-12-20 18:52:02  ncq
+-- Revision 1.15  2005-01-24 17:57:43  ncq
+-- - cleanup
+-- - Ian's enhancements to address and forms tables
+--
+-- Revision 1.14  2004/12/20 18:52:02  ncq
 -- - Ian reworked v_basic_address
 --
 -- Revision 1.13  2004/12/15 09:24:49  ncq

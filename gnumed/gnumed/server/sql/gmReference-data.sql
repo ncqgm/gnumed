@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference-data.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -47,13 +47,54 @@ insert into papersizes (name, size) values ('ledger', '(43.18, 27.94)');
 -- form templates
 -- ===================================================
 
+insert into form_field_types (name) values ('string');
+-- plain text, param is a regex which must match 
+-- after every keypress during editing, to
+-- instantly reject erroneous input
+-- regexes must therefore match partial valid inputs, including
+-- the empty string
+-- [0-9]*            integer
+-- [0-9,]*\.?[0-9]*  float
+-- [0-9]{0,7}|([0-9]{6,7}[A-Z])  HIC provider number
+-- [a-zA-Z]?[a-zA-Z0-9]*\@?[a-zA-Z0-9\.]* email address 
+-- SINGLE LINE ONLY !
+insert into form_field_types (name) values ('list');
+-- FIXME: this does not work, we may not know the list before runtime
+-- one selected from a list of string values, param is the list, 
+-- separated by '\n'.
+-- whether this is displayed as radio buttons, drop down list, &c, is
+-- up to the GUI layer.
+insert into form_field_types (name) values ('boolean');
+-- boolean value. GUI will usually be some form of tickbox
+insert into form_field_types (name) values ('text');
+-- a larger piece of text. This suggests the GUI element should be multi-line
+-- and have word-processing features like spellcheck. 
+-- maybe allow some simple markup like bold and italic text
+insert into form_field_types (name) values ('date');
+-- a date
+
+-- FIXME: I have serious doubts this will work but let's give it a try
+insert into form_field_types (name) values ('entity');
+-- a gmDemographicRecord.cOrg or its descendant (cIdentity). Usually the
+-- addressee of a communication (but doesn't have to be)
+insert into form_field_types (name) values ('address');
+-- an address of the entity (an entity field must be in the form too,
+-- param is the internal_name of this field)
+-- this is a Python dict with fields 'number', 'street', 'addendum', 'city', 'postcode'
+insert into form_field_types (name) values ('drug_list');
+-- a list of drug-preparations, business layer class yet to be written
+
 -- ===================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmReference-data.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference-data.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference-data.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================
 -- $Log: gmReference-data.sql,v $
--- Revision 1.1  2004-03-09 09:21:56  ncq
+-- Revision 1.2  2005-01-24 17:57:43  ncq
+-- - cleanup
+-- - Ian's enhancements to address and forms tables
+--
+-- Revision 1.1  2004/03/09 09:21:56  ncq
 -- - paper sizes
 --

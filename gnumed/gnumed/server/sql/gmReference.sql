@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -171,15 +171,14 @@ create table form_types (
 	pk serial primary key
 );
 
-comment on table form_types is 'types of forms which are available,
-generally by purpose (radiology, pathology, sick leave, etc.)
-The form type determines the names and types of variables passed to
-the form engine to create this form.';
+comment on table form_types is
+	'types of forms which are available,
+	 generally by purpose (radiology, pathology, sick leave, etc.)';
 
-
+-- =============================================
 create table form_defs (
 	pk serial primary key,
-	fk_type integer references form_types (pk),
+	fk_type integer references form_types(pk),
 	country varchar (3),
 	locale text,
 	name_short text not null,
@@ -188,8 +187,7 @@ create table form_defs (
 	template text,
 	engine char default 'T' not null check (engine in ('T', 'L', 'H')),
 	in_use boolean not null default true,
-	electronic boolean not null default false,
-	flags varchar (100) [],
+	url text,
 	unique (name_short, name_long),
 	unique (name_long, revision)
 ) inherits (audit_fields);
@@ -214,18 +212,56 @@ comment on column form_defs.engine is
 	 to process this form, currently:
 	 - T: plain text
 	 - L: LaTeX
-	 - H: HL7';
+	 - H: Health Layer 7';
 comment on column form_defs.in_use is
 	'whether this template is currently actively
 	 used in a given practice';
-comment on column form_defs.electronic is
-	'True if the form is designed for electronic transmission,
-	 such as e-mail. Currently always false as we need
-	 appropriate middleware engines to do this (viz. HL7)';
-comment on column form_defs.flags is
-	'an array of flags (boolean options) for this form
-	 which the GUI should display to the user,
-	 Currently not implemented';
+comment on column form_defs.url is
+	'For electronic forms which are always sent to the same 
+	url (such as reports to a statutory public-health surveilliance 
+	authority)';
+
+-- =============================================
+-- FIXME: how is this intended to be used ?
+create table form_field_types (
+	name text unique,
+	pk serial primary key
+);
+
+-- ===================================================
+create table form_fields (
+	pk serial primary key,
+	fk_form integer
+		not null
+		references form_defs(pk),
+	long_name text not null,
+	internal_name text not null,
+	help text,
+	fk_type integer not null references form_field_types(pk),
+	param text,
+	display_order integer,
+	unique (fk_form, long_name),
+	unique (fk_form, internal_name)
+);
+
+comment on table form_fields is
+	'List of fields for a particular form';
+comment on column form_fields.long_name is
+	'The full name of the form field as presented to the user';
+comment on column form_fields.internal_name is
+	'The name of the field as exposed to the form template.
+	 In other words, the placeholder in form_defs.template where
+	 the value entered into this field ist to be substituted.
+	 Must be a valid identifier in the form template''s
+	 script language (viz. Python)';
+comment on column form_fields.help is
+	'longer help text';
+comment on column form_fields.fk_type is
+	'the field type';
+comment on column form_fields.param is
+	'a parameter for the field''s behaviour, meaning is type-dependent';
+comment on column form_fields.display_order is
+	'used to *suggest* display order, but client may ignore';
 
 -- ===================================================
 create table form_print_defs (
@@ -271,11 +307,15 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.14 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.15 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.14  2004-12-18 09:55:24  ncq
+-- Revision 1.15  2005-01-24 17:57:43  ncq
+-- - cleanup
+-- - Ian's enhancements to address and forms tables
+--
+-- Revision 1.14  2004/12/18 09:55:24  ncq
 -- - cleanup
 --
 -- Revision 1.13  2004/12/15 12:14:08  ihaywood
