@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.5 2003-11-19 22:22:20 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmMatchProvider.py,v 1.6 2003-11-19 23:18:37 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -19,9 +19,7 @@ _true = (1==1)
 _false = (1==0)
 
 import gmLog
-
 _log = gmLog.gmDefLog
-score_defs = 0
 
 #------------------------------------------------------------
 # generic base class
@@ -310,15 +308,13 @@ class cMatchProvider_SQL(cMatchProvider):
 
 		# sanity check table connections
 		self.srcs = []
-		print "source_defs = ", source_defs
 		for src_def in source_defs:
-
-			# FIXME: testing every table at load time is going to get slow 
+			# FIXME: testing every table at load time is going to get slow
+			# that remains to be seen
 			conn = self.dbpool.GetConnection(src_def['service'])
 			if conn is None:
 				self.__close_sources()
 				raise gmExceptions.ConstructorError, 'cannot connect to source service [%s]' % src_def['service']
-#			conn.conn.toggleShowQuery
 			curs = conn.cursor()
 			cmd = "select %s from %s limit 1" % (src_def['column'], src_def['table'])
 			if not gmPG.run_query(curs, cmd):
@@ -333,11 +329,9 @@ class cMatchProvider_SQL(cMatchProvider):
 					src_def['pk'] = pk
 			curs.close()
 			src_def['conn'] = conn
-			# as we don't have a context, we can't run a test query at this point
-  
 			self.srcs.append(src_def)
 			_log.Log(gmLog.lData, 'valid match source: %s' % src_def)
-			
+
 		if score_def <> []:
 			rw_conn = self.dbpool.GetConnection(score_def['service'], readonly = 0)
 			if rw_conn is None:
@@ -358,7 +352,11 @@ class cMatchProvider_SQL(cMatchProvider):
 					score_def['pk'] = pk
 			rw_curs.close()
 			score_def['conn'] = rw_conn
-			#		score_def['query'] = "select %s, %s from %s where %s" % (src_def['pk'], src_def['column'], src_def['table'], src_def['column'])
+#			score_def['query'] = "select %s, %s from %s where %s" % (
+#				src_def['pk'],
+#				src_def['column'],
+#				src_def['table'],
+#				src_def['column'])
 			self.score_def = score_def
 			_log.Log(gmLog.lData, 'valid score storage target: %s' % score_def)
 
@@ -403,7 +401,6 @@ class cMatchProvider_SQL(cMatchProvider):
 			curs = src['conn'].cursor()
 			# FIXME: deal with gmpw_score...
 			context_where = ''
-			content_where = ''
 			vars = [aFragment]
 			# matches keys of the extra conditions and context
 			# where a condition has a matching context variable,
@@ -415,14 +412,13 @@ class cMatchProvider_SQL(cMatchProvider):
 						context_where += " and (%s)"% self.condition
 						vars.append (self.__context[context_var])
 			if src['extra conditions'].has_key ('default'):
-				content_where += " and (%s)" % src['extra conditions']['default']
+				context_where += " and (%s)" % src['extra conditions']['default']
 						       
-			src_def = src
 			cmd = "select %s, %s from %s where %s %s %%s%s" % (
-				src_def['pk'],
-				src_def['column'],
-				src_def['table'],
-				src_def['column'],
+				src['pk'],
+				src['column'],
+				src['table'],
+				src['column'],
 				search_condition,
 				context_where)
 			if not gmPG.run_query(curs, cmd, vars):
@@ -451,3 +447,9 @@ class cMatchProvider_SQL(cMatchProvider):
 
 
 # FUTURE: a cMatchProvider_LDAP
+
+#================================================================
+# $Log: gmMatchProvider.py,v $
+# Revision 1.6  2003-11-19 23:18:37  ncq
+# - some cleanup
+#
