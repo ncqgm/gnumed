@@ -216,6 +216,21 @@ public class IdentityManager {
         return l;
     }
     
+    public Iterator getIteratorIdentityByNames( String lastnames, String firstnames) throws Exception {
+        //         Session sess =  gnmed.test.HibernateInit.openSession();
+        Session sess = getSession();
+        return getIteratorIdentityByNames( sess,  lastnames,  firstnames);
+    }
+    
+    public Iterator getIteratorIdentityByNames(Session sess, String lastnames, String firstnames) throws Exception {
+   
+        return  sess.iterate("select i from identity i inner join i.namess n " +
+        "where lower(n.lastnames) like ? and lower(n.firstnames) like ?" ,
+        new Object[] { lastnames.toLowerCase()+"%", firstnames.toLowerCase() +"%" },
+        new Type[] { Hibernate.STRING , Hibernate.STRING } );
+         
+    }
+    
     
     
     private SessionHolder sessionHolder = new SessionHolder();

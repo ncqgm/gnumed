@@ -28,7 +28,7 @@ public class FindIdentity extends javax.swing.JDialog {
     /** Creates new form FindIdentity */
     public FindIdentity(java.awt.Frame parent, boolean modal, ManagerReference ref) {
         super(parent, modal);
-            setManagerRef(ref);
+        setManagerRef(ref);
         initComponents();
         FindIdentity.IdentitySelectionListener listener = new FindIdentity.IdentitySelectionListener();
         jList1.addListSelectionListener(listener);
@@ -120,18 +120,18 @@ public class FindIdentity extends javax.swing.JDialog {
 
         pack();
     }//GEN-END:initComponents
-
+    
     private void jList1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jList1KeyPressed
         // Add your handling code here:
         if( evt.getKeyCode() == evt.VK_ENTER)
             setVisible(false);
     }//GEN-LAST:event_jList1KeyPressed
-
+    
     private void jList1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jList1KeyTyped
         // Add your handling code here:
         
     }//GEN-LAST:event_jList1KeyTyped
-
+    
     private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
         // Add your handling code here:
         setVisible(false);
@@ -152,18 +152,62 @@ public class FindIdentity extends javax.swing.JDialog {
         
     }//GEN-LAST:event_formWindowStateChanged
     
+    
+    /**
+     *implementation of threaded find: use another session to find, and a separate thread that adds to a mutable listmodel, then call repaint
+     *for the jList on the gui thread through SwingUtilities.invokeLater . When selecting a item, this item's id must be used to 
+     * re-find the object because the main thread's session has a different connection and transaction boundary to the gui finder thread's session
+     */
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
         // Add your handling code here:
         String s = (String) jComboBox1.getSelectedItem();
-        String names[] = s.split(",");
-      
+        final String names[] = s.split(",");
+        
         try {
-               
-            List ids = getManagerRef().getIdentityManager().findIdentityByNames(names[0].trim(), names.length > 1 ? names[1].trim() : "");
             
-            // hack to reconnect session for lazy initialized collections
-            getManagerRef().getIdentityManager().getSession();
-            jList1.setListData(ids.toArray());
+            //            List ids = getManagerRef().getIdentityManager().findIdentityByNames(names[0].trim(), names.length > 1 ? names[1].trim() : "");
+            final DefaultListModel model = new DefaultListModel();
+            jList1.setModel(model);
+            
+            new Thread( new Runnable() {
+                public void run() {
+                    try {
+                        net.sf.hibernate.Session sess =  gnmed.test. HibernateInit.openSession();
+                        final Iterator i = getManagerRef().getIdentityManager().getIteratorIdentityByNames(sess, names[0].trim(), names.length > 1 ? names[1].trim() : "");
+                        
+                        while (i.hasNext())  {
+                            synchronized(model)  {
+                                model.addElement(i.next());
+                            }
+                            SwingUtilities.invokeAndWait(new Runnable() {
+                                public void run() {
+                                    
+                                    jList1.repaint();
+                                }
+                            } );
+                            try {
+                                Thread.sleep(10);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        
+                        
+                    }catch (Exception e2) {
+                        e2.printStackTrace();
+                    }
+                    try {
+                        getManagerRef().getIdentityManager().getSession().disconnect();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } ).start();
+            // hack to reconnect session for lazyanagerRef().getIdentityManager().initialized collections
+            
+            //            jList1.setListData(ids.toArray());
+               
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -192,7 +236,20 @@ public class FindIdentity extends javax.swing.JDialog {
      */
     public Object[] getSelectedValues() {
         return jList1.getSelectedValues();
-    }    
+    }
+    
+    public java.io.Serializable[] getSelectedIdentityIds() {
+        Object oo[] = jList1.getSelectedValues();
+        List list =new ArrayList();
+        for (int i  = 0; i < oo.length; ++i) {
+            if (oo[i] instanceof identity) {
+                identity id = (identity) oo[i];
+                list.add(id.getId());
+            }
+        }
+        return (java.io.Serializable[] )list.toArray( new java.io.Serializable[0]);
+        
+    }
     
     /** Getter for property managerRef.
      * @return Value of property managerRef.
@@ -217,8 +274,8 @@ public class FindIdentity extends javax.swing.JDialog {
     private javax.swing.JList jList1;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
-
+    
     /** Holds value of property managerRef. */
-    private ManagerReference managerRef;    
+    private ManagerReference managerRef;
     
 }

@@ -171,6 +171,7 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
             if (!getDrug().getClass().equals(package_size.class) ) 
                 return;
             package_size pz = (package_size) getDrug();
+            Logger.global.info("***** getDrug() returned " + pz);
             Double qty = new Double(getQty().doubleValue());
             link_script_drug lsd = getManager().createOrUpdateScriptDrug(getIdentity(),  pz, qty, getDirections(), getRepeats(), script);
             setConstructed(lsd);

@@ -22,7 +22,7 @@ import java.util.logging.*;
  */
 public class MedicareBasicScriptPrintable implements BasicScriptPrintable, BasicScriptFormLayoutAdjustable {
     public static final int DEFAULT_MAX_CHARS_ACROSS = 60;
-    public static final int DEFAULT_SCRIPT_SPLIT_WIDTH = 400;
+    public static final int DEFAULT_SCRIPT_SPLIT_WIDTH = 235;
     public static final int DEFAULT_MAX_HEIGHT = 700;
     private Object prescriber;
     private Object patient;
@@ -34,7 +34,7 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
     /** Creates a new instance of MedicareBasicScriptPrintable */
     public MedicareBasicScriptPrintable() {
         setMaxCharsAcross(DEFAULT_MAX_CHARS_ACROSS);
-        medicarePageable.printable.setSplitWidth(DEFAULT_SCRIPT_SPLIT_WIDTH);
+//        medicarePageable.printable.setSplitWidth(DEFAULT_SCRIPT_SPLIT_WIDTH);
     }
     
     public MedicarePrintable getMedicarePrintable() {
@@ -72,7 +72,7 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
             return authorityDrugs.size();
         }
         
-         int getEnoughPages(int items, int perPage ) {
+        int getEnoughPages(int items, int perPage ) {
             return (  items % perPage != 0 ? 1 : 0 )  +  items/perPage ;
         }
         
@@ -81,6 +81,11 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
         }
         
         public java.awt.print.PageFormat getPageFormat(int pageIndex) throws IndexOutOfBoundsException {
+//            Paper p = new Paper();
+//            p.setImageableArea(0, 0, 72 * 4 , 72 * 5);
+//            p.setSize(72 * 4, 72 * 5);
+//           
+//            format.setPaper(p);
             return format;
         }
         
@@ -89,19 +94,17 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
         }
         
         public java.awt.print.Printable getPrintable(int pageIndex) throws IndexOutOfBoundsException {
-            printable.setProviderDetail(getProviderDetail());
-            
             if (pageIndex > getNumberOfPages())
                 throw new IndexOutOfBoundsException();
             if (pageIndex < 0)
                 throw new IndexOutOfBoundsException();
             
-            if (pageIndex < getPublicPageCount() ) {
+            if (pageIndex <  getPublicPageCount() ) {
                 return getPrintableFor( publicDrugs, drugsPerPage, pageIndex, true);
                 
             }
             
-            if (pageIndex < getPrivatePageCount() ) {
+            if (pageIndex < getPublicPageCount() + getPrivatePageCount() ) {
                 return getPrintableFor(privateDrugs, 1, pageIndex - getPublicPageCount(), false);
             }
             
@@ -109,9 +112,29 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
             return null;
         }
         
+        MedicarePrintable clonePrintable() {
+            MedicarePrintable printable = this.printable;
+            try {
+                printable =(MedicarePrintable ) this.printable.getClass().newInstance();
+                printable.setSplitWidth(this.printable.getSplitWidth());
+                printable.setOriginMedicareNumber(getOriginHealthNumber());
+                printable.setOriginPatientDetail(getOriginPatientDetail());
+                printable.setOriginProviderDetail(getOriginProviderDetails());
+                printable.setOriginScriptDetail(getOriginDrugDetails());
+                printable.setOriginDate(getOriginDate());
+                printable.setOriginSubsidized(getOriginSubsidized());
+                printable.setFontSize(getFontSize());
+                printable.setLeftMargin(getLeftMargin());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return printable;
+        }
+        
         Printable getPrintableFor( List list, int drugsPerPage, int page, boolean subsidized) {
             int offset = page * drugsPerPage;
-            
+             MedicarePrintable printable  = clonePrintable();
+           
             printable.setDate( new Date());
             
             social_identity medicareNo = ((identity)getPatient()).findSocialIdentityByEnum(IdentityManager.medicare);
@@ -125,10 +148,12 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
         }
         
         public String[] getScriptDetail(List list, int offset, int count) {
+            
             link_script_drug[] lsds = (link_script_drug[])list.toArray(new link_script_drug[0]);
             List lines = new ArrayList();
             int c = 0;
             for (int i = offset; i < offset+count && i < lsds.length ; ++i) {
+                Logger.global.info("*** PRINTING DRUG WITH INDEX = " + i);
                 addParagraphedLines( lines, lsds[i].getScript_drug().toString());
                 lines.add(lsds[i].getRepeats() + " " + Globals.bundle.getString("repeats"));
                 lines.add("");
@@ -154,7 +179,7 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
         public String[] getPatientDetail() {
             List lines = new ArrayList();
             
-            if (getPatient() == null || !getPatient().getClass().equals(identity.class))
+            if (getPatient() == null || !( getPatient() instanceof identity))
                 return new String[0];
             identity p = (identity)getPatient();
             lines.add( p.findNames(0).toString());
@@ -213,16 +238,16 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
     public static class MedicarePrintable implements Printable  {
         
         /** Holds value of property fontSize. */
-        private int fontSize = 12;
+        private int fontSize = 8;
         
         /** Holds value of property originProviderDetail. */
-        private Point originProviderDetail = new Point(10, 20);
+        private Point originProviderDetail = new Point(10, 100);
         
         /** Holds value of property originMedicareNumber. */
-        private Point originMedicareNumber = new Point( 40, 80);
+        private Point originMedicareNumber = new Point( 50, 160);
         
         /** Holds value of property originPatientDetail. */
-        private Point originPatientDetail = new Point( 60, 110);
+        private Point originPatientDetail = new Point( 60, 190);
         
         /** Holds value of property providerDetail. */
         private String[] providerDetail;
@@ -240,33 +265,39 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
         private String medicareNumber;
         
         /** Holds value of property originDate. */
-        private Point originDate = new Point( 10, 110);
+        private Point originDate = new Point( 10, 190);
         
         /** Holds value of property originSubsidized. */
-        private Point originSubsidized = new Point(10, 140);
+        private Point originSubsidized = new Point(10, 220);
         
         /** Holds value of property originScriptDetail. */
-        private Point originScriptDetail = new Point( 10, 200);
+        private Point originScriptDetail = new Point( 10, 280);
         
         /** Holds value of property date. */
         private Date date;
         
         /** Holds value of property splitWidth. */
-        private int splitWidth;
+        private int splitWidth = DEFAULT_SCRIPT_SPLIT_WIDTH;
+        
+        /** Holds value of property leftMargin. */
+        private int leftMargin = 70;
         
         /** currently ignores format and pageIndex
          */
         public int print(java.awt.Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
             Rectangle r = graphics.getClipBounds();
             if (r == null)
-                graphics.setClip(0,0, getSplitWidth() * 2, DEFAULT_MAX_HEIGHT);
+                graphics.setClip(getLeftMargin(),0, getLeftMargin() + getSplitWidth() * 2, DEFAULT_MAX_HEIGHT);
             r = graphics.getClipBounds();
             Logger.global.info("rectangle = " + r);
             
-            Graphics g1 = graphics.create(0,0, getSplitWidth(), (int)graphics.getClipBounds().getHeight());
+            Graphics g1 = graphics.create(getLeftMargin(),0,getLeftMargin()+ getSplitWidth(), (int)graphics.getClipBounds().getHeight());
             printImpl(g1, pageFormat, pageIndex);
-            Graphics g2 = graphics.create( getSplitWidth(), 0, (int)graphics.getClipBounds().width, graphics.getClipBounds().height);
-            return printImpl(g2, pageFormat , pageIndex);
+            Graphics g2 = graphics.create(getLeftMargin() + getSplitWidth(), 0, (int)graphics.getClipBounds().width, graphics.getClipBounds().height);
+            int result = printImpl(g2, pageFormat , pageIndex);
+            g1.dispose();
+            g2.dispose();
+            return result;
             
         }
         
@@ -521,6 +552,21 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
             this.splitWidth = splitWidth;
         }
         
+        /** Getter for property leftMargin.
+         * @return Value of property leftMargin.
+         *
+         */
+        public int getLeftMargin() {
+            return this.leftMargin;
+        }        
+        
+        /** Setter for property leftMargin.
+         * @param leftMargin New value of property leftMargin.
+         *
+         */
+        public void setLeftMargin(int leftMargin) {
+            this.leftMargin = leftMargin;
+        }
         
     }
     
@@ -575,7 +621,9 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
                     Logger.global.info("lsd.script_drug=" + lsd.getScript_drug());
                     Logger.global.info("lsd.script_drug.package_size=" + lsd.getScript_drug().getPackage_size() );
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    for (int j = 0;j < e.getStackTrace().length; ++j)
+                        System.err.println(e.getStackTrace()[j]);
+                    
                 }
                 try {
                     if (lsd.getScript_drug().getPackage_size().getProduct().getSubsidized_productss().isEmpty() ) {
@@ -700,6 +748,14 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable, Basic
     
     public void setOriginSubsidized(Point originSubsidized) {
         medicarePageable.getMedicarePrintable().setOriginSubsidized(originSubsidized);
+    }
+    
+    public int getLeftMargin() {
+        return medicarePageable.getMedicarePrintable().getLeftMargin();
+    }
+    
+    public void setLeftMargin(int leftMargin) {
+        medicarePageable.getMedicarePrintable().setLeftMargin(leftMargin);
     }
     
 }

@@ -224,9 +224,13 @@ public class Testgnmed1 extends javax.swing.JFrame {
         idFinder.setLocation(desktopPane.getWidth()/3, desktopPane.getHeight()/3);
         idFinder.show();
         
-        Object[] selected = idFinder.getSelectedValues();
+//        Object[] selected = idFinder.getSelectedValues();]
+        
+// re-implemented to re-find the identity within the main session's context.        
+        java.io.Serializable[] selected = idFinder.getSelectedIdentityIds();
         for (int i = 0; i < selected.length; ++i) {
-            PatientInnerFrame frame =createPatientInnerFrame( (identity) selected[i], idFinder.getManagerRef(), true);
+            identity id = idFinder.getManagerRef().getIdentityManager().getIdentityById((Long) selected[i]);
+            PatientInnerFrame frame =createPatientInnerFrame( id, idFinder.getManagerRef(), true);
             
             desktopPane.add(frame);
             frame.setVisible(true);

@@ -11,6 +11,7 @@ import java.util.*;
 /**
  *
  * @author  sjtan
+ * one inner frame per patient.
  */
 public class PatientInnerFrame extends javax.swing.JInternalFrame {
     final static String TERMS = "SummaryTerms";
@@ -21,6 +22,9 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
         addViews();
     }
     
+    /**
+     *adds the summaryPanel view to the InnerFrame
+     */
     void addViews() {
         summaryPanel1 = new SummaryPanel();
         jScrollPane1.setViewportView(summaryPanel1);
@@ -68,12 +72,18 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
 
         pack();
     }//GEN-END:initComponents
-    
+    /**
+     *allows the referral letter writer to be associated with a focussed patient
+     */
     private void formFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_formFocusGained
         // Add your handling code here:
         getPatientRelator().setClient(getIdentity());
     }//GEN-LAST:event_formFocusGained
     
+    /**
+     * saves the changes prior to closing; needs a mechanism for saving using this session context, but
+     * in another thread so the Swing event queue isn't blocked.
+     */
     private void formInternalFrameClosing(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameClosing
         // Add your handling code here:
         saveIdentity();
@@ -82,14 +92,19 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
     private void onCloseFinalizeIdentity(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_onCloseFinalizeIdentity
         
     }//GEN-LAST:event_onCloseFinalizeIdentity
+   
+    /** saves the identity, make sure all changes in the domain objects, print out the record , then save it.
+     */
     public void saveIdentity() {
+        // make sure all changes in the domain objects.
         summaryPanel1.transferFormToModel();
         try {
-            ( (ManagerReference)summaryPanel1.getIdentity().getPersister()).setConnected(true);
+            ( (ManagerReference)summaryPanel1.getIdentity().getPersister()).getScriptDrugManager().getSession();
             
         } catch (Exception e) {
             System.out.println(e);
         }
+        // debugging output of the identity
         gnmed.test.DomainPrinter.getInstance().printIdentity( System.out, summaryPanel1.getIdentity());
         try {
             ((ManagerReference)summaryPanel1.getIdentity().getPersister()).getIdentityManager().save(summaryPanel1.getIdentity());
@@ -101,6 +116,7 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
                 e2.printStackTrace();
             }
         }
+        
     }
     /** Getter for property identity.
      * @return Value of property identity.
