@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1191,7 +1191,7 @@ def ask_for_confirmation():
 	services = _cfg.get("installation", "services")
 	if services is None:
 		return 1
-	print "You are about to install the following GnuMed services:"
+	print "You are about to install the following parts of GnuMed:"
 	print "-------------------------------------------------------"
 	for service in services:
 		service_name = _cfg.get("service %s" % service, "name")
@@ -1199,7 +1199,7 @@ def ask_for_confirmation():
 		db_name = _cfg.get("database %s" % db_alias, "name")
 		srv_alias = _cfg.get("database %s" % db_alias, "server alias")
 		srv_name = _cfg.get("server %s" % srv_alias, "name")
-		print "service [%s] => database [%s] => server [%s]" % (service_name, db_name, srv_name)
+		print "part [%s] (service [%s] - database [%s] - server [%s])" % (service, service_name, db_name, srv_name)
 	print "-------------------------------------------------------"
 	desc = _cfg.get("installation", "description")
 	if desc is not None:
@@ -1451,7 +1451,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.3  2005-01-24 17:22:15  ncq
+# Revision 1.4  2005-03-31 20:07:58  ncq
+# - slightly improved wording
+#
+# Revision 1.3  2005/01/24 17:22:15  ncq
 # - Ian downgraded the severity on libpq warnings on create database
 #
 # Revision 1.2  2005/01/12 14:47:48  ncq
