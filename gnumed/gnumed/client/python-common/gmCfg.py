@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -451,10 +451,13 @@ class cCfgFile:
 				continue
 
 			#  normalize
-			line = string.replace(line, ':', '=', 1)
-			if line.find("=") == -1:
+			colon_pos = line.find(":")
+			equal_pos = line.find("=")
+			if colon_pos == -1 and equal_pos == -1:
 				_log.Log(gmLog.lErr, 'option [%s] does not contain a separator ("=" or ":")' % line)
 				continue
+			if colon_pos < equal_pos:
+				line = line.replace(':', '=', 1)
 
 			#  separate <opt_name> = <opt_val # opt_comment>
 			name, tmp = line.split('=', 1)
@@ -536,7 +539,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.11  2002-09-12 09:17:11  ncq
+# Revision 1.12  2002-09-12 10:07:29  ncq
+# - properly normalize : -> =
+#
+# Revision 1.11  2002/09/12 09:17:11  ncq
 # - windows unsucked
 #
 # Revision 1.10  2002/09/10 18:43:02  ncq
