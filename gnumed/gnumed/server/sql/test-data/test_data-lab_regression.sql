@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -78,7 +78,8 @@ insert into lab_request (
 	fk_test_org,
 	request_id,
 	fk_requestor,
-	is_pending
+	is_pending,
+	request_status
 ) values (
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_pk_seq'),
@@ -86,17 +87,21 @@ insert into lab_request (
 	(select pk from test_org where internal_name='your own practice'),
 	'anon: sample ID',
 	(select pk_identity from v_basic_person where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
-	true
+	true,
+	'pending'
 );
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-lab_regression.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.15  2005-03-14 14:47:37  ncq
+-- Revision 1.16  2005-03-31 20:09:32  ncq
+-- - lab_request not requires non-null status
+--
+-- Revision 1.15  2005/03/14 14:47:37  ncq
 -- - adjust to id_patient -> pk_patient
 -- - add family history on Kirk's brother
 --
