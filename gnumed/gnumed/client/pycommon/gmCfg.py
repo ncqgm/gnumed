@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -335,6 +335,12 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		"""Get names of all stored parameters for a given machine/(user)/cookie-key.
 		This will be used by the ConfigEditor object to create a parameter tree.
 		"""
+
+		global _gmPG
+		if _gmPG is None:
+			from Gnumed.pycommon import gmPG
+			_gmPG = gmPG
+
 		where_args = []
 		# if no machine given: any machine (= cfg_DEFAULT)
 		where_machine = "cfg_item.machine like %s"
@@ -1221,7 +1227,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.5  2004-06-22 07:58:47  ihaywood
+# Revision 1.6  2004-06-28 22:36:33  hinnef
+# added lazy loading of gmPG to gmCfgSQL:getAllParams
+#
+# Revision 1.5  2004/06/22 07:58:47  ihaywood
 # minor bugfixes
 # let gmCfg cope with config files that are not real files
 #
