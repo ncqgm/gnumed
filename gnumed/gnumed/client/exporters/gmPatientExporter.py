@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.45 2005-04-02 21:37:27 cfmoro Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmPatientExporter.py,v 1.46 2005-04-03 09:27:25 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -484,7 +484,7 @@ class cEmrExport:
         # build the tree
         # unlinked episodes
         if len(unlinked_episodes) > 0:
-            h_issues.insert(0, {'description':_('DEFAULT ISSUE'), 'id':None})
+            h_issues.insert(0, {'description': _('episodes w/o health issue'), 'id':None})
         # existing issues
         for a_health_issue in h_issues:
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
@@ -919,7 +919,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.45  2005-04-02 21:37:27  cfmoro
+# Revision 1.46  2005-04-03 09:27:25  ncq
+# - better wording
+#
+# Revision 1.45  2005/04/02 21:37:27  cfmoro
 # Unlinked episodes displayes in EMR tree and dump
 #
 # Revision 1.44  2005/04/02 20:45:12  cfmoro
