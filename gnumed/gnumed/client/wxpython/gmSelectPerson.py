@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 
 import string, gmDispatcher, gmSignals
 from wxPython.wx import *
@@ -103,7 +103,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 		#print id	
 		import gmPatient
 		patient = gmPatient.gmPerson(id)
-		newId = patient.create_default_relative()
+		newId = patient.link_new_relative()
 		#newPatient = gmPatient.gmPerson(newId)
 		#new_demographics = newPatient.get_demographic_record()
 		#old_demographics = patient.get_demographic_record()
