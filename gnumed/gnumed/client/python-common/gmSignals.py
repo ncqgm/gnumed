@@ -23,7 +23,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -74,9 +74,9 @@ def waitingroom_left():
 	"a aptient has left the waiting room, finished his consultation"
 	return 'waitingroom_left'
 
-def application_clean_closing():
-	"an application is intentionally closing"
-	return "application_clean_closing"
+def application_closing():
+	"""an application is intentionally closing"""
+	return "application_closing"
 
 def application_init():
 	"an application is starting"
@@ -108,7 +108,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.8  2003-06-22 16:19:09  ncq
+# Revision 1.9  2003-06-25 22:47:23  ncq
+# - added application_closing() (I seem to keep adding stuff Sian proposed earlier)
+#
+# Revision 1.8  2003/06/22 16:19:09  ncq
 # - add pre-selection signal
 #
 # Revision 1.7  2003/05/01 15:01:42  ncq
