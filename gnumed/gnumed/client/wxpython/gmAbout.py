@@ -6,7 +6,8 @@
 # Changelog:
 # 30/01/03: inital version
 #====================================================================
-__version__ = "$Revision: 1.4 $"
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
+__version__ = "$Revision: 1.5 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
@@ -25,8 +26,9 @@ class ScrollTxtWin (wxWindow):
 	# control parameters
 	__scroll_speed=.3 	# pixels/milliseconds (?)
 	__delay=500		# milliseconds
-	name_list=['Dr Gerardo Arnaez','Dr Hilmar Berger', 'Michael Bonert', 'Dr Elizabeth Dodd', \
-'Engelbert Gruber', 'Ian Haywood', 'Dr Richard Terry', 'Thierry Michel', 'Andreas Tille' ]
+	name_list=['Dr Gerardo Arnaez', 'Dr Hilmar Berger', 'Michael Bonert', 'Dr Elizabeth Dodd', \
+'Engelbert Gruber', 'Dr David Guest', 'Ian Haywood', 'Dr Tony Lembke', 'Thierry Michel', \
+'Dr Richard Terry', 'Sian J Tan', 'Andreas Tille' ]
 
 	# initializations
 	__scroll_ctr=+230
@@ -39,6 +41,7 @@ class ScrollTxtWin (wxWindow):
 		self.__delay_ctr_reset=self.__delay*self.__scroll_speed
 
 		self.moving_txt=wxStaticText(self, -1, "", size=(230,20), style=wxALIGN_CENTRE | wxST_NO_AUTORESIZE)
+		self.moving_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
 		self.moving_txt.SetLabel(self.name_list[0])
 
 		EVT_TIMER(self, -1, self.OnTimer)
@@ -86,20 +89,34 @@ class AboutFrame (wxFrame):
 
 		box = wxBoxSizer(wxVERTICAL)
 		box.Add(0,0, 2)
-		box.Add(wxStaticText(self, -1, _("Monty the Serpent && the FSF Present")), 0, wxALIGN_CENTRE)
+		intro_txt=wxStaticText(self, -1, _("Monty the Serpent && the FSF Present"))
+		intro_txt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		box.Add(intro_txt, 0, wxALIGN_CENTRE)
+
 		box.Add(0,0, 3)
-		txt=wxStaticText(self, -1, _("GnuMed"))
-		txt.SetFont(wxFont(30, wxSWISS, wxNORMAL, wxNORMAL))
-		box.Add(txt, 0, wxALIGN_CENTRE)
-		box.Add(wxStaticText(self, -1, _("Free eMedicine")), 0, wxALIGN_CENTRE)
+		gm_txt=wxStaticText(self, -1, _("GnuMed"))
+		gm_txt.SetFont(wxFont(30, wxSWISS, wxNORMAL, wxNORMAL))
+		box.Add(gm_txt, 0, wxALIGN_CENTRE)
+
+		motto_txt=wxStaticText(self, -1, _("Free eMedicine"))
+		motto_txt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		box.Add(motto_txt, 0, wxALIGN_CENTRE)
+
 		box.Add(0,0, 4)
-		box.Add(wxStaticText(self, -1, _("Version X.X.X brought to you by")), 0, wxALIGN_CENTRE)
-		box.Add(wxStaticText(self, -1, _("Drs Horst Herb && Karsten Hilbert")), 0, wxALIGN_CENTRE)
+		ver_txt=wxStaticText(self, -1, _("Version X.X.X brought to you by"))
+		ver_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
+		box.Add(ver_txt, 0, wxALIGN_CENTRE)
+
+		admins_txt=wxStaticText(self, -1, _("Drs Horst Herb && Karsten Hilbert"))
+		admins_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
+		box.Add(admins_txt, 0, wxALIGN_CENTRE)
 
 		self.win=ScrollTxtWin(self)
 		box.Add(self.win, 0, wxALIGN_CENTRE)
 		box.Add(0,0, 1)
-		box.Add(wxStaticText(self, -1, _("Please visit http://www.gnumed.org/ for more info")), 0, wxALIGN_CENTRE)
+		info_txt=wxStaticText(self, -1, _("Please visit http://www.gnumed.org/ for more info"))
+		info_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
+		box.Add(info_txt, 0, wxALIGN_CENTRE)
 		box.Add(0,0, 1)
 
 		btn = wxButton(self, ID_MENU , _("Close"))
