@@ -72,9 +72,7 @@ e.g. getNarrative(index) ...  id='narrative'
         <html:errors/>
         
     </div>
-    
-    <a name="encounterTop"/>
-    
+   
     <jsp:include page="./patient_detail_block.jsp"/>
     <%-- The Model used for this jsp are:
          healthRecord and clinicalUpdateForm as session level attribute objects.

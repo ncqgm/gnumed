@@ -9,11 +9,12 @@
 <html>
 <head><title>JSP Page</title></head>
 <body>
-
+   
 <%-- <jsp:useBean id="beanInstanceName" scope="session" class="beanPackage.BeanClassName" /> --%>
 <%-- <jsp:getProperty name="beanInstanceName"  property="propertyName" /> --%>
   <b>
-    <table border='1'>
+  <u>
+    <table>
         
         <tr>
 
@@ -37,6 +38,7 @@
         </td>
         </tr>
     </table>
+    </u>
     </b>
 </body>
 </html>

@@ -342,6 +342,7 @@
         <action path="/GetDemoEntry" forward="/DemographicEdit.do"/>
         
         <action path="/Testdb" forward="testdb"/>
+        
         <!-- this is forwarding to the
         definition in struts-defs.xml called appmain -->
        
@@ -417,6 +418,8 @@
              <forward name="clinicalEditAgain" path="clinicalentry"/>
                
          </action>
+         
+        
             
     <!-- sample input and input submit actions 
 

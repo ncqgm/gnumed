@@ -46,11 +46,12 @@ public final class Constants {
       
         public static final String HEALTH_RECORD = "healthRecord";
         
+        public static final String DEMOGRAPHIC_DETAIL_CURRENT = "detail";
+        
     }
     
      public static final  class Request {
         public final static String PATIENT_ID="id";
-        public final static String DEMOGRAPHIC_DETAIL_DISPLAY = "detail";
         public final static String CLINICAL_UPDATE_FORM="clinicalUpdateForm";
     //    public final static String HEALTH_RECORD_DISPLAY="healthRecord";
         

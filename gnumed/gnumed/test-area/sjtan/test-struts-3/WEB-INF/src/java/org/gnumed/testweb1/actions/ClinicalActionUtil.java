@@ -107,14 +107,14 @@ public class ClinicalActionUtil extends ActionUtil {
      * @param id
      * @throws DataSourceException
      */
-    void setDemographicDetailOnSession(HttpServlet servlet,HttpServletRequest request, Long id) throws DataSourceException {
+    void setDemographicDetailOnSession (HttpServlet servlet,HttpServletRequest request, Long id) throws DataSourceException {
         DemographicDataAccess demoDataAccess = (DemographicDataAccess)
         servlet.getServletContext().getAttribute(
         Constants.Servlet.DEMOGRAPHIC_ACCESS);
         
         DemographicDetail detail = demoDataAccess.findDemographicDetailById(id);
-        request.setAttribute(Constants.Request.DEMOGRAPHIC_DETAIL_DISPLAY, detail);
-    }
+        request.getSession().setAttribute(Constants.Session.DEMOGRAPHIC_DETAIL_CURRENT, detail);
+          }
     
     /**
      * @param request

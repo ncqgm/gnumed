@@ -81,8 +81,8 @@ public class ClinicalEditAction extends Action {
         ActionErrors errors = new ActionErrors();
         
         try {
-               clinicalActionUtil.setRequestAttributes( servlet,  request,   form,  mapping ) ;
-         } catch (Exception e) {
+            clinicalActionUtil.setRequestAttributes( servlet,  request,   form,  mapping ) ;
+        } catch (Exception e) {
             e.printStackTrace();
             clinicalActionUtil.setScopedMappingAttribute(request, mapping, form);
             log.info(e);
@@ -95,7 +95,7 @@ public class ClinicalEditAction extends Action {
         return mapping.findForward("successLoadClinical");
     }
     
-   
+    
     
     private void logHealthIssues(   HealthRecord01 healthRecord) {
         List l = healthRecord.getHealthSummary().getHealthIssues();

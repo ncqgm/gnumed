@@ -74,7 +74,7 @@
                                     <bean:write name="narrative" property="episode.description" />
                                     </b>
                                 <bean:define id="lastEpisodeName" name="narrative" property="episode.description" type="java.lang.String" />
-                                   
+                                   <logic:notPresent parameter="print">
                                         <i><sub> 
                                             <html-el:link
                                             anchor="linkItemDetail${itemId}"
@@ -84,6 +84,7 @@
                                             paramProperty="patientId"
                                             > to summary</html-el:link>
                                         </sub> </i> 
+                                   </logic:notPresent>
                                      </td>
                                 
                                 </logic:notEqual>

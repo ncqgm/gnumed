@@ -14,29 +14,7 @@
 </head> 
 <body>
 
-    <table width='100%'> 
-        <tr>
-            <td colspan='2'><h3><bean:message key="app.title"/></h3> </td>
-        </tr>
-        <tr>
-            <td class='menu' colspan='2'>
-                <html:link forward="loginLink">  <bean:message key="app.login"/>
-                </html:link> |
-                <html:link forward="aboutLink">  <bean:message key="app.about"/>
-                </html:link> |
-                              
-                <html:link forward="adsLink"><bean:message key="app.ads"/></html:link> |
-                <!-- 
-                if use page instead of forward , will be from root of webapps path, and
-                requires the current name of the webapp
-                -->
-    
-                <html:link forward="dbtestLink"> <bean:message key="app.test.db"/></html:link> |
-                <html:link action="/TestListNamesDisplay"> <bean:message key="app.list.context"/></html:link>
-   
-            </td>
-        </tr>
-    </table>
+     <jsp:include page="./topMenu.jsp"/>
      <hr/>
     <jsp:include page="./intraLinksClinicalEdit.jsp"/> 
     <table width='100%'>
@@ -61,18 +39,29 @@
                     e.style.display="none";
                     p.style.display="block";
                     '/>        
+           |
+                <bean:define id="printToken" value="1"/>
+                <html:link
+                    page="/pages/printableHistory.jsp"   
+                    paramId="print"
+                    paramName="printToken"
+                    >
+               <bean:message key="show.printable.summary.notes"/>
+                </html:link>
             </td>
            </tr> 
         
             <tr>
             <td  valign='top' > 
+             <a name="encounterTop"/>
             <div id="clinicalEntry">
                 <tiles:insert name="leftTop"/>
-            </td>
+                 </div>  
+                 
             </tr>
             <tr>
              <td>   
-            </div>    
+             
             <div id="pastNotes" style='display:block'>
                  <tiles:insert name="leftBottom"/>
             </div>

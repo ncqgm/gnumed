@@ -8,7 +8,9 @@
 <%@taglib uri="http://jakarta.apache.org/struts/tags-html-el" prefix='html-el'%>
 
 <html:link anchor='encounterTop' action='ClinicalEdit.do' paramId="id" paramName="clinicalUpdateForm"
-        paramProperty="patientId" > to encounter entry </html:link> |
+        paramProperty="patientId" 
+        onclick="document.getElementById('clinicalEntry').style.display='block';"
+> to encounter entry </html:link> |
 
  <html:link anchor='pastNotes' action='ClinicalEdit.do' paramId="id" paramName="clinicalUpdateForm"
     paramProperty="patientId" >

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- path="/test-struts-2" docBase="/home/sjtan/projects/test-struts-2" -->
-
-<!-- ***** change the docBase to where the directory is locally . Optionally change the tomcat path name *** -->
 <Context crossContext="true" debug="5" docBase="/home/sjtan/projects/test-struts-2" path="/test-struts-2" reloadable="true" scope="session">
   <Logger className="org.apache.catalina.logger.FileLogger" prefix="localhost_DBTest_log." suffix=".txt" timestamp="true"/>
   <Resource auth="Container" name="jdbc/gnumed" type="javax.sql.DataSource"/>
