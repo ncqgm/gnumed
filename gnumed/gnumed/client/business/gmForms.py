@@ -9,8 +9,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.5 2004-03-07 13:19:18 ihaywood Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmForms.py,v 1.6 2004-03-08 13:06:15 ihaywood Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -122,7 +122,7 @@ class LaTeXForm (TextForm):
             item = item.replace ("$", "\\$")
             item = item.replace ('"', "")
             item = item.replace ("\n", "\\\\ ")
-            if len (item).strip () == 0:
+            if len (item.strip ()) == 0:
                 item = "\relax " # sometimes TeX really hates empty strings, this seems to mollify it
             
             item = item.replace ("ß ", "\\\ss\\ ")
@@ -143,22 +143,24 @@ class LaTeXForm (TextForm):
                 item = item.encode ('ascii') # TeX only works on plain ASCII!
         if type (item) is types.ListType: 
             item = [self.texify (i) for i in item]
-        if type (item) is types.IntegerType:
-            
+        if type (item) is types.IntType:
+            item = str(item)
         if type (item) is types.DictType:
             for i in item.keys ():
-                item[i] = self.texify (i)
+                item[i] = self.__texify (item[i])
         return item
 
     def process (self, params):
         params = self.__texify (params)
+        print params
         latex = TextForm.process (self, params)
         # create a 'sandbox' directory for LaTeX to play in
         self.tmp = tempfile.mktemp ()
-        os.makedirs (tmp)
+        os.makedirs (self.tmp)
         self.oldcwd = os.getcwd ()
         os.chdir (self.tmp)
-        stdin = popen ("latex", "w", 2048)
+        stdin = os.popen ("latex", "w", 2048)
+        print latex.getvalue ()
         stdin.write (latex.getvalue ()) # send text. LaTeX spits it's output into stdout.
         # FIXME: send LaTeX  output to the logger
         stdin.close ()
@@ -206,7 +208,15 @@ def get_form (id):
 
 
 def test ():
-    
-    
+    f = file ('../../test-area/ian/terry-form.tex')
+    params = {'RECIPIENT':"Dr. R. Terry\n1 Main St\nNewcastle", 'DOCTORSNAME':'Ian Haywood', 'DOCTORSADDRESS':'1 Smith St\nMelbourne',
+              'PATIENTNAME':'Joe Bloggs', 'PATIENTADDRESS':'18 Fred St\nMelbourne', 'REQUEST':'ultrasound', 'THERAPY':'on warfarin',
+              'CLINICALNOTES':'heard new murmur', 'COPYADDRESS':'Karsten Hilbert\nLeipzig, Germany',
+              'ROUTINE':1, 'URGENT':0, 'FAX':1, 'PHONE':1, 'PENSIONER':1, 'VETERAN':0, 'PADS':0,
+              'INSTRUCTIONS':'Take the blue pill, Neo'}
+    form = LaTeXForm (f.read ())
+    form.process (params)
+    form.xdvi ()
+    form.cleanup ()
 
 test ()

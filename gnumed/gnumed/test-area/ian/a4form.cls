@@ -17,7 +17,7 @@
 % use 12pt as default
 \renewcommand{\normalsize}{\fontsize{12pt}{12pt}\selectfont}
 % provide smaller size
-\renewcommand{\small}{\fontsize{8pt}{8pt}\selectfont}
+\newcommand{\small}{\fontsize{8pt}{8pt}\selectfont}
 % zero ``hard margins'' which default to 1 inch
 \setlength{\hoffset}{-1in}
 \setlength{\voffset}{-1in}
