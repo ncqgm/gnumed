@@ -10,7 +10,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -108,6 +108,10 @@ class BackendListener:
 notifies = 0
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+
+_log.Log(gmLog.lData, __version__)
+
+if __name__ == "__main__":
 	import time
 	#-------------------------------
 	def dummy(n):
@@ -174,7 +178,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.4  2002-09-08 21:22:36  ncq
+# Revision 1.5  2002-09-26 13:21:37  ncq
+# - log version
+#
+# Revision 1.4  2002/09/08 21:22:36  ncq
 # - removed one debugging level print()
 #
 # Revision 1.3  2002/09/08 20:58:46  ncq

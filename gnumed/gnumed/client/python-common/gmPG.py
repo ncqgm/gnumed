@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -565,8 +565,11 @@ def inputLoginParams():
 # Main
 #==================================================================
 if __name__ == "__main__":
-
 	_log.SetAllLogLevels(gmLog.lData)
+
+_log.Log(gmLog.lData, __version__)
+
+if __name__ == "__main__":
 	_log.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 	_ = lambda x:x
 
@@ -624,7 +627,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.18  2002-09-19 18:07:48  hinnef
+# Revision 1.19  2002-09-26 13:14:59  ncq
+# - log version
+#
+# Revision 1.18  2002/09/19 18:07:48  hinnef
 # fixed two bugs that prevented distributed services from working (HB)
 #
 # Revision 1.17  2002/09/15 13:20:17  hherb

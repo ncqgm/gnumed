@@ -17,7 +17,7 @@
 ############################################################################
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmDbObject.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 import sys
@@ -204,6 +204,10 @@ class DBObject:
 #============================================================
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+
+_log.Log(gmLog.lData, __version__)
+
+if __name__ == "__main__":
 	import gmPG
 	db = gmPG.ConnectionPool()
 	dbo = DBObject(db, select_query = "select * from pg_tables where tablename not like 'pg_%'")
@@ -215,7 +219,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDbObject.py,v $
-# Revision 1.4  2002-09-16 23:26:30  ncq
+# Revision 1.5  2002-09-26 13:18:24  ncq
+# - log version
+#
+# Revision 1.4  2002/09/16 23:26:30  ncq
 # - move setallloglevels to a saner place
 #
 # Revision 1.3  2002/09/16 10:44:08  ncq

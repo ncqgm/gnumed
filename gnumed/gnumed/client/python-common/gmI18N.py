@@ -57,7 +57,7 @@ entirely.
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -183,8 +183,8 @@ def install_domain():
 #---------------------------------------------------------------------------
 if __name__ == "__main__":
 	log.SetAllLogLevels(gmLog.lData)
-else:
-	pass
+
+log.Log(gmLog.lData, __version__)
 
 install_domain()
 
@@ -201,7 +201,10 @@ log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.17  2002-09-23 02:23:16  ncq
+# Revision 1.18  2002-09-26 13:16:52  ncq
+# - log version
+#
+# Revision 1.17  2002/09/23 02:23:16  ncq
 # - comment on why it fails on some version of Windows
 #
 # Revision 1.16  2002/09/22 18:38:58  ncq

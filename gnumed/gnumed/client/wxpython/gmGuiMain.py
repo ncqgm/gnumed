@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-09-12 23:21:38 $
-# @version $Revision: 1.45 $ $Date: 2002-09-12 23:21:38 $ $Author: ncq $
+# @Date: $Date: 2002-09-26 13:24:15 $
+# @version $Revision: 1.46 $ $Date: 2002-09-26 13:24:15 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -391,9 +391,14 @@ if __name__ == '__main__':
 	myLog.Log(gmLog.lInfo, 'Starting up as main module.')
 	main()
 
+myLog.Log(gmLog.lData, __version__)
+
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.45  2002-09-12 23:21:38  ncq
+# Revision 1.46  2002-09-26 13:24:15  ncq
+# - log version
+#
+# Revision 1.45  2002/09/12 23:21:38  ncq
 # - fix progress bar
 #
 # Revision 1.44  2002/09/10 12:25:33  ncq

@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -500,6 +500,10 @@ class cCfgFile:
 #================================
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
+
+_log.Log(gmLog.lData, __version__)
+
+if __name__ == "__main__":
 	try:
 		myCfg = cCfgFile(aFile = sys.argv[1])
 	except:
@@ -539,7 +543,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.13  2002-09-12 23:11:14  ncq
+# Revision 1.14  2002-09-26 13:21:37  ncq
+# - log version
+#
+# Revision 1.13  2002/09/12 23:11:14  ncq
 # - fixed one nasty overwriting bug in store()
 #
 # Revision 1.12  2002/09/12 10:07:29  ncq

@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -133,7 +133,7 @@ class cLogger:
 		"""Open an instance of cLogger and initialize a target.
 
 		in case there's no target given open a dummy target
-		"""
+	"""
 		if aTarget == None:
 			aTarget = cLogTargetDummy()
 		self.AddTarget (aTarget)
@@ -268,11 +268,10 @@ class cLogTarget:
 		if aLogLevel == lInfo or aLogLevel == lData:
 			self.writeDelimiter()
 		self.writeMsg (lInfo, "SECURITY: initial log level is " + self.__LogLevelPrefix[self.__activeLogLevel])
-		self.__has_ever_logged = 0 # true if ever logged anuthing interesting
+		self.__has_ever_logged = 0 # true if ever logged anything interesting
 	#---------------------------
 	def close(self):
-		self.writeMsg (lInfo, "SECURITY: closing log target (ID = " + str(self.ID) + ")")
-		#self.flush()
+		self.writeMsg (lInfo, "SECURITY: closing log target (ID = %s)" % self.ID)
 	#---------------------------
 	def getID (self):
 		return self.ID
@@ -359,7 +358,10 @@ class cLogTargetFile(cLogTarget):
 
 		self.writeMsg (lData, "instantiated log file " + aFileName + " with ID " + str(self.ID))
 	#---------------------------
-	def close(self):
+	def dummy(self):
+		for module in sys.modules.values():
+			if hasattr(module, "__version__"):
+				cLogTarget.writeMsg(gmLog.lData, "[%s]: %s" % (module, module.__version__))
 		cLogTarget.close(self)
 		self.__handle.close()
 	#---------------------------
@@ -396,8 +398,9 @@ class cLogTargetSyslog(cLogTarget):
 			raise NotImplementedError, "No SYSLOG module available on this platform (" + str(os.name) + ") !"
 	#---------------------------
 	def close(self):
-		cLogTarget.close(self)
-		syslog.closelog()
+		print "cLogTargetSyslog.close()"
+#		cLogTarget.close(self)
+#		syslog.closelog()
 	#---------------------------
 	def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
 		syslog.syslog ((syslog.LOG_USER | syslog.LOG_INFO), aPrefix + aLocation + aMsg)
@@ -455,9 +458,9 @@ class cLogTargetEMail(cLogTarget):
 		self.ID = "email: " + self.__to
 		self.writeMsg (lInfo, "instantiated e-mail logging with ID " + str(self.ID))
 	#---------------------------
-#	def close(self):
+	def close(self):
+		print "cLogTargetEMail.close()"
 #		cLogTarget.close(self)
-#		self.__smtpd.quit()
 	#---------------------------
 	def setFrom (self, aFrom):
 		self.__from = str(aFrom)
@@ -525,7 +528,12 @@ class cLogTargetEMail(cLogTarget):
 			msg = msg + '----------------------------------------------\n'
 			msg = msg + 'sys.path    : %s\n' % sys.path
 			msg = msg + '----------------------------------------------\n'
-			msg = msg + 'sys.modules : %s\n' % sys.modules
+			for key in sys.modules.keys():
+				module = sys.modules[key]
+				msg = msg + '"%s": %s' % (key, module)
+				if hasattr(module, "__version__"):
+					msg = msg + ' (%s)' % module.__version__
+				msg = msg + '\n'
 			msg = msg + '----------------------------------------------\n'
 
 		# - dump actual message buffer
@@ -753,7 +761,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.21  2002-09-14 09:10:52  ncq
+# Revision 1.22  2002-09-26 13:21:37  ncq
+# - log version
+#
+# Revision 1.21  2002/09/14 09:10:52  ncq
 # - gracefully handle the condition when we cannot open a default log file
 #
 # Revision 1.20  2002/09/12 23:20:10  ncq
