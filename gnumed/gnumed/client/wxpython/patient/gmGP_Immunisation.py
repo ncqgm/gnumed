@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.28 2004-05-13 00:07:35 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmGP_Immunisation.py,v 1.29 2004-05-13 19:27:10 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -197,27 +197,27 @@ class ImmunisationPanel(wxPanel):
 			overdue_template = _('overdue %.0dyrs %.0dwks: shot %s for %s in %s (%s)')
 			for shot in missing_shots['due']:
 				if shot['overdue']:
-					years, days_left = divmod(shot[4].days, 364.25)
+					years, days_left = divmod(shot['amount_overdue'].days, 364.25)
 					weeks = days_left / 7
 					# amount_overdue, seq_no, indication, regime, vacc_comment
 					label = overdue_template % (
 						years,
 						weeks,
-						shot[3],
-						shot[0],
-						shot[1],
-						shot[5]
+						shot['seq_no'],
+						shot['l10n_indication'],
+						shot['regime'],
+						shot['vacc_comment']
 					)
 					self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
 				else:
 					# time_left, seq_no, regime, latest_due, vacc_comment
 					label = due_template % (
-						shot[5].days / 7,
-						shot[3],
-						shot[0],
-						shot[1],
-						shot[4].Format('%m/%Y'),
-						shot[6]
+						shot['time_left'].days / 7,
+						shot['seq_no'],
+						shot['indication'],
+						shot['regime'],
+						shot['latest due'].Format('%m/%Y'),
+						shot['vacc_comment']
 					)
 					self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
 			# booster
@@ -225,9 +225,9 @@ class ImmunisationPanel(wxPanel):
 			for shot in missing_shots['boosters']:
 				# indication, regime, vacc_comment
 				label = lbl_template % (
-					shot[0],
-					shot[1],
-					shot[3]
+					shot['l10n_indication'],
+					shot['regime'],
+					shot['vacc_comment']
 				)
 				self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
 	#----------------------------------------------------
@@ -274,7 +274,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.28  2004-05-13 00:07:35  ncq
+# Revision 1.29  2004-05-13 19:27:10  ncq
+# - dealing with VOs now, not dicts anymore, when calling get_missing_vaccinations()
+#
+# Revision 1.28  2004/05/13 00:07:35  ncq
 # - work with new/improved get_missing_vaccinations()
 #
 # Revision 1.27  2004/04/24 12:59:17  ncq
