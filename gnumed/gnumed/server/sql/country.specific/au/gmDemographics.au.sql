@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmDemographics.au.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -30,11 +30,15 @@ comment on column org_AU.ACN is
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.5 $');
+delete from gm_schema_revision where filename='$RCSfile: gmDemographics.au.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.6 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.au.sql,v $
--- Revision 1.5  2003-12-29 15:49:46  uid66147
+-- Revision 1.6  2004-01-05 00:59:14  ncq
+-- - remove ourselves from schema revision table
+--
+-- Revision 1.5  2003/12/29 15:49:46  uid66147
 -- - reset client_encoding
 --
 -- Revision 1.4  2003/10/01 16:12:01  ncq
