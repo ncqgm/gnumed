@@ -13,8 +13,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.53 2004-11-22 19:32:36 hinnef Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmLoginDialog.py,v 1.54 2004-11-24 21:16:33 hinnef Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib, types
@@ -294,7 +294,12 @@ class LoginPanel(wx.wxPanel):
 		except:
 			# fall back to default values if any error ocurred
 			self.loginparams = cLoginParamChoices()
-			
+
+		# check if all profiles were deleted because of missing section or parameters
+		if self.loginparams.profilelist == []:
+			# fallback to default values. This will ignore login information specified in the config file.
+			self.loginparams = cLoginParamChoices()
+
 		return self.loginparams
 
 	#----------------------------
@@ -466,7 +471,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.53  2004-11-22 19:32:36  hinnef
+# Revision 1.54  2004-11-24 21:16:33  hinnef
+# - fixed issue with missing profiles when writing to empty gnumed.conf. This lead to a crash when trying to load the invalid gnumed.conf. Now we just ignore this and fall back to defaults.
+#
+# Revision 1.53  2004/11/22 19:32:36  hinnef
 # new login dialog with profiles
 #
 # Revision 1.52  2004/09/13 08:57:33  ncq
