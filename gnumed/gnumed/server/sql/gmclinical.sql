@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.54 $
+-- $Revision: 1.55 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -316,34 +316,12 @@ create table log_allergy (
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
 -- -------------------------------------------------------------------
-create table enum_coding_systems (
-	id serial primary key,
-	description text
-);
-
-comment on TABLE enum_coding_systems is
-	'The various types of coding systems available';
-
--- -------------------------------------------------------------------
-create table coding_systems (
-	id serial primary key,
-	id_enum_coding_systems int REFERENCES enum_coding_systems (id),
-	description text,
-	version char(6),
-	deprecated timestamp
-);
-
-comment on table coding_systems is
-	'The coding systems in this database.';
-
--- -------------------------------------------------------------------
 create table clin_diagnosis (
 	id serial primary key,
-	approximate_start text DEFAULT null,
-	code char(16),
-	id_coding_systems int REFERENCES coding_systems (id),
-	text text
-);
+	approximate_start text default null,
+	code text not null,
+	id_coding_systems integer not null
+) inherits (clin_root_item);
 
 comment on TABLE clin_diagnosis is
 	'Coded clinical diagnoses assigned to patient, in addition to history';
@@ -353,8 +331,6 @@ comment on column clin_diagnosis.code is
 	'the code';
 comment on column clin_diagnosis.id_coding_systems is
 	'the coding system used to code the diagnosis';
-comment on column clin_diagnosis.text is
-	'extra notes on the diagnosis';
 
 -- -------------------------------------------------------------------
 create table enum_confidentiality_level (
@@ -560,11 +536,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.54 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.55 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.54  2003-06-29 15:25:30  ncq
+-- Revision 1.55  2003-07-27 22:01:05  ncq
+-- - coding_systems moved to gmReference
+-- - start work on clin_diagnosis, drug* tables pending
+--
+-- Revision 1.54  2003/06/29 15:25:30  ncq
 -- - adapt to audit_fields split-off
 -- - make clin_root_item inherit audit_fields but NOT audit_mark, hehe
 --
