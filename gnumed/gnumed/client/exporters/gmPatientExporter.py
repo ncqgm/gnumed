@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.26 2004-08-23 09:08:53 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmPatientExporter.py,v 1.27 2004-09-01 21:59:01 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -44,23 +44,23 @@ def prompted_input(prompt, default=None):
 #--------------------------------------------------------
 class cEmrExport:
     
-    def __init__(self, patient = None):
-        """
-        Constructs a new instance of exporter
-        
-        patient - Patient whose EMR is to be exported
-        """        
-        self.__patient = patient
-        # default constraints to None for complete emr dump
-        self.__constraints = {
-            'since': None,
-            'until': None,
-            'encounters': None,
-            'episodes': None,
-            'issues': None
-        }        
-        self.__target = None
-        self.lab_new_encounter = True
+#    def __init__(self, patient = None):
+#       """
+#        Constructs a new instance of exporter
+#        
+#        patient - Patient whose EMR is to be exported
+#        """        
+#        self.__patient = patient
+#        # default constraints to None for complete emr dump
+#        self.__constraints = {
+#            'since': None,
+#            'until': None,
+#            'encounters': None,
+#            'episodes': None,
+#            'issues': None
+#        }        
+#        self.__target = None
+#        self.lab_new_encounter = True
     #--------------------------------------------------------                
     def __init__(self, constraints = None, fileout = None, patient = None):
         """
@@ -438,7 +438,53 @@ class cEmrExport:
                     emr_tree.SetPyData(parent_encounter, an_encounter)
                emr_tree.SetPyData(parent_episode, an_episode)
             emr_tree.SetPyData(parent_issue, h_issue) 
-                    
+            
+    #--------------------------------------------------------  
+    def dump_summary_info(self, issue, left_margin = 0):
+        """
+        Dumps patient EMR summary
+                                                              
+        """
+        txt = ''
+        for an_item in self.__filtered_items:
+            txt += self.get_item_summary(an_item, left_margin)
+        return txt                    
+        
+    #--------------------------------------------------------  
+    def dump_issue_info(self, issue, left_margin = 0):
+        """
+        Dumps health specific data
+                                                              
+        """
+        # fetch first and last encounters for the issue
+        emr = self.__patient.get_clinical_record()
+        first_encounter = emr.get_first_encounter(issue = issue['id'])
+        last_encounter = emr.get_last_encounter(issue = issue['id'])
+        # dump info
+        txt = ''
+        txt += left_margin *' ' + 'Started: ' + first_encounter['started'].Format('%Y-%m-%d %H:%M') + '\n'
+        txt += left_margin *' ' + 'Last treated: ' + last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M') + '\n' 
+        if issue['description'] is not None and len(issue['description']) > 0:
+            txt += left_margin *' ' + 'Description: ' + issue['description'] + '\n'
+        return txt                    
+        
+    #--------------------------------------------------------  
+    def dump_episode_info(self, episode, left_margin = 0):
+        """
+        Dumps episode specific data
+                                                              
+        """
+        # fetch first and last encounters for the issue
+        emr = self.__patient.get_clinical_record()
+        first_encounter = emr.get_first_encounter(episode = episode['pk_episode'])
+        last_encounter = emr.get_last_encounter(episode = episode['pk_episode'])
+        # dump info
+        txt = ''
+        txt += left_margin *' ' + 'Started: ' + first_encounter['started'].Format('%Y-%m-%d %H:%M') + '\n'
+        txt += left_margin *' ' + 'Last treated: ' + last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M') + '\n' 
+        if episode['description'] is not None and len(episode['description']) > 0:
+            txt += left_margin *' ' + 'Description: ' + episode['description'] + '\n'
+        return txt                                        
     #--------------------------------------------------------  
     def dump_encounter_info(self, episode, encounter, left_margin = 0):
         """
@@ -447,6 +493,12 @@ class cEmrExport:
         """
         emr = self.__patient.get_clinical_record()
         txt = ''
+        # general
+        txt += left_margin *' ' + 'Type: ' + encounter['l10n_type'] + '\n'        
+        txt += left_margin *' ' + 'Date: ' + encounter['started'].Format('%Y-%m-%d %H:%M') + \
+            ' - ' + encounter['last_affirmed'].Format('%Y-%m-%d %H:%M') + '\n'
+        if encounter['description'] is not None and len(encounter['description']) > 0:
+            txt += left_margin *' ' + 'Description: ' + encounter['description'] + '\n'        
         # rfe
         rfes = encounter.get_rfes()
         for rfe in rfes:
@@ -774,7 +826,11 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.26  2004-08-23 09:08:53  ncq
+# Revision 1.27  2004-09-01 21:59:01  ncq
+# - python classes can only have one single __init__
+# - add in Carlos' code for displaying episode/issue summaries
+#
+# Revision 1.26  2004/08/23 09:08:53  ncq
 # - improve output
 #
 # Revision 1.25  2004/08/11 09:45:28  ncq
