@@ -23,8 +23,8 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.5 2004-04-26 21:58:22 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmLDTimporter.py,v 1.6 2004-05-08 22:15:10 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -156,40 +156,76 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	# internal helpers
 	#-----------------------------------------------------------
-	def __import_result(self, request=None, result=None):
+	def __import_result(self, request=None, lab_result=None):
 		# sanity checks
-		if None in [request, result]:
+		if None in [request, lab_result]:
 			_log.Log(gmLog.lErr, 'need request and result args for import')
 			return False
-		# - verify/create test type
+		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
 		try:
-			ttype = gmPathLab.cTestType(lab=self.__lab_name, code=result['code'], name=result['name'])
-		except gmExceptions.ConstructorError, err:
-			_log.LogException(str(err), sys.exc_info(), verbose=0)
-			# try to create it
-			try:
-				unit = result['val_unit']
-			except KeyError:
-				unit = None
-			status, data = gmPathLab.create_test_type(lab=self.__lab_name, code=result['code'], name=result['name'], unit=unit)
-			if status in [None, False]:
-				return False
-			ttype = gmPathLab.cTestType(aPKey=data)
-			ttype['comment'] = 'auto-created by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.5 $] while importing [%s]' % self.ldt_filename
+			v_num = lab_result['val_num']
+		except KeyError:
+			v_num = None
+		try:
+			v_alpha = lab_result['val_alpha']
+		except KeyError:
+			v_alpha = None
+		try:
+			if request[whenfield] is None:
+				raise KeyError
+			if (v_num is None) and (v_alpha) is None:
+				raise KeyError
+			a = lab_result['code']
+			a = lab_result['name']
+			a = lab_result['val_unit']
+		except KeyError:
+			_log.Log(gmLog.lErr, 'request or result do not contain minimum data: %s %s' % (str(request), str(lab_result)))
+			return False
+		# - verify/create test type
+		status, ttype = gmPathLab.create_test_type(lab=self.__lab_name, code=lab_result['code'], name=lab_result['name'], unit=lab_result['val_unit'])
+		if status in [False, None]:
+			return False
+		if ttype['comment'] in [None, '']:
+			ttype['comment'] = 'auto-created by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.6 $] while importing [%s]' % self.ldt_filename
 			ttype.save_payload()
-
-		# - self.__ref_group
-
-
-#		data['reviewed_by_clinician'] = False
-
-
+		# - try to create test row
+		status, test = gmPathLab.create_test_result(
+			patient_id = request.get_patient()[0],
+			when_field = whenfield,
+			when = request[whenfield],
+			test_type = ttype['id'],
+			val_num = v_num,
+			val_alpha = v_alpa,
+			unit = lab_result['val_unit'],
+			encounter_id = request['id_encounter'],
+			episode_id = request['id_episode']
+		)
+		if status is False:
+			_log.Log(gmLog.lErr, 'cannot create result record')
+			_log.Log(gmLog.lData, str(lab_result))
+			return False
+		# make this configurable (whether skipping or duplicating)
+		if status is None:
+			_log.Log(gmLog.lWarn, 'skipping duplicate test result')
+			_log.Log(gmLog.lData, 'database: %s' % str(test))
+			_log.Log(gmLog.lData, 'ldt file: %s' % str(lab_result))
+			return True
+		# update result record from dict
+		for field in lab_result.keys():
+			try:
+				test[field] = lab_result[field]
+			except KeyError:
+				pass
+		# - self.__ref_group validation, warn if mismatch
+		test['reviewed_by_clinician'] = False
+		lab_result.save_payload()
 		return True
 	#-----------------------------------------------------------
 	def __import_request_result(self, filename):
 		request = self.__import_request_header(filename)
 		if request is False:
 			return False
+		had_errors = False
 		data = {}
 		for line in fileinput.input(filename):
 			line_type = line[3:7]
@@ -200,9 +236,10 @@ class cLDTImporter:
 				if data != {}:
 					# try to save that record
 					if not self.__import_result(request, data):
-						_log.Log(gmLog.lErr, 'cannot import result')
-#						fileinput.close()
-#						return False
+						request['request_status'] = 'partial'
+						request['is_pending'] = True
+						request.save_payload()
+						had_errors = True
 				# start new record
 				data = {'code': line_data}
 				if self.__ref_group is not None:
@@ -255,9 +292,8 @@ class cLDTImporter:
 				_log.Log(gmLog.lErr, 'unbekannter LDT-Zeilentyp [%s], Inhalt: [%s], breche ab' % (line_type, line_data))
 				fileinput.close()
 				return False
-		# set request status ...
-		#request[]
-		#request.save_payload()
+		if had_errors:
+			return False
 		return True
 	#-----------------------------------------------------------
 	def __import_request_header(self, filename):
@@ -492,7 +528,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	rep_by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.5 $'
+	rep_by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.6 $'
 	recvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=rep_by, receiver=recvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -518,7 +554,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.5  2004-04-26 21:58:22  ncq
+# Revision 1.6  2004-05-08 22:15:10  ncq
+# - almost there, all the code is there but it needs fixing and fine-tuning
+#
+# Revision 1.5  2004/04/26 21:58:22  ncq
 # - now auto-creates test types during import
 # - works around non-numerical val_num lines
 # - uses gmPG.add_housekeeping_todo()
