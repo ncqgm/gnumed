@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.116 $
+-- $Revision: 1.117 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -194,7 +194,7 @@ comment on column curr_encounter."comment" is
 	 updating last_affirmed, useful for later perusal';
 
 -- ===================================================================
--- EMR item root with narrative aggregation
+-- EMR items root with narrative aggregation
 -- -------------------------------------------------------------------
 create table clin_root_item (
 	pk_item serial primary key,
@@ -233,6 +233,49 @@ comment on COLUMN clin_root_item.fk_episode is
 comment on column clin_root_item.narrative is
 	'each clinical item by default inherits a free text field for clinical narrative';
 
+-- --------------------------------------------
+create table clin_item_type (
+	pk serial primary key,
+	type text
+		default 'history'
+		unique
+		not null,
+	code text
+		default 'Hx'
+		unique
+		not null
+) inherits (audit_fields);
+
+select add_table_for_audit('clin_item_type');
+
+comment on table clin_item_type is
+	'stores arbitrary types for tagging clinical items';
+comment on column clin_item_type.type is
+	'the full name of the item type such as "family history"';
+comment on column clin_item_type.code is
+	'shorthand for the type, eg "FHx"';
+
+-- --------------------------------------------
+create table lnk_type2item (
+	pk serial primary key,
+	fk_type integer
+		not null
+		references clin_item_type(pk)
+		on update cascade
+		on delete cascade,
+	fk_item integer
+		not null
+		references clin_root_item(pk_item)
+		on update cascade
+		on delete cascade,
+	unique (fk_type, fk_item)
+) inherits (audit_fields);
+
+select add_table_for_audit('lnk_type2item');
+
+comment on table lnk_type2item is
+	'allow to link many-to-many between clin_root_item and clin_item_type';
+
 -- ============================================
 -- specific EMR content tables: SOAP++
 -- --------------------------------------------
@@ -269,7 +312,7 @@ comment on column clin_narrative.is_rfe is
 	'if TRUE the narrative stores a Reason for Encounter
 	 which also implies soap_cat = s';
 comment on column clin_narrative.is_aoe is
-	'if TRUE the narrative stores a Assessment of Encounter
+	'if TRUE the narrative stores an Assessment of Encounter
 	 which also implies soap_cat = a';
 
 -- --------------------------------------------
@@ -868,11 +911,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.116 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.117 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.116  2004-07-12 17:23:09  ncq
+-- Revision 1.117  2004-07-18 11:50:20  ncq
+-- - added arbitrary typing of clin_root_items
+--
+-- Revision 1.116  2004/07/12 17:23:09  ncq
 -- - allow for coding any SOAP row
 -- - adjust views/tables to that
 --

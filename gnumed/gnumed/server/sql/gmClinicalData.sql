@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.29 2004-07-05 18:52:26 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.30 2004-07-18 11:50:19 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -37,17 +37,75 @@ insert into _enum_allergy_type (value) values (i18n('allergy'));
 insert into _enum_allergy_type (value) values (i18n('sensitivity'));
 
 -- ===================================================================
---INSERT INTO _enum_hx_type (description) values (i18n('past'));
+-- clinical narrative types
+-- * history types
+insert into clin_item_type (code, type) values (i18n('HxRFE'), i18n('history of presenting complaint'));
+insert into clin_item_type (code, type) values (i18n('pHx'),  i18n('past history'));
+insert into clin_item_type (code, type) values (i18n('psHx'), i18n('psycho-social history'));
+insert into clin_item_type (code, type) values (i18n('fHx'),  i18n('family history'));
+insert into clin_item_type (code, type) values (i18n('sxHx'), i18n('sexual history'));
+
+-- * social history subtypes
+insert into clin_item_type (code, type) values (i18n('sHxD'), i18n('diet'));
+insert into clin_item_type (code, type) values (i18n('sHxH'), i18n('housing'));
+-- insert into clin_item_type (code, type) values (i18n(''), i18n(''));
+
+-- Eigenanamnese/Fremdanamnese ??, Familienanamnese, Sozialanamnese, Allg./vegetat. Anamnese
+
+-- Social history - my working definition -- courtesy of Elizabeth Dodd
+-- A collection of information about lifestyle, culture, behaviour of an
+-- individual which assists the doctor with assessment of disease risk for this
+-- individual and the effect of disease on this individual.
+-- Some is collected for legal and administrative needs and this varies in each
+-- country.
+
+-- Ethnicity
+-- Immigrant status - year
+-- - - ? interned
+-- - - country of birth
+-- - - reasons for move (economic, religious, family, war)
+-- Housing (house, flat, caravan, shack, tent, natural shelter, group
+-- accommodation)
+-- Family type in dwelling (Nuclear family, 3 generation family, multiple adults)
+-- Education ( primary, secondary, tertiary) total years of schooling if less than 10
+-- Language used at home
+-- Jobs - past and present
+-- Actual place of work
+-- If ever in prison
+-- Drug use
+-- method of administration (intravenous, smoking, oral, sniffed)
+-- substances used (tobacco, alcohol, THC, amphetamines, ecstacy, kava and other!)
+-- Retired /Jobseeking/ Not in regular Workforce/ Subsistence existence/ Not cash economy/ work from home/ social security benefit recipient
+-- Leisure activities
+-- Sporting activities (past and present)
+-- Marital status/ Sexuality
+-- and a link to spouse´s name, type of work, ethnicity
+-- Dependents
+-- Diet
+-- Religion
+-- War Service (conflict, type of service eg navy, guerilla)
+-- Political affiliation
+-- Does another individual deal with this person's financial affairs (legal or
+-- informal arrangement)
+-- Does another individual deal with this person's medical decisions? (legal or informal arrangement)
+-- This person's goals for their own life - usually recorded along the way in
+-- progress notes. eg studying medicine,
+
+-- demographics (?):
+-- - occupational history
+-- - educational level
+-- - ethnicity 
+--   country of birth
+--   first language
+--   language spoken at home
+--   local dominant language proficiency
+--   AU statistics bureau
+--   ISO lang/country
+
+-- ===================================================================
 --INSERT INTO _enum_hx_type (description) values (i18n('presenting complaint'));
 --INSERT INTO _enum_hx_type (description) values (i18n('history of present illness'));
---INSERT INTO _enum_hx_type (description) values (i18n('social'));
---INSERT INTO _enum_hx_type (description) values (i18n('family'));
---INSERT INTO _enum_hx_type (description) values (i18n('immunisation'));
---INSERT INTO _enum_hx_type (description) values (i18n('requests'));
---INSERT INTO _enum_hx_type (description) values (i18n('allergies'));
 --INSERT INTO _enum_hx_type (description) values (i18n('drug'));
---INSERT INTO _enum_hx_type (description) values (i18n('sexual'));
---INSERT INTO _enum_hx_type (description) values (i18n('psychiatric'));
 --INSERT INTO _enum_hx_type (description) values (i18n('other'));
 
 -- ===================================================================
@@ -477,11 +535,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.29 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.30 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.29  2004-07-05 18:52:26  ncq
+-- Revision 1.30  2004-07-18 11:50:19  ncq
+-- - added arbitrary typing of clin_root_items
+--
+-- Revision 1.29  2004/07/05 18:52:26  ncq
 -- - no data for _enum_hx_type needed anymore
 --
 -- Revision 1.28  2004/05/08 17:37:08  ncq

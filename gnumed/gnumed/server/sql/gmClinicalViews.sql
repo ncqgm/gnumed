@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.92 2004-07-17 20:57:53 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.93 2004-07-18 11:50:19 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -800,20 +800,24 @@ where
 -- =============================================
 -- tables
 GRANT SELECT, INSERT, UPDATE, DELETE ON
-	clin_root_item,
-	clin_root_item_pk_item_seq,
 	clin_health_issue,
 	clin_health_issue_id_seq,
 	clin_episode,
 	clin_episode_id_seq,
 	last_act_episode,
-	last_act_episode_id_seq,
-	encounter_type,
-	encounter_type_pk_seq,
-	clin_encounter,
-	clin_encounter_id_seq,
-	curr_encounter,
-	curr_encounter_id_seq
+	last_act_episode_id_seq
+	, encounter_type
+	, encounter_type_pk_seq
+	, clin_encounter
+	, clin_encounter_id_seq
+	, curr_encounter
+	, curr_encounter_id_seq
+	, clin_root_item
+	, clin_root_item_pk_item_seq
+	, clin_item_type
+	, clin_item_type_pk_seq
+	, lnk_type2item
+	, lnk_type2item_pk_seq
 	, clin_narrative
 	, clin_narrative_pk_seq
 	, lnk_code2narr
@@ -894,11 +898,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.92 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.93 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.92  2004-07-17 20:57:53  ncq
+-- Revision 1.93  2004-07-18 11:50:19  ncq
+-- - added arbitrary typing of clin_root_items
+--
+-- Revision 1.92  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --
