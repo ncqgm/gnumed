@@ -3,12 +3,12 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.4 2004-04-24 13:35:33 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPatientExporter.py,v 1.5 2004-04-27 18:54:54 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
-import sys, string
+import sys, traceback, string
 
 from Gnumed.pycommon import gmLog, gmPG, gmI18N
 from Gnumed.business import gmClinicalRecord, gmPatient
@@ -43,19 +43,20 @@ class gmEmrExport:
 			a_date = a_vacc['date'].Format('%Y-%m-%d')
 			if not a_date in vacc_dates:
 				vacc_dates.append(a_date)
+				print str(a_date)
 		# Dictionary date_position_index -> vaccination_vo
 		txt= '\t|'
 		for a_date in vacc_dates:
 			txt+= str(a_date) + "\t|"
 		txt += '\n'
 		for an_indication in vacc_indications:
-			vaccs4ind = emr.get_vaccinations(indication_list = [an_indication])
-			print "indications: " + str(an_indication) + "\nvaccs: " + str(vaccs4ind)
+			vaccs4ind = emr.get_vaccinations(indication_list = [an_indication[1]])
+			#print "indications: " + str(an_indication) + "\nvaccs: " + str(vaccs4ind)
 			row_column = 0
 			txt+= an_indication[1] + "\t|"
 			for a_shot in vaccs4ind:
-				shot_column = vacc_dates.index(a_shot['date'])
-				txt += '\t|'*(shot_column - row_column) + str(a_shot['batch_no']) + '\t\t|'
+				shot_column = vacc_dates.index(a_shot['date'].Format('%Y-%m-%d'))
+				txt += '\t|'*(shot_column - row_column) + str(a_shot['batch_no']) + '\t|'
 				row_column = shot_column
 			txt += '\n'
 		return txt
@@ -82,17 +83,17 @@ class gmEmrExport:
 		txt += "   .Vaccination indications:\n"
 		txt += self.get_vacc_table(emr)
 
-		due_vaccinations = emr.get_due_vaccinations()
-		txt += "   .Due vaccinations:\n"
-		for a_vacc in due_vaccinations['due']:
-			if a_vacc is not None:
-				txt += str(a_vacc) + "\n"
+		#due_vaccinations = emr.get_due_vaccinations()
+		#txt += "   .Due vaccinations:\n"
+		#for a_vacc in due_vaccinations['due']:
+		#	if a_vacc is not None:
+		#		txt += str(a_vacc) + "\n"
 
-		txt += "   .Overdue vaccinations:\n"
-		for a_vacc in due_vaccinations['overdue']:
-			if a_vacc is not None:
-				#txt += str(a_vacc) + "\n"
-				pass
+		#txt += "   .Overdue vaccinations:\n"
+		#for a_vacc in due_vaccinations['overdue']:
+		#	if a_vacc is not None:
+		#		txt += str(a_vacc) + "\n"
+		#		pass
 		print(txt)
 	#--------------------------------------------------------
 	def dump_demographic_record(self, all = False):
@@ -136,32 +137,41 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool()
 	export_tool = gmEmrExport()
 
-	while 1:
-		patient_id = prompted_input("Patient ID (or 'bye' to exit) [14]: ", '14')
-		if patient_id == 'bye':
-			print "Normally exited, bye"
-			gmPG.ConnectionPool().StopListeners()
-			sys.exit(0)
-		patient = gmPatient.gmCurrentPatient(patient_id)
-		since = prompted_input("Since (eg. 2001-01-01): ")
-		until = prompted_input("Until (eg. 2003-01-01): ")
-		encounters = prompted_input("Encounters (eg. 1,2): ")
-		episodes = prompted_input("Episodes (eg. 3,4): ")
-		issues = prompted_input("Issues (eg. 5,6): ")
-		if not encounters is None:
-			encounters = string.split(encounters, ',')
-		if not episodes is None:
-			episodes = string.split(episodes, ',')
-		if not issues is None:
-			issues = string.split(issues,',')
-		export_tool.dump_demographic_record(True)
-		export_tool.dump_clinical_record(patient, since_val=since, until_val=until ,encounters_val=encounters, episodes_val=episodes, issues_val=issues)
-		print(patient.get_document_folder())
-
-	gmPG.ConnectionPool().StopListeners()
+	try:
+		while 1:
+			patient_id = prompted_input("Patient ID (or 'bye' to exit) [14]: ", '14')
+			if patient_id == 'bye':
+				gmPG.ConnectionPool().StopListeners()
+				sys.exit(0)
+			patient = gmPatient.gmCurrentPatient(patient_id)
+			since = prompted_input("Since (eg. 2001-01-01): ")
+			until = prompted_input("Until (eg. 2003-01-01): ")
+			encounters = prompted_input("Encounters (eg. 1,2): ")
+			episodes = prompted_input("Episodes (eg. 3,4): ")
+			issues = prompted_input("Issues (eg. 5,6): ")
+			if not encounters is None:
+				encounters = string.split(encounters, ',')
+			if not episodes is None:
+				episodes = string.split(episodes, ',')
+			if not issues is None:
+				issues = string.split(issues,',')
+			#export_tool.dump_demographic_record(True)
+			export_tool.dump_clinical_record(patient, since_val=since, until_val=until ,encounters_val=encounters, episodes_val=episodes, issues_val=issues)
+			#print(patient.get_document_folder())
+	
+		gmPG.ConnectionPool().StopListeners()
+	except SystemExit:
+		print "Normally exited, bye"
+	except:
+		traceback.print_exc(file=sys.stdout)
+		gmPG.ConnectionPool().StopListeners()
+		sys.exit(1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.4  2004-04-24 13:35:33  ncq
+# Revision 1.5  2004-04-27 18:54:54  ncq
+# - adapt to gmClinicalRecord
+#
+# Revision 1.4  2004/04/24 13:35:33  ncq
 # - vacc table update
 #
 # Revision 1.3  2004/04/24 12:57:30  ncq
