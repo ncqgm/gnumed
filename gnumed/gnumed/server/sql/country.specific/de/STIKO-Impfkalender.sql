@@ -9,19 +9,19 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 delete from vacc_def;
-delete from vacc_regime where description like '%STIKO%';
+delete from vacc_regime where name like '%STIKO%';
 
 ------------
 -- Masern --
 ------------
 -- Impfplan definieren
 insert into vacc_regime
-	(fk_recommended_by, fk_indication, description)
+	(fk_recommended_by, fk_indication, name)
 values (
 	1,
 	(select id from vacc_indication where description='measles'),
@@ -54,7 +54,7 @@ values (
 -----------
 -- Impfplan definieren
 insert into vacc_regime
-	(fk_recommended_by, fk_indication, description)
+	(fk_recommended_by, fk_indication, name)
 values (
 	1,
 	(select id from vacc_indication where description='mumps'),
@@ -87,7 +87,7 @@ values (
 ------------
 -- Impfplan definieren
 insert into vacc_regime
-	(fk_recommended_by, fk_indication, description)
+	(fk_recommended_by, fk_indication, name)
 values (
 	1,
 	(select id from vacc_indication where description='rubella'),
@@ -120,7 +120,7 @@ values (
 -------------
 -- Impfplan definieren
 insert into vacc_regime
-	(fk_recommended_by, fk_indication, description)
+	(fk_recommended_by, fk_indication, name)
 values (
 	1,
 	(select id from vacc_indication where description='tetanus'),
@@ -185,7 +185,7 @@ values (
 ----------------
 -- Impfplan definieren
 insert into vacc_regime
-	(fk_recommended_by, fk_indication, description)
+	(fk_recommended_by, fk_indication, name)
 values (
 	1,
 	(select id from vacc_indication where description='diphtheria'),
@@ -246,7 +246,7 @@ values (
 ---------------
 -- Impfplan definieren
 insert into vacc_regime
-	(fk_recommended_by, fk_indication, description)
+	(fk_recommended_by, fk_indication, name)
 values (
 	1,
 	(select id from vacc_indication where description='influenza'),
@@ -271,7 +271,7 @@ values (
 ------------------
 -- Impfplan definieren (STIKO)
 insert into vacc_regime
-	(fk_recommended_by, fk_indication, description)
+	(fk_recommended_by, fk_indication, name)
 values (
 	1,
 	(select id from vacc_indication where description='pneumococcus'),
@@ -296,7 +296,7 @@ values (
 ---------------
 -- Impfplan definieren
 insert into vacc_regime
-	(fk_recommended_by, fk_indication, description)
+	(fk_recommended_by, fk_indication, name)
 values (
 	1,
 	(select id from vacc_indication where description='pertussis'),
@@ -329,14 +329,71 @@ insert into vacc_def
 values
 	(currval('vacc_regime_id_seq'),	5, '9 years'::interval,	'17 years'::interval, '4 weeks'::interval);
 
+---------------------
+-- Meningokokken C --
+---------------------
+-- Impfplan definieren
+insert into vacc_regime
+	(fk_recommended_by, fk_indication, name, comment)
+values (
+	1,
+	(select id from vacc_indication where description='meningococcus C'),
+	'MenC-Säuglinge (STIKO)',
+	'2-12 Monate, Meningokokken C'
+);
+
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	1,
+	'2 months'::interval,
+	'12 months'::interval,
+	'2 months'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	2,
+	'4 months'::interval,
+	'14 months'::interval,
+	'2 months'::interval
+);
+
+-- Impfplan definieren
+insert into vacc_regime
+	(fk_recommended_by, fk_indication, name, comment)
+values (
+	1,
+	(select id from vacc_indication where description='meningococcus C'),
+	'MenC (STIKO)',
+	'ab 12 Monaten, Meningokokken C'
+);
+
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	1,
+	'12 months'::interval,
+	'2 months'::interval
+);
+
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename like '%STIKO-Impfkalender%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.8  2003-12-01 23:53:18  ncq
+-- Revision 1.9  2003-12-03 19:09:46  ncq
+-- - NeisVac-C
+--
+-- Revision 1.8  2003/12/01 23:53:18  ncq
 -- - delete more selectively
 --
 -- Revision 1.7  2003/12/01 22:22:41  ncq
