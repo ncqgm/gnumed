@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.43 2004-05-26 12:58:14 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmDemographicRecord.py,v 1.44 2004-05-28 15:05:10 sjtan Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -842,8 +842,14 @@ class NameMP (gmMatchProvider.cMatchProvider_SQL):
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
 #------------------------------------------------------------
-def setPostcodeWidgetFromUrbId(postcodeWidget=None, id_urb=None):
-	"""convenience method for urb and postcode phrasewheel interaction"""
+def setPostcodeWidgetFromUrbId(postcodeWidget, id_urb):
+	"""convenience method for urb and postcode phrasewheel interaction.
+	   never called without both arguments, but need to check that id_urb
+	   is not invalid"""
+	#TODO type checking that the postcodeWidget is a phrasewheel configured
+	# with a postcode matcher
+	if  postcodeWidget is None or id_urb is None:
+		return False 
 	postcode = getPostcodeForUrbId(id_urb)
 	if postcode is None:
 		return False
@@ -853,10 +859,17 @@ def setPostcodeWidgetFromUrbId(postcodeWidget=None, id_urb=None):
 	postcodeWidget.input_was_selected= 1
 	return True
 #------------------------------------------------------------
-def setUrbPhraseWheelFromPostcode(pwheel=None, postcode=''):
-	"""convenience method for common postcode to urb phrasewheel collaboration"""
+def setUrbPhraseWheelFromPostcode(pwheel, postcode):
+	"""convenience method for common postcode to urb phrasewheel collaboration.
+	   there is no default args for these utility functions,
+	   This function is never called without both arguments, otherwise
+	   there is no intention (= modify the urb phrasewheel with postcode value).
+	"""
+	# TODO type checking that the pwheel is a urb phrasewheel with a urb matcher
 	# clearing post code unsets target
 	# phrasewheel's postcode context
+	if pwheel is None:
+		return False
 	if postcode == '':
 		pwheel.setContext("postcode", "%")
 		return True
@@ -884,19 +897,19 @@ def setUrbPhraseWheelFromPostcode(pwheel=None, postcode=''):
 #------------------------------------------------------------
 
 # FIXME: do we REALLY need this ?
-def get_time_tuple(faultyMxDateObject):
-		list = [0,0,0,   0, 0, 0,   0, 0, 0]
-		try:
-			i = 0
-			l = str(faultyMxDateObject).split(' ')[0].split('-')
-			for x in l:
-				list[i] = int(x)
-				i += 1
-		except:
-			print "Failed to parse dob"
-			_log.LogException("Failed to parse DOB", sys.exc_info(), verbose = 1)
-
-		return list
+#def get_time_tuple(faultyMxDateObject):
+#		list = [0,0,0,   0, 0, 0,   0, 0, 0]
+#		try:
+#			i = 0
+#			l = str(faultyMxDateObject).split(' ')[0].split('-')
+#			for x in l:
+#				list[i] = int(x)
+#				i += 1
+#		except:
+#			print "Failed to parse dob"
+#			_log.LogException("Failed to parse DOB", sys.exc_info(), verbose = 1)
+#
+#		return list
 
 
 #============================================================
@@ -930,7 +943,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.43  2004-05-26 12:58:14  ncq
+# Revision 1.44  2004-05-28 15:05:10  sjtan
+#
+# utility functions only called with exactly 2 args in order to fulfill function intent, but do some checking for invalid args.
+#
+# Revision 1.43  2004/05/26 12:58:14  ncq
 # - cleanup, error handling
 #
 # Revision 1.42  2004/05/25 16:18:13  sjtan
