@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.117 2004-11-28 14:37:00 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.118 2004-12-06 21:09:38 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -190,35 +190,62 @@ create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_h
 create index idx_episode_issue on clin_episode(fk_health_issue);
 
 
--- auto-create clin_narrative row on insert into clin_episode
---\unset ON_ERROR_STOP
---drop trigger tr_name_new_episode on clin_episode;
---drop function trf_name_new_episode();
---\set ON_ERROR_STOP 1
+-- an episode not linked to a health issue must have a
+-- name (at least when the transaction ends ...)
+\unset ON_ERROR_STOP
+drop trigger tr_standalone_epi_needs_name on clin_episode;
+drop function trf_standalone_epi_needs_name();
+\set ON_ERROR_STOP 1
 
---create function trf_name_new_episode() returns opaque as '
---declare
---	clin_narr_insert text;
---begin
-	-- generate insert query
---	clin_narr_insert := ''insert into clin_narrative (soap_cat, narrative, is_episode_name, fk_episode) values (''
---	                 || '' ''''s'''',''
---	                 || '' ''''by_trigger_on_insert'''',''
---	                 || '' ''''true''''::boolean, ''
---	                 || NEW.pk || '')'' ;
---	raise notice ''%'', clin_narr_insert;
-	-- execute insert query
---	EXECUTE clin_narr_insert;
---	return NULL;
---end;
---' language 'plpgsql';
+create function trf_standalone_epi_needs_name() returns opaque as '
+declare
+	final_epi_row RECORD;
+	msg text;
+	narr_pk integer;
+	narr_fk_episode integer;
+begin
+	-- get final state of row
+	select into final_epi_row * from clin_episode where pk = NEW.pk;
+	-- was likely deleted
+	if not found then
+		return NULL;
+	end if;
+	-- if we do have a name it must belong to us ...
+	-- (eg. check for cyclic referential integrity violation)
+	if final_epi_row.fk_clin_narrative is not null then
+		select into narr_pk, narr_fk_episode cn.pk, cn.fk_episode
+			from clin_narrative cn
+			where cn.pk = final_epi_row.fk_clin_narrative;
+		if not found then
+			msg := ''trf_standalone_epi_needs_name: episode ['' || final_epi_row.pk || '']: ''
+			    || ''fk_clin_narrative points to non-existing clin_narrative ['' || final_epi_row.fk_clin_narrative || '']'';
+			raise exception ''%'', msg;
+		end if;
+		if narr_fk_episode <> final_epi_row.pk then
+			msg := ''trf_standalone_epi_needs_name: episode ['' || final_epi_row.pk || '']: ''
+			    || clin_narrative.fk_episode || '' ['' || narr_pk || '':'' || narr_fk_episode || ''] ''
+			    || ''must point to this episode if it is supposed to name it'';
+			raise exception ''%'', msg;
+		end if;
+		return NULL;
+	end if;
+	-- if linked to a health issue we do not have to have a name of our own ...
+	if final_epi_row.fk_health_issue is not null then
+		return NULL;
+	end if;
+	msg := ''trf_standalone_epi_needs_name: episode ['' || final_epi_row.pk || '']: fk_health_issue and fk_clin_narrative cannot both be NULL'';
+	raise exception ''%'', msg;
+end;
+' language 'plpgsql';
 
---create trigger tr_name_new_episode
---	after insert
---	on clin_episode
---	for each row
---		execute procedure trf_name_new_episode()
---;
+-- the trick is to defer the trigger ...
+create constraint trigger tr_standalone_epi_needs_name
+	after insert or update
+	on clin_episode
+	initially deferred
+	for each row
+		execute procedure trf_standalone_epi_needs_name()
+;
 
 
 -- pull in episode names from clin_narrative
@@ -1560,11 +1587,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.117 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.118 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.117  2004-11-28 14:37:00  ncq
+-- Revision 1.118  2004-12-06 21:09:38  ncq
+-- - eventually properly implement episode naming via deferred constraint trigger
+--
+-- Revision 1.117  2004/11/28 14:37:00  ncq
 -- - adjust to clin_episode.fk_clin_narrative instead of clin_narrative.is_episode_name
 --
 -- Revision 1.116  2004/11/26 13:51:18  ncq
