@@ -9,6 +9,10 @@
 # For users and installers, to install, unpack the tarball and type:
 # python setup.py install [--prefix <prefix-dir>] [--root <root-dir>]
 
+import sys
+
+sys.exit("THIS LACKS PROPER MAINTENANCE. DO NOT USE IT OR ELSE FIX IT.")
+
 from distutils.core import setup
 from glob import glob
 
