@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -68,8 +68,7 @@ except ImportError:
 			#</DEBUG>
 		except ImportError:
 			print "Cannot find any Python module for connecting to the database server. Program halted."
-			exc = sys.exc_info()
-			_log.LogException("No Python database adapter found.", exc, fatal=1)
+			_log.LogException("No Python database adapter found.", sys.exc_info(), fatal=1)
 			raise
 
 # FIXME: DBMS should eventually be configurable
@@ -282,8 +281,7 @@ class ConnectionPool:
 				login = inputLoginParams()
 				print login.GetDBAPI_DSN()
 			except:
-				exc = sys.exc_info()
-				_log.LogException("Exception: Cannot connect to databases without login information !", exc, fatal=1)
+				_log.LogException("Exception: Cannot connect to databases without login information !", sys.exc_info(), fatal=1)
 				raise gmExceptions.ConnectionError("Can't connect to database without login information!")
 
 		_log.Log(gmLog.lData,login.GetInfoStr())
@@ -293,8 +291,7 @@ class ConnectionPool:
 		try:
 			cdb = self.__pgconnect(login)
 		except:
-			exc = sys.exc_info()
-			_log.LogException("Exception: Cannot connect to configuration database !", exc, fatal=1)
+			_log.LogException("Exception: Cannot connect to configuration database !", sys.exc_info(), fatal=1)
 			raise gmExceptions.ConnectionError("Could not connect to configuration database  backend!")
 
 		ConnectionPool.__connected = 1
@@ -317,7 +314,7 @@ class ConnectionPool:
 		try:
 			cursor.execute(query)
 		except:
-			_log.Log(gmLog.lErr, ">>>[%s]<<<" % query)
+			_log.Log(gmLog.lErr, ">>>[%s]<<< failed" % query)
 			_log.LogException("Cannot select user profile from database !", sys.exc_info(), fatal=1)
 			raise
 		databases = cursor.fetchall()
@@ -366,8 +363,7 @@ class ConnectionPool:
 				db = dbapi.connect(dsn)
 			return db
 		except:
-			exc = sys.exc_info()
-			_log.LogException("Exception: Connection to database failed. DSN was [%s]" % dsn, exc)
+			_log.LogException("Exception: Connection to database failed. DSN was [%s]" % dsn, sys.exc_info())
 			raise gmExceptions.ConnectionError, _("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport)
 	
 	#-----------------------------
@@ -633,7 +629,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.27  2002-10-26 16:17:13  ncq
+# Revision 1.28  2002-10-29 23:12:25  ncq
+# - a bit of cleanup
+#
+# Revision 1.27  2002/10/26 16:17:13  ncq
 # - more explicit error reporting
 #
 # Revision 1.26  2002/10/26 02:45:52  hherb
