@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.21 2004-06-25 14:39:35 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmPlugin.py,v 1.22 2004-06-26 23:09:22 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re
@@ -218,7 +218,7 @@ def instantiate_plugin(aPackage='--??--', plugin_name='--??--'):
 
 	try:
 		# use __import__() so we can dynamically calculate the module name
-		mod_from_pkg = __import__ ("%s.%s" % (aPackage, plugin_name))
+		mod_from_pkg = __import__("%s.%s" % (aPackage, plugin_name))
 		# find name of class of plugin (must be the same as the plugin module filename)
 		# 1) get module name
 		plugin_module_name = mod_from_pkg.__dict__[plugin_name]
@@ -229,10 +229,10 @@ def instantiate_plugin(aPackage='--??--', plugin_name='--??--'):
 		return None
 
 	if not issubclass(plugin_class, wxNotebookPlugin):
-		_log.Log(gmLog.lErr, "class %s is not a subclass of wxNotebookPlugin" % plugin_name)
+		_log.Log(gmLog.lErr, "[%s] not a subclass of wxNotebookPlugin" % plugin_name)
 		return None
 
-	_log.Log(gmLog.lInfo, "instantiating plugin %s" % plugin_name)
+	_log.Log(gmLog.lInfo, plugin_name)
 	try:
 		plugin = plugin_class(set = aPackage)
 	except:
@@ -357,7 +357,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.21  2004-06-25 14:39:35  ncq
+# Revision 1.22  2004-06-26 23:09:22  ncq
+# - better comments
+#
+# Revision 1.21  2004/06/25 14:39:35  ncq
 # - make right-click runtime load/drop of plugins work again
 #
 # Revision 1.20  2004/06/25 13:28:00  ncq

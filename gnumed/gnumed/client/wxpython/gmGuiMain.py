@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.156 2004-06-25 14:39:35 ncq Exp $
-__version__ = "$Revision: 1.156 $"
+# $Id: gmGuiMain.py,v 1.157 2004-06-26 23:09:22 ncq Exp $
+__version__ = "$Revision: 1.157 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -297,7 +297,6 @@ class gmTopLevelFrame(wxFrame):
 			try:
 				plugin = gmPlugin.instantiate_plugin('gui', curr_plugin)
 				if plugin:
-					_log.Log(gmLog.lInfo,  'got plugin of type %s' % plugin.__class__.__name__)
 					plugin.register()
 					result = _("success")
 				else:
@@ -336,7 +335,7 @@ class gmTopLevelFrame(wxFrame):
 		"""
 		old_page_id = event.GetOldSelection()
 		# FIXME: this is the place to tell the old page to
-		# update its local on-disk cache or something,
+		# make it's state permanent somehow,
 		# in general, call any "validators" for the
 		# old page here
 		new_page_id = event.GetSelection()
@@ -425,6 +424,7 @@ class gmTopLevelFrame(wxFrame):
 		evt.Skip()
 	#----------------------------------------------		
 	def _on_drop_plugin(self, evt):
+		"""Unload plugin and drop from load list."""
 		plugins = self.guibroker['main.notebook.plugins']
 		plugin = plugins[self.nb.GetSelection()]
 		plugin.unregister()
@@ -432,6 +432,7 @@ class gmTopLevelFrame(wxFrame):
 		# FIXME:"dropping" means talking to configurator so not reloaded
 	#----------------------------------------------
 	def OnPluginHide (self, evt):
+		"""Unload plugin but don't touch configuration."""
 		# this dictionary links notebook page numbers to plugin objects
 		plugins = self.guibroker['main.notebook.plugins']
 		plugin = plugins[self.nb.GetSelection()]
@@ -528,7 +529,7 @@ class gmTopLevelFrame(wxFrame):
 	def on_user_error (self, signal, message):
 		"response to user_error event"
 		self.SetStatusText (message, 0)
-		wxBell ()
+		wxBell()
 	#------------------------------------------------
 	def Lock(self):
 		"""Lock GNUmed client against unauthorized access"""
@@ -765,7 +766,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.156  2004-06-25 14:39:35  ncq
+# Revision 1.157  2004-06-26 23:09:22  ncq
+# - better comments
+#
+# Revision 1.156  2004/06/25 14:39:35  ncq
 # - make right-click runtime load/drop of plugins work again
 #
 # Revision 1.155  2004/06/25 12:51:23  ncq
