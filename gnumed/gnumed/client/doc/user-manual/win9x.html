@@ -1,0 +1,495 @@
+<HTML
+><HEAD
+><TITLE
+>Windows</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="Installation"
+HREF="c38.html"><LINK
+REL="PREVIOUS"
+TITLE="Mac"
+HREF="mac.html"><LINK
+REL="NEXT"
+TITLE="Configuring PostgreSQL for GnuMed"
+HREF="pgsql.html"></HEAD
+><BODY
+CLASS="SECT1"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: User's Manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="mac.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Installation</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="pgsql.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="WIN9X">Windows</H1
+><P
+>GNUMed requires the following packages. Each link points to a .EXE file. Download them and run each in turn.
+
+<DIV
+CLASS="TABLE"
+><A
+NAME="AEN252"><P
+><B
+>Table 2-3. Requirements</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Package</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>URL</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Version</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Python Scripting Language</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="ftp://ftp.python.org/pub/python/2.2.1/Python-2.2.1c2.exe"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>python.org</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.1</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>wxWindows windowing library</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://prdownloads.sourceforge.net/wxpython/wxPython-2.3.2.1-Py22.exe"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>wxWindows for Python bindings</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.3.2</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>mx extension libraries</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.egenix.com/files/python/egenix-mx-base-2.0.3.win32-py2.2.exe"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>mx</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.0.3</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>PyGresQL -- Python libraries for SQL</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://prdownloads.sourceforge.net/pypgsql/pyPgSQL-2.0.win32-py2.2.exe"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>PyGresQL</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>3.2</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CYGWIN UNIX emulator</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.cygwin.com/setup.exe"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>cygwin.com</I
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>2.1</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>IPC for Cygwin</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><A
+HREF="http://www.neuro.gatech.edu/users/cwilson/cygutils/V1.1/cygipc/cygipc-1.11-1.tar.bz2"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>CygIPC </I
+></A
+>(this is not an .EXE file. Save it to C:\CYGWIN)</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>1.11</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></P
+><P
+>Download these packages. For cygwin, make sure you select
+the package <SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+> in the Databases category. </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN299">Installing PostgreSQL</H2
+><P
+>Double-click on the Cygwin icon on your desktop. The UNIX command
+prompt appears. Take a deep breath, and type:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>cd /
+tar xvjf /cygipc-1.11-1.bz2
+/usr/local/bin/ipc-daemon &#38;
+mkdir /usr/share/postgresql/data
+/usr/bin/initdb -D /
+/usr/bin/postmaster -D /usr/share/postgresql/data &#38;</PRE
+></TD
+></TR
+></TABLE
+>
+Postgres should now be running. <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>DO NOT</I
+></SPAN
+> close
+the window containing these commands. </P
+><P
+>Every time to want to run PostgreSQL again, open up Cygwin as
+before and type:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>/usr/local/bin/ipc-daemon &#38;
+/usr/bin/postmaster -D /usr/share/postgresql/data &#38;</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+>Once PostgreSQL is set up, go to the section on
+setting up the database (<A
+HREF="pgsql.html"
+>SQL Setup</A
+>.)</P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN308">Running PostgreSQL as an NT service</H3
+><P
+>On Windows NT, 2000 or XP it is possible to run
+PostgreSQL as a background process (similar to a UNIX daemon).</P
+><P
+>Go to Control Panel: "Users", and create a new user for your
+system, called "postgres". Give the user privileges to run as a service.</P
+><P
+>At the Cygwin prompt, type:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>ipc-daemon --install-as-service</PRE
+></TD
+></TR
+></TABLE
+>
+Then,as a single line:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>cygrunsrv --install postmaster --path /usr/bin/postmaster --args "-D
+  /usr/share/postgresql/data -i" --dep ipc-daemon --termsig INT --user
+  postgres --shutdown</PRE
+></TD
+></TR
+></TABLE
+>
+Then
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>mkdir /usr/share/postgresql/data
+chown postgres /usr/share/postgresql/data</PRE
+></TD
+></TR
+></TABLE
+>
+If this directory (/usr/share/postgresql/data) already exists from your previous
+efforts, delete it with "rm -R /usr/share/postgresql/data", and repeat.</P
+><P
+>Reboot the computer.
+Now log in as the "postgres" user, load Cygwin again and type:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>initdb -D /usr/share/postgresql/data</PRE
+></TD
+></TR
+></TABLE
+>
+The database will now run whenever Windows is loaded. 
+You <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>must</I
+></SPAN
+> be user "postgres" to use the database
+on this computer. </P
+><P
+>Once PostgreSQL is set up, go to the section on
+setting up the database (<A
+HREF="pgsql.html"
+>SQL Setup</A
+>.)</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN321">Running the client</H2
+><P
+>Once you have done this, you can run GNUMed from the Python interpreter.
+Click on the Python icon and type:
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>&#62;&#62;&#62;</TT
+>  import sys
+<TT
+CLASS="PROMPT"
+>&#62;&#62;&#62;</TT
+>  sys.path.append ('path-to-gnumed-files')
+<TT
+CLASS="PROMPT"
+>&#62;&#62;&#62;</TT
+>  import gnumed
+<TT
+CLASS="PROMPT"
+>&#62;&#62;&#62;</TT
+>  gnumed.main ()</PRE
+></TD
+></TR
+></TABLE
+></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="mac.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="pgsql.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Mac</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c38.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Configuring <SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+> for GnuMed</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
