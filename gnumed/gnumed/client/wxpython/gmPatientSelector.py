@@ -10,14 +10,15 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.42 2004-07-18 19:51:12 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmPatientSelector.py,v 1.43 2004-08-02 18:53:36 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
 import sys, os.path, time, string, re
 
-from wxPython.wx import *
+#from wxPython.wx import *
+from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N
 from Gnumed.business import gmPatient, gmKVK
@@ -26,7 +27,7 @@ from Gnumed.wxpython import gmGuiHelpers
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-ID_PatPickList = wxNewId()
+ID_PatPickList = wx.wxNewId()
 #============================================================
 # country-specific functions
 #------------------------------------------------------------
@@ -69,7 +70,7 @@ patient_expander = {
 	'de': pat_expand_default
 }
 #============================================================
-class cPatientPickList(wxDialog):
+class cPatientPickList(wx.wxDialog):
 	def __init__(
 		self,
 		parent,
@@ -78,27 +79,27 @@ class cPatientPickList(wxDialog):
 		pos = (-1, -1),
 		size = (600, 400),
 	):
-		wxDialog.__init__(
+		wx.wxDialog.__init__(
 			self,
 			parent,
 			id,
 			title,
 			pos,
 			size,
-			style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxSTAY_ON_TOP
+			style = wx.wxDEFAULT_DIALOG_STYLE | wx.wxRESIZE_BORDER | wx.wxSTAY_ON_TOP
 		)
 
 		self._do_layout()
 		self.items = []
 
 		# set event handlers
-		#EVT_LIST_ITEM_SELECTED(self, ID_PatPickList, self.OnItemCursor)
-		EVT_LIST_ITEM_ACTIVATED(self, ID_PatPickList, self._on_item_activated)
+		#wx.EVT_LIST_ITEM_SELECTED(self, ID_PatPickList, self.OnItemCursor)
+		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_PatPickList, self._on_item_activated)
 
-		#EVT_BUTTON(self, ID_NEW, self.OnNew)
-		#EVT_BUTTON(self, wxID_OK, self.OnOk)
+		#wx.EVT_BUTTON(self, ID_NEW, self.OnNew)
+		#wx.EVT_BUTTON(self, wx.wxID_OK, self.OnOk)
 		# FIXME: remove button, add evt char ESC
-		EVT_BUTTON(self, wxID_CANCEL, self._on_cancel)
+		wx.EVT_BUTTON(self, wx.wxID_CANCEL, self._on_cancel)
 	#--------------------------------------------------------
 	def SetItems(self, items = [], col_order = []):
 		# TODO: make selectable by 0-9
@@ -138,7 +139,7 @@ class cPatientPickList(wxDialog):
 
 		# adjust column width
 		for order_idx in range(len(col_order)):
-			self.listctrl.SetColumnWidth(order_idx, wxLIST_AUTOSIZE)
+			self.listctrl.SetColumnWidth(order_idx, wx.wxLIST_AUTOSIZE)
 
 		# FIXME: and make ourselves just big enough
 		self.szrMain.Fit(self)
@@ -161,25 +162,25 @@ class cPatientPickList(wxDialog):
 	# utility methods
 	#--------------------------------------------------------
 	def _do_layout(self):
-		self.szrMain = wxBoxSizer(wxVERTICAL)
+		self.szrMain = wx.wxBoxSizer(wx.wxVERTICAL)
 
 		# make list
-		self.listctrl = wxListCtrl(
+		self.listctrl = wx.wxListCtrl(
 			parent = self,
 			id = ID_PatPickList,
-			style = wxLC_REPORT | wxLC_SINGLE_SEL | wxVSCROLL | wxHSCROLL | wxSUNKEN_BORDER
+			style = wx.wxLC_REPORT | wx.wxLC_SINGLE_SEL | wx.wxVSCROLL | wx.wxHSCROLL | wx.wxSUNKEN_BORDER
 		)
 		# and place it
-		self.szrMain.AddWindow(self.listctrl, 1, wxGROW | wxALIGN_CENTER_VERTICAL, 5)
+		self.szrMain.AddWindow(self.listctrl, 1, wx.wxGROW | wx.wxALIGN_CENTER_VERTICAL, 5)
 
 		# make buttons
-		self.szrButtons = wxBoxSizer(wxHORIZONTAL)
-#		self.btnOK = wxButton (
+		self.szrButtons = wx.wxBoxSizer(wx.wxHORIZONTAL)
+#		self.btnOK = wx.wxButton (
 #			self,
-#			wxID_OK,
+#			wx.wxID_OK,
 #			_("&OK"),
-#			wxDefaultPosition,
-#			wxDefaultSize,
+#			wx.wxDefaultPosition,
+#			wx.wxDefaultSize,
 #			0
 #		)
 #		self.szrButtons.AddWindow(self.btnOK, 1, wxALIGN_CENTRE, 5)
@@ -194,18 +195,18 @@ class cPatientPickList(wxDialog):
 #		)
 #		self.szrButtons.AddWindow(self.btnNew, 1, wxALIGN_CENTRE, 5)
 
-		self.btnCancel = wxButton (
+		self.btnCancel = wx.wxButton (
 			self,
-			wxID_CANCEL,
+			wx.wxID_CANCEL,
 			_("&Cancel"),
-			wxDefaultPosition,
-			wxDefaultSize,
+			wx.wxDefaultPosition,
+			wx.wxDefaultSize,
 			0
 		)
-		self.szrButtons.AddWindow(self.btnCancel, 1, wxALIGN_CENTRE, 5)
+		self.szrButtons.AddWindow(self.btnCancel, 1, wx.wxALIGN_CENTRE, 5)
 
 		# and place them
-		self.szrMain.AddSizer(self.szrButtons, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5)
+		self.szrMain.AddSizer(self.szrButtons, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL, 5)
 
 		self.SetAutoLayout(True)
 		self.SetSizer(self.szrMain)
@@ -216,21 +217,21 @@ class cPatientPickList(wxDialog):
 		self.listctrl.SetFocus()
 
 #============================================================
-class cPatientSelector(wxTextCtrl):
+class cPatientSelector(wx.wxTextCtrl):
 	"""Widget for smart search for patients."""
-	def __init__ (self, parent, id = -1, pos = wxPyDefaultPosition, size = wxPyDefaultSize):
+	def __init__ (self, parent, id = -1, pos = wx.wxPyDefaultPosition, size = wx.wxPyDefaultSize):
 		self.curr_pat = gmPatient.gmCurrentPatient()
 
 		# need to explicitely process ENTER events to avoid
 		# them being handed over to the next control
-		wxTextCtrl.__init__(
+		wx.wxTextCtrl.__init__(
 			self,
 			parent,
 			id,
 			'',
 			pos,
 			size,
-			style = wxTE_PROCESS_ENTER
+			style = wx.wxTE_PROCESS_ENTER
 		)
 		selector_tooltip = _( \
 """Patient search field.                                   \n
@@ -246,7 +247,7 @@ and hit <ENTER>
 <CURSOR-UP>
  - recall most recently used search term
 """)
-		self.SetToolTip(wxToolTip(selector_tooltip))
+		self.SetToolTip(wx.wxToolTip(selector_tooltip))
 
 		self._display_name()
 
@@ -282,26 +283,28 @@ and hit <ENTER>
 	#--------------------------------------------------------
 	def __register_events(self):
 		# - process some special chars
-		EVT_CHAR(self, self._on_char)
+		wx.EVT_CHAR(self, self._on_char)
 		# - select data in input field upon tabbing in
-		EVT_SET_FOCUS (self, self._on_get_focus)
+		wx.EVT_SET_FOCUS (self, self._on_get_focus)
 		# - redraw the currently active name upon losing focus
 		#   (but see the caveat in the handler)
-		EVT_KILL_FOCUS (self, self._on_loose_focus)
+		wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
 		# - user pressed <enter>
-		EVT_TEXT_ENTER (self, self.GetId(), self._on_enter)
+		wx.EVT_TEXT_ENTER (self, self.GetId(), self._on_enter)
 		# - user single clicked left mouse button
-		EVT_LEFT_UP (self, self._on_get_left_up)
+		wx.EVT_LEFT_UP (self, self._on_get_left_up)
 
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 	#----------------------------------------------
 	def _on_patient_selected(self, **kwargs):
-		wxCallAfter(self._display_name)
+		wx.wxCallAfter(self._display_name)
 	#--------------------------------------------------------
 	def SetActivePatient(self, anID = None, data = None):
+		wx.wxBeginBusyCursor()
 		if not gmPatient.set_active_patient(anID):
 			_log.Log (gmLog.lErr, 'cannot change active patient')
+			wx.wxEndBusyCursor()
 			return None
 
 		# remember patient
@@ -309,12 +312,14 @@ and hit <ENTER>
 			# only unique patients
 			for prev_pat in self.prev_pats:
 				if prev_pat[0] == anID:
+					wx.wxEndBusyCursor()
 					return True
 			self.prev_pats.append(data)
 
 			# and only 10 of them
 			if len(self.prev_pats) > 10:
 				self.prev_pats.pop(0)
+		wx.wxEndBusyCursor()
 	#--------------------------------------------------------
 	# utility methods
 	#--------------------------------------------------------
@@ -361,7 +366,7 @@ and hit <ENTER>
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_loose_focus(self, evt):
-		# if we use EVT_KILL_FOCUS we will also receive this event
+		# if we use wx.EVT_KILL_FOCUS we will also receive this event
 		# when closing our application or loosing focus to another
 		# application which is NOT what we intend to achieve,
 		# however, this is the least ugly way of doing this due to
@@ -427,12 +432,12 @@ and hit <ENTER>
 				return True
 
 		# cycling through previous fragments
-		elif keycode == WXK_UP:
+		elif keycode == wx.WXK_UP:
 			if self.prev_search_term is not None:
 				self.SetValue(self.prev_search_term)
 			return True
 		
-#		elif keycode == WXK_DOWN:
+#		elif keycode == wx.WXK_DOWN:
 #			pass
 
 		evt.Skip()
@@ -451,11 +456,12 @@ and hit <ENTER>
 			_log.Log (gmLog.lInfo, "%s patient ID(s) fetched in %3.3f seconds" % (len(ids), duration))
 
 			if ids is None or len(ids) == 0:
-				dlg = wxMessageDialog(
+				# FIXME: gmGuiHelpers
+				dlg = wx.wxMessageDialog(
 					NULL,
 					_('Cannot find ANY matching patients for search term\n"%s" !\nCurrently selected patient stays active.\n\n(We should offer to jump to entering a new patient from here.)' % curr_search_term),
 					_('selecting patient'),
-					wxOK | wxICON_EXCLAMATION
+					wx.wxOK | wx.wxICON_EXCLAMATION
 					)
 				dlg.ShowModal()
 				dlg.Destroy()
@@ -492,7 +498,7 @@ and hit <ENTER>
 #------------------------------------------------------------
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-	app = wxPyWidgetTester(size = (200, 40))
+	app = wx.wxPyWidgetTester(size = (200, 40))
 	app.SetWidget(cPatientSelector, -1)
 	app.MainLoop()
 
@@ -609,7 +615,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.42  2004-07-18 19:51:12  ncq
+# Revision 1.43  2004-08-02 18:53:36  ncq
+# - used wxBegin/EndBusyCursor() around setting the active patient
+#
+# Revision 1.42  2004/07/18 19:51:12  ncq
 # - cleanup, use True/False, not true/false
 # - use run_ro_query(), not run_query()
 #
