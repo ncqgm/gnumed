@@ -29,7 +29,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -45,26 +45,17 @@ try:
 	import pyPgSQL.PgSQL # try preferred backend library
 	dbapi = pyPgSQL.PgSQL
 	_isPGDB = 0
-	#<DEBUG>
-	#print 'USING PYPGSQL!!!'
-	#</DEBUG>
 except ImportError:
 	try:
 	# well, well, no such luck - fall back to stock pgdb library
 		import psycopg # try Zope library
 		dbapi = psycopg
 		_isPGDB = 0
-		#<DEBUG>
-		#print 'USING PSYCOPG'
-		#</DEBUG>
 	except ImportError:
 		try:
 			import pgdb # try standard Postgres binding
 			dbapi = pgdb
 			_isPGDB = 1
-			#<DEBUG>
-			#print 'USING PGDB'
-			#</DEBUG>
 		except ImportError:
 			print "Cannot find any Python module for connecting to the database server. Program halted."
 			_log.LogException("No Python database adapter found.", sys.exc_info(), fatal=1)
@@ -217,7 +208,6 @@ class ConnectionPool:
 	#-----------------------------	
 	def LogError(self, msg):
 		"This function must be overridden by GUI applications"
-		print msg
 	#-----------------------------		
 	def SetFetchReturnsList(self, on=1):
 		"""when performance is crucial, let the db adapter
@@ -282,7 +272,6 @@ class ConnectionPool:
 		if login is None and ConnectionPool.__connected is None:
 			try:
 				login = inputLoginParams()
-				print login.GetDBAPI_DSN()
 			except:
 				_log.LogException("Exception: Cannot connect to databases without login information !", sys.exc_info(), fatal=1)
 				raise gmExceptions.ConnectionError("Can't connect to database without login information!")
@@ -329,8 +318,8 @@ class ConnectionPool:
 			###get the symbolic name of the distributed service
 			cursor.execute("select name from distributed_db where id = %d" %  db[dbidx['ddb']])
 			service = string.strip(cursor.fetchone()[0])
+			_log.Log(gmLog.lData, "mapping %s to %s" % (service, db[dbidx['db']]))
 			#map the id of the real database to the service
-			print "mapping %s to %s" % (service, str(db[dbidx['db']]))
 			ConnectionPool.__service_mapping[service] = db[dbidx['db']]
 
 			###initialize our reference counter
@@ -361,10 +350,8 @@ class ConnectionPool:
 
 		try:
 			if _isPGDB:
-				#print "trying PGDB"
 				db = dbapi.connect(dsn, host=hostport)
 			else:
-				#print "trying Non-PGDB"
 				db = dbapi.connect(dsn)
 			return db
 		except:
@@ -634,7 +621,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.32  2003-02-07 14:23:48  ncq
+# Revision 1.33  2003-02-19 23:41:23  ncq
+# - removed excessive printk's
+#
+# Revision 1.32  2003/02/07 14:23:48  ncq
 # - == None -> is None
 #
 # Revision 1.31  2003/01/16 14:45:04  ncq
