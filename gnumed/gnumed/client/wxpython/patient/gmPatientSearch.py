@@ -1,5 +1,7 @@
 """
-A plugin for searching the patient database by name
+A plugin for searching the patient database by name.
+Required the gmPatientWindowPlgin to be loaded.
+CANNOT BE UNLOADED
 """
 
 from wxPython.wx import *
@@ -19,7 +21,7 @@ ID_ALLERGYTXT = wxNewId ()
 class gmPatientSearch (gmPlugin.wxBasePlugin):
 
     def name (self):
-        return 'PatientSearch'
+        return 'Patient Search'
 
     def register (self):
         # first, set up the toolbar
@@ -38,14 +40,13 @@ class gmPatientSearch (gmPlugin.wxBasePlugin):
 	tb1.AddSeparator()	
 	tb1.AddControl(wxStaticText(tb1, -1, label ='Allergies', name = 'lblAge',size = (50,-1), style = 0))
 	self.pt_allergies_ctrl = wxTextCtrl(tb1, ID_ALLERGYTXT, name ="txtFindPatient",size =(250,-1),style = 0, value = '')
-        self.gb['main.top_toolbar.allergies'] = self.pt_allergies_ctrl # in case other widget wants to talk to this control
         tb1.AddControl (self.pt_allergies_ctrl)
 
         # now set up the searching list
-        self.mwm = self.gb ['main.manager']
+        self.mwm = self.gb ['patient.manager']
         ID_LIST = wxNewId ()
         self.srch_list = gmSQLListControl.SQLListControl (self.mwm, ID_LIST, hideid=true)
-        self.mwm.RegisterLeftSide ('find_patient_list', self.srch_list)
+        self.mwm.RegisterLeftSide ('Patient Search', self.srch_list)
         EVT_LIST_ITEM_SELECTED (self.srch_list, ID_LIST, self.OnSelected)
 
     def OnSearch (self, event):
@@ -53,7 +54,8 @@ class gmPatientSearch (gmPlugin.wxBasePlugin):
         Search for patient and display
         """
         name = split (lower(self.pt_name_ctrl.GetValue ()))
-        self.mwm.Display ('find_patient_list')
+        self.mwm.Display ('Patient Search')
+        self.gb['modules.gui']['Patient Window'].Raise ()
         if len (name) == 0: # list everyone! (temporary, for small database)
             query = """
 select id, firstnames, lastnames, dob, gender from v_basic_person

@@ -94,7 +94,7 @@ class ClinicalSummary(wxPanel):
         self.SetAutoLayout(true)                 #tell frame to use the sizer
         self.Show(true) 
 
-class gmGP_ClinicalSummary (gmPlugin.wxSmallPagePlugin):
+class gmGP_ClinicalSummary (gmPlugin.wxPatientPlugin):
     """
     Plugin to encapsulate the clinical summary
     """
@@ -110,6 +110,9 @@ class gmGP_ClinicalSummary (gmPlugin.wxSmallPagePlugin):
     def GetWidget (self, parent):
         return ClinicalSummary (parent, -1)
 
+    def register (self):
+        gmPlugin.wxPatientPlugin.register (self)
+        self.gb['patient.manager'].SetDefault ('Clinical Summary')
 
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 500))

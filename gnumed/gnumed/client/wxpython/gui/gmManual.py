@@ -128,12 +128,12 @@ class ManualHtmlPanel(wxPanel):
 
     def OnBack(self, event):
         if not self.html.HistoryBack():
-            gmLog.gmDefLog (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
+            gmLog.gmDefLog.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
 
 
     def OnForward(self, event):
         if not self.html.HistoryForward():
-            gmLog.gmDefLog (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
+            gmLog.gmDefLog.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
 
 
     def OnViewSource(self, event):
@@ -155,18 +155,15 @@ class ManualHtmlPanel(wxPanel):
 
 
 
-class gmManual (gmPlugin.wxBigPagePlugin):
+class gmManual (gmPlugin.wxNotebookPlugin):
     """
     Plugin to encapsulate the manual window
     """
     def name (self):
-        return 'GNUMed online manual'
+        return 'Manual'
 
     def MenuInfo (self):
         return ('help', '&Manual')
-
-    def GetIcon (self):
-        return images_gnuMedGP_Toolbar.getToolbar_ManualBitmap()
 
     def GetWidget (self, parent):
         return ManualHtmlPanel (parent, self.gb['main.frame'])

@@ -19,8 +19,9 @@ import gmConf
 import gmGuiBroker
 import gmDispatcher
 import gmShadow
+import gmPlugin
 
-class MainWindowManager (wxPanel):
+class PatientWindow (wxPanel):
 
     def __init__ (self, parent):
         wxPanel.__init__ (self, parent, -1)
@@ -41,6 +42,9 @@ class MainWindowManager (wxPanel):
 
     def SetDefault (self, d):
         self.default = d
+
+    def DisplayDefault (self):
+        self.Display (self.default)
 
     def RegisterWholeScreen (self, name, panel):
         """
@@ -153,8 +157,34 @@ class MainWindowManager (wxPanel):
             self.sizer.Add (self.vbox, 1, wxEXPAND, 0) 
             self.sizer.Layout ()
             self.visible = name
+
+    def GetVisible (self):
+        return self.visible
             
-            
+class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
+
+
+    def name (self):
+        return "Patient Window"
+
+    def MenuInfo (self):
+        return ('view', '&Patient')
+
+    def GetWidget (self, parent):
+        self.pw = PatientWindow (parent)
+        self.gb['patient.manager'] = self.pw
+        return self.pw
+
+    def register (self):
+        gmPlugin.wxNotebookPlugin.register (self)
+        for plugin in gmPlugin.GetAllPlugins ('patient'):
+            gmPlugin.LoadPlugin ('patient', plugin,
+                                 guibroker = self.gb)
+        self.pw.DisplayDefault ()
+        self.gb['toolbar.Patient Window'].Realize ()
+
+    def Shown (self):
+        self.gb['modules.patient'][self.pw.GetVisible ()].Shown ()
             
         
     

@@ -52,7 +52,7 @@ the tuples returned are all selected rows
 
 to get the attribute labels, call gmSQLWindow.GetLabels()"""
 
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -213,7 +213,7 @@ class SQLWindow(wxPanel):
 
 
 
-class gmSQL (gmPlugin.wxBigPagePlugin):
+class gmSQL (gmPlugin.wxNotebookPlugin):
     """
     Plugin to encapsulate the cryptowidget
     """
@@ -223,9 +223,6 @@ class gmSQL (gmPlugin.wxBigPagePlugin):
 
     def MenuInfo (self):
         return ('view', '&SQL')
-
-    def GetIcon (self):
-        return images_gnuMedGP_Toolbar.getToolbar_SQLBitmap()
 
     def GetWidget (self, parent):
         return SQLWindow (parent, -1)

@@ -15,7 +15,7 @@ class gmConsultType (gmPlugin.wxBasePlugin):
         return 'SQLPlugin'
 
     def register (self):
-        tb1 = self.gb['main.bottom_toolbar']
+        tb1 = self.gb['toolbar.Patient Window']
         tb1.AddSeparator()
         self.types = [_('Home'), _('Surgery'), _('Hospital'), _('Nursing home'), _('Telephone'), _('Other')]
         tb1.Realize ()

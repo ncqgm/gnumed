@@ -6,7 +6,7 @@ import images_gnuMedGP_Toolbar
 
 ID_CRYPTO = wxNewId ()
 
-class gmCrypto (gmPlugin.wxSmallPagePlugin):
+class gmCrypto (gmPlugin.wxPatientPlugin):
     """
     Plugin to encapsulate the cryptowidget
     """

@@ -67,7 +67,7 @@ class ImmunisationPanel(wxPanel):
           #dummy panel will later hold the editing area
           #--------------------------------------------
           self.dummypanel1 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
-	  self.dummypanel1.SetBackgroundColour(wxColor(222,222,222))
+	  self.dummypanel1.SetBackgroundColour(wxColor(222, 222, 222))
           #--------------------------------------------------
 	  #now create the editarea specific for immunisations
 	  #--------------------------------------------------
@@ -183,10 +183,15 @@ class ImmunisationPanel(wxPanel):
           self.mainsizer.Add(self.missingimmunisationtxt,4,wxEXPAND)
           self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
           self.SetSizer(self.mainsizer)
-          self.mainsizer.Fit
+          self.mainsizer.Fit (self)
           self.SetAutoLayout(true)
+          EVT_SIZE (self, self.OnSize)
+
+       def OnSize (self, event):
+              w, h = event.GetSize ()
+              self.mainsizer.SetDimension (0, 0, w, h)
       
-class gmGP_Immunisation (gmPlugin.wxSmallPagePlugin):
+class gmGP_Immunisation (gmPlugin.wxPatientPlugin):
     """
     Plugin to encapsulate the allergies window
     """

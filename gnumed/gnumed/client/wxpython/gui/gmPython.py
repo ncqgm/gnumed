@@ -1,9 +1,8 @@
 # a simple wrapper for the cryptowidget
 from wxPython.wx import *
 import gmPlugin
-import images_gnuMedGP_Toolbar
 
-class gmPython (gmPlugin.wxBigPagePlugin):
+class gmPython (gmPlugin.wxNotebookPlugin):
     """
     Plugin to encapsulate the Python shell
     """
@@ -13,9 +12,6 @@ class gmPython (gmPlugin.wxBigPagePlugin):
 
     def MenuInfo (self):
         return ('view', '&Python')
-
-    def GetIcon (self):
-        return images_gnuMedGP_Toolbar.getToolbar_PythonBitmap()
 
     def GetWidget (self, parent):
         from wxPython.lib.pyshell import PyShellWindow

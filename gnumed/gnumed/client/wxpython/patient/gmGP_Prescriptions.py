@@ -173,7 +173,7 @@ class PrescriptionPanel (wxPanel):
           self.Show(true)
       
           
-class gmGP_Prescriptions (gmPlugin.wxSmallPagePlugin):
+class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
     """
     Plugin to encapsulate the prescriptions window
     """

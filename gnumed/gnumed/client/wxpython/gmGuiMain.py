@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-03 12:15:16 $
-# @version $Revision: 1.24 $ $Date: 2002-07-03 12:15:16 $ $Author: ihaywood $
+# @Date: $Date: 2002-07-07 05:42:27 $
+# @version $Revision: 1.25 $ $Date: 2002-07-07 05:42:27 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -29,7 +29,7 @@
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # text translation function for localization purposes
@@ -44,7 +44,6 @@ import sys, time, os
 import gmLogFrame, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmConf
 import gmLog
 import gmPlugin
-import gmGP_MainWindowManager
 import images
 import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
 import images_gnuMedGP_TabbedLists             #bitmaps for tabs on notebook
@@ -128,7 +127,6 @@ class MainFrame(wxFrame):
 		
 		# the "top row", where all important patient data is always on display
 		#self.toprowpanel = gmtoprow.gmTopRow(self, 1)
-		
 		self.topbox = wxBoxSizer( wxHORIZONTAL)
 		self.patientpicture = gmGP_PatientPicture.PatientPicture(self,-1)	
 		self.tb = gmGP_Toolbar.Toolbar(self,-1)
@@ -138,33 +136,24 @@ class MainFrame(wxFrame):
 		self.guibroker['main.patientpicture'] = self.patientpicture
 		self.guibroker['main.toolbar'] = self.tb
 		self.vbox.AddSizer(self.topbox, 1, wxEXPAND) #|wxALL, 1)
-		if gmConf.config ['main.use_notebook']:
-			# now set up the main notebook
-			self.nb = wxNotebook (self, ID_NOTEBOOK, style=wxNB_BOTTOM)
-			self.guibroker['main.notebook'] = self.nb
-			self.vbox.Add (self.nb, 10, wxEXPAND|wxALL, 1)
-			self.mwm = gmGP_MainWindowManager.MainWindowManager(self.nb)
-			self.nb.AddPage (self.mwm, "Patient")
-		else:
-			self.mwm = gmGP_MainWindowManager.MainWindowManager(self)
-			self.vbox.Add(self.mwm, 10, wxEXPAND|wxALL, 1)
-		#
-		self.guibroker['main.manager'] = self.mwm
+		# now set up the main notebook
+		self.nb = wxNotebook (self, ID_NOTEBOOK, style=wxNB_BOTTOM)
+		self.guibroker['main.notebook'] = self.nb
+		# set change in toolbar
+		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebook)
+		self.vbox.Add (self.nb, 10, wxEXPAND|wxALL, 1)
 		for plugin in gmPlugin.GetAllPlugins ('gui'):
 			gmPlugin.LoadPlugin ('gui', plugin,
 						guibroker = self.guibroker,
 						dbbroker = backend)
-		self.mwm.SetDefault ('Clinical Summary')
-		self.mwm.Display (self.mwm.default)
 		# realize the toolbars
 		self.guibroker['main.top_toolbar'].Realize ()
-		self.guibroker['main.bottom_toolbar'].Realize ()
 		self.SetStatusText(_("You are logged in as [%s]") % user)
 
 		self.SetSizer( self.vbox )
 		self.vbox.Fit( self )
 		#don't let the window get too small
-		#self.vbox.SetSizeHints(self)
+		self.vbox.SetSizeHints(self)
 		#position the Window on the desktop
 		self.Fit ()
 		self.Centre(wxBOTH)
@@ -187,6 +176,19 @@ class MainFrame(wxFrame):
 		else:
 			myLog.Log(gmLog.lInfo,'running on an unknown platform')
 
+
+	def OnNotebook (self, event):
+		"""
+		Called when notebook changes
+		"""
+		nb_no = event.GetSelection ()
+		# show toolbar
+		self.tb.ShowBar (nb_no)
+		# tell module it is shown
+		for module in self.guibroker['modules.gui'].values ():
+			if issubclass (module.__class__, gmPlugin.wxNotebookPlugin):
+				if module.GetNotebookNumber () == nb_no:
+					module.Shown ()
 
 
 	def RegisterEvents(self):

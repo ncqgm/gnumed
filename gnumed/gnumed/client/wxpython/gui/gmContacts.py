@@ -23,6 +23,7 @@
 ############################################################################
 
 from wxPython.wx import *
+import gmPlugin
 ID_ORGANISATIONSLIST = wxNewId()
 ID_ALL_MENU  = wxNewId()
 ID_COMBOTYPE = wxNewId()
@@ -317,32 +318,15 @@ class ContactsPanel(wxPanel):
           self.SetAutoLayout(true)
           self.Show(true)
       
-          
-          
-      
-#class gmGP_PastHistory(gmPlugin.wxBasePlugin):
-    #"""
-    #Plugin to encapsulate the past history window
-    #"""
-    #def name (self):
-        #return 'PastHistoryPlugin'
+class gmContacts (gmPlugin.wxNotebookPlugin):
+	def name (self):
+		return "Contacts"
 
-    #def register (self):
-        #self.mwm = self.gb['main.manager']
-        #self.mwm.RegisterLeftSide ('pasthistory', PatientsPanel
-        #(self.mwm, -1))
-        #tb2 = self.gb['main.bottom_toolbar']
-        ##tb2.AddSeparator()
-	#tool1 = tb2.AddTool(ID_PASTHISTORY, images_gnuMedGP_Toolbar.getToolbar_PastHistoryBitmap(), shortHelpString="Past History")
-        #EVT_TOOL (tb2, ID_PASTHISTORY, self.OnPastHistoryTool)
-        #menu = self.gb['main.viewmenu']
-        #menu.Append (ID_ALL_MENU, "&Past History","Past History")
-        #EVT_MENU (self.gb['main.frame'], ID_ALL_MENU, self.OnPastHistoryTool)
+	def GetWidget (self, parent):
+		return ContactsPanel (parent, -1)
 
-
-    #def OnPastHistoryTool (self, event):
-        #self.mwm.Display ('pasthistory')
-          
+	def MenuInfo (self):
+		return ('view', '&Contacts')
           
 
 if __name__ == "__main__":

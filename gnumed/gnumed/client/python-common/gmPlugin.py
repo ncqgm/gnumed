@@ -54,6 +54,9 @@ class gmPlugin:
 	def unregister(self):
 		raise gmExceptions.PureVirtualFunction()
 
+
+
+
 class wxBasePlugin (gmPlugin):
 	
 	"""
@@ -92,7 +95,19 @@ class wxBasePlugin (gmPlugin):
 		"""
 		raise gmExceptions.PureVirtualFunction()
 
-class wxBigPagePlugin (wxBasePlugin):
+	def Raise (self):
+		"""
+		Raises this plugin to the top level if not visible
+		"""
+		raise gmExceptions.PureVirtualFunction ()
+
+	def Shown (self):
+		"""
+		called whenever this module is shown onscreen
+		"""
+		pass
+
+class wxNotebookPlugin (wxBasePlugin):
 	"""
 	Base plugin for plugins which provide a 'big page'
 	Either whole screen, or notebook if it exists
@@ -100,55 +115,43 @@ class wxBigPagePlugin (wxBasePlugin):
 
 	
 	def register (self):
-		if gmConf.config ['main.use_notebook']:
-			self.nb = self.gb['main.notebook']
-			self.nb_no = self.nb.GetPageCount ()
-			self.nb.AddPage (self.GetWidget (self.nb), self.name ())
-		else:
-			self.mwm = self.gb['main.manager']
-			self.mwm.RegisterWholeScreen (self.name (), self.GetWidget (self.mwm))
-			icon = self.GetIcon ()
-			if icon is not None:
-				tb2 = self.gb['main.bottom_toolbar']
-				tb2.AddSeparator()
-				self.tool_id = wxNewId ()
-				tool1 = tb2.AddTool(self.tool_id, icon,
-						    shortHelpString=self.name ())
-				EVT_TOOL (tb2, tool_id, self.OnTool)
-			
+		self.nb = self.gb['main.notebook']
+		self.nb_no = self.nb.GetPageCount ()
+		self.nb.AddPage (self.GetWidget (self.nb), self.name ())
+		self.tbm = self.gb['main.toolbar']
+		tb = self.tbm.AddBar (self.nb_no)
+		self.gb['toolbar.%s' % self.name ()] = tb
 		menuset, menuname = self.MenuInfo ()
 		menu = self.gb['main.%smenu' % menuset]
 		self.menu_id = wxNewId ()
 		menu.Append (self.menu_id, menuname, self.name ())
-		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnTool)
+		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
 
 	def unregister (self):
 		menu = self.gb['main.%smenu' % self.MenuInfo ()[0]]
 		menu.Delete (menu_id)
-		if gmConf.config['main.use_notebook']:
-			nb = gb['main.notebook']
-			nb.DeletePage (self.nb_no)
-		else:
-			self.mwm.Unregister (self.name ())
-			if self.GetIcon () is not None:
-				tb2 = self.gb['main.bottom_toolbar']
-				tb2.DeleteTool (self.tool_id)
-		
-	def OnTool (self, event):
-		if gmConf.Get ('main.use_notebook'):
-			self.nb.SetSelection (self.nb_no)
-		else:
-			self.mwm.Display (self.name ())
+		nb = gb['main.notebook']
+		nb.DeletePage (self.nb_no)
+		self.tbm.DeleteBar (self.nb_no) 
+	
 
-#
+	def Raise (self):
+		self.nb.SetSelection (self.nb_no)
+		self.tbm.ShowBar (self.nb_no)
+
+	def OnMenu (self, event):
+		self.Raise ()
+
+	def GetNotebookNumber (self):
+		return self.nb_no
 
 
-class wxSmallPagePlugin (wxBasePlugin):
+class wxPatientPlugin (wxBasePlugin):
 	"""
-	A 'small page', sits inside the patient view, with the sider visible
+	A 'small page', sits inside the patient view, with the side visible
 	"""
 	def register (self):
-		self.mwm = self.gb['main.manager']
+		self.mwm = self.gb['patient.manager']
 		if gmConf.config['main.shadow']:
 			shadow = gmShadow.Shadow (self.mwm, -1)
 			widget = self.GetWidget (shadow)
@@ -158,7 +161,7 @@ class wxSmallPagePlugin (wxBasePlugin):
 			self.mwm.RegisterLeftSide (self.name (), self.GetWidget (self.mwm))
 		icon = self.GetIcon ()
 		if icon is not None:
-			tb2 = self.gb['main.bottom_toolbar']
+			tb2 = self.gb['toolbar.Patient Window']
 			tb2.AddSeparator()
 			self.tool_id = wxNewId ()
 			tool1 = tb2.AddTool(self.tool_id, icon,
@@ -173,16 +176,17 @@ class wxSmallPagePlugin (wxBasePlugin):
 	def OnTool (self, event):
 		self.mwm.Display (self.name ())
 
+	def Raise (self):
+		self.gb['modules.gui']['Patient Window'].Raise ()
+		self.mwm.Display (self.name ())
+
 	def unregister (self):
 		self.mwm.Unregister (self.name ())
 		menu = self.gb['main.%smenu' % self.MenuInfo ()[0]]
 		menu.Delete (menu_id)
 		if self.GetIcon () is not None:
-			tb2 = self.gb['main.bottom_toolbar']
+			tb2 = self.gb['tollbar.Patient Window']
 			tb2.DeleteTool (self.tool_id)
-		
-	    
-
 
 
 
@@ -213,7 +217,7 @@ def LoadPlugin (set, plugin_name, guibroker = None, dbbroker = None):
 		if issubclass (plugin_class, wxBasePlugin):
 			plugin = plugin_class (guibroker = guibroker, dbbroker = dbbroker)
 			plugin.register ()
-			guibroker['modules.%s' % set][plugin_name] = plugin
+			guibroker['modules.%s' % set][plugin.name()] = plugin
 			log (lInfo, "registing plugin %s" % plugin_name)
 		else:
 			log (lErr, "class %s is not a subclass of wxBasePlugin" % name)
@@ -227,9 +231,8 @@ def GetAllPlugins (set):
 	"""
 	gb = gmGuiBroker.GuiBroker ()
 	dir = gb['gnumed_dir']
-	# dir = '%s/wxpython/%s' % (dir, set)
-	# HACK:
-	dir = '%s/../test-area/terry/%s' % (dir, set)
+	# in future versions we will ask the backend where plguins are
+	dir = os.path.join (dir, 'wxpython', set)
 	
 	files = os.listdir (dir)
 	ret = []

@@ -152,7 +152,7 @@ class AllergyPanel(wxPanel):
           self.SetAutoLayout(true)
           self.Show(true)
 
-class gmGP_Allergies (gmPlugin.wxSmallPagePlugin):
+class gmGP_Allergies (gmPlugin.wxPatientPlugin):
     """
     Plugin to encapsulate the allergies window
     """
