@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/import/Attic/remove-imported_dirs.sh,v $
-# $Revision
+# $Revision: 1.2 $
 # GnuMed, GPL, Karsten.Hilbert@gmx.net
 
 # this will delete/move data that has been successfully imported
@@ -15,9 +15,10 @@ DONEFILE="imported.txt"
 BACKUP="/somewhere/"
 
 for DIR in $REPOSITORY ; do
+	#echo $DIR
 	if test -f $DIR/$DONEFILE; then
 		# those are the ones we want deleted
-		DUMMY="dummy"
+		#echo "this dir can be deleted"
 
 		# kill 'em
 		#rm -f $DIR/* && rmdir -f $DIR
@@ -29,6 +30,9 @@ done
 
 #==============================================================
 # $Log: remove-imported_dirs.sh,v $
-# Revision 1.1  2002-12-23 08:51:29  ncq
+# Revision 1.2  2002-12-25 16:03:51  ncq
+# - proofread, debugging
+#
+# Revision 1.1  2002/12/23 08:51:29  ncq
 # - the remove script belongs into import/ of course
 #
