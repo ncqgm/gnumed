@@ -1,29 +1,26 @@
-#!/usr/bin/env python
-#############################################################################
-#
-# gmBMICalc.py  Feedback: anything which is incorrect or ambiguous please
-#                   mailto rterry@gnumed.net
-# ---------------------------------------------------------------------------
-#
-# @author: Dr. Richard Terry
-# 
-# @acknowledgments: Gui screen Design taken with permission from
-#                   DrsDesk BMICalc @ DrsDesk Software 1995-2002
-#                   and @ Dr.R Terry
-#                   Based on an early screen design by Michael Ireland
-#                   heavily commented for learning purposes by Dr. R Terry
-# @copyright: authors
-# @license: GPL (details at http://www.gnu.org)
-# @dependencies: wxPython (>= version 2.3.2)
-#
-# @TODO:
-# - button QUIT
-# - patient related "normal" range
-############################################################################
+"""GnuMed BMI calculator display widgets.
+
+acknowledgments: Gui screen Design taken with permission from
+                 DrsDesk BMICalc @ DrsDesk Software 1995-2002
+                 and @ Dr.R Terry
+                 Based on an early screen design by Michael Ireland
+                 heavily commented for learning purposes by Dr. R Terry
+
+copyright: authors
+
+TODO:
+ - button QUIT
+ - patient related "normal" range
+ - factor out Algo parts
+"""
+#===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmBMIWidgets.py,v $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmBMIWidgets.py,v 1.2 2004-08-06 08:56:04 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
-				Michael Bonert <bonerti@mie.utoronto.ca>"
+				Michael Bonert <bonerti@mie.utoronto.ca>,\
+				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL (details at http://www.gnu.org)"
 
 import os.path
 
@@ -533,8 +530,6 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 
 #== if run as standalone =======================================================
 if __name__ == '__main__':
-
-	#---------------------
 	# set up dummy app
 	class TestApp (wxApp):
 		def OnInit (self):
@@ -545,50 +540,13 @@ if __name__ == '__main__':
 	wxInitAllImageHandlers()
 	app = TestApp()
 	app.MainLoop()
-#== if run as plugin ===========================================================
-#else:
-#	from Gnumed.wxpython import gmPlugin
 
-#	ID_BMIMENU = wxNewId ()
-#	ID_BMITOOL = wxNewId ()
-
-	#---------------------
-#	class gmBMICalc (gmPlugin.wxBasePlugin):
-
-#		def name (self):
-#			return 'BMICalcPlugin'
-		#---------------------
-#		def register (self):
-#			menu = self.gb['main.toolsmenu']
-#			menu.Append (ID_BMIMENU, _("BMI"), _("Body Mass Index Calculator"))
-#			EVT_MENU (self.gb['main.frame'], ID_BMIMENU, self.OnBMITool)
-
-#			top_panel = self.gb['main.top_panel']
-#			self.tool = wxToolBar (top_panel, -1, style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
-#			self.tool.AddTool(
-#				ID_BMITOOL,
-#				self.GetIcon(),
-#				shortHelpString = _("BMI Calculator")
-#			)
-#			top_panel.AddWidgetRightBottom (self.tool)
-#			EVT_TOOL(self.tool, ID_BMITOOL, self.OnBMITool)
-		#---------------------
-#		def unregister (self):
-#			menu = self.gb['main.toolsmenu']
-#			menu.Delete (ID_BMIMENU)
-		#---------------------
-#		def OnBMITool (self, event):
-#			# FIXME: update patient ID
-#			frame = BMI_Frame(self.gb['main.frame'])
-#			frame.Centre(wxBOTH)
-#			icon_bmp_data = self.GetIcon()
-#			icon = wxEmptyIcon()
-#			icon.CopyFromBitmap(icon_bmp_data)
-#			frame.SetIcon(icon)
-#			frame.Show (1)
 #=====================================================================
 # $Log: gmBMIWidgets.py,v $
-# Revision 1.1  2004-08-06 08:47:13  ncq
+# Revision 1.2  2004-08-06 08:56:04  ncq
+# - cleanups after surgery
+#
+# Revision 1.1  2004/08/06 08:47:13  ncq
 # - moved here from wxpython/patient/ as it is not a patient plugin
 #
 # Revision 1.30  2004/07/18 20:30:54  ncq
