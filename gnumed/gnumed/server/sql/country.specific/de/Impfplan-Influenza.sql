@@ -6,14 +6,14 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Influenza.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- Impfplan erstellen
 insert into vacc_regime
-	(fk_recommended_by, fk_indication, description)
+	(fk_recommended_by, fk_indication, name)
 values (
 	-1,
 	(select id from vacc_indication where description='influenza'),
@@ -35,11 +35,14 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfplan-Influenza.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Influenza.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Influenza.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: Impfplan-Influenza.sql,v $
--- Revision 1.2  2003-12-01 22:13:57  ncq
+-- Revision 1.3  2003-12-29 15:57:58  uid66147
+-- - name cleanup
+--
+-- Revision 1.2  2003/12/01 22:13:57  ncq
 -- - wording change
 --
 -- Revision 1.1  2003/11/30 12:37:39  ncq
