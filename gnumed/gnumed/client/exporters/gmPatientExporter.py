@@ -3,15 +3,15 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.6 2004-05-12 14:34:41 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPatientExporter.py,v 1.7 2004-06-20 18:35:07 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
 import sys, traceback, string, types
 
 from Gnumed.pycommon import gmLog, gmPG, gmI18N
-from Gnumed.business import gmClinicalRecord, gmPatient
+from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab
 if __name__ == "__main__":
 	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 from Gnumed.pycommon.gmPyCompat import *
@@ -32,7 +32,7 @@ class gmEmrExport:
 	Default constructor
 	"""
 	def __init__(self):
-		pass
+		lab_new_encounter = True
 	#--------------------------------------------------------
 	def get_vaccination_for_cell(self, vaccs, date, field, text = None):
 		"""
@@ -46,6 +46,11 @@ class gmEmrExport:
 			if  a_vacc[field].Format('%Y-%m-%d') == date:
 				if text == None:
 					return a_vacc['batch_no']
+				if text == 'DUE':
+				    if a_vacc['overdue'] == True:
+				        text = 'OVERDUE  '
+				    else:
+				        text = 'DUE      '
 				return text
 		return None				
 	#--------------------------------------------------------
@@ -59,13 +64,12 @@ class gmEmrExport:
 		vaccinations.extend(emr.get_vaccinations())
 		due_vaccs = emr.get_missing_vaccinations()
 		vaccinations.extend(due_vaccs['due'])
-#		vaccinations.extend(due_vaccs['overdue'])
 		vaccinations.extend(due_vaccs['boosters'])
 		#print "Total vaccination items : %i" % len(vaccinations)
 		
 		# Retrieve all vaccination indications
 		vacc_indications = []
-		status, v_indications = emr.get_indications_from_vaccinations(vaccinations)
+		status, v_indications = gmVaccination.get_indications_from_vaccinations(vaccinations)
 		for v_ind in v_indications:
 			if v_ind[0] not in vacc_indications:
 				vacc_indications.append(v_ind[0])
@@ -78,9 +82,9 @@ class gmEmrExport:
 		#print "Dates: "
 		total_vacc_dates = []
 		for a_vacc in vaccinations:
-			if a_vacc['date']:
+			try:
 				a_date = a_vacc['date'].Format('%Y-%m-%d')
-			elif a_vacc['latest_due']:
+			except:
 				a_date = a_vacc['latest_due'].Format('%Y-%m-%d')
 			if not a_date in total_vacc_dates:
 				total_vacc_dates.append(a_date)
@@ -121,14 +125,11 @@ class gmEmrExport:
 				row_column = 0
 				txt+= an_indication + " "*(max_indication_length-len(an_indication)) + "|"
 				for a_date in vacc_dates:
-					cell_txt = self.get_vaccination_for_cell(emr.get_vaccinations(indication_list = [an_indication]), a_date, 'date')
+					cell_txt = self.get_vaccination_for_cell(emr.get_vaccinations(indications = [an_indication]), a_date, 'date')
 					if cell_txt is None:
-						cell_txt = self.get_vaccination_for_cell(emr.get_missing_vaccinations(indication_list = [an_indication])['due'], a_date, 'latest_due', 'DUE      ')
-					# FIXME: due and overdue now in "missing", differentiate by vacc['overdue'] = false/true
-#					if cell_txt is None:
-#						cell_txt = self.get_vaccination_for_cell(emr.get_missing_vaccinations(indication_list = [an_indication])['overdue'], a_date, 'latest_due', 'OVERDUE  ')
+						cell_txt = self.get_vaccination_for_cell(emr.get_missing_vaccinations(indications = [an_indication])['due'], a_date, 'latest_due', 'DUE')
 					if cell_txt is None:
-						cell_txt = self.get_vaccination_for_cell(emr.get_missing_vaccinations(indication_list = [an_indication])['boosters'], a_date, 'latest_due', '*DUE    ')					
+						cell_txt = self.get_vaccination_for_cell(emr.get_missing_vaccinations(indications = [an_indication])['boosters'], a_date, 'latest_due', '*DUE    ')					
 					if cell_txt is not None:
 						txt += cell_txt + '\t|'									
 					else:
@@ -136,7 +137,124 @@ class gmEmrExport:
 				txt += '\t\n'    		
 					
 		return txt
-	#--------------------------------------------------------	
+	#--------------------------------------------------------
+	def get_items_for_episode(self, emr, episode):
+	   """
+        Retrieves all clinical items for a concrete episode
+        emr - Patient's electronic clinical record
+        episode - Episode whose items are  to be obtained
+	   """
+	   items = []
+	   items.extend(emr.get_allergies(episodes = [episode['id_episode']]))
+	   items.extend(emr.get_vaccinations(episodes = [episode['id_episode']]))
+	   items.extend(emr.get_lab_results(episodes = [episode['id_episode']]))
+	   return items
+    #--------------------------------------------------------
+	def get_encounters_for_items(self, emr, items):
+	    """
+            Extracts and retrieves encounters for a list of items
+            emr - Patient's electronic clinical record
+            items - Items whose  encounters are to be obtained
+	    """
+	    encounter_ids = []
+	    for an_item in items:
+	        try :
+	            encounter_ids.append(an_item['id_encounter'])
+	        except:
+	            encounter_ids.append(an_item['pk_encounter'])
+	    return emr.get_encounters(id_list = encounter_ids)
+	#--------------------------------------------------------
+	def dump_item_fields(self, offset, item, field_list):
+	    """
+            Dump information related to the fields of a clinical item
+            offset - Number of left blank spaces
+            item - Item of the field to dump
+            fields - Fields to dump
+	    """
+	    txt = ''
+	    for a_field in field_list:
+	        txt += offset*' ' + a_field + (20-len(a_field))*' ' + ':\t' + str(item[a_field]) + '\n'
+	    return txt
+	#--------------------------------------------------------
+	def get_allergy_output(self, allergy):
+	    """
+            Dumps allergy item data
+            allergy - Allergy item to dump
+	    """
+	    txt = ''
+	    txt += 12*' ' + 'Allergy: \n'
+	    txt += self.dump_item_fields(15, allergy, ['allergene', 'substance', 'generic_specific','l10n_type', 'definite', 'reaction'])
+	    return txt
+	#--------------------------------------------------------
+	def get_vaccination_output(self, vaccination):
+	    """
+            Dumps vaccination item data
+            vaccination - Vaccination item to dump
+	    """
+	    txt = ''
+	    txt += 12*' ' + 'Vaccination: \n'
+	    txt += self.dump_item_fields(15, vaccination, ['l10n_indication', 'vaccine', 'batch_no', 'site', 'narrative'])	    
+	    return txt
+	#--------------------------------------------------------
+	def get_lab_result_output(self, lab_result):
+	    """
+            Dumps lab result item data
+            lab_request - Lab request item to dump
+	    """
+	    txt = ''
+	    if self.lab_new_encounter:
+	        txt += 12*' ' + 'Lab result: \n'
+	    txt += 15*' ' + lab_result['unified_name'] + (20-len(lab_result['unified_name']))*' ' + ':\t' + lab_result['unified_val']+ ' ' + lab_result['val_unit'] + '(' + lab_result['material'] + ')' + '\n'
+	    return txt
+	#--------------------------------------------------------
+	def get_item_output(self, item):
+	    """
+            Obtains formatted clinical item output dump
+            item - The clinical item to dump
+	    """
+	    txt = ''
+	    if isinstance(item, gmAllergy.cAllergy):
+	        txt += self.get_allergy_output(item)
+	    elif isinstance(item, gmVaccination.cVaccination):
+	        txt += self.get_vaccination_output(item)
+	    elif isinstance(item, gmPathLab.cLabResult):
+	        txt += self.get_lab_result_output(item)
+	        self.lab_new_encounter = False
+	    return txt
+	#--------------------------------------------------------
+	def get_historical_tree(self, emr = None, since_val = None, until_val = None, encounters_val = None, episodes_val = None, issues_val = None):
+	    """
+	    Dumps patient's historical in form of a tree of health issues
+	                                                    -> episodes
+	                                                       -> encounters
+	                                                          -> clinical items
+	    emr - patient's electronic medical record
+	    """
+	    # FIXME filter by date range, issue, episode, encounter
+	    txt = ''
+	    h_issues = emr.get_health_issues()
+	    for h_issue in h_issues:
+	        txt += '\n' + 3*' ' + 'Health Issue: ' + h_issue['description'] + '\n'
+	        for an_episode in emr.get_episodes(issues = [h_issue['id']]):
+	           txt += '\n' + 6*' ' + 'Episode: ' + an_episode['description'] + '\n'
+	           items = self.get_items_for_episode(emr, an_episode)
+	           encounters = self.get_encounters_for_items(emr, items)
+	           for an_encounter in encounters:
+                    self.lab_new_encounter = True
+                    txt += '\n' + 9*' ' + 'Encounter: ' + an_encounter['started'].Format('%Y-%m-%d') + ' to ' + \
+                    an_encounter['last_affirmed'].Format('%Y-%m-%d') + ' ' + \
+                    an_encounter['description'] + '\n'
+                    for an_item  in items:
+                        try:
+                            if an_item['id_encounter'] == an_encounter['pk_encounter']:
+                                txt += self.get_item_output(an_item)
+                        except:
+                            #traceback.print_exc(file=sys.stdout)
+                            # FIXME unify fk field names in views
+                            if an_item['pk_encounter'] == an_encounter['pk_encounter']:
+                                txt += self.get_item_output(an_item)
+	    return txt
+	#--------------------------------------------------------
 	def dump_clinical_record(self, patient, since_val = None, until_val = None, encounters_val = None, episodes_val = None, issues_val = None):
 		"""
 		Dumps in ASCII format patient's clinical record
@@ -159,15 +277,26 @@ class gmEmrExport:
 		txt =''
 		txt += "Overview:\n"
 		txt += "--------\n"
+		print txt
+		
+		txt = ''
 		txt += "1) Allergy status (for details, see below):\n\n"
 		for allergy in 	emr.get_allergies():
-			txt += "   -" + allergy['descriptor'] + "\n"
+			txt += "   " + allergy['descriptor'] + "\n"
 		txt += "\n"
-
-		txt += "2)Vaccination status (* indicates booster):\n\n"
+		print txt
+		
+		txt = ''
+		txt += "2) Vaccination status (* indicates booster):\n\n"
 		txt += self.get_vacc_table(emr)
 		print txt
+		
+		txt = ''
+		txt += "3) Historical:\n\n"
+		txt += self.get_historical_tree(emr, since_val, until_val, encounters_val, episodes_val, issues_val)
+		print txt
 
+		emr.cleanup()
 	#--------------------------------------------------------
 	def dump_demographic_record(self, all = False):
 		"""
@@ -210,14 +339,17 @@ if __name__ == "__main__":
 	print "Info and confirmation (PENDING)"
 
 	gmPG.set_default_client_encoding('latin1')
+	# make sure we have a connection
 	gmPG.ConnectionPool()
 	export_tool = gmEmrExport()
+	patient = None
 
 	try:
 		while 1:
 			patient_id = prompted_input("Patient ID (or 'bye' to exit) [14]: ", '14')
 			if patient_id == 'bye':
-				gmPG.ConnectionPool().StopListeners()
+				if patient is not None:
+					patient.cleanup()
 				sys.exit(0)
 			patient = gmPatient.gmCurrentPatient(patient_id)
 			since = prompted_input("Since (eg. 2001-01-01): ")
@@ -234,17 +366,20 @@ if __name__ == "__main__":
 			export_tool.dump_demographic_record(True)
 			export_tool.dump_clinical_record(patient, since_val=since, until_val=until ,encounters_val=encounters, episodes_val=episodes, issues_val=issues)
 			#print(patient.get_document_folder())
-	
-		gmPG.ConnectionPool().StopListeners()
+			patient.cleanup()
 	except SystemExit:
 		print "Normally exited, bye"
 	except:
 		traceback.print_exc(file=sys.stdout)
-		gmPG.ConnectionPool().StopListeners()
+		if patient is not None:
+			patient.cleanup()
 		sys.exit(1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.6  2004-05-12 14:34:41  ncq
+# Revision 1.7  2004-06-20 18:35:07  ncq
+# - more work from Carlos
+#
+# Revision 1.6  2004/05/12 14:34:41  ncq
 # - now displays nice vaccination tables
 # - work by Carlos Moro
 #
