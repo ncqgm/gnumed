@@ -394,7 +394,6 @@ class SnellenDialogue (wxDialog):
     """
     Dialogue class to get Snellen chart settings.
     """
-    
     def __init__ (self, parent):
         wxDialog.__init__(self, parent, -1, _("Snellen Chart Setup"),
                       wxDefaultPosition, wxSize(350, 200))
@@ -460,7 +459,7 @@ double-click ends""")), 0, wxALL, 15)
 
 
 
-
+# FIXME needn't be a plugin, rewrite to not be one
 class gmSnellen (gmPlugin.wxBasePlugin):
     tab_name = _('Snellen Chart')
 
@@ -495,4 +494,4 @@ if __name__ == '__main__':
 		app = TestApp ()
 		app.MainLoop ()
 
-    main ()  
+    main()

@@ -12,31 +12,21 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.15 2004-03-02 10:21:10 ihaywood Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmManual.py,v 1.16 2004-03-12 13:25:15 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
-import sys, os
+import os
 
 from   wxPython.wx		   import *
 from   wxPython.html	   import *
 import wxPython.lib.wxpTag
 
-if __name__ == "__main__":
-	sys.path.append('..', '..', 'pycommon')
+from Gnumed.pycommon import gmLog, gmGuiBroker
+from Gnumed.wxpython import gmPlugin, images_for_gnumed_browser16_16, images_gnuMedGP_Toolbar
 
-import gmLog
 _log = gmLog.gmDefLog
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-
 _log.Log(gmLog.lData, __version__)
-
-import gmGuiBroker, gmPlugin
-
-import images_for_gnumed_browser16_16
-import images_gnuMedGP_Toolbar
-
 _manual_path = 'user-manual/index.html'
 
 ID_MANUALCONTENTS = wxNewId()
@@ -251,7 +241,10 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.15  2004-03-02 10:21:10  ihaywood
+# Revision 1.16  2004-03-12 13:25:15  ncq
+# - import, cleanup
+#
+# Revision 1.15  2004/03/02 10:21:10  ihaywood
 # gmDemographics now supports comm channels, occupation,
 # country of birth and martial status
 #
