@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-31 13:02:23 $
-# @version $Revision: 1.34 $ $Date: 2002-07-31 13:02:23 $ $Author: rterry $
+# @Date: $Date: 2002-08-01 10:40:26 $
+# @version $Revision: 1.35 $ $Date: 2002-08-01 10:40:26 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -151,6 +151,9 @@ class MainFrame(wxFrame):
 		self.SetSizer( self.vbox )
 		self.vbox.Fit( self )
 		#don't let the window get too small
+		# FIXME: should load last used size here
+		# setsizehints only allows minimum size, therefore window can't become small enough
+		# effectively we need the font size to be configurable according to screen size
 		#self.vbox.SetSizeHints(self)
 		#position the Window on the desktop
 		self.Fit ()
