@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -169,6 +169,9 @@ if __name__ == "__main__":
 	except ImportError:
 		exc = sys.exc_info()
 		gmLog.gmDefLog.LogException ("Exception: Cannot load modules.", exc)
+		sys.exit("CRITICAL ERROR: Can't load gmI18N, gmGuiBroker or gmGuiMain ! - Program halted.\n \
+				  Please check whether your PYTHONPATH and/or GNUMED_DIR environment\n \
+				  variables are set correctly.")
 
 	gb = gmGuiBroker.GuiBroker ()
 	gb['gnumed_dir'] = appPath # EVERYONE must use this!
@@ -205,3 +208,9 @@ else:
 	print "This shouldn't be used as a module !"
 	print "------------------------------------"
 	print __doc__
+
+#============================================================================
+# $Log: gnumed.py,v $
+# Revision 1.40  2002-09-08 23:31:09  ncq
+# - really fail on failing to load a module
+#
