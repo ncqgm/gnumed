@@ -16,77 +16,23 @@
 # - automatic child object creation for foreign keys
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.13 $"                                               
+__version__ = "$Revision: 1.14 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 
 import string
-
 #==============================================================
-QTablePrimaryKey = """
-SELECT
-	indkey
-FROM
-	pg_index
-WHERE
-	indrelid =
-	(SELECT oid FROM pg_class WHERE relname = '%s');
-"""
-
-QTableForeignKeys = """
-SELECT
-	pg_trigger.*, pg_proc.proname, pg_class.relname, pg_type.typname
-FROM
-	pg_proc
-		INNER JOIN pg_trigger ON pg_proc.oid = pg_trigger.tgfoid 
-		INNER JOIN pg_class ON pg_trigger.tgrelid = pg_class.oid 
-		INNER JOIN pg_type ON pg_trigger.tgtype = pg_type.oid 
-WHERE
-	pg_class.relname = '%s';
-"""
-
 _cached_tables = []		
 _table_metadata = {}
 _column_indices = {}
 _primarykeys = {}
 _foreignkeys = {}
 #==============================================================
-def listForeignKeys(con, table):
-	"""returns a dictionary of referenced foreign keys:
-	key = column name of this table
-	value = (referenced table name, referenced column name) tuple
-	con = open database connection (DBAPI 2.0)"""
-	global QTableForeignKeys
-	references = {}
-	cursor = con.cursor()
-	try:
-		cursor.execute(QTableForeignKeys % table)
-	except ValueError:
-		return {}
-	d = cursor.description
-	tgargs = 0
-	#get the index of the column we are interested in, since we are fetching a list
-	#and don't know anything about the order of columns in this table
-	for row in d:
-		if row[0] != 'tgargs':
-			tgargs += 1
-		else:
-			break
-	fkresult = cursor.fetchall()
-	if len(fkresult) <=0:
-		return {}
-	for fk in fkresult:
-		#ugly hack to cope with the NULL characters in the array
-		fkarray = repr(fk[tgargs])
-		fkname, referencing_table, referenced_table, dummy, referencing_column, referenced_column, dummy2  = string.split(fkarray, '\\x00')
-		references[referencing_column] = (referenced_table, referenced_column)
-	return references
-
 def listPrimaryKey(con, table):
 	"""return the column index of the primary key of the stated table
 	con = open database connection (DBAPI 2.0)"""
-	global QTablePrimaryKey
+	global gmPG.QTablePrimaryKeyIndex
 	cursor = con.cursor()
-	cursor.execute(QTablePrimaryKey % table)
+	cursor.execute(gmPG.QTablePrimaryKeyIndex % table)
 	pk = cursor.fetchone()
 	return int(pk[0])-1
 
@@ -108,7 +54,7 @@ def cache_table_info(con, table, cursor=None):
 		cursor.execute("select * from %s limit 1" % table)
 		
 	_table_metadata[table] = cursor.description
-	_foreignkeys[table] = listForeignKeys(con, table)
+	_foreignkeys[table] = gmPG.get_fkey_defs(con, table)
 	_primarykeys[table] = listPrimaryKey(con, table)
 	index = {}
 	for i in range(len (cursor.description)):
@@ -423,7 +369,10 @@ if __name__ == "__main__":
 	
 #==============================================================
 # $Log: gmPgObject.py,v $
-# Revision 1.13  2003-02-07 14:26:28  ncq
+# Revision 1.14  2003-09-30 19:09:30  ncq
+# - use a lot more of the gmPG infrastructure
+#
+# Revision 1.13  2003/02/07 14:26:28  ncq
 # - code commenting, basically
 #
 # Revision 1.12  2003/02/03 16:25:56  ncq
