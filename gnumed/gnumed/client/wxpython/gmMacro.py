@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random
@@ -62,7 +62,7 @@ class cMacroPrimitives:
 	def version(self):
 		if not self.__attached:
 			return 0
-		return "%s $Revision: 1.3 $" % self.__class__.__name__
+		return "%s $Revision: 1.4 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self):
 		"""Raise ourselves to the top of the desktop."""
@@ -93,7 +93,6 @@ class cMacroPrimitives:
 		if len(pat_id) > 1:
 			return (0, _('several matching patients found for [%s]') % a_search_term)
 		if not gmPatient.set_active_patient(pat_id[0][0]):
-			return 0
 			return (0, _('cannot activate patient [%s] (%s)') % (pat_id[0][0], a_search_term))
 		pat.lock()
 		self.__pat_lock_cookie = str(random.random())
@@ -146,7 +145,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.3  2004-02-05 20:46:18  ncq
+# Revision 1.4  2004-02-05 23:52:05  ncq
+# - remove spurious return 0
+#
+# Revision 1.3  2004/02/05 20:46:18  ncq
 # - require attach() cookie for detach(), too
 #
 # Revision 1.2  2004/02/05 20:40:34  ncq
