@@ -54,14 +54,15 @@ class DrugView:
 		self.__getFormatInfo()
 
 		# initialize DrugIds
-		self.mLastId = -1
+		self.mLastId = {}
 		self.mCurrId = -1
         
-	def SearchIndex(self, aType=None, aName=None , aMode='exact'):
+	def SearchIndex(self, aType=None, aName=None , aMode='exact', format=0):
 		"""
 		Search a for a certain drug. Possible values for index type include
 		0 (brand name index), 1 (generic name index) and 2 (indication index).
-		mode can be either exact matching, regular expression ('re') matching or
+		mode can be either exact matching (that is, match all given letters 
+		using the LIKE operator), regular expression ('re') matching or
 		complete list ('complete').
 		"""
 
@@ -97,7 +98,7 @@ class DrugView:
 
 		result = self.mDrugInterface.GetData(index + suffix,refresh=1)
 		return result
-
+        	
 	def getBrandsForGeneric(self,aId):
 		"""
         Returns a list of drugs for a given generic substance.
@@ -184,15 +185,18 @@ class DrugView:
         All types using parameters from a query must supply a list of parameters
         used via entry 'usedvars' in config file.
         """
-        # if the drug ID has not changed, use cached data
-		refresh=0
-		if self.mLastId != self.mCurrId:
-			refresh=1
-			self.mLastId = self.mCurrId
 
 		# query group and format type of current position
 		group = self.__mGroupPos[pos]
 		type = self.__mFormatType[pos]
+
+        # if the drug ID has not changed for this query group, use cached data
+		refresh=0
+		if not self.mLastId.has_key(group):
+			self.mLastId[group] = -1
+		if self.mLastId[group] != self.mCurrId:
+			refresh=1
+			self.mLastId[group] = self.mCurrId
             
 # DEBUG
 #		print "TextPart: ",group, " ", type
@@ -368,3 +372,8 @@ def translateASCII2HTML(aString = None):
  
 if __name__ == "__main__":
 	pass
+
+# $Log: gmDrugView.py,v $
+# Revision 1.5  2002-11-09 15:10:47  hinnef
+# detect ID changes for every query group in GetTextPart
+#
