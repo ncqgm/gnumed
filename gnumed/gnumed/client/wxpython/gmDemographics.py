@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.55 2005-02-20 10:15:16 ihaywood Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmDemographics.py,v 1.56 2005-02-20 10:45:49 sjtan Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "R.Terry, SJ Tan, I Haywood"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1003,7 +1003,7 @@ class DemographicDetailWindow(wx.Panel):
 			self.lb_nok.Append (s, i)
 
 
-	def _on_patient_selected (self, kwargs):
+	def _on_patient_selected (self, **kwargs):
 		self.load_identity (kwargs['patient'].get_identity ())
 		
 	def load_identity (self, identity):
@@ -1041,7 +1041,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.55  2005-02-20 10:15:16  ihaywood
+# Revision 1.56  2005-02-20 10:45:49  sjtan
+#
+# kwargs syntax error.
+#
+# Revision 1.55  2005/02/20 10:15:16  ihaywood
 # some tidying up
 #
 # Revision 1.54  2005/02/20 09:46:08  ihaywood
