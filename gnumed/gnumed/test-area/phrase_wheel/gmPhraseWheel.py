@@ -20,7 +20,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 
 __log__ = gmLog.gmDefLog
 #============================================================
@@ -554,8 +554,6 @@ if __name__ == '__main__':
 # - highlight matched parts
 # - faster scrolling
 # - wxEditableListBox ?
-
-# - press down only once to get into list
 
 # - if non-learning (i.e. fast select only): autocomplete with match
 #   and move cursor to end of match
