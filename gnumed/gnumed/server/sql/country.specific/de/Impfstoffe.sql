@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -254,6 +254,35 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
 values (currval('vaccine_id_seq'), (select id from vacc_indication where description='poliomyelitis'));
 
+-------------
+-- Revaxis --
+-------------
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	comment
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'REVAXIS',
+	'Revaxis',
+	false,
+	'6 years'::interval,
+	'nicht zur Grundimmunisierung verwenden, Tetanus-Diphtherie-inaktivierter Poliomyelitis-Adsorbat-Impfstoff'
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='tetanus'));
+
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='diphtheria'));
+
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='poliomyelitis'));
+
 ----------
 -- FSME --
 ----------
@@ -330,6 +359,29 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
 values (currval('vaccine_id_seq'), (select id from vacc_indication where description='rubella'));
 
+------------
+-- Masern --
+------------
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	comment
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'Masern-Impfstoff Mérieux',
+	'Masern',
+	true,
+	'12 months'::interval,
+	'Masern-Impfstoff Mérieux'
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='measles'));
+
 ----------------------
 -- Infanrix-IPV+Hib --
 ----------------------
@@ -365,6 +417,29 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
 values (currval('vaccine_id_seq'), (select id from vacc_indication where description='haemophilus influenzae b'));
 
+-------------
+-- Act-HiB --
+-------------
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	max_age
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'Act-HiB',
+	'HiB',
+	false,
+	'2 months'::interval,
+	'5 years'::interval
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='haemophilus influenzae b'));
+
 --------------
 -- Pentavac --
 --------------
@@ -377,8 +452,8 @@ insert into vaccine (
 	max_age
 ) values (
 	(select id from vacc_route where abbreviation='i.m.'),
-	'Pentavac',
-	'Pentavac',
+	'PentaVac',
+	'PentaVac',
 	false,
 	'2 months'::interval,
 	'5 years'::interval
@@ -403,11 +478,14 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.15  2004-04-30 09:21:54  ncq
+-- Revision 1.16  2004-06-25 10:27:18  ncq
+-- - Revaxis/Masern-Impfstoff/Act-HiB
+--
+-- Revision 1.15  2004/04/30 09:21:54  ncq
 -- - min_age must be > 0 years
 --
 -- Revision 1.14  2004/04/27 17:06:46  ncq
