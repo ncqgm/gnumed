@@ -1,5 +1,0 @@
-recursive-include client/bitmaps *.png
-recursive-include client/doc *
-include client/man-pages/gnumed.1
-recursive-include client/locale *
-recursive-include html *
