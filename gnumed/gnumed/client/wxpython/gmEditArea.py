@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from wxPython.wx import *
 
 ID_PROGRESSNOTES = wxNewId()
