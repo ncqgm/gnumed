@@ -1,8 +1,19 @@
 """
-	GnuMed SOAP input panel
+	GnuMed multisash based SOAP input panel
+	
+	Health issues are selected in a list.
+	The user can split new soap windows, which are disposed
+	in stack.
+	Usability is provided by:
+		-Logically enabling/disabling action buttons
+		-Controlling user actions and rising informative
+		 message boxes when needed.
+
+	Post-0.1? :
+		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
