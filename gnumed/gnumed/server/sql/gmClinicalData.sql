@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.30 2004-07-18 11:50:19 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.31 2004-09-25 13:23:32 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -137,11 +137,30 @@ INSERT INTO enum_confidentiality_level (description) values (i18n('treating doct
 
 -- ===================================================================
 -- measurements stuff
--- your own practice as a test-providing org
+
+delete from test_org;
+
+-- various "organizations" taking measurements
+-- patient taking measurements herself
 insert into test_org (fk_org, internal_name, comment) values (
 	-1,
-	'your own practice',
-	'for inhouse lab/tests'
+	i18n('patient'),
+	'self-measurement as reported by patient'
+);
+
+-- if you want to be lazy and just link all external results to one fake providing lab
+insert into test_org (fk_org, internal_name, comment) values (
+	-2,
+	i18n('external org'),
+	'any external organization, regardless
+	 of real source for measurements'
+);
+
+-- your own practice as a test-providing org
+insert into test_org (fk_org, internal_name, comment) values (
+	-3,
+	i18n('your own practice'),
+	'for inhouse lab/tests/measurements'
 );
 
 -- measurement definitions
@@ -149,37 +168,67 @@ insert into test_org (fk_org, internal_name, comment) values (
 insert into test_type (
 	fk_test_org, code, coding_system, name, comment, basic_unit
 ) values (
-	1, i18n('wght'), null, i18n('weight (body mass)'), i18n('the patient''s weight (body mass to be accurate)'), 'kg'
+	currval('test_org_pk_seq'),
+	i18n('wght'),
+	null,
+	i18n('weight (body mass)'),
+	i18n('the patient''s weight (body mass to be accurate)'),
+	'kg'
 );
--- template
+-- height
 insert into test_type (
 	fk_test_org, code, coding_system, name, comment, basic_unit
 ) values (
-	1, i18n('hght'), null, i18n('height'), i18n('lying in infants, else standing, see result notes'), 'm'
+	currval('test_org_pk_seq'),
+	i18n('hght'),
+	null,
+	i18n('height'),
+	i18n('lying in infants, else standing, see result notes'),
+	'm'
 );
 -- blood pressure
 -- manually/by device, sitting/lying/standing, Riva-Rocci vs. other methods handled in result specifics
 insert into test_type (
 	fk_test_org, code, coding_system, name, comment, basic_unit
 ) values (
-	1, i18n('RR'), null, i18n('blood pressure'), i18n('specifics attached to result record'), 'Pa'
+	currval('test_org_pk_seq'),
+	i18n('RR'),
+	null,
+	i18n('blood pressure'),
+	i18n('specifics attached to result record'),
+	'Pa'
 );
 -- pulse
 insert into test_type (
 	fk_test_org, code, coding_system, name, comment, basic_unit
 ) values (
-	1, i18n('pulse'), null, i18n('pulse, periph.art.'), i18n('peripheral arterial pulse'), 'Hz'
+	currval('test_org_pk_seq'),
+	i18n('pulse'),
+	null,
+	i18n('pulse, periph.art.'),
+	i18n('peripheral arterial pulse'),
+	'Hz'
 );
 -- peripheral arterial oxygenation
 insert into test_type (
 	fk_test_org, code, coding_system, name, comment, basic_unit
 ) values (
-	1, i18n('SpO2'), null, i18n('blood oxygen saturation'), i18n('peripheral arterial blood oxygenization level, transduced'), '%'
+	currval('test_org_pk_seq'),
+	i18n('SpO2'),
+	null,
+	i18n('blood oxygen saturation'),
+	i18n('peripheral arterial blood oxygenization level, transduced'),
+	'%'
 );
 --insert into test_type (
 --	fk_test_org, code, coding_system, name, comment, basic_unit
 --) values (
---	'missing', 1, i18n(''), null, i18n(''), i18n(''), ''
+--	currval('test_org_pk_seq'),
+--	i18n('code'),
+--	null,
+--	i18n('name'),
+--	i18n('comment'),
+--	'unit'
 --);
 
 -- ===================================================================
@@ -535,11 +584,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.30 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.31 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.30  2004-07-18 11:50:19  ncq
+-- Revision 1.31  2004-09-25 13:23:32  ncq
+-- - add dummy test orgs for in-house/self-measured/generic external
+--
+-- Revision 1.30  2004/07/18 11:50:19  ncq
 -- - added arbitrary typing of clin_root_items
 --
 -- Revision 1.29  2004/07/05 18:52:26  ncq
