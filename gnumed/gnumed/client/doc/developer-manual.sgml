@@ -1,0 +1,92 @@
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<book>
+   <bookinfo>
+     <date>2002-09-03</date>
+     <title>GNUMed</title>
+     <subtitle>Developers's Manual</subtitle>
+    
+	<author>	
+      		<firstname>Gerardo</firstname>
+		<surname>Arnaez</surname>
+      
+      </author>
+
+<abstract>
+	<para>      
+      Copyright (c) 2001,2002 GNUMed developers</para>
+      <para>
+      Permission is granted to copy, distribute and/or modify this document
+      under the terms of the GNU Free Documentation License, Version 1.1
+      or any later version published by the Free Software Foundation;
+      with no Invariant Sections, with no
+      Front-Cover Texts, and with no Back-Cover Texts.</para>
+      <para>
+      A copy of the license is included in the section entitled "GNU
+      Free Documentation License".</para>
+   </abstract>
+
+<revhistory>
+      <revision>
+	<revnumber>0.1</revnumber>
+	<date>2002-09-03</date>
+	<authorinitials>gea</authorinitials>
+	<revremark>Initial developers manual written, mostly will copy from savanah.gnu.org</revremark>
+      </revision>
+
+    </revhistory>
+
+
+   </bookinfo>
+   <toc></toc>
+
+<preface>
+	<title>Preface</title>
+	<para>GnuMed never sleeps.</para>
+</preface>
+
+<chapter id="intro">
+     <title>Introduction</title>
+
+    <para>GNUMed is  a comprehensive scalable software solution for paperless 
+medical practice with emphasis on privacy protection, secure patient-centric 
+record sharing, decision support and ease of use.
+</para>
+       <para>GNUMed is not yet ready for download as a package.
+It will become available at 
+<ulink url="http://gnumed.org/">
+<citetitle>gnumed.org</citetitle></ulink>.
+ 
+It is released under the GNU 
+General Public Licence, see the file <filename>LICENCE</filename> for details.
+</para>
+
+  </chapter>
+
+  <chapter>
+    <title>Checking out, Checking in GnuMed CVS</title>
+    <sect1>
+      <title>Developer CVS Access via SSH (Version 1, RSA)</title>
+      <para>Only project developers can access the CVS tree via this method. SSH1 must be installed on your client machine. If you have SSH version two, add
+	<screen>Host subversions.gnu.org
+Protocol 1</screen>
+      </para>
+      <para>In my case, I simply re-installed ssh, and made sure both Protcol 1 and 2 were allowed and then put in <screen>Protocol 1,2</screen> in my <emphasis>~/.ssh/config</emphasis> file.
+      </para>
+      <para>TODO: PUT IN INSTRUCTIONS ON CREATING SSH KEY</para>
+    </sect1>
+    <sect1>
+      <title>Basic commands</title>
+      <para>Again just making it clear</para>
+      <para>To Checkout CVS as a developer, you will type:</para>
+      <screen>cvs -z3 -d<emphasis>dude</emphasis>@subversions.gnu.org:/cvsroot/gnumed/ co gnumed</screen>
+
+      <para>To update your tree, you will type:</para>
+      <screen>cvs -z3 -ddude@subversions.gnu.org:/cvsroot/gnumed/ update gnumed</screen>
+      <para>To commit your changes, type:</para>
+      <screen>cvs -z3 -ddude@subversions.gnu.org:/cvsroot/gnumed/ commit gnumed</screen>
+      <para>Remember that you will be asked for your passphrase. This is different from your password to savannah.gnu.org</para>
+    </sect1>
+  </chapter>
+
+</book>
