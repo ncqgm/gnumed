@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.10 2004-05-03 12:50:34 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmPathLab.py,v 1.11 2004-05-03 15:30:58 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types
@@ -50,6 +50,17 @@ class cLabResult(gmClinItem.cClinItem):
 #		'site',
 #		'batch_no'
 	]
+	#--------------------------------------------------------
+	def get_patient(self):
+		cmd = """
+			select vpi.id_patient, vbp.title, vbp.firstnames, vbp.lastnames, vbp.dob
+			from v_patient_items vpi, test_result tr, v_basic_person vbp
+			where
+				vpi.id_item=tr.pk_item
+					and
+				vbp.i_id=vpi.id_patient"""
+		pat = gmPG.run_ro_query('historica', cmd)
+		return pat[0]
 #============================================================
 class cLabRequest(gmClinItem.cClinItem):
 	"""Represents one lab request."""
@@ -206,59 +217,42 @@ class cTestType(gmClinItem.cClinItem):
 def create_test_type(lab=None, code=None, unit=None, name=None):
 	"""Create or get test type.
 
-		- returns tuple (status, value)
-		- status:
-			True: a-ok
-			False: foobar
-			None: ambigous, user intervention required
-		- value if status is:
-			- True: test type primary key
-			- False: error message
-			- None: housekeeping todo primary key
+		returns tuple (status, value):
+			(True, test type instance)
+			(False, error message)
+			(None, housekeeping_todo primary key)
 	"""
-	if None in [code, lab]:
-		_log.Log(gmLog.lErr, 'need <lab> and <code> to check for test type: %s:%s' % (lab, code))
-		return (False, 'argument error: %s:%s:%s' % (lab, code, unit))
-	# already there ?
-	cmd = """
-		select pk_test_type, test_name from v_test_org_profile
-		where internal_name=%s and test_code=%s
-		"""
-	rows = gmPG.run_ro_query('historica', cmd, None, lab, code)
-	# error
-	if rows is None:
-		_log.Log(gmLog.lErr, 'error checking test type existence [%s:%s] (%s [%s])' % (lab, code, name, unit))
-		return (False, 'cannot check test type existence')
-	# found
-	if len(rows) == 1:
-		# check <name>
-		if name is not None:
-			if name != rows[0][1]:
-				_log.Log(gmLog.lWarn, 'test type [%s:%s] found but long name is different (DB: %s, expected: %s)' % (lab, code, rows[0][1], name))
-				me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.10 $'
-				to = 'user'
-				prob = _('The test type already exists but the long name is different. '
-						'The test facility may have changed the descriptive name of this test.')
-				sol = _('Verify with facility and change the old descriptive name to the new one.')
-				ctxt = _('lab [%s], code [%s], expected long name [%s], existing long name [%s], unit [%s]') % (lab, code, name, rows[0][1], unit)
-				cat = 'lab'
-				status, data = gmPG.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
-				return (None, data)
-		return (True, rows[0][0])
-	# found but ambigous
-	if len(rows) > 1:
-		_log.Log(gmLog.lErr, 'several test types found for [%s:%s]: %s, this should not be possible' % (lab, code, rows))
-		me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.10 $'
-		to = 'user'
-		prob = _('More than one matching test type. This should be impossible.')
-		sol = _('Please check the test type definitions and possibly remove duplicates.')
-		ctxt = _('lab [%s], code [%s], long name [%s], unit [%s], primary keys %s') % (lab, code, name, unit, rows)
-		status, data = gmPG.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
-		return (None, data)
+	ttype = None
+	try:
+		ttype = cTestType(lab=lab, code=code)
+	except gmExceptions.ConstructorError, msg:
+		# either not found or operational error
+		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		if str(msg).startswith('no test type for'):
+			return (False, msg)
+	# found ?
+	if ttype is not None:
+		if name is None:
+			return (True, ttype)
+		db_lname = ttype['name']
+		# yes but ambigous
+		if name != db_lname:
+			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.11 $'
+			to = 'user'
+			prob = _('The test type already exists but the long name is different. '
+					'The test facility may have changed the descriptive name of this test.')
+			sol = _('Verify with facility and change the old descriptive name to the new one.')
+			ctxt = _('lab [%s], code [%s], expected long name [%s], existing long name [%s], unit [%s]') % (lab, code, name, db_lname, unit)
+			cat = 'lab'
+			status, data = gmPG.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
+			return (None, data)
+		return (True, ttype)
 	# not found, so create it
 	if unit is None:
-		_log.Log(gmLog.lErr, 'need <unit> to create test type: %s:%s:%s' % (lab, code, unit))
-		return (False, 'argument error: %s:%s:%s' % (lab, code, unit))
+		_log.Log(gmLog.lErr, 'need <unit> to create test type: %s:%s:%s:%s' % (lab, code, name, unit))
+		return (False, 'argument error: %s:%s:%s%s' % (lab, code, name, unit))
+	# make query
 	cols = []
 	val_snippets = []
 	vals = {}
@@ -283,7 +277,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		cols.append('name')
 		val_snippets.append('%(name)s')
 		vals['name'] = name
-	# make query
+	# join query parts
 	col_clause = ','.join(cols)
 	val_clause = ','.join(val_snippets)
 	queries = []
@@ -291,27 +285,40 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	queries.append((cmd, [vals]))
 	cmd = "select currval('test_type_id_seq')"
 	queries.append((cmd, []))
+	# insert new
 	result, err = gmPG.run_commit('historica', queries, True)
 	if result is None:
 		return (False, err)
-	return (True, result[0][0])
+	try:
+		ttype = cTestType(aPKey=result[0][0])
+	except gmExceptions.ConstructorError, msg:
+		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		return (False, msg)
+	return (True, ttype)
 #------------------------------------------------------------
 def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, episode_id=None):
+	"""Create or get lab request.
+
+		returns tuple (status, value):
+			(True, lab request instance)
+			(False, error message)
+			(None, housekeeping_todo primary key)
+	"""
 	req = None
 	try:
 		req = cLabRequest(lab=lab, req_id=req_id)
 	except gmExceptions.ConstructorError, msg:
 		# either not found or operational error
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
-		if msg.startswith('error getting lab request'):
+		if not str(msg).startswith('error getting lab request'):
 			return (False, msg)
-	# found
+	# found ?
 	if req is not None:
 		db_pat = req.get_patient()
-		# but ambigous
+		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.10 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.11 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -371,7 +378,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.10  2004-05-03 12:50:34  ncq
+# Revision 1.11  2004-05-03 15:30:58  ncq
+# - add create_lab_request()
+# - add cLabResult.get_patient()
+#
+# Revision 1.10  2004/05/03 12:50:34  ncq
 # - relative imports
 # - str()ify some things
 #
