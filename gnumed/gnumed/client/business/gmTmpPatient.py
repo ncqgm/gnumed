@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.9 2003-02-21 16:42:02 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmTmpPatient.py,v 1.10 2003-03-25 12:32:31 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -179,7 +179,7 @@ class gmPatient:
 		tmp = curs.fetchall()
 		docs = []
 		for doc_id in tmp:
-			docs.extend(doc_id)		
+			docs.extend(doc_id)
 		_log.Log(gmLog.lData, "document IDs: %s" % docs)
 
 		if curs.rowcount == 0:
@@ -212,10 +212,26 @@ class gmPatient:
 			}
 			return result
 	#--------------------------------------------------------
+	def __getTitle(self):
+		curs = self.__defconn.cursor()
+		cmd = "select title from v_basic_person where id = %s;"
+		try:
+			curs.execute(cmd, self.ID)
+		except:
+			curs.close()
+			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
+			return None
+		data = curs.fetchone()
+		curs.close()
+		if data is None:
+			return ''
+		else:
+			return data[0]
+	#--------------------------------------------------------
 	__get_handler['document id list'] = __getMedDocsList
 	__get_handler['active name'] = __getActiveName
 	#__get_handler['all names'] = __getNamesList
-
+	__get_handler['title'] = __getTitle
 #============================================================
 def get_patient():
 	"""Get a patient object.
@@ -248,21 +264,21 @@ def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
 		# start our transaction (done implicitely by defining a cursor)
 		cursor = conn.cursor()
 		cmd = "SELECT id FROM v_basic_person WHERE %s;" % where_clause
-		try:
-			cursor.execute(cmd)
-		except:
-			_log.LogException('>>>%s<<< failed' % (cmd % where_clause), sys.exc_info())
+		if not gmPG.run_query(cursor, cmd):
 			cursor.close()
 			backend.ReleaseConnection('personalia')
 			raise
-		pat_ids = cursor.fetchall()
+
+		tmp = cursor.fetchall()
 		cursor.close()
 		backend.ReleaseConnection('personalia')
 
-		if pat_ids is None:
+		if tmp is None or len(tmp) == 0:
 			_log.Log(gmLog.lInfo, "No matching patients.")
-		else:
-			_log.Log(gmLog.lData, "matching patient IDs: [%s]" % pat_ids)
+			return None
+		pat_ids = []
+		for pat_id in tmp:
+			pat_ids.extend(pat_id)
 
 		return pat_ids
 
@@ -300,7 +316,8 @@ def _make_where_from_cooked(cooked_search_terms = None):
 		if data['dob'] is None:
 			where_dob = ''
 		else:
-			where_dob = "dob = (select to_timestamp('%s', 'YYYYMMDD'))" % data['dob']
+			#where_dob = "dob = (select to_timestamp('%s', 'YYYYMMDD'))" % data['dob']
+			where_dob = "dob = '%s'" % data['dob']
 
 		if data['gender'] is None:
 			where_gender = ''
@@ -313,6 +330,79 @@ def _make_where_from_cooked(cooked_search_terms = None):
 
 	return ' AND '.join((where_fname, where_lname, where_dob, where_gender))
 #------------------------------------------------------------
+def create_patient(data):
+	"""Create or load and return gmTmpPatient object.
+
+	- not None: either newly created patient or existing patient
+	- None: failure
+	"""
+
+	# patient already in database ?
+	try:
+		pat_ids = get_patient_ids(cooked_search_terms = data)
+	except:
+		_log.Log(gmLog.lData, data)
+		_log.LogException('huh ?', sys.exc_info())
+		return None
+
+	if pat_ids is not None:
+		_log.Log(gmLog.lData, "matching patient IDs: [%s]" % pat_ids)
+		if len(pat_ids) > 1:
+			_log.Log(gmLog.lErr, 'Several matching patients. Integrity violation. Aborting.')
+			return None
+		else:
+			_log.Log(gmLog.lData, 'patient already in database')
+			pat = gmPatient(aPKey = pat_ids[0])
+			return pat
+
+	# data must have all keys since it survived get_patient_ids()
+	cmd =  "INSERT INTO v_basic_person (title, firstnames, lastnames, dob, cob, gender) \
+			VALUES ('%s', '%s', '%s', '%s', '%s', '%s');" % (
+				data['title'],
+				data['first name'],
+				data['last name'],
+				data['dob'],
+				data['cob'],
+				data['gender']
+			)
+
+	# get connection
+	backend = gmPG.ConnectionPool()
+	conn = backend.GetConnection('personalia', readonly = 0)
+	# start our transaction (done implicitely by defining a cursor)
+	cursor = conn.cursor()
+
+	if not gmPG.run_query(cursor, cmd):
+		_log.Log(gmLog.lErr, 'Cannot insert patient.')
+		_log.Log(gmLog.lErr, data)
+		cursor.close()
+		conn.close()
+		return None
+
+	# get new patient's ID
+	cmd = "SELECT last_value FROM identity_id_seq;"
+	if not gmPG.run_query(cursor, cmd):
+		cursor.close()
+		conn.close()
+		return None
+	pat_id = cursor.fetchone()[0]
+	_log.Log(gmLog.lData, 'new patient ID: %s' % pat_id)
+
+	# close connection
+	conn.commit()
+	cursor.close()
+	conn.close()
+
+	# and init new patient object
+	try:
+		pat = gmPatient(aPKey = pat_id)
+	except:
+		_log.LogException('cannot init patient with ID [%s]' % pat_id, sys.exc_info())
+		return None
+
+	return pat
+#============================================================
+# callbacks
 #------------------------------------------------------------
 def _patient_selected(**kwargs):
 	global gmDefPatient
@@ -343,7 +433,11 @@ else:
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.9  2003-02-21 16:42:02  ncq
+# Revision 1.10  2003-03-25 12:32:31  ncq
+# - create_patient helper
+# - __getTitle
+#
+# Revision 1.9  2003/02/21 16:42:02  ncq
 # - better error handling on query generation
 #
 # Revision 1.8  2003/02/18 02:41:54  ncq
