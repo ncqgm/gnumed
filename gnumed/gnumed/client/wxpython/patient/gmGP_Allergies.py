@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -122,10 +122,9 @@ class AllergyPanel(wxPanel):
 		gmDispatcher.connect(self.UpdateAllergies, gmSignals.allergy_updated())
 	#-----------------------------------------------
 	def UpdateAllergies(self, **kwargs):
-		#kwds = kwargs['kwds']
 		try:
 			epr = self.__pat['clinical record']
-			allergies = epr['allergies']
+			allergies = epr.get_allergies()
 		except:
 			_log.LogException( "problem getting allergy list", sys.exc_info(), 4)
 			return None
@@ -143,23 +142,6 @@ class AllergyPanel(wxPanel):
 
 		return 1
 
-#		query = "select id, type, status, class, generic, reaction from v_allergies where id_identity =%s" % kwds['ID']
-		#try:
-#		db = gmPG.ConnectionPool().GetConnection('clinical')
-#		cursor = db.cursor()
-#		cursor.execute(query)
-#		rows = cursor.fetchall()
-		#except:
-		#	return
-#		for index in range(len(rows)):
-#			row=rows[index]
-#			key =row[0]
-#			self.list_allergy.InsertStringItem(index, row[1])
-#			self.list_allergy.SetItemData(index, key)
-#			for column in range(2, len(row)):
-#				self.list_allergy.SetStringItem(index, column, row[column])
-#		for column in range(len(row)-1):
-#			self.list_allergy.SetColumnWidth(column, wxLIST_AUTOSIZE)
 #----------------------------------------------------------------------
 class gmGP_Allergies (gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the allergies window"""
@@ -197,7 +179,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.15  2003-10-26 01:36:14  ncq
+# Revision 1.16  2003-11-09 14:52:25  ncq
+# - use new API in clinical record
+#
+# Revision 1.15  2003/10/26 01:36:14  ncq
 # - gmTmpPatient -> gmPatient
 #
 # Revision 1.14  2003/06/03 14:28:33  ncq
