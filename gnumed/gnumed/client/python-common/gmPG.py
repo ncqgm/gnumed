@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.90 $"
+__version__ = "$Revision: 1.91 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -585,11 +585,14 @@ def run_query(aCursor = None, aQuery = None, *args):
 		_log.Log(gmLog.lErr, 'need query to run it')
 		return None
 
+#	t1 = time.time()
 	try:
 		aCursor.execute(aQuery, *args)
 	except:
 		_log.LogException("query >>>%s<<< with args >>>%s<<< failed" % (aQuery, args), sys.exc_info(), verbose = _query_logging_verbosity)
 		return None
+#	t2 = time.time()
+#	print t2-t1, aQuery
 	return 1
 #---------------------------------------------------
 def run_commit (link_obj = None, queries = None, return_err_msg = None):
@@ -636,6 +639,7 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 		close_conn = 1
 	# run queries
 	for query, args in queries:
+#		t1 = time.time()
 		try:
 			curs.execute (query, *args)
 		except:
@@ -652,6 +656,8 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 				tmp = string.strip(tmp)
 				return (None, 'SQL: %s' % tmp)
 			return None
+#		t2 = time.time()
+#		print t2-t1, query
 		if _query_logging_verbosity == 1:
 			_log.Log(gmLog.lData, '%s rows affected by >>>%s<<<' % (curs.rowcount, query))
 	# did we get result rows in the last query ?
@@ -721,6 +727,7 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 		curs = conn.cursor()
 		close_cursor = 1
 		close_conn = 1
+#	t1 = time.time()
 	# run the query
 	try:
 		curs.execute(aQuery, *args)
@@ -734,6 +741,8 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 			return None
 		else:
 			return None, None
+#	t2 = time.time()
+#	print t2-t1, aQuery
 	# and return the data, possibly including the column index
 	if curs.description is None:
 		data = None
@@ -1079,7 +1088,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.90  2004-01-18 21:48:42  ncq
+# Revision 1.91  2004-01-22 23:41:06  ncq
+# - add commented out query timing code
+#
+# Revision 1.90  2004/01/18 21:48:42  ncq
 # - some important comments on what to do and not to do where
 # - StopListeners()
 # - remove dead code, cleanup
