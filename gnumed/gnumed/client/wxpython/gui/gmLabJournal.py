@@ -314,11 +314,12 @@ class cLabJournalNB(wxNotebook):
 		
 		self.fld_request_id.Clear()
 		self.lab_wheel.Clear()
-		self.lbox_pending.DeleteAllItems()
 		
 		#------ due PNL ------------------------------------
 		# FIXME: make limit configurable
 		too_many, pending_requests = gmPathLab.get_pending_requests(limit=250)
+		# clear list
+		self.lbox_pending.DeleteAllItems()
 		# FIXME: make use of too_many
 		for request in pending_requests:
 			item_idx = self.lbox_pending.InsertItem(info=wxListItem())
@@ -337,6 +338,10 @@ class cLabJournalNB(wxNotebook):
 		
 		#----- import errors PNL -----------------------
 		lab_errors = self.__get_import_errors()
+		
+		# clear list
+		self.lbox_errors.DeleteAllItems()
+		# populate list
 		for lab_error in lab_errors:
 			item_idx = self.lbox_errors.InsertItem(info=wxListItem())
 			# when was error reported
@@ -355,6 +360,9 @@ class cLabJournalNB(wxNotebook):
 		#t2 = time.time()
 		#print t2-t1
 		
+		# clear list
+		self.LstCtrl_unreviewed.DeleteAllItems()
+		# populate list
 		for item_idx in range(len(data)):
 			result = data[item_idx]
 			# -- put checkbox in first column
@@ -402,30 +410,31 @@ class cLabJournalNB(wxNotebook):
 		labs = gmPG.run_ro_query('historica', query, None, data)
 		return labs
 	#------------------------------------------------------------------------
-	def __get_last_used_ID(self, lab_name):
-		query = """
-			select request_id 
-			from lab_request lr0 
-			where lr0.clin_when = (
-				select max(lr1.clin_when)
-				from lab_request lr1 
-				where lr1.fk_test_org = ( 
-					select pk 
-					from test_org 
-					where internal_name=%s 
-				)
-			)"""
-		last_id = gmPG.run_ro_query('historica', query, None, lab_name)
-		return last_id
+	#def __get_last_used_ID(self, lab_name):
+	#	query = """
+	#		select request_id 
+	#		from lab_request lr0 
+	#		where lr0.clin_when = (
+	#			select max(lr1.clin_when)
+	#			from lab_request lr1 
+	#			where lr1.fk_test_org = ( 
+	#				select pk 
+	#				from test_org 
+	#				where internal_name=%s 
+	#			)
+	#		)"""
+	#	last_id = gmPG.run_ro_query('historica', query, None, lab_name)
+	#	return last_id
 	#--------------------------------------------------------------------------	
-	def guess_next_id(self, lab_name):
+	def guess_next_id(self, id):
 	
-		if not len(self.__get_last_used_ID(lab_name)) == 0:
-			last = self.__get_last_used_ID(lab_name)[0][0]
-			next = chr(ord(last[-1:])+1)
-			return next
-		else:
-			return None
+		#if not len(self.__get_last_used_ID(lab_name)) == 0:
+		#	last = self.__get_last_used_ID(lab_name)[0][0]
+		#	next = chr(ord(last[-1:])+1)
+		#	return next
+		#else:
+		#	return None
+		pass
 	#-----------------------------------
 	# event handlers
 	#-----------------------------------
@@ -436,10 +445,9 @@ class cLabJournalNB(wxNotebook):
 			if emr is None:
 				# FIXME: error message
 				return None
-			test = gmPathLab.create_lab_request(lab=self.lab_name[0][0], req_id = req_id, pat_id = self.curr_pat['ID'], encounter_id = emr.id_encounter, episode_id= emr.id_episode)
+			test = gmPathLab.create_lab_request(lab=int(self.lab), req_id = req_id, pat_id = self.curr_pat['ID'], encounter_id = emr.get_active_encounter()['pk_encounter'], episode_id = emr.get_active_episode()['id_episode'])
 			#test = gmPathLab.create_lab_request(req_id='ML#SC937-0176-CEC#11', lab='Enterprise Main Lab', encounter_id = emr.id_encounter, episode_id= emr.id_episode)
-			# react on succes or failure of save_request
-			print test
+			# FIXME : react on succes or failure of save_request
 		else :
 			_log.Log(gmLog.lErr, 'No request ID typed in yet !')
 			gmExceptions.gm_show_error (
@@ -466,13 +474,11 @@ class cLabJournalNB(wxNotebook):
 	def on_lab_selected(self,data):
 		if data is None:
 			self.fld_request_id.SetValue('')
-
-		print "phrase wheel just changed lab to", data
+			return None
 		# get last used id for lab
-		self.lab_name = self.__get_labname(data)
-		print self.lab_name
+		self.lab =  data
 		#guess next id
-		nID = self.guess_next_id(self.lab_name[0][0])
+		nID = gmPathLab.get_next_request_ID(int(self.lab))
 		if not nID is None:
 			# set field to that
 			self.fld_request_id.SetValue(nID)
@@ -575,7 +581,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.19  2004-05-28 07:12:11  shilbert
+# Revision 1.20  2004-05-28 21:11:56  shilbert
+# - basically keep up with API changes
+#
+# Revision 1.19  2004/05/28 07:12:11  shilbert
 # - finally real artwork
 # - switched to new import regimen for artwork
 #
