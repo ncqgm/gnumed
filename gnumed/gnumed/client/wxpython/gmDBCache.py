@@ -44,12 +44,13 @@
 # @dependencies: gmPG
 # @change log:
 #	15.03.2002 hherb first draft, untested
+#	27.03.2002 hherb started working on thread safety
 #
 # @TODO: Almost everything
 ############################################################################
 
 # standard Python modules
-import copy
+import copy, threading
 # GNUmed modules
 import gmLog
 
@@ -65,6 +66,8 @@ class DBcache:
 		self.lastquery = None	#timestamp of last executed query
 		self.notify = {}
 		self.attributes = []
+		self.querylock = threading.Lock()
+		self.notifylock = threading.Lock()
 
 
 class CachedDBObject:
@@ -129,7 +132,12 @@ class CachedDBObject:
 
 	def get(self, id=None, copy=1):
 		"""returns the buffer. If id is not None and not in cache,
-		the backend will be queried."""
+		the backend will be queried.
+		If copy is not zero, a copy of the buffer instead of a reference
+		to it will be returned.
+		When using multiple threads to access the data,
+		always use copies of the buffer!
+		"""
 		#<DEBUG>
 		#print "get called by [%s]" % self.who
 		#</DEBUG>
@@ -139,13 +147,17 @@ class CachedDBObject:
 				self.reset()
 		if self.cache.buffer is None:
 			self.__query()
+		#make sure we are not accessing the buffer while a query modifies it
+		self.cache.querylock.acquire(1)
 		if copy:
 			try:
-				return copy.deepcopy(self.cache.buffer)
+				buf = copy.deepcopy(self.cache.buffer)
 			except:
-				return self.cache.buffer
+				buf = self.cache.buffer
 		else:
-			return self.cache.buffer
+			buf = self.cache.buffer
+		self.cache.querylock.release()
+		return buf
 
 
 
@@ -172,17 +184,23 @@ class CachedDBObject:
 		"""forces execution of all registered callback functions
 		This function will be called whenever the buffer changes
 		"""
-		for caller in self.cache.notify.keys():
-			#do not notify me if I triggered the query myself
-			if caller != self.who:
-				#first parameter to callback function is the
-				#identity of the class triggering the callbacks,
-				#second parameter is the buffer id
-				self.cache.notify[caller](self.who, self.cache.id)
-			#<DEBUG>
-			#else:
-			#	print "Callback function skipped for [%s]" % self.who
-			#</DEBUG>
+		#prevent multiple threads from messing up
+		self.cache.notifylock.acquire(1)
+		#make sure we release the lock even if something goes wrong
+		try:
+			for caller in self.cache.notify.keys():
+				#do not notify me if I triggered the query myself
+				if caller != self.who:
+					#first parameter to callback function is the
+					#identity of the class triggering the callbacks,
+					#second parameter is the buffer id
+					self.cache.notify[caller](self.who, self.cache.id)
+				#<DEBUG>
+				#else:
+				#	print "Callback function skipped for [%s]" % self.who
+				#</DEBUG>
+		finally:
+			self.cache.notifylock.release()
 
 
 	def attributes(self):
@@ -204,17 +222,27 @@ class CachedDBObject:
 		#<DEBUG>
 		#print "%s doing a query" % self.who
 		#</DEBUG>
+
 		#assert (self.__cache.__id is not None)
 		assert (self.cache.db is not None)
 		assert (self.cache.querystr is not None)
-		cursor = self.cache.db.cursor()
-		#<DEBUG>
-		#print "Executing %s\n" % self.cache.querystr
-		#</DEBUG>
-		cursor.execute(self.cache.querystr)
-		self.cache.buffer = cursor.fetchall()
-		self.cache.attributes = gmPG.fieldNames(cursor)
-		#let everybody know that our buffer has changed
+
+		#make sure different threads are not trying
+		#to cause the buffer update concurrently
+		self.cache.querylock.acquire(1)
+		#make sure we release the lock even if something goes wrong
+		try:
+
+			cursor = self.cache.db.cursor()
+			#<DEBUG>
+			#print "Executing %s\n" % self.cache.querystr
+			#</DEBUG>
+			cursor.execute(self.cache.querystr)
+			self.cache.buffer = cursor.fetchall()
+			self.cache.attributes = gmPG.fieldNames(cursor)
+		finally:
+			self.cache.querylock.release()
+		#now let everybody know that our buffer has changed
 		self.notify()
 
 
