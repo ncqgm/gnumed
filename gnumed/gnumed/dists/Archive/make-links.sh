@@ -1,7 +1,7 @@
 #!/bin/sh
 #----------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Archive/Attic/make-links.sh,v $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 # GPL
 # Karsten.Hilbert@gmx.net
 #----------------------------------
@@ -51,10 +51,15 @@ ln -vs ../../../Archive/viewer/run-viewer.bat client/run-viewer.bat
 # docs
 ln -vs ../../../Archive/client/sample.conf client/sample.conf
 ln -vs ../../../Archive/client/README client/README
+ln -vs ../../../Archive/client/README-GnuMed-Archiv-de.txt client/README-GnuMed-Archiv-de.txt
+ln -vs ../../../Archive/client/README-GnuMed-Archiv-en.txt client/README-GnuMed-Archiv-en.txt
 
 # locale
 mkdir -p client/locale/de_DE@euro/LC_MESSAGES
 ln -vs ../../../../../../client/locale/de-gnumed.mo client/locale/de_DE@euro/LC_MESSAGES/gnumed.mo
+
+# installation/bootstrapping
+ln -vs ../../../Archive/client/install.sh client/install.sh
 
 #ln -vs ../../scan/gmScanMedDocs.py client/gmScanMedDocs.py
 #ln -vs ~/.gnumed/gnumed-archive.conf client/gnumed-archive.conf
@@ -69,9 +74,7 @@ ln -vs ../../../../../../client/locale/de-gnumed.mo client/locale/de_DE@euro/LC_
 #ln -vs ../../scan/run-scanner.sh client/run-scanner.sh
 
 #mkdir client/doc
-#ln -vs ../../../client/README client/doc/README
 #ln -vs ../../../docs/README-GnuMed-Archiv-de.txt client/doc/README-GnuMed-Archiv-de.txt
-#ln -vs ../../../docs/sample.conf client/doc/sample.conf
 #ln -vs ../../../docs/TODO client/doc/TODO
 
 #----------------------------------
