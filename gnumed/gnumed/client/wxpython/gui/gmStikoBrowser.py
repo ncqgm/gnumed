@@ -13,12 +13,9 @@
 # - this actually belongs into guid-de
 # - but really we should build a more generic yet more
 #   specialized "medical content browser"
-#
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.6 $"
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -247,7 +244,10 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.6  2004-03-08 23:17:29  shilbert
+# Revision 1.7  2004-03-09 08:03:26  ncq
+# - cleanup
+#
+# Revision 1.6  2004/03/08 23:17:29  shilbert
 # - adapt to new API from Gnumed.foo import bar
 #
 # Revision 1.5  2003/11/17 10:56:41  sjtan

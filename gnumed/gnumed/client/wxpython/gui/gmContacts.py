@@ -1,28 +1,17 @@
-#!/usr/bin/python
 #############################################################################
-#
 # This panel is a contact manager to display and allow the
 # use to add/delete/edit organisations,branches, persons
 #
-# If you don't like it - change this code see @TODO!
-#  $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.12 $"
+# If you don't like it - change this code
+#
+#	contains dummy data only
+#	implemented for gui presentation only
+##############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
-# @dependencies: wxPython (>= version 2.3.1)
-# @change log:
-#	    02.07.2002 rterry initial implementation, untested
-#
-# @TODO:almost everything
-#       contains dummy data only
-#	implemented for gui presentation only
-#      
-############################################################################
-
-import sys
-#if __name__ == '__main__':
-#	sys.path.append (['..', '../../pycommon', '../../business'])
 
 from wxPython.wx import *
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
@@ -39,6 +28,7 @@ organisationsdata = {
 8 : ( " ","- P Lang","Sports Physiotherapist","plang@jphysio.bdh.com.au", "494223568"),		     
 9 : ( " ","- L Short","Physiotherapist","lshort@jphysio.bdh.com.au", "494223568"),	
 }
+
 [
 ID_ORGANISATIONSLIST, 
 ID_ALL_MENU,
@@ -407,7 +397,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.12  2004-03-08 23:55:40  shilbert
+# Revision 1.13  2004-03-09 07:58:26  ncq
+# - cleanup
+#
+# Revision 1.12  2004/03/08 23:55:40  shilbert
 # - adapt to new API from Gnumed.foo import bar
 #
 # Revision 1.11  2004/02/25 09:46:22  ncq
@@ -424,3 +417,5 @@ if __name__ == "__main__":
 # Revision 1.8  2003/11/07 22:29:46  shilbert
 # - added _() for i18n where necessary
 #
+# @change log:
+# - 02.07.2002 rterry initial implementation, untested
