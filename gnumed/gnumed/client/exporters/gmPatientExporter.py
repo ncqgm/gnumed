@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.2 2004-04-20 13:00:22 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPatientExporter.py,v 1.3 2004-04-24 12:57:30 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -129,9 +129,14 @@ if __name__ == "__main__":
 		export_tool.dump_demographic_record(True)
 		export_tool.dump_clinical_record(patient, since_val=since, until_val=until ,encounters_val=encounters, episodes_val=episodes, issues_val=issues)
 		print(patient.get_document_folder())
+
+	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.2  2004-04-20 13:00:22  ncq
+# Revision 1.3  2004-04-24 12:57:30  ncq
+# - stop db listeners on exit
+#
+# Revision 1.2  2004/04/20 13:00:22  ncq
 # - recent changes by Carlos to use VO API
 #
 # Revision 1.1  2004/03/25 23:10:02  ncq
