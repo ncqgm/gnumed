@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.24 $
+$Revision: 1.25 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -8,13 +8,4 @@ Rules:
 - leave behind an email address
 - Please date it. Thanks
 - delete things if you incorporated them into the guide
---------------------------------------------------------------
-Die 09 Sep 2003 03:03:04 CEST   karsten.hilbert@gmx.net
-
-- find design docs at:
-
-http://gnumed.org/docs/
-http://resmedicinae.sourceforge.net/analysis/index.html
-http://gnumed.net/rterry/Index.htm
-
 --------------------------------------------------------------
