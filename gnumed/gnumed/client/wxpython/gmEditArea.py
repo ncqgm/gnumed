@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.22 2003-05-25 04:43:15 sjtan Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmEditArea.py,v 1.23 2003-05-26 14:16:16 sjtan Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "R.Terry, K.HIlbert"
 #====================================================================
 import sys
@@ -24,6 +24,8 @@ from PropertySupport import *
 
 from wxPython.wx import *
 
+from  gmTestEvent import *
+
 ID_PROGRESSNOTES = wxNewId()
 gmSECTION_SUMMARY = 1
 gmSECTION_DEMOGRAPHICS = 2
@@ -32,6 +34,7 @@ gmSECTION_FAMILYHISTORY = 4
 gmSECTION_PASTHISTORY = 5
 gmSECTION_VACCINATION = 6
 gmSECTION_SCRIPT = 8
+
 #--------------------------------------------
 gmSECTION_REQUESTS = 9
 ID_REQUEST_TYPE = wxNewId()
@@ -99,6 +102,23 @@ ID_RECALLS_APPNTLENGTH = wxNewId()
 ID_RECALLS_TXT_ADDTEXT  = wxNewId()
 ID_RECALLS_TXT_INCLUDEFORMS = wxNewId()
 
+
+
+PHX_CONDITION=wxNewId()
+PHX_NOTES=wxNewId()
+PHX_NOTES2=wxNewId()
+PHX_LEFT=wxNewId()
+PHX_RIGHT=wxNewId()
+PHX_BOTH=wxNewId()
+PHX_AGE=wxNewId()
+PHX_YEAR=wxNewId()
+PHX_ACTIVE=wxNewId()
+PHX_OPERATION=wxNewId()
+PHX_CONFIDENTIAL=wxNewId()
+PHX_SIGNIFICANT=wxNewId()
+PHX_PROGRESSNOTES=wxNewId()
+
+
 richards_blue = wxColour(0,0,131)
 richards_aqua = wxColour(0,194,197)
 richards_dark_gray = wxColor(131,129,131)
@@ -139,7 +159,6 @@ familyhistoryprompts = {
 }
 
 
-
 #====================================================================
 #text control class to be later replaced by the gmPhraseWheel
 #--------------------------------------------------------------------
@@ -151,6 +170,8 @@ class cEditAreaField(wxTextCtrl):
 		self.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 #====================================================================
 #====================================================================
+			
+
 class gmEditArea(PropertySupported, wxPanel):
 	def __init__(self, parent, id, aType = None):
 		PropertySupported.__init__(self)
@@ -169,8 +190,11 @@ class gmEditArea(PropertySupported, wxPanel):
 			wxDefaultSize,
 			style = wxNO_BORDER | wxTAB_TRAVERSAL
 		)
-		self.listener = TestPropertyListener("edit area test listener")
+		self.listener = TestPropertyListener("EDITAREA TEST  listener")
 		self.addPropertyListener( self.listener)
+		self.testEventListener = TestEventListener()
+
+		self.addPropertyListener( self.testEventListener)
 		# refactor: pull-up this to base class
 		self.input_fields = {}
 #		self.SetBackgroundColour(wxColor(222,222,222))
@@ -337,10 +361,10 @@ class gmAllergyEditArea(gmEditArea):
 		# FIXME: add substance_code
 		# line 3
 		self.input_fields['generic'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		self.ChBOX_generic_specific = wxCheckBox(parent, -1, _("generics specific"), wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
+		self.cb_generic_specific = wxCheckBox(parent, -1, _("generics specific"), wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.Add(self.input_fields['generic'], 6, wxEXPAND)
-		szr.Add(self.ChBOX_generic_specific, 0, wxEXPAND)
+		szr.Add(self.cb_generic_specific, 0, wxEXPAND)
 		lines.append(szr)
 		# line 4
 		self.input_fields['allergy class'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
@@ -352,12 +376,12 @@ class gmAllergyEditArea(gmEditArea):
 		# line 6
 		self.RBtn_is_allergy = wxRadioButton(parent, -1, _("Allergy"), wxDefaultPosition,wxDefaultSize)
 		self.RBtn_is_sensitivity = wxRadioButton(parent, -1, _("Sensitivity"), wxDefaultPosition,wxDefaultSize)
-		self.ChBOX_is_definite_allergy = wxCheckBox(parent, -1, _("Definate"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		self.cb_is_definite_allergy = wxCheckBox(parent, -1, _("Definate"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.Add(5, 0, 0)
 		szr.Add(self.RBtn_is_allergy, 2, wxEXPAND)
 		szr.Add(self.RBtn_is_sensitivity, 2, wxEXPAND)
-		szr.Add(self.ChBOX_is_definite_allergy, 2, wxEXPAND)
+		szr.Add(self.cb_is_definite_allergy, 2, wxEXPAND)
 		szr.Add(self._make_standard_buttons(parent), 0, wxEXPAND)
 		lines.append(szr)
 
@@ -395,10 +419,10 @@ class gmFamilyHxEditArea(gmEditArea):
 		lines.append(szr)
 		# line 3
 		self.input_fields['condition'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		self.ChBOX_condition_confidential = wxCheckBox(parent, -1, _("confidental"), wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
+		self.cb_condition_confidential = wxCheckBox(parent, -1, _("confidental"), wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.Add(self.input_fields['condition'], 6, wxEXPAND)
-		szr.Add(self.ChBOX_condition_confidential, 0, wxEXPAND)
+		szr.Add(self.cb_condition_confidential, 0, wxEXPAND)
 		lines.append(szr)
 		# line 4
 		self.input_fields['comment'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
@@ -471,6 +495,7 @@ class EditTextBoxes(wxPanel):
 	def __init__(self, parent, id, editareaprompts, section):
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize,style = wxRAISED_BORDER | wxTAB_TRAVERSAL)
 		self.SetBackgroundColour(wxColor(222,222,222))
+		self.parent = parent
 		# rows, cols, hgap, vgap
 		self.gszr = wxGridSizer(len(editareaprompts), 1, 2, 2)
 
@@ -484,10 +509,11 @@ class EditTextBoxes(wxPanel):
 			pass
 		elif section == gmSECTION_PASTHISTORY:
 			# line 1
-			self.txt_condition = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-			self.rb_sideleft = wxRadioButton(self, 32, _(" (L) "), wxDefaultPosition,wxDefaultSize)
-			self.rb_sideright = wxRadioButton(self, 33, _("(R)"), wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
-			self.rb_sideboth = wxRadioButton(self, 33, _("Both"), wxDefaultPosition,wxDefaultSize)
+			
+			self.txt_condition = cEditAreaField(self,PHX_CONDITION,wxDefaultPosition,wxDefaultSize)
+			self.rb_sideleft = wxRadioButton(self,PHX_LEFT, _(" (L) "), wxDefaultPosition,wxDefaultSize)
+			self.rb_sideright = wxRadioButton(self, PHX_RIGHT, _("(R)"), wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
+			self.rb_sideboth = wxRadioButton(self, PHX_BOTH, _("Both"), wxDefaultPosition,wxDefaultSize)
 			rbsizer = wxBoxSizer(wxHORIZONTAL)
 			rbsizer.Add(self.rb_sideleft,1,wxEXPAND)
 			rbsizer.Add(self.rb_sideright,1,wxEXPAND) 
@@ -499,31 +525,31 @@ class EditTextBoxes(wxPanel):
 #			self.sizer_line1.Add(self.rb_sideright,1,wxEXPAND|wxALL,2)
 #			self.sizer_line1.Add(self.rb_sideboth,1,wxEXPAND|wxALL,2)
 			# line 2
-			self.txt_notes1 = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+			self.txt_notes1 = cEditAreaField(self,PHX_NOTES,wxDefaultPosition,wxDefaultSize)
 			# line 3
-			self.txt_notes2= cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+			self.txt_notes2= cEditAreaField(self,PHX_NOTES2,wxDefaultPosition,wxDefaultSize)
 			# line 4
-			self.txt_agenoted = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
+			self.txt_agenoted = cEditAreaField(self, PHX_AGE, wxDefaultPosition, wxDefaultSize)
 			szr4 = wxBoxSizer(wxHORIZONTAL)
 			szr4.Add(self.txt_agenoted, 1, wxEXPAND)
 			szr4.Add(5, 0, 5)
 			# line 5
-			self.txt_yearnoted  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+			self.txt_yearnoted  = cEditAreaField(self,PHX_YEAR,wxDefaultPosition,wxDefaultSize)
 			szr5 = wxBoxSizer(wxHORIZONTAL)
 			szr5.Add(self.txt_yearnoted, 1, wxEXPAND)
 			szr5.Add(5, 0, 5)
 			# line 6
-			self.cb_active = wxCheckBox(self, -1, _("Active"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-			self.cb_operation = wxCheckBox(self, -1, _("Operation"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-			self.cb_confidential = wxCheckBox(self, -1, _("Confidential"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-			self.cb_significant = wxCheckBox(self, -1, _("Significant"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+			self.parent.cb_active = wxCheckBox(self, PHX_ACTIVE, _("Active"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+			self.parent.cb_operation = wxCheckBox(self, PHX_OPERATION, _("Operation"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+			self.parent.cb_confidential = wxCheckBox(self, PHX_CONFIDENTIAL , _("Confidential"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+			self.parent.cb_significant = wxCheckBox(self, PHX_SIGNIFICANT, _("Significant"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 			szr6 = wxBoxSizer(wxHORIZONTAL)
-			szr6.Add(self.cb_active, 1, wxEXPAND)
-			szr6.Add(self.cb_operation, 1, wxEXPAND)
-			szr6.Add(self.cb_confidential, 1, wxEXPAND)
-			szr6.Add(self.cb_significant, 1, wxEXPAND)
+			szr6.Add(self.parent.cb_active, 1, wxEXPAND)
+			szr6.Add(self.parent.cb_operation, 1, wxEXPAND)
+			szr6.Add(self.parent.cb_confidential, 1, wxEXPAND)
+			szr6.Add(self.parent.cb_significant, 1, wxEXPAND)
 			# line 7
-			self.txt_progressnotes  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+			self.txt_progressnotes  = cEditAreaField(self,PHX_PROGRESSNOTES ,wxDefaultPosition,wxDefaultSize)
 			# line 8
 			szr8 = wxBoxSizer(wxHORIZONTAL)
 			szr8.Add(5, 0, 6)
@@ -581,10 +607,10 @@ class EditTextBoxes(wxPanel):
 		# FIXME: add substance_code
 		# line 3
 		self.input_fields['generic'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		self.ChBOX_generic_specific = wxCheckBox(self, -1, _("generics specific"), wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
+		self.cb_generic_specific = wxCheckBox(self, -1, _("generics specific"), wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.Add(self.input_fields['generic'], 6, wxEXPAND)
-		szr.Add(self.ChBOX_generic_specific, 0, wxEXPAND)
+		szr.Add(self.cb_generic_specific, 0, wxEXPAND)
 		lines.append(szr)
 		# line 4
 		self.input_fields['allergy class'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
@@ -596,12 +622,12 @@ class EditTextBoxes(wxPanel):
 		# line 6
 		self.RBtn_is_allergy = wxRadioButton(self, -1, _("Allergy"), wxDefaultPosition,wxDefaultSize)
 		self.RBtn_is_sensitivity = wxRadioButton(self, -1, _("Sensitivity"), wxDefaultPosition,wxDefaultSize)
-		self.ChBOX_is_definite_allergy = wxCheckBox(self, -1, _("Definate"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		self.cb_is_definite_allergy = wxCheckBox(self, -1, _("Definate"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.Add(5, 0, 0)
 		szr.Add(self.RBtn_is_allergy, 2, wxEXPAND)
 		szr.Add(self.RBtn_is_sensitivity, 2, wxEXPAND)
-		szr.Add(self.ChBOX_is_definite_allergy, 2, wxEXPAND)
+		szr.Add(self.cb_is_definite_allergy, 2, wxEXPAND)
 		szr.Add(self._make_standard_buttons(), 0, wxEXPAND)
 		lines.append(szr)
 
@@ -972,7 +998,15 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.22  2003-05-25 04:43:15  sjtan
+# Revision 1.23  2003-05-26 14:16:16  sjtan
+#
+# now trying to use the global capitalized ID  to differentiate fields through one
+# checkbox, text control , button event handlers. Any controls without ID need
+# to have one defined. Propose to save the fields as a simple list on root item,
+# until the subclass tables of root_item catch up. Slow work because manual, but
+# seems to be what the doctor(s) ordered.
+#
+# Revision 1.22  2003/05/25 04:43:15  sjtan
 #
 # PropertySupport misuse for notifying Configurator objects during gui construction,
 # more debugging info
