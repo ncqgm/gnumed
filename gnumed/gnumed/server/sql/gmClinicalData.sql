@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.7 2003-05-04 23:59:35 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.8 2003-05-05 12:44:33 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -124,21 +124,19 @@ insert into drug_routes(description, abbreviation) values('intraarterial', 'art.
 insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.');
 
 -- ===================================================================
-insert into databases (name, published) values ('MIMS', '1/1/02');
-insert into databases (name, published) values ('AMIS', '1/1/02');
-insert into databases (name, published) values ('AMH', '1/1/02');
-
--- ===================================================================
 insert into enum_immunities (name) values ('tetanus');
 
 -- ===================================================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.7  2003-05-04 23:59:35  ncq
+-- Revision 1.8  2003-05-05 12:44:33  ncq
+-- - table databases does not exist anymore
+--
+-- Revision 1.7  2003/05/04 23:59:35  ncq
 -- - add comment on encounter types
 --
 -- Revision 1.6  2003/04/28 20:56:16  ncq
