@@ -376,12 +376,13 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		pat_id = event.GetData ()
 		index = event.GetIndex ()
 		gmLog.gmDefLog.Log (gmLog.lInfo, "selected patient ID %s" % pat_id)
+		pat_title = self.patientslist.GetItem (index, 0).GetText ()
 		pat_fname = self.patientslist.GetItem (index, 1).GetText ()
-		pat_lname = self.patientslist.GetItem (index, 0).GetText ()
-		pat_dob = self.patientslist.GetItem (index, 2).GetText ()
+		pat_lname = self.patientslist.GetItem (index, 2).GetText ()
+		pat_dob = self.patientslist.GetItem (index, 3).GetText ()
 		# load the demographic text controls
 		# send a signal to other objects
-		kwds = {'title':"", 'firstnames':pat_fname, 'lastnames':pat_lname, 'dob':pat_dob, 'ID':pat_id}
+		kwds = {'title':pat_title, 'firstnames':pat_fname, 'lastnames':pat_lname, 'dob':pat_dob, 'ID':pat_id}
 		gmDispatcher.send (gmSignals.patient_selected (), sender='Terry Patient Selector', kwds=kwds )
 
 	def FindPatient (self, name):

@@ -24,11 +24,14 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "R. Terry <rterry@gnumed.net>, H. Herb <hherb@gnumed.net>"
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.7  2003-02-02 08:49:49  ihaywood
+# Revision 1.8  2003-02-02 10:07:58  ihaywood
+# bugfix
+#
+# Revision 1.7  2003/02/02 08:49:49  ihaywood
 # demographics being connected to database
 #
 # Revision 1.6  2003/01/14 20:18:57  ncq
@@ -143,7 +146,7 @@ class AllergyPanel(wxPanel):
 		# there is no meniton of view v_allergies anywhere else in the source tree!!!
 		# disconnected until gmclinical.sql catches up
 		#gmDispatcher.connect(self.UpdateAllergies, gmSignals.patient_selected())
-
+		pass
 
 
 	def UpdateAllergies(self, **kwargs):
