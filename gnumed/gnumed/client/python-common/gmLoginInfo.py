@@ -16,8 +16,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.7 2003-01-04 09:05:17 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmLoginInfo.py,v 1.8 2003-01-04 09:34:16 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 #====================================================================
@@ -91,8 +91,8 @@ class LoginInfo:
 			host = ""
 			port = "" # the port setting is ignored
 		else:
-			host = self.GetHost ()
-			port = str (GetPort ())
+			host = self.GetHost()
+			port = str(self.GetPort())
 		dsn = "%s:%s:%s:%s:%s:%s:%s" % (
 			host,
 			port,
@@ -173,6 +173,9 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.7  2003-01-04 09:05:17  ncq
+# Revision 1.8  2003-01-04 09:34:16  ncq
+# - missing self. in GetDBAPI_DSN
+#
+# Revision 1.7  2003/01/04 09:05:17  ncq
 # - added CVS tracking keywords
 #
