@@ -19,10 +19,9 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.144 2004-03-25 11:03:23 ncq Exp $
-__version__ = "$Revision: 1.144 $"
+# $Id: gmGuiMain.py,v 1.145 2004-05-15 15:51:03 sjtan Exp $
+__version__ = "$Revision: 1.145 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
-               S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
@@ -768,7 +767,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.144  2004-03-25 11:03:23  ncq
+# Revision 1.145  2004-05-15 15:51:03  sjtan
+#
+# hoping to link this to organization widget.
+#
+# Revision 1.144  2004/03/25 11:03:23  ncq
 # - getActiveName -> get_names
 #
 # Revision 1.143  2004/03/12 13:22:02  ncq
