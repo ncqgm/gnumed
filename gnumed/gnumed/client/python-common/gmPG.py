@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.80 $"
+__version__ = "$Revision: 1.81 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -151,7 +151,7 @@ class ConnectionPool:
 	#-----------------------------
 	# connection API
 	#-----------------------------
-	def GetConnection(self, service = "default", readonly = 1, checked = 1, encoding = None):
+	def GetConnection(self, service = "default", readonly = 1, checked = 1, encoding = None, extra_verbose = None):
 		"""Get a connection."""
 		# use default encoding if none given
 		if encoding is None:
@@ -206,10 +206,13 @@ class ConnectionPool:
 					_log.LogException("connection health check failed", sys.exc_info(), 4)
 					return None
 
+		if extra_verbose:
+			if dbapi == pyPgSQL.PgSQL:
+				conn.conn.toggleShowQuery
+			else:
+				_log.Log(gmLog.lInfo, 'extra_verbose not supported on DB API adapter [%s]' % dbapi)
+
 		return conn
-	#-----------------------------
-	def GetConnectionUnchecked(self, service = "default", readonly = 1, encoding = None):
-		_log.Log(gmLog.lErr, 'use of GetConnectionUnchecked() deprecated')
 	#-----------------------------
 	def ReleaseConnection(self, service):
 		"""decrease reference counter of active connection"""
@@ -433,9 +436,6 @@ class ConnectionPool:
 		except StandardError:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
 			return None
-		# <DEBUG>
-#		conn.conn.toggleShowQuery
-		# </DEBUG>
 
 		# set the default characteristics of our sessions
 		curs = conn.cursor()
@@ -1015,7 +1015,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.80  2003-10-26 15:07:47  ncq
+# Revision 1.81  2003-11-04 00:19:24  ncq
+# - GetConnection now toggles query printing via extra_verbose if dbapi=pyPgSql
+#
+# Revision 1.80  2003/10/26 15:07:47  ncq
 # - in run_commit() if the last command returned rows (e.g. was a SELECT) return those rows to the caller
 #
 # Revision 1.79  2003/10/19 12:13:24  ncq
