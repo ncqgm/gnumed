@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.57 2005-02-22 10:21:33 ihaywood Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmDemographics.py,v 1.58 2005-03-06 08:17:02 ihaywood Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "R.Terry, SJ Tan, I Haywood"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1017,11 +1017,11 @@ class DemographicDetailWindow(wx.Panel):
 		
 	def load_identity (self, identity):
 		self.identity = identity
-		for x in ['firstnames', 'lastnames', 'title', 'preferred', 'pk_marital_status', 'occupation', 'gender']:
+		for x in ['firstnames', 'lastnames', 'title', 'preferred', 'pk_marital_status', 'gender']:
 			getattr (self, x).SetValue (identity[x] or '')
 		t = time.strftime('%d/%m/%Y', gmDemographicRecord.get_time_tuple(identity['dob']))
 		self.txt_dob.SetValue(t)
-		
+		self.occupation.SetValue (";".join (identity['occupations']))
 		self.cob.SetValue (gmDemographicRecord.getCountry (identity['cob']))
 		w = {}
 		for c in identity['ext_ids']:
@@ -1029,10 +1029,10 @@ class DemographicDetailWindow(wx.Panel):
 				s = "%(external_id)s (%(comment)s)" % c
 			else:
 				s = c['external_id']
-			if w.has_key (c['fk_origin']):
-				w[c['fk_origin']].append (s)
+			if w.has_key (c['id_type']):
+				w[c['id_type']].append (s)
 			else:
-				w[c['fk_origin']] = [s]
+				w[c['id_type']] = [s]
 		for i in w.keys ():
 			self.ext_id_widgets[i].SetValue (";".join (w[i]))
 
@@ -1050,7 +1050,14 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.57  2005-02-22 10:21:33  ihaywood
+# Revision 1.58  2005-03-06 08:17:02  ihaywood
+# forms: back to the old way, with support for LaTeX tables
+#
+# business objects now support generic linked tables, demographics
+# uses them to the same functionality as before (loading, no saving)
+# They may have no use outside of demographics, but saves much code already.
+#
+# Revision 1.57  2005/02/22 10:21:33  ihaywood
 # new patient
 #
 # Revision 1.56  2005/02/20 10:45:49  sjtan

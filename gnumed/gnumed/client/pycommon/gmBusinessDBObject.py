@@ -83,8 +83,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.13 2005-02-03 20:20:14 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmBusinessDBObject.py,v 1.14 2005-03-06 08:17:02 ihaywood Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -140,10 +140,14 @@ class cBusinessDBObject:
 		self.__class__._service
 			# the service in which our source relation is found,
 			# this is used for establishing connections
+	        self.__class__._subtables
+		        # a dictionary of subtables by name, values are dictionaries
+			# of 3 queries keyed 'select', 'insert' and 'delete'
 		#</DEBUG>
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
 		self._idx = {}
+		self._subtable_changes = []
 		if cBusinessDBObject._conn_pool is None:
 			# once for ALL descendants :-)
 			cBusinessDBObject._conn_pool = gmPG.ConnectionPool()
@@ -215,10 +219,26 @@ class cBusinessDBObject:
 			pass
 		# 2) cached extension method results ...
 		try:
-			return self._ext_cache[attribute]		# FIXME: when do we evict this cache ?
+			return self._ext_cache[attribute] # FIXME: when do we evict this cache ?
 		except KeyError:
 			pass
-		# 3) getters providing extensions
+		# 3) sub-table
+		try:
+			s = self._subtables[attribute]['select']
+			data, idx = gmPG.run_ro_query (
+			self.__class__._service,
+			s,
+			True,
+			self.pk_obj
+			)
+			if data is None:
+				_log.Log(gmLog.lErr, '[%s:%s]: error retrieving instance' % (self.__class__.__name__, self.pk_obj))
+				return None
+			self._ext_cache[attribute] = [dict ([(name, j[i]) for name, i in idx.items ()]) for j in data]
+			return self._ext_cache[attribute]
+		except KeyError:
+			pass
+		# 4) getters providing extensions
 		getter = getattr(self, 'get_%s' % attribute, None)
 		if not callable(getter):
 			_log.Log(gmLog.lWarn, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
@@ -379,10 +399,56 @@ class cBusinessDBObject:
 				_log.Log(gmLog.lErr, 'XMIN refetch keys: %s' % str(idx))
 				_log.Log(gmLog.lErr, params)
 				return (False, data)
-		conn.commit()
-		conn.close()
+		# execute cached changes to subtables
+		if self._subtable_changes:
+			successful, result = gmPG.run_commit2 (link_obj = conn, queries= self._subtable_changes)
+			if not successful:
+				conn.rollback()
+				conn.close()
+				_log.Log(gmLog.lErr, '[%s:%s]: cannot change subtables' % (self.__class__.__name__, self.pk_obj))
+				return (False, result)
+		try:
+			conn.commit()
+			conn.close()
+		except:
+			typ, val, tb = sys.exc_info () 
+			return (False, (1, val))
 		self._is_modified = False
 		return (True, None)
+	#----------------------------------------------------
+	def del_subtable (self, table, item):
+		self._subtable_changes.append ((self._subtables[table]['delete'], [self.pk_obj, item['pk']]))
+		for i in range (0, self[table]):
+			if self[table][i]['pk'] == item['pk']:
+				del self[table][i]
+	#-----------------------------------------------------
+	def add_subtable (self, table, item):
+		self[table].append (item)
+		item['pk_master'] = self.pk_obj
+		self._subtable_changes.append ((self._subtables[table]['insert'], [item]))
+	#----------------------------------------------------
+	def sync_subtable (self, table, items):
+		"""
+		Ensures that a new version of the subtable matches whats in the
+		database, adding and deleting as appropriate
+		"""
+		table2 = self[table][:]
+		for i in range (len(t)):
+			for j in range (items):
+				eqn = 1
+				for k in items[j].keys ():
+					if items[j][k] != self[table][i][k]:
+						eqn = 0
+				if eqn: # these dicts are considered equal
+					items[j]['__same'] = 1
+					table2[i]['__same'] = 1
+		for i in items:
+			if not i.has_key ('__same'):
+				self.add_subtable (table, i)
+		for i in table2:
+			if not i.has_key ('__same'):
+				self.del_subtable (table, i)
+		
 #============================================================
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
@@ -411,7 +477,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.13  2005-02-03 20:20:14  ncq
+# Revision 1.14  2005-03-06 08:17:02  ihaywood
+# forms: back to the old way, with support for LaTeX tables
+#
+# business objects now support generic linked tables, demographics
+# uses them to the same functionality as before (loading, no saving)
+# They may have no use outside of demographics, but saves much code already.
+#
+# Revision 1.13  2005/02/03 20:20:14  ncq
 # - really use class level static connection pool
 #
 # Revision 1.12  2005/02/01 10:16:07  ihaywood

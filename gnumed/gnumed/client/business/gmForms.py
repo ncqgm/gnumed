@@ -6,21 +6,20 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.29 2005-02-03 20:17:18 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmForms.py,v 1.30 2005-03-06 08:17:02 ihaywood Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
 
-# access our modules
-#if __name__ == "__main__":
-#		sys.path.append('../..')
-
-from Gnumed.pycommon import gmLog, gmPG, gmWhoAmI, gmCfg, gmExceptions, gmMatchProvider
-from Gnumed.pycommon.gmPyCompat import *
-if __name__ == "__main__":
-	from Gnumed.pycommon import gmI18N
-from Gnumed.business import gmDemographicRecord, gmPerson
+try:
+	from Gnumed.pycommon import gmLog, gmPG, gmWhoAmI, gmCfg, gmExceptions, gmMatchProvider
+	from Gnumed.pycommon.gmPyCompat import *
+	if __name__ == "__main__":
+		from Gnumed.pycommon import gmI18N
+	from Gnumed.business import gmDemographicRecord, gmPerson
+except:
+	_ = lambda x: x
 
 # start logging
 _log = gmLog.gmDefLog
@@ -35,10 +34,8 @@ class gmFormEngine:
 	date as neccessary
 	"""
 
-	def __init__ (self, pk_def=None, template=None, flags=[]):
+	def __init__ (self, pk_def=None, template=None):
 		self.template = template
-		self.flags = flags
-		self.pk_def = pk_def
 		self.patient = gmPerson.gmCurrentPatient ()
 		self.whoami = gmWhoAmI.cWhoAmI ()
 		self.workplace = self.whoami.get_workplace ()
@@ -142,11 +139,6 @@ class TextForm (gmFormEngine):
 
 	def __init__ (self, *args):
 		gmFormEngine.__init__ (self, *args)
-		self.basic_params = {}
-		self.results = {}
-		self.basic_params['sender'] = gmDemographicRecord.cDemographicRecord_SQL (self.whoami.get_staff_identity ())
-		self.basic_params['patient'] = self.patient.get_identity()
-		self.basic_params['clinical'] = self.patient.get_clinical_record()
 
 	def convert (self, item, table_sep='\n'):
 		"""
@@ -160,45 +152,28 @@ class TextForm (gmFormEngine):
 			return item
 		
 	#--------------------------------------------------------
-	def process (self, params, escape='@'):
-		self.basic_params.update (params)
-		regex = "%s(.+)%s" % (escape, escape)
+	def process (self, params):
+		self.params = params
+		regex = "\$([A-Za-z_]+)"
 		self.result = cStringIO.StringIO()
-		self.params = self.basic_params
 		_subst = self.__subst   # scope hack
-		for line in self.template.split('\n'):
-			self.idx = 0
-			self.start_list = 0
-			self.stop_list = 0
-			self.result.write(re.sub (regex, lambda x: _subst (x.group (1)), line) + '\n')
-			if self.start_list:
-				while not self.stop_list:
-					self.idx += 1
-					self.result.write (re.sub (regex, lambda x: _subst (x.group (1)), line) + '\n')
-
+		self.result.write(re.sub (regex, lambda x: _subst (x.group (1)), self.template) + '\n')
 		self.result.seek (0)
 		return self.result
 	#--------------------------------------------------------
-        def __subst (self, match):
+        def __subst (self, match, list_level=0):
                 """
                 Perform a substitution on the string using a parameters dictionary,
                 returns the subsitution
                 """
-		try:
-			self.results[match] = eval (match, self.params)
-		except NameError:
-			_log.Log (gmLog.lErr, "name error on %s" % match)
-			return ""
-                if type(self.results[match]) is types.ListType:
-                        self.start_list = 1 # we've got a list, keep repeating this line
-                        if self.idx >= len (self.params[match]):
-                                _log.Log (gmLog.lErr, "array field %s exhausted at index %d" % (match, self.idx))
-                                return ""
-                        elif len (self.results[match]) == self.idx+1: # stop when list exhausted, separate flag so other flags don't overwrite
-                                self.stop_list = 1
-                        return self.convert (self.results[match][self.idx])
-                else:
-                        return self.convert (self.results[match])
+		if self.params.has_key (match):
+			r = self.params[match]
+		else:
+			r = getattr (self, match, "")
+		if callable (r):
+			self.params[match] = r ()
+			r = self.params[match]
+		return self.convert (r)
         #--------------------------------------------------------
 
 	#--------------------------------------------------------
@@ -224,7 +199,7 @@ class TextForm (gmFormEngine):
 class LaTeXForm (TextForm):
 	"""A forms engine wrapping LaTeX.
 	"""
-	def convert (self, item  ):
+	def convert (self, item, table_sep=" \\\\\n"  ):
 		"""
 		Convience function to escape ISO-Latin-1 strings for TeX output
 		WARNING: not all ISO-Latin-1 characters are expressible in TeX
@@ -239,7 +214,7 @@ class LaTeXForm (TextForm):
 			item = item.replace ('"', "") # okay, that's not right, but easiest solution for now
 			item = item.replace ("\n", "\\\\ ")
 			if len (item.strip ()) == 0:
-				item = "\relax " # sometimes TeX really hates empty strings, this seems to mollify it
+				item = "\\relax " # sometimes TeX really hates empty strings, this seems to mollify it
 			# FIXME: cover all of ISO-Latin-1 which can be expressed in TeX
 			if type (item) is types.UnicodeType:
 				item = item.encode ('latin-1', 'replace')
@@ -253,20 +228,19 @@ class LaTeXForm (TextForm):
 				for k, i in trans.items ():
 					item = item.replace (k, i)
 		elif type (item) is types.ListType or type (item) is types.TupleType:
-			item = string.join ([self.convert (i) in item], ' & ') + ' \\\\\n'
+			item = string.join ([self.convert (i, ' & ') for i in item], table_sep)
 		elif item is None:
 			item = '\\relax % Python None\n'
 		elif type (item) is types.IntType or type (item) is types.FloatType:
 			item = str (item)
 		else:
-			_log.Log (gmLog.lErr, "unknown type %s " % type (item))
-			raise FormError ('unknown type [%s]' % type (item))
+			item = str (item)
+			_log.Log (gmLog.lEWarn, "unknown type %s, string %s" % (type (item), item))
 		return item
 
 	def process (self, params):
 		try:
 			latex = TextForm.process (self, params)
-			print latex.getvalue ()
 			# create a 'sandbox' directory for LaTeX to play in
 			self.tmp = tempfile.mktemp ()
 			os.makedirs (self.tmp)
@@ -379,32 +353,93 @@ class FormError (Exception):
 		return repr (self.value)
 #-------------------------------------------------------------
 
-def test_au():
-		f = open('../../test-area/ian/terry-form.tex')
-		params = {
-				'RECIPIENT': "Dr. R. Terry\n1 Main St\nNewcastle",
-				'DOCTORSNAME': 'Ian Haywood',
-				'DOCTORSADDRESS': '1 Smith St\nMelbourne',
-				'PATIENTNAME':'Joe Bloggs',
-				'PATIENTADDRESS':'18 Fred St\nMelbourne',
-				'REQUEST':'ultrasound',
-				'THERAPY':'on warfarin',
-				'CLINICALNOTES':'heard new murmur',
-				'COPYADDRESS':'Karsten Hilbert\nLeipzig, Germany',
-				'ROUTINE':1,
-				'URGENT':0,
-				'FAX':1,
-				'PHONE':1,
-				'PENSIONER':1,
-				'VETERAN':0,
-				'PADS':0,
-				'INSTRUCTIONS':'Take the blue pill, Neo\nThis is \xa9 copyright.'
-		}
-		form = LaTeXForm (template=f.read())
-		form.process (params)
-		form.xdvi ()
-		form.cleanup ()
+test_letter = """
+\\documentclass{letter}
+\\address{ $DOCTOR \\\\
+$DOCTORADDRESS}
+\\signature{$DOCTOR}
 
+\\begin{document}
+\\begin{letter}{$RECIPIENTNAME \\\\
+$RECIPIENTADDRESS}
+
+\\opening{Dear $RECIPIENTNAME}
+
+\\textbf{Re:} $PATIENTNAME, DOB: $DOB, $PATIENTADDRESS \\\\
+
+$TEXT
+
+\\ifnum$INCLUDEMEDS>0
+\\textbf{Medications List}
+
+\\begin{tabular}{lll}
+$MEDSLIST
+\\end{tabular}
+\\fi
+
+\\ifnum$INCLUDEDISEASES>0
+\\textbf{Disease List}
+
+\\begin{tabular}{l}
+$DISEASELIST
+\\end{tabular}
+\\fi
+
+\\closing{$CLOSING}
+
+\\end{letter}
+\\end{document}
+"""
+
+
+def test_au():
+	f = open('../../test-area/ian/terry-form.tex')
+	params = {
+	'RECIPIENT': "Dr. R. Terry\n1 Main St\nNewcastle",
+	'DOCTORSNAME': 'Ian Haywood',
+	'DOCTORSADDRESS': '1 Smith St\nMelbourne',
+	'PATIENTNAME':'Joe Bloggs',
+	'PATIENTADDRESS':'18 Fred St\nMelbourne',
+	'REQUEST':'echocardiogram',
+	'THERAPY':'on warfarin',
+	'CLINICALNOTES':"""heard new murmur
+	Here's some
+crap to demonstrate how it can cover multiple lines.""",
+	'COPYADDRESS':'Karsten Hilbert\nLeipzig, Germany',
+	'ROUTINE':1,
+	'URGENT':0,
+	'FAX':1,
+	'PHONE':1,
+	'PENSIONER':1,
+	'VETERAN':0,
+	'PADS':0,
+	'INSTRUCTIONS':u'Take the blue pill, Neo'
+	}
+	form = LaTeXForm (1, f.read())
+	form.process (params)
+	form.xdvi ()
+	form.cleanup ()
+	
+def test_au2 ():
+	form = LaTeXForm (2, test_letter)
+	params = {'RECIPIENTNAME':'Dr. Richard Terry',
+		  'RECIPIENTADDRESS':'1 Main St\nNewcastle',
+		  'DOCTOR':'Dr. Ian Haywood',
+		  'DOCTORADDRESS':'1 Smith St\nMelbourne',
+		  'PATIENTNAME':'Joe Bloggs',
+		  'PATIENTADDRESS':'18 Fred St, Melbourne',
+		  'TEXT':"""This is the main text of the referral letter""",
+		  'DOB':'12/3/65',
+		  'INCLUDEMEDS':1,
+		  'MEDSLIST':[["Amoxycillin", "500mg", "TDS"], ["Perindopril", "4mg", "OD"]],
+		  'INCLUDEDISEASES':0,
+		  'CLOSING':'Yours sincerely,'
+		  }
+	form.process (params)
+	print os.getcwd ()
+	form.xdvi ()
+	form.cleanup ()
+	
 #------------------------------------------------------------
 def test_de():
 		template = open('../../test-area/ian/Formularkopf-DE.tex')
@@ -431,7 +466,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.29  2005-02-03 20:17:18  ncq
+# Revision 1.30  2005-03-06 08:17:02  ihaywood
+# forms: back to the old way, with support for LaTeX tables
+#
+# business objects now support generic linked tables, demographics
+# uses them to the same functionality as before (loading, no saving)
+# They may have no use outside of demographics, but saves much code already.
+#
+# Revision 1.29  2005/02/03 20:17:18  ncq
 # - get_demographic_record() -> get_identity()
 #
 # Revision 1.28  2005/02/01 10:16:07  ihaywood

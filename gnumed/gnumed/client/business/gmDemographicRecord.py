@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.64 2005-02-20 21:00:20 ihaywood Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmDemographicRecord.py,v 1.65 2005-03-06 08:17:02 ihaywood Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -62,6 +62,8 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = ["update org set description=%(description)s, id_category=(select id from org_category where description=%(occupation)s) where id=%(id)s", "select xmin from org whereid=%(id)s"]
 	_updatable_fields = ["description", "occupation"]
 	_service = 'personalia'
+		      
+		
 	#------------------------------------------------------------------
 	def cleanup (self):
 		pass
@@ -72,40 +74,6 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		if not self.__cache.has_key ('comms'):
 			self['comms']
 		return self.__cache
-	#------------------------------------------------------------------
-	def get_addresses (self):
-		"""Returns a list of address dictionaries. Fields are
-		- id
-		- number
-		- addendum
-		- street
-		- city
-		- postcode
-		- type"""
-		cmd = """select
-				vba.id,
-				vba.number,
-				vba.addendum, 
-				vba.street,
-				vba.urb,
-				vba.postcode,
-				at.name
-			from
-				v_basic_address vba,
-				lnk_person_org_address lpoa,
-				address_type at
-			where
-				lpoa.id_address = vba.id
-				and lpoa.id_type = at.id
-				and lpoa.id_%s = %%s 
-				""" % self._table     # this operator, then passed to SQL layer
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getId ())
-		if rows is None:
-			return []
-		elif len(rows) == 0:
-			return []
-		else:
-			return [{'pk':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'urb':i[4], 'postcode':i[5], 'type':i[6]} for i in rows]
 	#--------------------------------------------------------------------
 	def get_members (self):
 		"""
@@ -119,6 +87,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				vba.urb,
 				vba.postcode,
 				at.name,
+				lpoa.id_type,
 				vbp.pk_identity,
 				title,
 				firstnames,
@@ -150,7 +119,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		elif len(rows) == 0:
 			return []
 		else:
-			return [({'pk':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'city':i[4], 'postcode':i[5], 'type':i[6]}, cIdentity (row = {'data':i[7:], 'id':idx[7:], 'pk_field':'id'})) for i in rows]	
+			return [({'pk':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'city':i[4], 'postcode':i[5], 'type':i[6], 'id_type':i[7]}, cIdentity (row = {'data':i[8:], 'id':idx[8:], 'pk_field':'id'})) for i in rows]	
 	#------------------------------------------------------------
 	def set_member (self, person, address):
 		"""
@@ -169,95 +138,6 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	def unlink_person (self, person):
 		cmd = "delete from lnk_person_org_address where id_org = %s and id_identity = %s"
 		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), person['id']])])
-	#------------------------------------------------------------
-	def unlink_address (self, address):
-		cmd = "delete from lnk_person_org_address where id_address = %s and id_%s = %%s" % self._table
-		return gmPG.run_commit2 ('personalia', [(cmd, [address['id'], self.getId ()])])
-
-	#------------------------------------------------------------
-	def get_ext_ids (self):
-		"""
-		Returns a list
-		Fields:
-		- origin [the origin ID]
-		- comment [a user comment]
-		- external_id [the actual external ID]
-		"""
-		cmd = """select
-		fk_origin, comment, external_id
-		from lnk_%s2ext_id where id_%s = %%s """ % (self._table, self._table)
-		rows = gmPG.run_ro_query ('personalia', cmd, None, self.getId ())
-		if rows is None:
-			return {}
-		return [{'fk_origin':row[0], 'comment':row[1], 'external_id':row[2]} for row in rows]
-	#----------------------------------------------------------------
-	def set_ext_id (self, fk_origin, ext_id, comment=None):
-		"""
-		@param fk_origin the origin type ID as returned by GetExternalIDs
-		@param ext_id the external ID, a free string as far as GNUMed is concerned.[1]
-		Set ext_id to None to delete an external id
-		@param comment distinguishes several IDs of one origin
-
-		<b>[1]</b> But beware, language extension packs are entitled to add backend triggers to check for validity of external IDs.
-		"""
-		to_commit = []
-		if comment:
-			cmd = """delete from lnk_%s2ext_id where
-			id_%s = %%s and fk_origin = %%s
-			and comment = %%s""" % (self._table, self._table)
-			to_commit.append ((cmd, [self.__cache['id'], fk_origin, comment]))
-		else:
-			cmd = """delete from lnk_%s2ext_id where
-			id_%s = %%s and fk_origin = %%s""" % (self._table, self._table)
-			to_commit.append ((cmd, [self.__cache['id'], fk_origin]))
-		if ext_id:
-			cmd = """insert into lnk_%s2ext_id (id_%s, fk_origin, external_id, comment)
-			values (%%s, %%s, %%s)""" % (self._table, self._table)
-			to_commit.append ((cmd, [self.__cache['id'], fk_origin, ext_id, comment]))
-		del self._ext_cache['ext_ids']
-		return gmPG.run_commit2 ('personalia', to_commit)
-	#-------------------------------------------------------
-	def delete_ext_id (self, fk_origin, comment=None):
-		self.set_ext_id (fk_origin, None, comment)
-	#-------------------------------------------------------	
-	def get_comms (self):
-		"""
-		A list of ways to communicate
-		List if dicts, keys 'id_type' 'url' 'is_confidential'
-		"""
-		cmd = """select
-				l2c.id_type,
-				l2c.url,
-				l2c.is_confidential
-			from
-				lnk_%s2comm l2c
-			where
-				l2c.id_%s = %%s
-				""" % (self._table, self._table)
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getId ())
-		if rows is None:
-			return []
-		elif len(rows) == 0:
-			return []
-		else:
-			return [{'id_type':i[0], 'url':i[1],'is_confidential':[2]} for i in rows]
-	#--------------------------------------------------------------
-	def set_comm (self, id_type, url, is_confidential):
-		"""
-		@param id_type is the ID of the comms type from getCommChannelTypes
-		"""
-		cmd1 = """delete from lnk_%s2comm_channel where
-		id_%s = %%s and url = %%s""" % (self._table, self._table)
-		cmd2 = """insert into lnk_%s2ext_id (id_%s, id_type, url, is_confidential)
-		values (%%s, %%s, %%s, %%s)""" % (self._table, self._table)
-		del self._ext_cache['comms']
-		return gmPG.run_commit2 ('personalia', [(cm1, [self.getId (), url]), (cm2, [self.getId (), id_type, url, is_confidential])])
-	#-------------------------------------------------------
-	def delete_comm (self, url):
-		cmd = """delete from lnk_%s2comm_channel where
-		id_%s = %%s and url = %%s""" % (self._table, self._table)
-		del self._ext_cache['comms']
-		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId (), url])])
 	#----------------------------------------------------------------------
 	def getId (self):
 		"""
@@ -282,7 +162,64 @@ class cIdentity (cOrg):
 		"""select xmin_identity from v_basic_person where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ["title", "dob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
-
+	_subtables = {'addresses':{
+		'select':"""select
+				vba.id as pk,
+				vba.number,
+				vba.addendum, 
+				vba.street,
+				vba.urb,
+				vba.postcode,
+				at.name as type,
+				lpoa.id_type as id_type
+			from
+				v_basic_address vba,
+				lnk_person_org_address lpoa,
+				address_type at
+			where
+				lpoa.id_address = vba.id
+				and lpoa.id_type = at.id
+				and lpoa.id_identity = %s""",
+		'insert':"""insert into lnk_person_org_address (id_identity, id_address) values
+		(%(pk_master)s, create_address (%(number)s, %(addendum)s, %(street)s,
+		%(city)s, %(postcode)s))""",
+		'delete':"""delete from lnk_person_org_address where id_identity = $s and id_address = %s"""
+		      },
+		      'ext_ids':{
+		'select':"""select external_id as pk,
+		fk_origin as id_type, comment, external_id, eeid.name as type, eeid.context as context
+		from lnk_identity2ext_id, enum_ext_id_types eeid where
+		id_identity = %s and fk_origin = eeid.pk""",
+		'delete':"""
+		delete from lnk_identity2ext_id where id_identity = %s and external_id = %s""",
+		'insert':"""
+		insert into lnk_identity2ext_id (external_id, fk_origin, comment, id_identity) values
+		(%(external_id)s, %(id_type)s, %(comment)s, %(pk_master)s)"""},
+		      'comms':{
+		'select':"""select
+				l2c.id_type,
+				l2c.url,
+				l2c.url as pk,
+				l2c.is_confidential,
+				ect.description as type
+				
+			from
+				lnk_identity2comm l2c,
+				enum_comm_types ect
+			where
+				l2c.id_identity = %s
+				and ect.id = id_type
+				""",
+		'insert':"""
+		insert into lnk_identity2ext_id (id_identity, id_type, url, is_confidential)
+		values (%(pk_master)s, %(id_type)s, %(url)s, %(is_confidential)s)""",
+		'delete':"""delete from lnk_identity2ext_id where id_identity = %s and url = %s"""},
+		      'occupations':{
+		'select':"select o.name as occupation, o.id as pk from occupation o, lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s",
+		'delete':"delete from lnk_job2person lj2p where id_identity = %s and id_occupation = %s",
+		'insert':"insert into lnk_job2person (id_identity, id_occupation) values (%(pk_mase)s, create_occupation (%(occupation)s))"}
+		      }
+	#----------------------------------------------------------
 	def getId(self):
 		return self['pk_identity']
 	#--------------------------------------------------------
@@ -320,37 +257,7 @@ class cIdentity (cOrg):
 		if self._ext_cache['all_names']:
 			del self._ext_cache['all_names']
 		active = (active and 't') or 'f'
-		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), firstnames, lastnames, active])])
-	#------------------------------------------------------------
-	def add_address (self, address):
-		"""
-		Binds an address to this person
-		"""
-		cmd = "insert into lnk_person_org_address (id_type, id_address, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(urb)s, %(postcode)s), %(pk_identity)s)"
-		address["pk_identity"] = self.getId ()
-		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
-	#---------------------------------------------------------------------
-	def get_occupation (self):
-		cmd = "select o.name from occupation o, lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s"
-		data = gmPG.run_ro_query ('personalia', cmd, None, self.getId ())
-		return data and [i[0] for i in data] 
-	#--------------------------------------------------------------------
-	def add_occupation (self, occupation):
-		# does occupation already exist ? -> backend can sort this out
-		cmd = "insert into lnk_job2person (id_identity, id_occupation) values (%s, create_occupation (%s))"
-		if self._ext_cache.has_key ('occupation'):
-			self._ext_cache['occupation'].append (occupation)
-		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId (), occupation])])
-	#----------------------------------------------------------------------
-	def delete_occupation (self, occupation):
-		if self._ext_cache.has_key ('occupation'):
-			del self._ext_cache[self._ext_cache.index (occupation)]
-		cmd = """
-		delete from
-		lnk_job2person
-		where
-		id_identity = %s and id_occupation = (select id from occupation where name = %s)"""
-		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId (), occupation])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), firstnames, lastnames, active])]) 
 	#----------------------------------------------------------------------
 	def get_relatives(self):
 		cmd = """
@@ -684,7 +591,14 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.64  2005-02-20 21:00:20  ihaywood
+# Revision 1.65  2005-03-06 08:17:02  ihaywood
+# forms: back to the old way, with support for LaTeX tables
+#
+# business objects now support generic linked tables, demographics
+# uses them to the same functionality as before (loading, no saving)
+# They may have no use outside of demographics, but saves much code already.
+#
+# Revision 1.64  2005/02/20 21:00:20  ihaywood
 # getId () is back
 #
 # Revision 1.63  2005/02/20 09:46:08  ihaywood
