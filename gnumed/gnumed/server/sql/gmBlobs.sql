@@ -3,12 +3,12 @@
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
--- $Revision: 1.8 $ $Date: 2002-04-13 14:41:57 $ $Author: ncq $
+-- $Revision: 1.9 $ $Date: 2002-06-16 19:37:28 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
-    "id" serial primary key,
-    "name" character varying(40)
+	"id" serial primary key,
+	"name" character varying(40)
 );
 
 INSERT INTO doc_type(id, name) values(1,'discharge summary internal');
@@ -32,12 +32,12 @@ INSERT INTO doc_type(id, name) values(6,'referral report other');
 
 -- =============================================
 CREATE TABLE "doc_med" (
-    "id" serial primary key,
-    "patient_id" integer references identity not null,
-    "type" integer references doc_type(id) not null,
-    "comment" character varying(60) not null,
-    "date" character varying(20) not null,
-    "ext_ref" character varying (40) not null
+	"id" serial primary key,
+	"patient_id" integer references identity not null,
+	"type" integer references doc_type(id) not null,
+	"comment" character varying(60) not null,
+	"date" character varying(20) not null,
+	"ext_ref" character varying (40) not null
 );
 
 COMMENT ON TABLE "doc_med" IS 'a medical document object possibly containing several data objects such as several pages of a paper document';
@@ -48,15 +48,15 @@ COMMENT ON COLUMN doc_med.ext_ref IS 'external reference string of physical docu
 
 -- =============================================
 CREATE TABLE "doc_med_external_ref" (
-    doc_id int references doc_med(id),
-    refcounter int default 0
+	doc_id int references doc_med(id),
+	refcounter int default 0
 );
 
 -- =============================================
 CREATE TABLE "doc_obj" (
-    "doc_id" integer references doc_med(id),
-    "comment" character varying(30),
-    "data" bytea
+	"doc_id" integer references doc_med(id),
+	"comment" character varying(30),
+	"data" bytea
 );
 
 COMMENT ON TABLE "doc_obj" IS 'several of these may form a medical document such as multiple scanned pages/images';
@@ -64,8 +64,8 @@ COMMENT ON COLUMN doc_obj.comment IS 'optional tiny comment for this object, suc
 
 -- =============================================
 CREATE TABLE "doc_desc" (
-    "doc_id" integer references doc_med(id),
-    "text" text
+	"doc_id" integer references doc_med(id),
+	"text" text
 );
 
 COMMENT ON TABLE "doc_desc" is 'A textual description of the content such as a result summary. Several of these may belong to one document object.';
@@ -78,6 +78,7 @@ COMMENT ON TABLE "doc_desc" is 'A textual description of the content such as a r
 --  - how do we protect documents from being accessed by unauthorized users ?
 --    - on access search for the oid in gmCrypto tables for a matching key/PW hash record ??
 --  - should (potentially large) binary objects be moved to audit tables ?!?
+--  - should we sequence objects ?
 
 -- notes:
 -- - as this uses BYTEA for storing binary data we have the following limitations
