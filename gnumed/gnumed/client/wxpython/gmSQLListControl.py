@@ -129,7 +129,7 @@ class SQLListControl(wxListCtrl):
 		queryresult = cursor.fetchall ()
 		t2 = time.time()
 		if self.__feedback:
-			print "Query [%s] returned %d tuples in %3.3f sec\n\n" % (self.__querystr, query.ntuples(), t2-t1)
+			print "Query [%s] returned %d tuples in %3.3f sec\n\n" % (self.__querystr, cursor.rowcount, t2-t1)
 
 		#set list control labels depending on the returned fields, unless manually overridden
 		if len(self.__labels)<=0:
@@ -151,7 +151,7 @@ class SQLListControl(wxListCtrl):
 			self.SetColumnWidth(w, wxLIST_AUTOSIZE)
 
 		t2f = time.time()
-		self.__SetStatusText("%d records found; retrieved and displayed in %1.3f sec." % (cursor.arraysize, t2f-t1f))
+		self.__SetStatusText("%d records found; retrieved and displayed in %1.3f sec." % (cursor.rowcount, t2f-t1f))
 		#restore standard output
 		self.RestoreOutput()
 

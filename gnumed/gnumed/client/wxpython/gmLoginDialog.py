@@ -26,7 +26,7 @@ It features combo boxes which "remember" any number of previously entered settin
 
 from wxPython.wx import *
 
-import gmLoginInfo
+import gmI18N, gmLoginInfo
 
 import gettext
 _ = gettext.gettext

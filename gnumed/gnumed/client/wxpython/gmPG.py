@@ -21,7 +21,7 @@
 ############################################################################
 
 #python standard modules
-import string, gettext, copy
+import string, gettext, copy, os, sys
 #3rd party dependencies
 import pgdb
 #gnumed specific modules
@@ -364,10 +364,13 @@ def inputWXLoginParams():
 
 def inputLoginParams():
 	"input request for database backend login parameters. Try GUI dialog if available"
-	try:
-		login = inputWXLoginParams()
-	except:
-		login = inputTMLoginParams()
+	if 'DISPLAY' in os.environ.keys () or sys.platform in ["win32", "mac"]:
+		try:
+			login = inputWXLoginParams()
+		except:
+			login = inputTMLoginParams()
+	else:
+		login = inputTMLoginParams ()
 	return login
 
 
