@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -25,7 +25,7 @@ from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmSOAPWidgets, gmEMRStructWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
-import SOAPMultiSash
+import multisash
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -90,7 +90,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# left hand side
 		# - soap inputs panel
 		PNL_soap_editors = wx.wxPanel(self.__splitter, -1)
-		self.__soap_multisash = SOAPMultiSash.cSOAPMultiSash(self.make_soap_editor, PNL_soap_editors, -1)
+		self.__soap_multisash = multisash.wxMultiSash(PNL_soap_editors, -1)				
 		#self.__soap_multisash.SetController(self)		# what does this do ?
 		# - buttons
 		self.__BTN_save = wx.wxButton(PNL_soap_editors, -1, _('&Save'))
@@ -240,7 +240,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		#	parent.soap_panel.Destroy()
 		#	parent.soap_panel = None		
 		parent.soap_panel = gmSOAPWidgets.cResizingSoapPanel(parent, self.__selected_episode)
-		parent.soap_panel.MoveXY(2,2)
+		return parent.soap_panel
+		#parent.soap_panel.MoveXY(2,2)
 		#self.__set_focus()
 		#parent.OnSize(None)		
 		
@@ -312,13 +313,14 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		episode_id = self.__selected_episode['pk_episode']
 		if episode_id not in self.__managed_episodes:
-			# create
-			leaf = self.__soap_multisash.get_focussed_leaf()
+			# create new leaf always on bottom
+			leaf = self.__soap_multisash.get_bottom_leaf()
 #			print "focussed soap editor:", self.__focussed_soap_editor
-			print "focussed soap editor leaf:", leaf.__class__.__name__, id(leaf)
+			#print "focussed soap editor leaf:", leaf.__class__.__name__, id(leaf)
 #			self.__focussed_soap_editor.AddLeaf(SOAPMultiSash.MV_VER, 130)
-			leaf.AddLeaf(direction = SOAPMultiSash.MV_VER, pos = 130)
-			self.__managed_episodes.append(episode_id)
+			#self.__soap_multisash.SetDefaultChildClass(self.make_soap_editor)
+			leaf.AddLeaf(direction = multisash.MV_VER, pos = 130)
+			#self.__managed_episodes.append(episode_id)
 		else:
 			# FIXME: find and focus
 			msg = _(
@@ -552,7 +554,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.14  2005-02-09 20:19:58  cfmoro
+# Revision 1.15  2005-02-14 00:58:37  cfmoro
+# Restarted the adaptation of multisash widget to make it completely usable for GnuMed while keeping it generic and not SOAP dependent. Advance step by step. Step 1: Disabled leaf creators, create new widgets on bottom and keep consistency while deleting leafs
+#
+# Revision 1.14  2005/02/09 20:19:58  cfmoro
 # Making soap editor made factory function outside SOAPMultiSash
 #
 # Revision 1.13  2005/02/08 11:36:11  ncq
