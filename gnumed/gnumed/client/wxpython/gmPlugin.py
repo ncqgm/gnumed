@@ -51,3 +51,18 @@ if __name__ == "__main__":
 
 	print "This should throw an exception:"
 	plugin.register()
+
+
+#####################################################################
+# here is sample code of how to use gmPlugin.py:
+#import inspect
+#
+#try:
+#    aPlugin = __import__("foo")
+#except:
+#    print "cannot import foo"
+#    for plugin_class in inspect.getmembers (aPlugin, inspect.isclass):
+#	if issubclass (plugin_class, gmBasePlugin):
+#	    plugin_class.register ()
+
+#This also allows a single source file to define several plugin objects.
