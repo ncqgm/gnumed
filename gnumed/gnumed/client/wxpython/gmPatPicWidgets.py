@@ -1,20 +1,23 @@
+"""GnuMed patient picture widget.
+"""
+
 #--------------------------------
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.5 2004-09-18 13:54:37 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPatPicWidgets.py,v 1.6 2004-10-11 20:18:17 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # standard lib
-import sys, os
+import sys, os, shutil
 
 # 3rd party
-from wxPython.wx import *
-from wxPython.lib.imagebrowser import *
+from wxPython import wx
+from wxPython.lib import imagebrowser
 import mx.DateTime as mxDT
 
 # GnuMed
@@ -25,92 +28,123 @@ from Gnumed.wxpython import gmGuiHelpers
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-ID_AcquirePhoto = wxNewId()
-ID_ImportPhoto = wxNewId()
-ID_ExportPhoto = wxNewId()
-ID_RemovePhoto = wxNewId()
-
-# IMO this current_photo nonsense has to go -kh
-current_patient = -1
-current_photo = None
+ID_RefreshPhoto = wx.wxNewId()
+ID_AcquirePhoto = wx.wxNewId()
+ID_ImportPhoto = wx.wxNewId()
+ID_ExportPhoto = wx.wxNewId()
+ID_RemovePhoto = wx.wxNewId()
 
 #=====================================================================
-class cPatientPicture (wxStaticBitmap):
+class cPatientPicture(wx.wxStaticBitmap):
 	"""A patient picture control ready for display.
 		with popup menu to import/export
 		remove or Acquire from a device
 	"""
-	def __init__(self, parent, id):
-		try:
-			self.__def_pic_name = os.path.join(gmGuiBroker.GuiBroker()['gnumed_dir'], 'bitmaps', 'any_body2.png')
-		except:
-			self.__def_pic_name = "../bitmaps/any_body2.png"
-		print 'default photo is', self.__def_pic_name
-		self.__curr_pic_name = self.__def_pic_name
+	def __init__(self, parent, id, width=50, height=54):
+		self.__fallback_pic_name = os.path.join(gmGuiBroker.GuiBroker()['resource dir'], 'bitmaps', 'empty-face-in-bust.png')
+		self.__pat = gmPatient.gmCurrentPatient()
 		# just in case
-		wxImage_AddHandler(wxPNGHandler())
-		wxImage_AddHandler(wxJPEGHandler ())
-		img_data = wxImage(self.__curr_pic_name, wxBITMAP_TYPE_ANY)
-		bmp_data = wxBitmapFromImage(img_data)
+		wx.wxImage_AddHandler(wx.wxPNGHandler())
+		wx.wxImage_AddHandler(wx.wxJPEGHandler())
+		wx.wxImage_AddHandler(wx.wxGIFHandler())
+		# load initial dummy bitmap
+		img_data = wx.wxImage(self.__fallback_pic_name, wx.wxBITMAP_TYPE_ANY)
+		bmp_data = wx.wxBitmapFromImage(img_data)
 		del img_data
-		self.desired_width = bmp_data.GetWidth()
-		self.desired_height = bmp_data.GetHeight()
-		wxStaticBitmap.__init__(
+		# good default: 50x54
+		self.desired_width = width
+		self.desired_height = height
+		wx.wxStaticBitmap.__init__(
 			self,
 			parent,
 			id,
 			bmp_data,
-			wxPoint(0, 0),
-			wxSize(self.desired_width, self.desired_height)
+			wx.wxPoint(0, 0),
+			wx.wxSize(self.desired_width, self.desired_height)
 		)
-		self.__pat = gmPatient.gmCurrentPatient()
+		# pre-make menu
+		self.__photo_menu = wx.wxMenu()
+		self.__photo_menu.Append(ID_RefreshPhoto, _('Refresh photo'))
+		self.__photo_menu.Append(ID_AcquirePhoto, _("Acquire from imaging device"))
+		self.__photo_menu.Append(ID_ImportPhoto, _("Import from file"))
+		self.__photo_menu.Append(ID_ExportPhoto, _("Export to file"))
+		self.__photo_menu.Append(ID_RemovePhoto, _('Remove Photo'))
+
 		self.__register_events()
 	#-----------------------------------------------------------------
 	# event handling
 	#-----------------------------------------------------------------
 	def __register_events(self):
 		# wxPython events
-		EVT_RIGHT_UP(self, self._on_RightClick_photo)
-		EVT_MENU(self, ID_AcquirePhoto, self._on_AcquirePhoto)
-		EVT_MENU(self, ID_ImportPhoto, self._on_ImportPhoto)
-		EVT_MENU(self, ID_ExportPhoto, self._on_ExportPhoto)
-		EVT_MENU(self, ID_RemovePhoto, self._on_RemovePhoto)
+		wx.EVT_RIGHT_UP(self, self._on_RightClick_photo)
+
+		wx.EVT_MENU(self, ID_RefreshPhoto, self._on_RefreshPhoto)
+		wx.EVT_MENU(self, ID_AcquirePhoto, self._on_AcquirePhoto)
+		wx.EVT_MENU(self, ID_ImportPhoto, self._on_ImportPhoto)
+		wx.EVT_MENU(self, ID_ExportPhoto, self._on_ExportPhoto)
+		wx.EVT_MENU(self, ID_RemovePhoto, self._on_RemovePhoto)
 
 		# dispatcher signals
 		gmDispatcher.connect(receiver=self._on_patient_selected, signal=gmSignals.patient_selected())
 	#-----------------------------------------------------------------
 	def _on_RightClick_photo(self, event):
-		menu_patientphoto = wxMenu()
-		menu_patientphoto.Append(ID_AcquirePhoto, _("Acquire from imaging device"))
-		menu_patientphoto.Append(ID_ImportPhoto, _("Import from file"))
-		menu_patientphoto.Append(ID_ExportPhoto, _("Export to file"))
-		menu_patientphoto.Append(ID_RemovePhoto, "Remove Photo")
-		self.PopupMenu(menu_patientphoto, event.GetPosition())
-		menu_patientphoto.Destroy()
+		if not self.__pat.is_connected():
+			gmGuiHelpers.gm_beep_statustext(_('No active patient.'))
+			return False
+		self.PopupMenu(self.__photo_menu, event.GetPosition())
+	#-----------------------------------------------------------------
+	def _on_RefreshPhoto(self, event):
+		"""(Re)fetch patient picture from DB *now*."""
+		doc_folder = self.__pat.get_document_folder()
+		photo = doc_folder.get_latest_mugshot()
+		if photo is None:
+			gmGuiHelpers.gm_beep_statustext(_('Cannot get most recent patient photo.'))
+			return False
+		fname = photo.export_to_file()
+		if self.__set_pic_from_file(fname):
+			return True
+		if self.__set_pic_from_file():
+			return True
+		return False
+	#-----------------------------------------------------------------
+	def __set_pic_from_file(self, fname=None):
+		if fname is None:
+			fname = self.__fallback_pic_name
+		try:
+			img_data = wx.wxImage(fname, wx.wxBITMAP_TYPE_ANY)
+			img_data.Rescale(self.desired_width, self.desired_height)
+			bmp_data = wx.wxBitmapFromImage(img=img_data)
+		except:
+			_log.LogException('cannot set patient picture from [%s]' % fname, sys.exc_info())
+			return False
+		del img_data
+		self.SetBitmap(bmp_data)
+		self.__pic_name = fname
+		return True
 	#-----------------------------------------------------------------
 	def _on_ImportPhoto(self, event):
 		"""Import an existing photo."""
 
 		# FIXME: read start path from option in DB
-		imp_dlg = ImageDialog(self, os.getcwd())
+		imp_dlg = imagebrowser.ImageDialog(self, os.getcwd())
 		imp_dlg.Centre()
 		usr_action = imp_dlg.ShowModal()
 
-		if usr_action != wxID_OK:
+		if usr_action != wx.wxID_OK:
 			print "No file selected"
 			return True
 
 		new_pic_name = imp_dlg.GetFile()
 		print "new pic name is", new_pic_name
 		# try to set new patient picture
-		if not self.__set_photo(self, new_pic_name):
+		if not self.__set_pic_from_file(new_pic_name):
 			print "error setting new pic"
 			return False
 
 		# save in database
 #		doc = gmMedDoc.create_document(self.__pat['ID'])
 #		doc.update_metadata({'type ID': gmMedDoc.MUGSHOT})
-#		obj = gmMedDoc.create_object(doc)
+#		obj = gmMedDoc.create_document_part(doc)
 #		obj.update_data_from_file(photo)
 
 		self.Show(True)
@@ -118,8 +152,8 @@ class cPatientPicture (wxStaticBitmap):
 		return True
 	#-----------------------------------------------------------------
 	def _on_ExportPhoto(self, event):
-		exp_dlg = wxFileDialog (self, style=wxSAVE)
-		if exp_dlg.ShowModal() == wxID_OK:
+		exp_dlg = wx.wxFileDialog (self, style=wx.wxSAVE)
+		if exp_dlg.ShowModal() == wx.wxID_OK:
 			shutil.copyfile (self.__pic_name, exp_dlg.GetPath())
 	#-----------------------------------------------------------------
 	def _on_AcquirePhoto(self,event):
@@ -136,61 +170,24 @@ class cPatientPicture (wxStaticBitmap):
 	#-----------------------------------------------------------------
 	def _on_patient_selected(self):
 		print "pulling patient photo from DB, needs to be implemented, async"
-	#-----------------------------------------------------------------
-	# FIXME: do this async from _on_patient_selected
-	def newPatient (self, signal, kwds):
-		global current_patient
-		global current_photo
-		if kwds['ID'] != current_patient: # do't drag photo across net more than once
-			current_patient = kwds['ID']
-			docs = gmMedDoc.search_for_document (kwds['ID'], gmMedDoc.MUGSHOT)
-			# FIXME: "where date = max(select date from ... where l1.pat=l2.pat)" ...
-			# FIXME: or rather use v_latest_mugshot VO
-			if docs: # get the latest in a series of photographs
-				latest_date = mxDT.DateTime (1)
-				latest_photo = None
-				for i in docs:
-					i.get_metadata ()
-					if i.metadata['date'] > latest_date:
-						latest_photo = i.metadata['objects'].keys ()[0]
-				current_photo = gmMedDoc.gmMedObj (latest_photo).export_to_file ()
-				if current_photo:
-					self.setPhoto (current_photo)
-			else:
-				if current_photo != self.__def_pic_name:
-					current_photo = self.__def_pic_name
-					self.setPhoto (current_photo)
-		else:
-			self.setPhoto (current_photo)
-	#-----------------------------------------------------------------
-	def __set_photo(self, fname=None):
-		"""Set the photograph to be photo in file fname.
-		"""
-		try:
-			img_data = wxImage (fname, wxBITMAP_TYPE_ANY)
-			img_data.Rescale(self.desired_width, self.desired_height)
-			bmp_data = wxBitmapFromImage(img = img_data)
-		except:
-			_log.LogException('cannot set patient picture to [%s]' % fname)
-			return False
-		del img_data
-		self.SetBitmap(bmp_data)
-		self.__pic_name = fname
-		return True
-	#-----------------------------------------------------------------
-	def getPhoto (self):
-		return current_photo
+		self.__set_pic_from_file()
 
 #====================================================
 # main
 #----------------------------------------------------
 if __name__ == "__main__":
-	app = wxPyWidgetTester(size = (200, 200))
+	app = wx.wxPyWidgetTester(size = (200, 200))
 	app.SetWidget(cPatientPicture, -1)
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.5  2004-09-18 13:54:37  ncq
+# Revision 1.6  2004-10-11 20:18:17  ncq
+# - GnuMed now sports a patient pic in the top panel
+# - not loaded when changing patient (rather reverting to empty face)
+# - use right-click context menu "refresh photo" manually
+# - only Kirk has a picture so far
+#
+# Revision 1.5  2004/09/18 13:54:37  ncq
 # - improve strings
 #
 # Revision 1.4  2004/08/20 13:23:43  ncq
