@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -330,13 +330,13 @@ class scanFrame(wxFrame):
 				new_page_idx = int(tmp) - 1
 
 				# in range ?
-				if new_page_idx not in range(len(self.acquired_pages) - 1):
+				if new_page_idx not in range(len(self.acquired_pages)):
 					new_page_idx = -1
 					continue
 
 				# 3) move pages after the new position
 				self.acquired_pages[old_page_idx:(old_page_idx+1)] = []
-				self.acquired_pages[new_page_idx:(new_page_idx+1)] = [page_fname]
+				self.acquired_pages[new_page_idx:new_page_idx] = [page_fname]
 
 				#head = self.acquired_pages[:new_page_idx]
 				#tail = self.acquired_pages[(new_page_idx+1):]
@@ -874,7 +874,10 @@ if __name__ == '__main__':
 
 #======================================================
 # $Log: scan-med_docs.py,v $
-# Revision 1.26  2002-09-12 20:43:42  ncq
+# Revision 1.27  2002-09-12 23:51:15  ncq
+# - close last known bug on moving pages - cannot move to end of list
+#
+# Revision 1.26  2002/09/12 20:43:42  ncq
 # - import docDocument
 #
 # Revision 1.25  2002/09/12 20:42:22  ncq
