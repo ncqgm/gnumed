@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.4 2003-10-26 17:35:04 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmDemographics.py,v 1.5 2003-10-27 15:52:41 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -192,8 +192,11 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 	def getID(self):
 		return self.ID
 	#--------------------------------------------------------
-	def getDOB(self, aFormat = 'DD.MM.YYYY'):
-		cmd = "select to_char(dob, '%s') from identity where %s" % (aFormat, "id=%s")
+	def getDOB(self, aFormat = None):
+		if aFormat is None:
+			cmd = "select dob from identity where id=%s"
+		else:
+			cmd = "select to_char(dob, '%s') from identity where %s" % (aFormat, "id=%s")
 		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 		if data is None:
 			return ''
@@ -384,8 +387,8 @@ if __name__ == "__main__":
 		print "ID       ", myPatient.getID ()
 		print "name     ", myPatient.getActiveName ()
 		print "title    ", myPatient.getTitle ()
-		print "dob      ", myPatient.getDOB ()
-		print "med age  ", myPatient.getMedicalAge ()
+		print "dob      ", myPatient.getDOB (aFormat = 'DD.MM.YYYY')
+		print "med age  ", myPatient.getMedicalAge()
 		adr_types = getAddressTypes()
 		print "adr types", adr_types
 		for type_name in adr_types:
@@ -393,7 +396,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.4  2003-10-26 17:35:04  ncq
+# Revision 1.5  2003-10-27 15:52:41  ncq
+# - if aFormat is None in getDOB() return datetime object, else return formatted string
+#
+# Revision 1.4  2003/10/26 17:35:04  ncq
 # - conceptual cleanup
 # - IMHO, patient searching and database stub creation is OUTSIDE
 #   THE SCOPE OF gmPerson and gmDemographicRecord
