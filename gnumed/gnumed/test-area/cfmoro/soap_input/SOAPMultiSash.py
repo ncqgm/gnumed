@@ -6,7 +6,7 @@
 #
 # Created:	  2002/11/20
 # Version:	  0.1
-# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.24 2005-01-29 13:26:48 ncq Exp $
+# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.25 2005-02-02 21:43:12 cfmoro Exp $
 # License:	  wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (cMultiSashLeaf)
@@ -22,6 +22,7 @@ MV_VER = not MV_HOR
 
 SH_SIZE = 5 
 CR_SIZE = SH_SIZE * 3
+
 
 from Gnumed.wxpython import gmSOAPWidgets
 
@@ -40,7 +41,6 @@ class cSOAPMultiSash(wxWindow):
 			pos = wxPoint(0,0),
 			size = self.GetSize()
 		)
-		print "CREATED SPLITTER"
 		EVT_SIZE(self,self._on_size)
 
 	def SetController(self, childController):
@@ -97,6 +97,7 @@ class cMultiSashSplitter(wxWindow):
 			size = size,
 			style = wxCLIP_CHILDREN
 		)
+				
 		# reference to main multisash widget
 		self.MultiSashWin = multi_sash_win
 		self.leaf2 = None
@@ -114,8 +115,12 @@ class cMultiSashSplitter(wxWindow):
 		self.direction = None
 
 		EVT_SIZE(self,self.OnSize)
+		print "Created cMultiSashSplitter: %s" % self
+		
 	
 	def UnSelect(self):
+		if isinstance(self.GetParent(), cMultiSashSplitter):
+			print "Parent [%s], parent.leaf2[%s]" % (self.GetParent(), self.leaf2)
 		if self.leaf1:
 			self.leaf1.UnSelect()
 		if self.leaf2:
@@ -129,32 +134,23 @@ class cMultiSashSplitter(wxWindow):
 		"""
 		Construct a new leaf (split window, SOAP input widget)
 		"""
-		print "Adding leaf %s %s %s" % (direction, caller, pos)
-		# avoid creating duplicate SOAP input widgets for the same issue
-		# Leaf creation can be fired both by controller's new button or
-		# by leaf's creator element
-		# FIXME: should we not do this in the code *using* the multisash objects ?
-		if self.leaf1.content.childController.get_selected_episode() in self.leaf1.content.childController.get_managed_episodes():
-			print "Issue has already soap"
-			wx.wxMessageBox("The SOAP note can't be created.\nCurrently selected health issue has yet an associated SOAP note in this encounter.",
-				caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION,
-				parent = self)
-			return
-
+		print "ADDING leaf..."
 		if self.leaf2 is None:
-			if len(self.leaf1.content.childController.get_managed_episodes()) == 0:
-				return
+			print "leaf 2 is None"
 			self.direction = direction
 			w,h = self.GetSizeTuple()
 			if direction == MV_HOR:
+				print 'Direction MV_HOR'
 				x,y = (pos,0)
 				w1,h1 = (w-pos,h)
 				w2,h2 = (pos,h)
-#			else:
-#				x,y = (0,pos)
-#				w1,h1 = (w,h-pos)
-#				w2,h2 = (w,pos)
+			else:
+				print 'Direction MV_VER'
+				x,y = (0,pos)
+				w1,h1 = (w,h-pos)
+				w2,h2 = (w,pos)
 
+			print "Creating self.leaf2 (new cMultiSashSplitter)"
 			self.leaf2 = cMultiSashSplitter (
 				multi_sash_win = self.MultiSashWin,
 				parent = self,
@@ -163,7 +159,7 @@ class cMultiSashSplitter(wxWindow):
 			)
 			self.leaf1.SetSize(wxSize(w2,h2))
 			self.leaf2.OnSize(None)
-
+			print "Added LEAF 2 to cMultiSashSplitter [%s]" % self
 			return True
 
 		if self.leaf2:
@@ -194,6 +190,7 @@ class cMultiSashSplitter(wxWindow):
 #					prev_leaf = caller
 #				)
 #				self.leaf2.AddLeaf(direction, caller, pos)
+		print "Added leaf. LEAF 2 %s " % self.leaf2
 
 
 	def DestroyLeaf(self,caller):
@@ -201,6 +198,7 @@ class cMultiSashSplitter(wxWindow):
 		Destroys selected leaf, both by controller's remove button or by
 		leaf's destroyer element
 		"""
+		
 		if not self.leaf2:			 
 			print "Removing first leaf"
 			# can't be sure is selected when user clicked destroyer element, so...
@@ -229,7 +227,7 @@ class cMultiSashSplitter(wxWindow):
 					old_leaf.content.childController.get_issues_with_soap().remove(soap_issue[1])
 				old_leaf.UnSelect()
 				old_leaf.Destroy()
-				print "1.1"
+				print "!!!!!!!!!!! 1.1"
 			else:
 				soap_issue = self.leaf2.content.soap_panel.GetProblem()
 				if not self.leaf2.content.soap_panel.IsSaved():
@@ -237,7 +235,7 @@ class cMultiSashSplitter(wxWindow):
 				self.leaf2.UnSelect()
 				self.leaf2.Destroy()
 				self.leaf2 = None
-				print "1.2"
+				print "!!!!!!!!!!! 1.2"
 			self.leaf1.SetSize(self.GetSize())
 			self.leaf1.Move(self.GetPosition())
 		else:
@@ -250,7 +248,7 @@ class cMultiSashSplitter(wxWindow):
 					parent.leaf2 = self.leaf2			
 				self.leaf2.Reparent(parent)
 				self.leaf2.SetDimensions(x,y,w,h)
-				print "2.1"
+				print "!!!!!!!!!!!!!!! 2.1"
 				soap_issue = self.leaf1.content.soap_panel.GetProblem()
 				if not self.leaf1.content.soap_panel.IsSaved():
 					self.leaf1.content.childController.get_issues_with_soap().remove(soap_issue[1])
@@ -262,7 +260,7 @@ class cMultiSashSplitter(wxWindow):
 					parent.leaf2 = self.leaf1
 				self.leaf1.Reparent(parent)
 				self.leaf1.SetDimensions(x,y,w,h)
-				print "1.2"				
+				print "!!!!!!!!!!!!!!! 2.2"				
 				soap_issue = self.leaf2.content.soap_panel.GetProblem()
 				if not self.leaf2.content.soap_panel.IsSaved():
 					self.leaf2.content.childController.get_issues_with_soap().remove(soap_issue[1])
@@ -383,6 +381,7 @@ class cMultiSashLeaf(wxWindow):
 		"""
 		# first editor, replace EmptyWidget
 		if isinstance(self.content.soap_panel, EmptyWidget):
+			print "Creating first leaf..."
 			self.content.MakeSoapEditor()
 			return
 			
@@ -459,7 +458,6 @@ class cMultiSashLeafContent(wxWindow):
 		"""
 		Deselect currently selected leaf and reflect the change in controller.
 		"""
-		print "cMultiSashLeafContent.UnSelect"
 		if self.selected:
 			self.selected = False
 			if not self.childController is None:
@@ -694,17 +692,14 @@ class MultiCreator(wxWindow):
 		self.CaptureMouse()
 
 	def OnRelease(self,evt):
-		print "Released creator"
+		print "Released creator... activating currently selected problem"
 		if self.isDrag:
 			parent = self.GetParent()
 			DrawSash(parent,self.px,self.py,self.side)
 			self.ReleaseMouse()
 			self.isDrag = False
-
-			if self.side == MV_HOR:
-				parent.AddLeaf(MV_VER,self.py)
-			else:
-				parent.AddLeaf(MV_HOR,self.px)
+			# activate currently selected problem
+			parent.content.childController.activate_selected_problem()			
 		else:
 			evt.Skip()
 
@@ -851,7 +846,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #============================================================
 # $Log: SOAPMultiSash.py,v $
-# Revision 1.24  2005-01-29 13:26:48  ncq
+# Revision 1.25  2005-02-02 21:43:12  cfmoro
+# Adapted to recent gmEMRStructWidgets changes. Multiple editors can be created
+#
+# Revision 1.24  2005/01/29 13:26:48  ncq
 # - some cleanup
 #
 #

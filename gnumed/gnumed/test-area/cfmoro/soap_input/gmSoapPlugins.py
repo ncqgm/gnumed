@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -22,13 +22,14 @@ from wxPython import wx
 # GnuMed
 from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmWhoAmI
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
-from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmSOAPWidgets
+from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmSOAPWidgets, gmEMRStructWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
-import SOAPMultiSash, gmEMRStructWidgets
+import SOAPMultiSash
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
 
 # FIXME attribute encapsulation and private methods
 # FIXME i18n
@@ -149,8 +150,9 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		self.__LST_problems.Clear()
 		problems = self.__emr.get_problems()
-		print 'PROBLEMS: %s' % problems
+		print 'Refresing problems:'
 		for problem in problems:
+			print '   .%s' % problem['problem']
 			self.__LST_problems.Append(problem['problem'], problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
@@ -160,7 +162,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Check and configure adecuate buttons enabling state
 		"""
-		print "cMultiSashedSoapPanel.__update_button_state"
+		#print "cMultiSashedSoapPanel.__update_button_state"
 
 		if None in (self.__focussed_soap_editor, self.__selected_soap, self.__selected_episode):
 			print "Selected leaf:", self.__focussed_soap_editor
@@ -246,6 +248,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self.__on_patient_selected)
+
 	#--------------------------------------------------------
 	def __on_problem_selected(self, event):
 		"""
@@ -429,6 +432,15 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
+	def activate_selected_problem(self):
+		"""
+		Activate the currently selected problem, simulating double clicking
+		over the problem in the list and therefore, firing the actions
+		to create a new soap for the problem.
+		"""
+		self.__on_problem_selected(None)
+
+	#--------------------------------------------------------		
 	def get_managed_episodes(self):
 		"""
 		Retrieve health problems for wich a SOAP note is created
@@ -451,11 +463,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		@param selected_soap: multisash's currently selected soap
 		@type selected_soap: gmSOAPInput.cSoapPanel
 		"""
-		print "cMultiSashedSoapPanel.set_selected_leaf"
 		self.__focussed_soap_editor = selected_leaf
 		self.__selected_soap = selected_soap
-		print "\nSelected leaf: %s"%(self.__focussed_soap_editor)
-		print "Selected SOAP: %s"%(self.__selected_soap)
 		self.__update_button_state()
 	#--------------------------------------------------------
 	# internal API
@@ -522,7 +531,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.11  2005-01-31 13:06:02  ncq
+# Revision 1.12  2005-02-02 21:43:13  cfmoro
+# Adapted to recent gmEMRStructWidgets changes. Multiple editors can be created
+#
+# Revision 1.11  2005/01/31 13:06:02  ncq
 # - use gmPerson.ask_for_patient()
 #
 # Revision 1.10  2005/01/31 09:50:59  ncq
