@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmDemographics.au.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -76,25 +76,28 @@ insert into occupation (name) values ('security guard');
 insert into occupation (name) values ('farmer');
 insert into occupation (name) values ('unknown');
 
-insert into enum_ext_id_types (id, name, issuer, context) values (1, 'Medicare', 'HIC', 'p');
-insert into enum_ext_id_types (id, name, issuer, context) values (2, 'DVA', 'Department of Veteran''s Affairs', 'p');
-insert into enum_ext_id_types (id, name, issuer, context) values (3, 'CRN', 'Centrelink', 'p');
-insert into enum_ext_id_types (id, name, issuer, context) values (4, 'Licence No.', 'RTA', 'p');
-insert into enum_ext_id_types (id, name, issuer, context) values (5, 'Provider No.', 'HIC', 'c');
-insert into enum_ext_id_types (id, name, issuer, context) values (6, 'Prescriber No.', 'HIC', 'c');
-insert into enum_ext_id_types (id, name, issuer, context) values (7, 'ABN', 'ATO', 'o');
-insert into enum_ext_id_types (id, name, issuer, context) values (8, 'ACN', 'ATO', 'o');
---insert into enum_ext_id_types (id, name, issuer, context) values (, '', '', '');
+insert into enum_ext_id_types (name, issuer, context) values ('Medicare', 'HIC', 'p');
+insert into enum_ext_id_types (name, issuer, context) values ('DVA', 'Department of Veteran''s Affairs', 'p');
+insert into enum_ext_id_types (name, issuer, context) values ('CRN', 'Centrelink', 'p');
+insert into enum_ext_id_types (name, issuer, context) values ('Licence No.', 'RTA', 'p');
+insert into enum_ext_id_types (name, issuer, context) values ('Provider No.', 'HIC', 'c');
+insert into enum_ext_id_types (name, issuer, context) values ('Prescriber No.', 'HIC', 'c');
+insert into enum_ext_id_types (name, issuer, context) values ('ABN', 'ATO', 'o');
+insert into enum_ext_id_types (name, issuer, context) values ('ACN', 'ATO', 'o');
+--insert into enum_ext_id_types (name, issuer, context) values ('', '', '');
 
 
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics.au.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.9 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.au.sql,v $
--- Revision 1.8  2004-03-03 23:50:58  ihaywood
+-- Revision 1.9  2004-03-04 10:48:06  ncq
+-- - don't hardcode primary keys for ext_id_types
+--
+-- Revision 1.8  2004/03/03 23:50:58  ihaywood
 -- external ID types for Australia.
 --
 -- Revision 1.7  2004/03/02 10:22:41  ihaywood
