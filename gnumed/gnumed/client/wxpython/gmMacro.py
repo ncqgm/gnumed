@@ -6,7 +6,7 @@ This module implements functions a macro can legally use.
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -76,7 +76,7 @@ class cMacroPrimitives:
 		return 0
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.13 $" % self.__class__.__name__
+		return "%s $Revision: 1.14 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -94,7 +94,7 @@ class cMacroPrimitives:
 			_log.Log(gmLog.lErr, 'non-authenticated get_loaded_plugins()')
 			return 0
 		gb = gmGuiBroker.GuiBroker()
-		return gb['modules.gui'].keys()
+		return gb['horstspace.notebook.gui'].keys()
 	#-----------------------------------------------------------------
 	def raise_notebook_plugin(self, auth_cookie = None, a_plugin = None):
 		"""Raise a notebook plugin within GnuMed."""
@@ -201,7 +201,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.13  2004-06-25 13:28:00  ncq
+# Revision 1.14  2004-07-24 17:13:25  ncq
+# - main.plugins.gui now horstspace.notebook.gui
+#
+# Revision 1.13  2004/06/25 13:28:00  ncq
 # - logically separate notebook and clinical window plugins completely
 #
 # Revision 1.12  2004/06/01 07:59:55  ncq
