@@ -1,0 +1,110 @@
+.TH GNUMED 1 "2002 November 8" "Manual for gnumed"
+
+.SH NAME
+GnuMed \- a medical practice management software for GP offices
+
+This is NOT PRODUCTION QUALITY software yet. Use at your own risk.
+You have been warned.
+
+.SH SYNOPSIS
+.B gnumed
+.RB [--debug|quiet]
+.RB [--talkback]
+.RB [--text-domain=TEXTDOMAIN]
+.RB [--log-file=FILE]
+.RB [--help]
+.RB [-h|?]
+
+.SH DESCRIPTION
+.B GnuMed
+is a solution for managing a medical practice. It primarily
+focuses on GP offices. It is released under the GPL.
+
+GnuMed is written in Python with wxPython/wxWindows. Data is stored
+in PostgreSQL databases possibly distributed onto several machines.
+
+
+.SH OPTIONS
+.PP
+.TP
+.B \--quiet
+Be extra quiet and show only _real_ errors in the log.
+.TP
+.B \--debug
+Be extra verbose and report nearly everything that's going on. Useful for, well, debugging :-)
+.TP
+.B \--talkback
+Run the client and upon exiting run a talkback client where
+you can enter a comment and send the log off to the bug hunters.
+Very useful when used in conjunction with --debug.
+.TP
+.B \--text-domain=TEXTDOMAIN
+Set this to change the name of the language file to be loaded.
+Note, this does not change the directory the file is searched in,
+only the name of the file where messages are loaded from. The
+standard textdomain is, of course, "gnumed.mo". You need only
+specify the base name of the file without the .mo extension.
+.TP
+.B \--log-file=FILE
+Use this to change the name of the log file. The default
+log file would be <~/.gnumed/gnumed.log>.
+.TP
+.B \--help, -h, or -?
+Well, show this help.
+
+
+.SH ENVIRONMENT
+.TP
+.B GNUMED_DIR
+If GNUMED_DIR is set it will be included in the list of pathes
+to be searched for for various components of GnuMed.
+.TP
+.B LANG, LC_MESSAGES, etc.
+See gettext(1) for how the various locale related environment
+variables work.
+
+
+.SH FILES
+.PP
+.TP
+.B /usr/share/gnumed/
+Nearly all files live below this directory.
+.TP
+.B ~/.gnumed/gnumed.log
+The default log file.
+.TP
+.B ~/.gnumed/gnumed.conf
+The default configuration file.
+
+
+.SH SEE ALSO
+.PP
+.TP
+.B gettext(1)
+.TP
+.B http://www.gnumed.org
+Users' website
+.TP
+.B http://www.gnumed.net
+Developers' website
+.TP
+.B http://www.gnumed.de
+German website
+.TP
+.B http://savannah.gnu.org/projects/gnumed
+source code repository
+
+
+.SH BUGS
+
+A lot of functionality is still missing. However, to make up for
+that, we deliver a plethora of bugs for your amusement :-)
+
+This is NOT PRODUCTION QUALITY software yet. Use at your own risk.
+You have been warned.
+
+.SH REVISION
+
+$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gnumed.1,v $
+
+$Revision: 1.1 $
