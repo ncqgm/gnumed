@@ -1,7 +1,7 @@
 -- =============================================
 -- GnuMed service discovery tables
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmServices.sql,v $
--- $Id: gmServices.sql,v 1.1 2003-01-02 01:20:31 ncq Exp $
+-- $Id: gmServices.sql,v 1.2 2003-01-22 16:12:09 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ---------------------------------------------
@@ -18,7 +18,7 @@
 -- ---------------------------------------------
 create table gm_services (
 	id serial primary key,
-	service_name varchar(30) unique,
+	name varchar(30) unique,
 	version VARCHAR(30),
 	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -31,6 +31,9 @@ comment on column gm_services.version is
 
 -- =============================================
 -- $Log: gmServices.sql,v $
--- Revision 1.1  2003-01-02 01:20:31  ncq
+-- Revision 1.2  2003-01-22 16:12:09  ncq
+-- - gm_services.service_name -> gm_services.name
+--
+-- Revision 1.1  2003/01/02 01:20:31  ncq
 -- - initial version
 --
