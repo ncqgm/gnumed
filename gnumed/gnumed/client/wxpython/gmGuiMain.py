@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.128 2003-11-21 19:55:32 hinnef Exp $
-__version__ = "$Revision: 1.128 $"
+# $Id: gmGuiMain.py,v 1.129 2003-11-29 01:33:23 ncq Exp $
+__version__ = "$Revision: 1.129 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -53,7 +53,7 @@ if encoding is None:
 from gmI18N import gmTimeformat, system_locale, system_locale_level
 
 import gmDispatcher, gmSignals, gmGuiBroker, gmSQLSimpleSearch, gmSelectPerson, gmPlugin
-
+import gmGuiHelpers
 import gmTopPanel
 import gmPatient
 
@@ -400,7 +400,7 @@ class gmTopLevelFrame(wxFrame):
 				'nor create a new one for patient\n'
 				'"%s".'
 			) % pat_string
-			self.__show_error(msg, _('recording patient encounter'))
+			gmGuiHelpers.gm_show_error(msg, _('recording patient encounter'))
 		# ambigous ?
 		elif status == 0:
 			# FIXME: better widget -> activate/new buttons
@@ -426,7 +426,7 @@ class gmTopLevelFrame(wxFrame):
 						'Cannot create new encounter for patient\n'
 						'"%s".'
 					) % pat_string
-					self.__show_error(msg, _('recording patient encounter'))
+					gmGuiHelpers.gm_show_error(msg, _('recording patient encounter'))
 		#elif 1:
 			#success
 
@@ -600,41 +600,6 @@ class gmTopLevelFrame(wxFrame):
 			self.nb.GetPage(i).Enable(true)
 		# go straight to patient selection
 		self.nb.AdvanceSelection()
-	#----------------------------------------------
-	# internal helpers
-	#----------------------------------------------
-	def __show_error(self, aMessage = None, aTitle = ''):
-		# sanity checks
-		tmp = aMessage
-		if aMessage is None:
-			tmp = _('programmer forgot to specify error message')
-
-		tmp = tmp + _("\n\nPlease consult the error log for further information !")
-
-		dlg = wxMessageDialog(
-			NULL,
-			tmp,
-			aTitle,
-			wxOK | wxICON_ERROR
-		)
-		dlg.ShowModal()
-		dlg.Destroy()
-		return 1
-	#----------------------------------------------
-	def __show_question(self, aMessage = None, aTitle = ''):
-		# sanity checks
-		tmp = aMessage
-		if aMessage is None:
-			tmp = _('programmer forgot to specify question')
-		dlg = wxMessageDialog(
-			NULL,
-			tmp,
-			aTitle,
-			wxYES_NO | wxICON_QUESTION
-		)
-		result = dlg.ShowModal()
-		dlg.Destroy()
-		return result
 #==================================================
 class gmApp(wxApp):
 
@@ -705,31 +670,16 @@ class gmApp(wxApp):
 			return 1
 
 		db_lang = None
-
-		roconn = self.__backend.GetConnection(service = 'default')
-		if roconn is None:
-			_log.Log(gmLog.lInfo, 'Cannot connect to database to check database locale setting.')
-			return None
-		rocurs = roconn.cursor()
-		# FIXME: gmPG.run_query()
 		# get current database locale
 		cmd = "select lang from i18n_curr_lang where owner = CURRENT_USER limit 1;"
-		try:
-			rocurs.execute(cmd)
-		except:
-			# assuming the admin knows her stuff this means
-			# that language settings are not wanted
-			_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
+		result = gmPG.run_ro_query('default', cmd, 0)
+		if result is None:
+			# if the actual query fails assume the admin
+			# knows her stuff and fail graciously
 			_log.Log(gmLog.lInfo, 'assuming language settings are not wanted/needed')
 			_log.LogException("Cannot get database language.", sys.exc_info(), verbose=0)
-			rocurs.close()
-			self.__backend.ReleaseConnection('default')
 			return None
-		result = rocurs.fetchone()
-		rocurs.close()
-		self.__backend.ReleaseConnection('default')
-
-		if result is None:
+		if len(result) == 0:
 			msg = _(
 				"There is no language selected in the database.\n"
 				"Your system language is currently set to [%s].\n\n"
@@ -741,7 +691,7 @@ class gmApp(wxApp):
 			)  % (system_locale, system_locale)
 			_log.Log(gmLog.lData, "database locale currently not set")
 		else:
-			db_lang = result[0]
+			db_lang = result[0][0]
 			msg = _(
 				"The currently selected database language ('%s') does\n"
 				"not match the current system language ('%s').\n\n"
@@ -792,28 +742,17 @@ class gmApp(wxApp):
 			_cfg.store()
 			return 1
 
-		rwconn = self.__backend.GetConnection(service = 'default', readonly = 0)
-		if rwconn is None:
-			_log.Log(gmLog.lInfo, 'Cannot connect to database to set database locale.')
-			return None
-		rwcurs = rwconn.cursor()
-		# try setting database language (only possible if translations exist)
-		cmd = "select set_curr_lang(%s);"
+		# try setting database language (only possible if translation exists)
+		cmd = "select set_curr_lang(%s) "
 		for lang in [system_locale_level['full'], system_locale_level['country'], system_locale_level['language']]:
-			try:
-				rwcurs.execute(cmd, lang)
-			except:
-				_log.LogException(">>>%s<<< failed." % (cmd % lang), sys.exc_info(), verbose=0)
-				rwconn.rollback()
+			result = gmPG.run_commit('default', [
+				(cmd, [lang])
+			])
+			if result is None:
+				_log.Log(gmLog.lErr, 'Cannot set database language to [%s].' % lang)
 				continue
 			_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
-			rwconn.commit()
-			rwcurs.close()
-			rwconn.close()
 			return 1
-
-		rwcurs.close()
-		rwconn.close()
 		return None
 	#----------------------------------------------
 	def __show_question(self, aMessage = None, aTitle = ''):
@@ -850,7 +789,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.128  2003-11-21 19:55:32  hinnef
+# Revision 1.129  2003-11-29 01:33:23  ncq
+# - a bit of streamlining
+#
+# Revision 1.128  2003/11/21 19:55:32  hinnef
 # re-included patch from 1.116 that was lost before
 #
 # Revision 1.127  2003/11/19 14:45:32  ncq
