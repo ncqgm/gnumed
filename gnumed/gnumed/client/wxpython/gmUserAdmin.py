@@ -8,7 +8,15 @@
 # @dependencies: wxPython
 # @change log:
 #     $Log: gmUserAdmin.py,v $
-#     Revision 1.3  2002-07-10 19:43:36  ncq
+#     Revision 1.4  2003-11-17 10:56:39  sjtan
+#
+#     synced and commiting.
+#
+#     Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+#     manual edit areas modelled after r.terry's specs.
+#
+#     Revision 1.3  2002/07/10 19:43:36  ncq
 #     - new i18n
 #
 #     Revision 1.2  2001/12/05 13:57:02  sduffy

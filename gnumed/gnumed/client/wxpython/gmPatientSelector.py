@@ -9,8 +9,10 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.23 2003-11-09 17:29:22 shilbert Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmPatientSelector.py,v 1.24 2003-11-17 10:56:38 sjtan Exp $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
+# $Id: gmPatientSelector.py,v 1.24 2003-11-17 10:56:38 sjtan Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -649,6 +651,7 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 
 		# set event handlers
 		self.__register_events()
+
 	#--------------------------------------------------------
 	def __register_events(self):
 		# - process some special chars
@@ -671,13 +674,13 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 		if anID is None:
 			return None
 
-		if anID == self.curr_pat['ID']:
-			return None
+		#if anID == self.curr_pat['ID'] :
+		#	return None
 		if self.curr_pat is not None:
 			old_ID = self.curr_pat['ID']
 		else:
 			old_ID = -1
-		self.curr_pat = gmPatient.gmCurrentPatient(anID)
+		self.curr_pat = gmPatient.gmCurrentPatient(anID, reload = 1)
 		if old_ID == self.curr_pat['ID']:
 			_log.Log (gmLog.lErr, 'cannot change active patient')
 			# error message ?
@@ -993,7 +996,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.23  2003-11-09 17:29:22  shilbert
+# Revision 1.24  2003-11-17 10:56:38  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.23  2003/11/09 17:29:22  shilbert
 # - ['demographics'] -> ['demographic record']
 #
 # Revision 1.22  2003/11/07 20:44:11  ncq

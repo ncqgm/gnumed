@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.26 2003-11-09 14:28:30 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmPhraseWheel.py,v 1.27 2003-11-17 10:56:38 sjtan Exp $
+__version__ = "$Revision: 1.27 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -59,6 +59,52 @@ class cWheelTimer(wxTimer):
 	#--------------------------------------------------------
 	def Notify(self):
 		self.__callback()
+
+class cPickList(wxListBox):
+	def __init__(self, parent, id = -1):
+		wxListBox.__init__(self, parent, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
+		EVT_KILL_FOCUS( self, self.on_kill_focus)
+		EVT_SET_FOCUS( self, self.on_set_focus)
+		self._isFocused = 0
+
+
+	def on_set_focus(self, event):
+		event.Skip()
+		print event , " GOT FOCUS", self
+		self._isFocused = 1
+		
+	def on_kill_focus(self, event):
+		event.Skip()
+		print event , " LOST FOCUS", self
+		self._isFocused = 0
+
+class cPickListWin(wxWindow):
+	def __init__(self, *kwds, **kwargs):
+		wxWindow.__init__(self, *kwds, **kwargs)
+		self.panel = wxPanel(self, -1)
+#		self._picklist = wxListBox(self.panel, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
+		self._picklist = cPickList( self.panel)
+		self._isFocused = 0
+		EVT_KILL_FOCUS( self, self.on_kill_focus)
+		EVT_SET_FOCUS( self, self.on_set_focus)
+		EVT_SET_FOCUS( self._picklist,self.on_set_focus)
+
+
+	def on_set_focus(self, event):
+		event.Skip()
+		print event , " GOT FOCUS", self
+		self._isFocused = 1
+		
+	def on_kill_focus(self, event):
+		event.Skip()
+		print event , " LOST FOCUS", self
+		self._isFocused = 0
+
+	def getPickList(self):
+		return self._picklist
+
+
+		
 #============================================================
 class cPhraseWheel (wxTextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface."""
@@ -68,7 +114,7 @@ class cPhraseWheel (wxTextCtrl):
 	def __init__ (
 		self,
 		aMatchProvider = None,
-		aDelay = 300,
+		aDelay = 300, selectionOnly =0,
 		*args,
 		**kwargs):
 
@@ -77,6 +123,7 @@ class cPhraseWheel (wxTextCtrl):
 			return None
 		self.__matcher = aMatchProvider
 		self.__real_matcher = None
+		
 		self.__currMatches = []
 		self.phrase_separators = cPhraseWheel.default_phrase_separators
 		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
@@ -87,6 +134,8 @@ class cPhraseWheel (wxTextCtrl):
 
 		self.listener_callbacks = []
 		self.notified_listeners = 0
+
+		self.selectionOnly = selectionOnly 
 
 		if kwargs.has_key('id_callback'):
 			self.addCallback(kwargs['id_callback'])
@@ -107,6 +156,10 @@ class cPhraseWheel (wxTextCtrl):
 		EVT_SIZE (self, self.on_resize)
 		# parent notification callback
 
+		EVT_SET_FOCUS( self, self.on_set_focus)
+		EVT_KILL_FOCUS( self, self.on_kill_focus)
+		self._has_focus = 0
+
 		tmp = kwargs.copy()
 		width, height = kwargs['size']
 		x, y = kwargs['pos']
@@ -122,6 +175,7 @@ class cPhraseWheel (wxTextCtrl):
 
 		self.left_part = ''
 		self.right_part = ''
+
 	#--------------------------------------------------------
 	def allow_multiple_phrases(self, state = _true):
 		self.__handle_multiple_phrases = state
@@ -230,17 +284,32 @@ class cPhraseWheel (wxTextCtrl):
 			for item in self.__currMatches:
 				self._picklist.Append(item['label'], clientData = item['data'])
 				
+
+	def __unique_text(self, matches):
+		l = []
+		found = {}
+		for map in matches:
+			if found.has_key(map['label']):
+				continue
+			found[map['label']] = 1
+			l.append( map)
+		return l	
+
 	#--------------------------------------------------------
 	def __show_picklist(self):
 		"""Display the pick list."""
 
+		
 		# this helps if the current input was already selected from the
 		# list but still is the substring of another pick list item
 		if self.input_was_selected:
 			return 1
 
+		if not self._has_focus:
+			return 1
+
 		# if only one match and text == match
-		if len(self.__currMatches) == 1:
+		if len(self.__unique_text(self.__currMatches) ) == 1:
 			if self.__currMatches[0]['label'] == self.relevant_input:
 				# don't display drop down list
 				self._hide_picklist()
@@ -288,6 +357,14 @@ class cPhraseWheel (wxTextCtrl):
 
 		# get data associated with selected item
 		self.data = self._picklist.GetClientData(selection_idx)
+		# and tell our parent about the user's selection
+		try:
+			for call in self.notify_caller:
+				call (self.data)
+		except:
+			pass
+		self.have_called = 1
+		self._hide_picklist()
 		# and tell the listeners about the user's selection
 		for call_listener in self.listener_callbacks:
 			call_listener(self.data)
@@ -348,6 +425,9 @@ class cPhraseWheel (wxTextCtrl):
 	def __on_key_pressed (self, key):
 		"""Is called when a key is pressed."""
 		# user moved down
+		key.Skip()
+
+
 		if key.GetKeyCode() == WXK_DOWN:
 			self.__on_down_arrow(key)
 			return
@@ -362,7 +442,6 @@ class cPhraseWheel (wxTextCtrl):
 			self.__on_enter()
 			return
 
-		key.Skip()
 	#--------------------------------------------------------
 	def __on_text_update (self, event):
 		"""Internal handler for EVT_TEXT (called when text has changed)"""
@@ -416,6 +495,8 @@ class cPhraseWheel (wxTextCtrl):
 		# also, our picklist is refilled and sorted according to weight
 
 		# display list - but only if we have more than one match
+		# THAT isn't duplicated
+
 		if len(self.__currMatches) > 0:
 			# show it
 			self.on_resize (None)
@@ -425,6 +506,30 @@ class cPhraseWheel (wxTextCtrl):
 			# need to dismiss that since we don't have
 			# more than one item anymore
 			self._hide_picklist()
+
+	def SetValue(self, x):
+		wxTextCtrl.SetValue(self, x)
+		self.setInputSelected()
+
+	def setInputSelected(self, val = 1):
+		self.input_was_selected = val
+
+	def on_set_focus(self,event):
+		print self, "gained focus"
+		event.Skip()
+		self._has_focus = 1
+
+
+	def on_kill_focus(self,event):
+		event.Skip()
+		print self, "lost focus"
+		if  self.input_was_selected <> 1:
+			# don't allow invalid input
+			if self.selectionOnly:
+				self.Clear()
+		self._hide_picklist()
+		self._has_focus = 0
+		
 #--------------------------------------------------------
 # MAIN
 #--------------------------------------------------------
@@ -497,7 +602,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.26  2003-11-09 14:28:30  ncq
+# Revision 1.27  2003-11-17 10:56:38  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.26  2003/11/09 14:28:30  ncq
 # - cleanup
 #
 # Revision 1.25  2003/11/09 02:24:42  ncq

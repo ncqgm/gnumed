@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.11 2003-06-27 16:04:13 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmMedDoc.py,v 1.12 2003-11-17 10:56:34 sjtan Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path
@@ -540,7 +540,15 @@ def create_object(data):
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.11  2003-06-27 16:04:13  ncq
+# Revision 1.12  2003-11-17 10:56:34  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:38  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.11  2003/06/27 16:04:13  ncq
 # - no ; in SQL
 #
 # Revision 1.10  2003/06/26 21:26:15  ncq

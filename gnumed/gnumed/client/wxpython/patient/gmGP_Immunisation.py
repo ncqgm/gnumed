@@ -9,8 +9,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.14 2003-11-09 14:53:53 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmGP_Immunisation.py,v 1.15 2003-11-17 10:56:41 sjtan Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -32,6 +32,9 @@ from gmGuiElement_AlertCaptionPanel import AlertCaptionPanel
 # panel class holding editing prompts and text boxes
 import gmEditArea
 import gmPlugin, gmPatient
+from gmListCtrlMapper import *
+
+from gmPatientHolder import PatientHolder
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -69,11 +72,12 @@ immunisationprompts = {
 7:("")    
 }
 #======================================================================
-class ImmunisationPanel(wxPanel):
+class ImmunisationPanel(wxPanel, PatientHolder):
 
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
-		self.pat = gmPatient.gmCurrentPatient()
+		PatientHolder.__init__(self)
+		self.patient = gmPatient.gmCurrentPatient()
 		#--------------------
 		#add the main heading
 		#--------------------
@@ -86,7 +90,8 @@ class ImmunisationPanel(wxPanel):
 		#--------------------------------------------------
 		#now create the editarea specific for immunisations
 		#--------------------------------------------------
-		self.editarea = gmEditArea.EditArea(self,-1,immunisationprompts,gmSECTION_IMMUNISATIONS)
+		self.editarea = gmEditArea.gmVaccinationEditArea(self,-1)
+		#,immunisationprompts,gmSECTION_IMMUNISATIONS)
 		#-----------------------------------------------
 		#add the divider headings below the editing area
 		#-----------------------------------------------
@@ -117,6 +122,9 @@ class ImmunisationPanel(wxPanel):
 		szr_MiddleCaption2 = wxBoxSizer(wxHORIZONTAL)
 		szr_MiddleCaption2.Add(self.disease_schedule_list,4,wxEXPAND)
 		szr_MiddleCaption2.Add(self.schedule_vaccine_given_list,6, wxEXPAND)
+
+		self.disease_mapper = gmListCtrlMapper( self.disease_schedule_list)
+		self.vaccine_mapper = gmListCtrlMapper( self.schedule_vaccine_given_list)
 		#----------------------------------------
 		# add some dummy data to the Schedule list
 		#-----------------------------------------
@@ -127,12 +135,14 @@ class ImmunisationPanel(wxPanel):
 		#note the different syntax for the first coloum of each row
 		#i.e. here > self.disease_schedule_list.InsertStringItem(x, data[0])!!
 		#-------------------------------------------------------------
-		items = scheduledata.items()
-		for x in range(len(items)):
-			key, data = items[x]
-			gmLog.gmDefLog.Log (gmLog.lData, items[x])
-			self.disease_schedule_list.InsertStringItem(x, data[0])
-			self.disease_schedule_list.SetItemData(x, key)
+		self.disease_mapper.SetData( scheduledata)
+
+		#items = scheduledata.items()
+		#for x in range(len(items)):
+	#		key, data = items[x]
+	#		gmLog.gmDefLog.Log (gmLog.lData, items[x])
+	#		self.disease_schedule_list.InsertStringItem(x, data[0])
+	#		self.disease_schedule_list.SetItemData(x, key)
 
 		self.disease_schedule_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		#-----------------------------------------	  
@@ -145,19 +155,20 @@ class ImmunisationPanel(wxPanel):
 		#note the different syntax for the first coloum of each row
 		#i.e. here > self.disease_schedule_list.InsertStringItem(x, data[0])!!
 		#-------------------------------------------------------------
-		items = vaccinedata.items()
-		for x in range(len(items)):
-			key, data = items[x]
-			gmLog.gmDefLog.Log (gmLog.lData, items[x])
-			self.schedule_vaccine_given_list.InsertStringItem(x, data[0])
-			self.schedule_vaccine_given_list.SetStringItem(x, 1, data[1])
-			self.schedule_vaccine_given_list.SetItemData(x, key)
+		self.vaccine_mapper.SetData( vaccinedata)
+#		items = vaccinedata.items()
+#		for x in range(len(items)):
+#			key, data = items[x]
+#			gmLog.gmDefLog.Log (gmLog.lData, items[x])
+#			self.schedule_vaccine_given_list.InsertStringItem(x, data[0])
+#			self.schedule_vaccine_given_list.SetStringItem(x, 1, data[1])
+#			self.schedule_vaccine_given_list.SetItemData(x, key)
 
 		self.schedule_vaccine_given_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.schedule_vaccine_given_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
 		#--------------------------------------------------------------------------------------
 		pnl_MiddleCaption3 = DividerCaptionPanel(self, -1, _("Missing Immunisations"))
-		epr = self.pat['clinical record']
+#		epr = self.pat['clinical record']
 #		missing_shots = epr.get_missing_vaccinations()
 #		missing_shots = epr['vaccination status']
 		# FIXME: get list of due vaccs, too, and highlight those
@@ -190,6 +201,10 @@ class ImmunisationPanel(wxPanel):
 		self.mainsizer.Fit (self)
 		self.SetAutoLayout(true)
 		EVT_SIZE (self, self.OnSize)
+
+		print self.disease_mapper.GetData()
+		print self.vaccine_mapper.GetData()
+		
 
 	def OnSize (self, event):
 		w, h = event.GetSize ()
@@ -232,7 +247,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.14  2003-11-09 14:53:53  ncq
+# Revision 1.15  2003-11-17 10:56:41  sjtan
+#
+# synced and commiting.
+#
+# manual edit areas modelled after r.terry's specs.
+# Revision 1.14  2003/11/09 14:53:53  ncq
 # - work on backend link
 #
 # Revision 1.13  2003/10/26 01:36:14  ncq

@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
@@ -269,7 +269,15 @@ if __name__ == "__main__":
 	listener.unregister_callback('patient_changed', OnPatientModified)
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.19  2003-09-11 10:53:10  ncq
+# Revision 1.20  2003-11-17 10:56:35  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:38  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.19  2003/09/11 10:53:10  ncq
 # - fix test code in __main__
 #
 # Revision 1.18  2003/07/04 20:01:48  ncq

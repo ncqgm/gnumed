@@ -2,11 +2,13 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.5 2003-11-11 18:21:30 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmEMRTextDump.py,v 1.6 2003-11-17 10:56:37 sjtan Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
+import gmLog
+_log = gmLog.gmDefLog
 
 if __name__ == "__main__":
 	sys.path.append ("../python-common/")
@@ -120,7 +122,11 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.5  2003-11-11 18:21:30  ncq
+# Revision 1.6  2003-11-17 10:56:37  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.5  2003/11/11 18:21:30  ncq
 # - cleanup
 #
 # Revision 1.4  2003/11/09 14:27:46  ncq

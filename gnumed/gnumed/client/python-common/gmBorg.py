@@ -1,8 +1,8 @@
 #===================================================
 # Thanks to Python Patterns !
 # ---------------------------
-# $Id: gmBorg.py,v 1.1 2003-04-02 16:07:55 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmBorg.py,v 1.2 2003-11-17 10:56:35 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -23,6 +23,14 @@ class cBorg:
 
 #===================================================
 # $Log: gmBorg.py,v $
-# Revision 1.1  2003-04-02 16:07:55  ncq
+# Revision 1.2  2003-11-17 10:56:35  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:38  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.1  2003/04/02 16:07:55  ncq
 # - first version
 #

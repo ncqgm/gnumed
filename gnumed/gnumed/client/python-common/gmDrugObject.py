@@ -15,7 +15,7 @@
 
 #==================================================================             
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmDrugObject.py,v $      
-__version__ = "$Revision: 1.1 $"                                               
+__version__ = "$Revision: 1.2 $"                                               
 __author__ = "Hilmar Berger <Hilmar.Berger@gmx.net>"
 
 import sys, string, types, os.path
@@ -335,7 +335,15 @@ if __name__ == "__main__":
 #	print len(x['brandname'])
 #====================================================================================
 # $Log: gmDrugObject.py,v $
-# Revision 1.1  2003-08-24 13:38:24  hinnef
+# Revision 1.2  2003-11-17 10:56:36  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.1  2003/08/24 13:38:24  hinnef
 # moved to main-tree, some bug fixes
 #
 # Revision 1.7  2002/11/17 16:44:23  hinnef

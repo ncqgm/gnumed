@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -617,7 +617,15 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.24  2003-05-12 01:39:27  michaelb
+# Revision 1.25  2003-11-17 10:56:41  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.24  2003/05/12 01:39:27  michaelb
 # minor bug fix - hitting 'Reset' before a field was selected used to result in an error
 #
 # Revision 1.23  2003/04/28 04:32:44  michaelb

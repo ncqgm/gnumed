@@ -16,7 +16,7 @@
 ############################################################################
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmDbObject.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 import sys
@@ -218,7 +218,15 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDbObject.py,v $
-# Revision 1.8  2003-08-24 13:42:13  hinnef
+# Revision 1.9  2003-11-17 10:56:36  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.8  2003/08/24 13:42:13  hinnef
 # changed verbose to 0 in exception logging to decrease log file size
 #
 # Revision 1.7  2003/06/26 21:33:29  ncq

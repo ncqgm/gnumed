@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -420,7 +420,7 @@ if __name__ == '__main__':
 			}
 
 			# find matching patient IDs
-			patient_ids = gmPatient.get_patient_ids(cooked_search_terms)
+			patient_ids = gmTmpPatient.get_patient_ids(cooked_search_terms)
 			if patient_ids is None:
 				gm_show_error(
 					aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
@@ -439,7 +439,7 @@ if __name__ == '__main__':
 				raise ConstructorError, "Problem getting patient ID from database. Aborting."
 
 			try:
-				gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0])
+				gm_pat = gmTmpPatient.gmCurrentPatient(aPKey = patient_ids[0])
 			except:
 				# this is an emergency
 				gm_show_error(
@@ -455,7 +455,7 @@ if __name__ == '__main__':
 			self.SetTitle(_("stored medical documents"))
 
 			# make patient panel
-			gender = gmPatient.gm2long_gender_map[xdt_gmgender_map[self.__xdt_pat['gender']]]
+			gender = gmTmpPatient.gm2long_gender_map[xdt_gmgender_map[self.__xdt_pat['gender']]]
 			self.pat_panel = wxStaticText(
 				id = -1,
 				parent = self,
@@ -662,7 +662,11 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.30  2003-11-16 11:53:32  shilbert
+# Revision 1.31  2003-11-17 10:56:40  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.30  2003/11/16 11:53:32  shilbert
 # - fixed stanalone mode
 # - makes use of toolbar
 #

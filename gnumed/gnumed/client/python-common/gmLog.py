@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -257,11 +257,11 @@ class cLogger:
 				self.__targets[key].writeMsg(level1, aMsg)
 				self.__targets[key].writeMsg(level1, "exception type : %s" % exc_type)
 				self.__targets[key].writeMsg(level1, "exception value: %s" % exc_val)
+				
 				for line in traceback_stack:
 					self.__targets[key].writeMsg(level2, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
-				if verbose:
-					self.__targets[key].writeMsg(lData, "locals by frame, innermost frame last")
-					for frame in stack_of_frames:
+				self.__targets[key].writeMsg(lData, "locals by frame, innermost frame last")
+				for frame in stack_of_frames:
 						self.__targets[key].writeMsg(lData, ">>> execution frame [%s] in [%s] at line %s <<<" % (
 							frame.f_code.co_name,
 							frame.f_code.co_filename,
@@ -813,8 +813,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __del__
 # __is_subclass__
 #===============================================================
-# $Log: gmLog.py,v $
-# Revision 1.41  2003-10-31 08:48:17  ncq
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.41  2003/10/31 08:48:17  ncq
 # - PSU: --log-file=test.log should of course use test.log in the current directory
 #
 # Revision 1.40  2003/09/30 19:02:28  ncq

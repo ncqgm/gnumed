@@ -1,7 +1,7 @@
 """GnuMed single box SOAP notes plugin.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSingleBoxSoapPlugin.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import gmLog, gmPlugin
@@ -49,7 +49,15 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmSingleBoxSoapPlugin.py,v $
-# Revision 1.4  2003-07-03 15:25:41  ncq
+# Revision 1.5  2003-11-17 10:56:41  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.4  2003/07/03 15:25:41  ncq
 # - removed unneccary iports
 #
 # Revision 1.3  2003/06/29 15:21:22  ncq

@@ -538,7 +538,15 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.9  2003-10-13 21:04:00  hinnef
+# Revision 1.10  2003-11-17 10:56:39  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.9  2003/10/13 21:04:00  hinnef
 # - added GPL statement
 #
 # Revision 1.8  2003/10/13 21:01:46  hinnef

@@ -22,7 +22,11 @@
 #      
 ############################################################################
 
-
+if __name__ == "__main__":
+	import sys
+	sys.path.append('../../wxpython')
+	sys.path.append('../../python-common')
+	
 from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
@@ -31,6 +35,9 @@ import gmEditArea                              #panel class holding editing
 import gmPlugin
 import gmLog
 import gmI18N
+from gmListCtrlMapper import gmListCtrlMapper
+
+import gmPatientHolder
 
 ID_MEASUREMENTVALUESLIST = wxNewId()
 gmSECTION_MEASUREMENTS = 10
@@ -81,9 +88,10 @@ measurement_prompts = {
 6:(""),
 	}
 
-class MeasurementPanel (wxPanel):
+class MeasurementPanel (wxPanel, gmPatientHolder.PatientHolder):
 	def __init__(self,parent, id):
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+		gmPatientHolder.PatientHolder.__init__(self)
 		#--------------------
 		#add the main heading
 		#--------------------
@@ -96,7 +104,8 @@ class MeasurementPanel (wxPanel):
 		##--------------------------------------------------
 		#now create the editarea specific for measurements
 		#--------------------------------------------------
-		self.editarea = gmEditArea.EditArea(self,-1,measurement_prompts,gmSECTION_MEASUREMENTS)
+		#self.editarea = gmEditArea.EditArea(self,-1,measurement_prompts,gmSECTION_MEASUREMENTS)
+		self.editarea = gmEditArea.gmMeasurementEditArea(self, -1)
 		#self.dummypanel2 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
 		#self.dummypanel2.SetBackgroundColour(wxColor(222,222,222))
 		#-----------------------------------------------
@@ -134,12 +143,15 @@ class MeasurementPanel (wxPanel):
 		#note the different syntax for the first coloum of each row
 		#i.e. here > self.measurement_types_list.InsertStringItem(x, data[0])!!
 		#-------------------------------------------------------------
-		items = measurementtypesdata.items()
-		for x in range(len(items)):
-			key, data = items[x]
-			self.measurement_types_list.InsertStringItem(x, data[0])
-			self.measurement_types_list.SetStringItem(x, 1, data[1])
-			self.measurement_types_list.SetItemData(x, key)
+		m = gmListCtrlMapper(self.measurement_types_list)
+		m.SetData(measurementtypesdata)
+		self.typesMapper = m
+		#items = measurementtypesdata.items()
+		#for x in range(len(items)):
+		#	key, data = items[x]
+		#	self.measurement_types_list.InsertStringItem(x, data[0])
+		#	self.measurement_types_list.SetStringItem(x, 1, data[1])
+		#	self.measurement_types_list.SetItemData(x, key)
 		self.measurement_types_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.measurement_types_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
 		#-----------------------------------------	  
@@ -152,12 +164,15 @@ class MeasurementPanel (wxPanel):
 		#note the different syntax for the first coloum of each row
 		#i.e. here > self.measurement_types_list.InsertStringItem(x, data[0])!!
 		#-------------------------------------------------------------
-		items = values_BP_data.items()
-		for x in range(len(items)):
-			key, data = items[x]
-			self.measurements_values_list.InsertStringItem(x, data[0])
-			self.measurements_values_list.SetStringItem(x, 1, data[1])
-			self.measurements_values_list.SetItemData(x, key)
+		m = gmListCtrlMapper(self.measurements_values_list)
+		m.SetData(values_BP_data)
+		self.valueMapper = m	
+		#items = values_BP_data.items()
+		#for x in range(len(items)):
+		#	key, data = items[x]
+		#	self.measurements_values_list.InsertStringItem(x, data[0])
+		#	self.measurements_values_list.SetStringItem(x, 1, data[1])
+		#	self.measurements_values_list.SetItemData(x, key)
 		self.measurements_values_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
 		self.measurements_values_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
 		#----------------------------------------

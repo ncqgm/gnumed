@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 
 import string, gmDispatcher, gmSignals
 from wxPython.wx import *
@@ -66,6 +66,59 @@ class DlgSelectPerson(SQLSimpleSearch):
 		self.sizerButtons.AddWindow( self.buttonMerge, 0, wxALIGN_CENTRE|wxALL, 2 )
 
 		self.sizerTopVertical.AddSizer( self.sizerButtons, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2 )
+
+		self.__connect_commands()
+
+	
+	def __connect_commands(self):
+		EVT_BUTTON( self.buttonNew, self.buttonNew.GetId(), self.__newButtonPressed)
+		EVT_BUTTON( self.buttonAdd, self.buttonAdd.GetId(), self.__addButtonPressed)
+
+	
+	def __newButtonPressed(self, event):
+		self._newPatient()
+
+	def __addButtonPressed(self, event):
+		self._addPatient()
+
+	def __getDemographicsWidget(self):
+		import gmGuiBroker
+		broker = gmGuiBroker.GuiBroker()
+
+		for x in broker['main.notebook.plugins']:
+			if str(x.__class__).find('gmDemographics') <> -1:
+				return x
+		
+		raise Error("Unable to find gmDemographics")	
+		
+	def _newPatient(self):
+		x = self.__getDemographicsWidget()
+		x.Raise()
+		x.newPatient()
+		return
+
+	def _addPatient(self):
+		#pass
+		id = self.GetData()
+		#print id	
+		import gmPatient
+		patient = gmPatient.gmPerson(id)
+		newId = patient.create_default_relative()
+		#newPatient = gmPatient.gmPerson(newId)
+		#new_demographics = newPatient.get_demographic_record()
+		#old_demographics = patient.get_demographic_record()
+		#new_demographics.copyAddresses(old_demographics)
+		#new_demographics.setActiveName( "?", old_demographics.getActiveName()['last'])
+		if newId == None:
+			print "GOT no new patient"
+			return
+		gmPatient.gmCurrentPatient(newId)
+		x = self.__getDemographicsWidget()
+		x.Raise()
+
+		
+
+
 
 
 	def TransformQuery(self, searchexpr):

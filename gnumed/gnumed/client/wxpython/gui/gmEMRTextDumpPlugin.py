@@ -1,7 +1,7 @@
 """GnuMed simple EMR text dump plugin
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmEMRTextDumpPlugin.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import gmLog, gmPlugin
@@ -49,7 +49,15 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRTextDumpPlugin.py,v $
-# Revision 1.2  2003-07-19 20:22:22  ncq
+# Revision 1.3  2003-11-17 10:56:40  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.2  2003/07/19 20:22:22  ncq
 # - use panel now, not scrolled window anymore
 #
 # Revision 1.1  2003/07/03 15:26:26  ncq

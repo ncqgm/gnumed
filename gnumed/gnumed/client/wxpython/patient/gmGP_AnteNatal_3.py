@@ -7,6 +7,8 @@ import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headi
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 import gmEditArea                              #panel class holding editing
 import gmPlugin
+
+from gmPatientHolder import PatientHolder
 ID_ANCNOTEBOOK =wxNewId()
 #---------------------------------------------------------------------------
 
@@ -138,9 +140,10 @@ class CustTableGrid(wxGrid):
 
 
 #---------------------------------------------------------------------------
-class AntenatalPanel (wxPanel):
+class AntenatalPanel (wxPanel , PatientHolder):
      def __init__(self,parent, id):
   	  wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxNO_BORDER)
+	  PatientHolder.__init__(self)
 	  self.sizer = wxBoxSizer(wxHORIZONTAL)
 	  self.notebook1 = wxNotebook(self, -1, wxDefaultPosition, wxDefaultSize, style =0)
 	  ListScript_ID = wxNewId()                                                         #can use wxLC_VRULES to put faint cols in list

@@ -156,7 +156,8 @@ class SQLSimpleSearch(wxPanel):
 
 
 	def GetSelection(self):
-		self.listctrlSearchResults.GetSelection()
+		return self.selected
+		#self.listctrlSearchResults.GetSelection()
 
 	def GetLabels(self):
 		"returns the list control column labels"
@@ -170,5 +171,6 @@ class SQLSimpleSearch(wxPanel):
 		return int(data)
 
 
-	def GetData(self, index):
-		return self.ProcessSelection(self.GetSelection())
+	def GetData(self):
+		# some subclasses override ProcessSelection, so specify this class's ProcessSelection	
+		return SQLSimpleSearch.ProcessSelection(self, self.GetSelection())

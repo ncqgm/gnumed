@@ -53,6 +53,14 @@ class gmplNbPatientSelector(gmPlugin.wxNotebookPlugin):
 #   (handled automatically by phrase wheel)
 #======================================================
 # $Log: gmplNbPatientSelector.py,v $
-# Revision 1.7  2003-06-29 14:18:58  ncq
+# Revision 1.8  2003-11-17 10:56:41  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.7  2003/06/29 14:18:58  ncq
 # - just some cleanup
 #

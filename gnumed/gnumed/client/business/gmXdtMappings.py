@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.13 2003-04-03 14:59:36 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmXdtMappings.py,v 1.14 2003-11-17 10:56:34 sjtan Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -1314,7 +1314,15 @@ xdt_map_of_content_maps = {
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.13  2003-04-03 14:59:36  ncq
+# Revision 1.14  2003-11-17 10:56:34  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:38  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.13  2003/04/03 14:59:36  ncq
 # - lots more maps ...
 #
 # Revision 1.12  2003/03/26 07:44:40  ncq

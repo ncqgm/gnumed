@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.5 2003-08-28 18:54:32 shilbert Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmXdtObjects.py,v 1.6 2003-11-17 10:56:35 sjtan Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -286,7 +286,15 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.5  2003-08-28 18:54:32  shilbert
+# Revision 1.6  2003-11-17 10:56:35  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:38  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.5  2003/08/28 18:54:32  shilbert
 # - corrected some minor glitches
 #
 # Revision 1.4  2003/08/27 14:58:58  ncq

@@ -6,8 +6,8 @@ This is mainly used by GnuMed/Archive.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXmlDocDesc.py,v $
-# $Id: gmXmlDocDesc.py,v 1.1 2003-04-20 15:42:27 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmXmlDocDesc.py,v 1.2 2003-11-17 10:56:35 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os.path, fileinput, types, string
@@ -241,6 +241,14 @@ class xmlDocDesc:
 
 #============================================================
 # $Log: gmXmlDocDesc.py,v $
-# Revision 1.1  2003-04-20 15:42:27  ncq
+# Revision 1.2  2003-11-17 10:56:35  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:38  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.1  2003/04/20 15:42:27  ncq
 # - first version
 #

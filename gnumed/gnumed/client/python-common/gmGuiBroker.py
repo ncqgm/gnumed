@@ -9,8 +9,8 @@ variables needed for a gnumed GUI client interface
 """
 #-----------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmGuiBroker.py,v $
-# $Id: gmGuiBroker.py,v 1.7 2003-02-09 11:48:59 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmGuiBroker.py,v 1.8 2003-11-17 10:56:36 sjtan Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "H.Herb <hherb@gnumed.net>, H.Berger <Hilmar.Berger@gmx.de>"
 #===========================================================
 
@@ -157,7 +157,15 @@ if __name__ == "__main__":
 
 #===========================================================
 # $Log: gmGuiBroker.py,v $
-# Revision 1.7  2003-02-09 11:48:59  ncq
+# Revision 1.8  2003-11-17 10:56:36  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.7  2003/02/09 11:48:59  ncq
 # - just some silly cvs keyword
 #
 # Revision 1.6  2003/02/09 09:41:57  sjtan

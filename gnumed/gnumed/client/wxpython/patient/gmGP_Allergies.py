@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -35,7 +35,8 @@ import gmDispatcher, gmSignals, gmPG, gmPlugin, gmEditArea, gmPatient
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-
+from  gmPatientHolder import PatientHolder
+import gmPatientHolder
 from wxPython.wx import *
 
 ID_ALLERGYLIST = wxNewId()
@@ -47,9 +48,10 @@ ID_ALL_MENU = wxNewId ()
 allergydata = {}
 
 #----------------------------------------------------------------------
-class AllergyPanel(wxPanel):
+class AllergyPanel(wxPanel , PatientHolder ):
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
+		PatientHolder.__init__(self)
 		#--------------------
 		#add the main heading
 		#--------------------
@@ -79,11 +81,7 @@ class AllergyPanel(wxPanel):
 		#----------------------------------------
 		# add some dummy data to the allergy list
 		#----------------------------------------
-		self.list_allergy.InsertColumn(0, _("Type"))
-		self.list_allergy.InsertColumn(1, _("Status"))
-		self.list_allergy.InsertColumn(2, _("Class"))
-		self.list_allergy.InsertColumn(3, _("Generic"))
-		self.list_allergy.InsertColumn(4, _("Reaction"))
+		self._constructListColumns()
 		#-------------------------------------------------------------
 		#loop through the scriptdata array and add to the list control
 		#note the different syntax for the first coloum of each row
@@ -118,25 +116,76 @@ class AllergyPanel(wxPanel):
 		self.RegisterInterests()
 	#-----------------------------------------------
 	def RegisterInterests(self):
-		gmDispatcher.connect(self.UpdateAllergies, gmSignals.patient_selected())
 		gmDispatcher.connect(self.UpdateAllergies, gmSignals.allergy_updated())
+
+		EVT_LIST_ITEM_ACTIVATED( self.list_allergy, self.list_allergy.GetId(), self._allergySelected)
 	#-----------------------------------------------
+
+	def _updateUI(self):
+		self.UpdateAllergies()
+
+	def _constructListColumns(self):
+		self.list_allergy.InsertColumn(0, _("Type"))
+		self.list_allergy.InsertColumn(1, _("Status"))
+		self.list_allergy.InsertColumn(2, _("Class"))
+		self.list_allergy.InsertColumn(3, _("Substance"))
+		self.list_allergy.InsertColumn(4, _("Generic"))
+		self.list_allergy.InsertColumn(5, _("Reaction"))
+		
+	
+	def _allergySelected(self, event):
+		ix = event.GetIndex()
+		allergy_map = self.get_allergies().get_allergy_items()
+		for id, values in allergy_map.items():
+			if ix == 0:
+				gmPatientHolder._print( values)
+				self.editarea.setInputFieldValues( values, id)
+			ix -= 1
+			
+
+		
+
+	def _update_list_row( self, i,id,  val_map):
+		if val_map['is allergy'] == 1:
+			atype = _('allergy')
+		else:
+			atype = _('sensitivity')
+		if val_map['definite']:
+			surety = 'definite'
+		else:
+			surety = 'uncertain'
+
+
+		self.list_allergy.SetItemData( i, id  )
+		self.list_allergy.InsertStringItem( i, atype )
+		
+		list = [  surety, val_map['allergy class'], val_map['substance'], val_map['generics'], val_map['reaction'] ]
+		for j in xrange(0, len( list) ):
+			self.list_allergy.SetStringItem( i, j+1, list[j] )
+		
+
 	def UpdateAllergies(self, **kwargs):
 		try:
-			epr = self.__pat['clinical record']
-			allergies = epr.get_allergies()
+			#epr = self.__pat['clinical record']
+			#allergies = epr['allergies']
+			allergy_map = self.get_allergies().get_allergy_items()
+			# { 941: map_values, 2: map_values }
+			
+			
 		except:
 			_log.LogException( "problem getting allergy list", sys.exc_info(), 4)
 			return None
 
-		_log.Data("Allergies " + str(allergies))
+		_log.Data("Allergies " + str(allergy_map))
+
 		i = 0
 		self.list_allergy.DeleteAllItems()
-		for allergy in allergies:
-			self.list_allergy.InsertStringItem( i, allergy[6])
-			self.list_allergy.SetItemData( i, allergy[0] )
-			self.list_allergy.SetStringItem( i, 1, allergy[11] )
+		self._constructListColumns()
+		
+		for id, val_map in allergy_map.items():
+			self._update_list_row(i, id, val_map)
 			i = i + 1
+			
 		for column in range(0,3):
 			self.list_allergy.SetColumnWidth(column, wxLIST_AUTOSIZE)
 
@@ -179,7 +228,24 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.16  2003-11-09 14:52:25  ncq
+# Revision 1.17  2003-11-17 10:56:41  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.3  2003/10/27 14:01:26  sjtan
+#
+# syncing with main tree.
+#
+# Revision 1.2  2003/10/25 08:29:40  sjtan
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+# Revision 1.16  2003/11/09 14:52:25  ncq
 # - use new API in clinical record
 #
 # Revision 1.15  2003/10/26 01:36:14  ncq

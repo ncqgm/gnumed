@@ -7,8 +7,10 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.7 2003-11-16 10:58:36 shilbert Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmPatient.py,v 1.8 2003-11-17 10:56:34 sjtan Exp $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
+# $Id: gmPatient.py,v 1.8 2003-11-17 10:56:34 sjtan Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -19,9 +21,12 @@ if __name__ == "__main__":
 
 # start logging
 import gmLog, gmDemographicRecord
+
 _log = gmLog.gmDefLog
+
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+
 _log.Log(gmLog.lData, __version__)
 
 import gmExceptions, gmPG, gmSignals, gmDispatcher, gmClinicalRecord, gmI18N
@@ -123,6 +128,8 @@ class gmPerson:
 			_log.LogException('cannot instantiate clinical record for person [%s]', sys.exc_info())
 			return None
 		return self.__db_cache['clinical record']
+
+
 	#--------------------------------------------------------
 	def get_demographic_record(self):
 		if self.__db_cache.has_key('demographic record'):
@@ -156,6 +163,55 @@ class gmPerson:
 	_get_handler['clinical record'] = _get_clinical_record
 	_get_handler['API'] = _get_API
 	_get_handler['ID'] = getID
+
+	def create_default_relative(self, type = _('parent')):
+                newId = create_dummy_identity()
+                newPatient = gmPerson(newId)
+                new_demographics = newPatient.get_demographic_record()
+                old_demographics = self.get_demographic_record()
+                new_demographics.copyAddresses(old_demographics)
+                new_demographics.setActiveName( "?", old_demographics.getActiveName()['last'])
+		cmd = """
+	insert into 
+		lnk_person2relative 
+		
+			(id_identity, id_relative, id_relation_type) 
+	values	
+			(%s, %s, (select id from relation_types where description = %s) )
+"""
+		success = gmPG.run_commit ("personalia", [(cmd, (newId, self.getID() , type))])
+		if success:
+			return newId
+
+		return None
+	
+	def get_relative_list( self):
+		cmd = """
+		select  
+			v.id, t.description , v.firstnames, v.lastnames, v.gender, v.dob 
+		from 
+			v_basic_person v, relation_types t,  lnk_person2relative l 
+		where
+			l.id_identity = %s and v.id = l.id_relative and t.id = l.id_relation_type
+		"""
+		
+		data, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getID()	 )
+
+		return   [ { 'id': 		r[idx['id']], 
+			     'firstnames' : 	r[idx['firstnames']], 
+			     'lastnames': 	r[idx['lastnames']], 
+			     'gender': 		r[idx['gender']],
+			     'dob': 		r[idx['dob']] ,
+			     'description': 		r[idx['description']] 
+			   }
+			for r in data ]
+				
+		
+
+
+ 
+		
+
 #============================================================
 from gmBorg import cBorg
 
@@ -164,7 +220,7 @@ class gmCurrentPatient(cBorg):
 
 	There may be many instances of this but they all share state.
 	"""
-	def __init__(self, aPKey = None):
+	def __init__(self, aPKey = None, reload = 0):
 		_log.Log(gmLog.lData, 'selection of patient [%s] requested' % aPKey)
 		# share state among all instances ...
 		cBorg.__init__(self)
@@ -197,7 +253,7 @@ class gmCurrentPatient(cBorg):
 			else:
 				_log.Log(gmLog.lData, 'patient change: [%s] -> [%s]' % (self.patient['ID'], aPKey))
 				# are we really supposed to become someone else ?
-				if self.patient['ID'] != aPKey:
+				if self.patient['ID'] != aPKey or reload == 1:
 					# yes, but CAN we ?
 					if self.locked is None:
 						try:
@@ -214,7 +270,7 @@ class gmCurrentPatient(cBorg):
 							# FIXME: maybe raise exception here ?
 					else:
 						_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['ID'], aPKey))
-				# no, same patient, so do nothing
+				# no, same patient, so do nothing  AND not reloading
 				else:
 					_log.Log(gmLog.lData, 'same ID, no change needed')
 		# else do nothing which will return ourselves
@@ -222,6 +278,15 @@ class gmCurrentPatient(cBorg):
 			_log.Log(gmLog.lData, 'no patient ID specified, returning current patient')
 
 		return None
+
+	def get_clinical_record(self):
+		return self.patient._get_clinical_record()
+
+	def get_demographic_record(self):
+		return self.patient.get_demographic_record()
+
+	def get_relative_list(self):
+		return self.patient.get_relative_list()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
@@ -285,12 +350,23 @@ class gmCurrentPatient(cBorg):
 			return None
 #============================================================
 def create_dummy_identity():
-	cmd1 = "insert into identity(gender, dob) values('N/A', CURRENT_TIMESTAMP)"
+	cmd1 = "insert into v_basic_person ( lastnames, firstnames, title, gender, DOB) values( '?', '?', 'mr', 'm', now() )"
 	cmd2 = "select currval ('identity_id_seq')"
-	data = gmPG.run_commit ('personalia', [(cmd1, []), (cmd2, [])])
-	if data is None:
-		return None
-	return data[0][0]
+
+	pool = gmPG.ConnectionPool()
+	conn = pool.GetConnection('personalia', readonly = 0)
+	cursor = conn.cursor()
+	cursor.execute(cmd1)
+	conn.commit()
+	cursor.execute(cmd2) 
+	[id] = cursor.fetchone()
+	pool.ReleaseConnection( 'personalia')
+	return  id
+
+#============================================================
+
+
+
 #============================================================
 # main/testing
 #============================================================
@@ -321,7 +397,11 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.7  2003-11-16 10:58:36  shilbert
+# Revision 1.8  2003-11-17 10:56:34  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.7  2003/11/16 10:58:36  shilbert
 # - corrected typo
 #
 # Revision 1.6  2003/11/09 16:39:34  ncq

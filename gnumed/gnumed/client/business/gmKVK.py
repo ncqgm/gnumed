@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.2 2003-04-19 22:53:46 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmKVK.py,v 1.3 2003-11-17 10:56:34 sjtan Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -280,7 +280,15 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.2  2003-04-19 22:53:46  ncq
+# Revision 1.3  2003-11-17 10:56:34  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:38  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.2  2003/04/19 22:53:46  ncq
 # - missing parameter for %s
 #
 # Revision 1.1  2003/04/09 16:15:24  ncq

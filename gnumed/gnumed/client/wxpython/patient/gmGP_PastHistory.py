@@ -20,13 +20,26 @@
 #	contains dummy data only
 #      
 ############################################################################
-
+#if __name__=="__main__":
+#	import sys
+#	sys.path.append('../../wxpython')
+#	sys.path.append('../../python-common')
+	
 from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea             				#panel class holding editing prompts and text boxes
 import gmPlugin, gmLog
+
+import gmDispatcher, gmSignals
+
+from gmPatientHolder import PatientHolder
+import gmPatientHolder
+
+from gmListCtrlMapper import gmListCtrlMapper
+
+import gmMultiColumnList
 
 ID_SIGNIFICANTPASTHISTORYLIST = wxNewId()
 ID_ACTIVEPROBLEMLIST = wxNewId()
@@ -58,9 +71,13 @@ pasthistoryprompts = {
 7:("Progress Notes"), 
 8:(""),
 	}
-class PastHistoryPanel(wxPanel):
+
+
+		
+class PastHistoryPanel(wxPanel, PatientHolder):
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
+		PatientHolder.__init__(self)
 
 		#--------------------
 		#add the main heading
@@ -93,48 +110,59 @@ class PastHistoryPanel(wxPanel):
 		# const wxValidator& validator = wxDefaultValidator, const wxString& name = "listCtrl")
 		#
 		#--------------------------------------------------------------------------------------
-		self.significant_problem_list = wxListCtrl(self, ID_SIGNIFICANTPASTHISTORYLIST,  wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		#self.significant_problem_list = wxListCtrl(self, ID_SIGNIFICANTPASTHISTORYLIST,  wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		self.significant_problem_list = gmMultiColumnList.MultiColumnList(self, -1)
 		self.significant_problem_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-		self.active_problem_list = wxListCtrl(self, ID_ACTIVEPROBLEMLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		#self.active_problem_list = wxListCtrl(self, ID_ACTIVEPROBLEMLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		self.active_problem_list = gmMultiColumnList.MultiColumnList(self, -1)
 		self.active_problem_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		#---------------------------------------------------------	  
 		# add some dummy data to the significant past problem list
 		#---------------------------------------------------------
-		self.significant_problem_list.InsertColumn(0, _("year onset"))
-		self.significant_problem_list.InsertColumn(1, _("Condition"))
+		#self.significant_problem_list.InsertColumn(0, _("year onset"))
+		#self.significant_problem_list.InsertColumn(1, _("Condition"))
+		#self.significant_problem_list.InsertColumn(2, _("Notes"))
 		#-------------------------------------------------------------------------
 		#loop through the significanthistorydata array and add to the list control
 		#note the different syntax for the first coloum of each row
 		#i.e. here > self.significant_problem_list.InsertStringItem(x, data[0])!!
 		#--------------------------------------------------------------------------
-		items = significanthistorydata.items()
-		for x in range(len(items)):
-			key, data = items[x]
-			gmLog.gmDefLog.Log (gmLog.lData, items[x])
-			self.significant_problem_list.InsertStringItem(x, data[0])
-			self.significant_problem_list.SetStringItem(x, 1, data[1])
-			self.significant_problem_list.SetItemData(x, key)
-			self.significant_problem_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
-		self.significant_problem_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
+		#self.significant_mapper = gmListCtrlMapper(self.significant_problem_list)
+		#self.significant_mapper.SetData( significanthistorydata)
+		self.significant_problem_list.SetData( significanthistorydata)
+		#items = significanthistorydata.items()
+		#for x in range(len(items)):
+		#	key, data = items[x]
+		#	gmLog.gmDefLog.Log (gmLog.lData, items[x])
+		#	self.significant_problem_list.InsertStringItem(x, data[0])
+		#	self.significant_problem_list.SetStringItem(x, 1, data[1])
+		#	self.significant_problem_list.SetItemData(x, key)
+		#	self.significant_problem_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
+		#self.significant_problem_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
 		#------------------------------------------------	  
 		#add some dummy data to the active problems list
 		#------------------------------------------------
-		self.active_problem_list.InsertColumn(0, _("Year Onset"))
-		self.active_problem_list.InsertColumn(1, _("Condition"))
+		#self.active_problem_list.InsertColumn(0, _("Year Onset"))
+		#self.active_problem_list.InsertColumn(1, _("Condition"))
+		#self.active_problem_list.InsertColumn(2, _("Notes"))
 		#-------------------------------------------------------------
 		#loop through the activehistorydata array and add to the list control
 		#note the different syntax for the first coloum of each row
 		#i.e. here > self.significant_problem_list.InsertStringItem(x, data[0])!!
 		#-------------------------------------------------------------
-		items = activehistorydata.items()
-		for x in range(len(items)):
-			key, data = items[x]
-			gmLog.gmDefLog.Log (gmLog.lData, items[x])
-			self.active_problem_list.InsertStringItem(x, data[0])
-			self.active_problem_list.SetStringItem(x, 1, data[1])
-			self.active_problem_list.SetItemData(x, key)
-		self.active_problem_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
-		self.active_problem_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
+		#self.active_mapper = gmListCtrlMapper(self.active_problem_list)
+		#self.active_mapper.SetData( activehistorydata)
+		self.active_problem_list.SetData( activehistorydata)
+
+		#items = activehistorydata.items()
+		#for x in range(len(items)):
+		#	key, data = items[x]
+		#	gmLog.gmDefLog.Log (gmLog.lData, items[x])
+		#	self.active_problem_list.InsertStringItem(x, data[0])
+		#	self.active_problem_list.SetStringItem(x, 1, data[1])
+		#	self.active_problem_list.SetItemData(x, key)
+		#self.active_problem_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
+		#self.active_problem_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
 		#--------------------------------------------------------------------------------------
 		#add a richtext control or a wxTextCtrl multiline to display the class text information
 		#e.g. would contain say information re the penicillins
@@ -149,9 +177,9 @@ class PastHistoryPanel(wxPanel):
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
 		self.mainsizer.Add(self.pasthistorypanelheading,0,wxEXPAND)
-		self.mainsizer.Add(self.dummypanel1,1,wxEXPAND)
+		#self.mainsizer.Add(self.dummypanel1,0,wxEXPAND)
 		self.mainsizer.Add(self.editarea,6,wxEXPAND)
-		self.mainsizer.Add(self.dummypanel2,1,wxEXPAND)
+		#self.mainsizer.Add(self.dummypanel2,0,wxEXPAND)
 		self.mainsizer.Add(self.significant_history_heading,0,wxEXPAND)
 		self.mainsizer.Add(self.significant_problem_list,4,wxEXPAND)
 		self.mainsizer.Add(self.active_problems_heading,0,wxEXPAND)
@@ -161,7 +189,49 @@ class PastHistoryPanel(wxPanel):
 		self.mainsizer.Fit
 		self.SetAutoLayout(true)
 		self.Show(true)
+
+		gmDispatcher.connect(self._updateUI,  gmSignals.clin_history_updated())
 	
+		self.significant_problem_list.addItemListener( self._significantPastItemSelected)	
+
+		self.active_problem_list.addItemListener(self._activePastItemSelected)
+
+	def _significantPastItemSelected(self, event):
+		clinical = self.get_past_history()
+		self._historyItemSelected( event ,clinical.get_significant_past_history() )
+
+	def _activePastItemSelected( self, event):
+		clinical = self.get_past_history()
+		self._historyItemSelected( event ,clinical.get_active_history() )
+
+	def _historyItemSelected( self, event, list):	
+		(selId, str) = event['item']
+		for (id, map) in list:
+			if id == selId:
+				clinical = self.get_past_history()
+				self.editarea.setInputFieldValues(map, id)
+				gmPatientHolder._print( "set editarea with ", map, "and id ", id)
+
+
+	def _updateUI(self):
+		clinical = self.get_past_history()
+		#gmPatientHolder._print( "past history specific ui update")
+		significant_past = clinical.get_significant_past_history()
+		active_hx = clinical.get_active_history()
+		self.active_problem_list.SetData(  self._get_list_map( active_hx) , fitClientSize = 1)
+		#self.significant_mapper.SetData( self._get_list_map( significant_past) )
+		self.significant_problem_list.SetData( self._get_list_map( significant_past), fitClientSize = 1 )
+
+	
+	def _get_list_map(self, clin_history_list):
+		newMap = {}
+		for (id, map) in clin_history_list:
+			gmPatientHolder._print( map)
+			newMap[id] =   self.get_past_history().short_format(map)   
+		return newMap	
+	
+	
+		
 		
 		
 #----------------------------------------------------------------------

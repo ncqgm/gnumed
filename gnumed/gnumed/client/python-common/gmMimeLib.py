@@ -2,8 +2,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.4 2003-06-26 21:34:43 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmMimeLib.py,v 1.5 2003-11-17 10:56:36 sjtan Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -173,7 +173,15 @@ if __name__ == "__main__":
 	print str(get_viewer_cmd(guess_mimetype(filename), filename))
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.4  2003-06-26 21:34:43  ncq
+# Revision 1.5  2003-11-17 10:56:36  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.4  2003/06/26 21:34:43  ncq
 # - fatal->verbose
 #
 # Revision 1.3  2003/04/20 15:33:03  ncq

@@ -6,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.5 2003-07-10 03:57:07 michaelb Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPregCalc.py,v 1.6 2003-11-17 10:56:42 sjtan Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -476,7 +476,15 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.5  2003-07-10 03:57:07  michaelb
+# Revision 1.6  2003-11-17 10:56:42  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.5  2003/07/10 03:57:07  michaelb
 # bugfix - 'OnSetfocus_lmp' to 'OnSetFocus_lmp'
 #
 # Revision 1.4  2003/07/08 10:11:04  ncq

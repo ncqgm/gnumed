@@ -20,7 +20,18 @@ class FamilyHistorySummary(wxPanel):
 	sizer.Fit(self)             #set to minimum size as calculated by sizer
         self.SetAutoLayout(true)                 #tell frame to use the sizer
         #self.Show(true) 
+	self.text = txt_family_history
 
+	print self.GetValue()
+	
+
+    def GetValue(self):
+	    return self.text.GetValue()
+
+    def SetValue(self, val):
+	    self.text.SetValue(val)
+
+   
 	
 if __name__ == "__main__":
     app = wxPyWidgetTester(size = (400, 100))

@@ -16,7 +16,7 @@
 # - automatic child object creation for foreign keys
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.14 $"                                               
+__version__ = "$Revision: 1.15 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 
 import string
@@ -369,7 +369,15 @@ if __name__ == "__main__":
 	
 #==============================================================
 # $Log: gmPgObject.py,v $
-# Revision 1.14  2003-09-30 19:09:30  ncq
+# Revision 1.15  2003-11-17 10:56:36  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.14  2003/09/30 19:09:30  ncq
 # - use a lot more of the gmPG infrastructure
 #
 # Revision 1.13  2003/02/07 14:26:28  ncq

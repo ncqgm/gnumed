@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.16 2003-09-17 11:15:39 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmLoginInfo.py,v 1.17 2003-11-17 10:56:36 sjtan Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -221,7 +221,15 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.16  2003-09-17 11:15:39  ncq
+# Revision 1.17  2003-11-17 10:56:36  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.16  2003/09/17 11:15:39  ncq
 # - make local TCP/IP available for all DBA types
 #
 # Revision 1.15  2003/09/17 03:00:59  ihaywood

@@ -14,12 +14,17 @@
 #
 # @TODO: Almost everything
 ############################################################################
+if __name__ == "__main__":
+	import sys
+	sys.path.append('../python-common')
+	sys.path.append('../business')
 
 from wxPython.wx import *
 
 import gmPersonDetails, gmPlugin, gmCachedPerson, gmCachedAddress
 #from PopupListChoiceWindow import *
 import gmPG
+
 
 ID_BUTTON_SAVE = wxNewId()
 ID_BUTTON_ADD = wxNewId()
@@ -95,6 +100,8 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 			options.append(tuple) 
 
 	def __loadSmartStreet(self):
+				#too many names ?
+				return
 				query = "select name from street"
 		                db = self.getDB()
 				cursor = db.cursor()

@@ -3,15 +3,16 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.36 2003-10-22 21:33:12 hinnef Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmEditArea.py,v 1.37 2003-11-17 10:56:37 sjtan Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
 #====================================================================
-import sys, traceback
+import sys, traceback, time
 
 if __name__ == "__main__":
+	sys.path.append('.')
 	sys.path.append ("../python-common/")
 	sys.path.append ("../business/")
 
@@ -22,6 +23,8 @@ if __name__ == "__main__":
 	import gmI18N
 
 import gmExceptions, gmDateTimeInput, gmDispatcher, gmSignals
+import time
+
 
 from wxPython.wx import *
 
@@ -119,6 +122,7 @@ PHX_PROGRESSNOTES=wxNewId()
 
 wxID_BTN_Save = wxNewId()
 wxID_BTN_Clear = wxNewId()
+wxID_BTN_Delete = wxNewId()
 
 richards_blue = wxColour(0,0,131)
 richards_aqua = wxColour(0,194,197)
@@ -126,11 +130,57 @@ richards_dark_gray = wxColor(131,129,131)
 richards_light_gray = wxColor(255,255,255)
 richards_coloured_gray = wxColor(131,129,131)
 
-_known_edit_area_types = [
-	'allergy',
-	'family history',
-	'past history'
-]
+
+CONTROLS_WITHOUT_LABELS =['wxTextCtrl', 'cEditAreaField', 'wxSpinCtrl', 'gmPhraseWheel', 'wxComboBox'] 
+
+basicPrescriptionExtra = [
+	None,
+	None,
+	None,
+	("qty", _("Quantity"), wxTextCtrl),
+	("rpts", _("Repeats"), wxTextCtrl) ,
+	("usual", _("Usual"), wxCheckBox)
+	]	
+
+auPrescriptionExtra = [
+	None, 
+	("vet", _("Veteran"), wxCheckBox) ,
+	("reg24", _("Reg 24"), wxCheckBox) ,
+	("qty", _("Quantity"), wxSpinCtrl),
+	("rpts", _("Repeats"), wxSpinCtrl) ,
+	("usual", _("Usual"), wxCheckBox)
+	]
+
+
+
+auBillingChoices =  [_("bulk bill"), _("private"),  _("concession"), _("workcover") ] 
+
+
+referralColumn2 = [
+	("isByFirstname", _("chums"), wxCheckBox),
+	("isHeadOffice", _("head office"), wxCheckBox),
+	("W Phone", _("W Phone"), wxTextCtrl),
+	("W Fax", _("W Fax  "), wxTextCtrl),
+	("W Email", _("W Email"), wxTextCtrl),
+	None 
+	] 
+
+
+recallColumn2 = [
+	None,
+	None,
+	None,
+	("appt", _("Appointment Type"), wxComboBox),
+	("for", _("request for"), wxTextCtrl)
+	 ]
+
+requestColumn2 = [
+	None,	None, None,
+	("phone", _("Phone"), wxTextCtrl ),
+	None, None,
+	("all meds", _("Include All Meds"), wxCheckBox)
+	]
+
 
 _prompt_defs = {
 	'allergy': [
@@ -160,18 +210,125 @@ _prompt_defs = {
 		_("Progress Notes") ,
 		""
 	]
+	,
+	'vaccination': [
+		_("Target Disease"),
+		_("Type"),
+		_("Date"),
+		
+		_("Serial No"),
+		_("Site"),
+		_("Progress Notes") , ""
+	]
+	,'measurement': [
+		_("Type"),
+		_("Date"),
+		_("Value"),
+		_("Comment"),
+		_("Progress Notes"), ""
+	]
+	,"prescription": [
+		_("Condition"),
+		_("Class"),
+		_("Generic"),
+		_("Brand"),
+		_("Strength"),
+		_("Directions"),
+		_("For"),
+		_("Progress Notes"),
+		""
+	]
+	, "referral": [
+		_("Name"),
+		_("Organization"),
+		_("Street1"),
+		_("Street2"),
+		_("Suburb"),
+		_("Postcode"),
+		_("For"),
+		_("Include"),
+		"",
+		""
+		]
+	
+	, "recall" : [
+		_("To See"),
+		_("For"),
+		_("Date"),
+		_("Contact By"),
+		_("Include"),
+		"",
+		_("Include List"),
+		_("Instructions"),
+		_("Progress Notes"),
+		""
+		]
+
+	, "request" : [
+		_("Type"),
+		_("Company"),
+		_("Street"),
+		_("Suburb"),
+		_("Request"),
+		_("Notes on form"),
+		_("Medications"),
+		_("Copy To"),
+		_("Progress Notes")	,
+		""
+	]
+
+		
+
+
+
 }
+
+_known_edit_area_types = []
+_known_edit_area_types.extend(_prompt_defs.keys() )
+#	['allergy',
+#	'family history',
+#	'past history',
+#	'vaccination'
+#	]
+
+f = file('editarea.yaml', 'w')
+f.write('---\n')
+f.close()
+#
+# The following will read the editarea.yaml file after all the editareas are constructed
+#
+#import yaml
+#for k,v in   list( yaml.load( "".join(file("../editarea.yaml")) ) )[0].items(): 
+#						#the file is at ../ to this dir,wxpython
+#	_print( k, v)
+
+
+def stacktrace():
+		print sys.exc_info()[0], sys.exc_info()[1]
+		traceback.print_tb(sys.exc_info()[2])
+
+def setValueStyle( control):
+		control.SetForegroundColour(wxColor(255, 0, 0))
+		control.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
+
+def _print( *kwds):
+	strList = []
+	for x in kwds:
+		strList.append(str(x))
+	
+	gmLog.gmDefLog.Log( gmLog.lInfo, "  ".join(strList) )
+#====================================================================
+
+
 
 
 #====================================================================
 #text control class to be later replaced by the gmPhraseWheel
 #--------------------------------------------------------------------
 class cEditAreaField(wxTextCtrl):
-	def __init__ (self, parent, id, wxDefaultPostion, wxDefaultSize):
-		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPostion, wxDefaultSize,wxSIMPLE_BORDER)
-		#self.SetBackgroundColour(wxColor(255, 194, 197))
-		self.SetForegroundColour(wxColor(255, 0, 0))
-		self.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
+	def __init__ (self, parent, id = -1, pos = wxDefaultPosition, size=wxDefaultSize):
+		wxTextCtrl.__init__(self,parent,id,"",pos, size ,wxSIMPLE_BORDER)
+		setValueStyle(self)
 #====================================================================
 #====================================================================
 class gmEditArea( wxPanel):
@@ -213,8 +370,17 @@ class gmEditArea( wxPanel):
 		self.SetAutoLayout(true)
 
 		self.__register_events()
+		
+
+		self._postInit()
+		
+		self.dataId  = None
+		self.old_data = {} 
+
+		#self._out_yaml()
 
 		self.Show(true)
+
 	#----------------------------------------------------------------
 	def _make_prompt(self, parent, aLabel, aColor):
 		# FIXME: style for centering in vertical direction ?
@@ -275,25 +441,59 @@ class gmEditArea( wxPanel):
 	def _make_standard_buttons(self, parent):
 		self.btn_Save = wxButton(parent, wxID_BTN_Save, _("Save"))
 		self.btn_Clear = wxButton(parent, wxID_BTN_Clear, _("Clear"))
+		self.btn_Delete = wxButton(parent, wxID_BTN_Delete, _("Delete"))
 
 		# back pointers for panel type identification
 		# FIXME: you mean, like, for finding out what type of edit area ?
 		# why can't we use self._type for that ?
 		self.btn_Save.owner = self
 		self.btn_Clear.owner = self
-		
+		self.btn_Delete.owner = self
+
+
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
 		szr_buttons.Add(self.btn_Save, 1, wxEXPAND | wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
 		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND | wxALL, 1)
+		szr_buttons.Add(5, 0, 0)
+		szr_buttons.Add(self.btn_Delete, 1, wxEXPAND | wxALL, 1)
+		
+		#self.buttons = {
+		#	'save': self.btn_Save,
+		#	'clear': self.btn_Clear,
+		#	'delete': self.btn_Delete
+		#	}
 
 		return szr_buttons
+
+	#def setButtonAction( self, name, action):
+	#		if self.buttons.has_key(name):
+	#			EVT_BUTTON( self.buttons[name], self.buttons[name].GetId(),  action )
+			
+
+		
+			
 	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
 		_log.Log(gmLog.lErr, 'programmer forgot to define edit area lines for [%s]' % self._type)
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		return []
 	#----------------------------------------------------------------
+
+	def _out_yaml(self):
+		_print( "appending to editarea.yaml")
+		f = file('editarea.yaml','a')
+		list = []
+		list.extend(self.input_fields.keys())
+		list.sort()
+		f.write( self._type)
+		f.write(":\n")
+		for x in list:
+			f.write( "".join( ["        -" , x , '\n' ] ) )
+		f.write('\n')
+		f.close()
+		
+
 	def __make_editing_area(self):
 		# make edit fields
 		fields_pnl = wxPanel(self, -1, wxDefaultPosition, wxDefaultSize, style = wxRAISED_BORDER | wxTAB_TRAVERSAL)
@@ -303,6 +503,8 @@ class gmEditArea( wxPanel):
 
 		# get lines
 		lines = self._make_edit_lines(parent = fields_pnl)
+
+		
 		self.lines = lines
 		if len(lines) != len(_prompt_defs[self._type]):
 			_log.Log(gmLog.lErr, '#(edit lines) not equal #(prompts) for [%s], something is fishy' % self._type)
@@ -345,34 +547,289 @@ class gmEditArea( wxPanel):
 		# connect standard buttons
 		EVT_BUTTON(self.btn_Save, wxID_BTN_Save, self._on_save_btn_pressed)
 		EVT_BUTTON(self.btn_Clear, wxID_BTN_Clear, self._on_clear_btn_pressed)
-
+		EVT_BUTTON(self.btn_Delete, wxID_BTN_Delete, self._on_delete_btn_pressed)
+		#self._register_dirty_editarea_listener()
+			
 		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_data)
-		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._save_data)
+		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._check_unsaved_data)
+		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._check_unsaved_data)
+		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self._changePatient)
+		
 
 		return 1
+
+#-------NOT USED , obsolete dirty check mechanism
+#-------------------------------------------------------------------------------------------------------------
+
+	def _register_dirty_editarea_listener(self):   # a different way of check dirty is to save the input field values
+		self.monitoring_dirty = 1
+		import inspect
+		for k, widget in self.input_fields.items():
+			#classes = inspect.getmro(widget)  # doesn't work because wx classes doesn't use mro scheme.
+			
+			#for c in classes:
+			#	if c.__name__ == 'wxTextCtrl':
+
+			if widget.__class__.__name__ in ['wxTextCtrl', 'cEditAreaField']:
+					_print( widget, ' is a wxTextCtrl')
+					EVT_TEXT( widget, widget.GetId(), self._mark_dirty)
+			if widget.__class__.__name__ in ['wxRadioButton']:
+					EVT_RADIOBUTTON(widget, widget.GetId(), self._mark_dirty)
+			if widget.__class__.__name__ in ['wxCheckBox' ]:
+					EVT_CHECKBOX(widget, widget.GetId(), self._mark_dirty)
+
+			
+	
+	def _mark_dirty(self, event):
+		event.Skip()
+		if self.monitoring_dirty:
+			_print( self, ' IS MARKED DIRTY')
+			self.dirty = 1
+		else:
+			_print( "not monitoring dirty")
+
+#----------DIRTY DATA CHECK: checks original loaded data with current input values , and sets dirty if any changes
+#----------------------------------------------------------------------------------------------------------------------			
+
+	def _check_unsaved_data(self, kwds):
+		self._pre_save_data()
+		self._init_fields()
+
+	def _pre_save_data(self):
+		#if not self.__dict__.has_key('dirty') or self.dirty == 0:
+		if not self.is_dirty():
+			_print( self, 'NOT SAVING BECAUSE UNCHANGED')
+			return
+		_print( "ATTEMPTING SAVE", self)
+
+		self._save_data()
+
+	
+	def set_old_data( self, map):
+		self.old_data = map
+	
+	def is_dirty(self):
+		map = self.getInputFieldValues()
+		dirty = 0
+		for k,v in map.items():
+			if self.old_data.get(k, None) <>  v:
+				dirty = 1
+				_print( " field ", k, " WAS DIRTY WITH VALUE",v , " and old value",  self.old_data.get(k, None) )
+				break
+		_print( "IS DIRTY ", dirty		)
+		return dirty	
+
+
+
+	def _pre_delete_data(self):
+
+		if self.is_dirty():
+			# maybe add confirm delete dialog here.
+			pass
+
+		self._delete_data()
+		self._init_fields()
+		
+	def _default_init_fields(self):
+		#self.dirty = 0  #this flag is for patient_activating event to save any unsaved entries
+		self.setInputFieldValues( self._get_init_values())
+		self.dataId = None
+
+	def _get_init_values(self):
+		map = {}
+		for k in self.input_fields.keys():
+			map[k] = ''
+		return map	
+
+
+				
+
 	#--------------------------------------------------------
 	# handlers
 	#--------------------------------------------------------
 	def _on_save_btn_pressed(self, event):
-		print "SAVE button pressed"
-		self._save_data()
+		_print( "SAVE button pressed")
 		event.Skip()
+		self._pre_save_data()
+
 	#--------------------------------------------------------
+	def _on_clear_btn_pressed(self, event):
+		_print( "CLEAR button pressed")
+		self._init_fields()
+		event.Skip()
+	
+	#--------------------------------------------------------
+	def _on_delete_btn_pressed(self, event):
+		_print( "DELETE button pressed")
+		event.Skip()
+		self._pre_delete_data()
+
+	
+	
+	#--------------------------------------------------------
+	def _init_fields(self):
+		self._default_init_fields()
+
+	#	_log.Log(gmLog.lErr, 'programmer forgot to define _init_fields() for [%s]' % self._type)
+	#	_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
+	#	raise AttributeError
+	
+	#--------------------------------------------------------
+	
 	def _save_data(self):
+		_print( "SAVING ", self._getInputFieldValues())
 		_log.Log(gmLog.lErr, 'programmer forgot to define _save_data() for [%s]' % self._type)
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
 	#--------------------------------------------------------
-	def _on_clear_btn_pressed(self, event):
-		print "CLEAR button pressed"
-		self._init_fields()
-		event.Skip()
-	#--------------------------------------------------------
-	def _init_fields(self):
-		_log.Log(gmLog.lErr, 'programmer forgot to define _init_fields() for [%s]' % self._type)
+	def _delete_data(self):	
+		_log.Log(gmLog.lErr, 'programmer forgot to define _delete_fields() for [%s]' % self._type)
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
+
+
+#-------------------------------------------------------------------------------------------------------------
+
+	def _changePatient( self, kwds = None):
+		from gmPatient import gmCurrentPatient
+		self._setPatientModel(gmCurrentPatient(kwds['ID']))
+		try:
+			self._updateUI()
+			self._init_fields()
+		except:
+			_print( sys.exc_info()[0])
+
+
+	def _setPatientModel(self, patient):
+		_print( self, "received", patient)
+		self.patient = patient
+
+	def get_demographic_record(self):
+		return self.patient.get_demographic_record()
+	
+	def _updateUI(self):
+		_print( "you may want to override _updateUI for " , self.__class__.__name__)
+		
+
+	def _postInit(self):
+		"""override for further control setup"""
+		pass
+		
+
+	def _makeLineSizer(self,  widget, weight, spacerWeight):
+		szr = wxBoxSizer(wxHORIZONTAL)
+		szr.Add( widget, weight, wxEXPAND)
+		szr.Add( 0,0, spacerWeight, wxEXPAND)
+		return szr
+	
+	def _makeCheckBox(self, parent, title):
+		
+		cb =  wxCheckBox( parent, -1, _(title))
+		cb.SetForegroundColour( richards_blue)
+		return cb
+
+
+	
+	def _makeExtraColumns(self , parent, lines, weightMap = {} ):
+		"""this is a utlity method to add extra columns"""
+		#add an extra column if the class has attribute "extraColumns"
+		if self.__class__.__dict__.has_key("extraColumns"):
+			for x in self.__class__.extraColumns:
+				lines = self._addColumn(parent, lines, x, weightMap)
+		return lines
+	
+
+
+	def _addColumn(self, parent, lines, extra, weightMap = {}, existingWeight = 5 , extraWeight = 2):
+		"""
+		# add ia extra column in the edit area. 
+		# preconditions: 
+		#	parent is fields_pnl (weak);  
+		#	self.input_fields exists (required); 
+		# 	; extra is a list  of tuples of  format -
+			# (	key for input_fields, widget label , widget class to instantiate ) 
+		"""
+		
+		newlines = []
+		i = 0
+		for x in lines:
+			# adjust weight if line has specific weightings.
+			if weightMap.has_key( x):
+				(existingWeight, extraWeight) = weightMap[x]
+
+			szr = wxBoxSizer(wxHORIZONTAL)
+			szr.Add( x, existingWeight, wxEXPAND)
+			if i < len(extra) and  extra[i] <> None:
+				
+				(inputKey, widgetLabel, aclass) = extra[i]
+				if aclass.__name__ in CONTROLS_WITHOUT_LABELS:
+					szr.Add( self._make_prompt(parent,  widgetLabel, richards_blue)  )
+					widgetLabel = ""
+
+					
+				w = aclass( parent, -1, widgetLabel)
+				if not aclass.__name__ in CONTROLS_WITHOUT_LABELS:
+					w.SetForegroundColour(richards_blue)
+				
+				szr.Add(w, extraWeight , wxEXPAND)
+
+				# make sure the widget is locatable via input_fields
+				self.input_fields[inputKey] = w
+				
+			newlines.append(szr)
+			i += 1
+		return newlines	
+
+
+
+	def setInputFieldValues(self, map, id = None ):
+		#self.monitoring_dirty = 0
+		for k,v in map.items():
+			field = self.input_fields.get(k, None)
+			if field == None:
+				continue
+			try:
+				field.SetValue( str(v) )
+			except:
+				try:
+					if type(v) == type(''):
+						v = 0
+
+					field.SetValue( v)
+				except:
+					
+					_print( "field ", k, ":", sys.exc_info()[0])
+		self.setDataId(id)
+		#self.monitoring_dirty = 1
+		self.set_old_data(self.getInputFieldValues())
+	
+	def getDataId(self):
+		_print( "data id ", self.dataId)
+		return self.dataId 
+
+	def setDataId(self, id):
+		self.dataId = id
+	
+
+	def _getInputFieldValues(self):
+		values = {}
+		for k,v  in self.input_fields.items():
+			values[k] = v.GetValue()
+		return values	
+
+	def getInputFieldValues(self, fields = None):
+		if fields == None:
+			fields = self.input_fields.keys()
+		values = {}
+		for f in fields:
+			try:
+				values[f] = self.input_fields[f].GetValue()
+			except:
+				pass
+		return values		
+				
+
+
 #====================================================================
 class gmAllergyEditArea(gmEditArea):
 	def __init__(self, parent, id):
@@ -416,8 +873,12 @@ class gmAllergyEditArea(gmEditArea):
 		self.RBtn_is_allergy = wxRadioButton(parent, -1, _("Allergy"), wxDefaultPosition,wxDefaultSize)
 		self.RBtn_is_sensitivity = wxRadioButton(parent, -1, _("Sensitivity"), wxDefaultPosition,wxDefaultSize)
 		self.cb_is_definite_allergy = wxCheckBox(parent, -1, _("Definite"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		self.input_fields['sensitivity'] = self.RBtn_is_sensitivity
+		self.input_fields['is allergy'] = self.RBtn_is_allergy
 
 		self.input_fields['definite'] = self.cb_is_definite_allergy
+
+		self.input_fields['generic_specific'] = self.cb_generic_specific
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.Add(5, 0, 0)
 		szr.Add(self.RBtn_is_allergy, 2, wxEXPAND)
@@ -427,14 +888,72 @@ class gmAllergyEditArea(gmEditArea):
 		lines.append(szr)
 
 		return lines
+
+	__init_values = {
+		'date recorded' : str( time.strftime('%x') ),
+		'substance' : '',
+		'generic': '',
+		'allergy class' : '',
+		'reaction': '',
+		'definite': 0,
+		'sensitivity': 0,
+		'is allergy' : 0,
+		'generic_specific' : 0
+		}
+	
+	def _get_init_values(self):
+		return gmAllergyEditArea.__init_values
+
 	#--------------------------------------------------------
 	def _save_data(self):
-		print "saving allergy data"
+		_print( "saving allergy data")
+		clinical = self.patient.get_clinical_record().get_allergies_manager()
+		if self.getDataId() == None:
+			id = clinical.create_allergy( self.get_fields_formatting_values() )
+			self.setDataId(id)
+			return 1	
+
+		clinical.update_allergy( self.get_fields_formatting_values(), self.getDataId() )
+			
 		return 1
 	#--------------------------------------------------------
-	def _init_fields(self):
-		print "initializing allergy input fields"
-		return 1
+
+	def _delete_data(self):
+		if self.getDataId() == None:
+			return
+		clinical = self.patient.get_clinical_record().get_allergies_manager()
+		clinical.delete_allergy( self.getDataId())
+		self._init_fields()
+
+
+
+	def get_fields_formatting_values(self):
+		fields =  ['date recorded', 'substance', 'generic', 'allergy class', 'reaction', 'definite', 'sensitivity', 'is allergy' , 'generic_specific' ]
+		values = self.getInputFieldValues(fields)
+
+		
+		formatting = {}
+		formatting.update(gmAllergyEditArea.__formatting)
+
+		return fields, formatting, values	
+
+	def get_formatting():
+		return gmAllergyEditArea.__formatting
+	
+	S , N = "'%s'", "%d"
+	__formatting =  { 
+				'date recorded': S,
+				'substance': S,
+				'generic' : S,
+				'allergy class': S,
+				'reaction' : S,
+				'definite' : N,
+				'sensitivity': N,
+				'is allergy': N,
+				'generic_specific' : N
+			}	
+
+		
 #====================================================================
 class gmFamilyHxEditArea(gmEditArea):
 	def __init__(self, parent, id):
@@ -507,9 +1026,7 @@ class gmFamilyHxEditArea(gmEditArea):
 
 		return lines
 
-	def _save_data(self):
-		print "saving family history"
-		return 1		
+
 #====================================================================
 class gmPastHistoryEditArea(gmEditArea):
 	def __init__(self, parent, id):
@@ -528,10 +1045,12 @@ class gmPastHistoryEditArea(gmEditArea):
 
 
 
-		self.rb_sideleft = wxRadioButton(parent, PHX_LEFT, _(" (L) "), wxDefaultPosition,wxDefaultSize)
+		self.rb_sidenone= wxRadioButton(parent, -1,  _("None"), wxDefaultPosition,wxDefaultSize)
+		self.rb_sideleft = wxRadioButton(parent, PHX_LEFT, _("(L)"), wxDefaultPosition,wxDefaultSize)
 		self.rb_sideright = wxRadioButton(parent,  PHX_RIGHT, _("(R)"), wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
 		self.rb_sideboth = wxRadioButton(parent,  PHX_BOTH, _("Both"), wxDefaultPosition,wxDefaultSize)
 		rbsizer = wxBoxSizer(wxHORIZONTAL)
+		rbsizer.Add(self.rb_sidenone,1,wxEXPAND)
 		rbsizer.Add(self.rb_sideleft,1,wxEXPAND)
 		rbsizer.Add(self.rb_sideright,1,wxEXPAND) 
 		rbsizer.Add(self.rb_sideboth,1,wxEXPAND)
@@ -593,16 +1112,532 @@ class gmPastHistoryEditArea(gmEditArea):
 			"active": self.cb_active,
 			"operation": self.cb_operation,
 			"confidential": self.cb_confidential,
-			"significant": self.cb_significant
+			"significant": self.cb_significant,
+			"both": self.rb_sideboth,
+			"left": self.rb_sideleft,
+			"right": self.rb_sideright,
+			"none": self.rb_sidenone
 		}
 
 		return lines
 
+
+	def  _postInit(self):
+		#handling of auto age or year filling.
+		EVT_KILL_FOCUS( self.input_fields['age'], self._ageKillFocus)
+		EVT_KILL_FOCUS( self.input_fields['year'], self._yearKillFocus)
+
+	def _ageKillFocus( self, event):	
+		# skip first, else later failure later in block causes widget to be unfocusable
+		event.Skip()	
+		birthyear = self.get_demographic_record().getBirthYear()
+		try :
+			year = birthyear + int(self.input_fields['age'].GetValue().strip() )
+			self.input_fields['year'].SetValue( str (year) )
+		except:
+			_print( "failed to get year from age")
+		
+	def _yearKillFocus( self, event):	
+		event.Skip()	
+		birthyear = self.get_demographic_record().getBirthYear() 
+		try:
+			age = int(self.input_fields['year'].GetValue().strip() ) - birthyear
+			self.input_fields['age'].SetValue( str (age) )
+		except:
+			_print( "failed to get age from year")
+
+	def get_fields_formatting_values(self):
+		fields = [	"condition", 
+				"notes1", 
+				"notes2", 
+				"age", 
+				"year", 
+				"progress", 
+				"active", 
+				"operation", 
+				"confidential", 
+				"significant", 
+				"both", 
+				"left", 
+				"right", 
+				"none"  ]
+				
+		values = self.getInputFieldValues(fields)
+		values['clin_history_id'] = self.getDataId()
+		s= "'%s'"
+		n = "%d"
+		formatting = {	"condition":s,
+				"notes1":s, 
+				"notes2":s, 
+				"age":s, 
+				"year":s, 
+				"progress":s, 
+				"active":n, 
+				"operation":n, 
+				"confidential":n, 
+				"significant":n, 
+				"both":n, 
+				"left":n, 
+				"right":n, 
+				"none":n  }
+
+		return fields,  formatting, values
+		
+
+	
+
+	__init_values = {
+			"condition": "",
+			"notes1": "",
+			"notes2": "",
+			"age": "",
+			"year": str(time.localtime()[0]),
+			"progress": "",
+			"active": 1,
+			"operation": 0,
+			"confidential": 0,
+			"significant": 1,
+			"both": 0,
+			"left": 0,
+			"right": 0,
+			"none" : 1
+			}
+
+	def _getDefaultAge(self):
+		try:
+			return	time.localtime()[0] - self.patient.get_demographic_record().getBirthYear()
+		except:
+			return 0
+
+	def _get_init_values(self):
+		values = gmPastHistoryEditArea.__init_values
+		values["age"] = str( self._getDefaultAge())
+		return values 
+		
+		
 	def _save_data(self):
-		print "saving past history"
-		return 1		
+		clinical = self.patient.get_clinical_record().get_past_history()
+		if self.getDataId() == None:
+			id = clinical.create_history( self.get_fields_formatting_values() )
+			self.setDataId(id)
+			_print( "called clinical.create_history; saved id = ", id	)
+			return
+
+		clinical.update_history( self.get_fields_formatting_values(), self.getDataId() )
+
+	def _delete_data(self):
+		if self.getDataId() == None:
+			return
+		
+		clinical = self.patient.get_clinical_record().get_past_history()
+		clinical.delete_history( self.getDataId())
+		self.setDataId(None)
+
+		
+
+		
+class gmVaccinationEditArea(gmEditArea):
+	TD = 'target_disease'
+	V = 'vaccine'
+	D = 'date_given'
+	SN = 'serial_no'
+	SG = 'site_given'
+	P = 'progress_notes'
+	
+	def __init__(self, parent, id):
+		try:
+			gmEditArea.__init__(self, parent, id, aType = 'vaccination')
+		except gmExceptions.ConstructorError:
+			stacktrace()
+
+			_log.LogExceptions('cannot instantiate Vaccination edit area', sys.exc_info(),4)
+			raise
+
+
+	#----------------------------------------------------------------
+	def _make_edit_lines(self, parent):
+		_log.Log(gmLog.lData, "making vaccine lines")
+		lines = []
+		self.txt_targetdisease = cEditAreaField(parent)
+		self.txt_vaccine = cEditAreaField(parent)
+		self.txt_dategiven= cEditAreaField(parent)
+		self.txt_serialno= cEditAreaField(parent)
+		self.txt_sitegiven	= cEditAreaField(parent)
+		self.txt_progressnotes= cEditAreaField(parent)
+		
+		lines.append(self.txt_targetdisease)
+
+		lines.append(self.txt_vaccine)
+
+		lines.append(self._makeLineSizer(self.txt_dategiven, 1, 2)  )
+
+		lines.append(self._makeLineSizer(self.txt_serialno, 1, 1)  )
+		lines.append(self._makeLineSizer(self.txt_sitegiven, 2, 3)  )
+		
+		lines.append(self.txt_progressnotes)
+		lines.append(self._make_standard_buttons(parent))
+		c = gmVaccinationEditArea
+		self.input_fields = {
+			c.TD: self.txt_targetdisease,
+			c.V: self.txt_vaccine,
+			c.D: self.txt_dategiven,
+			c.SN: self.txt_serialno,
+			c.SG: self.txt_sitegiven,
+			c.P: self.txt_progressnotes
+		}
+
+		return lines
+
+	def get_fields_formatting_values(self):
+		c = gmVaccinationEditArea
+		fields = [ c.TD, c.V, c.D, c.SN, c.SG, c.P , 'id_vaccination']
+		s = "'%s'"
+		n = '%d'
+		formatting = { 	c.TD : s,
+				c.V : s, 
+				c.D : s,
+				c.SN : s,
+				c.SG : s, 
+				c.P : s
+			    }
+			    
+		values = self.getInputFieldValues(self, fields)
+		values['id_vaccination'] = self.getDataId()
+		return fields, formatting, values
 
 #====================================================================
+class gmMeasurementEditArea(gmEditArea):
+
+	T= 'type'
+	D= 'date'
+	V= 'value'
+	C= 'comment'
+	P= 'progress_notes'
+	def __init__(self, parent, id):
+		try:
+			gmEditArea.__init__(self, parent, id, aType = 'measurement')
+		except gmExceptions.ConstructorError:
+			stacktrace()
+
+			_log.LogExceptions('cannot instantiate measurement edit area', sys.exc_info(),4)
+			raise
+
+
+	#----------------------------------------------------------------
+	def _make_edit_lines(self, parent):
+		_log.Log(gmLog.lData, "making measurement lines")
+		lines = []
+		self.txt_type = cEditAreaField(parent)
+		self.txt_date = cEditAreaField(parent)
+		self.txt_value = cEditAreaField(parent)
+		self.txt_comment = cEditAreaField(parent)
+		self.txt_progressnotes= cEditAreaField(parent)
+		
+		#lines.append(self.txt_targetdisease)
+
+		
+		lines.append(self._makeLineSizer(self.txt_type, 1, 2)  )
+
+		lines.append(self._makeLineSizer(self.txt_date, 1, 1)  )
+		lines.append(self._makeLineSizer(self.txt_value, 2, 3)  )
+		lines.append(self.txt_comment)
+		lines.append(self.txt_progressnotes)
+		lines.append(self._make_standard_buttons(parent))
+		c = gmMeasurementEditArea
+		self.input_fields = {
+			c.T : self.txt_type,
+			c.D : self.txt_date ,
+			c.V : self.txt_value,
+			c.C : self.txt_comment,
+			c.P : self.txt_progressnotes
+		}
+
+		return lines
+
+	def get_field_formatting_values(self):
+		c = gmMeasurementEditArea
+		fields = [ c.T, c.D, c.V, c.C, c.P , 'id_measurement']
+		values = self.getInputFieldValues(fields)
+		s , n = "'%s'", "%d"
+		formatting =  { c.T:s, c.D:s, c.V:n, c.C:s, c.P:s }
+		values['id_measurement'] = self.getDataId()
+		return fields, formatting, values
+
+
+#====================================================================
+class gmPrescriptionEditArea(gmEditArea):
+	def __init__(self, parent, id):
+		try:
+			gmEditArea.__init__(self, parent, id, aType = 'prescription')
+		except gmExceptions.ConstructorError:
+			stacktrace()
+
+			_log.LogExceptions('cannot instantiate prescription edit area', sys.exc_info(),4)
+			raise
+
+
+	#----------------------------------------------------------------
+	def _make_edit_lines(self, parent):
+		_log.Log(gmLog.lData, "making prescription lines")
+		lines = []
+		self.txt_problem = cEditAreaField(parent)
+		self.txt_class = cEditAreaField(parent)
+		self.txt_generic = cEditAreaField(parent)
+		self.txt_brand = cEditAreaField(parent)
+		self.txt_strength= cEditAreaField(parent)
+		self.txt_directions= cEditAreaField(parent)
+		self.txt_for = cEditAreaField(parent)
+		self.txt_progress = cEditAreaField(parent)
+		
+		lines.append(self.txt_problem)
+		lines.append(self.txt_class)
+		lines.append(self.txt_generic)
+		lines.append(self.txt_brand)
+		lines.append(self.txt_strength)
+		lines.append(self.txt_directions)
+		lines.append(self.txt_for)
+		lines.append(self.txt_progress)
+		lines.append(self._make_standard_buttons(parent))
+		self.input_fields = {
+			"problem": self.txt_problem,
+			"class" : self.txt_class,
+			"generic" : self.txt_generic,
+			"brand" : self.txt_brand,
+			"strength": self.txt_strength,
+			"directions": self.txt_directions,
+			"for" : self.txt_for,
+			"progress": self.txt_progress
+
+		}
+
+		return self._makeExtraColumns( parent, lines)
+
+
+# This makes gmPrescriptionEditArea more adaptable to different nationalities special requirements.
+# ( well, it could be.)
+# to change at runtime, do 
+
+#             gmPrescriptionEditArea.extraColumns  = [ one or more columnListInfo ]  
+
+#    each columnListInfo  element describes one column,
+#    where columnListInfo is    a  list of 
+#  		tuples of 	[ inputMap name,  widget label, widget class to instantiate from]
+
+#gmPrescriptionEditArea.extraColumns = [  basicPrescriptionExtra ]
+gmPrescriptionEditArea.extraColumns = [  auPrescriptionExtra ]
+	
+
+#====================================================================
+class gmReferralEditArea(gmEditArea):
+	extraColumns = [referralColumn2]
+		
+	def __init__(self, parent, id):
+		try:
+			gmEditArea.__init__(self, parent, id, aType = 'referral')
+		except gmExceptions.ConstructorError:
+			stacktrace()
+
+			_log.LogExceptions('cannot instantiate referral edit area', sys.exc_info(),4)
+			raise
+
+	
+	def _getCheckBoxSizer(self,  list):
+		szr = wxBoxSizer(wxHORIZONTAL)
+		for x in list:
+			szr.Add( x, 1, 0)
+		
+		return szr
+
+	#----------------------------------------------------------------
+	def _make_edit_lines(self, parent):
+		_log.Log(gmLog.lData, "making referral lines")
+		lines = []
+		self.txt_who = cEditAreaField(parent)
+		self.txt_org = cEditAreaField(parent)
+		self.txt_street1 = cEditAreaField(parent)
+		self.txt_street2 = cEditAreaField(parent)
+		self.txt_suburb= cEditAreaField(parent)
+		self.txt_postcode= cEditAreaField(parent)
+		self.txt_for = cEditAreaField(parent)
+		#self.txt_copyto = cEditAreaField(parent)
+
+		cb_med = self._makeCheckBox( parent, "medications") 
+		cb_fhx = self._makeCheckBox( parent, "family history")
+		cb_active = self._makeCheckBox(parent, "active problems")
+		cb_past = self._makeCheckBox( parent, "past problems")
+		cb_social = self._makeCheckBox(parent, "social history")
+		cb_habits = self._makeCheckBox( parent, "habits")
+		lines.append(self.txt_who)
+		lines.append(self.txt_org)
+		lines.append(self.txt_street1)
+		lines.append(self.txt_street2)
+		lines.append(self.txt_suburb)
+		lines.append(self.txt_postcode)
+		lines.append(self.txt_for)
+		lines.append(self._getCheckBoxSizer( [ cb_med, cb_fhx, cb_social]) )
+		lines.append(self._getCheckBoxSizer( [ cb_active, cb_past, cb_habits]) )
+
+		#lines.append(self.txt_progress)
+		lines.append(self._make_standard_buttons(parent))
+		self.input_fields = {
+			"name": self.txt_who,
+			"org" : self.txt_org,
+			"street1": self.txt_street1,
+			"street2": self.txt_street2,
+			"suburb": self.txt_suburb,
+			"postcode" : self.txt_postcode,
+			"for": self.txt_for,
+			"include Meds": cb_med,
+			"include Family Hx" : cb_fhx,
+			"include Active Problems": cb_active,
+			"include Past Problems" : cb_past,
+			"include Social Hx": cb_social,
+			"include Habits": cb_habits
+		}
+		#return lines
+		return self._makeExtraColumns( parent, lines)
+
+
+#====================================================================
+class gmRecallEditArea(gmEditArea):
+	extraColumns = [recallColumn2	]
+	def __init__(self, parent, id):
+		try:
+			gmEditArea.__init__(self, parent, id, aType = 'recall')
+		except gmExceptions.ConstructorError:
+			stacktrace()
+
+			_log.LogExceptions('cannot instantiate recall edit area', sys.exc_info(),4)
+			raise
+	
+	
+
+	#----------------------------------------------------------------
+	def _make_edit_lines(self, parent):
+		_log.Log(gmLog.lData, "making recall lines")
+		lines = []
+		self.txt_tosee = cEditAreaField(parent)
+		self.txt_for = cEditAreaField(parent)
+		self.txt_date = cEditAreaField(parent)
+		self.txt_contactBy = wxComboBox(parent, -1)
+		self.txt_testType= wxComboBox(parent , -1)
+		self.txt_includeList = cEditAreaField(parent)
+		self.txt_instructions = cEditAreaField(parent)
+		self.txt_progress = cEditAreaField(parent)
+		buttonAddTest = wxButton(parent, -1, _("add tests") )
+		buttonDelTest = wxButton(parent, -1, _("delete tests") )
+		lines.append(self.txt_tosee)
+		lines.append(self.txt_for)
+		lines.append(self.txt_date)
+		lines.append(self.txt_contactBy)
+		lines.append(self.txt_testType)
+
+		szr = wxBoxSizer(wxHORIZONTAL)
+		szr.Add( buttonAddTest, 0, 0)
+		szr.Add( buttonDelTest, 0, 0)
+		lines.append( szr)
+		
+		lines.append(self.txt_includeList)
+		lines.append(self.txt_instructions)
+		lines.append(self.txt_progress)
+		lines.append(self._make_standard_buttons(parent))
+		self.input_fields = {
+		        "providers": self.txt_tosee
+			,"for"	 :self.txt_for
+			, "date"	: self.txt_date
+			,"contact": self.txt_contactBy
+			, "testType": self.txt_testType
+			, "addTest" : buttonAddTest
+			, "delTest" : buttonDelTest
+			, "includeList": self.txt_includeList
+			, "instructions": self.txt_instructions
+			, "progress" : self.txt_progress
+
+		}
+
+		weightMap = {self.txt_testType : ( 1, 2) }
+
+		return self._makeExtraColumns( parent, lines, weightMap)
+
+
+class gmRequestEditArea(gmEditArea):
+	extraColumns = [requestColumn2	]
+
+	def __init__(self, parent, id):
+		try:
+			gmEditArea.__init__(self, parent, id, aType = 'request')
+		except gmExceptions.ConstructorError:
+			stacktrace()
+
+			_log.LogExceptions('cannot instantiate request edit area', sys.exc_info(),4)
+			raise
+
+	def _makeRadioButtons( self, parent, choices):
+		szr = wxBoxSizer(wxHORIZONTAL)
+		
+		for x in choices:
+			w = wxRadioButton(parent, -1, x)
+			szr.Add(w)
+			self.input_fields[x] = w
+		return szr	
+
+	#----------------------------------------------------------------
+	def _make_edit_lines(self, parent):
+		_log.Log(gmLog.lData, "making request lines")
+		lines = []
+		atype = cEditAreaField(parent)
+		company = cEditAreaField(parent)
+		street = cEditAreaField(parent)
+		urb = cEditAreaField(parent)
+		#phone = cEditAreaField(parent)
+		request = cEditAreaField(parent)
+		notes = cEditAreaField(parent)
+		meds = cEditAreaField(parent)
+		#all_meds = self._makeCheckBox(parent,"Include All Meds")
+		copyto = cEditAreaField(parent)
+		progress = cEditAreaField(parent)
+		if not self.__class__.__dict__.has_key('billingChoices'):
+			self.__class__.__dict__['billingChoices'] = auBillingChoices
+		billings = self._makeRadioButtons( parent,  choices = self.__class__.billingChoices)
+		#lines.append(self.txt_targetdisease)
+
+		
+		lines.append(self._makeLineSizer( atype, 1, 2)  )
+
+		lines.append(self._makeLineSizer( company, 1, 1)  )
+		lines.append(street)
+ 		lines.append(urb)
+
+		lines.append(request)
+		lines.append(notes)
+		
+
+		lines.append(meds)
+		lines.append(copyto)
+		lines.append(progress)
+		#lines.append(billings)
+		szr = wxBoxSizer(wxHORIZONTAL)
+		szr.Add(billings, 2, wxEXPAND)
+		
+		szr.Add(self._make_standard_buttons(parent), 1, wxEXPAND)
+		lines.append(szr)
+		#lines.append(self._make_standard_buttons(parent))
+		self.input_fields = {
+			"type":  atype,
+			"company":company,
+			"street": street,
+			"urb": urb,
+			"request": request,
+			"notes": notes,
+			"meds" : meds,
+			"copyto" : copyto,
+			"progress" : progress
+		}
+
+		return self._makeExtraColumns( parent, lines )
+
+gmRequestEditArea.billingChoices = auBillingChoices
+	
 #====================================================================
 # old style stuff below
 #====================================================================
@@ -849,15 +1884,12 @@ class EditArea(wxPanel):
 #====================================================================
 # old stuff still needed for conversion
 #--------------------------------------------------------------------
+#====================================================================
 
+#====================================================================
 
 #		elif section == gmSECTION_VACCINATION:
-#		      self.txt_targetdisease = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_vaccine = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_dategiven= cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_serialno = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_sitegiven  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-#	              self.txt_progressnotes  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		     
 #	              self.gszr.Add(self.txt_targetdisease,0,wxEXPAND)
 #		      self.gszr.Add(self.txt_vaccine,0,wxEXPAND)
 #		      self.gszr.Add(self.txt_dategiven,0,wxEXPAND)
@@ -1149,8 +2181,36 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.36  2003-10-22 21:33:12  hinnef
-# added _save_data() to FxHistory and PastHistory to prevent crash on exit
+# Revision 1.37  2003-11-17 10:56:37  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.6  2003/10/26 00:58:53  sjtan
+#
+# use pre-existing signalling
+#
+# Revision 1.5  2003/10/25 16:13:26  sjtan
+#
+# past history , can add  after selecting patient.
+#
+# Revision 1.4  2003/10/25 08:29:40  sjtan
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.3  2003/10/24 04:20:17  sjtan
+#
+# yaml side-effect code; remove later if not useful.
+#
+# Revision 1.2  2003/10/24 03:50:36  sjtan
+#
+# make sure smaller widgets such as checkboxes and radiobuttons on input_fields;
+# "pastable" yaml input_field maps output from print statements.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
 #
 # Revision 1.35  2003/10/19 12:16:48  ncq
 # - cleanup

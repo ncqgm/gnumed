@@ -16,7 +16,9 @@
 #
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
+__version__ = "$Revision: 1.5 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -244,6 +246,10 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.4  2003-11-07 23:19:54  shilbert
+# Revision 1.5  2003-11-17 10:56:41  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.4  2003/11/07 23:19:54  shilbert
 # - removed repetitive calls to wxNewId()
 #

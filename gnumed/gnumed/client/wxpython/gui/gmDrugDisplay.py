@@ -644,7 +644,15 @@ else:
 #	05.09.2002 hherb DB-API 2.0 compliance
 
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.12  2003-09-03 17:33:22  hinnef
+# Revision 1.13  2003-11-17 10:56:40  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.12  2003/09/03 17:33:22  hinnef
 # make use of gmWhoAmI, try to get config info from backend
 #
 # Revision 1.11  2003/08/24 13:41:10  hinnef

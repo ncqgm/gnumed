@@ -5,12 +5,12 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.82 $"
+__version__ = "$Revision: 1.83 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
 import string, copy, os, sys, time
-
+import traceback
 #gnumed specific modules
 import gmLog
 _log = gmLog.gmDefLog
@@ -588,6 +588,8 @@ def run_query(aCursor = None, aQuery = None, *args):
 		aCursor.execute(aQuery, *args)
 	except:
 		_log.LogException("query >>>%s<<< with args >>>%s<<< failed" % (aQuery, args), sys.exc_info(), verbose = _query_logging_verbosity)
+		print sys.exc_info()[0], sys.exc_info()[1]
+		traceback.print_tb(sys.exc_info()[2])
 		return None
 	return 1
 #---------------------------------------------------
@@ -598,10 +600,7 @@ def run_commit (service, queries):
 	The point is to handle errors so the calling code can
 	avoid the highly repetitive try..except bureaucracy.
 
-	Takes a list of (query, [args]) to execute as a single transaction.
-
-	If the last query returned data (i.e. was a SELECT query), the
-	data will be returned.
+	Takes a list of (query, [args]) to execute as a single transaction
 	"""
 	dbp = ConnectionPool ()
 	con = dbp.GetConnection (service, readonly = 0)
@@ -614,11 +613,6 @@ def run_commit (service, queries):
 			con.close()
 			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), sys.exc_info(), verbose = _query_logging_verbosity)
 			return None
-	# did we get result rows ?
-	if cur.description is None:
-		data = None
-	else:
-		data = cur.fetchall()
 	cur.close()
 	con.commit()
 	# FIXME:
@@ -637,10 +631,7 @@ def run_commit (service, queries):
 	#>     do_stuff()
 	#>     conn.commit()
 	con.close()
-	if data is None:
-		return 1
-	else:
-		return data
+	return 1
 #---------------------------------------------------
 def run_ro_query(aService = None, aQuery = None, get_col_idx = None, *args):
 	# sanity checks
@@ -1018,7 +1009,17 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.82  2003-11-07 20:34:04  ncq
+# Revision 1.83  2003-11-17 10:56:36  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.83
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# manual edit areas modelled after r.terry's specs.
+# Revision 1.82  2003/11/07 20:34:04  ncq
 # - more logging yet
 #
 # Revision 1.81  2003/11/04 00:19:24  ncq

@@ -38,6 +38,30 @@ class HabitsRiskFactors(wxPanel):
 	self.SetAutoLayout(true)                 #tell frame to use the sizer
         #self.Show(true)
 	
+	self.lists = { 'habit': txt_habits, 'risk': txt_riskfactors }
+
+	print self.GetData()
+
+	self.SetData( { 'habit': ['smoker', 'drinks 20/day'] , 'risk': [ 'cholesterol', 'diabetes'] } )
+
+    def getTextCtrl(self, which):
+		return self.lists.get(which, "risk")
+
+    def SetData(self, map):
+		for which, data in map.items():
+			if type(data) == type(""):
+				self.lists.get(which, 'risk').SetValue(data)
+			
+			if type(data) in [ type([]), type ( () ) ]:
+				self.lists.get(which, 'risk').SetValue("\n".join(data))
+	
+    def GetData(self):
+		map = {}
+		for k in self.lists.keys():
+			map[k] = self.lists[k].GetValue().split('\n')
+		return map
+
+	
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 200))
 	app.SetWidget(HabitsRiskFactors, -1)

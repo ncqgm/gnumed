@@ -27,8 +27,8 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.17 2003-05-03 02:20:24 michaelb Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmGP_TabbedLists.py,v 1.18 2003-11-17 10:56:42 sjtan Exp $
+__version__ = "$Revision: 1.18 $"
 
 from wxPython.wx import *
 #from wxPython.gizmos import *
@@ -338,7 +338,15 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.17  2003-05-03 02:20:24  michaelb
+# Revision 1.18  2003-11-17 10:56:42  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.17  2003/05/03 02:20:24  michaelb
 # bug fix: make wxPython 2.4.0.7's wxRect:Inside happy
 #
 # Revision 1.16  2003/04/23 09:20:32  ncq

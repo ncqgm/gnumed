@@ -41,7 +41,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.55 $"
+__version__ = "$Revision: 1.56 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -261,7 +261,15 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.55  2003-06-19 15:29:20  ncq
+# Revision 1.56  2003-11-17 10:56:39  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.55  2003/06/19 15:29:20  ncq
 # - spelling, cleanup
 #
 # Revision 1.54  2003/06/01 12:28:23  ncq

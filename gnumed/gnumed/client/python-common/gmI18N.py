@@ -44,7 +44,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -228,7 +228,15 @@ _log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.28  2003-06-26 21:34:03  ncq
+# Revision 1.29  2003-11-17 10:56:36  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.28  2003/06/26 21:34:03  ncq
 # - fatal->verbose
 #
 # Revision 1.27  2003/04/25 08:48:47  ncq

@@ -4,7 +4,7 @@ A module to add shadowing to an arbitrary widget.
 """
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmShadow.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__  = "H.Berger <Hilmar.Berger@gmx.de>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, R.Terry <rterry@gnumed.net>"
 
 from wxPython.wx import *
@@ -56,7 +56,15 @@ class Shadow (wxPanel):
 		)
 #=======================================================================
 # $Log: gmShadow.py,v $
-# Revision 1.8  2003-01-12 11:42:23  ncq
+# Revision 1.9  2003-11-17 10:56:39  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.8  2003/01/12 11:42:23  ncq
 # - nasty "invisible" whitespace bug
 #
 # Revision 1.7  2003/01/12 01:06:22  ncq

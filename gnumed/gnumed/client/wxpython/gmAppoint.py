@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-10 19:03:47 $
-# @version $Revision: 1.7 $ $Date: 2002-07-10 19:03:47 $ $Author: ncq $
+# @Date: $Date: 2003-11-17 10:56:37 $
+# @version $Revision: 1.8 $ $Date: 2003-11-17 10:56:37 $ $Author: sjtan $
 # @change log:
 #	14.03.02 ihaywood inital version.
 #      

@@ -397,7 +397,15 @@ if __name__ == "__main__":
 	pass
 
 # $Log: gmDrugView.py,v $
-# Revision 1.2  2003-09-03 17:32:05  hinnef
+# Revision 1.3  2003-11-17 10:56:36  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.2  2003/09/03 17:32:05  hinnef
 # make use of gmWhoAmI, try to get config info from backend
 #
 # Revision 1.1  2003/08/24 13:38:24  hinnef

@@ -5,15 +5,17 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.60 2003-11-09 14:26:41 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmPlugin.py,v 1.61 2003-11-17 10:56:37 sjtan Exp $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
+# $Id: gmPlugin.py,v 1.61 2003-11-17 10:56:37 sjtan Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
 
 from wxPython.wx import *
 
-import gmExceptions, gmGuiBroker, gmPG, gmShadow, gmLog, gmCfg, gmPatient
+import gmExceptions, gmGuiBroker, gmPG, gmShadow, gmLog, gmCfg, gmTmpPatient
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
@@ -228,7 +230,7 @@ class wxNotebookPlugin (wxBasePlugin):
 		- convenience method for your can_receive_focus() handlers
 		"""
 		# fail if no patient selected
-		pat = gmPatient.gmCurrentPatient()
+		pat = gmTmpPatient.gmCurrentPatient()
 		if not pat.is_connected():
 			# FIXME: people want an optional beep and an optional red backgound here
 			self._set_status_txt(_('Cannot switch to [%s]: no patient selected') % self.name())
@@ -426,6 +428,7 @@ def GetPluginLoadList(set):
 			)
 			rwconn.close()
 			db.ReleaseConnection(service = "default")
+			print "THE p_list is ", p_list
 			return p_list
 
 	_log.Log(gmLog.lWarn, "No plugin load order stored in database. Trying local config file.")
@@ -473,7 +476,7 @@ def GetPluginLoadList(set):
 		rwconn.close()
 	else:
 		p_list = None
-
+	print " PLUGIN LOAD LIST", p_list
 	_log.Log(gmLog.lData, "*** THESE ARE THE PLUGINS FROM gmPlugin.GetPluginList")
 	_log.Log(gmLog.lData, "%s" % "\n *** ".join(p_list))
         db.ReleaseConnection(service = "default")
@@ -493,7 +496,11 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.60  2003-11-09 14:26:41  ncq
+# Revision 1.61  2003-11-17 10:56:37  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.60  2003/11/09 14:26:41  ncq
 # - if we have set_status_txt() do use it, too
 #
 # Revision 1.59  2003/11/08 10:48:36  shilbert

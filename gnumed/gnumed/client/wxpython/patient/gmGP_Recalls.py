@@ -24,7 +24,7 @@ import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea             				#panel class holding editing prompts and text boxes
 import gmPlugin, gmLog
-
+from gmPatientHolder import PatientHolder
 ID_RECALL_LIST = wxNewId()
 gmSECTION_RECALLS = 12
 #------------------------------------------------------------------
@@ -48,9 +48,10 @@ recallprompts = {
 }
 
 
-class RecallsPanel(wxPanel):
+class RecallsPanel(wxPanel , PatientHolder):
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)	  
+		PatientHolder.__init__(self)
 		#--------------------
 		#add the main heading
 		#--------------------
@@ -63,7 +64,7 @@ class RecallsPanel(wxPanel):
 		#----------------------------------------------
 		#now create the editarea specific for allergies
 		#----------------------------------------------
-		self.editarea = gmEditArea.EditArea(self,-1,recallprompts,gmSECTION_RECALLS)
+		self.editarea = gmEditArea.gmRecallEditArea(self,-1)
 		self.dummypanel2 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
 		self.dummypanel2.SetBackgroundColour(wxColor(222,222,222))
 		#-----------------------------------------------
@@ -110,9 +111,9 @@ class RecallsPanel(wxPanel):
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
 		self.mainsizer.Add(self.recallspanelheading,0,wxEXPAND)
-		self.mainsizer.Add(self.dummypanel,1,wxEXPAND)
+		#self.mainsizer.Add(self.dummypanel,1,wxEXPAND)
 		self.mainsizer.Add(self.editarea,6,wxEXPAND)
-		self.mainsizer.Add(self.dummypanel2,1,wxEXPAND)
+		#self.mainsizer.Add(self.dummypanel2,1,wxEXPAND)
 		self.mainsizer.Add(self.sizer_divider_recalls,0,wxEXPAND)
 		self.mainsizer.Add(self.list_recalls,4,wxEXPAND)
 		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)

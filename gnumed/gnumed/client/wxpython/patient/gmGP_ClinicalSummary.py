@@ -1,8 +1,20 @@
 from wxPython.wx import *
 #from wxPython.stc import *
-import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
-import gmGuiElement_AlertCaptionPanel          #panel to hold flashing
-import gmPlugin
+try:
+	import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
+	import gmGuiElement_AlertCaptionPanel          #panel to hold flashing
+	import gmPlugin
+	from gmPatientHolder import PatientHolder
+	import gmDispatcher, gmSignals
+
+except:
+	print  "import error"
+	sys.path.append('../')
+	sys.path.append('../../python-common')
+	sys.path.append('../../business')
+	import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
+	import gmGuiElement_AlertCaptionPanel          #panel to hold flashing
+	import gmPlugin
 #--------------------------------------------------------------------
 # A class for displaying a summary of patients clinical data in the
 # form of a social history, family history, active problems, habits
@@ -14,9 +26,10 @@ import gmPlugin
 ID_OVERVIEW = wxNewId ()
 ID_OVERVIEWMENU = wxNewId ()
 
-class ClinicalSummary(wxPanel):
+class ClinicalSummary(wxPanel, PatientHolder):
 	def __init__(self, parent,id):
 		wxPanel.__init__(self,parent,id,wxDefaultPosition,wxDefaultSize,style = wxRAISED_BORDER)
+		PatientHolder.__init__(self)
 		#------------------------------------------------------------------------
 		#import social history if available this will be the top item on the page
 		#------------------------------------------------------------------------
@@ -56,6 +69,7 @@ class ClinicalSummary(wxPanel):
 			import gmGP_Inbox
 			self.inbox = gmGP_Inbox.Inbox(self,-1)
 		except:
+			sys.exit(0)
 			pass
 
 		self.heading1 = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Active Problems" ))
@@ -80,6 +94,19 @@ class ClinicalSummary(wxPanel):
 		self.sizer.Fit(self)                              #set to minimum size as calculated by sizer
 		self.SetAutoLayout(true)                     #tell frame to use the sizer
 		self.Show(true) 
+		gmDispatcher.connect(self._updateActiveProblemsUI,  gmSignals.clin_history_updated())
+
+	def _updateUI(self):
+		self._updateActiveProblemsUI()
+
+	def	_updateActiveProblemsUI(self):
+		clinical = self.patient.get_clinical_record().get_past_history()
+		list = clinical.get_active_history()
+		newList = []
+		for id, v in list:
+			newList.append( [id, clinical.short_format( v) ])
+		self.activeproblemlist.SetData(newList, fitClientSize = 1)
+
 #============================================================
 class gmGP_ClinicalSummary (gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the clinical summary.
@@ -135,6 +162,7 @@ g\xef\xc7!\xe6\xf7$\xb0@?\x92\x04\x8ez\x1eu\xcf-\xe0 ,S\x87\xe5\x1e\xcf\x98\
 		self.gb['clinical.manager'].SetDefault(self.internal_name())
 #----------------------------------------------------------------------
 if __name__ == "__main__":
+	sys.path.append('../../wxpython')
 	app = wxPyWidgetTester(size = (400, 500))
 	app.SetWidget(ClinicalSummary, -1)
 	app.MainLoop()

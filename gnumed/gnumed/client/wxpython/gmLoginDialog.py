@@ -13,8 +13,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.40 2003-06-17 19:27:44 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmLoginDialog.py,v 1.41 2003-11-17 10:56:38 sjtan Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib,types
@@ -569,7 +569,15 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.40  2003-06-17 19:27:44  ncq
+# Revision 1.41  2003-11-17 10:56:38  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.40  2003/06/17 19:27:44  ncq
 # - cleanup
 # - only use cfg file login params if not empty list
 #

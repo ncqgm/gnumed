@@ -1,5 +1,11 @@
 from wxPython.wx import *
-import gmLog
+from gmListCtrlMapper import *
+try:
+	import gmLog
+except:
+	sys.path.append('../python-common')
+	import gmLog
+	
 Inboxdata = {
 1 : ("Pathology", "5 unread results (Douglas Pathology)"),
 2 : ("Radiology", "1 Xray of femur (Newcastle radiology)"),
@@ -13,21 +19,14 @@ class Inbox(wxPanel):
 	list_inbox = wxListCtrl(self, ID_INBOX,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 	list_inbox.InsertColumn(0, "From")
 	list_inbox.InsertColumn(1, "Message", wxLIST_FORMAT_LEFT)
+	self.list_inbox = list_inbox
+	self.lc_mapper = gmListCtrlMapper(self.list_inbox)
 	#-------------------------------------------------------------
 	#loop through the scriptdata array and add to the list control
 	#note the different syntax for the first coloum of each row
 	#i.e. here > self.List_Script.InsertStringItem(x, data[0])!!
-	#-------------------------------------------------------------
-	items = Inboxdata.items()
-	for x in range(len(items)):
-            key, data = items[x]
-            #<DEBUG>
-	    gmLog.gmDefLog.Log (gmLog.lData, items[x])
-            #</DEBUG>
-	    #print x, data[0],data[1]
-	    list_inbox.InsertStringItem(x, data[0])
-            list_inbox.SetStringItem(x, 1, data[1])
-            list_inbox.SetItemData(x, key)
+	self.SetData( Inboxdata)
+
 	list_inbox.SetColumnWidth(0, wxLIST_AUTOSIZE)
         list_inbox.SetColumnWidth(1, wxLIST_AUTOSIZE)
 	sizer = wxBoxSizer(wxVERTICAL)
@@ -36,6 +35,14 @@ class Inbox(wxPanel):
 	sizer.Fit(self)             #set to minimum size as calculated by sizer
         self.SetAutoLayout(true)                 #tell frame to use the sizer
         #self.Show(true) 
+
+	print self.GetData() 
+
+    def SetData( self, map):
+	self.lc_mapper.SetData( map)
+
+    def GetData(self):
+	return self.lc_mapper.GetData()
 	
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 200))

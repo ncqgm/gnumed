@@ -24,7 +24,15 @@ class SocialHistory(wxPanel):
 	sizer.Fit(self)             #set to minimum size as calculated by sizer
         self.SetAutoLayout(true)                 #tell frame to use the sizer
         #self.Show(true)
-	
+	self.text = txt_social_history
+
+	print self.GetValue()
+
+    def SetValue( self, text):
+	    self.text.SetValue(text)
+
+    def GetValue(self):
+	    return self.text.GetValue()
 if __name__ == "__main__":
     app = wxPyWidgetTester(size = (500, 100))
     app.SetWidget(SocialHistory, -1)

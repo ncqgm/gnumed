@@ -7,13 +7,18 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.44 2003-11-16 19:30:26 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmClinicalRecord.py,v 1.45 2003-11-17 10:56:33 sjtan Exp $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
+# $Id: gmClinicalRecord.py,v 1.45 2003-11-17 10:56:33 sjtan Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, string
 import time
+import yaml
+import traceback
+
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
@@ -333,7 +338,8 @@ class gmClinicalRecord:
 					data.append(allergy)
 		else:
 			data = self.__db_cache['allergies']
-
+		print "allergy data = ", data
+		print "allergy col_idx = " ,col_idx
 		return data
 	#--------------------------------------------------------
 	def get_allergy_names(self, remove_sensitivities = None):
@@ -551,6 +557,7 @@ where
 			rw_curs.close()
 			rw_conn.close()
 			_log.Log(gmLog.lErr, 'cannot insert health issue [%s] for patient [%s]' % (health_issue_name, self.id_patient))
+			print "insert"
 			return None
 		# get ID of insertion
 		cmd = "select currval('clin_health_issue_id_seq')"
@@ -558,6 +565,7 @@ where
 			rw_curs.close()
 			rw_conn.close()
 			_log.Log(gmLog.lErr, 'cannot obtain id of last health issue insertion')
+			print "find currval"
 			return None
 		id_issue = rw_curs.fetchone()[0]
 		# and commit our work
@@ -565,6 +573,7 @@ where
 		rw_curs.close()
 		rw_conn.close()
 		_log.Log(gmLog.lData, 'inserted [%s] issue with ID [%s] for patient [%s]' % (health_issue_name, id_issue, self.id_patient))
+		
 		return id_issue
 	#------------------------------------------------------------------
 	# episode related helpers
@@ -790,7 +799,6 @@ where
 #			rw_curs.close()
 #			rw_conn.close()
 #			return None
-		# get ID
 #		cmd = "select currval('clin_encounter_id_seq')"
 #		if not gmPG.run_query(rw_curs, cmd):
 #			_log.Log(gmLog.lErr, 'cannot obtain id of last encounter insertion')
@@ -841,7 +849,105 @@ values (%s, %s, %s, %s, %s, %s)
 		rw_conn.close()
 
 		return 1
-#============================================================
+
+	def get_past_history(self):
+		if not self.__dict__.has_key('past_history'):
+			from gmPastHistory import gmPastHistory
+			from gmEditAreaFacade import gmPHxEditAreaDecorator
+			phx  = gmPastHistory(self._backend, self)
+			self.past_history = gmPHxEditAreaDecorator(phx)
+		return self.past_history
+
+	def get_allergies_manager(self):
+		if not self.__dict__.has_key('allergy'):
+			from gmAllergies import gmAllergies
+			self.allergy = gmAllergies( self._backend, self)
+		return self.allergy
+
+
+	
+
+class gmClinicalPart:
+	def __init__(self, backend, patient):
+		#gmEditAreaFacade.__init__(self, backend, patient)
+		self._backend = backend
+		self.patient = patient
+		
+	def id_patient(self):
+		return self.patient.id_patient
+
+	def id_encounter(self):
+		id = self.patient.id_encounter
+		if id == None:
+			status, result =  self.patient.attach_to_encounter(forced = 1)
+			print "GOT ", status, result, " from attach_to_encounter"
+
+		print "id_encounter=", id		
+
+		return id		
+
+	def id_episode(self):
+		print "id_episode", self.patient.id_episode
+		return self.patient.id_episode
+
+
+        def escape_str_quote(self, s):
+               if type(s) == type(""):
+			s = s.replace("'", "\\\'" )
+               return s
+
+
+	def _traceback(self, msg = "_traceback()"):
+		import gmLog
+		gmLog.gmDefLog.LogException(msg, sys.exc_info(), verbose=1)
+		#print sys.exc_info()[0], sys.exc_info()[1]
+		#traceback.print_tb(sys.exc_info()[2])
+
+	def _print(self, *kargs):
+
+		try:
+			if len(kargs) > 1:
+				list = kargs
+			else:
+				list = kargs[0]
+
+			if type(list) in [ type([]), type(()) ]:
+				strList = []
+				for x in list:
+					strList.append(str(list))
+				msg  = "   ".join(strList)
+			else:
+				msg = str(list)
+				
+			import gmLog
+			gmLog.gmDefLog.Log(gmLog.lInfo, msg)
+		except:
+			print list
+	
+	
+	def validate_not_null( self, values, fields):
+		for f in fields:
+			if values.has_key(f):
+				assert  type(values[f]) == type('')
+				assert  values[f].strip() <> ''
+
+	def to_keyed_map(self, list_with_id , fields):
+		all_map = {}
+		for row in list_with_id:
+			map = {}
+			for i in xrange(0, len(fields)):
+				try:
+					map[fields[i]] = row[i+1]
+				except:
+					print "ERROR at i = ", i , " len(fields) ", len(fields) , "len(row)", len(row)
+			all_map[row[0]]= map	
+
+		return all_map	
+				
+			
+
+
+			
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
@@ -859,7 +965,17 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.44  2003-11-16 19:30:26  ncq
+# Revision 1.45  2003-11-17 10:56:33  sjtan
+#
+# synced and commiting.
+#
+#
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.44  2003/11/16 19:30:26  ncq
 # - use clin_when in clin_root_item
 # - pretty print EMR text dump
 #
@@ -884,7 +1000,7 @@ if __name__ == "__main__":
 # Revision 1.37  2003/10/26 11:27:10  ihaywood
 # gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
 #
-# Ergregious breakages are fixed, but needs more work
+# manual edit areas modelled after r.terry's specs.
 #
 # Revision 1.36  2003/10/19 12:12:36  ncq
 # - remove obsolete code

@@ -6,8 +6,8 @@ includes dialogues for printer calibration, etc.
 and new form wizard.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormPrinter.py,v $
-# $Id: gmFormPrinter.py,v 1.2 2003-01-16 14:30:19 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmFormPrinter.py,v 1.3 2003-11-17 10:56:38 sjtan Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Ian Haywood"
 
 

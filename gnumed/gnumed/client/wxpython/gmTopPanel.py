@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -207,8 +207,15 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		epr = self.curr_pat['clinical record']
 		allergy_names = epr.get_allergy_names(remove_sensitivities=1)
 		tmp = []
+#<<<<<<< gmTopPanel.py
+#		for allergy in allergies:
+#			print "APPENDING ", allergy
+			#tmp.append(allergy['name'])   #temporary comment out, until get_allergies catches up
+#			tmp.append(allergy[6])
+#=======
 		for allergy in allergy_names:
 			tmp.append(allergy['name'])
+#>>>>>>> 1.23
 		data = string.join(tmp, ',')
 		if data == '':
 			# needed because GUI stuff can't be called from a thread (and that's
@@ -304,7 +311,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.23  2003-11-13 08:15:25  ncq
+# Revision 1.24  2003-11-17 10:56:39  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.23  2003/11/13 08:15:25  ncq
 # - display allergies in top panel again
 #
 # Revision 1.22  2003/11/09 17:33:27  shilbert
@@ -315,7 +326,6 @@ if __name__ == "__main__":
 #
 # Revision 1.20  2003/11/09 14:31:25  ncq
 # - new API style in clinical record
-#
 # Revision 1.19  2003/10/26 18:04:01  ncq
 # - cleanup
 #

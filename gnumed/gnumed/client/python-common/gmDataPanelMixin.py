@@ -10,10 +10,18 @@
 ############################################################################
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmDataPanelMixin.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "H.Herb <hherb@gnumed.net>"
 # $Log: gmDataPanelMixin.py,v $
-# Revision 1.3  2003-01-16 14:45:03  ncq
+# Revision 1.4  2003-11-17 10:56:36  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.3  2003/01/16 14:45:03  ncq
 # - debianized
 #
 # Revision 1.2  2003/01/06 04:52:55  ihaywood

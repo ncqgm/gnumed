@@ -18,9 +18,10 @@ The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
 ############################################################################
+#<<<<<<< gmGuiMain.py
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.123 2003-11-11 18:22:18 ncq Exp $
-__version__ = "$Revision: 1.123 $"
+# $Id: gmGuiMain.py,v 1.124 2003-11-17 10:56:38 sjtan Exp $
+__version__ = "$Revision: 1.124 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -176,39 +177,35 @@ class gmTopLevelFrame(wxFrame):
 		#self.vbox.SetSizeHints(self)
 
 		# try to get last window size from the backend
-		defaultWidth, defaultHeight = (640,480)
-		
-		width, set1 = gmCfg.getFirstMatchingDBSet( 
+		defaultSize = (640,480)
+		result, set = gmCfg.getFirstMatchingDBSet( 
 			machine = _whoami.getMachine(),
-			option = 'main.window.width'
+			option = 'main.window.size'
 		)
-		height, set2 = gmCfg.getFirstMatchingDBSet( 
-			machine = _whoami.getMachine(),
-			option = 'main.window.height'
-		)
-		# FIXME: Why does gmCfg return an instance type for numeric types ??
-		# i.e. which is the object it returns ??
-		if not set1 is None:
-			currentWidth = int(width)
+		if not set is None and len(result) == 2:
+			currentSize = tuple(result)
 		else:
-			currentWidth = defaultWidth
-			gmCfg.setDBParam(machine = _whoami.getMachine(),
+			currentSize = defaultSize
+			db = gmPG.ConnectionPool()
+			conn = db.GetConnection(service = "default")
+			dbcfg = gmCfg.cCfgSQL(
+				aConn = conn,
+				aDBAPI = gmPG.dbapi
+			)
+			rwconn = db.GetConnection(service = "default", readonly = 0)
+			dbcfg.set(
+				machine = _whoami.getMachine(),
 				user = _whoami.getUser(),
-				option = 'main.window.width',
-				value = currentWidth )
+				option = 'main.window.size',
+				value = [currentSize[0],currentSize[1]],
+				aRWConn = rwconn
+			)
+			rwconn.close()
+			db.ReleaseConnection(service = "default")
+		_log.Log(gmLog.lInfo, 'currSize [%s,%s]' % currentSize)
 
-		if not set2 is None:
-			currentHeight = int(height)
-		else:
-			currentHeight = defaultHeight
-			gmCfg.setDBParam(machine = _whoami.getMachine(),
-				user = _whoami.getUser(),
-				option = 'main.window.height',
-				value = currentHeight )
-
-		_log.Log(gmLog.lInfo, 'currSize [%s,%s]' % (currentWidth,currentHeight))
-
-		self.SetClientSize(wxSize(currentWidth,currentHeight))
+		# FIXME: size should be stored as a special type [int,int]
+		self.SetClientSize(wxSize(int(currentSize[0]),int(currentSize[1])))
 # Fit() will re-shrink the window
 #		self.Fit()
 		self.Centre(wxBOTH)
@@ -279,6 +276,7 @@ class gmTopLevelFrame(wxFrame):
 	def __load_plugins(self, backend):
 		# get plugin list
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
+		print plugin_list, "(*********"
 		if plugin_list is None:
 			_log.Log(gmLog.lWarn, "no plugins to load")
 			return 1
@@ -382,15 +380,21 @@ class gmTopLevelFrame(wxFrame):
 		#</DEBUG>
 		try:
 			epr = pat['clinical record']
+#<<<<<<< gmGuiMain.py
+			names = pat['active name']
+#=======
 			demos = pat['demographic record']
 		except:
 			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
 			return None
 
-		names = demos.getActiveName()
-
 		# make sure there's an encounter
 		status, encounter = epr.attach_to_encounter(forced = 0)
+
+		#check for deprecated interface
+		if names == None:
+			names = pat.get_demographic_record().getActiveName()
+
 		patient = "%s %s (%s)" % (names['first'], names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'))
 		# error ?
 		if status == -1:
@@ -433,6 +437,8 @@ class gmTopLevelFrame(wxFrame):
 		fname = names['first']
 		if len(fname) > 0:
 			fname = fname[:1]
+#		patient = "%s %s.%s (%s) #%d" % (pat['title'], fname, names['last'], pat['dob'], int(pat['ID']))
+#=======
 		patient = "%s %s.%s (%s) #%d" % (demos.getTitle(), fname, names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'), int(pat['ID']))
 		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
@@ -851,7 +857,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.123  2003-11-11 18:22:18  ncq
+# Revision 1.124  2003-11-17 10:56:38  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.123  2003/11/11 18:22:18  ncq
 # - fix longstanding bug in plugin loader error handler (duh !)
 #
 # Revision 1.122  2003/11/09 17:37:12  shilbert
@@ -869,13 +879,11 @@ if __name__ == '__main__':
 # Revision 1.118  2003/10/26 11:27:10  ihaywood
 # gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
 #
-# Ergregious breakages are fixed, but needs more work
+# syncing with main tree.
 #
-# Revision 1.117  2003/10/26 01:36:13  ncq
-# - gmTmpPatient -> gmPatient
+# Revision 1.1  2003/10/23 06:02:39  sjtan
 #
-# Revision 1.116  2003/10/22 21:34:42  hinnef
-# -changed string array for main.window.size into two separate integer parameters
+# manual edit areas modelled after r.terry's specs.
 #
 # Revision 1.115  2003/10/19 12:17:16  ncq
 # - just cleanup

@@ -31,6 +31,8 @@ import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert mes
 import gmEditArea                              #panel class holding editing
 import gmPlugin
 import gmLog
+from gmPatientHolder import PatientHolder
+
 
 
 ID_SCRIPTICON = wxNewId ()
@@ -82,10 +84,11 @@ scriptprompts = {
  }
 
 
-class PrescriptionPanel (wxPanel):
+class PrescriptionPanel (wxPanel, PatientHolder):
 	def __init__(self,parent, id):
 		#wxPanel.__init__(self,parent, id)
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+		PatientHolder.__init__(self)
 		#--------------------
 		#add the main heading
 		#--------------------
@@ -94,7 +97,7 @@ class PrescriptionPanel (wxPanel):
 		#sizer to hold either just date, or the
 		#authority details, aia, authority number
 		#--------------------------------------------
-		self.sizer_authority  = wxGridSizer(2,0,1,1)
+		self.sizer_authority  = wxGridSizer(1,0,0,0)
 		self.sizer1 = wxBoxSizer(wxHORIZONTAL)
 		self.txt_scriptDate = wxTextCtrl(self,-1,"12/06/2002",wxDefaultPosition,wxDefaultSize)
 		self.spacer = wxWindow(self,-1, wxDefaultPosition,wxDefaultSize,0) 
@@ -103,15 +106,16 @@ class PrescriptionPanel (wxPanel):
 		#self.lbl_authoritynumber = gmEditArea.EditAreaPromptLabel(self,-1,"Auth No.")
 		#self.txt_authorityindication =  wxTextCtrl(self,-1,"",wxDefaultPosition,wxDefaultSize)
 		#self.txt_authorityindication.Hide()
-		self.sizer_authority.Add(self.spacer,1,wxEXPAND)
+		#self.sizer_authority.Add(self.spacer,1,wxEXPAND)
 		self.sizer1.Add(1,0,20)
 		self.sizer1.Add(self.txt_scriptDate,3,wxEXPAND|wxALL,3)
-		self.sizer1.Add(1,0,1)
+		#self.sizer1.Add(1,0,1)
 		self.sizer_authority.Add(self.sizer1,0,wxEXPAND)
 		#-------------------------------------------------
 		#now create the editarea specific for prescribing
 		#-------------------------------------------------
-		self.editarea = gmEditArea.EditArea(self,-1,scriptprompts,gmSECTION_SCRIPT)
+		#self.editarea = gmEditArea.EditArea(self,-1,scriptprompts,gmSECTION_SCRIPT)
+		self.editarea = gmEditArea.gmPrescriptionEditArea(self,-1)
 		#---------------------------------------------------------------------
 		#add the divider headings below the editing area for drug interactions
 		#and add text control to show mini-drug interactions
@@ -175,8 +179,8 @@ class PrescriptionPanel (wxPanel):
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
 		self.mainsizer.Add(self.scriptpanelheading,0,wxEXPAND)
-		self.mainsizer.Add(self.sizer_authority,2,wxEXPAND)
-		self.mainsizer.Add(self.editarea,10,wxEXPAND)
+		self.mainsizer.Add(self.sizer_authority,1,wxEXPAND)
+		self.mainsizer.Add(self.editarea,15,wxEXPAND)
 		self.mainsizer.Add(self.sizer_divider_interaction_text,0,wxEXPAND)
 		self.mainsizer.Add(self.interactiontxt,4,wxEXPAND)
 		self.mainsizer.Add(self.itemsprescribedheading,0,wxEXPAND)

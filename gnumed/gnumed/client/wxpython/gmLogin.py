@@ -11,8 +11,8 @@
 # @TODO: testing
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.16 2003-06-26 21:40:29 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmLogin.py,v 1.17 2003-11-17 10:56:38 sjtan Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "H.Herb"
 
 from wxPython.wx import *
@@ -72,7 +72,15 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.16  2003-06-26 21:40:29  ncq
+# Revision 1.17  2003-11-17 10:56:38  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.16  2003/06/26 21:40:29  ncq
 # - fatal->verbose
 #
 # Revision 1.15  2003/02/07 14:28:05  ncq

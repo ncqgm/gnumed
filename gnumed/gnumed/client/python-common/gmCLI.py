@@ -43,7 +43,7 @@ Limitations:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCLI.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, getopt, string, re
@@ -165,7 +165,15 @@ else:
 
 #=====================================================================
 # $Log: gmCLI.py,v $
-# Revision 1.10  2003-10-01 22:08:04  ncq
+# Revision 1.11  2003-11-17 10:56:35  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:38  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.10  2003/10/01 22:08:04  ncq
 # - toss around some ideas re better option parsing
 #
 # Revision 1.9  2003/06/26 21:28:34  ncq

@@ -7,7 +7,7 @@
 # 30/01/03: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
@@ -152,6 +152,14 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.6  2003-05-17 18:18:19  michaelb
+# Revision 1.7  2003-11-17 10:56:37  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.6  2003/05/17 18:18:19  michaelb
 # added $Log statement
 #

@@ -1,5 +1,5 @@
 #===================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 
@@ -58,6 +58,14 @@ class cWhoAmI:
 
 #===================================================
 # $Log: gmWhoAmI.py,v $
-# Revision 1.1  2003-09-03 17:29:41  hinnef
+# Revision 1.2  2003-11-17 10:56:37  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.1  2003/09/03 17:29:41  hinnef
 # added gmWhoAmI to facilitate user/machine determination
 #

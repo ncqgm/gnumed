@@ -11,7 +11,7 @@ Original code courtesy of David Guest.
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTalkback.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__  = "D. Guest <dguest@zeeclor.mine.nu>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -135,7 +135,15 @@ if __name__ == '__main__':
 
 #=========================================================================
 # $Log: gmTalkback.py,v $
-# Revision 1.4  2002-09-30 10:57:56  ncq
+# Revision 1.5  2003-11-17 10:56:39  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.4  2002/09/30 10:57:56  ncq
 # - make GnuMed consistent spelling in user-visible strings
 #
 # Revision 1.3  2002/09/10 07:46:56  ncq

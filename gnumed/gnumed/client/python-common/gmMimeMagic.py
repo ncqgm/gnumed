@@ -24,8 +24,8 @@ __version__ = '0.1'
 
 #=================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMimeMagic.py,v $
-# $Id: gmMimeMagic.py,v 1.2 2003-02-27 09:18:48 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmMimeMagic.py,v 1.3 2003-11-17 10:56:36 sjtan Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Jason Petrone <jp@demonseed.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1128,7 +1128,15 @@ if __name__ == '__main__':
 			print arg + ': unknown'
 #=================================================================
 # $Log: gmMimeMagic.py,v $
-# Revision 1.2  2003-02-27 09:18:48  ncq
+# Revision 1.3  2003-11-17 10:56:36  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.2  2003/02/27 09:18:48  ncq
 # - added TODO
 #
 # Revision 1.1  2003/02/14 00:32:21  ncq

@@ -23,7 +23,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -68,6 +68,10 @@ def item_change_db():
 	"""
 	return 'item_change_db'
 
+def clin_history_updated():
+	"""Frontend signal for clin_history  update."""
+	return "clin_history_updated"
+
 def clin_item_updated():
 	"""Frontend signal for clin_root_item cache update."""
 	return 'clin_item_updated'
@@ -75,6 +79,10 @@ def clin_item_updated():
 def patient_selected():
 	"the currently active patient displayed by the client has been selected"
 	return 'patient_selected'
+
+#def patient_object_changed():
+#	"the current patient object has been constructed and is the parameter to this signal"
+#	return 'patient_object_changed'
 
 def activating_patient():
 	"""the currently active patient is about to be changed"""
@@ -134,7 +142,29 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.11  2003-07-19 20:19:19  ncq
+# Revision 1.12  2003-11-17 10:56:37  sjtan
+#
+# synced and commiting.
+#
+# Revision 1.4  2003/10/26 00:58:52  sjtan
+#
+# use pre-existing signalling
+#
+# Revision 1.3  2003/10/25 16:13:26  sjtan
+#
+# past history , can add  after selecting patient.
+#
+# Revision 1.2  2003/10/25 08:29:40  sjtan
+#
+# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
+# yaml serializer to store editarea data in  narrative text field of clin_root_item until
+# clin_root_item schema stabilizes.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
+#
+# manual edit areas modelled after r.terry's specs.
+#
+# Revision 1.11  2003/07/19 20:19:19  ncq
 # - add clin_root_item signals
 #
 # Revision 1.10  2003/07/09 16:22:04  ncq
