@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.9 2003-11-18 16:35:17 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmPatient.py,v 1.10 2003-11-20 01:17:14 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -294,7 +294,7 @@ class gmCurrentPatient(cBorg):
 			return None
 #============================================================
 def create_dummy_identity():
-	cmd1 = "insert into identity(gender, dob) values('N/A', CURRENT_TIMESTAMP)"
+	cmd1 = "insert into identity(gender, dob) values('?', CURRENT_TIMESTAMP)"
 	cmd2 = "select currval('identity_id_seq')"
 
 	data = gmPG.run_commit('personalia', [(cmd1, []), (cmd2, [])])
@@ -331,7 +331,11 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.9  2003-11-18 16:35:17  ncq
+# Revision 1.10  2003-11-20 01:17:14  ncq
+# - consensus was that N/A is no good for identity.gender hence
+#   don't use it in create_dummy_identity anymore
+#
+# Revision 1.9  2003/11/18 16:35:17  ncq
 # - correct create_dummy_identity()
 # - move create_dummy_relative to gmDemographicRecord and rename it to link_new_relative
 # - remove reload keyword from gmCurrentPatient.__init__() - if you need it your logic
