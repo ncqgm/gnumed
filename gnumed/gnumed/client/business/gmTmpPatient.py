@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.17 2003-04-25 12:58:58 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmTmpPatient.py,v 1.18 2003-04-28 21:36:33 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -255,9 +255,9 @@ class gmPerson:
 		age = mxDateTime.Age(mxDateTime.now(), dob)
 
 		if age.years > 0:
-			return "%sy %sm" % (age.years, age.months)
+			return "%sy%sm" % (age.years, age.months)
 		if age.weeks > 4:
-			return "%sm %sw" % (age.months, age.weeks)
+			return "%sm%sw" % (age.months, age.weeks)
 		if age.weeks > 1:
 			return "%sd" % age.days
 		if age.days > 1:
@@ -265,10 +265,10 @@ class gmPerson:
 		if age.hours > 3:
 			return "%sh" % age.hours
 		if age.hours > 0:
-			return "%sh %sm" % (age.hours, age.minutes)
+			return "%sh%sm" % (age.hours, age.minutes)
 		if age.minutes > 5:
 			return "%sm" % (age.minutes)
-		return "%sm %ss" % (age.minutes, age.seconds)
+		return "%sm%ss" % (age.minutes, age.seconds)
 	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['document id list'] = _getMedDocsList
@@ -595,7 +595,10 @@ if __name__ == "__main__":
 		print "fails  ", myPatient['missing handler']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.17  2003-04-25 12:58:58  ncq
+# Revision 1.18  2003-04-28 21:36:33  ncq
+# - compactify medical age
+#
+# Revision 1.17  2003/04/25 12:58:58  ncq
 # - dynamically handle supplied data in create_patient but added some sanity checks
 #
 # Revision 1.16  2003/04/19 22:54:46  ncq
