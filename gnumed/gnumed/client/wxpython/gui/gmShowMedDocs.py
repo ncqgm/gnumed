@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -568,13 +568,12 @@ else:
 			return ('tools', _('Show &archived documents'))
 
 		def ReceiveFocus(self):
-			# get patient object
 			if self.panel.tree.update() is None:
 				_log.Log(gmLog.lErr, "cannot update document tree")
 				return None
 			# FIXME: register interest in patient_changed signal, too
 			self.panel.tree.SelectItem(self.panel.tree.root)
-
+			return 1
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -601,7 +600,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.23  2003-04-28 12:11:30  ncq
+# Revision 1.24  2003-06-19 15:31:37  ncq
+# - cleanup, page change vetoing
+#
+# Revision 1.23  2003/04/28 12:11:30  ncq
 # - refactor name() to not directly return _(<name>)
 #
 # Revision 1.22  2003/04/20 15:39:36  ncq
