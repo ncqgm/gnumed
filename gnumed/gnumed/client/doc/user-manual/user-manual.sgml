@@ -764,8 +764,8 @@ $ mcc
 	  <para>click on 'DrakXServices...'</para>
 <para>'postgresql' should say 'running'</para>
 	  <screen>
-$ python bootstrap-gm_db_system.py
-	    --conf-file=your_user_name-db.conf</screen>
+$ python bootstrap-gm_db_system.py --conf-file=your_user_name-db.conf
+</screen>
 	  <para>
 When prompted:
 	    <itemizedlist>
