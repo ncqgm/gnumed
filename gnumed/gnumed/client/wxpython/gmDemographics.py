@@ -8,22 +8,21 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.39 2004-08-23 10:25:36 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmDemographics.py,v 1.40 2004-08-24 14:29:58 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import cPickle, zlib, shutil, time
-from string import *			# FIXME
+import cPickle, zlib, shutil, time, string
 
 # 3rd party
 from mx import DateTime
-from wxPython.wx import *		# FIXME
+from wxPython.wx import *		# FIXME: from wxPython import wx
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
 # GnuMed specific
-from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel
+from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel
 from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCharacterValidator, gmCfg, gmWhoAmI, gmI18N
 from Gnumed.business import gmDemographicRecord, gmPatient
 
@@ -1030,7 +1029,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.39  2004-08-23 10:25:36  ncq
+# Revision 1.40  2004-08-24 14:29:58  ncq
+# - some cleanup, not there yet, though
+#
+# Revision 1.39  2004/08/23 10:25:36  ncq
 # - Richards work, removed pat photo, store column sizes
 #
 # Revision 1.38  2004/08/20 13:34:48  ncq
