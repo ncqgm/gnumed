@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.135 2004-08-23 09:07:58 ncq Exp $
-__version__ = "$Revision: 1.135 $"
+# $Id: gmClinicalRecord.py,v 1.136 2004-08-31 19:19:43 ncq Exp $
+__version__ = "$Revision: 1.136 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1201,14 +1201,20 @@ class cClinicalRecord:
 #		return True
 		pass
 	#--------------------------------------------------------
-	def get_encounters(self, id_list = None):
-		"""Retrieves patient's encounters.
+	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None):
+		"""
+		Retrieves patient's encounters
 
 		id_list - PKs of encounters to fetch
+		since - initial date for encounter items, DateTime instance
+		until - final date for encounter items, DateTime instance
+		episodes - PKs of the episodes the encounters belong to (many-to-many relation)
+		issues - PKs of the health issues the encounters belong to (many-to-many relation)
 		"""
 		try:
 			self.__db_cache['encounters']
 		except KeyError:
+			# fetch all encounters for patient
 			self.__db_cache['encounters'] = []
 			cmd = "select id from clin_encounter where fk_patient=%s order by started"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
@@ -1220,14 +1226,76 @@ class cClinicalRecord:
 				try:
 					self.__db_cache['encounters'].append(gmEMRStructItems.cEncounter(aPK_obj=row[0]))
 				except gmExceptions.ConstructorError, msg:
-					_log.LogException(str(msg), sys.exc_info(), verbose=0)
-		if id_list is None:
-			return self.__db_cache['encounters']
+					_log.LogException(str(msg), sys.exc_info(), verbose=0)					
+		# we've got the encounters, start filtering
 		filtered_encounters = []
-		for encounter in self.__db_cache['encounters']:
-			if encounter['pk_encounter'] in id_list:
-				filtered_encounters.append(encounter)
+		filtered_encounters.extend(self.__db_cache['encounters'])
+		if id_list is not None:
+			filtered_encounters = filter(lambda enc: enc['pk_encounter'] in id_list, filtered_encounters)
+		if since is not None:
+			filtered_encounters = filter(lambda enc: enc['started'] >= since, filtered_encounters)
+		if until is not None:
+			filtered_encounters = filter(lambda enc: enc['last_affirmed'] <= until, filtered_encounters)			
+		if issues is not None and len(issues) > 0:
+			if len(issues) == 1:		# work around pyPgSQL IN() bug with one-element-tuples
+				issues.append(issues[0])
+			cmd = """
+select distinct pk_encounter
+from v_patient_items
+where pk_health_issue in %s and id_patient = %s"""
+			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(issues), self.id_patient))
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot load encounters for issues [%s] (patient [%s])' % (str(issues), self.id_patient))
+			else:
+				enc_ids = map(lambda x:x[0], rows)
+				filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
+		if episodes is not None and len(episodes) > 0:
+			if len(episodes) == 1:
+				episodes.append(episodes[0])
+			cmd = """
+select distinct pk_encounter
+from v_patient_items
+where pk_episode in %s and id_patient = %s"""
+			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(episodes), self.id_patient))
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot load encounters for episodes [%s] (patient [%s])' % (str(episodes), self.id_patient))
+			else:
+				epi_ids = map(lambda x:x[0], rows)
+				filtered_encounters = filter(lambda enc: enc['pk_encounter'] in epi_ids, filtered_encounters)
+
 		return filtered_encounters
+	#--------------------------------------------------------		
+	def get_first_encounter(self, issue=None, episode=None):
+		"""
+			Retrieves first encounter for a particular issue and/or episode
+
+			issue - First encounter associated health issue
+			episode - First encounter associated episode
+		"""
+		# fetch encounters and return the first one
+		encounters = self.get_encounters(issues=[issue], episodes=[episode])
+		if encounters is None or len(encounters) == 0:
+			_log.Log(gmLog.lErr, 'cannot retrieve first encounter for episodes [%s] + issues[%s] (patient ID [%s])' % (str(episodes), str(issues), self.id_patient))
+			return None
+		# FIXME: this does not scale particularly well
+		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
+		return encounters[0]
+	#--------------------------------------------------------		
+	def get_last_encounter(self, issue=None, episode=None):
+		"""
+			Retrieves last encounter for a concrete issue and/or episode
+			
+			issue - Last encounter associated health issue
+			episode - Last encounter associated episode
+		"""
+		# fetch encounters and return the first one
+		encounters = self.get_encounters(issues=[issue], episodes=[episode])
+		if encounters is None or len(encounters) == 0:
+			_log.Log(gmLog.lErr, 'cannot retrieve last encounter for episodes [%s], issues[%s]. Patient ID [%s]' %(str(episodes), str(issues), self.id_patient))			
+			return None		
+		# FIXME: this does not scale particularly well
+		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
+		return encounters[-1]
 	#------------------------------------------------------------------
 	# lab data API
 	#------------------------------------------------------------------
@@ -1346,6 +1414,13 @@ if __name__ == "__main__":
 	gmPG.set_default_client_encoding('latin1')
 	try:
 		emr = cClinicalRecord(aPKey = 12)
+
+		# first and last encounters
+		first_encounter = emr.get_first_encounter(issue = 1)
+		print '\nFirst encounter: ' + str(first_encounter)
+		last_encounter = emr.get_last_encounter(episode = 1)
+		print '\nLast encounter: ' + str(last_encounter)
+		print ''
 		
 		# lab results
 		lab = emr.get_lab_results()
@@ -1397,7 +1472,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.135  2004-08-23 09:07:58  ncq
+# Revision 1.136  2004-08-31 19:19:43  ncq
+# - Carlos added constraints to get_encounters()
+# - he also added get_first/last_encounter()
+#
+# Revision 1.135  2004/08/23 09:07:58  ncq
 # - removed unneeded get_vaccinated_regimes() - was faulty anyways
 #
 # Revision 1.134  2004/08/11 09:44:15  ncq
