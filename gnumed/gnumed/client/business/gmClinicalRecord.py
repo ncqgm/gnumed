@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.75 2004-03-04 19:35:01 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmClinicalRecord.py,v 1.76 2004-03-19 11:55:38 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1286,7 +1286,7 @@ order by amount_overdue
 	#------------------------------------------------------------------
 	# trial: allergy panel
 	#------------------------------------------------------------------
-	def create_allergy(self, map):
+	def create_allergy(self, allergy):
 		"""tries to add allergy to database."""
 		rw_conn = self._backend.GetConnection('historica', readonly = 0)
 		if rw_conn is None:
@@ -1296,12 +1296,12 @@ order by amount_overdue
 		# FIXME: id_type hardcoded, not reading checkbox states (allergy or sensitivity)
 		cmd = """
 insert into allergy (
-	id_type, id_encounter, id_episode,  substance, reaction, definite
+	id_type, id_encounter, id_episode,  substance, narrative, definite
 ) values (
 	%s, %s, %s, %s, %s, %s
 )
 """
-		gmPG.run_query (rw_curs, cmd, 1, self.id_encounter, self.id_episode, map["substance"], map["reaction"], map["definite"])
+		gmPG.run_query (rw_curs, cmd, 1, self.id_encounter, self.id_episode, allergy["substance"], allergy["reaction"], allergy["definite"])
 		rw_curs.close()
 		rw_conn.commit()
 		rw_conn.close()
@@ -1421,7 +1421,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.75  2004-03-04 19:35:01  ncq
+# Revision 1.76  2004-03-19 11:55:38  ncq
+# - in allergy.reaction -> allergy.narrative
+#
+# Revision 1.75  2004/03/04 19:35:01  ncq
 # - AU has rules on encounter timeout, so use them
 #
 # Revision 1.74  2004/02/25 09:46:19  ncq
