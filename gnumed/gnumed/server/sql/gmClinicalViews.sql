@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.113 2004-11-21 21:38:31 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.114 2004-11-24 15:39:33 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -203,7 +203,7 @@ select
 	cn.soap_cat as soap_cat,
 	cn.narrative as description,
 	cep.is_open as is_open,
-	cep.clinically_relevant as clinically_relevant,
+--	cep.clinically_relevant as clinically_relevant,
 	cn.is_rfe as is_rfe,
 	cn.is_aoe as is_aoe,
 	cep.pk as pk_episode,
@@ -232,7 +232,7 @@ select
 	vnep.soap_cat as soap_cat,
 	vnep.description as description,
 	vnep.is_open as episode_open,
-	vnep.clinically_relevant as episode_clinically_relevant,
+--	vnep.clinically_relevant as episode_clinically_relevant,
 	null as health_issue,
 	null as issue_active,
 	null as issue_clinically_relevant,
@@ -255,7 +255,7 @@ select
 		else vnep.description
 	end as description,
 	vnep.is_open as episode_open,
-	vnep.clinically_relevant as episode_clinically_relevant,
+--	vnep.clinically_relevant as episode_clinically_relevant,
 	chi.description as health_issue,
 	chi.is_active as issue_active,
 	chi.clinically_relevant as issue_clinically_relevant,
@@ -1390,16 +1390,10 @@ select
 	vpep.description as problem,
 	'episode' as type,
 	vpep.episode_open as problem_active,
-	vpep.episode_clinically_relevant as clinically_relevant,
+	'true'::boolean as clinically_relevant,
+--	vpep.episode_clinically_relevant as clinically_relevant,
 	vpep.pk_episode as pk_episode,
 	vpep.pk_health_issue as pk_health_issue
---	cep.fk_patient as pk_patient,
---	cep.description as problem,
---	'episode' as type,
---	cep.is_open as problem_active,
---	cep.clinically_relevant as clinically_relevant,
---	cep.pk as pk_episode,
---	cep.fk_health_issue as pk_health_issue
 from
 --	clin_episode cep
 	v_pat_episodes vpep
@@ -1536,11 +1530,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.113 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.114 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.113  2004-11-21 21:38:31  ncq
+-- Revision 1.114  2004-11-24 15:39:33  ncq
+-- - clin_episode does not have clinically_relevant anymore as per discussion on list
+--
+-- Revision 1.113  2004/11/21 21:38:31  ncq
 -- - fix chi.is_open to be is_active
 --
 -- Revision 1.112  2004/11/21 21:02:48  ncq

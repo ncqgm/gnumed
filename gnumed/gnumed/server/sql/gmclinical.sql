@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.139 $
+-- $Revision: 1.140 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -86,9 +86,9 @@ create table clin_episode (
 --	description text
 --		default null,
 	is_open boolean
-		default true,
-	clinically_relevant boolean
 		default true
+--	clinically_relevant boolean
+--		default true
 ) inherits (audit_fields);
 
 alter table clin_episode add constraint standalone_epi_needs_patient
@@ -123,11 +123,11 @@ comment on column clin_episode.fk_health_issue is
 comment on column clin_episode.is_open is
 	'whether the episode is open (eg. there is activity for it),
 	 means open in a temporal sense as in "not closed yet"';
-comment on column clin_episode.clinically_relevant is
-	'whether the condition used for naming the episode
-	 is clinically relevant, eventually this would become
-	 an attribute of a clinical narrative row elsewhere
-	 that is just referenced from "description"';
+--comment on column clin_episode.clinically_relevant is
+--	'whether the condition used for naming the episode
+--	 is clinically relevant, eventually this would become
+--	 an attribute of a clinical narrative row elsewhere
+--	 that is just referenced from "description"';
 
 -- -------------------------------------------------------------------
 create table last_act_episode (
@@ -1077,11 +1077,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.139 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.140 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.139  2004-11-21 21:54:30  ncq
+-- Revision 1.140  2004-11-24 15:39:33  ncq
+-- - clin_episode does not have clinically_relevant anymore as per discussion on list
+--
+-- Revision 1.139  2004/11/21 21:54:30  ncq
 -- - do not defer initially fk_encounter in clin_root_item
 --
 -- Revision 1.138  2004/11/21 21:01:08  ncq
