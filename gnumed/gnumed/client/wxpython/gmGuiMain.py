@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.106 2003-06-23 22:29:59 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmGuiMain.py,v 1.107 2003-06-24 12:55:40 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -583,7 +583,7 @@ class MainFrame(wxFrame):
 			NULL,
 			tmp,
 			aTitle,
-			wxYES_NO | wxICON_QESTION
+			wxYES_NO | wxICON_QUESTION
 		)
 		result = dlg.ShowModal()
 		dlg.Destroy()
@@ -734,7 +734,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.106  2003-06-23 22:29:59  ncq
+# Revision 1.107  2003-06-24 12:55:40  ncq
+# - typo: it's qUestion, not qestion
+#
+# Revision 1.106  2003/06/23 22:29:59  ncq
 # - in on_patient_selected() add code to attach to a
 #   previous encounter or create one if necessary
 # - show_error/quesion() helper
