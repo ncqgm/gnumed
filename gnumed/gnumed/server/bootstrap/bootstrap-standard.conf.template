@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.2 $
+version = $Revision: 1.3 $
 
 #----------------------------------
 [installation]
@@ -111,24 +111,9 @@ super user alias = postgres
 schema = $schema$
 $schema$
 
-#----------------------------------
-[user GnuMed owner]
-
-# the name of the account in PostgreSQL
-name = gm-dbowner
-
-# if the password is not given here the script will
-# ask the user if "interactive" is true, otherwise
-# it will fail
-#password = 
-
-[user postgres]
-name = postgres
-#password =
-
-#----------------------------------
-# these really shouldn't be changed
-#----------------------------------
+#---------------------------------------------------------------------
+# these shouldn't be changed unless you really know what you are doing
+#---------------------------------------------------------------------
 [GnuMed defaults]
 
 # needs to have a section [user GnuMed owner] in this file
@@ -178,6 +163,30 @@ language library dirs = $language library dirs$
 $language library dirs$
 
 #----------------------------------
+# if the password is not given for any account the script
+# will ask the user to provide it given "interactive" is
+# true, otherwise it will fail
+#
+# - this account will own the GnuMed databases and all
+#   the objects in them
+# - it is not intended to be used as an everyday account
+# - it's also the one used to set up other GnuMed accounts
+[user GnuMed owner]
+name = gm-dbowner
+#password = 
+
+# - this user will hardly ever need to be changed
+# - this group provides the details for the PostgreSQL
+#   super user (the database root, if you will) which was
+#   created when the database server was set up
+# - on most standard Linux systems this is user "postgres"
+#   and does not need a password on localhost
+# - don't change unless you know what you are doing
+[user postgres]
+name = postgres
+#password =
+
+#----------------------------------
 # don't ask, this is deep magic ;-)
 # meditate over it and enlightenment will be thine
 [pg/SQL]
@@ -205,7 +214,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.2  2003-04-18 13:21:16  ncq
+# Revision 1.3  2003-04-22 16:16:16  ncq
+# - added lots of comments on the postgres/gm-dbowner users
+#
+# Revision 1.2  2003/04/18 13:21:16  ncq
 # - include new script gmIdentityViews.sql
 #
 # Revision 1.1  2003/03/30 22:18:53  ncq
