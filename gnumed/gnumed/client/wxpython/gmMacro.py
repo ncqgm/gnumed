@@ -6,10 +6,10 @@ This module implements functions a macro can legally use.
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
-import sys, time, random
+import sys, time, random, types
 
 from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker, gmExceptions
 from Gnumed.business import gmPatient
@@ -76,7 +76,7 @@ class cMacroPrimitives:
 		return 0
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.9 $" % self.__class__.__name__
+		return "%s $Revision: 1.10 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -108,7 +108,7 @@ class cMacroPrimitives:
 			return 0
 		return 1
 	#-----------------------------------------------------------------
-	def lock_into_patient(self, auth_cookie = None, a_search_term = None):
+	def lock_into_patient(self, auth_cookie = None, search_params = None):
 		if not self.__attached:
 			return (0, _('request rejected, you are not attach()ed'))
 		if auth_cookie != self.__auth_cookie:
@@ -119,16 +119,19 @@ class cMacroPrimitives:
 			_log.Log(gmLog.lErr, 'patient is already locked')
 			return (0, _('already locked into a patient'))
 		searcher = gmPatient.cPatientSearcher_SQL()
-		pat_id = searcher.get_patient_ids(a_search_term)
+		if type(search_params) == types.DictType:
+			pat_id = searcher.get_patient_ids(search_dict=search_params)
+		else:
+			pat_id = searcher.get_patient_ids(search_term=search_params)
 		if pat_id is None:
-			return (0, _('error searching for patient with [%s]') % a_search_term)
+			return (0, _('error searching for patient with [%s]/%s') % (search_term, search_dict))
 		if len(pat_id) == 0:
-			return (0, _('no patient found for [%s]') % a_search_term)
+			return (0, _('no patient found for [%s]/%s') % (search_term, search_dict))
 		# FIXME: let user select patient
 		if len(pat_id) > 1:
-			return (0, _('several matching patients found for [%s]') % a_search_term)
+			return (0, _('several matching patients found for [%s]/%s') % (search_term, search_dict))
 		if not gmPatient.set_active_patient(pat_id[0][0]):
-			return (0, _('cannot activate patient [%s] (%s)') % (pat_id[0][0], a_search_term))
+			return (0, _('cannot activate patient [%s] (%s/%s)') % (pat_id[0][0], search_term, search_dict))
 		pat.lock()
 		self.__pat_lock_cookie = str(random.random())
 		return (1, self.__pat_lock_cookie)
@@ -169,33 +172,40 @@ class cMacroPrimitives:
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmScriptingListener
 	import xmlrpclib
-	listener = gmScriptingListener.cScriptingListener(macro_executor = cMacroPrimitives('unit test cookie'), port=9999)
+	listener = gmScriptingListener.cScriptingListener(macro_executor = cMacroPrimitives(personality='unit test'), port=9999)
 
 	s = xmlrpclib.ServerProxy('http://localhost:9999')
-	print s.attach()
-	print s.attach('wrong cookie')
-	print s.version()
-	print s.raise_gnumed()
-	print s.raise_plugin('test plugin')
-	print s.lock_into_patient('kirk, james')
-	print s.unlock_patient()
-	attach = s.attach('unit test cookie')
-	print attach
-	print s.version()
-	print s.raise_gnumed()
-#	print s.raise_plugin('test plugin')
-	data = s.lock_into_patient('kirk, james')
-	print data
-	print s.unlock_patient('wrong cookie')
-	print s.unlock_patient(data[1])
-	print s.detach('wrong cookie')
-	print s.detach(attach[1])
+	print "should fail:", s.attach()
+	print "should fail:", s.attach('wrong cookie')
+	print "should work:", s.version()
+	print "should fail:", s.raise_gnumed()
+	print "should fail:", s.raise_plugin('test plugin')
+	print "should fail:", s.lock_into_patient('kirk, james')
+	print "should fail:", s.unlock_patient()
+	status, conn_auth = s.attach('unit test')
+	print "should work:", status, conn_auth
+	print "should work:", s.version()
+	print "should work:", s.raise_gnumed(conn_auth)
+	status, pat_auth = s.lock_into_patient(conn_auth, 'kirk, james')
+	print "should work:", status, pat_auth
+	print "should fail:", s.unlock_patient(conn_auth, 'bogus patient unlock cookie')
+	print "should work", s.unlock_patient(conn_auth, pat_auth)
+	data = {'firstname': 'jame', 'lastnames': 'Kirk', 'gender': 'm'}
+	status, pat_auth = s.lock_into_patient(conn_auth, data)
+	print "should work:", status, pat_auth
+	print "should work", s.unlock_patient(conn_auth, pat_auth)
+	print s.detach('bogus detach cookie')
+	print s.detach(conn_auth)
 	del s
 
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.9  2004-03-12 13:22:38  ncq
+# Revision 1.10  2004-03-20 17:54:18  ncq
+# - lock_into_patient now supports dicts and strings
+# - fix unit test
+#
+# Revision 1.9  2004/03/12 13:22:38  ncq
 # - comment on semaphore for GUI actions
 #
 # Revision 1.8  2004/03/05 11:22:35  ncq
