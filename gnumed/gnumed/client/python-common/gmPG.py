@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.77 $"
+__version__ = "$Revision: 1.78 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -68,6 +68,54 @@ _listener_api = None
 
 # default encoding for connections
 _default_client_encoding = None
+
+#======================================================================
+# a bunch of useful queries
+#----------------------------------------------------------------------
+QTablePrimaryKeyIndex = """
+SELECT
+	indkey
+FROM
+	pg_index
+WHERE
+	indrelid =
+	(SELECT oid FROM pg_class WHERE relname = '%s');
+"""
+
+query_pkey_name = """
+SELECT
+	pga.attname
+FROM
+	(pg_attribute pga inner join pg_index pgi on (pga.attrelid=pgi.indrelid))
+WHERE
+	pga.attnum=pgi.indkey[0]
+		and
+	pgi.indisprimary is true
+		and
+	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = %s)"""
+
+
+#query_fkey_names = """
+#SELECT
+#	pg_trigger.*, pg_proc.proname, pg_class.relname, pg_type.typname
+#FROM
+#	pg_proc
+#		INNER JOIN pg_trigger ON pg_proc.oid = pg_trigger.tgfoid
+#		INNER JOIN pg_class ON pg_trigger.tgrelid = pg_class.oid
+#		INNER JOIN pg_type ON pg_trigger.tgtype = pg_type.oid
+#WHERE
+#	pg_class.relname = %s
+#"""
+
+query_fkey_names = """
+select tgargs from pg_trigger where
+	tgname like 'RI%%'
+		and
+	tgrelid = (
+		select oid from pg_class where relname=%s
+	)
+"""
+
 #======================================================================
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
@@ -386,6 +434,9 @@ class ConnectionPool:
 		except StandardError:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
 			return None
+		# <DEBUG>
+#		conn.conn.toggleShowQuery
+		# </DEBUG>
 
 		# set the default characteristics of our sessions
 		curs = conn.cursor()
@@ -642,18 +693,6 @@ def get_col_indices(aCursor = None):
 		col_index += 1
 	return col_indices
 #---------------------------------------------------
-_query_pkey_name = """
-SELECT
-	pga.attname
-FROM
-	(pg_attribute pga inner join pg_index pgi on (pga.attrelid=pgi.indrelid))
-WHERE
-	pga.attnum=pgi.indkey[0]
-		and
-	pgi.indisprimary is true
-		and
-	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = %s)"""
-
 def get_pkey_name(aCursor = None, aTable = None):
 	# sanity checks
 	if aCursor is None:
@@ -662,13 +701,59 @@ def get_pkey_name(aCursor = None, aTable = None):
 	if aTable is None:
 		_log.Log(gmLog.lErr, 'need table name for which to determine primary key')
 
-	if not run_query(aCursor, _query_pkey_name, aTable):
+	if not run_query(aCursor, query_pkey_name, aTable):
 		_log.Log(gmLog.lErr, 'cannot determine primary key')
 		return -1
 	result = aCursor.fetchone()
 	if result is None:
 		return None
 	return result[0]
+#---------------------------------------------------
+def get_fkey_defs(source, table):
+	"""Returns a dictionary of referenced foreign keys.
+
+	key = column name of this table
+	value = (referenced table name, referenced column name) tuple
+	"""
+	manage_connection = 0
+	close_cursor = 1
+	# is it a cursor ?
+	if hasattr(source, 'fetchone') and hasattr(source, 'description'):
+		close_cursor = 0
+		curs = source
+	# is it a connection ?
+	elif (hasattr(source, 'commit') and hasattr(source, 'cursor')):
+		curs = source.cursor()
+	# take it to be a service name then
+	else:
+		manage_connection = 1
+		pool = ConnectionPool()
+		conn = pool.GetConnection(source)
+		if conn is None:
+			_log.Log(gmLog.lErr, 'cannot get fkey names on table [%s] from source [%s]' % (table, source))
+			return None
+		curs = conn.cursor()
+
+	if not run_query(curs, query_fkey_names, table):
+		if close_cursor:
+			curs.close()
+		if manage_connection:
+			pool.ReleaseConnection(source)
+		_log.Log(gmLog.lErr, 'cannot get foreign keys on table [%s] from source [%s]' % (table, source))
+		return None
+
+	fks = curs.fetchall()
+	if close_cursor:
+		curs.close()
+	if manage_connection:
+		pool.ReleaseConnection(source)
+
+	references = {}
+	for fk in fks:
+		fkname, src_table, target_table, tmp, src_col, target_col, tmp = string.split(fk[0], '\x00')
+		references[src_col] = (target_table, target_col)
+
+	return references
 #---------------------------------------------------
 def getBackendName():
 	return __backend
@@ -879,7 +964,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.77  2003-09-23 14:40:30  ncq
+# Revision 1.78  2003-09-30 19:08:31  ncq
+# - add helper get_fkey_defs()
+#
+# Revision 1.77  2003/09/23 14:40:30  ncq
 # - just some comments
 #
 # Revision 1.76  2003/09/23 12:09:27  ihaywood
