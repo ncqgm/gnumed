@@ -1,3 +1,23 @@
+This is a putative forms/letters system for gnumed. based on LaTeX
+
 The file a4form.cls is a LaTeX class file. Put it in the TeX search
 path (on Debian /usr/local/share/texmf/tex/latex/a4form/) then run
-"texhash" as root. 
+"texhash" as root to make sure TeX can find it. 
+
+The module accepts a LaTeX file and a dictionary.
+The dictionary is translated to set of TeX macros,
+which can be used in the document. The document can be any LaTeX 
+document, however a special class (a4form) is defined to print
+text at specific positions.
+
+Advantages:
+	- one-stop-shop: scripts, forms, letters can all be expressed as templates.
+	- high quality output
+	- totally free (including the fonts)
+	- can run without a GUI, such as on a server
+	- cross-platform, including Windows
+
+Disadvantages
+	- old-fashioned (TeX dates back to mid-1980s)
+	- big dependency (about the same size as wxWindows DLL)
+

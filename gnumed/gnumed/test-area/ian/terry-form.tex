@@ -6,7 +6,7 @@
 
 \begin{document}
 \begin{page}
-\text{20}{12}{70}{\field{to_address}}
+\text{20}{12}{70}{\recipient}
 
 \lineh{20}{40}{170} % horiztonal separators
 \lineh{20}{50}{110}
@@ -25,52 +25,53 @@
 \linev{57}{40}{10}
 \linev{90}{40}{10}
 
-\text{22}{45}{20}{Billing}
-\text{59}{45}{15}{Our ref:}
-\text{92}{45}{20}{Your ref:}
+\text{21}{43}{20}{\small Billing}
+\text{58}{43}{15}{\small Our ref:}
+\text{91}{43}{20}{\small Your ref:}
 \text{133}{45}{55}{
 \textbf{Requesting Practitioner}\\
 \\
-\field{from_address}}
-\text{22}{55}{50}{\field{patient_name}\\
-\field{patient_address}}
+\sender \\
+\senderaddress}
+\text{22}{55}{50}{\patientname \\
+\patientaddress}
 \text{22}{85}{100}{
 \textbf{REQUEST}\\
-\field{request}\\
+\request\\
 \\
 \textbf{THERAPY}\\
-\field{therapy}\\
+\therapy\\
 \\
 \textbf{CLINICAL NOTES}\\
-\field{clinical_notes}\\
+\clinicalnotes\\
 }
 
 \text{133}{85}{55}{
 \textbf{Copy of report to:}\\
 \\
-\field{copy_address}}
+\copyaddress}
 
 \text{130}{107}{60}{
 \begin{multicols}{2}
-\checkbox{Routine}\\
-\checkbox{Urgent}\\
-\checkbox{Fax result}\\
-\checkbox{Phone results}\\
-\checkbox{Pensioner}\\
-\checkbox{Veteran}\\
-\checkbox{Referral pads}\\
+\checkbox{\routine}{Routine}\\
+\checkbox{\urgent}{Urgent}\\
+\checkbox{\fax}{Fax result}\\
+\checkbox{\phone}{Phone results}\\
+\checkbox{\pensioner}{Pensioner}\\
+\checkbox{\veteran}{Veteran}\\
+\checkbox{\pads}{Referral pads}\\
 \end{multicols}
 }
 
 \text{22}{140}{165}{
 \textbf{PATIENT INSTRUCTIONS}\\
-\field{instructions}}
+\instructions}
 
 \text{133}{225}{55}{
 \textbf{Doctor's Signature}
 }
 
-\text{57}{260}{80}{GNUMed forms}
+\text{57}{260}{80}{\small GNUMed forms}
 
 \end{page}
 \end{document}

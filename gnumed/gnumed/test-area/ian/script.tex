@@ -1,0 +1,29 @@
+\documentclass{a4form}
+\usepackage{multicol}
+% this is an imitation of a PBS script form
+% the measurements are wrong as I don't have a GP PBS script to hand
+% (hospital scripts are completely different)
+% Probably won't work outside of AU ;-(
+
+\begin{document}
+\begin{page}
+\text{20}{20}{80}{\doctorname \ \prescribernumber}
+\text{125}{20}{80}{\doctorname \ \prescribernumber}
+
+\text{20}{40}{80}{\patientname \\ \patientaddress \\ \medicarenumber}
+\text{125}{40}{80}{\patientname \\ \patientaddress \\ \medicarenumber}
+
+\text{30}{80}{70}{
+\begin{tabular*}{65mm}{l@{\extracolsep{\fill}}ll}
+\drugs
+\end{tabular*}
+}
+
+\text{135}{80}{70}{
+\begin{tabular*}{65mm}{l@{\extracolsep{\fill}}ll}
+\drugs
+\end{tabular*}
+}
+
+\end{page}
+\end{document}

@@ -1,0 +1,35 @@
+\documentclass{letter}
+\address{ \sender \\ \senderaddress }
+\signature{\sender }
+
+\begin{document}
+\begin{letter}{\recipient }
+
+\opening{\salutation}
+
+\textbf{Re:} \patientname, DOB: \patientDOB, \patientaddress 
+
+\maintext
+
+\ifx\medslist\relax \relax
+\else
+\textbf{Medications List}
+
+\begin{tabular}{lll}
+\medslist
+\end{tabular}
+\fi
+
+\ifx\diseaselist\relax \relax % if diseaselist != \relax in any sane language
+\else
+\textbf{Disease List}
+
+\begin{tabular}{l}
+\diseaselist
+\end{tabular}
+\fi
+
+\closing{\finish}
+
+\end{letter}
+\end{document}
