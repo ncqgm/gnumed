@@ -1,7 +1,7 @@
 # GnuMed GUI initial plugin load order configuration
 # --------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/plugins.conf.sample,v $
-# $Id: plugins.conf.sample,v 1.2 2003-01-13 00:36:48 ncq Exp $
+# $Id: plugins.conf.sample,v 1.3 2003-04-04 23:15:47 ncq Exp $
 #
 # If this file does not exist the GUI will scan the
 # directory and load all files as plugins. If you want
@@ -20,8 +20,8 @@
 load order = $load order$
 gmLock
 gmplNbPatientSelector
-gmPatientWindowManager
 gmplNbSchedule
+gmClinicalWindowManager
 gmSnellen
 gmDrugDisplay
 gmManual
@@ -35,7 +35,11 @@ $load order$
 
 # --------------------------------------------------
 # $Log: plugins.conf.sample,v $
-# Revision 1.2  2003-01-13 00:36:48  ncq
+# Revision 1.3  2003-04-04 23:15:47  ncq
+# - renamed to clinical* as per Richard's request
+# - updated plugins.conf.sample
+#
+# Revision 1.2  2003/01/13 00:36:48  ncq
 # - removed gmScanMedDocs which isn't an official plugin yet
 #
 # Revision 1.1  2003/01/05 11:43:48  ncq

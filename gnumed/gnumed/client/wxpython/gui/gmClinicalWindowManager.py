@@ -6,6 +6,7 @@ A plugin may elect to be in three modes:
 
 wholescreen
  - the plugin seizes the whole panel
+ - should this exist ? IMHO no (kh)
 
 lefthalf
  - the plugin gets the left column onscreen
@@ -16,10 +17,10 @@ right column
    column (note all of these plugins are visible at once)
 """
 #==================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmPatientWindowManager.py,v $
-# $Id: gmPatientWindowManager.py,v 1.15 2003-02-09 20:03:43 ncq Exp $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
+# $Id: gmClinicalWindowManager.py,v 1.1 2003-04-04 23:15:46 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.1 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -30,7 +31,7 @@ _log.Log(gmLog.lData, __version__)
 
 import gmGuiBroker, gmDispatcher, gmShadow, gmPlugin
 #==================================================
-class PatientWindow (wxPanel):
+class gmClinicalPanel (wxPanel):
 
 	def __init__ (self, parent):
 		wxPanel.__init__ (self, parent, -1)
@@ -177,28 +178,30 @@ class PatientWindow (wxPanel):
 	def GetVisible (self):
 		return self.visible
 #==================================================
-class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
+class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 
 	def name (self):
-		return "Patient"
+		return _("Clinical")
 	#----------------------------------------------
 	def MenuInfo (self):
 		return None # we add our own submenu
 	#----------------------------------------------
 	def GetWidget (self, parent):
-		self.pw = PatientWindow (parent)
-		self.gb['patient.manager'] = self.pw
-		return self.pw
+		self.panel = gmClinicalPanel (parent)
+		self.gb['clinical.manager'] = self.panel
+		return self.panel
 	#----------------------------------------------
 	def register (self):
 		gmPlugin.wxNotebookPlugin.register(self)
 		# add own submenu, patient plugins add to this
 		ourmenu = wxMenu ()
-		self.gb['patient.submenu'] = ourmenu
+		self.gb['clinical.submenu'] = ourmenu
 		menu = self.gb['main.viewmenu']
 		self.menu_id = wxNewId ()
-		menu.AppendMenu (self.menu_id, '&Patient', ourmenu, self.name ())
+		menu.AppendMenu (self.menu_id, '&Clinical', ourmenu, self.name ())
+		# "patient" needs fixing
 		plugin_list = gmPlugin.GetPluginLoadList('patient')
+		# "patient" needs fixing
 		for plugin in plugin_list:
 			p = gmPlugin.InstPlugin(
 				'patient',
@@ -209,8 +212,8 @@ class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
 				p.register()
 			except:
 				_log.LogException("file [%s] doesn't seem to be a plugin" % plugin, sys.exc_info(), fatal=0)
-		#self.pw.Show (0)
-		self.pw.DisplayDefault()
+		#self.panel.Show (0)
+		self.panel.DisplayDefault()
 		self.gb['toolbar.%s' % self.name ()].Realize()
 	#----------------------------------------------
 	def unregister (self):
@@ -221,10 +224,14 @@ class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
 		# FIXME: should we unregister () each of our sub-modules?
 	#----------------------------------------------
 	def ReceiveFocus(self):
-		self.gb['modules.patient'][self.pw.GetVisible()].Shown()
+		self.gb['modules.patient'][self.panel.GetVisible()].Shown()
 #==================================================
-# $Log: gmPatientWindowManager.py,v $
-# Revision 1.15  2003-02-09 20:03:43  ncq
+# $Log: gmClinicalWindowManager.py,v $
+# Revision 1.1  2003-04-04 23:15:46  ncq
+# - renamed to clinical* as per Richard's request
+# - updated plugins.conf.sample
+#
+# Revision 1.15  2003/02/09 20:03:43  ncq
 # - Shown -> ReceiveFocus
 #
 # Revision 1.14  2003/02/09 10:30:49  ncq
