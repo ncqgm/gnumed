@@ -4,12 +4,50 @@
 # Author:       Christof Meigen (christof@nicht-ich.de)
 # Copyright:    author
 # License:      GPL
-# Last Changed: 02 sep 2002
+# Last Changed: 13 sep 2002
 ###############################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/normcurves/norm.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 
-'''Classes and routines for medical normcurves.'''
+'''
+Classes and routines for medical normcurves.
+
+Short intro: For anything that can be measured, there are ranges of
+normality and it is often instructive to check wether measured value
+is in that range or how repeated measurements at different ages behave
+in comparison to the normal development.
+
+This module provides classes that handle norms and do basically allow
+to check values and get the information needed for graphical presentation.
+
+Norm may differ for various ethnic groups, sexes etc. The selection
+of the right norm can only partly be automatized and does not bother
+us here. We just provide a norm that may depend on one additional
+numerical parameter, which will be in most cases age, but can of course
+be anything, also category codes.
+
+A result of a check contains always a Landmark-Code, which can be used
+to highlight entrys or to check plausibility during the input of values.
+
+The central class is, which comes as no surprise, Norm. Have a look at
+that. There are some examples included to show that a variety of
+norm-types can be incorporated.
+
+TO-DO:
+- A SQL-representation of the norms.
+- A Norm-manager as a higher level interface to check whole patients
+  with all their measurements, and selects the right norm for
+  every value, based on measurement types, gender of the patient
+  and probably explicit selection of a norm (depends on development
+  on the Patient-Object (gmCachedPerson) and application-wide
+  standards for measurement-types)
+- Feedback: what other typed of norms (depending on more than
+  one parameter, measurements being functions) are needed?
+- Development of standard-graphics like our beloved centile
+  curves with height/weight in one sheet. What kind of graphics
+  would be used to allow both high-quality printing and
+  viewing within the application?
+'''
 
 import math
 
@@ -140,7 +178,13 @@ class Norm:
     the individual centile and sds of the value in question
     and it may also have elements "above_centile" and
     "below_centile" stating it is above or below certain
-    centiles specified by the normcurve.'''
+    centiles specified by the normcurve.
+
+    valueOfLandmark and valueOfCentile can be used to
+    draw those nice lines in charts. Before you use them,
+    check first what Landmarks/Centiles are actually
+    avaliable in the specific norm
+    '''
 
     def __init__(self):
         pass
@@ -498,7 +542,15 @@ class SelectedCurves(Norm):
         return self.listofcurves[0]['curve'].getRange()
 
 ######################################################################
-# JUST FOR TESTING PURPOSES                                          #
+# JUST FOR TESTING PURPOSES
+# These curves are provided just as examples for different
+# styles of normcurves. 
+# The female height and weight centiles are taken from Prader et al,
+# Helvetica Paediatrica Acta, 1989, and are based on a longitudinal survey.
+# The female BMI is an unpublished curve based on children from Leipzig,
+# the weight values for the Turner-girls are from Acta
+# Paeditrica 86:937-42, 1997
+# 
 ######################################################################
 
 
