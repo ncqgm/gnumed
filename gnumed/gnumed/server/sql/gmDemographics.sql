@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.36 $
+-- $Revision: 1.37 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -161,8 +161,10 @@ create table address_type (
 
 -- ===================================================================
 create table marital_status (
-	id serial primary key,
-	"name" text unique not null
+	pk serial primary key,
+	name text
+		unique
+		not null
 );
 -- ===================================================================
 create table enum_comm_types (
@@ -245,10 +247,10 @@ create table identity (
 		default null,
 	dob timestamp with time zone
 		not null,
-	id_marital_status integer
+	fk_marital_status integer
 		not null
 		default 1
-		references marital_status(id),
+		references marital_status(pk),
 	cob char(2),
 	deceased timestamp with time zone
 		default null
@@ -578,11 +580,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.36 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.37 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.36  2004-11-28 14:30:55  ncq
+-- Revision 1.37  2004-12-15 09:33:16  ncq
+-- - improve marital_status handling
+--
+-- Revision 1.36  2004/11/28 14:30:55  ncq
 -- - make delete/update on identity cascade to names table
 --
 -- Revision 1.35  2004/09/17 20:16:35  ncq
