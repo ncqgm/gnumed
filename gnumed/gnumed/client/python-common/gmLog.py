@@ -50,7 +50,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -576,7 +576,7 @@ def __open_default_logfile():
 		# 3) tuple(first_opt) -> (option name, option value)
 		logName = os.path.abspath(os.path.expanduser(first_opt[1]))
 		try:
-			loghandle = cLogTargetFile (lInfo, logName, "wb")
+			loghandle = cLogTargetFile (lInfo, logName, "ab")
 			print "log file is [%s]" % logName
 			return loghandle
 		except:
@@ -764,7 +764,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.28  2002-11-18 09:41:25  ncq
+# Revision 1.29  2002-11-18 11:36:04  ncq
+# - --log-file -> append not overwrite
+#
+# Revision 1.28  2002/11/18 09:41:25  ncq
 # - removed magic #! interpreter incantation line to make Debian happy
 #
 # Revision 1.27  2002/11/18 02:23:01  ncq
