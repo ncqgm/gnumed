@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -93,7 +93,7 @@ def get_base_dir():
 	print 'Trying to use system defaults.'
 
 	# standard path
-	# - normalize and convert slahes to local filesystem convention
+	# - normalize and convert slashes to local filesystem convention
 	tmp = os.path.normcase('/usr/share/gnumed/')
 	# sanity check
 	if os.path.exists(tmp):
@@ -127,6 +127,7 @@ if __name__ == "__main__":
 	# manually extend our module search path
 	sys.path.append(os.path.join(appPath, 'wxpython'))
 	sys.path.append(os.path.join(appPath, 'python-common'))
+	sys.path.append(os.path.join(appPath, 'business'))
 
 	_log = None
 	try:
@@ -220,8 +221,8 @@ can increase its log level with '--debug'.
 	gb['gnumed_dir'] = appPath # EVERYONE must use this!
 
 	try:
-		#change into our working directory
-		#this does NOT affect the cdw in the shell from where gnumed is started!
+		# change into our working directory
+		# this does NOT affect the cwd in the shell from where gnumed is started!
 		os.chdir(appPath)
 	except:
 		exc = sys.exc_info()
@@ -255,7 +256,10 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.49  2003-02-07 21:06:02  sjtan
+# Revision 1.50  2003-02-08 00:37:49  ncq
+# - cleanup, one more module dir
+#
+# Revision 1.49  2003/02/07 21:06:02  sjtan
 #
 # refactored edit_area_gen_handler to handler_generator and handler_gen_editarea. New handler for gmSelectPerson
 #
