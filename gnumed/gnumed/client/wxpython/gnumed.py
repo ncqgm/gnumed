@@ -49,7 +49,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.64 $"
+__version__ = "$Revision: 1.65 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -331,15 +331,43 @@ except StandardError:
 		gmTalkback.run(_email_logger)
 	raise
 
-_log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
+# do object refcounting
+if gmCLI.has_arg('--debug'):
+	import types
 
+	def get_refcounts():
+		refcount = {}
+		# collect all classes
+		for module in sys.modules.values():
+			for sym in dir(module):
+				obj = getattr(module, sym)
+				if type(obj) is types.ClassType:
+					refcount[obj] = sys.getrefcount(obj)
+		# sort by refcount
+		pairs = map(lambda x: (x[1],x[0]), refcount.items())
+		pairs.sort()
+		pairs.reverse()
+		return pairs
+
+	rcfile = open('./gm-refcount.lst', 'wb')
+	for refcount, class_ in get_refcounts():
+		if not class_.__name__.startswith('wx'):
+			rcfile.write('%10d %s\n' % (refcount, class_.__name__))
+	rcfile.close()
+
+# do we do talkback ?
 if gmCLI.has_arg('--talkback'):
 	import gmTalkback
 	gmTalkback.run(_email_logger)
 
+_log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
+
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.64  2004-06-25 12:31:36  ncq
+# Revision 1.65  2004-06-26 23:10:18  ncq
+# - add object refcounting when --debug
+#
+# Revision 1.64  2004/06/25 12:31:36  ncq
 # - add profiling support via --profile=<file>
 #
 # Revision 1.63  2004/06/25 08:04:07  ncq
