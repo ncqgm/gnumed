@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -603,8 +603,8 @@ class scanFrame(wxPanel):
 		# FIXME: get those from config file
 		#scanner.contrast=170 ; scanner.brightness=150 ; scanner.white_level=190
 		#scanner.depth=6
-		scanner.br_x = 412.0
-		scanner.br_y = 583.0
+		self.SaneScanner.br_x = 412.0
+		self.SaneScanner.br_y = 583.0
 
 		# make tmp file name
 		# for now we know it's bitmap
@@ -615,13 +615,13 @@ class scanFrame(wxPanel):
 		fname = tempfile.mktemp('.jpg')
 		try:
 			# initiate the scan
-			scanner.start()
+			self.SaneScanner.start()
 			# get an Image object
-			img = scanner.snap()
+			img = self.SaneScanner.snap()
 			#save image file to disk
 			img.save(fname)
 			# and keep a reference
-			self.acquired_pages.appen(fname)
+			self.acquired_pages.append(fname)
 
 			# FIXME:
 			#if more_images_pending:
@@ -949,7 +949,10 @@ else:
 			return (_('Tools'), _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.7  2002-11-17 17:07:03  ncq
+# Revision 1.8  2002-11-17 17:09:43  ncq
+# - yet more sane fixes
+#
+# Revision 1.7  2002/11/17 17:07:03  ncq
 # - various sane related fixes
 #
 # Revision 1.6  2002/11/17 16:24:13  ncq
