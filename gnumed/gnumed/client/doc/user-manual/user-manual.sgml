@@ -1079,13 +1079,10 @@ Click on the Python icon and type:
 </sect2>
 
 </sect1>
-</chapter>
 
-<chapter id="configuration">
-     <title>Configuration</title>
 <sect1 id="pgsql" xreflabel="SQL Setup">
-<title>Configuring <application>PostgreSQL</application> for GnuMed</title>
-      <para>This section applies is distribtuion/OS independant.</para>
+<title>Generic database installation</title>
+      <para>This section is distribution/OS independant.</para>
 
 	<sect2>
 	<title>GnuMed database 101</title>
@@ -1208,8 +1205,10 @@ $language library dirs$
         in <literal>bootstrap-gm_db_system.conf.sample</literal>.
         </para>
 </sect1>
+</chapter>
 
-
+<chapter id="configuration">
+     <title>Configuration</title>
 
       <sect1 id="confignotes">
 	<title>Language configuration</title>
