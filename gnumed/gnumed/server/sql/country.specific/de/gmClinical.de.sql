@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmClinical.de.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -21,32 +21,35 @@ CREATE TABLE lab_test_GNR (
 select add_table_for_audit('lab_test_gnr');
 
 COMMENT ON TABLE lab_test_GNR is
-	'specific for Germany, GNR = GebührenordnungsNummeR = billing
+	'specific for Germany, GNR = GebuehrenordnungsNummeR = billing
 	 item, build index before lab import and drop afterwards, check
 	 against this table when importing, build table during import';
 COMMENT ON COLUMN lab_test_GNR.id_test IS
 	'link to test in our practice';
 --COMMENT ON COLUMN lab_test_GNR.EBM is
---	'GNR according to EBM (Einheitlicher BewertungsMaßstab)
+--	'GNR according to EBM (Einheitlicher BewertungsMassstab)
 --	 for Kassenpatienten (gov''t insured patients)';
 --COMMENT ON COLUMN lab_test_GNR.GOA_88 is
---	'GNR according to GOAe 88 (GebuehrenOrdnung für Aerzte)
+--	'GNR according to GOAe 88 (GebuehrenOrdnung fuer Aerzte)
 --	 for Privatpatienten (privately insured patients)';
 --COMMENT ON COLUMN lab_test_GNR.GOA_96 is
---	'GNR according to GOAe 96 (GebuehrenOrdnung für Aerzte)
+--	'GNR according to GOAe 96 (GebuehrenOrdnung fuer Aerzte)
 --	 for Privatpatienten (privately insured patients)';
 --COMMENT ON COLUMN lab_test_GNR.BG_GOA is
---	'GNR according to GOAe (GebuehrenOrdnung für Aerzte) for
+--	'GNR according to GOAe (GebuehrenOrdnung fuer Aerzte) for
 --	 Berufsgenossenschaften (sector specific job related
 --	 health insurance)';
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: gmClinical.de.sql,v $
--- Revision 1.9  2003-11-05 23:02:38  hinnef
+-- Revision 1.10  2003-12-29 16:01:54  uid66147
+-- - umlauts breakage
+--
+-- Revision 1.9  2003/11/05 23:02:38  hinnef
 -- rollback
 --
 -- Revision 1.8  2003/11/05 23:00:37  hinnef
