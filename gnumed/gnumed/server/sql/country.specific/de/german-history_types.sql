@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-history_types.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- part of GnuMed
 -- GPL
@@ -19,7 +19,7 @@
 insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'presenting complaint', 'jetzige Beschwerden');
 insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'history of present illness', 'Jetztanamnese');
+	('de_DE', 'history of present illness', 'Jetzt-Anamnese');
 insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'past', '? Eigenanamnese');
 insert into i18n_translations(lang, orig, trans) values
@@ -44,10 +44,13 @@ insert into i18n_translations(lang, orig, trans) values
 -- =============================================
 -- do simple revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-history_types.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-history_types.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: german-history_types.sql,v $
--- Revision 1.1  2003-01-26 15:33:52  ncq
+-- Revision 1.2  2003-01-26 15:35:49  ncq
+-- - typo
+--
+-- Revision 1.1  2003/01/26 15:33:52  ncq
 -- - some more translations for gmclinical.sql
 --
