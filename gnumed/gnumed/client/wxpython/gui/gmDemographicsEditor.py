@@ -1,21 +1,19 @@
-"""GnuMed demographics editor plugin
+"""GnuMed demographics editor plugin.
 """
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-__version__ = "$Revision: 1.9 $"
-__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
+# $Id: gmDemographicsEditor.py,v 1.10 2004-08-24 14:28:42 ncq Exp $
+__version__ = "$Revision: 1.10 $"
+__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = 'GPL'
+
 import sys
 
-from Gnumed.pycommon import gmLog
+from Gnumed.pycommon import gmLog, gmI18N
 from Gnumed.wxpython import gmPlugin, gmDemographics
-from Gnumed.business import gmDemographicRecord
 
-gmLog.gmDefLog.Log(gmLog.lData, __version__)
+gmLog.gmDefLog.Log(gmLog.lInfo, __version__)
 
-from wxPython.wx import *
-
-if __name__ == '__main__':
-	_ = lambda x:x
 #================================================================
 class gmDemographicsEditor(gmPlugin.cNotebookPluginOld):
 	tab_name = _("Patient Details")
@@ -32,7 +30,7 @@ class gmDemographicsEditor(gmPlugin.cNotebookPluginOld):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('tools', _("editor for demographics"))
+		return ('tools', _("demographics editor"))
 
 	def can_receive_focus(self):
 		# need patient (unless we use this as a first-off patient input widget)
@@ -40,17 +38,15 @@ class gmDemographicsEditor(gmPlugin.cNotebookPluginOld):
 	#		return None
 		return 1
 
-	# FIXME: I can't see why we'd need this ?
-#	def newPatient(self):
-#		self._widget.newPatient()
-
 #================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
+	from wxPython import wx
+
 	# catch all remaining exceptions
 	try:
-		application = wxPyWidgetTester(gmDemographicsEditorPlugin, (640,400))
+		application = wx.wxPyWidgetTester(gmDemographicsEditorPlugin, (640,400))
 		application.MainLoop()
 	except StandardError:
 		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
@@ -60,7 +56,10 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.9  2004-08-04 17:16:02  ncq
+# Revision 1.10  2004-08-24 14:28:42  ncq
+# - cleanup
+#
+# Revision 1.9  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
