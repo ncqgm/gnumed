@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.165 2005-03-14 18:16:52 cfmoro Exp $
-__version__ = "$Revision: 1.165 $"
+# $Id: gmClinicalRecord.py,v 1.166 2005-03-17 21:15:29 cfmoro Exp $
+__version__ = "$Revision: 1.166 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1565,6 +1565,20 @@ where pk_episode in %s and pk_patient = %s"""
 			return None
 		return data
 	#------------------------------------------------------------------
+	def problem2episode(self, problem):
+		"""
+		Retrieve the cEpisode instance equivalent to the given problem.
+		The problem's type attribute must be 'episode'
+		
+		@param problem: The problem to retrieve its related episode for
+		@type problem: A gmEMRStructItems.cProblem instance
+		"""
+		if problem['type'] != 'episode':
+			_log.Log(gmLog.lErr, 'cannot convert non episode problem to episode: problem [%s] type [%s]' % (problem['problem'], problem['type']))
+			return None
+		episode = self.get_episodes(id_list=[problem['pk_episode']])[0]
+		return episode
+	#------------------------------------------------------------------
 	# unchecked stuff
 	#------------------------------------------------------------------
         def store_referral (self, cursor, text, form_id):
@@ -1614,7 +1628,9 @@ if __name__ == "__main__":
 		problems = emr.get_problems()
 		print 'Problems:'
 		for a_problem in problems:
-			print '    %s' % a_problem
+			print '    -[problem:"%s"] [type:"%s"]' % (a_problem['problem'], a_problem['type'])
+			if a_problem['type'] == 'episode':
+				print '      .as episode: %s' % emr.problem2episode(a_problem)
 		
 		# Vacc regimes
 		vacc_regimes = emr.get_scheduled_vaccination_regimes(indications = ['tetanus'])
@@ -1694,7 +1710,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.165  2005-03-14 18:16:52  cfmoro
+# Revision 1.166  2005-03-17 21:15:29  cfmoro
+# Added problem2episode cast method
+#
+# Revision 1.165  2005/03/14 18:16:52  cfmoro
 # Create episode according to only_standalone_epi_has_patient backend constraint
 #
 # Revision 1.164  2005/03/14 14:27:21  ncq
