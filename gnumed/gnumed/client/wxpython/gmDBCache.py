@@ -18,7 +18,10 @@
 #
 #       #then, create the appropriate constructor
 #	def __init__(...)
-#		cachedDBObject.__init__(...)
+#		#now create a reference to the static variable
+#		self.cache = Derived.dbcache
+#		#and pass it to the constructor
+#		cachedDBObject.__init__( cache=self.cache...)
 #               #__init__ MUST call the base class constructor
 #
 # When creating more than one instance from "Derived",
@@ -52,7 +55,9 @@
 # standard Python modules
 import copy, threading
 # GNUmed modules
-import gmLog
+import gmLog, gmPG
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class DBcache:
 	"prototype for a database object cache 'static' (singleton) information"
@@ -75,15 +80,24 @@ class DBcache:
 		                        #to prevent unneccessary widget updates
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 class CachedDBObject:
 
 	#static private variables (singleton style):
-	dbcache = DBcache()
+	__dbcache = DBcache()
 
-	def __init__(self, id=None, db=None, querystr=None, lazy=None, expiry=None):
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	def __init__(self, cache=None, id=None, db=None, querystr=None, lazy=None, expiry=None):
 
 		#derived classes MUST replace CachedDBObject with their own classname!
-		exec("self.cache = %s.dbcache" % self.__class__.__name__)
+		if cache is None:
+			self.cache = CachedDBObject.__dbcache
+		else:
+			self.cache = cache
+		#exec("self.cache = %s.dbcache" % self.__class__.__name__)
 
 		self.who = None	#ID for callback function
 
@@ -111,12 +125,16 @@ class CachedDBObject:
 		#		"' expiry='" + str(self.cache.expiry) + "'")
 		#</DEBUG>
 
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 	def reset(self):
 		"force a re-query of buffer on next data access attempt"
 		self.cache.querylock.acquire(1)
 		self.cache.buffer = None
 		self.cache.lastquery = None
 		self.cache.querylock.release()
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	def setQueryStr(self, querystr):
 		if self.cache.querystr != querystr :
@@ -126,17 +144,25 @@ class CachedDBObject:
 			#_myLog.Log(gmLog.lData, "changing query to SQL>>>" + str(querystr) + "<<<SQL")
 			#</DEBUG>
 
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 	def getQueryStr(self):
 		return copy.copy(self.cache.querystr)
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	def setId(self, id):
 		if self.cache.id != id:
 			self.cache.id = id
 			self.reset()
 
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 	def getId(self):
 		"get the ID of the current object"
 		return self.cache.id
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 	def get(self, id=None, by_reference=0):
@@ -167,6 +193,7 @@ class CachedDBObject:
 			self.cache.querylock.release()
 		return buf
 
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 	def notify_me(self, who, callback=None):
@@ -187,6 +214,10 @@ class CachedDBObject:
 			self.who = who	#remember who I am
 			self.cache.notify[who] = callback
 
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 	def queue_notification(self, queue=1):
 		"simple helper mechanism to ensure only the most recent thread updates widgets on data change"
 		self.cache.notifylock.acquire(1)
@@ -198,6 +229,9 @@ class CachedDBObject:
 		self.cache.notifyqueue = notifyqueue
 		self.cache.notifylock.release()
 		return notifyqueue
+
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 	def notify(self):
@@ -228,10 +262,16 @@ class CachedDBObject:
 		nq = self.queue_notification(0) #finished notifying, we can reset the queue
 
 
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 	def attributes(self):
 		"returns row attributes ('field names')"
 		return self.cache.attributes
+
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 	def pprint(self):
 		"format buffer content in printable form"
@@ -243,6 +283,9 @@ class CachedDBObject:
 				pstr =  "%s %s | " % (pstr, str(attr))
 			pstr = pstr + "\n"
 		return pstr
+
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 	def __query(self):
@@ -264,7 +307,12 @@ class CachedDBObject:
 			#<DEBUG>
 			#print "Executing %s\n" % self.cache.querystr
 			#</DEBUG>
-			cursor.execute(self.cache.querystr)
+			if self.cache.id is not None:
+				querystr = self.cache.querystr % self.cache.id
+			else:
+				querystr = self.cache.querystr
+			print "Executing query " , querystr
+			cursor.execute(querystr)
 			print "filling buffer"
 			self.cache.buffer = copy.deepcopy(cursor.fetchall())
 			self.cache.attributes = gmPG.fieldNames(cursor)
@@ -272,6 +320,7 @@ class CachedDBObject:
 			self.cache.querylock.release()
 		#now let everybody know that our buffer has changed
 		self.notify()
+
 
 
 ##############################################################
@@ -284,12 +333,14 @@ if __name__ == "__main__":
 	class tables(CachedDBObject):
 		dbcache = DBcache()
 		def __init__(self, db):
-			CachedDBObject.__init__(self, id=-1, db=db, querystr="select * from pg_tables where tablename not like 'pg_%'")
+			cache=tables.dbcache
+			CachedDBObject.__init__(self, cache, db=db, querystr="select * from pg_tables where tablename not like 'pg_%'")
 
 	class dbs(CachedDBObject):
 		dbcache = DBcache()
 		def __init__(self, db):
-			CachedDBObject.__init__(self, id=-1, db=db, querystr="select datname from pg_database")
+			cache=dbs.dbcache
+			CachedDBObject.__init__(self, cache, db=db, querystr="select datname from pg_database")
 
 
 	#<DEBUG>
@@ -307,7 +358,7 @@ if __name__ == "__main__":
 	db = conn.GetConnection('default')
 
 	#instance of the base class
-	databases = CachedDBObject(db=db, id=-1, querystr="select * from pg_database")
+	databases = CachedDBObject(db=db, querystr="select * from pg_database")
 	#register callback function for base class instance
 	databases.notify_me("main", callback)
 
@@ -356,6 +407,9 @@ if __name__ == "__main__":
 	print databases.pprint()
 	print "-----------------------------------------------------"
 	print dbl2.pprint()
+
+	print "This should be true (1):", dbl.cache is dbl2.cache
+	print "This should be false(0):", dbl.cache is tablelist.cache
 
 
 
