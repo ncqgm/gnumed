@@ -21,7 +21,7 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -144,3 +144,6 @@ if __name__ == "__main__":
 #<DEBUG>
 #	gmLog.gmDefLog.Log(gmLog.lInfo, 'Shutting down as main module.')
 #</DEBUG>
+
+else:
+	print "Nothing useful here."
