@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -767,6 +767,13 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 		- ! None: return (data, idx)
 	- if query fails: data is None
 	- if query is not a row-returning SQL statement: data is None
+	
+	- data is a list of tuples [ (w, x,y,z) , (a,b,c, d), ..], each tuple is table row.
+	- idx is a map of column name to a position in a tuple. 
+		e.g. { 'name': 3, 'id':0, 'job_description': 2, 'location':1 } 
+		
+		usage:  e.g. data[0][idx['name']] would return z from [(w,x,y,z ),(a,b,c,d)]
+	
 	"""
 	# sanity checks
 	if link_obj is None:
@@ -946,7 +953,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.19 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.20 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1174,7 +1181,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.19  2004-05-13 00:00:54  ncq
+# Revision 1.20  2004-05-15 15:07:53  sjtan
+#
+# more comments on run_ro_query return values.
+#
+# Revision 1.19  2004/05/13 00:00:54  ncq
 # - deescalate apparent DB API violation to lData as it seems very common and harmless
 #
 # Revision 1.18  2004/05/06 23:26:09  ncq
