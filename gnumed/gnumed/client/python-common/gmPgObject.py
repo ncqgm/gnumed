@@ -19,10 +19,13 @@
 
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.4 $"                                               
+__version__ = "$Revision: 1.5 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 # $Log: gmPgObject.py,v $
-# Revision 1.4  2002-10-23 22:08:49  hherb
+# Revision 1.5  2002-10-24 21:41:40  hherb
+# quoting of strings in write queries
+#
+# Revision 1.4  2002/10/23 22:08:49  hherb
 # saving changes to backend partially implemented (query string generation); still needs quoting fixed
 #
 # Revision 1.3  2002/10/23 15:05:47  hherb
@@ -194,21 +197,27 @@ class pgobject:
 		if len(self._modified) > 0:
 			if self._fetched > 0:
 				#existing data has been modified
-				colvals = "%s = %s" % (self._modified[0], self._row[self._index[self._modified[0]]])
+				colvals = "%s = %s" % (self._modified[0], self._quote(self._row[self._index[self._modified[0]]]))
 				for column in self._modified[1:]:
-					colvals = "%s , %s = %s" % (colvals, column, self._row[self._index[column]])
+					colvals = "%s , %s = %s" % (colvals, column, self._quote(self._row[self._index[column]]))
 				query = "update %s set %s where %s = %s" % (self._tablename, colvals, self._pkcolumn, self._primarykey)
 				print query
 			else:
 				#a new row has to be inserted
 				columns = self._modified[0]
-				values = self._row[seldf._index[self._modified[0]]]
+				values = self._quote(self._row[seldf._index[self._modified[0]]])
 				for column in self._modified[1:]:
 					columns = "%s, %s" % (columns, column)
-					values = "%s, %s" % (values, self._row[seldf._index[column]])
+					values = "%s, %s" % (values, self._quote(self._row[seldf._index[column]]))
 				query = "insert into %s(%s) values(%s)" % (self._tablename, columns, values)
 				print query
 			
+	def _quote(self, arg):
+		if type(arg) is str:
+			q = "'%s'" % arg
+		else:
+			q = str(arg)
+		return q
 			
 	
 	def _fetch(self, primarykey):
