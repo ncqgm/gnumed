@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.159 2004-07-15 14:02:43 ncq Exp $
-__version__ = "$Revision: 1.159 $"
+# $Id: gmGuiMain.py,v 1.160 2004-07-15 18:41:22 ncq Exp $
+__version__ = "$Revision: 1.160 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -32,6 +32,7 @@ from wxPython.wx import *
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
 from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmTopPanel, gmPlugin
 from Gnumed.business import gmPatient
+from Gnumed.pycommon.gmPyCompat import *
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
@@ -197,7 +198,10 @@ class gmTopLevelFrame(wxFrame):
 			#==========
 			self.vbox.Add (self.mainpanel, 10, wxEXPAND | wxALL, 1)
 
+		# this list relates plugins to the notebook
+		self.guibroker['main.notebook.plugins'] = []	# (used to be called 'main.notebook.numbers')
 		self.guibroker['main.notebook'] = self.nb
+
 		self.__register_events()
 		# this flag prevents pointless repaeated reloading of accelerator table during startup
 		self.dont_touch_accels = 1
@@ -376,6 +380,8 @@ class gmTopLevelFrame(wxFrame):
 		EVT_MAXIMIZE(self, self.OnMaximize)
 		# - notebook page is about to change
 		EVT_NOTEBOOK_PAGE_CHANGING (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanging)
+		# - notebook page has been changed
+		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanged)
 		# - popup menu on right click in notebook
 		EVT_RIGHT_UP(self.nb, self._on_right_click)
 
@@ -391,24 +397,66 @@ class gmTopLevelFrame(wxFrame):
 	def OnNotebookPageChanging(self, event):
 		"""Called before notebook page change is processed.
 		"""
+		self.__new_page_is_checked = False
 		# FIXME: this is the place to tell the old page to
 		# make it's state permanent somehow,
 		# in general, call any "validators" for the
 		# old page here
-		id_old_page = event.GetOldSelection()
+		self.__id_prev_page = event.GetOldSelection()
 		id_new_page = event.GetSelection()
-		if id_new_page != id_old_page:
-			for key, item in self.plugins.items():
-				if item['n'] == id_new_page:
-					ret = gmDispatcher.send (gmSignals.display_plugin (), sender=self, name=key)
-					break
-			for receiver, response in ret:
-				if response == 'veto':
-					event.Veto()
-					return
-		else:
-			_log.Log(gmLog.lData, 'cannot check if page change needs to be veto()ed')
+		if id_new_page == self.__id_prev_page:
+			# we don't have any way of knowing which page is going to be it,
+			# the docs say that on Windows GetSelection() returns the old page
+			# ID, eg. the same value that GetOldSelection() returns
+			_log.Log(gmLog.lData, 'cannot check whether page change needs to be veto()ed')
+			event.Skip() # required for MSW
+			return
+		# check new page
+		new_page = self.guibroker['main.notebook.plugins'][id_new_page]
+		if not new_page.can_receive_focus():
+			event.Veto()
+			return
+#		for key, item in self.plugins.items():
+#			if item['n'] == id_new_page:
+#				ret = gmDispatcher.send (gmSignals.display_plugin (), sender=self, name=key)
+#				break
+#		for receiver, response in ret:
+#			if response == 'veto':
+#				event.Veto()
+#				return
+		self.__new_page_is_checked = True
 		event.Skip() # required for MSW
+	#----------------------------------------------
+	def OnNotebookPageChanged(self, event):
+		"""Called when notebook changes.
+
+		FIXME: we can maybe change title bar information here
+		"""
+		id_new_page = event.GetSelection()
+		id_old_page = event.GetOldSelection()
+		# get access to selected page
+		new_page = self.guibroker['main.notebook.plugins'][id_new_page]
+		# do we need to check the new page ?
+		if self.__new_page_is_checked or new_page.can_receive_focus():
+			new_page.ReceiveFocus()
+			# activate toolbar of new page
+			self.top_panel.ShowBar(new_page.__class__.__name__)
+			event.Skip() # required for MSW
+			return
+
+		_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows and Mac OSX)")
+		# let's try a trick
+		if id_old_page != id_new_page:
+			_log.Log(gmLog.lInfo, 'veto()ing with SetSelection(id_old_page)')
+			event.SetSelection(id_old_page)
+		# or two
+		elif self.__id_prev_page != id_new_page:
+			_log.Log(gmLog.lInfo, 'veto()ing with SetSelection(self.__id_prev_page)')
+			event.SetSelection(self.__id_prev_page)
+		else:
+			_log.Log(gmLog.lInfo, 'cannot even veto page change with tricks')
+		event.Skip()
+		return
 	#----------------------------------------------
 	def SetNotebook (self, id_new_page=-1, name=""):
 		"""Programmatic version of the above
@@ -521,14 +569,15 @@ class gmTopLevelFrame(wxFrame):
 			if not isinstance(plugin, gmPlugin.wxNotebookPlugin):
 				plugin = None
 				continue
-			# already loaded
-			if plugin.__class__.__name__ in self.plugins.keys():
+			# already loaded ?
+#			if plugin.__class__.__name__ in self.plugins.keys():
+			if plugin.__class__.__name__ in self.guibroker['modules.gui'].keys():
 				plugin = None
 				continue
 			# add to load menu
 			nid = wxNewId()
-			load_menu.AppendItem(wxMenuItem(load_menu, nid, plugin.label or plugin.name()))
-			print plugin
+#			load_menu.AppendItem(wxMenuItem(load_menu, nid, plugin.label or plugin.name()))
+			load_menu.AppendItem(wxMenuItem(load_menu, nid, plugin.name()))
 			EVT_MENU(load_menu, nid, plugin.on_load)
 			any_loadable = 1
 		# make menus
@@ -537,20 +586,38 @@ class gmTopLevelFrame(wxFrame):
 		ID_DROP = wxNewId()
 		if any_loadable:
 			menu.AppendMenu(ID_LOAD, _('add plugin ...'), load_menu)
-		n = self.nb.GetSelection ()
-		for key, item in self.plugins.items ():
-			if item['type'] == 'notebook' and item['n'] == n:
-				raised_plugin = key
-				break
-		print "raised_plugin %s" % raised_plugin
+		plugins = self.guibroker['main.notebook.plugins']
+#		n = self.nb.GetSelection ()
+#		for key, item in self.plugins.items ():
+#			if item['type'] == 'notebook' and item['n'] == n:
+#				raised_plugin = key
+#				break
+		raised_plugin = plugins[self.nb.GetSelection()].name()
 		menu.AppendItem(wxMenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))
-		EVT_MENU (menu, ID_DROP, lambda e: self.on_unload_plugin (name=raised_plugin))
+#		EVT_MENU (menu, ID_DROP, lambda e: self.on_unload_plugin (name=raised_plugin))
+		EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
 		self.PopupMenu(menu, evt.GetPosition())
+
 		menu.Destroy()
 		evt.Skip()
 
-	def loadmenu (self, plugin):
-		print "asked to load %s" % str (plugin)
+#	def loadmenu (self, plugin):
+#		print "asked to load %s" % str (plugin)
+	#----------------------------------------------		
+	def _on_drop_plugin(self, evt):
+		"""Unload plugin and drop from load list."""
+		plugins = self.guibroker['main.notebook.plugins']
+		plugin = plugins[self.nb.GetSelection()]
+		plugin.unregister()
+		# FIXME: set selection to another plugin
+		# FIXME:"dropping" means talking to configurator so not reloaded
+	#----------------------------------------------
+	def OnPluginHide (self, evt):
+		"""Unload plugin but don't touch configuration."""
+		# this dictionary links notebook page numbers to plugin objects
+		plugins = self.guibroker['main.notebook.plugins']
+		plugin = plugins[self.nb.GetSelection()]
+		plugin.unregister()
 	#----------------------------------------------
 	def OnFileExit(self, event):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
@@ -576,11 +643,29 @@ class gmTopLevelFrame(wxFrame):
 		"""
 		# signal imminent demise to plugins
 		gmDispatcher.send(gmSignals.application_closing())
-		if self.bar_width != 210: # user changed the sidebar size -- remember that
-			gmCfg.setDBParam(machine = _whoami.get_workplace(),
-					 user = _whoami.get_db_account(),
-					 option = 'main.window.sidebar_width',
-					 value = self.bar_width )
+		# remember GUI size
+		curr_width, curr_height = self.GetClientSizeTuple()
+		_log.Log(gmLog.lInfo, 'GUI size at shutdown: [%s:%s]' % (curr_width, curr_height))
+		gmCfg.setDBParam(
+			machine = _whoami.get_workplace(),
+			user = _whoami.get_db_account(),
+			option = 'main.window.width',
+			value = curr_width
+		)
+		gmCfg.setDBParam(
+			machine = _whoami.get_workplace(),
+			user = _whoami.get_db_account(),
+			option = 'main.window.height',
+			value = curr_height
+		)
+		# user changed the sidebar size -- remember that
+		if self.bar_width != 210:
+			gmCfg.setDBParam(
+				machine = _whoami.get_workplace(),
+				user = _whoami.get_db_account(),
+				option = 'main.window.sidebar_width',
+				value = self.bar_width
+			)
 		# handle our own stuff
 		gmPG.ConnectionPool().StopListeners()
 		try:
@@ -897,7 +982,13 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.159  2004-07-15 14:02:43  ncq
+# Revision 1.160  2004-07-15 18:41:22  ncq
+# - cautiously go back to previous notebook plugin handling
+#   avoiding to remove too much of Ian's new work
+# - store window size across sessions
+# - try a trick for veto()ing failing notebook page changes on broken platforms
+#
+# Revision 1.159  2004/07/15 14:02:43  ncq
 # - refactored out __set_GUI_size() from TopLevelFrame.__init__()
 #   so cleanup will be easier
 # - added comment on layout managers
