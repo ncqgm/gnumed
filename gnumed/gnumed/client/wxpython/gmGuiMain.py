@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.94 2003-04-08 21:24:14 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmGuiMain.py,v 1.95 2003-04-25 13:03:07 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -440,7 +440,6 @@ class MainFrame(wxFrame):
 		self.Destroy()
 		gmDispatcher.send(gmSignals.application_clean_closing())
 
-				
 	#----------------------------------------------
 	def OnClose(self,event):
 		self.CleanExit()
@@ -646,7 +645,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.94  2003-04-08 21:24:14  ncq
+# Revision 1.95  2003-04-25 13:03:07  ncq
+# - just some silly whitespace fix
+#
+# Revision 1.94  2003/04/08 21:24:14  ncq
 # - renamed gmGP_Toolbar -> gmTopPanel
 #
 # Revision 1.93  2003/04/04 20:43:47  ncq
