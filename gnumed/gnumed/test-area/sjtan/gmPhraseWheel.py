@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/sjtan/Attic/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.1 2003-10-06 09:16:21 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPhraseWheel.py,v 1.2 2003-10-06 13:25:13 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -596,8 +596,10 @@ class cPhraseWheel (wxTextCtrl):
 		# recalculate position
 		# FiXME: check for number of entries - shrink list windows
 		(x,y) = self.ClientToScreenXY (0,0)
+		(px,py) = self.GetParent().ClientToScreenXY(0,0)
+		
 		dim = self.GetSize ()
-		self.__picklist_win.MoveXY(x  , y+ dim.height)
+		self.__picklist_win.MoveXY(x -px  , y - py + dim.height)
 
 		# select first value
 		self._picklist.SetSelection(0)
@@ -833,7 +835,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.1  2003-10-06 09:16:21  sjtan
+# Revision 1.2  2003-10-06 13:25:13  sjtan
+#
+# positioning fixup, ( may need a getTopMost window function later).
+#
+# Revision 1.1  2003/10/06 09:16:21  sjtan
 #
 # this version of editArea works with the modified phraseWheel and dateInput in
 # the same directory.
