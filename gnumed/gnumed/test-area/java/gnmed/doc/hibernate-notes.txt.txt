@@ -1,0 +1,19 @@
+6/9/2003
+Some interesting points about hibernate behaviour when debugging the contact creation:
+
+The problem was that when an address failed to parse , saving was still being allowed on
+the provider object with an invalid address . This would throw an error in save(), 
+and leave an object still in the cache unsaved. This object would interfere with 
+any queries using the same connection. 
+
+A solution was to use a new session for any queries. The objects returned by the query need
+to be non-lazy so that the query session can be closed. Then the object can by used 
+in the long running main session .
+
+The idea of the long running main session was to allow for lazy attributes of the identity object;
+so that the identity objects could be loaded lightly during the findIdentity use case. 
+However, this was eventually reversed due to a problems with trying to read the lazily loaded
+collection objects before they are written, so that only the proxy stubs were there.
+Still need to figure this one out ( how to have an object loaded lazily, but have it's lazy
+state made actual when an access is tried on it).
+
