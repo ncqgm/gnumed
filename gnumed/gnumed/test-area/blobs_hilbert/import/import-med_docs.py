@@ -14,7 +14,7 @@ search for FIXME to find places to fix
 #######################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/import/Attic/import-med_docs.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 
 # modules
 import os, fileinput, string, time, sys, os.path
@@ -32,6 +32,8 @@ _cfg = gmCfg.gmDefCfgFile
 if _cfg is None:
 	_log.Log (gmLog.lPanic, "cannot run without config file")
 	sys.exit(1)
+
+import gmI18N
 
 from docPatient import cPatient
 from docDocument import cDocument
@@ -176,7 +178,10 @@ sys.exit(0)
 
 #=========================================================
 # $Log: import-med_docs.py,v $
-# Revision 1.9  2002-12-22 23:59:31  ncq
+# Revision 1.10  2003-01-24 09:22:17  ncq
+# - need gmI18N for some modules
+#
+# Revision 1.9  2002/12/22 23:59:31  ncq
 # - mark successfully imported directories for later removal
 #
 # Revision 1.8  2002/11/23 16:45:21  ncq
