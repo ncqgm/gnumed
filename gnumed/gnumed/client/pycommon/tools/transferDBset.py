@@ -2,7 +2,7 @@
 
 # license GPL
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/tools/transferDBset.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 #=====================================================
@@ -10,14 +10,10 @@ import sys,os
 # location of our modules                                                       
 sys.path.append(os.path.join('.', 'modules'))
 
-import gmLog
+from Gnumed.pycommon import gmLog, gmCfg, gmConfigCommon, gmCLI
 gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
-
-import gmCfg
 _cfg = gmCfg.gmDefCfgFile
-import gmConfigCommon
 
-import gmCLI
 #=====================================================
 def usage():
 	print "Usage"
@@ -86,7 +82,10 @@ else:
 sys.exit(0)
 #=====================================================
 # $Log: transferDBset.py,v $
-# Revision 1.2  2004-07-19 11:50:42  ncq
+# Revision 1.3  2005-03-18 08:10:46  hinnef
+# fixed module dependencies
+#
+# Revision 1.2  2004/07/19 11:50:42  ncq
 # - cfg: what used to be called "machine" really is "workplace", so fix
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq
