@@ -12,7 +12,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -32,10 +32,8 @@ gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 #</DEBUG>
 
 import gmCfg, gmI18N
-from docPatient import *
 from gmPhraseWheel import *
-import docDocument
-import docXML
+import docDocument					# -> neu schreiben, gmXMLDoc.py
 
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
@@ -625,31 +623,34 @@ class indexFrame(wxPanel):
 	# internal methods
 	#----------------------------------------
 	def __load_patient(self):
-		# later on we might want to provide access
-		# to other methods of getting the patient
+		"""Get data of patient for which to index documents.
 
-		# get patient data from BDT/XDT file
+		- later on we might want to provide access
+		  to other methods of getting the patient
+		"""
 		pat_file = os.path.abspath(os.path.expanduser(_cfg.get("index", "patient file")))
+		# FIXME: actually handle pat_format, too  :-)
 		pat_format = _cfg.get("index", "patient file format")
-		self.myPatient = cPatient()
-		if not self.myPatient.loadFromFile(pat_format, pat_file):
-			_log.Log(gmLog.lPanic, "Cannot read patient from %s file [%s]" % (pat_format, pat_file))
-			dlg = wxMessageDialog(
-				self,
-				_('Cannot load patient from %s file\n[%s]\nPlease consult the error log for details.') % (pat_format, pat_file),
-				_('Error'),
-				wxOK | wxICON_ERROR
+		_log.Log(gmLog.lWarn, 'patient file format is [%s]' % pat_format)
+		_log.Log(gmLog.lWarn, 'however, we only handle xDT files so far')
+
+		# get patient data from xDT file
+		try:
+			self.__xdt_patient = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
+		except:
+			_log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
+			self.__show_error(
+				aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
+				aTitle = _('loading patient from xDT file')
 			)
-			dlg.ShowModal()
-			dlg.Destroy()
 			return None
 
 		return 1
 	#----------------------------------------
 	def __fill_pat_fields(self):
-		self.TBOX_first_name.SetValue(self.myPatient.firstnames)
-		self.TBOX_last_name.SetValue(self.myPatient.lastnames)
-		self.TBOX_dob.SetValue(self.myPatient.dob)
+		self.TBOX_first_name.SetValue(self.__xdt_patient['first name'])
+		self.TBOX_last_name.SetValue(self.__xdt_patient['last name'])
+		self.TBOX_dob.SetValue("%s.%s.%s" % (self.__xdt_patient['dob day'], self.__xdt_patient['dob month'], self.__xdt_patient['dob year']))
 	#----------------------------------------
 	def __clear_doc_fields(self):
 		# clear fields
@@ -713,13 +714,13 @@ class indexFrame(wxPanel):
 		content.append('<%s>\n' % tag)
 
 		tag = _cfg.get("metadata", "name_tag")
-		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.lastnames, tag))
+		content.append('<%s>%s</%s>\n' % (tag, self.__xdt_patient['last name'], tag))
 
 		tag = _cfg.get("metadata", "firstname_tag")
-		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.firstnames, tag))
+		content.append('<%s>%s</%s>\n' % (tag, self.__xdt_patient['first name'], tag))
 
 		tag = _cfg.get("metadata", "birth_tag")
-		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.dob, tag))
+		content.append('<%s>%s</%s>\n' % (tag, self.__xdt_patient['dob'], tag))
 
 		tag = _cfg.get("metadata", "date_tag")
 		content.append('<%s>%s</%s>\n' % (tag, self.TBOX_doc_date.GetLineText(0), tag))
@@ -957,7 +958,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.1  2003-04-06 09:43:14  ncq
+# Revision 1.2  2003-04-19 22:51:57  ncq
+# - switch from docPatient to xdtPatient go get away from docPatient's import gmPG
+#
+# Revision 1.1  2003/04/06 09:43:14  ncq
 # - moved here from test-area/blobs_hilbert/
 #
 # Revision 1.27  2003/03/01 14:40:10  ncq
