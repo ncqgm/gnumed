@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.1 2003-02-15 14:21:49 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmXdtViewer.py,v 1.2 2003-02-15 15:33:58 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys,os,fileinput,string,linecache
@@ -297,7 +297,7 @@ else:
 		def ReceiveFocus(self):
 			# get file name
 			# - via file select dialog
-			aWildcard = "%s (*.BDT)|*.bdt|%s (*.*)|*.*" % (_("xDT file"), _("all files"))
+			aWildcard = "%s (*.BDT)|*.BDT|%s (*.*)|*.*" % (_("xDT file"), _("all files"))
 			aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', "gnumed")))
 			dlg = wxFileDialog(
 				parent = NULL,
@@ -320,7 +320,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.1  2003-02-15 14:21:49  ncq
+# Revision 1.2  2003-02-15 15:33:58  ncq
+# - typo
+#
+# Revision 1.1  2003/02/15 14:21:49  ncq
 # - on demand loading of Manual
 # - further pluginization of showmeddocs
 #
