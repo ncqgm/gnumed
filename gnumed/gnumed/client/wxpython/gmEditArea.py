@@ -3,9 +3,11 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.31 2003-06-01 01:47:33 sjtan Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmEditArea.py,v 1.32 2003-06-24 12:58:15 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "R.Terry, K.Hilbert"
+
+# TODO: standard SOAP edit area
 #====================================================================
 import sys, traceback
 
@@ -1094,7 +1096,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.31  2003-06-01 01:47:33  sjtan
+# Revision 1.32  2003-06-24 12:58:15  ncq
+# - added TODO item
+#
+# Revision 1.31  2003/06/01 01:47:33  sjtan
 #
 # starting allergy connections.
 #
