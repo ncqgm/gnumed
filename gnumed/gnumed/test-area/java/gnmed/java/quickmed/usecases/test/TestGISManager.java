@@ -6,7 +6,7 @@
 
 package quickmed.usecases.test;
 import org.gnumed.gmGIS.*;
-
+import org.gnumed.gmIdentity.identity;
 
 import gnmed.test.HibernateInit;
 
@@ -165,5 +165,61 @@ public class TestGISManager {
             sess.close();
         }
         return found;
+    }
+    
+    /**
+     *  updates the address of the identity for a particular type.
+     *  currently, just clears old address references, but might
+     *have an active flag on identities_address instead to remember
+     *old addresses.
+     */
+    public identity updateAddress( identity id, address_type type, address newAddress) {
+        Session sess = null;
+        identities_addresses ia = null;
+        try {
+              sess =  HibernateInit.openSession();
+              Iterator j = sess.iterate( "select ia from identity i inner join i.identities_addressess ia where "+
+              "i.id = ? and ia.address_type.name like ?",
+              new Object[] { id.getId(), type.getName() },
+              new Type[] { Hibernate.INTEGER, Hibernate.STRING } );
+              if (j.hasNext()) {
+                  ia = (identities_addresses) j.next();
+                  sess.delete( ia.getAddress());
+                   ia.setAddress(newAddress);
+                  sess.flush();
+                  sess.update(ia);
+                  
+                  // the logic can be changed to just delete the old address
+                  // and then call id.setIdentityAddress
+                  
+              } else 
+                  id.setIdentityAddress(type, newAddress);
+              // the default operation is to forget the old addresses 
+              while (j.hasNext()) {
+                sess.delete(j.next());
+              }
+             
+               sess.flush();
+               sess.connection().commit();
+//              ia = new identities_addresses();
+//              ia.setAddress(newAddress);
+//              ia.setAddress_type(type);
+//              id.addIdentities_addresses(ia);
+////              sess.save(ia);
+//              sess.flush();
+//              sess.update(id);
+//              sess.flush();
+//              sess.connection().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+            sess.close();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return id;
+        
     }
 }

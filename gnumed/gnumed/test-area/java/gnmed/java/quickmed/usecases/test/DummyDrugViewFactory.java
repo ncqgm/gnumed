@@ -57,7 +57,7 @@ public class DummyDrugViewFactory implements Factory {
     
     
     
-    public List getConvertedList(Object arg) {
+    public List getConvertedList() {
         List l2 = new ArrayList();
        Collection l = getIdentity().getScript_drugs();
         for (Iterator i = l.iterator(); i.hasNext(); ) {

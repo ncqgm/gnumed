@@ -133,4 +133,17 @@ public class SelectionDialogListObjectTableModelLinker implements CellEditorList
             this.dialog = dialog;
         }
         
+        public void setDialogColumn(String columnName) {
+            for ( int i = 0; i < getTable().getModel().getColumnCount() ; ++i) {
+                if (columnName.equals( getTable().getModel().getColumnName(i)) ) {
+                    setDialogColumn( getTable().getColumnModel().getColumn(i) );
+                    return;
+                }
+            }
+        }
+        
+        public void  setDialogColumn( javax.swing.table.TableColumn column) {
+             column.setCellEditor(new DefaultCellEditor(new JTextField())); // so not null next line.
+             column.getCellEditor().addCellEditorListener(this);
+        }
 }

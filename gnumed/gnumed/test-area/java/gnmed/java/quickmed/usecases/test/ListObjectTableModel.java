@@ -8,6 +8,7 @@ package quickmed.usecases.test;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.util.*;
+import java.util.logging.*;
 import java.beans.*;
 import java.lang.reflect.*;
 import java.text.*;
@@ -16,9 +17,9 @@ import java.text.*;
  * @author  sjtan
  */
 public class ListObjectTableModel  extends AbstractTableModel {
-    
+    static Logger logger = Logger.global;
     /** Holds value of property list. */
-    private java.util.List list;
+    private java.util.List list = new ArrayList();
     
     /** Holds value of property columnPropertyDescriptors. */
     private PropertyDescriptor[] columnPropertyDescriptors;
@@ -47,6 +48,9 @@ public class ListObjectTableModel  extends AbstractTableModel {
     /** Holds value of property oldValue. */
     private Object oldValue;
     
+    /** Holds value of property defaultEditorsLoaded. */
+    private boolean defaultEditorsLoaded;
+    
     /** Creates a new instance of ListObjectTableModel */
     public ListObjectTableModel() {
     }
@@ -69,6 +73,8 @@ public class ListObjectTableModel  extends AbstractTableModel {
         if (getList() == null)
             return null;
         try {
+//            setRow(row);
+//            setCol(col);
             Object o = getList().get(rowIndex);
             PropertyDescriptor pd = getColumnPropertyDescriptors()[columnIndex];
             return pd.getReadMethod().invoke(o,  new Object[0]);
@@ -79,6 +85,7 @@ public class ListObjectTableModel  extends AbstractTableModel {
     }
     
     public void setValueAt(Object value) {
+        logger.info("USING STORED ROW = " + getRow() + " STORED COL= " + getCol());
         setValueAt(value, getRow(), getCol());
     }
     
@@ -88,10 +95,10 @@ public class ListObjectTableModel  extends AbstractTableModel {
             PropertyDescriptor pd = getColumnPropertyDescriptors()[col];
             Class type = pd.getPropertyType();
             if (  Number.class.isAssignableFrom(type) && value instanceof String) {
-                    Method m = type.getMethod("decode", new Class[] { String.class } );
-                    value =  m.invoke(type, new Object[] { value });
+                Method m = type.getMethod("decode", new Class[] { String.class } );
+                value =  m.invoke(type, new Object[] { value });
             }
-           java.util.logging. Logger.global.info("INVOKING ON " + o + " With Value=" + value +
+            java.util.logging. Logger.global.info("INVOKING ON " + o + " With Value=" + value +
             "with method " + pd.getWriteMethod().getName() );
             Object oldValue = pd.getReadMethod().invoke( o, new Object[0]);
             pd.getWriteMethod().invoke(o, new Object[] { value } );
@@ -107,8 +114,10 @@ public class ListObjectTableModel  extends AbstractTableModel {
     }
     
     public boolean isCellEditable(int row, int col) {
-        if (col == 0)
-            return false;
+        //        if (col == 0)
+        //            return false;
+        setRow(row);
+        setCol(col);
         return true;
     }
     
@@ -127,7 +136,7 @@ public class ListObjectTableModel  extends AbstractTableModel {
         if (getBeanClass().isAssignableFrom(o.getClass())) {
             getList().add(o);
             fireTableDataChanged();
-          
+            
         }
     }
     /** Setter for property list.
@@ -197,7 +206,7 @@ public class ListObjectTableModel  extends AbstractTableModel {
                 return i;
         }
         return -1;
-    }    
+    }
     
     /** Adds a PropertyChangeListener to the listener list.
      * @param l The listener to add.
@@ -205,7 +214,7 @@ public class ListObjectTableModel  extends AbstractTableModel {
      */
     public void addPropertyChangeListener(java.beans.PropertyChangeListener l) {
         propertyChangeSupport.addPropertyChangeListener(l);
-    }    
+    }
     
     /** Removes a PropertyChangeListener from the listener list.
      * @param l The listener to remove.
@@ -287,6 +296,14 @@ public class ListObjectTableModel  extends AbstractTableModel {
         add(getFactory().newInstance());
     }
     
+    public void loadDefaultEditors( TableColumnModel model) {
+        PropertyDescriptor[] pd = getColumnPropertyDescriptors();
+        for (int i = 0; i < pd.length; ++i) {
+            if (Date.class.isAssignableFrom(pd[i].getPropertyType()) )
+                model.getColumn(i).setCellEditor( new ShortDateCellEditor() );
+        }
+    }
+    
     /** Getter for property factory.
      * @return Value of property factory.
      *
@@ -301,15 +318,15 @@ public class ListObjectTableModel  extends AbstractTableModel {
      */
     public void setFactory(Factory factory) {
         this.factory = factory;
-       setBeanClass(factory.newInstance().getClass());
+        setBeanClass(factory.newInstance().getClass());
         if ( LimitedViewable.class.isAssignableFrom(getBeanClass())) {
             setViewFromLimitedViewable((LimitedViewable) factory.newInstance());
-            }
+        }
     }
     
     void setViewFromLimitedViewable( LimitedViewable lv ) {
         try {
-             setVisibleProperties(lv.getClass(), lv.getLimitedView() );
+            setVisibleProperties(lv.getClass(), lv.getLimitedView() );
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -329,6 +346,22 @@ public class ListObjectTableModel  extends AbstractTableModel {
      */
     public void setOldValue(Object oldValue) {
         this.oldValue = oldValue;
+    }
+    
+    /** Getter for property defaultEditorsLoaded.
+     * @return Value of property defaultEditorsLoaded.
+     *
+     */
+    public boolean isDefaultEditorsLoaded() {
+        return this.defaultEditorsLoaded;
+    }
+    
+    /** Setter for property defaultEditorsLoaded.
+     * @param defaultEditorsLoaded New value of property defaultEditorsLoaded.
+     *
+     */
+    public void setDefaultEditorsLoaded(boolean defaultEditorsLoaded) {
+        this.defaultEditorsLoaded = defaultEditorsLoaded;
     }
     
 }

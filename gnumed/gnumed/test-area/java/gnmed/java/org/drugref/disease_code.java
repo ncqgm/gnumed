@@ -49,7 +49,7 @@ public class disease_code {
     private Integer id;
     
     /** Holds value of property id_system. */
-    private String id_system;
+    private Integer id_system;
     
    ///////////////////////////////////////
    // access methods for associations
@@ -130,7 +130,7 @@ public class disease_code {
      * @return Value of property id_code_systems.
      * @hibernate.property
      */
-    public String getId_system() {
+    public Integer getId_system() {
         return this.id_system;
     }
     
@@ -138,8 +138,12 @@ public class disease_code {
      * @param id_code_systems New value of property id_code_systems.
      *
      */
-    public void setId_system(String id_system) {
+    public void setId_system(Integer id_system) {
         this.id_system = id_system;
+    }
+    
+    public String toString() {
+        return getDescription()+": "+getCode();
     }
     
  // end setDescription        

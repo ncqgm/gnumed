@@ -212,20 +212,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="javax.swing.JTable" name="jTable1">
-                      <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Dialog" size="10" style="0"/>
-                        </Property>
-                        <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="3" rowCount="4">
-                            <Column editable="true" title="Date" type="java.lang.Object"/>
-                            <Column editable="false" title="No" type="java.lang.Object"/>
-                            <Column editable="true" title="Significant Problems-Past and Current" type="java.lang.Object"/>
-                          </Table>
-                        </Property>
-                        <Property name="columnModel" preCode="javax.swing.table.TableColumnModel colModel= new javax.swing.table.DefaultTableColumnModel();&#xa;colModel.addColumn(new javax.swing.table.TableColumn(0,5));&#xa;colModel.addColumn(new javax.swing.table.TableColumn(1,3));&#xa;colModel.addColumn(new javax.swing.table.TableColumn(2));&#xa;"/>
-                      </Properties>
+                    <Component class="quickmed.usecases.test.TableWithPopup" name="tableWithPopup2">
                     </Component>
                   </SubComponents>
                 </Container>

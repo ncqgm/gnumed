@@ -492,16 +492,31 @@ public class identity {
         return null;
     }
     
-     public  void setIdentityAddress( address_type  type, address a) {
+    
+    /** this method will create a identities_addresses association
+     *  if there is not one found existing for the address type for this identity.
+     *  Otherwise, it will replace the address referenced and returns the
+     *  old address.
+     *
+     * @returns the old address, if there was one for the address_type and identity.
+     *
+     */
+    public  address setIdentityAddress( address_type  type, address a) {
         identities_addresses ia = findIdentityAddressByAddressType(type);
         if (ia == null) {
             ia = new identities_addresses();
             ia.setAddress_type(type);
+            
             ia.setAddress(a);
             addIdentities_addresses(ia);
-            return;
+            
+            return null;
         }
+        
+        address old = ia.getAddress();
         ia.setAddress(a);
+        return old;
+        
     }
     
     public identities_addresses findIdentityAddressByAddressType(final address_type a) {

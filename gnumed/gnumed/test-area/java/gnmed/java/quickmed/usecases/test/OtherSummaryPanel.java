@@ -19,35 +19,41 @@ import org.gnumed.gmIdentity.*;
  */
 public class OtherSummaryPanel extends javax.swing.JPanel {
     public static final int DATE_WIDTH=70;
+    public static final int PREF_PROBLEM_WIDTH=300;
     public static final int NO_WIDTH=30;
     public static final int MAX_DIFF=100;
+    public static final int DRUG_WIDTH = 200;
+    public static final int DIRECTIONS_WIDTH = 200;
     
-    ListObjectTableModel drugModel;
+    ListObjectTableModel drugModel, problemModel;
     PrescribeDialog dialog ;
+    Ref idRef = new Ref() {
+        public Object getRef() {
+            return getIdentity();
+        }
+    };
+    
     /** Creates new form OtherSummaryPanel */
     public OtherSummaryPanel() {
         initComponents();
+        createDrugTableModel();
+        createProblemTableModel();
         resizeManagementColumns();
         resizeProblemColumns();
-        setDrugTableModel();
+        resizeDrugColumns();
     }
     
-    void setDrugTableModel() {
+    void createDrugTableModel() {
         ListObjectTableModel model = new ListObjectTableModel();
         DummyDrugViewFactory factory = new DummyDrugViewFactory();
-        factory.setIdentityRef( new Ref() {
-                    public Object getRef() {
-                         return getIdentity();
-                    }
-        }     );
-        
+        factory.setIdentityRef( idRef );
         model.setFactory(factory);
-        model.setList(new java.util.ArrayList());
-        
         model.newObject();
         drugModel = model;
         
         tableWithPopup1.setModel(model);
+        model.loadDefaultEditors(tableWithPopup1.getTable().getColumnModel());
+        
         //DefaultRenderer DOESN'T SEEM TO WORK THE WAY I THINK IT SHOOULD
         tableWithPopup1.getTable().setDefaultRenderer(java.util.Date.class, new ShortDateCellRenderer());
         //        OtherSummaryPanel.LinkDrugDialogCellEditorListener l = new OtherSummaryPanel.LinkDrugDialogCellEditorListener();
@@ -56,23 +62,48 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         l2.setTable( tableWithPopup1.getTable());
         l2.setDialog( new PrescribeDialog((Frame) SwingUtilities.getAncestorOfClass(Frame.class,
         OtherSummaryPanel.this), true ) );
-        
-        
-        getDrugTableColumn("drug").setCellEditor(new DefaultCellEditor(new JTextField())); // so not null next line.
-        
-        getDrugTableColumn("drug").getCellEditor().addCellEditorListener( l2);
+        l2.setDialogColumn("drug");
     }
     
-    javax.swing.table.TableColumn getDrugTableColumn( String name) {
-        ListObjectTableModel model = (ListObjectTableModel) tableWithPopup1.getModel();
-        return tableWithPopup1.getTable().getColumnModel().getColumn(model.getColumnByName(name));
+    void createProblemTableModel() {
+        ListObjectTableModel model = new ListObjectTableModel();
+        TestProblemViewFactory factory = new TestProblemViewFactory();
+        factory.setIdRef(idRef);
+        model.setFactory(factory);
+        model.newObject();
+        tableWithPopup2.setModel(model);
+        model.loadDefaultEditors(tableWithPopup2.getTable().getColumnModel());
+        SelectionDialogListObjectTableModelLinker l2 = new SelectionDialogListObjectTableModelLinker();
+        l2.setTable( tableWithPopup2.getTable());
+        l2.setDialog( new ProblemDialog((Frame) SwingUtilities.getAncestorOfClass(Frame.class,
+        OtherSummaryPanel.this), true ) );
+        l2.setDialogColumn("significantProblem");
+        problemModel = model;
     }
-    
+    //    javax.swing.table.TableColumn getDrugTableColumn( String name) {
+    //        ListObjectTableModel model = (ListObjectTableModel) tableWithPopup1.getModel();
+    //        return tableWithPopup1.getTable().getColumnModel().getColumn(model.getColumnByName(name));
+    //    }
+    //
     protected void resizeProblemColumns() {
-        jTable1.getColumnModel().getColumn(0).setPreferredWidth(DATE_WIDTH);
-        jTable1.getColumnModel().getColumn(1).setPreferredWidth(NO_WIDTH);
-        jTable1.getColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH+MAX_DIFF);
-        jTable1.getColumnModel().getColumn(1).setMaxWidth(NO_WIDTH +MAX_DIFF/3);
+        tableWithPopup2.getTable().getColumnModel().getColumn(0).setPreferredWidth(DATE_WIDTH);
+        tableWithPopup2.getTable().getColumnModel().getColumn(1).setPreferredWidth(PREF_PROBLEM_WIDTH);
+        tableWithPopup2.getTable().getColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH*2);
+             tableWithPopup2.getTable().getColumnModel().getColumn(0).setMinWidth(DATE_WIDTH /4);
+        tableWithPopup2.getTable().getColumnModel().getColumn(1).setMaxWidth(PREF_PROBLEM_WIDTH +MAX_DIFF/3);
+        
+    }
+    protected void resizeDrugColumns() {
+        tableWithPopup1.getTable().getColumnModel().getColumn(0).setPreferredWidth(DATE_WIDTH);
+        tableWithPopup1.getTable().getColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH + NO_WIDTH);
+        
+        tableWithPopup1.getTable().getColumnModel().getColumn(1).setPreferredWidth(DRUG_WIDTH);
+        tableWithPopup1.getTable().getColumnModel().getColumn(1).setMaxWidth(DRUG_WIDTH + MAX_DIFF);
+        
+        tableWithPopup1.getTable().getColumnModel().getColumn(2).setPreferredWidth(DIRECTIONS_WIDTH );
+        tableWithPopup1.getTable().getColumnModel().getColumn(2).setMaxWidth(DIRECTIONS_WIDTH + MAX_DIFF);
+        
+        
         
     }
     protected void resizeManagementColumns() {
@@ -109,7 +140,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tableWithPopup2 = new quickmed.usecases.test.TableWithPopup();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable3 = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -220,31 +251,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
         jScrollPane1.setBorder(new javax.swing.border.TitledBorder(null, "Significant problems - past and present", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
-        jTable1.setFont(new java.awt.Font("Dialog", 0, 10));
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Date", "No", "Significant Problems-Past and Current"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                true, false, true
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        javax.swing.table.TableColumnModel colModel= new javax.swing.table.DefaultTableColumnModel();
-        colModel.addColumn(new javax.swing.table.TableColumn(0,5));
-        colModel.addColumn(new javax.swing.table.TableColumn(1,3));
-        colModel.addColumn(new javax.swing.table.TableColumn(2));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tableWithPopup2);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 2;
@@ -480,12 +487,18 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     public void setIdentity(identity identity) {
         this.identity = identity;
         updateDrugView();
+        updateProblemView();
     }
     
     void updateDrugView() {
-       drugModel.setList( drugModel.getFactory().getConvertedList( getIdentity().getScript_drugs()));
-       drugModel.newObject();
-//       drugModel.fireTableDataChanged();
+        drugModel.setList( drugModel.getFactory().getConvertedList());
+        drugModel.newObject();
+        //       drugModel.fireTableDataChanged();
+    }
+    
+    void updateProblemView() {
+        problemModel.setList( problemModel.getFactory().getConvertedList() );
+        problemModel.newObject();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -515,7 +528,6 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JSplitPane jSplitPane3;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
     private javax.swing.JTable jTable4;
@@ -530,136 +542,11 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
     private quickmed.usecases.test.TableWithPopup tableWithPopup1;
+    private quickmed.usecases.test.TableWithPopup tableWithPopup2;
     // End of variables declaration//GEN-END:variables
     //    TableCellEditor testDrugEditor;
     
     /** Holds value of property identity. */
     private identity identity;
-    
-    //    class LinkDrugDialogCellEditorListener implements CellEditorListener {
-    //
-    //        /** Holds value of property data. */
-    //        private Object data;
-    //
-    //        /** Holds value of property model. */
-    //        private ListObjectTableModel model;
-    //
-    //        public void editingCanceled(ChangeEvent e) {
-    //        }
-    //
-    //
-    //        public void editingStopped(ChangeEvent e) {
-    //            initDialog();
-    //            positionAndSizeDialog();
-    //            Object val = getCellEditorValue(e.getSource());
-    //            if ( val instanceof String)
-    //                dialog.setSearchText((String) val);
-    //            dialog.show();
-    //            Logger.global.info( "Dialog selected val = " + dialog.getSelectedItem());
-    //            if ( dialog.getSelectedItem() instanceof String)
-    //                return;
-    //            setValueAtTableCell( dialog.getSelectedItem());
-    //      }
-    //
-    //        void initDialog() {
-    //            if (dialog == null)
-    //                dialog = new PrescribeDialog(
-    //                (java.awt.Frame) SwingUtilities.getAncestorOfClass(java.awt.Frame.class,
-    //                OtherSummaryPanel.this), true );
-    //        }
-    //
-    //        Object getCellEditorValue(Object source) {
-    //            TableCellEditor ed = ( TableCellEditor) source;
-    //            return  ed.getCellEditorValue();
-    //        }
-    //
-    //        void positionAndSizeDialog() {
-    //            dialog.setLocation(tableWithPopup1.getLocationOnScreen());
-    //            dialog.setSize( tableWithPopup1.getToolkit().getScreenSize().width /2, tableWithPopup1.getToolkit().getScreenSize().height /2);
-    //        }
-    //        void setValueAtTableCell(Object o)  {
-    //             ((ListObjectTableModel)tableWithPopup1.getModel()).setValueAt(o);
-    //            setData(dialog.getSelectedItem());
-    //        }
-    //        public void setData(Object data) {
-    //            this.data = data;
-    //        }
-    //
-    //        /** Getter for property model.
-    //         * @return Value of property model.
-    //         *
-    //         */
-    //        public ListObjectTableModel getModel() {
-    //            return this.model;
-    //        }
-    //
-    //        /** Setter for property model.
-    //         * @param model New value of property model.
-    //         *
-    //         */
-    //        public void setModel(ListObjectTableModel model) {
-    //            this.model = model;
-    //        }
-    //
-    //    }
-    
-    //
-    //
-    //    class DrugEditor implements javax.swing.table.TableCellEditor {
-    //        int row, column;
-    //        JComboBox comboBox = new DrugComboBoxA();
-    //
-    //        javax.swing.table.TableCellEditor  worker = new DefaultCellEditor(new JTextField());
-    //
-    //        public JComboBox getComboBox() {
-    //            return comboBox;
-    //        }
-    //        public void addCellEditorListener(javax.swing.event.CellEditorListener l) {
-    //            worker.addCellEditorListener(l);
-    //        }
-    //
-    //        public void cancelCellEditing() {
-    //            worker.cancelCellEditing();
-    //        }
-    //
-    //        public Object getCellEditorValue() {
-    //            return   worker.getCellEditorValue();
-    //        }
-    //
-    //        public java.awt.Component getTableCellEditorComponent(javax.swing.JTable table, Object value, boolean isSelected, int row, int column) {
-    //            this.row = row;
-    //            this.column = column;
-    //            return worker.getTableCellEditorComponent(table, value, isSelected, row, column);
-    //        }
-    //
-    //        public boolean isCellEditable(java.util.EventObject anEvent) {
-    //            return worker.isCellEditable(anEvent);
-    //        }
-    //
-    //        public void removeCellEditorListener(javax.swing.event.CellEditorListener l) {
-    //            worker.removeCellEditorListener(l);
-    //        }
-    //
-    //        public boolean shouldSelectCell(java.util.EventObject anEvent) {
-    //            return worker.shouldSelectCell(anEvent);
-    //        }
-    //
-    //        public boolean stopCellEditing() {
-    //            return worker.stopCellEditing();
-    //        }
-    //
-    //        /** Getter for property object.
-    //         * @return Value of property object.
-    //         *
-    //         */
-    //
-    //        public int getRow() {
-    //            return row;
-    //        }
-    //
-    //        public int getColumn() {
-    //            return column;
-    //        }
-    //    }
     
 }

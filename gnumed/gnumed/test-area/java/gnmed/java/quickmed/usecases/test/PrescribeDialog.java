@@ -259,7 +259,8 @@ public class PrescribeDialog extends javax.swing.JDialog implements SearchSelect
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
+       
         new PrescribeDialog(new javax.swing.JFrame(), true).show();
     }
     

@@ -14,6 +14,6 @@ public interface Factory {
     
   Object newInstance();
     
-  public List getConvertedList(Object arg);
+  public List getConvertedList();
   
 }

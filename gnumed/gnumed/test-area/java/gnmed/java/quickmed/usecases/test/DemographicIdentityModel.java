@@ -642,10 +642,12 @@ public class DemographicIdentityModel implements  DemographicModel {
             street s = TestGISManager.instance().findStreetByNameAndUrb(street, urb );
             if ( s == null) {
                 s = new street();
+                logger.info("street created");
             }
+            else logger.info("street found ");
             s.setUrb( urb );
             s.setName(street);
-            logger.info("new street created = " + s.getUrb().getName() + " : " + s.getName());
+           logger.info( "street="  + s.getUrb().getName() + " : " + s.getName());
             return s;
             
         } catch (Exception e) {
@@ -667,8 +669,8 @@ public class DemographicIdentityModel implements  DemographicModel {
         
         address a = getAddressWithNumber(number);
         a.setStreet(street);
-        getIdentity().setIdentityAddress(homeAddress, a);
-        
+//        getIdentity().setIdentityAddress(homeAddress, a);
+        TestGISManager.instance().updateAddress(getIdentity(), homeAddress, a);
         //    getUiModel().setAddress(getAddress());
     }
     
