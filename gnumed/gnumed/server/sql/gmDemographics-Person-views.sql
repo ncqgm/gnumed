@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.23 2004-10-19 23:27:11 sjtan Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.24 2004-12-15 04:18:03 ihaywood Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -153,8 +153,8 @@ create view v_basic_person as
 select
 	i.id as id, i.id as i_id, n.id as n_id,
 	i.title as title, n.firstnames as firstnames, n.lastnames as lastnames,
-	--n.aka as aka,
-	i.dob as dob, i.cob as cob, i.gender as gender
+	i.dob as dob, i.cob as cob, i.gender as gender, i.karyotype as karyotype,
+	i.marital_status as marital_status, n.preferred as preferred
 from
 	identity i, names n
 where
@@ -309,11 +309,16 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.23 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.24 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.23  2004-10-19 23:27:11  sjtan
+-- Revision 1.24  2004-12-15 04:18:03  ihaywood
+-- minor changes
+-- pointless irregularity in v_basic_address
+-- extended v_basic_person to more fields.
+--
+-- Revision 1.23  2004/10/19 23:27:11  sjtan
 -- this came up as script stopping bug , when run inside a in-order
 -- concatenated monolithic sql script.
 --

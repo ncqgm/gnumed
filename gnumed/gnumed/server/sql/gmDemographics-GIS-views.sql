@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -18,7 +18,7 @@
 -- update and delete that will update the underlying tables accordingly
 create view v_basic_address as
 select
-	adr.id as addr_id,
+	adr.id as id,
 	s.country as country,
 	s.code as state,
 	coalesce (str.postcode, urb.postcode) as postcode,
@@ -209,7 +209,7 @@ CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
 			 FROM urb, state
 			 WHERE
 				urb.name = NEW.city AND
-				urb.postcode = NEW.postcode AND
+				urb.postcode = NEW.postcode  AND
 				urb.id_state = state.id AND
 				state.code = NEW.state AND
 				state.country = NEW.country
@@ -371,11 +371,16 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.12 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.11  2004-09-19 17:13:48  ncq
+-- Revision 1.12  2004-12-15 04:18:03  ihaywood
+-- minor changes
+-- pointless irregularity in v_basic_address
+-- extended v_basic_person to more fields.
+--
+-- Revision 1.11  2004/09/19 17:13:48  ncq
 -- - propagate suburb into all the right places
 --
 -- Revision 1.10  2004/07/17 20:57:53  ncq
