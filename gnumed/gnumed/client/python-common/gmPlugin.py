@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback
@@ -237,18 +237,20 @@ def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 		gmLog.gmDefLog.LogException ('Cannot import module "%s.%s": %s' % (aPackage, plugin_name, err), exc)
 		return None
 
-	if issubclass (plugin_class, wxBasePlugin):
-		log (lInfo, "registering plugin %s" % plugin_name)
-		plugin = plugin_class(guibroker = guibroker, dbbroker = dbbroker)
-		plugin.register ()
-		guibroker['modules.%s' % aPackage][plugin.name()] = plugin
-	else:
+	if not issubclass (plugin_class, wxBasePlugin):
 		log (lErr, "class %s is not a subclass of wxBasePlugin" % plugin_name)
 		return None
 
-#	except Exception, error:
-#		frame = traceback.extract_tb (sys.exc_info ()[2])[-1]
-#		log (lErr, "cannot load module %s/%s:\nException: %s\nFile: %s\nLine: %s\n" % (aPackage, plugin_name, error, frame[0], frame[1]))
+	log (lInfo, "registering plugin %s" % plugin_name)
+	try:
+		plugin = plugin_class(guibroker = guibroker, dbbroker = dbbroker)
+		plugin.register ()
+	except Exception, err:
+		exc = sys.exc_info()
+		gmLog.gmDefLog.LogException ('Cannot register module "%s.%s": %s' % (aPackage, plugin_name, err), exc)
+		return None
+
+	guibroker['modules.%s' % aPackage][plugin.name()] = plugin
 #------------------------------------------------------------------
 # (TODO: get plugin list from gmconfiguration for this user).
 def GetAllPlugins (set):
