@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -424,16 +424,16 @@ class cLogTargetConsole(cLogTarget):
 		self.writeMsg (lData, "instantiated console logging with ID " + str(self.ID))
 	#---------------------------
 	def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		try:
+		try: 
 			sys.stdout.write(aPrefix + aLocation + aMsg)
-		except:
-			print "*** cannot write to STDOUT ***"
+		except IOError:
+			print aPrefix + aLocation + aMsg
 	#---------------------------
 	def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
 		try:
 			sys.stderr.write(aPrefix + aLocation + aMsg)
-		except:
-			print "*** cannot write to STDERR ***"
+		except IOError:
+			print aPrefix + aLocation + aMsg
 #---------------------------------------------------------------
 class cLogTargetSyslog(cLogTarget):
 	def __init__ (self, aLogLevel = lErr):
@@ -814,7 +814,11 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-03-02 10:19:53  ihaywood
+# problems with accessing sys.stderr
+# use "print" as backup now
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.45  2003/11/19 18:09:33  ncq
