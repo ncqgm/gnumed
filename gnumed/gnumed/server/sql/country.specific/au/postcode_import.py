@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-
 usagestr = """
 
 Creates an import script for relevant post code data
@@ -55,16 +54,14 @@ ID_WA = offset+8
 
 states = { 'ACT':ID_ACT, 'NSW':ID_NSW, 'NT':ID_NT, 'SA':ID_SA, 'TAS':ID_TAS, 'QLD':ID_QLD, 'VIC':ID_VIC, 'WA':ID_WA }
 
-print "BEGIN WORK;"
-print "INSERT INTO state(id, code, country, name) VALUES (%d, 'ACT', 'AU', 'Australian Capital Territory');" % (ID_ACT)
-print "INSERT INTO state(id, code, country, name) VALUES (%d, 'NSW', 'AU', 'New South Wales');" % (ID_NSW)
-print "INSERT INTO state(id, code, country, name) VALUES (%d, 'NT', 'AU', 'Northern Territory');" % (ID_NT)
-print "INSERT INTO state(id, code, country, name) VALUES (%d, 'SA', 'AU', 'South Australia');" % (ID_SA)
-print "INSERT INTO state(id, code, country, name) VALUES (%d, 'TAS', 'AU', 'Tasmania');" % (ID_TAS)
-print "INSERT INTO state(id, code, country, name) VALUES (%d, 'QLD', 'AU', 'Queensland');" % (ID_QLD)
-print "INSERT INTO state(id, code, country, name) VALUES (%d, 'VIC', 'AU', 'Victoria');" % (ID_VIC)
-print "INSERT INTO state(id, code, country, name) VALUES (%d, 'WA', 'AU', 'West Australia');" % (ID_WA)
-print "COMMIT WORK;"
+print "INSERT INTO state(code, country, name) VALUES ('ACT', 'AU', 'Australian Capital Territory');"
+print "INSERT INTO state(code, country, name) VALUES ('NSW', 'AU', 'New South Wales');"
+print "INSERT INTO state(code, country, name) VALUES ('NT', 'AU', 'Northern Territory');"
+print "INSERT INTO state(code, country, name) VALUES ('SA', 'AU', 'South Australia');"
+print "INSERT INTO state(code, country, name) VALUES ('TAS', 'AU', 'Tasmania');"
+print "INSERT INTO state(code, country, name) VALUES ('QLD', 'AU', 'Queensland');"
+print "INSERT INTO state(code, country, name) VALUES ('VIC', 'AU', 'Victoria');"
+print "INSERT INTO state(code, country, name) VALUES ('WA', 'AU', 'West Australia');"
 
 f = open(filename)
 lines = f.readlines()
@@ -80,19 +77,22 @@ for line in lines:
 		continue
 
 	if count==MAXCOUNT:
-		print "COMMIT WORK;"
 		begun=0
 		count=0
 
 	if count==0:
-		print "BEGIN WORK;"
 		begun=1
 
 	count +=1
-	l = string.split(line, import_delimiter)
+	tmp = string.split(line, import_delimiter)
 	#get rid of the quotation marks of the imported fields
 	# FIXME: must get rid of duplicates !!!
-	print "INSERT INTO urb(id_state, postcode, name) values (%d, %s, '%s');" % (states[l[state][1:-1]], l[pcode][1:-1], safestr(l[locality][1:-1]))
+	cmd = "insert into urb (id_state, postcode, name) values ((select id from state where code='%s'), %s, '%s');" % (
+		tmp[state][1:-1],
+		tmp[pcode][1:-1],
+		safestr(tmp[locality][1:-1])
+	)
+	print cmd
 
 if begun:
-	print "COMMIT WORK;"
+	pass
