@@ -23,7 +23,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -34,6 +34,17 @@ def popup_notice():
 def popup_alert():
 	"an important notice of general ineterest has been received"
 	return 'popup_alert'
+#-------------------------------------------------------------
+# clinical signals
+#-------------------------------------------------------------
+# allergies
+def allergy_add_del_db():
+	"""Announce insertion/deletion of allergy row into/from backend."""
+	return 'allergy_add_del_db'
+
+def allergy_updated():
+	"""Announce allergy cache update to interested parties."""
+	return 'allergy_updated'
 #-------------------------------------------------------------
 def patient_selected():
 	"the current active patient displayed by the client has been selected"
@@ -93,7 +104,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.6  2003-02-12 23:39:12  sjtan
+# Revision 1.7  2003-05-01 15:01:42  ncq
+# - add allergy signals
+#
+# Revision 1.6  2003/02/12 23:39:12  sjtan
 #
 # new signals for initialization and teardown of other modules less dependent on gui.
 #
