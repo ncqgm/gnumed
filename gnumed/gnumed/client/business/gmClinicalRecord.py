@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.33 2003-07-09 16:20:18 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmClinicalRecord.py,v 1.34 2003-07-19 20:17:23 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -77,28 +77,16 @@ class gmClinicalRecord:
 
 		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.id_patient)
 	#--------------------------------------------------------
-	def __del__(self):
-		if _log is not None:
-			_log.Log(gmLog.lData, 'cleaning up after clinical record for patient [%s]' % self.id_patient)
-		if self._ro_conn_clin is not None:
-			self._backend.Unlisten(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted)
-			self._backend.ReleaseConnection('historica')
-	#--------------------------------------------------------
-	# cache handling
-	#--------------------------------------------------------
-	def commit(self):
-		"""Do cleanups before dying.
+	def cleanup(self):
+		_log.Log(gmLog.lData, 'cleaning up after clinical record for patient [%s]' % self.id_patient)
+		sig = "%s:%s" % (gmSignals.item_change_db(), self.id_patient)
+		self._backend.Unlisten(service = 'historica', signal = sig, callback = self._clin_item_modified)
+		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.id_patient)
+		self._backend.Unlisten(service = 'historica', signal = sig, callback = self._health_issues_modified)
 
-		- note that this may be called in a thread
-		"""
-		# unlisten to signals
-		print "unimplemented: committing clinical record data"
-	#--------------------------------------------------------
-	def invalidate_cache(self):
-		"""Called when the cache turns cold.
+		self._backend.Unlisten(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted)
 
-		"""
-		print "unimplemented: invalidating clinical record data cache"
+		self._backend.ReleaseConnection('historica')
 	#--------------------------------------------------------
 	# internal helper
 	#--------------------------------------------------------
@@ -131,6 +119,9 @@ class gmClinicalRecord:
 			return None
 		if not self._backend.Listen(service = 'historica', signal = gmSignals.health_issue_change_db(), callback = self._health_issues_modified):
 			return None
+		sig = "%s:%s" % (gmSignals.item_change_db(), self.id_patient)
+		if not self._backend.Listen(service = 'historica', signal = sig, callback = self._clin_item_modified):
+			return None
 		return 1
 	#--------------------------------------------------------
 	def _allergy_added_deleted(self):
@@ -162,7 +153,7 @@ class gmClinicalRecord:
 		return 1
 	#--------------------------------------------------------
 	def _health_issues_modified(self):
-		_log.Log(gmLog.lData, 'DB signals modification of health issues table')
+		_log.Log(gmLog.lData, 'DB: clin_health_issue modification')
 		try:
 			del self.__db_cache['health issues']
 		except KeyError:
@@ -170,15 +161,8 @@ class gmClinicalRecord:
 		gmDispatcher.send(signal = gmSignals.health_issue_updated(), sender = self.__class__.__name__)
 		return 1
 	#--------------------------------------------------------
-#	def _patient_modified(self):
-		# uh, oh, cache may have been modified ...
-		# <DEBUG>
-#		_log.Log(gmLog.lData, "patient_modified signal received from backend")
-		# </DEBUG>
-		# this is fraught with problems:
-		# can we safely just throw away the cache ?
-		# we may have new data in there ...
-#		self.invalidate_cache()
+	def _clin_item_modified(self):
+		_log.Log(gmLog.lData, 'DB: clin_root_item modification')
 	#--------------------------------------------------------
 	# __setitem__ handling
 	#--------------------------------------------------------
@@ -265,11 +249,11 @@ class gmClinicalRecord:
 		emr_data = {}
 		# get item data from all source tables
 		for table_name in items_by_table.keys():
-			item_ids = tuple(items_by_table[table_name].keys())
+			item_ids = items_by_table[table_name].keys()
 			# we don't know anything about the columns of
 			# the source tables but, hey, this is a dump
-			cmd = "select * from %s where id in (%%s) order by modified_when" % table_name
-			if not gmPG.run_query(curs, cmd, item_ids):
+			cmd = "select * from %s where id in %%s order by modified_when" % table_name
+			if not gmPG.run_query(curs, cmd, (tuple(item_ids),)):
 				_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % table_name)
 				# skip this table
 				continue
@@ -290,6 +274,7 @@ class gmClinicalRecord:
 					issue_name = issue_map[view_row[view_col_idx['id_health_issue']]]
 				except:
 					issue_name = view_row[view_col_idx['id_health_issue']]
+
 				if not emr_data.has_key(age):
 					emr_data[age] = []
 
@@ -313,12 +298,13 @@ class gmClinicalRecord:
 				for col_name in table_col_idx.keys():
 					if col_name in cols2ignore:
 						continue
-					col_data.append("%s: %s" % (col_name, row[table_col_idx[col_name]]))
-				emr_data[age].append(">>> %s (%s from table %s)" % (
-					string.join(col_data, ' | '),
+					emr_data[age].append(">>> %s <<<" % col_name)
+					emr_data[age].append(row[table_col_idx[col_name]])
+				emr_data[age].append(">>> %s from table %s <<<" % (
 					view_row[view_col_idx['modified_string']],
 					table_name
 				))
+#				emr_data[age].append("------------------------------------")
 		return emr_data
 	#--------------------------------------------------------
 	def _get_patient_ID(self):
@@ -339,7 +325,6 @@ class gmClinicalRecord:
 			del self.__db_cache['allergies']
 			return None
 		rows = curs.fetchall()
-		print "getting allergies %s" % rows
 		curs.close()
 		self.__db_cache['allergies'] = rows
 		#<DEBUG>
@@ -626,16 +611,12 @@ class gmClinicalRecord:
 	def attach_to_encounter(self, anID = None, forced = None, comment = 'affirmed'):
 		"""Try to attach to an encounter.
 		"""
-		print "attaching to encounter"
-
 		self.id_encounter = None
 
 		# if forced to ...
 		if forced:
-			print "forced ..."
 			# ... create a new encounter and attach to that
 			if anID is None:
-				print "... to create new encounter"
 				self.id_encounter = self.__insert_encounter()
 				if self.id_encounter is None:
 					return -1, ''
@@ -643,7 +624,6 @@ class gmClinicalRecord:
 					return 1, ''
 			# ... attach to a particular encounter
 			else:
-				print "... to attach to given encounter ID"
 				self.id_encounter = anID
 				if not self.__affirm_current_encounter(comment):
 					return -1, ''
@@ -653,7 +633,6 @@ class gmClinicalRecord:
 		# else auto-search for encounter and attach if necessary
 		ro_curs = self._ro_conn_clin.cursor()
 		if anID is None:
-			print "auto-search for previous encounters ..."
 			# 1) very recent encounter recorded (that we always consider current) ?
 			cmd = "select id_encounter, started, last_affirmed, \"comment\" from curr_encounter where id_patient=%s and now() - last_affirmed < %s::interval limit 1"
 			if not gmPG.run_query(ro_curs, cmd, self.id_patient, self.encounter_soft_ttl):
@@ -663,7 +642,6 @@ class gmClinicalRecord:
 			row = ro_curs.fetchone()
 			# yes, so update and return that
 			if row is not None:
-				print "... found ongoing encounter"
 				ro_curs.close()
 				self.id_encounter = row[0]
 				if not self.__affirm_current_encounter(comment):
@@ -681,7 +659,6 @@ class gmClinicalRecord:
 			ro_curs.close()
 			# ask user what to do about it
 			if row is not None:
-				print "... found fairly recent encounter, asking user"
 				data = {
 					'ID': row[0],
 					'started': row[1],
@@ -691,14 +668,12 @@ class gmClinicalRecord:
 				return 0, data
 
 			# 3) no encounter active or timed out, so create new one
-			print "... none found or timed-out, must create new encounter"
 			self.id_encounter = self.__insert_encounter(comment)
 			if self.id_encounter is None:
 				return -1, ''
 			else:
 				return 1, ''
 		else:
-			print "invalid arguments"
 			_log.Log(gmLog.lErr, 'invalid argument combination: forced=false + anID=[%d]' % anID)
 			return -1, ''
 	#------------------------------------------------------------------
@@ -844,7 +819,13 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.33  2003-07-09 16:20:18  ncq
+# Revision 1.34  2003-07-19 20:17:23  ncq
+# - code cleanup
+# - add cleanup()
+# - use signals better
+# - fix get_text_dump()
+#
+# Revision 1.33  2003/07/09 16:20:18  ncq
 # - remove dead code
 # - def_conn_ro -> ro_conn_clin
 # - check for patient existence in personalia, not historica
