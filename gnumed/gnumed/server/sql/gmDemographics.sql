@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.32 $
+-- $Revision: 1.33 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -51,9 +51,15 @@ COMMENT ON COLUMN state.country IS
 -- ===================================================================
 create table urb (
 	id serial primary key,
-	id_state integer not null references state(id),
-	postcode varchar(12) not null,
-	name text not null,
+	id_state integer
+		not null
+		references state(id)
+		on update cascade
+		on delete restrict,
+	postcode text
+		not null,
+	name text
+		not null,
 	unique (id_state, postcode, name)
 ) inherits (audit_fields);
 
@@ -69,20 +75,27 @@ create table urb (
 select add_table_for_audit('urb');
 
 COMMENT ON TABLE urb IS
-	'cities, towns, dwellings ...';
+	'cities, towns, dwellings ..., eg. "official" places of residence';
 COMMENT ON COLUMN urb.id_state IS
 	'reference to information about country and state';
 COMMENT ON COLUMN urb.postcode IS
-	'the postcode (if applicable)';
+	'default postcode for urb.name,
+	 useful for all the smaller urbs that only have one postcode,
+	 also useful as a default when adding new streets to an urb';
 COMMENT ON COLUMN urb.name IS
 	'the name of the city/town/dwelling';
 
 -- ===================================================================
 create table street (
 	id serial primary key,
-	id_urb integer not null references urb(id),
+	id_urb integer
+		not null
+		references urb(id)
+		on update cascade
+		on delete restrict,
 	name text not null,
-	postcode varchar(12),
+	postcode text,
+	suburb text default null,
 	unique(id_urb, name, postcode)
 ) inherits (audit_fields);
 
@@ -96,26 +109,29 @@ COMMENT ON COLUMN street.name IS
 	'name of this street';
 COMMENT ON COLUMN street.postcode IS
 	'postcode for systems (such as UK Royal Mail) which specify the street';
+comment on column street.suburb is
+	'the suburb this street is in (if any)';
 
 -- ===================================================================
 create table address (
 	id serial primary key,
 	-- indirectly references urb(id)
-	id_street integer not null references street(id),
-	suburb text default null,
-	number char(10) not null,
+	id_street integer
+		not null
+		references street(id)
+		on update cascade
+		on delete restrict,
+	number text not null,
 	addendum text
 ) inherits (audit_fields);
 
 select add_table_for_audit('address');
 
 comment on table address is
-	'an address aka a location';
+	'an address aka a location, void of attached meaning such as type of address';
 comment on column address.id_street is
 	'the street this address is at, from
 	 whence the urb is to be found';
-comment on column address.suburb is
-	'the suburb this address is in (if any)';
 comment on column address.number is
 	'number of the house';
 comment on column address.addendum is
@@ -535,11 +551,16 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.32 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.33 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.32  2004-08-18 08:28:14  ncq
+-- Revision 1.33  2004-09-02 00:44:43  ncq
+-- - move suburb field from address to street
+-- - improve comments
+-- - add on update/cascade clauses
+--
+-- Revision 1.32  2004/08/18 08:28:14  ncq
 -- - improve comments on Knot system
 --
 -- Revision 1.31  2004/07/22 02:23:58  ihaywood
