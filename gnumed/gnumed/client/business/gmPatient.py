@@ -8,15 +8,15 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.25 2004-03-19 11:46:24 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmPatient.py,v 1.26 2004-03-20 10:48:31 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, time, re, string
 
-if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'pycommon'))
+#if __name__ == "__main__":
+#	sys.path.append(os.path.join('..', 'pycommon'))
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg
 from Gnumed.business import gmClinicalRecord, gmDemographicRecord
@@ -391,7 +391,11 @@ class cPatientSearcher_SQL:
 			_log.Log(gmLog.lData, "running %s" % query_list)
 			# try all queries at this query level
 			for cmd in query_list:
-				rows = gmPG.run_ro_query(self.curs, cmd)
+				# FIXME: actually, we should pass in the parsed search_term
+				if search_dict is None:
+					rows = gmPG.run_ro_query(self.curs, cmd)
+				else:
+					rows = gmPG.run_ro_query(self.curs, cmd, None, search_dict)
 				if rows is None:
 					_log.Log(gmLog.lErr, 'cannot fetch patient IDs')
 				else:
@@ -520,22 +524,22 @@ class cPatientSearcher_SQL:
 		vals = {}
 		where_snippets = ()
 		try:
-			vals['fname'] = data['firstnames']
+			data['firstnames']
 			where_snippets.append('firstnames=%(fname)s')
 		except KeyError:
 			pass
 		try:
-			vals['lname'] = data['lastnames']
+			data['lastnames']
 			where_snippets.append('lastnames=%(lname)s')
 		except KeyError:
 			pass
 		try:
-			vals['dob'] = data['dob']
+			data['dob']
 			where_snippets.append("datetrunc('day', dob)=%(dob)s")
 		except KeyError:
 			pass
 		try:
-			vals['ID'] = data['ID']
+			data['ID']
 			where_snippets.append('i_id=%(ID)s')
 		except KeyError:
 			pass
@@ -548,7 +552,7 @@ class cPatientSearcher_SQL:
 		# shall we mogrify name parts ? probably not
 
 		queries = []
-		queries.append(['select i_id, n_id from v_basic_person where %s'] % ' and '.join(where_snippets))
+		queries.append(['select i_id, n_id from v_basic_person where %s' % ' and '.join(where_snippets)])
 	#--------------------------------------------------------
 	# queries for DE
 	#--------------------------------------------------------
@@ -873,7 +877,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.25  2004-03-19 11:46:24  ncq
+# Revision 1.26  2004-03-20 10:48:31  ncq
+# - if search_dict given we need to pass it to run_ro_query
+#
+# Revision 1.25  2004/03/19 11:46:24  ncq
 # - add search_term to get_pat_ids()
 #
 # Revision 1.24  2004/03/10 13:44:33  ncq
