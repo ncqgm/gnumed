@@ -4,10 +4,11 @@
 -- author: hherb
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
--- version: 0.3
+-- version: 0.4
 -- changelog:
 -- 17.11.2001:  (hherb) first useable version
-
+-- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
+-- 04.03.2002:  (hherb) table state constraint added
 
 -- =============================================
 
@@ -51,7 +52,8 @@ create table state (
 	code char(3),
 	country char(2) references country(code),
 	name varchar(60),
-	deprecated date
+	deprecated date,
+	constraint nodupes UNIQUE (code, country)
 ) inherits (audit_gis);
 
 COMMENT ON TABLE state IS
