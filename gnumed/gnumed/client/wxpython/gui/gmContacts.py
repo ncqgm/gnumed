@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -221,6 +221,7 @@ class ContactsPanel(wxPanel):
 		'mobile': self.txt_org_mobile,
 		'email': self.txt_org_email,
 		'jabber': self.txt_org_internet }
+	  
 
 	  self._set_controller()	
 
@@ -371,16 +372,55 @@ class ContactsPanel(wxPanel):
           self.SetAutoLayout(true)
           self.Show(true)
 
+       	def _set_controller(self, helper = cOrgHelperImpl3() ):
+		"""Initialises the controller for this widget.
+		_helper is the orgHelper() that creates org instances, and finds many orgs.
+		_current is the current org being edited, or the parent of the current person.
+		_currentPerson is the current person being edited, or None.
+		_isPersonIndex is used by the list control selection handler to determine
+		if a row selected returns the id of a org, or an id of a person. Since
+		org and person are stored on different tables, the id itself cannot distinguish the item, and list data only stores an integer . Therefore the row position in the 
+		list control maps to a person if it is a key in _isPersonIndex, and 
+		the returned value is a tuple of (org, person) where org is the person's
+		organisation. Person is a OrgDemographicAdapter instance , which is 
+		a cDemographicRecord wrapped in cOrg clothing, the intention being
+		to minimize re-write of gmContact's controller code.
+		self._tmpPerson maps the persons found in _isPersonIndex, so that
+		the person objects can be re-used when list_all_orgs is called, and
+		substituted for persons followed from org.getPersonMap() ,
+		for each org retrieved by _helper.findAllOrganizations().
+		( orgHelperImpl2 will return orgs in parent/child order).
+		( orgHelperImpl3 extends orgHelperImpl2 to provides creation of 
+		  person OrgDemographicAdapter,
+		  and type testing a cOrg to see if it is a cPerson ).
+		  
+		"""
+
+          	self._connect_list()
+	  	self._helper = helper 
+	  	self._current = None
+
+	  	self._isPersonIndex = {}
+	  	self._tmpPerson = {}
+	  	self._currentPerson = None
+		  
+       	def _connect_list(self):
+	  """allow list selection to update the org edit area"""
+	  EVT_LIST_ITEM_SELECTED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
+
        	def __urb_selected(self, urb_id):
+	  """restrict postcode based on urb selection"""
           #print "urb_id", urb_id
 	  gmDemographicRecord.setPostcodeWidgetFromUrbId( self.input_fields['postcode'], urb_id)
       	  pass
        	def __postcode_selected(self, postcode):
+	  """restrict urb based on postcode selection"""
        	  #print "postcode", postcode
 	  gmDemographicRecord.setUrbPhraseWheelFromPostcode( self.input_fields['urb'], postcode)
       	  pass
 
        	def get_address_values(self):
+	  """from the street urb, postcode field, return number, street, urb, postcode list"""
        	  f = self.input_fields
 	  vals = [ f[n].GetValue() for n in ['street', 'urb', 'postcode'] ]
 	  # split the street value into 2 parts, number and street. ? Have a separate number field instead.
@@ -389,6 +429,7 @@ class ContactsPanel(wxPanel):
 	  return vals
 
        	def get_org_values(self):
+	  """returns a dictionary of the widget controls contents"""
           f = self.input_fields
 	  
 	  m =dict(  [ (n,f[n].GetValue()) for n in ['name','office', 'subtype', 'memo', 'category', 'phone', 'fax', 'email', 'mobile'] ] )
@@ -396,52 +437,65 @@ class ContactsPanel(wxPanel):
 
   	
        	def add_org(self, org, showPersons = True):
-	  key, data = self.getOrgKeyData(org)
-	  if key is None:
-		  return
-	  x = self.list_organisations.GetItemCount()
-	  self._insert_org_data( x, key, data)
-	  if showPersons:
-		  m = org.getPersonMap(reload=False)
-		  for id, demRecord in m.items():
-			  if self._tmpPerson.has_key(demRecord.getID()):
-				  person = self._tmpPerson[demRecord.getID()]
-			  else:  
-			  	person = self._helper.createOrgPerson()
-			  	person.setDemographicRecord(demRecord)
+		"""display an org in the list control, and show any dependent persons if
+		necessary."""
+	  	key, data = self.getOrgKeyData(org)
+	  	if key is None:
+			return
+	  	x = self.list_organisations.GetItemCount()
+	  	self._insert_org_data( x, key, data)
+	  	if showPersons:
+		  	m = org.getPersonMap(reload=False)
+			# create _isPersonIndex, which maps a row index to
+			# a tuple of a person and a person's parent org.
+			# 
+		  	for id, demRecord in m.items():
+			  	if self._tmpPerson.has_key(demRecord.getID()):
+				  	person = self._tmpPerson[demRecord.getID()]
+			  	else:  
+			  		person = self._helper.createOrgPerson()
+			  		person.setDemographicRecord(demRecord)
 			  	
-			  key, data = self.getOrgKeyData(person)
-			  ix = self.list_organisations.GetItemCount()
-			  self._insert_org_data(ix, key, data)
-			  self._isPersonIndex[ix] = (org, person )
+			  	key, data = self.getOrgKeyData(person)
+			  	ix = self.list_organisations.GetItemCount()
+			  	self._insert_org_data(ix, key, data)
+			  	self._isPersonIndex[ix] = (org, person )
 
 			  
 			  
 
 
        	def update_org(self, org):
-	       key, data = self.getOrgKeyData(org)
-	       if key is None:
-		       return
+		"""displays an org without reloading it. It is added to the end of a display list, currently, without attention to it's position in a contact tree. Use load_all_orgs()
+		is preferable, as it uses org's cached in the orgHelper, and person's cached
+		in self._tmpPerson.
+		"""
+			
+		key, data = self.getOrgKeyData(org)
+	       	if key is None:
+			return
 	       
-	       l = self.list_organisations
-	       max = l.GetItemCount()
+	       	l = self.list_organisations
+	       	max = l.GetItemCount()
 	
-	       for n in xrange( 0, max):
-
-		     isPerson = self._helper.isPerson(org) 
-		     if l.GetItemData(n) == key and (
+	       	for n in xrange( 0, max):
+			isPerson = self._helper.isPerson(org) 
+		     	if l.GetItemData(n) == key and (
 		     	(not isPerson and not self._isPersonIndex.has_key(n) )
 				or (isPerson and self._isPersonIndex.has_key(n) )  ):
 			     	break
 
-	       if n == max:
-		       self._insert_org_data(n, key, data)
-	       else:
-		       self._update_org_data(n, key, data)
+	       	if n == max:
+		       	self._insert_org_data(n, key, data)
+	       	else:
+		       	self._update_org_data(n, key, data)
 	       
 	  
        	def getOrgKeyData(self, org):
+	  """Converts org to data items for displaying in list control.
+	     Rules are specific , and defined in original example gmContacts data
+	     """
+	  
 	  try:     
 	  	key = int(org.getId())
 	  except:
@@ -455,27 +509,22 @@ class ContactsPanel(wxPanel):
 
 	  a = org.getAddress()
 	  o = org.get()
+
+	  address_str = " ".join( [a.get('number','').strip(), a.get('street','').strip(), a.get('urb','').strip(), a.get('postcode','')])
 	  
-	  nameCol , subTypeCol ='',''
+	  phone_fax = '/fax '.join([ o.get('phone', '') , o.get('fax', '')]  )
 
+	  # display for person
 	  if org.getHelper().isPerson(org):
-			 subTypeCol = "- " + o['name']
-			 thirdCol = o['subtype']
-	  else:
-		  thirdCol = " ".join( [a.get('number','').strip(), a.get('street','').strip(), a.get('urb','').strip(), a.get('postcode','')])
+		return key, ["", "- " + o['name'], o['subtype'], o.get('email',''), phone_fax]
+	 
+	  # display for top level org
+	  elif org.getParent() is None:
+		return key, [o['name'], '', address_str,  o['category'], phone_fax]
 
-		  
-		  if  o['subtype'].strip() <> '':
-			 subTypeCol  =   o['name'] + ' '+o['subtype']
-		  else:
-			 nameCol = o['name']
-			  
-	  if nameCol == '': fourthCol = o.get('email','')
-	  else:
-		  	fourthCol = o.get('category', '')
-
-	  data = [ nameCol, subTypeCol , thirdCol,  fourthCol, '/fax '.join([ o.get('phone', '') , o.get('fax', '')] ) ]
-	  return key, data
+	  # display  branch, department , division
+	  return key, ["", ' '.join([o.get('name',''), o.get('subtype','')]), address_str, o.get('email',''), phone_fax]
+			 
 
       
       
@@ -495,6 +544,8 @@ class ContactsPanel(wxPanel):
 	  
 
        	def load_all_orgs(self):
+	  """clears the list control, displays the example data, and then 
+	  the real data, from _helper.findAllOrganizations() """
 	  self.list_organisations.DeleteAllItems()
 	  self._insert_example_data()
 	  if self._isPersonIndex <> {}:
@@ -513,20 +564,10 @@ class ContactsPanel(wxPanel):
 		  key, data = items[i]
 		  self._insert_org_data(i, key, data)
 
-       	def _set_controller(self, helper = cOrgHelperImpl3() ):
-          self._connect_list()
-	  self._helper = helper 
-	  self._current = None
-
-	  self._isPersonIndex = {}
-	  self._tmpPerson = {}
-	  self._currentPerson = None
-		  
-       	def _connect_list(self):
-	  EVT_LIST_ITEM_ACTIVATED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
-
        	def _orgperson_selected(self, event):
-	  #print "orgperson selected"
+	  """handle list control selection event, passing to _person_selected(row index)
+	  if it is a person displayed at the row index, or using self._helper.getFromCache
+	  to retrieve the previously cached org by the key stored in the list item data."""
 	  
 	  ix = event.GetIndex()
 	  key = self.list_organisations.GetItemData(ix)
@@ -540,6 +581,10 @@ class ContactsPanel(wxPanel):
 	  org = self._helper.getFromCache(key)
 	  self.clearForm()
 	  if org == None:
+		  """this block is mainly used to parse the example data.
+		  It is probably not needed, in usage , as all data from the
+		  database will be in the helper cache.
+		  """
 		  org = self._helper.create()
 		  data = [ self.list_organisations.GetItem(ix,n).GetText() for n in xrange(0,5) ]
 		  
@@ -588,6 +633,7 @@ class ContactsPanel(wxPanel):
 	  self.loadCurrentValues(org)	
 
 	def loadCurrentValues(self, org):
+	  """parse an org into the edit widgets of gmContact"""
 	  f = self.input_fields
 	  for n in ['name','subtype', 'category', 'phone', 'email', 'fax', 'mobile']:
 		  v = org[n]
@@ -627,14 +673,17 @@ class ContactsPanel(wxPanel):
              f.SetValue('')
 
        	def checkEnabledFields(self):
+	   """configure the edit widgets according to the type of org/person object"""
 	   if not self._currentPerson is None:
 		   self.lbl_Type.SetLabel(_('occupation'))
 		   self._loadOccupations()
 		   parent = self.getCurrent()
+	  	   self.input_fields['name'].SetToolTip(wxToolTip(_("'Title. first LAST-IN-CAPITAL',   or \n'Title. Last, first' \n- the dot is required to separate title; comma indicates the order of the names is last names, first names.")) )
 	   else:
 		   self.lbl_Type.SetLabel(_('subdivision'))
 		   self._loadDivisionTypes()
 		   parent = self.getCurrent().getParent()
+		   self.input_fields['name'].SetToolTip(wxToolTip(_("The organization's name.") ) )
 	
 
 	   dependent = not parent is None
@@ -657,6 +706,11 @@ class ContactsPanel(wxPanel):
 	
 
        	def saveOrg(self):
+		"""transfer the widget's edit controls to a org/person object, and
+		call its save() function, then reload all the orgs, and their persons, from the cache.
+		The save() function will update the cache if this is  a newly created
+		org/person."""
+		
 	     	if  not self._currentPerson is None:
 			org = self._currentPerson
 			org.setParent(self.getCurrent()) # work out how to reference parents
@@ -665,8 +719,11 @@ class ContactsPanel(wxPanel):
 			org= self.getCurrent()
 
 		if org is None:
+			"""this block is unlikely, but there must be an org to work on."""
 			org = self.getOrgHelper().create()
 			self.setCurrent(org)
+		
+			
 		o = self.get_org_values()
 		a = self.get_address_values()
 		org.set(*[],**o)
@@ -695,6 +752,7 @@ class ContactsPanel(wxPanel):
 		return True
 
 	def _person_selected(self, ix):
+		"""set the widget's state for person editing"""
 		org, person = self._isPersonIndex[ix]
 		self.clearForm()
 		self.setCurrent(org)
@@ -826,7 +884,11 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.26  2004-05-30 09:06:28  sjtan
+# Revision 1.27  2004-05-30 10:57:31  sjtan
+#
+# some code review, commenting, tooltips.
+#
+# Revision 1.26  2004/05/30 09:06:28  sjtan
 #
 # avoiding object reload if possible.
 #
