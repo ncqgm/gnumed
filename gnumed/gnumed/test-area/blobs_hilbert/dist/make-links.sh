@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/dist/Attic/make-links.sh,v $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 # GPL
 # Karsten.Hilbert@gmx.net
 
@@ -20,9 +20,6 @@ ln -vfs ../../index/run-indexer.bat client/run-indexer.bat
 ln -vfs ../../index/run-indexer.sh client/run-indexer.sh
 ln -vfs ../../scan/run-scanner.bat client/run-scanner.bat
 ln -vfs ../../scan/run-scanner.sh client/run-scanner.sh
-ln -vfs ../../viewer-tree/run-viewer.bat client/run-viewer.bat
-ln -vfs ../../viewer-tree/run-viewer.sh client/run-viewer.sh
-ln -vfs ../../viewer-tree/gmShowMedDocs.py client/gmShowMedDocs.py
 ln -vfs ../../modules client/modules
 
 mkdir client/doc
