@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.59 2004-01-15 15:05:13 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmClinicalRecord.py,v 1.60 2004-01-18 21:41:49 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -77,6 +77,9 @@ class gmClinicalRecord:
 
 		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.id_patient)
 	#--------------------------------------------------------
+	def __del__(self):
+		pass
+	#--------------------------------------------------------
 	def cleanup(self):
 		_log.Log(gmLog.lData, 'cleaning up after clinical record for patient [%s]' % self.id_patient)
 		sig = "%s:%s" % (gmSignals.item_change_db(), self.id_patient)
@@ -131,6 +134,9 @@ class gmClinicalRecord:
 	#--------------------------------------------------------
 	def _register_interests(self):
 		# backend
+		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.id_patient)
+		if not self._backend.Listen('historica', sig, self.db_cb_vaccinations_modified):
+			return None
 		if not self._backend.Listen(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted):
 			return None
 		if not self._backend.Listen(service = 'historica', signal = gmSignals.health_issue_change_db(), callback = self._health_issues_modified):
@@ -138,12 +144,9 @@ class gmClinicalRecord:
 		sig = "%s:%s" % (gmSignals.item_change_db(), self.id_patient)
 		if not self._backend.Listen(service = 'historica', signal = sig, callback = self._clin_item_modified):
 			return None
-		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.id_patient)
-		if not self._backend.Listen(service = 'historica', signal = sig, callback = self._vaccinations_modified):
-			return None
 		return 1
 	#--------------------------------------------------------
-	def _vaccinations_modified(self):
+	def db_cb_vaccinations_modified(self, **kwds):
 		try:
 			del self.__db_cache['vaccinations']
 		except KeyError:
@@ -678,13 +681,28 @@ class gmClinicalRecord:
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
+	def get_vaccinated_indications(self):
+		cmd = """
+			select distinct on (indication)
+				indication,
+				_(indication)
+			from v_patient_vacc4ind
+			where pk_patient=%s"""
+		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot load vaccinated indications for patient [%s]' % self.id_patient)
+			return None
+		if len(rows) == 0:
+			return [[_('no vaccinations recorded'), '']]
+		return rows
+	#--------------------------------------------------------
 	def get_vaccinated_regimes(self):
 		cmd = """
-select distinct on (regime)
-	regime,
-	indication
-from v_patient_vaccinations
-where pk_patient = %s"""
+			select distinct on (regime)
+				regime,
+				_(indication)
+			from v_patient_vaccinations
+			where pk_patient = %s"""
 		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load vaccinations for patient [%s]' % self.id_patient)
@@ -693,27 +711,43 @@ where pk_patient = %s"""
 			return [[_('no vaccinations recorded'), '']]
 		return rows
 	#--------------------------------------------------------
-	def get_vaccinations(self, regime_list = None, ID = None):
+	def get_vaccinations(self, regime_list = None, ID = None, indication_list = None):
 		try:
-			self.__db_cache['vaccinations'], self.__db_cache['idx vaccinations']
+			self.__db_cache['vaccinations']
+			self.__db_cache['idx vaccinations']
 		except KeyError:
 			self.__db_cache['vaccinations'] = []
+#			cmd = """
+#				select
+#					pk_vaccination,
+#					date,
+#					vaccine,
+#					vaccine_short,
+#					batch_no,
+#					regime,
+#					indication,
+#					is_booster,
+#					seq_no,
+#					site,
+#					pk_provider,
+#					narrative
+#				from  v_patient_vaccinations
+#				where pk_patient = %s"""
 			cmd = """
-select
-	pk_vaccination,
-	date,
-	vaccine,
-	vaccine_short,
-	batch_no,
-	regime,
-	indication,
-	is_booster,
-	seq_no,
-	site,
-	pk_provider
---	,narrative
-from  v_patient_vaccinations
-where pk_patient = %s"""
+				select
+					pk_vaccination,
+					pk_indication,
+					date,
+					indication,
+					vaccine,
+					vaccine_short,
+					batch_no,
+					site,
+					narrative,
+					pk_provider,
+					pk_vaccine
+				from  v_patient_vacc4ind
+				where pk_patient = %s"""
 			rows, self.__db_cache['idx vaccinations'] = gmPG.run_ro_query('historica', cmd, 1, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load vaccinations for patient [%s]' % self.id_patient)
@@ -728,15 +762,19 @@ where pk_patient = %s"""
 					return shot, self.__db_cache['idx vaccinations']
 			_log.Log(gmLog.lErr, 'no vaccination [%s] found for patient [%s]' % (ID, self.id_patient))
 			return (None, None)
-		# 2) are we only interested in certain regimes ?
-		if regime_list is not None and len(regime_list) != 0:
-			filtered_shots = []
-			for shot in self.__db_cache['vaccinations']:
-				if shot[self.__db_cache['idx vaccinations']['regime']] in regime_list:
-					filtered_shots.append(shot)
-			return (filtered_shots, self.__db_cache['idx vaccinations'])
-		# 3) no filter applied
-		return (self.__db_cache['vaccinations'], self.__db_cache['idx vaccinations'])
+		filtered_shots = self.__db_cache['vaccinations']
+		# 2) only certain regimes ?
+#		if regime_list is not None and len(regime_list) != 0:
+#			for shot in filtered_shots:
+#				if shot[self.__db_cache['idx vaccinations']['regime']] not in regime_list:
+#					filtered_shots.remove(shot)
+		# 3) only certain indications ?
+		if indication_list is not None and len(indication_list) != 0:
+			for shot in filtered_shots:
+				if shot[self.__db_cache['idx vaccinations']['indication']] not in indication_list:
+					filtered_shots.remove(shot)
+		# return what we got so far
+		return (filtered_shots, self.__db_cache['idx vaccinations'])
 	#--------------------------------------------------------
 	def get_due_vaccinations(self):
 		# FIXME: be smarter about boosters !
@@ -793,12 +831,10 @@ order by amount_overdue
 	#--------------------------------------------------------
 	def add_vaccination(self, aVacc = None):
 		if aVacc is None:
-			_log.Log(gmLog.lData, 'must have vaccination to save it')
+			_log.Log(gmLog.lErr, 'must have vaccination to save it')
 			return (None, _('programming error'))
 
-#		print "add_vaccination:", aVacc
-
-		# generate insert command
+		# insert command
 		cols = []
 		val_snippets = []
 		vals1 = {}
@@ -863,40 +899,76 @@ order by amount_overdue
 		vals_clause = string.join(val_snippets, ',')
 		cmd1 = "insert into vaccination (%s) values (%s)" % (cols_clause, vals_clause)
 
-		# generate vacc_def link command
-		val_snippets = []
-		vals2 = {}
-
-		try:
-			if aVacc['is booster']:
-				vals_clause = '(select id from vacc_def where is_booster=true and fk_regime=(select id from vacc_regime where name=%(regime)s))'
-				vals2['regime'] = aVacc['disease schedule']
-			else:
-				vals_clause = '(select id from vacc_def where seq_no=%(seq_no)s and fk_regime=(select id from vacc_regime where name=%(regime)s))'
-				vals2['regime'] = aVacc['disease schedule']
-				vals2['seq_no'] = aVacc['seq no']
-		except KeyError:
-			_log.LogException('missing booster/seq no', sys.exc_info(), verbose=0)
-			return (None, _('"booster" or "sequence #" missing'))
-
-		cmd2 = """
-insert into lnk_vacc2vacc_def (fk_vaccination, fk_vacc_def)
-values (currval('vaccination_id_seq'), %s)""" % vals_clause
-
 		# return new ID cmd
-		cmd3 = "select currval('vaccination_id_seq')"
-
-#		print cmd1
-#		print cmd2
+		cmd2 = "select currval('vaccination_id_seq')"
 
 		result, msg = gmPG.run_commit('historica', [
 			(cmd1, [vals1]),
-			(cmd2, [vals2]),
-			(cmd3, [])
+			(cmd2, [])
 		], 1)
 		if result is None:
 			return (None, msg)
 		return (1, result[0][0])
+	#--------------------------------------------------------
+	def update_vaccination(self, aVacc = None):
+		if aVacc is None:
+			_log.Log(gmLog.lErr, 'must have vaccination to update it')
+			return (None, _('programming error'))
+
+		set_snippets = []
+		vals = {}
+		# ID
+		try:
+			vals['id_vacc'] = aVacc['ID']
+		except KeyError:
+			_log.LogException('need to know ID to be able to update vaccination', sys.exc_info(), verbose=0)
+			return (None, _('programming error'))
+		# when given
+		try:
+			vals['date'] = aVacc['date given']
+			set_snippets.append('clin_when=%(date)s')
+		except KeyError:
+			pass
+		# narrative
+		try:
+			vals['narrative'] = aVacc['progress note']
+			set_snippets.append('narrative=%(narrative)s')
+		except KeyError:
+			pass
+		# vaccine
+		try:
+			if aVacc['vaccine'] == '':
+				raise KeyError
+			vals['vaccine'] = aVacc['vaccine']
+			set_snippets.append('fk_vaccine=(select id from vaccine where trade_name=%(vaccine)s)')
+		except KeyError:
+			pass
+		# site
+		try:
+			if aVacc['site given'] == '':
+				raise KeyError
+			vals['site'] = aVacc['site given']
+			set_snippets.append('site=%(site)s')
+		except KeyError:
+			pass
+		# batch no
+		try:
+			if aVacc['batch no'] == '':
+				raise KeyError
+			vals['batchno'] = aVacc['batch no']
+			set_snippets.append('batch_no=%(batchno)s')
+		except KeyError:
+			pass
+
+		set_clause = ', '.join(set_snippets)
+		where_clause = 'where id=%(id_vacc)s'
+		cmd = 'update vaccination set %s %s' % (set_clause, where_clause)
+		result, msg = gmPG.run_commit('historica', [
+			(cmd, [vals])
+		], 1)
+		if result is None:
+			return (None, msg)
+		return (1, '')
 	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['health issues'] = get_health_issues
@@ -1097,7 +1169,7 @@ class gmClinicalPart:
 #------------------------------------------------------------
 def get_vacc_regimes():
 	cmd = 'select name from vacc_regime'
-	rows = gmPG.run_ro_query('historica', cmd, 0)
+	rows = gmPG.run_ro_query('historica', cmd)
 	if rows is None:
 		return None
 	if len(rows) == 0:
@@ -1114,32 +1186,38 @@ if __name__ == "__main__":
 	_ = lambda x:x
 	gmPG.set_default_client_encoding('latin1')
 	record = gmClinicalRecord(aPKey = 11)
-	dump = record.get_text_dump()
-	if dump is not None:
-		keys = dump.keys()
-		keys.sort()
-		for aged_line in keys:
-			for line in dump[aged_line]:
-				print line
-	dump = record.get_due_vaccinations()
-	f = open('vaccs.lst', 'wb')
-	if dump is not None:
-		print "=== due ==="
-		f.write("=== due ===\n")
-		for row in dump['due']:
-			print row
-			f.write(repr(row))
-			f.write('\n')
-		print "=== overdue ==="
-		f.write("=== overdue ===\n")
-		for row in dump['overdue']:
-			print row
-			f.write(repr(row))
-			f.write('\n')
-	f.close()
+#	dump = record.get_text_dump()
+#	if dump is not None:
+#		keys = dump.keys()
+#		keys.sort()
+#		for aged_line in keys:
+#			for line in dump[aged_line]:
+#				print line
+#	dump = record.get_due_vaccinations()
+#	f = open('vaccs.lst', 'wb')
+#	if dump is not None:
+#		print "=== due ==="
+#		f.write("=== due ===\n")
+#		for row in dump['due']:
+#			print row
+#			f.write(repr(row))
+#			f.write('\n')
+#		print "=== overdue ==="
+#		f.write("=== overdue ===\n")
+#		for row in dump['overdue']:
+#			print row
+#			f.write(repr(row))
+#			f.write('\n')
+#	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.59  2004-01-15 15:05:13  ncq
+# Revision 1.60  2004-01-18 21:41:49  ncq
+# - get_vaccinated_indications()
+# - make get_vaccinations() work against v_patient_vacc4ind
+# - don't store vacc_def/link on saving vaccination
+# - update_vaccination()
+#
+# Revision 1.59  2004/01/15 15:05:13  ncq
 # - verify patient id in xlnk_identity in _pkey_exists()
 # - make set_active_episode() logic more consistent - don't create default episode ...
 # - also, failing to record most_recently_used episode should prevent us
