@@ -30,11 +30,11 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
-import sys, string, os.path
+import sys, string, os.path, fileinput, popen2, os, time
 
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
@@ -152,6 +152,38 @@ def reconnect_as_gm_owner():
 		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"], initial_database, core_server["host name"], core_server["port"]), sys.exc_info(), fatal=1)
 		return None
 	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (gmUserSetup.dbowner["name"], initial_database, core_server["host name"], core_server["port"]))
+
+	print "Successfully connected."
+	return conn
+#------------------------------------------------------------------
+def connect_to_core_db(aDB):
+	print "Connecting to GnuMed core database ..."
+
+	global core_server
+
+	if not gmUserSetup.dbowner.has_key("name"):
+		_log.Log(gmLog.lErr, "Cannot connect without GnuMed database owner name.")
+		return None
+
+	if not gmUserSetup.dbowner.has_key("password"):
+		# get password from user
+		print "We need the password for the GnuMed database owner."
+		print "(user [%s] in db [%s] on [%s:%s])" % (gmUserSetup.dbowner["name"], aDB, core_server["host name"], core_server["port"])
+		gmUserSetup.dbowner["password"] = raw_input("Please type password: ")
+
+	# log in
+	try:
+		dsn = "%s:%s:%s:%s:%s" % (core_server["host name"], core_server["port"], aDB, gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"])
+	except:
+		_log.LogException("Cannot construct DSN !", sys.exc_info(), fatal=1)
+		return None
+
+	try:
+		conn = dbapi.connect(dsn)
+	except:
+		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"], aDB, core_server["host name"], core_server["port"]), sys.exc_info(), fatal=1)
+		return None
+	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (gmUserSetup.dbowner["name"], aDB, core_server["host name"], core_server["port"]))
 
 	print "Successfully connected."
 	return conn
@@ -310,7 +342,134 @@ def db_exists(aDatabase):
 	_log.Log(gmLog.lInfo, "Database %s does not exist." % aDatabase)
 	return None
 #------------------------------------------------------------------
+def create_db(aConn, aDB):
+	if db_exists(aDB):
+		return 1
+
+	# create main database
+	cursor = aConn.cursor()
+	# FIXME: we need to pull this nasty trick of ending and restarting
+	# the current transaction to work around pgSQL automatically associating
+	# cursors with transactions
+	cmd = 'commit; create database "%s"; begin' % aDB
+	try:
+		cursor.execute(cmd)
+	except:
+		_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
+		return None
+	aConn.commit()
+	cursor.close()
+
+	if not db_exists(aDB):
+		return None
+	_log.Log(gmLog.lInfo, "Successfully created GnuMed core database [%s]." % aDB)
+	return 1
+#------------------------------------------------------------------
+def import_schema_file(anSQL_file = None, aDB = None, aHost = None, aUser = None, aPassword = None):
+	# sanity checks
+	if anSQL_file is None:
+		_log.Log(gmLog.lErr, "Cannot import schema without schema file.")
+		return None
+	SQL_file = os.path.abspath(anSQL_file)
+	if not os.path.exists(SQL_file):
+		_log.Log(gmLog.lErr, "Schema file [%s] does not exist." % SQL_file)
+		return None
+	path = os.path.dirname(SQL_file)
+	os.chdir(path)
+	if aDB is None:
+		_log.Log(gmLog.lErr, "Cannot import schema without knowing the database.")
+		return None
+	if aHost is None:
+		_log.Log(gmLog.lErr, "Cannot import schema without knowing the database host.")
+		return None
+	if aUser is None:
+		_log.Log(gmLog.lErr, "Cannot import schema without knowing the database user.")
+		return None
+	if aPassword is None:
+		_log.Log(gmLog.lErr, "Cannot import schema without knowing the database user password.")
+		return None
+
+	# -W = force password prompt
+	# -q = quiet
+	#cmd = 'psql -a -E -h "%s" -d "%s" -U "%s" -f "%s" >> /tmp/psql-import.log 2>&1' % (aHost, aDB, aUser, SQL_file)
+	cmd = 'psql -q -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
+	_log.Log(gmLog.lInfo, "running >>>%s<<<" % cmd)
+
+	result = os.system(cmd)
+
+	#cmd = 'psql -q -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
+	#cmd = 'psql -a -E -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
+#	pipe = popen2.Popen3(cmd, 1==1)
+#	pipe.tochild.write("%s\n" % aPassword)
+#	pipe.tochild.flush()
+#	pipe.tochild.close()
+
+#	result = pipe.wait()
+#	print result
+
+	# read any leftovers
+#	pipe.fromchild.flush()
+#	pipe.childerr.flush()
+#	tmp = pipe.fromchild.read()
+#	lines = tmp.split("\n")
+#	for line in lines:
+#		_log.Log(gmLog.lData, "child stdout: [%s]" % line, gmLog.lCooked)
+#	tmp = pipe.childerr.read()
+#	lines = tmp.split("\n")
+#	for line in lines:
+#		_log.Log(gmLog.lErr, "child stderr: [%s]" % line, gmLog.lCooked)
+
+#	pipe.fromchild.close()
+#	pipe.childerr.close()
+#	del pipe
+
+	_log.Log(gmLog.lInfo, "raw result: %s" % result)
+
+	if os.WIFEXITED(result):
+		exitcode = os.WEXITSTATUS(result)
+		_log.Log(gmLog.lInfo, "shell level exit code: %s" % exitcode)
+		if exitcode == 0:
+			_log.Log(gmLog.lInfo, "success")
+			return 1
+
+		if exitcode == 1:
+			_log.Log(gmLog.lErr, "failed: psql internal error")
+		elif exitcode == 2:
+			_log.Log(gmLog.lErr, "failed: database connection error")
+		elif exitcode == 3:
+			_log.Log(gmLog.lErr, "failed: pSQL script error")
+	else:
+		_log.Log(gmLog.lWarn, "aborted by signal")
+		return None
+#------------------------------------------------------------------
+def push_schema_into_db(sql_cmds = None):
+	if sql_cmds is None:
+		_log.Log(gmLog.lErr, "cannot import schema without a schema definition")
+		return None
+	_log.Log(gmLog.lData, sql_cmds)
+	cursor = dbconn.cursor()
+	for cmd in sql_cmds:
+		try:
+			cursor.execute("%s;" % cmd)
+		except:
+			_log.LogException(">>>[%s;]<<< failed." % cmd, sys.exc_info(), fatal=1)
+			cursor.close()
+			return None
+	dbconn.commit()
+	cursor.close()
+	return 1
+#------------------------------------------------------------------
 def bootstrap_core_database():
+	print "\nDo you want to create a GnuMed core database on this server ?"
+	print "You will usually want to do this unless you are only\nrunning one particular service on this machine."
+	answer = None
+	while answer not in ["y", "n", "yes", "no"]:
+		answer = raw_input("Create GnuMed core database ? [y/n]: ")
+
+	if answer not in ["y", "yes"]:
+		_log.Log(gmLog.lInfo, "User did not want to create GnuMed core database on this machine.")
+		return 1
+
 	print "Bootstrapping GnuMed core database..."
 
 	global dbconn
@@ -322,33 +481,38 @@ def bootstrap_core_database():
 		exit_with_msg("Cannot reconnect to database as GnuMed database owner.")
 	dbconn = tmp
 
+	# actually create the new core database
 	database = _cfg.get("GnuMed defaults", "core database name")
 	if not database:
 		_log.Log(gmLog.lErr, "Cannot load name of core GnuMed database from config file.")
 		database = "gnumed"
+	if not create_db(dbconn, database):
+		exit_with_msg("Cannot create GnuMed core database [%s] on this machine." % database)
 
-	if db_exists(database):
-		return 1
+	# reconnect to new core database
+#	dbconn.close()
+#	tmp = connect_to_core_db(database)
+#	if tmp is None:
+#		exit_with_msg("Cannot connect to GnuMed core database.")
+#	dbconn = tmp
 
-	# create main database
-	cursor = dbconn.cursor()
-	# FIXME: we need to pull this nasty trick of ending and restarting
-	# the current transaction to work around pgSQL automatically associating
-	# cursors with transactions
-	cmd = 'commit; create database "%s"; begin' % database
-	try:
-		cursor.execute(cmd)
-	except:
-		_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
-		return None
-	dbconn.commit()
-	cursor.close()
+	# get schema files
+	sql_files = _cfg.get("GnuMed defaults", "core database schema")
+	if sql_files is None:
+		_log.Log(gmLog.lWarn, "No schema definition files specified in config file !")
+		exit_with_msg("No schema files defined for GnuMed core database [%s]." % database)
 
-	if not db_exists(database):
-		return None
-	_log.Log(gmLog.lInfo, "Successfully created GnuMed core database [%s]." % database)
+	# and import them
+	for file in sql_files:
 
-	# reconnect to main database as database owner
+		if not import_schema_file(
+			anSQL_file = file,
+			aHost = core_server["host name"],
+			aDB = database,
+			aUser = gmUserSetup.dbowner["name"],
+			aPassword = gmUserSetup.dbowner["password"]
+		):
+			exit_with_msg("Cannot import SQL schema into GnuMed core database [%s]." % database)
 
 	print "Successfully bootstrapped GnuMed core database [%s]." % database
 	return 1
@@ -404,7 +568,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.6  2002-11-03 15:03:07  ncq
+# Revision 1.7  2002-11-16 01:12:09  ncq
+# - now finally also imports sql schemata from files
+#
+# Revision 1.6  2002/11/03 15:03:07  ncq
 # - capture a little more info to hopefully catch the bug with DSN setup
 #
 # Revision 1.5  2002/11/01 15:17:44  ncq
