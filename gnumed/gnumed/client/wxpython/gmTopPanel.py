@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -195,8 +195,8 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		age = self.curr_pat['demographics'].getMedicalAge ()
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
-		name = self.curr_pat['demographics'].getActiveName()
 		self.txt_age.SetValue(age)
+		name = self.curr_pat['demographics'].getActiveName()
 		self.patient_selector.SetValue('%s, %s' % (name['last'], name['first']))
 		self._update_allergies()
 	#-------------------------------------------------------
@@ -205,10 +205,9 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	#-------------------------------------------------------
 	def _update_allergies(self, **kwargs):
 		epr = self.curr_pat['clinical record']
-		allergy_names = epr['allergy names']
-		_log.Log(gmLog.lData, "allergy names: %s" % allergy_names)
+		allergies = epr.get_allergies(remove_sensitivities=1)
 		tmp = []
-		for allergy in allergy_names:
+		for allergy in allergies:
 			tmp.append(allergy['name'])
 		data = string.join(tmp, ',')
 		if data == '':
@@ -305,7 +304,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.19  2003-10-26 18:04:01  ncq
+# Revision 1.20  2003-11-09 14:31:25  ncq
+# - new API style in clinical record
+#
+# Revision 1.19  2003/10/26 18:04:01  ncq
 # - cleanup
 #
 # Revision 1.18  2003/10/26 11:27:10  ihaywood
