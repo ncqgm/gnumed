@@ -22,6 +22,9 @@
 -- 08.04.2002:	 (hherb) service "personalia" related changes.
 --                BREAKS BACKWARDS COMPATIBILITY!
 
+-- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmidentity.sql,v $
+-- $Id: gmidentity.sql,v 1.30 2003-02-14 10:36:37 ncq Exp $
+
 -- ===================================================================
 -- do fixed string i18n()ing
 \i gmI18N.sql
@@ -156,20 +159,6 @@ COMMENT ON COLUMN relation_types.biol_verified IS
 COMMENT ON COLUMN relation_types.description IS
 'plain text description of relationship';
 
--- TRANSLATORS: please do NOT alter the sequence or insert anything; just translate!
--- Only that way we will be able to exchange relationship details between multilingual
--- databases. Hopefully, we will soon have an ontology taking care of this problem.
-
-insert into relation_types(biological, description) values(true,  i18n('parent'));
-insert into relation_types(biological, description) values(true,  i18n('sibling'));
-insert into relation_types(biological, description) values(true,  i18n('halfsibling'));
-insert into relation_types(biological, description) values(false, i18n('stepparent'));
-insert into relation_types(biological, description) values(false, i18n('married'));
-insert into relation_types(biological, description) values(false, i18n('de facto'));
-insert into relation_types(biological, description) values(false, i18n('divorced'));
-insert into relation_types(biological, description) values(false, i18n('separated'));
-insert into relation_types(biological, description) values(false, i18n('legal guardian'));
-
 -- ==========================================================
 
 create table relation (
@@ -278,17 +267,13 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	audit_identity_audit_id_seq
 TO GROUP "_gm-doctors";
 
--- ==========================================================
--- insert some example people
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Ian', 'Haywood', '1977-12-19', 'UK', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Ms.', 'Cilla', 'Raby', '1979-3-1', 'AU', 'f');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Horst', 'Herb', '1970-1-1', 'DE', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Richard', 'Terry', '1960-1-1', 'AU', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Karsten', 'Hilbert', '1974-10-23', 'DE', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Mr.', 'Sebastian', 'Hilbert', '1979-3-13', 'DE', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Hilmar', 'Berger', '1974-1-1', 'DE', 'm');
-
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.29 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.30 $');
+
+-- =============================================
+-- $Log: gmidentity.sql,v $
+-- Revision 1.30  2003-02-14 10:36:37  ncq
+-- - break out default and test data into their own files, needed for dump/restore of dbs
+--
