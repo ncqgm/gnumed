@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -45,6 +45,8 @@ _cfg = gmCfg.gmDefCfgFile
 import gmPG
 import gmTmpPatient, gmMedDoc, gmMimeLib
 from gmExceptions import ConstructorError
+
+from gmGuiHelpers import gm_show_error
 
 from wxPython.wx import *
 #----------------------------------------------------------------------
@@ -100,7 +102,7 @@ class cDocTree(wxTreeCtrl):
 	def update(self):
 		if self.curr_pat['ID'] is None:
 			_log.Log(gmLog.lErr, 'need patient for update')
-			self.__show_error(
+			gm_show_error(
 				aMessage = _('Cannot load documents.\nYou first need to select a patient.'),
 				aTitle = _('loading document list')
 			)
@@ -130,7 +132,7 @@ class cDocTree(wxTreeCtrl):
 		doc_ids = self.curr_pat['document id list']
 		if doc_ids is None:
 			name = self.curr_pat['active name']
-			self.__show_error(
+			gm_show_error(
 				aMessage = _('Cannot find any documents for the patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading document list')
 			)
@@ -266,7 +268,7 @@ class cDocTree(wxTreeCtrl):
 			obj = gmMedDoc.gmMedObj(aPKey = obj_id)
 		except:
 			_log.LogException('Cannot instantiate object [%s]' % obj_id, sys.exc_info())
-			self.__show_error(
+			gm_show_error(
 				aMessage = _('Document part does not seem to exist in database !!'),
 				aTitle = _('showing document')
 			)
@@ -290,7 +292,7 @@ class cDocTree(wxTreeCtrl):
 		# retrieve object
 		if not obj.export_to_file(aTempDir = exp_base, aChunkSize = chunksize):
 			_log.Log(gmLog.lErr, "Cannot export object [%s] data from database !" % node_data['id'])
-			self.__show_error(
+			gm_show_error(
 				aMessage = _('Cannot export document part from database to file.'),
 				aTitle = _('showing document')
 			)
@@ -299,7 +301,7 @@ class cDocTree(wxTreeCtrl):
 		fname = obj['filename']
 		(result, msg) = gmMimeLib.call_viewer_on_file(fname)
 		if not result:
-			self.__show_error(
+			gm_show_error(
 				aMessage = _('Cannot display object.\n%s.') % msg,
 				aTitle = _('displaying page')
 			)
@@ -361,6 +363,8 @@ class cDocTree(wxTreeCtrl):
 	def __handle_obj_context(self, data):
 		print "handling object context menu"
 	#--------------------------------------------------------
+
+########### may become obsolete
 	def __show_error(self, aMessage = None, aTitle = ''):
 		# sanity checks
 		tmp = aMessage
@@ -417,7 +421,7 @@ if __name__ == '__main__':
 			# find matching patient IDs
 			patient_ids = gmTmpPatient.get_patient_ids(cooked_search_terms)
 			if patient_ids is None:
-				self.__show_error(
+				gm_show_error(
 					aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
 					aTitle = _('searching patient')
 				)
@@ -426,7 +430,7 @@ if __name__ == '__main__':
 
 			# ambigous ?
 			if len(patient_ids) != 1:
-				self.__show_error(
+				gm_show_error(
 					aMessage = _('Data in xDT file matches more than one patient in database !'),
 					aTitle = _('searching patient')
 				)
@@ -437,7 +441,7 @@ if __name__ == '__main__':
 				gm_pat = gmTmpPatient.gmCurrentPatient(aPKey = patient_ids[0])
 			except:
 				# this is an emergency
-				self.__show_error(
+				gm_show_error(
 					aMessage = _('Cannot load patient from database !\nAborting.'),
 					aTitle = _('searching patient')
 				)
@@ -498,7 +502,7 @@ if __name__ == '__main__':
 				self.__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
 			except:
 				_log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
-				self.__show_error(
+				gm_show_error(
 					aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
 					aTitle = _('loading patient from xDT file')
 				)
@@ -510,6 +514,8 @@ if __name__ == '__main__':
 			app = wxGetApp()
 			app.ExitMainLoop()
 		#--------------------------------------------------------
+
+#################
 		def __show_error(self, aMessage = None, aTitle = ''):
 			# sanity checks
 			tmp = aMessage
@@ -606,7 +612,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.26  2003-06-29 15:21:22  ncq
+# Revision 1.27  2003-08-24 12:50:20  shilbert
+# - converted from __show_error() to gmGUIHelpers.gm_show_error()
+#
+# Revision 1.26  2003/06/29 15:21:22  ncq
 # - add can_receive_focus() on patient not selected
 #
 # Revision 1.25  2003/06/26 21:41:51  ncq
