@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -90,21 +90,21 @@ class cNarrative(gmClinItem.cClinItem):
 		Represents one clinical free text entry
 	"""
 	_cmd_fetch_payload = """
-		select * from clin_narrative where pk=%s"""
+		select * from v_pat_narrative where pk_narrative=%s"""
 	_cmds_store_payload = [
 		"""select 1 from clin_narrative where pk=%(pk)s for update""",
 		"""update clin_narrative set
 				narrative=%(narrative)s,
-				clin_when=%(clin_when)s,
+				clin_when=%(date)s,
 				is_rfe=%(is_rfe)s::boolean,
 				is_aoe=%(is_aoe)s::boolean,
-				soap_cat=%(soap_cat)
-			where pk=%(pk)s"""
+				soap_cat=lower(%(soap_cat))
+			where pk=%(pk_narrative)s"""
 		]
 
 	_updatable_fields = [
 		'narrative',
-		'clin_when',
+		'date',
 		'is_rfe',
 		'is_aoe',
 		'soap_cat'
@@ -258,7 +258,7 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 	# insert new narrative
 	queries = []
 	cmd = """insert into clin_narrative (fk_encounter, fk_episode, narrative, soap_cat)
-				 values (%s, %s, %s, %s)"""
+				 values (%s, %s, %s, lower(%s))"""
 	queries.append((cmd, [encounter_id, episode_id, narrative, soap_cat]))
 	# get PK of inserted row
 	cmd = "select currval('clin_narrative_pk_seq')"
@@ -318,7 +318,11 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.6  2004-07-25 23:23:39  ncq
+# Revision 1.7  2004-08-11 09:42:50  ncq
+# - point clin_narrative VO to v_pat_narrative
+# - robustify by applying lower() to soap_cat on insert/update
+#
+# Revision 1.6  2004/07/25 23:23:39  ncq
 # - Carlos made cAOE.get_diagnosis() return a cDiag instead of a list
 #
 # Revision 1.5	2004/07/14 09:10:21	 ncq
