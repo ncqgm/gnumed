@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.5 2003-05-05 00:06:32 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmClinicalRecord.py,v 1.6 2003-05-17 17:23:43 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -241,12 +241,22 @@ if __name__ == "__main__":
 	record = gmClinicalRecord(aPKey = 1)
 #	print "clinical transaction IDs:", record['clinical transaction IDs']
 #	print "allergy IDs:", record['allergy IDs']
-	while 1:
-		pass
+#	while 1:
+#		pass
+	import time
+	time.sleep(5)
 	del record
+	dbpool = gmPG.ConnectionPool()
+	conn = dbpool.GetConnection('default', readonly = 0)
+	if conn is not None:
+		_log.Log(gmLog.lInfo, 'getting RW connection succeeded')
+	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.5  2003-05-05 00:06:32  ncq
+# Revision 1.6  2003-05-17 17:23:43  ncq
+# - a little more testing in main()
+#
+# Revision 1.5  2003/05/05 00:06:32  ncq
 # - make allergies work again after EMR rework
 #
 # Revision 1.4  2003/05/03 14:11:22  ncq
