@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.53 2004-01-21 14:00:09 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmEditArea.py,v 1.54 2004-01-22 23:42:19 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -118,9 +118,8 @@ PHX_CONFIDENTIAL=wxNewId()
 PHX_SIGNIFICANT=wxNewId()
 PHX_PROGRESSNOTES=wxNewId()
 
-wxID_BTN_Save = wxNewId()
-wxID_BTN_New = wxNewId()
-wxID_BTN_Handout = wxNewId()
+wxID_BTN_OK = wxNewId()
+wxID_BTN_Clear = wxNewId()
 
 richards_blue = wxColour(0,0,131)
 richards_aqua = wxColour(0,194,197)
@@ -472,19 +471,15 @@ class gmEditArea(wxPanel):
 		_log.Log(gmLog.lErr, 'missing override in [%s]' % self.__class__.__name__)
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self, parent):
-		self.btn_Save = wxButton(parent, wxID_BTN_Save, _("Save"))
-		self.btn_Save.SetToolTipString(_('save entry in medical record'))
-		self.btn_New = wxButton(parent, wxID_BTN_New, _("New"))
-		self.btn_New.SetToolTipString(_('initialize input fields for new entry'))
-		self.btn_Handout = wxButton(parent, wxID_BTN_Handout, _("Handout"))
-		self.btn_Handout.SetToolTipString(_('print patient information leaflet'))
+		self.btn_OK = wxButton(parent, wxID_BTN_OK, _("OK"))
+		self.btn_OK.SetToolTipString(_('save entry into medical record'))
+		self.btn_Clear = wxButton(parent, wxID_BTN_Clear, _("Clear"))
+		self.btn_Clear.SetToolTipString(_('initialize input fields for new entry'))
 
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		szr_buttons.Add(self.btn_Save, 1, wxEXPAND | wxALL, 1)
+		szr_buttons.Add(self.btn_OK, 1, wxEXPAND | wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.btn_New, 1, wxEXPAND | wxALL, 1)
-		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.btn_Handout, 1, wxEXPAND | wxALL, 1)
+		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND | wxALL, 1)
 
 		return szr_buttons
 	#----------------------------------------------------------------
@@ -587,8 +582,8 @@ class gmEditArea(wxPanel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# connect standard buttons
-		EVT_BUTTON(self.btn_Save, wxID_BTN_Save, self._on_save_btn_pressed)
-		EVT_BUTTON(self.btn_New, wxID_BTN_New, self._on_new_btn_pressed)
+		EVT_BUTTON(self.btn_OK, wxID_BTN_OK, self._on_OK_btn_pressed)
+		EVT_BUTTON(self.btn_Clear, wxID_BTN_Clear, self._on_new_btn_pressed)
 		#self._register_dirty_editarea_listener()
 
 		# client internal signals
@@ -600,20 +595,18 @@ class gmEditArea(wxPanel):
 	#--------------------------------------------------------
 	# handlers
 	#--------------------------------------------------------
-	def _on_save_btn_pressed(self, event):
+	def _on_OK_btn_pressed(self, event):
 		event.Skip()
 		if self.data_ID is None:
 			print "must be new entry"
-			self._save_new_entry()
+			self._accept_new_entry()
 		else:
 			print "must be modified entry"
-			self._save_modified_entry()
+			self._accept_modified_entry()
 #		self._pre_save_data()
 	#--------------------------------------------------------
 	def _on_new_btn_pressed(self, event):
-#		self._init_fields()
 		# FIXME: check for unsaved data
-		print "initializing input fields"
 		self.set_data()
 		event.Skip()
 	#--------------------------------------------------------
@@ -1228,7 +1221,7 @@ class gmAllergyEditArea(gmEditArea):
 		self._add_prompt(line = 6, label = _("Progress Note"))
 		self._add_prompt(line = 7, label = '')
 	#----------------------------------------------------
-	def _save_new_entry(self):
+	def _accept_new_entry(self):
 		allergy = {}
 		allergy['date noted'] = self.fld_date_noted.GetValue()
 		allergy['substance'] = self.fld_substance.GetValue()
@@ -1440,7 +1433,7 @@ class gmVaccinationEditArea(gmEditArea):
 		self._add_prompt(line = 4, label = _("Progress Note"))
 		self._add_prompt(line = 5, label = '')
 	#----------------------------------------------------
-	def _save_new_entry(self):
+	def _accept_new_entry(self):
 		vacc = {}
 		vacc['vaccine'] = self.fld_vaccine.GetValue()
 		vacc['batch no'] = self.fld_batch_no.GetValue()
@@ -1458,7 +1451,7 @@ class gmVaccinationEditArea(gmEditArea):
 		self.data_ID = data
 		return 1
 	#----------------------------------------------------
-	def _save_modified_entry(self):
+	def _accept_modified_entry(self):
 		vacc = {}
 		vacc['ID'] = self.data_ID
 		vacc['vaccine'] = self.fld_vaccine.GetValue()
@@ -1979,12 +1972,12 @@ class EditTextBoxes(wxPanel):
 		self.Show(true)
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self):
-		self.btn_Save = wxButton(self, -1, _("Ok"))
-		self.btn_New = wxButton(self, -1, _("Clear"))
+		self.btn_OK = wxButton(self, -1, _("Ok"))
+		self.btn_Clear = wxButton(self, -1, _("Clear"))
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		szr_buttons.Add(self.btn_Save, 1, wxEXPAND, wxALL, 1)
+		szr_buttons.Add(self.btn_OK, 1, wxEXPAND, wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.btn_New, 1, wxEXPAND, wxALL, 1)
+		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND, wxALL, 1)
 		return szr_buttons
 #====================================================================
 class EditArea(wxPanel):
@@ -2103,8 +2096,8 @@ class EditArea(wxPanel):
 #		      self.sizer_line8.Add(5,0,0)
 #		      self.sizer_line8.Add(self.sizer_auth_PI,2,wxEXPAND)
 #		      self.sizer_line8.Add(5,0,2)
-#		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
-#		      self.sizer_line8.Add(self.btn_New,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)
 #		      self.gszr.Add(self.text1_prescription_reason,1,wxEXPAND) #prescribe for
 #		      self.gszr.Add(self.text2_drug_class,1,wxEXPAND) #prescribe by class
 #		      self.gszr.Add(self.sizer_line3,1,wxEXPAND) #prescribe by generic, lbl_veterans, cb_veteran
@@ -2152,8 +2145,8 @@ class EditArea(wxPanel):
 #		      self.sizer_line7.Add(self.cb_includeallmedications,3,wxEXPAND)
 #		      self.sizer_line10.AddSizer(self.sizer_request_optionbuttons,3,wxEXPAND)
 #		      self.sizer_line10.AddSizer(self.szr_buttons,1,wxEXPAND)
-		      #self.sizer_line10.Add(self.btn_Save,1,wxEXPAND|wxALL,1)
-	              #self.sizer_line10.Add(self.btn_New,1,wxEXPAND|wxALL,1)  
+		      #self.sizer_line10.Add(self.btn_OK,1,wxEXPAND|wxALL,1)
+	              #self.sizer_line10.Add(self.btn_Clear,1,wxEXPAND|wxALL,1)  
 		      #------------------------------------------------------------------
 		      #add either controls or sizers with controls to vertical grid sizer
 		      #------------------------------------------------------------------
@@ -2167,8 +2160,8 @@ class EditArea(wxPanel):
 #		      self.gszr.Add(self.txt_request_copyto,0,wxEXPAND)                 #e.g Dr I'm All Heart, 120 Big Street Smallville
 #		      self.gszr.Add(self.txt_request_progressnotes,0,wxEXPAND)          #emphasised to patient must return for results 
  #                     self.sizer_line8.Add(5,0,6)
-#		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
-#	              self.sizer_line8.Add(self.btn_New,1,wxEXPAND|wxALL,2)   
+#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#	              self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)   
 #		      self.gszr.Add(self.sizer_line10,0,wxEXPAND)                       #options:b/bill private, rebate,w/cover btnok,btnclear
 
 		      
@@ -2193,8 +2186,8 @@ class EditArea(wxPanel):
 #		      self.sizer_line8.Add(5,0,0)
 #		      self.sizer_line8.Add(self.sizer_graphnextbtn,2,wxEXPAND)
 #		      self.sizer_line8.Add(5,0,2)
-#		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
-#		      self.sizer_line8.Add(self.btn_New,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)
 #		      self.gszr.AddSizer(self.sizer_line8,0,wxEXPAND)
 		      
 
@@ -2261,7 +2254,7 @@ class EditArea(wxPanel):
 #		      self.sizer_line11.Add(self.chkbox_referral_activeproblems  ,1,wxEXPAND)
 #		      self.sizer_line11.Add(self.chkbox_referral_habits  ,1,wxEXPAND)
 #		      self.sizer_btnpreviewok.Add(self.btnpreview,0,wxEXPAND)
-#		      self.szr_buttons.Add(self.btn_New,0, wxEXPAND)		      
+#		      self.szr_buttons.Add(self.btn_Clear,0, wxEXPAND)		      
 		      #------------------------------------------------------------------
 		      #add either controls or sizers with controls to vertical grid sizer
 		      #------------------------------------------------------------------
@@ -2282,7 +2275,7 @@ class EditArea(wxPanel):
 #		      self.sizer_line12.Add(5,0,6)
 		      #self.sizer_line12.Add(self.spacer,6,wxEXPAND)
 #		      self.sizer_line12.Add(self.btnpreview,1,wxEXPAND|wxALL,2)
-#	              self.sizer_line12.Add(self.btn_New,1,wxEXPAND|wxALL,2)    
+#	              self.sizer_line12.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)    
 #	              self.gszr.Add(self.sizer_line12,0,wxEXPAND)                       #btnpreview and btn clear
 		      
 
@@ -2318,8 +2311,8 @@ class EditArea(wxPanel):
 #		      self.gszr.AddSizer(self.sizer_line1,1,wxEXPAND)                        #the contact method, appointment length
 #		      self.gszr.Add(self.txt_recall_progressnotes,1,wxEXPAND)          #add any progress notes for consultation
 #		      self.sizer_line8.Add(5,0,6)
-#		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
-#	              self.sizer_line8.Add(self.btn_New,1,wxEXPAND|wxALL,2)    
+#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#	              self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)    
 #		      self.gszr.Add(self.sizer_line8,1,wxEXPAND)
 #		else:
 #		      pass
@@ -2339,7 +2332,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.53  2004-01-21 14:00:09  ncq
+# Revision 1.54  2004-01-22 23:42:19  ncq
+# - follow Richard's GUI specs more closely on standard buttons
+#
+# Revision 1.53  2004/01/21 14:00:09  ncq
 # - no delete button as per Richards order :-)
 #
 # Revision 1.52  2004/01/18 21:51:36  ncq
