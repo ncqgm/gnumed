@@ -51,7 +51,7 @@ class MainFrame(wxFrame):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
 
-		wxFrame.__init__(self, parent, -1, title, size, \
+		wxFrame.__init__(self, parent, id, title, size, \
 						style = wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
 
 		self.log = self.CreateLog()
