@@ -42,7 +42,7 @@ sharedConnection = None
 
 backup_dbapi = PgSQL 
 
-backup_source = "localhost::gnumed3" 
+backup_source = "localhost::gnumed4" 
 
 re_table = re.compile("^create\s+(?P<type>table|view)\s+(?P<table>\w+)\s*.*", re.I)
 
@@ -118,11 +118,13 @@ class EditArea2(wxPanel):
 
 	def __init__(self, parent, id):
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, style = wxNO_BORDER | wxTAB_TRAVERSAL)
-		self.topSizer = wxFlexGridSizer(0, 1,0,0)
+		self.topSizer = wxFlexGridSizer(0,1,0,0)
+
 		self.topSizer. AddGrowableCol(0)
 		self.lineSizer = wxBoxSizer(wxHORIZONTAL)
 		self.nextId = 1
 		self.rowItems = 0
+		self.colCount = 0
 		self.widgets= {}
 		self.types = {}
 		self.groups = {}
@@ -215,49 +217,43 @@ class EditArea2(wxPanel):
 		widget.SetName(propName)
 
 		if newline:
-			self.topSizer.Add(self.lineSizer, flag= wxEXPAND)
+			self.colCount += 1
+			self.topSizer.Add(self.lineSizer,1,  flag= wxGROW)
 			self.lineSizer = wxBoxSizer(wxHORIZONTAL)
 			self.rowItems =0
 	
-	def addSizer(self, sizer):
-		self.topSizer.Add( sizer)
 			
 	def finish(self):
 		self._checkMappings()
 		self._executeDDL()
 		self._executeBrowseDDL()
 		self.makeListControl(self)
-		self.topSizer.Add(self.lineSizer, wxEXPAND)
+	#	self.topSizer.Add(self.lineSizer, wxEXPAND)
 		
 		saverSizer = SaverSizer(self, -1) 
 		saverSizer.setOkCommand( self.saveOrUpdate)
 		saverSizer.setCancelCommand( self.clear)
-		self.addSizer(saverSizer)
-		
-		self.topestSizer = wxFlexGridSizer( 2, 1  , 0, 0)
-		#self.topestSizer.AddGrowableRow(0)
-		self.topestSizer.Add( self.topSizer, wxEXPAND, 0)
-		sizer = wxBoxSizer(wxHORIZONTAL)
-		sizer.Add(self.listCtrl,1,  wxGROW | wxALL)
-		self.listCtrl.SetAutoLayout(true)
-		self.listCtrl.SetSizer(sizer)
-		sizer.Fit(self.listCtrl)
-		sizer.SetSizeHints(self.listCtrl)
-			
-		
-		self.topestSizer.Add( sizer, wxEXPAND, 1)
-		#self.listCtrl.SetSizer(self.topestSizer)
-		#self.topestSizer.AddGrowableCol(1)
-		self.SetAutoLayout(true)
+		saverSizer.setDeleteCommand(self. delete)
+		self.topSizer.Add(saverSizer, wxEXPAND)
+		self.topSizer.Add(self.listCtrl,10,  wxEXPAND)
+		self.topSizer.AddGrowableRow( self.colCount)
 	
-		self.SetSizer(self.topestSizer)
-		self.topestSizer.Fit(self)
-		self.topestSizer.SetSizeHints(self)
-		self.topestSizer.AddGrowableCol(0)
-		self.topestSizer.AddGrowableRow(1)
+		self.SetSizer(self.topSizer)
+		self.SetAutoLayout(true)
+		self.topSizer.Fit(self)
+		self.topSizer.SetSizeHints(self)
+		self.topSizer.SetItemMinSize( self.listCtrl, 1000, 600)
+		#self.topestSizer.AddGrowableCol(0)
+		#self.topestSizer.AddGrowableRow(0)
+		#self.topestSizer.AddGrowableRow(1)
 		self.Layout()
 
-		
+		#sizer.Add(self.listCtrl,10,  wxEXPAND )
+		#self.listCtrl.SetAutoLayout(true)
+		#sizer.Fit(self.listCtrl)
+		#sizer.SetSizeHints(self.listCtrl)
+		#self.listCtrl.Layout()
+
 		self._setDefaultText()
 
 	def _setDefaultText(self):
@@ -412,6 +408,15 @@ class EditArea2(wxPanel):
 		self.targetId = None
 		self._setDefaultText()
 		self.selectedIndex = {}
+	
+	def delete(self):
+		if ConfirmDialog(self, "ARE YOU SURE?").ShowModal() <> wxID_OK:
+			return
+		if self.targetId <> None and self.targetId <> 0:
+			self.getConnection().cursor().execute("delete from %s where id = %d" %( self.target, self.targetId) )
+			self.getConnection().commit()
+			self.updateList()
+		self.clear()	
 
 
 	def ddl(self, key, statement):
@@ -1051,7 +1056,7 @@ class EditArea2(wxPanel):
 		for r in refList:
 			widgetName = self.getWidgetNameFromTable(r) 
 
-			if not  self.selectedIndex.has_key(r): # cascade saveNewTarget to unsaved row in referenced table
+			if not  self.selectedIndex.has_key(r) or self.selectedIndex[r] == 0: # cascade saveNewTarget to unsaved row in referenced table
 				if (r in visited):
 					print "has already been visited=", r
 					continue
@@ -1150,7 +1155,7 @@ class EditArea2(wxPanel):
 				self.getWidgetByName(name).setUserInputChanging(0)
 
 		
-		
+
 
 	def _editLoadStrategy2(self, event):
 		"""load using the id and foreign key ids stored with row of the view ; 
@@ -1297,6 +1302,42 @@ class EditArea2(wxPanel):
 			
 		
 
+
+class ConfirmDialog(wxDialog):
+	def __init__(self, parent, text = "confirm?"):
+		wxDialog.__init__(self, parent, -1, "CONFIRM", style = wxSTAY_ON_TOP | wxDEFAULT_DIALOG_STYLE)
+		sizer = wxBoxSizer(wxVERTICAL)
+		sizer.Add( wxStaticText(self, -1, text) )
+		hSizer = wxBoxSizer(wxHORIZONTAL)
+		self.okButton = wxButton( self, -1, "YES")
+		self.noButton = wxButton(self, -1, "NO")
+		EVT_BUTTON( self.okButton, self.okButton.GetId(), self.onOk )
+		EVT_BUTTON( self.noButton, self.noButton.GetId(), self.onCancel)
+		EVT_ACTIVATE(self, self.activate)
+		hSizer.Add( self.okButton,1, wxEXPAND)
+		hSizer.Add( self.noButton,1,  wxEXPAND)
+		sizer.Add(hSizer)
+		self.SetSizer(sizer)
+		self.SetAutoLayout(1)
+		sizer.Fit(self)
+		self.Layout()
+		self.Centre()
+		self.cancelled = 0
+
+	def activate(self, event):
+		if not self.cancelled and not event.GetActive():
+			self.EndModal(wxID_CANCEL)
+			#self.Show(0)
+			#self.Show(1)
+			#event.Skip()
+		
+		
+	def onOk(self, event):
+		self.EndModal(wxID_OK)
+	
+	def onCancel(self, event):
+		self.cancelled =  1
+		self.EndModal(wxID_CANCEL)
 	
 
 class SaverSizer(wxFlexGridSizer):
@@ -1308,13 +1349,16 @@ class SaverSizer(wxFlexGridSizer):
 	#	self.topSizer = wxBoxSizer(wxHORIZONTAL)
 		self.okButton = wxButton(  parent, -1, "OK")
 		self.cancelButton = wxButton( parent, -1 , "CANCEL")
+		self.deleteButton = wxButton(parent, -1, "DELETE")
 		self.Add(self.okButton, wxEXPAND)
 		self.Add(self.cancelButton, wxEXPAND)
+		self.Add(self.deleteButton, wxEXPAND)
 		#self.SetAutoLayout(true)
 		self.okCommand = self.printOk
 		
 		EVT_BUTTON( self.okButton, self.okButton.GetId(), self.doOkCommand)
 		EVT_BUTTON( self.cancelButton, self.cancelButton.GetId(), self.doCancelCommand)
+		EVT_BUTTON( self.deleteButton, self.deleteButton.GetId(), self.doDeleteCommand)
 
 
 	def printOk(self):
@@ -1327,6 +1371,8 @@ class SaverSizer(wxFlexGridSizer):
 	def setCancelCommand(self, command):
 		self.cancelCommand = command
 
+	def setDeleteCommand(self, command):
+		self.deleteCommand = command
 
 	def doOkCommand(self, event):
 		print event
@@ -1335,6 +1381,9 @@ class SaverSizer(wxFlexGridSizer):
 
 	def doCancelCommand(self, event):
 		self.cancelCommand()
+
+	def doDeleteCommand(self, event):
+		self.deleteCommand()
 
 		
 		
@@ -1642,6 +1691,8 @@ class DemographicEditArea(EditArea2):
 		self.setExtRef("practice")
 		self.target("demographic")
 
+		#self.search("Search names", ["alt_names.lastnames", "alt_names.firstnames"] )
+		
 		self.browse( [ ("alt_names.lastnames", 150) , ("alt_names.firstnames", 150) , ("demographic.birthdate", 90), ("demographic.sex", 50), ("alt_address.street1", 200) , ("alt_urb.urb_name", 120), ("state.name", 100) , ("alt_urb.postcode",90 ) ] )
 		self.setExtRef("practice")
 

@@ -27,7 +27,8 @@ class BrowseSizer(wxBoxSizer):
 
 class BrowseListCtrl( TestListCtrl):		
 	def __init__( self, parent, id = -1,  columnList =[  { 'name':'date' , 'width': 80 }, { 'name':'description', 'width': 150 }, { 'name': 'value' , 'width' : 80 } ] ):
-		TestListCtrl.__init__(self, parent, id, wxDefaultPosition, size = wxSize(800,400), style = wxLC_REPORT | wxSUNKEN_BORDER | wxLC_VRULES )#| wxLC_HRULES)
+		TestListCtrl.__init__(self, parent, id, wxDefaultPosition,  style =  wxLC_REPORT | wxSUNKEN_BORDER | wxLC_VRULES )#| wxLC_HRULES)
+		self.SetAutoLayout(1)
 		self._test()
 		self._configureEvents()
 
