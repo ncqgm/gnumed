@@ -1,0 +1,29 @@
+# $Revision: 1.1 $
+
+# the database connection
+[sink]
+user = 
+password = 
+host = 
+port = 5432
+database = 
+#options = None
+#tty = None
+
+[metadata]
+# read patient data from here
+patient = patient.dat
+# read document metadata from here
+description = befunde.xml
+
+# XML tags for document metadata
+date_tag = Obj_Datum
+type_tag = Obj_Typ
+comment_tag = Obj_Name
+ref_tag = Obj_Referenz
+
+[export]
+# base directory for export related data
+basedir = /home/ncq/medituxarchiv/export
+# read patient data from here
+patient = patient.dat
