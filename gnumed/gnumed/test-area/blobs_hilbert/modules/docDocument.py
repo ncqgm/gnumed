@@ -37,7 +37,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -270,6 +270,7 @@ class cDocument:
 		except:
 			aConn.rollback()
 			cursor.close()
+			_log.Log(gmLog.lErr, ">>>%s<<< failed" % cmd)
 			_log.LogException ("Exception: Cannot import document. Rolling back transactions.", sys.exc_info())
 			return (1==0)
 	#-----------------------------------
@@ -760,7 +761,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.32  2003-01-26 16:48:24  ncq
+# Revision 1.33  2003-01-31 00:03:31  ncq
+# - slightly better logging
+#
+# Revision 1.32  2003/01/26 16:48:24  ncq
 # - correctly import ConstructorError
 #
 # Revision 1.31  2003/01/26 16:46:15  ncq
