@@ -41,10 +41,12 @@ form an object meaningful to *business* logic.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.2 2004-10-12 18:37:45 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmBusinessDBObject.py,v 1.3 2004-10-27 12:13:37 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
+
+import sys
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
 from Gnumed.pycommon.gmPyCompat import *
@@ -66,11 +68,8 @@ class cBusinessDBObject:
 	- does NOT lazy-fetch fields on access
 	"""
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, row=None, debug=False):
-		"""Init from backend.
-
-		Eventually, if debug is true, the class may verify the
-		row data structure and existence.
+	def __init__(self, aPK_obj=None, row=None):
+		"""Init business object.
 		"""
 		self._is_modified = False
 		# check descendants
@@ -79,13 +78,12 @@ class cBusinessDBObject:
 		self.__class__._cmds_store_payload
 		self.__class__._updatable_fields
 		self.__class__._service
-#		if self.__class__._service is None:
-#			raise AttributeError, '[%s:%s]: _service must be overriden' % (self.__class__.__name__, self.pk_obj)
 		#</DEBUG>
 		if aPK_obj is not None:
 			self.__init_from_pk(aPK_obj=aPK_obj)
 		else:
-			self.__init_from_row_data(row=row)
+			self._init_from_row_data(row=row)
+		self._is_modified = False
 	#--------------------------------------------------------
 	def __init_from_pk(self, aPK_obj=None):
 		"""Creates a new clinical item instance by its PK.
@@ -108,7 +106,7 @@ class cBusinessDBObject:
 		if result is False:
 			raise gmExceptions.ConstructorError, "[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj)
 	#--------------------------------------------------------
-	def __init_from_row_data(self, row=None):
+	def _init_from_row_data(self, row=None):
 		"""Creates a new clinical item instance given its fields.
 
 		row must be a dict with the fields:
@@ -123,17 +121,11 @@ class cBusinessDBObject:
 			self.pk_obj = self._payload[self._idx[row['pk_field']]]
 		except:
 			_log.LogException('faulty <row> argument structure: %s' % row, sys.exc_info())
-#		self._idx = {}
-#		self._payload = []
-#		if row_data is None or len(row_data) == 0:
 			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
-#		try:
-#			for field_name in row_data.keys():
-#				self._idx[field_name] = len(self._payload)
-#				self._payload.append(row_data[field_name])
-#			self.pk_obj = self._payload[self._idx[self.__class__._pk_field]]
-#		except:
-#			raise gmExceptions.ConstructorError, "[%s:%s]: error loading bulk instance" % (self.__class__.__name__, row_data)
+		if len(self._idx.keys()) != len(self._payload):
+			_log.Log(gmLog.lPanic, 'field index vs. payload length mismatch: %s field names vs. %s fields' % (len(self._idx.keys()), len(self._payload)))
+			_log.LogException('faulty <row> argument structure: %s' % row, sys.exc_info())
+			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
 	#--------------------------------------------------------
 	def __del__(self):
 		if self.__dict__.has_key('_is_modified'):
@@ -156,11 +148,13 @@ class cBusinessDBObject:
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute not in self.__class__._updatable_fields:
+			_log.Log(gmLog.lWarn, '[%s]: unsettable attribute: <%s>' % (self.__class__.__name__, attribute))
 			_log.Log(gmLog.lWarn, '[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
 			raise gmExceptions.BusinessObjectAttributeNotSettableError, '[%s]: attribute <%s> not settable' % (self.__class__.__name__, attribute)
 		try:
 			self._idx[attribute]
 		except KeyError:
+			_log.Log(gmLog.lWarn, '[%s]: invalid attribute: <%s>' % (self.__class__.__name__, attribute))
 			_log.Log(gmLog.lWarn, '[%s]: valid attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
 			raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: no attribute <%s>' % (self.__class__.__name__, attribute)
 		self._payload[self._idx[attribute]] = value
@@ -230,7 +224,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.2  2004-10-12 18:37:45  ncq
+# Revision 1.3  2004-10-27 12:13:37  ncq
+# - __init_from_row_data -> _init_from_row_data so we can override it
+# - more sanity checks
+#
+# Revision 1.2  2004/10/12 18:37:45  ncq
 # - Carlos added passing in possibly bulk-fetched row data w/o
 #   touching the database in __init__()
 # - note that some higher level things will be broken until all
