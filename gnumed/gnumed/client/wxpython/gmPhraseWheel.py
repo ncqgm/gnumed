@@ -9,12 +9,15 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.40 2004-10-16 22:42:12 sjtan Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmPhraseWheel.py,v 1.41 2004-12-23 16:21:21 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
 
+from wxPython.wx import *
+
+from Gnumed.wxpython import gmTimer
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmMatchProvider, gmGuiBroker, gmNull
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -24,7 +27,6 @@ if __name__ == "__main__":
 
 _log.Log(gmLog.lInfo, __version__)
 
-from wxPython.wx import *
 #============================================================
 class cWheelTimer(wxTimer):
 	"""Timer for delayed fetching of matches.
@@ -109,7 +111,11 @@ class cPhraseWheel (wxTextCtrl):
 
 		self.__gb = gmGuiBroker.GuiBroker()
 		if self.__gb.has_key('main.slave_mode') and not self.__gb['main.slave_mode']:
-			self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
+			self.__timer = gmTimer.cTimer (
+				callback = self._on_timer_fired,
+				delay = aDelay
+			)
+			#self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
 		else:
 			self.__timer = gmNull.cNull()
 
@@ -535,7 +541,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.40  2004-10-16 22:42:12  sjtan
+# Revision 1.41  2004-12-23 16:21:21  ncq
+# - some cleanup
+#
+# Revision 1.40  2004/10/16 22:42:12  sjtan
 #
 # script for unitesting; guard for unit tests where unit uses gmPhraseWheel; fixup where version of wxPython doesn't allow
 # a child widget to be multiply inserted (gmDemographics) ; try block for later versions of wxWidgets that might fail
