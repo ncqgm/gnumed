@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -115,6 +115,10 @@ def application_closing():
 def application_init():
 	"an application is starting"
 	return "application_init"
+
+def user_error ():
+	"an error of interest to the user"
+	return "user_error"
 	
 #=============================================================	
 if __name__ == "__main__":
@@ -142,7 +146,12 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-03-03 23:53:22  ihaywood
+# GUI now supports external IDs,
+# Demographics GUI now ALPHA (feature-complete w.r.t. version 1.0)
+# but happy to consider cosmetic changes
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.14  2003/12/29 16:33:59  uid66147

@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_PatientPicture.py,v $
-# $Id: gmGP_PatientPicture.py,v 1.5 2004-03-03 14:53:16 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmGP_PatientPicture.py,v 1.6 2004-03-03 23:53:22 ihaywood Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -67,7 +67,6 @@ class cPatientPicture (wxStaticBitmap):
 					if i.metadata['date'] > latest_date:
 						latest_photo = i.metadata['objects'].keys ()[0]
 				current_photo = gmMedDoc.gmMedObj (latest_photo).export_to_file ()
-				print current_photo
 				if current_photo:
 					self.setPhoto (current_photo)
 			else:
@@ -99,7 +98,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmGP_PatientPicture.py,v $
-# Revision 1.5  2004-03-03 14:53:16  ncq
+# Revision 1.6  2004-03-03 23:53:22  ihaywood
+# GUI now supports external IDs,
+# Demographics GUI now ALPHA (feature-complete w.r.t. version 1.0)
+# but happy to consider cosmetic changes
+#
+# Revision 1.5  2004/03/03 14:53:16  ncq
 # - comment on optimizing SQL for getting latest photo
 #
 # Revision 1.4  2004/03/03 05:24:01  ihaywood

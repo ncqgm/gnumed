@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.140 2004-02-18 14:00:56 ncq Exp $
-__version__ = "$Revision: 1.140 $"
+# $Id: gmGuiMain.py,v 1.141 2004-03-03 23:53:22 ihaywood Exp $
+__version__ = "$Revision: 1.141 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -339,6 +339,7 @@ class gmTopLevelFrame(wxFrame):
 
 		# intra-client signals
 		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
+		gmDispatcher.connect(self.on_user_error, gmSignals.user_error ())
 	#----------------------------------------------
 	def OnNotebookPageChanging(self, event):
 		"""Called before notebook page change is processed.
@@ -536,6 +537,11 @@ class gmTopLevelFrame(wxFrame):
 		st = time.strftime(gmTimeformat, t)
 		self.SetStatusText(st,1)
 	#----------------------------------------------
+	def on_user_error (self, signal, message):
+		"response to user_error event"
+		self.SetStatusText (message, 0)
+		wxBell ()
+	#------------------------------------------------
 	def Lock(self):
 		"""Lock GNUmed client against unauthorized access"""
 		# FIXME
@@ -770,7 +776,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.140  2004-02-18 14:00:56  ncq
+# Revision 1.141  2004-03-03 23:53:22  ihaywood
+# GUI now supports external IDs,
+# Demographics GUI now ALPHA (feature-complete w.r.t. version 1.0)
+# but happy to consider cosmetic changes
+#
+# Revision 1.140  2004/02/18 14:00:56  ncq
 # - moved encounter handling to gmClinicalRecord.__init__()
 #
 # Revision 1.139  2004/02/12 23:55:34  ncq

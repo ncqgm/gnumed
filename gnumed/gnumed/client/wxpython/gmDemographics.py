@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.13 2004-03-03 05:24:01 ihaywood Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmDemographics.py,v 1.14 2004-03-03 23:53:22 ihaywood Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -103,16 +103,97 @@ class TextBox_RedBold(wxTextCtrl):
 		self.SetForegroundColour(wxColor(255,0,0))
 		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 class TextBox_BlackNormal(wxTextCtrl):
-	def __init__ (self, parent, id): #, wxDefaultPostion, wxDefaultSize):
+	def __init__ (self, parent, id): #, wxDefaultPosition, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(0,0,0))
 		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 #--------------------------------------------------------------------------------
 
 
+class ExtIDPanel:
+	def __init__ (self, parent, sizer, context = 'p'):
+		self.combo_type = wxComboBox(parent, 500, "", wxDefaultPosition,wxDefaultSize, [], wxCB_READONLY)
+		self.map = {}
+		for code, name in gmDemographicRecord.getExtIDTypes (context):
+			self.combo_type.Append (name, code)
+			self.map[code] = name
+		self.txt_ext_id = TextBox_BlackNormal (parent, -1)
+		self.txt_comment = TextBox_BlackNormal (parent, -1)
+		self.btn_add = wxButton (parent, -1, _("Add"))
+		self.btn_del = wxButton (parent, -1, _("Del"))
+		self.list = wxListBox (parent, -1, size=wxDefaultSize, style=wxLB_SINGLE)
+		#self.list.InsertColumn (0, _("Type"))
+		#self.list.InsertColumn (1, _("ID"))
+		#self.list.InsertColumn (2, _("Comment"))
+		
+		sizer1 = wxBoxSizer (wxHORIZONTAL)
+		sizer1.Add (self.combo_type, 2, wxEXPAND)
+		sizer1.Add (self.txt_ext_id, 2, wxEXPAND)
+		sizer1.Add (self.txt_comment, 2, wxEXPAND)
+		sizer2 = wxBoxSizer (wxHORIZONTAL)
+		sizer2.Add (self.btn_add, 2, wxEXPAND)
+		sizer2.Add (self.btn_del, 2, wxEXPAND)
+		sizer.Add (sizer1, 0, wxEXPAND|wxALL, 1)
+		sizer.Add (sizer2, 0, wxEXPAND|wxALL, 1)
+		sizer.Add (self.list, 1, wxEXPAND|wxALL, 1)
 
+		self.demo = None
 
+		EVT_BUTTON (self.btn_add, self.btn_add.GetId (), self.on_add)
+		EVT_BUTTON (self.btn_del, self.btn_del.GetId (), self.on_del)
 
+	def Clear (self):
+		self.list.Clear ()
+		self.txt_ext_id.SetValue ('')
+		self.txt_comment.SetValue ('')
+		self.combo_type.SetSelection (0)
+
+	def setDemo (self, demo):
+		"""
+		Recieves a gmDemographicRecord-like object to populate the list control
+		"""
+		self.demo = demo
+		self.Clear ()
+		x = 0
+		for r in demo.listExternalIDs ():
+			o = self.map[r['origin']]
+			e = r['external_id']
+			c = r['comment']
+			i = r['id']
+			if c:
+				self.list.Append ("%s - %s (%s)" % (o, e, c), i)
+			else:
+				self.list.Append ("%s - %s" % (o, e), i)
+
+	def on_add (self, event):
+		try:
+			id_type = self.combo_type.GetClientData (self.combo_type.GetSelection ())
+			if self.demo:
+				d = self.demo.addExternalID (self.txt_ext_id.GetValue (), id_type, self.txt_comment.GetValue ())
+				comment = self.txt_comment.GetValue ()
+				if comment:
+					self.list.Append ("%s - %s (%s)" % (self.map[id_type], self.txt_ext_id.GetValue (), comment), d)
+				else:
+					self.list.Append ("%s - %s" % (self.map[id_type], self.txt_ext_id.GetValue ()), d)
+							 
+				#print "adding list item %d, data %d" % (x, d)
+				self.txt_ext_id.SetValue ('')
+				self.txt_comment.SetValue ('')
+				self.combo_type.SetSelection (0)
+		except:
+			_log.LogException ('failed to add ext. ID', sys.exc_info (), verbose= 0)
+
+	def on_del (self, event):
+		try:
+			sel = self.list.GetSelection ()
+			print sel
+			if sel >=0:
+				x = self.list.GetClientData (sel)
+				self.demo.removeExternalID (x)
+				self.list.Delete (sel)
+		except:
+			_log.LogException ('failed to delete ext. ID', sys.exc_info (), verbose= 0)
+		
 #------------------------------------------------------------
 class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 	#def __init__(self, parent, plugin, id=wxNewId ()):
@@ -265,7 +346,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		#-------------------------
 		sizer_line8b_left = wxBoxSizer(wxHORIZONTAL)
 		label_addr_type = BlueLabel( self, -1, _('address type') ) 
-		self.combo_address_type = wxComboBox(self, -1)
+		self.combo_address_type = wxComboBox(self, -1, choices=gmDemographicRecord.getAddressTypes (), style=wxCB_READONLY)
 		sizer_line8b_left.Add(label_addr_type, 0, wxALIGN_CENTER_VERTICAL, 5)
 		sizer_line8b_left.Add(self.combo_address_type, 2, wxEXPAND)
 		self.btn_add_address = wxButton(self, -1, _('add address'))
@@ -374,14 +455,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.rightside.Add(self.sizer_line4_right,0,wxEXPAND|wxALL,1)
 		self.rightside.Add(self.sizer_line5_right,0,wxEXPAND|wxALL,1)
 		self.rightside.Add(self.sizer_contactsandphoto,0,wxEXPAND|wxALL,1)
-		self.mainsizer = wxBoxSizer(wxVERTICAL)
-		self.topsizer = wxBoxSizer(wxHORIZONTAL)
-		self.sizerunder = wxBoxSizer(wxHORIZONTAL)
-		self.sizerunder.AddSizer(self.leftside,10,wxEXPAND|wxALL,5)
-		self.sizerunder.Add(1,0,1)
-		self.sizerunder.AddSizer(self.rightside,10,wxEXPAND|wxALL,5)
-		self.mainsizer.Add(self.sizerunder,0,wxEXPAND|wxALL,10)
-
+		self.ext_id_panel = ExtIDPanel (self, self.rightside)
 		sizer_control = wxBoxSizer(wxHORIZONTAL)
 		b1 = wxButton( self, -1, _("SAVE"))
 		b2 = wxButton( self, -1, _("CANCEL"))
@@ -392,8 +466,13 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.btn_save = b1
 		self.btn_del = b2
 		self.btn_new = b3
-		self.mainsizer.Add(sizer_control)	
-		
+		self.leftside.Add (1,0,1)
+		self.leftside.Add(sizer_control)	
+
+		self.mainsizer = wxBoxSizer(wxHORIZONTAL)
+		self.mainsizer.AddSizer(self.leftside,10,wxEXPAND|wxALL,5)
+		self.mainsizer.Add(1,0,1)
+		self.mainsizer.AddSizer(self.rightside,10,wxEXPAND|wxALL,5)
 		self.SetSizer(self.mainsizer)
 		self.SetAutoLayout(true)
 		#self.Show(false)
@@ -422,9 +501,10 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		EVT_BUTTON(self.btn_photo_export, self.btn_photo_export.GetId (), self._photo_export)
 
 	def __urb_selected(self, id):
-		myPatient = self.patient.get_demographic_record()
-		self.input_fields['zip'].SetValue( gmDemographicRecord.getPostcodeForUrbId(id )  )
-
+		try:
+			self.input_fields['postcode'].SetValue( gmDemographicRecord.getPostcodeForUrbId(id )  )
+		except:
+			_log.LogException ('failed on set postcode', sys.exc_info (), verbose=0)
 
 
 	def _address_selected( self, event):
@@ -494,6 +574,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.__update_address_types()
 		self.to_delete = [] # list of addresses to unlink
 		self.addr_cache = []
+		self.ext_id_panel.Clear ()
 
 	def get_input_value_map(self):
 		m = {}
@@ -539,12 +620,14 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 	
 
 	def _add_address_pressed(self, event):
-		data = self._get_address_data()
-		self._set_local_address(data)
-		data['dirty'] = 1
-		self.addr_cache.append (data)	
-		self._update_address_list_display()
-
+		try:
+			data = self._get_address_data()
+			data['dirty'] = 1
+			self.addr_cache.append (data)	
+			self._update_address_list_display()
+		except:
+			_log.LogException ('failed on add address', sys.exc_info (), verbose=0)
+			
 	def _del_address_pressed(self, event):
 		try:
 			i = self.addresslist.GetSelection ()
@@ -582,19 +665,6 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		#print "INPUT MAP FOR ", self, " = " , map
 
 		self.input_fields = map
-
-	
-	def __get_address_types(self):
-		return gmDemographicRecord.getAddressTypes()
-
-	def __update_address_types(self):
-		m = self.input_fields
-		m['address_type'].Clear()
-
-		l = self.__get_address_types()
-
-		for x in l:
-			m['address_type'].Append(x)
 			
 	
 	def __update_addresses(self):
@@ -655,7 +725,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		m['workphone'].SetValue (myPatient.getCommChannel (gmDemographicRecord.WORK_PHONE) or '')
 		m['web'].SetValue (myPatient.getCommChannel (gmDemographicRecord.WEB) or '')
 		m['mobile'].SetValue (myPatient.getCommChannel (gmDemographicRecord.MOBILE) or '')
-		self.__update_address_types()
+		self.ext_id_panel.setDemo (myPatient)
 		self.__update_addresses()
 		self.__update_nok()
 
@@ -733,7 +803,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.13  2004-03-03 05:24:01  ihaywood
+# Revision 1.14  2004-03-03 23:53:22  ihaywood
+# GUI now supports external IDs,
+# Demographics GUI now ALPHA (feature-complete w.r.t. version 1.0)
+# but happy to consider cosmetic changes
+#
+# Revision 1.13  2004/03/03 05:24:01  ihaywood
 # patient photograph support
 #
 # Revision 1.12  2004/03/02 23:57:59  ihaywood

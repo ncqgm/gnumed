@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.25 2004-03-03 05:24:01 ihaywood Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmDemographicRecord.py,v 1.26 2004-03-03 23:53:22 ihaywood Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -236,8 +236,16 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 		return data and data[0][0]
 	#--------------------------------------------------------------------
 	def setCOB (self, cob):
-		cmd = "update identity set cob = (select code from country where name = %s) where id = %s"
-		return gmPG.run_commit ('personalia', [(cmd, [cob, self.ID])])
+		cmd = "update identity set cob = country.code from country where identity.id = %s and country.name = %s"
+		conn = gmPG.ConnectionPool ().GetConnection ('personalia', readonly=0)
+		curs = conn.cursor ()
+		gmPG.run_commit (curs, [(cmd, [self.ID, cob])])
+		if curs.rowcount == 0:
+			# user probably gave us invalid country
+			gmDispatcher.send (gmSignals.user_error (), message = 'Country %s not valid' % cob)
+		curs.close ()
+		conn.commit ()
+		conn.close ()
 	#----------------------------------------------------------------------
 	def getMaritalStatus (self):
 		cmd = "select name from marital_status, identity where marital_status.id = identity.id_marital_status and identity.id = %s"
@@ -532,20 +540,18 @@ where
 			return '??'
 		return dob2medical_age(dob)
 	#----------------------------------------------------------------------
-	def add_external_ID(self, external_id = None, description = None):
-		if external_id is None:
-			_log.Log(gmLog.lErr, 'need external ID to add it')
-			return None
+	def addExternalID(self, external_id, origin, comment = None):
 		args = {
 			'ID': self.ID,
 			'ext_ID': external_id,
-			'desc': description
+			'origin': origin,
+			'comment':comment,
 			}
-		if description is None:
-			cmd1 = 'insert into ext_person_id (fk_identity, external_id) values (%(ID)s, %(ext_ID)s)'
+		if comment:
+			cmd1 = 'insert into ext_person_id (id_identity, external_id, origin, comment) values (%(ID)s, %(ext_ID)s, %(origin)s, %(comment)s)'
 		else:
-			cmd1 = 'insert into ext_person_id (fk_identity, external_id, description) values (%(ID)s, %(ext_ID)s, %(desc)s)'
-		cmd2 = "select currval('ext_person_id_pk_seq')"
+			cmd1 = 'insert into ext_person_id (id_identity, external_id, origin) values (%(ID)s, %(ext_ID)s, %(origin)s)'
+		cmd2 = "select currval('ext_person_id_id_seq')"
 		result = gmPG.run_commit('personalia', [
 			(cmd1, [args]),
 			(cmd2, [])
@@ -553,14 +559,26 @@ where
 		if result is None:
 			_log.Log(gmLog.lErr, 'cannot link external ID [%s - %s]' % (external_id, description))
 			return None
-		return result
+		return result[0][0]
 	#------------------------------------------------------------
-	def remove_external_ID(self, pk_external_ID = None):
-		if pk_external_ID is None:
-			_log.Log(gmLog.lErr, 'need PK of external ID to delete it')
-			return None
-		cmd = 'delete from ext_person_id where pk=%s'
-		return gmPG.run_commit('personalia', [(cmd, [self.ID])])
+	def removeExternalID(self, pk_external_ID):
+		cmd = 'delete from ext_person_id where id=%s'
+		return gmPG.run_commit('personalia', [(cmd, [pk_external_ID])])
+	#---------------------------------------------------------------
+	def listExternalIDs (self):
+		"""
+		Returns a list of dictionaries of external IDs
+		Fields:
+		- id [the key used to delete ext. IDs
+		- origin [the origin code as returned by getExternalIDTypes]
+		- comment [a user comment]
+		- external_id [the actual external ID]
+		"""
+		cmd = "select id, origin, comment, external_id from ext_person_id where id_identity = %s"
+		r = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
+		if r is None:
+			return []
+		return [{'id':row[0], 'origin':row[1], 'comment':row[2], 'external_id':row[3]} for row in r]
 #================================================================
 # convenience functions
 #================================================================
@@ -603,6 +621,14 @@ def getMaritalStatusTypes():
 	if len(row_list) == 0:
 		return []
 	return [row[0] for row in row_list]
+#------------------------------------------------------------------
+def getExtIDTypes (context):
+	"""Gets list of [code, ID type] from the backend for the given context
+	"""
+	rl = gmPG.run_ro_query('personalia', "select id, name from enum_ext_id_types where context = %s", None, context)
+	if rl is None:
+		return []
+	return rl
 #----------------------------------------------------------------
 def getCommChannelTypes():
 	"""Gets the dictionary of ID->comm channels"""
@@ -621,6 +647,7 @@ WEB=5
 MOBILE=6
 JABBER=7
 #----------------------------------------------------------------
+
 def guess_state_country( urb, postcode):
 	"""parameters are urb.name, urb.postcode;
 	   outputs are urb.id_state,  country.code"""
@@ -782,7 +809,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.25  2004-03-03 05:24:01  ihaywood
+# Revision 1.26  2004-03-03 23:53:22  ihaywood
+# GUI now supports external IDs,
+# Demographics GUI now ALPHA (feature-complete w.r.t. version 1.0)
+# but happy to consider cosmetic changes
+#
+# Revision 1.25  2004/03/03 05:24:01  ihaywood
 # patient photograph support
 #
 # Revision 1.24  2004/03/02 10:21:09  ihaywood
