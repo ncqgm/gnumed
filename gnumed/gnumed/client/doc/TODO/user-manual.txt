@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 ---------------------------------------------------
 Rules:
 ------
@@ -9,4 +9,18 @@ Rules:
 - delete things if you incorporated them into the manual
 - please date it.
 Thanks
+---------------------------------------------------
+Son 01 Dez 2002 11:54:06 CET   <gouchi@altern.org>
+
+I have reinstalled Gnumed on Debian Woody (2.4.18-bf2.4), and this the list of package, I have installed, if he can help :
+
+egenix-mx-base-2.0.4.tar.gz
+libwxgtk2.3-python_2.3.3.2_i386.deb
+libwxgtk2.3_2.3.3.2_i386.deb
+postgresql-7.2.3.tar.gz
+pypgsql-2.1.tar.gz
+python2.2-dev_2.2.1-4_i386.deb
+python2.2-egenix-mxdatetime_2.0.3-3.2_i386.deb
+python2.2-egenix-mxtools_2.0.3-3.2_i386.deb
+python2.2_2.2.1-4_i386.deb
 ---------------------------------------------------
