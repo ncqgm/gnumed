@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.136 $
+-- $Revision: 1.137 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -83,8 +83,8 @@ create table clin_episode (
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
-	description text
-		default null,
+--	description text
+--		default null,
 	is_active boolean
 		default true,
 	clinically_relevant boolean
@@ -98,11 +98,12 @@ alter table clin_episode add constraint standalone_epi_needs_patient
 		((fk_health_issue is not null) and (fk_patient is null))
 	);
 
-alter table clin_episode add constraint standalone_epi_needs_name
-	check (
-		(fk_health_issue is not null) or
-		((fk_health_issue is null) and (coalesce(trim(both from description), '') != ''))
-	);
+-- FIXME: we still need this but in a different way
+--alter table clin_episode add constraint standalone_epi_needs_name
+--	check (
+--		(fk_health_issue is not null) or
+--		((fk_health_issue is null) and (coalesce(trim(both from description), '') != ''))
+--	);
 
 select add_table_for_audit('clin_episode');
 
@@ -115,10 +116,10 @@ comment on column clin_episode.fk_patient is
 	 thereby removing redundancy';
 comment on column clin_episode.fk_health_issue is
 	'health issue this episode belongs to';
-comment on column clin_episode.description is
-	'descriptive name of this episode, may change over time; if
-	 "xxxDEFAULTxxx" applications should display the most recently
-	 associated diagnosis/month/year plus some marker for "default"';
+--comment on column clin_episode.description is
+--	'descriptive name of this episode, may change over time; if
+--	 "xxxDEFAULTxxx" applications should display the most recently
+--	 associated diagnosis/month/year plus some marker for "default"';
 comment on column clin_episode.is_active is
 	'whether the episode is still active,
 	 Prone to misinterpretation: Does TRUE mean that
@@ -343,6 +344,9 @@ create table clin_narrative (
 	is_aoe boolean
 		not null
 		default false,
+	is_episode_name boolean
+		not null
+		default false,
 	unique(fk_encounter, narrative, soap_cat)
 ) inherits (clin_root_item);
 
@@ -370,6 +374,9 @@ comment on column clin_narrative.is_rfe is
 comment on column clin_narrative.is_aoe is
 	'if TRUE the narrative stores an Assessment of Encounter
 	 which also implies soap_cat = a';
+comment on column clin_narrative.is_episode_name is
+	'if TRUE: narrative is used as the name of the
+	 episode linked by fk_episode';
 
 -- --------------------------------------------
 create table lnk_code2narr (
@@ -1076,11 +1083,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.136 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.137 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.136  2004-11-14 17:55:15  ncq
+-- Revision 1.137  2004-11-16 18:59:15  ncq
+-- - as per recent discussion re episode/issue naming remove
+--   clin_episode.description and add clin_narrative.is_episode_name
+--
+-- Revision 1.136  2004/11/14 17:55:15  ncq
 -- - update clin_encounter.description comment as per Jim's suggestion
 --
 -- Revision 1.135  2004/10/22 06:53:15  ncq
