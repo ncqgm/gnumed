@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.93 2004-07-18 11:50:19 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.94 2004-08-04 10:07:49 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -714,6 +714,7 @@ where
 drop view v_pat_diag_codes;
 \set ON_ERROR_STOP 1
 
+-- FIXME: patient missing
 create view v_pat_diag_codes as
 select
 	vpd.pk_diag as pk_diag,
@@ -795,6 +796,40 @@ where
 	cn.is_aoe is true
 		and
 	cn.pk_item = vpi.pk_item
+;
+
+-- =============================================
+-- types of clin_root_item
+\unset ON_ERROR_STOP
+drop view v_pat_item_types;
+\set ON_ERROR_STOP 1
+
+create view v_pat_item_types as
+select
+	items.pk_item as pk_item,
+	items.id_patient as pk_patient,
+	items.code as code,
+	items.narrative as narrative,
+	items.type as type
+from
+	((v_patient_items vpi inner join lnk_type2item lt2i on (vpi.pk_item=lt2i.fk_item)) lnkd_items
+		inner join clin_item_type cit on (lnkd_items.fk_type=cit.pk)) items
+;
+
+\unset ON_ERROR_STOP
+drop view v_types4item;
+\set ON_ERROR_STOP 1
+
+create view v_types4item as
+select distinct on (narrative, code, type, src_table)
+	items.code as code,
+	items.narrative as narrative,
+	items.type as type,
+	items.soap_cat as soap_cat,
+	items.src_table as src_table
+from
+	((v_patient_items vpi inner join lnk_type2item lt2i on (vpi.pk_item=lt2i.fk_item)) lnkd_items
+		inner join clin_item_type cit on (lnkd_items.fk_type=cit.pk)) items
 ;
 
 -- =============================================
@@ -892,17 +927,22 @@ GRANT SELECT ON
 	, v_codes4diag
 	, v_pat_rfe
 	, v_pat_aoe
+	, v_pat_item_types
+	, v_types4item
 TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.93 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.94 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.93  2004-07-18 11:50:19  ncq
+-- Revision 1.94  2004-08-04 10:07:49  ncq
+-- - added v_pat_item_types/v_types4item
+--
+-- Revision 1.93  2004/07/18 11:50:19  ncq
 -- - added arbitrary typing of clin_root_items
 --
 -- Revision 1.92  2004/07/17 20:57:53  ncq
