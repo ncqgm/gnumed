@@ -93,10 +93,8 @@ the entire medical record for the identity is loaded.
 setLastnames.
         - how to remove old identities?
 
-22. can't retrieve newly created identity because hidden space in front of lastnames.
 
-
-23. Lazy initialization : apparently session must stay open.
+21. Lazy initialization : apparently session must stay open.
     Changed persistence references from Singleton pattern to one session per identity.
     Put all the manager classes as referable from a single ManagerReference which holds
     a session common to all managers. Possibly a better way would have been to store
@@ -104,6 +102,6 @@ setLastnames.
     an identity or a session in all parameter lists of manager methods.
 
 
-24. Mobile telephone not saving because the xdoclet tag was spelt  many-tp-one  , inside
+22. Mobile telephone not saving because the xdoclet tag was spelt  many-tp-one  , inside
     identity.java : misspelled xdoclet tags won't be picked up, just ignored.
 
