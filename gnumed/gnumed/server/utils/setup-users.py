@@ -11,7 +11,7 @@ Rights will be granted to users via groups. Effectively, groups
 are granted certain access rights and users are added to the
 appropriate groups as needed.
 
-There's a special user called "gm_db_owner" who owns all the
+There's a special user called "gmdb-owner" who owns all the
 database objects.
 
 Normal users are represented twice in the database:
@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/setup-users.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -79,7 +79,7 @@ def connect_to_db():
 
 	# get password from user
 	print "We still need a password to actually access the database."
-	print "(user [%s] in db [%s] on %s:%s)" % (user, database, host, port)
+	print "(user [%s] in db [%s] on [%s:%s])" % (user, database, host, port)
 	password = raw_input("Please type password: ")
 
 	# log in
@@ -89,9 +89,9 @@ def connect_to_db():
 		conn = PgSQL.connect(dsn)
 	except:
 		exc = sys.exc_info()
-		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on %s:%s)." % (user, password, database, host, port), exc, fatal=1)
+		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (user, password, database, host, port), exc, fatal=1)
 		return None
-	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on %s:%s)" % (user, database, host, port))
+	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (user, database, host, port))
 
 	return 1
 #------------------------------------------------------------------
@@ -111,6 +111,8 @@ def verify_db():
 	_log.Log(gmLog.lInfo, "installed PostgreSQL version: %s - this is OK for us" % conn.version)
 	return 1
 #------------------------------------------------------------------
+# user related
+#------------------------------------------------------------------
 def user_exists(aCursor, aUser):
 	try:
 		aCursor.execute("SELECT usename FROM pg_user WHERE usename='%s';" % aUser)
@@ -120,9 +122,9 @@ def user_exists(aCursor, aUser):
 		return None
 	res = aCursor.fetchone()
 	if aCursor.rowcount == 1:
-		_log.Log(gmLog.lErr, "User %s exists." % aUser)
+		_log.Log(gmLog.lInfo, "User %s exists." % aUser)
 		return 1
-	_log.Log(gmLog.lErr, "User %s does not exist." % aUser)
+	_log.Log(gmLog.lInfo, "User %s does not exist." % aUser)
 	return None
 #------------------------------------------------------------------
 def create_superuser():
@@ -139,7 +141,7 @@ def create_superuser():
 	print "We need a password for the GnuMed standard superuser [%s]." % superuser
 	password = raw_input("Please type password: ")
 	try:
-		cursor.execute("CREATE USER %s WITH PASSWORD '%s' CREATEDB;" % (superuser, password))
+		cursor.execute("CREATE USER \"%s\" WITH PASSWORD '%s' CREATEDB;" % (superuser, password))
 	except:
 		exc = sys.exc_info()
 		_log.LogException("Cannot create GnuMed standard superuser [%s]." % superuser, exc, fatal=1)
@@ -153,6 +155,57 @@ def create_superuser():
 
 	cursor.close()
 	return None
+#------------------------------------------------------------------
+# group related
+#------------------------------------------------------------------
+def group_exists(aCursor, aGroup):
+	try:
+		aCursor.execute("SELECT groname FROM pg_group WHERE groname='%s';" % aGroup)
+	except:
+		exc = sys.exc_info()
+		_log.LogException("Cannot check for group existence.", exc, fatal=1)
+		return None
+	res = aCursor.fetchone()
+	if aCursor.rowcount == 1:
+		_log.Log(gmLog.lInfo, "Group %s exists." % aGroup)
+		return 1
+	_log.Log(gmLog.lInfo, "Group %s does not exist." % aGroup)
+	return None
+#------------------------------------------------------------------
+def create_group(aCursor, aGroup):
+	# does this group already exist ?
+	if group_exists(aCursor, aGroup):
+		return 1
+
+	try:
+		aCursor.execute("CREATE GROUP \"%s\";" % aGroup)
+	except:
+		exc = sys.exc_info()
+		_log.LogException("Cannot create GnuMed group [%s]." % aGroup, exc, fatal=1)
+		return None
+
+	# paranoia is good
+	if group_exists(aCursor, aGroup):
+		return 1
+
+	return None
+#------------------------------------------------------------------
+def create_groups():
+	groups = _cfg.get("standards", "groups")
+	if not groups:
+		_log.Log(gmLog.lErr, "Cannot load GnuMed group names from config file.")
+		return None
+
+	cursor = conn.cursor()
+
+	for group in groups:
+		if not create_group(cursor, group):
+			cursor.close()
+			return None
+
+	conn.commit()
+	cursor.close()
+	return 1
 #==================================================================
 if __name__ == "__main__":
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
@@ -166,13 +219,16 @@ if __name__ == "__main__":
 		conn.close()
 		sys.exit("Cannot verify database version.\nPlease see log file for details.")
 
-	# create GnuMed superuser "gm_db_owner"
+	# create GnuMed superuser
 	if not create_superuser():
 		conn.close()
 		sys.exit("Cannot install GnuMed database owner.\nPlease see log file for details.")
 
 	# insert groups
-	#if not create_groups():
+	if not create_groups():
+		conn.close()
+		sys.exit("Cannot create GnuMed groups.\nPlease see log file for details.")
+
 	# insert users
 	#  (pg_user, pg_shadow)
 
@@ -182,7 +238,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: setup-users.py,v $
-# Revision 1.4  2002-10-03 14:51:46  ncq
+# Revision 1.5  2002-10-04 15:49:52  ncq
+# - creating groups now works, users is next
+#
+# Revision 1.4  2002/10/03 14:51:46  ncq
 # - finally works
 #
 # Revision 1.3  2002/10/03 14:05:37  ncq
