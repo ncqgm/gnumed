@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.32 $
+-- $Revision: 1.33 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -168,7 +168,8 @@ create table cfg_item (
 		default 'xxxDEFAULTxxx',
 	cookie text
 		not null
-		default 'xxxDEFAULTxxx'
+		default 'xxxDEFAULTxxx',
+	unique (id_template, owner, workplace, cookie)
 );
 
 comment on table cfg_item is
@@ -213,11 +214,14 @@ create table cfg_str_array (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.32 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.33 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.32  2004-09-02 00:42:33  ncq
+-- Revision 1.33  2004-09-06 22:15:07  ncq
+-- - tighten constraints in cfg_item
+--
+-- Revision 1.32  2004/09/02 00:42:33  ncq
 -- - add v_cfg_options
 -- - move grants to volatile DDL file
 --
