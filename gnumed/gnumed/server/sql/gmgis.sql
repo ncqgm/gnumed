@@ -5,7 +5,7 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.39 $
+-- $Revision: 1.40 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -49,6 +49,15 @@ COMMENT ON COLUMN state.country IS
 COMMENT ON COLUMN country.deprecated IS
 	'date when this state ceased officially to exist (if applicable)';
 
+
+create table log_state (
+        id integer,
+        code char(10),
+        country char(2) not null,
+        name varchar(60),
+        deprecated date
+) inherits (audit_trail);
+
 -- ===================================================================
 create table urb (
 	id serial primary key,
@@ -76,6 +85,14 @@ COMMENT ON COLUMN urb.postcode IS
 COMMENT ON COLUMN urb.name IS
 	'the name of the city/town/dwelling';
 
+
+create table log_urb (
+	id integer,
+	id_state integer not null,
+	postcode varchar(12),
+	name varchar(60) not null
+) inherits (audit_trail);
+
 -- ===================================================================
 create table street (
 	id serial primary key,
@@ -94,19 +111,35 @@ COMMENT ON COLUMN street.name IS
 COMMENT ON COLUMN street.postcode IS
 	'postcode for systems (such as UK Royal Mail) which specify the street.';
 
+
+create table log_street (
+	id integer,
+	id_urb integer not null,
+	name varchar(128),
+	postcode varchar(12)
+) inherits (audit_trail);
+
 -- ===================================================================
 create table address_type (
 	id serial primary key,
 	name char(10) NOT NULL
-) inherits (audit_mark);
+);
 
 -- ===================================================================
 create table address (
 	id serial primary key,
-	street int references street(id),
+	street integer references street(id),
 	number char(10),
 	addendum text
 ) inherits (audit_mark);
+
+
+create table log_address (
+	id integer,
+	street integer not null,
+	number char(10),
+	addendum text
+) inherits (audit_trail);
 
 -- ===================================================================
 -- Other databases may reference to an address stored in this table.
@@ -127,7 +160,7 @@ create table identities_addresses (
 	id_address integer references address,
 	id_type int references address_type default 1,
 	address_source varchar(30)
-) inherits (audit_identity);
+);
 
 COMMENT ON TABLE identities_addresses IS
 	'a many-to-many pivot table linking addresses to identities';
@@ -371,11 +404,9 @@ create table coordinate (
       -- ellipsoid nature of the Earth, but in reality it is unlikely to matter
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 create table address_info (
         id serial primary key,
-        id_address int references address(id),
+        id_address integer references address(id),
         location point,
         id_coord integer references coordinate (id),
         mapref char(30),
@@ -388,13 +419,27 @@ create table address_info (
 -- interesting queries, like, how many patients live within
 -- 10kms of the clinic.
 
+create table log_address_info (
+        id integer,
+        id_address integer not null,
+        location point,
+        id_coord integer not null,
+        mapref char(30),
+        id_map integer not null,
+        howto_get_there text,
+        comments text
+) inherits (audit_trail);
+
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.39 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.40 $');
 
 -- =============================================
 -- $Log: gmgis.sql,v $
--- Revision 1.39  2003-06-03 09:50:32  ncq
+-- Revision 1.40  2003-06-03 13:50:34  ncq
+-- - add audit trail tables
+--
+-- Revision 1.39  2003/06/03 09:50:32  ncq
 -- - prepare for move to standard auditing
 --
 -- Revision 1.38  2003/05/12 12:43:39  ncq
