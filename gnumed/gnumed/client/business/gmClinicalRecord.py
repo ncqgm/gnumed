@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.112 2004-06-02 22:11:47 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmClinicalRecord.py,v 1.113 2004-06-02 22:18:14 ncq Exp $
+__version__ = "$Revision: 1.113 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -739,8 +739,9 @@ class cClinicalRecord:
 				_log.Log(gmLog.lErr, 'cannot even activate default episode for patient [%s], aborting' %  self.id_patient)
 				_log.Log(gmLog.lErr, result)
 				return False
+			episode = result
 
-		self.__episode = result
+		self.__episode = episode
 		self.__episode.set_active()
 		# load corresponding health issue
 		self.health_issue = self.get_health_issues(id_list=[self.__episode['id_health_issue']])
@@ -1312,7 +1313,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.112  2004-06-02 22:11:47  ncq
+# Revision 1.113  2004-06-02 22:18:14  ncq
+# - fix my broken streamlining
+#
+# Revision 1.112  2004/06/02 22:11:47  ncq
 # - streamline Syan's check for failing create_episode() in __load_last_active_episode()
 #
 # Revision 1.111  2004/06/02 13:10:18  sjtan
