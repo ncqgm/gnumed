@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.30 2003-09-17 03:00:59 ihaywood Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmTmpPatient.py,v 1.31 2003-09-17 11:08:30 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -244,25 +244,35 @@ class gmPerson:
 	def _get_addresses(self):
 		curs = self._defconn_ro.cursor()
 		cmd = """
-select vba.addr_id, vba.address_at, vba.number, vba.street, vba.city, vba.postcode
-from v_basic_address vba, lnk_person2address lp2a
-where lp2a.id_address = vba.addr_id and lp2a.id_identity = %s
+select
+	vba.addr_id,
+	vba.address_at,
+	vba.number,
+	vba.street,
+	vba.city,
+	vba.postcode
+from
+	v_basic_address vba,
+	lnk_person2address lp2a
+where
+	lp2a.id_address = vba.addr_id
+		and
+	lp2a.id_identity = %s
 """
-		try:
-			curs.execute(cmd, self.ID)
-		except:
+		if not gmPG.run_query(curs, cmd, self.ID):
 			curs.close()
-			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
+			_log.Log(gmLog.lErr, 'cannot get addresses for patient [%s]' % self.ID)
 			return None
 		data = curs.fetchall()
 		curs.close()
 		return [{'ID':i[0], 'type':i[1], 'number':i[2], 'street':i[3], 'urb':i[4], 'postcode':i[5]} for i in data]
-
+	#--------------------------------------------------------
 	def GuessPostcode (self, urb, street = None):
 		"""
 		Returns a list of valid postcodes given a urb and street
 		"""
 		curs = self._defconn_ro.cursor ()
+		# FIXME: untangle and roll into gmPG.run_query() ...
 		try:
 			if street is None:
 				cmd = "select postcode from urb where name = %s"
@@ -283,16 +293,15 @@ where lp2a.id_address = vba.addr_id and lp2a.id_identity = %s
 		data = curs.fetchall ()
 		curs.close ()
 		return data
-		
-
+	#--------------------------------------------------------
 	def DeleteAddress (self, ID):
-		rwconn = self._backend.GetConnection('personaliaa', readonly=0)
+		rwconn = self._backend.GetConnection('personalia', readonly=0)
 		rwcurs = rwconn.cursor()
-		cmd = "delete from lnk_person2address where id_identity = %d and id_address = %d"
+		cmd = "delete from lnk_person2address where id_identity = %s and id_address = %s"
 		if not gmPG.run_query(rwcurs, cmd, self.ID, ID):
 			rwcurs.close()
 			rwconn.close()
-			_log.Log(gmLog.lErr, 'cannot delete address')
+			_log.Log(gmLog.lErr, 'cannot delete address [%s] for patient [%s]' % (ID, self.ID))
 			return None
 		rwconn.commit()
 		rwcurs.close()
@@ -721,7 +730,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.30  2003-09-17 03:00:59  ihaywood
+# Revision 1.31  2003-09-17 11:08:30  ncq
+# - cleanup, fix type "personaliaa"
+#
+# Revision 1.30  2003/09/17 03:00:59  ihaywood
 # support for local inet connections
 #
 # Revision 1.29  2003/07/19 20:18:28  ncq
