@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.31 $
+-- $Revision: 1.32 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -34,11 +34,29 @@ values (currval('identity_id_seq'), true, 'Kirk', 'James T.');
 -- =============================================
 -- service historica
 -- ---------------------------------------------
--- only works because both services in same database
+-- only works because both services are in the same database
 insert into xlnk_identity (xfk_identity, pupic)
 values (currval('identity_id_seq'), currval('identity_id_seq'));
 
 -- EMR data
+
+-- put him on some vaccination schedules
+delete from lnk_pat2vacc_reg where fk_patient = currval('identity_id_seq');
+-- tetanus
+insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
+	currval('identity_id_seq'),
+	(select pk_regime from v_vacc_regimes where regime='Tetanus (STIKO)')
+);
+-- meningococcus C
+insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
+	currval('identity_id_seq'),
+	(select pk_regime from v_vacc_regimes where regime='MenC (STIKO)')
+);
+-- hemophilus B
+insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
+	currval('identity_id_seq'),
+	(select pk_regime from v_vacc_regimes where regime='HiB (STIKO)')
+);
 
 -- default health issue
 delete from clin_health_issue where
@@ -222,7 +240,7 @@ insert into vaccination (
 ) values (
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	'contaminated knife cut, prev booster > 7 yrs',
+	'prev booster > 7 yrs',
 	currval('identity_id_seq'),
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select id from vaccine where trade_name='Tetasorbat SSW'),
@@ -416,7 +434,7 @@ insert into clin_narrative (
 	'2000-9-18 8:14:32',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	'knife cut follow-up, pain',
+	'knife cut follow-up, pain/swelling',
 	's',
 	'true'::boolean
 );
@@ -433,7 +451,7 @@ insert into clin_narrative (
 	'2000-9-18 8:17:32',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	'infected pop laceration L forearm',
+	'postop infected laceration L forearm',
 	'a',
 	'true'::boolean
 );
@@ -581,11 +599,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.31 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.32 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.31  2004-07-28 15:47:00  ncq
+-- Revision 1.32  2004-08-18 08:28:56  ncq
+-- - put Kirk on some vaccination schedules
+--
+-- Revision 1.31  2004/07/28 15:47:00  ncq
 -- - improve data
 --
 -- Revision 1.30  2004/07/12 17:24:02  ncq
