@@ -11,7 +11,7 @@
 # to anybody else.
 #=======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -553,6 +553,8 @@ def request_login_params():
 	"""Request login parameters for database connection.
 	"""
 	# are we inside X ?
+	# (if we aren't wxGTK will crash hard at
+	# C-level with "can't open Display")
 	if os.environ.has_key('DISPLAY'):
 		# try GUI
 		try:
@@ -625,7 +627,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.36  2003-04-07 00:40:45  ncq
+# Revision 1.37  2003-04-08 08:58:00  ncq
+# - added comment
+#
+# Revision 1.36  2003/04/07 00:40:45  ncq
 # - now finally also support running on the console (not within a terminal window inside X)
 #
 # Revision 1.35  2003/03/27 21:11:26  ncq
