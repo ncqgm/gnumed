@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -48,6 +48,7 @@ if __name__ == "__main__":
 
     from Gnumed.pycommon import gmPG, gmCfg
     from Gnumed.exporters import gmPatientExporter
+    from Gnumed.business import gmPerson
 
     _cfg = gmCfg.gmDefCfgFile	
 	
@@ -63,7 +64,7 @@ if __name__ == "__main__":
         pool = gmPG.ConnectionPool()
         
         # obtain patient
-        patient = gmEMRBrowser.askForPatient()
+        patient = gmPerson.ask_for_patient()
         if patient is None:
             print "None patient. Exiting gracefully..."
             sys.exit(0)
@@ -96,7 +97,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.3  2004-10-31 00:35:40  cfmoro
+# Revision 1.4  2005-03-11 22:53:37  ncq
+# - ask_for_patient() is now in gmPerson
+#
+# Revision 1.3  2004/10/31 00:35:40  cfmoro
 # Fixed some method names. Added sys import. Refesh browser at startup in standalone mode
 #
 # Revision 1.2  2004/09/25 13:12:15  ncq
