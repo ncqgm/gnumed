@@ -1,7 +1,7 @@
 [DrugReferenceBrowser.drugDBName]
 type = string
 description = Name of the primary pharmaceutical database to use
-value = gnumed
+value = amis
 
 [DrugReferenceBrowser.amis.configfile]
 type = string
