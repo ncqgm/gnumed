@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-11-12 21:24:51 $
-# @version $Revision: 1.49 $ $Date: 2002-11-12 21:24:51 $ $Author: hherb $
+# @Date: $Date: 2002-11-13 10:07:25 $
+# @version $Revision: 1.50 $ $Date: 2002-11-13 10:07:25 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -70,7 +70,7 @@ class MainFrame(wxFrame):
 	This is where it all happens. Avoid popping up any other windows.
 	Most user interaction should happen to and from widgets within this frame
 	"""
-
+	#----------------------------------------------
 	def __init__(self, parent, id, title, size=wxPyDefaultSize):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
@@ -87,18 +87,18 @@ class MainFrame(wxFrame):
 		# allow all modules to access our status bar
 		self.guibroker['main.statustext'] = self.SetStatusText
 
+		# set window title via template
+		#  get user
 		backend = gmPG.ConnectionPool()
 		db = backend.GetConnection('default')
-
-		cur = db.cursor()
-		cur.execute('select CURRENT_USER')
-		(user,) = cur.fetchone()
-
-		self.guibroker['main.SetWindowTitle'] = self.SetTitle
-		# FIXME: should show selected patient and current activity
-		# FIXME: we should make a method set_title(activity, patient)
-		self.SetTitle(_("GnuMed: idle - no patient (%s@%s)") % (user, self.guibroker['workplace_name']))
-		#self.SetTitle(_("You are logged in as [%s]") % user)
+		curs = db.cursor()
+		curs.execute('select CURRENT_USER')
+		(user,) = curs.fetchone()
+		curs.close()
+		#  set it
+		self.updateTitle(anActivity = _("idle"), aPatient = _("no patient"), aUser = user)
+		#  let others have access, too
+		self.guibroker['main.SetWindowTitle'] = self.updateTitle
 
 		self.SetupPlatformDependent()
 
@@ -164,7 +164,7 @@ class MainFrame(wxFrame):
 		self.Fit ()
 		self.Centre(wxBOTH)
 		self.Show(true)
-
+	#----------------------------------------------
 	def SetupPlatformDependent(self):
 		#do the platform dependent stuff
 		if wxPlatform == '__WXMSW__':
@@ -178,8 +178,7 @@ class MainFrame(wxFrame):
 			myLog.Log(gmLog.lInfo,'running on a Mac')
 		else:
 			myLog.Log(gmLog.lInfo,'running on an unknown platform')
-
-
+	#----------------------------------------------
 	def LoadPlugins(self, backend):
 		plugin_list = gmPlugin.GetAllPlugins('gui')
 		nr_plugins = len(plugin_list)
@@ -207,8 +206,7 @@ class MainFrame(wxFrame):
 				result = _("failed")
 			last_plugin = curr_plugin
 		progress_bar.Destroy()
-
-
+	#----------------------------------------------
 	def OnNotebook (self, event):
 		"""
 		Called when notebook changes
@@ -218,9 +216,7 @@ class MainFrame(wxFrame):
 		self.tb.ShowBar (nb_no)
 		# tell module it is shown
 		self.guibroker['main.notebook.numbers'][nb_no].Shown ()
-
-
-
+	#----------------------------------------------
 	def RegisterEvents(self):
 		#register events we want to react to
 		EVT_IDLE(self, self.OnIdle)
@@ -228,26 +224,24 @@ class MainFrame(wxFrame):
 		EVT_ICONIZE(self, self.OnIconize)
 		EVT_MAXIMIZE(self, self.OnMaximize)
 		gmDispatcher.connect(self.OnPatientChanged, gmSignals.patient_selected())
-		
+	#----------------------------------------------		
 	def OnPatientChanged(self, **kwargs):
 		print "gmGuiMain acknowledges that patient has changed"
 		kwds = kwargs['kwds']
-		title= "Active patient: %(title)s %(firstnames)s %(lastnames)s, d.o.b. %(dob)s, ID=%(ID)d" % (kwds)
-		self.SetTitle(title)
-
-
-
+		patient = "%(title)s %(firstnames)s %(lastnames)s (%(dob)s) #%(ID)d" % (kwds)
+		self.updateTitle(aPatient = patient)
+		#title= "Active patient: %(title)s %(firstnames)s %(lastnames)s, d.o.b. %(dob)s, ID=%(ID)d" % (kwds)
+		#self.SetTitle(title)
+	#----------------------------------------------
 	def OnAbout(self, event):
 		" A simple 'about' dialog box"
 		wxMessageBox(_("Message from GnuMed:\nPlease write a nice About box!"), _("About GnuMed"))
-
-
-
+	#----------------------------------------------
 	def SetupAccelerators(self):
 		acctbl = wxAcceleratorTable([(wxACCEL_ALT|wxACCEL_CTRL, ord('X'), ID_EXIT), \
 		                             (wxACCEL_CTRL, ord('H'), ID_HELP)])
 		self.SetAcceleratorTable(acctbl)
-
+	#----------------------------------------------
 	def SetupStatusBar(self):
 		self.CreateStatusBar(2, wxST_SIZEGRIP)
 		#add time and date display to the right corner of the status bar
@@ -255,14 +249,14 @@ class MainFrame(wxFrame):
 		#update every second
 		self.timer.Start(1000)
 		self.Notify()
-	
+	#----------------------------------------------	
 	def Notify(self):
 		"Displays date and local time in the second slot of the status bar"
 
 		t = time.localtime(time.time())
 		st = time.strftime(gmTimeformat, t)
 		self.SetStatusText(st,1)
-	
+	#----------------------------------------------	
 	def CreateMenu(self):
 		"""Create the main menu entries. Individual entries are
 		farmed out to the modules"""
@@ -287,16 +281,13 @@ class MainFrame(wxFrame):
 		self.mainmenu.Append(self.menu_tools, "&Tools");
 		self.mainmenu.Append(self.menu_help, "&Help");
 		self.SetMenuBar(self.mainmenu)
- 
-		 
+	#---------------------------------------------- 		 
 	def Lock(self):
 		"Lock GNUmed client against unauthorized access"
 		#TODO
 		for i in range(1, self.nb.GetPageCount()):
 			self.nb.GetPage(i).Enable(false)
-
-
-
+	#----------------------------------------------
 	def Unlock(self):
 		"""Unlock the main notebook widgets
 		As long as we are not logged into the database backend,
@@ -309,14 +300,10 @@ class MainFrame(wxFrame):
 			self.nb.GetPage(i).Enable(true)
 		# go straight to patient selection
 		self.nb.AdvanceSelection()
-
-
-
+	#----------------------------------------------
 	def OnFileExit(self, event):
 		self.Close()
-
-       
-
+	#----------------------------------------------
 	def CleanExit(self):
 		"""This function should ALWAYS be called when this
 		program is to be terminated.
@@ -327,38 +314,49 @@ class MainFrame(wxFrame):
 		self.mainmenu=None
 		self.window=None
 		self.Destroy()
-
-
-
+	#----------------------------------------------
 	def OnClose(self,event):
 		self.CleanExit()
-
-
+	#----------------------------------------------
 	def OnIdle(self, event):
 		"""Here we can process any background tasks
 		"""
 		pass
-
-
-
+	#----------------------------------------------
 	def OnIconize(self, event):
 		pass
 		#myLog.Log(gmLog.lInfo, 'OnIconify')
-
-
+	#----------------------------------------------
 	def OnMaximize(self, event):
 		pass
 		#myLog.Log(gmLog.lInfo,'OnMaximize')
-
-
+	#----------------------------------------------
 	def OnPageChanged(self, event):
 		myLog.Log(gmLog.lInfo, "Notebook page changed - need code here!")
+	#----------------------------------------------
+	def updateTitle(self, anActivity = None, aPatient = None, aUser = None):
+		"""Update title of main window based on template.
+
+		This gives nice tooltips on iconified GnuMed instances.
+		"""
+		if not anActivity is None:
+			self.title_activity = str(anActivity)
+		if not aPatient is None:
+			self.title_patient = str(aPatient)
+		if not aUser is None:
+			self.title_user = str(aUser)
+
+		# generate title from template
+		title = _("GnuMed [%s@%s] %s: %s") % (self.title_user, self.guibroker['workplace_name'], self.title_activity, self.title_patient)
+
+		# set it
+		self.SetTitle(title)
 #==================================================
 class gmApp(wxApp):
 
 	__backend = None
 	__guibroker = None
-
+	#----------------------------------------------
 	def OnInit(self):
 		#do platform dependent stuff
 		if wxPlatform == '__WXMSW__':
@@ -407,7 +405,11 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.49  2002-11-12 21:24:51  hherb
+# Revision 1.50  2002-11-13 10:07:25  ncq
+# - export updateTitle() via guibroker
+# - internally set title according to template
+#
+# Revision 1.49  2002/11/12 21:24:51  hherb
 # started to use dispatcher signals
 #
 # Revision 1.48  2002/11/09 18:14:38  hherb
