@@ -103,10 +103,12 @@ class generator:
 
 	def gen_id_set(self, component):
 		return """
-		id = wxNewId()
-		self.panel.%s.SetId(id)
+		id = self.panel.%s.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.%s.SetId(id)
 		self.id_map['%s'] = id
-		""" % ( component, component)
+		""" % ( component, component, component)
 		
 		
 	def gen_command(self,  macro, func, comp):
@@ -176,7 +178,7 @@ class generator:
 		self.process_ui_definition( path, has_import_statements = 0)
 
 		
-	def print_single_class(self, name, has_import_statements):
+	def print_single_class(self, name, has_import_statements = 1):
 		if has_import_statements:
 			self.print_imports()
 		self.print_class(name)
