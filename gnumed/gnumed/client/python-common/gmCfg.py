@@ -17,7 +17,7 @@ places:
 
 1) programmer supplied arguments
 2) user supplied command line (getopt style):	--conf-file=<a file name>
-3) user supplied GNUMED_DIR directory
+3) user supplied aName_DIR environment variable (all uppercase)
 4) ~/.<aDir>/<aName>.conf
 5) ~/.<aName>.conf
 6) /etc/<aDir>/<aName>.conf
@@ -31,14 +31,23 @@ It is helpful to have a solid log target set up before importing this
 module in your code. This way you will be able to see even those log
 messages generated during module import.
 
+It is also possible to instantiate objects for other config files
+later on.
+
 Once your software has established database connectivity you can
-set up a config source from the database.
+set up a config source from the database. You can limit the option
+applicability by the constraints "machine", "user", and "cookie".
+
+The basic API for handling items is get()/set() which works for both
+database and INI file access. Both sources cache data. The database
+config objects auto-syncs with the backend. To make INI file changes
+permanent you need to call store() on the file object.
 
 @copyright: GPL
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -60,29 +69,31 @@ class cCfgBase:
 	def set(machine = None, user = None, cookie = None, option = None, value = None):
 		pass
 #================================
+# FIXME: notify/listen on set() to ensure cache coherency across clients
 class cCfgSQL:
-	def __init__(self, aConn = None):
+	def __init__(self, aConn = None, aDBAPI = None):
 		if aConn is None:
 			_log.Log(gmLog.lErr, "Cannot init database config object without database connection.")
 			raise AssertionError, "Cannot init database config object without database connection."
 
+		self.dbapi = aDBAPI
 		self.conn = aConn
 		self.cache = {}
-		#self.curr_user = "unknown"
-		#curs = self.conn.cursor()
-		#if self.__run_query(curs, "select CURRENT_USER;")
-		#result = curs.fetchone()
-		#if result is None:
-		#	_log.Log(gmLog.lErr, "Cannot retrieve current database user ?!?")
-		#else:
-		#	self.curr_user = result[0]
-		#curs.close()
 	#----------------------------
 	def __del__(self):
 		pass
-		#self.curs.close()
 	#----------------------------
 	def get(self, machine = None, user = None, cookie = None, option = None):
+		"""Get config value from database.
+
+		- works for
+			- strings
+			- ints/floats
+			- (string) lists
+		- string lists currently only work with pyPgSQL due to the need
+		  for a PgArray data type
+		- caches items for faster repeat retrieval
+		"""
 		# fastpath
 		cache_key = self.__make_key(machine, user, cookie, option)
 		if self.cache.has_key(cache_key):
@@ -125,11 +136,11 @@ class cCfgSQL:
 			return None
 		(item_id, value_type) = result
 
-		# retrieve value from appropriate table
+		# retrieve values from appropriate table
 		if self.__run_query(curs, "select value from cfg_%s where id_item=%s limit 1;" % (value_type, item_id)) is None:
 			curs.close()
 			return None
-		result = curs.fetchone()
+		result = curs.fetchall()
 		curs.close()
 
 		if result is None:
@@ -137,7 +148,7 @@ class cCfgSQL:
 			return None
 		else:
 			self.cache[cache_key] = result
-			return result[0]
+			return result
 	#----------------------------
 	def getID(self, machine = None, user = None, cookie = None, option = None):
 		# sanity checks
@@ -178,6 +189,10 @@ class cCfgSQL:
 		return result[0]
 	#----------------------------
 	def set(self, machine = None, user = None, cookie = None, option = None, value = None):
+		"""Set the value of a config option.
+
+		- inserts or updates value in the database
+		"""
 
 		# sanity checks
 		if option is None:
@@ -188,6 +203,7 @@ class cCfgSQL:
 			return None
 
 		cache_key = self.__make_key(machine, user, cookie, option)
+		data_value = value
 		if type(value) is StringType:
 			data_type = 'string'
 		elif type(value) is FloatType:
@@ -196,9 +212,12 @@ class cCfgSQL:
 			data_type = 'numeric'
 		elif type(value) is LongType:
 			data_type = 'numeric'
+		elif type(value) is ListType:
+			data_type = 'str_array'
+			data_value = self.dbapi.PgArray(value)
 		# FIXME: UnicodeType ?
 		else:
-			_log.Log(gmLog.lErr, 'Cannot store option of type [%s] (%s).' % (data_type, cache_key))
+			_log.Log(gmLog.lErr, 'Cannot store option of type [%s] (%s -> %s).' % (type(value), cache_key, data_value))
 			return None
 
 		# set up field/value pairs
@@ -255,7 +274,8 @@ class cCfgSQL:
 				curs.close()
 				return None
 			# insert option value
-			if self.__run_query(curs, "insert into cfg_%s (id_item, value) values (currval('cfg_item_id_seq'), '%s')" % (data_type, value)) is None:
+			cmd = "insert into cfg_%s (id_item, value)" % data_type + " values (currval('cfg_item_id_seq'), %s);"
+			if self.__run_query(curs, cmd, data_value) is None:
 				curs.close()
 				return None
 		else:
@@ -266,7 +286,8 @@ class cCfgSQL:
 				curs.close()
 				return None
 			# update option instance
-			if self.__run_query(curs, "update cfg_%s set value='%s' where id_item='%s'%s%s%s;" % (data_type, value, item_id, owner_where, machine_where, cookie_where)) is None:
+			cmd = "update cfg_%s" % data_type + " set value=%s" + " where id_item='%s'%s%s%s;" % (item_id, owner_where, machine_where, cookie_where)
+			if self.__run_query(curs, cmd, data_value ) is None:
 				curs.close()
 				return None
 
@@ -274,9 +295,9 @@ class cCfgSQL:
 		self.conn.commit()
 		curs.close()
 
-		# don't update the cache before checking for key existence
-		# because that would make the get() fastpath valid without
-		# knowing whether the option is stored in the database
+		# don't update the cache BEFORE successfully committing to the
+		# database because that would make the get() fastpath valid
+		# without knowing whether the option is stored in the database
 		self.cache[cache_key] = value
 
 		return 1
@@ -284,12 +305,18 @@ class cCfgSQL:
 	def __make_key(self, machine, user, cookie, option):
 		return '%s-%s-%s-%s' % (machine, user, cookie, option)
 	#----------------------------
-	def __run_query(self, aCursor, aQuery):
-		_log.Log(gmLog.lData, "running >>>%s<<<" % aQuery)
+	def __run_query(self, aCursor, aQuery, *args):
+		_log.Log(gmLog.lData, "running >>>%s<<< " % aQuery)
 		try:
-			aCursor.execute(aQuery)
+			if len(args) == 0:
+				aCursor.execute(aQuery)
+			else:
+				aCursor.execute(aQuery, args)
 		except:
-			_log.LogException("query >>>%s<<< failed" % aQuery, sys.exc_info(), fatal=0)
+			if len(args) == 0:
+				_log.LogException("query >>>%s<<< failed" % aQuery, sys.exc_info(), fatal=0)
+			else:
+				_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), fatal=0)
 			return None
 		return 1
 #================================
@@ -833,7 +860,7 @@ if __name__ == "__main__":
 		from pyPgSQL import PgSQL
 		dsn = "%s:%s:%s:%s:%s:%s:%s" % ('localhost', '5432', 'test', 'postgres', '', '', '')
 		conn = 	PgSQL.connect(dsn)
-		myDBCfg = cCfgSQL(aConn = conn)
+		myDBCfg = cCfgSQL(aConn = conn, aDBAPI=PgSQL)
 
 		font = myDBCfg.get(option = 'font name')
 		print "font is currently:", font
@@ -855,6 +882,17 @@ if __name__ == "__main__":
 		myDBCfg.set(option=new_opt, value = "I do not know.")
 		print "new option is now:", myDBCfg.get(option = new_opt)
 
+		print "setting array option"
+		aList = []
+		aList.append("val 1")
+		aList.append("val 2")
+		new_opt = str(random.random())
+		myDBCfg.set(option=new_opt, value = aList)
+		aList = []
+		aList.append("val 2")
+		aList.append("val 1")
+		myDBCfg.set(option=new_opt, value = aList)
+
 		conn.close()
 else:
 	# - we are being imported
@@ -863,7 +901,7 @@ else:
 	gmDefCfgFile = None
 
 	# - if we don't find any config file we return None
-	# - IF the called really knows what she does she can handle
+	# - IF the caller really knows what she does she can handle
 	#   that exception in her own code
 	try:
 		gmDefCfgFile = cCfgFile()
@@ -872,7 +910,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.28  2002-12-01 01:11:42  ncq
+# Revision 1.29  2002-12-26 15:21:18  ncq
+# - database config now works even with string lists
+#
+# Revision 1.28  2002/12/01 01:11:42  ncq
 # - log config file line number on parse errors
 #
 # Revision 1.27  2002/11/28 11:40:12  ncq
