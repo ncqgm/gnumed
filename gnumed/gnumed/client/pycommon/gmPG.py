@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -79,7 +79,7 @@ if time.daylight:
 else:
 	tz = time.timezone
 # do some magic to convert Python's timezone to a valid ISO timezone
-# is this save or will it return things like 13.5 hours ?
+# is this safe or will it return things like 13.5 hours ?
 _default_time_zone = "%+.1f" % (-tz / 3600.0)
 
 #======================================================================
@@ -133,17 +133,17 @@ select tgargs from pg_trigger where
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
 
-	#a dictionary with lists of databases; dictionary key is the name of the service
-	__databases = {}
-	#a dictionary mapping the physical databases to the services; key is service name
+	# cached read-only connection objects
+	__ro_conns = {}
+	# maps service names to physical databases
 	__service2db_map = {}
-	#number of connections in use for each service (for reference counting purposes)
-	__connections_in_use = {}
+	# connections in use per service (for reference counting)
+	__conn_use_count = {}
 	#variable used to check whether a first connection has been initialized yet or not
-	__connected = None
-	#a dictionary mapping all backend listening threads to database id
+	__is_connected = None
+	# maps backend listening threads to database ids
 	__listeners = {}
-	#gmLoginInfo.LoginInfo instance
+	# gmLoginInfo.LoginInfo instance
 	__login = None
 	#-----------------------------
 	def __init__(self, login=None, encoding=None):
@@ -151,12 +151,12 @@ class ConnectionPool:
 		# if login data is given: re-establish connections
 		if login is not None:
 			self.__disconnect()
-		if ConnectionPool.__connected is None:
+		if ConnectionPool.__is_connected is None:
 			self.SetFetchReturnsList()
 			# only change encoding when also setting up connections
 			if encoding is not None:
 				_default_client_encoding = encoding
-			ConnectionPool.__connected = self.__setup_default_ro_conns(login)
+			ConnectionPool.__is_connected = self.__setup_default_ro_conns(login)
 	#-----------------------------
 	def __del__(self):
 		pass
@@ -166,7 +166,8 @@ class ConnectionPool:
 	#-----------------------------
 	# connection API
 	#-----------------------------
-	def GetConnection(self, service = "default", readonly = 1, checked = 1, encoding = None, extra_verbose = None):
+	def GetConnection(self, service = "default", readonly = 1, encoding = None, extra_verbose = None):
+#	def GetConnection(self, service = "default", readonly = 1, checked = 0, encoding = None, extra_verbose = None):
 		"""Get a connection."""
 		# use default encoding if none given
 		if encoding is None:
@@ -174,52 +175,55 @@ class ConnectionPool:
 
 		logininfo = self.GetLoginInfoFor(service)
 
-		# either get brand-new read-write connection
-		if not readonly:
-			_log.Log(gmLog.lData, "requesting RW connection to service [%s]" % service)
-			conn = self.__pgconnect(logininfo, readonly = 0, encoding = encoding)
-		# or a cached read-only connection
-		else:
+		# either get a cached read-only connection
+		if readonly:
 #			_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
-			if ConnectionPool.__databases.has_key(service):
+			if ConnectionPool.__ro_conns.has_key(service):
 				try:
-					ConnectionPool.__connections_in_use[service] += 1
+					ConnectionPool.__conn_use_count[service] += 1
 				except KeyError:
-					ConnectionPool.__connections_in_use[service] = 1
-				conn = ConnectionPool.__databases[service]
+					ConnectionPool.__conn_use_count[service] = 1
+				conn = ConnectionPool.__ro_conns[service]
 			else:
 #				_log.Log(gmLog.lData, 'using service [default] instead of [%s]' % service)
 				try:
-					ConnectionPool.__connections_in_use['default'] += 1
+					ConnectionPool.__conn_use_count['default'] += 1
 				except KeyError:
-					ConnectionPool.__connections_in_use['default'] = 1
-				conn = ConnectionPool.__databases['default']
+					ConnectionPool.__conn_use_count['default'] = 1
+				conn = ConnectionPool.__ro_conns['default']
 
-		# check whether connection is alive and well
-		if checked:
-			try:
-				cursor = conn.cursor()
-				cursor.execute("select 1")
-				cursor.close()
-			except StandardError:
-				_log.LogException("connection health check failed", sys.exc_info(), 4)
-				_log.Data("trying a direct connection via __pgconnect()")
-				# actually this sort of defies the whole thing since
-				# GetLoginInfoFor() depends on GetConnection() ...
-				# however, the condition this check was to catch only
-				# ever occurred later in the life of a read-only
-				# connection at which point GetLoginInfoFor() would
-				# only return cached data and not actually go fetch
-				# things, hence it should work anyhow
-				logininfo = self.GetLoginInfoFor(service)
-				conn = self.__pgconnect(logininfo, readonly, encoding)
-				try:
-					cursor = conn.cursor()
-					cursor.execute("select 1")
-					cursor.close()
-				except:
-					_log.LogException("connection health check failed", sys.exc_info(), 4)
-					return None
+#		# check whether connection is alive and well
+#		if checked:
+#			try:
+#				cursor = conn.cursor()
+#				cursor.execute("select 1")
+#				cursor.close()
+#			except StandardError:
+#				_log.LogException("connection health check failed", sys.exc_info(), 4)
+#				_log.Data("trying a direct connection via __pgconnect()")
+#				# actually this sort of defies the whole thing since
+#				# GetLoginInfoFor() depends on GetConnection() ...
+#				# however, the condition this check was to catch only
+#				# ever occurred later in the life of a read-only
+#				# connection at which point GetLoginInfoFor() would
+#				# only return cached data and not actually go fetch
+#				# things, hence it should work anyhow
+#				logininfo = self.GetLoginInfoFor(service)
+#				conn = self.__pgconnect(logininfo, readonly, encoding)
+#				try:
+#					cursor = conn.cursor()
+#					cursor.execute("select 1")
+#					cursor.close()
+#				except:
+#					_log.LogException("connection health check failed", sys.exc_info(), 4)
+#					return None
+
+		# or a brand-new read-write connection
+		else:
+			_log.Log(gmLog.lData, "requesting RW connection to service [%s]" % service)
+			conn = self.__pgconnect(logininfo, readonly = 0, encoding = encoding)
+			if conn is None:
+				return None
 
 		if extra_verbose:
 			if dbapi == pyPgSQL.PgSQL:
@@ -231,19 +235,19 @@ class ConnectionPool:
 	#-----------------------------
 	def ReleaseConnection(self, service):
 		"""decrease reference counter of active connection"""
-		if ConnectionPool.__databases.has_key(service):
+		if ConnectionPool.__ro_conns.has_key(service):
 			try:
-				ConnectionPool.__connections_in_use[service] -= 1
+				ConnectionPool.__conn_use_count[service] -= 1
 			except:
-				ConnectionPool.__connections_in_use[service] = 0
+				ConnectionPool.__conn_use_count[service] = 0
 		else:
 			try:
-				ConnectionPool.__connections_in_use['default'] -= 1
+				ConnectionPool.__conn_use_count['default'] -= 1
 			except:
-				ConnectionPool.__connections_in_use['default'] = 0
+				ConnectionPool.__conn_use_count['default'] = 0
 	#-----------------------------
 	def Connected(self):
-		return ConnectionPool.__connected	
+		return ConnectionPool.__is_connected	
 	#-----------------------------
 	# notification API
 	#-----------------------------
@@ -298,26 +302,33 @@ class ConnectionPool:
 	#-----------------------------
 	def StopListener(self, service):
 		try:
-			backend = self.__service2db_map[service]	
+			backend = self.__service2db_map[service]
 		except KeyError:
-			backend = 0
+			_log.Log(gmLog.lWarn, 'cannot stop listener on backend [%s]' % backend)
+			return None
 		try:
-			self.__listeners[backend].tell_thread_to_stop()
-			del self.__listeners[backend]
+			ConnectionPool.__listeners[backend].stop_thread()
+			del ConnectionPool.__listeners[backend]
 		except:
-			pass
+			_log.LogException('cannot stop listener on backend [%s]' % backend, sys.exc_info(), verbose = 0)
+			return None
+		return 1
 	#-----------------------------
 	def StopListeners(self):
 		for backend in ConnectionPool.__listeners.keys():
-			ConnectionPool.__listeners[backend].tell_thread_to_stop()
-			del ConnectionPool.__listeners[backend]
+			try:
+				ConnectionPool.__listeners[backend].stop_thread()
+				del ConnectionPool.__listeners[backend]
+			except:
+				_log.LogException('cannot stop listener on backend [%s]' % backend, sys.exc_info(), verbose = 0)
+		return 1
 	#-----------------------------
 	# misc API
 	#-----------------------------
 	def GetAvailableServices(self):
 		"""list all distributed services available on this system
 		(according to configuration database)"""
-		return ConnectionPool.__databases.keys()
+		return ConnectionPool.__ro_conns.keys()
 	#-----------------------------		
 	def SetFetchReturnsList(self, on=1):
 		"""when performance is crucial, let the db adapter
@@ -344,7 +355,7 @@ class ConnectionPool:
 			return dblogin
 		# actually fetch parameters for db where service
 		# is located from config DB
-		cfg_db = ConnectionPool.__databases['default']
+		cfg_db = ConnectionPool.__ro_conns['default']
 		cursor = cfg_db.cursor()
 		cmd = "select name, host, port, opt, tty from db where id = %s ;"
 		if not run_query(cursor, cmd, srvc_id):
@@ -378,7 +389,7 @@ class ConnectionPool:
 	#-----------------------------
 	def __setup_default_ro_conns(self, login):
 		"""Initialize connections to all servers."""
-		if login is None and ConnectionPool.__connected is None:
+		if login is None and ConnectionPool.__is_connected is None:
 			try:
 				login = request_login_params()
 			except:
@@ -394,7 +405,7 @@ class ConnectionPool:
 			raise gmExceptions.ConnectionError, _('Cannot connect to configuration database with:\n\n[%s]') % login.GetInfoStr()
 
 		# this is the default gnumed server now
-		ConnectionPool.__databases['default'] = cfg_db
+		ConnectionPool.__ro_conns['default'] = cfg_db
 		cursor = cfg_db.cursor()
 		# document DB version
 		cursor.execute("select version()")
@@ -426,19 +437,19 @@ class ConnectionPool:
 			_log.Log(gmLog.lData, "mapping service [%s] to DB ID [%s]" % (service, db[dbidx['db']]))
 			ConnectionPool.__service2db_map[service] = db[dbidx['db']]
 			# - init ref counter
-			ConnectionPool.__connections_in_use[service] = 0
+			ConnectionPool.__conn_use_count[service] = 0
 			dblogin = self.GetLoginInfoFor(service, login)
 			# - update 'Database Broker' dictionary
 			conn = self.__pgconnect(dblogin, readonly=1, encoding=_default_client_encoding)
 			if conn is None:
 				raise gmExceptions.ConnectionError, _('Cannot connect to database with:\n\n[%s]') % login.GetInfoStr()
-			ConnectionPool.__databases[service] = conn
+			ConnectionPool.__ro_conns[service] = conn
 			# - document DB version
 			cursor.execute("select version()")
 			_log.Log(gmLog.lInfo, 'service [%s] running on [%s]' % (service, cursor.fetchone()[0]))
 		cursor.close()
-		ConnectionPool.__connected = 1
-		return ConnectionPool.__connected
+		ConnectionPool.__is_connected = 1
+		return ConnectionPool.__is_connected
 	#-----------------------------
 	def __pgconnect(self, login, readonly=2, encoding=None):
 		"""connect to a postgres backend as specified by login object; return a connection object"""
@@ -482,7 +493,7 @@ class ConnectionPool:
 		cmd = "set datestyle to 'ISO'"
 		if not run_query(curs, cmd):
 			_log.Log(gmLog.lErr, 'cannot set client date style to ISO')
-			_log.Log(gmLog.lWarn, 'you better use other means to make your server deliver valid ISO timestamps with time zone')
+			_log.Log(gmLog.lWarn, 'you better use other means to make your server delivers valid ISO timestamps with time zone')
 		# - transaction isolation level
 		if readonly:
 			isolation_level = 'READ COMMITTED'
@@ -515,29 +526,29 @@ class ConnectionPool:
 	def __disconnect(self, force_it=0):
 		"""safe disconnect (respecting possibly active connections) unless the force flag is set"""
 		# are we connected at all?
-		if ConnectionPool.__connected is None:
+		if ConnectionPool.__is_connected is None:
 			# just in case
-			ConnectionPool.__databases.clear()
+			ConnectionPool.__ro_conns.clear()
 			return
 		# stop all background threads
-		for backend in self.__listeners.keys():
-			self.__listeners[backend].tell_thread_to_stop()
-			del self.__listeners[backend]
+		for backend in ConnectionPool.__listeners.keys():
+			ConnectionPool.__listeners[backend].stop_thread()
+			del ConnectionPool.__listeners[backend]
 		# disconnect from all databases
-		for key in ConnectionPool.__databases.keys():
+		for key in ConnectionPool.__ro_conns.keys():
 			# check whether this connection might still be in use ...
-			if ConnectionPool.__connections_in_use[key] > 0 :
+			if ConnectionPool.__conn_use_count[key] > 0 :
 				# unless we are really mean
 				if force_it == 0:
 					# let the end user know that shit is happening
 					raise gmExceptions.ConnectionError, "Attempting to close a database connection that is still in use"
 			else:
 				# close the connection
-				ConnectionPool.__databases[key].close()
+				ConnectionPool.__ro_conns[key].close()
 
 		# clear the dictionary (would close all connections anyway)
-		ConnectionPool.__databases.clear()
-		ConnectionPool.__connected = None
+		ConnectionPool.__ro_conns.clear()
+		ConnectionPool.__is_connected = None
 
 #---------------------------------------------------
 # database helper functions
@@ -953,7 +964,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.21 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.22 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1181,7 +1192,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.21  2004-05-16 14:32:07  ncq
+# Revision 1.22  2004-06-09 14:55:44  ncq
+# - cleanup, typos
+# - commented out connection lifeness check as per Syan's suggestion
+# - adapt StopListener(s)() to gmBackendListener changes
+#
+# Revision 1.21  2004/05/16 14:32:07  ncq
 # - cleanup
 #
 # Revision 1.20  2004/05/15 15:07:53  sjtan
