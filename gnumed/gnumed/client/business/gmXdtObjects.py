@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.2 2003-02-18 02:43:16 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmXdtObjects.py,v 1.3 2003-04-19 22:56:03 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert"
 __license__ = "GPL"
 
@@ -23,9 +23,23 @@ _log.Log(gmLog.lData, __version__)
 from gmExceptions import ConstructorError
 from gmXdtMappings import name_xdtID_map, xdt_gmgender_map
 #==============================================================
-xdt_pat_fields = ('last name', 'first name', 'date of birth', 'gender')
-
 class xdtPatient:
+	"""Handle patient demographics in xDT files.
+
+	- these files are used for inter-application communication in Germany
+	"""
+	_map_id2name = {
+		'3101': 'last name',
+		'3102': 'first name',
+		'3103': 'dob',
+		'3110': 'gender'
+	}
+	_wanted_fields = (
+		'3101',
+		'3102',
+		'3103',
+		'3110'
+	)
 
 	def __init__(self, anXdtFile = None):
 		# sanity checks
@@ -46,9 +60,10 @@ class xdtPatient:
 
 		# read patient data
 		fields_found = 0
+		# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
 		for line in fileinput.input(self.filename):
 			# found all data already ?
-			if fields_found == len(xdt_pat_fields):
+			if fields_found == len(xdtPatient._wanted_fields):
 				# yep - close input
 				fileinput.close()
 				# leave loop
@@ -58,32 +73,32 @@ class xdtPatient:
 			line = string.replace(line,'\015','')
 			line = string.replace(line,'\012','')
 
-			for field in xdt_pat_fields:
-				# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
-				if line[3:7] == name_xdtID_map[field]:
-					self.__data[field] = line[7:]
-					#_log.Log(gmLog.lData, "found item [%s]: %s" % (field, self.__data[field]))
-					fields_found = fields_found + 1
-					# leave this loop
-					break
+			# do we care about this line ?
+			field = line[3:7]
+			if field in xdtPatient._wanted_fields:
+				field_name = xdtPatient._map_id2name[field]
+				self.__data[field_name] = line[7:]
+				#_log.Log(gmLog.lData, "found item [%s]: %s" % (field_name, self.__data[field_name]))
+				fields_found = fields_found + 1
+
 		# cleanup
 		fileinput.close()
 
 		# found all data ?
-		if fields_found != len(xdt_pat_fields):
+		if fields_found != len(xdtPatient._wanted_fields):
 			_log.Log(gmLog.lErr, "did not find sufficient patient data in XDT file [%s]" % self.filename)
 			_log.Log(gmLog.lErr, "found only %s items:" % fields_found)
 			_log.Log(gmLog.lErr, self.__data)
 			return None
 
 		# now normalize what we got
-		if not self.__data.has_key('date of birth'):
+		if not self.__data.has_key('dob'):
 			_log.Log(gmLog.lErr, 'patient has no "date of birth" field')
 			return None
 		else:
-			self.__data['dob day'] = self.__data['date of birth'][:2]
-			self.__data['dob month'] = self.__data['date of birth'][2:4]
-			self.__data['dob year'] = self.__data['date of birth'][4:]
+			self.__data['dob day'] = self.__data['dob'][:2]
+			self.__data['dob month'] = self.__data['dob'][2:4]
+			self.__data['dob year'] = self.__data['dob'][4:]
 
 		#  mangle gender
 		if not self.__data.has_key('gender'):
@@ -134,7 +149,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.2  2003-02-18 02:43:16  ncq
+# Revision 1.3  2003-04-19 22:56:03  ncq
+# - speed up __load_data(), better encapsulate xdt file maps
+#
+# Revision 1.2  2003/02/18 02:43:16  ncq
 # - rearranged __getitem__ to check self.__data last
 #
 # Revision 1.1  2003/02/17 23:33:14  ncq
