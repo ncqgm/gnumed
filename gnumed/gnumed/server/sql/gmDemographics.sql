@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.24 $
+-- $Revision: 1.25 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -228,8 +228,7 @@ comment on column identity.gender is
 	 (h)ermaphrodite,
 	 tm - (t)ranssexual phenotype (m)ale,
 	 tf - (t)ranssexual phenotype (f)emale,
-	 ? - unknown,
-	 N/A - not applicable';
+	 ? - unknown';
 comment on column identity.dob IS
 	'date/time of birth';
 comment on column identity.cob IS
@@ -587,11 +586,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.24 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.25 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.24  2004-03-04 10:40:29  ncq
+-- Revision 1.25  2004-03-09 09:10:50  ncq
+-- - removed N/A gender
+--
+-- Revision 1.24  2004/03/04 10:40:29  ncq
 -- - cleanup, comments, renamed id->pk, origin -> fk_origin
 --
 -- Revision 1.23  2004/03/03 23:51:41  ihaywood
