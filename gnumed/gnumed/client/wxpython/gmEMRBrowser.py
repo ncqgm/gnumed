@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.24 2005-04-03 20:10:51 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmEMRBrowser.py,v 1.25 2005-04-05 16:21:54 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -68,7 +68,7 @@ def export_emr_to_ascii(parent=None):
 #============================================================
 class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
-	def __init__(self, parent, id):
+	def __init__(self, parent, id=-1):
 		"""
 		Contructs a new instance of EMR browser panel
 
@@ -95,8 +95,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__do_layout()
 		self.__register_interests()
 		self.__reset_ui_content()
-
-#		self.popup.SetPopupContext(self.__emr_tree.GetSelection())
 	#--------------------------------------------------------
 	def __do_layout(self):
 		"""
@@ -111,8 +109,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			-1,
 			style=wx.wxTR_HAS_BUTTONS | wx.wxNO_BORDER
 		)
-		# popup menu
-#		self.popup = gmPopupMenuEMRBrowser(self)
 		
 		# narrative details text control
 		self.__narr_TextCtrl = wx.wxTextCtrl (
@@ -217,8 +213,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		# FIXME: should get the list item at the current position
 		# FIXME: should then update the context
-#		 sel_item = event.GetItem()
-#		 self.PopupMenu(self.popup, (event.GetX(), event.GetY()))
 
 		node = event.GetItem()
 		node_data = self.__emr_tree.GetPyData(node)
@@ -280,16 +274,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# FIXME: error handling
 		return True
-	#--------------------------------------------------------
-#	def get_EMR_item(self, selected_tree_item):
-#		"""
-#		Retrieved the EMR struct item associated with the given
-#		tree node.
-#		
-#		@param selected_tree_item The tree node to retrieve its data model for.
-#		@type selected_tree_item A wxTreeItemId instance
-#		"""
-#		return self.__emr_tree.GetPyData(selected_tree_item)
 	#--------------------------------------------------------
 	def get_selection(self):
 		"""
@@ -373,16 +357,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		print " delete encounter"
 		print " attach encounter to another patient"
 		print " attach all progress notes to another encounter"
-	#--------------------------------------------------------
-#	def set_patient(self, patient):
-#		"""
-#		Configures EMR browser patient and instantiates exporter.
-#		Appropiate for standalaone use.
-#		patient - The patient to display EMR for
-#		"""
-#		self.__patient = patient
-#		self.__exporter.set_patient(patient)
-
 #================================================================
 class gmPopupMenuEMRBrowser(wx.wxMenu):
 	"""
@@ -662,7 +636,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.24  2005-04-03 20:10:51  ncq
+# Revision 1.25  2005-04-05 16:21:54  ncq
+# - a fix by Syan
+# - cleanup
+#
+# Revision 1.24  2005/04/03 20:10:51  ncq
 # - add export_emr_to_ascii()
 #
 # Revision 1.23  2005/04/03 09:15:39  ncq
