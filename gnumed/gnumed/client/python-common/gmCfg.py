@@ -47,7 +47,7 @@ permanent you need to call store() on the file object.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -853,7 +853,7 @@ if __name__ == "__main__":
 			for option in options:
 				tmp = myCfg.get(group, option)
 				if not tmp is None:
-					print "OPTION <%s> = %s" % (option, tmp)
+					print "OPTION <%s> = >>>%s<<<" % (option, tmp)
 				tmp = myCfg.getComment(group, option)
 				if not tmp is None:
 					print "  %s" % tmp
@@ -922,7 +922,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.34  2003-01-12 11:53:58  ncq
+# Revision 1.35  2003-01-28 10:53:09  ncq
+# - clarification to test code
+#
+# Revision 1.34  2003/01/12 11:53:58  ncq
 # - fixed subtle bug resulting from ro/rw connections:
 #  - set() would request a rw conn thus CURRENT_USER = "_user"
 #  - get() would use a ro conn, thus CURRENT_USER == "user"
