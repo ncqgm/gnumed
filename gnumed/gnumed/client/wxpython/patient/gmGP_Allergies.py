@@ -17,24 +17,23 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
-from wxPython.wx import *
-try:
-	import gmDispatcher, gmSignals, gmPG
-except:
+if __name__ == "__main__":
+	# FIXME: this will not work on other platforms
 	sys.path.append("../../python-common")
 	sys.path.append("../../business")
 	sys.path.append("../")
-	import gmDispatcher, gmSignals, gmPG
+
+import gmDispatcher, gmSignals, gmPG, gmPlugin, gmEditArea
 
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-import gmEditArea             #panel class holding editing prompts
-import gmPlugin
+
+from wxPython.wx import *
 
 ID_ALLERGYLIST = wxNewId()
 ID_ALLERGIES = wxNewId ()
@@ -180,7 +179,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.10  2003-06-01 01:47:33  sjtan
+# Revision 1.11  2003-06-01 12:46:55  ncq
+# - only add pathes if running as main so we don't obscure problems outside this module
+#
+# Revision 1.10  2003/06/01 01:47:33  sjtan
 #
 # starting allergy connections.
 #
