@@ -9,7 +9,11 @@
 # @change log:
 #	10.10.2001 hherb initial implementation, untested
 #	24.10.2001 hherb comments added
+#	24.10.2001 hherb LoginDialog class added
 #
+# @TODO: if multiple instances are open, saving configuration of the
+#        last panel to save will overwrite previously written configurations
+#	 Thus, we need to implement a routine that appends only changes
 ############################################################################
 
 """gmLoginDialog - This module provides a login dialog to GNUMed
@@ -89,11 +93,12 @@ class LoginPanel(wxPanel):
 
 	def __init__(self, parent, id,
                   pos = wxPyDefaultPosition, size = wxPyDefaultSize,
-                  style = wxTAB_TRAVERSAL, loginparams=None ):
+                  style = wxTAB_TRAVERSAL, loginparams=None, isDialog=0 ):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		self.parent=parent
 		self.cancelled=false
+		self.isDialog=isDialog
 
 		# set the location of the configuration file in a platform independent way
 		self.conf = wxFileConfig("gnumed", style=wxCONFIG_USE_LOCAL_FILE)
@@ -174,7 +179,8 @@ class LoginPanel(wxPanel):
 		self.SetAutoLayout( true )
 		self.SetSizer( self.topsizer)
 		self.topsizer.Fit( self )
-		#self.topsizer.SetSizeHints( self )
+		if self.isDialog:
+			self.topsizer.SetSizeHints( parent )
 
 		EVT_BUTTON(self, ID_BUTTON_HELP, self.OnHelp)
 		EVT_BUTTON(self, ID_BUTTON_SAVECONF, self.OnSaveConfiguration)
@@ -187,7 +193,7 @@ class LoginPanel(wxPanel):
 #############################################################################
 
 	def LoadSettings(self):
-	"Load parameter settings from standard configuration file"
+		"Load parameter settings from standard configuration file"
 		self.loginparams.userlist = StringToList(self.conf.Read("/login/user"))
 		self.loginparams.password = ''
 		self.loginparams.databaselist = StringToList(self.conf.Read("login/database"))
@@ -200,20 +206,21 @@ class LoginPanel(wxPanel):
 #############################################################################
 
 	def SaveSettings(self):
-	"Save parameter settings to standard configuration file"
-		print ListToString(self.loginparams.userlist)
+		"Save parameter settings to standard configuration file"
+		print "Saving settings now ..."
 		self.conf.Write("/login/user", ListToString(ComboBoxItems(self.usercombo)))
 		self.conf.Write("/login/database", ListToString(ComboBoxItems(self.dbcombo)))
 		self.conf.Write("/login/host", ListToString(ComboBoxItems(self.hostcombo)))
 		self.conf.Write("/login/port", ListToString(ComboBoxItems(self.portcombo)))
 		self.conf.Write("/login/backendoption", ListToString(ComboBoxItems(self.beoptioncombo)))
+		self.conf.Flush()
 
 #############################################################################
 # Retrieve current settings from user interface widgets
 #############################################################################
 
 	def GetLoginParams(self):
-	"Fetch login parameters from dialog widgets"
+		"Fetch login parameters from dialog widgets"
 		if not self.cancelled:
 			self.loginparams.userlist = ComboBoxItems(self.usercombo)
 			self.loginparams.password = self.GetPassword()
@@ -228,11 +235,11 @@ class LoginPanel(wxPanel):
 #############################################################################
 
 	def GetUser(self):
-	"Get the selected user name from the text entry section of the user combo box"
+		"Get the selected user name from the text entry section of the user combo box"
 		return self.usercombo.GetValue()
 
 	def SetUser(self, user):
-	"Set the selected user name from the text entry section of the user combo box"
+		"Set the selected user name from the text entry section of the user combo box"
 		self.usercombo.SetValue(user)
 
 	def GetPassword(self):
@@ -287,6 +294,12 @@ class LoginPanel(wxPanel):
 
 
 
+class LoginDialog(wxDialog):
+	def __init__(self, parent, id, title=_("Login")):
+		wxDialog.__init__(self, parent, id, title)
+		panel = LoginPanel(self, -1, isDialog=1)
+
+
 #############################################################################
 # test function for this module: simply run the module as "main"
 #############################################################################
@@ -294,6 +307,9 @@ class LoginPanel(wxPanel):
 if __name__ == '__main__':
 	app = wxPyWidgetTester(size = (400, 400))
 	app.SetWidget(LoginPanel, -1)
+	dlg = LoginDialog(NULL, -1)
+	dlg.ShowModal()
+	dlg.Destroy()
 	app.MainLoop()
 
 
