@@ -9,10 +9,10 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.24 2003-11-17 10:56:38 sjtan Exp $
+# $Id: gmPatientSelector.py,v 1.25 2003-11-18 23:34:02 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.24 2003-11-17 10:56:38 sjtan Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmPatientSelector.py,v 1.25 2003-11-18 23:34:02 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -25,7 +25,7 @@ import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-import gmPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK
+import gmPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK, gmGuiHelpers
 
 from wxPython.wx import *
 
@@ -673,17 +673,15 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 	def SetActivePatient(self, anID = None, data = None):
 		if anID is None:
 			return None
-
-		#if anID == self.curr_pat['ID'] :
-		#	return None
+		if anID == self.curr_pat['ID']:
+			return None
 		if self.curr_pat is not None:
 			old_ID = self.curr_pat['ID']
 		else:
 			old_ID = -1
-		self.curr_pat = gmPatient.gmCurrentPatient(anID, reload = 1)
+		self.curr_pat = gmPatient.gmCurrentPatient(anID)
 		if old_ID == self.curr_pat['ID']:
 			_log.Log (gmLog.lErr, 'cannot change active patient')
-			# error message ?
 			return None
 
 		# remember patient
@@ -697,7 +695,6 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 			# and only 10 of them
 			if len(self.prev_pats) > 10:
 				self.prev_pats.pop(0)
-
 	#--------------------------------------------------------
 	# utility methods
 	#--------------------------------------------------------
@@ -996,7 +993,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.24  2003-11-17 10:56:38  sjtan
+# Revision 1.25  2003-11-18 23:34:02  ncq
+# - don't use reload to force reload of same patient
+#
+# Revision 1.24  2003/11/17 10:56:38  sjtan
 #
 # synced and commiting.
 #
