@@ -107,12 +107,27 @@ public class HibernateInit {
         addClass(enum_allergy_type.class).
         addClass(enum_hx_source.class).
         addClass(enum_hx_type.class).
-        addClass(clin_episode.class)
+        addClass(clin_episode.class).
+        
+        addClass(script_drug.class).
+        addClass(link_script_drug.class).
+        addClass(script.class)
         
         
         ;
         
         ds.addClass( disease_code.class);
+        ds.addClass( product.class);
+        ds.addClass(drug_routes.class);
+        ds.addClass(drug_element.class);
+        ds.addClass(drug_units.class);
+        ds.addClass(atc.class);
+        ds.addClass(drug_formulations.class);
+        ds.addClass(drug_warning_categories.class);
+        ds.addClass(link_compound_generics.class);
+        ds.addClass(package_size.class);
+        ds.addClass(generic_drug_name.class);
+        
     }
     //
     
@@ -145,6 +160,12 @@ public class HibernateInit {
         if ( exported == null ||  !exported.toLowerCase().equals("true") )
         {
             new net.sf.hibernate.tool.hbm2ddl.SchemaExport(ds).create(true, true);
+            
+            // additional setup to fit drugref database in.
+            java.sql.Connection c = sessions.openSession().connection();
+            c.createStatement().execute("alter table link_drug_atc add column audit_id integer");
+            c.commit();
+            c.close();
             return;
         }
 //        new net.sf.hibernate.tool.hbm2ddl.SchemaUpdate(ds).execute(true);

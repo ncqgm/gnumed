@@ -185,16 +185,19 @@ public class TestClinEncounter extends TestCase {
     }
     public void testCreateIdentityWithRandomClinEncounter() throws Exception {
         List l = createListOfRandomIdentitiesWithClinEncounters();
+        System.out.println("*************************************\n***************************\n");
+        System.out.println("Testing TRANSIENT identities with clin encounters");
+        System.out.println("*************************************\n***************************\n");
         printIdentites(l);
     }
     
     void printIdentites( List l) {
-//          clin_encounter dummy = new clin_encounter();
+        //          clin_encounter dummy = new clin_encounter();
         for (int i = 0; i < l.size(); ++i) {
             identity id = (identity) l.get(i);
-//            id.addClin_encounter(dummy);
-//            id.removeClin_encounter(dummy);
-            System.out.println("AFTER STRESSING COLLECTION ADD");
+            //            id.addClin_encounter(dummy);
+            //            id.removeClin_encounter(dummy);
+            //            System.out.println("AFTER STRESSING COLLECTION ADD");
             DomainPrinter.getInstance().printIdentity(System.out, id);
         }
     }
@@ -220,17 +223,17 @@ public class TestClinEncounter extends TestCase {
     
     
     public void saveIdentityWithEncounterProviders( Session sess, identity id) throws Exception {
-            for (Iterator j =id.getClin_encounters().iterator() ; j.hasNext(); ) {
-                clin_encounter e = (clin_encounter) j.next();
-                sess.save( e.getProvider());
-                sess.save( e.getLocation());
-                sess.flush();
-                sess.connection().commit();
-            }
-            sess.save(id);
+        for (Iterator j =id.getClin_encounters().iterator() ; j.hasNext(); ) {
+            clin_encounter e = (clin_encounter) j.next();
+            sess.save( e.getProvider());
+            sess.save( e.getLocation());
             sess.flush();
             sess.connection().commit();
-            sess.evict(sess);
+        }
+        sess.save(id);
+        sess.flush();
+        sess.connection().commit();
+        sess.evict(sess);
     }
     
     public void atestStoreRandomIdentityWithClinEncounter() throws Exception {
@@ -245,7 +248,7 @@ public class TestClinEncounter extends TestCase {
         
         Session sess = HibernateInit.openSession();
         Logger.global.info("ABOUT TO SAVE " + Integer.toString((int) l.size()));
-      for (int i = 0 ; i < l.size() ; ++i) {
+        for (int i = 0 ; i < l.size() ; ++i) {
             saveIdentityWithEncounterProviders(sess, (identity) l.get(i));
             System.out.println("Created THIS:");
             DomainPrinter.getInstance().printIdentity(System.out, (identity) l.get(i));
@@ -285,25 +288,29 @@ public class TestClinEncounter extends TestCase {
         
         
         
-             Session s = HibernateInit.openSession();
-           
+        Session s = HibernateInit.openSession();
+        
         for (int i = 0; i <  nId; ++i) {
             identity id = createTestIdentityWithScenarios(nEncounter);
             
             System.out.println("ABOUT TO SAVE");
-       
-          saveIdentityWithEncounterProviders(s,id);
-           s.flush();
+            
+            saveIdentityWithEncounterProviders(s,id);
+            s.flush();
             s.connection().commit();
-//            for( Iterator j = id.getClin_encounters().iterator(); j.hasNext(); ) {
-//                s.update(j.next());
-//            }     
-//            s.flush();
-//            s.connection().commit();
-//       
+            //            for( Iterator j = id.getClin_encounters().iterator(); j.hasNext(); ) {
+            //                s.update(j.next());
+            //            }
+            //            s.flush();
+            //            s.connection().commit();
+            //
             sampleIds.add(id.getId());
             if (i % notifyEveryN == 0)
                 System.out.println("Created "+ i + " identites with " + nEncounter + " each.");
+            System.out.println("*************************************\n***************************\n");
+            System.out.println("Testing SAVED identities with clin encounters");
+            System.out.println("*************************************\n***************************\n");
+            DomainPrinter.getInstance().printIdentity(System.out, id);
         }
         s.close();
         System.out.println("Saved " + nId + " identities");
@@ -314,11 +321,15 @@ public class TestClinEncounter extends TestCase {
         for (int i = 0; i < sampleIds.size(); ++i) {
             identity id = (identity)sess.load(identity.class, (java.io.Serializable) sampleIds.get(i) );
             id.getClin_encounters().addAll(sess.find("select e from org.gnumed.gmClinical.clin_encounter  e "
-                                    +"  where  e.identity.id= ?", id.getId(), Hibernate.INTEGER) );
+            +"  where  e.identity.id= ?", id.getId(), Hibernate.INTEGER) );
             sess.flush();
             found.add(id);
         }
         Date d2 = new Date();
+          System.out.println("*************************************\n***************************\n");
+          System.out.println("Testing RETRIEVE identities with clin encounters");
+          System.out.println("*************************************\n***************************\n");
+           
         printIdentites(found);
         sess.close();
         

@@ -86,12 +86,60 @@ public class DomainPrinter {
                 ps.println();
             }
         }
+        
+        if(id.getScript_drugs().size() > 0)  {
+            ps.println("***********MEDICATIONS***************");
+            Iterator sdi = id.getScript_drugs().iterator();
+            while ( sdi.hasNext()) {
+                script_drug sd = (script_drug) sdi.next();
+                printScriptDrug( ps, sd);
+                ps.println();
+            }
+        }
+    }
+    
+    public static void printScriptDrug( java.io.PrintStream ps, script_drug sd) {
+        product p = sd.getProduct();
+        drug_element de = p.getDrug_element();
+        generic_drug_name name = (de.getGeneric_name().size() > 0) ?(generic_drug_name) de.getGeneric_name().iterator().next(): null;
+        if (name != null )
+            ps.print(name.getName());
+        else
+            if ( p != null && de != null && de.getAtcs().size() > 0) {
+                atc atc = (atc) de.getAtcs().iterator().next();
+                ps.print(atc.getText());
+            } else {
+                ps.print(p.getId() + ":drug with no ATC");
+            }
+        
+        ps.print("\t");
+        ps.print(sd.getDose_amount());
+        drug_units units = p.getDrug_units();
+        if ( units != null && !units.getUnit().equals("each"))
+            ps.print(p.getDrug_units().getUnit());
+        ps.print(" ");
+        ps.print(sd.getProduct().getDrug_formulations().getDescription());
+        if (p.getDrug_routes() != null) {
+            ps.print(" taken ");
+            ps.print(sd.getProduct().getDrug_routes().getDescription());
+        }
+        ps.print(" ");
+        ps.print(sd.getFrequency());
+        ps.print(" ");
+        ps.print(sd.getDirections());
+        ps.print("\t");
+        if ( sd.getProduct().getPackage_sizes().size() > 0) {
+            package_size sz = (package_size)sd.getProduct().getPackage_sizes().iterator().next();
+            ps.print(  sz.getSize().intValue() );
+            ps.print(" x ");
+        }
+        ps.print(sd.getProduct().getComment());
     }
     
     static class ClinRootItemComparator implements  Comparator {
         
         static Map map = new HashMap();
-        static { 
+        static {
             map.put("clin_history", "a");
             map.put("allergy", "b");
             map.put("clin_physical", "c");
@@ -118,14 +166,14 @@ public class DomainPrinter {
     TreeSet orderedRootItems = new TreeSet( new DomainPrinter.ClinRootItemComparator());
     
     void printClinEncounter( java.io.PrintStream ps, clin_encounter e) {
-//        clin_root_item dummy = new clin_root_item();
-//        e.addClin_root_item(dummy);
-//        e.removeClin_root_item(dummy);
+        //        clin_root_item dummy = new clin_root_item();
+        //        e.addClin_root_item(dummy);
+        //        e.removeClin_root_item(dummy);
         ps.print("Seen by ");
         printNames(ps, (Names)e.getProvider().getNamess().iterator().next());
         ps.print(" at ");
         printAddress(ps, e.getLocation());
-         ps.print("PROBLEM: ");
+        ps.print("PROBLEM: ");
         ps.println(e.getDescription());
         orderedRootItems.clear();
         orderedRootItems.addAll( e.getClin_root_items());
