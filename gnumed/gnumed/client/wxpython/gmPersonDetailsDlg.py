@@ -531,8 +531,6 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 		map['id' ] = self.addressId
 		return map
 
-		
-
 	def OnDelete(self, evt):
 		print evt.GetId()
 
@@ -541,7 +539,6 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 
 	def SetPersonId(self, id):
 		pass
-	
 
 	def ClearPersonData(self):
 		self.comboTitle.SetSelection(0)
@@ -553,7 +550,6 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 		self.tcDob.Clear()
 		self.cbCob.SetSelection(0)
 		self.__setPersonId(None)		
-
 
 	def ClearAddressData(self):
 		#self.cbAddressAt.SetSelection(0)
@@ -571,7 +567,6 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 		self.cbUrlCategory.SetSelection(0)
 		self.tcURL.Clear()
 		self.__setAddressId(None)
-
 
 	def SetViaMapping( self, data, mapping):
 		"""sets a control either through default SetValue, or via a supplied operation in x['op']
@@ -597,7 +592,6 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 				t =  sys.exc_traceback
 				print t.tb_lineno , t.tb_lasti
 
-
 	def SetPersonData(self, person=None):
 		if person is None:
 			self.ClearPersonData()
@@ -619,9 +613,6 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 		#self.chGender.SetStringSelection(p["gender"])
 		#self.tcDob.SetValue(p["dob"])
 		#self.cbCob.SetSelection(0)
-		
-		
-
 
 	def SetAddressData(self, address=None):
 		if address is None:
@@ -634,7 +625,6 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 		self.SetViaMapping( address, mapping)
 		
 		return
-
 
 		a=address	#less typing ...
 		self.cbAddressAt.SetSelection(a["adr_at"])
@@ -654,7 +644,6 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 	def ClearData(self):
 		self.ClearPersonData()
 		self.ClearAddressData()
-
 
 	def OnDataUpdate(self, updater, id):
 		#<DEBUG>
@@ -677,17 +666,9 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 			#save person
 			#save address
 
-
-
-
-
-
-
-
 ##########################################################################
-
 if __name__ == "__main__":
-	import gmI18N
+	_ = lambda x:x
 	app = wxPyWidgetTester(size = (400, 500))
 	app.SetWidget(PersonDetailsDlg, -1)
 	app.MainLoop()

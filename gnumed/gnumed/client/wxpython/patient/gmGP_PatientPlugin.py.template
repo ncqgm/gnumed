@@ -12,7 +12,7 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_PatientPlugin.py.template,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "you <you@yourdomain.org>"
 
 # import here whatever is needed
@@ -70,8 +70,9 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_PatientPlugin.py.template,v $
-# Revision 1.1  2002-09-17 05:37:33  ncq
+# Revision 1.2  2002-09-21 14:49:22  ncq
+# - cleanup related to gmi18n
+#
+# Revision 1.1  2002/09/17 05:37:33  ncq
 # - moved over to l10n-able icon keys
 # - added plugin template
-#
-#

@@ -308,7 +308,7 @@ class PnlPersonDetails(wxPanel):
 #################################################################################
 
 if __name__ == "__main__":
-	import gmI18N
+	_ = lambda x:x
 	app = wxPyWidgetTester(size = (400, 500))
 	app.SetWidget(PnlPersonDetails, -1)
 	app.MainLoop()

@@ -63,6 +63,6 @@ def Login(max_attempts=3):
 myLog = gmLog.gmDefLog
 
 if __name__ == "__main__":
-	import gmI18N
+	_ = lambda x:x
 	myLog.Log (gmLog.lWarn, "This module needs a test function!  please write it")
 	print "This module needs a test function!  please write it"

@@ -423,8 +423,8 @@ class OptionPanel(wxPanel):
 
 		self.topsizer = wxBoxSizer(wxVERTICAL)
 
-		# FIXME: either no title as in "" or a title with i18n as in _("a title")
-		# BUT NOT no title with i18n as in _("")
+		# FIXME: either no title as in "" or a title with i_18_n as in _("a title")
+		# BUT NOT no title with i_18_n as in _("")
 		self.paramsbox = wxStaticBox( self, -1, "")
 		self.paramsboxsizer = wxStaticBoxSizer( self.paramsbox, wxVERTICAL )
 
@@ -554,8 +554,6 @@ Backend options: options passed through unparsed to the backend\n"))
 #############################################################################
 
 if __name__ == '__main__':
-	import gmI18N
-
 	app = wxPyWidgetTester(size = (300,400))
 	#show the login panel in a main window
 	app.SetWidget(LoginPanel, -1)
@@ -573,7 +571,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.25  2002-09-12 23:19:27  ncq
+# Revision 1.26  2002-09-21 14:49:22  ncq
+# - cleanup related to gmi18n
+#
+# Revision 1.25  2002/09/12 23:19:27  ncq
 # - cleanup in preparation of cleansing
 #
 # Revision 1.24  2002/09/10 08:54:35  ncq

@@ -36,7 +36,6 @@ the selected text segment.
 
 from wxPython.wx import *
 import string, rotor, binascii
-import gmI18N
 
 ID_POP_ENCRYPT = wxNewId()
 ID_POP_DECRYPT = wxNewId()
@@ -251,8 +250,7 @@ class gmCryptoText(wxTextCtrl):
 # for options like encryption, decryption, and setting of passphrase
 #############################################################################
 if __name__ == '__main__':
-
-
+	_ = lambda x:x
 	app = wxPyWidgetTester(size = (400, 400))
 	#show the login panel in a main window
 	app.SetWidget(gmCryptoText, -1)

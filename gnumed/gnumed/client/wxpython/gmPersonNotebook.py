@@ -87,7 +87,7 @@ class PersonNotebook(wxPanel):
 
 
 if __name__ == "__main__":
-	import gmI18N
+	_ = lambda x:x
 	app = wxPyWidgetTester(size = (400, 500))
 	app.SetWidget(PersonNotebook, -1)
 	app.MainLoop()
