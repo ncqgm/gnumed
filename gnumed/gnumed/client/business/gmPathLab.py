@@ -4,11 +4,11 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.11 2004-05-03 15:30:58 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmPathLab.py,v 1.12 2004-05-03 22:25:10 shilbert Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import types
+import types,sys
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 from Gnumed.business import gmClinItem
@@ -238,7 +238,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.11 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.12 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -318,7 +318,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.11 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.12 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -335,7 +335,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		cmd = "insert into lab_request (id_encounter, id_episode, fk_test_org, request_id) values (%s, %s, (select pk from test_org where internal_name=%s), %s)"
 	queries.append((cmd, [encounter_id, episode_id, str(lab), req_id]))
 	cmd = "select currval('lab_request_pk_seq')"
-	queries.appen((cmd, []))
+	queries.append((cmd, []))
 	# insert new
 	result, err = gmPG.run_commit('historica', queries, True)
 	if result is None:
@@ -361,7 +361,7 @@ if __name__ == '__main__':
 	def test_request():
 #		lab_req = cLabRequest(aPKey=1)
 #		lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab=2)
-		lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab='Enterprise Main Lab')
+		lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#21', lab='Enterprise Main Lab')
 		print lab_req
 		fields = lab_req.get_fields()
 		for field in fields:
@@ -378,7 +378,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.11  2004-05-03 15:30:58  ncq
+# Revision 1.12  2004-05-03 22:25:10  shilbert
+# - some typos fixed
+#
+# Revision 1.11  2004/05/03 15:30:58  ncq
 # - add create_lab_request()
 # - add cLabResult.get_patient()
 #
