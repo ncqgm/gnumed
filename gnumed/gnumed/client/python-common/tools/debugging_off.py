@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 ###############################################################
 # This is to disable excess debugging in production releases.
 #
@@ -22,8 +22,8 @@
 # @author: Karsten Hilbert
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
-# @Date: $Date: 2003-01-16 14:32:45 $
-# @version $Revision: 1.2 $ $Date: 2003-01-16 14:32:45 $ $Author: ncq $
+# @Date: $Date: 2003-01-16 14:42:57 $
+# @version $Revision: 1.3 $ $Date: 2003-01-16 14:42:57 $ $Author: ncq $
 ###############################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/tools/Attic/debugging_off.py,v $
 __version__ = "$Revision"
