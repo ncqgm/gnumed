@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -508,19 +508,23 @@ class cLogTargetEMail(cLogTarget):
 		msg = msg + 'From: %s\n' % self.__from
 		msg = msg + 'To: %s\n' % self.__to
 		msg = msg + 'Date: %s\n' % time.strftime("%a, %d %b %Y %H:%M:%S %Z", time.localtime(time.time()))
-		msg = msg + 'Subject: gmLog error log demon\n'
+		msg = msg + 'Subject: gmLog error log\n'
 		msg = msg + '\n'
 
 		# create mail body
 		# - dump comment
-		msg = msg + self.__comment
+		msg = msg + self.__comment + "\n"
+		msg = msg + '----------------------------------------------\n'
 
 		# - dump system info
 		if self.__dump_sys_info:
 			msg = msg + 'sys.version : %s\n' % sys.version
 			msg = msg + 'sys.platform: %s\n' % sys.platform
+			msg = msg + '----------------------------------------------\n'
 			msg = msg + 'sys.path    : %s\n' % sys.path
+			msg = msg + '----------------------------------------------\n'
 			msg = msg + 'sys.modules : %s\n' % sys.modules
+			msg = msg + '----------------------------------------------\n'
 
 		# - dump actual message buffer
 		msg = msg + string.join(self.__msg_buffer, '')
