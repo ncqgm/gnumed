@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.28 $
+-- $Revision: 1.29 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -446,13 +446,63 @@ comment on table enum_immunities is
 'list of diseases to which patients may have immunity. Same table must exist in gmdrugs';
 
 -- =============================================
+GRANT SELECT ON
+	"clin_narrative",
+	"clin_health_issue",
+	"clin_episode",
+	"_enum_encounter_type",
+	"vi18n_enum_encounter_type",
+	"clin_encounter",
+	"clin_transaction",
+	"_enum_hx_type",
+	"_enum_hx_source",
+	"clin_history",
+	"clin_physical",
+	"_enum_allergy_type",
+	"vi18n_enum_allergy_type",
+	"allergy"
+TO GROUP "gm-doctors";
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON
+	"clin_narrative",
+	"clin_narrative_id_seq",
+	"clin_health_issue",
+	"clin_health_issue_id_seq",
+	"clin_episode",
+	"clin_episode_id_seq",
+	"_enum_encounter_type",
+	"_enum_encounter_type_id_seq",
+	"vi18n_enum_encounter_type",
+	"clin_encounter",
+	"clin_encounter_id_seq",
+	"clin_transaction",
+	"clin_transaction_id_seq",
+	"_enum_hx_type",
+	"_enum_hx_type_id_seq",
+	"_enum_hx_source",
+	"_enum_hx_source_id_seq",
+	"clin_history",
+	"clin_history_id_seq",
+	"clin_physical",
+	"clin_physical_id_seq",
+	"_enum_allergy_type",
+	"_enum_allergy_type_id_seq",
+	"vi18n_enum_allergy_type",
+	"allergy",
+	"allergy_id_seq"
+TO GROUP "_gm-doctors";
+
+-- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.28 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.29 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.28  2003-04-25 12:32:39  ncq
+-- Revision 1.29  2003-04-25 12:43:52  ncq
+-- - add grants
+--
+-- Revision 1.28  2003/04/25 12:32:39  ncq
 -- - view on encounter types needs "as description"
 --
 -- Revision 1.27  2003/04/18 13:30:35  ncq
