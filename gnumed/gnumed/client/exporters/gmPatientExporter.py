@@ -1,10 +1,22 @@
-"""GnuMed preliminary simple ASCII EMR export tool.
+"""GnuMed simple ASCII EMR export tool.
 
+TODO
+- two modes: GUI and scripted
+- scripted:
+  - first release
+  - define all parameters via config file
+- GUI:
+  - post-0.1 !
+  - allow user to select patient
+  - allow user to pick episodes/encounters/etc from list
+- output modes:
+  - ASCII - first release
+  - HTML - post-0.1 !
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.12 2004-06-28 12:18:52 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmPatientExporter.py,v 1.13 2004-06-28 15:52:00 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -471,7 +483,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.12  2004-06-28 12:18:52  ncq
+# Revision 1.13  2004-06-28 15:52:00  ncq
+# - some comments
+#
+# Revision 1.12  2004/06/28 12:18:52  ncq
 # - more id_* -> fk_*
 #
 # Revision 1.11  2004/06/26 23:45:50  ncq
