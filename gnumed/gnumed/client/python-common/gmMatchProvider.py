@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.10 2003-11-20 08:55:05 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmMatchProvider.py,v 1.11 2003-12-29 16:28:04 uid66147 Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -412,9 +412,9 @@ class cMatchProvider_SQL(cMatchProvider):
 						ctxt_where += " and (%s)" % ctxt_condition
 						# remember value for condition
 						values.append(self._context_val[ctxt_name])
-			# do we have any contexts that always apply ?
-			if src['extra conditions'].has_key('default'):
-				ctxt_where += " and (%s)" % src['extra conditions']['default']
+				# do we have any contexts that always apply ?
+				if src['extra conditions'].has_key('default'):
+					ctxt_where += " and (%s)" % src['extra conditions']['default']
 
 			cmd = "select %s, %s from %s where %s %s %%s %s" % (
 				src['pk'],
@@ -453,7 +453,11 @@ class cMatchProvider_SQL(cMatchProvider):
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.10  2003-11-20 08:55:05  ncq
+# Revision 1.11  2003-12-29 16:28:04  uid66147
+# - I think we got the indentation level wrong when
+#   applying the extra condition default context
+#
+# Revision 1.10  2003/11/20 08:55:05  ncq
 # - some internal cleanup/renaming
 #
 # Revision 1.9  2003/11/20 02:16:03  sjtan
