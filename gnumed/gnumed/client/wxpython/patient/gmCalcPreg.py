@@ -1,5 +1,4 @@
-#!/usr/bin/python
-
+#!/usr/bin/env python
 #====================================================================
 # GnuMed tool to calculate expected date of delivery
 # licence: GPL
@@ -7,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
-# $Id: gmCalcPreg.py,v 1.14 2003-02-09 05:13:52 michaelb Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmCalcPreg.py,v 1.15 2003-05-03 02:35:05 michaelb Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "I.Haywood, M.Bonert"
 
 from wxPython.wx import *
@@ -176,11 +175,15 @@ else:
 		#---------------------
 		def OnTool (self, event):
 			frame = PregnancyFrame (self.gb['main.frame'])
+			frame.Centre(wxBOTH)
 			frame.Show (1)
 
 #=====================================================================
 # $Log: gmCalcPreg.py,v $
-# Revision 1.14  2003-02-09 05:13:52  michaelb
+# Revision 1.15  2003-05-03 02:35:05  michaelb
+# centred preg calc on main window
+#
+# Revision 1.14  2003/02/09 05:13:52  michaelb
 # initialize due date (using LNMP = current date), clean-up of code assoc. with icon
 #
 # Revision 1.13  2003/02/03 16:32:34  ncq
