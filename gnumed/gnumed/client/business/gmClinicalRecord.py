@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.120 2004-06-17 21:30:53 ncq Exp $
-__version__ = "$Revision: 1.120 $"
+# $Id: gmClinicalRecord.py,v 1.121 2004-06-20 18:39:30 ncq Exp $
+__version__ = "$Revision: 1.121 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1134,6 +1134,34 @@ class cClinicalRecord:
 #		self.encounter = encounter
 #		return True
 		pass
+	#--------------------------------------------------------
+	def get_encounters(self, id_list = None):
+		"""Retrieves patient's encounters.
+
+		id_list - PKs of encounters to fetch
+		"""
+		try:
+			self.__db_cache['encounters']
+		except KeyError:
+			self.__db_cache['encounters'] = []
+			cmd = "select id from clin_encounter where fk_patient=%s order by started"
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot load encounters for patient [%s]' % self.id_patient)
+				del self.__db_cache['encounters']
+				return None
+			for row in rows:
+				try:
+					self.__db_cache['encounters'].append(gmEMRStructItems.cEncounter(aPK_obj=row[0]))
+				except gmExceptions.ConstructorError, msg:
+					_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		if id_list is None:
+			return self.__db_cache['encounters']
+		filtered_encounters = []
+		for encounter in self.__db_cache['encounters']:
+			if encounter['pk_encounter'] in id_list:
+				filtered_encounters.append(encounter)
+		return filtered_encounters
 	#------------------------------------------------------------------
 	# lab data API
 	#------------------------------------------------------------------
@@ -1290,7 +1318,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.120  2004-06-17 21:30:53  ncq
+# Revision 1.121  2004-06-20 18:39:30  ncq
+# - get_encounters() added by Carlos
+#
+# Revision 1.120  2004/06/17 21:30:53  ncq
 # - time range constraints in get()ters, by Carlos
 #
 # Revision 1.119  2004/06/15 19:08:15  ncq
