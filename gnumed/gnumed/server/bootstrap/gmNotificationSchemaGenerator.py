@@ -6,10 +6,12 @@ Theory of operation:
 
 Any table that should send notifies must be recorded in
 the table "notifying_tables".
+
+FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -73,7 +75,7 @@ def create_notification_schema(aCursor):
 	for notifying_def in rows:
 		tbl = notifying_def[0]
 		sig = notifying_def[1]
-		schema.append(trigger_schema % {'sig':sig, 'tbl':tbl})
+		schema.append(trigger_schema % {'sig': sig, 'tbl': tbl})
 		schema.append('-- ----------------------------------------------')
 	return schema
 #==================================================================
@@ -102,6 +104,9 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.1  2003-11-28 10:16:06  ncq
+# Revision 1.2  2003-12-01 22:10:55  ncq
+# - typo
+#
+# Revision 1.1  2003/11/28 10:16:06  ncq
 # - initial check-in
 #
