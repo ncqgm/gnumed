@@ -8,7 +8,10 @@
 # @dependencies: wxPython
 # @change log:
 #     $Log: gmUserAdmin.py,v $
-#     Revision 1.1  2001-12-04 20:35:57  sduffy
+#     Revision 1.2  2001-12-05 13:57:02  sduffy
+#     Not all text was processed through gettext.  Changed this.
+#
+#     Revision 1.1  2001/12/04 20:35:57  sduffy
 #     Initial Revision
 #
 #
@@ -50,7 +53,7 @@ class MyFrame(wxFrame):
 		#
 		# Add a combo box to UserBox
 		self.staticUserBoxS.Add( wxComboBox( self, -1, "" ), 0, wxALL, 10 )
-		self.staticUserBoxS.Add( wxButton( self, -1, "Select" ), 0,
+		self.staticUserBoxS.Add( wxButton( self, -1, _("Select") ), 0,
 				wxALL, 10)
 
 		#
@@ -59,16 +62,16 @@ class MyFrame(wxFrame):
 		self.userInfoRow1a = wxBoxSizer( wxHORIZONTAL )
 		self.userInfoRow1b = wxBoxSizer( wxHORIZONTAL )
 
-		self.userInfoRow1a.Add( wxStaticText( self, -1, "First Name: " ) )
+		self.userInfoRow1a.Add( wxStaticText( self, -1, _("First Name: ") ) )
 		self.userInfoRow1a.Add( wxTextCtrl( self, -1, "" ) )
-		self.userInfoRow1b.Add( wxStaticText( self, -1, "Last Name: " ) )
+		self.userInfoRow1b.Add( wxStaticText( self, -1, _("Last Name: ") ) )
 		self.userInfoRow1b.Add( wxTextCtrl( self, -1, "" ) )
 
 		self.userInfoRow1.AddSizer( self.userInfoRow1a, 1, wxALIGN_CENTER,10 )
 		self.userInfoRow1.AddSizer( self.userInfoRow1b, 1, wxALIGN_CENTER,10 )
 
 		self.userInfoRow2 = wxBoxSizer( wxHORIZONTAL )
-		self.userInfoRow2.Add( wxStaticText( self, -1, "Password: " ) )
+		self.userInfoRow2.Add( wxStaticText( self, -1, _("Password: ") ) )
 		self.userInfoRow2.Add( wxTextCtrl( self, -1, "" ) )
 
 		self.userInfoRow3 = wxBoxSizer( wxHORIZONTAL )
@@ -88,10 +91,10 @@ class MyFrame(wxFrame):
 				
 		self.grid.CreateGrid( 4, 4 )
 
-		self.grid.SetColLabelValue( 0, "Read" )		# SELECT
-		self.grid.SetColLabelValue( 1, "Add" )		# INSERT
-		self.grid.SetColLabelValue( 2, "Change" )	# UPDATE
-		self.grid.SetColLabelValue( 3, "Delete" )	# DELETE
+		self.grid.SetColLabelValue( 0, _("Read") )		# SELECT
+		self.grid.SetColLabelValue( 1, _("Add") )		# INSERT
+		self.grid.SetColLabelValue( 2, _("Change") )	# UPDATE
+		self.grid.SetColLabelValue( 3, _("Delete") )	# DELETE
 
 		self.grid.SetRowLabelValue( 0, "Service 1" )
 		self.grid.SetRowLabelValue( 1, "Service 2" )
@@ -114,7 +117,7 @@ class MyFrame(wxFrame):
 		self.mainSizer.AddSizer( self.staticPermsBoxS, 1, 
 				wxGROW|wxALL, 5 )
 
-		self.mainSizer.Add( wxButton( self, -1, "Commit Changes" ), 0,
+		self.mainSizer.Add( wxButton( self, -1, _("Commit Changes") ), 0,
 				wxALIGN_CENTER|wxALL, 10 )
 
 		#
@@ -126,7 +129,7 @@ class MyFrame(wxFrame):
 
 class MyApp(wxApp):
 	def OnInit(self):
-		frame = MyFrame(NULL, -1, "User Administration")
+		frame = MyFrame(NULL, -1, _("User Administration") )
 		frame.Show(true)
 		self.SetTopWindow(frame)
 		return true
