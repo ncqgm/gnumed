@@ -1,6 +1,6 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/TODO,v $
-$Id: TODO,v 1.4 2004-05-18 20:32:39 ncq Exp $
-$Revision: 1.4 $
+$Id: TODO,v 1.5 2004-06-26 23:00:36 ncq Exp $
+$Revision: 1.5 $
 ====================================================
 
 gmCfg
@@ -68,9 +68,6 @@ vaccinations widget
 ------------------------
 gnumed.py
 - rework use of resource_dir/base_dir
---------------------------
-gmI18N
-- only explicitely install _()
 --------------------------
 main GUI
 - on new patient
