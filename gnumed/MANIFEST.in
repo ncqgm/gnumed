@@ -1,0 +1,10 @@
+#bitmap files
+recursive-include gnumed/client/bitmaps *.png
+#docs
+recursive-include gnumed/client/doc *
+#man pages
+include gnumed/client/doc/man-pages/gnumed.1
+#locale files
+recursive-include gnumed/client/locale *
+#html docs
+recursive-include gnumed/html *
