@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.9 2004-10-01 11:50:45 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmVaccWidgets.py,v 1.10 2004-10-11 20:11:32 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -17,7 +17,7 @@ from wxPython.wx import *
 import mx.DateTime as mxDT
 
 from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts, gmRegetMixin
-from Gnumed.business import gmPatient
+from Gnumed.business import gmPatient, gmVaccination
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmExceptions, gmMatchProvider
 
 _log = gmLog.gmDefLog
@@ -219,30 +219,69 @@ class cVaccinationEditArea(gmEditArea.gmEditArea):
 		- set defaults if no object is passed in, this will
 		  result in a new object being created upon saving
 		"""
-		self.data = None
+		# no vaccination passed in
 		if aVacc is None:
+			self.data = None
 			self.fld_vaccine.SetValue('')
 			self.fld_batch_no.SetValue('')
 			self.fld_date_given.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
 			self.fld_site_given.SetValue(_('left/right deltoid'))
 			self.fld_progress_note.SetValue('')
-			return 1
-		self.data = aVacc
-		self.fld_vaccine.SetValue(aVacc['vaccine'])
-		self.fld_batch_no.SetValue(aVacc['batch_no'])
-		self.fld_date_given.SetValue(aVacc['date'])
-		self.fld_site_given.SetValue(aVacc['site'])
-		self.fld_progress_note.SetValue(aVacc['narrative'])
-		return 1
+			return True
+
+		# previous vaccination for modification ?
+		if isinstance(aVacc, gmVaccination.cVaccination):
+			self.data = aVacc
+			self.fld_vaccine.SetValue(aVacc['vaccine'])
+			self.fld_batch_no.SetValue(aVacc['batch_no'])
+			self.fld_date_given.SetValue(aVacc['date'].Format('%Y-%m-%d'))
+			self.fld_site_given.SetValue(aVacc['site'])
+			self.fld_progress_note.SetValue(aVacc['narrative'])
+			return True
+
+		# vaccination selected from list of missing ones
+		if isinstance(aVacc, gmVaccination.cMissingVaccination):
+			self.data = None
+			# FIXME: check for gap in seq_idx and offer filling in missing ones ?
+			self.fld_vaccine.SetValue('')
+			self.fld_batch_no.SetValue('')
+			self.fld_date_given.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
+			# FIXME: use previously used value from table ?
+			self.fld_site_given.SetValue(_('left/right deltoid'))
+			if aVacc['overdue']:
+				self.fld_progress_note.SetValue(_('was due: %s, delayed because:') % aVacc['latest_due'].Format('%Y-%m-%d'))
+			else:
+				self.fld_progress_note.SetValue('')
+			return True
+
+		# booster selected from list of missing ones
+		if isinstance(aVacc, gmVaccination.cMissingBooster):
+			self.data = None
+			self.fld_vaccine.SetValue('')
+			self.fld_batch_no.SetValue('')
+			self.fld_date_given.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
+			# FIXME: use previously used value from table ?
+			self.fld_site_given.SetValue(_('left/right deltoid'))
+			if aVacc['overdue']:
+				self.fld_progress_note.SetValue(_('booster: was due: %s, delayed because:') % aVacc['latest_due'].Format('%Y-%m-%d'))
+			else:
+				self.fld_progress_note.SetValue(_('booster'))
+			return True
+
+		_log.Log(gmLog.lErr, 'do not know how to handle [%s:%s]' % (type(aVacc), str(aVacc)))
+		return False
 #======================================================================
 class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize, wxRAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-
 		self.__pat = gmPatient.gmCurrentPatient()
-
+		self.__do_layout()
+		self.__register_interests()
+		self.__reset_ui_content()
+	#----------------------------------------------------
+	def __do_layout(self):
 		#-----------------------------------------------
 		# top part
 		#-----------------------------------------------
@@ -309,20 +348,16 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.mainsizer.Add(self.LBOX_missing_shots, 4, wxEXPAND)
 		self.mainsizer.Add(pnl_BottomCaption, 0, wxEXPAND)
 
+		self.SetAutoLayout(True)
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit(self)
-		self.SetAutoLayout(True)
-
-		self.__register_interests()
-
-		self.__reset_ui_content()
 	#----------------------------------------------------
 	def __register_interests(self):
 		# wxPython events
 		EVT_SIZE(self, self.OnSize)
-		EVT_LISTBOX(self, ID_VaccinatedIndicationsList, self.on_vaccinated_indication_selected)
-		EVT_LISTBOX_DCLICK(self, ID_VaccinationsPerRegimeList, self.on_given_shot_selected)
-		EVT_LISTBOX_DCLICK(self, ID_MissingShots, self.on_missing_shot_selected)
+		EVT_LISTBOX(self, ID_VaccinatedIndicationsList, self._on_vaccinated_indication_selected)
+		EVT_LISTBOX_DCLICK(self, ID_VaccinationsPerRegimeList, self._on_given_shot_selected)
+		EVT_LISTBOX_DCLICK(self, ID_MissingShots, self._on_missing_shot_selected)
 #		EVT_RIGHT_UP(self.lb1, self.EvtRightButton)
 
 		# client internal signals
@@ -335,24 +370,15 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		w, h = event.GetSize()
 		self.mainsizer.SetDimension (0, 0, w, h)
 	#----------------------------------------------------
-	def on_given_shot_selected(self, event):
+	def _on_given_shot_selected(self, event):
+		"""Paste previously given shot into edit area.
 		"""
-			Retrieve vaccination item object for a selected vaccinated indication
-			and display in GUI
-		"""
-		id_vacc = event.GetClientData()
-		emr = self.__pat.get_clinical_record()
-		if emr is None:
-			# FIXME: error message
-			return None
-		self.editarea.set_data(emr.get_vaccinations(ID = id_vacc))
+		self.editarea.set_data(aVacc=event.GetClientData())
 	#----------------------------------------------------
-	def on_missing_shot_selected(self, event):
-		print "now editing missing shot:", event.GetSelection(), event.GetString(), event.IsSelection(), event.GetClientData()
-		id_vacc = event.GetClientData()
-#		emr = self.__pat.get_clinical_record()
+	def _on_missing_shot_selected(self, event):
+		self.editarea.set_data(aVacc = event.GetClientData())
 	#----------------------------------------------------
-	def on_vaccinated_indication_selected(self, event):
+	def _on_vaccinated_indication_selected(self, event):
 		"""Update right hand middle list to show vaccinations given for selected indication."""
 		ind_list = event.GetEventObject()
 		selected_item = ind_list.GetSelection()
@@ -360,15 +386,12 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# clear list
 		self.LBOX_given_shots.Set([])
 		emr = self.__pat.get_clinical_record()
-		if emr is None:
-			# FIXME: error message
-			return None
 		shots = emr.get_vaccinations(indications = [ind])
 		# FIXME: use Set() for entire array (but problem with client_data)
 		for shot in shots:
 			label = '%s: %s' % (shot['date'].Format('%m/%Y'), shot['vaccine'])
-			data = shot['pk_vaccination']
-			self.LBOX_given_shots.Append(label, data)
+#			data = shot['pk_vaccination']
+			self.LBOX_given_shots.Append(label, shot)
 	#----------------------------------------------------
 	def __reset_ui_content(self):
 		# clear edit area
@@ -383,12 +406,11 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.LBOX_vaccinated_indications.Clear()
 		self.LBOX_given_shots.Clear()
 		self.LBOX_missing_shots.Clear()
-		# populate vaccinated-indications list
+
 		emr = self.__pat.get_clinical_record()
-		if emr is None:
-			# FIXME: error message
-			return False
 		status, indications = emr.get_vaccinated_indications()
+
+		# populate vaccinated-indications list
 		# FIXME: would be faster to use Set() but can't
 		# use Set(labels, client_data), and have to know
 		# line position in SetClientData :-(
@@ -419,7 +441,7 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 					shot['regime'],
 					shot['vacc_comment']
 				)
-				self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
+				self.LBOX_missing_shots.Append(label, shot)
 			else:
 				# time_left, seq_no, regime, latest_due, vacc_comment
 				label = due_template % (
@@ -430,7 +452,7 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 					shot['latest_due'].Format('%m/%Y'),
 					shot['vacc_comment']
 				)
-				self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
+				self.LBOX_missing_shots.Append(label, shot)
 		# booster
 		lbl_template = _('due now: booster for %s in schedule "%s (%s)"')
 		for shot in missing_shots['boosters']:
@@ -440,7 +462,7 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 				shot['regime'],
 				shot['vacc_comment']
 			)
-			self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
+			self.LBOX_missing_shots.Append(label, shot)
 		return True
 	#----------------------------------------------------
 	def _on_patient_selected(self, **kwargs):
@@ -469,7 +491,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.9  2004-10-01 11:50:45  ncq
+# Revision 1.10  2004-10-11 20:11:32  ncq
+# - cleanup
+# - attach vacc VOs directly to list items
+# - add editing (eg. adding) missing vaccination
+#
+# Revision 1.9  2004/10/01 11:50:45  ncq
 # - cleanup
 #
 # Revision 1.8  2004/09/18 13:55:28  ncq
