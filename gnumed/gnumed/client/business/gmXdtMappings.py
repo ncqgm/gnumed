@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.7 2003-02-19 12:26:47 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmXdtMappings.py,v 1.8 2003-02-19 12:27:42 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -780,13 +780,16 @@ xdt_Resistenzinterpretation_map = {
 	'4':'wirksam in hohen Konzentrationen'
 }
 #--------------------------------------------------------------
-xdt_map_of_maps = {
+xdt_map_of_content_maps = {
 	'8000': xdt_packet_type_map,
 	'9106': xdt_character_code_map
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.7  2003-02-19 12:26:47  ncq
+# Revision 1.8  2003-02-19 12:27:42  ncq
+# - map_of_maps -> map_of_content_maps
+#
+# Revision 1.7  2003/02/19 12:26:47  ncq
 # - map of maps
 #
 # Revision 1.6  2003/02/17 23:31:02  ncq
