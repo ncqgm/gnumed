@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.59 $
+-- $Revision: 1.60 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -17,7 +17,9 @@ create table clin_health_issue (
 	id_patient integer not null,
 	description varchar(128) default '__default__',
 	unique (id_patient, description)
-) inherits (audit_fields, audit_mark);
+) inherits (audit_fields);
+
+select add_table_for_audit('clin_health_issue');
 
 comment on table clin_health_issue is
 	'long-ranging, underlying health issue such as "mild immunodeficiency", "diabetes type 2"';
@@ -35,7 +37,9 @@ create table clin_episode (
 	id_health_issue integer not null references clin_health_issue(id),
 	description varchar(128) default '__default__',
 	unique (id_health_issue, description)
-) inherits (audit_fields, audit_mark);
+) inherits (audit_fields);
+
+select add_table_for_audit('clin_episode');
 
 comment on table clin_episode is
 	'clinical episodes such as "recurrent Otitis media", "traffic accident 7/99", "Hepatitis B"';
@@ -157,7 +161,9 @@ comment on column clin_root_item.narrative is
 -- --------------------------------------------
 create table clin_note (
 	id serial primary key
-) inherits (audit_mark, clin_root_item);
+) inherits (clin_root_item);
+
+select add_table_for_audit('clin_note');
 
 comment on TABLE clin_note is
 	'Used to store clinical free text.';
@@ -165,7 +171,9 @@ comment on TABLE clin_note is
 -- --------------------------------------------
 create table clin_aux_note (
 	id serial primary key
-) inherits (audit_mark, clin_root_item);
+) inherits (clin_root_item);
+
+select add_table_for_audit('clin_aux_note');
 
 comment on TABLE clin_aux_note is
 	'Other tables link here if they need more free text fields.';
@@ -217,11 +225,45 @@ comment on TABLE clin_physical is
 -- ============================================
 -- vaccination tables
 -- ============================================
+create table vacc_indication (
+	id serial primary key,
+	description text unique not null
+) inherits (audit_fields);
+
+select add_table_for_audit('vacc_indication');
+
+comment on table vacc_indication is
+	'definition of indications for vaccinations';
+comment on column vacc_indication.description is
+	'description of indication, eg "Measles"';
+
+-- --------------------------------------------
+create table lnk_vacc_ind2code (
+	id serial primary key,
+	fk_indication integer not null references vacc_indication(id),
+	code text not null,
+	coding_system text not null,
+	unique (fk_indication, code, coding_system)
+);
+
+-- remote foreign keys
+select add_x_db_fk_def('lnk_vacc_ind2code', 'coding_system', 'reference', 'ref_source', 'name_short');
+
+comment on table lnk_vacc_ind2code is
+	'links vaccination indications to disease codes,
+	 useful for cross-checking whether a patient
+	 should be considered immune against a disease,
+	 multiple codes from multiple coding systems can
+	 be linked against one vaccination indication';
+
+-- --------------------------------------------
 create table vacc_route (
 	id serial primary key,
 	abbreviation text unique not null,
 	description text unique not null
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('vacc_route');
 
 comment on table vacc_route is
 	'definition of route via which vaccine is given,
@@ -237,10 +279,16 @@ create table vaccine (
 	id_route integer not null references vacc_route(id) default 1,
 	trade_name text unique not null,
 	short_name text unique not null,
+	fk_vacc_indications integer[] not null references vacc_indication(id),
 	is_live boolean not null default false,
-	is_in_use boolean not null default true,
-	last_batch_no text
-) inherits (audit_mark, audit_fields);
+	is_licensed boolean not null default true,
+	min_age interval not null,
+	max_age interval default null,
+	last_batch_no text,
+	comment text
+) inherits (audit_fields);
+
+select add_table_for_audit('vaccine');
 
 comment on table vaccine is
 	'definition of a vaccine as available on the market';
@@ -251,55 +299,72 @@ comment on column vaccine.trade_name is
 comment on column vaccine.short_name is
 	'common, maybe practice-specific shorthand name
 	 for referring to this vaccine';
+comment on column vaccine.fk_vacc_indications is
+	'list of indications this vaccine satisfies';
 comment on column vaccine.is_live is
 	'whether this is a live vaccine';
-comment on column vaccine.is_in_use is
+comment on column vaccine.is_licensed is
 	'whether this vaccine is currently licensed
 	 for use in your jurisdiction';
+comment on column vaccine.min_age is
+	'minimum age this vaccine is licensed for';
+comment on column vaccine.max_age is
+	'maximum age this vaccine is licensed for';
 comment on column vaccine.last_batch_no is
 	'no of most recently used batch, for
 	 rapid data input purposes';
 
 -- --------------------------------------------
-create table vacc_event (
+create table vacc_appt (
 	id serial primary key,
-	description text not null,
-	due_from interval not null,
-	due_until interval not null
-) inherits (audit_mark, audit_fields);
+	fk_indication integer not null references vacc_indication(id),
+	seq_id integer not null,
+	min_interval interval not null,
+	max_interval interval not null,
+	comment text,
+	unique(fk_indication, seq_id)
+) inherits (audit_fields);
 
-comment on table vacc_event is
-	'holds time ranges (events) at which vaccinations are due';
-comment on column vacc_event.description is
-	'eg. "first MMR shot"';
-comment on column vacc_event.due_from is
-	'date/time interval relative to DOB after which
-	 a shot is due, which one is determined by the
-	 vaccination regime this event is linked to via
-	 lnk_vacc_event2regime...';
+select add_table_for_audit('vacc_appt');
+
+comment on table vacc_appt is
+	'defines when a certain vaccination is due';
+comment on column vacc_appt.fk_indication is
+	'indication that is satisfied by a vaccination
+	 satisfying this scheduled vaccination event';
+comment on column vacc_appt.seq_id is
+	'sequence number for this vaccination event
+	 within a particular schedule/regime,
+	 -1: non-first regular re-vaccination';
+comment on column vacc_appt.min_interval is
+	'minimum interval (relative to previous
+	 vaccination) after which this shot is due,
+	 minimum age if seq_id = 1';
 
 -- --------------------------------------------
 create table vaccination (
 	id serial primary key,
-	id_patient integer not null,
-	id_provider integer not null,
-	id_vaccine integer references vaccine(id),
-	id_vacc_event integer references vacc_event(id),
+	fk_patient integer not null,
+	fk_provider integer not null,
+	fk_vaccine integer references vaccine(id),
+	fk_vacc_appt integer references vacc_appt(id),
 
 	date_given date not null default CURRENT_DATE,
 	site text default 'not recorded',
-	unique (id_patient, id_vaccine, date_given)
-) inherits (audit_mark, audit_fields, clin_root_item);
+	unique (fk_patient, fk_vaccine, date_given)
+) inherits (audit_fields, clin_root_item);
 
 -- Richard tells us that "refused" should go into progress note
 
+select add_table_for_audit('vaccination');
+
 -- remote foreign keys:
-select add_x_db_fk_def('vaccination', 'id_patient', 'personalia', 'identity', 'id');
-select add_x_db_fk_def('vaccination', 'id_provider', 'personalia', 'identity', 'id');
+select add_x_db_fk_def('vaccination', 'fk_patient', 'personalia', 'identity', 'id');
+select add_x_db_fk_def('vaccination', 'fk_provider', 'personalia', 'identity', 'id');
 
 comment on table vaccination is
-	'holds vaccinations actually given (or refused, that is)';
-comment on column vaccination.id_vacc_event is
+	'holds vaccinations actually given';
+comment on column vaccination.fk_vacc_appt is
 	'the vaccination event this particular
 	 vaccination is supposed to cover, allows to
 	 link out-of-band vaccinations into regimes';
@@ -307,27 +372,22 @@ comment on column vaccination.id_vacc_event is
 -- --------------------------------------------
 create table vacc_regime (
 	id serial primary key,
-	id_recommended_by integer,
+	fk_recommended_by integer,
+	fk_vacc_appts integer[] not null references vacc_appt(id),
 	description text unique not null
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('vacc_regime');
 
 -- remote foreign keys:
-select add_x_db_fk_def('vacc_regime', 'id_recommended_by', 'reference', 'ref_source', 'id');
+select add_x_db_fk_def('vacc_regime', 'fk_recommended_by', 'reference', 'ref_source', 'id');
 
 comment on table vacc_regime is
 	'holds vaccination schedules/regimes/target diseases';
-comment on column vacc_regime.id_recommended_by is
+comment on column vacc_regime.fk_recommended_by is
 	'organization recommending this vaccination';
-
--- --------------------------------------------
-create table lnk_vacc_evt2regime (
-	id serial primary key,
-	id_vacc_regime integer not null references vacc_regime(id),
-	id_vacc_event integer not null references vacc_event(id)
-) inherits (audit_mark, audit_fields);
-
-comment on table lnk_vacc_evt2regime is
-	'links vaccination event definitions to regimes';
+comment on column vacc_regime.fk_vacc_appts is
+	'list of vaccination events scheduled by this regime';
 
 -- ============================================
 -- allergies tables
@@ -335,7 +395,9 @@ create table allergy_state (
 	id serial primary key,
 	id_patient integer unique not null,
 	has_allergy integer default null check (has_allergy in (null, -1, 0, 1))
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('allergy_state');
 
 comment on column allergy_state.has_allergy is
 	'patient allergenic state:
@@ -363,7 +425,9 @@ create table allergy (
 	reaction text default '',
 	generic_specific boolean default false,
 	definite boolean default false
-) inherits (audit_mark, clin_root_item);
+) inherits (clin_root_item);
+
+select add_table_for_audit('allergy');
 
 -- narrative provided by clin_root_item
 
@@ -497,7 +561,7 @@ create table curr_medication (
 	vesper float,
 	nocte float
 ) inherits (clin_root_item);
--- needs to inherit from audit_mark for auditing when stabilized
+-- needs to be audited when stabilized
 
 comment on table curr_medication is
 'Representing what the patient is taking *now*, not a simple log
@@ -618,11 +682,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.59 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.60 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.59  2003-08-27 00:35:32  ncq
+-- Revision 1.60  2003-10-01 15:44:24  ncq
+-- - add vaccination tables, use auditing record table
+--
+-- Revision 1.59  2003/08/27 00:35:32  ncq
 -- - add vaccination tables
 --
 -- Revision 1.58  2003/08/17 00:25:38  ncq
