@@ -143,7 +143,7 @@ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 			<row>
 				<entry>Mandrake</entry>
 				<entry>???</entry>
-				<entry><ulink url="http://www,mandrake.com">www.mandrake.com</ulink></entry>
+				<entry><ulink url="http://www.mandrake.com">www.mandrake.com</ulink></entry>
 		  <entry>Yes</entry>
 			</row>
 
@@ -157,7 +157,7 @@ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 		<row>
 		  <entry>Gentoo</entry>
 		  <entry>???</entry>
-		  <entry><ulink url="htttp://www.gentoo·org">www.gentoo.com</ulink></entry>
+		  <entry><ulink url="http://www.gentoo·org">www.gentoo.org</ulink></entry>
 		  <entry>Yes</entry>
 		</row>
 
