@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.21 2004-07-20 07:19:12 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.22 2004-08-16 19:35:52 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -282,6 +282,15 @@ where
 	and v4.pk_comm_type = 4
 	and v5.pk_comm_type = 5 ;
 
+
+-- ==========================================================
+\unset ON_ERROR_STOP
+drop index idx_lnk_pers2rel;
+\set ON_ERROR_STOP 1
+
+create index idx_lnk_pers2rel on lnk_person2relative(id_identity, id_relation_type);
+-- consider regular "CLUSTER idx_lnk_pers2rel ON lnk_person2relative;"
+
 -- ==========================================================
 -- permissions
 -- ==========================================================
@@ -300,11 +309,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.21 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.22 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.21  2004-07-20 07:19:12  ncq
+-- Revision 1.22  2004-08-16 19:35:52  ncq
+-- - added idx_lnk_pers2rel based on ideas by Aldfaer (Anne v.d.Ploeg)
+--
+-- Revision 1.21  2004/07/20 07:19:12  ncq
 -- - in add_name() only deactivate existing names if new name is to be active
 --   or else we'd be able to have patients without an active name ...
 --
