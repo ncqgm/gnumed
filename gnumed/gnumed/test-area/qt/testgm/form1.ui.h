@@ -132,7 +132,12 @@ void Form1::helpAbout()
 
 void Form1::selectPatientForEdit()
 {
+    qDebug("inSelectPatientForEdit()");
     QSqlRecord* record = findPatientDataTable->currentRecord();
+    /** need to place a Guard against invalid currentRecord */
+    if (record == 0)
+	    return;
+
     qDebug(QString("selectPatientForEdit() calling changePatientId(%1)").arg(record->value("id_patient").toUInt() ) );
     changePatientId(record);
     
@@ -150,6 +155,7 @@ void Form1::setPatientIdInRecord( QSqlRecord * record )
 
 void Form1::changePatientId(const QSqlRecord * record )	
 {
+    qDebug("in ChangePatientId");
     if (record == 0)
 	return;
     setPatientId( record->value("id_patient").toUInt());
@@ -414,6 +420,7 @@ QString& Form1::convertProgressNotesSqlQueryToString( QSqlQuery * query , QStrin
   */
 void Form1::setPatientNameFilter()
 {
+    qDebug("In setPatientNameFilter");
     QStringList names = QStringList::split(",",  searchPatientNameLineEdit->text());
     if (names.size() < 1) {
 	findPatientFilter = "false";
@@ -436,9 +443,19 @@ void Form1::setPatientNameFilter()
     
     
     this->findPatientFilter = QString("lastnames like \'%1\%\' and firstnames like \'%2\%\'")  .arg(names[0]). arg( names[1] );
-
+     
+    qDebug("Before Set Filter");
     findPatientDataTable->setFilter(findPatientFilter);
-    findPatientDataTable->refresh();
+    //QSqlCursor* cursor = findPatientDataTable->sqlCursor();
+    //cursor->editBuffer()->clearValues();
+    //cursor->select();
+    qDebug("Before Refresh");
+    /* On refresh(), selectionChanged() will be signalled  , and will 
+     * try to invoke selectPatientForEdit() with invalid currentRecord() in
+     * findPatientDataTable , throwing a seg fault, so need to guard
+     * against this by testing for currentRecord() == 0 in selectionChanged() */
+    findPatientDataTable->refresh(QDataTable::RefreshData);
+    
     
 }
 

@@ -79,7 +79,13 @@ first: all
 
 ####### Build rules
 
-all: Makefile $(TARGET)
+
+
+all: patch Makefile $(TARGET)
+
+patch:
+	sh set_default_user_pw.sh
+	sh create_testgm_db.sh
 
 $(TARGET):  $(UICDECLS) $(OBJECTS) $(OBJMOC) 
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)
@@ -125,6 +131,7 @@ main.o: main.cpp form1.h
 
 form1.h: form1.ui 
 	$(UIC) form1.ui -o form1.h
+	sh patch_form1.sh
 
 form1.cpp: form1.h form1.ui 
 	$(UIC) form1.ui -i form1.h -o form1.cpp
