@@ -38,6 +38,12 @@
 
 <revhistory>
       <revision>
+	<revnumber>0.1.6</revnumber>
+	<date>2004-02-11</date>
+	<authorinitials>hb</authorinitials>
+	<revremark>added Yudhvir's RedHat installation guide</revremark>
+      </revision>
+      <revision>
 	<revnumber>0.1.5</revnumber>
 	<date>2003-07-29</date>
 	<authorinitials>gea, hb</authorinitials>
@@ -938,6 +944,364 @@ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
 
 </sect1>
 
+
+<sect1 id=redhat><title>RedHat (8.0)</title>
+<para>Author: Yudhvir Singh Sidhu, <ULINK URL="mailto:Yudhvir@hawaii.edu">Yudhvir@hawaii.edu</ULINK> 
+</PARA>
+<PARA>Date Created: 4 Nov 03, modified 06 Nov 03 by Yudhvir</PARA>
+<para>What I did :Moved pypgSQL to client side and added stuff on how to drop a database.
+</para>
+<PARA>Disclaimer: No guarantees if these instructions will work or cause any damage.
+</PARA>
+<para>Refinement is needed, so please send me your suggestions. I'll make changes and send it to the listserv. Since I do not have any other Linux flavor, I am limited to RedHat. 
+</PARA>
+	<sect2><title>Introduction</title>
+ 		<sect3>
+		<title>General</title>
+		<para>
+		I divided gnumed installation in two parts: client-only and client + server. The division is important because the client install is relatively easier and you can use it to connect to a remote database and play with the screens. As you can tell, the database part is being called the server. Both installs require cvs download of the module "gnumed."
+		</para>
+		</sect3>
+	</sect2>
+
+<sect2 >
+
+<title>Preparation</title>
+
+<sect3><title>Notes</title>
+<para>
+
+Download these files. If you have the RH 8.0 set of 5 cds, many of these files are on cds under the RPM directory. Get them together first, the order in which they are installed is important. I'll list that later.
+
+<emphasis>NOTE: RedHat's GUI rpm "Package" GUI utility works and is simpler to use than the command line because it figures out dependencies and installs them also. However, it sometimes hangs. Maybe "hangs" is not the right description, it hides so you don't see it on your screen and won't let you install the rpm package. You have to logout and log back in or kill the process.
+
+NOTE: It is important that you get the right versions of all these rpms that match your RedHat release. gnumed.org's cvs download directories show which versions belong to which RedHat release.</emphasis>
+
+</para>
+<sect3>
+
+<title>Prepare for Client</title>
+
+<para>
+<orderedlist>
+<listitem><para>
+Python Scripting Language from python.org, version 2.2. I used version 2.2.1 installed via the Red Hat "Packages" GUI under "System Settings." The GUI prompts you to put in the right cd, so you don't have to know which one the software is on. gnumed.org reminds us to "Don't forget to include the Python interface libraries." I have no idea what rpm these files are in or what their names are, but apparently they are loaded as part of the python package by the GUI install of python.
+</para></listitem><listitem><para>
+GTK libraries from gtk.org, version 1.2, If you have a Gnome windows manager, you probably have these libraries installed. Please keep in mind that KDE uses QT instead of GTK. So, if you have a KDE-only setup, you will have to install these from the rpms on cd or the net. My RedHat setup includes both KDE and GNOME - so I did not have to install these.
+</para></listitem><listitem><para>
+mx extension libraries from mx, no version given from lemburg.com/files/python/eGenix-mx-Extensions.html . I used egenix-mx-base-2.0.5-py2.2_1.i386.rpm. RedHat 8.0 cd contains the mx-2.0.3-6.i386.rpm.
+</para></listitem><listitem><para>
+wxWindows windowing library from wxwindows web site, version 2.4. I used wxGTK-static-2.4.2-1.i386.rpm
+</para></listitem><listitem><para>
+wxPython from wxpython.org, version 2.4. I used wxPythonGTK-py2.2-2.4.2.4-1.i386.rpm
+</para></listitem>
+</orderedlist>
+</para>
+</sect3>
+
+<sect3>
+<title>Prepare for Server</title>
+
+<para>
+<orderedlist>
+<listitem><para>
+The libraries: I used postgresql-libs-7.2.2-1.i386.rpm from the RH 8.0 install cds
+</para></listitem><listitem><para>
+The database: I used postgresql-7.2.2-1.i386.rpm from the RH 8.0 install cds
+</para></listitem><listitem><para>
+The server: PostgreSQL Database server from postgresql.org, version 7.2. I used postgresql-server-7.2.2-1.i386.rpm from the RH 8.0 install cds
+</para></listitem><listitem><para>
+PyPgSQL from www.pypgsql.sourceforge.net, version 2.3. I used pyPgSQL-2.3-1.rh80.i386.rpm
+</para></listitem>
+</orderedlist>
+</para>
+
+</sect3>
+
+
+<sect3>
+<title>Create gnudb User Account</title>
+<para>
+Log in as root and create the user account.
+</para>
+</sect3>
+
+<sect3 >
+<title>Get gnumed via CVS</title>
+<para>
+You need not know anything about cvs, just run these commands as user gnumed:
+<screen>
+mkdir gnumed 
+export CVS_RSH="ssh"
+cvs -d :ext:anoncvs@savannah.gnu.org:/cvsroot/root
+</screen>
+<emphasis>NOTE: you really do not need to create this directory. I did and all my examples follow that path.</emphasis>
+<emphasis>NOTE: There is no password. Hit enter when it asks you for it.</emphasis>
+
+This takes some time and brings down all the software and puts it into a directory called gnumed. You will end up with two or three gnumed directories. One created for the user account, the second that you created in 3a above, and cvs creates the third.
+</para>
+</sect3>
+</sect2>
+
+<sect2>
+<title>Installation</title>
+
+<sect3>
+<title>General</title>
+<para>
+If you are doing a clinet+server install the software should be loaded in the following order. <emphasis>That is the order I followed successfully.</emphasis>
+<orderedlist>
+<listitem><para>
+python - I assume the libraries are loaded at the same time.
+</para></listitem><listitem><para>
+GTK libraries
+</para></listitem><listitem><para>
+mx extension libraries
+</para></listitem><listitem><para>
+PostgreSQL Database server - load the libs first, then the database and lastly the server:
+	<para><orderedlist>
+	<listitem><para>postgressql-libs
+	</para></listitem><listitem><para>
+	postgresql database
+	</para></listitem><listitem><para>
+	postgresql server
+	</para></listitem></orderedlist>
+</para></listitem>
+<listitem><para>
+wxWindows windowing library
+</para></listitem><listitem><para>
+wxPython
+</para></listitem><listitem><para>
+PyPgSQL
+</para></listitem>
+</orderedlist>
+However, if all that you are doing is a client install, I think you can get away with going with the following:
+</para>
+</sect3>
+
+<sect3>
+<title>Install Client</title>
+<para>
+Install the rpms in this order:
+<orderedlist>
+<listitem><para>
+Python and the libraries [This should already be installed. If not, use the RH package manager GUI.]
+</para></listitem><listitem><para>
+GTK libraries [This should already be installed. If not, use the RH package manager GUI.]
+</para></listitem><listitem><para>
+mx
+</para></listitem><listitem><para>
+wxWindows windowing library
+</para></listitem><listitem><para>
+wxPython
+</para></listitem><listitem><para>
+pyPgSQL
+</para></listitem>
+</orderedlist>
+</para>
+</sect3>
+
+<sect3>
+<title>Install Server</title>
+<para>
+Most people would not install just the server and <emphasis>I did not do that.</emphasis> I am guessing that if you wanted to do that, you would only load:
+<orderedlist>
+<listitem><para>
+postgressql-libs
+</para></listitem><listitem><para>
+postgresql database
+</para></listitem><listitem><para>
+postgresql server
+</para></listitem><listitem><para>
+pyPgSQL <emphasis>I HAVE BEEN TOLD: This is Needed on the client, mainly. Only needed on the server machine if one is doing the bootstrapping on that machine. </emphasis>
+</para></listitem><listitem><para>
+Then, obviously you would need to create the gnumed database and the bootstrap directory has the scripts. I ran the monolithica one I call mono when doing a complete install.
+</para></listitem></orderedlist>
+</para>
+</sect3>
+
+<sect2 >
+<title>Configure Files and Setup Environment Parameters</title>
+
+<sect3>
+<title>PYTHONPATH and GNUMED_DIR</title>
+<para>
+<emphasis>I HAVE BEEN TOLD: GnuMed should run without GNUMED_DIR in most circumstances. One only needs to set it if GnuMed absolutely cannot find its files.</emphasis> [I needed to set it on my RH 8.0 system.]
+<orderedlist>
+<listitem><para>as root: find / -name site-packages
+</para></listitem><listitem><para>
+Copy that full path down
+</para></listitem><listitem><para>
+As user gnumed: vi ~/.bashrc - I am assuming you are running the bash script. It is okay if this file does not exist, vi will create it. Put that directory name in using the export command as below. My lines are:
+<screen>
+export PYTHONPATH=/usr/lib/python2.2/site-packages
+
+export GNUMED_DIR=/home/gnumed/gnumed/gnumed/client
+</screen>
+</para></listitem><listitem><para>
+source ~/.bashrc [this will make that an environment variable. You can check it by typing env|grep PYTHONPATH]
+</para></listitem></orderedlist>
+</para>
+
+</sect3>
+
+<sect3>
+
+<title>pg_clog, postgres.conf and PGDATA</title>
+
+<para>
+
+<emphasis>[NOTE: you can skip this part for a client-only install]</emphasis>
+<orderedlist>
+<listitem><para>
+su - postgres - This should put you in the postgres home directory
+</para></listitem><listitem><para>
+cd data - the actual path on my machine is: /var/lib/pgsql/data
+</para></listitem><listitem><para>
+vi pg_hba.conf - uncomment the "local all" and the "host all" lines towards the bottom of the file.
+</para></listitem><listitem><para>
+vi postgresql.conf and uncomment tcpip_socket line and edit it to read:
+<screen>
+tcip_socket = on
+</screen>
+</para></listitem><listitem><para>
+uncomment the line: port = 5432
+</para></listitem><listitem><para>
+exit out of user postgres and come back to user gnumed
+</para></listitem><listitem><para>
+vi ~/.bashrc and add this line: 
+<screen>export PGDATA=/var/lib/pgsql/data</screen>
+</para></listitem>
+</orderedlist>
+</para>
+
+<sect3>
+<title>Shortcut Scripts mono and check_log, set password and Configure Files
+</title>
+
+<para>
+
+<emphasis>[NOTE: you can skip this part for a client-only install]</emphasis>
+<orderedlist>
+<listitem><para>
+as user gnumed, cd to the server/bootstrap directory.
+
+Mine is cd /home/gnumed/gnumed/gnumed/server/bootstrap
+</para></listitem><listitem><para>
+vi mono and put this line in it:
+<screen>
+python bootstrap-gm_db_system.py --conf-file=bootstrap-monolithic_core.conf
+</screen>
+</para></listitem><listitem><para>
+exit and type: chmod 744 mono
+
+</para></listitem><listitem><para>
+vi check_log and put this line in it:
+<screen>
+tail -100 /home/gnumed/.bootstrap-gm_db_system/bootstrap-gm_db_system.log
+</screen>
+<emphasis>NOTE: If your logfile is somewhere else, su - root and do a find / -name "*log*"</emphasis>
+
+</para></listitem><listitem><para>
+exit and type: <screen>chmod 744 check_log</screen>
+
+</para></listitem><listitem><para>
+as user gnumed and in the bootstrap directory, run ./make-links.sh
+
+<emphasis>I HAVE BEEN TOLD: This is not needed anymore in normal circumstances.</emphasis>
+
+</para></listitem><listitem><para>
+su to root and type passwd postgres and set the password. This sets a password for the system user 'postgres' which is different from the database user 'postgres' <emphasis>I HAVE BEEN TOLD: This is not needed. </emphasis> [I chose to create a password because I can su into postgres from any user. I do not have to jump to root to get into postgres.]
+
+</para></listitem><listitem><para>
+in the bootstrap directory vi bootstrap-monolithic_core.conf and uncomment BOTH password lines for gm-dbowner and postgres and type in the passwords. Select a password for gm-dbowner. I selected the same one I use for the gnumed user account. <emphasis>I HAVE BEEN TOLD: Many setups use the same name for both thesystem level user account "postgres" under which the
+
+postgresql data files are installed in the filesystem and for the database superuser. Those accounts are actually unrelated entities. They need not have the same password. In fact, the system account postgres need not have a password at all. It is sufficient to be able to su - to it from root. It helps to
+
+have a password for the DB account "postgres", though. </emphasis>
+</para></listitem>
+</orderedlist>
+</para>
+</sect3>
+</sect2>
+
+<sect2 >
+<title>Run Client</title>
+<para>
+<orderedlist>
+<listitem><para>
+as user gnumed, cd to the ....client/wxpython directory.
+
+Mine is cd /home/gnumed/gnumed/gnumed/client/wxpython
+</para></listitem><listitem><para>
+./gnumed.sh - this should bring up a login GUI. If the GUI comes up, you have successfully installed the client.
+
+</para></listitem><listitem><para>
+Write an e mail to "Karsten" and request a hostname, a username, and a password and input them into the GUI. Under the "options" button, select "gnumed-public" and put in the hostname and leave the port as 5432. In the main GUI, input username and pasword.
+
+<emphasis>NOTE: If Karsten gives you "anydoc" as the username and password, he actually means any-doc for both fields. Also NOTE: You should be logged onto the net when you do this, I was user gnumed when I did it.</emphasis>
+
+</para></listitem><listitem><para>
+If the GUI does not come up:
+	<itemizedlist>
+	<listitem><para>
+	lookup the logfile - mine is created at: /home/gnumed/.gnumed/gnumed.log
+
+	</para></listitem><listitem><para>
+	gnumed.sh tells you where it is creating one
+
+	</para></listitem><listitem><para>
+	input the error into google and see what comes up
+	</para></listitem>
+	</itemizedlist></para>
+</listitem><listitem><para>
+If your error lists files "gmCLI" and "gmLog" - the error actually means files "gmCLI.py" and "gmLog.py" These files are on your system.
+
+</para></listitem><listitem><para>
+This error means that your GNUMED_DIR environment variable is not set to ".....client" directory. Do an env| grep GNUMED_DIR or do an echo $GNUMED_DIR to see if it is set correctly. See section above.
+</para></listitem>
+</orderedlist>
+</para>
+</sect2>
+
+<sect2>
+<title>Run Server</title>
+
+<para>
+<orderedlist>
+<listitem><para>
+log out of the gnumed account and log back in for all the environment variables to take affect
+</para></listitem><listitem><para>
+su - postgres and type pg_ctl restart
+</para></listitem><listitem><para>
+exit out of user postgres and back into user gnumed
+</para></listitem><listitem><para>
+in the bootstrap directory, type ./mono
+</para></listitem><listitem><para>
+A loooooooong list will start scrolling by - <emphasis>leave it alone.</emphasis> It will list errors, many of them. Let it run. It should give you a satisfying message: "Done bootstrapping: We probably succeeded."
+
+<emphasis>I HAVE BEEN TOLD: We now log this list. It doesn't scroll by anymore.</emphasis>
+
+</para></listitem><listitem><para>
+su - postgres and do pg_ctl restart - just for good measure.
+</para></listitem><listitem><para>
+Click on the redhat logo and bring up the services GUI - it is under Server Settings. Check the postgres box for the service to load upon bootup.
+</para></listitem><listitem><para>
+Now you can start your client - see 6b above. Except you will not be connecting to a remote server. Your database is gnumed and your host is localhost. Use the gnumed password and the application should come up.
+</para></listitem><listitem><para>
+If you stopped the mono process the first time, which creates the database, with a control-c like I did thinking the long scrolling list is not what I should be seeing: ====> you have to drop the half-created database and re-run mono again. Otherwise mono will not run all the way and you do not have a functioning server.
+
+Since I have "webmin" running, I used that to drop the database gnumed. Otherwise, on the command line as any user you could:
+<screen>
+dropdb -U postgres gnumed
+</screen>
+</para></listitem><listitem><para>
+There are other instructions in the gnumed.org installation writeup about how to create a real life instance. I have not reached that far - so I cannot say anything about it.
+</para></listitem>
+</orderedlist>
+</para>
+</sect2>
+</sect1>
 
 <sect1 id="win9x"><title>Windows</title>
 
