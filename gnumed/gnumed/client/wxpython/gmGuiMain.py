@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.78 2003-02-09 20:02:55 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmGuiMain.py,v 1.79 2003-02-11 12:21:19 sjtan Exp $
+__version__ = "$Revision: 1.79 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -39,6 +39,7 @@ from wxPython.html import *
 import sys, time, os, cPickle, zlib
 
 import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmLog, gmPlugin, gmCfg
+import handler_loader
 import images
 import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
@@ -200,8 +201,7 @@ class MainFrame(wxFrame):
 		self.Fit ()
 		self.Centre(wxBOTH)
 		self.Show(true)
-		# load widget handlers
-		import handler_loading_script
+		handler_loader.main()
 
 	#----------------------------------------------
 	def OnNotebookPopup(self, evt):
@@ -429,6 +429,11 @@ class MainFrame(wxFrame):
 		self.mainmenu=None
 		self.window=None
 		self.Destroy()
+		self.data_cleanup()
+
+	def data_cleanup(self):
+		handler_loader.save_models()
+				
 	#----------------------------------------------
 	def OnClose(self,event):
 		self.CleanExit()
@@ -628,7 +633,12 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.78  2003-02-09 20:02:55  ncq
+# Revision 1.79  2003-02-11 12:21:19  sjtan
+#
+# one more dependency formed , at closing , to implement saving of persistence objects.
+# this should be temporary, if a periodic save mechanism is implemented
+#
+# Revision 1.78  2003/02/09 20:02:55  ncq
 # - rename main.notebook.numbers to main.notebook.plugins
 #
 # Revision 1.77  2003/02/09 12:44:43  ncq
