@@ -9,7 +9,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -395,7 +395,7 @@ insert into vacc_regime
 	(fk_recommended_by, fk_indication, name, comment)
 values (
 	currval('ref_source_pk_seq'),
-	(select id from vacc_indication where description='hepatitis B'),
+	(select id from vacc_indication where description='poliomyelitis'),
 	'Polio (STIKO)',
 	'falls Mehrfachimpfstoff mit Pertussis (aP), dann Schema wie DTaP/Dt/Td anwenden'
 );
@@ -544,11 +544,14 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename='$RCSfile: STIKO-Impfkalender.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.13  2004-04-14 20:03:59  ncq
+-- Revision 1.14  2004-10-12 11:23:31  ncq
+-- - fix Polio regime being wrongly linked to HepB indication
+--
+-- Revision 1.13  2004/04/14 20:03:59  ncq
 -- - fix check constraints on intervals
 --
 -- Revision 1.12  2004/04/14 13:33:04  ncq
