@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
 
@@ -1456,6 +1456,7 @@ if __name__ == '__main__':
 			("""delete from lnk_identity2comm_chan
 					where id_identity in (select id from del_identity)""",[] ),
 			("""delete from comm_channel where id in ( select id_comm from del_comm)""",[]),
+			("""delete from lnk_job2person where id_identity in (select id from del_identity)""", []),
 			("""delete from identity where id in (select id from del_identity)""",[] ),
 			("""delete from org where id in ( select id from del_org) """ , [] ),
 			("""drop table del_comm""",[]),
@@ -1862,7 +1863,11 @@ if __name__ == '__main__':
 			clean_org_categories(adminlogin)
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.22  2004-05-30 03:50:41  sjtan
+# Revision 1.23  2004-05-30 11:08:17  sjtan
+#
+# fixup clean_test_org to include delete from lnk_job2person ...
+#
+# Revision 1.22  2004/05/30 03:50:41  sjtan
 #
 # gmContacts can create/update org, one level of sub-org, org persons, sub-org persons.
 # pre-alpha or alpha ? Needs cache tune-up .
