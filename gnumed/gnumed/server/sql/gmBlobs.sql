@@ -3,7 +3,7 @@
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
--- $Revision: 1.4 $ $Date: 2002-03-26 14:05:15 $ $Author: ncq $
+-- $Revision: 1.5 $ $Date: 2002-03-29 12:45:30 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -33,7 +33,7 @@ COMMENT ON TABLE "doc_med" IS 'a medical document object possibly containing sev
 COMMENT ON COLUMN doc_med.type IS 'semantic type of document (not type of file or mime type), such as "ultrasound", referral letter, "discharge summary", etc.';
 COMMENT ON COLUMN doc_med.comment IS 'additional short comment such as "abdominal", "ward 3, Dr. Stein", etc.';
 COMMENT ON COLUMN doc_med.date IS 'date of document content creation (such as exam date), NOT date of document creation or date of import; may be imprecise such as "7/99"';
-COMMENT ON COLUMN doc_med.ext_ref IS 'external reference string of physical document, original can be found with this';
+COMMENT ON COLUMN doc_med.ext_ref IS 'external reference string of physical document, original paper copy can be found with this';
 
 -- =============================================
 CREATE TABLE "doc_med_external_ref" (
