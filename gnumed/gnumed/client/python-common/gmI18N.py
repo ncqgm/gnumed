@@ -44,13 +44,13 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
 import gettext, sys, os.path, string, os
 import gmLog, gmCLI
-log = gmLog.gmDefLog
+_log = gmLog.gmDefLog
 
 curr_locale = None
 #---------------------------------------------------------------------------
@@ -65,109 +65,109 @@ def install_domain():
 	else:
 		text_domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
-	log.Log(gmLog.lInfo, 'text domain is "%s"' % text_domain)
+	_log.Log(gmLog.lInfo, 'text domain is "%s"' % text_domain)
 
 	# explicitely probe user locale settings
 	global curr_locale
 	env_key = 'LANGUAGE'
 	if os.environ.has_key(env_key):
 		curr_locale = os.environ[env_key]
-		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
+		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
 	else:
-		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	env_key = 'LC_ALL'
 	if os.environ.has_key(env_key):
 		curr_locale = os.environ[env_key]
-		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
+		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
 	else:
-		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	env_key = 'LC_MESSAGES'
 	if os.environ.has_key(env_key):
 		curr_locale = os.environ[env_key]
-		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
+		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
 	else:
-		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	env_key = 'LANG'
 	if os.environ.has_key(env_key):
 		curr_locale = os.environ[env_key]
-		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
+		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
 	else:
-		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	# search for message catalog
-	log.Log(gmLog.lData, 'Searching message catalog file for locale [%s].' % curr_locale)
+	_log.Log(gmLog.lData, 'Searching message catalog file for locale [%s].' % curr_locale)
 
 	# now we can install this text domain
 	# 1) try standard places first
 	if os.name == 'posix':
-		log.Log(gmLog.lData, 'Looking in standard POSIX locations (see Python Manual).')
+		_log.Log(gmLog.lData, 'Looking in standard POSIX locations (see Python Manual).')
 		try:
 			gettext.install(text_domain)
-			log.Log(gmLog.lData, 'Found message catalog.')
+			_log.Log(gmLog.lData, 'Found message catalog.')
 			return 1
 		except IOError:
 			# most likely we didn't have a .mo file
-			log.LogException('Cannot install textdomain from standard POSIX locations.', sys.exc_info(), fatal=0)
+			_log.LogException('Cannot install textdomain from standard POSIX locations.', sys.exc_info(), fatal=0)
 	else:
-		log.Log(gmLog.lData, 'No use looking in standard POSIX locations - not a POSIX system.')
+		_log.Log(gmLog.lData, 'No use looking in standard POSIX locations - not a POSIX system.')
 
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
-	log.Log(gmLog.lData, 'Looking behind environment variable $(%s).' % env_key)
+	_log.Log(gmLog.lData, 'Looking behind environment variable $(%s).' % env_key)
 	if os.environ.has_key(env_key):
 		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], "locale"))
-		log.Log(gmLog.lData, '$(%s) = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
+		_log.Log(gmLog.lData, '$(%s) = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
 		if os.path.exists(loc_dir):
 			try:
 				gettext.install(text_domain, loc_dir)
-				log.Log(gmLog.lData, 'Found message catalog.')
+				_log.Log(gmLog.lData, 'Found message catalog.')
 				return 1
 			except IOError:
 				# most likely we didn't have a .mo file
-				log.LogException('Cannot install textdomain from custom location [%s].' % (loc_dir), sys.exc_info())
+				_log.LogException('Cannot install textdomain from custom location [%s].' % (loc_dir), sys.exc_info())
 		else:
-			log.Log(gmLog.lWarn, 'Custom location [%s] does not exist. Cannot install textdomain from there.' % (loc_dir))
+			_log.Log(gmLog.lWarn, 'Custom location [%s] does not exist. Cannot install textdomain from there.' % (loc_dir))
 	else:
-		log.Log(gmLog.lInfo, "Environment variable %s is not set." % env_key)
+		_log.Log(gmLog.lInfo, "Environment variable %s is not set." % env_key)
 
 	# 3) one level below path to binary
 	#    last resort for inferior operating systems such as DOS/Windows
 	#    strip one directory level
 	#    this is a rather neat trick :-)
 	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
-	log.Log(gmLog.lData, 'Looking in application level directory [%s].' % loc_dir)
+	_log.Log(gmLog.lData, 'Looking in application level directory [%s].' % loc_dir)
 	#    sanity check (paranoia rulez)
 	if os.path.exists(loc_dir):
 		try:
 			gettext.install(text_domain, loc_dir)
-			log.Log(gmLog.lData, 'Found message catalog.')
+			_log.Log(gmLog.lData, 'Found message catalog.')
 			return 1
 		except IOError:
 			# most likely we didn't have a .mo file
-			log.LogException('Cannot install textdomain from one level above binary location [%s].' % (loc_dir), sys.exc_info(), 0)
+			_log.LogException('Cannot install textdomain from one level above binary location [%s].' % (loc_dir), sys.exc_info(), 0)
 	else:
-		log.Log(gmLog.lWarn, "The application level locale directory [%s] does not exist. Cannot install textdomain from there." % (loc_dir))
+		_log.Log(gmLog.lWarn, "The application level locale directory [%s] does not exist. Cannot install textdomain from there." % (loc_dir))
 
 	# 4) in path to binary
 	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
-	log.Log(gmLog.lData, 'Looking in application level directory [%s].' % loc_dir)
+	_log.Log(gmLog.lData, 'Looking in application level directory [%s].' % loc_dir)
 	#    sanity check (paranoia rulez)
 	if os.path.exists(loc_dir):
 		try:
 			gettext.install(text_domain, loc_dir)
-			log.Log(gmLog.lData, 'Found message catalog.')
+			_log.Log(gmLog.lData, 'Found message catalog.')
 			return 1
 		except IOError:
 			# most likely we didn't have a .mo file
-			log.LogException('Cannot install textdomain from within path to binary [%s].' % (loc_dir), sys.exc_info(), 0)
+			_log.LogException('Cannot install textdomain from within path to binary [%s].' % (loc_dir), sys.exc_info(), 0)
 	else:
-		log.Log(gmLog.lWarn, "The application level locale directory [%s] does not exist. Cannot install textdomain from there." % (loc_dir))
+		_log.Log(gmLog.lWarn, "The application level locale directory [%s] does not exist. Cannot install textdomain from there." % (loc_dir))
 
 	# 5) install a dummy translation class
-	log.Log(gmLog.lWarn, "Giving up and falling back to NullTranslations() class in despair.")
+	_log.Log(gmLog.lWarn, "Giving up and falling back to NullTranslations() class in despair.")
 	# this shouldn't fail
 	dummy = gettext.NullTranslations()
 	dummy.install()
@@ -175,12 +175,12 @@ def install_domain():
 # Main
 #---------------------------------------------------------------------------
 if __name__ == "__main__":
-	log.SetAllLogLevels(gmLog.lData)
+	_log.SetAllLogLevels(gmLog.lData)
 	print "======================================================================"
 	print __doc__
 	print "======================================================================"
 
-log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lData, __version__)
 
 install_domain()
 
@@ -193,11 +193,14 @@ install_domain()
 # means of date formatting localization
 gmTimeformat = _("%Y-%m-%d  %H:%M:%S")
 
-log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
+_log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.22  2003-02-01 02:39:53  ncq
+# Revision 1.23  2003-02-01 02:42:46  ncq
+# - log -> _log to prevent namespace pollution on import
+#
+# Revision 1.22  2003/02/01 02:39:53  ncq
 # - get and remember user's locale
 #
 # Revision 1.21  2002/12/09 23:39:50  ncq
