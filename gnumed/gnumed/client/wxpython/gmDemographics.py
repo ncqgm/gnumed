@@ -14,8 +14,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.25 2004-06-13 22:31:48 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmDemographics.py,v 1.26 2004-06-17 11:43:12 ihaywood Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -248,7 +248,8 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 
 		self.txt_urb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
 
-		self.txt_postcode  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize , id_callback =self.__postcode_selected)
+		self.txt_postcode  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize)
+		self.txt_postcode.setDependent (self.txt_urb, 'postcode')
 
 		self.txt_birthdate = TextBox_BlackNormal(self,-1)
 		self.combo_maritalstatus = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,
@@ -493,13 +494,12 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		EVT_BUTTON(self.btn_photo_export, self.btn_photo_export.GetId (), self._photo_export)
 
 	def __urb_selected(self, id):
-		gmDemographicRecord.setPostcodeWidgetFromUrbId( self.input_fields['postcode'], id)
-		#	print "failed to set postcode widget from urb_id"
-
-
-
-	def __postcode_selected(self, postcode):
-		gmDemographicRecord.setUrbPhraseWheelFromPostcode( self.input_fields['urb'], postcode)
+		if id:
+			try:
+				self.txt_postcode.SetValue (gmDemographicRecord.getPostcodeForUrbId(id))
+				self.txt_postcode.input_was_selected= 1
+			except:
+				gmLog.gmDefLog.LogException( "select urb problem", sys.exc_info(), verbose=0)
 
 	def _address_selected( self, event):
 		self._update_address_fields_on_selection()
@@ -800,7 +800,13 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.25  2004-06-13 22:31:48  ncq
+# Revision 1.26  2004-06-17 11:43:12  ihaywood
+# Some minor bugfixes.
+# My first experiments with wxGlade
+# changed gmPhraseWheel so the match provider can be added after instantiation
+# (as wxGlade can't do this itself)
+#
+# Revision 1.25  2004/06/13 22:31:48  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

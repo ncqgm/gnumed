@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -176,7 +176,8 @@ class ContactsPanel(wxPanel):
 	  self.txt_org_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wxDefaultPosition, size=wxDefaultSize )
 	  self.txt_org_street.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 	  self.txt_org_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
-	  self.txt_org_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize , id_callback =self.__postcode_selected)
+	  self.txt_org_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize)
+	  self.txt_org_zip.setDependent (self.txt_org_suburb, 'postcode')
 
 	  #self.txt_org_street = wxTextCtrl(self, 30,"",wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
 
@@ -494,16 +495,9 @@ class ContactsPanel(wxPanel):
 	  """allow list selection to update the org edit area"""
 	  EVT_LIST_ITEM_SELECTED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
 
-       	def __urb_selected(self, urb_id):
-	  """restrict postcode based on urb selection"""
-          #print "urb_id", urb_id
-	  gmDemographicRecord.setPostcodeWidgetFromUrbId( self.input_fields['postcode'], urb_id)
-      	  pass
-       	def __postcode_selected(self, postcode):
-	  """restrict urb based on postcode selection"""
-       	  #print "postcode", postcode
-	  gmDemographicRecord.setUrbPhraseWheelFromPostcode( self.input_fields['urb'], postcode)
-      	  pass
+	def __urb_selected(self, id):
+		self.input_field['postcode'].SetValue (gmDemographicRecord.getPostcodeForUrbId(id))
+		self.input_field['postcode'].input_was_selected= 1
 
        	def get_address_values(self):
 	  """from the street urb, postcode field, return number, street, urb, postcode list"""
@@ -1012,7 +1006,13 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.31  2004-06-13 22:31:48  ncq
+# Revision 1.32  2004-06-17 11:43:16  ihaywood
+# Some minor bugfixes.
+# My first experiments with wxGlade
+# changed gmPhraseWheel so the match provider can be added after instantiation
+# (as wxGlade can't do this itself)
+#
+# Revision 1.31  2004/06/13 22:31:48  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

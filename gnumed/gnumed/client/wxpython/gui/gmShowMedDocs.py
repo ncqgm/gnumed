@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -537,9 +537,9 @@ else:
             return ('tools', _('Show &archived documents'))
 
         def populate_with_data(self):
-			# no use reloading if invisible
-			if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
-				return 1
+	    # no use reloading if invisible
+	    if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
+	        return 1
             if self._widget.tree.update() is None:
                 _log.Log(gmLog.lErr, "cannot update document tree")
                 return None
@@ -626,7 +626,13 @@ else:
     pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.44  2004-06-13 22:31:49  ncq
+# Revision 1.45  2004-06-17 11:43:18  ihaywood
+# Some minor bugfixes.
+# My first experiments with wxGlade
+# changed gmPhraseWheel so the match provider can be added after instantiation
+# (as wxGlade can't do this itself)
+#
+# Revision 1.44  2004/06/13 22:31:49  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

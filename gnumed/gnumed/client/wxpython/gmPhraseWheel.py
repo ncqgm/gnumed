@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.36 2004-05-02 22:53:53 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmPhraseWheel.py,v 1.37 2004-06-17 11:43:15 ihaywood Exp $
+__version__ = "$Revision: 1.37 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -60,16 +60,13 @@ class cPhraseWheel (wxTextCtrl):
 	default_phrase_separators = re.compile('[;/|]+')
 
 	def __init__ (
-		self,
+		self, parent=None, id=-1, value="",
 		aMatchProvider = None,
 		aDelay = 300,
 		selection_only = _false,
 		*args,
 		**kwargs):
 
-		if not isinstance(aMatchProvider, gmMatchProvider.cMatchProvider):
-			_log.Log(gmLog.lErr, "aMatchProvider must be a match provider object")
-			return None
 		self.__matcher = aMatchProvider
 		self.__real_matcher = None
 		
@@ -91,7 +88,7 @@ class cPhraseWheel (wxTextCtrl):
 			self.addCallback(kwargs['id_callback'])
 			del kwargs['id_callback']
 
-		wxTextCtrl.__init__ (self, *args, **kwargs)
+		wxTextCtrl.__init__ (self, parent, id, **kwargs)
 		# unnecessary as we are using styles
 		#self.SetBackgroundColour (wxColour (200, 100, 100))
 
@@ -110,10 +107,7 @@ class cPhraseWheel (wxTextCtrl):
 		tmp = kwargs.copy()
 		width, height = self.GetSize()
 		x, y = self.GetPosition()
-		tmp['pos'] = (x, y + height)
-		tmp['size'] = (width, height*6)
-		tmp['id'] = -1
-		self.__picklist_win = wxWindow(*args, **tmp)
+		self.__picklist_win = wxWindow(parent, -1, pos=(x, y+ height), size=(width, height*6))
 		self.__picklist_pnl = wxPanel(self.__picklist_win, -1)
 		self._picklist = wxListBox(self.__picklist_pnl, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
 		self._picklist.Clear()
@@ -125,7 +119,11 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	def allow_multiple_phrases(self, state = _true):
 		self.__handle_multiple_phrases = state
-	#-------------------------------------------------------
+	#--------------------------------------------------------
+	def setMatchProvider (self, mp):
+		self.__matcher = mp
+		self.__real_matcher = None
+	#--------------------------------------------------------
 	def addCallback (self, callback_func):
 		"""Add a callback for a listener.
 
@@ -136,10 +134,10 @@ class cPhraseWheel (wxTextCtrl):
 		user changes a previously selected value.
 		"""
 		self.listener_callbacks.append(callback_func)
-	#--------------------------------------------------------
+	#---------------------------------------------------------
 	def getData (self):
 		return self.data
-	#-------------------------------------------------------
+	#---------------------------------------------------------
 	def SetValue (self, value):
 		wxTextCtrl.SetValue (self, value)
 		self._is_modified = _false
@@ -152,7 +150,10 @@ class cPhraseWheel (wxTextCtrl):
 			# forget any caching, as it's now invalid
 			self.__matcher = self.__real_matcher
 			self.__real_matcher = None
-		self.__matcher.setContext (context, val)
+		if self.__matcher:
+			self.__matcher.setContext (context, val)
+		else:
+			_log.Log(gmLog.lErr, "aMatchProvider must be set to set context")
 	#---------------------------------------------------------
 #	def snap (self):
 #		"""
@@ -231,12 +232,15 @@ class cPhraseWheel (wxTextCtrl):
 #		print "relevant input:", self.input2match
 
 		# get all currently matching items
-		(matched, self.__currMatches) = self.__matcher.getMatches(self.input2match)
-		# and refill our picklist with them
-		self._picklist.Clear()
-		if matched:
-			for item in self.__currMatches:
-				self._picklist.Append(str(item['label']), clientData = str(item['data']))
+		if self.__matcher:
+			(matched, self.__currMatches) = self.__matcher.getMatches(self.input2match)
+			# and refill our picklist with them
+			self._picklist.Clear()
+			if matched:
+				for item in self.__currMatches:
+					self._picklist.Append(str(item['label']), clientData = str(item['data']))
+		else:
+			_log.Log(gmLog.lWarn, "using phrasewheell without match provider")
 	#--------------------------------------------------------
 	def __show_picklist(self):
 		"""Display the pick list."""
@@ -522,7 +526,13 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.36  2004-05-02 22:53:53  ncq
+# Revision 1.37  2004-06-17 11:43:15  ihaywood
+# Some minor bugfixes.
+# My first experiments with wxGlade
+# changed gmPhraseWheel so the match provider can be added after instantiation
+# (as wxGlade can't do this itself)
+#
+# Revision 1.36  2004/05/02 22:53:53  ncq
 # - cleanup
 #
 # Revision 1.35  2004/05/01 10:27:47  shilbert
