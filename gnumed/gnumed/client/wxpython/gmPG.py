@@ -23,9 +23,18 @@
 #python standard modules
 import string, gettext, copy, os, sys
 #3rd party dependencies
-import pgdb
+try:
+	import psycopg # try Zope library
+	dbapi = psycopg
+except ImportError:
+	try:
+		import pgdb # try standard Postgres binding
+		dbapi = pgdb
+	except ImportError:
+		import pyPgSQL.PgSQL # try Windows bindings
+		dbapi = pyPgSQL.PgSQL
+
 #create an alias for our DB API adapter module to make code independend of the adapter used
-dbapi = pgdb
 
 #gnumed specific modules
 import gmLoginInfo, gmLog, gmExceptions
