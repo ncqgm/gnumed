@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -221,7 +221,7 @@ insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
 values (currval('vaccine_id_seq'), (select id from vacc_indication where description='tetanus'));
 
 insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('vaccine_id_seq'), (select id from vacc_indication where description='diphtherie'));
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='diphtheria'));
 
 insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
 values (currval('vaccine_id_seq'), (select id from vacc_indication where description='pertussis'));
@@ -257,11 +257,14 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.8  2004-01-22 23:45:12  ncq
+-- Revision 1.9  2004-01-26 20:18:37  ncq
+-- - diphtheria, not diphtherie
+--
+-- Revision 1.8  2004/01/22 23:45:12  ncq
 -- - REPEVAX/FSME Junior
 --
 -- Revision 1.7  2004/01/18 21:58:22  ncq
