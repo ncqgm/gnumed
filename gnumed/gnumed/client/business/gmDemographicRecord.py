@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.33 2004-03-20 19:43:16 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmDemographicRecord.py,v 1.34 2004-03-25 11:01:45 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -16,6 +16,7 @@ import sys, os.path, time
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider
 from Gnumed.business import gmMedDoc
+from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
@@ -34,8 +35,6 @@ map_gender_gm2long = {
 #============================================================
 # virtual ancestor class, SQL and LDAP descendants
 class cDemographicRecord:
-	def getActiveName (self):
-		raise gmExceptions.PureVirtualFunction()
 
 	def addName (self, firstname, lastname, activate):
 		raise gmExceptions.PureVirtualFunction ()
@@ -151,20 +150,47 @@ class cDemographicRecord_SQL(cDemographicRecord):
 	#--------------------------------------------------------
 	# API
 	#--------------------------------------------------------
-	def getActiveName(self):
-		cmd = "select firstnames, lastnames from v_basic_person where i_id = %s"
-		data, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
-		if data is None:
+	def export_demographics (self, all = False):
+		demographics_data = {}
+		demographics_data['id'] = self.getID()
+		demographics_data['names'] = []
+		names = self.get_names(all)
+		if all:
+			for name in names:
+				demographics_data['names'].append(name)
+		else:
+			demographics_data['names'].append(names)
+		demographics_data['gender'] = self.getGender()
+		demographics_data['title'] = self.getTitle()
+		demographics_data['dob'] = self.getDOB (aFormat = 'DD.MM.YYYY')
+		demographics_data['mage'] =  self.getMedicalAge()
+		address_map = {}
+		adr_types = getAddressTypes()
+		# FIXME: rewrite using the list returned from getAddresses()
+		for adr_type in adr_types:
+			if not all and adr_type != "home":
+				continue
+			address_map[adr_type] = self.getAddresses(adr_type)
+		demographics_data['addresses'] = address_map
+		return demographics_data
+	#--------------------------------------------------------
+	def get_names(self, all=False):
+		if all:
+			cmd = "select firstnames, lastnames from names where id_identity=%s"
+		else:
+			cmd = "select firstnames, lastnames from v_basic_person where i_id=%s"
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
+		if rows is None:
 			return None
-		if len(data) == 0:
-			return {
-				'first': '**?**',
-				'last': '**?**'
-			}
-		return {
-			'first': data[0][idx['firstnames']],
-			'last': data[0][idx['lastnames']]
-		}
+		if len(rows) == 0:
+			rows = [['**?**', '**?**']]
+		if all:
+			names = []
+			for row in rows:
+				names.append({'first': row[0], 'last': row[1]})
+			return names
+		else:
+			return {'first': rows[0][0], 'last': rows[0][1]}
 	#--------------------------------------------------------
 	def addName(self, firstname, lastname, activate = None):
 		"""Add a name and possibly activate it."""
@@ -332,7 +358,7 @@ where
 		# pre-fill with data from ourselves
 		relative_demographics = relative.get_demographic_record()
 		relative_demographics.copyAddresses(self)
-		relative_demographics.addName( '**?**', self.getActiveName()['last'], activate = 1)
+		relative_demographics.addName( '**?**', self.get_names()['last'], activate = 1)
 		# and link the two
 		cmd = """
 			insert into lnk_person2relative (
@@ -819,7 +845,7 @@ if __name__ == "__main__":
 			print "patient", pID, "can not be set up"
 			continue
 		print "ID       ", myPatient.getID ()
-		print "name     ", myPatient.getActiveName ()
+		print "name     ", myPatient.get_names (1)
 		print "title    ", myPatient.getTitle ()
 		print "dob      ", myPatient.getDOB (aFormat = 'DD.MM.YYYY')
 		print "med age  ", myPatient.getMedicalAge()
@@ -830,7 +856,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.33  2004-03-20 19:43:16  ncq
+# Revision 1.34  2004-03-25 11:01:45  ncq
+# - getActiveName -> get_names(all=false)
+# - export_demographics()
+#
+# Revision 1.33  2004/03/20 19:43:16  ncq
 # - do import gmI18N, we need it
 # - gm2long_gender_map -> map_gender_gm2long
 # - gmDemo* -> cDemo*
