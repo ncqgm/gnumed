@@ -6,13 +6,13 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: multisash.py,v 1.9 2005-02-21 11:52:37 cfmoro Exp $
+# RCS-ID:		$Id: multisash.py,v 1.10 2005-02-21 23:44:59 cfmoro Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/multisash.py,v $
-# $Id: multisash.py,v 1.9 2005-02-21 11:52:37 cfmoro Exp $
-__version__ = "$Revision: 1.9 $"
-__author__ = "cfmoro"
+# $Id: multisash.py,v 1.10 2005-02-21 23:44:59 cfmoro Exp $
+__version__ = "$Revision: 1.10 $"
+__author__ = "Carlos, Karsten"
 __license__ = "GPL"
 	   
 from wxPython.wx import *
@@ -24,7 +24,6 @@ SH_SIZE = 5
 CR_SIZE = SH_SIZE * 3
 
 #----------------------------------------------------------------------
-
 class cMultiSash(wxWindow):
 	"""
 	Main multisash widget. Dynamically displays a stack of child widgets.	
@@ -37,12 +36,9 @@ class cMultiSash(wxWindow):
 		# Gnumed: focused and bottom leaf
 		self.focussed_leaf = self.child.view1
 		self.bottom_leaf = self.child.view1
+		self.displayed_leafs = []
 		
 		EVT_SIZE(self,self.OnMultiSize)
-
-	#def SetDefaultChildClass(self,childCls):
-	#	self._defChild = childCls
-	#	self.child.DefaultChildChanged()
 
 	def OnMultiSize(self,evt):
 		self.child.SetSize(self.GetSize())
@@ -55,6 +51,7 @@ class cMultiSash(wxWindow):
 		self.child = wxMultiSplit(self,self,wxPoint(0,0),self.GetSize())
 		old.Destroy()
 		self.child.OnSize(None)
+		
 	#---------------------------------------------
 	# public API
 	#---------------------------------------------
@@ -67,12 +64,11 @@ class cMultiSash(wxWindow):
 		return self.focussed_leaf
 		
 	#---------------------------------------------		  
-	#def get_bottom_leaf(self):
-	#	"""
-	#	Retrieves the bottom leaf. Typically, used to call AddLeaf
-	#	on it to ensure new widgets are created under the bottom leaf.		  
-	#	"""
-	#	return self.bottom_leaf
+	def get_displayed_leafs(self):
+		"""
+		Retrieves the currently displayed leafs.
+		"""
+		return self.displayed_leafs
 
 	#---------------------------------------------		  
 	def add_content(self, content):
@@ -131,25 +127,6 @@ class cMultiSash(wxWindow):
 			print "bottom leaf (view1): %s [%s]" % (splitter.view1.__class__.__name__, id(splitter.view1))
 			return splitter.view1
 
-	#---------------------------------------------
-#	def GetSaveData(self):
-#		saveData = {}
-#		saveData['_defChild'] = str(self._defChild)
-#		saveData['child'] = self.child.GetSaveData()
-#		return saveData
-
-#	def SetSaveData(self,data):
-#		dChild = data['_defChild']
-#		mod = dChild.split('.')[0]
-#		exec 'import %s' % mod
-#		self._defChild = eval(dChild)
-#		old = self.child
-#		self.child = wxMultiSplit(self,self,wxPoint(0,0),self.GetSize())
-#		self.child.SetSaveData(data['child'])
-#		old.Destroy()
-#		self.OnMultiSize(None)
-#		self.child.OnSize(None)
-
 #----------------------------------------------------------------------
 class cMultiSashSplitter(wxWindow):
 	"""
@@ -180,9 +157,6 @@ class cMultiSashSplitter(wxWindow):
 		if self.view2:
 			self.view2.UnSelect()
 
-	#def DefaultChildChanged(self):
-	#	if not self.view2:
-	#		self.view1.DefaultChildChanged()
 	#---------------------------------------------
 	def AddLeaf(self,direction,caller,pos):		
 		print '%s[%s].AddLeaf()' % (self.__class__.__name__, id(self))
@@ -225,6 +199,8 @@ class cMultiSashSplitter(wxWindow):
 										 wxPoint(x,y),wxSize(w1,h1))									 
 			self.view1.SetSize(wxSize(w2,h2))
 			self.view2.OnSize(None)
+			# Gnumed: register added leaf content
+			self.multiView.displayed_leafs.append(self.view2)
 			# Gnumed: sets the newly created leaf as the bottom and focus it
 			self.multiView.refresh_bottom_leaf(self.view2)
 			self.view2.set_focus()
@@ -243,16 +219,25 @@ class cMultiSashSplitter(wxWindow):
 				old = self.view1
 				self.view1 = self.view2
 				self.view2 = None
+				# Gnumed: remove content from displayed leafs
+				print "Removing old: %s [%s]" % (old.__class__.__name__, id(old))
+				self.multiView.displayed_leafs.remove(old)
 				old.Destroy()
 			else:
 				print "caller is leaf 2, hence destroying leaf 2"
+				# Gnumed: remove content from displayed leafs
+				print "Removing view2: %s [%s]" % (self.view2.__class__.__name__, id(self.view2))
+				self.multiView.displayed_leafs.remove(self.view2)
 				self.view2.Destroy()
 				self.view2 = None
 			self.view1.SetSize(self.GetSize())
 			self.view1.Move(self.GetPosition())
 		else:
 			print "parent is NOT root view"
-			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))	 
+			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))
+			print "Removing caller"
+			# Gnumed: remove content from displayed leafs
+			self.multiView.displayed_leafs.remove(caller)
 			w,h = self.GetSizeTuple()
 			x,y = self.GetPositionTuple()
 			if caller == self.view1:
@@ -277,12 +262,7 @@ class cMultiSashSplitter(wxWindow):
 					print "... so replacing ourselves in the parent with our leaf 1"
 				self.view1.Reparent(parent)
 				self.view1.SetDimensions(x,y,w,h)
-			# Gnumed: I am pretty sure this is wrong
-			#if caller == self.multiView.get_bottom_leaf():
-				#print "DESTROYING BOTTOM!! caller:self.view2:self.multiView.bottom_leaf %s:%s:%s" %(id(caller),id(self.view2),id(self.multiView.get_bottom_leaf()))
-				# when destroying current bottom,
-				# set the upper content leaf (view2) as bottom
-				#self.GetParent().view2.set_bottom()													
+
 			self.view1 = None
 			self.view2 = None
 			multiView = self.multiView
@@ -361,60 +341,7 @@ class cMultiSashSplitter(wxWindow):
 		self.view2.SetDimensions(v2x,v2y,v2w,v2h)
 		self.view1.OnSize(None)
 		self.view2.OnSize(None)
-	#-----------------------------------------------------
-#	def GetSaveData(self):
-#		saveData = {}
-#		if self.view1:
-#			saveData['view1'] = self.view1.GetSaveData()
-#			if isinstance(self.view1,cMultiSashSplitter):
-#				saveData['view1IsSplit'] = 1
-#		if self.view2:
-#			saveData['view2'] = self.view2.GetSaveData()
-#			if isinstance(self.view2,cMultiSashSplitter):
-#				saveData['view2IsSplit'] = 1
-#		saveData['direction'] = self.direction
-#		v1,v2 = self.GetPositionTuple()
-#		saveData['x'] = v1
-#		saveData['y'] = v2
-#		v1,v2 = self.GetSizeTuple()
-#		saveData['w'] = v1
-#		saveData['h'] = v2
-#		return saveData
-
-#	def SetSaveData(self,data):
-#		self.direction = data['direction']
-#		self.SetDimensions(data['x'],data['y'],data['w'],data['h'])
-#		v1Data = data.get('view1',None)
-#		if v1Data:
-#			isSplit = data.get('view1IsSplit',None)
-#			old = self.view1
-#			if isSplit:
-#				self.view1 = cMultiSashSplitter(self.multiView,self,
-#										  wxPoint(0,0),self.GetSize())
-#			else:
-#				self.view1 = wxMultiViewLeaf(self.multiView,self,
-#											 wxPoint(0,0),self.GetSize())
-#			self.view1.SetSaveData(v1Data)
-#			if old:
-#				old.Destroy()
-#		v2Data = data.get('view2',None)
-#		if v2Data:
-#			isSplit = data.get('view2IsSplit',None)
-#			old = self.view2
-#			if isSplit:
-#				self.view2 = cMultiSashSplitter(self.multiView,self,
-#										  wxPoint(0,0),self.GetSize())
-#			else:
-#				self.view2 = wxMultiViewLeaf(self.multiView,self,
-#											 wxPoint(0,0),self.GetSize())
-#			self.view2.SetSaveData(v2Data)
-#			if old:
-#				old.Destroy()
-#		if self.view1:
-#			self.view1.OnSize(None)
-#		if self.view2:
-#			self.view2.OnSize(None)
-
+		
 #----------------------------------------------------------------------
 class cMultiSashLeaf(wxWindow):
 	"""
@@ -442,17 +369,11 @@ class cMultiSashLeaf(wxWindow):
 		will be required to further actions and processing.
 		"""
 		self.multiView.focussed_leaf = self
-		#if self.detail is not None and not self.detail.selected :
-		#	self.detail.Select()		
 		print "focussed soap editor leaf:", self.__class__.__name__, id(self)
-		#self.multiView.get_bottom_leaf()
 
 	def UnSelect(self):
 		self.detail.UnSelect()
 
-	#def DefaultChildChanged(self):
-	#	self.detail.SetNewChildCls(self.multiView._defChild)
-		
 	#-----------------------------------------------------		
 	def set_content(self, content):
 		"""
@@ -470,6 +391,12 @@ class cMultiSashLeaf(wxWindow):
 		"""				
 		return self.detail.child
 		
+	#-----------------------------------------------------				
+	def Select(self):
+		"""
+		Select the leaf
+		"""
+		self.detail.Select()
 	#-----------------------------------------------------
 	def AddLeaf(self,direction,pos):
 		"""Add a leaf.
@@ -495,11 +422,15 @@ class cMultiSashLeaf(wxWindow):
 			self.GetParent().AddLeaf(direction,self,pos)
 		else:
 			self.set_focus()
+			# Gnumed: register added leaf content
+			self.GetParent().multiView.displayed_leafs.append(self)
 		return (True, None)
+		
 	#---------------------------------------------
 	def DestroyLeaf(self):
-		print '%s[%s].DestroyLeaf()' % (self.__class__.__name__, id(self))
+		print '%s[%s].DestroyLeaf()' % (self.__class__.__name__, id(self))		
 		self.GetParent().DestroyLeaf(self)
+		
 	#-----------------------------------------------------
 	def SizeTarget(self,side):
 		return self.GetParent().SizeTarget(side,self)
@@ -515,40 +446,6 @@ class cMultiSashLeaf(wxWindow):
 		#self.creatorVer.OnSize(evt)
 		self.detail.OnSize(evt)
 		self.closer.OnSize(evt)
-	#-----------------------------------------------------
-#	def GetSaveData(self):
-#		saveData = {}
-#		saveData['detailClass'] = str(self.detail.child.__class__)
-#		if hasattr(self.detail.child,'GetSaveData'):
-#			attr = getattr(self.detail.child,'GetSaveData')
-#			if callable(attr):
-#				dData = attr()
-#				if dData:
-#					saveData['detail'] = dData
-#		v1,v2 = self.GetPositionTuple()
-#		saveData['x'] = v1
-#		saveData['y'] = v2
-#		v1,v2 = self.GetSizeTuple()
-#		saveData['w'] = v1
-#		saveData['h'] = v2
-#		return saveData
-
-#	def SetSaveData(self,data):
-#		dChild = data['detailClass']
-#		mod = dChild.split('.')[0]
-#		exec 'import %s' % mod
-#		detClass = eval(dChild)
-#		self.SetDimensions(data['x'],data['y'],data['w'],data['h'])
-#		old = self.detail
-#		self.detail = MultiClient(self,detClass)
-#		dData = data.get('detail',None)
-#		if dData:
-#			if hasattr(self.detail.child,'SetSaveData'):
-#				attr = getattr(self.detail.child,'SetSaveData')
-#				if callable(attr):
-#					attr(dData)
-#		old.Destroy()
-#		self.detail.OnSize(None)
 
 #----------------------------------------------------------------------
 class cMultiSashLeafContent(wxWindow):
@@ -601,13 +498,6 @@ class cMultiSashLeafContent(wxWindow):
 		w,h = self.GetClientSizeTuple()
 		self.child.SetSize(wxSize(w-4,h-4))
 
-	#def SetNewChildCls(self,childCls):
-	#	if self.child:
-	#		self.child.Destroy()
-	#		self.child = None
-	#	self.child = childCls(self)
-	#	self.child.MoveXY(2,2)
-		
 	#-----------------------------------------------------		
 	def set_new_content(self,content):
 		"""
@@ -949,7 +839,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: multisash.py,v $
-# Revision 1.9  2005-02-21 11:52:37  cfmoro
+# Revision 1.10  2005-02-21 23:44:59  cfmoro
+# Commented out New button. Focus editor when trying to add and existing one. Clean ups
+#
+# Revision 1.9  2005/02/21 11:52:37  cfmoro
 # Ported action of buttons to recent changes. Begin made them functional
 #
 # Revision 1.8  2005/02/21 10:31:11  cfmoro
