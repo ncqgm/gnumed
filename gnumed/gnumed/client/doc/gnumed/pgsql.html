@@ -1,0 +1,214 @@
+<HTML
+><HEAD
+><TITLE
+>Setting up PostgreSQL</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.49"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="Introduction"
+HREF="intro.html"><LINK
+REL="PREVIOUS"
+TITLE="Windows"
+HREF="win9x.html"><LINK
+REL="NEXT"
+TITLE="GNU Free Documentation License"
+HREF="gfdl.html"></HEAD
+><BODY
+CLASS="SECT1"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: User's Manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="win9x.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 1. Introduction</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="gfdl.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PGSQL"
+>Setting up <SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+></A
+></H1
+><P
+>Quoting Steven Duffy in the gnumed.org website</P
+><P
+>Now that PostgreSQL is installed and working, the server scripts from the CVS repository can be executed. These scripts all end in .sql are intended to be executed from within psql. The one required script is gmconfiguration.sql. To set it up, do the following from the <TT
+CLASS="FILENAME"
+>gnumed/gnumed/server/sql</TT
+>
+directory:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><TT
+CLASS="PROMPT"
+>#</TT
+> createdb gnumed
+<TT
+CLASS="PROMPT"
+>#</TT
+> psql gnumed
+<TT
+CLASS="PROMPT"
+>gnumed=&#62;</TT
+> \i gmconfiguration.sql 
+<TT
+CLASS="PROMPT"
+>gnumed=&#62;</TT
+> \i gmidentity.sql
+<TT
+CLASS="PROMPT"
+>gnumed=&#62;</TT
+> \i gmgis.sql</PRE
+></TD
+></TR
+></TABLE
+><P
+>Then enter the <TT
+CLASS="FILENAME"
+>country.specific</TT
+> directory, then the directory  for your country's code, and then install the <TT
+CLASS="FILENAME"
+>.sql</TT
+>
+file there too. <A
+NAME="AEN210"
+HREF="#FTN.AEN210"
+>[1]</A
+></P
+><P
+>FIXME: presumably some shell script to create all the databases and
+feed in the ER scripts?</P
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN210"
+HREF="pgsql.html#AEN210"
+>[1]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>The only such directory at the moment is au, the only working databases is postcodes.au.sql</P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="win9x.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="gfdl.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Windows</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="intro.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>GNU Free Documentation License</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
