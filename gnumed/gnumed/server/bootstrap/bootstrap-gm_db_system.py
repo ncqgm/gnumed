@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -85,6 +85,7 @@ except ImportError:
 from gmExceptions import ConstructorError
 
 import gmAuditSchemaGenerator
+aud_gen = gmAuditSchemaGenerator
 
 _interactive = 0
 _bootstrapped_servers = {}
@@ -651,29 +652,39 @@ class database:
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
 		# get audit trail configuration
-		audit_marker_table = _cfg.get(self.section, 'audit marker table')
-		if audit_marker_table is None:
+		tmp = _cfg.get(self.section, 'audit marker table')
+		if tmp is None:
 			return None
-		audit_parent_table = _cfg.get(self.section, 'audit trail parent table')
-		if audit_parent_table is None:
+		aud_gen.audit_marker_table = tmp
+		
+		tmp = _cfg.get(self.section, 'audit trail parent table')
+		if tmp is None:
 			return None
-		audit_trail_prefix = _cfg.get(self.section, 'audit trail table prefix')
-		if audit_trail_prefix is None:
+		aud_gen.audit_trail_parent_table = tmp
+		
+		tmp = _cfg.get(self.section, 'audit trail table prefix')
+		if tmp is None:
 			return None
+		aud_gen.audit_trail_table_prefix = tmp
+		
+		tmp = _cfg.get(self.section, 'audit fields table')
+		if tmp is None:
+			return None
+		aud_gen.audit_fields_table = tmp
 		# create auditing schema
 		curs = self.conn.cursor()
-		audit_schema = gmAuditSchemaGenerator.create_audit_schema(curs, audit_marker_table, audit_parent_table, audit_trail_prefix)
+		audit_schema = gmAuditSchemaGenerator.create_audit_schema(curs)
 		curs.close()
 		if audit_schema is None:
 			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for GnuMed database [%s]' % self.name)
 			return None
 		# write schema to file
-		file = open ('/tmp/audit-triggers.sql', 'wb')
+		file = open ('/tmp/audit-trail-schema.sql', 'wb')
 		for line in audit_schema:
 			file.write("%s;\n" % line)
 		file.close()
 		# import auditing schema
-		if not _import_schema_file(anSQL_file = '/tmp/audit-triggers.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
+		if not _import_schema_file(anSQL_file = '/tmp/audit-trail-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
 			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
 			return None
 		return 1
@@ -1130,7 +1141,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.20  2003-07-05 15:10:20  ncq
+# Revision 1.21  2003-08-17 00:09:37  ncq
+# - add auto-generation of missing audit trail tables
+# - use that
+#
+# Revision 1.20  2003/07/05 15:10:20  ncq
 # - added comment on Win2k quirk (os.WIFEXITED), thanks to Manfred
 # - slightly betterified comments on gm-dbowner creation
 #

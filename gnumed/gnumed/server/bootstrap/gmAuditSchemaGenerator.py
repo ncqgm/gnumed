@@ -19,7 +19,7 @@ cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -34,6 +34,15 @@ if __name__ == "__main__" :
 	_log.SetAllLogLevels(gmLog.lData)
 
 import gmPG
+
+# the audit trail tables start with this prefix
+audit_trail_table_prefix = 'log_'
+# and inherit from this table
+audit_trail_parent_table = 'audit_trail'
+# while the audited tables are marked by inheriting from this
+audit_marker_table = 'audit_mark'
+# and also this for the fields used in auditing
+audit_fields_table = 'audit_fields'
 
 #==================================================================
 # convenient queries
@@ -51,10 +60,24 @@ WHERE pg_class.oid in (
 	)
 )"""
 
-# return all attributes and their data types for a given table
-#	format_type(a.atttypid, a.atttypmod)
+# return all attributes for a given table
 query_table_attributes = """SELECT
-	pga.attname
+	pga.attname as attribute
+FROM
+	pg_class pgc, pg_attribute pga
+WHERE
+	pgc.relname = %s
+		AND
+	pga.attnum > 0
+		AND
+	pga.attrelid = pgc.oid
+ORDER BY pga.attnum"""
+
+
+# return all attributes and their data types for a given table
+query_table_col_defs = """SELECT
+	pga.attname as attribute,
+	format_type(pga.atttypid, pga.atttypmod) as type
 FROM
 	pg_class pgc, pg_attribute pga
 WHERE
@@ -135,6 +158,10 @@ BEGIN
 	return OLD;
 END;' LANGUAGE 'plpgsql'"""
 
+template_create_audit_trail_table = """create table %s (
+%s
+) inherits (%s)"""
+
 #------------------------------------------------------------------
 def get_children(aCursor, aTable):
 	"""Return all descendants of aTable.
@@ -157,22 +184,53 @@ def get_columns(aCursor, aTable):
 		rows.append(row[0])
 	return rows
 #------------------------------------------------------------------
-def audit_trail_table_exists(aCursor, table2audit, audit_prefix = 'log_'):
-	audit_trail_table = '%s%s' % (audit_prefix, table2audit)
+def get_col_defs(aCursor, aTable):
+	if not gmPG.run_query(aCursor, query_table_col_defs, aTable):
+		_log.Log(gmLog.lErr, 'cannot get column definitions for table [%s]' % aTable)
+		return None
+	data = aCursor.fetchall()
+	col_names = []
+	col_type = {}
+	for row in data:
+		col_names.append(row[0])
+		col_type[row[0]] = row[1]
+	col_defs = []
+	col_defs.append(col_names)
+	col_defs.append(col_type)
+	return col_defs
+#------------------------------------------------------------------
+def audit_trail_table_schema(aCursor, table2audit):
+	audit_trail_table = '%s%s' % (audit_trail_table_prefix, table2audit)
 
 	# does the audit trail target table exist ?
 	cmd = "SELECT exists(select oid FROM pg_class where relname = %s)"
 	if not gmPG.run_query(aCursor, cmd, audit_trail_table):
 		_log.Log(gmLog.lErr, 'cannot check existance of table %s' % audit_trail_table)
 		return None
-	result = aCursor.fetchone()
-	return result[0]
+	table_exists = aCursor.fetchone()[0]
+	if table_exists:
+		return []
+	# must create audit trail table
+	_log.Log(gmLog.lInfo, 'no audit trail table found for table [%s]' % table2audit)
+	_log.Log(gmLog.lInfo, 'trying to auto-create audit trail table [%s]' % audit_trail_table)
+	# audit those columns
+	audited_col_defs = get_col_defs(aCursor, table2audit)
+	cols2skip = get_columns(aCursor, audit_marker_table)
+	cols2skip.extend(get_columns(aCursor, audit_fields_table))
+	attribute_list = []
+	for col in audited_col_defs[0]:
+		if col in cols2skip:
+			continue
+		attribute_list.append("\t%s %s" % (col, audited_col_defs[1][col]))
+	attributes = string.join(attribute_list, ',\n')
+	table_def = template_create_audit_trail_table % (audit_trail_table, attributes, audit_trail_parent_table)
+	return [table_def, '']
 #------------------------------------------------------------------
-def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', audit_prefix = 'log_'):
-	audit_trail_table = '%s%s' % (audit_prefix, audited_table)
+def trigger_schema(aCursor, audited_table):
+	audit_trail_table = '%s%s' % (audit_trail_table_prefix, audited_table)
 
 	target_columns = get_columns(aCursor, audit_trail_table)
-	columns2skip = get_columns(aCursor, audit_parent_table)
+	columns2skip = get_columns(aCursor, audit_trail_parent_table)
 	columns = []
 	values = []
 	for column in target_columns:
@@ -227,40 +285,51 @@ def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', aud
 
 	return schema
 #------------------------------------------------------------------
-def create_audit_schema(aCursor, marker_table = 'audit_mark', parent_table = 'audit_log', prefix = 'log_'):
+def create_audit_schema(aCursor):
 	# get list of all derived tables
-	tables2audit = get_children(aCursor, marker_table)
+	tables2audit = get_children(aCursor, audit_marker_table)
 	if tables2audit is None:
 		return None
 	# for each derived table
 	schema = []
 	for audited_table in tables2audit:
 		# fail if corresponding audit trail table does not exist
-		if not audit_trail_table_exists(aCursor, audited_table[0]):
+		audit_trail_schema = audit_trail_table_schema(aCursor, audited_table[0])
+		if audit_trail_schema is None:
 			_log.Log(gmLog.lErr, 'cannot verify audit trail table existance on audited table [%s]' % audited_table[0])
 			return None
+		schema.extend(audit_trail_schema)
+		if len(audit_trail_schema) != 0:
+			schema.append('-- ----------------------------------------------')
 		# create corresponding triggers
-		schema.extend(trigger_schema(
-						aCursor,
-						audited_table[0],
-						parent_table,
-						prefix
-					)
-		)
+		schema.extend(trigger_schema(aCursor, audited_table[0]))
 		schema.append('-- ----------------------------------------------')
 	return schema
 #==================================================================
 # main
 #------------------------------------------------------------------
 if __name__ == "__main__" :
-	audit_marker_table = raw_input("name of audit marker table      : ")
-	audit_parent_table = raw_input("name of audit trail parent table: ")
+	tmp = ''
+	try:
+		tmp = raw_input("audit marker table [%s]: " % audit_marker_table)
+	except KeyboardError:
+		pass
+	if tmp != '':
+		audit_marker_table = tmp
+
+	tmp = ''
+	try:
+		tmp = raw_input("audit trail parent table [%s]: " % audit_trail_parent_table)
+	except KeyboardError:
+		pass
+	if tmp != '':
+		audit_trail_parent_table = tmp
 
 	dbpool = gmPG.ConnectionPool()
 	conn = dbpool.GetConnection('default')
 	curs = conn.cursor()
 
-	schema = create_audit_schema(curs, audit_marker_table)
+	schema = create_audit_schema(curs)
 
 	curs.close()
 	conn.close()
@@ -270,13 +339,17 @@ if __name__ == "__main__" :
 		print "error creating schema"
 		sys.exit(-1)
 
-	file = open ('audit-triggers.sql', 'wb')
+	file = open ('audit-trail-schema.sql', 'wb')
 	for line in schema:
 		file.write("%s;\n" % line)
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.14  2003-07-05 13:45:49  ncq
+# Revision 1.15  2003-08-17 00:09:37  ncq
+# - add auto-generation of missing audit trail tables
+# - use that
+#
+# Revision 1.14  2003/07/05 13:45:49  ncq
 # - modify -> modified
 #
 # Revision 1.13  2003/07/05 12:53:29  ncq
