@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.121 $
+-- $Revision: 1.122 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -37,41 +37,64 @@ create table clin_health_issue (
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
-	description varchar(128) default 'xxxDEFAULTxxx',
+	description text
+		not null
+		default null,
 	unique (id_patient, description)
 ) inherits (audit_fields);
 
 select add_table_for_audit('clin_health_issue');
 
 comment on table clin_health_issue is
-	'long-ranging, underlying health issue such as "mild immunodeficiency", "diabetes type 2"';
+	'longer-ranging, underlying, encompassing issue with one''s
+	 health such as "mild immunodeficiency", "diabetes type 2",
+	 in Belgium it is called "problem",
+	 Weed includes lots of little things into it';
 comment on column clin_health_issue.id_patient is
  	'id of patient this health issue relates to, should
 	 be reference but might be outside our own database';
 comment on column clin_health_issue.description is
-	'descriptive name of this health issue, may change over time';
+	'descriptive name of this health issue, may
+	 change over time as evidence increases';
 
 -- -------------------------------------------------------------------
 -- episode related tables
 -- -------------------------------------------------------------------
 create table clin_episode (
-	id serial primary key,
+	pk serial primary key,
+	fk_patient integer
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete restrict,
 	fk_health_issue integer
-		not null
+		default null
 		references clin_health_issue(id)
 		on update cascade
 		on delete restrict,
 	description text
 		default 'xxxDEFAULTxxx',
-	unique (fk_health_issue, description)
+	unique (fk_health_issue, description),
+	unique (fk_patient, description)
 ) inherits (audit_fields);
+
+alter table clin_episode add constraint non_redundant_patient
+	check (
+		(fk_patient is not null and fk_health_issue is null)
+			or
+		(fk_patient is null and fk_health_issue is not null)
+	);
 
 select add_table_for_audit('clin_episode');
 
 comment on table clin_episode is
-	'clinical episodes such as "recurrent Otitis media", "traffic accident 7/99", "Hepatitis B"';
+	'clinical episodes such as "Otitis media",
+	"traffic accident 7/99", "Hepatitis B"';
+comment on column clin_episode.fk_patient is
+	'patient this episode belongs to,
+	 may only be set if fk_health_issue is Null
+	 thereby removing redundancy';
 comment on column clin_episode.fk_health_issue is
-	'health issue this episode is part of';
+	'health issue this episode belongs to';
 comment on column clin_episode.description is
 	'descriptive name of this episode, may change over time; if
 	 "xxxDEFAULTxxx" applications should display the most recently
@@ -88,7 +111,7 @@ create table last_act_episode (
 	fk_episode integer
 		unique
 		not null
-		references clin_episode(id),
+		references clin_episode(pk),
 	id_patient integer
 		unique
 		not null
@@ -206,7 +229,7 @@ create table clin_root_item (
 		references clin_encounter(id),
 	fk_episode integer
 		not null
-		references clin_episode(id),
+		references clin_episode(pk),
 	narrative text,
 	soap_cat text
 		default null
@@ -778,6 +801,9 @@ create table form_instances (
 	-- clin_root_item.narrative used as status field
 ) inherits (clin_root_item);
 
+alter table form_instances add constraint form_is_plan
+	check (soap_cat='p');
+
 select add_table_for_audit('form_instances');
 
 comment on table form_instances is
@@ -814,6 +840,110 @@ comment on column form_data.place_holder is
 comment on column form_data.value is
 	'the value to replace the place holder with';
 
+-- ============================================
+-- medication tables
+create table clin_medication (
+	pk serial primary key,
+	started date
+		not null,
+	last_prescribed date
+		not null
+		default CURRENT_DATE,
+	discontinued date
+		default null,
+	brandname text
+		default null,
+	adjuvant text,
+	db_origin text
+		not null,
+	db_drug_id text
+		not null,
+	atc_code text
+		not null,
+
+	amount_unit varchar(7)
+		not null
+		check (amount_unit in ('g', 'each', 'ml')),
+
+	dose float,
+	period integer not null,
+	form varchar (20) not null check (form in 
+			('spray', 'cap', 'tab', 'inh', 'neb', 'cream', 'syrup', 'lotion', 'drop', 'inj', 'oral liquid')), 
+	directions text,
+	prn boolean,
+	SR boolean
+) inherits (clin_root_item);
+
+select add_table_for_audit ('clin_medication');
+
+alter table clin_medication add constraint medication_is_plan
+	check (soap_cat='p');
+alter table clin_medication add constraint prescribed_after_started
+	check (last_prescribed >= started);
+alter table clin_medication add constraint discontinued_after_prescribed
+	check (discontinued >= last_prescribed);
+
+comment on table clin_medication is
+	'Representing what the patient is taking *now*, not a simple log
+	of prescriptions. The forms engine will record each script and all its fields
+	The audit mechanism will record all changes to this table.
+
+Note the multiple redundancy of the stored drug data.
+Applications should try in this order:
+- internal database code
+- brandname
+- ATC code
+- generic name(s) (in constituents)
+';
+comment on column clin_medication.started is
+	'- when did patient start to take this medication
+	 - in most cases the date of the first prescription
+	   but not always
+	 - for newly prescribed drugs identical to last_prescribed';
+comment on column clin_medication.last_prescribed is
+	'date last script written for this medication';
+comment on column clin_medication.discontinued is
+	'date at which medication was *discontinued*,
+	 note that the date when a script *expires*
+	 should be calculatable';
+comment on column clin_medication.brandname is
+	'the brand name of this drug under which it is
+	 marketed by the manufacturer,
+	 NULL if generic rather than brand prescribed';
+comment on column clin_medication.adjuvant is
+	'free text describing adjuvants, such as "orange-flavoured" etc.';
+comment on column clin_medication.db_origin is
+	'the drug database used to populate this entry';
+comment on column clin_medication.db_drug_id is
+	'the identifier for this drug in the source database,
+	 may or may not be an opaque value as regards GnuMed';
+comment on column clin_medication.atc_code is
+	'the Anatomic Therapeutic Chemical code for this drug';
+
+
+comment on column clin_medication.prn is
+	'true if "pro re nata" (= as required)';
+comment on column clin_medication.directions is
+	'free text for directions, such as "with food" etc';
+
+
+
+comment on column clin_medication.amount_unit is
+	'the unit the dose is measured in.
+	 "each" for discrete objects like tablets';
+comment on column clin_medication.dose is
+	'an array of doses describing how 
+	 the drug is taken over the dosing cycle, for example 2 mane 2.5 nocte would be 
+	 [2, 2.5], period=24. 2 one and 2.5 the next would be [2, 2.5] with 
+	 period=48. Once a week would be [1] with period=168';
+comment on column clin_medication.period is
+	'the length of the dosing cycle, in hours';
+comment on column clin_medication.SR is
+	'true if the slow-release preparation is used';
+comment on column clin_medication.form is
+	'the general form of the drug. Some approximation may be required from the manufacturers description';
+
+
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
 -- -------------------------------------------------------------------
@@ -829,69 +959,7 @@ comment on table enum_confidentiality_level is
 -- ============================================
 -- Drug related tables
 
--- --------------------------------------------
--- IMHO this needs considerably more thought
-create table curr_medication (
-	id serial primary key,
-	-- administrative data
-	started date not null,
-	last_prescribed date not null,
-	expires date not null,
-	-- medical data
-	brandname text default 'GENERIC',
-	adjuvant text,
-	db_origin text not null,
-	db_xref text not null,
-	atc_code varchar (32),
-	amount_unit varchar (7) not null check (amount_unit in 
-					('g', 'each', 'ml')),
-	dose float,
-	period integer not null,
-	form varchar (20) not null check (form in 
-			('spray', 'cap', 'tab', 'inh', 'neb', 'cream', 'syrup', 'lotion', 'drop', 'inj', 'oral liquid')), 
-	directions text,
-	prn boolean,
-	SR boolean
-) inherits (clin_root_item);
 
-select add_table_for_audit ('curr_medication');
-
-comment on table curr_medication is
-'Representing what the patient is taking *now*, not a simple log
-of prescriptions. The forms engine will record each script and all its fields
-The audit mechanism will record all changes to this table.
- 
-Note the multiple redundancy of the stored drug data.
-Applications should try in this order:
-- internal database code
-- brandname
-- ATC code
-- generic name(s) (in constituents)
-';
-comment on column curr_medication.started is
-	'- when did patient start to take this medication
-	 - in most cases the date of the first prescription
-	   but not always
-	 - for newly prescribed drugs identical to last_prescribed';
-comment on column curr_medication.last_prescribed is
-	'date last script written';
-comment on column curr_medication.expires is
-'date last script expires, for compliance checking';
-comment on column curr_medication.prn is 'true if "pro re nata" (= as required)';
-comment on column curr_medication.directions is 'free text for directions, such as "with food" etc';
-comment on column curr_medication.adjuvant is 'free text describing adjuvants, such as "orange-flavoured" etc.';
-comment on column curr_medication.brandname is 'the manufacturer''s own name for this drug';
-comment on column curr_medication.db_origin is 'the drug database used to poulate this entry';
-comment on column curr_medication.db_xref is 'the opaque identifier for this drug assigned by the source database';
-comment on column curr_medication.atc_code is 'the Anatomic Therapeutic Chemical code for this drug';
-comment on column curr_medication.amount_unit is 'the unit the dose is measured in. ''each'' for discrete objects like tablets';
-comment on column curr_medication.dose is 'an array of doses describing how 
-the drug is taken over the dosing cycle, for example 2 mane 2.5 nocte would be 
-[2, 2.5], period=24. 2 one and 2.5 the next would be [2, 2.5] with 
-period=48. Once a week would be [1] with period=168';
-comment on column curr_medication.period is 'the length of the dosing cycle, in hours';
-comment on column curr_medication.SR is 'true if the slow-release preparation is used';
-comment on column curr_medication.form is 'the general form of the drug. Some approximation may be required from the manufacturer''s description';
 
 -- --------------------------------------------
 -- IMHO this does not belong in here
@@ -901,7 +969,7 @@ create table constituent
 	amount float not null,
 	amount_unit varchar (5) not null check (amount_unit in 
 				('g', 'ml', 'mg', 'mcg', 'IU')),
-	id_drug integer not null references curr_medication (id),
+	id_drug integer not null references clin_medication (pk),
 	unique (genericname, id_drug)
 );
 
@@ -938,11 +1006,24 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.121 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.122 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.121  2004-09-03 08:59:18  ncq
+-- Revision 1.122  2004-09-17 20:14:06  ncq
+-- - curr_medication -> clin_medication + propagate
+-- - partial index on clin_episode.fk_health_issue where fk_health_issue not null
+-- - index on clin_medication.discontinued where discontinued not null
+-- - rework v_pat_episodes since episode can now have fk_health_issue = null
+-- - add val_target_* to v_test_results
+-- - fix grants
+-- - improve clin_health_issue datatypes + comments
+-- - clin_episode: add fk_patient, fk_health_issue nullable
+-- - but constrain: if fk_health_issue null then fk_patient NOT none or vice versa
+-- - form_instances are soaP
+-- - start rework of clin_medication (was curr_medication)
+--
+-- Revision 1.121  2004/09/03 08:59:18  ncq
 -- - improved comments
 --
 -- Revision 1.120  2004/08/18 08:33:54  ncq

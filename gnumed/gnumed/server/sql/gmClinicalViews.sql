@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.96 2004-08-16 19:31:49 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.97 2004-09-17 20:14:06 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -43,7 +43,6 @@ drop index idx_tres_episode;
 drop index idx_lreq_encounter;
 drop index idx_lreq_episode;
 
-drop index idx_episode_h_issue;
 \set ON_ERROR_STOP 1
 
 -- clin_root_item & children indices
@@ -65,8 +64,8 @@ create index idx_allg_episode on allergy(fk_episode);
 create index idx_formi_encounter on form_instances(fk_encounter);
 create index idx_formi_episode on form_instances(fk_episode);
 
-create index idx_cmeds_encounter on curr_medication(fk_encounter);
-create index idx_cmeds_episode on curr_medication(fk_episode);
+create index idx_cmeds_encounter on clin_medication(fk_encounter);
+create index idx_cmeds_episode on clin_medication(fk_episode);
 
 create index idx_ref_encounter on referral(fk_encounter);
 create index idx_ref_episode on referral(fk_episode);
@@ -78,7 +77,14 @@ create index idx_lreq_encounter on lab_request(fk_encounter);
 create index idx_lreq_episode on lab_request(fk_episode);
 
 
-create index idx_episode_h_issue on clin_episode(fk_health_issue);
+\unset ON_ERROR_STOP
+drop index idx_episode_issue;
+
+drop index idx_episode_valid_issue;
+create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_health_issue is not None;
+\set ON_ERROR_STOP 1
+
+create index idx_episode_issue on clin_episode(fk_health_issue);
 
 -- =============================================
 -- narrative
@@ -102,6 +108,13 @@ create index idx_narr_aoe on clin_narrative(is_aoe) where is_aoe is true;
 \set ON_ERROR_STOP 1
 
 create index idx_narr_soap on clin_narrative(soap_cat);
+
+-- clin_medication
+\unset ON_ERROR_STOP
+drop index idx_clin_medication;
+create index idx_clin_medication on clin_medication(discontinued) where discontinued is not null;
+\set ON_ERROR_STOP 1
+
 
 -- =============================================
 -- encounters
@@ -181,14 +194,29 @@ drop view v_pat_episodes;
 
 create view v_pat_episodes as
 select
-	chi.id_patient as id_patient,
-	cep.id as pk_episode,
+	cep.fk_patient as id_patient,
 	cep.description as description,
-	chi.id as pk_health_issue,
-	chi.description as health_issue
+	null as health_issue,
+	cep.pk as pk_episode,
+	null as pk_health_issue,
+	cep.modified_when as episode_modified_when
+from
+	clin_episode cep
+where
+	cep.fk_health_issue is null
+
+		union
+
+select
+	cep.fk_patient as id_patient,
+	cep.description as description,
+	chi.description as health_issue,
+	cep.pk as pk_episode,
+	cep.fk_health_issue as pk_health_issue
 from
 	clin_episode cep, clin_health_issue chi
 where
+	-- this should exclude all fk_health_issue=Null ?
 	cep.fk_health_issue=chi.id
 ;
 
@@ -352,6 +380,9 @@ select
 	tr0.val_normal_range,
 	tr0.val_normal_min,
 	tr0.val_normal_max,
+	tr0.val_target_range,
+	tr0.val_target_min,
+	tr0.val_target_max,
 	tr0.technically_abnormal as abnormal,
 	tr0.clinically_relevant as relevant,
 	tr0.note_provider,
@@ -1074,7 +1105,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	clin_health_issue
 	, clin_health_issue_id_seq
 	, clin_episode
-	, clin_episode_id_seq
+	, clin_episode_pk_seq
 	, last_act_episode
 	, last_act_episode_id_seq
 	, encounter_type
@@ -1123,8 +1154,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, form_data_pk_seq
 	, referral
 	, referral_id_seq
-	, curr_medication
-	, curr_medication_id_seq
+	, clin_medication
+	, clin_medication_pk_seq
 	, constituent
 TO GROUP "gm-doctors";
 
@@ -1177,11 +1208,24 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.96 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.97 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.96  2004-08-16 19:31:49  ncq
+-- Revision 1.97  2004-09-17 20:14:06  ncq
+-- - curr_medication -> clin_medication + propagate
+-- - partial index on clin_episode.fk_health_issue where fk_health_issue not null
+-- - index on clin_medication.discontinued where discontinued not null
+-- - rework v_pat_episodes since episode can now have fk_health_issue = null
+-- - add val_target_* to v_test_results
+-- - fix grants
+-- - improve clin_health_issue datatypes + comments
+-- - clin_episode: add fk_patient, fk_health_issue nullable
+-- - but constrain: if fk_health_issue null then fk_patient NOT none or vice versa
+-- - form_instances are soaP
+-- - start rework of clin_medication (was curr_medication)
+--
+-- Revision 1.96  2004/08/16 19:31:49  ncq
 -- - add comments to views
 -- - rewrite v_vacc_regimes to be distinct on fk_regime
 -- - add v_vacc_defs4reg to list vaccination events for all
