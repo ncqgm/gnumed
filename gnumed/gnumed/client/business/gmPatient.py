@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.28 2004-03-20 11:45:41 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmPatient.py,v 1.29 2004-03-20 12:32:51 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -18,7 +18,7 @@ import sys, os.path, time, re, string
 #if __name__ == "__main__":
 #	sys.path.append(os.path.join('..', 'pycommon'))
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat
 from Gnumed.business import gmClinicalRecord, gmDemographicRecord
 
 # if we just import gmI18N again we'd
@@ -362,10 +362,14 @@ class cPatientSearcher_SQL:
 		- search dict contains structured data that doesn't need to be parsed
 		- search_dict takes precedence of search_term
 		"""
-		query_lists = []
-		if search_dict is not None:
+		do_parsing = (search_dict is None)
+		if not do_parsing:
 			query_lists = self.__generate_queries_generic(search_dict)
-		if len(query_lists) == 0:
+			if query_lists is None:
+				do_parsing = True
+			if len(query_lists) == 0:
+				do_parsing = True
+		if do_parsing:
 			# temporary change of locale for selecting query generator
 			if a_locale is not None:
 				print "temporary change of locale on patient search not implemented"
@@ -877,7 +881,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.28  2004-03-20 11:45:41  ncq
+# Revision 1.29  2004-03-20 12:32:51  ncq
+# - check for query_lists is None in get_pat_ids
+#
+# Revision 1.28  2004/03/20 11:45:41  ncq
 # - don't pass search_dict[id] to get_patient_ids()
 #
 # Revision 1.27  2004/03/20 11:10:46  ncq
