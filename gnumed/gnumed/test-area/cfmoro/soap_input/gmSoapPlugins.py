@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -32,7 +32,7 @@ _log.Log(gmLog.lInfo, __version__)
 
 # FIXME attribute encapsulation and private methods
 # FIXME i18n
-#============================================================					  
+#============================================================
 class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	"""
 	Basic multi-sash based note input panel.
@@ -71,8 +71,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# ui contruction and event handling set up
 		self.__do_layout()
 		self.__register_interests()
-#		self._populate_with_data()
-		self._schedule_data_reget()
+		self._populate_with_data()
+#		self._schedule_data_reget()
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -262,7 +262,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		problem_idx = self.__LST_problems.GetSelection()
 		problem = self.__LST_problems.GetClientData(problem_idx)
 
-		# FIXME constant in gmEMRStructIssues 
+		# FIXME: constant in gmEMRStructIssues 
 		if problem['type'] == 'issue':
 			# health issue selected, show episode selector dialog
 			pk_issue = problem['pk_health_issue']
@@ -292,11 +292,11 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		episode_id = self.__selected_episode['pk_episode']
 		if episode_id not in self.__managed_episodes:
-			# create						
+			# create
 			self.__focussed_soap_editor.AddLeaf(SOAPMultiSash.MV_VER, 130)
 			self.__managed_episodes.append(episode_id)
 		else:
-			# FIXME find and focus
+			# FIXME: find and focus
 			pass
 
 		#if not self.__BTN_new.IsEnabled():
@@ -560,3 +560,9 @@ if __name__ == '__main__':
 		raise
 
 	_log.Log (gmLog.lInfo, "closing notes input...")
+#============================================================
+# $Log: gmSoapPlugins.py,v $
+# Revision 1.9  2005-01-29 18:04:58  ncq
+# - cleanup/added "$ Log" CVS keyword
+#
+#
