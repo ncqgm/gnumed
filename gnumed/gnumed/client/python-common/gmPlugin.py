@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.53 2003-06-26 21:35:23 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmPlugin.py,v 1.54 2003-06-29 14:20:45 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -215,15 +215,23 @@ class wxNotebookPlugin (wxBasePlugin):
 		If None returned from here (or from overriders) the
 		plugin activation will be veto()ed.
 		"""
+		# FIXME: fail if locked
+		return 1
+	#-----------------------------------------------------
+	def _verify_patient_avail(self):
+		"""Check for patient availability.
+
+		- convenience method for your can_receive_focus() handlers
+		"""
 		# fail if no patient selected
 		pat = gmTmpPatient.gmCurrentPatient()
 		if not pat.is_connected():
+			# FIXME: people want an optional beep and an optional red backgound here
 			set_statustext = self.gb['main.statustext']
 			set_statustext(_('Cannot switch to [%s]: no patient selected') % self.name())
 			return None
-		# FIXME: fail if locked
 		return 1
-	#-----------------------------------------------------	
+	#-----------------------------------------------------
 	def Raise (self):
 		nbns = self.gb['main.notebook.plugins']
 		nb_no = nbns.index (self)
@@ -514,7 +522,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.53  2003-06-26 21:35:23  ncq
+# Revision 1.54  2003-06-29 14:20:45  ncq
+# - added TODO item
+#
+# Revision 1.53  2003/06/26 21:35:23  ncq
 # - fatal->verbose
 #
 # Revision 1.52  2003/06/19 15:26:02  ncq
