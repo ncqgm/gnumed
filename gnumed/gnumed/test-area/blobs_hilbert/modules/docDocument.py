@@ -35,7 +35,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -173,7 +173,7 @@ class cDocument:
 		self.__metadata['date'] = result[3]
 		self.__metadata['reference'] = result[4]
 		# translate type ID to localized verbose name
-		cmd = "select name from v_i18n_doc_type where id = '%s';" % self.__metadata['type ID']
+		cmd = "select l10n_type from v_doc_type where pk_doc_type = '%s';" % self.__metadata['type ID']
 		cursor.execute(cmd)
 		result = cursor.fetchone()
 		self.__metadata['type'] = result[0]
@@ -217,14 +217,14 @@ class cDocument:
 
 		try:
 			# translate document type
-			cmd = "SELECT count(id) FROM v_i18n_doc_type WHERE name='%s'" % (self.__metadata['type'])
+			cmd = "SELECT count(pk_doc_type) FROM v_doc_type WHERE l10n_type='%s'" % (self.__metadata['type'])
 			cursor.execute(cmd)
 			result = cursor.fetchone()
 			if result[0] != 1:
 				_log.Log(gmLog.lErr, 'Document type "%s" is not valid for this database !' % (self.__metadata['type']))
 				cursor.close()
 				return None
-			cmd = "SELECT id FROM v_i18n_doc_type WHERE name='%s'" % (self.__metadata['type'])
+			cmd = "SELECT pk_doc_type FROM v_doc_type WHERE l10n_type='%s'" % (self.__metadata['type'])
 			cursor.execute(cmd)
 			type_id = cursor.fetchone()[0]
 
@@ -687,7 +687,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.36  2003-04-20 15:40:18  ncq
+# Revision 1.37  2004-10-11 20:08:23  ncq
+# - fix table access
+#
+# Revision 1.36  2003/04/20 15:40:18  ncq
 # - remove call_viewer
 #
 # Revision 1.35  2003/02/14 00:23:53  ncq
