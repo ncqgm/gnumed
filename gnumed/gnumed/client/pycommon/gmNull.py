@@ -42,7 +42,7 @@ July 2004
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmNull.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Dinu C. Gherman"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -107,13 +107,13 @@ class cNull:
 		"Return a string representation."
 		if cNull._warn:
 			print "cNull.__repr__()"
-		return "<Null>"
+		return "<cNull instance @ %s>" % id(self)
 
 	def __str__(self):
 		"Convert to a string and return it."
 		if cNull._warn:
 			print "cNull.__str__()"
-		return "Null"
+		return "cNull instance"
 
 	def __nonzero__(self):
 		if cNull._warn:
@@ -153,9 +153,9 @@ def test():
 	del n.attr1.attr2.attr3
 
 	# representation and conversion to a string
-	
-	assert repr(n) == '<Null>'
-	assert str(n) == 'Null'
+	tmp = '<cNull instance @ %s>' % id(n)
+	assert repr(n) == tmp
+	assert str(n) == 'cNull instance'
 
 	# comparing
 	if n == 1:
@@ -168,7 +168,10 @@ if __name__ == '__main__':
 
 #==============================================================
 # $Log: gmNull.py,v $
-# Revision 1.4  2004-11-24 15:49:11  ncq
+# Revision 1.5  2004-12-22 08:40:01  ncq
+# - make output more obvious
+#
+# Revision 1.4  2004/11/24 15:49:11  ncq
 # - use 0/1 not False/True so we can run on older pythons
 #
 # Revision 1.3  2004/08/20 08:38:47  ncq
