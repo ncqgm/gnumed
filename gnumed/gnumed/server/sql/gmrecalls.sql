@@ -6,12 +6,15 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmrecalls.sql,v $
--- $Id: gmrecalls.sql,v 1.2 2004-03-18 09:44:31 ncq Exp $
--- $Revision: 1.2 $ $Date: 2004-03-18 09:44:31 $ $Author: ncq $
+-- $Id: gmrecalls.sql,v 1.3 2005-03-01 20:38:19 ncq Exp $
+-- $Revision: 1.3 $ $Date: 2005-03-01 20:38:19 $ $Author: ncq $
 --
 -- =============================================
 -- $Log: gmrecalls.sql,v $
--- Revision 1.2  2004-03-18 09:44:31  ncq
+-- Revision 1.3  2005-03-01 20:38:19  ncq
+-- - varchar -> text
+--
+-- Revision 1.2  2004/03/18 09:44:31  ncq
 -- - removed spurious \i
 --
 -- Revision 1.1  2003/01/09 14:53:33  hherb
@@ -80,7 +83,7 @@ create table recall (
 	importance integer,
 	flag integer references recall_flags(id),
 	created timestamp default now(),
-	duestring varchar(255),
+	duestring text,
 	due timestamp,
 	reason text,
 	comment text,
@@ -190,4 +193,4 @@ comment on column recall_managed.recorded_by is
 
 
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmrecalls.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmrecalls.sql,v $', '$Revision: 1.3 $');

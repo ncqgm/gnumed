@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.42 $
+-- $Revision: 1.43 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -184,7 +184,7 @@ create table enum_comm_types (
 create table identity (
 	pk serial primary key,
 	pupic char(24),
-	gender varchar(2)
+	gender text
 		default '?'
 		check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
 	karyotype text
@@ -429,7 +429,7 @@ create table staff (
 		unique
 		not null
 		default CURRENT_USER,
-	sign varchar(5) unique not null,
+	sign text unique not null,
 	comment text,
 	unique(fk_role, db_user)
 	-- link to practice
@@ -528,11 +528,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.42 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.43 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.42  2005-02-13 14:42:47  ncq
+-- Revision 1.43  2005-03-01 20:38:19  ncq
+-- - varchar -> text
+--
+-- Revision 1.42  2005/02/13 14:42:47  ncq
 -- - add names.comment
 --
 -- Revision 1.41  2005/02/12 13:49:14  ncq

@@ -79,7 +79,7 @@ COPY "drug_presentation"  FROM stdin;
 
 -- temporary table to convert PBS field formandstrength
 CREATE TABLE convert (
-       fs varchar (200), -- formandstrength string
+       fs text, -- formandstrength string max 200
        done BOOL, -- user has processed
        presentation INTEGER,
        amount FLOAT

@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -179,7 +179,7 @@ comment on table form_types is
 create table form_defs (
 	pk serial primary key,
 	fk_type integer references form_types(pk),
-	country varchar(3),
+	country text,
 	locale text,
 	soap_cat text
 		not null
@@ -310,11 +310,14 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.19 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.19  2005-02-21 18:48:23  ncq
+-- Revision 1.20  2005-03-01 20:38:19  ncq
+-- - varchar -> text
+--
+-- Revision 1.19  2005/02/21 18:48:23  ncq
 -- - added default to form_defs.soap_cat
 --
 -- Revision 1.18  2005/02/21 18:34:42  ncq

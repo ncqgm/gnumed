@@ -11,7 +11,7 @@
 
 CREATE TABLE enum_stafftype (
 	id serial primary key,
-	description varchar(30)
+	description text
 );
 
 INSERT INTO enum_stafftype(description) VALUES ('doctor');
@@ -22,7 +22,7 @@ INSERT INTO enum_stafftype(description) VALUES ('office');
 
 CREATE TABLE enum_speciality (
 	id serial primary key,
-	description varchar(30)
+	description text
 );
 
 INSERT INTO enum_speciality(description) VALUES ('General Practice');
@@ -38,10 +38,10 @@ CREATE TABLE staff (
 	id serial primary key,
 	--id_person int references identity
 	-- provisional, to make appointments work right now:
-	surnames varchar(60),
-	givennames varchar(60),
-	title varchar(12),
-	qualifications varchar(254)
+	surnames text,
+	givennames text,
+	title text,
+	qualifications text
 );
 
 CREATE TABLE m2m_staff_type (
@@ -57,7 +57,7 @@ CREATE TABLE m2m_staff_speciality (
 CREATE TABLE location
        (
 		id SERIAL,
-		name varchar (50)
+		name text
 	);
 
 --=====================================================================
@@ -124,7 +124,7 @@ CREATE TABLE appointment
        (
 		session INTEGER REFERENCES session (id),
 		patient INTEGER,
-		patient_name varchar (100),
+		patient_name text,
 		type INTEGER REFERENCES enum_app_type (id),
 		date TIMESTAMP
 	);
@@ -132,7 +132,7 @@ CREATE TABLE appointment
 CREATE TABLE meeting 
        (
 		id SERIAL,
-		topic varchar (100),
+		topic text,
 		document TEXT,
 		time TIMESTAMP,
 		duration INTERVAL,
@@ -156,7 +156,7 @@ INSERTing into this table does not guarantee their attendance.';
 CREATE TABLE other_event 
        (
 		staff INTEGER staff (id),
-		event varchar (100),
+		event text,
 		date TIMESTAMP,
 		duration INTERVAL,
 		personal BOOL
@@ -171,7 +171,7 @@ COMMENT ON COLUMN other_event.personal IS 'Only readable by owner (enforced by c
 CREATE TABLE event_types
        (
 		id SERIAL,
-		name varchar (50)
+		name text
 	);
 
 insert into event_types (id, name) values (1, 'patient');

@@ -16,7 +16,7 @@
 -- different clients
 CREATE TABLE client (
        id SERIAL,
-       name VARCHAR (20)
+       name text
 );
 
 
@@ -24,12 +24,12 @@ CREATE TABLE client (
 CREATE TABLE modules (
        id SERIAL,
        client INTEGER REFERENCES client (id),
-       filename VARCHAR (256) NOT NULL,
-       modulename VARCHAR (256),
+       filename text NOT NULL,
+       modulename text,
        -- name of the module for internal loading, so the file
        -- plugin/Foo.py would be plugin.Foo. Only an issue for 
        -- Python and Java languages.
-       version VARCHAR (10) NOT NULL,
+       version text NOT NULL,
        date DATE DEFAULT now (),
        source TEXT,
        object TEXT

@@ -5,7 +5,7 @@
 -- For details regarding GPL licensing see http://gnu.org
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.9 $ $Date: 2005-01-29 18:45:22 $ $Author: ncq $
+-- $Revision: 1.10 $ $Date: 2005-03-01 20:38:19 $ $Author: ncq $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -90,15 +90,15 @@ comment on column form_job_queue.status is
 
 --create table schedule (
 --	id serial primary key,
---	code varchar (20),
---	name varchar (100),
+--	code text,
+--	name text,
 --	min_duration integer,
 --	description text
 --);
 
 --create table billing_scheme (
 --	id serial primary key,
---	name varchar (100),
+--	name text,
 --	iso_countrycode char (2)
 --);
 
@@ -116,7 +116,7 @@ comment on column form_job_queue.status is
 
 --create table accounts (
 --	id serial primary key,
---	name varchar (50),
+--	name text,
 --	extra integer
 --);
 
@@ -156,11 +156,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmoffice.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.10 $');
 
 --=====================================================================
 -- $Log: gmoffice.sql,v $
--- Revision 1.9  2005-01-29 18:45:22  ncq
+-- Revision 1.10  2005-03-01 20:38:19  ncq
+-- - varchar -> text
+--
+-- Revision 1.9  2005/01/29 18:45:22  ncq
 -- - form_target_classes -> form_job_targets
 -- - form_queue -> form_job_queue
 --

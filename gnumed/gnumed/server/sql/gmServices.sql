@@ -1,7 +1,7 @@
 -- =============================================
 -- GnuMed service discovery tables
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmServices.sql,v $
--- $Id: gmServices.sql,v 1.5 2003-06-10 08:56:59 ncq Exp $
+-- $Id: gmServices.sql,v 1.6 2005-03-01 20:38:19 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ---------------------------------------------
@@ -18,8 +18,8 @@
 -- ---------------------------------------------
 create table gm_services (
 	id serial primary key,
-	name varchar(30) unique,
-	version VARCHAR(30),
+	name text unique,
+	version text,
 	created timestamp with time zone DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -32,11 +32,14 @@ comment on column gm_services.version is
 -- =============================================
 \unset ON_ERROR_STOP
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmServices.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmServices.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmServices.sql,v $
--- Revision 1.5  2003-06-10 08:56:59  ncq
+-- Revision 1.6  2005-03-01 20:38:19  ncq
+-- - varchar -> text
+--
+-- Revision 1.5  2003/06/10 08:56:59  ncq
 -- - schema_revision -> gm_schema_revision
 --
 -- Revision 1.4  2003/05/12 12:43:39  ncq

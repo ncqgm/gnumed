@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.34 $
+-- $Revision: 1.35 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -20,9 +20,9 @@ CREATE TABLE db (
     id SERIAL PRIMARY KEY,
     name CHAR(35),
     port INT DEFAULT 5432,
-    host VARCHAR(255)DEFAULT 'localhost',
-    opt varchar(255) DEFAULT '',
-    tty varchar(255) DEFAULT ''
+    host text DEFAULT 'localhost',
+    opt text DEFAULT '',
+    tty text DEFAULT ''
 );
 
 -- the database with id == 0 is the "default" database
@@ -82,10 +82,10 @@ CREATE TABLE config (
     username CHAR(25) DEFAULT CURRENT_USER,
     ddb INT REFERENCES distributed_db DEFAULT NULL,
     db INT REFERENCES db,
-    crypt_pwd varchar(255) DEFAULT NULL,
-    crypt_algo varchar(255) DEFAULT NULL,
-    pwd_hash varchar(255) DEFAULT NULL,
-    hash_algo varchar(255) DEFAULT NULL
+    crypt_pwd text DEFAULT NULL,
+    crypt_algo text DEFAULT NULL,
+    pwd_hash text DEFAULT NULL,
+    hash_algo text DEFAULT NULL
 );
 
 COMMENT ON TABLE config IS
@@ -119,7 +119,7 @@ COMMENT ON COLUMN config.hash_algo IS
 -- generic program options storage space
 -- ======================================================
 create table cfg_type_enum (
-	name varchar(20)
+	name text
 		unique
 		not null
 );
@@ -135,9 +135,9 @@ insert into cfg_type_enum values ('data');
 -- ======================================================
 create table cfg_template (
 	id SERIAL PRIMARY KEY,
-	name VARCHAR(80) NOT NULL DEFAULT 'must set this !',
-	type VARCHAR (20) references cfg_type_enum (name),
-	cfg_group VARCHAR (20) not null default 'xxxDEFAULTxxx',
+	name text NOT NULL DEFAULT 'must set this !',
+	type text references cfg_type_enum (name),
+	cfg_group text not null default 'xxxDEFAULTxxx',
 	description TEXT NOT NULL DEFAULT 'programmer is an avid Camel Book Reader'
 );
 
@@ -241,11 +241,14 @@ comment on table cfg_data is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.34 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.35 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.34  2005-01-09 19:51:24  ncq
+-- Revision 1.35  2005-03-01 20:38:19  ncq
+-- - varchar -> text
+--
+-- Revision 1.34  2005/01/09 19:51:24  ncq
 -- - cleanup, improved docs
 -- - add cfg_data to store arbitrary binary config data
 --

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.151 $
+-- $Revision: 1.152 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -774,7 +774,7 @@ comment on column allergy_state.has_allergy is
 -- --------------------------------------------
 create table _enum_allergy_type (
 	id serial primary key,
-	value varchar(32) unique not null
+	value text unique not null
 );
 
 -- --------------------------------------------
@@ -1042,9 +1042,9 @@ comment on table enum_confidentiality_level is
 -- IMHO this does not belong in here
 create table constituent
 (
-	genericname varchar (100) not null,
+	genericname text not null,
 	amount float not null,
-	amount_unit varchar (5) not null check (amount_unit in 
+	amount_unit text not null check (amount_unit in 
 				('g', 'ml', 'mg', 'mcg', 'IU')),
 	id_drug integer not null references clin_medication (pk),
 	unique (genericname, id_drug)
@@ -1083,11 +1083,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.151 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.152 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.151  2005-02-21 18:36:31  ncq
+-- Revision 1.152  2005-03-01 20:38:19  ncq
+-- - varchar -> text
+--
+-- Revision 1.151  2005/02/21 18:36:31  ncq
 -- - in clin_narrative include fk_episode in unique constraint on field narrative
 --
 -- Revision 1.150  2005/02/13 14:46:12  ncq

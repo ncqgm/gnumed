@@ -1,7 +1,7 @@
 -- GnuMed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -100,7 +100,7 @@ create table audit_trail (
 	orig_when timestamp with time zone not null,
 	orig_by name not null,
 	orig_tableoid oid not null,
-	audit_action varchar(6) not null check (audit_action in ('UPDATE', 'DELETE')),
+	audit_action text not null check (audit_action in ('UPDATE', 'DELETE')),
 	audit_when timestamp with time zone not null default CURRENT_TIMESTAMP,
 	audit_by name not null default CURRENT_USER
 );
@@ -162,11 +162,14 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.9 $');
 
 -- ===================================================================
 -- $Log: gmAudit.sql,v $
--- Revision 1.8  2004-09-22 14:10:38  ncq
+-- Revision 1.9  2005-03-01 20:38:19  ncq
+-- - varchar -> text
+--
+-- Revision 1.8  2004/09/22 14:10:38  ncq
 -- - add RULEs to protect audit_trail/audit_fields parent
 --   tables from direct insert/update/delete to preserve
 --   referential integrity

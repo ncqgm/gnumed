@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.18 2005-02-03 20:28:25 ncq Exp $
+-- $Id: gmI18N.sql,v 1.19 2005-03-01 20:38:19 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -21,7 +21,7 @@
 create table i18n_curr_lang (
 	id serial primary key,
 	owner name default CURRENT_USER unique not null,
-	lang varchar(15) not null
+	lang text not null
 );
 
 comment on table i18n_curr_lang is
@@ -44,7 +44,7 @@ comment on table i18n_keys is
 -- =============================================
 create table i18n_translations (
 	id serial primary key,
-	lang varchar(10) not null,
+	lang text not null,
 	orig text not null,
 	trans text not null,
 	unique (lang, orig)
@@ -81,7 +81,7 @@ create function _(text) returns text as '
 DECLARE
     orig_str ALIAS FOR $1;
     trans_str text;
-    my_lang varchar(10);
+    my_lang text;
 BEGIN
     -- get language
     select into my_lang lang
@@ -235,11 +235,14 @@ TO group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.18 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.18  2005-02-03 20:28:25  ncq
+-- Revision 1.19  2005-03-01 20:38:19  ncq
+-- - varchar -> text
+--
+-- Revision 1.18  2005/02/03 20:28:25  ncq
 -- - improved comments
 -- - added _(text, text)
 --
