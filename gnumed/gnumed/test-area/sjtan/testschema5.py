@@ -132,7 +132,7 @@ class SchemaParser:
 				m[x] = (tag, {})
 				continue
 
-			if x in self.visited and not x in [ node for r,p,node in self.config.double_linked]:
+			if x in self.visited and not (x in [ node for r,p,node in self.config.double_linked] and self.target in [ r for r,p, node in self.config.double_linked]):
 				continue
 			
 			if m.has_key(x):
@@ -343,14 +343,14 @@ class Config:
 
 if __name__ == '__main__':
 	config = """
-roots:	identity, org, xlnk_identity
+roots:	identity, org, xlnk_identity, clin_root_item
 #roots:, form_instances, vacc_def
 #hide:	xlnk_identity
 external_fk:	xlnk_identity.xfk_identity references identity
 link_tables:	lnk.*
 type_tables:	^.*enum.*,^.*type., ^.*category, occupation, marital_status, staff_role
 
-suppress:	xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode,  identity..org, vacc_def..xlnk_identity, xlnk_identity.test_org.test_type, org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan
+suppress:	xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode,  identity..org, vacc_def..xlnk_identity, xlnk_identity.test_org.test_type, org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan, 		clin_root_item.test_org.xlnk_identity, clin_root_item.test_result.xlnk_identity, clin_root_item.lab_request.xlnk_identity, clin_root_item.referral.xlnk_identity, clin_root_item.vaccination.xlnk_identity, clin_root_item..last_act_episode, clin_root_item.clin_health_issue.xlnk_identity
 
 double_linked:	xlnk_identity.referral.xlnk_identity, identity.lnk_person2relative.identity, identity.lnk_job2person.occupation, xlnk_identity.lnk_result2lab_req.test_result, 	xlnk_identity.clin_root_item.clin_episode
 
