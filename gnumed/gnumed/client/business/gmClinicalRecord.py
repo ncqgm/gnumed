@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.124 2004-06-28 12:18:41 ncq Exp $
-__version__ = "$Revision: 1.124 $"
+# $Id: gmClinicalRecord.py,v 1.125 2004-06-28 16:05:42 ncq Exp $
+__version__ = "$Revision: 1.125 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -645,7 +645,7 @@ class cClinicalRecord:
 			filtered_episodes = filter(lambda epi: epi['pk_health_issue'] in issues, filtered_episodes)
 		if id_list is not None:
 			ids = id_list
-			filtered_episodes = filter(lambda epi: epi['id'] in ids, filtered_episodes)
+			filtered_episodes = filter(lambda epi: epi['pk_episode'] in ids, filtered_episodes)
 		return filtered_episodes
 	#------------------------------------------------------------------
 	def add_episode(self, episode_name = 'xxxDEFAULTxxx', pk_health_issue = None):
@@ -1318,7 +1318,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.124  2004-06-28 12:18:41  ncq
+# Revision 1.125  2004-06-28 16:05:42  ncq
+# - fix spurious 'id' for episode -> pk_episode
+#
+# Revision 1.124  2004/06/28 12:18:41  ncq
 # - more id_* -> fk_*
 #
 # Revision 1.123  2004/06/26 23:45:50  ncq
