@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.80 2004-12-15 22:00:12 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmEditArea.py,v 1.81 2005-01-31 06:27:18 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -286,7 +286,7 @@ class cEditArea(wxPanel):
 
 		self._patient = gmPatient.gmCurrentPatient()
 		self.__register_events()
-		self.Show(True)
+#		self.Show(True)
 	#----------------------------------------------------------------
 	# internal helpers
 	#----------------------------------------------------------------
@@ -1996,7 +1996,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.80  2004-12-15 22:00:12  ncq
+# Revision 1.81  2005-01-31 06:27:18  ncq
+# - silly cleanup
+#
+# Revision 1.80  2004/12/15 22:00:12  ncq
 # - cleaned up/improved version of edit area
 # - old version still works and emits a conversion incentive
 #
