@@ -74,11 +74,69 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 				    { 'f' : _('Miss'), 'm': _('Mstr.')},
 				    {  'f' : _('Ms.'), 'm' : _('Mr.') }
 				  ]
+
 		self.otherGender = { 'f' : 'm' , 'm' : 'f' }
 
 		EVT_RADIOBOX( self.chGender, gmPersonDetails.ID_CHOICE_GENDER, self.genderChanged) 
 
 		self.invisibleMap = {} 
+
+		EVT_TEXT( self.tcCity, gmPersonDetails.ID_TEXTCTRL_CITY, self.cityTextChanged)
+		EVT_KILL_FOCUS( self.tcCity, self.cityTextExactChanged)
+		EVT_KILL_FOCUS( self.tcState, self.cityTextChanged)
+		self.autoCityText = None 
+
+	def cityTextExactChanged(self, event):
+		self.checkCity( event, exact = 1)
+		event.Skip()
+
+	def cityTextChanged( self, event):
+		self.checkCity( event)
+		event.Skip()
+
+	def checkCity( self, event, exact = 0):
+		city = self.tcCity.GetValue()
+		# stops endless looping and also allows backspacing an autoselection
+		if (self.autoCityText != None):
+			if len(city) <= len(self.autoCityText):
+				self.autoCityText = city
+				return
+			self.autoCityText = None
+		
+		if exact:
+			search_suffix = ''
+		else:
+			search_suffix = '%'
+
+		city = string.strip(string.upper(city))
+		state = string.strip(string.upper( self.tcState.GetValue()))
+		country = string.strip(self.getCountryChoice( self.chCountry))
+		query = "select name, postcode, statecode from urb where statecode in ( select id from state where code like '%s%%'  and country =  '%s')  and name like '%s%s' " % (  state, country, city, search_suffix)
+		print query 
+		db = self.getDB()
+		cursor = db.cursor()
+		cursor.execute(query)
+		rows = cursor.fetchall()
+		if len(rows) < 6:
+			for x in rows:
+				print x
+
+		if len(rows) == 1:
+			# found a single matching row for name, statecode, so autofill
+			self.autoCityText = rows[0][0]
+			self.tcCity.SetValue(rows[0][0])
+			self.tcPostcode.SetValue( rows[0][1])	
+			query = "select code  from state where id = %d"%(rows[0][2])
+			print query
+			db = self.getDB()
+			cursor = db.cursor()
+			cursor.execute(query) 
+			sel = cursor.fetchall()
+			if len(sel) == 1 :
+				self.tcState.SetValue( sel[0][0])
+				
+
+
 
 
 
@@ -486,6 +544,8 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		self.tcStreetNo.Clear()
 		self.tcStreet.Clear()
 		self.tcCity.Clear()
+		self.tcState.Clear()
+		self.tcPostcode.Clear()
 		#self.chCountry.SetSelection(0)
 		self.cbPhoneFor.SetSelection(0)
 		self.tcAreacode.Clear()
