@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.13 2004-05-21 15:36:51 sjtan Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmClinItem.py,v 1.14 2004-05-22 08:09:10 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -29,8 +29,8 @@ class cClinItem:
 	- does NOT create new entries in the database
 	- does NOT lazy-fetch fields
 	"""
+	_service = "historica"
 	#--------------------------------------------------------
-	SERVICE="historica"
 	def __init__(self, aPK_obj = None):
 		self._is_modified = False
 		# check descendants
@@ -96,7 +96,7 @@ class cClinItem:
 			return False
 		self._payload = None
 		data, self._idx = gmPG.run_ro_query(
-			self.__class__.SERVICE,
+			self.__class__._service,
 			self.__class__._cmd_fetch_payload,
 			True,
 			self.pk_obj)
@@ -118,7 +118,7 @@ class cClinItem:
 		queries = []
 		for query in self.__class__._cmds_store_payload:
 			queries.append((query, [params]))
-		status, err = gmPG.run_commit(self.__class__.SERVICE, queries, True)
+		status, err = gmPG.run_commit(self.__class__._service, queries, True)
 		if status is None:
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			_log.Log(gmLog.lData, params)
@@ -127,7 +127,13 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.13  2004-05-21 15:36:51  sjtan
+# Revision 1.14  2004-05-22 08:09:10  ncq
+# - more in line w/ coding style
+# - _service will never change (or else it wouldn't
+#   be cCLINitem) but it's still good coding practice
+#   to put it into a class attribute
+#
+# Revision 1.13  2004/05/21 15:36:51  sjtan
 #
 # moved 'historica' into the class attribute SERVICE , in case gmClinItem can
 # be reused in other services.
