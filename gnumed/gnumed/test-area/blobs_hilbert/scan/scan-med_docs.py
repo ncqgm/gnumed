@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __license__ = "GPL"
 __author__ = "\
 	Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
@@ -67,9 +67,9 @@ class scanFrame(wxFrame):
 		if tmp != None:
 			if os.path.exists(tmp):
 				tempfile.tempdir = tmp
-				_log.Log(gmLog.lData, 'using tmp dir [%s]' % tmp)
 		# temp files shall start with "obj-"
 		tempfile.template = "obj-"
+		_log.Log(gmLog.lData, 'using tmp dir [%s]' % tmp)
 	#----------------------------------------------
 	def _init_utils(self):
 		pass
