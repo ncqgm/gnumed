@@ -30,13 +30,16 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
-import sys, string, os.path, fileinput, os, time, getpass
+import sys, string, os.path, fileinput, os, time, getpass, glob, re
 
 # location of our modules, try hard to find modules
+mydir = os.path.dirname (sys.argv[0])
+if mydir:
+	os.chdir (mydir)
 if os.path.exists (os.path.join ('.', 'modules')):
 	sys.path.append(os.path.join('.', 'modules'))
 if os.path.exists ('/usr/share/gnumed/client/python-common'):
@@ -60,6 +63,7 @@ _log = gmLog.gmDefLog
 _log.SetAllLogLevels(gmLog.lData)
 
 import gmCfg
+global _cfg
 _cfg = gmCfg.gmDefCfgFile
 
 dbapi = None
@@ -67,18 +71,21 @@ try:
 	from pyPgSQL import PgSQL
 	from pyPgSQL import libpq
 	dbapi = PgSQL
+	db_error = libpq.DatabaseError
 	dsn_format = "%s:%s:%s:%s:%s"
 except ImportError:
 	_log.LogException("Cannot load pyPgSQL.PgSQL database adapter module.", sys.exc_info(), verbose=0)
 	try:
 		import psycopg
 		dbapi = psycopg
+		db_error = psycopg.DatabaseError
 		dsn_format = "host=%s port=%s dbname=%s user=%s password=%s"
 	except ImportError:
 		_log.LogException("Cannot load psycopg database adapter module.", sys.exc_info(), verbose=0)
 		try:
 			import pgdb
 			dbapi = pgdb
+			db_error = pgdb.DatabaseError
 			dsn_format = "%s:%s:%s:%s:%s"
 		except ImportError:
 			print "Cannot find Python module for connecting to the database server. Program halted."
@@ -103,10 +110,153 @@ _interactive = 0
 _bootstrapped_servers = {}
 _bootstrapped_dbs = {}
 _dbowner = None
+cached_host = None
+cached_passwd = {}
+
+#==================================================================
+
+pg_hba_sermon = """
+I have found a connection to the database, but I am forbidden to connect due to the settings in pg_hba.conf. This is
+a PostgreSQL configuration file that controls who can connect to the database.
+
+Depending on your setup, it can be found in
+/etc/postgresql/pg_hba.conf (Debian)
+/usr/local/pgsql/pgdata/pg_hba.conf (FreeBSD, ?? Mac OS X)
+FIXME: where do RedHat & friends put it
+ or whichever directory your database files are located.
+
+For gnumed, pg_hba.conf must allow password authentication. For deveopment systems, I suggest the following
+
+local    template1 postgres                             ident sameuser
+local    gnumed    all                                  md5
+host     gnumed    all    127.0.0.1 255.255.255.255     md5
+
+For production systems, a different configuration will be required, but gnumed is not production ready.
+There is also a pg_hba.conf.example in this directory.
+
+You must then restart your PostgreSQL server.
+"""
+
+no_server_sermon = """
+I cannot find a PostgreSQL server running on this machine.
+
+Try (as root):
+/etc/init.d/postgresql start
+
+if that fails, you can build a database from scratch:
+
+PGDATA=some directory you can use
+initdb
+cp pg_hba.conf.example $PGDATA/pg_hba.conf
+pg_ctl start 
+
+if none of these commands work, or you don't know what PostgreSQL is, go to the website to download for your
+OS: http://www.postgresql.org/
+
+On the other hand, if you have a PostgreSQL server running somewhere strange, type hostname[:port] below,
+or press RETURN to quit.
+
+"""
+superuser_sermon = """
+I can't log on as the PostgreSQL database owner.
+Try running this script as the system adminstrator (user "root")
+to get the neccessary permissions.
+
+NOTE: I expect the PostgreSQL database owner to be called "%s"
+If for some reason it is not, you need to adjust my configuration
+script, and run again as that user.
+"""
+
+no_clues = """
+Logging on the the PostgreSQL database returned this error
+%s
+on %s
+
+Please contact the GNUMed development team on gnumed-devel@gnu.org
+Make sure you include this error message in your mail.
+"""
+
+welcome = """
+Welcome to the GNUMed server instllation script.
+You must have a PostgreSQL server running and adminstrator access
+Please select a database configuation from the list below
+"""
+
+def connect (host, port, db, user, passwd, superuser=0):
+	"""
+	This is a wrapper to the database connect function.
+	Will try to recover gracefully from connection errors where possible
+	"""
+        global cached_host
+	if len (host) == 0 or host == 'localhost':
+            if cached_host:
+                host, port = cached_host
+            else:
+                host = ''
+        if passwd == 'blank' or len (passwd) == 0:
+            if cached_passwd.has_key (user):
+                passwd = cached_passwd[user]
+            else:
+                passwd = ''
+	conn = None
+	dsn = dsn_format % (host, port, db, user , passwd)
+        try:
+            conn = dbapi.connect(dsn)
+            cached_host = (host, port) # learn from past successes
+            cached_passwd[user] = passwd
+            _log.Log (gmLog.lInfo, "SQL connection to %s on %s as %s" % (db, host or 'localhost', user))
+        except db_error, message:
+            m = str (message)
+            if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
+                # this pretty much means we're screwed
+                if _interactive:
+                    print pg_hba_sermon
+                _log.Log (gmLog.lErr, "rejected by pg_hba.conf with DSN [%s]" % dsn)
+            elif re.search ("no password supplied", m):
+                # didn't like blank password trick
+                _log.Log (gmLog.lWarn, "blank password failed -- retrying")
+                passwd = getpass.getpass ("I need the password for the GnuMed database user [%s].\nPlease type password: " % user)
+                conn = connect (host, port, db, user, passwd)
+            elif re.search ("^FATAL:.*Password authentication failed.*", m):
+                # didn't like supplied password
+                _log.Log (gmLog.lWarn, "password failed -- retrying")
+                passwd = getpass.getpass ("I need the correct password for the GnuMed database user [%s].\nPlease type password: " % user)
+                conn = connect (host, port, db, user, passwd)
+            elif re.search ("could not connect to server", m):
+                if len (host) == 0:
+                    # try again on TCP/IP loopback
+                    _log.Log (gmLog.lWarn , "UNIX socket connection failed, retrying on 127.0.0.1")
+                    conn = connect ("127.0.0.1", port, db, user, passwd)
+                else:
+                    _log.Log (gmLog.lWarn, "connection to host %s:%s failed" % (host, port))
+                    if _interactive:
+                        print no_server_sermon
+                        host = raw_input ("New host to connect to:")
+                        if len (host) > 0:
+                            host.split (':')
+                            if len (host) > 1:
+                                port = host[1]
+                                host = host[0]
+                            else:
+                                host = host[0]
+                                conn = connect (host, port, db, user, password)
+            elif re.search ("^FATAL:.*IDENT authentication failed.*", m):
+                if _interactive:
+                    if superuser:
+                        print superuser_sermon % user
+                    else:
+                        print pg_hba_sermon
+                    _log.Log (gmLog.lErr, "IDENT failed with DSM [%s]" % dsn)
+            else:
+                if _interactive:
+                    print no_clues % (message, sys.platform)
+                _log.Log (gmLog.lErr, message)
+        return conn
+
 #==================================================================
 class user:
-	def __init__(self, anAlias = None, aPassword = None, aCfg = _cfg):
-		self.cfg = aCfg
+	def __init__(self, anAlias = None, aPassword = None):
+		self.cfg = _cfg
 
 		if anAlias is None:
 			raise ConstructorError, "need user alias"
@@ -140,6 +290,7 @@ class user:
 #==================================================================
 class db_server:
 	def __init__(self, aSrv_alias, aCfg):
+		print aCfg
 		_log.Log(gmLog.lInfo, "bootstrapping server [%s]" % aSrv_alias)
 
 		global _bootstrapped_servers
@@ -201,22 +352,10 @@ class db_server:
 			_log.Log(gmLog.lErr, "Need to know the database server port address.")
 			return None
 
-		dsn = dsn_format % (
-			self.name,
-			self.port,
-			self.template_db,
-			self.superuser.name,
-			self.superuser.password
-		)
-		try:
-			# Under Debian this also works with password == None
-			self.conn = dbapi.connect(dsn)
-		except:
-			_log.LogException("cannot connect with DSN = [%s]" % dsn, sys.exc_info(), verbose=1)
-			return None
+		self.conn = connect (self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
 
 		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % self.template_db)
-		return 1
+		return self.conn and 1
 	#--------------------------------------------------------------
 	# procedural languages related
 	#--------------------------------------------------------------
@@ -550,83 +689,19 @@ class database:
 	#--------------------------------------------------------------
 	def __connect_owner_to_template(self):
 		srv = self.server
-		# if we want to force the DB-API to connect via UNIX domain
-		# sockets (because we want to connect locally and want to use
-		# IDENT/SAMEUSER authentication) we need to leave the host name
-		# empty upon which the adapter will have to assume a local
-		# connection, we also assume that "localhost" and "" are
-		# meant to signify local connections
-		# this is also in accord with what the psql manpage says:
-		#  If you omit the host name, psql will connect via a
-		#  Unix domain socket to a server on the local host
-		# This seems to be particularly necessary under Debian
-		# GNU/Linux because otherwise the authentification fails
-		if srv.name in ['localhost', '']:
-			srvname = ''
-		else:
-			srvname = srv.name
-		try:
-			dsn = dsn_format % (
-				srvname,
-				srv.port,
-				srv.template_db,
-				self.owner.name,
-				self.owner.password
-			)
-		except StandardError:
-			_log.LogException("Cannot construct DSN !", sys.exc_info(), verbose=1)
-			return None
-
 		if self.conn is not None:
 			self.conn.close()
 
-		try:
-			self.conn = dbapi.connect(dsn)
-		except:
-			_log.LogException("Cannot connect with DSN = [%s]." % dsn, sys.exc_info(), verbose=1)
-			return None
-		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % srv.template_db)
-		return 1
+		self.conn = connect (srv.name, srv.port, srv.template_db, self.owner.name, self.owner.password) 
+		return self.conn and 1
 	#--------------------------------------------------------------
 	def __connect_owner_to_db(self):
 		srv = self.server
-		# if we want to force the DB-API to connect via UNIX domain
-		# sockets (because we want to connect locally and want to use
-		# IDENT/SAMEUSER authentication) we need to leave the host name
-		# empty upon which the adapter will have to assume a local
-		# connection, we also assume that "localhost" and "" are meant
-		# to signify local connections
-		# this is also in accord with what the psql manpage says:
-		#  If you omit the host name, psql will connect via a
-		#  Unix domain socket to a server on the local host
-		# This seems to be particularly necessary under Debian
-		# GNU/Linux because otherwise the authentification fails
-		if srv.name in ['localhost', '']:
-			srvname = ''
-		else:
-			srvname = srv.name
-		try:
-			dsn = dsn_format % (
-				srvname,
-				srv.port,
-				self.name,
-				self.owner.name,
-				self.owner.password
-			)
-		except:
-			_log.LogException("Cannot construct DSN !", sys.exc_info(), verbose=1)
-			return None
-
 		if self.conn is not None:
 			self.conn.close()
 
-		try:
-			self.conn = dbapi.connect(dsn)
-		except:
-			_log.LogException("Cannot connect with DSN = [%s]." % dsn, sys.exc_info(), verbose=1)
-			return None
-		_log.Log(gmLog.lInfo, "successfully connected to database [%s]" % self.name)
-		return 1
+		self.conn = connect (srv.name, srv.port, self.name, self.owner.name, self.owner.password) 
+		return self.conn and 1
 	#--------------------------------------------------------------
 	def __db_exists(self):
 		cmd = "SELECT datname FROM pg_database WHERE datname='%s'" % self.name
@@ -820,7 +895,6 @@ class gmService:
 		if database_alias is None:
 			_log.Log(gmLog.lErr, "Need to know database name to install service [%s]." % self.alias)
 			return None
-
 		# bootstrap database
 		try:
 			database(aDB_alias = database_alias, aCfg = _cfg)
@@ -1243,7 +1317,7 @@ def show_msg(aMsg = None):
 	if aMsg is not None:
 		print aMsg
 	print "Please see log file for details."
-#------------------------------------------------------------------
+#-----------------------------------------------------------------
 def become_pg_demon_user():
 	"""Become "postgres" user.
 
@@ -1256,34 +1330,52 @@ def become_pg_demon_user():
 	as the postgres user has no password [-- and TRUST
 	is not allowed -KH])
 	"""
-	postgres_passwd = None
+	pg_demon_user_passwd_line = None
 	try:
 		import pwd
+		if os.getuid () == 0: # we are the super-user
+			try:
+				pg_demon_user_passwd_line = pwd.getpwnam ('postgres')
+			except KeyError:
+				try:
+					pg_demon_user_passwd_line = pwd.getpwnam ('pgsql')
+					# make sure we actually use this name to log in 
+					_cfg.set ('user postgres', 'name', 'pgsql')
+				except KeyError:
+					_log.Log (gmLog.lWarn, 'can''t find postgres user')
+			if pg_demon_user_passwd_line:
+				_log.Log (gmLog.lInfo, 'switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
+				os.setuid (pg_demon_user_passwd_line[2])
+		else:
+			if _interactive:
+				print "WARNING: This script may not work if not running as the system adminstrator."
 	except ImportError:
 		_log.Log (gmLog.lWarn, "running on broken OS -- can't import pwd module")
 		return None
-
-	if os.getuid() != 0:
-		return None
-
-	# we are the super-user
-	pg_demon_user_passwd_line = None
-	try:
-		pg_demon_user_passwd_line = pwd.getpwnam('postgres')
-	except KeyError:
-		try:
-			pg_demon_user_passwd_line = pwd.getpwnam('pgsql')
-		except KeyError:
-			_log.Log(gmLog.lWarn, "can't find PostgreSQL demon user")
-	if pg_demon_user_passwd_line is not None:
-		_log.Log(gmLog.lInfo, 'switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
-		os.setuid(pg_demon_user_passwd_line[2])
+#==============================================================================
+def nice_mode ():
+	print welcome
+	cfgs = []
+	n = 1
+	for i in glob.glob ('*.conf'):
+		cfg = gmCfg.cCfgFile (None, i)
+		if not cfg.get ('installation', 'guru_only') == '1':
+			desc = cfg.get ('installation', 'description')
+			cfgs.append (cfg)
+			desc = string.join (desc,  '\n      ') # some indentation
+			if n > 10:
+				print "%s)   %s\n" % (n, desc)
+			else:
+				print " %s)   %s\n" % (n, desc)
+			n += 1
+	return cfgs[int (raw_input ("Your option:"))-1]
 #==================================================================
 if __name__ == "__main__":
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
+	global _cfg
 	if _cfg is None:
-		_log.Log(gmLog.lPanic, "Cannot work without config file.")
-		exit_with_msg("Cannot find config file.\nFormat is --conf-file=<file name>.")
+		_log.Log(gmLog.lInfo, "No config file specified on command line. Entering Nice Mode")
+		_cfg = nice_mode ()
 
 	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
 
@@ -1342,7 +1434,12 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.47  2004-02-22 11:19:22  ncq
+# Revision 1.48  2004-02-24 11:02:29  ihaywood
+# Nice mode added
+# If script started with no parameters, scans directory and presents menu of configs
+# Tries hard to connect to local database.
+#
+# Revision 1.47  2004/02/22 11:19:22  ncq
 # - set_user() -> become_pg_demon_user()
 #
 # Revision 1.46  2004/02/13 10:21:39  ihaywood
