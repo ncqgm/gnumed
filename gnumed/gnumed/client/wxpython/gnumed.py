@@ -47,7 +47,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -261,7 +261,7 @@ def get_base_dir():
 	print 'cases where setting GNUMED_DIR might help.'
 
 	return None
-# ---------------------------------------------------------------------------
+
 #==========================================================
 # main - launch the GnuMed wxPython GUI client
 #----------------------------------------------------------
@@ -295,7 +295,7 @@ gb = gmGuiBroker.GuiBroker()
 gb['gnumed_dir'] = appPath
 gb['resource dir'] = resPath
 
-	# FIXME: not sure why we need this
+	# FIXME: not sure anymore why we need this
 #try:
 	# change into our working directory
 	# this does NOT affect the cwd in the shell from where gnumed is started!
@@ -326,14 +326,11 @@ if gmCLI.has_arg('--talkback'):
 	gmTalkback.run(_email_logger)
 
 #==========================================================
-	# manually extend our module search path
-#	sys.path.append(os.path.join(appPath, 'wxpython'))
-#	sys.path.append(os.path.join(appPath, 'pycommon'))
-#	sys.path.append(os.path.join(appPath, 'business'))
-
-#============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.59  2004-03-04 19:45:51  ncq
+# Revision 1.60  2004-03-25 11:02:37  ncq
+# - cleanup
+#
+# Revision 1.59  2004/03/04 19:45:51  ncq
 # - add get_resource_path()
 # - reorder main() flow
 # - switch to from Gnumed.* import *
