@@ -1,18 +1,20 @@
-#!/usr/bin/env python
-"""
-Mid-level configuration editor object.
-Theory of action: 
-ConfigSourceDB/File holds config data (read from backend or file) and related 
+"""GnuMed: Mid-level configuration editor object.
+
+Theory of operation:
+
+ConfigSourceDB/File holds config data (read from backend or file) and related
 config definitions. Definitions are retrieved automatically from a given config
-definiton file (if available). See _defaultDefSourceTable below for standard file
-names. 
+definition file (if available). See _defaultDefSourceTable below for standard file
+names.
+
 First get a list of available config parameters through getAllParamNames (returns
 names + metadata), get the values using GetConfigData, change, check for validity
 using isValid (if definition data and parameter definition is available) and 
 set data using SetConfigData.
 """
-
-__version__ = ""
+#==================================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmConfigCommon.py,v $
+__version__ = "$Revision: 1.2 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types
@@ -37,13 +39,13 @@ _cfg = gmCfg.gmDefCfgFile
 
 import gmPG
 
-_defaultDefSourceTable={ 'DB:CURRENT_USER_CURRENT_MACHINE' : 'DBDefault.definitions',
-			 'DB:CURRENT_USER_DEFAULT_MACHINE' : 'DBDefault.definitions',
-			 'DB:DEFAULT_USER_CURRENT_MACHINE' : 'DBDefault.definitions',
-			 'DB:DEFAULT_USER_DEFAULT_MACHINE' : 'DBDefault.definitions',
-			 'gnumed.conf': 'gnumed.conf.definitions'
-			}
-
+_defaultDefSourceTable = {
+	'DB:CURRENT_USER_CURRENT_MACHINE': 'DBDefault.definitions',
+	'DB:CURRENT_USER_DEFAULT_MACHINE' : 'DBDefault.definitions',
+	'DB:DEFAULT_USER_CURRENT_MACHINE' : 'DBDefault.definitions',
+	'DB:DEFAULT_USER_DEFAULT_MACHINE' : 'DBDefault.definitions',
+	'gnumed.conf': 'gnumed.conf.definitions'
+}
 
 ###############################################################################
 class ConfigSource:
@@ -60,7 +62,7 @@ class ConfigSource:
 		self.mSourceType = aSourceType
 		self.mSourceName = aSourceName
 		self.mDataSource = aDataSource
-		
+
 		if ConfigSource._DefinitionSourceTable is None:
 			ConfigSource._DefinitionSourceTable=self.__getDefinitionSourceTable()
 		
