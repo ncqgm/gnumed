@@ -202,12 +202,12 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         searchNamesjTextField2 = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         locationjComboBox1 = new javax.swing.JComboBox();
-        editButton = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        resultjList1 = new javax.swing.JList();
-        jButton5 = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
         findjTree2 = new javax.swing.JTree();
+        jButton5 = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        resultjList1 = new javax.swing.JList();
+        editButton = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
@@ -289,6 +289,12 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel2.add(jLabel2, gridBagConstraints);
 
+        searchNamesjTextField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchNamesjTextField2ActionPerformed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -312,37 +318,6 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel2.add(locationjComboBox1, gridBagConstraints);
-
-        editButton.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("edit_selected"));
-        editButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                editButtonActionPerformed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        jPanel2.add(editButton, gridBagConstraints);
-
-        resultjList1.setBorder(new javax.swing.border.TitledBorder(java.util.ResourceBundle.getBundle("SummaryTerms").getString("results")));
-        jScrollPane2.setViewportView(resultjList1);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        jPanel2.add(jScrollPane2, gridBagConstraints);
-
-        jButton5.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("search"));
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                searchProviderActionPerformed(evt);
-            }
-        });
-
-        jPanel2.add(jButton5, new java.awt.GridBagConstraints());
 
         findjTree2.setBorder(new javax.swing.border.TitledBorder(java.util.ResourceBundle.getBundle("SummaryTerms").getString("role")));
         findjTree2.setToggleClickCount(1);
@@ -371,6 +346,46 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel2.add(jScrollPane5, gridBagConstraints);
+
+        jButton5.setMnemonic(java.util.ResourceBundle.getBundle("SummaryTerms").getString("search").charAt(0));
+        jButton5.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("search"));
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchProviderActionPerformed(evt);
+            }
+        });
+
+        jPanel2.add(jButton5, new java.awt.GridBagConstraints());
+
+        resultjList1.setBorder(new javax.swing.border.TitledBorder(java.util.ResourceBundle.getBundle("SummaryTerms").getString("results")));
+        resultjList1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                resultjList1KeyPressed(evt);
+            }
+        });
+
+        jScrollPane2.setViewportView(resultjList1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel2.add(jScrollPane2, gridBagConstraints);
+
+        editButton.setMnemonic(java.util.ResourceBundle.getBundle("SummaryTerms").getString("edit_selected").charAt(0));
+        editButton.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("edit_selected"));
+        editButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editButtonActionPerformed(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        jPanel2.add(editButton, gridBagConstraints);
 
         jTabbedPane1.addTab("tab2", jPanel2);
 
@@ -607,6 +622,20 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
 
     }//GEN-END:initComponents
 
+    private void resultjList1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_resultjList1KeyPressed
+        // Add your handling code here:
+        if (evt.getKeyCode() == evt.VK_ENTER) { 
+            setProviderSelected(true);
+            setProviderSelected(false);
+        }
+            
+    }//GEN-LAST:event_resultjList1KeyPressed
+
+    private void searchNamesjTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchNamesjTextField2ActionPerformed
+        // Add your handling code here:
+         searchProviderActionPerformed(new java.awt.event.ActionEvent( evt.getSource(), 1, "search for providers with role"));
+    }//GEN-LAST:event_searchNamesjTextField2ActionPerformed
+
     private void jTree3MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTree3MouseReleased
         // Add your handling code here:
         checkForPopup(evt);
@@ -827,6 +856,12 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     private javax.swing.JMenuItem searchRoleMenuItem;
     private javax.swing.JTextField telephonejTextField6;
     // End of variables declaration//GEN-END:variables
+
+    /** Holds value of property providerSelected. */
+    private boolean providerSelected;    
+    
+    /** Utility field used by bound properties. */
+    private java.beans.PropertyChangeSupport propertyChangeSupport =  new java.beans.PropertyChangeSupport(this);
     
 //    static Class[] roleFilter = { identity_role.class };
     
@@ -1015,6 +1050,40 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
             return (identity) o;
         }
         return null;
+    }
+    
+    /** Adds a PropertyChangeListener to the listener list.
+     * @param l The listener to add.
+     *
+     */
+    public void addPropertyChangeListener(java.beans.PropertyChangeListener l) {
+        propertyChangeSupport.addPropertyChangeListener(l);
+    }
+    
+    /** Removes a PropertyChangeListener from the listener list.
+     * @param l The listener to remove.
+     *
+     */
+    public void removePropertyChangeListener(java.beans.PropertyChangeListener l) {
+        propertyChangeSupport.removePropertyChangeListener(l);
+    }
+    
+    /** Getter for property providerSelected.
+     * @return Value of property providerSelected.
+     *
+     */
+    public boolean isProviderSelected() {
+        return this.providerSelected;
+    }
+    
+    /** Setter for property providerSelected.
+     * @param providerSelected New value of property providerSelected.
+     *
+     */
+    public void setProviderSelected(boolean providerSelected) {
+        boolean oldProviderSelected = this.providerSelected;
+        this.providerSelected = providerSelected;
+        propertyChangeSupport.firePropertyChange("providerSelected", new Boolean(oldProviderSelected), new Boolean(providerSelected));
     }
     
 }

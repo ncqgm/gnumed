@@ -7,7 +7,8 @@
 package quickmed.usecases.test;
 import org.gnumed.gmIdentity.identity;
 import java.text.*;
-import java.util.*;
+import java.util.*;import java.util.logging.*;
+
 import java.io.*;
 import gnmed.test.DomainPrinter;
 import javax.print.*;
@@ -19,10 +20,12 @@ import javax.swing.*;
  * @author  sjtan
  */
 public class TestReferralPanel extends javax.swing.JPanel implements ClientProviderRelatable {
-    public static final int DEFAULT_PLAINTEXT_LINELEN= 50;
-    public static final int DEFAULT_PLAINTEXT_TABSIZE = 8;
+//    public static final int DEFAULT_PLAINTEXT_LINELEN= 56;
+//    public static final int DEFAULT_PLAINTEXT_TABSIZE = 8;
+//    public static final int HACKY_LEFT_MARGIN = 4;
+//    
     
-    
+    private BasicLetterGenerationCapable generator = new PlainLetterBasicGenerator();
     private ContactsPanel contacts;
     private identity client;
     /** Creates new form TestReferralPanel */
@@ -31,9 +34,8 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
         addContactsPanel();
         changeTabNames();
         //        addPrintServiceUI();
-        
-        setPlainTextLineLength(DEFAULT_PLAINTEXT_LINELEN);
-        setPlainTextTabSize(DEFAULT_PLAINTEXT_TABSIZE);
+   
+        addProviderSelectionListener();
     }
     
     void addContactsPanel() {
@@ -56,6 +58,25 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
         
     }
     
+    class ProviderSelectionGenerateLetterListener implements java.beans.PropertyChangeListener {
+        
+        public void propertyChange(java.beans.PropertyChangeEvent evt) {
+            if (evt.getPropertyName().equals("providerSelected") &&
+            evt.getNewValue() != null && evt.getNewValue().equals( new Boolean(true) ) )
+                try {
+            generateReferralFile();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+        }        
+        
+    }
+    
+    void addProviderSelectionListener() {
+        contacts.addPropertyChangeListener(
+        new ProviderSelectionGenerateLetterListener() 
+        );
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -64,12 +85,6 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
     private void initComponents() {//GEN-BEGIN:initComponents
         java.awt.GridBagConstraints gridBagConstraints;
 
-        jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
-        generateLetterButton = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -80,35 +95,14 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
         jPanel6 = new javax.swing.JPanel();
         printButton2 = new javax.swing.JButton();
         saveButton = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        generateLetterButton = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
 
-        setLayout(new java.awt.BorderLayout());
-
-        jPanel1.setLayout(new java.awt.GridBagLayout());
-
-        jLabel1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("editor_app"));
-        jPanel1.add(jLabel1, new java.awt.GridBagConstraints());
-
-        jTextField1.setText("jTextField1");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        jPanel1.add(jTextField1, gridBagConstraints);
-
-        jButton1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("set_editor"));
-        jPanel1.add(jButton1, new java.awt.GridBagConstraints());
-
-        add(jPanel1, java.awt.BorderLayout.NORTH);
-
-        generateLetterButton.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("generate_letter"));
-        generateLetterButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                generateLetterButtonActionPerformed(evt);
-            }
-        });
-
-        jPanel2.add(generateLetterButton);
-
-        add(jPanel2, java.awt.BorderLayout.SOUTH);
+        setLayout(new java.awt.GridBagLayout());
 
         jPanel3.setLayout(new java.awt.BorderLayout());
 
@@ -142,7 +136,50 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
 
         jTabbedPane1.addTab("tab2", jPanel4);
 
-        add(jTabbedPane1, java.awt.BorderLayout.CENTER);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 4.0;
+        gridBagConstraints.weighty = 4.0;
+        add(jTabbedPane1, gridBagConstraints);
+
+        generateLetterButton.setMnemonic(java.util.ResourceBundle.getBundle("SummaryTerms").getString("generate_letter").charAt(0));
+        generateLetterButton.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("generate_letter"));
+        generateLetterButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                generateLetterButtonActionPerformed(evt);
+            }
+        });
+
+        jPanel2.add(generateLetterButton);
+
+        add(jPanel2, new java.awt.GridBagConstraints());
+
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
+        jLabel1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("editor_app"));
+        jLabel1.setFocusable(false);
+        jLabel1.setEnabled(false);
+        jPanel1.add(jLabel1, new java.awt.GridBagConstraints());
+
+        jTextField1.setText("jTextField1");
+        jTextField1.setFocusable(false);
+        jTextField1.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(jTextField1, gridBagConstraints);
+
+        jButton1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("set_editor"));
+        jButton1.setFocusable(false);
+        jButton1.setEnabled(false);
+        jPanel1.add(jButton1, new java.awt.GridBagConstraints());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        add(jPanel1, gridBagConstraints);
 
     }//GEN-END:initComponents
     
@@ -193,7 +230,8 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
             String filename = "./tmp.txt";
             FileWriter w = new FileWriter(filename);
             PrintWriter pw = new PrintWriter( w);
-            pw.println(transformToPlatformNewlines(getLetter()))   ;
+            
+            generator.printTo(pw);
             pw.close();
             FileInputStream fis = new FileInputStream( filename);
             //            PipedInputStream is = new PipedInputStream();
@@ -245,171 +283,15 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
         
     }
     
-    
-    final static String referralFormatString = "\n\n{0, date}\n\n\n{1},\n{2},\n{3}, {4}.\n\n{5},\n{6}\n\n{7}\n\n\t\t\t{8}";
-    
+ 
     public void generateReferralFile()  throws Exception {
-        if (getClient().getPersister() instanceof ManagerReference) {
-            ManagerReference ref = ( ManagerReference) getClient().getPersister();
-            net.sf.hibernate.Session sess = ref.getGISManager().getSession();
-            if (!sess.isConnected())
-                sess.reconnect();
-            
-        }
-        
-        StringBuffer sb = new StringBuffer();
-        org.gnumed.gmGIS.address a = getProvider().findIdentityAddressByAddressType(TestGISManager.homeAddress).getAddress();
-        String street = new StringBuffer().append(a.getNumber()).append(", ").append(a.getStreet().getName()).toString();
-        String urb = a.getStreet().getUrb().getName();
-        String state = a.getStreet().getUrb().getState().getName();
-        String postcode = a.getStreet().getUrb().getPostcode();
-        MessageFormat mf2 = new MessageFormat(Globals.bundle.getString("neutral_greetings_format"));
-        
-        String greetings = mf2.format(
-        new Object[] {        getProvider().findNames(0).getFirstnames() ,getProvider().findNames(0).getLastnames() });
-        
-        MessageFormat mf3 = new MessageFormat(Globals.bundle.getString("basic_spiel_format"));
-        String spiel = mf3.format(
-        new Object[] { getClient().findNames(0).getFirstnames(), getClient().findNames(1).getLastnames(), getClient().getDob() } );
-        
-        
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream( bos);
-        
-        DomainPrinter.getInstance().printIdentity(ps, getClient());
-        String summary = bos.toString();
-        String salutations = Globals.bundle.getString("salutations");
-        
-        MessageFormat mf = new MessageFormat(referralFormatString);
-        
-        String letter = mf.format( new Object[] { new Date(), street, urb, state, postcode, greetings , spiel, summary, salutations }  );
-        
-        
-        
-        // create title
-        org.gnumed.gmIdentity.Names cn = getClient().findNames(0);
-        
-        sb.append(cn.getLastnames()).append('_').append(cn.getFirstnames()).append('_');
-        sb.append(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(new Date()));
-        sb.append(".txt");
-        for (int i = 0; i < sb.length(); ++i)
-            if (Character.isSpaceChar(sb.charAt(i)) )
-                sb.setCharAt(i, '_');
-        
-        setReferralFilename(sb.toString());
-        //        File path = new File(".", getReferralFilename());
-        //        path.createNewFile();
-        //
-        //        OutputStream fos =  new BufferedOutputStream(new FileOutputStream(path));
-        //        PrintStream ps2 = new PrintStream(fos);
-        //         ps2.println(letter);
-        //
-        //        fos.close();
-        setLetter(wordWrap(letter, getPlainTextLineLength(), getPlainTextTabSize()) );
-        jEditorPane1.setText(getLetter());
+        generator.setClient(getClient());
+        generator.setProvider(getProvider());
+        generator.execute();
+        jEditorPane1.setText(generator.getLetter());
         jTabbedPane1.setSelectedIndex(1);
     }
-    
-    public String transformToPlatformNewlines(String letter) {
-        
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream( bos);
-        
-        // transform /n to platform specific newline
-        for (int j = 0;j < letter.length(); ++j) {
-            if (letter.charAt(j) == '\n') {
-                ps.println();
-            }
-            ps.print(letter.charAt(j));
-        }
-        return  bos.toString();
-    }
-    
-    public String wordWrap( String letter , int triggerLineLength, int tabSize) {
-        int len = 0;
-        StringBuffer buf = new StringBuffer();
-        for (int j = 0;j < letter.length(); ++j) {
-            if (letter.charAt(j) == '\t')
-                len += tabSize;
-            else
-                if (letter.charAt(j) == '\n')
-                    len = 0;
-            if (len >= triggerLineLength
-            && ( Character.isISOControl(letter.charAt(j)) ||
-            Character.isWhitespace(letter.charAt(j) ) )  ) {
-                buf.append("\n");
-                len = 0;
-                continue;
-            }
-            
-            buf.append(letter.charAt(j));
-        }
-        return buf.toString();
-    }
-    /** Getter for property referralFilename.
-     * @return Value of property referralFilename.
-     *
-     */
-    public String getReferralFilename() {
-        return this.referralFilename;
-    }
-    
-    /** Setter for property referralFilename.
-     * @param referralFilename New value of property referralFilename.
-     *
-     */
-    public void setReferralFilename(String referralFilename) {
-        this.referralFilename = referralFilename;
-    }
-    
-    /** Getter for property letter.
-     * @return Value of property letter.
-     *
-     */
-    public String getLetter() {
-        return this.letter;
-    }
-    
-    /** Setter for property letter.
-     * @param letter New value of property letter.
-     *
-     */
-    public void setLetter(String letter) {
-        this.letter = letter;
-    }
-    
-    /** Getter for property plainTextLineLength.
-     * @return Value of property plainTextLineLength.
-     *
-     */
-    public int getPlainTextLineLength() {
-        return this.plainTextLineLength;
-    }
-    
-    /** Setter for property plainTextLineLength.
-     * @param plainTextLineLength New value of property plainTextLineLength.
-     *
-     */
-    public void setPlainTextLineLength(int plainTextLineLength) {
-        this.plainTextLineLength = plainTextLineLength;
-    }
-    
-    /** Getter for property plainTextTabSize.
-     * @return Value of property plainTextTabSize.
-     *
-     */
-    public int getPlainTextTabSize() {
-        return this.plainTextTabSize;
-    }
-    
-    /** Setter for property plainTextTabSize.
-     * @param plainTextTabSize New value of property plainTextTabSize.
-     *
-     */
-    public void setPlainTextTabSize(int plainTextTabSize) {
-        this.plainTextTabSize = plainTextTabSize;
-    }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton generateLetterButton;
     private javax.swing.JButton jButton1;
@@ -429,16 +311,5 @@ public class TestReferralPanel extends javax.swing.JPanel implements ClientProvi
     private javax.swing.JButton saveButton;
     // End of variables declaration//GEN-END:variables
     
-    /** Holds value of property referralFilename. */
-    private String referralFilename;
-    
-    /** Holds value of property letter. */
-    private String letter;
-    
-    /** Holds value of property plainTextLineLength. */
-    private int plainTextLineLength;
-    
-    /** Holds value of property plainTextTabSize. */
-    private int plainTextTabSize;
-    
+  
 }

@@ -20,7 +20,8 @@ public class SessionHolder {
     public SessionHolder() {
     }
     
-    /** Getter for property session.
+    /** Getter for property session; the session is re-connected if not
+     * a new session.
      * @return Value of property session.
      *
      */
