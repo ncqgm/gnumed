@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.10 2003-11-20 01:17:14 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmPatient.py,v 1.11 2004-01-12 16:21:03 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -116,7 +116,7 @@ class gmPerson:
 			return None
 		return docs
 	#----------------------------------------------------------
-	def _get_clinical_record(self):
+	def get_clinical_record(self):
 		if self.__db_cache.has_key('clinical record'):
 			return self.__db_cache['clinical record']
 		try:
@@ -155,7 +155,7 @@ class gmPerson:
 	# set up handler map
 	_get_handler['document id list'] = _getMedDocsList
 	_get_handler['demographic record'] = get_demographic_record
-	_get_handler['clinical record'] = _get_clinical_record
+	_get_handler['clinical record'] = get_clinical_record
 	_get_handler['API'] = _get_API
 	_get_handler['ID'] = getID
 
@@ -227,7 +227,7 @@ class gmCurrentPatient(cBorg):
 		return None
 
 	def get_clinical_record(self):
-		return self.patient._get_clinical_record()
+		return self.patient.get_clinical_record()
 
 	def get_demographic_record(self):
 		return self.patient.get_demographic_record()
@@ -331,7 +331,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.10  2003-11-20 01:17:14  ncq
+# Revision 1.11  2004-01-12 16:21:03  ncq
+# - _get_clini* -> get_clini*
+#
+# Revision 1.10  2003/11/20 01:17:14  ncq
 # - consensus was that N/A is no good for identity.gender hence
 #   don't use it in create_dummy_identity anymore
 #
