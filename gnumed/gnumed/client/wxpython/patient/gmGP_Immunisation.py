@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.30 2004-05-18 20:43:17 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmGP_Immunisation.py,v 1.31 2004-05-18 22:40:04 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -225,7 +225,7 @@ class ImmunisationPanel(wxPanel):
 						shot['seq_no'],
 						shot['indication'],
 						shot['regime'],
-						shot['latest due'].Format('%m/%Y'),
+						shot['latest_due'].Format('%m/%Y'),
 						shot['vacc_comment']
 					)
 					self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
@@ -283,7 +283,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.30  2004-05-18 20:43:17  ncq
+# Revision 1.31  2004-05-18 22:40:04  ncq
+# - latest due -> latest_due
+#
+# Revision 1.30  2004/05/18 20:43:17  ncq
 # - check get_clinical_record() return status
 #
 # Revision 1.29  2004/05/13 19:27:10  ncq
