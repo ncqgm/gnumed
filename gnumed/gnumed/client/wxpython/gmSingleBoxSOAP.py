@@ -7,8 +7,8 @@ typing clear-text clinical notes which are stored in clin_note.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.2 2003-06-22 16:20:33 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmSingleBoxSOAP.py,v 1.3 2003-06-24 12:57:05 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -16,6 +16,8 @@ import sys
 if __name__ == "__main__":
 	sys.path.append ("../python-common/")
 	import gmI18N
+
+import gmDispatcher, gmTmpPatient, gmSignals
 
 from gmExceptions import ConstructorError
 from wxPython.wx import *
@@ -36,6 +38,8 @@ class gmSingleBoxSOAPPanel(wxPanel):
 
 		if not self.__register_interests():
 			raise ConstructorError, 'cannot register interests'
+
+		self.__pat = gmTmpPatient.gmCurrentPatient()
 	#--------------------------------------------------------
 	def __do_layout(self):
 		# large box for free-text clinical notes
@@ -69,16 +73,39 @@ class gmSingleBoxSOAPPanel(wxPanel):
 		EVT_BUTTON(self.BTN_save, wxID_BTN_save, self._on_save_note)
 		EVT_BUTTON(self.BTN_discard, wxID_BTN_discard, self._on_discard_note)
 
+		# client internal signals
+		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_note)
+
 		return 1
 	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
 	def _on_save_note(self, event):
-		print "saving note to backend"
+		self._save_note()
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_discard_note(self, event):
 		# FIXME: maybe ask for confirmation ?
 		self.soap_box.SetValue('')
 		event.Skip()
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def _save_note(self):
+		print "saving note"
+		if self.soap_box.IsModified():
+			print "note modified, saving"
+			note = self.soap_box.GetValue()
+			if note != '':
+				print "note not empty, saving"
+				emr = self.__pat['clinical record']
+				if not emr.create_clinical_note(note):
+					print "cannot save note !"
+					return None
+				else:
+					print "note saved"
+					self.soap_box.SetValue('')
+					return 1		
 #============================================================
 # main
 #------------------------------------------------------------
@@ -89,7 +116,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.2  2003-06-22 16:20:33  ncq
+# Revision 1.3  2003-06-24 12:57:05  ncq
+# - actually connect to backend
+# - save note on patient change and on explicit save request
+#
+# Revision 1.2  2003/06/22 16:20:33  ncq
 # - start backend connection
 #
 # Revision 1.1  2003/06/19 16:50:32  ncq
