@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.89 2004-05-02 19:27:30 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmClinicalRecord.py,v 1.90 2004-05-08 17:41:34 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -946,14 +946,18 @@ class cClinicalRecord:
 				regime,
 				reg_comment,
 				seq_no,
-				case when age_due_max is null
-					then (now() + '2 years'::interval)
-					else ((select dob from identity where id=%(pat_id)s) + age_due_max)
-				end as latest_due,
-				case when age_due_max is null
-					then '2 years'::interval
-					else age((select dob from identity where id=%(pat_id)s) + age_due_max)
-				end as time_left,
+--				case when age_due_max is null
+--					then (now() + '2 years'::interval)
+--					else ((select dob from identity where id=%(pat_id)s) + age_due_max)
+--				end as latest_due,
+
+--				case when age_due_max is null
+--					then '2 years'::interval
+--					else (((select dob from identity where id=%(pat_id)s) + age_due_max) - now())
+--				end as time_left,
+
+				latest_due,
+				amount_overdue,
 				vacc_comment,
 				age_due_min,
 				age_due_max,
@@ -983,7 +987,8 @@ class cClinicalRecord:
 				regime,
 				reg_comment,
 				seq_no,
-				age((select dob from identity where id=%(pat_id)s) + age_due_max) as amount_overdue,
+				latest_due,
+				amount_overdue,
 				vacc_comment,
 				age_due_min,
 				age_due_max,
@@ -1199,7 +1204,7 @@ class cClinicalRecord:
 				fk_patient, fk_location, fk_provider, description, fk_type
 			) values (
 				%s, -1, %s, %s,
-				(select id from _enum_encounter_type where description=%s)
+				(select id from encounter_type where description=%s)
 			)"""
 		cmd2 = "select currval('clin_encounter_id_seq')"
 		result = gmPG.run_commit('historica', [
@@ -1412,7 +1417,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.89  2004-05-02 19:27:30  ncq
+# Revision 1.90  2004-05-08 17:41:34  ncq
+# - due vaccs views are better now, so simplify get_due_vaccinations()
+#
+# Revision 1.89  2004/05/02 19:27:30  ncq
 # - simplify get_due_vaccinations
 #
 # Revision 1.88  2004/04/24 12:59:17  ncq
