@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.131 2004-07-06 00:11:11 ncq Exp $
-__version__ = "$Revision: 1.131 $"
+# $Id: gmClinicalRecord.py,v 1.132 2004-07-17 21:08:51 ncq Exp $
+__version__ = "$Revision: 1.132 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -271,7 +271,7 @@ class cClinicalRecord:
 		cmd = "select %s from v_patient_items where id_patient=%%s order by src_table, age" % string.join(fields, ', ')
 		ro_conn = self._conn_pool.GetConnection('historica')
 		curs = ro_conn.cursor()
-		if not gmPG.run_query(curs, cmd, self.id_patient):
+		if not gmPG.run_query(curs, None, cmd, self.id_patient):
 			_log.Log(gmLog.lErr, 'cannot load item links for patient [%s]' % self.id_patient)
 			curs.close()
 			return None
@@ -307,13 +307,13 @@ class cClinicalRecord:
 				continue
 			elif len(item_ids) == 1:
 				cmd = "select * from %s where pk_item=%%s order by modified_when" % src_table
-				if not gmPG.run_query(curs, cmd, item_ids[0]):
+				if not gmPG.run_query(curs, None, cmd, item_ids[0]):
 					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			elif len(item_ids) > 1:
 				cmd = "select * from %s where pk_item in %%s order by modified_when" % src_table
-				if not gmPG.run_query(curs, cmd, (tuple(item_ids),)):
+				if not gmPG.run_query(curs, None, cmd, (tuple(item_ids),)):
 					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
@@ -477,13 +477,13 @@ class cClinicalRecord:
 				continue
 			elif len(item_ids) == 1:
 				cmd = "select * from %s where pk_item=%%s order by modified_when" % src_table
-				if not gmPG.run_query(curs, cmd, item_ids[0]):
+				if not gmPG.run_query(curs, None, cmd, item_ids[0]):
 					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
 			elif len(item_ids) > 1:
 				cmd = "select * from %s where pk_item in %%s order by modified_when" % src_table
-				if not gmPG.run_query(curs, cmd, (tuple(item_ids),)):
+				if not gmPG.run_query(curs, None, cmd, (tuple(item_ids),)):
 					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
@@ -1337,7 +1337,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.131  2004-07-06 00:11:11  ncq
+# Revision 1.132  2004-07-17 21:08:51  ncq
+# - gmPG.run_query() now has a verbosity parameter, so use it
+#
+# Revision 1.131  2004/07/06 00:11:11  ncq
 # - make add_clin_narrative use gmClinNarrative.create_clin_narrative()
 #
 # Revision 1.130  2004/07/05 22:30:01  ncq

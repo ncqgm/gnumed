@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.4 2004-05-02 22:54:43 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmMatchProvider.py,v 1.5 2004-07-17 21:08:51 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -395,7 +395,7 @@ class cMatchProvider_SQL(cMatchProvider):
 				raise gmExceptions.ConstructorError, 'cannot connect to source service [%s]' % src_def['service']
 			curs = conn.cursor()
 			cmd = "select %s from %s limit 1" % (src_def['column'], src_def['table'])
-			if not gmPG.run_query(curs, cmd):
+			if not gmPG.run_query(curs, None, cmd):
 				curs.close()
 				self.__close_sources()
 				raise gmExceptions.ConstructorError, 'cannot access [%s.%s] in service [%s]' % (src_def['table'], src_def['column'], src_def['service'])
@@ -417,7 +417,7 @@ class cMatchProvider_SQL(cMatchProvider):
 				raise gmExceptions.ConstructorError, 'cannot connect to score storage service [%s]' % score_def['service']
 			rw_curs = rw_conn.cursor()
 			cmd = "select %s, cookie, user, score from %s limit 1" % (score_def['column'], score_def['table'])
-			if not gmPG.run_query(rw_curs, cmd):
+			if not gmPG.run_query(rw_curs, None, cmd):
 				rw_curs.close()
 				rw_conn.close()
 				self.__close_sources()
@@ -504,7 +504,7 @@ class cMatchProvider_SQL(cMatchProvider):
 				search_operator,
 				ctxt_where
 			)
-			if not gmPG.run_query(curs, cmd, values):
+			if not gmPG.run_query(curs, None, cmd, values):
 				curs.close()
 				_log.Log(gmLog.lErr, 'cannot check for matches in %s' % src)
 				return (_false, [])
@@ -536,7 +536,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.4  2004-05-02 22:54:43  ncq
+# Revision 1.5  2004-07-17 21:08:51  ncq
+# - gmPG.run_query() now has a verbosity parameter, so use it
+#
+# Revision 1.4  2004/05/02 22:54:43  ncq
 # - cleanup
 #
 # Revision 1.3  2004/04/30 09:10:57  ncq
