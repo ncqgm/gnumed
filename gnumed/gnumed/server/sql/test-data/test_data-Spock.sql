@@ -5,17 +5,20 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Spock.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
-insert into identity (gender, dob, cob, title)
-values ('m', '1931-03-26+2:00', 'US', 'Capt.');
+insert into identity (gender, dob, cob, title, pupic)
+values ('m', '1931-03-26+2:00', 'US', 'Capt.', 'SFSN:S 179-276 SP');
 
-insert into names (id_identity, active, lastnames, firstnames)
-values (currval('identity_pk_seq'), true, 'Spock', 'Leonard');
+insert into names (id_identity, active, lastnames, firstnames, comment)
+values (currval('identity_pk_seq'), true, 'Spock', '?', 'no first name known, real vulcan name unrepresentable');
+
+insert into names (id_identity, active, lastnames, firstnames, comment)
+values (currval('identity_pk_seq'), false, 'Nimoy', 'Leonard', 'name of actor');
 
 insert into xlnk_identity (xfk_identity, pupic)
 values (currval('identity_pk_seq'), currval('identity_pk_seq'));
@@ -32,11 +35,14 @@ values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-Spock.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Spock.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Spock.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: test_data-Spock.sql,v $
--- Revision 1.5  2005-02-12 13:49:14  ncq
+-- Revision 1.6  2005-02-13 15:08:23  ncq
+-- - add names of actors and some comments
+--
+-- Revision 1.5  2005/02/12 13:49:14  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes

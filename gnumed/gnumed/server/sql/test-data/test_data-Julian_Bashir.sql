@@ -1,10 +1,10 @@
 -- Projekt GnuMed
--- test data for Dr.Leonard McCoy of Star Trek fame
+-- test data for Dr.Julian Bashir of Star Trek fame
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Julian_Bashir.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -28,11 +28,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-Julian_Bashir.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Julian_Bashir.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Julian_Bashir.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: test_data-Julian_Bashir.sql,v $
--- Revision 1.7  2005-02-12 13:49:14  ncq
+-- Revision 1.8  2005-02-13 15:08:23  ncq
+-- - add names of actors and some comments
+--
+-- Revision 1.7  2005/02/12 13:49:14  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes

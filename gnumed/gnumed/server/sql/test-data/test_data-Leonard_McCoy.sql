@@ -1,10 +1,10 @@
 -- Projekt GnuMed
--- test data for Dr.Leonard McCoy of Star Trek fame
+-- test data for Dr.Leonard Horatio McCoy of Star Trek fame
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Leonard_McCoy.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -16,9 +16,9 @@ delete from identity where
 	cob = 'US'
 		and
 	pk in (
-		select i_pk
+		select pk_identity
 		from v_basic_person
-		where firstnames='Leonard'
+		where firstnames='Leonard Horatio'
 				and lastnames='McCoy'
 				and dob='1920-1-20+2:00'
 	);
@@ -27,8 +27,10 @@ insert into identity (gender, dob, cob, title)
 values ('m', '1920-1-20+2:00', 'US', 'Dr.');
 
 insert into names (id_identity, active, lastnames, firstnames)
-values (currval('identity_pk_seq'), true, 'McCoy', 'Leonard');
+values (currval('identity_pk_seq'), true, 'McCoy', 'Leonard Horatio');
 
+insert into names (id_identity, active, lastnames, firstnames, comment)
+values (currval('identity_pk_seq'), false, 'DeForest', 'Kelley', 'name of the actor');
 
 delete from xlnk_identity where xfk_identity = currval('identity_pk_seq');
 
@@ -48,11 +50,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-Leonard_McCoy.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: test_data-Leonard_McCoy.sql,v $
--- Revision 1.12  2005-02-12 13:49:14  ncq
+-- Revision 1.13  2005-02-13 15:08:23  ncq
+-- - add names of actors and some comments
+--
+-- Revision 1.12  2005/02/12 13:49:14  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes

@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -20,7 +20,7 @@ delete from identity where
 	cob = 'CA'
 		and
 	pk in (
-		select i_pk
+		select pk_identity
 		from v_basic_person
 		where firstnames='Laborata'
 				and lastnames='Testwoman'
@@ -50,7 +50,7 @@ insert into clin_encounter (
 ) values (
 	currval('identity_pk_seq'),
 	-1,
-	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
+	(select pk_staff from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='chart review'),
 	'first for this RFE'
 );
@@ -106,18 +106,21 @@ insert into lab_request (
 	'used for anonymized import regression tests',
 	(select pk from test_org where internal_name='your own practice'),
 	'anon: sample ID',
-	(select i_pk from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
+	(select pk_identity from v_basic_person where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	true
 );
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%test_data-lab_regression.sql%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.13  2005-02-12 13:49:14  ncq
+-- Revision 1.14  2005-02-13 15:08:23  ncq
+-- - add names of actors and some comments
+--
+-- Revision 1.13  2005/02/12 13:49:14  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes

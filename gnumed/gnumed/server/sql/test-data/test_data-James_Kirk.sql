@@ -1,10 +1,10 @@
 -- Projekt GnuMed
--- test data for James T. Kirk of Star Trek fame
+-- test data for James Tiberius Kirk of Star Trek fame
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.45 $
+-- $Revision: 1.46 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -12,27 +12,33 @@
 -- =============================================
 -- service personalia
 -- ---------------------------------------------
--- identity/name
-delete from names where
-	firstnames = 'James T.'
-		and
-	lastnames = 'Kirk';
+--delete from names where
+--	firstnames = 'James Tiberius'
+--		and
+--	lastnames = 'Kirk';
 
+-- identity, should cascade to name by itself ...
 delete from identity where
 	gender = 'm'
 		and
 	cob = 'CA'
 		and
-	pk in (select i_pk from v_basic_person where firstnames='James T.' and lastnames='Kirk' and dob='1931-3-22+2:00');
+	pk in (select pk_identity from v_basic_person where firstnames='James Tiberius' and lastnames='Kirk' and dob='1931-3-22+2:00');
 
-insert into identity (gender, dob, cob, title)
-values ('m', '1931-3-22+2:00', 'CA', 'Capt.');
+insert into identity (gender, dob, cob, title, pupic)
+values ('m', '1931-3-22+2:00', 'CA', 'Capt.', 'SFSN:SC937-0176-CEC');
 
-insert into names (id_identity, active, lastnames, firstnames)
-values (currval('identity_pk_seq'), true, 'Kirk', 'James T.');
+insert into names (id_identity, active, lastnames, firstnames, comment)
+values (currval('identity_pk_seq'), true, 'Kirk', 'James Tiberius', 'name of character in Star Trek series');
+
+insert into names (id_identity, active, lastnames, firstnames, comment)
+values (currval('identity_pk_seq'), false, 'Kirk', 'James R.', 'the original middle initial was R. as seen in "Where No Man Has Gone Before"');
+
+insert into names (id_identity, active, lastnames, firstnames, comment)
+values (currval('identity_pk_seq'), false, 'Shatner', 'William', 'name of actor in real life');
 
 insert into enum_ext_id_types (name, issuer, context)
-values ('Star Fleet Staff Code', 'Star Fleet Central Staff Office', 'o');
+values ('Starfleet Serial Number', 'Star Fleet Central Staff Office', 'o');
 
 insert into lnk_identity2ext_id (id_identity, external_id, fk_origin)
 values (currval('identity_pk_seq'), 'SC937-0176-CEC', currval('enum_ext_id_types_pk_seq'));
@@ -120,7 +126,7 @@ insert into clin_encounter (
 ) values (
 	currval('identity_pk_seq'),
 	-1,
-	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
+	(select pk_staff from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='in surgery'),
 	'2000-9-17 17:13',
 	'2000-9-17 19:33'
@@ -275,7 +281,7 @@ insert into vaccination (
 	currval('clin_episode_pk_seq'),
 	'prev booster > 7 yrs',
 	currval('identity_pk_seq'),
-	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
+	(select pk_staff from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select id from vaccine where trade_name='Tetasorbat (SFCMS)'),
 	'2000-9-17',
 	'left deltoid muscle',
@@ -304,7 +310,7 @@ insert into lab_request (
 	'inflammation screen, possibly extraterrestrial contamination',
 	(select pk from test_org where internal_name='Enterprise Main Lab'),
 	'EML#SC937-0176-CEC#11',
-	(select i_pk from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
+	(select pk_identity from v_basic_person where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	'SC937-0176-CEC#15034',
 	'2000-9-17 17:40',
 	'2000-9-17 18:10',
@@ -436,7 +442,7 @@ insert into clin_encounter (
 ) values (
 	currval('identity_pk_seq'),
 	-1,
-	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
+	(select pk_staff from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='in surgery'),
 	'2000-9-18 8:13',
 	'2000-9-18 8:47'
@@ -623,11 +629,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.45 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.46 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.45  2005-02-12 13:49:14  ncq
+-- Revision 1.46  2005-02-13 15:08:23  ncq
+-- - add names of actors and some comments
+--
+-- Revision 1.45  2005/02/12 13:49:14  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes
