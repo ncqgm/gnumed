@@ -34,8 +34,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.31 2003-02-08 00:15:17 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmLoginDialog.py,v 1.32 2003-02-08 00:32:30 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 
 from wxPython.wx import *
 import os.path, time
@@ -95,9 +95,8 @@ class LoginPanel(wxPanel):
 		self.loginparams = loginparams or LoginParameters()
 		#if we didn't override the standard parameters, load them from the configuration file
 		
-		if loginparams==None:
-			#	self.__log_settings()
-			pass
+		if loginparams is None:
+			self.__log_settings()
 
 		self.topsizer = wxBoxSizer(wxVERTICAL)
 
@@ -110,9 +109,7 @@ class LoginPanel(wxPanel):
 		except:
 			self.topsizer.Add(wxStaticText (self, -1, _("Cannot find image") + bitmap, style=wxALIGN_CENTRE), 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
 
-		
-	#	tmp = _cfg.get('workplace', 'name')
-		tmp = None
+		tmp = _cfg.get('workplace', 'name')
 		if tmp is None:
 			print _('You should name this workplace to better identify the machine !\nTo do this set the option "name" in the group [workplace] in the config file !')
 			tmp = _("<no workplace name set in config file>")
@@ -608,7 +605,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.31  2003-02-08 00:15:17  ncq
+# Revision 1.32  2003-02-08 00:32:30  ncq
+# - Syan, can you stop fucking up things that already worked !
+#
+# Revision 1.31  2003/02/08 00:15:17  ncq
 # - cvs metadata keywords
 #
 # Revision 1.30  2003/02/07 21:06:02  sjtan
