@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <sebastian.hilbert@gmx.net>, YEAR.
-# POT-Version: $Revision: 1.4 $
+# POT-Version: $Revision: 1.5 $
 #
 msgid ""
 msgstr ""
@@ -27,7 +27,7 @@ msgstr "Daten speichern"
 #: ../dist/client/index-med_docs.py:171 ../dist/client/index-med_docs.py:186
 #: ../dist/client/index-med_docs.py:201
 msgid "loading ..."
-msgstr ""
+msgstr "lade ..."
 
 #: ../dist/client/gmScanMedDocs.py:321
 msgid ""
@@ -63,7 +63,7 @@ msgstr "Kann das Zielarchiv nicht aus der Konfigurationsdatei ermitteln"
 
 #: ../dist/client/gmScanMedDocs.py:955
 msgid "Scan"
-msgstr ""
+msgstr "Scannen"
 
 #: ../dist/client/index-med_docs.py:209
 msgid "date (YYYY-MM-DD)"
@@ -454,7 +454,7 @@ msgid ""
 msgstr ""
 "Die zuletzt erzeugte Befundnummer war \"%s\".\n"
 "Der aktuelle Befund erhält die Nummer \"%s\".\n"
-"Bitte bestätigen Sie die Nummer oder tippen Sie eine andere ein.\n"
+"Bitte bestätigen Sie die Nummer oder tippen Sie eine andere ein."
 
 #: ../dist/client/show-med_docs.py:179
 msgid ""
