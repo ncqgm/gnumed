@@ -1,0 +1,20 @@
+$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/README,v $
+$Revision: 1.1 $
+
+Welcome to the GnuMed CVS tree !
+
+If you want to look at the frontend code go to:
+	gnumed/client/*
+
+SQL schema files can be found in:
+	gnumed/server/sql/*
+
+If you want to set up your own database see:
+	gnumed/server/bootstrap/*
+
+Documentation is in:
+	gnumed/client/doc/
+
+Enjoy, join the mailing list, ask questions, develop and use !
+
+Karsten
