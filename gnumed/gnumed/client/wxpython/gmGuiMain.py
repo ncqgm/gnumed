@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-09-09 10:07:48 $
-# @version $Revision: 1.41 $ $Date: 2002-09-09 10:07:48 $ $Author: ncq $
+# @Date: $Date: 2002-09-10 09:08:49 $
+# @version $Revision: 1.42 $ $Date: 2002-09-10 09:08:49 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -41,7 +41,8 @@ from wxPython.wx import *
 from wxPython.html import *
 
 import sys, time, os
-import gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmConf, gmLog, gmPlugin
+
+import gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmConf, gmLog, gmPlugin, gmCfg
 import images
 import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
 import images_gnuMedGP_TabbedLists             #bitmaps for tabs on notebook
@@ -56,6 +57,7 @@ from gmI18N import gmTimeformat
 
 myLog = gmLog.gmDefLog
 email_logger = None
+_cfg = gmCfg.gmDefCfgFile
 
 # widget IDs
 ID_ABOUT = wxNewId ()
@@ -72,12 +74,9 @@ class MainFrame(wxFrame):
 	def __init__(self, parent, id, title, size=wxPyDefaultSize):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
-
 		wxFrame.__init__(self, parent, id, title, size, \
 		                  style = wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
 		self.SetAutoLayout( true )
-		#self.log = self.CreateLog()
-		
 		
 		#initialize the gui broker
 		self.guibroker = gmGuiBroker.GuiBroker()
@@ -95,8 +94,11 @@ class MainFrame(wxFrame):
 		cur.execute('select CURRENT_USER')
 		(user,) = cur.fetchone()
 
-		self.guibroker['main.SetWindowTitle']= self.SetTitle
-		self.SetTitle(_("You are logged in as [%s]") % user)
+		self.guibroker['main.SetWindowTitle'] = self.SetTitle
+		# FIXME: should show selected patient and current activity
+		# FIXME: we should make a method set_title(activity, patient)
+		self.SetTitle(_("GnuMed: idle - no patient (%s@%s) " % (user, self.guibroker['workplace_name'])))
+		#self.SetTitle(_("You are logged in as [%s]") % user)
 
 		self.SetupPlatformDependent()
 		
@@ -324,11 +326,13 @@ class MainFrame(wxFrame):
 
 
 	def OnIconize(self, event):
-		myLog.Log(gmLog.lInfo, 'OnIconify')
+		pass
+		#myLog.Log(gmLog.lInfo, 'OnIconify')
 
 
 	def OnMaximize(self, event):
-		myLog.Log(gmLog.lInfo,'OnMaximize')
+		pass
+		#myLog.Log(gmLog.lInfo,'OnMaximize')
 
 
 	def OnPageChanged(self, event):
@@ -354,7 +358,7 @@ class gmApp(wxApp):
 		self.__backend = gmLogin.Login()
 		if self.__backend == None:
 			# _("Login attempt unsuccesful\nCan't run GNUmed without database connetcion")
-			myLog.Log(gmLog.lWarn, "Login attempt unsuccesful\nCan't run GNUmed without database connection")
+			myLog.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GNUmed without database connection")
 			return false
 		#create the main window
 		frame = MainFrame(None, -1, _('GNUmed client'), size=(300,200))
@@ -385,7 +389,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.41  2002-09-09 10:07:48  ncq
+# Revision 1.42  2002-09-10 09:08:49  ncq
+# - set a useful window title and add a comment regarding this item
+#
+# Revision 1.41  2002/09/09 10:07:48  ncq
 # - long initial string so module names fit into progress bar display
 #
 # Revision 1.40  2002/09/09 00:52:55  ncq
