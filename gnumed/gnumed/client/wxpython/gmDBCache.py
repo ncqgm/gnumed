@@ -55,24 +55,27 @@ import copy, threading
 import gmLog
 
 class DBcache:
-
+	"prototype for a database object cache 'static' (singleton) information"
 	def __init__(self):
-		self.buffer = None
-		self.id = None
-		self.db = None
-		self.querystr = None
+		self.buffer = None	#the buffer holding the query result(s)
+		self.id = None	#the unique database object id, if applicable
+		self.db = None	#the backend connection handle
+		self.querystr = None	#the backend query string (SQL)
 		self.lazy = 1	#default: set lazy on
 		self.expiry = -1	#default: buffer never expires
 		self.lastquery = None	#timestamp of last executed query
-		self.notify = {}
-		self.attributes = []
-		self.querylock = threading.Lock()
-		self.notifylock = threading.Lock()
+		self.notify = {}	#callback function dictionary;
+		                        #key is registrar id, value is callback function
+		self.attributes = []	#list of attribute ('fields') labels
+		self.querylock = threading.Lock()	#for multithreaded applications:
+		                                        #to prevent dirty buffer reads
+		self.notifylock = threading.Lock()	#for multithreaded applications:
+		                                        #to prevent unneccessary buffer reads
 
 
 class CachedDBObject:
 
-	#static private variables:
+	#static private variables (singleton style):
 	dbcache = DBcache()
 
 	def __init__(self, id=None, db=None, querystr=None, lazy=None, expiry=None):
@@ -108,14 +111,18 @@ class CachedDBObject:
 
 	def reset(self):
 		"force a re-query of buffer on next data access attempt"
+		self.cache.querylock.acquire(1)
 		self.cache.buffer = None
 		self.cache.lastquery = None
+		self.cache.querylock.release()
 
 	def setQueryStr(self, querystr):
 		if self.cache.querystr != querystr :
 			self.cache.querystr = querystr
 			self.reset
-			_myLog.Log(gmLog.lData, "changing query to SQL>>>" + str(querystr) + "<<<SQL")
+			#<DEBUG>
+			#_myLog.Log(gmLog.lData, "changing query to SQL>>>" + str(querystr) + "<<<SQL")
+			#</DEBUG>
 
 	def getQueryStr(self):
 		return copy.copy(self.cache.querystr)
@@ -208,12 +215,13 @@ class CachedDBObject:
 		return self.cache.attributes
 
 	def pprint(self):
+		"format buffer content in printable form"
 		buf = self.get(copy=0)
 		#labels = self.attributes()
 		pstr=''
 		for row in buf:
 			for attr in row:
-				pstr =  "%s %s | " % (pstr, attr)
+				pstr =  "%s %s | " % (pstr, str(attr))
 			pstr = pstr + "\n"
 		return pstr
 
