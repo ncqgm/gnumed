@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.15 2005-02-20 10:33:26 sjtan Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmPatSearchWidgets.py,v 1.16 2005-03-08 16:54:13 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -102,27 +102,27 @@ class cPatientPickList(wx.wxDialog):
 	#--------------------------------------------------------
 	def SetItems(self, items = [], col_order = []):
 		# TODO: make selectable by 0-9
-
 		self.__items = items
 		# set col_order
 		if not col_order:
 			col_order = [
-		{'label': _('Surname'),'data idx': 'lastnames'},
-		{'label': _('First name'),'data idx': 'firstnames'},
-		{'label': _('DOB'),'data idx': 'dob'}
-		]
-		# set up columns
+				{'label': _('Surname'), 'field name': 'lastnames'},
+				{'label': _('First name'), 'field name': 'firstnames'},
+				{'label': _('nick'), 'field name': 'preferred'},
+				{'label': _('DOB'), 'field name': 'dob'}
+			]
+
+		# 1) set up column headers
 		self.__listctrl.ClearAll()
 		for order_idx in range(len(col_order)):
 			self.__listctrl.InsertColumn(order_idx, col_order[order_idx]['label'])
 
-		# now add items
+		# 2) add items
 		for row_idx in range(len(self.__items)):
-			# set up item
 			row = self.__items[row_idx]
 			# first column
 			try:
-				self.__listctrl.InsertStringItem(row_idx, str(row[col_order[0]['data idx']]))
+				self.__listctrl.InsertStringItem(row_idx, str(row[col_order[0]['field name']]))
 			except KeyError:
 				_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
 				if self.__items != []:
@@ -133,7 +133,7 @@ class cPatientPickList(wx.wxDialog):
 			# subsequent columns
 			for order_idx in range(1, len(col_order)):
 				try:
-					self.__listctrl.SetStringItem(row_idx, order_idx, str(row[col_order[order_idx]['data idx']]))
+					self.__listctrl.SetStringItem(row_idx, order_idx, str(row[col_order[order_idx]['field name']]))
 				except KeyError:
 					_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
 					if self.__items != []:
@@ -158,7 +158,7 @@ class cPatientPickList(wx.wxDialog):
 		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_PatPickList, self._on_item_activated)
 
 		#wx.EVT_BUTTON(self, ID_NEW, self.OnNew)
-		#wx.EVT_BUTTON(self, wx.wxID_OK, self.OnOk)
+#		wx.EVT_BUTTON(self, wx.wxID_OK, self._on_item_activated)
 		# FIXME: remove button, add evt char ESC
 		wx.EVT_BUTTON(self, wx.wxID_CANCEL, self._on_cancel)
 	#--------------------------------------------------------
@@ -177,7 +177,7 @@ class cPatientPickList(wx.wxDialog):
 		btnOK = wx.wxButton (
 			self,
 			wx.wxID_OK,
-			_("&OK"),			# FIXME: perhaps better label, say, "load" ?
+			_("&Activate"),
 			wx.wxPyDefaultPosition,
 			wx.wxPyDefaultSize,
 			0
@@ -186,7 +186,7 @@ class cPatientPickList(wx.wxDialog):
 		btnAddNew = wx.wxButton (
 			self,
 			ID_BTN_AddNew,
-			_("&Add"),
+			_("Add as &New"),
 			wx.wxPyDefaultPosition,
 			wx.wxPyDefaultSize,
 			0
@@ -226,13 +226,14 @@ class cPatientPickList(wx.wxDialog):
 		self.sizer_main = wx.wxBoxSizer(wx.wxVERTICAL)
 
 		# make list
-		self.__listctrl = wx.wxListCtrl(
+		self.__listctrl = wx.wxListCtrl (
 			parent = self,
 			id = ID_PatPickList,
 			style = wx.wxLC_REPORT | wx.wxLC_SINGLE_SEL | wx.wxVSCROLL | wx.wxHSCROLL | wx.wxSUNKEN_BORDER
 		)
 		# and place it
-		self.sizer_main.AddWindow(self.__listctrl, 1, wx.wxGROW | wx.wxALIGN_CENTER_VERTICAL, 5)
+#		self.sizer_main.AddWindow(self.__listctrl, 1, wx.wxGROW | wx.wxALIGN_CENTER_VERTICAL, 5)
+		self.sizer_main.Add(self.__listctrl, 1, wx.wxGROW | wx.wxALIGN_CENTER_VERTICAL, 5)
 
 		# make buttons
 		self.szrButtons = wx.wxBoxSizer(wx.wxHORIZONTAL)
@@ -245,6 +246,7 @@ class cPatientPickList(wx.wxDialog):
 #			0
 #		)
 #		self.szrButtons.AddWindow(btnOK, 1, wxALIGN_CENTRE, 5)
+#		self.szrButtons.Add(btnOK, 1, wxALIGN_CENTRE, 5)
 
 #		btnNew = wxButton (
 #			self,
@@ -255,6 +257,7 @@ class cPatientPickList(wx.wxDialog):
 #			0
 #		)
 #		self.szrButtons.AddWindow(btnNew, 1, wxALIGN_CENTRE, 5)
+#		self.szrButtons.Add(btnNew, 1, wxALIGN_CENTRE, 5)
 
 		btnCancel = wx.wxButton (
 			self,
@@ -264,7 +267,8 @@ class cPatientPickList(wx.wxDialog):
 			wx.wxDefaultSize,
 			0
 		)
-		self.szrButtons.AddWindow(btnCancel, 1, wx.wxALIGN_CENTRE, 5)
+#		self.szrButtons.AddWindow(btnCancel, 1, wx.wxALIGN_CENTRE, 5)
+		self.szrButtons.Add(btnCancel, 1, wx.wxALIGN_CENTRE, 5)
 
 		# and place them
 		self.sizer_main.AddSizer(self.szrButtons, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL, 5)
@@ -282,9 +286,9 @@ class cPatientPickList(wx.wxDialog):
 	#--------------------------------------------------------
 	def _on_item_activated(self, evt):
 		# item dict must always contain ID to be used for selection later on at index 0
-		item = self.__items[evt.m_itemIndex]
+		self.selected_item = self.__items[evt.m_itemIndex]
 		try:
-			self.EndModal(item[0])
+			self.EndModal(1)
 		except KeyError:
 			_log.LogException('item [%s] has faulty structure' % item, sys.exc_info())
 			self.EndModal(-1)
@@ -347,7 +351,7 @@ and hit <ENTER>
 		# FIXME: error handling
 
 		self.__prev_search_term = None
-		self.__prev_pats = []
+		self.__prev_idents = []
 		self.__pat_picklist_col_defs = []
 
 		self._lclick_count = 0
@@ -366,7 +370,7 @@ and hit <ENTER>
 		else:
 			try: self.__always_dismiss_after_search = int(value)
 			except: pass
-		
+
 		self.__register_events()
 	#--------------------------------------------------------
 	def __register_events(self):
@@ -376,8 +380,7 @@ and hit <ENTER>
 		wx.EVT_SET_FOCUS (self, self._on_get_focus)
 		# - redraw the currently active name upon losing focus
 		#   (but see the caveat in the handler)
-
-		#FIXME  causes core dump, in a version of wxPython
+		# FIXME: causes core dump in one version of wxPython -SJTAN
 		#wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
 
 		wx.EVT_TEXT_ENTER (self, self.GetId(), self._on_enter)
@@ -393,25 +396,24 @@ and hit <ENTER>
 		if not gmPerson.set_active_patient(pat):
 			_log.Log (gmLog.lErr, 'cannot change active patient')
 			return None
-
+		# keep list of identities
+		new_ident = self.curr_pat.get_identity()
 		# only unique patients
-		for prev_pat in self.__prev_pats:
-			if prev_pat[0].getID () == pat.getID ():
+		for ident in self.__prev_idents:
+			if ident['pk_identity'] == new_ident['pk_identity']:
 				return True
-		self.__prev_pats.append(pat)
-
-		# and only 10 of them
-		if len(self.__prev_pats) > 10:
-			self.__prev_pats.pop(0)
-
+		self.__prev_idents.append(new_ident)
+		# but only 10 of them
+		if len(self.__prev_idents) > 10:
+			self.__prev_idents.pop(0)
 		return True
 	#--------------------------------------------------------
 	# utility methods
 	#--------------------------------------------------------
 	def _display_name(self):
 		if self.curr_pat.is_connected():
-			demo = self.curr_pat['demographic record']
-			self.SetValue (demo['description'])
+			ident = self.curr_pat.get_identity()
+			self.SetValue(ident['description'])
 		else:
 			self.SetValue(_('no active patient'))
 	#--------------------------------------------------------
@@ -467,9 +469,8 @@ and hit <ENTER>
 		self.SetSelection (0,0)
 		# reset highlight counter
 		self._lclick_count = 0
-	
-		evt.Skip()
 
+		evt.Skip()
 	#--------------------------------------------------------
 	def _on_char(self, evt):
 		keycode = evt.GetKeyCode()
@@ -477,18 +478,19 @@ and hit <ENTER>
 		if evt.AltDown():
 			# ALT-L, ALT-P - list of previously active patients
 			if keycode in [ord('l'), ord('p')]:
-				if self.__prev_pats == []:
+				if self.__prev_idents == []:
 					return True
 				# show list
 				dlg = cPatientPickList(parent = self)
-				dlg.SetItems(self.__prev_pats)
+				dlg.SetItems(self.__prev_idents)
 				result = dlg.ShowModal()
+				item = dlg.selected_item
 				dlg.Destroy()
 				# and process selection
 				if result > 0:
 					# and make our selection known to others
 					wx.wxBeginBusyCursor()
-					self.SetActivePatient(pat = result)
+					self.SetActivePatient(pat = item)
 					wx.wxEndBusyCursor()
 				return True
 
@@ -511,9 +513,10 @@ and hit <ENTER>
 				dlg = cPatientPickList(parent = self, title = _("please select a KVK"))
 				dlg.SetItems(picklist, col_order)
 				result = dlg.ShowModal()
+				item = dlg.selected_item
 				dlg.Destroy()
 				# and process selection
-				if result != -1:
+				if result > 0:
 					print "user selected kvkd file %s" % picklist[result][10]
 					print picklist[result]
 				return True
@@ -547,10 +550,10 @@ and hit <ENTER>
 
 		# get list of matching ids
 		start = time.time()
-		pats = self.__pat_searcher.get_persons(curr_search_term)
+		idents = self.__pat_searcher.get_identities(curr_search_term)
 		duration = time.time() - start
 
-		if pats is None:
+		if idents is None:
 			wx.wxEndBusyCursor()
 			gmGuiHelpers.gm_show_error (
 				_('Error searching for matching patients.\n\nSearch term: "%s"' % curr_search_term),
@@ -558,9 +561,9 @@ and hit <ENTER>
 			)
 			return None
 
-		_log.Log (gmLog.lInfo, "%s patient objects(s) fetched in %3.3f seconds" % (len(pats), duration))
+		_log.Log (gmLog.lInfo, "%s identity objects(s) fetched in %3.3f seconds" % (len(idents), duration))
 
-		if len(pats) == 0:
+		if len(idents) == 0:
 			wx.wxEndBusyCursor()
 			gmGuiHelpers.gm_show_warning (
 				_('Cannot find any matching patients.\n\nSearch term: "%s"\n\n(We should offer to jump to entering a new patient from here.)' % curr_search_term),
@@ -568,23 +571,24 @@ and hit <ENTER>
 			)
 			return None
 
-		# only one matching patient
-		if len(pats) == 1:
+		# only one matching identity
+		if len(idents) == 1:
 			# make our selection known to others
-			self.SetActivePatient(pats[0])
+			self.SetActivePatient(idents[0])
 			wx.wxEndBusyCursor()
 			return None
 
-		# more than one matching patient
+		# more than one matching identity:
 		# let user select from pick list
 		picklist = cPatientPickList(parent = self)
-		picklist.SetItems(pats)
+		picklist.SetItems(idents)
 		picklist.Centre()
 		wx.wxEndBusyCursor()
 		result = picklist.ShowModal()
+		item = picklist.selected_item
 		wx.wxBeginBusyCursor()
 		picklist.Destroy()
-		self.SetActivePatient(pat=result)
+		self.SetActivePatient(pat=item)
 		wx.wxEndBusyCursor()
 		return None
 #============================================================
@@ -709,7 +713,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.15  2005-02-20 10:33:26  sjtan
+# Revision 1.16  2005-03-08 16:54:13  ncq
+# - teach patient picklist about cIdentity
+#
+# Revision 1.15  2005/02/20 10:33:26  sjtan
 #
 # disable lose focus to prevent core dumping in a wxPython version.
 #
