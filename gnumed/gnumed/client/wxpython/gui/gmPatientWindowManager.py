@@ -17,7 +17,7 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmPatientWindowManager.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __license__ = "GPL"
 __author__ =	"I.Haywood <>"
 
@@ -67,14 +67,14 @@ class PatientWindow (wxPanel):
 		"""
 		self.wholescreen[name] = panel
 		panel.Show (0)
-		_log.Log(gmLog.lData, "Registering %s as whole screen widget" % name)
+		_log.Log(gmLog.lData, "/n/n******* Registering %s as whole screen widget/n/n" % name)
 	#----------------------------------------------
 	def RegisterLeftSide (self, name, panel):
 		"""Register for left side.
 		"""
 		panel.Show (0)
 		self.lefthalf[name] = panel
-		_log.Log(gmLog.lData, "Registering %s as left side widget" % name)
+		_log.Log(gmLog.lData, "/n/n *********** Registering %s as left side widget/n/n" % name)
 	#----------------------------------------------
 	def RegisterRightSide (self, name, panel, position =1):
 		"""Register for right column.
@@ -85,7 +85,7 @@ class PatientWindow (wxPanel):
 		"""
 		self.righthalf[name] = (panel, position)
 		panel.Show (0)
-		_log.Log(gmLog.lData, "Registering %s as right side widget" % name)
+		_log.Log(gmLog.lData, "/n/n ************ Registering %s as right side widget ****/n/n" % name)
 	#----------------------------------------------
 	# FIXME: Someone please document what is happening here !!!
 	def Unregister (self, name):
@@ -223,7 +223,11 @@ class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
 		self.gb['modules.patient'][self.pw.GetVisible()].Shown()
 #==================================================
 # $Log: gmPatientWindowManager.py,v $
-# Revision 1.12  2003-01-12 16:46:42  ncq
+# Revision 1.13  2003-02-09 01:08:03  sjtan
+#
+# a patient handler class for the classes in patient directory. Not all controls seem exposed.
+#
+# Revision 1.12  2003/01/12 16:46:42  ncq
 # - catch failing plugins better
 #
 # Revision 1.11  2003/01/12 01:48:47  ncq
