@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -400,7 +400,7 @@ class cLogTargetFile(cLogTarget):
 			cLogTarget.__init__(self, aLogLevel)
 			self.ID = os.path.abspath (aFileName) # the file name canonicalized
 
-		self.writeMsg (lData, "instantiated log file " + aFileName + " with ID " + str(self.ID))
+		self.writeMsg (lInfo, "instantiated log file " + aFileName + " with ID " + str(self.ID))
 	#---------------------------
 	def dummy(self):
 		for module in sys.modules.values():
@@ -803,7 +803,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.38  2003-07-21 20:54:36  ncq
+# Revision 1.39  2003-09-22 23:19:58  ncq
+# - raise level of self-name logging for file targets
+#
+# Revision 1.38  2003/07/21 20:54:36  ncq
 # - verbose=1 in LogException: log locals in all execution frames
 #
 # Revision 1.37  2003/06/03 13:25:48  ncq
