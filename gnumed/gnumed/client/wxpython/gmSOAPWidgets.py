@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.7 2005-01-17 19:55:28 cfmoro Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmSOAPWidgets.py,v 1.8 2005-01-18 13:38:24 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -32,24 +32,24 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		Labels and categories are customizable.
 
 		@param input_defs: note's labels and categories
-		@type input_defs: dictionary of pairs of input label:category
+		@type input_defs: list of dicts of {'label': ..., 'soap_cat': ...}
 		"""
 		if input_defs is None or len(input_defs) == 0:
 			raise gmExceptions.ConstructorError, 'cannot generate note with field defs [%s]' % (input_defs)
 		self.__input_defs = input_defs
-
 		gmResizingWidgets.cResizingWindow.__init__(self, parent, id= -1, size=size)
 	#--------------------------------------------------------
 	def DoLayout(self):
-		"""Visually display input note, according to user defined labels.
+		"""Visually display input note according to user defined labels.
 		"""
-		input_fields = []			# temporary cache of input fields
+		input_fields = []
 		# add fields to edit widget
-		for input_label in self.__input_defs.keys():
-			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = self.__input_defs[input_label])
-			self.AddWidget (widget=input_field, label=input_label)
+		for line_def in self.__input_defs:
+			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = line_def)
+			self.AddWidget (widget=input_field, label=line_def['label'])
 			self.Newline()
 			input_fields.append(input_field)
+
 		# setup tab navigation between input fields
 		for field_idx in range(len(input_fields)):
 			# previous
@@ -75,7 +75,7 @@ class cResizingSoapPanel(wx.wxPanel):
 	and a staticText that displays which problem its current note is related to.
 	"""
 	#--------------------------------------------------------
-	def __init__(self, parent, problem=None):
+	def __init__(self, parent, problem=None, input_defs=None):
 		"""Construct a new SOAP input widget
 
 		@param parent: the parent widget
@@ -84,8 +84,7 @@ class cResizingSoapPanel(wx.wxPanel):
 			for clarity let's assume there cannot be a SOAP editor w/o a problem
 		"""
 		if problem is None:
-			raise gmExceptions.ConstructorError, 'Cannot contruct soap editor for  problem [%s]' % str(problem)
-			#problem = 'bogus'
+			raise gmExceptions.ConstructorError, 'Cannot contruct progress note editor for problem [%s]' % str(problem)
 		self.__problem = problem
 		# do layout
 		wx.wxPanel.__init__ (self,
@@ -95,25 +94,33 @@ class cResizingSoapPanel(wx.wxPanel):
 			wx.wxPyDefaultSize,
 			wx.wxNO_BORDER
 		)
+		# - heading
 		self.__soap_heading = wx.wxStaticText(self, -1, 'error: no problem given')
+		# - editor
+		if input_defs is None:
+			# make Richard the default ;-)
+			soap_lines = [
+				{'label': 'Patient Request', 'soap_cat': 's'},
+				{'label': 'History Taken', 'soap_cat': 's'},
+				{'label': 'Findings', 'soap_cat': 'o'},
+				{'label': 'Assessment', 'soap_cat': 'a'},
+				{'label': 'Plan', 'soap_cat': 'p'},
+			]
+		else:
+			soap_lines = input_defs
 		self.__soap_text_editor = cResizingSoapWin (
 			self,
-			size = wx.wxSize (300, 150),
-			# FIXME obtain cats from user preferences
-			input_defs = {
-				'Subjective':'s',
-				'Objective':'o',
-				'Assessment':'a',
-				'Plan':'p'
-			}
+			size = wx.wxSize(300, 150),
+			input_defs = soap_lines
 		)
-		self.__soap_control_sizer = wx.wxBoxSizer(wx.wxVERTICAL)
-		self.__soap_control_sizer.Add(self.__soap_heading)
-		self.__soap_control_sizer.Add(self.__soap_text_editor)
-		self.SetSizerAndFit(self.__soap_control_sizer)
+		# - arrange
+		self.__szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
+		self.__szr_main.Add(self.__soap_heading)
+		self.__szr_main.Add(self.__soap_text_editor)
+		self.SetSizerAndFit(self.__szr_main)
 
 		# display health problem
-		txt = '#%s: %s'%(self.__problem[0]+1, self.__problem[1]['problem'])
+		txt = '#%s: %s' % (self.__problem[0]+1, self.__problem[1]['problem'])
 		self.__set_heading(txt)
 
 		# flag indicating saved state
@@ -214,9 +221,8 @@ class cResizingSoapPanel(wx.wxPanel):
 		"""
 		self.__soap_heading.SetLabel(txt)
 		size = self.__soap_heading.GetBestSize()
-		self.__soap_control_sizer.SetItemMinSize(self.__soap_heading, size.width, size.height)
+		self.__szr_main.SetItemMinSize(self.__soap_heading, size.width, size.height)
 		self.Layout()
-
 #============================================================
 #============================================================
 class cSingleBoxSOAP(wx.wxTextCtrl):
@@ -256,7 +262,7 @@ class cSingleBoxSOAPPanel(wx.wxPanel):
 		szr_btns.Add(self.__BTN_save, 1, wx.wxALIGN_CENTER_HORIZONTAL, 0)
 		szr_btns.Add(self.__BTN_discard, 1, wx.wxALIGN_CENTER_HORIZONTAL, 0)
 		# arrange widgets
-		szr_outer = wx.wxStaticBoxSizer(wx.wxStaticBox(self, -1, _("SOAP clinical notes")), wx.wxVERTICAL)
+		szr_outer = wx.wxStaticBoxSizer(wx.wxStaticBox(self, -1, _("clinical progress note")), wx.wxVERTICAL)
 		szr_outer.Add(self.__soap_box, 1, wx.wxEXPAND, 0)
 		szr_outer.Add(szr_btns, 0, wx.wxEXPAND, 0)
 		# and do layout
@@ -361,7 +367,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.7  2005-01-17 19:55:28  cfmoro
+# Revision 1.8  2005-01-18 13:38:24  ncq
+# - cleanup
+# - input_defs needs to be list as dict does not guarantee order
+# - make Richard-SOAP the default
+#
+# Revision 1.7  2005/01/17 19:55:28  cfmoro
 # Adapted to receive cProblem instances for SOAP edition
 #
 # Revision 1.6  2005/01/13 14:28:07  ncq
