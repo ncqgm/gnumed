@@ -4,7 +4,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -749,10 +749,10 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 			_log.Log(gmLog.lData, 'there seem to be rows but fetchall() failed -- DB API violation ?')
 			_log.Log(gmLog.lData, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
 	conn.commit()
-	curs.close()
-	conn.close()
 	if get_col_idx:
 		idx = get_col_indices(curs)
+	curs.close()
+	conn.close()
 	return (True, (data, idx))
 #---------------------------------------------------
 def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, get_col_idx=False):
@@ -825,9 +825,9 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 			_log.Log(gmLog.lData, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
 	if end_tx:
 		conn.commit()
-	curs.close()
 	if get_col_idx:
 		idx = get_col_indices(curs)
+	curs.close()
 	return (True, (data, idx))
 #---------------------------------------------------
 def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=False):
@@ -1203,7 +1203,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.42 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.43 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1421,7 +1421,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.42  2005-01-31 09:32:34  ncq
+# Revision 1.43  2005-01-31 12:57:36  ncq
+# - get_col_indices() *before* curs.close()
+#
+# Revision 1.42  2005/01/31 09:32:34  ncq
 # - improve error handling in commit2()
 #
 # Revision 1.41  2005/01/31 06:26:38  ncq
