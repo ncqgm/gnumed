@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.11 2003-03-24 23:49:34 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmXdtMappings.py,v 1.12 2003-03-26 07:44:40 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -77,6 +77,23 @@ xdt_id_map = {
 		 '0250':'Name erste freie Kategorie',
 		#content of first free category
 		 '0251':'Inhalt erste freie Kategorie',
+		 '0915':'PZN Medikament auf Kassenrezept',
+		 '0917':'Packungsgroesse Medikament auf Kassenrezept',
+		 '0918':'Packungsgroesse Medikament auf Privatrezept',
+		 '0919':'Hilfsmittelbezeichnung',
+		 '0920':'Hilfsmittelnummer',
+		 '0922':'PZN Hilfsmittel',
+		 '0923':'Anzahl Hilfsmittel',
+		 '0925':'Heilmittel',
+		 '0950':'PZN Dauermedikament',
+		 '0951':'PZN Medikament auf Privatrezept',
+		 '0952':'PZN Aerztemuster',
+		 '0953':'Packungsgroesse Aerztemuster',
+		 '0960':'Kennzeichnung Gebuehrenpflichtig',
+		 '0961':'Kennzeichnung aut idem',
+		 '0962':'Kennzeichnung noctu',
+		 '0970':'Anzahl (Packungen) Medikament auf Rezept',
+		 '0971':'Anzahl (Packungen) Medikament auf Privatrezept',
 		 '2700':'IK des Krankenhauses',
 		 '2701':'Fachgebiet laut LKA',
 		 '2702':'Arztnummer des Anaesthesisten',
@@ -228,6 +245,9 @@ xdt_id_map = {
 		 '3670':'Dauertherapie',
 		#Kontrolltermine -- nur bei header 6100 --
 		 '3672':'Kontrolltermine',
+		 '3673':'Dauerdiagnose(ICD-Code)',
+		 '3674':'Diagnosensicherheit Dauerdiagnose',
+		 '3675':'Seitenlokalisation Dauerdiagnose',
 		#Name erste freie Kategorie -- nur bei header 6100 --
 		 '3700':'Name erste freie Kategorie',
 		#Inhalt erste freie Kategorie -- nur bei header 6100 --
@@ -246,7 +266,7 @@ xdt_id_map = {
 		#Geschaeftsstelle
 		 '4105':'Geschaeftsstelle',
 		#Kostentraegergruppe
-		 '4106':'Kostentraegergruppe',
+		 '4106':'Kostentraeger-Abrechnungsbereich(KTAB)',
 		#Abrechnungsart
 		 '4107':'Abrechnungsart',
 		#letzter Einlesetag der VK im Quartal TTMMJJ
@@ -254,10 +274,10 @@ xdt_id_map = {
 		#Bis-Datum der Gueltigkeit MMJJ
 		 '4110':'Bis-Datum der Gueltigigkeit',
 		#Krankenkassennummer
-		 '4111':'Krankenkassennummer',
+		 '4111':'Krankenkassennummer (IK)',
 		#Versichertenstatus VK
 		 '4112':'Versichertenstatus VK',
-		#2#'4113':'Statusergaenzung/DMP-Kennzeichnung',
+		##'4113':'Statusergaenzung/DMP-Kennzeichnung',
 		 '4113':'Ost/West-Status VK',
 		#Gebuehrenordnung
 		 '4121':'Gebuehrenordnung',
@@ -274,7 +294,7 @@ xdt_id_map = {
 		#Diagnose/Verdacht -- nur bei header 0102 --
 		 '4207':'Diagnose/Verdacht',
 		#erlaeuternder Text zur Ueberweisung -- nur bei header 0102 --
-		 '4209':'#erlaeuternder Text zur Ueberweisung',
+		 '4209':'erlaeuternder Text zur Ueberweisung',
 		#Ankreuzfeld LSR  -- nur bei header 0102 --
 		 '4210':'Ankreuzfeld LSR',
 		#Ankreuzfeld HAH  -- nur bei header 0102 --
@@ -293,7 +313,7 @@ xdt_id_map = {
 		 '4222':'Kennziffer OI./O.II.',
 		 '4223':'Kennziffer OIII.',
 		#stationaere Behandlung von bis -- nur bei header 0103/0190 --
-		 '4233':'stationaere Behandlung von bis',
+		 '4233':'stationaere Behandlung von... bis...',
 		 '4234':'anerkannte Psychotherapie',
 		 '4235':'Datum des Anerkennungsbescheides',
 		#Klasse bei stationaerer Behandlung -- nur bei header 0190 --
@@ -480,11 +500,12 @@ xdt_id_map = {
 		#aktuelle Diagnose -- nur bei header 6200 --
 		 '6205':'aktuelle Diagnose',
 		#Medikament verordnet auf Rezept -- nur bei header 6200 --
-		 '6210':'Medikament verordnet auf Rezept',
+		 '6210':'Medikament verordnet auf Kassenrezept',
 		#ausserhalb Rezept verordnetes Medikament -- nur bei header 6200 --
-		 '6211':'Medikament verordnet ausserhalb Rezept',
+		 '6211':'Medikament verordnet auf Privatrezept',
 		#Aerztenummer -- nur bei header 6200 --
-		 '6215':'Aerztenummer',
+		 ##'6215':'Aerztenummer',
+		 '6215':'Aerztemuster',
 		#Befund -- nur bei header 6200 --
 		 '6220':'Befund',
 		#Fremdbefund -- nur bei header 6200 --
@@ -504,13 +525,19 @@ xdt_id_map = {
 		#Ueberweisung Inhalt -- nur bei header 6200 --
 		 '6280':'Ueberweisung Inhalt',
 		#AU-Dauer -- nur bei header 6200 --
-		 '6285':'AU Dauer',
+		 '6285':'AU Dauer (von - bis)',
 		#AU-wegen -- nur bei header 6200 --
 		 '6286':'AU wegen',
+		 '6287':'AU wegen (ICD-Code)',
+		 '6288':'Diagnosesicherheit AU wegen',
+		 '6289':'Seitenlokalisation AU wegen',
 		#Krankenhauseinweisung,Krankenhaus -- nur bei header 6200 --
 		 '6290':'Krankenhauseinweisung,Krankenhaus',
 		#Krankenhauseinweisung -- nur bei header 6200 --
 		 '6291':'Krankenhauseinweisung',
+		 '6292':'Krankenhauseinweisung wegen (ICD-Code)',
+		 '6293':'Diagnosesicherheit Krankenhauseinweisung wegen',
+		 '6294':'Seitenlokalisation Krankenhauseinweisung wegen',
 		#Bescheiningung -- nur bei header 6200 --
 		 '6300':'Bescheinigung',
 		#Inhalt der Bescheinigung -- nur bei header 6200 --
@@ -636,7 +663,6 @@ xdt_id_map = {
 		#time of transfer start
 		 '9602':'Beginn der Uebertragung',
 		 '9901':'Systeminterner Parameter'
-		 #84
 	    }
 #--------------------------------------------------------------
 
@@ -919,7 +945,10 @@ xdt_map_of_content_maps = {
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.11  2003-03-24 23:49:34  ncq
+# Revision 1.12  2003-03-26 07:44:40  ncq
+# - near-complete maps now
+#
+# Revision 1.11  2003/03/24 23:49:34  ncq
 # - a huge heap of new mappings by Basti
 #
 # Revision 1.10  2003/02/19 15:57:57  ncq
