@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.37 2003-12-02 02:13:25 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.38 2003-12-29 15:31:53 uid66147 Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -327,16 +327,18 @@ create view v_vacc_regimes as
 select
 	vreg.id as id_regime,
 	_(vind.description) as indication,
-	vreg.description as description,
+	vreg.name as regime,
+	vreg.fk_recommended_by,
+	coalesce(vreg.comment, '') as reg_comment,
 	vdef.is_booster as is_booster,
 	case when vdef.is_booster
-		then null
+		then 0
 		else vdef.seq_no
 	end as vacc_seq_no,
 	vdef.min_age_due as age_due_min,
 	vdef.max_age_due as age_due_max,
 	vdef.min_interval as min_interval,
-	coalesce(vdef.comment, '') as "comment"
+	coalesce(vdef.comment, '') as vacc_comment
 from
 	vacc_regime vreg,
 	vacc_indication vind,
@@ -356,43 +358,52 @@ drop view v_patient_vaccinations;
 
 create view v_patient_vaccinations as
 select
-	v.id as pk_vaccination,
 	v.fk_patient as pk_patient,
+	v.id as pk_vaccination,
 	v.clin_when as date,
+	vreg.name as regime,
+	_(vind.description) as indication,
+	vdef.is_booster as is_booster,
+	case when vdef.is_booster
+		then 0
+		else vdef.seq_no
+	end as seq_no,
 	vcine.trade_name as vaccine,
 	vcine.short_name as vaccine_short,
 	v.batch_no as batch_no,
-	vreg.description as regime,
-	_(vind.description) as indication,
-	vdef1.is_booster as is_booster,
-	case when vdef1.is_booster
-		then null
-		else vdef1.seq_no
-	end as seq_no,
-	case when 
-		(vdef1.seq_no = (select max(vdef2.seq_no) from vacc_def vdef2 where vdef2.fk_regime = vdef1.fk_regime group by vdef2.fk_regime))
-			and
-		(not vdef1.is_booster)
-		then true
-		else false
-	end as is_last_shot,
 	v.site as site,
-	v.fk_provider as pk_provider
+	v.narrative,
+	v.fk_provider as pk_provider,
+	vcine.id as pk_vaccine,
+	vreg.id as pk_regime
 from
 	vaccination v,
 	vaccine vcine,
-	vacc_def vdef1,
-	vacc_indication vind,
-	vacc_regime vreg
+	lnk_vacc2vacc_def lv2vd,
+	vacc_def vdef,
+	vacc_regime as vreg,
+	vacc_indication vind
 where
+	(v.id = lv2vd.fk_vaccination
+		and
+	vdef.id = lv2vd.fk_vacc_def)
+		and
 	v.fk_vaccine = vcine.id
 		and
-	v.fk_vacc_def = vdef1.id
-		and
-	vdef1.fk_regime = vreg.id
+	vdef.fk_regime = vreg.id
 		and
 	vreg.fk_indication = vind.id
 ;
+
+--	case when
+--		(not vdef1.is_booster)
+--			and
+--		(vdef1.seq_no = (select max(vdef2.seq_no) from vacc_def vdef2 where vdef2.fk_regime = vdef1.fk_regime group by vdef2.fk_regime))
+--		then true
+--		else false
+--	end as is_last_shot,
+
+
 
 \unset ON_ERROR_STOP
 drop view v_pat_due_vaccs;
@@ -402,29 +413,47 @@ drop view v_pat_overdue_vaccs;
 create view v_pat_due_vaccs as
 select
 	identity.id as pk_patient,
-	vdef.id as pk_vacc_def,
-	vdef.fk_regime as pk_regime,
-	vreg.description as regime,
+	vreg.name as regime,
 	vdef.is_booster,
 	case when vdef.is_booster
-		then null
+		then 0
 		else vdef.seq_no
 	end as seq_no,
-	(identity.dob + vdef.max_age_due) as latest_due,
-	age((identity.dob + vdef.max_age_due), now()) as time_left,
+	case when vdef.max_age_due is null
+		then (now() + '2 years'::interval)
+		else (identity.dob + vdef.max_age_due)
+	end as latest_due,
+	case when vdef.max_age_due is null
+		then '2 years'::interval
+		else age((identity.dob + vdef.max_age_due), now())
+	end as time_left,
 	vdef.min_age_due,
 	vdef.max_age_due,
 	vdef.min_interval,
-	coalesce(vdef.comment, '')
+	coalesce(vdef.comment, '') as comment,
+	vdef.id as pk_vacc_def,
+	vreg.id as pk_regime
 from
 	identity,
 	vacc_def vdef,
 	vacc_regime vreg
 where
+	-- min_age < age < max_age
 	age(identity.dob) between vdef.min_age_due and coalesce(vdef.max_age_due, '115 years'::interval)
 		and
-	vdef.id not in (select distinct on (fk_vacc_def) fk_vacc_def from vaccination where fk_patient = identity.id)
-		and
+	-- only vacc_defs not in lnk_vacc2vacc_def
+--	vdef.id not in (select distinct on (fk_vacc_def) fk_vacc_def from lnk_vacc2vacc_def where fk_patient = identity.id)
+	vdef.id not in (
+		select
+			distinct on (fk_vacc_def) fk_vacc_def
+		from
+			lnk_vacc2vacc_def lv2vd,
+			vaccination v
+		where
+			v.id = lv2vd.fk_vaccination
+				and
+			v.fk_patient = identity.id
+	) and
 	vdef.fk_regime = vreg.id
 order by
 	vdef.max_age_due
@@ -433,28 +462,40 @@ order by
 create view v_pat_overdue_vaccs as
 select
 	identity.id as pk_patient,
-	vdef.id as pk_vacc_def,
-	vdef.fk_regime as pk_regime,
-	vreg.description as regime,
+	vreg.name as regime,
 	vdef.is_booster,
 	case when vdef.is_booster
-		then null
+		then 0
 		else vdef.seq_no
 	end as seq_no,
 	age(identity.dob + vdef.max_age_due) as amount_overdue,
 	vdef.min_age_due,
 	vdef.max_age_due,
 	vdef.min_interval,
-	coalesce(vdef.comment, '')
+	coalesce(vdef.comment, '') as comment,
+	vdef.id as pk_vacc_def,
+	vreg.id as pk_regime
 from
 	identity,
 	vacc_def vdef,
 	vacc_regime vreg
 where
+	-- age > max_age
 	age(identity.dob) > coalesce(vdef.max_age_due, '115 years'::interval)
 		and
-	vdef.id not in (select distinct on (fk_vacc_def) fk_vacc_def from vaccination where fk_patient = identity.id)
-		and
+	-- only vacc_defs not in lnk_vacc2vacc_def
+--	vdef.id not in (select distinct on (fk_vacc_def) fk_vacc_def from vaccination where fk_patient = identity.id)
+	vdef.id not in (
+		select
+			distinct on (fk_vacc_def) fk_vacc_def
+		from
+			lnk_vacc2vacc_def lv2vd,
+			vaccination v
+		where
+			v.id = lv2vd.fk_vaccination
+				and
+			v.fk_patient = identity.id
+	) and
 	vdef.fk_regime = vreg.id
 order by
 	vdef.max_age_due
@@ -501,28 +542,28 @@ create trigger at_curr_encounter_upd
 
 -- =============================================
 GRANT SELECT ON
-	"v_i18n_enum_encounter_type",
-	"v_patient_episodes",
-	"v_patient_items",
-	"v_i18n_curr_encounters",
-	"v_i18n_patient_allergies",
-	"v_vacc_regimes",
+	v_i18n_enum_encounter_type,
+	v_patient_episodes,
+	v_patient_items,
+	v_i18n_curr_encounters,
+	v_i18n_patient_allergies,
+	v_vacc_regimes,
 	v_patient_vaccinations,
 	v_pat_due_vaccs,
 	v_pat_overdue_vaccs
 TO GROUP "gm-doctors";
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON
-	"v_i18n_enum_encounter_type",
-	"v_patient_episodes",
-	"v_patient_items",
-	"v_i18n_curr_encounters",
-	"v_i18n_patient_allergies",
-	"v_vacc_regimes",
-	v_patient_vaccinations,
-	v_pat_due_vaccs,
-	v_pat_overdue_vaccs
-TO GROUP "_gm-doctors";
+--GRANT SELECT, INSERT, UPDATE, DELETE ON
+--	"v_i18n_enum_encounter_type",
+--	"v_patient_episodes",
+--	"v_patient_items",
+--	"v_i18n_curr_encounters",
+--	"v_i18n_patient_allergies",
+--	"v_vacc_regimes",
+--	v_patient_vaccinations,
+--	v_pat_due_vaccs,
+--	v_pat_overdue_vaccs
+--TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
@@ -530,11 +571,16 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.37 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.38 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.37  2003-12-02 02:13:25  ncq
+-- Revision 1.38  2003-12-29 15:31:53  uid66147
+-- - rebuild v_vacc_regimes/v_patient_vaccinations/v_pat_due|overdue_vaccs due
+--   to vaccination/vacc_def link normalization
+-- - grants
+--
+-- Revision 1.37  2003/12/02 02:13:25  ncq
 -- - we want UNIQUE indices on names.active etc
 -- - add some i18n to views as well as some coalesce()
 --
