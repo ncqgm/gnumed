@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.68 2004-02-02 16:19:03 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmClinicalRecord.py,v 1.69 2004-02-02 23:02:40 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -790,7 +790,7 @@ class gmClinicalRecord:
 		self.__db_cache['due vaccinations'] = {}
 		# get patient dob
 		cmd = "select dob from identity where id=%s"
-		dob = gmPG.run_ro_query('demographica', cmd, None, self.id_patient)
+		dob = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
 		if dob is None:
 			_log.Log(gmLog.lErr, 'error loading DOB for patient [%s]' % self.id_patient)
 			return (None, _('error loading date of birth') % self.id_patient)
@@ -1330,7 +1330,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.68  2004-02-02 16:19:03  ncq
+# Revision 1.69  2004-02-02 23:02:40  ncq
+# - it's personalia, not demographica
+#
+# Revision 1.68  2004/02/02 16:19:03  ncq
 # - rewrite get_due_vaccinations() taking advantage of indication-based tables
 #
 # Revision 1.67  2004/01/26 22:08:52  ncq
