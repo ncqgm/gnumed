@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.144 2004-10-18 11:33:48 ncq Exp $
-__version__ = "$Revision: 1.144 $"
+# $Id: gmClinicalRecord.py,v 1.145 2004-10-20 11:11:59 sjtan Exp $
+__version__ = "$Revision: 1.145 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -20,9 +20,9 @@ import sys, string, time, copy
 # 3rd party
 import mx.DateTime as mxDT
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI, gmI18N
-from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
-from Gnumed.pycommon.gmPyCompat import *
+from client.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI, gmI18N
+from client.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
+from client.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -225,8 +225,9 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	def get_clin_narrative(self, since=None, until=None, encounters=None,
 		episodes=None, issues=None, soap_cats=None, exclude_rfe_aoe=False):
-		"""Get SOAP notes pertinent to this encounter.
-
+		"""
+            Get SOAP notes pertinent to this encounter.
+            
 			since
 				- initial date for narrative items
 			until
@@ -236,7 +237,7 @@ class cClinicalRecord:
 			episodes
 				- list of episodes whose narrative are to be retrieved
 			issues
-				- list of health issues whose narrative are to be retrieved
+				- list of health issues whose narrative are to be retrieved            
 			soap_cats
 				- list of SOAP categories of the narrative to be retrived
 			exclude_rfe_aoe
@@ -246,26 +247,28 @@ class cClinicalRecord:
 			self.__db_cache['narrative']
 		except KeyError:
 			self.__db_cache['narrative'] = []
-			cmd = "select * from v_pat_narrative where pk_patient=%s order by date"
-			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.id_patient)
+			cmd = "select pk_narrative from v_pat_narrative where pk_patient=%s order by date"
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load narrative for patient [%s]' % self.id_patient)
 				del self.__db_cache['narrative']
 				return None
 			# Instantiate narrative items and keep cache
 			for row in rows:
-				narr_row = {
-					'pk_field': 'pk_narrative',
-					'idx': idx,
-					'data': row
-				}
 				try:
-					narr = gmClinNarrative.cNarrative(row=narr_row)
-					self.__db_cache['narrative'].append(narr)
+					self.__db_cache['narrative'].append(gmClinNarrative.cNarrative(aPK_obj=row[0]))
 				except gmExceptions.ConstructorError:
 					_log.LogException('narrative error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
 
-		# ok, let's constrain our list
+		if since is None \
+				and until is None \
+				and issues is None \
+				and episodes is None \
+				and encounters is None \
+				and soap_cats is None \
+				and not exclude_rfe_aoe:
+			return self.__db_cache['narrative']
+		# ok, lets's constrain our list
 		filtered_narrative = []
 		filtered_narrative.extend(self.__db_cache['narrative'])
 		if since is not None:
@@ -636,7 +639,7 @@ class cClinicalRecord:
 					del self.__db_cache['allergies']
 					return None
 
-		# ok, let's constrain our list
+		# ok, lets's constrain our list
 		filtered_allergies = []
 		filtered_allergies.extend(self.__db_cache['allergies'])
 		if ID_list is not None:
@@ -691,6 +694,9 @@ class cClinicalRecord:
 		id_list - Episodes' PKs
 		issues - Health issues' PKs to filter episodes by
 		"""
+		# a guard
+		if id_list == [] : id_list = None
+
 		try:
 			self.__db_cache['episodes']
 		except KeyError:
@@ -814,6 +820,10 @@ where
 		# none found whatsoever
 		if episode is None:
 			# so try to create default episode ...
+			if self.__health_issue is None:
+				issues = self.get_health_issues()
+				if len(issues) >0:
+					self.__health_issue = issues[-1]
 			success, result = gmEMRStructItems.create_episode(pk_health_issue=self.__health_issue['id'])
 			if not success:
 				_log.Log(gmLog.lErr, 'cannot even activate default episode for patient [%s], aborting' %  self.id_patient)
@@ -845,6 +855,9 @@ where
 	# health issues API
 	#--------------------------------------------------------
 	def get_health_issues(self, id_list = None):
+		#a guard
+		if id_list == []: id_list = None
+
 		try:
 			self.__db_cache['health issues']
 		except KeyError:
@@ -860,7 +873,7 @@ where
 					self.__db_cache['health issues'].append(gmEMRStructItems.cHealthIssue(aPK_obj=row[0]))
 				except gmExceptions.ConstructorError, msg:
 					_log.LogException(str(msg), sys.exc_info(), verbose=0)
-		if id_list is None:
+		if id_list is None or id_list ==  []:
 			return self.__db_cache['health issues']
 		filtered_issues = []
 		for issue in self.__db_cache['health issues']:
@@ -888,7 +901,8 @@ where
 	# vaccinations API
 	#--------------------------------------------------------
 	def get_scheduled_vaccination_regimes(self, ID=None, indications=None):
-		"""Retrieves vaccination regimes the patient is on.
+		"""
+			Retrieves vaccination regimes the patient is on.
 
 			optional:
 			* ID - PK of the vaccination regime				
@@ -904,6 +918,7 @@ where
 					 from v_vaccs_scheduled4pat
 					 where pk_patient=%s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+			# check for None or empty vaccination regimes
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot retrieve scheduled vaccination regimes')
 				del self.__db_cache['vaccinations']['scheduled regimes']
@@ -915,7 +930,7 @@ where
 				except gmExceptions.ConstructorError:
 					_log.LogException('vaccination regime error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
 
-		# ok, let's constrain our list
+		# ok, lets's constrain our list
 		filtered_regimes = []
 		filtered_regimes.extend(self.__db_cache['vaccinations']['scheduled regimes'])
 		if ID is not None:
@@ -960,6 +975,7 @@ where
         * episodes - list of episodes whose allergies are to be retrieved
         * issues - list of health issues whose allergies are to be retrieved
 		"""
+		if indications==[]: indications=None
 		try:
 			self.__db_cache['vaccinations']['vaccinated']
 		except KeyError:			
@@ -1005,7 +1021,7 @@ where
 						vacc.set_seq_no(seq_no=seq_no)
 			del vaccs_by_ind
 
-		# ok, let's constrain our list
+		# ok, lets's constrain our list
 		filtered_shots = []
 		filtered_shots.extend(self.__db_cache['vaccinations']['vaccinated'])
 		if ID is not None:
@@ -1030,36 +1046,25 @@ where
 		return filtered_shots
 	#--------------------------------------------------------
 	def get_scheduled_vaccinations(self, indications=None):
-		"""Retrieves vaccinations scheduled for a regime a patient is on.
-
-		The regime is referenced by its indication (not l10n)
-
-		* indications - List of indications (not l10n) of regimes we want scheduled
-		                vaccinations to be fetched for
-		"""
 		try:
 			self.__db_cache['vaccinations']['scheduled']
 		except KeyError:
 			self.__db_cache['vaccinations']['scheduled'] = []
-			cmd = """select * from v_vaccs_scheduled4pat where pk_patient=%s"""
-			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.id_patient)
+			# FIXME: bulk loader
+			cmd = "select pk_vacc_def from v_vaccs_scheduled4pat where pk_patient=%s"
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load scheduled vaccinations for patient [%s]' % self.id_patient)
 				del self.__db_cache['vaccinations']['scheduled']
 				return None
 			# Instantiate vaccination items
 			for row in rows:
-				vacc_row = {
-					'pk_field': 'pk_vacc_def',
-					'idx': idx,
-					'data': row
-				}
 				try:
-					self.__db_cache['vaccinations']['scheduled'].append(gmVaccination.cScheduledVaccination(row = vacc_row))
+					self.__db_cache['vaccinations']['scheduled'].append(gmVaccination.cScheduledVaccination(aPK_obj=row[0]))
 				except gmExceptions.ConstructorError:
 					_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.id_patient), sys.exc_info(), verbose=0)
 
-		# ok, let's constrain our list
+		# ok, lets's constrain our list
 		if indications is None:
 			return self.__db_cache['vaccinations']['scheduled']
 		filtered_shots = []
@@ -1292,6 +1297,7 @@ where
 		episodes - PKs of the episodes the encounters belong to (many-to-many relation)
 		issues - PKs of the health issues the encounters belong to (many-to-many relation)
 		"""
+		if id_list == []: id_list = None
 		try:
 			self.__db_cache['encounters']
 		except KeyError:
@@ -1425,7 +1431,7 @@ where pk_episode in %s and id_patient = %s"""
 			except gmExceptions.ConstructorError:
 				_log.Log('lab result error', sys.exc_info())
 
-		# ok, let's constrain our list
+		# ok, lets's constrain our list
 		filtered_lab_results = []
 		filtered_lab_results.extend(self.__db_cache['lab results'])
 		if since is not None:
@@ -1511,16 +1517,16 @@ if __name__ == "__main__":
 		print '\nVaccination regimes: '
 		for a_regime in vacc_regimes:
 			pass
-			#print a_regime
+#			print a_regime
 		vacc_regime = emr.get_scheduled_vaccination_regimes(ID=10)			
-		#print vacc_regime
+#		print vacc_regime
 		
 		# vaccination regimes and vaccinations for regimes
 		scheduled_vaccs = emr.get_scheduled_vaccinations(indications = ['tetanus'])
 		print 'Vaccinations for the regime:'
 		for a_scheduled_vacc in scheduled_vaccs:
 			pass
-			#print '   %s' %(a_scheduled_vacc)
+#			print '   %s' %(a_scheduled_vacc)
 
 		# vaccination next shot and booster
 		vaccinations = emr.get_vaccinations()
@@ -1584,8 +1590,9 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.144  2004-10-18 11:33:48  ncq
-# - more bulk loading
+# Revision 1.145  2004-10-20 11:11:59  sjtan
+# temporary try except to deal with vaccine regime constraints , not handling
+# patient of unknown vaccine history.
 #
 # Revision 1.143  2004/10/12 18:39:12  ncq
 # - first cut at using Carlos' bulk fetcher in get_vaccinations(),
