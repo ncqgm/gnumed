@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 
 if __name__ == "__main__":
 	print "*" * 50 
@@ -34,6 +34,7 @@ from Gnumed.pycommon import gmExceptions, gmLog, gmPG, gmI18N, gmBorg
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.business import gmClinItem
 from Gnumed.business import gmDemographicRecord
+from Gnumed.business import gmPatient 
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -212,6 +213,8 @@ class cOrgHelperImpl1(cOrgHelper):
 		self.pk = None
 		self._addressModified(False)
 		self._address = {}
+
+		self._personMap = {}
 		pass
 
 	def getId(self):
@@ -522,6 +525,14 @@ class cOrgHelperImpl1(cOrgHelper):
 		#<DEBUG>
 		#print "in _create"
 		#</DEBUG>
+		v = self['name']
+		if v <> None:
+			cmd = "select id from org where description = '%s'" % v
+			result = gmPG.run_ro_query('personalia', cmd)
+			if result <> None and len(result) <> 0:
+				self.setId(result[0][0])
+				return True
+		
 		
 		cmd = ("""insert into org (description, id_category) values('xxxDefaultxxx', ( select  id from org_category limit 1) )""", [])
 		cmd2 = ("""select currval('org_id_seq')""", [])
@@ -579,8 +590,77 @@ class cOrgHelperImpl1(cOrgHelper):
 		self._save_comm_channels()
 		return True
 
-	def lnkPerson( self, demographicRecord): # demographicRecord is a cDemographicRecord
-		pass
+	def linkPerson( self, demographicRecord): # demographicRecord is a cDemographicRecord
+		if self.getId() == None:
+			return False, _("Org must be saved before adding persons")
+		cmd = "insert into lnk_person_org_address(id_identity, id_org) values (%d,%d)" % ( demographicRecord.getID(), self.getId() )
+	
+		result = gmPG.run_commit("personalia", [ (cmd,[]) ] )
+
+		if result is None:
+			gmLog.gmDefLog.Log(gmLog.lErr, "Cannot link person")
+			return False, _("SQL failed for link persons")
+	
+		return True, _("Ok")
+
+	def unlinkPerson(self, demographicRecord):
+		if self.getId() == None:
+			return False, _("Org must be saved before adding persons")
+
+		cmd = """delete from lnk_person_org_address where id_identity = %d
+		and id_org = %d """ % ( demographicRecord.getID() , self.getId() )
+		
+		result = gmPG.run_commit("personalia", [ (cmd,[]) ] )
+
+		if result is None:
+			gmLog.gmDefLog.Log(gmLog.lErr, "Cannot unlink person")
+			return False
+	
+		return True
+		
+	
+
+			
+
+	def getPersonMap(self):
+		"""gets the persons associated with this org, lazy loading demographic records
+		and caching if needed; need to later use a singleton demographic cache,
+		so that single copies of a demographic record is shared """
+		if self.getId() == None:
+			return {}
+
+		query = "select id_identity from lnk_person_org_address where id_org = %d"% self.getId()
+		result = gmPG.run_ro_query("personalia", query)
+		print "for ", query, " got ", result
+		m = {}
+
+		m.update(self._personMap)
+		if result is None:
+			gmLog.gmDefLog.Log(gmLog.lErr, "Cannot search for org persons")
+			return None
+
+		ids = filter( lambda(t): t <> None, [ id	for [id] in result ])
+		print "id list is ", ids
+		new_ids = filter( lambda(id): id not in m.keys(), ids) 
+			
+		for id in new_ids:
+			rec = gmDemographicRecord.cDemographicRecord_SQL(id)
+			m[id] = rec
+		
+		self._personMap.update(m)
+		
+		return m
+			
+
+		
+				
+		
+		
+
+		
+		
+
+
 
 		
 def get_comm_channels_data_for_org_ids( idList):	
@@ -616,7 +696,7 @@ def get_address_data_for_org_ids( idList):
 	cmd = """select l.id_org, number, street, city, postcode, state, country 
 			from v_basic_address v , lnk_org2address l 
 				where v.addr_id = l.id_address and 
-				l.id_org in ( select id from org where id in (%s) )""" % ids 
+				l.id_org in ( select id from org where id in (%s) ) """ % ids 
 	result = gmPG.run_ro_query( "personalia", cmd)
 	
 	if result == None:
@@ -658,6 +738,73 @@ def get_test_data():
 			( ["Box Hill Hospital", "", "", "Eastern", "hospital", "0398953333", "111-1111","bhh@oz", ""],  ["33", "Nelson Rd", "Box Hill", "3128", None , None] ), 
 			( ["Frankston Hospital", "", "", "Peninsula", "hospital", "0397847777", "03784-3111","fh@oz", ""],  ["21", "Hastings Rd", "Frankston", "3199", None , None] )
 		]
+
+def get_test_persons():
+	return { "Box Hill Hospital": 
+			[
+			['Dr', 'Bill' , 'Smith', '123-4567', '0417 111 222'],
+			['Ms', 'Anita', 'Jones', '124-5544', '0413 222 444'],
+			['Dr', 'Will', 'Stryker', '999-4444', '0402 333 111']  ],
+		"Frankston Hospital":
+			 [ [ "Dr", "Jason", "Boathead", "444-5555", "0403 444 2222" ],
+			   [ "Mr", "Barnie", "Commuter", "222-1111", "0444 999 3333"],
+			   [ "Ms", "Morita", "Traveller", "999-1111", "0222 333 1111"]] }
+
+def testOrgPersons():
+	m = get_test_persons()
+	d  = dict(  [  (f[0] , (f, a)) for (f, a) in get_test_data() ] )
+	for orgName , personList in m.items():
+		_testOrgPersonRun( d[orgName][0], d[orgName][1], personList )
+	
+	
+
+def _testOrgPersonRun(f1, a1, personList):
+	print "Using test data :f1 = ", f1, "and a1 = ", a1 , " and lp = ", personList
+	print "-" * 50
+	h = cOrgHelperImpl1()
+	h.set(*f1)
+	h.setAddress(*a1)
+	if not h.save():
+		print "Unable to save org for person test"
+		h.shallow_del()
+		return False
+
+	# use gmDemographicRecord to convert person list
+	for lp in personList:
+		id = gmPatient.create_dummy_identity()
+		
+		identity = gmDemographicRecord.cDemographicRecord_SQL(id)
+		
+		identity.addName(lp[1], lp[2], True)
+		identity.setTitle(lp[0])
+		identity.linkCommChannel( gmDemographicRecord.WORK_PHONE, lp[3])
+		identity.linkCommChannel( gmDemographicRecord.MOBILE, lp[4])
+		
+		result , msg = h.linkPerson(identity)
+		print msg
+
+	m = h.getPersonMap()
+
+	if m== []:
+		print "NO persons were found unfortunately"
+
+	print """ TestOrgPersonRun got back for """
+	a = h.getAddress()
+	print h["name"], a["number"], a["street"], a["urb"], a["postcode"] , " phone=", h['phone']
+
+	for id, r in m.items():
+		print "\t",", ".join( [ " ".join(r.get_names().values()), 
+					"work no=", r.getCommChannel(gmDemographicRecord.WORK_PHONE),
+					"mobile no=", r.getCommChannel(gmDemographicRecord.MOBILE)
+					] )
+		h.unlinkPerson(r)		
+	
+	if h.shallow_del():
+		print "Managed to dispose of org"
+	else:
+		print "unable to dispose of org"
+			
+	return True
 		
 def testOrg():
 	"""runs a test of load, save , shallow_del  on items in from get_test_data"""
@@ -976,6 +1123,8 @@ Better to use error return values and log exceptions near where they occur, vs. 
 				if  org.shallow_del(): print " 	may have succeeded"
 				else:
 					print "May need manual removal of org id =", org.getId()
+		
+		testOrgPersons()
 					
 	except:
 		import  sys
@@ -984,7 +1133,7 @@ Better to use error return values and log exceptions near where they occur, vs. 
 			
 	# clean-up any temporary categories.		
 	if tmp_category:
-		while(1):
+		for i in xrange(0, 5):
 			try:
 				print """Test completed. The temporary category(s) will now
 				need to be removed under an administrator login
@@ -1020,7 +1169,7 @@ Better to use error return values and log exceptions near where they occur, vs. 
 			conn = None
 			p.ReleaseConnection('personalia')
 			break
-			
+				
 		
 	
 			
@@ -1028,7 +1177,11 @@ Better to use error return values and log exceptions near where they occur, vs. 
 	
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.11  2004-05-24 03:34:56  sjtan
+# Revision 1.12  2004-05-24 05:49:59  sjtan
+#
+# test case working for gmDemographicRecord_SQL linking/unlinking; local and remote tested.
+#
+# Revision 1.11  2004/05/24 03:34:56  sjtan
 #
 # tested local and remote test case; setup/pulldown for test case is within test case.
 #
