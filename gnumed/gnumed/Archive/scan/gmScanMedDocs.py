@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -38,7 +38,7 @@ import string, time, shutil, os, tempfile
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
-import docDocument
+import gmMimeLib
 
 _twain = None
 _sane = None
@@ -49,8 +49,14 @@ _sane = None
 	wxID_BTN_move_page,
 	wxID_BTN_save_doc,
 	wxID_BTN_acquire_page,
-	wxID_PNL_main
-] = map(lambda _init_ctrls: wxNewId(), range(7))
+	wxID_PNL_main,
+	wxID_PNL_BTN_del_page,
+	wxID_PNL_BTN_show_page,
+	wxID_PNL_BTN_move_page,
+	wxID_PNL_BTN_save_doc,
+	wxID_PNL_BTN_acquire_page,
+	
+] = map(lambda _init_ctrls: wxNewId(), range(12))
 #==================================================
 class ScanPanel(wxPanel):
 	# a list holding our objects
@@ -986,7 +992,7 @@ if __name__ == '__main__':
 		_log.LogException('Unhandled exception.', exc, fatal=1)
 		raise
 else:
-	import gmPlugin
+	import gmPlugin,images_Archive_plugin
 
 	class gmScanMedDocs(gmPlugin.wxNotebookPlugin):
 		def name (self):
@@ -997,9 +1003,69 @@ else:
 
 		def MenuInfo (self):
 			return ('tools', _('&scan documents'))
+			
+		def DoToolbar (self, tb, widget):
+	      		tool1 = tb.AddTool(
+				wxID_PNL_BTN_acquire_page,
+				images_Archive_plugin.getcontentsBitmap(),
+				shortHelpString=_("acquire image"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_PNL_BTN_acquire_page, widget.on_acquire_page)
+			
+			# --------------------------------------------------------------
+			tool1 = tb.AddTool(
+				wxID_PNL_BTN_save_doc,
+				images_Archive_plugin.getsaveBitmap(),
+				shortHelpString=_("save document"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_PNL_BTN_save_doc, widget.on_save_doc)
+			
+			# -------------------------------------------------------------
+			tool1 = tb.AddTool(
+				wxID_PNL_BTN_del_page,
+				images_Archive_plugin.getcontentsBitmap(),
+				shortHelpString=_("delete page"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_PNL_BTN_del_page, widget.on_del_page)
+			
+			# -------------------------------------------------------------
+			tool1 = tb.AddTool(
+				wxID_PNL_BTN_show_page,
+				images_Archive_plugin.getreportsBitmap(),
+				shortHelpString=_("show page"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_PNL_BTN_show_page, widget.on_show_page)
+	
+			# -------------------------------------------------------------
+			tool1 = tb.AddTool(
+				wxID_PNL_BTN_move_page,
+				images_Archive_plugin.getsort_A_ZBitmap(),
+				shortHelpString=_("move page"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_PNL_BTN_move_page, widget.on_move_page)
+		
+		def ReceiveFocus(self):
+			self.DoStatusText()
+		
+		def DoStatusText (self):
+			# FIXME: people want an optional beep and an optional red backgound here
+			#set_statustext = gb['main.statustext']
+			txt = _('1:acquire some pages 2:save document')	
+			if not self._set_status_txt(txt):
+				return None
+			return 1
+	
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.2  2003-05-06 13:04:42  ncq
+# Revision 1.3  2003-11-09 16:15:34  shilbert
+# - plugin makes use of GNUmed's toolbar and statusbar
+#
+# Revision 1.2  2003/05/06 13:04:42  ncq
 # - temporary fix to make it run standalone from gnumed/Archive/scan/
 #
 # Revision 1.1  2003/04/13 13:47:22  ncq
