@@ -51,7 +51,7 @@ Usage:
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 import sys, time, traceback, os.path, atexit, os, string, getopt
@@ -199,7 +199,7 @@ class cLogger:
 		for key in self.__targets.keys():
 			self.__targets[key].writeDelimiter()
 	#---------------------------
-	def LogException(self, aMsg, exception):
+	def LogException(self, aMsg, exception, fatal=1):
 		"""Log an exception.
 
 		'exception' is a tuple as returned by sys.exc_info()
@@ -208,14 +208,21 @@ class cLogger:
 		# avoid one level of indirection by not calling self.__Log such
 		# that the chances of succeeding shall be increased
 		if self.__targets is not None:
+			if fatal:
+				level1 = lPanic
+				level2 = lPanic
+			else:
+				level1 = lWarn
+				level2 = lData
+
 			t, v, tb = exception
 			tbs = traceback.format_exception(t, v, tb)
 			for key in self.__targets.keys():
-				self.__targets[key].writeMsg(lPanic, aMsg)
-				self.__targets[key].writeMsg(lPanic, "exception type : %s" % t)
-				self.__targets[key].writeMsg(lPanic, "exception value: %s" % v)
+				self.__targets[key].writeMsg(level1, aMsg)
+				self.__targets[key].writeMsg(level1, "exception type : %s" % t)
+				self.__targets[key].writeMsg(level1, "exception value: %s" % v)
 				for line in tbs:
-					self.__targets[key].writeMsg(lPanic, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
+					self.__targets[key].writeMsg(level2, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
 	#---------------------------
 	def SetAllLogLevels (self, aLogLevel = None):
 		"""Set a certain log level on all targets."""
