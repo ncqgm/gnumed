@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.125 2005-01-31 20:16:39 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.126 2005-02-07 13:02:41 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -474,64 +474,64 @@ order by
 -- measurements stuff
 
 \unset ON_ERROR_STOP
-drop view v_test_type_local cascade;
-drop view v_test_type_local;
-\set ON_ERROR_STOP 1
-
-create view v_test_type_local as
-select
-	ttl.pk as pk_test_type_local,
-	ltt2lt.fk_test_type as pk_test_type,
-	ttl.code as code_local,
-	ttl.name as name_local,
-	ttl.coding_system as coding_system_local,
-	ttl.comment as comment_local,
-	ltt2lt.pk as pk_lnk_ttype2local_type
-from
-	test_type_local ttl,
-	lnk_ttype2local_type ltt2lt
-where
-	ltt2lt.fk_test_type_local=ttl.pk
-;
-
-comment on view v_test_type_local is
-	'denormalized view of test_type_local and link table to test_type';
-
---
-\unset ON_ERROR_STOP
 drop view v_test_type_unified cascade;
 drop view v_test_type_unified;
 \set ON_ERROR_STOP 1
 
 create view v_test_type_unified as
 select
+	ttu.pk as pk_test_type_unified,
+	ltt2ut.fk_test_type as pk_test_type,
+	ttu.code as code_unified,
+	ttu.name as name_unified,
+	ttu.coding_system as coding_system_unified,
+	ttu.comment as comment_unified,
+	ltt2ut.pk as pk_lnk_ttype2unified_type
+from
+	test_type_unified ttu,
+	lnk_ttype2unified_type ltt2ut
+where
+	ltt2ut.fk_test_type_unified=ttu.pk
+;
+
+comment on view v_test_type_unified is
+	'denormalized view of test_type_unified and link table to test_type';
+
+--
+\unset ON_ERROR_STOP
+drop view v_unified_test_types cascade;
+drop view v_unified_test_types;
+\set ON_ERROR_STOP 1
+
+create view v_unified_test_types as
+select
 	ttu0.pk as pk_test_type,
 	-- unified test_type
-	coalesce(ttu0.code_local, ttu0.code) as unified_code,
-	coalesce(ttu0.name_local, ttu0.name) as unified_name,
+	coalesce(ttu0.code_unified, ttu0.code) as unified_code,
+	coalesce(ttu0.name_unified, ttu0.name) as unified_name,
 	-- original test_type
 	ttu0.code as code_tt,
 	ttu0.name as name_tt,
 	ttu0.coding_system as coding_system_tt,
 	ttu0.comment as comment_tt,
 	ttu0.conversion_unit as conversion_unit,
-	-- localized version thereof
-	ttu0.code_local,
-	ttu0.name_local,
-	ttu0.coding_system_local,
-	ttu0.comment_local,
+	-- unified version thereof
+	ttu0.code_unified,
+	ttu0.name_unified,
+	ttu0.coding_system_unified,
+	ttu0.comment_unified,
 	-- admin links
 	ttu0.fk_test_org as pk_test_org,
-	ttu0.pk_test_type_local,
-	ttu0.pk_lnk_ttype2local_type
+	ttu0.pk_test_type_unified,
+	ttu0.pk_lnk_ttype2unified_type
 from
-	(test_type tt1 left outer join v_test_type_local vttl1 on (tt1.pk=vttl1.pk_test_type)) ttu0
+	(test_type tt1 left outer join v_test_type_unified vttu1 on (tt1.pk=vttu1.pk_test_type)) ttu0
 ;
 
-comment on view v_test_type_unified is
-	'provides view of test types aggregated under their corresponding
-	 local name if any, if not linked to a local test type name the
-	 original name is used';
+comment on view v_unified_test_types is
+	'provides a view of test types aggregated under their
+	 corresponding unified name if any, if not linked to a
+	 unified test type name the original name is used';
 
 
 --
@@ -547,18 +547,18 @@ select
 	vttu.pk_test_type,
 	vttu.code_tt as test_code,
 	vttu.coding_system_tt,
-	vttu.coding_system_local,
+	vttu.coding_system_unified,
 	vttu.unified_code,
 	vttu.name_tt as test_name,
 	vttu.unified_name,
 	vttu.conversion_unit,
 	vttu.comment_tt as test_comment,
-	vttu.comment_local,
+	vttu.comment_unified,
 	torg.comment as org_comment,
 	torg.fk_org as pk_org
 from
 	test_org torg,
-	v_test_type_unified vttu
+	v_unified_test_types vttu
 where
 	vttu.pk_test_org=torg.pk
 ;
@@ -627,10 +627,10 @@ select
 	vttu.name_tt,
 	vttu.coding_system_tt,
 	vttu.comment_tt,
-	vttu.code_local,
-	vttu.name_local,
-	vttu.coding_system_local,
-	vttu.comment_local,
+	vttu.code_unified,
+	vttu.name_unified,
+	vttu.coding_system_unified,
+	vttu.comment_unified,
 	-- management keys
 	-- clin_root_item
 	tr.pk_item,
@@ -640,14 +640,14 @@ select
 	tr.fk_type as pk_test_type,
 	tr.fk_reviewer as pk_reviewer,
 	tr.xmin as xmin_test_result,
-	-- v_test_type_unified
+	-- v_unified_test_types
 	vttu.pk_test_org,
-	vttu.pk_test_type_local,
+	vttu.pk_test_type_unified,
 	-- v_pat_episodes
 	vpe.pk_health_issue
 from
 	test_result tr,
-	v_test_type_unified vttu,
+	v_unified_test_types vttu,
 	v_pat_episodes vpe
 where
 	vttu.pk_test_type=tr.fk_type
@@ -748,12 +748,12 @@ select
 -- additional fields to carry over
 --	, vtr.coding_system_tt,
 --	vtr.comment_tt,
---	vtr.code_local,
---	vtr.name_local,
---	vtr.coding_system_local,
---	vtr.comment_local,
+--	vtr.code_unified,
+--	vtr.name_unified,
+--	vtr.coding_system_unified,
+--	vtr.comment_unified,
 --	vtr.pk_test_org,
---	vtr.pk_test_type_local,
+--	vtr.pk_test_type_unified,
 from
 	v_test_results vtr,
 	lab_request lr,
@@ -768,79 +768,6 @@ comment on view v_results4lab_req is
 	'shows denormalized lab results per request';
 
 
---
-\unset ON_ERROR_STOP
-drop view v_results4lab_req_old;
---\set ON_ERROR_STOP 1
-
-create view v_results4lab_req_old as
-select
-	vpep.id_patient as pk_patient,
-	tr0.id as pk_result,
-	lr.clin_when as req_when,			-- FIXME: should be sampled_when
-	lr.lab_rxd_when,
-	tr0.clin_when as val_when,
-	lr.results_reported_when as reported_when,
-	coalesce(ttl0.local_code, ttl0.code) as unified_code,
-	coalesce(ttl0.local_name, ttl0.name) as unified_name,
-	ttl0.code as lab_code,
-	ttl0.name as lab_name,
-	case when coalesce(trim(both from tr0.val_alpha), '') = ''
-		then tr0.val_num::text
-		else case when tr0.val_num is null
-			then tr0.val_alpha
-			else tr0.val_num::text || ' (' || tr0.val_alpha || ')'
-		end
-	end as unified_val,
-	tr0.val_num,
-	tr0.val_alpha,
-	tr0.val_unit,
-	coalesce(tr0.narrative, '') as progress_note_result,
-	coalesce(lr.narrative, '') as progress_note_request,
-	tr0.val_normal_range,
-	tr0.val_normal_min,
-	tr0.val_normal_max,
-	tr0.val_target_range,
-	tr0.val_target_min,
-	tr0.val_target_max,
-	tr0.technically_abnormal as abnormal,
-	tr0.clinically_relevant as relevant,
-	tr0.note_provider,
-	lr.request_status as request_status,
-	tr0.norm_ref_group as ref_group,
-	lr.request_id,
-	lr.lab_request_id,
-	tr0.material,
-	tr0.material_detail,
-	tr0.reviewed_by_clinician as reviewed,
-	tr0.fk_reviewer as pk_reviewer,
-	tr0.fk_type as pk_test_type,
-	lr.pk as pk_request,
-	lr.fk_test_org as pk_test_org,
-	lr.fk_requestor as pk_requestor,
-	vpep.pk_health_issue as pk_health_issue,
-	tr0.fk_episode as pk_episode,
-	tr0.fk_encounter as pk_encounter
-from
-	(lnk_result2lab_req lr2lr inner join test_result tr1 on (lr2lr.fk_result=tr1.id)) tr0
-		inner join
-	lab_request lr on (tr0.fk_request=lr.pk),
-	v_pat_episodes vpep,
-	(test_type tt1 left outer join test_type_local ttl1 on (tt1.pk=ttl1.pk_test_type)) ttl0
-where
-	vpep.pk_episode=lr.fk_episode
-		and
-	ttl0.pk=tr0.fk_type
-;
-\set ON_ERROR_STOP 1
-
--- ==========================================================
---\unset ON_ERROR_STOP
---drop view v_pending_lab_reqs;
---\set ON_ERROR_STOP 1
-
--- this isn't very useful due to clinical and demographics
--- being separate services
 -- ==========================================================
 -- health issues stuff
 \unset ON_ERROR_STOP
@@ -1572,8 +1499,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, vacc_regime_id_seq
 	, lnk_pat2vacc_reg
 	, lnk_pat2vacc_reg_pk_seq
---	, lnk_vacc2vacc_def
---	, lnk_vacc2vacc_def_pk_seq
 	, xlnk_identity
 	, xlnk_identity_pk_seq
 	, form_instances
@@ -1593,10 +1518,10 @@ grant select, insert, update, delete on
 	, test_org_pk_seq
 	, test_type
 	, test_type_pk_seq
-	, test_type_local
-	, test_type_local_pk_seq
-	, lnk_ttype2local_type
-	, lnk_ttype2local_type_pk_seq
+	, test_type_unified
+	, test_type_unified_pk_seq
+	, lnk_ttype2unified_type
+	, lnk_ttype2unified_type_pk_seq
 	, lnk_tst2norm
 	, lnk_tst2norm_id_seq
 	, test_result
@@ -1623,8 +1548,8 @@ GRANT SELECT ON
 	, v_pat_missing_vaccs
 	, v_pat_missing_boosters
 	, v_most_recent_encounters
-	, v_test_type_local
 	, v_test_type_unified
+	, v_unified_test_types
 	, v_test_results
 	, v_lab_requests
 	, v_results4lab_req
@@ -1644,11 +1569,17 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.125 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.126 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.125  2005-01-31 20:16:39  ncq
+-- Revision 1.126  2005-02-07 13:02:41  ncq
+-- - v_test_type_local -> v_test_type_unified
+-- - old v_test_type_unified -> v_unified_test_types
+-- - follow-on changes, grants
+-- - remove cruft
+--
+-- Revision 1.125  2005/01/31 20:16:39  ncq
 -- - clin_episode has fk_patient, not id_patient
 --
 -- Revision 1.124  2005/01/31 19:49:39  ncq
