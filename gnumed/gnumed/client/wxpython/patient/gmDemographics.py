@@ -433,9 +433,11 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.widget = PatientsPanel (self.mwm, self)
 		self.mwm.RegisterWholeScreen (self.name (), self.widget)
 		self.RegisterInterests ()
+		wxBasePlugin.set_widget_reference(self, self.widget)
 		
 	def OnTool (self, event):
 		self.mwm.Display (self.name ())
+		print "OnTool"
 		self.gb['modules.gui']['Patient'].Raise ()
 		self.widget.FindPatient (self.txt_findpatient.GetValue ())
 
