@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.16 2004-03-10 12:56:01 ihaywood Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmPlugin.py,v 1.17 2004-03-10 13:57:45 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -14,9 +14,9 @@ import os, sys, re, cPickle, zlib
 from wxPython.wx import *
 
 from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWhoAmI
-from Gnumed.business import gmPatient
 from Gnumed.wxpython import gmShadow
 
+gmPatient = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 _whoami = gmWhoAmI.cWhoAmI()
@@ -25,13 +25,13 @@ _whoami = gmWhoAmI.cWhoAmI()
 class gmPlugin:
 	"""base class for all gnumed plugins"""
 	#-----------------------------------------------------
-	def provides ():
+	def provides():
 		"""
 		Returns a list of services that the plugin provides
 		"""
 		return []
 	#-----------------------------------------------------
-	def requires ():
+	def requires():
 		"""
 		Requires a list of services that must be registered
 		before this plugin is registered. The configuration
@@ -40,24 +40,27 @@ class gmPlugin:
 		"""
 		return []
 	#-----------------------------------------------------
-	def description ():
+	def description():
 		"""Returns a brief description of the plugin.
 		"""
 		pass
 	#-----------------------------------------------------
-	def name (self):
+	def name(self):
 		return 'plugin %s' % self.__class__.__name__
 	#-----------------------------------------------------
-	def internal_name (self):
+	def internal_name(self):
 		"""Used for referencing a plugin by name."""
 		return self.__class__.__name__
 #------------------------------------------------------------------
 class wxBasePlugin (gmPlugin):
-	"""
-	base class for all plugins providing wxPython widgets.
-	Plugins must have a class descending of this class in their file, which MUST HAVE THE SAME NAME AS THE FILE.
-	The file must be in a directory which is loaded by LoadPluginSet (gui/ for the moment, others may be added for different plugin types)
-	
+	"""Base class for all plugins providing wxPython widgets.
+
+	Plugins must have a class descending of this class in
+	their file, which MUST HAVE THE SAME NAME AS THE FILE.
+
+	The file must be in a directory which is loaded by
+	LoadPluginSet (gui/ for the moment, others may be
+	added for different plugin types)
 	"""
 	# NOTE: I anticipate that all plugins will in fact be derived
 	# from this class. Without the brokers a plugin is useless (IH)
@@ -228,6 +231,10 @@ class wxNotebookPlugin (wxBasePlugin):
 
 		- convenience method for your can_receive_focus() handlers
 		"""
+		global gmPatient
+		if gmPatient is None:
+			from Gnumed.business import gmPatient as _gmPatient
+			gmPatient = _gmPatient
 		# fail if no patient selected
 		pat = gmPatient.gmCurrentPatient()
 		if not pat.is_connected():
@@ -284,14 +291,14 @@ class wxPatientPlugin (wxBasePlugin):
 	def register (self):
 		wxBasePlugin.register (self)
 		self.mwm = self.gb['clinical.manager']
-		if 1: # FIXME: do proper config check for shadowing
-			shadow = gmShadow.Shadow (self.mwm, -1)
-			widget = self.GetWidget (shadow)
-			shadow.SetContents (widget)
-			self.mwm.RegisterLeftSide (self.internal_name(), shadow)
-		else:
-			widget = self.GetWidget (self.mwm)
-			self.mwm.RegisterLeftSide (self.internal_name(), self.GetWidget (self.mwm))
+
+		# FIXME: do proper config check for shadowing
+		# FIXME: do we always want shadows and set it to 0 width via themes ?
+		shadow = gmShadow.Shadow (self.mwm, -1)
+		widget = self.GetWidget (shadow)
+		shadow.SetContents (widget)
+		self.mwm.RegisterLeftSide (self.internal_name(), shadow)
+
 		icon = self.GetIcon ()
 		if icon is not None:
 			tb2 = self.gb['toolbar.%s' % 'gmClinicalWindowManager']
@@ -511,11 +518,15 @@ def UnloadPlugin (set, name):
 #==================================================================
 # Main
 #------------------------------------------------------------------
-
+if __name__ == '__main__':
+	print "please write a unit test"
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.16  2004-03-10 12:56:01  ihaywood
+# Revision 1.17  2004-03-10 13:57:45  ncq
+# - unconditionally do shadow
+#
+# Revision 1.16  2004/03/10 12:56:01  ihaywood
 # fixed sudden loss of main.shadow
 # more work on referrals,
 #
