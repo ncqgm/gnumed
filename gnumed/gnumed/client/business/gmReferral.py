@@ -82,7 +82,7 @@ def create_referral (patient, recipient, channel, addr, text, flags = {}):
     pool = gmPG.ConnectionPool ()
     conn = pool.GetConnection ('historica', readonly = 0)
     curs = conn.cursor ()
-    form_id = form.store (patient_clinical.encounter['id'], patient_clinical.episode['id'], params, curs)
+    form_id = form.store (patient_clinical.get_active_encounter()['pk_encounter'], patient_clinical.get_active_episode()['id_episode'], params, curs)
     if form_id:
         if patient_clinical.store_referral (curs, text, form_id):
             curs.close ()
