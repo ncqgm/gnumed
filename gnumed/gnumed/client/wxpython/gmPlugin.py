@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.36 2004-09-13 19:27:27 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmPlugin.py,v 1.37 2004-10-14 12:14:51 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -42,25 +42,27 @@ class cNotebookPlugin:
 
 		_log.Log(gmLog.lInfo, "set: [%s] class: [%s] name: [%s]" % (self._set, self.__class__.__name__, self.name()))
 
-		# add ourselves to the main notebook
+		# create widget
 		nb = self.gb['horstspace.notebook']
 		widget = self.GetWidget(nb)
+		# create toolbar
+		top_panel = self.gb['main.top_panel']
+		tb = top_panel.CreateBar()
+		self.populate_toolbar(tb, widget)
+		tb.Realize()
+		# create menu item
+		menu_info = self.MenuInfo()
+
+		# place bar in top panel
+		# (pages that don't want a toolbar must install a blank one
+		#  otherwise the previous page's toolbar would be visible)
+		top_panel.AddBar(key=self.__class__.__name__, bar=tb)
+		self.gb['toolbar.%s' % self.__class__.__name__] = tb
+		# add ourselves to the main notebook
 		nb.AddPage(widget, self.name())
 		# FIXME: really use Show() here ?
-		widget.Show(True)
-
-		# place ourselves in the top panel,
-		# pages that don't want a toolbar must install a
-		# blank one otherwise the previous page's toolbar
-		# would be visible
-		top_panel = self.gb['main.top_panel']
-		tb = top_panel.AddBar(self.__class__.__name__)
-		self.gb['toolbar.%s' % self.__class__.__name__] = tb
-		self.populate_toolbar (tb, widget)
-		tb.Realize()
-
+#		widget.Show(True)
 		# and put ourselves into the menu structure if so
-		menu_info = self.MenuInfo()
 		if menu_info is not None:
 			name_of_menu, menu_item_name = menu_info
 			menu = self.gb['main.%smenu' % name_of_menu]
@@ -331,7 +333,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.36  2004-09-13 19:27:27  ncq
+# Revision 1.37  2004-10-14 12:14:51  ncq
+# - rearrange register() internally so we won't end up with
+#   half-baked but registered plugins
+#
+# Revision 1.36  2004/09/13 19:27:27  ncq
 # - load "horstspace.notebook.plugin_load_order" instead of
 #   "plugin load order" with cookie "gui"
 #
