@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -105,12 +105,12 @@ class ConnectionPool:
 		"""if a distributed service exists, return it - otherwise return the default server"""
 
 		if not readonly:
+			logininfo = self.GetLoginInfoFor(service)
 			user = "_%s" % logininfo.GetUser()
+			logininfo.SetUser(user)
 			#<DEBUG>
 			_log.Log(gmLog.lData, "requesting RW connection to [%s] for %s" % (service, user))
 			#</DEBUG>
-			logininfo = self.GetLoginInfoFor(service)
-			logininfo.SetUser(user)
 			return self.__pgconnect(logininfo)
 
 		#<DEBUG>
@@ -614,7 +614,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.21  2002-09-30 08:26:57  ncq
+# Revision 1.22  2002-09-30 15:48:16  ncq
+# - fix dumb bug regarding assignment of local variable logininfo
+#
+# Revision 1.21  2002/09/30 08:26:57  ncq
 # - a bit saner logging
 #
 # Revision 1.20  2002/09/29 14:39:44  ncq
