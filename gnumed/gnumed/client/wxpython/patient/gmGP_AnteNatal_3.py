@@ -2,13 +2,12 @@ from wxPython.wx import *
 from wxPython.grid import *
 import string
 
-import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
-import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
-import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-import gmEditArea                              #panel class holding editing
-import gmPlugin
+from Gnumed.wxpython import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
+from Gnumed.wxpython import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
+from Gnumed.wxpython import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
+from Gnumed.wxpython import gmPlugin, gmEditArea
 
-from gmPatientHolder import PatientHolder
+from Gnumed.wxpython.gmPatientHolder import PatientHolder
 ID_ANCNOTEBOOK =wxNewId()
 #---------------------------------------------------------------------------
 

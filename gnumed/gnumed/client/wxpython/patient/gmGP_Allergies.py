@@ -17,26 +17,28 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
-if __name__ == "__main__":
+#if __name__ == "__main__":
 	# FIXME: this will not work on other platforms
-	sys.path.append("../../pycommon")
-	sys.path.append("../../business")
-	sys.path.append("../")
+	#sys.path.append("../../pycommon")
+	#sys.path.append("../../business")
+	#sys.path.append("../")
 
-import gmLog
+from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 
-import gmDispatcher, gmSignals, gmPG, gmPlugin, gmEditArea, gmPatient
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmPG 
+from Gnumed.wxpython import gmPlugin, gmEditArea 
+from Gnumed.business import gmPatient
 
-import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
-import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
-import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-from  gmPatientHolder import PatientHolder
-import gmPatientHolder
+from Gnumed.wxpython import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
+from Gnumed.wxpython import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
+from Gnumed.wxpython import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
+from Gnumed.wxpython.PatientHolder import PatientHolder
+from Gnumed.wxpython import gmPatientHolder
 from wxPython.wx import *
 
 ID_ALLERGYLIST = wxNewId()
@@ -227,7 +229,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.21  2004-02-25 09:46:23  ncq
+# Revision 1.22  2004-03-19 21:07:35  shilbert
+# - fixed module import
+#
+# Revision 1.21  2004/02/25 09:46:23  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.20  2004/02/05 23:51:01  ncq
