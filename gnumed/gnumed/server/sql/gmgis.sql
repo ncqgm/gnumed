@@ -5,7 +5,7 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.40 $
+-- $Revision: 1.41 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -38,7 +38,7 @@ create table state (
         name varchar(60),
         deprecated date default null,
         unique (code, country)
-) inherits (audit_mark);
+) inherits (audit_fields, audit_mark);
 
 COMMENT ON TABLE state IS
 	'state codes (country specific)';
@@ -65,7 +65,7 @@ create table urb (
 	postcode varchar(12),
 	name varchar(60) not null,
 	unique (id_state, postcode, name)
-) inherits (audit_mark);
+) inherits (audit_fields, audit_mark);
 
 -- this does not work in the UK! Seperate postcodes for each street,
 -- Same in Germany ! Postcodes can be valid for:
@@ -100,7 +100,7 @@ create table street (
 	name varchar(128),
 	postcode varchar(12),
 	unique(id_urb, name)
-) inherits (audit_mark);
+) inherits (audit_fields, audit_mark);
 
 COMMENT ON TABLE street IS
 	'street names, specific for distinct "urbs"';
@@ -131,7 +131,7 @@ create table address (
 	street integer references street(id),
 	number char(10),
 	addendum text
-) inherits (audit_mark);
+) inherits (audit_fields, audit_mark);
 
 
 create table log_address (
@@ -413,7 +413,7 @@ create table address_info (
         id_map integer references mapbook (id),
         howto_get_there text,
         comments text
-) inherits (audit_mark);
+) inherits (audit_fields, audit_mark);
 
 -- this refers to a SQL point type. This would allow us to do
 -- interesting queries, like, how many patients live within
@@ -432,11 +432,14 @@ create table log_address_info (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.40 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.41 $');
 
 -- =============================================
 -- $Log: gmgis.sql,v $
--- Revision 1.40  2003-06-03 13:50:34  ncq
+-- Revision 1.41  2003-06-29 15:26:01  ncq
+-- - adapt to audit_fields split-off
+--
+-- Revision 1.40  2003/06/03 13:50:34  ncq
 -- - add audit trail tables
 --
 -- Revision 1.39  2003/06/03 09:50:32  ncq
