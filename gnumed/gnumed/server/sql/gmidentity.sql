@@ -45,6 +45,7 @@ create table identity (
 	deceased date default NULL
 ) inherits (audit_identity);
 
+
 COMMENT ON TABLE identity IS
 'represents the unique identity of a person';
 
@@ -169,3 +170,23 @@ COMMENT ON COLUMN relation.started IS
 
 COMMENT ON COLUMN relation.ended IS
 'date when this relationship ended. Biological relationships do not end!';
+
+create table identities_addresses (
+	id serial primary key,
+	id_identity integer references identity,
+	id_address integer, -- should be a foreign key, but might be "outsourced"
+	address_source char(80) default NULL
+) inherits (audit_identity);
+
+COMMENT ON TABLE identities_addresses IS
+'a many-to-many pivot table linking addresses to identities';
+
+COMMENT ON COLUMN identities_addresses.id_identity IS
+'identity to whom the address belongs';
+
+COMMENT ON COLUMN identities_addresses.id_address IS
+'address belonging to this identity';
+
+COMMENT ON COLUMN identities_addresses.address_source IS
+'URL of some sort allowing to reproduce where the address is sourced from';
+
