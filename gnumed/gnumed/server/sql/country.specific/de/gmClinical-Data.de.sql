@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmClinical-Data.de.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- part of GnuMed
 -- GPL
@@ -104,6 +104,13 @@ insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'sensitivity', 'Unverträglichkeit');
 
 -- =============================================
+-- vaccination routes
+insert into i18n_translations(lang, orig, trans) values
+	('de_DE', 'intramuscular', 'intramuskulär');
+insert into i18n_translations(lang, orig, trans) values
+	('de_DE', 'subcutaneous', 'subkutan');
+
+-- =============================================
 -- description
 --insert into i18n_translations(lang, orig, trans) values
 --	('de_DE', '', '');
@@ -118,11 +125,14 @@ insert into i18n_translations(lang, orig, trans) values
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmClinical-Data.de.sql,v $
--- Revision 1.1  2003-08-05 08:16:00  ncq
+-- Revision 1.2  2003-10-19 13:51:34  ncq
+-- - add vacc route translations
+--
+-- Revision 1.1  2003/08/05 08:16:00  ncq
 -- - cleanup/renaming
 --
 -- Revision 1.7  2003/06/11 14:03:12  ncq
