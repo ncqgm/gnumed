@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.13 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmVaccWidgets.py,v 1.14 2005-03-08 16:46:55 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -422,6 +422,8 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		t1 = time.time()
 		# populate vaccinated-indications list
+		# FIXME: consider adding virtual indication "most recent" to
+		# FIXME: display most recent of all indications as suggested by Syan
 		status, indications = emr.get_vaccinated_indications()
 		# FIXME: would be faster to use Set() but can't
 		# use Set(labels, client_data), and have to know
@@ -523,7 +525,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.13  2005-01-31 10:37:26  ncq
+# Revision 1.14  2005-03-08 16:46:55  ncq
+# - add FIXME for virtual indication suggestion by Syan
+#
+# Revision 1.13  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.12  2004/12/15 22:14:21  ncq
