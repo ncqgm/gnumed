@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.35 2004-05-01 10:27:47 shilbert Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmPhraseWheel.py,v 1.36 2004-05-02 22:53:53 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -77,7 +77,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.phrase_separators = cPhraseWheel.default_phrase_separators
 		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
 		self.allow_multiple_phrases()
-		self.relevant_input = ''
+		self.input2match = ''
 		self.data = None
 		self.input_was_selected = _false
 		self.selection_only = selection_only
@@ -225,13 +225,13 @@ class cPhraseWheel (wxTextCtrl):
 			self.right_part = entire_input[phrase_end+1:]
 #			print "phrase end:", phrase_end
 
-			self.relevant_input = entire_input[phrase_start:phrase_end+1]
+			self.input2match = entire_input[phrase_start:phrase_end+1]
 		else:
-			self.relevant_input = self.GetValue()
-#		print "relevant input:", self.relevant_input
+			self.input2match = self.GetValue()
+#		print "relevant input:", self.input2match
 
 		# get all currently matching items
-		(matched, self.__currMatches) = self.__matcher.getMatches(self.relevant_input)
+		(matched, self.__currMatches) = self.__matcher.getMatches(self.input2match)
 		# and refill our picklist with them
 		self._picklist.Clear()
 		if matched:
@@ -251,7 +251,7 @@ class cPhraseWheel (wxTextCtrl):
 
 		# if only one match and text == match
 		if len(self.__currMatches) == 1:
-			if self.__currMatches[0]['label'] == self.relevant_input:
+			if self.__currMatches[0]['label'] == self.input2match:
 				# don't display drop down list
 				self._hide_picklist()
 				return 1
@@ -522,7 +522,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.35  2004-05-01 10:27:47  shilbert
+# Revision 1.36  2004-05-02 22:53:53  ncq
+# - cleanup
+#
+# Revision 1.35  2004/05/01 10:27:47  shilbert
 # - self._picklist.Append() needs string or unicode object
 #
 # Revision 1.34  2004/03/05 11:22:35  ncq

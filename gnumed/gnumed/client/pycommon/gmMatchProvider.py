@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.3 2004-04-30 09:10:57 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmMatchProvider.py,v 1.4 2004-05-02 22:54:43 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -295,8 +295,6 @@ class cMatchProvider_SQL2(cMatchProvider):
 	   in possibly several database tables.
 	"""
 	def __init__(self, service = None, query = None):
-		"""
-		"""
 		if query is None:
 			_log.Log(gmLog.lErr, 'must define query')
 			raise gmException.ConstructorError, 'must define query'
@@ -348,10 +346,6 @@ class cMatchProvider_SQL2(cMatchProvider):
 		# FIXME: deal with gmpw_score...
 		query = self._query % {'fragment_condition': fragment_condition}
 		rows = gmPG.run_ro_query(self._service, query, None, self._context_vals)
-#		pool = gmPG.ConnectionPool()
-#		conn = pool.GetConnection(self._service, extra_verbose=1)
-#		rows = gmPG.run_ro_query(conn, query, None, self._context_vals)
-#		pool.ReleaseConnection(self._service)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot check for matches with %s' % query)
 			_log.Log(gmLog.lErr, 'context: %s' % self._context_vals)
@@ -361,8 +355,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 			return (_false, [])
 		for row in rows:
 			# FIXME: deal with gmpw_score...
-#			matches.append({'data': row[0], 'label': row[1], 'weight': 0})
-			matches.append({'data': str(row[0]), 'label': row[1], 'weight': 0})
+			matches.append({'data': row[0], 'label': row[1], 'weight': 0})
 		matches.sort(self.__cmp_items)
 		return (_true, matches)
 	#--------------------------------------------------------
@@ -543,7 +536,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.3  2004-04-30 09:10:57  ncq
+# Revision 1.4  2004-05-02 22:54:43  ncq
+# - cleanup
+#
+# Revision 1.3  2004/04/30 09:10:57  ncq
 # - label needs to be str()ed in list.append()
 #
 # Revision 1.2  2004/03/10 12:56:01  ihaywood
