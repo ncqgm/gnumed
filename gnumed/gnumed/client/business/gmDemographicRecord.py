@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.13 2003-11-23 23:32:01 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmDemographicRecord.py,v 1.14 2003-11-30 01:06:21 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -390,6 +390,36 @@ values (%s, currval ('address_id_seq'), (select id from address_type where name 
 		if dob is None:
 			return '??'
 		return get_medical_age(dob)
+	#------------------------------------------------------------
+	def add_external_ID(self, external_id = None, description = None):
+		if external_id is None:
+			_log.Log(gmLog.lErr, 'need external ID to add it')
+			return None
+		args = {
+			'ID': self.ID,
+			'ext_ID': external_id,
+			'desc': description
+			}
+		if description is None:
+			cmd1 = 'insert into ext_person_id (fk_identity, external_id) values (%(ID)s, %(ext_ID)s)'
+		else:
+			cmd1 = 'insert into ext_person_id (fk_identity, external_id, description) values (%(ID)s, %(ext_ID)s, %(desc)s)'
+		cmd2 = "select currval('ext_person_id_pk_seq')"
+		result = gmPG.run_commit('personalia', [
+			(cmd1, [args]),
+			(cmd2, [])
+		])
+		if result is None:
+			_log.Log(gmLog.lErr, 'cannot link external ID [%s - %s]' % (external_id, description))
+			return None
+		return result
+	#------------------------------------------------------------
+	def remove_external_ID(self, pk_external_ID = None):
+		if pk_external_ID is None:
+			_log.Log(gmLog.lErr, 'need PK of external ID to delete it')
+			return None
+		cmd = 'delete from ext_person_id where pk=%s'
+		return gmPG.run_commit('personalia', [(cmd, [self.ID])])
 #================================================================
 # convenience functions
 #================================================================
@@ -566,7 +596,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.13  2003-11-23 23:32:01  ncq
+# Revision 1.14  2003-11-30 01:06:21  ncq
+# - add/remove_external_id()
+#
+# Revision 1.13  2003/11/23 23:32:01  ncq
 # - some cleanup
 # - setTitle now works on identity instead of names
 #
