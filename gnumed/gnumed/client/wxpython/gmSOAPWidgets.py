@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.18 2005-03-14 17:36:51 cfmoro Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmSOAPWidgets.py,v 1.19 2005-03-14 18:39:49 cfmoro Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -235,8 +235,8 @@ class cResizingSoapPanel(wx.wxPanel):
 	#--------------------------------------------------------
 	def SetHeadingTxt(self, txt):
 		"""
-		Set the header displayed text. Typically useful to configure
-		the entered episode text in an unassociated progress note.
+		Set the header displayed text (only for an unassociated
+		progress note).
 
 		@param txt: The heading text to set (episode name)
 		@param txt: string
@@ -244,7 +244,8 @@ class cResizingSoapPanel(wx.wxPanel):
 		if self.__episode is None:
 			self.__soap_heading.SetValue(txt)
 		else:
-			self.__soap_heading.SetLabel(txt)
+			msg = _('Cannot change the episode description for current note.')
+			gmGuiHelpers.gm_show_error(msg, _('changing episode description'), gmLog.lErr)
 	#--------------------------------------------------------
 	def get_editor(self):
 		"""
@@ -279,12 +280,17 @@ class cResizingSoapPanel(wx.wxPanel):
 	# internal API
 	#--------------------------------------------------------
 	def __set_heading(self, txt):
-		"""Configure SOAP widget's heading title
+		"""
+		Configure SOAP widget's heading title (both for associated
+		and unassociated progress note).
 
 		@param txt: New widget's heading title to set
 		@type txt: string
 		"""
-		self.__soap_heading.SetLabel(txt)
+		if self.__episode is None:
+			self.__soap_heading.SetValue(txt)
+		else:
+			self.__soap_heading.SetLabel(txt)
 		size = self.__soap_heading.GetBestSize()
 		self.__szr_main.SetItemMinSize(self.__soap_heading, size.width, size.height)
 		self.Layout()
@@ -513,7 +519,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.18  2005-03-14 17:36:51  cfmoro
+# Revision 1.19  2005-03-14 18:39:49  cfmoro
+# Clear phrasewheel on saving unassociated note
+#
+# Revision 1.18  2005/03/14 17:36:51  cfmoro
 # Added unit test for unassociated progress note
 #
 # Revision 1.17  2005/03/14 14:39:18  ncq
