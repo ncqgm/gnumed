@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.55 $
+-- $Revision: 1.56 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -389,46 +389,60 @@ comment on table drug_routes is
 comment on column drug_routes.description is
 'administration route of a drug like "oral", "sublingual", "intravenous" ...';
 
-create table script_drug
+create table drugchart
 (
 	id serial primary key,
+	started date,
+	last_prescribed date,
 	brandname varchar (200) default 'GENERIC',
 	directions text,
 	adjuvant text,
 	db_xref varchar (128) not null,
 	atc_code varchar (32),
-	total_amount float,
-	dose_amount float,
+	fluid_amount float,
 	amount_unit integer references drug_units (id),
 	packsize integer,
 	id_route integer references drug_routes (id) not null,
 	id_form integer references drug_formulations (id) not null,
 	prn boolean,
-	frequency integer not null
-);
+	weekly float,
+	mane float,
+	midi float,
+	vesper float,
+	nocte float
+) inherits (clin_root_item);
 
-comment on table script_drug is
-'table for different prescriptions. Note the multiple redundancy of the stored drug data.
+comment on table drugchart is
+'Representing what the patient is taking *now*, not a simple log
+of prescriptions. The forms engine will record each script and all its fields
+The audit mechanism will record all changes to this table.
+ 
+Note the multiple redundancy of the stored drug data.
 Applications should try in this order:
 - internal database code
 - brandname
 - ATC code
 - generic name(s) (in constituents)
 ';
---comment on column script_drug.xref_id is 'ID of the source database';
-comment on column script_drug.total_amount is 'the total amount to be dispensed';
-comment on column script_drug.dose_amount is 'the amount to be consumed at each dose';
-comment on column script_drug.prn is 'true if "pro re nata" (= as required)';
-comment on column script_drug.directions is 'free text for directions, such as ''nocte'' etc';
-comment on column script_drug.adjuvant is 'free text describing adjuvants, such as ''orange-flavoured'' etc.';
-	
+comment on column drugchart.last_prescribed is
+'date last script written, for compliance checking';
+comment on column drugchart.fluid_amount is 'for fluid drugs, the amount of fluid in each bottle/tube, etc. Otherwise 1.0. The total amount dispensed is always fluid_amount*packsize';
+comment on column drugchart.prn is 'true if "pro re nata" (= as required)';
+comment on column drugchart.directions is 'free text for directions, such as ''with food'' etc';
+comment on column drugchart.adjuvant is 'free text describing adjuvants, such as ''orange-flavoured'' etc.';
+comment on column drugchart.weekly is 'for drugs taken one/tweice a twice, such as bisphosphonates, metotrexate, etc., NULL otherwise. If non-NULL, overrides other dosing fields.';
+comment on column drugchart.mane is 'amount taken in the morning.';
+comment on column drugchart.midi is 'midday';
+comment on column drugchart.vesper is 'evening';
+comment on column drugchart.nocte is 'nighttime';
+
 create table constituents
 (
 	id serial primary key,
 	genericname varchar (100),
 	dose float,
 	dose_unit integer references drug_units (id),
-	id_drug integer references script_drug (id)
+	id_drug integer references drugchart (id)
 );
 
 comment on table constituents is
@@ -438,25 +452,6 @@ comment on table constituents is
 comment on column constituents.dose is
 'the amount of drug (if salt, the amount of active base substance, in a unit (see amount_unit above)';
  
-create table script
-(
-	id serial primary key
-);
-
-comment on table script is
-'one row for each physical prescription printed. Can have multiple drugs on a script, 
-and multiple scripts in a transaction';
-
-create table link_script_drug
-(
-	id_drug integer references script_drug (id),
-	id_script integer references script (id),
-	comment text
-);
-
-comment on table link_script_drug is
-'many-to-many table for drugs and prescriptions';
-
 -- =============================================
 
 create table enum_immunities
@@ -536,11 +531,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.55 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.56 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.55  2003-07-27 22:01:05  ncq
+-- Revision 1.56  2003-08-10 07:43:11  ihaywood
+-- new drug tables
+--
+-- Revision 1.55  2003/07/27 22:01:05  ncq
 -- - coding_systems moved to gmReference
 -- - start work on clin_diagnosis, drug* tables pending
 --
