@@ -2,22 +2,18 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.9 2004-03-09 10:12:41 shilbert Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmEMRTextDump.py,v 1.10 2004-03-09 10:51:50 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
-from Gnumed.pycommon import gmLog, gmSignals, gmDispatcher
-_log = gmLog.gmDefLog
 
-if __name__ == "__main__":
-	sys.path.append ("../pycommon/")
-	from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmLog, gmSignals, gmDispatcher, gmExceptions
+from Gnumed.business import gmPatient
 
-from Gnumed.business import gmPatient 
-
-from Gnumed.pycommon.gmExceptions import ConstructorError
 from wxPython.wx import *
+
+_log = gmLog.gmDefLog
 #============================================================
 class gmEMRDumpPanel(wxPanel):
 	def __init__(self, *args, **kwargs):
@@ -25,7 +21,7 @@ class gmEMRDumpPanel(wxPanel):
 		self.__do_layout()
 
 		if not self.__register_events():
-			raise ConstructorError, 'cannot register interests'
+			raise gmExceptions.ConstructorError, 'cannot register interests'
 	#--------------------------------------------------------
 	def __do_layout(self):
 		self.txt = wxTextCtrl(
@@ -125,7 +121,10 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.9  2004-03-09 10:12:41  shilbert
+# Revision 1.10  2004-03-09 10:51:50  ncq
+# - cleanup
+#
+# Revision 1.9  2004/03/09 10:12:41  shilbert
 # - adapt to new API from Gnumed.foo import bar
 #
 # Revision 1.8  2004/02/25 09:46:22  ncq
