@@ -2,11 +2,11 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GnuMed 0.1\n"
-"POT-Creation-Date: Mon Sep 30 10:47:18 2002\n"
+"POT-Creation-Date: Mon Sep 30 11:28:46 2002\n"
 "PO-Revision-Date: 2002-09-17 15:18+0200\n"
 "Last-Translator: Sebastian Hilbert <sebastian.hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -24,13 +24,6 @@ msgstr "Senden an"
 #: ../wxpython/patient/gmGP_ClinicalSummary.py:128
 msgid "icon_clinical_summary"
 msgstr ""
-
-#: ../wxpython/gmTalkback.py:45
-msgid ""
-"An error occured in GnuMed. You can send a bug report from the window below."
-msgstr ""
-"Ein Fehler ist in GnuMed aufgetreten. Sie koennen aus dem untensteheden "
-"Fenster einen Fehlerbericht senden "
 
 #: ../wxpython/gui/gmSnellen.py:429
 msgid " OK "
@@ -160,6 +153,10 @@ msgstr "Anweisungen"
 msgid "Vaccine"
 msgstr "Impfstoff"
 
+#: ../wxpython/gmGuiMain.py:368
+msgid "GnuMed client"
+msgstr "GnuMed: Hauptprogramm"
+
 #: ../wxpython/gmPersonDetailsDlg.py:58
 msgid "&Delete"
 msgstr "&Löschen"
@@ -231,9 +228,9 @@ msgstr "Darstellung"
 msgid "Recalls entered this consultation"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:368
-msgid "GnuMed client"
-msgstr "GnuMed: Hauptprogramm"
+#: ../wxpython/gmTalkback.py:31
+msgid "Don't send"
+msgstr "Nicht senden"
 
 #: ../wxpython/gmLabels.py:37
 msgid "at"
@@ -250,7 +247,7 @@ msgstr "Geburtsdatum"
 
 #: ../wxpython/patient/gmGP_PastHistory.py:102
 msgid "year onset"
-msgstr ""
+msgstr "Beginn"
 
 #: ../wxpython/gmPersonDetails.py:205
 msgid "state"
@@ -282,8 +279,15 @@ msgstr "Alphabet: "
 
 #: ../python-common/gmPG.py:524
 msgid "The wx GUI framework hasn't been initialized yet!"
+msgstr "Die wx-GUI ist noch nicht initialisiert."
+
+#: ../wxpython/gmGuiMain.py:230
+msgid ""
+"Message from GnuMed:\n"
+"Please write a nice About box!"
 msgstr ""
-"Das wx GUI Anwendungspaket ist bis jetzt noch nicht initialisiert worden!"
+"Nachricht von GnuMed:\n"
+"Hier fehlt noch was..."
 
 #: ../wxpython/gui/gmDrugDisplay.py:200
 msgid "Any"
@@ -338,13 +342,9 @@ msgstr ""
 msgid "Cancel Login."
 msgstr "Anmeldung abbrechen."
 
-#: ../wxpython/gmGuiMain.py:262
-msgid "Close this GnuMed client"
-msgstr "Dieses GnuMed-Fenster schliessen."
-
 #: ../wxpython/patient/gmGP_Prescriptions.py:130
 msgid "Items prescribed this consultation"
-msgstr ""
+msgstr "heutige Verordnungen"
 
 #: ../wxpython/gui/gmDrugDisplay.py:226
 msgid "Precautions"
@@ -381,10 +381,6 @@ msgid ""
 msgstr ""
 "Beschreibung/ \n"
 "Kommentar "
-
-#: ../wxpython/gmTalkback.py:31
-msgid "Don't send"
-msgstr "Nicht senden"
 
 #: ../wxpython/patient/gmGP_TabbedLists.py:121
 msgid "Last Date"
@@ -495,11 +491,22 @@ msgstr "Geburtsland"
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:216
 msgid "Save Item no print"
-msgstr ""
+msgstr "speichern ohne Druck"
+
+#: ../wxpython/gmGuiMain.py:230 ../wxpython/gmGuiMain.py:270
+msgid "About GnuMed"
+msgstr "Über GnuMed"
 
 #: ../wxpython/patient/gmGP_TabbedLists.py:135
 msgid "First Date"
 msgstr "erstmals"
+
+#: ../wxpython/gmTalkback.py:48
+msgid ""
+"An error occured in GnuMed. You can send a bug report from the window below."
+msgstr ""
+"Ein Fehler ist in GnuMed aufgetreten. Sie koennen aus dem untensteheden "
+"Fenster einen Fehlerbericht senden "
 
 #: ../wxpython/gmLabels.py:34
 msgid "urid"
@@ -529,14 +536,6 @@ msgstr "Freiname"
 msgid "&Ok"
 msgstr "&Ok"
 
-#: ../wxpython/gmGuiMain.py:230
-msgid ""
-"Message from GnuMed:\n"
-"Please write a nice About box!"
-msgstr ""
-"Nachricht von GnuMed:\n"
-"Hier fehlt noch was..."
-
 #: ../wxpython/gui/gmSnellen.py:412
 msgid "Screen Width (cm): "
 msgstr "Bildschirmbreite (cm): "
@@ -553,10 +552,6 @@ msgstr "Status"
 #: ../wxpython/gmPersonDetails.py:164 ../wxpython/gmSelectPerson.py:51
 msgid "&Add"
 msgstr "&Hinzufügen"
-
-#: ../wxpython/gmTalkback.py:60
-msgid "GnuMed Talkback"
-msgstr "GnuMed: Rückmeldungen"
 
 #: ../wxpython/patient/gmGP_Prescriptions.py:224
 msgid "Exit"
@@ -655,7 +650,7 @@ msgstr "komplette Produktinformation"
 
 #: ../wxpython/gui/gmGuidelines.py:156
 msgid "Guidelines"
-msgstr ""
+msgstr "Leitlinien"
 
 #: ../wxpython/gmCryptoText.py:183
 msgid "Please enter your pass phrase:"
@@ -669,7 +664,7 @@ msgstr "A&bbrechen"
 msgid ""
 "You need to set the option [workplace] -> <help desk> in the config file !"
 msgstr ""
-"Sie müssen in der Konfiguartionsdatei die Option [workplace] -><help desk> "
+"Sie müssen in der Konfigurationsdatei die Option [workplace] -> <help desk> "
 "einstellen!"
 
 #: ../wxpython/gmUserAdmin.py:67
@@ -814,6 +809,10 @@ msgstr "Abfage &lÃ¶schen"
 msgid "16 inch"
 msgstr "16 inch"
 
+#: ../wxpython/gmTalkback.py:72
+msgid "GnuMed Talkback"
+msgstr "GnuMed: Rückmeldungen"
+
 #: ../wxpython/gmLoginDialog.py:461
 msgid "port"
 msgstr "Port"
@@ -857,11 +856,7 @@ msgstr "Kontraindikationen"
 
 #: ../wxpython/patient/gmGP_PastHistory.py:121
 msgid "Year Onset"
-msgstr ""
-
-#: ../wxpython/gmGuiMain.py:230
-msgid "About GnuMed"
-msgstr "Über GnuMed"
+msgstr "Beginn"
 
 #: ../wxpython/gmTalkback.py:32
 msgid "Send"
@@ -913,8 +908,7 @@ msgstr "Optionen (DB)"
 
 #: ../wxpython/gmPersonDetails.py:161
 msgid "Categorize this address (i.e. \"home\", \"work\", \"holidays\")"
-msgstr ""
-"ordnen Sie die Adresse zu (z.B. \"privat\", \"geschÃ¤ftlich\", \"Urlaub\")"
+msgstr "Adresstyp angeben (z.B. \"privat\", \"geschäftlich\", \"Urlaub\")"
 
 #: ../wxpython/gmLabels.py:40
 msgid "Date"
@@ -959,6 +953,10 @@ msgstr "Entschlüsseln"
 #: ../wxpython/gmPersonDetails.py:114
 msgid "gender"
 msgstr "Geschlecht"
+
+#: ../wxpython/gmGuiMain.py:262
+msgid "Close this GnuMed client"
+msgstr "Dieses GnuMed-Fenster schliessen."
 
 #: ../wxpython/gmLabels.py:38
 msgid "Card type"
@@ -1074,11 +1072,15 @@ msgstr "geloest"
 msgid "Change"
 msgstr "Wechsel"
 
+#: ../wxpython/gmTalkback.py:57
+msgid "GnuMed Talkback Facility"
+msgstr "GnuMed Antwortfunktion"
+
 #: ../wxpython/gmPersonDetails.py:235
 msgid "different phone numbers like \"home\", \"work\" \"fax home\", ..."
 msgstr ""
-"unterschiedliche Telefonnummern wie \"privat\", \"geschäftlich\" \"Fax "
-"privat\", ..."
+"unterschiedliche Telefonnummern wie \"privat\", \"geschäftlich\" \"Fax privat"
+"\", ..."
 
 #: ../wxpython/gmPersonDetailsDlg.py:57 ../wxpython/gmSelectPerson.py:48
 msgid "&New"
@@ -1136,10 +1138,6 @@ msgstr "Ausgabestelle"
 #: ../wxpython/patient/gmGP_Prescriptions.py:207
 msgid "Brief Product Information"
 msgstr "kurze Produktinformation"
-
-#: ../wxpython/gmTalkback.py:48
-msgid "GnuMed Talkback Facility"
-msgstr "GnuMed Antwortfunktion"
 
 #: ../wxpython/gmLoginDialog.py:539
 msgid ""
@@ -1237,13 +1235,6 @@ msgstr "GnuMed: lade %s Module"
 #~ msgid "Login Parameters"
 #~ msgstr "spezielle Anmeldeparameter"
 
-#~ msgid ""
-#~ "Login attempt unsuccesful\n"
-#~ "Can't run GnuMed without database connection"
-#~ msgstr ""
-#~ "Login Versuch gescheitert\n"
-#~ "GnuMed kann nicht ohne Datenbankverbindung ausgefÃ¼hrt werden"
-
 #~ msgid "Save current entries in configuration file"
 #~ msgstr "Sichern der aktuellen EintrÃ¤ge in Konfigurationsdatei"
 
@@ -1261,9 +1252,6 @@ msgstr "GnuMed: lade %s Module"
 
 #~ msgid "&Login"
 #~ msgstr "&Anmelden"
-
-#~ msgid "&Save conf."
-#~ msgstr "&Einstellungen speichern"
 
 #~ msgid "OK"
 #~ msgstr "OK"
