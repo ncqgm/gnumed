@@ -6,8 +6,9 @@
 # - see spincontrol for list box handling
 #------------------------------------------------------------
 from wxPython.wx import *
-import string, types, time
+import string, types, time, sys
 
+sys.path.append('../../client/python-common/')
 import gmLog
 
 """
@@ -19,7 +20,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 
 __log__ = gmLog.gmDefLog
 
@@ -496,6 +497,7 @@ class cPhraseWheel (wxTextCtrl):
 # MAIN
 #--------------------------------------------------------
 if __name__ == '__main__':
+	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 	import gmI18N
 	def clicked (data):
 		print "Selected :%s" % data
