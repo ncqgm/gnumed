@@ -1,10 +1,14 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
 immediately
 ===========
+
+index
+-----
+- no phrase wheel list if only 1 match
 
 Conf/Doc
 --------
@@ -35,6 +39,11 @@ index
 =====================================================
 post-1.0
 ========
+index
+-----
+- ugly: use sizers
+- reload phrase wheel after completing a dir
+- quit button
 
 import
 ------
