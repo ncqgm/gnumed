@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -334,7 +334,7 @@ insert into allergy (
 );
 
 insert into allergy_state (
-	id_patient,
+	fk_patient,
 	has_allergy
 ) values (
 	currval('identity_id_seq'),
@@ -421,11 +421,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.22 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.23 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.22  2004-05-30 21:03:29  ncq
+-- Revision 1.23  2004-06-01 10:15:18  ncq
+-- - fk_patient, not id_patient in allergy_state
+--
+-- Revision 1.22  2004/05/30 21:03:29  ncq
 -- - encounter_type.id -> encounter_type.pk
 --
 -- Revision 1.21  2004/05/13 00:10:24  ncq
