@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.17 2004-02-17 04:04:34 ihaywood Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmDemographicRecord.py,v 1.18 2004-02-17 10:30:14 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -27,7 +27,7 @@ _log.Log(gmLog.lData, __version__)
 import gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N, gmMatchProvider, gmPatient
 
 # 3rd party
-import mx.DateTime
+import mx.DateTime as mxDT
 
 #============================================================
 gm2long_gender_map = {
@@ -195,7 +195,7 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 #		cmd = "update names set title = %s  where id = %s"
 #		gmPG.run_commit ('personalia', [(cmd, [title, name_id ])])
 #		cmd = "update names set active= true where id = %s"
-			#reactivate the row after the data is set
+		#reactivate the row after the data is set
 		return gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
 	#--------------------------------------------------------
 	def getID(self):
@@ -256,12 +256,11 @@ where
 		relative_demographics.addName( '**?**', self.getActiveName()['last'], activate = 1)
 		# and link the two
 		cmd = """
-insert into lnk_person2relative (
-	id_identity, id_relative, id_relation_type
-) values (
-	%s, %s, (select id from relation_types where description = %s)
-)
-"""
+			insert into lnk_person2relative (
+				id_identity, id_relative, id_relation_type
+			) values (
+				%s, %s, (select id from relation_types where description = %s)
+			)"""
 		success = gmPG.run_commit ("personalia", [(cmd, (id_new_relative, self.ID, rel_type))])
 		if success:
 			return id_new_relative
@@ -281,28 +280,35 @@ insert into lnk_person2relative (
 		cmd = "update identity set gender = %s where id = %s"
 		return gmPG.run_commit ('personalia', [(cmd, [gender, self.ID])])
 	#--------------------------------------------------------
-	def getAddresses(self, addr_type):
+	def getAddresses(self, addr_type = None):
+		"""Return a patient's addresses.
+
+		- return all types if addr_type is None
+		"""
+		vals = {'pat_id': self.ID}
+		if addr_type is None:
+			addr_where = ''
+		else:
+			addr_where = 'and at.name = %(addr_type)s'
+			vals['addr_type'] = addr_type
 		cmd = """
-select
-	vba.addr_id,
-	vba.number,
-	vba.street,
-	vba.city,
-	vba.postcode
-from
-	v_basic_address vba,
-	lnk_person2address lp2a,
-	address_type at
-where
-	lp2a.id_address = vba.addr_id
-	        and
-	lp2a.id_type = at.id
-	        and
-	at.name = %s
-		and
-	lp2a.id_identity = %s
-"""
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, addr_type, self.ID)
+			select
+				vba.addr_id,
+				vba.number,
+				vba.street,
+				vba.city,
+				vba.postcode,
+				at.name
+			from
+				v_basic_address vba,
+				lnk_person2address lp2a,
+				address_type at
+			where
+				lp2a.id_address = vba.addr_id
+				and	lp2a.id_type = at.id
+				and	lp2a.id_identity = %(pat_id)s
+				%s""" % addr_where
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, vals)
 		if rows is None:
 			return None
 		if len(rows) == 0:
@@ -312,7 +318,8 @@ where
 			'number': r[idx['number']],
 			'street': r[idx['street']],
 			'urb': r[idx['city']],
-			'postcode': r[idx['postcode']]
+			'postcode': r[idx['postcode']],
+			'type': r[idx['name']]
 		} for r in rows]
 	#---------------------------------------------------------
 	def getAllAddresses(self):
@@ -373,15 +380,15 @@ where
 
 		# address already in database ?
 		cmd = """
-select addr_id from v_basic_address
-where
-	number = %s and
-	street = %s and
-	city = %s and
-	postcode = %s and
-	state = %s and
-	country = %s
-"""
+			select addr_id from v_basic_address
+			where
+				number = %s and
+				street = %s and
+				city = %s and
+				postcode = %s and
+				state = %s and
+				country = %s
+			"""
 		data = gmPG.run_ro_query ('personalia', cmd, None, number, street, urb, postcode, state, country)
 		if data is None:
 			s = " ".join( ( addr_type, number, street, urb, postcode, state, country ) )
@@ -390,32 +397,31 @@ where
 
 		# delete any pre-existing link for this identity and the given address type
 		cmd = """
-delete from lnk_person2address
-where
-	id_identity = %s
-		and
-	id_type = (select id from address_type where name = %s)
-"""
+			delete from lnk_person2address
+			where
+				id_identity = %s and
+				id_type = (select id from address_type where name = %s)
+			"""
 		gmPG.run_commit ('personalia', [(cmd, [self.ID, addr_type])])
 
 		# yes, address already there, just add the link
 		if len(data) > 0:
 			addr_id = data[0][0]
 			cmd = """
-insert into lnk_person2address (id_identity, id_address, id_type)
-values (%s, %s, (select id from address_type where name = %s))
-"""
+				insert into lnk_person2address (id_identity, id_address, id_type)
+				values (%s, %s, (select id from address_type where name = %s))
+				"""
 			return gmPG.run_commit ("personalia", [(cmd, (self.ID, addr_id, addr_type))])
 
 		# no, insert new address and link it, too
 		cmd1 = """
-insert into v_basic_address (number, street, city, postcode, state, country)
-values (%s, %s, %s, %s, %s, %s)
-"""
+			insert into v_basic_address (number, street, city, postcode, state, country)
+			values (%s, %s, %s, %s, %s, %s)
+			"""
 		cmd2 = """
-insert into lnk_person2address (id_identity, id_address, id_type)
-values (%s, currval ('address_id_seq'), (select id from address_type where name = %s))
-"""
+			insert into lnk_person2address (id_identity, id_address, id_type)
+			values (%s, currval ('address_id_seq'), (select id from address_type where name = %s))
+			"""
 		return gmPG.run_commit ("personalia", [
 			(cmd1, (number, street, urb, postcode, state, country)),
 			(cmd2, (self.ID, addr_type))
@@ -463,7 +469,7 @@ values (%s, currval ('address_id_seq'), (select id from address_type where name 
 def dob2medical_age(dob):
 	"""format patient age in a hopefully meaningful way"""
 
-	age = mx.DateTime.Age(mx.DateTime.now(), dob)
+	age = mxDT.Age(mx.DateTime.now(), dob)
 
 	if age.years > 0:
 		return "%sy%sm" % (age.years, age.months)
@@ -587,7 +593,8 @@ class MP_urb_by_zip (gmMatchProvider.cMatchProvider_SQL):
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
 #------------------------------------------------------------
-def get_time_tuple( faultyMxDateObject):
+# FIXME: do we REALLY need this ?
+def get_time_tuple(faultyMxDateObject):
 		list = [0,0,0,   0, 0, 0,   0, 0, 0]
 		try:
 			i = 0
@@ -631,7 +638,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.17  2004-02-17 04:04:34  ihaywood
+# Revision 1.18  2004-02-17 10:30:14  ncq
+# - enhance GetAddresses() to return all types if addr_type is None
+#
+# Revision 1.17  2004/02/17 04:04:34  ihaywood
 # fixed patient creation refeential integrity error
 #
 # Revision 1.16  2004/02/14 00:37:10  ihaywood
