@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.146 $
+-- $Revision: 1.147 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -969,7 +969,7 @@ comment on column clin_medication.clin_when is
 	 - when did patient start to take this medication
 	 - in many cases date of first prescription - but not always
 	 - for newly prescribed drugs identical to last_prescribed';
-comment on column clin_medication.clin_when is
+comment on column clin_medication.comment is
 	'used as "prescribed_for" column
 	 - use to specify intent beyond treating issue at hand';
 comment on column clin_medication.last_prescribed is
@@ -1081,11 +1081,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.146 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.147 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.146  2005-01-31 06:22:50  ncq
+-- Revision 1.147  2005-02-08 07:07:40  ncq
+-- - improve path results staging table
+-- - cleanup
+--
+-- Revision 1.146  2005/01/31 06:22:50  ncq
 -- - renamed constraint to better reflect it's implications
 --
 -- Revision 1.145  2005/01/29 18:42:50  ncq
