@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.31 2004-07-18 20:30:54 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmDemographics.py,v 1.32 2004-07-24 17:15:26 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -403,7 +403,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 #		top_panel = self.gb['main.top_panel']
 #
 #		# and register ourselves as a widget
-#		self.gb['modules.patient'][self.__class__.__name__] = self
+#		self.gb['modules.patient'][self.__class__.__name__] = self		# split/renamed 'horstspace.notebook.%s'
 #		self.mwm = self.gb['clinical.manager']
 #		self.widget = PatientsPanel (self.mwm, self)
 #		self.mwm.RegisterWholeScreen(self.__class__.__name__, self.widget)
@@ -413,7 +413,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 #		pass
 #		self.mwm.Display (self.__class__.__name__)
 #		print "OnTool"
-#		self.gb['modules.gui']['Patient'].Raise()
+#		self.gb['modules.gui']['Patient'].Raise()		# split/renamed 'horstspace.notebook.%s'
 #
 #	def RegisterInterests(self):
 #		pass
@@ -430,7 +430,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.31  2004-07-18 20:30:54  ncq
+# Revision 1.32  2004-07-24 17:15:26  ncq
+# - small cleanups to keep track of plugin interface changes
+#
+# Revision 1.31  2004/07/18 20:30:54  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.30  2004/06/25 12:33:18  ncq
