@@ -138,7 +138,7 @@ class gmGP_Requests (gmPlugin.wxPatientPlugin):
 	Plugin to encapsulate the requests window
 	"""
 	__icons = {
-0: "x\xda}\x90=\x0b\xc3 \x10\x86\xf7\xfc\n\xc1\xc4\x14\x02r.\xd51\x18p\xacC\x96\
+"""icon_blood_sample""": "x\xda}\x90=\x0b\xc3 \x10\x86\xf7\xfc\n\xc1\xc4\x14\x02r.\xd51\x18p\xacC\x96\
 [K\xe9Vj\xff\xff\xd4\x9e\x1f\xa5g!\xea\xf2<\xbe/'\x9e\x1e/3\xec\xb39\x0b:F\
 \x98y\xb8\xee\xf3*nBZg7\x80\xcc\x9a88\x80\xe02c\xbb\xb7\x85\xc7\xc2\x005\xbf\
 \x94|h\xfd\x89\xd8\x01\xed\xcc\xaa\xf07/>|I\xcf{\x86\xd8\xcau\x98l\xc3k8\x11\
@@ -155,12 +155,12 @@ class gmGP_Requests (gmPlugin.wxPatientPlugin):
 
 	def GetIconData(self, anIconID = None):
 		if anIconID == None:
-			return self.__icons[0]
+			return self.__icons[_("""icon_blood_sample""")]
 		else:
 			if self.__icons.has_key(anIconID):
 				return self.__icons[anIconID]
 			else:
-				return self.__icons[0]
+				return self.__icons[_("""icon_blood_sample""")]
 
 	def GetWidget (self, parent):
 		return  RequestsPanel (parent, -1)
