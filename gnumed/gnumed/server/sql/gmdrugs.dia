@@ -90,6 +90,329 @@
     </dia:object>
     <dia:object type="UML - Class" version="0" id="O1">
       <dia:attribute name="name">
+        <dia:string>#audit#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#PK    id#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#SERIAL#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      table_name#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#NAME#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      table_row#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      stamp#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#TIMESTAMP WITHOUT TIME ZONE#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string>#(&apos;now&apos;::text)::ti ...  zone#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      who#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#NAME#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string>#&quot;current_user&quot;()#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      why#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#TEXT#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      what#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#TEXT#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      action#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#CHARACTER(1)#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      version#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK source#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      signature#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#TEXT#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="operations">
+        <dia:composite type="umloperation">
+          <dia:attribute name="name">
+            <dia:string>##</dia:string>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="parameters">
+            <dia:composite type="umlparameter">
+              <dia:attribute name="name">
+                <dia:string>#CHECK (((&quot;action&quot; = &apos;i&apos;::bpcha ... char)#</dia:string>
+              </dia:attribute>
+              <dia:attribute name="value">
+                <dia:string/>
+              </dia:attribute>
+               <dia:attribute name="type">
+                 <dia:string>##</dia:string>
+               </dia:attribute>
+              <dia:attribute name="kind">
+                <dia:enum val="0"/>
+              </dia:attribute>
+            </dia:composite>
+          </dia:attribute>
+        </dia:composite>
+      </dia:attribute>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O2">
+      <dia:attribute name="name">
+        <dia:string>#audited_table#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#PK    id#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#SERIAL#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O3">
+      <dia:attribute name="name">
         <dia:string>#available#</dia:string>
       </dia:attribute>
       <dia:attribute name="abstract">
@@ -214,133 +537,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O2">
-      <dia:attribute name="name">
-        <dia:string>#class_disease_interactions#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="abstract">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_attributes">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="visible_attributes">
-        <dia:boolean val="true"/>
-      </dia:attribute>
-      <dia:attribute name="attributes">
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_drug_class#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_code_system#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      disease_code#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#CHARACTER(20)#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_interaction#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      comment#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#TEXT#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite></dia:attribute>
-      <dia:attribute name="visible_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="operations"/>
-      <dia:attribute name="template">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="templates"/>
-    </dia:object>
-    <dia:object type="UML - Class" version="0" id="O3">
+    <dia:object type="UML - Class" version="0" id="O4">
       <dia:attribute name="name">
         <dia:string>#code_systems#</dia:string>
       </dia:attribute>
@@ -466,9 +663,9 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O4">
+    <dia:object type="UML - Class" version="0" id="O5">
       <dia:attribute name="name">
-        <dia:string>#dosage#</dia:string>
+        <dia:string>#conditions#</dia:string>
       </dia:attribute>
       <dia:attribute name="abstract">
         <dia:boolean val="false"/>
@@ -485,7 +682,7 @@
       <dia:attribute name="attributes">
         <dia:composite type="umlattribute">
           <dia:attribute name="name">
-            <dia:string>#PK    id#</dia:string>
+            <dia:string>#      id#</dia:string>
           </dia:attribute>
           <dia:attribute name="type">
             <dia:string>#SERIAL#</dia:string>
@@ -505,10 +702,10 @@
         </dia:composite>
         <dia:composite type="umlattribute">
           <dia:attribute name="name">
-            <dia:string>#   FK id_info_reference#</dia:string>
+            <dia:string>#      comment#</dia:string>
           </dia:attribute>
           <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
+            <dia:string>#TEXT#</dia:string>
           </dia:attribute>
           <dia:attribute name="value">
             <dia:string/>
@@ -525,7 +722,73 @@
         </dia:composite>
         <dia:composite type="umlattribute">
           <dia:attribute name="name">
-            <dia:string>#   FK id_drug_units#</dia:string>
+            <dia:string>#      authority#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#BOOLEAN#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O6">
+      <dia:attribute name="name">
+        <dia:string>#drug_dosage#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      id#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#SERIAL#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_drug#</dia:string>
           </dia:attribute>
           <dia:attribute name="type">
             <dia:string>#INTEGER#</dia:string>
@@ -565,10 +828,10 @@
         </dia:composite>
         <dia:composite type="umlattribute">
           <dia:attribute name="name">
-            <dia:string>#      dosage_type#</dia:string>
+            <dia:string>#   FK id_info_reference#</dia:string>
           </dia:attribute>
           <dia:attribute name="type">
-            <dia:string>#CHARACTER(1)#</dia:string>
+            <dia:string>#INTEGER#</dia:string>
           </dia:attribute>
           <dia:attribute name="value">
             <dia:string/>
@@ -585,30 +848,10 @@
         </dia:composite>
         <dia:composite type="umlattribute">
           <dia:attribute name="name">
-            <dia:string>#      dosage_start#</dia:string>
+            <dia:string>#   FK id_drug_route#</dia:string>
           </dia:attribute>
           <dia:attribute name="type">
-            <dia:string>#DOUBLE PRECISION#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      dosage_max#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#DOUBLE PRECISION#</dia:string>
+            <dia:string>#INTEGER#</dia:string>
           </dia:attribute>
           <dia:attribute name="value">
             <dia:string/>
@@ -644,48 +887,17 @@
           </dia:attribute>
         </dia:composite></dia:attribute>
       <dia:attribute name="visible_operations">
-        <dia:boolean val="true"/>
+        <dia:boolean val="false"/>
       </dia:attribute>
-      <dia:attribute name="operations">
-        <dia:composite type="umloperation">
-          <dia:attribute name="name">
-            <dia:string>##</dia:string>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="parameters">
-            <dia:composite type="umlparameter">
-              <dia:attribute name="name">
-                <dia:string>#CHECK (((dosage_type = &apos;*&apos;::bp ... char)#</dia:string>
-              </dia:attribute>
-              <dia:attribute name="value">
-                <dia:string/>
-              </dia:attribute>
-               <dia:attribute name="type">
-                 <dia:string>##</dia:string>
-               </dia:attribute>
-              <dia:attribute name="kind">
-                <dia:enum val="0"/>
-              </dia:attribute>
-            </dia:composite>
-          </dia:attribute>
-        </dia:composite>
-      </dia:attribute>
+      <dia:attribute name="operations"/>
       <dia:attribute name="template">
         <dia:boolean val="false"/>
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O5">
+    <dia:object type="UML - Class" version="0" id="O7">
       <dia:attribute name="name">
-        <dia:string>#drug_class#</dia:string>
+        <dia:string>#drug_element#</dia:string>
       </dia:attribute>
       <dia:attribute name="abstract">
         <dia:boolean val="false"/>
@@ -759,26 +971,6 @@
           <dia:attribute name="class_scope">
             <dia:boolean val="false"/>
           </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      comment#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#TEXT#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
         </dia:composite></dia:attribute>
       <dia:attribute name="visible_operations">
         <dia:boolean val="true"/>
@@ -800,7 +992,7 @@
           <dia:attribute name="parameters">
             <dia:composite type="umlparameter">
               <dia:attribute name="name">
-                <dia:string>#CHECK (category = &apos;t&apos;::bpchar) ... char)#</dia:string>
+                <dia:string>#CHECK (((category = &apos;t&apos;::bpcha ... char)#</dia:string>
               </dia:attribute>
               <dia:attribute name="value">
                 <dia:string/>
@@ -820,7 +1012,73 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O6">
+    <dia:object type="UML - Class" version="0" id="O8">
+      <dia:attribute name="name">
+        <dia:string>#drug_flags#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      id#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#SERIAL#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      description#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#CHARACTER VARYING(100)#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O9">
       <dia:attribute name="name">
         <dia:string>#drug_formulations#</dia:string>
       </dia:attribute>
@@ -906,7 +1164,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O7">
+    <dia:object type="UML - Class" version="0" id="O10">
       <dia:attribute name="name">
         <dia:string>#drug_information#</dia:string>
       </dia:attribute>
@@ -1063,7 +1321,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O8">
+    <dia:object type="UML - Class" version="0" id="O11">
       <dia:attribute name="name">
         <dia:string>#drug_routes#</dia:string>
       </dia:attribute>
@@ -1169,7 +1427,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O9">
+    <dia:object type="UML - Class" version="0" id="O12">
       <dia:attribute name="name">
         <dia:string>#drug_units#</dia:string>
       </dia:attribute>
@@ -1235,7 +1493,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O10">
+    <dia:object type="UML - Class" version="0" id="O13">
       <dia:attribute name="name">
         <dia:string>#drug_warning#</dia:string>
       </dia:attribute>
@@ -1361,7 +1619,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O11">
+    <dia:object type="UML - Class" version="0" id="O14">
       <dia:attribute name="name">
         <dia:string>#drug_warning_categories#</dia:string>
       </dia:attribute>
@@ -1447,93 +1705,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O12">
-      <dia:attribute name="name">
-        <dia:string>#generic_drug#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="abstract">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_attributes">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="visible_attributes">
-        <dia:boolean val="true"/>
-      </dia:attribute>
-      <dia:attribute name="attributes">
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#PK    id#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#SERIAL#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      is_compound#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#BOOLEAN#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string>#&apos;n&apos;#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      comment#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#TEXT#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite></dia:attribute>
-      <dia:attribute name="visible_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="operations"/>
-      <dia:attribute name="template">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="templates"/>
-    </dia:object>
-    <dia:object type="UML - Class" version="0" id="O13">
+    <dia:object type="UML - Class" version="0" id="O15">
       <dia:attribute name="name">
         <dia:string>#generic_drug_name#</dia:string>
       </dia:attribute>
@@ -1639,7 +1811,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O14">
+    <dia:object type="UML - Class" version="0" id="O16">
       <dia:attribute name="name">
         <dia:string>#info_reference#</dia:string>
       </dia:attribute>
@@ -1756,7 +1928,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O15">
+    <dia:object type="UML - Class" version="0" id="O17">
       <dia:attribute name="name">
         <dia:string>#interactions#</dia:string>
       </dia:attribute>
@@ -1862,133 +2034,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O16">
-      <dia:attribute name="name">
-        <dia:string>#link_class_interactions#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="abstract">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_attributes">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="visible_attributes">
-        <dia:boolean val="true"/>
-      </dia:attribute>
-      <dia:attribute name="attributes">
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#PK    id#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#SERIAL#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_drug_class#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_interacts_with#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_interaction#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      comment#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#TEXT#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite></dia:attribute>
-      <dia:attribute name="visible_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="operations"/>
-      <dia:attribute name="template">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="templates"/>
-    </dia:object>
-    <dia:object type="UML - Class" version="0" id="O17">
+    <dia:object type="UML - Class" version="0" id="O18">
       <dia:attribute name="name">
         <dia:string>#link_compound_generics#</dia:string>
       </dia:attribute>
@@ -2054,7 +2100,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O18">
+    <dia:object type="UML - Class" version="0" id="O19">
       <dia:attribute name="name">
         <dia:string>#link_country_drug_name#</dia:string>
       </dia:attribute>
@@ -2120,651 +2166,9 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O19">
-      <dia:attribute name="name">
-        <dia:string>#link_drug_class#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="abstract">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_attributes">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="visible_attributes">
-        <dia:boolean val="true"/>
-      </dia:attribute>
-      <dia:attribute name="attributes">
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_drug#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_class#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite></dia:attribute>
-      <dia:attribute name="visible_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="operations"/>
-      <dia:attribute name="template">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="templates"/>
-    </dia:object>
     <dia:object type="UML - Class" version="0" id="O20">
       <dia:attribute name="name">
-        <dia:string>#link_drug_disease_interactions#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="abstract">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_attributes">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="visible_attributes">
-        <dia:boolean val="true"/>
-      </dia:attribute>
-      <dia:attribute name="attributes">
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_drug#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_code_system#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      disease_code#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#CHARACTER(20)#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_interaction#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      comment#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#TEXT#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite></dia:attribute>
-      <dia:attribute name="visible_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="operations"/>
-      <dia:attribute name="template">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="templates"/>
-    </dia:object>
-    <dia:object type="UML - Class" version="0" id="O21">
-      <dia:attribute name="name">
-        <dia:string>#link_drug_dosage#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="abstract">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_attributes">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="visible_attributes">
-        <dia:boolean val="true"/>
-      </dia:attribute>
-      <dia:attribute name="attributes">
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_drug#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_dosage#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite></dia:attribute>
-      <dia:attribute name="visible_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="operations"/>
-      <dia:attribute name="template">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="templates"/>
-    </dia:object>
-    <dia:object type="UML - Class" version="0" id="O22">
-      <dia:attribute name="name">
-        <dia:string>#link_drug_indication#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="abstract">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_attributes">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="visible_attributes">
-        <dia:boolean val="true"/>
-      </dia:attribute>
-      <dia:attribute name="attributes">
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#PK    id#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#SERIAL#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_drug#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_code_system#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      indication_code#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#CHARACTER(20)#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      comment#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#TEXT#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite></dia:attribute>
-      <dia:attribute name="visible_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="operations"/>
-      <dia:attribute name="template">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="templates"/>
-    </dia:object>
-    <dia:object type="UML - Class" version="0" id="O23">
-      <dia:attribute name="name">
-        <dia:string>#link_drug_information#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="abstract">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_attributes">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="visible_attributes">
-        <dia:boolean val="true"/>
-      </dia:attribute>
-      <dia:attribute name="attributes">
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_drug#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_info#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite></dia:attribute>
-      <dia:attribute name="visible_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="operations"/>
-      <dia:attribute name="template">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="templates"/>
-    </dia:object>
-    <dia:object type="UML - Class" version="0" id="O24">
-      <dia:attribute name="name">
-        <dia:string>#link_drug_interactions#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="abstract">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_attributes">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="visible_attributes">
-        <dia:boolean val="true"/>
-      </dia:attribute>
-      <dia:attribute name="attributes">
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#PK    id#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#SERIAL#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_drug#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_interacts_with#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_interaction#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#      comment#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#TEXT#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite></dia:attribute>
-      <dia:attribute name="visible_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="operations"/>
-      <dia:attribute name="template">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="templates"/>
-    </dia:object>
-    <dia:object type="UML - Class" version="0" id="O25">
-      <dia:attribute name="name">
-        <dia:string>#link_drug_warning#</dia:string>
-      </dia:attribute>
-      <dia:attribute name="abstract">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_attributes">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="suppress_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="visible_attributes">
-        <dia:boolean val="true"/>
-      </dia:attribute>
-      <dia:attribute name="attributes">
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_drug#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_warning#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#INTEGER#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite></dia:attribute>
-      <dia:attribute name="visible_operations">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="operations"/>
-      <dia:attribute name="template">
-        <dia:boolean val="false"/>
-      </dia:attribute>
-      <dia:attribute name="templates"/>
-    </dia:object>
-    <dia:object type="UML - Class" version="0" id="O26">
-      <dia:attribute name="name">
-        <dia:string>#link_generic_drug_adverse_effec#</dia:string>
+        <dia:string>#link_drug_adverse_effects#</dia:string>
       </dia:attribute>
       <dia:attribute name="abstract">
         <dia:boolean val="false"/>
@@ -2899,7 +2303,775 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
+    <dia:object type="UML - Class" version="0" id="O21">
+      <dia:attribute name="name">
+        <dia:string>#link_drug_class#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_drug#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_class#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O22">
+      <dia:attribute name="name">
+        <dia:string>#link_drug_disease_interactions#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_drug#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_code_system#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      disease_code#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#CHARACTER(20)#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_interaction#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      comment#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#TEXT#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O23">
+      <dia:attribute name="name">
+        <dia:string>#link_drug_indication#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#PK    id#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#SERIAL#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_drug#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_code_system#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      indication_code#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#CHARACTER(20)#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      comment#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#TEXT#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      line#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O24">
+      <dia:attribute name="name">
+        <dia:string>#link_drug_information#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_drug#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_info#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O25">
+      <dia:attribute name="name">
+        <dia:string>#link_drug_interactions#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#PK    id#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#SERIAL#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_drug#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_interacts_with#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_interaction#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      comment#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#TEXT#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O26">
+      <dia:attribute name="name">
+        <dia:string>#link_drug_warning#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_drug#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_warning#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
     <dia:object type="UML - Class" version="0" id="O27">
+      <dia:attribute name="name">
+        <dia:string>#link_flag_product#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_product#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_flag#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O28">
+      <dia:attribute name="name">
+        <dia:string>#link_product_component#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_product#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_component#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      strength#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#DOUBLE PRECISION#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_unit#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O29">
       <dia:attribute name="name">
         <dia:string>#link_product_manufacturer#</dia:string>
       </dia:attribute>
@@ -2955,6 +3127,26 @@
           <dia:attribute name="class_scope">
             <dia:boolean val="false"/>
           </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      brandname#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#CHARACTER VARYING(60)#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string>#&apos;GENERIC&apos;#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
         </dia:composite></dia:attribute>
       <dia:attribute name="visible_operations">
         <dia:boolean val="false"/>
@@ -2965,7 +3157,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O28">
+    <dia:object type="UML - Class" version="0" id="O30">
       <dia:attribute name="name">
         <dia:string>#manufacturer#</dia:string>
       </dia:attribute>
@@ -3131,7 +3323,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O29">
+    <dia:object type="UML - Class" version="0" id="O31">
       <dia:attribute name="name">
         <dia:string>#product#</dia:string>
       </dia:attribute>
@@ -3210,27 +3402,7 @@
         </dia:composite>
         <dia:composite type="umlattribute">
           <dia:attribute name="name">
-            <dia:string>#      brandname#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#CHARACTER VARYING(60)#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string>#&apos;GENERIC&apos;#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK id_unit#</dia:string>
+            <dia:string>#   FK packing_unit#</dia:string>
           </dia:attribute>
           <dia:attribute name="type">
             <dia:string>#INTEGER#</dia:string>
@@ -3250,27 +3422,7 @@
         </dia:composite>
         <dia:composite type="umlattribute">
           <dia:attribute name="name">
-            <dia:string>#      strength#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="type">
-            <dia:string>#DOUBLE PRECISION#</dia:string>
-          </dia:attribute>
-          <dia:attribute name="value">
-            <dia:string/>
-          </dia:attribute>
-          <dia:attribute name="visibility">
-            <dia:enum val="3"/>
-          </dia:attribute>
-          <dia:attribute name="abstract">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-          <dia:attribute name="class_scope">
-            <dia:boolean val="false"/>
-          </dia:attribute>
-        </dia:composite>
-        <dia:composite type="umlattribute">
-          <dia:attribute name="name">
-            <dia:string>#   FK packing_unit#</dia:string>
+            <dia:string>#   FK id_route#</dia:string>
           </dia:attribute>
           <dia:attribute name="type">
             <dia:string>#INTEGER#</dia:string>
@@ -3337,7 +3489,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O30">
+    <dia:object type="UML - Class" version="0" id="O32">
       <dia:attribute name="name">
         <dia:string>#subsidies#</dia:string>
       </dia:attribute>
@@ -3443,7 +3595,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O31">
+    <dia:object type="UML - Class" version="0" id="O33">
       <dia:attribute name="name">
         <dia:string>#subsidized_products#</dia:string>
       </dia:attribute>
@@ -3562,10 +3714,10 @@
         </dia:composite>
         <dia:composite type="umlattribute">
           <dia:attribute name="name">
-            <dia:string>#      condition#</dia:string>
+            <dia:string>#   FK condition#</dia:string>
           </dia:attribute>
           <dia:attribute name="type">
-            <dia:string>#TEXT#</dia:string>
+            <dia:string>#INTEGER#</dia:string>
           </dia:attribute>
           <dia:attribute name="value">
             <dia:string/>
@@ -3609,58 +3761,228 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O32">
-      <dia:attribute name="constraint">
-        <dia:string>#id_product#</dia:string>
+    <dia:object type="UML - Class" version="0" id="O34">
+      <dia:attribute name="name">
+        <dia:string>#substance_dosage#</dia:string>
       </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O1" connection="9"/>
-        <dia:connection handle="1" to="O29" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O33">
-      <dia:attribute name="constraint">
-        <dia:string>#id_drug_class#</dia:string>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
       </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O2" connection="9"/>
-        <dia:connection handle="1" to="O5" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O34">
-      <dia:attribute name="constraint">
-        <dia:string>#id_code_system#</dia:string>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
       </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O2" connection="11"/>
-        <dia:connection handle="1" to="O3" connection="8"/>
-      </dia:connections>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#PK    id#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#SERIAL#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_drug_dosage#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_drug_units#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_component#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      dosage_type#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#CHARACTER(1)#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      dosage_start#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#DOUBLE PRECISION#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      dosage_max#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#DOUBLE PRECISION#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="operations">
+        <dia:composite type="umloperation">
+          <dia:attribute name="name">
+            <dia:string>##</dia:string>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="parameters">
+            <dia:composite type="umlparameter">
+              <dia:attribute name="name">
+                <dia:string>#CHECK (((dosage_type = &apos;*&apos;::bp ... char)#</dia:string>
+              </dia:attribute>
+              <dia:attribute name="value">
+                <dia:string/>
+              </dia:attribute>
+               <dia:attribute name="type">
+                 <dia:string>##</dia:string>
+               </dia:attribute>
+              <dia:attribute name="kind">
+                <dia:enum val="0"/>
+              </dia:attribute>
+            </dia:composite>
+          </dia:attribute>
+        </dia:composite>
+      </dia:attribute>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O35">
       <dia:attribute name="constraint">
-        <dia:string>#id_interaction#</dia:string>
+        <dia:string>#source#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O2" connection="15"/>
-        <dia:connection handle="1" to="O15" connection="8"/>
+        <dia:connection handle="0" to="O1" connection="27"/>
+        <dia:connection handle="1" to="O16" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O36">
       <dia:attribute name="constraint">
-        <dia:string>#id_info_reference#</dia:string>
+        <dia:string>#id_product#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O4" connection="11"/>
-        <dia:connection handle="1" to="O14" connection="8"/>
+        <dia:connection handle="0" to="O3" connection="9"/>
+        <dia:connection handle="1" to="O31" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O37">
       <dia:attribute name="constraint">
-        <dia:string>#id_drug_units#</dia:string>
+        <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O4" connection="13"/>
-        <dia:connection handle="1" to="O9" connection="8"/>
+        <dia:connection handle="0" to="O6" connection="11"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O38">
@@ -3668,8 +3990,8 @@
         <dia:string>#id_drug_warning_categories#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O4" connection="15"/>
-        <dia:connection handle="1" to="O11" connection="8"/>
+        <dia:connection handle="0" to="O6" connection="13"/>
+        <dia:connection handle="1" to="O14" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O39">
@@ -3677,323 +3999,377 @@
         <dia:string>#id_info_reference#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O7" connection="11"/>
-        <dia:connection handle="1" to="O14" connection="8"/>
+        <dia:connection handle="0" to="O6" connection="15"/>
+        <dia:connection handle="1" to="O16" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O40">
       <dia:attribute name="constraint">
-        <dia:string>#id_warning#</dia:string>
+        <dia:string>#id_drug_route#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O10" connection="11"/>
+        <dia:connection handle="0" to="O6" connection="17"/>
         <dia:connection handle="1" to="O11" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O41">
       <dia:attribute name="constraint">
-        <dia:string>#id_reference#</dia:string>
+        <dia:string>#id_info_reference#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O10" connection="13"/>
-        <dia:connection handle="1" to="O14" connection="8"/>
+        <dia:connection handle="0" to="O10" connection="11"/>
+        <dia:connection handle="1" to="O16" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O42">
       <dia:attribute name="constraint">
-        <dia:string>#id_drug#</dia:string>
+        <dia:string>#id_warning#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O13" connection="11"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="1" to="O14" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O43">
       <dia:attribute name="constraint">
-        <dia:string>#id_drug_class#</dia:string>
+        <dia:string>#id_reference#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O16" connection="11"/>
-        <dia:connection handle="1" to="O5" connection="8"/>
+        <dia:connection handle="0" to="O13" connection="13"/>
+        <dia:connection handle="1" to="O16" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O44">
       <dia:attribute name="constraint">
-        <dia:string>#id_interacts_with#</dia:string>
+        <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O16" connection="13"/>
-        <dia:connection handle="1" to="O5" connection="8"/>
+        <dia:connection handle="0" to="O15" connection="11"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O45">
       <dia:attribute name="constraint">
-        <dia:string>#id_interaction#</dia:string>
+        <dia:string>#id_compound#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O16" connection="15"/>
-        <dia:connection handle="1" to="O15" connection="8"/>
+        <dia:connection handle="0" to="O18" connection="9"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O46">
       <dia:attribute name="constraint">
-        <dia:string>#id_compound#</dia:string>
+        <dia:string>#id_component#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O17" connection="9"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="0" to="O18" connection="11"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O47">
       <dia:attribute name="constraint">
-        <dia:string>#id_component#</dia:string>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O17" connection="11"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O48">
-      <dia:attribute name="constraint">
         <dia:string>#id_drug_name#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O18" connection="9"/>
-        <dia:connection handle="1" to="O13" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O49">
-      <dia:attribute name="constraint">
-        <dia:string>#id_drug#</dia:string>
-      </dia:attribute>
-      <dia:connections>
         <dia:connection handle="0" to="O19" connection="9"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="1" to="O15" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O50">
-      <dia:attribute name="constraint">
-        <dia:string>#id_class#</dia:string>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O19" connection="11"/>
-        <dia:connection handle="1" to="O5" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O51">
+      <dia:object type="UML - Constraint" version="0" id="O48">
       <dia:attribute name="constraint">
         <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O20" connection="9"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O52">
+      <dia:object type="UML - Constraint" version="0" id="O49">
       <dia:attribute name="constraint">
-        <dia:string>#id_code_system#</dia:string>
+        <dia:string>#id_adverse_effect#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O20" connection="11"/>
-        <dia:connection handle="1" to="O3" connection="8"/>
+        <dia:connection handle="1" to="O0" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O53">
-      <dia:attribute name="constraint">
-        <dia:string>#id_interaction#</dia:string>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O20" connection="15"/>
-        <dia:connection handle="1" to="O15" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O54">
+      <dia:object type="UML - Constraint" version="0" id="O50">
       <dia:attribute name="constraint">
         <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O21" connection="9"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O55">
+      <dia:object type="UML - Constraint" version="0" id="O51">
       <dia:attribute name="constraint">
-        <dia:string>#id_dosage#</dia:string>
+        <dia:string>#id_class#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O21" connection="11"/>
-        <dia:connection handle="1" to="O4" connection="8"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O56">
+      <dia:object type="UML - Constraint" version="0" id="O52">
       <dia:attribute name="constraint">
         <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O22" connection="11"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="0" to="O22" connection="9"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O57">
+      <dia:object type="UML - Constraint" version="0" id="O53">
       <dia:attribute name="constraint">
         <dia:string>#id_code_system#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O22" connection="13"/>
-        <dia:connection handle="1" to="O3" connection="8"/>
+        <dia:connection handle="0" to="O22" connection="11"/>
+        <dia:connection handle="1" to="O4" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O58">
+      <dia:object type="UML - Constraint" version="0" id="O54">
       <dia:attribute name="constraint">
-        <dia:string>#id_drug#</dia:string>
+        <dia:string>#id_interaction#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O23" connection="9"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="0" to="O22" connection="15"/>
+        <dia:connection handle="1" to="O17" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O59">
+      <dia:object type="UML - Constraint" version="0" id="O55">
       <dia:attribute name="constraint">
-        <dia:string>#id_info#</dia:string>
+        <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O23" connection="11"/>
         <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O60">
+      <dia:object type="UML - Constraint" version="0" id="O56">
+      <dia:attribute name="constraint">
+        <dia:string>#id_code_system#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O23" connection="13"/>
+        <dia:connection handle="1" to="O4" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O57">
       <dia:attribute name="constraint">
         <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O24" connection="11"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="0" to="O24" connection="9"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O61">
+      <dia:object type="UML - Constraint" version="0" id="O58">
+      <dia:attribute name="constraint">
+        <dia:string>#id_info#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O24" connection="11"/>
+        <dia:connection handle="1" to="O10" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O59">
+      <dia:attribute name="constraint">
+        <dia:string>#id_drug#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O25" connection="11"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O60">
       <dia:attribute name="constraint">
         <dia:string>#id_interacts_with#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O24" connection="13"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="0" to="O25" connection="13"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O62">
+      <dia:object type="UML - Constraint" version="0" id="O61">
       <dia:attribute name="constraint">
         <dia:string>#id_interaction#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O24" connection="15"/>
-        <dia:connection handle="1" to="O15" connection="8"/>
+        <dia:connection handle="0" to="O25" connection="15"/>
+        <dia:connection handle="1" to="O17" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O63">
-      <dia:attribute name="constraint">
-        <dia:string>#id_drug#</dia:string>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O25" connection="9"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O64">
-      <dia:attribute name="constraint">
-        <dia:string>#id_warning#</dia:string>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O25" connection="11"/>
-        <dia:connection handle="1" to="O10" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O65">
+      <dia:object type="UML - Constraint" version="0" id="O62">
       <dia:attribute name="constraint">
         <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O26" connection="9"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O66">
+      <dia:object type="UML - Constraint" version="0" id="O63">
       <dia:attribute name="constraint">
-        <dia:string>#id_adverse_effect#</dia:string>
+        <dia:string>#id_warning#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O26" connection="11"/>
-        <dia:connection handle="1" to="O0" connection="8"/>
+        <dia:connection handle="1" to="O13" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O67">
+      <dia:object type="UML - Constraint" version="0" id="O64">
       <dia:attribute name="constraint">
         <dia:string>#id_product#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O27" connection="9"/>
-        <dia:connection handle="1" to="O29" connection="8"/>
+        <dia:connection handle="1" to="O31" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O65">
+      <dia:attribute name="constraint">
+        <dia:string>#id_flag#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O27" connection="11"/>
+        <dia:connection handle="1" to="O8" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O66">
+      <dia:attribute name="constraint">
+        <dia:string>#id_product#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O28" connection="9"/>
+        <dia:connection handle="1" to="O31" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O67">
+      <dia:attribute name="constraint">
+        <dia:string>#id_component#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O28" connection="11"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O68">
       <dia:attribute name="constraint">
-        <dia:string>#id_manufacturer#</dia:string>
+        <dia:string>#id_unit#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O27" connection="11"/>
-        <dia:connection handle="1" to="O28" connection="8"/>
+        <dia:connection handle="0" to="O28" connection="15"/>
+        <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O69">
       <dia:attribute name="constraint">
-        <dia:string>#id_generic_drug#</dia:string>
+        <dia:string>#id_product#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O29" connection="11"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="0" to="O29" connection="9"/>
+        <dia:connection handle="1" to="O31" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O70">
       <dia:attribute name="constraint">
-        <dia:string>#id_formulation#</dia:string>
+        <dia:string>#id_manufacturer#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O29" connection="13"/>
-        <dia:connection handle="1" to="O6" connection="8"/>
+        <dia:connection handle="0" to="O29" connection="11"/>
+        <dia:connection handle="1" to="O30" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O71">
       <dia:attribute name="constraint">
-        <dia:string>#id_unit#</dia:string>
+        <dia:string>#id_generic_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O29" connection="17"/>
-        <dia:connection handle="1" to="O9" connection="8"/>
+        <dia:connection handle="0" to="O31" connection="11"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O72">
       <dia:attribute name="constraint">
-        <dia:string>#packing_unit#</dia:string>
+        <dia:string>#id_formulation#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O29" connection="21"/>
+        <dia:connection handle="0" to="O31" connection="13"/>
         <dia:connection handle="1" to="O9" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O73">
       <dia:attribute name="constraint">
-        <dia:string>#id_product#</dia:string>
+        <dia:string>#packing_unit#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O31" connection="9"/>
-        <dia:connection handle="1" to="O29" connection="8"/>
+        <dia:connection handle="0" to="O31" connection="15"/>
+        <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O74">
       <dia:attribute name="constraint">
+        <dia:string>#id_route#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O31" connection="17"/>
+        <dia:connection handle="1" to="O11" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O75">
+      <dia:attribute name="constraint">
+        <dia:string>#id_product#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O33" connection="9"/>
+        <dia:connection handle="1" to="O31" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O76">
+      <dia:attribute name="constraint">
         <dia:string>#id_subsidy#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O31" connection="11"/>
-        <dia:connection handle="1" to="O30" connection="8"/>
+        <dia:connection handle="0" to="O33" connection="11"/>
+        <dia:connection handle="1" to="O32" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O77">
+      <dia:attribute name="constraint">
+        <dia:string>#condition#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O33" connection="19"/>
+        <dia:connection handle="1" to="O5" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O78">
+      <dia:attribute name="constraint">
+        <dia:string>#id_drug_dosage#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O34" connection="11"/>
+        <dia:connection handle="1" to="O6" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O79">
+      <dia:attribute name="constraint">
+        <dia:string>#id_drug_units#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O34" connection="13"/>
+        <dia:connection handle="1" to="O12" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O80">
+      <dia:attribute name="constraint">
+        <dia:string>#id_component#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O34" connection="15"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
   </dia:layer>

@@ -11,10 +11,15 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.16 $ $Date: 2002-10-07 07:23:43 $ $Author: hherb $
+-- $Revision: 1.17 $ $Date: 2002-10-26 12:38:20 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.16  2002-10-07 07:23:43  hherb
+-- Revision 1.17  2002-10-26 12:38:20  ihaywood
+-- Changes to gmdrugs.sql please review
+--
+-- Revision 1.17 2002/10/20 ihaywood 
+-- additions for versioning and attribution of data
+-- Revision 1.16  2002/10/07 07:23:43  hherb
 -- generic_drug further normalized (drug names no separate entities to allow for synonyms and translations)
 -- compound drug components now linked to compound drugs
 --
@@ -27,6 +32,94 @@
 -- facilities for internationalization.
 --
 
+create table info_reference(
+	id serial primary key,
+	source_category char check (source_category in ('p', 'a', 'i', 'm', 'o', 's')),
+	description text
+);
+comment on table info_reference is
+'Source of any reference information in this database';
+comment on column info_reference.source_category is
+'p=peer reviewed, a=official authority, i=independend source, m=manufacturer, o=other, s=self defined';
+comment on column info_reference.description is
+'URL or address or similar informtion allowing to reproduce the source of information';
+
+
+--###############################
+
+-- tables for auditing. This is a parallel auditing system just for the 
+-- drug databases. The users are the creators of the database, 
+-- and may have no overlap with the users on deployed databases.
+
+create table audit
+(
+	id serial primary key,
+	table_name name,
+	table_row integer,
+	stamp datetime default current_timestamp,
+	who name default current_user,
+	why text, -- general comment on the change
+	what text, -- pickled contents of the row
+	-- (this is of course a ridiculously inefficient means of storage.)
+	action char check (action in ('i', 'u', 'd', 'v')),
+	-- i=insert, u=update, d=delete, v=validate
+	version integer,
+	source integer references info_reference (id),
+	signature text 
+);
+
+comment on table audit is 'this is a master table of all changes to the database.'; 
+
+comment on column audit.what is 'pickled contents of the row after change made.';
+
+comment on column audit.action is 'action performed on row';
+comment on column audit.source is 'source of information for this change';
+comment on column audit.signature is 'GPG signature of the what field';
+comment on column audit.why is 'explanation of the change';
+
+
+create table audited_table
+(
+	id serial primary key
+);
+
+comment on table audited_table is 'ancestor table, inherited by all tables that need to be audited.';
+
+
+--A Note on Signatures
+--SQL rows cannot be signed, only 'documents': i.e ASCII strings, can be.
+--So PL/Python is used to form a pickled dictionary of the row, and 
+--this is signed.
+
+--PL/Python trigger to update audit table.
+create function audit_func () returns opaque as '
+import pickle
+import string
+if TD["event"] == "INSERT":
+ action = "i"
+ what = pickle.dumps (TD["new"])
+ table_row = TD["new"]["id"]
+elif TD["event"] == "UPDATE":
+ action = "u"
+ what = pickle.dumps (TD["new"])
+ table_row = TD["new"]["id"]
+elif TD["event"] == "DELETE":
+ action = "d"
+ table_row = TD["old"]["id"]
+ what = pickle.dumps (TD["old"])
+else:
+ plpy.fatal ("unknown action")
+what = string.replace (what, "''", "''''")
+table_name = plpy.execute ("select relname from pg_class where oid = %s" % TD["relid"])[0]["relname"]
+plpy.execute ("insert into audit (action, what, table_row, table_name, version) values (''%(action)s'', ''%(what)s'', %(table_row)s, ''%(table_name)s'', (select count (*)+1 from audit where table_name = ''%(table_name)s'' and table_row = %(table_row)s))" % vars ())
+' language 'plpython';
+
+comment on function audit_func () is 'Python trigger function to create audit entries';
+
+create trigger audit_trig after insert or update or delete on audited_table 
+for each row execute procedure audit_func ();
+
+-- ######################################
 
 create table code_systems(
 	id serial primary key,
@@ -112,26 +205,20 @@ insert into drug_routes(description, abbreviation) values('subcutaneous', 's.c.'
 insert into drug_routes(description, abbreviation) values('intraarterial', 'art.');
 insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.');
 
-create table info_reference(
+
+create table drug_element (
 	id serial primary key,
-	source_category char check (source_category in ('p', 'a', 'i', 'm', 'o', 's')),
+	category char check (category in ('t', 'p', 's', 'c')),
 	description text
 );
-comment on table info_reference is
-'Source of any reference information in this database';
-comment on column info_reference.source_category is
-'p=peer reviewed, a=official authority, i=independend source, m=manufacturer, o=other, s=self defined';
-comment on column info_reference.description is
-'URL or address or similar informtion allowing to reproduce the source of information';
 
+comment on table drug_element is 'collection of all drug elements: classes, compounds, and substances';
 
-create table drug_class(
-	id serial primary key,
-	category char check (category in ('t', 's')),
-	description text,
-	comment text
-);
-comment on table drug_class is
+comment on column drug_element.category is 't = therapeutic class, p = pharmaceutical class, s = substance, c = compound';
+
+create view drug_class as select * from drug_element where category = 't' or category = 'p';
+
+comment on view drug_class is
 'drug classes of specified categories';
 comment on column drug_class.category is
 'category of this class (t = therapeutic class, s = substance class)';
@@ -189,12 +276,9 @@ comment on column drug_information.info is
 'the drug product information in HTML format';
 
 
-create table generic_drug(
-	id serial primary key,
-	is_compound boolean default 'n',
-	comment text
-);
-comment on table generic_drug is
+create view generic_drug as select id, 
+	category = 'c' as is_compound from drug_element where category = 'c' or category = 's';
+comment on view generic_drug is
 'A generic drug, either single substance or compound';
 comment on column generic_drug.is_compound is
 'false if this drug is based on a single substance (like Trimethoprim), true if based on a compound (like Cotrimoxazole)';
@@ -202,7 +286,7 @@ comment on column generic_drug.is_compound is
 
 create table generic_drug_name(
 	id serial primary key,
-	id_drug integer references generic_drug,
+	id_drug integer references drug_element (id),
 	name varchar(60),
 	comment text
 );
@@ -213,8 +297,8 @@ comment on column generic_drug_name.name is
 
 
 create table link_compound_generics(
-	id_compound integer references generic_drug(id) not null,
-	id_component integer references generic_drug(id) not null
+	id_compound integer references drug_element(id) not null,
+	id_component integer references drug_element(id) not null
 );
 create index idx_link_compound_generics on link_compound_generics(id_compound, id_component);
 comment on table link_compound_generics is
@@ -227,45 +311,47 @@ create table link_country_drug_name(
 );
 create index idx_link_country_drug_name on link_country_drug_name(iso_countrycode, id_drug_name);
 comment on table link_country_drug_name is
-'indicates in which country a specific generic drug name is in use';
+'indicates in which country a specific generic drug name is in use. ''**'' marks the international name';
 
-
-create table dosage(
-	id serial primary key,
-	id_info_reference integer references info_reference(id),
-	id_drug_units integer references drug_units(id),
+create table drug_dosage(
+	id serial,
+	id_drug integer references drug_element (id),
 	id_drug_warning_categories integer references drug_warning_categories(id) default NULL,
-	dosage_type char check (dosage_type in ('*', 'w', 's', 'a')),
-	dosage_start float,
-	dosage_max float,
+	id_info_reference integer references info_reference(id),
+	id_drug_route integer references drug_routes (id),
 	dosage_hints text
 );
-comment on table dosage is
-'Dosage suggestion for a particular drug';
-comment on column dosage.id_drug_warning_categories is
+
+comment on table drug_dosage is
+'A table linking drugs to dosage recommendations';
+comment on column drug_dosage.id_drug_warning_categories is
 'indicates whether this dosage is targeted for specific patients, like paediatric or renal impairment';
-comment on column dosage.dosage_type is
-'*=absolute, w=weight based (per kg body weight), s=surface based (per m2 body surface), a=age based (in months)';
-comment on column dosage.dosage_start is
-'lowest value of recommended dosage range';
-comment on column dosage.dosage_max is
-'maximum value of recommended dosage range';
-comment on column dosage.dosage_hints is
+comment on column drug_dosage.dosage_hints is
 'free text warnings, tips & hints regarding applying this dosage recommendation';
 
-
-create table link_drug_dosage(
-	id_drug integer references generic_drug(id),
-	id_dosage integer references dosage(id)
+create table substance_dosage(
+	id serial primary key,
+	id_drug_dosage integer references drug_dosage (id), 
+	id_drug_units integer references drug_units (id),
+	id_component integer references drug_element (id), 
+	dosage_type char check (dosage_type in ('*', 'w', 's', 'a')),
+	dosage_start float,
+	dosage_max float
 );
-create index idx_link_drug_dosage on link_drug_dosage(id_drug, id_dosage);
-comment on table link_drug_dosage is
-'A many-to-many pivot table linking drugs to dosage recommendations';
+comment on table substance_dosage is
+'Dosage suggestion for a particular /substance/ (not compound)';
+comment on column substance_dosage.dosage_type is
+'*=absolute, w=weight based (per kg body weight), s=surface based (per m2 body surface), a=age based (in months)';
+comment on column substance_dosage.id_component is 'the component of a compound referred to by this row';
+comment on column substance_dosage.dosage_start is
+'lowest value of recommended dosage range';
+comment on column substance_dosage.dosage_max is
+'maximum value of recommended dosage range, zero if no range';
 
 
 create table link_drug_class(
-	id_drug integer references generic_drug(id),
-	id_class integer references drug_class(id)
+	id_drug integer references drug_element(id),
+	id_class integer references drug_element(id)
 );
 create index idx_link_drug_class on link_drug_class(id_drug, id_class);
 comment on table link_drug_class is
@@ -273,7 +359,7 @@ comment on table link_drug_class is
 
 
 create table link_drug_warning(
-	id_drug integer references generic_drug(id),
+	id_drug integer references drug_element(id),
 	id_warning integer references drug_warning(id)
 );
 create index idx_link_drug_warning on link_drug_warning(id_drug, id_warning);
@@ -282,7 +368,7 @@ comment on table link_drug_warning is
 
 
 create table link_drug_information(
-	id_drug integer references generic_drug(id),
+	id_drug integer references drug_element(id),
 	id_info integer references drug_information(id)
 );
 create index idx_link_drug_information on link_drug_information(id_drug, id_info);
@@ -303,17 +389,17 @@ comment on column adverse_effects.description is
 'the type of adverse effect like "pruritus", "hypotension", ...';
 
 
-create table link_generic_drug_adverse_effects(
-	id_drug integer references generic_drug(id),
+create table link_drug_adverse_effects(
+	id_drug integer references drug_element(id),
 	id_adverse_effect integer references adverse_effects(id),
 	frequency char check(frequency in ('c', 'i', 'r')),
 	important boolean
 );
-comment on table link_generic_drug_adverse_effects is
+comment on table link_drug_adverse_effects is
 'many to many pivot table linking drugs to adverse effects';
-comment on column link_generic_drug_adverse_effects.frequency is
+comment on column link_drug_adverse_effects.frequency is
 'The likelihood this adverse effect happens: c=common, i=infrequent, r=rare';
-comment on column link_generic_drug_adverse_effects.important is
+comment on column link_drug_adverse_effects.important is
 'modifier for attribute "frequency" allowing to weigh rare adverse effects too important to miss';
 
 
@@ -333,8 +419,8 @@ comment on column interactions.description is
 
 create table link_drug_interactions(
 	id serial primary key,
-	id_drug integer references generic_drug(id),
-	id_interacts_with integer references generic_drug(id),
+	id_drug integer references drug_element(id),
+	id_interacts_with integer references drug_element(id),
 	id_interaction integer references interactions(id),
 	comment text
 );
@@ -343,7 +429,7 @@ comment on table link_drug_interactions is
 
 
 create table link_drug_disease_interactions(
-	id_drug integer references generic_drug(id),
+	id_drug integer references drug_element(id),
 	id_code_system integer references code_systems(id),
 	disease_code char(20),
 	id_interaction integer references interactions(id),
@@ -353,49 +439,54 @@ comment on table link_drug_disease_interactions is
 'many to many pivot table linking interactions between drugs and diseases';
 
 
-create table link_class_interactions(
-	id serial primary key,
-	id_drug_class integer references drug_class(id),
-	id_interacts_with integer references drug_class(id),
-	id_interaction integer references interactions(id),
-	comment text
-);
-comment on table link_class_interactions is
-'many to many pivot table linking drug classes and their interactions';
-
-
-create table class_disease_interactions(
-	id_drug_class integer references drug_class(id),
-	id_code_system integer references code_systems(id),
-	disease_code char(20),
-	id_interaction integer references interactions(id),
-	comment text
-);
-comment on table class_disease_interactions is
-'many to many pivot table linking interactions between drug classes and diseases';
-
-
 create table product(
 	id serial primary key,
-	id_generic_drug integer references generic_drug(id),
+	id_generic_drug integer references drug_element(id),
 	id_formulation integer references drug_formulations(id),
-	brandname varchar(60) default 'GENERIC',
-	id_unit integer references drug_units(id),
-	strength float,
 	packing_unit integer references drug_units(id),
+	id_route integer references drug_routes (id),
 	package_size float,
 	comment text
 );
 comment on table product is
 'dispensable form of a generic drug including strength, package size etc';
-comment on column product.brandname is
-'the brand name as printed on the package';
-comment on column product.strength is
-'the strength of this formulation (units in column id_unit!)';
 comment on column product.packing_unit is
 'unit of drug "entities" as packed: for tablets and similar discrete formulations it should be the id of "each"';
 comment on column product.package_size is
 'the number of packing_units of this drug in this package';
+
+
+create table link_product_component
+
+(
+	id_product integer references product (id),
+	id_component integer references drug_element (id),
+	strength float,
+	id_unit integer references drug_units (id)
+);
+
+comment on table link_product_component  is 
+'many-to-many pivot table linking products with their components';
+
+create table drug_flags (
+	id serial,
+	description varchar (100)
+);
+
+comment on table drug_flags is 'flags for adjuvants such as ''gluten-free'', ''paediatric formulation'', etc.';
+
+insert into drug_flags (description) values ('paediatric');
+insert into drug_flags (description) values ('gluten-free');
+insert into drug_flags (description) values ('slow-release');
+insert into drug_flags (description) values ('enteric-coated');
+insert into drug_flags (description) values ('flavoured');
+
+create table link_flag_product (
+	id_product integer references product (id),
+	id_flag integer references drug_flags (id)
+);
+
+comment on table link_flag_product is 'many-to-many pivot table linking products to flags';
 
 
 create table available(
@@ -440,7 +531,8 @@ comment on column manufacturer.fax is
 
 create table link_product_manufacturer(
 	id_product integer references product(id),
-	id_manufacturer integer references manufacturer(id)
+	id_manufacturer integer references manufacturer(id),
+	brandname varchar (60) default 'GENERIC'
 );
 create index idx_link_product_manufacturer on link_product_manufacturer(id_product, id_manufacturer);
 comment on table link_product_manufacturer is
@@ -460,6 +552,14 @@ comment on column subsidies.iso_countrycode is
 comment on column subsidies.name is
 'description of the subsidy (like PBS or RPBS in Australia)';
 
+create table conditions (
+	id serial,
+	comment text,
+	authority boolean
+);
+
+comment on table conditions is 'normalised prescribing requirements for a drug or drugs';
+comment on column conditions.authority is 'true if prescriber must contact the third-party before approval'; 
 
 create table subsidized_products(
 	id_product integer references product(id),
@@ -467,9 +567,10 @@ create table subsidized_products(
 	max_qty integer default 1,
 	max_rpt integer default 0,
 	copayment float default 0.0,
-	condition text,
+	condition integer references conditions (id),
 	comment text
 );
+
 comment on table subsidized_products is
 'listing of drug products that may attract a subsidy';
 comment on column subsidized_products.max_qty is
@@ -484,10 +585,11 @@ comment on column subsidized_products.condition is
 
 create table link_drug_indication(
 	id serial primary key,
-	id_drug integer references generic_drug,
+	id_drug integer references drug_element,
 	id_code_system integer references code_systems,
 	indication_code char(20),
-	comment text
+	comment text,
+	line integer
 );
 create index idx_drug_indication on link_drug_indication(id_drug);
 create index idx_indication_drug on link_drug_indication(indication_code);
@@ -495,3 +597,4 @@ comment on table link_drug_indication is
 'many to many pivot table linking drugs and indications';
 comment on column link_drug_indication.indication_code is
 'code of the disease/indication in the specified code system';
+comment on column link_drug_indication.line is 'the line (first-line, second-line) of this drug for this indication'; 

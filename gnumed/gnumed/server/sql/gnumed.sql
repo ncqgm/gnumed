@@ -23,11 +23,17 @@
 -- create the neccessary procedural languages
 -- you may have to modify the path to the shared library according to your postgresql installation
 CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS
-    '/usr/lib/pgsql/plpgsql.so' LANGUAGE 'C';
+    '/usr/lib/postgresql/lib/plpgsql.so' LANGUAGE 'C';
 
 CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
     HANDLER plpgsql_call_handler
     LANCOMPILER 'PL/pgSQL';
+
+CREATE FUNCTION plpython_call_handler () RETURNS OPAQUE AS
+    '/usr/lib/postgresql/lib/plpython.so' LANGUAGE 'C';
+
+CREATE TRUSTED PROCEDURAL LANGUAGE 'plpython'
+    HANDLER plpython_call_handler;
 
 -- TODO:
 -- create configuration database
