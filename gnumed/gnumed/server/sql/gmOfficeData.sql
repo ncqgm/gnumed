@@ -4,7 +4,7 @@
 -- For details regarding GPL licensing see http://gnu.org
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmOfficeData.sql,v $
--- $Revision: 1.2 $ $Date: 2005-01-12 12:29:29 $ $Author: ncq $
+-- $Revision: 1.3 $ $Date: 2005-01-29 18:34:14 $ $Author: ncq $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -12,10 +12,10 @@
 -- ===================================================================
 -- forms handling
 -- ===================================================================
--- target classes
-insert into form_target_classes (name) values (_('printer'));
-insert into form_target_classes (name) values (_('fax'));
-insert into form_target_classes (name) values (_('email'));
+-- form job targets
+insert into form_job_targets (target) values (_('printer'));
+insert into form_job_targets (target) values (_('fax'));
+insert into form_job_targets (target) values (_('email'));
 
 -- ===================================================================
 -- billing schemes
@@ -40,11 +40,14 @@ insert into form_target_classes (name) values (_('email'));
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmOfficeData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmOfficeData.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmOfficeData.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmOfficeData.sql,v $
--- Revision 1.2  2005-01-12 12:29:29  ncq
+-- Revision 1.3  2005-01-29 18:34:14  ncq
+-- - form_queue_types renamed to the more appropriate form_job_targets
+--
+-- Revision 1.2  2005/01/12 12:29:29  ncq
 -- - comment out some unused tables
 --
 -- Revision 1.1  2004/03/09 23:58:56  ncq
