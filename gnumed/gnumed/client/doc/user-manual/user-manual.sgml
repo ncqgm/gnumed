@@ -5,8 +5,7 @@
    <bookinfo>
      <date>26-2-2002</date>
      <title>GNUMed</title>
-     <subtitle>User's Manual</subtitle>
-    
+     <subtitle>User's Manual</subtitle>    
 	<author>
 		<firstname>Ian</firstname>
 		<surname>Haywood</surname>
@@ -207,9 +206,9 @@ cvs -z3 -d:ext:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 
 		<row>
 		  <entry>Gentoo</entry>
-		  <entry>???</entry>
+		  <entry>N/A</entry>
 		  <entry><ulink url="http://www.gentoo.org">www.gentoo.org</ulink></entry>
-		  <entry>Yes</entry>
+		  <entry>Gentoo ebuild coming soon.</entry>
 		</row>
 
 		<row>
