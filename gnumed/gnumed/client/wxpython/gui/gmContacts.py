@@ -25,9 +25,7 @@
 from wxPython.wx import *
 import gmPlugin
 import images_contacts_toolbar16_16
-ID_ORGANISATIONSLIST = wxNewId()
-ID_ALL_MENU  = wxNewId()
-ID_COMBOTYPE = wxNewId()
+
 DISPLAYPERSON = 0
 organisationsdata = {
 1 : ("John Hunter Hospital","", "Lookout Rd NEW LAMBTON HEIGHTS","Public Hospital","02 49213000"),
@@ -40,26 +38,31 @@ organisationsdata = {
 8 : ( " ","- P Lang","Sports Physiotherapist","plang@jphysio.bdh.com.au", "494223568"),		     
 9 : ( " ","- L Short","Physiotherapist","lshort@jphysio.bdh.com.au", "494223568"),	
 }
+[
+ID_ORGANISATIONSLIST, 
+ID_ALL_MENU,
+ID_COMBOTYPE,
+ID_SAVESQL,
+ID_SEARCHGLOBAL,
+ID_ORGANISATIONDISPLAY,
+ID_GENERALPRACTICESDISPLAY,
+ID_DOCTORSDISPLAY,
+ID_PERSONSDISPLAY,
+ID_ORGANISATIONADD,
+ID_BRANCHDEPTADD,
+ID_EMPLOYEEADD,
+ID_PERSONADD,
+ID_RELOAD,
+ID_SEARCHSPECIFIC,
+ID_SORTA_Z,
+ID_SORTZ_A,
+ID_SENDEMAIL,
+ID_LINKINTERNET,
+ID_INSTANTREPORT,
+ID_REPORTS,
+ID_SAVE
 
-ID_SAVESQL = wxNewId()
-ID_SEARCHGLOBAL= wxNewId()
-ID_ORGANISATIONDISPLAY = wxNewId()
-ID_GENERALPRACTICESDISPLAY = wxNewId()
-ID_DOCTORSDISPLAY = wxNewId()
-ID_PERSONSDISPLAY = wxNewId()
-ID_ORGANISATIONADD = wxNewId()
-ID_BRANCHDEPTADD = wxNewId()
-ID_EMPLOYEEADD = wxNewId()
-ID_PERSONADD = wxNewId()
-ID_RELOAD = wxNewId()
-ID_SEARCHSPECIFIC = wxNewId()
-ID_SORTA_Z = wxNewId()
-ID_SORTZ_A = wxNewId()
-ID_SENDEMAIL = wxNewId()
-ID_LINKINTERNET = wxNewId()
-ID_INSTANTREPORT = wxNewId()
-ID_REPORTS = wxNewId()
-ID_SAVE = wxNewId()
+] = map(lambda _init_ctrls: wxNewId(), range(22))
 
 #--------------------------------------------------
 #Class which shows a blue bold label left justified
