@@ -33,6 +33,11 @@ class Toolbar(wxPanel):
 	#self.sizer.Add(1,3,0,wxEXPAND)		  
         self.sizer.Add(self.toplinesizer,1,wxEXPAND)
         self.sizer.Add(self.bottomlinesizer,1,wxEXPAND)
+	## mini-toolbar for tools on right-hand of bottom line
+	self.rightbottomtoolbar = wxToolBar (self, -1, size = wxSize (65, -1), style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
+        self.rightbottomtoolbar.SetToolBitmapSize((16,16))
+	self.rightbottomtoolbar_no_tools = 0
+	self.AddWidgetRightBottom (self.rightbottomtoolbar)
 	self.SetSizer(self.sizer)  #set the sizer 
 	self.sizer.Fit(self)             #set to minimum size as calculated by sizer
         self.SetAutoLayout(true)                 #tell frame to use the sizer
@@ -44,6 +49,29 @@ class Toolbar(wxPanel):
 	Insert a widget on the right-hand side of the bottom toolbar
 	"""
 	self.bottomlinesizer.Add(widget,0,wxRIGHT,0)
+
+    def AddWidgetTopLine (self, widget):
+	"""
+	Inserts a widget onto the top line
+	"""
+	self.toplinesizer.Add (widget, 0, wxEXPAND)
+
+    def AddToolRightBottom (self, image, help, method):
+	"""
+	Adds a tool to the permanent toolbar on th bottom line, right-side
+	"""
+	id = wxNewId ()
+	self.rightbottomtoolbar.AddTool (id, image, shortHelpString = help)
+	self.rightbottomtoolbar.Realize ()
+	EVT_TOOL (self, id, method)
+	self.rightbottomtoolbar_no_tools += 1
+	return id
+
+    def DeleteToolRightBottom (self, tool):
+	"""
+	Removes a tool from the right-bottom toolbar
+	"""
+	self.rightbottomtoolbar.DeleteTool (tool)
 
     def AddBar (self, key):
         """
@@ -79,7 +107,10 @@ class Toolbar(wxPanel):
 	self.bottomline.SetSize (s)
 	for i in self.subbars.values ():
 		i.SetSize (s)
-	self.sizer.Fit (self)
+	# right toolbar does not size properly
+	self.rightbottomtoolbar.SetSize (wxSize (self.rightbottomtoolbar_no_tools*20, 20))
+	self.sizer.Layout ()
+	self.sizer.Fit ()
             
     def ShowBar (self, key):
         """

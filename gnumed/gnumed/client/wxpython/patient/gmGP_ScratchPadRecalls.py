@@ -93,14 +93,8 @@ class gmGP_ScratchPadRecalls (gmPlugin.wxBasePlugin):
 
     def register (self):
         mwm = self.gb['patient.manager']
-        if gmConf.config['main.shadow']:
-            shadow = gmShadow.Shadow (mwm, -1)
-            spr = ScratchPadRecalls (shadow, -1)
-            shadow.SetContents (spr)
-            mwm.RegisterRightSide ('scratchpad_recalls', shadow, position=2)
-        else:
-            mwm.RegisterRightSide ('scratchpad_recalls', ScratchPadRecalls
-                                   (mwm, -1), position=2)
+        mwm.RegisterRightSide ('scratchpad_recalls', ScratchPadRecalls
+                                   (mwm.righthalfpanel, -1), position=2)
 
     def unregister (self):
         self.gb['patient.manager'].Unregister ('acratchpad_recalls')

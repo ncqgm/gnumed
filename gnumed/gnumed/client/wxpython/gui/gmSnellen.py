@@ -13,6 +13,7 @@ from wxPython.wx import *
 import gmPlugin
 import math
 import random
+import gmLog
 
 ID_SNELLENMENU = wxNewId ()
 
@@ -383,6 +384,7 @@ class SnellenChart (wxFrame):
         EVT_PAINT (self, self.OnPaint)
         self.ShowFullScreen (1)
         self.screen_x, self.screen_y = self.GetClientSizeTuple ()
+	gmLog.gmDefLog.Log (gmLog.lInfo, 'I think the screen size is %d x %d' % (self.screen_x, self.screen_y))
         self.set_distance (2)
         screensizes = {_("14 inch"):(28, 21), _("16 inch"):(30, 23)}
 

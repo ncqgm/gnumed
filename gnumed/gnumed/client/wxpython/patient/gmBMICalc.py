@@ -296,7 +296,6 @@ class TestFrame(wxFrame):
 		self.Destroy()
 
 ID_BMIMENU = wxNewId ()
-ID_BMITOOL = wxNewId ()
 
 class gmBMICalc (gmPlugin.wxBasePlugin):
     def name (self):
@@ -306,13 +305,13 @@ class gmBMICalc (gmPlugin.wxBasePlugin):
         menu = self.gb['main.toolsmenu']
         menu.Append (ID_BMIMENU, "BMI", "Body Mass Index Calculator")
         EVT_MENU (self.gb['main.frame'], ID_BMIMENU, self.OnBMITool)
-	tb = self.gb['toolbar.Patient']
-	tb.AddTool (ID_BMITOOL,images_gnuMedGP_Toolbar.getToolbar_BMICalcBitmap(),shortHelpString="Body Mass Index Calculator")
-	EVT_TOOL (tb, ID_BMITOOL, self.OnBMITool)
+	self.tb = self.gb['main.toolbar']
+	self.toolid = self.tb.AddToolRightBottom (images_gnuMedGP_Toolbar.getToolbar_BMICalcBitmap(), 'BMI Calculator', self.OnBMITool)
 
     def unregister (self):
-        tb2 = self.gb['toolbar.Patient']
-        tb2.DeleteTool (ID_BMITOOL)
+        #tb2 = self.gb['toolbar.Patient']
+        #tb2.DeleteTool (ID_BMITOOL)
+	self.tb.DeleteToolRightBottom (self.toolid)
         menu = self.gb['main.toolsmenu']
         menu.Delete (ID_BMIMENU)
         

@@ -114,6 +114,7 @@ if __name__ == '__main__':
 else:
 	# plugin()ize
 	import gmPlugin
+	import images_gnuMedGP_Toolbar
 
 	class gmPreg (gmPlugin.wxBasePlugin):
 		def name (self):
@@ -123,10 +124,13 @@ else:
 			menu = self.gb['main.toolsmenu']
 			menu.Append (ID_MENU, "Preg. Calc", "Pregnancy Calculator")
 			EVT_MENU (self.gb['main.frame'], ID_MENU, self.OnTool)
+			self.tb = self.gb['main.toolbar']
+			self.toolid = self.tb.AddToolRightBottom (images_gnuMedGP_Toolbar.getToolbar_PregcalcBitmap(), 'Pregnancy Calculator', self.OnTool)
 		#---------------------
 		def unregister (self):
 			menu = self.gb['main.toolsmenu']
 			menu.Delete (ID_MENU)
+			self.tb.DeleteToolRightBottom (self.toolid)
 		#---------------------
 		def OnTool (self, event):
 			frame = PregnancyDialogue (self.gb['main.frame'])

@@ -182,14 +182,8 @@ class gmGP_TabbedLists (gmPlugin.wxBasePlugin):
 
     def register (self):
         self.mwm = self.gb['patient.manager']
-        if gmConf.config['main.shadow']:
-            shadow = gmShadow.Shadow (self.mwm, -1)
-            tl = TabbedLists (shadow, -1)
-            shadow.SetContents (tl)
-            self.mwm.RegisterRightSide ('tabbed_lists', shadow, position=1)
-        else:
-            self.mwm.RegisterRightSide ('tabbed_lists', TabbedLists
-                                   (self.mwm, -1), position=1)
+        self.mwm.RegisterRightSide ('tabbed_lists', TabbedLists
+                                   (self.mwm.righthalfpanel, -1), position=1)
 
     def unregister (self):
         self.mwm.Unregister ('tabbed_lists')

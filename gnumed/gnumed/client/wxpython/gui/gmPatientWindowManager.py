@@ -35,6 +35,13 @@ class PatientWindow (wxPanel):
         self.righthalf = {}
         self.sizer = wxBoxSizer (wxHORIZONTAL)
         self.SetSizer (self.sizer)
+	if gmConf.config['main.shadow']:
+		self.righthalfshadow = gmShadow.Shadow (self, -1)
+		self.righthalfpanel = wxPanel (self.righthalfshadow, -1)
+		self.righthalfshadow.SetContents (self.righthalfpanel)
+	else:
+		self.righthalfpanel = wxPanel (self, -1)
+		self.righthalfshadow = self.righthalfpanel
 
     def OnSize (self, event):
         w,h = self.GetClientSizeTuple ()
@@ -65,9 +72,9 @@ class PatientWindow (wxPanel):
 
     def RegisterRightSide (self, name, panel, position =1):
         """
-        Register for right column
+        Register for right column. Panel must be self.righthalfpanel
         Note there is no display function for these: they are
-        automatcially displayed when a left-column plugin is displayed
+        automatically displayed when a left-column plugin is displayed
         """
         self.righthalf[name] = (panel, position)
         panel.Show (0)
@@ -119,10 +126,8 @@ class PatientWindow (wxPanel):
                 # remove left half and right column
                 self.sizer.Remove (0)
                 self.lefthalf[self.visible].Show (0)
-                for widget, position in self.righthalf.values ():
-                    self.vbox.Remove (widget)
-                    widget.Show (0)
-                self.sizer.Remove (self.vbox)
+                self.righthalfshadow.Show (0)
+                self.sizer.Remove (self.righthalfshadow)
             # now put whole screen in
             self.wholescreen[name].Show (1)
             self.sizer.Add (self.wholescreen[name], 1, wxEXPAND, 0)
@@ -154,7 +159,9 @@ class PatientWindow (wxPanel):
                         self.vbox.Add (w, 1, wxEXPAND, 0)
                         done += 1
                 pos += 1
-            self.sizer.Add (self.vbox, 1, wxEXPAND, 0) 
+	    self.righthalfpanel.SetSizer (self.vbox)
+	    self.righthalfpanel.SetAutoLayout (1)
+            self.sizer.Add (self.righthalfshadow, 1, wxEXPAND, 0) 
             self.sizer.Layout ()
             self.visible = name
 

@@ -9,7 +9,7 @@ import gmPG, gmExceptions, types, cPickle
 #config = {}
 
 # HACK FOR NOW
-config = {'main.use_notebook':1, 'main.shadow':1, 'main.shadow.colour':(131, 129, 131), 'main.shadow.width':4}
+config = {'main.use_notebook':1, 'main.shadow':1, 'main.shadow.colour':(131, 129, 131), 'main.shadow.width':10}
 
 
 
