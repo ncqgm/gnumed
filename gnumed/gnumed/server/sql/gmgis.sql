@@ -49,7 +49,7 @@ COMMENT ON COLUMN country.deprecated IS
 
 create table state (
 	id serial primary key,
-	code char(3),
+	code char(10),
 	country char(2) references country(code),
 	name varchar(60),
 	deprecated date,
