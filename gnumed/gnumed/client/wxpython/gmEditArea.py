@@ -89,7 +89,7 @@ class  EditAreaTextBox(wxTextCtrl):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPostion, wxDefaultSize,wxSIMPLE_BORDER)
 		#self.SetBackgroundColour(wxColor(255,194,197))
 		self.SetForegroundColour(wxColor(255,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 
 #--------------------------------------------------
 #Class which shows a blue bold label left justified
@@ -97,7 +97,7 @@ class  EditAreaTextBox(wxTextCtrl):
 class EditAreaPromptLabel(wxStaticText):
 	def __init__(self, parent, id, prompt, aColor = richards_blue):
 		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT) 
-		self.SetFont(wxFont(10,wxSWISS,wxBOLD,wxBOLD,false,''))
+		self.SetFont(wxFont(10,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		self.SetForegroundColour(aColor)
 #--------------------------------------------------------------------------------
 #create the editorprompts class which expects a dictionary of labels passed to it
@@ -111,7 +111,11 @@ class EditAreaPrompts(wxPanel):
 		self.sizer = wxGridSizer (len(prompt_array),1,2,2)                              #add grid sizer with n columns
 		for key in prompt_array.keys():
 			if key == 1:
-				self.sizer.Add(EditAreaPromptLabel(self,-1, " " + prompt_array[key],aColor=richards_aqua),0,wxEXPAND)
+				self.sizer.Add(
+					EditAreaPromptLabel(parent = self, id = -1, prompt = " " + prompt_array[key], aColor = richards_aqua),
+					0,
+					wxEXPAND
+				)
 			else:
 				self.sizer.Add(EditAreaPromptLabel(self,-1, " " + prompt_array[key]),0,wxEXPAND)
 
@@ -411,7 +415,7 @@ class EditTextBoxes(wxPanel):
 		      
 	        elif section == gmSECTION_MEASUREMENTS:
 		      self.combo_measurement_type = wxComboBox(self, ID_MEASUREMENT_TYPE, "", wxDefaultPosition,wxDefaultSize, ['Blood pressure','INR','Height','Weight','Whatever other measurement you want to put in here'], wxCB_DROPDOWN)
-		      self.combo_measurement_type.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+		      self.combo_measurement_type.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		      self.combo_measurement_type.SetForegroundColour(wxColor(255,0,0))
 		      self.txt_measurement_value = EditAreaTextBox(self,ID_MEASUREMENT_VALUE,wxDefaultPosition,wxDefaultSize)
 		      self.txt_txt_measurement_date = EditAreaTextBox(self,ID_MEASUREMENT_DATE,wxDefaultPosition,wxDefaultSize)
@@ -526,15 +530,15 @@ class EditTextBoxes(wxPanel):
 		elif section == gmSECTION_RECALLS:
 		      #FIXME remove present options in this combo box	  #FIXME defaults need to be loaded from database	  
 		      self.combo_tosee = wxComboBox(self, ID_RECALLS_TOSEE, "", wxDefaultPosition,wxDefaultSize, ['Doctor1','Doctor2','Nurse1','Dietition'], wxCB_READONLY ) #wxCB_DROPDOWN)
-		      self.combo_tosee.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		      self.combo_tosee.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		      self.combo_tosee.SetForegroundColour(wxColor(255,0,0))
 		      #FIXME defaults need to be loaded from database
 		      self.combo_recall_method = wxComboBox(self, ID_RECALLS_CONTACTMETHOD, "", wxDefaultPosition,wxDefaultSize, ['Letter','Telephone','Email','Carrier pigeon'], wxCB_READONLY )
-		      self.combo_recall_method.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		      self.combo_recall_method.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		      self.combo_recall_method.SetForegroundColour(wxColor(255,0,0))
 		      #FIXME defaults need to be loaded from database
                       self.combo_apptlength = wxComboBox(self, ID_RECALLS_APPNTLENGTH, "", wxDefaultPosition,wxDefaultSize, ['brief','standard','long','prolonged'], wxCB_READONLY )
-		      self.combo_apptlength.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		      self.combo_apptlength.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		      self.combo_apptlength.SetForegroundColour(wxColor(255,0,0))
 		      self.txt_recall_for = EditAreaTextBox(self,ID_RECALLS_TXT_FOR, wxDefaultPosition,wxDefaultSize)
 		      self.txt_recall_due = EditAreaTextBox(self,ID_RECALLS_TXT_DATEDUE, wxDefaultPosition,wxDefaultSize)

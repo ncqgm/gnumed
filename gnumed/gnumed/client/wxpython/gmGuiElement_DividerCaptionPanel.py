@@ -38,7 +38,7 @@ class DividerCaptionPanel(wxPanel):
         caption = wxStaticText(self,-1, title,style = wxALIGN_CENTRE)              #static text control for the caption
         caption.SetForegroundColour(wxWHITE)	                                   #white foreground text colour
          #SetCaptionForegroundColor()                                              #set caption text colour to rgb
-	caption.SetFont(wxFont(13,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))         #TODO implement font size parameter 
+	caption.SetFont(wxFont(13,wxSWISS,wxNORMAL, wxBOLD,false,''))         #TODO implement font size parameter 
         sizer.Add(caption,1,wxEXPAND)                                      #add caption to the sizer
 	self.SetSizer(sizer)                                               #set the sizer 
 	sizer.Fit(self)                                                    #set to minimum size as calculated by sizer

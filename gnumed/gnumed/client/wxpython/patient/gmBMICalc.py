@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -132,7 +132,7 @@ class BMICalc_Panel(wxPanel):
 			wxDefaultSize,
 			style = wxALIGN_CENTRE
 		)
-		lblheading.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+		lblheading.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		lblheading.SetForegroundColour(wxColour(0,0,131))
 		szr_left1 = wxBoxSizer(wxHORIZONTAL)
 		szr_left1.Add(lblheading,1,0)
@@ -153,11 +153,11 @@ class BMICalc_Panel(wxPanel):
 		#------------------------------
 		szr_left3 = wxBoxSizer(wxHORIZONTAL)
 		label2 = wxStaticText(self,-1,_("Weight (kg)"),size = (20,20))
-		label2.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		label2.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label2.SetForegroundColour(wxColour(0,0,131))
 
 		txtWeight = wxTextCtrl(self,-1,"",size=(100,20))
-		txtWeight.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		txtWeight.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		szr_left3.Add(10,1,0,0)
 		szr_left3.Add(label2,1,wxALIGN_CENTRE_VERTICAL|0)
 		szr_left3.Add(txtWeight,1,wxALIGN_CENTRE_VERTICAL|0)
@@ -167,11 +167,11 @@ class BMICalc_Panel(wxPanel):
 		#------------------------------
 		szr_left4 = wxBoxSizer(wxHORIZONTAL)
 		label3 = wxStaticText(self,-1,_("BMI"),size = (100,20))
-		label3.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		label3.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label3.SetForegroundColour(wxColour(0,0,131))
 
 		txtbmi = wxTextCtrl(self,-1,"",size=(100,20))
-		txtbmi.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		txtbmi.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		szr_left4.Add(10,1,0,0)
 		szr_left4.Add(label3,1,wxALIGN_CENTRE_VERTICAL|0)
 		szr_left4.Add(txtbmi,1,wxALIGN_CENTRE_VERTICAL|0)
@@ -197,17 +197,17 @@ class BMICalc_Panel(wxPanel):
 		#---------------------------------------------------------------------
 		szr_left7 = wxBoxSizer(wxHORIZONTAL)
 		label4 = wxStaticText(self,-1,_("Adjusted Values"),wxDefaultPosition,wxDefaultSize,style = wxALIGN_CENTRE)  #add underline
-		label4.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		label4.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		label4.SetForegroundColour(wxColour(0,0,131))
 		szr_left7.Add(label4,1,wxEXPAND)
 		#-----------------------
 		#Put in the goal weight
 		#----------------------
 		lblgoal = wxStaticText(self,-1,_("Goal weight"),size = (30,20))
-		lblgoal.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		lblgoal.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		lblgoal.SetForegroundColour(wxColour(0,0,131))
 		txtgoal= wxTextCtrl(self,-1,"",size=(100,20))
-		txtgoal.SetFont(wxFont(14,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		txtgoal.SetFont(wxFont(14,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		szr_left8 = wxBoxSizer(wxHORIZONTAL)
 		szr_left8.Add(10,1,0,0)
 		szr_left8.Add(lblgoal,1,0)
@@ -216,10 +216,10 @@ class BMICalc_Panel(wxPanel):
 		#and the amount to loose in Kg
 		#-----------------------------
 		lblloss = wxStaticText(self,-1,_("kg to loose"),size = (30,20))
-		lblloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		lblloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		lblloss.SetForegroundColour(wxColour(0,0,131))
 		txtloss= wxTextCtrl(self,-1,"",size=(100,20))
-		txtloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		txtloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		szr_left9 = wxBoxSizer(wxHORIZONTAL)
 		szr_left9.Add(10,1,0,0)	
 		szr_left9.Add(lblloss,1,0)
@@ -410,7 +410,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.11  2003-01-12 18:51:32  ncq
+# Revision 1.12  2003-01-14 20:18:57  ncq
+# - fixed setfont() problem
+#
+# Revision 1.11  2003/01/12 18:51:32  ncq
 # - fixed segfault on invocation as plugin
 #
 # Revision 1.10  2003/01/12 17:13:54  ncq

@@ -123,7 +123,7 @@ class PrescriptionPanel (wxPanel):
 			"Mini-Drug interaction text goes here (click this for full description)\n \n"
 			"Also, try clicking on the list below with the right mouse button to see a pop up menu",		    
 			style=wxTE_MULTILINE)
-		self.interactiontxt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		self.interactiontxt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		#------------------------------------------------------------------------------------
 		#add the divider headings below the drug interactions as heading for items prescribed
 		#------------------------------------------------------------------------------------

@@ -93,7 +93,7 @@ addressdata = ['129 Afred Street WARNERS BAY 2280', '99 Wolfe Street NEWCASTLE 2
 class BlueLabel(wxStaticText):
 	def __init__(self, parent, id, prompt):
 		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT)
-		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNormal,wxBold,false,''))
 		self.SetForegroundColour(wxColour(0,0,131))
 #------------------------------------------------------------
 #text control class to be later replaced by the gmPhraseWheel
@@ -102,12 +102,12 @@ class TextBox_RedBold(wxTextCtrl):
 	def __init__ (self, parent, id): #, wxDefaultPostion, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(255,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 class TextBox_BlackNormal(wxTextCtrl):
 	def __init__ (self, parent, id): #, wxDefaultPostion, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(0,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 
 class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 	def __init__(self, parent, plugin, id=wxNewId ()):
@@ -410,17 +410,17 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		EVT_TOOL (self.tb_patient_search, ID_BUTTONFINDPATIENT, self.OnTool)
 		self.txt_findpatient = wxComboBox(tb, ID_TXTPATIENTFIND, "", wxDefaultPosition,wxDefaultSize,[], wxCB_DROPDOWN)
 		EVT_COMBOBOX (self.txt_findpatient, ID_TXTPATIENTFIND, self.OnTool)
-	    	self.txt_findpatient.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+	    	self.txt_findpatient.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 	      	self.lbl_age =wxStaticText(tb,-1,_("Age"),wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL)
-	      	self.lbl_age.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
+	      	self.lbl_age.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 	      	self.lbl_age.SetForegroundColour(wxColour(0,0,131))
 	      	self.txt_age = wxTextCtrl(tb,ID_TXTPATIENTAGE,"",size = (40,-1))
-	      	self.txt_age.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+	      	self.txt_age.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 	      	self.lbl_allergies =wxStaticText(tb,-1,_("Allergies"),wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL)
-	      	self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
+	      	self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 	      	self.lbl_allergies.SetForegroundColour(wxColour(255,0,0))
 	      	self.txt_allergies = wxTextCtrl(tb,ID_TXTPATIENTALLERGIES,"")
-	      	self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+	      	self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 	      	self.txt_allergies.SetForegroundColour(wxColour(255,0,0))
 	      	self.combo_consultation_type = wxComboBox(tb, ID_COMBOCONSULTTYPE, "Surgery", wxDefaultPosition,wxDefaultSize,consulttypelist, wxCB_DROPDOWN)
 		tb.toplinesizer.Add(self.tb_patient_search,0,wxEXPAND)

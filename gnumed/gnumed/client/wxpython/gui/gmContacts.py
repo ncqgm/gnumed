@@ -67,12 +67,20 @@ ID_SAVE = wxNewId()
 class BlueLabel(wxStaticText):
 	def __init__(self, parent, id, prompt):
 		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT) 
-		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 		self.SetForegroundColour(wxColour(0,0,131))
+
 class DarkBlueHeading(wxStaticText):
-       def __init__(self, parent, id, prompt):
-	        wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER) 
-		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+	def __init__(self, parent, id, prompt):
+		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER) 
+		self.SetFont(wxFont(
+			pointSize = 12,
+			family = wxSWISS,
+			style = wxNORMAL,
+			weight = wxBOLD,
+			underline = false,
+			faceName = '')
+		)
 		self.SetForegroundColour(wxColour(0,0,255))
 #------------------------------------------------------------
 #text control class to be later replaced by the gmPhraseWheel
@@ -81,12 +89,12 @@ class TextBox_RedBold(wxTextCtrl):
 	def __init__ (self, parent, id): #, wxDefaultPostion, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(255,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 class TextBox_BlackNormal(wxTextCtrl):
 	def __init__ (self, parent, id): #, wxDefaultPostion, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(0,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 
 class ContactsPanel(wxPanel):
        def __init__(self, parent,id):
@@ -137,7 +145,7 @@ class ContactsPanel(wxPanel):
 	  self.lbl_org_suburb = BlueLabel(self,-1,"Suburb")
 	  self.lbl_org_state = BlueLabel(self,-1,"State")                   #eg NSW
 	  self.lbl_org_zip = wxStaticText(self,id,"Zip",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTRE) 
-	  self.lbl_org_zip.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
+	  self.lbl_org_zip.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 	  self.lbl_org_zip.SetForegroundColour(wxColour(0,0,131))
 	  #self.lbl_org_zip = BlueLabel(self,-1,"Zip")
 	  self.lbl_org_category = BlueLabel(self,-1,"Category")
@@ -159,7 +167,7 @@ class ContactsPanel(wxPanel):
 	  self.txt_org_type = TextBox_RedBold(self,-1)          #head office, branch or department
 	  self.txt_org_street = wxTextCtrl(self, 30,"",wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
 	  self.txt_org_street.SetForegroundColour(wxColor(255,0,0))
-	  self.txt_org_street.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+	  self.txt_org_street.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 	  self.txt_org_suburb = TextBox_RedBold(self,-1)
 	  self.txt_org_zip = TextBox_RedBold(self,-1)
 	  self.txt_org_state = TextBox_RedBold(self,-1) #for user defined fields later
@@ -181,7 +189,7 @@ class ContactsPanel(wxPanel):
 	  self.txt_org_memo.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
           self.combo_type = wxComboBox(self, ID_COMBOTYPE, "", wxDefaultPosition,wxDefaultSize, ['Head Office','Branch','Department'], wxCB_READONLY ) #wxCB_DROPDOWN)
           self.combo_type.SetForegroundColour(wxColor(255,0,0))
-	  self.combo_type.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+	  self.combo_type.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 	  #----------------------
 	  #create the check boxes
 	  #----------------------

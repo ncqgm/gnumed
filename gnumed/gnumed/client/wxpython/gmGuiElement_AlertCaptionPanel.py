@@ -46,7 +46,7 @@ class AlertCaptionPanel(wxPanel):
 		caption = wxStaticText(captionpanel,-1, title,style = wxALIGN_CENTRE_VERTICAL)   # static text for the caption
 		caption.SetForegroundColour(wxColour(0,0,0))	                           #black as... 
 		#SetCaptionForegroundColor()                                               #set caption text colour rgb TODO
-		caption.SetFont(wxFont(10,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		caption.SetFont(wxFont(10,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		sizer.Add(captionpanel,1,wxEXPAND|wxALL,2)
                 sizer.Add(0,9,6)
 		self.SetSizer(sizer)                                               #set the sizer 

@@ -24,11 +24,14 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__  = "R. Terry <rterry@gnumed.net>, H. Herb <hherb@gnumed.net>"
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.5  2003-01-09 12:01:39  hherb
+# Revision 1.6  2003-01-14 20:18:57  ncq
+# - fixed setfont() problem
+#
+# Revision 1.5  2003/01/09 12:01:39  hherb
 # connects now to database
 #
 
@@ -113,7 +116,7 @@ class AllergyPanel(wxPanel):
 		self.classtxt = wxTextCtrl(self,-1,
 			"A member of a new class of nonsteroidal anti-inflammatory agents (COX-2 selective NSAIDs) which have a mechanism of action that inhibits prostaglandin synthesis primarily by inhibition of cyclooxygenase 2 (COX-2). At therapeutic doses these have no effect on prostanoids synthesised by activation of COX-1 thereby not interfering with normal COX-1 related physiological processes in tissues, particularly the stomach, intestine and platelets.",
 			size=(200, 100), style=wxTE_MULTILINE)
-		self.classtxt.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		self.classtxt.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		#---------------------------------------------
 		#add all elements to the main background sizer
 		#---------------------------------------------

@@ -22,7 +22,7 @@ class ScratchPadRecalls(wxPanel):
 	def create_widgets(self):
 		self.lbl_fgcolour = wxColor(0,0,131)
 		self.list_fgcolour = wxColor(255,0,0)
-		self.lbl_font = wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'')
+		self.lbl_font = wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,'')
 		#add a label which is the heading for the text data entry 'Scratchpad'
 		self.scratchpad_lbl = wxStaticText(self,-1, _("Scratch Pad"),style = wxALIGN_CENTRE) #add static text control for the capion
 		self.scratchpad_lbl.SetForegroundColour(self.lbl_fgcolour)               #set caption text colour
