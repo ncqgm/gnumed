@@ -8,7 +8,7 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmTestAccounts.sql,v $
--- $Id: gmTestAccounts.sql,v 1.5 2003-02-07 14:33:21 ncq Exp $
+-- $Id: gmTestAccounts.sql,v 1.6 2003-06-10 08:56:59 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
@@ -56,15 +56,16 @@ CREATE USER "_test-secretary"
 
 -- ===================================================
 -- do simple schema revision tracking
---\i gmSchemaRevision.sql
---\unset ON_ERROR_STOP
---INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmTestAccounts.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmTestAccounts.sql,v $', '$Revision: 1.6 $');
 
 \set ON_ERROR_STOP 1
 
 -- ===================================================
 -- $Log: gmTestAccounts.sql,v $
--- Revision 1.5  2003-02-07 14:33:21  ncq
+-- Revision 1.6  2003-06-10 08:56:59  ncq
+-- - schema_revision -> gm_schema_revision
+--
+-- Revision 1.5  2003/02/07 14:33:21  ncq
 -- - can't use schema tracking since at server level we aren't guarantueed to have that
 --
 -- Revision 1.4  2003/02/04 12:22:53  ncq

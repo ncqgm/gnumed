@@ -10,7 +10,7 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPublicAccounts.sql,v $
--- $Id: gmPublicAccounts.sql,v 1.3 2003-05-12 12:43:39 ncq Exp $
+-- $Id: gmPublicAccounts.sql,v 1.4 2003-06-10 08:56:59 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
@@ -32,11 +32,14 @@ CREATE USER "_any-doc"
 
 -- ===================================================
 -- do simple schema revision tracking
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.4 $');
 
 -- ===================================================
 -- $Log: gmPublicAccounts.sql,v $
--- Revision 1.3  2003-05-12 12:43:39  ncq
+-- Revision 1.4  2003-06-10 08:56:59  ncq
+-- - schema_revision -> gm_schema_revision
+--
+-- Revision 1.3  2003/05/12 12:43:39  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --

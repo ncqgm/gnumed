@@ -1,6 +1,6 @@
 -- project: GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmSchemaRevision.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -15,7 +15,7 @@
 --  be replaced automagically with the proper data by "cvs commit")
 
 -- do simple schema revision tracking
--- INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmSchemaRevision.sql,v $', '$Revision: 1.10 $');
+-- INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmSchemaRevision.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -36,7 +36,10 @@ TO group "gm-public";
 
 -- =============================================
 -- $Log: gmSchemaRevision.sql,v $
--- Revision 1.10  2003-05-12 12:43:39  ncq
+-- Revision 1.11  2003-06-10 08:56:59  ncq
+-- - schema_revision -> gm_schema_revision
+--
+-- Revision 1.10  2003/05/12 12:43:39  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --
