@@ -48,22 +48,22 @@ class SQLSimpleSearch(wxPanel):
 
 		self.comboSearchExpr = wxComboBox( self, ID_COMBO_SEARCHEXPR, "", wxDefaultPosition, wxSize(170,-1),
 			[''] , wxCB_DROPDOWN )
-		self.sizerSearchExpr.AddWindow( self.comboSearchExpr, 1, wxALIGN_CENTRE|wxALL, 5 )
+		self.sizerSearchExpr.AddWindow( self.comboSearchExpr, 1, wxALIGN_CENTRE|wxALL, 2 )
 
 		self.buttonSearch = wxButton( self, ID_BUTTON_SEARCH, _("&Search"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchExpr.AddWindow( self.buttonSearch, 0, wxALIGN_CENTRE|wxALL, 5 )
+		self.sizerSearchExpr.AddWindow( self.buttonSearch, 0, wxALIGN_CENTRE|wxALL, 2 )
 
 		self.checkboxCaseInsensitive = wxCheckBox( self, ID_CHECKBOX_CASEINSENSITIVE, _("&Case insensitive"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchExpr.AddWindow( self.checkboxCaseInsensitive, 0, wxALIGN_CENTRE|wxALL, 5 )
+		self.sizerSearchExpr.AddWindow( self.checkboxCaseInsensitive, 0, wxALIGN_CENTRE|wxALL, 2 )
 
-		self.sizerTopVertical.AddSizer( self.sizerSearchExpr, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		self.sizerTopVertical.AddSizer( self.sizerSearchExpr, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2 )
 
 		self.sizerSearchResults = wxBoxSizer( wxHORIZONTAL )
 
 		self.listctrlSearchResults = gmSQLListControl.SQLListControl( self, ID_LISTCTRL, wxDefaultPosition, wxSize(160,120), wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES|wxLC_HRULES )
-		self.sizerSearchResults.AddWindow( self.listctrlSearchResults, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 )
+		self.sizerSearchResults.AddWindow( self.listctrlSearchResults, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 2 )
 
-		self.sizerTopVertical.AddSizer( self.sizerSearchResults, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		self.sizerTopVertical.AddSizer( self.sizerSearchResults, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2 )
 
 		self.SetAutoLayout( true )
 		self.SetSizer( self.sizerTopVertical )
@@ -139,9 +139,13 @@ class SQLSimpleSearch(wxPanel):
 		event.Skip(true)
 
 	def Search(self):
-		querystr = self.comboSearchExpr.GetValue()
+		searchexpr = self.comboSearchExpr.GetValue()
+		querystr = self.TransformQuery(searchexpr)
 		self.listctrlSearchResults.SetQueryStr(querystr, self.__service)
 		self.listctrlSearchResults.RunQuery()
+
+	def TransformQuery(self, searchexpr):
+		return searchexpr
 
 
 	def ProcessSelection(self, index):
