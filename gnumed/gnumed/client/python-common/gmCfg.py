@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -140,7 +140,8 @@ class cCfgSQL:
 		(item_id, value_type) = result
 
 		# retrieve values from appropriate table
-		if self.__run_query(curs, "select value from cfg_%s where id_item=%s limit 1;" % (value_type, item_id)) is None:
+		cmd = "select value from cfg_%s where id_item=%%s limit 1;" % value_type
+		if self.__run_query(curs, cmd, item_id) is None:
 			curs.close()
 			return None
 		result = curs.fetchone()
@@ -258,17 +259,20 @@ class cCfgSQL:
 
 		# get id of option template
 		curs = aRWConn.cursor()
-		if self.__run_query(curs, "select id from cfg_template where name like '%s' and type like '%s' limit 1;" % (option, data_type)) is None:
+		cmd = "select id from cfg_template where name like %s and type like %s limit 1;"
+		if self.__run_query(curs, cmd, option, data_type) is None:
 			curs.close()
 			return None
 		# if not in database insert new option template
 		result = curs.fetchone()
 		if result is None:
 			# insert new template
-			if self.__run_query(curs, "insert into cfg_template (name, type) values ('%s', '%s')" % (option, data_type)) is None:
+			cmd = "insert into cfg_template (name, type) values ( %s , %s );"
+			if self.__run_query(curs, cmd, option, data_type) is None:
 				curs.close()
 				return None
-			if self.__run_query(curs, "select id from cfg_template where name like '%s' and type like '%s' limit 1;" % (option, data_type)) is None:
+			cmd = "select id from cfg_template where name like %s and type like %s limit 1;"
+			if self.__run_query(curs, cmd, option, data_type) is None:
 				curs.close()
 				return None
 			result = curs.fetchone()
@@ -356,9 +360,9 @@ class cCfgSQL:
 				aCursor.execute(aQuery, args)
 		except:
 			if len(args) == 0:
-				_log.LogException("query >>>%s<<< failed" % aQuery, sys.exc_info(), fatal=0)
+				_log.LogException("query >>>%s<<< failed" % aQuery, sys.exc_info(), verbose=0)
 			else:
-				_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), fatal=0)
+				_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), verbose=0)
 			return None
 		return 1
 #================================
@@ -537,12 +541,12 @@ class cCfgFile:
 		try:
 			os.remove(bak_name)
 		except:
-			_log.LogException("Problem backing up config file !", sys.exc_info(), fatal=0)
+			_log.LogException("Problem backing up config file !", sys.exc_info(), verbose=0)
 
 		try:
 			shutil.copyfile(self.cfgName, bak_name)
 		except:
-			_log.LogException("Problem backing up config file !", sys.exc_info(), fatal=0)
+			_log.LogException("Problem backing up config file !", sys.exc_info(), verbose=0)
 
 		# open new file for writing
 		new_name = "%s.gmCfg.new" % self.cfgName
@@ -582,7 +586,7 @@ class cCfgFile:
 		try:
 			shutil.copyfile(new_name, self.cfgName)
 		except StandardError:
-			_log.LogException('cannot move modified options into config file', fatal=0)
+			_log.LogException('cannot move modified options into config file', verbose=0)
 
 		os.remove(new_name)
 		return 1
@@ -861,7 +865,7 @@ def create_default_cfg_file():
 			f.write('\n')
 			f.close()
 		except StandardError:
-			_log.LogException("Cannot create empty default config file [%s]." % tmp, sys.exc_info(), fatal=0)
+			_log.LogException("Cannot create empty default config file [%s]." % tmp, sys.exc_info(), verbose=0)
 			return None
 
 	_log.Log(gmLog.lErr, 'Created empty config file [%s].' % tmp)
@@ -881,7 +885,7 @@ if __name__ == "__main__":
 			myCfg = cCfgFile(aFile = sys.argv[1])
 		except:
 			exc = sys.exc_info()
-			_log.LogException('unhandled exception', exc, fatal=1)
+			_log.LogException('unhandled exception', exc, verbose=1)
 			raise
 
 		print myCfg
@@ -974,11 +978,14 @@ else:
 	try:
 		gmDefCfgFile = cCfgFile()
 	except:
-		_log.LogException('unhandled exception', sys.exc_info(), fatal=0)
+		_log.LogException('unhandled exception', sys.exc_info(), verbose=0)
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.52  2003-06-26 04:18:40  ihaywood
+# Revision 1.53  2003-06-26 21:29:58  ncq
+# - (cmd, arg) style, fatal->verbose
+#
+# Revision 1.52  2003/06/26 04:18:40  ihaywood
 # Fixes to gmCfg for commas
 #
 # Revision 1.51  2003/06/21 10:44:09  ncq
