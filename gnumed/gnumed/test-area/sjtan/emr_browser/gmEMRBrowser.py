@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/sjtan/emr_browser/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.1 2004-12-21 23:52:59 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmEMRBrowser.py,v 1.2 2005-01-31 10:18:11 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -13,7 +13,7 @@ from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.business import gmEMRStructItems, gmPatient
+from Gnumed.business import gmEMRStructItems, gmPerson
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -40,7 +40,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
-		self.__pat = gmPatient.gmCurrentPatient()
+		self.__pat = gmPerson.gmCurrentPatient()
 		self.__exporter = gmPatientExporter.cEmrExport(patient = self.__pat)
 
 		self.__do_layout()
@@ -230,7 +230,7 @@ def askForPatient():
 	"""
 	
 	# Variable initializations
-	pat_searcher = gmPatient.cPatientSearcher_SQL()
+	pat_searcher = gmPerson.cPatientSearcher_SQL()
 
 	# Ask patient to dump and set in exporter object
 	patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
@@ -244,7 +244,7 @@ def askForPatient():
 		prompted_input("Various patients match the query term. Press any key to continue.")
 		return None
 	patient_id = search_ids[0]
-	patient = gmPatient.gmCurrentPatient(patient_id)
+	patient = gmPerson.gmCurrentPatient(patient_id)
 	return patient
 
 
@@ -463,7 +463,7 @@ class NarrativeTreeItemMediator1:
 					
 	def __add_new_health_issue_to_record(self):
 		print "add new health issue to record"
-		pat = gmPatient.gmCurrentPatient()
+		pat = gmPerson.gmCurrentPatient()
 		rec = pat.get_clinical_record()
 		issue = rec.add_health_issue( self.get_emr_tree().GetItemText(self.edit_node).strip() )
 		if not issue is None and isinstance(issue, gmEMRStructItems.cHealthIssue):
@@ -473,7 +473,7 @@ class NarrativeTreeItemMediator1:
 		
 	def __add_new_episode_to_record(self):
 		print "add new episode to record"
-		pat = gmPatient.gmCurrentPatient()
+		pat = gmPerson.gmCurrentPatient()
 		rec = pat.get_clinical_record()
 		print "health_issue pk = ", self.get_browser().get_parent_EMR_item(self.edit_node).pk_obj
 		print "text = ", self.get_emr_tree().GetItemText(self.edit_node).strip()
@@ -538,7 +538,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.1  2004-12-21 23:52:59  sjtan
+# Revision 1.2  2005-01-31 10:18:11  ncq
+# - gmPatient -> gmPerson
+#
+# Revision 1.1  2004/12/21 23:52:59  sjtan
 #
 # diff shows the difference b/n latest cvs and proposed changes to have working menu items.
 #

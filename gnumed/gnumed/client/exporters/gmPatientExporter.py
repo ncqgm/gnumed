@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.36 2004-10-26 12:52:56 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmPatientExporter.py,v 1.37 2005-01-31 10:19:11 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -21,7 +21,7 @@ import mx.DateTime.Parser as mxParser
 import mx.DateTime as mxDT
 
 from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull
-from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab, gmMedDoc
+from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmVaccination, gmPathLab, gmMedDoc
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
@@ -844,7 +844,7 @@ def run():
     patient = None
     patient_id = None
     patient_term = None
-    pat_searcher = gmPatient.cPatientSearcher_SQL()
+    pat_searcher = gmPerson.cPatientSearcher_SQL()
 
     # App execution loop
     while patient_term != 'bye':
@@ -861,7 +861,7 @@ def run():
             prompted_input("Various patients match the query term. Press any key to continue.")
             continue
         patient_id = search_ids[0]
-        patient = gmPatient.gmCurrentPatient(patient_id)
+        patient = gmPerson.gmCurrentPatient(patient_id)
         export_tool.set_patient(patient)
         
         # Dump patient EMR sections
@@ -906,7 +906,10 @@ if __name__ == "__main__":
         
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.36  2004-10-26 12:52:56  ncq
+# Revision 1.37  2005-01-31 10:19:11  ncq
+# - gmPatient -> gmPerson
+#
+# Revision 1.36  2004/10/26 12:52:56  ncq
 # - Carlos: fix conceptual bug by building top-down (eg. issue -> episode
 #   -> item) instead of bottom-up
 #
