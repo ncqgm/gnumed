@@ -1,7 +1,13 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
+
+echo "-----------------------------------------------------------"
+echo "Please make sure to also read the INSTALL and README files."
+echo ""
+echo "Run this script from the directory it is in or it might fail."
+echo ""
 
 echo "=> checking for Python being installed ..."
 PYBIN=`which python`
@@ -20,7 +26,10 @@ echo "NOTE: test for that."
 
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.2  2004-08-13 06:28:35  ncq
+# Revision 1.3  2005-01-16 19:56:29  ncq
+# - improved wording
+#
+# Revision 1.2  2004/08/13 06:28:35  ncq
 # - spit out note on required PostgreSQL access
 #
 # Revision 1.1  2004/02/19 16:51:08  ncq

@@ -2,8 +2,9 @@ Installation instructions
 -------------------------
 
 If you checked out GnuMed from CVS or downloaded the tarball
-there is nothing to install, really. Everything can be run
-right from the directory where you put the files.
+there is nothing to install yet, really. Everything can be run
+right from the directory where you put the files (this will
+change when we package releases).
 
 You need to make sure, however, that you have all the necessary
 3rd party components installed. For this use:
