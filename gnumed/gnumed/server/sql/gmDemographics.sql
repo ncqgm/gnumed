@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -16,10 +16,9 @@
 -- original ISO data (= reference verifiable any time)
 create table country (
 	id serial primary key,
-	code char(2) not null,
+	code char(2) unique not null,
 	name text not null,
-	deprecated date default null,
-	unique (code, name)
+	deprecated date default null
 );
 
 COMMENT ON TABLE country IS
@@ -33,11 +32,11 @@ COMMENT ON COLUMN country.deprecated IS
 -- state codes: any need for more than 3 characters?
 -- yes, in Germany we have up to 6
 create table state (
-        id serial primary key,
-        code char(10) not null,
-        country char(2) not null references country(code),
-        name text not null,
-        unique (code, country)
+	id serial primary key,
+	code char(10) not null,
+	country char(2) not null references country(code),
+	name text not null,
+	unique (code, country)
 ) inherits (audit_fields, audit_mark);
 
 COMMENT ON TABLE state IS
@@ -46,7 +45,6 @@ COMMENT ON COLUMN state.code IS
 	'state code';
 COMMENT ON COLUMN state.country IS
 	'2 character ISO 3166-1 country code';
-
 
 create table log_state (
         id integer not null,
@@ -81,7 +79,6 @@ COMMENT ON COLUMN urb.postcode IS
 	'the postcode (if applicable';
 COMMENT ON COLUMN urb.name IS
 	'the name of the city/town/dwelling';
-
 
 create table log_urb (
 	id integer not null,
@@ -126,6 +123,17 @@ create table address (
 	addendum text
 ) inherits (audit_fields, audit_mark);
 
+comment on table address is
+	'an address aka a location';
+comment on column address.id_street is
+	'the street this address is at, from
+	 whence the urb is to be found';
+comment on column address.suburb is
+	'the suburb this address is in (if any)';
+comment on column address.number is
+	'number of the house';
+comment on column address.addendum is
+	'eg. appartment number, room number, level, entrance';
 
 create table log_address (
 	id integer not null,
@@ -143,38 +151,21 @@ create table log_address (
 -- (no address shall be deleted as long as there is an external object
 -- referencing this address)
 create table address_external_ref (
-	id int references address primary key,
+	id serial primary key,
+	id_address integer references address(id),
 	refcounter int default 0
 );
 
 -- ===================================================================
 create table address_type (
 	id serial primary key,
-	name char(10) NOT NULL
+	"name" text unique not null
 );
-
--- ===================================================================
-create table identities_addresses (
-	id serial primary key,
-	id_identity integer references identity,
-	id_address integer references address,
-	id_type int references address_type default 1,
-	address_source varchar(30)
-);
-
-COMMENT ON TABLE identities_addresses IS
-	'a many-to-many pivot table linking addresses to identities';
-COMMENT ON COLUMN identities_addresses.id_identity IS
-	'identity to whom the address belongs';
-COMMENT ON COLUMN identities_addresses.id_address IS
-	'address belonging to this identity';
-COMMENT ON COLUMN identities_addresses.id_type IS
-	'type of this address (like home, work, parents, holidays ...)';
 
 -- ===================================================================
 create table enum_comm_types (
 	id serial primary key,
-	description unique not null
+	description text unique not null
 );
 
 create table comm_channel (
@@ -184,19 +175,13 @@ create table comm_channel (
 	unique(id_type, url)
 );
 
-comment on table comm_route is
+comment on table comm_channel is
 	'stores reachability information';
-comment on column comm_route.id_type is
+comment on column comm_channel.id_type is
 	'the type of communication channel';
-
--- ===================================================================
-create table person_comm_channels (
-	id serial primary key,
-	id_identity integer not null references identity(id),
-	id_comm integer not null references comm_route(id),
-	is_confidential bool not null default false,
-	unique (id_identity, id_comm)
-);
+comment on column comm_channel.url is
+	'the actual connection information such as a
+	 a phone number, email address, pager number, etc.';
 
 -- ===================================================================
 
@@ -283,6 +268,16 @@ comment on column identity.cob IS
 comment on column identity.deceased IS
 	'date when a person has died (if so), format yyyymmdd';
 
+create table log_identity (
+	id integer not null,
+	pupic char(24),
+	gender varchar(2) not null,
+	karyotype character(10),
+	dob timestamp with time zone not null,
+	cob char(2),
+	deceased timestamp with time zone
+) inherits (audit_trail);
+
 -- ==========================================================
 -- as opposed to the versioning of all other tables, changed names
 -- should not be moved into the audit trail tables. Search functionality
@@ -297,7 +292,7 @@ create table names (
 	preferred text,
 	-- yes, there are some incredible rants of titles ...
 	title text
-) inherits (audit_mark, audit_fields);
+);
 
 comment on table names IS
 	'all the names an identity is known under';
@@ -309,6 +304,33 @@ comment on column names.lastnames IS
 	'all last names of an identity in legal order';
 comment on column names.preferred IS
 	'preferred first name, the name a person is usually called (nickname)';
+
+-- ==========================================================
+create table person_addresses (
+	id serial primary key,
+	id_identity integer references identity,
+	id_address integer references address,
+	id_type int references address_type default 1,
+	address_source varchar(30)
+);
+
+COMMENT ON TABLE person_addresses IS
+	'a many-to-many pivot table linking addresses to identities';
+COMMENT ON COLUMN person_addresses.id_identity IS
+	'identity to whom the address belongs';
+COMMENT ON COLUMN person_addresses.id_address IS
+	'address belonging to this identity';
+COMMENT ON COLUMN person_addresses.id_type IS
+	'type of this address (like home, work, parents, holidays ...)';
+
+-- ==========================================================
+create table person_comm_channels (
+	id serial primary key,
+	id_identity integer not null references identity(id),
+	id_comm integer not null references comm_channel(id),
+	is_confidential bool not null default false,
+	unique (id_identity, id_comm)
+);
 
 -- ==========================================================
 -- theoretically, the only information needed to establish any kind of
@@ -335,6 +357,13 @@ comment on column relation_types.biol_verified IS
 comment on column relation_types.description IS
 	'plain text description of relationship';
 
+create table log_relation_types (
+	id integer not null,
+	biological boolean not null,
+	biol_verified boolean,
+	description text
+) inherits (audit_trail);
+
 -- ==========================================================
 create table relation (
 	id serial primary key,
@@ -359,6 +388,15 @@ comment on column relation.ended IS
 	'date when this relationship ended, biological
 	 relationships do not end !';
 
+create table log_relation (
+	id integer not null,
+	id_identity integer not null,
+	id_relative integer not null,
+	id_relation_type integer not null,
+	started date,
+	ended date
+) inherits (audit_trail);
+
 -- ==========================================================
 -- FIXME: until proper permissions system is developed,
 -- otherwise new users  can spend hours wrestling with
@@ -366,25 +404,73 @@ comment on column relation.ended IS
 GRANT SELECT ON
 	names,
 	identity,
-	identity_id_seq,
-	audit_identity_audit_id_seq
+	identity_id_seq
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	names,
 	names_id_seq,
-	identity_id_seq,
-	audit_identity_audit_id_seq
+	identity_id_seq
 TO GROUP "_gm-doctors";
 
+-- ===================================================================
+-- organisation related tables
+-- ===================================================================
+create table org_address (
+	id serial primary key,
+	id_address integer not null references address(id),
+	is_head_office bool not null default true,
+	is_postal_address bool not null default true,
+	unique (id_address, is_head_office, is_postal_address)
+) ;
 
+comment on table org_address is
+	'tailors the standard address table for use by organisations';
+comment on column org_address.id_address is
+	'points to the address row belonging to this org';
+comment on column org_address.is_head_office is
+	'whether the head office is at this address';
+comment on column org_address.is_postal_address is
+	'whether this is the address to send snail mail to';
+
+-- ===================================================================
+create table org_category (
+	id serial primary key,
+	description text unique not null
+);
+
+-- ===================================================================
+-- the main organisation table,
+-- equivalent to identity but for non-people,
+-- measurements will link to this, for example
+create table org (
+	id serial primary key,
+	id_address integer not null references org_address(id),
+	id_category integer not null references org_category(id),
+	description text not null,
+	unique(id_address, id_category, description)
+);
+
+-- ===================================================================
+-- the AU specific application code better know about this table
+-- ACN - Australian Company Number
+-- actually belongs into country.specific/AU/
+create table org_AU (
+	id serial primary key,
+	id_org integer unique not null references org(id),
+	ACN text
+) ;
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.1  2003-08-01 22:31:31  ncq
+-- Revision 1.2  2003-08-02 13:17:05  ncq
+-- - add audit tables
+-- - cleanup
+--
+-- Revision 1.1  2003/08/01 22:31:31  ncq
 -- - schema for service "demographics" (personalia)
 --
