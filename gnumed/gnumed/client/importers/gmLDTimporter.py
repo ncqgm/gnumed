@@ -23,8 +23,8 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.4 2004-04-21 15:33:05 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmLDTimporter.py,v 1.5 2004-04-26 21:58:22 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -157,19 +157,33 @@ class cLDTImporter:
 	# internal helpers
 	#-----------------------------------------------------------
 	def __import_result(self, request=None, result=None):
-		print "importing result"
-		# verify all the fields
-		# map_8407_2str[self.__ref_group]
-		print result
 		# sanity checks
-#		request, result -> None
+		if None in [request, result]:
+			_log.Log(gmLog.lErr, 'need request and result args for import')
+			return False
+		# - verify/create test type
+		try:
+			ttype = gmPathLab.cTestType(lab=self.__lab_name, code=result['code'], name=result['name'])
+		except gmExceptions.ConstructorError, err:
+			_log.LogException(str(err), sys.exc_info(), verbose=0)
+			# try to create it
+			try:
+				unit = result['val_unit']
+			except KeyError:
+				unit = None
+			status, data = gmPathLab.create_test_type(lab=self.__lab_name, code=result['code'], name=result['name'], unit=unit)
+			if status in [None, False]:
+				return False
+			ttype = gmPathLab.cTestType(aPKey=data)
+			ttype['comment'] = 'auto-created by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.5 $] while importing [%s]' % self.ldt_filename
+			ttype.save_payload()
+
+		# - self.__ref_group
+
+
 #		data['reviewed_by_clinician'] = False
 
-				# - verify/create test type
-#				try:
-#					ttype = gmPathLab.cTestType(lab=self.__lab_name, code=data['code'], name=data['name'])
-#				except ConstructorError, err:
-#					_log.LogException(err, sys.exc_info(), verbose=0)
+
 		return True
 	#-----------------------------------------------------------
 	def __import_request_result(self, filename):
@@ -184,17 +198,18 @@ class cLDTImporter:
 			if line_type == '8410':
 				# already have data ?
 				if data != {}:
-					# save that record
+					# try to save that record
 					if not self.__import_result(request, data):
-						fileinput.close()
-						return False
+						_log.Log(gmLog.lErr, 'cannot import result')
+#						fileinput.close()
+#						return False
 				# start new record
 				data = {'code': line_data}
 				if self.__ref_group is not None:
-					data['ref_group'] = self.__ref_group
+					data['ref_group'] = map_8407_2str[self.__ref_group]
 				continue
 			elif line_type == '8411':
-				data['name'] = line_data
+				data['name'] = line_data.strip()
 				continue
 			elif line_type == '8412':
 				# GnuMed does not support KV-Abrechnung yet
@@ -206,7 +221,14 @@ class cLDTImporter:
 				data['material'] = line_data
 				continue
 			elif line_type == '8420':
-				data['val_num'] = line_data
+				try:
+					data['val_num'] = float(line_data.strip())
+				except ValueError:
+					_log.Log(gmLog.lErr, 'angeblich numerisches Ergebnis [%s] ist nicht-numerisch, speichere als alphanumerisch' % line_data)
+					try:
+						data['val_alpha'] = "%s / %s" % (data['val_alpha'], line_data.strip())
+					except KeyError:
+						data['val_alpha'] = line_data.strip()
 				continue
 			elif line_type == '8421':
 				data['val_unit'] = line_data
@@ -215,7 +237,10 @@ class cLDTImporter:
 				data['val_normal_range'] = line_data
 				continue
 			elif line_type == '8480':
-				data['val_alpha'] = line_data
+				try:
+					data['val_alpha'] = "%s / %s" % (data['val_alpha'], line_data.strip())
+				except KeyError:
+					data['val_alpha'] = line_data.strip()
 				continue
 			elif line_type == '8422':
 				data['technically_abnormal'] = line_data
@@ -230,6 +255,9 @@ class cLDTImporter:
 				_log.Log(gmLog.lErr, 'unbekannter LDT-Zeilentyp [%s], Inhalt: [%s], breche ab' % (line_type, line_data))
 				fileinput.close()
 				return False
+		# set request status ...
+		#request[]
+		#request.save_payload()
 		return True
 	#-----------------------------------------------------------
 	def __import_request_header(self, filename):
@@ -255,10 +283,12 @@ class cLDTImporter:
 					return False
 				# sanity check
 				if (request['is_pending'] == False) and (header['request_status'] != 'final'):
-					_log.Log(gmLog.lWarn, 'kein Befund für [%s:%s] mehr erwartet, aber Befund mit Status [%s] in [%s] enthalten (Feld 8401, Regel 135)' % (self.__lab_name, request['request_id'], request['request_status'], self.ldt_filename))
-					problem = 'kein Befund für [%s:%s] mehr erwartet, aber Befund mit Status [%s] in [%s] enthalten)' % (self.__lab_name, request['request_id'], request['request_status'], self.ldt_filename)
-					solution = 'Befund wird trotzdem importiert. Bitte Befunde für Anforderung [%s] an Labor [%s] auf Duplikate überprüfen.' % (request['request_id'], self.__lab_name)
-					insert_housekeeping_todo(problem, solution, 'user')
+					_log.Log(gmLog.lWarn, 'kein Befund mehr erwartet, aber Befund mit Status [%s] erhalten' % (request['request_id'], request['request_status']))
+					ctxt = 'Patient: %s, Labor [%s], LDT-Datei [%s], Probe [%s], (Feld 8401, Regel 135)' % (request.get_patient(), self.__lab_name, self.ldt_filename, request['request_id'])
+					_log.Log(gmLog.lWarn, ctxt)
+					prob = 'kein Befund für [%s] mehr erwartet, aber Befund mit Status [%s] erhalten)' % (request['request_id'], request['request_status'])
+					sol = 'Befund wird trotzdem importiert. Bitte Befunde auf Duplikate überprüfen.'
+					add_todo(problem=prob, solution=sol, context=ctxt)
 					# don't set is_pending to True if previously False and erroneous record received
 					header['request_status'] = 'final'
 				# update request record from header dict
@@ -274,7 +304,10 @@ class cLDTImporter:
 					try:
 						request = gmPathLab.cLabRequest(req_id=line_data, lab=self.__lab_name)
 					except gmExceptions.ConstructorError:
-						# FIXME: housekeeping todo item !!
+						prob = 'Kann keine Patientenzuordnung der Probe finden.'
+						sol = 'Zuordnung der Probe zu einem Patienten prüfen. Falls doch vorhanden, Systembetreuer verständigen.'
+						ctxt = 'Labor [%s], Probe [%s], LDT-Datei [%s]' % (self.__lab_name, line_data, self.ldt_filename)
+						add_todo(problem=prob, solution=sol, context=ctxt)
 						_log.LogException('cannot get lab request', sys.exc_info(), verbose=0)
 						fileinput.close()
 						return False
@@ -397,16 +430,17 @@ class cLDTImporter:
 			return False
 		if not status[0][0]:
 			_log.Log(gmLog.lErr, 'Unbekanntes Labor [%s]' % field_data)
-			problem = 'Labor [%s] unbekannt. Import von [%s] abgebrochen.' % (field_data, self.ldt_filename)
-			solution = 'Labor ergänzen oder vorhandenes Labor anpassen (test_org.internal_name).'
-			insert_housekeeping_todo(problem, solution, 'user')
+			prob = 'Labor unbekannt. Import abgebrochen.' % field_data
+			sol = 'Labor ergänzen oder vorhandenes Labor anpassen (test_org.internal_name).'
+			ctxt = 'LDT-Datei [%s], Labor [%s]' % (self.ldt_filename, field_data)
+			add_todo(problem=prob, solution=sol, context=txt)
 			return False
 		self.__lab_name = field_data
 		return True
 	#-----------------------------------------------------------
 	def _verify_9211(self, a_line, field_data):
 		if field_data not in ['09/95']:
-			_log.Log(gmLog.lWarn, 'not sure whether I can handle LDT version [%s]' % field_data)
+			_log.Log(gmLog.lWarn, 'not sure I can handle LDT version [%s], will try' % field_data)
 		return True
 	#-----------------------------------------------------------
 	_map_field2verifier = {
@@ -414,16 +448,6 @@ class cLDTImporter:
 		'9211': _verify_9211
 		}
 #===============================================================
-def insert_housekeeping_todo(problem=None, solution='', recipient='DEFAULT'):
-	reporter = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.4 $'
-	if problem is None:
-		problem = 'lazy programmer'
-	cmd = "insert into housekeeping_todo (reported_by, reported_to, problem, solution) values (%s, %s, %s, %s)"
-	status, err = gmPG.run_commit('historica', [(cmd, [reporter, recipient, problem, solution])], True)
-	if status is None:
-		_log.Log(gmLog.lErr, err)
-	return status
-#---------------------------------------------------------------
 def verify_next_in_chain():
 	tmp = _cfg.get('target', 'repository')
 	if tmp is None:
@@ -465,6 +489,12 @@ def run_import():
 		if not importer.import_file(ldt_file):
 			_log.Log(gmLog.lErr, 'cannot import LDT file [%s]' % ldt_file)
 	return True
+#---------------------------------------------------------------
+def add_todo(problem, solution, context):
+	cat = 'lab'
+	rep_by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.5 $'
+	recvr = 'user'
+	gmPG.add_housekeeping_todo(reporter=rep_by, receiver=recvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
 # main
 #---------------------------------------------------------------
@@ -472,7 +502,7 @@ if __name__ == '__main__':
 	if _cfg is None:
 		_log.Log(gmLog.lErr, 'need config file to run')
 		sys.exit(1)
-	# set encoding
+	# set encodingr
 	gmPG.set_default_client_encoding('latin1')
 	# setup login defs
 	auth_data = gmLoginInfo.LoginInfo(
@@ -488,7 +518,12 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.4  2004-04-21 15:33:05  ncq
+# Revision 1.5  2004-04-26 21:58:22  ncq
+# - now auto-creates test types during import
+# - works around non-numerical val_num lines
+# - uses gmPG.add_housekeeping_todo()
+#
+# Revision 1.4  2004/04/21 15:33:05  ncq
 # - start on __import_result()
 # - parse result lines in __import_request_results
 #
