@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.21 2003-11-04 00:22:46 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmPatientSelector.py,v 1.22 2003-11-07 20:44:11 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -648,19 +648,24 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 		self.prev_col_order = []
 
 		# set event handlers
+		self.__register_events()
+	#--------------------------------------------------------
+	def __register_events(self):
 		# - process some special chars
 		EVT_CHAR(self, self._on_char)
-
 		# - select data in input field upon tabbing in
 		EVT_SET_FOCUS (self, self._on_get_focus)
-
 		# - redraw the currently active name upon losing focus
 		#   (but see the caveat in the handler)
 		EVT_KILL_FOCUS (self, self._on_loose_focus)
-
 		# - user pressed <enter>
 		EVT_TEXT_ENTER (self, self.GetId(), self._on_enter)
 
+		# client internal signals
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+	#----------------------------------------------
+	def _on_patient_selected(self, **kwargs):
+		self._display_name()
 	#--------------------------------------------------------
 	def SetActivePatient(self, anID = None, data = None):
 		if anID is None:
@@ -677,8 +682,6 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 			_log.Log (gmLog.lErr, 'cannot change active patient')
 			# error message ?
 			return None
-
-		self._display_name()
 
 		# remember patient
 		if data is not None:
@@ -990,7 +993,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.21  2003-11-04 00:22:46  ncq
+# Revision 1.22  2003-11-07 20:44:11  ncq
+# - some cleanup
+# - listen to patient_selected by other widgets
+#
+# Revision 1.21  2003/11/04 00:22:46  ncq
 # - remove unneeded import
 #
 # Revision 1.20  2003/10/26 17:42:51  ncq
