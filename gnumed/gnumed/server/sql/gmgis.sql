@@ -355,7 +355,7 @@ CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
                    state.code = NEW.state AND
                    state.country = NEW.country))
         WHERE
-               OLD.id=NEW.id;
+               id=OLD.id;
 
 -- =============================================
 
@@ -385,6 +385,8 @@ create table coordinate (
       -- kilometres.
       -- theoretically this may be problematic with some systems due to the
       -- ellipsoid nature of the Earth, but in reality it is unlikely to matter
+      -- Interestingly the Debian Postgres package includes an extension to 
+      -- calculate distances for latitude-longitude
 );
 
 
