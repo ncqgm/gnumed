@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Leonard_McCoy.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -15,9 +15,6 @@ values ('m', '1920-1-20', 'US', 'Dr.');
 
 insert into names (id_identity, active, lastnames, firstnames)
 values (currval('identity_id_seq'), true, 'McCoy', 'Leonard');
-
-insert into xlnk_identity (xfk_identity, pupic)
-values (currval('identity_id_seq'), currval('identity_id_seq'));
 
 insert into staff (fk_identity, fk_role, db_user, sign, comment)
 values (
@@ -31,11 +28,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-Leonard_McCoy.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: test_data-Leonard_McCoy.sql,v $
--- Revision 1.6  2004-01-14 10:42:05  ncq
+-- Revision 1.7  2004-01-18 21:59:06  ncq
+-- - no clinical data hence no mention in xln_identity
+--
+-- Revision 1.6  2004/01/14 10:42:05  ncq
 -- - use xlnk_identity
 --
 -- Revision 1.5  2004/01/10 01:29:25  ncq
