@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.21 2004-05-24 14:35:00 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmPathLab.py,v 1.22 2004-05-24 14:59:45 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -294,7 +294,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.21 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.22 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -374,7 +374,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.21 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.22 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -442,29 +442,55 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 		return (False, msg)
 	return (True, tres)
 #------------------------------------------------------------
-def get_unreviewed_results():
+def get_unreviewed_results(limit=50):
 	# retrieve one more row than needed so we know there's more available ;-)
-	cmd = "select pk_result from v_results4lab_req where reviewed=false limit 51"
+	lim = limit + 1
+	cmd = "select pk_result from v_results4lab_req where reviewed is false limit %s" % lim
 	rows = gmPG.run_ro_query('historica', cmd)
 	if rows is None:
 		_log.Log(gmLog.lErr, 'error retrieving unreviewed lab results')
 		return (None, None)
 	if len(rows) == 0:
 		return (False, [])
-	results = []
-	# more than 50 rows ?
-	if len(rows) == 51:
+	# more than LIMIT rows ?
+	if len(rows) == lim:
 		more_avail = True
+		# but deliver only LIMIT rows so that our assumption holds true...
+		del rows[limit]
 	else:
 		more_avail = False
-	# but deliver only 50 rows so that our assumption holds true...
-	del rows[51]
+	results = []
 	for row in rows:
 		try:
 			results.append(cLabResult(aPK_obj=row[0]))
 		except gmExceptions.ConstructorError:
 			_log.LogException('skipping unreviewed lab result [%s]' % row[0], sys.exc_info(), verbose=0)
 	return (more_avail, results)
+#------------------------------------------------------------
+def get_pending_requests(limit=250):
+	lim = limit + 1
+	cmd = "select pk from lab_request where is_pending is false limit %s" % lim
+	rows = gmPG.run_ro_query('historica', cmd)
+	if rows is None:
+		_log.Log(gmLog.lErr, 'error retrieving pending lab requests')
+		return (None, None)
+	if len(rows) == 0:
+		return (False, [])
+	results = []
+	# more than LIMIT rows ?
+	if len(rows) == lim:
+		too_many = True
+		# but deliver only LIMIT rows so that our assumption holds true...
+		del rows[limit]
+	else:
+		too_many = False
+	requests = []
+	for row in rows:
+		try:
+			requests.append(cLabRequest(aPK_obj=row[0]))
+		except gmExceptions.ConstructorError:
+			_log.LogException('skipping pending lab request [%s]' % row[0], sys.exc_info(), verbose=0)
+	return (too_many, requests)
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -502,19 +528,28 @@ if __name__ == '__main__':
 		for result in data:
 			print result
 	#--------------------------------------------------------
+	def test_pending():
+		data = get_pending_requests()
+		for result in data:
+			print result
+	#--------------------------------------------------------
 	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 
 #	test_result()
 #	test_request()
-##	test_create_result()
-	test_unreviewed()
+#	test_create_result()
+#	test_unreviewed()
+	test_pending()
 
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.21  2004-05-24 14:35:00  ncq
+# Revision 1.22  2004-05-24 14:59:45  ncq
+# - get_pending_requests()
+#
+# Revision 1.21  2004/05/24 14:35:00  ncq
 # - get_unreviewed_results() now returns status of more_available
 #
 # Revision 1.20  2004/05/24 14:15:54  ncq
