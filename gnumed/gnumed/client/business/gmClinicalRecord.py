@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.130 2004-07-05 22:30:01 ncq Exp $
-__version__ = "$Revision: 1.130 $"
+# $Id: gmClinicalRecord.py,v 1.131 2004-07-06 00:11:11 ncq Exp $
+__version__ = "$Revision: 1.131 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -21,7 +21,7 @@ from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, 
 if __name__ == "__main__":
 	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems
+from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -218,12 +218,20 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	# API
 	#--------------------------------------------------------
-	def add_clin_narrative(self, note = None, soap_cat='s'):
-		if note is None:
+	def add_clin_narrative(self, note = '', soap_cat='s'):
+		if note.strip() == '':
 			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
-			return 1
-		cmd = "insert into clin_narrative(fk_encounter, fk_episode, narrative, soap_cat) values (%s, %s, %s, %s)"
-		return gmPG.run_commit('historica', [(cmd, [self.__encounter['pk_encounter'], self.__episode['pk_episode'], note, soap_cat])])
+			return None
+		status, data = gmClinNarrative.create_clin_narrative (
+			narrative=note,
+			soap_cat=soap_cat,
+			episode_id=self.__episode['pk_episode'],
+			encounter_id=self.__encounter['pk_encounter']
+		)
+		if not status:
+			_log.Log(gmLog.lErr, str(data))
+			return None
+		return data
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -1329,7 +1337,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.130  2004-07-05 22:30:01  ncq
+# Revision 1.131  2004-07-06 00:11:11  ncq
+# - make add_clin_narrative use gmClinNarrative.create_clin_narrative()
+#
+# Revision 1.130  2004/07/05 22:30:01  ncq
 # - improve get_text_dump()
 #
 # Revision 1.129  2004/07/05 22:23:38  ncq
