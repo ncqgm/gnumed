@@ -5,8 +5,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.22 2004-06-09 14:36:17 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmXdtMappings.py,v 1.23 2004-06-18 13:34:58 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -433,11 +433,9 @@ xdt_id_map = {
 	#Kopfzeile -- nur bei header 0190 --
 	'4615':'Kopfzeile',
 	#Fusszeile -- nur bei header 0190 --
-	'4617':'Fusszeile',
-	#Leistungstag
-	'5000':'Leistungstag',
-	#Gebührennummer
-	'5001':'GNR',
+	'4617': 'Fußzeile',
+	'5000': 'Leistungstag',
+	'5001': 'GNR',
 	#Art der Untersuchung
 	'5002':'Art der Untersuchung',
 	#Empfänger des Briefes
@@ -578,14 +576,21 @@ xdt_id_map = {
 
 	#--------------------------------------------------------
 	# more free categories
-	#Satzidentifikation
+	# Satzidentifikation
 	'8000':'Satzidentifikation >>===============',
-	#Satzlänge
-	'8100':'Satzlänge',
+	# Satzlänge
+	'8100': 'Satzlänge',
+	# LDT
+	'8310': 'Anforderungsnummer', 
 	# Befundstatus -- nur bei header 6200/8202 --
-	'8401':'Befundstatus',
+	'8401': 'Befundstatus',
 	#Geräte- bzw. Verfahrensspezifisches Kennfeld -- nur bei header 6200 --
 	'8402':'Gerätespezifisches Kennfeld',
+	# LDT
+	'8403': 'Gebührenordnung',
+	# LDT
+	'8404': 'Kosten in Doppelpfennigen',
+	'8406': 'Kosten in Cent',
 	#Test-Ident -- nur bei header 6200 --
 	'8410':'Test-Ident',
 	#Testbezeichnung -- nur bei header 6200 --
@@ -632,9 +637,10 @@ xdt_id_map = {
 	'8480':'Ergebnis-Text',
 	#Abschluss-Zeile -- nur bei header 6200 --
 	'8490':'Abschluss-Zeile',
+	# LDT
+	'8609': 'Gebührenordung',
 	#Signatur -- nur bei header 6200 --
 	'8990':'Signatur',
-	#check for sending physician's id 
 	'9100':'Arztnummer des Absenders',
 	'9102':'Empfänger',
 	'9103':'Erstellungsdatum',
@@ -645,7 +651,6 @@ xdt_id_map = {
 	'9117':'Erstellungsdatum AODT-Datenpaket',
 	'9118':'Erstellungsdatum STDT-Datenpaket',
 	'9132':'enthaltene Datenpakete dieser Datei',
-	 #full length of data package 
 	'9202':'Gesamtlänge Datenpaket',
 	#number of media for this data package     
 	'9203':'Anzahl Datenträger im Paket',
@@ -1342,7 +1347,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.22  2004-06-09 14:36:17  ncq
+# Revision 1.23  2004-06-18 13:34:58  ncq
+# - map a few more line types
+#
+# Revision 1.22  2004/06/09 14:36:17  ncq
 # - cleanup
 #
 # Revision 1.21  2004/05/27 13:40:21  ihaywood
