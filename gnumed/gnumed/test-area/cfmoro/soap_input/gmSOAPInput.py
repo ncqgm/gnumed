@@ -2,7 +2,7 @@
 	GnuMed SOAP input panel
 """
 #================================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -101,7 +101,14 @@ class cSOAPControl(wx.wxPanel):
 		self.SetSizerAndFit(self.soap_control_sizer)
 		
 		# 
-
+		
+	def SetHealthIssue(self, health_issue):
+		"""
+		Sets health issue SOAP editor
+		"""
+		self.soap_label.SetLabel(health_issue['description'])
+		
+		
 	def GetSOAP(self):
 		"""
 		Retrieves SOAP text editor
@@ -161,6 +168,8 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.soap_panel = wx.wxPanel(self.soap_emr_splitter,-1)
 		# SOAP multisash
 		self.soap_multisash = SOAPMultiSash.cSOAPMultiSash(self.soap_panel, -1)
+		self.selected_issue = {"description":"Select issue and press 'New'"}
+		self.soap_multisash.SetDefaultChildClassAndControllerObject(cSOAPControl,self)
 		# SOAP action buttons
 		self.save_button = wx.wxButton(self.soap_panel, -1, "&Save")
 		self.clear_button = wx.wxButton(self.soap_panel, -1, "&Clear")
@@ -230,8 +239,9 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Obtains SOAP input from selected editor and dumps it to backend
 		"""
 		#result = self.soap_multisash.GetSaveData()
-		selected_soap_panel = self.soap_multisash.GetSelectedSOAPPanel()
-		print "Saving SOAP: %s"%(selected_soap_panel.GetSOAP().GetValues())
+		selected_soap = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel().GetSOAP()
+		print selected_soap.GetValues()
+		print "Saving SOAP: %s"%(selected_soap.GetValues())
 			
 	#--------------------------------------------------------
 	def on_clear(self, event):
@@ -239,7 +249,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Clears selected SOAP editor
 		"""
 		print "Clear SOAP"
-		selected_soap_panel = self.soap_multisash.GetSelectedSOAPPanel()
+		selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
 		selected_soap_panel.ClearSOAP()
 		
 	#--------------------------------------------------------
@@ -247,14 +257,19 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Creates and displays a new SOAP input editor
 		"""
-		print "New SOAP"		
+		print "New SOAP"
+		# FIXME only when unique and empty SOAP
+		selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
+		selected_soap_panel.SetHealthIssue(self.selected_issue)
 		
 	#--------------------------------------------------------
 	def on_remove(self, event):
 		"""
 		Creates and displays a new SOAP input editor
 		"""
-		print "Remove SOAP"		
+		print "Remove SOAP"
+		selected_leaf = self.soap_multisash.GetSelectedLeaf()
+		selected_leaf.DestroyLeaf()
 		
 	#--------------------------------------------------------	
 	def on_patient_selected(self):
@@ -273,11 +288,6 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		if (isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue)):
 			self.selected_issue = sel_item_obj				
-			if not (isinstance(self.soap_multisash.GetDefaultChildClass(), cSOAPControl)):
-				self.soap_multisash.SetDefaultChildClassAndControllerObject(cSOAPControl,self)
-				self.Refresh()
-			
-				
 
 	#--------------------------------------------------------
 	# reget mixin API

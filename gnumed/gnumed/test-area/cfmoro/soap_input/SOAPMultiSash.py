@@ -6,7 +6,7 @@
 #
 # Created:      2002/11/20
 # Version:      0.1
-# RCS-ID:       $Id: SOAPMultiSash.py,v 1.3 2004-11-21 16:53:04 cfmoro Exp $
+# RCS-ID:       $Id: SOAPMultiSash.py,v 1.4 2004-11-21 19:21:00 cfmoro Exp $
 # License:      wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -53,27 +53,10 @@ class cSOAPMultiSash(wxWindow):
         old.Destroy()
         self.child.OnSize(None)
 
-    #FIXME remove all GetSaveData methods, as GetSelectedWindow return us currently selected SOAP...
-    def GetSaveData(self):
-        saveData = {}
-        saveData['_defChild'] = str(self._defChild)
-        saveData['child'] = self.child.GetSaveData()
-        return saveData
+    def GetSelectedLeaf(self):
+	selected_leaf = self.child.GetSelectedLeaf()
+	return  selected_leaf
 
-    def GetSelectedSOAPPanel(self):
-	return self.child.GetSelectedSOAPPanel()
-
-    def SetSaveData(self,data):
-        dChild = data['_defChild']
-        mod = dChild.split('.')[0]
-        exec 'import %s' % mod
-        self._defChild = eval(dChild)
-        old = self.child
-        self.child = wxMultiSplit(self,self,wxPoint(0,0),self.GetSize())
-        self.child.SetSaveData(data['child'])
-        old.Destroy()
-        self.OnMultiSize(None)
-        self.child.OnSize(None)
 
 #----------------------------------------------------------------------
 
@@ -98,67 +81,14 @@ class wxMultiSplit(wxWindow):
 
 
         EVT_SIZE(self,self.OnSize)
-
-    def GetSelectedSOAPPanel(self):
-	selected_soap_panel = None
-        if self.view1:
-            selected_soap_panel = self.view1.GetSelectedSOAPPanel()
-        if selected_soap_panel is None and self.view2:
-            selected_soap_panel = self.view2.GetSelectedSOAPPanel()
-	return selected_soap_panel
-
-    def GetSaveData(self):
-        saveData = {}
-        if self.view1:
-            saveData['view1'] = self.view1.GetSaveData()
-            if isinstance(self.view1,wxMultiSplit):
-                saveData['view1IsSplit'] = 1
-        if self.view2:
-            saveData['view2'] = self.view2.GetSaveData()
-            if isinstance(self.view2,wxMultiSplit):
-                saveData['view2IsSplit'] = 1
-        saveData['direction'] = self.direction
-        v1,v2 = self.GetPositionTuple()
-        saveData['x'] = v1
-        saveData['y'] = v2
-        v1,v2 = self.GetSizeTuple()
-        saveData['w'] = v1
-        saveData['h'] = v2
-        return saveData
-
-    def SetSaveData(self,data):
-        self.direction = data['direction']
-        self.SetDimensions(data['x'],data['y'],data['w'],data['h'])
-        v1Data = data.get('view1',None)
-        if v1Data:
-            isSplit = data.get('view1IsSplit',None)
-            old = self.view1
-            if isSplit:
-                self.view1 = wxMultiSplit(self.multiView,self,
-                                          wxPoint(0,0),self.GetSize())
-            else:
-                self.view1 = wxMultiViewLeaf(self.multiView,self,
-                                             wxPoint(0,0),self.GetSize())
-            self.view1.SetSaveData(v1Data)
-            if old:
-                old.Destroy()
-        v2Data = data.get('view2',None)
-        if v2Data:
-            isSplit = data.get('view2IsSplit',None)
-            old = self.view2
-            if isSplit:
-                self.view2 = wxMultiSplit(self.multiView,self,
-                                          wxPoint(0,0),self.GetSize())
-            else:
-                self.view2 = wxMultiViewLeaf(self.multiView,self,
-                                             wxPoint(0,0),self.GetSize())
-            self.view2.SetSaveData(v2Data)
-            if old:
-                old.Destroy()
-        if self.view1:
-            self.view1.OnSize(None)
-        if self.view2:
-            self.view2.OnSize(None)
+	
+    def GetSelectedLeaf(self):
+	selected_leaf = None
+        if self.view1 and self.view1.IsSelected():
+            selected_leaf = self.view1
+        elif self.view2 and self.view2.IsSelected():
+            selected_leaf = self.view2
+	return selected_leaf
 
     def UnSelect(self):
         if self.view1:
@@ -206,7 +136,9 @@ class wxMultiSplit(wxWindow):
 
     def DestroyLeaf(self,caller):
         if not self.view2:              # We will only have 2 windows if
-            return                      # we need to destroy any
+            print "Removing first leaf" 
+	    self.view1.detail.child.SetHealthIssue({"description":"Select issue and press 'New'"})
+	    return                      # we need to destroy any
         parent = self.GetParent()       # Another splitview
         if parent == self.multiView:    # We'r at the root
             if caller == self.view1:
@@ -323,47 +255,11 @@ class wxMultiViewLeaf(wxWindow):
 
         EVT_SIZE(self,self.OnSize)
 
-    def GetSelectedSOAPPanel(self):
-	if self.detail.selected:
-                return self.detail.child
-        return None
-
-    def GetSaveData(self):
-        saveData = {}
-        saveData['detailClass'] = str(self.detail.child.__class__)
-        if hasattr(self.detail.child,'GetSaveData'):
-            attr = getattr(self.detail.child,'GetSaveData')
-            if callable(attr):
-                dData = attr()
-                if dData:
-                    saveData['detail'] = dData
-        v1,v2 = self.GetPositionTuple()
-        saveData['x'] = v1
-        saveData['y'] = v2
-        v1,v2 = self.GetSizeTuple()
-        saveData['w'] = v1
-        saveData['h'] = v2
-        saveData['detailObject'] = self.detail.child
-        if self.detail.selected:
-                print "SELECTED: %s"%(self.detail.child.GetSOAP().GetValues())
-        return saveData
-
-    def SetSaveData(self,data):
-        dChild = data['detailClass']
-        mod = dChild.split('.')[0]
-        exec 'import %s' % mod
-        detClass = eval(dChild)
-        self.SetDimensions(data['x'],data['y'],data['w'],data['h'])
-        old = self.detail
-        self.detail = MultiClient(self,detClass)
-        dData = data.get('detail',None)
-        if dData:
-            if hasattr(self.detail.child,'SetSaveData'):
-                attr = getattr(self.detail.child,'SetSaveData')
-                if callable(attr):
-                    attr(dData)
-        old.Destroy()
-        self.detail.OnSize(None)
+    def GetSOAPPanel(self):
+        return self.detail.child
+	
+    def IsSelected(self):
+	return self.detail.selected
 
     def UnSelect(self):
         self.detail.UnSelect()
@@ -452,12 +348,12 @@ class MultiClient(wxWindow):
         if self.childController:
             self.childController.Destroy()
             self.childController = None
-        self.child = childCls(self, childController.get_selected_issue())
-        self.childController = childController
+	print "Instantiating SOAP control"
+	self.child = childCls(self, childController.get_selected_issue())
+	self.childController = childController
         self.child.MoveXY(2,2)
-        print "Creating view object  (%s), controller (%s)"%(childCls,childController)
-	
-
+	self.Select()
+        	
     def OnSetFocus(self,evt):
         self.Select()
 
