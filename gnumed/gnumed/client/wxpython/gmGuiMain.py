@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-01-13 06:30:16 $
-# @version $Revision: 1.58 $ $Date: 2003-01-13 06:30:16 $ $Author: michaelb $
+# @Date: $Date: 2003-01-14 09:10:19 $
+# @version $Revision: 1.59 $ $Date: 2003-01-14 09:10:19 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -449,11 +449,12 @@ $a\x8c\xa9gj\xa3\x91<U2\xd2v\x95\xf48v*\xa4\xde\xe0"=\xd1E\xb2N,$\x81\xb9<}\
 
 		# set it
 		self.SetTitle(title)
-		
+
 		# set window icon
-		icon=wxEmptyIcon()
-		icon.CopyFromBitmap(wxBitmapFromXPMData (cPickle.loads(zlib.decompress(self.icon_gui_main ))))
-        	self.SetIcon(icon)
+		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_gui_main)))
+		icon = wxEmptyIcon()
+		icon.CopyFromBitmap(icon_bmp_data)
+		self.SetIcon(icon)
 #==================================================
 class gmApp(wxApp):
 
@@ -508,7 +509,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.58  2003-01-13 06:30:16  michaelb
+# Revision 1.59  2003-01-14 09:10:19  ncq
+# - maybe icons work better now ?
+#
+# Revision 1.58  2003/01/13 06:30:16  michaelb
 # the serpent window-icon was added
 #
 # Revision 1.57  2003/01/12 17:31:10  ncq
