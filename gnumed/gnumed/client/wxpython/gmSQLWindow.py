@@ -38,7 +38,25 @@
 #
 ############################################################################
 
-"generic SQL query dialog"
+"""Generic SQL query dialog
+Usage: pnl = gmSQLWindow(parent, id, ...)
+gmSQLWindow.GetResultListcontrol()returns a tuple with the list control object
+and a list with all selected items
+
+You can hook into the event loop by providing a callback function
+for the  "item selected" event:
+gmSQLWindow.SetCallbackOnSelected(my_callback_function)
+
+my_callback_function should expect a list of tuples as result
+the tuples returned are all selected rows
+
+to get the attribute labels, call gmSQLWindow.GetLabels()"""
+
+__version__ = "$Revision: 1.8 $"
+
+__author__ = "Dr. Horst Herb <hherb@gnumed.net>"
+__license__ = "GPL"
+__copyright__ = __author__
 
 from wxPython.wx import *
 import sys

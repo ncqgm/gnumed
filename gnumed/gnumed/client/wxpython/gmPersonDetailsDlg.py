@@ -175,7 +175,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		
 	
 	def __GetCountries(self):
-		query =  "select * from country" 
+		query =  "select * from country"
 		db = self.getDB()
 		cursor = db.cursor()
 		cursor.execute(query)
@@ -209,10 +209,22 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		personMap = self.LowerMap( personMap,  self.__GetPersonMapping())
 		addressMap = self.GetAddressMap()
 		addressMap = self.LowerMap( addressMap,  self.__GetAddressMapping())
-		
+
+		queries = []
+
 		db = self.getDB()
-	
+
 		if self.personId == None or self.personId == -1:
+
+				queries.append( """insert into v_basic_person ( title,lastnames, firstnames,  gender, dob, cob )
+					values ('%(Title)s', '%(Surnames)s', '%(Given Names)s',  '%(Gender)s', '%(Dob)s', '%(Cob)s')"""%personMap)
+
+
+				queries.append( """insert into v_basic_address(number, street, street2, city, state,  country, postcode, address_at )
+						values ( '%(Street No)s', '%(Street)s', '%(Address 1)s', trim(upper('%(City)s')),trim(upper('%(State)s')), '%(Country)s','%(Postcode)s' , '%(address At)s')"""%addressMap)
+
+				queries.append("""insert into identities_addresses (id_identity, id_address, address_source) select i.last_value,
+						a.last_value, CURRENT_USER from identity_id_seq i, address_id_seq a  """)
 
 				try:
 					db.commit()
@@ -246,15 +258,47 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 					while frame:
 						print" from ", frame.f_code," at line no=",   frame.f_lineno
 						frame = frame.f_back
-					
+
 			
 				return	
 				
-			
-				
-			
+
+
+
 		else:
+
+			queries.append("""update v_basic_person set title='%(Title)s',  lastnames='%(Surnames)s', firstnames='%(Given Names)s',
+						gender= '%(Gender)s',  dob='%(Dob)s', cob ='%(Cob)s' where id=%(id)d""" %personMap )
+
+
+			queries.append("""update v_basic_address set number= '%(Street No)s',street= '%(Street)s',
+			 street2='%(Address 1)s',  city=upper('%(City)s'),state=upper('%(State)s'), country='%(Country)s',
+			postcode='%(Postcode)s' where  id=%(id)d"""%addressMap)
+
+
+
+
+			#self.execute2("""select urb.id from urb, state, country c where urb.name=upper('%(City)s')
+			#	 and urb.postcode='%(Postcode)s' and urb.statecode = state.id and trim(state.code)=upper('%(State)s')
+			#	and state.country = c.code and c.name = '%(Country)s' """%addressMap)
+
+			#urbId = self.cursor.fetchone()[0]
+
+			#self.execute2("select find_street( '%s', %d)" % ( addressMap['Street'], urbId )  )
+			#streetId = self.cursor.fetchone()[0]
+
+			#self.execute2("SELECT address_type.id FROM address_type WHERE (btrim((address_type.name)::text) = btrim(lower(('%s')::text)))"% ( addressMap['address At'] )  )
+			#addrtypeId = self.cursor.fetchone()[0]
+
+			#self.execute2("select id_address from identities_addresses where id_identity = %d"%( self.personId))
+			#addrId = self.cursor.fetchone()[0]
+
+			#queries.append("update address set number='%s', street=%d, addrtype=%d ,addendum='%s' where id=%d" %
+			#		(addressMap['Street No'], streetId, addrtypeId, addressMap['Address 1'], addrId) )
 			
+			#self.executeUpdate(queries)	
+					
+
 			try:
                                         db.commit()
                                         setup = self.getSqlSettings()
@@ -264,7 +308,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
                                                 cursor.execute(x)
 
 					self.__person.update_person( personMap, db)
-					self.__address.update_address_link(addressMap, db)	
+					self.__address.update_address_link(addressMap, db)
 					# possible deadlock.
                                         db.commit()
 
@@ -285,19 +329,19 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 
 	def getDB(self):
 		backend = gmPG.ConnectionPool()
-                db = backend.GetConnection('default')
+                db = backend.GetConnection('personalia')
 		return db
 
 	def getSqlSettings(self):
 		return ["set datestyle to european", "set transaction isolation level serializable"]
 
-	
+
 	def getName2(self, map):
 		if map.has_key('name2'):
 			return map['name2']
 		return None
-		
-	
+
+
 	def LowerMap( self, map, mapping):
 			newMap = {}
 			for i in mapping:
@@ -326,18 +370,18 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		if self.personMapping == None:
 			self.personMapping = [ { 'name': 'Given Names' , 'control': self.tcGivenNames, 'name2': 'firstnames'  } ,
 					   {'name': 'Surnames', 'control': self.tcSurnames, 'name2': 'lastnames'   },
-					   { 'name': 'Title', 'control' : self.comboTitle }, 
+					   { 'name': 'Title', 'control' : self.comboTitle },
 					   { 'name': 'Aka', 'control' : self.tcAka },
 					   { 'name': 'PreferredName', 'control' : self.chPreferredName, 'op': self.getChoiceSelection },
 					   { 'name': 'Gender' , 'control': self.chGender , 'op': self.getChoiceSelection },
 					   { 'name': 'Dob' , 'control': self.tcDob },
 					   { 'name': 'Cob' , 'control': self.cbCob }
-					 ] 		
+					 ]
 		return self.personMapping
 
 	def __GetAddressMapping(self):
 	        if self.addressMapping == None:
-			self.addressMapping = [ 
+			self.addressMapping = [
 						{ 'name' : 'address At' , 'control' :self. cbAddressAt , 'name2':'address_at'  }, 				
 						{ 'name' : 'Address 1' , 'control' : self.tcAddress1 , 'name2':'street2' }, 				
 						{ 'name' : 'Street No' , 'control' : self.tcStreetNo , 'name2':'number' }, 				
@@ -352,7 +396,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 						{ 'name' : 'Phone Comment' , 'control' : self.tcPhoneComment},
 						{ 'name' : 'UrlCategory', 'control' : self.cbUrlCategory } ,
 						{ 'name' : 'addr_id', 'control': 'addr_id' , 'op': self.getInvisible }
-						
+
 					    ]
 		return self.addressMapping
 
