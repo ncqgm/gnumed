@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -379,7 +379,8 @@ class cCfgFile:
 
 		# we still don't have a valid config file name ?!?
 		# we can't help it but die
-		_log.Log(gmLog.lPanic, "Cannot run without any configuration file. Aborting.")
+		print "Cannot find any configuration file.\nPlease consult log file for details."
+		_log.Log(gmLog.lErr, "Cannot run without any configuration file. Aborting.")
 		return None
 	#----------------------------
 	def __parse_conf_file(self):
@@ -561,11 +562,14 @@ else:
 	try:
 		gmDefCfgFile = cCfgFile()
 	except:
-		_log.LogException('unhandled exception', sys.exc_info(), fatal=1)
+		_log.LogException('unhandled exception', sys.exc_info(), fatal=0)
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.20  2002-10-22 21:11:44  ncq
+# Revision 1.21  2002-11-03 13:21:05  ncq
+# - phase 1: error levels more suitable
+#
+# Revision 1.20  2002/10/22 21:11:44  ncq
 # - throwing exception ImportError on failing to load the
 #   default config file wasn't such a good idea after all
 #   since we might _actually_ only be interested in a different
