@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.32 2003-09-21 06:53:40 ihaywood Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmTmpPatient.py,v 1.33 2003-09-21 10:37:20 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -298,24 +298,21 @@ where
 		curs.close ()
 		return data
 	#--------------------------------------------------------
-	def GuessStreet (self, postcode):
-		"""
-		Guess the street name based on the postcode
+	def GuessStreetFromZip(self, postcode):
+		"""Guess the street name based on the postcode.
 		"""
 		if postcode is None or len (postcode) == 0:
-			return [] # cope with empty urb name
+			return [] # cope with empty postcode name
 		curs = self._defconn_ro.cursor ()
-		try:
-			cmd = "select street from v_zip2street where postcode = %s"
-			curs.execute (cmd, urb)
-		except:
+		cmd = "select street from v_zip2street where postcode = %s"
+		if not gmPG.run_query(curs, cmd, postcode):
 			curs.close()
-			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
+			_log.Log(gmLog.lErr, 'guessing street from postcode [%s] failed' % postcode)
 			return None
-		data = curs.fetchall ()
-		curs.close ()
+		data = curs.fetchall()
+		curs.close()
 		return data
-	
+	#--------------------------------------------------------
 	def DeleteAddress (self, ID):
 		rwconn = self._backend.GetConnection('personalia', readonly=0)
 		rwcurs = rwconn.cursor()
@@ -753,7 +750,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.32  2003-09-21 06:53:40  ihaywood
+# Revision 1.33  2003-09-21 10:37:20  ncq
+# - bugfix, cleanup
+#
+# Revision 1.32  2003/09/21 06:53:40  ihaywood
 # bugfixes
 #
 # Revision 1.31  2003/09/17 11:08:30  ncq
