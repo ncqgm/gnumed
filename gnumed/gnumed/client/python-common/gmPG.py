@@ -26,7 +26,7 @@
 
 """gmConnectionPool - Broker for Postgres distributed backend connections
 """
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <@>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -36,16 +36,20 @@ import string, gettext, copy, os, sys
 try:
 	import psycopg # try Zope library
 	dbapi = psycopg
+	# WARNING: HACK
+	isPGDB = 0 # is flag is because of a code depenedency.
 # nope
 except ImportError:
 	# ah, maybe we are on Windows and it just has another name ?
 	try:
 		import pyPgSQL.PgSQL # try Windows bindings
 		dbapi = pyPgSQL.PgSQL
+		isPGDB = 0
 	# well, well, no such luck - fall back to stock pgdb library
 	except ImportError:
 		import pgdb # try standard Postgres binding
 		dbapi = pgdb
+		isPGDB = 1
 
 #gnumed specific modules
 import gmLoginInfo, gmLog, gmExceptions
@@ -109,7 +113,11 @@ class ConnectionPool:
 		#try to establish connections to all servers we need
 		#according to configuration database
 		cursor = cdb.cursor()
-		cursor.execute("select * from config where profile='%s'" % login.GetProfile())
+		try:
+			cursor.execute("select * from config where profile='%s'" % login.GetProfile())
+		except dbapi.OperationalError:
+			# this is the first query, give nicer error
+			raise gmExceptions.ConnectionError(_("Not GNUMed database"))
 		databases = cursor.fetchall()
 		dbidx = cursorIndex(cursor)
 
@@ -167,19 +175,22 @@ class ConnectionPool:
 	def __pgconnect(self, login):
 		"connect to a postgres backend as specified by login object; return a connection object"
 
+		if isPGDB:
+			dsn, hostport = login.GetPGDB_DSN()
+			print "api is pgdb"
+		else:
+			print "other api"
+			dsn = login.GetDBAPI_DSN()
+			hostport = "0"
 		try:
-			if dbapi is pgdb:
-				dsn, hostport = login.GetPGDB_DSN()
-				print "api is pgdb"
+			if isPGDB:
 				db = dbapi.connect(dsn, host=hostport)
 			else:
-				print "other api"
-				dsn = login.GetDBAPI_DSN()
 				db = dbapi.connect(dsn)
 			return db
 		except: 
 			exc = sys.exc_info()
-			gmLog.gmDefLog.LogException("Exception: Connection to database failed. DSN was [" + dsn + "], host:port was [" + hostport + "]", exc)
+			gmLog.gmDefLog.LogException("Exception: Connection to database failed. DSN was [%s]" % dsn, exc)
 			raise gmExceptions.ConnectionError, _("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport)
 
 

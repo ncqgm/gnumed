@@ -50,8 +50,8 @@ Usage:
 
 @copyright: GPL
 """
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.23 $"
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
+__version__ = "$Revision: 1.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 import sys, time, traceback, os.path, atexit, os, string, getopt
@@ -249,10 +249,11 @@ class cLogTarget:
 	def __init__(self, aLogLevel = lErr):
 		self.__activeLogLevel = aLogLevel
 		self.writeDelimiter()
-		self.writeMsg (lPanic, "SECURITY: initial log level is " + self.__LogLevelPrefix[self.__activeLogLevel])
+		self.writeMsg (lInfo, "SECURITY: initial log level is " + self.__LogLevelPrefix[self.__activeLogLevel])
+		self.__has_ever_logged = 0 # true if ever logged anuthing interesting
 	#---------------------------
 	def close(self):
-		self.writeMsg (lPanic, "SECURITY: closing log target (ID = " + str(self.ID) + ")")
+		self.writeMsg (lInfo, "SECURITY: closing log target (ID = " + str(self.ID) + ")")
 		#self.flush()
 	#---------------------------
 	def getID (self):
@@ -264,12 +265,13 @@ class cLogTarget:
 			self.writeMsg (lPanic, "SECURITY: trying to set invalid log level (" + str(aLogLevel) + ") - keeping current log level (" + str(self.__activeLogLevel) + ")")
 			return None
 		# log the change
-		self.writeMsg (lPanic, "SECURITY: log level change from " + self.__LogLevelPrefix[self.__activeLogLevel] + " to " + self.__LogLevelPrefix[aLogLevel])
+		self.writeMsg (lInfo, "SECURITY: log level change from " + self.__LogLevelPrefix[self.__activeLogLevel] + " to " + self.__LogLevelPrefix[aLogLevel])
 		self.__activeLogLevel = aLogLevel
 		return self.__activeLogLevel
 	#---------------------------
 	def writeMsg (self, aLogLevel, aMsg):
 		if aLogLevel <= self.__activeLogLevel:
+			self.__has_ever_logged = 1
 			timestamp = self.__timestamp()
 			severity = self.__LogLevelPrefix[aLogLevel]
 			self.__tracestack()
@@ -282,6 +284,9 @@ class cLogTarget:
 			if aLogLevel == lPanic:
 				#self.flush()
 				pass
+	#---------------------------
+	def hasLogged (self):
+		return self.__has_ever_logged
 	#---------------------------
 	def writeDelimiter (self):
 		self.dump2stdout (self.__timestamp(), '', '', '------------------------------------------------------------\n')

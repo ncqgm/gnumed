@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-01 12:18:28 $
-# @version $Revision: 1.22 $ $Date: 2002-07-01 12:18:28 $ $Author: ihaywood $
+# @Date: $Date: 2002-07-03 11:39:07 $
+# @version $Revision: 1.23 $ $Date: 2002-07-03 11:39:07 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -29,7 +29,7 @@
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # text translation function for localization purposes
@@ -359,10 +359,24 @@ def main():
 	#and enter the main event loop
 	app.MainLoop()
 
-
-#==================================================
+#=================================================
 # just for convenience, really
 myLog = gmLog.gmDefLog
+
+def mainWithTalkback ():
+	"""
+	Alternative main () method to run tablkback logger
+	"""
+	emailLogger = gmLog.cLogTargetEmail (gmLog.lErr, aFrom = "GNUMed client", aTo = "bug-gnumed@gnu.org", anSMTPServer = "fencepost.gnu.org")
+	myLog.AddTarget (emailLogger)
+	main ()
+	if emailLogger.hasLogged ():
+		box = wxMessageBox (None, "An error has occurred. Would to like to mail an automatic report to bug-gnumed@gnu.org?", style = wxYES_NO | wxICON_ERROR)
+		if box.ShowModal () == wxID_YES:
+			emailLogger.flush ()
+
+
+#==================================================
 
 if __name__ == '__main__':
 	# we may want to reset the log level, so keep a global reference to the log target
