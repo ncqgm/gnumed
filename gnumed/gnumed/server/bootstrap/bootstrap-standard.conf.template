@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.18 $
+version = $Revision: 1.19 $
 
 #----------------------------------
 [installation]
@@ -16,6 +16,11 @@ version = $Revision: 1.18 $
 # for the users to be installed,
 # this has been conceived to make Debian postinst happy :-)
 interactive = yes
+
+# mainly for debugging, if you set this to "yes" the
+# bootstrapper will not delete the temporary files it
+# creates in the process
+keep temp files = no
 
 # this description is displayed just before the user is
 # prompted whether she acutally wants to install this setup
@@ -265,7 +270,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.18  2003-11-28 10:00:41  ncq
+# Revision 1.19  2004-12-06 21:12:01  ncq
+# - document "keep temp files" option
+#
+# Revision 1.18  2003/11/28 10:00:41  ncq
 # - add "notification disable" option
 # - update template conf file
 # - use notification schema generator in bootstrapper
