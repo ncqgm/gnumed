@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.66 2004-01-17 09:59:02 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmPlugin.py,v 1.67 2004-01-17 10:37:24 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -253,11 +253,10 @@ class wxNotebookPlugin (wxBasePlugin):
 		plugin_list = self.gb['main.notebook.plugins']
 		plugin_idx = plugin_list.index(plugin)
 		self.nb.SetSelection (plugin_idx)
-		self.tb_main.ShowBar(self.internal_name())
 		return (1, '')
 	#-----------------------------------------------------
 	def OnMenu (self, event):
-		self.Raise ()
+		self.Raise()
 	#-----------------------------------------------------
 	def GetNotebookNumber (self):
 		return self.nb_no
@@ -359,7 +358,7 @@ def InstPlugin (aPackage, plugin_name, guibroker = None):
 	dbbroker = gmPG.ConnectionPool()
 
 	# bean counting ! -> loaded plugins
-	if not ('modules.%s' % aPackage) in guibroker.keylist ():
+	if not ('modules.%s' % aPackage) in guibroker.keylist():
 		guibroker['modules.%s' % aPackage] = {}
 
 	try:
@@ -502,7 +501,11 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.66  2004-01-17 09:59:02  ncq
+# Revision 1.67  2004-01-17 10:37:24  ncq
+# - don't ShowBar() in Raise() as GuiMain.OnNotebookPageChanged()
+#   takes care of that
+#
+# Revision 1.66  2004/01/17 09:59:02  ncq
 # - enable Raise() to raise arbitrary plugins
 #
 # Revision 1.65  2004/01/06 23:44:40  ncq
