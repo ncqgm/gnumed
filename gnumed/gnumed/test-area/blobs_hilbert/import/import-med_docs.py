@@ -14,7 +14,7 @@ search for FIXME to find places to fix
 #######################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/import/Attic/import-med_docs.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 
 # modules
 import os, fileinput, string, time, sys, os.path
@@ -22,9 +22,16 @@ import os, fileinput, string, time, sys, os.path
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
 
-import gmLog, gmCfg
+import gmLog
 _log = gmLog.gmDefLog
+if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
+
+import gmCfg
 _cfg = gmCfg.gmDefCfgFile
+if _cfg is None:
+	_log.Log (gmLog.lPanic, "cannot run without config file")
+	sys.exit(1)
 
 from docPatient import cPatient
 from docDocument import cDocument
@@ -42,6 +49,9 @@ def can_import(aDir):
 		return None
 
 	# is dir already locked ?
+	# this would be due to
+	#  a) somebody else is currently importing
+	#  b) we died the last time around
 	lock_file = os.path.join(aDir, _cfg.get("import", "lock file"))
 	if os.path.exists(lock_file):
 		_log.Log (gmLog.lErr, "skipping [%s]: lock file [%s] already exists" % (aDir, lock_file))
@@ -67,6 +77,17 @@ def unlock(aDir):
 		exc = sys.exc_info()
 		_log.LogException("Cannot unlock [%s] for subsequent import retries." % aDir, exc, fatal=0)
 #---------------------------------------------------------
+def mark_for_deletion(aDir):
+	"""Mark directory for removal."""
+	done_file = os.path.join(aDir, _cfg.get("import", "completion marker file"))
+	try:
+		done = open(done_file,"w")
+	except:
+		_log.LogException("Cannot mark [%s] as successfully imported." % aDir, sys.exc_info())
+		return None
+	done.close()
+	return 1
+#---------------------------------------------------------
 def import_from_dir(aDir):
 	_log.Log (gmLog.lInfo, "importing from repository sub dir [%s]" % aDir)
 
@@ -77,7 +98,7 @@ def import_from_dir(aDir):
 	# get patient data from xDT file
 	tmp = _cfg.get("import", "patient file")
 	pat_file = os.path.abspath(os.path.join(aDir, tmp))
-	pat_format = "xdt"
+	pat_format = _cfg.get("import", "patient file format")
 	aPatient = cPatient()
 	if not aPatient.loadFromFile(pat_format, pat_file):
 		_log.Log(gmLog.lErr, "Skipping [%s]: problem with reading patient data from %s file [%s]" % (aDir, pat_format, pat_file))
@@ -86,7 +107,7 @@ def import_from_dir(aDir):
 
 	# setup document object
 	aDoc = cDocument()
-	if aDoc == None:
+	if aDoc is None:
 		_log.Log(gmLog.lErr, "cannot instantiate document object")
 		unlock(aDir)
 		return None
@@ -104,15 +125,16 @@ def import_from_dir(aDir):
 		unlock(aDir)
 		return None
 
-	# move/delete input files if all is well
-	# FIXME
+	# mark input files for removal if all is well
+	# (but keep import lock so we don't accidentally import twice)
+	mark_for_deletion(aDir)
 	return 1
 #------------------------------------------
 def standalone():
 	REPOSITORIES = _cfg.get("import", "repositories")
 	for REPOSITORY in REPOSITORIES:
-		_log.Log (gmLog.lInfo, "importing from repository [%s]" % REPOSITORY)
 		REPOSITORY = os.path.abspath(os.path.expanduser(REPOSITORY))
+		_log.Log (gmLog.lInfo, "importing from repository [%s]" % REPOSITORY)
 		# get the list of document directories in the repository
 		dirlist = os.listdir (REPOSITORY)
 		# now handle one dir after another
@@ -120,15 +142,10 @@ def standalone():
 			# we don't check for errors here since we just move on to the next dir
 			import_from_dir(os.path.join(REPOSITORY, theDir))
 
-	# FIXME: update doc types
+	# FIXME: update doc types in config file here
 #==========================================
 # MAIN
 #------------------------------------------
-_log.SetAllLogLevels(gmLog.lData)
-if _cfg == None:
-	_log.Log (gmLog.lPanic, "cannot run without config file")
-	sys.exit(1)
-
 _log.Log (gmLog.lInfo, "starting import")
 
 if __name__ == "__main__":
@@ -136,11 +153,11 @@ if __name__ == "__main__":
 
 	# connect to DB
 	myDB = cDatabase(_cfg)
-	if myDB == None:
+	if myDB is None:
 		_log.Log (gmLog.lErr, "cannot create document database connection object")
 		sys.exit(1)
 
-	if myDB.connect(readonly_flag=0) == None:
+	if myDB.connect(readonly_flag=0) is None:
 		_log.Log (gmLog.lErr, "cannot connect to document database")
 		sys.exit(1)
 
@@ -159,7 +176,10 @@ sys.exit(0)
 
 #=========================================================
 # $Log: import-med_docs.py,v $
-# Revision 1.8  2002-11-23 16:45:21  ncq
+# Revision 1.9  2002-12-22 23:59:31  ncq
+# - mark successfully imported directories for later removal
+#
+# Revision 1.8  2002/11/23 16:45:21  ncq
 # - make work with pyPgSQL
 # - fully working now but needs a bit of polish
 #
