@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.25 2004-08-11 09:45:28 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmPatientExporter.py,v 1.26 2004-08-23 09:08:53 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -290,7 +290,7 @@ class cEmrExport:
         txt = ''
         if self.lab_new_encounter:
             txt += (left_margin)*' ' + _('Lab result') + ': \n'
-        txt += (left_margin+3)*' ' + lab_result['unified_name']  + ': ' + lab_result['unified_val']+ ' ' + lab_result['val_unit'] + '(' + lab_result['material'] + ')' + '\n'
+        txt += (left_margin+3) * ' ' + lab_result['unified_name']  + ': ' + lab_result['unified_val']+ ' ' + lab_result['val_unit'] + ' (' + lab_result['material'] + ')' + '\n'
         return txt
     #--------------------------------------------------------
     def get_item_output(self, item, left_margin = 0):
@@ -365,7 +365,7 @@ class cEmrExport:
         if self.lab_new_encounter:
             txt += (left_margin+3)*' ' + _('Lab') + ': '  + \
                 lab_result['unified_name'] + '-> ' + lab_result['unified_val'] + \
-                ' ' + lab_result['val_unit']+ '\n'
+                ' ' + lab_result['val_unit']+ '\n' + '(' + lab_result['req_when'] + ')'
         return txt
     #--------------------------------------------------------
     def get_item_summary(self, item, left_margin = 0):
@@ -774,7 +774,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.25  2004-08-11 09:45:28  ncq
+# Revision 1.26  2004-08-23 09:08:53  ncq
+# - improve output
+#
+# Revision 1.25  2004/08/11 09:45:28  ncq
 # - format SOAP notes, too
 #
 # Revision 1.24  2004/08/09 18:41:08  ncq
