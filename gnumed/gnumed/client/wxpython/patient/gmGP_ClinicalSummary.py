@@ -116,7 +116,7 @@ g\xef\xc7!\xe6\xf7$\xb0@?\x92\x04\x8ez\x1eu\xcf-\xe0 ,S\x87\xe5\x1e\xcf\x98\
 		return 'Clinical Summary'
 
 	def MenuInfo (self):
-		return ('view', '&Summary')
+		return ('view', _('&Summary'))
 
 	def GetIconData(self, anIconID = None):
 		if anIconID == None:
@@ -132,7 +132,7 @@ g\xef\xc7!\xe6\xf7$\xb0@?\x92\x04\x8ez\x1eu\xcf-\xe0 ,S\x87\xe5\x1e\xcf\x98\
 
 	def register (self):
 		gmPlugin.wxPatientPlugin.register (self)
-		self.gb['clinical.manager'].SetDefault ('Clinical Summary')
+		self.gb['clinical.manager'].SetDefault(self.internal_name())
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 500))

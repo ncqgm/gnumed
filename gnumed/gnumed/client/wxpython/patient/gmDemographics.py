@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.25 2003-04-25 11:15:58 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmDemographics.py,v 1.26 2003-04-28 12:14:40 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -344,7 +344,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.sizer_line11_right.Add(0,0,1)
 		self.sizer_contacts.Add(self.sizer_line11_right,0,wxEXPAND)
 		self.sizer_photo = wxBoxSizer(wxVERTICAL)
-		self.patientpicture = gmGP_PatientPicture.PatientPicture(self,-1)
+		self.patientpicture = gmGP_PatientPicture.cPatientPicture(self, -1)
 		self.sizer_photo.Add(self.patientpicture,3,wxALIGN_CENTER_HORIZONTAL,0)
 		self.sizer_photo.Add(self.btn_photo_aquire,1,wxALIGN_CENTER_HORIZONTAL,0)
 		self.sizer_photo.Add(self.btn_photo_export,1,wxALIGN_CENTER_HORIZONTAL,0)
@@ -404,16 +404,16 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		top_panel = self.gb['main.toolbar']
 
 		# and register ourselves as a widget
-		self.gb['modules.patient'][self.name ()] = self
+		self.gb['modules.patient'][self.internal_name()] = self
 		self.mwm = self.gb['clinical.manager']
 		self.widget = PatientsPanel (self.mwm, self)
-		self.mwm.RegisterWholeScreen (self.name (), self.widget)
+		self.mwm.RegisterWholeScreen(self.internal_name(), self.widget)
 		self.set_widget_reference(self.widget)
 		self.RegisterInterests ()
 	#--------------------------------------------------------		
 	def OnTool (self, event):
 		pass
-#		self.mwm.Display (self.name ())
+#		self.mwm.Display (self.internal_name ())
 #		print "OnTool"
 #		self.gb['modules.gui']['Patient'].Raise()
 
@@ -464,7 +464,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.25  2003-04-25 11:15:58  ncq
+# Revision 1.26  2003-04-28 12:14:40  ncq
+# - use .internal_name()
+#
+# Revision 1.25  2003/04/25 11:15:58  ncq
 # cleanup
 #
 # Revision 1.24  2003/04/05 00:39:23  ncq
