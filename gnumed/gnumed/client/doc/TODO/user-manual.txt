@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.20 $
+# $Revision: 1.21 $
 ---------------------------------------------------
 Rules:
 ------
@@ -10,4 +10,40 @@ Rules:
 - please date it.
 Thanks
 ---------------------------------------------------
+Karsten.Hilbert@gmx.net		Mit 05 Feb 2003 14:25:17 CET
 
+Belongs into Admin->Config:
+
+Upon startup the client autoconfigures the language used
+in the database.
+
+The following things influence its decision:
+
+The language is taken from the system locale in the environment
+variables checked for the GUI language by gmI18N.py.
+
+If there's no i18n_curr_lang table in the database the client
+assumes that no translations are wanted and tries to work
+without it. Same if other errors prevent normal operations - a
+warning is logged and things continue.
+
+If the language given in the database doesn't match the system
+locale the user is asked whether to update the database setting
+to that. One can influence the system locale setting in
+per-instance wrapper scripts if so desired.
+
+The database language setting is only updated if translations
+are actually available for the target language. Two levels of
+truncation of the system locale are used to find matching
+translations:
+
+1) full locale: 'de_DE@euro'
+2) no dialect:  'de_DE'
+3) no country:  'de'
+
+This allows for a missing Austrian translation to fall back to
+a general German (de_AT -> de) one, for example.
+
+Note: The code is all in place. For some strange reason it seems to
+not work although I cannot find the problem.
+---------------------------------------------------
