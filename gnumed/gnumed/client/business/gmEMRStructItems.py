@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -89,30 +89,30 @@ class cEpisode(gmClinItem.cClinItem):
 	#--------------------------------------------------------
 	def get_description(self):
 		return self._payload[self._idx['description']]
-	#--------------------------------------------------------
-	def set_active(self):
-		# if no patient get it from health issue
-		if self._payload[self._idx['pk_patient']] is None:
-			fragment = '(select id_patient from clin_health_issue where id=%s)'
-			val = self._payload[self._idx['pk_health_issue']]
-		else:
-			fragment = '%s'
-			val = self._payload[self._idx['pk_patient']]
-		cmd1 = """
-			delete from last_act_episode
-			where id_patient=(select id_patient from clin_health_issue where id=%s)"""
-		cmd2 = """
-			insert into last_act_episode(fk_episode, id_patient)
-			values (%%s, %s)""" % fragment
-		success, msg = gmPG.run_commit('historica', [
-			(cmd1, [self._payload[self._idx['pk_health_issue']]]),
-			(cmd2, [self.pk_obj, val])
-		], True)
-		if not success:
-			_log.Log(gmLog.lErr, 'cannot record episode [%s] as most recently used one for health issue [%s]' % (self.pk_obj, self._payload[self._idx['pk_health_issue']]))
-			_log.Log(gmLog.lErr, str(msg))
-			return False
-		return True
+#	#--------------------------------------------------------
+#	def set_active(self):
+#		# if no patient get it from health issue
+#		if self._payload[self._idx['pk_patient']] is None:
+#			fragment = '(select id_patient from clin_health_issue where id=%s)'
+#			val = self._payload[self._idx['pk_health_issue']]
+#		else:
+#			fragment = '%s'
+#			val = self._payload[self._idx['pk_patient']]
+#		cmd1 = """
+#			delete from last_act_episode
+#			where id_patient=(select id_patient from clin_health_issue where id=%s)"""
+#		cmd2 = """
+#			insert into last_act_episode(fk_episode, id_patient)
+#			values (%%s, %s)""" % fragment
+#		success, msg = gmPG.run_commit('historica', [
+#			(cmd1, [self._payload[self._idx['pk_health_issue']]]),
+#			(cmd2, [self.pk_obj, val])
+#		], True)
+#		if not success:
+#			_log.Log(gmLog.lErr, 'cannot record episode [%s] as most recently used one for health issue [%s]' % (self.pk_obj, self._payload[self._idx['pk_health_issue']]))
+#			_log.Log(gmLog.lErr, str(msg))
+#			return False
+#		return True
 	#--------------------------------------------------------
 	def rename(self, description=None):
 		"""Method for episode editing, that is, episode renaming.
@@ -505,7 +505,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.47  2005-03-29 07:22:38  ncq
+# Revision 1.48  2005-04-03 20:05:38  ncq
+# - cEpisode.set_active() doesn't make sense no more
+#
+# Revision 1.47  2005/03/29 07:22:38  ncq
 # - improve text for auto generated encounters
 #
 # Revision 1.46  2005/03/23 18:31:19  ncq
