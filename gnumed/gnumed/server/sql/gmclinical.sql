@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- license: GPL
 -- author: 
 
@@ -57,7 +57,7 @@ create table clinical_transaction(
 	stamp timestamp with time zone,
 	duration interval,
 	id_location int,
-	id_doctor int,  
+	id_provider int,  
 	id_patient int, 
 	id_enum_clinical_encounters int REFERENCES enum_clinical_encounters (id)
 ) inherits (audit_clinical);
@@ -71,8 +71,8 @@ COMMENT ON COLUMN clinical_transaction.stamp is
 COMMENT ON COLUMN clinical_transaction.id_location is 
 'Location ID, in ?? gmoffice';
 
-COMMENT ON COLUMN clinical_transaction.id_doctor is 
-'Doctor''s ID, in ?? gmoffice';
+COMMENT ON COLUMN clinical_transaction.id_provider is 
+'ID of doctor/nurse/patient/..., in ?? gmoffice';
 
 COMMENT ON COLUMN clinical_transaction.id_patient is 
 'Patient''s ID, in gmidentity';
@@ -118,7 +118,7 @@ create table enum_info_sources
 );
 
 comment on table enum_info_sources is
-'sources of clinical information: patient, relative, notes, corresondence';
+'sources of clinical information: patient, relative, notes, correspondence';
 
 insert into enum_info_sources (description) values (_('patient'));
 insert into enum_info_sources (description) values (_('clinician'));
@@ -417,11 +417,14 @@ comment on table link_script_drug is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.10 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.10  2002-12-14 08:55:17  ihaywood
+-- Revision 1.11  2002-12-22 01:26:16  ncq
+-- - id_doctor -> id_provider + comment, typo fix
+--
+-- Revision 1.10  2002/12/14 08:55:17  ihaywood
 -- new prescription tables -- fixed typos
 --
 -- Revision 1.9  2002/12/14 08:12:22  ihaywood
