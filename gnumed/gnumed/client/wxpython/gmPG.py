@@ -326,19 +326,21 @@ def getBackendName():
 
 
 def inputTMLoginParams():
-	"text mode input request of database login parameters"
+	"""text mode input request of database login parameters"""
 	login = gmLoginInfo.LoginInfo('', '')
 	try:
 		print "\nPlease enter the required login parameters:"
+		database = raw_input("database [gnumed] : ")
+		if database == '':
+		    database = 'gnumed'
 		user = raw_input("user name : ")
 		password = raw_input("password : ")
-		database = raw_input("database [gnumed] : ")
-		if database == '': database = 'gnumed'
 		host = raw_input("host [localhost] : ")
-		if host == '': host = 'localhost'
+		if host == '':
+		    host = 'localhost'
 		port = raw_input("port [5432] : ")
 		if port == '':
-			port = 5432
+		    port = 5432
 		else:
 			port = int(port)
 		login.SetInfo(user, password, dbname=database, host=host, port=port)
