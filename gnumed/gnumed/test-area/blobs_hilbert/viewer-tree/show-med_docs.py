@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on mime types.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #----------------------------------------------------------------------
 import os.path, sys, os
@@ -26,13 +26,11 @@ from docDocument import cDocument, cPatientDocumentList
 from docDatabase import cDatabase
 import docMime
 
-import gmLog, gmCfg
+import gmLog, gmCfg, gmI18N
 #----------------------------------------------------------------------
-__log__ = gmLog.gmDefLog
-__cfg__ = gmCfg.gmDefCfg
+_log = gmLog.gmDefLog
+_cfg = gmCfg.gmDefCfgFile
 
-# this is a placeholder for gettext.gettext()
-_ = lambda x:x
 #----------------------------------------------------------------------
 #        self.tree = MyTreeCtrl(self, tID, wxDefaultPosition, wxDefaultSize,
 #                               wxTR_HAS_BUTTONS | wxTR_EDIT_LABELS# | wxTR_MULTIPLE
@@ -65,11 +63,11 @@ class cDocTree(wx.wxTreeCtrl):
 		"""
 		# sanity checks
 		if aPatient == None:
-			__log__.Log(gmLog.lErr, "Cannot retrieve documents without knowing the patient !")
+			_log.Log(gmLog.lErr, "Cannot retrieve documents without knowing the patient !")
 			return None
 
 		if aConn == None:
-			__log__.Log(gmLog.lErr, "Cannot retrieve documents without database connection !")
+			_log.Log(gmLog.lErr, "Cannot retrieve documents without database connection !")
 			return None
 
 		self.__conn = aConn
@@ -77,15 +75,15 @@ class cDocTree(wx.wxTreeCtrl):
 		# make sure aPatient knows its ID
 		result = aPatient.getIDfromGNUmed(self.__conn)
 		if result[0]:
-			__log__.Log(gmLog.lInfo, "Making document tree for patient with ID %s" % result[1])
+			_log.Log(gmLog.lInfo, "Making document tree for patient with ID %s" % result[1])
 		else:
-			__log__.Log(gmLog.lErr, "Patient data is ambigous. Aborting. %s" % str(result))
+			_log.Log(gmLog.lErr, "Patient data is ambigous. Aborting. %s" % str(result))
 			return None
 
 		# read documents from database
 		self.doc_list = aPatient.getDocsFromGNUmed(self.__conn)
 		if self.doc_list == None:
-			__log__.Log(gmLog.lErr, "Cannot find any documents.")
+			_log.Log(gmLog.lErr, "Cannot find any documents.")
 			return None
 
 		wx.wxTreeCtrl.__init__(self, parent, id, style=wx.wxTR_NO_BUTTONS)
@@ -147,31 +145,31 @@ class cDocTree(wx.wxTreeCtrl):
 			return
 
 		# but do everything with objects
-		__log__.Log(gmLog.lData, "User selected object %s from document %s" % (node_data['id'], node_data['doc_id']))
-		exp_base = __cfg__.get("export", "target")
+		_log.Log(gmLog.lData, "User selected object %s from document %s" % (node_data['id'], node_data['doc_id']))
+		exp_base = _cfg.get("export", "target")
 		if not os.path.exists(exp_base):
-			__log__.Log(gmLog.lErr, "The directory '%s' does not exist ! Falling back to default temporary directory." % exp_base) # which is tempfile.tempdir == None == use system defaults
+			_log.Log(gmLog.lErr, "The directory '%s' does not exist ! Falling back to default temporary directory." % exp_base) # which is tempfile.tempdir == None == use system defaults
 		else:
-			__log__.Log(gmLog.lData, "working into directory '%s'" % exp_base)
+			_log.Log(gmLog.lData, "working into directory '%s'" % exp_base)
 
 		# document handle
 		doc = self.doc_list[node_data['doc_id']]
 		mdata = doc.getMetaData()
-		__log__.Log(gmLog.lData, "document: %s" % mdata)
+		_log.Log(gmLog.lData, "document: %s" % mdata)
 
 		# retrieve object
 		if not doc.exportObjFromGNUmed(self.__conn, exp_base, node_data['id']):
-			__log__.Log(gmLog.lErr, "Cannot export object (%s) data from database !" % node_data['id'])
+			_log.Log(gmLog.lErr, "Cannot export object (%s) data from database !" % node_data['id'])
 			return (1==0)
 
 		obj = mdata['objects'][node_data['id']]
 		mime_type = docMime.guess_mimetype(obj['file name'])
 		viewer_cmd = docMime.get_viewer_cmd(mime_type, obj['file name'])
-		__log__.Log(gmLog.lData, "object: %s" % str(obj))
-		__log__.Log(gmLog.lData, "%s -> %s" % (mime_type, viewer_cmd))
+		_log.Log(gmLog.lData, "object: %s" % str(obj))
+		_log.Log(gmLog.lData, "%s -> %s" % (mime_type, viewer_cmd))
 
 		if viewer_cmd == None:
-			__log__.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
+			_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
 			new_fname = docMime.get_win_fname(mime_type)
 			os.rename(obj['file name'], new_fname)
 			os.startfile(new_fname)
@@ -183,12 +181,12 @@ class MyFrame(wx.wxFrame):
 
 	def __init__(self):
 		if self.__connect_to_db() == None:
-			__log__.Log (gmLog.lErr, "No need to work without being able to connect to database.")
+			_log.Log (gmLog.lErr, "No need to work without being able to connect to database.")
 			return None
 
 		aPat = self.__get_pat_data()
 		if aPat == None:
-			__log__.Log (gmLog.lErr, "Cannot get patient data.")
+			_log.Log (gmLog.lErr, "Cannot get patient data.")
 			return None
 
 		# setup basic frame
@@ -214,13 +212,13 @@ class MyFrame(wx.wxFrame):
 	#--------------------------------------------------------------
 	def __connect_to_db(self):
 		# connect to DB
-		self.DB = cDatabase(__cfg__)
+		self.DB = cDatabase(_cfg)
 		if self.DB == None:
-			__log__.Log (gmLog.lErr, "cannot create document database connection object")
+			_log.Log (gmLog.lErr, "cannot create document database connection object")
 			return None
 
 		if self.DB.connect() == None:
-			__log__.Log (gmLog.lErr, "cannot connect to document database")
+			_log.Log (gmLog.lErr, "cannot connect to document database")
 			return None
 
 		self.__conn = self.DB.getConn()
@@ -233,14 +231,14 @@ class MyFrame(wx.wxFrame):
 		client applications can provide patient data in their own way.
 		"""
 		# FIXME: error checking
-		exp_base = __cfg__.get("export", "target")
-		pat_file = __cfg__.get("export", "pat_file")
-		pat_format = __cfg__.get("export", "pat_format")
+		exp_base = _cfg.get("export", "target")
+		pat_file = _cfg.get("export", "pat_file")
+		pat_format = _cfg.get("export", "pat_format")
 		aPatient = cPatient()
 		# FIXME: the method of getting the patient should be configurable
 		# get patient data from BDT file
 		if not aPatient.loadFromFile(pat_format, os.path.expanduser(os.path.join(exp_base, pat_file))):
-			__log__.Log(gmLog.lErr, "problem with reading patient data from xDT file " + pat_file)
+			_log.Log(gmLog.lErr, "problem with reading patient data from xDT file " + pat_file)
 			return None
 
 		return aPatient
@@ -257,15 +255,15 @@ class MyApp(wx.wxApp):
 #----------------------------------------------------------------
 # MAIN
 #----------------------------------------------------------------
-__log__.Log (gmLog.lInfo, "starting display handler")
-__log__.SetAllLogLevels(gmLog.lData)
+_log.Log (gmLog.lInfo, "starting display handler")
+_log.SetAllLogLevels(gmLog.lData)
 
-if __cfg__ == None:
-	__log__.Log(gmLog.lErr, "Cannot run without config file.")
-	sys.exit()
+if _cfg == None:
+	_log.Log(gmLog.lErr, "Cannot run without config file.")
+	sys.exit("Cannot run without config file.")
 
 if __name__ == '__main__':
 	app = MyApp(0)
 	app.MainLoop()
 
-__log__.Log (gmLog.lInfo, "closing display handler")
+_log.Log (gmLog.lInfo, "closing display handler")
