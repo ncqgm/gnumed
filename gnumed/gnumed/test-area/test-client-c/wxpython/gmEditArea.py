@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.10 2003-11-02 14:13:35 sjtan Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmEditArea.py,v 1.11 2003-11-03 15:38:58 sjtan Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -563,8 +563,8 @@ class gmEditArea( wxPanel):
 	#--------------------------------------------------------
 	def _on_delete_btn_pressed(self, event):
 		print "DELETE button pressed"
-		self._delete_data()
 		event.Skip()
+		self._delete_data()
 
 	#--------------------------------------------------------
 	def _init_fields(self):
@@ -792,15 +792,24 @@ class gmAllergyEditArea(gmEditArea):
 	#--------------------------------------------------------
 	def _save_data(self):
 		print "saving allergy data"
-		clinical = self.patient.get_clinical_record().get_allergy()
+		clinical = self.patient.get_clinical_record().get_allergies()
 		if self.getDataId() == None:
 			id = clinical.create_allergy( self.get_fields_formatting_values() )
 			self.setDataId(id)
 			return 1	
-		print "UDPATE ALLERGY NEEDS IMPLEMENTATION"
+
+		clinical.update_allergy( self.get_fields_formatting_values(), self.getDataId() )
 			
 		return 1
 	#--------------------------------------------------------
+
+	def _delete_data(self):
+		if self.getDataId() == None:
+			return
+		clinical = self.patient.get_clinical_record().get_allergies()
+		clinical.delete_allergy( self.getDataId())
+		self._init_fields()
+
 
 
 	def get_fields_formatting_values(self):
@@ -2040,9 +2049,9 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.10  2003-11-02 14:13:35  sjtan
+# Revision 1.11  2003-11-03 15:38:58  sjtan
 #
-# some clinical stuff.
+# allergy CRUD.
 #
 # Revision 1.6  2003/10/26 00:58:53  sjtan
 #

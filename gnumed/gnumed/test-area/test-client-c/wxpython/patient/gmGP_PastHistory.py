@@ -211,10 +211,6 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 				self.editarea.setInputFieldValues(map, id)
 				print "set editarea with ", map, "and id ", id
 
-	def get_past_history(self):
-		clinical = self.patient.get_clinical_record().get_past_history()
-		return clinical
-	
 
 	def _updateUI(self):
 		clinical = self.get_past_history()

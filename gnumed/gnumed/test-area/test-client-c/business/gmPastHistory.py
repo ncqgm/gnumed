@@ -267,17 +267,18 @@ class gmPastHistory(gmClinicalPart):
 		
 		l = []
 		for id, map in list:
-			print "checking ", map.get(key, None) 
+			#print "checking ", map.get(key, None) 
 			if map.get(key , None) in range:
-				print "key ", key, " value is in ", range
+				#print "key ", key, " value is in ", range
 				l.append( (id,map) )
 			elif includeAsDefault  and not map.has_key(key): 
-				print "key ", key, "is not in range ", range, " but included as default."
+				#print "key ", key, "is not in range ", range, " but included as default."
 				l.append( (id,map) )
 			else:
-				print "key ", key, "is not in range ", range, " and not included."
+				#print "key ", key, "is not in range ", range, " and not included."
+				pass
 				
-		print " got filtered history ", l		
+		#print " got filtered history ", l		
 		return l
 
 	def get_accepted_history(self):
@@ -286,7 +287,7 @@ class gmPastHistory(gmClinicalPart):
 	
 	def get_active_history(self, active = 1 ):
 		list =  self.filter_history( 'active', [active], list = self.get_accepted_history() )
-		print "** active =", active, " history =", list
+		#print "** active =", active, " history =", list
 
 		return list
 
@@ -295,7 +296,7 @@ class gmPastHistory(gmClinicalPart):
 
 		list =  self.filter_history( 'significant', [significant], list, includeAsDefault = 0)
 
-		print "** significant history =  ", list
+		#print "** significant history =  ", list
 
 		return list
 

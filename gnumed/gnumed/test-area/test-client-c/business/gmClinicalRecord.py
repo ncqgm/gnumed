@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.6 2003-11-02 14:13:34 sjtan Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmClinicalRecord.py,v 1.8 2003-11-04 00:32:33 sjtan Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -819,7 +819,7 @@ values (%s, %s, %s, %s, %s, %s)
 			self.past_history = gmPHxEditAreaDecorator(phx)
 		return self.past_history
 
-	def get_allergy(self):
+	def get_allergies(self):
 		if not self.__dict__.has_key('allergy'):
 			from gmAllergies import gmAllergies
 			self.allergy = gmAllergies( self._backend, self)
@@ -854,6 +854,29 @@ class gmClinicalPart:
 		print sys.exc_info()[0], sys.exc_info()[1]
 		traceback.print_tb(sys.exc_info()[2])
 
+	
+	
+	def validate_not_null( self, values, fields):
+		for f in fields:
+			if values.has_key(f):
+				assert  type(values[f]) == type('')
+				assert  values[f].strip() <> ''
+
+	def to_keyed_map(self, list_with_id , fields):
+		all_map = {}
+		for row in list_with_id:
+			map = {}
+			for i in xrange(0, len(fields)):
+				try:
+					map[fields[i]] = row[i+1]
+				except:
+					print "ERROR at i = ", i , " len(fields) ", len(fields) , "len(row)", len(row)
+			all_map[row[0]]= map	
+
+		return all_map	
+				
+			
+
 
 			
 # main
@@ -872,9 +895,9 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.6  2003-11-02 14:13:34  sjtan
+# Revision 1.8  2003-11-04 00:32:33  sjtan
 #
-# some clinical stuff.
+# should be able to swap to different patients; only saves on activating patient when any editarea data is different.
 #
 # Revision 1.3  2003/10/25 16:13:26  sjtan
 #
