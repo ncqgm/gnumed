@@ -41,27 +41,18 @@ related environment variables (in this order):
 
 @license: GPL (details at http://www.gnu.org)
 @copyright: author
-
-NOTE:
-There's a problem on certain version of Windows (now, who would've
-thought that) in that they don't throw an exception on not finding
-an appropriate message catalog. This is known behaviour at least on
-Windows ME and Windows 98 SE. Things work correctly on Win2k, though.
-
-One potential workaround would be to hunt around for the message
-catalog ourselves first but that would require us to reliably detect
-the locale setting the user wants. And that's another can of worms
-entirely.
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
 import gettext, sys, os.path, string, os
 import gmLog, gmCLI
 log = gmLog.gmDefLog
+
+curr_locale = None
 #---------------------------------------------------------------------------
 def install_domain():
 	"""Install a text domain suitable for the main script.
@@ -77,32 +68,37 @@ def install_domain():
 	log.Log(gmLog.lInfo, 'text domain is "%s"' % text_domain)
 
 	# explicitely probe user locale settings
+	global curr_locale
 	env_key = 'LANGUAGE'
 	if os.environ.has_key(env_key):
-		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, os.environ[env_key]))
+		curr_locale = os.environ[env_key]
+		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
 	else:
 		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	env_key = 'LC_ALL'
 	if os.environ.has_key(env_key):
-		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, os.environ[env_key]))
+		curr_locale = os.environ[env_key]
+		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
 	else:
 		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	env_key = 'LC_MESSAGES'
 	if os.environ.has_key(env_key):
-		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, os.environ[env_key]))
+		curr_locale = os.environ[env_key]
+		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
 	else:
 		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	env_key = 'LANG'
 	if os.environ.has_key(env_key):
-		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, os.environ[env_key]))
+		curr_locale = os.environ[env_key]
+		log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
 	else:
 		log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	# search for message catalog
-	log.Log(gmLog.lData, 'Searching message catalog file.')
+	log.Log(gmLog.lData, 'Searching message catalog file for locale [%s].' % curr_locale)
 
 	# now we can install this text domain
 	# 1) try standard places first
@@ -115,6 +111,8 @@ def install_domain():
 		except IOError:
 			# most likely we didn't have a .mo file
 			log.LogException('Cannot install textdomain from standard POSIX locations.', sys.exc_info(), fatal=0)
+	else:
+		log.Log(gmLog.lData, 'No use looking in standard POSIX locations - not a POSIX system.')
 
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
@@ -199,7 +197,10 @@ log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.21  2002-12-09 23:39:50  ncq
+# Revision 1.22  2003-02-01 02:39:53  ncq
+# - get and remember user's locale
+#
+# Revision 1.21  2002/12/09 23:39:50  ncq
 # - only try standard message catalog locations on true POSIX systems
 #   as windows will choke on it
 #
