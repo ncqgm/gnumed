@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.7 2004-04-18 18:50:36 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmClinItem.py,v 1.8 2004-04-19 12:41:30 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -45,9 +45,10 @@ class cClinItem:
 			raise gmExceptions.ConstructorError, "[%s:%s]: cannot load instance" % (self.__class__.__name__, self.pk)
 	#--------------------------------------------------------
 	def __del__(self):
-		if self._is_modified:
-			_log.Log(gmLog.lPanic, '[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk))
-			_log.Log(gmLog.lData, self._payload)
+		if self.__dict__.has_key('_is_modified'):
+			if self._is_modified:
+				_log.Log(gmLog.lPanic, '[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk))
+				_log.Log(gmLog.lData, self._payload)
 	#--------------------------------------------------------
 	def __str__(self):
 		return str(self._payload)
@@ -118,7 +119,10 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.7  2004-04-18 18:50:36  ncq
+# Revision 1.8  2004-04-19 12:41:30  ncq
+# - self-check in __del__
+#
+# Revision 1.7  2004/04/18 18:50:36  ncq
 # - override __init__() thusly removing the unholy _pre/post_init() business
 #
 # Revision 1.6  2004/04/18 17:51:28  ncq
