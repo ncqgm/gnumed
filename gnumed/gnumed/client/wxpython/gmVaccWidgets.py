@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.6 2004-09-13 09:28:26 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmVaccWidgets.py,v 1.7 2004-09-13 19:19:41 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -438,7 +438,7 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 				)
 				self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
 		# booster
-		lbl_template = _('due now: booster for %s in %s (%s)')
+		lbl_template = _('due now: booster for %s in schedule "%s (%s)"')
 		for shot in missing_shots['boosters']:
 			# indication, regime, vacc_comment
 			label = lbl_template % (
@@ -475,7 +475,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.6  2004-09-13 09:28:26  ncq
+# Revision 1.7  2004-09-13 19:19:41  ncq
+# - improved missing booster string
+#
+# Revision 1.6  2004/09/13 09:28:26  ncq
 # - improve strings
 #
 # Revision 1.5  2004/08/18 08:30:25  ncq
