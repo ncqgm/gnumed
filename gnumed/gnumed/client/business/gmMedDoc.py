@@ -35,10 +35,10 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
-import sys, tempfile, os
+import sys, tempfile, os, shutil
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -63,13 +63,14 @@ class gmMedObj:
 		"""
 		self.__backend = gmPG.ConnectionPool()
 		self.__defconn = self.__backend.GetConnection('blobs')
+		self.__rwconn = None
 
 		self.ID = aPKey			# == identity.id == primary key
 		if not self.__pkey_exists():
 			raise gmExceptions.ConstructorError, "No document with ID [%s] in database." % aPKey
 
 		self.filename = None
-		self.metadata = None
+		self.metadata = {}
 	#--------------------------------------------------------
 	def __pkey_exists(self):
 		"""Does this primary key exist ?
@@ -105,7 +106,7 @@ class gmMedObj:
 		# FIXME: dynamic updates !
 
 		# sanity checks
-		if self.metadata is not None:
+		if len(self.metadata) != 0:
 			return 1
 
 		# start our transaction (done implicitely by defining a cursor)
@@ -131,6 +132,54 @@ class gmMedObj:
 		cursor.close()
 
 		return 1
+	#--------------------------------------------------------
+	def __setitem__(self, item=None, value=None):
+		if self.__rwconn is None:
+			self.__rwconn = self.__backend.GetConnection('blobs', readonly=0)
+		if item == 'metadata':
+			self.__update_metadata(value)
+			return
+		if item == 'data':
+			self.__update_data(value)
+			return
+	#--------------------------------------------------------
+	def __update_data(self, fname):
+		if not os.path.exists(fname):
+			raise ValueError, "[%s] does not exist" % fname
+		aFile = open(fname, "rb")
+		img_data = str(aFile.read())
+		aFile.close()
+
+		from pyPgSQL.PgSQL import PgBytea
+		img_obj = PgBytea(img_data)
+
+		# finally insert the data
+		cmd = "UPDATE doc_obj SET data=%s WHERE id=%s;"
+		curs = self.__rwconn.cursor()
+		try:
+			curs.execute(cmd, img_obj, self.ID)
+		except:
+			_log.LogException('cannot update data', sys.exc_info())
+			curs.close()
+			raise ValueError, 'cannot update data'
+		self.__rwconn.commit()
+		curs.close()
+		self.filename = fname
+		_log.Log(gmLog.lData, 'successfully imported data [%s] into object [%s]' % (self.filename, self.ID))
+	#--------------------------------------------------------
+	def __update_metadata(self, data = None):
+		self.metadata['document id'] = data['document id']
+		self.metadata['sequence index'] = data['sequence index']
+		self.metadata['comment'] = data['comment']
+		cmd =  "UPDATE doc_obj SET doc_id='%s', seq_idx='%s', comment='%s' WHERE id='%s';" % \
+				(self.metadata['document id'], self.metadata['sequence index'], self.metadata['comment'], self.ID)
+		curs = self.__rwconn.cursor()
+		if not gmPG.run_query(curs, cmd):
+			_log.Log(gmLog.lErr, 'cannot update metadata')
+			curs.close()
+			raise ValueError
+		self.__rwconn.commit()
+		curs.close()
 	#--------------------------------------------------------
 	def export_to_file(self, aTempDir = None, aChunkSize = 0):
 		if not self.__get_metadata:
@@ -177,7 +226,7 @@ class gmMedObj:
 
 			# retrieve chunks
 			for chunk_id in range(needed_chunks):
-				_log.Log(gmLog.lData, "retrieving chunk %s" % chunk_id+1)
+				_log.Log(gmLog.lData, "retrieving chunk %s" % (chunk_id+1))
 				pos = (chunk_id*max_chunk_size) + 1
 				cmd = "SELECT substring(data from %s for %s) FROM doc_obj WHERE id=%s;"
 				try:
@@ -216,10 +265,14 @@ class gmMedDoc:
 		"""
 		self.__backend = gmPG.ConnectionPool()
 		self.__defconn = self.__backend.GetConnection('blobs')
+		self.__rwconn = None
 
 		self.ID = aPKey			# == identity.id == primary key
 		if not self.__pkey_exists():
 			raise gmExceptions.ConstructorError, "No document with ID [%s] in database." % aPKey
+
+		self.metadata = {}
+		self.metadata['id'] = self.ID
 	#--------------------------------------------------------
 	def __pkey_exists(self):
 		"""Does this primary key exist ?
@@ -249,10 +302,6 @@ class gmMedDoc:
 		"""Document meta data loader for GnuMed compatible database."""
 		# FIXME: error handling !
 
-		# sanity checks
-		metadata = {}
-		metadata['id'] = self.ID
-
 		# start our transaction (done implicitely by defining a cursor)
 		cursor = self.__defconn.cursor()
 
@@ -265,41 +314,159 @@ class gmMedDoc:
 			_log.LogException('Cannot load document [%s] metadata.' % self.ID, sys.exc_info())
 			return None
 		result = cursor.fetchone()
-		metadata['patient id'] = result[0]
-		metadata['type ID'] = result[1]
-		metadata['comment'] = result[2]
-		metadata['date'] = result[3]
-		metadata['reference'] = result[4]
+		self.metadata['patient id'] = result[0]
+		self.metadata['type ID'] = result[1]
+		self.metadata['comment'] = result[2]
+		self.metadata['date'] = result[3]
+		self.metadata['reference'] = result[4]
 		# translate type ID to localized verbose name
 		cmd = "select name from v_i18n_doc_type where id = %s;"
 		try:
-			cursor.execute(cmd, metadata['type ID'])
+			cursor.execute(cmd, self.metadata['type ID'])
 			result = cursor.fetchone()
-			metadata['type'] = result[0]
+			self.metadata['type'] = result[0]
 		except:
 			_log.LogException('Cannot load document [%s] metadata.' % self.ID, sys.exc_info())
-			metadata['type'] = _('unknown doc type')
+			self.metadata['type'] = _('unknown doc type')
 
 		# get object level metadata for all objects of this document
 		cmd = "SELECT id, comment, seq_idx, octet_length(data) FROM doc_obj WHERE doc_id = %s;"
 		try:
-			cursor.execute(cmd, metadata['id'])
+			cursor.execute(cmd, self.metadata['id'])
 		except:
 			cursor.close()
 			_log.LogException('Cannot load document [%s] metadata.' % self.ID, sys.exc_info())
 			return None
 		matching_rows = cursor.fetchall()
-		metadata['objects'] = {}
+		self.metadata['objects'] = {}
 		for row in matching_rows:
 			obj_id = row[0]
 			# cDocument.metadata->objects->id->comment/index
 			tmp = {'comment': row[1], 'index': row[2], 'size': int(row[3])}
-			metadata['objects'][obj_id] = tmp
+			self.metadata['objects'][obj_id] = tmp
 
 		cursor.close()
-		_log.Log(gmLog.lData, 'Meta data: %s' % metadata)
+		_log.Log(gmLog.lData, 'Meta data: %s' % self.metadata)
 
-		return metadata
+		return self.metadata
+	#--------------------------------------------------------
+	def __setitem__(self, item=None, value=None):
+		if self.__rwconn is None:
+			self.__rwconn = self.__backend.GetConnection('blobs', readonly=0)
+		if item == 'metadata':
+			self.__update_metadata(value)
+	#--------------------------------------------------------
+	def __update_metadata(self, data = None):
+		self.metadata['patient id'] = data['patient id']
+		self.metadata['type ID'] = data['type ID']
+		self.metadata['comment'] = data['comment']
+		self.metadata['date'] = data['date']
+		self.metadata['reference'] = data['reference']
+		cmd =  "UPDATE doc_med SET patient_id='%s', type='%s', comment='%s', date='%s', ext_ref='%s' WHERE id='%s';" % \
+				(self.metadata['patient id'], self.metadata['type ID'], self.metadata['comment'], self.metadata['date'], self.metadata['reference'], self.ID)
+		curs = self.__rwconn.cursor()
+		if not gmPG.run_query(curs, cmd):
+			_log.Log(gmLog.lErr, 'cannot update metadata')
+			curs.close()
+			raise ValueError
+		self.__rwconn.commit()
+		curs.close()
+#============================================================
+def create_document(data):
+	"""
+	None - failed
+	not None - new document ID
+	"""
+	try:
+		cmd = "INSERT INTO doc_med (patient_id) VALUES ('%s');" % data['patient id']
+	except KeyError:
+		_log.Log(gmLog.lErr, data)
+		_log.LogException('invalid argument data structure', sys.exc_info())
+		return None
+
+	# get connection
+	backend = gmPG.ConnectionPool()
+	conn = backend.GetConnection('blobs', readonly = 0)
+	# start our transaction (done implicitely by defining a cursor)
+	cursor = conn.cursor()
+
+	if not gmPG.run_query(cursor, cmd):
+		_log.Log(gmLog.lErr, 'Cannot insert document.')
+		_log.Log(gmLog.lErr, data)
+		cursor.close()
+		conn.close()
+		return None
+
+	# get new patient's ID
+	cmd = "SELECT last_value FROM doc_med_id_seq;"
+	if not gmPG.run_query(cursor, cmd):
+		cursor.close()
+		conn.close()
+		return None
+	doc_id = cursor.fetchone()[0]
+	_log.Log(gmLog.lData, 'new document ID: %s' % doc_id)
+
+	# close connection
+	conn.commit()
+	cursor.close()
+	conn.close()
+
+	# and init new document object
+	try:
+		doc = gmMedDoc(aPKey = doc_id)
+	except:
+		_log.LogException('cannot init document with ID [%s]' % doc_id, sys.exc_info())
+		return None
+
+	return doc
+#============================================================
+def create_object(data):
+	"""
+	None - failed
+	not None - new document ID
+	"""
+	try:
+		cmd = "INSERT INTO doc_obj (doc_id) VALUES ('%s');" % data['document id']
+	except KeyError:
+		_log.Log(gmLog.lErr, data)
+		_log.LogException('invalid argument data structure', sys.exc_info())
+		return None
+
+	# get connection
+	backend = gmPG.ConnectionPool()
+	conn = backend.GetConnection('blobs', readonly = 0)
+	# start our transaction (done implicitely by defining a cursor)
+	cursor = conn.cursor()
+
+	if not gmPG.run_query(cursor, cmd):
+		_log.Log(gmLog.lErr, 'Cannot insert object.')
+		_log.Log(gmLog.lErr, data)
+		cursor.close()
+		conn.close()
+		return None
+
+	# get new patient's ID
+	cmd = "SELECT last_value FROM doc_obj_id_seq;"
+	if not gmPG.run_query(cursor, cmd):
+		cursor.close()
+		conn.close()
+		return None
+	obj_id = cursor.fetchone()[0]
+	_log.Log(gmLog.lData, 'new object ID: %s' % obj_id)
+
+	# close connection
+	conn.commit()
+	cursor.close()
+	conn.close()
+
+	# and init new object
+	try:
+		obj = gmMedObj(aPKey = obj_id)
+	except:
+		_log.LogException('cannot init object with ID [%s]' % obj_id, sys.exc_info())
+		return None
+
+	return obj
 #============================================================
 def call_viewer_on_file(aFile = None):
 	"""Try to find an appropriate viewer with all tricks and call it."""
