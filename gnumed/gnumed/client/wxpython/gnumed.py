@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -120,26 +120,36 @@ if __name__ == "__main__":
 	"""Launch the gnumed wx GUI client."""
 
 	appPath = get_base_dir()
-	if appPath == None:
+	if appPath is None:
 		sys.exit("CRITICAL ERROR: Cannot determine base path.")
 
 	# manually extend our module search path
 	sys.path.append(os.path.join(appPath, 'wxpython'))
 	sys.path.append(os.path.join(appPath, 'python-common'))
 
+	_log = None
 	try:
 		import gmLog
+		_log = gmLog.gmDefLog
 		import gmCLI
 	except ImportError:
-		sys.exit("CRITICAL ERROR: Can't load gmLog or gmCLI ! - Program halted.\n \
-				  Please check whether your PYTHONPATH and/or GNUMED_DIR environment\n \
-				  variables are set correctly.")
+		if _log is not None:
+			_log.LogException("Cannot import gmCLI.", sys.exc_info(), fatal=1)
+		sys.exit("""
+CRITICAL ERROR: Can't load gmLog or gmCLI ! - Program halted.
 
-	_log = gmLog.gmDefLog
+Please check whether your PYTHONPATH environment variable is
+set correctly and whether you have all necessary third-party
+Python modules installed.
+
+In rare situations it may be necessary to set the GNUMED_DIR
+environment variable.
+
+There may also be a log file to check for errors.""")
 
 	if gmCLI.has_arg('--talkback'):
 		# email logger as a loop device
-		email_logger = gmLog.cLogTargetEMail(gmLog.lInfo, aFrom = "GNUmed client", aTo = ("fixme@gnumed.net",), anSMTPServer = "mail.best1-host.com")
+		email_logger = gmLog.cLogTargetEMail(gmLog.lInfo, aFrom = "GnuMed client", aTo = ("fixme@gnumed.net",), anSMTPServer = "mail.best1-host.com")
 		_log.AddTarget (email_logger)
 
 	if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
@@ -149,7 +159,7 @@ if __name__ == "__main__":
 		sys.exit(0)
 
 	if gmCLI.has_arg("--debug"):
-		print "Activating verbose output for debugging."
+		print "Activating verbose log level for debugging."
 		_log.SetAllLogLevels(gmLog.lData)
 	elif gmCLI.has_arg ("--quiet"):
 		_log.SetAllLogLevels(gmLog.lErr)
@@ -157,7 +167,7 @@ if __name__ == "__main__":
 		_log.SetAllLogLevels(gmLog.lInfo)
 
 	# console is Good(tm)
-	# but only for Panics and important messages
+	# ... but only for Panics and important messages
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lPanic)
 	_log.AddTarget(aLogTarget)
 
@@ -186,11 +196,20 @@ if __name__ == "__main__":
 		import gmGuiBroker
 		import gmGuiMain
 	except ImportError:
-		exc = sys.exc_info()
-		_log.LogException ("Exception: Cannot load modules.", exc)
-		sys.exit("CRITICAL ERROR: Can't load gmI18N, gmGuiBroker or gmGuiMain ! - Program halted.\n \
-				  Please check whether your PYTHONPATH and/or GNUMED_DIR environment\n \
-				  variables are set correctly.")
+		_log.LogException ("Exception: Cannot load modules.", sys.exc_info(), fatal=1)
+		sys.exit("""
+CRITICAL ERROR: Can't load gmI18N, gmGuiBroker or gmGuiMain ! - Program halted.
+
+Please check whether your PYTHONPATH environment variable is
+set correctly and whether you have all necessary third-party
+Python modules installed.
+
+In rare situations it may be necessary to set the GNUMED_DIR
+environment variable.
+
+Please also make sure to check the log file for errors. You can
+increase its log level with '--debug'.
+""")
 
 	gb = gmGuiBroker.GuiBroker ()
 	gb['gnumed_dir'] = appPath # EVERYONE must use this!
@@ -230,7 +249,10 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.45  2003-01-14 19:36:39  ncq
+# Revision 1.46  2003-01-19 13:16:46  ncq
+# - better instructions on failing starts
+#
+# Revision 1.45  2003/01/14 19:36:39  ncq
 # - better logging of fatal exceptions
 #
 # Revision 1.44  2002/11/06 11:52:43  ncq
