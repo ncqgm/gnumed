@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 
 if __name__ == "__main__":
 			
@@ -833,6 +833,8 @@ if __name__== "__main__":
 		conn.commit()
 		
 	try:
+		results = [] 
+
 		if tmp_category:		
 			print "succeeded in creating temporary org_category"	
 			print 
@@ -845,7 +847,6 @@ if __name__== "__main__":
 			c.reload("org_category")
 
 		
-		results = [] 
 		results = testOrg()
 	except:
 		import  sys
@@ -902,7 +903,11 @@ if __name__== "__main__":
 	
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.8  2004-05-23 15:22:41  sjtan
+# Revision 1.9  2004-05-23 15:27:56  sjtan
+#
+# allow test case to run without sql test data script for org tables.
+#
+# Revision 1.8  2004/05/23 15:22:41  sjtan
 #
 # allow Unit testcase to run in naive database, by allowing temporary org_category creation/deletion.
 #
