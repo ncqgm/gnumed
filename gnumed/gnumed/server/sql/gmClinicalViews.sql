@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.112 2004-11-21 21:02:48 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.113 2004-11-21 21:38:31 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -257,7 +257,7 @@ select
 	vnep.is_open as episode_open,
 	vnep.clinically_relevant as episode_clinically_relevant,
 	chi.description as health_issue,
-	chi.is_open as issue_open,
+	chi.is_active as issue_active,
 	chi.clinically_relevant as issue_clinically_relevant,
 	vnep.pk_episode as pk_episode,
 	vnep.pk_health_issue as pk_health_issue,
@@ -1536,11 +1536,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.112 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.113 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.112  2004-11-21 21:02:48  ncq
+-- Revision 1.113  2004-11-21 21:38:31  ncq
+-- - fix chi.is_open to be is_active
+--
+-- Revision 1.112  2004/11/21 21:02:48  ncq
 -- - episode: is_active -> is_open
 --
 -- Revision 1.111  2004/11/16 19:01:27  ncq
