@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -74,7 +74,7 @@ class cEpisode(gmClinItem.cClinItem):
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx'):
 		pk = aPK_obj
 		if pk is None:
-			cmd = "select pk_episode from v_pat_episodes where id_patient=%s and description=%s limit 1"
+			cmd = "select pk_episode from v_pat_episodes where pk_patient=%s and description=%s limit 1"
 			rows = gmPG.run_ro_query('historica', cmd, None, id_patient, name)
 			if rows is None:
 				raise gmExceptions.ConstructorError, 'error getting episode for [%s:%s]' % (id_patient, name)
@@ -85,7 +85,7 @@ class cEpisode(gmClinItem.cClinItem):
 		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def get_patient(self):
-		return self._payload[self._idx['id_patient']]
+		return self._payload[self._idx['pk_patient']]
 	#--------------------------------------------------------
 	def get_description(self):
 		return gmClinNarrative.cNarrative(aPK_obj = self._payload[self._idx['pk_narrative']])
@@ -93,12 +93,12 @@ class cEpisode(gmClinItem.cClinItem):
 	#--------------------------------------------------------
 	def set_active(self):
 		# if no patient get it from health issue
-		if self._payload[self._idx['id_patient']] is None:
+		if self._payload[self._idx['pk_patient']] is None:
 			fragment = '(select id_patient from clin_health_issue where id=%s)'
 			val = self._payload[self._idx['pk_health_issue']]
 		else:
 			fragment = '%s'
-			val = self._payload[self._idx['id_patient']]
+			val = self._payload[self._idx['pk_patient']]
 		cmd1 = """
 			delete from last_act_episode
 			where id_patient=(select id_patient from clin_health_issue where id=%s)"""
@@ -342,65 +342,47 @@ def create_health_issue(patient_id=None, description=None):
 		return (False, _('internal error, check log'))
 	return (True, h_issue)
 #-----------------------------------------------------------
-def create_episode(pk_health_issue=None, episode_name=None, soap_cat=None, encounter_id=None):
+def create_episode(pk_health_issue=None, episode_name=None, patient_id=None):
 	"""Creates a new episode for a given patient's health issue.
 
-	This also always requires creating a new clin_narrative row
-	for the patient in order to store the description of the
-	episode. We cannot pre-create that row because it has to
-	point to ourselves via fk_episode - a chicken-egg problem.
-	Theoretically, it would be possible to tweak a pre-existing
-	row to point at us after we exist but that smells like
-	corner cases and inconsistencies. The most obvious problem
-	with that is what to do if this is the very first episode
-	ever created ? So we avoid that alltogether and create a
-	new row - which is the right thing in 99% of cases anyways.
-
-	We could, of course, not worry about the episode description
-	at all and just leave it as a naked episode but that isn't
-	medically sound.
-
 	pk_health_issue - given health issue PK
-	episode_name - name of episode in new clin_narrative row
-	soap_cat - soap category of new clin_narrative row
-	encounter_id - id of encounter of new clin_narrative row, also defines id_patient
+	episode_name - name of episode
 	"""
-	# get patient ID from encounter if needed
-	id_patient = None
-	if pk_health_issue is None:
-		cmd = "select fk_patient from clin_encounter where id=%s"
-		rows = gmPG.run_ro_query('historica', cmd, None, encounter_id)
-		if (rows is None) or (len(rows) == 0):
-			_log.Log(gmLog.lErr, 'cannot determine patient from encounter [%s]' % encounter_id)
-			return (False, 'unable to create episode')
-		id_patient = rows[0][0]
+#	# get patient ID from encounter if needed
+#	if pk_health_issue is None:
+#		cmd = "select fk_patient from clin_encounter where id=%s"
+#		rows = gmPG.run_ro_query('historica', cmd, None, encounter_id)
+#		if (rows is None) or (len(rows) == 0):
+#			_log.Log(gmLog.lErr, 'cannot determine patient from encounter [%s]' % encounter_id)
+#			return (False, 'unable to create episode')
+#		patient_id = rows[0][0]
 	# already there ?
 	try:
-		episode = cEpisode(id_patient=id_patient, name=episode_name)
+		episode = cEpisode(id_patient=patient_id, name=episode_name)
 		return (True, episode)
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException('%s, will create new episode' % str(msg), sys.exc_info(), verbose=0)
 	# 1) insert naked episode record
 	queries = []
-	if id_patient is None:
-		cmd = """insert into clin_episode (fk_health_issue) values (%s)"""
-		queries.append((cmd, [pk_health_issue]))
+	if patient_id is None:
+		cmd = """insert into clin_episode (fk_health_issue, description) values (%s, %s)"""
+		queries.append((cmd, [pk_health_issue, episode_name]))
 	else:
-		cmd = """insert into clin_episode (fk_health_issue, fk_patient) values (%s, %s)"""
-		queries.append((cmd, [pk_health_issue, id_patient]))
-	# 2) link to clin_narrative
-	cmd = """insert into clin_narrative (fk_encounter, fk_episode, soap_cat, narrative)
-			 values (%s, currval('clin_episode_pk_seq'), %s, %s)"""
-	queries.append((cmd, [encounter_id, soap_cat, episode_name]))
-	cmd = """update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
-			 where pk = currval('clin_episode_pk_seq')"""
-	queries.append((cmd, []))
+		cmd = """insert into clin_episode (fk_health_issue, fk_patient, description) values (%s, %s, %s)"""
+		queries.append((cmd, [pk_health_issue, patient_id, episode_name]))
+#	# 2) link to clin_narrative
+#	cmd = """insert into clin_narrative (fk_encounter, fk_episode, soap_cat, narrative)
+#			 values (%s, currval('clin_episode_pk_seq'), %s, %s)"""
+#	queries.append((cmd, [encounter_id, soap_cat, episode_name]))
+#	cmd = """update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
+#			 where pk = currval('clin_episode_pk_seq')"""
+#	queries.append((cmd, []))
 	# 3) retrieve PK of newly created row
 	cmd = "select currval('clin_episode_pk_seq')"
 	queries.append((cmd, []))
 	success, data = gmPG.run_commit2(link_obj = 'historica', queries = queries)
 	if not success:
-		_log.Log(gmLog.lErr, 'cannot create episode: %s' % data)
+		_log.Log(gmLog.lErr, 'cannot create episode: %s' % str(data))
 		err, msg = data
 		return (False, msg)
 	# now there ?
@@ -591,7 +573,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.38  2005-03-08 16:42:47  ncq
+# Revision 1.39  2005-03-14 14:28:54  ncq
+# - id_patient -> pk_patient
+# - properly handle simplified episode naming in create_episode()
+#
+# Revision 1.38  2005/03/08 16:42:47  ncq
 # - there are episodes w/ and w/o fk_patient IS NULL so handle that
 #   properly in set_active()
 #
