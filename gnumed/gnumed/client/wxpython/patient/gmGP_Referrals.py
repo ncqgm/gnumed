@@ -142,12 +142,12 @@ C\x96[C\xe8\xd4P\xfb\xff\xa7\x1a\xb5P/\x85\xf6!\xc2\xf7\xdd\xbbA\xcf\xdbs\
 
 	def GetIconData(self, anIconID = None):
 		if anIconID == None:
-			return self.__icons[_("""icon_outgoing_letter""")]
+			return self.__icons[_("""icon_writing_pen""")]
 		else:
 			if self.__icons.has_key(anIconID):
 				return self.__icons[anIconID]
 			else:
-				return self.__icons[_("""icon_outgoing_letter""")]
+				return self.__icons[_("""icon_writing_pen""")]
 
 	def GetWidget (self, parent):
 		return  ReferralsPanel (parent, -1)
