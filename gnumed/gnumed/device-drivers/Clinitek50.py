@@ -6,11 +6,11 @@ This device is made by Bayer Diagnostics.
 """
 #========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/device-drivers/Clinitek50.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # stock python
-import sys, os.path
+import sys, os.path, time, string
 
 if __name__ == '__main__':
 	sys.path.append('../client/python-common/')
@@ -34,18 +34,18 @@ class cClinitek50:
 	ENQ = cmd_req_ID = chr(5)
 	ACK = cmd_ACK_packet = chr(6)
 	DC1 = XON = chr(17)
-	DC2 = cmd_req_data = chr(18)
+	DC2 = cmd_req_data = chr(18)		# this is contrary to the specs which show DC2 and DC3 swapped around
 	DC3 = XOFF = chr(19)
 	NAK = cmd_NAK_packet = chr(21)
 	EOL = CRLF = '\r\n'
 	timeout = 3000
 	max_packet_size = 1024
-	packet_header = '\2\r\n'		# STX CR LF
+	packet_header = '\2\r\n'			# STX CR LF
 	dev_id = '6510'
 	known_good_dev_revs = ('  ', 'A ')
 	known_good_sw_versions = ('01.00', '01.02')
-	known_stix_types = ('MULTISTIX 8 SG',)
-	time_format = '%H%M'
+	known_stix_types = ('MULTISTIX 10 SG',)
+	time_format = '%H%M'				# this seems fixed in firmware as opposed to the date format
 
 	def __init__(self, aPort = 0, aDateFormat = '%y%m%d'):
 		"""Setup low level driver and check attached device."""
@@ -65,9 +65,9 @@ class cClinitek50:
 			_log.LogException('cannot open serial port', sys.exc_info(), verbose = 1)
 			raise
 
-		# must be LOW according to specs,
-		# if set to HIGH and connected the device
-		# controller will enter programming mode
+		# DTR must be LOW according to specs,
+		# if physically connected and set to HIGH the
+		# device controller will enter programming mode
 		self.__drv.setDTR(0)
 		self.__drv.flushInput()
 		self.__drv.flushOutput()
@@ -86,6 +86,8 @@ class cClinitek50:
 		self.__drv.write(cClinitek50.XON)
 		# request data
 		self.__drv.write(cClinitek50.cmd_req_data)
+		time.sleep(0.25)
+		# receive data
 		packet = self.__receive_packet()
 		if packet is None:
 			return None
@@ -102,6 +104,7 @@ class cClinitek50:
 	#----------------------------------------------------
 	def __detect_device(self):
 		self.__drv.write(cClinitek50.cmd_req_ID)
+		time.sleep(0.25)
 		packet = self.__receive_packet()
 		if packet is None:
 			return None
@@ -133,7 +136,6 @@ class cClinitek50:
 			# NAK packet
 			self.__drv.write(cClinitek50.cmd_NAK_packet)
 			return None
-		_log.Log(gmLog.lData, 'received generically valid packet')
 		return packet
 	#----------------------------------------------------
 	def __verify_generic_packet_structure(self, packet):
@@ -143,18 +145,24 @@ class cClinitek50:
 			_log.Log(gmLog.lData, packet, gmLog.lCooked)
 			return None
 		# does it have at least 5 lines ?
-		if not len(string.split(packet, cClinitek50.EOL)) > 4:
+		if not len(string.split(packet, cClinitek50.EOL)) > 2:
 			_log.Log(gmLog.lErr, 'packet does not have at least 5 lines')
 			_log.Log(gmLog.lData, packet, gmLog.lCooked)
 			return None
 		# does it have a valid checksum ?
-		rxd_crc = '0x%s' % packet[-3:-1]
-		calced_crc = hex(reduce(lambda x, y: x + ord(y), tuple(packet[1:-3]), 0) & 255)
+		rxd_crc = string.lower('0x%s' % packet[-3:-1])
+		crc_val = reduce(lambda x, y: x + ord(y), tuple(packet[1:-3]), 0) & 255
+		hex_str = hex(crc_val)[2:]
+		if len(hex_str) == 1:
+			calced_crc = '0x0%s' % hex_str
+		else:
+			calced_crc = '0x%s' % hex_str
 		if calced_crc != rxd_crc:
-			_log.Log(gmLog.lErr, 'packet checksum error: received [%s] vs. calculated [%s]')
+			_log.Log(gmLog.lErr, 'packet checksum error: received [%s] vs. calculated [%s]' % (rxd_crc, calced_crc))
 			_log.Log(gmLog.lData, packet, gmLog.lCooked)
 			return None
 		# seems valid
+		_log.Log(gmLog.lData, 'generic packet structure is valid')
 		return 1
 	#----------------------------------------------------
 	def __verify_detect_packet(self, packet):
@@ -186,7 +194,7 @@ class cClinitek50:
 		_log.Log(gmLog.lInfo, 'language: %s' % lang)
 		_log.Log(gmLog.lInfo, 'unit system: %s' % units)
 		# STIX type
-		stix_type = string.trim(line[3])
+		stix_type = string.strip(lines[3])
 		if not stix_type in cClinitek50.known_stix_types:
 			_log.Log(gmLog.lErr, "don't know how to handle stix of type %s" % stix_type)
 			return None
@@ -202,16 +210,28 @@ class cClinitek50:
 #========================================================
 if __name__ == '__main__':
 	# try to init device
-	try:
-		dev = cClinitek50(0)
-	except:
-		print "cannot init device"
-		sys.exit()
+#	try:
+	dev = cClinitek50(0)
+#	except:
+#		print "cannot init device"
+#		sys.exit()
+	err_cnt = 0
+	urin_file = open('clinitek50.dat', 'wb')
 	while 1:
 		packet = dev.get_record()
 		if packet == -1:
+			print "no more packets available"
 			break
-		print packet
+		elif packet == None:
+			print "error getting packet"
+			err_cnt += 1
+			if err_cnt == 3:
+				break
+		else:
+			print packet
+			urin_file.write(packet)
+			urin_file.write('--------------------------------\r\n')
+	urin_file.close()
 #========================================================
 # docs
 #========================================================
@@ -252,7 +272,10 @@ if __name__ == '__main__':
 
 #========================================================
 # $Log: Clinitek50.py,v $
-# Revision 1.3  2003-11-20 01:37:41  ncq
+# Revision 1.4  2003-11-21 16:00:15  ncq
+# - tested, works as advertised
+#
+# Revision 1.3  2003/11/20 01:37:41  ncq
 # - should be able to read data records albeit no verification
 #
 # Revision 1.2  2003/11/19 18:11:39  ncq
