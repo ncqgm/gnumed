@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.58 $
+-- $Revision: 1.59 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -213,6 +213,137 @@ create table clin_physical (
 
 comment on TABLE clin_physical is
 	'narrative details of physical exam during a clinical encounter';
+
+-- ============================================
+-- vaccination tables
+-- ============================================
+create table vacc_route (
+	id serial primary key,
+	abbreviation text unique not null,
+	description text unique not null
+) inherits (audit_mark, audit_fields);
+
+comment on table vacc_route is
+	'definition of route via which vaccine is given,
+	 currently i.m. and p.o. only but may include
+	 "via genetically engineered food" etc in the
+	 future';
+
+-- --------------------------------------------
+-- maybe this table belongs into "service"
+-- "inventory"/"stock" or something one day
+create table vaccine (
+	id serial primary key,
+	id_route integer not null references vacc_route(id) default 1,
+	trade_name text unique not null,
+	short_name text unique not null,
+	is_live boolean not null default false,
+	is_in_use boolean not null default true,
+	last_batch_no text
+) inherits (audit_mark, audit_fields);
+
+comment on table vaccine is
+	'definition of a vaccine as available on the market';
+comment on column vaccine.id_route is
+	'route this vaccine is given';
+comment on column vaccine.trade_name is
+	'full name the vaccine is traded under';
+comment on column vaccine.short_name is
+	'common, maybe practice-specific shorthand name
+	 for referring to this vaccine';
+comment on column vaccine.is_live is
+	'whether this is a live vaccine';
+comment on column vaccine.is_in_use is
+	'whether this vaccine is currently licensed
+	 for use in your jurisdiction';
+comment on column vaccine.last_batch_no is
+	'no of most recently used batch, for
+	 rapid data input purposes';
+
+-- --------------------------------------------
+create table vacc_event (
+	id serial primary key,
+	description text not null,
+	due_from interval not null,
+	due_until interval not null
+) inherits (audit_mark, audit_fields);
+
+comment on table vacc_event is
+	'holds time ranges (events) at which vaccinations are due';
+comment on column vacc_event.description is
+	'eg. "first MMR shot"';
+comment on column vacc_event.due_from is
+	'date/time interval relative to DOB after which
+	 a shot is due, which one is determined by the
+	 vaccination regime this event is linked to via
+	 lnk_vacc_event2regime...';
+
+-- --------------------------------------------
+create table vaccination (
+	id serial primary key,
+	id_patient integer not null,
+	id_provider integer not null,
+	id_vaccine integer references vaccine(id),
+	id_vacc_event integer references vacc_event(id),
+
+	date_given date not null default CURRENT_DATE,
+	site text default 'not recorded',
+	unique (id_patient, id_vaccine, date_given)
+) inherits (audit_mark, audit_fields, clin_root_item);
+
+-- Richard tells us that "refused" should go into progress note
+
+-- remote foreign keys:
+select add_x_db_fk_def('vaccination', 'id_patient', 'personalia', 'identity', 'id');
+select add_x_db_fk_def('vaccination', 'id_provider', 'personalia', 'identity', 'id');
+
+comment on table vaccination is
+	'holds vaccinations actually given (or refused, that is)';
+comment on column vaccination.id_vacc_event is
+	'the vaccination event this particular
+	 vaccination is supposed to cover, allows to
+	 link out-of-band vaccinations into regimes';
+
+-- --------------------------------------------
+create table vacc_regime (
+	id serial primary key,
+	id_recommended_by integer,
+	description text unique not null
+) inherits (audit_mark, audit_fields);
+
+-- remote foreign keys:
+select add_x_db_fk_def('vacc_regime', 'id_recommended_by', 'reference', 'ref_source', 'id');
+
+comment on table vacc_regime is
+	'holds vaccination schedules/regimes/target diseases';
+comment on column vacc_regime.id_recommended_by is
+	'organization recommending this vaccination';
+
+-- --------------------------------------------
+create table lnk_vacc_evt2regime (
+	id serial primary key,
+	id_vacc_regime integer not null references vacc_regime(id),
+	id_vacc_event integer not null references vacc_event(id)
+) inherits (audit_mark, audit_fields);
+
+comment on table lnk_vacc_evt2regime is
+	'links vaccination event definitions to regimes';
+
+-- ============================================
+-- allergies tables
+create table allergy_state (
+	id serial primary key,
+	id_patient integer unique not null,
+	has_allergy integer default null check (has_allergy in (null, -1, 0, 1))
+) inherits (audit_mark, audit_fields);
+
+comment on column allergy_state.has_allergy is
+	'patient allergenic state:
+	 - null: unknown, not asked, no data available
+	 - -1: unknown, asked, no data obtained
+	 - 0:  known, asked, has no allergies
+	 - 1:  known, asked, does have allergies
+	';
 
 -- --------------------------------------------
 create table _enum_allergy_type (
@@ -487,11 +618,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.58 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.59 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.58  2003-08-17 00:25:38  ncq
+-- Revision 1.59  2003-08-27 00:35:32  ncq
+-- - add vaccination tables
+--
+-- Revision 1.58  2003/08/17 00:25:38  ncq
 -- - remove log_ tables, they are now auto-created
 --
 -- Revision 1.57  2003/08/13 14:30:29  ncq
