@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -130,9 +130,10 @@ where
 cfg_template.name like %s and
 cfg_item.machine like %s and
 cfg_item.cookie like %s and
-(cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER or cfg_item.owner like %s)
+(cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || 
+CURRENT_USER or cfg_item.owner like %s or cfg_item.owner like '_' || %s)
 and cfg_template.id = cfg_item.id_template limit 1;
-""", option, machine, cookie, user) is None:
+""", option, machine, cookie, user, user) is None:
 			curs.close()
 			return None
 
@@ -176,9 +177,10 @@ where
 cfg_template.name like %s and
 cfg_item.machine like %s and
 cfg_item.cookie like %s and
-(cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER or cfg_item.owner like %s)
+(cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER 
+or cfg_item.owner like %s or cfg_item.owner like '_' || %s)
 and cfg_template.id = cfg_item.id_template limit 1;
-""", option, machine, cookie, user) is None:
+""", option, machine, cookie, user, user) is None:
 			curs.close()
 			return None
 		result = curs.fetchone()
@@ -341,7 +343,8 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		if user is None:
 			where_user = "(cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER)"
 		else:
-			where_user = "cfg_item.owner like %s"
+			where_user = "cfg_item.owner like %s or cfg_item.owner like '_' || %s"
+			where_args.append(user)
 			where_args.append(user)
 
 		cmd =	("select name, cookie, owner, type, description "
@@ -1154,7 +1157,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.63  2003-09-26 19:35:21  hinnef
+# Revision 1.64  2003-10-02 20:01:15  hinnef
+# fixed selection of user in gmcfgSQL.get/getID/getAllParams so that _user will be found, too
+#
+# Revision 1.63  2003/09/26 19:35:21  hinnef
 # - added delete() methods in cCfgFile and cCfgSQL, small fixes in cfgSQL.set()
 #
 # Revision 1.62  2003/09/24 10:32:13  ncq
