@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -57,7 +57,7 @@ import os.path, fileinput, string, sys, shutil
 from types import *
 
 # gnumed modules
-import gmLog
+from Gnumed.pycommon import gmLog, gmNull
 _log = gmLog.gmDefLog
 
 _gmPG = None
@@ -1215,7 +1215,7 @@ else:
 	# - we are being imported
 
 	# have a sane pointer even if we fail
-	gmDefCfgFile = None
+	gmDefCfgFile = gmNull.cNull()
 
 	# - if we don't find any config file we return None
 	# - IF the caller really knows what she does she can handle
@@ -1227,7 +1227,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.6  2004-06-28 22:36:33  hinnef
+# Revision 1.7  2004-07-06 00:25:17  ncq
+# - assign Null design pattern instance if no default cfg file found
+#
+# Revision 1.6  2004/06/28 22:36:33  hinnef
 # added lazy loading of gmPG to gmCfgSQL:getAllParams
 #
 # Revision 1.5  2004/06/22 07:58:47  ihaywood
