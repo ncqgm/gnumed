@@ -23,10 +23,13 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.2 2004-04-16 00:34:53 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmLDTimporter.py,v 1.3 2004-04-20 00:16:27 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
+
+# stdlib
+import glob, os.path, sys, tempfile, fileinput
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -36,8 +39,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmCfg, gmPG, gmLoginInfo, gmExceptions
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.business import gmPathLab
-
-import glob, os.path, sys, tempfile, fileinput
+from Gnumed.business.gmXdtMappings import map_Befundstatus_xdt2gm, xdt_Befundstatus_map
 
 _cfg = gmCfg.gmDefCfgFile
 
@@ -132,14 +134,17 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot split LDT file [%s]' % self.ldt_filename)
 			return False
 
+		print "initial request files:", file_list
+
 		# import request results
 		for request_file in file_list['data']:
 			if self.__import_request_result(request_file):
 				# remove from file_list
-				print "succeeded, removing request from import list"
-				pass
+				file_list['data'].remove(request_file)
 			else:
 				_log.Log(gmLog.lErr, 'cannot import LDT request result from [%s]' % request_file)
+
+		print "left over request files:", file_list
 
 		# reassemble file if anything left
 		if len(file_list['data']) > 0:
@@ -155,6 +160,28 @@ class cLDTImporter:
 		request = self.__import_request_header(filename)
 		if request is False:
 			return False
+		data = {}
+		for line in fileinput.input(filename):
+			line_type = line[3:7]
+			line_data = line[7:-2]
+			# start of new record
+			if line_type == '8401':
+				# first record
+				if data == {}:
+					data['code'] = line_data
+					continue
+				# save old record
+				# - verify/create test type
+				try:
+					ttype = gmPathLab.cTestType(lab=self.__lab_name, code=data['code'], name=data['name'])
+				except ConstructorError, err:
+					_log.LogException(err, sys.exc_info(), verbose=0)
+					
+				# handle test result
+				# and start new one
+				data = {}
+				data['code'] = line_data
+				continue
 		return True
 	#-----------------------------------------------------------
 	def __import_request_header(self, filename):
@@ -177,6 +204,14 @@ class cLDTImporter:
 					_log.Log(gmLog.lErr, 'no request header found !')
 					fileinput.close()
 					return False
+				# sanity check
+				if (request['is_pending'] == False) and (header['request_status'] != 'final'):
+					_log.Log(gmLog.lWarn, 'kein Befund für [%s:%s] mehr erwartet, aber Befund mit Status [%s] in [%s] enthalten (Feld 8401, Regel 135)' % (self.__lab_name, request['request_id'], request['request_status'], self.ldt_filename))
+					problem = 'kein Befund für [%s:%s] mehr erwartet, aber Befund mit Status [%s] in [%s] enthalten)' % (self.__lab_name, request['request_id'], request['request_status'], self.ldt_filename)
+					solution = 'Befund wird trotzdem importiert. Bitte Befunde für Anforderung [%s] an Labor [%s] auf Duplikate überprüfen.' % (request['request_id'], self.__lab_name)
+					insert_housekeeping_todo(problem, solution, 'user')
+					# don't set is_pending to True if previously False and erroneous record received
+					header['request_status'] = 'final'
 				# update request record from header dict
 				for field in header.keys():
 					request[field] = header[field]
@@ -200,12 +235,17 @@ class cLDTImporter:
 				continue
 			# or request status
 			elif line_type == '8401':
-				if line_data == 'E':
-					header['request_status'] = 'final'
+				try:
+					header['request_status'] = map_Befundstatus_xdt2gm[line_data]
+				except KeyError:
+					_log.LogException('unbekannter Befundstatus [%s] (Feld 8401, Regel 135)' % line_data, sys.exc_info(), verbose=0)
+					fileinput.close()
+					return False
+				# deduce pending status
+				if header['request_status'] == 'final':
 					header['is_pending'] = False
 				else:
-					# FIXME
-					raise ValueError, "FIXME"
+					header['is_pending'] = True
 				continue
 			# or gender
 			elif line_type == '8407':
@@ -303,11 +343,9 @@ class cLDTImporter:
 			return False
 		if not status[0][0]:
 			_log.Log(gmLog.lErr, 'Unbekanntes Labor [%s]' % field_data)
-			reporter = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.2 $'
 			problem = 'Labor [%s] unbekannt. Import von [%s] abgebrochen.' % (field_data, self.ldt_filename)
 			solution = 'Labor ergänzen oder vorhandenes Labor anpassen (test_org.internal_name).'
-			cmd = "insert into housekeeping_todo (reported_by, problem, solution) values (%s, %s, %s)"
-			gmPG.run_commit('historica', [(cmd, [reporter, problem, solution])])
+			insert_housekeeping_todo(problem, solution, 'user')
 			return False
 		self.__lab_name = field_data
 		return True
@@ -322,6 +360,16 @@ class cLDTImporter:
 		'9211': _verify_9211
 		}
 #===============================================================
+def insert_housekeeping_todo(problem=None, solution='', recipient='DEFAULT'):
+	reporter = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.3 $'
+	if problem is None:
+		problem = 'lazy programmer'
+	cmd = "insert into housekeeping_todo (reported_by, reported_to, problem, solution) values (%s, %s, %s, %s)"
+	status, err = gmPG.run_commit('historica', [(cmd, [reporter, recipient, problem, solution])], True)
+	if status is None:
+		_log.Log(gmLog.lErr, err)
+	return status
+#---------------------------------------------------------------
 def verify_next_in_chain():
 	tmp = _cfg.get('target', 'repository')
 	if tmp is None:
@@ -386,7 +434,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.2  2004-04-16 00:34:53  ncq
+# Revision 1.3  2004-04-20 00:16:27  ncq
+# - try harder to become useful
+#
+# Revision 1.2  2004/04/16 00:34:53  ncq
 # - now tries to import requests
 #
 # Revision 1.1  2004/04/13 14:24:07  ncq
