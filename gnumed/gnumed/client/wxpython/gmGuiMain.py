@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-09-09 00:52:55 $
-# @version $Revision: 1.40 $ $Date: 2002-09-09 00:52:55 $ $Author: ncq $
+# @Date: $Date: 2002-09-09 10:07:48 $
+# @version $Revision: 1.41 $ $Date: 2002-09-09 10:07:48 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -151,7 +151,7 @@ class MainFrame(wxFrame):
 		#  set up a progress bar
 		progress_bar = wxProgressDialog(
 			title = _("GnuMed: loading plugins"),
-			message = _("loading list of plugins"),
+			message = _("loading list of plugins                    "),
 			maximum = len(plugin_list),
 			parent = self,
 			style = wxPD_APP_MODAL | wxPD_ELAPSED_TIME
@@ -163,9 +163,9 @@ class MainFrame(wxFrame):
 			curr_plugin = plugin_list[idx]
 			progress_bar.Update(idx, _("previous: %s - %s\ncurrent : %s" % (last_plugin, result, curr_plugin)))
 			if gmPlugin.LoadPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend):
-				result = "success"
+				result = _("success")
 			else:
-				result = "failed"
+				result = _("failed")
 			last_plugin = curr_plugin
 		progress_bar.Destroy()
 
@@ -385,7 +385,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.40  2002-09-09 00:52:55  ncq
+# Revision 1.41  2002-09-09 10:07:48  ncq
+# - long initial string so module names fit into progress bar display
+#
+# Revision 1.40  2002/09/09 00:52:55  ncq
 # - show progress bar on plugin load :-)
 #
 # Revision 1.39  2002/09/08 23:17:37  ncq
