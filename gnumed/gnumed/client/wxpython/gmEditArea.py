@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.50 2003-12-29 16:48:14 uid66147 Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmEditArea.py,v 1.51 2004-01-12 16:23:29 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -22,7 +22,7 @@ _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	import gmI18N
 
-import gmExceptions, gmDateTimeInput, gmDispatcher, gmSignals, gmPatient, gmGuiBroker
+import gmExceptions, gmDateTimeInput, gmDispatcher, gmSignals, gmPatient, gmGuiBroker, gmMatchProvider, gmPhraseWheel
 
 _gb = gmGuiBroker.GuiBroker()
 
@@ -233,8 +233,7 @@ _prompt_defs = {
 		_("Include"),
 		"",
 		""
-		]
-	
+	]
 	, "recall" : [
 		_("To See"),
 		_("For"),
@@ -246,8 +245,7 @@ _prompt_defs = {
 		_("Instructions"),
 		_("Progress Notes"),
 		""
-		]
-
+	]
 	, "request" : [
 		_("Type"),
 		_("Company"),
@@ -260,19 +258,14 @@ _prompt_defs = {
 		_("Progress Notes")	,
 		""
 	]
-
-		
-
-
-
 }
 
 _known_edit_area_types = []
-_known_edit_area_types.extend(_prompt_defs.keys() )
+_known_edit_area_types.extend(_prompt_defs.keys())
 
-def setValueStyle( control):
-		control.SetForegroundColour(wxColor(255, 0, 0))
-		control.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
+def _decorate_editarea_field(widget):
+	widget.SetForegroundColour(wxColor(255, 0, 0))
+	widget.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 
 #====================================================================
 #text control class to be later replaced by the gmPhraseWheel
@@ -280,7 +273,7 @@ def setValueStyle( control):
 class cEditAreaField(wxTextCtrl):
 	def __init__ (self, parent, id = -1, pos = wxDefaultPosition, size=wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",pos, size ,wxSIMPLE_BORDER)
-		setValueStyle(self)
+		_decorate_editarea_field(self)
 #====================================================================
 #====================================================================
 class gmEditArea(wxPanel):
@@ -328,6 +321,7 @@ class gmEditArea(wxPanel):
 	# internal helpers
 	#----------------------------------------------------------------
 	def __do_layout(self):
+		# define prompts and fields
 		self._define_prompts()
 		fields_pnl = wxPanel(self, -1, style = wxRAISED_BORDER | wxTAB_TRAVERSAL)
 		self._define_fields(parent = fields_pnl)
@@ -621,6 +615,7 @@ class gmEditArea(wxPanel):
 	def _on_clear_btn_pressed(self, event):
 #		self._init_fields()
 		# FIXME: check for unsaved data
+		print "clearing input fields"
 		self.set_data()
 		event.Skip()
 	#--------------------------------------------------------
@@ -629,6 +624,9 @@ class gmEditArea(wxPanel):
 		self._pre_delete_data()
 	#--------------------------------------------------------
 	def on_patient_selected( self, **kwds):
+		# - check if patient is connected
+		# - check if we've got data to save
+		# - save it
 		pass
 #		self._updateUI()
 #		self._init_fields()
@@ -730,31 +728,31 @@ class gmEditArea(wxPanel):
 	#--------------------------------------------------------
 	
 	def _save_data(self):
-		_log.Log(gmLog.lErr, 'programmer forgot to define _save_data() for [%s]' % self._type)
+		_log.Log(gmLog.lErr, 'programmer forgot to define _save_data() for [%s] (%s)' % (self._type, self.__class__.__name__))
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
 	#--------------------------------------------------------
 	def _delete_data(self):	
-		_log.Log(gmLog.lErr, 'programmer forgot to define _delete_fields() for [%s]' % self._type)
+		_log.Log(gmLog.lErr, 'programmer forgot to define _delete_fields() for [%s] (%s)' % (self._type, self.__class__.__name__))
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
 
 #-------------------------------------------------------------------------------------------------------------
 	def _updateUI(self):
 		_log.Log(gmLog.lWarn, "you may want to override _updateUI for [%s]" % self.__class__.__name__)
-		
+
 
 	def _postInit(self):
 		"""override for further control setup"""
 		pass
-		
+
 
 	def _makeLineSizer(self,  widget, weight, spacerWeight):
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.Add( widget, weight, wxEXPAND)
 		szr.Add( 0,0, spacerWeight, wxEXPAND)
 		return szr
-	
+
 	def _makeCheckBox(self, parent, title):
 		
 		cb =  wxCheckBox( parent, -1, _(title))
@@ -1148,7 +1146,7 @@ class gmAllergyEditArea(gmEditArea):
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'allergy')
 		except gmExceptions.ConstructorError:
-			_log.LogException('cannot instantiate vaccination edit area', sys.exc_info(), verbose=1)
+			_log.LogException('cannot instantiate allergy edit area', sys.exc_info(), verbose=1)
 			raise
 	#----------------------------------------------------
 	def _define_fields(self, parent):
@@ -1261,7 +1259,6 @@ class gmAllergyEditArea(gmEditArea):
 		self._add_prompt(line = 7, label = '')
 	#----------------------------------------------------
 	def _save_new_entry(self):
-		print "saving new allergy entry from edit area"
 		allergy = {}
 		allergy['date noted'] = self.fld_date_noted.GetValue()
 		allergy['substance'] = self.fld_substance.GetValue()
@@ -1323,7 +1320,11 @@ class gmAllergyEditArea(gmEditArea):
 		return 1
 #========================================================
 class gmVaccinationEditArea(gmEditArea):
-
+	"""
+	- warn on apparent duplicates
+	- ask if "missing" (= previous, non-recorded) vaccinations
+	  should be estimated and saved (add note "auto-generated")
+	"""
 	def __init__(self, parent, id):
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'vaccination')
@@ -1332,20 +1333,54 @@ class gmVaccinationEditArea(gmEditArea):
 			raise
 	#----------------------------------------------------
 	def _define_fields(self, parent):
-		self.fld_disease_sched = cEditAreaField(parent)
+
+		# vaccine
+		# FIXME: move to gmClinicalRecord or gmVaccination
+		query = """
+			select
+				id,
+				trade_name
+			from
+				vaccine
+			where
+				short_name || ' ' || trade_name %(fragment_condition)s
+			limit 25"""
+		mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
+		mp.setThresholds(aWord=2, aSubstring=4)
+		self.fld_vaccine = gmPhraseWheel.cPhraseWheel(
+			parent = parent
+			, id = -1
+			, aMatchProvider = mp
+			, style = wxSIMPLE_BORDER
+		)
+		_decorate_editarea_field(self.fld_vaccine)
+#		self.fld_vaccine.on_resize(None)
 		self._add_field(
 			line = 1,
-			pos = 1,
-			widget = self.fld_disease_sched,
-			weight = 1
-		)
-		self.fld_vaccine = cEditAreaField(parent)
-		self._add_field(
-			line = 2,
 			pos = 1,
 			widget = self.fld_vaccine,
 			weight = 1
 		)
+
+		# regime/disease
+		# FIXME: conceptually unclean !!
+		query = """
+			select distinct on (regime)
+				id_regime,
+				regime || ' - ' || _(indication)
+			from
+				v_vacc_regimes
+			where
+				regime || ' ' || _(indication) %(fragment_condition)s
+			limit 25"""
+		self.fld_disease_sched = cEditAreaField(parent)
+		self._add_field(
+			line = 2,
+			pos = 1,
+			widget = self.fld_disease_sched,
+			weight = 1
+		)
+
 		# FIXME: gmDateTimeInput
 		self.fld_date_given = cEditAreaField(parent)
 		self._add_field(
@@ -1395,20 +1430,62 @@ class gmVaccinationEditArea(gmEditArea):
 			widget = self.fld_batch_no,
 			weight = 1
 		)
-		self.fld_site_given = cEditAreaField(parent)
+
+		# site given
+		# FIXME: context -> vaccine
+		query = """
+			select distinct on (tmp.site)
+				tmp.id, tmp.site
+			from (
+				select id, site
+				from vaccination
+				group by id, site
+				order by count(site)
+			) as tmp
+			where
+				tmp.site %(fragment_condition)s
+			limit 10"""
+		mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
+		mp.setThresholds(aWord=1, aSubstring=3)
+		self.fld_site_given = gmPhraseWheel.cPhraseWheel(
+			parent = parent
+			, id = -1
+			, aMatchProvider = mp
+			, style = wxSIMPLE_BORDER
+		)
+		_decorate_editarea_field(self.fld_site_given)
 		self._add_field(
 			line = 5,
 			pos = 1,
 			widget = self.fld_site_given,
 			weight = 1
 		)
-		self.fld_progress_note = cEditAreaField(parent)
+
+		# progress note
+		query = """
+			select distinct on (narrative)
+				id, narrative
+			from
+				vaccination
+			where
+				narrative %(fragment_condition)s
+			limit 30"""
+		mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
+		mp.setThresholds(aWord=3, aSubstring=5)
+		self.fld_progress_note = gmPhraseWheel.cPhraseWheel(
+			parent = parent
+			, id = -1
+			, aMatchProvider = mp
+			, style = wxSIMPLE_BORDER
+		)
+		_decorate_editarea_field(self.fld_progress_note)
 		self._add_field(
 			line = 6,
 			pos = 1,
 			widget = self.fld_progress_note,
 			weight = 1
 		)
+
 		self._add_field(
 			line = 7,
 			pos = 1,
@@ -1418,8 +1495,8 @@ class gmVaccinationEditArea(gmEditArea):
 		return 1
 	#----------------------------------------------------
 	def _define_prompts(self):
-		self._add_prompt(line = 1, label = _("Disease/Schedule"))
-		self._add_prompt(line = 2, label = _("Vaccine"))
+		self._add_prompt(line = 1, label = _("Vaccine"))
+		self._add_prompt(line = 2, label = _("Disease/Schedule"))
 		self._add_prompt(line = 3, label = _("Date given"))
 		self._add_prompt(line = 4, label = _("Serial #"))
 		self._add_prompt(line = 5, label = _("Site injected"))
@@ -1427,7 +1504,6 @@ class gmVaccinationEditArea(gmEditArea):
 		self._add_prompt(line = 7, label = '')
 	#----------------------------------------------------
 	def _save_new_entry(self):
-		print "saving new vaccination entry from edit area"
 		vacc = {}
 		vacc['disease schedule'] = self.fld_disease_sched.GetValue()
 		vacc['vaccine'] = self.fld_vaccine.GetValue()
@@ -1442,7 +1518,7 @@ class gmVaccinationEditArea(gmEditArea):
 		status, data = epr.add_vaccination(vacc)
 		if status is None:
 			wxBell()
-			_gb['main.statustext'](_('Cannot save vaccination.'))
+			_gb['main.statustext'](_('Cannot save vaccination: %s') % data)
 			return None
 		_gb['main.statustext'](_('Vaccination saved.'))
 		self.data_ID = data
@@ -1458,7 +1534,7 @@ class gmVaccinationEditArea(gmEditArea):
 			self.fld_seq_no.SetValue('1')
 			self.fld_is_booster.SetValue(0)
 			self.fld_batch_no.SetValue('')
-			self.fld_site_given.SetValue('left/right deltoid')
+			self.fld_site_given.SetValue(_('left/right deltoid'))
 			self.fld_progress_note.SetValue('')
 			return 1
 		# or data
@@ -2324,7 +2400,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.50  2003-12-29 16:48:14  uid66147
+# Revision 1.51  2004-01-12 16:23:29  ncq
+# - SetValueStyle() -> _decorate_editarea_field()
+# - add phrase wheels to vaccination edit area
+#
+# Revision 1.50  2003/12/29 16:48:14  uid66147
 # - try to merge the "good" concepts so far
 # - overridden _define_fields|prompts() now use generic _add_field|prompt()
 #   helpers to define the layout
