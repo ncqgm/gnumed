@@ -5,6 +5,7 @@
 -- For details regarding GPL licensing see http://gnu.org
 --
 -- last changes: 26.10.2001 hherb drastic simplification of entities and relationships
+-- introduction ofg the new services
 
 --=====================================================================
 
@@ -40,21 +41,43 @@ COMMENT ON TABLE distributed_db IS
 'Enumerates all possibly available distributed servers. Naming needs approval by gnumed administrators!';
 
 -- !I18N note to translators: do NOT change these values !!!
+
+-- this service contains at least the basic gnumed configuration
 INSERT INTO distributed_db(name) values('default');
+
+-- this service may be used for external audit trails and replication issues
 INSERT INTO distributed_db(name) values('transactions');
-INSERT INTO distributed_db(name) values('demographica');
-INSERT INTO distributed_db(name) values('geographica');
+
+-- this service contains all persoon and address related tables
+INSERT INTO distributed_db(name) values('personalia');
+
+-- this service contains patient's medical histories
+INSERT INTO distributed_db(name) values('historica');
+
+-- this service stores external downloadable results such as pathology
+INSERT INTO distributed_db(name) values('extresults');
+
+-- this service contains all correspondence (letters, emails)
+INSERT INTO distributed_db(name) values('correspondence');
+
+-- this service provides all pharmaceutical information
 INSERT INTO distributed_db(name) values('pharmaceutica');
-INSERT INTO distributed_db(name) values('pathologica');
-INSERT INTO distributed_db(name) values('radiologica');
-INSERT INTO distributed_db(name) values('blobs');
-INSERT INTO distributed_db(name) values('medicalhx');
-INSERT INTO distributed_db(name) values('progressnotes');
-INSERT INTO distributed_db(name) values('educativa');
+
+-- this service provides "external" reead only information such as coding (ICD)
+-- and patient education material
 INSERT INTO distributed_db(name) values('reference');
+
+-- this service takes care of large (>= 2MB )binary objects
+INSERT INTO distributed_db(name) values('blobs');
+
+-- this services provides all tables for accounting purposes
+INSERT INTO distributed_db(name) values('accounting');
+
+-- this servicecontains office related tables such as rosters and waiting room
+INSERT INTO distributed_db(name) values('office');
+
+-- this service allows to manage gnumed client modules
 INSERT INTO distributed_db(name) values('modules');
-
-
 
 
 CREATE TABLE config (
@@ -64,9 +87,9 @@ CREATE TABLE config (
     ddb INT REFERENCES distributed_db DEFAULT NULL,
     db INT REFERENCES db,
     crypt_pwd varchar(255) DEFAULT NULL,
-    crypt_algo varchar(255) DEFAULT 'RIJNDAEL',
+    crypt_algo varchar(255) DEFAULT NULL,
     pwd_hash varchar(255) DEFAULT NULL,
-    hash_algo varchar(255) DEFAULT 'RIPEMD160'
+    hash_algo varchar(255) DEFAULT NULL
 );
 
 COMMENT ON TABLE config IS
