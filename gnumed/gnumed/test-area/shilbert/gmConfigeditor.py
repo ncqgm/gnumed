@@ -23,6 +23,7 @@ if __name__ == "__main__":
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
+
 from wxPython.wx import *
 
 [wxID_WXFRAME1, 
@@ -55,6 +56,7 @@ wxID_sel_idfile_BTN,
 wxID_patient_fileBTN,
 wxID_viewer_patient_fileBTN,
 wxID_repository_dirBTN,
+wxID_exit_BTN,
 wxID_SelBOX_id_mode,
 wxID_SelBOX_show_id,
 wxID_SelBOX_do_barcodes,
@@ -62,26 +64,27 @@ wxID_SelBOX_JPEG_conv,
 wxID_SelBOX_progressive_JPEG,
 wxID_patient_format_view_LBOX,
 wxID_patient_format_idx_LBOX,
-wxID_patient_format_import_LBOX ] = map(lambda _init_ctrls: wxNewId(), range(38))
+wxID_patient_format_import_LBOX ] = map(lambda _init_ctrls: wxNewId(), range(39))
 
 class gmConfigEditorPanel(wxPanel):
-	def __init__(self, parent):
+	def __init__(self, parent, aCfg = None):
 		wxPanel.__init__(self, parent, -1)
-		self.parent_notebook = wxNotebook(self, -1, style=wxNB_RIGHT | wxTAB_TRAVERSAL)
+		if aCfg is None:
+			raise ValueError, "no config file given"
+		self.cfg=aCfg
+	
+	def Populate(self):
+		self.splitterwindow = wxSplitterWindow(self, -1)
+        	self.splitterwindow_right_pane = wxPanel(self.splitterwindow, -1)
+        	self.splitterwindow_left_pane = wxPanel(self.splitterwindow, -1)
+		self.splitterwindow.SplitVertically(self.splitterwindow_left_pane, self.splitterwindow_right_pane,sashPosition = -100)
+		self.parent_notebook = wxNotebook(self.splitterwindow_left_pane, -1, style=wxTAB_TRAVERSAL)
 		self.CtrlsContainer = []
-		#create notebook tab for checking and saving
-		self.saveCfgFilePanel = wxPanel(id = wxID_WXFRAME1DUMPTOCFGFILEPANEL, name = 'dumptoCfgFilePanel', parent = self.parent_notebook, pos = wxPoint(0,0), size = wxSize(768, 513), style = wxTAB_TRAVERSAL)
-		self.parent_notebook.AddPage(self.saveCfgFilePanel,'check n save')
-		y = 20
-		# get the name of all the groups in a config-file and
+		# get the names of all the groups in a configfile and
 		# add a notebook tab for each 
-		groups  = _cfg.getGroups()
+		groups  = self.cfg.getGroups()
 		for group in groups:
 			groupCtrlsList = {}
-			# create a check-button for each group on the "check n save" panel
-			BTNcheck_n_save  = wxButton (self.saveCfgFilePanel, -1, group, (20,y))
-			y = y + 30
-
 			# dynamically draw the rest
 			panel_nb_page = wxPanel(
 				parent = self.parent_notebook,
@@ -100,7 +103,7 @@ class gmConfigEditorPanel(wxPanel):
 			fgszr_ctrls.AddGrowableCol(idx=2)
 			# now get all available options in a group plus their descriptions
 			# add descritiption and options as statictext
-			options  = _cfg.getOptions(group)
+			options  = self.cfg.getOptions(group)
 			# now get all available options in a group plus their descriptions
 			# add description and options as statictext
 			optionCtrlsList = {}
@@ -110,58 +113,51 @@ class gmConfigEditorPanel(wxPanel):
 				fgszr_ctrls.Add(label)
 				# edit field
 				# FIXME: handle lists !  -> wxTE_MULTILINE
-				edit_field = wxTextCtrl(panel_nb_page, -1, str(_cfg.get(group, option)))
+				edit_field = wxTextCtrl(panel_nb_page, -1, str(self.cfg.get(group, option)))
 				optionCtrlsList[option] = edit_field
 				fgszr_ctrls.Add(edit_field)
 				# option comment
-				tmp = str(string.join(_cfg.getComment(group, option),"\n"))
+				tmp = str(string.join(self.cfg.getComment(group, option),"\n"))
 				comment = wxStaticText(parent=panel_nb_page, id=-1, label=tmp, style=wxALIGN_LEFT)
 				fgszr_ctrls.Add(comment)
 
 			groupCtrlsList[group] = optionCtrlsList
-
+			#append dictionary to a list
+			self.CtrlsContainer.append(groupCtrlsList)
 			# add page to notebook
 			panel_nb_page.SetAutoLayout(1)
 			panel_nb_page.SetSizer(fgszr_ctrls)
 #			fgszr_ctrls.Fit(panel_nb_page)
 #			fgszr_ctrls.SetSizeHints(panel_nb_page)
 			self.parent_notebook.AddPage(panel_nb_page, group)
-
 			# make notebook sizer work
 			szr_nb = wxNotebookSizer(self.parent_notebook)
-
 			# assemble parts into main window
 			szr_main_pnl = wxBoxSizer(wxVERTICAL)
-			# the option edit notebook
-			szr_main_pnl.Add(szr_nb, 1, wxEXPAND, 0)
-			# the group comment below the notebook
-			# the buttons at the bottom
-
-			self.SetAutoLayout(1)
-			self.SetSizer(szr_main_pnl)
-			szr_main_pnl.Fit(self)
-			szr_main_pnl.SetSizeHints(self)
-			self.Layout()
-
-			#append dictionary to a list
-			self.CtrlsContainer.append(groupCtrlsList)
-
-
-		#self.check_metadata_BTN  = wxButton (self.dumptoCfgFilePanel,wxID_check_metadata_BTN,_('check metadata'),(1,20))
-		#self.check_scan_BTN      = wxButton (self.dumptoCfgFilePanel,wxID_check_scan_BTN,_('check scan'),(1,60))
-		#self.check_index_BTN     = wxButton (self.dumptoCfgFilePanel,wxID_check_index_BTN,_('check index'),(1,100))
-		#self.check_import_BTN    = wxButton (self.dumptoCfgFilePanel,wxID_check_import_BTN,_('check import'),(1,140))
-		#self.check_viewer_BTN    = wxButton (self.dumptoCfgFilePanel,wxID_check_viewer_BTN,_('check viewer'),(1,180))
-		#self.check_database_BTN  = wxButton (self.dumptoCfgFilePanel,wxID_check_database_BTN,_('check database'),(1,220))
-		self.write_cfgfile_BTN  = wxButton (self.saveCfgFilePanel,wxID_write_cfgfile_BTN,_('write configfile'),(1,260))
-		#EVT_BUTTON(self.check_metadata_BTN, wxID_check_metadata_BTN, self.on_check_metadata_BTN)
-		#EVT_BUTTON(self.check_scan_BTN, wxID_check_scan_BTN, self.on_check_scan_BTN)
-		#EVT_BUTTON(self.check_index_BTN, wxID_check_index_BTN, self.on_check_index_BTN)
-		#EVT_BUTTON(self.check_import_BTN, wxID_check_import_BTN, self.on_check_import_BTN)
-		#EVT_BUTTON(self.check_viewer_BTN, wxID_check_viewer_BTN, self.on_check_viewer_BTN)
-		#EVT_BUTTON(self.check_database_BTN, wxID_check_database_BTN, self.on_check_database_BTN)
+		
+		szr_right_splitwindow = wxBoxSizer(wxVERTICAL)
+		self.write_cfgfile_BTN  = wxButton (self.splitterwindow_right_pane,wxID_write_cfgfile_BTN,_('write configfile'))
+		self.exit_BTN  = wxButton (self.splitterwindow_right_pane,wxID_exit_BTN,_('exit'))
 		EVT_BUTTON(self.write_cfgfile_BTN, wxID_write_cfgfile_BTN, self.__dump_to_cfgfile)
-
+		EVT_BUTTON(self.exit_BTN, wxID_exit_BTN, self.__exit)
+		self.splitterwindow_left_pane.SetAutoLayout(1)
+		self.splitterwindow_left_pane.SetSizer(szr_nb)
+		szr_nb.Fit(self.splitterwindow_left_pane)
+		szr_nb.SetSizeHints(self.splitterwindow_left_pane)
+		szr_right_splitwindow.Add(self.write_cfgfile_BTN, 0, 0, 0)
+		szr_right_splitwindow.Add(self.exit_BTN, 0, 0, 0)
+		self.splitterwindow_right_pane.SetAutoLayout(1)
+		self.splitterwindow_right_pane.SetSizer(szr_right_splitwindow)
+		szr_right_splitwindow.Fit(self.splitterwindow_right_pane)
+		szr_right_splitwindow.SetSizeHints(self.splitterwindow_right_pane)
+		# the option edit notebook
+		szr_main_pnl.Add(self.splitterwindow, 1, wxEXPAND, 0)
+		self.SetAutoLayout(1)
+		self.SetSizer(szr_main_pnl)
+		szr_main_pnl.Fit(self)
+		szr_main_pnl.SetSizeHints(self)
+		self.Layout()
+			
 	def __dump_to_cfgfile(self, aDir):
 		# retrieve individual dicts from list of groupdicts 
 		for elementsdict in self.CtrlsContainer:
@@ -174,42 +170,70 @@ class gmConfigEditorPanel(wxPanel):
 				temp = optionsdict.keys()
 				for option in temp:
 					data = optionsdict[option].GetValue()
-					_cfg.set(groups,option,data)
-	    	_cfg.store()
-		#else:
-		#    dlg = wxMessageDialog(
-		#	self,
-		#	_('[dump] error : not all sections were ok'),
-		#	_('checking [dump] sections'),
-		#	wxOK | wxICON_ERROR
-		#    )
-		#    dlg.ShowModal()
-		#    dlg.Destroy()
-		#    return 1
-	
-	
-	
+					self.cfg.set(groups,option,data)
+	    	self.cfg.store()
+		
+	def __exit(self,evt):
+		sys.exit()
+
 #================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "starting config editor")
+	#---------------------
+	# set up dummy app
+	class TestApp (wxApp):
+		def OnInit (self):
+				
+			if _cfg is None:
+				_log.Log(gmLog.lData, "No configfile given on command line. Format: --conf-file=<file>")
+				# get file name
+				# - via file select dialog
+				aWildcard = "%s (*.conf)|*.conf|%s (*.*)|*.*" % (_("config file"), _("all files"))
+				aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', "gnumed")))
+				dlg = wxFileDialog(
+					parent = NULL,
+					message = _("Choose a config file"),
+					defaultDir = aDefDir,
+					defaultFile = "",
+					wildcard = aWildcard,
+					style = wxOPEN | wxFILE_MUST_EXIST
+				)
+				if dlg.ShowModal() == wxID_OK:
+					fname = dlg.GetPath()
+				dlg.Destroy()
+				_log.Log(gmLog.lData, 'selected [%s]' % fname)
 
-	if _cfg == None:
-		_log.Log(gmLog.lErr, "Cannot run without config file.")
-		sys.exit("Cannot run without config file.")
+				aFilename = fname
+				
+				
+			try:
+				tmp=gmCfg.cCfgFile(aFile=aFilename)
+			except StandardError:
+				_log.LogException('Unhandled exception.', sys.exc_info(), fatal=1)
+				raise
+				
+			frame = wxFrame(
+				parent=NULL,
+				id = -1,
+				title = _("configfile editor"),
+				size = wxSize(800,600)
+			)
+						
+				
+			pnl = gmConfigEditorPanel(frame,aCfg=tmp)
 
-	# catch all remaining exceptions
+			pnl.Populate()
+			frame.Show(1)
+			return 1
+	#---------------------
 	try:
-		application = wxPyWidgetTester(size=(640,400))
-		application.SetWidget(gmConfigEditorPanel)
-		application.MainLoop()
-	except:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), fatal=1)
-		# but re-raise them
+		app = TestApp ()
+		app.MainLoop ()
+	except StandardError:
+		_log.LogException('Unhandled exception.', sys.exc_info(), fatal=1)
 		raise
-
-	_log.Log (gmLog.lInfo, "closing config editor")
 
 else:
 	import gmPlugin
@@ -226,32 +250,17 @@ else:
 			return ('tools', _('&config file edit'))
 
 		def ReceiveFocus(self):
-			# get file name
-			# - via file select dialog
-			aWildcard = "%s (*.conf)|*.conf|%s (*.*)|*.*" % (_("config file"), _("all files"))
-			aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', "gnumed")))
-			dlg = wxFileDialog(
-				parent = NULL,
-				message = _("Choose a config file"),
-				defaultDir = aDefDir,
-				defaultFile = "",
-				wildcard = aWildcard,
-				style = wxOPEN | wxFILE_MUST_EXIST
-			)
-			if dlg.ShowModal() == wxID_OK:
-				fname = dlg.GetPath()
-			dlg.Destroy()
-			_log.Log(gmLog.lData, 'selected [%s]' % fname)
-
-			# - via currently selected patient -> XDT files
-			# ...
+			
 
 			self.viewer.filename = fname
 			self.viewer.Populate()
 			return 1
 
 # $Log: gmConfigeditor.py,v $
-# Revision 1.8  2003-04-14 10:06:07  ncq
+# Revision 1.9  2003-04-14 20:47:04  shilbert
+# - reworked layout, asks for file if none given
+#
+# Revision 1.8  2003/04/14 10:06:07  ncq
 # - manually reworked sizers to make more sense
 #
 # Revision 1.7  2003/04/13 17:42:00  shilbert
