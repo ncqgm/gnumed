@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -25,7 +25,7 @@ comment on table audit_clinical is
 
 -- -------------------------------------------------------------------
 create table enum_clinical_encounters(
-	id SERIAL primary key,
+	id serial primary key,
 	description text
 )inherits (audit_clinical);
 
@@ -62,7 +62,7 @@ create table clinical_encounter (
 
 -- -------------------------------------------------------------------
 create table clinical_transaction (
-	id SERIAL primary key,
+	id serial primary key,
 	stamp timestamp with time zone,
 	duration interval,
 	id_location int,
@@ -88,7 +88,7 @@ COMMENT ON COLUMN clinical_transaction.id_patient is
 
 -- -------------------------------------------------------------------
 create table enum_clinical_history(
-	id SERIAL primary key,
+	id serial primary key,
 	description text
 ) inherits (audit_clinical);
 
@@ -124,7 +124,7 @@ INSERT INTO enum_clinical_history (description)
 -- -------------------------------------------------------------------
 create table enum_info_sources
 (
-	id serial,
+	id serial primary key,
 	description varchar (100)
 );
 
@@ -140,7 +140,7 @@ insert into enum_info_sources (description) values (i18n('correspondence'));
 
 -- -------------------------------------------------------------------
 create table clinical_history(
-	id SERIAL primary key,
+	id serial primary key,
 	id_enum_clinical_history int REFERENCES enum_clinical_history (id),
 	id_clinical_transaction int  REFERENCES clinical_transaction (id),
 	id_info_sources int REFERENCES enum_info_sources (id),
@@ -161,7 +161,7 @@ COMMENT ON COLUMN clinical_history.text is
 
 -- -------------------------------------------------------------------
 create table enum_coding_systems (
-	id SERIAL primary key,
+	id serial primary key,
 	description text
 )inherits (audit_clinical);
 
@@ -188,7 +188,7 @@ INSERT INTO enum_coding_systems (description)
 
 -- -------------------------------------------------------------------
 create table coding_systems (
-	id SERIAL primary key,
+	id serial primary key,
 	id_enum_coding_systems int REFERENCES enum_coding_systems (id),
 	description text,
 	version char(6),
@@ -200,7 +200,7 @@ comment on table coding_systems is
 
 -- -------------------------------------------------------------------
 create table clinical_diagnosis (
-	id SERIAL primary key,
+	id serial primary key,
 	id_clinical_transaction int  REFERENCES clinical_transaction (id),
 	approximate_start text DEFAULT null,
 	code char(16),
@@ -251,7 +251,7 @@ INSERT INTO enum_confidentiality_level (description)
 
 -- -------------------------------------------------------------------
 create table clinical_diagnosis_extra (
-	id SERIAL primary key,
+	id serial primary key,
 	id_clinical_diagnosis int REFERENCES clinical_diagnosis (id),
 	id_enum_confidentiality_level int REFERENCES enum_confidentiality_level (id)
 
@@ -447,11 +447,15 @@ insert into enum_immunities (name) values ('tetanus');
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.15  2003-03-27 21:14:49  ncq
+-- Revision 1.16  2003-04-02 12:31:07  ncq
+-- - PostgreSQL 7.3 complained about referenced key enum_info_sources.id not being unique()d
+-- -> make it primary key as it should be
+--
+-- Revision 1.15  2003/03/27 21:14:49  ncq
 -- - cleanup, started work on Dutch structure
 --
 -- Revision 1.14  2003/01/20 20:10:12  ncq
