@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -20,10 +20,10 @@ from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-	from Gnumed.pycommon import gmI18N
+    _log.SetAllLogLevels(gmLog.lData)
+    from Gnumed.pycommon import gmI18N
 else:
-	from Gnumed.pycommon import gmGuiBroker
+    from Gnumed.pycommon import gmGuiBroker
 
 _log.Log(gmLog.lData, __version__)
 
@@ -394,16 +394,17 @@ if __name__ == '__main__':
 
             # mangle date of birth into ISO8601 (yyyymmdd) for Postgres
             cooked_search_terms = {
-                'globbing': None,
-                'case sensitive': None,
+                #'globbing': None,
+                #'case sensitive': None,
                 'dob': '%s%s%s' % (self.__xdt_pat['dob year'], self.__xdt_pat['dob month'], self.__xdt_pat['dob day']),
-                'last name': self.__xdt_pat['last name'],
-                'first name': self.__xdt_pat['first name'],
-                'gender': self.__xdt_pat['gender']
+                'lastnames': self.__xdt_pat['last name'],
+                #'gender': self.__xdt_pat['gender'],
+                'firstnames': self.__xdt_pat['first name']
             }
 
             # find matching patient IDs
-            patient_ids = gmPatient.get_patient_ids(cooked_search_terms)
+            searcher = gmPatient.cPatientSearcher_SQL()
+            patient_ids = searcher.get_patient_ids(search_dict = cooked_search_terms)
             if patient_ids is None:
                 gmGuiHelpers.gm_show_error(
                     aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
@@ -499,7 +500,6 @@ if __name__ == '__main__':
             app.ExitMainLoop()
 #== classes for plugin use ======================================
 else:
-
     class cPluginTreePanel(wxPanel):
         def __init__(self, parent, id):
             # set up widgets
@@ -522,7 +522,7 @@ else:
             pass
 
     #------------------------------------------------------------
-    import gmPlugin, images_Archive_plugin, images_Archive_plugin1
+    from Gnumed.wxpython import gmPlugin, images_Archive_plugin, images_Archive_plugin1
 
     class gmShowMedDocs(gmPlugin.wxNotebookPlugin):
         tab_name = _("Documents")
@@ -625,7 +625,10 @@ else:
     pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.37  2004-03-19 08:29:21  ncq
+# Revision 1.38  2004-03-19 21:26:15  shilbert
+# - more module import fixes
+#
+# Revision 1.37  2004/03/19 08:29:21  ncq
 # - fix spurious whitespace
 #
 # Revision 1.36  2004/03/19 08:08:41  ncq
