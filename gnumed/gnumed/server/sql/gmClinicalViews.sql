@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.24 2003-10-19 12:59:42 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.25 2003-10-19 15:43:00 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -316,14 +316,9 @@ select
 		then null
 		else vdef.seq_id
 	end as vacc_seq_id,
-	case when vdef.is_booster
-		then booster_interval
-		else vdef.min_age_due
-	end as due,
-	case when vdef.is_booster
-		then null
-		else vdef.max_age_due
-	end as latest_due,
+	vdef.min_age_due as age_due_min,
+	vdef.max_age_due as age_due_max,
+	vdef.min_interval as min_interval,
 	vdef.comment as "comment"
 from
 	vacc_regime vreg,
@@ -353,7 +348,7 @@ select
 	v.fk_patient as id_patient,
 	v.date_given as date,
 	vcine.trade_name as vaccine,
---	vcine.short_name as vaccine_short,
+	vcine.short_name as vaccine_short,
 	v.batch_no as batch_no,
 	vind.description as indication,
 	vdef.is_booster as is_booster,
@@ -447,11 +442,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.24 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.25 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.24  2003-10-19 12:59:42  ncq
+-- Revision 1.25  2003-10-19 15:43:00  ncq
+-- - even better vaccination tables
+--
+-- Revision 1.24  2003/10/19 12:59:42  ncq
 -- - add vaccination views (still flaky)
 --
 -- Revision 1.23  2003/08/03 14:06:45  ncq

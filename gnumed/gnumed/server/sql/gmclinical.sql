@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.61 $
+-- $Revision: 1.62 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -231,6 +231,7 @@ create table vacc_indication (
 ) inherits (audit_fields);
 
 select add_table_for_audit('vacc_indication');
+select add_table_for_scoring('vacc_indication');
 
 comment on table vacc_indication is
 	'definition of indications for vaccinations';
@@ -279,7 +280,7 @@ create table vaccine (
 	id_route integer not null references vacc_route(id) default 1,
 	trade_name text unique not null,
 	short_name text unique not null,
-	fk_vacc_indications integer[] not null references vacc_indication(id),
+	fk_indications integer[] not null references vacc_indication(id),
 	is_live boolean not null default false,
 	is_licensed boolean not null default true,
 	min_age interval not null,
@@ -299,7 +300,7 @@ comment on column vaccine.trade_name is
 comment on column vaccine.short_name is
 	'common, maybe practice-specific shorthand name
 	 for referring to this vaccine';
-comment on column vaccine.fk_vacc_indications is
+comment on column vaccine.fk_indications is
 	'list of indications this vaccine satisfies';
 comment on column vaccine.is_live is
 	'whether this is a live vaccine';
@@ -315,37 +316,43 @@ comment on column vaccine.last_batch_no is
 	 rapid data input purposes';
 
 -- --------------------------------------------
-create table vacc_appt (
+create table vacc_def (
 	id serial primary key,
 	fk_indication integer not null references vacc_indication(id),
+	-- FIXME: specific constraint: null if (is_booster == true) else > 0
+	is_booster boolean not null default false,
 	seq_id integer not null,
+	min_age_due interval not null,
+	max_age_due interval not null,
 	min_interval interval not null,
-	max_interval interval not null,
 	comment text,
 	unique(fk_indication, seq_id)
 ) inherits (audit_fields);
 
-select add_table_for_audit('vacc_appt');
+select add_table_for_audit('vacc_def');
 
-comment on table vacc_appt is
-	'defines when a certain vaccination is due';
-comment on column vacc_appt.fk_indication is
+comment on table vacc_def is
+	'defines a given vaccination event';
+comment on column vacc_def.fk_indication is
 	'indication for which this vaccination
 	 event is scheduled';
-comment on column vacc_appt.seq_id is
+comment on column vacc_def.is_booster is
+	'does this definition represent a booster';
+comment on column vacc_def.seq_id is
 	'sequence number for this vaccination event
 	 within a particular schedule/regime,
-	 -1: non-first regular re-vaccination';
-comment on column vacc_appt.min_interval is
-	'minimum interval (relative to previous
-	 vaccination) after which this shot is due,
-	 minimum age if seq_id = 1';
-comment on column vacc_appt.max_interval is
-	'maximum interval (relative to previous
-	 vaccination) after which this shot is due,
-	 if seq_id = 1:
-	  - if max_interval = -1: no maximum age
-	  - else max_interval = maximum age';
+	 meaningless if (is_booster == true)';
+comment on column vacc_def.min_age_due is
+	'minimum age at which this shot is due';
+comment on column vacc_def.max_age_due is
+	'maximum age at which this shot is due,
+	 if max_age_due = -1: no maximum age';
+comment on column vacc_def.min_interval is
+	'if (is_booster == true):
+		recommended interval for boostering
+	 id (is_booster == false):
+	 	minimum interval after previous vaccination,
+		meaningless if seq_id == 1';
 
 -- --------------------------------------------
 create table vaccination (
@@ -353,10 +360,12 @@ create table vaccination (
 	fk_patient integer not null,
 	fk_provider integer not null,
 	fk_vaccine integer references vaccine(id),
-	fk_vacc_appt integer references vacc_appt(id),
-
+	-- we need a constraint on fk_vacc_def to only
+	-- allow sequential vacc_def.seq_id inserts
+	fk_vacc_def integer references vacc_def(id),
 	date_given date not null default CURRENT_DATE,
 	site text default 'not recorded',
+	batch_no text not null default 'not recorded',
 	unique (fk_patient, fk_vaccine, date_given)
 ) inherits (audit_fields, clin_root_item);
 
@@ -370,7 +379,7 @@ select add_x_db_fk_def('vaccination', 'fk_provider', 'personalia', 'identity', '
 
 comment on table vaccination is
 	'holds vaccinations actually given';
-comment on column vaccination.fk_vacc_appt is
+comment on column vaccination.fk_vacc_def is
 	'the vaccination event this particular
 	 vaccination is supposed to cover, allows to
 	 link out-of-band vaccinations into regimes';
@@ -379,11 +388,12 @@ comment on column vaccination.fk_vacc_appt is
 create table vacc_regime (
 	id serial primary key,
 	fk_recommended_by integer,
-	fk_vacc_appts integer[] not null references vacc_appt(id),
+	fk_indication integer not null references vacc_indication(id),
 	description text unique not null
 ) inherits (audit_fields);
 
 select add_table_for_audit('vacc_regime');
+select add_table_for_scoring('vacc_regime');
 
 -- remote foreign keys:
 select add_x_db_fk_def('vacc_regime', 'fk_recommended_by', 'reference', 'ref_source', 'id');
@@ -392,8 +402,15 @@ comment on table vacc_regime is
 	'holds vaccination schedules/regimes/target diseases';
 comment on column vacc_regime.fk_recommended_by is
 	'organization recommending this vaccination';
-comment on column vacc_regime.fk_vacc_appts is
-	'list of vaccination events scheduled by this regime';
+comment on column vacc_regime.fk_indication is
+	'vaccination indication this regime is targeted at';
+
+-- ============================================
+create table lnk_vacc_def2regime (
+	id serial primary key,
+	fk_vacc_def integer unique not null references vacc_def(id),
+	fk_regime integer not null references vacc_regime(id)
+);
 
 -- ============================================
 -- allergies tables
@@ -464,7 +481,7 @@ comment on column allergy.generic_specific is
 			  "allergene" *must* contain the generic in question;
 	 2) false: applies to drug class of "substance";';
 comment on column allergy.definite is
-	'true: definate, false: not definite';
+	'true: definite, false: not definite';
 
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
@@ -688,11 +705,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.61 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.62 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.61  2003-10-07 22:29:10  ncq
+-- Revision 1.62  2003-10-19 15:43:00  ncq
+-- - even better vaccination tables
+--
+-- Revision 1.61  2003/10/07 22:29:10  ncq
 -- - better comments on vacc_*
 --
 -- Revision 1.60  2003/10/01 15:44:24  ncq
