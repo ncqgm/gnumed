@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.27 2003-05-27 13:18:54 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmEditArea.py,v 1.28 2003-05-27 14:04:42 sjtan Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "R.Terry, K.HIlbert"
 #====================================================================
 import sys, traceback
@@ -157,6 +157,7 @@ _prompt_defs = {
 	]
 }
 
+
 #====================================================================
 #text control class to be later replaced by the gmPhraseWheel
 #--------------------------------------------------------------------
@@ -186,6 +187,8 @@ class gmEditArea( wxPanel):
 			wxDefaultSize,
 			style = wxNO_BORDER | wxTAB_TRAVERSAL
 		)
+		# for Owning Use Case identification
+		self.SetName(aType)
 #		self.SetBackgroundColour(wxColor(222,222,222))
 
 		# set up links between edit fields and business objects
@@ -290,10 +293,16 @@ class gmEditArea( wxPanel):
 	def _make_standard_buttons(self, parent):
 		self.btn_OK = wxButton(parent, -1, _("Ok"))
 		self.btn_Clear = wxButton(parent, -1, _("Clear"))
+
+		# back pointers for panel type identification
+		self.btn_OK.owner = self
+		self.btn_Clear.owner = self
+		
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
 		szr_buttons.Add(self.btn_OK, 1, wxEXPAND | wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
 		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND | wxALL, 1)
+
 		return szr_buttons
 	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
@@ -479,6 +488,10 @@ class gmPastHistoryEditArea(gmEditArea):
 		lines = []
 		#self.gszr = wxGridSizer( 8, 1, 2, 2)
 		self.txt_condition = cEditAreaField(parent, PHX_CONDITION,wxDefaultPosition,wxDefaultSize)
+	#@	self.rb_laterality = wxRadioBox( parent, -1,   "Side", wxDefaultPosition, wxDefaultSize,  [ _("Left"), _("Right"), _("Both")]  )
+
+
+
 		self.rb_sideleft = wxRadioButton(parent, PHX_LEFT, _(" (L) "), wxDefaultPosition,wxDefaultSize)
 		self.rb_sideright = wxRadioButton(parent,  PHX_RIGHT, _("(R)"), wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
 		self.rb_sideboth = wxRadioButton(parent,  PHX_BOTH, _("Both"), wxDefaultPosition,wxDefaultSize)
@@ -489,6 +502,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		szr1 = wxBoxSizer(wxHORIZONTAL)
 		szr1.Add(self.txt_condition, 4, wxEXPAND)
 		szr1.Add(rbsizer, 3, wxEXPAND)
+		#szr1.Add(self.rb_laterality, 3, wxEXPAND)
 		lines.append(szr1)
 #			self.sizer_line1.Add(self.rb_sideleft,1,wxEXPAND|wxALL,2)
 #			self.sizer_line1.Add(self.rb_sideright,1,wxEXPAND|wxALL,2)
@@ -531,6 +545,17 @@ class gmPastHistoryEditArea(gmEditArea):
 		szr8.Add(5, 0, 6)
 		szr8.Add(self._make_standard_buttons(parent), 0, wxEXPAND)
 		lines.append(szr8)
+
+		fields = [ self.txt_condition, self.txt_notes1, self.txt_notes2, self.txt_agenoted, self.txt_yearnoted, self.txt_progressnotes, self.cb_active, self.cb_operation, self.cb_confidential, self.cb_significant ]
+
+		past_history_input_field_keys = [ "condition", "notes1", "notes2", "age", "year",  "progress", "active", "operation", "confidential", "significant" ]
+		i = 0
+		self.input_fields = {}
+		for k in past_history_input_field_keys:
+			self.input_fields[k] = fields[i]
+			i = i + 1
+
+
 		return lines
 		self.gszr.Add(szr1,0,wxEXPAND)
 		self.gszr.Add(self.txt_notes1,0,wxEXPAND)
@@ -1088,7 +1113,13 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.27  2003-05-27 13:18:54  ncq
+# Revision 1.28  2003-05-27 14:04:42  sjtan
+#
+# test events mapping field values on ok button press: K + I were right,
+# this is a lot more direct than handler scripting; just needed the additional
+# programming done on the ui (per K).
+#
+# Revision 1.27  2003/05/27 13:18:54  ncq
 # - coding style, as usual...
 #
 # Revision 1.26  2003/05/27 13:00:41  sjtan
