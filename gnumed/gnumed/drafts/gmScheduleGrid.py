@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -411,7 +411,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		print "Add patient"
 
 		
-	def OnCancelAppoinment(self, evt):
+	def OnCancelAppointment(self, evt):
 		print "Appoinment cancelled"
 
 	def OnCellRightClick(self, evt):
@@ -423,7 +423,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 		#create a popup menu
 		menu = wxMenu()
-		menu.Append(0, _("A%rrived"))
+		menu.Append(0, _("A&rrived"))
 		menu.Append(1, _("&Seen"))
 		menu.Append(2, _("B&ill"))
 		menu.Append(3, _("B&ulk bill"))
