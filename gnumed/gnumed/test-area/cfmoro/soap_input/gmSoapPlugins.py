@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -29,7 +29,6 @@ import multisash
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-
 
 # FIXME attribute encapsulation and private methods
 # FIXME i18n
@@ -319,7 +318,13 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			#print "focussed soap editor leaf:", leaf.__class__.__name__, id(leaf)
 #			self.__focussed_soap_editor.AddLeaf(SOAPMultiSash.MV_VER, 130)
 			#self.__soap_multisash.SetDefaultChildClass(self.make_soap_editor)
-			leaf.AddLeaf(direction = multisash.MV_VER, pos = 130)
+			successful, errno = leaf.AddLeaf(direction = multisash.MV_VER, pos = 100)
+			if not successful:
+				msg = _('Cannot open progress note editor for\n\n'
+						'[%s]\n\n'
+						'The GnuMed window is too small. Please enlarge\n'
+						'the lowermost editor and try again.') % problem['problem']
+				gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening progress note editor'))
 			#self.__managed_episodes.append(episode_id)
 		else:
 			# FIXME: find and focus
@@ -327,7 +332,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 				'There already is a progress note editor open for\n'
 				'[%s]\n\n'
 				'We are lacking code to focus that editor yet.'
-			) % episode['description']
+			) % problem['problem']
 			gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening progress note editor'))
 
 		#if not self.__BTN_new.IsEnabled():
@@ -528,7 +533,7 @@ if __name__ == '__main__':
 			sys.exit(0)
 
 		# display standalone browser
-		application = wx.wxPyWidgetTester(size=(800,600))
+		application = wx.wxPyWidgetTester(size=(600,400))
 		soap_input = cMultiSashedSoapPanel(application.frame, -1)
 		#soap_input.refresh_tree()
 		
@@ -554,7 +559,12 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.15  2005-02-14 00:58:37  cfmoro
+# Revision 1.16  2005-02-16 11:19:12  ncq
+# - better error handling
+# - tabified
+# - get_bottom_leaf() verified
+#
+# Revision 1.15  2005/02/14 00:58:37  cfmoro
 # Restarted the adaptation of multisash widget to make it completely usable for GnuMed while keeping it generic and not SOAP dependent. Advance step by step. Step 1: Disabled leaf creators, create new widgets on bottom and keep consistency while deleting leafs
 #
 # Revision 1.14  2005/02/09 20:19:58  cfmoro
