@@ -27,8 +27,8 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.12 2003-02-07 21:01:21 sjtan Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmGP_TabbedLists.py,v 1.13 2003-02-20 02:13:49 michaelb Exp $
+__version__ = "$Revision: 1.13 $"
 
 from wxPython.wx import *
 #from wxPython.gizmos import *
@@ -49,6 +49,67 @@ scriptdata = {
 }
 
 #=====================================================================
+class Notebook(wxNotebook):
+    """ Sets tool tips for notebook tab images """
+    # FIXME: make 'wxTipWindow' more like 'wxToolTip'
+    #		find window coordinates
+    #		SetBoundingRect is in screen coord
+
+    tip_shown=0
+    def __init__(self, parent, id):
+        wxNotebook.__init__(self,parent,id)
+
+        self.tip_area1=wxRect(1,1,31,31)
+        self.tip_area2=wxRect(32,1,31,31)
+        self.tip_area3=wxRect(63,1,31,31)
+        self.tip_area4=wxRect(94,1,31,31)
+        self.tip_area5=wxRect(125,1,31,31)
+        self.tip_area6=wxRect(156,1,31,31)
+
+        EVT_MOTION(self, self.OnMouseMotion)
+
+    def OnMouseMotion(self, evt):
+	x, y = evt.GetPosition()
+        if(self.tip_area1.Inside(x,y)):
+            if(self.tip_shown!=1):
+                tipwin1=wxTipWindow(self, _('Prescriptions'))
+                #print 'inside 1'
+                tipwin1.SetBoundingRect(self.tip_area1)
+                #tipwin1.SetBoundingRect(wxRect(1,1,500,500))
+                self.tip_shown=1
+
+        elif(self.tip_area2.Inside(x,y)):
+            if(self.tip_shown!=2):
+                tipwin2=wxTipWindow(self, _('Requests'))
+                #tipwin2.SetBoundingRect(self.tip_area2)
+                self.tip_shown=2
+
+        elif(self.tip_area3.Inside(x,y)):
+            if(self.tip_shown!=3):
+                tipwin3=wxTipWindow(self, _('Measurements'))
+                #tipwin3.SetBoundingRect(self.tip_area3)
+                self.tip_shown=3
+
+        elif(self.tip_area4.Inside(x,y)):
+            if(self.tip_shown!=4):
+                tipwin4=wxTipWindow(self, _('Referrals'))
+                #tipwin4.SetBoundingRect(self.tip_area4)
+                self.tip_shown=4
+
+        elif(self.tip_area5.Inside(x,y)):
+            if(self.tip_shown!=5):
+                tipwin5=wxTipWindow(self, _('Recalls and Reviews'))
+                #tipwin5.SetBoundingRect(self.tip_area5)
+                self.tip_shown=5
+
+        elif(self.tip_area6.Inside(x,y)):
+            if(self.tip_shown!=6):
+                tipwin6=wxTipWindow(self, _('Inbox'))
+                #tipwin6.SetBoundingRect(self.tip_area6)
+                self.tip_shown=6
+        else:
+            self.tip_shown=0
+
 class TabbedLists(wxPanel): #, wxColumnSorterMixin):
 
     __icons_script = {"""icon_Rx_symbol""": 'x\xda\xd3\xc8)0\xe4\nV74S\x00"c\x05Cu\xae\xc4`u=\x85d\x05e\x03 p\xb3\x00\
@@ -115,7 +176,8 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
 	#----------------------------------------------------------------------
 	#Add a notebook control to hold the lists of things eg scripts, recalls
 	#----------------------------------------------------------------------
-	self.notebook1 = wxNotebook(self, -1, wxDefaultPosition, wxDefaultSize, style = 0)
+	#self.notebook1 = Notebook(self, -1, wxDefaultPosition, wxDefaultSize, style = 0)
+        self.notebook1 = Notebook(self, -1)
 	#-------------------------------------------------------------------------
 	#Associate an imagelist with the notebook and add images to the image list
 	#-------------------------------------------------------------------------
@@ -258,7 +320,10 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.12  2003-02-07 21:01:21  sjtan
+# Revision 1.13  2003-02-20 02:13:49  michaelb
+# adding tooltips for the images on the tabs of the wxNotebook
+#
+# Revision 1.12  2003/02/07 21:01:21  sjtan
 #
 # refactored to re-use handler_generator.generator. Handler for gmSelectPerson as test.
 #
