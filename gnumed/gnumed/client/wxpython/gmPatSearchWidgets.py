@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.7 2004-09-06 22:22:15 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmPatSearchWidgets.py,v 1.8 2004-10-19 13:17:02 sjtan Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -84,7 +84,7 @@ class cPatientPickList(wx.wxDialog):
 		pos = (-1, -1),
 		size = (600, 400),
 	):
-
+		_log.Info( "before wx.wxDialog.__init__")
 		# this works (as suggested by Robin Dunn) but is quite ugly IMO
 		prnt = wx.wxGetTopLevelParent(parent)
 		wx.wxDialog.__init__(
@@ -96,12 +96,18 @@ class cPatientPickList(wx.wxDialog):
 			size,
 			style = wx.wxDEFAULT_DIALOG_STYLE | wx.wxRESIZE_BORDER | wx.wxSTAY_ON_TOP
 		)
-
+		_log.Info( "before register_events")
 		self.__register_events()
 
 #		self.__do_layout_old()
-		self.__do_layout()
+		_log.Info ("before do layout")
+		try:
+			self.__do_layout()
+		except:
+			_log.Error("got an exception during __do_layout()")
+			print self,"error in __do_layout()"
 		self.__items = []
+		_log.Info("finished")
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -162,6 +168,7 @@ class cPatientPickList(wx.wxDialog):
 		wx.EVT_BUTTON(self, wx.wxID_CANCEL, self._on_cancel)
 	#--------------------------------------------------------
 	def __do_layout(self):
+		_log.Info("list control")
 		self.__listctrl = wx.wxListCtrl(
 			parent = self,
 			id = ID_PatPickList,
@@ -173,6 +180,7 @@ class cPatientPickList(wx.wxDialog):
 		#-----------------------------------------------------------------------------------------------------------
 		sizer_buttons = wx.wxBoxSizer(wx.wxHORIZONTAL)				#bottom sizer to hold buttons
 		# Ok Button = load patient
+		_log.Info("btnOk")
 		btnOK = wx.wxButton (
 			self,
 			wx.wxID_OK,
@@ -199,7 +207,9 @@ class cPatientPickList(wx.wxDialog):
 			wx.wxPyDefaultSize,
 			0
 		)
-		sizer_buttons.Add(60, 20, 1, wx.wxEXPAND)
+		#_log.Info("before buttons")
+		spacer =wx.wxBoxSizer(wx.wxHORIZONTAL)
+		sizer_buttons.Add(spacer, 20, 1, wx.wxEXPAND)
 		sizer_buttons.Add(btnAddNew, 0, wx.wxEXPAND | wx.wxTOP | wx.wxBOTTOM, 5)
 		sizer_buttons.Add(btnOK, 0, wx.wxEXPAND | wx.wxALL , 5)
 		sizer_buttons.Add(btnCancel, 0, wx.wxEXPAND | wx.wxALL, 5)
@@ -211,13 +221,18 @@ class cPatientPickList(wx.wxDialog):
 		self.sizer_main = wx.wxBoxSizer(wx.wxVERTICAL)
 		self.sizer_main.Add(self.__listctrl, 1, wx.wxEXPAND | wx.wxALL, 10)
 		self.sizer_main.AddSizer(sizer_buttons, 0, wx.wxEXPAND | wx.wxLEFT | wx.wxRIGHT, 10)
+
+		_log.Info("main sizer")
 		#-----------------------------------
 		# now set the main sizer
 		#-----------------------------------
 		self.SetAutoLayout(True)
 		self.SetSizer(self.sizer_main)
 		self.sizer_main.Fit(self)
+		self.sizer_main.SetSizeHints(self)
+		_log.Info("after Fit")
 		self.__listctrl.SetFocus()					# won't work on Windoze without this
+		_log.Info("At end.")
 	#--------------------------------------------------------
 	def __do_layout_old(self):
 		self.sizer_main = wx.wxBoxSizer(wx.wxVERTICAL)
@@ -475,20 +490,27 @@ and hit <ENTER>
 		if evt.AltDown():
 			# ALT-L, ALT-P - list of previously active patients
 			if keycode in [ord('l'), ord('p')]:
-				if self.__prev_pats == []:
+				try:
+					print "SHOWING PREVIOUS PATIENTS"
+					if self.__prev_pats == []:
+						print "no previous patients"
+						return True
+					# show list
+					dlg = cPatientPickList(parent = self)
+					dlg.SetItems(self.__prev_pats, self.__pat_picklist_col_defs)
+					print "just before dlg.ShowModal(1)"
+					result = dlg.ShowModal()
+					dlg.Destroy()
+					print "DIALOG SHOWN AND DESTROYED"
+					# and process selection
+					if result > 0:
+						# and make our selection known to others
+						wx.wxBeginBusyCursor()
+						self.SetActivePatient(anID = result)
+						wx.wxEndBusyCursor()
 					return True
-				# show list
-				dlg = cPatientPickList(parent = self)
-				dlg.SetItems(self.__prev_pats, self.__pat_picklist_col_defs)
-				result = dlg.ShowModal()
-				dlg.Destroy()
-				# and process selection
-				if result > 0:
-					# and make our selection known to others
-					wx.wxBeginBusyCursor()
-					self.SetActivePatient(anID = result)
-					wx.wxEndBusyCursor()
-				return True
+				except:
+					_log.Error("Error in show previous patients")
 
 			# ALT-N - enter new patient
 			if keycode == ord('n'):
@@ -722,7 +744,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.7  2004-09-06 22:22:15  ncq
+# Revision 1.8  2004-10-19 13:17:02  sjtan
+#
+# try except block for logging and letting the dialog work on not quite
+# upto date postgres installations. ( one's with no set session characteristics to transaction read only).
+#
+# Revision 1.7  2004/09/06 22:22:15  ncq
 # - properly use setDBParam()
 #
 # Revision 1.6  2004/09/02 00:40:13  ncq
