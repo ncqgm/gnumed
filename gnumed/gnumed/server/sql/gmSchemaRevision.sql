@@ -1,6 +1,6 @@
 -- project: GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmSchemaRevision.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -16,20 +16,23 @@
 
 -- do simple schema revision tracking
 -- \i gmSchemaRevision.sql
--- INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmSchemaRevision.sql,v $', '$Revision: 1.3 $')
+-- INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmSchemaRevision.sql,v $', '$Revision: 1.4 $')
 
 -- =============================================
 \unset ON_ERROR_STOP
 create table schema_revision(
 	filename VARCHAR(100),
 	version VARCHAR(30),
-	imported DATE CURRENT_TIMESTAMP
+	imported DATE DEFAULT CURRENT_TIMESTAMP
 );
 \set ON_ERROR_STOP 1
 
 -- =============================================
 -- $Log: gmSchemaRevision.sql,v $
--- Revision 1.3  2002-11-17 08:20:15  ncq
+-- Revision 1.4  2002-11-17 08:22:44  ncq
+-- - forgot DEFAULT
+--
+-- Revision 1.3  2002/11/17 08:20:15  ncq
 -- - added timestamp field
 --
 -- Revision 1.2  2002/11/16 00:25:59  ncq
