@@ -20,7 +20,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 
 __log__ = gmLog.gmDefLog
 #============================================================
@@ -331,14 +331,11 @@ class cPhraseWheel (wxTextCtrl):
 	def __updateMatches(self):
 		"""Get the matches for the currently typed input fragment."""
 
-		print "on __updateMatches()"
-
 		# get all currently matching items
 		(matched, self.__currMatches) = self.__matcher.getMatches(self.GetValue())
 		# and refill our picklist with them
 		self.__picklist.Clear()
 		if matched:
-			print "did find matches"
 			for item in self.__currMatches:
 				self.__picklist.Append(item['label'], clientData = item['ID'])
 	#--------------------------------------------------------
@@ -348,6 +345,7 @@ class cPhraseWheel (wxTextCtrl):
 		# if only one match and text == match
 		if (len(self.__currMatches) == 1) and (self.__currMatches[0]['label'] == self.GetValue()):
 			# don't display drop down list
+			self.__hide_picklist()
 			return 1
 
 		# recalculate position
