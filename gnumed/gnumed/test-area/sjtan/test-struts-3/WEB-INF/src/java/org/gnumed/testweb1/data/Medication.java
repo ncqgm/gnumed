@@ -6,8 +6,6 @@
 
 package org.gnumed.testweb1.data;
 
-import java.util.Date;
-
 /**
  *
  * @author  sjtan
