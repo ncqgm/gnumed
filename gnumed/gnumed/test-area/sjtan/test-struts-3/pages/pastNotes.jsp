@@ -29,7 +29,7 @@
             <tr>
             <td>
                 <h4>
-                    <bean:write name="encounter" property="started" />
+                    <bean:write name="encounter" property="started" format="dd/MM/yyyy hh:mm" />
                 </h4>
             </td>
             <td>
@@ -52,7 +52,7 @@
      
                         <a name="itemDetail<%=itemId%>">
                 
-                        <bean:write name="narrative" property="clin_when"  />
+                        <bean:write name="narrative" property="clin_when" format="dd/MM/yyyy hh:mm" />
                         </a>
                     </td>
        
