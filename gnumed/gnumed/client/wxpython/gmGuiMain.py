@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.96 2003-04-28 12:04:09 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmGuiMain.py,v 1.97 2003-05-03 14:16:33 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -322,7 +322,7 @@ class MainFrame(wxFrame):
 	def RegisterEvents(self):
 		"""register events we want to react to"""
 		# wxPython events
-		EVT_IDLE(self, self.OnIdle)
+#		EVT_IDLE(self, self.OnIdle)
 		EVT_CLOSE(self, self.OnClose)
 		EVT_ICONIZE(self, self.OnIconize)
 		EVT_MAXIMIZE(self, self.OnMaximize)
@@ -360,7 +360,6 @@ class MainFrame(wxFrame):
 	#----------------------------------------------
 	def Callback_UpdateTime(self):
 		"""Displays date and local time in the second slot of the status bar"""
-
 		t = time.localtime(time.time())
 		st = time.strftime(gmTimeformat, t)
 		self.SetStatusText(st,1)
@@ -434,20 +433,19 @@ class MainFrame(wxFrame):
 		ANY code that should be executed before a regular shutdown
 		should go in here
 		"""
-		self.timer.Stop ()
-		self.mainmenu=None
-		self.window=None
+		self.timer.Stop()
+		self.mainmenu = None
+		self.window = None
 		self.Destroy()
-		gmDispatcher.send(gmSignals.application_clean_closing())
-
+#		gmDispatcher.send(gmSignals.application_clean_closing())
 	#----------------------------------------------
 	def OnClose(self,event):
 		self.CleanExit()
 	#----------------------------------------------
-	def OnIdle(self, event):
-		"""Here we can process any background tasks
-		"""
-		pass
+#	def OnIdle(self, event):
+#		"""Here we can process any background tasks
+#		"""
+#		pass
 	#----------------------------------------------
 	def OnIconize(self, event):
 		# FIXME: we should maximize the amount of title bar information here
@@ -645,7 +643,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.96  2003-04-28 12:04:09  ncq
+# Revision 1.97  2003-05-03 14:16:33  ncq
+# - we don't use OnIdle(), so don't hook it
+#
+# Revision 1.96  2003/04/28 12:04:09  ncq
 # - use plugin.internal_name()
 #
 # Revision 1.95  2003/04/25 13:03:07  ncq
