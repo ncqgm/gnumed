@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.19 2003-06-22 16:23:35 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.20 2003-06-29 15:24:22 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -61,6 +61,13 @@ drop view v_patient_items;
 
 create view v_patient_items as
 select
+	extract(epoch from cri.modified_when) as age,
+	cri.modified_when as modified_when,
+	cri.modified_by as modified_by,
+	case cri.row_version
+		when 0 then false
+		else true
+	end as is_modified,
 	vpep.id_patient as id_patient,
 	cri.pk_item as id_item,
 	cri.id_encounter as id_encounter,
@@ -74,6 +81,8 @@ where
 	vpep.id_episode=cri.id_episode
 		and
 	cri.tableoid=sys.oid
+order by
+	age
 ;
 
 -- =============================================
@@ -211,11 +220,16 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.19 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.19  2003-06-22 16:23:35  ncq
+-- Revision 1.20  2003-06-29 15:24:22  ncq
+-- - now clin_root_item inherits from audit_fields we can add
+--    extract(epoch from modified_when) as age
+--   to v_patient_items and order by that :-)
+--
+-- Revision 1.19  2003/06/22 16:23:35  ncq
 -- - curr_encounter tracking triggers + grants
 --
 -- Revision 1.18  2003/06/03 13:49:06  ncq
