@@ -5,30 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.12 $"
-
-if __name__ == "__main__":
-	print "*" * 50 
-	print "RUNNING UNIT TEST of gmOrganization "
-
-	print """\nNB If imports not found , try:
-	
-	change to gnumed/client directory , then
-	
-	export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py
-	"""
-	print
-	print "In the connection query, please enter"
-	print "a WRITE-ENABLED user e.g. _test-doc (not test-doc), and the right password"
-	print
-	print "Run the unit test with cmdline argument '--clean'  if trying to clean out test data"
-	print
-
-	print """You can get a sermon by running 
-	export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py --sermon
-	"""
-
-
+__version__ = "$Revision: 1.13 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG, gmI18N, gmBorg
 from Gnumed.pycommon.gmPyCompat import *
@@ -104,6 +81,7 @@ class cLnkPersonOrgAddress(gmClinItem.cClinItem):
 
 	# FIXME: this doesn't belong here
 	def findByOrgId(id):
+		print "FIXME: this doesn't belong here"
 		print tmp
 #		cmds = """select id from lnk_person_org_address 
 #			where id_org = %s and id_identity = NULL
@@ -898,10 +876,29 @@ def clean_test_org():
 		("""delete from org where description in ( %s) """ % nameList, [] )
 		]
 	return gmPG.run_commit("personalia", cmds) <> None
-	
-		
 
-if __name__== "__main__":
+#============================================================
+if __name__ == "__main__":
+	print "*" * 50 
+	print "RUNNING UNIT TEST of gmOrganization "
+
+	print """\nNB If imports not found , try:
+	
+	change to gnumed/client directory , then
+	
+	export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py
+	"""
+	print
+	print "In the connection query, please enter"
+	print "a WRITE-ENABLED user e.g. _test-doc (not test-doc), and the right password"
+	print
+	print "Run the unit test with cmdline argument '--clean'  if trying to clean out test data"
+	print
+
+	print """You can get a sermon by running 
+	export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py --sermon
+	"""		
+
 	_log.SetAllLogLevels(gmLog.lData)
 
 	import sys
@@ -1169,15 +1166,12 @@ Better to use error return values and log exceptions near where they occur, vs. 
 			conn = None
 			p.ReleaseConnection('personalia')
 			break
-				
-		
-	
-			
-	
-	
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.12  2004-05-24 05:49:59  sjtan
+# Revision 1.13  2004-05-24 21:09:01  ncq
+# - cleanup
+#
+# Revision 1.12  2004/05/24 05:49:59  sjtan
 #
 # test case working for gmDemographicRecord_SQL linking/unlinking; local and remote tested.
 #
