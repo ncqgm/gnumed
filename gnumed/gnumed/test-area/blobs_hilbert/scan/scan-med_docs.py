@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -16,7 +16,7 @@ import gmLog
 _log = gmLog.gmDefLog
 _log.SetAllLogLevels(gmLog.lData)
 
-import gmCfg, gmI18N
+import gmCfg, gmI18N, docDocument
 _cfg = gmCfg.gmDefCfgFile
 
 try:
@@ -874,7 +874,10 @@ if __name__ == '__main__':
 
 #======================================================
 # $Log: scan-med_docs.py,v $
-# Revision 1.25  2002-09-12 20:42:22  ncq
+# Revision 1.26  2002-09-12 20:43:42  ncq
+# - import docDocument
+#
+# Revision 1.25  2002/09/12 20:42:22  ncq
 # - fix double scan bug
 # - move call_viewer into docDocument
 #
