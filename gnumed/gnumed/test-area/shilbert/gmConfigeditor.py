@@ -1163,3 +1163,5 @@ else:
 			self.viewer.filename = fname
 			self.viewer.Populate()
 			return 1
+
+test
