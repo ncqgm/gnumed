@@ -232,7 +232,8 @@ CREATE TABLE drug_package (
 	drug_id INTEGER REFERENCES entity (id),
 	amount INTEGER, -- no. of tabs, capsules, etc. in pack
 	max_rpts INTEGER, -- maximum repeats
-	strength FLOAT -- amount of active in each tab, capsule
+	strength FLOAT, -- amount of active in each tab, capsule
+	description VARCHAR (100) -- extra description in source data
 );
 
 -- =============================================

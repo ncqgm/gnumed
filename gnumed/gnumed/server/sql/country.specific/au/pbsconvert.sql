@@ -8,6 +8,7 @@ COPY "amount_units"  FROM stdin;
 1	each
 3	g
 4	m
+5	cm
 \.
 
 
@@ -54,6 +55,7 @@ COPY "presentation"  FROM stdin;
 15	tablet
 16	spray
 17	bath oil
+18	dressing
 \.
 
 
@@ -72,12 +74,19 @@ COPY "drug_form"  FROM stdin;
 1	4	1	1	1
 8	7	1	3	1
 16	1	3	2	5
-17	12	6	1	16
+23	12	6	1	16
 18	9	4	4	14
 19	9	2	1	17
 20	4	6	1	4
 21	4	5	1	4
 22	11	6	1	4
+23	9	3	3	11
+24	1	1	2	5
+25	9	5	3	10
+26	9	3	1	10
+27	9	6	3	10
+28	9	4	5	18
+29	9	4	1	18
 \.
 
 -- temporary table to match pbs field formandstrength with drug_form
@@ -98,24 +107,34 @@ COPY "pbs_xref"  FROM stdin;
 9	Powder [0-9]+ g.*	f
 6	Injection [0-9]+ mg.*	f
 5	Wafer [0-9]+ mg.*	f
-4	Oral suspension [\.,0-9]+ mg.*	f
-3	Capsule [\.,0-9]+ mg.*	f
-3	Capsule equivalent to [\.,0-9]+ mg.*	f
-2	Effervescent tablet [0-9]+ mg.*	f
-1	Tablet [\.,0-9]+ mg.*	f
+4	Oral suspension [\\.,0-9]+ mg.*, [0-9] mL	f
+3	Capsule [\\.,0-9]+ mg.*	f
+3	Capsule equivalent to [\\.,0-9]+ mg.*	f
+2	Effervescent tablet [0-9]+ mg.*|f!
+1	Tablet .*[\\.,0-9]+ mg.*	f
+1	Tablets .*[\\.,0-9]* mg.*, [0-9]+	t
 8	Eye ointment [0-9]+ mg.*	f
 9	Sachet containing oral powder [0-9]+ g	f
 13	Powder for paediatric oral drops [0-9]+ mg.*	f
 16	Injection [0-9]+ g.*	f
-17	Aqueous nasal spray .*[0-9]+ micrograms.*	t
-18	Bandage .*[0-9]+ cm x [0-9]+ m.*	t
+23	Aqueous nasal spray .*[0-9]+ micrograms.*	t
+18	Bandage.*[\\.,0-9]+ cm x [\\.,0-9]+ m.*	t
 19	Bath oil [0-9]+ mL	f
-20	Capsule [\.,0-9]+ microgram.*	f
-21	Capsule [\,,0-9] units	f
-21	Capsule .*[\,,0-9] BP units of lipase activity	f
+20	Capsule [\\.,0-9]+ microgram.*	f
+21	Capsule [\\,,0-9]+ units	f
+21	Capsule .*[\\,,0-9] BP units of lipase activity	f
 22	Capsule containing powder for oral inhalation.*[0-9]+ micrograms.*	f
 22	Capsule containing powder for oral inhalation.*[0-9]+ mg.*	f
-
+23	Compound ointment.*[0-9]+ g	f
+9	Compound powder.*[0-9]+ g	f
+24	Concentrated injection [0-9]+ mg in [0-9]+ mL	t
+25	Cream [\\,,0-9]+ units.*[0-9]+ g	t
+26	Cream [0-9]+ g	f
+27	Cream [0-9]+ mg.*[0-9]+ g	t
+1	Crushable tablet [0-9]+ mg	f
+1	Dispersible tablet [0-9]+.*mg	f
+28	Dressing [\\.,0-9]+ cm x [\\.,0-9]+ cm	t
+29	Dressings.*[\\.,0-9]+ cm x [\\.,0-9]+ cm, [0-9]+	t
 \.
 
 -- get formandstrength fields not processed
