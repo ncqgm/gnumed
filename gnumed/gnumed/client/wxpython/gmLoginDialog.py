@@ -120,7 +120,14 @@ class LoginPanel(wxPanel):
 		self.paramsbox = wxStaticBox( self, -1, paramsbox_caption, style=wxALIGN_CENTRE_HORIZONTAL)
 		self.paramsboxsizer = wxStaticBoxSizer( self.paramsbox, wxVERTICAL )
 		self.paramsbox.SetForegroundColour(wxColour(35, 35, 142))
-		self.paramsbox.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+		self.paramsbox.SetFont(wxFont(
+			pointSize = 12,
+			family = wxSWISS,
+			style = wxNORMAL,
+			weight = wxBOLD,
+			underline = false,
+			faceName = ''
+		))
 		self.pboxgrid = wxFlexGridSizer( 4, 2, 5, 5 )
 		self.pboxgrid.AddGrowableCol( 1 )
 
@@ -571,7 +578,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.26  2002-09-21 14:49:22  ncq
+# Revision 1.27  2003-01-07 10:22:52  ncq
+# - fixed font definition
+#
+# Revision 1.26  2002/09/21 14:49:22  ncq
 # - cleanup related to gmi18n
 #
 # Revision 1.25  2002/09/12 23:19:27  ncq
