@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.145 2004-10-20 11:11:59 sjtan Exp $
-__version__ = "$Revision: 1.145 $"
+# $Id: gmClinicalRecord.py,v 1.146 2004-10-20 11:15:37 sjtan Exp $
+__version__ = "$Revision: 1.146 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -20,9 +20,9 @@ import sys, string, time, copy
 # 3rd party
 import mx.DateTime as mxDT
 
-from client.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI, gmI18N
-from client.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
-from client.pycommon.gmPyCompat import *
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI, gmI18N
+from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
+from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -1590,7 +1590,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.145  2004-10-20 11:11:59  sjtan
+# Revision 1.146  2004-10-20 11:15:37  sjtan
+# see previous log. Also guards for [] when clients mean None.
+# restore unix imports.
+#
+# Revision 1.145  2004/10/20 11:11:59  sjtan
 # temporary try except to deal with vaccine regime constraints , not handling
 # patient of unknown vaccine history.
 #
