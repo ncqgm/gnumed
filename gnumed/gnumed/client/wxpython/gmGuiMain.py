@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.77 2003-02-09 12:44:43 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmGuiMain.py,v 1.78 2003-02-09 20:02:55 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -169,16 +169,21 @@ class MainFrame(wxFrame):
 		self.guibroker['main.patientpicture'] = self.patientpicture
 		self.guibroker['main.toolbar'] = self.tb
 		self.vbox.AddSizer(self.topbox, 1, wxEXPAND) #|wxALL, 1)
+
 		# now set up the main notebook
 		self.nb = wxNotebook (self, ID_NOTEBOOK, style=wxNB_BOTTOM)
 		self.guibroker['main.notebook'] = self.nb
+
 		# set change in toolbar
-		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebook)
+		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanged)
+
 		# add popup menu to notebook
 		EVT_RIGHT_UP(self.nb, self.OnNotebookPopup)
+
 		self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
-		#  this list relates plugins to the notebook
-		self.guibroker['main.notebook.numbers'] = []
+		# this list relates plugins to the notebook
+		# used to be called 'main.notebook.numbers'
+		self.guibroker['main.notebook.plugins'] = []
 		# load plugins
 		self.LoadPlugins(backend)
 
@@ -239,14 +244,14 @@ class MainFrame(wxFrame):
 	#----------------------------------------------		
 	def OnPluginDrop (self, evt):
 		# this dictionary links notebook page numbers to plugin objects
-		nbns = self.guibroker['main.notebook.numbers']
+		nbns = self.guibroker['main.notebook.plugins']
 		# get the widget of the currently selected window
 		nbns[self.nb.GetSelection ()].unregister ()
 		# FIXME:"dropping" means talking to configurator so not reloaded
 	#----------------------------------------------
 	def OnPluginHide (self, evt):
 		# this dictionary links notebook page numbers to plugin objects
-		nbns = self.guibroker['main.notebook.numbers']
+		nbns = self.guibroker['main.notebook.plugins']
 		# get the widget of the currently selected window
 		nbns[self.nb.GetSelection ()].unregister ()
 	#----------------------------------------------
@@ -305,16 +310,22 @@ class MainFrame(wxFrame):
 
 		progress_bar.Destroy()
 	#----------------------------------------------
-	def OnNotebook (self, event):
+	def OnNotebookPageChanged(self, event):
+		"""Called when notebook changes.
+
+		FIXME: we can maybe change title bar information here
 		"""
-		Called when notebook changes
-		"""
-		nb_no = event.GetSelection ()
-		nbns = self.guibroker['main.notebook.numbers']
+		new_page_id = event.GetSelection()
+		old_page_id = event.GetOldSelection()
+		_log.Log(gmLog.lData, 'switching notebook pages: %d -> %d' % (old_page_id, new_page_id))
+
+		# get access to selected page
+		new_page = self.guibroker['main.notebook.plugins'][new_page_id]
+
 		# show toolbar
-		self.tb.ShowBar (nbns[nb_no].name ())
-		# tell module it is shown
-		nbns[nb_no].Shown ()
+		self.tb.ShowBar(new_page.name())
+		# hand focus to plugin page
+		new_page.ReceiveFocus()
 	#----------------------------------------------
 	def RegisterEvents(self):
 		"""register events we want to react to"""
@@ -436,10 +447,6 @@ class MainFrame(wxFrame):
 		# FIXME: we should change the amount of title bar information here
 		pass
 		#_log.Log(gmLog.lInfo,'OnMaximize')
-	#----------------------------------------------
-	def OnPageChanged(self, event):
-		# FIXME: we can maybe change title bar information here
-		_log.Log(gmLog.lInfo, "Notebook page changed - need code here!")
 	#----------------------------------------------
 	def updateTitle(self, anActivity = None, aPatient = None, aUser = None):
 		"""Update title of main window based on template.
@@ -621,7 +628,10 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.77  2003-02-09 12:44:43  ncq
+# Revision 1.78  2003-02-09 20:02:55  ncq
+# - rename main.notebook.numbers to main.notebook.plugins
+#
+# Revision 1.77  2003/02/09 12:44:43  ncq
 # - fixed my typo
 #
 # Revision 1.76  2003/02/09 09:47:38  sjtan
