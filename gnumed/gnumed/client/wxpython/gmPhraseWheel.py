@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.20 2003-10-26 11:27:10 ihaywood Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmPhraseWheel.py,v 1.21 2003-11-04 01:40:27 ihaywood Exp $
+__version__ = "$Revision: 1.21 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -23,403 +23,13 @@ _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
-import gmExceptions, gmPG
+import gmExceptions, gmPG, gmMatchProvider
 
 from wxPython.wx import *
 
 _true = (1==1)
 _false = (1==0)
-#------------------------------------------------------------
-# generic base class
-#------------------------------------------------------------
-class cMatchProvider:
-	"""Base class for match providing objects.
 
-	Match sources might be:
-	- database tables
-	- flat files
-	- previous input
-	- config files
-	- in-memory list created on the fly
-	"""
-	__threshold = {}
-	default_word_separators = re.compile('[- \t=+&:@]+')
-	default_ignored_chars = re.compile("[?!.'\\(){}\[\]<>~#*$%^_]+" + '"')
-	#--------------------------------------------------------
-	def __init__(self):
-		self.enableMatching()
-		self.enableLearning()
-		self.setThresholds()
-		self.setWordSeparators()
-		self.setIgnoredChars()
-	#--------------------------------------------------------
-	# actions
-	#--------------------------------------------------------
-	def getMatches(self, aFragment = None):
-		"""Return matches according to aFragment and matching thresholds.
-
-		FIXME: design decision: we dont worry about data source changes
-			   during the lifetime of a MatchProvider
-		FIXME: sort according to weight
-		FIXME: append _("*get all items*") on truncation
-		"""
-		# do we return matches at all ?
-		if not self.__deliverMatches:
-			return (_false, [])
-
-		# sanity check
-		if aFragment is None:
-			_log.Log(gmLog.lErr, 'Cannot find matches without a fragment.')
-			raise ValueError, 'Cannot find matches without a fragment.'
-
-		# user explicitely wants all matches
-		if aFragment == "*":
-			return self.getAllMatches()
-
-		# case insensitivity
-		tmpFragment = string.lower(aFragment)
-		# remove ignored chars
-		tmpFragment = self.ignored_chars.sub('', tmpFragment)
-		# normalize word separators
-		tmpFragment = string.join(self.word_separators.split(tmpFragment), ' ')
-		# length in number of significant characters only
-		lngFragment = len(tmpFragment)
-		# order is important !
-		if lngFragment >= self.__threshold['substring']:
-			return self.getMatchesBySubstr(tmpFragment)
-		elif lngFragment >= self.__threshold['word']:
-			return self.getMatchesByWord(tmpFragment)
-		elif lngFragment >= self.__threshold['phrase']:
-			return self.getMatchesByPhrase(tmpFragment)
-		else:
-			return (_false, [])
-	#--------------------------------------------------------
-	def getAllMatches(self):
-		pass
-	#--------------------------------------------------------
-	def getMatchesByPhrase(self, aFragment):
-		pass
-	#--------------------------------------------------------
-	def getMatchesByWord(self, aFragment):
-		pass
-	#--------------------------------------------------------
-	def getMatchesBySubstr(self, aFragment):
-		pass
-	#--------------------------------------------------------
-	def increaseScore(self, anItem):
-		"""Increase the score/weighting for a particular item due to it being used."""
-		pass
-	#--------------------------------------------------------
-	def learn(self, anItem, aContext):
-		"""Add this item to the match source so we can find it next time around.
-
-		- aContext can be used to denote the context where to use this item for matching
-		- it is typically used to select a context sensitive item list during matching
-		"""
-		pass
-	#--------------------------------------------------------
-	def forget(self, anItem, aContext):
-		"""Remove this item from the match source if possible."""
-		pass
-	#--------------------------------------------------------
-	# configuration
-	#--------------------------------------------------------
-	def setThresholds(self, aPhrase = 1, aWord = 3, aSubstring = 5):
-		"""Set match location thresholds.
-
-		- the fragment passed to getMatches() must contain at least this many
-		  characters before it triggers a match search at:
-		  1) phrase_start - start of phrase (first word)
-		  2) word_start - start of any word within phrase
-		  3) in_word - _inside_ any word within phrase
-		"""
-		# sanity checks
-		if aSubstring < aWord:
-			_log.Log(gmLog.lErr, 'Setting substring threshold (%s) lower than word-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold['substring'], self.__threshold['word']))
-			return (1==0)
-		if aWord < aPhrase:
-			_log.Log(gmLog.lErr, 'Setting word-start threshold (%s) lower than phrase-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold['word'], self.__threshold['phrase']))
-			return (1==0)
-
-		# now actually reassign thresholds
-		self.__threshold['phrase']	= aPhrase
-		self.__threshold['word']	= aWord
-		self.__threshold['substring']	= aSubstring
-
-		return _true
-	#--------------------------------------------------------
-	def setWordSeparators(self, separators = None):
-		if separators is None:
-			self.word_separators = cMatchProvider.default_word_separators
-			return 1
-		if separators == "":
-			_log.Log(gmLog.lErr, 'Not defining any word separators does not make sense ! Keeping previous setting.')
-			return None
-		try:
-			self.word_separators = re.compile(separators)
-		except:
-			_log.LogException('cannot compile word separators regex >>>%s<<<, keeping previous setting' % separators)
-			return None
-		return _true
-	#--------------------------------------------------------
-	def setIgnoredChars(self, ignored_chars = None):
-		if ignored_chars is None:
-			self.ignored_chars = cMatchProvider.default_ignored_chars
-			return 1
-		try:
-			self.ignored_chars = re.compile(ignored_chars)
-		except:
-			_log.LogException('cannot compile ignored_chars regex >>>%s<<<, keeping previous setting' % ignored_chars)
-			return None
-		return _true
-	#--------------------------------------------------------
-	def disableMatching(self):
-		"""Don't search for matches.
-
-		Useful if a slow network database link is detected, for example.
-		"""
-		self.__deliverMatches = _false
-	#--------------------------------------------------------
-	def enableMatching(self):
-		self.__deliverMatches = _true
-	#--------------------------------------------------------
-	def disableLearning(self):
-		"""Immediately stop learning new items."""
-		self.__learnNewItems = _false
-	#--------------------------------------------------------
-	def enableLearning(self):
-		"""Immediately start learning new items."""
-		self.__learnNewItems = _true
-#------------------------------------------------------------
-# usable instances
-#------------------------------------------------------------
-class cMatchProvider_FixedList(cMatchProvider):
-	"""Match provider where all possible options can be held
-	   in a reasonably sized, pre-allocated list.
-	"""
-	def __init__(self, aSeq = None):
-		"""aSeq must be a list of dicts. Each dict must have the keys (ID, label, weight)
-		"""
-		if not type(aSeq) in [types.ListType, types.TupleType]:
-			_log.Log(gmLog.lErr, 'fixed list match provider argument must be a list or tuple of dicts')
-			raise gmExceptions.ConstructorError
-
-		self.__items = aSeq
-		cMatchProvider.__init__(self)
-	#--------------------------------------------------------
-	# internal matching algorithms
-	#
-	# if we end up here:
-	#	- aFragment will not be "None"
-	#   - aFragment will be lower case
-	#	- we _do_ deliver matches (whether we find any is a different story)
-	#--------------------------------------------------------
-	def getMatchesByPhrase(self, aFragment):
-		"""Return matches for aFragment at start of phrases."""
-		matches = []
-		# look for matches
-		for item in self.__items:
-			# at start of phrase, that is
-			if string.find(string.lower(item['label']), aFragment) == 0:
-				matches.append(item)
-		# no matches found
-		if len(matches) == 0:
-			return (_false, [])
-
-		matches.sort(self.__cmp_items)
-		return (_true, matches)
-	#--------------------------------------------------------
-	def getMatchesByWord(self, aFragment):
-		"""Return matches for aFragment at start of words inside phrases."""
-		matches = []
-		# look for matches
-		for item in self.__items:
-			pos = string.find(string.lower(item['label']), aFragment)
-			# found at start of phrase
-			if pos == 0:
-				matches.append(item)
-			# found as a true substring
-			elif pos > 0:
-				# but use only if substring is at start of a word
-				if (item['label'])[pos-1] == ' ':
-					matches.append(item)
-		# no matches found
-		if len(matches) == 0:
-			return (_false, [])
-
-		matches.sort(self.__cmp_items)
-		return (_true, matches)
-	#--------------------------------------------------------
-	def getMatchesBySubstr(self, aFragment):
-		"""Return matches for aFragment as a true substring."""
-		matches = []
-		# look for matches
-		for item in self.__items:
-			if string.find(string.lower(item['label']), aFragment) != -1:
-				matches.append(item)
-		# no matches found
-		if len(matches) == 0:
-			return (_false, [])
-
-		matches.sort(self.__cmp_items)
-		return (_true, matches)
-	#--------------------------------------------------------
-	def getAllMatches(self):
-		"""Return all items."""
-		matches = self.__items
-		# no matches found
-		if len(matches) == 0:
-			return (_false, [])
-
-		matches.sort(self.__cmp_items)
-		return (_true, matches)
-	#--------------------------------------------------------
-	def __cmp_items(self, item1, item2):
-		"""Compare items based on weight."""
-		# do it the wrong way round to do sorting/reversing at once
-		if item1['weight'] < item2['weight']:
-			return 1
-		elif item1['weight'] > item2['weight']:
-			return -1
-		else:
-			return 0
-#------------------------------------------------------------
-class cMatchProvider_SQL(cMatchProvider):
-	"""Match provider which searches matches
-	   in possibly several database tables.
-	"""
-	def __init__(self, source_defs, score_def):
-		self.dbpool = gmPG.ConnectionPool()
-
-		# sanity check table connections
-		self.srcs = []
-		for src_def in source_defs:
-			conn = self.dbpool.GetConnection(src_def['service'])
-			if conn is None:
-				self.__close_sources()
-				raise gmExceptions.ConstructorError, 'cannot connect to source service [%s]' % src_def['service']
-#			conn.conn.toggleShowQuery
-			curs = conn.cursor()
-			cmd = "select %s from %s limit 1" % (src_def['column'], src_def['table'])
-			if not gmPG.run_query(curs, cmd):
-				curs.close()
-				self.__close_sources()
-				raise gmExceptions.ConstructorError, 'cannot access [%s.%s] in service [%s]' % (src_def['table'], src_def['column'], src_def['service'])
-			if not src_def.has_key('pk'):
-				pk = gmPG.get_pkey_name(curs, src_def['table'])
-				if pk is None:
-					src_def['pk'] = "oid"
-				else:
-					src_def['pk'] = pk
-			curs.close()
-			src_def['conn'] = conn
-			if src_def.has_key('extra conditions'):
-				src_def['extra conditions'] = "(%s) and " % src_def['extra conditions']
-				# must have extra values, too
-				src_def['extra values']
-			else:
-				src_def['extra conditions'] = ''
-				# must not have extra values
-				src_def['extra values'] = []
-			src_def['query'] = "select %s, %s from %s where %s%s" % (
-				src_def['pk'],
-				src_def['column'],
-				src_def['table'],
-				src_def['extra conditions'],
-				src_def['column']
-			)
-			self.srcs.append(src_def)
-			_log.Log(gmLog.lData, 'valid match source: %s' % src_def)
-
-		rw_conn = self.dbpool.GetConnection(score_def['service'], readonly = 0)
-		if rw_conn is None:
-			self.__close_sources()
-			raise gmExceptions.ConstructorError, 'cannot connect to score storage service [%s]' % score_def['service']
-		rw_curs = rw_conn.cursor()
-		cmd = "select %s, cookie, user, score from %s limit 1" % (score_def['column'], score_def['table'])
-		if not gmPG.run_query(rw_curs, cmd):
-			rw_curs.close()
-			rw_conn.close()
-			self.__close_sources()
-			raise gmExceptions.ConstructorError, 'cannot access [%s.{%s/gmpw_user/gmpw_score}] in service [%s]' % (score_def['table'], score_def['column'], score_def['service'])
-		if not score_def.has_key('pk'):
-			pk = gmPG.get_pkey_name(rw_curs, score_def['table'])
-			if pk is None:
-				score_def['pk'] = "oid"
-			else:
-				score_def['pk'] = pk
-		rw_curs.close()
-		score_def['conn'] = rw_conn
-#		score_def['query'] = "select %s, %s from %s where %s" % (src_def['pk'], src_def['column'], src_def['table'], src_def['column'])
-		self.score_def = score_def
-		_log.Log(gmLog.lData, 'valid score storage target: %s' % score_def)
-
-		cMatchProvider.__init__(self)
-	#--------------------------------------------------------
-	def __close_sources(self):
-		for src in self.srcs:
-			self.dbpool.ReleaseConnection(src['service'])
-	#--------------------------------------------------------
-	# internal matching algorithms
-	#
-	# if we end up here:
-	#	- aFragment will not be "None"
-	#   - aFragment will be lower case
-	#	- we _do_ deliver matches (whether we find any is a different story)
-	#--------------------------------------------------------
-	def getMatchesByPhrase(self, aFragment):
-		"""Return matches for aFragment at start of phrases."""
-		condition = "ilike"
-		fragment = "%s%%" % aFragment
-		return self.__find_matches(condition, fragment)
-	#--------------------------------------------------------
-	def getMatchesByWord(self, aFragment):
-		"""Return matches for aFragment at start of words inside phrases."""
-		condition = "~*"
-		fragment = "( %s)|(^%s)" % (aFragment, aFragment)
-		return self.__find_matches(condition, fragment)
-	#--------------------------------------------------------
-	def getMatchesBySubstr(self, aFragment):
-		"""Return matches for aFragment as a true substring."""
-		condition = "ilike"
-		fragment = "%%%s%%" % aFragment
-		return self.__find_matches(condition, fragment)
-	#--------------------------------------------------------
-	def getAllMatches(self):
-		"""Return all items."""
-		return self.getMatchesBySubstr('')
-	#--------------------------------------------------------
-	def __find_matches(self, search_condition, aFragment):
-		matches = []
-		for src in self.srcs:
-			curs = src['conn'].cursor()
-			# FIXME: deal with gmpw_score...
-			cmd = "%s %s %%s limit %s" % (src['query'], search_condition, src['limit'])
-			vals = src['extra values'][:]
-			vals.append(aFragment)
-			if not gmPG.run_query(curs, cmd, vals):
-				curs.close()
-				_log.Log(gmLog.lErr, 'cannot check for matches in %s' % src)
-				return (_false, [])
-			matching_rows = curs.fetchall()
-			curs.close()
-			for row in matching_rows:
-				matches.append({'data': row[0], 'label': row[1]})
-
-		# no matches found
-		if len(matches) == 0:
-			return (_false, [])
-
-		matches.sort(self.__cmp_items)
-		return (_true, matches)
-	#--------------------------------------------------------
-	def __cmp_items(self, item1, item2):
-		"""naive ordering"""
-		if item1 < item2:
-			return -1
-		if item1 == item2:
-			return 0
-		return 1
 #============================================================
 class cWheelTimer(wxTimer):
 	"""Timer for delayed fetching of matches.
@@ -457,18 +67,12 @@ class cPhraseWheel (wxTextCtrl):
 
 	def __init__ (
 		self,
-		id_callback = None,
 		aMatchProvider = None,
 		aDelay = 300,
 		*args,
 		**kwargs):
-		"""
-		id_callback holds a reference to another Python function.
-		This function is called when the user selects a value.
-		This function takes a single parameter -- being the ID of the
-		value so selected"""
 
-		if not isinstance(aMatchProvider, cMatchProvider):
+		if not isinstance(aMatchProvider, gmMatchProvider.cMatchProvider):
 			_log.Log(gmLog.lErr, "aMatchProvider must be a match provider object")
 			return None
 		self.__matcher = aMatchProvider
@@ -492,7 +96,9 @@ class cPhraseWheel (wxTextCtrl):
 		# 3) evil user wants to resize widget
 		EVT_SIZE (self, self.on_resize)
 		# parent notification callback
-		self.notify_caller = id_callback
+		self.notify_caller = []
+		self.data = None
+		self.have_called = 0
 
 		tmp = kwargs.copy()
 		width, height = kwargs['size']
@@ -512,7 +118,37 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	def allow_multiple_phrases(self, state = _true):
 		self.__handle_multiple_phrases = state
+	#-------------------------------------------------------
+	def addCallback (self, func):
+		"""
+		This function with be called whenever the phrasewheel slects
+		a value. The match provider's data value is sent as a single
+		parameter.
+		WARNING: this function must cope with being called with None
+		(when the user changes a selected value)
+		"""
+		self.notify_caller.append (func)
 	#--------------------------------------------------------
+	def getData (self):
+		return self.data
+	#--------------------------------------------------------
+	def setContext (self, context, val):
+		self.__matcher.setContext (context, val)
+	#---------------------------------------------------------
+	def setNextFocus (self, focus):
+		"""
+		sets the next widget that recieves the focus
+		Can be any object with a method SetFocus ()
+		"""
+		self.addCallback (lambda x: x and focus.SetFocus ()) 
+	#--------------------------------------------------------
+	def setDependent (self, wheel, context_var):
+		"""
+		Convience function to make one phrasewheel's match context
+		dependent upon another's value
+		"""
+		self.addCallback (lambda x: wheel.setContext (context_var, x))
+	#---------------------------------------------------------------------
 	def _updateMatches(self):
 		"""Get the matches for the currently typed input fragment."""
 
@@ -608,11 +244,12 @@ class cPhraseWheel (wxTextCtrl):
 		else:
 			self.SetValue(self._picklist.GetString(selection_idx))
 
+		self.data = self._picklist.GetClientData(selection_idx)
 		# and tell our parent about the user's selection
-		if self.notify_caller is not None:
+		for call in self.notify_caller:
 			# get data associated with selected item
-			data = self._picklist.GetClientData(selection_idx)
-			self.notify_caller (data)
+			call (self.data)
+		self.have_called = 1
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
@@ -696,6 +333,13 @@ class cPhraseWheel (wxTextCtrl):
 		else:
 			# start timer for delayed match retrieval
 			self.__timer.Start(oneShot = _true)
+		if self.have_called:
+			# Aargh! we told all the callbacks we selected foo,
+			# now the user is typing again!
+			self.have_called = 0
+			self.data = None
+			for call in self.notify_caller:
+				call (None)
 	#--------------------------------------------------------
 	def on_resize (self, event):
 		sz = self.GetSize()
@@ -761,7 +405,7 @@ if __name__ == '__main__':
 						{'data':5, 'label':"Jacobs", 	'weight':1},
 						{'data':6, 'label':"Judson-Jacobs",'weight':5}
 					]
-			mp1 = cMatchProvider_FixedList(items)
+			mp1 = gmMatchProvider.cMatchProvider_FixedList(items)
 			# do NOT treat "-" as a word separator here as there are names like "asa-sismussen"
 			mp1.setWordSeparators(separators = '[ \t=+&:@]+')
 			ww1 = cPhraseWheel(
@@ -807,7 +451,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.20  2003-10-26 11:27:10  ihaywood
+# Revision 1.21  2003-11-04 01:40:27  ihaywood
+# match providers moved to python-common
+#
+# Revision 1.20  2003/10/26 11:27:10  ihaywood
 # gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
 #
 # Ergregious breakages are fixed, but needs more work
