@@ -1,7 +1,7 @@
 <HTML
 ><HEAD
 ><TITLE
->Mac</TITLE
+>Obtaining Gnumed software</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
@@ -13,11 +13,11 @@ REL="UP"
 TITLE="Installation"
 HREF="c38.html"><LINK
 REL="PREVIOUS"
-TITLE="Linux Installation"
-HREF="linux.html"><LINK
+TITLE="Installation"
+HREF="c38.html"><LINK
 REL="NEXT"
-TITLE="Windows"
-HREF="win9x.html"></HEAD
+TITLE="Linux Installation"
+HREF="linux.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -45,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="linux.html"
+HREF="c38.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="win9x.html"
+HREF="linux.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,9 +73,66 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="MAC">2.3. Mac</H1
+NAME="AEN40">2.1. Obtaining Gnumed software</H1
 ><P
->This has been done, more information is needed.</P
+>The latest sources are available by CVS at 
+<A
+HREF="http://savannah.gnu.org/projects/gnumed/"
+TARGET="_top"
+><I
+CLASS="CITETITLE"
+>savannah.gnu.org</I
+></A
+>.
+If CVS asks for a password, use a blank line. The module name is 
+<EM
+>gnumed</EM
+></P
+><P
+>Qouting from GnuMed's CVS instruction</P
+><P
+>	"This project's CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module [<EM
+>gnumed</EM
+>]  you wish to check out must be specified as the modulename. When prompted for a password for anoncvs, simply press the Enter key.
+	    </P
+><P
+>You would type:</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>Source tree: cvs -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>Remeber to hit enter when it asks for a password. Then type:</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>You should then see the cvs directory download into a gnumed directory</P
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
@@ -93,7 +150,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="linux.html"
+HREF="c38.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -111,7 +168,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="win9x.html"
+HREF="linux.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -121,7 +178,7 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Linux Installation</TD
+>Installation</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
@@ -135,7 +192,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Windows</TD
+>Linux Installation</TD
 ></TR
 ></TABLE
 ></DIV

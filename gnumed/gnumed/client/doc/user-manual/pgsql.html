@@ -8,7 +8,7 @@ CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
 "><LINK
 REL="HOME"
 TITLE="GNUMed"
-HREF="book1.html"><LINK
+HREF="index.html"><LINK
 REL="UP"
 TITLE="Installation"
 HREF="c38.html"><LINK
@@ -17,6 +17,11 @@ TITLE="Windows"
 HREF="win9x.html"></HEAD
 ><BODY
 CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -61,7 +66,7 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="PGSQL">Configuring <SPAN
+NAME="PGSQL">2.5. Configuring <SPAN
 CLASS="APPLICATION"
 >PostgreSQL</SPAN
 > for GnuMed</H1
@@ -70,7 +75,7 @@ CLASS="APPLICATION"
 ><P
 >Quoting Steven Duffy in the gnumed.org website</P
 ><A
-NAME="AEN334"><BLOCKQUOTE
+NAME="AEN335"><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
 ><P
 >Now that PostgreSQL is installed and working, the server scripts from the CVS repository can be executed. These scripts all end in .sql are intended to be executed from within psql. The one required script is gmconfiguration.sql. To set it up, do the following from the <TT
@@ -80,11 +85,13 @@ CLASS="FILENAME"
 directory:</P
 ></BLOCKQUOTE
 ><TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 ><TT
@@ -97,16 +104,17 @@ CLASS="PROMPT"
 > psql gnumed
 <TT
 CLASS="PROMPT"
->gnumed=&gt;</TT
+>gnumed=&#62;</TT
 > \i gmconfiguration.sql 
 <TT
 CLASS="PROMPT"
->gnumed=&gt;</TT
+>gnumed=&#62;</TT
 > \i gmidentity.sql
 <TT
 CLASS="PROMPT"
->gnumed=&gt;</TT
+>gnumed=&#62;</TT
 > \i gmgis.sql</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
@@ -119,8 +127,8 @@ CLASS="FILENAME"
 >.sql</TT
 >
 file there too. <A
-NAME="AEN346"
-HREF="#FTN.AEN346"
+NAME="AEN347"
+HREF="#FTN.AEN347"
 >[1]</A
 ></P
 ><P
@@ -140,8 +148,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN346"
-HREF="pgsql.html#AEN346"
+NAME="FTN.AEN347"
+HREF="pgsql.html#AEN347"
 >[1]</A
 ></TD
 ><TD
@@ -178,7 +186,7 @@ WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="book1.html"
+HREF="index.html"
 ACCESSKEY="H"
 >Home</A
 ></TD

@@ -8,18 +8,23 @@ CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
 "><LINK
 REL="HOME"
 TITLE="GNUMed"
-HREF="book1.html"><LINK
+HREF="index.html"><LINK
 REL="UP"
 TITLE="Installation"
 HREF="c38.html"><LINK
 REL="PREVIOUS"
-TITLE="Installation"
-HREF="c38.html"><LINK
+TITLE="Obtaining Gnumed software"
+HREF="x40.html"><LINK
 REL="NEXT"
 TITLE="Mac"
 HREF="mac.html"></HEAD
 ><BODY
 CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -40,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="c38.html"
+HREF="x40.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -68,13 +73,13 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="LINUX">Linux Installation</H1
+NAME="LINUX">2.2. Linux Installation</H1
 ><DIV
 CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN56">Distrubutions 'supported'</H2
+NAME="AEN56">2.2.1. Distrubutions 'supported'</H2
 ><P
 >GnuMed is known being actively developed on:</P
 ><P
@@ -186,7 +191,7 @@ VALIGN="TOP"
 ALIGN="LEFT"
 VALIGN="TOP"
 ><A
-HREF="http://www,mandrake.com"
+HREF="http://www.mandrake.com"
 TARGET="_top"
 >www.mandrake.com</A
 ></TD
@@ -230,9 +235,9 @@ VALIGN="TOP"
 ALIGN="LEFT"
 VALIGN="TOP"
 ><A
-HREF="htttp://www.gentoo·org"
+HREF="http://www.gentoo.org"
 TARGET="_top"
->www.gentoo.com</A
+>www.gentoo.org</A
 ></TD
 ><TD
 ALIGN="LEFT"
@@ -317,7 +322,11 @@ VALIGN="TOP"
 ><TD
 ALIGN="LEFT"
 VALIGN="TOP"
->www.apple.com</TD
+><A
+HREF="http://www.apple.com"
+TARGET="_top"
+>www.apple.com</A
+></TD
 ><TD
 ALIGN="LEFT"
 VALIGN="TOP"
@@ -334,7 +343,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN128">Requirements</H2
+NAME="AEN129">2.2.2. Requirements</H2
 ><P
 >GNUMed has run successfully on Linux. It requires a number of
 packages to be installed before it can be run.</P
@@ -344,7 +353,7 @@ packages to be installed before it can be run.</P
 ><DIV
 CLASS="TABLE"
 ><A
-NAME="AEN133"><P
+NAME="AEN134"><P
 ><B
 >Table 2-2. Requirements</B
 ></P
@@ -457,8 +466,8 @@ CLASS="CITETITLE"
 ></A
 >
 					<A
-NAME="AEN168"
-HREF="#FTN.AEN168"
+NAME="AEN169"
+HREF="#FTN.AEN169"
 >[a]</A
 >
 				</TD
@@ -500,7 +509,7 @@ VALIGN="TOP"
 ><TD
 COLSPAN="3"
 >Notes:<BR><A
-NAME="FTN.AEN168"
+NAME="FTN.AEN169"
 >a. </A
 >Don't forget to include the Python interface libraries.<BR></TD
 ></TR
@@ -524,14 +533,17 @@ CLASS="FILENAME"
 >:
 
 <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >export PYTHONPATH=/usr/lib/python1.5/site-packages:/usr/local/lib/python2.1/site-packages</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
@@ -555,73 +567,66 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN187">Postgresql</H2
+NAME="AEN188">2.2.3. Postgresql</H2
 ><DIV
 CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN189">Creating a database with PostgresQL</H3
+NAME="AEN190">2.2.3.1. Creating a database with PostgresQL</H3
 ><P
->This may be too simplistic but there a few things that need to be cleared up. The first is that when <SPAN
-CLASS="emphasis"
-><I
-CLASS="EMPHASIS"
->postgresQL</I
-></SPAN
-> gets installed, <SPAN
-CLASS="emphasis"
-><I
-CLASS="EMPHASIS"
->postgresQL</I
-></SPAN
-> will create a user called <SPAN
-CLASS="emphasis"
-><I
-CLASS="EMPHASIS"
->postgres</I
-></SPAN
->. This user <SPAN
-CLASS="emphasis"
-><I
-CLASS="EMPHASIS"
->postgres</I
-></SPAN
+>This may be too simplistic but there a few things that need to be cleared up. The first is that when <EM
+>postgresQL</EM
+> gets installed, <EM
+>postgresQL</EM
+> will create a user called <EM
+>postgres</EM
+>. This user <EM
+>postgres</EM
 > can only create other users.  I suggest you create another user with the same name as you normally use to login.</P
 ><P
 >So to create another user to create the database you would first <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >su root</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
 > then you would <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >su postgres</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
 > then you would type <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >createuser $USER</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
@@ -629,14 +634,17 @@ CLASS="SCREEN"
 	  </P
 ><P
 >Once you have created this second user, which you allow to create databases, you then would type, as this new user, ie first you would login back as a normal user and type <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >createdb gnumed</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
@@ -648,7 +656,7 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN202">Configuring PostgreSQL (quoting Steven Duffy)</H3
+NAME="AEN203">2.2.3.2. Configuring PostgreSQL (quoting Steven Duffy)</H3
 ><P
 > Some steps are required to get the <SPAN
 CLASS="APPLICATION"
@@ -665,16 +673,19 @@ CLASS="APPLICATION"
 >Linuxconf</SPAN
 >. If isn't you can set it up with these commands as root:
 <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >su - postgres
 initdb -D ~postgres/data
 postmaster -D ~postgres/data &#62;logfile 2&#62;&#38;1 &#38;</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
@@ -729,7 +740,7 @@ CLASS="COMMAND"
 > 
 is executed and add<B
 CLASS="COMMAND"
-> insert -o \&quot;-i\&quot;</B
+> insert -o \"-i\"</B
 > as one of
 the 
 options to pg_ctl. Otherwise, find the script from which postmaster is 
@@ -750,31 +761,37 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN230">RunningGnuMed</H2
+NAME="AEN231">2.2.4. RunningGnuMed</H2
 ><P
 >Simple I would have thought but to start Gnumed you must go all the way to</P
 ><TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >~/gnumed/gnumed/client/wxpython</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
 ><P
 >And one you are here, you should type: <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >python gnumed.py</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
@@ -786,36 +803,20 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN237">Logging in</H3
+NAME="AEN238">2.2.4.1. Logging in</H3
 ><P
 >You will then be faced with login parameters. If you have set up the postgresql correctly, you only need to fill in the follow parameters.</P
 ><P
->For <SPAN
-CLASS="emphasis"
-><I
-CLASS="EMPHASIS"
->Login</I
-></SPAN
+>For <EM
+>Login</EM
 > you enter in the usernamem you used to create the database.</P
 ><P
->For <SPAN
-CLASS="emphasis"
-><I
-CLASS="EMPHASIS"
->database</I
-></SPAN
-> enter in <SPAN
-CLASS="emphasis"
-><I
-CLASS="EMPHASIS"
->gnumed</I
-></SPAN
->. Remember this is the database name you created initally. <SPAN
-CLASS="emphasis"
-><I
-CLASS="EMPHASIS"
->If</I
-></SPAN
+>For <EM
+>database</EM
+> enter in <EM
+>gnumed</EM
+>. Remember this is the database name you created initally. <EM
+>If</EM
 > all goes well, you will see a very nice GUIm with that appears to be the picture of someone's mom.</P
 ></DIV
 ></DIV
@@ -836,7 +837,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="c38.html"
+HREF="x40.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -845,7 +846,7 @@ WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="book1.html"
+HREF="index.html"
 ACCESSKEY="H"
 >Home</A
 ></TD
@@ -864,7 +865,7 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Installation</TD
+>Obtaining Gnumed software</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"

@@ -8,7 +8,7 @@ CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
 "><LINK
 REL="HOME"
 TITLE="GNUMed"
-HREF="book1.html"><LINK
+HREF="index.html"><LINK
 REL="UP"
 TITLE="Installation"
 HREF="c38.html"><LINK
@@ -20,6 +20,11 @@ TITLE="Configuring PostgreSQL for GnuMed"
 HREF="pgsql.html"></HEAD
 ><BODY
 CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -68,14 +73,14 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="WIN9X">Windows</H1
+NAME="WIN9X">2.4. Windows</H1
 ><P
 >GNUMed requires the following packages. Each link points to a .EXE file. Download them and run each in turn.
 
 <DIV
 CLASS="TABLE"
 ><A
-NAME="AEN252"><P
+NAME="AEN253"><P
 ><B
 >Table 2-3. Requirements</B
 ></P
@@ -240,16 +245,18 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN299">Installing PostgreSQL</H2
+NAME="AEN300">2.4.1. Installing PostgreSQL</H2
 ><P
 >Double-click on the Cygwin icon on your desktop. The UNIX command
 prompt appears. Take a deep breath, and type:
 <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >cd /
@@ -258,31 +265,31 @@ tar xvjf /cygipc-1.11-1.bz2
 mkdir /usr/share/postgresql/data
 /usr/bin/initdb -D /
 /usr/bin/postmaster -D /usr/share/postgresql/data &#38;</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
 >
-Postgres should now be running. <SPAN
-CLASS="emphasis"
-><I
-CLASS="EMPHASIS"
->DO NOT</I
-></SPAN
+Postgres should now be running. <EM
+>DO NOT</EM
 > close
 the window containing these commands. </P
 ><P
 >Every time to want to run PostgreSQL again, open up Cygwin as
 before and type:
 <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >/usr/local/bin/ipc-daemon &#38;
 /usr/bin/postmaster -D /usr/share/postgresql/data &#38;</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
@@ -298,55 +305,65 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN308">Running PostgreSQL as an NT service</H3
+NAME="AEN309">2.4.1.1. Running PostgreSQL as an NT service</H3
 ><P
 >On Windows NT, 2000 or XP it is possible to run
 PostgreSQL as a background process (similar to a UNIX daemon).</P
 ><P
 >Go to Control Panel: "Users", and create a new user for your
-system, called "postgres". Give the user privileges to run as a service.</P
+system, called "postgres". Give the user privileges to run as a service.
+	  </P
 ><P
 >At the Cygwin prompt, type:
 <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >ipc-daemon --install-as-service</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
 >
 Then,as a single line:
 <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >cygrunsrv --install postmaster --path /usr/bin/postmaster --args "-D
   /usr/share/postgresql/data -i" --dep ipc-daemon --termsig INT --user
   postgres --shutdown</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
 >
 Then
 <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >mkdir /usr/share/postgresql/data
 chown postgres /usr/share/postgresql/data</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
@@ -357,25 +374,24 @@ efforts, delete it with "rm -R /usr/share/postgresql/data", and repeat.</P
 >Reboot the computer.
 Now log in as the "postgres" user, load Cygwin again and type:
 <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >initdb -D /usr/share/postgresql/data</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
 >
 The database will now run whenever Windows is loaded. 
-You <SPAN
-CLASS="emphasis"
-><I
-CLASS="EMPHASIS"
->must</I
-></SPAN
+You <EM
+>must</EM
 > be user "postgres" to use the database
 on this computer. </P
 ><P
@@ -391,16 +407,18 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN321">Running the client</H2
+NAME="AEN322">2.4.2. Running the client</H2
 ><P
 >Once you have done this, you can run GNUMed from the Python interpreter.
 Click on the Python icon and type:
 <TABLE
-BORDER="0"
+BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
 ><TR
 ><TD
+><FONT
+COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 ><TT
@@ -419,6 +437,7 @@ CLASS="PROMPT"
 CLASS="PROMPT"
 >&#62;&#62;&#62;</TT
 >  gnumed.main ()</PRE
+></FONT
 ></TD
 ></TR
 ></TABLE
@@ -450,7 +469,7 @@ WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="book1.html"
+HREF="index.html"
 ACCESSKEY="H"
 >Home</A
 ></TD
