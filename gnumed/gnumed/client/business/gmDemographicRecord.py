@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.30 2004-03-10 12:56:01 ihaywood Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmDemographicRecord.py,v 1.31 2004-03-15 15:35:45 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -19,6 +19,7 @@ if __name__ == "__main__":
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider
 from Gnumed.business import gmMedDoc
+from Gnumed.pycommon import *
 
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
@@ -522,22 +523,21 @@ where
 		Gets the comm channel url, given its type ID
 		If ID default, a mapping of all IDs and urls
 		"""
-		if channel:
-			data = gmPG.run_ro_query ('personalia', """
-			select cc.url from comm_channel cc, lnk_person2comm_channel lp2cc where
-			cc.id_type = %s and lp2cc.id_identity = %s and lp2cc.id_comm = cc.id
-			""", None, channel, self.ID)
-			return data and data[0][0]
-		else:
-			data = gmPG.run_ro_query ('personalia', """
+		if channel is None:
+			rows = gmPG.run_ro_query ('personalia', """
 			select cc.id_type, cc.url
-			from
-			comm_channel cc,
+			from comm_channel cc,
 			lnk_person2comm_channel lp2cc
-			where
-			cc.id = lp2cc.id_comm and lp2cc.id_identity = %s
+			where cc.id = lp2cc.id_comm and lp2cc.id_identity = %s
 			""", None, self.ID)
-			return dict (data)
+			return dict(rows)
+
+		data = gmPG.run_ro_query ('personalia', """
+			select cc.url
+			from comm_channel cc, lnk_person2comm_channel lp2cc
+			where cc.id_type = %s and lp2cc.id_identity = %s and lp2cc.id_comm = cc.id
+			""", None, channel, self.ID)
+		return data and data[0][0]
 	#----------------------------------------------------------------------
 	def getMedicalAge(self):
 		dob = self.getDOB()
@@ -834,7 +834,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.30  2004-03-10 12:56:01  ihaywood
+# Revision 1.31  2004-03-15 15:35:45  ncq
+# - optimize getCommChannel() a bit
+#
+# Revision 1.30  2004/03/10 12:56:01  ihaywood
 # fixed sudden loss of main.shadow
 # more work on referrals,
 #
