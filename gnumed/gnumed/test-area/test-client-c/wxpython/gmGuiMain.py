@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.1 2003-10-23 06:02:39 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmGuiMain.py,v 1.2 2003-10-27 14:01:26 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -55,7 +55,7 @@ from gmI18N import gmTimeformat, system_locale, system_locale_level
 import gmDispatcher, gmSignals, gmGuiBroker, gmSQLSimpleSearch, gmSelectPerson, gmPlugin
 
 import gmTopPanel
-import gmTmpPatient
+import gmPatient
 
 # widget IDs
 ID_ABOUT = wxNewId ()
@@ -371,7 +371,7 @@ class gmTopLevelFrame(wxFrame):
 		event.Skip() # required for MSW
 	#----------------------------------------------
 	def on_patient_selected(self, **kwargs):
-		pat = gmTmpPatient.gmCurrentPatient()
+		pat = gmPatient.gmCurrentPatient()
 		#<DEBUG>
 		_log.Log(gmLog.lWarn, "patient changed to [%s]" % pat)
 		#</DEBUG>
@@ -844,7 +844,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.1  2003-10-23 06:02:39  sjtan
+# Revision 1.2  2003-10-27 14:01:26  sjtan
+#
+# syncing with main tree.
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #

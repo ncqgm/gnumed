@@ -4,6 +4,7 @@ from wxPython.wx import *
 
 from wxPython.grid import *
 
+EXTRA_ROW_SPACE = 40
 
 class MultiColumnList( wxGrid):
 	def __init__(self, parent, id = -1):
@@ -34,13 +35,13 @@ class MultiColumnList( wxGrid):
 			predictedRows = 4
 		predictedCols = len(map) / predictedRows
 		
-		(x,y ) = self.GetTextExtent(self._getLongestItem(map.values())[1] )
-		maxCols = h / y
+		(x,y ) = self.GetTextExtent(self._getLongestItem(map.values())[1] ) 
+		maxCols = w / (x + EXTRA_ROW_SPACE)
 		if maxCols == 0:
 			maxCols = 1
 		if predictedCols >= maxCols:
 			predictedCols = maxCols 
-			predictedRows = len(map) / predictedCols
+			predictedRows = len(map) / predictedCols + 1
 			
 		print "text extent", x, y,"  ;row height ", self.GetRowSize(0), "; client size", w, h , "  ;maxCols", maxCols, "  predictedCols", predictedCols, "  predictedRows", predictedRows	
 

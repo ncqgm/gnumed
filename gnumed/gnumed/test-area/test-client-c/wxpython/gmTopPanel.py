@@ -2,14 +2,14 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmTopPanel.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
-import gmLog, gmGuiBroker, gmGP_PatientPicture, gmPatientSelector, gmDispatcher, gmSignals, gmTmpPatient, gmPG, gmGuiHelpers
+import gmLog, gmGuiBroker, gmGP_PatientPicture, gmPatientSelector, gmDispatcher, gmSignals, gmPatient, gmPG, gmGuiHelpers
 _log = gmLog.gmDefLog
 
 from wxPython.wx import *
@@ -45,7 +45,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 
 		# init plugin toolbars dict
 		self.subbars = {}
-		self.curr_pat = gmTmpPatient.gmCurrentPatient()
+		self.curr_pat = gmPatient.gmCurrentPatient()
 
 		# and actually display ourselves
 		self.SetAutoLayout(true)
@@ -192,10 +192,10 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		gmDispatcher.connect(signal=gmSignals.allergy_updated(), receiver=self._update_allergies)
 	#----------------------------------------------
 	def _on_patient_selected(self, **kwargs):
-		age = self.curr_pat['medical age']
+		age = self.curr_pat['demographics'].getMedicalAge ()
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
-		name = self.curr_pat['active name']
+		name = self.curr_pat['demographics'].getActiveName()
 		self.txt_age.SetValue(age)
 		self.patient_selector.SetValue('%s, %s' % (name['last'], name['first']))
 		self._update_allergies()
@@ -305,9 +305,20 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.1  2003-10-23 06:02:40  sjtan
+# Revision 1.2  2003-10-27 14:01:26  sjtan
 #
-# manual edit areas modelled after r.terry's specs.
+# syncing with main tree.
+#
+# Revision 1.19  2003/10/26 18:04:01  ncq
+# - cleanup
+#
+# Revision 1.18  2003/10/26 11:27:10  ihaywood
+# gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
+#
+# Ergregious breakages are fixed, but needs more work
+#
+# Revision 1.17  2003/10/26 01:36:14  ncq
+# - gmTmpPatient -> gmPatient
 #
 # Revision 1.16  2003/10/19 12:20:10  ncq
 # - use GuiHelpers.py

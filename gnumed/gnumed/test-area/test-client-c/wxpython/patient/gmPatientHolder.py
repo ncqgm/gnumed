@@ -1,7 +1,7 @@
 
 
 import gmDispatcher, gmSignals
-from gmTmpPatient import gmCurrentPatient
+from gmPatient import gmCurrentPatient
 
 
 class PatientHolder:
@@ -10,8 +10,7 @@ class PatientHolder:
 
 	def _setPatientModel( self, kwds):
 		print kwds
-		patient = gmCurrentPatient(kwds['ID'])
-		self.patient = patient
+		self.patient = gmCurrentPatient(kwds['ID'])
 		self._updateUI()
 	
 	def _updateUI(self):

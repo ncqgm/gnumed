@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.3 2003-10-26 00:58:53 sjtan Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPatientSelector.py,v 1.4 2003-10-27 14:01:26 sjtan Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -23,7 +23,7 @@ import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-import gmTmpPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK
+import gmPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK, gmDemographics
 
 from wxPython.wx import *
 
@@ -589,7 +589,7 @@ class cPatientPickList(wxDialog):
 class cPatientSelector(wxTextCtrl):
 	"""Widget for smart search for patients."""
 	def __init__ (self, parent, id = -1, pos = (-1, -1), size = (-1, -1)):
-		self.curr_pat = gmTmpPatient.gmCurrentPatient()
+		self.curr_pat = gmPatient.gmCurrentPatient()
 
 		# need to explicitely process ENTER events to avoid
 		# them being handed over to the next control
@@ -668,15 +668,13 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 
 		if anID == self.curr_pat['ID']:
 			return None
-
-		old_ID = self.curr_pat['ID']
-		
-		
-		self.curr_pat = gmTmpPatient.gmCurrentPatient(aPKey = anID)
-		
-		
+		if self.curr_pat is not None:
+			old_ID = self.curr_pat['ID']
+		else:
+			old_ID = -1
+		self.curr_pat = gmPatient.gmCurrentPatient(anID)
 		if old_ID == self.curr_pat['ID']:
-			_log.LogException('cannot change active patient', sys.exc_info())
+			_log.Log (gmLog.lErr, 'cannot change active patient')
 			# error message ?
 			return None
 
@@ -732,11 +730,11 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 		return pat_ids
 	#--------------------------------------------------------
 	def _display_name(self):
-		name = self.curr_pat['active name']
-		if name is None:
-			self.SetValue(_('no active patient'))
-		else:
+		if self.curr_pat.is_connected():
+			name = self.curr_pat['demographics'].getActiveName()
 			self.SetValue('%s, %s' % (name['last'], name['first']))
+		else:
+			self.SetValue(_('no active patient'))
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -992,19 +990,20 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.3  2003-10-26 00:58:53  sjtan
+# Revision 1.4  2003-10-27 14:01:26  sjtan
 #
-# use pre-existing signalling
+# syncing with main tree.
 #
-# Revision 1.2  2003/10/25 08:29:40  sjtan
+# Revision 1.20  2003/10/26 17:42:51  ncq
+# - cleanup
 #
-# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
-# yaml serializer to store editarea data in  narrative text field of clin_root_item until
-# clin_root_item schema stabilizes.
+# Revision 1.19  2003/10/26 11:27:10  ihaywood
+# gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
 #
-# Revision 1.1  2003/10/23 06:02:39  sjtan
+# Ergregious breakages are fixed, but needs more work
 #
-# manual edit areas modelled after r.terry's specs.
+# Revision 1.18  2003/10/26 01:36:13  ncq
+# - gmTmpPatient -> gmPatient
 #
 # Revision 1.17  2003/10/19 12:17:57  ncq
 # - typo fix

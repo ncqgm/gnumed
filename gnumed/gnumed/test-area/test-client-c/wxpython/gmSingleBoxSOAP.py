@@ -7,8 +7,8 @@ typing clear-text clinical notes which are stored in clin_note.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.1 2003-10-23 06:02:40 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmSingleBoxSOAP.py,v 1.2 2003-10-27 14:01:26 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -17,7 +17,7 @@ if __name__ == "__main__":
 	sys.path.append ("../python-common/")
 	import gmI18N
 
-import gmDispatcher, gmTmpPatient, gmSignals
+import gmDispatcher, gmPatient, gmSignals
 
 from gmExceptions import ConstructorError
 from wxPython.wx import *
@@ -39,7 +39,7 @@ class gmSingleBoxSOAPPanel(wxPanel):
 		if not self.__register_events():
 			raise ConstructorError, 'cannot register interests'
 
-		self.__pat = gmTmpPatient.gmCurrentPatient()
+		self.__pat = gmPatient.gmCurrentPatient()
 	#--------------------------------------------------------
 	def __do_layout(self):
 		# large box for free-text clinical notes
@@ -123,7 +123,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.1  2003-10-23 06:02:40  sjtan
+# Revision 1.2  2003-10-27 14:01:26  sjtan
+#
+# syncing with main tree.
+#
+# Revision 1.1  2003/10/23 06:02:40  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #

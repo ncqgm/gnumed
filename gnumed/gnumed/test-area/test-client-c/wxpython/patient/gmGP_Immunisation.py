@@ -9,8 +9,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/patient/Attic/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.3 2003-10-26 13:06:42 sjtan Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmGP_Immunisation.py,v 1.4 2003-10-27 14:01:26 sjtan Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -31,7 +31,7 @@ from gmGuiElement_AlertCaptionPanel import AlertCaptionPanel
 
 # panel class holding editing prompts and text boxes
 import gmEditArea
-import gmPlugin, gmTmpPatient
+import gmPlugin, gmPatient
 from gmListCtrlMapper import *
 
 from gmPatientHolder import PatientHolder
@@ -77,7 +77,7 @@ class ImmunisationPanel(wxPanel, PatientHolder):
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
 		PatientHolder.__init__(self)
-		self.patient = gmTmpPatient.gmCurrentPatient()
+		self.patient = gmPatient.gmCurrentPatient()
 		#--------------------
 		#add the main heading
 		#--------------------
@@ -246,7 +246,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.3  2003-10-26 13:06:42  sjtan
+# Revision 1.4  2003-10-27 14:01:26  sjtan
+#
+# syncing with main tree.
+#
+# Revision 1.3  2003/10/26 13:06:42  sjtan
 #
 # multi column self adjusting widget for many past significant history items.
 #

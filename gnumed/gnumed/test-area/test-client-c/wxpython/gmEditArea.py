@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.6 2003-10-26 00:58:53 sjtan Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmEditArea.py,v 1.7 2003-10-27 14:01:26 sjtan Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -584,7 +584,7 @@ class gmEditArea( wxPanel):
 		raise AttributeError
 
 	def _changePatient( self, kwds):
-		from gmTmpPatient import gmCurrentPatient
+		from gmPatient import gmCurrentPatient
 		self._setPatientModel(gmCurrentPatient(kwds['ID']))
 		try:
 			self._updateUI()
@@ -919,7 +919,7 @@ class gmPastHistoryEditArea(gmEditArea):
 	def _ageKillFocus( self, event):	
 		# skip first, else later failure later in block causes widget to be unfocusable
 		event.Skip()	
-		birthyear = self.patient.getPatientModel().getBirthYear()
+		birthyear = self.patient.get_demographic_record().getBirthYear()
 		try :
 			year = birthyear + int(self.input_fields['age'].GetValue().strip() )
 			self.input_fields['year'].SetValue( str (year) )
@@ -928,7 +928,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		
 	def _yearKillFocus( self, event):	
 		event.Skip()	
-		birthyear = self.patient.getPatientModel().getBirthYear()
+		birthyear = self.patient.get_demographic_record().getBirthYear()
 		try:
 			age = int(self.input_fields['year'].GetValue().strip() ) - birthyear
 			self.input_fields['age'].SetValue( str (age) )
@@ -961,7 +961,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		
 	def _save_data(self):
 		if self.stateNew:
-			self.patient.getClinicalRecord().create_history( self._getInputFieldValues() )
+			self.patient.get_clinical_record().create_history( self._getInputFieldValues() )
 		
 
 		
@@ -1866,7 +1866,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.6  2003-10-26 00:58:53  sjtan
+# Revision 1.7  2003-10-27 14:01:26  sjtan
+#
+# syncing with main tree.
+#
+# Revision 1.6  2003/10/26 00:58:53  sjtan
 #
 # use pre-existing signalling
 #

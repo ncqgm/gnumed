@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/patient/Attic/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -30,7 +30,7 @@ if __name__ == "__main__":
 import gmLog
 _log = gmLog.gmDefLog
 
-import gmDispatcher, gmSignals, gmPG, gmPlugin, gmEditArea, gmTmpPatient
+import gmDispatcher, gmSignals, gmPG, gmPlugin, gmEditArea, gmPatient
 
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
@@ -115,7 +115,7 @@ class AllergyPanel(wxPanel , PatientHolder ):
 		self.SetAutoLayout(true)
 		self.Show(true)
 
-		self.__pat = gmTmpPatient.gmCurrentPatient()
+		self.__pat = gmPatient.gmCurrentPatient()
 		self.RegisterInterests()
 	#-----------------------------------------------
 	def RegisterInterests(self):
@@ -198,7 +198,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.2  2003-10-25 08:29:40  sjtan
+# Revision 1.3  2003-10-27 14:01:26  sjtan
+#
+# syncing with main tree.
+#
+# Revision 1.2  2003/10/25 08:29:40  sjtan
 #
 # uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
 # yaml serializer to store editarea data in  narrative text field of clin_root_item until

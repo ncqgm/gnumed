@@ -192,7 +192,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 
 	def _updateUI(self):
 		print "past history specific ui update"
-		clinical = self.patient.getClinicalRecord()
+		clinical = self.patient.get_clinical_record()
 		significant_past = clinical.get_significant_past_history()
 		active_hx = clinical.get_active_history()
 		self.active_mapper.SetData(  self._get_list_map( active_hx) )
