@@ -2,7 +2,6 @@ import gmDispatcher, gmSignals, gmLog
 global _log 
 _log = gmLog.gmDefLog 
 import time, sys, traceback
-import yaml
 
 from gmClinicalRecord import gmClinicalPart
 	
