@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.5 2003-01-20 19:42:47 ncq Exp $
+-- $Id: gmI18N.sql,v 1.6 2003-01-20 20:21:53 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -107,6 +107,13 @@ comment on function _(text) is
 	'will return either the input or the translation if it exists,
 	 to be used as an after-select trigger function on your tables';
 
+-- =============================================
+--create function set_lang (text) returns unknown as '
+--	delete from lang;
+--	insert into lang (code) values ($1);
+--	select NULL;
+--' language 'sql';
+
 \set ON_ERROR_STOP 1
 -- =============================================
 -- there's most likely no harm in granting select to all
@@ -125,11 +132,14 @@ TO group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.5  2003-01-20 19:42:47  ncq
+-- Revision 1.6  2003-01-20 20:21:53  ncq
+-- - keep the last useful bit from i18n.sql as documentation
+--
+-- Revision 1.5  2003/01/20 19:42:47  ncq
 -- - simplified creation of translating view a lot
 --
 -- Revision 1.4  2003/01/17 00:24:33  ncq
