@@ -5,14 +5,19 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 
 if __name__ == "__main__":
+			
 	print
 	print "*" * 50 
 	print "RUNNING UNIT TEST of gmOrganization "
 	print "In the connection query, please enter"
 	print "a WRITE-ENABLED user e.g. _test-doc (not test-doc), and the right password"
+	print
+	print "Run the unit test with cmdline argument '--clean'  if trying to clean out test data"
+	print
+
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG, gmI18N, gmBorg
 from Gnumed.pycommon.gmPyCompat import *
@@ -137,12 +142,28 @@ class cOrgHelper:
 		pass
 
 	def getId(self):
+		return None
+
+	def setId(self, id): # ? change to non-public
+		pass	
+	
+	def set(self, name, office, department, memo, category, phone, fax, email,mobile):
 		pass
 
-	def set(self, name, office, department, address, memo, category, phone, fax, email,mobile):
+	def setAddress(self, number, street, urb, postcode, state, country):
 		pass
 
-	def get_name_office_department_address_memo_category_phone_fax_email_mobile(self): 
+	def getAddress(self):
+		return []
+
+	def __setitem__(self, k, v):
+		pass
+
+	def __getitem__(self, k):
+		return None
+
+
+	def get(self): 
 		return []
 
 	def findAllOrganizations():
@@ -152,10 +173,10 @@ class cOrgHelper:
 		return [ (0,"") ]
 
 	def load(self, pk):
-		return
+		return False
 
 	def save(self):
-		return
+		return False
 
 
 class cOrgHelperImpl1(cOrgHelper):
@@ -186,8 +207,11 @@ class cOrgHelperImpl1(cOrgHelper):
 	def getId(self):
 		return self.pk
 
-	def setPk(self, pk):
+	def setId(self, pk):
 		self.pk = pk
+
+	def getAddress(self):
+		return self.getAddressDict()
 
 	def getAddressDict(self):
 		d = {}
@@ -394,11 +418,10 @@ class cOrgHelperImpl1(cOrgHelper):
 		m.update(self._changed)
 		return m 
 
-	def get_address(self):
-		return self._address
 
 	def findAllOrganizations():
-		return []
+		pass
+	
 
 	def findAllOrganizationPKAndName():
 		return [ (0,"") ]
@@ -412,55 +435,54 @@ class cOrgHelperImpl1(cOrgHelper):
 
 		
 	def _load_org(self, pk):	
-		cmd = "select description, id_category  from org where id = %d" % pk
-		#<DEBUG>
-		print cmd
-		#</DEBUG>
-		result = gmPG.run_ro_query("personalia", cmd, )
-		if result is None:
-			gmLog.gmDefLog.Log(gmLog.lInfo, "Unable to load org %s" %pk )
-			return False
-		if len(result) == 0:
+		m_org = get_org_data_for_org_ids( [pk] )	
+		if m_org == None or not m_org.has_key(pk):
 			#<DEBUG>
 			print "org id = ", pk, " not found"
 			#</DEBUG>
 			return False
-		(description, id_category) = result[0]
+			
+		(description, id_category) = m_org[pk]
 		m=self._map
 		cf = cCatFinder()
 		m['category']=cf.getCategory("org_category",id_category)
 		m['name']=description
-		self.setPk(pk)
+		self.setId(pk)
 
 		return True
 	
 	
 	def _load_comm_channels(self):
-		cmd = """select id_type, url from comm_channel c, lnk_org2comm_channel l where l.id_org = %d and c.id = l.id_comm""" % self.getId() 
-		result = gmPG.run_ro_query("personalia", cmd)
-		if result == None:
-			gmLog.gmDefLog.Log(gmLog.lInfo, "Unable to load comm channels for org" )
+		m = get_comm_channels_data_for_org_ids([ self.getId() ] )
+		if m == None:
 			return False
 
+		if m.has_key(self.getId()):
+			return self._load_comm_channels_from_tuples(m[self.getId()])
+
+
+
+	def _load_comm_channels_from_tuples(self, rows):
 		n = self.__class__.commnames
-		for (id_type, url) in result:	
+		for ( id_type, url) in rows:	
 			if n.has_key(int(id_type)):
 				self._map[n[id_type]] = url
 				
 		return True
 	
 	def _load_address(self):
-		pk = self.getId()
-		cmd = """select number, street, city, postcode, state, country from v_basic_address v , lnk_org2address l where v.addr_id = l.id_address and l.id_org = %d""" % pk
-		result = gmPG.run_ro_query( "personalia", cmd)
-		if result == None:
-			gmLog.gmDefLog.Log(gmLog.lInfo, "failure in org address load" )
+		m = get_address_data_for_org_ids( [self.getId()])
+		if m == None:
 			return False
-		if len(result ) == 0:
+
+		if not m.has_key(self.getId() ):	
 			gmLog.gmDefLog.Log(gmLog.lInfo, "No address for org" )
 			return True
 		
-		r = result[0]
+		return self._load_address_from_tuple( m[self.getId()] )
+
+		
+	def _load_address_from_tuple(self, r):	
 		self._address = { 'number':r[0], 'street':r[1], 'urb':r[2], 'postcode':r[3], 'state':r[4], 'country': r[5]  }
 	
 		self._addressModified(False)
@@ -479,7 +501,7 @@ class cOrgHelperImpl1(cOrgHelper):
 				gmLog.gmDefLog.Log(gmLog.lErr, "failed to remove org")
 				return False
 
-		self.setPk(None)
+		self.setId(None)
 
 		return True
 
@@ -497,13 +519,13 @@ class cOrgHelperImpl1(cOrgHelper):
 			cmd = ("""select id from org where description ='xxxDefaultxxx'""",[])
 			result = gmPG.run_commit('personalia', [cmd] )
 			if result <> None and len(result) == 1:
-				self.setPk(result[0][0])
+				self.setId(result[0][0])
 				#<DEBUG>
 				#print "select id from org ->", self.getId()
 				#</DEBUG>
 				return True
 			return False
-		self.setPk(result[0][0])
+		self.setId(result[0][0])
 		#<DEBUG>
 		#print "from select currval -> ", self.getId()
 		#</DEBUG>
@@ -518,7 +540,7 @@ class cOrgHelperImpl1(cOrgHelper):
 		if not m.has_key('name') or m['name'].strip() =='':
 			print "PLEASE ENTER ORG NAME" #change this
 			return False
-		print "self.Pk() = ", self.getId() , " is None : ", self.getId() is None
+		print "self.getId() = ", self.getId() , " is None : ", self.getId() is None
 		if self.getId() is None:
 			if not self._create():
 				gmLog.gmDefLog.Log(gmLog.lErr, "Cannot create org")
@@ -547,19 +569,95 @@ class cOrgHelperImpl1(cOrgHelper):
 
 	def lnkPerson( self, demographicRecord): # demographicRecord is a cDemographicRecord
 		pass
+
 		
+def get_comm_channels_data_for_org_ids( idList):	
+	"""gets comm_channels for a list of org_id. 
+	returns a map keyed by org_id with lists of comm_channel data (url, type). 
+	this allows a single fetch of comm_channel data for multiple orgs"""
+
+	ids = ", ".join( [ str(x) for x in idList]) 
+	cmd = """select l.id_org, id_type, url 
+			from comm_channel c, lnk_org2comm_channel l 
+			where
+				c.id = l.id_comm and
+				l.id_org in ( select id from org where id in (%s) )
+		""" % ids 
+	result = gmPG.run_ro_query("personalia", cmd)
+	if result == None:
+		gmLog.gmDefLog.Log(gmLog.lInfo, "Unable to load comm channels for org" )
+		return None 
+	m = {}
+	for (id_org, id_type, url) in result:
+		if not m.has_key(id_org):
+			m[id_org] = []
+		m[id_org].append( (id_type, url) )
+
+	return m # is a Map[id_org] = list of comm_channel data 	
+		
+def get_address_data_for_org_ids( idList):
+	"""gets addresses for a list of valid id values for orgs.
+	returns a map keyed by org_id with the address data
+	"""
+	
+	ids = ", ".join( [ str(x) for x in idList]) 
+	cmd = """select l.id_org, number, street, city, postcode, state, country 
+			from v_basic_address v , lnk_org2address l 
+				where v.addr_id = l.id_address and 
+				l.id_org in ( select id from org where id in (%s) )""" % ids 
+	result = gmPG.run_ro_query( "personalia", cmd)
+	
+	if result == None:
+		gmLog.gmDefLog.Log(gmLog.lInfo, "failure in org address load" )
+		return None
+	m = {}
+	for (id_org, n,s,ci,p,st,co) in result:
+		m[id_org] =  (n,s,ci,p,st,co) 
+	return m  
+
+def get_org_data_for_org_ids(idList):
+	""" for a given list of org id values , 
+		returns a map of id_org vs. org attributes: description, id_category"""
+	
+	ids = ", ".join( [ str(x) for x in idList]) 
+	cmd = """select id, description, id_category  from org 
+			where id in ( select id from org where id in( %s) )""" % ids 
+	#<DEBUG>
+	print cmd
+	#</DEBUG>
+	result = gmPG.run_ro_query("personalia", cmd, )
+	if result is None:
+		gmLog.gmDefLog.Log(gmLog.lInfo, "Unable to load orgs with ids (%s)" %ids)
+		return None
+	m = {}
+	for (id_org, d, id_cat) in result:
+		m[id_org] = (d, id_cat)
+	return m 
 
 #============================================================
 
+def get_test_data():
+	"""test org data for unit testing in testOrg()"""
+	return [ 
+			( ["Box Hill Hospital", "", "", "Eastern", "hospital", "0398953333", "111-1111","bhh@oz", ""],  ["33", "Nelson Rd", "Box Hill", "3128", None , None] ), 
+			( ["Frankston Hospital", "", "", "Peninsula", "hospital", "0397847777", "03784-3111","fh@oz", ""],  ["21", "Hastings Rd", "Frankston", "3334", None , None] )
+		]
+		
 def testOrg():
+	"""runs a test of load, save , shallow_del  on items in from get_test_data"""
+	l = get_test_data()
+	for (f, a) in l:
+		result, obj =	_testOrgRun(f, a)
+		results.append( (result, obj) )
+	return results	
+
+
+
+def _testOrgRun( f1, a1):
 
 	print """testing single level orgs"""
 	f = [ "name", "office", "department",  "memo", "category", "phone", "fax", "email","mobile"]
 	a = ["number", "street", "urb", "postcode", "state", "country"]
-	
-	f1 = ["Box Hill Hospital", "", "", "eastern", "hospital", "0398953333", "111-1111","bhh@oz", ""]
-	a1 = ["33", "Nelson Rd", "Box Hill", "3128", None , None]
-
 	h = cOrgHelperImpl1()
 
 	h.set(*f1)
@@ -625,10 +723,31 @@ def testOrg():
 
 	return True, h2
 
+def clean_test_org():
+	l = get_test_data()
+	names = [ "".join( ["'" ,str(org[0]), "'"] )  for ( org, address) in l]
+	nameList = ",".join(names)
+	cmds = [ ("""delete from lnk_person_org_address 
+		where id_org in ( select id from org where description in ( %s ))""" % nameList,[]),
+		("""delete from lnk_org2comm_channel 
+		where id_org in (select id from org where description in ( %s )) """ % nameList,[]),
+		("""delete from org where description in ( %s) """ % nameList, [] )
+		]
+	return gmPG.run_commit("personalia", cmds) <> None
+	
+		
 
 if __name__== "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
+	import sys
+	if len(sys.argv) > 1:
+		if sys.argv[1] == '--clean':
+			result = clean_test_org()
+			if result:
+				print "probably succeeded in cleaning orgs"
+			else: 	print "failed to clean orgs"
+			sys.exit(1)
 
 
 	for n in xrange(1,8):
@@ -665,17 +784,21 @@ if __name__== "__main__":
 	print """testing borg behaviour of cCatFinder"""
 
 	print c.getCategories("org_category")
-	result = False
+	results = [] 
 	try:
-		result, org = testOrg()
+		results = testOrg()
 	except:
-		gmLog.gmDefLog.Log(gmLog.lInfo, "Fatal exception in testOrg()")
+		import  sys
+		gmLog.gmDefLog.LogException( "Fatal exception in testOrg()", sys.exc_info(),1)
 
-	if not result:
-		print "trying cleanup"
-		if org.shallow_del(): print " 	may have succeeded"
-		else:
-			print "May need manual removal of org"
+	for (result , org) in results:
+		if not result:
+			print "trying cleanup"
+			if org.shallow_del(): print " 	may have succeeded"
+			else:
+				print "May need manual removal of org id =", org.getId()
+				
+				
 	
 	
 			
@@ -683,7 +806,13 @@ if __name__== "__main__":
 	
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.6  2004-05-23 11:26:19  sjtan
+# Revision 1.7  2004-05-23 13:27:51  sjtan
+#
+# refactored so getting n orgs using a finder operation will make 3 sql calls
+# instead of n x 3 calls (reduce network traffic). Test case expanded, and
+# cleanup option for running unit test case added.
+#
+# Revision 1.6  2004/05/23 11:26:19  sjtan
 #
 # getPk() now getId() , more consistent with other modules.
 #
