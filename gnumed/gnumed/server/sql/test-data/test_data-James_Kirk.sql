@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -49,12 +49,7 @@ delete from clin_episode where id in (
 
 insert into clin_episode (id_health_issue, description)
 values (
-	(select id
-	 from clin_health_issue
-	 where
-	 	id_patient=currval('identity_id_seq')
-			and
-		description = 'xxxDEFAULTxxx'),
+	currval('clin_health_issue_id_seq'),
 	'knive cut left arm 9/2000'
 );
 
@@ -426,11 +421,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.20  2004-05-08 17:37:08  ncq
+-- Revision 1.21  2004-05-13 00:10:24  ncq
+-- - test data for regression testing lab handling added
+--
+-- Revision 1.20  2004/05/08 17:37:08  ncq
 -- - *_encounter_type -> encounter_type
 --
 -- Revision 1.19  2004/05/06 23:32:44  ncq
