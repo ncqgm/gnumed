@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-09-26 13:24:15 $
-# @version $Revision: 1.46 $ $Date: 2002-09-26 13:24:15 $ $Author: ncq $
+# @Date: $Date: 2002-09-30 10:57:56 $
+# @version $Revision: 1.47 $ $Date: 2002-09-30 10:57:56 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -227,7 +227,7 @@ class MainFrame(wxFrame):
 
 	def OnAbout(self, event):
 		" A simple 'about' dialog box"
-		wxMessageBox(_("Message from GNUmed:\nPlease write a nice About box!"), _("About GNUmed"))
+		wxMessageBox(_("Message from GnuMed:\nPlease write a nice About box!"), _("About GnuMed"))
 
 
 
@@ -259,7 +259,7 @@ class MainFrame(wxFrame):
 		self.guibroker['main.mainmenu']=self.mainmenu
 		self.menu_file = wxMenu()
 		self.guibroker['main.filemenu']=self.menu_file
-		self.menu_file.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
+		self.menu_file.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GnuMed client'))
 		EVT_MENU(self, ID_EXIT, self.OnFileExit)
 		self.menu_view = wxMenu()
 		self.guibroker['main.viewmenu']=self.menu_view
@@ -267,7 +267,7 @@ class MainFrame(wxFrame):
 		self.guibroker['main.toolsmenu']=self.menu_tools
 		self.menu_help = wxMenu()
 		self.guibroker['main.helpmenu']=self.menu_help
-		self.menu_help.Append(ID_ABOUT,"About gnuMedGP", "")
+		self.menu_help.Append(ID_ABOUT, _("About GnuMed"), "")
 		EVT_MENU (self, ID_ABOUT, self.OnAbout)
 		self.menu_help.AppendSeparator()
 		self.mainmenu.Append(self.menu_file, "&File");
@@ -362,10 +362,10 @@ class gmApp(wxApp):
 		self.__backend = gmLogin.Login()
 		if self.__backend == None:
 			# _("Login attempt unsuccesful\nCan't run GNUmed without database connetcion")
-			myLog.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GNUmed without database connection")
+			myLog.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GnuMed without database connection")
 			return false
 		#create the main window
-		frame = MainFrame(None, -1, _('GNUmed client'), size=(300,200))
+		frame = MainFrame(None, -1, _('GnuMed client'), size=(300,200))
 		self.SetTopWindow(frame)
 		#frame.Unlock()
 		frame.Maximize(true)
@@ -395,7 +395,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.46  2002-09-26 13:24:15  ncq
+# Revision 1.47  2002-09-30 10:57:56  ncq
+# - make GnuMed consistent spelling in user-visible strings
+#
+# Revision 1.46  2002/09/26 13:24:15  ncq
 # - log version
 #
 # Revision 1.45  2002/09/12 23:21:38  ncq

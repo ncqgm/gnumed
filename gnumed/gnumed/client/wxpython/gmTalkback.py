@@ -11,7 +11,7 @@ Original code courtesy of David Guest.
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTalkback.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__  = "D. Guest <dguest@zeeclor.mine.nu>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -42,10 +42,22 @@ class cTalkbackFrame(wxFrame):
 		self.label_desc = wxStaticText(self, -1, _("Description/  \nComment  "), size=(-1, -1), style=wxALIGN_RIGHT)
 
 		self.szr_hint = wxBoxSizer(wxHORIZONTAL)
-		self.label_hint = wxStaticText(self, -1, _("An error occured in GNUmed. You can send a bug report from the window below."), size=(-1, -1), style=wxALIGN_CENTER)
+		self.label_hint = wxStaticText(
+			self,
+			-1,
+			_("An error occured in GnuMed. You can send a bug report from the window below."),
+			size=(-1, -1),
+			style=wxALIGN_CENTER
+		)
 
 		self.szr_title = wxBoxSizer(wxHORIZONTAL)
-		self.label_title = wxStaticText(self, -1, _("GNUmed Talkback Facility"), size=(-1, -1), style=wxALIGN_CENTER)
+		self.label_title = wxStaticText(
+			self,
+			-1,
+			_("GnuMed Talkback Facility"),
+			size=(-1, -1),
+			style=wxALIGN_CENTER
+		)
 
 		EVT_BUTTON(self, ID_BUTTON_CANCEL, self.onNoSend)
 		EVT_BUTTON(self, ID_BUTTON_SEND, self.onSend)
@@ -57,7 +69,7 @@ class cTalkbackFrame(wxFrame):
 		self.mail_logger = aLogger
 	#-----------------------------------------------
 	def __set_properties(self):
-		self.SetTitle(_("GNUmed Talkback"))
+		self.SetTitle(_("GnuMed Talkback"))
 		self.label_title.SetFont(wxFont(16, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
 	#-----------------------------------------------
 	def __do_layout(self):
@@ -123,6 +135,9 @@ if __name__ == '__main__':
 
 #=========================================================================
 # $Log: gmTalkback.py,v $
-# Revision 1.3  2002-09-10 07:46:56  ncq
+# Revision 1.4  2002-09-30 10:57:56  ncq
+# - make GnuMed consistent spelling in user-visible strings
+#
+# Revision 1.3  2002/09/10 07:46:56  ncq
 # - added changelog keyword
 #
