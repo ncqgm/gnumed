@@ -12,19 +12,19 @@
 # @change log:
 #	    10.06.2002 rterry initial implementation, untested
 #           30.07.2002 rterry images put in file
-# @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.16 2004-03-09 07:34:51 ihaywood Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmDemographics.py,v 1.17 2004-03-15 15:43:17 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "R.Terry, SJ Tan"
 
-from wxPython.wx import *
-from mx import DateTime
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
-from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmI18N
+from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals
 from Gnumed.business import gmDemographicRecord, gmPatient
-from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
+
+from mx import DateTime
+from wxPython.wx import *
+
 import cPickle, zlib, shutil, time
 from string import *
 
@@ -32,6 +32,9 @@ from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.business.gmDemographicRecord import MP_urb_by_zip , PostcodeMP, StreetMP, OccupationMP, CountryMP
 
 _log = gmLog.gmDefLog
+
+if __name__ == '__main__':
+	from Gnumed.pycommon import gmI18N
 
 ID_PATIENT = wxNewId()
 ID_PATIENTSLIST = wxNewId()
@@ -795,7 +798,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.16  2004-03-09 07:34:51  ihaywood
+# Revision 1.17  2004-03-15 15:43:17  ncq
+# - cleanup imports
+#
+# Revision 1.16  2004/03/09 07:34:51  ihaywood
 # reactivating plugins
 #
 # Revision 1.15  2004/03/04 11:19:05  ncq
