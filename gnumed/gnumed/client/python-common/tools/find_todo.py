@@ -9,9 +9,11 @@
 # @author: Karsten Hilbert
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
-# @Date: $Date: 2002-07-07 23:28:04 $
-# @version $Revision: 1.1 $ $Date: 2002-07-07 23:28:04 $ $Author: ncq $
+# @Date: $Date: 2003-01-16 14:32:45 $
+# @version $Revision: 1.2 $ $Date: 2003-01-16 14:32:45 $ $Author: ncq $
 ###############################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/tools/Attic/find_todo.py,v $
+__version__ = "$Revision"
 
 import string, sys, fileinput
 

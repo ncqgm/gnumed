@@ -1,10 +1,13 @@
-#!/usr/python
+# GnuMed form printer design study
 
 __doc__ = """
 Module to print a form using the wx toolkit.
 includes dialogues for printer calibration, etc.
 and new form wizard.
 """
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormPrinter.py,v $
+# $Id: gmFormPrinter.py,v 1.2 2003-01-16 14:30:19 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Ian Haywood"
 
 
