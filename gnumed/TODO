@@ -1,6 +1,6 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/TODO,v $
-$Id: TODO,v 1.1 2004-03-27 22:35:44 ncq Exp $
-$Revision: 1.1 $
+$Id: TODO,v 1.2 2004-05-02 19:20:30 ncq Exp $
+$Revision: 1.2 $
 ====================================================
 
 gmCfg
@@ -158,3 +158,17 @@ CD/DVD viewer
   - display known useful files in flat list
   - let user select a file
   - start viewer via mailcap
+
+------------------
+integrity check:
+ - uncoded (for a coding system) diagnosis that is in use
+
+------------------
+Laborblatt
+ - spreadsheet
+ - calculated values
+ - calculator popup
+
+-------------------
+lab tables
+ - attach diagnoses ?
