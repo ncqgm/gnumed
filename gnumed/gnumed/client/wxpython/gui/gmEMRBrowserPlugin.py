@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -43,6 +43,7 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 
+    import sys
     from wxPython import wx
 
     from Gnumed.pycommon import gmPG, gmCfg
@@ -62,7 +63,7 @@ if __name__ == "__main__":
         pool = gmPG.ConnectionPool()
         
         # obtain patient
-        patient = gmEMRBrowser.getSelectedPatient()
+        patient = gmEMRBrowser.askForPatient()
         if patient is None:
             print "None patient. Exiting gracefully..."
             sys.exit(0)
@@ -70,10 +71,9 @@ if __name__ == "__main__":
         # display standalone browser
         application = wx.wxPyWidgetTester(size=(800,600))
         emr_browser = gmEMRBrowser.cEMRBrowserPanel(application.frame, -1)
-        emr_browser.init_patient(patient)
+        emr_browser.refresh_tree()
         
         application.frame.Show(True)
-        emr_browser.refresh_tree()
         application.MainLoop()
         
         # clean up
@@ -96,7 +96,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.2  2004-09-25 13:12:15  ncq
+# Revision 1.3  2004-10-31 00:35:40  cfmoro
+# Fixed some method names. Added sys import. Refesh browser at startup in standalone mode
+#
+# Revision 1.2  2004/09/25 13:12:15  ncq
 # - switch to from wxPython import wx
 #
 # Revision 1.1  2004/09/06 18:59:18  ncq
