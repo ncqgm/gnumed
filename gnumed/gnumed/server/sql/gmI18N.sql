@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.1 2003-01-01 17:41:57 ncq Exp $
+-- $Id: gmI18N.sql,v 1.2 2003-01-04 10:30:26 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -42,11 +42,16 @@
 --		;
 
 -- Now, if you want to support i18n()ed 'sisters':
---  insert into relations (name) values ('sister');
+--  insert into relations (name) values (_('sister'));
 
--- you need to also insert its translation:
+-- This will insert the original string into i18n_keys so translators
+-- know about all the strings to translate, it will also insert the
+-- original as it's own default translation into i18n_translations
+-- for the language setting en_GB. Which also means that original
+-- strings should be English. Sorry. (But they do not have too.)
+
+-- Thus you also need to insert a translation for, say, German:
 --  insert into i18n_translations (lang, orig, trans) values ('de_DE', 'sister', 'Schwester');
--- (if you want to support German, in this case)
 
 -- Of course, the clients need to be aware of this fact and
 -- access the views instead of the actual tables.
@@ -58,6 +63,9 @@
 
 -- All this crap isn't necessary anymore once PostgreSQL supports
 -- native internationalization of 'fixed' strings.
+
+-- FIXME: we need a way to return the original as a default
+-- if there's no translation available
 -- =============================================
 \unset ON_ERROR_STOP
 
@@ -97,22 +105,28 @@ DECLARE
 	original ALIAS FOR $1;
 BEGIN
 	insert into i18n_keys (orig) values (original);
+	insert into i18n_translations (lang, orig, trans) values (''en_GB'', original, original);
 	return original;
 END;
 ' language 'plpgsql';
 
 comment on function _ (text) is
-	'_(text) will insert original strings into i18n_keys for later translation';
+	'_(text) will insert original strings into i18n_keys for later translation,
+	it will also insert a default English translation into i18n_translations';
 
 \set ON_ERROR_STOP 1
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.1 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.1  2003-01-01 17:41:57  ncq
+-- Revision 1.2  2003-01-04 10:30:26  ncq
+-- - better documentation
+-- - insert default english "translation" into i18n_translations
+--
+-- Revision 1.1  2003/01/01 17:41:57  ncq
 -- - improved database i18n
 --
