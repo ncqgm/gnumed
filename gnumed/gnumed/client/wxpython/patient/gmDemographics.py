@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.22 2003-03-29 18:27:14 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmDemographics.py,v 1.23 2003-04-04 20:52:44 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -417,72 +417,20 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		# first, set up the widgets on the top line of the toolbar
 		top_panel = self.gb['main.toolbar']
 
-		self.tb_patient_search = wxToolBar (
-			top_panel,
-			-1,
-			wxDefaultPosition,
-			wxDefaultSize,
-			wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT
-		)
-		self.tool_patient_search = self.tb_patient_search.AddTool (
-			ID_BUTTONFINDPATIENT,
-			getToolbar_FindPatientBitmap(),
-			shortHelpString = "Find Patient"
-		)
-		EVT_TOOL (self.tb_patient_search, ID_BUTTONFINDPATIENT, self.OnTool)
+#		self.tb_patient_search = wxToolBar (
+#			top_panel,
+#			-1,
+#			wxDefaultPosition,
+#			wxDefaultSize,
+#			wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT
+#		)
 
-		self.txt_findpatient = wxComboBox (
-			top_panel,
-			ID_TXTPATIENTFIND,
-			"",
-			wxDefaultPosition,
-			wxDefaultSize,
-			[],
-			wxCB_DROPDOWN
-		)
-		self.txt_findpatient.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
-		EVT_COMBOBOX (self.txt_findpatient, ID_TXTPATIENTFIND, self.OnTool)
-
-		# age field
-		self.lbl_age = wxStaticText (
-			top_panel,
-			-1,
-			_("Age"),
-			wxDefaultPosition,
-			wxDefaultSize,
-			wxALIGN_CENTER_VERTICAL
-		)
-		self.lbl_age.SetFont (wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
-		self.lbl_age.SetForegroundColour (wxColour(0,0,131))
-		self.txt_age = wxTextCtrl (
-			top_panel,
-			ID_TXTPATIENTAGE,
-			"",
-			size = (40,-1),
-			style = wxTE_READONLY
-		)
-		self.txt_age.SetFont (wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
-
-		# allergies field
-		self.lbl_allergies = wxStaticText (
-			top_panel,
-			-1,
-			_("Allergies"),
-			wxDefaultPosition,
-			wxDefaultSize,
-			wxALIGN_CENTER_VERTICAL
-		)
-		self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
-		self.lbl_allergies.SetForegroundColour(wxColour(255,0,0))
-
-		self.txt_allergies = wxTextCtrl(
-			top_panel,
-			ID_TXTPATIENTALLERGIES,
-			"",
-			style = wxTE_READONLY
-		)
-		self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
-		self.txt_allergies.SetForegroundColour(wxColour(255,0,0))
+#		self.tool_patient_search = self.tb_patient_search.AddTool (
+#			ID_BUTTONFINDPATIENT,
+#			getToolbar_FindPatientBitmap(),
+#			shortHelpString = _("Patient Details")
+#		)
+#		EVT_TOOL (self.tb_patient_search, ID_BUTTONFINDPATIENT, self.OnTool)
 
 		# consultation type selector
 		self.combo_consultation_type = wxComboBox (
@@ -496,27 +444,22 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		)
 
 		# place them on the top toolbar
-		top_panel.AddWidgetTopLine(self.tb_patient_search, 0, wxEXPAND)
-		top_panel.AddWidgetTopLine(self.txt_findpatient, 5, wxEXPAND | wxALL, 3)
-		top_panel.AddWidgetTopLine(self.lbl_age, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
-		top_panel.AddWidgetTopLine(self.txt_age, 0, wxEXPAND | wxALL, 3)
-		top_panel.AddWidgetTopLine(self.lbl_allergies, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
-		top_panel.AddWidgetTopLine(self.txt_allergies, 6, wxEXPAND | wxALL, 3)
+#		top_panel.AddWidgetTopLine(self.tb_patient_search, 0, wxEXPAND)
+		top_panel.AddWidgetRightBottom (self.combo_consultation_type)
 
 		# and register ourselves as a widget
 		self.gb['modules.patient'][self.name ()] = self
-		top_panel.AddWidgetRightBottom (self.combo_consultation_type)
 		self.mwm = self.gb['patient.manager']
 		self.widget = PatientsPanel (self.mwm, self)
 		self.mwm.RegisterWholeScreen (self.name (), self.widget)
-		self.RegisterInterests ()
 		self.set_widget_reference(self.widget)
+		self.RegisterInterests ()
 	#--------------------------------------------------------		
 	def OnTool (self, event):
 		self.mwm.Display (self.name ())
 		print "OnTool"
 		self.gb['modules.gui']['Patient'].Raise()
-		self.widget.FindPatient (self.txt_findpatient.GetValue ())
+#		self.widget.FindPatient (self.txt_findpatient.GetValue ())
 
 	def RegisterInterests(self):
 		gmDispatcher.connect(self.OnSelected, gmSignals.patient_selected())
@@ -525,7 +468,7 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 	def OnSelected (self, **kwargs):
 		kwds = kwargs['kwds']
 		names = "%(title)s %(firstnames)s %(lastnames)s" % kwds
-		self.txt_findpatient.SetValue(names)
+#		self.txt_findpatient.SetValue(names)
 		age = kwds['dob']
 		age = age.strip ()
 		# FIXME:
@@ -534,12 +477,12 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 #		except:
 #			dmy = DateTime.strptime(age, "%d/%m/%Y")
 #		years = DateTime.Age(DateTime.now(), dmy).years
-		years = 20
-		self.txt_age.SetValue(str(years))
+#		years = 20
+#		self.txt_age.SetValue(str(years))
 
 #----------------------------------------------------------------------
 def getToolbar_FindPatientData():
-    return cPickle.loads(zlib.decompress(
+   return cPickle.loads(zlib.decompress(
 'x\xdam\x8e\xb1\n\xc4 \x0c\x86\xf7>\x85p\x83\x07\x01\xb9.\xa7\xb3\x16W\x87.]\
 K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 \xaaA\x1d\xca\x9f\xfb\xf1!RH\x8f\x17\x96u\xc4\xa9\xb0u6\x08\x9b\xc2\x8b[\xc2\
@@ -564,7 +507,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.22  2003-03-29 18:27:14  ncq
+# Revision 1.23  2003-04-04 20:52:44  ncq
+# - start disentanglement with top pane:
+#   - remove patient search/age/allergies/patient details
+#
+# Revision 1.22  2003/03/29 18:27:14  ncq
 # - make age/allergies read-only, cleanup
 #
 # Revision 1.21  2003/03/29 13:50:09  ncq
