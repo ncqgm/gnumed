@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -138,7 +138,7 @@ where
 	cfg_item.cookie like %s and
 	cfg_template.id = cfg_item.id_template and
 	(cfg_item.owner like CURRENT_USER or cfg_item.owner like %s)
-limit 1""", option, workplace, cookie, user, user) is None:
+limit 1""", option, workplace, cookie, user) is None:
 			curs.close()
 			return None
 
@@ -186,7 +186,7 @@ where
 	cfg_item.cookie like %s and
 	cfg_template.id = cfg_item.id_template and
 	(cfg_item.owner like CURRENT_USER or cfg_item.owner like %s)
-limit 1""", option, workplace, cookie, user, user) is None:
+limit 1""", option, workplace, cookie, user) is None:
 			curs.close()
 			return None
 		result = curs.fetchone()
@@ -1015,8 +1015,8 @@ def getFirstMatchingDBSet(workplace = cfg_DEFAULT, cookie = cfg_DEFAULT, option 
 
 	will search in descending order:
 		- CURRENT_USER_CURRENT_WORKPLACE
-		- DEFAULT_USER_CURRENT_WORKPLACE
 		- CURRENT_USER_DEFAULT_WORKPLACE
+		- DEFAULT_USER_CURRENT_WORKPLACE
 		- DEFAULT_USER_DEFAULT_WORKPLACE
 
 	We assume that the config tables are found on service "default".
@@ -1035,11 +1035,11 @@ def getFirstMatchingDBSet(workplace = cfg_DEFAULT, cookie = cfg_DEFAULT, option 
 
 	# (set_name, user, workplace)
 	sets2search = []
-	# only search for current workplace if given
 	if workplace != cfg_DEFAULT:
 		sets2search.append(['CURRENT_USER_CURRENT_WORKPLACE', None, workplace])
-		sets2search.append(['DEFAULT_USER_CURRENT_WORKPLACE', cfg_DEFAULT, workplace])
 	sets2search.append(['CURRENT_USER_DEFAULT_WORKPLACE', None, cfg_DEFAULT])
+	if workplace != cfg_DEFAULT:
+		sets2search.append(['DEFAULT_USER_CURRENT_WORKPLACE', cfg_DEFAULT, workplace])
 	sets2search.append(['DEFAULT_USER_DEFAULT_WORKPLACE', cfg_DEFAULT, cfg_DEFAULT])
 	# connect to database
 	db = _gmPG.ConnectionPool()
@@ -1234,7 +1234,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.15  2004-08-11 08:00:05  ncq
+# Revision 1.16  2004-08-11 11:07:33  ncq
+# - needless args on cfg queries removed
+#
+# Revision 1.15  2004/08/11 08:00:05  ncq
 # - improve log prefix
 # - cleanup SQL cfg/remove old use of _USER
 #
