@@ -61,7 +61,7 @@ print "INSERT INTO state(id, code, country, name) VALUES (%d, 'TAS', 'AU', 'Tasm
 print "INSERT INTO state(id, code, country, name) VALUES (%d, 'QLD', 'AU', 'Queensland');" % (ID_QLD)
 print "INSERT INTO state(id, code, country, name) VALUES (%d, 'VIC', 'AU', 'Victoria');" % (ID_VIC)
 print "INSERT INTO state(id, code, country, name) VALUES (%d, 'WA', 'AU', 'West Australia');" % (ID_WA)
-
+print "COMMIT WORK;"
 
 f = open(filename)
 lines = f.readlines()
