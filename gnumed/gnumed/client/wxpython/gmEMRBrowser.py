@@ -3,7 +3,7 @@
 """
 This is patient EMR pat history/notes viewer
 """
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "cfmoro1976@yahoo.es"
 #================================================================
 import os.path, sys
@@ -98,20 +98,29 @@ if __name__ == '__main__':
             Updates EMR browser right tree
             """
             self.__exporter.get_historical_tree(self.__emr_tree)
+            self.notes_text_ctrl.WriteText('Summary\n' + '=======\n\n' + \
+            self.__exporter.dump_summary_info(0))
             
         #--------------------------------------------------------
         def __on_select(self, event):
             """
             Displays information for a selected tree node
             """
-            # FIXME display info for issue and episode items
             sel_item = event.GetItem()
             sel_item_obj = self.__emr_tree.GetPyData(sel_item)
             self.notes_text_ctrl.Clear()
             if(isinstance(sel_item_obj, gmEMRStructItems.cEncounter)):
                 episode = self.__emr_tree.GetPyData(self.__emr_tree.GetItemParent(sel_item))
-                self.notes_text_ctrl.WriteText(self.__exporter.dump_encounter_info(
+                self.notes_text_ctrl.WriteText('Encounter\n' + '========\n\n' + self.__exporter.dump_encounter_info(
                     episode, sel_item_obj, 0))
+            elif (isinstance(sel_item_obj, gmEMRStructItems.cEpisode)):
+                self.notes_text_ctrl.WriteText('Episode\n' + '======\n\n' + self.__exporter.dump_episode_info(
+                    sel_item_obj, 0))
+            elif (isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue)):
+                self.notes_text_ctrl.WriteText('Health Issue\n' + '=========\n\n' + self.__exporter.dump_issue_info(
+                    sel_item_obj, 0))
+            else:
+                self.notes_text_ctrl.WriteText('Summary\n' + '=======\n\n' + self.__exporter.dump_summary_info(0))
 #== for plugin use ======================================
 else:
     # FIXME pending
@@ -206,7 +215,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.3  2004-08-11 09:46:24  ncq
+# Revision 1.4  2004-09-01 22:01:45  ncq
+# - actually use Carlos' issue/episode summary code
+#
+# Revision 1.3  2004/08/11 09:46:24  ncq
 # - now that EMR exporter supports SOAP notes - display them
 #
 # Revision 1.2  2004/07/26 00:09:27  ncq
