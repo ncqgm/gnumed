@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -1008,59 +1008,57 @@ def create_default_cfg_file():
 def getFirstMatchingDBSet(workplace = cfg_DEFAULT, cookie = cfg_DEFAULT, option = None):
 	"""Convenience function to get config value from database.
 
-	This will search in descending order from CURRENT_USER_CURRENT_WORKPLACE
-	to DEFAULT_USER_DEFAULT_WORKPLACE. It will not try to find entries for
-	other than the current user.
+	will search in descending order:
+		- CURRENT_USER_CURRENT_WORKPLACE
+		- DEFAULT_USER_CURRENT_WORKPLACE
+		- CURRENT_USER_DEFAULT_WORKPLACE
+		- DEFAULT_USER_DEFAULT_WORKPLACE
 
 	We assume that the config tables are found on service "default".
 	That way we can handle the db connection inside this function.
 
 	Returns value and position of first match.
 	"""
+	if option is None:
+		return (None, None)
+
 	# import gmPG if need be
 	global _gmPG
 	if _gmPG is None:
 		from Gnumed.pycommon import gmPG
 		_gmPG = gmPG
 
-	# first create list of sets to search
-	setList=[]
-
-	# if no workplace is given, search only sets for DEFAULT_WORKPLACE
-	if not workplace == cfg_DEFAULT:
-		setList.append(['CURRENT_USER_CURRENT_WORKPLACE',None,workplace])
-	setList.append(['CURRENT_USER_DEFAULT_WORKPLACE',None,cfg_DEFAULT])
-	if not workplace == cfg_DEFAULT:
-		setList.append(['DEFAULT_USER_CURRENT_WORKPLACE',cfg_DEFAULT,workplace])
-	setList.append(['DEFAULT_USER_DEFAULT_WORKPLACE',cfg_DEFAULT,cfg_DEFAULT])
-
+	# (set_name, user, workplace)
+	sets2search = []
+	# only search for current workplace if given
+	if workplace != cfg_DEFAULT:
+		sets2search.append(['CURRENT_USER_CURRENT_WORKPLACE', None, workplace])
+		sets2search.append(['DEFAULT_USER_CURRENT_WORKPLACE', cfg_DEFAULT, workplace])
+	sets2search.append(['CURRENT_USER_DEFAULT_WORKPLACE', None, cfg_DEFAULT])
+	sets2search.append(['DEFAULT_USER_DEFAULT_WORKPLACE', cfg_DEFAULT, cfg_DEFAULT])
 	# connect to database
 	db = _gmPG.ConnectionPool()
 	conn = db.GetConnection(service = "default")
-	dbcfg = cCfgSQL(
+	dbcfg = cCfgSQL (
 		aConn = conn,
 		aDBAPI = _gmPG.dbapi
 	)
-
+	# loop over sets
 	matchingSet = None
-	for set in (setList):
-		user = set[1]
-		workplace = set[2]
-		result = dbcfg.get(
-			workplace = workplace,
-			user = user,
+	for set in sets2search:
+		result = dbcfg.get (
+			workplace = set[2],
+			user = set[1],
 			option = option,
 			cookie = cookie
 		)
-#DEBUG
-#		_log.Log(gmLog.lData, 'Set [%s@%s]: %s' % (user, workplace, result))
-
 		if result is not None:
 			matchingSet = set[0]
 			break
 
+		_log.Log(gmLog.lData, '[%s] not found for [%s@%s]' % (option, set[1], set[2]))
+	# cleanup
 	db.ReleaseConnection(service = "default")
-
 	return (result,matchingSet)
 #-------------------------------------------------------------
 def setDBParam(workplace = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT, option = None, value = None):
@@ -1069,12 +1067,12 @@ def setDBParam(workplace = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT
 	We assume that the config tables are found on service "default".
 	That way we can handle the db connection inside this function.
 
-	Returns 1 if everything went allright.
+	- returns True/False
 	"""
 	# sanity check
 	if option is None or value is None:
 		_log.Log(gmLog.lWarn, 'no option name or value specified')
-		return 0
+		return False
 
 	# import gmPG if need be
 	global _gmPG
@@ -1089,11 +1087,12 @@ def setDBParam(workplace = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT
 		aConn = conn,
 		aDBAPI = _gmPG.dbapi
 	)
+	# need RW conn, too
 	rwconn = db.GetConnection(service = "default", readonly = 0)
 	if rwconn is None:
 		_log.Log(gmLog.lWarn, 'Could not get a rw connection for [%s@%s].' % (user, workplace))
 		db.ReleaseConnection(service = "default")
-		return 0
+		return False
 	# set value
 	dbcfg.set(
 		workplace = workplace,
@@ -1105,7 +1104,7 @@ def setDBParam(workplace = cfg_DEFAULT, user = cfg_DEFAULT, cookie = cfg_DEFAULT
 	rwconn.close()
 	db.ReleaseConnection(service = "default")
 
-	return 1
+	return True
 #=============================================================
 # main
 #=============================================================
@@ -1230,7 +1229,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.12  2004-07-19 11:50:42  ncq
+# Revision 1.13  2004-07-19 13:53:35  ncq
+# - some cleanup re setDBParam()/getFirstMatchingDBset()
+#
+# Revision 1.12  2004/07/19 11:50:42  ncq
 # - cfg: what used to be called "machine" really is "workplace", so fix
 #
 # Revision 1.11  2004/07/17 21:08:51  ncq
