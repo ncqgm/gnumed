@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.9 $
+version = $Revision: 1.10 $
 
 #----------------------------------
 [installation]
@@ -93,6 +93,8 @@ audit marker table = audit_mark
 audit trail parent table = audit_trail
 # all audit trail tables start with this prefix
 audit trail table prefix = log_
+# all audited tables must inherit from this table
+audit fields table = audit_fields
 
 # here you can import some schema files once per database
 # such as revision tracking, translation, auditing etc.
@@ -241,7 +243,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.9  2003-08-02 14:33:48  ncq
+# Revision 1.10  2003-08-17 00:06:37  ncq
+# - add def for audit fields table
+#
+# Revision 1.9  2003/08/02 14:33:48  ncq
 # - adapted to gmDemographics*.sql
 #
 # Revision 1.8  2003/07/27 21:45:16  ncq
