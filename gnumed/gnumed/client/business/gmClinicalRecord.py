@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.151 2004-12-15 10:28:11 ncq Exp $
-__version__ = "$Revision: 1.151 $"
+# $Id: gmClinicalRecord.py,v 1.152 2004-12-18 15:57:57 ncq Exp $
+__version__ = "$Revision: 1.152 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1160,13 +1160,13 @@ where
 		if self.__activate_fairly_recent_encounter():
 			return True
 		# 3) no encounter yet or too old, create new one
-		result = gmEMRStructItems.create_encounter(
+		successful, enc = gmEMRStructItems.create_encounter (
 			fk_patient = self.id_patient,
 			fk_provider = _whoami.get_staff_ID()
 		)
-		if result is False:
+		if not successful:
 			return False
-		self.__encounter = result
+		self.__encounter = enc
 		return True
 	#------------------------------------------------------------------
 	def __activate_very_recent_encounter(self):
@@ -1378,7 +1378,7 @@ where pk_episode in %s and id_patient = %s"""
 			epis = [episode_id]
 		encounters = self.get_encounters(issues=h_iss, episodes=epis)
 		if encounters is None or len(encounters) == 0:
-			_log.Log(gmLog.lErr, 'cannot retrieve first encounter for episodes [%s], issues [%s] (patient ID [%s])' % (str(episodes), str(issues), self.id_patient))
+			_log.Log(gmLog.lErr, 'cannot retrieve first encounter for episodes [%s], issues [%s] (patient ID [%s])' % (str(epis), str(h_iss), self.id_patient))
 			return None
 		# FIXME: this does not scale particularly well
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
@@ -1399,8 +1399,8 @@ where pk_episode in %s and id_patient = %s"""
 			epis = [episode_id]
 		encounters = self.get_encounters(issues=h_iss, episodes=epis)
 		if encounters is None or len(encounters) == 0:
-			_log.Log(gmLog.lErr, 'cannot retrieve last encounter for episodes [%s], issues [%s]. Patient ID [%s]' %(str(episodes), str(issues), self.id_patient))			
-			return None		
+			_log.Log(gmLog.lErr, 'cannot retrieve last encounter for episodes [%s], issues [%s]. Patient ID [%s]' % (str(epis), str(h_iss), self.id_patient))
+			return None
 		# FIXME: this does not scale particularly well
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[-1]
@@ -1611,7 +1611,12 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.151  2004-12-15 10:28:11  ncq
+# Revision 1.152  2004-12-18 15:57:57  ncq
+# - Syan found a logging bug, which is now fixed
+# - eventually fix bug in use of create_encounter() that
+#   prevented gmSoapImporter from working properly
+#
+# Revision 1.151  2004/12/15 10:28:11  ncq
 # - fix create_episode() aka add_episode()
 #
 # Revision 1.150  2004/10/27 12:09:28  ncq
