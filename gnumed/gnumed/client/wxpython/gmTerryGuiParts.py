@@ -10,7 +10,7 @@ dependencies: wxPython (>= version 2.3.1)
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTerryGuiParts.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = 'Dr. Richard Terry'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -43,13 +43,13 @@ class cAlertCaption(wxPanel):
 		caption = wxStaticText(captionpanel,-1, title,style = wxALIGN_CENTRE_VERTICAL)   # static text for the caption
 		caption.SetForegroundColour(wxColour(0,0,0))	                           #black as... 
 		#SetCaptionForegroundColor()                                               #set caption text colour rgb TODO
-		caption.SetFont(wxFont(10,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		caption.SetFont(wxFont(10,wxSWISS,wxNORMAL, wxBOLD,False,''))
 		sizer.Add(captionpanel,1,wxEXPAND|wxALL,2)
                 sizer.Add(0,9,6)
 		self.SetSizer(sizer)                                               #set the sizer 
 		sizer.Fit(self)                                                    #set to minimum size as calculated by sizer
-		self.SetAutoLayout(true)                                           #tell frame to use the sizer
-		#self.Show(true) #showing done by manager!                                                    #show the panel   
+		self.SetAutoLayout(True)                                           #tell frame to use the sizer
+		#self.Show(True) #showing done by manager!                                                    #show the panel   
 		
 	def SetCaptionBackgroundColor(self, bg_red, bg_blue, bg_green):
 		self.SetBackgroundColour(wxColour(bg_red,bg_blue,bg_green))
@@ -67,39 +67,39 @@ class cDividerCaption(wxPanel):
 		default colours are purple panel with white bold text
 		words (sounds yuk doesn't it - but I like it and it works well!!!!!
 	"""
-    #   def __init__(self, parent, id, title, bg_red, bg_blue, bg_green,fg_red, fg_blue, fg_green):
-    #   this to be used once the rgb thingy is fixed
-    def __init__(self, parent, id, title):
-    	wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, 0 )	
-	sizer = wxBoxSizer(wxHORIZONTAL)	
-	self.SetBackgroundColour(wxColour(197,194,255))                            #set panel background to light purple!
-	#SetCaptionBackgroundColor()                                               #set panel background colour  rgb
-        caption = wxStaticText(self,-1, title,style = wxALIGN_CENTRE)              #static text control for the caption
-        caption.SetForegroundColour(wxWHITE)	                                   #white foreground text colour
-         #SetCaptionForegroundColor()                                              #set caption text colour to rgb
-	caption.SetFont(wxFont(13,wxSWISS,wxNORMAL, wxBOLD,false,''))         #TODO implement font size parameter 
-        sizer.Add(caption,1,wxEXPAND)                                      #add caption to the sizer
-	self.SetSizer(sizer)                                               #set the sizer 
-	sizer.Fit(self)                                                    #set to minimum size as calculated by sizer
-        self.SetAutoLayout(true)                                           #tell frame to use the sizer
-        #self.Show(true)                                                    #show the panel   
-	
-    def SetCaptionBackgroundColor(self, bg_red, bg_blue, bg_green):
-	self.SetBackgroundColour(wxColour(bg_red,bg_blue,bg_green))
-			  
-    def SetCaptionForegroundColor(self, fg_red, fg_blue, fg_green):
-	self.caption.SetForegroundColour(wxColour(fg_red,fg_blue,fg_green))
-	return
+	#   def __init__(self, parent, id, title, bg_red, bg_blue, bg_green,fg_red, fg_blue, fg_green):
+	#   this to be used once the rgb thingy is fixed
+	def __init__(self, parent, id, title):
+		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, 0)
+		sizer = wxBoxSizer(wxHORIZONTAL)
+		self.SetBackgroundColour(wxColour(197,194,255))                            #set panel background to light purple!
+		#SetCaptionBackgroundColor()                                               #set panel background colour  rgb
+		caption = wxStaticText(self,-1, title,style = wxALIGN_CENTRE)              #static text control for the caption
+		caption.SetForegroundColour(wxWHITE)	                                   #white foreground text colour
+		#SetCaptionForegroundColor()                                              #set caption text colour to rgb
+		caption.SetFont(wxFont(13,wxSWISS,wxNORMAL, wxBOLD,False,''))         #TODO implement font size parameter
+		sizer.Add(caption,1,wxEXPAND)                                      #add caption to the sizer
+		self.SetSizer(sizer)                                               #set the sizer
+		sizer.Fit(self)                                                    #set to minimum size as calculated by sizer
+		self.SetAutoLayout(True)                                           #tell frame to use the sizer
+		#self.Show(True)                                                    #show the panel
+
+	def SetCaptionBackgroundColor(self, bg_red, bg_blue, bg_green):
+		self.SetBackgroundColour(wxColour(bg_red,bg_blue,bg_green))
+
+	def SetCaptionForegroundColor(self, fg_red, fg_blue, fg_green):
+		self.caption.SetForegroundColour(wxColour(fg_red,fg_blue,fg_green))
+		return
 
 #===========================================================================
 class cHeadingCaption(wxPanel):
-	"""This panel consists constructs a simple heading to be used at the top
+    """This panel consists constructs a simple heading to be used at the top
 
-		of a panel, in the form of capitalised word on user defined foreground
-		and background colours. The heading is left justified curently. The
-		default colours are purple panel, orange label with yellow capitalised
-		words (sounds yuk doesn't it - but I like it and it works well!!!!!
-	"""
+        of a panel, in the form of capitalised word on user defined foreground
+        and background colours. The heading is left justified curently. The
+        default colours are purple panel, orange label with yellow capitalised
+        words (sounds yuk doesn't it - but I like it and it works well!!!!!
+    """
     def __init__ (self, parent, id, text, bgC = wxColour (197,194,255), hdrC = wxColour (255, 129, 131), txtC = wxColour (255, 255, 0)):
         self.text = text
         self.bgC = bgC
@@ -134,16 +134,14 @@ class cHeadingCaption(wxPanel):
         dc.SetBrush (wxBrush (self.hdrC, wxSOLID))
         dc.DrawRectangle (bufx, bufy, txtw, txth)
         dc.DrawText (self.text, bufx, bufy) 
-        
-                                                  #show the panel   
-	
-    def SetCaptionBackgroundColor(self, bgC):
-        self.bgC = bgC
-        self.redraw (wxClientDC (self))
-    
-    def SetCaptionForegroundColor(self, hdrC):
-	self.hdrC = hdrC
-        self.redraw (wxClientDC (self))
+
+	def SetCaptionBackgroundColor(self, bgC):
+		self.bgC = bgC
+		self.redraw (wxClientDC (self))
+
+	def SetCaptionForegroundColor(self, hdrC):
+		self.hdrC = hdrC
+		self.redraw (wxClientDC (self))
 
 #===========================================================================
 if __name__ == "__main__":
@@ -153,7 +151,11 @@ if __name__ == "__main__":
 
 #===========================================================================
 # $Log: gmTerryGuiParts.py,v $
-# Revision 1.1  2004-07-17 20:48:19  ncq
+# Revision 1.2  2004-07-18 19:55:29  ncq
+# - true/false -> True/False
+# - indentation fix
+#
+# Revision 1.1  2004/07/17 20:48:19  ncq
 # - aggregate Richard space GUI parts
 #
 #
