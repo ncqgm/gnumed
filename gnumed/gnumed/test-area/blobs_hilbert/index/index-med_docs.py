@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -48,7 +48,6 @@ __cfg__ = gmCfg.gmDefCfg
 class indexFrame(wxFrame):
 
 	doc_pages = []
-	page = 0
 	selected_pic = ''
 	#---------------------------------------------------------------------------
 	def __init__(self, parent):
@@ -493,6 +492,18 @@ class indexFrame(wxFrame):
 			page_data = self.LBOX_doc_pages.GetClientData(page_idx)
 			page_fname = page_data['file name']
 
+			if not os.path.exists(page_fname)):
+				_log.Log(gmLog.lErr, 'Cannot display page. File [%s] does not exist !' % page_fname)
+				dlg = wxMessageDialog(
+					self,
+					_('Cannot display page %s. The file\n[%s]\ndoes not exist.' % (page_idx+1, page_fname)),
+					_('data error'),
+					wxOK | wxICON_ERROR
+				)
+				dlg.ShowModal()
+				dlg.Destroy()
+				return None
+
 			import docMime
 
 			mime_type = docMime.guess_mimetype(page_fname)
@@ -503,6 +514,7 @@ class indexFrame(wxFrame):
 				new_fname = docMime.get_win_fname(mime_type)
 				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, new_fname))
 				shutil.copyfile(page_fname, new_fname)
+				# FIXME: we should only do this on Windows
 				os.startfile(new_fname)
 			else:
 				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, viewer_cmd))
