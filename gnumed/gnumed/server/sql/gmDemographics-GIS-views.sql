@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -263,7 +263,7 @@ create view v_zip2urb as
 		urb.name as urb,
 		stt.name as state,
 		stt.code as code_state,
-		c.name as country,
+		_(c.name) as country,
 		stt.country as code_country
 	from
 		urb,
@@ -292,7 +292,7 @@ create view v_uniq_zipped_urbs as
 		urb.name as name,
 		stt.name as state,
 		stt.code as code_state,
-		c.name as country,
+		_(c.name) as country,
 		stt.country as code_country
 	from
 		urb,
@@ -368,11 +368,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.7 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.6  2003-09-21 06:54:13  ihaywood
+-- Revision 1.7  2003-12-29 15:33:43  uid66147
+-- - translate country.name in views
+--
+-- Revision 1.6  2003/09/21 06:54:13  ihaywood
 -- sane permissions
 --
 -- Revision 1.5  2003/08/10 15:18:22  ncq
