@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.3 2003-11-19 23:11:58 sjtan Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmDemographics.py,v 1.4 2003-11-20 02:14:42 sjtan Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -39,7 +39,7 @@ import gmPatientHolder
 import time
 
 from gmPhraseWheel import cPhraseWheel
-from gmDemographicRecord import UrbMP , PostcodeMP, StreetMP
+from gmDemographicRecord import MP_urb_by_zip , PostcodeMP, StreetMP
 import gmDemographicRecord
 
 ID_PATIENT = wxNewId()
@@ -189,7 +189,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self.txt_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wxDefaultPosition, size=wxDefaultSize )
 		self.txt_street.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.txt_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= UrbMP(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
+		self.txt_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
 
 		self.txt_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize )
 
@@ -451,7 +451,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 	def __urb_selected(self, id):
 		print id
 		myPatient = self.get_demographic_record()
-		self.input_fields['zip'].SetValue( myPatient.getPostcodeForUrbId(id )  )
+		self.input_fields['zip'].SetValue( gmDemographicRecord.getPostcodeForUrbId(id )  )
 
 
 
@@ -810,7 +810,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.3  2003-11-19 23:11:58  sjtan
+# Revision 1.4  2003-11-20 02:14:42  sjtan
+#
+# use global module function getPostcodeByUrbId() , and renamed MP_urb_by_zip.
+#
+# Revision 1.3  2003/11/19 23:11:58  sjtan
 #
 # using local time tuple conversion function; mxDateTime object sometimes can't convert to int.
 # Changed to global module.getAddressTypes(). To decide: mechanism for postcode update when
