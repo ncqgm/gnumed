@@ -4,9 +4,11 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.7 2004-05-30 18:33:28 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmAllergy.py,v 1.8 2004-06-02 21:47:27 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
+
+import types
 
 from Gnumed.pycommon import gmLog, gmPG
 from Gnumed.business import gmClinItem
@@ -60,16 +62,16 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	# sanity checks:
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the same patient ?
-	cmd = "select id_patient from v_patient_items where id_episode=%s and id_encounter=%s"
+	cmd = """
+		select id_patient from v_pat_episodes where id_episode=%s
+			union
+		select pk_patient from v_pat_encounters where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
-	if rows is None:
+	if (rows is None) or (len(rows) == 0):
 		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
 		return (None, _('internal error, check log'))
-	if len(rows) == 0:
-		_log(gmLog.lErr, 'episode [%s] and encounter [%s] do not belong to the same patient' % (episode_id, encounter_id))
-		return (None, _('consistency error, check log'))
 	if len(rows) > 1:
-		_log(gmLog.lErr, 'episode [%s] and encounter [%s] belong to more than one patient !?!' % (episode_id, encounter_id))
+		_log.Log(gmLog.lErr, 'episode [%s] and encounter [%s] belong to more than one patient !?!' % (episode_id, encounter_id))
 		return (None, _('consistency error, check log'))
 	pat_id = rows[0][0]
 	# insert new allergy
@@ -124,7 +126,10 @@ if __name__ == '__main__':
 #	allg.save_payload()
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.7  2004-05-30 18:33:28  ncq
+# Revision 1.8  2004-06-02 21:47:27  ncq
+# - improved sanity check in create_allergy() contributed by Carlos
+#
+# Revision 1.7  2004/05/30 18:33:28  ncq
 # - cleanup, create_allergy, done mostly by Carlos
 #
 # Revision 1.6  2004/05/12 14:28:52  ncq
