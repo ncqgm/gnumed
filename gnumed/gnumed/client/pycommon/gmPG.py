@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -686,16 +686,23 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 			_log.Log(gmLog.lData, '%s rows affected by >>>%s<<<' % (curs.rowcount, query))
 	# did we get result rows in the last query ?
 	data = None
-	if curs.description is None:
+	# now, the DB-API is ambigous about whether cursor.description
+	# and cursor.rowcount apply to the most recent query in a cursor
+	# (does that statement make any sense ?!?) or to the entire lifetime
+	# of said cursor, pyPgSQL thinks the latter, hence we need to catch
+	# exceptions when there's no data from the *last* query
+	try:
+		data = curs.fetchall()
 		if _query_logging_verbosity == 1:
-			_log.Log(gmLog.lData, 'last query did not return rows')
-	else:
-		if curs.rowcount > 0:
-			data = curs.fetchall()
-			if _query_logging_verbosity == 1:
-				_log.Log(gmLog.lData, 'last query returned %s rows' % curs.rowcount)
-		else:
-			_log.Log(gmLog.lErr, 'odd: (cursor.description is not None) but (cursor.rowcount < 1)')
+			_log.Log(gmLog.lData, 'last query returned %s rows' % curs.rowcount)
+	except:
+		if _query_logging_verbosity == 1:
+			_log.Log(gmLog.lData, 'fetchall(): last query did not return rows')
+		# something seems odd
+		if (curs.rowcount > 0) or (curs.description is not None):
+			_log.Log(gmLog.lWarn, 'there seem to be rows but fetchall() failed -- DB API violation ?')
+			_log.Log(gmLog.lWarn, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
+
 	# clean up
 	if close_cursor:
 		conn.commit()
@@ -1124,7 +1131,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.8  2004-04-16 00:21:22  ncq
+# Revision 1.9  2004-04-16 16:18:37  ncq
+# - correctly check for returned rows in run_commit()
+#
+# Revision 1.8  2004/04/16 00:21:22  ncq
 # - fix access to "data" in run_commit
 #
 # Revision 1.7  2004/04/15 23:38:07  ncq
