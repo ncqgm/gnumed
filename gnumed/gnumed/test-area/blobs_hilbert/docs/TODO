@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -47,6 +47,8 @@ index
 
 - load external file(s) (fax, digicam etc.)
 
+- phrasewheel on Kurzkommentar !!
+
 import
 ------
 - profile download vs. unescaping to speed up retrieval
@@ -73,7 +75,7 @@ scan
 - rechts buttonleiste:
   - scan
   - quit/cancel
-  - konfigurierbare buttons mit maximum, aus conf file
+  - konfigurierbare buttons (max 10), aus conf file
     laden, für dokumententypabhängige einstellungen
 
 viewer
@@ -88,30 +90,41 @@ viewer
 
  bessere Darstellung der Felder eines Entry
 
- > Typen-Filterung einbauen
- > testen ob es vom speed her möglich ist, die Seiten im Tree (Unterpunkte) erst 
- > anzuzeigen wenn man auf dem Namen steht
-  Geht, aber will man das wirklich ?
+ - Typen-Filterung einbauen
 
  - Gunmed-Plugin
 
  mehrere Versionen (Funktionalität)
 
- Menü on Right-Click
+ - Menü on Right-Click
+   - "export this object"
+   - "export this document"
+   - "export selected" (multiple selections !)
+   - "display descriptions"
+     - level 1 menu:
+	   - zap consecutive whitespace into 1 space
+	   - display first 10 characters of description as item
+	   - level 2 menu:
+	     - "display"
+		 - "export"
+		 - "edit"
 
  - progress bar on download/unescape
 
  - export selektierter dokumente/objekte
 
- - config: expand pages below documents ?
-   -> no -> show nr of pages in doc node
+ > testen ob es vom speed her möglich ist, die Seiten im Tree (Unterpunkte) erst 
+ > anzuzeigen wenn man auf dem Namen steht
+ - auto-expand node NN milliseconds after selection
+
+ - wenn kein BDT/... übergeben
+   -> Liste aller Patienten bzw. Suchwidget (PhraseWheel)
+
+ - octet_length(doc_obj.data)
 
 Conf/Doc
 --------
 - translate into English
-
- > Dau-Dokumentation erstellen
- > -werde ich machen, das braucht nicht soviel Zeit
 
  > Zusatzprogramme :
  > extra Webseite einrichten
