@@ -2,8 +2,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.2 2003-02-17 16:17:20 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmMimeLib.py,v 1.3 2003-04-20 15:33:03 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -103,6 +103,69 @@ def guess_ext_by_mimetype(aMimeType = None):
 		_log.Log(gmLog.lErr, "The system does not know the file extension for the mimetype <%s>." % aMimeType)
 
 	return f_ext
+#-----------------------------------------------------------------------------------
+def call_viewer_on_file(aFile = None):
+	"""Try to find an appropriate viewer with all tricks and call it."""
+
+	if aFile is None:
+		msg = "No need to call viewer without file name."
+		_log.Log(gmLog.lErr, msg)
+		return None, msg
+
+	# does this file exist, actually ?
+	if not os.path.exists(aFile):
+		msg = _('File [%s] does not exist !') % aFile
+		_log.Log(gmLog.lErr, msg)
+		return None, msg
+
+	# sigh ! let's be off to work
+	mime_type = guess_mimetype(aFile)
+	_log.Log(gmLog.lData, "mime type : %s" % mime_type)
+	viewer_cmd = get_viewer_cmd(mime_type, aFile)
+	_log.Log(gmLog.lData, "viewer cmd: '%s'" % viewer_cmd)
+
+	if viewer_cmd != None:
+		os.system(viewer_cmd)
+		return 1, ""
+
+	_log.Log(gmLog.lErr, "Cannot determine viewer via standard mailcap mechanism.")
+	if os.name == "posix":
+		_log.Log(gmLog.lErr, "You should add a viewer for this mime type to your mailcap file.")
+		msg = _("Unable to start viewer on file\n[%s]\nYou need to update your mailcap file.") % aFile
+		return None, msg
+	else:
+		_log.Log(gmLog.lInfo, "Let's see what the OS can do about that.")
+		# does the file already have an extension ?
+		(path_name, f_ext) = os.path.splitext(aFile)
+		# no
+		if f_ext == "":
+			# try to guess one
+			f_ext = guess_ext_by_mimetype(mime_type)
+			if f_ext is None:
+				_log.Log(gmLog.lErr, "Unable to guess file extension from mime type. Trying sheer luck.")
+				file_to_display = aFile
+				f_ext = ""
+			else:
+				file_to_display = aFile + f_ext
+				shutil.copyfile(aFile, file_to_display)
+		# yes
+		else:
+			file_to_display = aFile
+
+		_log.Log(gmLog.lData, "file %s <type %s> (ext %s) -> file %s" % (aFile, mime_type, f_ext, file_to_display))
+		try:
+			os.startfile(file_to_display)
+		except:
+			msg = _("Unable to start viewer on file [%s].") % file_to_display		
+			_log.LogException(msg, sys.exc_info(), fatal=0)
+			return None, msg
+
+	# clean up if necessary
+	# don't kill the file from under the (async) viewer
+#	if file_to_display != aFile:
+#		os.remove(file_to_display)
+
+	return 1, ""
 #=======================================================================================
 if __name__ == "__main__":
 	filename = sys.argv[1]
@@ -110,7 +173,10 @@ if __name__ == "__main__":
 	print str(get_viewer_cmd(guess_mimetype(filename), filename))
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.2  2003-02-17 16:17:20  ncq
+# Revision 1.3  2003-04-20 15:33:03  ncq
+# - call_viewer_on_file() belongs here, I guess
+#
+# Revision 1.2  2003/02/17 16:17:20  ncq
 # - fix typo
 #
 # Revision 1.1  2003/02/14 00:22:17  ncq
