@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 
 -- this belongs into the service clinical (historica)
 
@@ -12,16 +12,10 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
--- =============================================
-create table practice_dummy (
-	id serial primary key,
-	dummy varchar(10)
-);
-
 -- ====================================
 create table test_org (
 	id serial primary key,
-	id_practice integer unique not null references practice_dummy(id),
+	id_practice integer unique not null,
 	id_adm_contact integer default null,
 	id_med_contact integer default null,
 	"comment" text
@@ -29,9 +23,19 @@ create table test_org (
 
 -- remote foreign keys
 insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
-	values ('test_org', 'id_adm_contact', 'personalia', 'identity', 'id');
+values (
+	'test_org', 'id_practice', 'personalia', 'org', 'id'
+);
+
 insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
-	values ('test_org', 'id_med_contact', 'personalia', 'identity', 'id');
+values (
+	'test_org', 'id_adm_contact', 'personalia', 'identity', 'id'
+);
+
+insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
+values (
+	'test_org', 'id_med_contact', 'personalia', 'identity', 'id'
+);
 
 COMMENT ON TABLE test_org IS
 	'organisation providing results';
@@ -128,7 +132,15 @@ create table test_result (
 
 -- remote foreign keys
 insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
-	values ('test_result', 'val_unit', 'reference', 'unit', 'name_short');
+values (
+	'test_result', 'val_unit', 'reference', 'unit', 'name_short'
+);
+
+-- should actually point to identity.doctor.id
+insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
+values (
+	'test_result', 'id_clinician', 'personalia', 'identity', 'id'
+);
 
 COMMENT ON TABLE test_result is 
 	'the results of a single measurement';
@@ -201,6 +213,11 @@ create table lab_result (
 	abnormal_tag character(5)
 ) inherits (audit_mark, clin_root_item);
 
+insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
+values (
+	'lab_result', 'id_sampler', 'personalia', 'identity', 'id'
+);
+
 -- id_sampler -> identity.id
 
 comment on table lab_result is
@@ -253,11 +270,14 @@ create table log_lab_result (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.4  2003-07-27 21:59:47  ncq
+-- Revision 1.5  2003-08-03 14:10:27  ncq
+-- - add external FK defs
+--
+-- Revision 1.4  2003/07/27 21:59:47  ncq
 -- - better comments/cleanup/renaming
 -- - first remote FK defs
 -- - auditing
