@@ -6,7 +6,7 @@ __version__ = ""
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
-import os.path, sys, os, re# string #random
+import os.path, sys, os, re
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -119,11 +119,11 @@ class cLabJournalNB(wxNotebook):
 	def __init_SZR_due (self, call_fit = True, set_sizer = True ):
 
 		vbszr_main = wxBoxSizer( wxVERTICAL )
-		lab_wheel = cLabWheel(self.PNL_due_tab)
-		lab_wheel.on_resize (None)
-		lab_wheel.addCallback(self.on_lab_selected)
+		self.lab_wheel = cLabWheel(self.PNL_due_tab)
+		self.lab_wheel.on_resize (None)
+		self.lab_wheel.addCallback(self.on_lab_selected)
 		
-		vbszr_main.AddWindow(lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
+		vbszr_main.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
 
 		self.item2 = wxTextCtrl(
 			self.PNL_due_tab,
@@ -207,7 +207,8 @@ class cLabJournalNB(wxNotebook):
 	def __populate_notebook(self):
 		
 		self.item2.Clear()
-		self.lbox_pending.Clear()
+		self.lab_wheel.Clear()
+		self.lbox_pending.DeleteAllItems()
 		#------ due PNL ------------------------------------
 		pending_requests = self.__get_pending_requests()
 		for request in pending_requests:
@@ -226,7 +227,6 @@ class cLabJournalNB(wxNotebook):
 				# FIXME: make use of rest data in patient via mouse over context
 				self.lbox_pending.SetStringItem(index = idx, col=3, label=patient[2]+' '+patient[3])
 				self.lbox_pending.SetStringItem(index = idx, col=4, label=_('pending'))
-		
 		
 		#----- import errors PNL -----------------------
 		lab_errors = self.__show_import_errors()
@@ -285,14 +285,22 @@ class cLabJournalNB(wxNotebook):
 	# event handlers
 	#-----------------------------------
 	def on_save_request_ID(self, event):
-	
-		emr = self.curr_pat.get_clinical_record()
-		#test = gmPathLab.create_lab_request(lab=self.lab_name[0][0], req_id = self.item2.GetValue(), pat_id = self.curr_pat['ID'], encounter_id = emr.id_encounter, episode_id= emr.id_episode)
-		test = gmPathLab.create_lab_request(req_id='ML#SC937-0176-CEC#11', lab='Enterprise Main Lab', encounter_id = emr.id_encounter, episode_id= emr.id_episode)
-		# react on succes or failure of save_request
-		#print self.lab_name[0][0] , self.item2.GetValue(), #pat_id, encounter_id, episode_id
-		
-		print test
+		req_id = self.item2.GetValue()
+		if not req_id == '':
+			emr = self.curr_pat.get_clinical_record()
+			test = gmPathLab.create_lab_request(lab=self.lab_name[0][0], req_id = req_id, pat_id = self.curr_pat['ID'], encounter_id = emr.id_encounter, episode_id= emr.id_episode)
+			#test = gmPathLab.create_lab_request(req_id='ML#SC937-0176-CEC#11', lab='Enterprise Main Lab', encounter_id = emr.id_encounter, episode_id= emr.id_episode)
+			# react on succes or failure of save_request
+			#print self.lab_name[0][0] , self.item2.GetValue(), #pat_id, encounter_id, episode_id
+			
+			print test
+		else :
+			_log.Log(gmLog.lErr, 'No request ID typed in yet !')
+			gmExceptions.gm_show_error (
+				_('You must type in a request ID !\n\nUsually you will find the request ID written on\nthe barcode sticker on your probe container.'),
+				_('saving request id')
+			)
+			return None
 		self.__populate_notebook()
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
@@ -300,14 +308,15 @@ class cLabJournalNB(wxNotebook):
 		evt.Skip()
 	#-------------------------------------------------------
 	def on_lab_selected(self,data):
-		print "phrase wheel just changed lab to", data
-		# get last used id for lab
-		self.lab_name = self.__get_labname(data)
-		print self.lab_name
-		#guess next id
-		nID = self.guess_next_id(self.lab_name[0][0])
-		# set field to that
-		self.item2.SetValue(nID)
+		if not data is None: 
+			print "phrase wheel just changed lab to", data
+			# get last used id for lab
+			self.lab_name = self.__get_labname(data)
+			print self.lab_name
+			#guess next id
+			nID = self.guess_next_id(self.lab_name[0][0])
+			# set field to that
+			self.item2.SetValue(nID)
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
@@ -542,7 +551,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.5  2004-05-04 07:19:34  shilbert
+# Revision 1.6  2004-05-04 08:42:04  shilbert
+# - first working version, needs testing
+#
+# Revision 1.5  2004/05/04 07:19:34  shilbert
 # - kind of works, still a bug in create_request()
 #
 # Revision 1.4  2004/05/01 10:29:46  shilbert
