@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.10 2004-05-08 17:27:21 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmClinItem.py,v 1.11 2004-05-08 22:13:11 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -50,12 +50,10 @@ class cClinItem:
 			raise gmExceptions.ConstructorError, "[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk)
 	#--------------------------------------------------------
 	def __del__(self):
-		try:
+		if self.__dict__.has_key('_is_modified'):
 			if self._is_modified:
 				_log.Log(gmLog.lPanic, '[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk))
 				_log.Log(gmLog.lData, self._payload)
-		except KeyError:
-			pass
 	#--------------------------------------------------------
 	def __str__(self):
 		tmp = []
@@ -128,7 +126,10 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.10  2004-05-08 17:27:21  ncq
+# Revision 1.11  2004-05-08 22:13:11  ncq
+# - cleanup
+#
+# Revision 1.10  2004/05/08 17:27:21  ncq
 # - speed up __del__
 # - use NoSuchClinItemError
 #

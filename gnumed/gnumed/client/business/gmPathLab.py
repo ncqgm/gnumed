@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.15 2004-05-08 17:29:18 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmPathLab.py,v 1.16 2004-05-08 22:13:11 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types,sys
@@ -289,7 +289,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.15 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.16 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -369,7 +369,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.15 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.16 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -397,7 +397,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, req)
-#============================================================
+#------------------------------------------------------------
 def create_test_result(patient_id=None, when_field=None, when=None, test_type=None, val_num=None, val_alpha=None, unit=None, encounter_id=None, episode_id=None):
 	tres = None
 	try:
@@ -410,14 +410,13 @@ def create_test_result(patient_id=None, when_field=None, when=None, test_type=No
 			val_alpha=val_alpha,
 			unit=unit
 		)
+		# found, can't create, so fail
+		return (None, tres)
 	except gmExceptions.NoSuchClinItemError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
-	# found
-	if tres is not None:
-		return (True, tres)
 	# not found
 	queries = []
 	cmd = "insert into test_result (id_encounter, id_episode, fk_type, val_num, val_alpha, val_unit) values (%s, %s, %s, %s, %s, %s)"
@@ -477,7 +476,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.15  2004-05-08 17:29:18  ncq
+# Revision 1.16  2004-05-08 22:13:11  ncq
+# - cleanup
+#
+# Revision 1.15  2004/05/08 17:29:18  ncq
 # - us NoSuchClinItemError
 #
 # Revision 1.14  2004/05/06 23:37:19  ncq
