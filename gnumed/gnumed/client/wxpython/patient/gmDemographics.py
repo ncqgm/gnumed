@@ -448,7 +448,7 @@ class gmDemographics (gmPlugin.wxBasePlugin):
 	      	self.txt_allergies = wxTextCtrl(tb,ID_TXTPATIENTALLERGIES,"Penicillin, Macrolides")
 	      	self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
 	      	self.txt_allergies.SetForegroundColour(wxColour(255,0,0))
-	      	self.combo_consultation_type = wxComboBox(tb, ID_COMBOCONSULTTYPE, "Surgery Consultation", wxDefaultPosition,wxDefaultSize,consulttypelist, wxCB_DROPDOWN)
+	      	self.combo_consultation_type = wxComboBox(tb, ID_COMBOCONSULTTYPE, "Surgery", wxDefaultPosition,wxDefaultSize,consulttypelist, wxCB_DROPDOWN)
 		tb.toplinesizer.Add(self.tb_patient_search,0,wxEXPAND)
 	      	tb.toplinesizer.Add(self.txt_findpatient,5,wxEXPAND|wxALL,3)
 	      	tb.toplinesizer.Add(self.lbl_age,1,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
