@@ -2,8 +2,8 @@
 
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/patient_search/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.2 2003-03-25 01:24:57 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPatientSelector.py,v 1.3 2003-03-25 01:39:46 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -91,8 +91,6 @@ def queries_default(raw = None):
 		return queries
 
 	print "- this is a more complicated pattern"
-	print "- we don't expect patient IDs in complicated patterns"
-	print "- hence, any digits signify a date"
 
 	# try to split on (major) part separators
 	parts_list = re.split(",|;", raw)
@@ -270,7 +268,9 @@ class cPatientSelector(wxTextCtrl):
 	def _on_enter(self, evt):
 		# generate queries
 		queries = self.generate_queries(self.GetValue())
-		print queries
+		print queries[1]
+		print queries[2]
+		print queries[3]
 
 		# get list of names
 		names = self._fetch_pat_data(queries)
@@ -387,3 +387,10 @@ if __name__ == "__main__":
 # search case sensitive by default, switch to insensitive if not found ?
 
 # phrase wheel is most likely too slow
+
+# search fragment history
+
+# ask user whether to send off level 3 queries - or thread them
+
+# "- we don't expect patient IDs in complicated patterns"
+# "- hence, any digits signify a date"
