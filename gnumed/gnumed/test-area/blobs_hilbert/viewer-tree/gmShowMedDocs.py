@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -123,12 +123,14 @@ class cDocTree(wxTreeCtrl):
 		for doc_id in self.doc_list.keys():
 			doc = self.doc_list[doc_id]
 			mdata = doc.getMetaData()
+			date = '%s' % mdata['date'] + " " * 10
 			typ = '%s' % mdata['type'] + " " * 25
 			cmt = '"%s"' % mdata['comment'] + " " * 25
 			ref = mdata['reference'] + " " * 15
 			page_num = str(len(mdata['objects']))
 			tmp = _('%s %s: %s (%s pages, %s)')
-			label =  tmp % (mdata['date'][:10], typ[:25], cmt[:25], page_num, ref[:15])
+			# FIXME: handle date correctly
+			label =  tmp % (date[:10], typ[:25], cmt[:25], page_num, ref[:15])
 			doc_node = self.AppendItem(self.root, label)
 			self.SetItemBold(doc_node, bold=TRUE)
 			# we need to distinguish documents from objects in OnActivate
@@ -376,7 +378,10 @@ else:
 			return ('tools', _('&Show Documents'))
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.5  2003-01-24 13:15:22  ncq
+# Revision 1.6  2003-01-24 14:57:32  ncq
+# - correctly handle date as timestamp
+#
+# Revision 1.5  2003/01/24 13:15:22  ncq
 # - v_i18n_doc_type awareness
 # - display doc_type, too
 #
