@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -78,6 +78,14 @@ class cDocument:
 			self.__metadata['reference'] = string.join(tmp)
 			__log__.Log(gmLog.lData, "document reference string: " + str(self.__metadata['reference']))
 
+		# document description
+		tmp = self.__get_from_xml(aTag = aCfg.get("metadata", "desc_tag"), anXMLfile = DescFile)
+		if tmp == None:
+			__log__.Log(gmLog.lErr, "Cannot load long document description.")
+		else:
+			self.__metadata['description'] = string.join(tmp)
+			__log__.Log(gmLog.lData, "long document description: " + str(self.__metadata['description']))
+
 		# list of data files
 		if not self.__read_img_list(DescFile, aBaseDir):
 			__log__.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
@@ -110,11 +118,11 @@ class cDocument:
 		cmd = "SELECT patient_id, type, comment, date, ext_ref FROM doc_med WHERE id='%s'" % (self.__metadata['id'])
 		cursor.execute(cmd)
 		result = cursor.fetchone()
-		self.__metadata['patient id']	= result[0]
-		self.__metadata['type']		= result[1]
-		self.__metadata['comment']	= result[2]
-		self.__metadata['date']		= result[3]
-		self.__metadata['reference']	= result[4]
+		self.__metadata['patient id'] = result[0]
+		self.__metadata['type'] = result[1]
+		self.__metadata['comment'] = result[2]
+		self.__metadata['date'] = result[3]
+		self.__metadata['reference'] = result[4]
 
 		# get object level metadata for all objects of this document
 		cmd = "SELECT oid, comment FROM doc_obj WHERE doc_id='%s'" % (self.__metadata['id'])
@@ -157,6 +165,7 @@ class cDocument:
 			cursor.execute(cmd)
 			if cursor.rowcount != 1:
 				__log__.Log(gmLog.lErr, 'Document type "%s" is not valid for this database !' % (self.__metadata['type']))
+				cursor.close()
 				return (1==0)
 			type_id = cursor.fetchone()[0]
 
@@ -183,9 +192,13 @@ class cDocument:
 				img_data = img_data + "external reference:" + str(self.__metadata['reference']) + "\n"
 				# and escape stuff so we can store it in a BYTEA field
 				img_data = self.__escapeByteA(img_data)
-				#__log__.Log(gmLog.lData, "%s" % img_data)
 				# finally insert the data
-				cmd = "INSERT INTO doc_obj (doc_id, data) VALUES (currval('doc_med_id_seq'), '" + img_data + "')"
+				cmd = "INSERT INTO doc_obj (doc_id, seq_idx, data) VALUES (currval('doc_med_id_seq'), '" + str(obj['index']) + "', '" + img_data + "')"
+				cursor.execute(cmd)
+
+			# insert long document description if available
+			if self.__metadata['reference'] != None:
+				cmd = "INSERT INTO doc_desc (doc_id, text) VALUES (currval('doc_med_id_seq'), '%s')" % self.__metadata['description']
 				cursor.execute(cmd)
 
 			# make permanent what we got so far
@@ -296,6 +309,14 @@ class cDocument:
 		return (1==1)
 	#-----------------------------------
 	def __read_img_list(self, aDescFile = None, aBaseDir = None):
+		"""Read list of image files from XML metadata file.
+
+		We assume the order of file names to correspond to the sequence of pages.
+		"""
+		# sanity check
+		if aBaseDir == None:
+			aBaseDir = ""
+
 		self.__metadata['objects'] = {}
 
 		i = 1
@@ -319,7 +340,8 @@ class cDocument:
 			file = line[start_pos:end_pos]
 			tmp = {}
 			tmp['file name'] = os.path.abspath(os.path.join(aBaseDir, file))
-			# we must use imaginary oid's
+			tmp['index'] = i
+			# we must use imaginary oid's since we are reading from a file
 			self.__metadata['objects'][i] = tmp
 			i += 1
 
