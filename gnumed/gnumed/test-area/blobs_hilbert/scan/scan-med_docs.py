@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -68,7 +68,7 @@ class scanFrame(wxFrame):
 
 		# get temp dir path from config file
 		self.scan_tmp_dir = None
-		tmp = _cfg.get("repositories", "scan_tmp")
+		tmp = _cfg.get("scanning", "tmp")
 		if tmp == None:
 			_log.Log(gmLog.lErr, 'Cannot get tmp dir from config file.')
 		else:
@@ -648,7 +648,7 @@ class scanFrame(wxFrame):
 	# internal helper methods
 	#-----------------------------------
 	def __get_ID_mode(self):
-		tmp = _cfg.get("scanning", "document_ID_mode")
+		tmp = _cfg.get("scanning", "document ID mode")
 
 		if not tmp in ['random', 'consecutive']:
 			_log.Log(gmLog.lErr, '"%s" is not a valid document ID generation mode. Falling back to "random".' % tmp)
@@ -658,7 +658,7 @@ class scanFrame(wxFrame):
 		return tmp
 	#-----------------------------------
 	def __get_next_consecutive_ID(self):
-		fname = _cfg.get("scanning", "document_ID_file")
+		fname = _cfg.get("scanning", "document ID file")
 		if fname == None:
 			_log.Log(gmLog.lErr, 'Cannot get name of file with most recently used document ID from config file')
 			return None
@@ -681,7 +681,7 @@ class scanFrame(wxFrame):
 		while doc_id < 0:
 			dlg = wxTextEntryDialog(
 				parent = self,
-				message = _('The most recently used document ID was "%s".\nWe would use the ID "%s" for the current document.\nPlease confirm the ID or type in a new numeric ID.\n\nYou should also write down this ID on the documents themselves.' % (last_ID, new_ID)),
+				message = _('The most recently used document ID was "%s".\nWe would use the ID "%s" for the current document.\nPlease confirm the ID or type in a new numeric ID.\n\nYou should also write down this ID on the documents themselves.') % (last_ID, new_ID),
 				caption = _('document ID'),
 				defaultValue = new_ID,
 				style = wxOK | wxCentre
@@ -716,7 +716,7 @@ class scanFrame(wxFrame):
 		# extract name for dir
 		path, doc_ID = os.path.split(dirname)
 
-		show_ID = _cfg.get('scanning', 'show_document_ID')
+		show_ID = _cfg.get('scanning', 'show document ID')
 		if show_ID == None:
 			_log.Log(gmLog.lWarn, 'Cannot get option from config file.')
 			show_ID = "yes"
@@ -757,7 +757,7 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	def __get_target_repository(self):
 		"""Retrieve and validate target repository configuration."""
-		tmp = _cfg.get("repositories", "to_index")
+		tmp = _cfg.get("index", "repository")
 		if tmp == None:
 			_log.Log(gmLog.lErr, 'Cannot get target repository for scans from config file.')
 			dlg = wxMessageDialog(
@@ -819,11 +819,11 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	def __unlock_for_indexing(self, aDir):
 		"""Write checkpoint file so indexing can start."""
-		can_index_file = _cfg.get('metadata', 'can_index')
+		can_index_file = _cfg.get('index', 'can index')
 		if not can_index_file:
 			dlg = wxMessageDialog(
 				self,
-				_('You must specify a checkpoint file for indexing in the config file.\nUse option <can_index> in group [metadata].'),
+				_('You must specify a checkpoint file for indexing in the config file.\nUse option <can index> in group [index].'),
 				_('saving document'),
 				wxOK | wxICON_ERROR
 			)
@@ -874,7 +874,10 @@ if __name__ == '__main__':
 
 #======================================================
 # $Log: scan-med_docs.py,v $
-# Revision 1.29  2002-09-16 23:20:58  ncq
+# Revision 1.30  2002-09-29 16:06:26  ncq
+# - cleaned up config file
+#
+# Revision 1.29  2002/09/16 23:20:58  ncq
 # - added missing _()
 #
 # Revision 1.28  2002/09/13 10:46:04  ncq
