@@ -9,15 +9,14 @@ class base_handler:
 		if model == None and self.model <> None:
 			model = self.model
 			
-		return self.__init__(panel, model)
+		return  self.__init__(panel, model, self.impl)
 
-	def __init__(self, panel, model = None):
+	def __init__(self, panel, model = None, impl = None):
 		self.panel = panel
-		
+		self.impl = impl	
 		if panel <> None:
 			self.set_id()
 			self.set_evt()
-			self.impl = None
 			self.set_name_map()	
 
 		self.set_model(model)
@@ -84,15 +83,6 @@ class base_handler:
 			return self.panel.__dict__[key]
 		return None
 
-	def get_valid_func( self, key , func):
-		component =  self.get_valid_component(key)
-		if component == None:
-			return None
-		if component.__class__.__dict__.has_key(func):
-			return component.__class__.__dict__[func]
-		else:
-			print "unable to find ", func, "in component.class ", component.__class__.__name__
-		return None
 
 	def set_id_common(self, name ,  control ):
 		id = control.GetId()
@@ -111,10 +101,10 @@ class base_handler:
 
 # [('txt_org_name', 'TextBox_RedBold'), ('txt_org_type', 'TextBox_RedBold'), ('txt_org_street', 'wxTextCtrl'), ('txt_org_suburb', 'TextBox_RedBold'), ('txt_org_zip', 'TextBox_RedBold'), ('txt_org_state', 'TextBox_RedBold'), ('txt_org_user1', 'TextBox_BlackNormal'), ('txt_org_user2', 'TextBox_BlackNormal'), ('txt_org_user3', 'TextBox_BlackNormal'), ('txt_org_category', 'TextBox_BlackNormal'), ('txt_org_phone', 'TextBox_BlackNormal'), ('txt_org_fax', 'TextBox_BlackNormal'), ('txt_org_mobile', 'TextBox_BlackNormal'), ('txt_org_email', 'TextBox_BlackNormal'), ('txt_org_internet', 'TextBox_BlackNormal'), ('txt_org_memo', 'wxTextCtrl'), ('combo_type', 'wxComboBox'), ('chbx_postaladdress', 'wxCheckBox')]
 
-class gmContacts_handler( base_handler):
+class gmContacts_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -122,109 +112,91 @@ class gmContacts_handler( base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_name') ,
-			'setter': self.get_valid_func( 'txt_org_name', 'SetValue')  ,
 			'comp_name' : 'txt_org_name','setter_name' :  'SetValue' } 
 		map['org_name'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_type') ,
-			'setter': self.get_valid_func( 'txt_org_type', 'SetValue')  ,
 			'comp_name' : 'txt_org_type','setter_name' :  'SetValue' } 
 		map['org_type'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_street') ,
-			'setter': self.get_valid_func( 'txt_org_street', 'SetValue')  ,
 			'comp_name' : 'txt_org_street','setter_name' :  'SetValue' } 
 		map['org_street'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_suburb') ,
-			'setter': self.get_valid_func( 'txt_org_suburb', 'SetValue')  ,
 			'comp_name' : 'txt_org_suburb','setter_name' :  'SetValue' } 
 		map['org_suburb'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_zip') ,
-			'setter': self.get_valid_func( 'txt_org_zip', 'SetValue')  ,
 			'comp_name' : 'txt_org_zip','setter_name' :  'SetValue' } 
 		map['org_zip'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_state') ,
-			'setter': self.get_valid_func( 'txt_org_state', 'SetValue')  ,
 			'comp_name' : 'txt_org_state','setter_name' :  'SetValue' } 
 		map['org_state'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_user1') ,
-			'setter': self.get_valid_func( 'txt_org_user1', 'SetValue')  ,
 			'comp_name' : 'txt_org_user1','setter_name' :  'SetValue' } 
 		map['org_user1'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_user2') ,
-			'setter': self.get_valid_func( 'txt_org_user2', 'SetValue')  ,
 			'comp_name' : 'txt_org_user2','setter_name' :  'SetValue' } 
 		map['org_user2'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_user3') ,
-			'setter': self.get_valid_func( 'txt_org_user3', 'SetValue')  ,
 			'comp_name' : 'txt_org_user3','setter_name' :  'SetValue' } 
 		map['org_user3'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_category') ,
-			'setter': self.get_valid_func( 'txt_org_category', 'SetValue')  ,
 			'comp_name' : 'txt_org_category','setter_name' :  'SetValue' } 
 		map['org_category'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_phone') ,
-			'setter': self.get_valid_func( 'txt_org_phone', 'SetValue')  ,
 			'comp_name' : 'txt_org_phone','setter_name' :  'SetValue' } 
 		map['org_phone'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_fax') ,
-			'setter': self.get_valid_func( 'txt_org_fax', 'SetValue')  ,
 			'comp_name' : 'txt_org_fax','setter_name' :  'SetValue' } 
 		map['org_fax'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_mobile') ,
-			'setter': self.get_valid_func( 'txt_org_mobile', 'SetValue')  ,
 			'comp_name' : 'txt_org_mobile','setter_name' :  'SetValue' } 
 		map['org_mobile'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_email') ,
-			'setter': self.get_valid_func( 'txt_org_email', 'SetValue')  ,
 			'comp_name' : 'txt_org_email','setter_name' :  'SetValue' } 
 		map['org_email'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_internet') ,
-			'setter': self.get_valid_func( 'txt_org_internet', 'SetValue')  ,
 			'comp_name' : 'txt_org_internet','setter_name' :  'SetValue' } 
 		map['org_internet'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_org_memo') ,
-			'setter': self.get_valid_func( 'txt_org_memo', 'SetValue')  ,
 			'comp_name' : 'txt_org_memo','setter_name' :  'SetValue' } 
 		map['org_memo'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('combo_type') ,
-			'setter': self.get_valid_func( 'combo_type', 'SetValue')  ,
 			'comp_name' : 'combo_type','setter_name' :  'SetValue' } 
 		map['type'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('chbx_postaladdress') ,
-			'setter': self.get_valid_func( 'chbx_postaladdress', 'SetValue')  ,
 			'comp_name' : 'chbx_postaladdress','setter_name' :  'SetValue' } 
 		map['postaladdress'] = comp_map
 		
@@ -746,10 +718,10 @@ class gmContacts_handler( base_handler):
 #creating a handler as gmDrugDisplay_handler from gui/gmDrugDisplay.py
 # [('comboProduct', 'wxComboBox'), ('btnBookmark', 'wxButton'), ('rbtnSearchAny', 'wxRadioButton'), ('rbtnSearchBrand', 'wxRadioButton'), ('rbtnSearchGeneric', 'wxRadioButton'), ('rbtnSearchIndication', 'wxRadioButton'), ('listbox_jumpto', 'wxListBox'), ('btnPrescribe', 'wxButton'), ('btnDisplay', 'wxButton'), ('btnPrint', 'wxButton'), ('listbox_drugchoice', 'wxListBox')]
 
-class gmDrugDisplay_handler( base_handler):
+class gmDrugDisplay_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -757,79 +729,66 @@ class gmDrugDisplay_handler( base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('comboProduct') ,
-			'setter': self.get_valid_func( 'comboProduct', 'SetValue')  ,
 			'comp_name' : 'comboProduct','setter_name' :  'SetValue' } 
 		map['comboProduct'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('btnBookmark') ,
-			'setter': self.get_valid_func( 'btnBookmark', 'None')  ,
 			'comp_name' : 'btnBookmark','setter_name' :  'None' } 
 		map['btnBookmark'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('rbtnSearchAny') ,
-			'setter': self.get_valid_func( 'rbtnSearchAny', 'SetValue')  ,
 			'comp_name' : 'rbtnSearchAny','setter_name' :  'SetValue' } 
 		map['rbtnSearchAny'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('rbtnSearchBrand') ,
-			'setter': self.get_valid_func( 'rbtnSearchBrand', 'SetValue')  ,
 			'comp_name' : 'rbtnSearchBrand','setter_name' :  'SetValue' } 
 		map['rbtnSearchBrand'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('rbtnSearchGeneric') ,
-			'setter': self.get_valid_func( 'rbtnSearchGeneric', 'SetValue')  ,
 			'comp_name' : 'rbtnSearchGeneric','setter_name' :  'SetValue' } 
 		map['rbtnSearchGeneric'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('rbtnSearchIndication') ,
-			'setter': self.get_valid_func( 'rbtnSearchIndication', 'SetValue')  ,
 			'comp_name' : 'rbtnSearchIndication','setter_name' :  'SetValue' } 
 		map['rbtnSearchIndication'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('listbox_jumpto') ,
-			'setter': self.get_valid_func( 'listbox_jumpto', 'SetStringSelection')  ,
 			'comp_name' : 'listbox_jumpto','setter_name' :  'SetStringSelection' } 
 		map['jumpto'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('listbox_jumpto') ,
-			'setter': self.get_valid_func( 'listbox_jumpto', 'SetStringSelection')  ,
 			'comp_name' : 'listbox_jumpto','setter_name' :  'SetStringSelection' } 
 		map['jumpto'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('btnPrescribe') ,
-			'setter': self.get_valid_func( 'btnPrescribe', 'None')  ,
 			'comp_name' : 'btnPrescribe','setter_name' :  'None' } 
 		map['btnPrescribe'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('btnDisplay') ,
-			'setter': self.get_valid_func( 'btnDisplay', 'None')  ,
 			'comp_name' : 'btnDisplay','setter_name' :  'None' } 
 		map['btnDisplay'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('btnPrint') ,
-			'setter': self.get_valid_func( 'btnPrint', 'None')  ,
 			'comp_name' : 'btnPrint','setter_name' :  'None' } 
 		map['btnPrint'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('listbox_drugchoice') ,
-			'setter': self.get_valid_func( 'listbox_drugchoice', 'SetStringSelection')  ,
 			'comp_name' : 'listbox_drugchoice','setter_name' :  'SetStringSelection' } 
 		map['drugchoice'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('listbox_drugchoice') ,
-			'setter': self.get_valid_func( 'listbox_drugchoice', 'SetStringSelection')  ,
 			'comp_name' : 'listbox_drugchoice','setter_name' :  'SetStringSelection' } 
 		map['drugchoice'] = comp_map
 		
@@ -1159,10 +1118,10 @@ class gmDrugDisplay_handler( base_handler):
 #creating a handler as gmGuidelines_handler from gui/gmGuidelines.py
 # [('infoline', 'wxTextCtrl')]
 
-class gmGuidelines_handler( base_handler):
+class gmGuidelines_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1170,7 +1129,6 @@ class gmGuidelines_handler( base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('infoline') ,
-			'setter': self.get_valid_func( 'infoline', 'SetValue')  ,
 			'comp_name' : 'infoline','setter_name' :  'SetValue' } 
 		map['infoline'] = comp_map
 		
@@ -1218,10 +1176,10 @@ class gmGuidelines_handler( base_handler):
 #creating a handler as gmManual_handler from gui/gmManual.py
 # [('infoline', 'wxTextCtrl')]
 
-class gmManual_handler( base_handler):
+class gmManual_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1229,7 +1187,6 @@ class gmManual_handler( base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('infoline') ,
-			'setter': self.get_valid_func( 'infoline', 'SetValue')  ,
 			'comp_name' : 'infoline','setter_name' :  'SetValue' } 
 		map['infoline'] = comp_map
 		
@@ -1281,10 +1238,10 @@ class gmManual_handler( base_handler):
 #creating a handler as gmSQL_handler from gui/gmSQL.py
 # [('comboQueryInput', 'wxComboBox'), ('buttonRunQuery', 'wxButton'), ('buttonClearQuery', 'wxButton'), ('textQueryResults', 'wxTextCtrl')]
 
-class gmSQL_handler( base_handler):
+class gmSQL_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1292,25 +1249,21 @@ class gmSQL_handler( base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('comboQueryInput') ,
-			'setter': self.get_valid_func( 'comboQueryInput', 'SetValue')  ,
 			'comp_name' : 'comboQueryInput','setter_name' :  'SetValue' } 
 		map['comboQueryInput'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('buttonRunQuery') ,
-			'setter': self.get_valid_func( 'buttonRunQuery', 'None')  ,
 			'comp_name' : 'buttonRunQuery','setter_name' :  'None' } 
 		map['buttonRunQuery'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('buttonClearQuery') ,
-			'setter': self.get_valid_func( 'buttonClearQuery', 'None')  ,
 			'comp_name' : 'buttonClearQuery','setter_name' :  'None' } 
 		map['buttonClearQuery'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('textQueryResults') ,
-			'setter': self.get_valid_func( 'textQueryResults', 'SetValue')  ,
 			'comp_name' : 'textQueryResults','setter_name' :  'SetValue' } 
 		map['textQueryResults'] = comp_map
 		
@@ -1420,10 +1373,10 @@ class gmSQL_handler( base_handler):
 #creating a handler as gmSnellen_handler from gui/gmSnellen.py
 # [('mirror_ctrl', 'wxCheckBox')]
 
-class gmSnellen_handler( base_handler):
+class gmSnellen_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1431,7 +1384,6 @@ class gmSnellen_handler( base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('mirror_ctrl') ,
-			'setter': self.get_valid_func( 'mirror_ctrl', 'SetValue')  ,
 			'comp_name' : 'mirror_ctrl','setter_name' :  'SetValue' } 
 		map['ctrl'] = comp_map
 		
@@ -1477,10 +1429,10 @@ class gmSnellen_handler( base_handler):
 #creating a handler as gmStikoBrowser_handler from gui/gmStikoBrowser.py
 # [('infoline', 'wxTextCtrl')]
 
-class gmStikoBrowser_handler( base_handler):
+class gmStikoBrowser_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1488,7 +1440,6 @@ class gmStikoBrowser_handler( base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('infoline') ,
-			'setter': self.get_valid_func( 'infoline', 'SetValue')  ,
 			'comp_name' : 'infoline','setter_name' :  'SetValue' } 
 		map['infoline'] = comp_map
 		
