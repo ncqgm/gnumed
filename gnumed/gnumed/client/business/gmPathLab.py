@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.30 2004-06-16 17:16:56 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmPathLab.py,v 1.31 2004-06-18 13:33:58 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -303,7 +303,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.30 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.31 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -386,7 +386,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.30 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.31 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -428,7 +428,8 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 			unit=unit
 		)
 		# exists already, so fail
-		_log.Log(gmLog.lErr, 'will not overwrite existing test result: %s' % str(tres))
+		_log.Log(gmLog.lErr, 'will not overwrite existing test result')
+		_log.Log(gmLog.lData, str(tres))
 		return (None, tres)
 	except gmExceptions.NoSuchClinItemError:
 		_log.Log(gmLog.lData, 'test result not found - as expected, will create it')
@@ -622,7 +623,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.30  2004-06-16 17:16:56  ncq
+# Revision 1.31  2004-06-18 13:33:58  ncq
+# - saner logging
+#
+# Revision 1.30  2004/06/16 17:16:56  ncq
 # - correctly handle val_num/val_alpha in create_lab_result so
 #   we can safely detect duplicates
 #
