@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.95 2003-04-25 13:03:07 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmGuiMain.py,v 1.96 2003-04-28 12:04:09 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -209,7 +209,7 @@ class MainFrame(wxFrame):
 		for plugin_name in plugin_list:
 			plugin = gmPlugin.InstPlugin ('gui', plugin_name, guibroker = self.guibroker)
 			if isinstance (plugin, gmPlugin.wxNotebookPlugin): 
-				if not (plugin.name() in self.guibroker['modules.gui'].keys()):
+				if not (plugin.internal_name() in self.guibroker['modules.gui'].keys()):
 					# if not installed
 					id = wxNewId ()
 					load_menu.AppendItem(wxMenuItem(load_menu, id, plugin.name()))
@@ -314,7 +314,7 @@ class MainFrame(wxFrame):
 		# get access to selected page
 		new_page = self.guibroker['main.notebook.plugins'][new_page_id]
 		# activate toolbar of new page
-		self.top_panel.ShowBar(new_page.name())
+		self.top_panel.ShowBar(new_page.internal_name())
 		# hand focus to new page
 		new_page.ReceiveFocus()
 		event.Skip() # required for MSW
@@ -645,7 +645,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.95  2003-04-25 13:03:07  ncq
+# Revision 1.96  2003-04-28 12:04:09  ncq
+# - use plugin.internal_name()
+#
+# Revision 1.95  2003/04/25 13:03:07  ncq
 # - just some silly whitespace fix
 #
 # Revision 1.94  2003/04/08 21:24:14  ncq
