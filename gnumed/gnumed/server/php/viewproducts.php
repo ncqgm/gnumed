@@ -46,15 +46,11 @@ else
   $compound = '';
 }
 
-if (isset ($available))
-{
-  if (strlen ($available) != 2)
-    {
-      echo "$available is not a valid ISO country code. Go back!";
-      exit;
-    }
-}
+// find the nationality of the user
+$result = pg_query ("select iso_countrycode from users where login = current_user");
+$country = pg_fetch_result ($result, 0, 0);
 ?>
+
 <html>
 <title>Products of <?= $drugname?><?=$compound ?></title>
 
@@ -62,67 +58,71 @@ if (isset ($available))
 <h1>Products of <?=$drugname?><?=$compound ?></h1>
 
 <table>
+
+<! top row !>
 <tr><th>Route</th><th>Form</th><th>Dose</th><th>Package</th><th>Comment</th>
 
+<th>Avail (<?= $country ?>)</th><th>Brands</th>
 <?php
-if (isset ($available)) {
-  echo "<th>Avail ($available)</th><th>Brands</th>";
-}
-if (isset ($subsidy)) {
-  $sub_name = pg_fetch_result (pg_query ("select name  from subsidies where id = $subsidy"), 0, 0);
-  echo "<th>$sub_name:</th><th>Qty</th><th>Rpt</th><th>\$</th><th>Cndn</th>";
-  // FIXME: How to we internationalise the dollar sign?
+$result = pg_query ("select name from subsidies where iso_countrycode = '$country' order by name");
+while ($row = pg_fetch_row ($result)) 
+{
+  echo "<th>{$row[0]}:</th><th>Qty</th><th>Rpt</th><th>\$</th><th>Cndn</th>";
+  //  FIXME: How to we internationalise the dollar sign in PHP?
 }
 ?>
 <td></td></tr>
+
+
+
 <?php
-$result = pg_query ("select df.description as df, du.unit as du, p.comment, p.id, dr.description as dr, package_size from product p, drug_formulations df, drug_units du, drug_routes dr where p.id_generic_drug = $id and df.id = id_formulation and du.id = packing_unit and dr.id = id_route");
+// now for the data
+
+$result = pg_query ("select df.description as df, du.unit as du, p.comment, p.id, dr.description as dr, package_size from product p, drug_formulations df, drug_units du, drug_routes dr where p.id_drug = $id and df.id = id_formulation and du.id = id_packing_unit and dr.id = id_route");
 while ($row = pg_fetch_array ($result))
 {
   echo "<tr>";
   print_product_row ($row);
-  if (isset ($available)) 
+  echo "<td>";
+  $result2 = pg_query ("select * from available where id_product = {$row['id']} and iso_countrycode = '$country'");
+  if ($row2 = pg_fetch_array ($result2))
     {
-      echo "<td>";
-      $result2 = pg_query ("select * from available where id_product = {$row['id']} and iso_countrycode = '$available'");
-      if ($row2 = pg_fetch_array ($result2))
-	{
-	  if ($row2['available_from'])
-	    echo "From:" . $row2['available_from'];
-	  else
-	    if ($row2['banned'])
-	      echo "<b>Banned: " . $row2['banned'] . "</b>";
-	    else
-	      echo "Yes";
-	  if ($row2['comment'])
-	    echo "({$row2['comment']})";
-	}
+      if ($row2['available_from'])
+	echo "From:" . $row2['available_from'];
       else
-	echo "No";
-      echo "</td><td>";
-      $result2 = pg_query ("select lpm.brandname, m.code, m.id from link_product_manufacturer lpm, manufacturer m where lpm.id_product = {$row['id']} and m.id = lpm.id_manufacturer and m.iso_countrycode = '$available'");
-      while ($row2 = pg_fetch_row ($result2))
-	{
-	  echo "{$row2[0]}(<a href=\"edit_manu.php?id_manu={$row2[2]}\">{$row2[1]}</a>)&nbsp;";
-	}
-    echo "</td>";
+	if ($row2['banned'])
+	  echo "<b>Banned: " . $row2['banned'] . "</b>";
+	else
+	  echo "Yes";
+      if ($row2['comment'])
+	echo "({$row2['comment']})";
     }
-  if (isset ($subsidy)) 
+  else
+    echo "No";
+  echo "</td><td>";
+  $result2 = pg_query ("select lpm.brandname, m.code, m.id from link_product_manufacturer lpm, manufacturer m where lpm.id_product = {$row['id']} and m.id = lpm.id_manufacturer and m.iso_countrycode = '$country'");
+  while ($row2 = pg_fetch_row ($result2))
     {
-      echo "<td></td>"; // blank cell to match "$subname" header above
-      $result2 = pg_query ("select * from subsidized_products where id_product = {$row['id']} and id_subsidy = $subsidy");
-      if ($row2 = pg_fetch_array ($result2))
-	{
-	  $copay = number_format ($row2['copayment'], 2);
-	  echo "<td>{$row2['max_qty']}</td><td>{$row2['max_rpt']}</td><td>$copay </td>";
-	  if ($row2['condition'])
-	    echo "<td><a href=\"edit_cond.php?id_cond={$row2['condition']}\">*</a></td>";
-	  else
-	    echo "<td></td>";
-	}
+      echo "{$row2[0]}(<a href=\"edit_manu.php?id_manu={$row2[2]}\">{$row2[1]}</a>)&nbsp;";
+    }
+  echo "</td>";
+  $result2 = pg_query ("select id from subsidies where iso_countrycode = '$country' order by name");
+  while ($row2 = pg_fetch_row ($result2))
+  {
+    echo "<td></td>"; // blank cell to match "$subname" header above
+    $result3 = pg_query ("select * from subsidized_products where id_product = {$row['id']} and id_subsidy = {$row2[0]}");
+    if ($row3 = pg_fetch_array ($result3))
+      {
+	$copay = number_format ($row3['copayment'], 2);
+	echo "<td>{$row3['max_qty']}</td><td>{$row3['max_rpt']}</td><td>$copay </td>";
+	if ($row3['condition'])
+	  echo "<td align=\"center\"><a href=\"show_cond.php?id_cond={$row3['condition']}\">*</a></td>";
+	else
+	  echo "<td></td>";
+      }
       else
 	echo "<td></td><td></td><td></td><td></td>";
-    }
+  }
   echo "<td><a onClick=\"return confirm ('Are you sure?')\" href=\"del_product.php?id_prod={$row['id']}&id=$id\"><small>DELETE</small></a></td></tr>";
 }
 ?>
@@ -194,35 +194,19 @@ $result = pg_query ("select * from drug_flags");
 while ($row = pg_fetch_array ($result))
      echo "<input type=\"checkbox\" name=\"flag{$row['id']}\" value=\"1\">{$row['description']}"; 
 ?><p><input type="hidden" name="id" value="<?= $id ?>">
-<input type="submit" value="submit"></form>
-
-
-<h2>Change View</h2>
-
-<form method="post" action="viewproducts.php">
-<input type="hidden" name="id" value="<?= $id?>">
-Add Country Details:<input type="text" name="available" size="2">
-<input type="submit" value="go"></form><p>
+<input type="submit" value="submit"></form><p>
 
 <a href="change_avail.php?id=<?= $id?>">Change Availability</a><p>
-<a href="add_brand.php?id=<?= $id ?>">Add Brand</a>
+<a href="add_brand.php?id=<?= $id ?>">Add Brand</a><p>
 
-<form method="post" action="viewproducts.php">
-Show Subsidies:
-<select name="subsidy">
 <?php
-$result = pg_query ("select * from subsidies");
+$result = pg_query ("select * from subsidies where iso_countrycode = '$country'");
 while ($row = pg_fetch_array ($result))
 {
-  echo "<option value=\"{$row['id']}\">{$row['name']}";
+  echo "<a href=\"change_subsidies.php?id=$id&subsidy={$row['id']}\">Change Subsidies ({$row['name']})</a><p>";
 }
-?></select>
-<input type="hidden" name="id" value="<?= $id ?>">
-<input type="submit" value="go"></form><p>
-
-<?php
-if (isset ($subsidy))
-     echo "<a href=\"change_subsidies.php?id=$id&subsidy=$subsidy\">Change Subsidies</a>";
 ?>
+
+<p><a href="viewelement?id=<?= $id ?>">Back</a>
 
 </body></html>

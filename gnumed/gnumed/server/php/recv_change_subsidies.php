@@ -26,6 +26,9 @@ if (! $conn)
 
 // FIXME: input checking
 
+if ($condition == -1)
+     $condition = "NULL";
+
 foreach ($products as $key => $value)
 {
   pg_query ("insert into subsidized_products values ($key, $subsidy, $max_qty, $max_rpt, $copayment, $condition)");

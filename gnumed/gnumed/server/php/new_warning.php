@@ -27,5 +27,5 @@ include ('connect.php');
 pg_query ("insert into drug_warning (id_warning, details) values ($id_warning, '$details')"); 
 pg_query ("insert into link_drug_warning values ($id, currval ('drug_warning_id_seq'))");
 $message = "new warning added";
-include ('viewelement.php');
+include ('viewcaution.php');
 ?>

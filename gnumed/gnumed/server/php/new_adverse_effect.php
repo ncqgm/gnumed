@@ -28,5 +28,5 @@ if (! isset ($important))
      $important = 'f';
 pg_query ("insert into link_drug_adverse_effects values ($id, $id_adverse_effect, '$frequency', '$important')");
 $message = "new adverse effect added";
-include ('viewelement.php');
+include ('viewadverse.php');
 ?>

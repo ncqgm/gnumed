@@ -20,7 +20,8 @@
 
 include ('connect.php');
 
-pg_query ("insert into product (id_generic_drug, id_formulation, packing_unit, id_route, package_size) values ($id, $formulation, $packing_unit, $route, $package_size)"); 
+pg_query ("begin work");
+pg_query ("insert into product (id_drug, id_formulation, id_packing_unit, id_route, package_size) values ($id, $formulation, $packing_unit, $route, $package_size)"); 
 
 if ($is_compound)
 {
@@ -44,6 +45,8 @@ while ($row = pg_fetch_array ($result))
   if (isset ($$flagname))
     pg_query ("insert into link_flag_product (id_product, id_flag) values (currval ('product_id_seq'), {$row['id']})");
 }
+
+pg_query ("commit");
 
 include ('viewproducts.php');
 

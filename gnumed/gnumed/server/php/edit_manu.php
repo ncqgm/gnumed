@@ -29,12 +29,12 @@ $row = pg_fetch_array (pg_query ("select * from manufacturer where id = $id_manu
 ?>
 
 <form method="post" action="recv_manu.php">
-Name:<input type="text" name="name" value="<?= $row['name']?>" size="10"><p>
+Name:<input type="text" name="name" value="<?= $row['name']?>" size="25"><p>
 Name:<input type="text" name="code" value="<?= $row['code']?>" size="3">(2-letter abbreviation)<p>
 Address:<P>
-<textarea name="address" cols="30" rows="4"><?= $row['address'] ?></textarea>
-Phone:<input type="text" name="phone" value="<?= $row['phone']?>" size="10"><p>
-Fax:<input type="text" name="fax" value="<?= $row['fax']?>" size="10"><p>
+<textarea name="address" cols="40" rows="5"><?= $row['address'] ?></textarea>
+<p>Phone:<input type="text" name="phone" value="<?= $row['phone']?>" size="15"><p>
+Fax:<input type="text" name="fax" value="<?= $row['fax']?>" size="15"><p>
 Country:<input type="text" name="iso_countrycode" value="<?= $row['iso_countrycode']?>" size="3"><p>
 Comment:<p>
 <textarea name="comment" cols="30" rows="4"><?= $row['comment'] ?></textarea><p>

@@ -52,7 +52,7 @@ function product_select ($id)
 {
   echo "<table><tr><th>Select</th><th>Route</th><th>Form</th><th>Dose</th><th>Package</th><th>Comment</th></tr>";
   // shows a table of selectable products for a drug
-  $result = pg_query ("select df.description as df, du.unit as du, p.comment, p.id, dr.description as dr, package_size from product p, drug_formulations df, drug_units du, drug_routes dr where p.id_generic_drug = $id and df.id = id_formulation and du.id = packing_unit and dr.id = id_route");
+  $result = pg_query ("select df.description as df, du.unit as du, p.comment, p.id, dr.description as dr, package_size from product p, drug_formulations df, drug_units du, drug_routes dr where p.id_drug = $id and df.id = id_formulation and du.id = id_packing_unit and dr.id = id_route");
   while ($row = pg_fetch_array ($result))
     {
       echo "<tr><td><input type=\"checkbox\" name=\"products[{$row['id']}]\" value=\"1\" checked></td>";

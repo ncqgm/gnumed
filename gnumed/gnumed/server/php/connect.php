@@ -18,7 +18,7 @@
 // or see online at http://www.gnu.org/licenses/gpl.html
 
 // connect to the database, use fixed string for the moment
-$conn = pg_connect ("dbname=gmdrugs user=foo");
+$conn = pg_connect ("dbname=gmdrugs user=ian");
 // FUTURE CODE: this is the PHP magic for password protection
 // this is cleartext, we need some way of insisting on SSL connection
 // if (_SERVER['SERVER_PORT'] != '443')
@@ -45,10 +45,20 @@ $conn = pg_connect ("dbname=gmdrugs user=foo");
 // this is only *needed* PHP >= 4.2! 
 import_request_variables ('gp');
 
-//function audit ($id)
-     // function for providing an insert for audit data
-//{
-//  echo "<small><a href=\"audit.php?id=$id\">AUDIT</a></small>";
-//}
+
+function del_and_comment ($table, $id, $ret)
+     // function to add standard links for deleting and comenting on a row
+{
+
+  str_replace (' ', '%20', $ret);
+  str_replace ('%', '%25', $ret);
+  str_replace ('&', '%26', $ret);
+  str_replace ('=', '%3D', $ret);
+  str_replace ('#', '%23', $ret);
+  str_replace ('?', '%3F', $ret);
+  echo "<td><a href=\"delete.php?table=$table&id=$id&ret=$ret\" onClick=\"return confirm ('Are you sure?')\"><small>DEL</small></a></td>";
+  echo "<td><a href=\"comments.php?table=$table&id=$id&ret=$ret\"><small>COMMENT</small></a></td>";
+}
+
 
 ?>

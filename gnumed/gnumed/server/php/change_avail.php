@@ -37,4 +37,8 @@ Country:<input type="text" name="iso_countrycode" size="2"><p>
 From date:<input type="text" name="from_date" size="10"><p>
 Banned date:<input type="text" name="banned" size="10"><p>
 <input type="submit" value="submit"></form>
+
+
+<p><a href="viewproducts.php?id=<?= $id ?>">Back</a>
+<p><a href="viewelement.php?id=<?= $id ?>">Back to Drug</a>
 </body></html>

@@ -59,6 +59,8 @@ while ($row = pg_fetch_array ($result))
 </select>
 <input type="submit" value="go"></form><p>
 
-<a href="new_manu.php">New Manufacturer</a>
+<a href="new_manu.php">New Manufacturer</a><p>
+
+<a href="viewproducts.php?id=<?= $id ?>">Back</a>
 
 </body></html>

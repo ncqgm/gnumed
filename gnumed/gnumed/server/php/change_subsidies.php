@@ -40,6 +40,7 @@ Co-payment:$<input type="float" name="copayment" size="5"><p>
 Condition: <select name="condition">
 <?php
 $result = pg_query ("select id, title from conditions where id_subsidy = $subsidy");
+echo "<option value=\"-1\" selected>No condition"; 
 while ($row = pg_fetch_row ($result))
 {
   echo "<option value=\"{$row[0]}\">{$row[1]}";
@@ -62,4 +63,6 @@ while ($row = pg_fetch_array ($result))
 <input type="submit" value="go"></form><p>
 
 <a href="new_cond.php?subsidy=<?= $subsidy ?>">New Condition</a>
+
+<p><a href="viewproducts.php?id=<?= $id ?>">Back</a>
 </body></html>

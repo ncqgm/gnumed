@@ -37,5 +37,5 @@ if (pg_num_rows ($result) != 1)
   $otherclassid = pg_fetch_result ($result, 0, 0);
   pg_query ("insert into link_drug_interactions (id_drug, id_interacts_with, id_interaction, comment) values ($id, $otherclassid, $interaction, '$comment')");
   $message = "new interaction added";
-  include ('viewelement.php');
+  include ('viewinter.php');
 ?>
