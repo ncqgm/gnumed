@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.35 2003-10-19 12:16:48 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmEditArea.py,v 1.36 2003-10-22 21:33:12 hinnef Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -506,6 +506,10 @@ class gmFamilyHxEditArea(gmEditArea):
 		lines.append(szr)
 
 		return lines
+
+	def _save_data(self):
+		print "saving family history"
+		return 1		
 #====================================================================
 class gmPastHistoryEditArea(gmEditArea):
 	def __init__(self, parent, id):
@@ -593,6 +597,10 @@ class gmPastHistoryEditArea(gmEditArea):
 		}
 
 		return lines
+
+	def _save_data(self):
+		print "saving past history"
+		return 1		
 
 #====================================================================
 #====================================================================
@@ -1141,7 +1149,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.35  2003-10-19 12:16:48  ncq
+# Revision 1.36  2003-10-22 21:33:12  hinnef
+# added _save_data() to FxHistory and PastHistory to prevent crash on exit
+#
+# Revision 1.35  2003/10/19 12:16:48  ncq
 # - cleanup
 # - add event handlers to standard buttons
 # - fix gmDateInput args breakage
