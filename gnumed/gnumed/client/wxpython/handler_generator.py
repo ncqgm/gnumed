@@ -391,6 +391,8 @@ def usage():
 
 			python handler_gen_editarea.py > EditAreaHandler.py
 
+			python handler_generator -f gmSelectPerson.py > handler_gmSelectPerson.py
+
 
 """
 
@@ -413,3 +415,5 @@ if __name__=="__main__":
 		if opt == '-d' and value <> None :	
 			generator().process_directory(value)
 			sys.exit(0)
+
+	usage()		
