@@ -34,8 +34,10 @@ class generator:
 		self.funcs = []
 		self.evts = []
 		self.prog_map = None
+		self.type_search_str = None
+		self.control_definition_str = None
 		self.gen_func_params_map = {
-		'EditAreaTextBox': [("EVT_TEXT", "text_entered")],
+		#'EditAreaTextBox': [("EVT_TEXT", "text_entered")],
 		'wxTextCtrl': [("EVT_TEXT", "text_entered")],
 		'wxComboBox': [("EVT_TEXT", "text_entered")] ,
 		'wxRadioButton': [("EVT_RADIOBUTTON", "radiobutton_clicked")],
@@ -44,6 +46,13 @@ class generator:
 		'wxListBox': [("EVT_LISTBOX", "list_box_single_clicked"), ("EVT_LISTBOX_DCLICK", "list_box_double_clicked")]
 		}
 		self.components = [ 'EditAreaTextBox','wxTextCtrl', 'wxComboBox', 'wxButton', 'wxRadioButton', 'wxCheckBox', 'wxListBox' ]
+	
+
+	
+	def get_prog(self, component):
+		if self.control_definition_str == None:
+			self.control_definition_str = '\s+self\s*.\s*(?P<component>\w+)\s*=\s*%s'
+		return re.compile(self.control_definition_str % component, re.I)
 		
 	def get_prog_map(self):
 		"""returns a regular expression object map for the different components """
@@ -52,15 +61,36 @@ class generator:
 			return self.prog_map
 		
 		prog_map = {}
-		editarea_str = '\s+self\s*.\s*(?P<component>\w+)\s*=\s*%s'
 		for c in self.components:
-			prog_map[c] = re.compile( editarea_str % c , re.I)
+			prog_map[c] = self.get_prog(c)
 
 		self.prog_map = prog_map	
 
 		return self.prog_map	
 
+	def check_for_new_type_definition(self, line):
+		if self.type_search_str == None:
+			self.type_search_str = 'class\s+(?P<new_type>\w+)\s*\(.*(?P<base_type>%s)' % '|'.join(self.components)
+			print "# type_search_str = ", self.type_search_str
+			self.prog_type = re.compile( self.type_search_str, re.I)
+		re_match = self.prog_type.match(line)
+		if re_match == None:
+			return
+
+		new_type = re_match.group('new_type')
+		base_type = re_match.group('base_type')
+
+		print "# found new type = %s which is base_type %s\n" % ( new_type , base_type)
+		self.components.append( new_type )
+		self.prog_map[new_type] = self.get_prog(new_type)
+		self.gen_func_params_map[new_type] = self.gen_func_params_map[base_type]
+
+		
+
+			
+
 	def get_name_type_for_line( self, line):
+		self.check_for_new_type_definition( line)
 		prog_map = self.get_prog_map()
 		for c in prog_map.keys():
 			re_match_obj =  prog_map[c].match(line)
@@ -84,6 +114,10 @@ class generator:
 		self.funcs.append("%s_%s"%(comp, func) )
 
 	def process_comp_type_pair(self,  comp, type):
+
+		#if self.parent_map.has_key(type):
+		#	type = self.parent_map[type]
+
 		params = self.gen_func_params_map[type]
 		self.ids.append(self.gen_id_set(comp))
 		for cmd_func in params:
