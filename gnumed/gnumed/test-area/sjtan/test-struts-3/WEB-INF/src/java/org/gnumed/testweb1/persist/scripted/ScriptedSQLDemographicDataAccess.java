@@ -106,7 +106,10 @@ public class ScriptedSQLDemographicDataAccess implements DemographicDataAccess, 
             return detail;
         } catch (Exception e) {
             
-            throw new DataSourceException(Util.getStaceTraceN(e, 12 ));
+            //throw new DataSourceException(Util.getStaceTraceN(e, 12 ));
+	    //
+	    throw new DataSourceException(e);
+		  
             
         }
     }

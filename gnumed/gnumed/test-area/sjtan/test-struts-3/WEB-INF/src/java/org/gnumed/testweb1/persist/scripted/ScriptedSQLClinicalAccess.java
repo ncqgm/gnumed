@@ -34,12 +34,15 @@ public class ScriptedSQLClinicalAccess implements ClinicalDataAccess {
             conn = getDataSource().getConnection();
             return sqlProvider.getVaccines(conn);
         } catch (Exception e) {
-            throw new DataSourceException( Util.getStaceTraceN(e, 8));
+            //throw new DataSourceException( Util.getStaceTraceN(e, 8));
+	    throw new DataSourceException(e);
+
         } finally {
             try {
                 conn.close();
             }catch (Exception e) {
-             throw new DataSourceException( Util.getStaceTraceN(e, 8));
+            // throw new DataSourceException( Util.getStaceTraceN(e, 8));
+	    	throw new DataSourceException(e);
         }
         }
         

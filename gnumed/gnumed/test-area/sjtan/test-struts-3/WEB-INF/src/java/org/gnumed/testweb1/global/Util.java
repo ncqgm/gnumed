@@ -14,7 +14,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+//import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.config.ModuleConfig;
@@ -156,7 +156,7 @@ public class Util {
         throw pe;
     }
     
-    
+  /*  
     public static String getStaceTraceN(final java.lang.Throwable exception, final int n) {
         Throwable e = ExceptionUtils.getRootCause(exception);
         String[] frames = ExceptionUtils.getStackFrames(e);
@@ -167,6 +167,7 @@ public class Util {
         }
         return buf.toString();
     }
+    */
     
     public static String getShortNowString(boolean withTime) {
         if (!withTime)

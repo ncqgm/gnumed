@@ -20,6 +20,13 @@ The following 4 links will be read by download.sh , and downloaded.
 The following steps were tested:
 
 
+A.Have a java sdk1.4.2  installed.   
+
+
+http://mirror.aarnet.edu.au/pub/java-linux/JDK-1.4.2/i386/rc1/j2re-1.4.2-rc1-linux-i586-gcc2.95.bin
+(Change the above url to ...gcc3.2.bin  if wanting the gcc3.2 version.)
+
+=======
 A.Have a java sdk1.4.2  installed.
 
 	http://mirror.aarnet.edu.au/pub/java-linux/JDK-1.4.2/i386/rc1/j2re-1.4.2-rc1-linux-i586-gcc2.95.bin
@@ -33,10 +40,16 @@ From
 	http://apache.planetmirror.com.au/dist/ant/binaries/apache-ant-1.6.2-bin.tar.bz2
 
 
+From
+http://apache.planetmirror.com.au/dist/ant/binaries/apache-ant-1.6.2-bin.tar.bz2
+
+
 C.get a version of commons-lang
+http://www.apache.org/dist/jakarta/commons/lang/binaries/commons-lang-2.0.tar.gz
+( This jar file went missing , so need it directly; copy it into the WEB-INF/lib directory)
 
-	http://www.apache.org/dist/jakarta/commons/lang/binaries/commons-lang-2.0.tar.gz
 
+http://apache.planetmirror.com.au/dist/jakarta/tomcat-5/v5.0.28/bin/jakarta-tomcat-5.0.28.tar.gz
 ( This jar file went missing , so need it directly; copy it into the WEB-INF/lib directory)
 
 D. get tomcat from
@@ -46,8 +59,7 @@ D. get tomcat from
 tar -zxvf xxx.tar.gz  to unpack.
 
 E. get struts from
-	http://apache.planetmirror.com.au/dist/struts/library/jakarta-struts-1.2.4-lib.zip
-
+http://apache.planetmirror.com.au/dist/struts/library/jakarta-struts-1.2.4-lib.zip
 (this is the latest version)
 
 F. must also have a gnumed distribution installed a postgres directory.

@@ -103,7 +103,7 @@
         </logic:iterate>
     </table>
     </logic:notEqual> 
-    <br/>
+
     <b>Vaccinations </b>
     <logic:present name="vaccines" scope="session">
      <bean:size id="countVaccs"    
