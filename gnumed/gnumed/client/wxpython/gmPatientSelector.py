@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.4 2003-03-31 23:38:16 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPatientSelector.py,v 1.5 2003-04-01 09:08:27 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -143,7 +143,7 @@ def _make_simple_query(raw):
 
 	return None
 #------------------------------------------------------------
-def queries_default(raw = None):
+def queries_de(raw = None):
 	if raw is None:
 		return []
 
@@ -157,12 +157,12 @@ def queries_default(raw = None):
 
 	# replace Umlauts
 	# (names of months do not contain Umlauts in German, so ...
-	no_umlauts = raw.replace('Ä', '(Ä|AE|Ae)')
+	no_umlauts =        raw.replace('Ä', '(Ä|AE|Ae|E)')
 	no_umlauts = no_umlauts.replace('Ö', '(Ö|OE|Oe)')
 	no_umlauts = no_umlauts.replace('Ü', '(Ü|UE|Ue)')
-	no_umlauts = no_umlauts.replace('ä', '(ä|ae)')
+	no_umlauts = no_umlauts.replace('ä', '(ä|ae|e)')
 	no_umlauts = no_umlauts.replace('ö', '(ö|oe)')
-	no_umlauts = no_umlauts.replace('ü', '(ü|ue)')
+	no_umlauts = no_umlauts.replace('ü', '(ü|ue|y)')
 	no_umlauts = no_umlauts.replace('ß', '(ß|sz|ss)')
 	# René, Desiré, ...
 	no_umlauts = no_umlauts.replace('é', '(é|e)')
@@ -402,8 +402,8 @@ def queries_default(raw = None):
 	return []
 #------------------------------------------------------------
 query_generator = {
-	'default': queries_default,
-	'de': queries_default
+	'default': queries_de,
+	'de': queries_de
 }
 #============================================================
 class cPatientPickList(wxDialog):
@@ -776,25 +776,25 @@ class cPatientSelector(wxTextCtrl):
 		if len(ids[0]) == 1:
 			# and make our selection known to others
 			data, self.prev_col_order = self.pat_expander(curs, ids)
+			curs.close()
 			self.SetActivePatient(ids[0][0], data[0])
 		else:
-			# generate patient data to display from ID list
+			# get corresponding patient data
 			start = time.time()
 			pat_list, self.prev_col_order = self.pat_expander(curs, ids)
 			duration = time.time() - start
 			print "patient data fetched in %3.3f seconds" % duration
+			curs.close()
 
-			# generate list dialog
+			# and let user select from pick list
 			dlg = cPatientPickList(parent = self)
 			dlg.SetItems(pat_list, self.prev_col_order)
-			# and show it
 			result = dlg.ShowModal()
 			dlg.Destroy()
 			for pat in pat_list:
 				if pat[0] == result:
 					self.SetActivePatient(result, pat)
 					break
-		curs.close()
 #============================================================
 # main
 #------------------------------------------------------------
@@ -910,9 +910,15 @@ if __name__ == "__main__":
 
 # F1 -> context help with hotkey listing
 
+# bäcker vw. becker (ä -> e)
+
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.4  2003-03-31 23:38:16  ncq
+# Revision 1.5  2003-04-01 09:08:27  ncq
+# - better Umlaut replacement
+# - safer cursor.close() handling
+#
+# Revision 1.4  2003/03/31 23:38:16  ncq
 # - sensitize() helper for smart names upcasing
 # - massively rework queries for speedup
 #
