@@ -14,9 +14,9 @@ self.__metadata		{}
  |
  >- 'comment'		""
  |
- >- 'date'			""
+ >- 'date'			""		(time stamp)
  |
- >- 'reference'	""
+ >- 'reference'		""
  |
  >- 'description'	""
  |
@@ -26,16 +26,18 @@ self.__metadata		{}
   |
   `- oid			{}
    |
-   >- 'file name'	""
+   >- 'file name'	""		(on the local disc, fully qualified)
    |
-   >- 'index'		""
+   >- 'index'		""		(... into page sequence)
+   |
+   >- 'size'		""		(in bytes)
    |
    `- 'comment' 	""
 
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -175,14 +177,14 @@ class cDocument:
 		self.__metadata['type'] = result[0]
 
 		# get object level metadata for all objects of this document
-		cmd = "SELECT oid, comment, seq_idx FROM doc_obj WHERE doc_id='%s'" % (self.__metadata['id'])
+		cmd = "SELECT oid, comment, seq_idx, octet_length(data) FROM doc_obj WHERE doc_id='%s'" % (self.__metadata['id'])
 		cursor.execute(cmd)
 		matching_rows = cursor.fetchall()
 		self.__metadata['objects'] = {}
 		for row in matching_rows:
 			oid = row[0]
 			# cDocument.metadata->objects->oid->comment/index
-			tmp = {'comment': row[1], 'index': row[2]}
+			tmp = {'comment': row[1], 'index': row[2], 'size': row[3]}
 			self.__metadata['objects'][oid] = tmp
 
 		cursor.close()
@@ -709,7 +711,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.29  2003-01-24 14:57:55  ncq
+# Revision 1.30  2003-01-25 00:23:49  ncq
+# - get size of object with metadata
+#
+# Revision 1.29  2003/01/24 14:57:55  ncq
 # - date is a timestamp now
 #
 # Revision 1.28  2003/01/24 13:16:08  ncq
