@@ -1,5 +1,5 @@
 from wxPython.wx import *
-import gmPlugin, gmShadow, gmConf, gmLog, gmDispatcher, gmSignals, gmPG
+import gmPlugin, gmShadow, gmLog, gmDispatcher, gmSignals, gmPG
 
 scratchpaddata = {}
 recalldata = {}

@@ -15,7 +15,6 @@ hand column (note all of these plugins are visible at once)
 from wxPython.wx import *
 from gmLog import *
 log = gmDefLog.Log
-import gmConf
 import gmGuiBroker
 import gmDispatcher
 import gmShadow
@@ -35,7 +34,7 @@ class PatientWindow (wxPanel):
         self.righthalf = {}
         self.sizer = wxBoxSizer (wxHORIZONTAL)
         self.SetSizer (self.sizer)
-	if gmConf.config['main.shadow']:
+	if gmGuiBroker.config['main.shadow']:
 		self.righthalfshadow = gmShadow.Shadow (self, -1)
 		self.righthalfpanel = wxPanel (self.righthalfshadow, -1)
 		self.righthalfshadow.SetContents (self.righthalfpanel)

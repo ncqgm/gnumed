@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-01-05 10:03:30 $
-# @version $Revision: 1.54 $ $Date: 2003-01-05 10:03:30 $ $Author: ncq $
+# @Date: $Date: 2003-01-11 22:03:30 $
+# @version $Revision: 1.55 $ $Date: 2003-01-11 22:03:30 $ $Author: hinnef $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -42,7 +42,7 @@ from wxPython.html import *
 
 import sys, time, os
 
-import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmConf, gmLog, gmPlugin, gmCfg
+import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmLog, gmPlugin, gmCfg
 import images
 import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
 import images_gnuMedGP_TabbedLists             #bitmaps for tabs on notebook
@@ -472,7 +472,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.54  2003-01-05 10:03:30  ncq
+# Revision 1.55  2003-01-11 22:03:30  hinnef
+# removed gmConf
+#
+# Revision 1.54  2003/01/05 10:03:30  ncq
 # - code cleanup
 # - use new plugin config storage infrastructure
 #

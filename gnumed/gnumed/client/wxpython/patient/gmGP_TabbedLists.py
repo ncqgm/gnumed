@@ -32,7 +32,7 @@ from wxPython.stc import *
 import keyword
 import time
 import images #bitmaps for column headers of lists
-import gmPlugin, gmShadow, gmConf, gmLog
+import gmPlugin, gmShadow, gmLog
 import images_gnuMedGP_TabbedLists           #bitmaps for tabs on notebook
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin   
 scriptdata = {

@@ -14,14 +14,14 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
 
 from wxPython.wx import *
 
-import gmExceptions, gmGuiBroker, gmPG, gmConf, gmShadow, gmLog, gmCfg
+import gmExceptions, gmGuiBroker, gmPG, gmShadow, gmLog, gmCfg
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 #------------------------------------------------------------------
@@ -227,7 +227,7 @@ class wxPatientPlugin (wxBasePlugin):
 	def register (self):
 		wxBasePlugin.register (self)
 		self.mwm = self.gb['patient.manager']
-		if gmConf.config['main.shadow']:
+		if gmGuiBroker.config['main.shadow']:
 			shadow = gmShadow.Shadow (self.mwm, -1)
 			widget = self.GetWidget (shadow)
 			shadow.SetContents (widget)
@@ -466,7 +466,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.31  2003-01-06 12:53:26  ncq
+# Revision 1.32  2003-01-11 22:03:30  hinnef
+# removed gmConf
+#
+# Revision 1.31  2003/01/06 12:53:26  ncq
 # - some cleanup bits
 #
 # Revision 1.30  2003/01/06 04:52:55  ihaywood

@@ -1,5 +1,5 @@
 from wxPython.wx import *
-import gmGuiBroker, gmLog, gmConf
+import gmGuiBroker, gmLog
 	
 
 class Toolbar(wxPanel):

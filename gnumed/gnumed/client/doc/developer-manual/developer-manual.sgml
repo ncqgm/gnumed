@@ -1144,18 +1144,6 @@ class cCfgFile:
 		# FIXME: actually we need to reread the config file here before writing
 </screen></sect2>
 
-<sect2><title>gmConf.py</title><screen>
-Configuration model
-This duplicates some of Karsten's work, but a configuration tool is required
-that talks to the remote database
-
-def GetAllConfigs ():
-def SetConfig (key, value):
-# HACK FOR NOW
-config = {'main.use_notebook':1, 'main.shadow':1, 'main.shadow.colour':(131, 129, 131), 'main.shadow.width':10}
-
-</screen></sect2>
-
 <sect2><title>gmCachedAddress.py</title><screen>
 
  gmCachedAddress - data broker for a person's address

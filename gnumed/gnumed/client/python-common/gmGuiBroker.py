@@ -9,6 +9,10 @@ variables needed for a gnumed GUI client interface
 @copyright: GPL
 """
 
+# FIXME !!! hack moved here from gmConf. This definitely must be replaced by some 
+# structure getting data from the backend
+config = {'main.use_notebook':1, 'main.shadow':1, 'main.shadow.colour':(131, 129, 131), 'main.shadow.width':10}
+
 class GuiBroker:
 	"Wrapper for global objects needed by GNUMmed GUI clients"
 

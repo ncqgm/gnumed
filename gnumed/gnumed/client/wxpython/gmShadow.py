@@ -3,12 +3,12 @@ A module to add shadowing to an arbitrary widget
 """
 
 from wxPython.wx import *
-import gmConf
+import gmGuiBroker
 
 class Shadow (wxPanel):
     def __init__(self, parent, id):
         wxPanel.__init__ (self, parent, id)
-        self.sw = gmConf.config['main.shadow.width']
+        self.sw = gmGuiBroker.config['main.shadow.width']
         EVT_SIZE (self, self.OnSize)
         EVT_PAINT (self, self.OnPaint)
 
@@ -31,7 +31,7 @@ class Shadow (wxPanel):
         # draw white bars
         dc.DrawRectangle (0, h-self.sw, w, self.sw)
         dc.DrawRectangle (w-self.sw, 0, self.sw, h)
-        r, g, b = gmConf.config['main.shadow.colour']
+        r, g, b = gmGuiBroker.config['main.shadow.colour']
         dc.SetBrush (wxBrush (wxColour (r, g, b), wxSOLID))
         # draw grey bars half as thick
         dc.DrawRectangle (self.sw/2, h-self.sw, w-self.sw, self.sw/2)
