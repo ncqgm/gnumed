@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.111 2004-06-02 13:10:18 sjtan Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmClinicalRecord.py,v 1.112 2004-06-02 22:11:47 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -557,6 +557,7 @@ class cClinicalRecord:
  			self.__db_cache['allergies']
  		except KeyError:
 			# FIXME: date range, episode, encounter, issue, test filter
+			# FIXME: check allergy_state first, then cross-check with select exists(... from allergy)
  			self.__db_cache['allergies'] = []
 			cmd = "select id from v_pat_allergies where id_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
@@ -617,7 +618,7 @@ class cClinicalRecord:
 			cmd = "select id_episode from v_pat_episodes where id_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load episodes for patient [%s]' % self.id_patient)
+				_log.Log(gmLog.lErr, 'error loading episodes for patient [%s]' % self.id_patient)
 				del self.__db_cache['episodes']
 				return None
 			for row in rows:
@@ -735,18 +736,12 @@ class cClinicalRecord:
 			# so try to create default episode ...
 			success, result = gmEMRStructItems.create_episode(id_health_issue=self.health_issue['id'])
 			if not success:
-				msg = result
-				_log.Log(gm.lErr, msg)
-			else:
-				episode = result
-			
-			
-			if episode is None:
 				_log.Log(gmLog.lErr, 'cannot even activate default episode for patient [%s], aborting' %  self.id_patient)
+				_log.Log(gmLog.lErr, result)
 				return False
-			episode.set_active()
 
-		self.__episode = episode
+		self.__episode = result
+		self.__episode.set_active()
 		# load corresponding health issue
 		self.health_issue = self.get_health_issues(id_list=[self.__episode['id_health_issue']])
 		if self.health_issue is None:
@@ -1317,7 +1312,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.111  2004-06-02 13:10:18  sjtan
+# Revision 1.112  2004-06-02 22:11:47  ncq
+# - streamline Syan's check for failing create_episode() in __load_last_active_episode()
+#
+# Revision 1.111  2004/06/02 13:10:18  sjtan
 #
 # error handling , in case unsuccessful get_episodes.
 #
