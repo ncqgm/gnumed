@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.79 2004-03-23 15:04:59 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmClinicalRecord.py,v 1.80 2004-03-23 17:32:59 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1466,8 +1466,10 @@ order by amount_overdue
 				vr4lr.lab_rxd_when,
 				vr4lr.val_when,
 				vr4lr.reported_when,
-				vr4lr.code,
-				vr4lr.name,
+				coalesce(vr4lr.unified_code, vr4lr.lab_code) as code,
+				coalesce(vr4lr.unified_name, vr4lr.lab_name) as name,
+				vr4lr.lab_code,
+				vr4lr.lab_name,
 				vr4lr.val_num,
 				vr4lr.val_alpha,
 				vr4lr.val_unit,
@@ -1648,7 +1650,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.79  2004-03-23 15:04:59  ncq
+# Revision 1.80  2004-03-23 17:32:59  ncq
+# - support "unified" test code/name on get_lab_data()
+#
+# Revision 1.79  2004/03/23 15:04:59  ncq
 # - merge Carlos' constraints into get_text_dump
 # - add gmPatient.export_data()
 #
