@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.84 2003-02-17 16:20:38 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmGuiMain.py,v 1.85 2003-03-23 11:46:14 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -321,8 +321,7 @@ class MainFrame(wxFrame):
 		FIXME: we can maybe change title bar information here
 		"""
 		new_page_id = event.GetSelection()
-		old_page_id = event.GetOldSelection()
-		_log.Log(gmLog.lData, 'switching notebook pages: %d -> %d' % (old_page_id, new_page_id))
+		#old_page_id = event.GetOldSelection()
 
 		# get access to selected page
 		new_page = self.guibroker['main.notebook.plugins'][new_page_id]
@@ -331,7 +330,7 @@ class MainFrame(wxFrame):
 		self.tb.ShowBar(new_page.name())
 		# hand focus to plugin page
 		new_page.ReceiveFocus()
-		event.Skip () # required for MSW
+		event.Skip() # required for MSW
 	#----------------------------------------------
 	def RegisterEvents(self):
 		"""register events we want to react to"""
@@ -635,7 +634,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.84  2003-02-17 16:20:38  ncq
+# Revision 1.85  2003-03-23 11:46:14  ncq
+# - remove extra debugging statements
+#
+# Revision 1.84  2003/02/17 16:20:38  ncq
 # - streamline imports
 # - comment out app_init signal dispatch since it breaks
 #
