@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.17 $
+-- $Revision: 1.18 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -71,6 +71,39 @@ insert into clin_encounter (
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
 	(select id from _enum_encounter_type where description='in surgery'),
 	'first for this RFE'
+);
+
+-- diagnoses
+insert into clin_aux_note (
+	id_encounter,
+	id_episode,
+	narrative
+) values (
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'contam. w/ ext.terrest.soil'
+);
+
+insert into clin_working_diag (
+	id_encounter,
+	id_episode,
+	narrative,
+	fk_progress_note,
+	laterality,
+	is_chronic,
+	is_active,
+	is_definite,
+	is_significant
+) values (
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'cut L forearm',
+	currval('clin_aux_note_pk_seq'),
+	'l',
+	false,
+	true,
+	true,
+	true
 );
 
 -- given Td booster shot
@@ -267,6 +300,27 @@ insert into clin_encounter (
 	'second for this RFE'
 );
 
+-- diagnoses
+insert into clin_working_diag (
+	id_encounter,
+	id_episode,
+	narrative,
+	laterality,
+	is_chronic,
+	is_active,
+	is_definite,
+	is_significant
+) values (
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'wound infection L forearm',
+	'l',
+	false,
+	true,
+	true,
+	true
+);
+
 -- wound infected, penicillin had been prescribed, developed urticaria
 insert into allergy (
 	id_encounter,
@@ -372,11 +426,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.17 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.17  2004-04-17 11:54:16  ncq
+-- Revision 1.18  2004-05-02 19:26:31  ncq
+-- - add diagnoses
+--
+-- Revision 1.17  2004/04/17 11:54:16  ncq
 -- - v_patient_episodes -> v_pat_episodes
 --
 -- Revision 1.16  2004/03/23 17:34:50  ncq
