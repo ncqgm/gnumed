@@ -20,15 +20,14 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.2 2003-02-15 15:33:58 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmXdtViewer.py,v 1.3 2003-02-16 13:54:47 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys,os,fileinput,string,linecache
 # location of our modules
 if __name__ == "__main__":
-	sys.path.append(os.path.join('..', '..', 'python-common'))
-	sys.path.append(os.path.join('..', '..', 'business'))
+	sys.path.append(os.path.join('.', 'modules'))
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -251,15 +250,15 @@ if __name__ == '__main__':
 
 			fname = ""
 			# has the user manually supplied a config file on the command line ?
-			if gmCLI.has_arg('--file'):
-				fname = gmCLI.arg['--file']
+			if gmCLI.has_arg('--xdt-file'):
+				fname = gmCLI.arg['--xdt-file']
 				_log.Log(gmLog.lData, 'XDT file is [%s]' % fname)
 				# file valid ?
 				if not os.path.exists(fname):
 					_log.Log(gmLog.lErr, "XDT file [%s] not found. Aborting." % fname)
 					return None
 			else:
-				_log.Log(gmLog.lData, "No XDT file given on command line. Format: --file=<file>")
+				_log.Log(gmLog.lData, "No XDT file given on command line. Format: --xdt-file=<file>")
 				return None
 
 			frame = wxFrame(
@@ -285,7 +284,7 @@ else:
 
 	class gmXdtViewer(gmPlugin.wxNotebookPlugin):
 		def name (self):
-			return _("XDT")
+			return 'XDT'
 
 		def GetWidget (self, parent):
 			self.viewer = gmXdtViewerPanel(parent)
@@ -320,7 +319,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.2  2003-02-15 15:33:58  ncq
+# Revision 1.3  2003-02-16 13:54:47  ncq
+# - renamed command line option to --xdt-file=
+#
+# Revision 1.2  2003/02/15 15:33:58  ncq
 # - typo
 #
 # Revision 1.1  2003/02/15 14:21:49  ncq
