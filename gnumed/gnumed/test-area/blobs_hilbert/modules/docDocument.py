@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -19,11 +19,15 @@ class cDocument:
 	def __init__(self):
 		__log__.Log(gmLog.lData, "Instantiated.")
 	#-----------------------------------
-	def loadMetaDataFromXML(self, aBaseDir = None, aCfg = None):
+	def loadMetaDataFromXML(self, aBaseDir = None, aCfg = None, aSection = None):
 		"""Load document metadata from XML file."""
 		# sanity checks
 		if aCfg == None:
 			__log__.Log(gmLog.lErr, "Parameter aCfg must point to a config parser object.")
+			return None
+
+		if not type(aSection) == type('a string'):
+			__log__.Log(gmLog.lErr, "Parameter aSection must be a string.")
 			return None
 
 		if not os.path.exists (aBaseDir):
@@ -33,7 +37,7 @@ class cDocument:
 			__log__.Log(gmLog.lData, "working from directory '" + str(aBaseDir) + "'")
 
 		# check for Befund description file
-		desc_file_name = aCfg.get("import", "description")
+		desc_file_name = aCfg.get(aSection, "description")
 		if not os.path.exists (os.path.join(aBaseDir, desc_file_name)):
 			__log__.Log (gmLog.lErr, "skipping " + aBaseDir + "- no description file (" + desc_file_name + ") found")
 			return None
@@ -43,43 +47,43 @@ class cDocument:
 		self.__metadata = {}
 
 		# document type
-		tmp = self.__get_from_xml(aTag = aCfg.get("import", "type_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "type_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			__log__.Log(gmLog.lErr, "Cannot load document type.")
-			return (1 == 0)
+			return None
 		else:
 			self.__metadata['type'] = string.join(tmp)
 			__log__.Log(gmLog.lData, "Document type: " + str(self.__metadata['type']))
 
 		# document comment
-		tmp = self.__get_from_xml(aTag = aCfg.get("import", "comment_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "comment_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			__log__.Log(gmLog.lErr, "Cannot load document comment.")
-			return (1 == 0)
+			return None
 		else:
 			self.__metadata['comment'] = string.join(tmp)
 			__log__.Log(gmLog.lData, "Document comment: " + str(self.__metadata['comment']))
 
 		# document reference date
-		tmp = self.__get_from_xml(aTag = aCfg.get("import", "date_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "date_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			__log__.Log(gmLog.lErr, "Cannot load document reference date.")
-			return (1 == 0)
+			return None
 		else:
 			self.__metadata['date'] = string.join(tmp)
 			__log__.Log(gmLog.lData, "document reference date: " + str(self.__metadata['date']))
 
 		# external reference string
-		tmp = self.__get_from_xml(aTag = aCfg.get("import", "ref_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "ref_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			__log__.Log(gmLog.lErr, "Cannot load document reference string.")
-			return (1 == 0)
+			return None
 		else:
 			self.__metadata['reference'] = string.join(tmp)
 			__log__.Log(gmLog.lData, "document reference string: " + str(self.__metadata['reference']))
 
 		# document description
-		tmp = self.__get_from_xml(aTag = aCfg.get("import", "desc_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "desc_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			__log__.Log(gmLog.lErr, "Cannot load long document description.")
 		else:
@@ -89,9 +93,15 @@ class cDocument:
 		# list of data files
 		if not self.__read_img_list(DescFile, aBaseDir):
 			__log__.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
-			return (1 == 0)
+			return None
 
-		return (1==1)
+		return 1
+	#-----------------------------------
+	def loadImgListFromXML(self, aDescFile = None, aBaseDir = None):
+		# list of data files
+		if not self.__read_img_list(aDescFile, aBaseDir):
+			__log__.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
+			return None
 	#-----------------------------------
 	def loadMetaDataFromGNUmed(self, aConn = None, aDocumentID = None):
 		"""Document meta data loader for GNUmed compatible database."""
@@ -337,7 +347,7 @@ class cDocument:
 			if end_pos == -1:
 				# but we don't do multiline tags
 				__log__.Log (gmLog.lErr, "Incomplete <image></image> line. We don't do multiline tags. Sorry.")
-				return (1 == 0)
+				return None
 
 			# extract filename
 			# FIXME: this is probably the place to add object level comments ?
@@ -355,7 +365,7 @@ class cDocument:
 
 		if len(self.__metadata['objects'].keys()) == 0:
 			log.Log (gmLog.lErr, "no files found for import")
-			return (1 == 0)
+			return None
 
 		__log__.Log(gmLog.lData, "document data files to be processed: " + str(self.__metadata['objects']))
 
