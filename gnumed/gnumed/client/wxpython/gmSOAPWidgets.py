@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.27 2005-03-17 17:48:20 cfmoro Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmSOAPWidgets.py,v 1.28 2005-03-17 19:53:13 cfmoro Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -92,15 +92,15 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		#self.__soap_multisash.SetController(self)		# what does this do ?
 		# - buttons
 		self.__BTN_save = wx.wxButton(PNL_soap_editors, -1, _('&Save'))
-		self.__BTN_save.Disable()
+		#self.__BTN_save.Disable()
 		self.__BTN_save.SetToolTipString(_('save focussed progress note into medical record'))
 
 		self.__BTN_clear = wx.wxButton(PNL_soap_editors, -1, _('&Clear'))
-		self.__BTN_clear.Disable()
+		#self.__BTN_clear.Disable()
 		self.__BTN_clear.SetToolTipString(_('clear focussed progress note'))
 
 		self.__BTN_remove = wx.wxButton(PNL_soap_editors, -1, _('&Remove'))
-		self.__BTN_remove.Disable()
+		#self.__BTN_remove.Disable()
 		self.__BTN_remove.SetToolTipString(_('close focussed progress note'))
 		
 		self.__BTN_add_unassociated = wx.wxButton(PNL_soap_editors, -1, _('&Unassociated new progress note'))
@@ -159,20 +159,23 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		"""
 		Check and configure adecuate buttons enabling state
 		"""						
-		selected_soap = self.__soap_multisash.get_focussed_leaf().get_content()
+		# FIXME: post 0.1, becouse of the difficulty to update the state
+		# on selecting a leaf (as multisash knows nothing about this class).
+		pass
+		#selected_soap = self.__soap_multisash.get_focussed_leaf().get_content()
 		# if soap stack is empty, disable save, clear and remove buttons		
-		if isinstance(selected_soap, gmMultiSash.cEmptyChild) or selected_soap.IsSaved():
-			self.__BTN_save.Enable(False)
-			self.__BTN_clear.Enable(False)
-			self.__BTN_remove.Enable(False)
-		else:
-			self.__BTN_save.Enable(True)
-			self.__BTN_clear.Enable(True)
-			self.__BTN_remove.Enable(True)
+		#if isinstance(selected_soap, gmMultiSash.cEmptyChild) or selected_soap.IsSaved():
+		#	self.__BTN_save.Enable(False)
+		#	self.__BTN_clear.Enable(False)
+		#	self.__BTN_remove.Enable(False)
+		#else:
+		#	self.__BTN_save.Enable(True)
+		#	self.__BTN_clear.Enable(True)
+		#	self.__BTN_remove.Enable(True)
 
 		# disabled save button when soap was dumped to backend
-		if isinstance(selected_soap, cResizingSoapPanel) and selected_soap.IsSaved():
-			self.__BTN_remove.Enable(True)
+		#if isinstance(selected_soap, cResizingSoapPanel) and selected_soap.IsSaved():
+		#	self.__BTN_remove.Enable(True)
 					
 	#--------------------------------------------------------
 	#def __get_problem_by_struct_element_REMOVE(self, emr_struct_element):
@@ -267,6 +270,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			if target_name == episode_name:
 				a_leaf.Select()
 				return
+		
 	#--------------------------------------------------------
 #	def __check_problem(self, problem_name):
 #		"""
@@ -359,7 +363,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		episode_name = self.__selected_episode['description']
 		if episode_name not in self.__get_displayed_episodes():
 			focused_widget = self.__soap_multisash.get_focussed_leaf().get_content()
-			if isinstance(focused_widget, cResizingSoapPanel) and (focused_widget.GetEpisode() is None or focused_widget.GetEpisode() == NOTE_SAVED) and focused_widget.GetHeadingTxt().strip() == '':
+			if isinstance(focused_widget, cResizingSoapPanel) and focused_widget.is_unassociated_editor() is True and focused_widget.GetHeadingTxt().strip() == '':
 				# configure episode name in unassociated progress note
 				focused_widget = self.__soap_multisash.get_focussed_leaf().get_content()		
 				focused_widget.SetHeadingTxt(self.__selected_episode['description'])
@@ -400,6 +404,11 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		emr = self.__pat.get_clinical_record()
 		focussed_leaf = self.__soap_multisash.get_focussed_leaf()
 		soap_widget = focussed_leaf.get_content()
+		# sanity check
+		if not isinstance(soap_widget, cResizingSoapPanel) or soap_widget.IsSaved() is True:
+			msg = _('Cannot save. No valid editor to be saved is selected.')
+			gmGuiHelpers.gm_show_warning(msg, _('save progress note'), gmLog.lWarn)
+			return
 		soap_editor = soap_widget.get_editor()
 		episode = soap_widget.GetEpisode()
 		# do we need to create a new episode ?
@@ -473,6 +482,11 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		"""
 			
 		selected_soap = self.__soap_multisash.get_focussed_leaf().get_content()
+		# sanity check
+		if not isinstance(selected_soap, cResizingSoapPanel) or selected_soap.IsSaved() is True:
+			msg = _('Cannot clear. No valid editor to be cleaned is selected.')
+			gmGuiHelpers.gm_show_warning(msg, _('clear progress note editor'), gmLog.lWarn)
+			return
 		selected_soap.Clear()
 
 	#--------------------------------------------------------
@@ -499,13 +513,17 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 
 		print "remove SOAP input widget"
 		selected_leaf = self.__soap_multisash.get_focussed_leaf()
+		if not isinstance(selected_leaf.get_content(), cResizingSoapPanel):
+			msg = _('Cannot remove. No progress note editor is selected.')
+			gmGuiHelpers.gm_show_warning(msg, _('remove progress note editor'), gmLog.lWarn)
+			return		
 		selected_leaf.DestroyLeaf()
 
 		#print "problems with soap: %s" % (self.__managed_episodes)
 		# there's no leaf selected after deletion, so disable all buttons
-		self.__BTN_save.Disable()
-		self.__BTN_clear.Disable()
-		self.__BTN_remove.Disable()
+		#self.__BTN_save.Disable()
+		#self.__BTN_clear.Disable()
+		#self.__BTN_remove.Disable()
 		# enable new button is soap stack is empty
 		#selected_leaf = self.__soap_multisash.GetSelectedLeaf()
 		#if self.__selected_soap.GetHealthIssue() is None:
@@ -849,7 +867,19 @@ class cResizingSoapPanel(wx.wxPanel):
 			self.__set_heading(txt)
 		else:
 			msg = _('Cannot change the episode description for current note.')
-			gmGuiHelpers.gm_show_error(msg, _('changing episode description'), gmLog.lErr)
+			gmGuiHelpers.gm_show_error(msg, _('changing episode description'), gmLog.lErr)			
+	#--------------------------------------------------------
+	def is_unassociated_editor(self):
+		"""
+		Retrieves wether the current editor is not associated to any 
+		episode and thus displaying the phrasewheel layout.
+
+		@param txt: The heading text to set (episode name)
+		@param txt: StringType
+		"""
+		if isinstance(self.__soap_heading, gmPhraseWheel.cPhraseWheel):
+			return True
+		return False
 	#--------------------------------------------------------
 	def get_editor(self):
 		"""
@@ -873,7 +903,10 @@ class cResizingSoapPanel(wx.wxPanel):
 		self.__is_saved = is_saved
 		self.__set_heading('')
 		self.Clear()
-		self.__episode = NOTE_SAVED
+		# avoid setting saved state on unassociated, so we wont be able
+		# to restore to not saved in an easy way
+		if not isinstance(self.__soap_heading, gmPhraseWheel.cPhraseWheel):
+			self.__episode = NOTE_SAVED
 	#--------------------------------------------------------
 	def IsSaved(self):
 		"""
@@ -1142,7 +1175,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.27  2005-03-17 17:48:20  cfmoro
+# Revision 1.28  2005-03-17 19:53:13  cfmoro
+# Fixes derived from different combination of events. Replaced button state by per action sanity check for 0.1
+#
+# Revision 1.27  2005/03/17 17:48:20  cfmoro
 # Using types.NoneType to detect unassociated progress note
 #
 # Revision 1.26  2005/03/17 16:41:30  ncq
