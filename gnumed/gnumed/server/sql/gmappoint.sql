@@ -16,7 +16,7 @@ CREATE TABLE clinician -- temporary ??
 	(
 		name TEXT NOT NULL,
 		bio TEXT,
-		photo BLOB, -- JPEG
+		photo TEXT, -- JPEG
 		id SERIAL 
 	);
 
@@ -73,7 +73,7 @@ CREATE TABLE appointment
 
 COMMENT ON TABLE appointment IS 'All appointments made';
 COMMENT ON COLUMN appointment.patient_name IS 
-'Name of patient as surname,, first name. For speed so don't have to query
+'Name of patient as surname,, first name. For speed so don''t have to query
 patient server all the time.';
 COMMENT ON COLUMN appointment.session IS 
 'ID of session under which pt is booked';
