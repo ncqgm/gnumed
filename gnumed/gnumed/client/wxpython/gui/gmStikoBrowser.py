@@ -6,7 +6,7 @@
 @version: 0.1
 @copyright: GPL
 @thanks: this code has been heavily "borrowed" from
-         Robin Dunn's extraordinary wxPython sample
+		 Robin Dunn's extraordinary wxPython sample
 """
 #==============================================================
 # NOTE
@@ -14,7 +14,7 @@
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -48,200 +48,203 @@ ID_VIEWSOURCE
 
 
 class StikoHtmlWindow(wxHtmlWindow):
-    def __init__(self, parent, id):
-        wxHtmlWindow.__init__(self, parent, id)
-        self.parent = parent
+	def __init__(self, parent, id):
+		wxHtmlWindow.__init__(self, parent, id)
+		self.parent = parent
 
-    def OnSetTitle(self, title):
-        self.parent.ShowTitle(title)
+	def OnSetTitle(self, title):
+		self.parent.ShowTitle(title)
 
 
 class StikoHtmlPanel(wxPanel):
-    def __init__(self, parent, frame):
-        wxPanel.__init__(self, parent, -1)
-        self.frame = frame
-        # CHANGED CODE Haywood 26/2/02
-        # get base directory for manuals from broker
-        # Ideally this should be something like "/usr/doc/gnumed/"
-        self.docdir = gmGuiBroker.GuiBroker ()['gnumed_dir']
-        self.printer = wxHtmlEasyPrinting()
+	def __init__(self, parent, frame):
+		wxPanel.__init__(self, parent, -1)
+		self.frame = frame
+		# CHANGED CODE Haywood 26/2/02
+		# get base directory for manuals from broker
+		# Ideally this should be something like "/usr/doc/gnumed/"
+		self.docdir = gmGuiBroker.GuiBroker ()['gnumed_dir']
+		self.printer = wxHtmlEasyPrinting()
 
-        self.box = wxBoxSizer(wxVERTICAL)
+		self.box = wxBoxSizer(wxVERTICAL)
 
-        infobox = wxBoxSizer(wxHORIZONTAL)
-        n = wxNewId()
-        self.infoline = wxTextCtrl(self, n, style=wxTE_READONLY)
-        self.infoline.SetBackgroundColour(wxLIGHT_GREY)
-        infobox.Add(self.infoline, 1, wxGROW|wxALL)
-        self.box.Add(infobox, 0, wxGROW)
+		infobox = wxBoxSizer(wxHORIZONTAL)
+		n = wxNewId()
+		self.infoline = wxTextCtrl(self, n, style=wxTE_READONLY)
+		self.infoline.SetBackgroundColour(wxLIGHT_GREY)
+		infobox.Add(self.infoline, 1, wxGROW|wxALL)
+		self.box.Add(infobox, 0, wxGROW)
 
-        self.html = StikoHtmlWindow(self, -1)
-        self.html.SetRelatedFrame(frame, "")
-        self.html.SetRelatedStatusBar(0)
-        self.box.Add(self.html, 1, wxGROW)
+		self.html = StikoHtmlWindow(self, -1)
+		self.html.SetRelatedFrame(frame, "")
+		self.html.SetRelatedStatusBar(0)
+		self.box.Add(self.html, 1, wxGROW)
 
-        self.SetSizer(self.box)
-        self.SetAutoLayout(True)
+		self.SetSizer(self.box)
+		self.SetAutoLayout(True)
 
-        self.OnShowDefault(None)
+		self.OnShowDefault(None)
 
 ##     def __del__(self):
 ##         print 'ManualHtmlPanel.__del__'
 
-    def ShowTitle(self, title):
-        self.infoline.Clear()
-        self.infoline.WriteText(title)
+	def ShowTitle(self, title):
+		self.infoline.Clear()
+		self.infoline.WriteText(title)
 
-    def OnShowDefault(self, event):
-        name = os.path.join(self.docdir, stiko_path)
-        if os.access (name, os.F_OK):
-            self.html.LoadPage(name)
-        else:
-            gmLog.gmDefLog.Log (gmLog.lErr, "cannot load document %s" % name)
-
-
-    def OnLoadFile(self, event):
-        dlg = wxFileDialog(self, wildcard = '*.htm*', style=wxOPEN)
-        if dlg.ShowModal():
-            path = dlg.GetPath()
-            self.html.LoadPage(path)
-        dlg.Destroy()
+	def OnShowDefault(self, event):
+		name = os.path.join(self.docdir, stiko_path)
+		if os.access (name, os.F_OK):
+			self.html.LoadPage(name)
+		else:
+			gmLog.gmDefLog.Log (gmLog.lErr, "cannot load document %s" % name)
 
 
-    def OnBack(self, event):
-        if not self.html.HistoryBack():
-            gmLog.gmDefLog.Log (gmLog.lInfo, _("StikoHtmlWindow: No more items in history!\n"))
+	def OnLoadFile(self, event):
+		dlg = wxFileDialog(self, wildcard = '*.htm*', style=wxOPEN)
+		if dlg.ShowModal():
+			path = dlg.GetPath()
+			self.html.LoadPage(path)
+		dlg.Destroy()
 
 
-    def OnForward(self, event):
-        if not self.html.HistoryForward():
-            gmLog.gmDefLog.Log (gmLog.lInfo, _("StikoHtmlWindow: No more items in history!\n"))
+	def OnBack(self, event):
+		if not self.html.HistoryBack():
+			gmLog.gmDefLog.Log (gmLog.lInfo, _("StikoHtmlWindow: No more items in history!\n"))
 
 
-    def OnViewSource(self, event):
-        from wxPython.lib.dialogs import wxScrolledMessageDialog
-        source = self.html.GetParser().GetSource()
-        dlg = wxScrolledMessageDialog(self, source, _('HTML Source'))
-        dlg.ShowModal()
-        dlg.Destroy()
+	def OnForward(self, event):
+		if not self.html.HistoryForward():
+			gmLog.gmDefLog.Log (gmLog.lInfo, _("StikoHtmlWindow: No more items in history!\n"))
 
 
-    def OnPrint(self, event):
-        self.printer.PrintFile(self.html.GetOpenedPage())
+	def OnViewSource(self, event):
+		from wxPython.lib.dialogs import wxScrolledMessageDialog
+		source = self.html.GetParser().GetSource()
+		dlg = wxScrolledMessageDialog(self, source, _('HTML Source'))
+		dlg.ShowModal()
+		dlg.Destroy()
+
+
+	def OnPrint(self, event):
+		self.printer.PrintFile(self.html.GetOpenedPage())
 
 
 class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
-    """
-    Plugin to encapsulate the STIKO window
-    """
-    tab_name = _('StIKo')
+	"""
+	Plugin to encapsulate the STIKO window
+	"""
+	tab_name = _('StIKo')
 
-    def name (self):
-        return gmStikoBrowser.tab_name
+	def name (self):
+		return gmStikoBrowser.tab_name
 
-    def MenuInfo (self):
-        return ('reference', _('&StIKo'))
+	def MenuInfo (self):
+		return ('reference', _('&StIKo'))
 
-    def GetWidget (self, parent):
-        return StikoHtmlPanel (parent, self.gb['main.frame'])
+	def GetWidget (self, parent):
+		return StikoHtmlPanel (parent, self.gb['main.frame'])
 
-    def populate_toolbar (self, tb, widget):
-        tool1 = tb.AddTool(
-            ID_STIKOCONTENTS,
-            images_for_gnumed_browser16_16.getcontentsBitmap(),
-            shortHelpString=_("Table of Content"),
-            isToggle=True
-        )
-        EVT_TOOL (tb, ID_STIKOCONTENTS, widget.OnShowDefault)
+	def populate_toolbar (self, tb, widget):
+		tool1 = tb.AddTool(
+			ID_STIKOCONTENTS,
+			images_for_gnumed_browser16_16.getcontentsBitmap(),
+			shortHelpString=_("Table of Content"),
+			isToggle=True
+		)
+		EVT_TOOL (tb, ID_STIKOCONTENTS, widget.OnShowDefault)
 
-        tool1 = tb.AddTool(
-            ID_STIKOOPENFILE, 
-            images_for_gnumed_browser16_16.getfileopenBitmap(),
-            shortHelpString=_("Open File"),
-            isToggle=True
-        )
-        EVT_TOOL (tb, ID_STIKOOPENFILE, widget.OnLoadFile)
+		tool1 = tb.AddTool(
+			ID_STIKOOPENFILE, 
+			images_for_gnumed_browser16_16.getfileopenBitmap(),
+			shortHelpString=_("Open File"),return StikoHtmlPanel (parent, self.gb['main.frame'])
+			isToggle=True
+		)
+		EVT_TOOL (tb, ID_STIKOOPENFILE, widget.OnLoadFile)
 
-        tool1 = tb.AddTool(
-            ID_STIKOBACK, 
-            images_for_gnumed_browser16_16.get1leftarrowBitmap(),
-            shortHelpString=_("Back"),
-            isToggle=False
-        )
-        EVT_TOOL (tb, ID_STIKOBACK, widget.OnBack)
+		tool1 = tb.AddTool(
+			ID_STIKOBACK, 
+			images_for_gnumed_browser16_16.get1leftarrowBitmap(),
+			shortHelpString=_("Back"),
+			isToggle=False
+		)
+		EVT_TOOL (tb, ID_STIKOBACK, widget.OnBack)
 
-        tool1 = tb.AddTool(
-            ID_STIKOFORWARD, 
-            images_for_gnumed_browser16_16.get1rightarrowBitmap(),
-            shortHelpString=_("Forward"),
-            isToggle=True
-        )
-        EVT_TOOL (tb, ID_STIKOFORWARD, widget.OnForward)
+		tool1 = tb.AddTool(
+			ID_STIKOFORWARD, 
+			images_for_gnumed_browser16_16.get1rightarrowBitmap(),
+			shortHelpString=_("Forward"),
+			isToggle=True
+		)
+		EVT_TOOL (tb, ID_STIKOFORWARD, widget.OnForward)
 
-        tool1 = tb.AddTool(
-            ID_STIKORELOAD, 
-            images_for_gnumed_browser16_16.getreloadBitmap(),   
-            shortHelpString=_("Reload"),
-            isToggle=True
-        )
+		tool1 = tb.AddTool(
+			ID_STIKORELOAD, 
+			images_for_gnumed_browser16_16.getreloadBitmap(),   
+			shortHelpString=_("Reload"),
+			isToggle=True
+		)
 
-        tb.AddSeparator()
+		tb.AddSeparator()
 
-        tool1 = tb.AddTool(
-            ID_STIKOHOME,
-            images_for_gnumed_browser16_16.getgohomeBitmap(),   
-            shortHelpString=_("Home"),
-            isToggle=True
-        )
-        EVT_TOOL (tb, ID_STIKOHOME, widget.OnShowDefault)
+		tool1 = tb.AddTool(
+			ID_STIKOHOME,
+			images_for_gnumed_browser16_16.getgohomeBitmap(),   
+			shortHelpString=_("Home"),
+			isToggle=True
+		)
+		EVT_TOOL (tb, ID_STIKOHOME, widget.OnShowDefault)
 
-        tb.AddSeparator()
+		tb.AddSeparator()
 
-        tool1 = tb.AddTool(
-            ID_STIKOBABELFISH, 
-            images_for_gnumed_browser16_16.getbabelfishBitmap(),
-            shortHelpString=_("Translate text"), 
-            isToggle=False
-        )
-        #EVT_TOOL (tb, ID_STIKOBABELFISH, widget.OnBabelFish )
-        
-        tb.AddSeparator()
+		tool1 = tb.AddTool(
+			ID_STIKOBABELFISH, 
+			images_for_gnumed_browser16_16.getbabelfishBitmap(),
+			shortHelpString=_("Translate text"), 
+			isToggle=False
+		)
+		#EVT_TOOL (tb, ID_STIKOBABELFISH, widget.OnBabelFish )
+		
+		tb.AddSeparator()
 
-        tool1 = tb.AddTool(
-            ID_STIKOBOOKMARKS, 
-            images_for_gnumed_browser16_16.getbookmarkBitmap(),
-            shortHelpString=_("Bookmarks"), 
-            isToggle=True
-        )
-        #EVT_TOOL (tb, ID_STIKOBOOKMARKS, widget.OnBookmarks)
+		tool1 = tb.AddTool(
+			ID_STIKOBOOKMARKS, 
+			images_for_gnumed_browser16_16.getbookmarkBitmap(),
+			shortHelpString=_("Bookmarks"), 
+			isToggle=True
+		)
+		#EVT_TOOL (tb, ID_STIKOBOOKMARKS, widget.OnBookmarks)
+		
+		tool1 = tb.AddTool(
+			ID_STIKOADDBOOKMARK, 
+			images_for_gnumed_browser16_16.getbookmark_addBitmap(),
+			shortHelpString=_("Add Bookmark"), 
+			isToggle=True
+		)
+		#EVT_TOOL (tb, ID_STIKOADDBOOKMARK, widget.OnAddBookmark)
 
-        tool1 = tb.AddTool(
-            ID_STIKOADDBOOKMARK, 
-            images_for_gnumed_browser16_16.getbookmark_addBitmap(),
-            shortHelpString=_("Add Bookmark"), 
-            isToggle=True
-        )
-        #EVT_TOOL (tb, ID_STIKOADDBOOKMARK, widget.OnAddBookmark)
+		tool1 = tb.AddTool(
+			ID_VIEWSOURCE, 
+			images_for_gnumed_browser16_16.getviewsourceBitmap(),
+			shortHelpString=_("View Source"), 
+			isToggle=True
+		)
+		EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
 
-        tool1 = tb.AddTool(
-            ID_VIEWSOURCE, 
-            images_for_gnumed_browser16_16.getviewsourceBitmap(),
-            shortHelpString=_("View Source"), 
-            isToggle=True
-        )
-        EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
-
-        tool1 = tb.AddTool(
-            ID_STIKOPRINTER, 
-            images_for_gnumed_browser16_16.getprinterBitmap(),
-            shortHelpString=_("Print Page"), 
-            isToggle=True
-        )
-        EVT_TOOL (tb, ID_STIKOPRINTER, widget.OnPrint)
+		tool1 = tb.AddTool(
+			ID_STIKOPRINTER, 
+			images_for_gnumed_browser16_16.getprinterBitmap(),
+			shortHelpString=_("Print Page"), 
+			isToggle=True
+		)
+		EVT_TOOL (tb, ID_STIKOPRINTER, widget.OnPrint)
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.15  2004-08-04 17:16:02  ncq
+# Revision 1.16  2004-12-27 18:51:37  shilbert
+# - converted spaces to tabs, hopefully this won't break it
+#
+# Revision 1.15  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
