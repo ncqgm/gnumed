@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -727,7 +727,7 @@ def bootstrap_services():
 			return None
 	return 1
 #--------------------------------------------------------------
-def _import_schema(aSection, anAlias, aDB):
+def _import_schema(aSection = None, anAlias = None, aDB = None):
 	# load schema
 	schema_files = _cfg.get(aSection, "schema")
 	if schema_files is None:
@@ -740,7 +740,7 @@ def _import_schema(aSection, anAlias, aDB):
 			return None
 	return 1
 #--------------------------------------------------------------
-def _import_schema_file(self, anSQL_file = None, aDB = None):
+def _import_schema_file(anSQL_file = None, aDB = None):
 	# sanity checks
 	if anSQL_file is None:
 		_log.Log(gmLog.lErr, "Cannot import schema without schema file.")
@@ -878,7 +878,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.14  2003-01-30 07:52:02  ncq
+# Revision 1.15  2003-01-30 07:55:01  ncq
+# - yet another spurious self
+#
+# Revision 1.14  2003/01/30 07:52:02  ncq
 # - spurious self from refactoring removed
 #
 # Revision 1.13  2003/01/28 13:39:14  ncq
