@@ -12,7 +12,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -34,9 +34,10 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
 import gmCfg, gmI18N, gmXmlDocDesc, gmXdtObjects
-from gmPhraseWheel import *
-
 _cfg = gmCfg.gmDefCfgFile
+
+from gmPhraseWheel import *
+from gmExceptions import ConstructorError
 
 [	wxID_INDEXFRAME,
 	wxID_TBOX_desc_long,
@@ -63,10 +64,26 @@ class indexFrame(wxPanel):
 
 		wxPanel.__init__(self, parent, -1, wxDefaultPosition, wxDefaultSize)
 
-		# get valid document types from ini-file
-		self.valid_doc_types = _cfg.get("metadata", "doctypes")
+		if _cfg is None:
+			msg = _('Cannot index documents without a configuration file.')
+			self.__show_error(
+				msg,
+				_('starting document indexer')
+			)
+			raise ConstructorError, msg
+
 		# repository base
 		self.repository = os.path.abspath(os.path.expanduser(_cfg.get("index", "repository")))
+		if not os.path.exists(self.repository):
+			msg = _('Repository directory [%s] does not exist.' % self.repository)
+			self.__show_error(
+				msg,
+				_('starting document indexer')
+			)
+			raise ConstructorError, msg
+
+		# get valid document types from ini-file
+		self.valid_doc_types = _cfg.get("metadata", "doctypes")
 
 		# set up GUI
 		self._init_ctrls(parent)
@@ -911,7 +928,7 @@ if __name__ == '__main__':
 		application = wxPyWidgetTester(size=(800,600))
 		application.SetWidget(indexFrame)
 		application.MainLoop()
-	except:
+	except StandardError:
 		exc = sys.exc_info()
 		_log.LogException('Unhandled exception.', exc, fatal=1)
 		# FIXME: remove pending indexing locks
@@ -936,7 +953,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.3  2003-04-20 15:29:49  ncq
+# Revision 1.4  2003-04-20 16:10:12  ncq
+# - warn on missing repository or config file
+#
+# Revision 1.3  2003/04/20 15:29:49  ncq
 # - adapted to getting away from old doc*.py modules
 #
 # Revision 1.2  2003/04/19 22:51:57  ncq
