@@ -12,7 +12,9 @@ class CharValidator:
 		self.print_other = range(18, 48) + range( 58 , 65) + range(91, 97) + range(123,126)
 		self.print_other.remove(32)
 		self.print_other.remove(39)
-		self.apostrophe = range(39, 40)
+		self.print_other.remove(45)
+		self.name_punctuation = [39, 45]
+		
 
 
 	def setSingleSpace(self, control):
@@ -71,7 +73,7 @@ class CharValidator:
 
 		k = keyEvent.GetKeyCode()
 		
-		if k in self.lowercase or k in  self.uppercase or k in self.print_other or k in  self.apostrophe:
+		if k in self.lowercase or k in  self.uppercase or k in self.print_other or k in  self.name_punctuation:
 			keyEvent.Skip(0)
 			return
 
@@ -98,8 +100,8 @@ class CharValidator:
 			u = stringTargetCase[keyEvent.GetKeyCode() - case[0]] 	
 			print len(t),len(u)
 			#wxwidget's initial value bug.
-			t = self._remove_init_whitespace_bug(t)
-			c.SetValue(t+u)
+			#t = self._remove_init_whitespace_bug(t)
+			c.SetValue(t[:p]+u+t[p:])
 			print len(t),len(u)
 			print p
 			c.SetInsertionPoint(p+1)
@@ -134,17 +136,48 @@ class CharValidator:
 			t = c.GetValue()
 			#wxwidget's initial value bug.
 			t = self._remove_init_whitespace_bug(t)
-			
-			words = t.split(' ')
-			if len(t) == 0 or filter(lambda(x): x.strip() <>'' ,words) ==[] or t[-1] == ' ' or (len(words)> 0 and words[-1] in ['Mac', 'Mc' , "O'"] ):
-				t += string.ascii_uppercase[k-self.lowercase[0]]
-			else:
-				t += string.ascii_lowercase[k - self.lowercase[0]]
+			t = t[:p] + string.ascii_lowercase[k - self.lowercase[0]] +t[p:]
+			l = t.split(' ')
+			l = self.capitalize_list(l)			
+					
+			t = ' '.join(l)		
+					
 			c.SetValue(t)
 			c.SetInsertionPoint(p+1)
 			return 1
 		
 		return 0
+	
+	def capitalize_list(self, l):
+		for i in xrange(len(l)):
+			w = l[i].capitalize()
+			if '-' in w:
+				l[i] = '-'.join(self.capitalize_list(w.split('-')))
+
+			elif len(w) > 3 and w[:3] == 'Mac':
+				l[i] = w[:3] + w[3].upper() + w[4:]
+			elif len(w) > 2 and w[:2] == 'Mc':
+				l[i] = w[:2] + w[2].upper() + w[3:]
+			elif len(w) > 2 and w[1] == "'":
+				l[i] = w[:2] + w[2].upper() + w[3:]
+			else:
+				l[i] =w
+		return l
 			
-		
+
+if __name__ == "__main__":
+	import richards_editor
+	app = richards_editor.REApp()
+	v = CharValidator()
+
+	m = app.getSOAPMap()
+	v.setSingleSpace(m['S'])
+	v.setUpperAlpha(m['O'])
+	v.setCapitalize(m['A'])
+	v.setDigits(m['P'])
+	
+	
+	app.MainLoop()
+
+	
 	
