@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -62,16 +62,17 @@ _cfg = gmCfg.gmDefCfgFile
 dbapi = None
 try:
 	from pyPgSQL import PgSQL
+	from pyPgSQL import libpq
 	dbapi = PgSQL
 	dsn_format = "%s:%s:%s:%s:%s"
 except ImportError:
-	_log.Log(gmLog.lErr, "Cannot load pyPgSQL.PgSQL database adapter module.")
+	_log.LogException("Cannot load pyPgSQL.PgSQL database adapter module.", sys.exc_info(), verbose=0)
 	try:
 		import psycopg
 		dbapi = psycopg
 		dsn_format = "host=%s port=%s dbname=%s user=%s password=%s"
 	except ImportError:
-		_log.Log(gmLog.lErr, "Cannot load psycopg database adapter module.")
+		_log.LogException("Cannot load psycopg database adapter module.", sys.exc_info(), verbose=0)
 		try:
 			import pgdb
 			dbapi = pgdb
@@ -79,7 +80,7 @@ except ImportError:
 		except ImportError:
 			print "Cannot find Python module for connecting to the database server. Program halted."
 			print "Please check the log file and report to the mailing list."
-			_log.Log(gmLog.lErr, "Cannot load pgdb database adapter module.")
+			_log.LogException("Cannot load pgdb database adapter module.", sys.exc_info(), verbose=0)
 			raise
 
 from gmExceptions import ConstructorError
@@ -1216,7 +1217,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.31  2003-10-25 16:58:40  ncq
+# Revision 1.32  2003-10-25 17:07:30  ncq
+# - import libpq from pyPgSQL
+#
+# Revision 1.31  2003/10/25 16:58:40  ncq
 # - fix audit trigger function generation omitting target column names
 #
 # Revision 1.30  2003/10/25 08:13:01  ncq
