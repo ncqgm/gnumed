@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.6 2004-04-20 00:14:30 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPathLab.py,v 1.7 2004-04-21 15:27:38 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types
@@ -39,6 +39,8 @@ class cLabResult(gmClinItem.cClinItem):
 #				batch_no=%(batch_no)s
 #			where id=%(pk_vaccination)s"""
 		]
+
+# remember ::bool on boolean fields ...
 
 	_updatable_fields = [
 #		'date',
@@ -218,7 +220,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.6  2004-04-20 00:14:30  ncq
+# Revision 1.7  2004-04-21 15:27:38  ncq
+# - map 8407 to string for ldt import
+#
+# Revision 1.6  2004/04/20 00:14:30  ncq
 # - cTestType invented
 #
 # Revision 1.5  2004/04/19 12:42:41  ncq

@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.17 2004-04-19 12:43:44 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmXdtMappings.py,v 1.18 2004-04-21 15:27:38 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -714,6 +714,17 @@ map_gender_xdt2gm = {
 	'f': 'f'
 }
 
+# LDT "gender", 8407
+map_8407_2str = {
+	'0': _('unknown gender'),
+	'1': _('male'),
+	'2': _('female'),
+	'3': _('child'),
+	'4': _('boy'),
+	'5': _('girl'),
+	'6': _('animal')
+}
+
 # xDT character code mapping : 9106
 xdt_character_code_map = {
 	'1':'7-bit-Code ASCII',
@@ -1324,7 +1335,10 @@ xdt_map_of_content_maps = {
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.17  2004-04-19 12:43:44  ncq
+# Revision 1.18  2004-04-21 15:27:38  ncq
+# - map 8407 to string for ldt import
+#
+# Revision 1.17  2004/04/19 12:43:44  ncq
 # - add Befundstatus mapping xdt <-> GnuMed
 #
 # Revision 1.16  2004/03/20 19:45:49  ncq
