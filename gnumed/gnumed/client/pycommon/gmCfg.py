@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -58,10 +58,12 @@ from types import *
 
 # gnumed modules
 import gmLog, gmNull
-_log = gmLog.gmDefLog
 
+_log = gmLog.gmDefLog
 _gmPG = None
 _gmCLI = None
+
+_log.Log(gmLog.lInfo, __version__)
 
 # flags for __get_conf_name
 cfg_SEARCH_STD_DIRS = 1
@@ -1227,7 +1229,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.9  2004-07-12 02:48:40  ihaywood
+# Revision 1.10  2004-07-12 13:49:39  ncq
+# - log version
+#
+# Revision 1.9  2004/07/12 02:48:40  ihaywood
 # same again
 #
 # Revision 1.8  2004/07/12 02:44:12  ihaywood
