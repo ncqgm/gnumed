@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.6 2003-04-01 12:28:14 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPatientSelector.py,v 1.7 2003-04-01 15:32:52 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -49,9 +49,8 @@ def _sensitize(aName = None):
 def _normalize_soundalikes(aString = None, aggressive = 0):
 	if aString is None:
 		return None
-	elif:
-		len(aString) == 0:
-			return aString
+	elif len(aString) == 0::
+		return aString
 	else:
 		# umlauts
 		normalized =    aString.replace('Ä', '(Ä|AE|Ae|E)')
@@ -706,6 +705,7 @@ class cPatientSelector(wxTextCtrl):
 					_log.Log(gmLog.lErr, 'cannot fetch patient IDs')
 				else:
 					rows = curs.fetchall()
+					print rows
 					pat_ids.extend(rows)
 #					for pat_id in rows:
 #						pat_ids.extend(pat_id)
@@ -951,7 +951,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.6  2003-04-01 12:28:14  ncq
+# Revision 1.7  2003-04-01 15:32:52  ncq
+# - stupid indentation error
+#
+# Revision 1.6  2003/04/01 12:28:14  ncq
 # - factored out _normalize_soundalikes()
 #
 # Revision 1.5  2003/04/01 09:08:27  ncq
