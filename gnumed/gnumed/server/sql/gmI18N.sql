@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.11 2003-04-23 08:36:00 michaelb Exp $
+-- $Id: gmI18N.sql,v 1.12 2003-05-02 15:06:44 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -100,8 +100,7 @@ END;
 ' language 'plpgsql';
 
 comment on function _(text) is
-	'will return either the input or the translation if it exists,
-	 to be used as an after-select trigger function on your tables';
+	'will return either the input or the translation if it exists';
 
 -- =============================================
 create function set_curr_lang(text) returns unknown as '
@@ -172,11 +171,14 @@ TO group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.11  2003-04-23 08:36:00  michaelb
+-- Revision 1.12  2003-05-02 15:06:44  ncq
+-- - fix comment
+--
+-- Revision 1.11  2003/04/23 08:36:00  michaelb
 -- made i18n_curr_lang longer still (11 to 15)
 --
 -- Revision 1.9  2003/02/04 13:22:01  ncq
