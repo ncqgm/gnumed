@@ -2,11 +2,11 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.29 $
+# $Revision: 1.30 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GnuMed 0.1\n"
-"POT-Creation-Date: Wed May 21 15:23:45 2003\n"
+"POT-Creation-Date: Fri May 23 16:44:30 2003\n"
 "PO-Revision-Date: 2002-09-17 15:18+0200\n"
 "Last-Translator: Sebastian Hilbert <sebastian.hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -62,7 +62,7 @@ msgstr "Aktionen"
 msgid "GnuMed client"
 msgstr "GnuMed: Hauptprogramm"
 
-#: ../wxpython/gmEditArea.py:331 ../wxpython/gmEditArea.py:524
+#: ../wxpython/gmEditArea.py:330 ../wxpython/gmEditArea.py:574
 msgid "Allergy"
 msgstr "Allergie"
 
@@ -197,10 +197,14 @@ msgstr "Zugriffsrechte des Benutzers"
 msgid "searching patient"
 msgstr "suche Patient"
 
-#: ../python-common/gmPatientNameQuery.py:66 ../wxpython/gmEditArea.py:118
+#: ../python-common/gmPatientNameQuery.py:66 ../wxpython/gmEditArea.py:121
 #: ../wxpython/patient/modules/gmPatientNameQuery.py:66
 msgid "Name"
 msgstr ""
+
+#: ../wxpython/gmEditArea.py:465
+msgid " (L) "
+msgstr "li"
 
 #: ../wxpython/gmPersonDetails.py:258 ../wxpython/gmPersonDetails.py:283
 msgid "A&dd"
@@ -468,7 +472,7 @@ msgstr ""
 "Ein Fehler ist in GnuMed aufgetreten. Sie koennen aus dem untensteheden "
 "Fenster einen Fehlerbericht senden "
 
-#: ../wxpython/gmEditArea.py:390
+#: ../wxpython/gmEditArea.py:389
 msgid " age died "
 msgstr " Sterbealter "
 
@@ -577,7 +581,7 @@ msgstr ""
 msgid "Cannot find any SANE connected devices."
 msgstr "Kann keine via SANE angebundenen Geräte finden."
 
-#: ../wxpython/gmEditArea.py:120 ../wxpython/patient/gmGP_PastHistory.py:103
+#: ../wxpython/gmEditArea.py:123 ../wxpython/patient/gmGP_PastHistory.py:103
 #: ../wxpython/patient/gmGP_PastHistory.py:122
 msgid "Condition"
 msgstr "Erkrankung"
@@ -586,7 +590,7 @@ msgstr "Erkrankung"
 msgid "Version X.X.X brought to you by"
 msgstr "Version X.X.X präsentiert von"
 
-#: ../wxpython/gmEditArea.py:110 ../wxpython/gmLabels.py:40
+#: ../wxpython/gmEditArea.py:113 ../wxpython/gmLabels.py:40
 msgid "Date"
 msgstr "Datum"
 
@@ -878,6 +882,10 @@ msgstr "1) auswählen"
 msgid "XDT field"
 msgstr "XDT-Feld"
 
+#: ../wxpython/gmDateTimeInput.py:51
+msgid "enter time here"
+msgstr "Zeitpunkt eingeben"
+
 #: ../wxpython/patient/gmBMICalc.py:443 ../wxpython/patient/gmBMICalc.py:591
 msgid "BMI Calculator"
 msgstr "BMI-Rechner"
@@ -966,7 +974,7 @@ msgstr "Befund scannen"
 msgid "Four Es"
 msgstr "Vier Es"
 
-#: ../wxpython/gmEditArea.py:119
+#: ../wxpython/gmEditArea.py:122
 msgid "Relationship"
 msgstr "Verwandtschaftsgrad"
 
@@ -974,7 +982,7 @@ msgstr "Verwandtschaftsgrad"
 msgid "&show XDT"
 msgstr "xDT anzeigen"
 
-#: ../wxpython/gmEditArea.py:122
+#: ../wxpython/gmEditArea.py:125
 msgid "Significance"
 msgstr "Signifikanz"
 
@@ -1005,7 +1013,7 @@ msgstr ""
 msgid "date of birth"
 msgstr "Geburtsdatum"
 
-#: ../wxpython/gmEditArea.py:115 ../wxpython/patient/gmGP_Allergies.py:72
+#: ../wxpython/gmEditArea.py:118 ../wxpython/patient/gmGP_Allergies.py:72
 #: ../wxpython/patient/gmGP_Measurements.py:130
 msgid "Type"
 msgstr "Typ"
@@ -1152,7 +1160,7 @@ msgstr "Adresse bei"
 msgid "please select a KVK"
 msgstr "bitte eine Chipkarte wählen"
 
-#: ../wxpython/gmEditArea.py:121
+#: ../wxpython/gmEditArea.py:124
 msgid "Comment"
 msgstr "Kommentar"
 
@@ -1210,7 +1218,7 @@ msgstr ""
 msgid "Drug"
 msgstr "Medikament"
 
-#: ../wxpython/gmEditArea.py:111
+#: ../wxpython/gmEditArea.py:114
 msgid "Drug/Subst."
 msgstr "Med./Subst."
 
@@ -1305,13 +1313,17 @@ msgstr ""
 msgid "GnuMed Talkback Facility"
 msgstr "GnuMed Antwortfunktion"
 
-#: ../wxpython/gmEditArea.py:114 ../wxpython/patient/gmGP_Allergies.py:76
+#: ../wxpython/gmEditArea.py:117 ../wxpython/patient/gmGP_Allergies.py:76
 msgid "Reaction"
 msgstr "Reaktion"
 
 #: ../wxpython/gmLabels.py:35 ../wxpython/gmLabels.py:36
 msgid "treatment"
 msgstr "Behandlung"
+
+#: ../wxpython/gmEditArea.py:495
+msgid "confidential"
+msgstr "vertraulich"
 
 #: ../wxpython/patient/gmGP_ClinicalSummary.py:62
 msgid "     Habits            Risk Factors"
@@ -1406,7 +1418,7 @@ msgstr "Gnumed/Archiv: Befunde einem Patienten zuordnen"
 msgid "Table of Content"
 msgstr "Inhaltsverzeichnis"
 
-#: ../wxpython/gmEditArea.py:113
+#: ../wxpython/gmEditArea.py:116
 msgid "Drug class"
 msgstr "Med.Klasse"
 
@@ -1481,7 +1493,7 @@ msgstr "GnuMed: lade %s Module"
 msgid "icon_clinical_summary"
 msgstr ""
 
-#: ../wxpython/gmEditArea.py:376
+#: ../wxpython/gmEditArea.py:375
 msgid "confidental"
 msgstr "vertraulich"
 
@@ -1534,7 +1546,7 @@ msgstr "Nachname"
 msgid "database"
 msgstr "Datenbank"
 
-#: ../wxpython/gmEditArea.py:388
+#: ../wxpython/gmEditArea.py:387
 msgid " caused death "
 msgstr " war Todesursache "
 
@@ -1647,7 +1659,7 @@ msgstr ""
 msgid "&Delete"
 msgstr "&Löschen"
 
-#: ../wxpython/gmEditArea.py:240 ../wxpython/gmEditArea.py:491
+#: ../wxpython/gmEditArea.py:239 ../wxpython/gmEditArea.py:541
 msgid "Ok"
 msgstr "Ok"
 
@@ -1663,7 +1675,7 @@ msgstr ""
 msgid "  IMMUNISATIONS  "
 msgstr "Impfungen"
 
-#: ../wxpython/gmEditArea.py:361
+#: ../wxpython/gmEditArea.py:360
 msgid " Date of Birth "
 msgstr "Geburtsdatum"
 
@@ -1698,6 +1710,11 @@ msgstr "xDT-Datei"
 #: ../wxpython/gmLoginDialog.py:190
 msgid "Help for login screen"
 msgstr "Hilfe zur Anmeldemaske"
+
+#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:364
+#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:336
+msgid "a summary or longer comment for this document"
+msgstr "Zusammenfassung oder längerer Kommentar für diesen Befund"
 
 #: ../wxpython/gui/gmShowMedDocs.py:450
 msgid "stored medical documents"
@@ -1776,7 +1793,7 @@ msgstr "verschiebe Seite"
 msgid "Logged"
 msgstr ""
 
-#: ../wxpython/gmEditArea.py:123
+#: ../wxpython/gmEditArea.py:126
 msgid "Progress Notes"
 msgstr "Karteieintrag"
 
@@ -1802,6 +1819,11 @@ msgstr ""
 #: ../wxpython/patient/gmGP_Prescriptions.py:198
 msgid "Pregnancy Information"
 msgstr "Schwangerschaftsinformationen"
+
+#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:256
+#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:289
+msgid "3) save"
+msgstr "3) speichern"
 
 #: ../wxpython/gui/gmSQL.py:219
 msgid "SQL Search"
@@ -1930,7 +1952,7 @@ msgstr ""
 "Kann Patienten nicht aus xDT-Datei laden:\n"
 "[%s]"
 
-#: ../wxpython/gmEditArea.py:241 ../wxpython/gmEditArea.py:492
+#: ../wxpython/gmEditArea.py:240 ../wxpython/gmEditArea.py:542
 msgid "Clear"
 msgstr "Leeren"
 
@@ -1989,10 +2011,9 @@ msgstr "Dosierung & Einnahmeanweisung"
 msgid "lastname"
 msgstr "Nachname"
 
-#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:364
-#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:336
-msgid "a summary or longer comment for this document"
-msgstr "Zusammenfassung oder längerer Kommentar für diesen Befund"
+#: ../wxpython/gmEditArea.py:496
+msgid "significant"
+msgstr "signifikant"
 
 #: ../wxpython/gui/gmShowMedDocs.py:104
 msgid ""
@@ -2079,7 +2100,7 @@ msgstr "Befunddatum: Monat muss aus zwei Ziffern bestehen"
 msgid "Add another phone number"
 msgstr "FÃ¼gen Sie eine andere Telefonnummer zu"
 
-#: ../wxpython/gmEditArea.py:112
+#: ../wxpython/gmEditArea.py:115
 msgid "Generics"
 msgstr "Generika"
 
@@ -2221,6 +2242,10 @@ msgstr ""
 "Kann Seite %s nicht anzeigen.\n"
 "%s"
 
+#: ../wxpython/gmEditArea.py:494
+msgid "operated"
+msgstr "operiert"
+
 #: ../wxpython/gmLabels.py:34
 msgid "city"
 msgstr "Stadt"
@@ -2236,6 +2261,10 @@ msgstr "Rufname"
 #: ../wxpython/gmPersonDetails.py:172
 msgid "address"
 msgstr "Adresse"
+
+#: ../wxpython/gmEditArea.py:466
+msgid "(R)"
+msgstr "re"
 
 #: ../wxpython/gmCryptoText.py:183
 msgid "Pass phrase expired"
@@ -2424,7 +2453,7 @@ msgstr "bitte einen Patienten wählen"
 msgid "Year Onset"
 msgstr "Beginn"
 
-#: ../wxpython/gmEditArea.py:385
+#: ../wxpython/gmEditArea.py:384
 msgid " age onset "
 msgstr "Beginn"
 
@@ -2457,7 +2486,7 @@ msgstr "Kann nicht auf die SANE-Quelle zugreifen (Scanner oder Kamera)."
 msgid "For"
 msgstr "Für"
 
-#: ../wxpython/gmEditArea.py:333 ../wxpython/gmEditArea.py:526
+#: ../wxpython/gmEditArea.py:332 ../wxpython/gmEditArea.py:576
 msgid "Definate"
 msgstr "sicher"
 
@@ -2509,7 +2538,7 @@ msgstr "Lade Datei"
 msgid "Change Font"
 msgstr "Zeichensatz ändern"
 
-#: ../wxpython/gmEditArea.py:332 ../wxpython/gmEditArea.py:525
+#: ../wxpython/gmEditArea.py:331 ../wxpython/gmEditArea.py:575
 msgid "Sensitivity"
 msgstr "Überempfindlichkeit"
 
@@ -2517,10 +2546,9 @@ msgstr "Überempfindlichkeit"
 msgid "gender"
 msgstr "Geschlecht"
 
-#: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:256
-#: ../AAA-dummy-for-locale/Archive/index/index-med_docs.py:289
-msgid "3) save"
-msgstr "3) speichern"
+#: ../wxpython/gmDateTimeInput.py:31
+msgid "enter date here"
+msgstr "Datum eingeben"
 
 #: ../wxpython/gmLabels.py:38
 msgid "Card type"
@@ -2573,7 +2601,7 @@ msgstr "alias"
 msgid "load the pages of this document"
 msgstr "Seiten für diesen Befund laden"
 
-#: ../wxpython/gmEditArea.py:318 ../wxpython/gmEditArea.py:511
+#: ../wxpython/gmEditArea.py:317 ../wxpython/gmEditArea.py:561
 msgid "generics specific"
 msgstr "Medik.-spezifisch"
 
@@ -2646,10 +2674,9 @@ msgstr "alles speichern ohne Druck"
 msgid "Referrals"
 msgstr "Überweisungen"
 
-#: ../wxpython/gmEditArea.py:405
-#, fuzzy
-msgid "Next Condition"
-msgstr "Nächste Erkrankung"
+#: ../wxpython/gmEditArea.py:404
+msgid "Next Entry"
+msgstr "Nächster Eintrag"
 
 #: ../wxpython/patient/gmGP_TabbedLists.py:111
 msgid "Recalls and Reviews"
@@ -2725,6 +2752,10 @@ msgstr "Wochen:"
 #: ../wxpython/gmLabels.py:38
 msgid "issuer"
 msgstr "Ausgabestelle"
+
+#: ../wxpython/gmEditArea.py:467
+msgid "Both"
+msgstr "beidseits"
 
 #: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:742
 #: ../AAA-dummy-for-locale/Archive/index/bak/index-med_docs-select_file.py:755
@@ -2836,6 +2867,10 @@ msgstr "Code"
 #: ../wxpython/gui/gmDrugDisplay.py:200
 msgid "Search by"
 msgstr "Suche anhand"
+
+#: ../wxpython/gmEditArea.py:493
+msgid "active"
+msgstr "aktiv"
 
 #: ../wxpython/gmTalkback.py:36
 msgid "Send to"
