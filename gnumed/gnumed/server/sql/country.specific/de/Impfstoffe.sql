@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -19,7 +19,6 @@ insert into vaccine (
 	trade_name,
 	short_name,
 	is_live,
-	is_licensed,
 	min_age,
 	comment
 ) values (
@@ -27,7 +26,6 @@ insert into vaccine (
 	'Tetasorbat SSW',
 	'Tetanus',
 	false,
-	true,
 	-- FIXME: check this
 	'1 year'::interval,
 	'Smith Kline Beecham'
@@ -42,7 +40,6 @@ insert into vaccine (
 	trade_name,
 	short_name,
 	is_live,
-	is_licensed,
 	min_age,
 	comment
 ) values (
@@ -50,7 +47,6 @@ insert into vaccine (
 	'Td-pur',
 	'Td',
 	false,
-	true,
 	'6 years'::interval,
 	'Chiron Behring'
 );
@@ -70,7 +66,6 @@ insert into vaccine (
 	trade_name,
 	short_name,
 	is_live,
-	is_licensed,
 	min_age,
 	max_age,
 	comment
@@ -79,8 +74,27 @@ insert into vaccine (
 	'Havrix 720 Kinder',
 	'HAV',
 	false,
-	true,
 	'1 year'::interval,
+	'15 years'::interval,
+	'GlaxoSmithKline'
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='hepatitis A'));
+
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	comment
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'Havrix 1440',
+	'HAV',
+	false,
 	'15 years'::interval,
 	'GlaxoSmithKline'
 );
@@ -97,7 +111,6 @@ insert into vaccine (
 	trade_name,
 	short_name,
 	is_live,
-	is_licensed,
 	min_age,
 	max_age,
 	comment
@@ -106,7 +119,6 @@ insert into vaccine (
 	'Prevenar',
 	'Prevenar',
 	false,
-	true,
 	'1 month'::interval,
 	'23 months'::interval,
 	'Wyeth Lederle, 7-valent, adsorbiert, Kreuzallergie Diphtherie-Toxoid'
@@ -124,7 +136,6 @@ insert into vaccine (
 	trade_name,
 	short_name,
 	is_live,
-	is_licensed,
 	min_age,
 	comment
 ) values (
@@ -132,7 +143,6 @@ insert into vaccine (
 	'InfectoVac Flu 2003/2004',
 	'Flu 03',
 	false,
-	true,
 	'6 months'::interval,
 	'nur gültig Halbjahr 2003/2004'
 );
@@ -149,7 +159,6 @@ insert into vaccine (
 	trade_name,
 	short_name,
 	is_live,
-	is_licensed,
 	min_age,
 	comment
 ) values (
@@ -157,7 +166,6 @@ insert into vaccine (
 	'NeisVac-C, Meningokokken-C-Konjugat',
 	'NeisVac-C',
 	false,
-	true,
 	'2 months'::interval,
 	'mit Tetanus-Toxoid konjugiert'
 );
@@ -174,7 +182,6 @@ insert into vaccine (
 	trade_name,
 	short_name,
 	is_live,
-	is_licensed,
 	min_age,
 	comment
 ) values (
@@ -182,7 +189,6 @@ insert into vaccine (
 	'Menjugate, Meningokokken-C-Konjugat',
 	'Menjugate',
 	false,
-	true,
 	'2 months'::interval,
 	'mit Diphtherie-Toxoid konjugiert, Chiron Behring'
 );
@@ -194,11 +200,15 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.6  2004-01-12 13:31:34  ncq
+-- Revision 1.7  2004-01-18 21:58:22  ncq
+-- - remove is_licensed
+-- - add Havrix 1440
+--
+-- Revision 1.6  2004/01/12 13:31:34  ncq
 -- - better short_name(s)
 -- - add Menjugate
 --
