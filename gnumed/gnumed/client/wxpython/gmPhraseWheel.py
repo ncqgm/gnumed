@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.18 2003-10-07 22:20:50 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmPhraseWheel.py,v 1.19 2003-10-09 15:45:16 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -287,10 +287,6 @@ class cMatchProvider_FixedList(cMatchProvider):
 class cMatchProvider_SQL(cMatchProvider):
 	"""Match provider which searches matches
 	   in possibly several database tables.
-
-	Each table must have a primary key, at least one column
-	providing terms to match, a gmpw_user field and a gmpw_score
-	field.
 	"""
 	def __init__(self, source_defs, score_def):
 		self.dbpool = gmPG.ConnectionPool()
@@ -340,7 +336,7 @@ class cMatchProvider_SQL(cMatchProvider):
 			self.__close_sources()
 			raise gmExceptions.ConstructorError, 'cannot connect to score storage service [%s]' % score_def['service']
 		rw_curs = rw_conn.cursor()
-		cmd = "select %s, user, score from %s limit 1" % (score_def['column'], score_def['table'])
+		cmd = "select %s, cookie, user, score from %s limit 1" % (score_def['column'], score_def['table'])
 		if not gmPG.run_query(rw_curs, cmd):
 			rw_curs.close()
 			rw_conn.close()
@@ -811,7 +807,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.18  2003-10-07 22:20:50  ncq
+# Revision 1.19  2003-10-09 15:45:16  ncq
+# - validate cookie column in score tables, too
+#
+# Revision 1.18  2003/10/07 22:20:50  ncq
 # - ported Syan's extra_sql_condition extension
 # - make SQL match provider aware of separate scoring tables
 #
