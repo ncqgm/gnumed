@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -157,8 +157,8 @@ class gmAllergyEditArea(gmEditArea.gmEditArea):
 		allg['generic_specific'] = (True and self.fld_generic_specific.GetValue())
 		allg['definite'] = (True and self.fld_is_definite_allergy.GetValue())
 		allg['reaction'] = self.fld_reaction.GetValue()
-		status, err = allg.save_payload()
-		if status is None:
+		successfull, err = allg.save_payload()
+		if not successfull:
 			wxBell()
 			_gb['main.statustext'](_('Cannot update allergy: %s') % err)
 			return False
@@ -305,6 +305,9 @@ class cAllergyPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.LCTRL_allergies.DeleteAllItems()
 	#-----------------------------------------------
 	def _populate_with_data(self):
+		if not self.__pat.is_connected():
+			return False
+
 		self.LCTRL_allergies.DeleteAllItems()
 
 		emr = self.__pat.get_clinical_record()
@@ -345,7 +348,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.3  2004-10-11 20:14:16  ncq
+# Revision 1.4  2004-10-27 12:17:22  ncq
+# - robustify should there not be an active patient
+#
+# Revision 1.3  2004/10/11 20:14:16  ncq
 # - use RegetOnPaintMixin
 # - attach to backend
 # - cleanup, remove cruft
