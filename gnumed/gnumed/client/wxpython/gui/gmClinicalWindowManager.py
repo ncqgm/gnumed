@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.10 2003-11-06 01:38:05 sjtan Exp $
+# $Id: gmClinicalWindowManager.py,v 1.11 2004-02-18 14:04:25 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -197,7 +197,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 	def register (self):
 		gmPlugin.wxNotebookPlugin.register(self)
 		# add own submenu, patient plugins add to this
-		ourmenu = wxMenu ()
+		ourmenu = wxMenu()
 		self.gb['clinical.submenu'] = ourmenu
 		menu = self.gb['main.viewmenu']
 		self.menu_id = wxNewId ()
@@ -239,7 +239,10 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.10  2003-11-06 01:38:05  sjtan
+# Revision 1.11  2004-02-18 14:04:25  ncq
+# - whitespace fix
+#
+# Revision 1.10  2003/11/06 01:38:05  sjtan
 #
 # allows a default subclinical window to be selected, if none already selected; this allows the main tabs to switch
 # to clinical if a patient is selected whilst in any non- cliniclManager tab window.
