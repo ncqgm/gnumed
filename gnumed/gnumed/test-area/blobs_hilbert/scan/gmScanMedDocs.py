@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -457,7 +457,7 @@ class scanFrame(wxPanel):
 		self.__reload_LBOX_doc_pages()
 
 		# finally show doc ID for copying down on paper
-		self.__show_doc_ID()
+		self.__show_doc_ID(doc_id)
 
 		return 1
 	#-----------------------------------
@@ -586,6 +586,11 @@ class scanFrame(wxPanel):
 	def __acquire_from_sane(self):
 		_log.Log(gmLog.lInfo, "scanning with SANE source")
 
+		# there is supposed to be a method *.close() but it doesn not work
+		# therefore I put in the following line
+		# else it reports a busy sane-device on the second and consecutive runs 
+		self.SaneScanner = None
+
 		# open scanner on demand
 		if not self.SaneScanner:
 			if not self.__open_sane_scanner():
@@ -678,7 +683,7 @@ class scanFrame(wxPanel):
 			_log.Log(gmLog.lData, 'SANE device list  : %s' % str(_sane.get_devices()))
 			_log.Log(gmLog.lData, 'opened SANE device: %s' % str(self.SaneScanner))
 			_log.Log(gmLog.lData, 'SANE device config: %s' % str(self.SaneScanner.get_parameters()))
-			#_log.Log(gmLog.lData, 'SANE device opts  : %s' % str(self.SaneScanner.optlist()))
+			_log.Log(gmLog.lData, 'SANE device opts  : %s' % str(self.SaneScanner.optlist))
 			_log.Log(gmLog.lData, 'SANE device opts  : %s' % str(self.SaneScanner.get_options()))
 
 		return 1
@@ -687,7 +692,7 @@ class scanFrame(wxPanel):
 	#-----------------------------------
 	def __do_barcode(self):
 		tmp = _cfg.get("scanning", "generate barcode")
-		_log.Log(gmLog.lData, 'document barcode generation mode: <%s>' % tmp)
+		_log.Log(gmLog.lData, 'document barcode generation flag: <%s>' % tmp)
 		if tmp in ['on', 'yes']:
 			return 1
 		else:
@@ -929,8 +934,7 @@ class scanFrame(wxPanel):
 #------------------------------------------------------
 if __name__ == '__main__':
 	try:
-		#application = ScanningApp(size = (800,600))
-		application = wxPyWidgetTester(size=(-1,-1))
+		application = wxPyWidgetTester(size=(800,600))
 		application.SetWidget(scanFrame)
 		application.MainLoop()
 	except:
@@ -951,7 +955,10 @@ else:
 			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.11  2002-11-17 19:36:37  ncq
+# Revision 1.12  2002-11-18 16:59:08  ncq
+# - further fixes by Basti (sane, barcode)
+#
+# Revision 1.11  2002/11/17 19:36:37  ncq
 # - final fixes by Basti
 #
 # Revision 1.10  2002/11/17 18:24:50  ncq
