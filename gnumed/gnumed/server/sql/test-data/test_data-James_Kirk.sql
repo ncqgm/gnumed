@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.36 $
+-- $Revision: 1.37 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -232,7 +232,7 @@ insert into clin_diag (
 	is_chronic,
 	is_active,
 	is_definite,
-	is_significant
+	clinically_relevant
 ) values (
 	currval('clin_narrative_pk_seq'),
 	'l',
@@ -491,7 +491,7 @@ insert into clin_diag (
 	is_chronic,
 	is_active,
 	is_definite,
-	is_significant
+	clinically_relevant
 ) values (
 	currval('clin_narrative_pk_seq'),
 	'l',
@@ -627,11 +627,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.36 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.37 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.36  2004-09-20 21:18:26  ncq
+-- Revision 1.37  2004-09-25 13:25:56  ncq
+-- - is_significant -> clinically_relevant
+--
+-- Revision 1.36  2004/09/20 21:18:26  ncq
 -- - add small picture for Kirk
 --
 -- Revision 1.35  2004/09/17 20:32:27  ncq

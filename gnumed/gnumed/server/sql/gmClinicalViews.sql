@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.103 2004-09-22 14:12:19 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.104 2004-09-25 13:25:56 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -196,10 +196,10 @@ select
 	cep.fk_patient as id_patient,
 	cep.description as description,
 	cep.is_active as episode_active,
-	cep.is_significant as episode_significant,
+	cep.clinically_relevant as episode_clinically_relevant,
 	null as health_issue,
 	null as issue_active,
-	null as issue_significant,
+	null as issue_clinically_relevant,
 	cep.pk as pk_episode,
 	null as pk_health_issue,
 	cep.modified_when as episode_modified_when
@@ -217,10 +217,10 @@ select
 		else cep.description
 	end as description,
 	cep.is_active as episode_active,
-	cep.is_significant as episode_significant,
+	cep.clinically_relevant as episode_clinically_relevant,
 	chi.description as health_issue,
 	chi.is_active as issue_active,
-	chi.is_significant as issue_significant,
+	chi.clinically_relevant as issue_clinically_relevant,
 	cep.pk as pk_episode,
 	cep.fk_health_issue as pk_health_issue,
 	cep.modified_when as episode_modified_when
@@ -687,7 +687,9 @@ where
 ;
 
 comment on view v_pat_vacc4ind is
-	'vaccinations a patient has actually received for the various indications';
+	'vaccinations a patient has actually received for the various
+	 indications, we operate under the assumption that every shot
+	 given counts toward base immunisation, eg. all shots are valid';
 
 -- -----------------------------------------------------
 \unset ON_ERROR_STOP
@@ -863,7 +865,7 @@ select
 	cd.is_chronic as is_chronic,
 	cd.is_active as is_active,
 	cd.is_definite as is_definite,
-	cd.is_significant as is_significant,
+	cd.clinically_relevant as clinically_relevant,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode
 from
@@ -1110,7 +1112,7 @@ select
 	cep.fk_patient as pk_patient,
 	cep.description as problem,
 	cep.is_active as is_active,
-	cep.is_significant as is_significant,
+	cep.clinically_relevant as clinically_relevant,
 	cep.pk as pk_episode,
 	null as pk_health_issue
 from
@@ -1124,7 +1126,7 @@ select
 	chi.id_patient as pk_patient,
 	chi.description as problem,
 	chi.is_active as is_active,
-	chi.is_significant as is_significant,
+	chi.clinically_relevant as clinically_relevant,
 	null as pk_episode,
 	chi.id as pk_health_issue
 from
@@ -1242,11 +1244,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.103 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.104 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.103  2004-09-22 14:12:19  ncq
+-- Revision 1.104  2004-09-25 13:25:56  ncq
+-- - is_significant -> clinically_relevant
+--
+-- Revision 1.103  2004/09/22 14:12:19  ncq
 -- - add rules to protect clin_root_item from direct insert/update/delete,
 --   this prevents child table coherency issues
 --

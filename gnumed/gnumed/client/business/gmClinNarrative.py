@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -29,7 +29,7 @@ class cDiag(gmClinItem.cClinItem):
 				is_chronic=%(is_chronic)s::boolean,
 				is_active=%(is_active)s::boolean,
 				is_definite=%(is_definite)s::boolean,
-				is_significant=%(is_significant)s::boolean
+				clinically_relevant=%(clinically_relevant)s::boolean
 			where pk=%(pk_diag)s""",
 		"""select 1 from clin_narrative where pk=%(pk_diagnosis)s for update""",
 		"""update clin_narrative set
@@ -43,7 +43,7 @@ class cDiag(gmClinItem.cClinItem):
 		'is_chronic',
 		'is_active',
 		'is_definite',
-		'is_significant'
+		'clinically_relevant'
 	]
 	#--------------------------------------------------------
 	def get_codes(self):
@@ -318,7 +318,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.7  2004-08-11 09:42:50  ncq
+# Revision 1.8  2004-09-25 13:26:35  ncq
+# - is_significant -> clinically_relevant
+#
+# Revision 1.7  2004/08/11 09:42:50  ncq
 # - point clin_narrative VO to v_pat_narrative
 # - robustify by applying lower() to soap_cat on insert/update
 #

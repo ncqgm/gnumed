@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.128 $
+-- $Revision: 1.129 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -43,7 +43,7 @@ create table clin_health_issue (
 		default null,
 	is_active boolean
 		default true,
-	is_significant boolean
+	clinically_relevant boolean
 		default true,
 	unique (id_patient, description)
 ) inherits (audit_fields);
@@ -63,7 +63,7 @@ comment on column clin_health_issue.description is
 	 change over time as evidence increases';
 comment on column clin_health_issue.is_active is
 	'whether this health issue (problem) is still active';
-comment on column clin_health_issue.is_significant is
+comment on column clin_health_issue.clinically_relevant is
 	'whether this health issue (problem) has any clinical relevance';
 
 -- ===================================================================
@@ -84,7 +84,7 @@ create table clin_episode (
 		default null,
 	is_active boolean
 		default true,
-	is_significant boolean
+	clinically_relevant boolean
 		default true
 ) inherits (audit_fields);
 
@@ -126,7 +126,7 @@ comment on column clin_episode.is_active is
 	 by making description a foreign key to a narrative
 	 row elsewhere which in turn can have further
 	 attributes instead of it being a field of this table.';
-comment on column clin_episode.is_significant is
+comment on column clin_episode.clinically_relevant is
 	'whether the condition used for naming the episode
 	 is clinically relevant, eventually this would become
 	 an attribute of a clinical narrative row elsewhere
@@ -415,23 +415,23 @@ create table clin_diag (
 	is_definite boolean
 		not null
 		default false,
-	is_significant boolean
+	clinically_relevant boolean
 		not null
 		default true
 ) inherits (audit_fields);
 
-alter table clin_diag add constraint if_active_then_significant
+alter table clin_diag add constraint if_active_then_relevant
 	check (
 		(is_active = false)
 			or
-		((is_active = true) and (is_significant = true))
+		((is_active = true) and (clinically_relevant = true))
 	);
 -- not sure about that one:
---alter table add constraint if_chronic_then_significant
+--alter table add constraint if_chronic_then_relevant
 --	check (
 --		(is_chronic = false)
 --			or
---		((is_chronic = true) and (is_significant = true))
+--		((is_chronic = true) and (clinically_relevant = true))
 --	);
 
 select add_table_for_audit('clin_diag');
@@ -447,11 +447,11 @@ comment on column clin_diag.is_chronic is
 	 of Multiple Sclerosis which is sure chronic)';
 comment on column clin_diag.is_active is
 	'whether diagnosis is currently active or dormant';
-comment on column clin_diag.is_significant is
+comment on column clin_diag.clinically_relevant is
 	'whether this diagnosis is considered clinically
 	 relevant, eg. significant;
 	 currently active diagnoses are considered to
-	 always be significant, while inactive ones may
+	 always be relevant, while inactive ones may
 	 or may not be';
 -- --------------------------------------------
 create table clin_aux_note (
@@ -1049,11 +1049,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.128 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.129 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.128  2004-09-20 23:46:37  ncq
+-- Revision 1.129  2004-09-25 13:25:56  ncq
+-- - is_significant -> clinically_relevant
+--
+-- Revision 1.128  2004/09/20 23:46:37  ncq
 -- - as Syan noted the unique() constraints on clin_episode were plain wrong
 --
 -- Revision 1.127  2004/09/20 21:14:11  ncq
