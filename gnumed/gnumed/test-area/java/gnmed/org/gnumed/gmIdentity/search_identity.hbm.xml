@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.gnumed.gmIdentity.search_identity"
+        table="identity"
+        dynamic-update="false"
+        dynamic-insert="false"
+        mutable="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Long"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <set
+            name="identities_addressess"
+            lazy="false"
+            inverse="true"
+            cascade="none"
+            sort="unsorted"
+        >
+
+              <key
+                  column="identity"
+              />
+
+              <one-to-many
+                  class="org.gnumed.gmGIS.identities_addresses"
+              />
+        </set>
+
+        <property
+            name="dob"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            column="dob"
+        />
+
+        <property
+            name="karyotype"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="karyotype"
+        />
+
+        <set
+            name="namess"
+            lazy="false"
+            inverse="true"
+            cascade="none"
+            sort="unsorted"
+        >
+
+              <key
+                  column="identity"
+              />
+
+              <one-to-many
+                  class="org.gnumed.gmIdentity.Names"
+              />
+        </set>
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-search_identity.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>
