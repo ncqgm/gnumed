@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -92,15 +92,22 @@ class cEpisode(gmClinItem.cClinItem):
 		# FIXME: error handling (concurrency)
 	#--------------------------------------------------------
 	def set_active(self):
+		# if no patient get it from health issue
+		if self._payload[self._idx['id_patient']] is None:
+			fragment = '(select id_patient from clin_health_issue where id=%s)'
+			val = self._payload[self._idx['pk_health_issue']]
+		else:
+			fragment = '%s'
+			val = self._payload[self._idx['id_patient']]
 		cmd1 = """
 			delete from last_act_episode
 			where id_patient=(select id_patient from clin_health_issue where id=%s)"""
 		cmd2 = """
 			insert into last_act_episode(fk_episode, id_patient)
-			values (%s,	(select id_patient from clin_health_issue where id=%s))"""
+			values (%%s, %s)""" % fragment
 		success, msg = gmPG.run_commit('historica', [
 			(cmd1, [self._payload[self._idx['pk_health_issue']]]),
-			(cmd2, [self.pk_obj, self._payload[self._idx['pk_health_issue']]])
+			(cmd2, [self.pk_obj, val])
 		], True)
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot record episode [%s] as most recently used one for health issue [%s]' % (self.pk_obj, self._payload[self._idx['pk_health_issue']]))
@@ -584,7 +591,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.37  2005-02-28 18:15:36  ncq
+# Revision 1.38  2005-03-08 16:42:47  ncq
+# - there are episodes w/ and w/o fk_patient IS NULL so handle that
+#   properly in set_active()
+#
+# Revision 1.37  2005/02/28 18:15:36  ncq
 # - proper fix for not being able to fetch unnamed episodes
 #   is to require a name in the first place ...
 #
