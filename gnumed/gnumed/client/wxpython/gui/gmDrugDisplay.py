@@ -111,7 +111,7 @@ class DrugDisplay(wxPanel):
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
 		# this is necessary to enable stand alone use of the drug browser
-		currMachine = _whoami.getMachine()
+		currMachine = _whoami.get_workplace()
 		if currMachine is None:
 			# assume we are outside gnumed
 			self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')
@@ -644,7 +644,10 @@ else:
 #	05.09.2002 hherb DB-API 2.0 compliance
 
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.13  2003-11-17 10:56:40  sjtan
+# Revision 1.14  2003-12-29 17:00:20  uid66147
+# - whoami adjustment
+#
+# Revision 1.13  2003/11/17 10:56:40  sjtan
 #
 # synced and commiting.
 #

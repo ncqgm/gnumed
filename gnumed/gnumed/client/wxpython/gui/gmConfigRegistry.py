@@ -522,8 +522,8 @@ else:
 
 		def GetWidget (self, parent):
 			# get current workplace name
-			workplace = _whoami.getMachine() 
-			currUser = _whoami.getUser()			
+			workplace = _whoami.get_workplace()
+			currUser = _whoami.get_db_account()
 			_log.Log (gmLog.lInfo, "ConfigReg: %s@%s" % (currUser,workplace))
 
 			self.panel = gmConfigEditorPanel(parent,currUser,workplace)
@@ -538,7 +538,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.10  2003-11-17 10:56:39  sjtan
+# Revision 1.11  2003-12-29 16:59:42  uid66147
+# - whoami adjustment
+#
+# Revision 1.10  2003/11/17 10:56:39  sjtan
 #
 # synced and commiting.
 #
