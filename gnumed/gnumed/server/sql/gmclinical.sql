@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -215,11 +215,14 @@ create table allergy (
 	substance varchar(128) not null,
 	allergene varchar(256) default null,
 	description text,
-	certainty varchar(32) references vi18n_enum_allergy_certainty(value),
-	type varchar(32) references vi18n_enum_allergy_type(value),
+	certainty integer references _enum_allergy_certainty(id),
+	type integer references _enum_allergy_type(id),
 	first_observed varchar(32),
 	code varchar(32)
 ) inherits (audit_clinical);
+
+--	certainty varchar(32) references vi18n_enum_allergy_certainty(value),
+--	type varchar(32) references vi18n_enum_allergy_type(value),
 
 comment on table allergy is
 	'patient allergy details';
@@ -366,11 +369,14 @@ comment on table enum_immunities is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.19 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.19  2003-04-06 15:10:05  ncq
+-- Revision 1.20  2003-04-06 15:18:21  ncq
+-- - can't reference _()ed fields in a view since it can't find the unique constraint in the underlying table
+--
+-- Revision 1.19  2003/04/06 15:10:05  ncq
 -- - added some missing unique constraints
 --
 -- Revision 1.18  2003/04/06 14:51:40  ncq
