@@ -13,5 +13,5 @@ for l in lines:
 
 gen.process_list(list)
 
-gen.print_single_class('SelectPersonHandler')
+gen.print_single_class('gmSelectPerson')
 
