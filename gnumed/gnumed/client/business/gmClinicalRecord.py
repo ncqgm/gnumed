@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.100 2004-05-23 12:28:58 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmClinicalRecord.py,v 1.101 2004-05-24 20:52:18 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1123,7 +1123,18 @@ class cClinicalRecord:
 			return None
 		return req
 	#------------------------------------------------------------------
-#	def create_lab_result
+	def add_lab_request(self, lab=None, req_id=None, encounter_id=None, episode_id=None):
+		if encounter_id is None:
+			encounter_id = self.encounter['id']
+		if episode_id is None:
+			episode_id = self.episode['id']
+		return gmPathLab.create_lab_request(
+			lab=lab,
+			req_id=req_id,
+			pat_id=self.id_patient,
+			encounter_id=encounter_id,
+			episode_id=episode_id
+		)
 	#------------------------------------------------------------------
 	# unchecked stuff
 	#------------------------------------------------------------------
@@ -1224,7 +1235,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.100  2004-05-23 12:28:58  ncq
+# Revision 1.101  2004-05-24 20:52:18  ncq
+# - add_lab_request()
+#
+# Revision 1.100  2004/05/23 12:28:58  ncq
 # - fix missing : and episode reference before assignment
 #
 # Revision 1.99  2004/05/22 12:42:53  ncq
