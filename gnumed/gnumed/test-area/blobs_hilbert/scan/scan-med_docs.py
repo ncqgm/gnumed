@@ -1,123 +1,314 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.2 $"
-
+__version__ = "$Revision: 1.3 $"
+__license__ = "GPL"
+__author__ = "\
+	Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
+	Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
-import Image,string,time,shutil,os,sys,gettext
-import locale
+#import Image,
+import string, time, shutil, os, sys, os.path
 
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
 
-import gmLog,gmCfg,gmI18N
-try:
-	import twain 
-	scan_drv = 'wintwain'
-except ImportError:
-	import sane 
-	scan_drv = 'linsane'
-#-------------------------------------------------
-__author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
+import gmLog
 _log = gmLog.gmDefLog
+_log.SetAllLogLevels(gmLog.lData)
+
+import gmCfg, gmI18N
 _cfg = gmCfg.gmDefCfg
 
+try:
+	import twain
+	scan_drv = 'wintwain'
+except ImportError:
+	import sane
+	scan_drv = 'linsane'
 
-def create(parent):
-	return scanFrame(parent)
-
-[wxID_SCANFRAME, wxID_SCANFRAMECHANGEPOS, wxID_SCANFRAMEDELPICBUTTON, wxID_SCANFRAMELISTBOX1, wxID_SCANFRAMESAVEBUTTON, wxID_SCANFRAMESCANBUTTON, wxID_SCANFRAMESCANWINDOW, wxID_SCANFRAMESHOWPICBUTTON, wxID_SCANFRAMESTATICTEXT1, wxID_SCANFRAMESTATICTEXT2, wxID_SCANFRAMESTATICTEXT3] = map(lambda _init_ctrls: wxNewId(), range(11))
-
-#--------------------------------------------------
+[	wxID_SCANFRAME,
+	wxID_BTN_del_page,
+	wxID_SCANFRAMELISTBOX1,
+	wxID_BTN_show_page,
+	wxID_BTN_move_page,
+	wxID_BTN_save_doc,
+	wxID_SCANFRAMESCANBUTTON,
+	wxID_SCANFRAMESCANWINDOW,
+	wxID_PNL_main
+] = map(lambda _init_ctrls: wxNewId(), range(9))
+#==================================================
 class scanFrame(wxFrame):
-#-------------------------------------------------
-
 	tmpfilename="tmp.jpg"
-	wxInitAllImageHandlers()
 	picList = []
 	page = 0
 	selected_pic = ''
-	myCfg = None
-	
-	#------------------------------------------
-	def read_ini_file(self):
-		# ini file given on command line ?
-		if len(sys.argv) > 1:
-			cfgName = sys.argv[1]
-			# file missing
-			if not os.path.exists(cfgName):
-				__log__.Log(gmLog.lErr, "INI file %s (given on command line) not found." % cfgName)
-				__log__.Log(gmLog.lPanic, "Cannot run without configuration file. Aborting.")
-				sys.exit()
-		# else look for ~/.gnumed/base_name.ini or ./base_name.ini
+	#----------------------------------------------
+	def __init__(self, parent):
+		self._init_ctrls(parent)
+		# make sure we have a clean base to begin with
+		shutil.rmtree(_cfg.get("tmpdir", "tmpdir"), true)
+		os.mkdir(_cfg.get("tmpdir", "tmpdir"))
+
+		(self.TwainSrcMngr, self.Scanner) = (None, None)
+		self._acquire_handler{
+			'wintwain': self.__acquire_from_twain,
+			'linsane': self.__acquire_from_sane
+		}
+	#----------------------------------------------
+	def _init_utils(self):
+		pass
+	#----------------------------------------------
+	def _init_ctrls(self, prnt):
+		wxFrame.__init__(
+			self,
+			id = wxID_SCANFRAME,
+			name = '',
+			parent = prnt,
+			pos = wxPoint(275, 184),
+			size = wxSize(631, 473),
+			style = wxDEFAULT_FRAME_STYLE,
+			title = _('Scanning documents')
+		)
+		self._init_utils()
+		self.SetClientSize(wxSize(631, 473))
+
+		#-- main window ------------------------
+#		self.WIN_main = wxWindow(
+#			id = wxID_SCANFRAMESCANWINDOW,
+#			name = 'WIN_main',
+#			parent = self,
+#			pos = wxPoint(0, 0),
+#			size = wxSize(631, 473),
+#			style = 0
+#		)
+
+		#-- main panel -------------
+		self.PNL_main = wxPanel(
+			id = wxID_PNL_main,
+			name = 'PNL_main',
+			parent = self,
+			pos = wxPoint(0, 0),
+			size = wxSize(631, 473),
+			style = wxTAB_TRAVERSAL
+		)
+		self.PNL_main.SetBackgroundColour(wxColour(225, 225, 225))
+
+		#-- "get next page" button -------------
+		self.BTN_acquire_image = wxButton(
+			id = wxID_SCANFRAMESCANBUTTON,
+			label = _('acquire image'),
+			name = 'BTN_acquire_image',
+			parent = self.PNL_main,
+			pos = wxPoint(56, 80),
+			size = wxSize(240, 64),
+			style = 0
+		)
+		self.BTN_acquire_image.SetToolTipString(_('acquire the next image from the image source'))
+		EVT_BUTTON(self.BTN_acquire_image, wxID_SCANFRAMESCANBUTTON, self.on_acquire_image)
+
+		#-- list box with pages -------------
+		self.LBOX_doc_pages = wxListBox(
+			choices = [],
+			id = wxID_SCANFRAMELISTBOX1
+			name = 'LBOX_doc_pages',
+			parent = self.PNL_main,
+			pos = wxPoint(56, 184),
+			size = wxSize(240, 160),
+			style = wxLB_SORT,
+			validator = wxDefaultValidator
+		)
+		self.LBOX_doc_pages.SetToolTipString(_('these pages make up the current document'))
+
+		#-- show page button -------------
+		self.BTN_show_page = wxButton(
+			id = wxID_BTN_show_page,
+			label = _('show page'),
+			name = 'BTN_show_page',
+			parent = self.PNL_main,
+			pos = wxPoint(64, 384),
+			size = wxSize(80, 22),
+			style = 0
+		)
+		self.BTN_show_page.SetToolTipString(_('display selected part of the document'))
+		EVT_BUTTON(self.BTN_show_page, wxID_BTN_show_page, self.on_show_page)
+
+		#-- move page button -------------
+		self.BTN_move_page = wxButton(
+			id = wxID_BTN_move_page,
+			label = _('move page'),
+			name = 'BTN_move_page',
+			parent = self.PNL_main,
+			pos = wxPoint(104, 432),
+			size = wxSize(144, 22),
+			style = 0
+		)
+		self.BTN_move_page.SetToolTipString(_('move selected page within document'))
+		EVT_BUTTON(self.BTN_move_page, wxID_BTN_move_page, self.on_move_page)
+
+		#-- delete page button -------------
+		self.BTN_del_page = wxButton(
+			id = wxID_BTN_del_page,
+			label = _('delete page'),
+			name = 'BTN_del_page',
+			parent = self.PNL_main,
+			pos = wxPoint(200, 384),
+			size = wxSize(80, 22),
+			style = 0
+		)
+		self.BTN_del_page.SetToolTipString(_('delete selected page from document'))
+		EVT_BUTTON(self.BTN_del_page, wxID_BTN_del_page, self.on_del_page)
+
+		#-- "save document" button -------------
+		self.BTN_save_doc = wxButton(
+			id = wxID_BTN_save_doc,
+			label = _('save document'),
+			name = 'BTN_save_doc',
+			parent = self.PNL_main,
+			pos = wxPoint(408, 80),
+			size = wxSize(152, 344),
+			style = 0
+		)
+		self.BTN_save_doc.SetToolTipString(_('save all currently acquired images as one document'))
+		EVT_BUTTON(self.BTN_save_doc, wxID_BTN_save_doc, self.on_save_doc)
+
+		self.staticText1 = wxStaticText(
+			id = -1,
+			label = _('document pages'),
+			name = 'staticText1',
+			parent = self.PNL_main,
+			pos = wxPoint(56, 160),
+			size = wxSize(152, 16),
+			style = 0
+		)
+
+		self.staticText2 = wxStaticText(
+			id = -1,
+			label = '1) scan',
+			name = 'staticText2',
+			parent = self.PNL_main,
+			pos = wxPoint(56, 32),
+			size = wxSize(19, 29),
+			style = 0
+		)
+		self.staticText2.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+
+		self.staticText3 = wxStaticText(
+			id = -1,
+			label = '2) save',
+			name = 'staticText3',
+			parent = self.PNL_main,
+			pos = wxPoint(408, 32),
+			size = wxSize(19, 29),
+			style = 0
+		)
+		self.staticText3.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+	#-----------------------------------
+	# event handlers
+	#-----------------------------------
+	def on_acquire_image(self, event):
+		_log.Log(gmLog.lData, "trying to acquire image")
+		self._acquire_handler[scan_drv]
+
+			self.ScanWithSane()
+	#-----------------------------------
+	def on_show_page(self, event):
+		page_idx = self.LBOX_doc_pages.GetSelection()
+
+		if page_idx != -1:
+			page_data = self.LBOX_doc_pages.GetClientData(page_idx)
+			page_fname = page_data['file name']
+
+			import docMime
+
+			mime_type = docMime.guess_mimetype(page_fname)
+			viewer_cmd = docMime.get_viewer_cmd(mime_type, page_fname)
+
+			if viewer_cmd == None:
+				_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
+				new_fname = docMime.get_win_fname(mime_type)
+				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, new_fname))
+				shutil.copyfile(page_fname, new_fname)
+				os.startfile(new_fname)
+			else:
+				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, viewer_cmd))
+				os.system(viewer_cmd)
 		else:
-			# get base name from name of script
-			base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0] + ".ini"
-			# first look in user's home
-			cfgName = os.path.expanduser(os.path.join("~/.gnumed", base_name))
-			# not there
-			if not os.path.exists(cfgName):
-				__log__.Log(gmLog.lWarn, "INI file %s not found." % cfgName)
-				# look in directory of script (useful for Windows/DOS, mainly)
-				cfgName = os.path.join(os.path.split(sys.argv[0])[0], base_name)
-				if not os.path.exists(cfgName):
-					__log__.Log(gmLog.lErr, "INI file %s not found." % cfgName)
-					__log__.Log(gmLog.lPanic, "Cannot run without configuration file. Aborting.")
-					sys.exit()
-	
-		# if we got here we have a valid file name
-		__log__.Log(gmLog.lInfo, "config file: " +	cfgName)
-		aCfg = ConfigParser.ConfigParser()
-		aCfg.read(cfgName)
-		return aCfg
-	
-	#-----------------------------------------------------------------------
-	def show_pic(self,bild):
-		try:
-			bild=Image.open(bild)
-			bild.show()
-			return true
-		except IOError:
-			__log__.Log(gmLog.lErr, _("I am afraid but there is no such page or it could not be opened !"))
-			dlg = wxMessageDialog(self, _('I am afraid but there is no such page or it could not be opened !'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-	
-	#---------------------------------------------------------------
-	#twain scan code
-	def OpenScanner(self):
-		if not self.SM:
-			self.SM = twain.SourceManager(self.GetHandle())
-			if not self.SM:
-				return
-		self.SM.SetCallback(self.OnTwainEvent)
-		self.SD = self.SM.OpenSource()
-		
-	def Acquire(self):
-		if not self.SD:
-			self.OpenScanner()
-			if not self.SD: return
-		self.SD.RequestAcquire()
-		
-	def ProcessXFer(self):
-		(handle, more_to_come) = self.SD.XferImageNatively()
-		twain.DIBToBMFile(handle, self.tmpfilename)
-		twain.GlobalHandleFree(handle)
-		self.SD.HideUI()
+			dlg = wxMessageDialog(
+				self,
+				_('You must select a page before you can view it.'),
+				_('Attention'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+	#-----------------------------------
+	# TWAIN related scanning code
+	#-----------------------------------
+	def __acquire_from_twain(self):
+		_log.Log(gmLog.lInfo, "scanning with TWAIN source")
+		# open scanner on demand
+		if not self.Scanner:
+			if not self.__open_twain_scanner():
+			dlg = wxMessageDialog(
+				self,
+				_('Cannot connect to TWAIN source (scanner or camera).'),
+				_('TWAIN source error'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		self.Scanner.RequestAcquire()
+	#-----------------------------------
+	def __open_twain_scanner(self):
+		# did we open the scanner before ?
+		if not self.TwainSrcMngr:
+			# no, so we need to open it now
+			# TWAIN talks to us via MS-Windows message queues so we
+			# need to pass it a handle to ourselves
+			self.TwainSrcMngr = twain.SourceManager(self.GetHandle())
+			if not self.TwainSrcMngr:
+				_log.Log(gmLog.lData, "cannot get a handle for the TWAIN source manager")
+				return None
+
+		# TWAIN will notify us when the image is scanned
+		self.TwainSrcMngr.SetCallback(self.on_twain_event)
+		self.Scanner = self.TwainSrcMngr.OpenSource()
+			if not self.Scanner:
+				_log.Log(gmLog.lData, "cannot open the scanner via the TWAIN source manager")
+				return None
+	#-----------------------------------
+
+#	def ProcessXFer(self):
+#		(handle, more_to_come) = self.Scanner.XferImageNatively()
+#		twain.DIBToBMFile(handle, self.tmpfilename)
+#		twain.GlobalHandleFree(handle)
+#		self.Scanner.HideUI()
 		#save image-file to disk
-		self.savePage(null)
+#		self.savePage(null)
 		#update List of pages in GUI
-		self.UpdatePicList()
-		
-	def OnTwainEvent(self, event):
-		try:	  
-			self.ProcessXFer()
-		except:	   
+#		self.UpdatePicList()
+	#-----------------------------------
+	def on_twain_event(self, event):
+		_log.Log(gmLog.Data, 'pending image notification from TWAIN manager')
+		try:
+			(global_data_handle, more_images_pending) = self.Scanner.XferImageNatively()
+			twain.DIBToBMFile(global_data_handle, self.tmpfilename)
+			twain.GlobalHandleFree(global_data_handle)
+			#if more_images_pending:
+
+			# hide the scanner user interface again
+			self.Scanner.HideUI()
+
+			#save image-file to disk
+			self.savePage(null)
+			#update List of pages in GUI
+			self.UpdatePicList()
+		except:
 			print _('I am afraid I was unable to get the image from the scanner')
-			pass
 	#----------------------------------------------------------------
 	def savePage(self,im):
 		if len(self.picList) != 0:
@@ -127,44 +318,43 @@ class scanFrame(wxFrame):
 		# twain specific
 		if scan_drv == 'wintwain':
 			if len(self.picList) == 0:
-				shutil.copy(self.tmpfilename,self.myCfg.get("tmpdir", "tmpdir") + _('page')+str(1)+'.bmp')
+				shutil.copy(self.tmpfilename,_cfg.get("tmpdir", "tmpdir") + _('page')+str(1)+'.bmp')
 			else:
-				shutil.copy(self.tmpfilename,self.myCfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.bmp')
+				shutil.copy(self.tmpfilename,_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.bmp')
 		# SANE way of life # Write the image out as a JPG file
 		# Note : file format is determined by extension ; otherwise specify type
 		else:
 			if len(self.picList) == 0:
-				im.save(self.myCfg.get("tmpdir", "tmpdir") + _('page')+str(1)+'.jpg')
+				im.save(_cfg.get("tmpdir", "tmpdir") + _('page')+str(1)+'.jpg')
 				print "I just saved page 1"
 				# remove when sane works one day
 				return
 			else:
-				im.save(self.myCfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.jpg')
-				print "I just saved" + str(self.myCfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.jpg')
+				im.save(_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.jpg')
+				print "I just saved" + str(_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.jpg')
 	
 	#-----------------------------------------------------------------
 	def UpdatePicList(self):
 		if len(self.picList) == 0:
-			self.listBox1.Append(_('page1'))
+			self.LBOX_doc_pages.Append(_('page1'))
 			self.picList.append(_('page1'))
-			
 		else:
 			lastPageInList=self.picList[len(self.picList)-1]
 			biggest_number_strg=lastPageInList.replace(_('page'),'')
 			biggest_number= int(biggest_number_strg) + 1
-			self.listBox1.Append(_('page') + `biggest_number`)
+			self.LBOX_doc_pages.Append(_('page') + `biggest_number`)
 			self.picList.append(_('page') + `biggest_number`)
 			
 	#-------------------------------------------------------------------
 	def ScanWithSane(self):
-		gmLog.gmDefLog.Log(gmLog.lInfo, "I use sane ")
+		_log.Log(gmLog.lInfo, "I use sane ")
 		# tell App what scanner to use
 		# fixme : might not work if more than one scanner available
 		print 'SANE version:' , sane.init()
 		available_scanner = sane.get_devices()
 		# replace != by == when real scanner is available
 		if sane.get_devices() == []:
-			__log__.Log (gmLog.lErr, "sane did not find any scanner")
+			_log.Log (gmLog.lErr, "sane did not find any scanner")
 			dlg = wxMessageDialog(self, _('There is no scanner available'),_('Attention'), wxOK | wxICON_INFORMATION)
 			try:
 				dlg.ShowModal()
@@ -192,83 +382,28 @@ class scanFrame(wxFrame):
 			self.savePage(im)
 			#update List of pages in GUI
 			self.UpdatePicList()
-			
-	
-	def _init_utils(self):
-		pass
 
-	def _init_ctrls(self, prnt):
-		wxFrame.__init__(self, id = wxID_SCANFRAME, name = '', parent = prnt, pos = wxPoint(275, 184), size = wxSize(631, 473), style = wxDEFAULT_FRAME_STYLE, title = 'Befunde scannen')
-		self._init_utils()
-		self.SetClientSize(wxSize(631, 473))
+	#-----------------------------------
+#	def OnBTN_show_pageButton(self, event):
+#		current_selection=self.LBOX_doc_pages.GetSelection()
+#		if not current_selection == -1:
+#			pic_selection=current_selection+1
+#			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
+#			#for debugging only
+#			print "I show u:" + self.selected_pic
+#			if scan_drv == 'wintwain':
+#				self.show_pic(_cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.bmp') 
+#			else:
+#				self.show_pic(_cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.jpg') 
+#		else:
+#			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
+#			try:
+#				dlg.ShowModal()
+#			finally:
+#				dlg.Destroy()
 
-		self.scanWindow = wxWindow(id = wxID_SCANFRAMESCANWINDOW, name = 'scanWindow', parent = self, pos = wxPoint(0, 0), size = wxSize(631, 473), style = 0)
-
-		self.scanButton = wxButton(id = wxID_SCANFRAMESCANBUTTON, label = _('scan page'), name = 'scanButton', parent = self.scanWindow, pos = wxPoint(56, 80), size = wxSize(240, 64), style = 0)
-		self.scanButton.SetToolTipString(_('scan a page'))
-		EVT_BUTTON(self.scanButton, wxID_SCANFRAMESCANBUTTON, self.OnScanbuttonButton)
-
-		self.saveButton = wxButton(id = wxID_SCANFRAMESAVEBUTTON, label = _('save document'), name = 'saveButton', parent = self.scanWindow, pos = wxPoint(408, 80), size = wxSize(152, 344), style = 0)
-		EVT_BUTTON(self.saveButton, wxID_SCANFRAMESAVEBUTTON, self.OnSavebuttonButton)
-
-		self.listBox1 = wxListBox(choices = [], id = wxID_SCANFRAMELISTBOX1, name = 'listBox1', parent = self.scanWindow, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
-
-		self.showPicButton = wxButton(id = wxID_SCANFRAMESHOWPICBUTTON, label = _('show'), name = 'showPicButton', parent = self.scanWindow, pos = wxPoint(64, 384), size = wxSize(80, 22), style = 0)
-		self.showPicButton.SetToolTipString(_('show page'))
-		EVT_BUTTON(self.showPicButton, wxID_SCANFRAMESHOWPICBUTTON, self.OnShowpicbuttonButton)
-
-		self.delPicButton = wxButton(id = wxID_SCANFRAMEDELPICBUTTON, label = _('delete'), name = 'delPicButton', parent = self.scanWindow, pos = wxPoint(200, 384), size = wxSize(80, 22), style = 0)
-		self.delPicButton.SetToolTipString(_('delete page'))
-		EVT_BUTTON(self.delPicButton, wxID_SCANFRAMEDELPICBUTTON, self.OnDelpicbuttonButton)
-
-		self.changePos = wxButton(id = wxID_SCANFRAMECHANGEPOS, label = _('change current Position'), name = 'changePos', parent = self.scanWindow, pos = wxPoint(104, 432), size = wxSize(144, 22), style = 0)
-		EVT_BUTTON(self.changePos, wxID_SCANFRAMECHANGEPOS, self.OnChangeposButton)
-
-		self.staticText1 = wxStaticText(id = wxID_SCANFRAMESTATICTEXT1, label = _('document pages'), name = 'staticText1', parent = self.scanWindow, pos = wxPoint(56, 160), size = wxSize(152, 16), style = 0)
-
-		self.staticText2 = wxStaticText(id = wxID_SCANFRAMESTATICTEXT2, label = '1.', name = 'staticText2', parent = self.scanWindow, pos = wxPoint(56, 32), size = wxSize(19, 29), style = 0)
-		self.staticText2.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-
-		self.staticText3 = wxStaticText(id = wxID_SCANFRAMESTATICTEXT3, label = '2.', name = 'staticText3', parent = self.scanWindow, pos = wxPoint(408, 32), size = wxSize(19, 29), style = 0)
-		self.staticText3.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-
-	def __init__(self, parent):
-		# get configuration
-		self.myCfg = gmCfg.read_conf_file()
-		self._init_ctrls(parent)
-		# refresh
-		shutil.rmtree(self.myCfg.get("tmpdir", "tmpdir"), true)
-		os.mkdir(self.myCfg.get("tmpdir", "tmpdir"))
-		(self.SM, self.SD) = (None, None)
-		
-	def OnScanbuttonButton(self, event):
-		if scan_drv == 'wintwain':
-			gmLog.gmDefLog.Log(gmLog.lInfo, "I use twain ")
-			self.Acquire()
-		else :
-			self.ScanWithSane()
-			gmLog.gmDefLog.Log(gmLog.lInfo, "I use SANE ")
-		
-	def OnShowpicbuttonButton(self, event):
-		current_selection=self.listBox1.GetSelection()
-		if not current_selection == -1:
-			pic_selection=current_selection+1
-			self.selected_pic=self.listBox1.GetString(current_selection)
-			#for debugging only
-			print "I show u:" + self.selected_pic
-			if scan_drv == 'wintwain':
-				self.show_pic(self.myCfg.get("tmpdir", "tmpdir") + self.selected_pic + '.bmp') 
-			else:
-				self.show_pic(self.myCfg.get("tmpdir", "tmpdir") + self.selected_pic + '.jpg') 
-		else:
-			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-				
-	def OnDelpicbuttonButton(self, event):
-		current_selection=self.listBox1.GetSelection()
+	def OnBTN_del_pageButton(self, event):
+		current_selection=self.LBOX_doc_pages.GetSelection()
 		if current_selection == -1:
 			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
 			try:
@@ -276,68 +411,68 @@ class scanFrame(wxFrame):
 			finally:
 				dlg.Destroy()
 		else:
-			self.selected_pic=self.listBox1.GetString(current_selection)
+			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
 			#del page from hdd												 
 			if scan_drv == 'wintwain':
 				try:
-					os.remove(self.myCfg.get("tmpdir", "tmpdir") + self.selected_pic + '.bmp')
+					os.remove(_cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.bmp')
 				except OSError:
-					__log__.Log (gmLog.lErr, "I was unable to wipe the file " + self.myCfg.get("tmpdir", "tmpdir") + self.selected_pic + '.bmp' + " from disk because it simply was not there ")
+					_log.Log (gmLog.lErr, "I was unable to wipe the file " + _cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.bmp' + " from disk because it simply was not there ")
 			else:
 				try:
-					os.remove(self.myCfg.get("tmpdir", "tmpdir") + self.selected_pic + '.jpg')
+					os.remove(_cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.jpg')
 				except OSError:
-					__log__.Log (gmLog.lErr, "I was unable to wipe the file " + self.myCfg.get("tmpdir", "tmpdir") + self.selected_pic + '.jpg' + " from disk because it simply was not there ")
+					_log.Log (gmLog.lErr, "I was unable to wipe the file " + _cfg.get("tmpdir", "tmpdir") + self.selected_pic + '.jpg' + " from disk because it simply was not there ")
 			#now rename (decrease index by 1) all pages above the deleted one
 			i = current_selection
 			#print self.picList												 
 			for i in range(i,len(self.picList)-1):
 				if scan_drv == 'wintwain':
 					try:
-						os.rename(self.myCfg.get("tmpdir", "tmpdir") + self.listBox1.GetString(i+1)+ '.bmp',self.myCfg.get("tmpdir", "tmpdir") + self.listBox1.GetString(i) + '.bmp')
+						os.rename(_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i+1)+ '.bmp',_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i) + '.bmp')
 					except OSError:
-						__log__.Log (gmLog.lErr, "I was unable to rename the file " + self.myCfg.get("tmpdir", "tmpdir") + self.listBox1.GetString(i+1) + '.bmp' + " from disk because it simply was not there ")
+						_log.Log (gmLog.lErr, "I was unable to rename the file " + _cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i+1) + '.bmp' + " from disk because it simply was not there ")
 				else:
 					try:
-						os.rename(self.myCfg.get("tmpdir", "tmpdir") + self.listBox1.GetString(i+1)+ '.jpg',self.myCfg.get("tmpdir", "tmpdir") + self.listBox1.GetString(i) + '.jpg')
+						os.rename(_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i+1)+ '.jpg',_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i) + '.jpg')
 					except OSError:
-						__log__.Log (gmLog.lErr, "I was unable to rename the file " + self.myCfg.get("tmpdir", "tmpdir") + self.listBox1.GetString(i+1) + '.jpg' + " from disk because it simply was not there ")
-				#print "I renamed" +str(self.myCfg.get("tmpdir", "tmpdir") + self.listBox1.GetString(i+1) + '.jpg') + "into" + str(self.myCfg.get("tmpdir", "tmpdir") + self.listBox1.GetString(i) + '.jpg')
-			self.listBox1.Delete(current_selection)
+						_log.Log (gmLog.lErr, "I was unable to rename the file " + _cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i+1) + '.jpg' + " from disk because it simply was not there ")
+				#print "I renamed" +str(_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i+1) + '.jpg') + "into" + str(_cfg.get("tmpdir", "tmpdir") + self.LBOX_doc_pages.GetString(i) + '.jpg')
+			self.LBOX_doc_pages.Delete(current_selection)
 			self.picList.remove(self.selected_pic)
 			#rebuild list to clean the gap
 			i = 0
 			for i in range(len(self.picList)):
 				if i == 0:
 					self.picList = []
-					self.listBox1 = wxListBox(choices = [], id = wxID_SCANFRAMELISTBOX1, name = 'listBox1', parent = self.scanWindow, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
+					self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_SCANFRAMELISTBOX1, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
 				self.UpdatePicList()	
 	
-	def OnSavebuttonButton(self, event):
+	def OnBTN_save_docButton(self, event):
 		if self.picList != []:
 			# create xml file
-			out_file = open(self.myCfg.get("tmpdir", "tmpdir") + self.myCfg.get("metadata", "description"),"w")
+			out_file = open(_cfg.get("tmpdir", "tmpdir") + _cfg.get("metadata", "description"),"w")
 			tmpdir_content = self.picList
 			runs = len(tmpdir_content)
 			x=0
 			savedir = time.strftime("%a%d%b%Y%H%M%S", time.localtime())
 			# here come the contents of the xml-file
-			out_file.write ("<" + self.myCfg.get("metadata", "document_tag")+">\n")
-			out_file.write ("<" + self.myCfg.get("metadata", "ref_tag") + ">" + savedir + "</" + self.myCfg.get("metadata", "ref_tag") + ">\n")
+			out_file.write ("<" + _cfg.get("metadata", "document_tag")+">\n")
+			out_file.write ("<" + _cfg.get("metadata", "ref_tag") + ">" + savedir + "</" + _cfg.get("metadata", "ref_tag") + ">\n")
 			while x < runs:
 				out_file.write ("<image>" + tmpdir_content[x] + ".jpg" + "</image>\n")
 				x=x+1
-			out_file.write ("</" + self.myCfg.get("metadata", "document_tag")+">\n")
+			out_file.write ("</" + _cfg.get("metadata", "document_tag")+">\n")
 			out_file.close()
 			# move files around
-			shutil.copytree(self.myCfg.get("tmpdir", "tmpdir"),self.myCfg.get("source", "repositories") + savedir)
+			shutil.copytree(_cfg.get("tmpdir", "tmpdir"),_cfg.get("source", "repositories") + savedir)
 			# generate a file to tell import script that we are done here
-			out_file = open(__cfg__.get("source", "repositories") + savedir + '/' + __cfg__.get("metadata", "checkpoint"),"w")
+			out_file = open(_cfg.get("source", "repositories") + savedir + '/' + _cfg.get("metadata", "checkpoint"),"w")
 			# refresh
-			shutil.rmtree(self.myCfg.get("tmpdir", "tmpdir"), true)
-			os.mkdir(self.myCfg.get("tmpdir", "tmpdir"))
+			shutil.rmtree(_cfg.get("tmpdir", "tmpdir"), true)
+			os.mkdir(_cfg.get("tmpdir", "tmpdir"))
 			self.picList = []	
-			self.listBox1 = wxListBox(choices = [], id = wxID_SCANFRAMELISTBOX1, name = 'listBox1', parent = self.scanWindow, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
+			self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_SCANFRAMELISTBOX1, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
 			dlg = wxMessageDialog(self, _('please put down') + savedir + _('on paper copy for reference'),_('Attention'), wxOK | wxICON_INFORMATION)
 			try:
 				dlg.ShowModal()
@@ -350,11 +485,11 @@ class scanFrame(wxFrame):
 			finally:
 				dlg.Destroy()
 	
-	def OnChangeposButton(self, event):
+	def OnBTN_move_pageButton(self, event):
 		pass
-		##current_selection=self.listBox1.GetSelection()
+		##current_selection=self.LBOX_doc_pages.GetSelection()
 		##if not current_selection == -1:
-		##	  self.selected_pic=self.listBox1.GetString(current_selection)
+		##	  self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
 			#picTochange
 		##	  print "u want to change pos for :" + self.selected_pic
 		##	 dlg = wxTextEntryDialog(self, _('please tell me the desired position for the page - string format : page[x]'),_('alter page position'), _('page'))
@@ -367,7 +502,7 @@ class scanFrame(wxFrame):
 		##		  dlg.Destroy()
 		##	  #first rename selected
 		##	  tempposition=len(self.picList)+1	  
-		##	  self.listBox1.Delete(current_selection)
+		##	  self.LBOX_doc_pages.Delete(current_selection)
 		##	  self.picList.remove(self.selected_pic)
 		##	  print self.picList
 		##	  #del page from hdd
@@ -379,24 +514,27 @@ class scanFrame(wxFrame):
 		##	  finally:
 		##		  dlg.Destroy()
 
-from wxPython.wx import *
-import scanFrame
 
-modules ={'scanFrame': [0, '', 'scanFrame.py']}
-
-class BoaApp(wxApp):
+#=====================================================================
+class ScanningApp(wxApp):
 	def OnInit(self):
 		wxInitAllImageHandlers()
-		self.main = scanFrame.create(None)
+		self.main = scanFrame.(None)
 		#workaround for running in wxProcess
-		self.main.Show();self.main.Hide();self.main.Show() 
+		#self.main.Show();self.main.Hide();self.main.Show()
 		self.SetTopWindow(self.main)
 		return true
 
 def main():
-	application = BoaApp(0)
+	application = ScanningApp(0)
 	application.MainLoop()
-
+#======================================================
+# main
+#------------------------------------------------------
 if __name__ == '__main__':
-	main()
-	
+	try:
+		main()
+	except:
+		exc = sys.exc_info()
+		_log.LogException('Unhandled exception.', exc, fatal=1)
+		raise
