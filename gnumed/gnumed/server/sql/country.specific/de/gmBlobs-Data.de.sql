@@ -1,6 +1,6 @@
 -- GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmBlobs-Data.de.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- license: GPL
 -- author: Karsten Hilbert
@@ -16,7 +16,7 @@ set client_encoding to 'LATIN1';
 -- if you want to insert your own document types follow these rules:
 -- * user defined document types can only have IDs between 100 and 200
 -- * insert your new type into doc_type:
--- insert into doc_type (id, name) values (100, i18n('my doc type'));
+-- insert into doc_type (pk, name) values (100, i18n('my doc type'));
 --   (increase the id value to 101, 102, ... if you want to insert more types)
 -- * insert your translation into i18n_translations:
 -- insert into i18n_translations(lang, orig, trans) values('de_DE', 'my doc type', 'mein Dokumententyp');
@@ -79,12 +79,20 @@ INSERT INTO i18n_translations(lang, orig, trans) values
 --INSERT into _doc_type(name) values('Arztbrief Mikrobiologie');
 --INSERT into _doc_type(name) values('Labor');
 
+INSERT INTO i18n_translations(lang, orig, trans) values
+	('de_DE', 'patient photograph', 'Patientenphoto');
+
+-- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs-Data.de.sql,v $', '$Revision: 1.1 $');
+delete from gm_schema_revision where filename='$RCSfile: gmBlobs-Data.de.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs-Data.de.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmBlobs-Data.de.sql,v $
--- Revision 1.1  2003-08-05 08:15:59  ncq
+-- Revision 1.2  2004-10-11 19:35:58  ncq
+-- - translate "patient photograph"
+--
+-- Revision 1.1  2003/08/05 08:15:59  ncq
 -- - cleanup/renaming
 --
 -- Revision 1.12  2003/07/20 09:39:04  ncq
