@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -116,7 +116,8 @@ class cDocTree(wxTreeCtrl):
         self.SetItemHasChildren(self.root, FALSE)
 
         # read documents from database
-        doc_ids = self.curr_pat['document id list']
+        docs_folder = self.curr_pat.get_document_folder()
+        doc_ids = docs_folder.get_doc_list()
         if doc_ids is None:
             name = self.curr_pat['demographic record'].get_names()
             gmGuiHelpers.gm_show_error(
@@ -272,10 +273,11 @@ class cDocTree(wxTreeCtrl):
             chunksize = 1 * 1024 * 1024
 
         # make sure metadata is there
-        tmp = obj.get_metadata
+        tmp = obj.get_metadata()
 
         # retrieve object
-        if not obj.export_to_file(aTempDir = exp_base, aChunkSize = chunksize):
+        fname = obj.export_to_file(aTempDir = exp_base, aChunkSize = chunksize)
+        if fname is None:
             _log.Log(gmLog.lErr, "Cannot export object [%s] data from database !" % node_data['id'])
             gmGuiHelpers.gm_show_error(
                 aMessage = _('Cannot export document part from database to file.'),
@@ -283,7 +285,6 @@ class cDocTree(wxTreeCtrl):
             )
             return None
 
-        fname = obj['filename']
         (result, msg) = gmMimeLib.call_viewer_on_file(fname)
         if not result:
             gmGuiHelpers.gm_show_error(
@@ -623,7 +624,10 @@ else:
     pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.42  2004-04-16 00:36:23  ncq
+# Revision 1.43  2004-06-01 07:55:46  ncq
+# - use cDocumentFolder
+#
+# Revision 1.42  2004/04/16 00:36:23  ncq
 # - cleanup, constraints
 #
 # Revision 1.41  2004/03/25 11:03:23  ncq
