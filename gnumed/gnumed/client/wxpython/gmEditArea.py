@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.69 2004-04-24 12:59:17 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmEditArea.py,v 1.70 2004-04-27 18:43:03 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -671,7 +671,7 @@ class gmEditArea(wxPanel):
 			self._pre_save_data()
 			self._init_fields()
 		except StandardError:
-			_log.LogException('[%s] lossage' % self.__class__.__name__, verbose=0)
+			_log.LogException('[%s] lossage' % self.__class__.__name__, sys.exc_info(), verbose=0)
 			return None
 		return 1
 
@@ -2396,7 +2396,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.69  2004-04-24 12:59:17  ncq
+# Revision 1.70  2004-04-27 18:43:03  ncq
+# - fix _check_unsaved_data()
+#
+# Revision 1.69  2004/04/24 12:59:17  ncq
 # - all shiny and new, vastly improved vaccinations
 #   handling via clinical item objects
 # - mainly thanks to Carlos Moro
