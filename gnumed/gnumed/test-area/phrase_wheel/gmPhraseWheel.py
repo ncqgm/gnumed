@@ -20,7 +20,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 
 __log__ = gmLog.gmDefLog
 #============================================================
@@ -583,3 +583,7 @@ if __name__ == '__main__':
 #	    else:
 #		return matches
 #----
+
+# stop list (list of negatives): "an" -> "animal" but not "and"
+
+# maybe store fixed list matches as balanced tree if otherwise to slow
