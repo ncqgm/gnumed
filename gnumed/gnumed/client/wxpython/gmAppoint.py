@@ -1,5 +1,4 @@
 #!/usr/bin/python
-#!/usr/bin/python
 #############################################################################
 #
 # gmAppoint - A simple interface to the appointments book.
@@ -10,8 +9,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2004-03-08 22:14:21 $
-# @version $Revision: 1.9 $ $Date: 2004-03-08 22:14:21 $ $Author: shilbert $
+# @Date: $Date: 2004-03-12 13:21:27 $
+# @version $Revision: 1.10 $ $Date: 2004-03-12 13:21:27 $ $Author: ncq $
 # @change log:
 #   14.03.02 ihaywood inital version.
 #      
