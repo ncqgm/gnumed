@@ -121,12 +121,12 @@ class GuidelinesHtmlPanel(wxPanel):
 
     def OnBack(self, event):
         if not self.html.HistoryBack():
-            gmLog.gmDefLog.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
+            gmLog.gmDefLog.Log (gmLog.lInfo, "ManualHtmlWindow: No more items in history!\n")
 
 
     def OnForward(self, event):
         if not self.html.HistoryForward():
-            gmLog.gmDefLog.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
+            gmLog.gmDefLog.Log (gmLog.lInfo, "ManualHtmlWindow: No more items in history!\n")
 
 
     def OnViewSource(self, event):
@@ -153,10 +153,10 @@ class gmGuidelines (gmPlugin.wxNotebookPlugin):
     Plugin to encapsulate the manual window
     """
     def name (self):
-        return 'Guidelines'
+        return _('Guidelines')
 
     def MenuInfo (self):
-        return ('view', '&Guidelines')
+        return (_('view'), _('&Guidelines'))
 
     def GetWidget (self, parent):
         return GuidelinesHtmlPanel (parent, self.gb['main.frame'])
