@@ -85,3 +85,25 @@ so that loading up an identity is simple ( but inefficient). In other words, any
 the entire medical record for the identity is loaded.
 
 
+19. social identities - bug, paste and copy, forgot to set right types for blood groups and rhesus categories 
+(was using maritalStatus !)
+
+
+20. new patient goes in but not searchable, reason, space inserted in names.lastnames; fix: trim  when calling
+setLastnames.
+        - how to remove old identities?
+
+22. can't retrieve newly created identity because hidden space in front of lastnames.
+
+
+23. Lazy initialization : apparently session must stay open.
+    Changed persistence references from Singleton pattern to one session per identity.
+    Put all the manager classes as referable from a single ManagerReference which holds
+    a session common to all managers. Possibly a better way would have been to store
+    the session object as a reference on the identity, and to get the manager's to accept
+    an identity or a session in all parameter lists of manager methods.
+
+
+24. Mobile telephone not saving because the xdoclet tag was spelt  many-tp-one  , inside
+    identity.java : misspelled xdoclet tags won't be picked up, just ignored.
+
