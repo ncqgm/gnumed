@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -19,7 +19,7 @@ from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP, setPostcodeWidgetFromUrbId  , OrgCategoryMP
-from Gnumed.business.gmOrganization import cOrgHelperImpl1,  cOrgHelperImpl2
+from Gnumed.business.gmOrganization import cOrgHelperImpl1,  cOrgHelperImpl2, cOrgHelperImpl3, cCatFinder
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 
@@ -63,6 +63,9 @@ ID_ORGPERSON_SELECTED
 
 ] = map(lambda _init_ctrls: wxNewId(), range(23))
 
+divisionTypes = [_('Head Office'),_('Branch'),_('Department')]
+
+
 #--------------------------------------------------
 #Class which shows a blue bold label left justified
 #--------------------------------------------------
@@ -99,7 +102,7 @@ class TextBox_BlackNormal(wxTextCtrl):
 		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 
 class ContactsPanel(wxPanel):
-       def __init__(self, parent,id):
+       	def __init__(self, parent,id):
 	  wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxNO_BORDER|wxTAB_TRAVERSAL)
           #-----------------------------------------------------------------
           #create top list box which will show organisations, employees, etc
@@ -196,7 +199,7 @@ class ContactsPanel(wxPanel):
                          wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
           self.txt_org_memo.SetInsertionPoint(0)
 	  self.txt_org_memo.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-          self.combo_type = wxComboBox(self, ID_COMBOTYPE, "", wxDefaultPosition,wxDefaultSize, ['Head Office','Branch','Department'], wxCB_READONLY ) #wxCB_DROPDOWN)
+          self.combo_type = wxComboBox(self, ID_COMBOTYPE, "", wxDefaultPosition,wxDefaultSize,  divisionTypes , wxCB_READONLY ) #wxCB_DROPDOWN)
           self.combo_type.SetForegroundColour(wxColor(255,0,0))
 	  self.combo_type.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 	  #----------------------
@@ -368,16 +371,16 @@ class ContactsPanel(wxPanel):
           self.SetAutoLayout(true)
           self.Show(true)
 
-       def __urb_selected(self, urb_id):
+       	def __urb_selected(self, urb_id):
           #print "urb_id", urb_id
 	  gmDemographicRecord.setPostcodeWidgetFromUrbId( self.input_fields['postcode'], urb_id)
       	  pass
-       def __postcode_selected(self, postcode):
+       	def __postcode_selected(self, postcode):
        	  #print "postcode", postcode
 	  gmDemographicRecord.setUrbPhraseWheelFromPostcode( self.input_fields['urb'], postcode)
       	  pass
 
-       def get_address_values(self):
+       	def get_address_values(self):
        	  f = self.input_fields
 	  vals = [ f[n].GetValue() for n in ['street', 'urb', 'postcode'] ]
 	  # split the street value into 2 parts, number and street. ? Have a separate number field instead.
@@ -385,13 +388,55 @@ class ContactsPanel(wxPanel):
 	  # [None, None] is state and country at the moment
 	  return vals
 
-       def get_org_values(self):
+       	def get_org_values(self):
           f = self.input_fields
 	  
 	  m =dict(  [ (n,f[n].GetValue()) for n in ['name','office', 'subtype', 'memo', 'category', 'phone', 'fax', 'email', 'mobile'] ] )
 	  return m 
+
   	
-       def add_org(self, org):
+       	def add_org(self, org, showPersons = True):
+	  key, data = self.getOrgKeyData(org)
+	  if key is None:
+		  return
+	  x = self.list_organisations.GetItemCount()
+	  self._insert_org_data( x, key, data)
+	  if showPersons:
+		  m = org.getPersonMap(reload=True)
+		  for id, demRecord in m.items():
+			  person = self._helper.createOrgPerson()
+			  person.setDemographicRecord(demRecord)
+			  key, data = self.getOrgKeyData(person)
+			  ix = self.list_organisations.GetItemCount()
+			  self._insert_org_data(ix, key, data)
+			  self._isPersonIndex[ix] = (org, person )
+			  
+			  
+
+
+       	def update_org(self, org):
+	       key, data = self.getOrgKeyData(org)
+	       if key is None:
+		       return
+	       
+	       l = self.list_organisations
+	       max = l.GetItemCount()
+	
+	       for n in xrange( 0, max):
+
+		     isPerson = self._helper.isPerson(org) 
+		     if l.GetItemData(n) == key and (
+		     	(not isPerson and not self._isPersonIndex.has_key(n) )
+				or (isPerson and self._isPersonIndex.has_key(n) )  ):
+			     	break
+
+	       if n == max:
+		       self._insert_org_data(n, key, data)
+	       else:
+		       self._update_org_data(n, key, data)
+	       
+	  
+       	def getOrgKeyData(self, org):
 	  try:     
 	  	key = int(org.getId())
 	  except:
@@ -400,28 +445,36 @@ class ContactsPanel(wxPanel):
 		  print "in a admin psql session, substitute 'hospital' for whatever category"
 
 		  gmLog.gmDefLog.LogException("failed to save org %s with id %s" %(org['name'], str(org.getId()) ) , sys.exc_info() )
-		  return False
-		  
+		  return None, None 
+
+
 	  a = org.getAddress()
 	  o = org.get()
 	  
 	  nameCol , subTypeCol ='',''
-	  if  o['subtype'].isalnum():
-		 nameCol, subTypeCol  =   ''	, o['name'] + ' '+o['subtype']
+
+	  if org.getHelper().isPerson(org):
+			 subTypeCol = "- " + o['name']
+			 thirdCol = o['subtype']
 	  else:
-		 nameCol, subTypeCol = o['name'], ''
+		  thirdCol = " ".join( [a.get('number','').strip(), a.get('street','').strip(), a.get('urb','').strip(), a.get('postcode','')])
+
 		  
+		  if  o['subtype'].strip() <> '':
+			 subTypeCol  =   o['name'] + ' '+o['subtype']
+		  else:
+			 nameCol = o['name']
+			  
 	  if nameCol == '': fourthCol = o.get('email','')
 	  else:
 		  	fourthCol = o.get('category', '')
-	  data = [ nameCol, subTypeCol , " ".join( [a.get('number','').strip(), a.get('street','').strip(), a.get('urb','').strip(), a.get('postcode','')]), fourthCol, '/fax '.join([ o.get('phone', '') , o.get('fax', '')] ) ]
-	  x = self.list_organisations.GetItemCount()
-	  
-	  self._insert_org_data( x, key, data)
+
+	  data = [ nameCol, subTypeCol , thirdCol,  fourthCol, '/fax '.join([ o.get('phone', '') , o.get('fax', '')] ) ]
+	  return key, data
 
       
       
-       def _insert_org_data(self, n, key, data): 	  
+       	def _insert_org_data(self, n, key, data): 	  
 	  self.list_organisations.InsertStringItem(n, data[0])
 	  self.list_organisations.SetStringItem(n, 1, data[1])
 	  self.list_organisations.SetStringItem(n, 2, data[2])
@@ -429,32 +482,51 @@ class ContactsPanel(wxPanel):
 	  self.list_organisations.SetStringItem(n, 4, data[4])
 	  self.list_organisations.SetItemData(n, key)
 
-       def load_all_orgs(self):
+       	def _update_org_data( self, n, key, data):
+	  l = self.list_organisations
+	  for i in xrange(0, 4):
+		  l.SetStringItem(i, data[i])
+	  l.SetItemData(n, key)
+	  
+
+       	def load_all_orgs(self):
 	  self.list_organisations.DeleteAllItems()
 	  self._insert_example_data()
+	  self._isPersonIndex = {}
 	  
 	  orgs = self.getOrgHelper().findAllOrganizations()
 	  for org in orgs:
 		  self.add_org(org)
 		 
-       def _insert_example_data(self):
+       	def _insert_example_data(self):
 	  items = organisationsdata.items()
 	  for i in xrange(0,len(items)):
 		  key, data = items[i]
 		  self._insert_org_data(i, key, data)
 
-       def _set_controller(self, helper = cOrgHelperImpl2() ):
+       	def _set_controller(self, helper = cOrgHelperImpl3() ):
           self._connect_list()
 	  self._helper = helper 
 	  self._current = None
+
+	  self._isPersonIndex = {}
+	  self._currentPerson = None
 		  
-       def _connect_list(self):
+       	def _connect_list(self):
 	  EVT_LIST_ITEM_ACTIVATED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
 
-       def _orgperson_selected(self, event):
+       	def _orgperson_selected(self, event):
 	  #print "orgperson selected"
+	  
 	  ix = event.GetIndex()
 	  key = self.list_organisations.GetItemData(ix)
+	  
+	  if self._isPersonIndex.has_key(ix):
+		  self._person_selected( ix)
+		  return
+	  else:
+		  self._currentPerson = None
+	  
 	  org = self._helper.getFromCache(key)
 	  self.clearForm()
 	  if org == None:
@@ -502,50 +574,132 @@ class ContactsPanel(wxPanel):
 			  print "unable to parse address"
 		  	  
 	  self.setCurrent(org)
-	  self.checkCategoryRequired()
+	  self.checkEnabledFields()
+	  self.loadCurrentValues(org)	
 
-	  
-       def checkCategoryRequired(self):	  
-		  self.input_fields['category'].SetEditable(not  self.getCurrent()['name'].isalnum() )
-	
-       def setCurrent(self, org):
-	  self.clearForm()
-	  self._current = org
+	def loadCurrentValues(self, org):
 	  f = self.input_fields
 	  for n in ['name','subtype', 'category', 'phone', 'email', 'fax', 'mobile']:
 		  v = org[n]
-		  
 		  if v == None: v = ''
-		  
-		  	
-		  
 		  f[n].SetValue(v.strip())
-
-
 
 	  a = org.getAddress()
 	  s = a.get('number','').strip() + ' ' + a.get('street','').strip()
 	  f['street'] .SetValue(s.strip())
 	  f['urb'] .SetValue(a.get('urb','').strip() )
 	  f['postcode'] .SetValue( str(a.get('postcode','')).strip())
+	
 
-       def getCurrent(self):
+
+       	def setCurrent(self, org):
+	  self._current = org
+	  
+
+       	def getCurrent(self):
 	       return self._current
 
-       def getOrgHelper(self):
+       	def getOrgHelper(self):
 	       return  self._helper
 
-       def newOrg(self, parent = None):
+       	def newOrg(self, parent = None):
+	   self._currentPerson = None
            self.setCurrent(self._helper.create())
 	   self.getCurrent().setParent(parent)
-	   if not parent is None:
-		   self.input_fields['category'].SetValue(parent['category'])
-	   self.input_fields['category'].SetEditable(parent is None)
+	   self.newForm()
 
-       def clearForm(self):
+       	def newForm(self):
+	       self.clearForm()
+	       self.checkEnabledFields()
+
+       	def clearForm(self):
            for k,f in self.input_fields.items():
              f.SetValue('')
+
+       	def checkEnabledFields(self):
+	   if not self._currentPerson is None:
+		   self.lbl_Type.SetLabel(_('occupation'))
+		   self._loadOccupations()
+	   else:
+		   self.lbl_Type.SetLabel(_('subdivision'))
+		   self._loadDivisionTypes()
+	
+	   if not self._currentPerson is None:
+		   parent = self._currentPerson.getParent()
+	   else:	   
+		   parent = self.getCurrent().getParent()
+
+	   dependent = not parent is None
+	   if dependent:
+		   self.input_fields['category'].SetValue(parent['category'])
+	   self.input_fields['category'].Enable(not dependent)
+
+
 	  
+	   
+	  
+	def _loadOccupations(self):
+		f = self.input_fields['subtype']
+		f.Clear()
+		cats = cCatFinder('occupation', 'id','name').getCategories('occupation')
+		for x in cats:
+			f.Append(x)
+		
+	def _loadDivisionTypes(self):
+		f = self.input_fields['subtype']
+		f.Clear()
+		for n in divisionTypes:
+			f.Append(n)
+	
+
+       	def saveOrg(self):
+	     	if  not self._currentPerson is None:
+			org = self._currentPerson
+			org.setParent(self.getCurrent()) # work out how to reference parents
+							# within org cache
+		else:	
+			org= self.getCurrent()
+
+		if org is None:
+			org = self.getOrgHelper().create()
+			self.setCurrent(org)
+		o = self.get_org_values()
+		a = self.get_address_values()
+		org.set(*[],**o)
+		org.setAddress(*a)
+		
+		isNew = org.getId() is None
+		org.save()
+		self.load_all_orgs()
+		#if isNew:
+		#	self.add_org(org)
+		#else:
+		#		self.update_org(org) # refresh after saving
+
+			
+
+	def isPersonCurrent(self):
+		return not self._currentPerson is None
+
+	def newPerson(self):
+		if self.getCurrent() is None or self.getCurrent().getId() is None:
+			print "Org must exist to add a person"
+			return False
+		self._currentPerson =  self.getOrgHelper().createOrgPerson()
+		self._currentPerson.setParent(self.getCurrent() )
+		self.newForm()
+		return True
+
+	def _person_selected(self, ix):
+		org, person = self._isPersonIndex[ix]
+		self.clearForm()
+		self.setCurrent(org)
+		self._currentPerson = person 
+		self.checkEnabledFields()
+		self.loadCurrentValues(person)		
+		    
+
+			
 class gmContacts (gmPlugin.wxNotebookPlugin):
 	tab_name = _("Contacts")
 
@@ -615,8 +769,11 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 		EVT_TOOL(toolbar ,ID_BRANCHDEPTADD , self.addBranchDept)
 		EVT_TOOL(toolbar, ID_ORGANISATIONDISPLAY, self.displayOrg)
                 EVT_TOOL(toolbar, ID_SAVE, self.saveOrg)
+
 	def addEmployee(self, event):
 		print "doEmployeeAdd"
+		w = self._last_widget
+		w.newPerson()
 
 	def addOrg(self, event):
 		print "doOrgAdd"
@@ -626,21 +783,9 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 		
 	def saveOrg(self, event):
 		w = self._last_widget
-		org = w.getCurrent()
-		if org is None:
-			org = w.getOrgHelper().create()
-			w.setCurrent(org)
-		o = w.get_org_values()
-		a = w.get_address_values()
-		org.set(*[],**o)
-		org.setAddress(*a)
-		
-		isNew = org.getId() is None
-		org.save()
-		if isNew:
-			w.add_org(org)
-		else:
-			w.load_all_orgs() # refresh after saving
+		w.saveOrg()
+
+
 		
         def addBranchDept(self, event):
 		print "doBranchDeptAdd"
@@ -677,7 +822,12 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.24  2004-05-29 12:03:46  sjtan
+# Revision 1.25  2004-05-30 03:50:41  sjtan
+#
+# gmContacts can create/update org, one level of sub-org, org persons, sub-org persons.
+# pre-alpha or alpha ? Needs cache tune-up .
+#
+# Revision 1.24  2004/05/29 12:03:46  sjtan
 #
 # OrgCategoryMP for gmContact's category field
 #

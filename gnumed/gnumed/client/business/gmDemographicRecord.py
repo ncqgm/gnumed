@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.45 2004-05-29 12:03:47 sjtan Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmDemographicRecord.py,v 1.46 2004-05-30 03:50:41 sjtan Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -73,6 +73,9 @@ class cDemographicRecord:
 	def getAddresses (self, type):
 		raise gmExceptions.PureVirtualFunction ()
 
+	def linkNewAddress (self, addr_type, number, street, urb, postcode, state = None, country = None):
+		raise gmExceptions.PureVirtualFunction ()
+
 	def unlinkAddress (self, ID):
 		raise gmExceptions.PureVirtualFunction ()
 
@@ -87,6 +90,13 @@ class cDemographicRecord:
 
 	def getMedicalAge(self):
 		raise gmExceptions.PureVirtualFunction ()
+
+	def setOccupation(self, occupation):
+		raise gmExceptions.PureVirtualFunction ()
+
+	def getOccupation(self):
+		raise gmExceptions.PureVirtualFunction ()
+
 
 #============================================================
 # may get preloaded by the waiting list
@@ -297,7 +307,7 @@ class cDemographicRecord_SQL(cDemographicRecord):
 		data = gmPG.run_ro_query ('personalia', cmd, None, occupation)
 		# error
 		if data is None:
-			_log(gmLog.lErr, 'cannnot check for occupation')
+			gmLog.gmDefLog.Log(gmLog.lErr, 'cannnot check for occupation')
 			return None
 		# none found
 		if len(data) == 0:
@@ -386,7 +396,8 @@ where
 		return gmPG.run_commit ('personalia', [(cmd, [gender, self.ID])])
 	#--------------------------------------------------------
 	def getAddresses(self, addr_type = None, firstonly = 0):
-		"""Return a patient's addresses.
+		"""Return a patient's addresses. 
+			addr_type is the address_type.name, not address_type.id
 
 		- return all types if addr_type is None
 		"""
@@ -910,6 +921,8 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 	pwheel.setContext("postcode", postcode)
 	return True
+
+
 #------------------------------------------------------------
 
 # FIXME: do we REALLY need this ?
@@ -959,7 +972,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.45  2004-05-29 12:03:47  sjtan
+# Revision 1.46  2004-05-30 03:50:41  sjtan
+#
+# gmContacts can create/update org, one level of sub-org, org persons, sub-org persons.
+# pre-alpha or alpha ? Needs cache tune-up .
+#
+# Revision 1.45  2004/05/29 12:03:47  sjtan
 #
 # OrgCategoryMP for gmContact's category field
 #
