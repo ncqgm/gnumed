@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.63 2003-11-18 23:29:57 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmPlugin.py,v 1.64 2003-12-29 16:33:23 uid66147 Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -327,7 +327,7 @@ class wxPatientPlugin (wxBasePlugin):
 		"""
 		pass
 #------------------------------------------------------------------
-def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
+def InstPlugin (aPackage, plugin_name, guibroker = None):
 	"""Instantiates a plugin object from a package directory, returning the object.
 
 	NOTE: it does NOT call register() for you !!!!
@@ -345,9 +345,8 @@ def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	"""
 	# we do need brokers, else we are useless
 	if guibroker is None:
-		guibroker = gmGuiBroker.GuiBroker ()
-	if dbbroker is None:
-		dbbroker = gmPG.ConnectionPool ()
+		guibroker = gmGuiBroker.GuiBroker()
+	dbbroker = gmPG.ConnectionPool()
 
 	# bean counting ! -> loaded plugins
 	if not ('modules.%s' % aPackage) in guibroker.keylist ():
@@ -388,7 +387,7 @@ def GetPluginLoadList(set):
 	 c) store in database
 	"""
 
-	currentMachine = _whoami.getMachine()
+	currentMachine = _whoami.get_workplace()
 
 	p_list,match = gmCfg.getFirstMatchingDBSet(
 		machine = currentMachine,
@@ -493,7 +492,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.63  2003-11-18 23:29:57  ncq
+# Revision 1.64  2003-12-29 16:33:23  uid66147
+# - use whoami.get_workplace()/gmPG.run_commit()
+#
+# Revision 1.63  2003/11/18 23:29:57  ncq
 # - remove duplicate Version line
 #
 # Revision 1.62  2003/11/18 19:06:26  hinnef
