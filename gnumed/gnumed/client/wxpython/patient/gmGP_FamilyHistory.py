@@ -24,7 +24,7 @@ from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
-import gmEditArea             			#panel class holding editing prompts and text boxes
+import gmEditArea
 import gmPlugin, gmLog
 
 ID_MEMBERCONDITIONSLIST = wxNewId()
@@ -45,34 +45,15 @@ membersconditionsdata = {
 2 : ("Hypertension age onset 40",""),
 }
 
-familyhistoryprompts = {
-1:("Person's name"),
-2:("Relationship"),
-3:("Condition"),
-4:("Comment"),
-5:("Age of onset"),
-6:("Caused death"),
-7:("Progress Notes"),
-8:("")
-}
 #----------------------------------------------------------------------
 class FamilyHistoryPanel(wxPanel):
 
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
-		#--------------------
-		#add the main heading
-		#--------------------
+		# main heading
 		self.FamilyHistoryPanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,"  FAMILY AND SOCIAL HISTORY  ")
-		#--------------------------------------------
-		#dummy panel will later hold the editing area
-		#--------------------------------------------
-		self.dummypanel1 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
-		self.dummypanel1.SetBackgroundColour(wxColor(222, 222, 222))
-		#--------------------------------------------------
-		#now create the editarea specific for immunisations
-		#--------------------------------------------------
-		self.editarea = gmEditArea.EditArea(self,-1,familyhistoryprompts,gmSECTION_FAMILYHISTORY)
+		# editarea
+		self.editarea = gmEditArea.gmFamilyHxEditArea(self, -1)
 		#-----------------------------------------------
 		#add the divider headings below the editing area
 		#-----------------------------------------------
@@ -156,7 +137,7 @@ class FamilyHistoryPanel(wxPanel):
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
 		self.mainsizer.Add(self.FamilyHistoryPanelheading,0,wxEXPAND)
-		self.mainsizer.Add(self.dummypanel1,1,wxEXPAND)
+#		self.mainsizer.Add(self.dummypanel1,1,wxEXPAND)
 		self.mainsizer.Add(self.editarea,6,wxEXPAND)
 		self.mainsizer.Add(self.sizer_divider_members_condition,0,wxEXPAND)
 		self.mainsizer.Add(self.sizer_members_conditions,4,wxEXPAND)

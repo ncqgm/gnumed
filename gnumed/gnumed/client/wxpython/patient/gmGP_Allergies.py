@@ -1,46 +1,24 @@
-#!/usr/bin/python
 #############################################################################
-#
-# gmGP_Allergies:
-# ----------------------------------
+# gmGP_Allergies
+# --------------
 #
 # This panel will hold all the allergy details, and allow entry
-# of those details via the editing area (gmEditArea.py - currently a
-# vapour module
+# of those details via the editing area
 #
 # If you don't like it - change this code see @TODO!
 #
 # @author: Dr. Richard Terry
-# @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @change log:
-#	    10.06.2002 rterry initial implementation, untested
-#           30.07.2002 rterry images inserted, code cleaned up
 # @TODO:
-#	- write cmEditArea.py
+#	- write gmEditArea.py
 #	- decide on type of list and text control to use
 #       - someone smart to fix the code (simplify for same result)
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.8 $"
-__author__  = "R. Terry <rterry@gnumed.net>, H. Herb <hherb@gnumed.net>"
-#============================================================================
-# $Log: gmGP_Allergies.py,v $
-# Revision 1.8  2003-02-02 10:07:58  ihaywood
-# bugfix
-#
-# Revision 1.7  2003/02/02 08:49:49  ihaywood
-# demographics being connected to database
-#
-# Revision 1.6  2003/01/14 20:18:57  ncq
-# - fixed setfont() problem
-#
-# Revision 1.5  2003/01/09 12:01:39  hherb
-# connects now to database
-#
-
+__version__ = "$Revision: 1.9 $"
+__author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
 import gmDispatcher, gmSignals, gmPG
@@ -59,31 +37,18 @@ gmSECTION_ALLERGY = 7
 #------------------------------------
 allergydata = {}
 
-allergyprompts = {
-1:("Date"),
-2:("Search Drug"),
-3:("Generic"),
-4:("Class"),
-5:("Reaction"),
-6:("Type")
- }
-
 class AllergyPanel(wxPanel):
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
 		#--------------------
 		#add the main heading
 		#--------------------
-		self.allergypanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,_("ALLERGIES"))
-		#--------------------------------------------
-		#dummy panel will later hold the editing area
-		#--------------------------------------------
-		self.dummypanel = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
-		self.dummypanel.SetBackgroundColour(wxColor(222,222,222))
+		self.allergypanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self, -1, _("ALLERGIES"))
 		#----------------------------------------------
 		#now create the editarea specific for allergies
 		#----------------------------------------------
-		self.editarea = gmEditArea.EditArea(self,-1,allergyprompts,gmSECTION_ALLERGY)
+#		self.editarea = gmEditArea.EditArea(self, -1, allergyprompts, gmSECTION_ALLERGY)
+		self.editarea = gmEditArea.gmAllergyEditArea(self, -1)
 		#-----------------------------------------------
 		#add the divider headings below the editing area
 		#-----------------------------------------------
@@ -128,7 +93,7 @@ class AllergyPanel(wxPanel):
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
 		self.mainsizer.Add(self.allergypanelheading,0,wxEXPAND)
-		self.mainsizer.Add(self.dummypanel,1,wxEXPAND)
+#		self.mainsizer.Add(self.dummypanel,1,wxEXPAND)
 		self.mainsizer.Add(self.editarea,6,wxEXPAND)
 		self.mainsizer.Add(self.sizer_divider_drug_generic,0,wxEXPAND)
 		self.mainsizer.Add(self.list_allergy,5,wxEXPAND)
@@ -205,3 +170,25 @@ if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(AllergyPanel, -1)
 	app.MainLoop()
+#============================================================================
+# $Log: gmGP_Allergies.py,v $
+# Revision 1.9  2003-05-21 14:11:26  ncq
+# - much needed rewrite/cleanup of gmEditArea
+# - allergies/family history edit area adapted to new gmEditArea code
+# - old code still there for non-converted edit areas
+#
+# Revision 1.8  2003/02/02 10:07:58  ihaywood
+# bugfix
+#
+# Revision 1.7  2003/02/02 08:49:49  ihaywood
+# demographics being connected to database
+#
+# Revision 1.6  2003/01/14 20:18:57  ncq
+# - fixed setfont() problem
+#
+# Revision 1.5  2003/01/09 12:01:39  hherb
+# connects now to database
+#
+# @change log:
+#	    10.06.2002 rterry initial implementation, untested
+#       30.07.2002 rterry images inserted, code cleaned up
