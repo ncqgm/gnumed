@@ -4,27 +4,40 @@
 
 A very basic HTML browser with back/forward history buttons
 with  the main pourpose of browsing the gnumed manuals
-The manuals should reside where the manual_path points to
+The manuals should reside where the manual_path points to.
 
-@author: Dr. Horst Herb
-@version: 0.2
 @copyright: GPL
 @thanks: this code has been heavily "borrowed" from
          Robin Dunn's extraordinary wxPython sample
 """
+#===========================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
+# $Id: gmManual.py,v 1.8 2003-02-13 17:38:35 ncq Exp $
+__version__ = "$Revision: 1.8 $"
+__author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import sys, os
 
 from   wxPython.wx         import *
 from   wxPython.html       import *
 import wxPython.lib.wxpTag
-import gmGuiBroker, gmPlugin, gmLog
 
-manual_path = 'doc/user-manual/index.html'
+if __name__ == "__main__":
+	sys.path.append('..', '..', 'python-common')
 
+import gmLog
+_log = gmLog.gmDefLog
+if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
+
+_log.Log(gmLog.lData, __version__)
+
+import gmGuiBroker, gmPlugin
 
 import images_for_gnumed_browser16_16
 import images_gnuMedGP_Toolbar
+
+_manual_path = 'doc/user-manual/index.html'
 
 ID_MANUALCONTENTS = wxNewId()
 ID_MANUALBACK = wxNewId()
@@ -38,10 +51,7 @@ ID_MANUALADDBOOKMARK = wxNewId()
 ID_MANUALVIEWSOURCE = wxNewId()
 ID_MANUALRELOAD = wxNewId()
 ID_VIEWSOURCE  = wxNewId()
-
-#----------------------------------------------------------------------
-
-
+#===========================================================
 class ManualHtmlWindow(wxHtmlWindow):
     def __init__(self, parent, id):
         wxHtmlWindow.__init__(self, parent, id)
@@ -49,8 +59,7 @@ class ManualHtmlWindow(wxHtmlWindow):
 
     def OnSetTitle(self, title):
         self.parent.ShowTitle(title)
-
-
+#===========================================================
 class ManualHtmlPanel(wxPanel):
     def __init__(self, parent, frame):
         wxPanel.__init__(self, parent, -1)
@@ -88,7 +97,7 @@ class ManualHtmlPanel(wxPanel):
         self.infoline.WriteText(title)
 
     def OnShowDefault(self, event):
-        name = os.path.join(self.docdir, manual_path)
+        name = os.path.join(self.docdir, _manual_path)
         if os.access (name, os.F_OK):
             self.html.LoadPage(name)
         else:
@@ -123,14 +132,13 @@ class ManualHtmlPanel(wxPanel):
 
     def OnPrint(self, event):
         self.printer.PrintFile(self.html.GetOpenedPage())
-
-
+#===========================================================
 class gmManual (gmPlugin.wxNotebookPlugin):
     """
     Plugin to encapsulate the manual window
     """
     def name (self):
-        return 'Manual'
+        return _('Manual')
 
     def MenuInfo (self):
         return ('help', '&Manual')
@@ -174,3 +182,8 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 	tool1=tb.AddTool(ID_MANUALPRINTER, images_for_gnumed_browser16_16.getprinterBitmap(),
 				shortHelpString="Print Page", isToggle=true)
 	EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint)	
+#===========================================================
+# $Log: gmManual.py,v $
+# Revision 1.8  2003-02-13 17:38:35  ncq
+# - cvs keywords, cleanup
+#
