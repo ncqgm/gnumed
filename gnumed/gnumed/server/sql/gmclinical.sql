@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.50 $
+-- $Revision: 1.51 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -66,13 +66,13 @@ create table log_clin_episode (
 ) inherits (audit_trail);
 
 
-create table last_active_episode (
+create table last_act_episode (
 	id serial primary key,
 	id_episode integer not null references clin_episode(id),
 	id_patient integer unique not null
 );
 
-comment on table last_active_episode is
+comment on table last_act_episode is
 	'records the most recently active episode per patient,
 	 upon instantiation of a patient object it should read
 	 the most recently active episode from this table,
@@ -468,6 +468,7 @@ GRANT SELECT ON
 	"log_clin_health_issue",
 	"clin_episode",
 	"log_clin_episode",
+	"last_act_episode",
 	"_enum_encounter_type",
 	"clin_encounter",
 	"clin_note",
@@ -488,6 +489,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"clin_health_issue_id_seq",
 	"clin_episode",
 	"clin_episode_id_seq",
+	"last_act_episode",
+	"last_act_episode_id_seq",
 	"_enum_encounter_type",
 	"_enum_encounter_type_id_seq",
 	"clin_encounter",
@@ -518,11 +521,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.50 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.51 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.50  2003-06-02 21:03:41  ncq
+-- Revision 1.51  2003-06-03 13:49:50  ncq
+-- - last_active_episode -> last_act_episode + grants on it
+--
+-- Revision 1.50  2003/06/02 21:03:41  ncq
 -- - last_active_episode: unique on id_patient, not composite(patient/episode)
 --
 -- Revision 1.49  2003/06/01 11:38:12  ncq
