@@ -17,7 +17,7 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmPatientWindowManager.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __license__ = "GPL"
 __author__ =	"I.Haywood <>"
 
@@ -178,45 +178,54 @@ class PatientWindow (wxPanel):
 #==================================================
 class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
 
-    def name (self):
-        return "Patient"
+	def name (self):
+		return "Patient"
 	#----------------------------------------------
-    def MenuInfo (self):
-        return None # we add our own submenu
+	def MenuInfo (self):
+		return None # we add our own submenu
 	#----------------------------------------------
-    def GetWidget (self, parent):
-        self.pw = PatientWindow (parent)
-        self.gb['patient.manager'] = self.pw
-        return self.pw
+	def GetWidget (self, parent):
+		self.pw = PatientWindow (parent)
+		self.gb['patient.manager'] = self.pw
+		return self.pw
 	#----------------------------------------------
-    def register (self):
-        gmPlugin.wxNotebookPlugin.register (self)
-        # add own submenu, patient plugins add to this
-        ourmenu = wxMenu ()
-        self.gb['patient.submenu'] = ourmenu
-        menu = self.gb['main.viewmenu']
-        self.menu_id = wxNewId ()
-        menu.AppendMenu (self.menu_id, '&Patient', ourmenu, self.name ())
-        plugin_list = gmPlugin.GetPluginLoadList('patient')
-        for plugin in plugin_list:
-            p = gmPlugin.InstPlugin ('patient', plugin,
-                                 guibroker = self.gb)
-            p.register ()
-	#self.pw.Show (0)
-        self.pw.DisplayDefault ()
-        self.gb['toolbar.%s' % self.name ()].Realize ()
+	def register (self):
+		gmPlugin.wxNotebookPlugin.register(self)
+		# add own submenu, patient plugins add to this
+		ourmenu = wxMenu ()
+		self.gb['patient.submenu'] = ourmenu
+		menu = self.gb['main.viewmenu']
+		self.menu_id = wxNewId ()
+		menu.AppendMenu (self.menu_id, '&Patient', ourmenu, self.name ())
+		plugin_list = gmPlugin.GetPluginLoadList('patient')
+		for plugin in plugin_list:
+			p = gmPlugin.InstPlugin(
+				'patient',
+				plugin,
+				guibroker = self.gb
+			)
+			try:
+				p.register()
+			except:
+				_log.LogException("file [%s] doesn't seem to be a plugin" % plugin, sys.exc_info(), fatal=0)
+		#self.pw.Show (0)
+		self.pw.DisplayDefault()
+		self.gb['toolbar.%s' % self.name ()].Realize()
 	#----------------------------------------------
-    def unregister (self):
-        # tidy up after ourselves
-        gmPlugin.wxNotebookPlugin.unregister (self)
-        menu = self.gb['main.viewmenu']
-        menu.Destroy (self.menu_id)
-        # FIXME: should we unregister () each of our sub-modules?
+	def unregister (self):
+		# tidy up after ourselves
+		gmPlugin.wxNotebookPlugin.unregister (self)
+		menu = self.gb['main.viewmenu']
+		menu.Destroy (self.menu_id)
+		# FIXME: should we unregister () each of our sub-modules?
 	#----------------------------------------------
-    def Shown (self):
-        self.gb['modules.patient'][self.pw.GetVisible ()].Shown ()
+	def Shown (self):
+		self.gb['modules.patient'][self.pw.GetVisible()].Shown()
 #==================================================
 # $Log: gmPatientWindowManager.py,v $
-# Revision 1.11  2003-01-12 01:48:47  ncq
+# Revision 1.12  2003-01-12 16:46:42  ncq
+# - catch failing plugins better
+#
+# Revision 1.11  2003/01/12 01:48:47  ncq
 # - massive cleanup, CVS keywords
 #
