@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/localhost-monolithic.conf.sample,v $
-version = $Revision: 1.5 $
+version = $Revision: 1.6 $
 
 #----------------------------------
 [installation]
@@ -37,6 +37,7 @@ $services$
 language library dirs = $language library dirs$
 /usr/lib/postgresql/lib/
 /usr/lib/pgsql/
+/usr/local/pgsql/lib
 $language library dirs$
 
 #----------------------------------
@@ -156,7 +157,10 @@ $language activation$
 
 #----------------------------------
 # $Log: localhost-monolithic.conf.sample,v $
-# Revision 1.5  2003-02-09 11:46:11  ncq
+# Revision 1.6  2003-02-11 17:13:39  hinnef
+# added /usr/local/psql/lib to library dir list
+#
+# Revision 1.5  2003/02/09 11:46:11  ncq
 # - added core database option for registering services
 # - convenience function _run_query()
 #
