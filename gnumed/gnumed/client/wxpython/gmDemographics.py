@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.41 2004-09-10 10:41:38 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmDemographics.py,v 1.42 2004-09-10 10:51:14 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1162,8 +1162,16 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.41  2004-09-10 10:41:38  ncq
+# Revision 1.42  2004-09-10 10:51:14  ncq
+# - improve previous checkin comment
+#
+# Revision 1.41  2004/09/10 10:41:38  ncq
 # - remove dead import
+# - lots of cleanup (whitespace, indention, style, local vars instead of instance globals)
+# - remove an extra sizer, waste less space
+# - translate strings
+# - from wxPython.wx import * -> from wxPython import wx
+#   Why ? Because we can then do a simple replace wx.wx -> wx for 2.5 code.
 #
 # Revision 1.40  2004/08/24 14:29:58  ncq
 # - some cleanup, not there yet, though
