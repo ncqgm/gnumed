@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -72,7 +72,6 @@ except ImportError:
 		print "You should download and install this module !"
 
 #-------------------------------------------
-
 # log levels:
 # lPanic - try to log this before we die
 # lErr   - some error occured, may be recoverable
@@ -224,10 +223,9 @@ class cLogger:
 		"""
 		# sanity check
 		if kwargs.has_key('fatal'):
-			notice = '(deprecated use of keyword arg "fatal")'
+			for key in self.__targets.keys():
+				self.__targets[key].writeMsg(lWarn, '(deprecated use of keyword arg "fatal")')
 			verbose = kwargs['fatal']
-		else:
-			notice = None
 		# avoid one level of indirection by not calling self.__Log such
 		# that the chances of succeeding shall be increased
 		if self.__targets is not None:
@@ -237,17 +235,43 @@ class cLogger:
 			else:
 				level1 = lWarn
 				level2 = lData
-
+			# split the tuple
 			exc_type, exc_val, exc_traceback = exception
+			# FIXME: I wonder if the following back-and-forth reversing is necessary
+			# trace back to root caller
+			tb = exc_traceback
+			while 1:
+				if not tb.tb_next:
+					break
+				tb = tb.tb_next
+			# and put the frames on a stack
+			stack_of_frames = []
+			frame = tb.tb_frame
+			while frame:
+				stack_of_frames.append(frame)
+				frame = frame.f_back
+			stack_of_frames.reverse()
+
 			traceback_stack = traceback.format_exception(exc_type, exc_val, exc_traceback)
 			for key in self.__targets.keys():
 				self.__targets[key].writeMsg(level1, aMsg)
-				if notice is not None:
-					self.__targets[key].writeMsg(level2, notice)
 				self.__targets[key].writeMsg(level1, "exception type : %s" % exc_type)
 				self.__targets[key].writeMsg(level1, "exception value: %s" % exc_val)
 				for line in traceback_stack:
 					self.__targets[key].writeMsg(level2, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
+				if verbose:
+					self.__targets[key].writeMsg(lData, "locals by frame, innermost frame last")
+					for frame in stack_of_frames:
+						self.__targets[key].writeMsg(lData, ">>> execution frame [%s] in [%s] at line %s <<<" % (
+							frame.f_code.co_name,
+							frame.f_code.co_filename,
+							frame.f_lineno)
+						)
+						for varname, value in frame.f_locals.items():
+							try:
+								self.__targets[key].writeMsg(lData, "%20s = %s" % (varname, value))
+							except:
+								pass
 	#---------------------------
 	def SetInfoLevel(self):
 		self.SetAllLogLevels(lInfo)
@@ -779,7 +803,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.37  2003-06-03 13:25:48  ncq
+# Revision 1.38  2003-07-21 20:54:36  ncq
+# - verbose=1 in LogException: log locals in all execution frames
+#
+# Revision 1.37  2003/06/03 13:25:48  ncq
 # - coding style fix for Data() wrapper
 #
 # Revision 1.36  2003/06/01 13:20:32  sjtan
