@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.23 2004-03-18 10:57:20 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.24 2004-04-21 15:35:23 ihaywood Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -117,9 +117,6 @@ insert into drug_routes(description, abbreviation) values('intramuscular', 'i.m.
 insert into drug_routes(description, abbreviation) values('subcutaneous', 's.c.');
 insert into drug_routes(description, abbreviation) values('intraarterial', 'art.');
 insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.');
-
--- ===================================================================
-insert into enum_immunities (name) values ('tetanus');
 
 -- ===================================================================
 -- measurements stuff
@@ -519,11 +516,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.23 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.24 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.23  2004-03-18 10:57:20  ncq
+-- Revision 1.24  2004-04-21 15:35:23  ihaywood
+-- new referral table (do we still need gmclinical.form_data then?)
+--
+-- Revision 1.23  2004/03/18 10:57:20  ncq
 -- - several fixes to the data
 -- - better constraints on vacc.seq_no/is_booster
 --

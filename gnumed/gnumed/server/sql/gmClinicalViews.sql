@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.53 2004-04-21 15:30:24 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.54 2004-04-21 15:35:23 ihaywood Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -640,7 +640,6 @@ GRANT SELECT ON
 	vacc_def
 	, vacc_regime
 	, lnk_vacc2vacc_def
-	, clin_history_editarea
 	, xlnk_identity
 	, form_instances
 	, form_data
@@ -687,8 +686,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, vacc_regime_id_seq
 	, lnk_vacc2vacc_def
 	, lnk_vacc2vacc_def_pk_seq
-	, clin_history_editarea
-	, clin_history_editarea_id_seq
 	, xlnk_identity
 	, xlnk_identity_pk_seq
 	, form_instances
@@ -755,11 +752,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.53 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.54 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.53  2004-04-21 15:30:24  ncq
+-- Revision 1.54  2004-04-21 15:35:23  ihaywood
+-- new referral table (do we still need gmclinical.form_data then?)
+--
+-- Revision 1.53  2004/04/21 15:30:24  ncq
 -- - fix coalesce on unified_name/code in v_results4lab_req
 -- - add unified_val
 --

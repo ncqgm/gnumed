@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.96 $
+-- $Revision: 1.97 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -800,48 +800,37 @@ comment on table constituents is
 --'the English IUPHARM standard name, as a base, with no adjuvant, in capitals. So MORPHINE. not Morphine, not MORPHINE SULPHATE, not MORPHINIUM';
 comment on column constituents.dose is
 'the amount of drug (if salt, the amount of active base substance, in a unit (see amount_unit above)';
- 
--- =============================================
-
-create table enum_immunities
-(
-	id serial primary key,
-	name text
-);
-
-comment on table enum_immunities is
-'list of diseases to which patients may have immunity. Same table must exist in gmdrugs';
 
 -- =============================================
-create table clin_history_editarea (
+
+create table referral (
 	id serial primary key,
-	id_clin_history integer references clin_history on delete cascade,
-	condition text,
-	age varchar(20),
-	"year" varchar(20),
-	"left" integer,
-	"right" integer,
-	"both" integer,
-	"none" integer,
-	active integer,
-	significant integer,
-	confidential integer,
-	operation integer,
-	notes1 text,
-	notes2 text,
-	progress text
-);
+	fk_referee integer
+		not null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete restrict,
+	address text not null,
+	transmission_method char default 'p' check (transmission_method in ('p', 'f', 'e')),
+	included_meds boolean,
+	included_phx boolean
+) inherits (clin_root_item);
 
-comment on table clin_history_editarea is 
-	'ui specific field storage, to avoid parsing of data when using past history editarea ui for clin_history';
+select add_table_for_audit ('referral');
 
+comment on table referral is 'table for referrals to defined individuals. Text of referral letter goes in clin_root_item.narrative';
+comment on column referral.transmission_method is 'p=post, f=fax, e=email';
+comment on column referral.fk_referee is 'person to whom the referral is directed';
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.96 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.97 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.96  2004-04-20 00:17:56  ncq
+-- Revision 1.97  2004-04-21 15:35:23  ihaywood
+-- new referral table (do we still need gmclinical.form_data then?)
+--
+-- Revision 1.96  2004/04/20 00:17:56  ncq
 -- - allergies API revamped, kudos to Carlos
 --
 -- Revision 1.95  2004/04/14 20:03:59  ncq
