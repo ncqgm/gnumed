@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.139 2004-09-19 15:07:01 ncq Exp $
-__version__ = "$Revision: 1.139 $"
+# $Id: gmClinicalRecord.py,v 1.140 2004-09-28 12:19:15 ncq Exp $
+__version__ = "$Revision: 1.140 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -54,7 +54,9 @@ class cClinicalRecord:
 		if not self.__provider_exists():
 			raise gmExceptions.ConstructorError, "cannot make sure provider [%s] is in service 'historica'" % _whoami.get_staff_ID()
 
-		self.__db_cache = {}
+		self.__db_cache = {
+			'vaccinations': {}
+		}
 
 		self.__health_issue = None
 
@@ -179,15 +181,11 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	def db_callback_vaccs_modified(self, **kwds):
 		try:
-			del self.__db_cache['vaccinations']
-		except KeyError:
-			pass
-		try:
-			del self.__db_cache['missing vaccinations']
+			self.__db_cache['vaccinations'] = {}
 		except KeyError:
 			pass
 		gmDispatcher.send(signal = gmSignals.vaccinations_updated(), sender = self.__class__.__name__)
-		return 1
+		return True
 	#--------------------------------------------------------
 	def _db_callback_allg_modified(self):
 		try:
@@ -888,26 +886,56 @@ where
 			_log.Log(gmLog.lErr, 'cannot create health issue [%s] for patient [%s]' % (health_issue_name, self.id_patient))
 			return None
 		return issue
+
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
-	def get_scheduled_vaccination_regimes(self):
-		"""Retrieves vaccination regimes the patient is on."""
-		cmd = """
-select
-	indication,
-	l10n_indication,
-	max(vacc_seq_no)
-from v_vaccs_scheduled4pat
-where pk_patient=%s
-group by indication, l10n_indication"""
-		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot retrieve scheduled vaccination regimes')
-			return None
-		if len(rows) == 0:
-			return None
-		return rows
+	def get_scheduled_vaccination_regimes(self, indications=None):
+		"""
+			Retrieves vaccination regimes the patient is on.
+
+			optional:
+			* indications - indications we want to retrieve vaccination
+				regimes for, must be primary language, not l10n_indication
+		"""
+		try:
+			self.__db_cache['vaccinations']['scheduled regimes']
+		except KeyError:
+			# retrieve vaccination regimes definitions
+			self.__db_cache['vaccinations']['scheduled regimes'] = []
+			cmd = """
+					select
+						indication,
+						l10n_indication,
+						max(vacc_seq_no)
+					from
+						v_vaccs_scheduled4pat
+					where
+						pk_patient=%s
+					group by
+						indication, l10n_indication
+					"""
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+			# check for None or empty vaccination regimes
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot retrieve scheduled vaccination regimes')
+				del self.__db_cache['vaccinations']['scheduled regimes']
+				return None
+			if len(rows) == 0:
+				return None
+			# keep cache of vaccination regime definition (list)
+			self.__db_cache['vaccinations']['scheduled regimes'] = rows
+
+		if indications is None:
+			return self.__db_cache['vaccinations']['scheduled regimes']
+			
+		# ok, lets's constrain our list
+		filtered_regimes = []
+		for regime in self.__db_cache['vaccinations']['scheduled regimes']:
+			if regime[0] in indications:
+				filtered_regimes.append(regime)
+
+		return filtered_regimes
 	#--------------------------------------------------------
 	def get_vaccinated_indications(self):
 		"""Retrieves patient vaccinated indications list.
@@ -926,7 +954,7 @@ group by indication, l10n_indication"""
 			v_indications.append([vacc['indication'], vacc['l10n_indication']])
 		return (1, v_indications)
 	#--------------------------------------------------------
-	def get_vaccinations(self, ID = None, indications = None, since=None, until=None, encounters=None, episodes=None, issues=None):
+	def get_vaccinations(self, ID=None, indications=None, since=None, until=None, encounters=None, episodes=None, issues=None):
 		"""Retrieves list of vaccinations the patient has received.
 
 		optional:
@@ -940,27 +968,49 @@ group by indication, l10n_indication"""
         * issues - list of health issues whose allergies are to be retrieved
 		"""
 		try:
-			self.__db_cache['vaccinations']
-		except KeyError:
-			self.__db_cache['vaccinations'] = []
+			self.__db_cache['vaccinations']['vaccinated']
+		except KeyError:			
+			self.__db_cache['vaccinations']['vaccinated'] = []
 			# FIXME: bulk loader
 			# get list of IDs
-			cmd = "select id from vaccination where fk_patient=%s"
+			# Important fetch ordering by indication, date to know if a vaccination is booster
+			cmd = "select pk_vaccination, indication from v_pat_vacc4ind where pk_patient=%s order by indication, date"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load vaccinations for patient [%s]' % self.id_patient)
-				del self.__db_cache['vaccinations']
+				_log.Log(gmLog.lErr, 'cannot load given vaccinations for patient [%s]' % self.id_patient)
+				del self.__db_cache['vaccinations']['vaccinated']
 				return None
-			# Instantiate vaccination items and keep cache
+			# Instantiate vaccination items
+			vaccs = {}
 			for row in rows:
 				try:
-					self.__db_cache['vaccinations'].append(gmVaccination.cVaccination(aPK_obj=row[0]))
+					vacc = gmVaccination.cVaccination(aPK_obj=row[0])
+					self.__db_cache['vaccinations']['vaccinated'].append(vacc)
 				except gmExceptions.ConstructorError:
-					_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
+					_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.id_patient), sys.exc_info(), verbose=0)
+				# keep them, ordered by indication
+				try:
+					vaccs[row[1]].append(vacc)
+				except KeyError:
+					vaccs[row[1]] = [vacc]
+
+			# calculate sequence number and is_booster
+			self.get_scheduled_vaccination_regimes()
+			for ind in vaccs.keys():
+				for vacc in vaccs[ind]:
+					# due to the "order by indication, date" the vaccinations are in the right order...
+					seq_no = vaccs[ind].index(vacc)
+					# FIXME: the integer access is ugly - maybe VO after all as Carlos suggested ?
+					max_seq_no = self.__db_cache['vaccinations']['scheduled regimes'][2]
+					if seq_no > max_seq_no:
+						vacc.set_booster(True)
+					else:
+						vacc.set_seq_no(seq_no)
+			del vaccs
 
 		# ok, lets's constrain our list
 		filtered_shots = []
-		filtered_shots.extend(self.__db_cache['vaccinations'])
+		filtered_shots.extend(self.__db_cache['vaccinations']['vaccinated'])
 		if ID is not None:
 			filtered_shots = filter(lambda shot: shot['pk_vaccination'] == ID, filtered_shots)
 			if len(filtered_shots) == 0:
@@ -980,15 +1030,42 @@ group by indication, l10n_indication"""
 			filtered_shots = filter(lambda shot: shot['pk_encounter'] in encounters, filtered_shots)
 		if indications is not None:
 			filtered_shots = filter(lambda shot: shot['indication'] in indications, filtered_shots)
-		return (filtered_shots)
+		return filtered_shots
 	#--------------------------------------------------------
-	def get_missing_vaccinations(self, indications = None):
+	def get_scheduled_vaccinations(self, indications=None):
 		try:
-			self.__db_cache['missing vaccinations']
+			self.__db_cache['vaccinations']['scheduled']
 		except KeyError:
-			self.__db_cache['missing vaccinations'] = {}
+			self.__db_cache['vaccinations']['scheduled'] = []
+			# FIXME: bulk loader
+			cmd = "select pk_vacc_def from v_vaccs_scheduled4pat where pk_patient=%s"
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot load scheduled vaccinations for patient [%s]' % self.id_patient)
+				del self.__db_cache['vaccinations']['scheduled']
+				return None
+			# Instantiate vaccination items
+			for row in rows:
+				try:
+					self.__db_cache['vaccinations']['scheduled'].append(gmVaccination.cScheduledVaccination(aPK_obj=row[0]))
+				except gmExceptions.ConstructorError:
+					_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.id_patient), sys.exc_info(), verbose=0)
+
+		# ok, lets's constrain our list
+		if indications is None:
+			return self.__db_cache['vaccinations']['scheduled']
+		filtered_shots = []
+		filtered_shots.extend(self.__db_cache['vaccinations']['scheduled'])
+		filtered_shots = filter(lambda shot: shot['indication'] in indications, filtered_shots)
+		return filtered_shots
+	#--------------------------------------------------------
+	def get_missing_vaccinations(self, indications=None):
+		try:
+			self.__db_cache['vaccinations']['missing']
+		except KeyError:
+			self.__db_cache['vaccinations']['missing'] = {}
 			# 1) non-booster
-			self.__db_cache['missing vaccinations']['due'] = []
+			self.__db_cache['vaccinations']['missing']['due'] = []
 			# get list of (indication, seq_no) tuples
 			cmd = "select indication, seq_no from v_pat_missing_vaccs where pk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
@@ -1001,11 +1078,11 @@ group by indication, l10n_indication"""
 					pk_args['indication'] = row[0]
 					pk_args['seq_no'] = row[1]
 					try:
-						self.__db_cache['missing vaccinations']['due'].append(gmVaccination.cMissingVaccination(aPK_obj=pk_args))
+						self.__db_cache['vaccinations']['missing']['due'].append(gmVaccination.cMissingVaccination(aPK_obj=pk_args))
 					except gmExceptions.ConstructorError:
 						_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
 			# 2) boosters
-			self.__db_cache['missing vaccinations']['boosters'] = []
+			self.__db_cache['vaccinations']['missing']['boosters'] = []
 			# get list of indications
 			cmd = "select indication, seq_no from v_pat_missing_boosters where pk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
@@ -1017,23 +1094,23 @@ group by indication, l10n_indication"""
 				for row in rows:
 					pk_args['indication'] = row[0]
 					try:
-						self.__db_cache['missing vaccinations']['boosters'].append(gmVaccination.cMissingBooster(aPK_obj=pk_args))
+						self.__db_cache['vaccinations']['missing']['boosters'].append(gmVaccination.cMissingBooster(aPK_obj=pk_args))
 					except gmExceptions.ConstructorError:
 						_log.LogException('booster error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
 		# if any filters ...
 		if indications is None:
-			return self.__db_cache['missing vaccinations']
+			return self.__db_cache['vaccinations']['missing']
 		if len(indications) == 0:
-			return self.__db_cache['missing vaccinations']
+			return self.__db_cache['vaccinations']['missing']
 		# ... apply them
 		filtered_shots = {
 			'due': [],
 			'boosters': []
 		}
-		for due_shot in self.__db_cache['missing vaccinations']['due']:
+		for due_shot in self.__db_cache['vaccinations']['missing']['due']:
 			if due_shot['indication'] in indications: #and due_shot not in filtered_shots['due']:
 				filtered_shots['due'].append(due_shot)
-		for due_shot in self.__db_cache['missing vaccinations']['boosters']:
+		for due_shot in self.__db_cache['vaccinations']['missing']['boosters']:
 			if due_shot['indication'] in indications: #and due_shot not in filtered_shots['boosters']:
 				filtered_shots['boosters'].append(due_shot)
 		return filtered_shots
@@ -1421,6 +1498,19 @@ if __name__ == "__main__":
 	try:
 		emr = cClinicalRecord(aPKey = 12)
 
+		# vaccination regimes and vaccinations for regimes
+		print '\nVaccination regime: %s' %(emr.get_scheduled_vaccination_regimes(['tetanus'])[0])
+		scheduled_vaccs = emr.get_scheduled_vaccinations4regime(['tetanus'])
+		print 'Vaccinations for the regime:'
+		for a_scheduled_vacc in scheduled_vaccs['tetanus']:
+			print '   %s' %(a_scheduled_vacc)
+		
+				
+		# vaccination next shot and booster
+		vaccinations = emr.get_vaccinations()
+		for a_vacc in vaccinations:
+			print '\nVaccination %s , date: %s, booster: %s, next shot: %s' %(a_vacc['batch_no'], a_vacc['date'].Format('%Y-%m-%d'), a_vacc.is_booster(), a_vacc.get_next_shot_due().Format('%Y-%m-%d'))
+
 		# first and last encounters
 		first_encounter = emr.get_first_encounter(issue_id = 1)
 		print '\nFirst encounter: ' + str(first_encounter)
@@ -1478,7 +1568,13 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.139  2004-09-19 15:07:01  ncq
+# Revision 1.140  2004-09-28 12:19:15  ncq
+# - any vaccination related data now cached under 'vaccinations' so
+#   all of it is flushed when any change to vaccinations occurs
+# - rewrite get_scheduled_vaccination_regimes() (Carlos)
+# - in get_vaccinations() compute seq_no and is_booster status
+#
+# Revision 1.139  2004/09/19 15:07:01  ncq
 # - we don't use a default health issue anymore
 # - remove duplicate existence checks
 # - cleanup, reformat/fix episode queries
