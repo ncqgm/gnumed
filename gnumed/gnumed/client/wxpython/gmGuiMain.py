@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-02-02 09:11:19 $
-# @version $Revision: 1.66 $ $Date: 2003-02-02 09:11:19 $ $Author: ihaywood $
+# @Date: $Date: 2003-02-05 12:15:01 $
+# @version $Revision: 1.67 $ $Date: 2003-02-05 12:15:01 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.66 $"
+__version__ = "$Revision: 1.67 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -52,9 +52,9 @@ import gmGP_PatientPicture                     #panel to display patients pictur
 import gmGP_Toolbar                            #panel with two toolbars on top of the screen
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 
-from gmI18N import gmTimeformat
+from gmI18N import gmTimeformat, curr_locale
 
-myLog = gmLog.gmDefLog
+_log = gmLog.gmDefLog
 email_logger = None
 _cfg = gmCfg.gmDefCfgFile
 
@@ -188,7 +188,7 @@ class MainFrame(wxFrame):
 		any_loadable = 0
 		any_showable = 0
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
-		myLog.Log(gmLog.lData, str(type(plugin_list)) + ": " + str(plugin_list))
+		_log.Log(gmLog.lData, str(type(plugin_list)) + ": " + str(plugin_list))
 		for plugin_name in plugin_list:
 			plugin = gmPlugin.InstPlugin ('gui', plugin_name, guibroker = self.guibroker)
 			if isinstance (plugin, gmPlugin.wxNotebookPlugin): 
@@ -240,12 +240,12 @@ class MainFrame(wxFrame):
 			pass
 		elif wxPlatform == '__WXGTK__':
 			#GTK (Linux etc.) specific stuff here
-			myLog.Log(gmLog.lInfo,'running on GTK (probably Linux)')
+			_log.Log(gmLog.lInfo,'running on GTK (probably Linux)')
 		elif wxPlatform == '__WXMAC__':
 			#Mac OS specific stuff here
-			myLog.Log(gmLog.lInfo,'running on a Mac')
+			_log.Log(gmLog.lInfo,'running on a Mac')
 		else:
-			myLog.Log(gmLog.lInfo,'running on an unknown platform')
+			_log.Log(gmLog.lInfo,'running on an unknown platform')
 	#----------------------------------------------
 	def LoadPlugins(self, backend):
 		# get plugin list
@@ -285,7 +285,7 @@ class MainFrame(wxFrame):
 				p.register()
 				result = _("success")
 			except:
-				myLog.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info())
+				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info())
 				result = _("failed")
 
 			last_plugin = curr_plugin
@@ -417,16 +417,16 @@ class MainFrame(wxFrame):
 	def OnIconize(self, event):
 		# FIXME: we should maximize the amount of title bar information here
 		pass
-		#myLog.Log(gmLog.lInfo, 'OnIconify')
+		#_log.Log(gmLog.lInfo, 'OnIconify')
 	#----------------------------------------------
 	def OnMaximize(self, event):
 		# FIXME: we should change the amount of title bar information here
 		pass
-		#myLog.Log(gmLog.lInfo,'OnMaximize')
+		#_log.Log(gmLog.lInfo,'OnMaximize')
 	#----------------------------------------------
 	def OnPageChanged(self, event):
 		# FIXME: we can maybe change title bar information here
-		myLog.Log(gmLog.lInfo, "Notebook page changed - need code here!")
+		_log.Log(gmLog.lInfo, "Notebook page changed - need code here!")
 	#----------------------------------------------
 	def updateTitle(self, anActivity = None, aPatient = None, aUser = None):
 		"""Update title of main window based on template.
@@ -468,7 +468,7 @@ class gmApp(wxApp):
 		#do platform dependent stuff
 		if wxPlatform == '__WXMSW__':
 			# windoze specific stuff here
-			myLog.Log(gmLog.lInfo,'running on Microsoft Windows')
+			_log.Log(gmLog.lInfo,'running on Microsoft Windows')
 			# need to explicitely init image handlers on windows
 			wxInitAllImageHandlers()
 
@@ -477,10 +477,12 @@ class gmApp(wxApp):
 		self.__guibroker = gmGuiBroker.GuiBroker()
 		import gmLogin
 		self.__backend = gmLogin.Login()
-		if self.__backend == None:
+		if self.__backend is None:
 			# _("Login attempt unsuccesful\nCan't run GNUmed without database connetcion")
-			myLog.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GnuMed without database connection")
+			_log.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GnuMed without database connection")
 			return false
+		# set up language in database
+		self.__set_db_lang()
 		#create the main window
 		frame = MainFrame(None, -1, _('GnuMed client'), size=(600,440))
 		self.SetTopWindow(frame)
@@ -491,9 +493,97 @@ class gmApp(wxApp):
 		frame.CentreOnScreen(wxBOTH)
 		frame.Show(true)
 		return true
+	#----------------------------------------------
+	def __set_db_lang(self):
+		if curr_locale is None:
+			_log.Log(gmLog.lInfo, "system locale is undefined ('C')")
+			return 1
+
+		# get db conn
+		conn = self.__backend.GetConnection(readonly=0)
+		curs = conn.cursor()
+
+		# check if system and db language are different
+		cmd = "select lang from i18n_curr_lang where owner = CURRENT_USER limit 1;"
+		try:
+			curs.execute(cmd)
+		except:
+			# assuming the admin knows her stuff this means
+			# that language settings are not wanted
+			_log.LogException("Cannot get database language.", sys.exc_info(), fatal=0)
+			curs.close()
+			conn.close()
+			return None
+		db_lang = curs.fetchone()[0]
+		# identical ?
+		if db_lang == curr_locale:
+			_log.Log(gmLog.lData, 'Database locale (%s) up to date.' % db_lang)
+			curs.close()
+			conn.close()
+			return 1
+		# trim '@variant' part
+		no_variant = curr_locale.split('@', 1)[0]
+		if db_lang == no_variant:
+			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at lang_COUNTRY(@variant) level.' % (db_lang, curr_locale))
+			curs.close()
+			conn.close()
+			return 1
+		# trim '_LANG@variant' part
+		no_country = curr_locale.split('_', 1)[0]
+		if db_lang == no_country:
+			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at lang(_COUNTRY@variant) level.' % (db_lang, curr_locale))
+			curs.close()
+			conn.close()
+			return 1
+
+		# no match: ask user
+		_log.Log(gmLog.lWarn, 'Database locale (%s) does not match system locale (%s). Asking user what to do.' % (db_lang, curr_locale))
+
+		dlg = wxMessageDialog(
+			parent = None,
+			message = _("The currently selected database language ('%s') does not match\nthe current system language ('%s').\n\nDo you want to set the database language to '%s' ?") % (db_lang, curr_locale, curr_locale),
+			caption = _('checking database language settings'),
+			style = wxYES_NO | wxCENTRE | wxICON_QUESTION
+		)
+		result = dlg.ShowModal()
+		dlg.Destroy()
+
+		if result == wxID_NO:
+			_log.Log(gmLog.lInfo, 'User did not want to set database locale. Good luck.')
+			curs.close()
+			conn.close()
+			return 1
+
+		# try setting to "lang_COUNTRY@variant"
+		cmd = "select set_curr_lang('%s');" % curr_locale
+		try:
+			curs.execute(cmd)
+		except:
+			_log.LogException("Cannot set database language at 'lang_COUNTRY@variant' level.", sys.exc_info(), fatal=0)
+			# try setting to "lang_COUNTRY"
+			cmd = "select set_curr_lang('%s');" % no_variant
+			try:
+				curs.execute(cmd)
+			except:
+				_log.LogException("Cannot set database language at 'lang_COUNTRY' level.", sys.exc_info(), fatal=0)
+				# try setting to "lang"
+				cmd = "select set_curr_lang('%s');" % no_country
+				try:
+					curs.execute(cmd)
+				except:
+					_log.LogException("Cannot set database language at 'lang' level.", sys.exc_info(), fatal=0)
+					curs.close
+					return None
+
+		_log.Log(gmLog.lData, "Successfully set database language.")
+		conn.commit()
+		curs.close()
+		conn.close()
+		return 1
 #=================================================
 def main():
-	"""GNUmed client written in Python
+	"""GNUmed client written in Python.
+
 	to run this application simply call main() or run the module as "main"
 	"""
 	#create an instance of our GNUmed main application
@@ -506,15 +596,18 @@ def main():
 if __name__ == '__main__':
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
-	myLog.AddTarget(aLogTarget)
-	myLog.Log(gmLog.lInfo, 'Starting up as main module.')
+	_log.AddTarget(aLogTarget)
+	_log.Log(gmLog.lInfo, 'Starting up as main module.')
 	main()
 
-myLog.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.66  2003-02-02 09:11:19  ihaywood
+# Revision 1.67  2003-02-05 12:15:01  ncq
+# - not auto-sets the database level language if so desired and possible
+#
+# Revision 1.66  2003/02/02 09:11:19  ihaywood
 # gmDemographics will connect, search and emit patient_selected
 #
 # Revision 1.65  2003/02/01 21:59:42  michaelb
