@@ -46,6 +46,7 @@ class gmAllergies( gmClinicalPart):
 		self.__store_to_input(values)
 		a = self.get_allergy_items()
 		a[ix] = values
+		self._print("UPDATED LOCAL STORE", a)
 		
 		gmDispatcher.send( gmSignals.allergy_updated() )
 	
@@ -99,14 +100,20 @@ class gmAllergies( gmClinicalPart):
 		return 1
 	
 
-	def _get_params(self, values):
-		if not self.validate(values):
+	def _get_params(self, v):
+		"""THIS IS THE MAIN TRANSFORMATION ENTRY FUNCTION to transform user input into the datasource's format """
+		
+		if not self.validate(v):
 			return
 		
-		values['allergene'] = values['allergy class']
-		values['id_type'] = 1 + ( values['sensitivity'] == 0 )
+		v['allergene'] = v['allergy class']
 		
-		v = values
+		
+		if v['sensitivity'] == 1:
+			v['id_type'] = 2
+		else:
+			v['id_type'] = 1
+		
 		params = [ self.id_encounter(), self.id_episode(), 
 				self.escape_str_quote(v['substance']),
 				self.escape_str_quote( v['generic']),
@@ -174,6 +181,7 @@ class gmAllergies( gmClinicalPart):
 
 	
 	def _update_allergy( self,conn, fields, formatting, values, ix):
+		self._print("update_allergy input values = ", values)
 		statement = self._get_update_statement( values, ix)
 
 		self._print(statement)
