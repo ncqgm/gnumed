@@ -6,7 +6,7 @@
 #
 # Created:	  2002/11/20
 # Version:	  0.1
-# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.17 2005-01-13 14:30:35 ncq Exp $
+# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.18 2005-01-15 20:37:17 cfmoro Exp $
 # License:	  wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (cMultiSashLeaf)
@@ -23,7 +23,7 @@ MV_VER = not MV_HOR
 SH_SIZE = 5 
 CR_SIZE = SH_SIZE * 3
 
-import gmSoapWidgets
+from Gnumed.wxpython import gmSOAPWidgets
 
 #============================================================
 class cSOAPMultiSash(wxWindow):
@@ -31,15 +31,16 @@ class cSOAPMultiSash(wxWindow):
 	Main multisash widget. Dynamically displays a stack of child widgets,
 	out SOAP input widgets.
 	"""
-	def __init__(self, *_args,**_kwargs):
+	def __init__(self, childController, *_args,**_kwargs):
 		apply(wxWindow.__init__,(self,) + _args,_kwargs)
-		self.childController = None			# SOAP input panel controller object
+		self.childController = childController			# SOAP input panel controller object
 		self.splitter = cMultiSashSplitter (
 			multi_sash_win = self,
 			parent = self,
 			pos = wxPoint(0,0),
 			size = self.GetSize()
 		)
+		print "CREATED SPLITTER"
 		EVT_SIZE(self,self._on_size)
 
 	def SetController(self, childController):
@@ -61,8 +62,11 @@ class cSOAPMultiSash(wxWindow):
 		return self.childController
 
 	def UnSelect(self):
-		if self.splitter is not None:
+		# FIXME: crashed unselecting during creation
+		try:
 			self.splitter.UnSelect()
+		except:
+			pass
 
 	def Clear(self):
 		self.SetController(None)
@@ -412,16 +416,21 @@ class cMultiSashLeafContent(wxWindow):
 
 		print "Creating soap input widget, controller (%s)" % childController
 		# ui initialized and some issue selection, create SOAP input for the issue
-		self.soap_panel = gmSoapWidgets.cResizingSoapPanel(parent=self, problem=childController.get_selected_episode())
-		# FIXME: should this really happen here ?
-		childController.get_managed_episodes().append(childController.get_selected_episode()['pk_episode'])
+		episode = childController.get_selected_episode()
+		if episode is None:
+			self.soap_panel = EmptyChild(self)
+		else:			
+			self.soap_panel = gmSOAPWidgets.cResizingSoapPanel(parent=self,
+			problem=childController.get_selected_episode())
+			# FIXME: should this really happen here ?
+			childController.get_managed_episodes().append(childController.get_selected_episode()['pk_episode'])
 #		if childController is not None:
-#			self.soap_panel = gmSoapWidgets.cResizingSoapPanel(self, problem = childController.get_selected_episode())
+#			self.soap_panel = gmSOAPWidgets.cResizingSoapPanel(self, problem = childController.get_selected_episode())
 #			self.soap_panel.SetHealthIssue(childController.get_selected_issue())
 #			childController.get_managed_episodes().append(childController.get_selected_episode()['pk_episode'])
 #		else:
 #			# empty issue selection
-#			self.soap_panel = gmSoapWidgets.cSoapPanel(self)
+#			self.soap_panel = gmSOAPWidgets.cSoapPanel(self)
 
 		self.childController = childController
 		self.soap_panel.MoveXY(2,2)

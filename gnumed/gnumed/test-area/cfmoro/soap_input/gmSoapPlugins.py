@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -22,7 +22,7 @@ from wxPython import wx
 # GnuMed
 from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmWhoAmI
 from Gnumed.business import gmEMRStructItems, gmPatient, gmSOAPimporter
-from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers
 from Gnumed.pycommon.gmPyCompat import *
 
 import SOAPMultiSash
@@ -88,8 +88,10 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# left hand side
 		# - soap inputs panel
 		PNL_soap_editors = wx.wxPanel(self.__splitter, -1)
-		self.__soap_multisash = SOAPMultiSash.cSOAPMultiSash(PNL_soap_editors, -1)
-		self.__soap_multisash.SetController(self)		# what does this do ?
+		print "CREATING SOAPMultiSash" 
+		self.__soap_multisash = SOAPMultiSash.cSOAPMultiSash(self, PNL_soap_editors, -1)
+		print "SETTING SOAPMultiSash controller" 
+		#self.__soap_multisash.SetController(self)		# what does this do ?
 		# - buttons
 		self.__BTN_save = wx.wxButton(PNL_soap_editors, -1, _('&Save'))
 		self.__BTN_save.Disable()
@@ -149,9 +151,10 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 #			return False
 		self.__problem_list.Clear()
 		problems = self.__emr.get_problems()
+		print 'PROBLEMS: %s' % problems
 		idx = 1
 		for problem in problems:
-			label = '#%s %s' % (idx, problem['description'])
+			label = '#%s %s' % (idx, problem['problem'])
 			self.__problem_list.Append(label, problem)
 			idx = idx+1
 		splitter_width = self.__splitter.GetSizeTuple()[0]
@@ -245,10 +248,11 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		problem_idx = self.__problem_list.GetSelection()
 		problem = self.__problem_list.GetClientData(problem_idx)
 
-		if isinstance(problem, gmEMRStructItems.cHealthIssue):
+		# FIXME constant in gmEMRStructIssues 
+		if problem['type'] == 'issue':
 			self.__selected_episode = problem.add_episode()
 			self.__refresh_problem_list()
-		elif isinstance(problem, gmEMRStructItems.cEpisode):
+		elif problem['type'] == 'episode':
 			self.__selected_episode = problem
 		else:
 			msg = _('Cannot open progress note editor for problem:\n%s') % problem
@@ -381,7 +385,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Fills UI with data.
 		"""
-		self.reset_ui_content()
+		#self.reset_ui_content()
 		if self.__refresh_problem_list():
 			return True
 		return False
