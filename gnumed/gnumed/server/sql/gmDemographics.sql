@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -57,7 +57,7 @@ create table log_state (
 create table urb (
 	id serial primary key,
 	id_state integer not null references state(id),
-	postcode varchar(12) default null,
+	postcode varchar(12) not null default 'unknown',
 	name text not null,
 	unique (id_state, postcode, name)
 ) inherits (audit_fields, audit_mark);
@@ -83,7 +83,7 @@ COMMENT ON COLUMN urb.name IS
 create table log_urb (
 	id integer not null,
 	id_state integer not null,
-	postcode varchar(12),
+	postcode varchar(12) not null,
 	name text not null
 ) inherits (audit_trail);
 
@@ -104,7 +104,6 @@ COMMENT ON COLUMN street.name IS
 	'name of this street';
 COMMENT ON COLUMN street.postcode IS
 	'postcode for systems (such as UK Royal Mail) which specify the street';
-
 
 create table log_street (
 	id integer not null,
@@ -306,7 +305,7 @@ comment on column names.preferred IS
 	'preferred first name, the name a person is usually called (nickname)';
 
 -- ==========================================================
-create table person_addresses (
+create table lnk_person2address (
 	id serial primary key,
 	id_identity integer references identity,
 	id_address integer references address,
@@ -314,17 +313,17 @@ create table person_addresses (
 	address_source varchar(30)
 );
 
-COMMENT ON TABLE person_addresses IS
+COMMENT ON TABLE lnk_person2address IS
 	'a many-to-many pivot table linking addresses to identities';
-COMMENT ON COLUMN person_addresses.id_identity IS
+COMMENT ON COLUMN lnk_person2address.id_identity IS
 	'identity to whom the address belongs';
-COMMENT ON COLUMN person_addresses.id_address IS
+COMMENT ON COLUMN lnk_person2address.id_address IS
 	'address belonging to this identity';
-COMMENT ON COLUMN person_addresses.id_type IS
+COMMENT ON COLUMN lnk_person2address.id_type IS
 	'type of this address (like home, work, parents, holidays ...)';
 
 -- ==========================================================
-create table person_comm_channels (
+create table lnk_person2comm_channel (
 	id serial primary key,
 	id_identity integer not null references identity(id),
 	id_comm integer not null references comm_channel(id),
@@ -365,7 +364,7 @@ create table log_relation_types (
 ) inherits (audit_trail);
 
 -- ==========================================================
-create table relation (
+create table lnk_person2relative (
 	id serial primary key,
 	id_identity integer not null references identity,
 	id_relative integer not null references identity,
@@ -374,21 +373,21 @@ create table relation (
 	ended date default NULL
 ) inherits (audit_mark, audit_fields);
 
-comment on table relation IS
+comment on table lnk_person2relative IS
 	'biological and social relationships between an identity and other identities';
-comment on column relation.id_identity IS
+comment on column lnk_person2relative.id_identity IS
 	'primary identity to whom the relationship applies';
-comment on column relation.id_relative IS
+comment on column lnk_person2relative.id_relative IS
 	'referred identity of this relationship (e.g. "child"
 	if id_identity points to the father and id_relation_type
 	points to "parent")';
-comment on column relation.started IS
+comment on column lnk_person2relative.started IS
 	'date when this relationship began';
-comment on column relation.ended IS
+comment on column lnk_person2relative.ended IS
 	'date when this relationship ended, biological
 	 relationships do not end !';
 
-create table log_relation (
+create table log_lnk_person2relative (
 	id integer not null,
 	id_identity integer not null,
 	id_relative integer not null,
@@ -424,15 +423,20 @@ create table org_category (
 );
 
 -- ===================================================================
--- the main organisation table,
--- equivalent to identity but for non-people,
 -- measurements will link to this, for example
 create table org (
 	id serial primary key,
-	id_address integer not null references org_address(id),
 	id_category integer not null references org_category(id),
 	description text not null,
-	unique(id_address, id_category, description)
+	unique(id_category, description)
+);
+
+-- ===================================================================
+create table lnk_org2address (
+	id serial primary key,
+	id_org integer not null references org(id),
+	id_address integer not null references org_address(id),
+	unique (id_org, id_address)
 );
 
 -- ===================================================================
@@ -455,11 +459,15 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.4 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.3  2003-08-05 09:16:46  ncq
+-- Revision 1.4  2003-08-10 01:03:39  ncq
+-- - better name link tables (lnk_a2b pattern)
+-- - urb.postcode constraint not null
+--
+-- Revision 1.3  2003/08/05 09:16:46  ncq
 -- - cleanup
 --
 -- Revision 1.2  2003/08/02 13:17:05  ncq
